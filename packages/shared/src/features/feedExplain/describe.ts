@@ -187,6 +187,8 @@ export const getExplainSignals = (
 
 export interface ScoreFactor {
   label: string;
+  /** What the factor measures, for its tooltip. */
+  hint: string;
   value: number;
 }
 
@@ -201,24 +203,60 @@ export const getScoreBreakdown = (
 ): { factors: ScoreFactor[]; finalScore: number } => {
   const { score, base, match, follow, age, seen, slot } = explain;
   const multipliers: ScoreFactor[] = [
-    { label: 'reader response', value: base.value },
-    { label: 'topic match', value: match?.factor ?? 1 },
-    { label: 'follow', value: follow.factor },
-    { label: 'freshness', value: age.factor },
-    { label: 'seen before', value: seen.factor },
+    {
+      label: 'Engagement',
+      hint: 'How much other readers clicked, upvoted, and commented on this post, compared with a typical post.',
+      value: base.value,
+    },
+    {
+      label: 'Topic match',
+      hint: 'How close the post is to the topics you follow and read.',
+      value: match?.factor ?? 1,
+    },
+    {
+      label: 'Follow',
+      hint: 'A boost when you follow its source, squad, or author.',
+      value: follow.factor,
+    },
+    {
+      label: 'Freshness',
+      hint: 'Newer posts score higher, and older ones slowly fade.',
+      value: age.factor,
+    },
+    {
+      label: 'Seen before',
+      hint: "Moves the post down if you've already seen it in your feed.",
+      value: seen.factor,
+    },
     ...(slot
       ? [
-          { label: 'interest rotation', value: slot.waiting },
-          { label: 'source variety', value: slot.source_repeat },
-          { label: 'topic variety', value: slot.topic_repeat },
-          { label: 'same story', value: slot.same_headline },
+          {
+            label: "Topic's turn",
+            hint: "A boost when a topic you like hasn't been in your feed for a while.",
+            value: slot.waiting,
+          },
+          {
+            label: 'Source variety',
+            hint: 'Moves the post down when your feed already has posts from the same source.',
+            value: slot.source_repeat,
+          },
+          {
+            label: 'Topic variety',
+            hint: 'Moves the post down when your feed already has posts on a similar topic.',
+            value: slot.topic_repeat,
+          },
+          {
+            label: 'Same story',
+            hint: 'Moves the post down when your feed already covers the same story.',
+            value: slot.same_headline,
+          },
         ]
       : []),
   ];
   // A factor missing from an older record reads as 0, which explains nothing.
   const factors = multipliers
     .filter(({ value }) => value > 0)
-    .map(({ label, value }) => ({ label, value: round(Math.log(value)) }));
+    .map((factor) => ({ ...factor, value: round(Math.log(factor.value)) }));
   const explained = round(factors.reduce((sum, { value }) => sum + value, 0));
   const recorded = slot?.pick_score ?? score;
   if (!(recorded > 0)) {
@@ -233,7 +271,14 @@ export const getScoreBreakdown = (
   return {
     factors:
       Math.abs(gap) >= 0.01
-        ? [...factors, { label: 'other adjustments', value: gap }]
+        ? [
+            ...factors,
+            {
+              label: 'Other adjustments',
+              hint: 'Everything else, like a bit of randomness and a spot saved for brand-new posts.',
+              value: gap,
+            },
+          ]
         : factors,
     finalScore,
   };

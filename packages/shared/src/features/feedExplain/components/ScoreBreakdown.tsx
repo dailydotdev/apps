@@ -1,13 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { ArrowIcon } from '../../../components/icons/Arrow';
-import { IconSize } from '../../../components/Icon';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../../components/buttons/Button';
+import { Tooltip } from '../../../components/tooltip/Tooltip';
 import type { ScoreFactor } from '../describe';
 
 const formatScore = (value: number): string =>
@@ -37,30 +31,34 @@ const ScoreBar = ({ value, zero, span }: ScoreBarProps): ReactElement => (
 const rowClassName =
   'grid grid-cols-[minmax(0,10rem)_1fr_3.25rem] items-center gap-3 typo-footnote';
 
-export const ScoreBreakdownToggle = ({
-  isOpen,
-  onToggle,
+const FactorLabel = ({
+  label,
+  hint,
+  className,
 }: {
-  isOpen: boolean;
-  onToggle: () => void;
+  label: string;
+  hint: string;
+  className: string;
 }): ReactElement => (
-  <Button
-    type="button"
-    variant={ButtonVariant.Subtle}
-    size={ButtonSize.XSmall}
-    aria-expanded={isOpen}
-    onClick={onToggle}
+  <Tooltip
+    content={<p className="shrink">{hint}</p>}
+    side="top"
+    enableMobileClick
   >
-    Score breakdown
-    <ArrowIcon
-      size={IconSize.Size16}
+    <button
+      type="button"
       className={classNames(
-        'ml-1 transition-transform',
-        isOpen ? 'rotate-0' : 'rotate-180',
+        'w-fit max-w-full cursor-help truncate text-left underline decoration-text-quaternary decoration-dotted underline-offset-4',
+        className,
       )}
-    />
-  </Button>
+    >
+      {label}
+    </button>
+  </Tooltip>
 );
+
+const finalScoreHint =
+  'All the rows added up. Posts with higher scores show up higher in your feed.';
 
 interface ScoreBreakdownProps {
   factors: ScoreFactor[];
@@ -83,9 +81,13 @@ export const ScoreBreakdown = ({
   return (
     <div className={classNames('flex flex-col gap-2', className)}>
       <ul className="flex flex-col gap-1.5">
-        {factors.map(({ label, value }) => (
+        {factors.map(({ label, hint, value }) => (
           <li key={label} className={rowClassName}>
-            <span className="truncate text-text-secondary">{label}</span>
+            <FactorLabel
+              label={label}
+              hint={hint}
+              className="text-text-secondary"
+            />
             <ScoreBar value={value} zero={zero} span={span} />
             <span className="text-right tabular-nums text-text-tertiary">
               {formatScore(value)}
@@ -98,7 +100,11 @@ export const ScoreBreakdown = ({
             'mt-1 border-t border-border-subtlest-tertiary pt-2 font-bold',
           )}
         >
-          <span className="truncate text-text-primary">Final score</span>
+          <FactorLabel
+            label="Final score"
+            hint={finalScoreHint}
+            className="text-text-primary"
+          />
           <ScoreBar value={finalScore} zero={zero} span={span} />
           <span className="text-right tabular-nums text-text-primary">
             {formatScore(finalScore)}

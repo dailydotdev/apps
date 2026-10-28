@@ -213,7 +213,6 @@ export function HomeFeedTabs({
   const explainSwitch = isForYou && (
     <FeedExplainSwitch
       isRecommended={sort.selected === DEFAULT_ALGORITHM_INDEX}
-      className="mx-1"
     />
   );
   const feedSettings = hasFeedActions && (

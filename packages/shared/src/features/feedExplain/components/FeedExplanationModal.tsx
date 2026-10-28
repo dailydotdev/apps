@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { Modal } from '../../../components/modals/common/Modal';
 import type { LazyModalCommonProps } from '../../../components/modals/common/Modal';
@@ -13,6 +13,7 @@ import { BlockIcon } from '../../../components/icons/Block';
 import { EyeCancelIcon } from '../../../components/icons/EyeCancel';
 import { HashtagIcon } from '../../../components/icons/Hashtag';
 import { PlusIcon } from '../../../components/icons/Plus';
+import { SettingsIcon } from '../../../components/icons/Settings';
 import { VIcon } from '../../../components/icons/V';
 import { IconSize } from '../../../components/Icon';
 import {
@@ -52,7 +53,7 @@ import {
   getReason,
   getScoreBreakdown,
 } from '../describe';
-import { ScoreBreakdown, ScoreBreakdownToggle } from './ScoreBreakdown';
+import { ScoreBreakdown } from './ScoreBreakdown';
 
 export interface FeedExplanationModalProps extends LazyModalCommonProps {
   post: Post;
@@ -80,21 +81,6 @@ const getMatchMeta = (match: ExplanationMatch): string => {
     return matchKindLabel[match.kind];
   }
   return match.isMain ? 'main topic' : 'supporting topic';
-};
-
-const MatchedReason = ({
-  match,
-}: {
-  match: ExplanationMatch;
-}): ReactElement => {
-  const isTopic = match.kind === ExplanationMatchKind.Topic;
-
-  return (
-    <>
-      <Strong>{isTopic ? `#${match.label}` : match.label}</Strong> is{' '}
-      {isTopic ? 'a' : 'the'} {getMatchMeta(match)}, and it is {match.origin}.
-    </>
-  );
 };
 
 interface EntityRow {
@@ -254,8 +240,8 @@ const TopicGlyph = (): ReactElement => (
 
 /**
  * "Why am I seeing this?" for a card in Explain mode: what matched the
- * reader, the score breakdown, and follow and block for everything the post
- * is about.
+ * reader, then the score breakdown, and follow and block for everything the
+ * post is about.
  */
 function FeedExplanationModal({
   post: feedPost,
@@ -285,7 +271,6 @@ function FeedExplanationModal({
   });
   const { follow, unfollow, block, unblock } = useContentPreference();
   const dropIdleFeeds = useDropIdleForYouFeeds();
-  const [isBreakdownOpen, setIsBreakdownOpen] = useState(false);
   const isRanked = isRankedExplain(explain);
   const matches = isRanked ? getExplanationMatches(post, explain) : [];
   const breakdown = isRanked ? getScoreBreakdown(explain) : undefined;
@@ -403,7 +388,6 @@ function FeedExplanationModal({
   const matchedRows = actionRows.filter(({ key }) => matchByKey.has(key));
   const otherRows = actionRows.filter(({ key }) => !matchByKey.has(key));
   const maxPoints = Math.max(1, ...matches.map(({ points }) => points));
-  const [primary] = matches;
 
   return (
     <Modal
@@ -416,58 +400,44 @@ function FeedExplanationModal({
       }}
       {...props}
     >
-      <ModalClose top="2" right="2" onClick={onRequestClose} />
       <Modal.Body className="!p-0">
         <div className="flex min-h-0 flex-1 flex-col">
           <div className="flex min-h-0 flex-1 flex-col overflow-auto">
-            <header className="flex flex-col gap-3 border-b border-border-subtlest-tertiary p-4 tablet:p-6">
-              <Typography
-                tag={TypographyTag.H2}
-                type={TypographyType.Title3}
-                className="pr-8"
-                bold
-              >
-                Why am I seeing this?
-              </Typography>
-              <p className="text-text-secondary typo-body">
-                {primary ? (
-                  <MatchedReason match={primary} />
-                ) : (
-                  <>
-                    {reason.lead}
-                    {reason.name && <Strong>{reason.name}</Strong>}
-                    {reason.tail}
-                  </>
-                )}
-              </p>
-              <p className="text-text-tertiary typo-footnote">
-                Ranked for For You from what you follow, read, and upvote.{' '}
-                <a
-                  className="text-text-link hover:underline"
-                  href={`${settingsUrl}/feed/general`}
+            <header className="flex flex-col gap-2 border-b border-border-subtlest-tertiary p-4 tablet:p-6">
+              <div className="flex items-center gap-1">
+                <Typography
+                  tag={TypographyTag.H2}
+                  type={TypographyType.Title3}
+                  className="min-w-0 flex-1"
+                  bold
                 >
-                  Feed settings
-                </a>
+                  Why am I seeing this?
+                </Typography>
+                <Button
+                  tag="a"
+                  href={`${settingsUrl}/feed/general`}
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.Small}
+                  icon={<SettingsIcon />}
+                  aria-label="Feed settings"
+                  title="Feed settings"
+                />
+                <ModalClose
+                  position="static"
+                  size={ButtonSize.Small}
+                  onClick={onRequestClose}
+                />
+              </div>
+              <p className="text-text-secondary typo-body">
+                {reason.lead}
+                {reason.name && <Strong>{reason.name}</Strong>}
+                {reason.tail}
               </p>
             </header>
             <div className="flex flex-col gap-6 p-4 tablet:p-6">
               {matchedRows.length > 0 && (
                 <section className="flex flex-col gap-1">
-                  <div className="flex min-h-8 items-center justify-between gap-2">
-                    <SectionTitle>What matched you</SectionTitle>
-                    {breakdown && (
-                      <ScoreBreakdownToggle
-                        isOpen={isBreakdownOpen}
-                        onToggle={() => setIsBreakdownOpen((open) => !open)}
-                      />
-                    )}
-                  </div>
-                  {breakdown && isBreakdownOpen && (
-                    <ScoreBreakdown
-                      className="mb-2 mt-1 rounded-12 bg-surface-float p-3"
-                      {...breakdown}
-                    />
-                  )}
+                  <SectionTitle>What matched you</SectionTitle>
                   <ul className="flex flex-col">
                     {matchedRows.map((row) => (
                       <EntityRowItem
@@ -478,6 +448,15 @@ function FeedExplanationModal({
                       />
                     ))}
                   </ul>
+                </section>
+              )}
+              {breakdown && (
+                <section className="flex flex-col gap-2">
+                  <SectionTitle>Score breakdown</SectionTitle>
+                  <ScoreBreakdown
+                    className="rounded-12 bg-surface-float p-3"
+                    {...breakdown}
+                  />
                 </section>
               )}
               {otherRows.length > 0 && (

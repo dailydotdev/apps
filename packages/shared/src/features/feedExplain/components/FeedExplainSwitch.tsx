@@ -1,7 +1,16 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
 import { Switch } from '../../../components/fields/Switch';
+import type { ButtonProps } from '../../../components/buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonIconPosition,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
+import { TerminalIcon } from '../../../components/icons/Terminal';
+import type { IconSize } from '../../../components/Icon';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { useFeedExplainMode } from '../useFeedExplainMode';
@@ -9,16 +18,26 @@ import { useFeedExplainMode } from '../useFeedExplainMode';
 interface FeedExplainSwitchProps {
   /** The feed's sort is Recommended, the only one that explains itself. */
   isRecommended: boolean;
-  /** A row of its own, for the phone's For you sheet. */
+  /** A switch row of its own, for the phone's For you sheet. */
   isRow?: boolean;
-  className?: string;
+  /** The toolbar's look, matching the Feed settings button beside it. */
+  buttonProps?: Pick<
+    ButtonProps<'button'>,
+    'size' | 'variant' | 'className'
+  > & {
+    iconSize?: IconSize;
+  };
+  iconOnly?: boolean;
 }
 
-/** The Debug switch: turns Explain mode on For You on and off. */
+const title = 'See why each post is on your feed';
+
+/** The Debug toggle: turns Explain mode on For You on and off. */
 export const FeedExplainSwitch = ({
   isRecommended,
   isRow,
-  className,
+  buttonProps,
+  iconOnly,
 }: FeedExplainSwitchProps): ReactElement | null => {
   const { logEvent } = useLogContext();
   const { isAvailable, isExplaining, setIsExplaining } = useFeedExplainMode({
@@ -37,21 +56,39 @@ export const FeedExplainSwitch = ({
     setIsExplaining(!isExplaining);
   };
 
+  if (isRow) {
+    return (
+      <Switch
+        inputId="feed-explain-sheet"
+        name="feed-explain"
+        checked={isExplaining}
+        onToggle={onToggle}
+        title={title}
+        className="h-12 w-full flex-row-reverse justify-between px-4"
+        labelClassName="!ml-0 text-text-primary"
+      >
+        Debug
+      </Switch>
+    );
+  }
+
+  const { iconSize, ...buttonOverrides } = buttonProps ?? {};
+
   return (
-    <Switch
-      inputId={isRow ? 'feed-explain-sheet' : 'feed-explain'}
-      name="feed-explain"
-      checked={isExplaining}
-      onToggle={onToggle}
-      compact={!isRow}
-      title="See why each post is on your feed"
-      className={classNames(
-        isRow && 'h-12 w-full flex-row-reverse justify-between px-4',
-        className,
-      )}
-      labelClassName={isRow ? '!ml-0 text-text-primary' : undefined}
+    <Button
+      type="button"
+      size={ButtonSize.Small}
+      variant={ButtonVariant.Float}
+      icon={iconSize ? <TerminalIcon size={iconSize} /> : <TerminalIcon />}
+      iconPosition={ButtonIconPosition.Left}
+      pressed={isExplaining}
+      color={ButtonColor.Cabbage}
+      title={title}
+      aria-label={iconOnly ? 'Debug' : undefined}
+      onClick={onToggle}
+      {...buttonOverrides}
     >
-      Debug
-    </Switch>
+      {iconOnly ? null : 'Debug'}
+    </Button>
   );
 };

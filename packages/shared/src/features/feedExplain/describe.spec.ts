@@ -136,15 +136,15 @@ describe('getScoreBreakdown', () => {
     );
 
     expect(factors.map(({ label }) => label)).toEqual([
-      'reader response',
-      'topic match',
-      'follow',
-      'freshness',
-      'seen before',
-      'interest rotation',
-      'source variety',
-      'topic variety',
-      'same story',
+      'Engagement',
+      'Topic match',
+      'Follow',
+      'Freshness',
+      'Seen before',
+      "Topic's turn",
+      'Source variety',
+      'Topic variety',
+      'Same story',
     ]);
     expect(factors[1].value).toEqual(0.482);
     expect(finalScore).toEqual(0.628);
@@ -153,8 +153,8 @@ describe('getScoreBreakdown', () => {
   it('should show what the factors leave out of the recorded score', () => {
     const { factors, finalScore } = getScoreBreakdown(ranked({ score: 0.5 }));
 
-    expect(factors[factors.length - 1]).toEqual({
-      label: 'other adjustments',
+    expect(factors[factors.length - 1]).toMatchObject({
+      label: 'Other adjustments',
       value: -0.664,
     });
     expect(finalScore).toEqual(-0.693);
@@ -165,6 +165,6 @@ describe('getScoreBreakdown', () => {
       ranked({ seen: { shows: 0, factor: 0 } }),
     );
 
-    expect(factors.map(({ label }) => label)).not.toContain('seen before');
+    expect(factors.map(({ label }) => label)).not.toContain('Seen before');
   });
 });

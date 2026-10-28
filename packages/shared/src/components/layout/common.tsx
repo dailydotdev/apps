@@ -183,7 +183,19 @@ export const SearchControlHeader = ({
       <FeedExplainSwitch
         key="explain"
         isRecommended={selectedAlgo === DEFAULT_ALGORITHM_INDEX}
-        className="mx-1"
+        iconOnly={hasV2Chips}
+        buttonProps={
+          isLaptopLayout
+            ? {
+                size: ButtonSize.Small,
+                variant: ButtonVariant.Tertiary,
+                className: hasV2Chips
+                  ? compactIconButtonClassName
+                  : compactTextButtonClassName,
+                iconSize: IconSize.XSmall,
+              }
+            : { size: ButtonSize.Medium, variant: ButtonVariant.Tertiary }
+        }
       />
     ),
     hasFeedActions && !isLaptopLayout && (

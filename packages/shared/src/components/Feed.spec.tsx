@@ -1130,22 +1130,25 @@ describe('Feed logged in', () => {
       ]);
 
       fireEvent.click(await screen.findByText('Full explanation'));
+      const dialog = await screen.findByRole('dialog');
       expect(
-        await screen.findByText('Why am I seeing this?'),
+        await within(dialog).findByText('Why am I seeing this?'),
       ).toBeInTheDocument();
       expect(
-        screen.getByText(
+        within(dialog).getByText(
           (_, element) =>
             element?.tagName === 'P' &&
             element.textContent ===
-              '#javascript is a main topic, and it is a topic you follow.',
+              'You follow #javascript and read about it often.',
         ),
       ).toBeInTheDocument();
-
-      fireEvent.click(screen.getByRole('button', { name: 'Score breakdown' }));
-      expect(screen.getByText('reader response')).toBeInTheDocument();
-      expect(screen.getByText('+0.482')).toBeInTheDocument();
-      expect(screen.getByText('Final score')).toBeInTheDocument();
+      expect(within(dialog).getByText('What matched you')).toBeInTheDocument();
+      expect(within(dialog).getByText('Score breakdown')).toBeInTheDocument();
+      expect(
+        within(dialog).getByRole('button', { name: 'Topic match' }),
+      ).toBeInTheDocument();
+      expect(within(dialog).getByText('+0.482')).toBeInTheDocument();
+      expect(within(dialog).getByText('Final score')).toBeInTheDocument();
     });
   });
 
