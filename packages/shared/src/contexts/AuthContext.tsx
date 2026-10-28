@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React, {
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -12,7 +13,7 @@ import { useGrowthBook } from '@growthbook/growthbook-react';
 import type { AnonymousUser, LoggedUser } from '../lib/user';
 import { deleteAccount, logout as dispatchLogout } from '../lib/user';
 import { clearSlackShareSnapshot } from '../hooks/integrations/slack/slackShareSnapshot';
-import { markSignedOut } from '../lib/signedOut';
+import { clearSignedOut, markSignedOut } from '../lib/signedOut';
 import type { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import type { AuthTriggersType } from '../lib/auth';
@@ -220,6 +221,12 @@ export const AuthContextProvider = ({
   );
 
   const closeLogin = useCallback(() => setLoginState(null), []);
+
+  useEffect(() => {
+    if (endUser?.id && !isExtension) {
+      clearSignedOut();
+    }
+  }, [endUser?.id]);
 
   const value = useMemo<AuthContextData>(
     () => ({
