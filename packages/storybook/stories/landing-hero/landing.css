@@ -2411,13 +2411,13 @@
 }
 
 .lh-pill-brand {
-  background: #9333ea;
-  color: #fff;
+  background: #d8b4fe;
+  color: #0f0f12;
   font-weight: 600;
 }
 
 .lh-pill-brand:hover {
-  background: #7e22ce;
+  background: #c084fc;
 }
 
 .lh-desk-flex {
