@@ -15,13 +15,16 @@ const squad = {
 // Tooltip's trigger props land on its direct child. Link (next/link in
 // legacyBehavior) drops them, so with Link there the tooltip never opens;
 // TooltipLinkWrapper sits between them.
+const renderButton = () =>
+  render(
+    <QueryClientProvider client={new QueryClient()}>
+      <SquadRulesEditButton squad={squad} size={ButtonSize.Small} />
+    </QueryClientProvider>,
+  );
+
 describe('SquadRulesEditButton', () => {
   it('opens its tooltip when the link takes focus', async () => {
-    render(
-      <QueryClientProvider client={new QueryClient()}>
-        <SquadRulesEditButton squad={squad} size={ButtonSize.Small} />
-      </QueryClientProvider>,
-    );
+    renderButton();
 
     await userEvent.tab();
 
@@ -29,5 +32,15 @@ describe('SquadRulesEditButton', () => {
     expect(await screen.findByRole('tooltip')).toHaveTextContent('Edit rules');
     // The wrapper takes the trigger props but not the Tooltip's aria-label
     expect(screen.getAllByLabelText('Edit rules')).toHaveLength(1);
+  });
+
+  it('does not keep focus on the link after a mouse click', async () => {
+    renderButton();
+    const link = screen.getByRole('link', { name: 'Edit rules' });
+    link.addEventListener('click', (event) => event.preventDefault());
+
+    await userEvent.click(link);
+
+    expect(link).not.toHaveFocus();
   });
 });

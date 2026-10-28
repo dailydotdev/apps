@@ -10,13 +10,29 @@ import classNames from 'classnames';
 export const TooltipLinkWrapper = forwardRef<
   HTMLSpanElement,
   HTMLAttributes<HTMLSpanElement>
->(function TooltipLinkWrapper({ className, ...props }, ref) {
+>(function TooltipLinkWrapper({ className, onMouseUp, ...props }, ref) {
   return (
+    // The span is not interactive itself: the link inside is. Its handlers
+    // are the Tooltip's trigger props plus the mouse-up blur below.
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
     <span
       ref={ref}
       {...props}
       aria-label={undefined}
       className={classNames('flex', className)}
+      // Tooltip blurs its trigger on mouse up so a clicked link does not keep
+      // focus and reopen the tooltip when the window regains focus. The
+      // trigger is this span, which never holds focus, so blur the link.
+      onMouseUp={(event) => {
+        onMouseUp?.(event);
+        const { activeElement } = event.currentTarget.ownerDocument;
+        if (
+          activeElement instanceof HTMLElement &&
+          event.currentTarget.contains(activeElement)
+        ) {
+          activeElement.blur();
+        }
+      }}
     />
   );
 });

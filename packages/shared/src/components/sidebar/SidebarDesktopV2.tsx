@@ -2275,7 +2275,7 @@ export const SidebarDesktopV2 = ({
               {/* mt nudges the logo down so it lines up vertically with the
                 panel title row (which sits at pt-6); no mb so the gap below
                 matches the uniform gap-1 rhythm of the rest of the rail. */}
-              <div className="mt-2.5">
+              <TooltipLinkWrapper className="mt-2.5">
                 <Link href={myFeedPath} passHref>
                   <a
                     href={myFeedPath}
@@ -2290,7 +2290,7 @@ export const SidebarDesktopV2 = ({
                     </span>
                   </a>
                 </Link>
-              </div>
+              </TooltipLinkWrapper>
             </Tooltip>
 
             <Tooltip
