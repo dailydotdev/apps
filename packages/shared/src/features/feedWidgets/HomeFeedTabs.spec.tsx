@@ -14,6 +14,7 @@ import { mockDesktop, mockMatchMedia } from '../../../__tests__/helpers/media';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import type { LoggedUser } from '../../lib/user';
 import { SharedFeedPage } from '../../components/utilities/common';
+import { useFeedExplainMode } from '../feedExplain/useFeedExplainMode';
 import { HomeFeedTabs } from './HomeFeedTabs';
 
 jest.mock('next/router', () => ({
@@ -38,6 +39,19 @@ jest.mock('../../components/notifications/NotificationsBell', () => ({
   __esModule: true,
   default: () => null,
 }));
+
+jest.mock('../feedExplain/useFeedExplainMode', () => ({
+  useFeedExplainMode: jest.fn(),
+}));
+
+const mockExplain = (isAvailable: boolean) =>
+  jest.mocked(useFeedExplainMode).mockReturnValue({
+    isAvailable,
+    isOffered: isAvailable,
+    isExplaining: false,
+    version: 116,
+    setIsExplaining: jest.fn(),
+  });
 
 // jsdom has no PointerEvent, and without one fireEvent drops the button and
 // the pointer type Radix and the trigger read.
@@ -104,8 +118,19 @@ const openMenu = (name: string | RegExp) =>
     pointerType: 'mouse',
   });
 
+const expectDebugBesideFeedSettings = () => {
+  const buttons = screen.getAllByRole('button');
+  const feedSettings = screen.getByRole('button', { name: 'Feed settings' });
+  const debug = screen.getByRole('button', { name: 'Debug' });
+
+  expect(buttons[buttons.indexOf(feedSettings) - 1]).toBe(debug);
+  expect(feedSettings).toHaveTextContent('Feed settings');
+  expect(debug).toHaveTextContent('Debug');
+};
+
 beforeEach(() => {
   jest.clearAllMocks();
+  mockExplain(false);
   jest.mocked(useRouter).mockImplementation(
     () =>
       ({
@@ -158,10 +183,24 @@ describe('HomeFeedTabs', () => {
         screen.getByRole('button', { name: 'Feed settings' }),
       ).toHaveTextContent('Feed settings');
     });
+
+    it('puts Debug right before Feed settings, labeled like it', () => {
+      mockExplain(true);
+      renderTabs();
+
+      expectDebugBesideFeedSettings();
+    });
   });
 
   describe('on tablets', () => {
     beforeEach(() => mockTablet());
+
+    it('puts Debug right before Feed settings, labeled like it', () => {
+      mockExplain(true);
+      renderTabs();
+
+      expectDebugBesideFeedSettings();
+    });
 
     it('keeps the sort on Popular, where no chip is lit', async () => {
       mockPath('/popular');

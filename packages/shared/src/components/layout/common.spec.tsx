@@ -42,8 +42,17 @@ jest.mock('../filters/MyFeedHeading', () => ({
 }));
 
 jest.mock('../../features/feedExplain/components/FeedExplainSwitch', () => ({
-  FeedExplainSwitch: function MockFeedExplainSwitch() {
-    return null;
+  FeedExplainSwitch: function MockFeedExplainSwitch({
+    iconOnly,
+  }: {
+    iconOnly?: boolean;
+  }) {
+    return (
+      <div
+        data-icon-only={iconOnly ? 'true' : 'false'}
+        data-testid="feed-explain-switch"
+      />
+    );
   },
 }));
 
@@ -106,6 +115,15 @@ const renderComponent = ({
     </SettingsContext.Provider>,
   );
 
+const expectDebugBesideFeedSettings = (iconOnly: 'true' | 'false') => {
+  const feedSettings = screen.getByTestId('my-feed-heading');
+  const debug = screen.getByTestId('feed-explain-switch');
+
+  expect(debug.nextElementSibling).toBe(feedSettings);
+  expect(feedSettings).toHaveAttribute('data-icon-only', iconOnly);
+  expect(debug).toHaveAttribute('data-icon-only', iconOnly);
+};
+
 const mockViewSize = ({
   isMobile = false,
   isTablet = true,
@@ -166,15 +184,18 @@ describe('SearchControlHeader', () => {
     expect(screen.getByTestId('intro-quest-button')).toBeInTheDocument();
   });
 
+  it('puts a labeled Debug right before Feed settings in the tablet layout', () => {
+    renderComponent();
+
+    expectDebugBesideFeedSettings('false');
+  });
+
   it('renders laptop feed actions with labels without chips', () => {
     mockUseLaptopLayout.mockReturnValue(true);
 
     renderComponent();
 
-    expect(screen.getByTestId('my-feed-heading')).toHaveAttribute(
-      'data-icon-only',
-      'false',
-    );
+    expectDebugBesideFeedSettings('false');
   });
 
   it('keeps laptop feed actions icon-only when chips are present', () => {
@@ -182,9 +203,6 @@ describe('SearchControlHeader', () => {
 
     renderComponent({ chips: <div>Chips</div> });
 
-    expect(screen.getByTestId('my-feed-heading')).toHaveAttribute(
-      'data-icon-only',
-      'true',
-    );
+    expectDebugBesideFeedSettings('true');
   });
 });
