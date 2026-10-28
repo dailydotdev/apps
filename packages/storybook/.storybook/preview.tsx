@@ -98,6 +98,7 @@ const preview: Preview = {
                 'Tips',
               ],
               '6. Buttons',
+              '7. Buttons in the app',
             ],
             'Proposals',
             'Archive',
