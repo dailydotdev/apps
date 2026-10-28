@@ -4,6 +4,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Provider as JotaiProvider } from 'jotai';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
   generateQueryKey,
   RequestKey,
@@ -64,12 +65,18 @@ const SESSION: FunnelSession = {
 const ReadingCommitmentStep = ({
   onTransition,
   platform,
-}: FunnelStepReadingReminder & { platform: Platform }): ReactElement => (
-  <ReadingCommitment
-    platform={platform}
-    onFinish={() => onTransition({ type: FunnelStepTransitionType.Complete })}
-  />
-);
+}: FunnelStepReadingReminder & { platform: Platform }): ReactElement => {
+  // The tags picked two steps back, so the push preview shows a post on them.
+  const { feedSettings } = useFeedSettings();
+
+  return (
+    <ReadingCommitment
+      platform={platform}
+      tags={feedSettings?.includeTags}
+      onFinish={() => onTransition({ type: FunnelStepTransitionType.Complete })}
+    />
+  );
+};
 
 /**
  * A new user has done nothing yet. Storybook never fetches the actions, and

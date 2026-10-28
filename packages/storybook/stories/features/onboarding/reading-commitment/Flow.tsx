@@ -24,13 +24,15 @@ import type { Platform } from './NotificationPreview';
 import { LockScreen } from './NotificationPreview';
 import type { MinutesOption } from './PostStack';
 import { PostStack } from './PostStack';
+import { freshPushFor } from './freshPosts';
+import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   DEFAULT_REMINDER_TIME,
   clockOfTime,
   displayTime,
   hourOfTime,
   isFirstReminderToday,
-  reminderTimeOf,
   timeOfHour,
 } from './reminderTimes';
 import {
@@ -55,6 +57,8 @@ export interface FlowProps {
   platform: Platform;
   /** Opens the flow on this screen, with sample answers filled in. */
   startAt?: ScreenId;
+  /** The tags the reader follows; the push preview shows a fresh post on one. */
+  tags?: string[];
   /**
    * Set when the flow runs as the funnel's reading-reminder step: the shell
    * comes from FunnelStepper, and the reminder answer hands back to it.
@@ -94,6 +98,9 @@ const goalStartFor = (today?: string): string =>
   ).value;
 
 const DEFAULT_TIME = DEFAULT_REMINDER_TIME.value;
+
+/** The tags a new account starts with, as the playground seeds them. */
+const SAMPLE_TAGS = ['javascript', 'react', 'devops', 'ai', 'webdev'];
 
 // The card's preset row stays in the DOM, hidden: the list under the card
 // presses it, so the ruler glides to the hour as it does in production.
@@ -203,24 +210,67 @@ const RadioList = ({
 
 const PushPreview = ({
   platform,
-  goal,
+  tags,
   time,
 }: {
   platform: Platform;
-  goal: number;
+  tags: string[];
   time: string;
 }): ReactElement => (
   <LockScreen
     platform={platform}
     clock={clockOfTime(time)}
     date={longDate(isFirstReminderToday(time) ? new Date() : addDays(1))}
-    notifications={[{ ...reminderTimeOf(time).push(goal), when: 'now' }]}
+    notifications={[{ ...freshPushFor(tags), when: 'now' }]}
   />
 );
+
+/** Feedback on a pick: where most readers are, and where it's worth being. */
+const TODAY_FEEDBACK: Record<string, string> = {
+  '0': 'Most developers start here. A few minutes a day is all it takes to catch up.',
+  '5': 'That’s where most developers are. Small reads add up fast.',
+  '15': 'You’re ahead of most developers. Let’s turn it into a habit.',
+  '30': 'You read more than most developers. Let’s keep it that way.',
+};
+
+const GOAL_FEEDBACK: Record<string, string> = {
+  '5': 'A solid start. Most developers aim for 10 to 15 minutes once it sticks.',
+  '10': 'The most picked goal. One good read a day keeps you current.',
+  '15': 'The sweet spot: enough to stay current, short enough for a busy day.',
+  '30': 'Ambitious. Most developers who keep it have a set time for it.',
+};
+
+const feedbackCss = `
+@keyframes rc-feedback {
+  from { opacity: 0; transform: translateY(0.375rem); }
+}
+.rc-feedback { animation: rc-feedback 260ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .rc-feedback { animation: none; }
+}
+`;
+
+const PickFeedback = ({ text }: { text?: string }): ReactElement | null =>
+  text ? (
+    <p
+      key={text}
+      role="status"
+      className="rc-feedback flex w-full items-start gap-2 rounded-16 bg-surface-float px-4 py-3 text-text-secondary typo-callout"
+    >
+      <style>{feedbackCss}</style>
+      <VIcon
+        aria-hidden
+        size={IconSize.Small}
+        className="mt-0.5 shrink-0 text-accent-avocado-default"
+      />
+      {text}
+    </p>
+  ) : null;
 
 export const Flow = ({
   platform,
   startAt,
+  tags = SAMPLE_TAGS,
   onFinish,
 }: FlowProps): ReactElement => {
   const isSampled = !!startAt;
@@ -277,12 +327,15 @@ export const Flow = ({
             isCtaDisabled={!today}
             onCta={next}
           >
-            <RadioList
-              name="today"
-              options={TODAY_OPTIONS}
-              value={today}
-              onChange={setToday}
-            />
+            <div className="flex w-full flex-col gap-4">
+              <RadioList
+                name="today"
+                options={TODAY_OPTIONS}
+                value={today}
+                onChange={setToday}
+              />
+              <PickFeedback text={today && TODAY_FEEDBACK[today]} />
+            </div>
           </StepScreen>
         );
       case 'goal':
@@ -304,6 +357,7 @@ export const Flow = ({
                 value={goal ?? goalStart}
                 onChange={setGoal}
               />
+              <PickFeedback text={GOAL_FEEDBACK[goal ?? goalStart]} />
             </div>
           </StepScreen>
         );
@@ -365,11 +419,7 @@ export const Flow = ({
               </Button>
             }
           >
-            <PushPreview
-              platform={platform}
-              goal={goalMinutes}
-              time={reminderTime}
-            />
+            <PushPreview platform={platform} tags={tags} time={reminderTime} />
           </StepScreen>
         );
     }
