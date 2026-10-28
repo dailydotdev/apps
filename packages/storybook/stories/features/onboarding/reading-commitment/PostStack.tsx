@@ -125,7 +125,7 @@ export const PostStack = ({
         aria-label={label}
         className="grid grid-cols-4 gap-1.5 rounded-16 bg-background-default p-1"
       >
-        {options.map((option) => {
+        {options.map((option, index) => {
           const isSelected = option.value === selected.value;
           return (
             <button
@@ -133,7 +133,29 @@ export const PostStack = ({
               type="button"
               role="radio"
               aria-checked={isSelected}
+              // One tab stop for the group; the arrow keys move the pick.
+              tabIndex={isSelected ? 0 : -1}
               onClick={() => onChange(option.value)}
+              onKeyDown={(event) => {
+                const step = {
+                  ArrowRight: 1,
+                  ArrowDown: 1,
+                  ArrowLeft: -1,
+                  ArrowUp: -1,
+                }[event.key];
+                if (!step) {
+                  return;
+                }
+                event.preventDefault();
+                const target = (index + step + options.length) % options.length;
+                onChange(options[target].value);
+                // The buttons keep their order, so focus follows by position.
+                const next =
+                  event.currentTarget.parentElement?.children[target];
+                if (next instanceof HTMLElement) {
+                  next.focus();
+                }
+              }}
               className={classNames(
                 'rounded-12 py-2 font-bold typo-footnote transition-colors',
                 isSelected

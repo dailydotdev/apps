@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   FunnelStepCtaWrapper,
@@ -30,7 +30,10 @@ import type { MinutesOption } from './PostStack';
 import { PostStack } from './PostStack';
 import {
   DEFAULT_REMINDER_TIME,
+  clockOfTime,
+  displayTime,
   hourOfTime,
+  isFirstReminderToday,
   reminderTimeOf,
   timeOfHour,
 } from './reminderTimes';
@@ -78,8 +81,15 @@ const GOAL_OPTIONS: MinutesOption[] = [
   { value: '30', label: 'Deep learning' },
 ];
 
-// The post stack always shows a goal, so it starts on this one.
-const GOAL_START = '15';
+/**
+ * The post stack always shows a goal. It starts at the reader's own level,
+ * the smallest goal that isn't below what they read today.
+ */
+const goalStartFor = (today?: string): string =>
+  (
+    GOAL_OPTIONS.find(({ value }) => Number(value) >= Number(today ?? 0)) ??
+    GOAL_OPTIONS[GOAL_OPTIONS.length - 1]
+  ).value;
 
 const DEFAULT_TIME = DEFAULT_REMINDER_TIME.value;
 
@@ -110,7 +120,8 @@ const longDate = (date: Date): string =>
     day: 'numeric',
   });
 
-const clockOf = (time: string): string => time.replace(/\s?[AP]M$/, '');
+const prefersReducedMotion = (): boolean =>
+  !!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
 /** Feed Patchy's ending: the progress bar, run from empty to full over the hold. */
 const CountdownBar = (): ReactElement => {
@@ -147,6 +158,7 @@ const StepScreen = ({
   isCtaDisabled,
   onCta,
   skip,
+  docked,
   isAdvancing,
   isLeaving,
   children,
@@ -161,14 +173,18 @@ const StepScreen = ({
   isCtaDisabled?: boolean;
   onCta: () => void;
   skip?: { cta: string; onClick: () => void };
+  /** Sits right above the CTA in its rail, so it never scrolls away. */
+  docked?: ReactNode;
   children?: ReactNode;
 }): ReactElement => (
   <FunnelStepCtaWrapper
     isGlass
     cta={{ label: cta }}
-    disabled={isCtaDisabled}
+    // Also off while leaving, so a second tap can't run the hand-off again.
+    disabled={isCtaDisabled || isLeaving}
     onClick={onCta}
     skip={skip}
+    docked={docked}
     isCtaHidden={isAdvancing || isLeaving}
     containerClassName="flex w-full flex-1 flex-col"
   >
@@ -281,6 +297,9 @@ const handOffCss = `
   .rc-leave *, .rc-enter * { animation: none !important; }
 }
 `;
+
+// The rail's 3rem of padding and the six 0.25rem gaps come off first.
+const DAY_SIZE = 'min(2.5rem, calc((100vw - 4.5rem) / 7))';
 
 /** The week strip lands once the ring has mostly drawn, all of it hollow. */
 const WEEK_DELAY_MS = 600;
@@ -400,7 +419,11 @@ const PlanInfographic = ({
             return (
               <div key={day} className="flex flex-col items-center gap-2">
                 {/* Every day starts hollow; today's flame pops in on top. */}
-                <span className="relative flex size-10 items-center justify-center rounded-full border-2 border-dashed border-border-subtlest-secondary">
+                <span
+                  className="relative flex items-center justify-center rounded-full border-2 border-dashed border-border-subtlest-secondary"
+                  // 2.5rem, or a seventh of the rail on screens too narrow for it.
+                  style={{ width: DAY_SIZE, height: DAY_SIZE }}
+                >
                   {isToday && (
                     <span
                       className={classNames(
@@ -443,8 +466,8 @@ const PushPreview = ({
 }): ReactElement => (
   <LockScreen
     platform={platform}
-    clock={clockOf(time)}
-    date={longDate(addDays(1))}
+    clock={clockOfTime(time)}
+    date={longDate(isFirstReminderToday(time) ? new Date() : addDays(1))}
     notifications={[{ ...reminderTimeOf(time).push(goal), when: 'now' }]}
   />
 );
@@ -475,18 +498,38 @@ export const Flow = ({
   );
 
   const screen = SCREENS[index];
-  const next = () => setIndex((current) => current + 1);
+  const next = () =>
+    setIndex((current) => Math.min(current + 1, SCREENS.length - 1));
   const [isLeaving, setIsLeaving] = useState(false);
   const [hasHandedOff, setHasHandedOff] = useState(false);
-  // Turning reminders on plays the hand-off before the end screen mounts.
-  const handOff = () => {
+  // The reminder screen takes one answer: once Turn on or Skip is tapped,
+  // further taps on either do nothing.
+  const hasAnswered = useRef(false);
+  const answerOnce = (answer: () => void) => () => {
+    if (hasAnswered.current) {
+      return;
+    }
+    hasAnswered.current = true;
+    answer();
+  };
+  // Turning reminders on plays the hand-off before the end screen mounts;
+  // with reduced motion there is nothing to wait for.
+  const handOff = answerOnce(() => {
+    if (prefersReducedMotion()) {
+      next();
+      return;
+    }
     setIsLeaving(true);
     window.setTimeout(() => {
       setIsLeaving(false);
       setHasHandedOff(true);
       next();
     }, LEAVE_MS);
-  };
+  });
+  const skipReminder = answerOnce(() => {
+    setIsSkipped(true);
+    next();
+  });
   const restart = () => {
     setIndex(0);
     setToday(undefined);
@@ -494,6 +537,7 @@ export const Flow = ({
     setTime(undefined);
     setIsSkipped(false);
     setHasHandedOff(false);
+    hasAnswered.current = false;
   };
   const [replay, setReplay] = useState(0);
   // The end screen moves on by itself; in the story that starts over, or
@@ -511,6 +555,8 @@ export const Flow = ({
   const goalMinutes = Number(goal ?? 15);
   const reminderTime = time ?? DEFAULT_TIME;
   const reminderHour = hourOfTime(reminderTime);
+  const reminderLabel = displayTime(reminderTime);
+  const goalStart = goalStartFor(today);
 
   const content = (() => {
     switch (screen) {
@@ -538,14 +584,14 @@ export const Flow = ({
             subheadline="Pick a goal you can keep on a busy day."
             cta="Continue"
             onCta={() => {
-              setGoal(goal ?? GOAL_START);
+              setGoal(goal ?? goalStart);
               next();
             }}
           >
             <PostStack
               label="Your daily goal"
               options={GOAL_OPTIONS}
-              value={goal ?? GOAL_START}
+              value={goal ?? goalStart}
               onChange={setGoal}
             />
           </StepScreen>
@@ -574,43 +620,43 @@ export const Flow = ({
             </div>
           </StepScreen>
         );
-      case 'commit': {
-        const onSkip = () => {
-          setIsSkipped(true);
-          next();
-        };
+      case 'commit':
         return (
           <StepScreen
             headline="Turn on your daily reminder"
-            subheadline={`One notification at ${reminderTime} to help you read ${goalMinutes} minutes a day.`}
+            subheadline={`One notification at ${reminderLabel} to help you read ${goalMinutes} minutes a day.`}
             cta="Turn on notifications"
             onCta={handOff}
             isLeaving={isLeaving}
+            docked={
+              <Button
+                type="button"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Medium}
+                onClick={skipReminder}
+                disabled={isLeaving}
+                className="rc-skip w-full"
+              >
+                Skip for now
+              </Button>
+            }
           >
             <PushPreview
               platform={platform}
               goal={goalMinutes}
               time={reminderTime}
             />
-            <Button
-              type="button"
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Medium}
-              onClick={onSkip}
-              className="rc-skip mt-auto"
-            >
-              Skip for now
-            </Button>
           </StepScreen>
         );
-      }
       default:
         return (
           <StepScreen
             headline={
               isSkipped
                 ? 'Your goal is set'
-                : `See you tomorrow at ${reminderTime}`
+                : `See you ${
+                    isFirstReminderToday(reminderTime) ? 'today' : 'tomorrow'
+                  } at ${reminderLabel}`
             }
             subheadline={
               isSkipped
