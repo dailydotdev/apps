@@ -168,11 +168,60 @@ const LandingSignupBlock = ({
 };
 
 // `focus` is inline because the art's crop differs per shell.
+// Cloudflare's Turnstile check as production shows it under the password, in
+// its dark theme and default 300x65 size. The widget only loads on a real
+// daily.dev page, so the mock draws it; its colors are Cloudflare's, not ours.
+const CloudflareCheck = (): ReactElement => (
+  <div
+    aria-label="Cloudflare security check"
+    className="mx-auto mb-1 flex items-center justify-between px-3"
+    style={{
+      width: '18.75rem',
+      height: '4.0625rem',
+      background: '#232323',
+      border: '1px solid #797979',
+    }}
+  >
+    <div className="flex items-center gap-2.5">
+      <span
+        className="block size-7 rounded-4"
+        style={{ background: '#111', border: '2px solid #8a8a8a' }}
+      />
+      <span style={{ color: '#d9d9d9', fontSize: '0.875rem' }}>
+        Verify you are human
+      </span>
+    </div>
+    <div className="flex flex-col items-end">
+      <svg viewBox="0 0 64 28" className="h-5" aria-hidden>
+        <path
+          d="M50 26H10a8 8 0 0 1-1-15.9A12 12 0 0 1 31 6a10 10 0 0 1 18.6 4.4A8 8 0 0 1 50 26z"
+          fill="#f6821f"
+        />
+        <path d="M44 26h12a6 6 0 0 0-6-9.5A7 7 0 0 0 44 26z" fill="#fbad41" />
+      </svg>
+      <span
+        className="font-bold"
+        style={{
+          color: '#fff',
+          fontSize: '0.5625rem',
+          letterSpacing: '0.08em',
+        }}
+      >
+        CLOUDFLARE
+      </span>
+      <span className="underline" style={{ color: '#bbb', fontSize: '0.5rem' }}>
+        Privacy · Help
+      </span>
+    </div>
+  </div>
+);
+
 // The log in screen in the landing's style. It keeps everything log in does
 // today: all four providers (accounts made with Apple or Facebook need them),
 // email and password, forgot password and the way back to sign up. Only the
-// type and buttons change, and unlike sign up it has no art. Cloudflare's
-// check stays as is, not drawn.
+// type and buttons change, and unlike sign up it has no art. The bottom keeps
+// production's layout: Cloudflare's check, then forgot password beside the
+// log in button.
 const LandingLoginBlock = ({
   align = 'left',
 }: {
@@ -273,23 +322,27 @@ const LandingLoginBlock = ({
           showStrength={false}
           saveHintSpace
         />
-        <Button
-          className="w-full"
-          size={ButtonSize.Large}
-          type="submit"
-          variant={ButtonVariant.Primary}
-        >
-          Log in
-        </Button>
+        <CloudflareCheck />
+        <div className="mt-4 flex w-full items-center">
+          <button
+            className="text-left text-text-tertiary underline typo-callout hover:text-text-primary"
+            onClick={fn()}
+            style={{ flex: 2 }}
+            type="button"
+          >
+            Forgot password?
+          </button>
+          <Button
+            size={ButtonSize.Medium}
+            style={{ flex: 1 }}
+            type="submit"
+            variant={ButtonVariant.Primary}
+          >
+            Log in
+          </Button>
+        </div>
       </form>
-      <button
-        className="mx-auto mt-4 text-text-tertiary underline typo-callout hover:text-text-primary"
-        onClick={fn()}
-        type="button"
-      >
-        Forgot password?
-      </button>
-      <p className="mx-auto mt-6 text-text-secondary typo-callout">
+      <p className="mt-8 border-t border-border-subtlest-tertiary pt-7 text-center text-text-tertiary typo-callout">
         Not a member yet?{' '}
         <button
           className="text-text-primary underline"
