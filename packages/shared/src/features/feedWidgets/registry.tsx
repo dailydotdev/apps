@@ -14,7 +14,7 @@ import { ReadingStreakIcon } from '../../components/icons/ReadingStreak';
 import { SunIcon } from '../../components/icons/Sun';
 import { ChecklistAIcon } from '../../components/icons/ChecklistA';
 import { ShortcutsIcon } from '../../components/icons/Shortcuts';
-import { FlagIcon } from '../../components/icons/Flag';
+import { ChecklistBIcon } from '../../components/icons/ChecklistB';
 import {
   settingsUrl,
   squadCategoriesPaths,
@@ -105,6 +105,15 @@ export type FeedWidgetDefinition<K extends FeedWidgetKind = FeedWidgetKind> = {
    */
   configureLabel?: string;
 };
+
+// ChecklistB draws filled by default; the registry expects outlined by
+// default and filled under `secondary`, like every other widget icon.
+const GettingStartedIcon = ({
+  secondary,
+  ...props
+}: IconProps): ReactElement => (
+  <ChecklistBIcon {...props} secondary={!secondary} />
+);
 
 const needsAccount = ({ isLoggedIn }: FeedWidgetAvailability): boolean =>
   isLoggedIn;
@@ -270,7 +279,7 @@ export const feedWidgetRegistry: {
     name: 'Getting started',
     description:
       'The intro quests, with their XP and Cores, one step at a time.',
-    icon: FlagIcon,
+    icon: GettingStartedIcon,
     category: FeedWidgetCategory.DailyDev,
     tone: 'cheese',
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],
