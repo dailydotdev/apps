@@ -17,8 +17,7 @@ import { BookmarkIcon } from '@dailydotdev/shared/src/components/icons/Bookmark'
 import { HashtagIcon } from '@dailydotdev/shared/src/components/icons/Hashtag';
 import { DiscussIcon } from '@dailydotdev/shared/src/components/icons/Discuss';
 import { watchIubendaBanner } from '../../../webapp/components/iubendaBanner';
-import { RealCard, realPosts } from '../experiments/cardActions/swap';
-import { GEOMETRY, columnsForViewport } from '../experiments/cardActions/shell';
+import { GEOMETRY, RealCard, columnsForViewport, realPosts } from './feed';
 import { publishHeight } from './banner';
 import '../../../webapp/styles/iubenda.css';
 import './cookieStrip.css';
@@ -97,7 +96,7 @@ export const LoggedOutExplore = ({
   width: number;
 }): ReactElement => {
   const laptop = width >= 1020;
-  const cols = columnsForViewport(width, 'closed');
+  const cols = columnsForViewport(width);
   const posts = realPosts.slice(0, laptop ? cols * 3 : 6);
 
   return (
