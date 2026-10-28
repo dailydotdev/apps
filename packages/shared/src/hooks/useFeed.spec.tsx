@@ -26,6 +26,7 @@ import * as ads from '../lib/ads';
 import defaultAd from '../../__tests__/fixture/ad';
 import * as tcf from '../lib/tcf';
 import * as consentHook from '../features/monetization/useTcfConsent';
+import { AdConsentExists } from '../features/monetization/adConsent';
 
 jest.mock('../lib/boot', () => ({
   ...jest.requireActual('../lib/boot'),
@@ -89,7 +90,7 @@ it('waits for CMP consent before fetching any feed ad slots', async () => {
     expect.objectContaining({
       consent: expect.objectContaining({
         consentString: 'tc-string',
-        consentExists: undefined,
+        consentExists: AdConsentExists.None,
       }),
     }),
   );
