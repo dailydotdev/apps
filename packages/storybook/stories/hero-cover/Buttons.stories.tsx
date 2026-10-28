@@ -217,6 +217,7 @@ const rules = [
   'One attention dot for every control: a small purple dot on the top right.',
   'Getting started uses the checklist icon everywhere: the header button, the widget and the gallery.',
   'All icons are outlined.',
+  'Tab row order, left to right: achievements, clickbait shield, Shortcuts, then Feed settings last.',
 ];
 
 export const Buttons: StoryObj = {
@@ -336,15 +337,15 @@ export const Buttons: StoryObj = {
           </Labeled>
           <Labeled caption="Achievements experiment, nothing tracked yet">
             <Strip>
-              <Shield state="tries" />
               <Achievements />
+              <Shield state="tries" />
               <FeedSettings />
             </Strip>
           </Labeled>
           <Labeled caption="Achievements experiment, tracking (Upvote economy, 3 of 10)">
             <Strip>
-              <Shield state="tries" />
               <Achievements isTracking />
+              <Shield state="tries" />
               <FeedSettings />
             </Strip>
           </Labeled>
@@ -357,8 +358,8 @@ export const Buttons: StoryObj = {
           </Labeled>
           <Labeled caption="The busiest case: everything at once">
             <Strip>
-              <Shield state="tries" />
               <Achievements isTracking />
+              <Shield state="tries" />
               <Shortcuts />
               <FeedSettings />
             </Strip>
@@ -417,8 +418,8 @@ export const Buttons: StoryObj = {
               tabsStart={<Tabs feeds={['Frontend', 'AI', 'DevOps']} />}
               tabs={
                 <>
-                  <Shield state="tries" />
                   <Achievements isTracking />
+                  <Shield state="tries" />
                   <FeedSettings />
                 </>
               }
@@ -429,8 +430,8 @@ export const Buttons: StoryObj = {
               header={pageActions()}
               tabs={
                 <>
-                  <Shield state="tries" />
                   <Achievements isTracking />
+                  <Shield state="tries" />
                   <FeedSettings />
                 </>
               }
