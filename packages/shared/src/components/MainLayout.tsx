@@ -210,7 +210,6 @@ function MainLayoutComponent({
   const sidebarOwnsHeader = isLaptopLayout && showSidebar;
   const showSignInStrip =
     sidebarOwnsHeader && !isExtension && isAuthReady && !isLoggedIn;
-  const hasTopBanner = !!topBanner || showSignInStrip;
 
   const { setSlot: setTopHeroSlot } = useTopHeroSlot();
 
@@ -229,6 +228,18 @@ function MainLayoutComponent({
     frameStickyHeaderOffset = isBannerAvailable
       ? 'laptop:[--sticky-header-offset:6rem]'
       : 'laptop:[--sticky-header-offset:4rem]';
+  }
+  let frameMinHeight: string | undefined;
+  if (!topBanner) {
+    if (showSignInStrip) {
+      frameMinHeight = isBannerAvailable
+        ? 'laptop:peer-empty/top-hero:min-h-[calc(100vh-8.25rem)] laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-7.5rem)]'
+        : 'laptop:peer-empty/top-hero:min-h-[calc(100vh-6.25rem)] laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-5.5rem)]';
+    } else {
+      frameMinHeight = isBannerAvailable
+        ? 'laptop:peer-empty/top-hero:min-h-[calc(100vh-3.5rem)] laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-2.75rem)]'
+        : 'laptop:peer-empty/top-hero:min-h-[calc(100vh-1.5rem)] laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-0.75rem)]';
+    }
   }
 
   useEffect(() => {
@@ -462,10 +473,7 @@ function MainLayoutComponent({
                   // the feed is too short to make the page scrollable.
                   // The top-hero slot is filled by the page, so whether it
                   // holds a card is read from the DOM rather than known here.
-                  !hasTopBanner &&
-                    (isBannerAvailable
-                      ? 'laptop:peer-empty/top-hero:min-h-[calc(100vh-3.5rem)] laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-2.75rem)]'
-                      : 'laptop:peer-empty/top-hero:min-h-[calc(100vh-1.5rem)] laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-0.75rem)]'),
+                  frameMinHeight,
                 ],
               )}
             >
