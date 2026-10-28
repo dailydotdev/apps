@@ -106,15 +106,6 @@ export type FeedWidgetDefinition<K extends FeedWidgetKind = FeedWidgetKind> = {
   configureLabel?: string;
 };
 
-// ChecklistB draws filled by default; the registry expects outlined by
-// default and filled under `secondary`, like every other widget icon.
-const GettingStartedIcon = ({
-  secondary,
-  ...props
-}: IconProps): ReactElement => (
-  <ChecklistBIcon {...props} secondary={!secondary} />
-);
-
 const needsAccount = ({ isLoggedIn }: FeedWidgetAvailability): boolean =>
   isLoggedIn;
 
@@ -279,7 +270,7 @@ export const feedWidgetRegistry: {
     name: 'Getting started',
     description:
       'The intro quests, with their XP and Cores, one step at a time.',
-    icon: GettingStartedIcon,
+    icon: ChecklistBIcon,
     category: FeedWidgetCategory.DailyDev,
     tone: 'cheese',
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],

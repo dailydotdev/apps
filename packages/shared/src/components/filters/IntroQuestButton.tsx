@@ -128,7 +128,7 @@ export function IntroQuestButton({
         type="button"
         variant={buttonVariant}
         size={size}
-        icon={<ChecklistBIcon secondary />}
+        icon={<ChecklistBIcon />}
         className={classNames(
           'relative',
           isShaking && 'animate-nudge-shake motion-reduce:animate-none',
