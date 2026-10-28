@@ -65,6 +65,11 @@ export interface FlowProps {
   sampleTime?: string;
   /** The end screen replays itself instead of starting the flow over. */
   isLoopingEnding?: boolean;
+  /**
+   * Set when the flow runs as the funnel's reading-reminder step: the shell
+   * comes from FunnelStepper, and the ending hands back to it.
+   */
+  onFinish?: () => void;
 }
 
 const TODAY_OPTIONS: MinutesOption[] = [
@@ -480,6 +485,7 @@ export const Flow = ({
   sampleGoal = '15',
   sampleTime = DEFAULT_REMINDER_TIME.value,
   isLoopingEnding = false,
+  onFinish,
 }: FlowProps): ReactElement => {
   const isSampled = !!startAt;
   const [index, setIndex] = useState(isSampled ? SCREENS.indexOf(startAt) : 0);
@@ -547,7 +553,8 @@ export const Flow = ({
       return undefined;
     }
     const timeout = window.setTimeout(
-      isLoopingEnding ? () => setReplay((current) => current + 1) : restart,
+      onFinish ??
+        (isLoopingEnding ? () => setReplay((current) => current + 1) : restart),
       ENDING_HOLD_MS + 600,
     );
     return () => window.clearTimeout(timeout);
@@ -673,8 +680,8 @@ export const Flow = ({
     }
   })();
 
-  return (
-    <FunnelStepShell step={STEP} stepIndex={FIRST_STEP_INDEX + index} fullWidth>
+  const screenView = (
+    <>
       {/* Keyed so each screen mounts fresh, as funnel steps do. */}
       <style>{handOffCss}</style>
       <div
@@ -687,6 +694,16 @@ export const Flow = ({
       >
         {content}
       </div>
+    </>
+  );
+
+  if (onFinish) {
+    return screenView;
+  }
+
+  return (
+    <FunnelStepShell step={STEP} stepIndex={FIRST_STEP_INDEX + index} fullWidth>
+      {screenView}
     </FunnelStepShell>
   );
 };
