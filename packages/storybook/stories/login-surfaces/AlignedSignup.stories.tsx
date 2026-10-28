@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { cloneElement, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -12,6 +12,9 @@ import { providerMap } from '@dailydotdev/shared/src/components/auth/common';
 import SignupDisclaimer from '@dailydotdev/shared/src/components/auth/SignupDisclaimer';
 import { MemberAlready } from '@dailydotdev/shared/src/components/onboarding/MemberAlready';
 import { MailIcon } from '@dailydotdev/shared/src/components/icons/Mail';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
+import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { FooterLinks } from '@dailydotdev/shared/src/components/footer/FooterLinks';
 import { signupWallHorizon } from '@dailydotdev/shared/src/lib/image';
@@ -113,6 +116,123 @@ const LandingSignupBlock = ({
 };
 
 // `focus` is inline because the art's crop differs per shell.
+// The log in screen in the landing's style. It keeps everything log in does
+// today: all four providers (accounts made with Apple or Facebook need them),
+// email and password, forgot password and the way back to sign up. Only the
+// type, buttons and art change. Cloudflare's check stays as is, not drawn.
+const LandingLoginBlock = ({
+  align = 'left',
+}: {
+  align?: 'left' | 'center';
+}): ReactElement => {
+  const ways = [
+    {
+      provider: providerMap.google,
+      icon: providerMap.google.icon,
+      variant: ButtonVariant.Primary,
+    },
+    {
+      provider: providerMap.github,
+      icon: cloneElement(providerMap.github.icon, { secondary: true }),
+      variant: ButtonVariant.Float,
+    },
+    {
+      provider: providerMap.apple,
+      icon: providerMap.apple.icon,
+      variant: ButtonVariant.Float,
+    },
+    {
+      provider: providerMap.facebook,
+      icon: providerMap.facebook.icon,
+      variant: ButtonVariant.Float,
+    },
+  ];
+
+  return (
+    <div className="flex w-full max-w-[26.25rem] flex-col">
+      <h1
+        className={classNames(
+          'text-balance font-bold tracking-tight text-text-primary typo-large-title tablet:typo-mega3',
+          align === 'center' && 'text-center',
+        )}
+      >
+        Log in
+      </h1>
+      <div className="mt-8 flex flex-col gap-4">
+        {ways.map(({ provider, icon, variant }) => (
+          <Button
+            key={provider.value}
+            className={classNames(
+              'w-full !font-normal',
+              variant === ButtonVariant.Float &&
+                '!border !border-border-subtlest-tertiary !text-text-primary',
+            )}
+            icon={icon}
+            onClick={fn()}
+            size={ButtonSize.Large}
+            type="button"
+            variant={variant}
+          >
+            Continue with {provider.label}
+          </Button>
+        ))}
+      </div>
+      <div className="my-5 flex items-center gap-3 text-text-tertiary typo-footnote">
+        <span className="h-px flex-1 bg-border-subtlest-tertiary" />
+        or
+        <span className="h-px flex-1 bg-border-subtlest-tertiary" />
+      </div>
+      <form
+        className="flex flex-col gap-1"
+        onSubmit={(e) => e.preventDefault()}
+      >
+        <TextField
+          leftIcon={
+            <MailIcon role="presentation" aria-hidden size={IconSize.Small} />
+          }
+          inputId="login-email"
+          name="identifier"
+          label="Email"
+          type="email"
+          saveHintSpace
+        />
+        <PasswordField
+          inputId="login-password"
+          name="password"
+          label="Password"
+          showStrength={false}
+          saveHintSpace
+        />
+        <Button
+          className="w-full"
+          size={ButtonSize.Large}
+          type="submit"
+          variant={ButtonVariant.Primary}
+        >
+          Log in
+        </Button>
+      </form>
+      <button
+        className="mx-auto mt-4 text-text-tertiary underline typo-callout hover:text-text-primary"
+        onClick={fn()}
+        type="button"
+      >
+        Forgot password?
+      </button>
+      <p className="mx-auto mt-6 text-text-secondary typo-callout">
+        Not a member yet?{' '}
+        <button
+          className="text-text-primary underline"
+          onClick={fn()}
+          type="button"
+        >
+          Sign up
+        </button>
+      </p>
+    </div>
+  );
+};
+
 const LandingArt = ({
   className,
   focus,
@@ -139,7 +259,11 @@ const LandingArt = ({
 // fading out over its last 18%. The landing's dark halo sits behind its
 // left-hand copy; here it is centered on the block and narrowed to keep the
 // boy and Patchy clear.
-const DesktopFunnel = (): ReactElement => (
+const DesktopFunnel = ({
+  children,
+}: {
+  children?: ReactNode;
+}): ReactElement => (
   <div className="relative isolate flex min-h-dvh w-full flex-col overflow-hidden bg-background-default text-text-primary">
     <div
       aria-hidden
@@ -170,7 +294,7 @@ const DesktopFunnel = (): ReactElement => (
         className="!left-0 !top-0 !mt-0 !translate-x-0 self-center"
         logoClassName={{ container: 'h-7' }}
       />
-      <LandingSignupBlock />
+      {children ?? <LandingSignupBlock />}
     </main>
     <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-1 flex justify-end px-6 pb-4">
       <div className="[&_footer]:!pb-0 [&_ul]:!mb-0 [&_ul]:!justify-end">
@@ -182,7 +306,13 @@ const DesktopFunnel = (): ReactElement => (
 
 // The Android and iOS apps at phone width: the art across the top fading
 // into the page, the logo, then the landing block anchored to the bottom.
-const PhoneFunnel = ({ isIOS }: { isIOS?: boolean }): ReactElement => (
+const PhoneFunnel = ({
+  isIOS,
+  children,
+}: {
+  isIOS?: boolean;
+  children?: ReactNode;
+}): ReactElement => (
   <div className="relative isolate flex min-h-dvh w-full flex-col justify-end overflow-hidden bg-background-default px-5 pb-8 text-text-primary">
     <style dangerouslySetInnerHTML={{ __html: HERO_STYLES }} />
     <div
@@ -198,7 +328,7 @@ const PhoneFunnel = ({ isIOS }: { isIOS?: boolean }): ReactElement => (
         className="!left-0 !top-0 !mt-0 !translate-x-0 self-center"
         logoClassName={{ container: 'h-6' }}
       />
-      <LandingSignupBlock align="center" isIOS={isIOS} />
+      {children ?? <LandingSignupBlock align="center" isIOS={isIOS} />}
     </div>
   </div>
 );
@@ -221,10 +351,24 @@ const screens: {
     storyId: 'login-surfaces-aligned-signup--desktop',
   },
   {
+    title: 'Log in · desktop',
+    note: '/onboarding?action=login, also the extension’s log in. Every provider stays, so accounts made with Apple or Facebook can still get in.',
+    device: devices.laptop,
+    before: '17-desktop-login',
+    storyId: 'login-surfaces-aligned-signup--desktop-login',
+  },
+  {
     title: '/onboarding · Android app',
     device: devices.pixel,
     before: '07-android-landing',
     storyId: 'login-surfaces-aligned-signup--phone',
+  },
+  {
+    title: 'Log in · phone: mobile web, Android and iOS',
+    note: 'The same web page in all three. iOS signs in natively when Google or Apple is tapped.',
+    device: devices.pixel,
+    before: '18-android-login',
+    storyId: 'login-surfaces-aligned-signup--phone-login',
   },
   {
     title: '/onboarding · iOS app',
@@ -393,6 +537,28 @@ export const ExtensionActivate: DeviceStory = {
   name: 'Extension · /activate',
   globals: { theme: 'dark' },
   ...onDevice(devices.laptop, '10-extension-install', () => <ActivatePage />),
+};
+
+export const DesktopLogin: DeviceStory = {
+  tags: ['!dev'],
+  name: 'Log in · desktop',
+  globals: { theme: 'dark' },
+  ...onDevice(devices.laptop, '17-desktop-login', () => (
+    <DesktopFunnel>
+      <LandingLoginBlock />
+    </DesktopFunnel>
+  )),
+};
+
+export const PhoneLogin: DeviceStory = {
+  tags: ['!dev'],
+  name: 'Log in · phone',
+  globals: { theme: 'dark' },
+  ...onDevice(devices.pixel, '18-android-login', () => (
+    <PhoneFunnel>
+      <LandingLoginBlock align="center" />
+    </PhoneFunnel>
+  )),
 };
 
 export const IOSTracking: DeviceStory = {

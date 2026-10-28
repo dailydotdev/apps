@@ -297,9 +297,9 @@ const Inventory = (): ReactElement => (
         </h1>
         <p className="text-text-secondary typo-callout">
           The first screen a signed-out person sees on each surface, the loading
-          state before it, and the sign-up screen one tap away. Screens that
-          change show the production capture next to the aligned mock; the rest
-          are marked unchanged. Click a capture for full size.
+          state before it, and the sign-up and log-in screens one tap away.
+          Screens that change show the production capture next to the aligned
+          mock; the rest are marked unchanged. Click a capture for full size.
         </p>
       </header>
 
@@ -377,6 +377,17 @@ const Inventory = (): ReactElement => (
               note: 'the landing’s sign-up block and art.',
             },
           },
+          {
+            file: '17-desktop-login',
+            step: 'Log in',
+            title: 'Log in form',
+            note: <Url>/onboarding?action=login</Url>,
+            device: 'desktop',
+            after: {
+              storyId: 'login-surfaces-aligned-signup--desktop-login',
+              note: 'the landing’s style, all four providers kept.',
+            },
+          },
         ]}
       />
 
@@ -397,6 +408,17 @@ const Inventory = (): ReactElement => (
             title: 'Same landing',
             note: <Url>/?pwa=true</Url>,
             device: 'phone',
+          },
+          {
+            file: '18-android-login',
+            step: 'Log in',
+            title: 'Log in form',
+            note: <Url>/onboarding?action=login</Url>,
+            device: 'phone',
+            after: {
+              storyId: 'login-surfaces-aligned-signup--phone-login',
+              note: 'the landing’s style, all four providers kept.',
+            },
           },
         ]}
       />
@@ -430,6 +452,17 @@ const Inventory = (): ReactElement => (
             after: {
               storyId: 'login-surfaces-aligned-signup--phone',
               note: 'the landing’s sign-up block and art.',
+            },
+          },
+          {
+            file: '18-android-login',
+            step: 'Log in',
+            title: 'Log in form',
+            note: <Url>/onboarding?android=true&amp;action=login</Url>,
+            device: 'phone',
+            after: {
+              storyId: 'login-surfaces-aligned-signup--phone-login',
+              note: 'the landing’s style, all four providers kept.',
             },
           },
         ]}
@@ -479,6 +512,17 @@ const Inventory = (): ReactElement => (
               note: 'the landing’s block and art, Apple kept.',
             },
           },
+          {
+            file: '18-android-login',
+            step: 'Log in',
+            title: 'Log in form',
+            note: 'The same web page as Android. The simulator was down, so this is the Pixel capture.',
+            device: 'phone',
+            after: {
+              storyId: 'login-surfaces-aligned-signup--phone-login',
+              note: 'the landing’s style, all four providers kept.',
+            },
+          },
         ]}
       />
 
@@ -513,6 +557,17 @@ const Inventory = (): ReactElement => (
             after: {
               storyId: 'login-surfaces-aligned-signup--desktop',
               note: 'the landing’s sign-up block and art.',
+            },
+          },
+          {
+            file: '17-desktop-login',
+            step: 'Log in',
+            title: 'Log in form',
+            note: <Url>/onboarding?r=extension&amp;action=login</Url>,
+            device: 'desktop',
+            after: {
+              storyId: 'login-surfaces-aligned-signup--desktop-login',
+              note: 'the landing’s style, all four providers kept.',
             },
           },
           {
