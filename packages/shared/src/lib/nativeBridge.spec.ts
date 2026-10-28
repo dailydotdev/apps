@@ -63,14 +63,25 @@ describe('playHaptic', () => {
     });
   });
 
-  it('vibrates in the Android app, which has no haptic bridge', () => {
-    playHaptic(HapticStyle.Light, true);
+  it('posts to a wrapper that handles haptics', () => {
+    const postMessage = jest.fn();
+    (globalThis as { DailyAndroid?: unknown }).DailyAndroid = {
+      postMessage,
+      supports: (name: string) => name === WebKitMessageHandlers.Haptic,
+    };
 
-    expect(vibrate).toHaveBeenCalledWith(10);
+    playHaptic(HapticStyle.Light);
+
+    expect(postMessage).toHaveBeenCalledWith(
+      WebKitMessageHandlers.Haptic,
+      JSON.stringify({ style: 'light' }),
+    );
+    expect(vibrate).not.toHaveBeenCalled();
+    delete (globalThis as { DailyAndroid?: unknown }).DailyAndroid;
   });
 
-  it('does nothing on the mobile web', () => {
-    playHaptic(HapticStyle.Light, false);
+  it('never vibrates on its own, so a wrapper without the handler stays silent', () => {
+    playHaptic(HapticStyle.Light);
 
     expect(vibrate).not.toHaveBeenCalled();
   });

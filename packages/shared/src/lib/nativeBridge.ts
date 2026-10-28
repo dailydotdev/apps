@@ -76,21 +76,10 @@ export enum HapticStyle {
   Success = 'success',
 }
 
-// Safari and WKWebView never vibrate, so iOS goes through the wrapper; the
-// Android WebView has the Vibration API itself.
-export const playHaptic = (
-  style: HapticStyle = HapticStyle.Light,
-  isAndroidApp = false,
-): void => {
-  if (postNativeMessage(WebKitMessageHandlers.Haptic, { style })) {
-    return;
-  }
-
-  if (isAndroidApp) {
-    globalThis.navigator?.vibrate?.(
-      style === HapticStyle.Success ? [10, 60, 10] : 10,
-    );
-  }
+// Safari and WKWebView never vibrate, so haptics go through a wrapper that
+// answers for the handler; without one, nothing plays.
+export const playHaptic = (style: HapticStyle = HapticStyle.Light): void => {
+  postNativeMessage(WebKitMessageHandlers.Haptic, { style });
 };
 
 export enum StatusBarStyle {

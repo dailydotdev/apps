@@ -93,7 +93,7 @@ const useBookmarkPost = ({
   const { requestMethod } = useRequestProtocol();
   const client = useQueryClient();
   const { displayToast } = useToastNotification();
-  const { user, showLogin, isAndroidApp } = useContext(AuthContext);
+  const { user, showLogin } = useContext(AuthContext);
   const { logEvent } = useLogContext();
   const { completeAction } = useActions();
   const { openModal } = useLazyModal();
@@ -214,7 +214,7 @@ const useBookmarkPost = ({
       }
 
       logEvent(postLogEvent(LogEvent.BookmarkPost, post, finalLogOptions));
-      playHaptic(undefined, isAndroidApp);
+      playHaptic();
 
       const result = await addBookmark({ id: post.id });
       const list = result?.addBookmarks?.[0]?.list ?? null;
@@ -256,7 +256,6 @@ const useBookmarkPost = ({
       openModal,
       postLogEvent,
       logOpts,
-      isAndroidApp,
     ],
   );
 

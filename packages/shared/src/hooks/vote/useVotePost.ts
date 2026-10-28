@@ -41,7 +41,7 @@ const useVotePost = ({
   variables,
 }: UseVotePostProps = {}): UseVotePost => {
   const client = useQueryClient();
-  const { user, showLogin, isAndroidApp } = useContext(AuthContext);
+  const { user, showLogin } = useContext(AuthContext);
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
   const { logOpts } = useActiveFeedContext();
@@ -117,7 +117,7 @@ const useVotePost = ({
       }
 
       logEvent(postLogEvent(LogEvent.UpvotePost, post, finalLogOptions));
-      playHaptic(undefined, isAndroidApp);
+      playHaptic();
 
       await upvotePost({ id: post.id });
     },
@@ -129,7 +129,6 @@ const useVotePost = ({
       user,
       postLogEvent,
       logOpts,
-      isAndroidApp,
     ],
   );
 

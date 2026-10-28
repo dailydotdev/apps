@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '../contexts/AuthContext';
 import { WebKitMessageHandlers } from '../lib/ios';
+import { isIOSNative } from '../lib/func';
 import {
   HapticStyle,
   playHaptic,
@@ -49,34 +50,45 @@ export const useNativeBridge = (): void => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { isAndroidApp } = useAuthContext();
-  const { streak } = useReadingStreak();
+  const { streak, isStreaksEnabled } = useReadingStreak();
   const lastStreak = useRef<number>();
+  const [inWrapper, setInWrapper] = useState(false);
 
   useEffect(() => {
+    setInWrapper(isAndroidApp || isIOSNative());
+  }, [isAndroidApp]);
+
+  useEffect(() => {
+    if (!inWrapper) {
+      return undefined;
+    }
     setNativeHandlers({
       refresh: () => refreshPage(queryClient).then(() => true),
       back: closeTopLayer,
     });
     return () => setNativeHandlers(null);
-  }, [queryClient]);
+  }, [inWrapper, queryClient]);
 
   useEffect(() => {
+    if (!inWrapper) {
+      return;
+    }
     const root = owningRoot(router.pathname);
     postNativeMessage(WebKitMessageHandlers.NavState, {
       path: router.asPath.split(/[?#]/)[0],
       isRoot: isRootView(root, router.pathname),
       isHome: root === ShellRoot.Home && isRootView(root, router.pathname),
     });
-  }, [router.asPath, router.pathname]);
+  }, [inWrapper, router.asPath, router.pathname]);
 
-  const current = streak?.current;
+  const current = isStreaksEnabled ? streak?.current : undefined;
   useEffect(() => {
-    if (current === undefined) {
+    if (!inWrapper || current === undefined) {
       return;
     }
     if (lastStreak.current !== undefined && current > lastStreak.current) {
-      playHaptic(HapticStyle.Success, isAndroidApp);
+      playHaptic(HapticStyle.Success);
     }
     lastStreak.current = current;
-  }, [current, isAndroidApp]);
+  }, [inWrapper, current]);
 };

@@ -880,6 +880,12 @@
   background: var(--theme-background-default);
 }
 
+@media (prefers-color-scheme: light) {
+  :root.reduce-transparency.auto .shell-material {
+    background: var(--theme-background-default);
+  }
+}
+
 @media (prefers-reduced-transparency: reduce) {
   .shell-material,
   :root.shell-edge body::before {
@@ -897,6 +903,12 @@
   }
 
   :root.light .shell-material {
+    background: var(--theme-background-default);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) and (prefers-color-scheme: light) {
+  :root.auto .shell-material {
     background: var(--theme-background-default);
   }
 }
