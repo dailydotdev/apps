@@ -52,6 +52,7 @@ import { expectToHaveTestValue } from '../../__tests__/helpers/utilities';
 import { useSidebarCompact } from '../hooks/useSidebarCompact';
 import { SortCommentsBy } from '../graphql/comments';
 import { ONE_MINUTE } from '../lib/time';
+import { SIGNED_OUT_COOKIE } from '../lib/signedOut';
 
 jest.mock('../lib/boot', () => {
   const actual = jest.requireActual('../lib/boot');
@@ -1087,5 +1088,36 @@ describe('boot refetch on an expired token', () => {
   it('should not refetch boot when a mutation fails for another reason', async () => {
     await failMutationAfterExpiry(ApiError.RateLimited);
     expect(getBootData).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('signed-out signal', () => {
+  beforeEach(() => {
+    document.cookie = `${SIGNED_OUT_COOKIE}=1; path=/`;
+  });
+
+  afterEach(() => {
+    document.cookie = `${SIGNED_OUT_COOKIE}=; max-age=0; path=/`;
+  });
+
+  it('should keep the signal when only the cached boot has a signed-in user', async () => {
+    localStorage.setItem(BOOT_LOCAL_KEY, JSON.stringify(defaultBootData));
+    const anonymousUser: AnonymousUser = { id: 'anonymous', firstVisit: '' };
+    renderComponent(<></>, { ...defaultBootData, user: anonymousUser });
+
+    await waitFor(() =>
+      expect(
+        JSON.parse(localStorage.getItem(BOOT_LOCAL_KEY) as string)?.user?.id,
+      ).toEqual('anonymous'),
+    );
+    expect(document.cookie).toContain(`${SIGNED_OUT_COOKIE}=1`);
+  });
+
+  it('should clear the signal once boot confirms a signed-in user', async () => {
+    renderComponent(<></>);
+
+    await waitFor(() =>
+      expect(document.cookie).not.toContain(`${SIGNED_OUT_COOKIE}=1`),
+    );
   });
 });
