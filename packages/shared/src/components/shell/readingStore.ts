@@ -13,6 +13,8 @@ export interface ReadingArticle {
   canGoForward?: boolean;
   loading?: boolean;
   secure?: boolean;
+  // Why the page is blank: a load that failed before it drew anything.
+  error?: string;
 }
 
 export interface ReadingState {

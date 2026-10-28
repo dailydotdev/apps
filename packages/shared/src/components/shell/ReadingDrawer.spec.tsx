@@ -170,6 +170,29 @@ describe('ReadingDrawer', () => {
     );
   });
 
+  it('says when the page failed to load, with reload and the menu still there', () => {
+    withReadingBridge();
+    renderPostPage();
+    fireEvent.click(screen.getByText('Read post'));
+
+    act(() => {
+      window.dispatchEvent(
+        new CustomEvent(ReadingEvent.State, {
+          detail: {
+            url: 'https://www.rust-lang.org/blog',
+            loading: false,
+            error: 'The Internet connection appears to be offline.',
+          },
+        }),
+      );
+    });
+
+    expect(screen.getByLabelText('Page options')).toHaveTextContent(
+      "rust-lang.org didn't load",
+    );
+    expect(screen.getByLabelText('Reload')).toBeInTheDocument();
+  });
+
   it('closes on back before the post itself is left', () => {
     jest.useFakeTimers();
     withReadingBridge();

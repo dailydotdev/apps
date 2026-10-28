@@ -13,6 +13,7 @@ import { getPostTitle, getReadArticleHref } from '../../graphql/posts';
 import { ArrowIcon } from '../icons/Arrow';
 import { CopyIcon } from '../icons/Copy';
 import { LockIcon } from '../icons/Lock';
+import { WarningIcon } from '../icons/Warning';
 import { MenuIcon } from '../icons/Menu';
 import { MiniCloseIcon } from '../icons/MiniClose';
 import { OpenLinkIcon } from '../icons/OpenLink';
@@ -912,10 +913,22 @@ export function ReadingDrawer({
             onClick={() => setIsMenuOpen(true)}
             className="shell-material shell-press shell-hit flex h-[2.375rem] min-w-0 max-w-full items-center gap-1.5 justify-self-center rounded-14 px-3 text-text-primary typo-footnote"
           >
-            {article.secure !== false && (
-              <LockIcon size={IconSize.XSmall} className="text-text-tertiary" />
+            {article.error ? (
+              <WarningIcon
+                size={IconSize.XSmall}
+                className="text-accent-cheese-default"
+              />
+            ) : (
+              article.secure !== false && (
+                <LockIcon
+                  size={IconSize.XSmall}
+                  className="text-text-tertiary"
+                />
+              )
             )}
-            <span className="truncate font-bold">{host}</span>
+            <span className="truncate font-bold">
+              {article.error ? `${host} didn't load` : host}
+            </span>
             <MenuIcon size={IconSize.XSmall} className="text-text-secondary" />
           </button>
           <ShellSquare
