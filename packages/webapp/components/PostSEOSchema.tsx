@@ -7,7 +7,7 @@ import {
   stripHtmlTags,
   truncateAtWordBoundary,
 } from '@dailydotdev/shared/src/lib/strings';
-import { getAppOrigin, getSiteOrigin } from '../lib/seo';
+import { getAppOrigin, getSiteOrigin, toJsonLd } from '../lib/seo';
 
 // User-generated post types that should use DiscussionForumPosting schema
 const USER_GENERATED_POST_TYPES: PostType[] = [
@@ -297,11 +297,11 @@ export const getSEOJsonLd = (post: Post, topComments?: Comment[]): string => {
     ? getDiscussionForumPostingSchema(post, topComments)
     : getTechArticleSchema(post);
 
-  return JSON.stringify(schema);
+  return toJsonLd(schema);
 };
 
 export const getBreadcrumbJsonLd = (post: Post): string => {
-  return JSON.stringify({
+  return toJsonLd({
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
@@ -345,7 +345,7 @@ export const getCommentsJsonLd = (
     return null;
   }
 
-  return JSON.stringify({
+  return toJsonLd({
     '@context': 'https://schema.org',
     '@type': 'WebPage',
     '@id': post.commentsPermalink,
@@ -372,7 +372,7 @@ export const getFaqJsonLd = (post: Post): string | null => {
     return null;
   }
 
-  return JSON.stringify({
+  return toJsonLd({
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
     '@id': `${post.commentsPermalink}#faq`,

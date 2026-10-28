@@ -2,18 +2,26 @@ import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useToastNotification } from '../../../hooks/useToastNotification';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { getDmTransport } from '../transport';
 import {
+  applyEditToConversations,
   dmConversationsQueryKey,
   dmThreadQueryKey,
+  dmTypingQueryOptions,
   upsertConversationMessage,
 } from '../queries';
-import { applyReaction } from '../stanzas';
+import { applyEdit, applyReaction } from '../stanzas';
 import type { DmMessage } from '../types';
-import { DmMessageStatus } from '../types';
+import { DmMessageStatus, isRoomEvent } from '../types';
 
 const peerUnavailableCopy = "This user isn't accepting messages";
+// A peer who stops typing without saying so (closed the tab, lost the
+// connection) shouldn't look busy forever. Their client repeats `composing`
+// well within this while they keep typing.
+const typingTimeoutMs = 10 * 1000;
 
 // Feeds incoming messages into the query cache. Mount it once per surface that
 // shows messages; the shared transport fans one connection out to all of them.
@@ -21,11 +29,28 @@ export const useMessagesLiveUpdates = (enabled: boolean): void => {
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
 
   useEffect(() => {
     if (!enabled || !user?.id) {
       return undefined;
     }
+
+    const typingTimers = new Map<string, ReturnType<typeof setTimeout>>();
+    const setTyping = (peerId: string, isTyping: boolean) => {
+      clearTimeout(typingTimers.get(peerId));
+      typingTimers.delete(peerId);
+      queryClient.setQueryData<boolean>(
+        dmTypingQueryOptions(user, peerId).queryKey,
+        isTyping,
+      );
+      if (isTyping) {
+        typingTimers.set(
+          peerId,
+          setTimeout(() => setTyping(peerId, false), typingTimeoutMs),
+        );
+      }
+    };
 
     const setStatus = (
       peerId: string,
@@ -40,7 +65,35 @@ export const useMessagesLiveUpdates = (enabled: boolean): void => {
           ),
       );
 
-    return getDmTransport(user.id).subscribe((event) => {
+    const unsubscribe = getDmTransport(user.id).subscribe((event) => {
+      // Live chat rooms have their own listener; nothing here is theirs.
+      if (isRoomEvent(event)) {
+        return;
+      }
+
+      if (event.type === 'chatState') {
+        setTyping(event.peerId, event.state === 'composing');
+        return;
+      }
+
+      if (event.type === 'edit') {
+        queryClient.setQueryData<DmMessage[]>(
+          dmThreadQueryKey(user, event.edit.peerId),
+          (messages) => messages && applyEdit(messages, event.edit),
+        );
+        applyEditToConversations(queryClient, user, event.edit);
+        return;
+      }
+
+      // The optimistic copy is wrong; the archive has what went through.
+      if (event.type === 'editRejected') {
+        displayToast("Couldn't save your edit. Try again.");
+        queryClient.invalidateQueries({
+          queryKey: dmThreadQueryKey(user, event.peerId),
+        });
+        return;
+      }
+
       if (event.type === 'reconnected') {
         // Anything that arrived while offline is only in the archive; thread
         // refetches keep unsent bubbles, see dmThreadQueryOptions.
@@ -57,6 +110,13 @@ export const useMessagesLiveUpdates = (enabled: boolean): void => {
 
       if (event.type === 'failed') {
         setStatus(event.peerId, event.messageId, DmMessageStatus.Failed);
+        // `send direct message` fires when the stanza is handed to the
+        // socket, so this is the only record of a send the server never acked.
+        logEvent({
+          event_name: LogEvent.FailDirectMessage,
+          target_id: event.peerId,
+          extra: JSON.stringify({ reason: 'ack_timeout' }),
+        });
         return;
       }
 
@@ -94,6 +154,10 @@ export const useMessagesLiveUpdates = (enabled: boolean): void => {
       }
 
       const { message } = event;
+      // Their message is what they were typing.
+      if (message.senderId !== user.id) {
+        setTyping(message.peerId, false);
+      }
       queryClient.setQueryData<DmMessage[]>(
         dmThreadQueryKey(user, message.peerId),
         // An unloaded thread stays unloaded, or it would open without history.
@@ -119,5 +183,10 @@ export const useMessagesLiveUpdates = (enabled: boolean): void => {
         });
       }
     });
-  }, [displayToast, enabled, queryClient, user]);
+
+    return () => {
+      unsubscribe();
+      typingTimers.forEach((timer) => clearTimeout(timer));
+    };
+  }, [displayToast, enabled, logEvent, queryClient, user]);
 };

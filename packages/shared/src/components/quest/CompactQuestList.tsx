@@ -1,21 +1,32 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/Button';
 import ProgressCircle from '../ProgressCircle';
-import { ArrowIcon, CoreIcon, ReputationIcon, VIcon } from '../icons';
+import { ArrowIcon, CoreIcon, LockIcon, ReputationIcon, VIcon } from '../icons';
 import { IconSize } from '../Icon';
 import Link from '../utilities/Link';
-import { webappUrl } from '../../lib/constants';
+import { plusUrl, webappUrl } from '../../lib/constants';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
 import type { QuestReward, UserQuest } from '../../graphql/quests';
-import { QuestRewardType, isQuestClaimed } from '../../graphql/quests';
+import {
+  QuestRewardType,
+  QuestStatus,
+  isQuestClaimed,
+} from '../../graphql/quests';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { LogEvent, TargetId } from '../../lib/log';
 import {
   getQuestDestination,
   getQuestDestinationUrl,
@@ -57,6 +68,7 @@ interface CompactQuestRowProps {
   quest: UserQuest;
   isClaiming: boolean;
   onClaim: (quest: UserQuest) => void;
+  onUnlock?: () => void;
 }
 
 // Exported for the Storybook state matrix: the row is presentational (the data
@@ -65,22 +77,33 @@ export const CompactQuestRow = ({
   quest,
   isClaiming,
   onClaim,
+  onUnlock,
 }: CompactQuestRowProps): ReactElement => {
   const target = Math.max(quest.quest.targetCount, 1);
   const value = Math.min(Math.max(quest.progress, 0), target);
   const percentage = Math.min(100, Math.round((value / target) * 100));
   const isClaimed = isQuestClaimed(quest);
   const canClaim = quest.claimable && !!quest.userQuestId && !isClaimed;
+  const isLockedComplete =
+    quest.locked && !isClaimed && quest.status === QuestStatus.Completed;
   // Route each quest to the surface where it can actually be completed (same
   // mapping the quest dashboard uses); quests with no mapped surface — and
   // claimable/claimed rows, where navigating away is not the point — fall back
-  // to Game Center.
+  // to Game Center. A finished Plus quest a non-Plus user can't claim goes to
+  // Plus.
   const destination =
-    canClaim || isClaimed ? null : getQuestDestination(quest.quest);
-  const href = destination
-    ? getQuestDestinationUrl(destination)
-    : `${webappUrl}game-center`;
-  const destinationLabel = destination?.label ?? 'Game Center';
+    canClaim || isClaimed || isLockedComplete
+      ? null
+      : getQuestDestination(quest.quest);
+  let href = `${webappUrl}game-center`;
+  let destinationLabel = 'Game Center';
+  if (isLockedComplete) {
+    href = plusUrl;
+    destinationLabel = 'Plus';
+  } else if (destination) {
+    href = getQuestDestinationUrl(destination);
+    destinationLabel = destination.label;
+  }
 
   return (
     // Rounded hover pill + `hover:bg-surface-hover`, matching every other v2
@@ -127,7 +150,7 @@ export const CompactQuestRow = ({
       {/* Bottom strip: XP/Cores rewards on the left; status aligned to the right
           on the same row — claim/claimed, or the step count + small radial. */}
       <div className="mt-0.5 flex items-center justify-between gap-2">
-        <span className="flex flex-wrap items-center gap-2">
+        <span className="flex min-w-0 shrink flex-wrap items-center gap-2">
           {quest.rewards.map((reward) => (
             <QuestRewardValue key={reward.type} reward={reward} />
           ))}
@@ -146,14 +169,36 @@ export const CompactQuestRow = ({
               Claim
             </Button>
           )}
+          {!canClaim && isLockedComplete && (
+            <Link href={plusUrl} passHref>
+              <Button
+                tag="a"
+                size={ButtonSize.XSmall}
+                color={ButtonColor.Avocado}
+                variant={ButtonVariant.Primary}
+                icon={<LockIcon />}
+                onClick={onUnlock}
+                className="relative z-1"
+              >
+                Claim with Plus
+              </Button>
+            </Link>
+          )}
           {!canClaim && isClaimed && (
             <span className="flex items-center gap-1 font-bold text-accent-avocado-default typo-caption1">
               <VIcon secondary size={IconSize.XSmall} />
               Claimed
             </span>
           )}
-          {!canClaim && !isClaimed && (
+          {!canClaim && !isClaimed && !isLockedComplete && (
             <>
+              {quest.locked && (
+                <LockIcon
+                  aria-label="Plus quest"
+                  size={IconSize.XSmall}
+                  className="text-text-tertiary"
+                />
+              )}
               {/* Step count on the LEFT of the radial. */}
               <Typography
                 type={TypographyType.Caption1}
@@ -174,9 +219,20 @@ export const CompactQuestRow = ({
 // Compact quest list for the streak panel: rounded hover-pill rows (matching
 // the other v2 panels) — title + subtitle full width with the rewards beneath,
 // and a right column holding the open-details chevron + step count/radial (or
-// claim/claimed). Daily and weekly quests are merged into one list under the
-// panel's "Daily quests" header. Replaces the full QuestButton dashboard.
-export const CompactQuestList = (): ReactElement | null => {
+// claim/claimed). Renders one period's quests; the panel shows daily and weekly
+// as separate sections. Replaces the full QuestButton dashboard.
+interface CompactQuestListProps {
+  period: 'daily' | 'weekly';
+}
+
+const emptyCopyByPeriod: Record<CompactQuestListProps['period'], string> = {
+  daily: 'new quests tomorrow',
+  weekly: 'new quests next week',
+};
+
+export const CompactQuestList = ({
+  period,
+}: CompactQuestListProps): ReactElement | null => {
   const { data } = useQuestDashboard();
   const {
     mutate: claim,
@@ -184,18 +240,14 @@ export const CompactQuestList = (): ReactElement | null => {
     variables,
   } = useClaimQuestReward();
   const claimingId = isClaiming ? variables?.userQuestId : undefined;
+  const { logSubscriptionEvent } = usePlusSubscription();
 
   const quests = useMemo(() => {
     if (!data) {
       return [];
     }
-    return [
-      ...data.daily.regular,
-      ...data.daily.plus,
-      ...data.weekly.regular,
-      ...data.weekly.plus,
-    ];
-  }, [data]);
+    return [...data[period].regular, ...data[period].plus];
+  }, [data, period]);
 
   if (!data) {
     return null;
@@ -208,7 +260,7 @@ export const CompactQuestList = (): ReactElement | null => {
         color={TypographyColor.Tertiary}
         className="py-2"
       >
-        You&apos;re all caught up — new quests tomorrow.
+        You&apos;re all caught up — {emptyCopyByPeriod[period]}.
       </Typography>
     );
   }
@@ -220,6 +272,12 @@ export const CompactQuestList = (): ReactElement | null => {
       questType: quest.quest.type,
     });
 
+  const onUnlock = () =>
+    logSubscriptionEvent({
+      event_name: LogEvent.UpgradeSubscription,
+      target_id: TargetId.QuestSidebar,
+    });
+
   return (
     <ul className="flex flex-col gap-0.5">
       {quests.map((quest) => (
@@ -228,6 +286,7 @@ export const CompactQuestList = (): ReactElement | null => {
           quest={quest}
           isClaiming={claimingId === quest.userQuestId}
           onClaim={onClaim}
+          onUnlock={onUnlock}
         />
       ))}
     </ul>

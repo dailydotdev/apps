@@ -32,7 +32,6 @@ import { webappUrl } from '../../lib/constants';
 import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
 import type { AllFeedPages } from '../../lib/query';
-import { OtherFeedPage } from '../../lib/query';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
 import MyFeedHeading from '../filters/MyFeedHeading';
@@ -50,7 +49,6 @@ enum FeedNavTab {
   Leaderboard = 'Leaderboard',
   Bookmarks = 'Bookmarks',
   History = 'History',
-  Discussions = 'Discussions',
   NewFeed = 'Custom feed',
   Following = 'Following',
 }
@@ -69,9 +67,14 @@ interface FeedNavProps {
   // Rendered inside the phone's top block: no sticky wrapper and no brand
   // row of its own, the block owns both.
   inShellBlock?: boolean;
+  // The widget rail brings the feed's tabs, under it.
+  hasFeedWidgetRail?: boolean;
 }
 
-function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
+function FeedNav({
+  inShellBlock = false,
+  hasFeedWidgetRail = false,
+}: FeedNavProps): ReactElement | null {
   const router = useRouter();
   const { feedName: rawFeedName } = useActiveFeedNameContext();
   const feedName = rawFeedName as AllFeedPages;
@@ -86,7 +89,7 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
   const isTablet = isBelowLaptop && !isMobile;
   const { value: feedChipsVariant } = useConditionalFeature({
     feature: featureFeedChips,
-    shouldEvaluate: isBelowLaptop && !inShellBlock,
+    shouldEvaluate: isBelowLaptop && !inShellBlock && !hasFeedWidgetRail,
   });
   const isFeedChipsEnabled = feedChipsVariant !== FeedChipsVariant.None;
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
@@ -168,7 +171,6 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
       [`${webappUrl}history`]: FeedNavTab.History,
       [`${webappUrl}following`]: FeedNavTab.Following,
       [`${webappUrl}posts`]: FeedNavTab.Popular,
-      [`${webappUrl}${OtherFeedPage.Discussed}`]: FeedNavTab.Discussions,
       [`${webappUrl}tags`]: FeedNavTab.Tags,
       [`${webappUrl}sources`]: FeedNavTab.Sources,
       [`${webappUrl}users`]: FeedNavTab.Leaderboard,
@@ -187,6 +189,12 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
     withoutLayoutVariantPrefix(router?.pathname).startsWith('/posts/[id]')
   ) {
     return null;
+  }
+
+  if (hasFeedWidgetRail) {
+    return isExtension && isMobile && !inShellBlock ? (
+      <MobileFeedActions />
+    ) : null;
   }
 
   return (

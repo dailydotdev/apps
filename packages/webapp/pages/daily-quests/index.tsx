@@ -5,7 +5,9 @@ import classNames from 'classnames';
 import { QuestButton } from '@dailydotdev/shared/src/components/quest/QuestButton';
 import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import {
   ResponsivePageContainer,
   pageBorders,
@@ -32,16 +34,20 @@ const seo: NextSeoProps = {
 };
 
 function DailyQuestsPage(): ReactElement {
-  const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2;
+  const isLaptopLayout = useLaptopLayout();
+  const isPhone = useIsPhone();
 
   return (
     <ProtectedPage>
-      {isV2Laptop && <PageHeader title="Daily quests" />}
+      {isLaptopLayout && <PageHeader title="Daily quests" />}
+      {isPhone && <ShellPage title="Daily quests" />}
       <div className="mx-auto w-full max-w-[42.5rem]">
-        {!isV2Laptop && (
+        {!isLaptopLayout && !isPhone && (
           <LayoutHeader
-            className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}
+            className={classNames(
+              '!mb-0 hidden gap-2 border-b px-4 tablet:flex',
+              pageBorders,
+            )}
           >
             <Typography
               type={TypographyType.Title3}
@@ -53,8 +59,10 @@ function DailyQuestsPage(): ReactElement {
             </Typography>
           </LayoutHeader>
         )}
-        <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6 pb-10">
-          <QuestButton panelOnly />
+        <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6 pb-10 pt-1 tablet:pt-6">
+          <div className="-mx-3 tablet:mx-0">
+            <QuestButton panelOnly />
+          </div>
         </ResponsivePageContainer>
       </div>
     </ProtectedPage>
@@ -65,6 +73,6 @@ const getDailyQuestsLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 DailyQuestsPage.getLayout = getDailyQuestsLayout;
-DailyQuestsPage.layoutProps = { screenCentered: false, seo };
+DailyQuestsPage.layoutProps = { seo };
 
 export default DailyQuestsPage;

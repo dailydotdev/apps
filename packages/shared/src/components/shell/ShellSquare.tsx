@@ -14,9 +14,9 @@ interface ShellSquareProps
   children: ReactNode;
 }
 
-// The 38px floating square of the top row: back, the page's actions, the
-// avatar, the Plus door. The visible square keeps its size; `shell-hit`
-// extends what the finger can reach to 44px.
+// The floating square of the top row: back, the page's actions, messages,
+// the avatar, the Plus door. 38px; `shell-hit` extends what the finger can
+// reach to 44px.
 export const ShellSquare = forwardRef<HTMLElement, ShellSquareProps>(
   ({ tag = 'button', className, children, ...props }, ref): ReactElement => {
     const Tag = tag as 'button';

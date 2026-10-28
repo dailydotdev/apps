@@ -2,8 +2,6 @@ import { createContextProvider } from '@kickass-coderz/react';
 import { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featureMobileAppFooter } from '../../../lib/featureManagement';
 import { safeContextHookExport } from '../../../lib/func';
 import { withoutLayoutVariantPrefix } from '../../../lib/layoutVariant';
 import {
@@ -27,13 +25,9 @@ const [MobileAppFooterProvider, useMobileAppFooterContextHook] =
         withoutLayoutVariantPrefix(router?.pathname),
       );
       const isSearchLanding = isSearchEngineLanding();
-      const shouldEvaluate =
+      const shouldShow =
         !isSearchLanding && !!routeTitle && isPhoneBrowser && !isLoggedIn;
-      const { value: isEnabled } = useConditionalFeature({
-        feature: featureMobileAppFooter,
-        shouldEvaluate,
-      });
-      const title = shouldEvaluate && isEnabled ? routeTitle : undefined;
+      const title = shouldShow ? routeTitle : undefined;
 
       return useMemo(() => ({ title }), [title]);
     },

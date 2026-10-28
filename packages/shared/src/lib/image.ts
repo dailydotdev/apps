@@ -404,12 +404,6 @@ export const plusShowcaseTranslateImage =
 export const plusShowcasePresidentialBriefImage =
   'https://media.daily.dev/image/upload/s--7I74Yy6r--/f_auto/v1752495221/public/Personalized%20digest';
 
-export const uploadCvBgLaptop =
-  'https://media.daily.dev/image/upload/s--5Ttdly-p--/f_auto/v1752576001/public/job_main_web';
-
-export const uploadCvBgTablet =
-  'https://media.daily.dev/image/upload/s--1QIY44IL--/f_auto/v1752668628/public/job_main_ipad';
-
 export const uploadCvBgMobile =
   'https://media.daily.dev/image/upload/s--Y_qhm3Tw--/f_auto/v1752576066/public/job_main_mobile';
 
@@ -501,3 +495,12 @@ export const cloudinaryCharmNotEnoughTags =
 // appended — serving this smaller than its 2072px source needs a re-sign.
 export const cloudinaryHijackingCoverArt =
   'https://media.daily.dev/image/upload/s--lCzzhJXe--/f_auto,q_auto/v1783981048/public/ChatGPT%20Image%20Jul%2014%2C%202026%2C%2001_17_08%20AM';
+
+export const cloudinaryPatchyWaiting =
+  'https://media.daily.dev/image/upload/s--U0ZcltHH--/f_auto/v1791728711/public/patchy-waiting';
+
+export const cloudinaryPatchyFed =
+  'https://media.daily.dev/image/upload/s--d_F_spil--/f_auto/v1791728711/public/patchy-bone';
+
+export const cloudinaryPatchyBone =
+  'https://media.daily.dev/image/upload/s--Q9J0qr-g--/f_auto/v1791728721/public/patchy-treat-bone';

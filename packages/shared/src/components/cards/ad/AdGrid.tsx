@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { forwardRef } from 'react';
+import classNames from 'classnames';
 
 import {
   Card,
@@ -24,16 +25,51 @@ import { useAutoRotatingAds } from '../../../hooks/feed/useAutoRotatingAds';
 import { Button } from '../../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { AdFavicon } from './common/AdFavicon';
+import { AdCompactMenu } from './common/AdCompactMenu';
 import PostTags from '../common/PostTags';
 import { useFeature } from '../../GrowthBookProvider';
-import { adImprovementsV3Feature } from '../../../lib/featureManagement';
+import {
+  adImprovementsV3Feature,
+  featureGridCardTldr,
+} from '../../../lib/featureManagement';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { gridCardTldrCoverClassName } from '../common/GridCardTldr';
 import { TargetId } from '../../../lib/log';
 import { AdvertiseLink } from './common/AdvertiseLink';
 import { useAdLabel } from '../../../features/monetization/useAdLabel';
 import { anchorSponsoredRel } from '../../../lib/strings';
+import classed from '../../../lib/classed';
+import { Image } from '../../image/Image';
 
-export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
-  { ad, onLinkClick, onViewable, domProps, index, feedIndex },
+// Next to posts showing their TLDR, the creative takes their shorter cover.
+const TldrCardImage = classed(CardImage, gridCardTldrCoverClassName);
+
+// The creative fills whatever height the compact card leaves it.
+const CompactCardImage = classed(
+  Image,
+  'absolute inset-0 size-full rounded-12 object-cover',
+);
+
+export type AdGridProps = AdCardProps & {
+  /**
+   * For a slot shorter than a feed card: the creative takes the height the
+   * copy leaves, and the call to action and the advertiser and remove links
+   * move under the options menu a post card has in its header.
+   */
+  isCompact?: boolean;
+};
+
+export const AdGrid = forwardRef<HTMLElement, AdGridProps>(function AdGrid(
+  {
+    ad,
+    onLinkClick,
+    onViewable,
+    domProps,
+    index,
+    feedIndex,
+    disableRotation,
+    isCompact,
+  },
   forwardedRef,
 ): ReactElement {
   const { isPlus } = usePlusSubscription();
@@ -44,18 +80,37 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
     index,
     feedIndex,
     forwardedRef as InViewRef,
+    disableRotation,
   );
   const matchingTags = ad?.matchingTags ?? [];
+  const { value: isTldrArm } = useConditionalFeature({
+    feature: featureGridCardTldr,
+    shouldEvaluate: !isCompact,
+  });
   const clickUrl = useAdClickUrl(ad);
 
   return (
-    <Card {...domProps} data-testid="adItem" ref={ref}>
+    <Card
+      {...domProps}
+      {...(isCompact && {
+        className: classNames(domProps?.className, 'group min-h-0'),
+      })}
+      data-testid="adItem"
+      ref={ref}
+    >
       <AdLink ad={ad} onLinkClick={onLinkClick} />
-      <AdFavicon ad={ad} className="mx-4" />
-      <CardTextContainer className="flex-1">
-        <CardTitle className="typo-title3">{ad.description}</CardTitle>
-        <CardSpace />
-        {adImprovementsV3 && matchingTags.length > 0 ? (
+      <AdFavicon ad={ad} className="mx-4">
+        {isCompact && <AdCompactMenu ad={ad} onLinkClick={onLinkClick} />}
+      </AdFavicon>
+      <CardTextContainer className={isCompact ? undefined : 'flex-1'}>
+        <CardTitle
+          className="typo-title3"
+          lineClamp={isCompact ? 'line-clamp-2' : undefined}
+        >
+          {ad.description}
+        </CardTitle>
+        {!isCompact && <CardSpace />}
+        {!isCompact && adImprovementsV3 && matchingTags.length > 0 ? (
           <PostTags
             post={{ tags: matchingTags.slice(0, 6) }}
             className="!items-end"
@@ -66,41 +121,55 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
           className={{ main: `${adAttributionSpacing} font-normal` }}
         />
       </CardTextContainer>
-      <AdImage className="mx-1 mb-0" ad={ad} ImageComponent={CardImage} />
-      <CardTextContainer className="!mx-1 my-1">
-        <div className="flex items-center">
-          {!!ad.callToAction && (
-            <Button
-              tag="a"
-              href={clickUrl}
-              target="_blank"
-              rel={anchorSponsoredRel}
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Small}
-              className="z-1"
-              {...combinedClicks(() => onLinkClick?.(ad))}
-            >
-              {ad.callToAction}
-            </Button>
-          )}
-          {showAdvertiseLink && (
-            <AdvertiseLink
-              targetId={TargetId.AdCard}
-              buttonStyle
-              size={ButtonSize.Small}
-            />
-          )}
-          <div className="ml-auto flex items-center gap-2">
-            {!isPlus && (
-              <RemoveAd
-                variant={ButtonVariant.Tertiary}
+      {isCompact ? (
+        <AdImage
+          className="mx-1 mb-1 min-h-20 flex-1"
+          ad={ad}
+          ImageComponent={CompactCardImage}
+        />
+      ) : (
+        <AdImage
+          className="mx-1 mb-0"
+          ad={ad}
+          ImageComponent={isTldrArm ? TldrCardImage : CardImage}
+        />
+      )}
+      {!isCompact && (
+        <CardTextContainer className="!mx-1 my-1">
+          <div className="flex items-center">
+            {!!ad.callToAction && (
+              <Button
+                tag="a"
+                href={clickUrl}
+                target="_blank"
+                rel={anchorSponsoredRel}
+                variant={ButtonVariant.Primary}
                 size={ButtonSize.Small}
-                className="!font-normal typo-footnote"
+                className="z-1"
+                {...combinedClicks(() => onLinkClick?.(ad))}
+              >
+                {ad.callToAction}
+              </Button>
+            )}
+            {showAdvertiseLink && (
+              <AdvertiseLink
+                targetId={TargetId.AdCard}
+                buttonStyle
+                size={ButtonSize.Small}
               />
             )}
+            <div className="ml-auto flex items-center gap-2">
+              {!isPlus && (
+                <RemoveAd
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.Small}
+                  className="!font-normal typo-footnote"
+                />
+              )}
+            </div>
           </div>
-        </div>
-      </CardTextContainer>
+        </CardTextContainer>
+      )}
       <AdPixel pixel={ad.pixel} />
       <AdMeasurement ad={ad} />
       <AdViewability ad={ad} onViewable={(data) => onViewable?.(ad, data)} />

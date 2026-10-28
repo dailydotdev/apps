@@ -22,14 +22,21 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { dmRequestsQueryOptions } from '../queries';
-import { getMessagesUrl } from '../urls';
+import { DmOrigin, getMessagesUrl } from '../urls';
+import {
+  LfgRequestSection,
+  useLfgRequestsState,
+} from '../../lfg/components/messages/LfgRequestSection';
 
 export const RequestList = ({
   activePeerId,
+  activeReachOutId,
 }: {
   activePeerId?: string;
+  activeReachOutId?: string;
 }): ReactElement => {
   const { user } = useAuthContext();
+  const lfgRequests = useLfgRequestsState();
   const {
     data: requests,
     isPending,
@@ -37,27 +44,34 @@ export const RequestList = ({
     refetch,
   } = useQuery(dmRequestsQueryOptions(user));
 
+  const lfgSection = <LfgRequestSection activeReachOutId={activeReachOutId} />;
+
+  // Reach-outs come from their own query, so they stay when this one fails.
   if (isError) {
     return (
-      <FlexCol className="items-center gap-3 px-6 py-10 text-center">
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          Couldn&apos;t load your message requests.
-        </Typography>
-        <Button
-          variant={ButtonVariant.Secondary}
-          size={ButtonSize.Small}
-          onClick={() => refetch()}
-        >
-          Try again
-        </Button>
-      </FlexCol>
+      <>
+        {lfgSection}
+        <FlexCol className="items-center gap-3 px-6 py-10 text-center">
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
+            Couldn&apos;t load your message requests.
+          </Typography>
+          <Button
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            onClick={() => refetch()}
+          >
+            Try again
+          </Button>
+        </FlexCol>
+      </>
     );
   }
 
-  if (isPending) {
+  // Waits for reach-outs too, so "No message requests" doesn't flash first.
+  if (isPending || (!requests?.length && lfgRequests.isPending)) {
     return (
       <FlexCol className="gap-2 px-3">
         {[0, 1].map((index) => (
@@ -70,6 +84,10 @@ export const RequestList = ({
     );
   }
 
+  if (!requests?.length && lfgRequests.hasRequests) {
+    return lfgSection;
+  }
+
   if (!requests?.length) {
     return (
       <FlexCol className="items-center gap-1 px-6 py-10 text-center">
@@ -80,68 +98,74 @@ export const RequestList = ({
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
         >
-          People you don&apos;t follow back land here first, so you decide who
-          can message you.
+          People you don&apos;t follow land here first, so you decide who can
+          message you.
         </Typography>
       </FlexCol>
     );
   }
 
   return (
-    <nav aria-label="Message requests" className="flex flex-col gap-0.5 px-2">
-      {requests.map(({ id, peer, requestMessage, createdAt }) => {
-        const isActive = peer.id === activePeerId;
+    <>
+      {lfgSection}
+      <nav aria-label="Message requests" className="flex flex-col gap-0.5 px-2">
+        {requests.map(({ id, peer, requestMessage, createdAt }) => {
+          const isActive = peer.id === activePeerId;
 
-        return (
-          <Link
-            key={id}
-            href={getMessagesUrl(peer.id, { requests: true })}
-            passHref
-          >
-            <a
-              aria-current={isActive ? 'page' : undefined}
-              className={classNames(
-                'flex items-center gap-3 rounded-12 px-3 py-2.5 transition-colors hover:bg-surface-hover',
-                isActive && 'bg-surface-float',
-              )}
+          return (
+            <Link
+              key={id}
+              href={getMessagesUrl(peer.id, {
+                requests: true,
+                origin: DmOrigin.Requests,
+              })}
+              passHref
             >
-              <ProfilePicture
-                user={peer}
-                size={ProfileImageSize.Large}
-                nativeLazyLoading
-              />
-              <FlexCol className="min-w-0 flex-1">
-                <div className="flex items-baseline gap-2">
+              <a
+                aria-current={isActive ? 'page' : undefined}
+                className={classNames(
+                  'flex items-center gap-3 rounded-12 px-3 py-2.5 transition-colors hover:bg-surface-hover',
+                  isActive && 'bg-surface-float',
+                )}
+              >
+                <ProfilePicture
+                  user={peer}
+                  size={ProfileImageSize.Large}
+                  nativeLazyLoading
+                />
+                <FlexCol className="min-w-0 flex-1">
+                  <div className="flex items-baseline gap-2">
+                    <Typography
+                      type={TypographyType.Callout}
+                      bold
+                      truncate
+                      className="flex-1"
+                    >
+                      {peer.name}
+                    </Typography>
+                    <Typography
+                      tag={TypographyTag.Time}
+                      type={TypographyType.Caption1}
+                      color={TypographyColor.Tertiary}
+                      className="shrink-0"
+                      dateTime={createdAt}
+                    >
+                      {publishTimeRelativeShort(createdAt)}
+                    </Typography>
+                  </div>
                   <Typography
-                    type={TypographyType.Callout}
-                    bold
-                    truncate
-                    className="flex-1"
-                  >
-                    {peer.name}
-                  </Typography>
-                  <Typography
-                    tag={TypographyTag.Time}
-                    type={TypographyType.Caption1}
+                    type={TypographyType.Footnote}
                     color={TypographyColor.Tertiary}
-                    className="shrink-0"
-                    dateTime={createdAt}
+                    truncate
                   >
-                    {publishTimeRelativeShort(createdAt)}
+                    {requestMessage}
                   </Typography>
-                </div>
-                <Typography
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Tertiary}
-                  truncate
-                >
-                  {requestMessage}
-                </Typography>
-              </FlexCol>
-            </a>
-          </Link>
-        );
-      })}
-    </nav>
+                </FlexCol>
+              </a>
+            </Link>
+          );
+        })}
+      </nav>
+    </>
   );
 };

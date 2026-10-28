@@ -275,7 +275,7 @@ const viewerCases: ViewerCase[] = [
       disabled: true,
     },
     hasBell: false,
-    composer: 'You no longer have access to this Squad.',
+    composer: "You can't post in this Squad",
     isStaff: false,
     canEdit: false,
     hasOptions: true,

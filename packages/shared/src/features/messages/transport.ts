@@ -11,10 +11,6 @@ export const isDmMockMode =
 
 export const isDmAvailable = !!chatWebsocketUrl || isDmMockMode;
 
-// Unread counts need the server-side inbox module; until then only the mock
-// has them, and asking the real server would open a session on every page.
-export const supportsUnreadCounts = isDmMockMode;
-
 // Both implementations load on first use, so pages without messages never
 // download the client or the mock's seed data.
 const lazyTransport = (load: () => Promise<DmTransport>): DmTransport => {
@@ -40,7 +36,19 @@ const lazyTransport = (load: () => Promise<DmTransport>): DmTransport => {
       (await get()).send(peer, body, context, options),
     react: async (peer, messageId, emojis) =>
       (await get()).react(peer, messageId, emojis),
+    edit: async (peer, messageId, body) =>
+      (await get()).edit(peer, messageId, body),
+    sendChatState: async (peer, state) =>
+      (await get()).sendChatState(peer, state),
     markRead: async (peerId) => (await get()).markRead(peerId),
+    joinRoom: async (roomJid) => (await get()).joinRoom(roomJid),
+    leaveRoom: async (roomJid) => (await get()).leaveRoom(roomJid),
+    sendRoomMessage: async (roomJid, body) =>
+      (await get()).sendRoomMessage(roomJid, body),
+    sendRoomChatState: async (roomJid, state) =>
+      (await get()).sendRoomChatState(roomJid, state),
+    sendRoomReaction: async (roomJid, messageId, emojis) =>
+      (await get()).sendRoomReaction(roomJid, messageId, emojis),
     subscribe: (listener: (event: DmEvent) => void) => {
       let unsubscribe: (() => void) | undefined;
       let isActive = true;

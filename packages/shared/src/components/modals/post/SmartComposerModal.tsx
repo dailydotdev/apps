@@ -34,7 +34,9 @@ import { useSettingsContext } from '../../../contexts/SettingsContext';
 import type { WriteFormTab } from '../../fields/form/common';
 import { LogEvent } from '../../../lib/log';
 import { useViewSize, ViewSize } from '../../../hooks';
+import { useIsPhone } from '../../../hooks/useViewSize';
 import { usePrompt } from '../../../hooks/usePrompt';
+import { useCloseOnBack } from '../../../hooks/useCloseOnBack';
 import type { ExternalLinkPreview, Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import type { Squad } from '../../../graphql/sources';
@@ -99,6 +101,8 @@ export interface SmartComposerModalProps extends LazyModalCommonProps {
   preview?: ExternalLinkPreview;
   editPost?: Post;
   onPosted?: () => void;
+  // Off where the composer is the page itself, so back leaves the page.
+  closeOnBack?: boolean;
 }
 
 export function SmartComposerModal({
@@ -113,12 +117,14 @@ export function SmartComposerModal({
   preview: initialPreview,
   editPost,
   onPosted,
+  closeOnBack = true,
   ...props
 }: SmartComposerModalProps): ReactElement {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
   const router = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isPhone = useIsPhone();
   const queryClient = useQueryClient();
   const { showPrompt } = usePrompt();
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
@@ -291,14 +297,44 @@ export function SmartComposerModal({
     [confirmDiscardIfDirty, isDirty, kind, logEvent, onRequestClose],
   );
 
+  const isAskingOnBack = useRef(false);
+  const { restore: restoreBackEntry, release: releaseBackEntry } =
+    useCloseOnBack({
+      enabled: closeOnBack,
+      onBack: () => {
+        if (!isDirty) {
+          handleClose();
+          return;
+        }
+
+        restoreBackEntry();
+        if (isAskingOnBack.current) {
+          return;
+        }
+        isAskingOnBack.current = true;
+        handleClose().finally(() => {
+          isAskingOnBack.current = false;
+        });
+      },
+    });
+
+  const navigateAway = useCallback(
+    async (url: string) => {
+      await releaseBackEntry();
+      router.push(url);
+    },
+    [releaseBackEntry, router],
+  );
+
   const handleViewScheduled = useCallback(async () => {
     if (!(await confirmDiscardIfDirty())) {
       return;
     }
 
+    const navigation = navigateAway(scheduledPostsUrl);
     onRequestClose?.();
-    router.push(scheduledPostsUrl);
-  }, [confirmDiscardIfDirty, onRequestClose, router]);
+    await navigation;
+  }, [confirmDiscardIfDirty, navigateAway, onRequestClose]);
 
   useEffect(() => {
     logEvent({
@@ -403,6 +439,7 @@ export function SmartComposerModal({
     initialPreview: editShare?.sharedPost ?? initialPreview,
     editPostId: editPost?.id,
     resolveScheduledAt: canSchedule ? schedule.resolveScheduledAt : undefined,
+    navigate: navigateAway,
     onComplete: () => {
       if (editPost?.id) {
         queryClient.invalidateQueries({
@@ -419,7 +456,7 @@ export function SmartComposerModal({
     selected.filter((audience) => !isUserAudience(audience)).length > 1;
   let submitLabel: string;
   if (isEditing) {
-    submitLabel = 'Save changes';
+    submitLabel = isPhone ? 'Save' : 'Save changes';
   } else if (canSchedule && schedule.isScheduled) {
     submitLabel = 'Schedule post';
   } else {
@@ -595,7 +632,7 @@ export function SmartComposerModal({
         </div>
       </div>
       {showSpamWarning && (
-        <div className="bg-status-warning/10 flex w-full shrink-0 items-center gap-2 px-5 py-1.5 text-text-secondary typo-caption2">
+        <div className="flex w-full shrink-0 items-center gap-2 bg-status-warning/[0.1] px-5 py-1.5 text-text-secondary typo-caption2">
           <InfoIcon
             size={IconSize.Size16}
             secondary

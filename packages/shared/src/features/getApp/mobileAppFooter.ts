@@ -9,7 +9,6 @@ const titleByRoute: Record<string, string> = {
   '/posts/discussed': seeAllPosts,
   '/popular': seeAllPosts,
   '/upvoted': seeAllPosts,
-  '/discussed': seeAllPosts,
   '/highlights': seeAllPosts,
   '/highlights/[channel]': seeAllPosts,
   '/highlights/all': seeAllPosts,

@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
@@ -21,10 +21,14 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import { webappUrl } from '../../../lib/constants';
-import { dmConversationsQueryOptions } from '../queries';
+import {
+  dmConversationPeersQueryOptions,
+  dmConversationsQueryOptions,
+} from '../queries';
 import type { DmConversation } from '../types';
+import type { DirectMessageConversation } from '../graphql';
 import { getMessagePreview } from '../media';
+import { DmOrigin, getMessagesUrl } from '../urls';
 
 const ConversationRow = ({
   conversation: { peer, lastMessage, unreadCount },
@@ -38,7 +42,7 @@ const ConversationRow = ({
   const isUnread = unreadCount > 0 && !isActive;
 
   return (
-    <Link href={`${webappUrl}messages/${peer.id}`} passHref>
+    <Link href={getMessagesUrl(peer.id, { origin: DmOrigin.Inbox })} passHref>
       <a
         aria-current={isActive ? 'page' : undefined}
         className={classNames(
@@ -96,6 +100,69 @@ const ConversationRow = ({
   );
 };
 
+// A row from the API alone: the person and the unread dot are known before
+// the last message, so the conversation can be opened right away. Without a
+// subtitle the last message is still loading.
+export const PendingConversationRow = ({
+  conversation: { peer, unreadCount },
+  isActive = false,
+  origin = DmOrigin.Inbox,
+  subtitle,
+}: {
+  conversation: DirectMessageConversation;
+  isActive?: boolean;
+  origin?: DmOrigin;
+  subtitle?: ReactNode;
+}): ReactElement => {
+  const isUnread = unreadCount > 0 && !isActive;
+
+  return (
+    <Link href={getMessagesUrl(peer.id, { origin })} passHref>
+      <a
+        aria-current={isActive ? 'page' : undefined}
+        aria-busy={!subtitle}
+        className={classNames(
+          'flex items-center gap-3 rounded-12 px-3 py-2.5 transition-colors hover:bg-surface-hover',
+          isActive && 'bg-surface-float',
+        )}
+      >
+        <ProfilePicture
+          user={peer}
+          size={ProfileImageSize.Large}
+          nativeLazyLoading
+        />
+        <FlexCol className="min-w-0 flex-1 gap-1.5">
+          <Typography type={TypographyType.Callout} bold={isUnread} truncate>
+            {peer.name}
+          </Typography>
+          <div className="flex items-center gap-2">
+            {subtitle ? (
+              <Typography
+                type={TypographyType.Footnote}
+                color={
+                  isUnread ? TypographyColor.Primary : TypographyColor.Tertiary
+                }
+                truncate
+                className="flex-1"
+              >
+                {subtitle}
+              </Typography>
+            ) : (
+              <div className="h-3 w-2/3 animate-pulse rounded-6 bg-surface-float" />
+            )}
+            {isUnread && (
+              <span
+                aria-label={`${unreadCount} unread`}
+                className="ml-auto size-2 shrink-0 rounded-full bg-accent-cabbage-default"
+              />
+            )}
+          </div>
+        </FlexCol>
+      </a>
+    </Link>
+  );
+};
+
 export const ConversationList = ({
   activePeerId,
   onNewMessage,
@@ -110,6 +177,12 @@ export const ConversationList = ({
     isError,
     refetch,
   } = useQuery(dmConversationsQueryOptions(user));
+  const peersQuery = dmConversationPeersQueryOptions(user);
+  // Only needed until the full inbox lands.
+  const { data: pendingRows } = useQuery({
+    ...peersQuery,
+    enabled: isPending && peersQuery.enabled,
+  });
 
   if (isError) {
     return (
@@ -128,6 +201,20 @@ export const ConversationList = ({
           Try again
         </Button>
       </FlexCol>
+    );
+  }
+
+  if (isPending && pendingRows?.length) {
+    return (
+      <nav aria-label="Conversations" className="flex flex-col gap-0.5 px-2">
+        {pendingRows.map((conversation) => (
+          <PendingConversationRow
+            key={conversation.peer.id}
+            conversation={conversation}
+            isActive={conversation.peer.id === activePeerId}
+          />
+        ))}
+      </nav>
     );
   }
 

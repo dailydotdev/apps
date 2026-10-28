@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useState } from 'react';
 import type { NextSeoProps } from 'next-seo';
+import { useRouter } from 'next/router';
 
 import { useIntegrationsQuery } from '@dailydotdev/shared/src/hooks/integrations/useIntegrationsQuery';
 
@@ -10,7 +11,6 @@ import { PlusIcon, SlackIcon } from '@dailydotdev/shared/src/components/icons';
 import type { UserIntegration } from '@dailydotdev/shared/src/graphql/integrations';
 import { UserIntegrationType } from '@dailydotdev/shared/src/graphql/integrations';
 import { useSlack } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlack';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { UserIntegrationItem } from '@dailydotdev/shared/src/components/integrations/UserIntegrationItem';
 import { NewUserIntegration } from '@dailydotdev/shared/src/components/integrations/NewUserIntegration';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -30,6 +30,7 @@ const AccountIntegrationsPage = (): ReactElement => {
   const [state, setState] = useState<{
     openIntegration?: UserIntegration;
   }>({});
+  const router = useRouter();
   const slack = useSlack();
   const { logEvent } = useLogContext();
 
@@ -47,9 +48,9 @@ const AccountIntegrationsPage = (): ReactElement => {
     });
 
     slack.connect({
-      redirectPath: `${webappUrl}account/integrations`,
+      redirectPath: router.pathname,
     });
-  }, [slack, logEvent]);
+  }, [slack, logEvent, router.pathname]);
 
   return (
     <AccountPageContainer title="Integrations">

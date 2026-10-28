@@ -37,7 +37,7 @@ const meta: Meta<typeof Share> = {
         username: 'testuser',
         email: 'test@example.com',
         image:
-          'https://daily-now-res.cloudinary.com/image/upload/placeholder.jpg',
+          'https://media.daily.dev/image/upload/placeholder.jpg',
         providers: ['google'],
       };
 

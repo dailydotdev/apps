@@ -1,11 +1,15 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 import type ReactModal from 'react-modal';
 import { ButtonSize, ButtonVariant } from '../buttons/Button';
 import CloseButton from '../CloseButton';
-import { useEventListener } from '../../hooks';
+import { ShellSquare } from '../shell/ShellSquare';
+import { MiniCloseIcon } from '../icons/MiniClose';
+import { IconSize } from '../Icon';
+import { useEventListener } from '../../hooks/useEventListener';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 
 export interface ImageOriginRect {
   top: number;
@@ -51,7 +55,26 @@ export default function ImageModal({
 }: ImageModalProps): ReactElement | null {
   const close = () => onRequestClose?.(undefined as never);
   const imgRef = useRef<HTMLImageElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const phoneCloseButtonRef = useRef<HTMLElement>(null);
+  const isTablet = useViewSize(ViewSize.Tablet);
   const hasPlayedRef = useRef(false);
+  const focusCloseButton = useCallback(() => {
+    const button = isTablet
+      ? closeButtonRef.current
+      : phoneCloseButtonRef.current;
+    button?.focus();
+  }, [isTablet]);
+
+  useEffect(() => {
+    const previousFocus = document.activeElement;
+    focusCloseButton();
+    return () => {
+      if (previousFocus instanceof HTMLElement) {
+        previousFocus.focus();
+      }
+    };
+  }, [focusCloseButton]);
 
   // FLIP: render the image at its final centered size, but start it transformed
   // to sit over the clicked thumbnail, then animate the transform away so it
@@ -118,6 +141,12 @@ export default function ImageModal({
     globalThis as unknown as Window,
     'keydown',
     (event) => {
+      if (event.key === 'Tab') {
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        focusCloseButton();
+        return;
+      }
       if (event.key !== 'Escape') {
         return;
       }
@@ -155,14 +184,18 @@ export default function ImageModal({
   }
 
   return createPortal(
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <div
       className="fixed inset-0 z-modal flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-label={alt}
+      onClick={(event) => event.stopPropagation()}
+      onKeyDown={(event) => event.stopPropagation()}
     >
       <button
         type="button"
+        tabIndex={-1}
         aria-label="Close"
         className="absolute inset-0 cursor-default bg-overlay-primary-pepper backdrop-blur-md"
         onClick={close}
@@ -190,11 +223,21 @@ export default function ImageModal({
       />
       {/* Pinned to the screen corner (not the image) so a busy image can't
           camouflage it. Primary (solid) variant stays visible over the dark
-          overlay. */}
+          overlay. On phones it is the block's close square, top left. */}
+      <div className="absolute left-4 top-4 z-1 tablet:hidden">
+        <ShellSquare
+          ref={phoneCloseButtonRef}
+          aria-label="Close"
+          onClick={close}
+        >
+          <MiniCloseIcon size={IconSize.Small} />
+        </ShellSquare>
+      </div>
       <CloseButton
+        ref={closeButtonRef}
         variant={ButtonVariant.Primary}
         size={ButtonSize.Small}
-        className="absolute right-4 top-4 z-1"
+        className="absolute right-4 top-4 z-1 hidden tablet:inline-flex"
         onClick={close}
       />
     </div>,

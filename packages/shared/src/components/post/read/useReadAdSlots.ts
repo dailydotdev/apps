@@ -1,5 +1,8 @@
 import { useContext } from 'react';
-import { featureReadAds } from '../../../lib/featureManagement';
+import {
+  featureOrganicAds,
+  featureReadAds,
+} from '../../../lib/featureManagement';
 import AuthContext from '../../../contexts/AuthContext';
 import { useActivePostContext } from '../../../contexts/ActivePostContext';
 import type { Source } from '../../../graphql/sources';
@@ -59,11 +62,13 @@ export const useReadAdSlots = (post?: AdSlotsPost): AdSlots => {
 /**
  * The organic post page's slots, permanent since the post_adsense experiment
  * won: anonymous visitors only, so any logged-in user (member or Plus) never
- * sees programmatic ads on their post pages. Both post layouts carry them.
+ * sees programmatic ads on their post pages. The `organic_ads` kill switch
+ * turns them all off.
  */
 export const useOrganicAdSlots = (post?: AdSlotsPost): AdSlots => {
   const isAnonymous = useIsAnonymous();
+  const enabled = useFeature(featureOrganicAds);
   const isAdFree = useIsAdFreePost(post);
 
-  return isAnonymous && !isAdFree ? ORGANIC_AD_SLOTS : NO_SLOTS;
+  return enabled && isAnonymous && !isAdFree ? ORGANIC_AD_SLOTS : NO_SLOTS;
 };

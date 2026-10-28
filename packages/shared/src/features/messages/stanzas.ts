@@ -1,5 +1,7 @@
 import type {
+  DmChatState,
   DmCommentContext,
+  DmEdit,
   DmMessage,
   DmReaction,
   DmReactions,
@@ -15,6 +17,8 @@ export const NS_SID = 'urn:xmpp:sid:0';
 export const NS_CARBONS = 'urn:xmpp:carbons:2';
 export const NS_REACTIONS = 'urn:xmpp:reactions:0';
 export const NS_HINTS = 'urn:xmpp:hints';
+export const NS_CORRECT = 'urn:xmpp:message-correct:0';
+export const NS_CHAT_STATES = 'http://jabber.org/protocol/chatstates';
 // Agreed with the skirnir owner; bump the trailing version on breaking changes.
 export const NS_COMMENT_REF = 'urn:daily:chat:comment-ref:0';
 
@@ -109,7 +113,9 @@ export const parseChatMessage = (
   const body = textOf(message, 'body');
   const parties = body && getParties(message, ownBareJid);
 
-  if (!parties) {
+  // A correction (XEP-0308) changes an earlier message instead of adding one;
+  // parseCorrection reads it.
+  if (!parties || childOf(message, 'replace', NS_CORRECT)) {
     return null;
   }
 
@@ -189,10 +195,75 @@ export const parseReaction = (
   };
 };
 
-export const applyReaction = (
+// XEP-0308. The replacement carries a full body, so it would otherwise read
+// as a new message.
+export const parseCorrection = (
+  message: Element,
+  { ownBareJid, stamp }: ParseOptions,
+): DmEdit | null => {
+  const messageId = childOf(message, 'replace', NS_CORRECT)?.getAttribute('id');
+  const body = textOf(message, 'body');
+  const parties = messageId && body && getParties(message, ownBareJid);
+
+  if (!parties) {
+    return null;
+  }
+
+  return {
+    ...parties,
+    messageId,
+    body,
+    editedAt:
+      stamp ??
+      childOf(message, 'delay', NS_DELAY)?.getAttribute('stamp') ??
+      new Date().toISOString(),
+  };
+};
+
+// Only the sender may correct a message, so a peer can't rewrite ours. A
+// correction of a message that isn't loaded is dropped with it.
+export const applyEdit = (
   messages: DmMessage[],
-  { messageId, senderId, emojis }: DmReaction,
+  { messageId, senderId, body, editedAt }: DmEdit,
 ): DmMessage[] =>
+  messages.map((message) =>
+    message.id === messageId && message.senderId === senderId
+      ? { ...message, body, editedAt }
+      : message,
+  );
+
+const chatStates: DmChatState[] = [
+  'active',
+  'composing',
+  'paused',
+  'inactive',
+  'gone',
+];
+
+// XEP-0085, standalone only: a state riding on a message is implied by the
+// message itself.
+export const parseChatState = (
+  message: Element,
+  ownBareJid: string,
+): { peerId: string; senderId: string; state: DmChatState } | null => {
+  const state = chatStates.find((name) =>
+    childOf(message, name, NS_CHAT_STATES),
+  );
+  const parties =
+    state && !textOf(message, 'body') && getParties(message, ownBareJid);
+
+  return parties ? { ...parties, state } : null;
+};
+
+type Reactable = { id: string; reactions?: DmReactions };
+type ReactionChange = Pick<DmReaction, 'messageId' | 'senderId' | 'emojis'>;
+
+// Direct and room messages alike: a reaction stanza carries the sender's
+// whole set for a message, so theirs is replaced, never merged.
+export const applyReaction = <T extends Reactable, R extends ReactionChange>(
+  messages: T[],
+  { messageId, senderId, emojis }: R,
+): T[] =>
   messages.map((message) => {
     if (message.id !== messageId) {
       return message;
@@ -212,7 +283,7 @@ export const applyReaction = (
     return { ...message, reactions };
   });
 
-export const getOwnReactions = (message: DmMessage, userId: string): string[] =>
+export const getOwnReactions = (message: Reactable, userId: string): string[] =>
   Object.entries(message.reactions ?? {})
     .filter(([, userIds]) => userIds.includes(userId))
     .map(([emoji]) => emoji);

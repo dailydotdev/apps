@@ -28,6 +28,21 @@ interface UsePaddlePaymentProps
   getProductQuantity?: (event: PaddleEventData) => number;
 }
 
+/**
+ * Paddle puts a checkout error's details on the event itself, not under
+ * `data`, which `checkout.error` doesn't carry at all: logging only
+ * `data.transaction_id` logged `{}`.
+ */
+const getCheckoutErrorExtra = (
+  event?: PaddleEventData,
+): Record<string, unknown> => ({
+  transaction_id: event?.data?.transaction_id,
+  error_type: event?.type,
+  error_code: event?.code,
+  error: event?.detail,
+  payment: event?.data?.payment?.method_details?.type,
+});
+
 export const usePaddlePayment = ({
   successCallback,
   disabledEvents,
@@ -44,7 +59,7 @@ export const usePaddlePayment = ({
   const [appliedDiscountId, setAppliedDiscountId] = useState<string | null>(
     null,
   );
-  const logRef = useRef<typeof logEvent>();
+  const logRef = useRef(logEvent);
   logRef.current = logEvent;
   const successCallbackRef = useRef(successCallback);
   successCallbackRef.current = successCallback;
@@ -61,13 +76,19 @@ export const usePaddlePayment = ({
       return;
     }
 
+    const paddleToken = process.env.NEXT_PUBLIC_PADDLE_TOKEN;
+    if (!paddleToken) {
+      // Paddle can't initialise without a client token
+      return;
+    }
+
     isCheckoutOpenRef.current = false;
 
     initializePaddle({
       environment:
         (process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT as Environments) ||
         'production',
-      token: process.env.NEXT_PUBLIC_PADDLE_TOKEN,
+      token: paddleToken,
       eventCallback: (event: PaddleEventData) => {
         if (disabledEvents?.includes(event?.name as CheckoutEventNames)) {
           if (event?.name === CheckoutEventNames.CHECKOUT_LOADED) {
@@ -132,11 +153,11 @@ export const usePaddlePayment = ({
                     ? customData.user_id
                     : undefined,
                 quantity: getProductQuantityRef.current?.(event),
-                localCost: event?.data.totals.total,
-                localCurrency: event?.data.currency_code,
-                payment: event?.data.payment.method_details.type,
+                localCost: event?.data?.totals.total,
+                localCurrency: event?.data?.currency_code,
+                payment: event?.data?.payment.method_details.type,
                 cycle:
-                  event?.data.items?.[0]?.billing_cycle?.interval ?? 'one-off',
+                  event?.data?.items?.[0]?.billing_cycle?.interval ?? 'one-off',
                 ...plusPlanExtra,
               }),
             });
@@ -161,18 +182,15 @@ export const usePaddlePayment = ({
             logRef.current({
               target_type: targetType,
               event_name: LogEvent.ErrorCheckout,
-              extra: JSON.stringify({
-                transaction_id: event?.data?.transaction_id,
-              }),
+              extra: JSON.stringify(getCheckoutErrorExtra(event)),
             });
             break;
           case CheckoutEventNames.CHECKOUT_PAYMENT_FAILED:
+          case CheckoutEventNames.CHECKOUT_PAYMENT_ERROR:
             logRef.current({
               target_type: targetType,
               event_name: LogEvent.ErrorPayment,
-              extra: JSON.stringify({
-                transaction_id: event?.data?.transaction_id,
-              }),
+              extra: JSON.stringify(getCheckoutErrorExtra(event)),
             });
             break;
           case CheckoutEventNames.CHECKOUT_CLOSED:

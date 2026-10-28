@@ -68,7 +68,7 @@ const Backdrop = ({ cover }: { cover?: string }): ReactElement => (
           alt=""
           className="absolute inset-0 h-full w-full scale-125 object-cover opacity-50 blur-[48px]"
         />
-        <div className="from-background-default/70 via-background-default/88 absolute inset-0 bg-gradient-to-b to-background-default" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background-default/[0.7] via-background-default/[0.88] to-background-default" />
       </>
     ) : (
       <div

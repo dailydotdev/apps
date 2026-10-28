@@ -52,7 +52,6 @@ import type { TagsData } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
 import { RelatedEntities } from '@dailydotdev/shared/src/components/RelatedEntities';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts/ActiveFeedNameContext';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
@@ -61,10 +60,10 @@ import { ArchiveEntryCard } from '@dailydotdev/shared/src/components/archive/Arc
 import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/ArchiveBreadcrumbs';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { ArchiveScopeType } from '@dailydotdev/shared/src/graphql/archive';
 import { EntitySectionHeading } from '@dailydotdev/shared/src/components/entity/EntitySectionHeading';
-import { EntityRailWithFade } from '@dailydotdev/shared/src/components/entity/EntityRailWithFade';
+import { EntityFeedRailSection } from '@dailydotdev/shared/src/components/entity/EntityFeedRailSection';
 import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
 import { useRecentPageMeta } from '@dailydotdev/shared/src/hooks/useRecentPages';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
@@ -82,7 +81,7 @@ import { getLayout } from '../../components/layouts/FeedLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { SourceActions } from '../../../shared/src/components/sources/SourceActions';
 import type { DynamicSeoProps } from '../../components/common';
-import { getAppOrigin } from '../../lib/seo';
+import { getAppOrigin, toJsonLd } from '../../lib/seo';
 
 const appOrigin = getAppOrigin();
 const pageSectionClassName = 'mx-4';
@@ -181,7 +180,7 @@ const getSourcePageJsonLd = (source: Source): string => {
   )}`;
   const sourceUrl = source.permalink || sourcePageUrl;
 
-  return JSON.stringify({
+  return toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {
@@ -270,8 +269,7 @@ const SourcePage = ({
   const isPhone = useIsPhone();
   const nameRef = useRef<HTMLHeadingElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
-  const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2;
+  const isLaptopLayout = useLaptopLayout();
   const { user } = useContext(AuthContext);
   useRecentPageMeta({ image: source?.image });
   const mostUpvotedQueryVariables = useMemo(
@@ -316,7 +314,7 @@ const SourcePage = ({
       {/* v2: hoist the page-header strip OUT of FeedPageLayoutComponent
           so it spans the full floating-card width without being clamped
           by the list-mode max-width. */}
-      {isV2Laptop && <PageHeader title={source.name} />}
+      {isLaptopLayout && <PageHeader title={source.name} />}
       {isPhone && (
         <SourceShellPage source={source} nameRef={nameRef} heroRef={heroRef} />
       )}
@@ -382,52 +380,38 @@ const SourcePage = ({
         <ActiveFeedNameContext.Provider
           value={{ feedName: OtherFeedPage.SourceMostUpvoted }}
         >
-          <div className={pageFeedSectionClassName}>
-            <EntitySectionHeading
-              icon={<UpvoteIcon size={IconSize.Medium} className="shrink-0" />}
-            >
-              Most upvoted posts from {source.name}
-            </EntitySectionHeading>
-            <EntityRailWithFade>
-              <HorizontalFeed
-                feedName={OtherFeedPage.SourceMostUpvoted}
-                feedQueryKey={[
-                  'sourceMostUpvoted',
-                  user?.id ?? 'anonymous',
-                  Object.values(mostUpvotedQueryVariables),
-                ]}
-                query={MOST_UPVOTED_FEED_QUERY}
-                variables={mostUpvotedQueryVariables}
-                className={horizontalRailClassName}
-                emptyScreen={<></>}
-              />
-            </EntityRailWithFade>
-          </div>
+          <EntityFeedRailSection
+            sectionClassName={pageFeedSectionClassName}
+            icon={<UpvoteIcon size={IconSize.Medium} className="shrink-0" />}
+            heading={<>Most upvoted posts from {source.name}</>}
+            feedName={OtherFeedPage.SourceMostUpvoted}
+            feedQueryKey={[
+              'sourceMostUpvoted',
+              user?.id ?? 'anonymous',
+              Object.values(mostUpvotedQueryVariables),
+            ]}
+            query={MOST_UPVOTED_FEED_QUERY}
+            variables={mostUpvotedQueryVariables}
+            className={horizontalRailClassName}
+          />
         </ActiveFeedNameContext.Provider>
         <ActiveFeedNameContext.Provider
           value={{ feedName: OtherFeedPage.SourceBestDiscussed }}
         >
-          <div className={pageFeedSectionClassName}>
-            <EntitySectionHeading
-              icon={<DiscussIcon size={IconSize.Medium} className="shrink-0" />}
-            >
-              Best discussed posts from {source.name}
-            </EntitySectionHeading>
-            <EntityRailWithFade>
-              <HorizontalFeed
-                feedName={OtherFeedPage.SourceBestDiscussed}
-                feedQueryKey={[
-                  'sourceBestDiscussed',
-                  user?.id ?? 'anonymous',
-                  Object.values(bestDiscussedQueryVariables),
-                ]}
-                query={MOST_DISCUSSED_FEED_QUERY}
-                variables={bestDiscussedQueryVariables}
-                className={horizontalRailClassName}
-                emptyScreen={<></>}
-              />
-            </EntityRailWithFade>
-          </div>
+          <EntityFeedRailSection
+            sectionClassName={pageFeedSectionClassName}
+            icon={<DiscussIcon size={IconSize.Medium} className="shrink-0" />}
+            heading={<>Best discussed posts from {source.name}</>}
+            feedName={OtherFeedPage.SourceBestDiscussed}
+            feedQueryKey={[
+              'sourceBestDiscussed',
+              user?.id ?? 'anonymous',
+              Object.values(bestDiscussedQueryVariables),
+            ]}
+            query={MOST_DISCUSSED_FEED_QUERY}
+            variables={bestDiscussedQueryVariables}
+            className={horizontalRailClassName}
+          />
         </ActiveFeedNameContext.Provider>
         <ArchiveEntryCard
           scopeType={ArchiveScopeType.Source}

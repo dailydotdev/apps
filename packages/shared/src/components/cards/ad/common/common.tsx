@@ -10,4 +10,6 @@ export interface AdCardProps {
   onLinkClick?: Callback;
   onViewable?: (ad: Ad, data: ViewabilityData) => void;
   domProps?: HTMLAttributes<HTMLDivElement>;
+  /** Outside the feed's own ad list, which rotation swaps creatives in. */
+  disableRotation?: boolean;
 }

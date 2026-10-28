@@ -6,13 +6,13 @@ import type { NextSeoProps } from 'next-seo/lib/types';
 import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import { TAG_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { useRouter } from 'next/router';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { TagsDirectoryPage } from '@dailydotdev/shared/src/components/tags/TagsDirectoryPage';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
+import { toJsonLd } from '../../lib/seo';
 
 const seoTitles = getPageSeoTitles('Explore trending tags for developers');
 const seo: NextSeoProps = {
@@ -29,7 +29,7 @@ interface TagsPageProps {
 }
 
 const getTagsSchemas = (tags: Keyword[]): string =>
-  JSON.stringify({
+  toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {
@@ -56,16 +56,10 @@ const getTagsSchemas = (tags: Keyword[]): string =>
   });
 
 const TagsPage = ({
-  tags,
-  trendingTags,
-  popularTags,
+  tags = [],
+  trendingTags = [],
+  popularTags = [],
 }: TagsPageProps): ReactElement => {
-  const { isFallback: isLoading } = useRouter();
-
-  if (isLoading) {
-    return <></>;
-  }
-
   const topTagsForSchema = tags.slice(0, 50);
 
   return (
@@ -94,7 +88,6 @@ const getTagsPageLayout: typeof getLayout = (...props) =>
 
 TagsPage.getLayout = getTagsPageLayout;
 TagsPage.layoutProps = {
-  screenCentered: false,
   seo,
 };
 export default TagsPage;

@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
+import classNames from 'classnames';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -25,7 +26,7 @@ import { DM_REQUEST_MAX_LENGTH } from '../types';
 
 const genericError = "Couldn't send your request. Please try again.";
 
-// Users who don't follow each other start with one short note the peer
+// A sender the peer doesn't follow starts with one short note the peer
 // accepts or declines; the chat opens once they accept.
 export const MessageRequestComposer = ({
   peer,
@@ -38,6 +39,7 @@ export const MessageRequestComposer = ({
   const { logEvent } = useLogContext();
   const [value, setValue] = useState('');
   const message = value.trim();
+  const remainingCharacters = DM_REQUEST_MAX_LENGTH - value.length;
 
   const { mutate, isPending } = useMutation({
     mutationFn: sendDirectMessageRequest,
@@ -60,6 +62,7 @@ export const MessageRequestComposer = ({
           peerJid: null,
           requestMessage: note,
           createdByViewer: true,
+          unreadCount: 0,
           isRequest: true,
           createdAt: new Date().toISOString(),
           peer,
@@ -77,8 +80,8 @@ export const MessageRequestComposer = ({
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
         >
-          You and @{peer.username} don&apos;t follow each other, so send a short
-          message request first. You can chat once they accept.
+          @{peer.username} doesn&apos;t follow you, so send a short message
+          request first. You can chat once they accept.
         </Typography>
         <textarea
           id="dm-request-composer"
@@ -88,10 +91,21 @@ export const MessageRequestComposer = ({
           placeholder="Introduce yourself and say why you're reaching out"
           maxLength={DM_REQUEST_MAX_LENGTH}
           value={value}
-          className="block w-full min-w-0 resize-none bg-transparent py-1.5 text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
+          className="block w-full min-w-0 resize-none bg-transparent py-1.5 text-text-primary outline-none typo-body placeholder:text-text-quaternary tablet:typo-callout"
           onChange={(event) => setValue(event.target.value)}
         />
-        <FlexRow className="justify-end">
+        <FlexRow className="items-center justify-end gap-3">
+          <span
+            aria-live="polite"
+            className={classNames(
+              'font-bold typo-callout',
+              remainingCharacters < 50
+                ? 'text-status-warning'
+                : 'text-text-tertiary',
+            )}
+          >
+            {remainingCharacters}
+          </span>
           <Button
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}

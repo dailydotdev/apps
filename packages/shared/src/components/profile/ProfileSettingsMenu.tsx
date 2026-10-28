@@ -18,7 +18,6 @@ import {
   CoinIcon,
   CreditCardIcon,
   HashtagIcon,
-  HotIcon,
   InviteIcon,
   MagicIcon,
   MailIcon,
@@ -83,15 +82,13 @@ type MenuItems = Record<
 
 const defineMenuItems = <T extends MenuItems>(items: T): T => items;
 
-const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
+const useAccountPageItems = () => {
   const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
-  const { optOutAchievements, optOutLevelSystem, optOutQuestSystem } =
-    useSettingsContext();
+  const { optOutAchievements, isQuestExperienceEnabled } = useSettingsContext();
   const { isJobsEnabled } = useJobsFeature();
-  const shouldHideGameCenter =
-    optOutAchievements && optOutLevelSystem && optOutQuestSystem;
+  const shouldHideGameCenter = !isQuestExperienceEnabled;
 
   const items = useMemo(
     () =>
@@ -240,16 +237,6 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
                 external: true,
               },
             }),
-            hotTakes: {
-              title: 'Hot Takes',
-              icon: HotIcon,
-              href: `${webappUrl}?openModal=hottakes`,
-              external: true,
-              onClick: () => {
-                logEvent({ event_name: LogEvent.OpenHotAndCold });
-                onClose?.();
-              },
-            },
             devcard: {
               title: 'DevCard',
               icon: DevCardIcon,
@@ -350,7 +337,6 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
       }),
     [
       logEvent,
-      onClose,
       openModal,
       user?.username,
       optOutAchievements,
@@ -381,16 +367,14 @@ interface ProfileSettingsMenuProps {
 
 export const InnerProfileSettingsMenu = ({
   className,
-  onClose,
   showPlusEntry = true,
 }: WithClassNameProps & {
-  onClose?: () => void;
   showPlusEntry?: boolean;
 }) => {
   const { asPath } = useRouter();
   const isMobile = useViewSize(ViewSize.MobileL);
   const hasAccessToCores = useHasAccessToCores();
-  const { items: accountPageItems } = useAccountPageItems({ onClose });
+  const { items: accountPageItems } = useAccountPageItems();
 
   return (
     <nav
@@ -460,7 +444,7 @@ export function ProfileSettingsMenuMobile({
         onClose: onClose ?? (() => {}),
       }}
     >
-      <InnerProfileSettingsMenu onClose={onClose} />
+      <InnerProfileSettingsMenu />
     </NavDrawer>
   );
 }

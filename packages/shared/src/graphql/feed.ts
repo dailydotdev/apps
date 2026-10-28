@@ -14,6 +14,15 @@ export enum RankingAlgorithm {
 export enum BookmarkSort {
   TimeDesc = 'TIME_DESC',
   TimeAsc = 'TIME_ASC',
+  TitleAsc = 'TITLE_ASC',
+  ReadTimeAsc = 'READ_TIME_ASC',
+}
+
+export enum BookmarkStatus {
+  All = 'ALL',
+  Unread = 'UNREAD',
+  Read = 'READ',
+  Archived = 'ARCHIVED',
 }
 
 export const baseFeedSupportedTypes = [
@@ -423,9 +432,12 @@ export interface FeedHeroData {
   };
 }
 
+// The API's ceiling: enough headlines to fill Happening Now at Large.
+const FEED_HERO_HIGHLIGHTS = 12;
+
 export const FEED_HERO_QUERY = gql`
   query FeedHero($loggedIn: Boolean! = false, ${SUPPORTED_TYPES}) {
-    feedHero(supportedTypes: $supportedTypes) {
+    feedHero(supportedTypes: $supportedTypes, first: ${FEED_HERO_HIGHLIGHTS}) {
       posts {
         ${feedPostNodeSelection('contentHtml')}
       }
@@ -595,6 +607,9 @@ export const BOOKMARKS_FEED_QUERY = gql`
     $listId: ID
     $reminderOnly: Boolean
     $sort: BookmarkSort
+    $status: BookmarkStatus
+    $tags: [String!]
+    $sources: [ID!]
     $supportedTypes: [String!]
   ) {
     page: bookmarksFeed(
@@ -603,6 +618,9 @@ export const BOOKMARKS_FEED_QUERY = gql`
       listId: $listId
       reminderOnly: $reminderOnly
       sort: $sort
+      status: $status
+      tags: $tags
+      sources: $sources
       supportedTypes: $supportedTypes
     ) {
       ...FeedPostConnection
@@ -658,6 +676,7 @@ export const SEARCH_BOOKMARKS_QUERY = gql`
     $after: String
     $query: String!
     $listId: ID
+    $status: BookmarkStatus
     $supportedTypes: [String!]
   ) {
     page: searchBookmarks(
@@ -665,6 +684,7 @@ export const SEARCH_BOOKMARKS_QUERY = gql`
       after: $after
       query: $query
       listId: $listId
+      status: $status
       supportedTypes: $supportedTypes
     ) {
       ...FeedPostConnection

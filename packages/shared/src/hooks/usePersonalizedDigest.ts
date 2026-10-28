@@ -148,6 +148,7 @@ export const usePersonalizedDigest = ({
           ...flags,
           ...(sendType && { sendType }),
         },
+        deliveryPaused: false,
       };
       queryClient.setQueryData(queryKey, [
         ...currentData.filter((item) => item.type !== type),

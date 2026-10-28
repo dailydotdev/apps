@@ -172,6 +172,24 @@ describe('Highlight card share controls', () => {
     });
   });
 
+  // iOS drops a tap that reveals hidden content and only shows the hover
+  // state, so a row that revealed its copy link on hover took two taps.
+  it.each([
+    ['grid', HighlightGrid],
+    ['list', HighlightList],
+  ])('only hides the copy links from a mouse on the %s card', (_, Card) => {
+    renderCard(<Card highlights={highlights} />);
+
+    screen.getAllByRole('button', { name: 'Copy link' }).forEach((button) => {
+      const touchClasses = button.className
+        .split(' ')
+        .filter((className) => !className.startsWith('mouse:'));
+
+      expect(touchClasses).not.toContain('opacity-0');
+      expect(touchClasses).not.toContain('pointer-events-none');
+    });
+  });
+
   it('copies the page as an absolute link from the header', async () => {
     const logEvent = jest.fn();
     renderShareable(logEvent);

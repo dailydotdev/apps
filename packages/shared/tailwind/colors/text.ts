@@ -1,3 +1,5 @@
+import { withAlpha } from './withAlpha';
+
 const textColors = {
   primary: 'var(--theme-text-primary)',
   secondary: 'var(--theme-text-secondary)',
@@ -12,4 +14,4 @@ const textColors = {
   credit: 'var(--theme-accent-bun-default)',
 };
 
-export default textColors;
+export default withAlpha(textColors);

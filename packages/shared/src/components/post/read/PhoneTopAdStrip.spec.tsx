@@ -4,6 +4,7 @@ import type { AuthContextData } from '../../../contexts/AuthContext';
 import AuthContext from '../../../contexts/AuthContext';
 import type { AdSlots } from '../../../features/monetization/kueez';
 import { useFeature } from '../../GrowthBookProvider';
+import { featureOrganicAds } from '../../../lib/featureManagement';
 import { PHONE_TOP_AD_HEIGHT_VAR, PhoneTopAdStrip } from './PhoneTopAdStrip';
 import { ORGANIC_SLOT, READ_SLOT } from './slots';
 
@@ -55,7 +56,9 @@ beforeEach(() => {
 
     unobserve = jest.fn();
   } as unknown as typeof ResizeObserver;
-  mockUseFeature.mockImplementation((feature) => feature.defaultValue);
+  mockUseFeature.mockImplementation((feature) =>
+    feature === featureOrganicAds ? true : feature.defaultValue,
+  );
   mockSlotMaps.ORGANIC_AD_SLOTS = {
     [ORGANIC_SLOT.topLeaderboardPhone]: { sizes: [[320, 50]] },
   };

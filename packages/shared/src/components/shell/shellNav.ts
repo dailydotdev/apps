@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { squadCategoriesPaths, isDevelopment } from '../../lib/constants';
 import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
+import { moveShell, ShellMove } from './shellMove';
 
 export enum ShellRoot {
   Home = 'home',
@@ -23,7 +24,6 @@ const exploreViews = [
   '/posts',
   '/popular',
   '/upvoted',
-  '/discussed',
   '/tags',
   '/sources',
   '/users',
@@ -113,6 +113,8 @@ const noClusterPrefixes = [
   '/squads/[handle]/manage',
   '/squads/[handle]/moderate',
   '/posts/[id]/edit',
+  '/lfg/new',
+  '/lfg/[id]/edit',
   // A job page ends in its own fixed call to action.
   '/jobs/[id]',
 ];
@@ -352,11 +354,13 @@ export const useShellBack = (): (() => void) => {
   const router = useRouter();
 
   return useCallback(() => {
-    if (canGoBackInApp()) {
-      router.back();
-      return;
-    }
+    moveShell(router, ShellMove.Pop, () => {
+      if (canGoBackInApp()) {
+        router.back();
+        return;
+      }
 
-    router.push(rootHref[owningRoot(router.pathname)]);
+      router.push(rootHref[owningRoot(router.pathname)]);
+    });
   }, [router]);
 };

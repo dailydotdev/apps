@@ -13,6 +13,8 @@ import {
   useMobileAppHeaderIconOnlyRead,
 } from '../../features/getApp/hooks/useMobileAppHeader';
 import { useIsPhone } from '../../hooks/useViewSize';
+import { useHasPostCapsule } from './PostCapsule';
+import { PostExcoPlayerWidget } from './PostExcoPlayerWidget';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "custom404" */ '../Custom404'),
@@ -39,6 +41,7 @@ export function BasePostContent({
   engagementProps,
   shouldOnboardAuthor,
   aboveComments,
+  belowComments,
   commentAds,
   isPostPage,
 }: BasePostContentProps): ReactElement {
@@ -49,6 +52,7 @@ export function BasePostContent({
   const isMobileAppHeader = useMobileAppHeader();
   const isPhone = useIsPhone();
   const isIconOnlyRead = useMobileAppHeaderIconOnlyRead();
+  const hasCapsule = useHasPostCapsule(isPostPage ? post : undefined);
 
   if (!id && !isFallback) {
     return <Custom404 />;
@@ -81,6 +85,9 @@ export function BasePostContent({
       {!!post?.id && <PostSignupWidget post={post} inline className="my-6" />}
       {isPostPage && <PostAnsweredQuestions post={post} className="mt-6" />}
       {aboveComments}
+      {!!engagementProps && !!post?.id && (
+        <PostExcoPlayerWidget post={post} placement="inline" className="my-6" />
+      )}
       {!!engagementProps && (
         <PostEngagements
           post={post}
@@ -90,8 +97,10 @@ export function BasePostContent({
           hideInternalAd={!!commentAds}
           interleaveEvery={commentAds?.interleaveEvery}
           renderInterleaved={commentAds?.renderInterleaved}
+          actionsClassName={hasCapsule ? 'hidden tablet:flex' : undefined}
         />
       )}
+      {belowComments}
     </>
   );
 }

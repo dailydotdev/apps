@@ -2,6 +2,7 @@ import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import { render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
+import nock from 'nock';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
@@ -10,6 +11,7 @@ import * as contexts from '@dailydotdev/shared/src/contexts/ActiveFeedNameContex
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import { SharedFeedPage } from '@dailydotdev/shared/src/components/utilities';
 import { SearchProvider } from '@dailydotdev/shared/src/contexts/search/SearchContext';
+import { SEARCH_TAG_SUGGESTIONS } from '@dailydotdev/shared/src/graphql/search';
 import { TestBootProvider } from '../../shared/__tests__/helpers/boot';
 
 jest.mock(
@@ -27,18 +29,20 @@ jest
 
 const DEFAULT_QUERY = 'react';
 
-beforeEach(() => {
-  jest.spyOn(hooks, 'useViewSize').mockReset();
-
+const mockRouterQuery = (query: Record<string, string>) =>
   jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         pathname: '/search',
-        query: { q: DEFAULT_QUERY, provider: 'posts' },
+        query,
         push: jest.fn(),
         isReady: true,
       } as unknown as NextRouter),
   );
+
+beforeEach(() => {
+  jest.spyOn(hooks, 'useViewSize').mockReset();
+  mockRouterQuery({ q: DEFAULT_QUERY, provider: 'posts' });
 });
 
 const renderComponent = (): RenderResult => {
@@ -87,4 +91,20 @@ it('should render the related sources widget', async () => {
   renderComponent();
   const text = screen.queryByTestId('related-sources');
   expect(text).toBeInTheDocument();
+});
+
+it('should list matching tags instead of posts for the tags provider', async () => {
+  mockRouterQuery({ q: DEFAULT_QUERY, provider: 'tags' });
+  nock('http://localhost:3000')
+    .post('/graphql', ({ query }) => query === SEARCH_TAG_SUGGESTIONS)
+    .reply(200, {
+      data: {
+        searchTagSuggestions: { hits: [{ id: 'react', title: 'React' }] },
+      },
+    });
+
+  renderComponent();
+
+  const tag = await screen.findByRole('link', { name: 'React' });
+  expect(tag).toHaveAttribute('href', '/tags/react');
 });

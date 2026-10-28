@@ -250,7 +250,7 @@ export const DevCardStep2 = ({
             'flex justify-center',
             type === DevCardType.Vertical ? 'h-[32.5rem]' : 'h-[23rem]',
             type === DevCardType.Horizontal &&
-              'mobileL:scale-60 mobileXXL:scale-80 scale-50 mobileXL:scale-75 tablet:scale-100',
+              'scale-50 mobileXL:scale-75 tablet:scale-100',
           )}
         >
           <Tilt

@@ -37,7 +37,7 @@ const invalidLinkCopy = 'Use a full address starting with https://';
 
 export const SquadManageLinks = (): ReactElement => {
   const { squad } = useSquadPageContext();
-  const { mutate: onSave, isPending } = useUpdateSquadLinks(squad);
+  const { mutate: onSave, isPending, data: saved } = useUpdateSquadLinks(squad);
   const [website, setWebsite] = useState(squad.website ?? '');
   const [links, setLinks] = useState<string[]>(squad.links ?? []);
   const [draft, setDraft] = useState('');
@@ -85,7 +85,13 @@ export const SquadManageLinks = (): ReactElement => {
   return (
     <SquadManageSectionPanel
       section={SquadManageSection.Links}
-      action={<SquadManageSaveButton formId={formId} isLoading={isPending} />}
+      action={
+        <SquadManageSaveButton
+          formId={formId}
+          isLoading={isPending}
+          savedKey={saved}
+        />
+      }
     >
       <form
         id={formId}

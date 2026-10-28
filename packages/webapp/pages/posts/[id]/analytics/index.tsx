@@ -715,7 +715,6 @@ const PostAnalyticsPage = ({
                 'mr-auto',
                 !campaignCompleted &&
                   'bg-action-downvote-float hover:bg-action-downvote-hover',
-                campaignCompleted && 'hover:bg-action-blueCheese-hober',
               )}
               color={
                 !campaignCompleted
@@ -754,8 +753,6 @@ const PostAnalyticsPage = ({
 };
 
 PostAnalyticsPage.getLayout = getLayout;
-PostAnalyticsPage.layoutProps = {
-  screenCentered: false,
-};
+PostAnalyticsPage.layoutProps = {};
 
 export default PostAnalyticsPage;

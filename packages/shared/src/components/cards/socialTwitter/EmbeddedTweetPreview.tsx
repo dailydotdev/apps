@@ -14,6 +14,8 @@ import {
   getSocialTextDirectionProps,
   getSocialTwitterMetadata,
 } from './socialTwitterHelpers';
+import { isPostRead } from '../../../graphql/posts';
+import { PostImage } from '../../post/PostImage';
 
 interface EmbeddedTweetPreviewProps {
   post: Post;
@@ -23,6 +25,7 @@ interface EmbeddedTweetPreviewProps {
   showXLogo?: boolean;
   fillAvailableHeight?: boolean;
   showImage?: boolean;
+  interactiveImage?: boolean;
 }
 
 export function EmbeddedTweetPreview({
@@ -33,6 +36,7 @@ export function EmbeddedTweetPreview({
   showXLogo = true,
   fillAvailableHeight = false,
   showImage = false,
+  interactiveImage = false,
 }: EmbeddedTweetPreviewProps): ReactElement {
   const resolvedBodyClassName = bodyClassName ?? 'typo-callout';
 
@@ -72,7 +76,7 @@ export function EmbeddedTweetPreview({
   const tweetBodyClassName = classNames(
     'min-h-0 whitespace-pre-line break-words',
     resolvedBodyClassName,
-    post.read ? 'text-text-tertiary' : 'text-text-primary',
+    isPostRead(post) ? 'text-text-tertiary' : 'text-text-primary',
     textClampClass,
   );
 
@@ -99,7 +103,7 @@ export function EmbeddedTweetPreview({
                 suppressHydrationWarning
                 className={classNames(
                   'w-full truncate font-bold typo-caption1',
-                  post.read ? 'text-text-tertiary' : 'text-text-primary',
+                  isPostRead(post) ? 'text-text-tertiary' : 'text-text-primary',
                 )}
               >
                 {identity}
@@ -137,16 +141,19 @@ export function EmbeddedTweetPreview({
           </p>
         )}
       </div>
-      {shouldRenderTweetImage && (
-        <LazyImage
-          imgSrc={tweetImage}
-          imgAlt="Post cover image"
-          ratio="52%"
-          eager
-          className="mt-3 h-auto w-full rounded-12 object-cover"
-          fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-        />
-      )}
+      {shouldRenderTweetImage &&
+        (interactiveImage ? (
+          <PostImage src={tweetImage} className="mt-3" loading="eager" />
+        ) : (
+          <LazyImage
+            imgSrc={tweetImage}
+            imgAlt="Post cover image"
+            ratio="52%"
+            eager
+            className="mt-3 h-auto w-full rounded-12 object-cover"
+            fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+          />
+        ))}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { FlexCol } from '../../../components/utilities';
@@ -21,44 +21,77 @@ import { Tooltip } from '../../../components/tooltip/Tooltip';
 import { IconSize } from '../../../components/Icon';
 import { ShellPage } from '../../../components/shell/ShellPageContext';
 import { ShellSquare } from '../../../components/shell/ShellSquare';
-import { settingsUrl } from '../../../lib/constants';
 import { useAgentShellHeight } from '../../interests/shell';
+import { useIsPhone } from '../../../hooks/useViewSize';
+import { useKeyboardFit } from '../../../hooks/utils/useKeyboardFit';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useMessagesLiveUpdates } from '../hooks/useMessagesLiveUpdates';
 import { dmRequestCountQueryOptions } from '../queries';
-import { getMessagesUrl } from '../urls';
+import { getMessagesUrl, messageSettingsUrl } from '../urls';
+import type { DmOrigin } from '../urls';
+import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
+import { LogEvent } from '../../../lib/log';
 import { RequestList } from './RequestList';
 import { useDmSettings } from '../hooks/useDmSettings';
 import { ConversationList } from './ConversationList';
 import { ConversationThread } from './ConversationThread';
 import { NewMessageSearch } from './NewMessageSearch';
-
-const privacySettingsUrl = `${settingsUrl}/privacy`;
+import { useLfgRequestCount } from '../../lfg/components/messages/LfgRequestSection';
+import { LfgReachOutDetail } from '../../lfg/components/messages/LfgReachOutDetail';
+import { LfgMessagesPromo } from '../../lfg/components/messages/LfgMessagesPromo';
+import { useLfgEnabled } from '../../lfg/hooks/useLfgEnabled';
 
 // Two panes on laptop; below it the list and the thread are separate screens,
 // picked by whether a conversation is open.
 export const MessagesScreen = ({
   activePeerId,
+  activeReachOutId,
   commentId,
+  origin,
   showRequests = false,
   onCommentContextUsed,
 }: {
   activePeerId?: string;
+  // A Looking for group reach-out, open in the Requests tab.
+  activeReachOutId?: string;
   commentId?: string;
+  origin?: DmOrigin;
   showRequests?: boolean;
   onCommentContextUsed?: () => void;
 }): ReactElement => {
   const { user } = useAuthContext();
-  const { data: requestCount = 0 } = useQuery(dmRequestCountQueryOptions(user));
+  const { data: dmRequestCount = 0 } = useQuery(
+    dmRequestCountQueryOptions(user),
+  );
+  const lfgRequestCount = useLfgRequestCount();
+  const { isEnabled: isLfgEnabled } = useLfgEnabled();
+  const requestCount = dmRequestCount + lfgRequestCount;
+  const reachOutId =
+    showRequests && isLfgEnabled ? activeReachOutId : undefined;
+  const hasDetail = !!activePeerId || !!reachOutId;
   // A conversation has no bottom bar on phones: its composer takes the place.
-  const shellHeight = useAgentShellHeight(false, !activePeerId);
+  const shellHeight = useAgentShellHeight(false, !hasDetail);
+  const screenRef = useRef<HTMLDivElement>(null);
+  const keyboardHeight = useKeyboardFit(screenRef, useIsPhone());
   const { allowsMessages } = useDmSettings();
   const [isComposing, setIsComposing] = useState(false);
   useMessagesLiveUpdates(true);
+  useLogEventOnce(() => ({
+    event_name: LogEvent.OpenMessages,
+    extra: JSON.stringify({
+      origin: origin ?? null,
+      tab: showRequests ? 'requests' : 'chats',
+      has_conversation: !!activePeerId,
+    }),
+  }));
 
   return (
-    <div className={classNames('flex w-full min-w-0', shellHeight)}>
-      {!activePeerId && (
+    <div
+      ref={screenRef}
+      className={classNames('flex w-full min-w-0', shellHeight)}
+      style={keyboardHeight ? { height: keyboardHeight } : undefined}
+    >
+      {!hasDetail && (
         <ShellPage
           title="Messages"
           actions={
@@ -70,7 +103,7 @@ export const MessagesScreen = ({
               >
                 <PlusIcon size={IconSize.Small} />
               </ShellSquare>
-              <Link href={privacySettingsUrl} passHref>
+              <Link href={messageSettingsUrl} passHref>
                 <ShellSquare tag="a" aria-label="Message settings">
                   <SettingsIcon size={IconSize.Small} />
                 </ShellSquare>
@@ -82,7 +115,7 @@ export const MessagesScreen = ({
       <FlexCol
         className={classNames(
           'w-full min-w-0 shrink-0 laptop:w-80 laptop:border-r laptop:border-border-subtlest-tertiary',
-          activePeerId ? 'hidden laptop:flex' : 'flex',
+          hasDetail ? 'hidden laptop:flex' : 'flex',
         )}
       >
         <header className="hidden h-14 shrink-0 items-center justify-between px-4 tablet:flex">
@@ -100,7 +133,7 @@ export const MessagesScreen = ({
                 onClick={() => setIsComposing((value) => !value)}
               />
             </Tooltip>
-            <Link href={privacySettingsUrl} passHref>
+            <Link href={messageSettingsUrl} passHref>
               <Button
                 tag="a"
                 variant={ButtonVariant.Tertiary}
@@ -118,7 +151,7 @@ export const MessagesScreen = ({
               color={TypographyColor.Tertiary}
             >
               Direct messages are off, so nobody can message you.{' '}
-              <Link href={privacySettingsUrl} passHref>
+              <Link href={messageSettingsUrl} passHref>
                 <a className="text-text-link hover:underline">Turn on</a>
               </Link>
             </Typography>
@@ -159,12 +192,18 @@ export const MessagesScreen = ({
             </nav>
             <div className="min-h-0 flex-1 overflow-y-auto pb-4">
               {showRequests ? (
-                <RequestList activePeerId={activePeerId} />
-              ) : (
-                <ConversationList
+                <RequestList
                   activePeerId={activePeerId}
-                  onNewMessage={() => setIsComposing(true)}
+                  activeReachOutId={reachOutId}
                 />
+              ) : (
+                <>
+                  {allowsMessages && <LfgMessagesPromo />}
+                  <ConversationList
+                    activePeerId={activePeerId}
+                    onNewMessage={() => setIsComposing(true)}
+                  />
+                </>
               )}
             </div>
           </>
@@ -173,17 +212,22 @@ export const MessagesScreen = ({
       <FlexCol
         className={classNames(
           'min-w-0 flex-1',
-          activePeerId ? 'flex' : 'hidden laptop:flex',
+          hasDetail ? 'flex' : 'hidden laptop:flex',
         )}
       >
-        {activePeerId ? (
+        {reachOutId && !activePeerId && (
+          <LfgReachOutDetail key={reachOutId} reachOutId={reachOutId} />
+        )}
+        {!reachOutId && activePeerId && (
           <ConversationThread
             key={activePeerId}
             peerId={activePeerId}
             commentId={commentId}
+            origin={origin}
             onCommentContextUsed={onCommentContextUsed}
           />
-        ) : (
+        )}
+        {!hasDetail && (
           <FlexCol className="flex-1 items-center justify-center px-6 text-center">
             <Typography
               type={TypographyType.Callout}

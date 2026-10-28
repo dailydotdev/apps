@@ -20,7 +20,7 @@ export type UseProfileShowcase<Slice extends keyof ProfileShowcase> =
   };
 
 /**
- * One request behind the stack and hot takes hooks.
+ * One request behind the profile's showcase hooks (currently the stack).
  *
  * Each caller names its own slice, so a hook still hands back the connection it
  * always did, but mounting together they share a single query key and React

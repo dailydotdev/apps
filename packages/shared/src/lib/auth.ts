@@ -37,6 +37,7 @@ export enum AuthTriggers {
   Author = 'author',
   Bookmark = 'bookmark',
   Comment = 'comment',
+  LiveChat = 'live chat',
   CommentUpvote = 'comment upvote',
   DevCard = 'devcard',
   Filter = 'filter',
@@ -78,7 +79,6 @@ export enum AuthTriggers {
   AddToStack = 'add to stack',
   PostPage = 'post page',
   Hackathon = 'hackathon',
-  World = 'world',
   Marketplace = 'marketplace',
 }
 

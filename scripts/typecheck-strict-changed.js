@@ -51,6 +51,12 @@ const strictSkipList = new Set([
   'packages/webapp/pages/_app.tsx',
   'packages/webapp/pages/onboarding.tsx',
   'packages/extension/src/newtab/App.tsx',
+  // Layout v2 graduation: touched only to drop the dead `screenCentered`
+  // layout prop; the strict violations are pre-existing and unrelated.
+  'packages/webapp/components/layouts/OrganizationLayout/index.tsx',
+  'packages/webapp/pages/jobs/[id]/index.tsx',
+  'packages/webapp/pages/jobs/how-it-works.tsx',
+  'packages/webapp/pages/pay.tsx',
   // Micro-interactions-ads branch - pre-existing strict violations
   'packages/shared/src/components/brand/BrandedTag.tsx',
   'packages/shared/src/components/brand/MentionedToolsWidget.tsx',
@@ -180,6 +186,11 @@ const strictSkipList = new Set([
   // `false | (() => void)` onSignUp) live on unrelated lines and should be
   // addressed in a dedicated cleanup PR.
   'packages/shared/src/components/post/PostEngagements.tsx',
+  // Dead-classes branch — touched only to write the spam warning's alpha as
+  // `bg-status-warning/[0.1]`. The strict violations (Button prop union,
+  // optional LoggedUser, optional monthly price) live on unrelated lines and
+  // predate the change; they belong in a dedicated cleanup PR.
+  'packages/webapp/pages/recruiter/[opportunityId]/plans.tsx',
   // Ad-viewability branch: the squad ad cards were touched only to render
   // the viewability tracker. Pre-existing strict violations (`item.ad.data`
   // and its `source`/`squad` members being optional, the `condition && class`

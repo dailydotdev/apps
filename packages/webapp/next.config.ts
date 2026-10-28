@@ -39,6 +39,10 @@ const securityHeaders = [
     key: 'X-Frame-Options',
     value: 'DENY',
   },
+  {
+    key: 'Referrer-Policy',
+    value: 'strict-origin-when-cross-origin',
+  },
 ];
 
 const noindexHeaders = [
@@ -65,6 +69,12 @@ const nextConfig: NextConfig = {
     },
   },
   experimental: {
+    // The client router filter is a bloom filter of App Router paths that
+    // forces a full page load on a match. Our only App Router route is the
+    // service worker handler, so the filter holds one entry, is 20 bits wide,
+    // and matches ~0.2% of page paths by accident (e.g. some /messages/<id>),
+    // reloading the whole app on those links. Nothing links to the handler.
+    clientRouterFilter: false,
     turbopackFileSystemCacheForDev: false,
     useTypeScriptCli: false, // to not clash with our strict ts setup
   },
@@ -262,6 +272,39 @@ const nextConfig: NextConfig = {
           permanent: true,
         },
         {
+          source: '/discussed',
+          destination: '/posts/discussed',
+          permanent: true,
+        },
+        // The /watercooler feed page was removed; the squad lives on.
+        {
+          source: '/watercooler',
+          destination: '/squads/watercooler',
+          permanent: false,
+        },
+        // The worlds feature was removed: the index was a reader leaderboard,
+        // and a world belonged to a profile.
+        {
+          source: '/world',
+          destination: '/users',
+          permanent: true,
+        },
+        {
+          source: '/world/:userId',
+          destination: '/:userId',
+          permanent: true,
+        },
+        // Creator links printed in YouTube descriptions (e.g.
+        // daily.dev/w/the-coding-sloth). No route in this app serves them, so every
+        // visitor landed on a 404. Send them to signup, keeping the creator
+        // slug for attribution.
+        {
+          source: '/w/:creator',
+          destination:
+            '/onboarding?utm_source=youtube&utm_medium=creator&utm_campaign=:creator',
+          permanent: false,
+        },
+        {
           source: '/topic/:path*',
           destination: '/tags/:path*',
           permanent: true,
@@ -340,6 +383,11 @@ const nextConfig: NextConfig = {
               value: 'timezone',
             },
           ],
+        },
+        {
+          source: '/account/integrations',
+          destination: '/settings/customization/integrations',
+          permanent: true,
         },
         {
           source: '/account/:path*',
@@ -422,7 +470,7 @@ const nextConfig: NextConfig = {
           // Static page (headers can't come from the page itself); framing is
           // limited to our own origin and our extensions. This CSP takes
           // precedence over the global X-Frame-Options in modern browsers.
-          source: '/embed/mf',
+          source: '/embed/:page(mf|exco)',
           headers: [
             {
               key: 'Content-Security-Policy',

@@ -30,6 +30,7 @@ import { sanitizeMessage } from '../../../features/onboarding/shared';
 import { isSourceUserSource } from '../../../graphql/sources';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 import { getPostPath } from '../../../lib/links';
+import { isPlaceholderImage } from '../../../lib/image';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {
@@ -51,6 +52,7 @@ export const FreeformList = forwardRef(function SharePostCard(
   const { interaction } = usePostActions({ post });
   const { pinnedAt, type: postType } = post;
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
     onPostClick?.(post, event);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -61,8 +63,14 @@ export const FreeformList = forwardRef(function SharePostCard(
     () => (post.contentHtml ? sanitizeMessage(post.contentHtml, []) : ''),
     [post.contentHtml],
   );
-  const socialShare = interaction === 'copy' && post.type === PostType.Freeform;
-  const { title: truncatedTitle } = useTruncatedSummary(title, content);
+  // CardCoverList answers a copy or a bookmark on the image itself
+  // (useCardCover), and hides placeholder images below laptop. The prompts
+  // below the card are only for cards with no cover to carry them; showing
+  // both stacked two prompts for one action.
+  const hasCover = !!image && (isLaptop || !isPlaceholderImage(image));
+  const socialShare =
+    interaction === 'copy' && post.type === PostType.Freeform && !hasCover;
+  const { title: truncatedTitle } = useTruncatedSummary(title ?? '', content);
   const isUserSource = isSourceUserSource(post.source);
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
 
@@ -124,6 +132,7 @@ export const FreeformList = forwardRef(function SharePostCard(
         ref={ref}
         flagProps={{ pinnedAt, type: postType }}
         bookmarked={post.bookmarked}
+        bookmarkNote={post.bookmark?.note}
       >
         {hiddenPanel}
       </FeedItemContainer>
@@ -148,6 +157,7 @@ export const FreeformList = forwardRef(function SharePostCard(
           : undefined
       }
       bookmarked={post.bookmarked}
+      bookmarkNote={post.bookmark?.note}
     >
       <CardContainer>
         <PostCardHeader
@@ -199,7 +209,7 @@ export const FreeformList = forwardRef(function SharePostCard(
         </CardContent>
       </CardContainer>
       {isMobile && actionButtons}
-      {!image && <PostContentReminder post={post} className="z-1" />}
+      {!hasCover && <PostContentReminder post={post} className="z-1" />}
       {children}
       {socialShare && <SocialBar className="mt-4" post={post} />}
     </FeedItemContainer>

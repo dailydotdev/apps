@@ -35,7 +35,6 @@ import {
   ActiveFeedNameContextProvider,
   useActiveFeedNameContext,
 } from '../contexts';
-import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BootPopups } from './modals/BootPopups';
 import { StreakMilestonePopup } from './modals/streaks/StreakMilestonePopup';
 import { useFeedName } from '../hooks/feed/useFeedName';
@@ -48,11 +47,15 @@ import { SpotlightHost } from './spotlight/SpotlightHost';
 import { FeedbackWidget } from './feedback/FeedbackWidget';
 import { useFeedbackShortcut } from '../hooks/useFeedbackShortcut';
 import { isExtension } from '../lib/func';
-import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '../hooks/layout/useLaptopLayout';
 import { useLayoutVariantCookie } from '../hooks/layout/useLayoutVariantCookie';
 import { LayoutVariantContext } from '../contexts/LayoutVariantContext';
 import type { LayoutVariant } from '../lib/layoutVariant';
-import { LAYOUT_FRAME_CLASS } from '../lib/layoutVariant';
+import {
+  hasLayoutVariantCookie,
+  LAYOUT_FRAME_CLASS,
+} from '../lib/layoutVariant';
+import { useIsHydrated } from '../hooks/useIsHydrated';
 import { useRecordRecentPages } from '../hooks/useRecentPages';
 import { isSidebarSettingsPath } from './sidebar/sidebarCategory';
 import {
@@ -83,7 +86,6 @@ export interface MainLayoutProps
   mainPage?: boolean;
   activePage?: string;
   isNavItemsButton?: boolean;
-  screenCentered?: boolean;
   customBanner?: ReactNode;
   showSidebar?: boolean;
   onNavTabClick?: (tab: string) => void;
@@ -93,7 +95,7 @@ export interface MainLayoutProps
   /** Set by the mirrored `/layout-v2` routes only. */
   layoutVariant?: LayoutVariant;
   /**
-   * Layout v2 only. Rendered above the floating feed card, alongside the
+   * Laptop only. Rendered above the floating feed card, alongside the
    * built-in reading-reminder TopHero. Pages can pass dynamic banners
    * (e.g. the extension's onboarding hero row) and the whole strip
    * collapses to nothing if neither the reminder nor the banner has
@@ -110,7 +112,6 @@ function MainLayoutComponent({
   isNavItemsButton,
   customBanner,
   additionalButtons,
-  screenCentered = true,
   showSidebar = true,
   className,
   onLogoClick,
@@ -129,10 +130,10 @@ function MainLayoutComponent({
   const { sidebarExpanded, autoDismissNotifications, loadedSettings } =
     useContext(SettingsContext);
   const { value: isSidebarCompact } = useSidebarCompact();
-  const v2CollapsedPadding = isSidebarCompact
+  const collapsedPadding = isSidebarCompact
     ? 'tablet:pl-16 laptop:pl-16'
     : 'tablet:pl-16 laptop:pl-20';
-  const v2ExpandedPadding = isSidebarCompact
+  const expandedPadding = isSidebarCompact
     ? 'laptop:!pl-[19rem]'
     : 'laptop:!pl-[20rem]';
   const [hasLoggedImpression, setHasLoggedImpression] = useState(false);
@@ -143,37 +144,33 @@ function MainLayoutComponent({
     feedName: currentFeedName,
   });
   const { plusEntryAnnouncementBar } = usePlusEntry();
-  const isLaptop = useViewSize(ViewSize.Laptop);
-  const isLaptopXL = useViewSize(ViewSize.LaptopXL);
-  const { screenCenteredOnMobileLayout } = useFeedLayout();
   const { isNotificationsReady, unreadCount } = useNotificationContext();
-  const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
+  const isLaptopLayout = useLaptopLayout();
   const hasServerShell = useContext(LayoutVariantContext) === 'v2';
+  const isHydrated = useIsHydrated();
   const { rest: shellBlockRest } = useShellBlockPlan();
   useLayoutVariantCookie();
-  useRecordRecentPages(isV2);
+  // The store is device-wide, so anonymous browsing must not seed the next
+  // signed-in session's Recent list.
+  useRecordRecentPages(isLaptopLayout && isLoggedIn);
   useNotificationParams();
   useFeedbackShortcut();
 
-  // Settings pages render their navigation only inside the v2 context panel,
-  // so the sidebar force-expands there regardless of the stored preference.
-  // Mirror that here so the floating content keeps its expanded-width padding
-  // and never slides under the panel. Matches the `activePage` resolution the
-  // Sidebar receives below.
+  // Settings pages render their navigation only inside the sidebar's context
+  // panel, so the sidebar force-expands there regardless of the stored
+  // preference. Mirror that here so the floating content keeps its
+  // expanded-width padding and never slides under the panel. Matches the
+  // `activePage` resolution the Sidebar receives below.
   const forceSidebarExpanded =
-    isV2 &&
+    isLaptopLayout &&
     isSidebarSettingsPath(activePage ?? router.asPath ?? router.pathname ?? '');
 
   // The main content's left padding settles from the rail width to the
-  // expanded-sidebar width once auth, settings, and the layout-variant flag
-  // resolve on the client. Without gating, the `transition-[padding]` below
-  // animates that initial settle on every hard refresh, sliding all content
-  // sideways. The layout is "settled" only once all three are resolved
-  // (`isLayoutVariantLoading` stays true until both auth and GrowthBook are
-  // ready, so it also covers the window where `isV2` hasn't reached its
-  // final value yet).
-  const layoutSettled =
-    isAuthReadyOrCached && loadedSettings && !isLayoutVariantLoading;
+  // expanded-sidebar width once auth and settings resolve on the client.
+  // Without gating, the `transition-[padding]` below animates that initial
+  // settle on every hard refresh, sliding all content sideways. Transitions
+  // enable one commit after the settle, so only genuine toggles animate.
+  const layoutSettled = isAuthReadyOrCached && loadedSettings;
   const [contentTransitionsEnabled, setContentTransitionsEnabled] =
     useState(false);
   useEffect(() => {
@@ -181,24 +178,17 @@ function MainLayoutComponent({
       setContentTransitionsEnabled(true);
     }
   }, [layoutSettled]);
-  // The v2 page uses a tinted background; the document root stays
-  // `background-default`, so overscroll past the feed reveals a darker strip.
-  // Flag the root while v2 is active so it can paint the same tint (laptop+,
-  // matching where the tinted page background applies — see base.css).
+  // The page uses a tinted background on laptop; the document root stays
+  // `background-default`, so overscroll past the feed would reveal a darker
+  // strip. Flag the root so it can paint the same tint (see base.css).
   useEffect(() => {
-    if (!isV2) {
+    if (!isLaptopLayout) {
       return undefined;
     }
     const root = globalThis.document?.documentElement;
     root?.classList.add('layout-v2');
     return () => root?.classList.remove('layout-v2');
-  }, [isV2]);
-  // v2 (experiment) snaps the initial settle into place (transitions enable
-  // one commit later, so only genuine toggles animate). The control variant
-  // keeps animating on `layoutSettled` exactly as before.
-  const animateContentPadding = isV2
-    ? contentTransitionsEnabled
-    : layoutSettled;
+  }, [isLaptopLayout]);
 
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
@@ -213,24 +203,9 @@ function MainLayoutComponent({
   // `<div id="__next">`, so every crawler that doesn't run JS (including the
   // answer engines `PostSEOSchema` targets) saw nothing but meta tags.
   //
-  // Keep variant-specific chrome hidden until boot resolves, while allowing
-  // the prerendered page content itself to paint immediately.
+  // Keep the sidebar hidden until boot resolves, while allowing the
+  // prerendered page content itself to paint immediately.
   const isHoldingChrome = !isPaintReady && showSidebar;
-
-  // On laptop the v1 and v2 chrome (sidebar + global header) look different,
-  // so rendering before the experiment resolves makes v2 users flash the v1
-  // layout and then swap. Hold the variant-specific chrome until the flag has
-  // resolved so the correct layout paints once. Below laptop there is no v2
-  // chrome and `isLayoutVariantLoading` never resolves (the flag isn't
-  // evaluated there), so treat non-laptop as always resolved.
-  //
-  // The held render must also stay viewport-independent: `useMedia` seeds its
-  // state from `window.matchMedia`, so the first client render already knows
-  // the real breakpoint while the server assumed mobile. Leaving the header to
-  // `isLaptop` alone made the server emit one and the client skip it, which
-  // shifted `<main>` and broke hydration.
-  const isLayoutChromeResolved =
-    !isHoldingChrome && (!isLaptop || !isLayoutVariantLoading);
 
   // The dual-sidebar layout takes ownership of the global header chrome
   // (logo + search + user actions) on laptop+ for authenticated users
@@ -239,16 +214,14 @@ function MainLayoutComponent({
   // floating-card treatment, and the global feedback widget is suppressed
   // because the rail provides its own.
   //
-  // `isLoggedIn` and `sidebarRendered` are client-only, so until boot lands
-  // they would suppress the shell the server just painted.
+  // `isLoggedIn` is client-only and lands with boot. Until then the mirrored
+  // route keeps the shell its server painted, and elsewhere the cookie that
+  // records a signed-in laptop session hands the header to the rail as soon
+  // as the page hydrates.
   const ownsHeaderAudience = isAuthReadyOrCached
     ? isLoggedIn || isExtension
-    : hasServerShell;
-  const sidebarOwnsHeader =
-    isV2 &&
-    ownsHeaderAudience &&
-    showSidebar &&
-    (isAuthReadyOrCached ? sidebarRendered : hasServerShell);
+    : isExtension || hasServerShell || (isHydrated && hasLayoutVariantCookie());
+  const sidebarOwnsHeader = isLaptopLayout && ownsHeaderAudience && showSidebar;
 
   const { setSlot: setTopHeroSlot } = useTopHeroSlot();
 
@@ -256,7 +229,9 @@ function MainLayoutComponent({
   if (sidebarOwnsHeader) {
     stickyHeaderOffset = isBannerAvailable
       ? 'laptop:[--sticky-header-offset:2rem]'
-      : 'laptop:[--sticky-header-offset:0rem]';
+      : // `0px`, not `0rem`: the build drops the unit from a zero rem and a bare
+        // `0` inside `calc()` invalidates every rule that subtracts the offset
+        'laptop:[--sticky-header-offset:0px]';
   } else if (isBannerAvailable) {
     stickyHeaderOffset = 'laptop:[--sticky-header-offset:6rem]';
   }
@@ -341,21 +316,17 @@ function MainLayoutComponent({
     return null;
   }
 
-  const isScreenCentered =
-    isLaptopXL && screenCenteredOnMobileLayout ? true : screenCentered;
-
   return (
     <div
       className={classNames(
-        'antialiased',
+        'shell-layout antialiased',
         // The phone block is fixed; everything in this column, the
         // banners included, starts under it. Until the block has measured
         // itself the column holds the height this page's block rests at.
         !sidebarOwnsHeader &&
           !isExtension &&
           'pt-[var(--shell-top,var(--shell-top-rest))] tablet:pt-0',
-        isV2 &&
-          'laptop:bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
+        'laptop:bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
       )}
       style={{ '--shell-top-rest': shellBlockRest } as CSSProperties}
     >
@@ -380,11 +351,9 @@ function MainLayoutComponent({
         />
       )}
 
-      {/* Temporary while layout v2 is experimental: production users are on
-        v1, so render its header in the initial HTML instead of waiting for
-        feature resolution and delaying the post page's LCP. */}
       {!sidebarOwnsHeader && (
         <MainLayoutHeader
+          activePage={activePage}
           hasBanner={isBannerAvailable}
           sidebarRendered={sidebarRendered}
           additionalButtons={additionalButtons}
@@ -395,16 +364,15 @@ function MainLayoutComponent({
       <main
         className={classNames(
           'flex flex-col',
-          animateContentPadding &&
+          contentTransitionsEnabled &&
             'transition-[padding] duration-300 ease-in-out',
           !sidebarOwnsHeader && 'laptop:pt-16',
-          showSidebar &&
-            (isV2 ? v2CollapsedPadding : 'tablet:pl-16 laptop:pl-11'),
+          showSidebar && collapsedPadding,
           className,
           isAuthReadyOrCached &&
             showSidebar &&
             (sidebarExpanded || forceSidebarExpanded) &&
-            (isV2 ? v2ExpandedPadding : !isScreenCentered && 'laptop:!pl-60'),
+            expandedPadding,
           isBannerAvailable && !sidebarOwnsHeader && 'laptop:pt-24',
           // The rail is `fixed` and drops by the banner's height on its own
           // (--safe-area-top-offset), so the content has to drop by the same
@@ -413,7 +381,7 @@ function MainLayoutComponent({
           // Mirrors the padding above as an inheritable value, so a sticky
           // descendant can pin directly under whatever fixed chrome this
           // layout actually has. A hardcoded offset overshoots wherever the
-          // chrome is shorter or absent (v2, tablet, mobile), and a sticky
+          // chrome is shorter or absent (rail, tablet, mobile), and a sticky
           // element whose `top` exceeds its natural position is pushed *down*
           // over the content that follows it. One ternary rather than stacked
           // classes because arbitrary properties have no reliable cascade
@@ -427,8 +395,8 @@ function MainLayoutComponent({
           // stays there, which is every feed for as long as it is still
           // loading: the bar sits under the skeleton cards and drops to the
           // bottom once enough posts arrive to make the page scroll.
-          // `min-h-screen` on the column every layout shares — v1's bare
-          // `<main>`, v2's floating card, tablet, laptop — is what gives the
+          // `min-h-screen` on the column every layout shares — the bare
+          // `<main>`, the floating card, tablet, laptop — is what gives the
           // dock a full-height column to be pushed to the end of. Borders and
           // padding count toward it, so the header padding above comes out of
           // the same 100vh rather than adding to it.
@@ -437,7 +405,7 @@ function MainLayoutComponent({
           'has-[.feed-dock]:min-h-screen',
         )}
       >
-        {isAuthReadyOrCached && isLayoutChromeResolved && showSidebar && (
+        {isAuthReadyOrCached && !isHoldingChrome && showSidebar && (
           <Sidebar
             additionalButtons={additionalButtons}
             isNavButtons={isNavItemsButton}
@@ -447,10 +415,15 @@ function MainLayoutComponent({
             activePage={activePage ?? router.asPath ?? router.pathname}
           />
         )}
-        {sidebarOwnsHeader ? (
+        {showSidebar ? (
+          // Mounted for every sidebar page, as `contents` until the rail owns
+          // the header, so the page keeps its state when the shell settles
+          // instead of remounting into the floating card.
           <div
             className={classNames(
-              'flex min-h-0 flex-1 flex-col laptop:my-3 laptop:ml-1 laptop:mr-3',
+              !sidebarOwnsHeader && 'contents',
+              sidebarOwnsHeader &&
+                'flex min-h-0 flex-1 flex-col laptop:my-3 laptop:ml-1 laptop:mr-3',
               // A dock pins to the window, so the frame gives up its bottom
               // gutter for the one case that holds one. Otherwise the frame
               // stops 14px short of the viewport and a `sticky bottom-0` dock
@@ -459,44 +432,47 @@ function MainLayoutComponent({
               // between — a dock that jumps as the feed loads.
               // Literal, not built from `DOCK_CLASS`: Tailwind scans source
               // text and generates nothing for an interpolated class name.
-              'laptop:has-[.feed-dock]:mb-0',
+              sidebarOwnsHeader && 'laptop:has-[.feed-dock]:mb-0',
             )}
           >
-            {topBanner}
+            {sidebarOwnsHeader && topBanner}
             <div
-              ref={setTopHeroSlot}
+              ref={sidebarOwnsHeader ? setTopHeroSlot : undefined}
               className="peer/top-hero mx-4 mb-3 grid grid-cols-1 gap-3 empty:hidden tablet:has-[>:nth-child(2)]:grid-cols-2 laptop:mx-0"
             />
             <div
               className={classNames(
-                'relative flex min-h-0 flex-1 flex-col',
-                // `overflow-clip` (not `hidden`) clips content to the rounded
-                // card without establishing a scroll container, so descendant
-                // `position: sticky` elements (e.g. the post action bar) stick
-                // to the viewport instead of being inert.
-                // No drop shadow — the subtle border defines the floating card
-                // in both themes; shadow-2 cast a heavy bottom shadow.
-                'laptop:overflow-clip laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5',
-                // The dock becomes the frame's bottom edge, so the padding
-                // that would hold it up goes, and the corners it would be
-                // clipped into square off.
-                'laptop:has-[.feed-dock]:rounded-b-none laptop:has-[.feed-dock]:border-b-0 laptop:has-[.feed-dock]:pb-0',
-                LAYOUT_FRAME_CLASS,
-                // These subtract exactly the chrome above the frame plus its
-                // own margins, so the frame ends level with the window. With
-                // a dock the bottom margin is gone, so 0.75rem less comes off
-                // — a frame that stops short leaves a `sticky bottom-0` dock
-                // resting at its end, which is what happens for as long as
-                // the feed is too short to make the page scrollable.
-                // The top-hero slot is filled by the page, so whether it
-                // holds a card is read from the DOM rather than known here.
-                !topBanner &&
-                  (isBannerAvailable
-                    ? 'laptop:peer-empty/top-hero:min-h-[calc(100vh-3.5rem)] laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-2.75rem)]'
-                    : 'laptop:peer-empty/top-hero:min-h-[calc(100vh-1.5rem)] laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-0.75rem)]'),
+                !sidebarOwnsHeader && 'contents',
+                sidebarOwnsHeader && [
+                  'relative flex min-h-0 flex-1 flex-col',
+                  // `overflow-clip` (not `hidden`) clips content to the rounded
+                  // card without establishing a scroll container, so descendant
+                  // `position: sticky` elements stick to the viewport instead of
+                  // being inert.
+                  // No drop shadow — the subtle border defines the floating card
+                  // in both themes; shadow-2 cast a heavy bottom shadow.
+                  'laptop:overflow-clip laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5',
+                  // The dock becomes the frame's bottom edge, so the padding
+                  // that would hold it up goes, and the corners it would be
+                  // clipped into square off.
+                  'laptop:has-[.feed-dock]:rounded-b-none laptop:has-[.feed-dock]:border-b-0 laptop:has-[.feed-dock]:pb-0',
+                  LAYOUT_FRAME_CLASS,
+                  // These subtract exactly the chrome above the frame plus its
+                  // own margins, so the frame ends level with the window. With
+                  // a dock the bottom margin is gone, so 0.75rem less comes off
+                  // — a frame that stops short leaves a `sticky bottom-0` dock
+                  // resting at its end, which is what happens for as long as
+                  // the feed is too short to make the page scrollable.
+                  // The top-hero slot is filled by the page, so whether it
+                  // holds a card is read from the DOM rather than known here.
+                  !topBanner &&
+                    (isBannerAvailable
+                      ? 'laptop:peer-empty/top-hero:min-h-[calc(100vh-3.5rem)] laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-2.75rem)]'
+                      : 'laptop:peer-empty/top-hero:min-h-[calc(100vh-1.5rem)] laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-0.75rem)]'),
+                ],
               )}
             >
-              <RouteProgressBar />
+              {sidebarOwnsHeader && <RouteProgressBar />}
               {children}
             </div>
           </div>

@@ -116,8 +116,8 @@ export const BaseFeedPage = classed(
  * Chrome outside the container — the breadcrumbs and the tab strip —
  * uses the same constant to line up with the cards.
  *
- * Inside the v2 floating card (`LAYOUT_FRAME_CLASS`) there is no inset at
- * all, which is what v2 has always shipped. The card is already the frame:
+ * Inside the laptop floating card (`LAYOUT_FRAME_CLASS`) there is no inset
+ * at all, which is what the card has always shipped. It is already the frame:
  * rounded, bordered, and held off the window by its own margins. A gutter
  * in there is a second frame drawn inside the first, and it costs the grid
  * 80px of width that the column count never hears about — `numCards` comes
@@ -125,7 +125,7 @@ export const BaseFeedPage = classed(
  * asking for the same number of columns in a narrower space.
  *
  * Below laptop the card does not exist and neither does this class, so the
- * tablet gutter this constant exists for applies in both layouts.
+ * tablet gutter this constant exists for applies there.
  *
  * Below tablet there is no gutter either, which is what every layout has
  * always shipped on phones. The feed is a single full-bleed column there:
@@ -134,10 +134,11 @@ export const BaseFeedPage = classed(
  * The chrome that uses this constant to line up with the cards — the tab
  * strip — has to go full-bleed on phones for the same reason.
  *
- * Keyed to the frame's own class rather than to `isV2` on purpose. The flag
- * resolves after mount, so a React-side gate let the gutter and the frame
- * settle independently; a descendant selector cannot — the inset is absent
- * exactly when the frame that replaces it is on screen.
+ * Keyed to the frame's own class rather than to `useLaptopLayout` on
+ * purpose. Outside the mirrored route the hook answers after mount, so a
+ * React-side gate would let the gutter and the frame settle independently; a
+ * descendant selector cannot — the inset is absent exactly when the frame
+ * that replaces it is on screen.
  */
 export const feedGutter =
   'tablet:px-6 laptop:px-10 laptop:[.layout-frame_&]:px-0';
@@ -168,9 +169,9 @@ export const feedWidth = classNames(
  * Horizontal only: the grid's vertical half is the frame's own breathing
  * room, and chrome outside the grid sets its own height.
  *
- * Keyed to the frame's class rather than to `isV2` for the same reason
- * `feedGutter` is: the flag resolves after mount, and this inset has to
- * appear at exactly the moment the frame it insets from does.
+ * Keyed to the frame's class rather than to `useLaptopLayout` for the same
+ * reason `feedGutter` is: the hook can answer after mount, and this inset
+ * has to appear at exactly the moment the frame it insets from does.
  */
 export const feedFrameInsetX = 'laptop:[.layout-frame_&]:px-6';
 
@@ -201,11 +202,6 @@ export const FeedPageLayoutList = classed(
 export const FeedPageLayoutMobile = classed(
   FeedPageLayoutList,
   'laptop:!max-w-full',
-);
-
-export const CommentFeedPage = classed(
-  BasePageContainer,
-  '!px-0 !mx-auto tablet:!max-w-full laptop:!mt-0 tablet:!mt-4',
 );
 
 export const FormErrorMessage = classed(

@@ -87,7 +87,7 @@ const SquadHeaderButton = ({
       size={size}
       icon={<OpenLinkIcon />}
       iconPosition={ButtonIconPosition.Right}
-      className={classNames('hover:opacity-90', className)}
+      className={className}
       style={color ? getBrandButtonStyle(color) : undefined}
       onClick={() =>
         logEvent({
@@ -325,19 +325,24 @@ export const SquadPhoneActions = (): ReactElement => {
   return (
     <div className="mt-4 flex flex-col gap-2 tablet:hidden">
       <SquadJoinButton size={ButtonSize.Medium} className="w-full" />
-      <div className="flex gap-2">
+      <div
+        className={classNames('grid gap-2', canBoost(squad) && 'grid-cols-2')}
+      >
         {canBoost(squad) && (
-          <span className="flex flex-1">
-            <BoostSourceButton
-              squad={squad}
-              buttonProps={{ size: ButtonSize.Medium, className: 'w-full' }}
-            />
-          </span>
+          <BoostSourceButton
+            squad={squad}
+            buttonProps={{
+              variant: ButtonVariant.Subtle,
+              color: undefined,
+              size: ButtonSize.Medium,
+              className: 'w-full',
+            }}
+          />
         )}
         <Button
           variant={ButtonVariant.Subtle}
           size={ButtonSize.Medium}
-          className="flex-1"
+          className="w-full"
           onClick={onShare}
         >
           Share page

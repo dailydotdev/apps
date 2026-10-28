@@ -28,12 +28,15 @@ import { MyPluginsList } from '../../components/marketplace/MyPluginsList';
 import { MarketplacePageLayout } from '../../components/marketplace/MarketplacePageLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
-import { defaultSeo, noindexSeoProps } from '../../next-seo';
+import { aiAgentsOpenGraph, defaultSeo, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
+
+const seoTitles = getPageSeoTitles('Your plugins');
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  ...getPageSeoTitles('Your plugins'),
+  ...seoTitles,
+  openGraph: { ...seoTitles.openGraph, ...aiAgentsOpenGraph },
   ...noindexSeoProps,
 };
 
@@ -116,5 +119,5 @@ const getPluginSubmissionsLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 PluginSubmissionsPage.getLayout = getPluginSubmissionsLayout;
-PluginSubmissionsPage.layoutProps = { screenCentered: false, seo };
+PluginSubmissionsPage.layoutProps = { seo };
 export default PluginSubmissionsPage;

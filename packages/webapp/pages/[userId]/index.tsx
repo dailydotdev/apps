@@ -17,11 +17,14 @@ import { useActions, useJoinReferral } from '@dailydotdev/shared/src/hooks';
 import { NextSeo } from 'next-seo';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import ProfileHeader from '@dailydotdev/shared/src/components/profile/ProfileHeader';
+import {
+  LfgProfileAvatarBadge,
+  LfgProfileSection,
+} from '@dailydotdev/shared/src/features/lfg/components/profile/LfgProfileSection';
 import { AutofillProfileBanner } from '@dailydotdev/shared/src/features/profile/components/AutofillProfileBanner';
 import { ProfileUserExperiences } from '@dailydotdev/shared/src/features/profile/components/experience/ProfileUserExperiences';
 import { ProfileAchievementShowcase } from '@dailydotdev/shared/src/features/profile/components/achievements/ProfileAchievementShowcase';
 import { ProfileUserStack } from '@dailydotdev/shared/src/features/profile/components/stack/ProfileUserStack';
-import { ProfileUserHotTakes } from '@dailydotdev/shared/src/features/profile/components/hotTakes/ProfileUserHotTakes';
 import { useUploadCv } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { ProfileWidgets } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
@@ -46,7 +49,6 @@ import {
   getStaticProps as getProfileStaticProps,
 } from '../../components/layouts/ProfileLayout';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
-import { ProfileSideToggle } from '../../components/profile/ProfileSideToggle';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ProfilePage = ({
@@ -54,7 +56,6 @@ const ProfilePage = ({
   noindex,
   userStats,
   sources,
-  hasWorld,
 }: ProfileLayoutProps): ReactElement => {
   useJoinReferral();
   const router = useRouter();
@@ -143,19 +144,13 @@ const ProfilePage = ({
         user={user}
         userStats={userStats}
         isSameUser={isSameUser}
+        avatarBadge={<LfgProfileAvatarBadge userId={user.id} />}
         isPreviewMode={isPreviewMode}
         coversBlock={coversBlock}
         coverRef={coverRef}
         nameRef={nameRef}
-        actions={
-          /* The owner always gets the door, even before their world has
-             anything in it — the empty world is the invitation to build one.
-             Everyone else gets it only once there is something to walk into,
-             which the static props already answered without a session. */
-          (hasWorld || isSameUser) && <ProfileSideToggle user={user} />
-        }
       />
-      <div className="flex flex-col divide-y divide-border-subtlest-tertiary p-6">
+      <div className="flex flex-col divide-y divide-border-subtlest-tertiary px-4 py-6 tablet:px-6">
         {shouldShowBanner && (
           <AutofillProfileBanner
             onUpload={onUpload}
@@ -164,7 +159,7 @@ const ProfilePage = ({
         )}
         {!shouldShowBanner && <div />}
         {isPhone && (
-          <div ref={segmentsRef} className="-mx-6 [&+*]:!border-t-0">
+          <div ref={segmentsRef} className="-mx-4 [&+*]:!border-t-0">
             <ProfileSegments user={user} active={ProfileSegment.About} />
             {haveSegmentsPassed && (
               <ShellDockedRow>
@@ -174,9 +169,9 @@ const ProfilePage = ({
           </div>
         )}
         <AboutMe user={user} />
+        <LfgProfileSection userId={user.id} name={user.name} />
         <ProfileAchievementShowcase user={user} />
         <ProfileUserStack user={user} />
-        <ProfileUserHotTakes user={user} />
         {!isPhone && (
           <div className="hidden tablet:block">
             <Activity user={user} />

@@ -1,11 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { Keyword } from '../../graphql/keywords';
 import type { TagCategory } from '../../graphql/feedSettings';
-import useFeedSettings from '../../hooks/useFeedSettings';
-import useTagAndSource from '../../hooks/useTagAndSource';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { AuthTriggers } from '../../lib/auth';
 import { Origin } from '../../lib/log';
 import { TagCategorySection } from './TagCategorySection';
 import { TagDirectorySearch } from './TagDirectorySearch';
@@ -14,6 +10,11 @@ import { ShellPage } from '../shell/ShellPageContext';
 import { TagDirectory } from './TagDirectory';
 import { TagDirectoryFilter } from './TagDirectoryFilter';
 import { PublicPageSignupBanner } from '../auth/PublicPageSignupBanner';
+import {
+  TagLetterGridPlaceholder,
+  TagSectionsPlaceholder,
+} from './TagDirectoryPlaceholder';
+import { useTagFollowToggle } from './useTagFollowToggle';
 import {
   Typography,
   TypographyColor,
@@ -25,6 +26,7 @@ interface TagsDirectoryPageProps {
   tags: Keyword[];
   trendingTags: Keyword[];
   popularTags: Keyword[];
+  isLoading?: boolean;
 }
 
 const toTagValues = (items?: Keyword[]): string[] =>
@@ -34,34 +36,13 @@ export function TagsDirectoryPage({
   tags,
   trendingTags,
   popularTags,
+  isLoading = false,
 }: TagsDirectoryPageProps): ReactElement {
-  const { feedSettings } = useFeedSettings();
-  const { user, showLogin } = useAuthContext();
-  const { onFollowTags, onUnfollowTags } = useTagAndSource({
-    origin: Origin.TagsFilter,
-  });
+  const { followedTags, onToggleFollow } = useTagFollowToggle(
+    Origin.TagsFilter,
+  );
   const [search, setSearch] = useState('');
   const [activeLetter, setActiveLetter] = useState<string | null>(null);
-
-  const followedTags = useMemo(
-    () => new Set(feedSettings?.includeTags ?? []),
-    [feedSettings?.includeTags],
-  );
-
-  const onToggleFollow = useCallback(
-    (tag: string): void => {
-      if (!user) {
-        showLogin({ trigger: AuthTriggers.Filter });
-        return;
-      }
-      if (followedTags.has(tag)) {
-        onUnfollowTags({ tags: [tag] });
-      } else {
-        onFollowTags({ tags: [tag] });
-      }
-    },
-    [user, showLogin, followedTags, onFollowTags, onUnfollowTags],
-  );
 
   const recentlyAddedTags = useMemo(
     () =>
@@ -147,37 +128,45 @@ export function TagsDirectoryPage({
           />
         </header>
 
-        <div className="mt-8 w-full">
+        <div className="mt-8 w-full" aria-busy={isLoading || undefined}>
           {!search.trim() && (
             <>
-              <TagDirectoryFilter
-                tags={tags}
-                activeLetter={activeLetter}
-                onSelectLetter={setActiveLetter}
-              />
+              {isLoading ? (
+                <TagLetterGridPlaceholder />
+              ) : (
+                <TagDirectoryFilter
+                  tags={tags}
+                  activeLetter={activeLetter}
+                  onSelectLetter={setActiveLetter}
+                />
+              )}
               <div className="my-10 h-px w-full bg-border-subtlest-tertiary" />
             </>
           )}
-          <TagDirectory
-            tags={tags}
-            followedTags={followedTags}
-            onToggleFollow={onToggleFollow}
-            search={search}
-            activeLetter={activeLetter}
-          >
-            {featuredLists.length > 0 && (
-              <div className="mb-10 grid w-full grid-cols-1 gap-x-10 tablet:grid-cols-2 laptop:grid-cols-3">
-                {featuredLists.map((list) => (
-                  <TagCategorySection
-                    key={list.id}
-                    category={list}
-                    followedTags={followedTags}
-                    onToggleFollow={onToggleFollow}
-                  />
-                ))}
-              </div>
-            )}
-          </TagDirectory>
+          {isLoading ? (
+            <TagSectionsPlaceholder className="gap-x-10 tablet:grid-cols-2 laptop:grid-cols-3" />
+          ) : (
+            <TagDirectory
+              tags={tags}
+              followedTags={followedTags}
+              onToggleFollow={onToggleFollow}
+              search={search}
+              activeLetter={activeLetter}
+            >
+              {featuredLists.length > 0 && (
+                <div className="mb-10 grid w-full grid-cols-1 gap-x-10 tablet:grid-cols-2 laptop:grid-cols-3">
+                  {featuredLists.map((list) => (
+                    <TagCategorySection
+                      key={list.id}
+                      category={list}
+                      followedTags={followedTags}
+                      onToggleFollow={onToggleFollow}
+                    />
+                  ))}
+                </div>
+              )}
+            </TagDirectory>
+          )}
         </div>
       </div>
       <PublicPageSignupBanner />

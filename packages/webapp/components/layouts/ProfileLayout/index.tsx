@@ -27,7 +27,7 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { useRecentPageMeta } from '@dailydotdev/shared/src/hooks/useRecentPages';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
@@ -36,7 +36,6 @@ import { getAppOrigin } from '../../../lib/seo';
 import { getShareImageUrl } from '../../../next-seo';
 import { ProfileWidgets } from '../../../../shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
 import { useProfileSidebarCollapse } from '../../../hooks/useProfileSidebarCollapse';
-import { hasPublicWorld } from '../../world/profileWorld';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../../pages/404'),
@@ -49,8 +48,6 @@ export interface ProfileLayoutProps extends Partial<ProfileV2> {
   // v2: title shown in the shared page-header strip at the top of the
   // floating card, above the profile sidebar + main + aside row.
   pageHeaderTitle?: string;
-  /** Whether this reader has a world a visitor is allowed to walk into. */
-  hasWorld?: boolean;
 }
 
 export const getOGImageUrl = (userId: string): string =>
@@ -103,7 +100,7 @@ export default function ProfileLayout({
   children,
 }: ProfileLayoutProps): ReactElement {
   const router = useRouter();
-  const { isV2 } = useLayoutVariant();
+  const isLaptopLayout = useLaptopLayout();
   const { isFallback } = router;
   const { user } = useProfile(initialUser);
   const { user: viewer } = useAuthContext();
@@ -152,7 +149,7 @@ export default function ProfileLayout({
       <Head>
         <link rel="preload" as="image" href={user.image} />
       </Head>
-      {isV2 && pageHeaderTitle && (
+      {isLaptopLayout && pageHeaderTitle && (
         <PageHeader title={pageHeaderTitle} className="hidden laptop:flex" />
       )}
       <div className="profile-page m-auto flex w-full flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
@@ -181,7 +178,6 @@ export const getLayout = (
 ): ReactNode =>
   getFooterNavBarLayout(
     getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>, undefined, {
-      screenCentered: false,
       customBanner: <CustomAuthBanner />,
     }),
   );
@@ -233,17 +229,12 @@ export async function getStaticProps({
     }
 
     const { user } = profile;
-    // Both only need the resolved id, so neither has to wait on the other.
-    const [data, hasWorld] = await Promise.all([
-      getProfileV2Extra(user.id),
-      hasPublicWorld(user.id),
-    ]);
+    const data = await getProfileV2Extra(user.id);
 
     return {
       props: {
         user,
         ...data,
-        hasWorld,
         noindex: !!user.noindex,
       },
       revalidate: 60,

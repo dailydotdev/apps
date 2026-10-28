@@ -344,54 +344,6 @@ describe('QuestButton', () => {
     expect(mockPush).toHaveBeenCalledWith('https://app.daily.dev/');
   });
 
-  it('should route hot take quests to the hot takes modal path', async () => {
-    mockUseQuestDashboard.mockReturnValue({
-      data: {
-        ...questDashboard,
-        daily: {
-          ...questDashboard.daily,
-          regular: [
-            {
-              rotationId: 'daily-hot-takes',
-              userQuestId: null,
-              progress: 1,
-              status: QuestStatus.InProgress,
-              locked: false,
-              claimable: false,
-              quest: {
-                id: 'quest-hot-takes',
-                name: 'Turn up the heat',
-                description: 'Create a hot take',
-                type: QuestType.Daily,
-                eventType: 'hot_take_create',
-                targetCount: 1,
-              },
-              rewards: [{ type: QuestRewardType.Xp, amount: 20 }],
-            },
-          ],
-        },
-      },
-      isPending: false,
-      isError: false,
-    });
-
-    renderComponent();
-
-    await userEvent.click(
-      screen.getByRole('button', {
-        name: /Quests, level 7, 63% progress/i,
-      }),
-    );
-
-    await userEvent.click(
-      await screen.findByRole('button', { name: 'Go to Hot takes' }),
-    );
-
-    expect(mockPush).toHaveBeenCalledWith(
-      'https://app.daily.dev/?openModal=hottakes',
-    );
-  });
-
   it('should route share-post quests back to the feed', async () => {
     mockUseQuestDashboard.mockReturnValue({
       data: {
@@ -634,9 +586,9 @@ describe('QuestButton', () => {
               quest: {
                 id: 'quest-plus-locked',
                 name: 'Locked plus quest',
-                description: 'Vote on 8 hot takes',
+                description: 'Upvote 8 posts',
                 type: QuestType.Daily,
-                eventType: 'hot_take_vote',
+                eventType: 'post_upvote',
                 targetCount: 8,
               },
               rewards: [{ type: QuestRewardType.Xp, amount: 15 }],

@@ -9,7 +9,6 @@ import { ProfileImageSize, roundClasses } from '../../ProfilePicture';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import SourceButton from './SourceButton';
 import { useViewSize, ViewSize } from '../../../hooks';
-import { useFeedCardContext } from '../../../features/posts/FeedCardContext';
 import { hasSquadFeature } from '../../../features/squads/lib/features';
 import { VerifiedLogoCheck } from '../../../features/squads/components/VerifiedSquad';
 
@@ -69,11 +68,7 @@ export const AuthorSourceStack = ({
   showVerifiedCheck = true,
 }: AuthorSourceStackProps): ReactElement | null => {
   const alwaysExpanded = !useViewSize(ViewSize.Laptop);
-  const { hideSource } = useFeedCardContext();
-  // Only drop the source when the author can take its place — a card with no
-  // avatar at all is worse than a repeated one.
-  const showSource =
-    !!source && !isSourceUserSource(source) && !(hideSource && !!author);
+  const showSource = !!source && !isSourceUserSource(source);
 
   if (!author && !showSource) {
     return null;
@@ -136,7 +131,7 @@ export const AuthorSourceStack = ({
   return (
     <div
       className={classNames(
-        'group/authstack pointer-events-auto relative flex flex-row items-center',
+        'group/authstack pointer-events-auto relative isolate flex flex-row items-center',
         className,
       )}
     >

@@ -1,30 +1,54 @@
 import type * as StropheNamespace from 'strophe.js';
-import type { DmConversation, DmEvent, DmMessage, DmTransport } from './types';
+import type {
+  DmConversation,
+  DmEvent,
+  DmMessage,
+  DmTransport,
+  RoomMessage,
+} from './types';
 import { DmMessageStatus } from './types';
 import {
   DirectMessageAccess,
   getDirectMessageConversations,
   getDirectMessageToken,
+  markDirectMessageSent,
+  markDirectMessagesRead,
   startDirectMessage,
 } from './graphql';
+import { getMessagePushPreview } from './media';
+import { createStreamManagementStorage } from './streamManagementStorage';
 import {
   NS_CARBONS,
+  NS_CHAT_STATES,
   NS_COMMENT_REF,
+  NS_CORRECT,
   NS_DATA,
   NS_HINTS,
   NS_MAM,
   NS_REACTIONS,
   NS_RSM,
   NS_SID,
+  applyEdit,
   applyReaction,
   bareJid,
   isMamResult,
   jidForUser,
   parseChatMessage,
+  parseChatState,
+  parseCorrection,
   parseMamResult,
   parseReaction,
   unwrapCarbon,
 } from './stanzas';
+import {
+  NS_MUC,
+  ROOM_HISTORY_STANZAS,
+  occupantJid,
+  parseRoomChatState,
+  parseRoomMessage,
+  parseRoomPresence,
+  parseRoomReaction,
+} from './muc';
 
 // ejabberd over the websocket. daily-api hands out the login token and opens
 // conversations; this only ever talks XMPP, never to skirnir directly.
@@ -39,7 +63,14 @@ type Session = {
   domain: string;
 };
 
-type PendingAck = { peerId: string; failTimer: ReturnType<typeof setTimeout> };
+type PendingAck = {
+  peerId: string;
+  failTimer: ReturnType<typeof setTimeout>;
+} & (
+  | { kind: 'message'; preview: string }
+  // An edit of `messageId`; the stanza id is the key.
+  | { kind: 'edit'; messageId: string }
+);
 
 const NS_SM = 'urn:xmpp:sm:3';
 const historyPageSize = 50;
@@ -49,6 +80,10 @@ const errorWatchMs = 60 * 1000;
 // A message without a server ack by then is shown as failed; a late ack (e.g.
 // after the session resumes) still flips it back to sent.
 const ackTimeoutMs = 15 * 1000;
+// How long an <r/> probe waits for its <a/> before the socket is treated as
+// dead. iOS freezes a backgrounded PWA's websocket without closing it, so the
+// page keeps writing into a socket nothing reads until the server times out.
+const probeTimeoutMs = 5 * 1000;
 const maxReconnectDelayMs = 30 * 1000;
 const maxReconnectAttempts = 8;
 const iqTimeoutMs = 10 * 1000;
@@ -76,9 +111,50 @@ export const createXmppTransport = ({
   let reconnectAttempt = 0;
   let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
   let isClosed = false;
+  // Rooms the viewer is in, rejoined after a reconnect until they leave.
+  const joinedRooms = new Set<string>();
+  let probeTimer: ReturnType<typeof setTimeout> | undefined;
 
   const emit = (event: DmEvent) =>
     listeners.forEach((listener) => listener(event));
+
+  const sendJoin = (
+    { strophe, connection }: Pick<Session, 'strophe' | 'connection'>,
+    roomJid: string,
+  ) =>
+    connection.send(
+      strophe
+        .$pres({ to: occupantJid(roomJid, userId) })
+        .c('x', { xmlns: NS_MUC })
+        .c('history', { maxstanzas: String(ROOM_HISTORY_STANZAS) }),
+    );
+
+  // Only the viewer's own room presence matters (see parseRoomPresence).
+  const onPresence = (stanza: Element): boolean => {
+    const presence = parseRoomPresence(stanza);
+    if (!presence) {
+      return true;
+    }
+
+    if (presence.kind === 'joined') {
+      emit({ type: 'roomJoined', roomJid: presence.roomJid });
+    } else if (presence.kind === 'left') {
+      joinedRooms.delete(presence.roomJid);
+      emit({ type: 'roomLeft', roomJid: presence.roomJid });
+    } else if (presence.kind === 'ended') {
+      joinedRooms.delete(presence.roomJid);
+      emit({ type: 'roomEnded', roomJid: presence.roomJid });
+    } else {
+      joinedRooms.delete(presence.roomJid);
+      emit({
+        type: 'roomJoinFailed',
+        roomJid: presence.roomJid,
+        reason: presence.reason,
+      });
+    }
+
+    return true;
+  };
 
   const onMessage =
     (ownBareJid: string) =>
@@ -88,16 +164,49 @@ export const createXmppTransport = ({
         return true;
       }
 
+      // Room traffic never concerns a direct message thread.
+      if (stanza.getAttribute('type') === 'groupchat') {
+        const roomMessage = parseRoomMessage(stanza);
+        const roomReaction = !roomMessage && parseRoomReaction(stanza);
+        const roomState =
+          !roomMessage && !roomReaction && parseRoomChatState(stanza);
+        if (roomMessage) {
+          emit({ type: 'roomMessage', message: roomMessage });
+        } else if (roomReaction) {
+          emit({ type: 'roomReaction', ...roomReaction });
+        } else if (roomState && roomState.senderId !== userId) {
+          emit({ type: 'roomChatState', ...roomState });
+        }
+        return true;
+      }
+
       const carbon = unwrapCarbon(stanza, ownBareJid);
       const payload = carbon === undefined ? stanza : carbon;
       const message = payload && parseChatMessage(payload, { ownBareJid });
+      const edit =
+        payload && !message && parseCorrection(payload, { ownBareJid });
       const reaction =
-        payload && !message && parseReaction(payload, ownBareJid);
+        payload && !message && !edit && parseReaction(payload, ownBareJid);
+      const chatState =
+        payload &&
+        !message &&
+        !edit &&
+        !reaction &&
+        parseChatState(payload, ownBareJid);
 
       if (message) {
         emit({ type: 'message', message });
+      } else if (edit) {
+        emit({ type: 'edit', edit });
       } else if (reaction) {
         emit({ type: 'reaction', reaction });
+      } else if (chatState && chatState.senderId !== userId) {
+        // Our other sessions' typing arrives as carbons; it isn't the peer's.
+        emit({
+          type: 'chatState',
+          peerId: chatState.peerId,
+          state: chatState.state,
+        });
       }
 
       // Returning true keeps the handler registered.
@@ -107,35 +216,94 @@ export const createXmppTransport = ({
   // Strophe's own handler reconciles its unacked queue first, so any pending
   // message no longer in it has reached the server.
   const onAck = (connection: Connection) => (): boolean => {
+    // Any <a/> proves the socket is alive.
+    clearTimeout(probeTimer);
+    probeTimer = undefined;
+
     const unacked = new Set(
       (connection.sm?.state.unacked ?? []).map(
         ({ stanza }: { stanza: string }) => stanzaIdPattern.exec(stanza)?.[1],
       ),
     );
 
-    pendingAcks.forEach(({ peerId, failTimer }, messageId) => {
-      if (!unacked.has(messageId)) {
-        clearTimeout(failTimer);
-        pendingAcks.delete(messageId);
-        emit({ type: 'sent', peerId, messageId });
+    pendingAcks.forEach((pending, stanzaId) => {
+      if (unacked.has(stanzaId)) {
+        return;
       }
+
+      clearTimeout(pending.failTimer);
+      pendingAcks.delete(stanzaId);
+
+      // An edit changes nothing the peer hasn't been told about, so it
+      // neither counts as unread nor pushes.
+      if (pending.kind === 'edit') {
+        return;
+      }
+
+      emit({ type: 'sent', peerId: pending.peerId, messageId: stanzaId });
+      // Feeds the peer's unread count and push. Losing one only leaves a
+      // badge a message short, so it isn't retried.
+      markDirectMessageSent(pending.peerId, pending.preview || undefined).catch(
+        () => undefined,
+      );
     });
 
     return true;
   };
 
+  // Asks the server for an ack and, if none comes back in time, drops the
+  // socket without closing the stream. The stream-management state survives,
+  // so the reconnect resumes the session and Strophe resends whatever the
+  // server never acked. A clean disconnect would throw that state away.
+  const probeConnection = () => {
+    const connection = session?.connection;
+    if (!connection || probeTimer || !connection.sm?.enabled) {
+      return;
+    }
+
+    connection.send(session!.strophe.$build('r', { xmlns: NS_SM }));
+    probeTimer = setTimeout(() => {
+      probeTimer = undefined;
+      if (connection !== activeConnection) {
+        return;
+      }
+
+      // The user is waiting on this, so the retry budget starts over.
+      reconnectAttempt = 0;
+      // eslint-disable-next-line no-underscore-dangle
+      connection._doDisconnect();
+    }, probeTimeoutMs);
+  };
+
   // Arms (or re-arms) the "no ack in time" fallback. The entry outlives the
   // timeout so a late ack after a resume still flips the message to sent.
-  const watchAck = (messageId: string, peerId: string) => {
+  const watchAck = (messageId: string, peerId: string, preview: string) => {
     clearTimeout(pendingAcks.get(messageId)?.failTimer);
     pendingAcks.set(messageId, {
+      kind: 'message',
       peerId,
-      failTimer: setTimeout(
-        () => emit({ type: 'failed', peerId, messageId }),
-        ackTimeoutMs,
-      ),
+      preview,
+      failTimer: setTimeout(() => {
+        emit({ type: 'failed', peerId, messageId });
+        probeConnection();
+      }, ackTimeoutMs),
     });
   };
+
+  // An edit that isn't acked in time is reported as rejected: the optimistic
+  // copy goes, and if the queued stanza still lands after a resume the
+  // archive shows it on the next load.
+  const watchEditAck = (stanzaId: string, peerId: string, messageId: string) =>
+    pendingAcks.set(stanzaId, {
+      kind: 'edit',
+      peerId,
+      messageId,
+      failTimer: setTimeout(() => {
+        pendingAcks.delete(stanzaId);
+        emit({ type: 'editRejected', peerId, messageId });
+        probeConnection();
+      }, ackTimeoutMs),
+    });
 
   const scheduleReconnect = () => {
     // After the cap the next user action (opening messages, sending) tries
@@ -185,7 +353,10 @@ export const createXmppTransport = ({
         // clean disconnect, so another account can't pick it up.
         enableStreamManagement: true,
         // Ask for an ack after every stanza so each message is confirmed.
-        streamManagement: { maxUnacked: 1 },
+        streamManagement: {
+          maxUnacked: 1,
+          storage: createStreamManagementStorage(),
+        },
       });
       let isConnected = false;
       activeConnection = connection;
@@ -200,10 +371,15 @@ export const createXmppTransport = ({
           reconnectAttempt = 0;
           rejectConnecting = undefined;
           connection.addHandler(onMessage(ownBareJid), null, 'message', null);
+          connection.addHandler(onPresence, null, 'presence', null);
           connection.addHandler(onAck(connection), NS_SM, 'a', null);
           connection.send($pres());
           connection.sendIQ(
             $iq({ type: 'set' }).c('enable', { xmlns: NS_CARBONS }),
+          );
+          // A dropped socket took the viewer out of their rooms.
+          joinedRooms.forEach((roomJid) =>
+            sendJoin({ strophe, connection }, roomJid),
           );
           resolve({
             strophe,
@@ -221,6 +397,8 @@ export const createXmppTransport = ({
         ) {
           session = null;
           activeConnection = null;
+          clearTimeout(probeTimer);
+          probeTimer = undefined;
 
           if (!isConnected) {
             rejectConnecting = undefined;
@@ -297,13 +475,22 @@ export const createXmppTransport = ({
             stanzaId: result.stanzaId,
             stamp: result.stamp,
           });
-        // Results arrive oldest first, so a reaction always finds its
-        // message unless that one is older than this page.
+        // Results arrive oldest first, so a correction or reaction always
+        // finds its message unless that one is older than this page.
+        const edit =
+          result &&
+          !message &&
+          parseCorrection(result.message, { ownBareJid, stamp: result.stamp });
         const reaction =
-          result && !message && parseReaction(result.message, ownBareJid);
+          result &&
+          !message &&
+          !edit &&
+          parseReaction(result.message, ownBareJid);
 
         if (message) {
           messages.push(message);
+        } else if (edit) {
+          messages = applyEdit(messages, edit);
         } else if (reaction) {
           messages = applyReaction(messages, reaction);
         }
@@ -353,6 +540,19 @@ export const createXmppTransport = ({
     });
   };
 
+  // Coming back to the foreground or online is when a frozen socket shows up,
+  // so check it before the user's next message has to time out first.
+  const onResume = () => {
+    if (document.visibilityState === 'visible') {
+      probeConnection();
+    }
+  };
+  if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', onResume);
+    window.addEventListener('online', onResume);
+    window.addEventListener('pageshow', onResume);
+  }
+
   return {
     listConversations: async () => {
       const [conversations, { domain }] = await Promise.all([
@@ -360,11 +560,15 @@ export const createXmppTransport = ({
         ensureSession(),
       ]);
       // Until the inbox module exists, the last message comes from one
-      // archive lookup per conversation and unread counts are unknown. One
-      // slow lookup drops that row instead of failing the whole inbox.
+      // archive lookup per conversation; unread counts come from the API.
+      // One slow lookup drops that row instead of failing the whole inbox.
       const withLastMessage = await Promise.allSettled(
         conversations.map(
-          async ({ peer, peerJid }): Promise<DmConversation | null> => {
+          async ({
+            peer,
+            peerJid,
+            unreadCount,
+          }): Promise<DmConversation | null> => {
             openingPeers.set(peer.id, Promise.resolve());
             const jid = peerJid || jidForUser(peer.id, domain);
             const recent = await queryArchive(jid, inboxPageSize);
@@ -397,7 +601,7 @@ export const createXmppTransport = ({
                     access: DirectMessageAccess.Open,
                   },
                   lastMessage,
-                  unreadCount: 0,
+                  unreadCount,
                 }
               : null;
           },
@@ -433,12 +637,17 @@ export const createXmppTransport = ({
         ...(context && { context }),
       });
 
+      const preview = getMessagePushPreview(body);
+
       // A message that timed out is still in Strophe's stream-management
       // queue, which resends it once the session resumes. Sending it again
       // would deliver it twice, so a retry only waits for that again.
       if (retryOf && pendingAcks.has(retryOf)) {
-        watchAck(retryOf, peer.id);
+        watchAck(retryOf, peer.id, preview);
         reconnectAttempt = 0;
+        // The cached session may be a socket that died without a close
+        // event, so check it rather than wait on it again.
+        probeConnection();
         ensureSession().catch(scheduleReconnect);
 
         return message(retryOf, DmMessageStatus.Sending);
@@ -496,7 +705,7 @@ export const createXmppTransport = ({
       // trip.
       const isTracked = !!connection.sm?.isTracking();
       if (isTracked) {
-        watchAck(id, peer.id);
+        watchAck(id, peer.id, preview);
       }
 
       connection.send(stanza);
@@ -537,8 +746,121 @@ export const createXmppTransport = ({
 
       connection.send(stanza);
     },
-    // Read state needs the inbox module on the server; nothing to do yet.
-    markRead: async () => undefined,
+    edit: async (peer, messageId, body) => {
+      const { strophe, connection, domain } = await ensureSession();
+      const { $msg } = strophe;
+      const id = connection.getUniqueId('edit');
+      const stanza = $msg({
+        to: jidForUser(peer.id, domain),
+        type: 'chat',
+        id,
+      })
+        .c('body')
+        .t(body)
+        .up()
+        .c('replace', { xmlns: NS_CORRECT, id: messageId })
+        .up()
+        .c('origin-id', { xmlns: NS_SID, id });
+
+      const errorHandler = connection.addHandler(
+        () => {
+          const pending = pendingAcks.get(id);
+          if (pending) {
+            clearTimeout(pending.failTimer);
+            pendingAcks.delete(id);
+          }
+          emit({ type: 'editRejected', peerId: peer.id, messageId });
+          return false;
+        },
+        null,
+        'message',
+        'error',
+        id,
+      );
+      setTimeout(() => connection.deleteHandler(errorHandler), errorWatchMs);
+
+      if (connection.sm?.isTracking()) {
+        watchEditAck(id, peer.id, messageId);
+      }
+
+      connection.send(stanza);
+    },
+    sendChatState: async (peer, state) => {
+      const { strophe, connection, domain } = await ensureSession();
+      const { $msg } = strophe;
+      // Standalone chat states are neither archived nor held for offline
+      // peers; ejabberd treats them as transient on its own.
+      connection.send(
+        $msg({ to: jidForUser(peer.id, domain), type: 'chat' }).c(state, {
+          xmlns: NS_CHAT_STATES,
+        }),
+      );
+    },
+    markRead: (peerId) => markDirectMessagesRead(peerId),
+    joinRoom: async (roomJid) => {
+      joinedRooms.add(roomJid);
+      reconnectAttempt = 0;
+      const established = await ensureSession();
+      // Left while the session was coming up.
+      if (joinedRooms.has(roomJid)) {
+        sendJoin(established, roomJid);
+      }
+    },
+    leaveRoom: async (roomJid) => {
+      joinedRooms.delete(roomJid);
+      // Nothing to leave without a session; a reconnect won't rejoin it.
+      if (!session) {
+        return;
+      }
+      const { strophe, connection } = session;
+      connection.send(
+        strophe.$pres({
+          to: occupantJid(roomJid, userId),
+          type: 'unavailable',
+        }),
+      );
+    },
+    sendRoomMessage: async (roomJid, body) => {
+      const { strophe, connection } = await ensureSession();
+      const { $msg } = strophe;
+      const id = connection.getUniqueId('room');
+      connection.send(
+        $msg({ to: roomJid, type: 'groupchat', id })
+          .c('body')
+          .t(body)
+          .up()
+          .c('origin-id', { xmlns: NS_SID, id }),
+      );
+
+      const message: RoomMessage = {
+        id,
+        roomJid,
+        senderId: userId,
+        body,
+        createdAt: new Date().toISOString(),
+      };
+
+      return message;
+    },
+    sendRoomReaction: async (roomJid, messageId, emojis) => {
+      const { strophe, connection } = await ensureSession();
+      const { $msg } = strophe;
+      const stanza = $msg({
+        to: roomJid,
+        type: 'groupchat',
+        id: connection.getUniqueId('room-reaction'),
+      }).c('reactions', { xmlns: NS_REACTIONS, id: messageId });
+      emojis.forEach((emoji) => stanza.c('reaction').t(emoji).up());
+      connection.send(stanza);
+    },
+    sendRoomChatState: async (roomJid, state) => {
+      const { strophe, connection } = await ensureSession();
+      connection.send(
+        strophe.$msg({ to: roomJid, type: 'groupchat' }).c(state, {
+          xmlns: NS_CHAT_STATES,
+        }),
+      );
+    },
     subscribe: (listener) => {
       listeners.add(listener);
       // A new subscriber is a fresh user action, so the retry budget resets.
@@ -553,8 +875,16 @@ export const createXmppTransport = ({
       isClosed = true;
       clearTimeout(reconnectTimer);
       reconnectTimer = undefined;
+      clearTimeout(probeTimer);
+      probeTimer = undefined;
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', onResume);
+        window.removeEventListener('online', onResume);
+        window.removeEventListener('pageshow', onResume);
+      }
       pendingAcks.forEach(({ failTimer }) => clearTimeout(failTimer));
       pendingAcks.clear();
+      joinedRooms.clear();
       listeners.clear();
       // Settles a connect still in its handshake; its callbacks are ignored
       // once activeConnection is cleared.

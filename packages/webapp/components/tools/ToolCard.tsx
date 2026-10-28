@@ -57,7 +57,7 @@ export const ToolCard = ({
         faviconUrl={tool.faviconUrl}
         url={tool.url}
         className="pointer-events-none size-12 rounded-14"
-        plateClassName="bg-white p-1.5"
+        plateClassName="p-1.5"
       />
       <span className="pointer-events-none flex min-w-0 flex-1 flex-col">
         <Typography type={TypographyType.Body} bold truncate>

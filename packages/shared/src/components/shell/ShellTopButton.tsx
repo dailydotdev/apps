@@ -52,16 +52,14 @@ export const ShellTopButton = (): ReactElement => {
         revealShell();
       }}
       className={classNames(
-        'shell-material shell-press shell-hit fixed flex size-[2.375rem] items-center justify-center rounded-14 text-text-primary',
+        'shell-material shell-press shell-hit shell-top-button fixed flex size-[2.375rem] items-center justify-center rounded-14 text-text-primary',
         shown
           ? 'pointer-events-auto opacity-100'
           : 'pointer-events-none translate-y-2 opacity-0',
       )}
       style={{
         right: cluster.inset,
-        bottom: `calc(env(safe-area-inset-bottom, 0px) + ${
-          cluster.lift + cluster.rest + cluster.gap
-        }px)`,
+        bottom: `calc(${cluster.floor} + ${cluster.rest + cluster.gap}px)`,
         transitionProperty: 'opacity, translate, transform, scale',
         transitionDuration: `${motion.enter}ms`,
         transitionTimingFunction: motion.interaction,

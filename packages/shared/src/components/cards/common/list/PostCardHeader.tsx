@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useMemo } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { CardHeader } from './ListCard';
 import { ReadArticleButton } from '../ReadArticleButton';
@@ -15,7 +15,7 @@ import { useReadPostButtonText } from './hooks';
 import { BookmakProviderHeader } from './BookmarkProviderHeader';
 import { PostOptionButton } from '../../../../features/posts/PostOptionButton';
 import { AuthorSourceStack } from '../AuthorSourceStack';
-import { useFeedCardContext } from '../../../../features/posts/FeedCardContext';
+import { useReaderInstallPromptGate } from '../../../../hooks/useReaderInstallPromptGate';
 
 interface CardHeaderProps {
   post: Post;
@@ -57,25 +57,17 @@ export const PostCardHeader = ({
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
   const postButtonText = useReadPostButtonText(post);
+  const { onReadClick: onReaderInstallGateClick } =
+    useReaderInstallPromptGate(post);
+  const handleReadArticleClick = (event: React.MouseEvent) => {
+    if (onReaderInstallGateClick(event)) {
+      return;
+    }
+    onReadArticleClick?.(event);
+  };
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: post.bookmarked ?? false,
   });
-
-  const { hideSource } = useFeedCardContext();
-  // Every card labels its source, which is pure repetition on a single-source
-  // feed. Swap in the author, who is what actually varies — but only when there
-  // is one, otherwise the card loses its only attribution.
-  const resolvedMetadata = useMemo(() => {
-    if (!hideSource || !post.author) {
-      return metadata;
-    }
-
-    return {
-      ...metadata,
-      topLabel: post.author.name,
-      bottomLabel: `@${post.author.username}`,
-    };
-  }, [hideSource, metadata, post.author]);
 
   const isCollectionType = post.type === 'collection';
   const showCTA =
@@ -98,7 +90,7 @@ export const PostCardHeader = ({
           <AuthorSourceStack
             author={post.author}
             source={post.source}
-            showVerifiedCheck={!(isSourceNamed && !hideSource)}
+            showVerifiedCheck={!isSourceNamed}
           />
         ) : (
           children
@@ -110,7 +102,7 @@ export const PostCardHeader = ({
             isCollectionType && 'ml-2',
           )}
           createdAt={post.createdAt}
-          {...resolvedMetadata}
+          {...metadata}
         />
         <Container
           className="relative ml-auto flex flex-row"
@@ -126,7 +118,7 @@ export const PostCardHeader = ({
                     variant={ButtonVariant.Tertiary}
                     icon={readButtonIcon ?? <OpenLinkIcon />}
                     href={postLink ?? ''}
-                    onClick={onReadArticleClick}
+                    onClick={handleReadArticleClick}
                     openNewTab={openNewTab}
                   />
                 ))}

@@ -115,4 +115,22 @@ describe('EmailCodeVerification', () => {
       ...funnelGlassBarCta.split(' '),
     );
   });
+
+  it('should offer a way to change the email when the parent allows it', async () => {
+    const onChangeEmail = jest.fn();
+    await renderComponent({ onChangeEmail });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Change email' }));
+
+    expect(onChangeEmail).toHaveBeenCalledTimes(1);
+    expect(onVerifyCode).not.toHaveBeenCalled();
+  });
+
+  it('should not offer a change email link without a handler', async () => {
+    await renderComponent();
+
+    expect(
+      screen.queryByRole('button', { name: 'Change email' }),
+    ).not.toBeInTheDocument();
+  });
 });

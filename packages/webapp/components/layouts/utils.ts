@@ -35,5 +35,4 @@ export const getPageSeoTitles = (
 
 export const opportunityPageLayoutProps = {
   className: 'gap-10 laptop:!pt-10 pb-10',
-  screenCentered: true,
 };

@@ -12,14 +12,12 @@ import {
 import { PlusIcon, SitesIcon } from '@dailydotdev/shared/src/components/icons';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
 import { SOURCE_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/sources';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { SpotlightField } from '@dailydotdev/shared/src/components/spotlight/SpotlightTrigger';
@@ -34,6 +32,7 @@ import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
+import { toJsonLd } from '../../lib/seo';
 
 const seoTitles = getPageSeoTitles('Top sources for developer content');
 const seo: NextSeoProps = {
@@ -51,7 +50,7 @@ interface SourcesPageProps {
 }
 
 const getSourcesSchemas = (sources: Source[]): string =>
-  JSON.stringify({
+  toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {
@@ -79,22 +78,15 @@ const getSourcesSchemas = (sources: Source[]): string =>
   });
 
 const SourcesPage = ({
-  mostRecentSources,
-  trendingSources,
-  popularSources,
-  topVideoSources,
+  mostRecentSources = [],
+  trendingSources = [],
+  popularSources = [],
+  topVideoSources = [],
 }: SourcesPageProps): ReactElement => {
-  const { isFallback: isLoading } = useRouter();
   const { openModal } = useLazyModal();
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const isPhone = useIsPhone();
   const { user } = useAuthContext();
-  const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2;
-
-  if (isLoading) {
-    return <></>;
-  }
+  const isLaptopLayout = useLaptopLayout();
 
   const allSources = [
     ...trendingSources,
@@ -105,22 +97,12 @@ const SourcesPage = ({
   const uniqueSources = Array.from(
     new Map(allSources.map((source) => [source.id, source])).values(),
   ).slice(0, 100);
-  let suggestSourceVariant = ButtonVariant.Float;
-  if (isLaptop) {
-    suggestSourceVariant = ButtonVariant.Secondary;
-  }
-  if (isV2Laptop) {
-    suggestSourceVariant = ButtonVariant.Tertiary;
-  }
-
   const suggestSourceButton = (
     <Button
       icon={<PlusIcon />}
-      variant={suggestSourceVariant}
-      size={isV2Laptop ? ButtonSize.Small : undefined}
-      className={
-        isV2Laptop ? undefined : 'mb-6 ml-4 tablet:ml-0 laptop:float-right'
-      }
+      variant={isLaptopLayout ? ButtonVariant.Tertiary : ButtonVariant.Float}
+      size={isLaptopLayout ? ButtonSize.Small : undefined}
+      className={isLaptopLayout ? undefined : 'mb-6 ml-4 tablet:ml-0'}
       onClick={() => openModal({ type: LazyModal.NewSource })}
     >
       Suggest new source
@@ -129,7 +111,9 @@ const SourcesPage = ({
 
   return (
     <>
-      {isV2Laptop && <ExploreHubHeader>{suggestSourceButton}</ExploreHubHeader>}
+      {isLaptopLayout && (
+        <ExploreHubHeader>{suggestSourceButton}</ExploreHubHeader>
+      )}
       <PageWrapperLayout className="pb-6 tablet:pt-6">
         <Head>
           <script
@@ -153,7 +137,7 @@ const SourcesPage = ({
           }
         />
         <SpotlightField placeholder="Search sources" />
-        {!isV2Laptop && !isPhone && (
+        {!isLaptopLayout && !isPhone && (
           <div className="hidden justify-between tablet:flex">
             <BreadCrumbs>
               <SitesIcon size={IconSize.XSmall} secondary /> Sources
@@ -165,22 +149,18 @@ const SourcesPage = ({
           <SourceTopList
             containerProps={{ title: 'Trending sources' }}
             items={trendingSources}
-            isLoading={isLoading}
           />
           <SourceTopList
             containerProps={{ title: 'Popular sources' }}
             items={popularSources}
-            isLoading={isLoading}
           />
           <SourceTopList
             containerProps={{ title: 'Recently added sources' }}
             items={mostRecentSources}
-            isLoading={isLoading}
           />
           <SourceTopList
             containerProps={{ title: 'Top video sources' }}
             items={topVideoSources}
-            isLoading={isLoading}
           />
         </div>
       </PageWrapperLayout>
@@ -194,7 +174,6 @@ const getSourcesPageLayout: typeof getLayout = (...props) =>
 
 SourcesPage.getLayout = getSourcesPageLayout;
 SourcesPage.layoutProps = {
-  screenCentered: false,
   seo,
 };
 export default SourcesPage;

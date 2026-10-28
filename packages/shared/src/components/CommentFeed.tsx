@@ -13,7 +13,6 @@ import { useDeleteComment } from '../hooks/comments/useDeleteComment';
 import PlaceholderCommentList from './comments/PlaceholderCommentList';
 import type { CommentClassName } from './comments/common';
 import type { CommentFeedData } from '../graphql/comments';
-import { useViewSize, ViewSize } from '../hooks';
 import { gqlClient } from '../graphql/common';
 import { getNextPageParam } from '../lib/query';
 
@@ -24,7 +23,6 @@ interface CommentFeedProps<T> {
   variables?: T;
   emptyScreen?: ReactNode;
   commentClassName?: CommentClassName;
-  isMainFeed?: boolean;
 }
 
 export default function CommentFeed<T>({
@@ -34,12 +32,10 @@ export default function CommentFeed<T>({
   variables,
   emptyScreen,
   commentClassName,
-  isMainFeed,
 }: CommentFeedProps<T>): ReactElement {
   const { openShareComment } = useShareComment(logOrigin);
   const { onShowUpvoted } = useUpvoteQuery();
   const { deleteComment } = useDeleteComment();
-  const isLaptop = useViewSize(ViewSize.Laptop);
 
   const queryResult = useInfiniteQuery<CommentFeedData>({
     queryKey: feedQueryKey,
@@ -52,9 +48,8 @@ export default function CommentFeed<T>({
     initialPageParam: '',
     getNextPageParam: ({ page }) => getNextPageParam(page?.pageInfo),
   });
-  const length = queryResult?.data?.pages?.length;
-  const showEmptyScreen =
-    length > 0 && queryResult.data.pages[0].page.edges.length === 0;
+  const pages = queryResult.data?.pages ?? [];
+  const showEmptyScreen = pages.length > 0 && pages[0].page.edges.length === 0;
 
   if (queryResult.isPending) {
     return (
@@ -81,39 +76,39 @@ export default function CommentFeed<T>({
         fetchNextPage={queryResult.fetchNextPage}
         className="w-full"
       >
-        {queryResult.data.pages.flatMap((page) =>
-          page.page.edges.map(({ node }, index) => (
-            <MainComment
-              key={node.id}
-              className={{
-                ...commentClassName,
-                container: classNames(
-                  commentClassName.container,
-                  index === 0 &&
-                    !isLaptop &&
-                    isMainFeed &&
-                    'rounded-t-24 border-t',
-                ),
-              }}
-              post={node.post}
-              comment={node}
-              origin={logOrigin}
-              onShare={(c) => openShareComment(c, c.post)}
-              onDelete={(comment, parentId) =>
-                deleteComment(comment.id, parentId, comment.post)
-              }
-              onShowUpvotes={(id, count) => onShowUpvoted(id, count, 'comment')}
-              onCommented={() => undefined}
-              postAuthorId={null}
-              postScoutId={null}
-              appendTooltipTo={() => document.body}
-              linkToComment
-              lazy
-              showContextHeader
-              logImpression
-              logClick
-            />
-          )),
+        {pages.flatMap((page) =>
+          page.page.edges.map(({ node }) => {
+            const { post } = node;
+            if (!post) {
+              return null;
+            }
+
+            return (
+              <MainComment
+                key={node.id}
+                className={commentClassName}
+                post={post}
+                comment={node}
+                origin={logOrigin}
+                onShare={(c) => openShareComment(c, post)}
+                onDelete={(comment, parentId) =>
+                  deleteComment(comment.id, parentId, post)
+                }
+                onShowUpvotes={(id, count) =>
+                  onShowUpvoted(id, count, 'comment')
+                }
+                onCommented={() => undefined}
+                postAuthorId={null}
+                postScoutId={null}
+                appendTooltipTo={() => document.body}
+                linkToComment
+                lazy
+                showContextHeader
+                logImpression
+                logClick
+              />
+            );
+          }),
         )}
       </InfiniteScrolling>
     </>

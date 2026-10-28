@@ -60,7 +60,8 @@ import {
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
 import type { MenuItemProps } from '../dropdown/common';
-import { useMessageAuthorOption } from '../../features/messages/hooks/useMessageAuthorOption';
+import { useReplyPrivately } from '../../features/messages/hooks/useReplyPrivately';
+import { MailIcon } from '../icons/Mail';
 import { useEngagementBarV2 } from '../../hooks/useEngagementBarV2';
 import CommentActionButtonsV2 from './CommentActionButtons.v2';
 
@@ -119,7 +120,7 @@ function CommentActionButtonsV1({
   const authorBlockLabel = author?.username
     ? `@${author.username}`
     : authorName;
-  const messageAuthorOption = useMessageAuthorOption(comment, authorName);
+  const replyPrivately = useReplyPrivately(comment, post, origin);
   const numUpvotes = voteState.numUpvotes ?? 0;
 
   useEffect(() => {
@@ -290,10 +291,6 @@ function CommentActionButtonsV1({
     });
   }
 
-  if (messageAuthorOption) {
-    commentOptions.push(messageAuthorOption);
-  }
-
   if (!isAuthor) {
     commentOptions.push({
       label: 'Report comment',
@@ -391,6 +388,18 @@ function CommentActionButtonsV1({
           color={ButtonColor.BlueCheese}
         />
       </Tooltip>
+      {replyPrivately && (
+        <Tooltip content="Reply privately">
+          <Button
+            size={ButtonSize.Small}
+            onClick={replyPrivately}
+            icon={<MailIcon />}
+            className="mr-3"
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.Water}
+          />
+        </Tooltip>
+      )}
       <CommentAwardActions comment={comment} post={post} />
       <Tooltip content="Share comment">
         <Button

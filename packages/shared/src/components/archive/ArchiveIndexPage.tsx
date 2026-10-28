@@ -129,7 +129,9 @@ function ArchiveGrid({
     <div className="flex flex-col gap-8 px-4 pb-4 pt-6">
       {groups.map((group) => (
         <section key={group.year}>
-          <h2 className="mb-3 font-bold typo-title3">{group.year}</h2>
+          <h2 className="mb-3 font-bold typo-body tablet:typo-title3">
+            {group.year}
+          </h2>
           <div className="grid grid-cols-3 gap-3 tablet:grid-cols-4 laptop:grid-cols-6">
             {group.monthly.map((archive) => (
               <ArchiveMonthCard
@@ -186,13 +188,8 @@ export function ArchiveIndexPage({
           }
         />
       )}
-      <div className="mx-4 flex items-center gap-2">
-        <h1
-          className={classNames(
-            'flex-1 font-bold tablet:typo-title1',
-            isPhone ? 'typo-title3' : 'typo-title2',
-          )}
-        >
+      <div className="mx-4 mt-4 flex items-center gap-2 tablet:mt-0">
+        <h1 className="flex-1 font-bold typo-body tablet:typo-title1">
           {isPhone ? 'Archive' : `Best of ${scopeName} \u2014 Archive`}
         </h1>
         {!isPhone && copyLink}

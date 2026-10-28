@@ -23,9 +23,7 @@ import { withFeaturesBoundary } from '@dailydotdev/shared/src/components';
 import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { useJoinReferral } from '@dailydotdev/shared/src/hooks/referral/useJoinReferral';
-import { swipeOnboardingFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import type {
   AuthOptionsProps,
   AuthProps,
@@ -62,7 +60,6 @@ import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/share
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { isLocalhost } from '@dailydotdev/shared/src/lib/config';
-import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { getInviteReferral } from '@dailydotdev/shared/src/lib/referral';
 import {
   getBasicUserInfo,
@@ -70,7 +67,6 @@ import {
 } from '@dailydotdev/shared/src/graphql/users';
 import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
 import { getPageSeoTitles } from '../components/layouts/utils';
-import { FunnelSwipeOnboardingStep } from '../components/onboarding/FunnelSwipeOnboardingStep';
 import { defaultOpenGraph, defaultSeo, getShareImageUrl } from '../next-seo';
 
 const seoTitles = getPageSeoTitles('Get started');
@@ -108,13 +104,6 @@ type PageProps = {
   showCookieBanner?: boolean;
   seo?: NextSeoProps;
 };
-
-const isSwipeOnboardingPreviewQueryForced = (
-  query: string | string[] | undefined,
-): boolean =>
-  query === '1' ||
-  query === 'true' ||
-  (Array.isArray(query) && (query.includes('1') || query.includes('true')));
 
 export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   query,
@@ -354,34 +343,11 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
     funnelState,
     isLoggedIn,
     shouldVerify,
+    updateAuth,
   } = useOnboardingAuth();
   const { isOnboardingComplete, isOnboardingActionsReady, completeStep } =
     useOnboardingActions();
   const [isFunnelReady, setFunnelReady] = useState(false);
-  const { value: isSwipeOnboardingEnabled } = useConditionalFeature({
-    feature: swipeOnboardingFeature,
-    shouldEvaluate: isAuthReady && !!funnelState,
-  });
-  const swipeOnboardingPreviewQuery = router.query.swipeOnboardingPreview;
-  const isSwipeOnboardingPreviewForced = isSwipeOnboardingPreviewQueryForced(
-    swipeOnboardingPreviewQuery,
-  );
-  const stepComponentOverrides = useMemo(
-    () =>
-      isSwipeOnboardingEnabled || isSwipeOnboardingPreviewForced
-        ? {
-            [FunnelStepType.EditTags]: FunnelSwipeOnboardingStep,
-          }
-        : undefined,
-    [isSwipeOnboardingEnabled, isSwipeOnboardingPreviewForced],
-  );
-  const swipeOnboardingStepId = useMemo(
-    () =>
-      funnelState?.funnel.chapters
-        .flatMap((chapter) => chapter.steps)
-        .find((step) => step.type === FunnelStepType.EditTags)?.id,
-    [funnelState?.funnel.chapters],
-  );
 
   const onComplete = useCallback(async () => {
     completeStep(ActionType.CompletedOnboarding);
@@ -423,7 +389,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
       return;
     }
 
-    if (isOnboardingComplete && !isSwipeOnboardingPreviewForced) {
+    if (isOnboardingComplete) {
       // If the user is logged in and has completed the onboarding steps,
       // AND no active stepId is there, redirect them to app.
       redirectToApp(router);
@@ -438,12 +404,25 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
     isAuthReady,
     isAuthenticating,
     isFunnelReady,
-    isSwipeOnboardingPreviewForced,
     isLoggedIn,
     shouldVerify,
     isOnboardingActionsReady,
     router,
   ]);
+
+  const { isLoginFlow: isPageLoginFlow } = authOptionProps;
+  const authBackTarget: Partial<Record<AuthDisplay, AuthDisplay>> = {
+    ...(!isPageLoginFlow && {
+      [AuthDisplay.Registration]: AuthDisplay.OnboardingSignup,
+    }),
+    [AuthDisplay.EmailVerification]: isPageLoginFlow
+      ? AuthDisplay.Default
+      : AuthDisplay.Registration,
+  };
+  const authBack = authBackTarget[authOptionProps.defaultDisplay];
+  const onAuthBack = authBack
+    ? () => updateAuth({ defaultDisplay: authBack })
+    : undefined;
 
   if (isAuthenticating) {
     return (
@@ -454,8 +433,8 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
           'relative z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
         )}
       >
-        <FunnelStepTopBar />
-        <div className="relative z-2 flex w-full flex-grow flex-col flex-wrap justify-center px-4 pt-3 tablet:flex-row tablet:gap-10 tablet:px-6">
+        <FunnelStepTopBar onBack={onAuthBack} />
+        <div className="relative z-2 flex w-full flex-grow flex-col flex-wrap justify-start px-4 pt-3 tablet:flex-row tablet:justify-center tablet:gap-10 tablet:px-6">
           <AuthOptions {...authOptionProps} />
         </div>
       </div>
@@ -470,11 +449,8 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
     <div className="flex min-h-dvh min-w-full flex-col">
       <FunnelStepper
         {...funnelState}
-        initialStepId={
-          isSwipeOnboardingPreviewForced ? swipeOnboardingStepId : initialStepId
-        }
+        initialStepId={initialStepId}
         onComplete={onComplete}
-        stepComponentOverrides={stepComponentOverrides}
         isOnboarding
       />
       {/* <HotJarTracking hotjarId="3871311" /> */}

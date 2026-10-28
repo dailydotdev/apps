@@ -102,8 +102,11 @@ describe('further reading', () => {
   it('should show available articles', async () => {
     renderComponent();
     await waitForNock();
-    const [el] = await screen.findAllByRole('article');
-    await waitFor(() => expect(el).not.toHaveAttribute('aria-busy'));
+    await waitFor(() =>
+      expect(screen.getAllByRole('article')[0]).not.toHaveAttribute(
+        'aria-busy',
+      ),
+    );
     expect(await screen.findAllByRole('article')).toHaveLength(3);
   });
 

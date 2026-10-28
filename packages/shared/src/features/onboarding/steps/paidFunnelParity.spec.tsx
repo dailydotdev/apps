@@ -42,6 +42,12 @@ jest.mock('../../../contexts/LogContext', () => ({
 
 jest.mock('next/router', () => ({ useRouter: () => ({ query: {} }) }));
 
+// jsdom has no scrollIntoView; the extension step's showcase centres its
+// active tab with it on mount.
+beforeEach(() => {
+  Element.prototype.scrollIntoView = jest.fn();
+});
+
 const renderInFunnel = (ui: React.ReactElement, isOnboarding: boolean) =>
   render(
     <FunnelProgressContext.Provider

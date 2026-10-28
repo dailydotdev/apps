@@ -1,7 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import dynamic from 'next/dynamic';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import {
   MobileAppFooterProvider,
@@ -40,12 +39,13 @@ function FooterSpacer({
   }
 
   // The bar's own height comes from the cluster (--shell-bottom); a post
-  // page adds its floating action bar on top of it.
+  // page holds the rest stack of capsule and bar (52 + 8 + 56 + two lifts)
+  // from the server paint, before the capsule registers.
   return (
     <div
       className={
         post
-          ? 'h-[calc(11rem+env(safe-area-inset-bottom,0px))] tablet:hidden'
+          ? 'h-[calc(var(--shell-floor,0px)+8.25rem)] tablet:hidden'
           : 'tablet:hidden'
       }
       style={post ? undefined : { height: 'var(--shell-bottom, 5rem)' }}
@@ -67,18 +67,11 @@ export default function FooterNavBarLayout({
   children,
   post,
 }: FooterNavBarLayoutProps): ReactElement {
-  const isMobile = useViewSize(ViewSize.MobileL);
-  const [hasHydrated, setHasHydrated] = useState(false);
-
-  useEffect(() => {
-    setHasHydrated(true);
-  }, []);
-
   return (
     <MobileAppFooterProvider>
       {children}
       <FooterSpacer post={post} />
-      <FooterWrapper showNav={hasHydrated && isMobile} post={post} />
+      <FooterWrapper post={post} />
       <ClusterSlot />
     </MobileAppFooterProvider>
   );

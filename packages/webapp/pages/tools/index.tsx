@@ -27,11 +27,13 @@ import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { CharmEmptyState } from '@dailydotdev/shared/src/components/charm/CharmEmptyState';
 import { MIN_SEARCH_QUERY_LENGTH } from '@dailydotdev/shared/src/hooks/useTagSearch';
 import { cloudinaryCharmSearchNoResults } from '@dailydotdev/shared/src/lib/image';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
-import { getAppOrigin } from '../../lib/seo';
+import { getAppOrigin, toJsonLd } from '../../lib/seo';
 import { ToolCard } from '../../components/tools/ToolCard';
 import { ToolPageNavbar } from '../../components/tools/ToolPageNavbar';
 import { ToolSection } from '../../components/tools/ToolSection';
@@ -60,7 +62,7 @@ const getToolsDirectoryJsonLd = (sections: CategorySection[]): string => {
   const directoryUrl = `${appOrigin}/tools`;
   const tools = sections.flatMap(({ tools: sectionTools }) => sectionTools);
 
-  return JSON.stringify({
+  return toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {
@@ -105,6 +107,7 @@ const ToolsDirectoryPage = ({
   fallbackTopIds,
 }: ToolsDirectoryProps): ReactElement => {
   const { logEvent } = useLogContext();
+  const isPhone = useIsPhone();
   const { stackedToolIds, openAddModal, modal } = useAddToolToStack(
     Origin.ToolsDirectory,
   );
@@ -211,8 +214,9 @@ const ToolsDirectoryPage = ({
 
   return (
     <>
+      {isPhone && <ShellPage title="Tools" />}
       <ToolPageNavbar relatedTools={trending} />
-      <main className="mx-auto flex w-full max-w-screen-laptop flex-col px-4 py-6 tablet:px-6">
+      <main className="mx-auto flex w-full max-w-screen-laptop flex-col px-4 pb-6 pt-4 tablet:px-6 tablet:pt-6">
         <Head>
           <script
             type="application/ld+json"
@@ -222,11 +226,12 @@ const ToolsDirectoryPage = ({
             }}
           />
         </Head>
-        <header className="mx-auto flex w-full max-w-[48rem] flex-col items-center gap-4 py-8 text-center">
+        <header className="mx-auto flex w-full max-w-[48rem] flex-col items-start gap-4 pb-8 tablet:items-center tablet:pt-8 tablet:text-center">
           <Typography
             tag={TypographyTag.H1}
             type={TypographyType.LargeTitle}
             bold
+            className="hidden tablet:block"
           >
             Tools
           </Typography>
@@ -246,7 +251,7 @@ const ToolsDirectoryPage = ({
             className="max-w-screen-tablet"
           />
           {!isSearching && categorySections.length > 1 && (
-            <div className="flex flex-wrap items-center justify-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 tablet:justify-center">
               {categorySections.map(({ category }) => (
                 <a
                   key={category}
@@ -335,7 +340,7 @@ const getToolsDirectoryLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 ToolsDirectoryPage.getLayout = getToolsDirectoryLayout;
-ToolsDirectoryPage.layoutProps = { screenCentered: false };
+ToolsDirectoryPage.layoutProps = {};
 
 export default ToolsDirectoryPage;
 

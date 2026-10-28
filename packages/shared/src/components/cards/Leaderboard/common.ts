@@ -8,6 +8,7 @@ export interface LeaderboardListContainerProps {
   className?: string;
   footer?: ReactNode;
   header?: ReactNode;
+  isLoading?: boolean;
 }
 
 export const LeaderboardCard = classed(

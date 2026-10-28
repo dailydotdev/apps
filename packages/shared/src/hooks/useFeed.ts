@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo, useRef } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import type {
   InfiniteData,
   QueryKey,
@@ -26,6 +26,7 @@ import {
 } from '../lib/query';
 import type { AllFeedPages } from '../lib/query';
 import { FeedItemType } from '../components/cards/common/common';
+import { PHONE_FEED_PLACEHOLDER_ROWS } from '../components/cards/placeholder/PlaceholderFeed';
 import type { ApiErrorResult } from '../graphql/common';
 import {
   ApiError,
@@ -57,7 +58,7 @@ import {
 } from '../lib/feedHighlightColSpan';
 import type { FeedItemPlacement } from '../lib/feedHighlightColSpan';
 import type { HeroCardsConfig } from '../types';
-import { useViewSize, ViewSize } from './useViewSize';
+import { useIsPhone, useViewSize, ViewSize } from './useViewSize';
 import { useFeedLayout } from './useFeedLayout';
 import { useSettingsBooleanFlag } from './useSettingsBooleanFlag';
 import { cloudinaryPostImageCoverPlaceholder } from '../lib/image';
@@ -116,7 +117,6 @@ export const HERO_ELIGIBLE_FEEDS = new Set<AllFeedPages>([
   SharedFeedPage.Upvoted,
   SharedFeedPage.Custom,
   OtherFeedPage.Following,
-  OtherFeedPage.Discussed,
   OtherFeedPage.Explore,
   OtherFeedPage.ExploreLatest,
   OtherFeedPage.ExploreDiscussed,
@@ -166,6 +166,7 @@ export type FeedBannerInsertions = {
     shouldShowTopHero: boolean;
     title: string;
     subtitle: string;
+    ctaLabel?: string;
     onEnable: () => Promise<void>;
     onDismiss: () => Promise<void>;
   };
@@ -211,6 +212,8 @@ type UseFeedSettingParams = {
   /** The surface leads with a featured card, so keep wide ones out of row one. */
   deferWideCards?: boolean;
   feedName?: string;
+  /** Posts a surface above the feed already shows, kept out of the grid. */
+  excludedPostIds?: string[];
   staticAd?: { ad: Ad; index: number };
   /** Set on search feeds so every fetch can be logged as a search execution. */
   searchId?: string;
@@ -297,6 +300,7 @@ export default function useFeed<T>(
   const queryClient = useQueryClient();
   const isTabletViewport = useViewSize(ViewSize.Tablet);
   const isMobileViewport = !isTabletViewport;
+  const isPhone = useIsPhone();
   const { isListMode, shouldUseListFeedLayout } = useFeedLayout();
   const useList = isListMode && numCards > 1;
   const isListContext = useList || shouldUseListFeedLayout;
@@ -318,6 +322,22 @@ export default function useFeed<T>(
   const avoidRetry =
     params?.settings?.feedName === SharedFeedPage.Custom && !isPlus;
   const isFeedQueryEnabled = !!query && isTokenValid;
+  // An excluded post never renders, so pages holding only excluded posts
+  // are empty once no page follows them.
+  const hasNoShownPosts = (pages: FeedItemData['page'][] = []): boolean => {
+    if (!pages.some((page) => page?.edges?.length)) {
+      return true;
+    }
+    const excluded = new Set(settings?.excludedPostIds);
+    const hasShownPost = pages.some((page) =>
+      page?.edges?.some(({ node }) => {
+        const post = getFeedApiItemPost(node);
+        return !post || !excluded.has(post.id);
+      }),
+    );
+    return !hasShownPost && !pages[pages.length - 1]?.pageInfo?.hasNextPage;
+  };
+
   const feedQuery = useInfiniteQuery<
     FeedItemData,
     ClientError,
@@ -344,9 +364,10 @@ export default function useFeed<T>(
       const requestLatencyMs = Math.round(performance.now() - requestStartedAt);
       const res = normalizeFeedPage(rawResult);
 
-      const isEmpty =
-        !feedQuery?.data?.pages[0]?.page.edges.length &&
-        !res?.page?.edges?.length;
+      const isEmpty = hasNoShownPosts([
+        ...(feedQuery?.data?.pages ?? []).map(({ page }) => page),
+        res?.page,
+      ]);
 
       if (isEmpty) {
         logEvent({
@@ -496,7 +517,7 @@ export default function useFeed<T>(
     return set;
   }, [showPromoBanner, indexWhenShowingPromoBanner]);
 
-  const { fetchAd } = useFetchAd();
+  const { fetchAd, isAdConsentReady } = useFetchAd(isAdsQueryEnabled);
   // Per-mount random seed for ad jitter. Stable across re-renders/pagination
   // (so ads don't visibly jump as new pages load) but varies across mounts and
   // sessions, so the same user doesn't see ads in the same spots every visit.
@@ -507,7 +528,7 @@ export default function useFeed<T>(
   const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
   useCachedTokenRecovery({
     queryKey: adsQueryKey,
-    enabled: isAdsQueryEnabled,
+    enabled: isAdsQueryEnabled && isAdConsentReady,
   });
   const adsQuery = useInfiniteQuery<
     Ad,
@@ -537,7 +558,7 @@ export default function useFeed<T>(
     },
     initialPageParam: '',
     getNextPageParam: () => Date.now(),
-    enabled: isAdsQueryEnabled,
+    enabled: isAdsQueryEnabled && isAdConsentReady,
     refetchOnMount: false,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
@@ -581,7 +602,7 @@ export default function useFeed<T>(
         return undefined;
       }
 
-      if (isLoading) {
+      if (isLoading || (!isAdConsentReady && !adsData?.pages[adPage])) {
         return createPlaceholderItem(adPage);
       }
 
@@ -610,6 +631,7 @@ export default function useFeed<T>(
       adsData,
       fetchNextAd,
       isAdsQueryEnabled,
+      isAdConsentReady,
       isLoading,
       adTemplate?.adStart,
       adTemplate?.adRepeat,
@@ -641,6 +663,11 @@ export default function useFeed<T>(
     ],
   );
 
+  // The posts the grid last rendered. An exclusion that arrives once a post
+  // is already in the grid leaves it where it is: the surface above the feed
+  // may learn its post late (a first visit), and nothing on screen moves.
+  const renderedPostIds = useRef(new Set<string>());
+
   const items = useMemo(() => {
     const newItems: FeedItem[] = [];
 
@@ -650,6 +677,7 @@ export default function useFeed<T>(
       // The builder returns colSpan=1 when the layout is disabled
       // (mobile/list/single-col), so we never need to special-case those.
       const seenPostIds = new Set<string>();
+      const excludedPostIds = new Set<string>(settings?.excludedPostIds);
       let visualCellsSoFar = 0;
 
       const placementBuilder = createPlacementBuilder({
@@ -699,6 +727,15 @@ export default function useFeed<T>(
           if (excludePinnedPosts && getFeedApiItemPost(node)?.pinnedAt) {
             return;
           }
+          // Shown above the feed already, so it never claims a slot either.
+          const nodePost = getFeedApiItemPost(node);
+          if (
+            nodePost &&
+            excludedPostIds.has(nodePost.id) &&
+            !renderedPostIds.current.has(nodePost.id)
+          ) {
+            return;
+          }
 
           const adItem = getAd({ index: visualCellsSoFar });
 
@@ -746,8 +783,12 @@ export default function useFeed<T>(
       }
     }
     if (feedQuery.isFetching) {
+      const placeholders =
+        !feedQuery.data && isPhone && isListContext
+          ? PHONE_FEED_PLACEHOLDER_ROWS
+          : placeholdersPerPage;
       newItems.push(
-        ...Array.from({ length: Math.max(0, placeholdersPerPage) }, () =>
+        ...Array.from({ length: Math.max(0, placeholders) }, () =>
           createPlaceholderItem(),
         ),
       );
@@ -761,10 +802,12 @@ export default function useFeed<T>(
     placeholdersPerPage,
     getAd,
     settings?.disableHighlightCards,
+    settings?.excludedPostIds,
     settings?.staticAd,
     heroCardsConfig,
     virtualizedNumCards,
     isMobileViewport,
+    isPhone,
     isListContext,
     fullRowInsertionBeforeIndex,
     cadence,
@@ -773,6 +816,14 @@ export default function useFeed<T>(
     effectiveFirstSlotOffset,
     settings?.deferWideCards,
   ]);
+
+  useEffect(() => {
+    renderedPostIds.current = new Set(
+      items.flatMap((item) =>
+        item.type === FeedItemType.Post ? [item.post.id] : [],
+      ),
+    );
+  }, [items]);
 
   const placements = useMemo(
     () =>
@@ -850,6 +901,7 @@ export default function useFeed<T>(
       shouldShowTopHero: heroFeedHero.shouldShowTopHero,
       title: heroFeedHero.title,
       subtitle: heroFeedHero.subtitle,
+      ctaLabel: heroFeedHero.ctaLabel,
       onEnable: heroFeedHero.onEnableHero,
       onDismiss: heroFeedHero.onDismissHero,
     },
@@ -868,7 +920,7 @@ export default function useFeed<T>(
     removePost: removeCachedPagePost(feedQueryKey, queryClient),
     canFetchMore: feedQuery.hasNextPage,
     emptyFeed:
-      (!feedQuery?.data?.pages[0]?.page.edges.length &&
+      (hasNoShownPosts(feedQuery?.data?.pages.map(({ page }) => page)) &&
         !feedQuery.isFetching) ||
       didJustCreateFeed,
     isError:

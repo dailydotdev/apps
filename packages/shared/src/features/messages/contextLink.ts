@@ -1,7 +1,7 @@
 import { webappUrl } from '../../lib/constants';
 import { isValidHttpUrl } from '../../lib/links';
 
-const getWebappHost = (): string | undefined => {
+export const getWebappHost = (): string | undefined => {
   try {
     return new URL(webappUrl, globalThis.location?.origin).host;
   } catch {

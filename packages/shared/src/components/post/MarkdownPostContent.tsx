@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useRef } from 'react';
 import classNames from 'classnames';
-import Link from '../utilities/Link';
 import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import Markdown from '../Markdown';
@@ -13,6 +12,7 @@ import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { ContentEmbeds } from '../contentEmbeds/ContentEmbeds';
 import { YoutubeLinkEmbeds } from '../contentEmbeds/YoutubeLinkEmbeds';
 import { ParagraphSnapshotButtons } from '../../features/snapshot/ParagraphSnapshotButtons';
+import { PostImage } from './PostImage';
 
 interface MarkdownPostContentProps {
   post: Post;
@@ -62,22 +62,11 @@ function MarkdownPostContent({
       {post.type === PostType.Freeform && (
         <>
           {!hasVideo && !!post.image && (
-            <Link href={post.image}>
-              <a target="_blank" rel="noopener noreferrer">
-                <LazyImage
-                  eager={false}
-                  fetchPriority="low"
-                  ratio="52%"
-                  imgSrc={post.image}
-                  imgAlt="Post cover image"
-                  className={classNames(
-                    mediaMarginClassName,
-                    'h-auto max-h-[62.5rem] w-full rounded-12 object-cover',
-                  )}
-                  fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                />
-              </a>
-            </Link>
+            <PostImage
+              src={post.image}
+              className={mediaMarginClassName}
+              fetchPriority="low"
+            />
           )}
           {hasVideo && (
             <LazyVideo

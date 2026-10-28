@@ -17,7 +17,7 @@ import { FeedSettingsButton } from '../feeds/FeedSettingsButton';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
 import { useShortcutsUser } from '../../features/shortcuts/hooks/useShortcutsUser';
-import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { settingsUrl, webappUrl } from '../../lib/constants';
 import { getHasSeenTags, setHasSeenTags } from '../../lib/feedSettings';
@@ -39,24 +39,18 @@ interface MyFeedHeadingProps {
   iconOnly?: boolean;
 }
 
-function MyFeedHeading({
-  onOpenFeedFilters,
-  feedSettingsButtonProps,
-  onShortcutsClick,
-  iconOnly,
-}: MyFeedHeadingProps): ReactElement {
+/**
+ * Feed settings for the feed on screen: the reader's tags on For you, the
+ * feed's own settings on a custom feed, and a sign-up for a visitor.
+ */
+export const useFeedSettingsAction = (
+  onOpen?: () => void,
+): { onClick: () => void; shouldShowTagsReminder: boolean } => {
   const { push, pathname, query } = useRouter();
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
-  const { toggleShowTopSites } = useSettingsContext();
-  const { isOldUserWithNoShortcuts, showToggleShortcuts } = useShortcutsUser();
-  const isMobile = useViewSize(ViewSize.MobileL);
-  const { shouldUseListFeedLayout } = useFeedLayout();
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const { feedName } = useActiveFeedNameContext();
   const { user, showLogin } = useAuthContext();
-  const { isV2 } = useLayoutVariant();
-  const isV2Compact = isV2;
   const [hasSeenTagsState, setHasSeenTagsState] = useState<boolean | null>(
     null,
   );
@@ -113,18 +107,36 @@ function MyFeedHeading({
       completeAction(ActionType.HasSeenTags).catch(() => null);
     }
 
-    onOpenFeedFilters?.();
+    onOpen?.();
 
     return push(editFeedUrl);
   }, [
     completeAction,
     editFeedUrl,
-    onOpenFeedFilters,
+    onOpen,
     push,
     shouldShowTagsReminder,
     showLogin,
     user,
   ]);
+
+  return { onClick, shouldShowTagsReminder };
+};
+
+function MyFeedHeading({
+  onOpenFeedFilters,
+  feedSettingsButtonProps,
+  onShortcutsClick,
+  iconOnly,
+}: MyFeedHeadingProps): ReactElement {
+  const { completeAction } = useActions();
+  const { toggleShowTopSites } = useSettingsContext();
+  const { isOldUserWithNoShortcuts, showToggleShortcuts } = useShortcutsUser();
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const { shouldUseListFeedLayout } = useFeedLayout();
+  const isLaptopLayout = useLaptopLayout();
+  const { onClick, shouldShowTagsReminder } =
+    useFeedSettingsAction(onOpenFeedFilters);
 
   // Button's discriminated union requires `iconPosition` whenever `icon`
   // is set — `undefined` and conditional spreads both break it under
@@ -136,6 +148,7 @@ function MyFeedHeading({
 
   const { iconSize: feedSettingsIconSize, ...feedSettingsButtonOverrides } =
     feedSettingsButtonProps ?? {};
+  const hasLabel = !isMobile && !iconOnly;
   const filterIcon = feedSettingsIconSize ? (
     <FilterIcon size={feedSettingsIconSize} />
   ) : (
@@ -145,29 +158,17 @@ function MyFeedHeading({
   return (
     <>
       <div className="relative">
-        {isV2Compact ? (
-          <FeedSettingsButton
-            onClick={onClick}
-            size={ButtonSize.Medium}
-            variant={ButtonVariant.Tertiary}
-            icon={filterIcon}
-            iconPosition={iconPosition}
-            {...feedSettingsButtonOverrides}
-          >
-            {!isMobile && !iconOnly ? 'Feed settings' : null}
-          </FeedSettingsButton>
-        ) : (
-          <FeedSettingsButton
-            onClick={onClick}
-            size={ButtonSize.Medium}
-            variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
-            icon={filterIcon}
-            iconPosition={iconPosition}
-            {...feedSettingsButtonOverrides}
-          >
-            {!isMobile && !iconOnly ? 'Feed settings' : null}
-          </FeedSettingsButton>
-        )}
+        <FeedSettingsButton
+          onClick={onClick}
+          size={ButtonSize.Medium}
+          variant={ButtonVariant.Tertiary}
+          icon={filterIcon}
+          iconPosition={iconPosition}
+          aria-label={hasLabel ? undefined : 'Feed settings'}
+          {...feedSettingsButtonOverrides}
+        >
+          {hasLabel ? 'Feed settings' : null}
+        </FeedSettingsButton>
         {shouldShowTagsReminder && (
           <AlertDot
             color={AlertColor.Bun}
@@ -177,14 +178,10 @@ function MyFeedHeading({
       </div>
       {showToggleShortcuts && (
         <Button
-          size={isV2Compact ? ButtonSize.Small : ButtonSize.Medium}
-          variant={
-            isV2Compact || !isLaptop
-              ? ButtonVariant.Tertiary
-              : ButtonVariant.Float
-          }
+          size={isLaptopLayout ? ButtonSize.Small : ButtonSize.Medium}
+          variant={ButtonVariant.Tertiary}
           className={
-            isV2Compact
+            isLaptopLayout
               ? '!h-8 !rounded-10 !border-transparent !bg-transparent !px-3 hover:!bg-surface-hover'
               : 'mr-auto'
           }

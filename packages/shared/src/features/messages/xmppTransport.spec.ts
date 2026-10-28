@@ -5,6 +5,7 @@ import {
   DirectMessageAccess,
   getDirectMessageConversations,
   getDirectMessageToken,
+  markDirectMessageSent,
   startDirectMessage,
 } from './graphql';
 
@@ -12,6 +13,7 @@ jest.mock('./graphql', () => ({
   ...jest.requireActual('./graphql'),
   getDirectMessageToken: jest.fn(),
   getDirectMessageConversations: jest.fn(),
+  markDirectMessageSent: jest.fn(),
   startDirectMessage: jest.fn(),
 }));
 
@@ -44,6 +46,11 @@ class MockConnection {
   };
 
   disconnect = jest.fn();
+
+  // The socket goes away without closing the stream, as Strophe reports it.
+  dropSocket = jest.fn(() => this.statusCallback?.(mockStatus.DISCONNECTED));
+
+  _doDisconnect = () => this.dropSocket();
 
   private id = 0;
 
@@ -141,6 +148,9 @@ const mockBuilder = (attrs: { id?: string } = {}) => {
 
 const MockSASLXOAuth2 = function MockSASLXOAuth2() {};
 
+// Names of the bare elements built with $build, i.e. <r/> probes.
+const mockBuilt: string[] = [];
+
 jest.mock(
   'strophe.js',
   () => ({
@@ -152,6 +162,10 @@ jest.mock(
     $pres: () => mockBuilder(),
     $iq: () => mockBuilder(),
     $msg: (attrs: { id: string }) => mockBuilder(attrs),
+    $build: (name: string) => {
+      mockBuilt.push(name);
+      return mockBuilder();
+    },
   }),
   { virtual: true },
 );
@@ -179,11 +193,13 @@ beforeEach(() => {
   jest.clearAllMocks();
   jest.useRealTimers();
   connections.length = 0;
+  mockBuilt.length = 0;
   jest.mocked(getDirectMessageToken).mockResolvedValue({
     token: 'token',
     jid: 'me@chat.daily.dev',
     expiresAt: '2026-10-07T12:00:00Z',
   });
+  jest.mocked(markDirectMessageSent).mockReset().mockResolvedValue();
   jest.mocked(startDirectMessage).mockResolvedValue({
     id: 'c1',
     jid: 'me@chat.daily.dev',
@@ -191,6 +207,7 @@ beforeEach(() => {
     requestMessage: null,
     createdByViewer: true,
     isRequest: false,
+    unreadCount: 0,
     createdAt: '',
     peer,
   });
@@ -218,12 +235,32 @@ describe('createXmppTransport', () => {
 
     expect(sent.status).toBe(DmMessageStatus.Sending);
     expect(events).toEqual([]);
+    expect(markDirectMessageSent).not.toHaveBeenCalled();
 
     connection.ackAll();
 
     expect(events).toEqual([
       { type: 'sent', peerId: 'peer', messageId: sent.id },
     ]);
+    expect(markDirectMessageSent).toHaveBeenCalledWith('peer', 'hi');
+  });
+
+  it('reports a push preview without image markdown', async () => {
+    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    transport.subscribe(() => undefined);
+    const connection = await connected();
+
+    await transport.send(
+      peer,
+      `look\n\n![a](https://media.daily.dev/image/upload/x.png) ${'b'.repeat(
+        200,
+      )}`,
+    );
+    connection.ackAll();
+
+    const [, preview] = jest.mocked(markDirectMessageSent).mock.calls[0];
+    expect(preview).toHaveLength(100);
+    expect(preview?.startsWith('look Image bbb')).toBe(true);
   });
 
   it('marks a message failed when no ack arrives in time', async () => {
@@ -270,6 +307,77 @@ describe('createXmppTransport', () => {
       peerId: 'peer',
       messageId: sent.id,
     });
+  });
+
+  it('drops a socket that does not answer an ack request and resumes', async () => {
+    const events: DmEvent[] = [];
+    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    transport.subscribe((event) => events.push(event));
+    const connection = await connected();
+    jest.useFakeTimers();
+
+    const sent = await transport.send(peer, 'hi');
+    jest.advanceTimersByTime(15 * 1000);
+
+    expect(mockBuilt).toEqual(['r']);
+    expect(connection.dropSocket).not.toHaveBeenCalled();
+
+    jest.advanceTimersByTime(5 * 1000);
+
+    // Not a clean disconnect, which would drop the resumable state.
+    expect(connection.dropSocket).toHaveBeenCalledTimes(1);
+    expect(connection.disconnect).not.toHaveBeenCalled();
+
+    jest.advanceTimersByTime(1000);
+    jest.useRealTimers();
+    const resumed = await connected();
+    expect(resumed).not.toBe(connection);
+
+    // The resumed stream resends the message and the server acks it.
+    resumed.ackAll();
+
+    expect(events).toContainEqual({
+      type: 'sent',
+      peerId: 'peer',
+      messageId: sent.id,
+    });
+    expect(markDirectMessageSent).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps a socket that answers the ack request', async () => {
+    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    transport.subscribe(() => undefined);
+    const connection = await connected();
+    jest.useFakeTimers();
+
+    await transport.send(peer, 'hi');
+    jest.advanceTimersByTime(15 * 1000);
+    connection.ackAll();
+    jest.advanceTimersByTime(5 * 1000);
+
+    expect(connection.dropSocket).not.toHaveBeenCalled();
+  });
+
+  it('checks the socket when a retry waits on a queued message', async () => {
+    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    transport.subscribe(() => undefined);
+    const connection = await connected();
+    jest.useFakeTimers();
+
+    await transport.send(peer, 'hi');
+    jest.advanceTimersByTime(15 * 1000);
+    connection.ackAll();
+    mockBuilt.length = 0;
+
+    // A new timeout, then the user taps retry before the probe settles.
+    const again = await transport.send(peer, 'again');
+    jest.advanceTimersByTime(15 * 1000);
+    await transport.send(peer, 'again', undefined, { retryOf: again.id });
+
+    // One probe in flight at a time.
+    expect(mockBuilt).toEqual(['r']);
+    jest.advanceTimersByTime(5 * 1000);
+    expect(connection.dropSocket).toHaveBeenCalledTimes(1);
   });
 
   it('opens a new conversation once for concurrent first messages, in order', async () => {
@@ -355,6 +463,7 @@ describe('createXmppTransport', () => {
           requestMessage: null,
           createdByViewer: true,
           isRequest: false,
+          unreadCount: 2,
           createdAt: '',
           peer,
         },
@@ -373,6 +482,7 @@ describe('createXmppTransport', () => {
       const [conversation] = await transport.listConversations();
 
       expect(conversation?.lastMessage).toMatchObject({ id: 'm1', body: 'hi' });
+      expect(conversation?.unreadCount).toBe(2);
     });
 
     it('keeps the row without a preview when only reactions are recent', async () => {
@@ -384,6 +494,7 @@ describe('createXmppTransport', () => {
           requestMessage: null,
           createdByViewer: true,
           isRequest: false,
+          unreadCount: 2,
           createdAt: '',
           peer,
         },
@@ -405,6 +516,111 @@ describe('createXmppTransport', () => {
     });
   });
 
+  it('folds corrections into the messages they replace', async () => {
+    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    transport.subscribe(() => undefined);
+    const connection = await connected();
+    const archived = (queryId: string, id: string, inner: string) =>
+      `<message xmlns="jabber:client">
+        <result xmlns="urn:xmpp:mam:2" queryid="${queryId}" id="${id}">
+          <forwarded xmlns="urn:xmpp:forward:0">
+            <delay xmlns="urn:xmpp:delay" stamp="2026-10-07T10:00:0${id}Z"/>
+            <message xmlns="jabber:client" type="chat"
+              from="peer@chat.daily.dev" to="me@chat.daily.dev">${inner}</message>
+          </forwarded>
+        </result>
+      </message>`;
+    connection.archivePages.push((queryId) => [
+      archived(
+        queryId,
+        '1',
+        '<body>helo</body><origin-id xmlns="urn:xmpp:sid:0" id="m1"/>',
+      ),
+      archived(
+        queryId,
+        '2',
+        '<body>hello</body><replace xmlns="urn:xmpp:message-correct:0" id="m1"/>',
+      ),
+      archived(
+        queryId,
+        '3',
+        '<body>lost</body><replace xmlns="urn:xmpp:message-correct:0" id="older"/>',
+      ),
+    ]);
+
+    const messages = await transport.getMessages('peer');
+
+    expect(messages).toHaveLength(1);
+    expect(messages[0]).toMatchObject({
+      id: 'm1',
+      body: 'hello',
+      createdAt: '2026-10-07T10:00:01Z',
+      editedAt: '2026-10-07T10:00:02Z',
+    });
+  });
+
+  it('sends an edit without counting it as a new message for the peer', async () => {
+    const events: DmEvent[] = [];
+    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    transport.subscribe((event) => events.push(event));
+    const connection = await connected();
+
+    await transport.edit(peer, 'm1', 'fixed');
+    connection.ackAll();
+
+    expect(connection.sent).toHaveLength(1);
+    expect(events).toEqual([]);
+    expect(markDirectMessageSent).not.toHaveBeenCalled();
+  });
+
+  it('reports an edit the server bounced', async () => {
+    const events: DmEvent[] = [];
+    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    transport.subscribe((event) => events.push(event));
+    const connection = await connected();
+
+    await transport.edit(peer, 'm1', 'fixed');
+    connection.bounce(connection.sent[0]);
+
+    expect(events).toEqual([
+      { type: 'editRejected', peerId: 'peer', messageId: 'm1' },
+    ]);
+  });
+
+  it('relays the peer’s typing but not our other sessions’', async () => {
+    const events: DmEvent[] = [];
+    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    transport.subscribe((event) => events.push(event));
+    const connection = await connected();
+    const deliver = (source: string) =>
+      connection.handlers
+        .filter(({ name, type }) => name === 'message' && !type)
+        .forEach(({ callback }) =>
+          callback(
+            new DOMParser().parseFromString(source, 'text/xml').documentElement,
+          ),
+        );
+
+    deliver(`<message xmlns="jabber:client" type="chat"
+      from="peer@chat.daily.dev/web" to="me@chat.daily.dev/web">
+      <composing xmlns="http://jabber.org/protocol/chatstates"/>
+    </message>`);
+    deliver(`<message xmlns="jabber:client" from="me@chat.daily.dev" to="me@chat.daily.dev/web">
+      <sent xmlns="urn:xmpp:carbons:2">
+        <forwarded xmlns="urn:xmpp:forward:0">
+          <message xmlns="jabber:client" type="chat"
+            from="me@chat.daily.dev/other" to="peer@chat.daily.dev">
+            <composing xmlns="http://jabber.org/protocol/chatstates"/>
+          </message>
+        </forwarded>
+      </sent>
+    </message>`);
+
+    expect(events).toEqual([
+      { type: 'chatState', peerId: 'peer', state: 'composing' },
+    ]);
+  });
+
   it('reports a bounced reaction', async () => {
     const events: DmEvent[] = [];
     const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
@@ -415,5 +631,22 @@ describe('createXmppTransport', () => {
     connection.bounce(connection.sent[connection.sent.length - 1]);
 
     expect(events).toContainEqual({ type: 'reactionRejected', peerId: 'peer' });
+  });
+
+  it('checks the socket when the page comes back to the foreground', async () => {
+    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    transport.subscribe(() => undefined);
+    const connection = await connected();
+    jest.useFakeTimers();
+
+    document.dispatchEvent(new Event('visibilitychange'));
+
+    // Transports left open by earlier tests probe too, so only this
+    // connection's outcome is checked.
+    expect(mockBuilt).toContain('r');
+    jest.advanceTimersByTime(5 * 1000);
+    expect(connection.dropSocket).toHaveBeenCalledTimes(1);
+
+    transport.close();
   });
 });

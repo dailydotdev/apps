@@ -63,6 +63,9 @@ export const parseMessageBody = (body: string): DmBodyPart[] => {
   return parts;
 };
 
+// What the peer's push notification shows; the API truncates to this too.
+export const DM_PUSH_PREVIEW_LENGTH = 100;
+
 // A one-line summary for the inbox, where raw markdown would read as noise.
 export const getMessagePreview = (body: string): string =>
   parseMessageBody(body)
@@ -79,3 +82,28 @@ const cleanAlt = (alt: string): string => alt.replace(/[[\]\n]/g, ' ').trim();
 
 export const toImageMarkdown = (url: string, alt: string): string =>
   `![${cleanAlt(alt)}](${url})`;
+
+// Only the typed text of a message is edited; its images ride along, in the
+// shape the composer builds (text first, then one image per paragraph).
+export const getEditableText = (body: string): string =>
+  parseMessageBody(body)
+    .flatMap((part) => (part.type === 'text' ? [part.text] : []))
+    .join('\n\n');
+
+export const withEditedText = (body: string, text: string): string =>
+  [
+    text,
+    ...parseMessageBody(body).flatMap((part) =>
+      part.type === 'image' ? [toImageMarkdown(part.url, part.alt)] : [],
+    ),
+  ]
+    .filter(Boolean)
+    .join('\n\n');
+
+// The inbox summary, cut to what fits a push body. Images and GIFs stay as
+// their labels, so a photo-only message still reads as something.
+export const getMessagePushPreview = (body: string): string =>
+  getMessagePreview(body)
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, DM_PUSH_PREVIEW_LENGTH);

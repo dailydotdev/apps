@@ -14,10 +14,7 @@ import useDebounceFn from '../hooks/useDebounceFn';
 import { useDomPurify } from '../hooks/useDomPurify';
 import { getUserShortInfo } from '../graphql/users';
 import { generateQueryKey, RequestKey } from '../lib/query';
-import { useLazyModal } from '../hooks/useLazyModal';
-import { LazyModal } from './modals/common/types';
-import { getImageOriginRect } from './modals/ImageModal';
-import { useRequestProtocol } from '../hooks/useRequestProtocol';
+import { useImageViewer } from '../hooks/useImageViewer';
 import { isImageUrl } from '../lib/image';
 
 function isImageElement(
@@ -112,8 +109,7 @@ export default function Markdown({
   appendTooltipTo,
 }: MarkdownProps): ReactElement {
   const purify = useDomPurify();
-  const { openModal } = useLazyModal();
-  const { isCompanion } = useRequestProtocol();
+  const openImage = useImageViewer();
   const containerRef = useRef<HTMLDivElement>(null);
   const [userId, setUserId] = useState('');
   const [offset, setOffset] = useState<CaretOffset>([0, 0]);
@@ -136,8 +132,17 @@ export default function Markdown({
       return;
     }
 
-    const images = container.querySelectorAll('img[src]');
+    const images = container.querySelectorAll<HTMLImageElement>('img[src]');
     images.forEach((img) => {
+      const anchor = getWrappingAnchor(img, container);
+      const opensImage = shouldOpenAnchorImage(anchor, img.src);
+      img.setAttribute('data-image-action', opensImage ? 'view' : 'link');
+      if (!opensImage) {
+        img.removeAttribute('tabindex');
+        img.removeAttribute('role');
+        img.removeAttribute('aria-label');
+        return;
+      }
       img.setAttribute('tabindex', '0');
       img.setAttribute('role', 'button');
       img.setAttribute('aria-label', 'Open image');
@@ -170,26 +175,6 @@ export default function Markdown({
       setUserId(mentionId);
     },
     [cancelUserClearing, userId, clearUser],
-  );
-
-  const openImage = useCallback(
-    (src: string, alt: string | undefined, originElement: Element) => {
-      // The lazy-modal renderer isn't mounted in the extension companion, so
-      // fall back to opening the image in a new tab there.
-      if (isCompanion) {
-        window.open(src, '_blank', 'noopener,noreferrer');
-        return;
-      }
-      openModal({
-        type: LazyModal.ImageView,
-        props: {
-          src,
-          alt,
-          originRect: getImageOriginRect(originElement),
-        },
-      });
-    },
-    [isCompanion, openModal],
   );
 
   const onImageClick = useCallback(

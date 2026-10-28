@@ -19,7 +19,7 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useFeaturesReadyContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { useShortcutLinks } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutLinks';
 import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
 import { FeedLayoutProvider } from '@dailydotdev/shared/src/contexts/FeedContext';
@@ -27,7 +27,7 @@ import useCustomDefaultFeed from '@dailydotdev/shared/src/hooks/feed/useCustomDe
 import { DndBanner } from '@dailydotdev/shared/src/components/DndBanner';
 import ShortcutLinks from './ShortcutLinks/ShortcutLinks';
 import { ExtensionTopBanners } from './ExtensionTopBanners';
-import { ExtensionSignInStrip } from './ExtensionSignInStrip';
+import { ExtensionSignInContent } from './ExtensionSignInContent';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
 import { useCompanionSettings } from '../companion/useCompanionSettings';
 
@@ -46,7 +46,11 @@ export type MainFeedPageProps = {
   onPageChanged: (page: string) => unknown;
   initialPage?: string;
   shouldInitializeCurrentPage?: boolean;
-  shortcuts?: ReactNode;
+  // Cover strip for visitors who still need to log in or finish onboarding
+  // (the hijacking new tab). Laptop renders it above the feed card and puts
+  // the sign-in title and CTAs in the feed's page header; smaller screens
+  // render it in the feed's shortcuts slot.
+  loginStrip?: ReactNode;
 };
 
 const normalizePage = (page: string): string =>
@@ -70,7 +74,7 @@ const MainFeedPageInner = ({
   onPageChanged,
   initialPage,
   shouldInitializeCurrentPage = true,
-  shortcuts,
+  loginStrip,
 }: MainFeedPageProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { getFeatureValue } = useFeaturesReadyContext();
@@ -81,7 +85,7 @@ const MainFeedPageInner = ({
   );
   const [searchQuery, setSearchQuery] = useState<string>();
   const { shouldUseListFeedLayout } = useFeedLayout({ feedRelated: false });
-  const { isV2 } = useLayoutVariant();
+  const isLaptopLayout = useLaptopLayout();
   useCompanionSettings();
   const { isActive: isDndActive, showDnd, setShowDnd } = useDndContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
@@ -160,15 +164,16 @@ const MainFeedPageInner = ({
           activePage={activePage}
           onLogoClick={onLogoClick}
           onNavTabClick={onNavTabClick}
-          screenCentered={false}
           customBanner={isDndActive && <DndBanner />}
           additionalButtons={
             !loadingUser && !optOutCompanion && <CompanionPopupButton />
           }
           topBanner={
             <>
-              <ExtensionSignInStrip />
-              {isV2 && hasShortcutsToShow && (
+              {isLaptopLayout && loginStrip && (
+                <div className="mx-4 laptop:mx-0">{loginStrip}</div>
+              )}
+              {isLaptopLayout && hasShortcutsToShow && (
                 <div className="mx-4 flex justify-center pt-2 laptop:mx-0 [&:empty]:hidden">
                   <ShortcutLinks shouldUseListFeedLayout={false} />
                 </div>
@@ -183,6 +188,9 @@ const MainFeedPageInner = ({
               isSearchOn={isSearchOn}
               searchQuery={searchQuery}
               onNavTabClick={onNavTabClick}
+              pageHeaderContent={
+                !!loginStrip && !user && <ExtensionSignInContent />
+              }
               searchChildren={
                 <PostsSearch
                   onSubmitQuery={async (query, extraFlags) => {
@@ -204,9 +212,9 @@ const MainFeedPageInner = ({
                 />
               }
               shortcuts={
-                isV2
+                isLaptopLayout
                   ? undefined
-                  : shortcuts ?? (
+                  : loginStrip ?? (
                       <ShortcutLinks
                         shouldUseListFeedLayout={shouldUseListFeedLayout}
                       />

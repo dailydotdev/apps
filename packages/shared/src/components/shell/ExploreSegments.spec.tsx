@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { ExploreSegments } from './ExploreSegments';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { useIsPhone } from '../../hooks/useViewSize';
+import { useIsPhoneNow } from '../../hooks/useViewSize';
 import { featureInterestAgent } from '../../lib/featureManagement';
 
 jest.mock('next/router', () => ({ useRouter: jest.fn() }));
@@ -14,7 +14,7 @@ jest.mock('../../hooks/useConditionalFeature', () => ({
 }));
 jest.mock('../../hooks/useViewSize', () => ({
   ...jest.requireActual('../../hooks/useViewSize'),
-  useIsPhone: jest.fn(),
+  useIsPhoneNow: jest.fn(),
 }));
 
 const mockAuth = jest.mocked(useAuthContext);
@@ -33,7 +33,7 @@ describe('ExploreSegments', () => {
     jest.mocked(useRouter).mockReturnValue({
       pathname: '/posts',
     } as ReturnType<typeof useRouter>);
-    jest.mocked(useIsPhone).mockReturnValue(true);
+    jest.mocked(useIsPhoneNow).mockReturnValue(true);
     mockAuth.mockReturnValue({ isLoggedIn: true } as ReturnType<
       typeof useAuthContext
     >);
@@ -43,13 +43,7 @@ describe('ExploreSegments', () => {
   it('lists the places of Explore with the page lit', () => {
     render(<ExploreSegments />);
 
-    expect(labels()).toEqual([
-      'Posts',
-      'Discussions',
-      'Tags',
-      'Sources',
-      'Leaderboard',
-    ]);
+    expect(labels()).toEqual(['Posts', 'Tags', 'Sources', 'Leaderboard']);
     expect(lit()).toBe('Posts');
   });
 
@@ -75,7 +69,6 @@ describe('ExploreSegments', () => {
     expect(labels()).toEqual([
       'Posts',
       'Agents',
-      'Discussions',
       'Tags',
       'Sources',
       'Leaderboard',
@@ -95,7 +88,7 @@ describe('ExploreSegments', () => {
     mockAuth.mockReturnValue({ isLoggedIn: true } as ReturnType<
       typeof useAuthContext
     >);
-    jest.mocked(useIsPhone).mockReturnValue(false);
+    jest.mocked(useIsPhoneNow).mockReturnValue(false);
     render(<ExploreSegments />);
     expect(mockFeature).toHaveBeenLastCalledWith({
       feature: featureInterestAgent,

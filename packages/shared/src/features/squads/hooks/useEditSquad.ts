@@ -1,9 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Squad } from '../../../graphql/sources';
 import type { SquadForm } from '../../../graphql/squads';
-import { editSquad } from '../../../graphql/squads';
+import { editSquad, PrivacyOption } from '../../../graphql/squads';
 import type { ApiErrorResult } from '../../../graphql/common';
-import { PrivacyOption } from '../../../components/squads/settings/SquadPrivacySection';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useBoot } from '../../../hooks/useBoot';
 import { useToastNotification } from '../../../hooks/useToastNotification';
@@ -30,6 +29,8 @@ export const getSquadForm = (squad: Squad): SquadForm => ({
 interface UseEditSquad {
   onEdit: (form: Partial<SquadForm>) => Promise<Squad>;
   isPending: boolean;
+  /** The squad the last successful save returned. */
+  savedSquad?: Squad;
 }
 
 export const useEditSquad = (squad: Squad): UseEditSquad => {
@@ -37,7 +38,11 @@ export const useEditSquad = (squad: Squad): UseEditSquad => {
   const client = useQueryClient();
   const { updateSquad } = useBoot();
   const { displayToast } = useToastNotification();
-  const { mutateAsync, isPending } = useMutation({
+  const {
+    mutateAsync,
+    isPending,
+    data: savedSquad,
+  } = useMutation({
     mutationFn: (form: Partial<SquadForm>) =>
       editSquad({
         id: getSquadId(squad),
@@ -63,5 +68,5 @@ export const useEditSquad = (squad: Squad): UseEditSquad => {
     },
   });
 
-  return { onEdit: mutateAsync, isPending };
+  return { onEdit: mutateAsync, isPending, savedSquad };
 };

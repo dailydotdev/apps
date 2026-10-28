@@ -3,7 +3,6 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AdGrid } from '@dailydotdev/shared/src/components/cards/ad/AdGrid';
 import { AdList } from '@dailydotdev/shared/src/components/cards/ad/AdList';
-import { SignalAdList } from '@dailydotdev/shared/src/components/cards/ad/SignalAdList';
 import { PostSidebarAdWidget } from '@dailydotdev/shared/src/components/post/PostSidebarAdWidget';
 import { AdAsComment } from '@dailydotdev/shared/src/components/comments/AdAsComment';
 import type { Ad } from '@dailydotdev/shared/src/graphql/posts';
@@ -125,8 +124,8 @@ export const Brief: StoryObj = {
               here&quot; removal.
             </li>
             <li>
-              Signal card and post sidebar widget — label swap only; both still
-              print the company name elsewhere on the card.
+              Post sidebar widget — label swap only; it still prints the
+              company name elsewhere on the card.
             </li>
             <li>
               Ad as comment — <strong>not covered</strong>; it builds its own
@@ -181,35 +180,8 @@ export const FeedList: StoryObj = {
   ),
 };
 
-export const SignalCard: StoryObj = {
-  name: '3. Signal feed card',
-  render: () => (
-    <AdProviders>
-      <Page>
-        <Section
-          title="Signal ad card"
-          description="The signal feed renders ads as a compact row: avatar, advertiser name, then the attribution after a separator."
-          note={
-            <>
-              <strong>Advertiser still named.</strong> This card prints the
-              company next to the avatar, so the treatments turn the line into
-              &quot;Vercel · Ad&quot;. Hiding the advertiser here needs the name
-              and avatar handled too — a product decision for the rollout.
-            </>
-          }
-        >
-          <ArmRow
-            className="max-w-[30rem]"
-            render={() => <SignalAdList ad={baseAd} {...feedProps} />}
-          />
-        </Section>
-      </Page>
-    </AdProviders>
-  ),
-};
-
 export const SidebarWidget: StoryObj = {
-  name: '4. Post sidebar widget',
+  name: '3. Post sidebar widget',
   render: () => (
     <AdProviders>
       <Page>
@@ -230,24 +202,13 @@ export const SidebarWidget: StoryObj = {
             render={() => <PostSidebarAdWidget postId={SIDEBAR_POST_ID} />}
           />
         </Section>
-        <Section
-          title="Post sidebar ad — inline"
-          description="The flat in-content variant: company on the favicon line, attribution and advertise link below it."
-        >
-          <ArmRow
-            className="max-w-[26rem]"
-            render={() => (
-              <PostSidebarAdWidget postId={SIDEBAR_POST_ID} variant="inline" />
-            )}
-          />
-        </Section>
       </Page>
     </AdProviders>
   ),
 };
 
 export const AdComment: StoryObj = {
-  name: '5. Ad as comment',
+  name: '4. Ad as comment',
   render: () => (
     <AdProviders>
       <Page>
@@ -320,7 +281,7 @@ const useCases: Array<{
 ];
 
 export const UseCases: StoryObj = {
-  name: '6. Use cases',
+  name: '5. Use cases',
   render: () => (
     <Page>
       {useCases.map((useCase) => (
@@ -354,14 +315,8 @@ export const ControlOnly: StoryObj = {
             <div className="w-full max-w-[40rem]">
               <AdList ad={baseAd} {...feedProps} />
             </div>
-            <div className="w-full max-w-[30rem]">
-              <SignalAdList ad={baseAd} {...feedProps} />
-            </div>
             <div className="w-full max-w-[22rem]">
               <PostSidebarAdWidget postId={SIDEBAR_POST_ID} />
-            </div>
-            <div className="w-full max-w-[26rem]">
-              <PostSidebarAdWidget postId={SIDEBAR_POST_ID} variant="inline" />
             </div>
             <div className="w-full max-w-[36rem]">
               <AdAsComment postId={COMMENT_POST_ID} />
@@ -390,17 +345,8 @@ export const Treatment: StoryObj = {
               <div className="w-full max-w-[40rem]">
                 <AdList ad={baseAd} {...feedProps} />
               </div>
-              <div className="w-full max-w-[30rem]">
-                <SignalAdList ad={baseAd} {...feedProps} />
-              </div>
               <div className="w-full max-w-[22rem]">
                 <PostSidebarAdWidget postId={SIDEBAR_POST_ID} />
-              </div>
-              <div className="w-full max-w-[26rem]">
-                <PostSidebarAdWidget
-                  postId={SIDEBAR_POST_ID}
-                  variant="inline"
-                />
               </div>
               <div className="w-full max-w-[36rem]">
                 <AdAsComment postId={COMMENT_POST_ID} />

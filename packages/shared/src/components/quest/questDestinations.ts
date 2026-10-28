@@ -1,9 +1,8 @@
 import type { UserQuest } from '../../graphql/quests';
 import { agentsHighlightsPath } from '../../lib/links';
-import { webappUrl } from '../../lib/constants';
+import { downloadBrowserExtension, webappUrl } from '../../lib/constants';
+import { BrowserName } from '../../lib/func';
 import type { QuestDestination } from './QuestCard';
-
-const HOT_TAKES_MODAL_PATH = '/?openModal=hottakes';
 
 /**
  * A destination as a URL. In-app destinations are stored as absolute paths but
@@ -45,9 +44,6 @@ export const getQuestDestination = (
       return { label: 'Feed', path: '/' };
     case 'brief_read':
       return { label: 'Briefs', path: '/briefing' };
-    case 'hot_take_vote':
-    case 'hot_take_create':
-      return { label: 'Hot takes', path: HOT_TAKES_MODAL_PATH };
     case 'user_follow':
       return { label: 'Leaderboards', path: '/users' };
     case 'view_user_profile':
@@ -56,14 +52,12 @@ export const getQuestDestination = (
       return { label: 'Happening Now', path: agentsHighlightsPath };
     case 'visit_explore_page':
       return { label: 'Explore', path: '/posts' };
-    case 'visit_discussions_page':
-      return { label: 'Discuss', path: '/discussed' };
     case 'visit_read_it_later_page':
       return { label: 'Later', path: '/bookmarks/later' };
-    case 'visit_watercooler_feed':
-      return { label: 'Watercooler', path: '/watercooler' };
-    case 'visit_user_world':
-      return { label: 'Worlds', path: '/world' };
+    case 'visit_marketplace':
+      return { label: 'Marketplace', path: '/marketplace' };
+    case 'plugin_submit':
+      return { label: 'Submit plugin', path: '/marketplace/submit' };
     case 'feedback_submit':
       return { label: 'Feedback', path: '/settings/feedback' };
     case 'squad_join':
@@ -78,3 +72,56 @@ export const getQuestDestination = (
       return null;
   }
 };
+
+const introDestinationByEventType: Record<string, QuestDestination> = {
+  notifications_enable: {
+    label: 'Notifications',
+    path: '/settings/notifications',
+  },
+  brief_generate: {
+    label: 'Briefing',
+    path: '/briefing/generate',
+  },
+  profile_complete: {
+    label: 'Profile',
+    path: '/settings/profile',
+  },
+  api_token_create: {
+    label: 'API settings',
+    path: '/settings/api',
+  },
+  api_profile_fetch: {
+    label: 'API settings',
+    path: '/settings/api',
+  },
+};
+
+const getExtensionIntroDestination = (
+  browserName: BrowserName,
+): QuestDestination | null => {
+  switch (browserName) {
+    case BrowserName.Edge:
+      return {
+        label: 'Edge Add-ons',
+        href: downloadBrowserExtension,
+        openInNewTab: true,
+      };
+    case BrowserName.Chrome:
+    case BrowserName.Brave:
+      return {
+        label: 'Chrome Web Store',
+        href: downloadBrowserExtension,
+        openInNewTab: true,
+      };
+    default:
+      return null;
+  }
+};
+
+export const getIntroQuestDestination = (
+  eventType: string,
+  browserName: BrowserName,
+): QuestDestination | null =>
+  eventType === 'extension_install'
+    ? getExtensionIntroDestination(browserName)
+    : introDestinationByEventType[eventType] ?? null;

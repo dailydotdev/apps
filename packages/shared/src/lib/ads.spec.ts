@@ -1,11 +1,22 @@
 import ad from '../../__tests__/fixture/ad';
 import { SourceType } from '../graphql/sources';
+import { AdConsentExists } from '../features/monetization/adConsent';
+import { getBrowserClientHints } from '../features/monetization/browserClientHints';
+
 import {
   AdPlacement,
   fetchAdByPlacement,
   resolveAdFetchOptions,
   shouldSkipSourceAds,
 } from './ads';
+
+jest.mock('../features/monetization/browserClientHints', () => ({
+  getBrowserClientHints: jest.fn().mockResolvedValue(undefined),
+}));
+
+jest.mock('../features/monetization/adPageView', () => ({
+  getAdPageViewId: () => 'page-view',
+}));
 
 describe('ads', () => {
   const originalFetch = global.fetch;
@@ -26,6 +37,20 @@ describe('ads', () => {
   });
 
   describe('resolveAdFetchOptions', () => {
+    it.each(Object.values(AdPlacement))(
+      'preserves request context for %s',
+      (placement) => {
+        expect(
+          resolveAdFetchOptions({
+            placement,
+            pageViewId: 'shared-view',
+          }),
+        ).toMatchObject({
+          placement,
+          pageViewId: 'shared-view',
+        });
+      },
+    );
     it('should enable boost flags for feed placements', () => {
       expect(
         resolveAdFetchOptions({
@@ -88,7 +113,7 @@ describe('ads', () => {
 
       expect(global.fetch).toHaveBeenCalledWith(
         'http://localhost:3000/v1/a?active=true&allow_post_boost=true&allow_squad_boost=true',
-        { credentials: 'include' },
+        { credentials: 'include', headers: { 'X-Page-View-Id': 'page-view' } },
       );
       expect(result).toEqual({ ...ad, generationId: 'gen-123' });
     });
@@ -100,7 +125,7 @@ describe('ads', () => {
 
       expect(global.fetch).toHaveBeenCalledWith(
         'http://localhost:3000/v1/a/post',
-        { credentials: 'include' },
+        { credentials: 'include', headers: { 'X-Page-View-Id': 'page-view' } },
       );
     });
 
@@ -112,7 +137,7 @@ describe('ads', () => {
 
       expect(global.fetch).toHaveBeenCalledWith(
         'http://localhost:3000/v1/a/squads_directory?allow_squad_boost=true',
-        { credentials: 'include' },
+        { credentials: 'include', headers: { 'X-Page-View-Id': 'page-view' } },
       );
     });
 
@@ -128,8 +153,55 @@ describe('ads', () => {
 
       expect(global.fetch).toHaveBeenCalledWith(
         'http://localhost:3000/v1/a?active=false&gdpr=1&gdpr_consent=tc-string&addtl_consent=1%7E1.2',
-        { credentials: 'include' },
+        { credentials: 'include', headers: { 'X-Page-View-Id': 'page-view' } },
       );
+    });
+
+    it.each([
+      {
+        placement: AdPlacement.Feed,
+        url: 'http://localhost:3000/v1/a?active=false&registered=true&gdpr=0',
+        registered: true,
+      },
+      {
+        placement: AdPlacement.PostSidebar,
+        url: 'http://localhost:3000/v1/a?active=false&registered=false&gdpr=0',
+        registered: false,
+      },
+      {
+        placement: AdPlacement.PostComment,
+        url: 'http://localhost:3000/v1/a/post?registered=false&gdpr=0',
+        registered: false,
+      },
+      {
+        placement: AdPlacement.SquadDirectory,
+        url: 'http://localhost:3000/v1/a/squads_directory?registered=true&gdpr=0',
+        registered: true,
+      },
+    ])(
+      'should send registered=$registered for $placement',
+      async ({ placement, url, registered }) => {
+        await fetchAdByPlacement({
+          placement,
+          registered,
+          consent: { gdprApplies: false },
+        });
+
+        expect(global.fetch).toHaveBeenCalledWith(url, {
+          credentials: 'include',
+          headers: { 'X-Page-View-Id': 'page-view' },
+        });
+      },
+    );
+
+    it('should pass registered through every placement', () => {
+      Object.values(AdPlacement)
+        .filter((placement) => placement !== AdPlacement.SponsorStrip)
+        .forEach((placement) => {
+          expect(
+            resolveAdFetchOptions({ placement, registered: false }).registered,
+          ).toBe(false);
+        });
     });
 
     it('should send gdpr=0 without consent strings outside GDPR scope', async () => {
@@ -140,9 +212,86 @@ describe('ads', () => {
 
       expect(global.fetch).toHaveBeenCalledWith(
         'http://localhost:3000/v1/a/post?gdpr=0',
-        { credentials: 'include' },
+        { credentials: 'include', headers: { 'X-Page-View-Id': 'page-view' } },
       );
     });
+
+    it('sends direct consent without replacing the page-view id', async () => {
+      await fetchAdByPlacement({
+        placement: AdPlacement.Feed,
+        pageViewId: 'shared-view',
+        consent: { gdprApplies: true, consentExists: AdConsentExists.False },
+      });
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:3000/v1/a?active=false&gdpr=1&consent_exists=FALSE_CONSENT',
+        {
+          credentials: 'include',
+          headers: {
+            'X-Page-View-Id': 'shared-view',
+          },
+        },
+      );
+    });
+
+    it.each([
+      { consentExists: undefined, allowed: false },
+      { consentExists: AdConsentExists.None, allowed: false },
+      { consentExists: AdConsentExists.False, allowed: false },
+      { consentExists: AdConsentExists.True, allowed: true },
+    ])(
+      'gates high-entropy hints for $consentExists',
+      async ({ consentExists, allowed }) => {
+        await fetchAdByPlacement({
+          placement: AdPlacement.Feed,
+          consent: { gdprApplies: true, consentExists },
+        });
+        expect(getBrowserClientHints).toHaveBeenCalledWith(allowed);
+      },
+    );
+
+    it('sends only TCF when both consent mechanisms are supplied', async () => {
+      await fetchAdByPlacement({
+        placement: AdPlacement.PostComment,
+        consent: {
+          gdprApplies: true,
+          consentString: 'tc-string',
+          consentExists: AdConsentExists.True,
+        },
+      });
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:3000/v1/a/post?gdpr=1&gdpr_consent=tc-string',
+        { credentials: 'include', headers: { 'X-Page-View-Id': 'page-view' } },
+      );
+    });
+
+    it.each([
+      {
+        name: 'TCF',
+        consent: { gdprApplies: true, consentString: 'tc-string' },
+      },
+      { name: 'outside CMP scope', consent: { gdprApplies: false } },
+    ])(
+      'sends available basic browser hints with $name consent context',
+      async ({ consent }) => {
+        const hints = {
+          brands: [{ brand: 'Chromium', version: '134' }],
+          mobile: false,
+          platform: 'macOS',
+        };
+        jest.mocked(getBrowserClientHints).mockResolvedValueOnce(hints);
+        await fetchAdByPlacement({ placement: AdPlacement.Feed, consent });
+        expect(getBrowserClientHints).toHaveBeenCalledWith(false);
+        expect(global.fetch).toHaveBeenCalledWith(
+          expect.any(String),
+          expect.objectContaining({
+            headers: {
+              'X-Page-View-Id': 'page-view',
+              'X-User-Agent-Client-Hints': JSON.stringify(hints),
+            },
+          }),
+        );
+      },
+    );
   });
 
   describe('shouldSkipSourceAds', () => {

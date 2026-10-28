@@ -5,9 +5,10 @@ import type {
   DmMessage,
   DmPeer,
   DmTransport,
+  RoomMessage,
 } from './types';
 import { DmMessageStatus } from './types';
-import { applyReaction } from './stanzas';
+import { applyEdit, applyReaction } from './stanzas';
 import { DirectMessageAccess } from './graphql';
 
 // In-memory stand-in for ejabberd until the backend exists. It persists to
@@ -24,6 +25,7 @@ type Store = Record<string, StoredConversation>;
 
 const storageVersion = 1;
 const sendDelayMs = 400;
+const typingDelayMs = 600;
 const replyDelayMs = 1800;
 
 const cannedReplies = [
@@ -152,6 +154,11 @@ export const createMockTransport = (userId: string): DmTransport => {
 
   const scheduleReply = (peer: DmPeer) => {
     setTimeout(() => {
+      listeners.forEach((listener) =>
+        listener({ type: 'chatState', peerId: peer.id, state: 'composing' }),
+      );
+    }, typingDelayMs);
+    setTimeout(() => {
       const message: DmMessage = {
         id: `mock-${Date.now()}-${peer.id}`,
         peerId: peer.id,
@@ -165,7 +172,109 @@ export const createMockTransport = (userId: string): DmTransport => {
     }, replyDelayMs);
   };
 
+  // Live rooms: a few canned voices talk while the viewer is in.
+  const roomTimers = new Map<string, ReturnType<typeof setInterval>>();
+  const roomVoices = [
+    {
+      id: 'mock-mariah',
+      lines: [
+        'our monorepo install went from 9s to 31s on the rc',
+        'ok fine, running it on staging tonight',
+      ],
+    },
+    {
+      id: 'mock-tomasz',
+      lines: [
+        'the bundler is genuinely fast though',
+        'still migrating two services this week, will report back',
+      ],
+    },
+    {
+      id: 'mock-kai',
+      lines: [
+        'anyone tried it with prisma yet?',
+        'so the shims were the compatibility all along',
+      ],
+    },
+  ];
+  const emit = (event: DmEvent) =>
+    listeners.forEach((listener) => listener(event));
+  const roomMessage = (
+    roomJid: string,
+    senderId: string,
+    body: string,
+    isHistory = false,
+  ): RoomMessage => ({
+    id: `mock-room-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    roomJid,
+    senderId,
+    body,
+    createdAt: new Date().toISOString(),
+    ...(isHistory && { isHistory }),
+  });
+
   return {
+    joinRoom: async (roomJid) => {
+      await wait(sendDelayMs);
+      roomVoices.forEach((voice) =>
+        emit({
+          type: 'roomMessage',
+          message: roomMessage(roomJid, voice.id, voice.lines[0], true),
+        }),
+      );
+      emit({ type: 'roomJoined', roomJid });
+      clearInterval(roomTimers.get(roomJid));
+      let turn = 0;
+      roomTimers.set(
+        roomJid,
+        setInterval(() => {
+          const voice = roomVoices[turn % roomVoices.length];
+          turn += 1;
+          emit({
+            type: 'roomChatState',
+            roomJid,
+            senderId: voice.id,
+            state: 'composing',
+          });
+          setTimeout(
+            () =>
+              emit({
+                type: 'roomMessage',
+                message: roomMessage(
+                  roomJid,
+                  voice.id,
+                  voice.lines[turn % voice.lines.length],
+                ),
+              }),
+            replyDelayMs,
+          );
+        }, 7000),
+      );
+    },
+    leaveRoom: async (roomJid) => {
+      clearInterval(roomTimers.get(roomJid));
+      roomTimers.delete(roomJid);
+      emit({ type: 'roomLeft', roomJid });
+    },
+    sendRoomMessage: async (roomJid, body) => {
+      const message = roomMessage(roomJid, userId, body);
+      setTimeout(() => emit({ type: 'roomMessage', message }), sendDelayMs);
+      return message;
+    },
+    sendRoomChatState: async () => undefined,
+    sendRoomReaction: async (roomJid, messageId, emojis) => {
+      setTimeout(
+        () =>
+          emit({
+            type: 'roomReaction',
+            roomJid,
+            senderId: userId,
+            messageId,
+            emojis,
+          }),
+        sendDelayMs,
+      );
+    },
     listConversations: async () =>
       Object.values(store)
         .filter(({ messages }) => messages.length > 0)
@@ -218,6 +327,30 @@ export const createMockTransport = (userId: string): DmTransport => {
       };
       persist();
     },
+    edit: async (peer, messageId, body) => {
+      await wait(sendDelayMs);
+      const existing = store[peer.id];
+      if (!existing) {
+        return;
+      }
+
+      store = {
+        ...store,
+        [peer.id]: {
+          ...existing,
+          messages: applyEdit(existing.messages, {
+            peerId: peer.id,
+            senderId: userId,
+            messageId,
+            body,
+            editedAt: new Date().toISOString(),
+          }),
+        },
+      };
+      persist();
+    },
+    // The canned reply types on its own schedule.
+    sendChatState: async () => undefined,
     markRead: async (peerId) => {
       if (!store[peerId]?.unreadCount) {
         return;
@@ -233,6 +366,10 @@ export const createMockTransport = (userId: string): DmTransport => {
         listeners.delete(listener);
       };
     },
-    close: () => listeners.clear(),
+    close: () => {
+      roomTimers.forEach((timer) => clearInterval(timer));
+      roomTimers.clear();
+      listeners.clear();
+    },
   };
 };

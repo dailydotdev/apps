@@ -1,16 +1,17 @@
 import type { FormEvent, ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { ClearIcon, SearchIcon } from '../icons';
 import { IconSize } from '../Icon';
-import { useIsPhone } from '../../hooks/useViewSize';
+import { useIsPhone, useIsPhoneLandscape } from '../../hooks/useViewSize';
 import { useMobileAppFooterContext } from '../../features/getApp/contexts/MobileAppFooterContext';
 import { useVisualViewport } from '../../hooks/utils/useVisualViewport';
 import { cluster, field, lerp, motion } from './constants';
 import { setShellFieldFocused, useRegisterShellField } from './shellFieldStore';
 import { revealShell, useShellScroll } from './useShellScroll';
 import { hidesCluster } from './shellNav';
+import { Portal, RootPortal } from '../tooltips/Portal';
 
 interface ShellFieldProps {
   placeholder: string;
@@ -21,6 +22,10 @@ interface ShellFieldProps {
   onChange?: (value: string) => void;
   onSubmit?: (value: string) => void;
   onFocus?: () => void;
+  // A full-screen modal covers the bar, so over a modal the field rests at
+  // the floor inside the modal's overlay: above the modal it floats over,
+  // under any prompt or modal opened on top of it.
+  overModal?: boolean;
 }
 
 const transition = ['transform', 'height', 'border-radius', 'padding']
@@ -34,14 +39,26 @@ export function ShellField({
   onChange,
   onSubmit,
   onFocus,
+  overModal = false,
 }: ShellFieldProps): ReactElement | null {
   const isPhone = useIsPhone();
+  // Sideways the bar stays compact, so the field stands on its compact top.
+  const barHeight = useIsPhoneLandscape() ? cluster.compact : cluster.rest;
   const router = useRouter();
   // Settings and forms have no bar; the field rests in the bar's place.
-  const hasBar = !hidesCluster(router?.pathname ?? '', router?.asPath);
+  const hasBar =
+    !overModal && !hidesCluster(router?.pathname ?? '', router?.asPath);
   const { p } = useShellScroll();
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  // undefined until the anchor has looked for its modal's overlay; null when
+  // there is none, and the field falls back to the root.
+  const [modalOverlay, setModalOverlay] = useState<Element | null>();
+  const anchorRef = useCallback((node: HTMLSpanElement | null) => {
+    if (node) {
+      setModalOverlay(node.closest('.ReactModal__Overlay'));
+    }
+  }, []);
   const viewport = useVisualViewport(isFocused);
   // The app footer owns the bottom while it is up.
   const { title: appFooterTitle } = useMobileAppFooterContext();
@@ -67,8 +84,8 @@ export function ShellField({
       )
     : 0;
   const progress = isFocused ? 0 : p;
-  const restBottom = `calc(env(safe-area-inset-bottom, 0px) + ${
-    cluster.lift + (hasBar ? cluster.rest + field.gap : 0)
+  const restBottom = `calc(${cluster.floor} + ${
+    hasBar ? barHeight + field.gap : 0
   }px)`;
   const focusedBottom =
     keyboard > 0
@@ -83,7 +100,7 @@ export function ShellField({
     'pointer-events-auto flex w-full items-center gap-2 px-3 text-left motion-reduce:!transition-none',
     isFocused
       ? 'border border-text-primary bg-background-default'
-      : 'shell-material',
+      : 'shell-material shell-material-action',
   );
   const icon = (
     <SearchIcon size={IconSize.Small} className="shrink-0 text-text-tertiary" />
@@ -95,16 +112,19 @@ export function ShellField({
     inputRef.current?.blur();
   };
 
-  return (
+  const fieldElement = (
     <div
-      className="pointer-events-none fixed inset-x-0 z-3 motion-reduce:!transition-none tablet:hidden"
+      className={classNames(
+        'shell-field pointer-events-none fixed inset-x-0 motion-reduce:!transition-none tablet:hidden',
+        overModal && !modalOverlay ? 'z-max' : 'z-3',
+      )}
       style={{
         bottom: isFocused ? focusedBottom : restBottom,
         paddingInline: isFocused
           ? field.focusedInset
           : lerp(cluster.inset, cluster.insetCompact, progress),
         transform: hasBar
-          ? `translateY(${progress * (cluster.rest + field.gap)}px)`
+          ? `translateY(${progress * (barHeight + field.gap)}px)`
           : undefined,
         transition,
       }}
@@ -168,4 +188,18 @@ export function ShellField({
       )}
     </div>
   );
+
+  if (overModal) {
+    return (
+      <>
+        <span ref={anchorRef} hidden />
+        {modalOverlay && (
+          <Portal container={modalOverlay}>{fieldElement}</Portal>
+        )}
+        {modalOverlay === null && <RootPortal>{fieldElement}</RootPortal>}
+      </>
+    );
+  }
+
+  return <RootPortal>{fieldElement}</RootPortal>;
 }
