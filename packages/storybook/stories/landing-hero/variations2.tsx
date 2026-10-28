@@ -1194,7 +1194,7 @@ const DeviceStore = ({ className }: { className: string }): ReactElement => (
       href="https://apps.apple.com/app/daily-dev/id6740634400"
       className={classNames(className, 'lh-mob-flex')}
     >
-      <AppleGlyph /> Download on the App Store
+      <AppleGlyph /> Get it on the App Store
     </a>
   </>
 );
@@ -1243,7 +1243,7 @@ export const extensionRoundTwo: Variation2[] = [
     hypothesis:
       'If the stacked row says what the reader gains in one short line, installs rise without the signup loss, because the offer is now a benefit, not a feature, and it stays below the only primary.',
     change:
-      'One line, no subtitle: “Stay up to date in every new tab.” with the ghost Add to Chrome (Add to Edge on Edge). On phones and tablets: “Stay up to date on the go.” with Download on the App Store or Get it on Google Play. Same row, same position as B9; nothing else. It leads with the gain and names only where it happens. Built as `value_row` in recruiter-landing#622.',
+      'One line, no subtitle: “Stay up to date in every new tab.” with the ghost Add to Chrome (Add to Edge on Edge). On phones and tablets: “Stay up to date on the go.” stacked and centered, with Get it on the App Store or Get it on Google Play. Same row, same position as B9; nothing else. It leads with the gain and names only where it happens. Built as `value_row` in recruiter-landing#622.',
     phoneNote:
       'Phones get the app: the App Store on iPhone, Google Play on Android.',
     risk: 'Still inside the column. Guardrail: hero signups on Windows desktop. Alternates for the line: “Find what’s next, right in your browser.” / “Stay up to date without searching for it.” / “Stay ahead, even on your busiest days.”',
@@ -1278,7 +1278,7 @@ export const extensionRoundTwo: Variation2[] = [
     hypothesis:
       'If the ghost “Add to Chrome” in the header carries the store rating and is browser-aware, more visitors install without a signup loss, because the door is in the conventional place, away from the form, and it says why.',
     change:
-      'Header ghost button: “Add to Chrome · 4.9★” (Add to Edge on Edge, without the rating, which is the Chrome Web Store’s), on the left after Resources (moved from beside Log in on Oct 28). The nav is laptop-only: an iPad in landscape gets Download on the App Store, phones see nothing, Safari and Firefox desktops see nothing. Built as `header_door` in recruiter-landing#622.',
+      'Header ghost button: “Add to Chrome · 4.9★” (Add to Edge on Edge, without the rating, which is the Chrome Web Store’s), on the left after Resources (moved from beside Log in on Oct 28). On an iPad or Android tablet the door reads “Get the app”. Below 1024px the nav folds into the menu and the store button sits first in it, full width. Safari and Firefox desktops see nothing. Built as `header_door` in recruiter-landing#622.',
     risk: 'Same screen as the form, the closest cousin of the arm that lost; its saving grace is weight. Watch Windows hero signups daily.',
     render: () => (
       <LandingPage
@@ -1493,7 +1493,7 @@ export const extensionRoundTwo: Variation2[] = [
     hypothesis:
       'If the hero offers exactly two doors, the extension for this browser and “Open daily.dev in your browser”, more visitors end up with the extension and signups hold, because both doors lead to the same signup and the visitor only picks where they will read.',
     change:
-      'The provider stack is replaced by two buttons: the visitor’s store (“Add to Chrome” with the Chrome icon, Add to Edge on Edge, Download on the App Store on iPhone and iPad, Get it on Google Play on Android; nothing on Safari and Firefox desktops, where the browser button stands alone) and “Open daily.dev in your browser” in the /launch/ page’s lavender (Tailwind purple-300, #d8b4fe, the color of its rotating headline word, plan ticks and CTA hover) with dark text. The purple button opens the homepage’s own signup popup, the same form every other CTA on the page opens, so the visitor stays on the page and the design is identical. Disclaimer and member line unchanged.',
+      'The provider stack is replaced by two buttons: the visitor’s store (“Add to Chrome” with the Chrome icon, Add to Edge on Edge, Get it on the App Store on iPhone and iPad, Get it on Google Play on Android; nothing on Safari and Firefox desktops, where the browser button stands alone) and “Open daily.dev in your browser” in the /launch/ page’s lavender (Tailwind purple-300, #d8b4fe, the color of its rotating headline word, plan ticks and CTA hover) with dark text. The purple button opens the homepage’s own signup popup, the same form every other CTA on the page opens, so the visitor stays on the page and the design is identical. Disclaimer and member line unchanged.',
     risk: 'This is the install-first shape the signup hero beat in September, and the two-door shape that lost in October. It trades hero signups for installs by design; judge it on account + extension within 7 days, not on signups, and run it last with the smallest split.',
     decision:
       'Popup, not /onboarding: the homepage already renders the provider form in <SignupModal> for every section CTA, so the purple button opens that. It keeps the visitor on the page (One Tap stays armed, the store button stays in view, no round trip), and the form is the same design in both places. In in-app browsers the modal shows GitHub and email, as the form already does there. Built as `discord_pair` in recruiter-landing#622.',

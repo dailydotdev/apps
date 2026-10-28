@@ -166,9 +166,10 @@ export const Brief: StoryObj = {
             D, closing the column. discord_pair (E12): the store beside a
             lavender “Open daily.dev in your browser” that opens the signup
             popup. Each store button is per device: Add to Chrome or Edge on
-            Chromium desktops, Download on the App Store on iPhone and iPad, Get
-            it on Google Play on Android, nothing on Safari and Firefox desktops
-            or inside our own apps.
+            Chromium desktops, Get it on the App Store on iPhone and iPad, Get
+            it on Google Play on Android (“Get the app” in the nav, and the door
+            moves to the top of the menu below 1024px), nothing on Safari and
+            Firefox desktops or inside our own apps.
           </p>
         </Prose>
       </Case>

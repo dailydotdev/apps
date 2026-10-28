@@ -1333,6 +1333,14 @@
   text-align: left;
 }
 
+@media (max-width: 767px) {
+  .lh-sub-card {
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
 .lh-sub-card strong {
   display: block;
   color: #fff;
