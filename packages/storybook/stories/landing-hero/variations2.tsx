@@ -657,10 +657,35 @@ const PersonalizedGoogle = (): ReactElement => (
   </a>
 );
 
-const ContinueAsYou = ({
+const AutoSignInCard = (): ReactElement => (
+  <div className="lh-onetap lh-onetap-auto" role="status">
+    <div className="lh-onetap-head">
+      <span>
+        <GoogleG className="lh-onetap-g" /> Signing you in to daily.dev
+      </span>
+    </div>
+    <div className="lh-onetap-user">
+      <img src={quotes[3].image} alt="" />
+      <span>
+        <strong>Joud Awad</strong>
+        <small>joud.awad@gmail.com</small>
+      </span>
+    </div>
+    <div className="lh-onetap-progress" aria-hidden="true">
+      <span />
+    </div>
+    <button type="button" className="lh-text-btn" style={{ color: '#0b57d0' }}>
+      Cancel
+    </button>
+  </div>
+);
+
+export const ContinueAsYou = ({
   returning = false,
+  auto = false,
 }: {
   returning?: boolean;
+  auto?: boolean;
 }): ReactElement => (
   <LandingPage
     form={
@@ -684,7 +709,7 @@ const ContinueAsYou = ({
         }
       />
     }
-    overlay={!returning && <OneTapCard />}
+    overlay={auto ? <AutoSignInCard /> : !returning && <OneTapCard />}
   />
 );
 
@@ -1104,21 +1129,6 @@ const Leaf = ({ flip = false }: { flip?: boolean }): ReactElement => (
   </svg>
 );
 
-const DownloadGlyph = (): ReactElement => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-    style={{ width: '1.125rem', height: '1.125rem' }}
-  >
-    <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
-  </svg>
-);
-
 const laurels = [
   { top: 'Product of the Year', bottom: 'Product Hunt' },
   { top: '4.9 ★ rating', bottom: 'Chrome Web Store', href: CHROME_STORE },
@@ -1131,11 +1141,20 @@ const laurels = [
 
 const Laurels = ({
   centered = false,
+  tight = false,
+  match = false,
 }: {
   centered?: boolean;
+  tight?: boolean;
+  match?: boolean;
 }): ReactElement => (
   <ul
-    className={classNames('lh-laurels', centered && 'lh-laurels-centered')}
+    className={classNames(
+      'lh-laurels',
+      centered && 'lh-laurels-centered',
+      tight && 'lh-laurels-tight',
+      match && 'lh-laurels-match',
+    )}
     aria-label="daily.dev recognition"
   >
     {laurels.map((item) => {
@@ -1158,6 +1177,45 @@ const Laurels = ({
   </ul>
 );
 
+const DiscordPair = (): ReactElement => {
+  const [open, setOpen] = useState(false);
+  return (
+    <LandingPage
+      form={
+        <SignupForm
+          buttons={
+            <div className="lh-pair">
+              <a
+                href={CHROME_STORE}
+                className="lh-pill lh-pill-primary lh-desk-flex"
+              >
+                <ChromeIcon /> Add to Chrome
+              </a>
+              <button
+                type="button"
+                className="lh-pill lh-pill-brand"
+                onClick={() => setOpen(true)}
+              >
+                Open daily.dev in your browser
+              </button>
+            </div>
+          }
+        />
+      }
+      overlay={
+        open && (
+          <AuthSheet
+            center
+            title="Pick a way in"
+            body="Ten seconds, then your feed."
+            onClose={() => setOpen(false)}
+          />
+        )
+      }
+    />
+  );
+};
+
 export const extensionRoundTwo: Variation2[] = [
   {
     id: 'E1',
@@ -1168,8 +1226,8 @@ export const extensionRoundTwo: Variation2[] = [
     hypothesis:
       'If the stacked row says what the reader gains in one short line, installs rise without the signup loss, because the offer is now a benefit, not a feature, and it stays below the only primary.',
     change:
-      '“Stay ahead without trying.” over “Your feed, every time you open your browser.” with the ghost Add to Chrome. Same row, same position as B9; shorter copy, no proof, nothing else.',
-    risk: 'Still inside the column. Guardrail: hero signups on Windows desktop. Alternates for the top line: “Never fall behind.” / “Make every new tab count.” / “The news finds you.”',
+      '“Stay ahead, even on your busiest days.” over “Your feed finds you, every time you open your browser.” with the ghost Add to Chrome. Same row, same position as B9; shorter copy, no proof, nothing else. The line speaks to the developer with no time to invest: the feed does the work.',
+    risk: 'Still inside the column. Guardrail: hero signups on Windows desktop. Alternates for the top line: “Stay ahead the easy way.” / “Stay ahead without the time.” / “Stay ahead, zero effort.”',
     render: () => (
       <LandingPage
         form={
@@ -1177,8 +1235,10 @@ export const extensionRoundTwo: Variation2[] = [
             after={
               <div className="lh-sub-card">
                 <div>
-                  <strong>Stay ahead without trying.</strong>
-                  <small>Your feed, every time you open your browser.</small>
+                  <strong>Stay ahead, even on your busiest days.</strong>
+                  <small>
+                    Your feed finds you, every time you open your browser.
+                  </small>
                 </div>
                 <AddToChrome label="Add to Chrome" />
               </div>
@@ -1197,14 +1257,14 @@ export const extensionRoundTwo: Variation2[] = [
     hypothesis:
       'If the ghost “Add to Chrome” in the header carries the store rating and is browser-aware, more visitors install without a signup loss, because the door is in the conventional place, away from the form, and it says why.',
     change:
-      'Header ghost button: “Add to Chrome · 4.9★”, Chromium desktops only. Safari and Firefox see “Get the app”. Phones see nothing.',
+      'Header ghost button: “Add to Chrome · 4.9★”, on the left after Resources (moved from beside Log in on Oct 28), Chromium desktops only. Safari and Firefox see “Get the app”. Phones see nothing.',
     risk: 'Same screen as the form, the closest cousin of the arm that lost; its saving grace is weight. Watch Windows hero signups daily.',
     render: () => (
       <LandingPage
-        headerExtra={
+        headerNavExtra={
           <a
             href={CHROME_STORE}
-            className="lh-btn lh-btn-ghost lh-btn-sm lh-desk-inline"
+            className="lh-btn lh-btn-ghost lh-btn-sm lh-nav-door"
           >
             <ChromeIcon /> Add to Chrome{' '}
             <span style={{ opacity: 0.7 }}>· 4.9★</span>
@@ -1394,37 +1454,77 @@ export const extensionRoundTwo: Variation2[] = [
     pick: true,
     title: 'The Discord pair',
     borrowed:
-      'Discord’s hero: an OS-aware “Download for Mac” beside “Open Discord in your browser”. Here: the browser-aware install beside the web app, which opens on /onboarding.',
+      'Discord’s hero: an OS-aware “Download for Mac” beside “Open Discord in your browser”. Here: the browser-aware install beside the web app.',
     hypothesis:
       'If the hero offers exactly two doors, the extension for this browser and “Open daily.dev in your browser”, more visitors end up with the extension and signups hold, because both doors lead to the same signup and the visitor only picks where they will read.',
     change:
-      'The provider stack is replaced by two buttons: “Add to Chrome” (Edge on Edge; on Safari and Firefox the browser button becomes the primary and the install is hidden) and “Open daily.dev in your browser”, which goes to /onboarding where the providers live. Disclaimer and member line unchanged.',
+      'The provider stack is replaced by two buttons: “Add to Chrome” with the Chrome icon (Edge on Edge; on Safari and Firefox the browser button becomes the primary and the install is hidden) and “Open daily.dev in your browser” in the brand purple (#9333ea, the /launch/ page’s purple). The purple button opens the homepage’s own signup popup, the same form every other CTA on the page opens, so the visitor stays on the page and the design is identical. Disclaimer and member line unchanged.',
     risk: 'This is the install-first shape the signup hero beat in September, and the two-door shape that lost in October. It trades hero signups for installs by design; judge it on account + extension within 7 days, not on signups, and run it last with the smallest split.',
+    decision:
+      'Popup, not /onboarding: the homepage already renders the provider form in <SignupModal> for every section CTA, so the purple button opens that. It keeps the visitor on the page (One Tap stays armed, the install button stays in view, no round trip), and the form is the same design in both places. /onboarding remains the fallback for in-app browsers where the popup OAuth flow is blocked.',
     phoneNote:
       'Phones see only “Open daily.dev in your browser”; the store button needs a desktop.',
+    render: () => <DiscordPair />,
+  },
+];
+
+/** F4 options: where the laurels sit and how wide the column is. */
+export const laurelOptions: {
+  id: string;
+  title: string;
+  note: string;
+  render: () => ReactElement;
+}[] = [
+  {
+    id: 'A',
+    title: 'Tight, above the headline',
+    note: 'Smaller leaves and gaps so the row fits the 420px column; nothing else moves.',
+    render: () => <LandingPage eyebrow={<Laurels tight />} />,
+  },
+  {
+    id: 'B',
+    title: 'Column widened to the laurels',
+    note: 'The laurels keep the /launch/ size; headline, buttons and lines widen to 520px to match.',
+    render: () => <LandingPage eyebrow={<Laurels match />} />,
+  },
+  {
+    id: 'C',
+    title: 'Under the headline',
+    note: 'Headline first, laurels as the line between it and the buttons.',
+    render: () => (
+      <LandingPage
+        sub={
+          <div style={{ marginTop: '1.25rem' }}>
+            <Laurels tight />
+          </div>
+        }
+      />
+    ),
+  },
+  {
+    id: 'D',
+    title: 'At the bottom',
+    note: 'The column ends on the laurels, after the member line, where the ratings row sat in E5.',
     render: () => (
       <LandingPage
         form={
           <SignupForm
-            buttons={
-              <div className="lh-pair">
-                <a
-                  href={CHROME_STORE}
-                  className="lh-pill lh-pill-primary lh-desk-flex"
-                >
-                  <DownloadGlyph /> Add to Chrome
-                </a>
-                <a
-                  href="https://daily.dev/onboarding"
-                  className="lh-pill lh-pill-brand"
-                >
-                  Open daily.dev in your browser
-                </a>
+            tail={
+              <div style={{ marginTop: '1.25rem' }}>
+                <Laurels tight centered />
               </div>
             }
           />
         }
       />
+    ),
+  },
+  {
+    id: 'E',
+    title: 'Under the buttons',
+    note: 'Between the providers and the disclaimer, in the slot B9 and E1 use.',
+    render: () => (
+      <LandingPage form={<SignupForm after={<Laurels tight centered />} />} />
     ),
   },
 ];

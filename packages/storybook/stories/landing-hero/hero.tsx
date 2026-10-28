@@ -248,9 +248,12 @@ export type Nav = 'full' | 'minimal' | 'none';
 
 export const Header = ({
   extra,
+  navExtra,
   nav = 'full',
 }: {
   extra?: ReactNode;
+  /** After the nav links, on the left. */
+  navExtra?: ReactNode;
   nav?: Nav;
 }): ReactElement => (
   <header className="lh-header">
@@ -274,6 +277,7 @@ export const Header = ({
               <button type="button" className="lh-nav-trigger">
                 Resources
               </button>
+              {navExtra}
             </div>
           )}
         </div>
@@ -417,6 +421,7 @@ export type LandingProps = {
   artExtra?: ReactNode;
   backdrop?: 'illustration' | 'feed';
   headerExtra?: ReactNode;
+  headerNavExtra?: ReactNode;
   framePill?: ReactNode;
   frameCaption?: ReactNode;
   playVideo?: boolean;
@@ -446,6 +451,7 @@ export const LandingPage = ({
   artExtra,
   backdrop = 'illustration',
   headerExtra,
+  headerNavExtra,
   framePill,
   frameCaption,
   playVideo = false,
@@ -455,7 +461,7 @@ export const LandingPage = ({
   headlineClassName,
 }: LandingProps): ReactElement => (
   <div className="lh-root">
-    <Header extra={headerExtra} nav={nav} />
+    <Header extra={headerExtra} navExtra={headerNavExtra} nav={nav} />
     <section className="lh-hero">
       <div className="lh-desk">
         <div className="lh-art-wrap">

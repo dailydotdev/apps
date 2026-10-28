@@ -2411,13 +2411,13 @@
 }
 
 .lh-pill-brand {
-  background: #7c6bea;
+  background: #9333ea;
   color: #fff;
   font-weight: 600;
 }
 
 .lh-pill-brand:hover {
-  background: #6b5bd6;
+  background: #7e22ce;
 }
 
 .lh-desk-flex {
@@ -2442,5 +2442,81 @@
 
   .lh-pair {
     flex-wrap: nowrap;
+  }
+}
+
+.lh-nav-door {
+  margin-left: 0.5rem;
+}
+
+.lh-onetap-auto .lh-onetap-head {
+  font-weight: 600;
+}
+
+.lh-onetap-progress {
+  height: 4px;
+  margin: 0.25rem 0 0.625rem;
+  border-radius: 999px;
+  background: #e3e3e3;
+  overflow: hidden;
+}
+
+.lh-onetap-progress span {
+  display: block;
+  width: 40%;
+  height: 100%;
+  background: #0b57d0;
+  animation: lh-slide 5s linear forwards;
+}
+
+@keyframes lh-slide {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+.lh-laurels-tight {
+  gap: 0.25rem 0.875rem;
+  margin-bottom: 1.125rem;
+}
+
+.lh-laurels-tight .lh-leaf {
+  width: 14px;
+  height: 1.625rem;
+}
+
+.lh-laurels-tight .lh-laurel {
+  gap: 0.125rem;
+}
+
+.lh-laurels-tight .lh-laurel-top {
+  font-size: 11.5px;
+}
+
+.lh-laurels-tight .lh-laurel-bottom {
+  font-size: 10.5px;
+}
+
+.lh-form .lh-laurels {
+  margin: 0;
+  width: 100%;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .lh-laurels-tight {
+    width: 100%;
+    max-width: 420px;
+    justify-content: space-between;
+  }
+
+  .lh-column:has(.lh-laurels-match),
+  .lh-column:has(.lh-laurels-match) .lh-h1,
+  .lh-column:has(.lh-laurels-match) .lh-form {
+    max-width: 520px;
   }
 }
