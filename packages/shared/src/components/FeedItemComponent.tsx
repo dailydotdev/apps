@@ -33,6 +33,7 @@ import { AdViewability } from './cards/ad/common/AdViewability';
 import type { ViewabilityData } from '../features/monetization/viewability';
 import { viewabilityLogExtra } from '../features/monetization/viewability';
 import { ActivePostContextProvider } from '../contexts/ActivePostContext';
+import { FeedExplainCard } from '../features/feedExplain/components/FeedExplainCard';
 import { LogExtraContextProvider } from '../contexts/LogExtraContext';
 import { SquadAdList } from './cards/ad/squad/SquadAdList';
 import { SquadAdGrid } from './cards/ad/squad/SquadAdGrid';
@@ -416,13 +417,25 @@ function FeedItemComponent({
     const WideCard = isWidenedFeaturedPost
       ? PostTypeToWideCard[itemPost.type]
       : undefined;
+    // Only posts of the Explain mode feed carry `explain`, null included.
+    const explainCard = item.type === FeedItemType.Post &&
+      itemPost.explain !== undefined && (
+        <FeedExplainCard
+          post={itemPost}
+          explain={itemPost.explain}
+          isList={shouldUseListFeedLayout || shouldUseListMode}
+        />
+      );
 
     return (
       <ActivePostContextProvider post={itemPost}>
         {WideCard ? (
-          <WideCard {...postCardProps} wideColSpan={wideColSpan} />
+          <WideCard {...postCardProps} wideColSpan={wideColSpan}>
+            {explainCard}
+          </WideCard>
         ) : (
           <PostTag {...postCardProps}>
+            {explainCard}
             {item.type === FeedItemType.Ad && (
               <>
                 <AdPixel pixel={item.ad.pixel} />

@@ -44,6 +44,7 @@ import usePlusEntry from '../../hooks/usePlusEntry';
 import { Origin, TargetType } from '../../lib/log';
 import type { AllFeedPages } from '../../lib/query';
 import { useInert } from './FeedWidgetFrame';
+import { FeedExplainSwitch } from '../feedExplain/components/FeedExplainSwitch';
 
 export interface HomeFeedTabsProps {
   /** The feed on screen: a custom feed when it is the reader's default. */
@@ -203,6 +204,12 @@ export function HomeFeedTabs({
       }}
     />
   );
+  const explainSwitch = isForYou && (
+    <FeedExplainSwitch
+      isRecommended={sort.selected === DEFAULT_ALGORITHM_INDEX}
+      className="mx-1"
+    />
+  );
   const feedSettings = hasFeedActions && (
     <MyFeedHeading
       feedSettingsButtonProps={{
@@ -268,6 +275,7 @@ export function HomeFeedTabs({
               />
             )}
             {isTabletWidth && <NotificationsBell compact />}
+            {explainSwitch}
             {feedSettings}
           </div>
         </div>
@@ -328,6 +336,7 @@ export function HomeFeedTabs({
           <div className="flex shrink-0 items-center gap-1">
             {shield}
             <AchievementTrackerButton />
+            {explainSwitch}
             {feedSettings}
           </div>
         )}

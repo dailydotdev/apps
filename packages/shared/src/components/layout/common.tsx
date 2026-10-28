@@ -30,6 +30,7 @@ import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
 import { IntroQuestButton } from '../filters/IntroQuestButton';
 import { LuckyButton } from '../filters/LuckyButton';
 import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
+import { FeedExplainSwitch } from '../../features/feedExplain/components/FeedExplainSwitch';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -176,6 +177,13 @@ export const SearchControlHeader = ({
         }
         iconSize={isLaptopLayout ? IconSize.XSmall : undefined}
         key="toggle-clickbait-shield"
+      />
+    ),
+    feedName === SharedFeedPage.MyFeed && (
+      <FeedExplainSwitch
+        key="explain"
+        isRecommended={selectedAlgo === DEFAULT_ALGORITHM_INDEX}
+        className="mx-1"
       />
     ),
     hasFeedActions && !isLaptopLayout && (

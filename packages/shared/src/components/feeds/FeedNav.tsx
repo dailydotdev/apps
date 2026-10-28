@@ -40,6 +40,7 @@ import PlusMobileEntryBanner from '../marketing/banners/PlusMobileEntryBanner';
 import { TargetType } from '../../lib/log';
 import usePlusEntry from '../../hooks/usePlusEntry';
 import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
+import { FeedExplainSwitch } from '../../features/feedExplain/components/FeedExplainSwitch';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -136,6 +137,13 @@ function FeedNav({
     </>
   );
 
+  const explainSwitch = (
+    <FeedExplainSwitch
+      isRecommended={selectedAlgo === DEFAULT_ALGORITHM_INDEX}
+      className="mr-1"
+    />
+  );
+
   const urlToTab: Record<string, string> = useMemo(() => {
     const customFeeds = sortedFeeds.reduce<Record<string, string>>(
       (acc, { node: feed }) => {
@@ -221,6 +229,7 @@ function FeedNav({
             </div>
             {showFeedActions && (
               <FeedNavActionsWrapper className="!py-0">
+                {explainSwitch}
                 {renderFeedActions(true)}
               </FeedNavActionsWrapper>
             )}
@@ -231,6 +240,7 @@ function FeedNav({
             <UnifiedMobileFeedNav />
             {showFeedActions && (
               <FeedNavActionsWrapper>
+                {explainSwitch}
                 {renderFeedActions(true)}
               </FeedNavActionsWrapper>
             )}

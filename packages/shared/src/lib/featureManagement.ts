@@ -359,6 +359,10 @@ export const featureExcoPlayer = new Feature<ExcoPlayerConfig>('exco_player', {
   playerId: '',
 });
 
+// Explain mode on For You: why each card is on the feed. Only shown on the
+// challenger feed versions (`challengerFeedVersions`), which explain cards.
+export const featureFeedExplain = new Feature('feed_explain', false);
+
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.
 export const featureGqlBatching = new Feature('gql_batching', false);

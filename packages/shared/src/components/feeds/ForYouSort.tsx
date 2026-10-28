@@ -22,6 +22,7 @@ import { Drawer } from '../drawers/Drawer';
 import { RootPortal } from '../tooltips/Portal';
 import { SheetChoice } from '../shell/ShellRow';
 import { useFeedSettingsAction } from '../filters/MyFeedHeading';
+import { FeedExplainSwitch } from '../../features/feedExplain/components/FeedExplainSwitch';
 
 export interface ForYouSort {
   canSort: boolean;
@@ -122,7 +123,8 @@ export const ForYouSortMenu = ({
 
 /**
  * The phone's For you sheet, after the Explore sort sheet: the sort, then
- * Feed settings, which lives here on phones instead of on the tab bar.
+ * Explain and Feed settings, which live here on phones instead of on the
+ * tab bar.
  */
 export const ForYouSheet = ({
   title,
@@ -169,6 +171,10 @@ export const ForYouSheet = ({
             sort.canSort && 'border-t border-border-subtlest-tertiary',
           )}
         >
+          <FeedExplainSwitch
+            isRow
+            isRecommended={sort.selected === DEFAULT_ALGORITHM_INDEX}
+          />
           <button
             type="button"
             onClick={openFeedSettings}
