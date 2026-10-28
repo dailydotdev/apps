@@ -14,7 +14,7 @@ interface FeedExplainSwitchProps {
   className?: string;
 }
 
-/** Turns Explain mode on For You on and off. */
+/** The Debug switch: turns Explain mode on For You on and off. */
 export const FeedExplainSwitch = ({
   isRecommended,
   isRow,
@@ -51,7 +51,7 @@ export const FeedExplainSwitch = ({
       )}
       labelClassName={isRow ? '!ml-0 text-text-primary' : undefined}
     >
-      Explain
+      Debug
     </Switch>
   );
 };

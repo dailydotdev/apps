@@ -84,4 +84,15 @@ describe('useFeedExplainMode', () => {
     expect(result.current.isAvailable).toBe(false);
     expect(result.current.isExplaining).toBe(false);
   });
+
+  it('should keep offering it on the By date sort, for the phone sheet', () => {
+    const { result } = renderMode({
+      version: 116,
+      isFlagOn: true,
+      isRecommended: false,
+    });
+
+    expect(result.current.isOffered).toBe(true);
+    expect(result.current.isAvailable).toBe(false);
+  });
 });

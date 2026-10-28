@@ -446,7 +446,7 @@ interface FeedExplainCardProps {
 
 /**
  * Explain mode over a feed card: why the post is here, its topics and source
- * with follow and block, Fewer like this and the full explanation. It covers
+ * with follow and block, Hide post and the full explanation. It covers
  * the real card, which stays underneath.
  */
 export const FeedExplainCard = ({
@@ -473,7 +473,7 @@ export const FeedExplainCard = ({
     );
     openModal({
       type: LazyModal.FeedExplanation,
-      props: { post, explain, onShowFewer: onHide },
+      props: { post, explain, onHide },
     });
   };
 
@@ -508,18 +508,16 @@ export const FeedExplainCard = ({
             ))}
           </ul>
           <div className="-mx-1.5 mt-auto flex items-center justify-between gap-2">
-            <Tooltip content="Fewer like this. Removes this post from your feed.">
-              <Button
-                type="button"
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.XSmall}
-                icon={<EyeCancelIcon />}
-                className="!text-text-tertiary"
-                onClick={onHide}
-              >
-                Fewer like this
-              </Button>
-            </Tooltip>
+            <Button
+              type="button"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.XSmall}
+              icon={<EyeCancelIcon />}
+              className="!text-text-tertiary"
+              onClick={onHide}
+            >
+              Hide post
+            </Button>
             <Button
               type="button"
               variant={ButtonVariant.Tertiary}

@@ -20,6 +20,8 @@ interface UseFeedExplainModeProps {
 interface UseFeedExplainMode {
   /** Explain mode can be turned on for the feed on screen. */
   isAvailable: boolean;
+  /** The feed on screen has Explain mode, though only its Recommended sort can turn it on. */
+  isOffered: boolean;
   isExplaining: boolean;
   /** The For You version, which the explanations and profile are for. */
   version: number;
@@ -57,10 +59,12 @@ export const useFeedExplainMode = ({
     key: [QueryStateKeys.FeedExplain],
     defaultValue: false,
   });
-  const isAvailable = isForYou && isChallenger && isFlagOn && isRecommended;
+  const isOffered = isForYou && isChallenger && isFlagOn;
+  const isAvailable = isOffered && isRecommended;
 
   return {
     isAvailable,
+    isOffered,
     isExplaining: isAvailable && isOn,
     version,
     setIsExplaining,

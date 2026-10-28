@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import UnifiedMobileFeedNav from './UnifiedMobileFeedNav';
@@ -40,7 +40,13 @@ import PlusMobileEntryBanner from '../marketing/banners/PlusMobileEntryBanner';
 import { TargetType } from '../../lib/log';
 import usePlusEntry from '../../hooks/usePlusEntry';
 import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
-import { FeedExplainSwitch } from '../../features/feedExplain/components/FeedExplainSwitch';
+import { useFeedExplainMode } from '../../features/feedExplain/useFeedExplainMode';
+import {
+  ForYouSheet,
+  ForYouTabLabel,
+  getForYouMenuAriaLabel,
+  useForYouSort,
+} from './ForYouSort';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -99,6 +105,13 @@ function FeedNav({
     [0, 1],
     DEFAULT_ALGORITHM_INDEX,
   );
+  const forYouSort = useForYouSort();
+  // Phones keep Debug in the For you sheet, opened from the lit For you tab,
+  // so the row has no switch to crowd out the tabs.
+  const { isOffered: hasForYouSheet, isExplaining } = useFeedExplainMode({
+    isRecommended: forYouSort.selected === DEFAULT_ALGORITHM_INDEX,
+  });
+  const [isForYouSheetOpen, setIsForYouSheetOpen] = useState(false);
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const { feeds } = useFeeds();
@@ -135,13 +148,6 @@ function FeedNav({
 
       <MyFeedHeading iconOnly={iconOnly} />
     </>
-  );
-
-  const explainSwitch = (
-    <FeedExplainSwitch
-      isRecommended={selectedAlgo === DEFAULT_ALGORITHM_INDEX}
-      className="mr-1"
-    />
   );
 
   const urlToTab: Record<string, string> = useMemo(() => {
@@ -225,13 +231,40 @@ function FeedNav({
         {inShellBlock && (
           <div className="flex w-full items-stretch bg-background-default">
             <div className="min-w-0 flex-1">
-              <HomeSegments />
+              <HomeSegments
+                forYou={
+                  hasForYouSheet
+                    ? {
+                        label: (
+                          <ForYouTabLabel
+                            label={FeedNavTab.ForYou}
+                            selected={forYouSort.selected}
+                            isExplaining={isExplaining}
+                          />
+                        ),
+                        ariaLabel: getForYouMenuAriaLabel({
+                          label: FeedNavTab.ForYou,
+                          selected: forYouSort.selected,
+                          isExplaining,
+                        }),
+                        onMenu: () => setIsForYouSheetOpen(true),
+                      }
+                    : undefined
+                }
+              />
             </div>
             {showFeedActions && (
               <FeedNavActionsWrapper className="!py-0">
-                {explainSwitch}
                 {renderFeedActions(true)}
               </FeedNavActionsWrapper>
+            )}
+            {hasForYouSheet && (
+              <ForYouSheet
+                title={FeedNavTab.ForYou}
+                sort={forYouSort}
+                isOpen={isForYouSheetOpen}
+                onClose={() => setIsForYouSheetOpen(false)}
+              />
             )}
           </div>
         )}
@@ -240,7 +273,6 @@ function FeedNav({
             <UnifiedMobileFeedNav />
             {showFeedActions && (
               <FeedNavActionsWrapper>
-                {explainSwitch}
                 {renderFeedActions(true)}
               </FeedNavActionsWrapper>
             )}

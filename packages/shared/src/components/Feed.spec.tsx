@@ -1110,7 +1110,7 @@ describe('Feed logged in', () => {
       ).toBeInTheDocument();
       expect(screen.getByText('#3')).toBeInTheDocument();
 
-      fireEvent.click(screen.getByRole('button', { name: /^Fewer like this/ }));
+      fireEvent.click(screen.getByRole('button', { name: 'Hide post' }));
       await waitFor(() => expect(hideCalled).toBeTruthy());
       expect(
         await screen.findByText("Got it. You'll see less like this."),

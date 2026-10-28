@@ -56,7 +56,7 @@ import { ScoreBreakdown, ScoreBreakdownToggle } from './ScoreBreakdown';
 export interface FeedExplanationModalProps extends LazyModalCommonProps {
   post: Post;
   explain: FeedItemExplain | null;
-  onShowFewer: () => unknown;
+  onHide: () => unknown;
 }
 
 const Strong = ({ children }: { children: ReactNode }): ReactElement => (
@@ -259,7 +259,7 @@ const TopicGlyph = (): ReactElement => (
 function FeedExplanationModal({
   post: feedPost,
   explain,
-  onShowFewer,
+  onHide,
   ...props
 }: FeedExplanationModalProps): ReactElement {
   const { onRequestClose } = props;
@@ -494,11 +494,11 @@ function FeedExplanationModal({
               size={ButtonSize.Small}
               icon={<EyeCancelIcon />}
               onClick={() => {
-                onShowFewer();
+                onHide();
                 onRequestClose();
               }}
             >
-              Show fewer like this
+              Hide post
             </Button>
             <Button
               type="button"
