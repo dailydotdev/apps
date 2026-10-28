@@ -1445,9 +1445,23 @@ export const extensionRoundTwo: Variation2[] = [
     hypothesis:
       'If the hero opens on the three laurels and the Chrome Web Store one is a link, more visitors learn where the product lives and trust the signup, because the proof reads as recognition rather than a pitch, and the store is named without a second button.',
     change:
-      'The Laurels row from /launch/ as the eyebrow above the headline: “Product of the Year · Product Hunt”, “4.9 ★ rating · Chrome Web Store” (links to the store), “20K+ stars · GitHub”. Nothing else in the column moves.',
-    risk: 'Pushes the headline down about 40px on 760px art. Proof-only by design: pair it with E1 if a visible install path is wanted too.',
-    render: () => <LandingPage eyebrow={<Laurels />} />,
+      'The Laurels row from /launch/, tight and centered, closing the column after the member line: “Product of the Year · Product Hunt”, “4.9 ★ rating · Chrome Web Store” (links to the store), “20K+ stars · GitHub”. Nothing above it moves.',
+    risk: 'Adds about 50px under the member line. Proof-only by design: pair it with E1 if a visible install path is wanted too.',
+    decision:
+      'Placement picked on Oct 28: option D, at the bottom. The column ends on the laurels, tight and centered, after the member line.',
+    render: () => (
+      <LandingPage
+        form={
+          <SignupForm
+            tail={
+              <div style={{ marginTop: '1.25rem' }}>
+                <Laurels tight centered />
+              </div>
+            }
+          />
+        }
+      />
+    ),
   },
   {
     id: 'E12',
@@ -1503,7 +1517,7 @@ export const laurelOptions: {
   },
   {
     id: 'D',
-    title: 'At the bottom',
+    title: 'At the bottom (picked)',
     note: 'The column ends on the laurels, after the member line, where the ratings row sat in E5.',
     render: () => (
       <LandingPage
