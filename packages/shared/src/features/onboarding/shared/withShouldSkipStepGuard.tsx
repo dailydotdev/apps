@@ -1,21 +1,32 @@
 import React, { useRef, useEffect } from 'react';
-import type { FunnelStep } from '../types/funnel';
+import type { FunnelStep, FunnelStepTransitionCallback } from '../types/funnel';
+import { FunnelStepTransitionType } from '../types/funnel';
 
 export const withShouldSkipStepGuard = <Step extends FunnelStep>(
   Component: React.FC<Step>,
   useShouldSkipStep: () => { shouldSkip: boolean },
 ): React.FC<Step> => {
   return function GuardedStep(props: Step) {
-    const { type, onRegisterStepToSkip } = props;
-    const callbackRef = useRef(onRegisterStepToSkip);
-    callbackRef.current = onRegisterStepToSkip;
+    const { type, isActive, onRegisterStepToSkip, onTransition } =
+      props as Step & { onTransition?: FunnelStepTransitionCallback };
+    const transitionRef = useRef(onTransition);
+    transitionRef.current = onTransition;
+    const wasActiveRef = useRef(false);
     const { shouldSkip } = useShouldSkipStep();
 
+    // Registered while rendering, not in an effect: a step that completes
+    // itself in an effect (the signup wall for a logged-in user) runs before
+    // the effects of the steps after it, and would read a stale skip map.
+    onRegisterStepToSkip?.(type, shouldSkip);
+
     useEffect(() => {
-      if (callbackRef.current) {
-        callbackRef.current(type, shouldSkip);
+      const isActivated = !!isActive && !wasActiveRef.current;
+      wasActiveRef.current = !!isActive;
+
+      if (isActivated && shouldSkip) {
+        transitionRef.current?.({ type: FunnelStepTransitionType.Complete });
       }
-    }, [shouldSkip, type]);
+    }, [isActive, shouldSkip]);
 
     if (shouldSkip) {
       return null;
