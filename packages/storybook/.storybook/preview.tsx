@@ -97,6 +97,7 @@ const preview: Preview = {
                 'Sponsored',
                 'Tips',
               ],
+              '6. Buttons',
             ],
             'Proposals',
             'Archive',

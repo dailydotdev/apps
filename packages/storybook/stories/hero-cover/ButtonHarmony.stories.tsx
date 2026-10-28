@@ -4,7 +4,6 @@ import React from 'react';
 import {
   Button,
   ButtonColor,
-  ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -17,12 +16,19 @@ import { CompassIcon } from '@dailydotdev/shared/src/components/icons/Compass';
 import { FlagIcon } from '@dailydotdev/shared/src/components/icons/Flag';
 import { SparkleIcon } from '@dailydotdev/shared/src/components/icons/Sparkle';
 import { TourIcon } from '@dailydotdev/shared/src/components/icons/Tour';
-import { MedalBadgeIcon } from '@dailydotdev/shared/src/components/icons/MedalBadge';
 import { MenuIcon } from '@dailydotdev/shared/src/components/icons/Menu';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
 import { SettingsIcon } from '@dailydotdev/shared/src/components/icons/Settings';
 import { ShieldCheckIcon } from '@dailydotdev/shared/src/components/icons/ShieldCheck';
 import { Case, Page } from './parts';
+import {
+  AchievementGlyph,
+  Arrows,
+  Divider,
+  Frame,
+  PlusGlyph,
+  quiet,
+} from './buttonHarmony';
 
 const meta: Meta = {
   title: 'Hero Cover/Proposals/Button harmony',
@@ -30,11 +36,6 @@ const meta: Meta = {
 };
 
 export default meta;
-
-const quiet = {
-  variant: ButtonVariant.Tertiary,
-  size: ButtonSize.Small,
-} as const;
 
 const Badge = ({ n }: { n: number }): ReactElement => (
   <span className="absolute -left-2 -top-2 z-1 flex size-5 items-center justify-center rounded-[999px] bg-accent-cabbage-default font-bold text-white typo-caption2">
@@ -47,97 +48,6 @@ const Mark = ({ n, children }: { n: number; children: ReactNode }) => (
     <Badge n={n} />
     {children}
   </span>
-);
-
-const Divider = (): ReactElement => (
-  <span aria-hidden className="mx-1 h-6 w-px bg-border-subtlest-tertiary" />
-);
-
-const Arrows = (): ReactElement => (
-  <span className="flex items-center gap-1">
-    <Button
-      {...quiet}
-      icon={<ArrowIcon className="-rotate-90" />}
-      aria-label="Previous"
-      disabled
-    />
-    <Button
-      {...quiet}
-      icon={<ArrowIcon className="rotate-90" />}
-      aria-label="Next"
-    />
-  </span>
-);
-
-const AchievementGlyph = (): ReactElement => (
-  <span className="relative inline-flex">
-    <MedalBadgeIcon secondary size={IconSize.Small} />
-    <span className="absolute -right-0.5 -top-0.5 size-2 rounded-[999px] bg-accent-bacon-default" />
-  </span>
-);
-
-const PlusGlyph = (): ReactElement => (
-  <DevPlusIcon className="text-accent-bacon-default" />
-);
-
-const Greeting = (): ReactElement => (
-  <div className="flex min-w-0 flex-1 flex-col">
-    <span className="truncate font-bold text-text-primary typo-title3">
-      Good morning, Alex
-    </span>
-    <span className="truncate text-text-tertiary typo-footnote">
-      Wednesday, October 28
-    </span>
-  </div>
-);
-
-const RailStub = (): ReactElement => (
-  <div className="grid grid-cols-3 gap-4">
-    {[0, 1, 2].map((i) => (
-      <div
-        key={i}
-        className="h-24 rounded-16 border border-border-subtlest-tertiary bg-surface-float"
-      />
-    ))}
-  </div>
-);
-
-const Tabs = (): ReactElement => (
-  <div className="flex items-center gap-1">
-    <Button
-      variant={ButtonVariant.Float}
-      size={ButtonSize.Small}
-      pressed
-      icon={<ArrowIcon size={IconSize.Size16} className="rotate-180" />}
-      iconPosition={ButtonIconPosition.Right}
-    >
-      For you
-    </Button>
-    <Button {...quiet}>Frontend</Button>
-    <Button {...quiet} icon={<PlusIcon />} aria-label="New feed" />
-  </div>
-);
-
-const Frame = ({
-  header,
-  tabs,
-}: {
-  header: ReactNode;
-  tabs: ReactNode;
-}): ReactElement => (
-  <div className="flex w-full max-w-[60rem] flex-col gap-4 rounded-24 border border-border-subtlest-tertiary bg-background-default p-6">
-    <div className="flex min-h-12 items-center gap-2">
-      <Greeting />
-      <div className="flex shrink-0 items-center gap-1">{header}</div>
-    </div>
-    <RailStub />
-    <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary pb-3">
-      <div className="min-w-0 flex-1">
-        <Tabs />
-      </div>
-      <div className="flex shrink-0 items-center gap-1">{tabs}</div>
-    </div>
-  </div>
 );
 
 const Score = ({
@@ -274,7 +184,7 @@ const QuietFamily = (): ReactElement => (
   <Frame
     header={
       <>
-        <Button {...quiet} icon={<TourIcon />}>
+        <Button {...quiet} icon={<ChecklistBIcon secondary />}>
           2/6
         </Button>
         <Button {...quiet} icon={<PlusGlyph />}>
@@ -321,7 +231,7 @@ const IconsFirst = (): ReactElement => (
   <Frame
     header={
       <>
-        <Button {...quiet} icon={<TourIcon />}>
+        <Button {...quiet} icon={<ChecklistBIcon secondary />}>
           2/6
         </Button>
         <Button {...quiet} icon={<PlusGlyph />} aria-label="Get Plus" />
@@ -374,7 +284,7 @@ const Toolbars = (): ReactElement => (
     header={
       <>
         <Toolbar>
-          <Button {...quiet} icon={<TourIcon />}>
+          <Button {...quiet} icon={<ChecklistBIcon secondary />}>
             2/6
           </Button>
           <Button {...quiet} icon={<PlusGlyph />}>
@@ -428,7 +338,7 @@ const MovedHome = (): ReactElement => (
     <Frame
       header={
         <>
-          <Button {...quiet} icon={<TourIcon />}>
+          <Button {...quiet} icon={<ChecklistBIcon secondary />}>
             2/6
           </Button>
           <Button
@@ -482,7 +392,7 @@ const Minimal = (): ReactElement => (
     <Frame
       header={
         <>
-          <Button {...quiet} icon={<TourIcon />}>
+          <Button {...quiet} icon={<ChecklistBIcon secondary />}>
             2/6
           </Button>
           <Button
@@ -594,10 +504,10 @@ const introIcons: {
   },
   {
     key: 'checklist',
-    name: 'Checklist',
+    name: 'Checklist (picked)',
     icon: <ChecklistBIcon secondary />,
     verdict:
-      'Says exactly what it is, a list of steps, but it is close to the To-do list widget icon.',
+      'Says exactly what it is, a short list of steps to finish. The To-do list widget then needs its own icon so the two stay apart.',
   },
   {
     key: 'compass',
@@ -680,12 +590,12 @@ export const ButtonHarmony: StoryObj = {
       ))}
       <Case
         title="Intro Quest icon"
-        note="The Intro Quest button in the header uses Tour, while the Getting started widget, which shows the same quests, uses a flag. Each option shows the header button and the widget title."
+        note="Today the Intro Quest button in the header uses Tour, while the Getting started widget, which shows the same quests, uses a flag. Each option shows the header button and the widget title."
       >
         <IntroIconChoice />
         <p className="max-w-[60rem] text-text-primary typo-callout">
-          Recommended: Tour on both. It already ships on the header button, so
-          only the widget changes, and nothing on the home page reads as report
+          Picked: Checklist on both the header button and the Getting started
+          widget, so one feature has one icon and nothing reads as report
           anymore.
         </p>
       </Case>
