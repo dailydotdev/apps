@@ -172,46 +172,51 @@ const LandingSignupBlock = ({
 // its dark theme and default 300x65 size. The widget only loads on a real
 // daily.dev page, so the mock draws it; its colors are Cloudflare's, not ours.
 const CloudflareCheck = (): ReactElement => (
-  <div
-    aria-label="Cloudflare security check"
-    className="mx-auto mb-1 flex items-center justify-between px-3"
-    style={{
-      width: '18.75rem',
-      height: '4.0625rem',
-      background: '#232323',
-      border: '1px solid #797979',
-    }}
-  >
-    <div className="flex items-center gap-2.5">
-      <span
-        className="block size-7 rounded-4"
-        style={{ background: '#111', border: '2px solid #8a8a8a' }}
-      />
-      <span style={{ color: '#d9d9d9', fontSize: '0.875rem' }}>
-        Verify you are human
-      </span>
-    </div>
-    <div className="flex flex-col items-end">
-      <svg viewBox="0 0 64 28" className="h-5" aria-hidden>
-        <path
-          d="M50 26H10a8 8 0 0 1-1-15.9A12 12 0 0 1 31 6a10 10 0 0 1 18.6 4.4A8 8 0 0 1 50 26z"
-          fill="#f6821f"
+  <div className="mx-auto" style={{ minHeight: '4.5rem' }}>
+    <div
+      aria-label="Cloudflare security check"
+      className="flex items-center justify-between px-3"
+      style={{
+        width: '18.75rem',
+        height: '4.0625rem',
+        background: '#232323',
+        border: '1px solid #797979',
+      }}
+    >
+      <div className="flex items-center gap-2.5">
+        <span
+          className="block size-7 rounded-4"
+          style={{ background: '#111', border: '2px solid #8a8a8a' }}
         />
-        <path d="M44 26h12a6 6 0 0 0-6-9.5A7 7 0 0 0 44 26z" fill="#fbad41" />
-      </svg>
-      <span
-        className="font-bold"
-        style={{
-          color: '#fff',
-          fontSize: '0.5625rem',
-          letterSpacing: '0.08em',
-        }}
-      >
-        CLOUDFLARE
-      </span>
-      <span className="underline" style={{ color: '#bbb', fontSize: '0.5rem' }}>
-        Privacy · Help
-      </span>
+        <span style={{ color: '#d9d9d9', fontSize: '0.875rem' }}>
+          Verify you are human
+        </span>
+      </div>
+      <div className="flex flex-col items-end">
+        <svg viewBox="0 0 64 28" className="h-5" aria-hidden>
+          <path
+            d="M50 26H10a8 8 0 0 1-1-15.9A12 12 0 0 1 31 6a10 10 0 0 1 18.6 4.4A8 8 0 0 1 50 26z"
+            fill="#f6821f"
+          />
+          <path d="M44 26h12a6 6 0 0 0-6-9.5A7 7 0 0 0 44 26z" fill="#fbad41" />
+        </svg>
+        <span
+          className="font-bold"
+          style={{
+            color: '#fff',
+            fontSize: '0.5625rem',
+            letterSpacing: '0.08em',
+          }}
+        >
+          CLOUDFLARE
+        </span>
+        <span
+          className="underline"
+          style={{ color: '#bbb', fontSize: '0.5rem' }}
+        >
+          Privacy · Help
+        </span>
+      </div>
     </div>
   </div>
 );
@@ -296,13 +301,13 @@ const LandingLoginBlock = ({
           </Button>
         ))}
       </div>
-      <div className="my-5 flex items-center gap-3 text-text-tertiary typo-footnote">
+      <div className="my-3 flex h-5 items-center gap-3 text-text-tertiary typo-footnote">
         <span className="h-px flex-1 bg-border-subtlest-tertiary" />
         or
         <span className="h-px flex-1 bg-border-subtlest-tertiary" />
       </div>
       <form
-        className="flex flex-col gap-1"
+        className="flex flex-col gap-2"
         onSubmit={(e) => e.preventDefault()}
       >
         <TextField
@@ -342,7 +347,10 @@ const LandingLoginBlock = ({
           </Button>
         </div>
       </form>
-      <p className="mt-8 border-t border-border-subtlest-tertiary pt-7 text-center text-text-tertiary typo-callout">
+      <p
+        className="mt-8 border-t border-border-subtlest-tertiary text-center text-text-tertiary typo-callout"
+        style={{ paddingTop: '1.875rem' }}
+      >
         Not a member yet?{' '}
         <button
           className="text-text-primary underline"
