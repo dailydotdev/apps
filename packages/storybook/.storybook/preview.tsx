@@ -97,6 +97,7 @@ const preview: Preview = {
                 'Sponsored',
                 'Tips',
               ],
+              '6. Add a widget tile',
             ],
             'Archive',
             [

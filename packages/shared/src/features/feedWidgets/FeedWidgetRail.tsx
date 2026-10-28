@@ -14,6 +14,8 @@ import { PlusIcon } from '../../components/icons/Plus';
 import { MinusIcon } from '../../components/icons/Minus';
 import { IconSize } from '../../components/Icon';
 import { useLogContext } from '../../contexts/LogContext';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { checkIsExtension } from '../../lib/func';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import {
@@ -49,6 +51,7 @@ import {
   railSectionClassName,
 } from './FeedWidgetRailFrame';
 import { FeedWidgetRailHeader } from './FeedWidgetRailHeader';
+import { FeedWidgetAddTile, getAddTileKinds } from './FeedWidgetAddTile';
 import { FeedWidgetAdSlot } from './widgets/FeedWidgetAdSlot';
 import { FeedWidgetTip } from './widgets/FeedWidgetTip';
 import {
@@ -170,6 +173,7 @@ export const FeedWidgetRail = ({
     isPhone,
   } = useFeedWidgetAdSlot();
   const { logEvent } = useLogContext();
+  const { user } = useAuthContext();
   const [isEditing, setIsEditing] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   // The widget whose config the reader is changing, out of edit mode so the
@@ -357,6 +361,15 @@ export const FeedWidgetRail = ({
   }, [isEditing]);
 
   const showAddTile = canAdd && (isEditing || !isCustomized);
+  const addTileKinds = useMemo(
+    () =>
+      getAddTileKinds({
+        onRail: widgets.map(({ kind }) => kind),
+        isLoggedIn: !!user,
+        isExtension: checkIsExtension(),
+      }),
+    [widgets, user],
+  );
 
   const openGallery = (size?: FeedWidgetSize) => {
     setAddSize(size);
@@ -772,10 +785,9 @@ export const FeedWidgetRail = ({
               );
             })}
             {showAddTile && (
-              <button
-                type="button"
+              <FeedWidgetAddTile
+                kinds={addTileKinds}
                 onClick={() => openGallery()}
-                className="flex min-h-0 snap-start flex-col items-center justify-center gap-2 rounded-16 border-2 border-dashed border-border-subtlest-secondary text-text-tertiary transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover hover:text-text-primary"
                 style={gridArea({
                   key: 'add',
                   column: layout.columns,
@@ -783,10 +795,7 @@ export const FeedWidgetRail = ({
                   colSpan: 1,
                   rowSpan: 2,
                 })}
-              >
-                <PlusIcon size={IconSize.Large} />
-                <span className="font-bold typo-callout">Add a widget</span>
-              </button>
+              />
             )}
           </div>
         </div>
