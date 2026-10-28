@@ -1,13 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import classNames from 'classnames';
 import type { FlowProps } from './Flow';
 import { Flow as ReadingFlow } from './Flow';
 import type { Platform } from './NotificationPreview';
 import { LockScreen, Notification } from './NotificationPreview';
 import { REMINDER_TIMES } from './reminderTimes';
-import { GOAL_HINTS } from './GoalList';
 
 /**
  * The reading commitment that replaces Feed Patchy: how much you read today,
@@ -16,7 +14,6 @@ import { GOAL_HINTS } from './GoalList';
  *
  * - Flow: the whole thing, interactive.
  * - All screens: every screen in order, as stills.
- * - Goal hints: ways to mark the goal top developers pick, live.
  * - Notification previews: the push for each reminder time, iOS and Android.
  */
 
@@ -32,11 +29,6 @@ const meta: Meta<FlowProps> = {
       control: 'inline-radio',
       options: ['ios', 'android'],
       description: 'Which phone the notification preview is drawn as.',
-    },
-    goalHint: {
-      control: 'inline-radio',
-      options: ['chip', 'avatars', 'tab', 'bar'],
-      description: 'How the goal list marks where top developers are.',
     },
     startAt: {
       control: 'select',
@@ -71,11 +63,9 @@ const toArgs = (args: Partial<FlowProps>): string =>
 const PhoneFrame = ({
   label,
   args,
-  isInteractive = false,
 }: {
   label: string;
   args: Partial<FlowProps>;
-  isInteractive?: boolean;
 }): ReactElement => {
   const host = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.6);
@@ -121,11 +111,8 @@ const PhoneFrame = ({
               )}`}
               width={PHONE.width}
               height={PHONE.height}
-              tabIndex={isInteractive ? undefined : -1}
-              className={classNames(
-                'block rounded-[2.25rem] border-0',
-                !isInteractive && 'pointer-events-none',
-              )}
+              tabIndex={-1}
+              className="pointer-events-none block rounded-[2.25rem] border-0"
             />
           </div>
         </div>
@@ -158,35 +145,6 @@ export const AllScreens: Story = {
       <div className="grid grid-cols-2 gap-6 tablet:grid-cols-3 laptop:grid-cols-4">
         {ALL_SCREENS.map(({ label, args }) => (
           <PhoneFrame key={label} label={label} args={args} />
-        ))}
-      </div>
-    </div>
-  ),
-};
-
-/** Ways to mark the goal top developers pick, each a live goal screen. */
-export const GoalHints: Story = {
-  name: 'Goal hints',
-  parameters: { controls: { disable: true } },
-  render: () => (
-    <div className="flex min-h-dvh flex-col gap-8 bg-background-default p-8">
-      <div className="flex max-w-3xl flex-col gap-2">
-        <h1 className="font-bold text-text-primary typo-title2">
-          Goal hints: where top developers are
-        </h1>
-        <p className="text-text-secondary typo-callout">
-          Nothing is picked to start. Each phone is live: tap a goal to see the
-          stack and the feedback. The top developers’ data is a placeholder.
-        </p>
-      </div>
-      <div className="grid grid-cols-2 gap-6 laptop:grid-cols-4">
-        {GOAL_HINTS.map(({ value, label }) => (
-          <PhoneFrame
-            key={value}
-            label={label}
-            args={{ startAt: 'goal', goalHint: value }}
-            isInteractive
-          />
         ))}
       </div>
     </div>

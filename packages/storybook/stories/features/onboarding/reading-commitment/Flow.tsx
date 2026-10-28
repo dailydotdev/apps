@@ -25,7 +25,6 @@ import { LockScreen } from './NotificationPreview';
 import type { MinutesOption } from './PostStack';
 import { PostStack } from './PostStack';
 import { freshPushFor } from './freshPosts';
-import type { GoalHint } from './GoalList';
 import { GoalList } from './GoalList';
 import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -61,8 +60,6 @@ export interface FlowProps {
   startAt?: ScreenId;
   /** The tags the reader follows; the push preview shows a fresh post on one. */
   tags?: string[];
-  /** How the goal list marks where top developers are. */
-  goalHint?: GoalHint;
   /**
    * Set when the flow runs as the funnel's reading-reminder step: the shell
    * comes from FunnelStepper, and the reminder answer hands back to it.
@@ -266,7 +263,6 @@ export const Flow = ({
   platform,
   startAt,
   tags = SAMPLE_TAGS,
-  goalHint = 'chip',
   onFinish,
 }: FlowProps): ReactElement => {
   const isSampled = !!startAt;
@@ -349,7 +345,6 @@ export const Flow = ({
                 options={GOAL_OPTIONS}
                 value={goal}
                 onChange={setGoal}
-                hint={goalHint}
               />
               <PickFeedback text={goal && GOAL_FEEDBACK[goal]} />
             </div>
