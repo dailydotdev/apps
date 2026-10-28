@@ -475,6 +475,7 @@ export const GettingStartedWidget = ({
   const header = (trailing?: ReactElement) => (
     <header className="flex h-6 min-w-0 shrink-0 items-center gap-1.5 px-4">
       <ChecklistBIcon
+        secondary
         size={IconSize.Size16}
         className="shrink-0 text-accent-avocado-default"
       />
