@@ -8,6 +8,21 @@ import type { ChatRoom } from '../graphql';
 import { formatTimeLeft } from '../timeLeft';
 import { LiveDot } from './LiveDot';
 
+// Happening Now rows share one list, so the live room and the highlights must
+// keep the same padding and headline type. Both rows build on these.
+export const highlightRowClassName = (isSmall: boolean): string =>
+  classNames(
+    'flex flex-col rounded-12 px-2 transition-colors duration-150 hover:bg-surface-hover focus-visible:bg-surface-hover motion-reduce:transition-none',
+    isSmall ? 'py-1.5' : 'py-2',
+  );
+
+// `typo-callout` is emitted after core utilities, so its leading needs `!`.
+export const highlightHeadlineClassName = (isSmall: boolean): string =>
+  classNames(
+    'break-words font-medium text-text-primary',
+    isSmall ? 'line-clamp-2 typo-footnote' : '!leading-[1.375rem] typo-callout',
+  );
+
 // A live room as the first line of Happening Now: the post, and that people
 // are talking about it right now.
 export const LiveChatHighlightRow = ({
@@ -51,19 +66,9 @@ export const LiveChatHighlightRow = ({
               }),
             })
           }
-          className={classNames(
-            'flex flex-col rounded-12 px-2 transition-colors duration-150 hover:bg-surface-hover focus-visible:bg-surface-hover motion-reduce:transition-none',
-            isSmall ? 'py-1.5' : 'py-2',
-          )}
+          className={highlightRowClassName(isSmall)}
         >
-          <span
-            className={classNames(
-              'break-words font-medium text-text-primary',
-              isSmall
-                ? 'line-clamp-2 typo-footnote'
-                : '!leading-[1.375rem] typo-callout',
-            )}
-          >
+          <span className={highlightHeadlineClassName(isSmall)}>
             {room.post?.title || room.title}
           </span>
           <span className="flex items-center gap-1.5 truncate text-brand-default typo-caption1">
