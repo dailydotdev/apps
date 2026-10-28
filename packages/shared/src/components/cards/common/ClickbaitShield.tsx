@@ -16,6 +16,7 @@ import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { FeedSettingsMenu } from '../../feeds/FeedSettings/types';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { webappUrl } from '../../../lib/constants';
+import { AuthTriggers } from '../../../lib/auth';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { useHasIntroQuests } from '../../../hooks/useHasIntroQuests';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
@@ -32,7 +33,7 @@ export const ClickbaitShield = ({
     useSmartTitle(post);
   const isMobile = useViewSize(ViewSize.MobileL);
   const router = useRouter();
-  const { user } = useAuthContext();
+  const { user, showLogin } = useAuthContext();
   const { hasUsedFreeTrial, triesLeft } = useClickbaitTries();
   const hasIntroQuests = useHasIntroQuests({ shouldEvaluate: !isPlus });
   const { value: showDuringIntroQuests } = useConditionalFeature({
@@ -55,9 +56,12 @@ export const ClickbaitShield = ({
             </>
           ) : (
             <>
-              {hasUsedFreeTrial
-                ? `Potential issues detected in this title. To get clearer, more informative titles, enable Clickbait Shield`
-                : `This title could be clearer and more informative. Try out Clickbait Shield for free (${triesLeft} uses left this month).`}
+              {!user &&
+                'This title could be clearer and more informative. Sign up to try Clickbait Shield for free.'}
+              {!!user &&
+                (hasUsedFreeTrial
+                  ? `Potential issues detected in this title. To get clearer, more informative titles, enable Clickbait Shield`
+                  : `This title could be clearer and more informative. Try out Clickbait Shield for free (${triesLeft} uses left this month).`)}
             </>
           )
         }
@@ -80,6 +84,14 @@ export const ClickbaitShield = ({
           }
           iconSecondaryOnHover
           onClick={async () => {
+            if (!user) {
+              showLogin({
+                trigger: AuthTriggers.MainButton,
+                options: { isLogin: false },
+              });
+              return;
+            }
+
             if (hasUsedFreeTrial) {
               if (isMobile) {
                 openModal({

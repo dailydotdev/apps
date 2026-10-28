@@ -16,9 +16,12 @@ import {
   LogEvent,
   NotificationCategory,
   NotificationChannel,
+  NotificationCtaPlacement,
 } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
 import NotificationSectionHeading from './NotificationSectionHeading';
+import { useReadingReminderPushPrompt } from '../../hooks/notifications/useReadingReminderPushPrompt';
+import ReadingReminderPushAlert from './ReadingReminderPushAlert';
 
 const ReadingReminderToggle = () => {
   const { user } = useAuthContext();
@@ -31,6 +34,9 @@ const ReadingReminderToggle = () => {
   const readingReminder = getPersonalizedDigest(
     UserPersonalizedDigestType.ReadingReminder,
   );
+  const pushPrompt = useReadingReminderPushPrompt({
+    placement: NotificationCtaPlacement.NotificationSettings,
+  });
 
   const toggleSubscription = () => {
     if (readingReminder) {
@@ -83,6 +89,9 @@ const ReadingReminderToggle = () => {
       />
       {!!readingReminder && (
         <>
+          {pushPrompt.shouldShow && (
+            <ReadingReminderPushAlert onEnable={pushPrompt.onEnable} />
+          )}
           <div className="space-y-1">
             <NotificationSectionHeading>
               What&apos;s the ideal time to send you a reading reminder?

@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { SourceNameWithSeal } from '../../../features/squads/components/VerifiedSquad';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
-import { isVideoPost } from '../../../graphql/posts';
+import { isPostRead, isVideoPost } from '../../../graphql/posts';
 import {
   useFeedPreviewMode,
   usePostFeedback,
@@ -16,6 +16,7 @@ import FeedItemContainer from '../common/list/FeedItemContainer';
 import { combinedClicks } from '../../../lib/click';
 import { Origin } from '../../../lib/log';
 import { CardContainer, CardContent, CardTitle } from '../common/list/ListCard';
+import { CardTldr } from '../common/list/CardTldr';
 import { PostCardHeader } from '../common/list/PostCardHeader';
 import Link from '../../utilities/Link';
 import PostReadTime from '../common/list/PostReadTime';
@@ -39,6 +40,7 @@ export const ArticleList = forwardRef(function ArticleList(
     onUpvoteClick,
     onDownvoteClick,
     onCommentClick,
+    onTldrExpand,
     onBookmarkClick,
     onCopyLinkClick,
     openNewTab,
@@ -69,7 +71,7 @@ export const ArticleList = forwardRef(function ArticleList(
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
   const isFeedPreview = useFeedPreviewMode();
   const { title } = useSmartTitle(post);
-  const { title: truncatedTitle } = useTruncatedSummary(title);
+  const { title: truncatedTitle } = useTruncatedSummary(title ?? '');
   const isUserSource = isSourceUserSource(post.source);
   const actionButtons = (
     <Container className="pointer-events-none flex-[unset]">
@@ -121,8 +123,9 @@ export const ArticleList = forwardRef(function ArticleList(
           className,
         }}
         ref={ref}
-        flagProps={{ pinnedAt, trending, type }}
+        flagProps={{ pinnedAt, trending, postId: post.id, type }}
         bookmarked={post.bookmarked}
+        bookmarkNote={post.bookmark?.note}
       >
         {hiddenPanel}
       </FeedItemContainer>
@@ -137,7 +140,7 @@ export const ArticleList = forwardRef(function ArticleList(
         className,
       }}
       ref={ref}
-      flagProps={{ pinnedAt, trending, type }}
+      flagProps={{ pinnedAt, trending, postId: post.id, type }}
       linkProps={
         !isFeedPreview
           ? {
@@ -148,6 +151,7 @@ export const ArticleList = forwardRef(function ArticleList(
           : undefined
       }
       bookmarked={post.bookmarked}
+      bookmarkNote={post.bookmark?.note}
     >
       {showFeedback ? (
         <FeedbackList
@@ -184,10 +188,13 @@ export const ArticleList = forwardRef(function ArticleList(
               >
                 <CardTitle
                   lineClamp={undefined}
-                  className={post.read ? 'text-text-tertiary' : undefined}
+                  className={
+                    isPostRead(post) ? 'text-text-tertiary' : undefined
+                  }
                 >
                   {truncatedTitle}
                 </CardTitle>
+                <CardTldr post={post} onExpand={onTldrExpand} />
                 <div className="flex flex-1 tablet:hidden" />
                 <div className="flex items-center">
                   {post.clickbaitTitleDetected && (

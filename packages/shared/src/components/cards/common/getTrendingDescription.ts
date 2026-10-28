@@ -11,3 +11,14 @@ export const getTrendingDescription = (
   }
   return 'Trending now';
 };
+
+// The live label's own line: how many are in the chat right now.
+export const getLiveChatDescription = (
+  occupantCount?: number | null,
+): string | undefined => {
+  if (occupantCount == null) {
+    return undefined;
+  }
+
+  return `${occupantCount} chatting now`;
+};

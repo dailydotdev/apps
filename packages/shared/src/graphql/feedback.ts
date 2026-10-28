@@ -1,6 +1,11 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { gql } from 'graphql-request';
-import { generateQueryKey, getNextPageParam, RequestKey } from '../lib/query';
+import {
+  generateQueryKey,
+  getNextPageParam,
+  RequestKey,
+  StaleTime,
+} from '../lib/query';
 import type { Connection } from './common';
 import { gqlClient } from './common';
 import type { EmptyResponse } from './emptyResponse';
@@ -20,31 +25,54 @@ export enum FeedbackStatus {
   Accepted = 2,
   Completed = 3,
   Cancelled = 4,
+  Failed = 5,
+  Spam = 6,
+}
+
+// Mirrors the api's feedbackReplySchema body limit
+export const FEEDBACK_REPLY_MAX_LENGTH = 5000;
+
+export interface FeedbackUser {
+  id: string;
+  name?: string | null;
+  username?: string | null;
+  image?: string | null;
 }
 
 export interface FeedbackReply {
   id: string;
   body: string;
   authorName?: string | null;
+  isTeam: boolean;
+  author?: FeedbackUser | null;
   createdAt: string;
+}
+
+export interface FeedbackClassification {
+  sentiment?: string;
+  urgency?: string;
+  tags?: string[];
+  summary?: string;
+  hasPromptInjection?: boolean;
+  suggestedTeam?: string;
 }
 
 export interface FeedbackItem {
   id: string;
   category: FeedbackCategory;
   description: string;
-  linearIssueUrl?: string | null;
+  pageUrl?: string | null;
+  userAgent?: string | null;
+  clientInfo?: Record<string, string | null | undefined> | null;
+  classification?: FeedbackClassification | null;
   status: FeedbackStatus;
   screenshotUrl?: string | null;
   createdAt: string;
   updatedAt: string;
+  lastActivityAt: string;
+  lastReplyIsTeam: boolean;
   replies: FeedbackReply[];
-  user?: {
-    id: string;
-    name?: string | null;
-    username?: string | null;
-    image?: string | null;
-  } | null;
+  user?: FeedbackUser | null;
 }
 
 export interface FeedbackInput {
@@ -67,6 +95,26 @@ type UserFeedbackByUserIdData = {
 type FeedbackListData = {
   feedbackList: Connection<FeedbackItem>;
 };
+
+type FeedbackData = {
+  feedback: FeedbackItem;
+};
+
+const FEEDBACK_REPLY_FRAGMENT = gql`
+  fragment FeedbackReplyFragment on FeedbackReply {
+    id
+    body
+    authorName
+    isTeam
+    author {
+      id
+      name
+      username
+      image
+    }
+    createdAt
+  }
+`;
 
 export const SUBMIT_FEEDBACK_MUTATION = gql`
   mutation SubmitFeedback($input: FeedbackInput!) {
@@ -93,16 +141,16 @@ export const USER_FEEDBACK_QUERY = gql`
           screenshotUrl
           createdAt
           updatedAt
+          lastActivityAt
+          lastReplyIsTeam
           replies {
-            id
-            body
-            authorName
-            createdAt
+            ...FeedbackReplyFragment
           }
         }
       }
     }
   }
+  ${FEEDBACK_REPLY_FRAGMENT}
 `;
 
 export const USER_FEEDBACK_BY_USER_ID_QUERY = gql`
@@ -118,11 +166,12 @@ export const USER_FEEDBACK_BY_USER_ID_QUERY = gql`
           id
           category
           description
-          linearIssueUrl
           status
           screenshotUrl
           createdAt
           updatedAt
+          lastActivityAt
+          lastReplyIsTeam
           user {
             id
             name
@@ -130,15 +179,13 @@ export const USER_FEEDBACK_BY_USER_ID_QUERY = gql`
             image
           }
           replies {
-            id
-            body
-            authorName
-            createdAt
+            ...FeedbackReplyFragment
           }
         }
       }
     }
   }
+  ${FEEDBACK_REPLY_FRAGMENT}
 `;
 
 export const FEEDBACK_LIST_QUERY = gql`
@@ -148,6 +195,7 @@ export const FEEDBACK_LIST_QUERY = gql`
     $status: Int
     $statuses: [Int!]
     $category: ProtoEnumValue
+    $awaitingTeam: Boolean
   ) {
     feedbackList(
       after: $after
@@ -155,6 +203,7 @@ export const FEEDBACK_LIST_QUERY = gql`
       status: $status
       statuses: $statuses
       category: $category
+      awaitingTeam: $awaitingTeam
     ) {
       pageInfo {
         endCursor
@@ -166,11 +215,12 @@ export const FEEDBACK_LIST_QUERY = gql`
           id
           category
           description
-          linearIssueUrl
           status
           screenshotUrl
           createdAt
           updatedAt
+          lastActivityAt
+          lastReplyIsTeam
           user {
             id
             name
@@ -178,19 +228,112 @@ export const FEEDBACK_LIST_QUERY = gql`
             image
           }
           replies {
-            id
-            body
-            authorName
-            createdAt
+            ...FeedbackReplyFragment
           }
         }
       }
     }
   }
+  ${FEEDBACK_REPLY_FRAGMENT}
+`;
+
+export const FEEDBACK_QUERY = gql`
+  query Feedback($id: ID!) {
+    feedback(id: $id) {
+      id
+      category
+      description
+      pageUrl
+      userAgent
+      clientInfo
+      classification
+      status
+      screenshotUrl
+      createdAt
+      updatedAt
+      lastActivityAt
+      lastReplyIsTeam
+      user {
+        id
+        name
+        username
+        image
+      }
+      replies {
+        ...FeedbackReplyFragment
+      }
+    }
+  }
+  ${FEEDBACK_REPLY_FRAGMENT}
+`;
+
+export const REPLY_TO_FEEDBACK_MUTATION = gql`
+  mutation ReplyToFeedback($id: ID!, $body: String!) {
+    replyToFeedback(id: $id, body: $body) {
+      ...FeedbackReplyFragment
+    }
+  }
+  ${FEEDBACK_REPLY_FRAGMENT}
+`;
+
+export const UPDATE_FEEDBACK_STATUS_MUTATION = gql`
+  mutation UpdateFeedbackStatus($id: ID!, $status: Int!, $message: String) {
+    updateFeedbackStatus(id: $id, status: $status, message: $message) {
+      id
+      status
+      updatedAt
+      replies {
+        ...FeedbackReplyFragment
+      }
+    }
+  }
+  ${FEEDBACK_REPLY_FRAGMENT}
 `;
 
 export const submitFeedback = (input: FeedbackInput): Promise<EmptyResponse> =>
   gqlClient.request(SUBMIT_FEEDBACK_MUTATION, { input });
+
+export const replyToFeedback = async ({
+  id,
+  body,
+}: {
+  id: string;
+  body: string;
+}): Promise<FeedbackReply> => {
+  const res = await gqlClient.request<{ replyToFeedback: FeedbackReply }>(
+    REPLY_TO_FEEDBACK_MUTATION,
+    { id, body },
+  );
+  return res.replyToFeedback;
+};
+
+export const updateFeedbackStatus = async ({
+  id,
+  status,
+  message,
+}: {
+  id: string;
+  status: FeedbackStatus;
+  message?: string;
+}): Promise<Pick<FeedbackItem, 'id' | 'status' | 'updatedAt' | 'replies'>> => {
+  const res = await gqlClient.request<{
+    updateFeedbackStatus: Pick<
+      FeedbackItem,
+      'id' | 'status' | 'updatedAt' | 'replies'
+    >;
+  }>(UPDATE_FEEDBACK_STATUS_MUTATION, { id, status, message });
+  return res.updateFeedbackStatus;
+};
+
+export const feedbackQueryOptions = ({ id }: { id: string }) => ({
+  queryKey: generateQueryKey(RequestKey.Feedback, undefined, id),
+  queryFn: async (): Promise<FeedbackItem> => {
+    const res = await gqlClient.request<FeedbackData>(FEEDBACK_QUERY, { id });
+    return res.feedback;
+  },
+  staleTime: StaleTime.Default,
+  enabled: !!id,
+});
 
 export const useUserFeedback = (first = 20) => {
   return useInfiniteQuery({
@@ -242,12 +385,14 @@ export const useFeedbackList = ({
   status,
   statuses,
   category,
+  awaitingTeam,
   enabled = true,
 }: {
   first?: number;
   status?: FeedbackStatus;
   statuses?: FeedbackStatus[];
   category?: FeedbackCategory;
+  awaitingTeam?: boolean;
   enabled?: boolean;
 }) => {
   return useInfiniteQuery({
@@ -257,6 +402,7 @@ export const useFeedbackList = ({
       status ?? null,
       statuses?.join(',') ?? null,
       category ?? null,
+      awaitingTeam ?? null,
     ),
     queryFn: ({ pageParam }) =>
       gqlClient.request<FeedbackListData>(FEEDBACK_LIST_QUERY, {
@@ -265,6 +411,7 @@ export const useFeedbackList = ({
         status,
         statuses,
         category,
+        awaitingTeam,
       }),
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) =>

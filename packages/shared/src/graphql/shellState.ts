@@ -18,6 +18,7 @@ export type ShellStateData = {
   feedList: Connection<Feed>;
   directMessageRequestCount: number;
   directMessageUnreadCount: number;
+  lfgReachOutWaitingCount: number;
 };
 
 export const SHELL_STATE_QUERY = gql`
@@ -39,6 +40,7 @@ export const SHELL_STATE_QUERY = gql`
     }
     directMessageRequestCount
     directMessageUnreadCount
+    lfgReachOutWaitingCount
   }
   ${USER_ACTION_FRAGMENT}
   ${USER_STREAK_FRAGMENT}

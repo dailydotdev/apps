@@ -5,8 +5,17 @@ import { Share } from './Share';
 import { getLogContextStatic } from '../../../../contexts/LogContext';
 import { useShareOrCopyLink } from '../../../../hooks/useShareOrCopyLink';
 import { ShareProvider } from '../../../../lib/share';
+import { ReferralCampaignKey } from '../../../../lib/referral';
 
 jest.mock('../../../../hooks/useShareOrCopyLink');
+jest.mock('../../../../hooks/utils/useGetShortUrl', () => ({
+  useGetShortUrl: () => ({
+    getTrackedUrl: (url: string, cid: string) => `${url}?userid=u1&cid=${cid}`,
+  }),
+}));
+
+const tracked = (permalink: string) =>
+  `${permalink}?userid=u1&cid=${ReferralCampaignKey.ShareProfile}`;
 
 const mockUseShareOrCopyLink = useShareOrCopyLink as jest.MockedFunction<
   typeof useShareOrCopyLink
@@ -108,6 +117,7 @@ describe('Share', () => {
         link: permalink,
         text: 'Check out my profile on daily.dev!',
         logObject: expect.any(Function),
+        cid: ReferralCampaignKey.ShareProfile,
       });
     });
   });
@@ -125,7 +135,7 @@ describe('Share', () => {
       );
       expect(twitterButton).toHaveAttribute(
         'href',
-        expect.stringContaining(encodeURIComponent(permalink)),
+        expect.stringContaining(encodeURIComponent(tracked(permalink))),
       );
     });
 
@@ -194,7 +204,7 @@ describe('Share', () => {
         expect(mockNavigatorShare).toHaveBeenCalledWith({
           title: 'My daily.dev profile',
           text: 'Check out my profile on daily.dev!',
-          url: permalink,
+          url: tracked(permalink),
         });
       });
     });

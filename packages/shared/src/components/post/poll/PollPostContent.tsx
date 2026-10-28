@@ -48,6 +48,8 @@ function PollPostContentRaw({
   onClose,
   isBannerVisible,
   isPostPage,
+  belowComments,
+  shouldTrackView = true,
 }: PollPostContentRawProps): ReactElement {
   const [justVoted, setJustVoted] = useState(false);
   const [shouldAnimateResults, setShouldAnimateResults] = useState(false);
@@ -121,12 +123,12 @@ function PollPostContentRaw({
   };
 
   useEffect(() => {
-    if (!post?.id || !user?.id) {
+    if (!shouldTrackView || !post?.id || !user?.id) {
       return;
     }
 
     onSendViewPost(post.id);
-  }, [post.id, onSendViewPost, user?.id]);
+  }, [post.id, onSendViewPost, user?.id, shouldTrackView]);
 
   return (
     <PostContentContainer
@@ -164,6 +166,7 @@ function PollPostContentRaw({
             },
           }}
           isPostPage={isPostPage}
+          belowComments={belowComments}
           isFallback={isFallback}
           customNavigation={customNavigation}
           shouldOnboardAuthor={shouldOnboardAuthor}

@@ -1,19 +1,31 @@
 /* eslint-disable no-template-curly-in-string -- literal macro token in measurement fixture */
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import ad from '../../../../__tests__/fixture/ad';
+import type { AdGridProps } from './AdGrid';
 import { AdGrid } from './AdGrid';
 import { AdList } from './AdList';
-import { SignalAdList } from './SignalAdList';
 import type { AdCardProps } from './common/common';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { ActiveFeedContext } from '../../../contexts';
-import { businessWebsiteUrl } from '../../../lib/constants';
+import { businessWebsiteUrl, plusUrl } from '../../../lib/constants';
 import { anchorSponsoredRel } from '../../../lib/strings';
 import { useFeature } from '../../GrowthBookProvider';
-import { AdLabelVariant, featureAdLabel } from '../../../lib/featureManagement';
+import {
+  AdLabelVariant,
+  featureAdLabel,
+  featureGridCardTldr,
+} from '../../../lib/featureManagement';
+import { gridCardTldrCoverClassName } from '../common/GridCardTldr';
 
 jest.mock('../../GrowthBookProvider', () => ({
   ...(jest.requireActual('../../GrowthBookProvider') as Record<
@@ -56,24 +68,18 @@ const renderListComponent = (
   );
 };
 
-const renderSignalListComponent = (
-  props: Partial<AdCardProps> = {},
-): RenderResult => {
-  const client = new QueryClient();
-  return render(
-    <TestBootProvider client={client}>
-      <ActiveFeedContext.Provider value={{ items: [], queryKey: ['test'] }}>
-        <SignalAdList {...defaultProps} {...props} />
-      </ActiveFeedContext.Provider>
-    </TestBootProvider>,
-  );
-};
-
 const getNormalizedText = (element?: Element | null): string =>
   element?.textContent?.replace(/\u200B/g, '').trim() ?? '';
 
+// The list card's header holds nothing but the favicon and the disclosure, so
+// match the disclosure itself rather than every ancestor with the same text.
+const getAttributionText = (element?: Element | null): string =>
+  element?.getAttribute('data-testid') === 'adAttribution'
+    ? getNormalizedText(element)
+    : '';
+
 const renderGridComponent = (
-  props: Partial<AdCardProps> = {},
+  props: Partial<AdGridProps> = {},
   boot: Partial<React.ComponentProps<typeof TestBootProvider>> = {},
 ): RenderResult => {
   const client = new QueryClient();
@@ -128,6 +134,27 @@ it('should show pixel images', async () => {
   const el = await screen.findByTestId('pixel');
   expect(el).toHaveAttribute('src', 'https://daily.dev/pixel');
 });
+
+// Tracker macros keep the broad first-party privacy scope (as `Pixels.tsx`
+// does); only ad requests follow the certified-CMP scope.
+it.each([
+  { region: 'IN', isGdprCovered: true, gdpr: '1' },
+  { region: 'BR', isGdprCovered: true, gdpr: '1' },
+  { region: 'PL', isGdprCovered: true, gdpr: '1' },
+  { region: 'US', isGdprCovered: false, gdpr: '0' },
+])(
+  'keeps the broad GDPR scope for the pixel in $region',
+  async ({ region, isGdprCovered, gdpr }) => {
+    renderGridComponent(
+      { ad: { ...ad, pixel: ['https://daily.dev/pixel?gdpr=${GDPR}'] } },
+      { auth: { geo: { region }, isGdprCovered } },
+    );
+    expect(await screen.findByTestId('pixel')).toHaveAttribute(
+      'src',
+      `https://daily.dev/pixel?gdpr=${gdpr}`,
+    );
+  },
+);
 
 it('should keep the pixel cachebuster stable across re-renders', async () => {
   const adWithMacroPixel = {
@@ -200,14 +227,65 @@ it('should render advertise link on grid ad', () => {
   );
 });
 
+it('should keep the grid ad controls inline when not compact', () => {
+  renderGridComponent({ ad: { ...ad, callToAction: 'Try it' } });
+
+  expect(screen.getByTestId('adItem')).not.toHaveClass('group');
+  expect(screen.getByRole('link', { name: 'Try it' })).toHaveAttribute(
+    'href',
+    ad.link,
+  );
+  expect(screen.getByRole('link', { name: 'Advertise here' })).toBeVisible();
+  expect(screen.getByRole('link', { name: 'Remove' })).toBeVisible();
+  expect(
+    screen.queryByRole('button', { name: 'Options' }),
+  ).not.toBeInTheDocument();
+});
+
+it('should move the compact grid ad controls under a menu', () => {
+  const onLinkClick = jest.fn();
+  renderGridComponent({
+    ad: { ...ad, callToAction: 'Try it' },
+    isCompact: true,
+    onLinkClick,
+  });
+
+  expect(screen.getByTestId('adItem')).toHaveClass('group');
+  expect(
+    screen.queryByRole('link', { name: 'Advertise here' }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('link', { name: 'Try it' }),
+  ).not.toBeInTheDocument();
+
+  fireEvent.keyDown(screen.getByRole('button', { name: 'Options' }), {
+    key: 'Enter',
+  });
+
+  const menuLink = (name: string) =>
+    within(screen.getByRole('menu')).getByRole('link', { name });
+  expect(menuLink('Try it')).toHaveAttribute('href', ad.link);
+  expect(menuLink('Try it')).toHaveAttribute('rel', anchorSponsoredRel);
+  expect(menuLink('Advertise here')).toHaveAttribute(
+    'href',
+    businessWebsiteUrl,
+  );
+  expect(menuLink('Remove ads')).toHaveAttribute('href', plusUrl);
+
+  fireEvent.click(menuLink('Try it'));
+  expect(onLinkClick).toHaveBeenCalledWith(
+    expect.objectContaining({ callToAction: 'Try it' }),
+  );
+});
+
 const promotedMatcher = (_: string, element?: Element | null): boolean =>
-  getNormalizedText(element) === 'Promoted' ||
-  getNormalizedText(element).startsWith('Promoted by ');
+  getAttributionText(element) === 'Promoted' ||
+  getAttributionText(element).startsWith('Promoted by ');
 
 const promotedByMatcher =
   (source: string) =>
   (_: string, element?: Element | null): boolean =>
-    getNormalizedText(element) === `Promoted by ${source}`;
+    getAttributionText(element) === `Promoted by ${source}`;
 
 it('should render promoted attribution outside of list title clamp', async () => {
   renderListComponent();
@@ -238,7 +316,7 @@ it('should render plain Promoted attribution without source link', async () => {
   renderListComponent();
 
   const attribution = await screen.findByText(
-    (_, element) => getNormalizedText(element) === 'Promoted',
+    (_, element) => getAttributionText(element) === 'Promoted',
   );
   expect(attribution.tagName).not.toBe('A');
 });
@@ -248,13 +326,8 @@ it('should render Promoted attribution in grid variant', async () => {
   expect(await screen.findByText(promotedMatcher)).toBeInTheDocument();
 });
 
-it('should render Promoted attribution in signal variant', async () => {
-  renderSignalListComponent();
-  expect(await screen.findByText(promotedMatcher)).toBeInTheDocument();
-});
-
 const adLabelMatcher = (_: string, element?: Element | null): boolean =>
-  getNormalizedText(element) === 'Ad';
+  getAttributionText(element) === 'Ad';
 
 describe('ad_label experiment', () => {
   const referralAd = { ...ad, referralLink: 'https://example.com/referral' };
@@ -317,11 +390,24 @@ describe('ad card spacing and controls', () => {
     expect(attribution).toHaveClass('mt-3');
   });
 
-  it('should keep the disclosure off the ad copy on the list card', async () => {
+  it('should put the list disclosure in the header, above the title like a post source', async () => {
     renderListComponent();
 
     const attribution = await screen.findByTestId('adAttribution');
-    expect(attribution).toHaveClass('mt-3');
+    const title = screen.getByRole('heading', { level: 3 });
+    expect(title).not.toContainElement(attribution);
+    expect(
+      // eslint-disable-next-line no-bitwise
+      attribution.compareDocumentPosition(title) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it('should size the list creative like a post cover', async () => {
+    renderListComponent();
+
+    const image = await screen.findByAltText('Ad image');
+    expect(image).toHaveClass('h-40', 'w-full', 'mobileXL:w-60');
   });
 
   it('should render the list remove control flat, like the grid card', async () => {
@@ -333,6 +419,28 @@ describe('ad card spacing and controls', () => {
   });
 });
 
+const renderGridTldrArm = (isEnabled: boolean): RenderResult => {
+  const gb = new GrowthBook();
+  gb.setFeatures({ [featureGridCardTldr.id]: { defaultValue: isEnabled } });
+  return renderGridComponent({}, { gb });
+};
+
+it('should give the grid creative the shorter TLDR cover in the grid_card_tldr arm', async () => {
+  renderGridTldrArm(true);
+
+  expect(await screen.findByAltText('Ad image')).toHaveClass(
+    gridCardTldrCoverClassName,
+  );
+});
+
+it('should keep the grid creative cover in the grid_card_tldr control', async () => {
+  renderGridTldrArm(false);
+
+  expect(await screen.findByAltText('Ad image')).not.toHaveClass(
+    gridCardTldrCoverClassName,
+  );
+});
+
 it('should render advertise link on list ad', () => {
   renderListComponent();
 
@@ -342,23 +450,9 @@ it('should render advertise link on list ad', () => {
   );
 });
 
-it('should render company logo and company name in signal ad header', async () => {
-  const companyLogo = 'https://daily.dev/company-logo.png';
-  const companyName = 'daily.dev';
-
-  renderSignalListComponent({
-    ad: { ...ad, companyLogo, company: companyName },
-  });
-
-  const logo = await screen.findByAltText(`Avatar of ${companyName}`);
-  expect(logo).toHaveAttribute('src', companyLogo);
-  expect(screen.getByText(companyName)).toBeInTheDocument();
-});
-
 it.each([
   ['grid', renderGridComponent],
   ['list', renderListComponent],
-  ['signal list', renderSignalListComponent],
 ])('should track viewability on the %s card', async (_, renderComponent) => {
   renderComponent();
 

@@ -7,34 +7,43 @@ import {
   resolveAdFetchOptions,
 } from '../../lib/ads';
 import { featurePostBoostAds } from '../../lib/featureManagement';
-import { useAdMacroContext } from './useAdMacroContext';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useAdRequestConsent } from './useAdRequestConsent';
 
 interface UseFetchAds {
+  isAdConsentReady: boolean;
   fetchAd: (params: {
     active?: boolean;
     placement?: AdPlacement;
   }) => Promise<Ad | null>;
 }
 
-export const useFetchAd = (): UseFetchAds => {
+export const useFetchAd = (enabled = true): UseFetchAds => {
   const boostsEnabled = useFeature(featurePostBoostAds);
-  const consent = useAdMacroContext(true) ?? undefined;
+  const consent = useAdRequestConsent(enabled);
+  const { isAuthReady, isLoggedIn } = useAuthContext();
+  const registered = isAuthReady ? isLoggedIn : undefined;
 
   const fetchAdQuery: UseFetchAds['fetchAd'] = useCallback(
-    ({ active, placement = AdPlacement.Feed }) => {
+    async ({ active, placement = AdPlacement.Feed }) => {
+      if (!consent) {
+        return null;
+      }
       return fetchAdByPlacement(
         resolveAdFetchOptions({
           placement,
           active,
           boostsEnabled,
           consent,
+          registered,
         }),
       );
     },
-    [boostsEnabled, consent],
+    [boostsEnabled, consent, registered],
   );
 
   return {
     fetchAd: fetchAdQuery,
+    isAdConsentReady: !!consent,
   };
 };

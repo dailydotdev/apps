@@ -1,0 +1,18 @@
+.caret {
+  animation: blink 1.06s step-end infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.box:global(.invalid),
+.box:global(.focused.invalid) {
+  border-color: var(--status-error);
+}

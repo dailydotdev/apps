@@ -37,6 +37,8 @@ import { CopyStateIcon } from '../../../../components/share/CopyStateIcon';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import { Divider } from '../../../../components/utilities/Divider';
 import { anchorDefaultRel } from '../../../../lib/strings';
+import { ReferralCampaignKey } from '../../../../lib/referral';
+import { useGetShortUrl } from '../../../../hooks/utils/useGetShortUrl';
 
 interface ShareProps {
   permalink: string;
@@ -46,6 +48,13 @@ interface ShareProps {
 export const Share = ({ permalink, className }: ShareProps): ReactElement => {
   const { logEvent } = useLogContext();
   const shareText = 'Check out my profile on daily.dev!';
+  const { getTrackedUrl } = useGetShortUrl();
+  // Carry the owner's referral params, so a signup that starts from a shared
+  // or copied profile link is credited to them, same as the header share.
+  const trackedLink = getTrackedUrl(
+    permalink,
+    ReferralCampaignKey.ShareProfile,
+  );
 
   const getLogObject = (provider: ShareProvider) => ({
     event_name: LogEvent.ShareProfile,
@@ -57,6 +66,7 @@ export const Share = ({ permalink, className }: ShareProps): ReactElement => {
     link: permalink,
     text: shareText,
     logObject: getLogObject,
+    cid: ReferralCampaignKey.ShareProfile,
   });
 
   const logShare = (provider: ShareProvider) => {
@@ -67,7 +77,7 @@ export const Share = ({ permalink, className }: ShareProps): ReactElement => {
     await navigator.share({
       title: 'My daily.dev profile',
       text: shareText,
-      url: permalink,
+      url: trackedLink,
     });
     logEvent(getLogObject(ShareProvider.Native));
   };
@@ -76,37 +86,37 @@ export const Share = ({ permalink, className }: ShareProps): ReactElement => {
     {
       icon: <TwitterIcon />,
       tooltip: 'Share on X',
-      href: getTwitterShareLink(permalink, shareText),
+      href: getTwitterShareLink(trackedLink, shareText),
       provider: ShareProvider.Twitter,
     },
     {
       icon: <WhatsappIcon />,
       tooltip: 'Share on WhatsApp',
-      href: getWhatsappShareLink(permalink),
+      href: getWhatsappShareLink(trackedLink),
       provider: ShareProvider.WhatsApp,
     },
     {
       icon: <FacebookIcon />,
       tooltip: 'Share on Facebook',
-      href: getFacebookShareLink(permalink),
+      href: getFacebookShareLink(trackedLink),
       provider: ShareProvider.Facebook,
     },
     {
       icon: <RedditIcon />,
       tooltip: 'Share on Reddit',
-      href: getRedditShareLink(permalink, shareText),
+      href: getRedditShareLink(trackedLink, shareText),
       provider: ShareProvider.Reddit,
     },
     {
       icon: <LinkedInIcon />,
       tooltip: 'Share on LinkedIn',
-      href: getLinkedInShareLink(permalink),
+      href: getLinkedInShareLink(trackedLink),
       provider: ShareProvider.LinkedIn,
     },
     {
       icon: <TelegramIcon />,
       tooltip: 'Share on Telegram',
-      href: getTelegramShareLink(permalink, shareText),
+      href: getTelegramShareLink(trackedLink, shareText),
       provider: ShareProvider.Telegram,
     },
   ];

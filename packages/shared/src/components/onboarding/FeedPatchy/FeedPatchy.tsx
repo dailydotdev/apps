@@ -670,6 +670,7 @@ export const FeedPatchy = ({ onComplete }: FeedPatchyProps): ReactElement => {
           : undefined
       }
       isCtaHidden={isIntro || !hasCta}
+      isCtaPinned
       containerClassName="flex w-full flex-1 flex-col"
     >
       <div

@@ -23,6 +23,7 @@ import { clamp, cluster, field, lerp, motion, settle } from './constants';
 import { useShellField } from './shellFieldStore';
 import { refreshShell } from './shellRefresh';
 import { revealShell, useShellScroll } from './useShellScroll';
+import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
 import { hidesCluster, isRootView, ShellRoot, owningRoot } from './shellNav';
 import { moveShell, ShellMove } from './shellMove';
 import { ShellTopButton } from './ShellTopButton';
@@ -179,6 +180,17 @@ export function ShellCluster(): ReactElement | null {
     if (tab.root === active) {
       if (!isRootView(tab.root, router.pathname)) {
         moveShell(router, ShellMove.Pop, () => router.push(tab.href));
+        return true;
+      }
+      // Home's segments (Happening now, Following, custom feeds) are views
+      // of Home, but the tab itself means the main feed: from another
+      // segment it switches back there, the way the segments switch, rather
+      // than refreshing the segment the reader is on.
+      if (
+        tab.root === ShellRoot.Home &&
+        withoutLayoutVariantPrefix(router.pathname ?? '') !== tab.href
+      ) {
+        router.replace(tab.href);
         return true;
       }
       revealShell();

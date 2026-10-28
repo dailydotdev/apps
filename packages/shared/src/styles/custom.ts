@@ -81,6 +81,10 @@ export const verifiedSquadCardGlow =
 // dark enough for light status text and the floating squares to read.
 export const shellCoverScrim = `linear-gradient(to bottom, color-mix(in srgb, ${colors.pepper[90]}, transparent 65%), transparent)`;
 
+// Marketplace hero behind card copy: dark on the left where the words sit,
+// clear on the right so the illustration still shows.
+export const marketplaceHeroScrim = `linear-gradient(90deg, color-mix(in srgb, ${colors.pepper[90]}, transparent 15%) 0%, color-mix(in srgb, ${colors.pepper[90]}, transparent 45%) 55%, transparent 100%)`;
+
 // Featured Squad card: the Verified card's design in water blue, so purple
 // reads as verified only
 export const featuredSquadCardShadow =
@@ -109,3 +113,23 @@ export const squadRailFadeMask = ({
 
   return `linear-gradient(to right, transparent, black ${start}, black calc(100% - ${end}), transparent)`;
 };
+
+// A daily.dev tip: its accent glows behind the icon on the rail's strip, and
+// tints a soft tile behind the glyph on the tips page.
+export const feedWidgetTipAccent = (tone: string): string =>
+  `var(--theme-accent-${tone}-default)`;
+
+const feedWidgetTipMix = (tone: string, percent: number): string =>
+  `color-mix(in srgb, ${feedWidgetTipAccent(tone)} ${percent}%, transparent)`;
+
+export const feedWidgetTipGlow = (tone: string): string =>
+  `radial-gradient(110% 100% at 0% 0%, ${feedWidgetTipMix(
+    tone,
+    22,
+  )} 0%, transparent 60%), radial-gradient(70% 70% at 100% 100%, ${feedWidgetTipMix(
+    tone,
+    6,
+  )} 0%, transparent 70%)`;
+
+export const feedWidgetTipTile = (tone: string): string =>
+  feedWidgetTipMix(tone, 16);

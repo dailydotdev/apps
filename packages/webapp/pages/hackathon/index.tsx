@@ -18,6 +18,7 @@ import { getLayout as getFooterNavBarLayout } from '../../components/layouts/Foo
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
+import { toJsonLd } from '../../lib/seo';
 
 const HACKATHON_URL = 'https://daily.dev/hackathon';
 const HACKATHON_TITLE = 'Hackathon';
@@ -39,7 +40,7 @@ const seo: NextSeoProps = {
 };
 
 const getHackathonJsonLd = (): string =>
-  JSON.stringify({
+  toJsonLd({
     '@context': 'https://schema.org',
     '@type': 'Event',
     name: HACKATHON_TITLE,
@@ -88,6 +89,6 @@ const getHackathonLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 HackathonPage.getLayout = getHackathonLayout;
-HackathonPage.layoutProps = { screenCentered: false, seo };
+HackathonPage.layoutProps = { seo };
 
 export default HackathonPage;

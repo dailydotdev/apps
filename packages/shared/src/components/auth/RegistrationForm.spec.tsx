@@ -66,6 +66,23 @@ describe('RegistrationForm', () => {
     expect(screen.queryByTestId('disclaimer')).not.toBeInTheDocument();
   });
 
+  it('lets someone who meant to log in switch to login from the funnel', () => {
+    const onExistingEmailLoginClick = jest.fn();
+    renderForm({ isOnboardingFunnel: true, onExistingEmailLoginClick });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
+
+    expect(onExistingEmailLoginClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the login link out of the other signup surfaces', () => {
+    renderForm({ onExistingEmailLoginClick: jest.fn() });
+
+    expect(
+      screen.queryByText('Already have an account?'),
+    ).not.toBeInTheDocument();
+  });
+
   it('shows a password error on the password field, not under email', () => {
     const onUpdateHints = jest.fn();
     renderForm({ hints: { password: 'Password too short' }, onUpdateHints });

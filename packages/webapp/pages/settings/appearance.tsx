@@ -8,8 +8,10 @@ import { SidebarDensitySection } from '@dailydotdev/shared/src/components/Profil
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSettingsBooleanFlag } from '@dailydotdev/shared/src/hooks/useSettingsBooleanFlag';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { featureFeedWidgets } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useToggleFeedbackButton } from '@dailydotdev/shared/src/hooks/useToggleFeedbackButton';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { useReaderModalEligibility } from '@dailydotdev/shared/src/components/post/reader/hooks/useReaderModalEligibility';
 import { useLegacyPostLayoutOptOut } from '@dailydotdev/shared/src/components/post/reader/hooks/useLegacyPostLayoutOptOut';
 import { useEnableReaderInside } from '@dailydotdev/shared/src/components/post/reader/hooks/useEnableReaderInside';
@@ -26,7 +28,6 @@ import {
 } from '@dailydotdev/shared/src/lib/log';
 import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import { iOSSupportsAppIconChange } from '@dailydotdev/shared/src/lib/ios';
-import { PreferredSourceSetting } from '@dailydotdev/shared/src/components/preferredSources/PreferredSourceSetting';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo, noindexSeoProps } from '../../next-seo';
@@ -69,12 +70,19 @@ const AccountManageSubscriptionPage = (): ReactElement => {
   const showReaderToggle = isReaderEligible;
   const { value: isHighlightCardsOptedOut, toggle: toggleHighlightCards } =
     useSettingsBooleanFlag('highlightCardsOptOut');
+  const { value: isFeedWidgetsOptedOut, toggle: toggleFeedWidgets } =
+    useSettingsBooleanFlag('feedWidgetsOptOut');
+  // Only readers who have met the rail, so opening this page is no exposure.
+  const { value: isFeedWidgetsOn } = useConditionalFeature({
+    feature: featureFeedWidgets,
+    shouldEvaluate: isFeedWidgetsOptedOut || !!flags?.feedWidgets,
+  });
   const { showFeedbackButton, toggleFeedbackButton } =
     useToggleFeedbackButton();
   const isReadInsideEnabled = isReaderEnabled;
   const isReaderPermissionGranted =
     flags?.readerInstallPromptAcknowledged ?? false;
-  const { isV2: isLayoutV2 } = useLayoutVariant();
+  const isLaptopLayout = useLaptopLayout();
   const onToggleReadInside = () => {
     if (isReadInsideEnabled) {
       optOut();
@@ -126,7 +134,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
               onLabel="List"
             />
 
-            {isLayoutV2 && <SidebarDensitySection />}
+            {isLaptopLayout && <SidebarDensitySection />}
           </FlexCol>
         )}
 
@@ -179,6 +187,16 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             Show hero cards for highlighted news
           </SettingsSwitch>
 
+          {isFeedWidgetsOn && (
+            <SettingsSwitch
+              name="feed-widgets"
+              checked={!isFeedWidgetsOptedOut}
+              onToggle={toggleFeedWidgets}
+            >
+              Show widgets above the feed
+            </SettingsSwitch>
+          )}
+
           <SettingsSwitch
             name="feedback-button"
             checked={showFeedbackButton}
@@ -186,8 +204,6 @@ const AccountManageSubscriptionPage = (): ReactElement => {
           >
             Show feedback button
           </SettingsSwitch>
-
-          <PreferredSourceSetting />
         </FlexCol>
 
         <FlexCol className="gap-5">

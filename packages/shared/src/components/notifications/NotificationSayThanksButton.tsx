@@ -1,11 +1,12 @@
 import React from 'react';
 import type { ReactElement, MouseEvent } from 'react';
 import type { InfiniteData } from '@tanstack/react-query';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type {
   Notification,
   NotificationsData,
 } from '../../graphql/notifications';
+import { latestNotificationsQueryKey } from '../../graphql/notifications';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { VIcon } from '../icons/V';
 import { sayThanksForAward } from '../../graphql/njord';
@@ -26,11 +27,21 @@ export const NotificationSayThanksButton = ({
   hasThanks,
 }: Pick<Notification, 'referenceId' | 'hasThanks'>): ReactElement => {
   const { displayToast } = useToastNotification();
+  const queryClient = useQueryClient();
   const [getNotifications, updateNotifications] = useUpdateQuery<
     InfiniteData<NotificationsData>
   >({ queryKey: ['notifications'] });
 
   const markThanksSent = () => {
+    queryClient.setQueriesData<Notification[]>(
+      { queryKey: latestNotificationsQueryKey },
+      (latest) =>
+        latest?.map((node) =>
+          node.referenceId === referenceId
+            ? { ...node, hasThanks: true }
+            : node,
+        ),
+    );
     const notifications = getNotifications();
     if (!notifications) {
       return;

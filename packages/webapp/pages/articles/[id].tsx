@@ -157,7 +157,6 @@ const getReadPostPageLayout: typeof getLayout = (
 
 ReadPostPage.getLayout = getReadPostPageLayout;
 ReadPostPage.layoutProps = {
-  screenCentered: false,
   showSidebar: false,
   hideFeedbackWidget: true,
 };

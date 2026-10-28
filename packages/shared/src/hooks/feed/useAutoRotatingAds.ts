@@ -24,37 +24,39 @@ export const useAutoRotatingAds = (
   index: number,
   feedIndex: number,
   ref: InViewRef,
+  disabled = false,
 ): {
   ref: InViewRef;
-  refetch: QueryObserverBaseResult<Ad>['refetch'];
-  isRefetching: QueryObserverBaseResult<Ad>['isRefetching'];
+  refetch: QueryObserverBaseResult<Ad | null>['refetch'];
+  isRefetching: QueryObserverBaseResult<Ad | null>['isRefetching'];
 } => {
-  const autorotateAds = useFeature(featureAutorotateAds);
+  const autorotateFlag = useFeature(featureAutorotateAds);
+  const autorotateAds = disabled ? 0 : autorotateFlag ?? 0;
   const { logEventEnd } = useLogContext();
-  const { queryKey: feedQueryKey } = useContext(ActiveFeedContext);
+  const { queryKey: feedQueryKey = [] } = useContext(ActiveFeedContext);
   const queryClient = useQueryClient();
   const { ref: inViewRef, inView } = useInView({
     threshold: 0.5,
     skip: !autorotateAds,
   });
 
-  const rotationTime = autorotateAds * 1_000;
+  const rotationTime = (autorotateAds ?? 0) * 1_000;
 
   const refs = useCallback(
-    (node: HTMLElement) => {
+    (node?: Element | null) => {
       ref?.(node);
       inViewRef(node);
     },
     [inViewRef, ref],
   );
 
-  const { fetchAd } = useFetchAd();
+  const { fetchAd, isAdConsentReady } = useFetchAd(!!autorotateAds);
   const queryKey = useMemo(
-    () => [RequestKey.Ads, ...feedQueryKey],
+    () => [RequestKey.Ads, ...(feedQueryKey ?? [])],
     [feedQueryKey],
   );
 
-  const fetchNewAd = useCallback(async (): Promise<Ad> => {
+  const fetchNewAd = useCallback(async (): Promise<Ad | null> => {
     const newAd = await fetchAd({
       placement: AdPlacement.Feed,
       active: true,
@@ -79,15 +81,15 @@ export const useAutoRotatingAds = (
     return newAd;
   }, [feedIndex, index, logEventEnd, fetchAd, queryClient, queryKey]);
 
-  const { refetch, isRefetching } = useQuery<Ad>({
+  const { refetch, isRefetching } = useQuery<Ad | null>({
     queryKey: [...queryKey, index],
     queryFn: fetchNewAd,
-    enabled: !!autorotateAds,
+    enabled: !!autorotateAds && isAdConsentReady,
     initialData: ad,
     staleTime: rotationTime,
     // Disable refetching when the ad is not in view,
     // and resets the timer for when it is back in view
-    refetchInterval: () => (inView ? rotationTime : false),
+    refetchInterval: () => (inView && isAdConsentReady ? rotationTime : false),
     ...disabledRefetch,
   });
 

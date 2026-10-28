@@ -18,6 +18,7 @@ import PersonalizedDigest from './PersonalizedDigest';
 import NotificationCheckbox from './NotificationCheckbox';
 import NotificationSwitch from './NotificationSwitch';
 import NotificationGroupToggle from './NotificationToggle';
+import { LfgNotificationSettings } from './LfgNotificationSettings';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
 
 const getEmailGroup = (group: NotificationGroup): NotificationGroup =>
@@ -244,6 +245,7 @@ const EmailNotificationsTab = (): ReactElement => {
           />
         </NotificationContainer>
       </NotificationSection>
+      <LfgNotificationSettings channel="email" />
       <HorizontalSeparator className="mx-4" />
       <NotificationSection>
         <Typography type={TypographyType.Body} bold>

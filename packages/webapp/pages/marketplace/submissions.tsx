@@ -119,5 +119,5 @@ const getPluginSubmissionsLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 PluginSubmissionsPage.getLayout = getPluginSubmissionsLayout;
-PluginSubmissionsPage.layoutProps = { screenCentered: false, seo };
+PluginSubmissionsPage.layoutProps = { seo };
 export default PluginSubmissionsPage;

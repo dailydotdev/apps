@@ -92,6 +92,7 @@ jest.mock('next/router', () => ({
 }));
 
 let mockSignupStripOn = false;
+let mockPostPageFeedOn = false;
 
 jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
   __esModule: true,
@@ -105,9 +106,38 @@ jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
     if (args?.feature?.id === 'post_signup_strip') {
       return { value: mockSignupStripOn, isLoading: false };
     }
+    if (args?.feature?.id === 'post_page_feed') {
+      // Like the real hook: the default (off) until the page evaluates it.
+      return {
+        value: args.shouldEvaluate !== false && mockPostPageFeedOn,
+        isLoading: false,
+      };
+    }
     return { value: args?.feature?.defaultValue, isLoading: false };
   },
 }));
+
+// The feed's own behaviour is PostPageFeed.spec; here only where it renders.
+jest.mock('@dailydotdev/shared/src/components/post/feed/PostPageFeed', () => ({
+  PostPageFeed: ({ post }: { post: { id: string } }) => (
+    <section data-testid="postPageFeed" data-post-id={post.id} />
+  ),
+}));
+
+// The organic ad units sit behind the organic_ads kill switch, off by default.
+jest.mock('@dailydotdev/shared/src/components/GrowthBookProvider', () => {
+  const actual = jest.requireActual(
+    '@dailydotdev/shared/src/components/GrowthBookProvider',
+  );
+
+  return {
+    ...actual,
+    useFeature: (feature: { id: string }) => {
+      const value = actual.useFeature(feature);
+      return feature.id === 'organic_ads' ? true : value;
+    },
+  };
+});
 
 // The ad-teardown effect subscribes to router events on anonymous renders,
 // so the mock has to carry the emitter surface.
@@ -119,6 +149,7 @@ const mockRouter = (overrides: Partial<NextRouter> = {}): void => {
       ({
         isFallback: false,
         pathname: '/posts',
+        asPath: '/posts',
         isReady: true,
         query: {},
         events: routerEvents,
@@ -135,6 +166,7 @@ beforeEach(() => {
   // behind by one test must not leak into the next.
   jest.restoreAllMocks();
   mockSignupStripOn = false;
+  mockPostPageFeedOn = false;
   mockRouter();
 });
 
@@ -1496,5 +1528,31 @@ describe('post query failures', () => {
     ]);
 
     expect(await screen.findByTestId('notFound')).toBeInTheDocument();
+  });
+});
+
+describe('post page feed', () => {
+  it('should render the feed after the comments for signed-in readers when the experiment is on', async () => {
+    mockPostPageFeedOn = true;
+    renderPost();
+    const feed = await screen.findByTestId('postPageFeed');
+    expect(feed).toHaveAttribute(
+      'data-post-id',
+      '0e4005b2d3cf191f8c44c2718a457a1e',
+    );
+    expect(screen.getByTestId('postContainer')).toContainElement(feed);
+  });
+
+  it('should not render the feed for signed-out readers, even when the experiment is on', async () => {
+    mockPostPageFeedOn = true;
+    renderPost({}, [createPostMock(), createCommentsMock()], undefined);
+    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+    expect(screen.queryByTestId('postPageFeed')).not.toBeInTheDocument();
+  });
+
+  it('should not render the feed when the experiment is off', async () => {
+    renderPost();
+    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+    expect(screen.queryByTestId('postPageFeed')).not.toBeInTheDocument();
   });
 });

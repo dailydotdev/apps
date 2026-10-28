@@ -22,7 +22,10 @@ import {
   renderPrebidBid,
   requestKueezBid,
 } from '../../../features/monetization/prebid';
-import { featureReadAds } from '../../../lib/featureManagement';
+import {
+  featureOrganicAds,
+  featureReadAds,
+} from '../../../lib/featureManagement';
 import { useFeature } from '../../GrowthBookProvider';
 import { ORGANIC_SLOT } from './slots';
 
@@ -69,7 +72,7 @@ const mockRequestBid = jest.mocked(requestKueezBid);
 const mockConfigurePrebid = jest.mocked(configurePrebid);
 const mockRenderBid = jest.mocked(renderPrebidBid);
 
-const flags = { read: true };
+const flags = { read: true, organic: true };
 
 const BID: PrebidBid = {
   adId: 'ad-1',
@@ -141,6 +144,7 @@ beforeEach(() => {
   window.history.replaceState({ key: expect.getState().currentTestName }, '');
   mockConstants.isDevelopment = false;
   flags.read = true;
+  flags.organic = true;
   mockSlotMaps.READ_AD_SLOTS = {};
   mockSlotMaps.ORGANIC_AD_SLOTS = {};
   leaveAuctionPending();
@@ -148,9 +152,13 @@ beforeEach(() => {
     container.appendChild(document.createElement('iframe'));
     return true;
   });
-  mockUseFeature.mockImplementation((feature) =>
-    feature === featureReadAds ? flags.read : feature.defaultValue,
-  );
+  mockUseFeature.mockImplementation((feature) => {
+    if (feature === featureReadAds) {
+      return flags.read;
+    }
+
+    return feature === featureOrganicAds ? flags.organic : feature.defaultValue;
+  });
 });
 
 describe('ReadAdSlot', () => {
@@ -408,6 +416,22 @@ describe('ReadAdSlot on the organic surface', () => {
     );
 
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it('goes dark when the organic_ads kill switch is off', () => {
+    flags.organic = false;
+    setOrganicSlots(organicFixture);
+    const { container } = render(
+      <ReadAdSlot
+        surface="organic"
+        slot={ORGANIC_SLOT.topLeaderboard}
+        format={ReadAdFormat.Leaderboard}
+        eager
+      />,
+    );
+
+    expect(container).toBeEmptyDOMElement();
+    expect(mockRequestBid).not.toHaveBeenCalled();
   });
 
   it('ignores the read flag and map entirely', () => {
