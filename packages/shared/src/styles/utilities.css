@@ -227,7 +227,36 @@
   animation: coach-card-in 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/*
+ * Modal enter, from tablet up where the modal floats as a card: the backdrop
+ * and card fade in together while the card settles a few pixels. Only the
+ * enter animates, and `backwards` rather than `both` so no transform outlives
+ * it: a transformed card would trap the post modal's fixed navigation.
+ */
+@keyframes modal-overlay-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes modal-content-in {
+  from {
+    transform: translateY(0.5rem);
+  }
+}
+
+@screen tablet {
+  .modal-enter {
+    animation: modal-overlay-in 200ms ease-out backwards;
+  }
+
+  .modal-enter > .ReactModal__Content {
+    animation: modal-content-in 240ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .modal-enter > .ReactModal__Content,
   .animate-rail-popup-in,
   .animate-coach-card-in,
   .rail-popup-panel[data-state='open'],
