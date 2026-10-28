@@ -117,3 +117,48 @@ describe('SidebarDesktopV2 panel items', () => {
     );
   });
 });
+
+describe('SidebarDesktopV2 for a visitor', () => {
+  const showLogin = jest.fn();
+  const renderVisitorRail = (): RenderResult =>
+    render(
+      <TestBootProvider
+        client={new QueryClient()}
+        auth={{ user: undefined, isLoggedIn: false, showLogin }}
+      >
+        <SpotlightProvider>
+          <SidebarDesktopV2 activePage="/posts" />
+        </SpotlightProvider>
+      </TestBootProvider>,
+    );
+
+  beforeEach(() => {
+    showLogin.mockReset();
+  });
+
+  it('keeps the account-only rail items off', () => {
+    renderVisitorRail();
+
+    expect(document.getElementById('sidebar-category-gameCenter')).toBeNull();
+    expect(screen.queryByLabelText('New post')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Invite friends')).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText('Get the daily.dev mobile app'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Log in' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('tab', { name: 'You' })).not.toBeInTheDocument();
+    expect(document.getElementById('sidebar-category-main')).not.toBeNull();
+    expect(document.getElementById('sidebar-category-squads')).not.toBeNull();
+  });
+
+  it('keeps the Streak tab and Invite for a member', () => {
+    renderRail('/posts');
+
+    expect(
+      document.getElementById('sidebar-category-gameCenter'),
+    ).not.toBeNull();
+    expect(screen.getByLabelText('Invite friends')).toBeInTheDocument();
+  });
+});

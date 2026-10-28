@@ -51,11 +51,8 @@ import { useLaptopLayout } from '../hooks/layout/useLaptopLayout';
 import { useLayoutVariantCookie } from '../hooks/layout/useLayoutVariantCookie';
 import { LayoutVariantContext } from '../contexts/LayoutVariantContext';
 import type { LayoutVariant } from '../lib/layoutVariant';
-import {
-  hasLayoutVariantCookie,
-  LAYOUT_FRAME_CLASS,
-} from '../lib/layoutVariant';
-import { useIsHydrated } from '../hooks/useIsHydrated';
+import { LAYOUT_FRAME_CLASS } from '../lib/layoutVariant';
+import { SignInStrip } from './auth/SignInStrip';
 import { useRecordRecentPages } from '../hooks/useRecentPages';
 import { isSidebarSettingsPath } from './sidebar/sidebarCategory';
 import {
@@ -146,8 +143,6 @@ function MainLayoutComponent({
   const { plusEntryAnnouncementBar } = usePlusEntry();
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   const isLaptopLayout = useLaptopLayout();
-  const hasServerShell = useContext(LayoutVariantContext) === 'v2';
-  const isHydrated = useIsHydrated();
   const { rest: shellBlockRest } = useShellBlockPlan();
   useLayoutVariantCookie();
   // The store is device-wide, so anonymous browsing must not seed the next
@@ -208,20 +203,14 @@ function MainLayoutComponent({
   const isHoldingChrome = !isPaintReady && showSidebar;
 
   // The dual-sidebar layout takes ownership of the global header chrome
-  // (logo + search + user actions) on laptop+ for authenticated users
-  // (and for extension new tab regardless of auth state). When that's
-  // the case the global header is hidden, the main content gets the
-  // floating-card treatment, and the global feedback widget is suppressed
-  // because the rail provides its own.
-  //
-  // `isLoggedIn` is client-only and lands with boot. Until then the mirrored
-  // route keeps the shell its server painted, and elsewhere the cookie that
-  // records a signed-in laptop session hands the header to the rail as soon
-  // as the page hydrates.
-  const ownsHeaderAudience = isAuthReadyOrCached
-    ? isLoggedIn || isExtension
-    : isExtension || hasServerShell || (isHydrated && hasLayoutVariantCookie());
-  const sidebarOwnsHeader = isLaptopLayout && ownsHeaderAudience && showSidebar;
+  // (logo + search + user actions) on laptop+. When that's the case the
+  // global header is hidden, the main content gets the floating-card
+  // treatment, and the global feedback widget is suppressed because the rail
+  // provides its own.
+  const sidebarOwnsHeader = isLaptopLayout && showSidebar;
+  const showSignInStrip =
+    sidebarOwnsHeader && !isExtension && isAuthReady && !isLoggedIn;
+  const hasTopBanner = !!topBanner || showSignInStrip;
 
   const { setSlot: setTopHeroSlot } = useTopHeroSlot();
 
@@ -234,6 +223,12 @@ function MainLayoutComponent({
         'laptop:[--sticky-header-offset:0px]';
   } else if (isBannerAvailable) {
     stickyHeaderOffset = 'laptop:[--sticky-header-offset:6rem]';
+  }
+  let frameStickyHeaderOffset: string | undefined;
+  if (showSignInStrip) {
+    frameStickyHeaderOffset = isBannerAvailable
+      ? 'laptop:[--sticky-header-offset:6rem]'
+      : 'laptop:[--sticky-header-offset:4rem]';
   }
 
   useEffect(() => {
@@ -435,6 +430,7 @@ function MainLayoutComponent({
               sidebarOwnsHeader && 'laptop:has-[.feed-dock]:mb-0',
             )}
           >
+            {showSignInStrip && <SignInStrip />}
             {sidebarOwnsHeader && topBanner}
             <div
               ref={sidebarOwnsHeader ? setTopHeroSlot : undefined}
@@ -457,6 +453,7 @@ function MainLayoutComponent({
                   // clipped into square off.
                   'laptop:has-[.feed-dock]:rounded-b-none laptop:has-[.feed-dock]:border-b-0 laptop:has-[.feed-dock]:pb-0',
                   LAYOUT_FRAME_CLASS,
+                  frameStickyHeaderOffset,
                   // These subtract exactly the chrome above the frame plus its
                   // own margins, so the frame ends level with the window. With
                   // a dock the bottom margin is gone, so 0.75rem less comes off
@@ -465,7 +462,7 @@ function MainLayoutComponent({
                   // the feed is too short to make the page scrollable.
                   // The top-hero slot is filled by the page, so whether it
                   // holds a card is read from the DOM rather than known here.
-                  !topBanner &&
+                  !hasTopBanner &&
                     (isBannerAvailable
                       ? 'laptop:peer-empty/top-hero:min-h-[calc(100vh-3.5rem)] laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-2.75rem)]'
                       : 'laptop:peer-empty/top-hero:min-h-[calc(100vh-1.5rem)] laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-0.75rem)]'),
