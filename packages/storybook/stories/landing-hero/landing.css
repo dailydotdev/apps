@@ -2235,3 +2235,212 @@
 .lh-column:has(.lh-packs) {
   max-width: 760px;
 }
+
+/* Google One Tap card, as Chrome draws it */
+
+.lh-onetap {
+  position: absolute;
+  top: 4.5rem;
+  right: 1rem;
+  z-index: 260;
+  width: 391px;
+  border-radius: 8px;
+  background: #fff;
+  color: #1f1f1f;
+  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3),
+    0 4px 8px 3px rgba(60, 64, 67, 0.15);
+  padding: 0.75rem 1rem 1rem;
+  text-align: left;
+}
+
+.lh-onetap-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+  color: #3c4043;
+}
+
+.lh-onetap-head span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lh-onetap-g {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.lh-onetap-head button {
+  border: 0;
+  background: none;
+  font-size: 1.125rem;
+  color: #5f6368;
+  cursor: pointer;
+}
+
+.lh-onetap-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.875rem 0;
+}
+
+.lh-onetap-user img {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+}
+
+.lh-onetap-user span {
+  display: flex;
+  flex-direction: column;
+}
+
+.lh-onetap-user strong {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.lh-onetap-user small {
+  font-size: 0.8125rem;
+  color: #5f6368;
+}
+
+.lh-onetap-cta {
+  width: 100%;
+  height: 2.5rem;
+  border-radius: 999px;
+  border: 0;
+  background: #0b57d0;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lh-onetap p {
+  margin: 0.75rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: #5f6368;
+}
+
+@media (max-width: 767px) {
+  .lh-onetap {
+    position: fixed;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    border-radius: 16px 16px 0 0;
+  }
+}
+
+/* Laurels, as on /launch/ */
+
+.lh-laurels {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.5rem;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.lh-laurels-centered,
+.lh-centered .lh-laurels {
+  justify-content: center;
+}
+
+.lh-laurel,
+.lh-laurel a {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+}
+
+.lh-leaf {
+  width: 18px;
+  height: 2rem;
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.lh-leaf-flip {
+  transform: scaleX(-1);
+}
+
+.lh-laurel-text {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  line-height: 1.25;
+}
+
+.lh-laurel-top {
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.lh-laurel-bottom {
+  font-size: 11.25px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* The Discord pair */
+
+.lh-pair {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.lh-pair .lh-pill {
+  width: auto;
+  flex: 1 1 auto;
+  padding-inline: 1.25rem;
+  white-space: nowrap;
+}
+
+.lh-pill-brand {
+  background: #7c6bea;
+  color: #fff;
+  font-weight: 600;
+}
+
+.lh-pill-brand:hover {
+  background: #6b5bd6;
+}
+
+.lh-desk-flex {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .lh-desk-flex {
+    display: flex;
+  }
+}
+
+@media (min-width: 768px) {
+  .lh-laurels {
+    flex-wrap: nowrap;
+    width: max-content;
+  }
+
+  .lh-form:has(.lh-pair) {
+    max-width: 500px;
+  }
+
+  .lh-pair {
+    flex-wrap: nowrap;
+  }
+}

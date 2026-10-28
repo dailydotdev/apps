@@ -171,10 +171,17 @@ export const VariationPage2 = ({
   <Page
     chapter={chapter}
     question={variation.hypothesis.split(',')[0].replace(/^If /, 'What if ')}
-    title={`${variation.id} · ${variation.title}`}
+    title={`${variation.id} · ${variation.title}${
+      variation.final ? ' · FINAL' : ''
+    }`}
     goal={goal}
     metric={metric}
   >
+    {variation.decision && (
+      <div className="max-w-[56rem] rounded-16 border border-accent-cabbage-default bg-accent-cabbage-subtlest p-4 text-text-primary typo-callout">
+        <strong>Decision.</strong> {variation.decision}
+      </div>
+    )}
     <dl className="grid max-w-[56rem] grid-cols-[auto_1fr] gap-x-4 gap-y-2 typo-callout">
       <dt className="text-text-tertiary">Borrowed from</dt>
       <dd className="text-text-secondary">{variation.borrowed}</dd>
@@ -222,7 +229,9 @@ export const Gallery2 = ({
     {variations.map((variation) => (
       <Case
         key={variation.id}
-        title={`${variation.id} · ${variation.title}`}
+        title={`${variation.id} · ${variation.title}${
+          variation.final ? ' · FINAL' : ''
+        }`}
         note={
           <>
             <p className="m-0">{variation.hypothesis}</p>

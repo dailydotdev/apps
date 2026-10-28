@@ -132,6 +132,42 @@ export const Brief: StoryObj = {
       </Case>
 
       <Case
+        title="Decisions (Oct 28): S9 is the signup final; E1 is the extension direction"
+        note="Tsahi’s picks after reviewing round two. Build them in recruiter-landing; this Storybook is parked until then."
+      >
+        <Prose>
+          <p>
+            <strong>S9, what ships.</strong> One Tap stays as it is (already
+            live: Chrome visitors signed into Google get the top-right “Continue
+            as” card, first-timers included). The hero’s Google button becomes
+            the Google-rendered button in FedCM button mode with auto-select, so
+            a returning Google user sees their own name and avatar on the button
+            and is in with one click, and a first-time visitor sees the standard
+            “Continue with Google”. GitHub and email keep the production pills.
+          </p>
+          <p>
+            <strong>What is not possible.</strong> A first-time visitor’s name
+            on a button we draw ourselves. Google reveals identity only after
+            consent, and personalizes its button only for a Google session that
+            has signed in to daily.dev before. No permission from us is
+            involved; Chrome owns both prompts.
+          </p>
+          <p>
+            <strong>Before it ships.</strong> Fix the ~37% social-auth boot
+            failure (it would eat the gain), keep the member line prominent
+            (duplicate-account presses), and accept Google’s button styling for
+            the first pill.
+          </p>
+          <p>
+            <strong>E1, the extension direction.</strong> The compact B9 row
+            stays as designed; only the copy changes, to the gain in one short
+            line: “Stay ahead without trying.” over “Your feed, every time you
+            open your browser.” and the ghost Add to Chrome.
+          </p>
+        </Prose>
+      </Case>
+
+      <Case
         title="Round two (Oct 28): what changed"
         note="Round one was reviewed: nothing in chapter 1 and only B7 and B9 in chapter 2 survived. Round two (chapters 3 and 4) is built on the research in chapter 5 and on Smith’s Oct 26 proposal."
       >

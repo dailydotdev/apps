@@ -34,7 +34,7 @@ export const Overview: StoryObj = {
     <Page
       chapter={CHAPTER}
       question="How do extension companies sell the surface, and how do we do it without losing signups?"
-      title="Ten extension variations, round two"
+      title="Twelve extension variations, round two"
       goal={GOAL}
       metric={METRIC}
     >
@@ -53,3 +53,5 @@ export const E7 = story(6);
 export const E8 = story(7);
 export const E9 = story(8);
 export const E10 = story(9);
+export const E11 = story(10);
+export const E12 = story(11);

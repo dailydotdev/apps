@@ -35,6 +35,10 @@ export type Variation2 = Variation & {
   /** A second screen, when the variation is a sequence. */
   renderSecond?: () => ReactElement;
   secondLabel?: string;
+  /** Picked by Tsahi as the direction to build. */
+  final?: boolean;
+  /** What production has to do, and what it cannot. */
+  decision?: string;
 };
 
 /* ------------------------------------------------------------ shared */
@@ -606,24 +610,67 @@ const TryFirstFeed = (): ReactElement => (
   />
 );
 
-const ContinueAsYou = (): ReactElement => (
+const OneTapCard = (): ReactElement => (
+  <div
+    className="lh-onetap"
+    role="dialog"
+    aria-label="Sign in to daily.dev with Google"
+  >
+    <div className="lh-onetap-head">
+      <span>
+        <GoogleG className="lh-onetap-g" /> Sign in to daily.dev with google.com
+      </span>
+      <button type="button" aria-label="Close">
+        ×
+      </button>
+    </div>
+    <div className="lh-onetap-user">
+      <img src={quotes[3].image} alt="" />
+      <span>
+        <strong>Joud Awad</strong>
+        <small>joud.awad@gmail.com</small>
+      </span>
+    </div>
+    <button type="button" className="lh-onetap-cta">
+      Continue as Joud
+    </button>
+    <p>
+      To create your account, Google will share your name, email address and
+      profile picture with daily.dev.
+    </p>
+  </div>
+);
+
+const PersonalizedGoogle = (): ReactElement => (
+  <a
+    href="https://daily.dev/onboarding"
+    className="lh-pill lh-pill-primary lh-pill-me"
+  >
+    <img src={quotes[3].image} alt="" />
+    <span>
+      Continue as Joud
+      <small>joud.awad@gmail.com</small>
+    </span>
+    <GoogleG />
+  </a>
+);
+
+const ContinueAsYou = ({
+  returning = false,
+}: {
+  returning?: boolean;
+}): ReactElement => (
   <LandingPage
     form={
       <SignupForm
         buttons={
           <ul className="lh-providers">
             <li>
-              <a
-                href="https://daily.dev/onboarding"
-                className="lh-pill lh-pill-primary lh-pill-me"
-              >
-                <img src={quotes[3].image} alt="" />
-                <span>
-                  Continue as Joud
-                  <small>joud.awad@gmail.com</small>
-                </span>
-                <GoogleG />
-              </a>
+              {returning ? (
+                <PersonalizedGoogle />
+              ) : (
+                <ProviderButton kind="google" />
+              )}
             </li>
             <li>
               <ProviderButton kind="github" />
@@ -635,6 +682,7 @@ const ContinueAsYou = (): ReactElement => (
         }
       />
     }
+    overlay={!returning && <OneTapCard />}
   />
 );
 
@@ -821,14 +869,20 @@ export const signupRoundTwo: Variation2[] = [
   {
     id: 'S9',
     title: 'Continue as you',
+    final: true,
     borrowed:
       'Google’s personalized button and One Tap (Reddit: ~2x signups; Zapier: +7% from One Tap alone). Threads: “Continue with Instagram”, one identity, one tap.',
     hypothesis:
-      'If the primary button already shows the visitor’s name and avatar, more of them press it, because a button that knows you is a confirmation, not a form.',
+      'If every Chrome visitor signed into Google meets their own name and avatar in the hero, more of them press it, because a button that knows you is a confirmation, not a form.',
     change:
-      'The Google button renders personalized (“Continue as Joud”, avatar, address) when a Google session exists; the plain button otherwise. GitHub and email unchanged.',
-    risk: 'Zapier saw duplicate-account tickets from “Continue as” presses by existing users; make the member line prominent. Also fix the ~37% social-auth boot failure first, or this amplifies it.',
+      'Two Google surfaces, both Google-rendered. First visit (screen 1): the standard “Continue with Google” pill plus Google’s One Tap card at the top right, which carries the visitor’s name, avatar and a “Continue as” button for anyone signed into Google in Chrome, first-timers included. Return visit (screen 2): the Google button itself renders personalized (name, address, avatar) through FedCM button mode, so it works with third-party cookies blocked. GitHub and email unchanged.',
+    risk: 'Zapier saw duplicate-account tickets from “Continue as” presses by existing users; keep the member line prominent. Fix the ~37% social-auth boot failure first, or this amplifies it. The Google option becomes Google’s own button rendering (its pill, its themes, 400px max), not our white pill.',
+    decision:
+      'Picked as the signup final on Oct 28. What production can do: One Tap is already live on daily.dev (client id set, auto_select off, FedCM-aware), so Chrome visitors signed into Google already get the top-right “Continue as” card; the work is the hero button: render it with Google Identity Services in FedCM button mode (use_fedcm_for_button, button_auto_select) so returning Google users see their name and avatar on the button and sign in with one click, while first-timers see the standard Google button. What production cannot do: show a first-time visitor’s name on a button we draw ourselves. Google only reveals identity after consent, and the personalized button requires that this Google session has signed in to daily.dev before. No permission prompt from us is involved; the browser owns the One Tap and FedCM prompts.',
     render: () => <ContinueAsYou />,
+    renderSecond: () => <ContinueAsYou returning />,
+    secondLabel: 'Screen 2 · returning Google user (personalized button)',
+    phoneNote: 'One Tap shows as a bottom sheet on phones.',
   },
   {
     id: 'S10',
@@ -1030,18 +1084,106 @@ const OpenANewTab = (): ReactElement => {
   );
 };
 
+/* The /launch/ page's award laurels (recruiter-landing #617, Laurels.astro),
+   same leaf path and type scale; the Chrome Web Store laurel links to the
+   store, so the proof is also the door. */
+
+const LEAF =
+  'M12 2c-2 3-2 6 0 9 2-3 2-6 0-9Zm-5 4c-1 3 0 6 3 8 0-3-1-6-3-8Zm-3 6c0 3 2 5 5 6-1-3-3-5-5-6Zm1 6c1 2 3 3 6 3-1-2-3-3-6-3Z';
+
+const Leaf = ({ flip = false }: { flip?: boolean }): ReactElement => (
+  <svg
+    className={classNames('lh-leaf', flip && 'lh-leaf-flip')}
+    viewBox="0 0 12 24"
+    fill="currentColor"
+    aria-hidden="true"
+  >
+    <path d={LEAF} />
+  </svg>
+);
+
+const DownloadGlyph = (): ReactElement => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    style={{ width: '1.125rem', height: '1.125rem' }}
+  >
+    <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
+  </svg>
+);
+
+const laurels = [
+  { top: 'Product of the Year', bottom: 'Product Hunt' },
+  { top: '4.9 ★ rating', bottom: 'Chrome Web Store', href: CHROME_STORE },
+  {
+    top: '20K+ stars',
+    bottom: 'GitHub',
+    href: 'https://github.com/dailydotdev/daily',
+  },
+];
+
+const Laurels = ({
+  centered = false,
+}: {
+  centered?: boolean;
+}): ReactElement => (
+  <ul
+    className={classNames('lh-laurels', centered && 'lh-laurels-centered')}
+    aria-label="daily.dev recognition"
+  >
+    {laurels.map((item) => {
+      const body = (
+        <>
+          <Leaf />
+          <span className="lh-laurel-text">
+            <span className="lh-laurel-top">{item.top}</span>
+            <span className="lh-laurel-bottom">{item.bottom}</span>
+          </span>
+          <Leaf flip />
+        </>
+      );
+      return (
+        <li key={item.top} className="lh-laurel">
+          {item.href ? <a href={item.href}>{body}</a> : body}
+        </li>
+      );
+    })}
+  </ul>
+);
+
 export const extensionRoundTwo: Variation2[] = [
   {
     id: 'E1',
-    title: 'The value card',
+    title: 'The value row',
     borrowed:
-      'B9 kept, recopied. Honey (“Love deals? You came to the right place.” + 17M members) and Momentum (“Turn your new tab into your personal space” + 3M users): say the gain, then the proof, then the button.',
+      'B9 kept as it was: one compact dashed row under the providers, a tertiary button. Honey and Momentum for the copy order: the gain first, the mechanism in small type.',
     hypothesis:
-      'If the stacked card sells what the reader gains and shows the store rating beside a tertiary button, installs rise without the signup loss, because the offer is now a benefit, not a feature, and it stays below the only primary.',
+      'If the stacked row says what the reader gains in one short line, installs rise without the signup loss, because the offer is now a benefit, not a feature, and it stays below the only primary.',
     change:
-      '“Stay ahead without trying.” + “Your feed shows up on its own, every time you open your browser.” + 4.9★ · 400K developers + ghost “Add to Chrome, it’s free”. Same position as B9.',
-    risk: 'Still inside the column. Guardrail: hero signups on Windows desktop. Copy alternates to rotate: “Make every new tab count.” / “The news finds you.” / “Never fall behind on your stack.”',
-    render: () => <LandingPage form={<SignupForm after={<ValueCard />} />} />,
+      '“Stay ahead without trying.” over “Your feed, every time you open your browser.” with the ghost Add to Chrome. Same row, same position as B9; shorter copy, no proof, nothing else.',
+    risk: 'Still inside the column. Guardrail: hero signups on Windows desktop. Alternates for the top line: “Never fall behind.” / “Make every new tab count.” / “The news finds you.”',
+    render: () => (
+      <LandingPage
+        form={
+          <SignupForm
+            after={
+              <div className="lh-sub-card">
+                <div>
+                  <strong>Stay ahead without trying.</strong>
+                  <small>Your feed, every time you open your browser.</small>
+                </div>
+                <AddToChrome label="Add to Chrome" />
+              </div>
+            }
+          />
+        }
+      />
+    ),
   },
   {
     id: 'E2',
@@ -1229,5 +1371,54 @@ export const extensionRoundTwo: Variation2[] = [
       'The art gains a fake browser (Chromium desktops): click + and the blank new tab becomes the daily.dev feed. Headline and sub-line change; a 4.9 Web Store chip under them. Providers unchanged, no install button.',
     risk: 'Mostly front-end animation. The headline leads with the new tab, so it could read as extension-first to Safari and Firefox visitors; show them the plain headline.',
     render: () => <OpenANewTab />,
+  },
+  {
+    id: 'E11',
+    title: 'The laurels',
+    borrowed:
+      'The /launch/ page hero (recruiter-landing #617): three award laurels above the headline, Product Hunt, Chrome Web Store, GitHub, the way postiz.com shows its wins. Same component, same scale.',
+    hypothesis:
+      'If the hero opens on the three laurels and the Chrome Web Store one is a link, more visitors learn where the product lives and trust the signup, because the proof reads as recognition rather than a pitch, and the store is named without a second button.',
+    change:
+      'The Laurels row from /launch/ as the eyebrow above the headline: “Product of the Year · Product Hunt”, “4.9 ★ rating · Chrome Web Store” (links to the store), “20K+ stars · GitHub”. Nothing else in the column moves.',
+    risk: 'Pushes the headline down about 40px on 760px art. Proof-only by design: pair it with E1 if a visible install path is wanted too.',
+    render: () => <LandingPage eyebrow={<Laurels />} />,
+  },
+  {
+    id: 'E12',
+    title: 'The Discord pair',
+    borrowed:
+      'Discord’s hero: an OS-aware “Download for Mac” beside “Open Discord in your browser”. Here: the browser-aware install beside the web app, which opens on /onboarding.',
+    hypothesis:
+      'If the hero offers exactly two doors, the extension for this browser and “Open daily.dev in your browser”, more visitors end up with the extension and signups hold, because both doors lead to the same signup and the visitor only picks where they will read.',
+    change:
+      'The provider stack is replaced by two buttons: “Add to Chrome” (Edge on Edge; on Safari and Firefox the browser button becomes the primary and the install is hidden) and “Open daily.dev in your browser”, which goes to /onboarding where the providers live. Disclaimer and member line unchanged.',
+    risk: 'This is the install-first shape the signup hero beat in September, and the two-door shape that lost in October. It trades hero signups for installs by design; judge it on account + extension within 7 days, not on signups, and run it last with the smallest split.',
+    phoneNote:
+      'Phones see only “Open daily.dev in your browser”; the store button needs a desktop.',
+    render: () => (
+      <LandingPage
+        form={
+          <SignupForm
+            buttons={
+              <div className="lh-pair">
+                <a
+                  href={CHROME_STORE}
+                  className="lh-pill lh-pill-primary lh-desk-flex"
+                >
+                  <DownloadGlyph /> Add to Chrome
+                </a>
+                <a
+                  href="https://daily.dev/onboarding"
+                  className="lh-pill lh-pill-brand"
+                >
+                  Open daily.dev in your browser
+                </a>
+              </div>
+            }
+          />
+        }
+      />
+    ),
   },
 ];
