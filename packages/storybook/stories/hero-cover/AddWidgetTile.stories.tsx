@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
+import type { FeedWidgetAddTileLayout } from '@dailydotdev/shared/src/features/feedWidgets/FeedWidgetAddTile';
 import {
   FeedWidgetAddTile,
   getAddTileKinds,
@@ -414,24 +415,42 @@ export const InProduction: StoryObj = {
       note: string;
       isExtension: boolean;
       isLoggedIn: boolean;
+      layout: FeedWidgetAddTileLayout;
     }[] = [
       {
-        title: 'Webapp, signed in',
-        note: 'Happening Now, To-do list, Shortcuts and Streak, Happening Now open in front.',
+        title: 'Stack · Webapp, signed in',
+        note: 'Happening Now in front, To-do list, Shortcuts and Streak behind it, each a step up, smaller and dimmer.',
         isExtension: false,
         isLoggedIn: true,
+        layout: 'stack',
       },
       {
-        title: 'Extension, signed in',
-        note: 'Shortcuts leads and is the open file, then Happening Now, To-do list and Streak: the new tab’s shortcuts belong on the rail.',
+        title: 'Stack · Extension, signed in',
+        note: 'Shortcuts leads and is the card in front: the new tab’s shortcuts belong on the rail.',
         isExtension: true,
         isLoggedIn: true,
+        layout: 'stack',
       },
       {
-        title: 'Signed out',
+        title: 'Fan · Webapp, signed in',
+        note: 'The lead widget in front, the next two fanned behind it like a hand. Hover opens the hand.',
+        isExtension: false,
+        isLoggedIn: true,
+        layout: 'fan',
+      },
+      {
+        title: 'Fan · Extension, signed in',
+        note: 'Shortcuts in front, Happening Now and To-do list fanned behind it.',
+        isExtension: true,
+        isLoggedIn: true,
+        layout: 'fan',
+      },
+      {
+        title: 'Stack · Signed out',
         note: 'Only widgets a guest can add: Happening Now and Shortcuts.',
         isExtension: false,
         isLoggedIn: false,
+        layout: 'stack',
       },
     ];
     return (
@@ -439,10 +458,10 @@ export const InProduction: StoryObj = {
         chapter="Add a widget tile"
         question="What ships?"
         title="The tile in production"
-        goal="Production’s FeedWidgetAddTile (feedWidgets/FeedWidgetAddTile.tsx), the Wallet finalist built on the registry: each file is a real widget kind with its own icon, tint and name, picked by getAddTileKinds, never one already on the rail or one the reader cannot add. The whole tile opens the gallery, as the dashed tile did."
+        goal="Production’s FeedWidgetAddTile (feedWidgets/FeedWidgetAddTile.tsx): a quiet plus that turns primary on hover, the names of the widgets it holds, and those widgets as real widget cards (the widget surface, each widget’s own header, its loading rows), picked by getAddTileKinds, never one already on the rail or one the reader cannot add. Two layouts to choose from: a stack (the rail’s default) and a fan."
         metric="Gallery opens from the tile per default-rail impression (OpenFeedWidgetGallery, source tile), and first widgets added; in the extension, Shortcuts widgets added."
       >
-        {states.map(({ title, note, isExtension, isLoggedIn }) => (
+        {states.map(({ title, note, isExtension, isLoggedIn, layout }) => (
           <Case key={title} title={title} note={note}>
             <RailStage>
               <FeedWidgetAddTile
@@ -451,6 +470,7 @@ export const InProduction: StoryObj = {
                   isLoggedIn,
                   isExtension,
                 })}
+                layout={layout}
                 onClick={noop}
                 style={{ flex: 1 }}
               />

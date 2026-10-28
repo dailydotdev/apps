@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { PlusIcon } from '../../components/icons/Plus';
 import { BookmarkIcon } from '../../components/icons/Bookmark';
@@ -132,14 +132,6 @@ const headerFor = (kind: FeedWidgetKind): FiledHeader =>
     title: getFeedWidgetDefinition(kind).name,
   };
 
-// Hover pulls the back files up a little; the open one stays put.
-const spreadClassName = [
-  'group-hover/add:-translate-y-3',
-  'group-hover/add:-translate-y-2',
-  'group-hover/add:-translate-y-1',
-  '',
-];
-
 /** The rows a widget shows while its data loads, as FeedWidgetLoading draws them. */
 const loadingRowClassNames = [
   'h-5 w-2/5',
@@ -148,29 +140,192 @@ const loadingRowClassNames = [
   'h-4 w-3/5',
 ];
 
+// Cards further back sit in less light.
+const dimClassName = ['', 'opacity-16', 'opacity-40', 'opacity-50'];
+
+/** A widget as a card: the widget surface, its own header, its loading rows. */
+const WidgetCard = ({
+  kind,
+  depth = 0,
+  className,
+  style,
+}: {
+  kind: FeedWidgetKind;
+  /** How far behind the front card it sits; 0 is the front. */
+  depth?: number;
+  className?: string;
+  style?: CSSProperties;
+}): ReactElement => {
+  const { icon, title, glow } = headerFor(kind);
+
+  return (
+    <span
+      className={classNames(
+        'absolute isolate flex h-36 flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle py-3 text-left shadow-2 transition-transform duration-500 ease-out motion-reduce:transition-none',
+        className,
+      )}
+      style={style}
+    >
+      {glow && (
+        <span
+          className="pointer-events-none absolute inset-0 -z-1"
+          style={glow}
+        />
+      )}
+      <span className="flex h-6 min-w-0 shrink-0 items-center gap-1.5 px-4">
+        {icon}
+        <span className="truncate font-bold text-text-primary typo-caption1">
+          {title}
+        </span>
+      </span>
+      <span className="mt-2 flex flex-col gap-3 px-4">
+        {loadingRowClassNames.map((row) => (
+          <span
+            key={row}
+            className={classNames('rounded-8 bg-surface-float', row)}
+          />
+        ))}
+      </span>
+      {depth > 0 && (
+        <span
+          className={classNames(
+            'pointer-events-none absolute inset-0 bg-background-default',
+            dimClassName[depth],
+          )}
+        />
+      )}
+    </span>
+  );
+};
+
+const STACK_STEP_REM = 2.5;
+const STACK_SCALE_STEP = 0.06;
+
+/**
+ * A deck seen from the front: the lead widget in front, each one behind it a
+ * step up, a little smaller and dimmer. Hover lifts the deck apart.
+ */
+const StackedCards = ({
+  kinds,
+  isHovered,
+}: {
+  kinds: FeedWidgetKind[];
+  isHovered: boolean;
+}): ReactElement => {
+  const back = kinds.length - 1;
+
+  return (
+    <>
+      {[...kinds].reverse().map((kind, index) => {
+        const depth = back - index;
+        const lift = isHovered ? depth * 0.375 : 0;
+        return (
+          <WidgetCard
+            key={kind}
+            kind={kind}
+            depth={depth}
+            className="inset-x-6"
+            style={{
+              top: `${0.5 + index * STACK_STEP_REM}rem`,
+              transform: `translateY(-${lift}rem) scale(${
+                1 - depth * STACK_SCALE_STEP
+              })`,
+              transformOrigin: 'top center',
+            }}
+          />
+        );
+      })}
+    </>
+  );
+};
+
+// Back left, back right, then the lead widget in front; hover opens the hand.
+const fanPlacement = [
+  {
+    rest: 'translateX(-80%) rotate(-10deg)',
+    open: 'translateX(-90%) rotate(-14deg)',
+    top: '2rem',
+  },
+  {
+    rest: 'translateX(-20%) rotate(10deg)',
+    open: 'translateX(-10%) rotate(14deg)',
+    top: '2rem',
+  },
+];
+
+/** A hand of three: the lead widget in front, the next two fanned behind it. */
+const FannedCards = ({
+  kinds,
+  isHovered,
+}: {
+  kinds: FeedWidgetKind[];
+  isHovered: boolean;
+}): ReactElement => {
+  const [lead, ...rest] = kinds.slice(0, 3);
+
+  return (
+    <>
+      {rest.map((kind, index) => (
+        <WidgetCard
+          key={kind}
+          kind={kind}
+          depth={1}
+          className="left-1/2 w-36"
+          style={{
+            top: fanPlacement[index].top,
+            transform: isHovered
+              ? fanPlacement[index].open
+              : fanPlacement[index].rest,
+          }}
+        />
+      ))}
+      {lead && (
+        <WidgetCard
+          kind={lead}
+          className="left-1/2 w-36"
+          style={{
+            top: '0.5rem',
+            transform: `translateX(-50%) translateY(${
+              isHovered ? '-0.5rem' : '0'
+            })`,
+          }}
+        />
+      )}
+    </>
+  );
+};
+
+export type FeedWidgetAddTileLayout = 'stack' | 'fan';
+
 /**
  * The empty slot at the end of a rail the reader has not made their own: a
  * plus that opens the gallery, the names of a few widgets it holds, and those
- * widgets filed one behind the other under it, each on the widget surface with
- * its own header, the first one open in front.
+ * widgets as cards under it, each on the widget surface with its own header,
+ * stacked one behind the other or fanned like a hand.
  */
 export const FeedWidgetAddTile = ({
   kinds,
   onClick,
+  layout = 'stack',
   style,
 }: {
   kinds: FeedWidgetKind[];
   onClick: () => void;
+  layout?: FeedWidgetAddTileLayout;
   style?: CSSProperties;
 }): ReactElement => {
-  const files = [...kinds].reverse();
-  const spread = spreadClassName.slice(-files.length);
+  const [isHovered, setIsHovered] = useState(false);
+  const Cards = layout === 'fan' ? FannedCards : StackedCards;
 
   return (
     <button
       type="button"
       aria-label="Add a widget"
       onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onFocus={() => setIsHovered(true)}
+      onBlur={() => setIsHovered(false)}
       style={style}
       className="group/add relative flex min-h-0 snap-start flex-col items-center overflow-hidden rounded-16 border-2 border-dashed border-border-subtlest-secondary pt-20 text-center transition-colors hover:border-border-subtlest-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default"
     >
@@ -187,42 +342,7 @@ export const FeedWidgetAddTile = ({
         </span>
       )}
       <span aria-hidden className="relative mt-3 w-full flex-1">
-        {files.map((kind, index) => {
-          const { icon, title, glow } = headerFor(kind);
-          return (
-            <span
-              key={kind}
-              className={classNames(
-                'absolute inset-x-6 isolate flex flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle py-3 text-left shadow-2 transition-transform duration-500 ease-out motion-reduce:transition-none',
-                spread[index],
-              )}
-              style={{ top: `${0.5 + index * 2.25}rem` }}
-            >
-              {glow && (
-                <span
-                  className="pointer-events-none absolute inset-0 -z-1"
-                  style={glow}
-                />
-              )}
-              <span className="flex h-6 min-w-0 shrink-0 items-center gap-1.5 px-4">
-                {icon}
-                <span className="truncate font-bold text-text-primary typo-caption1">
-                  {title}
-                </span>
-              </span>
-              {index === files.length - 1 && (
-                <span className="mt-2 flex flex-col gap-3 px-4">
-                  {loadingRowClassNames.map((row) => (
-                    <span
-                      key={row}
-                      className={classNames('rounded-8 bg-surface-float', row)}
-                    />
-                  ))}
-                </span>
-              )}
-            </span>
-          );
-        })}
+        <Cards kinds={kinds} isHovered={isHovered} />
         <span className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-background-default to-transparent" />
       </span>
     </button>
