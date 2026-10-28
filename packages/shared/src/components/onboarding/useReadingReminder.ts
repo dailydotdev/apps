@@ -7,8 +7,6 @@ import { useLogContext } from '../../contexts/LogContext';
 import AuthContext from '../../contexts/AuthContext';
 import { getUserInitialTimezone } from '../../lib/timezones';
 
-export const PUSH_PERMISSION_TIMEOUT_MS = 5000;
-
 interface UseReadingReminderProps {
   onClickNext: (options?: { skipped?: boolean }) => void;
 }
@@ -67,15 +65,9 @@ export const useReadingReminder = ({
       hour: selectedHour,
       type: UserPersonalizedDigestType.ReadingReminder,
     });
-    let timeout: ReturnType<typeof setTimeout> | undefined;
-    const timedOut = new Promise<void>((resolve) => {
-      timeout = setTimeout(resolve, PUSH_PERMISSION_TIMEOUT_MS);
-    });
-    await Promise.race([
-      onEnablePush(NotificationPromptSource.ReadingReminder).catch(() => false),
-      timedOut,
-    ]);
-    clearTimeout(timeout);
+    await onEnablePush(NotificationPromptSource.ReadingReminder).catch(
+      () => false,
+    );
     onClickNext();
     setLoading(false);
   };
