@@ -17,10 +17,10 @@ import { REMINDER_TIMES } from './reminderTimes';
  * - Notification previews: the push for each reminder time, iOS and Android.
  */
 
-const FLOW_ID = 'pages-onboarding-reading-commitment--flow';
+const FLOW_ID = 'commitment-onboarding-reading-commitment--flow';
 
 const meta: Meta<FlowProps> = {
-  title: 'Pages/Onboarding/Reading commitment',
+  title: 'Commitment onboarding/Reading commitment',
   component: ReadingFlow,
   parameters: { layout: 'fullscreen' },
   args: { platform: 'ios' },

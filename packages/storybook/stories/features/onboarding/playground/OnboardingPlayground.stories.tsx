@@ -169,7 +169,7 @@ const Playground = ({ isIOS }: PlaygroundArgs): ReactElement => {
 };
 
 const meta: Meta<PlaygroundArgs> = {
-  title: 'Pages/Onboarding/Playground',
+  title: 'Commitment onboarding/Playground',
   component: Playground,
   parameters: {
     layout: 'fullscreen',
@@ -216,7 +216,7 @@ type Story = StoryObj<PlaygroundArgs>;
 /** Runs at the canvas' own size; use the toolbar's viewports to resize. */
 export const Live: Story = {};
 
-const PLAYGROUND_ID = 'pages-onboarding-playground--live';
+const PLAYGROUND_ID = 'commitment-onboarding-playground--live';
 
 const DEVICES = {
   mobile: { width: 390, height: 844, bezel: 10, radius: '3rem' },
