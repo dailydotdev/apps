@@ -26,11 +26,15 @@ const ensureFont = (doc: Document): void => {
  */
 export const Shot = ({
   width = 1440,
+  height: fixedHeight,
   label,
   note,
   children,
 }: {
   width?: number;
+  /** A fixed frame height; the page scrolls inside it (for scroll-driven
+   * variations). Omitted, the frame grows to the page. */
+  height?: number;
   label?: ReactNode;
   note?: ReactNode;
   children: ReactNode;
@@ -65,14 +69,14 @@ export const Shot = ({
     doc.body.className = 'lh-root';
     setBody(doc.body);
     const observer = new view.ResizeObserver(() =>
-      setHeight(doc.documentElement.scrollHeight),
+      setHeight(fixedHeight ?? doc.documentElement.scrollHeight),
     );
     observer.observe(doc.body);
     return () => {
       observer.disconnect();
       unmount();
     };
-  }, [frame]);
+  }, [frame, fixedHeight]);
 
   return (
     <div ref={box} className="flex min-w-0 flex-col gap-2">

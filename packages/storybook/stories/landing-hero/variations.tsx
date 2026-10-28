@@ -688,7 +688,7 @@ export const extensionVariations: Variation[] = [
     hypothesis:
       'If the extension offer sits under the form as a dashed, tertiary card instead of beside it as a column, installs rise without the signup loss, because the loss came from two offers at equal weight, not from the offer existing.',
     change:
-      'The lost column rebuilt as one row under the buttons: “Prefer it on every new tab?” with a small ghost Add to Chrome. The signup keeps the only primary button on the page.',
+      'The lost column rebuilt as one row under the buttons, sold as the gain: “Stay ahead without trying. Your feed shows up on its own, every time you open your browser.” with a small ghost Add to Chrome. The signup keeps the only primary button on the page. Round two refines this as E1.',
     risk: 'This is the arm closest to the one that lost 16% of signups. Run it with the smallest split and the signup guardrail armed from day one.',
     render: () => (
       <LandingPage
@@ -697,8 +697,11 @@ export const extensionVariations: Variation[] = [
             after={
               <div className="lh-sub-card">
                 <div>
-                  <strong>Prefer it on every new tab?</strong>
-                  <small>The same feed, as a browser extension.</small>
+                  <strong>Stay ahead without trying.</strong>
+                  <small>
+                    Your feed shows up on its own, every time you open your
+                    browser.
+                  </small>
                 </div>
                 <AddToChrome />
               </div>

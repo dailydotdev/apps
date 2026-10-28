@@ -78,6 +78,16 @@ const preview: Preview = {
             ['All ten'],
             '2. Extension awareness',
             ['All ten'],
+            '3. Signup, round 2',
+            ['All ten'],
+            '4. Extension, round 2',
+            ['All ten'],
+            '5. Research',
+            [
+              '1. The doors',
+              '2. Selling the second surface',
+              '3. Principles and our numbers',
+            ],
           ],
           'Hero Cover',
           [

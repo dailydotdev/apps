@@ -244,7 +244,15 @@ export const SignupForm = ({
 
 /* --------------------------------------------------------------- chrome */
 
-export const Header = ({ extra }: { extra?: ReactNode }): ReactElement => (
+export type Nav = 'full' | 'minimal' | 'none';
+
+export const Header = ({
+  extra,
+  nav = 'full',
+}: {
+  extra?: ReactNode;
+  nav?: Nav;
+}): ReactElement => (
   <header className="lh-header">
     <nav className="lh-container" aria-label="Main navigation">
       <div className="lh-header-bar">
@@ -258,24 +266,30 @@ export const Header = ({ extra }: { extra?: ReactNode }): ReactElement => (
               height={20}
             />
           </a>
-          <div className="lh-nav">
-            <button type="button" className="lh-nav-trigger">
-              Advertise
-            </button>
-            <button type="button" className="lh-nav-trigger">
-              Resources
-            </button>
+          {nav === 'full' && (
+            <div className="lh-nav">
+              <button type="button" className="lh-nav-trigger">
+                Advertise
+              </button>
+              <button type="button" className="lh-nav-trigger">
+                Resources
+              </button>
+            </div>
+          )}
+        </div>
+        {nav !== 'none' && (
+          <div className="lh-header-side">
+            {extra}
+            <a href={LOGIN} className="lh-login">
+              Log in
+            </a>
+            {nav === 'full' && (
+              <a href={SIGNUP} className="lh-btn">
+                Sign up <ArrowGlyph />
+              </a>
+            )}
           </div>
-        </div>
-        <div className="lh-header-side">
-          {extra}
-          <a href={LOGIN} className="lh-login">
-            Log in
-          </a>
-          <a href={SIGNUP} className="lh-btn">
-            Sign up <ArrowGlyph />
-          </a>
-        </div>
+        )}
       </div>
     </nav>
   </header>
@@ -406,6 +420,12 @@ export type LandingProps = {
   framePill?: ReactNode;
   frameCaption?: ReactNode;
   playVideo?: boolean;
+  nav?: Nav;
+  /** Drop the demo frame and the proof cards: the hero is the page. */
+  minimal?: boolean;
+  /** Rendered over everything, inside the page (sheets, bars). */
+  overlay?: ReactNode;
+  headlineClassName?: string;
 };
 
 const FeedBackdrop = (): ReactElement => (
@@ -429,9 +449,13 @@ export const LandingPage = ({
   framePill,
   frameCaption,
   playVideo = false,
+  nav = 'full',
+  minimal = false,
+  overlay,
+  headlineClassName,
 }: LandingProps): ReactElement => (
   <div className="lh-root">
-    <Header extra={headerExtra} />
+    <Header extra={headerExtra} nav={nav} />
     <section className="lh-hero">
       <div className="lh-desk">
         <div className="lh-art-wrap">
@@ -458,7 +482,9 @@ export const LandingPage = ({
               <div className="lh-lane">
                 <div className="lh-column">
                   {eyebrow}
-                  <h1 className="lh-h1">{headline}</h1>
+                  <h1 className={classNames('lh-h1', headlineClassName)}>
+                    {headline}
+                  </h1>
                   {sub}
                   {form}
                   {afterColumn}
@@ -489,8 +515,11 @@ export const LandingPage = ({
         </div>
       </div>
 
-      <VideoFrame pill={framePill} caption={frameCaption} play={playVideo} />
+      {!minimal && (
+        <VideoFrame pill={framePill} caption={frameCaption} play={playVideo} />
+      )}
     </section>
-    <ProofCards />
+    {!minimal && <ProofCards />}
+    {overlay}
   </div>
 );

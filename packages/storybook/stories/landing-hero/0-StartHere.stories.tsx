@@ -132,8 +132,39 @@ export const Brief: StoryObj = {
       </Case>
 
       <Case
-        title="Recommendation"
-        note="Run two experiments, not twenty. Each ships one arm against control, three arms at most, so a win is attributable."
+        title="Round two (Oct 28): what changed"
+        note="Round one was reviewed: nothing in chapter 1 and only B7 and B9 in chapter 2 survived. Round two (chapters 3 and 4) is built on the research in chapter 5 and on Smith’s Oct 26 proposal."
+      >
+        <Table
+          head={['Direction', 'Lead arms', 'Why these first']}
+          rows={[
+            [
+              'Signup',
+              'S1 Sharp vs control, then S7 Build your feed on top of the winner. S10 Smart nudges runs alongside, independent.',
+              'S1 is the base every other arm sits on (what the product is, the real product beside the form). S7 is the lead bet in Smith’s proposal: value before the ask with a reversible micro-commitment, and it pushes users toward 10+ tags (2.7x installs). S10 is cheap and recovers the 15% who scroll past.',
+            ],
+            [
+              'Signup, later',
+              'S3 Window and S6 Starter packs as a second round; S8 Try it first and S4 the sheet last.',
+              'Windows and walls trade day-0 signups for quality; judge them on D7 per visitor. S9 Continue as you waits on the ~37% social-auth boot-error fix, which is the biggest signup lever of all and needs no test.',
+            ],
+            [
+              'Extension',
+              'E4 Finish line first (no hero change), E1 value card and E2 header door as the hero arms.',
+              '88% of installs happen in the signup session and only reach limits them: the finish line puts the ask in front of every new signup at the moment motivation is highest, with the hero untouched. E1 and E2 are the two round-one survivors, recopied around the gain (“stay ahead without trying”) with the store proof.',
+            ],
+            [
+              'Extension, later',
+              'E6 one button then the next; E7 scroll-away bar; E10 open a new tab; E9 the retention claim.',
+              'E6 is Smith’s addendum and needs the install ping from the extension. E7 and E10 never touch the form. E9 needs brand and legal sign-off on the 2.5x wording.',
+            ],
+          ]}
+        />
+      </Case>
+
+      <Case
+        title="Round-one recommendation (superseded)"
+        note="Kept for the record. Round one shipped one arm against control, three arms at most, so a win is attributable."
       >
         <Prose>
           <p>

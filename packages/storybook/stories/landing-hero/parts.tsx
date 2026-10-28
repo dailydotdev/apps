@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import { LAPTOP, PHONE, Shot } from './shot';
 import type { Variation } from './variations';
+import type { Variation2 } from './variations2';
 
 export const Page = ({
   chapter,
@@ -151,6 +152,89 @@ export const Gallery = ({
         note={variation.hypothesis}
       >
         <Shot width={LAPTOP}>{variation.render()}</Shot>
+      </Case>
+    ))}
+  </>
+);
+
+export const VariationPage2 = ({
+  variation,
+  chapter,
+  goal,
+  metric,
+}: {
+  variation: Variation2;
+  chapter: string;
+  goal: string;
+  metric: string;
+}): ReactElement => (
+  <Page
+    chapter={chapter}
+    question={variation.hypothesis.split(',')[0].replace(/^If /, 'What if ')}
+    title={`${variation.id} · ${variation.title}`}
+    goal={goal}
+    metric={metric}
+  >
+    <dl className="grid max-w-[56rem] grid-cols-[auto_1fr] gap-x-4 gap-y-2 typo-callout">
+      <dt className="text-text-tertiary">Borrowed from</dt>
+      <dd className="text-text-secondary">{variation.borrowed}</dd>
+      <dt className="text-text-tertiary">Bet</dt>
+      <dd className="text-text-secondary">{variation.hypothesis}</dd>
+      <dt className="text-text-tertiary">Change</dt>
+      <dd className="text-text-secondary">{variation.change}</dd>
+      <dt className="text-text-tertiary">Watch</dt>
+      <dd className="text-text-secondary">{variation.risk}</dd>
+    </dl>
+    <Shot
+      width={LAPTOP}
+      height={variation.scroll ? 900 : undefined}
+      label="Laptop · 1440"
+      note={variation.scroll ? 'Scroll inside the frame' : undefined}
+    >
+      {variation.render()}
+    </Shot>
+    {variation.renderSecond && (
+      <Shot width={LAPTOP} label={variation.secondLabel ?? 'Screen 2'}>
+        {variation.renderSecond()}
+      </Shot>
+    )}
+    <div className="flex flex-wrap items-start gap-10">
+      <div className="w-[390px] shrink-0">
+        <Shot
+          width={PHONE}
+          height={variation.scroll ? 800 : undefined}
+          label="Phone · 390"
+          note={variation.phoneNote}
+        >
+          {variation.render()}
+        </Shot>
+      </div>
+    </div>
+  </Page>
+);
+
+export const Gallery2 = ({
+  variations,
+}: {
+  variations: Variation2[];
+}): ReactElement => (
+  <>
+    {variations.map((variation) => (
+      <Case
+        key={variation.id}
+        title={`${variation.id} · ${variation.title}`}
+        note={
+          <>
+            <p className="m-0">{variation.hypothesis}</p>
+            <p className="m-0 mt-1 text-text-quaternary">
+              Borrowed from: {variation.borrowed}
+            </p>
+          </>
+        }
+      >
+        <Shot width={LAPTOP} height={variation.scroll ? 900 : undefined}>
+          {variation.render()}
+        </Shot>
       </Case>
     ))}
   </>
