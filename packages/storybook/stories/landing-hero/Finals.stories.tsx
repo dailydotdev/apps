@@ -17,6 +17,15 @@ const meta: Meta = {
 
 export default meta;
 
+/** The `homepage_hero_final` value each final ships as (recruiter-landing#622). */
+const FLAG_VALUE: Record<string, string> = {
+  S9: 'auto_signin + personalized_button',
+  E1: 'value_row',
+  E2: 'header_door',
+  E11: 'laurels',
+  E12: 'discord_pair',
+};
+
 const status = (id: string): string =>
   finals.find((variation) => variation.id === id)?.final ? 'Final' : 'Pick';
 
@@ -37,7 +46,9 @@ export const Board: StoryObj = {
         <Table
           head={['Arm', 'Status', 'What it changes', 'Judge it on']}
           rows={finals.map((variation) => [
-            `${variation.id} · ${variation.title}`,
+            `${variation.id} · ${variation.title} (${
+              FLAG_VALUE[variation.id]
+            })`,
             status(variation.id),
             variation.change,
             variation.id.startsWith('S')

@@ -132,18 +132,19 @@ export const Brief: StoryObj = {
       </Case>
 
       <Case
-        title="Decisions (Oct 28): S9 is the signup final; E1 is the extension direction"
-        note="Tsahi’s picks after reviewing round two. Build them in recruiter-landing; this Storybook is parked until then."
+        title="Decisions (Oct 28): the five finals, built"
+        note="Built in dailydotdev/recruiter-landing#622 behind one flag, homepage_hero_final, one arm at a time, with dailydotdev/apps#7096 for the sign-out signal. This Storybook stays parked as the design reference."
       >
         <Prose>
           <p>
-            <strong>S9, what ships.</strong> One Tap stays as it is (already
-            live: Chrome visitors signed into Google get the top-right “Continue
-            as” card, first-timers included). The hero’s Google button becomes
-            the Google-rendered button in FedCM button mode with auto-select, so
-            a returning Google user sees their own name and avatar on the button
-            and is in with one click, and a first-time visitor sees the standard
-            “Continue with Google”. GitHub and email keep the production pills.
+            <strong>S9, two arms.</strong> auto_signin: One Tap signs a
+            returning Google user in with no tap; it stays off for 30 days after
+            a logout in the app, until they sign in again. personalized_button:
+            the hero’s Google button becomes Google’s own button in FedCM button
+            mode, so a returning Google user sees their own name and avatar on
+            it and is in with one click, and a first-time visitor sees the
+            standard “Continue with Google”. GitHub and email keep the
+            production pills.
           </p>
           <p>
             <strong>What is not possible.</strong> A first-time visitor’s name
@@ -159,10 +160,15 @@ export const Brief: StoryObj = {
             the first pill.
           </p>
           <p>
-            <strong>E1, the extension direction.</strong> The compact B9 row
-            stays as designed; only the copy changes, to the gain in one short
-            line: “Stay ahead without trying.” over “Your feed, every time you
-            open your browser.” and the ghost Add to Chrome.
+            <strong>The store arms.</strong> value_row (E1): one line, “Get your
+            feed every time you open your browser.” with a ghost Add to Chrome.
+            header_door (E2): “Add to Chrome · 4.9★” after Resources. laurels
+            (E11): option D, closing the column. discord_pair (E12): the store
+            beside a lavender “Open daily.dev in your browser” that opens the
+            signup popup. Each store button is per device: Add to Chrome or Edge
+            on Chromium desktops, Download on the App Store on iPhone and iPad,
+            Get it on Google Play on Android, nothing on Safari and Firefox
+            desktops or inside our own apps.
           </p>
         </Prose>
       </Case>

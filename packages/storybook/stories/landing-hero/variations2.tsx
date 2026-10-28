@@ -905,7 +905,7 @@ export const signupRoundTwo: Variation2[] = [
       'Two Google surfaces, both Google-rendered. First visit (screen 1): the standard “Continue with Google” pill plus Google’s One Tap card at the top right, which carries the visitor’s name, avatar and a “Continue as” button for anyone signed into Google in Chrome, first-timers included. Return visit (screen 2): the Google button itself renders personalized (name, address, avatar) through FedCM button mode, so it works with third-party cookies blocked. GitHub and email unchanged.',
     risk: 'Zapier saw duplicate-account tickets from “Continue as” presses by existing users; keep the member line prominent. Fix the ~37% social-auth boot failure first, or this amplifies it. The Google option becomes Google’s own button rendering (its pill, its themes, 400px max), not our white pill.',
     decision:
-      'Picked as the signup final on Oct 28. What production can do: One Tap is already live on daily.dev (client id set, auto_select off, FedCM-aware), so Chrome visitors signed into Google already get the top-right “Continue as” card; the work is the hero button: render it with Google Identity Services in FedCM button mode (use_fedcm_for_button, button_auto_select) so returning Google users see their name and avatar on the button and sign in with one click, while first-timers see the standard Google button. What production cannot do: show a first-time visitor’s name on a button we draw ourselves. Google only reveals identity after consent, and the personalized button requires that this Google session has signed in to daily.dev before. No permission prompt from us is involved; the browser owns the One Tap and FedCM prompts.',
+      'Picked as the signup final on Oct 28, and built as two arms in recruiter-landing#622 so each is read on its own: `auto_signin` (One Tap signs a returning Google user in with no tap) and `personalized_button` (screen 2). What production can do: One Tap is already live on daily.dev (client id set, auto_select off, FedCM-aware), so Chrome visitors signed into Google already get the top-right “Continue as” card; the work is the hero button: render it with Google Identity Services in FedCM button mode (use_fedcm_for_button, button_auto_select) so returning Google users see their name and avatar on the button and sign in with one click, while first-timers see the standard Google button. What production cannot do: show a first-time visitor’s name on a button we draw ourselves. Google only reveals identity after consent, and the personalized button requires that this Google session has signed in to daily.dev before. No permission prompt from us is involved; the browser owns the One Tap and FedCM prompts.',
     render: () => <ContinueAsYou />,
     renderSecond: () => <ContinueAsYou returning />,
     secondLabel: 'Screen 2 · returning Google user (personalized button)',
@@ -1177,6 +1177,28 @@ const Laurels = ({
   </ul>
 );
 
+const AppleGlyph = (): ReactElement => (
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M16.37 12.6c.02 2.6 2.28 3.47 2.3 3.48-.02.06-.36 1.24-1.19 2.45-.72 1.05-1.47 2.09-2.65 2.11-1.16.02-1.53-.69-2.86-.69-1.33 0-1.74.67-2.84.71-1.14.04-2-1.13-2.73-2.18-1.48-2.15-2.62-6.07-1.1-8.72.76-1.31 2.11-2.14 3.58-2.16 1.12-.02 2.17.75 2.86.75.68 0 1.96-.93 3.31-.79.56.02 2.15.23 3.17 1.71-.08.05-1.89 1.1-1.87 3.29zM14.18 6.2c.6-.73 1.01-1.75.9-2.76-.87.04-1.92.58-2.55 1.31-.56.64-1.05 1.68-.92 2.67.97.08 1.96-.49 2.57-1.22z" />
+  </svg>
+);
+
+/** Add to Chrome on a laptop frame, the App Store on a phone frame: the
+ * production arms pick the store per device. */
+const DeviceStore = ({ className }: { className: string }): ReactElement => (
+  <>
+    <a href={CHROME_STORE} className={classNames(className, 'lh-desk-flex')}>
+      <ChromeIcon /> Add to Chrome
+    </a>
+    <a
+      href="https://apps.apple.com/app/daily-dev/id6740634400"
+      className={classNames(className, 'lh-mob-flex')}
+    >
+      <AppleGlyph /> Download on the App Store
+    </a>
+  </>
+);
+
 const DiscordPair = (): ReactElement => {
   const [open, setOpen] = useState(false);
   return (
@@ -1185,12 +1207,7 @@ const DiscordPair = (): ReactElement => {
         <SignupForm
           buttons={
             <div className="lh-pair">
-              <a
-                href={CHROME_STORE}
-                className="lh-pill lh-pill-primary lh-desk-flex"
-              >
-                <ChromeIcon /> Add to Chrome
-              </a>
+              <DeviceStore className="lh-pill lh-pill-primary" />
               <button
                 type="button"
                 className="lh-pill lh-pill-brand"
@@ -1226,7 +1243,9 @@ export const extensionRoundTwo: Variation2[] = [
     hypothesis:
       'If the stacked row says what the reader gains in one short line, installs rise without the signup loss, because the offer is now a benefit, not a feature, and it stays below the only primary.',
     change:
-      'One line, no subtitle: “Get your feed every time you open your browser.” with the ghost Add to Chrome. Same row, same position as B9; nothing else. It says what you get and where, and nothing about extensions.',
+      'One line, no subtitle: “Get your feed every time you open your browser.” with the ghost Add to Chrome (Add to Edge on Edge). On phones and tablets: “Get your feed on the go.” with Download on the App Store or Get it on Google Play. Same row, same position as B9; nothing else. It says what you get and where, and nothing about extensions. Built as `value_row` in recruiter-landing#622.',
+    phoneNote:
+      'Phones get the app: the App Store on iPhone, Google Play on Android.',
     risk: 'Still inside the column. Guardrail: hero signups on Windows desktop. Alternates for the line: “Stay ahead, even on your busiest days.” / “Your feed, every time you open your browser.” / “Stay ahead with zero effort, right in your browser.”',
     render: () => (
       <LandingPage
@@ -1235,11 +1254,14 @@ export const extensionRoundTwo: Variation2[] = [
             after={
               <div className="lh-sub-card">
                 <div>
-                  <strong>
+                  <strong className="lh-desk-block">
                     Get your feed every time you open your browser.
                   </strong>
+                  <strong className="lh-mob-block">
+                    Get your feed on the go.
+                  </strong>
                 </div>
-                <AddToChrome label="Add to Chrome" />
+                <DeviceStore className="lh-btn lh-btn-ghost lh-btn-sm" />
               </div>
             }
           />
@@ -1256,7 +1278,7 @@ export const extensionRoundTwo: Variation2[] = [
     hypothesis:
       'If the ghost “Add to Chrome” in the header carries the store rating and is browser-aware, more visitors install without a signup loss, because the door is in the conventional place, away from the form, and it says why.',
     change:
-      'Header ghost button: “Add to Chrome · 4.9★”, on the left after Resources (moved from beside Log in on Oct 28), Chromium desktops only. Safari and Firefox see “Get the app”. Phones see nothing.',
+      'Header ghost button: “Add to Chrome · 4.9★” (Add to Edge on Edge, without the rating, which is the Chrome Web Store’s), on the left after Resources (moved from beside Log in on Oct 28). The nav is laptop-only: an iPad in landscape gets Download on the App Store, phones see nothing, Safari and Firefox desktops see nothing. Built as `header_door` in recruiter-landing#622.',
     risk: 'Same screen as the form, the closest cousin of the arm that lost; its saving grace is weight. Watch Windows hero signups daily.',
     render: () => (
       <LandingPage
@@ -1471,12 +1493,12 @@ export const extensionRoundTwo: Variation2[] = [
     hypothesis:
       'If the hero offers exactly two doors, the extension for this browser and “Open daily.dev in your browser”, more visitors end up with the extension and signups hold, because both doors lead to the same signup and the visitor only picks where they will read.',
     change:
-      'The provider stack is replaced by two buttons: “Add to Chrome” with the Chrome icon (Edge on Edge; on Safari and Firefox the browser button becomes the primary and the install is hidden) and “Open daily.dev in your browser” in the /launch/ page’s lavender (Tailwind purple-300, #d8b4fe, the color of its rotating headline word, plan ticks and CTA hover) with dark text. The purple button opens the homepage’s own signup popup, the same form every other CTA on the page opens, so the visitor stays on the page and the design is identical. Disclaimer and member line unchanged.',
+      'The provider stack is replaced by two buttons: the visitor’s store (“Add to Chrome” with the Chrome icon, Add to Edge on Edge, Download on the App Store on iPhone and iPad, Get it on Google Play on Android; nothing on Safari and Firefox desktops, where the browser button stands alone) and “Open daily.dev in your browser” in the /launch/ page’s lavender (Tailwind purple-300, #d8b4fe, the color of its rotating headline word, plan ticks and CTA hover) with dark text. The purple button opens the homepage’s own signup popup, the same form every other CTA on the page opens, so the visitor stays on the page and the design is identical. Disclaimer and member line unchanged.',
     risk: 'This is the install-first shape the signup hero beat in September, and the two-door shape that lost in October. It trades hero signups for installs by design; judge it on account + extension within 7 days, not on signups, and run it last with the smallest split.',
     decision:
-      'Popup, not /onboarding: the homepage already renders the provider form in <SignupModal> for every section CTA, so the purple button opens that. It keeps the visitor on the page (One Tap stays armed, the install button stays in view, no round trip), and the form is the same design in both places. /onboarding remains the fallback for in-app browsers where the popup OAuth flow is blocked.',
+      'Popup, not /onboarding: the homepage already renders the provider form in <SignupModal> for every section CTA, so the purple button opens that. It keeps the visitor on the page (One Tap stays armed, the store button stays in view, no round trip), and the form is the same design in both places. In in-app browsers the modal shows GitHub and email, as the form already does there. Built as `discord_pair` in recruiter-landing#622.',
     phoneNote:
-      'Phones see only “Open daily.dev in your browser”; the store button needs a desktop.',
+      'Phones get the app beside the browser button: the App Store on iPhone, Google Play on Android.',
     render: () => <DiscordPair />,
   },
 ];
