@@ -163,6 +163,7 @@ describe('Messages availability', () => {
     availableFeedWidgets({
       isLoggedIn,
       hasMessages,
+      hasLiveChat: false,
       hasSquads: false,
       isReadingStreakOn: true,
     }).map(({ kind }) => kind);

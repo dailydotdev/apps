@@ -6,7 +6,8 @@ import type {
   FeedWidgetDefinition,
 } from './registry';
 import { feedWidgetRegistry } from './registry';
-import type { FeedWidgetKind, FeedWidgetSize } from './types';
+import type { FeedWidgetKind } from './types';
+import { FeedWidgetSize } from './types';
 import { FeedWidgetLoading } from './FeedWidgetFrame';
 
 // Each widget is its own chunk, loaded the first time one renders, so the
@@ -76,11 +77,35 @@ const MessagesWidget = dynamic(
   { loading: FeedWidgetLoading },
 );
 
+const ShortcutsWidget = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedWidgetShortcuts" */ './widgets/ShortcutsWidget'
+    ).then((mod) => mod.ShortcutsWidget),
+  { loading: FeedWidgetLoading },
+);
+
 const GettingStartedWidget = dynamic(
   () =>
     import(
       /* webpackChunkName: "feedWidgetGettingStarted" */ './widgets/GettingStartedWidget'
     ).then((mod) => mod.GettingStartedWidget),
+  { loading: FeedWidgetLoading },
+);
+
+const LiveChatWidget = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedWidgetLiveChat" */ './widgets/LiveChatWidget'
+    ).then((mod) => mod.LiveChatWidget),
+  { loading: FeedWidgetLoading },
+);
+
+const TodoListWidget = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedWidgetTodoList" */ './widgets/TodoListWidget'
+    ).then((mod) => mod.TodoListWidget),
   { loading: FeedWidgetLoading },
 );
 
@@ -100,7 +125,10 @@ export const feedWidgetComponents: {
   briefing: BriefingWidget,
   readingList: ReadingListWidget,
   messages: MessagesWidget,
+  shortcuts: ShortcutsWidget,
   gettingStarted: GettingStartedWidget,
+  liveChat: LiveChatWidget,
+  todoList: TodoListWidget,
 };
 
 export const getFeedWidgetComponent = (
@@ -113,6 +141,15 @@ export const getFeedWidgetComponent = (
 /** Sizes a kind supports; none when the widget is not built. */
 export const feedWidgetSizes = (kind: FeedWidgetKind): FeedWidgetSize[] =>
   feedWidgetComponents[kind] ? feedWidgetRegistry[kind].sizes : [];
+
+/** A phone shows no Large, so it never offers one either. */
+export const feedWidgetSizesForScreen = (
+  kind: FeedWidgetKind,
+  isPhone: boolean,
+): FeedWidgetSize[] =>
+  feedWidgetSizes(kind).filter(
+    (size) => !isPhone || size !== FeedWidgetSize.Large,
+  );
 
 /** The kinds a reader can add: built, and allowed for their account. */
 export const availableFeedWidgets = (

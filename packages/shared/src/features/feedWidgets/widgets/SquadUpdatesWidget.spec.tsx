@@ -6,7 +6,6 @@ import {
   render,
   screen,
   waitFor,
-  within,
 } from '@testing-library/react';
 import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
 import { QueryClient } from '@tanstack/react-query';
@@ -38,6 +37,12 @@ jest.mock('next/router', () => ({
 jest.mock('../feedState', () => ({
   ...jest.requireActual('../feedState'),
   useFeedWidgetAd: jest.fn(),
+}));
+
+// The tip drawn over the ad slot opens search through the spotlight, whose
+// provider lives above this rail.
+jest.mock('../../../components/spotlight/SpotlightContext', () => ({
+  useSpotlight: () => ({ open: jest.fn() }),
 }));
 
 // jsdom has no PointerEvent, and without one fireEvent drops the button and
@@ -193,7 +198,7 @@ describe('SquadUpdatesWidget', () => {
     await revealWidgets();
     await screen.findByText('Shipped the new nav');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     fireEvent.keyDown(
       screen.getByRole('button', { name: 'Squad updates options' }),
       { key: 'Enter' },
@@ -242,18 +247,16 @@ describe('SquadUpdatesWidget', () => {
     );
     await revealWidgets();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
-    fireEvent.click(screen.getAllByRole('button', { name: 'Add a widget' })[0]);
-    const row = (await screen.findByText('Squad updates')).closest('div');
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
+    fireEvent.click(screen.getByRole('button', { name: 'New widget' }));
     fireEvent.click(
-      within(row as HTMLElement).getByRole('button', {
-        name: 'Add',
-      }),
+      (await screen.findAllByRole('button', { name: /Squad updates/ }))[0],
     );
+    fireEvent.click(screen.getByRole('button', { name: 'Add widget' }));
 
     // Edit mode would leave the new widget's picker inert.
     expect(
-      await screen.findByRole('button', { name: 'Customize' }),
+      await screen.findByRole('button', { name: 'Customize widgets' }),
     ).toBeInTheDocument();
     expect(writtenWidgets()).toContainEqual(
       expect.objectContaining({ kind: FeedWidgetKind.SquadUpdates }),

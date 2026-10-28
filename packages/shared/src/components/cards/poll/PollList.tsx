@@ -23,6 +23,7 @@ import PollOptions from './PollOptions';
 import PostMetadata from '../common/PostMetadata';
 import { usePollVote } from '../../../hooks/post/usePollVote';
 import { getPostPath } from '../../../lib/links';
+import { isPostRead } from '../../../graphql/posts';
 
 export const PollList = forwardRef(function PollList(
   {
@@ -49,7 +50,7 @@ export const PollList = forwardRef(function PollList(
   const isMobile = useViewSize(ViewSize.MobileL);
   const isFeedPreview = useFeedPreviewMode();
   const { title } = useSmartTitle(post);
-  const { title: truncatedTitle } = useTruncatedSummary(title);
+  const { title: truncatedTitle } = useTruncatedSummary(title ?? '');
   const isUserSource = isSourceUserSource(post.source);
 
   const actionButtons = (
@@ -104,6 +105,7 @@ export const PollList = forwardRef(function PollList(
           : undefined
       }
       bookmarked={post.bookmarked}
+      bookmarkNote={post.bookmark?.note}
     >
       <CardContainer>
         <PostCardHeader
@@ -125,7 +127,10 @@ export const PollList = forwardRef(function PollList(
           <div className="mr-4 flex flex-1 flex-col">
             <CardTitle
               lineClamp={undefined}
-              className={classNames(post.read && 'text-text-tertiary', 'mb-4')}
+              className={classNames(
+                isPostRead(post) && 'text-text-tertiary',
+                'mb-4',
+              )}
             >
               {truncatedTitle}
             </CardTitle>

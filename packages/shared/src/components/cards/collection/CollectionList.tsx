@@ -76,6 +76,7 @@ export const CollectionList = forwardRef(function CollectionCard(
           trending: post.trending,
         }}
         bookmarked={post.bookmarked}
+        bookmarkNote={post.bookmark?.note}
       >
         {hiddenPanel}
       </FeedItemContainer>
@@ -100,6 +101,7 @@ export const CollectionList = forwardRef(function CollectionCard(
         href: getPostPath(post),
       }}
       bookmarked={post.bookmarked}
+      bookmarkNote={post.bookmark?.note}
     >
       <CardContainer>
         <PostCardHeader

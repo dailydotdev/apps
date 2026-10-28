@@ -6,13 +6,20 @@ import { EarthIcon } from '../../components/icons/Earth';
 import { BriefGradientIcon } from '../../components/icons/BriefGradient';
 import { BellIcon } from '../../components/icons/Bell';
 import { MailIcon } from '../../components/icons/Mail';
+import { DiscussIcon } from '../../components/icons/Discuss';
 import { SquadIcon } from '../../components/icons/Squad';
 import { BookmarkIcon } from '../../components/icons/Bookmark';
 import { HashtagIcon } from '../../components/icons/Hashtag';
 import { ReadingStreakIcon } from '../../components/icons/ReadingStreak';
 import { SunIcon } from '../../components/icons/Sun';
 import { ChecklistAIcon } from '../../components/icons/ChecklistA';
+import { ShortcutsIcon } from '../../components/icons/Shortcuts';
 import { FlagIcon } from '../../components/icons/Flag';
+import {
+  settingsUrl,
+  squadCategoriesPaths,
+  webappUrl,
+} from '../../lib/constants';
 import type { FeedWidget, FeedWidgetConfig } from './types';
 import { FeedWidgetKind, FeedWidgetSize } from './types';
 
@@ -45,13 +52,36 @@ export type FeedWidgetAvailability = {
   isReadingStreakOn: boolean;
   /** Direct messages are on for this reader and this build has chat. */
   hasMessages: boolean;
+  /** Live chat rooms are on for this reader. */
+  hasLiveChat: boolean;
 };
+
+/** The gallery's sections, in the order it lists them. */
+export enum FeedWidgetCategory {
+  News = 'News',
+  You = 'You',
+  Community = 'Community',
+  Tools = 'Tools',
+  DailyDev = 'daily.dev',
+}
+
+/** The accent a kind's icon is drawn in: a `--theme-accent-*` name. */
+export type FeedWidgetTone =
+  | 'avocado'
+  | 'bacon'
+  | 'bun'
+  | 'cabbage'
+  | 'cheese'
+  | 'onion'
+  | 'water';
 
 export type FeedWidgetDefinition<K extends FeedWidgetKind = FeedWidgetKind> = {
   kind: K;
   name: string;
   description: string;
   icon: ComponentType<IconProps>;
+  category: FeedWidgetCategory;
+  tone: FeedWidgetTone;
   /** Supported sizes, the first being the one a new widget starts at. */
   sizes: FeedWidgetSize[];
   /**
@@ -61,10 +91,12 @@ export type FeedWidgetDefinition<K extends FeedWidgetKind = FeedWidgetKind> = {
   isBare?: boolean | ((size: FeedWidgetSize) => boolean);
   isAvailable?: (context: FeedWidgetAvailability) => boolean;
   /**
-   * Why an available kind cannot be added right now, shown on its disabled
-   * gallery row; undefined when it can.
+   * Why an available kind cannot be added right now, shown in the gallery in
+   * place of its Add button; undefined when it can.
    */
   disabledReason?: (context: FeedWidgetAvailability) => string | undefined;
+  /** Where the reader goes to lift `disabledReason`. */
+  disabledFix?: { label: string; href: string };
   /** More than one may sit on the rail, each with its own config. */
   allowMultiple?: boolean;
   /**
@@ -76,11 +108,6 @@ export type FeedWidgetDefinition<K extends FeedWidgetKind = FeedWidgetKind> = {
 
 const needsAccount = ({ isLoggedIn }: FeedWidgetAvailability): boolean =>
   isLoggedIn;
-
-const needsSquad = ({
-  isLoggedIn,
-  hasSquads,
-}: FeedWidgetAvailability): boolean => isLoggedIn && hasSquads;
 
 /**
  * Every kind the API knows, built or not. Which ones render comes from
@@ -95,6 +122,8 @@ export const feedWidgetRegistry: {
     name: 'Top story',
     description: 'The headlines of the day, as a carousel of cards.',
     icon: HotIcon,
+    category: FeedWidgetCategory.News,
+    tone: 'cabbage',
     sizes: [FeedWidgetSize.Large, FeedWidgetSize.Tall, FeedWidgetSize.Small],
     isBare: true,
   },
@@ -103,6 +132,8 @@ export const feedWidgetRegistry: {
     name: 'Happening Now',
     description: 'The major headlines, as the feed card shows them.',
     icon: EarthIcon,
+    category: FeedWidgetCategory.News,
+    tone: 'avocado',
     sizes: [FeedWidgetSize.Tall, FeedWidgetSize.Small, FeedWidgetSize.Large],
   },
   [FeedWidgetKind.Briefing]: {
@@ -110,6 +141,8 @@ export const feedWidgetRegistry: {
     name: 'Briefing',
     description: 'Your presidential briefing, ready each morning.',
     icon: BriefGradientIcon,
+    category: FeedWidgetCategory.DailyDev,
+    tone: 'onion',
     sizes: [FeedWidgetSize.Tall, FeedWidgetSize.Small, FeedWidgetSize.Large],
     // The feed's brief card is the whole tile from Tall up.
     isBare: (size) => size !== FeedWidgetSize.Small,
@@ -120,6 +153,8 @@ export const feedWidgetRegistry: {
     name: 'Notifications',
     description: 'Replies, upvotes and mentions, without opening the bell.',
     icon: BellIcon,
+    category: FeedWidgetCategory.You,
+    tone: 'bacon',
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],
     isAvailable: needsAccount,
   },
@@ -128,16 +163,38 @@ export const feedWidgetRegistry: {
     name: 'Messages',
     description: 'Direct messages, with the unread count up front.',
     icon: MailIcon,
+    category: FeedWidgetCategory.Community,
+    tone: 'cheese',
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],
     isAvailable: ({ isLoggedIn, hasMessages }) => isLoggedIn && hasMessages,
+  },
+  [FeedWidgetKind.LiveChat]: {
+    kind: FeedWidgetKind.LiveChat,
+    name: 'Live chat',
+    description: 'The live chats happening on trending posts right now.',
+    icon: DiscussIcon,
+    category: FeedWidgetCategory.Community,
+    tone: 'bun',
+    sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall],
+    isAvailable: ({ isLoggedIn, hasLiveChat }) => isLoggedIn && hasLiveChat,
   },
   [FeedWidgetKind.SquadUpdates]: {
     kind: FeedWidgetKind.SquadUpdates,
     name: 'Squad updates',
     description: 'New posts in a squad you pick.',
     icon: SquadIcon,
+    category: FeedWidgetCategory.Community,
+    tone: 'avocado',
     sizes: [FeedWidgetSize.Tall, FeedWidgetSize.Small, FeedWidgetSize.Large],
-    isAvailable: needsSquad,
+    isAvailable: needsAccount,
+    disabledReason: ({ hasSquads }) =>
+      hasSquads
+        ? undefined
+        : 'Join a squad first, then follow its new posts here.',
+    disabledFix: {
+      label: 'Find a squad',
+      href: `${webappUrl}${squadCategoriesPaths.discover.substring(1)}`,
+    },
     allowMultiple: true,
     configureLabel: 'Change squad',
   },
@@ -146,6 +203,8 @@ export const feedWidgetRegistry: {
     name: 'Bookmarks',
     description: 'The posts you saved, newest first.',
     icon: BookmarkIcon,
+    category: FeedWidgetCategory.You,
+    tone: 'bun',
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],
     isAvailable: needsAccount,
   },
@@ -154,6 +213,8 @@ export const feedWidgetRegistry: {
     name: 'Topical digest',
     description: 'The latest digest from every topic you subscribed to.',
     icon: HashtagIcon,
+    category: FeedWidgetCategory.News,
+    tone: 'water',
     sizes: [FeedWidgetSize.Tall, FeedWidgetSize.Large],
     isAvailable: needsAccount,
   },
@@ -162,18 +223,26 @@ export const feedWidgetRegistry: {
     name: 'Streak',
     description: 'Your reading streak and today’s goal.',
     icon: ReadingStreakIcon,
+    category: FeedWidgetCategory.You,
+    tone: 'bacon',
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],
     isAvailable: needsAccount,
     disabledReason: ({ isReadingStreakOn }) =>
       isReadingStreakOn
         ? undefined
-        : 'Turn on "Show reading streaks" in Streaks & gamification settings to add this widget.',
+        : 'Reading streaks are off in your settings.',
+    disabledFix: {
+      label: 'Turn on streaks',
+      href: `${settingsUrl}/customization/streaks`,
+    },
   },
   [FeedWidgetKind.Weather]: {
     kind: FeedWidgetKind.Weather,
     name: 'Weather',
     description: 'The forecast for your location.',
     icon: SunIcon,
+    category: FeedWidgetCategory.Tools,
+    tone: 'water',
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall],
   },
   [FeedWidgetKind.TodoList]: {
@@ -181,8 +250,20 @@ export const feedWidgetRegistry: {
     name: 'To-do list',
     description: 'A short list of things to get to today.',
     icon: ChecklistAIcon,
+    category: FeedWidgetCategory.Tools,
+    tone: 'cabbage',
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall],
     isAvailable: needsAccount,
+  },
+  [FeedWidgetKind.Shortcuts]: {
+    kind: FeedWidgetKind.Shortcuts,
+    name: 'Shortcuts',
+    description:
+      'The sites you pinned and, in the extension, your most visited ones.',
+    icon: ShortcutsIcon,
+    category: FeedWidgetCategory.Tools,
+    tone: 'onion',
+    sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],
   },
   [FeedWidgetKind.GettingStarted]: {
     kind: FeedWidgetKind.GettingStarted,
@@ -190,6 +271,8 @@ export const feedWidgetRegistry: {
     description:
       'The intro quests, with their XP and Cores, one step at a time.',
     icon: FlagIcon,
+    category: FeedWidgetCategory.DailyDev,
+    tone: 'cheese',
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],
     isAvailable: needsAccount,
   },
