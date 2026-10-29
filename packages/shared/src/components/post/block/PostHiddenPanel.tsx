@@ -17,6 +17,8 @@ import CloseButton from '../../CloseButton';
 import { SourceAvatar } from '../../profile/source';
 import { GenericTagButton } from '../../filters/TagButton';
 import { Origin } from '../../../lib/log';
+import { isRankedExplain } from '../../../features/feedExplain/types';
+import { ShowLessTopicOffer } from '../../../features/feedExplain/components/ShowLessTopicOffer';
 
 interface PostHiddenPanelProps {
   post: Post;
@@ -55,6 +57,14 @@ export function PostHiddenPanel({
       ),
   );
   const [isConfirmed, setIsConfirmed] = useState(false);
+  // For You posts name the topic that brought them in.
+  const matchTag = isRankedExplain(post.explain)
+    ? post.explain.match?.tag
+    : undefined;
+  const showLessTag =
+    matchTag && !feedSettings?.blockedTags?.includes(matchTag)
+      ? matchTag
+      : undefined;
 
   const { onUnhide, onSubmitFeedback, onDismiss, onReportSubmitted } =
     useHidePost({ post });
@@ -133,6 +143,13 @@ export function PostHiddenPanel({
       <h4 className="font-bold text-text-primary typo-body">
         Got it. You&apos;ll see less like this.
       </h4>
+      {showLessTag && (
+        <ShowLessTopicOffer
+          tag={showLessTag}
+          origin={Origin.PostHiddenPanel}
+          className="-ml-1.5 mt-1"
+        />
+      )}
       <p className="mt-1 text-text-tertiary typo-callout">
         Pick anything else you want out of your feed (optional)
       </p>

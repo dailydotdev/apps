@@ -27,7 +27,29 @@ export enum ExplainStrength {
 
 export enum TopicControl {
   Weight = 'weight',
+  Boost = 'boost',
   Demote = 'demote',
+  StopLearning = 'stop_learning',
+}
+
+/** A topic's level in For You as the reader set it. No level is Auto. */
+export enum FeedTopicMode {
+  Boost = 'boost',
+  Demote = 'demote',
+  StopLearning = 'stop_learning',
+  Off = 'off',
+}
+
+export enum FeedSourceMode {
+  Demote = 'demote',
+}
+
+/** How the reader steers For You: levels, learning and popular fill-ins. */
+export interface FeedControls {
+  topics: { keyword: string; mode: FeedTopicMode }[];
+  sources: { source: { id: string }; mode: FeedSourceMode }[];
+  learning: boolean;
+  fillIns: boolean;
 }
 
 /**
