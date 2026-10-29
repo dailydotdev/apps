@@ -7,7 +7,6 @@ import {
 
 export enum IntroQuestEventType {
   ExtensionInstall = 'extension_install',
-  PostRead = 'post_read',
   NotificationsEnable = 'notifications_enable',
   BriefGenerate = 'brief_generate',
   ProfileComplete = 'profile_complete',
@@ -35,14 +34,6 @@ export const introQuestSteps: Record<IntroQuestEventType, IntroQuestStep> = {
     doneLabel: 'Extension installed',
     workingLabel: 'Waiting for the install',
     minutes: '10 sec',
-  },
-  [IntroQuestEventType.PostRead]: {
-    pitch:
-      'Today’s picks are ready. Three good reads and your feed starts to learn what you like.',
-    cta: 'Open today’s picks',
-    doneLabel: 'Read 3 articles',
-    workingLabel: 'Reading today’s picks',
-    minutes: '5 min',
   },
   [IntroQuestEventType.NotificationsEnable]: {
     pitch: 'Replies, mentions and your streak. Nothing else.',

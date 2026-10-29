@@ -256,9 +256,6 @@ const [IntroQuestChecklistProvider, useIntroQuestChecklist] =
               'noopener,noreferrer',
             );
             return;
-          case IntroQuestEventType.PostRead:
-            navigate(webappUrl);
-            return;
           case IntroQuestEventType.NotificationsEnable: {
             if (readNotificationPermission() === 'denied') {
               setNotificationPermission('denied');

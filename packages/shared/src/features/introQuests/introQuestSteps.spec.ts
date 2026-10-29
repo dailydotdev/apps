@@ -34,13 +34,11 @@ describe('sortIntroQuests', () => {
       buildQuest(IntroQuestEventType.ApiProfileFetch),
       buildQuest('some_new_quest'),
       buildQuest(IntroQuestEventType.NotificationsEnable),
-      buildQuest(IntroQuestEventType.PostRead),
       buildQuest(IntroQuestEventType.ExtensionInstall),
     ]);
 
     expect(sorted.map(({ quest }) => quest.eventType)).toEqual([
       IntroQuestEventType.ExtensionInstall,
-      IntroQuestEventType.PostRead,
       IntroQuestEventType.NotificationsEnable,
       IntroQuestEventType.ApiProfileFetch,
       'some_new_quest',

@@ -28,6 +28,7 @@ import { getCompletionItems } from '../../lib/profileCompletion';
 import {
   IntroQuestEventType,
   getIntroQuestStep,
+  getQuestCores,
   getQuestXp,
 } from './introQuestSteps';
 import {
@@ -38,14 +39,29 @@ import {
 export const CoresAmount = ({
   amount,
   size = IconSize.Size16,
+  plus,
+  label,
+  className,
 }: {
   amount: number;
   size?: IconSize;
+  plus?: boolean;
+  label?: boolean;
+  className?: string;
 }): ReactElement => (
-  <span className="inline-flex items-center gap-0.5 align-middle">
+  <span
+    className={classNames(
+      'inline-flex items-center gap-0.5 align-middle',
+      className,
+    )}
+  >
     <CoreIcon size={size} aria-hidden />
-    <span className="tabular-nums">{amount}</span>
-    <span className="sr-only">Cores</span>
+    <span className="tabular-nums">
+      {plus && '+'}
+      {amount}
+      {label && ' Cores'}
+    </span>
+    {!label && <span className="sr-only">Cores</span>}
   </span>
 );
 
@@ -122,7 +138,15 @@ const PrimaryAction = ({
         loading={checklist.isClaiming(quest)}
         onClick={() => checklist.claim(quest)}
       >
-        Claim +{getQuestXp(quest)} XP
+        <span className="inline-flex items-center gap-1">
+          Claim
+          <CoresAmount
+            amount={getQuestCores(quest)}
+            size={IconSize.Small}
+            plus
+            label
+          />
+        </span>
       </Button>
     );
   }
@@ -199,8 +223,6 @@ const PrimaryAction = ({
     [IntroQuestEventType.ExtensionInstall]: isEdge
       ? 'Add to Edge'
       : 'Add to Chrome',
-    [IntroQuestEventType.PostRead]:
-      quest.progress > 0 ? 'Keep reading' : undefined,
     [IntroQuestEventType.BriefGenerate]: checklist.isBriefFree
       ? undefined
       : 'Open briefings',
@@ -281,33 +303,6 @@ const Note = ({
   </div>
 );
 
-const ProgressSegments = ({ quest }: { quest: UserQuest }): ReactElement => {
-  const target = quest.quest.targetCount;
-  const progress = Math.min(quest.progress, target);
-
-  return (
-    <div className="flex items-center gap-3">
-      <div className="flex flex-1 gap-1" aria-hidden>
-        {Array.from({ length: target }).map((_, index) => (
-          <span
-            // eslint-disable-next-line react/no-array-index-key
-            key={index}
-            className={classNames(
-              'h-1.5 flex-1 rounded-max transition-colors duration-300',
-              index < progress
-                ? 'bg-accent-avocado-default'
-                : 'bg-surface-hover',
-            )}
-          />
-        ))}
-      </div>
-      <span className="shrink-0 tabular-nums text-text-tertiary typo-caption1">
-        {progress} of {target} read
-      </span>
-    </div>
-  );
-};
-
 const StepWork = ({ quest }: { quest: UserQuest }): ReactElement | null => {
   const checklist = useIntroQuestChecklist();
   const { user } = useAuthContext();
@@ -331,11 +326,6 @@ const StepWork = ({ quest }: { quest: UserQuest }): ReactElement | null => {
         <p className="text-text-tertiary typo-caption1">
           Finish the install in the new tab. This updates on its own.
         </p>
-      ) : null;
-
-    case IntroQuestEventType.PostRead:
-      return quest.quest.targetCount > 1 ? (
-        <ProgressSegments quest={quest} />
       ) : null;
 
     case IntroQuestEventType.NotificationsEnable:
@@ -444,9 +434,15 @@ const Meta = ({ quest }: { quest: UserQuest }): ReactElement => {
 
   return (
     <span className="inline-flex items-center gap-1.5 tabular-nums text-text-tertiary typo-caption1">
-      <span className="font-bold text-accent-avocado-default">
-        +{getQuestXp(quest)} XP
-      </span>
+      <CoresAmount
+        amount={getQuestCores(quest)}
+        size={IconSize.Size16}
+        plus
+        label
+        className="font-bold text-text-primary"
+      />
+      <span aria-hidden>·</span>
+      <span>+{getQuestXp(quest)} XP</span>
       {parts.map((part) => (
         <React.Fragment key={part}>
           <span aria-hidden>·</span>
@@ -503,11 +499,12 @@ const Header = (): ReactElement => {
         </h2>
         <p className="flex items-center gap-1 text-text-primary typo-footnote">
           Earn
-          <span className="font-bold tabular-nums text-accent-avocado-default">
-            {totals.xp} XP
-          </span>
-          and
-          <CoresAmount amount={totals.cores} />
+          <CoresAmount
+            amount={totals.cores}
+            label
+            className="font-bold text-text-primary"
+          />
+          <span className="text-text-tertiary">and {totals.xp} XP</span>
         </p>
       </div>
       <SegmentMeter />
@@ -533,7 +530,7 @@ const RowSummary = ({ quest }: { quest: UserQuest }): ReactElement => {
     );
   }
 
-  return <>+{getQuestXp(quest)} XP</>;
+  return <CoresAmount amount={getQuestCores(quest)} plus />;
 };
 
 const Row = ({
@@ -575,7 +572,7 @@ const Row = ({
             {claimed && step ? step.doneLabel : quest.quest.name}
           </span>
           {!isOpen && !claimed && phase !== 'ready' && (
-            <span className="shrink-0 font-bold tabular-nums text-accent-avocado-default typo-caption1">
+            <span className="shrink-0 font-bold tabular-nums text-text-primary typo-caption1">
               <RowSummary quest={quest} />
             </span>
           )}
@@ -612,7 +609,10 @@ const Row = ({
 const Footer = (): ReactElement => {
   const { readyQuests, isClaimingAny, claimAll, hide } =
     useIntroQuestChecklist();
-  const xp = readyQuests.reduce((acc, quest) => acc + getQuestXp(quest), 0);
+  const cores = readyQuests.reduce(
+    (acc, quest) => acc + getQuestCores(quest),
+    0,
+  );
 
   return (
     <footer className="mt-auto flex flex-col items-center gap-3 p-5 pt-4">
@@ -625,7 +625,10 @@ const Footer = (): ReactElement => {
           loading={isClaimingAny}
           onClick={claimAll}
         >
-          Claim all +{xp} XP
+          <span className="inline-flex items-center gap-1">
+            Claim all
+            <CoresAmount amount={cores} size={IconSize.Small} plus label />
+          </span>
         </Button>
       )}
       <button
@@ -658,11 +661,11 @@ const Completion = (): ReactElement => {
         </p>
       </div>
       <span className="flex items-center gap-2 rounded-max bg-surface-float px-3 py-1.5 font-bold tabular-nums text-text-primary typo-callout">
-        +{totals.xp} XP
+        <CoresAmount amount={totals.cores} size={IconSize.XSmall} plus label />
         <span aria-hidden className="text-text-quaternary">
           ·
         </span>
-        <CoresAmount amount={totals.cores} size={IconSize.XSmall} />
+        <span className="font-normal text-text-tertiary">+{totals.xp} XP</span>
       </span>
       <Button
         variant={ButtonVariant.Primary}
