@@ -22,6 +22,8 @@ type Shot = {
   device: 'desktop' | 'phone';
   /** The aligned screen, as a live story, when this one changes. */
   after?: { storyId: string; note: ReactNode };
+  /** Mapped, but not aligned yet. */
+  isToAlign?: boolean;
 };
 
 const Url = ({ children }: { children: ReactNode }): ReactElement => (
@@ -34,7 +36,7 @@ const Tag = ({
   tone,
   children,
 }: {
-  tone: 'before' | 'after' | 'same';
+  tone: 'before' | 'after' | 'same' | 'todo';
   children: ReactNode;
 }): ReactElement => (
   <span
@@ -43,6 +45,7 @@ const Tag = ({
       tone === 'before' && 'bg-accent-ketchup-default text-white',
       tone === 'after' && 'bg-accent-avocado-default text-white',
       tone === 'same' && 'bg-surface-float text-text-tertiary',
+      tone === 'todo' && 'bg-accent-bun-default text-white',
     )}
   >
     {children}
@@ -82,15 +85,19 @@ const afterViewport = (
 // A screen that changes shows the production capture next to the aligned
 // mock; one that doesn't shows once, marked unchanged.
 const Screen = (shot: Shot): ReactElement => {
-  const { step, title, note, device, after } = shot;
+  const { step, title, note, device, after, isToAlign } = shot;
 
   return (
     <figure className="flex shrink-0 flex-col gap-2">
       <div className="flex items-start gap-3">
         <div className={classNames('flex flex-col gap-2', frameWidth(device))}>
-          <Tag tone={after ? 'before' : 'same'}>
-            {after ? 'Before' : 'Unchanged'}
-          </Tag>
+          {isToAlign ? (
+            <Tag tone="todo">To align</Tag>
+          ) : (
+            <Tag tone={after ? 'before' : 'same'}>
+              {after ? 'Before' : 'Unchanged'}
+            </Tag>
+          )}
           <Capture {...shot} />
         </div>
         {after && (
@@ -206,6 +213,22 @@ const glance: [string, string, ReactNode, ReactNode, ReactNode, ReactNode][] = [
     </>,
     'The hand-off funnel takes the landing’s block and art; the /activate demo video shows it.',
   ],
+  [
+    'Post page',
+    '/posts/…',
+    'The post, with a sign-up banner on desktop and only “Open daily.dev app” on phone',
+    'None',
+    'Banner: Google, GitHub, email. Modal on any action: Google, GitHub, Apple, Facebook, email',
+    'To align.',
+  ],
+  [
+    'Invite link',
+    '/join?cid=…&userid=…',
+    'The funnel with an “… invited you” card; a shared post names the sharer in its banner',
+    'None',
+    'Google, GitHub, email',
+    'To align.',
+  ],
 ];
 
 const aligned: [string, string][] = [
@@ -305,10 +328,11 @@ const Inventory = (): ReactElement => (
         </h1>
         <p className="text-text-secondary typo-callout">
           The first screen a signed-out person sees on each surface, the loading
-          state before it, and the sign-up screen one tap away. Log in is out of
-          scope for this pass. Screens that change show the production capture
-          next to the aligned mock; the rest are marked unchanged. Click a
-          capture for full size.
+          state before it, and the sign-up screen one tap away, plus the other
+          ways in: a post page and invite or share links. Log in is out of scope
+          for this pass. Screens that change show the production capture next to
+          the aligned mock; the rest are marked unchanged. Click a capture for
+          full size.
         </p>
       </header>
 
@@ -530,6 +554,94 @@ const Inventory = (): ReactElement => (
             title: 'Feed with a log in banner',
             note: 'Edge. "Unlock the full daily.dev experience" over the feed, plus a sign in strip.',
             device: 'desktop',
+          },
+        ]}
+      />
+
+      <Surface
+        title="Post page · signed out"
+        note={
+          <>
+            Where most shared links land. A public post, logged out, at 1440 ×
+            900 and on a Pixel 7. Desktop keeps a sign-up banner over the bottom
+            of the page; any action (vote, comment, bookmark) opens the sign-up
+            modal. Phone has no sign-up block, only “Open daily.dev app”, until
+            an action opens it full screen.
+          </>
+        }
+        shots={[
+          {
+            file: '19-post-desktop',
+            step: 'First screen',
+            title: 'Post with a sign-up banner',
+            note: 'The banner headline is personalized by country, here Israel. Google and GitHub, then email and log in as links.',
+            device: 'desktop',
+            isToAlign: true,
+          },
+          {
+            file: '20-post-signup-desktop',
+            step: 'Sign up',
+            title: 'Sign-up modal',
+            note: 'On vote, comment or bookmark. Google, GitHub, Apple, Facebook, then email.',
+            device: 'desktop',
+            isToAlign: true,
+          },
+          {
+            file: '21-post-pixel',
+            step: 'First screen',
+            title: 'Post, no sign-up block',
+            note: 'Log in and Open app in the header, “Open daily.dev app” at the bottom.',
+            device: 'phone',
+            isToAlign: true,
+          },
+          {
+            file: '22-post-signup-pixel',
+            step: 'Sign up',
+            title: 'Full-screen sign up',
+            note: '“Sign up to vote on posts and comments.” Four providers, then email.',
+            device: 'phone',
+            isToAlign: true,
+          },
+        ]}
+      />
+
+      <Surface
+        title="Invite and share links"
+        note={
+          <>
+            A referral carries <Url>cid</Url> (the campaign) and{' '}
+            <Url>userid</Url> (the inviter). An invite link,{' '}
+            <Url>/join?cid=generic&amp;userid=…</Url>, sets a referral cookie
+            and redirects to the funnel, which adds an inviter card. A shared
+            post keeps its URL with <Url>cid=share_post</Url>, and the post
+            page’s banner names the sharer. Captured with Ido Shamun as the
+            inviter.
+          </>
+        }
+        shots={[
+          {
+            file: '24-invite-desktop',
+            step: 'Invite link',
+            title: 'Funnel with the inviter',
+            note: '“Ido Shamun invited you” above the funnel’s old block and art.',
+            device: 'desktop',
+            isToAlign: true,
+          },
+          {
+            file: '25-invite-pixel',
+            step: 'Invite link',
+            title: 'Funnel with the inviter',
+            note: 'Same card on the mobile funnel.',
+            device: 'phone',
+            isToAlign: true,
+          },
+          {
+            file: '23-shared-post-desktop',
+            step: 'Shared post',
+            title: 'Banner names the sharer',
+            note: '“idoshamun shared it, so it’s probably a good one.”',
+            device: 'desktop',
+            isToAlign: true,
           },
         ]}
       />
