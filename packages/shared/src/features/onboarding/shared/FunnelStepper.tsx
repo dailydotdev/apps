@@ -54,6 +54,7 @@ import { PaymentContextProvider } from '../../../contexts/payment';
 import { useFunnelPricing } from '../hooks/useFunnelPricing';
 import { FunnelPaymentPricingContext } from '../../../contexts/payment/context';
 import { useEventListener } from '../../../hooks';
+import { requestIOSTracking } from '../../../lib/ios';
 
 export interface FunnelStepperProps {
   funnel: FunnelJSON;
@@ -183,6 +184,13 @@ export const FunnelStepper = ({
 
       const isLastStep = targetStepId === COMPLETED_STEP_ID;
 
+      if (
+        isOnboarding &&
+        (currentStep.type === FunnelStepType.Acquisition || isLastStep)
+      ) {
+        requestIOSTracking();
+      }
+
       Promise.resolve(
         sendTransition({
           fromStep: currentStep.id,
@@ -212,6 +220,7 @@ export const FunnelStepper = ({
       navigate,
       trackOnComplete,
       onComplete,
+      isOnboarding,
     ],
   );
 
