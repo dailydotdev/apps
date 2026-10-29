@@ -38,14 +38,16 @@ import {
   FeedSourceMode,
   FeedTopicMode,
   isRankedExplain,
-  TopicControl,
 } from '../types';
-import type { ExplainSignal } from '../describe';
+import type { ExplainSignal, SignalMeta } from '../describe';
 import {
   ExplainSignalKind,
   getExplainSignals,
   getReason,
   getReasonDotClassName,
+  getTopicLevel,
+  getTopicWeight,
+  topicModeMeta,
 } from '../describe';
 import { feedProfileQueryKey, feedProfileQueryOptions } from '../queries';
 import { useFeedExplainMode } from '../useFeedExplainMode';
@@ -173,30 +175,6 @@ const ReasonLine = ({
   );
 };
 
-interface SignalMeta {
-  text: string;
-  className: string;
-}
-
-const topicModeMeta: Record<FeedTopicMode, SignalMeta> = {
-  [FeedTopicMode.Boost]: {
-    text: 'Showing more',
-    className: 'text-accent-avocado-default',
-  },
-  [FeedTopicMode.Demote]: {
-    text: 'Showing less',
-    className: 'text-accent-bun-default',
-  },
-  [FeedTopicMode.StopLearning]: {
-    text: 'Not learning from your reading',
-    className: 'text-accent-ketchup-default',
-  },
-  [FeedTopicMode.Off]: {
-    text: 'Off in For You',
-    className: 'text-accent-ketchup-default',
-  },
-};
-
 const getTopicMeta = (
   tag: string,
   {
@@ -210,17 +188,9 @@ const getTopicMeta = (
   const match = isRankedExplain(explain) ? explain.match : undefined;
   const stories =
     interest?.stories ?? (match?.tag === tag ? match.stories : undefined) ?? 0;
-  const mode = feedControls.getTopicMode(tag);
-  if (mode) {
-    return topicModeMeta[mode];
-  }
-  // The profile lags a change behind the controls, so it only stands in
-  // until they load.
-  if (!feedControls.controls && profile?.muted.includes(tag)) {
-    return topicModeMeta[FeedTopicMode.Off];
-  }
-  if (!feedControls.controls && interest?.control === TopicControl.Demote) {
-    return topicModeMeta[FeedTopicMode.Demote];
+  const level = getTopicLevel(tag, feedControls.controls, profile);
+  if (level) {
+    return topicModeMeta[level];
   }
   const quiet = 'text-text-quaternary';
   if (stories) {
@@ -238,22 +208,6 @@ const getTopicMeta = (
   return { text: 'Not one of your topics', className: quiet };
 };
 
-const getTopicWeight = (
-  tag: string,
-  { explain, profile }: Pick<RowContext, 'explain' | 'profile'>,
-): { weight: number; isSet: boolean } | undefined => {
-  // The profile is weighed with the reader's latest levels, the
-  // explanation with the ones the card was ranked on.
-  if (profile) {
-    const interest = profile.interests.find((item) => item.tag === tag);
-    return { weight: interest?.weight ?? 0, isSet: !!interest?.control };
-  }
-  if (isRankedExplain(explain) && explain.match?.tag === tag) {
-    return { weight: explain.match.weight, isSet: !!explain.match.control };
-  }
-  return undefined;
-};
-
 const SignalRow = ({
   signal,
   context,
@@ -261,7 +215,7 @@ const SignalRow = ({
   signal: ExplainSignal;
   context: RowContext;
 }): ReactElement => {
-  const { post, size, version, feedControls } = context;
+  const { post, explain, profile, size, version, feedControls } = context;
   const { user } = useAuthContext();
   const client = useQueryClient();
   const dropIdleFeeds = useDropIdleForYouFeeds();
@@ -289,7 +243,9 @@ const SignalRow = ({
     ? !!feedSettings?.blockedTags?.includes(signal.id)
     : !!feedSettings?.excludeSources?.some(({ id }) => id === signal.id);
   const canFollow = isTopic || source?.type === SourceType.Machine;
-  const topicWeight = isTopic ? getTopicWeight(signal.id, context) : undefined;
+  const topicWeight = isTopic
+    ? getTopicWeight(signal.id, explain, profile)
+    : undefined;
   const topicMode = isTopic ? feedControls.getTopicMode(signal.id) : undefined;
   const isSourceDemoted = !isTopic && feedControls.isSourceDemoted(signal.id);
   let meta: SignalMeta;

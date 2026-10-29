@@ -127,6 +127,9 @@ export const TopicLevelPicker = ({
         aria-labelledby={titleId}
         className="z-popup flex max-h-[calc(var(--radix-popover-content-available-height)-1rem)] w-72 max-w-[calc(100vw-2rem)] flex-col gap-2 overflow-y-auto rounded-16 border border-border-subtlest-tertiary bg-background-popover p-3 shadow-3"
         onClick={(event) => event.stopPropagation()}
+        // The Esc that closes the levels is theirs: stop it before it
+        // reaches the full explanation, which closes on the same key.
+        onEscapeKeyDown={(event) => event.stopPropagation()}
         onOpenAutoFocus={(event) => {
           event.preventDefault();
           checkedRef.current?.focus();
