@@ -37,6 +37,7 @@ import {
 } from '../signupFunnel.mocks';
 import { Flow as ReadingCommitment } from '../reading-commitment/Flow';
 import type { Platform } from '../reading-commitment/NotificationPreview';
+import type { ClockFormat } from '../reading-commitment/reminderTimes';
 import { ONBOARDING_FUNNEL } from './onboardingFunnel';
 
 /**
@@ -53,6 +54,7 @@ import { ONBOARDING_FUNNEL } from './onboardingFunnel';
 interface PlaygroundArgs {
   /** Fakes an iPhone, so the install-the-app step shows. */
   isIOS: boolean;
+  clock: ClockFormat;
 }
 
 const SESSION: FunnelSession = {
@@ -65,7 +67,11 @@ const SESSION: FunnelSession = {
 const ReadingCommitmentStep = ({
   onTransition,
   platform,
-}: FunnelStepReadingReminder & { platform: Platform }): ReactElement => {
+  clock,
+}: FunnelStepReadingReminder & {
+  platform: Platform;
+  clock: ClockFormat;
+}): ReactElement => {
   // The tags picked two steps back, so the push preview shows a post on them.
   const { feedSettings } = useFeedSettings();
 
@@ -73,6 +79,7 @@ const ReadingCommitmentStep = ({
     <ReadingCommitment
       platform={platform}
       tags={feedSettings?.includeTags}
+      clock={clock}
       onFinish={() => onTransition({ type: FunnelStepTransitionType.Complete })}
     />
   );
@@ -113,7 +120,7 @@ const Finished = ({ onRestart }: { onRestart: () => void }): ReactElement => (
   </div>
 );
 
-const Playground = ({ isIOS }: PlaygroundArgs): ReactElement => {
+const Playground = ({ isIOS, clock }: PlaygroundArgs): ReactElement => {
   const [run, setRun] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   const platform: Platform = isIOS ? 'ios' : 'android';
@@ -121,10 +128,10 @@ const Playground = ({ isIOS }: PlaygroundArgs): ReactElement => {
   const overrides = useMemo(
     () => ({
       [FunnelStepType.ReadingReminder]: (props: FunnelStepReadingReminder) => (
-        <ReadingCommitmentStep {...props} platform={platform} />
+        <ReadingCommitmentStep {...props} platform={platform} clock={clock} />
       ),
     }),
-    [platform],
+    [platform, clock],
   );
 
   if (isFinished) {
@@ -186,11 +193,17 @@ const meta: Meta<PlaygroundArgs> = {
       ],
     },
   },
-  args: { isIOS: false },
+  args: { isIOS: false, clock: 'auto' },
   argTypes: {
     isIOS: {
       control: 'boolean',
       description: 'Fakes an iPhone, so the install-the-app step shows.',
+    },
+    clock: {
+      control: 'inline-radio',
+      options: ['auto', '12h', '24h'],
+      description:
+        'Auto reads the time zone: "5:00 PM" in the US and other AM/PM regions, "17:00" elsewhere.',
     },
   },
   // A user who just signed up: no role or acquisition answer yet, so those
@@ -304,13 +317,20 @@ const DeviceFrame = ({
   );
 };
 
+const frameArgs = (isIOS: boolean, { clock }: PlaygroundArgs) =>
+  `isIOS:!${isIOS};clock:${clock}`;
+
 export const Mobile: Story = {
   name: 'Mobile (iPhone)',
-  parameters: { controls: { disable: true } },
-  render: () => <DeviceFrame device="mobile" args="isIOS:!true" />,
+  parameters: { controls: { include: ['clock'] } },
+  render: (args) => (
+    <DeviceFrame device="mobile" args={frameArgs(true, args)} />
+  ),
 };
 
 export const Desktop: Story = {
-  parameters: { controls: { disable: true } },
-  render: () => <DeviceFrame device="desktop" args="isIOS:!false" />,
+  parameters: { controls: { include: ['clock'] } },
+  render: (args) => (
+    <DeviceFrame device="desktop" args={frameArgs(false, args)} />
+  ),
 };

@@ -124,11 +124,14 @@ const PUSH_STAGGER_MS = 120;
 export const LockScreen = ({
   platform,
   clock,
+  period,
   date,
   notifications,
 }: {
   platform: Platform;
   clock: string;
+  /** AM or PM where the region reads a 12-hour clock. */
+  period?: string;
   date: string;
   notifications: PushContent[];
 }): ReactElement => {
@@ -173,6 +176,7 @@ export const LockScreen = ({
           style={{ fontSize: isIos ? '4rem' : '4.5rem' }}
         >
           {clock}
+          {period && <span className="ml-1 typo-title2">{period}</span>}
         </span>
         <div
           className={classNames(

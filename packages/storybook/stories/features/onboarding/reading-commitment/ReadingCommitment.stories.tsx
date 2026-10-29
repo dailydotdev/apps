@@ -23,12 +23,13 @@ const meta: Meta<FlowProps> = {
   title: 'Commitment onboarding/Reading commitment',
   component: ReadingFlow,
   parameters: { layout: 'fullscreen' },
-  args: { platform: 'ios' },
+  args: { platform: 'ios', clock: 'auto' },
   argTypes: {
-    platform: {
+    clock: {
       control: 'inline-radio',
-      options: ['ios', 'android'],
-      description: 'Which phone the notification preview is drawn as.',
+      options: ['auto', '12h', '24h'],
+      description:
+        'Auto reads the time zone: "5:00 PM" in the US and other AM/PM regions, "17:00" elsewhere.',
     },
     startAt: {
       control: 'select',

@@ -10,10 +10,6 @@ import {
   OnboardingSubheadline,
 } from '@dailydotdev/shared/src/components/onboarding/common';
 import {
-  CheckboxGroupBehaviour,
-  FormInputCheckboxGroup,
-} from '@dailydotdev/shared/src/features/common/components/FormInputCheckboxGroup';
-import {
   Button,
   ButtonSize,
   ButtonVariant,
@@ -22,12 +18,11 @@ import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/type
 import { FunnelStepShell } from '../signupFunnel.mocks';
 import type { Platform } from './NotificationPreview';
 import { LockScreen } from './NotificationPreview';
-import type { MinutesOption } from './PostStack';
 import { PostStack } from './PostStack';
 import { freshPushFor } from './freshPosts';
-import { GoalList } from './GoalList';
 import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import type { ClockFormat } from './reminderTimes';
 import {
   DEFAULT_REMINDER_TIME,
   clockOfTime,
@@ -35,11 +30,17 @@ import {
   hourOfTime,
   isFirstReminderToday,
   timeOfHour,
+  usesTwelveHourClock,
 } from './reminderTimes';
 import {
   ReminderPicker,
   formatHour,
 } from '@dailydotdev/shared/src/components/onboarding/FeedPatchy/ReminderPicker';
+import type { CheckboxItem } from '@dailydotdev/shared/src/features/common/components/FormInputCheckboxGroup';
+import {
+  CheckboxGroupBehaviour,
+  FormInputCheckboxGroup,
+} from '@dailydotdev/shared/src/features/common/components/FormInputCheckboxGroup';
 
 /**
  * A replacement for Feed Patchy: the user says how much they read today and
@@ -65,36 +66,103 @@ export interface FlowProps {
    * comes from FunnelStepper, and the reminder answer hands back to it.
    */
   onFinish?: () => void;
+  /**
+   * "5:00 PM" or "17:00". Auto reads it from the time zone: 12-hour in the
+   * US and the other AM/PM regions, 24-hour everywhere else.
+   */
+  clock?: ClockFormat;
 }
 
-const TODAY_OPTIONS: MinutesOption[] = [
-  { value: '0', label: 'Barely anything' },
-  { value: '5', label: 'A post or two', hint: '~5 min' },
-  { value: '15', label: 'About 15 minutes', hint: '~15 min' },
-  { value: '30', label: '30 minutes or more', hint: '30+ min' },
+const TODAY_OPTIONS: CheckboxItem[] = [
+  {
+    value: '0',
+    label: 'Barely anything',
+  },
+  {
+    value: '5',
+    label: 'A post or two',
+    hint: '~5 min',
+  },
+  {
+    value: '15',
+    label: 'About 15 minutes',
+    hint: '~15 min',
+  },
+  {
+    value: '30',
+    label: '30 minutes or more',
+    hint: '30+ min',
+  },
 ];
 
-const GOAL_OPTIONS: MinutesOption[] = [
-  { value: '5', label: 'A quick catch-up', hint: '5 min' },
-  { value: '10', label: 'One good read', hint: '10 min' },
-  { value: '15', label: 'A steady habit', hint: '15 min' },
-  { value: '30', label: 'Deep learning', hint: '30 min' },
-];
+/** The goal top developers pick most. Placeholder: no data backs it yet. */
+const TOP_GOAL = '15';
+const TOP_GOAL_BADGE = 'Top developers pick this';
+
+const GOAL_OPTIONS: CheckboxItem[] = [
+  {
+    value: '5',
+    label: 'A quick catch-up',
+    hint: '5 min',
+  },
+  {
+    value: '10',
+    label: 'One good read',
+    hint: '10 min',
+  },
+  {
+    value: '15',
+    label: 'A steady habit',
+    hint: '15 min',
+  },
+  {
+    value: '30',
+    label: 'Deep learning',
+    hint: '30 min',
+  },
+].map((option) =>
+  option.value === TOP_GOAL ? { ...option, badge: TOP_GOAL_BADGE } : option,
+);
 
 /** The reminder picker's own presets, same order and hours. */
-const TIME_OPTIONS: MinutesOption[] = [
-  { value: '9', label: 'Morning', hint: formatHour(9) },
-  { value: '12', label: 'Lunch', hint: formatHour(12) },
-  { value: '17', label: 'Evening', hint: formatHour(17) },
+const TIME_PRESETS = [
+  { hour: 9, label: 'Morning' },
+  { hour: 12, label: 'Lunch' },
+  { hour: 17, label: 'Evening' },
 ];
+
+const CUSTOM_TIME = 'custom';
+// Where the Custom time row takes the ruler before any hour was dragged to.
+const DEFAULT_CUSTOM_HOUR = 20;
+
+const isPresetHour = (hour: number): boolean =>
+  TIME_PRESETS.some((preset) => preset.hour === hour);
+
+const timeOptions = (hour: number, isTwelveHour: boolean): CheckboxItem[] => {
+  const isCustom = !isPresetHour(hour);
+  const customTime = formatHour(hour, isTwelveHour);
+
+  return [
+    ...TIME_PRESETS.map(({ hour: presetHour, label }) => ({
+      value: String(presetHour),
+      label,
+      hint: formatHour(presetHour, isTwelveHour),
+    })),
+    {
+      value: CUSTOM_TIME,
+      label: 'Custom time',
+      hint: isCustom ? customTime : 'Any hour',
+    },
+  ];
+};
 
 const DEFAULT_TIME = DEFAULT_REMINDER_TIME.value;
 
 /** The tags a new account starts with, as the playground seeds them. */
 const SAMPLE_TAGS = ['javascript', 'react', 'devops', 'ai', 'webdev'];
 
-// The card's preset row stays in the DOM, hidden: the list under the card
-// presses it, so the ruler glides to the hour as it does in production.
+// The card's preset row is hidden: the list under the card taps the ruler
+// instead, so it glides to the hour as it does in production.
 const timePickerCss = `
 .rc-time-picker .uppercase { display: none; }
 .rc-time-picker .uppercase + * { margin-inline: auto; }
@@ -179,7 +247,7 @@ const RadioList = ({
   onChange,
 }: {
   name: string;
-  options: MinutesOption[];
+  options: CheckboxItem[];
   value?: string;
   onChange: (value: string) => void;
 }): ReactElement => (
@@ -203,14 +271,16 @@ const PushPreview = ({
   platform,
   tags,
   time,
+  isTwelveHour,
 }: {
   platform: Platform;
   tags: string[];
   time: string;
+  isTwelveHour: boolean;
 }): ReactElement => (
   <LockScreen
     platform={platform}
-    clock={clockOfTime(time)}
+    {...clockOfTime(time, isTwelveHour)}
     date={longDate(isFirstReminderToday(time) ? new Date() : addDays(1))}
     notifications={[{ ...freshPushFor(tags), when: 'now' }]}
   />
@@ -264,6 +334,7 @@ export const Flow = ({
   startAt,
   tags = SAMPLE_TAGS,
   onFinish,
+  clock = 'auto',
 }: FlowProps): ReactElement => {
   const isSampled = !!startAt;
   const [index, setIndex] = useState(isSampled ? SCREENS.indexOf(startAt) : 0);
@@ -306,7 +377,28 @@ export const Flow = ({
   const goalMinutes = Number(goal ?? 15);
   const reminderTime = time ?? DEFAULT_TIME;
   const reminderHour = hourOfTime(reminderTime);
-  const reminderLabel = displayTime(reminderTime);
+  const isTwelveHour = usesTwelveHourClock(clock, timezone);
+  const reminderLabel = displayTime(reminderTime, isTwelveHour);
+  const lastCustomHour = useRef(DEFAULT_CUSTOM_HOUR);
+  const timeValue = isPresetHour(reminderHour)
+    ? String(reminderHour)
+    : CUSTOM_TIME;
+
+  // Taps the production ruler on the hour's tick, so it glides there and
+  // reports the hour back as a tap of its own would.
+  const glideTo = (hour: number) => {
+    const slider =
+      timePicker.current?.querySelector<HTMLElement>('[role="slider"]');
+    // The ruler's first child is a spacer; each tick after it is an hour.
+    const tick = slider?.children[hour + 1];
+    if (!slider || !tick) {
+      return;
+    }
+    const { left, width } = tick.getBoundingClientRect();
+    slider.dispatchEvent(
+      new MouseEvent('click', { bubbles: true, clientX: left + width / 2 }),
+    );
+  };
 
   const content = (() => {
     switch (screen) {
@@ -341,7 +433,8 @@ export const Flow = ({
           >
             <div className="flex w-full flex-col gap-4">
               <PostStack minutes={Number(goal ?? 0)} />
-              <GoalList
+              <RadioList
+                name="goal"
                 options={GOAL_OPTIONS}
                 value={goal}
                 onChange={setGoal}
@@ -368,23 +461,28 @@ export const Flow = ({
                 <style>{timePickerCss}</style>
                 <ReminderPicker
                   hour={reminderHour}
-                  onChange={(hour) => setTime(timeOfHour(hour))}
+                  onChange={(hour) => {
+                    setTime(timeOfHour(hour));
+                    if (!isPresetHour(hour)) {
+                      lastCustomHour.current = hour;
+                    }
+                  }}
                   timezone={timezone}
                   onTimezoneChange={setTimezone}
+                  isTwelveHour={isTwelveHour}
                 />
               </div>
               <RadioList
                 name="time"
-                options={TIME_OPTIONS}
-                value={String(reminderHour)}
-                onChange={(hour) => {
-                  const preset = TIME_OPTIONS.findIndex(
-                    ({ value }) => value === hour,
-                  );
-                  timePicker.current
-                    ?.querySelectorAll<HTMLButtonElement>('.grid-cols-3 button')
-                    [preset]?.click();
-                }}
+                options={timeOptions(reminderHour, isTwelveHour)}
+                value={timeValue}
+                onChange={(value) =>
+                  glideTo(
+                    value === CUSTOM_TIME
+                      ? lastCustomHour.current
+                      : Number(value),
+                  )
+                }
               />
             </div>
           </StepScreen>
@@ -408,7 +506,12 @@ export const Flow = ({
               </Button>
             }
           >
-            <PushPreview platform={platform} tags={tags} time={reminderTime} />
+            <PushPreview
+              platform={platform}
+              tags={tags}
+              time={reminderTime}
+              isTwelveHour={isTwelveHour}
+            />
           </StepScreen>
         );
     }
