@@ -56,17 +56,30 @@ const desktopHeadline = {
 };
 const phoneHeadline = {
   fontSize: '2.1rem',
-  lineHeight: '2.25rem',
+  lineHeight: 1.07,
   letterSpacing: '-0.0525rem',
 };
 const landingLegal = { fontSize: '0.6875rem', lineHeight: '1rem' };
+// The landing's buttons: white Google, then translucent white ones with a
+// blur. Their colors are the landing's own, not our tokens.
 const landingButton = (isPrimary: boolean) => ({
   height: '3rem',
+  paddingLeft: '1rem',
+  paddingRight: '1.5rem',
+  gap: '0.375rem',
   borderRadius: '0.875rem',
   fontSize: '1.0625rem',
   lineHeight: '1.375rem',
   letterSpacing: '-0.010625rem',
   fontWeight: isPrimary ? 600 : 500,
+  ...(isPrimary
+    ? { background: '#fff', color: 'rgba(14, 18, 23, 0.88)' }
+    : {
+        background: 'rgba(255, 255, 255, 0.12)',
+        border: '1px solid rgba(255, 255, 255, 0.18)',
+        color: '#fff',
+        backdropFilter: 'blur(12px)',
+      }),
 });
 
 // The landing's typeface. The mocks load it themselves since the app does not
@@ -74,7 +87,7 @@ const landingButton = (isPrimary: boolean) => ({
 const landingFont = { fontFamily: '"Plus Jakarta Sans", sans-serif' };
 const LandingFont = (): ReactElement => (
   <link
-    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
     rel="stylesheet"
   />
 );
@@ -169,11 +182,7 @@ const LandingSignupBlock = ({
           {ways.map(({ label, icon, variant }) => (
             <Button
               key={label}
-              className={classNames(
-                'w-full',
-                variant === ButtonVariant.Float &&
-                  '!border !border-border-subtlest-tertiary !text-text-primary',
-              )}
+              className="w-full [&>svg]:!m-0"
               icon={cloneElement(icon, { size: IconSize.Small })}
               onClick={fn()}
               size={ButtonSize.Large}
@@ -290,10 +299,10 @@ const DesktopFunnel = ({ isInvite }: { isInvite?: boolean }): ReactElement => (
   </div>
 );
 
-// The Android and iOS apps at phone width: the art across the top fading
-// into the page, the logo, then the landing block anchored to the bottom.
-// The art sits 14% higher than its band so the boy and Patchy clear the
-// fade, and it fades out on its own over its last 30%.
+// Phones, laid out as daily.dev/ is on a phone today: its header with the
+// logo, log in and sign up (no menu), the art 312px tall cropped at 78% 45%
+// and fading into the page over its lower half, and the block starting 32px
+// up into the art.
 const PhoneFunnel = ({
   isIOS,
   isWeb,
@@ -303,30 +312,50 @@ const PhoneFunnel = ({
   isWeb?: boolean;
   isInvite?: boolean;
 }): ReactElement => (
-  <div className="relative isolate flex min-h-dvh w-full flex-col justify-end overflow-hidden bg-background-default px-6 pb-8 text-text-primary">
+  <div
+    className="relative isolate min-h-dvh w-full overflow-hidden bg-background-default pb-8 text-text-primary"
+    style={landingFont}
+  >
     <LandingFont />
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-x-0 top-0 -z-1 h-1/2 overflow-hidden"
-    >
+    <header className="absolute inset-x-0 top-0 z-2 flex h-16 items-center justify-between px-6">
+      <Logo
+        position={LogoPosition.Relative}
+        className="!left-0 !top-0 !mt-0 !translate-x-0"
+        logoClassName={{ container: 'h-5' }}
+      />
+      <div className="flex items-center gap-3">
+        <button
+          className="text-xs font-semibold text-text-secondary"
+          onClick={fn()}
+          type="button"
+        >
+          Log in
+        </button>
+        <button
+          className="rounded-14 bg-text-primary px-3 py-2 text-xs font-semibold text-surface-invert"
+          onClick={fn()}
+          type="button"
+        >
+          Sign up
+        </button>
+      </div>
+    </header>
+    <div aria-hidden className="relative">
       <img
         alt=""
-        className="absolute inset-x-0 size-full select-none object-cover"
+        className="block w-full select-none object-cover"
         src={signupWallHorizon}
+        style={{ height: '19.5rem', objectPosition: '78% 45%' }}
+      />
+      <div
+        className="absolute inset-x-0 bottom-0 h-1/2"
         style={{
-          top: '-14%',
-          objectPosition: '64% 50%',
-          maskImage: 'linear-gradient(to bottom, black 70%, transparent)',
-          WebkitMaskImage: 'linear-gradient(to bottom, black 70%, transparent)',
+          backgroundImage:
+            'linear-gradient(to bottom, transparent, var(--theme-background-default))',
         }}
       />
     </div>
-    <div className="flex flex-col items-center gap-6">
-      <Logo
-        position={LogoPosition.Relative}
-        className="!left-0 !top-0 !mt-0 !translate-x-0 self-center"
-        logoClassName={{ container: 'h-6' }}
-      />
+    <div className="relative -mt-8 flex justify-center px-6">
       <LandingSignupBlock
         align="center"
         isIOS={isIOS}
