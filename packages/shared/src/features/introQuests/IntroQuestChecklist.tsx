@@ -23,6 +23,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import type { UserQuest } from '../../graphql/quests';
 import { cloudinaryPatchyFed } from '../../lib/image';
 import { BrowserName } from '../../lib/func';
+import { webappUrl } from '../../lib/constants';
 import { getCompletionItems } from '../../lib/profileCompletion';
 import {
   IntroQuestEventType,
@@ -353,7 +354,7 @@ const StepWork = ({ quest }: { quest: UserQuest }): ReactElement | null => {
       return phase === 'ready' ? (
         <button
           type="button"
-          onClick={() => checklist.navigate('briefing')}
+          onClick={() => checklist.navigate(`${webappUrl}briefing`)}
           className="inline-flex w-fit items-center gap-1 font-bold text-text-link typo-caption1 hover:underline"
         >
           Read your brief
@@ -496,9 +497,9 @@ const Header = (): ReactElement => {
     <header className="flex flex-col gap-4 p-5 pb-4 pr-14">
       <div className="flex flex-col gap-1">
         <h2 className="text-balance font-bold text-text-primary typo-title3">
-          {left <= 1
-            ? 'One last thing to set up'
-            : `${left} things to set up daily.dev`}
+          {left === 0 && 'Claim your rewards'}
+          {left === 1 && 'One last thing to set up'}
+          {left > 1 && `${left} things to set up daily.dev`}
         </h2>
         <p className="flex items-center gap-1 text-text-primary typo-footnote">
           Earn

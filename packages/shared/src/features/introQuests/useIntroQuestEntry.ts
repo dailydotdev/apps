@@ -23,17 +23,18 @@ export const useIntroQuestEntry = (): IntroQuestEntry => {
   const allClaimed =
     introQuests.length > 0 &&
     introQuests.every(({ status }) => status === QuestStatus.Claimed);
-  const shouldShow =
+  const canShow =
     isAuthReady &&
     loadedSettings &&
     isLoggedIn &&
     introQuests.length > 0 &&
     !allClaimed &&
     !checkHasCompleted(ActionType.IntroQuestsCompleted);
-  const { value: isChecklist } = useConditionalFeature({
+  const { value: isChecklist, isLoading } = useConditionalFeature({
     feature: featureIntroQuestChecklist,
-    shouldEvaluate: shouldShow,
+    shouldEvaluate: canShow,
   });
+  const shouldShow = canShow && !isLoading;
 
   return { introQuests, shouldShow, isChecklist: shouldShow && isChecklist };
 };

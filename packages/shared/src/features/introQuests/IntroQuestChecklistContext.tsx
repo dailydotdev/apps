@@ -35,6 +35,7 @@ import {
 } from './introQuestSteps';
 
 const WAITING_REFETCH_MS = 4000;
+const WAITING_TIMEOUT_MS = 5 * 60 * 1000;
 
 const extensionBrowsers = [
   BrowserName.Chrome,
@@ -188,8 +189,15 @@ const [IntroQuestChecklistProvider, useIntroQuestChecklist] =
       }
 
       const interval = setInterval(() => refetch(), WAITING_REFETCH_MS);
+      const timeout = setTimeout(() => {
+        clearInterval(interval);
+        setStarted([]);
+      }, WAITING_TIMEOUT_MS);
 
-      return () => clearInterval(interval);
+      return () => {
+        clearInterval(interval);
+        clearTimeout(timeout);
+      };
     }, [isWaiting, refetch]);
 
     useEventListener(globalThis.window, 'focus', () => {
@@ -211,7 +219,7 @@ const [IntroQuestChecklistProvider, useIntroQuestChecklist] =
     const navigate = useCallback(
       (path: string) => {
         onRequestClose();
-        router.push(path.startsWith('http') ? path : `${webappUrl}${path}`);
+        router.push(path);
       },
       [onRequestClose, router],
     );
@@ -249,7 +257,7 @@ const [IntroQuestChecklistProvider, useIntroQuestChecklist] =
             );
             return;
           case IntroQuestEventType.PostRead:
-            navigate('');
+            navigate(webappUrl);
             return;
           case IntroQuestEventType.NotificationsEnable: {
             if (readNotificationPermission() === 'denied') {
@@ -269,13 +277,13 @@ const [IntroQuestChecklistProvider, useIntroQuestChecklist] =
           }
           case IntroQuestEventType.BriefGenerate:
             if (!isBriefFree) {
-              navigate('briefing/generate');
+              navigate(`${webappUrl}briefing/generate`);
               return;
             }
             generate({ type: BriefingType.Daily });
             return;
           case IntroQuestEventType.ProfileComplete:
-            navigate('settings/profile');
+            navigate(`${webappUrl}settings/profile`);
             return;
           case IntroQuestEventType.ApiTokenCreate:
             try {
@@ -284,6 +292,7 @@ const [IntroQuestChecklistProvider, useIntroQuestChecklist] =
                 expiresInDays: null,
               });
               setToken(created.token);
+              markStarted(eventType);
               await refetch();
             } catch {
               displayToast('We couldn’t create your key. Please try again.');
@@ -295,7 +304,7 @@ const [IntroQuestChecklistProvider, useIntroQuestChecklist] =
             }
             return;
           default:
-            navigate('');
+            navigate(webappUrl);
         }
       },
       [
