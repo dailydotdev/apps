@@ -997,7 +997,10 @@ describe('Feed logged in', () => {
       tags: ['javascript', 'php'],
     };
 
-    const renderExplained = (mocks: MockedGraphQLResponse[] = []) =>
+    const renderExplained = (
+      mocks: MockedGraphQLResponse[] = [],
+      isExplaining = true,
+    ) =>
       renderComponent(
         [
           {
@@ -1075,6 +1078,7 @@ describe('Feed logged in', () => {
         defaultUser,
         SharedFeedPage.MyFeed,
         FEED_V2_EXPLAIN_QUERY,
+        { isExplaining },
       );
 
     it('should cover the card with why it is here and the boost of each topic', async () => {
@@ -1153,6 +1157,45 @@ describe('Feed logged in', () => {
         within(dialog).getByRole('button', { name: 'Score' }),
       ).toBeInTheDocument();
     });
+
+    it('should keep the card as is out of Debug mode and explain it from the post menu', async () => {
+      renderExplained(
+        [
+          {
+            request: {
+              query: POST_BY_ID_QUERY,
+              variables: { id: explainedPost.id },
+            },
+            result: { data: { post: explainedPost } },
+          },
+        ],
+        false,
+      );
+
+      const [menuBtn] = await screen.findAllByLabelText('Options');
+      expect(screen.queryByText('Full explanation')).not.toBeInTheDocument();
+      fireEvent.keyDown(menuBtn, { key: ' ' });
+      fireEvent.click(await screen.findByText('Why am I seeing this?'));
+      const dialog = await screen.findByRole('dialog');
+      expect(
+        await within(dialog).findByText('What matched you'),
+      ).toBeInTheDocument();
+      expect(within(dialog).getByText('Score breakdown')).toBeInTheDocument();
+    });
+  });
+
+  it('should not offer Why am I seeing this? on a feed without explanations', async () => {
+    renderComponent([
+      createFeedMock({
+        pageInfo: defaultFeedPage.pageInfo,
+        edges: [defaultFeedPage.edges[0]],
+      }),
+    ]);
+
+    const [menuBtn] = await screen.findAllByLabelText('Options');
+    fireEvent.keyDown(menuBtn, { key: ' ' });
+    await screen.findByText('Share via');
+    expect(screen.queryByText('Why am I seeing this?')).not.toBeInTheDocument();
   });
 
   it('should restore the post when clicking Undo on the hidden feedback panel', async () => {

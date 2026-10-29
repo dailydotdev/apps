@@ -34,6 +34,8 @@ export interface UseLogImpressionProps {
   highlightColSpan?: number;
   origin?: Origin;
   searchLogExtra?: SearchLogExtra;
+  /** Debug mode: the card's explanation covers it. */
+  isExplaining?: boolean;
 }
 
 export default function useLogImpression({
@@ -47,6 +49,7 @@ export default function useLogImpression({
   highlightColSpan,
   origin,
   searchLogExtra,
+  isExplaining = false,
 }: UseLogImpressionProps): (node?: Element | null) => void {
   const { logEventStart, logEventEnd } = useLogContext();
   const postLogEvent = usePostLogEvent();
@@ -58,11 +61,10 @@ export default function useLogImpression({
     if (item.type === 'post') {
       // Debug covers the card with its explanation, so it is not an
       // impression of the post.
-      if (item.post.explain !== undefined) {
-        return;
-      }
+      const isCovered = isExplaining && item.post.explain !== undefined;
+      const isSeen = inView && !isCovered;
       const eventKey = generatePostLogEventKey(item.post.id);
-      if (inView && !item.post.impressionStatus) {
+      if (isSeen && !item.post.impressionStatus) {
         const significance = item.post.hero?.significance;
         logEventStart(
           eventKey,
@@ -94,7 +96,7 @@ export default function useLogImpression({
         // eslint-disable-next-line no-param-reassign
         item.post.impressionStatus = ImpressionStatus.LOGGING;
       } else if (
-        !inView &&
+        !isSeen &&
         item.post.impressionStatus === ImpressionStatus.LOGGING
       ) {
         logEventEnd(eventKey);
@@ -161,7 +163,7 @@ export default function useLogImpression({
     }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inView, item]);
+  }, [inView, item, isExplaining]);
 
   useEffect(() => {
     // Send pending impression on unmount

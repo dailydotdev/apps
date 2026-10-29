@@ -134,6 +134,8 @@ export interface FeedProps<T>
    */
   searchId?: string;
   searchVersion?: number;
+  /** Debug mode: each card's explanation covers it. */
+  isExplaining?: boolean;
 }
 
 interface RankVariables {
@@ -236,6 +238,7 @@ export default function Feed<T>({
   errorScreen,
   searchId,
   searchVersion,
+  isExplaining = false,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { logEvent } = useLogContext();
@@ -825,6 +828,7 @@ export default function Feed<T>({
                   disableAdRefresh={disableAdRefresh}
                   wideColSpan={wideColSpan}
                   searchLogExtra={searchLogExtra}
+                  isExplaining={isExplaining}
                 />
               );
 

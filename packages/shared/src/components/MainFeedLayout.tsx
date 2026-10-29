@@ -541,13 +541,14 @@ export default function MainFeedLayout({
     key: [QueryStateKeys.FeedPeriod],
     defaultValue: 0,
   });
-  // Explain mode swaps For You for the same feed with an explanation per
-  // card, under its own query key.
-  const { isExplaining } = useFeedExplainMode({
+  // Wherever For You can explain itself it asks for an explanation per card,
+  // under its own query key: the post menu's Why am I seeing this? reads it,
+  // and Debug mode lays it over every card.
+  const { isAvailable: canExplain, isExplaining } = useFeedExplainMode({
     isRecommended: selectedAlgo === DEFAULT_ALGORITHM_INDEX,
   });
   const isExplainFeed =
-    isExplaining &&
+    canExplain &&
     feedName === SharedFeedPage.MyFeed &&
     config.query === FEED_V2_QUERY;
 
@@ -698,6 +699,7 @@ export default function MainFeedLayout({
       ),
       query: isExplainFeed ? FEED_V2_EXPLAIN_QUERY : config.query,
       variables,
+      isExplaining: isExplainFeed && isExplaining,
       emptyScreen,
       actionButtons: feedWithActions && !isFeedWidgetsEnabled && (
         <SearchControlHeader
@@ -742,6 +744,7 @@ export default function MainFeedLayout({
     isTokenValid,
     isFeedWidgetsEnabled,
     isExplainFeed,
+    isExplaining,
   ]);
 
   // The gates above that hold `feedProps` back until the session can ask for

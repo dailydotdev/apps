@@ -157,9 +157,9 @@ it('keeps the feed’s actions and top slot without the rail', async () => {
 
 describe('Debug mode', () => {
   // The reader turned the switch on earlier in the session, on For You.
-  const renderDebugging = () => {
+  const renderDebugging = (isOn = true) => {
     const client = new QueryClient();
-    client.setQueryData([QueryStateKeys.FeedExplain], true);
+    client.setQueryData([QueryStateKeys.FeedExplain], isOn);
     return render(
       <TestBootProvider client={client} auth={{ user: defaultUser }}>
         <ActiveFeedNameContext.Provider
@@ -189,14 +189,21 @@ describe('Debug mode', () => {
     expect(lastFeedProps().variables).not.toHaveProperty('explain');
   });
 
-  it('asks the challenger version for explanations', async () => {
-    mockFlags({ explain: true, version: 116 });
+  it.each([
+    ['on', true],
+    ['off', false],
+  ])(
+    'asks the challenger version for explanations with Debug %s',
+    async (_, isOn) => {
+      mockFlags({ explain: true, version: 116 });
 
-    renderDebugging();
+      renderDebugging(isOn);
 
-    await screen.findByTestId('feed');
-    const { query, variables } = lastFeedProps();
-    expect(query).toBe(FEED_V2_EXPLAIN_QUERY);
-    expect(variables).toEqual(expect.objectContaining({ explain: true }));
-  });
+      await screen.findByTestId('feed');
+      const { query, variables, isExplaining } = lastFeedProps();
+      expect(query).toBe(FEED_V2_EXPLAIN_QUERY);
+      expect(variables).toEqual(expect.objectContaining({ explain: true }));
+      expect(isExplaining).toBe(isOn);
+    },
+  );
 });
