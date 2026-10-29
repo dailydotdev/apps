@@ -18,7 +18,9 @@ import { LiveDot } from './LiveDot';
 // bottom sheet. The sheet keeps the seat: closing it leaves the room.
 // On a phone the pill stands one gap above the post's action capsule (or in
 // its slot when there is none) and moves with it, so it never covers the
-// upvote, comment and share actions.
+// upvote, comment and share actions. `bottom` is not transitioned, so it
+// holds the resting offset and the capsule's height change while reading
+// rides on the transform, which is.
 export const LiveChatMobileEntry = ({
   postId,
   origin,
@@ -35,7 +37,8 @@ export const LiveChatMobileEntry = ({
   const { user } = useAuthContext();
   const isPhone = useIsPhone();
   const capsule = usePostCapsulePosition();
-  const capsuleOffset = hasCapsule ? capsule.height + field.gap : 0;
+  const capsuleOffset = hasCapsule ? field.rest + field.gap : 0;
+  const capsuleShrink = hasCapsule ? field.rest - capsule.height : 0;
   const [isOpen, setIsOpen] = useState(false);
   const { data: room, isPending } = useQuery(
     postChatRoomQueryOptions(user, postId),
@@ -55,7 +58,9 @@ export const LiveChatMobileEntry = ({
           isPhone
             ? {
                 bottom: `calc(${capsule.bottom} + ${capsuleOffset}px)`,
-                transform: `translateY(${capsule.translateY}px)`,
+                transform: `translateY(${
+                  capsule.translateY + capsuleShrink
+                }px)`,
                 transition: postCapsuleTransition,
               }
             : undefined

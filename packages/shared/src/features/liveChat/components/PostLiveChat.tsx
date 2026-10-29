@@ -17,15 +17,19 @@ export const PostLiveChat = ({
   post,
   origin,
   placement,
+  isPostPage,
 }: {
   post: Pick<Post, 'id' | 'trending' | 'type'>;
   origin: string;
   placement: 'rail' | 'mobile';
+  // The action capsule mounts on the post page alone (FooterWrapper), not
+  // in the post modals, so only there does the pill stand above it.
+  isPostPage?: boolean;
 }): ReactElement | null => {
   const { user } = useAuthContext();
   const { isEnabled } = useLiveChatEnabled();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const hasCapsule = useHasPostCapsule(post);
+  const hasCapsule = useHasPostCapsule(isPostPage ? post : undefined);
 
   if (!isEnabled || (placement === 'rail') !== isLaptop) {
     return null;
