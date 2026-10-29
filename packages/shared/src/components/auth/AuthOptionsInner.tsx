@@ -27,6 +27,10 @@ import {
   GITHUB_EMAIL_NOT_VERIFIED_ERROR,
   hasSocialAuthBootUser,
   refetchSocialAuthBoot,
+  SOCIAL_AUTH_CALLBACK_BOOT_RETRY_DELAYS_MS,
+  SOCIAL_AUTH_POPUP_CLOSED_ERROR,
+  SOCIAL_AUTH_POPUP_CLOSED_RECHECK_DELAYS_MS,
+  type SocialAuthBootUser,
   SOCIAL_AUTH_RETRY_MESSAGE,
 } from './socialAuth';
 import { webappUrl, broadcastChannel, isTesting } from '../../lib/constants';
@@ -220,6 +224,11 @@ function AuthOptionsInner({
   );
   const authFlowCompletedRef = useRef(false);
   const authFlowSucceededRef = useRef(false);
+  const socialAuthProviderRef = useRef<string | null>(null);
+  // Bumped on every new social auth attempt so stale background checks from a
+  // previous attempt (e.g. the late popup-closed recheck) become no-ops.
+  const socialAuthAttemptRef = useRef(0);
+  const isMountedRef = useRef(true);
 
   const clearPopupCheck = () => {
     if (popupCheckIntervalRef.current) {
@@ -229,7 +238,9 @@ function AuthOptionsInner({
   };
 
   useEffect(() => {
+    isMountedRef.current = true;
     return () => {
+      isMountedRef.current = false;
       clearPopupCheck();
     };
   }, []);
@@ -417,11 +428,83 @@ function AuthOptionsInner({
     return e.data.login === 'true' && e.data.eventKey === AuthEvent.Login;
   };
 
+  const completeSocialAuthRef =
+    useRef<
+      (user: SocialAuthBootUser, provider?: string | null) => Promise<void>
+    >();
+
+  const completeSocialAuth = async (
+    bootUser: SocialAuthBootUser,
+    authProvider?: string | null,
+  ) => {
+    // The popup-closed poll and a late callback message can both reach this
+    // point for the same attempt. Only the first one may run the success flow.
+    if (authFlowSucceededRef.current) {
+      return;
+    }
+    authFlowSucceededRef.current = true;
+
+    // If user is confirmed we can proceed with logging them in
+    if ('infoConfirmed' in bootUser && bootUser.infoConfirmed) {
+      setIsSocialAuthLoading(false);
+      await onSignBackLogin(
+        bootUser as LoggedUser,
+        authProvider as SignBackProvider,
+      );
+      const isAlreadyOnboarded = await checkForOnboardedUser(
+        bootUser as LoggedUser,
+      );
+      if (!isAlreadyOnboarded) {
+        onSuccessfulLogin?.();
+      }
+      return;
+    }
+
+    if (trigger === AuthTriggers.RecruiterSelfServe) {
+      setIsSocialAuthLoading(false);
+      const loggedUser = bootUser as LoggedUser;
+      await autoCompleteProfile(loggedUser.email, loggedUser.name, false);
+      return;
+    }
+
+    setIsSocialAuthLoading(false);
+    await setChosenProvider(authProvider || 'password');
+    onAuthStateUpdate?.({ defaultDisplay: AuthDisplay.SocialRegistration });
+    onSetActiveDisplay(AuthDisplay.SocialRegistration);
+  };
+
+  const recheckSessionAfterPopupClosed = async (
+    authProvider?: string | null,
+  ) => {
+    const attempt = socialAuthAttemptRef.current;
+    let boot: Awaited<ReturnType<typeof refetchSocialAuthBoot>>;
+    try {
+      boot = await refetchSocialAuthBoot(
+        refetchBoot,
+        SOCIAL_AUTH_POPUP_CLOSED_RECHECK_DELAYS_MS,
+      );
+    } catch {
+      return;
+    }
+
+    const isStale =
+      !isMountedRef.current ||
+      attempt !== socialAuthAttemptRef.current ||
+      authFlowSucceededRef.current;
+    if (isStale || !hasSocialAuthBootUser(boot?.user)) {
+      return;
+    }
+
+    await completeSocialAuthRef.current?.(boot.user, authProvider);
+  };
+
   const handleLoginMessage = async (
     e?: MessageEvent,
     providerOverride?: string,
+    { isPopupClosed = false }: { isPopupClosed?: boolean } = {},
   ) => {
-    const authProvider = providerOverride || chosenProvider;
+    const authProvider =
+      providerOverride || chosenProvider || socialAuthProviderRef.current;
     setActiveSocialProvider(authProvider);
     authFlowCompletedRef.current = true;
     clearPopupCheck();
@@ -448,7 +531,12 @@ function AuthOptionsInner({
 
     let boot;
     try {
-      boot = await refetchSocialAuthBoot(refetchBoot);
+      boot = await refetchSocialAuthBoot(
+        refetchBoot,
+        e && !callbackError
+          ? SOCIAL_AUTH_CALLBACK_BOOT_RETRY_DELAYS_MS
+          : undefined,
+      );
     } catch (error) {
       setIsSocialAuthLoading(false);
       onAuthStateUpdate?.({ isLoading: false });
@@ -468,6 +556,24 @@ function AuthOptionsInner({
       if (!authFlowSucceededRef.current) {
         displayToast(socialErrorMessage);
       }
+      return;
+    }
+
+    if (!hasSocialAuthBootUser(boot?.user) && isPopupClosed) {
+      setIsSocialAuthLoading(false);
+      onAuthStateUpdate?.({ isLoading: false });
+      logEvent({
+        event_name: socialErrorEventName.current,
+        extra: JSON.stringify({
+          provider: authProvider,
+          error: SOCIAL_AUTH_POPUP_CLOSED_ERROR,
+          origin: 'betterauth social popup closed',
+        }),
+      });
+      // Some browsers report the popup as closed before the session cookie
+      // lands. Re-check boot once more in the background (no loading state)
+      // and finish the sign-in if a session shows up.
+      recheckSessionAfterPopupClosed(authProvider);
       return;
     }
 
@@ -493,31 +599,10 @@ function AuthOptionsInner({
       return;
     }
 
-    authFlowSucceededRef.current = true;
-
-    // If user is confirmed we can proceed with logging them in
-    if ('infoConfirmed' in boot.user && boot.user.infoConfirmed) {
-      setIsSocialAuthLoading(false);
-      await onSignBackLogin(boot.user, authProvider as SignBackProvider);
-      const isAlreadyOnboarded = await checkForOnboardedUser(boot.user);
-      if (!isAlreadyOnboarded) {
-        onSuccessfulLogin?.();
-      }
-      return;
-    }
-
-    if (trigger === AuthTriggers.RecruiterSelfServe) {
-      setIsSocialAuthLoading(false);
-      const loggedUser = boot.user as LoggedUser;
-      await autoCompleteProfile(loggedUser.email, loggedUser.name, false);
-      return;
-    }
-
-    setIsSocialAuthLoading(false);
-    await setChosenProvider(authProvider || 'password');
-    onAuthStateUpdate({ defaultDisplay: AuthDisplay.SocialRegistration });
-    onSetActiveDisplay(AuthDisplay.SocialRegistration);
+    await completeSocialAuth(boot.user, authProvider);
   };
+
+  completeSocialAuthRef.current = completeSocialAuth;
 
   const onProviderClick = async (provider: string, login = true) => {
     if (isSocialAuthLoading) {
@@ -537,6 +622,8 @@ function AuthOptionsInner({
     });
     socialErrorEventName.current = authErrorEventName;
     authFlowSucceededRef.current = false;
+    socialAuthAttemptRef.current += 1;
+    socialAuthProviderRef.current = provider;
     setActiveSocialProvider(provider);
     setIsSocialAuthLoading(true);
 
@@ -623,7 +710,7 @@ function AuthOptionsInner({
       // Popup closed without delivering a completion message. The user may
       // still be authenticated (session cookies set even when postMessage is
       // missed/dropped); verify via boot before surfacing an error toast.
-      handleLoginMessage();
+      handleLoginMessage(undefined, provider, { isPopupClosed: true });
     }, 500);
   };
 
@@ -636,6 +723,7 @@ function AuthOptionsInner({
       ? AuthEventNames.LoginError
       : AuthEventNames.RegistrationError;
     authFlowSucceededRef.current = false;
+    socialAuthAttemptRef.current += 1;
     setIsSocialAuthLoading(true);
     logEvent({
       event_name: 'click',
@@ -666,7 +754,7 @@ function AuthOptionsInner({
     }
 
     await setChosenProvider('google');
-    await handleLoginMessage();
+    await handleLoginMessage(undefined, 'google');
   };
 
   const [hasLoggedAuthOpen, setHasLoggedAuthOpen] = useState(false);

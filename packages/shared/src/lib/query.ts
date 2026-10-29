@@ -61,7 +61,6 @@ export enum OtherFeedPage {
   ExploreDiscussed = 'postsdiscussed',
   ExploreUpvoted = 'postsupvoted',
   FeedByIds = 'feed-by-ids',
-  Welcome = 'welcome',
   Following = 'following',
   Post = 'posts[id]',
 }
@@ -185,6 +184,7 @@ export enum RequestKey {
   FeedSettings = 'feedSettings',
   FeedProfile = 'feed_profile',
   FeedControls = 'feed_controls',
+  FeedPostExplanation = 'feed_post_explanation',
   FeedWidgetData = 'feed_widget_data',
   Ads = 'ads',
   FeedByIds = 'feedByIds',

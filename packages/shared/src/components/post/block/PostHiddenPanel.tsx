@@ -19,6 +19,9 @@ import { GenericTagButton } from '../../filters/TagButton';
 import { Origin } from '../../../lib/log';
 import { isRankedExplain } from '../../../features/feedExplain/types';
 import { ShowLessTopicOffer } from '../../../features/feedExplain/components/ShowLessTopicOffer';
+import { useFeedPostExplanation } from '../../../features/feedExplain/useFeedPostExplanation';
+import { useActiveFeedContext } from '../../../contexts/ActiveFeedContext';
+import { useFeedCardContext } from '../../../features/posts/FeedCardContext';
 
 interface PostHiddenPanelProps {
   post: Post;
@@ -57,9 +60,16 @@ export function PostHiddenPanel({
       ),
   );
   const [isConfirmed, setIsConfirmed] = useState(false);
-  const showLessTag = isRankedExplain(post.explain)
-    ? post.explain.match?.tag
-    : undefined;
+  // Outside Debug mode the post carries no explanation, so the matched topic
+  // is asked for.
+  const { getExplainRequest } = useActiveFeedContext();
+  const { isAd } = useFeedCardContext();
+  const { explain } = useFeedPostExplanation({
+    postId: post.id,
+    explain: post.explain,
+    request: isAd ? undefined : getExplainRequest?.(post.id),
+  });
+  const showLessTag = isRankedExplain(explain) ? explain.match?.tag : undefined;
 
   const { onUnhide, onSubmitFeedback, onDismiss, onReportSubmitted } =
     useHidePost({ post });

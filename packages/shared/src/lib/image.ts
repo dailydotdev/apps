@@ -201,9 +201,6 @@ export const cloudinaryShortcutsIconsStackoverflow =
 export const cloudinarySourceRoadmap =
   'https://media.daily.dev/image/upload/s--91LSaHRW--/f_auto,q_auto/v1717766368/roadmap_iambav';
 
-export const cloudinaryWelcomePageHeaderMainImage =
-  'https://media.daily.dev/image/upload/s--jn7-qwCj--/f_auto,q_auto/v1721136180/public/daily-to-dev-suffer-together';
-
 export const cloudinaryIntegrationsSlackHeaderLight =
   'https://media.daily.dev/image/upload/s--5PV2NbVq--/f_auto,q_auto/v1721634746/public/Connection%20image%20-%20Light';
 

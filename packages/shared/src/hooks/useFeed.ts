@@ -143,11 +143,19 @@ export type FeedItem =
   | AdSquadItem
   | PlaceholderItem;
 
+// Skadi marks a boost by what it carries: the post or the squad, no creative.
+export const isBoostedPostCreative = (
+  ad: Ad,
+): ad is Ad & { data: { post: Post } } => !!ad.data?.post;
+
+export const isBoostedSquadCreative = (ad: Ad): ad is AdSquadItem['ad'] =>
+  !!ad.data?.source;
+
 export const isBoostedPostAd = (item: FeedItem): item is AdPostItem =>
-  item?.type === FeedItemType.Ad && !!item.ad.data?.post;
+  item?.type === FeedItemType.Ad && isBoostedPostCreative(item.ad);
 
 export const isBoostedSquadAd = (item: FeedItem): item is AdSquadItem =>
-  item?.type === FeedItemType.Ad && !!item.ad.data?.source;
+  item?.type === FeedItemType.Ad && isBoostedSquadCreative(item.ad);
 
 export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
 
@@ -192,6 +200,8 @@ export type FeedReturnType = {
   fetchPage: () => Promise<void>;
   updatePost: UpdateFeedPost;
   removePost: (page: number, index: number) => void;
+  /** What a loaded page was asked with, which keys the feed service's cache. */
+  getPageRequest: (page: number) => FeedPageRequest | undefined;
   canFetchMore: boolean;
   emptyFeed: boolean;
   isLoading: boolean;
@@ -201,6 +211,12 @@ export type FeedReturnType = {
   isPending: boolean;
   error?: ClientError;
 };
+
+export interface FeedPageRequest {
+  first: number;
+  /** The page's own cursor, as the request for the next page sends it. */
+  cursor?: string;
+}
 
 type UseFeedSettingParams = {
   adPostLength?: number;
@@ -425,7 +441,7 @@ export default function useFeed<T>(
         }, []),
       );
 
-      return res;
+      return { ...res, first: pageSize };
     },
     refetchOnMount: false,
     gcTime: StaleTime.OneHour,
@@ -907,12 +923,26 @@ export default function useFeed<T>(
     },
   };
 
+  const getPageRequest = useCallback(
+    (page: number): FeedPageRequest | undefined => {
+      const data = feedQuery.data?.pages[page];
+      return data?.first
+        ? {
+            first: data.first,
+            cursor: data.page.pageInfo.endCursor ?? undefined,
+          }
+        : undefined;
+    },
+    [feedQuery.data],
+  );
+
   return {
     items,
     placements,
     heroCardsConfig,
     bannerInsertions,
     hasFirstSlotCard,
+    getPageRequest,
     fetchPage: async () => {
       await feedQuery.fetchNextPage();
     },

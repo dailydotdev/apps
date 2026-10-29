@@ -62,6 +62,8 @@ export type FeedApiItem = FeedPostItem | FeedHighlightsItem;
 
 export interface FeedItemData {
   page: Connection<FeedApiItem>;
+  /** The page size it was asked with, which the layout can change between pages. */
+  first?: number;
 }
 
 type FeedV2PostItem = {

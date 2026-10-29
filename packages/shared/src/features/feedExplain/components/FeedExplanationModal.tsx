@@ -29,6 +29,7 @@ import {
   ProfileImageSize,
   ProfilePicture,
 } from '../../../components/ProfilePicture';
+import { ElementPlaceholder } from '../../../components/ElementPlaceholder';
 import type { Post } from '../../../graphql/posts';
 import { isSourceUserSource, SourceType } from '../../../graphql/sources';
 import {
@@ -37,6 +38,11 @@ import {
 } from '../../../graphql/contentPreference';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { usePostById } from '../../../hooks/usePostById';
+import type { FeedPostExplanationRequest } from '../graphql';
+import {
+  FeedPostExplanationStatus,
+  useFeedPostExplanation,
+} from '../useFeedPostExplanation';
 import useFeedSettings from '../../../hooks/useFeedSettings';
 import useTagAndSource from '../../../hooks/useTagAndSource';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
@@ -73,9 +79,18 @@ import { SourceLevelPicker } from './SourceLevelPicker';
 
 export interface FeedExplanationModalProps extends LazyModalCommonProps {
   post: Post;
-  explain: FeedItemExplain | null;
+  /** Left out when the feed didn't load it: the modal asks with `request`. */
+  explain?: FeedItemExplain | null;
+  request?: FeedPostExplanationRequest;
   onHide: () => unknown;
 }
+
+const unavailableReason: Partial<Record<FeedPostExplanationStatus, string>> = {
+  [FeedPostExplanationStatus.Expired]:
+    "Your feed has changed since this post was shown, so we can't explain it anymore. Refresh your feed to see why its posts are there.",
+  [FeedPostExplanationStatus.Failed]:
+    "We couldn't load why this post is here. Try again in a moment.",
+};
 
 const Strong = ({ children }: { children: ReactNode }): ReactElement => (
   <strong className="font-bold text-text-primary">{children}</strong>
@@ -279,7 +294,8 @@ const TopicGlyph = (): ReactElement => (
  */
 function FeedExplanationModal({
   post: feedPost,
-  explain,
+  explain: cardExplain,
+  request,
   onHide,
   ...props
 }: FeedExplanationModalProps): ReactElement {
@@ -289,6 +305,12 @@ function FeedExplanationModal({
   const { post: loadedPost } = usePostById({ id: feedPost.id });
   const post = loadedPost ?? feedPost;
   const { source, author } = post;
+  const { explain, status } = useFeedPostExplanation({
+    postId: feedPost.id,
+    explain: cardExplain,
+    request,
+  });
+  const isLoading = status === FeedPostExplanationStatus.Loading;
   const { feedSettings } = useFeedSettings();
   // A lazy modal renders outside the feed, where `useFeedExplainMode` can't
   // tell For You apart, so the version comes from the flag itself.
@@ -478,7 +500,8 @@ function FeedExplanationModal({
     await action();
     dropIdleFeeds();
   };
-  const actionRows = rows.map((row) => ({
+  // The rows wait for the explanation, which sorts them into what matched.
+  const actionRows = (isLoading ? [] : rows).map((row) => ({
     ...row,
     onToggleFollow: row.onToggleFollow && afterChange(row.onToggleFollow),
     onToggleBlock: afterChange(row.onToggleBlock),
@@ -538,11 +561,22 @@ function FeedExplanationModal({
                   onClick={onRequestClose}
                 />
               </div>
-              <p className="text-text-secondary typo-body">
-                {reason.lead}
-                {reason.name && <Strong>{reason.name}</Strong>}
-                {reason.tail}
-              </p>
+              {isLoading ? (
+                <div className="flex flex-col gap-2 py-1" aria-busy>
+                  <ElementPlaceholder className="h-4 w-full rounded-8" />
+                  <ElementPlaceholder className="h-4 w-2/3 rounded-8" />
+                </div>
+              ) : (
+                <p className="text-text-secondary typo-body">
+                  {unavailableReason[status] ?? (
+                    <>
+                      {reason.lead}
+                      {reason.name && <Strong>{reason.name}</Strong>}
+                      {reason.tail}
+                    </>
+                  )}
+                </p>
+              )}
             </header>
             <div className="flex flex-col gap-6 p-4 tablet:p-6">
               {matchedRows.length > 0 && (

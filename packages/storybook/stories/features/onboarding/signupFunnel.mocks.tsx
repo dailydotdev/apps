@@ -209,7 +209,7 @@ export const ADVANCED_SETTINGS = [
 // `useFeedSettings` and the onboarding tag list both hit the API. Seeding them
 // has to happen from INSIDE the provider tree — ExtensionProviders mounts its
 // own QueryClientProvider, so a client created outside is invisible to them.
-const SeedFeedSettings = ({
+export const SeedFeedSettings = ({
   children,
 }: PropsWithChildren): ReactElement | null => {
   const client = useQueryClient();
@@ -370,7 +370,7 @@ export const MockPlusPaymentProvider = ({
   </PaymentContext.Provider>
 );
 
-const pushNotificationsMock = {
+export const pushNotificationsMock = {
   isPushSupported: true,
   isInitialized: true,
   isSubscribed: false,

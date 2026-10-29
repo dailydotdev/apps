@@ -545,9 +545,9 @@ export default function MainFeedLayout({
     key: [QueryStateKeys.FeedPeriod],
     defaultValue: 0,
   });
-  // Wherever For You can explain itself it asks for an explanation per card,
-  // under its own query key: the post menu's Why am I seeing this? reads it,
-  // and Debug mode lays it over every card.
+  // Debug mode lays an explanation over every card, so only then does For You
+  // ask for one per card, under its own query key. Otherwise the post menu's
+  // Why am I seeing this? asks for its post's when opened.
   const {
     isAvailable: canExplain,
     isExplaining,
@@ -555,13 +555,14 @@ export default function MainFeedLayout({
   } = useFeedExplainMode({
     isRecommended: selectedAlgo === DEFAULT_ALGORITHM_INDEX,
   });
-  const isExplainFeed =
+  const canExplainPosts =
     canExplain &&
     feedName === SharedFeedPage.MyFeed &&
     config.query === FEED_V2_QUERY;
+  const isExplainFeed = canExplainPosts && isExplaining;
   // Tune ranks the feed with its draft, beside it, in Debug mode.
   const tune = useFeedTuneState();
-  const isTuning = isExplainFeed && isExplaining && tune.isOpen;
+  const isTuning = isExplainFeed && tune.isOpen;
   const tuneDraft = isTuning && tune.hasChanges ? tune.draft : undefined;
   const { isOpen: isTuneOpen, close: closeTune } = tune;
   useEffect(() => {
@@ -726,7 +727,8 @@ export default function MainFeedLayout({
       ),
       query: isExplainFeed ? FEED_V2_EXPLAIN_QUERY : config.query,
       variables,
-      isExplaining: isExplainFeed && isExplaining,
+      isExplaining: isExplainFeed,
+      canExplainPosts,
       emptyScreen,
       actionButtons: feedWithActions && !isFeedWidgetsEnabled && (
         <SearchControlHeader
@@ -770,8 +772,8 @@ export default function MainFeedLayout({
     loadedAlgo,
     isTokenValid,
     isFeedWidgetsEnabled,
+    canExplainPosts,
     isExplainFeed,
-    isExplaining,
     tuneDraft,
   ]);
 
@@ -1086,7 +1088,7 @@ export default function MainFeedLayout({
             )}
           />
         )}
-        {isExplainFeed && isExplaining && !isTuning && <FeedExplainBar />}
+        {isExplainFeed && !isTuning && <FeedExplainBar />}
         {isFeedPending && isPhone && (
           <>
             {/* Where the rail lands once the feed can render, so the

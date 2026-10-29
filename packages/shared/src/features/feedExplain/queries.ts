@@ -1,7 +1,12 @@
 import { queryOptions } from '@tanstack/react-query';
 import type { LoggedUser } from '../../lib/user';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import { getFeedControls, getFeedProfile } from './graphql';
+import type { FeedPostExplanationRequest } from './graphql';
+import {
+  getFeedControls,
+  getFeedPostExplanation,
+  getFeedProfile,
+} from './graphql';
 
 type QueryUser = Pick<LoggedUser, 'id'> | undefined;
 
@@ -28,4 +33,26 @@ export const feedControlsQueryOptions = (user: QueryUser) =>
     queryFn: getFeedControls,
     staleTime: StaleTime.FeedSettings,
     enabled: !!user?.id,
+  });
+
+// One post's explanation outside Debug, read from the feed the feed service
+// cached when it served the post. The request carries the generation of the
+// post's page, so an answer never changes and is kept; a refetch after a
+// follow or level set from the modal would find no feed under the new hash.
+export const feedPostExplanationQueryOptions = (
+  user: QueryUser,
+  postId: string,
+  request: FeedPostExplanationRequest | undefined,
+) =>
+  queryOptions({
+    queryKey: generateQueryKey(
+      RequestKey.FeedPostExplanation,
+      user,
+      postId,
+      request,
+    ),
+    queryFn: () => getFeedPostExplanation(postId, request),
+    staleTime: Infinity,
+    retry: 1,
+    enabled: !!user?.id && !!request,
   });
