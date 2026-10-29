@@ -14,6 +14,10 @@ import { MailIcon } from '@dailydotdev/shared/src/components/icons/Mail';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { signupWallHorizon } from '@dailydotdev/shared/src/lib/image';
+import {
+  privacyPolicy,
+  termsOfService,
+} from '@dailydotdev/shared/src/lib/constants';
 import { HERO_STYLES } from '@dailydotdev/shared/src/features/onboarding/components/signupHero/heroStyles';
 import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding/OnboardingHeader';
 import { NewTabActivationPrimer } from '@dailydotdev/shared/src/features/onboarding/components/NewTabActivationPrimer';
@@ -51,6 +55,7 @@ const phoneHeadline = {
   lineHeight: '2.25rem',
   letterSpacing: '-0.0525rem',
 };
+const landingLegal = { fontSize: '0.6875rem', lineHeight: '1rem' };
 const landingButton = (isPrimary: boolean) => ({
   height: '3rem',
   borderRadius: '0.875rem',
@@ -71,9 +76,10 @@ const LandingFont = (): ReactElement => (
 );
 
 // The marketing landing's sign-up block, the source of truth: headline, the
-// three ways to sign up and the log in link. On iOS, Apple takes GitHub's
-// place: the App Store requires Sign in with Apple next to other social
-// logins, and the app already offers it.
+// three ways to sign up and the log in link. The legal line under the
+// buttons shows on the web only, not in the apps. On iOS, Apple takes
+// GitHub's place: the App Store requires Sign in with Apple next to other
+// social logins, and the app already offers it.
 const LandingSignupBlock = ({
   align = 'left',
   isIOS = false,
@@ -134,6 +140,22 @@ const LandingSignupBlock = ({
             </Button>
           ))}
         </div>
+        {align === 'left' && (
+          <p
+            className="mt-4 w-full text-center text-text-tertiary"
+            style={landingLegal}
+          >
+            By continuing, you agree to the{' '}
+            <a href={termsOfService} className="underline">
+              Terms of Service
+            </a>{' '}
+            and{' '}
+            <a href={privacyPolicy} className="underline">
+              Privacy Policy
+            </a>
+            .
+          </p>
+        )}
         <MemberAlready
           onLogin={fn()}
           className={{
