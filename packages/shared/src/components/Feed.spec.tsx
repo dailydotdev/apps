@@ -38,7 +38,12 @@ import {
   mockGraphQL,
 } from '../../__tests__/helpers/graphql';
 import { settingsContext as baseSettingsContext } from '../../__tests__/helpers/boot';
-import { ANONYMOUS_FEED_QUERY, FEED_V2_QUERY } from '../graphql/feed';
+import {
+  ANONYMOUS_FEED_QUERY,
+  FEED_V2_EXPLAIN_QUERY,
+  FEED_V2_QUERY,
+} from '../graphql/feed';
+import { FEED_PROFILE_QUERY } from '../features/feedExplain/graphql';
 import AuthContext from '../contexts/AuthContext';
 import Feed from './Feed';
 import defaultFeedPage from '../../__tests__/fixture/feed';
@@ -307,8 +312,8 @@ function renderComponent(
           isAuthReadyOrCached: true,
         }}
       >
-        <LazyModalElement />
         <SettingsContext.Provider value={settingsContext}>
+          <LazyModalElement />
           <Toast autoDismissNotifications={false} />
           <TopHeroSlotProvider>
             <TopHeroSlotTarget />
@@ -984,6 +989,170 @@ describe('Feed logged in', () => {
     expect(
       screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
     ).not.toBeInTheDocument();
+  });
+
+  describe('in Explain mode', () => {
+    const explainedPost = {
+      ...defaultFeedPage.edges[0].node,
+      tags: ['javascript', 'php'],
+    };
+
+    const renderExplained = (mocks: MockedGraphQLResponse[] = []) =>
+      renderComponent(
+        [
+          {
+            request: { query: FEED_V2_EXPLAIN_QUERY, variables },
+            result: {
+              data: {
+                page: {
+                  pageInfo: defaultFeedPage.pageInfo,
+                  edges: [
+                    {
+                      node: {
+                        __typename: 'FeedPostItem',
+                        feedMeta: null,
+                        post: explainedPost,
+                        explain: {
+                          lane: 'chal',
+                          v: 1,
+                          score: 0.81,
+                          position: 3,
+                          base: { value: 1.2, viewers: 1200 },
+                          match: {
+                            tag: 'javascript',
+                            origin: 'declared',
+                            role: 'central',
+                            role_weight: 1,
+                            strength: 'strong',
+                            weight: 0.62,
+                            computed_weight: 0.62,
+                            factor: 1.62,
+                          },
+                          follow: { factor: 1 },
+                          age: { days: 2.1, factor: 0.81 },
+                          seen: { shows: 1, factor: 0.69 },
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          createTagsSettingsMock({
+            includeTags: ['javascript'],
+            blockedTags: [],
+            excludeSources: [],
+          }),
+          {
+            request: { query: FEED_PROFILE_QUERY, variables: { version: 15 } },
+            result: {
+              data: {
+                feedProfile: {
+                  cohort: true,
+                  learning: true,
+                  interests: [
+                    {
+                      tag: 'php',
+                      origin: 'inferred',
+                      strength: 'moderate',
+                      stories: 3,
+                      hiddenStories: 0,
+                      computedWeight: 0.45,
+                      control: null,
+                      weight: 0.45,
+                      backed: true,
+                    },
+                  ],
+                  muted: [],
+                  blocked: [],
+                },
+              },
+            },
+          },
+          ...mocks,
+        ],
+        defaultUser,
+        SharedFeedPage.MyFeed,
+        FEED_V2_EXPLAIN_QUERY,
+      );
+
+    it('should cover the card with why it is here and the boost of each topic', async () => {
+      let hideCalled = false;
+      renderExplained([
+        {
+          request: {
+            query: HIDE_POST_MUTATION,
+            variables: { id: explainedPost.id },
+          },
+          result: () => {
+            hideCalled = true;
+            return { data: { _: true } };
+          },
+        },
+      ]);
+
+      expect(
+        await screen.findByText(
+          (_, element) =>
+            element?.tagName === 'SPAN' &&
+            element.textContent ===
+              'You follow #javascript and read about it often.',
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByLabelText('Boost for #javascript: ×1.62'),
+      ).toBeInTheDocument();
+      expect(
+        await screen.findByLabelText('Boost for #php: ×1.45'),
+      ).toBeInTheDocument();
+      expect(
+        await screen.findByText("You've read 3 posts on it"),
+      ).toBeInTheDocument();
+      expect(screen.getByText('#3')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Hide post' }));
+      await waitFor(() => expect(hideCalled).toBeTruthy());
+      expect(
+        await screen.findByText("Got it. You'll see less like this."),
+      ).toBeInTheDocument();
+      expect(screen.queryByText('Full explanation')).not.toBeInTheDocument();
+    });
+
+    it('should open the full explanation with the score breakdown', async () => {
+      renderExplained([
+        {
+          request: {
+            query: POST_BY_ID_QUERY,
+            variables: { id: explainedPost.id },
+          },
+          result: { data: { post: explainedPost } },
+        },
+      ]);
+
+      fireEvent.click(await screen.findByText('Full explanation'));
+      const dialog = await screen.findByRole('dialog');
+      expect(
+        await within(dialog).findByText('Why am I seeing this?'),
+      ).toBeInTheDocument();
+      expect(
+        within(dialog).getByText(
+          (_, element) =>
+            element?.tagName === 'P' &&
+            element.textContent ===
+              'You follow #javascript and read about it often.',
+        ),
+      ).toBeInTheDocument();
+      expect(within(dialog).getByText('What matched you')).toBeInTheDocument();
+      expect(within(dialog).getByText('Score breakdown')).toBeInTheDocument();
+      expect(
+        within(dialog).getByRole('button', { name: 'Topic match' }),
+      ).toBeInTheDocument();
+      expect(within(dialog).getByText('×1.62')).toBeInTheDocument();
+      expect(
+        within(dialog).getByRole('button', { name: 'Score' }),
+      ).toBeInTheDocument();
+    });
   });
 
   it('should restore the post when clicking Undo on the hidden feedback panel', async () => {

@@ -30,6 +30,7 @@ const PollGrid = forwardRef(function PollCard(
     onBookmarkClick,
     onCopyLinkClick,
     domProps = {},
+    children,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
@@ -99,6 +100,7 @@ const PollGrid = forwardRef(function PollCard(
           onDownvoteClick={onDownvoteClick}
         />
       </Container>
+      {children}
     </FeedItemContainer>
   );
 });

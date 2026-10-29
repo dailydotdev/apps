@@ -78,6 +78,10 @@ jest.mock('../../hooks/usePlusEntry', () => ({
   default: jest.fn(),
 }));
 
+jest.mock('../../features/feedExplain/useFeedExplainMode', () => ({
+  useFeedExplainMode: () => ({ isOffered: false, isExplaining: false }),
+}));
+
 jest.mock('./UnifiedMobileFeedNav', () => ({
   __esModule: true,
   default: () => (

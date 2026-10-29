@@ -11,6 +11,7 @@ export enum Origin {
   ReaderModal = 'reader modal',
   Companion = 'companion',
   Feed = 'feed',
+  FeedExplain = 'feed explain',
   FeedHero = 'feed hero',
   FeedWidgets = 'feed widgets',
   TipsPage = 'tips page',
@@ -438,6 +439,10 @@ export enum LogEvent {
   ToggleClickbaitShield = 'toggle clickbait shield',
   ClickbaitShieldTitle = 'clickbait shield title',
   // End Clickbait Shield
+  // Feed explain
+  ToggleFeedExplain = 'toggle feed explain',
+  OpenFeedExplanation = 'open feed explanation',
+  // End Feed explain
   SetHighlightsPlacement = 'set highlights placement',
   InstallPWA = 'install pwa',
   // Start Share

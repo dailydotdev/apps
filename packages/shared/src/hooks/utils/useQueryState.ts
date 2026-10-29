@@ -16,6 +16,7 @@ interface UseQueryStateProps<T> {
 
 export enum QueryStateKeys {
   FeedPeriod = 'feedPeriod',
+  FeedExplain = 'feedExplain',
 }
 
 export const useQueryState = <T>({

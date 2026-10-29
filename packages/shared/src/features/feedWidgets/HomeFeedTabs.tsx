@@ -18,6 +18,7 @@ import {
   ForYouSheet,
   ForYouSortMenu,
   ForYouTabLabel,
+  getForYouMenuAriaLabel,
   useForYouSort,
 } from '../../components/feeds/ForYouSort';
 import MyFeedHeading from '../../components/filters/MyFeedHeading';
@@ -32,10 +33,7 @@ import { ShellDockedRow } from '../../components/shell/ShellPageContext';
 import { usePassedBlock } from '../../components/shell/usePassedBlock';
 import { useShellEdge } from '../../components/shell/useShellScroll';
 import { pageHeaderClassName } from '../../components/layout/PageHeader';
-import {
-  algorithms,
-  DEFAULT_ALGORITHM_INDEX,
-} from '../../components/layout/common';
+import { DEFAULT_ALGORITHM_INDEX } from '../../components/layout/common';
 import { SharedFeedPage } from '../../components/utilities/common';
 import { useIsPhoneNow, useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
@@ -44,6 +42,8 @@ import usePlusEntry from '../../hooks/usePlusEntry';
 import { Origin, TargetType } from '../../lib/log';
 import type { AllFeedPages } from '../../lib/query';
 import { useInert } from './FeedWidgetFrame';
+import { FeedExplainSwitch } from '../feedExplain/components/FeedExplainSwitch';
+import { useFeedExplainMode } from '../feedExplain/useFeedExplainMode';
 
 export interface HomeFeedTabsProps {
   /** The feed on screen: a custom feed when it is the reader's default. */
@@ -105,6 +105,9 @@ export function HomeFeedTabs({
     }
   }, [blockBottom, isPhone]);
   const sort = useForYouSort(onSortChange);
+  const { isExplaining } = useFeedExplainMode({
+    isRecommended: sort.selected === DEFAULT_ALGORITHM_INDEX,
+  });
   const isForYou = feedName === SharedFeedPage.MyFeed;
   const hasFeedActions = isForYou || feedName === SharedFeedPage.Custom;
   const canSort = sort.canSort && feedName !== SharedFeedPage.Custom;
@@ -126,13 +129,17 @@ export function HomeFeedTabs({
           <HomeSegments
             forYou={{
               label: (
-                <ForYouTabLabel label={forYouLabel} selected={sort.selected} />
+                <ForYouTabLabel
+                  label={forYouLabel}
+                  selected={sort.selected}
+                  isExplaining={isExplaining}
+                />
               ),
-              ariaLabel: `${forYouLabel}${
-                sort.selected === DEFAULT_ALGORITHM_INDEX
-                  ? ''
-                  : `, ${algorithms[sort.selected].text}`
-              }, sort and feed settings`,
+              ariaLabel: getForYouMenuAriaLabel({
+                label: forYouLabel,
+                selected: sort.selected,
+                isExplaining,
+              }),
               onMenu: () => setIsSheetOpen(true),
             }}
           />
@@ -203,6 +210,11 @@ export function HomeFeedTabs({
       }}
     />
   );
+  const explainSwitch = isForYou && (
+    <FeedExplainSwitch
+      isRecommended={sort.selected === DEFAULT_ALGORITHM_INDEX}
+    />
+  );
   const feedSettings = hasFeedActions && (
     <MyFeedHeading
       feedSettingsButtonProps={{
@@ -268,6 +280,7 @@ export function HomeFeedTabs({
               />
             )}
             {isTabletWidth && <NotificationsBell compact />}
+            {explainSwitch}
             {feedSettings}
           </div>
         </div>
@@ -328,6 +341,7 @@ export function HomeFeedTabs({
           <div className="flex shrink-0 items-center gap-1">
             {shield}
             <AchievementTrackerButton />
+            {explainSwitch}
             {feedSettings}
           </div>
         )}
