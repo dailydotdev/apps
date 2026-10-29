@@ -1,5 +1,5 @@
 /* eslint-disable no-template-curly-in-string -- literal macro tokens */
-import { getViewedPixels } from './getViewedPixels';
+import { getViewedPixels, getVisiblePixels } from './ownPixels';
 
 describe('getViewedPixels', () => {
   it('should mark our own pixels as viewed', () => {
@@ -37,5 +37,16 @@ describe('getViewedPixels', () => {
   it('should handle an ad without pixels', () => {
     expect(getViewedPixels()).toEqual([]);
     expect(getViewedPixels([])).toEqual([]);
+  });
+});
+
+describe('getVisiblePixels', () => {
+  it('should carry the seconds seen on our own pixels', () => {
+    expect(
+      getVisiblePixels(
+        ['https://api.daily.dev/a/imp?id=1', 'https://ads.example.com/imp'],
+        5,
+      ),
+    ).toEqual(['https://api.daily.dev/a/imp?id=1&visible=5']);
   });
 });
