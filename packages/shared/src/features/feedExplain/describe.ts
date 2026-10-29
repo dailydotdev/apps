@@ -1,12 +1,19 @@
 import type { Post } from '../../graphql/posts';
 import { isSourceUserSource } from '../../graphql/sources';
-import type { FeedItemExplain, RankedExplain } from './types';
+import type {
+  FeedControls,
+  FeedItemExplain,
+  FeedProfile,
+  RankedExplain,
+} from './types';
 import {
   ExplainFollowKind,
   ExplainOrigin,
   ExplainRole,
   ExplainStrength,
+  FeedTopicMode,
   isRankedExplain,
+  TopicControl,
 } from './types';
 
 // The lane the challenger ranks; the others (coldstart, popular) top up a
@@ -183,6 +190,67 @@ export const getExplainSignals = (
   return isRankedExplain(explain) && isSourceFollow(explain)
     ? [sourceSignal, ...otherTopics]
     : [...otherTopics, sourceSignal];
+};
+
+export interface SignalMeta {
+  text: string;
+  className: string;
+}
+
+export const topicModeMeta: Record<FeedTopicMode, SignalMeta> = {
+  [FeedTopicMode.Boost]: {
+    text: 'Showing more',
+    className: 'text-accent-avocado-default',
+  },
+  [FeedTopicMode.Demote]: {
+    text: 'Showing less',
+    className: 'text-accent-bun-default',
+  },
+  [FeedTopicMode.StopLearning]: {
+    text: 'Not learning from your reading',
+    className: 'text-accent-ketchup-default',
+  },
+  [FeedTopicMode.Off]: {
+    text: 'Off in For You',
+    className: 'text-accent-ketchup-default',
+  },
+};
+
+/** The level the reader set on a topic. */
+export const getTopicLevel = (
+  tag: string,
+  controls: FeedControls | undefined,
+  profile: FeedProfile | undefined,
+): FeedTopicMode | undefined => {
+  if (controls) {
+    return controls.topics.find(({ keyword }) => keyword === tag)?.mode;
+  }
+  // The profile lags a change behind the controls, so it only stands in
+  // until they load.
+  if (profile?.muted.includes(tag)) {
+    return FeedTopicMode.Off;
+  }
+  const interest = profile?.interests.find((item) => item.tag === tag);
+  return interest?.control === TopicControl.Demote
+    ? FeedTopicMode.Demote
+    : undefined;
+};
+
+export const getTopicWeight = (
+  tag: string,
+  explain: FeedItemExplain | null | undefined,
+  profile: FeedProfile | undefined,
+): { weight: number; isSet: boolean } | undefined => {
+  // The profile is weighed with the reader's latest levels, the
+  // explanation with the ones the card was ranked on.
+  if (profile) {
+    const interest = profile.interests.find((item) => item.tag === tag);
+    return { weight: interest?.weight ?? 0, isSet: !!interest?.control };
+  }
+  if (isRankedExplain(explain) && explain.match?.tag === tag) {
+    return { weight: explain.match.weight, isSet: !!explain.match.control };
+  }
+  return undefined;
 };
 
 export interface ScoreFactor {

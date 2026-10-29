@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Modal } from '../../../components/modals/common/Modal';
 import type { LazyModalCommonProps } from '../../../components/modals/common/Modal';
 import { ModalClose } from '../../../components/modals/common/ModalClose';
@@ -12,6 +13,7 @@ import {
 import { BlockIcon } from '../../../components/icons/Block';
 import { EyeCancelIcon } from '../../../components/icons/EyeCancel';
 import { HashtagIcon } from '../../../components/icons/Hashtag';
+import { MinusIcon } from '../../../components/icons/Minus';
 import { PlusIcon } from '../../../components/icons/Plus';
 import { SettingsIcon } from '../../../components/icons/Settings';
 import { VIcon } from '../../../components/icons/V';
@@ -36,15 +38,19 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { usePostById } from '../../../hooks/usePostById';
 import useFeedSettings from '../../../hooks/useFeedSettings';
 import useTagAndSource from '../../../hooks/useTagAndSource';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { useContentPreference } from '../../../hooks/contentPreference/useContentPreference';
 import { isFollowingContent } from '../../../hooks/contentPreference/types';
 import { Origin } from '../../../lib/log';
 import { isSpecialUser } from '../../../lib/user';
 import { settingsUrl } from '../../../lib/constants';
+import { feature } from '../../../lib/featureManagement';
 import type { FeedItemExplain } from '../types';
 import { useDropIdleForYouFeeds } from '../useDropIdleForYouFeeds';
-import { isRankedExplain } from '../types';
-import type { ExplanationMatch } from '../describe';
+import { useFeedControls } from '../useFeedControls';
+import { FeedSourceMode, FeedTopicMode, isRankedExplain } from '../types';
+import { feedProfileQueryKey, feedProfileQueryOptions } from '../queries';
+import type { ExplanationMatch, SignalMeta } from '../describe';
 import {
   ExplanationMatchKind,
   getExplanationMatches,
@@ -52,8 +58,12 @@ import {
   getPostTags,
   getReason,
   getScoreBreakdown,
+  getTopicLevel,
+  getTopicWeight,
+  topicModeMeta,
 } from '../describe';
 import { ScoreBreakdown } from './ScoreBreakdown';
+import { TopicLevelPicker } from './TopicLevelPicker';
 
 export interface FeedExplanationModalProps extends LazyModalCommonProps {
   post: Post;
@@ -87,10 +97,16 @@ interface EntityRow {
   key: string;
   title: string;
   meta: string;
+  /** Colors the meta when it names a level the reader set. */
+  metaClassName?: string;
   leading: ReactNode;
+  /** A topic's level picker, beside its title. */
+  level?: ReactNode;
   isBlocked: boolean;
   isFollowing?: boolean;
+  isShowingLess?: boolean;
   onToggleFollow?: () => unknown;
+  onToggleShowLess?: () => unknown;
   onToggleBlock: () => unknown;
 }
 
@@ -144,93 +160,128 @@ const EntityRowItem = ({
   row: EntityRow;
   match?: ExplanationMatch;
   maxPoints: number;
-}): ReactElement => (
-  <li
-    className={classNames('flex items-center gap-3', match ? 'py-2' : 'h-11')}
-  >
-    <span
+}): ReactElement => {
+  // A level the reader set gets its own line, like a match, so it shows on
+  // phones too.
+  const isStacked = !!match || !!row.metaClassName;
+
+  return (
+    <li
       className={classNames(
-        'flex size-8 items-center justify-center',
-        row.isBlocked && 'opacity-50',
-      )}
-    >
-      {match && !row.isBlocked ? (
-        <RelevanceRing ratio={Math.max(0, match.points) / maxPoints}>
-          {row.leading}
-        </RelevanceRing>
-      ) : (
-        row.leading
-      )}
-    </span>
-    <span
-      className={classNames(
-        'flex min-w-0 flex-1',
-        match ? 'flex-col gap-1' : 'items-baseline gap-2',
+        'flex items-center gap-3',
+        isStacked ? 'py-2' : 'h-11',
       )}
     >
       <span
         className={classNames(
-          'max-w-full truncate typo-callout',
-          row.isBlocked
-            ? 'text-text-tertiary line-through'
-            : 'text-text-primary',
+          'flex size-8 items-center justify-center',
+          row.isBlocked && 'opacity-50',
         )}
       >
-        {row.title}
+        {match && !row.isBlocked ? (
+          <RelevanceRing ratio={Math.max(0, match.points) / maxPoints}>
+            {row.leading}
+          </RelevanceRing>
+        ) : (
+          row.leading
+        )}
       </span>
       <span
         className={classNames(
-          'min-w-0 shrink truncate text-text-quaternary',
-          match ? 'typo-caption1' : 'hidden typo-footnote tablet:block',
+          'flex min-w-0 flex-1',
+          isStacked ? 'flex-col gap-1' : 'items-baseline gap-2',
         )}
       >
-        {row.meta}
-        {match && <span className="tabular-nums"> · {match.points} pts</span>}
-      </span>
-    </span>
-    <span className="flex items-center gap-1">
-      {row.isBlocked && (
-        <Button
-          type="button"
-          variant={ButtonVariant.Float}
-          size={ButtonSize.Small}
-          onClick={row.onToggleBlock}
+        <span className="flex max-w-full items-center gap-1.5">
+          <span
+            className={classNames(
+              'min-w-0 shrink truncate typo-callout',
+              row.isBlocked
+                ? 'text-text-tertiary line-through'
+                : 'text-text-primary',
+            )}
+          >
+            {row.title}
+          </span>
+          {!row.isBlocked && row.level}
+        </span>
+        <span
+          className={classNames(
+            'min-w-0 shrink truncate text-text-quaternary',
+            isStacked ? 'typo-caption1' : 'hidden typo-footnote tablet:block',
+          )}
         >
-          Unblock
-        </Button>
-      )}
-      {!row.isBlocked && !row.isFollowing && (
-        <Button
-          type="button"
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.Small}
-          icon={<BlockIcon />}
-          className="!text-text-tertiary"
-          aria-label={`Block ${row.title}`}
-          title={`Block ${row.title}`}
-          onClick={row.onToggleBlock}
-        />
-      )}
-      {!row.isBlocked && row.onToggleFollow && (
-        <Button
-          type="button"
-          variant={ButtonVariant.Tertiary}
-          className={
-            row.isFollowing
-              ? '!text-accent-cabbage-default'
-              : '!text-text-secondary'
-          }
-          size={ButtonSize.Small}
-          icon={row.isFollowing ? <VIcon /> : <PlusIcon />}
-          aria-pressed={row.isFollowing}
-          aria-label={`${row.isFollowing ? 'Unfollow' : 'Follow'} ${row.title}`}
-          title={row.isFollowing ? 'Unfollow' : 'Follow'}
-          onClick={row.onToggleFollow}
-        />
-      )}
-    </span>
-  </li>
-);
+          <span className={row.metaClassName}>{row.meta}</span>
+          {match && <span className="tabular-nums"> · {match.points} pts</span>}
+        </span>
+      </span>
+      <span className="flex items-center gap-1">
+        {row.isBlocked && (
+          <Button
+            type="button"
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Small}
+            onClick={row.onToggleBlock}
+          >
+            Unblock
+          </Button>
+        )}
+        {!row.isBlocked && !row.isFollowing && (
+          <Button
+            type="button"
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            icon={<BlockIcon />}
+            className="!text-text-tertiary"
+            aria-label={`Block ${row.title}`}
+            title={`Block ${row.title}`}
+            onClick={row.onToggleBlock}
+          />
+        )}
+        {!row.isBlocked && row.onToggleShowLess && (
+          <Button
+            type="button"
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            icon={<MinusIcon />}
+            className={
+              row.isShowingLess
+                ? '!text-accent-bun-default'
+                : '!text-text-tertiary'
+            }
+            aria-pressed={row.isShowingLess}
+            aria-label={`Show less from ${row.title}`}
+            title={
+              row.isShowingLess
+                ? `Set ${row.title} back to Auto.`
+                : `Show less from ${row.title}. Its posts rank lower, but the best ones still show.`
+            }
+            onClick={row.onToggleShowLess}
+          />
+        )}
+        {!row.isBlocked && row.onToggleFollow && (
+          <Button
+            type="button"
+            variant={ButtonVariant.Tertiary}
+            className={
+              row.isFollowing
+                ? '!text-accent-cabbage-default'
+                : '!text-text-secondary'
+            }
+            size={ButtonSize.Small}
+            icon={row.isFollowing ? <VIcon /> : <PlusIcon />}
+            aria-pressed={row.isFollowing}
+            aria-label={`${row.isFollowing ? 'Unfollow' : 'Follow'} ${
+              row.title
+            }`}
+            title={row.isFollowing ? 'Unfollow' : 'Follow'}
+            onClick={row.onToggleFollow}
+          />
+        )}
+      </span>
+    </li>
+  );
+};
 
 const TopicGlyph = (): ReactElement => (
   <span className="flex size-6 items-center justify-center rounded-max bg-surface-float text-text-tertiary">
@@ -239,9 +290,9 @@ const TopicGlyph = (): ReactElement => (
 );
 
 /**
- * "Why am I seeing this?" for a card in Explain mode: what matched the
- * reader, then the score breakdown, and follow and block for everything the
- * post is about.
+ * "Why am I seeing this?" for a For You card: what matched the reader, then
+ * the score breakdown, and the controls for everything the post is about:
+ * follow, block, topic levels and show less from the source.
  */
 function FeedExplanationModal({
   post: feedPost,
@@ -251,10 +302,19 @@ function FeedExplanationModal({
 }: FeedExplanationModalProps): ReactElement {
   const { onRequestClose } = props;
   const { user } = useAuthContext();
+  const client = useQueryClient();
   const { post: loadedPost } = usePostById({ id: feedPost.id });
   const post = loadedPost ?? feedPost;
   const { source, author } = post;
   const { feedSettings } = useFeedSettings();
+  // A lazy modal renders outside the feed, where `useFeedExplainMode` can't
+  // tell For You apart, so the version comes from the flag itself.
+  const { value: version } = useConditionalFeature({
+    feature: feature.feedVersion,
+    shouldEvaluate: !!user,
+  });
+  const { data: profile } = useQuery(feedProfileQueryOptions(user, version));
+  const feedControls = useFeedControls({ origin: Origin.FeedExplain });
   const {
     onFollowTags,
     onUnfollowTags,
@@ -276,12 +336,20 @@ function FeedExplanationModal({
   const breakdown = isRanked ? getScoreBreakdown(explain) : undefined;
   const reason = getReason(post, explain);
   const matchByKey = new Map(matches.map((match) => [match.key, match]));
-  const getMeta = (key: string, fallback: string, isBlocked: boolean) => {
+  const getMeta = (
+    key: string,
+    fallback: string,
+    isBlocked: boolean,
+    level?: SignalMeta,
+  ): Pick<EntityRow, 'meta' | 'metaClassName'> => {
     if (isBlocked) {
-      return 'Blocked';
+      return { meta: 'Blocked' };
+    }
+    if (level) {
+      return { meta: level.text, metaClassName: level.className };
     }
     const match = matchByKey.get(key);
-    return match ? getMatchMeta(match) : fallback;
+    return { meta: match ? getMatchMeta(match) : fallback };
   };
 
   const rows: EntityRow[] = [];
@@ -305,7 +373,7 @@ function FeedExplanationModal({
     rows.push({
       key,
       title: authorName,
-      meta: getMeta(key, 'author', isBlocked),
+      ...getMeta(key, 'author', isBlocked),
       leading: (
         <ProfilePicture
           user={author}
@@ -328,11 +396,18 @@ function FeedExplanationModal({
     const isBlocked = !!feedSettings?.excludeSources?.some(
       ({ id }) => id === source.id,
     );
-    const key = getMatchKey(ExplanationMatchKind.Source, source.id);
+    const sourceId = source.id;
+    const isShowingLess = feedControls.isSourceDemoted(sourceId);
+    const key = getMatchKey(ExplanationMatchKind.Source, sourceId);
     rows.push({
       key,
       title: source.name,
-      meta: getMeta(key, isSquad ? 'squad' : 'source', isBlocked),
+      ...getMeta(
+        key,
+        isSquad ? 'squad' : 'source',
+        isBlocked,
+        isShowingLess ? topicModeMeta[FeedTopicMode.Demote] : undefined,
+      ),
       leading: (
         <SourceAvatar
           source={source}
@@ -342,6 +417,12 @@ function FeedExplanationModal({
       ),
       isBlocked,
       isFollowing,
+      isShowingLess,
+      onToggleShowLess: () =>
+        feedControls.setSourceMode(
+          sourceId,
+          isShowingLess ? null : FeedSourceMode.Demote,
+        ),
       onToggleFollow:
         source.type === SourceType.Machine
           ? () =>
@@ -362,15 +443,32 @@ function FeedExplanationModal({
     const isBlocked = !!feedSettings?.blockedTags?.includes(tag);
     const key = getMatchKey(ExplanationMatchKind.Topic, tag);
     const tags = [tag];
+    const weight = getTopicWeight(tag, explain, profile);
+    const mode = feedControls.getTopicMode(tag);
+    const level = getTopicLevel(tag, feedControls.controls, profile);
     rows.push({
       key,
       title: `#${tag}`,
-      meta: getMeta(key, 'topic', isBlocked),
+      ...getMeta(key, 'topic', isBlocked, level && topicModeMeta[level]),
       leading: <TopicGlyph />,
+      level: weight && (
+        <TopicLevelPicker
+          tag={tag}
+          weight={weight.weight}
+          isSet={weight.isSet || !!mode}
+          mode={mode}
+          onChange={(value) => feedControls.setTopicMode(tag, value)}
+        />
+      ),
       isBlocked,
       isFollowing,
-      onToggleFollow: () =>
-        isFollowing ? onUnfollowTags({ tags }) : onFollowTags({ tags }),
+      // A follow changes the weights the profile shows; a block only hides.
+      onToggleFollow: async () => {
+        await (isFollowing ? onUnfollowTags({ tags }) : onFollowTags({ tags }));
+        await client.invalidateQueries({
+          queryKey: feedProfileQueryKey(user, version),
+        });
+      },
       onToggleBlock: () =>
         isBlocked ? onUnblockTags({ tags }) : onBlockTags({ tags }),
     });
