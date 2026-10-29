@@ -329,6 +329,11 @@
     }
   }
 
+  #credential_picker_container,
+  #credential_picker_iframe {
+    color-scheme: normal;
+  }
+
   .shell-menu-sheet {
     position: relative;
     /* the field variant sizes itself to its trigger; a sheet is the screen */
