@@ -1,11 +1,11 @@
 import type { CSSProperties, ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { onboardingHeadlineClasses, REQUIRED_TAGS_THRESHOLD } from './common';
 import styles from './TagProgressHeader.module.css';
 
-const TAG_MILESTONES = [REQUIRED_TAGS_THRESHOLD, 10, 20] as const;
-const [UNLOCK, SMARTER, DIALED_IN] = TAG_MILESTONES;
+const SMARTER = 10;
+const DIALED_IN = 20;
 
 const MILESTONE_HEADLINES = [
   'Keep tuning your feed',
@@ -15,11 +15,10 @@ const MILESTONE_HEADLINES = [
 
 const TYPING_MS_PER_CHAR = 12;
 
-const BAR_STOPS: [number, number][] = [
-  [0, 0],
-  [UNLOCK, 50],
-  [SMARTER, 75],
-  [DIALED_IN, 100],
+const getMilestones = (requiredTags: number): number[] => [
+  requiredTags,
+  SMARTER,
+  DIALED_IN,
 ];
 
 const SPARKS = [
@@ -38,13 +37,14 @@ const SPARKS = [
   ['-1rem', '-1rem'],
 ];
 
-const moreTags = (count: number) =>
-  `${count} more tag${count === 1 ? '' : 's'}`;
+const pluralTags = (count: number) => `tag${count === 1 ? '' : 's'}`;
 
-const getReachedMilestones = (count: number): number =>
-  TAG_MILESTONES.filter((milestone) => count >= milestone).length;
+const moreTags = (count: number) => `${count} more ${pluralTags(count)}`;
 
-const getTagGuidance = (count: number): string => {
+const getReachedMilestones = (milestones: number[], count: number): number =>
+  milestones.filter((milestone) => count >= milestone).length;
+
+const getTagGuidance = (count: number, requiredTags: number): string => {
   if (count >= DIALED_IN) {
     return 'Add tags to fine-tune.';
   }
@@ -53,24 +53,30 @@ const getTagGuidance = (count: number): string => {
     return `Pick ${moreTags(DIALED_IN - count)} to dial it in.`;
   }
 
-  if (count >= UNLOCK) {
+  if (count >= requiredTags) {
     return `Pick ${moreTags(SMARTER - count)} for a smarter feed.`;
   }
 
   return count
-    ? `Pick ${moreTags(UNLOCK - count)} to get started.`
-    : `Pick ${UNLOCK} tags to get started.`;
+    ? `Pick ${moreTags(requiredTags - count)} to get started.`
+    : `Pick ${requiredTags} ${pluralTags(requiredTags)} to get started.`;
 };
 
-const getTagBarProgress = (count: number): number => {
-  const upper = BAR_STOPS.findIndex(([tags]) => count <= tags);
+const getTagBarProgress = (count: number, requiredTags: number): number => {
+  const stops: [number, number][] = [
+    [0, 0],
+    [requiredTags, 50],
+    [SMARTER, 75],
+    [DIALED_IN, 100],
+  ];
+  const upper = stops.findIndex(([tags]) => count <= tags);
 
   if (upper <= 0) {
     return upper === 0 ? 0 : 100;
   }
 
-  const [fromTags, fromPercent] = BAR_STOPS[upper - 1];
-  const [toTags, toPercent] = BAR_STOPS[upper];
+  const [fromTags, fromPercent] = stops[upper - 1];
+  const [toTags, toPercent] = stops[upper];
 
   return (
     fromPercent +
@@ -78,7 +84,7 @@ const getTagBarProgress = (count: number): number => {
   );
 };
 
-const useMilestoneBurst = (count: number): number => {
+const useMilestoneBurst = (count: number, milestones: number[]): number => {
   const [burstKey, setBurstKey] = useState(0);
   const previous = useRef<number | null>(null);
   const celebrated = useRef(new Set<number>());
@@ -88,13 +94,13 @@ const useMilestoneBurst = (count: number): number => {
     previous.current = count;
 
     if (before === null) {
-      TAG_MILESTONES.forEach(
+      milestones.forEach(
         (milestone) => count >= milestone && celebrated.current.add(milestone),
       );
       return;
     }
 
-    const crossed = TAG_MILESTONES.find(
+    const crossed = milestones.find(
       (milestone) =>
         before < milestone &&
         count >= milestone &&
@@ -105,7 +111,7 @@ const useMilestoneBurst = (count: number): number => {
       celebrated.current.add(crossed);
       setBurstKey((key) => key + 1);
     }
-  }, [count]);
+  }, [count, milestones]);
 
   return burstKey;
 };
@@ -120,25 +126,30 @@ const TypingHeadline = ({
   text: string;
   headlines: string[];
 }): ReactElement => {
-  const [visible, setVisible] = useState(() =>
-    prefersReducedMotion() ? text.length : 0,
-  );
+  const [visible, setVisible] = useState(text.length);
+  const typedText = useRef(text);
 
   useEffect(() => {
+    if (typedText.current === text) {
+      return undefined;
+    }
+
+    typedText.current = text;
+
     if (prefersReducedMotion()) {
       setVisible(text.length);
       return undefined;
     }
 
-    setVisible(0);
+    let typed = 0;
+    setVisible(typed);
     const interval = window.setInterval(() => {
-      setVisible((index) => {
-        if (index + 1 >= text.length) {
-          window.clearInterval(interval);
-        }
+      typed += 1;
+      setVisible(typed);
 
-        return Math.min(index + 1, text.length);
-      });
+      if (typed >= text.length) {
+        window.clearInterval(interval);
+      }
     }, TYPING_MS_PER_CHAR);
 
     return () => window.clearInterval(interval);
@@ -166,22 +177,25 @@ const TypingHeadline = ({
 interface TagProgressHeaderProps {
   count: number;
   headline: string;
+  requiredTags?: number;
 }
 
 export const TagProgressHeader = ({
   count,
   headline,
+  requiredTags = REQUIRED_TAGS_THRESHOLD,
 }: TagProgressHeaderProps): ReactElement => {
-  const burstKey = useMilestoneBurst(count);
+  const milestones = useMemo(() => getMilestones(requiredTags), [requiredTags]);
+  const burstKey = useMilestoneBurst(count, milestones);
   const headlines = [headline, ...MILESTONE_HEADLINES];
-  const progress = getTagBarProgress(count);
-  const guidance = getTagGuidance(count);
+  const progress = getTagBarProgress(count, requiredTags);
+  const guidance = getTagGuidance(count, requiredTags);
 
   return (
     <div className="flex w-full flex-col items-center gap-6">
       <TypingHeadline
         headlines={headlines}
-        text={headlines[getReachedMilestones(count)]}
+        text={headlines[getReachedMilestones(milestones, count)]}
       />
       <div className="flex w-full max-w-[22rem] flex-col gap-2">
         <div
@@ -196,7 +210,7 @@ export const TagProgressHeader = ({
             styles.track,
           )}
         >
-          {TAG_MILESTONES.slice(0, -1).map((milestone) => (
+          {milestones.slice(0, -1).map((milestone) => (
             <span
               key={milestone}
               aria-hidden
@@ -206,7 +220,7 @@ export const TagProgressHeader = ({
                   ? 'bg-background-default'
                   : 'bg-border-subtlest-secondary',
               )}
-              style={{ left: `${getTagBarProgress(milestone)}%` }}
+              style={{ left: `${getTagBarProgress(milestone, requiredTags)}%` }}
             />
           ))}
           {burstKey > 0 && (
@@ -222,7 +236,7 @@ export const TagProgressHeader = ({
           )}
           <div
             className={classNames(
-              'relative z-1 h-full overflow-hidden rounded-max transition-[width] duration-300 ease-in-out',
+              'relative z-1 h-full overflow-hidden rounded-max transition-[width] duration-300 ease-in-out motion-reduce:transition-none',
               styles.fill,
             )}
             style={{ width: `${progress}%` }}

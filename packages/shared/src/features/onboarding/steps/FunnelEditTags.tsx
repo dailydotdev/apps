@@ -63,6 +63,7 @@ function FunnelEditTagsComponent({
         <EditTag
           headline={headline}
           isOnboarding={isOnboarding}
+          requiredTags={minimumRequirement}
           userId={user?.id ?? trackingId}
           feedSettings={feedSettings}
           featuredTags={featuredTags}

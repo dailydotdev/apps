@@ -101,7 +101,11 @@ export const EditTag = ({
   return (
     <>
       {isOnboarding && showTagProgress && (
-        <TagProgressHeader count={tagsCount} headline={resolvedHeadline} />
+        <TagProgressHeader
+          count={tagsCount}
+          headline={resolvedHeadline}
+          requiredTags={requiredTags}
+        />
       )}
       {isOnboarding && !showTagProgress && (
         <OnboardingHeadline>{resolvedHeadline}</OnboardingHeadline>

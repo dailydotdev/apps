@@ -32,13 +32,18 @@ const feedSettingsWith = (count: number) =>
     includeTags: Array.from({ length: count }, (_, index) => `tag-${index}`),
   } as FeedSettings);
 
-const renderEditTag = (count: number, isOnboarding = true) =>
+const renderEditTag = (
+  count: number,
+  isOnboarding = true,
+  requiredTags?: number,
+) =>
   render(
     <EditTag
       feedSettings={feedSettingsWith(count)}
       userId="u1"
       hidePreview
       isOnboarding={isOnboarding}
+      requiredTags={requiredTags}
     />,
   );
 
@@ -84,5 +89,33 @@ describe('EditTag tag progress experiment', () => {
 
     expect(screen.getByRole('heading', { name: headline })).toBeVisible();
     expect(screen.getByText(guidance)).toBeVisible();
+  });
+
+  it('follows the funnel minimum instead of a fixed five tags', () => {
+    mockFeatures.set(featureOnboardingTagProgress, true);
+    renderEditTag(3, true, 3);
+
+    expect(screen.getByRole('progressbar')).toHaveAttribute(
+      'aria-valuenow',
+      '50',
+    );
+    expect(
+      screen.getByRole('heading', { name: 'Keep tuning your feed' }),
+    ).toBeVisible();
+    expect(
+      screen.getByText('Pick 7 more tags for a smarter feed.'),
+    ).toBeVisible();
+  });
+
+  it('shows the step headline in full on first paint', () => {
+    mockFeatures.set(featureOnboardingTagProgress, true);
+    renderEditTag(0);
+
+    expect(
+      screen.getByText('Pick tags that are relevant to you', {
+        selector: 'span:not(.invisible)',
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Pick 5 tags to get started.')).toBeVisible();
   });
 });
