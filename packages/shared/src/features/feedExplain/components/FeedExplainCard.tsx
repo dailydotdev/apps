@@ -104,7 +104,9 @@ const CardHead = ({
           )}
         >
           {post.author && (
-            <AuthorSourceStack author={post.author} source={post.source} />
+            <span className="flex shrink-0">
+              <AuthorSourceStack author={post.author} source={post.source} />
+            </span>
           )}
           {!post.author && post.source && (
             <SourceAvatar
@@ -125,7 +127,9 @@ const CardHead = ({
         </span>
       ) : (
         <span className="mb-1 flex h-8 items-center gap-2">
-          <AuthorSourceStack author={post.author} source={post.source} />
+          <span className="flex shrink-0">
+            <AuthorSourceStack author={post.author} source={post.source} />
+          </span>
           <span className="min-w-0 shrink truncate text-text-tertiary typo-footnote">
             {post.source?.name}
           </span>
