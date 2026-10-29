@@ -1,4 +1,5 @@
 import { useCallback, useContext, useMemo, useRef } from 'react';
+import type { QueryKey } from '@tanstack/react-query';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
@@ -108,6 +109,14 @@ export const useFeedWidgetAdSlot = (): {
 };
 
 /**
+ * The rail ad's query key, before `useAdQuery` suffixes the consent: a prefix
+ * that matches every variant of it.
+ */
+export const getFeedWidgetAdQueryKey = (
+  user: Parameters<typeof generateQueryKey>[1],
+): QueryKey => generateQueryKey(RequestKey.Ads, user, 'feed-widgets');
+
+/**
  * The creative for the rail's pinned slot. One per page view, like the hero's.
  * Fetching it logs nothing: the slot logs its impression once it is on screen.
  * The rail and the feed share its query, so both know when it came back empty.
@@ -119,7 +128,7 @@ export const useFeedWidgetAd = ({
 }): { ad?: Ad; isEnabled: boolean; isNoFill: boolean } => {
   const { user, isTokenValid } = useAuthContext();
   const { isPlus } = usePlusSubscription();
-  const queryKey = generateQueryKey(RequestKey.Ads, user, 'feed-widgets');
+  const queryKey = getFeedWidgetAdQueryKey(user);
   const isEnabled = enabled && isTokenValid && !isPlus;
   const { data: ad, isFetched } = useAdQuery({
     placement: AdPlacement.Feed,
