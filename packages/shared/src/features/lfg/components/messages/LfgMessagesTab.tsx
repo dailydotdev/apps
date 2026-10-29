@@ -75,7 +75,9 @@ export const LfgMessagesTab = (): ReactElement => {
   const { logEvent } = useLogContext();
   const { openReachOut, openHelper } = useLfgModals();
   const { data: myPost } = useQuery(myLfgPostQueryOptions(user));
-  const { data: helper } = useQuery(lfgHelperQueryOptions(user));
+  const { data: helper, isPending: isHelperPending } = useQuery(
+    lfgHelperQueryOptions(user),
+  );
   const { data: board } = useInfiniteQuery(
     lfgBoardQueryOptions(user, noLfgFilters),
   );
@@ -84,6 +86,7 @@ export const LfgMessagesTab = (): ReactElement => {
     .filter(({ author }) => author.id !== user?.id)
     .slice(0, LFG_TAB_POSTS);
   const pendingCount = myPost?.pendingCount ?? 0;
+  const helperMeta = helper ? 'On' : 'Off';
 
   return (
     <div className="flex flex-col">
@@ -109,7 +112,7 @@ export const LfgMessagesTab = (): ReactElement => {
         <RowContent
           icon={<VolunteeringIcon secondary={!!helper} />}
           label="Open to helping"
-          meta={helper ? 'On' : 'Off'}
+          meta={isHelperPending ? undefined : helperMeta}
         />
       </button>
       {posts.length > 0 && (

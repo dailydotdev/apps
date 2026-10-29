@@ -45,6 +45,7 @@ import { getLocalUtcOffset, lfgNewPostUrl } from '../../lib/format';
 import { useLfgModals } from '../../hooks/useLfgModals';
 import { LfgFrame } from '../LfgFrame';
 import { LfgRow } from '../LfgRow';
+import { LfgYourPostCard } from '../LfgYourPostCard';
 import type { LfgFilterValues } from './LfgFilters';
 import {
   hasLfgFilters,
@@ -58,7 +59,6 @@ import {
   LfgFindYourPeopleWidget,
   LfgHelperWidget,
   LfgPastPostsWidget,
-  LfgYourPostStrip,
   LfgYourPostWidget,
 } from './LfgBoardWidgets';
 
@@ -322,7 +322,20 @@ export const LfgBoard = (): ReactElement => {
         }
       >
         <div className="flex flex-col gap-6 px-4 pb-6 pt-3 tablet:px-6 laptop:pt-5">
-          {myPost && <LfgYourPostStrip post={myPost} />}
+          {myPost && (
+            <LfgYourPostCard
+              post={myPost}
+              className="laptop:hidden"
+              label={
+                <Typography
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Tertiary}
+                >
+                  Your post
+                </Typography>
+              }
+            />
+          )}
           {board.isPending && <BoardPlaceholder />}
           {posts.length > 0 && (
             <InfiniteScrolling

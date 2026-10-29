@@ -22,15 +22,10 @@ import { useActions } from '../../../../hooks/useActions';
 import useLogEventOnce from '../../../../hooks/log/useLogEventOnce';
 import { ActionType } from '../../../../graphql/actions';
 import { LogEvent } from '../../../../lib/log';
-import type { LfgPost } from '../../types';
 import { myLfgPostQueryOptions } from '../../queries';
-import {
-  getLfgReachOutUrl,
-  getLfgUrl,
-  lfgDaysLeft,
-  lfgNewPostUrl,
-} from '../../lib/format';
+import { getLfgUrl, lfgNewPostUrl } from '../../lib/format';
 import { useLfgEnabled } from '../../hooks/useLfgEnabled';
+import { LfgYourPostCard } from '../LfgYourPostCard';
 
 const cardClassName =
   'mx-4 mb-3 flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-3';
@@ -41,50 +36,6 @@ const LfgLabel = (): ReactElement => (
     Looking for group
   </span>
 );
-
-const LfgPostStatusCard = ({ post }: { post: LfgPost }): ReactElement => {
-  const waiting = post.pendingCount ?? 0;
-  const daysLeft = lfgDaysLeft(post.expiresAt);
-
-  return (
-    <div className={cardClassName}>
-      <LfgLabel />
-      <Link href={getLfgUrl(post.id)} passHref>
-        <a href={getLfgUrl(post.id)} className="flex flex-col">
-          <Typography type={TypographyType.Callout} bold truncate>
-            {post.title}
-          </Typography>
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-            className="tabular-nums"
-          >
-            {waiting ? `${waiting} waiting` : 'No responses yet'} · {daysLeft}{' '}
-            {daysLeft === 1 ? 'day' : 'days'} left
-          </Typography>
-        </a>
-      </Link>
-      <div className="flex gap-2">
-        {waiting > 0 && (
-          <Link href={getLfgReachOutUrl()} passHref>
-            <Button
-              tag="a"
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Small}
-            >
-              Review {waiting}
-            </Button>
-          </Link>
-        )}
-        <Link href={getLfgUrl()} passHref>
-          <Button tag="a" variant={ButtonVariant.Float} size={ButtonSize.Small}>
-            Board
-          </Button>
-        </Link>
-      </div>
-    </div>
-  );
-};
 
 // The inbox is where Looking for group pays off: an open post shows how it's
 // doing, and people who haven't posted get an invite they can dismiss.
@@ -105,7 +56,14 @@ export const LfgMessagesPromo = (): ReactElement | null => {
   });
 
   if (isEnabled && myPost) {
-    return <LfgPostStatusCard post={myPost} />;
+    return (
+      <LfgYourPostCard
+        post={myPost}
+        label={<LfgLabel />}
+        className="mx-4 mb-3"
+        showBoardLink
+      />
+    );
   }
 
   if (!isInviteVisible) {
