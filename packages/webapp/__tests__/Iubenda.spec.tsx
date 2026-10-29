@@ -275,6 +275,7 @@ describe('Iubenda configuration', () => {
     await renderAndLoad();
     expect(config().enableTcf).toBe(true);
     expect(config().perPurposeConsent).toBe(true);
+    expect(config().tcfPublisher).toEqual(['consent']);
     expect(config().siteId).toBe(Number(SITE_ID));
     expect(config().cookiePolicyId).toBe(Number(POLICY_ID));
   });

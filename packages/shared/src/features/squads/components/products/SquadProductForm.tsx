@@ -9,7 +9,6 @@ import {
 import {
   SQUAD_LINK_MAX_LENGTH,
   SQUAD_PRODUCT_DESCRIPTION_MAX_LENGTH,
-  SQUAD_PRODUCT_LINKS_MAX,
   SQUAD_PRODUCT_NAME_MAX_LENGTH,
   SQUAD_PRODUCT_TAGLINE_MAX_LENGTH,
 } from '../../lib/limits';
@@ -19,14 +18,9 @@ import { Radio } from '../../../../components/fields/Radio';
 import {
   Button,
   ButtonColor,
-  ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import {
-  CameraIcon,
-  MiniCloseIcon,
-  PlusIcon,
-} from '../../../../components/icons';
+import { CameraIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import {
   Typography,
@@ -91,9 +85,7 @@ export const SquadProductForm = ({
     product?.pricingModel ?? undefined,
   );
   const [description, setDescription] = useState(product?.description ?? '');
-  const [links, setLinks] = useState<string[]>(
-    product?.links?.length ? product.links : [''],
-  );
+  const [website, setWebsite] = useState(product?.url ?? '');
   const [showErrors, setShowErrors] = useState(false);
   const [isConflict, setIsConflict] = useState(false);
   const { onFileChange } = useFileInput({
@@ -102,14 +94,14 @@ export const SquadProductForm = ({
     onChange: (preview, file) => setLogo({ file, preview }),
   });
 
-  const filledLinks = links.map((link) => link.trim()).filter(Boolean);
-  const invalidLinks = filledLinks.filter((link) => !isValidSquadLink(link));
+  const trimmedWebsite = website.trim();
+  const isWebsiteValid = !trimmedWebsite || isValidSquadLink(trimmedWebsite);
 
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setShowErrors(true);
 
-    if (!name.trim() || !tagline.trim() || invalidLinks.length) {
+    if (!name.trim() || !tagline.trim() || !isWebsiteValid) {
       return;
     }
 
@@ -117,7 +109,7 @@ export const SquadProductForm = ({
       tagline: tagline.trim(),
       pricingModel: pricing ?? null,
       description: description.trim() || null,
-      links: filledLinks,
+      url: trimmedWebsite || null,
     };
 
     onSavingChange?.(true);
@@ -274,63 +266,27 @@ export const SquadProductForm = ({
       </div>
       <HorizontalSeparator />
       <div className="flex flex-col gap-2">
-        <Label>Links</Label>
+        <Label>Website</Label>
         <Helper>
-          {`Up to ${SQUAD_PRODUCT_LINKS_MAX} links, such as the website, docs or repository.`}
+          Developers land here from the product’s tool page on daily.dev.
         </Helper>
-        {links.map((link, index) => (
-          <TextField
-            // eslint-disable-next-line react/no-array-index-key
-            key={index}
-            inputId={`product-link-${index}`}
-            name={`product-link-${index}`}
-            label="Link"
-            type="url"
-            fieldType="secondary"
-            maxLength={SQUAD_LINK_MAX_LENGTH}
-            showMaxLength={false}
-            value={link}
-            valueChanged={(value) =>
-              setLinks((current) =>
-                current.map((item, at) => (at === index ? value : item)),
-              )
-            }
-            valid={!showErrors || !link.trim() || isValidSquadLink(link)}
-            hint={
-              showErrors && !!link.trim() && !isValidSquadLink(link)
-                ? 'Use a full address starting with https://'
-                : undefined
-            }
-            actionButton={
-              links.length > 1 ? (
-                <Button
-                  type="button"
-                  variant={ButtonVariant.Tertiary}
-                  size={ButtonSize.XSmall}
-                  icon={<MiniCloseIcon />}
-                  aria-label="Remove link"
-                  onClick={() =>
-                    setLinks((current) =>
-                      current.filter((_, at) => at !== index),
-                    )
-                  }
-                />
-              ) : undefined
-            }
-          />
-        ))}
-        {links.length < SQUAD_PRODUCT_LINKS_MAX && (
-          <Button
-            type="button"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<PlusIcon />}
-            className="self-start"
-            onClick={() => setLinks((current) => [...current, ''])}
-          >
-            Add link
-          </Button>
-        )}
+        <TextField
+          inputId="product-website"
+          name="product-website"
+          label="Website"
+          type="url"
+          fieldType="secondary"
+          maxLength={SQUAD_LINK_MAX_LENGTH}
+          showMaxLength={false}
+          value={website}
+          valueChanged={setWebsite}
+          valid={!showErrors || isWebsiteValid}
+          hint={
+            showErrors && !isWebsiteValid
+              ? 'Use a full address starting with https://'
+              : undefined
+          }
+        />
       </div>
       {isEditing && (
         <>

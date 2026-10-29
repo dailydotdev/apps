@@ -14,18 +14,19 @@ import { useFeedHeroPostActions } from './useFeedHeroPostActions';
 /**
  * The handlers the hero's cards take. The card's overlay link cancels its own
  * navigation and leaves opening the post to `onPostClick`, as the feed opens
- * its modal there; the hero has no modal of its own, so it opens the post
- * page unless `openPost` says otherwise. Everything is logged under `origin`
- * (the hero's by default, so its events and the widget rail's stay apart).
- * Vote and bookmark patch the hero's own query: the bare hooks only write the
- * single-post key, which these cards never read.
+ * its modal there. `onOpenPost` opens the post modal (the top story widget
+ * passes one); without it, or when it declines, the post page opens.
+ * Everything is logged under `origin` (the hero's by default, so its events
+ * and the widget rail's stay apart). Vote and bookmark patch the hero's
+ * own query: the bare hooks only write the single-post key, which these cards
+ * never read.
  */
 export const useFeedHeroCardProps = ({
   queryKey,
   feedName,
   origin = Origin.FeedHero,
   cache,
-  openPost,
+  onOpenPost,
 }: {
   queryKey: QueryKey;
   feedName: string;
@@ -33,8 +34,8 @@ export const useFeedHeroCardProps = ({
   origin?: Origin;
   /** Where the cards' posts live, when not in the hero's own query. */
   cache?: PostCacheAdapter;
-  /** What a plain click opens, once logged; the post page by default. */
-  openPost?: (post: Post) => void;
+  /** Opens the post in place; returns false to fall back to the post page. */
+  onOpenPost?: (post: Post) => boolean;
 }): Omit<FeaturedWideCardProps, 'post'> => {
   const router = useRouter();
   const { logEvent } = useLogContext();
@@ -59,9 +60,7 @@ export const useFeedHeroCardProps = ({
     return {
       onPostClick: (post: Post) => {
         logClick(post);
-        if (openPost) {
-          openPost(post);
-        } else {
+        if (!onOpenPost?.(post)) {
           router.push(post.commentsPermalink);
         }
       },
@@ -79,7 +78,7 @@ export const useFeedHeroCardProps = ({
   }, [
     copyLink,
     logEvent,
-    openPost,
+    onOpenPost,
     origin,
     postLogEvent,
     router,
