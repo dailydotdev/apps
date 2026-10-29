@@ -59,25 +59,24 @@ const Capture = ({ file, title, device }: Shot): ReactElement => (
     rel="noreferrer"
     className="block overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-cabbage-default"
   >
-    <img
-      src={img(file)}
-      alt={title}
-      className={classNames(
-        'block w-full',
-        device === 'phone' && 'aspect-[390/664] object-cover object-top',
-      )}
-    />
+    <img src={img(file)} alt={title} className="block w-full" />
   </a>
 );
 
-// The aligned screen renders at the width of the device its capture came
-// from, so before and after share a scale: the iOS captures are the iPhone 17
-// simulator (402px), the other phone captures a Pixel 7 (412px).
-const afterWidth = (device: Shot['device'], storyId: string): number => {
+// The aligned screen renders at the viewport of the device its capture came
+// from, so before and after share a scale and both show the whole screen: the
+// iOS captures are the iPhone 17 simulator (402x874), the other phone
+// captures a Pixel 7 (412x839).
+const afterViewport = (
+  device: Shot['device'],
+  storyId: string,
+): { width: number; height: number } => {
   if (device === 'desktop') {
-    return 1440;
+    return { width: 1440, height: 900 };
   }
-  return /--ios|after-acquisition/.test(storyId) ? 402 : 412;
+  return /--ios|after-acquisition/.test(storyId)
+    ? { width: 402, height: 874 }
+    : { width: 412, height: 839 };
 };
 
 // A screen that changes shows the production capture next to the aligned
@@ -102,12 +101,7 @@ const Screen = (shot: Shot): ReactElement => {
             <LiveFrame
               storyId={bareStory(after.storyId)}
               title={`${title}, aligned`}
-              width={afterWidth(device, after.storyId)}
-              height={
-                device === 'desktop'
-                  ? 900
-                  : Math.round((afterWidth(device, after.storyId) * 664) / 390)
-              }
+              {...afterViewport(device, after.storyId)}
             />
           </div>
         )}

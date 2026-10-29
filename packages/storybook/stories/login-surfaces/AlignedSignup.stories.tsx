@@ -13,12 +13,7 @@ import { MemberAlready } from '@dailydotdev/shared/src/components/onboarding/Mem
 import { MailIcon } from '@dailydotdev/shared/src/components/icons/Mail';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
-import { FooterLinks } from '@dailydotdev/shared/src/components/footer/FooterLinks';
 import { signupWallHorizon } from '@dailydotdev/shared/src/lib/image';
-import {
-  privacyPolicy,
-  termsOfService,
-} from '@dailydotdev/shared/src/lib/constants';
 import { HERO_STYLES } from '@dailydotdev/shared/src/features/onboarding/components/signupHero/heroStyles';
 import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding/OnboardingHeader';
 import { NewTabActivationPrimer } from '@dailydotdev/shared/src/features/onboarding/components/NewTabActivationPrimer';
@@ -49,6 +44,7 @@ const desktopHeadline = {
   fontSize: 'clamp(2.25rem, 3.1vw, 2.75rem)',
   lineHeight: 1.14,
   letterSpacing: '-0.025em',
+  filter: 'drop-shadow(0 0.125rem 1rem rgba(0, 0, 0, 0.5))',
 };
 const phoneHeadline = {
   fontSize: '2.1rem',
@@ -63,62 +59,21 @@ const landingButton = (isPrimary: boolean) => ({
   letterSpacing: '-0.010625rem',
   fontWeight: isPrimary ? 600 : 500,
 });
-const landingLegal = { fontSize: '0.6875rem', lineHeight: '1rem' };
 
-// The laurel sprig on either side of each award, the landing's own drawing.
-const Laurel = ({ isMirrored }: { isMirrored?: boolean }): ReactElement => (
-  <svg
-    aria-hidden
-    className={classNames(
-      'h-[1.625rem] w-3.5 shrink-0 text-text-secondary',
-      isMirrored && '-scale-x-100',
-    )}
-    fill="currentColor"
-    viewBox="0 0 12 24"
-  >
-    <path d="M12 2c-2 3-2 6 0 9 2-3 2-6 0-9Zm-5 4c-1 3 0 6 3 8 0-3-1-6-3-8Zm-3 6c0 3 2 5 5 6-1-3-3-5-5-6Zm1 6c1 2 3 3 6 3-1-2-3-3-6-3Z" />
-  </svg>
-);
-
-const awards = [
-  { title: 'Product of the Year', source: 'Product Hunt' },
-  { title: '4.9 ★ rating', source: 'Chrome Web Store' },
-  { title: '20K+ stars', source: 'GitHub' },
-];
-
-// The landing's new row of awards under the log in link.
-const Laurels = (): ReactElement => (
-  <ul
-    aria-label="daily.dev recognition"
-    className="mt-9 flex w-full flex-wrap items-center justify-center gap-2 min-[400px]:gap-x-5"
-  >
-    {awards.map(({ title, source }) => (
-      <li key={source} className="flex items-center gap-0.5">
-        <Laurel />
-        <span className="text-center leading-tight">
-          <span
-            className="block font-bold text-text-primary"
-            style={{ fontSize: '0.71875rem' }}
-          >
-            {title}
-          </span>
-          <span
-            className="block text-text-tertiary"
-            style={{ fontSize: '0.65625rem' }}
-          >
-            {source}
-          </span>
-        </span>
-        <Laurel isMirrored />
-      </li>
-    ))}
-  </ul>
+// The landing's typeface. The mocks load it themselves since the app does not
+// ship it.
+const landingFont = { fontFamily: '"Plus Jakarta Sans", sans-serif' };
+const LandingFont = (): ReactElement => (
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
 );
 
 // The marketing landing's sign-up block, the source of truth: headline, the
-// three ways to sign up, the legal line under them, the log in link and the
-// awards. On iOS, Apple takes GitHub's place: the App Store requires Sign in
-// with Apple next to other social logins, and the app already offers it.
+// three ways to sign up and the log in link. On iOS, Apple takes GitHub's
+// place: the App Store requires Sign in with Apple next to other social
+// logins, and the app already offers it.
 const LandingSignupBlock = ({
   align = 'left',
   isIOS = false,
@@ -148,7 +103,7 @@ const LandingSignupBlock = ({
   ];
 
   return (
-    <div className="flex w-full max-w-[28.75rem] flex-col">
+    <div className="flex w-full max-w-[28.75rem] flex-col" style={landingFont}>
       <h1
         className={classNames(
           'text-balance font-bold text-text-primary',
@@ -179,20 +134,6 @@ const LandingSignupBlock = ({
             </Button>
           ))}
         </div>
-        <p
-          className="mt-4 w-full text-center text-text-tertiary"
-          style={landingLegal}
-        >
-          By continuing, you agree to the{' '}
-          <a href={termsOfService} className="underline">
-            Terms of Service
-          </a>{' '}
-          and{' '}
-          <a href={privacyPolicy} className="underline">
-            Privacy Policy
-          </a>
-          .
-        </p>
         <MemberAlready
           onLogin={fn()}
           className={{
@@ -201,7 +142,6 @@ const LandingSignupBlock = ({
             login: '!text-text-primary',
           }}
         />
-        <Laurels />
       </div>
     </div>
   );
@@ -227,49 +167,71 @@ const LandingArt = ({
   />
 );
 
-// `/onboarding` at laptop width, which also serves the extension's hand-off.
-// Same shell as today (centered logo, footer links row); the art and the
-// inner block are the landing's. The art takes daily.dev/'s hero settings:
-// full width, cover at 47% 50%, clamp(760px, 46vw, 950px) tall from the top,
-// fading out over its last 18%. The landing's dark halo sits behind its
-// left-hand copy; here it is centered on the block and narrowed to keep the
-// boy and Patchy clear.
+// `/onboarding` at laptop width, which also serves the extension's hand-off,
+// laid out as daily.dev/'s hero: the landing's header with only log in and
+// sign up, the art full width (cover at 47% 50%, clamp(760px, 46vw, 950px)
+// tall, fading out over its last 18%), the dark halo behind the copy, and the
+// block on the left of the same 1280px container.
 const DesktopFunnel = (): ReactElement => (
-  <div className="relative isolate flex min-h-dvh w-full flex-col overflow-hidden bg-background-default text-text-primary">
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-x-0 top-0 -z-1"
-      style={{ height: 'clamp(47.5rem, 46vw, 59.375rem)' }}
-    >
+  <div
+    className="relative isolate min-h-dvh w-full overflow-hidden bg-background-default text-text-primary"
+    style={landingFont}
+  >
+    <LandingFont />
+    <header className="absolute inset-x-0 top-0 z-2">
+      <nav className="mx-auto flex h-16 max-w-[80rem] items-center justify-between px-8">
+        <Logo
+          position={LogoPosition.Relative}
+          className="!left-0 !top-0 !mt-0 !translate-x-0"
+          logoClassName={{ container: 'h-5' }}
+        />
+        <div className="flex items-center gap-4">
+          <button
+            className="text-sm font-semibold text-text-secondary hover:text-text-primary"
+            onClick={fn()}
+            type="button"
+          >
+            Log in
+          </button>
+          <button
+            className="flex items-center gap-1 rounded-14 bg-text-primary px-4 py-2 text-xs font-semibold text-surface-invert"
+            onClick={fn()}
+            type="button"
+          >
+            Sign up
+            <span aria-hidden>→</span>
+          </button>
+        </div>
+      </nav>
+    </header>
+    <div className="relative">
       <img
         alt=""
-        className="block size-full select-none object-cover"
+        aria-hidden
+        className="block w-full select-none object-cover"
         src={signupWallHorizon}
         style={{
+          height: 'clamp(47.5rem, 46vw, 59.375rem)',
           objectPosition: '47% 50%',
           maskImage: 'linear-gradient(to bottom, black 82%, transparent)',
           WebkitMaskImage: 'linear-gradient(to bottom, black 82%, transparent)',
         }}
       />
       <div
-        className="absolute inset-0"
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-1"
         style={{
-          backgroundImage:
-            'radial-gradient(30% 78% at 50% 50%, rgba(15, 15, 18, 0.92), rgba(15, 15, 18, 0.62) 48%, rgba(0, 0, 0, 0) 78%)',
+          background:
+            'radial-gradient(46% 78% at 33% 50%, rgba(15, 15, 18, 0.92), rgba(15, 15, 18, 0.62) 48%, transparent 78%)',
+          filter: 'blur(1.25rem)',
         }}
       />
-    </div>
-    <main className="relative z-1 flex w-full flex-1 flex-col items-center justify-center gap-7 px-5 pb-16 pt-14">
-      <Logo
-        position={LogoPosition.Relative}
-        className="!left-0 !top-0 !mt-0 !translate-x-0 self-center"
-        logoClassName={{ container: 'h-7' }}
-      />
-      <LandingSignupBlock />
-    </main>
-    <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-1 flex justify-end px-6 pb-4">
-      <div className="[&_footer]:!pb-0 [&_ul]:!mb-0 [&_ul]:!justify-end">
-        <FooterLinks />
+      <div className="absolute inset-0 z-2">
+        <div className="mx-auto flex h-full max-w-[80rem] flex-col justify-center px-8 pt-16">
+          <div className="mx-auto flex w-full max-w-4xl flex-col items-start">
+            <LandingSignupBlock />
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -280,6 +242,7 @@ const DesktopFunnel = (): ReactElement => (
 const PhoneFunnel = ({ isIOS }: { isIOS?: boolean }): ReactElement => (
   <div className="relative isolate flex min-h-dvh w-full flex-col justify-end overflow-hidden bg-background-default px-6 pb-8 text-text-primary">
     <style dangerouslySetInnerHTML={{ __html: HERO_STYLES }} />
+    <LandingFont />
     <div
       aria-hidden
       className="pointer-events-none absolute inset-x-0 top-0 -z-1 h-1/2 overflow-hidden"
