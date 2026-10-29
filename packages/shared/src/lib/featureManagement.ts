@@ -82,6 +82,13 @@ export const featureClickbaitShieldIntroQuests = new Feature(
   false,
 );
 
+// Experiment: the intro quests open as a compact checklist where each step is
+// done inside the popup, with a progress-ring entry button.
+export const featureIntroQuestChecklist = new Feature(
+  'intro_quest_checklist',
+  false,
+);
+
 export { feature };
 
 export const featureCores = new Feature('cores', isDevelopment);

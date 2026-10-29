@@ -501,6 +501,13 @@ const IntroQuestModal = dynamic(
   () => import(/* webpackChunkName: "introQuestModal" */ './IntroQuestModal'),
 );
 
+const IntroQuestChecklistModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "introQuestChecklistModal" */ '../../features/introQuests/IntroQuestChecklistModal'
+    ),
+);
+
 const ReaderInstallPromptModal = dynamic(
   () =>
     import(
@@ -635,6 +642,7 @@ export const modals = {
   [LazyModal.CompareAchievements]: CompareAchievementsModal,
   [LazyModal.AchievementShowcase]: AchievementShowcaseModal,
   [LazyModal.IntroQuests]: IntroQuestModal,
+  [LazyModal.IntroQuestChecklist]: IntroQuestChecklistModal,
   [LazyModal.ReaderInstallPrompt]: ReaderInstallPromptModal,
   [LazyModal.ReaderExtensionInstall]: ReaderExtensionInstallModal,
   [LazyModal.ReaderPreview]: ReaderPreviewLazyModal,

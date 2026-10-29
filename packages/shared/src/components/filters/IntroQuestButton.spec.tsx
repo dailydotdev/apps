@@ -7,6 +7,7 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { ActionType } from '../../graphql/actions';
 import { useActions, useViewSize, ViewSize } from '../../hooks';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { IntroQuestButton } from './IntroQuestButton';
 import { LazyModal } from '../modals/common/types';
 import {
@@ -40,6 +41,10 @@ jest.mock('../../hooks/useQuestDashboard', () => ({
   useQuestDashboard: jest.fn(),
 }));
 
+jest.mock('../../hooks/useConditionalFeature', () => ({
+  useConditionalFeature: jest.fn(() => ({ value: false })),
+}));
+
 jest.mock('../tooltip/Tooltip', () => ({
   Tooltip: function MockTooltip({
     children,
@@ -56,6 +61,7 @@ const mockUseLazyModal = useLazyModal as jest.Mock;
 const mockUseActions = useActions as jest.Mock;
 const mockUseViewSize = useViewSize as jest.Mock;
 const mockUseQuestDashboard = useQuestDashboard as jest.Mock;
+const mockUseConditionalFeature = useConditionalFeature as jest.Mock;
 const openModal = jest.fn();
 
 const buildIntroQuest = (overrides: Partial<UserQuest> = {}): UserQuest => ({
@@ -82,6 +88,7 @@ const buildIntroQuest = (overrides: Partial<UserQuest> = {}): UserQuest => ({
 describe('IntroQuestButton', () => {
   beforeEach(() => {
     openModal.mockReset();
+    mockUseConditionalFeature.mockReturnValue({ value: false });
     mockUseAuthContext.mockReturnValue({
       isAuthReady: true,
       isLoggedIn: true,
@@ -115,6 +122,22 @@ describe('IntroQuestButton', () => {
   afterEach(() => {
     jest.useRealTimers();
     jest.clearAllMocks();
+  });
+
+  it('opens the setup checklist from the progress button when the experiment is on', async () => {
+    mockUseConditionalFeature.mockReturnValue({ value: true });
+    render(<IntroQuestButton />);
+
+    expect(screen.queryByTestId('intro-quest-cta')).not.toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: 'Set up daily.dev, 1 of 4 done',
+      }),
+    );
+
+    expect(openModal).toHaveBeenCalledWith({
+      type: LazyModal.IntroQuestChecklist,
+    });
   });
 
   it('opens the intro quests modal with completed/total label', async () => {
