@@ -6,7 +6,7 @@ import { LiveFrame } from './device';
 
 const img = (name: string): string => `/images/login-surfaces/${name}.jpg`;
 
-type Shot = {
+export type Shot = {
   file: string;
   step: string;
   title: string;
@@ -18,7 +18,7 @@ type Shot = {
   isToAlign?: boolean;
 };
 
-const Url = ({ children }: { children: ReactNode }): ReactElement => (
+export const Url = ({ children }: { children: ReactNode }): ReactElement => (
   <code className="break-all font-mono text-text-tertiary typo-caption1">
     {children}
   </code>
@@ -121,7 +121,7 @@ const Screen = (shot: Shot): ReactElement => {
   );
 };
 
-const Surface = ({
+export const Surface = ({
   title,
   note,
   shots,

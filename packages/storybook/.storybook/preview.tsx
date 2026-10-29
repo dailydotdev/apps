@@ -76,6 +76,7 @@ const preview: Preview = {
             ['Overview', 'All screens'],
             'Mobile',
             ['Overview', 'All screens', 'Tracking prompt timing'],
+            'More ways in',
           ],
         ],
       },
