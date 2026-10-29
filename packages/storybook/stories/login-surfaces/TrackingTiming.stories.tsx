@@ -10,7 +10,7 @@ import { devices, LiveFrame, onDevice } from './device';
 import { IOSTrackingAlert } from './iosSystem';
 
 const meta: Meta = {
-  title: 'Login Surfaces/Tracking prompt timing',
+  title: 'Login Surfaces/Mobile/Tracking prompt timing',
   parameters: { layout: 'fullscreen' },
   beforeEach: bootAsAnonymous,
   decorators: [
@@ -196,7 +196,8 @@ const Timing = (): ReactElement => (
           {
             title: '4. iOS prompt',
             note: 'Right after their answer. Either choice moves on.',
-            storyId: 'login-surfaces-tracking-prompt-timing--after-acquisition',
+            storyId:
+              'login-surfaces-mobile-tracking-prompt-timing--after-acquisition',
           },
           {
             title: '5. Rest of onboarding',

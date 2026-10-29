@@ -70,6 +70,13 @@ const preview: Preview = {
               '6. Old and new navigation',
             ],
           ],
+          'Login Surfaces',
+          [
+            'Web',
+            ['Overview', 'All screens'],
+            'Mobile',
+            ['Overview', 'All screens', 'Tracking prompt timing'],
+          ],
         ],
       },
     },
