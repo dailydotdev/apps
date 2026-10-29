@@ -160,128 +160,105 @@ const EntityRowItem = ({
   row: EntityRow;
   match?: ExplanationMatch;
   maxPoints: number;
-}): ReactElement => {
-  // A level the reader set gets its own line, like a match, so it shows on
-  // phones too.
-  const isStacked = !!match || !!row.metaClassName;
-
-  return (
-    <li
+}): ReactElement => (
+  <li className="flex items-center gap-3 py-2">
+    <span
       className={classNames(
-        'flex items-center gap-3',
-        isStacked ? 'py-2' : 'h-11',
+        'flex size-8 items-center justify-center',
+        row.isBlocked && 'opacity-50',
       )}
     >
-      <span
-        className={classNames(
-          'flex size-8 items-center justify-center',
-          row.isBlocked && 'opacity-50',
-        )}
-      >
-        {match && !row.isBlocked ? (
-          <RelevanceRing ratio={Math.max(0, match.points) / maxPoints}>
-            {row.leading}
-          </RelevanceRing>
-        ) : (
-          row.leading
-        )}
-      </span>
-      <span
-        className={classNames(
-          'flex min-w-0 flex-1',
-          isStacked ? 'flex-col gap-1' : 'items-baseline gap-2',
-        )}
-      >
-        <span className="flex max-w-full items-center gap-1.5">
-          <span
-            className={classNames(
-              'min-w-0 shrink truncate typo-callout',
-              row.isBlocked
-                ? 'text-text-tertiary line-through'
-                : 'text-text-primary',
-            )}
-          >
-            {row.title}
-          </span>
-          {!row.isBlocked && row.level}
-        </span>
+      {match && !row.isBlocked ? (
+        <RelevanceRing ratio={Math.max(0, match.points) / maxPoints}>
+          {row.leading}
+        </RelevanceRing>
+      ) : (
+        row.leading
+      )}
+    </span>
+    <span className="flex min-w-0 flex-1 flex-col gap-1">
+      <span className="flex max-w-full items-center gap-1.5">
         <span
           className={classNames(
-            'min-w-0 shrink truncate text-text-quaternary',
-            isStacked ? 'typo-caption1' : 'hidden typo-footnote tablet:block',
+            'min-w-0 shrink truncate typo-callout',
+            row.isBlocked
+              ? 'text-text-tertiary line-through'
+              : 'text-text-primary',
           )}
         >
-          <span className={row.metaClassName}>{row.meta}</span>
-          {match && <span className="tabular-nums"> · {match.points} pts</span>}
+          {row.title}
         </span>
+        {!row.isBlocked && row.level}
       </span>
-      <span className="flex items-center gap-1">
-        {row.isBlocked && (
-          <Button
-            type="button"
-            variant={ButtonVariant.Float}
-            size={ButtonSize.Small}
-            onClick={row.onToggleBlock}
-          >
-            Unblock
-          </Button>
-        )}
-        {!row.isBlocked && !row.isFollowing && (
-          <Button
-            type="button"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<BlockIcon />}
-            className="!text-text-tertiary"
-            aria-label={`Block ${row.title}`}
-            title={`Block ${row.title}`}
-            onClick={row.onToggleBlock}
-          />
-        )}
-        {!row.isBlocked && row.onToggleShowLess && (
-          <Button
-            type="button"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<MinusIcon />}
-            className={
-              row.isShowingLess
-                ? '!text-accent-bun-default'
-                : '!text-text-tertiary'
-            }
-            aria-pressed={row.isShowingLess}
-            aria-label={`Show less from ${row.title}`}
-            title={
-              row.isShowingLess
-                ? `Set ${row.title} back to Auto.`
-                : `Show less from ${row.title}. Its posts rank lower, but the best ones still show.`
-            }
-            onClick={row.onToggleShowLess}
-          />
-        )}
-        {!row.isBlocked && row.onToggleFollow && (
-          <Button
-            type="button"
-            variant={ButtonVariant.Tertiary}
-            className={
-              row.isFollowing
-                ? '!text-accent-cabbage-default'
-                : '!text-text-secondary'
-            }
-            size={ButtonSize.Small}
-            icon={row.isFollowing ? <VIcon /> : <PlusIcon />}
-            aria-pressed={row.isFollowing}
-            aria-label={`${row.isFollowing ? 'Unfollow' : 'Follow'} ${
-              row.title
-            }`}
-            title={row.isFollowing ? 'Unfollow' : 'Follow'}
-            onClick={row.onToggleFollow}
-          />
-        )}
+      <span className="truncate text-text-quaternary typo-caption1">
+        <span className={row.metaClassName}>{row.meta}</span>
+        {match && <span className="tabular-nums"> · {match.points} pts</span>}
       </span>
-    </li>
-  );
-};
+    </span>
+    <span className="flex items-center gap-1">
+      {row.isBlocked && (
+        <Button
+          type="button"
+          variant={ButtonVariant.Float}
+          size={ButtonSize.Small}
+          onClick={row.onToggleBlock}
+        >
+          Unblock
+        </Button>
+      )}
+      {!row.isBlocked && !row.isFollowing && (
+        <Button
+          type="button"
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
+          icon={<BlockIcon />}
+          className="!text-text-tertiary"
+          aria-label={`Block ${row.title}`}
+          title={`Block ${row.title}`}
+          onClick={row.onToggleBlock}
+        />
+      )}
+      {!row.isBlocked && row.onToggleShowLess && (
+        <Button
+          type="button"
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
+          icon={<MinusIcon />}
+          className={
+            row.isShowingLess
+              ? '!text-accent-bun-default'
+              : '!text-text-tertiary'
+          }
+          aria-pressed={row.isShowingLess}
+          aria-label={`Show less from ${row.title}`}
+          title={
+            row.isShowingLess
+              ? `Set ${row.title} back to Auto.`
+              : `Show less from ${row.title}. Its posts rank lower, but the best ones still show.`
+          }
+          onClick={row.onToggleShowLess}
+        />
+      )}
+      {!row.isBlocked && row.onToggleFollow && (
+        <Button
+          type="button"
+          variant={ButtonVariant.Tertiary}
+          className={
+            row.isFollowing
+              ? '!text-accent-cabbage-default'
+              : '!text-text-secondary'
+          }
+          size={ButtonSize.Small}
+          icon={row.isFollowing ? <VIcon /> : <PlusIcon />}
+          aria-pressed={row.isFollowing}
+          aria-label={`${row.isFollowing ? 'Unfollow' : 'Follow'} ${row.title}`}
+          title={row.isFollowing ? 'Unfollow' : 'Follow'}
+          onClick={row.onToggleFollow}
+        />
+      )}
+    </span>
+  </li>
+);
 
 const TopicGlyph = (): ReactElement => (
   <span className="flex size-6 items-center justify-center rounded-max bg-surface-float text-text-tertiary">
