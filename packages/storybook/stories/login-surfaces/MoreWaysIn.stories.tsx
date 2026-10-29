@@ -158,7 +158,7 @@ const MoreWaysIn = (): ReactElement => (
 
       <Surface
         title="/welcome"
-        note="A phone-only page: a signed-out sample feed under a hero with its own headline, “Where developers suffer together”, and Sign up in the header. On a laptop it redirects to /onboarding."
+        note="A phone-only page: a signed-out sample feed under a hero with its own headline, “Where developers suffer together”, and Sign up in the header. On a laptop it redirects to /onboarding. Nothing in the app links to it, so people reach it from a direct link, such as a campaign."
         shots={[
           {
             file: 'more-welcome-pixel',
@@ -193,8 +193,9 @@ const MoreWaysIn = (): ReactElement => (
           <>
             <Url>/oauth/login</Url> and <Url>/oauth/consent</Url>, for apps and
             tools that connect to a daily.dev account. Signed out it opens the
-            sign-up modal on an empty page. Captured without an app&apos;s
-            parameters, so the consent step is not shown.
+            sign-up modal on an empty page before it reads the app&apos;s
+            parameters, so this is what people see with a real app too. The
+            consent step after sign-up is not shown.
           </>
         }
         shots={[
@@ -211,7 +212,7 @@ const MoreWaysIn = (): ReactElement => (
 
       <Surface
         title="Pages whose main action needs an account"
-        note="Signed-out pages whose main button opens the sign-up modal or sends people to sign up."
+        note="Signed-out pages whose main button opens the sign-up modal or sends people to sign up. The marketplace is in the sidebar and in quests; nothing in the app links to the quiz, so people reach it from a direct link."
         shots={[
           {
             file: 'more-quiz-desktop',
@@ -255,14 +256,6 @@ const MoreWaysIn = (): ReactElement => (
                 <Url>/onboarding</Url>.
               </>
             ),
-            device: 'desktop',
-            isToAlign: true,
-          },
-          {
-            file: 'more-hackathon-desktop',
-            step: 'Hackathon',
-            title: 'Sign-up button, closed now',
-            note: <Url>/hackathon</Url>,
             device: 'desktop',
             isToAlign: true,
           },
