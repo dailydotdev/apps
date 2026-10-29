@@ -13,6 +13,7 @@ import { MemberAlready } from '@dailydotdev/shared/src/components/onboarding/Mem
 import { MailIcon } from '@dailydotdev/shared/src/components/icons/Mail';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
+import { FooterLinks } from '@dailydotdev/shared/src/components/footer/FooterLinks';
 import {
   ProfileImageSize,
   ProfilePicture,
@@ -78,9 +79,9 @@ const LandingFont = (): ReactElement => (
   />
 );
 
-// Who an invite link (/join) came from. Production's ReferralInviterCard reads
-// the inviter from the URL and the API, so the mock draws its markup with a
-// fixed inviter.
+// Who an invite link (/join) came from: production's ReferralInviterCard
+// without its frame and background, with a smaller avatar. It reads the
+// inviter from the URL and the API, so the mock uses a fixed inviter.
 const inviter = {
   id: '28849d86070e4c099c877ab6837c61f0',
   name: 'Ido Shamun',
@@ -92,13 +93,13 @@ const inviter = {
 const InviterCard = ({ className }: { className?: string }): ReactElement => (
   <figure
     className={classNames(
-      'flex w-full max-w-[22.5rem] items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-3 text-left backdrop-blur-sm',
+      'flex max-w-[22.5rem] items-center gap-2 text-left',
       className,
     )}
   >
     <ProfilePicture
       user={inviter}
-      size={ProfileImageSize.Large}
+      size={ProfileImageSize.Medium}
       eager
       className="shrink-0"
     />
@@ -217,7 +218,8 @@ const LandingSignupBlock = ({
 // laid out as daily.dev/'s hero: the landing's header with only log in and
 // sign up, the art full width (cover at 47% 50%, clamp(760px, 46vw, 950px)
 // tall, fading out over its last 18%), the dark halo behind the copy, and the
-// block on the left of the same 1280px container.
+// block on the left of the same 1280px container. The funnel's footer links
+// row stays at the bottom right.
 const DesktopFunnel = ({ isInvite }: { isInvite?: boolean }): ReactElement => (
   <div
     className="relative isolate min-h-dvh w-full overflow-hidden bg-background-default text-text-primary"
@@ -278,6 +280,11 @@ const DesktopFunnel = ({ isInvite }: { isInvite?: boolean }): ReactElement => (
             <LandingSignupBlock isInvite={isInvite} />
           </div>
         </div>
+      </div>
+    </div>
+    <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-3 flex justify-end px-6 pb-4">
+      <div className="[&_footer]:!pb-0 [&_ul]:!mb-0 [&_ul]:!justify-end">
+        <FooterLinks />
       </div>
     </div>
   </div>
