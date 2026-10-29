@@ -106,4 +106,43 @@ describe('ForYouRankingSettings', () => {
 
     await waitFor(() => expect(isSent()).toBe(true));
   });
+
+  it('should show a reset after a drag that ended where it began', async () => {
+    mockSetting(null);
+    renderRanking({
+      isPlus: true,
+      ranking: [{ key: 'age.half_life_days', value: 10 }],
+    });
+    const thumb = await screen.findByRole('slider', {
+      name: 'A post counts half as much after',
+    });
+    const slider = thumb.closest(
+      '[data-orientation]:not([role])',
+    ) as HTMLElement;
+    // 1 to 30 days over 29px, so a day for every pixel.
+    jest
+      .spyOn(slider, 'getBoundingClientRect')
+      .mockReturnValue({ left: 0, width: 29 } as DOMRect);
+    const pointer = (type: string, clientX = 0) =>
+      fireEvent(
+        slider,
+        Object.assign(new MouseEvent(type, { bubbles: true, clientX }), {
+          pointerId: 1,
+        }),
+      );
+    // jsdom has no pointer capture.
+    Object.assign(slider, {
+      setPointerCapture: jest.fn(),
+      releasePointerCapture: jest.fn(),
+      hasPointerCapture: () => true,
+    });
+    pointer('pointerdown', 14);
+    pointer('pointermove', 9);
+    pointer('pointerup');
+    expect(screen.getByText('10 days')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByText('Reset to 7 days'));
+
+    expect(await screen.findByText('7 days')).toBeInTheDocument();
+  });
 });

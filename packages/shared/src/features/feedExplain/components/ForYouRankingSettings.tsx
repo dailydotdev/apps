@@ -43,8 +43,11 @@ export const RankingSlider = ({
   isLocked,
   onChange,
 }: RankingSliderProps): ReactElement => {
-  const [draft, setDraft] = useState<number>();
-  const shown = draft ?? value ?? setting.defaultValue;
+  const current = value ?? setting.defaultValue;
+  // A drag that ends where it began never commits, so it only counts over
+  // the value it started from, or it would hide a reset made after it.
+  const [drag, setDrag] = useState<{ from: number; to: number }>();
+  const shown = drag?.from === current ? drag.to : current;
   const isSet = value !== undefined;
 
   return (
@@ -82,9 +85,9 @@ export const RankingSlider = ({
         value={[Math.min(meta.max, Math.max(meta.min, shown))]}
         thumbLabel={meta.label}
         disabled={isLocked}
-        onValueChange={([next]) => setDraft(next)}
+        onValueChange={([next]) => setDrag({ from: current, to: next })}
         onValueCommit={([next]) => {
-          setDraft(undefined);
+          setDrag(undefined);
           onChange(next);
         }}
       />
