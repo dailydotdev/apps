@@ -262,21 +262,6 @@ const MoreWaysIn = (): ReactElement => (
         ]}
       />
 
-      <Surface
-        title="Recruiter"
-        note="A separate product on its own site with its own sign-up: today a work-email waiting list. Probably out of scope for this alignment."
-        shots={[
-          {
-            file: 'more-recruiter-desktop',
-            step: 'First screen',
-            title: 'Waiting list',
-            note: <Url>recruiter.daily.dev</Url>,
-            device: 'desktop',
-            isToAlign: true,
-          },
-        ]}
-      />
-
       <section className="flex flex-col gap-4">
         <h2 className="border-b border-border-subtlest-tertiary pb-3 font-bold typo-title3">
           Not captured
