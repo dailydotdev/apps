@@ -119,4 +119,55 @@ describe('AuthOptions social popup', () => {
     );
     expect(refetchBoot).toHaveBeenCalledWith({ cancelRefetch: false });
   });
+
+  it('finishes the sign-in when the session lands after the popup closed', async () => {
+    const popup = { closed: false, close: jest.fn(), location: { href: '' } };
+    jest.spyOn(window, 'open').mockReturnValue(popup as unknown as Window);
+    const logEvent = jest.fn();
+    const onAuthStateUpdate = jest.fn();
+    const anonymous = { data: { user: { id: 'anonymous' } } };
+    const refetchBoot = jest
+      .fn()
+      // the immediate popup-closed check (3 attempts) sees no session yet
+      .mockResolvedValueOnce(anonymous)
+      .mockResolvedValueOnce(anonymous)
+      .mockResolvedValueOnce(anonymous)
+      // the background re-check finds it
+      .mockResolvedValue({
+        data: {
+          user: { id: 'u1', email: 'u1@daily.dev', infoConfirmed: false },
+        },
+      });
+
+    render(
+      <TestBootProvider
+        client={new QueryClient()}
+        auth={{ isLoggedIn: false, user: undefined, refetchBoot }}
+        log={{ logEvent }}
+      >
+        <AuthOptions
+          formRef={{ current: document.createElement('form') }}
+          trigger={AuthTriggers.MainButton}
+          defaultDisplay={AuthDisplay.Default}
+          forceDefaultDisplay
+          onAuthStateUpdate={onAuthStateUpdate}
+        />
+      </TestBootProvider>,
+    );
+
+    fireEvent.click(await screen.findByTestId('auth-default'));
+    await waitFor(() =>
+      expect(popup.location.href).toBe('https://accounts.google.com/o/oauth2'),
+    );
+    popup.closed = true;
+
+    await waitFor(
+      () =>
+        expect(onAuthStateUpdate).toHaveBeenCalledWith({
+          defaultDisplay: AuthDisplay.SocialRegistration,
+        }),
+      { timeout: 8000 },
+    );
+    expect(refetchBoot.mock.calls.length).toBeGreaterThanOrEqual(4);
+  }, 15000);
 });

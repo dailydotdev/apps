@@ -10,11 +10,16 @@ export const SOCIAL_AUTH_POPUP_CLOSED_ERROR =
 
 const SOCIAL_AUTH_BOOT_RETRY_DELAYS_MS = [0, 250, 750] as const;
 
+// Background re-check after the popup reports closed with no session yet:
+// wait 2s, then 3s more (~5s total) before giving up silently.
+export const SOCIAL_AUTH_POPUP_CLOSED_RECHECK_DELAYS_MS = [2000, 3000] as const;
+
 export const SOCIAL_AUTH_CALLBACK_BOOT_RETRY_DELAYS_MS = [
   0, 250, 750, 1500, 2500, 4000,
 ] as const;
 
 type BootUser = Partial<Boot>['user'];
+export type SocialAuthBootUser = NonNullable<BootUser>;
 type RefetchBoot = (options?: {
   cancelRefetch?: boolean;
 }) => Promise<{ data?: Partial<Boot> }>;
