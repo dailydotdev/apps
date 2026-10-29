@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import React, { cloneElement, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -9,14 +9,10 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { providerMap } from '@dailydotdev/shared/src/components/auth/common';
-import SignupDisclaimer from '@dailydotdev/shared/src/components/auth/SignupDisclaimer';
 import { MemberAlready } from '@dailydotdev/shared/src/components/onboarding/MemberAlready';
 import { MailIcon } from '@dailydotdev/shared/src/components/icons/Mail';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
-import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
-import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import { FooterLinks } from '@dailydotdev/shared/src/components/footer/FooterLinks';
 import { signupWallHorizon } from '@dailydotdev/shared/src/lib/image';
 import {
@@ -46,14 +42,20 @@ const meta: Meta = {
 
 export default meta;
 
-// The live landing's sign-up block at phone width (412px), measured: the
-// phone mocks use these so type and spacing match it exactly.
+// The live landing's sign-up block, measured at 1440px and 412px: the mocks
+// use these so type and spacing match it exactly. The headline is the only
+// part that differs by width.
+const desktopHeadline = {
+  fontSize: 'clamp(2.25rem, 3.1vw, 2.75rem)',
+  lineHeight: 1.14,
+  letterSpacing: '-0.025em',
+};
 const phoneHeadline = {
   fontSize: '2.1rem',
   lineHeight: '2.25rem',
   letterSpacing: '-0.0525rem',
 };
-const phoneButton = (isPrimary: boolean) => ({
+const landingButton = (isPrimary: boolean) => ({
   height: '3rem',
   borderRadius: '0.875rem',
   fontSize: '1.0625rem',
@@ -61,12 +63,62 @@ const phoneButton = (isPrimary: boolean) => ({
   letterSpacing: '-0.010625rem',
   fontWeight: isPrimary ? 600 : 500,
 });
-const phoneLegal = { fontSize: '0.6875rem', lineHeight: '1rem' };
+const landingLegal = { fontSize: '0.6875rem', lineHeight: '1rem' };
+
+// The laurel sprig on either side of each award, the landing's own drawing.
+const Laurel = ({ isMirrored }: { isMirrored?: boolean }): ReactElement => (
+  <svg
+    aria-hidden
+    className={classNames(
+      'h-[1.625rem] w-3.5 shrink-0 text-text-secondary',
+      isMirrored && '-scale-x-100',
+    )}
+    fill="currentColor"
+    viewBox="0 0 12 24"
+  >
+    <path d="M12 2c-2 3-2 6 0 9 2-3 2-6 0-9Zm-5 4c-1 3 0 6 3 8 0-3-1-6-3-8Zm-3 6c0 3 2 5 5 6-1-3-3-5-5-6Zm1 6c1 2 3 3 6 3-1-2-3-3-6-3Z" />
+  </svg>
+);
+
+const awards = [
+  { title: 'Product of the Year', source: 'Product Hunt' },
+  { title: '4.9 ★ rating', source: 'Chrome Web Store' },
+  { title: '20K+ stars', source: 'GitHub' },
+];
+
+// The landing's new row of awards under the log in link.
+const Laurels = (): ReactElement => (
+  <ul
+    aria-label="daily.dev recognition"
+    className="mt-9 flex w-full flex-wrap items-center justify-center gap-2 min-[400px]:gap-x-5"
+  >
+    {awards.map(({ title, source }) => (
+      <li key={source} className="flex items-center gap-0.5">
+        <Laurel />
+        <span className="text-center leading-tight">
+          <span
+            className="block font-bold text-text-primary"
+            style={{ fontSize: '0.71875rem' }}
+          >
+            {title}
+          </span>
+          <span
+            className="block text-text-tertiary"
+            style={{ fontSize: '0.65625rem' }}
+          >
+            {source}
+          </span>
+        </span>
+        <Laurel isMirrored />
+      </li>
+    ))}
+  </ul>
+);
 
 // The marketing landing's sign-up block, the source of truth: headline, the
-// three ways to sign up, the legal line under them and the log in link.
-// On iOS, Apple takes GitHub's place: the App Store requires Sign in with
-// Apple next to other social logins, and the app already offers it.
+// three ways to sign up, the legal line under them, the log in link and the
+// awards. On iOS, Apple takes GitHub's place: the App Store requires Sign in
+// with Apple next to other social logins, and the app already offers it.
 const LandingSignupBlock = ({
   align = 'left',
   isIOS = false,
@@ -96,51 +148,40 @@ const LandingSignupBlock = ({
   ];
 
   return (
-    <div className="flex w-full max-w-[26.25rem] flex-col">
+    <div className="flex w-full max-w-[28.75rem] flex-col">
       <h1
         className={classNames(
-          'text-balance font-bold tracking-tight text-text-primary',
-          align === 'center'
-            ? 'text-center'
-            : 'typo-large-title tablet:typo-mega3',
+          'text-balance font-bold text-text-primary',
+          align === 'center' && 'text-center',
         )}
-        style={align === 'center' ? phoneHeadline : undefined}
+        style={align === 'center' ? phoneHeadline : desktopHeadline}
       >
         Where developers discover what’s next.
       </h1>
-      <div className="mt-8 flex flex-col gap-4">
-        {ways.map(({ label, icon, variant }) => (
-          <Button
-            key={label}
-            className={classNames(
-              'w-full',
-              align !== 'center' && '!font-normal',
-              variant === ButtonVariant.Float &&
-                '!border !border-border-subtlest-tertiary !text-text-primary',
-            )}
-            icon={
-              align === 'center'
-                ? cloneElement(icon, { size: IconSize.Small })
-                : icon
-            }
-            onClick={fn()}
-            size={ButtonSize.Large}
-            style={
-              align === 'center'
-                ? phoneButton(variant === ButtonVariant.Primary)
-                : undefined
-            }
-            type="button"
-            variant={variant}
-          >
-            {label}
-          </Button>
-        ))}
-      </div>
-      {align === 'center' ? (
+      <div className="flex w-full max-w-[26.25rem] flex-col">
+        <div className="mt-8 flex flex-col gap-4">
+          {ways.map(({ label, icon, variant }) => (
+            <Button
+              key={label}
+              className={classNames(
+                'w-full',
+                variant === ButtonVariant.Float &&
+                  '!border !border-border-subtlest-tertiary !text-text-primary',
+              )}
+              icon={cloneElement(icon, { size: IconSize.Small })}
+              onClick={fn()}
+              size={ButtonSize.Large}
+              style={landingButton(variant === ButtonVariant.Primary)}
+              type="button"
+              variant={variant}
+            >
+              {label}
+            </Button>
+          ))}
+        </div>
         <p
           className="mt-4 w-full text-center text-text-tertiary"
-          style={phoneLegal}
+          style={landingLegal}
         >
           By continuing, you agree to the{' '}
           <a href={termsOfService} className="underline">
@@ -152,218 +193,21 @@ const LandingSignupBlock = ({
           </a>
           .
         </p>
-      ) : (
-        <SignupDisclaimer className="mt-6 !text-text-tertiary typo-caption1" />
-      )}
-      <MemberAlready
-        onLogin={fn()}
-        className={{
-          container:
-            'mx-auto mt-8 justify-center text-text-secondary typo-callout',
-          login: '!text-text-primary',
-        }}
-      />
+        <MemberAlready
+          onLogin={fn()}
+          className={{
+            container:
+              'mx-auto mt-8 justify-center text-text-secondary typo-callout',
+            login: '!text-text-primary',
+          }}
+        />
+        <Laurels />
+      </div>
     </div>
   );
 };
 
 // `focus` is inline because the art's crop differs per shell.
-// Cloudflare's Turnstile check as production shows it under the password, in
-// its dark theme and default 300x65 size. The widget only loads on a real
-// daily.dev page, so the mock draws it; its colors are Cloudflare's, not ours.
-const CloudflareCheck = (): ReactElement => (
-  <div className="mx-auto" style={{ minHeight: '4.5rem' }}>
-    <div
-      aria-label="Cloudflare security check"
-      className="flex items-center justify-between px-3"
-      style={{
-        width: '18.75rem',
-        height: '4.0625rem',
-        background: '#232323',
-        border: '1px solid #797979',
-      }}
-    >
-      <div className="flex items-center gap-2.5">
-        <span
-          className="block size-7 rounded-4"
-          style={{ background: '#111', border: '2px solid #8a8a8a' }}
-        />
-        <span style={{ color: '#d9d9d9', fontSize: '0.875rem' }}>
-          Verify you are human
-        </span>
-      </div>
-      <div className="flex flex-col items-end">
-        <svg viewBox="0 0 64 28" className="h-5" aria-hidden>
-          <path
-            d="M50 26H10a8 8 0 0 1-1-15.9A12 12 0 0 1 31 6a10 10 0 0 1 18.6 4.4A8 8 0 0 1 50 26z"
-            fill="#f6821f"
-          />
-          <path d="M44 26h12a6 6 0 0 0-6-9.5A7 7 0 0 0 44 26z" fill="#fbad41" />
-        </svg>
-        <span
-          className="font-bold"
-          style={{
-            color: '#fff',
-            fontSize: '0.5625rem',
-            letterSpacing: '0.08em',
-          }}
-        >
-          CLOUDFLARE
-        </span>
-        <span
-          className="underline"
-          style={{ color: '#bbb', fontSize: '0.5rem' }}
-        >
-          Privacy · Help
-        </span>
-      </div>
-    </div>
-  </div>
-);
-
-// The log in screen in the landing's style. It keeps everything log in does
-// today: all four providers (accounts made with Apple or Facebook need them),
-// email and password, forgot password and the way back to sign up. Only the
-// type and buttons change, and unlike sign up it has no art. The bottom keeps
-// production's layout: Cloudflare's check, then forgot password beside the
-// log in button.
-const LandingLoginBlock = ({
-  align = 'left',
-}: {
-  align?: 'left' | 'center';
-}): ReactElement => {
-  const ways = [
-    {
-      provider: providerMap.google,
-      icon: providerMap.google.icon,
-      variant: ButtonVariant.Primary,
-    },
-    {
-      provider: providerMap.github,
-      icon: cloneElement(providerMap.github.icon, { secondary: true }),
-      variant: ButtonVariant.Float,
-    },
-    {
-      provider: providerMap.apple,
-      icon: providerMap.apple.icon,
-      variant: ButtonVariant.Float,
-    },
-    {
-      provider: providerMap.facebook,
-      icon: providerMap.facebook.icon,
-      variant: ButtonVariant.Float,
-    },
-  ];
-
-  return (
-    <div className="flex w-full max-w-[26.25rem] flex-col">
-      <h1
-        className={classNames(
-          'text-balance font-bold text-text-primary',
-          align === 'center'
-            ? 'text-center typo-title2'
-            : 'tracking-tight typo-large-title tablet:typo-mega3',
-        )}
-      >
-        Log in
-      </h1>
-      <div
-        className={classNames(
-          'flex flex-col gap-4',
-          align === 'center' ? 'mt-6' : 'mt-8',
-        )}
-      >
-        {ways.map(({ provider, icon, variant }) => (
-          <Button
-            key={provider.value}
-            className={classNames(
-              'w-full',
-              align !== 'center' && '!font-normal',
-              variant === ButtonVariant.Float &&
-                '!border !border-border-subtlest-tertiary !text-text-primary',
-            )}
-            icon={
-              align === 'center'
-                ? cloneElement(icon, { size: IconSize.Small })
-                : icon
-            }
-            onClick={fn()}
-            size={ButtonSize.Large}
-            style={
-              align === 'center'
-                ? phoneButton(variant === ButtonVariant.Primary)
-                : undefined
-            }
-            type="button"
-            variant={variant}
-          >
-            Continue with {provider.label}
-          </Button>
-        ))}
-      </div>
-      <div className="my-3 flex h-5 items-center gap-3 text-text-tertiary typo-footnote">
-        <span className="h-px flex-1 bg-border-subtlest-tertiary" />
-        or
-        <span className="h-px flex-1 bg-border-subtlest-tertiary" />
-      </div>
-      <form
-        className="flex flex-col gap-2"
-        onSubmit={(e) => e.preventDefault()}
-      >
-        <TextField
-          leftIcon={
-            <MailIcon role="presentation" aria-hidden size={IconSize.Small} />
-          }
-          inputId="login-email"
-          name="identifier"
-          label="Email"
-          type="email"
-          saveHintSpace
-        />
-        <PasswordField
-          inputId="login-password"
-          name="password"
-          label="Password"
-          showStrength={false}
-          saveHintSpace
-        />
-        <CloudflareCheck />
-        <div className="mt-4 flex w-full items-center">
-          <button
-            className="text-left text-text-tertiary underline typo-callout hover:text-text-primary"
-            onClick={fn()}
-            style={{ flex: 2 }}
-            type="button"
-          >
-            Forgot password?
-          </button>
-          <Button
-            size={ButtonSize.Medium}
-            style={{ flex: 1 }}
-            type="submit"
-            variant={ButtonVariant.Primary}
-          >
-            Log in
-          </Button>
-        </div>
-      </form>
-      <p
-        className="mt-8 border-t border-border-subtlest-tertiary text-center text-text-tertiary typo-callout"
-        style={{ paddingTop: '1.875rem' }}
-      >
-        Not a member yet?{' '}
-        <button
-          className="text-text-primary underline"
-          onClick={fn()}
-          type="button"
-        >
-          Sign up
-        </button>
-      </p>
-    </div>
-  );
-};
-
 const LandingArt = ({
   className,
   focus,
@@ -390,47 +234,38 @@ const LandingArt = ({
 // fading out over its last 18%. The landing's dark halo sits behind its
 // left-hand copy; here it is centered on the block and narrowed to keep the
 // boy and Patchy clear.
-const DesktopFunnel = ({
-  children,
-  hasArt = true,
-}: {
-  children?: ReactNode;
-  hasArt?: boolean;
-}): ReactElement => (
+const DesktopFunnel = (): ReactElement => (
   <div className="relative isolate flex min-h-dvh w-full flex-col overflow-hidden bg-background-default text-text-primary">
-    {hasArt && (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-x-0 top-0 -z-1"
+      style={{ height: 'clamp(47.5rem, 46vw, 59.375rem)' }}
+    >
+      <img
+        alt=""
+        className="block size-full select-none object-cover"
+        src={signupWallHorizon}
+        style={{
+          objectPosition: '47% 50%',
+          maskImage: 'linear-gradient(to bottom, black 82%, transparent)',
+          WebkitMaskImage: 'linear-gradient(to bottom, black 82%, transparent)',
+        }}
+      />
       <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-1"
-        style={{ height: 'clamp(47.5rem, 46vw, 59.375rem)' }}
-      >
-        <img
-          alt=""
-          className="block size-full select-none object-cover"
-          src={signupWallHorizon}
-          style={{
-            objectPosition: '47% 50%',
-            maskImage: 'linear-gradient(to bottom, black 82%, transparent)',
-            WebkitMaskImage:
-              'linear-gradient(to bottom, black 82%, transparent)',
-          }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              'radial-gradient(30% 78% at 50% 50%, rgba(15, 15, 18, 0.92), rgba(15, 15, 18, 0.62) 48%, rgba(0, 0, 0, 0) 78%)',
-          }}
-        />
-      </div>
-    )}
+        className="absolute inset-0"
+        style={{
+          backgroundImage:
+            'radial-gradient(30% 78% at 50% 50%, rgba(15, 15, 18, 0.92), rgba(15, 15, 18, 0.62) 48%, rgba(0, 0, 0, 0) 78%)',
+        }}
+      />
+    </div>
     <main className="relative z-1 flex w-full flex-1 flex-col items-center justify-center gap-7 px-5 pb-16 pt-14">
       <Logo
         position={LogoPosition.Relative}
         className="!left-0 !top-0 !mt-0 !translate-x-0 self-center"
         logoClassName={{ container: 'h-7' }}
       />
-      {children ?? <LandingSignupBlock />}
+      <LandingSignupBlock />
     </main>
     <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-1 flex justify-end px-6 pb-4">
       <div className="[&_footer]:!pb-0 [&_ul]:!mb-0 [&_ul]:!justify-end">
@@ -442,47 +277,24 @@ const DesktopFunnel = ({
 
 // The Android and iOS apps at phone width: the art across the top fading
 // into the page, the logo, then the landing block anchored to the bottom.
-const PhoneFunnel = ({
-  isIOS,
-  children,
-  hasArt = true,
-}: {
-  isIOS?: boolean;
-  children?: ReactNode;
-  hasArt?: boolean;
-}): ReactElement => (
-  <div
-    className={classNames(
-      'relative isolate flex min-h-dvh w-full flex-col overflow-hidden bg-background-default px-6 pb-8 text-text-primary',
-      hasArt ? 'justify-end' : 'justify-start pt-6',
-    )}
-  >
+const PhoneFunnel = ({ isIOS }: { isIOS?: boolean }): ReactElement => (
+  <div className="relative isolate flex min-h-dvh w-full flex-col justify-end overflow-hidden bg-background-default px-6 pb-8 text-text-primary">
     <style dangerouslySetInnerHTML={{ __html: HERO_STYLES }} />
-    {hasArt && (
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-1 h-1/2 overflow-hidden"
-      >
-        <LandingArt className="inset-0 size-full" focus="64% 50%" />
-        <div className="onb-art-fade absolute inset-x-0 bottom-0 h-3/5" />
-      </div>
-    )}
-    {hasArt ? (
-      <div className="flex flex-col items-center gap-6">
-        <Logo
-          position={LogoPosition.Relative}
-          className="!left-0 !top-0 !mt-0 !translate-x-0 self-center"
-          logoClassName={{ container: 'h-6' }}
-        />
-        {children ?? <LandingSignupBlock align="center" isIOS={isIOS} />}
-      </div>
-    ) : (
-      // Production's phone log in header: the logo mark alone, top left.
-      <div className="flex flex-col gap-3">
-        <LogoIcon className={{ container: 'h-logo self-start' }} />
-        {children}
-      </div>
-    )}
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-x-0 top-0 -z-1 h-1/2 overflow-hidden"
+    >
+      <LandingArt className="inset-0 size-full" focus="64% 50%" />
+      <div className="onb-art-fade absolute inset-x-0 bottom-0 h-3/5" />
+    </div>
+    <div className="flex flex-col items-center gap-6">
+      <Logo
+        position={LogoPosition.Relative}
+        className="!left-0 !top-0 !mt-0 !translate-x-0 self-center"
+        logoClassName={{ container: 'h-6' }}
+      />
+      <LandingSignupBlock align="center" isIOS={isIOS} />
+    </div>
   </div>
 );
 
@@ -504,24 +316,10 @@ const screens: {
     storyId: 'login-surfaces-aligned-signup--desktop',
   },
   {
-    title: 'Log in · desktop',
-    note: '/onboarding?action=login, also the extension’s log in. Every provider stays, so accounts made with Apple or Facebook can still get in.',
-    device: devices.laptop,
-    before: '17-desktop-login',
-    storyId: 'login-surfaces-aligned-signup--desktop-login',
-  },
-  {
     title: '/onboarding · Android app',
     device: devices.pixel,
     before: '07-android-landing',
     storyId: 'login-surfaces-aligned-signup--phone',
-  },
-  {
-    title: 'Log in · phone: mobile web, Android and iOS',
-    note: 'The same web page in all three. iOS signs in natively when Google or Apple is tapped.',
-    device: devices.pixel,
-    before: '18-android-login',
-    storyId: 'login-surfaces-aligned-signup--phone-login',
   },
   {
     title: '/onboarding · iOS app',
@@ -690,28 +488,6 @@ export const ExtensionActivate: DeviceStory = {
   name: 'Extension · /activate',
   globals: { theme: 'dark' },
   ...onDevice(devices.laptop, '10-extension-install', () => <ActivatePage />),
-};
-
-export const DesktopLogin: DeviceStory = {
-  tags: ['!dev'],
-  name: 'Log in · desktop',
-  globals: { theme: 'dark' },
-  ...onDevice(devices.laptop, '17-desktop-login', () => (
-    <DesktopFunnel hasArt={false}>
-      <LandingLoginBlock />
-    </DesktopFunnel>
-  )),
-};
-
-export const PhoneLogin: DeviceStory = {
-  tags: ['!dev'],
-  name: 'Log in · phone',
-  globals: { theme: 'dark' },
-  ...onDevice(devices.pixel, '18-android-login', () => (
-    <PhoneFunnel hasArt={false}>
-      <LandingLoginBlock align="center" />
-    </PhoneFunnel>
-  )),
 };
 
 export const IOSTracking: DeviceStory = {
