@@ -136,7 +136,6 @@ const FormInputCheckbox = ({
       className={classNames(isVertical ? '!h-auto typo-subhead' : 'typo-body', {
         simplified: optionStyle === 'simplified',
         relative: !!item.badge || (hasSelectionMark && isVertical),
-        'overflow-visible': !!item.badge,
       })}
       data-funnel-track={FunnelTargetId.QuizInput}
       name={name}
@@ -147,7 +146,12 @@ const FormInputCheckbox = ({
       {...props}
     >
       {!!item.badge && (
-        <span className="absolute -top-2.5 right-4 whitespace-nowrap rounded-max bg-brand-default px-2 py-0.5 font-bold text-white typo-caption2">
+        <span
+          className={classNames(
+            'absolute -top-2.5 whitespace-nowrap rounded-max bg-brand-default px-2 py-0.5 font-bold text-white typo-caption2',
+            isVertical ? 'left-1/2 -translate-x-1/2' : 'right-4',
+          )}
+        >
           {item.badge}
         </span>
       )}
@@ -238,11 +242,14 @@ export const FormInputCheckboxGroup = ({
     setCheckedValue(newValue);
   };
 
+  const hasBadge = options.some((option) => !!option.badge);
+
   return (
     <div
-      className={classNames(`grid-cols-${cols} grid gap-2`, {
-        'pt-2': options.some((option) => option.badge),
-      })}
+      className={classNames(
+        `grid-cols-${cols} grid`,
+        hasBadge ? 'gap-3 pt-3' : 'gap-2',
+      )}
       role="group"
     >
       {options.map((item) => (

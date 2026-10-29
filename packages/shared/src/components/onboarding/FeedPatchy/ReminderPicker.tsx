@@ -28,16 +28,23 @@ const presets = [
 
 const periodOf = (hour: number): string => (hour < 12 ? 'AM' : 'PM');
 
+const hourOnClock = (hour: number): number => hour % 12 || 12;
+
+const clockTime = (hour: number, isTwelveHour: boolean): string =>
+  isTwelveHour
+    ? `${hourOnClock(hour)}:00`
+    : `${String(hour).padStart(2, '0')}:00`;
+
 export const formatHour = (hour: number, isTwelveHour = false): string =>
   isTwelveHour
-    ? `${hour % 12 || 12}:00 ${periodOf(hour)}`
-    : `${String(hour).padStart(2, '0')}:00`;
+    ? `${clockTime(hour, true)} ${periodOf(hour)}`
+    : clockTime(hour, false);
 
 const tickLabel = (hour: number, isTwelveHour: boolean): string => {
   if (!isTwelveHour) {
     return String(hour).padStart(2, '0');
   }
-  return hour % 12 ? String(hour % 12) : `12 ${periodOf(hour)}`;
+  return hour % 12 ? String(hourOnClock(hour)) : `12 ${periodOf(hour)}`;
 };
 
 const momentOf = (hour: number): string => {
@@ -281,7 +288,7 @@ export const ReminderPicker = ({
               isCompact ? 'typo-large-title' : 'typo-mega2',
             )}
           >
-            {isTwelveHour ? `${hour % 12 || 12}:00` : formatHour(hour)}
+            {clockTime(hour, isTwelveHour)}
             {isTwelveHour && (
               <span className="ml-1 typo-title2">{periodOf(hour)}</span>
             )}
