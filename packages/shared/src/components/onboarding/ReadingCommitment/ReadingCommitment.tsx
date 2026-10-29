@@ -30,7 +30,7 @@ import { useFeedPatchyReminder } from '../FeedPatchy/useFeedPatchyReminder';
 import { PostStack } from './PostStack';
 import type { ReminderPush } from './ReminderPreview';
 import { getPreviewPlatform, ReminderPreview } from './ReminderPreview';
-import { clockOfHour, isTwelveHourZone } from './regionalClock';
+import { clockOfHour, isTwelveHourClock } from './regionalClock';
 import { feedPreviewPostsQueryOptions } from './feedPreviewPosts';
 import styles from './ReadingCommitment.module.css';
 
@@ -116,8 +116,12 @@ const longDate = (date: Date): string =>
     day: 'numeric',
   });
 
-const firstSentence = (text: string): string =>
-  text.match(/^.+?[.!?](?=\s|$)/)?.[0] ?? text;
+/** The reading reminder push as daily-api sends it, with or without a top pick. */
+const TOP_PICK_HEADING = 'Top pick for you';
+const GENERIC_PUSH: ReminderPush = {
+  title: 'Your daily reading time',
+  body: 'Curated posts based on your interests are ready',
+};
 
 const AnswerList = ({
   name,
@@ -174,6 +178,7 @@ const CommitmentScreen = ({
   isCtaDisabled,
   isLoading,
   onCta,
+  onBack,
   docked,
   children,
 }: {
@@ -183,6 +188,7 @@ const CommitmentScreen = ({
   isCtaDisabled?: boolean;
   isLoading?: boolean;
   onCta: () => void;
+  onBack?: () => void;
   docked?: ReactNode;
   children: ReactNode;
 }): ReactElement => (
@@ -192,6 +198,7 @@ const CommitmentScreen = ({
     disabled={isCtaDisabled}
     loading={isLoading}
     onClick={onCta}
+    onBack={onBack}
     docked={docked}
     containerClassName="flex w-full flex-1 flex-col"
   >
@@ -245,7 +252,7 @@ export const ReadingCommitment = ({
   const picker = useRef<ReminderPickerHandle>(null);
   const lastCustomHour = useRef(DEFAULT_CUSTOM_HOUR);
   const screen = SCREENS[screenIndex];
-  const isTwelveHour = isTwelveHourZone(timezone);
+  const [isTwelveHour] = useState(isTwelveHourClock);
   const goalMinutes = Number(goal ?? RECOMMENDED_GOAL);
   const logos = useMemo(
     () =>
@@ -257,21 +264,12 @@ export const ReadingCommitment = ({
 
   const next = () => setScreenIndex((index) => index + 1);
 
-  const pushPost = posts.find((post) => post.title);
-  const pushSource = pushPost?.source?.name;
-  const push: ReminderPush = pushPost?.title
-    ? {
-        title: pushPost.title,
-        body: pushPost.summary
-          ? firstSentence(pushPost.summary)
-          : `Fresh on ${
-              pushSource ?? 'your feed'
-            }. ${goalMinutes} minutes is all it takes.`,
-      }
-    : {
-        title: 'Your daily read is ready',
-        body: `${goalMinutes} minutes of fresh posts on the tags you follow.`,
-      };
+  const back = () => setScreenIndex((index) => Math.max(index - 1, 0));
+
+  const topPick = posts.find((post) => post.title)?.title;
+  const push: ReminderPush = topPick
+    ? { title: TOP_PICK_HEADING, body: topPick }
+    : GENERIC_PUSH;
   const isToday = hour > getHourTimezone(timezone);
   const firstReminder = new Date();
   if (!isToday) {
@@ -343,6 +341,7 @@ export const ReadingCommitment = ({
             cta="Continue"
             isCtaDisabled={!goal}
             onCta={onCommitGoal}
+            onBack={back}
           >
             <div className="flex w-full flex-col gap-4">
               <PostStack minutes={Number(goal ?? 0)} logos={logos} />
@@ -363,6 +362,7 @@ export const ReadingCommitment = ({
             subheadline="We’ll save your daily read for then."
             cta="Continue"
             onCta={next}
+            onBack={back}
           >
             <div className="flex w-full flex-col gap-4">
               <ReminderPicker
@@ -416,6 +416,7 @@ export const ReadingCommitment = ({
             cta={outcome === 'denied' ? 'Continue' : 'Turn on notifications'}
             isLoading={isPrompting}
             onCta={onTurnOn}
+            onBack={isPrompting ? undefined : back}
             docked={
               outcome !== 'denied' && (
                 <Button

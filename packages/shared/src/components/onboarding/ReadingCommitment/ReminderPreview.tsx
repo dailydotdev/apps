@@ -37,10 +37,14 @@ const IosPush = ({ title, body }: ReminderPush): ReactElement => (
     <AppIcon className="size-9 rounded-10" />
     <div className="flex min-w-0 flex-1 flex-col">
       <div className="flex items-baseline justify-between gap-2">
-        <span className="min-w-0 flex-1 font-bold typo-subhead">{title}</span>
+        <span className="line-clamp-1 min-w-0 flex-1 font-bold typo-subhead">
+          {title}
+        </span>
         <span className="shrink-0 text-text-tertiary typo-caption1">now</span>
       </div>
-      <span className="text-text-secondary typo-subhead">{body}</span>
+      <span className="line-clamp-4 text-text-secondary typo-subhead">
+        {body}
+      </span>
     </div>
   </div>
 );
@@ -54,8 +58,10 @@ const AndroidPush = ({ title, body }: ReminderPush): ReactElement => (
       <span aria-hidden>•</span>
       <span>now</span>
     </div>
-    <span className="font-bold typo-callout">{title}</span>
-    <span className="text-text-secondary typo-subhead">{body}</span>
+    <span className="line-clamp-1 font-bold typo-callout">{title}</span>
+    <span className="line-clamp-4 text-text-secondary typo-subhead">
+      {body}
+    </span>
   </div>
 );
 

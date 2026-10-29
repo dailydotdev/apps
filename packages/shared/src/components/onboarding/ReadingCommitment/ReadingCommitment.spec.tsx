@@ -99,6 +99,7 @@ describe('ReadingCommitment', () => {
     expect(
       await screen.findByText('JPEG-XL Is Back On The Menu'),
     ).toBeInTheDocument();
+    expect(screen.getByText('Top pick for you')).toBeInTheDocument();
     proceed('Turn on notifications');
 
     await waitFor(() => expect(onComplete).toHaveBeenCalled());
@@ -130,5 +131,20 @@ describe('ReadingCommitment', () => {
 
     proceed();
     expect(onComplete).toHaveBeenCalled();
+  });
+
+  it('steps back a screen and keeps the answers given', () => {
+    renderStep();
+    pick(/^A post or two/);
+    proceed();
+    pick(/^A steady habit/);
+    proceed();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Go back' }));
+
+    expect(screen.getByText('Set your daily goal')).toBeInTheDocument();
+    expect(
+      screen.getByRole('checkbox', { name: /^A steady habit/ }),
+    ).toHaveAttribute('aria-checked', 'true');
   });
 });
