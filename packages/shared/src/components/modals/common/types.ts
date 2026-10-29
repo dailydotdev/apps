@@ -113,6 +113,7 @@ export enum LazyModal {
   LfgReachOut = 'lfgReachOut',
   LfgHelper = 'lfgHelper',
   FeedExplanation = 'feedExplanation',
+  FeedTune = 'feedTune',
 }
 
 export type ModalTabItem = {

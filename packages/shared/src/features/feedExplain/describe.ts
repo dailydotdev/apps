@@ -1,9 +1,11 @@
 import type { Post } from '../../graphql/posts';
 import { isSourceUserSource } from '../../graphql/sources';
 import type {
+  FeedControl,
   FeedControls,
   FeedItemExplain,
   FeedProfile,
+  FeedSourceMode,
   RankedExplain,
 } from './types';
 import {
@@ -15,6 +17,7 @@ import {
   isRankedExplain,
   TopicControl,
 } from './types';
+import { formatUntil } from './duration';
 
 // The lane the challenger ranks; the others (coldstart, popular) top up a
 // short page.
@@ -216,6 +219,34 @@ export const topicModeMeta: Record<FeedTopicMode, SignalMeta> = {
   },
 };
 
+const exactWeightMeta: SignalMeta = {
+  text: 'Your exact boost',
+  className: 'text-accent-cabbage-default',
+};
+
+/** What the reader set on a topic or source, and when it ends. */
+export const getControlMeta = <Mode extends FeedTopicMode | FeedSourceMode>(
+  control: FeedControl<Mode> | undefined,
+): SignalMeta | undefined => {
+  if (!control) {
+    return undefined;
+  }
+  const meta = control.mode
+    ? topicModeMeta[control.mode as FeedTopicMode]
+    : exactWeightMeta;
+  return control.expiresAt
+    ? { ...meta, text: `${meta.text} ${formatUntil(control.expiresAt)}` }
+    : meta;
+};
+
+/** The multiplier a source's posts get from a follow, 1 without one. */
+export const getSourceFactor = (
+  explain: FeedItemExplain | null | undefined,
+): number =>
+  isRankedExplain(explain) && isSourceFollow(explain)
+    ? explain.follow.factor
+    : 1;
+
 /** The level the reader set on a topic. */
 export const getTopicLevel = (
   tag: string,
@@ -223,7 +254,9 @@ export const getTopicLevel = (
   profile: FeedProfile | undefined,
 ): FeedTopicMode | undefined => {
   if (controls) {
-    return controls.topics.find(({ keyword }) => keyword === tag)?.mode;
+    return (
+      controls.topics.find(({ keyword }) => keyword === tag)?.mode ?? undefined
+    );
   }
   // The profile lags a change behind the controls, so it only stands in
   // until they load.

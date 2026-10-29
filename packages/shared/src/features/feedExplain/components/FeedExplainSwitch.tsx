@@ -10,10 +10,12 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { TerminalIcon } from '../../../components/icons/Terminal';
+import { FilterIcon } from '../../../components/icons/Filter';
 import type { IconSize } from '../../../components/Icon';
 import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent, TargetId } from '../../../lib/log';
+import { LogEvent, Origin, TargetId } from '../../../lib/log';
 import { useFeedExplainMode } from '../useFeedExplainMode';
+import { useOpenFeedTune } from '../useOpenFeedTune';
 
 interface FeedExplainSwitchProps {
   /** The feed's sort is Recommended, the only one that explains itself. */
@@ -31,8 +33,12 @@ interface FeedExplainSwitchProps {
 }
 
 const title = 'See why each post is on your feed';
+const tuneTitle = 'Try changes to your feed before you save them';
 
-/** The Debug toggle: turns Explain mode on For You on and off. */
+/**
+ * The Debug toggle: turns Explain mode on For You on and off. While it is
+ * on, Tune sits beside it.
+ */
 export const FeedExplainSwitch = ({
   isRecommended,
   isRow,
@@ -40,9 +46,9 @@ export const FeedExplainSwitch = ({
   iconOnly,
 }: FeedExplainSwitchProps): ReactElement | null => {
   const { logEvent } = useLogContext();
-  const { isAvailable, isExplaining, setIsExplaining } = useFeedExplainMode({
-    isRecommended,
-  });
+  const { isAvailable, isExplaining, setIsExplaining, version } =
+    useFeedExplainMode({ isRecommended });
+  const openTune = useOpenFeedTune(Origin.FeedExplain);
 
   if (!isAvailable) {
     return null;
@@ -58,37 +64,67 @@ export const FeedExplainSwitch = ({
 
   if (isRow) {
     return (
-      <Switch
-        inputId="feed-explain-sheet"
-        name="feed-explain"
-        checked={isExplaining}
-        onToggle={onToggle}
-        title={title}
-        className="h-12 w-full flex-row-reverse justify-between px-4"
-        labelClassName="!ml-0 text-text-primary"
-      >
-        Debug
-      </Switch>
+      <>
+        <Switch
+          inputId="feed-explain-sheet"
+          name="feed-explain"
+          checked={isExplaining}
+          onToggle={onToggle}
+          title={title}
+          className="h-12 w-full flex-row-reverse justify-between px-4"
+          labelClassName="!ml-0 text-text-primary"
+        >
+          Debug
+        </Switch>
+        {isExplaining && (
+          <button
+            type="button"
+            title={tuneTitle}
+            onClick={() => openTune(version)}
+            className="flex h-12 w-full items-center gap-3 px-4 text-left text-text-primary transition-colors typo-callout hover:bg-surface-hover"
+          >
+            <FilterIcon />
+            Tune your feed
+          </button>
+        )}
+      </>
     );
   }
 
   const { iconSize, ...buttonOverrides } = buttonProps ?? {};
 
   return (
-    <Button
-      type="button"
-      size={ButtonSize.Small}
-      variant={ButtonVariant.Float}
-      icon={iconSize ? <TerminalIcon size={iconSize} /> : <TerminalIcon />}
-      iconPosition={ButtonIconPosition.Left}
-      pressed={isExplaining}
-      color={ButtonColor.Cabbage}
-      title={title}
-      aria-label={iconOnly ? 'Debug' : undefined}
-      onClick={onToggle}
-      {...buttonOverrides}
-    >
-      {iconOnly ? null : 'Debug'}
-    </Button>
+    <>
+      <Button
+        type="button"
+        size={ButtonSize.Small}
+        variant={ButtonVariant.Float}
+        icon={iconSize ? <TerminalIcon size={iconSize} /> : <TerminalIcon />}
+        iconPosition={ButtonIconPosition.Left}
+        pressed={isExplaining}
+        color={ButtonColor.Cabbage}
+        title={title}
+        aria-label={iconOnly ? 'Debug' : undefined}
+        onClick={onToggle}
+        {...buttonOverrides}
+      >
+        {iconOnly ? null : 'Debug'}
+      </Button>
+      {isExplaining && (
+        <Button
+          type="button"
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Float}
+          icon={iconSize ? <FilterIcon size={iconSize} /> : <FilterIcon />}
+          iconPosition={ButtonIconPosition.Left}
+          title={tuneTitle}
+          aria-label={iconOnly ? 'Tune' : undefined}
+          onClick={() => openTune(version)}
+          {...buttonOverrides}
+        >
+          {iconOnly ? null : 'Tune'}
+        </Button>
+      )}
+    </>
   );
 };

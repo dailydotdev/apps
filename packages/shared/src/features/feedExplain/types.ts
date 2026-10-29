@@ -193,3 +193,10 @@ export interface FeedTune {
     reasons: Record<string, number>;
   };
 }
+
+/** Tune's tabs, by the controls they hold. */
+export enum FeedTuneTab {
+  Topics = 'Topics',
+  Sources = 'Sources',
+  Ranking = 'Ranking',
+}

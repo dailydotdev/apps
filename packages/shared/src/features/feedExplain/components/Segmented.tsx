@@ -45,7 +45,7 @@ export const Segmented = <T,>({
           aria-disabled={option.isLocked}
           onClick={() => !option.isLocked && onChange(option.value)}
           className={classNames(
-            'flex h-7 items-center rounded-8 px-2.5 font-bold typo-footnote transition-colors',
+            'flex h-7 items-center rounded-8 px-2.5 font-bold transition-colors typo-footnote',
             isActive && 'bg-background-default text-text-primary shadow-2',
             !isActive &&
               !option.isLocked &&

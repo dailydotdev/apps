@@ -22,7 +22,9 @@ export const getExpiresAt = (
   duration: FeedControlDuration | undefined,
   now = Date.now(),
 ): string | null =>
-  duration ? new Date(now + durationDays[duration] * dayMs).toISOString() : null;
+  duration
+    ? new Date(now + durationDays[duration] * dayMs).toISOString()
+    : null;
 
 /** "until Sun", or "until Thu, Oct 22" when the weekday alone is ambiguous. */
 export const formatUntil = (expiresAt: string, now = Date.now()): string => {

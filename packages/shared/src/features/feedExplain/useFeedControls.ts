@@ -47,7 +47,10 @@ export interface ControlValue<Mode> {
 
 type FeedControlChange =
   | ({ kind: ChangeKind.Topic; keyword: string } & ControlValue<FeedTopicMode>)
-  | ({ kind: ChangeKind.Source; sourceId: string } & ControlValue<FeedSourceMode>)
+  | ({
+      kind: ChangeKind.Source;
+      sourceId: string;
+    } & ControlValue<FeedSourceMode>)
   | { kind: ChangeKind.Learning | ChangeKind.FillIns; enabled: boolean }
   | { kind: ChangeKind.Ranking; key: string; value: number | null }
   | { kind: ChangeKind.RankingReset };
@@ -61,8 +64,8 @@ const toStored = <Mode>(
     return null;
   }
   return {
-    mode: weight === 0 && off ? off : (mode ?? null),
-    weight: weight ? weight : null,
+    mode: weight === 0 && off ? off : mode ?? null,
+    weight: weight || null,
     expiresAt: getExpiresAt(duration),
   };
 };
@@ -156,8 +159,7 @@ const getChangeEvent = (
           change.kind === ChangeKind.Topic ? change.keyword : change.sourceId,
         extra: JSON.stringify({
           origin,
-          mode:
-            change.weight === undefined ? change.mode ?? 'auto' : 'weight',
+          mode: change.weight === undefined ? change.mode ?? 'auto' : 'weight',
           weight: change.weight,
           duration: change.duration,
         }),

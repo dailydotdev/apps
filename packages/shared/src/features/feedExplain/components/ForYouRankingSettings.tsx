@@ -19,13 +19,15 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { Origin } from '../../../lib/log';
 import type { FeedProfileRankingSetting } from '../types';
+import { FeedTuneTab } from '../types';
+import { useOpenFeedTune } from '../useOpenFeedTune';
 import type { RankingSettingMeta } from '../ranking';
 import { formatRankingValue, rankingGroups, rankingSettings } from '../ranking';
 import { feedProfileQueryOptions } from '../queries';
 import { useFeedControls } from '../useFeedControls';
 import { PlusBanner } from './PlusUpsell';
 
-interface RankingSliderProps {
+export interface RankingSliderProps {
   meta: RankingSettingMeta;
   setting: FeedProfileRankingSetting;
   /** The reader's own value, while they have Plus. */
@@ -34,7 +36,7 @@ interface RankingSliderProps {
   onChange: (value: number | null) => void;
 }
 
-const RankingSlider = ({
+export const RankingSlider = ({
   meta,
   setting,
   value,
@@ -86,7 +88,10 @@ const RankingSlider = ({
           onChange(next);
         }}
       />
-      <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Tertiary}
+      >
         {meta.help}
       </Typography>
     </div>
@@ -108,15 +113,19 @@ export const ForYouRankingSettings = ({
   const { isPlus } = usePlusSubscription();
   const [isAdvanced, setIsAdvanced] = useState(false);
   const { data: profile } = useQuery(feedProfileQueryOptions(user, version));
-  const { controls, setRankingSetting, resetRankingSettings } =
-    useFeedControls({ origin: Origin.Settings });
+  const { controls, setRankingSetting, resetRankingSettings } = useFeedControls(
+    { origin: Origin.Settings },
+  );
+  const openTune = useOpenFeedTune(Origin.Settings);
 
   if (!profile?.ranking.length || !controls) {
     return null;
   }
 
   const settings = new Map(profile.ranking.map((item) => [item.key, item]));
-  const values = new Map(controls.ranking.map(({ key, value }) => [key, value]));
+  const values = new Map(
+    controls.ranking.map(({ key, value }) => [key, value]),
+  );
   const pausedCount = isPlus ? 0 : controls.ranking.length;
 
   return (
@@ -138,6 +147,14 @@ export const ForYouRankingSettings = ({
             </Typography>
           </div>
           <div className="flex items-center gap-3">
+            <Button
+              type="button"
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+              onClick={() => openTune(version, FeedTuneTab.Ranking)}
+            >
+              Live preview
+            </Button>
             <Switch
               inputId="for-you-ranking-advanced"
               name="for-you-ranking-advanced"
@@ -160,20 +177,22 @@ export const ForYouRankingSettings = ({
           </div>
         </div>
         <PlusBanner>
-          {pausedCount > 0
-            ? `Your ${
-                pausedCount === 1 ? 'change is' : `${pausedCount} changes are`
-              } saved and count again with Plus.`
-            : 'Change how For You ranks every post with Plus.'}
+          {pausedCount === 1 &&
+            'Your change is saved and counts again with Plus.'}
+          {pausedCount > 1 &&
+            `Your ${pausedCount} changes are saved and count again with Plus.`}
+          {!pausedCount && 'Change how For You ranks every post with Plus.'}
         </PlusBanner>
         {rankingGroups.map(({ group, title, description }, index) => {
-          const metas = rankingSettings.filter(
-            (meta) =>
-              meta.group === group &&
-              settings.has(meta.key) &&
-              (isAdvanced || !meta.isAdvanced),
-          );
-          if (!metas.length) {
+          const rows = rankingSettings.flatMap((meta) => {
+            const setting = settings.get(meta.key);
+            return meta.group === group &&
+              setting &&
+              (isAdvanced || !meta.isAdvanced)
+              ? [{ meta, setting }]
+              : [];
+          });
+          if (!rows.length) {
             return null;
           }
           return (
@@ -193,11 +212,11 @@ export const ForYouRankingSettings = ({
                     {description}
                   </Typography>
                 </div>
-                {metas.map((meta) => (
+                {rows.map(({ meta, setting }) => (
                   <RankingSlider
                     key={meta.key}
                     meta={meta}
-                    setting={settings.get(meta.key)}
+                    setting={setting}
                     value={isPlus ? values.get(meta.key) : undefined}
                     isLocked={!isPlus}
                     onChange={(value) => setRankingSetting(meta.key, value)}

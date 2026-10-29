@@ -16,6 +16,7 @@ import { HashtagIcon } from '../../../components/icons/Hashtag';
 import { MinusIcon } from '../../../components/icons/Minus';
 import { PlusIcon } from '../../../components/icons/Plus';
 import { SettingsIcon } from '../../../components/icons/Settings';
+import { FilterIcon } from '../../../components/icons/Filter';
 import { VIcon } from '../../../components/icons/V';
 import { IconSize } from '../../../components/Icon';
 import {
@@ -48,7 +49,8 @@ import { feature } from '../../../lib/featureManagement';
 import type { FeedItemExplain } from '../types';
 import { useDropIdleForYouFeeds } from '../useDropIdleForYouFeeds';
 import { useFeedControls } from '../useFeedControls';
-import { FeedSourceMode, FeedTopicMode, isRankedExplain } from '../types';
+import { useOpenFeedTune } from '../useOpenFeedTune';
+import { FeedSourceMode, isRankedExplain } from '../types';
 import { feedProfileQueryKey, feedProfileQueryOptions } from '../queries';
 import type { ExplanationMatch, SignalMeta } from '../describe';
 import {
@@ -56,14 +58,17 @@ import {
   getExplanationMatches,
   getMatchKey,
   getPostTags,
+  getControlMeta,
   getReason,
   getScoreBreakdown,
+  getSourceFactor,
   getTopicLevel,
   getTopicWeight,
   topicModeMeta,
 } from '../describe';
 import { ScoreBreakdown } from './ScoreBreakdown';
 import { TopicLevelPicker } from './TopicLevelPicker';
+import { SourceLevelPicker } from './SourceLevelPicker';
 
 export interface FeedExplanationModalProps extends LazyModalCommonProps {
   post: Post;
@@ -100,7 +105,7 @@ interface EntityRow {
   /** Colors the meta when it names a level the reader set. */
   metaClassName?: string;
   leading: ReactNode;
-  /** A topic's level picker, beside its title. */
+  /** A topic's or source's level picker, beside its title. */
   level?: ReactNode;
   isBlocked: boolean;
   isFollowing?: boolean;
@@ -292,6 +297,7 @@ function FeedExplanationModal({
   });
   const { data: profile } = useQuery(feedProfileQueryOptions(user, version));
   const feedControls = useFeedControls({ origin: Origin.FeedExplain });
+  const openTune = useOpenFeedTune(Origin.FeedExplain);
   const {
     onFollowTags,
     onUnfollowTags,
@@ -375,6 +381,7 @@ function FeedExplanationModal({
     );
     const sourceId = source.id;
     const isShowingLess = feedControls.isSourceDemoted(sourceId);
+    const sourceControl = feedControls.getSourceControl(sourceId);
     const key = getMatchKey(ExplanationMatchKind.Source, sourceId);
     rows.push({
       key,
@@ -383,7 +390,15 @@ function FeedExplanationModal({
         key,
         isSquad ? 'squad' : 'source',
         isBlocked,
-        isShowingLess ? topicModeMeta[FeedTopicMode.Demote] : undefined,
+        getControlMeta(sourceControl),
+      ),
+      level: (
+        <SourceLevelPicker
+          name={source.name}
+          factor={getSourceFactor(explain)}
+          control={sourceControl}
+          onChange={(value) => feedControls.setSource(sourceId, value)}
+        />
       ),
       leading: (
         <SourceAvatar
@@ -421,20 +436,25 @@ function FeedExplanationModal({
     const key = getMatchKey(ExplanationMatchKind.Topic, tag);
     const tags = [tag];
     const weight = getTopicWeight(tag, explain, profile);
-    const mode = feedControls.getTopicMode(tag);
+    const control = feedControls.getTopicControl(tag);
     const level = getTopicLevel(tag, feedControls.controls, profile);
     rows.push({
       key,
       title: `#${tag}`,
-      ...getMeta(key, 'topic', isBlocked, level && topicModeMeta[level]),
+      ...getMeta(
+        key,
+        'topic',
+        isBlocked,
+        getControlMeta(control) ?? (level && topicModeMeta[level]),
+      ),
       leading: <TopicGlyph />,
       level: weight && (
         <TopicLevelPicker
           tag={tag}
           weight={weight.weight}
-          isSet={weight.isSet || !!mode}
-          mode={mode}
-          onChange={(value) => feedControls.setTopicMode(tag, value)}
+          isSet={weight.isSet || !!control}
+          control={control}
+          onChange={(value) => feedControls.setTopic(tag, value)}
         />
       ),
       isBlocked,
@@ -488,6 +508,15 @@ function FeedExplanationModal({
                 >
                   Why am I seeing this?
                 </Typography>
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.Small}
+                  icon={<FilterIcon />}
+                  aria-label="Tune your feed"
+                  title="Tune your feed"
+                  onClick={() => openTune(version)}
+                />
                 <Button
                   tag="a"
                   href={`${settingsUrl}/feed/general`}

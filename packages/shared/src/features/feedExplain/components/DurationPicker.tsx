@@ -34,7 +34,7 @@ export const DurationPicker = ({
             ...option,
             isLocked,
             description: isLocked
-              ? `Changes for ${option.label} are part of Plus.`
+              ? `${option.label} is a Plus feature.`
               : undefined,
           };
         })}

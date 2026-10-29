@@ -24,6 +24,7 @@ const controls: FeedControls = {
   sources: [],
   learning: true,
   fillIns: true,
+  ranking: [],
 };
 const fetchForYou = jest.fn(async () => ({ pages: [] }));
 

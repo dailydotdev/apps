@@ -33,18 +33,15 @@ import { LazyModal } from '../../../components/modals/common/types';
 import { LogEvent, Origin } from '../../../lib/log';
 import { usePostLogEvent } from '../../../lib/feed';
 import type { FeedItemExplain, FeedProfile } from '../types';
-import {
-  ExplainOrigin,
-  FeedSourceMode,
-  FeedTopicMode,
-  isRankedExplain,
-} from '../types';
+import { ExplainOrigin, FeedSourceMode, isRankedExplain } from '../types';
 import type { ExplainSignal, SignalMeta } from '../describe';
 import {
   ExplainSignalKind,
   getExplainSignals,
   getReason,
   getReasonDotClassName,
+  getControlMeta,
+  getSourceFactor,
   getTopicLevel,
   getTopicWeight,
   topicModeMeta,
@@ -55,6 +52,7 @@ import { useDropIdleForYouFeeds } from '../useDropIdleForYouFeeds';
 import type { UseFeedControls } from '../useFeedControls';
 import { useFeedControls } from '../useFeedControls';
 import { TopicLevelPicker } from './TopicLevelPicker';
+import { SourceLevelPicker } from './SourceLevelPicker';
 import { ShowLessTopicOffer } from './ShowLessTopicOffer';
 
 const signalLimit = 3;
@@ -188,6 +186,10 @@ const getTopicMeta = (
   const match = isRankedExplain(explain) ? explain.match : undefined;
   const stories =
     interest?.stories ?? (match?.tag === tag ? match.stories : undefined) ?? 0;
+  const controlMeta = getControlMeta(feedControls.getTopicControl(tag));
+  if (controlMeta) {
+    return controlMeta;
+  }
   const level = getTopicLevel(tag, feedControls.controls, profile);
   if (level) {
     return topicModeMeta[level];
@@ -246,15 +248,21 @@ const SignalRow = ({
   const topicWeight = isTopic
     ? getTopicWeight(signal.id, explain, profile)
     : undefined;
-  const topicMode = isTopic ? feedControls.getTopicMode(signal.id) : undefined;
+  const topicControl = isTopic
+    ? feedControls.getTopicControl(signal.id)
+    : undefined;
+  const sourceControl = isTopic
+    ? undefined
+    : feedControls.getSourceControl(signal.id);
   const isSourceDemoted = !isTopic && feedControls.isSourceDemoted(signal.id);
+  const sourceMeta = getControlMeta(sourceControl);
   let meta: SignalMeta;
   if (isBlocked) {
     meta = { text: 'Blocked', className: 'text-accent-ketchup-default' };
   } else if (isTopic) {
     meta = getTopicMeta(signal.id, context, isFollowed);
-  } else if (isSourceDemoted) {
-    meta = topicModeMeta[FeedTopicMode.Demote];
+  } else if (sourceMeta) {
+    meta = sourceMeta;
   } else {
     meta = {
       text: isFollowed ? 'You follow it' : "You don't follow it",
@@ -326,9 +334,17 @@ const SignalRow = ({
             <TopicLevelPicker
               tag={signal.id}
               weight={topicWeight.weight}
-              isSet={topicWeight.isSet || !!topicMode}
-              mode={topicMode}
-              onChange={(mode) => feedControls.setTopicMode(signal.id, mode)}
+              isSet={topicWeight.isSet || !!topicControl}
+              control={topicControl}
+              onChange={(value) => feedControls.setTopic(signal.id, value)}
+            />
+          )}
+          {!isBlocked && !isTopic && (
+            <SourceLevelPicker
+              name={signal.label}
+              factor={getSourceFactor(explain)}
+              control={sourceControl}
+              onChange={(value) => feedControls.setSource(signal.id, value)}
             />
           )}
         </span>

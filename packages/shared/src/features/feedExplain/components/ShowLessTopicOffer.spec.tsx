@@ -33,6 +33,7 @@ const renderOffer = ({
     sources: [],
     learning: true,
     fillIns: true,
+    ranking: [],
   });
   client.setQueryData(getFeedSettingsQueryKey(defaultUser), {
     feedSettings: { blockedTags },
@@ -120,7 +121,16 @@ describe('ShowLessTopicOffer', () => {
   });
 
   it('should not offer it once the reader set the topic', () => {
-    renderOffer({ topics: [{ keyword: 'react', mode: FeedTopicMode.Boost }] });
+    renderOffer({
+      topics: [
+        {
+          keyword: 'react',
+          mode: FeedTopicMode.Boost,
+          weight: null,
+          expiresAt: null,
+        },
+      ],
+    });
 
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
