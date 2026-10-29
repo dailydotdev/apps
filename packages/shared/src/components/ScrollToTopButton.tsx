@@ -79,7 +79,11 @@ export default function ScrollToTopButton(): ReactElement | null {
         tabIndex={show ? 0 : -1}
         onClick={onClick}
         className="shell-material shell-press absolute -top-[3.375rem] right-7 z-2 mt-[calc(-1_*_var(--sponsor-strip-height,0.75rem))] flex size-[2.375rem] items-center justify-center rounded-14 text-text-primary"
-        style={style}
+        // Keeps the shell's press swell alongside the show/hide motion.
+        style={{
+          ...style,
+          transition: `${baseStyle.transition}, scale 150ms ease-out`,
+        }}
       >
         <MoveToIcon size={IconSize.XSmall} className="-rotate-90" />
       </button>
