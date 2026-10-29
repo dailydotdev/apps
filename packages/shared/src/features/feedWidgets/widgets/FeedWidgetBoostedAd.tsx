@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useMemo } from 'react';
 import type { QueryClient, QueryKey } from '@tanstack/react-query';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Ad, Post } from '../../../graphql/posts';
@@ -19,8 +19,7 @@ import {
   isBoostedPostCreative,
   isBoostedSquadCreative,
 } from '../../../hooks/useFeed';
-import { usePostModalNavigation } from '../../../hooks/usePostModalNavigation';
-import { PostModalMap } from '../../../components/modals/PostModalMap';
+import { useFeedWidgetPostModal } from '../useFeedWidgetPostModal';
 import { FeedCardContext } from '../../posts/FeedCardContext';
 import type { PostCacheAdapter } from '../../../components/feeds/hero/useFeedHeroPostActions';
 import { useFeedHeroCardProps } from '../../../components/feeds/hero/useFeedHeroCardProps';
@@ -38,8 +37,6 @@ export { isBoostedPostCreative, isBoostedSquadCreative };
  */
 export const getFeedWidgetModalFeedName = (feedName: string): string =>
   `${feedName}:feed-widgets`;
-
-const noFetch = async () => undefined;
 
 /**
  * The rail's ad lives in its own query, under every consent variant of its
@@ -72,9 +69,7 @@ interface FeedWidgetBoostedAdProps<T extends Ad> {
 /**
  * Must render under the card's `FeedCardContext`, so the post events it logs
  * carry `is_ad`. As in the feed, a boosted post's click is the post's own
- * click event, not an ad click, and it opens the post in the feed's modal:
- * the same navigation hook over a one-item feed, so the URL, back button and
- * scroll position behave as they do for the boost in the feed.
+ * click event, not an ad click, and it opens the post in the feed's modal.
  */
 const BoostedPostCard = ({
   ad,
@@ -97,43 +92,21 @@ const BoostedPostCard = ({
     ],
     [ad],
   );
-  const { onOpenModal, onCloseModal, selectedPost, postPosition } =
-    usePostModalNavigation({
-      items,
-      fetchPage: noFetch,
-      canFetchMore: false,
-      feedName: getFeedWidgetModalFeedName(feedName),
-      updatePost: (_, __, updated) =>
-        cache.writePost(queryClient, updated.id, updated),
-    });
-  // The hook hands out a new `onOpenModal` every render; the card props only
-  // need the latest one at click time.
-  const onOpenModalRef = useRef(onOpenModal);
-  onOpenModalRef.current = onOpenModal;
-  const openPost = useCallback(() => {
-    document.body.classList.add('hidden-scrollbar');
-    onOpenModalRef.current(0);
-  }, []);
+  const { openPost, modal } = useFeedWidgetPostModal({
+    items,
+    feedName: getFeedWidgetModalFeedName(feedName),
+    updatePost: (_, __, updated) =>
+      cache.writePost(queryClient, updated.id, updated),
+  });
   const cardProps = useFeedHeroCardProps({
     queryKey,
     feedName,
     origin: Origin.FeedWidgets,
     cache,
-    openPost,
+    onOpenPost: openPost,
   });
   const { post } = ad.data;
   const Card = PostTypeToGridCard[post.type] ?? ArticleGrid;
-  const PostModal = selectedPost ? PostModalMap[selectedPost.type] : undefined;
-
-  useEffect(() => {
-    if (!selectedPost) {
-      document.body.classList.remove('hidden-scrollbar');
-    }
-  }, [selectedPost]);
-
-  // The card can go while its modal is open: the ad refetches on consent or
-  // login, the slot switches to a creative, the rail unmounts.
-  useEffect(() => () => document.body.classList.remove('hidden-scrollbar'), []);
 
   return (
     <ActivePostContextProvider post={post}>
@@ -142,15 +115,7 @@ const BoostedPostCard = ({
         <AdMeasurement ad={ad} />
         <AdViewability ad={ad} onViewable={onViewable} />
       </Card>
-      {selectedPost && PostModal && (
-        <PostModal
-          isOpen
-          id={selectedPost.id}
-          post={selectedPost}
-          postPosition={postPosition}
-          onRequestClose={() => onCloseModal(false)}
-        />
-      )}
+      {modal}
     </ActivePostContextProvider>
   );
 };
