@@ -22,7 +22,7 @@ import { IconSize } from '../../../components/Icon';
 import { ShellPage } from '../../../components/shell/ShellPageContext';
 import { ShellSquare } from '../../../components/shell/ShellSquare';
 import { useAgentShellHeight } from '../../interests/shell';
-import { useIsPhone } from '../../../hooks/useViewSize';
+import { useIsPhone, useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { useKeyboardFit } from '../../../hooks/utils/useKeyboardFit';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useMessagesLiveUpdates } from '../hooks/useMessagesLiveUpdates';
@@ -70,9 +70,10 @@ export const MessagesScreen = ({
   const lfgRequestCount = useLfgRequestCount();
   const { isEnabled: isLfgEnabled } = useLfgEnabled();
   const requestCount = dmRequestCount + lfgRequestCount;
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const tab =
     (showRequests && 'requests') ||
-    (showLfg && isLfgEnabled && 'lfg') ||
+    (showLfg && isLfgEnabled && !isLaptop && 'lfg') ||
     'chats';
   const isLfgTab = tab === 'lfg';
   const isChatsTab = tab === 'chats';
@@ -90,7 +91,7 @@ export const MessagesScreen = ({
     event_name: LogEvent.OpenMessages,
     extra: JSON.stringify({
       origin: origin ?? null,
-      tab,
+      tab: (showRequests && 'requests') || (showLfg && 'lfg') || 'chats',
       has_conversation: !!activePeerId,
     }),
   }));

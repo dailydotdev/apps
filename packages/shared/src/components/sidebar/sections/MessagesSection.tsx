@@ -11,6 +11,7 @@ import { SettingsIcon } from '../../icons/Settings';
 import { VolunteeringIcon } from '../../icons/Volunteering';
 import { useLfgEnabled } from '../../../features/lfg/hooks/useLfgEnabled';
 import { useUnreadMessagesCount } from '../../../features/messages/hooks/useUnreadMessagesCount';
+import { useMessagesEnabled } from '../../../features/messages/hooks/useMessagesEnabled';
 import {
   getMessagesUrl,
   messageSettingsUrl,
@@ -24,7 +25,8 @@ export const MessagesSection = ({
 }: SidebarSectionProps): ReactElement => {
   const { activePage } = defaultRenderSectionProps;
   const { isEnabled: showLfg } = useLfgEnabled();
-  const { unread, requests } = useUnreadMessagesCount(true);
+  const { isEnabled: isMessagesEnabled } = useMessagesEnabled();
+  const { unread, requests } = useUnreadMessagesCount(isMessagesEnabled);
   // Chats and Requests are the same route, told apart by the tab query, so
   // neither can use the path match.
   const path = activePage.replace(/^https?:\/\/[^/]+/, '');

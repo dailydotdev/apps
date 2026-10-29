@@ -69,7 +69,7 @@ const Page = (): ReactElement | null => {
           // Dropped from the URL once used, so a reload can't attach it twice.
           onCommentContextUsed={() =>
             router.replace(
-              getMessagesUrl(peerId, { requests: showRequests }),
+              getMessagesUrl(peerId, { requests: showRequests, lfg: showLfg }),
               undefined,
               {
                 shallow: true,
