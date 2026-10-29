@@ -66,7 +66,7 @@ const MoreWaysIn = (): ReactElement => (
 
       <Surface
         title="Sign-up modal"
-        note="The sign-up screen people see most. About 40 triggers open it from wherever they are: vote, comment, bookmark, follow, feed filters, search, join squad, award, report, hide. A modal on desktop, full screen on phone, with all four providers and email."
+        note="The sign-up screen people see most. About 40 triggers open it from wherever they are: vote, comment, bookmark, follow, feed filters, search, join squad, award, report, hide. A modal on desktop, full screen on phone, with all four providers and email. Decided Oct 29, 2026: the phone version drops its “Sign up to …” line under the title, as web already does (the line is phone only today, AuthDefault.tsx). Not built."
         shots={[
           {
             file: 'more-modal-desktop',
@@ -80,7 +80,7 @@ const MoreWaysIn = (): ReactElement => (
             file: 'more-modal-pixel',
             step: 'Phone',
             title: 'Full screen',
-            note: 'Its line names the action: “Sign up to vote on posts and comments.”',
+            note: 'The “Sign up to vote on posts and comments.” line under the title goes, as decided.',
             device: 'phone',
             isToAlign: true,
           },
