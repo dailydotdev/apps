@@ -102,13 +102,16 @@ const EntityFeedGrid = ({
   children: ReactNode;
 }): ReactElement => {
   const { numCards } = useContext(FeedContext);
-  const columns = numCards?.eco ?? 1;
+  const { isListMode } = useFeedLayout();
+  // In list mode the page collapses to a single narrow column, but
+  // `numCards.eco` still reports the card-mode column count, which squeezed
+  // the cards to ~100px. Let them wrap at a readable minimum width instead.
+  const gridTemplateColumns = isListMode
+    ? 'repeat(auto-fill, minmax(16rem, 1fr))'
+    : `repeat(${numCards?.eco ?? 1}, minmax(0, 1fr))`;
 
   return (
-    <div
-      className="grid gap-8"
-      style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
-    >
+    <div className="grid gap-8" style={{ gridTemplateColumns }}>
       {children}
     </div>
   );
