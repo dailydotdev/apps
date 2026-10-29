@@ -1,7 +1,6 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
-import { useQuery } from '@tanstack/react-query';
 import {
   FunnelStepCtaWrapper,
   funnelStepRail,
@@ -31,7 +30,6 @@ import { PostStack } from './PostStack';
 import type { ReminderPush } from './ReminderPreview';
 import { getPreviewPlatform, ReminderPreview } from './ReminderPreview';
 import { clockOfHour, isTwelveHourClock } from './regionalClock';
-import { feedPreviewPostsQueryOptions } from './feedPreviewPosts';
 import styles from './ReadingCommitment.module.css';
 
 /** Names this arm in every event, next to the control and Feed Patchy. */
@@ -116,11 +114,22 @@ const longDate = (date: Date): string =>
     day: 'numeric',
   });
 
-/** The reading reminder push as daily-api sends it, with or without a top pick. */
-const TOP_PICK_HEADING = 'Top pick for you';
-const GENERIC_PUSH: ReminderPush = {
-  title: 'Your daily reading time',
-  body: 'Curated posts based on your interests are ready',
+/**
+ * A fixed showcase rather than the reader's own feed, so the preview always
+ * shows sources every developer knows and a headline worth tapping.
+ */
+const LOGO_URL =
+  'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos';
+const SHOWCASE_LOGOS = [
+  `${LOGO_URL}/hn`, // Hacker News
+  `${LOGO_URL}/984b3632316f4afaa3d5213d5c64fe65`, // OpenAI
+  `${LOGO_URL}/106cf162b88840808484d4b5429b59b1`, // GitHub
+];
+
+/** The reading reminder push as daily-api sends it, with a top pick. */
+const SHOWCASE_PUSH: ReminderPush = {
+  title: 'Top pick for you',
+  body: 'Why Shopify Migrated From React Native',
 };
 
 const AnswerList = ({
@@ -235,7 +244,6 @@ export const ReadingCommitment = ({
   const reminder = useFeedPatchyReminder(VARIANT);
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
-  const { data: posts = [] } = useQuery(feedPreviewPostsQueryOptions(user));
   const [platform] = useState(getPreviewPlatform);
   const [screenIndex, setScreenIndex] = useState(0);
   const [today, setToday] = useState<string>();
@@ -254,22 +262,11 @@ export const ReadingCommitment = ({
   const screen = SCREENS[screenIndex];
   const [isTwelveHour] = useState(isTwelveHourClock);
   const goalMinutes = Number(goal ?? RECOMMENDED_GOAL);
-  const logos = useMemo(
-    () =>
-      posts
-        .map((post) => post.source?.image)
-        .filter((logo): logo is string => Boolean(logo)),
-    [posts],
-  );
 
   const next = () => setScreenIndex((index) => index + 1);
 
   const back = () => setScreenIndex((index) => Math.max(index - 1, 0));
 
-  const topPick = posts.find((post) => post.title)?.title;
-  const push: ReminderPush = topPick
-    ? { title: TOP_PICK_HEADING, body: topPick }
-    : GENERIC_PUSH;
   const isToday = hour > getHourTimezone(timezone);
   const firstReminder = new Date();
   if (!isToday) {
@@ -344,7 +341,7 @@ export const ReadingCommitment = ({
             onBack={back}
           >
             <div className="flex w-full flex-col gap-4">
-              <PostStack minutes={Number(goal ?? 0)} logos={logos} />
+              <PostStack minutes={Number(goal ?? 0)} logos={SHOWCASE_LOGOS} />
               <AnswerList
                 name="reading_goal"
                 options={GOAL_OPTIONS}
@@ -439,7 +436,7 @@ export const ReadingCommitment = ({
                 platform={platform}
                 {...clockOfHour(hour, isTwelveHour)}
                 date={longDate(firstReminder)}
-                push={push}
+                push={SHOWCASE_PUSH}
               />
             )}
           </CommitmentScreen>

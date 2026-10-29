@@ -27,19 +27,6 @@ jest.mock('../../../contexts/LogContext', () => ({
   useLogContext: () => ({ logEvent: mockLogEvent }),
 }));
 
-jest.mock('./feedPreviewPosts', () => ({
-  feedPreviewPostsQueryOptions: () => ({
-    queryKey: ['feed-preview-posts'],
-    queryFn: async () => [
-      {
-        title: 'JPEG-XL Is Back On The Menu',
-        summary: 'Chrome brings JPEG-XL back. It took years.',
-        source: { image: 'https://example.com/logo.png' },
-      },
-    ],
-  }),
-}));
-
 const onComplete = jest.fn();
 
 const renderStep = () =>
@@ -97,7 +84,7 @@ describe('ReadingCommitment', () => {
 
     proceed();
     expect(
-      await screen.findByText('JPEG-XL Is Back On The Menu'),
+      await screen.findByText('Why Shopify Migrated From React Native'),
     ).toBeInTheDocument();
     expect(screen.getByText('Top pick for you')).toBeInTheDocument();
     proceed('Turn on notifications');
