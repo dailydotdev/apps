@@ -189,98 +189,115 @@ export interface ScoreFactor {
   label: string;
   /** What the factor measures, for its tooltip. */
   hint: string;
-  value: number;
+  /** What the factor multiplies the score by. */
+  multiplier: number;
 }
 
-const round = (value: number): number => Math.round(value * 1000) / 1000;
+export interface ScoreBreakdownParts {
+  /** The factors that moved the score, boosts first. */
+  factors: ScoreFactor[];
+  /** The factors that left it as it was. */
+  unchanged: ScoreFactor[];
+  score: number;
+}
+
+// At two decimals, as the breakdown shows it.
+const hasEffect = ({ multiplier }: ScoreFactor): boolean =>
+  Math.round(multiplier * 100) !== 100;
 
 /**
- * Each multiplier of the card's score on a log scale, so they add up to the
- * log of its pick score: above 0 raised the card, below 0 lowered it.
+ * Each multiplier of the card's score, which multiply into its pick score.
+ * The score has no fixed scale, only an order: the feed shows the highest
+ * first, and most cards end up below 1.
  */
 export const getScoreBreakdown = (
   explain: RankedExplain,
-): { factors: ScoreFactor[]; finalScore: number } => {
+): ScoreBreakdownParts => {
   const { score, base, match, follow, age, seen, slot } = explain;
   const multipliers: ScoreFactor[] = [
     {
       label: 'Engagement',
       hint: 'How much other readers clicked, upvoted, and commented on this post, compared with a typical post.',
-      value: base.value,
+      multiplier: base.value,
     },
     {
       label: 'Topic match',
       hint: 'How close the post is to the topics you follow and read.',
-      value: match?.factor ?? 1,
+      multiplier: match?.factor ?? 1,
     },
     {
       label: 'Follow',
       hint: 'A boost when you follow its source, squad, or author.',
-      value: follow.factor,
+      multiplier: follow.factor,
     },
     {
       label: 'Freshness',
       hint: 'Newer posts score higher, and older ones slowly fade.',
-      value: age.factor,
+      multiplier: age.factor,
     },
     {
       label: 'Seen before',
       hint: "Moves the post down if you've already seen it in your feed.",
-      value: seen.factor,
+      multiplier: seen.factor,
     },
     ...(slot
       ? [
           {
             label: "Topic's turn",
             hint: "A boost when a topic you like hasn't been in your feed for a while.",
-            value: slot.waiting,
+            multiplier: slot.waiting,
           },
           {
             label: 'Source variety',
             hint: 'Moves the post down when your feed already has posts from the same source.',
-            value: slot.source_repeat,
+            multiplier: slot.source_repeat,
           },
           {
             label: 'Topic variety',
             hint: 'Moves the post down when your feed already has posts on a similar topic.',
-            value: slot.topic_repeat,
+            multiplier: slot.topic_repeat,
           },
           {
             label: 'Same story',
             hint: 'Moves the post down when your feed already covers the same story.',
-            value: slot.same_headline,
+            multiplier: slot.same_headline,
           },
         ]
       : []),
   ];
   // A factor missing from an older record reads as 0, which explains nothing.
-  const factors = multipliers
-    .filter(({ value }) => value > 0)
-    .map((factor) => ({ ...factor, value: round(Math.log(factor.value)) }));
-  const explained = round(factors.reduce((sum, { value }) => sum + value, 0));
+  const known = multipliers.filter(({ multiplier }) => multiplier > 0);
+  const explained = known.reduce(
+    (product, { multiplier }) => product * multiplier,
+    1,
+  );
   const recorded = slot?.pick_score ?? score;
-  if (!(recorded > 0)) {
-    return { factors, finalScore: explained };
-  }
+  const finalScore = recorded > 0 ? recorded : explained;
 
   // The exploration draw and the fresh slot's own scale move the recorded
-  // score without a factor of their own; the gap gets its row.
-  const finalScore = round(Math.log(recorded));
-  const gap = round(finalScore - explained);
+  // score without a factor of their own; the gap gets its row, past what
+  // the factors' 3-decimal rounding leaves.
+  const gap = finalScore / explained;
+  const moved = [
+    ...known,
+    ...(Math.abs(Math.log(gap)) >= 0.01
+      ? [
+          {
+            label: 'Other adjustments',
+            hint: 'Everything else, like a bit of randomness and a spot saved for brand-new posts.',
+            multiplier: gap,
+          },
+        ]
+      : []),
+  ].filter(hasEffect);
 
   return {
-    factors:
-      Math.abs(gap) >= 0.01
-        ? [
-            ...factors,
-            {
-              label: 'Other adjustments',
-              hint: 'Everything else, like a bit of randomness and a spot saved for brand-new posts.',
-              value: gap,
-            },
-          ]
-        : factors,
-    finalScore,
+    factors: [
+      ...moved.filter(({ multiplier }) => multiplier > 1),
+      ...moved.filter(({ multiplier }) => multiplier < 1),
+    ],
+    unchanged: known.filter((factor) => !hasEffect(factor)),
+    score: finalScore,
   };
 };
 

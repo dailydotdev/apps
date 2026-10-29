@@ -121,8 +121,8 @@ describe('getExplainSignals', () => {
 });
 
 describe('getScoreBreakdown', () => {
-  it('should add up each factor on a log scale with the variety adjustments', () => {
-    const { factors, finalScore } = getScoreBreakdown(
+  it('should list the boosts, then the drops, then what had no effect', () => {
+    const { factors, unchanged, score } = getScoreBreakdown(
       ranked({
         match: match(),
         slot: {
@@ -138,33 +138,35 @@ describe('getScoreBreakdown', () => {
     expect(factors.map(({ label }) => label)).toEqual([
       'Engagement',
       'Topic match',
-      'Follow',
-      'Freshness',
-      'Seen before',
       "Topic's turn",
-      'Source variety',
+      'Freshness',
       'Topic variety',
+    ]);
+    expect(factors[1].multiplier).toEqual(1.62);
+    expect(unchanged.map(({ label }) => label)).toEqual([
+      'Follow',
+      'Seen before',
+      'Source variety',
       'Same story',
     ]);
-    expect(factors[1].value).toEqual(0.482);
-    expect(finalScore).toEqual(0.628);
+    expect(score).toEqual(1.874);
   });
 
   it('should show what the factors leave out of the recorded score', () => {
-    const { factors, finalScore } = getScoreBreakdown(ranked({ score: 0.5 }));
+    const { factors, score } = getScoreBreakdown(ranked({ score: 0.5 }));
 
-    expect(factors[factors.length - 1]).toMatchObject({
-      label: 'Other adjustments',
-      value: -0.664,
-    });
-    expect(finalScore).toEqual(-0.693);
+    expect(factors[factors.length - 1].label).toEqual('Other adjustments');
+    expect(factors[factors.length - 1].multiplier).toBeCloseTo(0.514);
+    expect(score).toEqual(0.5);
   });
 
   it('should leave out a factor an older record does not carry', () => {
-    const { factors } = getScoreBreakdown(
+    const { factors, unchanged } = getScoreBreakdown(
       ranked({ seen: { shows: 0, factor: 0 } }),
     );
 
-    expect(factors.map(({ label }) => label)).not.toContain('Seen before');
+    expect([...factors, ...unchanged].map(({ label }) => label)).not.toContain(
+      'Seen before',
+    );
   });
 });

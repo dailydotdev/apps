@@ -1147,8 +1147,10 @@ describe('Feed logged in', () => {
       expect(
         within(dialog).getByRole('button', { name: 'Topic match' }),
       ).toBeInTheDocument();
-      expect(within(dialog).getByText('+0.482')).toBeInTheDocument();
-      expect(within(dialog).getByText('Final score')).toBeInTheDocument();
+      expect(within(dialog).getByText('×1.62')).toBeInTheDocument();
+      expect(
+        within(dialog).getByRole('button', { name: 'Score' }),
+      ).toBeInTheDocument();
     });
   });
 
