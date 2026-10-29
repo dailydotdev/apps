@@ -26,8 +26,19 @@ const presets = [
   { label: 'Evening', hour: 17 },
 ];
 
-export const formatHour = (hour: number): string =>
-  `${String(hour).padStart(2, '0')}:00`;
+const periodOf = (hour: number): string => (hour < 12 ? 'AM' : 'PM');
+
+export const formatHour = (hour: number, isTwelveHour = false): string =>
+  isTwelveHour
+    ? `${hour % 12 || 12}:00 ${periodOf(hour)}`
+    : `${String(hour).padStart(2, '0')}:00`;
+
+const tickLabel = (hour: number, isTwelveHour: boolean): string => {
+  if (!isTwelveHour) {
+    return String(hour).padStart(2, '0');
+  }
+  return hour % 12 ? String(hour % 12) : `12 ${periodOf(hour)}`;
+};
 
 const momentOf = (hour: number): string => {
   if (hour >= 5 && hour < 11) {
@@ -58,6 +69,7 @@ export const ReminderPicker = ({
   notice,
   timezone,
   onTimezoneChange,
+  isTwelveHour = false,
 }: {
   hour: number;
   onChange: (hour: number) => void;
@@ -68,6 +80,8 @@ export const ReminderPicker = ({
   isCompact?: boolean;
   /** A line under the presets, for when notifications are already off. */
   notice?: string;
+  /** Reads hours as "5:00 PM" instead of "17:00". */
+  isTwelveHour?: boolean;
 }): ReactElement => {
   const ruler = useRef<HTMLDivElement>(null);
   const drag = useRef<{ x: number; left: number } | null>(null);
@@ -267,7 +281,10 @@ export const ReminderPicker = ({
               isCompact ? 'typo-large-title' : 'typo-mega2',
             )}
           >
-            {formatHour(hour)}
+            {isTwelveHour ? `${hour % 12 || 12}:00` : formatHour(hour)}
+            {isTwelveHour && (
+              <span className="ml-1 typo-title2">{periodOf(hour)}</span>
+            )}
           </span>
         </span>
         <span className="text-center text-text-secondary typo-subhead">
@@ -291,7 +308,7 @@ export const ReminderPicker = ({
           aria-valuemin={0}
           aria-valuemax={23}
           aria-valuenow={hour}
-          aria-valuetext={formatHour(hour)}
+          aria-valuetext={formatHour(hour, isTwelveHour)}
           onScroll={onScroll}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
@@ -315,7 +332,7 @@ export const ReminderPicker = ({
               <span
                 key={tick}
                 aria-hidden
-                className="flex shrink-0 snap-center flex-col items-center gap-2"
+                className="flex h-[3.125rem] shrink-0 snap-center flex-col items-center gap-2"
                 style={{ width: SLOT }}
               >
                 <span
@@ -328,14 +345,14 @@ export const ReminderPicker = ({
                 />
                 <span
                   className={classNames(
-                    'tabular-nums transition-colors',
+                    'whitespace-nowrap tabular-nums transition-colors',
                     !isMajor && !isCurrent && 'invisible',
                     isCurrent
                       ? 'font-bold text-text-primary typo-footnote'
                       : 'text-text-tertiary typo-caption1',
                   )}
                 >
-                  {String(tick).padStart(2, '0')}
+                  {tickLabel(tick, isTwelveHour)}
                 </span>
               </span>
             );
@@ -369,7 +386,7 @@ export const ReminderPicker = ({
             >
               <span className="font-bold typo-callout">{preset.label}</span>
               <span className="tabular-nums typo-footnote">
-                {formatHour(preset.hour)}
+                {formatHour(preset.hour, isTwelveHour)}
               </span>
             </button>
           );
