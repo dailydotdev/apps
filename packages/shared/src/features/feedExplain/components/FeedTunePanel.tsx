@@ -11,6 +11,8 @@ import CloseButton from '../../../components/CloseButton';
 import { Switch } from '../../../components/fields/Switch';
 import TabList from '../../../components/tabs/TabList';
 import { UndoIcon } from '../../../components/icons/Undo';
+import { DevPlusIcon } from '../../../components/icons/DevPlus';
+import { IconSize } from '../../../components/Icon';
 import {
   Typography,
   TypographyColor,
@@ -40,7 +42,12 @@ import { AuthorLevelPicker } from './AuthorLevelPicker';
 import { RankingSlider } from './ForYouRankingSettings';
 import { PlusBanner } from './PlusUpsell';
 
-const tuneTabs = Object.values(FeedTuneTab);
+const tuneTabs = Object.values(FeedTuneTab).map((label) => ({
+  label,
+  hint: label === FeedTuneTab.Ranking && (
+    <DevPlusIcon className="text-action-plus-default" size={IconSize.Size16} />
+  ),
+}));
 
 // Enough rows to steer by without a wall of sliders; the rest are in Feed
 // settings.
@@ -341,7 +348,7 @@ export const FeedTunePanel = ({
           />
         </div>
         <TabList<FeedTuneTab>
-          items={tuneTabs.map((label) => ({ label }))}
+          items={tuneTabs}
           active={tab}
           onClick={(label) => tune.setTab(label)}
         />

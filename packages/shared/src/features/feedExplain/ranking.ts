@@ -140,7 +140,7 @@ export const rankingSettings: RankingSettingMeta[] = [
   {
     key: 'follows.author_multiplier',
     group: RankingGroup.Follows,
-    label: 'Boost for a person you follow',
+    label: 'Boost for an author you follow',
     help: 'For every post written by someone you follow.',
     min: 1,
     max: 3,
