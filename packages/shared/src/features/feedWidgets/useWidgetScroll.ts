@@ -19,6 +19,7 @@ export const useWidgetScroll = (): {
 } => {
   const node = useRef<HTMLDivElement | null>(null);
   const observer = useRef<ResizeObserver>();
+  const rest = useRef({ isAtTop: true, scrollHeight: 0 });
   const [edges, setEdges] = useState({ isAtTop: true, isAtEnd: true });
 
   const onScroll = useCallback(() => {
@@ -26,9 +27,17 @@ export const useWidgetScroll = (): {
     if (!element) {
       return;
     }
+    // A list at the top stays there when rows arrive above its first one.
+    if (
+      rest.current.isAtTop &&
+      element.scrollHeight !== rest.current.scrollHeight
+    ) {
+      element.scrollTop = 0;
+    }
     const isAtTop = element.scrollTop <= 1;
     const isAtEnd =
       element.scrollTop + element.clientHeight >= element.scrollHeight - 1;
+    rest.current = { isAtTop, scrollHeight: element.scrollHeight };
     setEdges((current) =>
       current.isAtTop === isAtTop && current.isAtEnd === isAtEnd
         ? current

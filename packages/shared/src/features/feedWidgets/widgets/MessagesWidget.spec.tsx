@@ -137,7 +137,9 @@ describe('MessagesWidget', () => {
     renderWidget();
 
     expect(await screen.findByText('No messages yet.')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Open' })).toHaveAttribute(
+    expect(
+      screen.getByRole('link', { name: 'View all messages' }),
+    ).toHaveAttribute(
       'href',
       expect.stringContaining('/messages?origin=feed+widget'),
     );
