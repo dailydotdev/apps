@@ -78,7 +78,6 @@
   "plugin_marketplace": true,
   "sponsor_strip_breaking_news": false,
   "direct_messages": true,
-  "card_save_on_hover": false,
   "signup_strip_column": false,
   "lfg": true,
   "lfg_launched": false,
