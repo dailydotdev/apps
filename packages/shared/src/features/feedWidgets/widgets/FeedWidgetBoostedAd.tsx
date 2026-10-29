@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { QueryClient, QueryKey } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import type { Ad, Post } from '../../../graphql/posts';
 import type { ViewabilityData } from '../../monetization/viewability';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -13,7 +14,13 @@ import { SquadAdGrid } from '../../../components/cards/ad/squad/SquadAdGrid';
 import { AdPixel } from '../../../components/cards/ad/common/AdPixel';
 import { AdMeasurement } from '../../../components/cards/ad/common/AdMeasurement';
 import { AdViewability } from '../../../components/cards/ad/common/AdViewability';
-import type { AdSquadItem } from '../../../hooks/useFeed';
+import type { AdItem } from '../../../hooks/useFeed';
+import {
+  isBoostedPostCreative,
+  isBoostedSquadCreative,
+} from '../../../hooks/useFeed';
+import { usePostModalNavigation } from '../../../hooks/usePostModalNavigation';
+import { PostModalMap } from '../../../components/modals/PostModalMap';
 import { FeedCardContext } from '../../posts/FeedCardContext';
 import type { PostCacheAdapter } from '../../../components/feeds/hero/useFeedHeroPostActions';
 import { useFeedHeroCardProps } from '../../../components/feeds/hero/useFeedHeroCardProps';
@@ -21,13 +28,18 @@ import { useFeedWidgetsContext } from '../FeedWidgetsContext';
 import { getFeedWidgetAdQueryKey } from '../feedState';
 
 type BoostedPostAd = Ad & { data: { post: Post } };
-type BoostedSquadAd = AdSquadItem['ad'];
 
-export const isBoostedPostCreative = (ad: Ad): ad is BoostedPostAd =>
-  !!ad.data?.post;
+export { isBoostedPostCreative, isBoostedSquadCreative };
 
-export const isBoostedSquadCreative = (ad: Ad): ad is BoostedSquadAd =>
-  !!ad.data?.source;
+/**
+ * The modal's route state names the feed it navigates; the rail's slot gets
+ * its own name so the feed on the same page, which can carry the same boost,
+ * never opens the post as well.
+ */
+export const getFeedWidgetModalFeedName = (feedName: string): string =>
+  `${feedName}:feed-widgets`;
+
+const noFetch = async () => undefined;
 
 /**
  * The rail's ad lives in its own query, under every consent variant of its
@@ -60,7 +72,9 @@ interface FeedWidgetBoostedAdProps<T extends Ad> {
 /**
  * Must render under the card's `FeedCardContext`, so the post events it logs
  * carry `is_ad`. As in the feed, a boosted post's click is the post's own
- * click event, not an ad click.
+ * click event, not an ad click, and it opens the post in the feed's modal:
+ * the same navigation hook over a one-item feed, so the URL, back button and
+ * scroll position behave as they do for the boost in the feed.
  */
 const BoostedPostCard = ({
   ad,
@@ -68,16 +82,54 @@ const BoostedPostCard = ({
 }: Omit<FeedWidgetBoostedAdProps<BoostedPostAd>, 'onClick'>): ReactElement => {
   const { user } = useAuthContext();
   const { feedName } = useFeedWidgetsContext();
+  const queryClient = useQueryClient();
   const queryKey = useMemo(() => getFeedWidgetAdQueryKey(user), [user]);
   const cache = useMemo(() => widgetAdPostCache(queryKey), [queryKey]);
+  const items = useMemo<AdItem[]>(
+    () => [
+      {
+        type: FeedItemType.Ad,
+        ad,
+        index: 0,
+        updatedAt: 0,
+        dataUpdatedAt: 0,
+      },
+    ],
+    [ad],
+  );
+  const { onOpenModal, onCloseModal, selectedPost, postPosition } =
+    usePostModalNavigation({
+      items,
+      fetchPage: noFetch,
+      canFetchMore: false,
+      feedName: getFeedWidgetModalFeedName(feedName),
+      updatePost: (_, __, updated) =>
+        cache.writePost(queryClient, updated.id, updated),
+    });
+  // The hook hands out a new `onOpenModal` every render; the card props only
+  // need the latest one at click time.
+  const onOpenModalRef = useRef(onOpenModal);
+  onOpenModalRef.current = onOpenModal;
+  const openPost = useCallback(() => {
+    document.body.classList.add('hidden-scrollbar');
+    onOpenModalRef.current(0);
+  }, []);
   const cardProps = useFeedHeroCardProps({
     queryKey,
     feedName,
     origin: Origin.FeedWidgets,
     cache,
+    openPost,
   });
   const { post } = ad.data;
   const Card = PostTypeToGridCard[post.type] ?? ArticleGrid;
+  const PostModal = selectedPost ? PostModalMap[selectedPost.type] : undefined;
+
+  useEffect(() => {
+    if (!selectedPost) {
+      document.body.classList.remove('hidden-scrollbar');
+    }
+  }, [selectedPost]);
 
   return (
     <ActivePostContextProvider post={post}>
@@ -86,6 +138,15 @@ const BoostedPostCard = ({
         <AdMeasurement ad={ad} />
         <AdViewability ad={ad} onViewable={onViewable} />
       </Card>
+      {selectedPost && PostModal && (
+        <PostModal
+          isOpen
+          id={selectedPost.id}
+          post={selectedPost}
+          postPosition={postPosition}
+          onRequestClose={() => onCloseModal(false)}
+        />
+      )}
     </ActivePostContextProvider>
   );
 };

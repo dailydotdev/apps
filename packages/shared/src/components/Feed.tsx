@@ -18,6 +18,7 @@ import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
 import SettingsContext from '../contexts/SettingsContext';
 import useFeedOnPostClick from '../hooks/feed/useFeedOnPostClick';
+import { PostModalMap } from './modals/PostModalMap';
 import type { PostLocation } from '../hooks/feed/useFeedContextMenu';
 import useFeedContextMenu from '../hooks/feed/useFeedContextMenu';
 import useFeedInfiniteScroll, {
@@ -142,40 +143,6 @@ interface RankVariables {
   ranking?: string;
 }
 
-const ArticlePostModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "articlePostModal" */ './modals/ArticlePostModal'
-    ),
-);
-const SharePostModal = dynamic(
-  () =>
-    import(/* webpackChunkName: "sharePostModal" */ './modals/SharePostModal'),
-);
-const CollectionPostModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "collectionPostModal" */ './modals/CollectionPostModal'
-    ),
-);
-
-const BriefPostModal = dynamic(
-  () =>
-    import(/* webpackChunkName: "briefPostModal" */ './modals/BriefPostModal'),
-);
-
-const PollPostModal = dynamic(
-  () =>
-    import(/* webpackChunkName: "pollPostModal" */ './modals/PollPostModal'),
-);
-
-const SocialTwitterPostModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "socialTwitterPostModal" */ './modals/SocialTwitterPostModal'
-    ),
-);
-
 const BriefCardFeed = dynamic(
   () =>
     import(
@@ -189,19 +156,6 @@ const ProfileCompletionCard = dynamic(
       /* webpackChunkName: "profileCompletionCard" */ './cards/ProfileCompletionCard'
     ),
 );
-
-export const PostModalMap: Partial<Record<PostType, typeof ArticlePostModal>> =
-  {
-    [PostType.Article]: ArticlePostModal,
-    [PostType.Share]: SharePostModal,
-    [PostType.Freeform]: SharePostModal,
-    [PostType.VideoYouTube]: ArticlePostModal,
-    [PostType.Collection]: CollectionPostModal,
-    [PostType.Brief]: BriefPostModal,
-    [PostType.Digest]: ArticlePostModal,
-    [PostType.Poll]: PollPostModal,
-    [PostType.SocialTwitter]: SocialTwitterPostModal,
-  };
 
 export default function Feed<T>({
   feedName,
