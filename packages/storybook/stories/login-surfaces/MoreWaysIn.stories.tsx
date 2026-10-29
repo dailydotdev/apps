@@ -132,9 +132,12 @@ const MoreWaysIn = (): ReactElement => (
             file: 'more-login-page-pixel',
             step: 'Phone',
             title: 'Log in page',
-            note: 'The logo mark top left, the form below.',
+            note: 'The logo mark top left, a centered title, and “Not a member yet? Sign up” partway up the page.',
             device: 'phone',
-            isToAlign: true,
+            after: {
+              file: 'more-login-page-pixel-after',
+              note: 'the latest phone design, as the full-screen log in already has it: “× Log in” at the top, the footer at the bottom. A production capture.',
+            },
           },
           {
             file: 'more-login-modal-pixel',
@@ -201,9 +204,12 @@ const MoreWaysIn = (): ReactElement => (
             file: 'more-email-pixel',
             step: 'Phone',
             title: 'Email sign-up form',
-            note: 'The same form.',
+            note: 'A back arrow and the logo mark on top, “Already have an account? Log in” right under the form.',
             device: 'phone',
-            isToAlign: true,
+            after: {
+              file: 'more-email-pixel-after',
+              note: '“× Sign up” at the top and the log in line as the footer at the bottom, like the full-screen sign up. An edited capture.',
+            },
           },
         ]}
       />
