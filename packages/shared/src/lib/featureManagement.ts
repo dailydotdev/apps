@@ -86,7 +86,7 @@ export const featureClickbaitShieldIntroQuests = new Feature(
 // done inside the popup, with a progress-ring entry button.
 export const featureIntroQuestChecklist = new Feature(
   'intro_quest_checklist',
-  false,
+  true,
 );
 
 export { feature };
