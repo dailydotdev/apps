@@ -1,6 +1,7 @@
 import { useCallback, useContext, useMemo, useRef } from 'react';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
 import {
   featureFeedWidgets,
   featureFeedWidgetsDefault,
@@ -9,6 +10,7 @@ import FeedContext from '../../contexts/FeedContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useIsPhone, useIsPhoneSettled } from '../../hooks/useViewSize';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import type { FeedWidget } from './types';
 import {
   FEED_WIDGET_AD_COLUMN,
   FEED_WIDGET_UNDO_MS,
@@ -137,6 +139,58 @@ export const useFeedWidgetAd = ({
 };
 
 /**
+ * The widgets the rail will show, as the page around it can know them before
+ * the rail's own code loads: the reader's stored rail, or the default for a
+ * reader who never customized. The stored rail and the default come straight
+ * from the light reader: the registry, the widgets and their config schemas
+ * stay out of this bundle, in the rail's own chunk.
+ */
+const useResolvedFeedWidgets = ({
+  enabled,
+}: {
+  enabled: boolean;
+}): FeedWidget[] => {
+  const { flags } = useSettingsContext();
+  const custom = useMemo(
+    () => customFeedWidgets(readStoredFeedRail(flags?.feedWidgets)),
+    [flags?.feedWidgets],
+  );
+  const { value: defaultFlag } = useConditionalFeature({
+    feature: featureFeedWidgetsDefault,
+    shouldEvaluate: enabled && custom === null,
+  });
+
+  return useMemo(
+    () => custom ?? resolveDefaultFeedRail(defaultFlag).widgets,
+    [custom, defaultFlag],
+  );
+};
+
+/**
+ * Whether the rail on this feed carries the Shortcuts widget, so the
+ * extension's own shortcuts row steps aside only where the rail shows them.
+ * `isPending` while the flag or the settings that hold the rail are still on
+ * their way, so the row does not paint and then go.
+ */
+export const useFeedWidgetShortcuts = (
+  feedName?: string,
+): { hasShortcuts: boolean; isPending: boolean } => {
+  const { loadedSettings } = useSettingsContext();
+  const { settled } = useFeaturesReadyContext();
+  const { isEnabled } = useFeedWidgetRailState(feedName);
+  const widgets = useResolvedFeedWidgets({ enabled: isEnabled });
+  const isMainFeedPage =
+    feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
+
+  return {
+    hasShortcuts:
+      isEnabled &&
+      widgets.some(({ kind }) => kind === FeedWidgetKind.Shortcuts),
+    isPending: isMainFeedPage && (!settled || !loadedSettings),
+  };
+};
+
+/**
  * What the grid must not repeat, worked out on the feed's side from what is
  * known before the grid paints: the widgets the reader has (their settings,
  * or the default), whether our slot is placed, and the top story's lead, held
@@ -149,22 +203,7 @@ export const useFeedWidgetFeedState = ({
 }: {
   enabled: boolean;
 }): FeedWidgetFeedState => {
-  const { flags } = useSettingsContext();
-  // The stored rail and the default straight from the light reader: the
-  // registry, the widgets and their config schemas stay out of the feed's
-  // bundle, in the rail's own chunk.
-  const custom = useMemo(
-    () => customFeedWidgets(readStoredFeedRail(flags?.feedWidgets)),
-    [flags?.feedWidgets],
-  );
-  const { value: defaultFlag } = useConditionalFeature({
-    feature: featureFeedWidgetsDefault,
-    shouldEvaluate: enabled && custom === null,
-  });
-  const widgets = useMemo(
-    () => custom ?? resolveDefaultFeedRail(defaultFlag).widgets,
-    [custom, defaultFlag],
-  );
+  const widgets = useResolvedFeedWidgets({ enabled });
   const { showAd } = useFeedWidgetAdSlot();
   const { isNoFill } = useFeedWidgetAd({ enabled: enabled && showAd });
   const hasTopStory = widgets.some(
