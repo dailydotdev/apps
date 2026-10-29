@@ -12,7 +12,7 @@ import { getDisplayUrl } from '../../lib/links';
 import { SquadProductLogo } from './SquadProductLogo';
 import { getSquadProductUrl } from './SquadProductsShelf';
 
-// Product links are the company's own promotion, so unlike the Links widget
+// Product websites are the company's own promotion, so unlike the Links widget
 // they keep nofollow.
 const productLinkRel = 'noopener nofollow';
 
@@ -81,18 +81,17 @@ export const SquadProductsList = (): ReactElement => {
                       {squadProductPricingLabel[product.pricingModel]}
                     </Chip>
                   )}
-                  {product.links.map((url) => (
+                  {!!product.url && (
                     <a
-                      key={url}
-                      href={url}
+                      href={product.url}
                       target="_blank"
                       rel={productLinkRel}
                       className="flex items-center gap-1 hover:text-text-primary"
                     >
                       <OpenLinkIcon size={IconSize.XSmall} />
-                      {getDisplayUrl(url)}
+                      {getDisplayUrl(product.url)}
                     </a>
-                  ))}
+                  )}
                 </span>
               </div>
             </li>
