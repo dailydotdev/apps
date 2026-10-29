@@ -1,0 +1,57 @@
+@keyframes rise {
+  from { opacity: 0; transform: translateY(0.375rem); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes deal {
+  from { opacity: 0; translate: 0 -3rem; rotate: -6deg; }
+}
+
+/* The push lands a beat after the screen: up from below on iOS, down from
+   the status bar on Android, in from the side on a desktop. */
+@keyframes push-ios {
+  from { opacity: 0; transform: translateY(1.5rem) scale(0.92); }
+}
+
+@keyframes push-android {
+  from { opacity: 0; transform: translateY(-1.25rem); }
+}
+
+@keyframes push-desktop {
+  from { opacity: 0; transform: translateX(110%); }
+}
+
+.rise {
+  animation: rise 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.deal {
+  animation: deal 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.pushIos {
+  animation: push-ios 560ms cubic-bezier(0.34, 1.4, 0.64, 1) 450ms both;
+}
+
+.pushAndroid {
+  animation: push-android 420ms cubic-bezier(0.16, 1, 0.3, 1) 450ms both;
+}
+
+.pushDesktop {
+  animation: push-desktop 520ms cubic-bezier(0.16, 1, 0.3, 1) 450ms both;
+}
+
+/* The phone's top edge, faded out so it reads as cropped. */
+.phone {
+  mask-image: linear-gradient(to bottom, black 82%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .deal,
+  .pushIos,
+  .pushAndroid,
+  .pushDesktop {
+    animation: none;
+  }
+}

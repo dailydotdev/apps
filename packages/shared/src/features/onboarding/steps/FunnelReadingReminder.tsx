@@ -6,6 +6,7 @@ import { FunnelStepTransitionType } from '../types/funnel';
 import { ReadingReminder } from '../../../components/onboarding';
 import { useReadingReminder } from '../../../components/onboarding/useReadingReminder';
 import { FeedPatchy } from '../../../components/onboarding/FeedPatchy/FeedPatchy';
+import { ReadingCommitment } from '../../../components/onboarding/ReadingCommitment/ReadingCommitment';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { usePushNotificationContext } from '../../../contexts/PushNotificationContext';
@@ -13,7 +14,10 @@ import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
 import { FunnelStepCtaWrapper, funnelStepRail } from '../shared';
 import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featureOnboardingCommitment } from '../../../lib/featureManagement';
+import {
+  featureOnboardingCommitment,
+  featureOnboardingReadingCommitment,
+} from '../../../lib/featureManagement';
 
 function ReadingReminderStep({
   parameters: { headline },
@@ -61,16 +65,33 @@ function FunnelReadingReminderComponent(
 ): ReactElement | null {
   const { onTransition } = props;
   const isOnboarding = useIsOnboardingFunnel();
+  const onComplete = () =>
+    onTransition({ type: FunnelStepTransitionType.Complete });
+  const { value: isReadingCommitment, isLoading: isReadingLoading } =
+    useConditionalFeature({
+      feature: featureOnboardingReadingCommitment,
+      shouldEvaluate: isOnboarding,
+    });
+  // Only readers outside the reading commitment are bucketed into Feed
+  // Patchy, so neither experiment counts the other's readers.
   const { value: isCommitment, isLoading } = useConditionalFeature({
     feature: featureOnboardingCommitment,
-    shouldEvaluate: isOnboarding,
+    shouldEvaluate: isOnboarding && !isReadingLoading && !isReadingCommitment,
   });
 
   if (!isOnboarding) {
     return <ReadingReminderStep {...props} />;
   }
 
-  // Held until the flag settles, so only one arm's impression is logged.
+  // Held until the flags settle, so only one arm's impression is logged.
+  if (isReadingLoading) {
+    return null;
+  }
+
+  if (isReadingCommitment) {
+    return <ReadingCommitment onComplete={onComplete} />;
+  }
+
   if (isLoading) {
     return null;
   }

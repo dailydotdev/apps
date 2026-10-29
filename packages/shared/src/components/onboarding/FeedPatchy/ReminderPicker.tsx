@@ -3,8 +3,16 @@ import type {
   MouseEvent,
   PointerEvent as ReactPointerEvent,
   ReactElement,
+  Ref,
 } from 'react';
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { TimezoneDropdown } from '../../widgets/TimezoneDropdown';
 import { FunnelTargetId } from '../../../features/onboarding/types/funnelEvents';
@@ -69,15 +77,12 @@ const clamp = (hour: number) => Math.min(23, Math.max(0, hour));
 const rulerMask =
   'linear-gradient(90deg, transparent, black 22%, black 78%, transparent)';
 
-export const ReminderPicker = ({
-  hour,
-  onChange,
-  isCompact = false,
-  notice,
-  timezone,
-  onTimezoneChange,
-  isTwelveHour = false,
-}: {
+export interface ReminderPickerHandle {
+  /** Glides the ruler to an hour, as a tap on its tick does. */
+  goTo: (hour: number) => void;
+}
+
+export interface ReminderPickerProps {
   hour: number;
   onChange: (hour: number) => void;
   /** The IANA zone the hour is in, as production keeps it. */
@@ -89,7 +94,26 @@ export const ReminderPicker = ({
   notice?: string;
   /** Reads hours as "5:00 PM" instead of "17:00". */
   isTwelveHour?: boolean;
-}): ReactElement => {
+  /**
+   * Off when the presets live outside the card, as a list under it: the
+   * card then drops its preset row and its caption.
+   */
+  hasPresets?: boolean;
+}
+
+export const ReminderPicker = forwardRef(function ReminderPicker(
+  {
+    hour,
+    onChange,
+    isCompact = false,
+    notice,
+    timezone,
+    onTimezoneChange,
+    isTwelveHour = false,
+    hasPresets = true,
+  }: ReminderPickerProps,
+  ref: Ref<ReminderPickerHandle>,
+): ReactElement {
   const ruler = useRef<HTMLDivElement>(null);
   const drag = useRef<{ x: number; left: number } | null>(null);
   const isClickSuppressed = useRef(false);
@@ -134,6 +158,8 @@ export const ReminderPicker = ({
   };
 
   useEffect(() => () => window.clearTimeout(targetTimeout.current), []);
+
+  useImperativeHandle(ref, () => ({ goTo }));
 
   const hourAt = (clientX: number) => {
     const element = ruler.current;
@@ -268,10 +294,17 @@ export const ReminderPicker = ({
       )}
     >
       {!isCompact && (
-        <div className="flex items-center justify-between gap-3">
-          <span className="font-bold uppercase tracking-[0.12em] text-text-tertiary typo-caption1">
-            Daily reminder
-          </span>
+        <div
+          className={classNames(
+            'flex items-center gap-3',
+            hasPresets ? 'justify-between' : 'justify-center',
+          )}
+        >
+          {hasPresets && (
+            <span className="font-bold uppercase tracking-[0.12em] text-text-tertiary typo-caption1">
+              Daily reminder
+            </span>
+          )}
           {zoneLink}
         </div>
       )}
@@ -372,36 +405,38 @@ export const ReminderPicker = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-1 rounded-14 bg-background-default p-1">
-        {presets.map((preset) => {
-          const isActive = preset.hour === hour;
+      {hasPresets && (
+        <div className="grid grid-cols-3 gap-1 rounded-14 bg-background-default p-1">
+          {presets.map((preset) => {
+            const isActive = preset.hour === hour;
 
-          return (
-            <button
-              key={preset.label}
-              type="button"
-              aria-pressed={isActive}
-              data-funnel-track={FunnelTargetId.ReminderTime}
-              onClick={() => goTo(preset.hour)}
-              className={classNames(
-                styles.press,
-                'flex flex-col items-center gap-0.5 rounded-10 py-2 transition-colors duration-200',
-                isActive
-                  ? 'bg-surface-float text-text-primary shadow-2'
-                  : 'text-text-tertiary hover:text-text-secondary',
-              )}
-            >
-              <span className="font-bold typo-callout">{preset.label}</span>
-              <span className="tabular-nums typo-footnote">
-                {formatHour(preset.hour, isTwelveHour)}
-              </span>
-            </button>
-          );
-        })}
-      </div>
+            return (
+              <button
+                key={preset.label}
+                type="button"
+                aria-pressed={isActive}
+                data-funnel-track={FunnelTargetId.ReminderTime}
+                onClick={() => goTo(preset.hour)}
+                className={classNames(
+                  styles.press,
+                  'flex flex-col items-center gap-0.5 rounded-10 py-2 transition-colors duration-200',
+                  isActive
+                    ? 'bg-surface-float text-text-primary shadow-2'
+                    : 'text-text-tertiary hover:text-text-secondary',
+                )}
+              >
+                <span className="font-bold typo-callout">{preset.label}</span>
+                <span className="tabular-nums typo-footnote">
+                  {formatHour(preset.hour, isTwelveHour)}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
       {notice && (
         <p className="text-center text-text-tertiary typo-footnote">{notice}</p>
       )}
     </div>
   );
-};
+});
