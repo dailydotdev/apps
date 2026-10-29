@@ -98,6 +98,8 @@ export type FeedItemComponentProps = {
   wideColSpan?: FeaturedWideColSpan;
   /** Set on search feeds so impressions can be joined to the query. */
   searchLogExtra?: SearchLogExtra;
+  /** Debug mode: the card's explanation covers it. */
+  isExplaining?: boolean;
 } & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'> &
   Pick<UseBookmarkPost, 'toggleBookmark'>;
 
@@ -239,6 +241,7 @@ function FeedItemComponent({
   virtualizedNumCards,
   wideColSpan,
   searchLogExtra,
+  isExplaining = false,
 }: FeedItemComponentProps): ReactElement | null {
   const { logEvent } = useLogContext();
   const inViewRef = useLogImpression({
@@ -251,6 +254,7 @@ function FeedItemComponent({
     ranking,
     highlightColSpan: wideColSpan,
     searchLogExtra,
+    isExplaining,
   });
 
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
@@ -417,8 +421,9 @@ function FeedItemComponent({
     const WideCard = isWidenedFeaturedPost
       ? PostTypeToWideCard[itemPost.type]
       : undefined;
-    // Only posts of the Explain mode feed carry `explain`, null included.
-    const explainCard = item.type === FeedItemType.Post &&
+    // Only posts of the explained For You feed carry `explain`, null included.
+    const explainCard = isExplaining &&
+      item.type === FeedItemType.Post &&
       itemPost.explain !== undefined && (
         <FeedExplainCard
           post={itemPost}
