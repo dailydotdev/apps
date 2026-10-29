@@ -31,6 +31,7 @@ export enum AuthEventNames {
   RegistrationInitializationError = 'registration initialization error',
   VerifiedSuccessfully = 'verified successfully',
   TurnstileLoadError = 'turnstile load error',
+  TurnstileTokenWait = 'turnstile token wait',
 }
 
 export enum AuthTriggers {
