@@ -3,6 +3,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin } from '../../lib/log';
 import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import type {
+  FeedAuthorMode,
   FeedControl,
   FeedControlsDraft,
   FeedSourceMode,
@@ -16,6 +17,7 @@ import { getExpiresAt } from './duration';
 export type TuneChange =
   | { kind: 'topic'; keyword: string; value: ControlValue<FeedTopicMode> }
   | { kind: 'source'; sourceId: string; value: ControlValue<FeedSourceMode> }
+  | { kind: 'author'; userId: string; value: ControlValue<FeedAuthorMode> }
   | { kind: 'ranking'; key: string; value: number | null }
   | { kind: 'learning'; enabled: boolean };
 
@@ -25,6 +27,8 @@ const changeKey = (change: TuneChange): string => {
       return `topic:${change.keyword}`;
     case 'source':
       return `source:${change.sourceId}`;
+    case 'author':
+      return `author:${change.userId}`;
     case 'ranking':
       return `ranking:${change.key}`;
     default:
@@ -59,6 +63,14 @@ const toDraft = (changes: TuneChange[]): FeedControlsDraft =>
           sources: [
             ...(draft.sources ?? []),
             { sourceId: change.sourceId, ...toDraftEntry(change.value) },
+          ],
+        };
+      case 'author':
+        return {
+          ...draft,
+          authors: [
+            ...(draft.authors ?? []),
+            { userId: change.userId, ...toDraftEntry(change.value) },
           ],
         };
       case 'ranking':
@@ -141,10 +153,12 @@ export interface UseFeedTune extends UseFeedTuneState {
   getSourceControl: (
     sourceId: string,
   ) => FeedControl<FeedSourceMode> | undefined;
+  getAuthorControl: (userId: string) => FeedControl<FeedAuthorMode> | undefined;
   getRankingValue: (key: string) => number | undefined;
   learning: boolean;
   setTopic: (keyword: string, value: ControlValue<FeedTopicMode>) => void;
   setSource: (sourceId: string, value: ControlValue<FeedSourceMode>) => void;
+  setAuthor: (userId: string, value: ControlValue<FeedAuthorMode>) => void;
   setRanking: (key: string, value: number | null) => void;
   setLearning: (enabled: boolean) => void;
   undo: () => void;
@@ -184,6 +198,15 @@ export const useFeedTune = (): UseFeedTune => {
     },
     [latest, feedControls],
   );
+  const getAuthorControl = useCallback(
+    (userId: string) => {
+      const change = latest.get(`author:${userId}`);
+      return change?.kind === 'author'
+        ? toControl(change.value)
+        : feedControls.getAuthorControl(userId);
+    },
+    [latest, feedControls],
+  );
   const getRankingValue = useCallback(
     (key: string) => {
       const change = latest.get(`ranking:${key}`);
@@ -213,6 +236,9 @@ export const useFeedTune = (): UseFeedTune => {
         case 'source':
           feedControls.setSource(change.sourceId, change.value);
           break;
+        case 'author':
+          feedControls.setAuthor(change.userId, change.value);
+          break;
         case 'ranking':
           feedControls.setRankingSetting(change.key, change.value);
           break;
@@ -235,10 +261,12 @@ export const useFeedTune = (): UseFeedTune => {
     changeCount: latest.size,
     getTopicControl,
     getSourceControl,
+    getAuthorControl,
     getRankingValue,
     learning,
     setTopic: (keyword, value) => add({ kind: 'topic', keyword, value }),
     setSource: (sourceId, value) => add({ kind: 'source', sourceId, value }),
+    setAuthor: (userId, value) => add({ kind: 'author', userId, value }),
     setRanking: (key, value) => add({ kind: 'ranking', key, value }),
     setLearning: (enabled) => add({ kind: 'learning', enabled }),
     undo: () => setChanges(changes.slice(0, -1)),

@@ -446,6 +446,7 @@ export enum LogEvent {
   OpenFeedExplanation = 'open feed explanation',
   SetFeedTopicMode = 'set feed topic mode',
   SetFeedSourceMode = 'set feed source mode',
+  SetFeedAuthorMode = 'set feed author mode',
   ToggleFeedLearning = 'toggle feed learning',
   ToggleFeedFillIns = 'toggle feed fill ins',
   ResetFeedPersonalization = 'reset feed personalization',

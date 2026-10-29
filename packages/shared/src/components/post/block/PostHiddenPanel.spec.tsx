@@ -35,6 +35,7 @@ const renderPanel = (explain?: FeedItemExplain) => {
   client.setQueryData(feedControlsQueryKey(defaultUser), {
     topics: [],
     sources: [],
+    authors: [],
     learning: true,
     fillIns: true,
     ranking: [],

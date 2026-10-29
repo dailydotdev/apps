@@ -21,15 +21,17 @@ import { Divider } from '../../../components/utilities/Divider';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { settingsUrl } from '../../../lib/constants';
+import { isSpecialUser } from '../../../lib/user';
 import { ExplainOrigin, FeedTuneTab } from '../types';
 import { feedProfileQueryOptions } from '../queries';
-import { getControlMeta } from '../describe';
+import { followModeMeta, getControlMeta } from '../describe';
 import { rankingGroups, rankingSettings } from '../ranking';
 import type { UseFeedTune } from '../useFeedTune';
 import { useFeedTune } from '../useFeedTune';
 import { useFeedTuneContext } from '../FeedTuneContext';
 import { TopicLevelPicker } from './TopicLevelPicker';
 import { SourceLevelPicker } from './SourceLevelPicker';
+import { AuthorLevelPicker } from './AuthorLevelPicker';
 import { RankingSlider } from './ForYouRankingSettings';
 import { PlusBanner } from './PlusUpsell';
 
@@ -137,31 +139,73 @@ const TopicsTab = ({
 };
 
 const SourcesTab = ({ tune }: { tune: UseFeedTune }): ReactElement => {
+  const { user } = useAuthContext();
   const { isPlus } = usePlusSubscription();
-  const { sources } = useFeedTuneContext();
+  const { sources, authors } = useFeedTuneContext();
+  const people = authors.filter(
+    ({ id }) => !isSpecialUser({ userId: id, loggedUserId: user?.id ?? null }),
+  );
 
   return (
-    <ul className="flex flex-col">
-      {sources.map(({ id, name, factor }) => {
-        const control = tune.getSourceControl(id);
-        const meta = getControlMeta(control, isPlus);
-        return (
-          <ControlRow
-            key={id}
-            title={name}
-            meta={meta?.text ?? (factor > 1 ? 'You follow it' : undefined)}
-            metaClassName={meta?.className}
-          >
-            <SourceLevelPicker
-              name={name}
-              factor={factor}
-              control={control}
-              onChange={(value) => tune.setSource(id, value)}
-            />
-          </ControlRow>
-        );
-      })}
-    </ul>
+    <div className="flex flex-col gap-4">
+      <Typography bold type={TypographyType.Callout}>
+        Sources
+      </Typography>
+      <ul className="flex flex-col">
+        {sources.map(({ id, name, factor, isFollowed }) => {
+          const control = tune.getSourceControl(id);
+          const meta = getControlMeta(control, isPlus, followModeMeta);
+          return (
+            <ControlRow
+              key={id}
+              title={name}
+              meta={meta?.text ?? (isFollowed ? 'You follow it' : undefined)}
+              metaClassName={meta?.className}
+            >
+              <SourceLevelPicker
+                name={name}
+                factor={factor}
+                isFollowed={isFollowed}
+                control={control}
+                onChange={(value) => tune.setSource(id, value)}
+              />
+            </ControlRow>
+          );
+        })}
+      </ul>
+      {people.length > 0 && (
+        <>
+          <Divider className="bg-border-subtlest-tertiary" />
+          <Typography bold type={TypographyType.Callout}>
+            People
+          </Typography>
+          <ul className="flex flex-col">
+            {people.map(({ id, name, factor, isFollowed }) => {
+              const control = tune.getAuthorControl(id);
+              const meta = getControlMeta(control, isPlus, followModeMeta);
+              return (
+                <ControlRow
+                  key={id}
+                  title={name}
+                  meta={
+                    meta?.text ?? (isFollowed ? 'You follow them' : undefined)
+                  }
+                  metaClassName={meta?.className}
+                >
+                  <AuthorLevelPicker
+                    name={name}
+                    factor={factor}
+                    isFollowed={isFollowed}
+                    control={control}
+                    onChange={(value) => tune.setAuthor(id, value)}
+                  />
+                </ControlRow>
+              );
+            })}
+          </ul>
+        </>
+      )}
+    </div>
   );
 };
 

@@ -40,8 +40,29 @@ export enum FeedTopicMode {
   Off = 'off',
 }
 
+/**
+ * A source's level in For You. Off ignores the reader's follow of it there;
+ * they still follow it everywhere else.
+ */
 export enum FeedSourceMode {
+  Boost = 'boost',
   Demote = 'demote',
+  Off = 'off',
+}
+
+/** An author's level in For You, the same levels a source has. */
+export enum FeedAuthorMode {
+  Boost = 'boost',
+  Demote = 'demote',
+  Off = 'off',
+}
+
+/** What the reader set on a card's source or author, as it was ranked. */
+export enum FollowControl {
+  Boost = 'boost',
+  Demote = 'demote',
+  Off = 'off',
+  Weight = 'weight',
 }
 
 /** How long a change lasts. None lasts until the reader changes it. */
@@ -70,6 +91,7 @@ export interface FeedRankingValue {
 export interface FeedControls {
   topics: ({ keyword: string } & FeedControl<FeedTopicMode>)[];
   sources: ({ source: { id: string } } & FeedControl<FeedSourceMode>)[];
+  authors: ({ user: { id: string } } & FeedControl<FeedAuthorMode>)[];
   learning: boolean;
   fillIns: boolean;
   /** The ranking settings the reader changed, which count with Plus. */
@@ -104,7 +126,16 @@ export interface RankedExplain {
     control?: TopicControl;
     factor: number;
   };
-  follow: { kind?: ExplainFollowKind; factor: number };
+  /**
+   * The larger of the source's and the author's follow, then the levels the
+   * reader set on either. A follow set to Off is no follow.
+   */
+  follow: {
+    kind?: ExplainFollowKind;
+    factor: number;
+    source_control?: FollowControl;
+    author_control?: FollowControl;
+  };
   age: { days: number; factor: number };
   seen: { shows: number; factor: number };
   /** The variety adjustments, on picked cards. */
@@ -166,6 +197,7 @@ export interface FeedProfile {
 export interface FeedControlsDraft {
   topics?: { keyword: string; mode?: FeedTopicMode; weight?: number }[];
   sources?: { sourceId: string; mode?: FeedSourceMode; weight?: number }[];
+  authors?: { userId: string; mode?: FeedAuthorMode; weight?: number }[];
   ranking?: { key: string; value?: number }[];
   learning?: boolean;
 }
@@ -173,6 +205,6 @@ export interface FeedControlsDraft {
 /** Tune's tabs, by the controls they hold. */
 export enum FeedTuneTab {
   Topics = 'Topics',
-  Sources = 'Sources',
+  Sources = 'Sources and people',
   Ranking = 'Ranking',
 }

@@ -31,6 +31,7 @@ const renderOffer = ({
   client.setQueryData(feedControlsQueryKey(defaultUser), {
     topics,
     sources: [],
+    authors: [],
     learning: true,
     fillIns: true,
     ranking: [],

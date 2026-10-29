@@ -9,7 +9,13 @@ import type { Post } from '../../graphql/posts';
 import { isSourceUserSource } from '../../graphql/sources';
 import { safeContextHookExport } from '../../lib/func';
 import type { FeedItemExplain } from './types';
-import { getSourceFactor } from './describe';
+import {
+  getAuthorFactor,
+  getAuthorLabel,
+  getSourceFactor,
+  isAuthorFollowed,
+  isSourceFollowed,
+} from './describe';
 
 /** Where Tune moved a card: new on the page, or places up (+) or down (-). */
 export type TuneMovement = 'new' | number;
@@ -17,17 +23,23 @@ export type TuneMovement = 'new' | number;
 export interface TunePageSource {
   id: string;
   name: string;
-  /** What a follow gives its posts now, 1 without one. */
+  /** What a follow or level gives its posts now, 1 without one. */
   factor: number;
+  /** A card on the page was ranked with the reader following it. */
+  isFollowed: boolean;
 }
+
+/** An author on the page, with the same fields keyed by user id. */
+export type TunePageAuthor = TunePageSource;
 
 interface FeedTuneContextValue {
   /** Set while the feed shows a draft, against the page it replaced. */
   getMovement: (postId: string) => TuneMovement | undefined;
   /** How the draft moved the page, in one line. */
   summary?: string;
-  /** The sources on the page, so the reader steers what they see. */
+  /** The sources and authors on the page, for the reader to steer. */
   sources: TunePageSource[];
+  authors: TunePageAuthor[];
 }
 
 interface FeedTuneProviderProps {
@@ -109,35 +121,45 @@ const [FeedTuneProvider, useFeedTuneContextHook] = createContextProvider(
       },
       [after, before, isPreviewing],
     );
-    const sources = useMemo(
-      () => [
-        ...new Map(
-          base.flatMap(({ source, explain }) =>
-            source?.id && source.name && !isSourceUserSource(source)
-              ? [
-                  [
-                    source.id,
-                    {
-                      id: source.id,
-                      name: source.name,
-                      factor: getSourceFactor(explain),
-                    },
-                  ],
-                ]
-              : [],
-          ),
-        ).values(),
-      ],
-      [base],
-    );
+    const sources = useMemo(() => {
+      const byId = new Map<string, TunePageSource>();
+      base.forEach(({ source, explain }) => {
+        if (source?.id && source.name && !isSourceUserSource(source)) {
+          byId.set(source.id, {
+            id: source.id,
+            name: source.name,
+            factor: getSourceFactor(explain),
+            isFollowed:
+              !!byId.get(source.id)?.isFollowed || isSourceFollowed(explain),
+          });
+        }
+      });
+      return [...byId.values()];
+    }, [base]);
+    const authors = useMemo(() => {
+      const byId = new Map<string, TunePageAuthor>();
+      base.forEach(({ author, explain }) => {
+        if (author?.id && (author.name || author.username)) {
+          byId.set(author.id, {
+            id: author.id,
+            name: getAuthorLabel(author),
+            factor: getAuthorFactor(explain),
+            isFollowed:
+              !!byId.get(author.id)?.isFollowed || isAuthorFollowed(explain),
+          });
+        }
+      });
+      return [...byId.values()];
+    }, [base]);
 
     return useMemo(
       () => ({
         getMovement,
         summary: isPreviewing ? describeMovement(before, preview) : undefined,
         sources,
+        authors,
       }),
-      [getMovement, isPreviewing, before, preview, sources],
+      [getMovement, isPreviewing, before, preview, sources, authors],
     );
   },
   { errorMessage: 'ContextNotFound' },
@@ -146,7 +168,7 @@ const [FeedTuneProvider, useFeedTuneContextHook] = createContextProvider(
 const useFeedTuneContext = safeContextHookExport(
   useFeedTuneContextHook,
   'ContextNotFound',
-  { getMovement: () => undefined, sources: [] },
+  { getMovement: () => undefined, sources: [], authors: [] },
 );
 
 export { FeedTuneProvider, useFeedTuneContext };

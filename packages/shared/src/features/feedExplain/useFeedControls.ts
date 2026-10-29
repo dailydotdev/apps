@@ -10,7 +10,12 @@ import { labels } from '../../lib/labels';
 import type { LogEvent as LogEventPayload } from '../../hooks/log/useLogQueue';
 import type { Origin } from '../../lib/log';
 import { LogEvent, TargetId } from '../../lib/log';
-import type { FeedControl, FeedControlDuration, FeedControls } from './types';
+import type {
+  FeedAuthorMode,
+  FeedControl,
+  FeedControlDuration,
+  FeedControls,
+} from './types';
 import { FeedSourceMode, FeedTopicMode } from './types';
 import type { FeedPersonalizationReset } from './graphql';
 import {
@@ -18,6 +23,8 @@ import {
   resetFeedRankingSettings,
   setFeedFillIns,
   setFeedLearning,
+  setFeedAuthorMode,
+  setFeedAuthorWeight,
   setFeedRankingSetting,
   setFeedSourceMode,
   setFeedSourceWeight,
@@ -32,6 +39,7 @@ import { SharedFeedPage } from '../../components/utilities/common';
 enum ChangeKind {
   Topic = 'topic',
   Source = 'source',
+  Author = 'author',
   Learning = 'learning',
   FillIns = 'fill_ins',
   Ranking = 'ranking',
@@ -51,6 +59,10 @@ type FeedControlChange =
       kind: ChangeKind.Source;
       sourceId: string;
     } & ControlValue<FeedSourceMode>)
+  | ({
+      kind: ChangeKind.Author;
+      userId: string;
+    } & ControlValue<FeedAuthorMode>)
   | { kind: ChangeKind.Learning | ChangeKind.FillIns; enabled: boolean }
   | { kind: ChangeKind.Ranking; key: string; value: number | null }
   | { kind: ChangeKind.RankingReset };
@@ -99,6 +111,18 @@ const applyChange = (
           : sources,
       };
     }
+    case ChangeKind.Author: {
+      const authors = controls.authors.filter(
+        ({ user }) => user.id !== change.userId,
+      );
+      const stored = toStored(change);
+      return {
+        ...controls,
+        authors: stored
+          ? [...authors, { user: { id: change.userId }, ...stored }]
+          : authors,
+      };
+    }
     case ChangeKind.Learning:
       return { ...controls, learning: change.enabled };
     case ChangeKind.FillIns:
@@ -132,6 +156,10 @@ const sendChange = (change: FeedControlChange): Promise<unknown> => {
             change.duration,
           )
         : setFeedSourceWeight(change.sourceId, change.weight, change.duration);
+    case ChangeKind.Author:
+      return change.weight === undefined
+        ? setFeedAuthorMode(change.userId, change.mode ?? null, change.duration)
+        : setFeedAuthorWeight(change.userId, change.weight, change.duration);
     case ChangeKind.Learning:
       return setFeedLearning(change.enabled);
     case ChangeKind.FillIns:
@@ -143,6 +171,31 @@ const sendChange = (change: FeedControlChange): Promise<unknown> => {
   }
 };
 
+const controlEvent: Record<
+  ChangeKind.Topic | ChangeKind.Source | ChangeKind.Author,
+  LogEvent
+> = {
+  [ChangeKind.Topic]: LogEvent.SetFeedTopicMode,
+  [ChangeKind.Source]: LogEvent.SetFeedSourceMode,
+  [ChangeKind.Author]: LogEvent.SetFeedAuthorMode,
+};
+
+const getControlTarget = (
+  change: Extract<
+    FeedControlChange,
+    { kind: ChangeKind.Topic | ChangeKind.Source | ChangeKind.Author }
+  >,
+): string => {
+  switch (change.kind) {
+    case ChangeKind.Topic:
+      return change.keyword;
+    case ChangeKind.Source:
+      return change.sourceId;
+    default:
+      return change.userId;
+  }
+};
+
 const getChangeEvent = (
   change: FeedControlChange,
   origin: Origin,
@@ -150,13 +203,10 @@ const getChangeEvent = (
   switch (change.kind) {
     case ChangeKind.Topic:
     case ChangeKind.Source:
+    case ChangeKind.Author:
       return {
-        event_name:
-          change.kind === ChangeKind.Topic
-            ? LogEvent.SetFeedTopicMode
-            : LogEvent.SetFeedSourceMode,
-        target_id:
-          change.kind === ChangeKind.Topic ? change.keyword : change.sourceId,
+        event_name: controlEvent[change.kind],
+        target_id: getControlTarget(change),
         extra: JSON.stringify({
           origin,
           mode: change.weight === undefined ? change.mode ?? 'auto' : 'weight',
@@ -210,11 +260,13 @@ export interface UseFeedControls {
     sourceId: string,
   ) => FeedControl<FeedSourceMode> | undefined;
   isSourceDemoted: (sourceId: string) => boolean;
+  getAuthorControl: (userId: string) => FeedControl<FeedAuthorMode> | undefined;
   setTopicMode: (keyword: string, mode: FeedTopicMode | null) => void;
   setSourceMode: (sourceId: string, mode: FeedSourceMode | null) => void;
   /** A level or an exact weight, for a while or for good. */
   setTopic: (keyword: string, value: ControlValue<FeedTopicMode>) => void;
   setSource: (sourceId: string, value: ControlValue<FeedSourceMode>) => void;
+  setAuthor: (userId: string, value: ControlValue<FeedAuthorMode>) => void;
   setLearning: (enabled: boolean) => void;
   setFillIns: (enabled: boolean) => void;
   /** No value takes the setting back to the default. */
@@ -223,7 +275,7 @@ export interface UseFeedControls {
 }
 
 /**
- * The For You controls: topic and source levels, learning and popular
+ * The For You controls: topic, source and author levels, learning and popular
  * fill-ins. A change shows at once and rolls back if it fails. It reweighs
  * the profile and drops the For You feed waiting in the cache, so the next
  * one is ranked with it.
@@ -294,6 +346,11 @@ export const useFeedControls = ({
       ),
     [controls],
   );
+  const getAuthorControl = useCallback(
+    (userId: string) =>
+      controls?.authors.find(({ user: author }) => author.id === userId),
+    [controls],
+  );
   const setTopicMode = useCallback(
     (keyword: string, mode: FeedTopicMode | null) =>
       mutate({ kind: ChangeKind.Topic, keyword, mode }),
@@ -312,6 +369,11 @@ export const useFeedControls = ({
   const setSource = useCallback(
     (sourceId: string, value: ControlValue<FeedSourceMode>) =>
       mutate({ kind: ChangeKind.Source, sourceId, ...value }),
+    [mutate],
+  );
+  const setAuthor = useCallback(
+    (userId: string, value: ControlValue<FeedAuthorMode>) =>
+      mutate({ kind: ChangeKind.Author, userId, ...value }),
     [mutate],
   );
   const setRankingSetting = useCallback(
@@ -337,10 +399,12 @@ export const useFeedControls = ({
     getTopicControl,
     getSourceControl,
     isSourceDemoted,
+    getAuthorControl,
     setTopicMode,
     setSourceMode,
     setTopic,
     setSource,
+    setAuthor,
     setLearning,
     setFillIns,
     setRankingSetting,

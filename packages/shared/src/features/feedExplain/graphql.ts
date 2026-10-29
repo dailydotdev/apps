@@ -1,6 +1,7 @@
 import { gql } from 'graphql-request';
 import { gqlClient } from '../../graphql/common';
 import type {
+  FeedAuthorMode,
   FeedControlDuration,
   FeedControls,
   FeedItemExplain,
@@ -93,6 +94,14 @@ export const FEED_CONTROLS_QUERY = gql`
       }
       sources {
         source {
+          id
+        }
+        mode
+        weight
+        expiresAt
+      }
+      authors {
+        user {
           id
         }
         mode
@@ -212,6 +221,53 @@ export const setFeedSourceWeight = (
 ): Promise<unknown> =>
   gqlClient.request(SET_FEED_SOURCE_WEIGHT_MUTATION, {
     sourceId,
+    weight,
+    duration,
+  });
+
+export const SET_FEED_AUTHOR_MODE_MUTATION = gql`
+  mutation SetFeedAuthorMode(
+    $userId: ID!
+    $mode: FeedAuthorMode
+    $duration: FeedControlDuration
+  ) {
+    setFeedAuthorMode(userId: $userId, mode: $mode, duration: $duration) {
+      _
+    }
+  }
+`;
+
+export const setFeedAuthorMode = (
+  userId: string,
+  mode: FeedAuthorMode | null,
+  duration?: FeedControlDuration,
+): Promise<unknown> =>
+  gqlClient.request(SET_FEED_AUTHOR_MODE_MUTATION, {
+    userId,
+    mode,
+    duration,
+  });
+
+export const SET_FEED_AUTHOR_WEIGHT_MUTATION = gql`
+  mutation SetFeedAuthorWeight(
+    $userId: ID!
+    $weight: Float!
+    $duration: FeedControlDuration
+  ) {
+    setFeedAuthorWeight(userId: $userId, weight: $weight, duration: $duration) {
+      _
+    }
+  }
+`;
+
+// Plus only.
+export const setFeedAuthorWeight = (
+  userId: string,
+  weight: number,
+  duration?: FeedControlDuration,
+): Promise<unknown> =>
+  gqlClient.request(SET_FEED_AUTHOR_WEIGHT_MUTATION, {
+    userId,
     weight,
     duration,
   });

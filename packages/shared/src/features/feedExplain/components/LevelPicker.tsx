@@ -59,7 +59,7 @@ export interface ExactWeightRange {
 }
 
 interface LevelPickerProps<Mode> {
-  /** "#docker" or a source's name, for the labels. */
+  /** "#docker", a source's or an author's name, for the labels. */
   subject: string;
   /** The value on the trigger, like ×1.62. */
   display: string;
@@ -75,8 +75,8 @@ interface LevelPickerProps<Mode> {
 }
 
 /**
- * How much a topic or source counts in For You, which opens its levels and,
- * under Plus, an exact boost and how long a change lasts. Free readers see
+ * How much a topic, source or author counts in For You, which opens its
+ * levels and, under Plus, an exact boost and how long a change lasts. Free readers see
  * the Plus part locked.
  */
 export const LevelPicker = <Mode,>({

@@ -7,6 +7,7 @@ import defaultUser from '../../../../__tests__/fixture/loggedUser';
 import type { FeedControl } from '../types';
 import { FeedControlDuration, FeedTopicMode } from '../types';
 import { TopicLevelPicker } from './TopicLevelPicker';
+import { SourceLevelPicker } from './SourceLevelPicker';
 
 const onChange = jest.fn();
 
@@ -97,4 +98,33 @@ describe('TopicLevelPicker under Plus', () => {
 
     expect(onChange).toHaveBeenCalledWith({ mode: FeedTopicMode.Boost });
   });
+});
+
+describe('SourceLevelPicker', () => {
+  it.each([
+    [false, false],
+    [true, true],
+  ])(
+    'should offer Off only on a followed source (followed: %s)',
+    async (isFollowed, hasOff) => {
+      render(
+        <TestBootProvider client={new QueryClient()}>
+          <SourceLevelPicker
+            name="Echo JS"
+            factor={isFollowed ? 1.7 : 1}
+            isFollowed={isFollowed}
+            onChange={onChange}
+          />
+        </TestBootProvider>,
+      );
+      await userEvent.click(screen.getByLabelText(/^Boost for Echo JS/));
+
+      const levels = screen.getByRole('radiogroup', {
+        name: 'Level for Echo JS',
+      });
+      expect(!!within(levels).queryByRole('radio', { name: /^Off/ })).toBe(
+        hasOff,
+      );
+    },
+  );
 });

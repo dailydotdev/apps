@@ -60,6 +60,7 @@ const openPanel = (seed?: (client: QueryClient) => void) => {
   client.setQueryData<FeedControls>(feedControlsQueryKey(user), {
     topics: [],
     sources: [],
+    authors: [],
     learning: true,
     fillIns: true,
     ranking: [],

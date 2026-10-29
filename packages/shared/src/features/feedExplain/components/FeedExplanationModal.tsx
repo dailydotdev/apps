@@ -57,11 +57,14 @@ import { useDropIdleForYouFeeds } from '../useDropIdleForYouFeeds';
 import { useFeedControls } from '../useFeedControls';
 import { useOpenFeedTune } from '../useOpenFeedTune';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
-import { FeedSourceMode, isRankedExplain } from '../types';
+import { FeedAuthorMode, FeedSourceMode, isRankedExplain } from '../types';
 import { feedProfileQueryKey, feedProfileQueryOptions } from '../queries';
 import type { ExplanationMatch, SignalMeta } from '../describe';
 import {
   ExplanationMatchKind,
+  followModeMeta,
+  getAuthorFactor,
+  getAuthorLabel,
   getExplanationMatches,
   getMatchKey,
   getPostTags,
@@ -71,11 +74,13 @@ import {
   getSourceFactor,
   getTopicLevel,
   getTopicWeight,
+  isSourceFollowed,
   topicModeMeta,
 } from '../describe';
 import { ScoreBreakdown } from './ScoreBreakdown';
 import { TopicLevelPicker } from './TopicLevelPicker';
 import { SourceLevelPicker } from './SourceLevelPicker';
+import { AuthorLevelPicker } from './AuthorLevelPicker';
 
 export interface FeedExplanationModalProps extends LazyModalCommonProps {
   post: Post;
@@ -121,7 +126,7 @@ interface EntityRow {
   /** Colors the meta when it names a level the reader set. */
   metaClassName?: string;
   leading: ReactNode;
-  /** A topic's or source's level picker, beside its title. */
+  /** A topic's, source's or author's level picker, beside its title. */
   level?: ReactNode;
   isBlocked: boolean;
   isFollowing?: boolean;
@@ -255,7 +260,7 @@ const EntityRowItem = ({
           title={
             row.isShowingLess
               ? `Set ${row.title} back to Auto.`
-              : `Show less from ${row.title}. Its posts rank lower, but the best ones still show.`
+              : `Show less from ${row.title}. Their posts rank lower, but the best ones still show.`
           }
           onClick={row.onToggleShowLess}
         />
@@ -290,7 +295,7 @@ const TopicGlyph = (): ReactElement => (
 /**
  * "Why am I seeing this?" for a For You card: what matched the reader, then
  * the score breakdown, and the controls for everything the post is about:
- * follow, block, topic levels and show less from the source.
+ * follow, block, and the levels of its topics, source and author.
  */
 function FeedExplanationModal({
   post: feedPost,
@@ -361,7 +366,7 @@ function FeedExplanationModal({
 
   const rows: EntityRow[] = [];
   const authorName =
-    author?.name || (author?.username ? `@${author.username}` : null);
+    author && (author.name || author.username) ? getAuthorLabel(author) : null;
   if (
     author &&
     authorName &&
@@ -376,11 +381,28 @@ function FeedExplanationModal({
     const isFollowing = isFollowingContent(author.contentPreference);
     const isBlocked =
       author.contentPreference?.status === ContentPreferenceStatus.Blocked;
-    const key = getMatchKey(ExplanationMatchKind.Author, author.id);
+    const authorId = author.id;
+    const authorControl = feedControls.getAuthorControl(authorId);
+    const isShowingLess = authorControl?.mode === FeedAuthorMode.Demote;
+    const key = getMatchKey(ExplanationMatchKind.Author, authorId);
     rows.push({
       key,
       title: authorName,
-      ...getMeta(key, 'author', isBlocked),
+      ...getMeta(
+        key,
+        'author',
+        isBlocked,
+        getControlMeta(authorControl, isPlus, followModeMeta),
+      ),
+      level: (
+        <AuthorLevelPicker
+          name={authorName}
+          factor={getAuthorFactor(explain)}
+          isFollowed={isFollowing}
+          control={authorControl}
+          onChange={(value) => feedControls.setAuthor(authorId, value)}
+        />
+      ),
       leading: (
         <ProfilePicture
           user={author}
@@ -390,6 +412,11 @@ function FeedExplanationModal({
       ),
       isBlocked,
       isFollowing,
+      isShowingLess,
+      onToggleShowLess: () =>
+        feedControls.setAuthor(authorId, {
+          mode: isShowingLess ? null : FeedAuthorMode.Demote,
+        }),
       onToggleFollow: () => (isFollowing ? unfollow(params) : follow(params)),
       onToggleBlock: () => (isBlocked ? unblock(params) : block(params)),
     });
@@ -414,12 +441,13 @@ function FeedExplanationModal({
         key,
         isSquad ? 'squad' : 'source',
         isBlocked,
-        getControlMeta(sourceControl, isPlus),
+        getControlMeta(sourceControl, isPlus, followModeMeta),
       ),
       level: (
         <SourceLevelPicker
           name={source.name}
           factor={getSourceFactor(explain)}
+          isFollowed={isFollowing || isSourceFollowed(explain)}
           control={sourceControl}
           onChange={(value) => feedControls.setSource(sourceId, value)}
         />
