@@ -103,6 +103,7 @@ import { canViewPostAnalytics, Roles } from '../../lib/user';
 import type { PromptOptions } from '../../hooks/usePrompt';
 import { usePrompt } from '../../hooks/usePrompt';
 import { BoostIcon } from '../../components/icons/Boost';
+import { InfoIcon } from '../../components/icons/Info';
 import type { FeedItem } from '../../hooks/useFeed';
 import { isBoostedPostAd } from '../../hooks/useFeed';
 import type { MenuItemProps } from '../../components/dropdown/common';
@@ -195,6 +196,10 @@ const PostOptionButtonContent = ({
   const { onHide } = useHidePost({
     post,
     origin: Origin.PostContextMenu,
+  });
+  const { onHide: onHideFromExplanation } = useHidePost({
+    post,
+    origin: Origin.FeedExplain,
   });
   const { openSharePost } = useSharePost(origin);
   const { follow, unfollow, unblock, block } = useContentPreference();
@@ -470,6 +475,28 @@ const PostOptionButtonContent = ({
         }),
     },
   ];
+
+  // Only For You asks for explanations, where it can explain itself.
+  const { explain } = initialPost;
+  if (explain !== undefined && !isBriefPost) {
+    postOptions.push({
+      icon: <MenuIcon Icon={InfoIcon} />,
+      id: 'explain',
+      label: 'Why am I seeing this?',
+      action: () => {
+        logEvent(
+          postLogEvent(LogEvent.OpenFeedExplanation, post, {
+            extra: { origin: Origin.PostContextMenu, lane: explain?.lane },
+            ...logOpts,
+          }),
+        );
+        openModal({
+          type: LazyModal.FeedExplanation,
+          props: { post, explain, onHide: onHideFromExplanation },
+        });
+      },
+    });
+  }
 
   if (canViewPostAnalytics({ user, post })) {
     postOptions.push({

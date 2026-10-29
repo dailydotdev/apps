@@ -18,7 +18,10 @@ interface UseFeedExplainModeProps {
 }
 
 interface UseFeedExplainMode {
-  /** Explain mode can be turned on for the feed on screen. */
+  /**
+   * The feed on screen explains itself: it carries an explanation per card,
+   * and Explain mode can be turned on.
+   */
   isAvailable: boolean;
   /** The feed on screen has Explain mode, though only its Recommended sort can turn it on. */
   isOffered: boolean;
