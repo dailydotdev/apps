@@ -13,9 +13,10 @@ import { useFeedHeroPostActions } from './useFeedHeroPostActions';
 /**
  * The handlers the hero's cards take. The card's overlay link cancels its own
  * navigation and leaves opening the post to `onPostClick`, as the feed opens
- * its modal there; the hero has no modal of its own, so it opens the post
- * page. Everything is logged under `origin` (the hero's by default, so its
- * events and the widget rail's stay apart). Vote and bookmark patch the hero's
+ * its modal there. `onOpenPost` opens the post modal (the top story widget
+ * passes one); without it, or when it declines, the post page opens.
+ * Everything is logged under `origin` (the hero's by default, so its events
+ * and the widget rail's stay apart). Vote and bookmark patch the hero's
  * own query: the bare hooks only write the single-post key, which these cards
  * never read.
  */
@@ -23,11 +24,14 @@ export const useFeedHeroCardProps = ({
   queryKey,
   feedName,
   origin = Origin.FeedHero,
+  onOpenPost,
 }: {
   queryKey: QueryKey;
   feedName: string;
   /** The surface the events report, so the hero and the rail stay apart. */
   origin?: Origin;
+  /** Opens the post in place; returns false to fall back to the post page. */
+  onOpenPost?: (post: Post) => boolean;
 }): Omit<FeaturedWideCardProps, 'post'> => {
   const router = useRouter();
   const { logEvent } = useLogContext();
@@ -51,7 +55,9 @@ export const useFeedHeroCardProps = ({
     return {
       onPostClick: (post: Post) => {
         logClick(post);
-        router.push(post.commentsPermalink);
+        if (!onOpenPost?.(post)) {
+          router.push(post.commentsPermalink);
+        }
       },
       // A modified click opens the link itself, in a new tab.
       onPostAuxClick: logClick,
@@ -67,6 +73,7 @@ export const useFeedHeroCardProps = ({
   }, [
     copyLink,
     logEvent,
+    onOpenPost,
     origin,
     postLogEvent,
     router,
