@@ -6,6 +6,7 @@ import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { useLiveChatEnabled } from '../hooks/useLiveChatEnabled';
 import { LiveChatPanel } from './LiveChatPanel';
 import { LiveChatMobileEntry } from './LiveChatMobileEntry';
+import { useHasPostCapsule } from '../../../components/post/PostCapsule';
 
 /**
  * The post page's live chat, in the rail on a laptop and as a pill with a
@@ -17,13 +18,14 @@ export const PostLiveChat = ({
   origin,
   placement,
 }: {
-  post: Pick<Post, 'id' | 'trending'>;
+  post: Pick<Post, 'id' | 'trending' | 'type'>;
   origin: string;
   placement: 'rail' | 'mobile';
 }): ReactElement | null => {
   const { user } = useAuthContext();
   const { isEnabled } = useLiveChatEnabled();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const hasCapsule = useHasPostCapsule(post);
 
   if (!isEnabled || (placement === 'rail') !== isLaptop) {
     return null;
@@ -41,6 +43,7 @@ export const PostLiveChat = ({
         origin={origin}
         canStart={canStart}
         isTrending={!!post.trending}
+        hasCapsule={hasCapsule}
       />
     );
   }
