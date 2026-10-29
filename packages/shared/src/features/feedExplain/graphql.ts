@@ -2,6 +2,7 @@ import { gql } from 'graphql-request';
 import { gqlClient } from '../../graphql/common';
 import type {
   FeedControls,
+  FeedItemExplain,
   FeedProfile,
   FeedSourceMode,
   FeedTopicMode,
@@ -35,6 +36,40 @@ export const getFeedProfile = async (version: number): Promise<FeedProfile> => {
   }>(FEED_PROFILE_QUERY, { version });
 
   return feedProfile;
+};
+
+/** The For You request a post was served in, which keys its explanation. */
+export interface FeedPostExplanationRequest {
+  version: number;
+  first: number;
+  supportedTypes?: string[];
+}
+
+export const FEED_POST_EXPLANATION_QUERY = gql`
+  query FeedPostExplanation(
+    $postId: ID!
+    $version: Int!
+    $first: Int
+    $supportedTypes: [String!]
+  ) {
+    feedPostExplanation(
+      postId: $postId
+      version: $version
+      first: $first
+      supportedTypes: $supportedTypes
+    )
+  }
+`;
+
+export const getFeedPostExplanation = async (
+  postId: string,
+  request: FeedPostExplanationRequest | undefined,
+): Promise<FeedItemExplain | null> => {
+  const { feedPostExplanation } = await gqlClient.request<{
+    feedPostExplanation: FeedItemExplain | null;
+  }>(FEED_POST_EXPLANATION_QUERY, { postId, ...request });
+
+  return feedPostExplanation;
 };
 
 export const FEED_CONTROLS_QUERY = gql`

@@ -2,6 +2,7 @@ import { createContext, useContext } from 'react';
 import type { QueryKey } from '@tanstack/react-query';
 import type { FeedReturnType } from '../hooks/useFeed';
 import type { Origin } from '../lib/log';
+import type { FeedPostExplanationRequest } from '../features/feedExplain/graphql';
 
 export type ActiveFeedContextValue = {
   queryKey?: QueryKey;
@@ -15,6 +16,8 @@ export type ActiveFeedContextValue = {
   allowPin?: boolean;
   origin?: Origin;
   onRemovePost?: (postIndex: number) => void;
+  /** For You's request, set where its posts can be explained on request. */
+  explainRequest?: FeedPostExplanationRequest;
 };
 
 export const ActiveFeedContext = createContext<ActiveFeedContextValue>({

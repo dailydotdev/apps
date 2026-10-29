@@ -136,10 +136,17 @@ export interface FeedProps<T>
   searchVersion?: number;
   /** Debug mode: each card's explanation covers it. */
   isExplaining?: boolean;
+  /** The post menu explains a post on request, outside Debug mode. */
+  canExplainPosts?: boolean;
 }
 
 interface RankVariables {
   ranking?: string;
+}
+
+interface ExplainVariables {
+  version?: number;
+  supportedTypes?: string[];
 }
 
 const ArticlePostModal = dynamic(
@@ -239,6 +246,7 @@ export default function Feed<T>({
   searchId,
   searchVersion,
   isExplaining = false,
+  canExplainPosts = false,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { logEvent } = useLogContext();
@@ -248,6 +256,7 @@ export default function Feed<T>({
   const { openNewTab, loadedSettings } = useContext(SettingsContext);
   const { isListMode, shouldUseListFeedLayout } = useFeedLayout();
   const numCards = currentSettings.numCards.eco;
+  const feedPageSize = pageSize ?? currentSettings.pageSize;
   const isSquadFeed = feedName === OtherFeedPage.Squads;
   const trackedFeedFinish = useRef(false);
   const isMyFeed = feedName === SharedFeedPage.MyFeed;
@@ -371,7 +380,7 @@ export default function Feed<T>({
     error: feedError,
   } = useFeed(
     feedQueryKey,
-    pageSize ?? currentSettings.pageSize,
+    feedPageSize,
     isSquadFeed || shouldUseListFeedLayout
       ? {
           ...adTemplate,
@@ -525,6 +534,17 @@ export default function Feed<T>({
     [items, removePost],
   );
 
+  const { version: feedVersion, supportedTypes } =
+    (variables as ExplainVariables) || {};
+  // The feed service finds the post by the request's hash, page size included.
+  const explainRequest = useMemo(
+    () =>
+      canExplainPosts && feedVersion
+        ? { version: feedVersion, first: feedPageSize, supportedTypes }
+        : undefined,
+    [canExplainPosts, feedVersion, feedPageSize, supportedTypes],
+  );
+
   const feedContextValue = useMemo(() => {
     return {
       queryKey: feedQueryKey,
@@ -533,8 +553,17 @@ export default function Feed<T>({
       allowPin,
       origin,
       onRemovePost,
+      explainRequest,
     };
-  }, [feedQueryKey, items, logOpts, allowPin, origin, onRemovePost]);
+  }, [
+    feedQueryKey,
+    items,
+    logOpts,
+    allowPin,
+    origin,
+    onRemovePost,
+    explainRequest,
+  ]);
 
   const { ranking } = (variables as RankVariables) || {};
 

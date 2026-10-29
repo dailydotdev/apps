@@ -1,7 +1,12 @@
 import { queryOptions } from '@tanstack/react-query';
 import type { LoggedUser } from '../../lib/user';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import { getFeedControls, getFeedProfile } from './graphql';
+import type { FeedPostExplanationRequest } from './graphql';
+import {
+  getFeedControls,
+  getFeedPostExplanation,
+  getFeedProfile,
+} from './graphql';
 
 type QueryUser = Pick<LoggedUser, 'id'> | undefined;
 
@@ -28,4 +33,23 @@ export const feedControlsQueryOptions = (user: QueryUser) =>
     queryFn: getFeedControls,
     staleTime: StaleTime.FeedSettings,
     enabled: !!user?.id,
+  });
+
+// One post's explanation outside Debug, read from the page the feed service
+// cached when it served the post. Asked again on every open: a feed loaded
+// since may have served the post anew, or no longer has it.
+export const feedPostExplanationQueryOptions = (
+  user: QueryUser,
+  postId: string,
+  request: FeedPostExplanationRequest | undefined,
+) =>
+  queryOptions({
+    queryKey: generateQueryKey(
+      RequestKey.FeedPostExplanation,
+      user,
+      postId,
+      request,
+    ),
+    queryFn: () => getFeedPostExplanation(postId, request),
+    enabled: !!user?.id && !!request,
   });

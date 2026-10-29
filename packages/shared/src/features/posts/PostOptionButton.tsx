@@ -148,6 +148,7 @@ const PostOptionButtonContent = ({
     items,
     origin: feedOrigin,
     onRemovePost,
+    explainRequest,
   } = feedContextData;
   const origin = initialOrigin || feedOrigin || Origin.Feed;
 
@@ -476,9 +477,13 @@ const PostOptionButtonContent = ({
     },
   ];
 
-  // Only For You asks for explanations, where it can explain itself.
+  // For You explains its posts: Debug mode loads each card's explanation with
+  // the feed, otherwise the modal asks for this post's. Ads aren't ranked by
+  // the feed, so there's nothing to ask about them.
   const { explain } = initialPost;
-  if (explain !== undefined && !isBriefPost) {
+  const canAskForExplanation =
+    !!explainRequest && items[postIndex]?.type === 'post';
+  if ((explain !== undefined || canAskForExplanation) && !isBriefPost) {
     postOptions.push({
       icon: <MenuIcon Icon={InfoIcon} />,
       id: 'explain',
@@ -492,7 +497,12 @@ const PostOptionButtonContent = ({
         );
         openModal({
           type: LazyModal.FeedExplanation,
-          props: { post, explain, onHide: onHideFromExplanation },
+          props: {
+            post,
+            explain,
+            request: explainRequest,
+            onHide: onHideFromExplanation,
+          },
         });
       },
     });
