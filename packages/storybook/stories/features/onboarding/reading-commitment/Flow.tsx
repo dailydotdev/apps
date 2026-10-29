@@ -254,6 +254,7 @@ const RadioList = ({
   <div className="w-full">
     <FormInputCheckboxGroup
       behaviour={CheckboxGroupBehaviour.Radio}
+      hasSelectionMark
       name={name}
       value={value ? [value] : []}
       onValueChange={(input) => {
