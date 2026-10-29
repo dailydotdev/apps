@@ -156,16 +156,26 @@ describe('useVisibleTime', () => {
     expect(onReport.mock.calls).toEqual([[4]]);
   });
 
-  it('should settle the open stretch when the page is unloaded', () => {
+  it('should close the stretch when the page is unloaded and not count time parked in the back-forward cache', () => {
     const { onReport } = renderVisibleTime();
+    const observer = MockIntersectionObserver.last;
 
-    MockIntersectionObserver.last.trigger(1);
+    observer.trigger(1);
     advance(4_000);
     act(() => {
       window.dispatchEvent(new Event('pagehide'));
     });
 
     expect(onReport.mock.calls).toEqual([[4]]);
+
+    advance(3_600_000);
+    act(() => {
+      window.dispatchEvent(new Event('pageshow'));
+    });
+    advance(2_000);
+    observer.trigger(0);
+
+    expect(onReport.mock.calls).toEqual([[4], [2]]);
   });
 
   it('should hand over the count when the content swaps in place', () => {

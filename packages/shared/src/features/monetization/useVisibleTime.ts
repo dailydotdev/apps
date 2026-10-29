@@ -106,13 +106,22 @@ export const useVisibleTime = <T extends HTMLElement = HTMLElement>({
       { threshold: viewabilityThresholds },
     );
 
+    // Safari can unload a tab without a `visibilitychange`, so the open
+    // stretch is also closed on the way out. Closed, not just settled: a page
+    // parked in the back-forward cache keeps its clocks, and an open stretch
+    // would count the whole time away as seen when it is restored.
+    const onPageHide = () => {
+      stopTimer();
+      report();
+      visibleSince = undefined;
+    };
+
     observer.observe(element);
     globalThis.document.addEventListener('visibilitychange', evaluate);
     globalThis.addEventListener('blur', evaluate);
     globalThis.addEventListener('focus', evaluate);
-    // Safari can unload a tab without a `visibilitychange`, so the open
-    // stretch is also settled on the way out.
-    globalThis.addEventListener('pagehide', report);
+    globalThis.addEventListener('pagehide', onPageHide);
+    globalThis.addEventListener('pageshow', evaluate);
 
     return () => {
       stopTimer();
@@ -121,7 +130,8 @@ export const useVisibleTime = <T extends HTMLElement = HTMLElement>({
       globalThis.document.removeEventListener('visibilitychange', evaluate);
       globalThis.removeEventListener('blur', evaluate);
       globalThis.removeEventListener('focus', evaluate);
-      globalThis.removeEventListener('pagehide', report);
+      globalThis.removeEventListener('pagehide', onPageHide);
+      globalThis.removeEventListener('pageshow', evaluate);
     };
   }, [element, enabled, trackingKey, reportInterval]);
 
