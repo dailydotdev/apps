@@ -175,6 +175,15 @@ export const featureOnboardingCommitment = new Feature(
   false,
 );
 
+// Experiment: the reading reminder step becomes the reading commitment (how
+// much you read, a daily goal, a reminder time, then a preview of the push).
+// Its own flag, so Feed Patchy's experiment keeps its data. Default MUST stay
+// `false` — it is the control.
+export const featureOnboardingReadingCommitment = new Feature(
+  'onboarding_reading_commitment',
+  false,
+);
+
 // Experiment: picking "Search engine" or "AI assistant" at the acquisition step
 // opens a second screen asking what they searched for or asked. Default MUST
 // stay `false` — it is the control.
