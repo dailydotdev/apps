@@ -17,7 +17,6 @@ import CardOverlay from '../common/CardOverlay';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { usePollVote } from '../../../hooks/post/usePollVote';
 import { isSourceSquadOrMachine } from '../../../graphql/sources';
-import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
 import { CardHeaderBookmark } from '../common/CardHeaderBookmark';
 
 const PollGrid = forwardRef(function PollCard(
@@ -38,7 +37,6 @@ const PollGrid = forwardRef(function PollCard(
   const { user } = useAuthContext();
   const { handleVote, shouldAnimateResults } = usePollVote({ post });
   const { title } = useSmartTitle(post);
-  const saveOnHover = useCardSaveOnHover();
 
   const { pinnedAt, trending, pollOptions, endsAt, numPollVotes, source } =
     post;
@@ -66,12 +64,7 @@ const PollGrid = forwardRef(function PollCard(
           post={post}
           enableSourceHeader={isSourceSquadOrMachine(source)}
           bookmark={
-            saveOnHover ? (
-              <CardHeaderBookmark
-                post={post}
-                onBookmarkClick={onBookmarkClick}
-              />
-            ) : undefined
+            <CardHeaderBookmark post={post} onBookmarkClick={onBookmarkClick} />
           }
         />
         <CardTitle>{title}</CardTitle>
@@ -103,7 +96,7 @@ const PollGrid = forwardRef(function PollCard(
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}
           onBookmarkClick={onBookmarkClick}
-          bookmarkInHeader={saveOnHover}
+          bookmarkInHeader
           onDownvoteClick={onDownvoteClick}
         />
       </Container>

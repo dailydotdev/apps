@@ -88,6 +88,7 @@ import type { FeedContextData } from '../contexts/FeedContext';
 import { FeaturesReadyContext } from './GrowthBookProvider';
 import {
   briefFeedEntrypointPage,
+  featurePlusFeedBanner,
   featureHeroCards,
 } from '../lib/featureManagement';
 import type { Connection } from '../graphql/common';
@@ -2155,6 +2156,7 @@ interface HighlightLayoutRenderParams {
   minSpacing?: number;
   startIndex?: number;
   briefBannerPage?: number;
+  plusFeedBanner?: boolean;
   staticAd?: { ad: Ad; index: number };
   disableAds?: boolean;
   skipFirstAd?: boolean;
@@ -2173,6 +2175,7 @@ const renderWithHighlightLayout = ({
   minSpacing = 5,
   startIndex = 0,
   briefBannerPage,
+  plusFeedBanner,
   staticAd,
   disableAds,
   skipFirstAd,
@@ -2227,6 +2230,9 @@ const renderWithHighlightLayout = ({
             defaultValue: briefBannerPage,
           },
         }
+      : {}),
+    ...(plusFeedBanner
+      ? { [featurePlusFeedBanner.id]: { defaultValue: true } }
       : {}),
   });
 
@@ -2517,7 +2523,26 @@ describe('Feed ad cadence with highlight cards', () => {
     await waitFor(() => {
       expect(screen.queryByTestId('brief-banner-feed')).toBeInTheDocument();
     });
+    expect(screen.queryByTestId('plus-feed-banner')).not.toBeInTheDocument();
     // Ads still render alongside the banner (no regression in cadence).
+    expect(await screen.findByTestId('adItem')).toBeInTheDocument();
+  });
+
+  it('renders the Plus banner in the same slot when plus_feed_banner is on', async () => {
+    const posts = Array.from({ length: 8 }, (_, i) => buildPost(`p${i}`));
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: false,
+      pageSize: 8,
+      briefBannerPage: 1,
+      plusFeedBanner: true,
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('plus-feed-banner')).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId('brief-banner-feed')).not.toBeInTheDocument();
     expect(await screen.findByTestId('adItem')).toBeInTheDocument();
   });
 

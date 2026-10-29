@@ -123,6 +123,8 @@ export const briefFeedEntrypointPage = new Feature<false | number>(
   0,
 );
 
+export const featurePlusFeedBanner = new Feature('plus_feed_banner', false);
+
 export const briefUIFeature = new Feature('brief_ui', isDevelopment);
 export const boostSettingsFeature = new Feature('boost_settings', {
   min: 1000,
@@ -253,11 +255,6 @@ export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 // "Show more" to read it inside the card. Only grid cards with a TLDR evaluate
 // it, so only readers on the grid layout are enrolled.
 export const featureGridCardTldr = new Feature('grid_card_tldr', false);
-
-// Experiment: on grid cards the bookmark moves to the card header, shown on
-// hover beside ⋯, and the bar keeps today's order at 32px with 20px icons.
-// List cards keep the bookmark in the bar. Logged-in users only.
-export const featureCardSaveOnHover = new Feature('card_save_on_hover', false);
 
 export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
   enabled: false,
