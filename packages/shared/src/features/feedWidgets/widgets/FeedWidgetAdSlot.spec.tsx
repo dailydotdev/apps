@@ -12,6 +12,16 @@ import {
 } from '@testing-library/react';
 import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
+import {
+  completeActionMock,
+  mockGraphQL,
+} from '../../../../__tests__/helpers/graphql';
+import { waitForNock } from '../../../../__tests__/helpers/utilities';
+import { ActionType } from '../../../graphql/actions';
+import { UserVote } from '../../../graphql/posts';
+import { VOTE_MUTATION } from '../../../graphql/users';
+import { UserVoteEntity } from '../../../hooks/vote/types';
+import { ImpressionStatus } from '../../../hooks/feed/useLogImpression';
 import basePost from '../../../../__tests__/fixture/post';
 import baseAd from '../../../../__tests__/fixture/ad';
 import { generateTestSquad } from '../../../../__tests__/fixture/squads';
@@ -22,6 +32,7 @@ import { webappUrl } from '../../../lib/constants';
 import { FeedWidgetAdSlot } from './FeedWidgetAdSlot';
 import { getFeedWidgetModalFeedName } from './FeedWidgetBoostedAd';
 import { FeedWidgetsProvider } from '../FeedWidgetsContext';
+import { getFeedWidgetAdQueryKey } from '../feedState';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -56,14 +67,15 @@ const boostedPostAd = (): Ad =>
         id: 'boosted-post',
         slug: 'boosted-post',
         title: 'Deploying Kubernetes on OpenStack',
+        numUpvotes: 5,
       },
     },
   } as unknown as Ad);
 
-const renderSlot = (ad: Ad) =>
+const renderSlot = (ad: Ad, client = new QueryClient()) =>
   render(
     <TestBootProvider
-      client={new QueryClient()}
+      client={client}
       auth={{ user: loggedUser }}
       log={{ logEvent }}
     >
@@ -141,6 +153,41 @@ describe('FeedWidgetAdSlot', () => {
     renderSlot(boostedPostAd());
 
     await screen.findByRole('dialog');
+  });
+
+  it('patches the boosted post in the cached ad on upvote', async () => {
+    // The ad query suffixes the consent to the rail's key.
+    const adKey = [...getFeedWidgetAdQueryKey(loggedUser), true, 'consent', ''];
+    const client = new QueryClient();
+    const ad = {
+      ...boostedPostAd(),
+      impressionStatus: ImpressionStatus.LOGGED,
+    };
+    client.setQueryData<Ad>(adKey, ad);
+    mockGraphQL({
+      request: {
+        query: VOTE_MUTATION,
+        variables: {
+          id: 'boosted-post',
+          vote: UserVote.Up,
+          entity: UserVoteEntity.Post,
+        },
+      },
+      result: { data: { _: true } },
+    });
+    mockGraphQL(completeActionMock({ action: ActionType.VotePost }));
+
+    renderSlot(ad, client);
+    fireEvent.click(screen.getByLabelText('Upvote'));
+    await waitForNock();
+
+    const cached = client.getQueryData<Ad>(adKey)!;
+    expect(cached.data!.post).toMatchObject({
+      numUpvotes: 6,
+      userState: { vote: UserVote.Up },
+    });
+    expect(cached.impressionStatus).toBe(ImpressionStatus.LOGGED);
+    expect(adImpressions()).toHaveLength(0);
   });
 
   it('renders a squad boost as the boosted squad card', () => {

@@ -131,6 +131,10 @@ const BoostedPostCard = ({
     }
   }, [selectedPost]);
 
+  // The card can go while its modal is open: the ad refetches on consent or
+  // login, the slot switches to a creative, the rail unmounts.
+  useEffect(() => () => document.body.classList.remove('hidden-scrollbar'), []);
+
   return (
     <ActivePostContextProvider post={post}>
       <Card post={post} {...cardProps}>
