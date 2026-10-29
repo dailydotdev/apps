@@ -405,6 +405,11 @@ const nextConfig: NextConfig = {
           permanent: true,
         },
         {
+          source: '/welcome',
+          destination: '/onboarding',
+          permanent: true,
+        },
+        {
           source: '/jobs/welcome',
           destination: '/jobs',
           permanent: true,

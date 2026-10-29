@@ -61,7 +61,6 @@ export enum OtherFeedPage {
   ExploreDiscussed = 'postsdiscussed',
   ExploreUpvoted = 'postsupvoted',
   FeedByIds = 'feed-by-ids',
-  Welcome = 'welcome',
   Following = 'following',
   Post = 'posts[id]',
 }
