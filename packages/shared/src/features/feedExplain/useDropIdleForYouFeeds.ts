@@ -5,9 +5,10 @@ import { generateQueryKey } from '../../lib/query';
 import { SharedFeedPage } from '../../components/utilities/common';
 
 /**
- * Debug keeps its own feed on screen, so a follow, block or hide made there
- * drops the regular For You feed waiting in the cache: it never refetches on
- * mount, and would come back without the change once Debug is off.
+ * A follow, block, hide or level set from an explanation drops the For You
+ * feeds waiting in the cache, such as another sort's: they never refetch on
+ * mount, and would come back without the change. The feed on screen keeps
+ * what it showed until the next refresh.
  */
 export const useDropIdleForYouFeeds = (): (() => void) => {
   const { user } = useAuthContext();

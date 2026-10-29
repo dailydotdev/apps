@@ -81,15 +81,16 @@ export const useFeedExplainMode = ({
  */
 export const useForYouControlsAvailable = (): boolean => {
   const { user } = useAuthContext();
-  const { value: version } = useConditionalFeature({
-    feature: feature.feedVersion,
-    shouldEvaluate: !!user,
-  });
-  const isChallenger = challengerFeedVersions.includes(version);
+  // The flag first, so readers without it never count as seeing the feed
+  // version experiment from a settings page.
   const { value: isFlagOn } = useConditionalFeature({
     feature: featureFeedExplain,
-    shouldEvaluate: !!user && isChallenger,
+    shouldEvaluate: !!user,
+  });
+  const { value: version } = useConditionalFeature({
+    feature: feature.feedVersion,
+    shouldEvaluate: !!user && isFlagOn,
   });
 
-  return !!user && isChallenger && isFlagOn;
+  return !!user && isFlagOn && challengerFeedVersions.includes(version);
 };

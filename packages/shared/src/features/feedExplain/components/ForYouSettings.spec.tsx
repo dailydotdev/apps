@@ -1,8 +1,9 @@
+import type { ReactElement } from 'react';
 import React from 'react';
 import nock from 'nock';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, useQuery } from '@tanstack/react-query';
 import { GrowthBook } from '@growthbook/growthbook-react';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
@@ -24,9 +25,17 @@ const controls: FeedControls = {
   learning: true,
   fillIns: true,
 };
-const forYouKey = generateQueryKey(SharedFeedPage.MyFeed, defaultUser, 'v2');
+const fetchForYou = jest.fn(async () => ({ pages: [] }));
 
-let client: QueryClient;
+// A For You feed on screen while the settings change.
+const ForYouFeed = (): ReactElement | null => {
+  useQuery({
+    queryKey: generateQueryKey(SharedFeedPage.MyFeed, defaultUser, 'v2'),
+    queryFn: fetchForYou,
+    staleTime: Infinity,
+  });
+  return null;
+};
 
 const renderSettings = (version = 116) => {
   const gb = new GrowthBook({
@@ -35,15 +44,15 @@ const renderSettings = (version = 116) => {
       feed_explain: { defaultValue: true },
     },
   });
-  client = new QueryClient();
+  const client = new QueryClient();
   client.setQueryData(feedControlsQueryKey(defaultUser), controls);
   client.setQueryData(getFeedSettingsQueryKey(defaultUser), {
     feedSettings: { includeTags: ['webdev'] },
   });
-  client.setQueryData(forYouKey, { pages: [{ page: { edges: [] } }] });
 
   return render(
     <TestBootProvider client={client} auth={{ user: defaultUser }} gb={gb}>
+      <ForYouFeed />
       <ForYouSettings />
     </TestBootProvider>,
   );
@@ -51,6 +60,7 @@ const renderSettings = (version = 116) => {
 
 beforeEach(() => {
   nock.cleanAll();
+  fetchForYou.mockClear();
 });
 
 describe('ForYouSettings', () => {
@@ -58,6 +68,7 @@ describe('ForYouSettings', () => {
     renderSettings(15);
 
     expect(screen.queryByText('Learn from my reading')).not.toBeInTheDocument();
+    expect(screen.queryByText('Start over')).not.toBeInTheDocument();
   });
 
   it('should turn learning off', async () => {
@@ -79,7 +90,7 @@ describe('ForYouSettings', () => {
     await waitFor(() => expect(sent).toBe(true));
   });
 
-  it('should reset only once confirmed, then start For You over', async () => {
+  it('should reset only once confirmed, then reload For You from page 1', async () => {
     let sent = false;
     mockGraphQL({
       request: {
@@ -92,6 +103,7 @@ describe('ForYouSettings', () => {
       },
     });
     renderSettings();
+    await waitFor(() => expect(fetchForYou).toHaveBeenCalledTimes(1));
 
     const [forgetReading] = await screen.findAllByRole('button', {
       name: 'Reset',
@@ -101,6 +113,6 @@ describe('ForYouSettings', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Yes, reset' }));
 
     await waitFor(() => expect(sent).toBe(true));
-    await waitFor(() => expect(client.getQueryData(forYouKey)).toBeUndefined());
+    await waitFor(() => expect(fetchForYou).toHaveBeenCalledTimes(2));
   });
 });

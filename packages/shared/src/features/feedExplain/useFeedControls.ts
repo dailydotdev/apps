@@ -159,6 +159,9 @@ export const useFeedControls = ({
 
   const { mutate } = useMutation({
     mutationFn: sendChange,
+    // One change at a time, so a rollback never undoes a later change and
+    // a quick double click lands in order.
+    scope: { id: RequestKey.FeedControls },
     onMutate: async (change) => {
       await client.cancelQueries({ queryKey });
       const previous = client.getQueryData<FeedControls>(queryKey);
@@ -173,11 +176,12 @@ export const useFeedControls = ({
       }
       displayToast(getErrorMessage(error));
     },
-    onSuccess: (_, change, context) => {
+    // Not awaited: the next change in the queue shouldn't wait for it.
+    onSettled: () => {
+      client.invalidateQueries({ queryKey });
+    },
+    onSuccess: (_, change) => {
       logEvent(getChangeEvent(change, origin));
-      if (!context?.previous) {
-        client.invalidateQueries({ queryKey });
-      }
       client.invalidateQueries({
         queryKey: generateQueryKey(RequestKey.FeedProfile, user),
       });
