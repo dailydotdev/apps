@@ -43,7 +43,12 @@ import {
   FEED_V2_EXPLAIN_QUERY,
   FEED_V2_QUERY,
 } from '../graphql/feed';
-import { FEED_PROFILE_QUERY } from '../features/feedExplain/graphql';
+import {
+  FEED_CONTROLS_QUERY,
+  FEED_PROFILE_QUERY,
+  SET_FEED_SOURCE_MODE_MUTATION,
+  SET_FEED_TOPIC_MODE_MUTATION,
+} from '../features/feedExplain/graphql';
 import AuthContext from '../contexts/AuthContext';
 import Feed from './Feed';
 import defaultFeedPage from '../../__tests__/fixture/feed';
@@ -1056,6 +1061,17 @@ describe('Feed logged in', () => {
                   learning: true,
                   interests: [
                     {
+                      tag: 'javascript',
+                      origin: 'declared',
+                      strength: 'strong',
+                      stories: 6,
+                      hiddenStories: 0,
+                      computedWeight: 0.7,
+                      control: null,
+                      weight: 0.7,
+                      backed: true,
+                    },
+                    {
                       tag: 'php',
                       origin: 'inferred',
                       strength: 'moderate',
@@ -1069,6 +1085,19 @@ describe('Feed logged in', () => {
                   ],
                   muted: [],
                   blocked: [],
+                },
+              },
+            },
+          },
+          {
+            request: { query: FEED_CONTROLS_QUERY },
+            result: {
+              data: {
+                feedControls: {
+                  topics: [],
+                  sources: [],
+                  learning: true,
+                  fillIns: true,
                 },
               },
             },
@@ -1104,8 +1133,9 @@ describe('Feed logged in', () => {
               'You follow #javascript and read about it often.',
         ),
       ).toBeInTheDocument();
+      // The profile's weight, which follows the reader's latest levels.
       expect(
-        screen.getByLabelText('Boost for #javascript: ×1.62'),
+        await screen.findByLabelText('Boost for #javascript: ×1.70'),
       ).toBeInTheDocument();
       expect(
         await screen.findByLabelText('Boost for #php: ×1.45'),
@@ -1121,6 +1151,100 @@ describe('Feed logged in', () => {
         await screen.findByText("Got it. You'll see less like this."),
       ).toBeInTheDocument();
       expect(screen.queryByText('Full explanation')).not.toBeInTheDocument();
+    });
+
+    it('should set a topic level from its boost', async () => {
+      let sent = false;
+      renderExplained([
+        {
+          request: {
+            query: SET_FEED_TOPIC_MODE_MUTATION,
+            variables: { keyword: 'javascript', mode: 'boost' },
+          },
+          result: () => {
+            sent = true;
+            return { data: { setFeedTopicMode: { _: true } } };
+          },
+        },
+        {
+          request: { query: FEED_CONTROLS_QUERY },
+          result: {
+            data: {
+              feedControls: {
+                topics: [{ keyword: 'javascript', mode: 'boost' }],
+                sources: [],
+                learning: true,
+                fillIns: true,
+              },
+            },
+          },
+        },
+      ]);
+
+      fireEvent.click(
+        await screen.findByLabelText('Boost for #javascript: ×1.70'),
+      );
+      const levels = await screen.findByRole('radiogroup', {
+        name: 'Level for #javascript',
+      });
+      expect(
+        within(levels).getByRole('radio', { name: /^Auto/ }),
+      ).toHaveAttribute('aria-checked', 'true');
+      fireEvent.click(
+        within(levels).getByRole('radio', { name: /^Show more/ }),
+      );
+
+      await waitFor(() => expect(sent).toBe(true));
+      expect(await screen.findByText('Showing more')).toBeInTheDocument();
+    });
+
+    it('should show less from a source and set it back to Auto', async () => {
+      const sent: (string | null)[] = [];
+      const setSourceMode = (mode: string | null): MockedGraphQLResponse => ({
+        request: {
+          query: SET_FEED_SOURCE_MODE_MUTATION,
+          variables: { sourceId: 'echojs', mode },
+        },
+        result: () => {
+          sent.push(mode);
+          return { data: { setFeedSourceMode: { _: true } } };
+        },
+      });
+      // The controls come back from the API after each change.
+      const controlsAfter = (
+        sources: { source: { id: string }; mode: string }[],
+      ): MockedGraphQLResponse => ({
+        request: { query: FEED_CONTROLS_QUERY },
+        result: {
+          data: {
+            feedControls: {
+              topics: [],
+              sources,
+              learning: true,
+              fillIns: true,
+            },
+          },
+        },
+      });
+      renderExplained([
+        setSourceMode('demote'),
+        controlsAfter([{ source: { id: 'echojs' }, mode: 'demote' }]),
+        setSourceMode(null),
+        controlsAfter([]),
+      ]);
+
+      const showLess = await screen.findByRole('button', {
+        name: 'Show less from Echo JS',
+      });
+      fireEvent.click(showLess);
+      await waitFor(() => expect(sent).toEqual(['demote']));
+      expect(await screen.findByText('Showing less')).toBeInTheDocument();
+
+      fireEvent.click(showLess);
+      await waitFor(() => expect(sent).toEqual(['demote', null]));
+      expect(
+        await screen.findByText("You don't follow it"),
+      ).toBeInTheDocument();
     });
 
     it('should open the full explanation with the score breakdown', async () => {

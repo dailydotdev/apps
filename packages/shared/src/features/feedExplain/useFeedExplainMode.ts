@@ -73,3 +73,24 @@ export const useFeedExplainMode = ({
     setIsExplaining,
   };
 };
+
+/**
+ * The reader's For You is ranked by the challenger and has Explain, so its
+ * controls take effect. Unlike Explain mode it doesn't depend on the feed on
+ * screen, for the settings pages.
+ */
+export const useForYouControlsAvailable = (): boolean => {
+  const { user } = useAuthContext();
+  // The flag first, so readers without it never count as seeing the feed
+  // version experiment from a settings page.
+  const { value: isFlagOn } = useConditionalFeature({
+    feature: featureFeedExplain,
+    shouldEvaluate: !!user,
+  });
+  const { value: version } = useConditionalFeature({
+    feature: feature.feedVersion,
+    shouldEvaluate: !!user && isFlagOn,
+  });
+
+  return !!user && isFlagOn && challengerFeedVersions.includes(version);
+};

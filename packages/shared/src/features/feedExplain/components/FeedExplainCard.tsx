@@ -13,6 +13,7 @@ import { ArrowIcon } from '../../../components/icons/Arrow';
 import { BlockIcon } from '../../../components/icons/Block';
 import { EyeCancelIcon } from '../../../components/icons/EyeCancel';
 import { HashtagIcon } from '../../../components/icons/Hashtag';
+import { MinusIcon } from '../../../components/icons/Minus';
 import { PlusIcon } from '../../../components/icons/Plus';
 import { IconSize } from '../../../components/Icon';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
@@ -32,11 +33,16 @@ import { LazyModal } from '../../../components/modals/common/types';
 import { LogEvent, Origin } from '../../../lib/log';
 import { usePostLogEvent } from '../../../lib/feed';
 import type { FeedItemExplain, FeedProfile } from '../types';
-import { ExplainOrigin, isRankedExplain, TopicControl } from '../types';
+import {
+  ExplainOrigin,
+  FeedSourceMode,
+  FeedTopicMode,
+  isRankedExplain,
+  TopicControl,
+} from '../types';
 import type { ExplainSignal } from '../describe';
 import {
   ExplainSignalKind,
-  formatBoost,
   getExplainSignals,
   getReason,
   getReasonDotClassName,
@@ -44,6 +50,10 @@ import {
 import { feedProfileQueryKey, feedProfileQueryOptions } from '../queries';
 import { useFeedExplainMode } from '../useFeedExplainMode';
 import { useDropIdleForYouFeeds } from '../useDropIdleForYouFeeds';
+import type { UseFeedControls } from '../useFeedControls';
+import { useFeedControls } from '../useFeedControls';
+import { TopicLevelPicker } from './TopicLevelPicker';
+import { ShowLessTopicOffer } from './ShowLessTopicOffer';
 
 const signalLimit = 3;
 
@@ -53,6 +63,7 @@ interface RowContext {
   profile?: FeedProfile;
   version: number;
   size: ButtonSize;
+  feedControls: UseFeedControls;
 }
 
 /**
@@ -93,7 +104,9 @@ const CardHead = ({
           )}
         >
           {post.author && (
-            <AuthorSourceStack author={post.author} source={post.source} />
+            <span className="flex shrink-0">
+              <AuthorSourceStack author={post.author} source={post.source} />
+            </span>
           )}
           {!post.author && post.source && (
             <SourceAvatar
@@ -114,7 +127,9 @@ const CardHead = ({
         </span>
       ) : (
         <span className="mb-1 flex h-8 items-center gap-2">
-          <AuthorSourceStack author={post.author} source={post.source} />
+          <span className="flex shrink-0">
+            <AuthorSourceStack author={post.author} source={post.source} />
+          </span>
           <span className="min-w-0 shrink truncate text-text-tertiary typo-footnote">
             {post.source?.name}
           </span>
@@ -158,52 +173,54 @@ const ReasonLine = ({
   );
 };
 
-/** How much a topic counts. Read only: changing it comes with the controls. */
-const TopicBoost = ({
-  tag,
-  weight,
-  isSet,
-}: {
-  tag: string;
-  weight: number;
-  isSet: boolean;
-}): ReactElement => {
-  const boost = formatBoost(weight);
-
-  return (
-    <Tooltip content={`How much posts about #${tag} count in For You.`}>
-      <span
-        aria-label={`Boost for #${tag}: ${boost}`}
-        className={classNames(
-          'flex h-5 shrink-0 items-center rounded-6 bg-surface-float px-1.5 font-bold tabular-nums typo-caption1',
-          isSet ? 'text-accent-cabbage-default' : 'text-text-secondary',
-        )}
-      >
-        {boost}
-      </span>
-    </Tooltip>
-  );
-};
-
 interface SignalMeta {
   text: string;
   className: string;
 }
 
+const topicModeMeta: Record<FeedTopicMode, SignalMeta> = {
+  [FeedTopicMode.Boost]: {
+    text: 'Showing more',
+    className: 'text-accent-avocado-default',
+  },
+  [FeedTopicMode.Demote]: {
+    text: 'Showing less',
+    className: 'text-accent-bun-default',
+  },
+  [FeedTopicMode.StopLearning]: {
+    text: 'Not learning from your reading',
+    className: 'text-accent-ketchup-default',
+  },
+  [FeedTopicMode.Off]: {
+    text: 'Off in For You',
+    className: 'text-accent-ketchup-default',
+  },
+};
+
 const getTopicMeta = (
   tag: string,
-  { explain, profile }: Pick<RowContext, 'explain' | 'profile'>,
+  {
+    explain,
+    profile,
+    feedControls,
+  }: Pick<RowContext, 'explain' | 'profile' | 'feedControls'>,
   isFollowed: boolean,
 ): SignalMeta => {
   const interest = profile?.interests.find((item) => item.tag === tag);
   const match = isRankedExplain(explain) ? explain.match : undefined;
   const stories =
     interest?.stories ?? (match?.tag === tag ? match.stories : undefined) ?? 0;
-  if (profile?.muted.includes(tag)) {
-    return { text: 'Off in For You', className: 'text-accent-ketchup-default' };
+  const mode = feedControls.getTopicMode(tag);
+  if (mode) {
+    return topicModeMeta[mode];
   }
-  if (interest?.control === TopicControl.Demote) {
-    return { text: 'Showing less', className: 'text-accent-bun-default' };
+  // The profile lags a change behind the controls, so it only stands in
+  // until they load.
+  if (!feedControls.controls && profile?.muted.includes(tag)) {
+    return topicModeMeta[FeedTopicMode.Off];
+  }
+  if (!feedControls.controls && interest?.control === TopicControl.Demote) {
+    return topicModeMeta[FeedTopicMode.Demote];
   }
   const quiet = 'text-text-quaternary';
   if (stories) {
@@ -225,14 +242,16 @@ const getTopicWeight = (
   tag: string,
   { explain, profile }: Pick<RowContext, 'explain' | 'profile'>,
 ): { weight: number; isSet: boolean } | undefined => {
+  // The profile is weighed with the reader's latest levels, the
+  // explanation with the ones the card was ranked on.
+  if (profile) {
+    const interest = profile.interests.find((item) => item.tag === tag);
+    return { weight: interest?.weight ?? 0, isSet: !!interest?.control };
+  }
   if (isRankedExplain(explain) && explain.match?.tag === tag) {
     return { weight: explain.match.weight, isSet: !!explain.match.control };
   }
-  if (!profile) {
-    return undefined;
-  }
-  const interest = profile.interests.find((item) => item.tag === tag);
-  return { weight: interest?.weight ?? 0, isSet: !!interest?.control };
+  return undefined;
 };
 
 const SignalRow = ({
@@ -242,7 +261,7 @@ const SignalRow = ({
   signal: ExplainSignal;
   context: RowContext;
 }): ReactElement => {
-  const { post, size, version } = context;
+  const { post, size, version, feedControls } = context;
   const { user } = useAuthContext();
   const client = useQueryClient();
   const dropIdleFeeds = useDropIdleForYouFeeds();
@@ -271,11 +290,15 @@ const SignalRow = ({
     : !!feedSettings?.excludeSources?.some(({ id }) => id === signal.id);
   const canFollow = isTopic || source?.type === SourceType.Machine;
   const topicWeight = isTopic ? getTopicWeight(signal.id, context) : undefined;
+  const topicMode = isTopic ? feedControls.getTopicMode(signal.id) : undefined;
+  const isSourceDemoted = !isTopic && feedControls.isSourceDemoted(signal.id);
   let meta: SignalMeta;
   if (isBlocked) {
     meta = { text: 'Blocked', className: 'text-accent-ketchup-default' };
   } else if (isTopic) {
     meta = getTopicMeta(signal.id, context, isFollowed);
+  } else if (isSourceDemoted) {
+    meta = topicModeMeta[FeedTopicMode.Demote];
   } else {
     meta = {
       text: isFollowed ? 'You follow it' : "You don't follow it",
@@ -344,7 +367,13 @@ const SignalRow = ({
             {signal.label}
           </span>
           {!isBlocked && topicWeight && (
-            <TopicBoost tag={signal.id} {...topicWeight} />
+            <TopicLevelPicker
+              tag={signal.id}
+              weight={topicWeight.weight}
+              isSet={topicWeight.isSet || !!topicMode}
+              mode={topicMode}
+              onChange={(mode) => feedControls.setTopicMode(signal.id, mode)}
+            />
           )}
         </span>
         <span className={classNames('truncate typo-caption1', meta.className)}>
@@ -381,6 +410,31 @@ const SignalRow = ({
                   signal.label
                 }`}
                 onClick={onFollow}
+              />
+            </Tooltip>
+          )}
+          {!isTopic && (
+            <Tooltip
+              content={
+                isSourceDemoted
+                  ? `Set ${signal.label} back to Auto.`
+                  : `Show less from ${signal.label}. Its posts rank lower, but the best ones still show.`
+              }
+            >
+              <Button
+                type="button"
+                variant={ButtonVariant.Tertiary}
+                color={ButtonColor.Bun}
+                size={size}
+                icon={<MinusIcon />}
+                pressed={isSourceDemoted}
+                aria-label={`Show less from ${signal.label}`}
+                onClick={() =>
+                  feedControls.setSourceMode(
+                    signal.id,
+                    isSourceDemoted ? null : FeedSourceMode.Demote,
+                  )
+                }
               />
             </Tooltip>
           )}
@@ -476,6 +530,7 @@ export const FeedExplainCard = ({
     origin: Origin.FeedExplain,
   });
   const dropIdleFeeds = useDropIdleForYouFeeds();
+  const feedControls = useFeedControls({ origin: Origin.FeedExplain });
   // Cards without the hidden panel (polls, X posts) keep the explanation on
   // top, so it says the post is hidden instead.
   const [isHidden, setIsHidden] = useState(false);
@@ -485,7 +540,15 @@ export const FeedExplainCard = ({
   const size = isList ? ButtonSize.Small : ButtonSize.XSmall;
   const contentRef = useFitCard();
   useCoverCard(contentRef);
-  const context: RowContext = { post, explain, profile, version, size };
+  const context: RowContext = {
+    post,
+    explain,
+    profile,
+    version,
+    size,
+    feedControls,
+  };
+  const matchTag = isRankedExplain(explain) ? explain.match?.tag : undefined;
 
   const onHidePost = async () => {
     const isDone = await onHide();
@@ -542,42 +605,47 @@ export const FeedExplainCard = ({
               />
             ))}
           </ul>
-          <div className="-mx-1.5 mt-auto flex items-center justify-between gap-2">
-            {isHidden ? (
-              <span className="flex items-center gap-1 pl-1.5 text-text-tertiary typo-footnote">
-                Post hidden
+          <div className="-mx-1.5 mt-auto flex flex-col gap-1">
+            {isHidden && matchTag && (
+              <ShowLessTopicOffer tag={matchTag} origin={Origin.FeedExplain} />
+            )}
+            <div className="flex items-center justify-between gap-2">
+              {isHidden ? (
+                <span className="flex items-center gap-1 pl-1.5 text-text-tertiary typo-footnote">
+                  Post hidden
+                  <Button
+                    type="button"
+                    variant={ButtonVariant.Tertiary}
+                    size={ButtonSize.XSmall}
+                    onClick={onUndoHide}
+                  >
+                    Undo
+                  </Button>
+                </span>
+              ) : (
                 <Button
                   type="button"
                   variant={ButtonVariant.Tertiary}
                   size={ButtonSize.XSmall}
-                  onClick={onUndoHide}
+                  icon={<EyeCancelIcon />}
+                  className="!text-text-tertiary"
+                  onClick={onHidePost}
                 >
-                  Undo
+                  Hide post
                 </Button>
-              </span>
-            ) : (
+              )}
               <Button
                 type="button"
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.XSmall}
-                icon={<EyeCancelIcon />}
-                className="!text-text-tertiary"
-                onClick={onHidePost}
+                icon={<ArrowIcon className="rotate-90" />}
+                iconPosition={ButtonIconPosition.Right}
+                aria-haspopup="dialog"
+                onClick={onOpenExplanation}
               >
-                Hide post
+                Full explanation
               </Button>
-            )}
-            <Button
-              type="button"
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.XSmall}
-              icon={<ArrowIcon className="rotate-90" />}
-              iconPosition={ButtonIconPosition.Right}
-              aria-haspopup="dialog"
-              onClick={onOpenExplanation}
-            >
-              Full explanation
-            </Button>
+            </div>
           </div>
         </div>
       </div>

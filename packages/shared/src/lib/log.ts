@@ -12,6 +12,7 @@ export enum Origin {
   Companion = 'companion',
   Feed = 'feed',
   FeedExplain = 'feed explain',
+  PostHiddenPanel = 'post hidden panel',
   FeedHero = 'feed hero',
   FeedWidgets = 'feed widgets',
   TipsPage = 'tips page',
@@ -442,6 +443,11 @@ export enum LogEvent {
   // Feed explain
   ToggleFeedExplain = 'toggle feed explain',
   OpenFeedExplanation = 'open feed explanation',
+  SetFeedTopicMode = 'set feed topic mode',
+  SetFeedSourceMode = 'set feed source mode',
+  ToggleFeedLearning = 'toggle feed learning',
+  ToggleFeedFillIns = 'toggle feed fill ins',
+  ResetFeedPersonalization = 'reset feed personalization',
   // End Feed explain
   SetHighlightsPlacement = 'set highlights placement',
   InstallPWA = 'install pwa',
