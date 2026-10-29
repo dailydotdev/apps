@@ -70,9 +70,6 @@ export const postWebKitMessage = <T = unknown>(
   messageHandler.postMessage(payload);
 };
 
-// Asks the iOS app to show Apple's tracking prompt. The app decides whether
-// iOS still has a question to ask, so calling this again is harmless. Older
-// app builds ask on launch and have no handler, so this does nothing there.
 export const requestIOSTracking = (): void => {
   if (!messageHandlerExists(WebKitMessageHandlers.RequestTracking)) {
     return;

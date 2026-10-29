@@ -184,8 +184,6 @@ export const FunnelStepper = ({
 
       const isLastStep = targetStepId === COMPLETED_STEP_ID;
 
-      // The iOS tracking prompt follows "How did you hear about us?", answered
-      // or skipped, or the end of onboarding when that step never showed.
       if (
         isOnboarding &&
         (currentStep.type === FunnelStepType.Acquisition || isLastStep)

@@ -202,9 +202,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     }
   }, [user?.id, trackingId]);
 
-  // Onboarding asks for tracking after "How did you hear about us?". Members
-  // who never go through it, like someone logging in on a fresh install, are
-  // asked once they are in the app.
+  // Members who log in on a fresh install never reach the onboarding prompt.
   const isOnboardedMember =
     !!user?.id && isOnboardingActionsReady && isOnboardingComplete;
   const isOnboardingPage = router.pathname.startsWith('/onboarding');
