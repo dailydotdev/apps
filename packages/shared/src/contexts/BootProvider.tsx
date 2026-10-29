@@ -37,6 +37,7 @@ import { LogContextProvider } from './LogContext';
 import { REQUEST_APP_ACCOUNT_TOKEN_MUTATION } from '../graphql/users';
 import { isConnectionError } from '../lib/errors';
 import { EngagementAdsProvider } from './EngagementAdsContext';
+import { AdRefreshContextProvider } from '../features/monetization/refresh/AdRefreshContext';
 import { FIVE_MINUTES } from '../lib/time';
 import { clearSignedOut } from '../lib/signedOut';
 
@@ -505,29 +506,31 @@ export const BootDataProvider = ({
           updateSettings={updateSettings}
         >
           <EngagementAdsProvider rawCreatives={remoteData?.engagementCreatives}>
-            <AlertContextProvider
-              alerts={alerts}
-              isFetched={isBootReady}
-              updateAlerts={updateAlerts}
-              loadedAlerts={loadedFromCache}
-            >
-              <LogContextProvider
-                app={app}
-                version={version}
-                getPage={getPage}
-                deviceId={deviceId}
+            <AdRefreshContextProvider version={version}>
+              <AlertContextProvider
+                alerts={alerts}
+                isFetched={isBootReady}
+                updateAlerts={updateAlerts}
+                loadedAlerts={loadedFromCache}
               >
-                <ErrorBoundary>
-                  <NotificationsContextProvider
-                    isNotificationsReady={isBootReady}
-                    unreadCount={notifications?.unreadNotificationsCount}
-                    onUpdateUnreadCount={updateNotificationsCount}
-                  >
-                    {children}
-                  </NotificationsContextProvider>
-                </ErrorBoundary>
-              </LogContextProvider>
-            </AlertContextProvider>
+                <LogContextProvider
+                  app={app}
+                  version={version}
+                  getPage={getPage}
+                  deviceId={deviceId}
+                >
+                  <ErrorBoundary>
+                    <NotificationsContextProvider
+                      isNotificationsReady={isBootReady}
+                      unreadCount={notifications?.unreadNotificationsCount}
+                      onUpdateUnreadCount={updateNotificationsCount}
+                    >
+                      {children}
+                    </NotificationsContextProvider>
+                  </ErrorBoundary>
+                </LogContextProvider>
+              </AlertContextProvider>
+            </AdRefreshContextProvider>
           </EngagementAdsProvider>
         </SettingsContextProvider>
       </AuthContextProvider>

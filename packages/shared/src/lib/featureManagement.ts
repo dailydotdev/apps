@@ -46,6 +46,8 @@ export const featureJobsUI = new Feature('jobs_ui', false);
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
+export const featureAdRefreshEngine = new Feature('ad_refresh_engine', false);
+
 export const featureFeedAdTemplate = new Feature('feed_ad_template', {
   default: {
     adStart: 2,
