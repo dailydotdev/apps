@@ -14,7 +14,6 @@ import { usePlusSubscription } from '../../hooks';
 import { PurchaseType } from '../../graphql/paddle';
 import { PlusProductToggle } from './PlusProductToggle';
 import { PlusSummerSaleBanner } from './PlusSummerSaleBanner';
-import { PlusCoresGiveback } from './PlusCoresGiveback';
 
 const PlusFAQs = dynamic(() => import('./PlusFAQ').then((mod) => mod.PlusFAQ));
 const PlusApiShowcase = dynamic(() =>
@@ -121,13 +120,6 @@ export const PlusDesktop = ({
               element: 'h-[35rem]',
             }}
           />
-          {!giftToUser && !isOrganization && (
-            <PlusCoresGiveback
-              option={productOptions?.find(
-                (option) => option.priceId === selectedOption,
-              )}
-            />
-          )}
           {!isPricesPending && !giftToUser && (
             <div className="flex justify-center">
               <PlusTrustRefund />
