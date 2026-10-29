@@ -1,14 +1,11 @@
 import { gql } from 'graphql-request';
 import { gqlClient } from '../../graphql/common';
-import { SUPPORTED_TYPES } from '../../graphql/feed';
 import type {
   FeedControlDuration,
   FeedControls,
-  FeedControlsDraft,
   FeedProfile,
   FeedSourceMode,
   FeedTopicMode,
-  FeedTune,
 } from './types';
 
 export const FEED_PROFILE_QUERY = gql`
@@ -247,59 +244,3 @@ export const resetFeedPersonalization = (
   reset: FeedPersonalizationReset,
 ): Promise<unknown> =>
   gqlClient.request(RESET_FEED_PERSONALIZATION_MUTATION, reset);
-
-export const FEED_TUNE_QUERY = gql`
-  query FeedTune(
-    $version: Int!
-    $first: Int
-    ${SUPPORTED_TYPES}
-    $draft: FeedControlsDraft
-  ) {
-    feedTune(
-      version: $version
-      first: $first
-      supportedTypes: $supportedTypes
-      draft: $draft
-    ) {
-      items {
-        ...FeedTuneItem
-      }
-      leftOut {
-        ...FeedTuneItem
-      }
-      summary {
-        candidates
-        eligible
-        leftOut
-        reasons
-      }
-    }
-  }
-
-  fragment FeedTuneItem on FeedPostItem {
-    post {
-      id
-      title
-      commentsPermalink
-      source {
-        id
-        name
-        image
-      }
-    }
-    explain
-  }
-`;
-
-export const getFeedTune = async (variables: {
-  version: number;
-  first?: number;
-  draft: FeedControlsDraft;
-}): Promise<FeedTune> => {
-  const { feedTune } = await gqlClient.request<{ feedTune: FeedTune }>(
-    FEED_TUNE_QUERY,
-    variables,
-  );
-
-  return feedTune;
-};

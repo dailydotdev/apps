@@ -114,6 +114,10 @@ import {
   SearchProviderSegments,
 } from './search/SearchResults/SearchProviderTabs';
 import { useFeedExplainMode } from '../features/feedExplain/useFeedExplainMode';
+import { useFeedTuneState } from '../features/feedExplain/useFeedTune';
+import { FeedTuneProvider } from '../features/feedExplain/FeedTuneContext';
+import { FeedTunePanel } from '../features/feedExplain/components/FeedTunePanel';
+import { FeedExplainBar } from '../features/feedExplain/components/FeedExplainBar';
 
 // Its own chunk, so readers without the rail never download it; the skeleton
 // holds the rail's exact height while it loads.
@@ -544,13 +548,31 @@ export default function MainFeedLayout({
   // Wherever For You can explain itself it asks for an explanation per card,
   // under its own query key: the post menu's Why am I seeing this? reads it,
   // and Debug mode lays it over every card.
-  const { isAvailable: canExplain, isExplaining } = useFeedExplainMode({
+  const {
+    isAvailable: canExplain,
+    isExplaining,
+    version: explainVersion,
+  } = useFeedExplainMode({
     isRecommended: selectedAlgo === DEFAULT_ALGORITHM_INDEX,
   });
   const isExplainFeed =
     canExplain &&
     feedName === SharedFeedPage.MyFeed &&
     config.query === FEED_V2_QUERY;
+  // Tune ranks the feed with its draft, beside it, in Debug mode.
+  const tune = useFeedTuneState();
+  const isTuning = isExplainFeed && isExplaining && tune.isOpen;
+  const tuneDraft = isTuning && tune.hasChanges ? tune.draft : undefined;
+  const { isOpen: isTuneOpen, close: closeTune } = tune;
+  useEffect(() => {
+    if (
+      isTuneOpen &&
+      ((canExplain && !isExplaining) ||
+        (!!feedName && feedName !== SharedFeedPage.MyFeed))
+    ) {
+      closeTune();
+    }
+  }, [isTuneOpen, canExplain, isExplaining, feedName, closeTune]);
 
   const hasSearchContent = !!navChildren || (isSearchOn && !!searchChildren);
   const search = useMemo(
@@ -686,8 +708,13 @@ export default function MainFeedLayout({
       return config.variables;
     };
 
+    // The draft goes last, so the feed's own key is this one without it.
     const variables = isExplainFeed
-      ? { ...getVariables(), explain: true }
+      ? {
+          ...getVariables(),
+          explain: true,
+          ...(tuneDraft && { draft: tuneDraft }),
+        }
       : getVariables();
 
     return {
@@ -745,6 +772,7 @@ export default function MainFeedLayout({
     isFeedWidgetsEnabled,
     isExplainFeed,
     isExplaining,
+    tuneDraft,
   ]);
 
   // The gates above that hold `feedProps` back until the session can ask for
@@ -932,8 +960,15 @@ export default function MainFeedLayout({
     (!!pageHeaderContent ||
       (!isFeedWidgetsEnabled && (!!v2ActionButtons || !!feedHeading)));
 
+  const tunePreviewKey = tuneDraft ? feedProps?.feedQueryKey : undefined;
+
   return (
-    <>
+    <FeedTuneProvider
+      baseQueryKey={
+        tunePreviewKey ? tunePreviewKey.slice(0, -1) : feedProps?.feedQueryKey
+      }
+      previewQueryKey={tunePreviewKey}
+    >
       {showExploreV2PageHeader && (
         <header className={classNames(pageHeaderClassName, '!py-0')}>
           {/* Sort options as pill tabs — same navbar as the Tags / Squad
@@ -972,7 +1007,12 @@ export default function MainFeedLayout({
         </header>
       )}
       <FeedPageLayoutComponent
-        className={classNames('relative', disableTopPadding && '!pt-0')}
+        className={classNames(
+          'relative',
+          disableTopPadding && '!pt-0',
+          // Room for Tune beside the feed, or under it on a phone.
+          isTuning && (isLaptop ? 'pr-[28rem]' : 'pb-[60vh]'),
+        )}
       >
         {isExploreRoot && (!hasMounted || isPhoneWidth) && (
           <div className="tablet:hidden">
@@ -1046,6 +1086,7 @@ export default function MainFeedLayout({
             )}
           />
         )}
+        {isExplainFeed && isExplaining && !isTuning && <FeedExplainBar />}
         {isFeedPending && isPhone && (
           <>
             {/* Where the rail lands once the feed can render, so the
@@ -1076,6 +1117,9 @@ export default function MainFeedLayout({
           the extension new tab render — and the only place the feed name is
           already resolved from `default` to the reader's own feed. */}
       {isSponsorStripEnabled && <SponsorStrip />}
-    </>
+      {isTuning && (
+        <FeedTunePanel version={explainVersion} isSheet={!isLaptop} />
+      )}
+    </FeedTuneProvider>
   );
 }

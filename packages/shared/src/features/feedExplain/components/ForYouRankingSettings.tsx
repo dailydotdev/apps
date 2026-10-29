@@ -158,7 +158,9 @@ export const ForYouRankingSettings = ({
               type="button"
               variant={ButtonVariant.Float}
               size={ButtonSize.Small}
-              onClick={() => openTune(version, FeedTuneTab.Ranking)}
+              onClick={() =>
+                openTune({ tab: FeedTuneTab.Ranking, goToFeed: true })
+              }
             >
               Live preview
             </Button>

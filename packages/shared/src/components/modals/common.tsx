@@ -554,13 +554,6 @@ const FeedExplanationModal = dynamic(
     ),
 );
 
-const FeedTuneModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "feedTuneModal" */ '../../features/feedExplain/components/FeedTuneModal'
-    ),
-);
-
 export const modals = {
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
   [LazyModal.RepostsPopup]: RepostsModal,
@@ -650,7 +643,6 @@ export const modals = {
   [LazyModal.LfgReachOut]: LfgReachOutModal,
   [LazyModal.LfgHelper]: LfgHelperModal,
   [LazyModal.FeedExplanation]: FeedExplanationModal,
-  [LazyModal.FeedTune]: FeedTuneModal,
 };
 
 type GetComponentProps<T> = T extends

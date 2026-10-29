@@ -158,7 +158,8 @@ export interface FeedProfile {
 }
 
 /**
- * Changes to the controls on top of the stored ones, for Tune's preview. An
+ * Changes to the controls on top of the stored ones, which the feed ranks
+ * with while Tune is open. An
  * entry with neither a mode nor a weight is Auto, a ranking setting without
  * a value its default.
  */
@@ -167,31 +168,6 @@ export interface FeedControlsDraft {
   sources?: { sourceId: string; mode?: FeedSourceMode; weight?: number }[];
   ranking?: { key: string; value?: number }[];
   learning?: boolean;
-}
-
-export interface FeedTunePost {
-  id: string;
-  title?: string;
-  commentsPermalink: string;
-  source?: { id: string; name: string; image: string };
-}
-
-export interface FeedTuneItem {
-  post: FeedTunePost | null;
-  explain: (FeedItemExplain & { reasons?: string[] }) | null;
-}
-
-/** For You's first page generated fresh with a draft, and what it left out. */
-export interface FeedTune {
-  items: FeedTuneItem[];
-  leftOut: FeedTuneItem[];
-  summary: {
-    candidates: number;
-    eligible: number;
-    leftOut: number;
-    /** How many left-out posts each reason applied to. */
-    reasons: Record<string, number>;
-  };
 }
 
 /** Tune's tabs, by the controls they hold. */

@@ -1,21 +1,19 @@
-import { useCallback, useMemo, useState } from 'react';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { useAuthContext } from '../../contexts/AuthContext';
+import { useCallback, useMemo } from 'react';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin } from '../../lib/log';
+import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import type {
   FeedControl,
   FeedControlsDraft,
   FeedSourceMode,
-  FeedTune,
+  FeedTuneTab,
 } from './types';
 import { FeedTopicMode } from './types';
 import type { ControlValue, UseFeedControls } from './useFeedControls';
 import { useFeedControls } from './useFeedControls';
-import { feedTuneQueryOptions } from './queries';
 import { getExpiresAt } from './duration';
 
-type TuneChange =
+export type TuneChange =
   | { kind: 'topic'; keyword: string; value: ControlValue<FeedTopicMode> }
   | { kind: 'source'; sourceId: string; value: ControlValue<FeedSourceMode> }
   | { kind: 'ranking'; key: string; value: number | null }
@@ -91,39 +89,53 @@ const toControl = <Mode>(
       }
     : undefined;
 
-/** One line on how the page moved from the feed as it is. */
-const describeMovement = (
-  base: FeedTune | undefined,
-  preview: FeedTune | undefined,
-): string | undefined => {
-  if (!base || !preview) {
-    return undefined;
-  }
-  const before = new Map(
-    base.items.map(({ post }, index) => [post?.id, index]),
-  );
-  const after = new Set(preview.items.map(({ post }) => post?.id));
-  const incoming = preview.items.filter(({ post }) => !before.has(post?.id));
-  const moved = preview.items.filter(
-    ({ post }, index) => before.has(post?.id) && before.get(post?.id) !== index,
-  );
-  const left = base.items.filter(({ post }) => !after.has(post?.id));
-  const parts = [
-    incoming.length &&
-      `${incoming.length} new ${incoming.length === 1 ? 'post' : 'posts'}`,
-    moved.length && `${moved.length} moved`,
-    left.length && `${left.length} left the page`,
-  ].filter(Boolean);
-  return parts.length ? `${parts.join(', ')}.` : 'Nothing moved on the page.';
+interface UseFeedTuneState {
+  /** The open tab; Tune is closed without one. */
+  tab: FeedTuneTab | null;
+  isOpen: boolean;
+  setTab: (tab: FeedTuneTab) => void;
+  changes: TuneChange[];
+  setChanges: (changes: TuneChange[]) => void;
+  /** What the feed ranks with while Tune is open, on top of the saved controls. */
+  draft: FeedControlsDraft;
+  hasChanges: boolean;
+  /** Leaves Tune, dropping what was not saved. */
+  close: () => void;
+}
+
+/**
+ * Tune's open tab and draft, kept with the feed's query state so the panel,
+ * the feed it re-ranks and the cards it moves all read the same one.
+ */
+export const useFeedTuneState = (): UseFeedTuneState => {
+  const [tab, setTab] = useQueryState<FeedTuneTab | null>({
+    key: [QueryStateKeys.FeedTune],
+    defaultValue: null,
+  });
+  const [changes, setChanges] = useQueryState<TuneChange[]>({
+    key: [QueryStateKeys.FeedTuneChanges],
+    defaultValue: [],
+  });
+  const draft = useMemo(() => toDraft(changes), [changes]);
+  const close = useCallback(() => {
+    setTab(null);
+    setChanges([]);
+  }, [setTab, setChanges]);
+
+  return {
+    tab,
+    isOpen: !!tab,
+    setTab,
+    changes,
+    setChanges,
+    draft,
+    hasChanges: changes.length > 0,
+    close,
+  };
 };
 
-export interface UseFeedTune {
+export interface UseFeedTune extends UseFeedTuneState {
   feedControls: UseFeedControls;
-  base?: FeedTune;
-  preview?: FeedTune;
-  isPreviewing: boolean;
-  isFetching: boolean;
-  movement?: string;
   changeCount: number;
   getTopicControl: (keyword: string) => FeedControl<FeedTopicMode> | undefined;
   getSourceControl: (
@@ -136,34 +148,19 @@ export interface UseFeedTune {
   setRanking: (key: string, value: number | null) => void;
   setLearning: (enabled: boolean) => void;
   undo: () => void;
-  /** Saves every change in the draft, in order. */
+  /** Saves every change in the draft, in order, and leaves Tune. */
   save: () => void;
 }
 
 /**
- * Tune: changes to the For You controls held as a draft and previewed on a
- * fresh feed before anything is saved, beside the feed as it is now.
+ * Tune's controls: changes held as a draft the feed beside them ranks with,
+ * saved together or dropped on close.
  */
-export const useFeedTune = (version: number): UseFeedTune => {
-  const { user } = useAuthContext();
+export const useFeedTune = (): UseFeedTune => {
+  const state = useFeedTuneState();
+  const { changes, setChanges, close } = state;
   const { logEvent } = useLogContext();
   const feedControls = useFeedControls({ origin: Origin.FeedTune });
-  const [changes, setChanges] = useState<TuneChange[]>([]);
-  const draft = useMemo(() => toDraft(changes), [changes]);
-  const isPreviewing = changes.length > 0;
-  const { data: base, isFetching: isFetchingBase } = useQuery(
-    feedTuneQueryOptions({ user, version, draft: {} }),
-  );
-  const previewOptions = feedTuneQueryOptions({ user, version, draft });
-  const {
-    data: preview,
-    isFetching: isFetchingPreview,
-    isPlaceholderData,
-  } = useQuery({
-    ...previewOptions,
-    enabled: previewOptions.enabled && isPreviewing,
-    placeholderData: keepPreviousData,
-  });
   const latest = useMemo(
     () => new Map(latestChanges(changes).map((c) => [changeKey(c), c])),
     [changes],
@@ -204,7 +201,7 @@ export const useFeedTune = (version: number): UseFeedTune => {
       ? learningChange.enabled
       : feedControls.controls?.learning ?? true;
 
-  const add = (change: TuneChange) => setChanges((list) => [...list, change]);
+  const add = (change: TuneChange) => setChanges([...changes, change]);
 
   const save = () => {
     const saved = latestChanges(changes);
@@ -229,20 +226,12 @@ export const useFeedTune = (version: number): UseFeedTune => {
         extra: JSON.stringify({ changes: saved.length }),
       });
     }
-    setChanges([]);
+    close();
   };
 
   return {
+    ...state,
     feedControls,
-    base,
-    preview: isPreviewing ? preview : base,
-    isPreviewing,
-    isFetching: isFetchingBase || isFetchingPreview,
-    // The placeholder is the page before this change, often the base one.
-    movement:
-      isPreviewing && !isPlaceholderData
-        ? describeMovement(base, preview)
-        : undefined,
     changeCount: latest.size,
     getTopicControl,
     getSourceControl,
@@ -252,7 +241,7 @@ export const useFeedTune = (version: number): UseFeedTune => {
     setSource: (sourceId, value) => add({ kind: 'source', sourceId, value }),
     setRanking: (key, value) => add({ kind: 'ranking', key, value }),
     setLearning: (enabled) => add({ kind: 'learning', enabled }),
-    undo: () => setChanges((list) => list.slice(0, -1)),
+    undo: () => setChanges(changes.slice(0, -1)),
     save,
   };
 };

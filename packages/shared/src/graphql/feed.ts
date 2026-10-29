@@ -442,6 +442,7 @@ export const FEED_V2_EXPLAIN_QUERY = gql`
     $highlightsLimit: Int
     $columns: Int
     $explain: Boolean = true
+    $draft: FeedControlsDraft
     ${SUPPORTED_TYPES}
   ) {
     page: feedV2(
@@ -453,6 +454,7 @@ export const FEED_V2_EXPLAIN_QUERY = gql`
       supportedTypes: $supportedTypes
       columns: $columns
       explain: $explain
+      draft: $draft
     ) {
       pageInfo {
         hasNextPage

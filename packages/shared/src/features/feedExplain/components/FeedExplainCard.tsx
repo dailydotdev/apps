@@ -54,6 +54,8 @@ import { useFeedControls } from '../useFeedControls';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { TopicLevelPicker } from './TopicLevelPicker';
 import { SourceLevelPicker } from './SourceLevelPicker';
+import type { TuneMovement } from '../FeedTuneContext';
+import { useFeedTuneContext } from '../FeedTuneContext';
 import { ShowLessTopicOffer } from './ShowLessTopicOffer';
 
 const signalLimit = 3;
@@ -71,6 +73,13 @@ interface RowContext {
  * Explain mode keeps only where the post is from and its title, at the
  * offsets the real card draws them so nothing on it moves.
  */
+const getMovementLabel = (movement: TuneMovement): string => {
+  if (movement === 'new') {
+    return 'New';
+  }
+  return movement > 0 ? `Up ${movement}` : `Down ${-movement}`;
+};
+
 const CardHead = ({
   post,
   position,
@@ -80,14 +89,34 @@ const CardHead = ({
   position?: number;
   isList: boolean;
 }): ReactElement => {
-  const place = position ? (
-    <span
-      className="ml-auto shrink-0 tabular-nums text-text-quaternary typo-footnote"
-      title="Place in your feed"
-    >
-      #{position}
-    </span>
-  ) : null;
+  // Where Tune's draft moved the card, against the page it replaced.
+  const movement = useFeedTuneContext().getMovement(post.id);
+  const hasMoved = movement !== undefined && movement !== 0;
+  const place =
+    position || hasMoved ? (
+      <span className="ml-auto flex shrink-0 items-baseline gap-2 typo-footnote">
+        {hasMoved && (
+          <span
+            className={classNames(
+              'font-bold',
+              movement === 'new' || movement > 0
+                ? 'text-accent-avocado-default'
+                : 'text-text-tertiary',
+            )}
+          >
+            {getMovementLabel(movement)}
+          </span>
+        )}
+        {!!position && (
+          <span
+            className="tabular-nums text-text-quaternary"
+            title="Place in your feed"
+          >
+            #{position}
+          </span>
+        )}
+      </span>
+    ) : null;
   const title = post.title || post.sharedPost?.title;
 
   return (

@@ -518,7 +518,10 @@ function FeedExplanationModal({
                   icon={<MagicIcon />}
                   aria-label="Tune your feed"
                   title="Tune your feed"
-                  onClick={() => openTune(version)}
+                  onClick={() => {
+                    openTune();
+                    onRequestClose();
+                  }}
                 />
                 <Button
                   tag="a"
