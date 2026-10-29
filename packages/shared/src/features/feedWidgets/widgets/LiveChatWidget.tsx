@@ -94,19 +94,25 @@ export const LiveChatWidget = ({
     );
   }
 
+  // The same header and list inset as Happening Now, so the two read as one
+  // family on the rail.
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex items-center gap-2 px-2 pb-1">
-        <LiveDot />
-        <span className="font-bold uppercase tracking-wide text-text-primary typo-caption1">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <header className="flex h-6 min-w-0 shrink-0 items-center gap-1.5 px-4">
+        <span className="flex size-4 shrink-0 items-center justify-center">
+          <LiveDot />
+        </span>
+        <span className="truncate font-bold text-text-primary typo-caption1">
           Live now
         </span>
-      </div>
+      </header>
       <div
-        {...scroll}
-        className="flex min-h-0 flex-1 snap-y flex-col overflow-y-auto"
+        ref={scroll.ref}
+        onScroll={scroll.onScroll}
+        style={scroll.style}
+        className={classNames('mt-2 px-2', scroll.className)}
       >
-        <ul className="flex flex-col">
+        <ul aria-label="Live chats" className="flex flex-col gap-1">
           {shown.map((room) => (
             <RoomRow
               key={room.id}
