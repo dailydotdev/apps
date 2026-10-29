@@ -57,10 +57,10 @@ const MoreWaysIn = (): ReactElement => (
         </p>
         <h1 className="font-bold typo-title1">More ways in</h1>
         <p className="text-text-secondary typo-callout">
-          Sign-up screens the Web and Mobile overviews don&apos;t cover yet,
-          found from every sign-up trigger in the code. Once reviewed, each
-          moves into its platform&apos;s overview with an aligned mock. Click a
-          capture for full size.
+          Sign-up and log-in screens the Web and Mobile overviews don&apos;t
+          cover yet, found from every sign-up trigger in the code. Once
+          reviewed, each moves into its platform&apos;s overview with an aligned
+          mock. Click a capture for full size.
         </p>
       </header>
 
@@ -81,6 +81,94 @@ const MoreWaysIn = (): ReactElement => (
             step: 'Phone',
             title: 'Full screen',
             note: 'The “Sign up to vote on posts and comments.” line under the title goes, as decided.',
+            device: 'phone',
+            isToAlign: true,
+          },
+        ]}
+      />
+
+      <Surface
+        title="Log in"
+        note={
+          <>
+            Every way to log in. The page, <Url>/onboarding?action=login</Url>,
+            is where “Log in” links go, the extension’s too with{' '}
+            <Url>r=extension</Url>. From a page like a post, Log in in the
+            header opens the same form as a modal: on desktop it drops from the
+            top right, not centered like sign up. Phone shows it full screen.
+            All four providers, email and password, Cloudflare’s check, Forgot
+            password, then “Not a member yet? Sign up”.
+          </>
+        }
+        shots={[
+          {
+            file: 'more-login-page-desktop',
+            step: 'Desktop',
+            title: 'Log in page',
+            note: <Url>/onboarding?action=login</Url>,
+            device: 'desktop',
+            isToAlign: true,
+          },
+          {
+            file: 'more-login-extension-desktop',
+            step: 'Extension',
+            title: 'Log in page',
+            note: <Url>/onboarding?r=extension&amp;action=login</Url>,
+            device: 'desktop',
+            isToAlign: true,
+          },
+          {
+            file: 'more-login-modal-desktop',
+            step: 'Desktop',
+            title: 'Log in modal',
+            note: 'From Log in in a page’s header, here a post.',
+            device: 'desktop',
+            isToAlign: true,
+          },
+          {
+            file: 'more-login-page-pixel',
+            step: 'Phone',
+            title: 'Log in page',
+            note: 'The logo mark top left, the form below.',
+            device: 'phone',
+            isToAlign: true,
+          },
+          {
+            file: 'more-login-modal-pixel',
+            step: 'Phone',
+            title: 'Log in, full screen',
+            note: 'From Log in in a page’s header.',
+            device: 'phone',
+            isToAlign: true,
+          },
+        ]}
+      />
+
+      <Surface
+        title="Post page"
+        note="Where most shared links land, signed out. Desktop keeps a sign-up banner over the bottom of the page, with a headline personalized by country, and Log in and Sign up in the header. Phone has no sign-up block, only Log in, Open app and “Open daily.dev app”; any action opens the full-screen sign up above."
+        shots={[
+          {
+            file: 'more-post-desktop',
+            step: 'Desktop',
+            title: 'Post with a sign-up banner',
+            note: '“daily.dev is the fastest growing developer platform in Israel!” Google and GitHub, then email and log in as links.',
+            device: 'desktop',
+            isToAlign: true,
+          },
+          {
+            file: 'more-post-signup-desktop',
+            step: 'Desktop',
+            title: 'Sign up from the header',
+            note: 'The sign-up modal, centered.',
+            device: 'desktop',
+            isToAlign: true,
+          },
+          {
+            file: 'more-post-pixel',
+            step: 'Phone',
+            title: 'Post, no sign-up block',
+            note: 'Log in and Open app in the header.',
             device: 'phone',
             isToAlign: true,
           },

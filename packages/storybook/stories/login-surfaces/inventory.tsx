@@ -375,8 +375,8 @@ export const Inventory = ({
             ? 'The webapp on desktop and mobile browsers, the PWA, the Chrome and Edge extension, and invite links.'
             : 'The Android and iOS apps, which wrap the webapp.'}{' '}
           The first screen a signed-out person sees, the loading state before
-          it, and the sign-up screen one tap away. Log in is out of scope for
-          this pass. Screens that change show the production capture next to the
+          it, and the sign-up screen one tap away. Log in screens are on More
+          ways in. Screens that change show the production capture next to the
           aligned mock; the rest are marked unchanged. Click a capture for full
           size.
         </p>
