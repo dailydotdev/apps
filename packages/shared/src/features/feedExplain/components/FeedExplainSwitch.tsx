@@ -10,8 +10,9 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { TerminalIcon } from '../../../components/icons/Terminal';
-import { FilterIcon } from '../../../components/icons/Filter';
-import type { IconSize } from '../../../components/Icon';
+import { MagicIcon } from '../../../components/icons/Magic';
+import { ArrowIcon } from '../../../components/icons/Arrow';
+import { IconSize } from '../../../components/Icon';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, Origin, TargetId } from '../../../lib/log';
 import { useFeedExplainMode } from '../useFeedExplainMode';
@@ -83,8 +84,12 @@ export const FeedExplainSwitch = ({
             onClick={() => openTune(version)}
             className="flex h-12 w-full items-center gap-3 px-4 text-left text-text-primary transition-colors typo-callout hover:bg-surface-hover"
           >
-            <FilterIcon />
-            Tune your feed
+            <MagicIcon size={IconSize.Small} className="text-text-tertiary" />
+            <span className="flex-1">Tune your feed</span>
+            <ArrowIcon
+              size={IconSize.Size16}
+              className="rotate-90 text-text-quaternary"
+            />
           </button>
         )}
       </>
@@ -115,7 +120,7 @@ export const FeedExplainSwitch = ({
           type="button"
           size={ButtonSize.Small}
           variant={ButtonVariant.Float}
-          icon={iconSize ? <FilterIcon size={iconSize} /> : <FilterIcon />}
+          icon={iconSize ? <MagicIcon size={iconSize} /> : <MagicIcon />}
           iconPosition={ButtonIconPosition.Left}
           title={tuneTitle}
           aria-label={iconOnly ? 'Tune' : undefined}

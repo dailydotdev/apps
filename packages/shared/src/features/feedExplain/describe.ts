@@ -224,12 +224,24 @@ const exactWeightMeta: SignalMeta = {
   className: 'text-accent-cabbage-default',
 };
 
-/** What the reader set on a topic or source, and when it ends. */
+const pausedWeightMeta: SignalMeta = {
+  text: 'Your exact boost, kept for Plus',
+  className: 'text-text-quaternary',
+};
+
+/**
+ * What the reader set on a topic or source, and when it ends. An exact
+ * boost only counts while the reader has Plus.
+ */
 export const getControlMeta = <Mode extends FeedTopicMode | FeedSourceMode>(
   control: FeedControl<Mode> | undefined,
+  isPlus: boolean,
 ): SignalMeta | undefined => {
   if (!control) {
     return undefined;
+  }
+  if (!control.mode && !isPlus) {
+    return pausedWeightMeta;
   }
   const meta = control.mode
     ? topicModeMeta[control.mode as FeedTopicMode]

@@ -60,6 +60,10 @@ export const RankingSlider = ({
           {isSet && !isLocked && (
             <button
               type="button"
+              aria-label={`Reset ${meta.label.toLowerCase()} to ${formatRankingValue(
+                meta.format,
+                setting.defaultValue,
+              )}`}
               className="text-text-link typo-footnote hover:underline"
               onClick={() => onChange(null)}
             >
@@ -167,7 +171,7 @@ export const ForYouRankingSettings = ({
             >
               Advanced
             </Switch>
-            {isPlus && controls.ranking.length > 0 && (
+            {controls.ranking.length > 0 && (
               <Button
                 type="button"
                 variant={ButtonVariant.Float}

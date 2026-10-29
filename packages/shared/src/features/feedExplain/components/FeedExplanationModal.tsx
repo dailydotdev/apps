@@ -16,7 +16,7 @@ import { HashtagIcon } from '../../../components/icons/Hashtag';
 import { MinusIcon } from '../../../components/icons/Minus';
 import { PlusIcon } from '../../../components/icons/Plus';
 import { SettingsIcon } from '../../../components/icons/Settings';
-import { FilterIcon } from '../../../components/icons/Filter';
+import { MagicIcon } from '../../../components/icons/Magic';
 import { VIcon } from '../../../components/icons/V';
 import { IconSize } from '../../../components/Icon';
 import {
@@ -50,6 +50,7 @@ import type { FeedItemExplain } from '../types';
 import { useDropIdleForYouFeeds } from '../useDropIdleForYouFeeds';
 import { useFeedControls } from '../useFeedControls';
 import { useOpenFeedTune } from '../useOpenFeedTune';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { FeedSourceMode, isRankedExplain } from '../types';
 import { feedProfileQueryKey, feedProfileQueryOptions } from '../queries';
 import type { ExplanationMatch, SignalMeta } from '../describe';
@@ -297,6 +298,7 @@ function FeedExplanationModal({
   });
   const { data: profile } = useQuery(feedProfileQueryOptions(user, version));
   const feedControls = useFeedControls({ origin: Origin.FeedExplain });
+  const { isPlus } = usePlusSubscription();
   const openTune = useOpenFeedTune(Origin.FeedExplain);
   const {
     onFollowTags,
@@ -390,7 +392,7 @@ function FeedExplanationModal({
         key,
         isSquad ? 'squad' : 'source',
         isBlocked,
-        getControlMeta(sourceControl),
+        getControlMeta(sourceControl, isPlus),
       ),
       level: (
         <SourceLevelPicker
@@ -445,7 +447,7 @@ function FeedExplanationModal({
         key,
         'topic',
         isBlocked,
-        getControlMeta(control) ?? (level && topicModeMeta[level]),
+        getControlMeta(control, isPlus) ?? (level && topicModeMeta[level]),
       ),
       leading: <TopicGlyph />,
       level: weight && (
@@ -513,7 +515,7 @@ function FeedExplanationModal({
                   type="button"
                   variant={ButtonVariant.Tertiary}
                   size={ButtonSize.Small}
-                  icon={<FilterIcon />}
+                  icon={<MagicIcon />}
                   aria-label="Tune your feed"
                   title="Tune your feed"
                   onClick={() => openTune(version)}

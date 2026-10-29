@@ -45,7 +45,10 @@ const mockTune = (draft: FeedControlsDraft, result: FeedTune) =>
     result: { data: { feedTune: result } },
   });
 
-const renderTune = () => {
+const renderTune = ({
+  muted = [],
+  topics = [],
+}: Partial<Pick<FeedProfile, 'muted'> & Pick<FeedControls, 'topics'>> = {}) => {
   const client = new QueryClient();
   client.setQueryData<FeedProfile>(feedProfileQueryKey(user, 116), {
     cohort: true,
@@ -63,12 +66,12 @@ const renderTune = () => {
         backed: true,
       },
     ],
-    muted: [],
+    muted,
     blocked: [],
     ranking: [],
   });
   client.setQueryData<FeedControls>(feedControlsQueryKey(user), {
-    topics: [],
+    topics,
     sources: [],
     learning: true,
     fillIns: true,
@@ -146,5 +149,27 @@ describe('FeedTuneModal', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Undo' }));
 
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+  });
+
+  it('should list a topic turned off so it can come back', async () => {
+    mockTune({}, tune(['p1']));
+    renderTune({
+      muted: ['python'],
+      topics: [
+        {
+          keyword: 'python',
+          mode: FeedTopicMode.Off,
+          weight: null,
+          expiresAt: null,
+        },
+      ],
+    });
+
+    expect(await screen.findByText('#python')).toBeInTheDocument();
+    expect(screen.getByText('Off in For You')).toBeInTheDocument();
+    await userEvent.click(screen.getByLabelText('Boost for #python: No boost'));
+    await userEvent.click(screen.getByRole('radio', { name: /^Auto/ }));
+
+    expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
   });
 });

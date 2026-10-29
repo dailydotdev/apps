@@ -51,6 +51,7 @@ import { useFeedExplainMode } from '../useFeedExplainMode';
 import { useDropIdleForYouFeeds } from '../useDropIdleForYouFeeds';
 import type { UseFeedControls } from '../useFeedControls';
 import { useFeedControls } from '../useFeedControls';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { TopicLevelPicker } from './TopicLevelPicker';
 import { SourceLevelPicker } from './SourceLevelPicker';
 import { ShowLessTopicOffer } from './ShowLessTopicOffer';
@@ -181,12 +182,13 @@ const getTopicMeta = (
     feedControls,
   }: Pick<RowContext, 'explain' | 'profile' | 'feedControls'>,
   isFollowed: boolean,
+  isPlus: boolean,
 ): SignalMeta => {
   const interest = profile?.interests.find((item) => item.tag === tag);
   const match = isRankedExplain(explain) ? explain.match : undefined;
   const stories =
     interest?.stories ?? (match?.tag === tag ? match.stories : undefined) ?? 0;
-  const controlMeta = getControlMeta(feedControls.getTopicControl(tag));
+  const controlMeta = getControlMeta(feedControls.getTopicControl(tag), isPlus);
   if (controlMeta) {
     return controlMeta;
   }
@@ -222,6 +224,7 @@ const SignalRow = ({
   const client = useQueryClient();
   const dropIdleFeeds = useDropIdleForYouFeeds();
   const { feedSettings } = useFeedSettings();
+  const { isPlus } = usePlusSubscription();
   const {
     onFollowTags,
     onUnfollowTags,
@@ -255,12 +258,12 @@ const SignalRow = ({
     ? undefined
     : feedControls.getSourceControl(signal.id);
   const isSourceDemoted = !isTopic && feedControls.isSourceDemoted(signal.id);
-  const sourceMeta = getControlMeta(sourceControl);
+  const sourceMeta = getControlMeta(sourceControl, isPlus);
   let meta: SignalMeta;
   if (isBlocked) {
     meta = { text: 'Blocked', className: 'text-accent-ketchup-default' };
   } else if (isTopic) {
-    meta = getTopicMeta(signal.id, context, isFollowed);
+    meta = getTopicMeta(signal.id, context, isFollowed, isPlus);
   } else if (sourceMeta) {
     meta = sourceMeta;
   } else {

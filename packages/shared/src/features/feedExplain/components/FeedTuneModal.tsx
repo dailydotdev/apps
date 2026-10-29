@@ -87,11 +87,19 @@ const TopicsTab = ({
   version: number;
 }): ReactElement => {
   const { user } = useAuthContext();
+  const { isPlus } = usePlusSubscription();
   const { data: profile } = useQuery(feedProfileQueryOptions(user, version));
-  const interests = (profile?.interests ?? [])
+  const interests: {
+    tag: string;
+    weight: number;
+    computedWeight?: number;
+    origin?: ExplainOrigin;
+  }[] = (profile?.interests ?? [])
     .filter(({ weight }) => weight > 0)
     .sort((a, b) => b.weight - a.weight)
     .slice(0, maxTopics);
+  // Topics turned off are no interest, but listed so they can come back.
+  (profile?.muted ?? []).forEach((tag) => interests.push({ tag, weight: 0 }));
 
   return (
     <div className="flex flex-col gap-4">
@@ -107,12 +115,12 @@ const TopicsTab = ({
       <ul className="flex flex-col">
         {interests.map(({ tag, weight, computedWeight, origin }) => {
           const control = tune.getTopicControl(tag);
-          const meta = getControlMeta(control);
+          const meta = getControlMeta(control, isPlus);
           return (
             <ControlRow
               key={tag}
               title={`#${tag}`}
-              meta={meta?.text ?? originMeta[origin]}
+              meta={meta?.text ?? (origin && originMeta[origin])}
               metaClassName={meta?.className}
             >
               <TopicLevelPicker
@@ -141,6 +149,7 @@ const getPageSources = (tune: FeedTune | undefined) => [
 ];
 
 const SourcesTab = ({ tune }: { tune: UseFeedTune }): ReactElement => {
+  const { isPlus } = usePlusSubscription();
   const sources = getPageSources(tune.base);
 
   return (
@@ -148,7 +157,7 @@ const SourcesTab = ({ tune }: { tune: UseFeedTune }): ReactElement => {
       {sources.map(({ id, name, explain }) => {
         const control = tune.getSourceControl(id);
         const factor = getSourceFactor(explain);
-        const meta = getControlMeta(control);
+        const meta = getControlMeta(control, isPlus);
         return (
           <ControlRow
             key={id}
@@ -416,7 +425,9 @@ const FeedTuneModal = ({
               aria-live="polite"
             >
               {tune.movement ??
-                'Change anything and see your feed follow. Nothing is saved until you save it.'}
+                (tune.isPreviewing
+                  ? 'Updating the preview.'
+                  : 'Change anything and see your feed follow. Nothing is saved until you save it.')}
             </Typography>
             {tune.changeCount > 0 && (
               <Button

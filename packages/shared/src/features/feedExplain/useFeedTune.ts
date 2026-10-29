@@ -155,7 +155,11 @@ export const useFeedTune = (version: number): UseFeedTune => {
     feedTuneQueryOptions({ user, version, draft: {} }),
   );
   const previewOptions = feedTuneQueryOptions({ user, version, draft });
-  const { data: preview, isFetching: isFetchingPreview } = useQuery({
+  const {
+    data: preview,
+    isFetching: isFetchingPreview,
+    isPlaceholderData,
+  } = useQuery({
     ...previewOptions,
     enabled: previewOptions.enabled && isPreviewing,
     placeholderData: keepPreviousData,
@@ -234,7 +238,11 @@ export const useFeedTune = (version: number): UseFeedTune => {
     preview: isPreviewing ? preview : base,
     isPreviewing,
     isFetching: isFetchingBase || isFetchingPreview,
-    movement: isPreviewing ? describeMovement(base, preview) : undefined,
+    // The placeholder is the page before this change, often the base one.
+    movement:
+      isPreviewing && !isPlaceholderData
+        ? describeMovement(base, preview)
+        : undefined,
     changeCount: latest.size,
     getTopicControl,
     getSourceControl,
