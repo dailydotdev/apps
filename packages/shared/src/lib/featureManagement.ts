@@ -183,6 +183,13 @@ export const featureOnboardingAcquisitionFollowUp = new Feature(
   false,
 );
 
+// Experiment: the onboarding tag step headline becomes a progress header whose
+// bar fills with every tag picked, to get people past the 5-tag minimum.
+export const featureOnboardingTagProgress = new Feature(
+  'onboarding_tag_progress',
+  false,
+);
+
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 export const featurePostTopicSignup = new Feature('post_topic_signup', false);
 
