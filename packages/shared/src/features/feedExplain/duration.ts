@@ -12,10 +12,24 @@ export const durationOptions: {
   value: FeedControlDuration | undefined;
   label: string;
 }[] = [
-  { value: undefined, label: 'Until I change it' },
   { value: FeedControlDuration.ThreeDays, label: '3 days' },
   { value: FeedControlDuration.Week, label: '1 week' },
+  { value: undefined, label: 'Until I change it' },
 ];
+
+/** The picker's choice for a change that is already running. */
+export const getDurationFor = (
+  expiresAt: string | null | undefined,
+  now = Date.now(),
+): FeedControlDuration | undefined => {
+  if (!expiresAt) {
+    return undefined;
+  }
+  return new Date(expiresAt).getTime() <=
+    now + durationDays[FeedControlDuration.ThreeDays] * dayMs
+    ? FeedControlDuration.ThreeDays
+    : FeedControlDuration.Week;
+};
 
 // The API sets the real one; this is for the change shown before it answers.
 export const getExpiresAt = (

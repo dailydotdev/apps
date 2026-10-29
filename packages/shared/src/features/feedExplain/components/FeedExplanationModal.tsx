@@ -452,6 +452,7 @@ function FeedExplanationModal({
         <TopicLevelPicker
           tag={tag}
           weight={weight.weight}
+          computedWeight={weight.computedWeight}
           isSet={weight.isSet || !!control}
           control={control}
           onChange={(value) => feedControls.setTopic(tag, value)}

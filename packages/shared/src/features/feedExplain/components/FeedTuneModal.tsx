@@ -105,7 +105,7 @@ const TopicsTab = ({
         Learn from my reading
       </Switch>
       <ul className="flex flex-col">
-        {interests.map(({ tag, weight, origin }) => {
+        {interests.map(({ tag, weight, computedWeight, origin }) => {
           const control = tune.getTopicControl(tag);
           const meta = getControlMeta(control);
           return (
@@ -118,6 +118,7 @@ const TopicsTab = ({
               <TopicLevelPicker
                 tag={tag}
                 weight={weight}
+                computedWeight={computedWeight}
                 isSet={!!control}
                 control={control}
                 onChange={(value) => tune.setTopic(tag, value)}

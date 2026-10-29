@@ -50,6 +50,8 @@ export const formatTopicWeight = (weight: number): string =>
 interface TopicLevelPickerProps {
   tag: string;
   weight: number;
+  /** What Auto gives it, for the way back. */
+  computedWeight?: number;
   /** The weight comes from a level or weight the reader set. */
   isSet: boolean;
   control?: FeedControl<FeedTopicMode>;
@@ -60,6 +62,7 @@ interface TopicLevelPickerProps {
 export const TopicLevelPicker = ({
   tag,
   weight,
+  computedWeight,
   isSet,
   control,
   onChange,
@@ -72,6 +75,9 @@ export const TopicLevelPicker = ({
     levels={topicLevels}
     control={control}
     exact={{ ...topicWeightRange, value: weight, format: formatTopicWeight }}
+    autoDisplay={
+      computedWeight === undefined ? undefined : formatBoost(computedWeight)
+    }
     onChange={onChange}
   />
 );

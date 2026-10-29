@@ -334,6 +334,7 @@ const SignalRow = ({
             <TopicLevelPicker
               tag={signal.id}
               weight={topicWeight.weight}
+              computedWeight={topicWeight.computedWeight}
               isSet={topicWeight.isSet || !!topicControl}
               control={topicControl}
               onChange={(value) => feedControls.setTopic(signal.id, value)}

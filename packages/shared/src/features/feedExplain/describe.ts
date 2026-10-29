@@ -273,15 +273,30 @@ export const getTopicWeight = (
   tag: string,
   explain: FeedItemExplain | null | undefined,
   profile: FeedProfile | undefined,
-): { weight: number; isSet: boolean } | undefined => {
+):
+  | {
+      weight: number;
+      /** What Auto gives it, before the reader's level or weight. */
+      computedWeight: number;
+      isSet: boolean;
+    }
+  | undefined => {
   // The profile is weighed with the reader's latest levels, the
   // explanation with the ones the card was ranked on.
   if (profile) {
     const interest = profile.interests.find((item) => item.tag === tag);
-    return { weight: interest?.weight ?? 0, isSet: !!interest?.control };
+    return {
+      weight: interest?.weight ?? 0,
+      computedWeight: interest?.computedWeight ?? 0,
+      isSet: !!interest?.control,
+    };
   }
   if (isRankedExplain(explain) && explain.match?.tag === tag) {
-    return { weight: explain.match.weight, isSet: !!explain.match.control };
+    return {
+      weight: explain.match.weight,
+      computedWeight: explain.match.computed_weight,
+      isSet: !!explain.match.control,
+    };
   }
   return undefined;
 };

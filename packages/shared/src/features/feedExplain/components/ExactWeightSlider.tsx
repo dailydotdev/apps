@@ -2,12 +2,6 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { Slider } from '../../../components/fields/Slider';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../../components/buttons/Button';
-import { RefreshIcon } from '../../../components/icons/Refresh';
 
 interface ExactWeightSliderProps {
   label: string;
@@ -21,10 +15,8 @@ interface ExactWeightSliderProps {
   isSet: boolean;
   /** A free reader sees the value but can't change it. */
   isLocked?: boolean;
-  resetLabel: string;
   /** Called once the reader lets go, not on every step of a drag. */
   onCommit: (value: number) => void;
-  onReset: () => void;
 }
 
 /** An exact boost for one topic or source, a Plus control. */
@@ -37,9 +29,7 @@ export const ExactWeightSlider = ({
   format,
   isSet,
   isLocked,
-  resetLabel,
   onCommit,
-  onReset,
 }: ExactWeightSliderProps): ReactElement => {
   const [draft, setDraft] = useState(value);
 
@@ -48,40 +38,39 @@ export const ExactWeightSlider = ({
   }, [value]);
 
   return (
-    <span className="flex min-w-0 items-center gap-2">
-      <Slider
-        compact
+    <div className="flex flex-col gap-1.5">
+      <span className="flex items-baseline justify-between gap-3 text-text-tertiary typo-caption1">
+        Exact boost
+        <span
+          className={classNames(
+            'tabular-nums typo-footnote',
+            isLocked && 'text-text-quaternary',
+            !isLocked && isSet && 'text-accent-cabbage-default',
+            !isLocked && !isSet && 'text-text-secondary',
+          )}
+        >
+          {format(draft)}
+        </span>
+      </span>
+      <div
         className={classNames(
-          'flex-1',
-          isLocked && 'cursor-not-allowed opacity-40',
-        )}
-        min={min}
-        max={max}
-        step={step}
-        value={[Math.min(max, Math.max(min, draft))]}
-        thumbLabel={label}
-        disabled={isLocked}
-        onValueChange={([next]) => setDraft(next)}
-        onValueCommit={([next]) => onCommit(next)}
-      />
-      <span
-        className={classNames(
-          'w-14 shrink-0 text-right tabular-nums typo-callout',
-          isSet ? 'text-accent-cabbage-default' : 'text-text-secondary',
+          'flex',
+          isLocked && 'pointer-events-none opacity-40 grayscale',
         )}
       >
-        {format(draft)}
-      </span>
-      <Button
-        type="button"
-        variant={ButtonVariant.Tertiary}
-        size={ButtonSize.XSmall}
-        icon={<RefreshIcon />}
-        aria-label={resetLabel}
-        title={resetLabel}
-        className={classNames('shrink-0', (!isSet || isLocked) && 'invisible')}
-        onClick={onReset}
-      />
-    </span>
+        <Slider
+          compact
+          className="flex-1"
+          min={min}
+          max={max}
+          step={step}
+          value={[Math.min(max, Math.max(min, draft))]}
+          thumbLabel={label}
+          disabled={isLocked}
+          onValueChange={([next]) => setDraft(next)}
+          onValueCommit={([next]) => onCommit(next)}
+        />
+      </div>
+    </div>
   );
 };

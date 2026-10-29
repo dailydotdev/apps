@@ -8,6 +8,7 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { DevPlusIcon } from '../../../components/icons/DevPlus';
+import { PlusUser } from '../../../components/PlusUser';
 import Link from '../../../components/utilities/Link';
 import {
   Typography,
@@ -98,6 +99,33 @@ export const PlusBanner = ({
           {plusCta}
         </Button>
       </Link>
+    </div>
+  );
+};
+
+/**
+ * Marks everything under it as Plus: the Plus badge centered on a divider,
+ * and for free readers, who see the controls locked, a Get Plus button under
+ * the last one.
+ */
+export const PlusSection = ({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}): ReactElement => {
+  const { isPlus } = usePlusSubscription();
+
+  return (
+    <div className={classNames('flex flex-col gap-3', className)}>
+      <div className="flex items-center gap-2">
+        <span className="h-px flex-1 bg-border-subtlest-tertiary" />
+        <PlusUser />
+        <span className="h-px flex-1 bg-border-subtlest-tertiary" />
+      </div>
+      {children}
+      {!isPlus && <GetPlusButton className="self-start" />}
     </div>
   );
 };

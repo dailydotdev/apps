@@ -4,14 +4,18 @@ import classNames from 'classnames';
 import { Popover, PopoverTrigger } from '@radix-ui/react-popover';
 import { PopoverContent } from '../../../components/popover/Popover';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
-import { PlusUser } from '../../../components/PlusUser';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import type { FeedControl, FeedControlDuration } from '../types';
 import type { ControlValue } from '../useFeedControls';
-import { formatUntil } from '../duration';
+import { formatUntil, getDurationFor } from '../duration';
 import { DurationPicker } from './DurationPicker';
 import { ExactWeightSlider } from './ExactWeightSlider';
-import { GetPlusButton } from './PlusUpsell';
+import { PlusSection } from './PlusUpsell';
 
 export interface Level<Mode> {
   /** No mode is Auto. */
@@ -65,6 +69,8 @@ interface LevelPickerProps<Mode> {
   levels: Level<Mode>[];
   control?: FeedControl<Mode>;
   exact: ExactWeightRange;
+  /** What Auto would give it, like ×1.30, when known. */
+  autoDisplay?: string;
   onChange: (value: ControlValue<Mode>) => void;
 }
 
@@ -81,6 +87,7 @@ export const LevelPicker = <Mode,>({
   levels,
   control,
   exact,
+  autoDisplay,
   onChange,
 }: LevelPickerProps<Mode>): ReactElement => {
   const { isPlus } = usePlusSubscription();
@@ -89,16 +96,28 @@ export const LevelPicker = <Mode,>({
   const titleId = useId();
   const checkedRef = useRef<HTMLButtonElement>(null);
   const hasExactWeight = !!control?.weight;
+  const activeLevel = hasExactWeight
+    ? undefined
+    : levels.find((level) => level.mode === (control?.mode ?? null));
   const valueClassName = isSet
     ? 'text-accent-cabbage-default'
     : 'text-text-secondary';
+  // A new duration re-times what is set, as picking the level again would.
+  const onDuration = (next: FeedControlDuration | undefined) => {
+    setDuration(next);
+    if (control?.mode) {
+      onChange({ mode: control.mode, duration: next });
+    } else if (control?.weight) {
+      onChange({ weight: control.weight, duration: next });
+    }
+  };
 
   return (
     <Popover
       open={isOpen}
       onOpenChange={(open) => {
         setIsOpen(open);
-        setDuration(undefined);
+        setDuration(isPlus ? getDurationFor(control?.expiresAt) : undefined);
       }}
     >
       <Tooltip content={tooltip}>
@@ -151,8 +170,9 @@ export const LevelPicker = <Mode,>({
           </span>
         </span>
         {control?.expiresAt && (
-          <span className="-mt-1 text-text-tertiary typo-caption1">
-            Your change lasts {formatUntil(control.expiresAt)}.
+          <span className="-mt-1.5 text-text-tertiary typo-caption1">
+            {activeLevel?.label ?? 'Exact boost'}{' '}
+            {formatUntil(control.expiresAt)}, then back to Auto.
           </span>
         )}
         <div
@@ -161,8 +181,7 @@ export const LevelPicker = <Mode,>({
           className="-mx-1 flex flex-col"
         >
           {levels.map((level) => {
-            const isActive =
-              !hasExactWeight && (control?.mode ?? null) === level.mode;
+            const isActive = level === activeLevel;
             return (
               <button
                 key={level.label}
@@ -174,10 +193,11 @@ export const LevelPicker = <Mode,>({
                 onKeyDown={onLevelKeyDown}
                 onClick={() => {
                   setIsOpen(false);
-                  // Picking the same level again can make a timed change
-                  // last for good, or for another while.
-                  if (!isActive || !!duration || !!control?.expiresAt) {
-                    onChange({ mode: level.mode, duration });
+                  if (!isActive) {
+                    onChange({
+                      mode: level.mode,
+                      duration: level.mode ? duration : undefined,
+                    });
                   }
                 }}
                 className={classNames(
@@ -215,13 +235,7 @@ export const LevelPicker = <Mode,>({
             );
           })}
         </div>
-        <div className="flex flex-col gap-3 border-t border-border-subtlest-tertiary pt-2">
-          <span className="flex items-center justify-between gap-2">
-            <span className="font-bold text-text-primary typo-footnote">
-              Exact boost
-            </span>
-            <PlusUser />
-          </span>
+        <PlusSection>
           <ExactWeightSlider
             label={`Exact boost for ${subject}`}
             value={control?.weight ?? exact.value}
@@ -229,31 +243,35 @@ export const LevelPicker = <Mode,>({
             max={exact.max}
             step={exact.step}
             format={exact.format}
-            isSet={hasExactWeight}
+            isSet={isSet}
             isLocked={!isPlus}
-            resetLabel={`Set ${subject} back to Auto`}
             onCommit={(weight) => onChange({ weight, duration })}
-            onReset={() => onChange({ mode: null })}
           />
-          <DurationPicker
-            label="How long the level or boost you pick lasts"
-            value={duration}
-            onChange={setDuration}
-          />
-          {!isPlus && (
-            <span className="flex flex-wrap items-center gap-2">
-              <GetPlusButton />
-              {hasExactWeight && (
-                <span className="min-w-0 flex-1 text-text-tertiary typo-caption1">
-                  Your exact boost counts again with Plus.
-                </span>
-              )}
+          <DurationPicker value={duration} onChange={onDuration} />
+          {!isPlus && hasExactWeight && (
+            <span className="text-text-tertiary typo-caption1">
+              Your exact boost counts again with Plus.
             </span>
           )}
-        </div>
-        <span className="border-t border-border-subtlest-tertiary pt-2 text-text-quaternary typo-caption1">
-          Changes apply when you refresh.
-        </span>
+        </PlusSection>
+        <footer className="flex min-h-6 items-center border-t border-border-subtlest-tertiary pt-3 text-text-quaternary typo-caption1">
+          {control ? (
+            <Button
+              type="button"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.XSmall}
+              className="-ml-1.5"
+              onClick={() => {
+                setIsOpen(false);
+                onChange({ mode: null });
+              }}
+            >
+              Back to Auto{autoDisplay && ` (${autoDisplay})`}
+            </Button>
+          ) : (
+            <span>Changes apply when you refresh.</span>
+          )}
+        </footer>
       </PopoverContent>
     </Popover>
   );
