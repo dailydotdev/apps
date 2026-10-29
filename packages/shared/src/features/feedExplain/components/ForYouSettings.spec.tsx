@@ -22,8 +22,10 @@ import { ForYouSettings } from './ForYouSettings';
 const controls: FeedControls = {
   topics: [],
   sources: [],
+  authors: [],
   learning: true,
   fillIns: true,
+  ranking: [],
 };
 const fetchForYou = jest.fn(async () => ({ pages: [] }));
 

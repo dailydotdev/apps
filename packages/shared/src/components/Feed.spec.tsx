@@ -47,6 +47,7 @@ import {
   FEED_CONTROLS_QUERY,
   FEED_POST_EXPLANATION_QUERY,
   FEED_PROFILE_QUERY,
+  SET_FEED_AUTHOR_MODE_MUTATION,
   SET_FEED_SOURCE_MODE_MUTATION,
   SET_FEED_TOPIC_MODE_MUTATION,
 } from '../features/feedExplain/graphql';
@@ -1006,6 +1007,13 @@ describe('Feed logged in', () => {
     const renderExplained = (
       mocks: MockedGraphQLResponse[] = [],
       isExplaining = true,
+      {
+        post = explainedPost,
+        follow = { factor: 1 },
+      }: {
+        post?: typeof explainedPost;
+        follow?: { kind?: string; factor: number };
+      } = {},
     ) =>
       renderComponent(
         [
@@ -1020,7 +1028,7 @@ describe('Feed logged in', () => {
                       node: {
                         __typename: 'FeedPostItem',
                         feedMeta: null,
-                        post: explainedPost,
+                        post,
                         explain: {
                           lane: 'chal',
                           v: 1,
@@ -1037,7 +1045,7 @@ describe('Feed logged in', () => {
                             computed_weight: 0.62,
                             factor: 1.62,
                           },
-                          follow: { factor: 1 },
+                          follow,
                           age: { days: 2.1, factor: 0.81 },
                           seen: { shows: 1, factor: 0.69 },
                         },
@@ -1097,8 +1105,10 @@ describe('Feed logged in', () => {
                 feedControls: {
                   topics: [],
                   sources: [],
+                  authors: [],
                   learning: true,
                   fillIns: true,
+                  ranking: [],
                 },
               },
             },
@@ -1174,8 +1184,10 @@ describe('Feed logged in', () => {
               feedControls: {
                 topics: [{ keyword: 'javascript', mode: 'boost' }],
                 sources: [],
+                authors: [],
                 learning: true,
                 fillIns: true,
+                ranking: [],
               },
             },
           },
@@ -1197,6 +1209,74 @@ describe('Feed logged in', () => {
 
       await waitFor(() => expect(sent).toBe(true));
       expect(await screen.findByText('Showing more')).toBeInTheDocument();
+    });
+
+    it('should turn off the follow of an author that counted', async () => {
+      let sent = false;
+      renderExplained(
+        [
+          {
+            request: {
+              query: SET_FEED_AUTHOR_MODE_MUTATION,
+              variables: { userId: 'u1', mode: 'off' },
+            },
+            result: () => {
+              sent = true;
+              return { data: { setFeedAuthorMode: { _: true } } };
+            },
+          },
+          {
+            request: { query: FEED_CONTROLS_QUERY },
+            result: {
+              data: {
+                feedControls: {
+                  topics: [],
+                  sources: [],
+                  authors: [
+                    {
+                      user: { id: 'u1' },
+                      mode: 'off',
+                      weight: null,
+                      expiresAt: null,
+                    },
+                  ],
+                  learning: true,
+                  fillIns: true,
+                  ranking: [],
+                },
+              },
+            },
+          },
+        ],
+        true,
+        {
+          post: {
+            ...explainedPost,
+            author: {
+              id: 'u1',
+              name: 'Ada Lovelace',
+              username: 'ada',
+              image: 'https://daily.dev/ada.jpg',
+              permalink: 'https://daily.dev/ada',
+            },
+          },
+          follow: { kind: 'author', factor: 1.6 },
+        },
+      );
+
+      expect(
+        await screen.findByText('Written by someone you follow.'),
+      ).toBeInTheDocument();
+      fireEvent.click(screen.getByLabelText('Boost for Ada Lovelace: ×1.60'));
+      const levels = await screen.findByRole('radiogroup', {
+        name: 'Level for Ada Lovelace',
+      });
+      fireEvent.click(within(levels).getByRole('radio', { name: /^Off/ }));
+
+      await waitFor(() => expect(sent).toBe(true));
+      expect(
+        await screen.findByText('Follow off in For You'),
+      ).toBeInTheDocument();
     });
 
     it('should show less from a source and set it back to Auto', async () => {
@@ -1221,8 +1301,10 @@ describe('Feed logged in', () => {
             feedControls: {
               topics: [],
               sources,
+              authors: [],
               learning: true,
               fillIns: true,
+              ranking: [],
             },
           },
         },
@@ -1336,8 +1418,10 @@ describe('Feed logged in', () => {
                 feedControls: {
                   topics: [{ keyword: 'php', mode: 'demote' }],
                   sources: [],
+                  authors: [],
                   learning: true,
                   fillIns: true,
+                  ranking: [],
                 },
               },
             },
@@ -1536,6 +1620,7 @@ describe('Feed logged in', () => {
               feedControls: {
                 topics: [],
                 sources: [],
+                authors: [],
                 learning: true,
                 fillIns: true,
               },

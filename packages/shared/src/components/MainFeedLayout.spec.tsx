@@ -19,6 +19,7 @@ import { SearchProvider } from '../contexts/search/SearchContext';
 import { QueryStateKeys } from '../hooks/utils/useQueryState';
 import { ActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
 import { FEED_V2_EXPLAIN_QUERY, FEED_V2_QUERY } from '../graphql/feed';
+import { FeedTopicMode, FeedTuneTab } from '../features/feedExplain/types';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -157,9 +158,13 @@ it('keeps the feed’s actions and top slot without the rail', async () => {
 
 describe('Debug mode', () => {
   // The reader turned the switch on earlier in the session, on For You.
-  const renderDebugging = (isOn = true) => {
+  const renderDebugging = (
+    isOn = true,
+    seed?: (client: QueryClient) => void,
+  ) => {
     const client = new QueryClient();
     client.setQueryData([QueryStateKeys.FeedExplain], isOn);
+    seed?.(client);
     return render(
       <TestBootProvider client={client} auth={{ user: defaultUser }}>
         <ActiveFeedNameContext.Provider
@@ -214,5 +219,48 @@ describe('Debug mode', () => {
     expect(variables).not.toHaveProperty('explain');
     expect(isExplaining).toBe(false);
     expect(canExplainPosts).toBe(true);
+  });
+
+  it('offers Tune and Feed settings on a floating bar in Debug mode', async () => {
+    mockFlags({ explain: true, version: 116 });
+
+    renderDebugging();
+
+    expect(await screen.findByRole('button', { name: 'Done' })).toBeVisible();
+    expect(
+      screen.queryByRole('region', { name: 'Tune your feed' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("ranks the feed with Tune's draft, with the panel beside it", async () => {
+    mockFlags({ explain: true, version: 116 });
+
+    renderDebugging(true, (client) => {
+      client.setQueryData([QueryStateKeys.FeedTune], FeedTuneTab.Topics);
+      client.setQueryData(
+        [QueryStateKeys.FeedTuneChanges],
+        [
+          {
+            kind: 'topic',
+            keyword: 'rust',
+            value: { mode: FeedTopicMode.Demote },
+          },
+        ],
+      );
+    });
+
+    await screen.findByTestId('feed');
+    expect(lastFeedProps().variables).toEqual(
+      expect.objectContaining({
+        explain: true,
+        draft: { topics: [{ keyword: 'rust', mode: FeedTopicMode.Demote }] },
+      }),
+    );
+    expect(
+      screen.getByRole('region', { name: 'Tune your feed' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Done' }),
+    ).not.toBeInTheDocument();
   });
 });

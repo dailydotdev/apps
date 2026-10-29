@@ -21,7 +21,8 @@ import {
   useFeedControls,
   useFeedPersonalizationReset,
 } from '../useFeedControls';
-import { useForYouControlsAvailable } from '../useFeedExplainMode';
+import { useForYouControls } from '../useFeedExplainMode';
+import { ForYouRankingSettings } from './ForYouRankingSettings';
 
 const SettingTitle = ({
   title,
@@ -117,7 +118,7 @@ const ResetRow = ({
  * reader's For You ranking takes these settings.
  */
 export const ForYouSettings = (): ReactElement | null => {
-  const isAvailable = useForYouControlsAvailable();
+  const { isAvailable, version } = useForYouControls();
   const { controls, setLearning, setFillIns } = useFeedControls({
     origin: Origin.Settings,
     enabled: isAvailable,
@@ -182,6 +183,7 @@ export const ForYouSettings = (): ReactElement | null => {
           </div>
         </>
       )}
+      <ForYouRankingSettings version={version} />
       <Divider className="my-1 bg-border-subtlest-tertiary" />
       <div className="flex flex-col gap-1">
         <SettingTitle title="Start over">

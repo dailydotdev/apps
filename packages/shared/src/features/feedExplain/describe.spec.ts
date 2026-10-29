@@ -6,6 +6,7 @@ import {
   ExplainOrigin,
   ExplainRole,
   ExplainStrength,
+  FollowControl,
 } from './types';
 import {
   ExplainSignalKind,
@@ -80,6 +81,11 @@ describe('getReason', () => {
       "Partly about #webdev. You've read a few posts on it.",
     ],
     [
+      'a source the reader set to Show more, with no topic match',
+      ranked({ follow: { factor: 1.3, source_control: FollowControl.Boost } }),
+      `You asked for more from ${post.source?.name}.`,
+    ],
+    [
       'a topic the reader only gave a weight',
       ranked({ match: match({ origin: ExplainOrigin.Set, weight: 0.3 }) }),
       'You gave #webdev a ×1.30 boost.',
@@ -117,6 +123,21 @@ describe('getExplainSignals', () => {
       label: post.source?.name,
     });
     expect(signals).toHaveLength(3);
+  });
+
+  it('should lead with the author a follow brought the card in from', () => {
+    const signals = getExplainSignals(
+      post as Post,
+      ranked({ follow: { kind: ExplainFollowKind.Author, factor: 1.6 } }),
+      3,
+    );
+
+    expect(signals.map(({ kind }) => kind)).toEqual([
+      ExplainSignalKind.Author,
+      ExplainSignalKind.Topic,
+      ExplainSignalKind.Source,
+    ]);
+    expect(signals[0].id).toEqual(post.author?.id);
   });
 });
 

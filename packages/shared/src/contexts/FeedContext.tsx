@@ -11,6 +11,8 @@ import { usePlusSubscription } from '../hooks/usePlusSubscription';
 import { useConditionalFeature } from '../hooks/useConditionalFeature';
 import { useMedia } from '../hooks/useMedia';
 import { useIsHydrated } from '../hooks/useIsHydrated';
+import { useViewSize, ViewSize } from '../hooks/useViewSize';
+import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
 
 // Sidebar animation duration in ms (matches CSS transition in MainLayout)
 const SIDEBAR_TRANSITION_DURATION = 300;
@@ -109,6 +111,8 @@ const replaceDigitsWithIncrement = (str: string, increment: number): string => {
 
 const sidebarRenderedWidth = 44;
 const sidebarOpenWidth = 240;
+// Tune's side panel, `w-[28rem]` in FeedTunePanel, beside For You on a laptop.
+const tunePanelWidth = 448;
 
 const FeedContext = React.createContext<FeedContextData>(
   baseFeedSettings.default,
@@ -129,6 +133,11 @@ export function FeedLayoutProvider({
 }: PropsWithChildren<FeedLayoutProviderProps>): ReactElement {
   const { sidebarExpanded } = useSettingsContext();
   const { sidebarRendered } = useSidebarRendered();
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const [tuneTab] = useQueryState<string | null>({
+    key: [QueryStateKeys.FeedTune],
+    defaultValue: null,
+  });
   const { isPlus } = usePlusSubscription();
   const feedAdTemplateFeature = useConditionalFeature({
     feature: featureFeedAdTemplate,
@@ -182,21 +191,30 @@ export function FeedLayoutProvider({
       setting.breakpoint.replace('@media ', ''),
     );
 
-    let leftSidebarOffset = 0;
+    let offset = 0;
     if (sidebarRendered) {
-      leftSidebarOffset = debouncedSidebarExpanded
+      offset = debouncedSidebarExpanded
         ? sidebarOpenWidth
         : sidebarRenderedWidth;
     }
+    if (tuneTab && isLaptop) {
+      offset += tunePanelWidth;
+    }
 
-    if (leftSidebarOffset === 0) {
+    if (offset === 0) {
       return breakpoints;
     }
 
     return breakpoints.map((breakpoint) =>
-      replaceDigitsWithIncrement(breakpoint, leftSidebarOffset),
+      replaceDigitsWithIncrement(breakpoint, offset),
     );
-  }, [feedSettings, debouncedSidebarExpanded, sidebarRendered]);
+  }, [
+    feedSettings,
+    debouncedSidebarExpanded,
+    sidebarRendered,
+    tuneTab,
+    isLaptop,
+  ]);
 
   const currentSettings = useMedia(
     feedBreakpoints,

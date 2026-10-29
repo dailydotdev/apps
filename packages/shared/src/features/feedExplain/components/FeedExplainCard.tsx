@@ -18,7 +18,10 @@ import { PlusIcon } from '../../../components/icons/Plus';
 import { IconSize } from '../../../components/Icon';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 import { SourceAvatar } from '../../../components/profile/source/SourceAvatar';
-import { ProfileImageSize } from '../../../components/ProfilePicture';
+import {
+  ProfileImageSize,
+  ProfilePicture,
+} from '../../../components/ProfilePicture';
 import { AuthorSourceStack } from '../../../components/cards/common/AuthorSourceStack';
 import { TypeLabel } from '../../../components/cards/common/list/TypeLabel';
 import type { Post } from '../../../graphql/posts';
@@ -35,18 +38,24 @@ import { usePostLogEvent } from '../../../lib/feed';
 import type { FeedItemExplain, FeedProfile } from '../types';
 import {
   ExplainOrigin,
+  FeedAuthorMode,
   FeedSourceMode,
-  FeedTopicMode,
   isRankedExplain,
 } from '../types';
 import type { ExplainSignal, SignalMeta } from '../describe';
 import {
   ExplainSignalKind,
+  followModeMeta,
+  getAuthorFactor,
   getExplainSignals,
   getReason,
   getReasonDotClassName,
+  getControlMeta,
+  getSourceFactor,
   getTopicLevel,
   getTopicWeight,
+  isAuthorFollowed,
+  isSourceFollowed,
   topicModeMeta,
 } from '../describe';
 import { feedProfileQueryKey, feedProfileQueryOptions } from '../queries';
@@ -54,7 +63,12 @@ import { useFeedExplainMode } from '../useFeedExplainMode';
 import { useDropIdleForYouFeeds } from '../useDropIdleForYouFeeds';
 import type { UseFeedControls } from '../useFeedControls';
 import { useFeedControls } from '../useFeedControls';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { TopicLevelPicker } from './TopicLevelPicker';
+import { SourceLevelPicker } from './SourceLevelPicker';
+import { AuthorLevelPicker } from './AuthorLevelPicker';
+import type { TuneMovement } from '../FeedTuneContext';
+import { useFeedTuneContext } from '../FeedTuneContext';
 import { ShowLessTopicOffer } from './ShowLessTopicOffer';
 
 const signalLimit = 3;
@@ -72,6 +86,13 @@ interface RowContext {
  * Explain mode keeps only where the post is from and its title, at the
  * offsets the real card draws them so nothing on it moves.
  */
+const getMovementLabel = (movement: TuneMovement): string => {
+  if (movement === 'new') {
+    return 'New';
+  }
+  return movement > 0 ? `Up ${movement}` : `Down ${-movement}`;
+};
+
 const CardHead = ({
   post,
   position,
@@ -81,14 +102,34 @@ const CardHead = ({
   position?: number;
   isList: boolean;
 }): ReactElement => {
-  const place = position ? (
-    <span
-      className="ml-auto shrink-0 tabular-nums text-text-quaternary typo-footnote"
-      title="Place in your feed"
-    >
-      #{position}
-    </span>
-  ) : null;
+  // Where Tune's draft moved the card, against the page it replaced.
+  const movement = useFeedTuneContext().getMovement(post.id);
+  const hasMoved = movement !== undefined && movement !== 0;
+  const place =
+    position || hasMoved ? (
+      <span className="ml-auto flex shrink-0 items-baseline gap-2 typo-footnote">
+        {hasMoved && (
+          <span
+            className={classNames(
+              'font-bold',
+              movement === 'new' || movement > 0
+                ? 'text-accent-avocado-default'
+                : 'text-text-tertiary',
+            )}
+          >
+            {getMovementLabel(movement)}
+          </span>
+        )}
+        {!!position && (
+          <span
+            className="tabular-nums text-text-quaternary"
+            title="Place in your feed"
+          >
+            #{position}
+          </span>
+        )}
+      </span>
+    ) : null;
   const title = post.title || post.sharedPost?.title;
 
   return (
@@ -183,11 +224,16 @@ const getTopicMeta = (
     feedControls,
   }: Pick<RowContext, 'explain' | 'profile' | 'feedControls'>,
   isFollowed: boolean,
+  isPlus: boolean,
 ): SignalMeta => {
   const interest = profile?.interests.find((item) => item.tag === tag);
   const match = isRankedExplain(explain) ? explain.match : undefined;
   const stories =
     interest?.stories ?? (match?.tag === tag ? match.stories : undefined) ?? 0;
+  const controlMeta = getControlMeta(feedControls.getTopicControl(tag), isPlus);
+  if (controlMeta) {
+    return controlMeta;
+  }
   const level = getTopicLevel(tag, feedControls.controls, profile);
   if (level) {
     return topicModeMeta[level];
@@ -220,6 +266,7 @@ const SignalRow = ({
   const client = useQueryClient();
   const dropIdleFeeds = useDropIdleForYouFeeds();
   const { feedSettings } = useFeedSettings();
+  const { isPlus } = usePlusSubscription();
   const {
     onFollowTags,
     onUnfollowTags,
@@ -246,15 +293,21 @@ const SignalRow = ({
   const topicWeight = isTopic
     ? getTopicWeight(signal.id, explain, profile)
     : undefined;
-  const topicMode = isTopic ? feedControls.getTopicMode(signal.id) : undefined;
+  const topicControl = isTopic
+    ? feedControls.getTopicControl(signal.id)
+    : undefined;
+  const sourceControl = isTopic
+    ? undefined
+    : feedControls.getSourceControl(signal.id);
   const isSourceDemoted = !isTopic && feedControls.isSourceDemoted(signal.id);
+  const sourceMeta = getControlMeta(sourceControl, isPlus, followModeMeta);
   let meta: SignalMeta;
   if (isBlocked) {
     meta = { text: 'Blocked', className: 'text-accent-ketchup-default' };
   } else if (isTopic) {
-    meta = getTopicMeta(signal.id, context, isFollowed);
-  } else if (isSourceDemoted) {
-    meta = topicModeMeta[FeedTopicMode.Demote];
+    meta = getTopicMeta(signal.id, context, isFollowed, isPlus);
+  } else if (sourceMeta) {
+    meta = sourceMeta;
   } else {
     meta = {
       text: isFollowed ? 'You follow it' : "You don't follow it",
@@ -326,9 +379,19 @@ const SignalRow = ({
             <TopicLevelPicker
               tag={signal.id}
               weight={topicWeight.weight}
-              isSet={topicWeight.isSet || !!topicMode}
-              mode={topicMode}
-              onChange={(mode) => feedControls.setTopicMode(signal.id, mode)}
+              computedWeight={topicWeight.computedWeight}
+              isSet={topicWeight.isSet || !!topicControl}
+              control={topicControl}
+              onChange={(value) => feedControls.setTopic(signal.id, value)}
+            />
+          )}
+          {!isBlocked && !isTopic && (
+            <SourceLevelPicker
+              name={signal.label}
+              factor={getSourceFactor(explain)}
+              isFollowed={isFollowed || isSourceFollowed(explain)}
+              control={sourceControl}
+              onChange={(value) => feedControls.setSource(signal.id, value)}
             />
           )}
         </span>
@@ -411,6 +474,80 @@ const SignalRow = ({
   );
 };
 
+// Follow and block for the author are in the full explanation, which loads
+// whether the reader follows them.
+const AuthorSignalRow = ({
+  signal,
+  context,
+}: {
+  signal: ExplainSignal;
+  context: RowContext;
+}): ReactElement => {
+  const { post, explain, size, feedControls } = context;
+  const { isPlus } = usePlusSubscription();
+  const control = feedControls.getAuthorControl(signal.id);
+  const isFollowed = isAuthorFollowed(explain);
+  const isShowingLess = control?.mode === FeedAuthorMode.Demote;
+  const meta = getControlMeta(control, isPlus, followModeMeta) ?? {
+    text: isFollowed ? 'You follow them' : 'Wrote this post',
+    className: 'text-text-quaternary',
+  };
+
+  return (
+    <li
+      className={classNames(
+        'flex items-center gap-3',
+        size === ButtonSize.XSmall ? 'min-h-11' : 'min-h-12',
+      )}
+    >
+      {post.author && (
+        <span className="flex">
+          <ProfilePicture user={post.author} size={ProfileImageSize.Small} />
+        </span>
+      )}
+      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="flex min-w-0 items-center gap-1.5">
+          <span className="min-w-0 shrink truncate font-bold text-text-primary typo-footnote">
+            {signal.label}
+          </span>
+          <AuthorLevelPicker
+            name={signal.label}
+            factor={getAuthorFactor(explain)}
+            isFollowed={isFollowed}
+            control={control}
+            onChange={(value) => feedControls.setAuthor(signal.id, value)}
+          />
+        </span>
+        <span className={classNames('truncate typo-caption1', meta.className)}>
+          {meta.text}
+        </span>
+      </span>
+      <Tooltip
+        content={
+          isShowingLess
+            ? `Set ${signal.label} back to Auto.`
+            : `Show less from ${signal.label}. Their posts rank lower, but the best ones still show.`
+        }
+      >
+        <Button
+          type="button"
+          variant={ButtonVariant.Tertiary}
+          color={ButtonColor.Bun}
+          size={size}
+          icon={<MinusIcon />}
+          pressed={isShowingLess}
+          aria-label={`Show less from ${signal.label}`}
+          onClick={() =>
+            feedControls.setAuthor(signal.id, {
+              mode: isShowingLess ? null : FeedAuthorMode.Demote,
+            })
+          }
+        />
+      </Tooltip>
+    </li>
+  );
+};
+
 /**
  * The real card underneath sets the height, so the feed doesn't move. A card
  * shorter than its explanation, like a list card without an image, grows to
@@ -470,8 +607,8 @@ interface FeedExplainCardProps {
 
 /**
  * Explain mode over a feed card: why the post is here, its topics and source
- * with follow and block, Hide post and the full explanation. It covers
- * the real card, which stays underneath.
+ * with follow and block, its author when they count, Hide post and the full
+ * explanation. It covers the real card, which stays underneath.
  */
 export const FeedExplainCard = ({
   post,
@@ -505,6 +642,12 @@ export const FeedExplainCard = ({
     feedControls,
   };
   const matchTag = isRankedExplain(explain) ? explain.match?.tag : undefined;
+  const signals = getExplainSignals(
+    post,
+    explain,
+    signalLimit,
+    !!post.author && !!feedControls.getAuthorControl(post.author.id),
+  );
 
   const onHidePost = async () => {
     const isDone = await onHide();
@@ -553,13 +696,21 @@ export const FeedExplainCard = ({
         >
           <ReasonLine post={post} explain={explain} />
           <ul className="flex min-h-0 flex-col gap-1">
-            {getExplainSignals(post, explain, signalLimit).map((signal) => (
-              <SignalRow
-                key={`${signal.kind}:${signal.id}`}
-                signal={signal}
-                context={context}
-              />
-            ))}
+            {signals.map((signal) =>
+              signal.kind === ExplainSignalKind.Author ? (
+                <AuthorSignalRow
+                  key={`${signal.kind}:${signal.id}`}
+                  signal={signal}
+                  context={context}
+                />
+              ) : (
+                <SignalRow
+                  key={`${signal.kind}:${signal.id}`}
+                  signal={signal}
+                  context={context}
+                />
+              ),
+            )}
           </ul>
           <div className="-mx-1.5 mt-auto flex flex-col gap-1">
             {isHidden && matchTag && (

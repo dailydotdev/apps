@@ -10,16 +10,28 @@ import { labels } from '../../lib/labels';
 import type { LogEvent as LogEventPayload } from '../../hooks/log/useLogQueue';
 import type { Origin } from '../../lib/log';
 import { LogEvent, TargetId } from '../../lib/log';
-import type { FeedControls, FeedTopicMode } from './types';
-import { FeedSourceMode } from './types';
+import type {
+  FeedAuthorMode,
+  FeedControl,
+  FeedControlDuration,
+  FeedControls,
+} from './types';
+import { FeedSourceMode, FeedTopicMode } from './types';
 import type { FeedPersonalizationReset } from './graphql';
 import {
   resetFeedPersonalization,
+  resetFeedRankingSettings,
   setFeedFillIns,
   setFeedLearning,
+  setFeedAuthorMode,
+  setFeedAuthorWeight,
+  setFeedRankingSetting,
   setFeedSourceMode,
+  setFeedSourceWeight,
   setFeedTopicMode,
+  setFeedTopicWeight,
 } from './graphql';
+import { getExpiresAt } from './duration';
 import { feedControlsQueryKey, feedControlsQueryOptions } from './queries';
 import { useDropIdleForYouFeeds } from './useDropIdleForYouFeeds';
 import { SharedFeedPage } from '../../components/utilities/common';
@@ -27,14 +39,48 @@ import { SharedFeedPage } from '../../components/utilities/common';
 enum ChangeKind {
   Topic = 'topic',
   Source = 'source',
+  Author = 'author',
   Learning = 'learning',
   FillIns = 'fill_ins',
+  Ranking = 'ranking',
+  RankingReset = 'ranking_reset',
+}
+
+/** A level or an exact weight (Plus), for a while (Plus) or for good. */
+export interface ControlValue<Mode> {
+  mode?: Mode | null;
+  weight?: number;
+  duration?: FeedControlDuration;
 }
 
 type FeedControlChange =
-  | { kind: ChangeKind.Topic; keyword: string; mode: FeedTopicMode | null }
-  | { kind: ChangeKind.Source; sourceId: string; mode: FeedSourceMode | null }
-  | { kind: ChangeKind.Learning | ChangeKind.FillIns; enabled: boolean };
+  | ({ kind: ChangeKind.Topic; keyword: string } & ControlValue<FeedTopicMode>)
+  | ({
+      kind: ChangeKind.Source;
+      sourceId: string;
+    } & ControlValue<FeedSourceMode>)
+  | ({
+      kind: ChangeKind.Author;
+      userId: string;
+    } & ControlValue<FeedAuthorMode>)
+  | { kind: ChangeKind.Learning | ChangeKind.FillIns; enabled: boolean }
+  | { kind: ChangeKind.Ranking; key: string; value: number | null }
+  | { kind: ChangeKind.RankingReset };
+
+// Mirrors how the API stores it: an exact weight of 0 is the off level.
+const toStored = <Mode>(
+  { mode, weight, duration }: ControlValue<Mode>,
+  off?: Mode,
+): FeedControl<Mode> | null => {
+  if (weight === undefined && !mode) {
+    return null;
+  }
+  return {
+    mode: weight === 0 && off ? off : mode ?? null,
+    weight: weight || null,
+    expiresAt: getExpiresAt(duration),
+  };
+};
 
 const applyChange = (
   controls: FeedControls,
@@ -45,10 +91,11 @@ const applyChange = (
       const topics = controls.topics.filter(
         ({ keyword }) => keyword !== change.keyword,
       );
+      const stored = toStored(change, FeedTopicMode.Off);
       return {
         ...controls,
-        topics: change.mode
-          ? [...topics, { keyword: change.keyword, mode: change.mode }]
+        topics: stored
+          ? [...topics, { keyword: change.keyword, ...stored }]
           : topics,
       };
     }
@@ -56,30 +103,96 @@ const applyChange = (
       const sources = controls.sources.filter(
         ({ source }) => source.id !== change.sourceId,
       );
+      const stored = toStored(change);
       return {
         ...controls,
-        sources: change.mode
-          ? [...sources, { source: { id: change.sourceId }, mode: change.mode }]
+        sources: stored
+          ? [...sources, { source: { id: change.sourceId }, ...stored }]
           : sources,
+      };
+    }
+    case ChangeKind.Author: {
+      const authors = controls.authors.filter(
+        ({ user }) => user.id !== change.userId,
+      );
+      const stored = toStored(change);
+      return {
+        ...controls,
+        authors: stored
+          ? [...authors, { user: { id: change.userId }, ...stored }]
+          : authors,
       };
     }
     case ChangeKind.Learning:
       return { ...controls, learning: change.enabled };
-    default:
+    case ChangeKind.FillIns:
       return { ...controls, fillIns: change.enabled };
+    case ChangeKind.Ranking: {
+      const ranking = controls.ranking.filter(({ key }) => key !== change.key);
+      return {
+        ...controls,
+        ranking:
+          change.value === null
+            ? ranking
+            : [...ranking, { key: change.key, value: change.value }],
+      };
+    }
+    default:
+      return { ...controls, ranking: [] };
   }
 };
 
 const sendChange = (change: FeedControlChange): Promise<unknown> => {
   switch (change.kind) {
     case ChangeKind.Topic:
-      return setFeedTopicMode(change.keyword, change.mode);
+      return change.weight === undefined
+        ? setFeedTopicMode(change.keyword, change.mode ?? null, change.duration)
+        : setFeedTopicWeight(change.keyword, change.weight, change.duration);
     case ChangeKind.Source:
-      return setFeedSourceMode(change.sourceId, change.mode);
+      return change.weight === undefined
+        ? setFeedSourceMode(
+            change.sourceId,
+            change.mode ?? null,
+            change.duration,
+          )
+        : setFeedSourceWeight(change.sourceId, change.weight, change.duration);
+    case ChangeKind.Author:
+      return change.weight === undefined
+        ? setFeedAuthorMode(change.userId, change.mode ?? null, change.duration)
+        : setFeedAuthorWeight(change.userId, change.weight, change.duration);
     case ChangeKind.Learning:
       return setFeedLearning(change.enabled);
-    default:
+    case ChangeKind.FillIns:
       return setFeedFillIns(change.enabled);
+    case ChangeKind.Ranking:
+      return setFeedRankingSetting(change.key, change.value);
+    default:
+      return resetFeedRankingSettings();
+  }
+};
+
+const controlEvent: Record<
+  ChangeKind.Topic | ChangeKind.Source | ChangeKind.Author,
+  LogEvent
+> = {
+  [ChangeKind.Topic]: LogEvent.SetFeedTopicMode,
+  [ChangeKind.Source]: LogEvent.SetFeedSourceMode,
+  [ChangeKind.Author]: LogEvent.SetFeedAuthorMode,
+};
+
+const getControlTarget = (
+  change: Extract<
+    FeedControlChange,
+    { kind: ChangeKind.Topic | ChangeKind.Source | ChangeKind.Author }
+  >,
+): string => {
+  switch (change.kind) {
+    case ChangeKind.Topic:
+      return change.keyword;
+    case ChangeKind.Source:
+      return change.sourceId;
+    default:
+      return change.userId;
   }
 };
 
@@ -90,14 +203,27 @@ const getChangeEvent = (
   switch (change.kind) {
     case ChangeKind.Topic:
     case ChangeKind.Source:
+    case ChangeKind.Author:
       return {
-        event_name:
-          change.kind === ChangeKind.Topic
-            ? LogEvent.SetFeedTopicMode
-            : LogEvent.SetFeedSourceMode,
-        target_id:
-          change.kind === ChangeKind.Topic ? change.keyword : change.sourceId,
-        extra: JSON.stringify({ origin, mode: change.mode ?? 'auto' }),
+        event_name: controlEvent[change.kind],
+        target_id: getControlTarget(change),
+        extra: JSON.stringify({
+          origin,
+          mode: change.weight === undefined ? change.mode ?? 'auto' : 'weight',
+          weight: change.weight,
+          duration: change.duration,
+        }),
+      };
+    case ChangeKind.Ranking:
+      return {
+        event_name: LogEvent.SetFeedRankingSetting,
+        target_id: change.key,
+        extra: JSON.stringify({ origin, value: change.value }),
+      };
+    case ChangeKind.RankingReset:
+      return {
+        event_name: LogEvent.ResetFeedRankingSettings,
+        extra: JSON.stringify({ origin }),
       };
     default:
       return {
@@ -114,9 +240,11 @@ const getChangeEvent = (
 const findApiError = (error: unknown, code: ApiError) =>
   getApiError(error as ApiErrorResult, code);
 
-// The limits come back as validation errors written for the reader.
+// The limits come back as validation errors written for the reader, and a
+// Plus control after Plus ended as forbidden.
 const getErrorMessage = (error: unknown): string =>
   findApiError(error, ApiError.GraphqlValidationFailed)?.message ??
+  findApiError(error, ApiError.Forbidden)?.message ??
   labels.error.generic;
 
 interface UseFeedControlsProps {
@@ -127,16 +255,27 @@ interface UseFeedControlsProps {
 
 export interface UseFeedControls {
   controls?: FeedControls;
-  getTopicMode: (keyword: string) => FeedTopicMode | undefined;
+  getTopicControl: (keyword: string) => FeedControl<FeedTopicMode> | undefined;
+  getSourceControl: (
+    sourceId: string,
+  ) => FeedControl<FeedSourceMode> | undefined;
   isSourceDemoted: (sourceId: string) => boolean;
+  getAuthorControl: (userId: string) => FeedControl<FeedAuthorMode> | undefined;
   setTopicMode: (keyword: string, mode: FeedTopicMode | null) => void;
   setSourceMode: (sourceId: string, mode: FeedSourceMode | null) => void;
+  /** A level or an exact weight, for a while or for good. */
+  setTopic: (keyword: string, value: ControlValue<FeedTopicMode>) => void;
+  setSource: (sourceId: string, value: ControlValue<FeedSourceMode>) => void;
+  setAuthor: (userId: string, value: ControlValue<FeedAuthorMode>) => void;
   setLearning: (enabled: boolean) => void;
   setFillIns: (enabled: boolean) => void;
+  /** No value takes the setting back to the default. */
+  setRankingSetting: (key: string, value: number | null) => void;
+  resetRankingSettings: () => void;
 }
 
 /**
- * The For You controls: topic and source levels, learning and popular
+ * The For You controls: topic, source and author levels, learning and popular
  * fill-ins. A change shows at once and rolls back if it fails. It reweighs
  * the profile and drops the For You feed waiting in the cache, so the next
  * one is ranked with it.
@@ -189,9 +328,14 @@ export const useFeedControls = ({
     },
   });
 
-  const getTopicMode = useCallback(
+  const getTopicControl = useCallback(
     (keyword: string) =>
-      controls?.topics.find((topic) => topic.keyword === keyword)?.mode,
+      controls?.topics.find((topic) => topic.keyword === keyword),
+    [controls],
+  );
+  const getSourceControl = useCallback(
+    (sourceId: string) =>
+      controls?.sources.find(({ source }) => source.id === sourceId),
     [controls],
   );
   const isSourceDemoted = useCallback(
@@ -202,6 +346,11 @@ export const useFeedControls = ({
       ),
     [controls],
   );
+  const getAuthorControl = useCallback(
+    (userId: string) =>
+      controls?.authors.find(({ user: author }) => author.id === userId),
+    [controls],
+  );
   const setTopicMode = useCallback(
     (keyword: string, mode: FeedTopicMode | null) =>
       mutate({ kind: ChangeKind.Topic, keyword, mode }),
@@ -210,6 +359,30 @@ export const useFeedControls = ({
   const setSourceMode = useCallback(
     (sourceId: string, mode: FeedSourceMode | null) =>
       mutate({ kind: ChangeKind.Source, sourceId, mode }),
+    [mutate],
+  );
+  const setTopic = useCallback(
+    (keyword: string, value: ControlValue<FeedTopicMode>) =>
+      mutate({ kind: ChangeKind.Topic, keyword, ...value }),
+    [mutate],
+  );
+  const setSource = useCallback(
+    (sourceId: string, value: ControlValue<FeedSourceMode>) =>
+      mutate({ kind: ChangeKind.Source, sourceId, ...value }),
+    [mutate],
+  );
+  const setAuthor = useCallback(
+    (userId: string, value: ControlValue<FeedAuthorMode>) =>
+      mutate({ kind: ChangeKind.Author, userId, ...value }),
+    [mutate],
+  );
+  const setRankingSetting = useCallback(
+    (key: string, value: number | null) =>
+      mutate({ kind: ChangeKind.Ranking, key, value }),
+    [mutate],
+  );
+  const resetRankingSettings = useCallback(
+    () => mutate({ kind: ChangeKind.RankingReset }),
     [mutate],
   );
   const setLearning = useCallback(
@@ -223,12 +396,19 @@ export const useFeedControls = ({
 
   return {
     controls,
-    getTopicMode,
+    getTopicControl,
+    getSourceControl,
     isSourceDemoted,
+    getAuthorControl,
     setTopicMode,
     setSourceMode,
+    setTopic,
+    setSource,
+    setAuthor,
     setLearning,
     setFillIns,
+    setRankingSetting,
+    resetRankingSettings,
   };
 };
 
