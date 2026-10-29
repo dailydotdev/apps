@@ -1,5 +1,5 @@
 import type { TurnstileInstance } from '@marsidev/react-turnstile';
-import { waitForTurnstileToken } from './turnstile';
+import { getTurnstileWaitExtra, waitForTurnstileToken } from './turnstile';
 
 const createInstance = (
   getResponse: () => string | undefined,
@@ -55,5 +55,34 @@ describe('waitForTurnstileToken', () => {
     expect(
       await waitForTurnstileToken(instance, { timeoutMs: 5, intervalMs: 1 }),
     ).toBeUndefined();
+  });
+});
+
+describe('getTurnstileWaitExtra', () => {
+  it('reports the outcome and how long the user waited', () => {
+    jest.spyOn(Date, 'now').mockReturnValue(1_500);
+    expect(
+      getTurnstileWaitExtra({
+        form: 'login',
+        startedAt: 1_000,
+        token: 'token',
+        isInteractive: false,
+      }),
+    ).toEqual({ form: 'login', waited_ms: 500, outcome: 'token' });
+    expect(
+      getTurnstileWaitExtra({
+        form: 'signup',
+        startedAt: 1_000,
+        isInteractive: true,
+      }).outcome,
+    ).toBe('interactive');
+    expect(
+      getTurnstileWaitExtra({
+        form: 'signup',
+        startedAt: 1_000,
+        isInteractive: false,
+      }).outcome,
+    ).toBe('timeout');
+    jest.restoreAllMocks();
   });
 });

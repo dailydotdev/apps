@@ -62,3 +62,30 @@ export const waitForTurnstileToken = async (
     await sleep(intervalMs);
   }
 };
+
+export type TurnstileWaitOutcome = 'token' | 'interactive' | 'timeout';
+
+// Only waits long enough to matter are logged, so the event volume stays tied
+// to the case we want to tune (token not ready when the user submitted).
+export const TURNSTILE_WAIT_LOG_THRESHOLD_MS = 100;
+
+export const getTurnstileWaitExtra = ({
+  form,
+  startedAt,
+  token,
+  isInteractive,
+}: {
+  form: 'login' | 'signup';
+  startedAt: number;
+  token?: string;
+  isInteractive: boolean;
+}): { form: string; waited_ms: number; outcome: TurnstileWaitOutcome } => {
+  let outcome: TurnstileWaitOutcome = 'timeout';
+  if (token) {
+    outcome = 'token';
+  } else if (isInteractive) {
+    outcome = 'interactive';
+  }
+
+  return { form, waited_ms: Date.now() - startedAt, outcome };
+};

@@ -17,7 +17,11 @@ import { IconSize } from '../Icon';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { labels } from '../../lib';
 import { useLogContext } from '../../contexts/LogContext';
-import { waitForTurnstileToken } from '../../lib/turnstile';
+import {
+  getTurnstileWaitExtra,
+  TURNSTILE_WAIT_LOG_THRESHOLD_MS,
+  waitForTurnstileToken,
+} from '../../lib/turnstile';
 
 export interface LoginFormProps {
   onForgotPassword?: (email: string) => unknown;
@@ -84,10 +88,23 @@ function LoginForm({
 
     if (turnstileSiteKey) {
       setIsVerifyingTurnstile(true);
+      const startedAt = Date.now();
       const turnstileToken = await waitForTurnstileToken(turnstileRef.current, {
         shouldStop: () => isTurnstileInteractiveRef.current,
       });
       setIsVerifyingTurnstile(false);
+      const waitExtra = getTurnstileWaitExtra({
+        form: 'login',
+        startedAt,
+        token: turnstileToken,
+        isInteractive: isTurnstileInteractiveRef.current,
+      });
+      if (waitExtra.waited_ms >= TURNSTILE_WAIT_LOG_THRESHOLD_MS) {
+        logEvent({
+          event_name: AuthEventNames.TurnstileTokenWait,
+          extra: JSON.stringify(waitExtra),
+        });
+      }
 
       if (!turnstileToken) {
         logEvent({
@@ -96,6 +113,8 @@ function LoginForm({
             provider: 'password',
             error: 'Turnstile not valid',
             origin: Origin.LoginTurnstile,
+            waited_ms: waitExtra.waited_ms,
+            outcome: waitExtra.outcome,
           }),
         });
         setTurnstileError(true);

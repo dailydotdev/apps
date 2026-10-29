@@ -32,7 +32,11 @@ import SignupDisclaimer from './SignupDisclaimer';
 import { Checkbox } from '../fields/Checkbox';
 import { useLogContext } from '../../contexts/LogContext';
 import { useGenerateUsername, useCheckExistingEmail } from '../../hooks';
-import { waitForTurnstileToken } from '../../lib/turnstile';
+import {
+  getTurnstileWaitExtra,
+  TURNSTILE_WAIT_LOG_THRESHOLD_MS,
+  waitForTurnstileToken,
+} from '../../lib/turnstile';
 import type { AuthFormProps } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
 import AuthContainer from './AuthContainer';
@@ -85,7 +89,7 @@ export type RegistrationFormValues = Omit<
   'method' | 'provider'
 > & {
   'cf-turnstile-response'?: string;
-  headers?: Record<string, string>;
+  turnstileToken?: string;
 };
 
 const RegistrationForm = ({
@@ -238,6 +242,7 @@ const RegistrationForm = ({
     }
     isVerifyingTurnstileRef.current = true;
     setIsVerifyingTurnstile(true);
+    const turnstileStartedAt = Date.now();
     const turnstileResponse = await waitForTurnstileToken(
       turnstileRef?.current,
       { shouldStop: () => isTurnstileInteractiveRef.current },
@@ -245,11 +250,25 @@ const RegistrationForm = ({
       isVerifyingTurnstileRef.current = false;
       setIsVerifyingTurnstile(false);
     });
+    const turnstileWaitExtra = getTurnstileWaitExtra({
+      form: 'signup',
+      startedAt: turnstileStartedAt,
+      token: turnstileResponse,
+      isInteractive: isTurnstileInteractiveRef.current,
+    });
+    if (turnstileWaitExtra.waited_ms >= TURNSTILE_WAIT_LOG_THRESHOLD_MS) {
+      logRef.current({
+        event_name: AuthEventNames.TurnstileTokenWait,
+        extra: JSON.stringify(turnstileWaitExtra),
+      });
+    }
     if (!turnstileResponse) {
       logRef.current({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({
           error: 'Turnstile not valid',
+          waited_ms: turnstileWaitExtra.waited_ms,
+          outcome: turnstileWaitExtra.outcome,
         }),
       });
       setTurnstileError(true);
@@ -274,10 +293,7 @@ const RegistrationForm = ({
       return;
     }
 
-    let headers: Record<string, string> | undefined;
-    if (!(isDevelopment && !isProductionAPI) && turnstileResponse) {
-      headers = { 'True-Client-Ip': turnstileResponse };
-    }
+    const shouldSendTurnstileToken = !(isDevelopment && !isProductionAPI);
 
     onSignup({
       ...values,
@@ -286,7 +302,7 @@ const RegistrationForm = ({
       ...(isRecruiterOnboarding && {
         'traits.experienceLevel': 'NOT_ENGINEER',
       }),
-      ...(headers && { headers }),
+      ...(shouldSendTurnstileToken && { turnstileToken: turnstileResponse }),
     });
   };
 
