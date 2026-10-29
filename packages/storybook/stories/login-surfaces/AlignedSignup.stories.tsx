@@ -18,7 +18,6 @@ import {
   privacyPolicy,
   termsOfService,
 } from '@dailydotdev/shared/src/lib/constants';
-import { HERO_STYLES } from '@dailydotdev/shared/src/features/onboarding/components/signupHero/heroStyles';
 import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding/OnboardingHeader';
 import { NewTabActivationPrimer } from '@dailydotdev/shared/src/features/onboarding/components/NewTabActivationPrimer';
 import { ExtensionProviders, bootAsAnonymous } from '../extension/_providers';
@@ -169,26 +168,6 @@ const LandingSignupBlock = ({
   );
 };
 
-// `focus` is inline because the art's crop differs per shell.
-const LandingArt = ({
-  className,
-  focus,
-}: {
-  className?: string;
-  focus: string;
-}): ReactElement => (
-  <img
-    alt=""
-    aria-hidden
-    className={classNames(
-      'pointer-events-none absolute select-none object-cover',
-      className,
-    )}
-    src={signupWallHorizon}
-    style={{ objectPosition: focus }}
-  />
-);
-
 // `/onboarding` at laptop width, which also serves the extension's hand-off,
 // laid out as daily.dev/'s hero: the landing's header with only log in and
 // sign up, the art full width (cover at 47% 50%, clamp(760px, 46vw, 950px)
@@ -261,16 +240,26 @@ const DesktopFunnel = (): ReactElement => (
 
 // The Android and iOS apps at phone width: the art across the top fading
 // into the page, the logo, then the landing block anchored to the bottom.
+// The art sits 14% higher than its band so the boy and Patchy clear the
+// fade, and it fades out on its own over its last 30%.
 const PhoneFunnel = ({ isIOS }: { isIOS?: boolean }): ReactElement => (
   <div className="relative isolate flex min-h-dvh w-full flex-col justify-end overflow-hidden bg-background-default px-6 pb-8 text-text-primary">
-    <style dangerouslySetInnerHTML={{ __html: HERO_STYLES }} />
     <LandingFont />
     <div
       aria-hidden
       className="pointer-events-none absolute inset-x-0 top-0 -z-1 h-1/2 overflow-hidden"
     >
-      <LandingArt className="inset-0 size-full" focus="64% 50%" />
-      <div className="onb-art-fade absolute inset-x-0 bottom-0 h-3/5" />
+      <img
+        alt=""
+        className="absolute inset-x-0 size-full select-none object-cover"
+        src={signupWallHorizon}
+        style={{
+          top: '-14%',
+          objectPosition: '64% 50%',
+          maskImage: 'linear-gradient(to bottom, black 70%, transparent)',
+          WebkitMaskImage: 'linear-gradient(to bottom, black 70%, transparent)',
+        }}
+      />
     </div>
     <div className="flex flex-col items-center gap-6">
       <Logo
