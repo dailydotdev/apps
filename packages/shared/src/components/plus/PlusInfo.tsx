@@ -33,6 +33,7 @@ import { PlusPlanType } from '../../graphql/paddle';
 import { isIOSNative } from '../../lib/func';
 import { PlusPriceType } from '../../lib/featureValues';
 import { PlusAdjustQuantity } from './PlusAdjustQuantity';
+import { PlusCoresGiveback } from './PlusCoresGiveback';
 
 type PlusInfoProps = {
   productOptions: ProductPricingPreview[];
@@ -314,6 +315,14 @@ export const PlusInfo = ({
           >
             Continue »
           </Button>
+          {plusType === PlusType.Self && (
+            <PlusCoresGiveback
+              option={productOptions?.find(
+                (option) => option.priceId === selectedOption,
+              )}
+              className="mt-3"
+            />
+          )}
         </div>
       ) : undefined}
       {showPlusList && plusListContent}
