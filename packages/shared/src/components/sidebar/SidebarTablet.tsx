@@ -21,6 +21,7 @@ import {
   BellIcon,
   HomeIcon,
   JobIcon,
+  MailIcon,
   MegaphoneIcon,
   SourceIcon,
   UserIcon,
@@ -43,6 +44,9 @@ import { ActionType } from '../../graphql/actions';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { getUnreadText } from '../notifications/utils';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
+import { useMessagesEnabled } from '../../features/messages/hooks/useMessagesEnabled';
+import { useUnreadMessagesCount } from '../../features/messages/hooks/useUnreadMessagesCount';
+import { getMessagesUrl } from '../../features/messages/urls';
 
 export const SidebarTablet = ({
   activePage,
@@ -59,6 +63,10 @@ export const SidebarTablet = ({
   const { alerts } = useAlertsContext();
   const { user, isLoggedIn, squads } = useAuthContext();
   const { unreadCount } = useNotificationContext();
+  const { isEnabled: showMessages } = useMessagesEnabled();
+  const { total: unreadMessagesCount } = useUnreadMessagesCount(showMessages);
+  // Looking for group lives inside Messages, so its pages light this tab too.
+  const isMessagesActive = /^\/(?:messages|lfg)(?:[/?#]|$)/.test(activePage);
   const buttonProps: ButtonProps<'a' | 'button'> = {
     variant: ButtonVariant.Tertiary,
     size: ButtonSize.Large,
@@ -166,6 +174,30 @@ export const SidebarTablet = ({
           Activity
         </Button>
       </Link>
+
+      {showMessages && (
+        <Link href={getMessagesUrl()} prefetch={false} passHref>
+          <Button
+            {...buttonProps}
+            tag="a"
+            icon={
+              <span className="relative">
+                <MailIcon secondary={isMessagesActive} size={IconSize.Medium} />
+                {!!unreadMessagesCount && (
+                  <Bubble className="-right-1.5 -top-1.5 cursor-pointer px-1">
+                    {getUnreadText(unreadMessagesCount)}
+                  </Bubble>
+                )}
+              </span>
+            }
+            iconPosition={ButtonIconPosition.Top}
+            variant={ButtonVariant.Option}
+            pressed={isMessagesActive}
+          >
+            Messages
+          </Button>
+        </Link>
+      )}
 
       <Link href={squadsUrl} prefetch={false} passHref>
         <Button

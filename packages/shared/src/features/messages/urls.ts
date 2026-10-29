@@ -14,7 +14,6 @@ export enum DmOrigin {
   Inbox = 'inbox',
   Requests = 'requests',
   Header = 'header',
-  YouPage = 'you page',
   FeedWidget = 'feed widget',
 }
 
@@ -30,14 +29,22 @@ export const getMessagesUrl = (
   {
     commentId,
     requests,
+    lfg,
     origin,
-  }: { commentId?: string; requests?: boolean; origin?: DmOrigin } = {},
+  }: {
+    commentId?: string;
+    requests?: boolean;
+    lfg?: boolean;
+    origin?: DmOrigin;
+  } = {},
 ): string => {
   const path = `${webappUrl}messages${peerId ? `/${peerId}` : ''}`;
   const params = new URLSearchParams();
 
   if (requests) {
     params.set('tab', 'requests');
+  } else if (lfg) {
+    params.set('tab', 'lfg');
   }
 
   if (commentId) {

@@ -58,6 +58,7 @@ import {
   LfgFindYourPeopleWidget,
   LfgHelperWidget,
   LfgPastPostsWidget,
+  LfgYourPostStrip,
   LfgYourPostWidget,
 } from './LfgBoardWidgets';
 
@@ -311,13 +312,17 @@ export const LfgBoard = (): ReactElement => {
         side={
           <>
             <LfgFindYourPeopleWidget />
-            <LfgYourPostWidget post={myPost} />
+            <LfgYourPostWidget
+              post={myPost}
+              className={myPost ? 'hidden laptop:flex' : undefined}
+            />
             <LfgPastPostsWidget />
             <LfgHelperWidget onOpen={() => openHelper(Origin.LfgBoard)} />
           </>
         }
       >
         <div className="flex flex-col gap-6 px-4 pb-6 pt-3 tablet:px-6 laptop:pt-5">
+          {myPost && <LfgYourPostStrip post={myPost} />}
           {board.isPending && <BoardPlaceholder />}
           {posts.length > 0 && (
             <InfiniteScrolling

@@ -39,6 +39,7 @@ import { NewMessageSearch } from './NewMessageSearch';
 import { useLfgRequestCount } from '../../lfg/components/messages/LfgRequestSection';
 import { LfgReachOutDetail } from '../../lfg/components/messages/LfgReachOutDetail';
 import { LfgMessagesPromo } from '../../lfg/components/messages/LfgMessagesPromo';
+import { LfgMessagesTab } from '../../lfg/components/messages/LfgMessagesTab';
 import { useLfgEnabled } from '../../lfg/hooks/useLfgEnabled';
 
 // Two panes on laptop; below it the list and the thread are separate screens,
@@ -49,6 +50,7 @@ export const MessagesScreen = ({
   commentId,
   origin,
   showRequests = false,
+  showLfg = false,
   onCommentContextUsed,
 }: {
   activePeerId?: string;
@@ -57,6 +59,8 @@ export const MessagesScreen = ({
   commentId?: string;
   origin?: DmOrigin;
   showRequests?: boolean;
+  // Phones and tablets only: from laptop up the rail's Messages panel holds it.
+  showLfg?: boolean;
   onCommentContextUsed?: () => void;
 }): ReactElement => {
   const { user } = useAuthContext();
@@ -66,6 +70,12 @@ export const MessagesScreen = ({
   const lfgRequestCount = useLfgRequestCount();
   const { isEnabled: isLfgEnabled } = useLfgEnabled();
   const requestCount = dmRequestCount + lfgRequestCount;
+  const tab =
+    (showRequests && 'requests') ||
+    (showLfg && isLfgEnabled && 'lfg') ||
+    'chats';
+  const isLfgTab = tab === 'lfg';
+  const isChatsTab = tab === 'chats';
   const reachOutId =
     showRequests && isLfgEnabled ? activeReachOutId : undefined;
   const hasDetail = !!activePeerId || !!reachOutId;
@@ -80,7 +90,7 @@ export const MessagesScreen = ({
     event_name: LogEvent.OpenMessages,
     extra: JSON.stringify({
       origin: origin ?? null,
-      tab: showRequests ? 'requests' : 'chats',
+      tab,
       has_conversation: !!activePeerId,
     }),
   }));
@@ -166,10 +176,10 @@ export const MessagesScreen = ({
                 <Button
                   tag="a"
                   variant={
-                    showRequests ? ButtonVariant.Tertiary : ButtonVariant.Float
+                    isChatsTab ? ButtonVariant.Float : ButtonVariant.Tertiary
                   }
                   size={ButtonSize.Small}
-                  aria-current={showRequests ? undefined : 'page'}
+                  aria-current={isChatsTab ? 'page' : undefined}
                 >
                   Chats
                 </Button>
@@ -189,14 +199,31 @@ export const MessagesScreen = ({
                   Requests{requestCount > 0 && ` (${requestCount})`}
                 </Button>
               </Link>
+              {isLfgEnabled && (
+                <Link href={getMessagesUrl(undefined, { lfg: true })} passHref>
+                  <Button
+                    tag="a"
+                    variant={
+                      isLfgTab ? ButtonVariant.Float : ButtonVariant.Tertiary
+                    }
+                    size={ButtonSize.Small}
+                    className="laptop:hidden"
+                    aria-current={isLfgTab ? 'page' : undefined}
+                  >
+                    LFG
+                  </Button>
+                </Link>
+              )}
             </nav>
             <div className="min-h-0 flex-1 overflow-y-auto pb-4">
-              {showRequests ? (
+              {showRequests && (
                 <RequestList
                   activePeerId={activePeerId}
                   activeReachOutId={reachOutId}
                 />
-              ) : (
+              )}
+              {isLfgTab && <LfgMessagesTab />}
+              {isChatsTab && (
                 <>
                   {allowsMessages && <LfgMessagesPromo />}
                   <ConversationList

@@ -52,7 +52,7 @@ export const SidebarItem = ({
   const { setDragging } = useSidebarDragState();
   const isActive =
     !item.disableActiveState &&
-    (item.active ||
+    (item.active ??
       (!!item.path && isSidebarItemActive(activePage, item.path)));
   const isCollapsed = !shouldShowLabel;
   // Opt-in per item: only rows that leave the sidebar (e.g. Feed settings,

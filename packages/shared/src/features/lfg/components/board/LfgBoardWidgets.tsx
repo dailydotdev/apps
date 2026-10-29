@@ -51,14 +51,58 @@ export const LfgFindYourPeopleWidget = (): ReactElement => (
   </SquadWidget>
 );
 
+// Phones list the side widgets under the endless board, so the open post
+// sits above it instead.
+export const LfgYourPostStrip = ({ post }: { post: LfgPost }): ReactElement => {
+  const waiting = post.pendingCount ?? 0;
+
+  return (
+    <div className="flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary p-3 laptop:hidden">
+      <Link href={getLfgUrl(post.id)} passHref>
+        <a href={getLfgUrl(post.id)} className="flex min-w-0 flex-1 flex-col">
+          <Typography
+            type={TypographyType.Caption1}
+            color={TypographyColor.Tertiary}
+          >
+            Your post
+          </Typography>
+          <Typography type={TypographyType.Footnote} bold truncate>
+            {post.title}
+          </Typography>
+        </a>
+      </Link>
+      {waiting > 0 ? (
+        <Link href={getLfgReachOutUrl()} passHref>
+          <Button
+            tag="a"
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Small}
+          >
+            Review {waiting}
+          </Button>
+        </Link>
+      ) : (
+        <Typography
+          type={TypographyType.Caption1}
+          color={TypographyColor.Tertiary}
+        >
+          No responses yet
+        </Typography>
+      )}
+    </div>
+  );
+};
+
 export const LfgYourPostWidget = ({
   post,
+  className,
 }: {
   post: LfgPost | null | undefined;
+  className?: string;
 }): ReactElement => {
   if (!post) {
     return (
-      <SquadWidget title="Looking for someone?">
+      <SquadWidget title="Looking for someone?" className={className}>
         <Typography
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
@@ -87,6 +131,7 @@ export const LfgYourPostWidget = ({
   return (
     <SquadWidget
       title="Your post"
+      className={className}
       action={
         <Link href={getLfgUrl(post.id)} passHref>
           <Button
