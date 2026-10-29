@@ -1,10 +1,14 @@
 import { gql } from 'graphql-request';
 import { gqlClient } from '../../graphql/common';
+import { SUPPORTED_TYPES } from '../../graphql/feed';
 import type {
+  FeedControlDuration,
   FeedControls,
+  FeedControlsDraft,
   FeedProfile,
   FeedSourceMode,
   FeedTopicMode,
+  FeedTune,
 } from './types';
 
 export const FEED_PROFILE_QUERY = gql`
@@ -25,6 +29,11 @@ export const FEED_PROFILE_QUERY = gql`
       }
       muted
       blocked
+      ranking {
+        key
+        value
+        defaultValue
+      }
     }
   }
 `;
@@ -43,15 +52,23 @@ export const FEED_CONTROLS_QUERY = gql`
       topics {
         keyword
         mode
+        weight
+        expiresAt
       }
       sources {
         source {
           id
         }
         mode
+        weight
+        expiresAt
       }
       learning
       fillIns
+      ranking {
+        key
+        value
+      }
     }
   }
 `;
@@ -65,23 +82,60 @@ export const getFeedControls = async (): Promise<FeedControls> => {
 };
 
 export const SET_FEED_TOPIC_MODE_MUTATION = gql`
-  mutation SetFeedTopicMode($keyword: String!, $mode: FeedTopicMode) {
-    setFeedTopicMode(keyword: $keyword, mode: $mode) {
+  mutation SetFeedTopicMode(
+    $keyword: String!
+    $mode: FeedTopicMode
+    $duration: FeedControlDuration
+  ) {
+    setFeedTopicMode(keyword: $keyword, mode: $mode, duration: $duration) {
       _
     }
   }
 `;
 
-// No mode sets the topic back to Auto.
+// No mode sets the topic back to Auto. A duration is Plus.
 export const setFeedTopicMode = (
   keyword: string,
   mode: FeedTopicMode | null,
+  duration?: FeedControlDuration,
 ): Promise<unknown> =>
-  gqlClient.request(SET_FEED_TOPIC_MODE_MUTATION, { keyword, mode });
+  gqlClient.request(SET_FEED_TOPIC_MODE_MUTATION, { keyword, mode, duration });
+
+export const SET_FEED_TOPIC_WEIGHT_MUTATION = gql`
+  mutation SetFeedTopicWeight(
+    $keyword: String!
+    $weight: Float!
+    $duration: FeedControlDuration
+  ) {
+    setFeedTopicWeight(
+      keyword: $keyword
+      weight: $weight
+      duration: $duration
+    ) {
+      _
+    }
+  }
+`;
+
+// Plus only. 0 turns the topic off.
+export const setFeedTopicWeight = (
+  keyword: string,
+  weight: number,
+  duration?: FeedControlDuration,
+): Promise<unknown> =>
+  gqlClient.request(SET_FEED_TOPIC_WEIGHT_MUTATION, {
+    keyword,
+    weight,
+    duration,
+  });
 
 export const SET_FEED_SOURCE_MODE_MUTATION = gql`
-  mutation SetFeedSourceMode($sourceId: ID!, $mode: FeedSourceMode) {
-    setFeedSourceMode(sourceId: $sourceId, mode: $mode) {
+  mutation SetFeedSourceMode(
+    $sourceId: ID!
+    $mode: FeedSourceMode
+    $duration: FeedControlDuration
+  ) {
+    setFeedSourceMode(sourceId: $sourceId, mode: $mode, duration: $duration) {
       _
     }
   }
@@ -90,8 +144,67 @@ export const SET_FEED_SOURCE_MODE_MUTATION = gql`
 export const setFeedSourceMode = (
   sourceId: string,
   mode: FeedSourceMode | null,
+  duration?: FeedControlDuration,
 ): Promise<unknown> =>
-  gqlClient.request(SET_FEED_SOURCE_MODE_MUTATION, { sourceId, mode });
+  gqlClient.request(SET_FEED_SOURCE_MODE_MUTATION, {
+    sourceId,
+    mode,
+    duration,
+  });
+
+export const SET_FEED_SOURCE_WEIGHT_MUTATION = gql`
+  mutation SetFeedSourceWeight(
+    $sourceId: ID!
+    $weight: Float!
+    $duration: FeedControlDuration
+  ) {
+    setFeedSourceWeight(
+      sourceId: $sourceId
+      weight: $weight
+      duration: $duration
+    ) {
+      _
+    }
+  }
+`;
+
+// Plus only.
+export const setFeedSourceWeight = (
+  sourceId: string,
+  weight: number,
+  duration?: FeedControlDuration,
+): Promise<unknown> =>
+  gqlClient.request(SET_FEED_SOURCE_WEIGHT_MUTATION, {
+    sourceId,
+    weight,
+    duration,
+  });
+
+export const SET_FEED_RANKING_SETTING_MUTATION = gql`
+  mutation SetFeedRankingSetting($key: String!, $value: Float) {
+    setFeedRankingSetting(key: $key, value: $value) {
+      _
+    }
+  }
+`;
+
+// A value is Plus; no value takes the setting back to the default.
+export const setFeedRankingSetting = (
+  key: string,
+  value: number | null,
+): Promise<unknown> =>
+  gqlClient.request(SET_FEED_RANKING_SETTING_MUTATION, { key, value });
+
+export const RESET_FEED_RANKING_SETTINGS_MUTATION = gql`
+  mutation ResetFeedRankingSettings {
+    resetFeedRankingSettings {
+      _
+    }
+  }
+`;
+
+export const resetFeedRankingSettings = (): Promise<unknown> =>
+  gqlClient.request(RESET_FEED_RANKING_SETTINGS_MUTATION);
 
 export const SET_FEED_LEARNING_MUTATION = gql`
   mutation SetFeedLearning($enabled: Boolean!) {
@@ -134,3 +247,59 @@ export const resetFeedPersonalization = (
   reset: FeedPersonalizationReset,
 ): Promise<unknown> =>
   gqlClient.request(RESET_FEED_PERSONALIZATION_MUTATION, reset);
+
+export const FEED_TUNE_QUERY = gql`
+  query FeedTune(
+    $version: Int!
+    $first: Int
+    ${SUPPORTED_TYPES}
+    $draft: FeedControlsDraft
+  ) {
+    feedTune(
+      version: $version
+      first: $first
+      supportedTypes: $supportedTypes
+      draft: $draft
+    ) {
+      items {
+        ...FeedTuneItem
+      }
+      leftOut {
+        ...FeedTuneItem
+      }
+      summary {
+        candidates
+        eligible
+        leftOut
+        reasons
+      }
+    }
+  }
+
+  fragment FeedTuneItem on FeedPostItem {
+    post {
+      id
+      title
+      commentsPermalink
+      source {
+        id
+        name
+        image
+      }
+    }
+    explain
+  }
+`;
+
+export const getFeedTune = async (variables: {
+  version: number;
+  first?: number;
+  draft: FeedControlsDraft;
+}): Promise<FeedTune> => {
+  const { feedTune } = await gqlClient.request<{ feedTune: FeedTune }>(
+    FEED_TUNE_QUERY,
+    variables,
+  );
+
+  return feedTune;
+};

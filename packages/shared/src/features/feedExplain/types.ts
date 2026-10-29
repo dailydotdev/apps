@@ -44,12 +44,36 @@ export enum FeedSourceMode {
   Demote = 'demote',
 }
 
+/** How long a change lasts. None lasts until the reader changes it. */
+export enum FeedControlDuration {
+  ThreeDays = 'three_days',
+  Week = 'week',
+}
+
+/**
+ * A topic or source the reader set: a level, or an exact weight (Plus),
+ * until `expiresAt` (Plus) or for good. An exact weight stays stored when
+ * Plus ends but counts only while the reader has it.
+ */
+export interface FeedControl<Mode> {
+  mode: Mode | null;
+  weight: number | null;
+  expiresAt: string | null;
+}
+
+export interface FeedRankingValue {
+  key: string;
+  value: number;
+}
+
 /** How the reader steers For You: levels, learning and popular fill-ins. */
 export interface FeedControls {
-  topics: { keyword: string; mode: FeedTopicMode }[];
-  sources: { source: { id: string }; mode: FeedSourceMode }[];
+  topics: ({ keyword: string } & FeedControl<FeedTopicMode>)[];
+  sources: ({ source: { id: string } } & FeedControl<FeedSourceMode>)[];
   learning: boolean;
   fillIns: boolean;
+  /** The ranking settings the reader changed, which count with Plus. */
+  ranking: FeedRankingValue[];
 }
 
 /**
@@ -117,6 +141,11 @@ export interface FeedProfileInterest {
   backed: boolean;
 }
 
+/** A ranking setting as For You ranks with it, and its value untouched. */
+export interface FeedProfileRankingSetting extends FeedRankingValue {
+  defaultValue: number;
+}
+
 export interface FeedProfile {
   cohort: boolean;
   learning: boolean;
@@ -124,4 +153,43 @@ export interface FeedProfile {
   /** Topics the reader turned off in For You. */
   muted: string[];
   blocked: string[];
+  /** Every ranking setting the reader can change, empty outside the cohort. */
+  ranking: FeedProfileRankingSetting[];
+}
+
+/**
+ * Changes to the controls on top of the stored ones, for Tune's preview. An
+ * entry with neither a mode nor a weight is Auto, a ranking setting without
+ * a value its default.
+ */
+export interface FeedControlsDraft {
+  topics?: { keyword: string; mode?: FeedTopicMode; weight?: number }[];
+  sources?: { sourceId: string; mode?: FeedSourceMode; weight?: number }[];
+  ranking?: { key: string; value?: number }[];
+  learning?: boolean;
+}
+
+export interface FeedTunePost {
+  id: string;
+  title?: string;
+  commentsPermalink: string;
+  source?: { id: string; name: string; image: string };
+}
+
+export interface FeedTuneItem {
+  post: FeedTunePost | null;
+  explain: (FeedItemExplain & { reasons?: string[] }) | null;
+}
+
+/** For You's first page generated fresh with a draft, and what it left out. */
+export interface FeedTune {
+  items: FeedTuneItem[];
+  leftOut: FeedTuneItem[];
+  summary: {
+    candidates: number;
+    eligible: number;
+    leftOut: number;
+    /** How many left-out posts each reason applied to. */
+    reasons: Record<string, number>;
+  };
 }

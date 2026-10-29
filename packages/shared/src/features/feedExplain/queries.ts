@@ -1,7 +1,8 @@
 import { queryOptions } from '@tanstack/react-query';
 import type { LoggedUser } from '../../lib/user';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import { getFeedControls, getFeedProfile } from './graphql';
+import { getFeedControls, getFeedProfile, getFeedTune } from './graphql';
+import type { FeedControlsDraft } from './types';
 
 type QueryUser = Pick<LoggedUser, 'id'> | undefined;
 
@@ -27,5 +28,24 @@ export const feedControlsQueryOptions = (user: QueryUser) =>
     queryKey: feedControlsQueryKey(user),
     queryFn: getFeedControls,
     staleTime: StaleTime.FeedSettings,
+    enabled: !!user?.id,
+  });
+
+// For You generated fresh with a draft of the controls. Never cached by the
+// API, so each draft is its own key and only the open one is kept.
+export const feedTuneQueryOptions = ({
+  user,
+  version,
+  draft,
+}: {
+  user: QueryUser;
+  version: number;
+  draft: FeedControlsDraft;
+}) =>
+  queryOptions({
+    queryKey: generateQueryKey(RequestKey.FeedTune, user, version, draft),
+    queryFn: () => getFeedTune({ version, first: 20, draft }),
+    staleTime: StaleTime.OneMinute,
+    gcTime: 0,
     enabled: !!user?.id,
   });
