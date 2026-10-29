@@ -135,6 +135,14 @@ describe('ShowLessTopicOffer', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
+  it('should not offer it over an exact boost', () => {
+    renderOffer({
+      topics: [{ keyword: 'react', mode: null, weight: 1.2, expiresAt: null }],
+    });
+
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
   it('should not offer it for a blocked topic', () => {
     renderOffer({ blockedTags: ['react'] });
 

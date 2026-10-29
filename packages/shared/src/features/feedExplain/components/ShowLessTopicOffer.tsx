@@ -30,13 +30,15 @@ export const ShowLessTopicOffer = ({
   origin,
   className,
 }: ShowLessTopicOfferProps): ReactElement | null => {
-  const { controls, getTopicMode, setTopicMode } = useFeedControls({ origin });
+  const { controls, getTopicControl, setTopicMode } = useFeedControls({
+    origin,
+  });
   const { feedSettings } = useFeedSettings();
   const [isLowered, setIsLowered] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const shouldFocus = useRef(false);
-  const mode = getTopicMode(tag);
-  const isShowingLess = isLowered && mode === FeedTopicMode.Demote;
+  const control = getTopicControl(tag);
+  const isShowingLess = isLowered && control?.mode === FeedTopicMode.Demote;
 
   // The clicked button is swapped for the other one, so focus follows it.
   useEffect(() => {
@@ -49,7 +51,7 @@ export const ShowLessTopicOffer = ({
   if (
     !controls ||
     feedSettings?.blockedTags?.includes(tag) ||
-    (mode && !isShowingLess)
+    (control && !isShowingLess)
   ) {
     return null;
   }

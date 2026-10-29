@@ -205,7 +205,6 @@ interface UseFeedControlsProps {
 
 export interface UseFeedControls {
   controls?: FeedControls;
-  getTopicMode: (keyword: string) => FeedTopicMode | undefined;
   getTopicControl: (keyword: string) => FeedControl<FeedTopicMode> | undefined;
   getSourceControl: (
     sourceId: string,
@@ -282,10 +281,6 @@ export const useFeedControls = ({
       controls?.topics.find((topic) => topic.keyword === keyword),
     [controls],
   );
-  const getTopicMode = useCallback(
-    (keyword: string) => getTopicControl(keyword)?.mode ?? undefined,
-    [getTopicControl],
-  );
   const getSourceControl = useCallback(
     (sourceId: string) =>
       controls?.sources.find(({ source }) => source.id === sourceId),
@@ -339,7 +334,6 @@ export const useFeedControls = ({
 
   return {
     controls,
-    getTopicMode,
     getTopicControl,
     getSourceControl,
     isSourceDemoted,
