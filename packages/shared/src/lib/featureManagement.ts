@@ -75,13 +75,6 @@ export const featureReadingReminderHeroCopy = new Feature(
   },
 );
 
-// Experiment: tell reading reminder holders that the reminder can't reach them
-// without push, and ask them to turn it on
-export const featureReadingReminderPushPrompt = new Feature(
-  'reading_reminder_push_prompt',
-  false,
-);
-
 // Experiment: show the clickbait shield to free users even while they have
 // intro quests, to measure the effect on D1 retention.
 export const featureClickbaitShieldIntroQuests = new Feature(
