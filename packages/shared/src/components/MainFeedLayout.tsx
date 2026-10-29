@@ -38,6 +38,7 @@ import {
   ANONYMOUS_FEED_QUERY,
   CUSTOM_FEED_QUERY,
   feedV2SupportedTypes,
+  FEED_V2_EXPLAIN_QUERY,
   FEED_V2_QUERY,
   FOLLOWING_FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
@@ -112,6 +113,7 @@ import {
   SearchProviderNavbar,
   SearchProviderSegments,
 } from './search/SearchResults/SearchProviderTabs';
+import { useFeedExplainMode } from '../features/feedExplain/useFeedExplainMode';
 
 // Its own chunk, so readers without the rail never download it; the skeleton
 // holds the rail's exact height while it loads.
@@ -539,6 +541,16 @@ export default function MainFeedLayout({
     key: [QueryStateKeys.FeedPeriod],
     defaultValue: 0,
   });
+  // Wherever For You can explain itself it asks for an explanation per card,
+  // under its own query key: the post menu's Why am I seeing this? reads it,
+  // and Debug mode lays it over every card.
+  const { isAvailable: canExplain, isExplaining } = useFeedExplainMode({
+    isRecommended: selectedAlgo === DEFAULT_ALGORITHM_INDEX,
+  });
+  const isExplainFeed =
+    canExplain &&
+    feedName === SharedFeedPage.MyFeed &&
+    config.query === FEED_V2_QUERY;
 
   const hasSearchContent = !!navChildren || (isSearchOn && !!searchChildren);
   const search = useMemo(
@@ -674,7 +686,9 @@ export default function MainFeedLayout({
       return config.variables;
     };
 
-    const variables = getVariables();
+    const variables = isExplainFeed
+      ? { ...getVariables(), explain: true }
+      : getVariables();
 
     return {
       feedName,
@@ -683,8 +697,9 @@ export default function MainFeedLayout({
         user,
         ...Object.values(variables ?? {}),
       ),
-      query: config.query,
+      query: isExplainFeed ? FEED_V2_EXPLAIN_QUERY : config.query,
       variables,
+      isExplaining: isExplainFeed && isExplaining,
       emptyScreen,
       actionButtons: feedWithActions && !isFeedWidgetsEnabled && (
         <SearchControlHeader
@@ -728,6 +743,8 @@ export default function MainFeedLayout({
     loadedAlgo,
     isTokenValid,
     isFeedWidgetsEnabled,
+    isExplainFeed,
+    isExplaining,
   ]);
 
   // The gates above that hold `feedProps` back until the session can ask for

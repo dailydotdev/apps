@@ -9,8 +9,16 @@ import { SharedFeedPage } from './utilities';
 import { TestBootProvider } from '../../__tests__/helpers/boot';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import { useConditionalFeature } from '../hooks/useConditionalFeature';
-import { featureFeedHero, featureFeedWidgets } from '../lib/featureManagement';
+import {
+  feature as flags,
+  featureFeedExplain,
+  featureFeedHero,
+  featureFeedWidgets,
+} from '../lib/featureManagement';
 import { SearchProvider } from '../contexts/search/SearchContext';
+import { QueryStateKeys } from '../hooks/utils/useQueryState';
+import { ActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
+import { FEED_V2_EXPLAIN_QUERY, FEED_V2_QUERY } from '../graphql/feed';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -48,9 +56,13 @@ jest.mock('../features/shortcuts/components/WebappShortcutsRow', () => ({
 const mockFlags = ({
   widgets = false,
   hero = false,
+  explain = false,
+  version = flags.feedVersion.defaultValue,
 }: {
   widgets?: boolean;
   hero?: boolean;
+  explain?: boolean;
+  version?: number;
 }) =>
   jest.mocked(useConditionalFeature).mockImplementation(({ feature }) => {
     if (feature.id === featureFeedWidgets.id) {
@@ -58,6 +70,14 @@ const mockFlags = ({
     }
     if (feature.id === featureFeedHero.id) {
       return { value: hero, isLoading: false };
+    }
+    if (feature.id === featureFeedExplain.id) {
+      return { value: explain, isLoading: false };
+    }
+    if (feature.id === flags.feedVersion.id) {
+      return { value: version, isLoading: false } as ReturnType<
+        typeof useConditionalFeature
+      >;
     }
     return { value: feature.defaultValue, isLoading: false } as ReturnType<
       typeof useConditionalFeature
@@ -133,4 +153,57 @@ it('keeps the feed’s actions and top slot without the rail', async () => {
   expect(actionButtons).toBeTruthy();
   expect(topContent).toBeUndefined();
   expect(screen.queryByTestId('home-feed-tabs')).not.toBeInTheDocument();
+});
+
+describe('Debug mode', () => {
+  // The reader turned the switch on earlier in the session, on For You.
+  const renderDebugging = (isOn = true) => {
+    const client = new QueryClient();
+    client.setQueryData([QueryStateKeys.FeedExplain], isOn);
+    return render(
+      <TestBootProvider client={client} auth={{ user: defaultUser }}>
+        <ActiveFeedNameContext.Provider
+          value={{ feedName: SharedFeedPage.MyFeed }}
+        >
+          <SearchProvider>
+            <MainFeedLayout
+              feedName={SharedFeedPage.MyFeed}
+              isSearchOn={false}
+            />
+          </SearchProvider>
+        </ActiveFeedNameContext.Provider>
+      </TestBootProvider>,
+    );
+  };
+
+  it.each([
+    ['the flag off', { explain: false, version: 116 }],
+    ['a feed version that does not explain', { explain: true, version: 15 }],
+  ])('keeps the regular For You query with %s', async (_, flagValues) => {
+    mockFlags(flagValues);
+
+    renderDebugging();
+
+    await screen.findByTestId('feed');
+    expect(lastFeedProps().query).toBe(FEED_V2_QUERY);
+    expect(lastFeedProps().variables).not.toHaveProperty('explain');
+  });
+
+  it.each([
+    ['on', true],
+    ['off', false],
+  ])(
+    'asks the challenger version for explanations with Debug %s',
+    async (_, isOn) => {
+      mockFlags({ explain: true, version: 116 });
+
+      renderDebugging(isOn);
+
+      await screen.findByTestId('feed');
+      const { query, variables, isExplaining } = lastFeedProps();
+      expect(query).toBe(FEED_V2_EXPLAIN_QUERY);
+      expect(variables).toEqual(expect.objectContaining({ explain: true }));
+      expect(isExplaining).toBe(isOn);
+    },
+  );
 });

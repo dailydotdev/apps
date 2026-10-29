@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import ReactModal from 'react-modal';
 import classNames from 'classnames';
 import { ModalHeader } from './ModalHeader';
@@ -83,6 +83,8 @@ export const modalSizeToClassName: Record<ModalSize, string> = {
   [ModalSize.XLarge]: 'tablet:w-[69.25rem]',
 };
 
+let openModalCount = 0;
+
 export function Modal({
   defaultView,
   className,
@@ -117,6 +119,22 @@ export function Modal({
   const [activeView, setView] = useState<string | undefined>(
     isMobile && tabs ? defaultView : defaultView ?? stepTitle ?? tabTitle,
   );
+  const opensOverModal = useMemo(
+    () => props.isOpen && openModalCount > 0,
+    [props.isOpen],
+  );
+
+  useEffect(() => {
+    if (!props.isOpen) {
+      return undefined;
+    }
+
+    openModalCount += 1;
+    return () => {
+      openModalCount -= 1;
+    };
+  }, [props.isOpen]);
+
   const setActiveView = (view?: string) => {
     if (onViewChange && view) {
       onViewChange(view);
@@ -189,6 +207,7 @@ export function Modal({
 
   const modalOverlayClassName = classNames(
     'overlay fixed inset-0 z-modal flex flex-col items-center bg-overlay-quaternary-onion',
+    !opensOverModal && 'modal-enter',
     modalKindAndSizeToOverlayClassName[kind]?.[size],
     modalKindToOverlayClassName[kind],
     overlayClassName,

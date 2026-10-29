@@ -48,6 +48,12 @@ jest.mock('../filters/MyFeedHeading', () => ({
   },
 }));
 
+jest.mock('../../features/feedExplain/components/FeedExplainSwitch', () => ({
+  FeedExplainSwitch: function MockFeedExplainSwitch() {
+    return null;
+  },
+}));
+
 jest.mock('../buttons/ToggleClickbaitShield', () => ({
   ToggleClickbaitShield: function MockToggleClickbaitShield() {
     return null;

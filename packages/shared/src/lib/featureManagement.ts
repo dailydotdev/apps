@@ -75,13 +75,6 @@ export const featureReadingReminderHeroCopy = new Feature(
   },
 );
 
-// Experiment: tell reading reminder holders that the reminder can't reach them
-// without push, and ask them to turn it on
-export const featureReadingReminderPushPrompt = new Feature(
-  'reading_reminder_push_prompt',
-  false,
-);
-
 // Experiment: show the clickbait shield to free users even while they have
 // intro quests, to measure the effect on D1 retention.
 export const featureClickbaitShieldIntroQuests = new Feature(
@@ -256,11 +249,6 @@ export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 // it, so only readers on the grid layout are enrolled.
 export const featureGridCardTldr = new Feature('grid_card_tldr', false);
 
-// Experiment: on grid cards the bookmark moves to the card header, shown on
-// hover beside ⋯, and the bar keeps today's order at 32px with 20px icons.
-// List cards keep the bookmark in the bar. Logged-in users only.
-export const featureCardSaveOnHover = new Feature('card_save_on_hover', false);
-
 export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
   enabled: false,
   minSpacing: 10,
@@ -360,6 +348,10 @@ export type ExcoPlayerConfig = {
 export const featureExcoPlayer = new Feature<ExcoPlayerConfig>('exco_player', {
   playerId: '',
 });
+
+// Explain mode on For You: why each card is on the feed. Only shown on the
+// challenger feed versions (`challengerFeedVersions`), which explain cards.
+export const featureFeedExplain = new Feature('feed_explain', false);
 
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.

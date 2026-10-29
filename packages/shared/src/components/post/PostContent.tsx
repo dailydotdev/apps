@@ -359,7 +359,12 @@ export function PostContentRaw({
       }
     >
       {postMainColumn}
-      <PostLiveChat post={post} origin={origin} placement="mobile" />
+      <PostLiveChat
+        post={post}
+        origin={origin}
+        placement="mobile"
+        isPostPage={isPostPage}
+      />
       {postWidgetsColumn}
     </PostContentContainer>
   );
