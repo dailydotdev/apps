@@ -63,6 +63,8 @@ export interface FormInputCheckboxGroupProps
    */
   variant?: CheckboxGroupVariant;
   optionStyle?: 'default' | 'simplified';
+  /** Ends each answer with a radio or checkbox mark that fills when picked. */
+  hasSelectionMark?: boolean;
 }
 
 const getChangedValue = ({
@@ -110,6 +112,7 @@ const SelectionMark = ({
 const FormInputCheckbox = ({
   isSelected,
   isSingleChoice,
+  hasSelectionMark,
   isVertical,
   item,
   name,
@@ -118,6 +121,7 @@ const FormInputCheckbox = ({
 }: ButtonProps<'button'> & {
   isSelected: boolean;
   isSingleChoice: boolean;
+  hasSelectionMark: boolean;
   isVertical: boolean;
   name: string;
   item: CheckboxItem;
@@ -129,14 +133,11 @@ const FormInputCheckbox = ({
       aria-label={[item.label, item.hint, item.badge]
         .filter(Boolean)
         .join(', ')}
-      className={classNames(
-        'relative',
-        isVertical ? '!h-auto typo-subhead' : 'typo-body',
-        {
-          simplified: optionStyle === 'simplified',
-          'overflow-visible': !!item.badge,
-        },
-      )}
+      className={classNames(isVertical ? '!h-auto typo-subhead' : 'typo-body', {
+        simplified: optionStyle === 'simplified',
+        relative: !!item.badge || (hasSelectionMark && isVertical),
+        'overflow-visible': !!item.badge,
+      })}
       data-funnel-track={FunnelTargetId.QuizInput}
       name={name}
       pressed={isSelected}
@@ -150,7 +151,7 @@ const FormInputCheckbox = ({
           {item.badge}
         </span>
       )}
-      {isVertical && (
+      {hasSelectionMark && isVertical && (
         <SelectionMark
           isSelected={isSelected}
           isSingleChoice={isSingleChoice}
@@ -197,7 +198,7 @@ const FormInputCheckbox = ({
             {item.hint}
           </span>
         )}
-        {!isVertical && (
+        {hasSelectionMark && !isVertical && (
           <SelectionMark
             isSelected={isSelected}
             isSingleChoice={isSingleChoice}
@@ -218,6 +219,7 @@ export const FormInputCheckboxGroup = ({
   value,
   variant = CheckboxGroupVariant.Horizontal,
   optionStyle,
+  hasSelectionMark = false,
 }: FormInputCheckboxGroupProps): ReactElement => {
   const [checkedValue, setCheckedValue] =
     useState<CheckboxValues>(defaultValue);
@@ -247,6 +249,7 @@ export const FormInputCheckboxGroup = ({
         <FormInputCheckbox
           isSelected={inputValue.includes(item.value)}
           isSingleChoice={isSingleChoice}
+          hasSelectionMark={hasSelectionMark}
           isVertical={isVertical}
           item={item}
           key={item.value}
