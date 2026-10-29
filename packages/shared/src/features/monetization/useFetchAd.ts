@@ -6,7 +6,10 @@ import {
   fetchAdByPlacement,
   resolveAdFetchOptions,
 } from '../../lib/ads';
-import { featurePostBoostAds } from '../../lib/featureManagement';
+import {
+  featureAdV2Placements,
+  featurePostBoostAds,
+} from '../../lib/featureManagement';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useAdRequestConsent } from './useAdRequestConsent';
 
@@ -20,6 +23,7 @@ interface UseFetchAds {
 
 export const useFetchAd = (enabled = true): UseFetchAds => {
   const boostsEnabled = useFeature(featurePostBoostAds);
+  const v2Placements = useFeature(featureAdV2Placements);
   const consent = useAdRequestConsent(enabled);
   const { isAuthReady, isLoggedIn } = useAuthContext();
   const registered = isAuthReady ? isLoggedIn : undefined;
@@ -29,17 +33,18 @@ export const useFetchAd = (enabled = true): UseFetchAds => {
       if (!consent) {
         return null;
       }
-      return fetchAdByPlacement(
-        resolveAdFetchOptions({
+      return fetchAdByPlacement({
+        ...resolveAdFetchOptions({
           placement,
           active,
           boostsEnabled,
           consent,
           registered,
         }),
-      );
+        v2Placements,
+      });
     },
-    [boostsEnabled, consent, registered],
+    [boostsEnabled, consent, registered, v2Placements],
   );
 
   return {

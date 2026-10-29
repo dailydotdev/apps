@@ -45,7 +45,7 @@ export const useSimilarSquads = ({
     enabled: isEnabled,
   });
   const { data: ad, isPending: isAdPending } = useAdQuery({
-    placement: AdPlacement.SquadDirectory,
+    placement: AdPlacement.SimilarSquads,
     queryKey: generateQueryKey(RequestKey.Ads, user, adKey, squadId),
     enabled: canPromote,
     staleTime: StaleTime.OneHour,

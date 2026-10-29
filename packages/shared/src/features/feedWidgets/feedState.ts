@@ -122,7 +122,7 @@ export const useFeedWidgetAd = ({
   const queryKey = generateQueryKey(RequestKey.Ads, user, 'feed-widgets');
   const isEnabled = enabled && isTokenValid && !isPlus;
   const { data: ad, isFetched } = useAdQuery({
-    placement: AdPlacement.Feed,
+    placement: AdPlacement.FeedWidget,
     queryKey,
     enabled: isEnabled,
     staleTime: StaleTime.OneHour,

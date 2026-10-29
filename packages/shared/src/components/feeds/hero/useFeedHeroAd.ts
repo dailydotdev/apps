@@ -36,7 +36,7 @@ export const useFeedHeroAd = (): FeedHeroAdSlot => {
   const queryKey = generateQueryKey(RequestKey.Ads, user, 'feed-hero');
   const enabled = isTokenValid && !isPlus && shape.adPlacement !== 'none';
   const { data: ad } = useAdQuery({
-    placement: AdPlacement.Feed,
+    placement: AdPlacement.FeedHero,
     queryKey,
     enabled,
     staleTime: StaleTime.OneHour,
