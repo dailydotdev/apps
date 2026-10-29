@@ -66,7 +66,7 @@ const MoreWaysIn = (): ReactElement => (
 
       <Surface
         title="Sign-up modal"
-        note="The sign-up screen people see most. About 40 triggers open it from wherever they are: vote, comment, bookmark, follow, feed filters, search, join squad, award, report, hide. A modal on desktop, full screen on phone, with all four providers and email. Decided Oct 29, 2026: the phone version drops its “Sign up to …” line under the title, as web already does (the line is phone only today, AuthDefault.tsx). Not built."
+        note="The sign-up screen people see most. About 40 triggers open it from wherever they are: vote, comment, bookmark, follow, feed filters, search, join squad, award, report, hide. A modal on desktop, full screen on phone, with all four providers and email. Decided Oct 29, 2026: the phone version drops its “Sign up to …” line under the title, as web already does (the line is phone only today, AuthDefault.tsx). Shown below as an edited capture; not built."
         shots={[
           {
             file: 'more-modal-desktop',
@@ -80,9 +80,12 @@ const MoreWaysIn = (): ReactElement => (
             file: 'more-modal-pixel',
             step: 'Phone',
             title: 'Full screen',
-            note: 'The “Sign up to vote on posts and comments.” line under the title goes, as decided.',
+            note: '“Sign up to vote on posts and comments.” under the title.',
             device: 'phone',
-            isToAlign: true,
+            after: {
+              file: 'more-modal-pixel-after',
+              note: 'the line goes, as decided; the buttons move up into its place.',
+            },
           },
         ]}
       />
@@ -237,9 +240,12 @@ const MoreWaysIn = (): ReactElement => (
             file: 'more-squad-join-pixel',
             step: 'Join Squad',
             title: 'Full-screen sign up',
-            note: '“Sign up to join this Squad.”',
+            note: '“Sign up to join this Squad.” under the title.',
             device: 'phone',
-            isToAlign: true,
+            after: {
+              file: 'more-squad-join-pixel-after',
+              note: 'the line goes, as decided.',
+            },
           },
         ]}
       />

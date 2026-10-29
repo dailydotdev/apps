@@ -12,8 +12,11 @@ export type Shot = {
   title: string;
   note: ReactNode;
   device: 'desktop' | 'phone';
-  /** The aligned screen, as a live story, when this one changes. */
-  after?: { storyId: string; note: ReactNode };
+  /**
+   * The aligned screen when this one changes: a live story, or an edited
+   * capture when the change is only taking something out.
+   */
+  after?: ({ storyId: string } | { file: string }) & { note: ReactNode };
   /** Mapped, but not aligned yet. */
   isToAlign?: boolean;
 };
@@ -83,13 +86,9 @@ const Screen = (shot: Shot): ReactElement => {
     <figure className="flex shrink-0 flex-col gap-2">
       <div className="flex items-start gap-3">
         <div className={classNames('flex flex-col gap-2', frameWidth(device))}>
-          {isToAlign ? (
-            <Tag tone="todo">To align</Tag>
-          ) : (
-            <Tag tone={after ? 'before' : 'same'}>
-              {after ? 'Before' : 'Unchanged'}
-            </Tag>
-          )}
+          {after && <Tag tone="before">Before</Tag>}
+          {!after && isToAlign && <Tag tone="todo">To align</Tag>}
+          {!after && !isToAlign && <Tag tone="same">Unchanged</Tag>}
           <Capture {...shot} />
         </div>
         {after && (
@@ -97,11 +96,19 @@ const Screen = (shot: Shot): ReactElement => {
             className={classNames('flex flex-col gap-2', frameWidth(device))}
           >
             <Tag tone="after">After</Tag>
-            <LiveFrame
-              storyId={bareStory(after.storyId)}
-              title={`${title}, aligned`}
-              {...afterViewport(device, after.storyId)}
-            />
+            {'storyId' in after ? (
+              <LiveFrame
+                storyId={bareStory(after.storyId)}
+                title={`${title}, aligned`}
+                {...afterViewport(device, after.storyId)}
+              />
+            ) : (
+              <Capture
+                {...shot}
+                file={after.file}
+                title={`${title}, aligned`}
+              />
+            )}
           </div>
         )}
       </div>
