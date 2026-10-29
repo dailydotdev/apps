@@ -78,14 +78,14 @@ export default function ScrollToTopButton(): ReactElement | null {
         aria-hidden={!show}
         tabIndex={show ? 0 : -1}
         onClick={onClick}
-        className="shell-material shell-press absolute -top-[3.375rem] right-7 z-2 mt-[calc(-1_*_var(--sponsor-strip-height,0.75rem))] flex h-[2.375rem] items-center justify-center gap-1.5 rounded-14 pl-3 pr-4 font-bold text-text-primary typo-callout"
+        className="shell-material shell-press absolute -top-[3.375rem] right-7 z-2 mt-[calc(-1_*_var(--sponsor-strip-height,0.75rem))] flex h-[2.375rem] items-center justify-center gap-1 rounded-14 pl-3 pr-4 font-bold text-text-primary typo-callout"
         // Keeps the shell's press swell alongside the show/hide motion.
         style={{
           ...style,
           transition: `${baseStyle.transition}, scale 150ms ease-out`,
         }}
       >
-        <MoveToIcon size={IconSize.XSmall} className="-rotate-90" />
+        <MoveToIcon size={IconSize.Size16} className="-rotate-90" />
         Back to top
       </button>
     );
