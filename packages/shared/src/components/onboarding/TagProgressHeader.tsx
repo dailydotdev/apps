@@ -126,7 +126,7 @@ const TypingHeadline = ({
   text: string;
   headlines: string[];
 }): ReactElement => {
-  const [visible, setVisible] = useState(text.length);
+  const [typing, setTyping] = useState({ text, visible: text.length });
   const typedText = useRef(text);
 
   useEffect(() => {
@@ -137,17 +137,16 @@ const TypingHeadline = ({
     typedText.current = text;
 
     if (prefersReducedMotion()) {
-      setVisible(text.length);
+      setTyping({ text, visible: text.length });
       return undefined;
     }
 
-    let typed = 0;
-    setVisible(typed);
+    let visible = 0;
     const interval = window.setInterval(() => {
-      typed += 1;
-      setVisible(typed);
+      visible += 1;
+      setTyping({ text, visible });
 
-      if (typed >= text.length) {
+      if (visible >= text.length) {
         window.clearInterval(interval);
       }
     }, TYPING_MS_PER_CHAR);
@@ -168,7 +167,7 @@ const TypingHeadline = ({
         </span>
       ))}
       <span aria-hidden className="[grid-area:1/1]">
-        {text.slice(0, visible)}
+        {typing.text === text ? text.slice(0, typing.visible) : ''}
       </span>
     </h1>
   );

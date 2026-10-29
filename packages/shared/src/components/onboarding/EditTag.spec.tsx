@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { EditTag } from './EditTag';
 import type { FeedSettings } from '../../graphql/feedSettings';
 import { featureOnboardingTagProgress } from '../../lib/featureManagement';
@@ -117,5 +117,37 @@ describe('EditTag tag progress experiment', () => {
       }),
     ).toBeInTheDocument();
     expect(screen.getByText('Pick 5 tags to get started.')).toBeVisible();
+  });
+
+  it('types the next headline in when a milestone is reached', () => {
+    jest.useFakeTimers();
+    mockFeatures.set(featureOnboardingTagProgress, true);
+    const { rerender } = renderEditTag(4);
+
+    rerender(
+      <EditTag
+        feedSettings={feedSettingsWith(5)}
+        userId="u1"
+        hidePreview
+        isOnboarding
+      />,
+    );
+
+    expect(
+      screen.queryByText('Keep tuning your feed', {
+        selector: 'span:not(.invisible)',
+      }),
+    ).not.toBeInTheDocument();
+
+    act(() => {
+      jest.runAllTimers();
+    });
+
+    expect(
+      screen.getByText('Keep tuning your feed', {
+        selector: 'span:not(.invisible)',
+      }),
+    ).toBeInTheDocument();
+    jest.useRealTimers();
   });
 });
