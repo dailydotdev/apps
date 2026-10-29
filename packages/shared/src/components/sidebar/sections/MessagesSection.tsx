@@ -17,8 +17,6 @@ import {
   messageSettingsUrl,
 } from '../../../features/messages/urls';
 
-// The Messages tab's panel: the inbox and its requests, then Looking for
-// group, whose every reach-out turns into a chat.
 export const MessagesSection = ({
   isItemsButton,
   ...defaultRenderSectionProps

@@ -9,7 +9,6 @@ import { lfgWaitingCountQueryOptions } from '../../lfg/queries';
 import { useLfgEnabled } from '../../lfg/hooks/useLfgEnabled';
 
 type UnreadMessagesCount = {
-  // Conversations with unread messages.
   unread: number;
   // What waits in the Requests tab: message requests and reach-outs to the
   // viewer's Looking for group posts.

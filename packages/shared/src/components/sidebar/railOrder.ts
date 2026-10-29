@@ -34,8 +34,6 @@ export const mergeRailOrder = <T>(saved: T[], defaults: T[]): T[] => {
   return merged;
 };
 
-// Swap a retired id for the one that took its place, keeping the slot the
-// user dragged it to. Once the new id is saved too, the old one is dropped.
 export const replaceRailItem = <T>(saved: T[], from: T, to: T): T[] =>
   saved.includes(to)
     ? saved.filter((id) => id !== from)

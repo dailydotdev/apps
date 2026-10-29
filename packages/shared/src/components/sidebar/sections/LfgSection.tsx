@@ -16,9 +16,8 @@ import { getLfgUrl, lfgNewPostUrl } from '../../../features/lfg/lib/format';
 import { useLfgEnabled } from '../../../features/lfg/hooks/useLfgEnabled';
 import { useLfgModals } from '../../../features/lfg/hooks/useLfgModals';
 
-// Looking for group inside the Messages panel: the board, the reader's own
-// post with the responses waiting on it (or a way to write one) and Open to
-// helping. The phone LFG tab in Messages lists the same rows.
+// Looking for group inside the Messages panel. The phone LFG tab in Messages
+// lists the same rows.
 export const LfgSection = ({
   isItemsButton,
   ...defaultRenderSectionProps

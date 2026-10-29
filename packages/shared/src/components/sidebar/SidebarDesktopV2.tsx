@@ -2130,8 +2130,6 @@ export const SidebarDesktopV2 = ({
     return activeLabel ?? '';
   })();
 
-  // The inbox tabs keep their unread count when they fold into "More": on the
-  // More button as a total, and on each row.
   const getTabUnreadCount = (id: SidebarCategoryId): number => {
     if (id === SidebarCategory.Notifications) {
       return unreadNotificationsCount ?? 0;
