@@ -2,6 +2,7 @@ import { gql } from 'graphql-request';
 import { CUSTOM_FEED_FRAGMENT, FEED_POST_FRAGMENT } from './fragments';
 import { POST_HIGHLIGHT_FRAGMENT, type PostHighlight } from './highlights';
 import type { Post } from './posts';
+import type { FeedItemExplain } from '../features/feedExplain/types';
 import { PostType } from '../types';
 import type { Connection } from './common';
 import type { FeedOrder } from '../lib/constants';
@@ -67,6 +68,7 @@ type FeedV2PostItem = {
   __typename?: 'FeedPostItem';
   post?: Post | null;
   feedMeta?: string | null;
+  explain?: FeedItemExplain | null;
 };
 
 type FeedV2HighlightsItem = {
@@ -178,6 +180,9 @@ const normalizeFeedV2Edge = (
         post: {
           ...node.post,
           ...(feedMeta ? { feedMeta } : {}),
+          // Only the explain query selects it, so null still means the card
+          // is shown in Explain mode, just without an explanation.
+          ...('explain' in node ? { explain: node.explain ?? null } : {}),
         },
       },
     };
@@ -404,6 +409,61 @@ export const FEED_V2_QUERY = gql`
           __typename
           ... on FeedPostItem {
             feedMeta
+            post {
+              ...FeedPost
+              contentHtml
+              ...UserPost @include(if: $loggedIn)
+            }
+          }
+          ... on FeedHighlightsItem {
+            feedMeta
+            highlights {
+              ...PostHighlightCard
+            }
+          }
+        }
+      }
+    }
+  }
+  ${FEED_POST_FRAGMENT}
+  ${USER_POST_FRAGMENT}
+  ${POST_HIGHLIGHT_FRAGMENT}
+`;
+
+// FEED_V2_QUERY for Explain mode: each card also says why it is on the
+// feed. Its own query so the regular feed never asks for explanations.
+export const FEED_V2_EXPLAIN_QUERY = gql`
+  query FeedV2Explain(
+    $loggedIn: Boolean! = false
+    $first: Int
+    $after: String
+    $ranking: Ranking
+    $version: Int
+    $highlightsLimit: Int
+    $columns: Int
+    $explain: Boolean = true
+    ${SUPPORTED_TYPES}
+  ) {
+    page: feedV2(
+      first: $first
+      after: $after
+      ranking: $ranking
+      version: $version
+      highlightsLimit: $highlightsLimit
+      supportedTypes: $supportedTypes
+      columns: $columns
+      explain: $explain
+    ) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      edges {
+        node {
+          __typename
+          ... on FeedPostItem {
+            feedMeta
+            explain
             post {
               ...FeedPost
               contentHtml

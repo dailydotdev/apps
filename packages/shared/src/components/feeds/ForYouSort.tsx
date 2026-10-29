@@ -22,6 +22,7 @@ import { Drawer } from '../drawers/Drawer';
 import { RootPortal } from '../tooltips/Portal';
 import { SheetChoice } from '../shell/ShellRow';
 import { useFeedSettingsAction } from '../filters/MyFeedHeading';
+import { FeedExplainSwitch } from '../../features/feedExplain/components/FeedExplainSwitch';
 
 export interface ForYouSort {
   canSort: boolean;
@@ -55,26 +56,50 @@ export const useForYouSort = (onChange?: () => void): ForYouSort => {
   };
 };
 
+/** The phone's For you tab, a button for the For you sheet. */
+export const getForYouMenuAriaLabel = ({
+  label,
+  selected,
+  isExplaining,
+}: {
+  label: string;
+  selected: number;
+  isExplaining: boolean;
+}): string =>
+  `${label}${
+    selected === DEFAULT_ALGORITHM_INDEX ? '' : `, ${algorithms[selected].text}`
+  }${isExplaining ? ', Debug' : ''}, sort and feed settings`;
+
 export const forYouChevronClassName =
   'rotate-180 text-text-tertiary transition-transform motion-reduce:transition-none [[data-state=open]_&]:rotate-0';
 
-/** The tab's name, with the sort beside it once it is not the default. */
+/**
+ * The tab's name, with the sort beside it once it is not the default, or
+ * Debug while it explains its cards (phones, where the switch is in the sheet).
+ */
 export const ForYouTabLabel = ({
   label,
   selected,
   hasChevron = false,
+  isExplaining = false,
 }: {
   label: string;
   selected: number;
   hasChevron?: boolean;
+  isExplaining?: boolean;
 }): ReactElement => (
   <>
-    {label}
-    {selected !== DEFAULT_ALGORITHM_INDEX && (
-      <span className="ml-1 font-normal text-text-tertiary">
-        · {algorithms[selected].text}
-      </span>
-    )}
+    <span>
+      {label}
+      {selected !== DEFAULT_ALGORITHM_INDEX && (
+        <span className="ml-1 font-normal text-text-tertiary">
+          · {algorithms[selected].text}
+        </span>
+      )}
+      {isExplaining && (
+        <span className="ml-1 font-normal text-text-tertiary">· Debug</span>
+      )}
+    </span>
     {hasChevron && (
       <ArrowIcon
         size={IconSize.Size16}
@@ -122,7 +147,8 @@ export const ForYouSortMenu = ({
 
 /**
  * The phone's For you sheet, after the Explore sort sheet: the sort, then
- * Feed settings, which lives here on phones instead of on the tab bar.
+ * Explain and Feed settings, which live here on phones instead of on the
+ * tab bar.
  */
 export const ForYouSheet = ({
   title,
@@ -169,6 +195,10 @@ export const ForYouSheet = ({
             sort.canSort && 'border-t border-border-subtlest-tertiary',
           )}
         >
+          <FeedExplainSwitch
+            isRow
+            isRecommended={sort.selected === DEFAULT_ALGORITHM_INDEX}
+          />
           <button
             type="button"
             onClick={openFeedSettings}

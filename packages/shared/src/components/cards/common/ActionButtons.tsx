@@ -31,7 +31,6 @@ import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
 import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
 import { useEngagementBarV2 } from '../../../hooks/useEngagementBarV2';
 import ActionButtonsV2 from './ActionButtons.v2';
-import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
 import { getPostPath } from '../../../lib/links';
 
 export type ActionButtonsVariant = 'grid' | 'list';
@@ -48,9 +47,8 @@ export interface ActionButtonsProps {
   variant?: ActionButtonsVariant;
   showDownvoteAction?: boolean;
   /**
-   * `card_save_on_hover`: the card renders the bookmark in its header, so the
-   * bar leaves it out. Only grid cards that do so pass it; it is ignored when
-   * the flag is off.
+   * The card renders the bookmark in its header, so the bar leaves it out.
+   * Only grid cards that do so pass it; it is ignored on list cards.
    */
   bookmarkInHeader?: boolean;
 }
@@ -75,10 +73,7 @@ const variantConfig = {
 } as const;
 
 interface ActionButtonsV1Props extends ActionButtonsProps {
-  /**
-   * `card_save_on_hover` treatment on grid cards: today's bar at 32px with
-   * 20px icons, in the same 36px row.
-   */
+  /** Grid cards: the bar at 32px with 20px icons, in the same 36px row. */
   large?: boolean;
 }
 
@@ -338,23 +333,17 @@ const ActionButtonsV1 = ({
 
 const ActionButtons = (props: ActionButtonsProps): ReactElement | null => {
   const { variant = 'grid', bookmarkInHeader, ...rest } = props;
-  // `card_save_on_hover` only changes grid cards, so only they evaluate it:
-  // list and signal renders must not enroll users who never see a change.
-  const saveOnHover = useCardSaveOnHover({
-    shouldEvaluate: variant === 'grid',
-  });
   const useV2 = useEngagementBarV2();
-  // The treatment keeps the bar control renders (v1, or v2 for
-  // `engagement_bar_v2` users) and only changes its size and the bookmark's
-  // place, so the test measures those two things and not a bar swap.
-  const treatment = saveOnHover && variant === 'grid';
-  const inHeader = treatment && !!bookmarkInHeader;
+  // Grid cards get the larger bar and, when the card renders it in its header,
+  // drop the bookmark from the bar. List cards keep the default bar.
+  const isGrid = variant === 'grid';
+  const inHeader = isGrid && !!bookmarkInHeader;
   if (useV2) {
     return (
       <ActionButtonsV2
         {...rest}
         variant={variant}
-        density={treatment ? 'compact' : undefined}
+        density={isGrid ? 'compact' : undefined}
         bookmarkInHeader={inHeader}
       />
     );
@@ -363,7 +352,7 @@ const ActionButtons = (props: ActionButtonsProps): ReactElement | null => {
     <ActionButtonsV1
       {...rest}
       variant={variant}
-      large={treatment}
+      large={isGrid}
       bookmarkInHeader={inHeader}
     />
   );

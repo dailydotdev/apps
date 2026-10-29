@@ -33,6 +33,7 @@ import { AdViewability } from './cards/ad/common/AdViewability';
 import type { ViewabilityData } from '../features/monetization/viewability';
 import { viewabilityLogExtra } from '../features/monetization/viewability';
 import { ActivePostContextProvider } from '../contexts/ActivePostContext';
+import { FeedExplainCard } from '../features/feedExplain/components/FeedExplainCard';
 import { LogExtraContextProvider } from '../contexts/LogExtraContext';
 import { SquadAdList } from './cards/ad/squad/SquadAdList';
 import { SquadAdGrid } from './cards/ad/squad/SquadAdGrid';
@@ -97,6 +98,8 @@ export type FeedItemComponentProps = {
   wideColSpan?: FeaturedWideColSpan;
   /** Set on search feeds so impressions can be joined to the query. */
   searchLogExtra?: SearchLogExtra;
+  /** Debug mode: the card's explanation covers it. */
+  isExplaining?: boolean;
 } & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'> &
   Pick<UseBookmarkPost, 'toggleBookmark'>;
 
@@ -238,6 +241,7 @@ function FeedItemComponent({
   virtualizedNumCards,
   wideColSpan,
   searchLogExtra,
+  isExplaining = false,
 }: FeedItemComponentProps): ReactElement | null {
   const { logEvent } = useLogContext();
   const inViewRef = useLogImpression({
@@ -250,6 +254,7 @@ function FeedItemComponent({
     ranking,
     highlightColSpan: wideColSpan,
     searchLogExtra,
+    isExplaining,
   });
 
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
@@ -416,13 +421,26 @@ function FeedItemComponent({
     const WideCard = isWidenedFeaturedPost
       ? PostTypeToWideCard[itemPost.type]
       : undefined;
+    // Only posts of the explained For You feed carry `explain`, null included.
+    const explainCard = isExplaining &&
+      item.type === FeedItemType.Post &&
+      itemPost.explain !== undefined && (
+        <FeedExplainCard
+          post={itemPost}
+          explain={itemPost.explain}
+          isList={shouldUseListFeedLayout || shouldUseListMode}
+        />
+      );
 
     return (
       <ActivePostContextProvider post={itemPost}>
         {WideCard ? (
-          <WideCard {...postCardProps} wideColSpan={wideColSpan} />
+          <WideCard {...postCardProps} wideColSpan={wideColSpan}>
+            {explainCard}
+          </WideCard>
         ) : (
           <PostTag {...postCardProps}>
+            {explainCard}
             {item.type === FeedItemType.Ad && (
               <>
                 <AdPixel pixel={item.ad.pixel} />

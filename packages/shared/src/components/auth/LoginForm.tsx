@@ -17,6 +17,11 @@ import { IconSize } from '../Icon';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { labels } from '../../lib';
 import { useLogContext } from '../../contexts/LogContext';
+import {
+  getTurnstileWaitExtra,
+  TURNSTILE_WAIT_LOG_THRESHOLD_MS,
+  waitForTurnstileToken,
+} from '../../lib/turnstile';
 
 export interface LoginFormProps {
   onForgotPassword?: (email: string) => unknown;
@@ -59,6 +64,8 @@ function LoginForm({
   const turnstileRef = useRef<TurnstileInstance>(null);
   const [turnstileLoaded, setTurnstileLoaded] = useState(false);
   const [turnstileError, setTurnstileError] = useState(false);
+  const [isVerifyingTurnstile, setIsVerifyingTurnstile] = useState(false);
+  const isTurnstileInteractiveRef = useRef(false);
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_KEY ?? '';
 
   useEffect(() => {
@@ -70,25 +77,54 @@ function LoginForm({
   const onLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!onPasswordLogin) {
-      return;
-    }
-
-    if (turnstileSiteKey && !turnstileRef.current?.getResponse()) {
-      logEvent({
-        event_name: AuthEventNames.LoginError,
-        extra: JSON.stringify({
-          provider: 'password',
-          error: 'Turnstile not valid',
-          origin: Origin.LoginTurnstile,
-        }),
-      });
-      setTurnstileError(true);
+    if (!onPasswordLogin || isVerifyingTurnstile) {
       return;
     }
 
     const form = formToJson<LoginFormParams>(e.currentTarget);
-    form.turnstileToken = turnstileRef.current?.getResponse() ?? undefined;
+    if (!form.identifier || !form.password) {
+      return;
+    }
+
+    if (turnstileSiteKey) {
+      setIsVerifyingTurnstile(true);
+      const startedAt = Date.now();
+      const turnstileToken = await waitForTurnstileToken(turnstileRef.current, {
+        shouldStop: () => isTurnstileInteractiveRef.current,
+      });
+      setIsVerifyingTurnstile(false);
+      const waitExtra = getTurnstileWaitExtra({
+        form: 'login',
+        startedAt,
+        token: turnstileToken,
+        isInteractive: isTurnstileInteractiveRef.current,
+      });
+      if (waitExtra.waited_ms >= TURNSTILE_WAIT_LOG_THRESHOLD_MS) {
+        logEvent({
+          event_name: AuthEventNames.TurnstileTokenWait,
+          extra: JSON.stringify(waitExtra),
+        });
+      }
+
+      if (!turnstileToken) {
+        logEvent({
+          event_name: AuthEventNames.LoginError,
+          extra: JSON.stringify({
+            provider: 'password',
+            error: 'Turnstile not valid',
+            origin: Origin.LoginTurnstile,
+            waited_ms: waitExtra.waited_ms,
+            outcome: waitExtra.outcome,
+          }),
+        });
+        setTurnstileError(true);
+        return;
+      }
+
+      form.turnstileToken = turnstileToken;
+    }
+
+    setTurnstileError(false);
     onPasswordLogin(form);
   };
   const [shouldFocus, setShouldFocus] = useState(autoFocus);
@@ -121,6 +157,7 @@ function LoginForm({
         name="identifier"
         label="Email"
         type="email"
+        autoComplete="username"
         value={email}
         data-testid="login_email"
         saveHintSpace
@@ -138,6 +175,8 @@ function LoginForm({
         inputId="password"
         name="password"
         label="Password"
+        autoComplete="current-password"
+        required
         showStrength={false}
         saveHintSpace
         onChange={() => hint && setHint(null)}
@@ -149,6 +188,12 @@ function LoginForm({
           options={{ theme: 'dark' }}
           className="mx-auto min-h-[4.5rem]"
           onWidgetLoad={() => setTurnstileLoaded(true)}
+          onBeforeInteractive={() => {
+            isTurnstileInteractiveRef.current = true;
+          }}
+          onAfterInteractive={() => {
+            isTurnstileInteractiveRef.current = false;
+          }}
         />
       )}
       {turnstileError && (
@@ -171,7 +216,7 @@ function LoginForm({
           className="flex-1"
           variant={ButtonVariant.Primary}
           type="submit"
-          loading={!isReady}
+          loading={!isReady || isVerifyingTurnstile}
           disabled={isLoading || (!!turnstileSiteKey && !turnstileLoaded)}
         >
           {loginButton}

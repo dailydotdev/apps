@@ -17,6 +17,7 @@ const preview: Preview = {
           'Tokens',
           'Atoms',
           'Components',
+          'Commitment onboarding',
           'Pages',
           'Open Graph',
           'Experiments',

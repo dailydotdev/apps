@@ -28,6 +28,7 @@ import {
   StaleTime,
 } from '../lib/query';
 import type { PostHero } from './types';
+import type { FeedItemExplain } from '../features/feedExplain/types';
 import type { CommunitySentimentPost } from '../components/post/focus/CommunitySentiment';
 
 export const ACCEPTED_TYPES = 'image/png,image/jpeg,image/webp,image/avif';
@@ -306,6 +307,8 @@ export interface Post {
   private?: boolean;
   noindex?: boolean;
   feedMeta?: string;
+  // Why the post is on For You, set only on posts from the Explain mode feed.
+  explain?: FeedItemExplain | null;
   downvoted?: boolean;
   flags?: PostFlags;
   userState?: PostUserState;

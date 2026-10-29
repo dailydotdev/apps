@@ -24,6 +24,8 @@ export enum WebKitMessageHandlers {
   StatusBar = 'status-bar',
   NavState = 'nav-state',
   Reading = 'reading',
+
+  RequestTracking = 'request-tracking',
 }
 
 type IOSWebkitGlobal = typeof globalThis & {
@@ -71,4 +73,12 @@ export const postWebKitMessage = <T = unknown>(
   }
 
   messageHandler.postMessage(payload);
+};
+
+export const requestIOSTracking = (): void => {
+  if (!messageHandlerExists(WebKitMessageHandlers.RequestTracking)) {
+    return;
+  }
+
+  postWebKitMessage(WebKitMessageHandlers.RequestTracking, null);
 };

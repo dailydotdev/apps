@@ -40,7 +40,9 @@ interface UseRegistration {
   verificationFlowId?: string;
 }
 
-type FormParams = Omit<RegistrationParameters, 'csrf_token'>;
+type FormParams = Omit<RegistrationParameters, 'csrf_token'> & {
+  turnstileToken?: string;
+};
 
 const BETTER_AUTH_SIGNUP_FALLBACK_ERROR =
   "We couldn't complete sign up. If you already have an account, try signing in instead.";
@@ -124,10 +126,11 @@ const useRegistration = ({
 
   const onValidateRegistration = async (
     values: RegistrationParameters & {
-      headers?: Record<string, string>;
+      turnstileToken?: string;
     },
   ) => {
-    const turnstileToken = values.headers?.['True-Client-Ip'];
+    // Sent to daily-api as the `x-captcha-response` header by betterAuthRegister.
+    const { turnstileToken } = values;
     await betterAuthRegister({
       name: values['traits.name'] as string,
       email: values['traits.email'] as string,
