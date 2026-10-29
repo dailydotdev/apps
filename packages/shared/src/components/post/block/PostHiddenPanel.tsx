@@ -18,7 +18,6 @@ import { SourceAvatar } from '../../profile/source';
 import { GenericTagButton } from '../../filters/TagButton';
 import { Origin } from '../../../lib/log';
 import { isRankedExplain } from '../../../features/feedExplain/types';
-import { useFeedExplainMode } from '../../../features/feedExplain/useFeedExplainMode';
 import { ShowLessTopicOffer } from '../../../features/feedExplain/components/ShowLessTopicOffer';
 
 interface PostHiddenPanelProps {
@@ -58,12 +57,9 @@ export function PostHiddenPanel({
       ),
   );
   const [isConfirmed, setIsConfirmed] = useState(false);
-  // Only in Debug mode, where each topic's level can be set back later.
-  const { isExplaining } = useFeedExplainMode();
-  const showLessTag =
-    isExplaining && isRankedExplain(post.explain)
-      ? post.explain.match?.tag
-      : undefined;
+  const showLessTag = isRankedExplain(post.explain)
+    ? post.explain.match?.tag
+    : undefined;
 
   const { onUnhide, onSubmitFeedback, onDismiss, onReportSubmitted } =
     useHidePost({ post });

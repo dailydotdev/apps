@@ -1306,6 +1306,82 @@ describe('Feed logged in', () => {
       ).toBeInTheDocument();
       expect(within(dialog).getByText('Score breakdown')).toBeInTheDocument();
     });
+
+    it('should set a topic level from the full explanation', async () => {
+      let sent = false;
+      renderExplained(
+        [
+          {
+            request: {
+              query: POST_BY_ID_QUERY,
+              variables: { id: explainedPost.id },
+            },
+            result: { data: { post: explainedPost } },
+          },
+          {
+            request: {
+              query: SET_FEED_TOPIC_MODE_MUTATION,
+              variables: { keyword: 'php', mode: 'demote' },
+            },
+            result: () => {
+              sent = true;
+              return { data: { setFeedTopicMode: { _: true } } };
+            },
+          },
+          {
+            request: { query: FEED_CONTROLS_QUERY },
+            result: {
+              data: {
+                feedControls: {
+                  topics: [{ keyword: 'php', mode: 'demote' }],
+                  sources: [],
+                  learning: true,
+                  fillIns: true,
+                },
+              },
+            },
+          },
+        ],
+        false,
+      );
+
+      const [menuBtn] = await screen.findAllByLabelText('Options');
+      fireEvent.keyDown(menuBtn, { key: ' ' });
+      fireEvent.click(await screen.findByText('Why am I seeing this?'));
+      const dialog = await screen.findByRole('dialog');
+      const boost = await within(dialog).findByLabelText(
+        'Boost for #php: ×1.45',
+      );
+      fireEvent.click(boost);
+      const auto = within(
+        await screen.findByRole('radiogroup', { name: 'Level for #php' }),
+      ).getByRole('radio', { name: /^Auto/ });
+      expect(auto).toHaveAttribute('aria-checked', 'true');
+      // Esc closes the levels, not the explanation under them, which would
+      // take the sheet's 200ms exit to go.
+      await waitFor(() => expect(auto).toHaveFocus());
+      fireEvent.keyDown(auto, { key: 'Escape', code: 'Escape' });
+      await waitFor(() =>
+        expect(screen.queryByRole('radiogroup')).not.toBeInTheDocument(),
+      );
+      await new Promise((resolve) => {
+        setTimeout(resolve, 300);
+      });
+      expect(dialog).toBeInTheDocument();
+
+      fireEvent.click(boost);
+      const levels = await screen.findByRole('radiogroup', {
+        name: 'Level for #php',
+      });
+      fireEvent.click(
+        within(levels).getByRole('radio', { name: /^Show less/ }),
+      );
+
+      await waitFor(() => expect(sent).toBe(true));
+      expect(
+        await within(dialog).findByText('Showing less'),
+      ).toBeInTheDocument();
+    });
   });
 
   it('should not offer Why am I seeing this? on a feed without explanations', async () => {
