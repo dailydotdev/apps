@@ -25,7 +25,6 @@ import PostTags from '../common/PostTags';
 import { isPostUpdated } from '../../../graphql/posts';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
-import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
 import { CardHeaderBookmark } from '../common/CardHeaderBookmark';
 
 export const CollectionGrid = forwardRef(function CollectionCard(
@@ -51,7 +50,6 @@ export const CollectionGrid = forwardRef(function CollectionCard(
   const onPostCardClick = () => onPostClick?.(post);
   const onPostCardAuxClick = () => onPostAuxClick?.(post);
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
-  const saveOnHover = useCardSaveOnHover();
   const tldr = useGridCardTldr(post);
   const isTldrExpanded = tldr.isShown && tldr.isExpanded;
 
@@ -101,6 +99,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
       ref={ref}
       flagProps={{ pinnedAt, trending }}
       bookmarked={post.bookmarked}
+      bookmarkNote={post.bookmark?.note}
     >
       <CardOverlay
         post={post}
@@ -113,12 +112,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         <CollectionCardHeader
           post={post}
           bookmark={
-            saveOnHover ? (
-              <CardHeaderBookmark
-                post={post}
-                onBookmarkClick={onBookmarkClick}
-              />
-            ) : undefined
+            <CardHeaderBookmark post={post} onBookmarkClick={onBookmarkClick} />
           }
         />
         <FreeformCardTitle
@@ -181,7 +175,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}
           onBookmarkClick={onBookmarkClick}
-          bookmarkInHeader={saveOnHover}
+          bookmarkInHeader
           className="mt-auto"
           onDownvoteClick={onDownvoteClick}
         />

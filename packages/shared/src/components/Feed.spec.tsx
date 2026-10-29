@@ -38,7 +38,17 @@ import {
   mockGraphQL,
 } from '../../__tests__/helpers/graphql';
 import { settingsContext as baseSettingsContext } from '../../__tests__/helpers/boot';
-import { ANONYMOUS_FEED_QUERY, FEED_V2_QUERY } from '../graphql/feed';
+import {
+  ANONYMOUS_FEED_QUERY,
+  FEED_V2_EXPLAIN_QUERY,
+  FEED_V2_QUERY,
+} from '../graphql/feed';
+import {
+  FEED_CONTROLS_QUERY,
+  FEED_PROFILE_QUERY,
+  SET_FEED_SOURCE_MODE_MUTATION,
+  SET_FEED_TOPIC_MODE_MUTATION,
+} from '../features/feedExplain/graphql';
 import AuthContext from '../contexts/AuthContext';
 import Feed from './Feed';
 import defaultFeedPage from '../../__tests__/fixture/feed';
@@ -83,6 +93,7 @@ import type { FeedContextData } from '../contexts/FeedContext';
 import { FeaturesReadyContext } from './GrowthBookProvider';
 import {
   briefFeedEntrypointPage,
+  featurePlusFeedBanner,
   featureHeroCards,
 } from '../lib/featureManagement';
 import type { Connection } from '../graphql/common';
@@ -268,7 +279,9 @@ function renderComponent(
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000')
-    .get(`/v1/a?active=false&registered=${!!resolvedUser}&gdpr=0`)
+    .get(
+      `/v1/a?active=false&registered=${!!resolvedUser}&gdpr=1&consent_exists=NONE_CONSENT`,
+    )
     .reply(200, [ad]);
   const settingsContext: SettingsContextData = {
     ...baseSettingsContext,
@@ -304,8 +317,8 @@ function renderComponent(
           isAuthReadyOrCached: true,
         }}
       >
-        <LazyModalElement />
         <SettingsContext.Provider value={settingsContext}>
+          <LazyModalElement />
           <Toast autoDismissNotifications={false} />
           <TopHeroSlotProvider>
             <TopHeroSlotTarget />
@@ -981,6 +994,408 @@ describe('Feed logged in', () => {
     expect(
       screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
     ).not.toBeInTheDocument();
+  });
+
+  describe('in Explain mode', () => {
+    const explainedPost = {
+      ...defaultFeedPage.edges[0].node,
+      tags: ['javascript', 'php'],
+    };
+
+    const renderExplained = (
+      mocks: MockedGraphQLResponse[] = [],
+      isExplaining = true,
+    ) =>
+      renderComponent(
+        [
+          {
+            request: { query: FEED_V2_EXPLAIN_QUERY, variables },
+            result: {
+              data: {
+                page: {
+                  pageInfo: defaultFeedPage.pageInfo,
+                  edges: [
+                    {
+                      node: {
+                        __typename: 'FeedPostItem',
+                        feedMeta: null,
+                        post: explainedPost,
+                        explain: {
+                          lane: 'chal',
+                          v: 1,
+                          score: 0.81,
+                          position: 3,
+                          base: { value: 1.2, viewers: 1200 },
+                          match: {
+                            tag: 'javascript',
+                            origin: 'declared',
+                            role: 'central',
+                            role_weight: 1,
+                            strength: 'strong',
+                            weight: 0.62,
+                            computed_weight: 0.62,
+                            factor: 1.62,
+                          },
+                          follow: { factor: 1 },
+                          age: { days: 2.1, factor: 0.81 },
+                          seen: { shows: 1, factor: 0.69 },
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          createTagsSettingsMock({
+            includeTags: ['javascript'],
+            blockedTags: [],
+            excludeSources: [],
+          }),
+          {
+            request: { query: FEED_PROFILE_QUERY, variables: { version: 15 } },
+            result: {
+              data: {
+                feedProfile: {
+                  cohort: true,
+                  learning: true,
+                  interests: [
+                    {
+                      tag: 'javascript',
+                      origin: 'declared',
+                      strength: 'strong',
+                      stories: 6,
+                      hiddenStories: 0,
+                      computedWeight: 0.7,
+                      control: null,
+                      weight: 0.7,
+                      backed: true,
+                    },
+                    {
+                      tag: 'php',
+                      origin: 'inferred',
+                      strength: 'moderate',
+                      stories: 3,
+                      hiddenStories: 0,
+                      computedWeight: 0.45,
+                      control: null,
+                      weight: 0.45,
+                      backed: true,
+                    },
+                  ],
+                  muted: [],
+                  blocked: [],
+                },
+              },
+            },
+          },
+          {
+            request: { query: FEED_CONTROLS_QUERY },
+            result: {
+              data: {
+                feedControls: {
+                  topics: [],
+                  sources: [],
+                  learning: true,
+                  fillIns: true,
+                },
+              },
+            },
+          },
+          ...mocks,
+        ],
+        defaultUser,
+        SharedFeedPage.MyFeed,
+        FEED_V2_EXPLAIN_QUERY,
+        { isExplaining },
+      );
+
+    it('should cover the card with why it is here and the boost of each topic', async () => {
+      let hideCalled = false;
+      renderExplained([
+        {
+          request: {
+            query: HIDE_POST_MUTATION,
+            variables: { id: explainedPost.id },
+          },
+          result: () => {
+            hideCalled = true;
+            return { data: { _: true } };
+          },
+        },
+      ]);
+
+      expect(
+        await screen.findByText(
+          (_, element) =>
+            element?.tagName === 'SPAN' &&
+            element.textContent ===
+              'You follow #javascript and read about it often.',
+        ),
+      ).toBeInTheDocument();
+      // The profile's weight, which follows the reader's latest levels.
+      expect(
+        await screen.findByLabelText('Boost for #javascript: ×1.70'),
+      ).toBeInTheDocument();
+      expect(
+        await screen.findByLabelText('Boost for #php: ×1.45'),
+      ).toBeInTheDocument();
+      expect(
+        await screen.findByText("You've read 3 posts on it"),
+      ).toBeInTheDocument();
+      expect(screen.getByText('#3')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Hide post' }));
+      await waitFor(() => expect(hideCalled).toBeTruthy());
+      expect(
+        await screen.findByText("Got it. You'll see less like this."),
+      ).toBeInTheDocument();
+      expect(screen.queryByText('Full explanation')).not.toBeInTheDocument();
+    });
+
+    it('should set a topic level from its boost', async () => {
+      let sent = false;
+      renderExplained([
+        {
+          request: {
+            query: SET_FEED_TOPIC_MODE_MUTATION,
+            variables: { keyword: 'javascript', mode: 'boost' },
+          },
+          result: () => {
+            sent = true;
+            return { data: { setFeedTopicMode: { _: true } } };
+          },
+        },
+        {
+          request: { query: FEED_CONTROLS_QUERY },
+          result: {
+            data: {
+              feedControls: {
+                topics: [{ keyword: 'javascript', mode: 'boost' }],
+                sources: [],
+                learning: true,
+                fillIns: true,
+              },
+            },
+          },
+        },
+      ]);
+
+      fireEvent.click(
+        await screen.findByLabelText('Boost for #javascript: ×1.70'),
+      );
+      const levels = await screen.findByRole('radiogroup', {
+        name: 'Level for #javascript',
+      });
+      expect(
+        within(levels).getByRole('radio', { name: /^Auto/ }),
+      ).toHaveAttribute('aria-checked', 'true');
+      fireEvent.click(
+        within(levels).getByRole('radio', { name: /^Show more/ }),
+      );
+
+      await waitFor(() => expect(sent).toBe(true));
+      expect(await screen.findByText('Showing more')).toBeInTheDocument();
+    });
+
+    it('should show less from a source and set it back to Auto', async () => {
+      const sent: (string | null)[] = [];
+      const setSourceMode = (mode: string | null): MockedGraphQLResponse => ({
+        request: {
+          query: SET_FEED_SOURCE_MODE_MUTATION,
+          variables: { sourceId: 'echojs', mode },
+        },
+        result: () => {
+          sent.push(mode);
+          return { data: { setFeedSourceMode: { _: true } } };
+        },
+      });
+      // The controls come back from the API after each change.
+      const controlsAfter = (
+        sources: { source: { id: string }; mode: string }[],
+      ): MockedGraphQLResponse => ({
+        request: { query: FEED_CONTROLS_QUERY },
+        result: {
+          data: {
+            feedControls: {
+              topics: [],
+              sources,
+              learning: true,
+              fillIns: true,
+            },
+          },
+        },
+      });
+      renderExplained([
+        setSourceMode('demote'),
+        controlsAfter([{ source: { id: 'echojs' }, mode: 'demote' }]),
+        setSourceMode(null),
+        controlsAfter([]),
+      ]);
+
+      const showLess = await screen.findByRole('button', {
+        name: 'Show less from Echo JS',
+      });
+      fireEvent.click(showLess);
+      await waitFor(() => expect(sent).toEqual(['demote']));
+      expect(await screen.findByText('Showing less')).toBeInTheDocument();
+
+      fireEvent.click(showLess);
+      await waitFor(() => expect(sent).toEqual(['demote', null]));
+      expect(
+        await screen.findByText("You don't follow it"),
+      ).toBeInTheDocument();
+    });
+
+    it('should open the full explanation with the score breakdown', async () => {
+      renderExplained([
+        {
+          request: {
+            query: POST_BY_ID_QUERY,
+            variables: { id: explainedPost.id },
+          },
+          result: { data: { post: explainedPost } },
+        },
+      ]);
+
+      fireEvent.click(await screen.findByText('Full explanation'));
+      const dialog = await screen.findByRole('dialog');
+      expect(
+        await within(dialog).findByText('Why am I seeing this?'),
+      ).toBeInTheDocument();
+      expect(
+        within(dialog).getByText(
+          (_, element) =>
+            element?.tagName === 'P' &&
+            element.textContent ===
+              'You follow #javascript and read about it often.',
+        ),
+      ).toBeInTheDocument();
+      expect(within(dialog).getByText('What matched you')).toBeInTheDocument();
+      expect(within(dialog).getByText('Score breakdown')).toBeInTheDocument();
+      expect(
+        within(dialog).getByRole('button', { name: 'Topic match' }),
+      ).toBeInTheDocument();
+      expect(within(dialog).getByText('×1.62')).toBeInTheDocument();
+      expect(
+        within(dialog).getByRole('button', { name: 'Score' }),
+      ).toBeInTheDocument();
+    });
+
+    it('should keep the card as is out of Debug mode and explain it from the post menu', async () => {
+      renderExplained(
+        [
+          {
+            request: {
+              query: POST_BY_ID_QUERY,
+              variables: { id: explainedPost.id },
+            },
+            result: { data: { post: explainedPost } },
+          },
+        ],
+        false,
+      );
+
+      const [menuBtn] = await screen.findAllByLabelText('Options');
+      expect(screen.queryByText('Full explanation')).not.toBeInTheDocument();
+      fireEvent.keyDown(menuBtn, { key: ' ' });
+      fireEvent.click(await screen.findByText('Why am I seeing this?'));
+      const dialog = await screen.findByRole('dialog');
+      expect(
+        await within(dialog).findByText('What matched you'),
+      ).toBeInTheDocument();
+      expect(within(dialog).getByText('Score breakdown')).toBeInTheDocument();
+    });
+
+    it('should set a topic level from the full explanation', async () => {
+      let sent = false;
+      renderExplained(
+        [
+          {
+            request: {
+              query: POST_BY_ID_QUERY,
+              variables: { id: explainedPost.id },
+            },
+            result: { data: { post: explainedPost } },
+          },
+          {
+            request: {
+              query: SET_FEED_TOPIC_MODE_MUTATION,
+              variables: { keyword: 'php', mode: 'demote' },
+            },
+            result: () => {
+              sent = true;
+              return { data: { setFeedTopicMode: { _: true } } };
+            },
+          },
+          {
+            request: { query: FEED_CONTROLS_QUERY },
+            result: {
+              data: {
+                feedControls: {
+                  topics: [{ keyword: 'php', mode: 'demote' }],
+                  sources: [],
+                  learning: true,
+                  fillIns: true,
+                },
+              },
+            },
+          },
+        ],
+        false,
+      );
+
+      const [menuBtn] = await screen.findAllByLabelText('Options');
+      fireEvent.keyDown(menuBtn, { key: ' ' });
+      fireEvent.click(await screen.findByText('Why am I seeing this?'));
+      const dialog = await screen.findByRole('dialog');
+      const boost = await within(dialog).findByLabelText(
+        'Boost for #php: ×1.45',
+      );
+      fireEvent.click(boost);
+      const auto = within(
+        await screen.findByRole('radiogroup', { name: 'Level for #php' }),
+      ).getByRole('radio', { name: /^Auto/ });
+      expect(auto).toHaveAttribute('aria-checked', 'true');
+      // Esc closes the levels, not the explanation under them, which would
+      // take the sheet's 200ms exit to go.
+      await waitFor(() => expect(auto).toHaveFocus());
+      fireEvent.keyDown(auto, { key: 'Escape', code: 'Escape' });
+      await waitFor(() =>
+        expect(screen.queryByRole('radiogroup')).not.toBeInTheDocument(),
+      );
+      await new Promise((resolve) => {
+        setTimeout(resolve, 300);
+      });
+      expect(dialog).toBeInTheDocument();
+
+      fireEvent.click(boost);
+      const levels = await screen.findByRole('radiogroup', {
+        name: 'Level for #php',
+      });
+      fireEvent.click(
+        within(levels).getByRole('radio', { name: /^Show less/ }),
+      );
+
+      await waitFor(() => expect(sent).toBe(true));
+      expect(
+        await within(dialog).findByText('Showing less'),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('should not offer Why am I seeing this? on a feed without explanations', async () => {
+    renderComponent([
+      createFeedMock({
+        pageInfo: defaultFeedPage.pageInfo,
+        edges: [defaultFeedPage.edges[0]],
+      }),
+    ]);
+
+    const [menuBtn] = await screen.findAllByLabelText('Options');
+    fireEvent.keyDown(menuBtn, { key: ' ' });
+    await screen.findByText('Share via');
+    expect(screen.queryByText('Why am I seeing this?')).not.toBeInTheDocument();
   });
 
   it('should restore the post when clicking Undo on the hidden feedback panel', async () => {
@@ -1984,6 +2399,7 @@ interface HighlightLayoutRenderParams {
   minSpacing?: number;
   startIndex?: number;
   briefBannerPage?: number;
+  plusFeedBanner?: boolean;
   staticAd?: { ad: Ad; index: number };
   disableAds?: boolean;
   skipFirstAd?: boolean;
@@ -2002,6 +2418,7 @@ const renderWithHighlightLayout = ({
   minSpacing = 5,
   startIndex = 0,
   briefBannerPage,
+  plusFeedBanner,
   staticAd,
   disableAds,
   skipFirstAd,
@@ -2014,10 +2431,12 @@ const renderWithHighlightLayout = ({
   // First ad page uses active=false, subsequent pages use active=true. Mock
   // both up to a handful of refills so multi-ad scenarios don't run dry.
   nock('http://localhost:3000')
-    .get('/v1/a?active=false&registered=true&gdpr=0')
+    .get(
+      '/v1/a?active=false&registered=true&gdpr=1&consent_exists=NONE_CONSENT',
+    )
     .reply(200, [ad]);
   nock('http://localhost:3000')
-    .get('/v1/a?active=true&registered=true&gdpr=0')
+    .get('/v1/a?active=true&registered=true&gdpr=1&consent_exists=NONE_CONSENT')
     .times(10)
     .reply(200, [ad]);
 
@@ -2054,6 +2473,9 @@ const renderWithHighlightLayout = ({
             defaultValue: briefBannerPage,
           },
         }
+      : {}),
+    ...(plusFeedBanner
+      ? { [featurePlusFeedBanner.id]: { defaultValue: true } }
       : {}),
   });
 
@@ -2344,7 +2766,26 @@ describe('Feed ad cadence with highlight cards', () => {
     await waitFor(() => {
       expect(screen.queryByTestId('brief-banner-feed')).toBeInTheDocument();
     });
+    expect(screen.queryByTestId('plus-feed-banner')).not.toBeInTheDocument();
     // Ads still render alongside the banner (no regression in cadence).
+    expect(await screen.findByTestId('adItem')).toBeInTheDocument();
+  });
+
+  it('renders the Plus banner in the same slot when plus_feed_banner is on', async () => {
+    const posts = Array.from({ length: 8 }, (_, i) => buildPost(`p${i}`));
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: false,
+      pageSize: 8,
+      briefBannerPage: 1,
+      plusFeedBanner: true,
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('plus-feed-banner')).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId('brief-banner-feed')).not.toBeInTheDocument();
     expect(await screen.findByTestId('adItem')).toBeInTheDocument();
   });
 
@@ -2659,6 +3100,116 @@ describe('Feed ad cadence with highlight cards', () => {
   });
 });
 
+describe('Feed excludedPostIds', () => {
+  const [onlyEdge] = defaultFeedPage.edges;
+  const pageWithOnlyThatPost: Connection<Post> = {
+    ...defaultFeedPage,
+    pageInfo: { ...defaultFeedPage.pageInfo, hasNextPage: false },
+    edges: [onlyEdge],
+  };
+
+  it('shows the empty screen when every post on the page is excluded', async () => {
+    const onEmptyFeed = jest.fn();
+    renderComponent(
+      [createFeedMock(pageWithOnlyThatPost)],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      ANONYMOUS_FEED_QUERY,
+      {
+        excludedPostIds: [onlyEdge.node.id],
+        emptyScreen: <p>Nothing else here</p>,
+        onEmptyFeed,
+      },
+    );
+
+    expect(await screen.findByText('Nothing else here')).toBeInTheDocument();
+    expect(onEmptyFeed).toHaveBeenCalled();
+  });
+
+  it('keeps paging when the excluded posts are followed by more pages', async () => {
+    const onEmptyFeed = jest.fn();
+    renderComponent(
+      [
+        createFeedMock({
+          ...pageWithOnlyThatPost,
+          pageInfo: { ...pageWithOnlyThatPost.pageInfo, hasNextPage: true },
+        }),
+      ],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      ANONYMOUS_FEED_QUERY,
+      {
+        excludedPostIds: [onlyEdge.node.id],
+        emptyScreen: <p>Nothing else here</p>,
+        onEmptyFeed,
+      },
+    );
+
+    await waitFor(() => expect(nock.isDone()).toBe(true));
+    await new Promise((resolve) => {
+      setTimeout(resolve, 50);
+    });
+    expect(screen.queryByText('Nothing else here')).not.toBeInTheDocument();
+    expect(onEmptyFeed).not.toHaveBeenCalled();
+  });
+});
+
+describe('Feed footer and errorScreen', () => {
+  const lastPage: Connection<Post> = {
+    ...defaultFeedPage,
+    pageInfo: { ...defaultFeedPage.pageInfo, hasNextPage: false },
+  };
+
+  it('shows the footer after the last page', async () => {
+    renderComponent(
+      [createFeedMock(lastPage)],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      ANONYMOUS_FEED_QUERY,
+      { footer: <p>End of the feed</p> },
+    );
+
+    expect(await screen.findByText('End of the feed')).toBeInTheDocument();
+  });
+
+  it('hides the footer while another page follows', async () => {
+    renderComponent(
+      [
+        createFeedMock({
+          ...lastPage,
+          pageInfo: { ...lastPage.pageInfo, hasNextPage: true },
+        }),
+      ],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      ANONYMOUS_FEED_QUERY,
+      { footer: <p>End of the feed</p> },
+    );
+
+    await waitFor(() =>
+      expect(screen.queryAllByTestId('postItem').length).toBeGreaterThan(0),
+    );
+    expect(screen.queryByText('End of the feed')).not.toBeInTheDocument();
+  });
+
+  it('shows the errorScreen when the first page fails', async () => {
+    renderComponent(
+      [
+        {
+          request: { query: ANONYMOUS_FEED_QUERY, variables },
+          result: { errors: [{ message: 'Unexpected error' }] },
+        },
+      ],
+      defaultUser,
+      SharedFeedPage.Custom,
+      ANONYMOUS_FEED_QUERY,
+      { errorScreen: <p>Could not load</p> },
+    );
+
+    expect(await screen.findByText('Could not load')).toBeInTheDocument();
+  });
+});
+
 describe('Feed excludePinnedPosts', () => {
   const [firstEdge, secondEdge, ...restEdges] = defaultFeedPage.edges;
   const pinnedTitle = getPostTitle(firstEdge.node, 'pinned');
@@ -2820,5 +3371,45 @@ describe('Feed top hero placements', () => {
     expect(
       within(slot).queryByRole('button', { name: 'Enable reminder' }),
     ).not.toBeInTheDocument();
+  });
+
+  it('keeps the reading reminder in the slot when the top content stacks under it', async () => {
+    mockViewport({ isLaptop: true });
+    mockLaptopLayout(true);
+    mockReadingReminder();
+
+    renderComponent(
+      [createFeedMock()],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      ANONYMOUS_FEED_QUERY,
+      { topContent: <div>Feed widgets</div>, keepTopHero: true },
+    );
+
+    expect(await screen.findByText('Feed widgets')).toBeInTheDocument();
+    const slot = screen.getByTestId('top-hero-slot');
+    expect(
+      within(slot).getByRole('button', { name: 'Enable reminder' }),
+    ).toBeInTheDocument();
+  });
+
+  it('renders the reading reminder above top content that stacks under it below laptop', async () => {
+    mockViewport({ isLaptop: false });
+    mockLaptopLayout(false);
+    mockReadingReminder();
+
+    renderComponent(
+      [createFeedMock()],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      ANONYMOUS_FEED_QUERY,
+      { topContent: <div>Feed widgets</div>, keepTopHero: true },
+    );
+
+    const widgets = await screen.findByText('Feed widgets');
+    const reminder = screen.getByRole('button', { name: 'Enable reminder' });
+    expect(reminder.compareDocumentPosition(widgets)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
   });
 });

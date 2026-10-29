@@ -6,6 +6,7 @@ import type { Post } from '../../graphql/posts';
 import { isVideoPost } from '../../graphql/posts';
 import PostMetadata from '../cards/common/PostMetadata';
 import { PostWidgets } from './PostWidgets';
+import { PostLiveChat } from '../../features/liveChat/components/PostLiveChat';
 import PostToc from '../widgets/PostToc';
 import { ToastSubject, useToastNotification } from '../../hooks';
 import PostContentContainer from './PostContentContainer';
@@ -93,6 +94,7 @@ export function PostContentRaw({
   contentLeading,
   renderSummarySegments,
   aboveComments,
+  belowComments,
   commentAds,
   shouldTrackView,
 }: PostContentRawProps): ReactElement {
@@ -172,6 +174,7 @@ export function PostContentRaw({
       {contentLeading}
       <BasePostContent
         aboveComments={aboveComments}
+        belowComments={belowComments}
         commentAds={commentAds}
         className={{
           ...className,
@@ -325,6 +328,7 @@ export function PostContentRaw({
     <PostWidgets
       onReadArticle={onReadArticle}
       post={post}
+      leading={<PostLiveChat post={post} origin={origin} placement="rail" />}
       className="!gap-2 pb-8 pt-4 tablet:border-l tablet:border-border-subtlest-tertiary"
       onClose={onClose}
       origin={origin}
@@ -355,6 +359,12 @@ export function PostContentRaw({
       }
     >
       {postMainColumn}
+      <PostLiveChat
+        post={post}
+        origin={origin}
+        placement="mobile"
+        isPostPage={isPostPage}
+      />
       {postWidgetsColumn}
     </PostContentContainer>
   );

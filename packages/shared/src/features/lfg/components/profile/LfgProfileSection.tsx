@@ -30,11 +30,9 @@ import {
   lfgRelativeDays,
 } from '../../lib/format';
 import { canReachOutToLfgPost } from '../../lib/status';
-import { lfgKindLooking } from '../../constants';
 import { useLfgEnabled } from '../../hooks/useLfgEnabled';
 import { useLfgModals } from '../../hooks/useLfgModals';
 import { LfgKindLine } from '../LfgKind';
-import { LfgLookingTeaser } from '../LfgLookingStrip';
 import { LfgBadgeMark, LfgBadgeSize } from '../LfgAvatarBadge';
 import { useLfgHelperSummary } from '../board/LfgBoardWidgets';
 
@@ -57,11 +55,9 @@ const Section = ({
 const PostCard = ({
   post,
   isMine,
-  isLaunched,
 }: {
   post: LfgPost;
   isMine: boolean;
-  isLaunched: boolean;
 }): ReactElement => {
   const href = getLfgUrl(post.id);
   const daysLeft = lfgDaysLeft(post.expiresAt);
@@ -99,15 +95,9 @@ const PostCard = ({
                 <Separator />
               </>
             )}
-            {isLaunched ? (
-              <>
-                Posted {lfgRelativeDays(post.createdAt)}
-                <Separator />
-                {daysLeft} {daysLeft === 1 ? 'day' : 'days'} left
-              </>
-            ) : (
-              'Goes live when connections open'
-            )}
+            Posted {lfgRelativeDays(post.createdAt)}
+            <Separator />
+            {daysLeft} {daysLeft === 1 ? 'day' : 'days'} left
           </Typography>
         </span>
         <ArrowIcon
@@ -175,7 +165,7 @@ export const LfgProfileSection = ({
   name?: string;
 }): ReactElement | null => {
   const { user } = useAuthContext();
-  const { isEnabled, isLaunched } = useLfgEnabled();
+  const { isEnabled } = useLfgEnabled();
   const { openReachOut } = useLfgModals();
   const isMe = user?.id === userId;
   const { data: post, isPending } = useQuery(
@@ -192,52 +182,33 @@ export const LfgProfileSection = ({
     return null;
   }
 
-  const isTeaser = !isLaunched && !isMe;
-
   return (
     <>
       {openPost && (
-        <Section
-          title={
-            <LookingTitle>
-              {isTeaser ? lfgKindLooking[openPost.kind] : 'Looking for group'}
-            </LookingTitle>
-          }
-        >
-          {isTeaser ? (
-            <LfgLookingTeaser
-              kind={openPost.kind}
-              origin={Origin.LfgProfile}
-              hideLabel
-            />
-          ) : (
-            <>
-              <PostCard post={openPost} isMine={isMe} isLaunched={isLaunched} />
-              {isMe && (
-                <Link href={getLfgUrl(openPost.id)} passHref>
-                  <Button
-                    tag="a"
-                    className="self-start"
-                    variant={ButtonVariant.Secondary}
-                    size={ButtonSize.Small}
-                  >
-                    Manage post
-                  </Button>
-                </Link>
-              )}
-              {!isMe &&
-                canReachOutToLfgPost(openPost, user?.id, isLaunched) && (
-                  <Button
-                    type="button"
-                    className="self-start"
-                    variant={ButtonVariant.Primary}
-                    size={ButtonSize.Small}
-                    onClick={() => openReachOut(openPost, Origin.LfgProfile)}
-                  >
-                    Reach out to {getFirstName(name ?? openPost.author.name)}
-                  </Button>
-                )}
-            </>
+        <Section title={<LookingTitle>Looking for group</LookingTitle>}>
+          <PostCard post={openPost} isMine={isMe} />
+          {isMe && (
+            <Link href={getLfgUrl(openPost.id)} passHref>
+              <Button
+                tag="a"
+                className="self-start"
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+              >
+                Manage post
+              </Button>
+            </Link>
+          )}
+          {!isMe && canReachOutToLfgPost(openPost, user?.id) && (
+            <Button
+              type="button"
+              className="self-start"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+              onClick={() => openReachOut(openPost, Origin.LfgProfile)}
+            >
+              Reach out to {getFirstName(name ?? openPost.author.name)}
+            </Button>
           )}
         </Section>
       )}

@@ -26,7 +26,6 @@ import ActionButtons from '../common/ActionButtons';
 import { FeedbackGrid } from './feedback/FeedbackGrid';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
 import { CardHeaderBookmark } from '../common/CardHeaderBookmark';
 import {
   GridCardTldr,
@@ -56,7 +55,6 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
 ): ReactElement {
   const { className, style } = domProps;
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
-  const saveOnHover = useCardSaveOnHover();
   const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
   const onPostCardAuxClick = () => onPostAuxClick(post);
@@ -77,7 +75,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
           className: getPostClassNames(post, className, 'min-h-card'),
         }}
         ref={ref}
-        flagProps={{ pinnedAt, trending }}
+        flagProps={{ pinnedAt, trending, postId: post.id }}
         bookmarked={post.bookmarked}
       >
         {hiddenPanel}
@@ -107,8 +105,9 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
         ),
       }}
       ref={ref}
-      flagProps={{ pinnedAt, trending }}
+      flagProps={{ pinnedAt, trending, postId: post.id }}
       bookmarked={post.bookmarked && !showFeedback}
+      bookmarkNote={showFeedback ? undefined : post.bookmark?.note}
     >
       <CardOverlay
         post={post}
@@ -143,12 +142,10 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             onReadArticleClick={onReadArticleClick}
             showFeedback={showFeedback}
             bookmark={
-              saveOnHover ? (
-                <CardHeaderBookmark
-                  post={post}
-                  onBookmarkClick={onBookmarkClick}
-                />
-              ) : undefined
+              <CardHeaderBookmark
+                post={post}
+                onBookmarkClick={onBookmarkClick}
+              />
             }
           />
           <CardTitle lineClamp={showFeedback ? 'line-clamp-2' : undefined}>
@@ -205,7 +202,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
               onCommentClick={onCommentClick}
               onCopyLinkClick={onCopyLinkClick}
               onBookmarkClick={onBookmarkClick}
-              bookmarkInHeader={saveOnHover}
+              bookmarkInHeader
               onDownvoteClick={onDownvoteClick}
             />
           )}

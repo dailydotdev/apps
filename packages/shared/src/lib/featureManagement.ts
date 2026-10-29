@@ -75,13 +75,6 @@ export const featureReadingReminderHeroCopy = new Feature(
   },
 );
 
-// Experiment: tell reading reminder holders that the reminder can't reach them
-// without push, and ask them to turn it on
-export const featureReadingReminderPushPrompt = new Feature(
-  'reading_reminder_push_prompt',
-  false,
-);
-
 // Experiment: show the clickbait shield to free users even while they have
 // intro quests, to measure the effect on D1 retention.
 export const featureClickbaitShieldIntroQuests = new Feature(
@@ -122,6 +115,8 @@ export const briefFeedEntrypointPage = new Feature<false | number>(
   'brief_feed_banner_page',
   0,
 );
+
+export const featurePlusFeedBanner = new Feature('plus_feed_banner', false);
 
 export const briefUIFeature = new Feature('brief_ui', isDevelopment);
 export const boostSettingsFeature = new Feature('boost_settings', {
@@ -254,11 +249,6 @@ export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 // it, so only readers on the grid layout are enrolled.
 export const featureGridCardTldr = new Feature('grid_card_tldr', false);
 
-// Experiment: on grid cards the bookmark moves to the card header, shown on
-// hover beside ⋯, and the bar keeps today's order at 32px with 20px icons.
-// List cards keep the bookmark in the bar. Logged-in users only.
-export const featureCardSaveOnHover = new Feature('card_save_on_hover', false);
-
 export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
   enabled: false,
   minSpacing: 10,
@@ -291,6 +281,10 @@ export const featureFeedWidgets = new Feature('feed_widgets', false);
 // card pinned over the bottom of the window at the content's width.
 export const featurePostSignupStrip = new Feature('post_signup_strip', false);
 
+// Experiment: a feed after the post page's comments (For you, the post's
+// tags, its source), for signed-in readers. Control ends at the comments.
+export const featurePostPageFeed = new Feature('post_page_feed', false);
+
 // Gates every agent surface; control hides all of them. Keep the default
 // `false`, GrowthBook ramps it.
 export const featureInterestAgent = new Feature('interest_agent', false);
@@ -298,15 +292,12 @@ export const featureInterestAgent = new Feature('interest_agent', false);
 // Gates every direct message surface; control hides all of them. Keep the
 // default `false`, GrowthBook ramps it.
 export const featureDirectMessages = new Feature('direct_messages', false);
+export const featureLiveChat = new Feature('live_chat', false);
 
 // Who can use Looking for group at all: the board, posts, reach-outs and the
 // badge on avatars. It rides on direct messages, since an accepted reach-out
 // becomes a chat. Keep the default `false`, GrowthBook ramps it.
 export const featureLfg = new Feature('lfg', false);
-
-// Off is the board's "Opening soon" state: people can post and opt in to
-// helping, but nothing posted is listed and nobody can reach out yet.
-export const featureLfgLaunched = new Feature('lfg_launched', false);
 
 export type PlusSaleConfig = {
   /** Paddle discount id (`dsc_...`). Empty means no sale is running. */
@@ -357,6 +348,10 @@ export type ExcoPlayerConfig = {
 export const featureExcoPlayer = new Feature<ExcoPlayerConfig>('exco_player', {
   playerId: '',
 });
+
+// Explain mode on For You: why each card is on the feed. Only shown on the
+// challenger feed versions (`challengerFeedVersions`), which explain cards.
+export const featureFeedExplain = new Feature('feed_explain', false);
 
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.

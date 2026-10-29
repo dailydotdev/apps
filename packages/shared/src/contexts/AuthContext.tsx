@@ -6,12 +6,16 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import type { QueryObserverResult } from '@tanstack/react-query';
+import type {
+  QueryObserverResult,
+  RefetchOptions,
+} from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { useGrowthBook } from '@growthbook/growthbook-react';
 import type { AnonymousUser, LoggedUser } from '../lib/user';
 import { deleteAccount, logout as dispatchLogout } from '../lib/user';
 import { clearSlackShareSnapshot } from '../hooks/integrations/slack/slackShareSnapshot';
+import { markSignedOut } from '../lib/signedOut';
 import type { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import type { AuthTriggersType } from '../lib/auth';
@@ -76,7 +80,9 @@ export interface AuthContextData {
   visit?: Visit;
   firstVisit?: string;
   deleteAccount?: () => Promise<void>;
-  refetchBoot?: () => Promise<QueryObserverResult<Partial<Boot>>>;
+  refetchBoot?: (
+    options?: RefetchOptions,
+  ) => Promise<QueryObserverResult<Partial<Boot>>>;
   accessToken?: AccessToken;
   squads?: Squad[];
   isAuthReady: boolean;
@@ -109,6 +115,9 @@ export const REGISTRATION_PATH = '/register';
 export const logout = async (reason: string): Promise<void> => {
   await clearSlackShareSnapshot();
   await dispatchLogout(reason);
+  if (!isExtension) {
+    await markSignedOut();
+  }
   const params = getQueryParams();
   if (params.redirect_uri) {
     window.location.replace(params.redirect_uri);

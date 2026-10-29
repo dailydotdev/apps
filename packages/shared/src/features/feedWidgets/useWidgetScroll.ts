@@ -4,8 +4,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 /**
  * A widget's scrolling list. Each edge fades only while there is more beyond
  * it, so the first row at rest and the last row at the end are never dimmed.
- * Spread `className` onto the list's scroll area: on touch screens it never
- * scrolls, so a vertical swipe over the rail always moves the page.
+ * Spread `className` onto the list's scroll area. It scrolls on touch screens
+ * too: a vertical swipe over a list moves the list, and once the list reaches
+ * its edge the swipe chains on to the page.
  *
  * The ref is a callback: a list usually mounts once its data arrives, after
  * the widget, and it is measured then and whenever it or its rows resize.
@@ -18,6 +19,7 @@ export const useWidgetScroll = (): {
 } => {
   const node = useRef<HTMLDivElement | null>(null);
   const observer = useRef<ResizeObserver>();
+  const rest = useRef({ isAtTop: true, scrollHeight: 0 });
   const [edges, setEdges] = useState({ isAtTop: true, isAtEnd: true });
 
   const onScroll = useCallback(() => {
@@ -25,9 +27,17 @@ export const useWidgetScroll = (): {
     if (!element) {
       return;
     }
+    // A list at the top stays there when rows arrive above its first one.
+    if (
+      rest.current.isAtTop &&
+      element.scrollHeight !== rest.current.scrollHeight
+    ) {
+      element.scrollTop = 0;
+    }
     const isAtTop = element.scrollTop <= 1;
     const isAtEnd =
       element.scrollTop + element.clientHeight >= element.scrollHeight - 1;
+    rest.current = { isAtTop, scrollHeight: element.scrollHeight };
     setEdges((current) =>
       current.isAtTop === isAtTop && current.isAtEnd === isAtEnd
         ? current
@@ -67,7 +77,6 @@ export const useWidgetScroll = (): {
     ref,
     onScroll,
     style: { maskImage: mask, WebkitMaskImage: mask },
-    className:
-      'min-h-0 flex-1 snap-y snap-proximity overflow-y-auto [@media(pointer:coarse)]:overflow-y-hidden',
+    className: 'min-h-0 flex-1 snap-y snap-proximity overflow-y-auto',
   };
 };

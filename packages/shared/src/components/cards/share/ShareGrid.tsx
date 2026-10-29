@@ -30,7 +30,6 @@ import { useFeature } from '../../GrowthBookProvider';
 import { sharedPostPreviewFeature } from '../../../lib/featureManagement';
 import { SharedPostPreview } from './SharedPostPreview';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
-import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
 import { CardHeaderBookmark } from '../common/CardHeaderBookmark';
 import {
   GridCardTldr,
@@ -66,7 +65,6 @@ export const ShareGrid = forwardRef(function ShareGrid(
   const onPostCardAuxClick = () => onPostAuxClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const { title } = useSmartTitle(post);
-  const saveOnHover = useCardSaveOnHover();
   const { sharedPost } = post;
   const isDeleted = sharedPost?.id === DeletedPostId;
   const { private: sharedPostPrivate, source: sharedPostSource } =
@@ -192,6 +190,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
       ref={ref}
       flagProps={{ pinnedAt, trending }}
       bookmarked={post.bookmarked}
+      bookmarkNote={post.bookmark?.note}
     >
       <CardOverlay
         post={post}
@@ -210,12 +209,10 @@ export const ShareGrid = forwardRef(function ShareGrid(
             postLink={sharedPost?.permalink}
             onReadArticleClick={onReadArticleClick}
             bookmark={
-              saveOnHover ? (
-                <CardHeaderBookmark
-                  post={post}
-                  onBookmarkClick={onBookmarkClick}
-                />
-              ) : undefined
+              <CardHeaderBookmark
+                post={post}
+                onBookmarkClick={onBookmarkClick}
+              />
             }
           />
           {(!isSharedTweet || post.title) && <CardTitle>{title}</CardTitle>}
@@ -260,7 +257,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}
           onBookmarkClick={onBookmarkClick}
-          bookmarkInHeader={saveOnHover}
+          bookmarkInHeader
           onDownvoteClick={onDownvoteClick}
         />
       </Container>

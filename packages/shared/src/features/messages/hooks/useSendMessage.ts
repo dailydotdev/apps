@@ -99,6 +99,12 @@ export const useSendMessage = (
 
       if (refusal) {
         displayToast(refusal.message);
+      } else {
+        logEvent({
+          event_name: LogEvent.FailDirectMessage,
+          target_id: peer?.id,
+          extra: JSON.stringify({ reason: 'send_error' }),
+        });
       }
 
       updateThread((messages) =>

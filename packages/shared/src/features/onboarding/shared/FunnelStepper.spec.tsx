@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { FunnelStepper } from './FunnelStepper';
@@ -17,6 +17,8 @@ import { waitForNock } from '../../../../__tests__/helpers/utilities';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { StepHeadlineAlign } from './StepHeadline';
 import type { FunnelSession } from '../types/funnelBoot';
+import { withShouldSkipStepGuard } from './withShouldSkipStepGuard';
+import { requestIOSTracking } from '../../../lib/ios';
 
 // Mock all hooks used by the component
 jest.mock('../hooks/useFunnelNavigation', () => {
@@ -28,6 +30,10 @@ jest.mock('../hooks/useFunnelNavigation', () => {
 });
 jest.mock('../hooks/useFunnelTracking');
 jest.mock('../hooks/useStepTransition');
+jest.mock('../../../lib/ios', () => ({
+  ...jest.requireActual('../../../lib/ios'),
+  requestIOSTracking: jest.fn(),
+}));
 
 let client: QueryClient;
 
@@ -174,6 +180,113 @@ describe('FunnelStepper component', () => {
       inputs: { step1: 'Option 1' },
     });
     expect(mockOnComplete).not.toHaveBeenCalled();
+  });
+
+  describe('iOS tracking prompt', () => {
+    const acquisitionStep = {
+      id: 'acquisition',
+      type: FunnelStepType.Acquisition,
+      parameters: {},
+      transitions: [
+        { on: FunnelStepTransitionType.Complete, destination: 'step2' },
+        { on: FunnelStepTransitionType.Skip, destination: 'step2' },
+      ],
+    } as unknown as FunnelStep;
+
+    const ContinueStep = ({
+      id,
+      onTransition,
+    }: {
+      id: string;
+      onTransition: (event: { type: FunnelStepTransitionType }) => void;
+    }) => (
+      <button
+        type="button"
+        data-testid={`continue-${id}`}
+        onClick={() =>
+          onTransition({ type: FunnelStepTransitionType.Complete })
+        }
+      >
+        Continue
+      </button>
+    );
+
+    const renderOnboarding = (
+      step: FunnelStep,
+      { isOnboarding = true }: { isOnboarding?: boolean } = {},
+    ) => {
+      (useFunnelNavigation as jest.Mock).mockReturnValue({
+        ...(useFunnelNavigation as jest.Mock)(),
+        step,
+      });
+      const funnel: FunnelJSON = {
+        ...mockFunnel,
+        chapters: [
+          {
+            id: 'chapter1',
+            steps:
+              step.id === mockStep2.id ? [mockStep, step] : [step, mockStep2],
+          },
+        ],
+      };
+
+      return render(
+        <TestBootProvider client={client}>
+          <FunnelStepper
+            funnel={funnel}
+            session={{ id: 'session-id' } as FunnelSession}
+            onComplete={mockOnComplete}
+            isOnboarding={isOnboarding}
+            stepComponentOverrides={{
+              [FunnelStepType.Acquisition]: ContinueStep,
+              [FunnelStepType.Fact]: ContinueStep,
+            }}
+          />
+        </TestBootProvider>,
+      );
+    };
+
+    const clickContinue = async (id: string) => {
+      await act(async () => {
+        fireEvent.click(screen.getByTestId(`continue-${id}`));
+        await waitForNock();
+      });
+    };
+
+    it('asks right after "How did you hear about us?"', async () => {
+      renderOnboarding(acquisitionStep);
+      await clickContinue(acquisitionStep.id);
+
+      expect(requestIOSTracking).toHaveBeenCalledTimes(1);
+      expect(mockNavigate).toHaveBeenCalled();
+    });
+
+    it('asks when onboarding finishes', async () => {
+      renderOnboarding(mockStep2);
+      await clickContinue(mockStep2.id);
+
+      expect(requestIOSTracking).toHaveBeenCalledTimes(1);
+      expect(mockOnComplete).toHaveBeenCalled();
+    });
+
+    it('does not ask on other onboarding steps', async () => {
+      renderOnboarding({
+        ...mockStep2,
+        transitions: [
+          { on: FunnelStepTransitionType.Complete, destination: 'step1' },
+        ],
+      } as FunnelStep);
+      await clickContinue(mockStep2.id);
+
+      expect(requestIOSTracking).not.toHaveBeenCalled();
+    });
+
+    it('does not ask outside onboarding', async () => {
+      renderOnboarding(acquisitionStep, { isOnboarding: false });
+      await clickContinue(acquisitionStep.id);
+
+      expect(requestIOSTracking).not.toHaveBeenCalled();
+    });
   });
 
   it('should set up tracking event handlers', () => {
@@ -905,5 +1018,65 @@ describe('FunnelStepper component', () => {
       transitionEvent: FunnelStepTransitionType.Complete,
       inputs: { step1: 'Option 1' },
     });
+  });
+  it('skips a step whose guard says so when the step before completes itself on mount', () => {
+    const selfCompletingStep = {
+      ...mockStep,
+      type: FunnelStepType.HeroLanding,
+      transitions: [
+        { on: FunnelStepTransitionType.Complete, destination: 'step2' },
+      ],
+    } as unknown as FunnelStep;
+    const skippedStep = {
+      ...mockStep2,
+      type: FunnelStepType.UserRole,
+      transitions: [
+        { on: FunnelStepTransitionType.Complete, destination: 'step3' },
+      ],
+    } as unknown as FunnelStep;
+    const lastStep = { ...mockStep2, id: 'step3' } as FunnelStep;
+    (useFunnelNavigation as jest.Mock).mockReturnValue({
+      ...(useFunnelNavigation as jest.Mock)(),
+      chapters: [{ steps: 3 }],
+      step: selfCompletingStep,
+      stepMap: {
+        step1: { position: { chapter: 0, step: 0 } },
+        step2: { position: { chapter: 0, step: 1 } },
+        step3: { position: { chapter: 0, step: 2 } },
+      },
+    });
+
+    render(
+      <TestBootProvider client={client}>
+        <FunnelStepper
+          funnel={{
+            ...mockFunnel,
+            chapters: [
+              {
+                id: 'chapter1',
+                steps: [selfCompletingStep, skippedStep, lastStep],
+              },
+            ],
+          }}
+          session={{ id: 'session-id' } as FunnelSession}
+          stepComponentOverrides={{
+            [FunnelStepType.HeroLanding]: ({ onTransition }) => {
+              useEffect(() => {
+                onTransition({ type: FunnelStepTransitionType.Complete });
+              }, [onTransition]);
+              return null;
+            },
+            [FunnelStepType.UserRole]: withShouldSkipStepGuard(
+              () => <p>role</p>,
+              () => ({ shouldSkip: true }),
+            ),
+          }}
+        />
+      </TestBootProvider>,
+    );
+
+    expect(mockNavigate).toHaveBeenCalledWith(
+      expect.objectContaining({ to: 'step3' }),
+    );
   });
 });

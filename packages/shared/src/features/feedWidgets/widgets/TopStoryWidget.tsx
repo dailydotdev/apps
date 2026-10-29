@@ -16,6 +16,7 @@ import Link from '../../../components/utilities/Link';
 import { Image } from '../../../components/image/Image';
 import { IconSize } from '../../../components/Icon';
 import { HotIcon } from '../../../components/icons/Hot';
+import { useTopStoryPostModal } from './useTopStoryPostModal';
 
 /**
  * The lead story as a widget: one post, not a carousel, as the featured-wide
@@ -31,10 +32,13 @@ export const TopStoryWidget = ({
   // grid, so one that rotates off never drops into a painted page.
   const { queryKey, leadPost, isPending, isLeadFresh } = useFeedHeroData();
   const lead = useMemo(() => (leadPost ? [leadPost] : []), [leadPost]);
+  // Like any card in the feed, the story opens in the post modal.
+  const { openPost, modal } = useTopStoryPostModal(leadPost);
   const cardProps = useFeedHeroCardProps({
     queryKey,
     feedName,
     origin: Origin.FeedWidgets,
+    onOpenPost: openPost,
   });
 
   const onPostImpression = useCallback(
@@ -84,56 +88,69 @@ export const TopStoryWidget = ({
     const [post] = lead;
 
     return (
-      <Link href={post.commentsPermalink}>
-        <a
-          ref={smallInViewRef}
-          href={post.commentsPermalink}
-          className="group relative flex min-h-0 flex-1 flex-col justify-end overflow-hidden rounded-16 bg-surface-float"
-          onClick={() => cardProps.onPostClick?.(post)}
-        >
-          {!!post.image && (
-            <Image
-              src={post.image}
-              alt=""
-              className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none"
-            />
-          )}
-          <span className="via-raw-pepper-90/60 pointer-events-none absolute inset-0 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
-          {/* The label sits on the artwork's busiest part, so it gets its own
-              scrim. */}
-          <span className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-overlay-primary-pepper to-transparent" />
-          <span className="absolute inset-x-4 top-4 flex h-6 min-w-0 items-center gap-1.5 text-white">
-            <HotIcon secondary size={IconSize.Size16} className="shrink-0" />
-            <span className="truncate font-bold typo-caption1">Top story</span>
-          </span>
-          <span className="relative flex flex-col gap-1 p-4">
-            <span className="line-clamp-3 font-bold text-white typo-callout">
-              {post.title}
-            </span>
-            {!!post.source?.name && (
-              <span className="text-white/70 truncate typo-footnote">
-                {post.source.name}
-              </span>
+      <>
+        <Link href={post.commentsPermalink}>
+          <a
+            ref={smallInViewRef}
+            href={post.commentsPermalink}
+            className="group relative flex min-h-0 flex-1 flex-col justify-end overflow-hidden rounded-16 bg-surface-float"
+            // A plain click opens the modal; a modified one, or one the modal
+            // does not take, follows the link.
+            onClick={(event) => {
+              cardProps.onPostAuxClick?.(post);
+              openPost(post, event);
+            }}
+          >
+            {!!post.image && (
+              <Image
+                src={post.image}
+                alt=""
+                className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none"
+              />
             )}
-          </span>
-        </a>
-      </Link>
+            <span className="via-raw-pepper-90/60 pointer-events-none absolute inset-0 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
+            {/* The label sits on the artwork's busiest part, so it gets its own
+              scrim. */}
+            <span className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-overlay-primary-pepper to-transparent" />
+            <span className="absolute inset-x-4 top-4 flex h-6 min-w-0 items-center gap-1.5 text-white">
+              <HotIcon secondary size={IconSize.Size16} className="shrink-0" />
+              <span className="truncate font-bold typo-caption1">
+                Top story
+              </span>
+            </span>
+            <span className="relative flex flex-col gap-1 p-4">
+              <span className="line-clamp-3 font-bold text-white typo-callout">
+                {post.title}
+              </span>
+              {!!post.source?.name && (
+                <span className="text-white/70 truncate typo-footnote">
+                  {post.source.name}
+                </span>
+              )}
+            </span>
+          </a>
+        </Link>
+        {modal}
+      </>
     );
   }
 
   return (
-    <FeedHeroCarousel
-      posts={lead}
-      layout={size === FeedWidgetSize.Large ? 'wide' : 'split'}
-      // A lead painted from the last load's cache may be swapped as soon as
-      // the refetch lands; only the live one counts as seen.
-      onPostImpression={isLeadFresh ? onPostImpression : undefined}
-      hero="compact"
-      hideWhyFeatured
-      // The carousel's bottom inset lines it up with the hero's other columns;
-      // on the rail the card fills its cell like every other widget.
-      className="min-h-0 flex-1 !pb-0"
-      {...cardProps}
-    />
+    <>
+      <FeedHeroCarousel
+        posts={lead}
+        layout={size === FeedWidgetSize.Large ? 'wide' : 'split'}
+        // A lead painted from the last load's cache may be swapped as soon as
+        // the refetch lands; only the live one counts as seen.
+        onPostImpression={isLeadFresh ? onPostImpression : undefined}
+        hero="compact"
+        hideWhyFeatured
+        // The carousel's bottom inset lines it up with the hero's other columns;
+        // on the rail the card fills its cell like every other widget.
+        className="min-h-0 flex-1 !pb-0"
+        {...cardProps}
+      />
+      {modal}
+    </>
   );
 };

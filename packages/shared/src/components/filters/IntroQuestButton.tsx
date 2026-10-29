@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { TourIcon } from '../icons';
+import { ChecklistBIcon } from '../icons/ChecklistB';
 import { Tooltip } from '../tooltip/Tooltip';
 import { Bubble } from '../tooltips/utils';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -20,7 +20,18 @@ const INTRO_QUEST_CTA_COLLAPSE_MS = 500;
 const NUDGE_SHAKE_INTERVAL_MS = 5_000;
 const NUDGE_SHAKE_DURATION_MS = 600;
 
-export function IntroQuestButton(): ReactElement | null {
+interface IntroQuestButtonProps {
+  size?: ButtonSize;
+  variant?: ButtonVariant;
+  // Names the button beside the count, where a row has the room.
+  showLabel?: boolean;
+}
+
+export function IntroQuestButton({
+  size = ButtonSize.Medium,
+  variant,
+  showLabel = false,
+}: IntroQuestButtonProps = {}): ReactElement | null {
   const { isAuthReady, isLoggedIn } = useAuthContext();
   const { loadedSettings } = useSettingsContext();
   const { openModal } = useLazyModal();
@@ -102,7 +113,8 @@ export function IntroQuestButton(): ReactElement | null {
   const hasClaimableIntroQuest = introQuests.some(({ claimable }) => claimable);
   const showAttentionBadge = !hasViewedIntroQuests || hasClaimableIntroQuest;
   const buttonLabel = `${completed}/${introQuests.length}`;
-  const buttonVariant = isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary;
+  const buttonVariant =
+    variant ?? (isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary);
 
   const handleClick = () => {
     hasClickedRef.current = true;
@@ -115,8 +127,8 @@ export function IntroQuestButton(): ReactElement | null {
       <Button
         type="button"
         variant={buttonVariant}
-        size={ButtonSize.Medium}
-        icon={<TourIcon />}
+        size={size}
+        icon={<ChecklistBIcon />}
         className={classNames(
           'relative',
           isShaking && 'animate-nudge-shake motion-reduce:animate-none',
@@ -150,7 +162,9 @@ export function IntroQuestButton(): ReactElement | null {
               {INTRO_QUEST_CTA}
             </span>
           </span>
-          <span className="shrink-0">{buttonLabel}</span>
+          <span className="shrink-0">
+            {showLabel ? `Getting started · ${buttonLabel}` : buttonLabel}
+          </span>
         </span>
       </Button>
     </Tooltip>

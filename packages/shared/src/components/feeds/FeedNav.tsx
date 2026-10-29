@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import UnifiedMobileFeedNav from './UnifiedMobileFeedNav';
@@ -40,6 +40,13 @@ import PlusMobileEntryBanner from '../marketing/banners/PlusMobileEntryBanner';
 import { TargetType } from '../../lib/log';
 import usePlusEntry from '../../hooks/usePlusEntry';
 import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
+import { useFeedExplainMode } from '../../features/feedExplain/useFeedExplainMode';
+import {
+  ForYouSheet,
+  ForYouTabLabel,
+  getForYouMenuAriaLabel,
+  useForYouSort,
+} from './ForYouSort';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -67,9 +74,14 @@ interface FeedNavProps {
   // Rendered inside the phone's top block: no sticky wrapper and no brand
   // row of its own, the block owns both.
   inShellBlock?: boolean;
+  // The widget rail brings the feed's tabs, under it.
+  hasFeedWidgetRail?: boolean;
 }
 
-function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
+function FeedNav({
+  inShellBlock = false,
+  hasFeedWidgetRail = false,
+}: FeedNavProps): ReactElement | null {
   const router = useRouter();
   const { feedName: rawFeedName } = useActiveFeedNameContext();
   const feedName = rawFeedName as AllFeedPages;
@@ -84,7 +96,7 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
   const isTablet = isBelowLaptop && !isMobile;
   const { value: feedChipsVariant } = useConditionalFeature({
     feature: featureFeedChips,
-    shouldEvaluate: isBelowLaptop && !inShellBlock,
+    shouldEvaluate: isBelowLaptop && !inShellBlock && !hasFeedWidgetRail,
   });
   const isFeedChipsEnabled = feedChipsVariant !== FeedChipsVariant.None;
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
@@ -93,6 +105,13 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
     [0, 1],
     DEFAULT_ALGORITHM_INDEX,
   );
+  const forYouSort = useForYouSort();
+  // Phones keep Debug in the For you sheet, opened from the lit For you tab,
+  // so the row has no switch to crowd out the tabs.
+  const { isOffered: hasForYouSheet, isExplaining } = useFeedExplainMode({
+    isRecommended: forYouSort.selected === DEFAULT_ALGORITHM_INDEX,
+  });
+  const [isForYouSheetOpen, setIsForYouSheetOpen] = useState(false);
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const { feeds } = useFeeds();
@@ -186,6 +205,12 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
     return null;
   }
 
+  if (hasFeedWidgetRail) {
+    return isExtension && isMobile && !inShellBlock ? (
+      <MobileFeedActions />
+    ) : null;
+  }
+
   return (
     <div
       className={classNames(
@@ -206,12 +231,40 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
         {inShellBlock && (
           <div className="flex w-full items-stretch bg-background-default">
             <div className="min-w-0 flex-1">
-              <HomeSegments />
+              <HomeSegments
+                forYou={
+                  hasForYouSheet
+                    ? {
+                        label: (
+                          <ForYouTabLabel
+                            label={FeedNavTab.ForYou}
+                            selected={forYouSort.selected}
+                            isExplaining={isExplaining}
+                          />
+                        ),
+                        ariaLabel: getForYouMenuAriaLabel({
+                          label: FeedNavTab.ForYou,
+                          selected: forYouSort.selected,
+                          isExplaining,
+                        }),
+                        onMenu: () => setIsForYouSheetOpen(true),
+                      }
+                    : undefined
+                }
+              />
             </div>
             {showFeedActions && (
               <FeedNavActionsWrapper className="!py-0">
                 {renderFeedActions(true)}
               </FeedNavActionsWrapper>
+            )}
+            {hasForYouSheet && (
+              <ForYouSheet
+                title={FeedNavTab.ForYou}
+                sort={forYouSort}
+                isOpen={isForYouSheetOpen}
+                onClose={() => setIsForYouSheetOpen(false)}
+              />
             )}
           </div>
         )}

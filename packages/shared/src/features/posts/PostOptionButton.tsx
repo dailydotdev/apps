@@ -32,6 +32,7 @@ import {
   TrendingIcon,
   SettingsIcon,
   AnalyticsIcon,
+  UnreadIcon,
 } from '../../components/icons';
 import {
   Button,
@@ -88,6 +89,7 @@ import {
 import type { ReportedCallback } from '../../components/modals';
 import { labels } from '../../lib';
 import { useBookmarkReminder } from '../../hooks/notifications';
+import { useBookmarkState } from '../../hooks/bookmark/useBookmarkState';
 import { BookmarkReminderIcon } from '../../components/icons/Bookmark/Reminder';
 import { LazyModal } from '../../components/modals/common/types';
 import { settingsUrl, webappUrl } from '../../lib/constants';
@@ -101,6 +103,7 @@ import { canViewPostAnalytics, Roles } from '../../lib/user';
 import type { PromptOptions } from '../../hooks/usePrompt';
 import { usePrompt } from '../../hooks/usePrompt';
 import { BoostIcon } from '../../components/icons/Boost';
+import { InfoIcon } from '../../components/icons/Info';
 import type { FeedItem } from '../../hooks/useFeed';
 import { isBoostedPostAd } from '../../hooks/useFeed';
 import type { MenuItemProps } from '../../components/dropdown/common';
@@ -193,6 +196,10 @@ const PostOptionButtonContent = ({
   const { onHide } = useHidePost({
     post,
     origin: Origin.PostContextMenu,
+  });
+  const { onHide: onHideFromExplanation } = useHidePost({
+    post,
+    origin: Origin.FeedExplain,
   });
   const { openSharePost } = useSharePost(origin);
   const { follow, unfollow, unblock, block } = useContentPreference();
@@ -469,6 +476,28 @@ const PostOptionButtonContent = ({
     },
   ];
 
+  // Only For You asks for explanations, where it can explain itself.
+  const { explain } = initialPost;
+  if (explain !== undefined && !isBriefPost) {
+    postOptions.push({
+      icon: <MenuIcon Icon={InfoIcon} />,
+      id: 'explain',
+      label: 'Why am I seeing this?',
+      action: () => {
+        logEvent(
+          postLogEvent(LogEvent.OpenFeedExplanation, post, {
+            extra: { origin: Origin.PostContextMenu, lane: explain?.lane },
+            ...logOpts,
+          }),
+        );
+        openModal({
+          type: LazyModal.FeedExplanation,
+          props: { post, explain, onHide: onHideFromExplanation },
+        });
+      },
+    });
+  }
+
   if (canViewPostAnalytics({ user, post })) {
     postOptions.push({
       icon: <MenuIcon Icon={AnalyticsIcon} />,
@@ -574,6 +603,7 @@ const PostOptionButtonContent = ({
   }
 
   const { onRemoveReminder } = useBookmarkReminder({ post });
+  const { onToggleRead, onToggleArchived } = useBookmarkState();
 
   if (isLoggedIn && !isBriefPost) {
     const hasPostReminder = !!post?.bookmark?.remindAt;
@@ -664,6 +694,36 @@ const PostOptionButtonContent = ({
                 client.invalidateQueries({ queryKey: activeFeedQueryKey });
               },
             },
+          });
+        },
+      });
+
+      const isBookmarkRead = !!post.bookmark.read;
+      const isBookmarkArchived = !!post.bookmark.archivedAt;
+
+      postOptions.push({
+        icon: <MenuIcon Icon={UnreadIcon} secondary={isBookmarkRead} />,
+        id: 'bookmark-read',
+        label: isBookmarkRead ? 'Mark as unread' : 'Mark as read',
+        action: () => onToggleRead(post, !isBookmarkRead),
+      });
+
+      postOptions.push({
+        icon: <MenuIcon Icon={EyeCancelIcon} secondary={isBookmarkArchived} />,
+        id: 'bookmark-archive',
+        label: isBookmarkArchived ? 'Restore from archive' : 'Archive',
+        action: () => onToggleArchived(post, !isBookmarkArchived),
+      });
+
+      // Plus feature: the modal explains the upgrade to everyone else
+      postOptions.push({
+        icon: <MenuIcon Icon={EditIcon} secondary={!!post.bookmark.note} />,
+        id: 'bookmark-note',
+        label: post.bookmark.note ? 'Edit note' : 'Add note',
+        action: () => {
+          openModal({
+            type: LazyModal.BookmarkNote,
+            props: { post, feedContextData },
           });
         },
       });
