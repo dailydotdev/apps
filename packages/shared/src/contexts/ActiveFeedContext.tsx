@@ -16,8 +16,10 @@ export type ActiveFeedContextValue = {
   allowPin?: boolean;
   origin?: Origin;
   onRemovePost?: (postIndex: number) => void;
-  /** For You's request, set where its posts can be explained on request. */
-  explainRequest?: FeedPostExplanationRequest;
+  /** Where For You's posts can be explained on request: a post's request. */
+  getExplainRequest?: (
+    postId: string,
+  ) => FeedPostExplanationRequest | undefined;
 };
 
 export const ActiveFeedContext = createContext<ActiveFeedContextValue>({

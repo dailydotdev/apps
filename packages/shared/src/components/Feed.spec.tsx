@@ -1399,15 +1399,41 @@ describe('Feed logged in', () => {
     expect(screen.queryByText('Why am I seeing this?')).not.toBeInTheDocument();
   });
 
-  describe('explaining a post from the menu outside Debug', () => {
+  describe('explaining a post on request outside Debug', () => {
     const post = { ...defaultFeedPage.edges[0].node, tags: ['javascript'] };
-    const request = { version: 116, first: 7, supportedTypes: ['article'] };
+    // A page size the layout picked, not the default, which must reach the
+    // explanation as the page was asked with it.
+    const pageSize = 5;
+    const feedVariables = {
+      version: 116,
+      supportedTypes: ['article'],
+    };
+    const explanation = {
+      lane: 'chal',
+      v: 1,
+      score: 0.81,
+      base: { value: 1.2, viewers: 1200 },
+      match: {
+        tag: 'javascript',
+        origin: 'declared',
+        role: 'central',
+        role_weight: 1,
+        strength: 'strong',
+        weight: 0.62,
+        computed_weight: 0.62,
+        factor: 1.62,
+      },
+      follow: { factor: 1 },
+      age: { days: 2.1, factor: 0.81 },
+      seen: { shows: 1, factor: 0.69 },
+    };
 
-    const openExplanation = async (
+    const setUpFeed = (
       feedPostExplanation: Record<string, unknown> | null,
+      mocks: MockedGraphQLResponse[] = [],
     ) => {
-      let asked = 0;
-      variables = { ...defaultVariables, ...request };
+      const asked = { count: 0 };
+      variables = { ...defaultVariables, ...feedVariables, first: pageSize };
       renderComponent(
         [
           {
@@ -1441,49 +1467,43 @@ describe('Feed logged in', () => {
           {
             request: {
               query: FEED_POST_EXPLANATION_QUERY,
-              variables: { postId: post.id, ...request },
+              variables: {
+                postId: post.id,
+                ...feedVariables,
+                first: pageSize,
+                cursor: defaultFeedPage.pageInfo.endCursor,
+              },
             },
             result: () => {
-              asked += 1;
+              asked.count += 1;
               return { data: { feedPostExplanation } };
             },
           },
+          ...mocks,
         ],
         defaultUser,
         SharedFeedPage.MyFeed,
         FEED_V2_QUERY,
-        { canExplainPosts: true },
+        { canExplainPosts: true, pageSize },
       );
+      return asked;
+    };
 
+    const openExplanation = async (
+      feedPostExplanation: Record<string, unknown> | null,
+    ) => {
+      const asked = setUpFeed(feedPostExplanation);
       const [menuBtn] = await screen.findAllByLabelText('Options');
-      expect(asked).toBe(0);
+      expect(asked.count).toBe(0);
       fireEvent.keyDown(menuBtn, { key: ' ' });
       fireEvent.click(await screen.findByText('Why am I seeing this?'));
       const dialog = await screen.findByRole('dialog');
-      await waitFor(() => expect(asked).toBe(1));
+      await waitFor(() => expect(asked.count).toBe(1));
       return dialog;
     };
 
-    it('should ask for the post’s explanation when opened', async () => {
-      const dialog = await openExplanation({
-        lane: 'chal',
-        v: 1,
-        score: 0.81,
-        base: { value: 1.2, viewers: 1200 },
-        match: {
-          tag: 'javascript',
-          origin: 'declared',
-          role: 'central',
-          role_weight: 1,
-          strength: 'strong',
-          weight: 0.62,
-          computed_weight: 0.62,
-          factor: 1.62,
-        },
-        follow: { factor: 1 },
-        age: { days: 2.1, factor: 0.81 },
-        seen: { shows: 1, factor: 0.69 },
-      });
+    it('should ask for the post’s explanation with its page’s request when opened', async () => {
+      const dialog = await openExplanation(explanation);
 
       expect(
         await within(dialog).findByText('What matched you'),
@@ -1501,6 +1521,38 @@ describe('Feed logged in', () => {
         within(dialog).queryByText('Score breakdown'),
       ).not.toBeInTheDocument();
       expect(within(dialog).getByText('In this post')).toBeInTheDocument();
+    });
+
+    it('should offer to show less of the matched topic after hiding the post', async () => {
+      const asked = setUpFeed(explanation, [
+        {
+          request: { query: HIDE_POST_MUTATION, variables: { id: post.id } },
+          result: () => ({ data: { _: true } }),
+        },
+        {
+          request: { query: FEED_CONTROLS_QUERY },
+          result: {
+            data: {
+              feedControls: {
+                topics: [],
+                sources: [],
+                learning: true,
+                fillIns: true,
+              },
+            },
+          },
+        },
+      ]);
+
+      const [menuBtn] = await screen.findAllByLabelText('Options');
+      fireEvent.keyDown(menuBtn, { key: ' ' });
+      await openNotInterested();
+      (await screen.findByText('Hide')).click();
+
+      expect(
+        await screen.findByText('Show less #javascript?'),
+      ).toBeInTheDocument();
+      expect(asked.count).toBe(1);
     });
   });
 

@@ -148,7 +148,7 @@ const PostOptionButtonContent = ({
     items,
     origin: feedOrigin,
     onRemovePost,
-    explainRequest,
+    getExplainRequest,
   } = feedContextData;
   const origin = initialOrigin || feedOrigin || Origin.Feed;
 
@@ -193,7 +193,7 @@ const PostOptionButtonContent = ({
   });
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
-  const { boostedBy } = useFeedCardContext();
+  const { boostedBy, isAd } = useFeedCardContext();
   const { onHide } = useHidePost({
     post,
     origin: Origin.PostContextMenu,
@@ -481,9 +481,8 @@ const PostOptionButtonContent = ({
   // the feed, otherwise the modal asks for this post's. Ads aren't ranked by
   // the feed, so there's nothing to ask about them.
   const { explain } = initialPost;
-  const canAskForExplanation =
-    !!explainRequest && items[postIndex]?.type === 'post';
-  if ((explain !== undefined || canAskForExplanation) && !isBriefPost) {
+  const explainRequest = isAd ? undefined : getExplainRequest?.(post.id);
+  if ((explain !== undefined || explainRequest) && !isBriefPost) {
     postOptions.push({
       icon: <MenuIcon Icon={InfoIcon} />,
       id: 'explain',

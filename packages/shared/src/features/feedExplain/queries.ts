@@ -35,9 +35,10 @@ export const feedControlsQueryOptions = (user: QueryUser) =>
     enabled: !!user?.id,
   });
 
-// One post's explanation outside Debug, read from the page the feed service
-// cached when it served the post. Asked again on every open: a feed loaded
-// since may have served the post anew, or no longer has it.
+// One post's explanation outside Debug, read from the feed the feed service
+// cached when it served the post. The request carries the generation of the
+// post's page, so an answer never changes and is kept; a refetch after a
+// follow or level set from the modal would find no feed under the new hash.
 export const feedPostExplanationQueryOptions = (
   user: QueryUser,
   postId: string,
@@ -51,5 +52,7 @@ export const feedPostExplanationQueryOptions = (
       request,
     ),
     queryFn: () => getFeedPostExplanation(postId, request),
+    staleTime: Infinity,
+    retry: 1,
     enabled: !!user?.id && !!request,
   });

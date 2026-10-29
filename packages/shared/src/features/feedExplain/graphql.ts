@@ -43,18 +43,22 @@ export interface FeedPostExplanationRequest {
   version: number;
   first: number;
   supportedTypes?: string[];
+  /** The cursor of the post's page, which carries its generation. */
+  cursor?: string;
 }
 
 export const FEED_POST_EXPLANATION_QUERY = gql`
   query FeedPostExplanation(
     $postId: ID!
     $version: Int!
+    $cursor: String
     $first: Int
     $supportedTypes: [String!]
   ) {
     feedPostExplanation(
       postId: $postId
       version: $version
+      cursor: $cursor
       first: $first
       supportedTypes: $supportedTypes
     )

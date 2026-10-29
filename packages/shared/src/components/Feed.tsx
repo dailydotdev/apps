@@ -256,7 +256,6 @@ export default function Feed<T>({
   const { openNewTab, loadedSettings } = useContext(SettingsContext);
   const { isListMode, shouldUseListFeedLayout } = useFeedLayout();
   const numCards = currentSettings.numCards.eco;
-  const feedPageSize = pageSize ?? currentSettings.pageSize;
   const isSquadFeed = feedName === OtherFeedPage.Squads;
   const trackedFeedFinish = useRef(false);
   const isMyFeed = feedName === SharedFeedPage.MyFeed;
@@ -370,6 +369,7 @@ export default function Feed<T>({
     bannerInsertions,
     updatePost,
     removePost,
+    getPageRequest,
     fetchPage,
     canFetchMore: queryCanFetchMore,
     emptyFeed,
@@ -380,7 +380,7 @@ export default function Feed<T>({
     error: feedError,
   } = useFeed(
     feedQueryKey,
-    feedPageSize,
+    pageSize ?? currentSettings.pageSize,
     isSquadFeed || shouldUseListFeedLayout
       ? {
           ...adTemplate,
@@ -536,13 +536,23 @@ export default function Feed<T>({
 
   const { version: feedVersion, supportedTypes } =
     (variables as ExplainVariables) || {};
-  // The feed service finds the post by the request's hash, page size included.
-  const explainRequest = useMemo(
-    () =>
-      canExplainPosts && feedVersion
-        ? { version: feedVersion, first: feedPageSize, supportedTypes }
-        : undefined,
-    [canExplainPosts, feedVersion, feedPageSize, supportedTypes],
+  // The feed service finds a post by its page's request: the hash of what the
+  // page was asked with, page size included, and the generation in its cursor.
+  const getExplainRequest = useCallback(
+    (postId: string) => {
+      if (!canExplainPosts || !feedVersion) {
+        return undefined;
+      }
+      const postItem = items.find(
+        (item): item is PostItem =>
+          item.type === 'post' && item.post.id === postId,
+      );
+      const pageRequest = postItem && getPageRequest(postItem.page);
+      return (
+        pageRequest && { version: feedVersion, supportedTypes, ...pageRequest }
+      );
+    },
+    [canExplainPosts, feedVersion, supportedTypes, items, getPageRequest],
   );
 
   const feedContextValue = useMemo(() => {
@@ -553,7 +563,7 @@ export default function Feed<T>({
       allowPin,
       origin,
       onRemovePost,
-      explainRequest,
+      getExplainRequest,
     };
   }, [
     feedQueryKey,
@@ -562,7 +572,7 @@ export default function Feed<T>({
     allowPin,
     origin,
     onRemovePost,
-    explainRequest,
+    getExplainRequest,
   ]);
 
   const { ranking } = (variables as RankVariables) || {};
@@ -868,6 +878,7 @@ export default function Feed<T>({
                     boostedBy: isBoostedPostAd(item)
                       ? item.ad.data?.post?.author || item.ad.data?.post?.scout
                       : undefined,
+                    isAd: item.type === 'ad',
                   }}
                 >
                   {showPromoBanner && index === indexWhenShowingPromoBanner && (
