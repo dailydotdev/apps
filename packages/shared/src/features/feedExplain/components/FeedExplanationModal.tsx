@@ -403,13 +403,7 @@ function FeedExplanationModal({
           onChange={(value) => feedControls.setAuthor(authorId, value)}
         />
       ),
-      leading: (
-        <ProfilePicture
-          user={author}
-          size={ProfileImageSize.Small}
-          rounded="full"
-        />
-      ),
+      leading: <ProfilePicture user={author} size={ProfileImageSize.Small} />,
       isBlocked,
       isFollowing,
       isShowingLess,

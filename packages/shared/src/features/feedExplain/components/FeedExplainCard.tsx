@@ -502,11 +502,7 @@ const AuthorSignalRow = ({
     >
       {post.author && (
         <span className="flex">
-          <ProfilePicture
-            user={post.author}
-            size={ProfileImageSize.Small}
-            rounded="full"
-          />
+          <ProfilePicture user={post.author} size={ProfileImageSize.Small} />
         </span>
       )}
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">

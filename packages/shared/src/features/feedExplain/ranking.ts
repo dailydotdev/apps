@@ -303,7 +303,7 @@ export const rankingGroups: {
   },
   {
     group: RankingGroup.Follows,
-    title: 'Sources and people you follow',
+    title: 'Sources and authors you follow',
     description: 'Every post from them shows up, with this boost.',
   },
   {

@@ -18,6 +18,11 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { Divider } from '../../../components/utilities/Divider';
+import {
+  ProfileImageSize,
+  ProfilePicture,
+} from '../../../components/ProfilePicture';
+import { SourceAvatar } from '../../../components/profile/source/SourceAvatar';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { settingsUrl } from '../../../lib/constants';
@@ -51,14 +56,17 @@ const ControlRow = ({
   title,
   meta,
   metaClassName,
+  avatar,
   children,
 }: {
   title: string;
   meta?: string;
   metaClassName?: string;
+  avatar?: ReactNode;
   children: ReactNode;
 }): ReactElement => (
   <li className="flex min-h-11 items-center gap-3">
+    {avatar && <span className="flex">{avatar}</span>}
     <span className="flex min-w-0 flex-1 flex-col">
       <span className="truncate font-bold text-text-primary typo-footnote">
         {title}
@@ -141,8 +149,8 @@ const TopicsTab = ({
 const SourcesTab = ({ tune }: { tune: UseFeedTune }): ReactElement => {
   const { user } = useAuthContext();
   const { isPlus } = usePlusSubscription();
-  const { sources, authors } = useFeedTuneContext();
-  const people = authors.filter(
+  const { sources, authors: pageAuthors } = useFeedTuneContext();
+  const authors = pageAuthors.filter(
     ({ id }) => !isSpecialUser({ userId: id, loggedUserId: user?.id ?? null }),
   );
 
@@ -152,7 +160,8 @@ const SourcesTab = ({ tune }: { tune: UseFeedTune }): ReactElement => {
         Sources
       </Typography>
       <ul className="flex flex-col">
-        {sources.map(({ id, name, factor, isFollowed }) => {
+        {sources.map((source) => {
+          const { id, name, factor, isFollowed } = source;
           const control = tune.getSourceControl(id);
           const meta = getControlMeta(control, isPlus, followModeMeta);
           return (
@@ -161,6 +170,13 @@ const SourcesTab = ({ tune }: { tune: UseFeedTune }): ReactElement => {
               title={name}
               meta={meta?.text ?? (isFollowed ? 'You follow it' : undefined)}
               metaClassName={meta?.className}
+              avatar={
+                <SourceAvatar
+                  source={source}
+                  size={ProfileImageSize.Small}
+                  className="!mr-0"
+                />
+              }
             >
               <SourceLevelPicker
                 name={name}
@@ -173,14 +189,15 @@ const SourcesTab = ({ tune }: { tune: UseFeedTune }): ReactElement => {
           );
         })}
       </ul>
-      {people.length > 0 && (
+      {authors.length > 0 && (
         <>
           <Divider className="bg-border-subtlest-tertiary" />
           <Typography bold type={TypographyType.Callout}>
-            People
+            Authors
           </Typography>
           <ul className="flex flex-col">
-            {people.map(({ id, name, factor, isFollowed }) => {
+            {authors.map((author) => {
+              const { id, name, factor, isFollowed } = author;
               const control = tune.getAuthorControl(id);
               const meta = getControlMeta(control, isPlus, followModeMeta);
               return (
@@ -191,6 +208,12 @@ const SourcesTab = ({ tune }: { tune: UseFeedTune }): ReactElement => {
                     meta?.text ?? (isFollowed ? 'You follow them' : undefined)
                   }
                   metaClassName={meta?.className}
+                  avatar={
+                    <ProfilePicture
+                      user={author}
+                      size={ProfileImageSize.Small}
+                    />
+                  }
                 >
                   <AuthorLevelPicker
                     name={name}

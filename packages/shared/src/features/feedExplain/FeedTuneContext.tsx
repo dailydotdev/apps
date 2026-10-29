@@ -20,17 +20,24 @@ import {
 /** Where Tune moved a card: new on the page, or places up (+) or down (-). */
 export type TuneMovement = 'new' | number;
 
-export interface TunePageSource {
+interface TunePageEntity {
   id: string;
   name: string;
+  image: string;
   /** What a follow or level gives its posts now, 1 without one. */
   factor: number;
   /** A card on the page was ranked with the reader following it. */
   isFollowed: boolean;
 }
 
-/** An author on the page, with the same fields keyed by user id. */
-export type TunePageAuthor = TunePageSource;
+export interface TunePageSource extends TunePageEntity {
+  handle: string;
+}
+
+/** An author on the page, keyed by user id. */
+export interface TunePageAuthor extends TunePageEntity {
+  username?: string;
+}
 
 interface FeedTuneContextValue {
   /** Set while the feed shows a draft, against the page it replaced. */
@@ -128,6 +135,8 @@ const [FeedTuneProvider, useFeedTuneContextHook] = createContextProvider(
           byId.set(source.id, {
             id: source.id,
             name: source.name,
+            image: source.image,
+            handle: source.handle,
             factor: getSourceFactor(explain),
             isFollowed:
               !!byId.get(source.id)?.isFollowed || isSourceFollowed(explain),
@@ -143,6 +152,8 @@ const [FeedTuneProvider, useFeedTuneContextHook] = createContextProvider(
           byId.set(author.id, {
             id: author.id,
             name: getAuthorLabel(author),
+            image: author.image,
+            username: author.username,
             factor: getAuthorFactor(explain),
             isFollowed:
               !!byId.get(author.id)?.isFollowed || isAuthorFollowed(explain),
