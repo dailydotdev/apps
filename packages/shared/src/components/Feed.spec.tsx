@@ -45,6 +45,7 @@ import {
 } from '../graphql/feed';
 import {
   FEED_CONTROLS_QUERY,
+  FEED_POST_EXPLANATION_QUERY,
   FEED_PROFILE_QUERY,
   SET_FEED_SOURCE_MODE_MUTATION,
   SET_FEED_TOPIC_MODE_MUTATION,
@@ -1396,6 +1397,163 @@ describe('Feed logged in', () => {
     fireEvent.keyDown(menuBtn, { key: ' ' });
     await screen.findByText('Share via');
     expect(screen.queryByText('Why am I seeing this?')).not.toBeInTheDocument();
+  });
+
+  describe('explaining a post on request outside Debug', () => {
+    const post = { ...defaultFeedPage.edges[0].node, tags: ['javascript'] };
+    // A page size the layout picked, not the default, which must reach the
+    // explanation as the page was asked with it.
+    const pageSize = 5;
+    const feedVariables = {
+      version: 116,
+      supportedTypes: ['article'],
+    };
+    const explanation = {
+      lane: 'chal',
+      v: 1,
+      score: 0.81,
+      base: { value: 1.2, viewers: 1200 },
+      match: {
+        tag: 'javascript',
+        origin: 'declared',
+        role: 'central',
+        role_weight: 1,
+        strength: 'strong',
+        weight: 0.62,
+        computed_weight: 0.62,
+        factor: 1.62,
+      },
+      follow: { factor: 1 },
+      age: { days: 2.1, factor: 0.81 },
+      seen: { shows: 1, factor: 0.69 },
+    };
+
+    const setUpFeed = (
+      feedPostExplanation: Record<string, unknown> | null,
+      mocks: MockedGraphQLResponse[] = [],
+    ) => {
+      const asked = { count: 0 };
+      variables = { ...defaultVariables, ...feedVariables, first: pageSize };
+      renderComponent(
+        [
+          {
+            request: { query: FEED_V2_QUERY, variables },
+            result: {
+              data: {
+                page: {
+                  pageInfo: defaultFeedPage.pageInfo,
+                  edges: [
+                    {
+                      node: {
+                        __typename: 'FeedPostItem',
+                        feedMeta: null,
+                        post,
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          {
+            request: { query: POST_BY_ID_QUERY, variables: { id: post.id } },
+            result: { data: { post } },
+          },
+          createTagsSettingsMock({
+            includeTags: ['javascript'],
+            blockedTags: [],
+            excludeSources: [],
+          }),
+          {
+            request: {
+              query: FEED_POST_EXPLANATION_QUERY,
+              variables: {
+                postId: post.id,
+                ...feedVariables,
+                first: pageSize,
+                cursor: defaultFeedPage.pageInfo.endCursor,
+              },
+            },
+            result: () => {
+              asked.count += 1;
+              return { data: { feedPostExplanation } };
+            },
+          },
+          ...mocks,
+        ],
+        defaultUser,
+        SharedFeedPage.MyFeed,
+        FEED_V2_QUERY,
+        { canExplainPosts: true, pageSize },
+      );
+      return asked;
+    };
+
+    const openExplanation = async (
+      feedPostExplanation: Record<string, unknown> | null,
+    ) => {
+      const asked = setUpFeed(feedPostExplanation);
+      const [menuBtn] = await screen.findAllByLabelText('Options');
+      expect(asked.count).toBe(0);
+      fireEvent.keyDown(menuBtn, { key: ' ' });
+      fireEvent.click(await screen.findByText('Why am I seeing this?'));
+      const dialog = await screen.findByRole('dialog');
+      await waitFor(() => expect(asked.count).toBe(1));
+      return dialog;
+    };
+
+    it('should ask for the post’s explanation with its page’s request when opened', async () => {
+      const dialog = await openExplanation(explanation);
+
+      expect(
+        await within(dialog).findByText('What matched you'),
+      ).toBeInTheDocument();
+      expect(within(dialog).getByText('Score breakdown')).toBeInTheDocument();
+    });
+
+    it('should say so when the feed no longer has the post', async () => {
+      const dialog = await openExplanation(null);
+
+      expect(
+        await within(dialog).findByText(/Your feed has changed since this/),
+      ).toBeInTheDocument();
+      expect(
+        within(dialog).queryByText('Score breakdown'),
+      ).not.toBeInTheDocument();
+      expect(within(dialog).getByText('In this post')).toBeInTheDocument();
+    });
+
+    it('should offer to show less of the matched topic after hiding the post', async () => {
+      const asked = setUpFeed(explanation, [
+        {
+          request: { query: HIDE_POST_MUTATION, variables: { id: post.id } },
+          result: () => ({ data: { _: true } }),
+        },
+        {
+          request: { query: FEED_CONTROLS_QUERY },
+          result: {
+            data: {
+              feedControls: {
+                topics: [],
+                sources: [],
+                learning: true,
+                fillIns: true,
+              },
+            },
+          },
+        },
+      ]);
+
+      const [menuBtn] = await screen.findAllByLabelText('Options');
+      fireEvent.keyDown(menuBtn, { key: ' ' });
+      await openNotInterested();
+      (await screen.findByText('Hide')).click();
+
+      expect(
+        await screen.findByText('Show less #javascript?'),
+      ).toBeInTheDocument();
+      expect(asked.count).toBe(1);
+    });
   });
 
   it('should restore the post when clicking Undo on the hidden feedback panel', async () => {

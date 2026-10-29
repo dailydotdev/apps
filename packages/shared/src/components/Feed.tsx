@@ -137,10 +137,17 @@ export interface FeedProps<T>
   searchVersion?: number;
   /** Debug mode: each card's explanation covers it. */
   isExplaining?: boolean;
+  /** The post menu explains a post on request, outside Debug mode. */
+  canExplainPosts?: boolean;
 }
 
 interface RankVariables {
   ranking?: string;
+}
+
+interface ExplainVariables {
+  version?: number;
+  supportedTypes?: string[];
 }
 
 const BriefCardFeed = dynamic(
@@ -193,6 +200,7 @@ export default function Feed<T>({
   searchId,
   searchVersion,
   isExplaining = false,
+  canExplainPosts = false,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { logEvent } = useLogContext();
@@ -315,6 +323,7 @@ export default function Feed<T>({
     bannerInsertions,
     updatePost,
     removePost,
+    getPageRequest,
     fetchPage,
     canFetchMore: queryCanFetchMore,
     emptyFeed,
@@ -479,6 +488,27 @@ export default function Feed<T>({
     [items, removePost],
   );
 
+  const { version: feedVersion, supportedTypes } =
+    (variables as ExplainVariables) || {};
+  // The feed service finds a post by its page's request: the hash of what the
+  // page was asked with, page size included, and the generation in its cursor.
+  const getExplainRequest = useCallback(
+    (postId: string) => {
+      if (!canExplainPosts || !feedVersion) {
+        return undefined;
+      }
+      const postItem = items.find(
+        (item): item is PostItem =>
+          item.type === 'post' && item.post.id === postId,
+      );
+      const pageRequest = postItem && getPageRequest(postItem.page);
+      return (
+        pageRequest && { version: feedVersion, supportedTypes, ...pageRequest }
+      );
+    },
+    [canExplainPosts, feedVersion, supportedTypes, items, getPageRequest],
+  );
+
   const feedContextValue = useMemo(() => {
     return {
       queryKey: feedQueryKey,
@@ -487,8 +517,17 @@ export default function Feed<T>({
       allowPin,
       origin,
       onRemovePost,
+      getExplainRequest,
     };
-  }, [feedQueryKey, items, logOpts, allowPin, origin, onRemovePost]);
+  }, [
+    feedQueryKey,
+    items,
+    logOpts,
+    allowPin,
+    origin,
+    onRemovePost,
+    getExplainRequest,
+  ]);
 
   const { ranking } = (variables as RankVariables) || {};
 
@@ -793,6 +832,7 @@ export default function Feed<T>({
                     boostedBy: isBoostedPostAd(item)
                       ? item.ad.data?.post?.author || item.ad.data?.post?.scout
                       : undefined,
+                    isAd: item.type === 'ad',
                   }}
                 >
                   {showPromoBanner && index === indexWhenShowingPromoBanner && (

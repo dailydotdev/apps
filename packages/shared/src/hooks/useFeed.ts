@@ -200,6 +200,8 @@ export type FeedReturnType = {
   fetchPage: () => Promise<void>;
   updatePost: UpdateFeedPost;
   removePost: (page: number, index: number) => void;
+  /** What a loaded page was asked with, which keys the feed service's cache. */
+  getPageRequest: (page: number) => FeedPageRequest | undefined;
   canFetchMore: boolean;
   emptyFeed: boolean;
   isLoading: boolean;
@@ -209,6 +211,12 @@ export type FeedReturnType = {
   isPending: boolean;
   error?: ClientError;
 };
+
+export interface FeedPageRequest {
+  first: number;
+  /** The page's own cursor, as the request for the next page sends it. */
+  cursor?: string;
+}
 
 type UseFeedSettingParams = {
   adPostLength?: number;
@@ -433,7 +441,7 @@ export default function useFeed<T>(
         }, []),
       );
 
-      return res;
+      return { ...res, first: pageSize };
     },
     refetchOnMount: false,
     gcTime: StaleTime.OneHour,
@@ -915,12 +923,26 @@ export default function useFeed<T>(
     },
   };
 
+  const getPageRequest = useCallback(
+    (page: number): FeedPageRequest | undefined => {
+      const data = feedQuery.data?.pages[page];
+      return data?.first
+        ? {
+            first: data.first,
+            cursor: data.page.pageInfo.endCursor ?? undefined,
+          }
+        : undefined;
+    },
+    [feedQuery.data],
+  );
+
   return {
     items,
     placements,
     heroCardsConfig,
     bannerInsertions,
     hasFirstSlotCard,
+    getPageRequest,
     fetchPage: async () => {
       await feedQuery.fetchNextPage();
     },
