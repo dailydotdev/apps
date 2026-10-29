@@ -13,6 +13,10 @@ import { MemberAlready } from '@dailydotdev/shared/src/components/onboarding/Mem
 import { MailIcon } from '@dailydotdev/shared/src/components/icons/Mail';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
+import {
+  ProfileImageSize,
+  ProfilePicture,
+} from '@dailydotdev/shared/src/components/ProfilePicture';
 import { signupWallHorizon } from '@dailydotdev/shared/src/lib/image';
 import {
   privacyPolicy,
@@ -74,17 +78,53 @@ const LandingFont = (): ReactElement => (
   />
 );
 
+// Who an invite link (/join) came from. Production's ReferralInviterCard reads
+// the inviter from the URL and the API, so the mock draws its markup with a
+// fixed inviter.
+const inviter = {
+  id: '28849d86070e4c099c877ab6837c61f0',
+  name: 'Ido Shamun',
+  username: 'idoshamun',
+  image:
+    'https://media.daily.dev/image/upload/s---xy_OAwk--/f_auto,q_auto/v1703781380/avatars/avatar_28849d86070e4c099c877ab6837c61f0',
+};
+
+const InviterCard = ({ className }: { className?: string }): ReactElement => (
+  <figure
+    className={classNames(
+      'flex w-full max-w-[22.5rem] items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-3 text-left backdrop-blur-sm',
+      className,
+    )}
+  >
+    <ProfilePicture
+      user={inviter}
+      size={ProfileImageSize.Large}
+      eager
+      className="shrink-0"
+    />
+    <p className="min-w-0 flex-1 truncate typo-callout">
+      <strong>{inviter.name}</strong>
+      <span className="text-text-secondary"> invited you</span>
+    </p>
+  </figure>
+);
+
 // The marketing landing's sign-up block, the source of truth: headline, the
 // three ways to sign up and the log in link. The legal line under the
-// buttons shows on the web only, not in the apps. On iOS, Apple takes
-// GitHub's place: the App Store requires Sign in with Apple next to other
-// social logins, and the app already offers it.
+// buttons shows on the web only, not in the apps. An invite link adds who
+// sent it above the headline. On iOS, Apple takes GitHub's place: the App
+// Store requires Sign in with Apple next to other social logins, and the app
+// already offers it.
 const LandingSignupBlock = ({
   align = 'left',
   isIOS = false,
+  isWeb = align === 'left',
+  isInvite = false,
 }: {
   align?: 'left' | 'center';
   isIOS?: boolean;
+  isWeb?: boolean;
+  isInvite?: boolean;
 }): ReactElement => {
   const secondProvider = isIOS ? providerMap.apple : providerMap.github;
   const ways = [
@@ -109,6 +149,11 @@ const LandingSignupBlock = ({
 
   return (
     <div className="flex w-full max-w-[28.75rem] flex-col" style={landingFont}>
+      {isInvite && (
+        <InviterCard
+          className={classNames('mb-6', align === 'center' && 'self-center')}
+        />
+      )}
       <h1
         className={classNames(
           'text-balance font-bold text-text-primary',
@@ -139,7 +184,7 @@ const LandingSignupBlock = ({
             </Button>
           ))}
         </div>
-        {align === 'left' && (
+        {isWeb && (
           <p
             className="mt-4 w-full text-center text-text-tertiary"
             style={landingLegal}
@@ -173,7 +218,7 @@ const LandingSignupBlock = ({
 // sign up, the art full width (cover at 47% 50%, clamp(760px, 46vw, 950px)
 // tall, fading out over its last 18%), the dark halo behind the copy, and the
 // block on the left of the same 1280px container.
-const DesktopFunnel = (): ReactElement => (
+const DesktopFunnel = ({ isInvite }: { isInvite?: boolean }): ReactElement => (
   <div
     className="relative isolate min-h-dvh w-full overflow-hidden bg-background-default text-text-primary"
     style={landingFont}
@@ -230,7 +275,7 @@ const DesktopFunnel = (): ReactElement => (
       <div className="absolute inset-0 z-2">
         <div className="mx-auto flex h-full max-w-[80rem] flex-col justify-center px-8 pt-16">
           <div className="mx-auto flex w-full max-w-4xl flex-col items-start">
-            <LandingSignupBlock />
+            <LandingSignupBlock isInvite={isInvite} />
           </div>
         </div>
       </div>
@@ -242,7 +287,15 @@ const DesktopFunnel = (): ReactElement => (
 // into the page, the logo, then the landing block anchored to the bottom.
 // The art sits 14% higher than its band so the boy and Patchy clear the
 // fade, and it fades out on its own over its last 30%.
-const PhoneFunnel = ({ isIOS }: { isIOS?: boolean }): ReactElement => (
+const PhoneFunnel = ({
+  isIOS,
+  isWeb,
+  isInvite,
+}: {
+  isIOS?: boolean;
+  isWeb?: boolean;
+  isInvite?: boolean;
+}): ReactElement => (
   <div className="relative isolate flex min-h-dvh w-full flex-col justify-end overflow-hidden bg-background-default px-6 pb-8 text-text-primary">
     <LandingFont />
     <div
@@ -267,7 +320,12 @@ const PhoneFunnel = ({ isIOS }: { isIOS?: boolean }): ReactElement => (
         className="!left-0 !top-0 !mt-0 !translate-x-0 self-center"
         logoClassName={{ container: 'h-6' }}
       />
-      <LandingSignupBlock align="center" isIOS={isIOS} />
+      <LandingSignupBlock
+        align="center"
+        isIOS={isIOS}
+        isWeb={isWeb}
+        isInvite={isInvite}
+      />
     </div>
   </div>
 );
@@ -294,6 +352,20 @@ const screens: {
     device: devices.pixel,
     before: '07-android-landing',
     storyId: 'login-surfaces-aligned-signup--phone',
+  },
+  {
+    title: 'Invite link · desktop',
+    note: '/join?cid=…&userid=… lands on the funnel; it keeps who invited you above the headline.',
+    device: devices.laptop,
+    before: '24-invite-desktop',
+    storyId: 'login-surfaces-aligned-signup--desktop-invite',
+  },
+  {
+    title: 'Invite link · mobile web',
+    note: 'The web, so the legal line stays under the buttons.',
+    device: devices.pixel,
+    before: '25-invite-pixel',
+    storyId: 'login-surfaces-aligned-signup--phone-invite',
   },
   {
     title: '/onboarding · iOS app',
@@ -374,6 +446,24 @@ export const Phone: DeviceStory = {
   name: '/onboarding · phone',
   globals: { theme: 'dark' },
   ...onDevice(devices.pixel, '07-android-landing', () => <PhoneFunnel />),
+};
+
+export const DesktopInvite: DeviceStory = {
+  tags: ['!dev'],
+  name: 'Invite link · desktop',
+  globals: { theme: 'dark' },
+  ...onDevice(devices.laptop, '24-invite-desktop', () => (
+    <DesktopFunnel isInvite />
+  )),
+};
+
+export const PhoneInvite: DeviceStory = {
+  tags: ['!dev'],
+  name: 'Invite link · mobile web',
+  globals: { theme: 'dark' },
+  ...onDevice(devices.pixel, '25-invite-pixel', () => (
+    <PhoneFunnel isWeb isInvite />
+  )),
 };
 
 export const IOS: DeviceStory = {

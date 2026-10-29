@@ -214,20 +214,12 @@ const glance: [string, string, ReactNode, ReactNode, ReactNode, ReactNode][] = [
     'The hand-off funnel takes the landing’s block and art; the /activate demo video shows it.',
   ],
   [
-    'Post page',
-    '/posts/…',
-    'The post, with a sign-up banner on desktop and only “Open daily.dev app” on phone',
-    'None',
-    'Banner: Google, GitHub, email. Modal on any action: Google, GitHub, Apple, Facebook, email',
-    'To align.',
-  ],
-  [
     'Invite link',
     '/join?cid=…&userid=…',
     'The funnel with an “… invited you” card; a shared post names the sharer in its banner',
     'None',
     'Google, GitHub, email',
-    'To align.',
+    'Invite: the landing’s block and art with the inviter card above the headline. Shared post: to align.',
   ],
 ];
 
@@ -328,11 +320,10 @@ const Inventory = (): ReactElement => (
         </h1>
         <p className="text-text-secondary typo-callout">
           The first screen a signed-out person sees on each surface, the loading
-          state before it, and the sign-up screen one tap away, plus the other
-          ways in: a post page and invite or share links. Log in is out of scope
-          for this pass. Screens that change show the production capture next to
-          the aligned mock; the rest are marked unchanged. Click a capture for
-          full size.
+          state before it, and the sign-up screen one tap away, plus invite and
+          share links. Log in is out of scope for this pass. Screens that change
+          show the production capture next to the aligned mock; the rest are
+          marked unchanged. Click a capture for full size.
         </p>
       </header>
 
@@ -559,53 +550,6 @@ const Inventory = (): ReactElement => (
       />
 
       <Surface
-        title="Post page · signed out"
-        note={
-          <>
-            Where most shared links land. A public post, logged out, at 1440 ×
-            900 and on a Pixel 7. Desktop keeps a sign-up banner over the bottom
-            of the page; any action (vote, comment, bookmark) opens the sign-up
-            modal. Phone has no sign-up block, only “Open daily.dev app”, until
-            an action opens it full screen.
-          </>
-        }
-        shots={[
-          {
-            file: '19-post-desktop',
-            step: 'First screen',
-            title: 'Post with a sign-up banner',
-            note: 'The banner headline is personalized by country, here Israel. Google and GitHub, then email and log in as links.',
-            device: 'desktop',
-            isToAlign: true,
-          },
-          {
-            file: '20-post-signup-desktop',
-            step: 'Sign up',
-            title: 'Sign-up modal',
-            note: 'On vote, comment or bookmark. Google, GitHub, Apple, Facebook, then email.',
-            device: 'desktop',
-            isToAlign: true,
-          },
-          {
-            file: '21-post-pixel',
-            step: 'First screen',
-            title: 'Post, no sign-up block',
-            note: 'Log in and Open app in the header, “Open daily.dev app” at the bottom.',
-            device: 'phone',
-            isToAlign: true,
-          },
-          {
-            file: '22-post-signup-pixel',
-            step: 'Sign up',
-            title: 'Full-screen sign up',
-            note: '“Sign up to vote on posts and comments.” Four providers, then email.',
-            device: 'phone',
-            isToAlign: true,
-          },
-        ]}
-      />
-
-      <Surface
         title="Invite and share links"
         note={
           <>
@@ -625,7 +569,10 @@ const Inventory = (): ReactElement => (
             title: 'Funnel with the inviter',
             note: '“Ido Shamun invited you” above the funnel’s old block and art.',
             device: 'desktop',
-            isToAlign: true,
+            after: {
+              storyId: 'login-surfaces-aligned-signup--desktop-invite',
+              note: 'the landing’s layout, with who invited you above the headline.',
+            },
           },
           {
             file: '25-invite-pixel',
@@ -633,7 +580,10 @@ const Inventory = (): ReactElement => (
             title: 'Funnel with the inviter',
             note: 'Same card on the mobile funnel.',
             device: 'phone',
-            isToAlign: true,
+            after: {
+              storyId: 'login-surfaces-aligned-signup--phone-invite',
+              note: 'the landing’s block and art, the card above the headline.',
+            },
           },
           {
             file: '23-shared-post-desktop',
