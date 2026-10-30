@@ -370,6 +370,18 @@ const FIX_CSS = `
     div:has(> div.flex-1 > .btn-quaternary [id$='-upvote-btn']) {
     margin-left: 0 !important;
   }
+  [data-large='true'][data-fix*='icon20'] :is(${BAR_BUTTONS}) svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+  }
+  [data-counter='x'][data-large='true'][data-fix*='icon20']
+    .btn-quaternary > label {
+    margin-left: -0.125rem !important;
+  }
+  [data-large='true'][data-fix*='icon20'][data-fix*='edge']
+    div:has(> div.flex-1 > .btn-quaternary [id$='-upvote-btn']) {
+    margin-left: -0.375rem !important;
+  }
 `;
 
 const SHIPPED_FIX = 'pad-edge';
@@ -1338,6 +1350,9 @@ const GRID_CSS = `
   [data-grid~='edge'] ${GRID_BAR} {
     padding-right: 1rem !important;
   }
+  [data-grid~='left20'] ${GRID_BAR} {
+    padding-left: 0.625rem !important;
+  }
 `;
 
 const GRID_WIDTHS = [272, 300, 340];
@@ -1669,6 +1684,282 @@ const GridCards = (): ReactElement => {
       </div>
     </div>
   );
+};
+
+// 18px (shipped) or 20px icons on the 32px bar. With 20px icons the number
+// keeps its 4px (-2px over the button padding instead of -3px), and lining the
+// upvote icon up with the text takes 6px instead of 7px.
+const ICON_SIZES = [
+  { size: 18, label: '18px icons (shipped)', fix: SHIPPED_FIX },
+  { size: 20, label: '20px icons', fix: `${SHIPPED_FIX}-icon20` },
+];
+
+const GRID_ICON_STEPS = [
+  {
+    key: 'x icon18 pad left',
+    tag: '18px',
+    name: 'Grid G4 with 18px icons',
+    what: 'The recommendation on the grid page.',
+  },
+  {
+    key: 'x pad left20',
+    tag: '20px',
+    name: 'Grid G4 with 20px icons',
+    what: 'Today’s grid icon size, with every other list decision.',
+  },
+];
+
+const ICON_BASE: Omit<FrameArgs, 'fix'> = {
+  option: 'a',
+  rule: true,
+  counter: 'x',
+  closeUp: false,
+};
+
+const IconSizeDecision = (): ReactElement => {
+  const { results, heights } = useFrameReports();
+  const [gridResults, setGridResults] = useState<
+    Record<string, Record<string, Measure | null>>
+  >({});
+  const closeUps = ICON_SIZES.map(({ fix }) => ({
+    ...ICON_BASE,
+    fix,
+    closeUp: true,
+  }));
+  const frames = [
+    ...closeUps.map((args) => frameKey(args, 375)),
+    ...ICON_SIZES.flatMap(({ fix }) =>
+      WIDTHS.map((width) => frameKey({ ...ICON_BASE, fix }, width)),
+    ),
+  ];
+  const isLoaded = useLoadQueue(frames, heights);
+  const onGridMeasure = (
+    key: string,
+    measures: Record<string, Measure | null>,
+  ): void => setGridResults((prev) => ({ ...prev, [key]: measures }));
+  const gridWorst = (key: string, width: number) =>
+    worstOf(
+      gridResults[key] &&
+        Object.fromEntries(
+          Object.entries(gridResults[key]).filter(([caseKey]) =>
+            caseKey.endsWith(`@${width}`),
+          ),
+        ),
+    );
+
+  return (
+    <div className="min-h-screen bg-background-default p-6 tablet:p-10">
+      <style>{GRID_CSS}</style>
+      <div className="flex max-w-[90rem] flex-col gap-10">
+        <header className="flex max-w-[50rem] flex-col gap-3">
+          <p className="font-bold uppercase text-text-tertiary typo-caption1">
+            Should the 32px bar keep 20px icons instead of 18px?
+          </p>
+          <h1 className="font-bold text-text-primary typo-title1">
+            Icon size: 18px or 20px
+          </h1>
+          <p className="text-text-secondary typo-body">
+            #7127 ships 18px icons on the list treatment bar, close to X’s
+            18.75px. 20px is what grid cards use today. Everything else stays as
+            shipped: 32px buttons, the number 4px from the icon at regular
+            weight, no padding after it, and the upvote icon on the text edge.
+            Metric: the smallest gap between bar buttons, measured live. Under{' '}
+            {HEALTHY_GAP}px is flagged.
+          </p>
+          <p className="text-text-secondary typo-body">
+            Recommendation: keep 18px. On the list both sizes stay green (20px
+            costs about 1px of gap at every width). On grid cards, 20px drops
+            the 272px worst case under the line, so 18px is the size that keeps
+            one icon size on both layouts.
+          </p>
+        </header>
+
+        <section className="flex flex-col gap-3">
+          <h2 className="font-bold text-text-primary typo-title3">
+            What changes
+          </h2>
+          <div className="overflow-x-auto rounded-16 border border-border-subtlest-tertiary">
+            <table className="w-full text-left typo-footnote">
+              <thead>
+                <tr className="text-text-tertiary">
+                  <th className="p-3 font-normal" />
+                  <th className="p-3 font-normal">18px (shipped)</th>
+                  <th className="p-3 font-normal">20px</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ['Icon', '18px, X uses 18.75px', '20px, as grid cards today'],
+                  ['Button and tap height', '32px', '32px'],
+                  ['Icon to number', '4px', '4px'],
+                  ['Padding inside the button', '7px around the icon', '6px'],
+                  [
+                    'Counted button width',
+                    'Base',
+                    '1px wider: the number starts 1px later',
+                  ],
+                  [
+                    'Upvote icon on the text edge',
+                    'Bar moves 7px left',
+                    'Bar moves 6px left: 1px less room',
+                  ],
+                ].map(([label, small, big]) => (
+                  <tr
+                    key={label}
+                    className="border-t border-border-subtlest-tertiary"
+                  >
+                    <td className="p-3 font-bold text-text-primary">{label}</td>
+                    <td className="p-3 text-text-secondary">{small}</td>
+                    <td className="p-3 text-text-secondary">{big}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section className="flex flex-col gap-3">
+          <h2 className="font-bold text-text-primary typo-title3">Results</h2>
+          <div className="overflow-x-auto rounded-16 border border-border-subtlest-tertiary">
+            <table className="w-full text-left typo-footnote">
+              <thead>
+                <tr className="text-text-tertiary">
+                  <th className="p-3 font-normal">List treatment</th>
+                  {WIDTHS.map((width) => (
+                    <th key={width} className="p-3 font-normal">
+                      Worst case at {width}px
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {ICON_SIZES.map(({ label, fix }) => (
+                  <tr
+                    key={fix}
+                    className="border-t border-border-subtlest-tertiary"
+                  >
+                    <td className="p-3 text-text-primary">{label}</td>
+                    {WIDTHS.map((width) => (
+                      <td key={width} className="p-3">
+                        <Badge
+                          measure={worstOf(
+                            results[frameKey({ ...ICON_BASE, fix }, width)],
+                          )}
+                        />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="overflow-x-auto rounded-16 border border-border-subtlest-tertiary">
+            <table className="w-full text-left typo-footnote">
+              <thead>
+                <tr className="text-text-tertiary">
+                  <th className="p-3 font-normal">Grid G4 (proposal)</th>
+                  {GRID_WIDTHS.map((width) => (
+                    <th key={width} className="p-3 font-normal">
+                      Worst case at {width}px
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {GRID_ICON_STEPS.map((step) => (
+                  <tr
+                    key={step.key}
+                    className="border-t border-border-subtlest-tertiary"
+                  >
+                    <td className="p-3 text-text-primary">{step.name}</td>
+                    {GRID_WIDTHS.map((width) => (
+                      <td key={width} className="p-3">
+                        <Badge measure={gridWorst(step.key, width)} />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <h2 className="font-bold text-text-primary typo-title3">
+              Close-up at 2x, 375px, upvote hovered
+            </h2>
+          </div>
+          <div className="flex flex-wrap items-start gap-6">
+            {closeUps.map((args, index) => {
+              const key = frameKey(args, 375);
+              return (
+                <Phone
+                  key={key}
+                  args={args}
+                  width={375}
+                  label={ICON_SIZES[index].label}
+                  height={heights[key]}
+                  isLoaded={isLoaded(index)}
+                  scale={2}
+                />
+              );
+            })}
+          </div>
+        </section>
+
+        {ICON_SIZES.map(({ label, fix }, sizeIndex) => (
+          <section
+            key={fix}
+            className="flex flex-col gap-4 border-t border-border-subtlest-tertiary pt-8"
+          >
+            <h2 className="font-bold text-text-primary typo-title3">
+              List treatment, {label}
+            </h2>
+            <div className="flex flex-wrap items-start gap-6">
+              {WIDTHS.map((width, widthIndex) => {
+                const args = { ...ICON_BASE, fix };
+                const key = frameKey(args, width);
+                return (
+                  <Phone
+                    key={key}
+                    args={args}
+                    width={width}
+                    label={`${width}px`}
+                    height={heights[key]}
+                    isLoaded={isLoaded(
+                      closeUps.length + sizeIndex * WIDTHS.length + widthIndex,
+                    )}
+                  />
+                );
+              })}
+            </div>
+          </section>
+        ))}
+
+        {GRID_ICON_STEPS.map((step) => (
+          <section
+            key={step.key}
+            className="flex flex-col gap-4 border-t border-border-subtlest-tertiary pt-8"
+          >
+            <div className="flex max-w-[50rem] flex-col gap-1">
+              <h2 className="font-bold text-text-primary typo-title3">
+                {step.name}
+              </h2>
+              <p className="text-text-secondary typo-callout">{step.what}</p>
+            </div>
+            <GridStep step={step} onMeasure={onGridMeasure} />
+          </section>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export const IconSize18Or20: StoryObj = {
+  name: 'Icon size: 18px or 20px',
+  parameters: { options: { showPanel: false } },
+  render: () => <IconSizeDecision />,
 };
 
 export const GridCardsMatchTheList: StoryObj = {
