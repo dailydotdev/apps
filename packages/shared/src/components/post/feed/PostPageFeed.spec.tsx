@@ -2,6 +2,7 @@ import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { useInView } from 'react-intersection-observer';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import post from '../../../../__tests__/fixture/post';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
@@ -17,18 +18,28 @@ import { LogEvent } from '../../../lib/log';
 import type { FeedProps } from '../../Feed';
 import { useFeeds } from '../../../hooks/feed/useFeeds';
 import { PostPageFeed } from './PostPageFeed';
+import type { FeedContextData } from '../../../contexts/FeedContext';
+import { featureFeedAdTemplate } from '../../../lib/featureManagement';
 
 type CapturedFeedProps = FeedProps<Record<string, unknown>>;
 
 const feedProps: CapturedFeedProps[] = [];
+const mockFeedContexts: FeedContextData[] = [];
+const lastFeedContext = (): FeedContextData =>
+  mockFeedContexts[mockFeedContexts.length - 1];
 const lastFeed = (): CapturedFeedProps => feedProps[feedProps.length - 1];
 
 // The production Feed fetches and renders the cards; here only what the
 // section asks it for matters.
 jest.mock('../../Feed', () => ({
   __esModule: true,
-  default: (props: CapturedFeedProps) => {
+  default: function MockFeed(props: CapturedFeedProps) {
     feedProps.push(props);
+    const { useContext } = jest.requireActual('react');
+    const { default: Context } = jest.requireActual(
+      '../../../contexts/FeedContext',
+    );
+    mockFeedContexts.push(useContext(Context));
     return <div data-testid="feed" />;
   },
 }));
@@ -77,6 +88,7 @@ const clickTab = (name: string) =>
 
 beforeEach(() => {
   feedProps.length = 0;
+  mockFeedContexts.length = 0;
   logEvent.mockClear();
   mockInView(true);
   mockCustomFeeds([
@@ -102,11 +114,34 @@ describe('PostPageFeed', () => {
       query: FEED_V2_QUERY,
       excludedPostIds: ['host-post'],
       disableListFrame: true,
-      disableAds: true,
+      disableGrowthCards: true,
     });
+    // Ads run, as on the main feed.
+    expect(lastFeed().disableAds).toBeUndefined();
     // For you never ends, so it has no end note.
     expect(lastFeed().footer).toBeUndefined();
     expect(lastFeed().errorScreen).toBeDefined();
+  });
+
+  it('should give the feed the main feed’s ad template, one column wide', () => {
+    const adTemplate = { adStart: 2, adRepeat: 5, adJitter: 2 };
+    const gb = new GrowthBook();
+    gb.setFeatures({
+      [featureFeedAdTemplate.id]: { defaultValue: { default: adTemplate } },
+    });
+    render(
+      <TestBootProvider
+        client={new QueryClient()}
+        log={{ logEvent }}
+        auth={{ user: loggedUser }}
+        gb={gb}
+      >
+        <PostPageFeed post={host} />
+      </TestBootProvider>,
+    );
+
+    expect(lastFeedContext().adTemplate).toEqual(adTemplate);
+    expect(lastFeedContext().numCards).toEqual({ eco: 1, roomy: 1, cozy: 1 });
   });
 
   it('should switch to Following and log the switch', () => {

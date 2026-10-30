@@ -104,6 +104,9 @@ export interface FeedProps<T>
   showSearch?: boolean;
   actionButtons?: ReactNode;
   disableAds?: boolean;
+  /** Keep the first-slot growth cards (Plus entry, marketing CTA, acquisition
+   * form) out, while ads still run. */
+  disableGrowthCards?: boolean;
   /** The surface shows the highlights itself, so keep them out of the grid. */
   disableHighlightCards?: boolean;
   /** The surface owns the top slot, so the feed must not render or measure its own hero. */
@@ -180,6 +183,7 @@ export default function Feed<T>({
   shortcuts,
   actionButtons,
   disableAds,
+  disableGrowthCards = false,
   disableHighlightCards,
   disableTopHero,
   keepTopHero = false,
@@ -274,6 +278,7 @@ export default function Feed<T>({
   const getFirstSlotCard = (): ReactElement | null => {
     const canShowGrowthCta =
       !disableAds &&
+      !disableGrowthCards &&
       !isHorizontal &&
       feedQueryKey?.[0] !== RequestKey.FeedPreview;
     const canShowNonPlusCta = canShowGrowthCta && !user?.isPlus;
