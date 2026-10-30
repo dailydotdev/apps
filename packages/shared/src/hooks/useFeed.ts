@@ -71,6 +71,7 @@ import { AdPlacement } from '../lib/ads';
 import { SharedFeedPage } from '../components/utilities';
 import { useTranslation } from './translation/useTranslation';
 import { useFetchAd } from '../features/monetization/useFetchAd';
+import { getAdConsentQueryKey } from '../features/monetization/adConsent';
 import type { Squad } from '../graphql/sources';
 import { useCachedTokenRecovery } from './useCachedTokenRecovery';
 
@@ -549,14 +550,14 @@ export default function useFeed<T>(
     return set;
   }, [showPromoBanner, indexWhenShowingPromoBanner]);
 
-  const { fetchAd, isAdConsentReady } = useFetchAd(isAdsQueryEnabled);
+  const { fetchAd, isAdConsentReady, consent } = useFetchAd(isAdsQueryEnabled);
   // One random seed per feed load: stable across re-renders and pagination
   // (so ads don't visibly jump as new pages load) and across the mounts that
   // show the same cached feed (a return from a post must not move the ads),
   // new on a fresh load and every session, so the same user doesn't see ads
   // in the same spots every visit.
   const adJitterSeed = getAdJitterSeed(hashKey(feedQueryKey), !!feedQuery.data);
-  const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
+  const adsQueryKey = [RequestKey.Ads, ...feedQueryKey, ...getAdConsentQueryKey(consent)];
   useCachedTokenRecovery({
     queryKey: adsQueryKey,
     enabled: isAdsQueryEnabled && isAdConsentReady,

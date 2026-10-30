@@ -77,3 +77,13 @@ export const getTcfSnapshot = (): TcfConsent | undefined => snapshot;
 
 export const getStoredTcString = (): string | undefined =>
   getCookies([TCF_COOKIE])?.[TCF_COOKIE] || undefined;
+
+// Segment type 3 starts with the base64url bit prefix 011.
+export const hasPublisherTcSegment = (tcString: string): boolean =>
+  tcString
+    .split('.')
+    .slice(1)
+    .some(
+      (segment) =>
+        'YZabcdef'.includes(segment[0] ?? ' ') && segment.length >= 10,
+    );

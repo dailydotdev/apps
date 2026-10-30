@@ -9,8 +9,10 @@ import {
 import { featurePostBoostAds } from '../../lib/featureManagement';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useAdRequestConsent } from './useAdRequestConsent';
+import type { AdRequestConsent } from './adConsent';
 
 interface UseFetchAds {
+  consent: AdRequestConsent | null;
   isAdConsentReady: boolean;
   fetchAd: (params: {
     active?: boolean;
@@ -43,6 +45,7 @@ export const useFetchAd = (enabled = true): UseFetchAds => {
   );
 
   return {
+    consent,
     fetchAd: fetchAdQuery,
     isAdConsentReady: !!consent,
   };

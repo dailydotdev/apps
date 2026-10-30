@@ -4,7 +4,7 @@ import type {
   QueryKey,
 } from '@tanstack/react-query';
 import {
-  RequestKey,
+  feedAdsQueryFilters,
   updateAdPostInCache,
   createAdPostRollbackHandler,
 } from '../../lib/query';
@@ -96,27 +96,30 @@ export const mutateVoteFeedPost = ({
       previousAdVote = adPost.userState?.vote;
 
       // Update the ad's post in the ads cache
-      const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
+      const adsFilters = feedAdsQueryFilters(feedQueryKey);
 
-      queryClient.setQueryData(adsQueryKey, (currentData: InfiniteData<Ad>) => {
-        if (!currentData || !currentData.pages?.length) {
-          return currentData;
-        }
+      queryClient.setQueriesData<InfiniteData<Ad>>(
+        adsFilters,
+        (currentData) => {
+          if (!currentData || !currentData.pages?.length) {
+            return currentData;
+          }
 
-        const existingAdPost = currentData.pages.find(
-          (page) => page.data?.post?.id === id,
-        )?.data?.post;
+          const existingAdPost = currentData.pages.find(
+            (page) => page.data?.post?.id === id,
+          )?.data?.post;
 
-        if (!existingAdPost) {
-          return currentData;
-        }
+          if (!existingAdPost) {
+            return currentData;
+          }
 
-        return updateAdPostInCache(
-          id,
-          currentData,
-          mutationHandler(existingAdPost),
-        );
-      });
+          return updateAdPostInCache(
+            id,
+            currentData,
+            mutationHandler(existingAdPost),
+          );
+        },
+      );
 
       rollbackFunctions.push(() => {
         if (typeof previousAdVote === 'undefined') {
@@ -129,8 +132,8 @@ export const mutateVoteFeedPost = ({
           return;
         }
 
-        queryClient.setQueryData(
-          adsQueryKey,
+        queryClient.setQueriesData<InfiniteData<Ad>>(
+          adsFilters,
           createAdPostRollbackHandler(id, {}, rollbackMutationHandler),
         );
       });

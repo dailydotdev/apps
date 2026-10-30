@@ -9,6 +9,7 @@ import { featurePostBoostAds } from '../../lib/featureManagement';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useAdRequestConsent } from './useAdRequestConsent';
 import { useAdPageViewId } from './useAdPageViewId';
+import { getAdConsentQueryKey } from './adConsent';
 
 interface UseAdQueryOptions {
   queryKey: QueryKey;
@@ -61,9 +62,7 @@ export const useAdQuery = ({
     queryKey: [
       ...queryKey,
       ...(refreshOnPageView ? [pageViewId] : []),
-      consent?.gdprApplies,
-      consent?.consentString ?? '',
-      consent?.consentExists ?? '',
+      ...getAdConsentQueryKey(consent),
       isLoggedIn,
     ],
     queryFn: async () => (consent ? fetchAdByPlacement(fetchOptions) : null),
