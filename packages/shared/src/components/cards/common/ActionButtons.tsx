@@ -203,12 +203,10 @@ const ActionButtonsV1 = ({
       className={classNames(
         'flex flex-row items-center justify-between',
         // 32px grid buttons keep the 36px row: 4px from the card's left side
-        // and its bottom, and 8px after the views number. List rows have no
-        // padding, so they grow to fit the buttons.
+        // and its bottom, and 8px after the views number.
         large && variant === 'grid'
           ? 'pb-1 pl-1 pr-2'
           : config.containerClassName,
-        // The upvote icon, not its button, lines up with the card's text.
         large && variant === 'list' && '-ml-[0.40625rem]',
         className,
       )}
