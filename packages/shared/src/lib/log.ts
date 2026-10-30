@@ -630,6 +630,10 @@ export enum LogEvent {
   UpvotePlugin = 'upvote plugin',
   RemovePluginUpvote = 'remove plugin upvote',
   SubmitPlugin = 'submit plugin',
+  ClickSubmitPlugin = 'click submit plugin',
+  ImpressionMarketplacePromo = 'impression marketplace promo',
+  ImpressionPluginAgentPrompt = 'impression plugin agent prompt',
+  ImpressionPluginShareNudge = 'impression plugin share nudge',
   // Looking for group
   OpenLfgBoard = 'open lfg board',
   FilterLfgBoard = 'filter lfg board',
