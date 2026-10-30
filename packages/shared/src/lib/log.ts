@@ -880,6 +880,7 @@ export enum NotificationPromptSource {
   SourceSubscribe = 'source subscribe',
   ReadingReminder = 'reading reminder',
   ReadingReminderPaused = 'reading reminder paused',
+  IntroQuests = 'intro quests',
 }
 
 export enum ShortcutsSourceType {

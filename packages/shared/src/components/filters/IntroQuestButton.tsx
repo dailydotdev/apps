@@ -5,14 +5,13 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ChecklistBIcon } from '../icons/ChecklistB';
 import { Tooltip } from '../tooltip/Tooltip';
 import { Bubble } from '../tooltips/utils';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { useSettingsContext } from '../../contexts/SettingsContext';
 import { ActionType } from '../../graphql/actions';
+import { QuestStatus } from '../../graphql/quests';
 import { useActions, useViewSize, ViewSize } from '../../hooks';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-import { useQuestDashboard } from '../../hooks/useQuestDashboard';
-import { QuestStatus } from '../../graphql/quests';
+import { IntroQuestSetupButton } from '../../features/introQuests/IntroQuestSetupButton';
+import { useIntroQuestEntry } from '../../features/introQuests/useIntroQuestEntry';
 
 const INTRO_QUEST_CTA = 'Get the most out of daily.dev';
 const INTRO_QUEST_CTA_DURATION_MS = 2000;
@@ -32,37 +31,26 @@ export function IntroQuestButton({
   variant,
   showLabel = false,
 }: IntroQuestButtonProps = {}): ReactElement | null {
-  const { isAuthReady, isLoggedIn } = useAuthContext();
-  const { loadedSettings } = useSettingsContext();
   const { openModal } = useLazyModal();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { checkHasCompleted } = useActions();
-  const { data } = useQuestDashboard();
-  const introQuests = data?.intro ?? [];
-  const allIntroQuestsClaimed =
-    introQuests.length > 0 &&
-    introQuests.every(({ status }) => status === QuestStatus.Claimed);
+  const {
+    introQuests,
+    shouldShow: shouldRenderButton,
+    isChecklist,
+  } = useIntroQuestEntry();
   const hasViewedIntroQuests = checkHasCompleted(ActionType.ViewedIntroQuests);
-  const hasCompletedIntroQuests = checkHasCompleted(
-    ActionType.IntroQuestsCompleted,
-  );
   const [isIntroCtaVisible, setIsIntroCtaVisible] = useState(false);
   const [hasIntroCtaFinished, setHasIntroCtaFinished] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
   const hasShownIntroCta = useRef(false);
   const hasClickedRef = useRef(false);
-  const shouldRenderButton =
-    isAuthReady &&
-    loadedSettings &&
-    isLoggedIn &&
-    introQuests.length > 0 &&
-    !allIntroQuestsClaimed &&
-    !hasCompletedIntroQuests;
+  const shouldNudge = shouldRenderButton && !isChecklist;
   const showIntroCta =
     shouldRenderButton && (!hasShownIntroCta.current || isIntroCtaVisible);
 
   useEffect(() => {
-    if (!shouldRenderButton || hasShownIntroCta.current) {
+    if (!shouldNudge || hasShownIntroCta.current) {
       return undefined;
     }
 
@@ -81,10 +69,10 @@ export function IntroQuestButton({
       clearTimeout(visibilityTimeout);
       clearTimeout(finishedTimeout);
     };
-  }, [shouldRenderButton]);
+  }, [shouldNudge]);
 
   useEffect(() => {
-    if (!shouldRenderButton || !hasIntroCtaFinished || hasClickedRef.current) {
+    if (!shouldNudge || !hasIntroCtaFinished || hasClickedRef.current) {
       return undefined;
     }
 
@@ -100,10 +88,14 @@ export function IntroQuestButton({
     const interval = setInterval(triggerShake, NUDGE_SHAKE_INTERVAL_MS);
 
     return () => clearInterval(interval);
-  }, [shouldRenderButton, hasIntroCtaFinished]);
+  }, [shouldNudge, hasIntroCtaFinished]);
 
   if (!shouldRenderButton) {
     return null;
+  }
+
+  if (isChecklist) {
+    return <IntroQuestSetupButton quests={introQuests} size={size} />;
   }
 
   const completed = introQuests.filter(

@@ -32,6 +32,10 @@ jest.mock('../header/QuestHeaderButton', () => ({
   QuestHeaderButton: () => <button type="button" aria-label="Quests" />,
 }));
 
+jest.mock('../../features/introQuests/IntroQuestSetupButton', () => ({
+  IntroQuestShellButton: () => null,
+}));
+
 const user = {
   id: 'u1',
   username: 'ido',

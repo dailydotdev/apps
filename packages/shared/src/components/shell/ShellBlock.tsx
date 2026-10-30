@@ -8,6 +8,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useReadingStreak } from '../../hooks/streaks';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { QuestHeaderButton } from '../header/QuestHeaderButton';
+import { IntroQuestShellButton } from '../../features/introQuests/IntroQuestSetupButton';
 import { ButtonIconPosition } from '../buttons/common';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { ArrowIcon, DevPlusIcon, MailIcon, SettingsIcon } from '../icons';
@@ -153,6 +154,7 @@ const RootRow = ({ root }: { root: ShellRoot }): ReactElement => {
       )}
       {isHome && <span className="flex-1" />}
       {isMobileAppHeader && <MobileAppActions />}
+      {user && isHome && <IntroQuestShellButton />}
       {user && isHome && <QuestHeaderButton compact shell />}
       {user && isHome && isStreaksEnabled && streak && (
         <ReadingStreakButton
