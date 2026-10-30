@@ -18,9 +18,9 @@ import AuthContext from '../contexts/AuthContext';
 import {
   updatePostCache,
   getPostByIdKey,
+  RequestKey,
   updateAdPostInCache,
   createAdPostRollbackHandler,
-  feedAdsQueryFilters,
 } from '../lib/query';
 import { AuthTriggers } from '../lib/auth';
 import type { Origin } from '../lib/log';
@@ -363,33 +363,30 @@ export const mutateBookmarkFeedPost = ({
       const previousAnalytics = adPost.analytics;
 
       // Update the ad's post in the ads cache
-      const adsFilters = feedAdsQueryFilters(feedQueryKey);
+      const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
 
-      queryClient.setQueriesData<InfiniteData<Ad>>(
-        adsFilters,
-        (currentData) => {
-          if (!currentData || !currentData.pages?.length) {
-            return currentData;
-          }
+      queryClient.setQueryData(adsQueryKey, (currentData: InfiniteData<Ad>) => {
+        if (!currentData || !currentData.pages?.length) {
+          return currentData;
+        }
 
-          const existingAdPost = currentData.pages.find(
-            (page) => page.data?.post?.id === id,
-          )?.data?.post;
-          if (!existingAdPost) {
-            return currentData;
-          }
+        const existingAdPost = currentData.pages.find(
+          (page) => page.data?.post?.id === id,
+        )?.data?.post;
+        if (!existingAdPost) {
+          return currentData;
+        }
 
-          return updateAdPostInCache(
-            id,
-            currentData,
-            mutationHandler(existingAdPost),
-          );
-        },
-      );
+        return updateAdPostInCache(
+          id,
+          currentData,
+          mutationHandler(existingAdPost),
+        );
+      });
 
       rollbackFunctions.push(() => {
-        queryClient.setQueriesData<InfiniteData<Ad>>(
-          adsFilters,
+        queryClient.setQueryData(
+          adsQueryKey,
           createAdPostRollbackHandler(id, {
             bookmarked: previousState,
             bookmark: previousBookmark,

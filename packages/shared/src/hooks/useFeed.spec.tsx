@@ -96,7 +96,7 @@ it('waits for CMP consent before fetching any feed ad slots', async () => {
   client.clear();
 });
 
-it('keeps loaded feed ads across post modal navigation but replaces them after consent changes', async () => {
+it('keeps loaded feed ads across post modal navigation and consent changes', async () => {
   const client = new QueryClient(defaultQueryClientTestingConfig);
   let auth: Partial<AuthContextData> = {
     user: defaultUser,
@@ -167,77 +167,10 @@ it('keeps loaded feed ads across post modal navigation but replaces them after c
   await navigate('/');
   auth = { ...auth, isGdprCovered: true, geo: { region: 'PL' } };
   rerender();
-  await waitFor(() => expect(adIds()).toHaveLength(3));
-  await waitFor(() =>
-    expect(adIds().every((id) => !loadedIds.includes(id))).toBe(true),
-  );
-  expect(requests).toBeGreaterThan(loadedRequests);
+  await waitFor(() => expect(adIds()).toEqual(loadedIds));
+  expect(requests).toBe(loadedRequests);
 
   fetchAd.mockRestore();
-  client.clear();
-});
-
-it('drops old signed links on grant and withdrawal and ignores an earlier in-flight response', async () => {
-  const client = new QueryClient(defaultQueryClientTestingConfig);
-  const consent = jest.spyOn(consentHook, 'useTcfConsent');
-  consent.mockReturnValue({ gdprApplies: true, tcString: 'legacy-consent' });
-  let resolveGranted: (ad: typeof defaultAd) => void = () => undefined;
-  jest.spyOn(ads, 'fetchAdByPlacement').mockImplementation(async (options) => {
-    const value = options.consent?.consentString;
-    if (value === 'granted-consent') {
-      return new Promise((resolve) => {
-        resolveGranted = resolve;
-      });
-    }
-    return { ...defaultAd, generationId: value };
-  });
-  mockCustomFeedResponse({ data: { page: defaultFeedPage } });
-  const wrapper = ({ children }: { children: ReactNode }): ReactElement => (
-    <TestBootProvider
-      client={client}
-      auth={{ user: defaultUser, geo: { region: 'PL' } }}
-    >
-      {children}
-    </TestBootProvider>
-  );
-  const { result, rerender } = renderHook(
-    () =>
-      useFeed(
-        ['custom', 'consent-refresh'],
-        10,
-        { adStart: 1, adRepeat: 100 },
-        1,
-        {
-          query: CUSTOM_FEED_QUERY,
-          settings: { feedName: SharedFeedPage.Custom },
-        },
-      ),
-    { wrapper },
-  );
-  const adIds = () =>
-    result.current.items.flatMap((item) =>
-      item.type === FeedItemType.Ad ? [item.ad.generationId] : [],
-    );
-  await waitFor(() => expect(adIds()).toContain('legacy-consent'));
-  const posts = result.current.items.filter(
-    (item) => item.type === FeedItemType.Post,
-  );
-
-  consent.mockReturnValue({ gdprApplies: true, tcString: 'granted-consent' });
-  rerender();
-  expect(adIds()).not.toContain('legacy-consent');
-  expect(
-    result.current.items.filter((item) => item.type === FeedItemType.Post),
-  ).toEqual(posts);
-
-  consent.mockReturnValue({ gdprApplies: true, tcString: 'refused-consent' });
-  rerender();
-  await waitFor(() => expect(adIds()).toContain('refused-consent'));
-  await act(async () =>
-    resolveGranted({ ...defaultAd, generationId: 'late-granted-link' }),
-  );
-  expect(adIds()).not.toContain('late-granted-link');
-  expect(adIds()).not.toContain('legacy-consent');
   client.clear();
 });
 

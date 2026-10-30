@@ -1,16 +1,34 @@
 /* eslint-disable no-underscore-dangle -- _iub is iubenda's mandated global */
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import type { ReactNode } from 'react';
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { act, render, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
+import nock from 'nock';
+import {
+  createReadyGrowthBook,
+  TestBootProvider,
+} from '@dailydotdev/shared/__tests__/helpers/boot';
+import { defaultQueryClientTestingConfig } from '@dailydotdev/shared/__tests__/helpers/tanstack-query';
+import defaultAd from '@dailydotdev/shared/__tests__/fixture/ad';
+import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
+import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import { FeaturesReadyContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { ActiveFeedContext } from '@dailydotdev/shared/src/contexts/ActiveFeedContext';
+import { FeedItemType } from '@dailydotdev/shared/src/components/cards/common/common';
+import { SharedFeedPage } from '@dailydotdev/shared/src/components/utilities';
 import type { AuthContextData } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { CUSTOM_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+import useFeed from '@dailydotdev/shared/src/hooks/useFeed';
+import { useAutoRotatingAds } from '@dailydotdev/shared/src/hooks/feed/useAutoRotatingAds';
 import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { useConsentCookie } from '@dailydotdev/shared/src/hooks/useCookieConsent';
 import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
 import { iubendaLocalizedPolicyIds } from '@dailydotdev/shared/src/lib/iubenda';
 import { startTcfSubscription } from '@dailydotdev/shared/src/lib/tcf';
+import * as ads from '@dailydotdev/shared/src/lib/ads';
+import { RequestKey } from '@dailydotdev/shared/src/lib/query';
 import { useTcfConsent } from '@dailydotdev/shared/src/features/monetization/useTcfConsent';
 import { Iubenda, openIubendaPreferences } from '../components/Iubenda';
 import {
@@ -188,6 +206,119 @@ describe('Iubenda publisher consent renewal', () => {
       expect(openPreferences).not.toHaveBeenCalled();
     },
   );
+});
+
+it('replaces cached ad links on consent changes and cancels stale feed and rotation responses', async () => {
+  const client = new QueryClient(defaultQueryClientTestingConfig);
+  const feedKey = ['custom', 'consent-refresh'];
+  const inactiveAdKey = [RequestKey.Ads, 'inactive-feed'];
+  client.setQueryData(inactiveAdKey, { pages: [defaultAd], pageParams: [''] });
+  const gb = createReadyGrowthBook();
+  gb.setFeatures({ autorotate_ads: { defaultValue: 60 } });
+  jest.mocked(useTcfConsent).mockReturnValue({
+    gdprApplies: true,
+    tcString: 'legacy-consent',
+  });
+  let delayRotation = false;
+  const pending: ((ad: typeof defaultAd) => void)[] = [];
+  const fetchAd = jest
+    .spyOn(ads, 'fetchAdByPlacement')
+    .mockImplementation(async (options) => {
+      const value = options.consent?.consentString;
+      if (
+        value === 'granted-consent' ||
+        (value === 'legacy-consent' && delayRotation)
+      ) {
+        return new Promise((resolve) => pending.push(resolve));
+      }
+      return { ...defaultAd, generationId: value };
+    });
+  nock('http://localhost:3000')
+    .post('/graphql', ({ query }) => query === CUSTOM_FEED_QUERY)
+    .reply(200, { data: { page: defaultFeedPage } });
+  const wrapper = ({ children }: { children: ReactNode }) => (
+    <TestBootProvider
+      client={client}
+      auth={{ user: defaultUser, geo: { region: 'PL' } }}
+      gb={gb}
+    >
+      <FeaturesReadyContext.Provider
+        value={{
+          ready: true,
+          settled: true,
+          getFeatureValue: (feature) =>
+            gb.getFeatureValue(feature.id, feature.defaultValue),
+        }}
+      >
+        <ActiveFeedContext.Provider value={{ queryKey: feedKey, items: [] }}>
+          {children}
+        </ActiveFeedContext.Provider>
+      </FeaturesReadyContext.Provider>
+      <Iubenda />
+    </TestBootProvider>
+  );
+  const { result, rerender } = renderHook(
+    () => ({
+      feed: useFeed(feedKey, 10, { adStart: 1, adRepeat: 100 }, 1, {
+        query: CUSTOM_FEED_QUERY,
+        settings: { feedName: SharedFeedPage.Custom },
+      }),
+      rotation: useAutoRotatingAds(defaultAd, 0, 0, () => undefined),
+    }),
+    { wrapper },
+  );
+  const adIds = () =>
+    result.current.feed.items.flatMap((item) =>
+      item.type === FeedItemType.Ad ? [item.ad.generationId] : [],
+    );
+  await waitFor(() => expect(adIds()).toContain('legacy-consent'));
+  const posts = result.current.feed.items.filter(
+    (item) => item.type === FeedItemType.Post,
+  );
+  const initialRequests = fetchAd.mock.calls.length;
+  rerender();
+  expect(fetchAd).toHaveBeenCalledTimes(initialRequests);
+  expect(client.getQueryData(inactiveAdKey)).toBeDefined();
+
+  delayRotation = true;
+  act(() => {
+    result.current.rotation.refetch();
+  });
+  await waitFor(() => expect(pending).toHaveLength(1));
+  jest.mocked(useTcfConsent).mockReturnValue({
+    gdprApplies: true,
+    tcString: 'granted-consent',
+  });
+  rerender();
+  await waitFor(() => expect(adIds()).not.toContain('legacy-consent'));
+  expect(client.getQueryData(inactiveAdKey)).toBeUndefined();
+  await waitFor(() => expect(pending.length).toBeGreaterThan(1));
+
+  jest.mocked(useTcfConsent).mockReturnValue({
+    gdprApplies: true,
+    tcString: 'refused-consent',
+  });
+  rerender();
+  await waitFor(() => expect(adIds()).toContain('refused-consent'));
+  await act(async () => {
+    pending.forEach((resolve) =>
+      resolve({ ...defaultAd, generationId: 'late-stale-link' }),
+    );
+  });
+  expect(adIds()).toEqual(['refused-consent']);
+  expect(
+    result.current.feed.items.filter((item) => item.type === FeedItemType.Post),
+  ).toEqual(posts);
+  fetchAd.mockResolvedValueOnce({
+    ...defaultAd,
+    generationId: 'fresh-rotation',
+  });
+  await act(async () => {
+    await result.current.rotation.refetch();
+  });
+  await waitFor(() => expect(adIds()).toEqual(['fresh-rotation']));
+  fetchAd.mockRestore();
+  client.clear();
 });
 
 describe('Iubenda injection gating', () => {

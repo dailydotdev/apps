@@ -7,7 +7,7 @@ import type { Ad, Post } from '../../graphql/posts';
 import type { FeedItem } from '../useFeed';
 import { optimisticPostUpdateInFeed } from '../../lib/feed';
 import {
-  feedAdsQueryFilters,
+  RequestKey,
   updateAdPostInCache,
   updateCachedPagePost,
   updatePostCache,
@@ -60,12 +60,12 @@ export const patchBookmarkInCaches = ({
   const adPost = adItem?.type === 'ad' ? adItem.ad.data?.post : undefined;
 
   if (adPost) {
-    client.setQueriesData<InfiniteData<Ad>>(
-      feedAdsQueryFilters(feedQueryKey),
-      (currentData) =>
-        currentData
-          ? updateAdPostInCache(postId, currentData, mutate(adPost))
-          : currentData,
-    );
+    const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
+
+    if (client.getQueryData(adsQueryKey)) {
+      client.setQueryData(adsQueryKey, (currentData: InfiniteData<Ad>) =>
+        updateAdPostInCache(postId, currentData, mutate(adPost)),
+      );
+    }
   }
 };

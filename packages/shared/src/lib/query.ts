@@ -3,7 +3,6 @@ import type {
   QueryClient,
   QueryClientConfig,
   QueryKey,
-  QueryFilters,
 } from '@tanstack/react-query';
 import { MutationCache } from '@tanstack/react-query';
 import type { ClientError } from 'graphql-request';
@@ -683,23 +682,12 @@ export const updateAdPostInCache = (
   return updatedData;
 };
 
-export const feedAdsQueryFilters = (feedQueryKey: QueryKey): QueryFilters => ({
-  queryKey: [RequestKey.Ads, ...feedQueryKey],
-  predicate: (query) =>
-    Array.isArray((query.state.data as InfiniteData<Ad> | undefined)?.pages),
-});
-
 export const createAdPostRollbackHandler = (
   postId: string,
   previousState: Partial<Post>,
   rollbackMutationHandler?: (post: Post) => Partial<Post>,
 ) => {
-  return (
-    currentData: InfiniteData<Ad> | undefined,
-  ): InfiniteData<Ad> | undefined => {
-    if (!currentData) {
-      return currentData;
-    }
+  return (currentData: InfiniteData<Ad>): InfiniteData<Ad> => {
     const updatedData = { ...currentData };
 
     // Find and update the specific ad that contains the post
@@ -757,11 +745,18 @@ export const updateFeedAndAdsCache = (
   }
 
   // Update the ads cache if the post exists there
-  queryClient.setQueriesData<InfiniteData<Ad>>(
-    feedAdsQueryFilters(feedQueryKey),
-    (currentData) =>
-      currentData
-        ? updateAdPostInCache(postId, currentData, update)
-        : currentData,
-  );
+  const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
+  const adsData = queryClient.getQueryData<InfiniteData<Ad>>(adsQueryKey);
+
+  if (adsData) {
+    const existingAdPost = adsData.pages.find(
+      (page) => page.data?.post?.id === postId,
+    )?.data?.post;
+
+    if (existingAdPost) {
+      queryClient.setQueryData(adsQueryKey, (currentData: InfiniteData<Ad>) => {
+        return updateAdPostInCache(postId, currentData, update);
+      });
+    }
+  }
 };
