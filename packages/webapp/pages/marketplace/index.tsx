@@ -42,7 +42,7 @@ import {
 } from '@dailydotdev/shared/src/lib/constants';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, Origin, TargetId } from '@dailydotdev/shared/src/lib/log';
 import { PluginCard } from '../../components/marketplace/PluginCard';
 import { MarketplacePlusCard } from '../../components/marketplace/MarketplacePlusCard';
 import { MarketplacePageLayout } from '../../components/marketplace/MarketplacePageLayout';
@@ -97,7 +97,7 @@ const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
   const logClickSubmitPlugin = () =>
     logEvent({
       event_name: LogEvent.ClickSubmitPlugin,
-      extra: JSON.stringify({ origin: Origin.Marketplace }),
+      target_id: TargetId.Marketplace,
     });
 
   return (

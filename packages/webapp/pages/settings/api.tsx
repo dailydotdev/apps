@@ -340,8 +340,6 @@ const TOKEN_CREATED_PLUGINS_POOL = 50;
 
 const TOKEN_CREATED_PLUGINS_LIMIT = 1;
 
-// Where on /settings/api a marketplace surface sits, logged as extra.placement
-// next to origin api access.
 const API_ACCESS_HERO_PLACEMENT = 'hero';
 const API_ACCESS_TOKEN_CREATED_PLACEMENT = 'token created';
 
@@ -364,7 +362,6 @@ const TokenCreatedPlugins = (): ReactElement | null => {
       event_name: LogEvent.ImpressionMarketplacePromo,
       target_id: TargetId.ApiAccess,
       extra: JSON.stringify({
-        origin: Origin.ApiAccess,
         placement: API_ACCESS_TOKEN_CREATED_PLACEMENT,
         shownPluginIds,
       }),
@@ -429,7 +426,6 @@ const TokenCreatedPlugins = (): ReactElement | null => {
               event_name: LogEvent.ClickSubmitPlugin,
               target_id: TargetId.ApiAccess,
               extra: JSON.stringify({
-                origin: Origin.ApiAccess,
                 placement: API_ACCESS_TOKEN_CREATED_PLACEMENT,
               }),
             })
@@ -572,7 +568,6 @@ const ApiAccessPage = (): ReactElement => {
       event_name: LogEvent.ImpressionMarketplacePromo,
       target_id: TargetId.ApiAccess,
       extra: JSON.stringify({
-        origin: Origin.ApiAccess,
         placement: API_ACCESS_HERO_PLACEMENT,
       }),
     }),
@@ -764,7 +759,6 @@ const ApiAccessPage = (): ReactElement => {
                   event_name: LogEvent.ClickSubmitPlugin,
                   target_id: TargetId.ApiAccess,
                   extra: JSON.stringify({
-                    origin: Origin.ApiAccess,
                     placement: API_ACCESS_HERO_PLACEMENT,
                   }),
                 })

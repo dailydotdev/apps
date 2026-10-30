@@ -125,7 +125,6 @@ const PluginPage = ({
   const showConnectAgent =
     !user ||
     (isTokensLoaded && isConsentsLoaded && !tokens.length && !consents.length);
-  const isConnectionKnown = !user || (isTokensLoaded && isConsentsLoaded);
   const { logEvent } = useLogContext();
   const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
   useTrackQuestClientEvent({
@@ -144,12 +143,9 @@ const PluginPage = ({
       event_name: LogEvent.ImpressionPluginAgentPrompt,
       target_type: TargetType.Plugin,
       target_id: plugin?.id,
-      extra: JSON.stringify({
-        origin: Origin.PluginPage,
-        connectStep: showConnectAgent,
-      }),
+      extra: JSON.stringify({ origin: Origin.PluginPage }),
     }),
-    { condition: isAgentPromptInView && isConnectionKnown },
+    { condition: isAgentPromptInView },
   );
   useLogEventOnce(
     () => ({

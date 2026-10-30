@@ -74,10 +74,8 @@ export const PostPluginsWidget = ({
   useLogEventOnce(
     () => ({
       event_name: LogEvent.ImpressionMarketplacePromo,
-      extra: JSON.stringify({
-        origin: Origin.PostPluginsWidget,
-        shownPluginIds,
-      }),
+      target_id: TargetId.PostPluginsWidget,
+      extra: JSON.stringify({ shownPluginIds }),
     }),
     { condition: inView && shownPluginIds.length > 0 },
   );
