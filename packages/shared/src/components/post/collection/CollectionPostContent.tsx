@@ -149,9 +149,9 @@ export const CollectionPostContentRaw = ({
           }}
           isPostPage={isPostPage}
           belowComments={
-            railAboveFeed ? (
+            belowComments ? (
               <>
-                {widgets}
+                {railAboveFeed && widgets}
                 {belowComments}
               </>
             ) : (

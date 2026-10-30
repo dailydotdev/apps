@@ -187,9 +187,9 @@ function PollPostContentRaw({
           }}
           isPostPage={isPostPage}
           belowComments={
-            railAboveFeed ? (
+            belowComments ? (
               <>
-                {widgets}
+                {railAboveFeed && widgets}
                 {belowComments}
               </>
             ) : (

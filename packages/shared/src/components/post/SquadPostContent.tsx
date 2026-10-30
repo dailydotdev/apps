@@ -197,9 +197,9 @@ export function SquadPostContentRaw({
           }}
           isPostPage={isPostPage}
           belowComments={
-            railAboveFeed ? (
+            belowComments ? (
               <>
-                {widgets}
+                {railAboveFeed && widgets}
                 {belowComments}
               </>
             ) : (

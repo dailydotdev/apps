@@ -166,9 +166,9 @@ export function SocialTwitterPostContentRaw({
           }}
           isPostPage={isPostPage}
           belowComments={
-            railAboveFeed ? (
+            belowComments ? (
               <>
-                {widgets}
+                {railAboveFeed && widgets}
                 {belowComments}
               </>
             ) : (

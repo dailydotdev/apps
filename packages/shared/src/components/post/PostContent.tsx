@@ -203,10 +203,12 @@ export function PostContentRaw({
       <BasePostContent
         aboveComments={aboveComments}
         belowComments={
-          railAboveFeed ? (
+          belowComments ? (
+            // One tree with or without the rail, so the feed keeps its place
+            // (and its state) when the viewport resolves after hydration.
             <>
-              {mobileLiveChat}
-              {postWidgetsColumn}
+              {railAboveFeed && mobileLiveChat}
+              {railAboveFeed && postWidgetsColumn}
               {belowComments}
             </>
           ) : (
