@@ -316,6 +316,8 @@ interface FrameArgs {
   counter: CounterStyle;
   /** Close-ups: only the typical card, with its upvote in the hover state. */
   closeUp: boolean;
+  /** Bar fixes for the 320px worst case, joined by `-`: pad, edge. */
+  fix?: string;
 }
 
 // X: 18.75px icons, the number 4px away at 13px regular. Ours today: 6px on
@@ -348,11 +350,30 @@ const X_COUNTER_CSS = `
   }
 `;
 
+// pad: no padding after the number. edge: the first icon lines up with the
+// card's text instead of its button, so the upvote button reaches 7px into the
+// card padding. The bar ends on the views number, which already sits on the
+// text edge, so only the left side moves.
+const FIX_CSS = `
+  [data-fix*='pad'] .btn-quaternary > label { padding-right: 0 !important; }
+  [data-fix*='edge'][data-large='true']
+    div.flex-1:has(> .btn-quaternary [id$='-upvote-btn']) {
+    margin-left: -0.4375rem;
+  }
+`;
+
 const frameKey = (args: FrameArgs, width: number): string =>
-  [args.option, args.rule, args.counter, args.closeUp, width].join('@');
+  [
+    args.option,
+    args.rule,
+    args.counter,
+    args.closeUp,
+    args.fix ?? 'none',
+    width,
+  ].join('@');
 
 const FrameCards = (args: FrameArgs): ReactElement => {
-  const { option, rule, counter, closeUp } = args;
+  const { option, rule, counter, closeUp, fix = 'none' } = args;
   const config = OPTIONS[option];
   const ref = useRef<HTMLDivElement>(null);
   const [measures, setMeasures] = useState<Record<string, Measure | null>>({});
@@ -391,7 +412,7 @@ const FrameCards = (args: FrameArgs): ReactElement => {
     document.fonts?.ready.then(measure);
     return () => observer.disconnect();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [option, rule, counter, closeUp]);
+  }, [option, rule, counter, closeUp, fix]);
 
   return (
     <FeatureOverrides values={{ [featureListCardLargeActions.id]: large }}>
@@ -399,10 +420,12 @@ const FrameCards = (args: FrameArgs): ReactElement => {
         ref={ref}
         data-counter={counter}
         data-large={large}
+        data-fix={fix}
         className="flex flex-col bg-background-default"
       >
         <style>{'img[alt="Post Cover image"]{display:none}'}</style>
         <style>{X_COUNTER_CSS}</style>
+        <style>{FIX_CSS}</style>
         {hideCopy && <style>{'[id$="-copy-btn"]{display:none}'}</style>}
         {cases.map((key) => {
           const count = COUNTS[key];
@@ -434,8 +457,14 @@ const FrameCards = (args: FrameArgs): ReactElement => {
 
 const FRAME_ID = 'experiments-list-card-large-actions--frame';
 
-const frameSrc = ({ option, rule, counter, closeUp }: FrameArgs): string =>
-  `iframe.html?id=${FRAME_ID}&viewMode=story&args=option:${option};rule:!${rule};counter:${counter};closeUp:!${closeUp}&globals=theme:dark`;
+const frameSrc = ({
+  option,
+  rule,
+  counter,
+  closeUp,
+  fix = 'none',
+}: FrameArgs): string =>
+  `iframe.html?id=${FRAME_ID}&viewMode=story&args=option:${option};rule:!${rule};counter:${counter};closeUp:!${closeUp};fix:${fix}&globals=theme:dark`;
 
 type Results = Record<string, Record<string, Measure | null>>;
 
@@ -498,8 +527,9 @@ const Phone = ({
   isLoaded: boolean;
   scale?: number;
 }): ReactElement => {
-  // A frame that never reports hit a failed module import: load it again.
+  // A frame whose module import failed shows Storybook's error: load it again.
   const [attempt, setAttempt] = useState(0);
+  const frameRef = useRef<HTMLIFrameElement>(null);
   const isReported = height !== undefined;
   const frameHeight = height ?? (args.closeUp ? 200 : 900);
 
@@ -507,9 +537,14 @@ const Phone = ({
     if (!isLoaded || isReported) {
       return undefined;
     }
-    const timer = window.setTimeout(() => setAttempt((a) => a + 1), 12000);
-    return () => window.clearTimeout(timer);
-  }, [isLoaded, isReported, attempt]);
+    const timer = window.setInterval(() => {
+      const text = frameRef.current?.contentDocument?.body?.innerText ?? '';
+      if (text.includes('Failed to fetch dynamically imported module')) {
+        setAttempt((a) => a + 1);
+      }
+    }, 3000);
+    return () => window.clearInterval(timer);
+  }, [isLoaded, isReported]);
 
   return (
     <div className="flex flex-col gap-2">
@@ -523,6 +558,7 @@ const Phone = ({
         {isLoaded && (
           <iframe
             key={attempt}
+            ref={frameRef}
             title={label}
             src={frameSrc(args)}
             width={width}
@@ -1102,6 +1138,162 @@ const CounterSpacing = (): ReactElement => {
   );
 };
 
+const FIXES: {
+  key: string;
+  tag: string;
+  name: string;
+  what: string;
+  cost: string;
+}[] = [
+  {
+    key: 'none',
+    tag: 'Start',
+    name: 'Option A as picked',
+    what: '32px on every width, the number rule and the X style.',
+    cost: 'The worst case at 320px is just under the 4px line.',
+  },
+  {
+    key: 'pad',
+    tag: '1',
+    name: 'No padding after the number',
+    what: 'Every counter drops the 2px after its number. The space between buttons already separates them.',
+    cost: 'None visible. A general rule for every counter on the bar.',
+  },
+  {
+    key: 'edge',
+    tag: '2',
+    name: 'Line the upvote icon up with the text',
+    what: 'The upvote icon lines up with the title instead of its button edge, so the button reaches 7px into the card padding. The views number on the right already ends on the text edge.',
+    cost: 'None at rest. On hover the upvote square sits 7px outside the text edge. A general rule: optical alignment.',
+  },
+  {
+    key: 'pad-edge',
+    tag: '1 + 2',
+    name: 'Both rules',
+    what: 'No padding after the number, and the upvote icon lines up with the text.',
+    cost: 'Both costs above, both invisible at rest.',
+  },
+];
+
+const FIX_BASE: Omit<FrameArgs, 'fix'> = {
+  option: 'a',
+  rule: true,
+  counter: 'x',
+  closeUp: false,
+};
+
+const OptionAGreen = (): ReactElement => {
+  const { results, heights } = useFrameReports();
+  const frames = FIXES.flatMap(({ key }) =>
+    WIDTHS.map((width) => frameKey({ ...FIX_BASE, fix: key }, width)),
+  );
+  const isLoaded = useLoadQueue(frames, heights);
+
+  return (
+    <div className="min-h-screen bg-background-default p-6 tablet:p-10">
+      <div className="flex max-w-[75rem] flex-col gap-10">
+        <header className="flex max-w-[50rem] flex-col gap-3">
+          <p className="font-bold uppercase text-text-tertiary typo-caption1">
+            How does option A get green at 320px?
+          </p>
+          <h1 className="font-bold text-text-primary typo-title1">
+            Option A: every width green
+          </h1>
+          <p className="text-text-secondary typo-body">
+            Goal: keep 32px buttons on every phone, with the number rule and the
+            X style, and get the worst case (99K · 9.9K · 999K) to a gap of{' '}
+            {HEALTHY_GAP}px or more at 320px. Metric: the smallest gap between
+            two buttons, measured live. Each fix is a general rule for the bar,
+            not a 320px exception.
+          </p>
+        </header>
+
+        <section className="flex flex-col gap-3">
+          <h2 className="font-bold text-text-primary typo-title3">Results</h2>
+          <div className="overflow-x-auto rounded-16 border border-border-subtlest-tertiary">
+            <table className="w-full text-left typo-footnote">
+              <thead>
+                <tr className="text-text-tertiary">
+                  <th className="p-3 font-normal">Fix</th>
+                  {WIDTHS.map((width) => (
+                    <th key={width} className="p-3 font-normal">
+                      Worst case at {width}px
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {FIXES.map((fix) => (
+                  <tr
+                    key={fix.key}
+                    className="border-t border-border-subtlest-tertiary"
+                  >
+                    <td className="p-3 text-text-primary">
+                      <span className="mr-2 font-bold">{fix.tag}</span>
+                      {fix.name}
+                    </td>
+                    {WIDTHS.map((width) => (
+                      <td key={width} className="p-3">
+                        <Badge
+                          measure={worstOf(
+                            results[
+                              frameKey({ ...FIX_BASE, fix: fix.key }, width)
+                            ],
+                          )}
+                        />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {FIXES.map((fix, fixIndex) => (
+          <section
+            key={fix.key}
+            className="flex flex-col gap-4 border-t border-border-subtlest-tertiary pt-8"
+          >
+            <div className="flex max-w-[50rem] flex-col gap-1">
+              <p className="font-bold text-text-tertiary typo-caption1">
+                {fix.tag}
+              </p>
+              <h2 className="font-bold text-text-primary typo-title3">
+                {fix.name}
+              </h2>
+              <p className="text-text-secondary typo-callout">{fix.what}</p>
+              <p className="text-text-tertiary typo-callout">{fix.cost}</p>
+            </div>
+            <div className="flex flex-wrap items-start gap-6">
+              {WIDTHS.map((width, widthIndex) => {
+                const args = { ...FIX_BASE, fix: fix.key };
+                const key = frameKey(args, width);
+                return (
+                  <Phone
+                    key={key}
+                    args={args}
+                    width={width}
+                    label={`${width}px`}
+                    height={heights[key]}
+                    isLoaded={isLoaded(fixIndex * WIDTHS.length + widthIndex)}
+                  />
+                );
+              })}
+            </div>
+          </section>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export const OptionAEveryWidthGreen: StoryObj = {
+  name: 'Option A: every width green',
+  parameters: { options: { showPanel: false } },
+  render: () => <OptionAGreen />,
+};
+
 export const SmallScreensDecision: StoryObj = {
   name: 'Small screens: pick an option',
   parameters: { options: { showPanel: false } },
@@ -1117,8 +1309,9 @@ export const CounterSpacingVsX: StoryObj = {
 export const Frame: StoryObj<FrameArgs> = {
   name: 'Small screens frame',
   tags: ['!dev'],
-  args: { option: 'a', rule: true, counter: 'x', closeUp: false },
+  args: { option: 'a', rule: true, counter: 'x', closeUp: false, fix: 'none' },
   argTypes: {
+    fix: { control: 'text' },
     option: { control: 'inline-radio', options: OPTION_ORDER },
     counter: { control: 'inline-radio', options: ['today', 'x'] },
   },
