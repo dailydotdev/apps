@@ -94,6 +94,25 @@ describe('FeedWidgetRailHeader', () => {
     ).toBeTruthy();
   });
 
+  it('keeps New post the one filled button, the rest Tertiary Small', () => {
+    renderHeader();
+
+    expect(screen.getByRole('link', { name: 'New post' })).toHaveClass(
+      'btn-primary',
+    );
+    const plus = screen.getByRole('link', { name: 'Get Plus' });
+    expect(plus).toHaveClass('btn-tertiary', 'h-8');
+    expect(plus).not.toHaveClass('btn-primary-bacon');
+    expect(plus.querySelector('svg')).toHaveClass('text-accent-bacon-default');
+    expect(
+      screen.getByRole('button', { name: /Open introduction quests/ }),
+    ).toHaveClass('btn-tertiary', 'h-8');
+    expect(screen.getByTestId('attention-dot')).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('intro-quest-attention-badge'),
+    ).not.toBeInTheDocument();
+  });
+
   it('names Getting started where the row has room', () => {
     mockWidth(1668);
     renderHeader();
@@ -133,6 +152,7 @@ describe('FeedWidgetRailHeader', () => {
     expect(screen.getByRole('link', { name: 'Get Plus' })).toBeInTheDocument();
     expect(screen.queryByText('Get Plus')).not.toBeInTheDocument();
     expect(screen.queryByText('New post')).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'New post' })).toBeInTheDocument();
   });
 
   it('steps the page’s actions aside in edit mode', () => {
@@ -156,7 +176,12 @@ describe('FeedWidgetRailHeader', () => {
     expect(
       screen.getByRole('button', { name: 'New widget' }),
     ).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Done' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'New widget' })).toHaveClass(
+      'btn-tertiary',
+    );
+    expect(screen.getByRole('button', { name: 'Done' })).toHaveClass(
+      'btn-primary',
+    );
     expect(
       screen.getByRole('button', { name: 'Scroll widgets right' }),
     ).toBeInTheDocument();
