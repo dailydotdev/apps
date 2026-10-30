@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useInView } from 'react-intersection-observer';
 import type {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -56,6 +57,7 @@ import {
 } from '@dailydotdev/shared/src/lib/constants';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import useLogEventOnce from '@dailydotdev/shared/src/hooks/log/useLogEventOnce';
 import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
@@ -123,21 +125,46 @@ const PluginPage = ({
   const showConnectAgent =
     !user ||
     (isTokensLoaded && isConsentsLoaded && !tokens.length && !consents.length);
+  const isConnectionKnown = !user || (isTokensLoaded && isConsentsLoaded);
   const { logEvent } = useLogContext();
   const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
   useTrackQuestClientEvent({
     eventType: ClientQuestEventType.VisitMarketplace,
   });
+  const isAuthor = !!plugin && user?.id === plugin.author.id;
+  const showShareNudge =
+    isAuthor &&
+    isActionsFetched &&
+    !checkHasCompleted(ActionType.DismissPluginShareTooltip);
+  const { ref: agentPromptRef, inView: isAgentPromptInView } = useInView({
+    threshold: 0.5,
+  });
+  useLogEventOnce(
+    () => ({
+      event_name: LogEvent.ImpressionPluginAgentPrompt,
+      target_type: TargetType.Plugin,
+      target_id: plugin?.id,
+      extra: JSON.stringify({
+        origin: Origin.PluginPage,
+        connectStep: showConnectAgent,
+      }),
+    }),
+    { condition: isAgentPromptInView && isConnectionKnown },
+  );
+  useLogEventOnce(
+    () => ({
+      event_name: LogEvent.ImpressionPluginShareNudge,
+      target_type: TargetType.Plugin,
+      target_id: plugin?.id,
+      extra: JSON.stringify({ origin: Origin.PluginPage }),
+    }),
+    { condition: showShareNudge },
+  );
 
   if (isFallback || !plugin) {
     return <></>;
   }
 
-  const isAuthor = user?.id === plugin.author.id;
-  const showShareNudge =
-    isAuthor &&
-    isActionsFetched &&
-    !checkHasCompleted(ActionType.DismissPluginShareTooltip);
   const dismissShareNudge = () => {
     if (showShareNudge) {
       completeAction(ActionType.DismissPluginShareTooltip);
@@ -303,7 +330,10 @@ const PluginPage = ({
         </div>
       </div>
       {agentPrompt && (
-        <div className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-4">
+        <div
+          ref={agentPromptRef}
+          className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-4"
+        >
           <Typography type={TypographyType.Callout} bold>
             Use it with your agent
           </Typography>

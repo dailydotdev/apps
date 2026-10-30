@@ -630,6 +630,13 @@ export enum LogEvent {
   UpvotePlugin = 'upvote plugin',
   RemovePluginUpvote = 'remove plugin upvote',
   SubmitPlugin = 'submit plugin',
+  ClickSubmitPlugin = 'click submit plugin',
+  // Exposure for the surfaces that lead into or out of a plugin, so their
+  // clicks have a denominator. Once per mount: the promo and agent prompt
+  // impressions when half of the box is on screen, the share nudge when shown.
+  ImpressionMarketplacePromo = 'impression marketplace promo',
+  ImpressionPluginAgentPrompt = 'impression plugin agent prompt',
+  ImpressionPluginShareNudge = 'impression plugin share nudge',
   // Looking for group
   OpenLfgBoard = 'open lfg board',
   FilterLfgBoard = 'filter lfg board',

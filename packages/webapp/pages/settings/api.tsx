@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import { useQuery } from '@tanstack/react-query';
+import { useInView } from 'react-intersection-observer';
 import {
   usePlusSubscription,
   useViewSize,
@@ -31,6 +32,7 @@ import {
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import useLogEventOnce from '@dailydotdev/shared/src/hooks/log/useLogEventOnce';
 import { marketplaceHeroImage } from '@dailydotdev/shared/src/lib/image';
 import { marketplaceHeroScrim } from '@dailydotdev/shared/src/styles/custom';
 import {
@@ -338,6 +340,11 @@ const TOKEN_CREATED_PLUGINS_POOL = 50;
 
 const TOKEN_CREATED_PLUGINS_LIMIT = 1;
 
+// Where on /settings/api a marketplace surface sits, logged as extra.placement
+// next to origin api access.
+const API_ACCESS_HERO_PLACEMENT = 'hero';
+const API_ACCESS_TOKEN_CREATED_PLACEMENT = 'token created';
+
 const TokenCreatedPlugins = (): ReactElement | null => {
   const { logEvent } = useLogContext();
   const { data: pool } = useQuery(
@@ -347,13 +354,30 @@ const TokenCreatedPlugins = (): ReactElement | null => {
     () => pool && shuffleArray(pool).slice(0, TOKEN_CREATED_PLUGINS_LIMIT),
     [pool],
   );
+  const shownPluginIds = useMemo(
+    () => topPlugins?.map(({ id }) => id) ?? [],
+    [topPlugins],
+  );
+  const { ref, inView } = useInView({ threshold: 0.5 });
+  useLogEventOnce(
+    () => ({
+      event_name: LogEvent.ImpressionMarketplacePromo,
+      target_id: TargetId.ApiAccess,
+      extra: JSON.stringify({
+        origin: Origin.ApiAccess,
+        placement: API_ACCESS_TOKEN_CREATED_PLACEMENT,
+        shownPluginIds,
+      }),
+    }),
+    { condition: inView && shownPluginIds.length > 0 },
+  );
 
   if (!topPlugins?.length) {
     return null;
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div ref={ref} className="flex flex-col gap-2">
       <Typography type={TypographyType.Callout} bold>
         Try it with this plugin
       </Typography>
@@ -370,7 +394,10 @@ const TokenCreatedPlugins = (): ReactElement | null => {
                 event_name: LogEvent.ClickPluginCard,
                 target_type: TargetType.Plugin,
                 target_id: plugin.id,
-                extra: JSON.stringify({ origin: Origin.ApiAccess }),
+                extra: JSON.stringify({
+                  origin: Origin.ApiAccess,
+                  placement: API_ACCESS_TOKEN_CREATED_PLACEMENT,
+                }),
               })
             }
           >
@@ -397,6 +424,16 @@ const TokenCreatedPlugins = (): ReactElement | null => {
           target="_blank"
           rel="noopener"
           className="text-text-link hover:underline"
+          onClick={() =>
+            logEvent({
+              event_name: LogEvent.ClickSubmitPlugin,
+              target_id: TargetId.ApiAccess,
+              extra: JSON.stringify({
+                origin: Origin.ApiAccess,
+                placement: API_ACCESS_TOKEN_CREATED_PLACEMENT,
+              }),
+            })
+          }
         >
           Submit it to the marketplace
         </a>
@@ -528,6 +565,19 @@ const ApiAccessPage = (): ReactElement => {
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
   const isMobile = useViewSize(ViewSize.MobileL);
+  const { ref: marketplaceHeroRef, inView: isMarketplaceHeroInView } =
+    useInView({ threshold: 0.5 });
+  useLogEventOnce(
+    () => ({
+      event_name: LogEvent.ImpressionMarketplacePromo,
+      target_id: TargetId.ApiAccess,
+      extra: JSON.stringify({
+        origin: Origin.ApiAccess,
+        placement: API_ACCESS_HERO_PLACEMENT,
+      }),
+    }),
+    { condition: isMarketplaceHeroInView },
+  );
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createdToken, setCreatedToken] = useState<string | null>(null);
@@ -669,7 +719,10 @@ const ApiAccessPage = (): ReactElement => {
           </div>
         )}
 
-        <div className="relative isolate flex flex-col items-start gap-3 overflow-hidden rounded-16 p-4 text-white">
+        <div
+          ref={marketplaceHeroRef}
+          className="relative isolate flex flex-col items-start gap-3 overflow-hidden rounded-16 p-4 text-white"
+        >
           <div
             aria-hidden
             className="absolute inset-0 -z-1 bg-cover bg-right"
@@ -706,6 +759,16 @@ const ApiAccessPage = (): ReactElement => {
             <a
               href={marketplaceSubmitUrl}
               className="font-bold underline typo-callout hover:no-underline"
+              onClick={() =>
+                logEvent({
+                  event_name: LogEvent.ClickSubmitPlugin,
+                  target_id: TargetId.ApiAccess,
+                  extra: JSON.stringify({
+                    origin: Origin.ApiAccess,
+                    placement: API_ACCESS_HERO_PLACEMENT,
+                  }),
+                })
+              }
             >
               Submit a plugin
             </a>

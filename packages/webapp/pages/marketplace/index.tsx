@@ -94,6 +94,11 @@ const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
     placeholderData: keepPreviousData,
   });
   const results = shouldFetch ? fetchedPlugins ?? plugins : plugins;
+  const logClickSubmitPlugin = () =>
+    logEvent({
+      event_name: LogEvent.ClickSubmitPlugin,
+      extra: JSON.stringify({ origin: Origin.Marketplace }),
+    });
 
   return (
     <MarketplacePageLayout title="Marketplace" className="gap-6">
@@ -186,6 +191,7 @@ const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               icon={<PlusIcon />}
+              onClick={logClickSubmitPlugin}
             >
               Submit a plugin
             </Button>
@@ -196,7 +202,10 @@ const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               icon={<PlusIcon />}
-              onClick={() => showLogin({ trigger: AuthTriggers.Marketplace })}
+              onClick={() => {
+                logClickSubmitPlugin();
+                showLogin({ trigger: AuthTriggers.Marketplace });
+              }}
             >
               Submit a plugin
             </Button>
