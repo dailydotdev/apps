@@ -172,53 +172,58 @@ export const MyPluginsList = ({
           {submissions.map((submission) => (
             <div
               key={submission.id}
-              className="flex items-center justify-between gap-2 rounded-12 border border-border-subtlest-tertiary px-4 py-3"
+              className="flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary px-4 py-3"
             >
-              <div className="flex min-w-0 flex-col">
-                <Typography type={TypographyType.Callout} className="truncate">
-                  {submission.name}
-                </Typography>
-                {submission.plugin && (
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex min-w-0 flex-1 flex-col">
                   <Typography
-                    type={TypographyType.Footnote}
-                    color={TypographyColor.Tertiary}
+                    type={TypographyType.Callout}
+                    className="truncate"
                   >
-                    Update to {submission.plugin.name}
+                    {submission.name}
                   </Typography>
-                )}
-                {submission.status === PluginSubmissionStatus.Rejected &&
-                  submission.rejectionReason && (
+                  {submission.plugin && (
                     <Typography
                       type={TypographyType.Footnote}
-                      color={TypographyColor.Secondary}
-                      className="mt-1 whitespace-pre-line break-words"
+                      color={TypographyColor.Tertiary}
                     >
-                      {submission.rejectionReason}
+                      Update to {submission.plugin.name}
                     </Typography>
                   )}
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <Typography
+                    type={TypographyType.Footnote}
+                    className={classNames(
+                      'rounded-8 px-2 py-0.5',
+                      submission.status === PluginSubmissionStatus.Rejected
+                        ? 'bg-surface-float text-status-error'
+                        : 'bg-surface-float text-text-tertiary',
+                    )}
+                  >
+                    {statusLabel[submission.status]}
+                  </Typography>
+                  <Button
+                    variant={ButtonVariant.Tertiary}
+                    size={ButtonSize.Small}
+                    onClick={() => onCancel(submission)}
+                  >
+                    {submission.status === PluginSubmissionStatus.Pending
+                      ? 'Cancel'
+                      : 'Dismiss'}
+                  </Button>
+                </div>
               </div>
-              <div className="flex shrink-0 items-center gap-2">
-                <Typography
-                  type={TypographyType.Footnote}
-                  className={classNames(
-                    'rounded-8 px-2 py-0.5',
-                    submission.status === PluginSubmissionStatus.Rejected
-                      ? 'bg-surface-float text-status-error'
-                      : 'bg-surface-float text-text-tertiary',
-                  )}
-                >
-                  {statusLabel[submission.status]}
-                </Typography>
-                <Button
-                  variant={ButtonVariant.Tertiary}
-                  size={ButtonSize.Small}
-                  onClick={() => onCancel(submission)}
-                >
-                  {submission.status === PluginSubmissionStatus.Pending
-                    ? 'Cancel'
-                    : 'Dismiss'}
-                </Button>
-              </div>
+              {submission.status === PluginSubmissionStatus.Rejected &&
+                submission.rejectionReason && (
+                  <Typography
+                    type={TypographyType.Footnote}
+                    color={TypographyColor.Secondary}
+                    className="min-w-0 whitespace-pre-line break-words"
+                  >
+                    {submission.rejectionReason}
+                  </Typography>
+                )}
             </div>
           ))}
         </div>
