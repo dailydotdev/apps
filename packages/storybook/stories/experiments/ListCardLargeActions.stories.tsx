@@ -153,22 +153,22 @@ export default meta;
 
 export const List: StoryObj<ListArgs> = {
   name: 'List cards (phone and tablet)',
-  args: { show: 'both', counter: 'x', icons: 18 },
+  args: { show: 'both', counter: 'x', icons: 20 },
   argTypes: {
     show: {
       control: 'inline-radio',
       options: ['both', 'control', 'treatment'],
     },
     counter: { control: 'inline-radio', options: ['x', 'today'] },
-    icons: { control: 'inline-radio', options: [18, 20] },
+    icons: { control: 'inline-radio', options: [20, 18] },
   },
   render: (args) => <ListCards {...args} />,
 };
 
-export const List20: StoryObj<ListArgs> = {
+export const List18: StoryObj<ListArgs> = {
   ...List,
-  name: 'List cards, 20px icons',
-  args: { ...List.args, icons: 20 },
+  name: 'List cards, 18px icons',
+  args: { ...List.args, icons: 18 },
 };
 
 /**
@@ -342,7 +342,7 @@ interface FrameArgs {
   fix?: string;
 }
 
-// The treatment bar ships the X style (18px icons, the number 4px away at
+// The treatment bar ships the X style (20px icons, the number 4px away at
 // regular weight) with both 320px rules: no padding after the number, and the
 // upvote icon on the card's text edge. These rules rebuild what the pages
 // compare it with: the X style on the 24px control bar, and the treatment bar
@@ -382,17 +382,17 @@ const FIX_CSS = `
     div:has(> div.flex-1 > .btn-quaternary [id$='-upvote-btn']) {
     margin-left: 0 !important;
   }
-  [data-large='true'][data-fix*='icon20'] :is(${BAR_BUTTONS}) svg {
-    width: 1.25rem !important;
-    height: 1.25rem !important;
+  [data-large='true'][data-fix*='icon18'] :is(${BAR_BUTTONS}) svg {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
   }
-  [data-counter='x'][data-large='true'][data-fix*='icon20']
+  [data-counter='x'][data-large='true'][data-fix*='icon18']
     .btn-quaternary > label {
-    margin-left: -0.125rem !important;
+    margin-left: -0.1875rem !important;
   }
-  [data-large='true'][data-fix*='icon20'][data-fix*='edge']
+  [data-large='true'][data-fix*='icon18'][data-fix*='edge']
     div:has(> div.flex-1 > .btn-quaternary [id$='-upvote-btn']) {
-    margin-left: -0.375rem !important;
+    margin-left: -0.4375rem !important;
   }
 `;
 
@@ -402,7 +402,7 @@ const listFix = (counter: CounterStyle, icons: BarIconSize): string => {
   if (counter !== 'x') {
     return 'none';
   }
-  return icons === 20 ? `${SHIPPED_FIX}-icon20` : SHIPPED_FIX;
+  return icons === 18 ? `${SHIPPED_FIX}-icon18` : SHIPPED_FIX;
 };
 
 const frameKey = (args: FrameArgs, width: number): string =>
@@ -799,10 +799,10 @@ const SmallScreens = (): ReactElement => {
                 Counter spacing
               </h2>
               <p className="text-text-tertiary typo-footnote">
-                Every option uses the X style: 18px icons on the 32px bar (from
-                20px), and the number 4px from the icon at regular weight,
-                instead of 6px (24px bar) or 8px (32px bar) at medium. See
-                “Counter spacing vs X” for close-ups.
+                Every option uses the X style: the number 4px from the icon at
+                regular weight, instead of 6px (24px bar) or 8px (32px bar) at
+                medium. The 32px bar keeps 20px icons. See “Counter spacing vs
+                X” for close-ups.
               </p>
             </div>
             <Segmented
@@ -891,13 +891,13 @@ const SPEC_ROWS: { label: string; x: string; today: string; next: string }[] = [
     label: 'Icon',
     x: '18.75px',
     today: '16px (24px bar), 20px (32px bar)',
-    next: '16px (24px bar), 18px (32px bar)',
+    next: 'Unchanged: 16px (24px bar), 20px (32px bar)',
   },
   {
     label: 'Hover',
     x: '36px pill around icon and number',
     today: 'Square on the icon; the number sits 2px outside it',
-    next: 'Square on the icon; on the 32px bar the number overlaps it by 3px',
+    next: 'Square on the icon; on the 32px bar the number overlaps it by 2px',
   },
   {
     label: 'Rounding',
@@ -931,7 +931,7 @@ const TAP_ROWS: { label: string; values: string[] }[] = [
       '67–74 × 36 (34K, 2.8K, 4.7M)',
       '35–59 × 24',
       '43–67 × 32',
-      '36–59 × 32',
+      '37–60 × 32',
     ],
   },
   {
@@ -949,7 +949,7 @@ const TAP_ROWS: { label: string; values: string[] }[] = [
       '71–74 × 36 (2.8K, 4.7M)',
       '50–59 × 24',
       '58–67 × 32',
-      '51–59 × 32',
+      '52–60 × 32',
     ],
   },
   {
@@ -967,7 +967,7 @@ const TAP_ROWS: { label: string; values: string[] }[] = [
       'Pill around icon and number',
       'Square on the icon',
       'Square on the icon',
-      'Square on the icon, the number overlaps it by 3px',
+      'Square on the icon, the number overlaps it by 2px',
     ],
   },
   {
@@ -1342,9 +1342,10 @@ const OptionAGreen = (): ReactElement => {
 
 // Grid cards: the list decisions applied to the grid bar, one step at a time.
 // x: the number 4px from the icon at regular weight. icon18: 18px bar icons.
-// pad: no padding after the number. edge: the bar lines up with the text:
-// with 18px icons, 9px before the upvote button and 16px after the views
-// number put both on the title's edges. left: only the upvote icon moves.
+// pad: no padding after the number. left20 / edge20: with 20px icons, 10px
+// before the upvote button puts its icon on the title's edge, and edge20 also
+// ends the views number on the title's right edge (16px after it). left and
+// edge do the same with 18px icons (9px).
 const GRID_BAR = `div.py-0\\.5`;
 
 const GRID_CSS = `
@@ -1369,8 +1370,11 @@ const GRID_CSS = `
   [data-grid~='edge'] ${GRID_BAR} {
     padding-right: 1rem !important;
   }
-  [data-grid~='left20'] ${GRID_BAR} {
+  :is([data-grid~='left20'], [data-grid~='edge20']) ${GRID_BAR} {
     padding-left: 0.625rem !important;
+  }
+  [data-grid~='edge20'] ${GRID_BAR} {
+    padding-right: 1rem !important;
   }
 `;
 
@@ -1392,31 +1396,31 @@ const GRID_STEPS: {
     key: 'x',
     tag: 'G1',
     name: 'Number 4px from the icon, regular weight',
-    what: 'The X style the list treatment ships.',
+    what: 'The X style the list treatment ships. Icons stay 20px, as on the list.',
   },
   {
-    key: 'x icon18',
-    tag: 'G2',
-    name: 'G1 + 18px icons',
-    what: 'The bar icons match the list treatment and X (18.75px). Buttons stay 32px.',
+    key: 'x pad',
+    tag: 'G2 · Recommended',
+    name: 'G1 + no padding after the number',
+    what: 'The first of the two 320px rules from the list. Every counter decision from the list, with the same 20px icons, green at 272px.',
   },
   {
-    key: 'x icon18 pad',
+    key: 'x pad left20',
     tag: 'G3',
-    name: 'G2 + no padding after the number',
-    what: 'The first of the two 320px rules from the list.',
+    name: 'G2 + the upvote icon lines up with the text',
+    what: 'The second rule: the upvote icon moves onto the title’s left edge, as on the list. On grid the bar today starts left of the text, so this pulls it in and costs width. The views number keeps today’s right padding.',
+  },
+  {
+    key: 'x pad edge20',
+    tag: 'G4',
+    name: 'G2 + both ends line up with the text',
+    what: 'The upvote icon and the views number both on the title’s edges. Costs the most width.',
   },
   {
     key: 'x icon18 pad left',
-    tag: 'G4 · Recommended',
-    name: 'G3 + the upvote icon lines up with the text',
-    what: 'The upvote icon moves onto the title’s left edge, as on the list. The views number keeps today’s right padding, 6px past the text. Every list decision, green at 272px.',
-  },
-  {
-    key: 'x icon18 pad edge',
-    tag: 'G5',
-    name: 'G3 + both ends line up with the text',
-    what: 'The second rule: the upvote icon and the views number line up with the title’s edges, as on the list. On grid the bar today runs past the text on both sides, so this pulls it in and costs width.',
+    tag: 'Ref',
+    name: 'G3 with 18px icons',
+    what: 'For reference: the icon size the list had before switching to 20px.',
   },
 ];
 
@@ -1533,9 +1537,9 @@ const GRID_DECISIONS: {
   },
   {
     decision: 'Icon size',
-    list: '18px',
+    list: '20px',
     grid: '20px',
-    next: '18px (G2)',
+    next: 'Already matches',
   },
   {
     decision: 'Icon to number',
@@ -1547,13 +1551,13 @@ const GRID_DECISIONS: {
     decision: 'Padding after the number',
     list: 'None',
     grid: '2px',
-    next: 'None (G3)',
+    next: 'None (G2)',
   },
   {
     decision: 'Bar edges',
     list: 'Upvote icon on the text edge',
     grid: 'Upvote icon 6px left of the title, views number 4px past it',
-    next: 'Upvote icon on the title’s edge (G4). Both ends (G5) goes red at 272px',
+    next: 'Keep today’s edges (G2). On the list, lining up gains room; on grid it costs room: G3 drops 272px to 3.9px',
   },
   {
     decision: 'Bookmark',
@@ -1591,17 +1595,19 @@ const GridCards = (): ReactElement => {
           </h1>
           <p className="text-text-secondary typo-body">
             Goal: one action bar language on grid and list cards. The list
-            treatment in #7127 ships the number rule, the X style (18px icons,
-            the number 4px away at regular weight) and two spacing rules. The
+            treatment in #7127 ships the number rule, the X style (the number
+            4px from the 20px icon at regular weight) and two spacing rules. The
             grid keeps the bookmark in the header, where it won. Metric: the
             smallest gap between bar buttons at the narrowest grid card (272px),
             measured live. Under {HEALTHY_GAP}px is flagged.
           </p>
           <p className="text-text-secondary typo-body">
-            Recommendation: G4. Today’s grid bar is already red at 272px with
-            the worst-case counts. The list’s counter changes fix it, and lining
-            the upvote icon up with the title matches the list’s rule while
-            staying green.
+            Recommendation: G2. Today’s grid bar is already red at 272px with
+            the worst-case counts. The list’s counter changes (the number 4px
+            from the icon at regular weight, nothing after it) fix it with the
+            same 20px icons. Skip lining the upvote icon up with the text on
+            grid: there the bar already starts left of the text, so moving it in
+            costs room and drops 272px just under the line.
           </p>
         </header>
 
@@ -1705,26 +1711,26 @@ const GridCards = (): ReactElement => {
   );
 };
 
-// 18px (shipped) or 20px icons on the 32px bar. With 20px icons the number
-// keeps its 4px (-2px over the button padding instead of -3px), and lining the
-// upvote icon up with the text takes 6px instead of 7px.
+// 20px (shipped) or 18px icons on the 32px bar. With 18px icons the number
+// keeps its 4px (-3px over the button padding instead of -2px), and lining the
+// upvote icon up with the text takes 7px instead of 6px.
 const ICON_SIZES = [
-  { size: 18, label: '18px icons (shipped)', fix: SHIPPED_FIX },
-  { size: 20, label: '20px icons', fix: `${SHIPPED_FIX}-icon20` },
+  { size: 20, label: '20px icons (shipped)', fix: SHIPPED_FIX },
+  { size: 18, label: '18px icons', fix: `${SHIPPED_FIX}-icon18` },
 ];
 
 const GRID_ICON_STEPS = [
   {
-    key: 'x icon18 pad left',
-    tag: '18px',
-    name: 'Grid G4 with 18px icons',
-    what: 'The recommendation on the grid page.',
-  },
-  {
     key: 'x pad left20',
     tag: '20px',
-    name: 'Grid G4 with 20px icons',
-    what: 'Today’s grid icon size, with every other list decision.',
+    name: 'Grid G3 with 20px icons',
+    what: 'Every list decision on the grid bar, with the list’s 20px icons.',
+  },
+  {
+    key: 'x icon18 pad left',
+    tag: '18px',
+    name: 'Grid G3 with 18px icons',
+    what: 'The same with 18px icons.',
   },
 ];
 
@@ -1772,24 +1778,23 @@ const IconSizeDecision = (): ReactElement => {
       <div className="flex max-w-[90rem] flex-col gap-10">
         <header className="flex max-w-[50rem] flex-col gap-3">
           <p className="font-bold uppercase text-text-tertiary typo-caption1">
-            Should the 32px bar keep 20px icons instead of 18px?
+            Which icon size does the 32px bar use?
           </p>
           <h1 className="font-bold text-text-primary typo-title1">
             Icon size: 18px or 20px
           </h1>
           <p className="text-text-secondary typo-body">
-            #7127 ships 18px icons on the list treatment bar, close to X’s
-            18.75px. 20px is what grid cards use today. Everything else stays as
-            shipped: 32px buttons, the number 4px from the icon at regular
-            weight, no padding after it, and the upvote icon on the text edge.
-            Metric: the smallest gap between bar buttons, measured live. Under{' '}
-            {HEALTHY_GAP}px is flagged.
+            Decided: 20px, shipped in #7127, the size grid cards use today. 18px
+            is X’s size (18.75px). Everything else is the same in both: 32px
+            buttons, the number 4px from the icon at regular weight, no padding
+            after it, and the upvote icon on the text edge. Metric: the smallest
+            gap between bar buttons, measured live. Under {HEALTHY_GAP}px is
+            flagged.
           </p>
           <p className="text-text-secondary typo-body">
-            Recommendation: keep 18px. On the list both sizes stay green (20px
-            costs about 1px of gap at every width). On grid cards, 20px drops
-            the 272px worst case under the line, so 18px is the size that keeps
-            one icon size on both layouts.
+            On the list both sizes stay green; 20px costs about 1px of gap at
+            every width. On grid cards the 20px version is tighter at 272px: see
+            the grid table below and “Grid cards: match the list”.
           </p>
         </header>
 
@@ -1802,8 +1807,8 @@ const IconSizeDecision = (): ReactElement => {
               <thead>
                 <tr className="text-text-tertiary">
                   <th className="p-3 font-normal" />
-                  <th className="p-3 font-normal">18px (shipped)</th>
-                  <th className="p-3 font-normal">20px</th>
+                  <th className="p-3 font-normal">18px</th>
+                  <th className="p-3 font-normal">20px (shipped)</th>
                 </tr>
               </thead>
               <tbody>
