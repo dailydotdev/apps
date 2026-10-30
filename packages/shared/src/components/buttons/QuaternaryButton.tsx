@@ -44,8 +44,9 @@ function QuaternaryButtonComponent<TagName extends AllowedTags>(
     anchorRef?.current?.click();
   };
   const labelProps = {
-    onMouseOver: () => setIsHovered(true),
-    onMouseLeave: () => setIsHovered(false),
+    onPointerEnter: (event: React.PointerEvent<HTMLLabelElement>) =>
+      setIsHovered(event.pointerType === 'mouse'),
+    onPointerLeave: () => setIsHovered(false),
     ...(tag === 'a' && { onClick: onLabelClick }),
   };
   return (

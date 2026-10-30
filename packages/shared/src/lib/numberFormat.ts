@@ -15,8 +15,6 @@ export function largeNumberFormat(value: number): string | null {
   if (suffixNum === 0) {
     return value.toString();
   }
-  // One decimal only under 10 in its unit, always rounded down, so a count
-  // never reads higher than it is: 1,790 is 1.7K and 150,900 is 150K.
   const unit = 1000 ** suffixNum;
   const step = Math.abs(value) < 10 * unit ? unit / 10 : unit;
   return `${(Math.trunc(value / step) * step) / unit}${suffixes[suffixNum]}`;
