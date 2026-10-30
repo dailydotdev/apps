@@ -186,6 +186,16 @@ export const MyPluginsList = ({
                     Update to {submission.plugin.name}
                   </Typography>
                 )}
+                {submission.status === PluginSubmissionStatus.Rejected &&
+                  submission.rejectionReason && (
+                    <Typography
+                      type={TypographyType.Footnote}
+                      color={TypographyColor.Secondary}
+                      className="mt-1 whitespace-pre-line break-words"
+                    >
+                      {submission.rejectionReason}
+                    </Typography>
+                  )}
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 <Typography
