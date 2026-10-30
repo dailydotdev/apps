@@ -73,13 +73,17 @@ const handlers = {
   onReadArticleClick: fn(),
 };
 
+type BarIconSize = 18 | 20;
+
 const Column = ({
   on,
   counter,
+  icons,
   children,
 }: {
   on: boolean;
   counter: CounterStyle;
+  icons: BarIconSize;
   children: ReactNode;
 }): ReactElement => (
   <div className="flex flex-col gap-3">
@@ -89,7 +93,7 @@ const Column = ({
       </p>
       <p className="text-text-tertiary typo-caption1">
         {on ? '32px buttons' : 'Today: 24px buttons'}
-        {on && (counter === 'x' ? ', 18px icons' : ', 20px icons')}
+        {on && `, ${counter === 'x' ? icons : 20}px icons`}
         {!on && ', 16px icons'}
         {counter === 'x' && ', numbers 4px from the icon'}
       </p>
@@ -98,7 +102,7 @@ const Column = ({
       <div
         data-counter={counter}
         data-large={on}
-        data-fix={counter === 'x' ? SHIPPED_FIX : 'none'}
+        data-fix={listFix(counter, icons)}
         className="flex w-full max-w-[40rem] flex-col"
       >
         {children}
@@ -110,9 +114,10 @@ const Column = ({
 interface ListArgs {
   show: 'both' | 'control' | 'treatment';
   counter: CounterStyle;
+  icons: BarIconSize;
 }
 
-const ListCards = ({ show, counter }: ListArgs): ReactElement => (
+const ListCards = ({ show, counter, icons }: ListArgs): ReactElement => (
   <div className="min-h-screen bg-background-default p-4 tablet:p-8">
     <style>{X_COUNTER_CSS}</style>
     <style>{FIX_CSS}</style>
@@ -120,7 +125,7 @@ const ListCards = ({ show, counter }: ListArgs): ReactElement => (
       {[false, true]
         .filter((on) => show === 'both' || (show === 'treatment') === on)
         .map((on) => (
-          <Column key={String(on)} on={on} counter={counter}>
+          <Column key={String(on)} on={on} counter={counter} icons={icons}>
             {CARDS.map(({ label, post: cardPost }) => {
               const Card = PostTypeToListCard[cardPost.type] ?? ArticleList;
               return <Card key={label} post={cardPost} {...handlers} />;
@@ -148,15 +153,22 @@ export default meta;
 
 export const List: StoryObj<ListArgs> = {
   name: 'List cards (phone and tablet)',
-  args: { show: 'both', counter: 'x' },
+  args: { show: 'both', counter: 'x', icons: 18 },
   argTypes: {
     show: {
       control: 'inline-radio',
       options: ['both', 'control', 'treatment'],
     },
     counter: { control: 'inline-radio', options: ['x', 'today'] },
+    icons: { control: 'inline-radio', options: [18, 20] },
   },
   render: (args) => <ListCards {...args} />,
+};
+
+export const List20: StoryObj<ListArgs> = {
+  ...List,
+  name: 'List cards, 20px icons',
+  args: { ...List.args, icons: 20 },
 };
 
 /**
@@ -385,6 +397,13 @@ const FIX_CSS = `
 `;
 
 const SHIPPED_FIX = 'pad-edge';
+
+const listFix = (counter: CounterStyle, icons: BarIconSize): string => {
+  if (counter !== 'x') {
+    return 'none';
+  }
+  return icons === 20 ? `${SHIPPED_FIX}-icon20` : SHIPPED_FIX;
+};
 
 const frameKey = (args: FrameArgs, width: number): string =>
   [
