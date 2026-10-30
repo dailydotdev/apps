@@ -47,10 +47,13 @@ export const useAdQuery = ({
 
   return useQuery<Ad | null>({
     // consent fingerprint so ads refetch when the user answers the CMP banner,
-    // and login state so signing in swaps an anonymous-only ad
+    // and login state so signing in swaps an anonymous-only ad. The page-view
+    // id stays out of the key on purpose: it changes on every navigation
+    // (opening a post modal included), which would refetch persistent ads such
+    // as the feed widget and hero on each click. It is still sent with the
+    // request that fetches the ad.
     queryKey: [
       ...queryKey,
-      pageViewId,
       consent?.gdprApplies,
       consent?.consentString ?? '',
       consent?.consentExists ?? '',
