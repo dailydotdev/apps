@@ -123,8 +123,11 @@ const PluginPage = ({
     enabled: isConnectionQueryEnabled,
   });
   const showConnectAgent =
-    !user ||
-    (isTokensLoaded && isConsentsLoaded && !tokens.length && !consents.length);
+    !!user &&
+    isTokensLoaded &&
+    isConsentsLoaded &&
+    !tokens.length &&
+    !consents.length;
   const { logEvent } = useLogContext();
   const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
   useTrackQuestClientEvent({
