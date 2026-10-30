@@ -18,7 +18,7 @@ import { FeatureOverrides } from '../../mock/GrowthBookProvider';
 /**
  * `list_card_large_actions`, control vs treatment, on the production list
  * cards (the phone and tablet feed) with the shared test fixtures. Treatment:
- * the bar's buttons go from 24px to 32px and the icons from 16px to 20px, the
+ * the bar's buttons go from 24px to 32px and the icons from 16px to 19px, the
  * same size grid cards use. The bookmark stays in the bar, and the row grows
  * to fit, so each card is 8px taller.
  */
@@ -73,7 +73,7 @@ const handlers = {
   onReadArticleClick: fn(),
 };
 
-type BarIconSize = 18 | 20;
+type BarIconSize = 18 | 19 | 20;
 
 const Column = ({
   on,
@@ -118,14 +118,33 @@ interface ListArgs {
 }
 
 const ListCards = ({ show, counter, icons }: ListArgs): ReactElement => (
-  <div className="min-h-screen bg-background-default p-4 tablet:p-8">
+  <div className="flex min-h-screen flex-col gap-8 bg-background-default p-4 tablet:p-8">
     <style>{X_COUNTER_CSS}</style>
     <style>{FIX_CSS}</style>
+    <header className="flex max-w-[50rem] flex-col gap-2">
+      <p className="font-bold uppercase text-text-tertiary typo-caption1">
+        What does the list treatment look like?
+      </p>
+      <h1 className="font-bold text-text-primary typo-title1">List cards</h1>
+      <p className="text-text-secondary typo-body">
+        list_card_large_actions on the production list cards (the phone and
+        tablet feed). Treatment: 32px buttons with 19px icons, the number 4px
+        from the icon at regular weight with nothing after it, and the upvote
+        icon on the title’s edge. The bookmark stays in the bar, and each card
+        is 8px taller. Controls: 18 or 20px icons, or the counters before the X
+        style.
+      </p>
+    </header>
     <div className="flex flex-col gap-10 laptop:flex-row">
       {[false, true]
         .filter((on) => show === 'both' || (show === 'treatment') === on)
         .map((on) => (
-          <Column key={String(on)} on={on} counter={counter} icons={icons}>
+          <Column
+            key={String(on)}
+            on={on}
+            counter={on ? counter : 'today'}
+            icons={icons}
+          >
             {CARDS.map(({ label, post: cardPost }) => {
               const Card = PostTypeToListCard[cardPost.type] ?? ArticleList;
               return <Card key={label} post={cardPost} {...handlers} />;
@@ -137,7 +156,7 @@ const ListCards = ({ show, counter, icons }: ListArgs): ReactElement => (
 );
 
 const meta: Meta = {
-  title: 'Experiments/List card large actions',
+  title: 'Experiments/Card action bar',
   parameters: { layout: 'fullscreen' },
   globals: { theme: 'dark' },
   decorators: [
@@ -150,26 +169,6 @@ const meta: Meta = {
 };
 
 export default meta;
-
-export const List: StoryObj<ListArgs> = {
-  name: 'List cards (phone and tablet)',
-  args: { show: 'both', counter: 'x', icons: 20 },
-  argTypes: {
-    show: {
-      control: 'inline-radio',
-      options: ['both', 'control', 'treatment'],
-    },
-    counter: { control: 'inline-radio', options: ['x', 'today'] },
-    icons: { control: 'inline-radio', options: [20, 18] },
-  },
-  render: (args) => <ListCards {...args} />,
-};
-
-export const List18: StoryObj<ListArgs> = {
-  ...List,
-  name: 'List cards, 18px icons',
-  args: { ...List.args, icons: 18 },
-};
 
 /**
  * Small screens. Big counts widen the bar, and the treatment's 32px buttons
@@ -205,7 +204,7 @@ const OPTIONS: Record<
   a: {
     tag: 'A',
     name: '32px on every width',
-    what: '#7127 as it is: 32px buttons and 20px icons on every phone.',
+    what: '#7127 as it is: 32px buttons and 19px icons on every phone.',
     cost: 'The pick. Shipped in #7127 with the X style and two rules that keep 320px green: no padding after the number, and the upvote icon on the text edge.',
     large: true,
     smallBar: false,
@@ -342,7 +341,7 @@ interface FrameArgs {
   fix?: string;
 }
 
-// The treatment bar ships the X style (20px icons, the number 4px away at
+// The treatment bar ships the X style (19px icons, the number 4px away at
 // regular weight) with both 320px rules: no padding after the number, and the
 // upvote icon on the card's text edge. These rules rebuild what the pages
 // compare it with: the X style on the 24px control bar, and the treatment bar
@@ -394,6 +393,18 @@ const FIX_CSS = `
     div:has(> div.flex-1 > .btn-quaternary [id$='-upvote-btn']) {
     margin-left: -0.4375rem !important;
   }
+  [data-large='true'][data-fix*='icon20'] :is(${BAR_BUTTONS}) svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+  }
+  [data-counter='x'][data-large='true'][data-fix*='icon20']
+    .btn-quaternary > label {
+    margin-left: -0.125rem !important;
+  }
+  [data-large='true'][data-fix*='icon20'][data-fix*='edge']
+    div:has(> div.flex-1 > .btn-quaternary [id$='-upvote-btn']) {
+    margin-left: -0.375rem !important;
+  }
 `;
 
 const SHIPPED_FIX = 'pad-edge';
@@ -402,7 +413,7 @@ const listFix = (counter: CounterStyle, icons: BarIconSize): string => {
   if (counter !== 'x') {
     return 'none';
   }
-  return icons === 18 ? `${SHIPPED_FIX}-icon18` : SHIPPED_FIX;
+  return icons === 19 ? SHIPPED_FIX : `${SHIPPED_FIX}-icon${icons}`;
 };
 
 const frameKey = (args: FrameArgs, width: number): string =>
@@ -498,7 +509,7 @@ const FrameCards = (args: FrameArgs): ReactElement => {
   );
 };
 
-const FRAME_ID = 'experiments-list-card-large-actions--frame';
+const FRAME_ID = 'experiments-card-action-bar--frame';
 
 const frameSrc = ({
   option,
@@ -801,8 +812,8 @@ const SmallScreens = (): ReactElement => {
               <p className="text-text-tertiary typo-footnote">
                 Every option uses the X style: the number 4px from the icon at
                 regular weight, instead of 6px (24px bar) or 8px (32px bar) at
-                medium. The 32px bar keeps 20px icons. See “Counter spacing vs
-                X” for close-ups.
+                medium. The 32px bar uses 19px icons. See “5. Counters vs X” for
+                close-ups.
               </p>
             </div>
             <Segmented
@@ -891,13 +902,13 @@ const SPEC_ROWS: { label: string; x: string; today: string; next: string }[] = [
     label: 'Icon',
     x: '18.75px',
     today: '16px (24px bar), 20px (32px bar)',
-    next: 'Unchanged: 16px (24px bar), 20px (32px bar)',
+    next: '16px (24px bar), 19px (32px bar)',
   },
   {
     label: 'Hover',
     x: '36px pill around icon and number',
     today: 'Square on the icon; the number sits 2px outside it',
-    next: 'Square on the icon; on the 32px bar the number overlaps it by 2px',
+    next: 'Square on the icon; on the 32px bar the number overlaps it by 2.5px',
   },
   {
     label: 'Rounding',
@@ -967,7 +978,7 @@ const TAP_ROWS: { label: string; values: string[] }[] = [
       'Pill around icon and number',
       'Square on the icon',
       'Square on the icon',
-      'Square on the icon, the number overlaps it by 2px',
+      'Square on the icon, the number overlaps it by 2.5px',
     ],
   },
   {
@@ -1249,7 +1260,7 @@ const OptionAGreen = (): ReactElement => {
             How does option A get green at 320px?
           </p>
           <h1 className="font-bold text-text-primary typo-title1">
-            Option A: every width green
+            The two 320px rules
           </h1>
           <p className="text-text-secondary typo-body">
             Goal: keep 32px buttons on every phone, with the number rule and the
@@ -1341,44 +1352,41 @@ const OptionAGreen = (): ReactElement => {
 };
 
 // Grid cards: the list decisions applied to the grid bar, one step at a time.
-// x: the number 4px from the icon at regular weight. icon18: 18px bar icons.
-// pad: no padding after the number. left20 / edge20: with 20px icons, 10px
-// before the upvote button puts its icon on the title's edge, and edge20 also
-// ends the views number on the title's right edge (16px after it). left and
-// edge do the same with 18px icons (9px). frame: 4px between the bar and the
-// cover image, the card's left side and its bottom, the same 4px the image
-// sits in from the card edges, and 8px after the views number: the upvote
-// button's own padding puts its icon further in, so text needs more room to
-// look even. The row stays 36px.
+// The grid bar ships 19px icons in #7127; icon18 / icon20 rebuild the other
+// sizes (icon20 is production before #7127). x: the number 4px from the icon
+// at regular weight. pad: no padding after the number. left: the upvote icon
+// on the title's edge (rejected: it pulls the bar in and costs room). frame:
+// 4px between the bar and the cover image, the card's left side and its
+// bottom, the same 4px the image sits in from the card edges, and 8px after
+// the views number, which looks as roomy as the left side because the upvote
+// button's own padding puts its icon further in. The row stays 36px.
 const GRID_BAR = `div.py-0\\.5`;
 
 const GRID_CSS = `
+  [data-grid~='icon18'] ${GRID_BAR} :is(${BAR_BUTTONS}) svg {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+  }
+  [data-grid~='icon20'] ${GRID_BAR} :is(${BAR_BUTTONS}) svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+  }
   [data-grid~='x'] ${GRID_BAR} .btn-quaternary > label {
     padding-left: 0 !important;
-    margin-left: -0.125rem;
+    margin-left: -0.15625rem;
     font-weight: 400 !important;
   }
   [data-grid~='x'][data-grid~='icon18'] ${GRID_BAR} .btn-quaternary > label {
     margin-left: -0.1875rem;
   }
-  [data-grid~='icon18'] ${GRID_BAR} :is(${BAR_BUTTONS}) svg {
-    width: 1.125rem !important;
-    height: 1.125rem !important;
+  [data-grid~='x'][data-grid~='icon20'] ${GRID_BAR} .btn-quaternary > label {
+    margin-left: -0.125rem;
   }
   [data-grid~='pad'] ${GRID_BAR} .btn-quaternary > label {
     padding-right: 0 !important;
   }
-  :is([data-grid~='edge'], [data-grid~='left']) ${GRID_BAR} {
-    padding-left: 0.5625rem !important;
-  }
-  [data-grid~='edge'] ${GRID_BAR} {
-    padding-right: 1rem !important;
-  }
-  :is([data-grid~='left20'], [data-grid~='edge20']) ${GRID_BAR} {
-    padding-left: 0.625rem !important;
-  }
-  [data-grid~='edge20'] ${GRID_BAR} {
-    padding-right: 1rem !important;
+  [data-grid~='left'] ${GRID_BAR} {
+    padding-left: 0.59375rem !important;
   }
   [data-grid~='frame'] ${GRID_BAR} {
     padding: 0 0.5rem 0.25rem 0.25rem !important;
@@ -1387,6 +1395,8 @@ const GRID_CSS = `
 
 const GRID_WIDTHS = [272, 300, 340];
 
+const GRID_FINAL_KEY = 'x pad frame';
+
 const GRID_STEPS: {
   key: string;
   tag: string;
@@ -1394,46 +1404,40 @@ const GRID_STEPS: {
   what: string;
 }[] = [
   {
+    key: 'icon20',
+    tag: 'Before',
+    name: 'Grid bar in production',
+    what: '32px buttons, 20px icons, the number 8px from the icon at medium weight with 2px after it. 6px below the cover image, 4px from the left side, 10px after the views number, 2px from the bottom. The bookmark is in the header, from the card_save_on_hover win.',
+  },
+  {
     key: '',
-    tag: 'Today',
-    name: 'Grid bar today',
-    what: '32px buttons, 20px icons, the number 8px from the icon at medium weight, 2px after it. Bookmark in the header, from the card_save_on_hover win. The number rule already applies: it ships in largeNumberFormat.',
+    tag: '#7127',
+    name: 'With #7127: 19px icons and the number rule',
+    what: 'What grid cards get from #7127: 19px icons in the same 32px buttons, and the number rule for every counter. Nothing else changes.',
   },
   {
     key: 'x',
-    tag: 'G1',
-    name: 'Number 4px from the icon, regular weight',
-    what: 'The X style the list treatment ships. Icons stay 20px, as on the list.',
+    tag: 'Step 1',
+    name: 'The number 4px from the icon, regular weight',
+    what: 'The X style the list treatment ships.',
   },
   {
     key: 'x pad',
-    tag: 'G2',
-    name: 'G1 + no padding after the number',
-    what: 'The first of the two 320px rules from the list. Every counter decision from the list, with the same 20px icons, green at 272px.',
+    tag: 'Step 2',
+    name: 'Nothing after the number',
+    what: 'The list’s first 320px rule.',
   },
   {
-    key: 'x pad frame',
+    key: 'x pad left',
+    tag: 'Rejected',
+    name: 'The upvote icon on the title’s edge',
+    what: 'The list’s second rule. On grid the bar already starts left of the text, so moving the icon in costs room instead of gaining it.',
+  },
+  {
+    key: GRID_FINAL_KEY,
     tag: 'Final',
-    name: 'G2 + even spacing around the bar',
-    what: 'Your rules: the number rule, 32px buttons, 20px icons, the number 4px from the icon at regular weight, nothing after it. 4px between the bar and the cover image, the card’s left side and its bottom, and 8px after the views number so the right side looks as roomy as the left. The bookmark stays in the header next to ⋯.',
-  },
-  {
-    key: 'x pad left20',
-    tag: 'G3',
-    name: 'G2 + the upvote icon lines up with the text',
-    what: 'The second rule: the upvote icon moves onto the title’s left edge, as on the list. On grid the bar today starts left of the text, so this pulls it in and costs width. The views number keeps today’s right padding.',
-  },
-  {
-    key: 'x pad edge20',
-    tag: 'G4',
-    name: 'G2 + both ends line up with the text',
-    what: 'The upvote icon and the views number both on the title’s edges. Costs the most width.',
-  },
-  {
-    key: 'x icon18 pad left',
-    tag: 'Ref',
-    name: 'G3 with 18px icons',
-    what: 'For reference: the icon size the list had before switching to 20px.',
+    name: 'Even spacing around the bar',
+    what: 'Steps 1 and 2, plus 4px between the bar and the cover image, the card’s left side and its bottom, and 8px after the views number. The buttons line up with the image edges, and the card keeps its height.',
   },
 ];
 
@@ -1530,59 +1534,77 @@ const GridStep = ({
   );
 };
 
-const GRID_DECISIONS: {
+// Every decision, for "0. Start here" and the grid chapters. list: the list
+// treatment in #7127. grid: grid cards in production. next: the grid final.
+const DECISIONS: {
   decision: string;
   list: string;
   grid: string;
   next: string;
+  status: string;
 }[] = [
   {
     decision: 'Number rule',
-    list: 'Shipped',
-    grid: 'Gets it from largeNumberFormat in #7127',
-    next: 'Nothing to do',
+    list: 'One decimal only under 10 in its unit, always rounded down: 150,900 reads 150K, 1,790 reads 1.7K',
+    grid: 'Nearest: 150.9K, 1.8K',
+    next: 'Same as the list',
+    status: 'Shipped in #7127, every counter in the app, both arms',
   },
   {
     decision: 'Button size',
-    list: '32px',
+    list: '32px (control stays 24px)',
     grid: '32px',
-    next: 'Already matches',
+    next: '32px, unchanged',
+    status: 'List: shipped in the #7127 treatment',
   },
   {
     decision: 'Icon size',
-    list: '20px',
+    list: '19px (control stays 16px)',
     grid: '20px',
-    next: 'Already matches',
+    next: '19px',
+    status: 'Shipped in #7127 for list and grid',
   },
   {
     decision: 'Icon to number',
     list: '4px, regular weight',
     grid: '8px, medium weight',
     next: '4px, regular weight',
+    status: 'List: shipped. Grid: proposal',
   },
   {
-    decision: 'Padding after the number',
-    list: 'None',
+    decision: 'After the number',
+    list: 'Nothing',
     grid: '2px',
-    next: 'None',
+    next: 'Nothing',
+    status: 'List: shipped. Grid: proposal',
   },
   {
     decision: 'Bar edges',
-    list: 'Upvote icon on the text edge',
-    grid: '6px below the image, 4px left, 10px right, 2px bottom',
-    next: '4px to the cover image, the left side and the bottom; 8px after the views number (today 6px, 4px, 2px and 10px)',
+    list: 'The upvote icon on the title’s edge',
+    grid: '6px below the image, 4px left, 10px after the views number, 2px bottom',
+    next: '4px below the image, 4px left, 8px after the views number, 4px bottom',
+    status: 'List: shipped. Grid: proposal',
+  },
+  {
+    decision: 'Hover under a number',
+    list: 'The whole counter shows the button’s hover',
+    grid: 'Only the icon’s square did',
+    next: 'Same as the list',
+    status: 'Shipped in #7127, every counter bar',
   },
   {
     decision: 'Bookmark',
-    list: 'In the bar (list cards weren’t in the header test)',
-    grid: 'In the header, between Read post and ⋯ (won)',
-    next: 'Keep it in the header',
+    list: 'In the bar',
+    grid: 'In the header, from the card_save_on_hover win',
+    next: 'Stays in the header',
+    status: 'No change',
   },
   {
-    decision: 'Header icon buttons',
-    list: 'Read post (icon-only on phones) and ⋯ side by side',
-    grid: 'Bookmark and ⋯ side by side',
-    next: 'Already matches',
+    decision: 'Read post on phones',
+    list: 'Icon-only 32 × 32, right next to ⋯',
+    grid: 'Not on phones',
+    next: 'No change',
+    status: 'Shipped in #7127, both arms',
   },
 ];
 
@@ -1601,25 +1623,23 @@ const GridCards = (): ReactElement => {
       <div className="flex flex-col gap-10">
         <header className="flex max-w-[50rem] flex-col gap-3">
           <p className="font-bold uppercase text-text-tertiary typo-caption1">
-            What should grid cards change to match the list?
+            How did the grid final come together?
           </p>
           <h1 className="font-bold text-text-primary typo-title1">
-            Grid cards: match the list decisions
+            Grid cards, step by step
           </h1>
           <p className="text-text-secondary typo-body">
-            Goal: one action bar language on grid and list cards. The list
-            treatment in #7127 ships the number rule, the X style (the number
-            4px from the 20px icon at regular weight) and two spacing rules. The
-            grid keeps the bookmark in the header, where it won. Metric: the
-            smallest gap between bar buttons at the narrowest grid card (272px),
-            measured live. Under {HEALTHY_GAP}px is flagged.
+            Goal: one action bar on grid and list cards, with the bookmark
+            staying in the grid header where it won. Each step below adds one
+            list decision to the grid bar. Metric: the smallest gap between bar
+            buttons with the worst-case counts, measured live at the narrowest
+            grid card (272px). Under {HEALTHY_GAP}px is flagged.
           </p>
           <p className="text-text-secondary typo-body">
-            Final: your rules on the grid bar. Today’s grid bar is already red
-            at 272px with the worst-case counts. The list’s counter changes fix
-            it with the same 20px icons, and even spacing around the bar (8px
-            after the views number instead of 10px) gives the right side 2px
-            back.
+            Production is already red at 272px. The list’s counter changes fix
+            it, and even spacing around the bar keeps it green. Lining the
+            upvote icon up with the title, the list’s second rule, was rejected
+            for grid: there it pulls the bar in and costs room.
           </p>
         </header>
 
@@ -1633,12 +1653,12 @@ const GridCards = (): ReactElement => {
                 <tr className="text-text-tertiary">
                   <th className="p-3 font-normal">Decision</th>
                   <th className="p-3 font-normal">List treatment (#7127)</th>
-                  <th className="p-3 font-normal">Grid today</th>
+                  <th className="p-3 font-normal">Grid in production</th>
                   <th className="p-3 font-normal">Grid final</th>
                 </tr>
               </thead>
               <tbody>
-                {GRID_DECISIONS.map((row) => (
+                {DECISIONS.map((row) => (
                   <tr
                     key={row.decision}
                     className="border-t border-border-subtlest-tertiary"
@@ -1723,26 +1743,33 @@ const GridCards = (): ReactElement => {
   );
 };
 
-// 20px (shipped) or 18px icons on the 32px bar. With 18px icons the number
-// keeps its 4px (-3px over the button padding instead of -2px), and lining the
-// upvote icon up with the text takes 7px instead of 6px.
+// 18px, 19px (shipped) or 20px icons on the 32px bar. The number keeps its 4px
+// from the icon, and lining the upvote icon up with the text takes the
+// button's padding: 7px, 6.5px or 6px.
 const ICON_SIZES = [
-  { size: 20, label: '20px icons (shipped)', fix: SHIPPED_FIX },
   { size: 18, label: '18px icons', fix: `${SHIPPED_FIX}-icon18` },
+  { size: 19, label: '19px icons (shipped)', fix: SHIPPED_FIX },
+  { size: 20, label: '20px icons', fix: `${SHIPPED_FIX}-icon20` },
 ];
 
 const GRID_ICON_STEPS = [
   {
-    key: 'x pad left20',
-    tag: '20px',
-    name: 'Grid G3 with 20px icons',
-    what: 'Every list decision on the grid bar, with the list’s 20px icons.',
+    key: 'x icon18 pad frame',
+    tag: '18px',
+    name: 'Grid final with 18px icons',
+    what: 'X’s size, the most room.',
   },
   {
-    key: 'x icon18 pad left',
-    tag: '18px',
-    name: 'Grid G3 with 18px icons',
-    what: 'The same with 18px icons.',
+    key: GRID_FINAL_KEY,
+    tag: '19px',
+    name: 'Grid final with 19px icons (the pick)',
+    what: 'The same icons as the list treatment.',
+  },
+  {
+    key: 'x icon20 pad frame',
+    tag: '20px',
+    name: 'Grid final with 20px icons',
+    what: 'Today’s grid icon size.',
   },
 ];
 
@@ -1793,20 +1820,19 @@ const IconSizeDecision = (): ReactElement => {
             Which icon size does the 32px bar use?
           </p>
           <h1 className="font-bold text-text-primary typo-title1">
-            Icon size: 18px or 20px
+            Icon size: 18, 19 or 20px
           </h1>
           <p className="text-text-secondary typo-body">
-            Decided: 20px, shipped in #7127, the size grid cards use today. 18px
-            is X’s size (18.75px). Everything else is the same in both: 32px
-            buttons, the number 4px from the icon at regular weight, no padding
-            after it, and the upvote icon on the text edge. Metric: the smallest
-            gap between bar buttons, measured live. Under {HEALTHY_GAP}px is
-            flagged.
+            Decided: 19px on list and grid cards, between X’s 18.75px and the
+            20px grid cards use today. Everything else is the same at every
+            size: 32px buttons, the number 4px from the icon at regular weight,
+            and no padding after it. Metric: the smallest gap between bar
+            buttons, measured live. Under {HEALTHY_GAP}px is flagged.
           </p>
           <p className="text-text-secondary typo-body">
-            On the list both sizes stay green; 20px costs about 1px of gap at
-            every width. On grid cards the 20px version is tighter at 272px: see
-            the grid table below and “Grid cards: match the list”.
+            Each pixel of icon costs about half a pixel of gap. At 19px the icon
+            sits 6.5px from the button edge, on a half pixel: crisp on 2x and 3x
+            screens, possibly a touch soft on 1x desktop monitors.
           </p>
         </header>
 
@@ -1820,33 +1846,42 @@ const IconSizeDecision = (): ReactElement => {
                 <tr className="text-text-tertiary">
                   <th className="p-3 font-normal" />
                   <th className="p-3 font-normal">18px</th>
-                  <th className="p-3 font-normal">20px (shipped)</th>
+                  <th className="p-3 font-normal">19px (shipped)</th>
+                  <th className="p-3 font-normal">20px</th>
                 </tr>
               </thead>
               <tbody>
                 {[
-                  ['Icon', '18px, X uses 18.75px', '20px, as grid cards today'],
-                  ['Button and tap height', '32px', '32px'],
-                  ['Icon to number', '4px', '4px'],
-                  ['Padding inside the button', '7px around the icon', '6px'],
                   [
-                    'Counted button width',
-                    'Base',
-                    '1px wider: the number starts 1px later',
+                    'Icon',
+                    '18px, X uses 18.75px',
+                    '19px',
+                    '20px, as grid cards today',
                   ],
+                  ['Button and tap height', '32px', '32px', '32px'],
+                  ['Icon to number', '4px', '4px', '4px'],
+                  ['Padding inside the button', '7px', '6.5px', '6px'],
+                  ['Counted button width', 'Base', '0.5px wider', '1px wider'],
                   [
-                    'Upvote icon on the text edge',
+                    'List: upvote icon on the text edge',
                     'Bar moves 7px left',
-                    'Bar moves 6px left: 1px less room',
+                    'Bar moves 6.5px left',
+                    'Bar moves 6px left',
                   ],
-                ].map(([label, small, big]) => (
+                ].map(([label, ...values]) => (
                   <tr
                     key={label}
                     className="border-t border-border-subtlest-tertiary"
                   >
                     <td className="p-3 font-bold text-text-primary">{label}</td>
-                    <td className="p-3 text-text-secondary">{small}</td>
-                    <td className="p-3 text-text-secondary">{big}</td>
+                    {values.map((value, index) => (
+                      <td
+                        key={ICON_SIZES[index].size}
+                        className="p-3 text-text-secondary"
+                      >
+                        {value}
+                      </td>
+                    ))}
                   </tr>
                 ))}
               </tbody>
@@ -1893,7 +1928,7 @@ const IconSizeDecision = (): ReactElement => {
             <table className="w-full text-left typo-footnote">
               <thead>
                 <tr className="text-text-tertiary">
-                  <th className="p-3 font-normal">Grid G4 (proposal)</th>
+                  <th className="p-3 font-normal">Grid final (proposal)</th>
                   {GRID_WIDTHS.map((width) => (
                     <th key={width} className="p-3 font-normal">
                       Worst case at {width}px
@@ -1992,14 +2027,187 @@ const IconSizeDecision = (): ReactElement => {
   );
 };
 
-export const IconSize18Or20: StoryObj = {
-  name: 'Icon size: 18px or 20px',
-  parameters: { options: { showPanel: false } },
-  render: () => <IconSizeDecision />,
-};
+const CHAPTERS: { name: string; what: string }[] = [
+  {
+    name: '1. List cards',
+    what: 'Control and treatment on the production list cards.',
+  },
+  {
+    name: '2. Grid cards, final',
+    what: 'The grid proposal next to production, at 272, 300 and 340px.',
+  },
+  {
+    name: '3. Small phones',
+    what: 'Why the list bar keeps 32px at 320px: the options we compared.',
+  },
+  {
+    name: '4. The two 320px rules',
+    what: 'Nothing after the number, and the upvote icon on the title’s edge.',
+  },
+  {
+    name: '5. Counters vs X',
+    what: 'Spacing, type and tap area next to X’s.',
+  },
+  {
+    name: '6. Icon size',
+    what: '18, 19 or 20px icons on list and grid.',
+  },
+  {
+    name: '7. Grid cards, step by step',
+    what: 'Each list decision added to the grid bar, including the rejected one.',
+  },
+];
+
+const RESULTS: { surface: string; widths: string[]; rows: string[][] }[] = [
+  {
+    surface: 'List treatment',
+    widths: ['320px', '360px', '375px'],
+    rows: [
+      ['32px bar before the rules', '2.6px off screen', '4.3px', '7.3px'],
+      ['Shipped in #7127', '6.0px', '14.0px', '17.0px'],
+    ],
+  },
+  {
+    surface: 'Grid cards',
+    widths: ['272px', '300px', '340px'],
+    rows: [
+      ['Production', '0.8px', '7.8px', '17.8px'],
+      ['Grid final', '6.3px', '13.3px', '23.3px'],
+    ],
+  },
+];
+
+const Table = ({
+  head,
+  rows,
+}: {
+  head: string[];
+  rows: string[][];
+}): ReactElement => (
+  <div className="overflow-x-auto rounded-16 border border-border-subtlest-tertiary">
+    <table className="w-full text-left typo-footnote">
+      <thead>
+        <tr className="text-text-tertiary">
+          {head.map((cell) => (
+            <th key={cell} className="p-3 font-normal">
+              {cell}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr key={row[0]} className="border-t border-border-subtlest-tertiary">
+            {row.map((cell, index) => (
+              <td
+                // eslint-disable-next-line react/no-array-index-key
+                key={index}
+                className={classNames(
+                  'p-3',
+                  index === 0
+                    ? 'font-bold text-text-primary'
+                    : 'text-text-secondary',
+                )}
+              >
+                {cell}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
+const StartPage = (): ReactElement => (
+  <div className="min-h-screen bg-background-default p-6 tablet:p-10">
+    <div className="flex max-w-[75rem] flex-col gap-10">
+      <header className="flex max-w-[50rem] flex-col gap-3">
+        <p className="font-bold uppercase text-text-tertiary typo-caption1">
+          What did we decide for the card action bar?
+        </p>
+        <h1 className="font-bold text-text-primary typo-title1">
+          Card action bar: decisions
+        </h1>
+        <p className="text-text-secondary typo-body">
+          Goal: a bigger, easier to tap action bar on list cards, the phone
+          feed, without breaking small phones, and one bar on list and grid
+          cards. The list change runs as an experiment, list_card_large_actions
+          in #7127, measuring bookmarks, upvotes and comments per user, with
+          post clicks as the guardrail because the cards get taller.
+        </p>
+        <p className="text-text-secondary typo-body">
+          Design metric: the smallest gap between two bar buttons with
+          worst-case counts (99K upvotes, 9.9K comments, 999K views).{' '}
+          {HEALTHY_GAP}px or more is healthy; buttons never shrink, so a long
+          number pushes the bar wider until buttons touch or leave the card.
+        </p>
+      </header>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="font-bold text-text-primary typo-title3">Decisions</h2>
+        <Table
+          head={['Decision', 'List cards', 'Grid cards', 'Status']}
+          rows={DECISIONS.map((row) => [
+            row.decision,
+            row.list,
+            row.next,
+            row.status,
+          ])}
+        />
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="font-bold text-text-primary typo-title3">
+          Smallest gap, worst case
+        </h2>
+        <p className="max-w-[50rem] text-text-tertiary typo-callout">
+          Measured on these stories on Oct 30, 2026. The chapters measure live.
+        </p>
+        {RESULTS.map(({ surface, widths, rows }) => (
+          <Table key={surface} head={[surface, ...widths]} rows={rows} />
+        ))}
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="font-bold text-text-primary typo-title3">
+          What’s built and what isn’t
+        </h2>
+        <Table
+          head={['', 'What', 'Where']}
+          rows={[
+            [
+              'Built',
+              'The list_card_large_actions treatment bar, the number rule, 19px icons on list and grid bars, hover under a number, and the icon-only Read post on phones',
+              'PR #7127, not merged',
+            ],
+            [
+              'Not built',
+              'Grid final: the number 4px from the icon at regular weight, nothing after it, and the spacing around the bar',
+              'Storybook only: 2. Grid cards, final',
+            ],
+            [
+              'Not set up',
+              'The list_card_large_actions flag in GrowthBook: boolean, default false, 50/50 on user ID, logged-in users',
+              'Needs someone with GrowthBook write access',
+            ],
+          ]}
+        />
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="font-bold text-text-primary typo-title3">Chapters</h2>
+        <Table
+          head={['Chapter', 'What it shows']}
+          rows={CHAPTERS.map(({ name, what }) => [name, what])}
+        />
+      </section>
+    </div>
+  </div>
+);
 
 const GRID_FINAL_STEPS = GRID_STEPS.filter(({ key }) =>
-  ['', 'x pad frame'].includes(key),
+  ['icon20', GRID_FINAL_KEY].includes(key),
 );
 
 const GridFinal = (): ReactElement => {
@@ -2024,7 +2232,7 @@ const GridFinal = (): ReactElement => {
           </h1>
           <p className="text-text-secondary typo-body">
             Today’s grid bar next to the final one: the number rule, 32px
-            buttons, 20px icons, the number 4px from the icon at regular weight,
+            buttons, 19px icons, the number 4px from the icon at regular weight,
             nothing after it, 4px between the bar and the cover image, the
             card’s left side and its bottom, and 8px after the views number. The
             bookmark stays in the header. Hover a card to see its header
@@ -2087,34 +2295,60 @@ const GridFinal = (): ReactElement => {
   );
 };
 
+export const StartHere: StoryObj = {
+  name: '0. Start here',
+  parameters: { options: { showPanel: false } },
+  render: () => <StartPage />,
+};
+
+export const List: StoryObj<ListArgs> = {
+  name: '1. List cards',
+  args: { show: 'both', counter: 'x', icons: 19 },
+  argTypes: {
+    show: {
+      control: 'inline-radio',
+      options: ['both', 'control', 'treatment'],
+    },
+    counter: { control: 'inline-radio', options: ['x', 'today'] },
+    icons: { control: 'inline-radio', options: [19, 18, 20] },
+  },
+  render: (args) => <ListCards {...args} />,
+};
+
 export const GridCardsFinal: StoryObj = {
-  name: 'Grid cards, final',
+  name: '2. Grid cards, final',
   parameters: { options: { showPanel: false } },
   render: () => <GridFinal />,
 };
 
-export const GridCardsMatchTheList: StoryObj = {
-  name: 'Grid cards: match the list',
-  parameters: { options: { showPanel: false } },
-  render: () => <GridCards />,
-};
-
-export const OptionAEveryWidthGreen: StoryObj = {
-  name: 'Option A: every width green',
-  parameters: { options: { showPanel: false } },
-  render: () => <OptionAGreen />,
-};
-
 export const SmallScreensDecision: StoryObj = {
-  name: 'Small screens: pick an option',
+  name: '3. Small phones',
   parameters: { options: { showPanel: false } },
   render: () => <SmallScreens />,
 };
 
+export const OptionAEveryWidthGreen: StoryObj = {
+  name: '4. The two 320px rules',
+  parameters: { options: { showPanel: false } },
+  render: () => <OptionAGreen />,
+};
+
 export const CounterSpacingVsX: StoryObj = {
-  name: 'Counter spacing vs X',
+  name: '5. Counters vs X',
   parameters: { options: { showPanel: false } },
   render: () => <CounterSpacing />,
+};
+
+export const IconSize18Or20: StoryObj = {
+  name: '6. Icon size',
+  parameters: { options: { showPanel: false } },
+  render: () => <IconSizeDecision />,
+};
+
+export const GridCardsMatchTheList: StoryObj = {
+  name: '7. Grid cards, step by step',
+  parameters: { options: { showPanel: false } },
+  render: () => <GridCards />,
 };
 
 export const Frame: StoryObj<FrameArgs> = {
