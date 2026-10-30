@@ -33,6 +33,7 @@ import { PlusPlanType } from '../../graphql/paddle';
 import { isIOSNative } from '../../lib/func';
 import { PlusPriceType } from '../../lib/featureValues';
 import { PlusAdjustQuantity } from './PlusAdjustQuantity';
+import { PlusCoresGiveback } from './PlusCoresGiveback';
 
 type PlusInfoProps = {
   productOptions: ProductPricingPreview[];
@@ -165,6 +166,14 @@ export const PlusInfo = ({
   const isOnboarding = router.pathname.startsWith('/onboarding');
   const showBuyAsAGiftButton =
     !giftToUser && showGiftButton && !!giftOneYear && !isOnboarding;
+  const coresGiveback = plusType === PlusType.Self && (
+    <PlusCoresGiveback
+      option={productOptions?.find(
+        (option) => option.priceId === selectedOption,
+      )}
+      className="mt-3"
+    />
+  );
   let plusListContent: ReactElement;
   if (isOrganization) {
     plusListContent = <PlusList items={plusOrganizationFeatureList} />;
@@ -302,6 +311,7 @@ export const PlusInfo = ({
           </>
         )}
       </div>
+      {!onContinue && coresGiveback}
       {onContinue ? (
         <div className="pt-6">
           <Button
@@ -314,6 +324,7 @@ export const PlusInfo = ({
           >
             Continue »
           </Button>
+          {coresGiveback}
         </div>
       ) : undefined}
       {showPlusList && plusListContent}
