@@ -11,6 +11,7 @@ import { useConsentCookie } from '@dailydotdev/shared/src/hooks/useCookieConsent
 import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
 import { iubendaLocalizedPolicyIds } from '@dailydotdev/shared/src/lib/iubenda';
 import { startTcfSubscription } from '@dailydotdev/shared/src/lib/tcf';
+import { useTcfConsent } from '@dailydotdev/shared/src/features/monetization/useTcfConsent';
 import { Iubenda, openIubendaPreferences } from '../components/Iubenda';
 import {
   enhanceIubendaBannerNow,
@@ -27,8 +28,11 @@ jest.mock('@dailydotdev/shared/src/lib/func', () => ({
 }));
 
 jest.mock('@dailydotdev/shared/src/lib/tcf', () => ({
+  ...jest.requireActual('@dailydotdev/shared/src/lib/tcf'),
   startTcfSubscription: jest.fn(),
 }));
+
+jest.mock('@dailydotdev/shared/src/features/monetization/useTcfConsent');
 
 jest.mock('../components/iubendaBanner', () => ({
   watchIubendaBanner: jest.fn(() => jest.fn()),
@@ -103,6 +107,8 @@ beforeEach(() => {
   mockUseConsentCookie.mockReturnValue({ saveCookies, cookieExists: false });
   mockIsIOSNative.mockReturnValue(false);
   mockWatchBanner.mockReturnValue(jest.fn());
+  jest.mocked(useTcfConsent).mockReturnValue(undefined);
+  document.cookie = 'euconsent-v2=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
   delete win._iub;
   injectedScripts().forEach((script) => script.remove());
   localStorage.clear();
@@ -112,6 +118,76 @@ afterEach(() => {
   delete process.env.NEXT_PUBLIC_IUBENDA_SITE_ID;
   delete process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID;
   delete process.env.NEXT_PUBLIC_DOMAIN;
+});
+
+describe('Iubenda publisher consent renewal', () => {
+  const legacyConsent = 'CQs2X0AQs2X0AB7ABAENABFgAIIAAAAAAAwIAAoAAAAA.IAAo';
+
+  it('reopens preferences once for stored consent missing Publisher TC without granting anything', async () => {
+    document.cookie = `euconsent-v2=${legacyConsent}`;
+    jest.mocked(useTcfConsent).mockReturnValue({
+      gdprApplies: true,
+      tcString: legacyConsent,
+    });
+    const openPreferences = jest.fn();
+    win._iub = { cs: { api: { openPreferences } } };
+    const client = new QueryClient();
+    const content = () => (
+      <TestBootProvider
+        client={client}
+        auth={{ isAuthReady: true, geo: { region: 'PL' } }}
+      >
+        <Iubenda />
+      </TestBootProvider>
+    );
+    const { rerender } = render(content());
+    await waitFor(() => expect(openPreferences).toHaveBeenCalledTimes(1));
+    expect(saveCookies).not.toHaveBeenCalled();
+    expect(document.cookie).toContain(`euconsent-v2=${legacyConsent}`);
+
+    jest.mocked(useTcfConsent).mockReturnValue({
+      gdprApplies: true,
+      tcString: `${legacyConsent}A`,
+    });
+    rerender(content());
+    expect(openPreferences).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(['cEAAAAAAAAAA', 'YAAAAAAAAAAA'])(
+    'does not reopen a publisher choice, including refusal (%s)',
+    async (publisherSegment) => {
+      const tcString = `${legacyConsent}.${publisherSegment}`;
+      document.cookie = `euconsent-v2=${tcString}`;
+      jest
+        .mocked(useTcfConsent)
+        .mockReturnValue({ gdprApplies: true, tcString });
+      const openPreferences = jest.fn();
+      win._iub = { cs: { api: { openPreferences } } };
+      renderComponent({ geo: { region: 'PL' } });
+      await waitFor(() => expect(win._iub?.csConfiguration).toBeDefined());
+      expect(openPreferences).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([
+    { region: 'US', stored: true, gdprApplies: false },
+    { region: 'PL', stored: false, gdprApplies: true },
+  ])(
+    'leaves non-GDPR and first-visit banners alone ($region, $stored)',
+    async ({ region, stored, gdprApplies }) => {
+      if (stored) {
+        document.cookie = `euconsent-v2=${legacyConsent}`;
+      }
+      jest
+        .mocked(useTcfConsent)
+        .mockReturnValue({ gdprApplies, tcString: legacyConsent });
+      const openPreferences = jest.fn();
+      win._iub = { cs: { api: { openPreferences } } };
+      renderComponent({ geo: { region } });
+      await waitFor(() => expect(win._iub?.csConfiguration).toBeDefined());
+      expect(openPreferences).not.toHaveBeenCalled();
+    },
+  );
 });
 
 describe('Iubenda injection gating', () => {

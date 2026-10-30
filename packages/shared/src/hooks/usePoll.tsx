@@ -6,7 +6,7 @@ import { getFeedApiItemPost } from '../graphql/feed';
 import { votePoll } from '../graphql/posts';
 import {
   findIndexOfPostInData,
-  RequestKey,
+  feedAdsQueryFilters,
   updateAdPostInCache,
   updateCachedPagePost,
   updatePostCache,
@@ -32,11 +32,13 @@ const usePoll = ({ post }: { post: Post }) => {
   const { mutate, isPending: isCastingVote } = useMutation({
     mutationFn: (optionId: string) => votePoll({ postId: post.id, optionId }),
     onMutate: (optionId: string) => {
-      const adsQueryKey = queryKey ? [RequestKey.Ads, ...queryKey] : null;
       const currentFeedData =
         queryClient.getQueryData<InfiniteData<FeedData>>(queryKey);
-      const currentAdsData =
-        queryClient.getQueryData<InfiniteData<Ad>>(adsQueryKey);
+      const currentAdsData = queryKey
+        ? queryClient.getQueriesData<InfiniteData<Ad>>(
+            feedAdsQueryFilters(queryKey),
+          )
+        : [];
 
       const updatedOptions = post.pollOptions.map((option) => {
         if (option.id === optionId) {
@@ -81,29 +83,26 @@ const usePoll = ({ post }: { post: Post }) => {
         }
       }
 
-      if (currentAdsData) {
-        const currentAdPost = currentAdsData.pages.find(
+      currentAdsData.forEach(([adsQueryKey, data]) => {
+        const currentAdPost = data?.pages.find(
           (page: Ad) => page.data?.post?.id === post.id,
         )?.data?.post;
 
-        if (currentAdPost) {
+        if (currentAdPost && data) {
           queryClient.setQueryData(adsQueryKey, () => {
-            return updateAdPostInCache(
-              currentAdPost.id,
-              currentAdsData,
-              postUpdate,
-            );
+            return updateAdPostInCache(currentAdPost.id, data, postUpdate);
           });
         }
-      }
+      });
       return { currentPost: post, currentFeedData, currentAdsData };
     },
     onError: (_, __, { currentPost, currentFeedData, currentAdsData }) => {
       updatePostCache(queryClient, post.id, currentPost);
       if (queryKey) {
-        const adsQueryKey = [RequestKey.Ads, ...queryKey];
         queryClient.setQueryData(queryKey, currentFeedData);
-        queryClient.setQueryData(adsQueryKey, currentAdsData);
+        currentAdsData.forEach(([adsQueryKey, data]) => {
+          queryClient.setQueryData(adsQueryKey, data);
+        });
       }
 
       displayToast(

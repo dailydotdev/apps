@@ -10,7 +10,12 @@ import { useConsentCookie } from '@dailydotdev/shared/src/hooks/useCookieConsent
 import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
 import { requiresCertifiedCmp } from '@dailydotdev/shared/src/lib/geo';
 import { iubendaLocalizedPolicyIds } from '@dailydotdev/shared/src/lib/iubenda';
-import { startTcfSubscription } from '@dailydotdev/shared/src/lib/tcf';
+import {
+  getStoredTcString,
+  hasPublisherTcSegment,
+  startTcfSubscription,
+} from '@dailydotdev/shared/src/lib/tcf';
+import { useTcfConsent } from '@dailydotdev/shared/src/features/monetization/useTcfConsent';
 import { enhanceIubendaBannerNow, watchIubendaBanner } from './iubendaBanner';
 
 /**
@@ -109,6 +114,9 @@ export const openIubendaPreferences = (): boolean => {
 export const Iubenda = (): ReactElement | null => {
   const { isAuthReady, isFunnel, geo } = useAuthContext();
   const { saveCookies } = useConsentCookie(GdprConsentKey.Necessary);
+  const tcf = useTcfConsent();
+  const hadStoredConsent = useRef(Boolean(getStoredTcString()));
+  const publisherConsentRequested = useRef(false);
   // Google's certified-CMP mandate covers the EEA, the UK and Switzerland —
   // not "everywhere we haven't listed". checkIfGdprCovered counts the whole
   // world minus US/IL as covered, which is deliberately conservative for
@@ -140,6 +148,22 @@ export const Iubenda = (): ReactElement | null => {
   };
 
   const enabled = isAuthReady && !isFunnel && !isIOSNative();
+
+  useEffect(() => {
+    if (
+      !enabled ||
+      !withTcf ||
+      !hadStoredConsent.current ||
+      !tcf?.gdprApplies ||
+      !tcf.tcString ||
+      hasPublisherTcSegment(tcf.tcString) ||
+      publisherConsentRequested.current
+    ) {
+      return;
+    }
+
+    publisherConsentRequested.current = openIubendaPreferences();
+  }, [enabled, withTcf, tcf?.gdprApplies, tcf?.tcString]);
 
   useEffect(() => {
     if (!enabled) {

@@ -16,6 +16,7 @@ import { disabledRefetch } from '../../lib/func';
 import { AdPlacement } from '../../lib/ads';
 import { RequestKey } from '../../lib/query';
 import { useFetchAd } from '../../features/monetization/useFetchAd';
+import { getAdConsentQueryKey } from '../../features/monetization/adConsent';
 
 export type InViewRef = InViewHookResponse['ref'];
 
@@ -50,10 +51,10 @@ export const useAutoRotatingAds = (
     [inViewRef, ref],
   );
 
-  const { fetchAd, isAdConsentReady } = useFetchAd(!!autorotateAds);
+  const { fetchAd, isAdConsentReady, consent } = useFetchAd(!!autorotateAds);
   const queryKey = useMemo(
-    () => [RequestKey.Ads, ...(feedQueryKey ?? [])],
-    [feedQueryKey],
+    () => [RequestKey.Ads, ...feedQueryKey, ...getAdConsentQueryKey(consent)],
+    [feedQueryKey, consent],
   );
 
   const fetchNewAd = useCallback(async (): Promise<Ad | null> => {
