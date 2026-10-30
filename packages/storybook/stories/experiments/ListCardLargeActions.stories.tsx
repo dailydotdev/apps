@@ -74,9 +74,11 @@ const handlers = {
 
 const Column = ({
   on,
+  counter,
   children,
 }: {
   on: boolean;
+  counter: CounterStyle;
   children: ReactNode;
 }): ReactElement => (
   <div className="flex flex-col gap-3">
@@ -86,25 +88,34 @@ const Column = ({
       </p>
       <p className="text-text-tertiary typo-caption1">
         {on ? '32px buttons, 20px icons' : 'Today: 24px buttons, 16px icons'}
+        {counter === 'x' && ', numbers 4px from the icon'}
       </p>
     </div>
     <FeatureOverrides values={{ [featureListCardLargeActions.id]: on }}>
-      <div className="flex w-full max-w-[40rem] flex-col">{children}</div>
+      <div
+        data-counter={counter}
+        data-large={on}
+        className="flex w-full max-w-[40rem] flex-col"
+      >
+        {children}
+      </div>
     </FeatureOverrides>
   </div>
 );
 
 interface ListArgs {
   show: 'both' | 'control' | 'treatment';
+  counter: CounterStyle;
 }
 
-const ListCards = ({ show }: ListArgs): ReactElement => (
+const ListCards = ({ show, counter }: ListArgs): ReactElement => (
   <div className="min-h-screen bg-background-default p-4 tablet:p-8">
+    <style>{X_COUNTER_CSS}</style>
     <div className="flex flex-col gap-10 laptop:flex-row">
       {[false, true]
         .filter((on) => show === 'both' || (show === 'treatment') === on)
         .map((on) => (
-          <Column key={String(on)} on={on}>
+          <Column key={String(on)} on={on} counter={counter}>
             {CARDS.map(({ label, post: cardPost }) => {
               const Card = PostTypeToListCard[cardPost.type] ?? ArticleList;
               return <Card key={label} post={cardPost} {...handlers} />;
@@ -132,12 +143,13 @@ export default meta;
 
 export const List: StoryObj<ListArgs> = {
   name: 'List cards (phone and tablet)',
-  args: { show: 'both' },
+  args: { show: 'both', counter: 'x' },
   argTypes: {
     show: {
       control: 'inline-radio',
       options: ['both', 'control', 'treatment'],
     },
+    counter: { control: 'inline-radio', options: ['x', 'today'] },
   },
   render: (args) => <ListCards {...args} />,
 };
@@ -604,8 +616,8 @@ const Segmented = <T extends string | boolean>({
 );
 
 const COUNTER_OPTIONS: { value: CounterStyle; label: string }[] = [
-  { value: 'today', label: 'Today’s spacing' },
   { value: 'x', label: 'X spacing' },
+  { value: 'today', label: 'Today’s spacing' },
 ];
 
 const formatCounts = (
@@ -618,7 +630,7 @@ const formatCounts = (
 
 const SmallScreens = (): ReactElement => {
   const [rule, setRule] = useState(true);
-  const [counter, setCounter] = useState<CounterStyle>('today');
+  const [counter, setCounter] = useState<CounterStyle>('x');
   const { results, heights } = useFrameReports();
   const base = { rule, counter, closeUp: false };
   const frames = OPTION_ORDER.flatMap((option) =>
@@ -693,9 +705,9 @@ const SmallScreens = (): ReactElement => {
                 Counter spacing
               </h2>
               <p className="text-text-tertiary typo-footnote">
-                X spacing: the number 4px from the icon at regular weight,
-                instead of 6px (24px bar) or 8px (32px bar) at medium. See
-                “Counter spacing vs X” for close-ups.
+                Every option uses X spacing: the number 4px from the icon at
+                regular weight, instead of 6px (24px bar) or 8px (32px bar) at
+                medium. See “Counter spacing vs X” for close-ups.
               </p>
             </div>
             <Segmented
@@ -956,7 +968,7 @@ export const CounterSpacingVsX: StoryObj = {
 export const Frame: StoryObj<FrameArgs> = {
   name: 'Small screens frame',
   tags: ['!dev'],
-  args: { option: 'a', rule: true, counter: 'today', closeUp: false },
+  args: { option: 'a', rule: true, counter: 'x', closeUp: false },
   argTypes: {
     option: { control: 'inline-radio', options: OPTION_ORDER },
     counter: { control: 'inline-radio', options: ['today', 'x'] },
