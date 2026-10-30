@@ -221,6 +221,30 @@ describe('Debug mode', () => {
     expect(canExplainPosts).toBe(true);
   });
 
+  it('keeps the cards on screen while Debug or Tune loads the same feed', async () => {
+    mockFlags({ explain: true, version: 116 });
+
+    renderDebugging();
+
+    await screen.findByTestId('feed');
+    const { feedQueryKey, options } = lastFeedProps();
+    const keepPrevious = options?.placeholderData as unknown as (
+      data: unknown,
+      query?: { queryKey: unknown[] },
+    ) => unknown;
+    const cards = { pages: [] };
+    const plainKey = (feedQueryKey as unknown[]).slice(0, -1);
+
+    expect(keepPrevious(cards, { queryKey: plainKey })).toBe(cards);
+    expect(
+      keepPrevious(cards, { queryKey: [...feedQueryKey, { topics: [] }] }),
+    ).toBe(cards);
+    expect(
+      keepPrevious(cards, { queryKey: ['popular', defaultUser.id] }),
+    ).toBeUndefined();
+    expect(keepPrevious(cards, undefined)).toBeUndefined();
+  });
+
   it('offers Tune and Feed settings on a floating bar in Debug mode', async () => {
     mockFlags({ explain: true, version: 116 });
 
