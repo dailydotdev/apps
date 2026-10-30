@@ -95,6 +95,7 @@ export const FEED_CONTROLS_QUERY = gql`
       sources {
         source {
           id
+          name
         }
         mode
         weight
@@ -103,6 +104,7 @@ export const FEED_CONTROLS_QUERY = gql`
       authors {
         user {
           id
+          name
         }
         mode
         weight

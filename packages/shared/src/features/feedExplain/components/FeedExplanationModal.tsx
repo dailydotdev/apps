@@ -50,7 +50,8 @@ import { useContentPreference } from '../../../hooks/contentPreference/useConten
 import { isFollowingContent } from '../../../hooks/contentPreference/types';
 import { Origin } from '../../../lib/log';
 import { isSpecialUser } from '../../../lib/user';
-import { settingsUrl } from '../../../lib/constants';
+import { FeedSettingsMenu } from '../../../components/feeds/FeedSettings/types';
+import { getForYouSettingsUrl } from '../../../components/feeds/FeedSettings/forYouSettingsPages';
 import { feature } from '../../../lib/featureManagement';
 import type { FeedItemExplain } from '../types';
 import { useDropIdleForYouFeeds } from '../useDropIdleForYouFeeds';
@@ -570,7 +571,7 @@ function FeedExplanationModal({
                 />
                 <Button
                   tag="a"
-                  href={`${settingsUrl}/feed/general`}
+                  href={getForYouSettingsUrl(FeedSettingsMenu.Overview)}
                   variant={ButtonVariant.Tertiary}
                   size={ButtonSize.Small}
                   icon={<SettingsIcon />}

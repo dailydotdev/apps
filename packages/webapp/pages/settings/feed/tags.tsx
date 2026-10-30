@@ -3,6 +3,8 @@ import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
 
 import { FeedSettingsTagsSection } from '@dailydotdev/shared/src/components/feeds/FeedSettings/sections/FeedSettingsTagsSection';
+import { FeedSettingsMenu } from '@dailydotdev/shared/src/components/feeds/FeedSettings/types';
+import { forYouSettingsTitle } from '@dailydotdev/shared/src/components/feeds/FeedSettings/forYouSettingsPages';
 import { AccountPageContainer } from '../../../components/layouts/SettingsLayout/AccountPageContainer';
 import {
   defaultOpenGraph,
@@ -14,7 +16,7 @@ import { getFeedSettingsLayout } from '../../../components/layouts/SettingsLayou
 
 const AccountManageSubscriptionPage = (): ReactElement => {
   return (
-    <AccountPageContainer title="Tags">
+    <AccountPageContainer title={forYouSettingsTitle[FeedSettingsMenu.Tags]}>
       <section className="flex flex-col gap-4">
         <FeedSettingsTagsSection />
       </section>
@@ -22,7 +24,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
   );
 };
 
-const seoTitles = getPageSeoTitles('Tags');
+const seoTitles = getPageSeoTitles(forYouSettingsTitle[FeedSettingsMenu.Tags]);
 const seo: NextSeoProps = {
   title: seoTitles.title,
   openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },

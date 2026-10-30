@@ -5,19 +5,27 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, useQuery } from '@tanstack/react-query';
 import { GrowthBook } from '@growthbook/growthbook-react';
-import { TestBootProvider } from '../../../../__tests__/helpers/boot';
-import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
-import defaultUser from '../../../../__tests__/fixture/loggedUser';
-import { getFeedSettingsQueryKey } from '../../../hooks/useFeedSettings';
-import { generateQueryKey } from '../../../lib/query';
-import { SharedFeedPage } from '../../../components/utilities/common';
-import type { FeedControls } from '../types';
-import { feedControlsQueryKey } from '../queries';
+import { TestBootProvider } from '../../../../../__tests__/helpers/boot';
+import { mockGraphQL } from '../../../../../__tests__/helpers/graphql';
+import defaultUser from '../../../../../__tests__/fixture/loggedUser';
+import { getFeedSettingsQueryKey } from '../../../../hooks/useFeedSettings';
+import { generateQueryKey } from '../../../../lib/query';
+import { SharedFeedPage } from '../../../utilities/common';
+import type {
+  FeedControls,
+  FeedProfile,
+} from '../../../../features/feedExplain/types';
+import { FeedTopicMode } from '../../../../features/feedExplain/types';
+import {
+  feedControlsQueryKey,
+  feedProfileQueryKey,
+} from '../../../../features/feedExplain/queries';
 import {
   RESET_FEED_PERSONALIZATION_MUTATION,
   SET_FEED_LEARNING_MUTATION,
-} from '../graphql';
-import { ForYouSettings } from './ForYouSettings';
+  SET_FEED_TOPIC_MODE_MUTATION,
+} from '../../../../features/feedExplain/graphql';
+import { FeedSettingsOverviewSection } from './FeedSettingsOverviewSection';
 
 const controls: FeedControls = {
   topics: [],
@@ -25,6 +33,14 @@ const controls: FeedControls = {
   authors: [],
   learning: true,
   fillIns: true,
+  ranking: [],
+};
+const profile: FeedProfile = {
+  cohort: true,
+  learning: true,
+  interests: [],
+  muted: [],
+  blocked: [],
   ranking: [],
 };
 const fetchForYou = jest.fn(async () => ({ pages: [] }));
@@ -39,7 +55,10 @@ const ForYouFeed = (): ReactElement | null => {
   return null;
 };
 
-const renderSettings = (version = 116) => {
+const renderOverview = ({
+  version = 116,
+  feedControls = controls,
+}: { version?: number; feedControls?: FeedControls } = {}) => {
   const gb = new GrowthBook({
     features: {
       feed_version: { defaultValue: version },
@@ -47,7 +66,8 @@ const renderSettings = (version = 116) => {
     },
   });
   const client = new QueryClient();
-  client.setQueryData(feedControlsQueryKey(defaultUser), controls);
+  client.setQueryData(feedControlsQueryKey(defaultUser), feedControls);
+  client.setQueryData(feedProfileQueryKey(defaultUser, version), profile);
   client.setQueryData(getFeedSettingsQueryKey(defaultUser), {
     feedSettings: { includeTags: ['webdev'] },
   });
@@ -55,7 +75,7 @@ const renderSettings = (version = 116) => {
   return render(
     <TestBootProvider client={client} auth={{ user: defaultUser }} gb={gb}>
       <ForYouFeed />
-      <ForYouSettings />
+      <FeedSettingsOverviewSection />
     </TestBootProvider>,
   );
 };
@@ -65,12 +85,15 @@ beforeEach(() => {
   fetchForYou.mockClear();
 });
 
-describe('ForYouSettings', () => {
-  it('should not show where the For You ranking ignores the controls', () => {
-    renderSettings(15);
+describe('FeedSettingsOverviewSection', () => {
+  it('should leave the controls out where the For You ranking ignores them', async () => {
+    renderOverview({ version: 15 });
 
+    expect(await screen.findByText('You follow 1 topic.')).toBeInTheDocument();
     expect(screen.queryByText('Learn from my reading')).not.toBeInTheDocument();
     expect(screen.queryByText('Start over')).not.toBeInTheDocument();
+    expect(screen.queryByText('Connect your agent')).not.toBeInTheDocument();
+    expect(screen.queryByText('Ranking')).not.toBeInTheDocument();
   });
 
   it('should turn learning off', async () => {
@@ -85,11 +108,45 @@ describe('ForYouSettings', () => {
         return { data: { setFeedLearning: { _: true } } };
       },
     });
-    renderSettings();
+    renderOverview();
 
     await userEvent.click(await screen.findByText('Learn from my reading'));
 
     await waitFor(() => expect(sent).toBe(true));
+  });
+
+  it('should end a timed change now, keeping its row', async () => {
+    let sent = false;
+    mockGraphQL({
+      request: {
+        query: SET_FEED_TOPIC_MODE_MUTATION,
+        variables: { keyword: 'docker', mode: null },
+      },
+      result: () => {
+        sent = true;
+        return { data: { setFeedTopicMode: { _: true } } };
+      },
+    });
+    renderOverview({
+      feedControls: {
+        ...controls,
+        topics: [
+          {
+            keyword: 'docker',
+            mode: FeedTopicMode.Demote,
+            weight: null,
+            expiresAt: new Date(Date.now() + 86_400_000).toISOString(),
+          },
+        ],
+      },
+    });
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'End now: #docker' }),
+    );
+
+    await waitFor(() => expect(sent).toBe(true));
+    expect(screen.getByText('Ended, back to Auto')).toBeInTheDocument();
   });
 
   it('should reset only once confirmed, then reload For You from page 1', async () => {
@@ -104,7 +161,7 @@ describe('ForYouSettings', () => {
         return { data: { resetFeedPersonalization: { _: true } } };
       },
     });
-    renderSettings();
+    renderOverview();
     await waitFor(() => expect(fetchForYou).toHaveBeenCalledTimes(1));
 
     const [forgetReading] = await screen.findAllByRole('button', {

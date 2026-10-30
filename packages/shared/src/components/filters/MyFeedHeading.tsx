@@ -18,10 +18,11 @@ import { FeedSettingsButton } from '../feeds/FeedSettingsButton';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { AttentionDot } from '../AttentionDot';
 import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
+import { getForYouSettingsUrl } from '../feeds/FeedSettings/forYouSettingsPages';
 import { useShortcutsUser } from '../../features/shortcuts/hooks/useShortcutsUser';
 import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
-import { settingsUrl, webappUrl } from '../../lib/constants';
+import { webappUrl } from '../../lib/constants';
 import { getHasSeenTags, setHasSeenTags } from '../../lib/feedSettings';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
@@ -45,8 +46,8 @@ interface MyFeedHeadingProps {
 }
 
 /**
- * Feed settings for the feed on screen: the reader's tags on For you, the
- * feed's own settings on a custom feed, and a sign-up for a visitor.
+ * Feed settings for the feed on screen: Overview on For you, the feed's own
+ * settings on a custom feed, and a sign-up for a visitor.
  */
 export const useFeedSettingsAction = (
   onOpen?: () => void,
@@ -62,22 +63,6 @@ export const useFeedSettingsAction = (
 
   const hasSeenTagsAction =
     isActionsFetched && checkHasCompleted(ActionType.HasSeenTags);
-
-  const editFeedUrl = useMemo(() => {
-    if (isCustomDefaultFeed && pathname === '/') {
-      return `${webappUrl}feeds/${defaultFeedId}/edit`;
-    }
-
-    if (feedName === SharedFeedPage.MyFeed && user?.id) {
-      return `${webappUrl}feeds/${user.id}/edit?dview=${FeedSettingsMenu.Tags}`;
-    }
-
-    if (feedName === SharedFeedPage.Custom) {
-      return `${webappUrl}feeds/${query.slugOrId}/edit`;
-    }
-
-    return `${settingsUrl}/feed/general`;
-  }, [defaultFeedId, feedName, isCustomDefaultFeed, pathname, query, user?.id]);
 
   useEffect(() => {
     if (!user?.id) {
@@ -96,6 +81,35 @@ export const useFeedSettingsAction = (
 
   const shouldShowTagsReminder =
     feedName === SharedFeedPage.MyFeed && hasSeenTagsState === false;
+
+  const editFeedUrl = useMemo(() => {
+    if (isCustomDefaultFeed && pathname === '/') {
+      return `${webappUrl}feeds/${defaultFeedId}/edit`;
+    }
+
+    // Overview first, unless the reminder to pick topics is showing.
+    if (feedName === SharedFeedPage.MyFeed && user?.id) {
+      return `${webappUrl}feeds/${user.id}/edit?dview=${
+        shouldShowTagsReminder
+          ? FeedSettingsMenu.Tags
+          : FeedSettingsMenu.Overview
+      }`;
+    }
+
+    if (feedName === SharedFeedPage.Custom) {
+      return `${webappUrl}feeds/${query.slugOrId}/edit`;
+    }
+
+    return getForYouSettingsUrl(FeedSettingsMenu.Overview);
+  }, [
+    defaultFeedId,
+    feedName,
+    isCustomDefaultFeed,
+    pathname,
+    query,
+    shouldShowTagsReminder,
+    user?.id,
+  ]);
 
   const onClick = useCallback(() => {
     if (!user) {

@@ -90,8 +90,13 @@ export interface FeedRankingValue {
 /** How the reader steers For You: levels, learning and popular fill-ins. */
 export interface FeedControls {
   topics: ({ keyword: string } & FeedControl<FeedTopicMode>)[];
-  sources: ({ source: { id: string } } & FeedControl<FeedSourceMode>)[];
-  authors: ({ user: { id: string } } & FeedControl<FeedAuthorMode>)[];
+  // The name is missing from a change shown before the API answers.
+  sources: ({
+    source: { id: string; name?: string };
+  } & FeedControl<FeedSourceMode>)[];
+  authors: ({
+    user: { id: string; name?: string };
+  } & FeedControl<FeedAuthorMode>)[];
   learning: boolean;
   fillIns: boolean;
   /** The ranking settings the reader changed, which count with Plus. */

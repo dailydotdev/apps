@@ -30,7 +30,6 @@ import {
 import { useLogContext } from '../../../../contexts/LogContext';
 import { LogEvent, Origin } from '../../../../lib/log';
 import { labels } from '../../../../lib';
-import { ForYouSettings } from '../../../../features/feedExplain/components/ForYouSettings';
 
 const highlightsPlacementOptions = [
   { value: HighlightsPlacement.Default, label: 'Default' },
@@ -231,7 +230,6 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
           }}
         />
       </div>
-      {isMainFeed && <ForYouSettings />}
       {isCustomFeed && (
         <>
           <Divider className="my-1 bg-border-subtlest-tertiary" />

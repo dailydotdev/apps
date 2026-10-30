@@ -103,24 +103,26 @@ const applyChange = (
       const sources = controls.sources.filter(
         ({ source }) => source.id !== change.sourceId,
       );
+      const source = controls.sources.find(
+        (item) => item.source.id === change.sourceId,
+      )?.source ?? { id: change.sourceId };
       const stored = toStored(change);
       return {
         ...controls,
-        sources: stored
-          ? [...sources, { source: { id: change.sourceId }, ...stored }]
-          : sources,
+        sources: stored ? [...sources, { source, ...stored }] : sources,
       };
     }
     case ChangeKind.Author: {
       const authors = controls.authors.filter(
         ({ user }) => user.id !== change.userId,
       );
+      const user = controls.authors.find(
+        (item) => item.user.id === change.userId,
+      )?.user ?? { id: change.userId };
       const stored = toStored(change);
       return {
         ...controls,
-        authors: stored
-          ? [...authors, { user: { id: change.userId }, ...stored }]
-          : authors,
+        authors: stored ? [...authors, { user, ...stored }] : authors,
       };
     }
     case ChangeKind.Learning:
