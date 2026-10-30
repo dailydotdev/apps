@@ -146,8 +146,13 @@ export const PlusInfo = ({
   isContinueLoading = false,
 }: PlusInfoProps & CommonPlusPageProps): ReactElement => {
   const router = useRouter();
-  const { giftOneYear, isOrganization, checkoutItemsLoading } =
-    usePaymentContext();
+  const {
+    giftOneYear,
+    isOrganization,
+    checkoutItemsLoading,
+    isPricesPending,
+    isPlusAvailable,
+  } = usePaymentContext();
   const { openModal } = useLazyModal();
   const { logSubscriptionEvent } = usePlusSubscription();
   const { giftToUser } = useGiftUserContext();
@@ -281,7 +286,10 @@ export const PlusInfo = ({
           />
         ) : (
           <>
-            {!productOptions && <RadioGroupSkeleton />}
+            {(!productOptions ||
+              (isPricesPending &&
+                isPlusAvailable &&
+                !productOptions.length)) && <RadioGroupSkeleton />}
             {productOptions?.map((option) => (
               <PlusOptionRadio
                 key={option.priceId}
