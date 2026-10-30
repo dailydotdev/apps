@@ -23,7 +23,8 @@ import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
 import {
   actionCounterClassName as counterClassName,
-  actionCounterLabelClassName as counterLabelClassName,
+  actionCounterLabelClassName,
+  largeListActionCounterLabelClassName,
   FEED_ACTION_BUTTON_SIZE,
   FEED_ACTION_ICON_SIZE,
 } from './actionCounter';
@@ -96,8 +97,13 @@ const ActionButtonsV1 = ({
 }: ActionButtonsV1Props): ReactElement | null => {
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
+  const isLargeList = large && variant === 'list';
   const buttonSize = large ? ButtonSize.Small : config.buttonSize;
-  const iconSize = large ? IconSize.XSmall : config.iconSize;
+  const largeIconSize = isLargeList ? IconSize.Size18 : IconSize.XSmall;
+  const iconSize = large ? largeIconSize : config.iconSize;
+  const counterLabelClassName = isLargeList
+    ? largeListActionCounterLabelClassName
+    : actionCounterLabelClassName;
   const { getUpvoteAnimation } = useBrandSponsorship();
 
   const {
@@ -203,6 +209,8 @@ const ActionButtonsV1 = ({
         large && variant === 'grid'
           ? 'py-0.5 pl-1 pr-2.5'
           : config.containerClassName,
+        // The upvote icon, not its button, lines up with the card's text.
+        isLargeList && '-ml-[0.4375rem]',
         className,
       )}
     >
