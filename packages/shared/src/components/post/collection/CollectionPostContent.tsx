@@ -1,6 +1,10 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React, { useRef } from 'react';
+import {
+  railAboveFeedClassName,
+  useRailAboveFeed,
+} from '../feed/railAboveFeed';
 import Link from '../../utilities/Link';
 import { ToastSubject, useToastNotification } from '../../../hooks';
 import PostContentContainer from '../PostContentContainer';
@@ -93,6 +97,17 @@ export const CollectionPostContentRaw = ({
 
   useTrackPostView({ post, shouldTrack: shouldTrackView });
 
+  const railAboveFeed = useRailAboveFeed(belowComments);
+  const widgets = (
+    <CollectionPostWidgets
+      onCopyPostLink={onCopyPostLink}
+      post={post}
+      className={railAboveFeed ? railAboveFeedClassName : 'pb-8 pt-6'}
+      onClose={onClose}
+      origin={origin}
+    />
+  );
+
   return (
     <PostContentContainer
       hasNavigation={hasNavigation}
@@ -133,7 +148,16 @@ export const CollectionPostContentRaw = ({
             },
           }}
           isPostPage={isPostPage}
-          belowComments={belowComments}
+          belowComments={
+            belowComments ? (
+              <>
+                {railAboveFeed && widgets}
+                {belowComments}
+              </>
+            ) : (
+              belowComments
+            )
+          }
           isFallback={isFallback}
           customNavigation={customNavigation}
           shouldOnboardAuthor={shouldOnboardAuthor}
@@ -200,13 +224,7 @@ export const CollectionPostContentRaw = ({
           </div>
         </BasePostContent>
       </PostContainer>
-      <CollectionPostWidgets
-        onCopyPostLink={onCopyPostLink}
-        post={post}
-        className="pb-8 pt-6"
-        onClose={onClose}
-        origin={origin}
-      />
+      {!railAboveFeed && widgets}
     </PostContentContainer>
   );
 };

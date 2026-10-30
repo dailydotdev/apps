@@ -28,6 +28,7 @@ import { useSortedFeeds } from '../../../hooks/feed/useSortedFeeds';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { ActiveFeedNameContext } from '../../../contexts/ActiveFeedNameContext';
+import { FeedLayoutProvider } from '../../../contexts/FeedContext';
 import {
   CharmEmptyState,
   CharmEmptyStatePlacement,
@@ -46,6 +47,10 @@ import styles from './PostPageFeed.module.css';
 // renders every tab; the `posts[id]` feed name already keeps it in list
 // layout at every width. Signed-in readers only: the page decides (see
 // pages/posts/[id]).
+//
+// Ads run as on the main feed: the same `feed_ad_template` cadence for the
+// viewport, fetched page by page as the reader scrolls. FeedLayoutProvider
+// supplies that template and page size; maxNumCards keeps it one column.
 
 const FOR_YOU_ID = 'for_you';
 const FOLLOWING_ID = 'following';
@@ -283,38 +288,42 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
       >
         {shouldRenderFeed && (
           <ActiveFeedNameContext.Provider value={postFeedName}>
-            <Feed
-              key={active.id}
-              feedName={OtherFeedPage.Post}
-              feedQueryKey={feedQueryKey}
-              query={active.query}
-              variables={active.variables}
-              excludedPostIds={excludedPostIds}
-              disableListFrame
-              disableAds
-              disableTopHero
-              disableHighlightCards
-              className="desktopL:!max-w-full"
-              emptyScreen={emptyScreenByKind[active.kind]}
-              footer={
-                active.kind === 'forYou' ? undefined : <EndOfTab tab={active} />
-              }
-              errorScreen={
-                <CharmEmptyState
-                  placement={CharmEmptyStatePlacement.Inline}
-                  image={cloudinaryCharmNoPosts}
-                  imageAlt="daily.dev charm with an empty feed"
-                  title="We couldn’t load more posts"
-                  description="Your post is fine. The posts under it didn’t load."
-                  action={{
-                    label: 'Try again',
-                    onClick: () =>
-                      queryClient.resetQueries({ queryKey: feedQueryKey }),
-                  }}
-                  className="py-10"
-                />
-              }
-            />
+            <FeedLayoutProvider maxNumCards={1}>
+              <Feed
+                key={active.id}
+                feedName={OtherFeedPage.Post}
+                feedQueryKey={feedQueryKey}
+                query={active.query}
+                variables={active.variables}
+                excludedPostIds={excludedPostIds}
+                disableListFrame
+                disableGrowthCards
+                disableTopHero
+                disableHighlightCards
+                className="desktopL:!max-w-full"
+                emptyScreen={emptyScreenByKind[active.kind]}
+                footer={
+                  active.kind === 'forYou' ? undefined : (
+                    <EndOfTab tab={active} />
+                  )
+                }
+                errorScreen={
+                  <CharmEmptyState
+                    placement={CharmEmptyStatePlacement.Inline}
+                    image={cloudinaryCharmNoPosts}
+                    imageAlt="daily.dev charm with an empty feed"
+                    title="We couldn’t load more posts"
+                    description="Your post is fine. The posts under it didn’t load."
+                    action={{
+                      label: 'Try again',
+                      onClick: () =>
+                        queryClient.resetQueries({ queryKey: feedQueryKey }),
+                    }}
+                    className="py-10"
+                  />
+                }
+              />
+            </FeedLayoutProvider>
           </ActiveFeedNameContext.Provider>
         )}
       </div>

@@ -1,7 +1,8 @@
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { mockDesktop, mockMatchMedia } from '../../../__tests__/helpers/media';
 import { postWithCommunitySentiment } from '../../../__tests__/fixture/post';
 import { Origin } from '../../lib/log';
 import { PostContentRaw } from './PostContent';
@@ -161,5 +162,70 @@ describe('PostContent selection snapshot in the post modal', () => {
     expect(
       screen.getByRole('toolbar', { name: 'Share selected text' }),
     ).toBeInTheDocument();
+  });
+});
+
+// `post_page_feed` puts an endless feed in `belowComments`. Below laptop the
+// rail stacks under the main column, so it has to come before the feed or
+// nobody scrolls to it (its direct ad stopped being seen on phones).
+describe('rail with a feed below the comments', () => {
+  const renderWithFeed = () =>
+    render(
+      <TestBootProvider client={new QueryClient()}>
+        <PostContentRaw
+          post={postWithCommunitySentiment}
+          origin={Origin.ArticlePage}
+          isPostPage
+          belowComments={<div data-testid="feedSlot" />}
+        />
+      </TestBootProvider>,
+    );
+
+  const railAndFeed = () => {
+    const container = screen.getByTestId('postContainer');
+    const rail = document.querySelector('aside') as HTMLElement;
+    const feed = screen.getByTestId('feedSlot');
+
+    return { container, rail, feed };
+  };
+
+  afterEach(() => {
+    mockMatchMedia();
+  });
+
+  it('puts the rail between the comments and the feed below laptop', async () => {
+    mockMatchMedia(() => false);
+    renderWithFeed();
+
+    await waitFor(() => {
+      const { container, rail } = railAndFeed();
+      expect(container).toContainElement(rail);
+    });
+    const { rail, feed } = railAndFeed();
+    expect(
+      // eslint-disable-next-line no-bitwise
+      rail.compareDocumentPosition(feed) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(document.querySelectorAll('aside')).toHaveLength(1);
+  });
+
+  it('keeps the rail beside the post on laptop', async () => {
+    mockDesktop();
+    renderWithFeed();
+
+    await waitFor(() => expect(document.querySelector('aside')).toBeTruthy());
+    const { container, rail } = railAndFeed();
+    expect(container).not.toContainElement(rail);
+    expect(document.querySelectorAll('aside')).toHaveLength(1);
+  });
+
+  it('keeps the rail in place below laptop when there is no feed', async () => {
+    mockMatchMedia(() => false);
+    renderPostPage();
+
+    await waitFor(() => expect(document.querySelector('aside')).toBeTruthy());
+    expect(screen.getByTestId('postContainer')).not.toContainElement(
+      document.querySelector('aside') as HTMLElement,
+    );
   });
 });

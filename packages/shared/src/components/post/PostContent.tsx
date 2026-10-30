@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import type { ComponentProps, ReactElement } from 'react';
 import React, { useRef } from 'react';
 import dynamic from 'next/dynamic';
+import { railAboveFeedClassName, useRailAboveFeed } from './feed/railAboveFeed';
 import type { Post } from '../../graphql/posts';
 import { isVideoPost } from '../../graphql/posts';
 import PostMetadata from '../cards/common/PostMetadata';
@@ -156,6 +157,33 @@ export function PostContentRaw({
   };
 
   useTrackPostView({ post, shouldTrack: shouldTrackView });
+  const railAboveFeed = useRailAboveFeed(belowComments);
+
+  const postWidgetsColumn = (
+    <PostWidgets
+      onReadArticle={onReadArticle}
+      post={post}
+      leading={<PostLiveChat post={post} origin={origin} placement="rail" />}
+      className={
+        railAboveFeed
+          ? railAboveFeedClassName
+          : '!gap-2 pb-8 pt-4 tablet:border-l tablet:border-border-subtlest-tertiary'
+      }
+      onClose={onClose}
+      origin={origin}
+      onCopyPostLink={onCopyPostLink}
+      getRailAd={getWidgetRailAd}
+    />
+  );
+
+  const mobileLiveChat = (
+    <PostLiveChat
+      post={post}
+      origin={origin}
+      placement="mobile"
+      isPostPage={isPostPage}
+    />
+  );
 
   const postMainColumn = (
     <PostContainer
@@ -174,7 +202,19 @@ export function PostContentRaw({
       {contentLeading}
       <BasePostContent
         aboveComments={aboveComments}
-        belowComments={belowComments}
+        belowComments={
+          belowComments ? (
+            // One tree with or without the rail, so the feed keeps its place
+            // (and its state) when the viewport resolves after hydration.
+            <>
+              {railAboveFeed && mobileLiveChat}
+              {railAboveFeed && postWidgetsColumn}
+              {belowComments}
+            </>
+          ) : (
+            belowComments
+          )
+        }
         commentAds={commentAds}
         className={{
           ...className,
@@ -324,19 +364,6 @@ export function PostContentRaw({
     </PostContainer>
   );
 
-  const postWidgetsColumn = (
-    <PostWidgets
-      onReadArticle={onReadArticle}
-      post={post}
-      leading={<PostLiveChat post={post} origin={origin} placement="rail" />}
-      className="!gap-2 pb-8 pt-4 tablet:border-l tablet:border-border-subtlest-tertiary"
-      onClose={onClose}
-      origin={origin}
-      onCopyPostLink={onCopyPostLink}
-      getRailAd={getWidgetRailAd}
-    />
-  );
-
   return (
     <PostContentContainer
       hasNavigation={hasNavigation}
@@ -359,13 +386,12 @@ export function PostContentRaw({
       }
     >
       {postMainColumn}
-      <PostLiveChat
-        post={post}
-        origin={origin}
-        placement="mobile"
-        isPostPage={isPostPage}
-      />
-      {postWidgetsColumn}
+      {!railAboveFeed && (
+        <>
+          {mobileLiveChat}
+          {postWidgetsColumn}
+        </>
+      )}
     </PostContentContainer>
   );
 }

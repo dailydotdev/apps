@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import classNames from 'classnames';
+import { railAboveFeedClassName, useRailAboveFeed } from './feed/railAboveFeed';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
 import { BasePostContent } from './BasePostContent';
@@ -112,6 +113,22 @@ export function SocialTwitterPostContentRaw({
     : undefined;
   const showCommunitySentiment = !!communitySentimentData;
 
+  const railAboveFeed = useRailAboveFeed(belowComments);
+  const widgets = (
+    <SquadPostWidgets
+      onCopyPostLink={onCopyPostLink}
+      onReadArticle={onReadArticle}
+      post={post}
+      className={
+        railAboveFeed
+          ? railAboveFeedClassName
+          : 'mb-6 !gap-2 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0'
+      }
+      onClose={onClose}
+      origin={origin}
+    />
+  );
+
   return (
     <PostContentContainer
       className={classNames(
@@ -148,7 +165,16 @@ export function SocialTwitterPostContentRaw({
             },
           }}
           isPostPage={isPostPage}
-          belowComments={belowComments}
+          belowComments={
+            belowComments ? (
+              <>
+                {railAboveFeed && widgets}
+                {belowComments}
+              </>
+            ) : (
+              belowComments
+            )
+          }
           isFallback={isFallback}
           customNavigation={customNavigation}
           shouldOnboardAuthor={shouldOnboardAuthor}
@@ -232,14 +258,7 @@ export function SocialTwitterPostContentRaw({
           )}
         </BasePostContent>
       </div>
-      <SquadPostWidgets
-        onCopyPostLink={onCopyPostLink}
-        onReadArticle={onReadArticle}
-        post={post}
-        className="mb-6 !gap-2 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0"
-        onClose={onClose}
-        origin={origin}
-      />
+      {!railAboveFeed && widgets}
     </PostContentContainer>
   );
 }
