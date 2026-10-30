@@ -18,7 +18,7 @@ import ExtensionProviders from '../extension/_providers';
  * production list and grid cards with the shared test fixtures. None of the
  * final bar is built yet, so `Arm` styles it over production: the number rule
  * on the counts, the bar sizes and spacing in FINAL_CSS, and the hover under a
- * number in useLabelHover.
+ * number in toggleLabelHover.
  */
 
 const article: Post = {
@@ -112,15 +112,12 @@ const forArm = (arm: Arm, card: Post): Post =>
         analytics: { impressions: roundDown(card.analytics?.impressions ?? 0) },
       } as Post);
 
-const countsLine = (arm: Arm): string =>
-  COUNT_ORDER.map((key) => {
-    const { label, upvotes, comments, views } = COUNTS[key];
-    return `${label} ${[upvotes, comments, views]
-      .map((value) =>
-        largeNumberFormat(arm === 'final' ? roundDown(value) : value),
-      )
-      .join(' · ')}`;
-  }).join(', ');
+const finalCountsLine = COUNT_ORDER.map((key) => {
+  const { label, upvotes, comments, views } = COUNTS[key];
+  return `${label} ${[upvotes, comments, views]
+    .map((value) => largeNumberFormat(roundDown(value)))
+    .join(' · ')}`;
+}).join(', ');
 
 const BAR_BUTTONS = [
   'upvote',
@@ -761,8 +758,7 @@ const SmallPhonesPage = (): ReactElement => {
           </p>
           <p className="text-text-tertiary typo-callout">
             Counts are upvotes · comments · views, as the final bar prints them:{' '}
-            {countsLine('final')}. Cover images are hidden to keep the phones
-            short.
+            {finalCountsLine}. Cover images are hidden to keep the phones short.
           </p>
         </>
       }
