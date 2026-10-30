@@ -23,7 +23,8 @@ import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
 import {
   actionCounterClassName as counterClassName,
-  actionCounterLabelClassName as counterLabelClassName,
+  actionCounterLabelClassName,
+  largeActionCounterLabelClassName,
   FEED_ACTION_BUTTON_SIZE,
   FEED_ACTION_ICON_SIZE,
 } from './actionCounter';
@@ -73,7 +74,7 @@ const variantConfig = {
 } as const;
 
 interface ActionButtonsV1Props extends ActionButtonsProps {
-  /** Grid cards: the bar at 32px with 20px icons, in the same 36px row. */
+  /** Grid cards: the bar at 32px with 19px icons, in the same 36px row. */
   large?: boolean;
 }
 
@@ -93,7 +94,10 @@ const ActionButtonsV1 = ({
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
   const buttonSize = large ? ButtonSize.Small : config.buttonSize;
-  const iconSize = large ? IconSize.XSmall : config.iconSize;
+  const iconSize = large ? IconSize.Size19 : config.iconSize;
+  const counterLabelClassName = large
+    ? largeActionCounterLabelClassName
+    : actionCounterLabelClassName;
   const { getUpvoteAnimation } = useBrandSponsorship();
 
   const {
@@ -194,8 +198,9 @@ const ActionButtonsV1 = ({
     <div
       className={classNames(
         'flex flex-row items-center justify-between',
-        // 32px buttons keep the 36px row: py-0.5 instead of py-1.5.
-        large ? 'py-0.5 pl-1 pr-2.5' : config.containerClassName,
+        // 32px buttons keep the 36px row: 4px from the card's left side and
+        // its bottom, and 8px after the views number.
+        large ? 'pb-1 pl-1 pr-2' : config.containerClassName,
         className,
       )}
     >
