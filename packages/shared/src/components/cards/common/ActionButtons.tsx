@@ -99,8 +99,7 @@ const ActionButtonsV1 = ({
   const isFeedPreview = useFeedPreviewMode();
   const isLargeList = large && variant === 'list';
   const buttonSize = large ? ButtonSize.Small : config.buttonSize;
-  const largeIconSize = isLargeList ? IconSize.Size18 : IconSize.XSmall;
-  const iconSize = large ? largeIconSize : config.iconSize;
+  const iconSize = large ? IconSize.XSmall : config.iconSize;
   const counterLabelClassName = isLargeList
     ? largeListActionCounterLabelClassName
     : actionCounterLabelClassName;
@@ -210,7 +209,7 @@ const ActionButtonsV1 = ({
           ? 'py-0.5 pl-1 pr-2.5'
           : config.containerClassName,
         // The upvote icon, not its button, lines up with the card's text.
-        isLargeList && '-ml-[0.4375rem]',
+        isLargeList && '-ml-1.5',
         className,
       )}
     >
