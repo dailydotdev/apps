@@ -307,13 +307,41 @@ const PluginPage = ({
           <Typography type={TypographyType.Callout} bold>
             Use it with your agent
           </Typography>
-          {showConnectAgent ? (
-            <>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Paste this into Claude Code, Cursor, Codex or any agent that has
+            your daily.dev API token or is connected to the{' '}
+            <a
+              href={mcpServerDocs}
+              className="text-text-link hover:underline"
+              target="_blank"
+              rel={anchorDefaultRel}
+            >
+              daily.dev MCP server
+            </a>
+            .
+          </Typography>
+          <CopyableCodeBlock
+            text={agentPrompt}
+            multiline
+            codeClassName="typo-footnote"
+            onCopy={() => {
+              copyAgentPrompt();
+              logPluginEvent(LogEvent.CopyPluginAgentPrompt);
+            }}
+          />
+          {showConnectAgent && (
+            <div className="mt-2 flex flex-col gap-2 border-t border-border-subtlest-tertiary pt-3">
+              <Typography type={TypographyType.Callout} bold>
+                Agent not connected yet?
+              </Typography>
               <Typography
                 type={TypographyType.Callout}
                 color={TypographyColor.Tertiary}
               >
-                First, connect your agent to daily.dev. In Claude Code, run:
+                In Claude Code, run this once:
               </Typography>
               <CopyableCodeBlock
                 text={mcpClaudeInstallCommand}
@@ -345,36 +373,10 @@ const PluginPage = ({
                 >
                   create an API token
                 </a>
-                . Then paste this prompt:
+                .
               </Typography>
-            </>
-          ) : (
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Tertiary}
-            >
-              Paste this into Claude Code, Cursor, Codex or any agent that has
-              your daily.dev API token or is connected to the{' '}
-              <a
-                href={mcpServerDocs}
-                className="text-text-link hover:underline"
-                target="_blank"
-                rel={anchorDefaultRel}
-              >
-                daily.dev MCP server
-              </a>
-              .
-            </Typography>
+            </div>
           )}
-          <CopyableCodeBlock
-            text={agentPrompt}
-            multiline
-            codeClassName="typo-footnote"
-            onCopy={() => {
-              copyAgentPrompt();
-              logPluginEvent(LogEvent.CopyPluginAgentPrompt);
-            }}
-          />
         </div>
       )}
       {plugin.about && (
