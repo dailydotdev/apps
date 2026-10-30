@@ -4,8 +4,16 @@ import classNames from 'classnames';
 
 export const img = (name: string): string => `/images/auth-popups/${name}.jpg`;
 
-export const screen = (name: string, args?: string): string =>
-  `auth-pop-ups-screens--${name}${args ? `&args=${args}` : ''}`;
+// Frames pin their theme in the URL: Storybook would otherwise carry the light
+// frame's theme over to every frame loaded after it.
+export const screen = (
+  name: string,
+  args?: string,
+  theme: 'dark' | 'light' = 'dark',
+): string =>
+  `auth-pop-ups-screens--${name}${
+    args ? `&args=${args}` : ''
+  }&globals=theme:${theme}`;
 
 export const Page = ({
   eyebrow,
@@ -55,7 +63,7 @@ export const Labeled = ({
   caption,
 }: {
   label: string;
-  tone?: 'production' | 'live' | 'neutral';
+  tone?: 'production' | 'proposed' | 'neutral';
   caption?: ReactNode;
   children: ReactNode;
 }): ReactElement => (
@@ -64,7 +72,7 @@ export const Labeled = ({
       className={classNames(
         'self-start rounded-8 px-2 py-0.5 font-bold typo-caption1',
         tone === 'production' && 'bg-accent-cabbage-default text-white',
-        tone === 'live' && 'bg-accent-avocado-default text-white',
+        tone === 'proposed' && 'bg-accent-avocado-default text-white',
         tone === 'neutral' && 'bg-surface-float text-text-secondary',
       )}
     >
@@ -269,7 +277,7 @@ export const LiveScreen = ({
 }): ReactElement => (
   <ScreenRow
     phone={
-      <Labeled label="Live · phone" tone="live">
+      <Labeled label="Proposed · phone" tone="proposed">
         <LiveFrame
           storyId={screen(id)}
           title={`${title} on a phone`}
@@ -278,7 +286,7 @@ export const LiveScreen = ({
       </Labeled>
     }
     desktop={
-      <Labeled label="Live · desktop" tone="live">
+      <Labeled label="Proposed · desktop" tone="proposed">
         <LiveFrame
           storyId={screen(id)}
           title={`${title} on desktop`}
@@ -409,4 +417,131 @@ export const Code = ({ children }: { children: ReactNode }): ReactElement => (
   <code className="rounded-6 bg-surface-float px-1 font-mono typo-footnote">
     {children}
   </code>
+);
+
+const NoCapture = ({
+  size,
+  children,
+}: {
+  size: typeof PHONE;
+  children: ReactNode;
+}): ReactElement => (
+  <div
+    className="flex w-full items-center justify-center rounded-16 border border-dashed border-border-subtlest-tertiary p-6 text-center text-text-tertiary typo-callout"
+    style={{ aspectRatio: `${size.width} / ${size.height}` }}
+  >
+    {children}
+  </div>
+);
+
+// Production next to the changed component, at one viewport size.
+export const BeforeAfter = ({
+  size,
+  capture,
+  missing,
+  story,
+  title,
+  before,
+  after,
+}: {
+  size: 'phone' | 'desktop';
+  capture?: string;
+  missing?: ReactNode;
+  story: string;
+  title: string;
+  before?: ReactNode;
+  after?: ReactNode;
+}): ReactElement => {
+  const frame = size === 'phone' ? PHONE : DESKTOP;
+
+  return (
+    <div
+      className={classNames(
+        'grid grid-cols-1 items-start gap-6 tablet:grid-cols-2',
+        size === 'phone' && 'laptop:max-w-[50rem]',
+      )}
+    >
+      <Labeled label="Before · production" tone="production" caption={before}>
+        {capture ? (
+          <Capture
+            name={`${capture}-${size}`}
+            alt={`${title} in production on a ${size}`}
+          />
+        ) : (
+          <NoCapture size={frame}>{missing}</NoCapture>
+        )}
+      </Labeled>
+      <Labeled label="After · proposed" tone="proposed" caption={after}>
+        <LiveFrame
+          storyId={story}
+          title={`${title}, proposed, on a ${size}`}
+          {...frame}
+        />
+      </Labeled>
+    </div>
+  );
+};
+
+// One page per variant: before and after on a phone and on desktop, then the
+// list of what changes between them.
+export const Variant = ({
+  number,
+  title,
+  question,
+  goal,
+  capture,
+  missing,
+  story,
+  captions = {},
+  changes,
+  children,
+}: {
+  number: number;
+  title: string;
+  question: string;
+  goal: ReactNode;
+  capture?: string;
+  missing?: ReactNode;
+  story: string;
+  captions?: {
+    phoneBefore?: ReactNode;
+    phoneAfter?: ReactNode;
+    desktopBefore?: ReactNode;
+    desktopAfter?: ReactNode;
+  };
+  changes: CompareRow[];
+  children?: ReactNode;
+}): ReactElement => (
+  <Page eyebrow={`Variant ${number} · ${question}`} title={title} goal={goal}>
+    <Section title="What changes">
+      <CompareTable
+        firstColumn="Part"
+        columns={['Before', 'After']}
+        rows={changes}
+      />
+    </Section>
+    <Section title="Phone">
+      <BeforeAfter
+        size="phone"
+        capture={capture}
+        missing={missing}
+        story={story}
+        title={title}
+        before={captions.phoneBefore}
+        after={captions.phoneAfter}
+      />
+    </Section>
+    <Section title="Desktop">
+      <BeforeAfter
+        size="desktop"
+        capture={capture}
+        missing={missing}
+        story={story}
+        title={title}
+        before={captions.desktopBefore}
+        after={captions.desktopAfter}
+      />
+    </Section>
+    {children}
+  </Page>
 );

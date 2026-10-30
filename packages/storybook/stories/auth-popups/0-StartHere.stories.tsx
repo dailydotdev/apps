@@ -9,47 +9,48 @@ const meta: Meta = {
 
 export default meta;
 
-const chapters = [
-  ['1. Sign up', 'The webapp pop-up people see most, opened by 40+ actions.'],
+const pages = [
+  ['Variant 1 · Sign up', 'What every logged-out action opens.'],
+  ['Variant 2 · Log in', 'Four providers plus email and password.'],
   [
-    '2. Log in',
-    'The same pop-up after "Log in": four providers plus email and password.',
+    'Variant 3 · Welcome back with Google',
+    'A returning visitor who signed in with a provider.',
   ],
   [
-    '3. Welcome back',
-    'What a returning visitor sees first, for social and password accounts.',
+    'Variant 4 · Welcome back with a password',
+    'A returning visitor who signed in with email.',
+  ],
+  ['Variant 5 · Email sign-up', 'Name, password, username and experience.'],
+  ['Variant 6 · Verify email', 'The 6-digit code, now like the onboarding.'],
+  ['Variant 7 · Reset password', 'After “Forgot password?” on Log in.'],
+  [
+    'Variant 8 · Full-page log in',
+    '/onboarding?action=login, where the landing page sends “Log in”.',
   ],
   [
-    '4. After the first screen',
-    'Email sign-up, verify email and forgot password, inside the pop-up.',
-  ],
-  [
-    '5. Phone context lines',
-    'The one line under "Sign up" that changes per action, phones only.',
-  ],
-  [
-    '6. Full-page log in',
-    '/onboarding?action=login, where the landing page sends "Log in".',
-  ],
-  [
-    '7. Landing page pop-up',
+    'Landing page pop-up',
     'daily.dev’s own pop-up and hero form, a separate codebase.',
   ],
-  [
-    '8. Side by side',
-    'Every aspect compared across the three, with a verdict per row.',
-  ],
-  [
-    '9. What to align',
-    'The differences ranked, as the scope for one consistency PR.',
-  ],
+  ['Side by side', 'Every aspect compared across the three, in production.'],
+  ['Still to decide', 'What this PR leaves open.'],
+];
+
+const fixed = [
+  'The close button sits on the right at every size, so phones no longer show two back arrows on Reset password and Verify email',
+  'No per-action line under the Sign up title on phones',
+  'Provider icons at 28px, so the Google mark matches the landing page',
+  '24px side padding on every screen, at every size',
+  'Log in, Verify, Send reset link and Change password are full-width 48px buttons, like the providers',
+  'The Log in footer is pinned, so the Cloudflare box can’t push it off a phone screen',
+  'Verify email works like the onboarding: no back arrow, a Change email link, the mail icon above the message',
+  '“create a new account” in the wrong-password error',
 ];
 
 export const StartHere: StoryObj = {
   name: 'Start here',
   render: () => (
     <Page
-      eyebrow="Auth Pop-ups · What does signing up or logging in look like today?"
+      eyebrow="Auth Pop-ups · Before and after, for every sign-up and log-in screen"
       title="One sign-up and log-in pop-up, everywhere"
       goal={
         <>
@@ -76,7 +77,7 @@ export const StartHere: StoryObj = {
             'What people see',
             'Buttons',
             'Where it opens from',
-            'Chapters',
+            'Pages',
           ]}
           rows={[
             {
@@ -88,7 +89,7 @@ export const StartHere: StoryObj = {
                 </>,
                 'Google, GitHub, Apple, Facebook, then an email field',
                 'Header Sign up and Log in, and every action a logged-out visitor tries: upvote, bookmark, comment, follow, join Squad and 30+ more',
-                '1 to 5',
+                'Variants 1 to 7',
               ],
             },
             {
@@ -100,7 +101,7 @@ export const StartHere: StoryObj = {
                 </>,
                 'Google, GitHub, Apple, Facebook, then email and password',
                 'The landing page’s Log in, the extension, the /onboarding hero’s Log in link',
-                '6',
+                'Variant 8',
               ],
             },
             {
@@ -111,7 +112,7 @@ export const StartHere: StoryObj = {
                 </>,
                 'Google, GitHub, then a Continue with email button',
                 'Every Get started button and the header Sign up once the hero has scrolled away',
-                '7',
+                'Landing page pop-up',
               ],
             },
           ]}
@@ -123,6 +124,17 @@ export const StartHere: StoryObj = {
           which start on that slimmer screen. No GrowthBook flag changes any of
           the screens in scope.
         </p>
+      </Section>
+
+      <Section
+        title="Fixed in this PR"
+        note="Each variant page shows production next to the changed component."
+      >
+        <ul className="flex list-disc flex-col gap-1 pl-5 text-text-secondary typo-callout">
+          {fixed.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
       </Section>
 
       <Section title="The two pop-ups today">
@@ -152,10 +164,10 @@ export const StartHere: StoryObj = {
 
       <Section
         title="How to read this folder"
-        note="Purple labels are production captures. Green labels are the real components running here, at a phone’s visible area in Safari (390×664) and a desktop (1440×900), so they can be clicked."
+        note="Purple “Before” labels are production captures. Green “After” labels are the changed components running here, at a phone’s visible area in Safari (390×664) and a desktop (1440×900), so they can be clicked."
       >
         <ol className="grid grid-cols-1 gap-3 tablet:grid-cols-2 laptop:grid-cols-3">
-          {chapters.map(([title, note]) => (
+          {pages.map(([title, note]) => (
             <li
               key={title}
               className="flex flex-col gap-1 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4"

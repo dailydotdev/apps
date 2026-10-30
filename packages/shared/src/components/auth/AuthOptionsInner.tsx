@@ -1032,16 +1032,21 @@ function AuthOptionsInner({
           />
         </Tab>
         <Tab label={AuthDisplay.EmailVerification}>
-          <MailIcon size={IconSize.XXLarge} className="mx-auto mb-2" />
+          {simplified && (
+            <MailIcon size={IconSize.XXLarge} className="mx-auto mb-2" />
+          )}
           <AuthHeader
             simplified={simplified}
             onboardingHeadline={isOnboardingFunnel}
             title="Verify your email"
-            onBack={isOnboardingFunnel ? undefined : onBackFromVerify}
           />
+          {!simplified && (
+            <MailIcon size={IconSize.XXLarge} className="mx-auto mt-8" />
+          )}
           <EmailCodeVerification
+            className={simplified ? undefined : 'pt-4'}
             isOnboardingFunnel={isOnboardingFunnel}
-            onChangeEmail={isOnboardingFunnel ? onBackFromVerify : undefined}
+            onChangeEmail={onBackFromVerify}
             onSubmit={onProfileSuccess}
             onVerifyCode={async (code) => {
               const res = await betterAuthVerifyEmailOTP(email, code);

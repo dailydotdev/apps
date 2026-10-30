@@ -11,7 +11,7 @@ import {
   Providers,
 } from './harness';
 
-// The real screens the chapter pages frame at phone and desktop sizes. They
+// The real screens the variant pages frame at phone and desktop sizes. They
 // stay out of the sidebar; each page links the ones it shows.
 const meta: Meta<PopupProps & { triggerKey: keyof typeof AuthTriggers }> = {
   title: 'Auth Pop-ups/Screens',

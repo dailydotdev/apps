@@ -12,7 +12,7 @@ import {
 } from './kit';
 
 const meta: Meta = {
-  title: 'Auth Pop-ups/7. Landing page pop-up',
+  title: 'Auth Pop-ups/2. Landing page pop-up',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -22,7 +22,7 @@ export const Landing: StoryObj = {
   name: 'Landing page pop-up',
   render: () => (
     <Page
-      eyebrow="Chapter 7 · What does daily.dev’s own pop-up do?"
+      eyebrow="Reference · What does daily.dev’s own pop-up do?"
       title="Landing page pop-up"
       goal={
         <>
@@ -165,7 +165,7 @@ export const Landing: StoryObj = {
           </li>
           <li>
             Picking a provider saves it as the remembered sign-in, which is what
-            makes the webapp open on Welcome back (chapter 3) next time.
+            makes the webapp open on Welcome back (variant 3) next time.
           </li>
         </ul>
       </Section>

@@ -9,7 +9,10 @@ import { AuthDisplay } from '@dailydotdev/shared/src/components/auth/common';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { SignBackProvider } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
-import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
+import {
+  SIGNIN_METHOD_KEY,
+  useSignBack,
+} from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import { FunnelStepTopBar } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepTopBar';
 import { authAtom } from '@dailydotdev/shared/src/features/onboarding/store/onboarding.store';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
@@ -46,8 +49,9 @@ export const mockLoggedOutWebapp = (): void => {
 };
 
 // The pop-up opens on "Welcome back" whenever the browser remembers the last
-// sign-in, and every frame shares this origin's storage, so each screen sets
-// or clears it before the pop-up mounts.
+// sign-in method. Every frame shares this origin's storage, so a frame loading
+// later would overwrite it for the others: each frame answers that key from
+// its own window instead, and the remembered user is the same for all.
 const RememberedAccount = ({
   provider,
   children,
@@ -59,9 +63,13 @@ const RememberedAccount = ({
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    onUpdateSignBack(provider ? DEMO_USER : null, provider ?? null).then(() =>
-      setIsReady(true),
-    );
+    const { getItem } = Storage.prototype;
+    Storage.prototype.getItem = function getFrameItem(key: string) {
+      return key === SIGNIN_METHOD_KEY
+        ? provider ?? null
+        : getItem.call(this, key);
+    };
+    onUpdateSignBack(DEMO_USER, provider ?? null).then(() => setIsReady(true));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

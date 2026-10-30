@@ -4,7 +4,7 @@ import type { Finding } from './kit';
 import { Findings, Page, Section } from './kit';
 
 const meta: Meta = {
-  title: 'Auth Pop-ups/9. What to align',
+  title: 'Auth Pop-ups/4. Still to decide',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -62,23 +62,11 @@ const fixes: Finding[] = [
     where: 'apps: SignupDisclaimer.tsx, AuthDefault.tsx',
   },
   {
-    title: 'One close button and one phone layout',
+    title: 'One card, and the phone layout',
     detail:
-      'A round button top right on the landing page. On the webapp, a header close on the right on desktop and on the left on phones, where the pop-up goes full screen instead of staying a card.',
+      '464px, #17171C and a blurred backdrop on the landing page. 420px, #161921 and the default overlay in the webapp, which also goes full screen on phones instead of staying a card.',
     where:
-      'apps: AuthHeader.tsx, modals/common/Modal.tsx · recruiter-landing: SignupModal.astro',
-  },
-  {
-    title: 'One card',
-    detail:
-      '464px, #17171C and a blurred backdrop on the landing page. 420px, #161921 and the default overlay in the webapp. Match the width, fill and backdrop, with tokens on the webapp side.',
-    where: 'apps: AuthModal.tsx · recruiter-landing: SignupModal.astro',
-  },
-  {
-    title: 'Drop the phone context line',
-    detail:
-      'The only part that changes per action, on phones and in Sign up only. The Login Surfaces review in #7046 already proposed removing it.',
-    where: 'apps: AuthDefault.tsx, authContextLines.ts',
+      'apps: AuthModal.tsx, modals/common/Modal.tsx · recruiter-landing: SignupModal.astro',
   },
   {
     title: 'Keep One Tap away from the open pop-up',
@@ -89,36 +77,23 @@ const fixes: Finding[] = [
   {
     title: 'The security check only when it’s needed',
     detail:
-      'Log in always shows Cloudflare’s “Verify you are human” box. Sign up and the landing page show none on their first screen.',
-    where: 'apps: LoginForm.tsx',
-  },
-  {
-    title: 'One back arrow',
-    detail:
-      'On phones, Reset password shows two back arrows before its title in production. Desktop hides one of them. Verify email does the same in the live component, and its mail icon sits above the header.',
-    where:
-      'apps: AuthHeader.tsx, ForgotPasswordForm.tsx, EmailCodeVerification.tsx',
-  },
-  {
-    title: 'Error copy',
-    detail:
-      '“Please try again or create new account.” is missing an “a”: “create a new account”.',
-    where: 'apps: LoginForm.tsx',
+      'Log in and email sign-up always show Cloudflare’s “Verify you are human” box. Sign up and the landing page show none on their first screen.',
+    where: 'apps: LoginForm.tsx, RegistrationForm.tsx',
   },
 ];
 
-export const WhatToAlign: StoryObj = {
-  name: 'What to align',
+export const StillToDecide: StoryObj = {
+  name: 'Still to decide',
   render: () => (
     <Page
-      eyebrow="Chapter 9 · What should the consistency PR change?"
-      title="What to align"
+      eyebrow="Next · What does this PR leave open?"
+      title="Still to decide"
       goal={
         <>
           <p>
-            <strong>Goal:</strong> turn chapter 8 into a scope. The first group
-            needs a product call before anyone writes code. The second is safe
-            to build once those calls are made.
+            <strong>Goal:</strong> list what the variants don’t fix yet. The
+            first group needs a product call before anyone writes code. The
+            second is safe to build once those calls are made.
           </p>
           <p className="mt-2">
             The landing page lives in recruiter-landing, so matching both sites
@@ -131,7 +106,7 @@ export const WhatToAlign: StoryObj = {
       <Section title="Decisions first">
         <Findings items={decisions} />
       </Section>
-      <Section title="Then build">
+      <Section title="Then build, after this PR">
         <Findings items={fixes} />
       </Section>
       <p className="text-text-tertiary typo-footnote">

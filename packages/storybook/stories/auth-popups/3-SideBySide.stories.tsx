@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Capture, CompareTable, Labeled, Page, PhoneRow, Section } from './kit';
 
 const meta: Meta = {
-  title: 'Auth Pop-ups/8. Side by side',
+  title: 'Auth Pop-ups/3. Side by side',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -15,7 +15,7 @@ export const SideBySide: StoryObj = {
   name: 'Side by side',
   render: () => (
     <Page
-      eyebrow="Chapter 8 · Where do the three surfaces disagree?"
+      eyebrow="Reference · Where do the three surfaces disagree in production today?"
       title="Side by side"
       goal={
         <p>

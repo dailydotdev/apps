@@ -187,10 +187,7 @@ function EmailCodeVerification({
 
   return (
     <AuthForm
-      className={classNames(
-        'flex flex-col items-end py-8 mobileL:px-8 tablet:px-14',
-        className,
-      )}
+      className={classNames('flex flex-col items-end px-6 py-8', className)}
       onSubmit={onCodeVerification}
       data-testid="email_verification_form"
     >
@@ -274,7 +271,7 @@ function EmailCodeVerification({
         <Button
           className={isOnboardingFunnel ? funnelGlassBarCta : 'w-full'}
           type="submit"
-          size={isOnboardingFunnel ? ButtonSize.Medium : undefined}
+          size={isOnboardingFunnel ? ButtonSize.Medium : ButtonSize.Large}
           variant={ButtonVariant.Primary}
           loading={isVerifying}
         >
