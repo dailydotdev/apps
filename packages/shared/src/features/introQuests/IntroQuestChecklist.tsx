@@ -29,7 +29,6 @@ import {
   IntroQuestEventType,
   getIntroQuestStep,
   getQuestCores,
-  getQuestXp,
 } from './introQuestSteps';
 import {
   getApiProfileCommand,
@@ -138,15 +137,7 @@ const PrimaryAction = ({
         loading={checklist.isClaiming(quest)}
         onClick={() => checklist.claim(quest)}
       >
-        <span className="inline-flex items-center gap-1">
-          Claim
-          <CoresAmount
-            amount={getQuestCores(quest)}
-            size={IconSize.Small}
-            plus
-            label
-          />
-        </span>
+        Claim
       </Button>
     );
   }
@@ -441,8 +432,6 @@ const Meta = ({ quest }: { quest: UserQuest }): ReactElement => {
         label
         className="font-bold text-text-primary"
       />
-      <span aria-hidden>·</span>
-      <span>+{getQuestXp(quest)} XP</span>
       {parts.map((part) => (
         <React.Fragment key={part}>
           <span aria-hidden>·</span>
@@ -504,7 +493,6 @@ const Header = (): ReactElement => {
             label
             className="font-bold text-text-primary"
           />
-          <span className="text-text-tertiary">and {totals.xp} XP</span>
         </p>
       </div>
       <SegmentMeter />
@@ -662,10 +650,6 @@ const Completion = (): ReactElement => {
       </div>
       <span className="flex items-center gap-2 rounded-max bg-surface-float px-3 py-1.5 font-bold tabular-nums text-text-primary typo-callout">
         <CoresAmount amount={totals.cores} size={IconSize.XSmall} plus label />
-        <span aria-hidden className="text-text-quaternary">
-          ·
-        </span>
-        <span className="font-normal text-text-tertiary">+{totals.xp} XP</span>
       </span>
       <Button
         variant={ButtonVariant.Primary}

@@ -100,9 +100,6 @@ export const getQuestReward = (
     .filter((reward) => reward.type === type)
     .reduce((total, reward) => total + reward.amount, 0);
 
-export const getQuestXp = (quest: UserQuest): number =>
-  getQuestReward(quest, QuestRewardType.Xp);
-
 export const getQuestCores = (quest: UserQuest): number =>
   getQuestReward(quest, QuestRewardType.Cores);
 

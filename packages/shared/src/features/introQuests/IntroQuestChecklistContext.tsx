@@ -29,7 +29,6 @@ import {
   getIntroQuestPhase,
   getIntroQuestStep,
   getQuestCores,
-  getQuestXp,
   isIntroQuestDone,
   sortIntroQuests,
 } from './introQuestSteps';
@@ -160,11 +159,8 @@ const [IntroQuestChecklistProvider, useIntroQuestChecklist] =
       ) ??
       quests.find((quest) => phaseOf(quest) !== 'claimed');
     const totals = quests.reduce(
-      (acc, quest) => ({
-        xp: acc.xp + getQuestXp(quest),
-        cores: acc.cores + getQuestCores(quest),
-      }),
-      { xp: 0, cores: 0 },
+      (acc, quest) => ({ cores: acc.cores + getQuestCores(quest) }),
+      { cores: 0 },
     );
 
     useEffect(() => {
