@@ -6,6 +6,7 @@ import type {
   FeedControls,
   FeedItemExplain,
   FeedProfile,
+  FeedProfileInterest,
   RankedExplain,
 } from './types';
 import {
@@ -143,6 +144,30 @@ const strengthPhrase: Partial<Record<ExplainStrength, string>> = {
   [ExplainStrength.Strong]: 'and read about it often',
   [ExplainStrength.Moderate]: 'and read about it sometimes',
   [ExplainStrength.Confirmed]: 'and read a post on it',
+};
+
+/** What For You knows about a topic on its Feed settings row. */
+export const describeTopic = (
+  interest: FeedProfileInterest | undefined,
+  isFollowed: boolean,
+): string => {
+  if (isFollowed) {
+    const phrase = interest?.strength
+      ? strengthPhrase[interest.strength]
+      : undefined;
+    return `You follow it${phrase ? ` ${phrase}` : ''}.`;
+  }
+  if (!interest || interest.origin === ExplainOrigin.Set) {
+    return 'You set its boost.';
+  }
+  switch (interest.strength) {
+    case ExplainStrength.Strong:
+      return "You've read a lot about it.";
+    case ExplainStrength.EarlySignal:
+      return "You've read a post about it. It counts once you read more.";
+    default:
+      return "You've read a few posts about it.";
+  }
 };
 
 export interface ReasonParts {
