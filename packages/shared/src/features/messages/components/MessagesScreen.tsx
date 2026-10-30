@@ -71,10 +71,9 @@ export const MessagesScreen = ({
   const { isEnabled: isLfgEnabled } = useLfgEnabled();
   const requestCount = dmRequestCount + lfgRequestCount;
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const tab =
-    (showRequests && 'requests') ||
-    (showLfg && isLfgEnabled && !isLaptop && 'lfg') ||
-    'chats';
+  const requestedTab =
+    (showRequests && 'requests') || (showLfg && !isLaptop && 'lfg') || 'chats';
+  const tab = requestedTab === 'lfg' && !isLfgEnabled ? 'chats' : requestedTab;
   const isLfgTab = tab === 'lfg';
   const isChatsTab = tab === 'chats';
   const reachOutId =
@@ -91,7 +90,7 @@ export const MessagesScreen = ({
     event_name: LogEvent.OpenMessages,
     extra: JSON.stringify({
       origin: origin ?? null,
-      tab: (showRequests && 'requests') || (showLfg && 'lfg') || 'chats',
+      tab: requestedTab,
       has_conversation: !!activePeerId,
     }),
   }));
