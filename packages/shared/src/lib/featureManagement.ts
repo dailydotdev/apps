@@ -253,6 +253,15 @@ export const featureSponsorStrip = new Feature('sponsor_strip', isDevelopment);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 
+// Experiment: list cards (the phone and tablet feed, and the desktop list
+// layout) get the grid bar: 32px buttons, 19px icons and the number 4px from
+// its icon. The bookmark stays in the bar and the row grows to fit, so the card
+// is 8px taller. Only list bars evaluate it, for logged-in users.
+export const featureListCardLargeActions = new Feature(
+  'list_card_large_actions',
+  false,
+);
+
 // Experiment: grid cards show the post's TLDR under the title, clamped, with
 // "Show more" to read it inside the card. Only grid cards with a TLDR evaluate
 // it, so only readers on the grid layout are enrolled.
