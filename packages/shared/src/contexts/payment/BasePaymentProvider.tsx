@@ -47,7 +47,6 @@ export const BasePaymentProvider = ({
       appliedDiscountId === undefined
         ? discountId
         : appliedDiscountId ?? undefined,
-    keepPrevious: true,
   });
   const data = funnelPricing?.length ? funnelPricing : plusPricing;
 
