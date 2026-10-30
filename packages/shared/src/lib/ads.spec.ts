@@ -6,6 +6,7 @@ import { getBrowserClientHints } from '../features/monetization/browserClientHin
 import {
   AdPlacement,
   fetchAdByPlacement,
+  parseSkadiAd,
   resolveAdFetchOptions,
   shouldSkipSourceAds,
 } from './ads';
@@ -292,6 +293,118 @@ describe('ads', () => {
         );
       },
     );
+  });
+
+  describe('v2 placements', () => {
+    const mockResponse = (body: unknown) =>
+      jest.mocked(global.fetch).mockResolvedValueOnce({
+        json: jest.fn().mockResolvedValue(body),
+        headers: { get: () => undefined },
+      } as unknown as Response);
+
+    it.each([
+      [AdPlacement.Feed, 'default_card'],
+      [AdPlacement.FeedHero, 'feed_hero'],
+      [AdPlacement.FeedWidget, 'feed_widget'],
+      [AdPlacement.PostSidebar, 'post_sidebar'],
+      [AdPlacement.PostComment, 'post_comment'],
+      [AdPlacement.SquadDirectory, 'squads_directory'],
+      [AdPlacement.SimilarSquads, 'squads_similar'],
+    ])('fetches %s from /v2/a/%s', async (placement, skadiPlacement) => {
+      mockResponse({});
+      await fetchAdByPlacement({
+        ...resolveAdFetchOptions({ placement, boostsEnabled: true }),
+        v2Placements: true,
+      });
+
+      expect(jest.mocked(global.fetch).mock.calls[0][0]).toMatch(
+        new RegExp(`^http://localhost:3000/v2/a/${skadiPlacement}(\\?|$)`),
+      );
+    });
+
+    it('keeps the legacy query params', async () => {
+      mockResponse({});
+      await fetchAdByPlacement({
+        placement: AdPlacement.Feed,
+        active: true,
+        allowPostBoost: true,
+        registered: true,
+        consent: { gdprApplies: false },
+        v2Placements: true,
+      });
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:3000/v2/a/default_card?active=true&allow_post_boost=true&registered=true&gdpr=0',
+        { credentials: 'include', headers: { 'X-Page-View-Id': 'page-view' } },
+      );
+    });
+
+    const custom = {
+      type: 'custom',
+      value: {
+        custom: {
+          title: 'Title',
+          body: 'Body',
+          link: 'https://ad.link',
+          image: 'https://ad.image',
+          company_name: 'Company',
+          background_color: '#000',
+        },
+      },
+      generation_id: 'gen-1',
+      ad_provider_name: 'direct',
+      advertiser_name: 'Advertiser',
+      advertiser_logo: 'https://ad.logo',
+      advertiser_link: 'https://ad.referral',
+      pixels: ['https://ad.pixel'],
+      matching_tags: ['react'],
+      ad_domain: 'ad.link',
+    };
+
+    it('maps a custom creative to the legacy ad shape', () => {
+      expect(parseSkadiAd(custom, AdPlacement.Feed)).toEqual({
+        source: 'Advertiser',
+        company: 'Company',
+        description: 'Title',
+        image: 'https://ad.image',
+        link: 'https://ad.link',
+        companyLogo: 'https://ad.logo',
+        referralLink: 'https://ad.referral',
+        backgroundColor: '#000',
+        providerId: 'direct',
+        pixel: ['https://ad.pixel'],
+        generationId: 'gen-1',
+        tags: undefined,
+        matchingTags: ['react'],
+        adDomain: 'ad.link',
+      });
+    });
+
+    it('uses the body as the description on the comment placement', () => {
+      expect(parseSkadiAd(custom, AdPlacement.PostComment)).toMatchObject({
+        company: 'Company',
+        description: 'Body',
+      });
+    });
+
+    it('keeps the resolved post of a boost', () => {
+      const data = { post: { id: 'p1' }, user: { username: 'booster' } };
+
+      expect(
+        parseSkadiAd(
+          { type: 'post', value: { post: { id: 'p1' } }, data },
+          AdPlacement.Feed,
+        ),
+      ).toMatchObject({ data, source: 'booster' });
+    });
+
+    it.each([
+      ['an empty response', {}],
+      ['a boost without resolved data', { type: 'squad', value: {} }],
+      ['an unknown creative', { type: 'digest', value: {} }],
+    ])('returns no ad for %s', (_, body) => {
+      expect(parseSkadiAd(body, AdPlacement.Feed)).toBeNull();
+    });
   });
 
   describe('shouldSkipSourceAds', () => {

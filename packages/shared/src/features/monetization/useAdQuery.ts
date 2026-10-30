@@ -5,7 +5,10 @@ import { useFeature } from '../../components/GrowthBookProvider';
 import type { Ad } from '../../graphql/posts';
 import { fetchAdByPlacement, resolveAdFetchOptions } from '../../lib/ads';
 import type { FetchAdByPlacementOptions } from '../../lib/ads';
-import { featurePostBoostAds } from '../../lib/featureManagement';
+import {
+  featureAdV2Placements,
+  featurePostBoostAds,
+} from '../../lib/featureManagement';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useAdRequestConsent } from './useAdRequestConsent';
 import { useAdPageViewId } from './useAdPageViewId';
@@ -28,13 +31,14 @@ export const useAdQuery = ({
   retry,
 }: UseAdQueryOptions) => {
   const boostsEnabled = useFeature(featurePostBoostAds);
+  const v2Placements = useFeature(featureAdV2Placements);
   const consent = useAdRequestConsent(enabled);
   const { isAuthReady, isLoggedIn } = useAuthContext();
   const registered = isAuthReady ? isLoggedIn : undefined;
   const pageViewId = useAdPageViewId();
   const fetchOptions = useMemo(
-    () =>
-      resolveAdFetchOptions({
+    () => ({
+      ...resolveAdFetchOptions({
         placement,
         active,
         boostsEnabled,
@@ -42,7 +46,17 @@ export const useAdQuery = ({
         registered,
         pageViewId,
       }),
-    [placement, active, boostsEnabled, consent, registered, pageViewId],
+      v2Placements,
+    }),
+    [
+      placement,
+      active,
+      boostsEnabled,
+      consent,
+      registered,
+      pageViewId,
+      v2Placements,
+    ],
   );
 
   return useQuery<Ad | null>({

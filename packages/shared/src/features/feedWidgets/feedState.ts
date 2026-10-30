@@ -131,7 +131,7 @@ export const useFeedWidgetAd = ({
   const queryKey = getFeedWidgetAdQueryKey(user);
   const isEnabled = enabled && isTokenValid && !isPlus;
   const { data: ad, isFetched } = useAdQuery({
-    placement: AdPlacement.Feed,
+    placement: AdPlacement.FeedWidget,
     queryKey,
     enabled: isEnabled,
     staleTime: StaleTime.OneHour,

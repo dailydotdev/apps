@@ -1,5 +1,5 @@
 import { apiUrl } from './config';
-import type { Ad } from '../graphql/posts';
+import type { Ad, AdMeasurementTag } from '../graphql/posts';
 import type { Source } from '../graphql/sources';
 import { SourceType } from '../graphql/sources';
 import type { AdRequestConsent } from '../features/monetization/adConsent';
@@ -37,15 +37,29 @@ export enum AdActions {
 
 export enum AdPlacement {
   Feed = 'feed',
+  FeedHero = 'feed-hero',
+  FeedWidget = 'feed-widget',
   PostSidebar = 'post-sidebar',
   PostComment = 'post-comment',
   SquadDirectory = 'squad-directory',
+  SimilarSquads = 'similar-squads',
   /**
    * The sponsor strip's logo wall. The wire value is the ad server's own
    * placement name, which is why it does not match the client vocabulary.
    */
   SponsorStrip = 'advertiser_bar',
 }
+
+export const skadiPlacements: Record<AdPlacement, string> = {
+  [AdPlacement.Feed]: 'default_card',
+  [AdPlacement.FeedHero]: 'feed_hero',
+  [AdPlacement.FeedWidget]: 'feed_widget',
+  [AdPlacement.PostSidebar]: 'post_sidebar',
+  [AdPlacement.PostComment]: 'post_comment',
+  [AdPlacement.SquadDirectory]: 'squads_directory',
+  [AdPlacement.SimilarSquads]: 'squads_similar',
+  [AdPlacement.SponsorStrip]: 'advertiser_bar',
+};
 
 export interface FetchAdByPlacementOptions {
   placement: AdPlacement;
@@ -59,6 +73,7 @@ export interface FetchAdByPlacementOptions {
    */
   registered?: boolean;
   pageViewId?: string;
+  v2Placements?: boolean;
 }
 
 // Skadi matches any query param against ad set `REQUEST_METADATA` targeting,
@@ -125,14 +140,100 @@ const addGenerationIdHeader = ({
   };
 };
 
+interface SkadiCustomCreative {
+  title: string;
+  body?: string;
+  link: string;
+  image: string;
+  company_logo?: string;
+  company_name?: string;
+  background_color?: string;
+}
+
+interface SkadiAd {
+  type?: string;
+  value?: { custom?: SkadiCustomCreative };
+  data?: Ad['data'] & { user?: { username?: string } };
+  generation_id?: string;
+  ad_provider_name?: string;
+  advertiser_name?: string;
+  advertiser_logo?: string;
+  advertiser_link?: string;
+  pixels?: string[];
+  tags?: AdMeasurementTag[];
+  matching_tags?: string[];
+  ad_domain?: string;
+}
+
+const boostCreativeTypes = ['post', 'squad'];
+
+// Temporary mapping of the generic `/v2/a/:placement` response to the legacy
+// `/v1/a` ad shape, behind `ad_v2_placements`. When the flag is cleaned up and
+// every placement reads from `/v2`, adapt the ad types and cards to the new
+// shape instead of keeping this translation.
+export const parseSkadiAd = (
+  body: unknown,
+  placement: AdPlacement,
+): Ad | null => {
+  const ad = body as SkadiAd | null;
+
+  if (!ad?.type) {
+    return null;
+  }
+
+  const base = {
+    providerId: ad.ad_provider_name,
+    pixel: ad.pixels ?? [],
+    generationId: ad.generation_id,
+    tags: ad.tags,
+    matchingTags: ad.matching_tags,
+    adDomain: ad.ad_domain,
+  };
+  const custom = ad.value?.custom;
+
+  if (custom) {
+    const hasBody = placement === AdPlacement.PostComment && !!custom.body;
+
+    return {
+      ...base,
+      source: ad.advertiser_name || ad.ad_provider_name || '',
+      company: custom.company_name || (hasBody ? custom.title : ''),
+      description: (hasBody ? custom.body : custom.title) ?? '',
+      image: custom.image,
+      link: custom.link,
+      companyLogo: ad.advertiser_logo || custom.company_logo,
+      referralLink: ad.advertiser_link,
+      backgroundColor: custom.background_color,
+    };
+  }
+
+  if (ad.data && boostCreativeTypes.includes(ad.type)) {
+    return {
+      ...base,
+      data: ad.data,
+      source: ad.data.user?.username || `${ad.type}_boost`,
+      company: '',
+      description: '',
+      image: '',
+      link: '',
+    };
+  }
+
+  return null;
+};
+
+const parseLegacyAd = (body: unknown): Ad | null => (body as Ad[])[0] ?? null;
+
 const fetchAdRequest = async ({
   path,
   params,
   pageViewId = getAdPageViewId(),
+  parse = parseLegacyAd,
 }: {
   path: string;
   params?: URLSearchParams;
   pageViewId?: string;
+  parse?: (body: unknown) => Ad | null;
 }): Promise<Ad | null> => {
   const headers: Record<string, string> = {};
   if (pageViewId) {
@@ -150,8 +251,7 @@ const fetchAdRequest = async ({
     ...(Object.keys(headers).length > 0 && { headers }),
   });
 
-  const ads = (await res.json()) as Ad[];
-  return addGenerationIdHeader({ ad: ads[0] ?? null, res });
+  return addGenerationIdHeader({ ad: parse(await res.json()), res });
 };
 
 export const resolveAdFetchOptions = ({
@@ -173,6 +273,7 @@ export const resolveAdFetchOptions = ({
     case AdPlacement.PostComment:
       return { placement, consent, registered, pageViewId };
     case AdPlacement.SquadDirectory:
+    case AdPlacement.SimilarSquads:
       return {
         placement,
         allowSquadBoost: true,
@@ -203,41 +304,37 @@ export const resolveAdFetchOptions = ({
   }
 };
 
-export const fetchAdByPlacement = async ({
+const getAdRequest = ({
   placement,
-  active = false,
-  allowPostBoost = false,
-  allowSquadBoost = false,
-  consent,
+  active,
+  allowPostBoost,
+  allowSquadBoost,
   registered,
-  pageViewId,
-}: FetchAdByPlacementOptions): Promise<Ad | null> => {
+}: {
+  placement: AdPlacement;
+  active: boolean;
+  allowPostBoost: boolean;
+  allowSquadBoost: boolean;
+  registered?: boolean;
+}): { path: string; params: URLSearchParams } => {
   switch (placement) {
     case AdPlacement.PostComment:
-      return fetchAdRequest({
+      return {
         path: '/v1/a/post',
-        params: appendConsentParams(
-          appendRegisteredParam(new URLSearchParams(), registered),
-          consent,
-        ),
-        pageViewId,
-      });
-    case AdPlacement.SquadDirectory: {
+        params: appendRegisteredParam(new URLSearchParams(), registered),
+      };
+    case AdPlacement.SquadDirectory:
+    case AdPlacement.SimilarSquads: {
       const params = new URLSearchParams();
       if (allowSquadBoost) {
         params.set('allow_squad_boost', 'true');
       }
 
-      appendRegisteredParam(params, registered);
-
-      return fetchAdRequest({
+      return {
         path: '/v1/a/squads_directory',
-        params: appendConsentParams(params, consent),
-        pageViewId,
-      });
+        params: appendRegisteredParam(params, registered),
+      };
     }
-    case AdPlacement.PostSidebar:
-    case AdPlacement.Feed:
     default: {
       const params = new URLSearchParams({
         active: active ? 'true' : 'false',
@@ -251,15 +348,43 @@ export const fetchAdByPlacement = async ({
         params.append('allow_squad_boost', 'true');
       }
 
-      appendRegisteredParam(params, registered);
-
-      return fetchAdRequest({
+      return {
         path: '/v1/a',
-        params: appendConsentParams(params, consent),
-        pageViewId,
-      });
+        params: appendRegisteredParam(params, registered),
+      };
     }
   }
+};
+
+export const fetchAdByPlacement = async ({
+  placement,
+  active = false,
+  allowPostBoost = false,
+  allowSquadBoost = false,
+  consent,
+  registered,
+  pageViewId,
+  v2Placements = false,
+}: FetchAdByPlacementOptions): Promise<Ad | null> => {
+  const { path, params } = getAdRequest({
+    placement,
+    active,
+    allowPostBoost,
+    allowSquadBoost,
+    registered,
+  });
+  appendConsentParams(params, consent);
+
+  if (v2Placements) {
+    return fetchAdRequest({
+      path: `/v2/a/${skadiPlacements[placement]}`,
+      params,
+      pageViewId,
+      parse: (body) => parseSkadiAd(body, placement),
+    });
+  }
+
+  return fetchAdRequest({ path, params, pageViewId });
 };
 
 export const fetchAd = async (params: URLSearchParams): Promise<Ad | null> =>
