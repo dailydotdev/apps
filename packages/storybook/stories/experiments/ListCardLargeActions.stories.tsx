@@ -831,6 +831,83 @@ const SPEC_ROWS: { label: string; x: string; today: string; next: string }[] = [
   },
 ];
 
+// Measured on x.com (desktop web, Oct 30, 2026) and on these stories. On our
+// bar the number's label is part of the tap area: it forwards the click.
+const TAP_COLUMNS = [
+  'X',
+  'Control 24px, today',
+  'Treatment 32px, today’s style',
+  'Treatment 32px, X style',
+];
+
+const TAP_ROWS: { label: string; values: string[] }[] = [
+  {
+    label: 'Tap height',
+    values: ['36px', '24px', '32px', '32px'],
+  },
+  {
+    label: 'Button without a number',
+    values: ['38.75 × 36', '24 × 24', '32 × 32', '32 × 32'],
+  },
+  {
+    label: 'Button with a number',
+    values: [
+      '67–74 × 36 (34K, 2.8K, 4.7M)',
+      '35–59 × 24',
+      '43–67 × 32',
+      '38–61 × 32',
+    ],
+  },
+  {
+    label: 'Number is tappable',
+    values: [
+      'Yes: it’s inside the button, and the pill shows it',
+      'Yes: its label forwards the tap, but the hover covers only the icon',
+      'Yes: its label forwards the tap, but the hover covers only the icon',
+      'Yes: its label forwards the tap, but the hover covers only the icon',
+    ],
+  },
+  {
+    label: 'Viral counts (1.2K · 345 · 999K)',
+    values: [
+      '71–74 × 36 (2.8K, 4.7M)',
+      '50–59 × 24',
+      '58–67 × 32',
+      '53–61 × 32',
+    ],
+  },
+  {
+    label: 'Tap target vs row',
+    values: [
+      '36px targets in a 20px row: 8px above and below the bar is a tap',
+      'Fits the 24px row',
+      'Row grows to 32px, nothing outside the bar',
+      'Row grows to 32px, nothing outside the bar',
+    ],
+  },
+  {
+    label: 'Hover and pressed shape',
+    values: [
+      'Pill around icon and number',
+      'Square on the icon',
+      'Square on the icon',
+      'Square on the icon, the number overlaps it by 3px',
+    ],
+  },
+  {
+    label: 'Space between buttons',
+    values: ['Not tappable', 'Not tappable', 'Not tappable', 'Not tappable'],
+  },
+  {
+    label: 'WCAG 2.5.8 minimum (24px)',
+    values: ['Yes', 'Yes, exactly', 'Yes', 'Yes'],
+  },
+  {
+    label: 'Apple / Material (44 / 48px)',
+    values: ['No', 'No', 'No', 'No'],
+  },
+];
+
 const SPACING_COLUMNS: { label: string; args: FrameArgs }[] = [
   {
     label: 'Control 24px, today’s style',
@@ -909,6 +986,59 @@ const CounterSpacing = (): ReactElement => {
             </tbody>
           </table>
         </div>
+
+        <section className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <h2 className="font-bold text-text-primary typo-title3">
+              Tap area
+            </h2>
+            <p className="max-w-[50rem] text-text-tertiary typo-callout">
+              Width × height in px of what a finger can hit, number included. X
+              is bigger because its targets reach outside the bar, the overlap
+              that got the first list version of #6836 reverted. Matching X’s
+              36px without that overlap adds 4px to every card.
+            </p>
+          </div>
+          <div className="overflow-x-auto rounded-16 border border-border-subtlest-tertiary">
+            <table className="w-full text-left typo-footnote">
+              <thead>
+                <tr className="text-text-tertiary">
+                  <th className="p-3 font-normal" />
+                  {TAP_COLUMNS.map((column) => (
+                    <th key={column} className="p-3 font-normal">
+                      {column}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {TAP_ROWS.map((row) => (
+                  <tr
+                    key={row.label}
+                    className="border-t border-border-subtlest-tertiary"
+                  >
+                    <td className="p-3 font-bold text-text-primary">
+                      {row.label}
+                    </td>
+                    {row.values.map((value, index) => (
+                      <td
+                        key={TAP_COLUMNS[index]}
+                        className={classNames(
+                          'p-3',
+                          index === TAP_COLUMNS.length - 1
+                            ? 'text-text-primary'
+                            : 'text-text-secondary',
+                        )}
+                      >
+                        {value}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
 
         <section className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
