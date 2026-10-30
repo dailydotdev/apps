@@ -14,13 +14,6 @@ export interface AdRequestConsent extends AdMacroContext {
   consentExists?: AdConsentExists;
 }
 
-export const getAdConsentQueryKey = (consent?: AdRequestConsent | null) => [
-  consent?.gdprApplies,
-  consent?.consentString ?? '',
-  consent?.addtlConsent ?? '',
-  consent?.consentExists ?? '',
-];
-
 const getMarketingConsent = (): boolean | undefined => {
   if (isExtension) {
     return true;
