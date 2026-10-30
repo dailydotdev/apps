@@ -14,6 +14,7 @@ import {
 import {
   Typography,
   TypographyColor,
+  TypographyTag,
   TypographyType,
 } from '../../../typography/Typography';
 import { FollowingUserList } from '../components/FollowingUserList';
@@ -33,6 +34,13 @@ import { useFeedSettingsEditContext } from '../FeedSettingsEditContext';
 import { useIsPhone } from '../../../../hooks/useViewSize';
 import { Segments, ShellRow } from '../../../shell/ShellRow';
 import { useQueryTab } from '../../../shell/useQueryTab';
+import { Divider } from '../../../utilities/Divider';
+import { FeedType } from '../../../../graphql/feed';
+import useFeedSettings from '../../../../hooks/useFeedSettings';
+import { getContentSourceList } from '../../../filters/helpers';
+import { useForYouControls } from '../../../../features/feedExplain/useFeedExplainMode';
+import { ForYouSources } from '../../../../features/feedExplain/components/ForYouSources';
+import { BlockedNote } from '../../../../features/feedExplain/components/SettingsList';
 
 enum Tabs {
   Sources = 'Sources',
@@ -42,9 +50,39 @@ enum Tabs {
 const tabs = Object.values(Tabs);
 const noop = () => undefined;
 
+/** Blocked sources, leaving out the post types Content preferences hides. */
+const BlockedSourcesNote = (): ReactElement | null => {
+  const { feedSettings, advancedSettings } = useFeedSettings();
+  const postTypes = new Set(
+    getContentSourceList(advancedSettings ?? []).map(
+      ({ options }) => options?.source?.id,
+    ),
+  );
+  const blocked =
+    feedSettings?.excludeSources?.filter(({ id }) => !postTypes.has(id))
+      .length ?? 0;
+
+  if (!blocked) {
+    return null;
+  }
+
+  return (
+    <BlockedNote>
+      {`You blocked ${blocked} ${
+        blocked === 1 ? 'source' : 'sources'
+      }, so their posts never show.`}
+    </BlockedNote>
+  );
+};
+
 export const FeedSettingsContentSourcesSection = (): ReactElement => {
   const isInModal = !!useModalContext().onRequestClose;
-  const { editFeedSettings, isNewFeed } = useFeedSettingsEditContext();
+  const { editFeedSettings, isNewFeed, feed } = useFeedSettingsEditContext();
+  const { isAvailable: hasForYouControls } = useForYouControls();
+  const isMainFeed = feed?.type === FeedType.Main;
+  // For You lists its follows with their boosts where its ranking takes them,
+  // so the tabs of follows below are left for search.
+  const hasForYouSources = isMainFeed && hasForYouControls;
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
   const isPhone = useIsPhone();
@@ -137,6 +175,29 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
         isInModal && 'pb-16 tablet:pb-0',
       )}
     >
+      {hasForYouSources && (
+        <>
+          <ForYouSources />
+          <BlockedSourcesNote />
+          <Divider className="my-1 bg-border-subtlest-tertiary" />
+          <Typography
+            tag={TypographyTag.H2}
+            type={TypographyType.Body}
+            className="tablet:typo-title3"
+            bold
+          >
+            Follow more sources and people
+          </Typography>
+          {!searchPanel.query?.length && (
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
+            >
+              Search for a source, squad or person to follow.
+            </Typography>
+          )}
+        </>
+      )}
       <SearchPanelContext.Provider value={searchPanel}>
         <SearchField
           aria-label="Search sources, squads, or users"
@@ -154,55 +215,62 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
             onQueryChange(value);
           }}
         />
-        <Typography
-          color={TypographyColor.Tertiary}
-          type={TypographyType.Callout}
-        >
-          Following sources, squads, and users is a great way to tell the system
-          where you want your content to come from. It&apos;s a strong starting
-          signal for your feed, and as you engage with content over time, its
-          weight gradually decreases in favor of stronger signals based on your
-          actual activity.
-        </Typography>
+        {!hasForYouSources && (
+          <Typography
+            color={TypographyColor.Tertiary}
+            type={TypographyType.Callout}
+          >
+            Following sources, squads, and users is a great way to tell the
+            system where you want your content to come from. It&apos;s a strong
+            starting signal for your feed, and as you engage with content over
+            time, its weight gradually decreases in favor of stronger signals
+            based on your actual activity.
+          </Typography>
+        )}
+        {!hasForYouSources && isMainFeed && <BlockedSourcesNote />}
         {searchPanel.query?.length ? (
           <>
             <SearchPanelSourceSuggestions title="Sources" showFollow />
             <SearchPanelUserSuggestions title="Users" showFollow />
           </>
         ) : (
-          <ModalPropsContext.Provider
-            value={{
-              tabs,
-              activeView,
-              setActiveView: (view) => {
-                if (view !== undefined) {
-                  setActiveTab(view as Tabs);
-                }
-              },
-              onRequestClose: noop,
-              kind: ModalKind.FlexibleCenter,
-              size: ModalSize.Medium,
-            }}
-          >
-            {isPhone ? (
-              <div className="-mx-4">
-                <ShellRow>
-                  <Segments items={segments} />
-                </ShellRow>
+          !hasForYouSources && (
+            <ModalPropsContext.Provider
+              value={{
+                tabs,
+                activeView,
+                setActiveView: (view) => {
+                  if (view !== undefined) {
+                    setActiveTab(view as Tabs);
+                  }
+                },
+                onRequestClose: noop,
+                kind: ModalKind.FlexibleCenter,
+                size: ModalSize.Medium,
+              }}
+            >
+              {isPhone ? (
+                <div className="-mx-4">
+                  <ShellRow>
+                    <Segments items={segments} />
+                  </ShellRow>
+                </div>
+              ) : (
+                <ModalTabs className="border-b border-border-subtlest-tertiary pb-[0.70rem]" />
+              )}
+              <div className="-mx-4 flex max-w-none flex-col tablet:mx-0 tablet:w-full tablet:max-w-full">
+                {isTabKnown && activeView === Tabs.Sources && (
+                  <FollowingSourceList />
+                )}
+                {isTabKnown && activeView === Tabs.Squads && (
+                  <FollowingSourceList type={SourceType.Squad} />
+                )}
+                {isTabKnown && activeView === Tabs.Users && (
+                  <FollowingUserList />
+                )}
               </div>
-            ) : (
-              <ModalTabs className="border-b border-border-subtlest-tertiary pb-[0.70rem]" />
-            )}
-            <div className="-mx-4 flex max-w-none flex-col tablet:mx-0 tablet:w-full tablet:max-w-full">
-              {isTabKnown && activeView === Tabs.Sources && (
-                <FollowingSourceList />
-              )}
-              {isTabKnown && activeView === Tabs.Squads && (
-                <FollowingSourceList type={SourceType.Squad} />
-              )}
-              {isTabKnown && activeView === Tabs.Users && <FollowingUserList />}
-            </div>
-          </ModalPropsContext.Provider>
+            </ModalPropsContext.Provider>
+          )
         )}
       </SearchPanelContext.Provider>
     </div>
