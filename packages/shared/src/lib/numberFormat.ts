@@ -4,26 +4,22 @@ export function largeNumberFormat(value: number): string | null {
   if (typeof value !== 'number') {
     return null;
   }
-  let newValue = value;
   const suffixes = ['', 'K', 'M', 'B', 'T'];
   let suffixNum = 0;
-  while (newValue >= 1000) {
-    newValue /= 1000;
+  while (
+    Math.abs(value) >= 1000 ** (suffixNum + 1) &&
+    suffixNum < suffixes.length - 1
+  ) {
     suffixNum += 1;
   }
-  if (suffixNum > 0) {
-    const remainder = newValue % 1;
-    // If the remainder is very small (< 0.05), show no decimal places
-    // If the remainder is significant, show one decimal place
-    const decimalPlaces = remainder >= 0 && remainder < 0.05 ? 0 : 1;
-    const roundedValue =
-      Math.round(newValue * 10 ** decimalPlaces) / 10 ** decimalPlaces;
-    // Check if the rounded value is a whole number
-    const isWholeNumber = roundedValue % 1 === 0;
-    const finalDecimalPlaces = isWholeNumber ? 0 : decimalPlaces;
-    return roundedValue.toFixed(finalDecimalPlaces) + suffixes[suffixNum];
+  if (suffixNum === 0) {
+    return value.toString();
   }
-  return newValue.toString();
+  // One decimal only under 10 in its unit, always rounded down, so a count
+  // never reads higher than it is: 1,790 is 1.7K and 150,900 is 150K.
+  const unit = 1000 ** suffixNum;
+  const step = Math.abs(value) < 10 * unit ? unit / 10 : unit;
+  return `${(Math.trunc(value / step) * step) / unit}${suffixes[suffixNum]}`;
 }
 
 export const getRandom4Digits = (leftPad?: string): string => {
