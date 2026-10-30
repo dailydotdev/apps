@@ -28,14 +28,6 @@ interface BasePaymentProviderProps {
   appliedDiscountId?: string | null;
 }
 
-export const getPricingDiscountId = ({
-  discountId,
-  appliedDiscountId,
-}: Pick<BasePaymentProviderProps, 'discountId' | 'appliedDiscountId'>):
-  | string
-  | undefined =>
-  appliedDiscountId === undefined ? discountId : appliedDiscountId ?? undefined;
-
 export const BasePaymentProvider = ({
   children,
   openCheckout,
@@ -48,24 +40,14 @@ export const BasePaymentProvider = ({
 }: PropsWithChildren<BasePaymentProviderProps>): ReactElement => {
   const { isValidRegion: isPlusAvailable } = useAuthContext();
   const { pricing: funnelPricing } = useFunnelPaymentPricingContext() ?? {};
-  const isPlusPricingEnabled = !funnelPricing?.length;
-  const pricingDiscountId = getPricingDiscountId({
-    discountId,
-    appliedDiscountId,
-  });
-  const discountedPricing = useProductPricing({
+  const { data: plusPricing, isPending: isPricesPending } = useProductPricing({
     type: priceType,
-    enabled: isPlusPricingEnabled,
-    discountId: pricingDiscountId,
+    enabled: !funnelPricing?.length,
+    discountId:
+      appliedDiscountId === undefined
+        ? discountId
+        : appliedDiscountId ?? undefined,
   });
-  const shouldUseFullPricing = !!pricingDiscountId && discountedPricing.isError;
-  const fullPricing = useProductPricing({
-    type: priceType,
-    enabled: isPlusPricingEnabled && shouldUseFullPricing,
-  });
-  const { data: plusPricing, isPending: isPricesPending } = shouldUseFullPricing
-    ? fullPricing
-    : discountedPricing;
   const data = funnelPricing?.length ? funnelPricing : plusPricing;
 
   const openCheckoutWithDiscount = useCallback<OpenCheckoutFn>(
