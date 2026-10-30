@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { PlusCoresGiveback } from './PlusCoresGiveback';
+import { coresGivebackNote, PlusCoresGiveback } from './PlusCoresGiveback';
 import type { ProductPricingPreview } from '../../graphql/paddle';
 import { PlusPriceType, PlusPriceTypeAppsId } from '../../lib/featureValues';
 import type { LoggedUser } from '../../lib/user';
@@ -38,6 +38,12 @@ describe('PlusCoresGiveback', () => {
 
     expect(screen.getByText('4,499 Cores')).toBeInTheDocument();
     expect(screen.getByText(/back every year/)).toBeInTheDocument();
+  });
+
+  it('explains that the amount may vary', () => {
+    renderComponent(yearlyOption);
+
+    expect(screen.getByLabelText(coresGivebackNote)).toBeInTheDocument();
   });
 
   it('hides when the user has no access to Cores', () => {

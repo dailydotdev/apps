@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { CoreIcon } from '../icons';
+import { CoreIcon, InfoIcon } from '../icons';
 import { IconSize } from '../Icon';
 import {
   Typography,
@@ -14,6 +14,10 @@ import { PlusPriceType } from '../../lib/featureValues';
 import { formatCoresCurrency } from '../../lib/utils';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { hasAccessToCores } from '../../lib/cores';
+import { Tooltip } from '../tooltip/Tooltip';
+
+export const coresGivebackNote =
+  'Cores amount may vary depending on your final total at the time of purchase.';
 
 const givebackCadence: Partial<Record<PlusPriceType, string>> = {
   [PlusPriceType.Monthly]: 'every month',
@@ -37,21 +41,33 @@ export const PlusCoresGiveback = ({
   }
 
   return (
-    <Typography
-      tag={TypographyTag.P}
-      type={TypographyType.Callout}
-      color={TypographyColor.Secondary}
-      className={classNames(
-        'flex flex-wrap items-center justify-center gap-1 text-center',
-        className,
-      )}
+    <Tooltip
+      className="text-center"
+      content={coresGivebackNote}
+      delayDuration={0}
+      enableMobileClick
     >
-      Get
-      <CoreIcon size={IconSize.Size16} />
-      <strong className="text-text-primary">
-        {formatCoresCurrency(coresGiveback)} Cores
-      </strong>
-      back {givebackCadence[option.duration] ?? 'on this payment'}
-    </Typography>
+      <Typography
+        tag={TypographyTag.P}
+        type={TypographyType.Callout}
+        color={TypographyColor.Secondary}
+        className={classNames(
+          'mx-auto flex w-fit flex-wrap items-center justify-center gap-1 rounded-6 px-1 text-center hover:bg-surface-float',
+          className,
+        )}
+      >
+        Get
+        <CoreIcon size={IconSize.Size16} />
+        <strong className="text-text-primary">
+          {formatCoresCurrency(coresGiveback)} Cores
+        </strong>
+        back {givebackCadence[option.duration] ?? 'on this payment'}
+        <InfoIcon
+          aria-hidden
+          size={IconSize.Size16}
+          className="text-text-secondary"
+        />
+      </Typography>
+    </Tooltip>
   );
 };
