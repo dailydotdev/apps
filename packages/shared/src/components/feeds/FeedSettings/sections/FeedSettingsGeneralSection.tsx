@@ -52,8 +52,8 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
   const { logEvent } = useLogContext();
 
   const isDefaultFeed = isMainFeed
-    ? user.defaultFeedId === null
-    : user.defaultFeedId === feed.id;
+    ? user?.defaultFeedId === null
+    : user?.defaultFeedId === feed?.id;
 
   return (
     <>
@@ -167,12 +167,12 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
                   size={ButtonSize.Small}
                   color={isDefaultFeed ? ColorName.Avocado : undefined}
                   variant={
-                    user.defaultFeedId === null
+                    user?.defaultFeedId === null
                       ? ButtonVariant.Tertiary
                       : ButtonVariant.Secondary
                   }
                   icon={isDefaultFeed ? <VIcon /> : <StarIcon />}
-                  disabled={user.defaultFeedId === null}
+                  disabled={user?.defaultFeedId === null}
                   onClick={async () => {
                     editFeedSettings(() =>
                       updateUserProfile({
