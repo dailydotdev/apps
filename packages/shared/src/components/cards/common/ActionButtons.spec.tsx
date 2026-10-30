@@ -5,6 +5,7 @@ import { GrowthBook } from '@growthbook/growthbook-react';
 import ActionButtons from './ActionButtons';
 import type { ActionButtonsVariant } from './ActionButtons';
 import post from '../../../../__tests__/fixture/post';
+import type { AuthContextData } from '../../../contexts/AuthContext';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
@@ -84,13 +85,10 @@ describe('list_card_large_actions', () => {
   const renderWithFlag = (
     variant: ActionButtonsVariant,
     gb: GrowthBook,
+    auth: Partial<AuthContextData> = { user: loggedUser },
   ): void => {
     render(
-      <TestBootProvider
-        client={new QueryClient()}
-        gb={gb}
-        auth={{ user: loggedUser }}
-      >
+      <TestBootProvider client={new QueryClient()} gb={gb} auth={auth}>
         <ActionButtons post={post} variant={variant} />
       </TestBootProvider>,
     );
@@ -118,6 +116,18 @@ describe('list_card_large_actions', () => {
     const evaluate = jest.spyOn(gb, 'getFeatureValue');
     renderWithFlag('grid', gb);
 
+    expect(evaluate).not.toHaveBeenCalledWith(
+      featureListCardLargeActions.id,
+      expect.anything(),
+    );
+  });
+
+  it('is never evaluated for logged-out readers', () => {
+    const gb = flagged(true);
+    const evaluate = jest.spyOn(gb, 'getFeatureValue');
+    renderWithFlag('list', gb, { user: undefined, isLoggedIn: false });
+
+    expect(upvote()).not.toHaveClass('h-8');
     expect(evaluate).not.toHaveBeenCalledWith(
       featureListCardLargeActions.id,
       expect.anything(),
