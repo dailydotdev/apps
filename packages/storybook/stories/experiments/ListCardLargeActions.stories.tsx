@@ -9,6 +9,7 @@ import { featureListCardLargeActions } from '@dailydotdev/shared/src/lib/feature
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import { PostTypeToListCard } from '@dailydotdev/shared/src/components/cards/common/listCards';
 import { ArticleList } from '@dailydotdev/shared/src/components/cards/article/ArticleList';
+import { ArticleGrid } from '@dailydotdev/shared/src/components/cards/article/ArticleGrid';
 import post, { sharePost } from '@dailydotdev/shared/__tests__/fixture/post';
 import { pollPost } from '@dailydotdev/shared/__tests__/fixture/pollPost';
 import ExtensionProviders from '../extension/_providers';
@@ -97,6 +98,7 @@ const Column = ({
       <div
         data-counter={counter}
         data-large={on}
+        data-fix={counter === 'x' ? SHIPPED_FIX : 'none'}
         className="flex w-full max-w-[40rem] flex-col"
       >
         {children}
@@ -113,6 +115,7 @@ interface ListArgs {
 const ListCards = ({ show, counter }: ListArgs): ReactElement => (
   <div className="min-h-screen bg-background-default p-4 tablet:p-8">
     <style>{X_COUNTER_CSS}</style>
+    <style>{FIX_CSS}</style>
     <div className="flex flex-col gap-10 laptop:flex-row">
       {[false, true]
         .filter((on) => show === 'both' || (show === 'treatment') === on)
@@ -191,7 +194,7 @@ const OPTIONS: Record<
     tag: 'A',
     name: '32px on every width',
     what: '#7127 as it is: 32px buttons and 20px icons on every phone.',
-    cost: 'Simplest. 320px is the tight width: check its gap in the table.',
+    cost: 'The pick. Shipped in #7127 with the X style and two rules that keep 320px green: no padding after the number, and the upvote icon on the text edge.',
     large: true,
     smallBar: false,
     noCopyBelow360: false,
@@ -248,7 +251,14 @@ const roundDownForRule = (value: number): number => {
 const countValue = (value: number, rule: boolean): number =>
   rule ? roundDownForRule(value) : value;
 
-const RULE_EXAMPLES = [1790, 9940, 23400, 150900, 1250000];
+// largeNumberFormat ships the rule in #7127; `before` is what it printed.
+const RULE_EXAMPLES = [
+  { value: 1790, before: '1.8K' },
+  { value: 9940, before: '9.9K' },
+  { value: 23400, before: '23.4K' },
+  { value: 150900, before: '150.9K' },
+  { value: 1250000, before: '1.3M' },
+];
 
 interface Measure {
   gap: number;
@@ -320,10 +330,11 @@ interface FrameArgs {
   fix?: string;
 }
 
-// X: 18.75px icons, the number 4px away at 13px regular. Ours today: 6px on
-// the 24px bar and 8px on the 32px bar, at 13px medium, with 20px icons on the
-// 32px bar. The X style uses 18px icons there, and the 4px gap pulls the
-// number over the button's own padding, so it overlaps the hover background.
+// The treatment bar ships the X style (18px icons, the number 4px away at
+// regular weight) with both 320px rules: no padding after the number, and the
+// upvote icon on the card's text edge. These rules rebuild what the pages
+// compare it with: the X style on the 24px control bar, and the treatment bar
+// as it was before (`today`, or a `fix` without `pad` or `edge`).
 const BAR_BUTTONS = [
   'upvote',
   'comment',
@@ -336,31 +347,32 @@ const BAR_BUTTONS = [
   .join(',');
 
 const X_COUNTER_CSS = `
-  [data-counter='x'] .btn-quaternary > label {
+  [data-counter='x'][data-large='false'] .btn-quaternary > label {
     padding-left: 0 !important;
-    font-weight: 400;
+    font-weight: 400 !important;
   }
-  [data-counter='x'] .btn-quaternary > label * { font-weight: 400; }
-  [data-counter='x'][data-large='true'] .btn-quaternary > label {
-    margin-left: -0.1875rem;
+  [data-counter='today'][data-large='true'] .btn-quaternary > label {
+    padding-left: 0.125rem !important;
+    margin-left: 0 !important;
+    font-weight: 500 !important;
   }
-  [data-counter='x'][data-large='true'] :is(${BAR_BUTTONS}) svg {
-    width: 1.125rem !important;
-    height: 1.125rem !important;
+  [data-counter='today'][data-large='true'] :is(${BAR_BUTTONS}) svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
   }
 `;
 
-// pad: no padding after the number. edge: the first icon lines up with the
-// card's text instead of its button, so the upvote button reaches 7px into the
-// card padding. The bar ends on the views number, which already sits on the
-// text edge, so only the left side moves.
 const FIX_CSS = `
-  [data-fix*='pad'] .btn-quaternary > label { padding-right: 0 !important; }
-  [data-fix*='edge'][data-large='true']
-    div.flex-1:has(> .btn-quaternary [id$='-upvote-btn']) {
-    margin-left: -0.4375rem;
+  [data-large='true']:not([data-fix*='pad']) .btn-quaternary > label {
+    padding-right: 0.125rem !important;
+  }
+  [data-large='true']:not([data-fix*='edge'])
+    div:has(> div.flex-1 > .btn-quaternary [id$='-upvote-btn']) {
+    margin-left: 0 !important;
   }
 `;
+
+const SHIPPED_FIX = 'pad-edge';
 
 const frameKey = (args: FrameArgs, width: number): string =>
   [
@@ -683,10 +695,15 @@ const formatCounts = (
     .join(' · ');
 
 const SmallScreens = (): ReactElement => {
-  const [rule, setRule] = useState(true);
+  const rule = true;
   const [counter, setCounter] = useState<CounterStyle>('x');
   const { results, heights } = useFrameReports();
-  const base = { rule, counter, closeUp: false };
+  const base = {
+    rule,
+    counter,
+    closeUp: false,
+    fix: counter === 'x' ? SHIPPED_FIX : 'none',
+  };
   const frames = OPTION_ORDER.flatMap((option) =>
     WIDTHS.map((width) => frameKey({ ...base, option }, width)),
   );
@@ -728,27 +745,19 @@ const SmallScreens = (): ReactElement => {
               </h2>
               <p className="text-text-tertiary typo-footnote">
                 One decimal only under 10 in its unit, always rounded down, as X
-                does. Every option below uses it.
+                does. Shipped in #7127 for every counter in the app.
               </p>
             </div>
-            <Segmented
-              value={rule}
-              onChange={setRule}
-              options={[
-                { value: true, label: 'Number rule' },
-                { value: false, label: 'Today’s format' },
-              ]}
-            />
           </div>
           <div className="flex flex-wrap gap-x-6 gap-y-1 text-text-secondary typo-footnote">
-            {RULE_EXAMPLES.map((value) => (
+            {RULE_EXAMPLES.map(({ value, before }) => (
               <span key={value}>
                 {value.toLocaleString('en-US')}:{' '}
                 <span className="text-text-tertiary line-through">
-                  {largeNumberFormat(value)}
+                  {before}
                 </span>{' '}
                 <span className="font-bold text-text-primary">
-                  {largeNumberFormat(roundDownForRule(value))}
+                  {largeNumberFormat(value)}
                 </span>
               </span>
             ))}
@@ -873,7 +882,7 @@ const TAP_COLUMNS = [
   'X',
   'Control 24px, today',
   'Treatment 32px, today’s style',
-  'Treatment 32px, X style',
+  'Treatment 32px, shipped in #7127',
 ];
 
 const TAP_ROWS: { label: string; values: string[] }[] = [
@@ -891,7 +900,7 @@ const TAP_ROWS: { label: string; values: string[] }[] = [
       '67–74 × 36 (34K, 2.8K, 4.7M)',
       '35–59 × 24',
       '43–67 × 32',
-      '38–61 × 32',
+      '36–59 × 32',
     ],
   },
   {
@@ -909,7 +918,7 @@ const TAP_ROWS: { label: string; values: string[] }[] = [
       '71–74 × 36 (2.8K, 4.7M)',
       '50–59 × 24',
       '58–67 × 32',
-      '53–61 × 32',
+      '51–59 × 32',
     ],
   },
   {
@@ -918,7 +927,7 @@ const TAP_ROWS: { label: string; values: string[] }[] = [
       '36px targets in a 20px row: 8px above and below the bar is a tap',
       'Fits the 24px row',
       'Row grows to 32px, nothing outside the bar',
-      'Row grows to 32px, nothing outside the bar',
+      'Row grows to 32px; the upvote button reaches 7px into the card padding, never past the card',
     ],
   },
   {
@@ -951,7 +960,13 @@ const SPACING_COLUMNS: { label: string; args: FrameArgs }[] = [
   },
   {
     label: 'Control 24px, X style',
-    args: { option: 'control', rule: true, counter: 'x', closeUp: false },
+    args: {
+      option: 'control',
+      rule: true,
+      counter: 'x',
+      closeUp: false,
+      fix: SHIPPED_FIX,
+    },
   },
   {
     label: 'Treatment 32px, today’s style',
@@ -959,7 +974,13 @@ const SPACING_COLUMNS: { label: string; args: FrameArgs }[] = [
   },
   {
     label: 'Treatment 32px, X style',
-    args: { option: 'a', rule: true, counter: 'x', closeUp: false },
+    args: {
+      option: 'a',
+      rule: true,
+      counter: 'x',
+      closeUp: false,
+      fix: SHIPPED_FIX,
+    },
   },
 ];
 
@@ -1002,7 +1023,7 @@ const CounterSpacing = (): ReactElement => {
                 <th className="p-3 font-normal" />
                 <th className="p-3 font-normal">X</th>
                 <th className="p-3 font-normal">daily.dev today</th>
-                <th className="p-3 font-normal">X style variation</th>
+                <th className="p-3 font-normal">Shipped in #7127</th>
               </tr>
             </thead>
             <tbody>
@@ -1147,8 +1168,8 @@ const FIXES: {
 }[] = [
   {
     key: 'none',
-    tag: 'Start',
-    name: 'Option A as picked',
+    tag: 'Before',
+    name: 'Option A before the rules',
     what: '32px on every width, the number rule and the X style.',
     cost: 'The worst case at 320px is just under the 4px line.',
   },
@@ -1169,7 +1190,7 @@ const FIXES: {
   {
     key: 'pad-edge',
     tag: '1 + 2',
-    name: 'Both rules',
+    name: 'Both rules (shipped in #7127)',
     what: 'No padding after the number, and the upvote icon lines up with the text.',
     cost: 'Both costs above, both invisible at rest.',
   },
@@ -1286,6 +1307,374 @@ const OptionAGreen = (): ReactElement => {
       </div>
     </div>
   );
+};
+
+// Grid cards: the list decisions applied to the grid bar, one step at a time.
+// x: the number 4px from the icon at regular weight. icon18: 18px bar icons.
+// pad: no padding after the number. edge: the bar lines up with the text:
+// with 18px icons, 9px before the upvote button and 16px after the views
+// number put both on the title's edges. left: only the upvote icon moves.
+const GRID_BAR = `div.py-0\\.5`;
+
+const GRID_CSS = `
+  [data-grid~='x'] ${GRID_BAR} .btn-quaternary > label {
+    padding-left: 0 !important;
+    margin-left: -0.125rem;
+    font-weight: 400 !important;
+  }
+  [data-grid~='x'][data-grid~='icon18'] ${GRID_BAR} .btn-quaternary > label {
+    margin-left: -0.1875rem;
+  }
+  [data-grid~='icon18'] ${GRID_BAR} :is(${BAR_BUTTONS}) svg {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+  }
+  [data-grid~='pad'] ${GRID_BAR} .btn-quaternary > label {
+    padding-right: 0 !important;
+  }
+  :is([data-grid~='edge'], [data-grid~='left']) ${GRID_BAR} {
+    padding-left: 0.5625rem !important;
+  }
+  [data-grid~='edge'] ${GRID_BAR} {
+    padding-right: 1rem !important;
+  }
+`;
+
+const GRID_WIDTHS = [272, 300, 340];
+
+const GRID_STEPS: {
+  key: string;
+  tag: string;
+  name: string;
+  what: string;
+}[] = [
+  {
+    key: '',
+    tag: 'Today',
+    name: 'Grid bar today',
+    what: '32px buttons, 20px icons, the number 8px from the icon at medium weight, 2px after it. Bookmark in the header, from the card_save_on_hover win. The number rule already applies: it ships in largeNumberFormat.',
+  },
+  {
+    key: 'x',
+    tag: 'G1',
+    name: 'Number 4px from the icon, regular weight',
+    what: 'The X style the list treatment ships.',
+  },
+  {
+    key: 'x icon18',
+    tag: 'G2',
+    name: 'G1 + 18px icons',
+    what: 'The bar icons match the list treatment and X (18.75px). Buttons stay 32px.',
+  },
+  {
+    key: 'x icon18 pad',
+    tag: 'G3',
+    name: 'G2 + no padding after the number',
+    what: 'The first of the two 320px rules from the list.',
+  },
+  {
+    key: 'x icon18 pad left',
+    tag: 'G4 · Recommended',
+    name: 'G3 + the upvote icon lines up with the text',
+    what: 'The upvote icon moves onto the title’s left edge, as on the list. The views number keeps today’s right padding, 6px past the text. Every list decision, green at 272px.',
+  },
+  {
+    key: 'x icon18 pad edge',
+    tag: 'G5',
+    name: 'G3 + both ends line up with the text',
+    what: 'The second rule: the upvote icon and the views number line up with the title’s edges, as on the list. On grid the bar today runs past the text on both sides, so this pulls it in and costs width.',
+  },
+];
+
+const measureGridBar = (card: HTMLElement): Measure | null => {
+  const measure = measureBar(card);
+  if (!measure) {
+    return null;
+  }
+  const bar = card
+    .querySelector('[id$="-upvote-btn"]')
+    ?.closest<HTMLElement>('div.flex-1');
+  const right = Math.max(
+    ...Array.from(bar?.children ?? []).map(
+      (child) => child.getBoundingClientRect().right,
+    ),
+  );
+  return {
+    gap: measure.gap,
+    offscreen: Math.max(0, right - card.getBoundingClientRect().right),
+  };
+};
+
+const GridStep = ({
+  step,
+  onMeasure,
+}: {
+  step: (typeof GRID_STEPS)[number];
+  onMeasure: (key: string, measures: Record<string, Measure | null>) => void;
+}): ReactElement => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [measures, setMeasures] = useState<Record<string, Measure | null>>({});
+
+  useLayoutEffect(() => {
+    const root = ref.current;
+    if (!root) {
+      return undefined;
+    }
+    const measure = () => {
+      const next = Object.fromEntries(
+        Array.from(root.querySelectorAll<HTMLElement>('[data-grid-card]')).map(
+          (card) => [card.dataset.gridCard, measureGridBar(card)],
+        ),
+      );
+      setMeasures(next);
+      onMeasure(step.key, next);
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(root);
+    document.fonts?.ready.then(measure);
+    return () => observer.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step.key]);
+
+  return (
+    <div ref={ref} data-grid={step.key} className="flex flex-col gap-6">
+      {GRID_WIDTHS.map((width) => (
+        <div key={width} className="flex flex-col gap-2">
+          <span className="font-bold text-text-tertiary typo-caption1">
+            {width}px card
+          </span>
+          <div className="flex flex-wrap items-start gap-4">
+            {COUNT_ORDER.map((key) => {
+              const count = COUNTS[key];
+              const cardPost = {
+                ...article,
+                id: `grid-${key}-${width}`,
+                numUpvotes: count.upvotes,
+                numComments: count.comments,
+                analytics: { impressions: count.views },
+              } as Post;
+              const caseKey = `${key}@${width}`;
+              return (
+                <div
+                  key={key}
+                  className="flex flex-col gap-2"
+                  style={{ width }}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-text-secondary typo-caption1">
+                      {count.label}
+                    </span>
+                    <Badge measure={measures[caseKey]} />
+                  </div>
+                  <div data-grid-card={caseKey} className="grid">
+                    <ArticleGrid post={cardPost} {...handlers} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const GRID_DECISIONS: {
+  decision: string;
+  list: string;
+  grid: string;
+  next: string;
+}[] = [
+  {
+    decision: 'Number rule',
+    list: 'Shipped',
+    grid: 'Gets it from largeNumberFormat in #7127',
+    next: 'Nothing to do',
+  },
+  {
+    decision: 'Button size',
+    list: '32px',
+    grid: '32px',
+    next: 'Already matches',
+  },
+  {
+    decision: 'Icon size',
+    list: '18px',
+    grid: '20px',
+    next: '18px (G2)',
+  },
+  {
+    decision: 'Icon to number',
+    list: '4px, regular weight',
+    grid: '8px, medium weight',
+    next: '4px, regular weight (G1)',
+  },
+  {
+    decision: 'Padding after the number',
+    list: 'None',
+    grid: '2px',
+    next: 'None (G3)',
+  },
+  {
+    decision: 'Bar edges',
+    list: 'Upvote icon on the text edge',
+    grid: 'Upvote icon 6px left of the title, views number 4px past it',
+    next: 'Upvote icon on the title’s edge (G4). Both ends (G5) goes red at 272px',
+  },
+  {
+    decision: 'Bookmark',
+    list: 'In the bar (list cards weren’t in the header test)',
+    grid: 'In the header, between Read post and ⋯ (won)',
+    next: 'Keep it in the header',
+  },
+  {
+    decision: 'Header icon buttons',
+    list: 'Read post (icon-only on phones) and ⋯ side by side',
+    grid: 'Bookmark and ⋯ side by side',
+    next: 'Already matches',
+  },
+];
+
+const GridCards = (): ReactElement => {
+  const [results, setResults] = useState<
+    Record<string, Record<string, Measure | null>>
+  >({});
+  const onMeasure = (
+    key: string,
+    measures: Record<string, Measure | null>,
+  ): void => setResults((prev) => ({ ...prev, [key]: measures }));
+
+  return (
+    <div className="min-h-screen bg-background-default p-6 tablet:p-10">
+      <style>{GRID_CSS}</style>
+      <div className="flex flex-col gap-10">
+        <header className="flex max-w-[50rem] flex-col gap-3">
+          <p className="font-bold uppercase text-text-tertiary typo-caption1">
+            What should grid cards change to match the list?
+          </p>
+          <h1 className="font-bold text-text-primary typo-title1">
+            Grid cards: match the list decisions
+          </h1>
+          <p className="text-text-secondary typo-body">
+            Goal: one action bar language on grid and list cards. The list
+            treatment in #7127 ships the number rule, the X style (18px icons,
+            the number 4px away at regular weight) and two spacing rules. The
+            grid keeps the bookmark in the header, where it won. Metric: the
+            smallest gap between bar buttons at the narrowest grid card (272px),
+            measured live. Under {HEALTHY_GAP}px is flagged.
+          </p>
+          <p className="text-text-secondary typo-body">
+            Recommendation: G4. Today’s grid bar is already red at 272px with
+            the worst-case counts. The list’s counter changes fix it, and lining
+            the upvote icon up with the title matches the list’s rule while
+            staying green.
+          </p>
+        </header>
+
+        <section className="flex flex-col gap-3">
+          <h2 className="font-bold text-text-primary typo-title3">
+            Decision by decision
+          </h2>
+          <div className="overflow-x-auto rounded-16 border border-border-subtlest-tertiary">
+            <table className="w-full text-left typo-footnote">
+              <thead>
+                <tr className="text-text-tertiary">
+                  <th className="p-3 font-normal">Decision</th>
+                  <th className="p-3 font-normal">List treatment (#7127)</th>
+                  <th className="p-3 font-normal">Grid today</th>
+                  <th className="p-3 font-normal">Grid recommendation</th>
+                </tr>
+              </thead>
+              <tbody>
+                {GRID_DECISIONS.map((row) => (
+                  <tr
+                    key={row.decision}
+                    className="border-t border-border-subtlest-tertiary"
+                  >
+                    <td className="p-3 font-bold text-text-primary">
+                      {row.decision}
+                    </td>
+                    <td className="p-3 text-text-secondary">{row.list}</td>
+                    <td className="p-3 text-text-secondary">{row.grid}</td>
+                    <td className="p-3 text-text-primary">{row.next}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section className="flex flex-col gap-3">
+          <h2 className="font-bold text-text-primary typo-title3">Results</h2>
+          <div className="overflow-x-auto rounded-16 border border-border-subtlest-tertiary">
+            <table className="w-full text-left typo-footnote">
+              <thead>
+                <tr className="text-text-tertiary">
+                  <th className="p-3 font-normal">Step</th>
+                  {GRID_WIDTHS.map((width) => (
+                    <th key={width} className="p-3 font-normal">
+                      Worst case at {width}px
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {GRID_STEPS.map((step) => (
+                  <tr
+                    key={step.key}
+                    className="border-t border-border-subtlest-tertiary"
+                  >
+                    <td className="p-3 text-text-primary">
+                      <span className="mr-2 font-bold">{step.tag}</span>
+                      {step.name}
+                    </td>
+                    {GRID_WIDTHS.map((width) => (
+                      <td key={width} className="p-3">
+                        <Badge
+                          measure={worstOf(
+                            results[step.key] &&
+                              Object.fromEntries(
+                                Object.entries(results[step.key]).filter(
+                                  ([key]) => key.endsWith(`@${width}`),
+                                ),
+                              ),
+                          )}
+                        />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {GRID_STEPS.map((step) => (
+          <section
+            key={step.key}
+            className="flex flex-col gap-4 border-t border-border-subtlest-tertiary pt-8"
+          >
+            <div className="flex max-w-[50rem] flex-col gap-1">
+              <p className="font-bold text-text-tertiary typo-caption1">
+                {step.tag}
+              </p>
+              <h2 className="font-bold text-text-primary typo-title3">
+                {step.name}
+              </h2>
+              <p className="text-text-secondary typo-callout">{step.what}</p>
+            </div>
+            <GridStep step={step} onMeasure={onMeasure} />
+          </section>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export const GridCardsMatchTheList: StoryObj = {
+  name: 'Grid cards: match the list',
+  parameters: { options: { showPanel: false } },
+  render: () => <GridCards />,
 };
 
 export const OptionAEveryWidthGreen: StoryObj = {
