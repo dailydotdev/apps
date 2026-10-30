@@ -6,6 +6,7 @@ import { fn } from 'storybook/test';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import { featureListCardLargeActions } from '@dailydotdev/shared/src/lib/featureManagement';
+import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import { PostTypeToListCard } from '@dailydotdev/shared/src/components/cards/common/listCards';
 import { ArticleList } from '@dailydotdev/shared/src/components/cards/article/ArticleList';
 import post, { sharePost } from '@dailydotdev/shared/__tests__/fixture/post';
@@ -148,7 +149,7 @@ export const List: StoryObj<ListArgs> = {
  * gets, and the gaps are measured live from the rendered bar.
  */
 
-type OptionKey = 'control' | 'a' | 'b' | 'c' | 'd';
+type OptionKey = 'control' | 'a' | 'b' | 'c';
 type CountKey = 'typical' | 'views' | 'viral' | 'worst';
 
 const OPTIONS: Record<
@@ -159,64 +160,49 @@ const OPTIONS: Record<
     what: string;
     cost: string;
     large: boolean;
-    rule: boolean;
     smallBar: boolean;
     noCopyBelow360: boolean;
   }
 > = {
   control: {
-    tag: 'Today',
-    name: 'Control, 24px bar',
+    tag: 'Control',
+    name: 'Today’s 24px bar',
     what: 'What every list card shows today and what the control arm keeps.',
     cost: 'Baseline for comparison.',
     large: false,
-    rule: false,
     smallBar: false,
     noCopyBelow360: false,
   },
   a: {
     tag: 'A',
-    name: 'Ship #7127 as it is',
-    what: '32px buttons on every width, numbers formatted as today.',
-    cost: 'Viral posts touch at 320px and the worst case runs off the screen.',
+    name: '32px on every width',
+    what: '#7127 as it is: 32px buttons and 20px icons on every phone.',
+    cost: 'Simplest. 320px is the tight width: check its gap in the table.',
     large: true,
-    rule: false,
     smallBar: false,
     noCopyBelow360: false,
   },
   b: {
     tag: 'B',
-    name: 'A + whole numbers from 10K',
-    what: 'One decimal only under 10 in its unit, always rounded down: 150.9K reads 150K. Its own PR, shared by every counter in the app.',
-    cost: 'Fixes 360px and up. 320px still touches in the worst case.',
+    name: '32px, today’s bar below 360px',
+    what: 'Phones narrower than 360px keep the 24px bar inside the treatment. Everyone from 360px up gets 32px.',
+    cost: '320px readers in the treatment don’t see the change. Check their share before launch.',
     large: true,
-    rule: true,
-    smallBar: false,
+    smallBar: true,
     noCopyBelow360: false,
   },
   c: {
     tag: 'C',
-    name: 'B + today’s 24px bar below 360px',
-    what: 'The number rule, and phones narrower than 360px keep the control bar inside the treatment.',
-    cost: '320px readers in the treatment don’t see the change. Check their share before launch.',
-    large: true,
-    rule: true,
-    smallBar: true,
-    noCopyBelow360: false,
-  },
-  d: {
-    tag: 'D',
-    name: 'B + no copy link below 360px',
-    what: 'The number rule, and the copy link button leaves the bar on phones narrower than 360px. Everyone gets 32px.',
+    name: '32px, no copy link below 360px',
+    what: 'Everyone gets 32px. On phones narrower than 360px the copy link button leaves the bar to make room.',
     cost: 'Copy link taps on 320px phones are lost from the card. A second change inside the treatment.',
     large: true,
-    rule: true,
     smallBar: false,
     noCopyBelow360: true,
   },
 };
 
-const OPTION_ORDER: OptionKey[] = ['control', 'a', 'b', 'c', 'd'];
+const OPTION_ORDER: OptionKey[] = ['control', 'a', 'b', 'c'];
 
 const COUNTS: Record<
   CountKey,
@@ -233,8 +219,8 @@ const WIDTHS = [320, 360, 375];
 const NARROW = 360;
 const HEALTHY_GAP = 4;
 
-// The proposed largeNumberFormat rule, applied to the value so today's
-// formatter prints it: one decimal under 10 in its unit, rounded down.
+// The number rule from #6835, applied to the value so today's formatter
+// prints it: one decimal only under 10 in its unit, always rounded down.
 const roundDownForRule = (value: number): number => {
   if (value < 1000) {
     return value;
@@ -244,6 +230,11 @@ const roundDownForRule = (value: number): number => {
   const step = scaled < 10 ? 10 : 1;
   return (Math.floor(scaled * step) / step) * unit;
 };
+
+const countValue = (value: number, rule: boolean): number =>
+  rule ? roundDownForRule(value) : value;
+
+const RULE_EXAMPLES = [1790, 9940, 23400, 150900, 1250000];
 
 interface Measure {
   gap: number;
@@ -303,22 +294,50 @@ const Badge = ({ measure }: { measure?: Measure | null }): ReactElement => {
   );
 };
 
+type CounterStyle = 'today' | 'x';
+
 interface FrameArgs {
   option: OptionKey;
+  rule: boolean;
+  counter: CounterStyle;
+  /** Close-ups: only the typical card, with its upvote in the hover state. */
+  closeUp: boolean;
 }
 
-const FrameCards = ({ option }: FrameArgs): ReactElement => {
+// X: the number sits 4px from the icon at 13px regular. Ours today: 6px on
+// the 24px bar and 8px on the 32px bar, at 13px medium. The 4px gap pulls the
+// number over the button's own padding, so it overlaps the hover background.
+const X_COUNTER_CSS = `
+  [data-counter='x'] .btn-quaternary > label {
+    padding-left: 0 !important;
+    font-weight: 400;
+  }
+  [data-counter='x'] .btn-quaternary > label * { font-weight: 400; }
+  [data-counter='x'][data-large='true'] .btn-quaternary > label {
+    margin-left: -0.125rem;
+  }
+`;
+
+const frameKey = (args: FrameArgs, width: number): string =>
+  [args.option, args.rule, args.counter, args.closeUp, width].join('@');
+
+const FrameCards = (args: FrameArgs): ReactElement => {
+  const { option, rule, counter, closeUp } = args;
   const config = OPTIONS[option];
   const ref = useRef<HTMLDivElement>(null);
   const [measures, setMeasures] = useState<Record<string, Measure | null>>({});
   const narrow = window.innerWidth < NARROW;
   const large = config.large && !(config.smallBar && narrow);
   const hideCopy = config.noCopyBelow360 && narrow;
+  const cases = closeUp ? (['typical'] as CountKey[]) : COUNT_ORDER;
 
   useLayoutEffect(() => {
     const root = ref.current;
     if (!root) {
       return undefined;
+    }
+    if (closeUp) {
+      root.querySelector('[id$="-upvote-btn"]')?.classList.add('hover');
     }
     const measure = () => {
       const next = Object.fromEntries(
@@ -330,8 +349,7 @@ const FrameCards = ({ option }: FrameArgs): ReactElement => {
       window.parent.postMessage(
         {
           source: 'list-card-small-screens',
-          option,
-          width: window.innerWidth,
+          key: frameKey(args, window.innerWidth),
           height: root.scrollHeight,
           measures: next,
         },
@@ -342,31 +360,39 @@ const FrameCards = ({ option }: FrameArgs): ReactElement => {
     observer.observe(root);
     document.fonts?.ready.then(measure);
     return () => observer.disconnect();
-  }, [option]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [option, rule, counter, closeUp]);
 
   return (
     <FeatureOverrides values={{ [featureListCardLargeActions.id]: large }}>
-      <div ref={ref} className="flex flex-col bg-background-default">
+      <div
+        ref={ref}
+        data-counter={counter}
+        data-large={large}
+        className="flex flex-col bg-background-default"
+      >
         <style>{'img[alt="Post Cover image"]{display:none}'}</style>
+        <style>{X_COUNTER_CSS}</style>
         {hideCopy && <style>{'[id$="-copy-btn"]{display:none}'}</style>}
-        {COUNT_ORDER.map((key) => {
+        {cases.map((key) => {
           const count = COUNTS[key];
-          const value = (n: number) => (config.rule ? roundDownForRule(n) : n);
           const cardPost = {
             ...article,
             id: `small-${key}`,
-            numUpvotes: value(count.upvotes),
-            numComments: value(count.comments),
-            analytics: { impressions: value(count.views) },
+            numUpvotes: countValue(count.upvotes, rule),
+            numComments: countValue(count.comments, rule),
+            analytics: { impressions: countValue(count.views, rule) },
           } as Post;
           return (
             <div key={key} data-case={key}>
-              <div className="flex items-center justify-between px-4 pt-3">
-                <span className="font-bold text-text-secondary typo-caption1">
-                  {count.label}
-                </span>
-                <Badge measure={measures[key]} />
-              </div>
+              {!closeUp && (
+                <div className="flex items-center justify-between px-4 pt-3">
+                  <span className="font-bold text-text-secondary typo-caption1">
+                    {count.label}
+                  </span>
+                  <Badge measure={measures[key]} />
+                </div>
+              )}
               <ArticleList post={cardPost} {...handlers} />
             </div>
           );
@@ -378,42 +404,130 @@ const FrameCards = ({ option }: FrameArgs): ReactElement => {
 
 const FRAME_ID = 'experiments-list-card-large-actions--frame';
 
+const frameSrc = ({ option, rule, counter, closeUp }: FrameArgs): string =>
+  `iframe.html?id=${FRAME_ID}&viewMode=story&args=option:${option};rule:!${rule};counter:${counter};closeUp:!${closeUp}&globals=theme:dark`;
+
 type Results = Record<string, Record<string, Measure | null>>;
 
-const resultKey = (option: OptionKey, width: number) => `${option}@${width}`;
+interface FrameReports {
+  results: Results;
+  heights: Record<string, number>;
+}
+
+const useFrameReports = (): FrameReports => {
+  const [reports, setReports] = useState<FrameReports>({
+    results: {},
+    heights: {},
+  });
+
+  useEffect(() => {
+    const onMessage = ({ data }: MessageEvent) => {
+      if (data?.source !== 'list-card-small-screens') {
+        return;
+      }
+      setReports((prev) => ({
+        results: { ...prev.results, [data.key]: data.measures },
+        heights: { ...prev.heights, [data.key]: data.height },
+      }));
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, []);
+
+  return reports;
+};
+
+// The dev server fails module imports when many frames boot at once, so
+// frames load a few at a time: one more per report, or every few seconds.
+const useLoadQueue = (keys: string[], heights: Record<string, number>) => {
+  const [count, setCount] = useState(3);
+  const reported = keys.filter((key) => heights[key] !== undefined).length;
+  const signature = keys.join('|');
+
+  useEffect(() => {
+    setCount(3);
+    const timer = window.setInterval(() => setCount((c) => c + 1), 4000);
+    return () => window.clearInterval(timer);
+  }, [signature]);
+
+  return (index: number) => index < Math.max(count, reported + 3);
+};
 
 const Phone = ({
-  option,
+  args,
   width,
+  label,
   height,
   isLoaded,
+  scale = 1,
 }: {
-  option: OptionKey;
+  args: FrameArgs;
   width: number;
+  label: string;
   height?: number;
   isLoaded: boolean;
-}): ReactElement => (
-  <div className="flex flex-col gap-2">
-    <span className="font-bold text-text-tertiary typo-caption1">
-      {width}px
-    </span>
-    <div className="overflow-hidden rounded-16 border border-border-subtlest-tertiary">
-      {isLoaded ? (
-        <iframe
-          title={`${OPTIONS[option].name} at ${width}px`}
-          src={`iframe.html?id=${FRAME_ID}&viewMode=story&args=option:${option}&globals=theme:dark`}
-          width={width}
-          height={height ?? 900}
-          className="block border-0"
-        />
-      ) : (
-        <div style={{ width, height: 900 }} />
-      )}
-    </div>
-  </div>
-);
+  scale?: number;
+}): ReactElement => {
+  // A frame that never reports hit a failed module import: load it again.
+  const [attempt, setAttempt] = useState(0);
+  const isReported = height !== undefined;
+  const frameHeight = height ?? (args.closeUp ? 200 : 900);
 
-const Scoreboard = ({ results }: { results: Results }): ReactElement => (
+  useEffect(() => {
+    if (!isLoaded || isReported) {
+      return undefined;
+    }
+    const timer = window.setTimeout(() => setAttempt((a) => a + 1), 12000);
+    return () => window.clearTimeout(timer);
+  }, [isLoaded, isReported, attempt]);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="font-bold text-text-tertiary typo-caption1">
+        {label}
+      </span>
+      <div
+        className="overflow-hidden rounded-16 border border-border-subtlest-tertiary"
+        style={{ width: width * scale, height: frameHeight * scale }}
+      >
+        {isLoaded && (
+          <iframe
+            key={attempt}
+            title={label}
+            src={frameSrc(args)}
+            width={width}
+            height={frameHeight}
+            className="block origin-top-left border-0"
+            style={scale === 1 ? undefined : { transform: `scale(${scale})` }}
+          />
+        )}
+      </div>
+    </div>
+  );
+};
+
+const worstOf = (measures?: Record<string, Measure | null>) =>
+  measures
+    ? Object.values(measures).reduce<Measure | null>(
+        (acc, m) =>
+          !m
+            ? acc
+            : !acc ||
+              m.offscreen > acc.offscreen ||
+              (m.offscreen === acc.offscreen && m.gap < acc.gap)
+            ? m
+            : acc,
+        null,
+      )
+    : undefined;
+
+const Scoreboard = ({
+  results,
+  base,
+}: {
+  results: Results;
+  base: Omit<FrameArgs, 'option'>;
+}): ReactElement => (
   <div className="overflow-x-auto rounded-16 border border-border-subtlest-tertiary">
     <table className="w-full text-left typo-footnote">
       <thead>
@@ -439,27 +553,15 @@ const Scoreboard = ({ results }: { results: Results }): ReactElement => (
                 <span className="mr-2 font-bold">{config.tag}</span>
                 {config.name}
               </td>
-              {WIDTHS.map((width) => {
-                const measures = results[resultKey(option, width)];
-                const worst = measures
-                  ? Object.values(measures).reduce<Measure | null>(
-                      (acc, m) =>
-                        !m
-                          ? acc
-                          : !acc ||
-                            m.offscreen > acc.offscreen ||
-                            (m.offscreen === acc.offscreen && m.gap < acc.gap)
-                          ? m
-                          : acc,
-                      null,
-                    )
-                  : undefined;
-                return (
-                  <td key={width} className="p-3">
-                    <Badge measure={worst} />
-                  </td>
-                );
-              })}
+              {WIDTHS.map((width) => (
+                <td key={width} className="p-3">
+                  <Badge
+                    measure={worstOf(
+                      results[frameKey({ ...base, option }, width)],
+                    )}
+                  />
+                </td>
+              ))}
               <td className="p-3 text-text-secondary">
                 {!config.large && 'No'}
                 {config.large && config.smallBar && 'Not below 360px'}
@@ -473,37 +575,56 @@ const Scoreboard = ({ results }: { results: Results }): ReactElement => (
   </div>
 );
 
+const Segmented = <T extends string | boolean>({
+  value,
+  options,
+  onChange,
+}: {
+  value: T;
+  options: { value: T; label: string }[];
+  onChange: (value: T) => void;
+}): ReactElement => (
+  <div className="flex gap-1 rounded-12 bg-surface-float p-1">
+    {options.map((option) => (
+      <button
+        key={String(option.value)}
+        type="button"
+        onClick={() => onChange(option.value)}
+        className={classNames(
+          'rounded-8 px-3 py-1.5 font-bold typo-footnote',
+          value === option.value
+            ? 'bg-background-default text-text-primary'
+            : 'text-text-tertiary',
+        )}
+      >
+        {option.label}
+      </button>
+    ))}
+  </div>
+);
+
+const COUNTER_OPTIONS: { value: CounterStyle; label: string }[] = [
+  { value: 'today', label: 'Today’s spacing' },
+  { value: 'x', label: 'X spacing' },
+];
+
+const formatCounts = (
+  { upvotes, comments, views }: (typeof COUNTS)[CountKey],
+  rule: boolean,
+): string =>
+  [upvotes, comments, views]
+    .map((value) => largeNumberFormat(countValue(value, rule)))
+    .join(' · ');
+
 const SmallScreens = (): ReactElement => {
-  const [results, setResults] = useState<Results>({});
-  const [heights, setHeights] = useState<Record<string, number>>({});
-  // The dev server fails module imports when 15 frames boot at once, so
-  // frames load a few at a time: one more per report, or every few seconds.
-  const [loadedCount, setLoadedCount] = useState(3);
-
-  useEffect(() => {
-    const timer = window.setInterval(
-      () => setLoadedCount((count) => count + 1),
-      4000,
-    );
-    return () => window.clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    setLoadedCount((count) => Math.max(count, Object.keys(results).length + 3));
-  }, [results]);
-
-  useEffect(() => {
-    const onMessage = ({ data }: MessageEvent) => {
-      if (data?.source !== 'list-card-small-screens') {
-        return;
-      }
-      const key = resultKey(data.option, data.width);
-      setResults((prev) => ({ ...prev, [key]: data.measures }));
-      setHeights((prev) => ({ ...prev, [key]: data.height }));
-    };
-    window.addEventListener('message', onMessage);
-    return () => window.removeEventListener('message', onMessage);
-  }, []);
+  const [rule, setRule] = useState(true);
+  const [counter, setCounter] = useState<CounterStyle>('today');
+  const { results, heights } = useFrameReports();
+  const base = { rule, counter, closeUp: false };
+  const frames = OPTION_ORDER.flatMap((option) =>
+    WIDTHS.map((width) => frameKey({ ...base, option }, width)),
+  );
+  const isLoaded = useLoadQueue(frames, heights);
 
   return (
     <div className="min-h-screen bg-background-default p-6 tablet:p-10">
@@ -522,17 +643,72 @@ const SmallScreens = (): ReactElement => {
             Under {HEALTHY_GAP}px is flagged.
           </p>
           <p className="max-w-[50rem] text-text-tertiary typo-callout">
-            Counts are upvotes · comments · views: Typical 63 · 8 · 197K, Big
-            views 14 · 2 · 150.9K, Viral 1.2K · 345 · 999.9K, Worst case 99.9K ·
-            9.9K · 999.9K. Buttons never shrink, so nothing draws on top of
-            another button; a long number pushes the bar wider instead. Cover
-            images are hidden to keep the phones short; the bar is the same.
+            Counts are upvotes · comments · views:{' '}
+            {COUNT_ORDER.map(
+              (key) =>
+                `${COUNTS[key].label} ${formatCounts(COUNTS[key], rule)}`,
+            ).join(', ')}
+            . Buttons never shrink, so nothing draws on top of another button; a
+            long number pushes the bar wider instead. Cover images are hidden to
+            keep the phones short; the bar is the same.
           </p>
         </header>
 
+        <section className="flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-col gap-1">
+              <h2 className="font-bold text-text-primary typo-callout">
+                Number rule: whole numbers from 10K
+              </h2>
+              <p className="text-text-tertiary typo-footnote">
+                One decimal only under 10 in its unit, always rounded down, as X
+                does. Every option below uses it.
+              </p>
+            </div>
+            <Segmented
+              value={rule}
+              onChange={setRule}
+              options={[
+                { value: true, label: 'Number rule' },
+                { value: false, label: 'Today’s format' },
+              ]}
+            />
+          </div>
+          <div className="flex flex-wrap gap-x-6 gap-y-1 text-text-secondary typo-footnote">
+            {RULE_EXAMPLES.map((value) => (
+              <span key={value}>
+                {value.toLocaleString('en-US')}:{' '}
+                <span className="text-text-tertiary line-through">
+                  {largeNumberFormat(value)}
+                </span>{' '}
+                <span className="font-bold text-text-primary">
+                  {largeNumberFormat(roundDownForRule(value))}
+                </span>
+              </span>
+            ))}
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border-subtlest-tertiary pt-4">
+            <div className="flex flex-col gap-1">
+              <h2 className="font-bold text-text-primary typo-callout">
+                Counter spacing
+              </h2>
+              <p className="text-text-tertiary typo-footnote">
+                X spacing: the number 4px from the icon at regular weight,
+                instead of 6px (24px bar) or 8px (32px bar) at medium. See
+                “Counter spacing vs X” for close-ups.
+              </p>
+            </div>
+            <Segmented
+              value={counter}
+              onChange={setCounter}
+              options={COUNTER_OPTIONS}
+            />
+          </div>
+        </section>
+
         <section className="flex flex-col gap-3">
           <h2 className="font-bold text-text-primary typo-title3">Pick one</h2>
-          <Scoreboard results={results} />
+          <Scoreboard results={results} base={base} />
         </section>
 
         {OPTION_ORDER.map((option, optionIndex) => {
@@ -555,21 +731,211 @@ const SmallScreens = (): ReactElement => {
                 <p className="text-text-tertiary typo-callout">{config.cost}</p>
               </div>
               <div className="flex flex-wrap items-start gap-6">
-                {WIDTHS.map((width, widthIndex) => (
-                  <Phone
-                    key={width}
-                    option={option}
-                    width={width}
-                    height={heights[resultKey(option, width)]}
-                    isLoaded={
-                      optionIndex * WIDTHS.length + widthIndex < loadedCount
-                    }
-                  />
-                ))}
+                {WIDTHS.map((width, widthIndex) => {
+                  const key = frameKey({ ...base, option }, width);
+                  return (
+                    <Phone
+                      key={key}
+                      args={{ ...base, option }}
+                      width={width}
+                      label={`${width}px`}
+                      height={heights[key]}
+                      isLoaded={isLoaded(
+                        optionIndex * WIDTHS.length + widthIndex,
+                      )}
+                    />
+                  );
+                })}
               </div>
             </section>
           );
         })}
+      </div>
+    </div>
+  );
+};
+
+const SPEC_ROWS: { label: string; x: string; today: string; next: string }[] = [
+  {
+    label: 'Icon to number',
+    x: '4px',
+    today: '6px (24px bar), 8px (32px bar)',
+    next: '4px on both bars',
+  },
+  {
+    label: 'Number size',
+    x: '13px',
+    today: '13px (typo-footnote)',
+    next: '13px, unchanged',
+  },
+  {
+    label: 'Number weight',
+    x: '400 regular',
+    today: '500 medium',
+    next: '400 regular',
+  },
+  {
+    label: 'Numerals',
+    x: 'Tabular',
+    today: 'Tabular',
+    next: 'Tabular, unchanged',
+  },
+  {
+    label: 'Icon',
+    x: '18.75px',
+    today: '16px (24px bar), 20px (32px bar)',
+    next: 'Unchanged',
+  },
+  {
+    label: 'Hover',
+    x: '36px pill around icon and number',
+    today: 'Square on the icon; the number sits 2px outside it',
+    next: 'Square on the icon; the number overlaps it by 2px',
+  },
+  {
+    label: 'Rounding',
+    x: 'Down: 2,890 reads 2.8K, 34,993 reads 34K',
+    today: 'Nearest: 150,900 reads 150.9K',
+    next: 'Number rule: down, whole from 10K',
+  },
+];
+
+const SPACING_COLUMNS: { label: string; args: FrameArgs }[] = [
+  {
+    label: 'Control 24px, today’s spacing',
+    args: { option: 'control', rule: true, counter: 'today', closeUp: false },
+  },
+  {
+    label: 'Control 24px, X spacing',
+    args: { option: 'control', rule: true, counter: 'x', closeUp: false },
+  },
+  {
+    label: 'Treatment 32px, today’s spacing',
+    args: { option: 'a', rule: true, counter: 'today', closeUp: false },
+  },
+  {
+    label: 'Treatment 32px, X spacing',
+    args: { option: 'a', rule: true, counter: 'x', closeUp: false },
+  },
+];
+
+const SPACING_WIDTH = 375;
+
+const CounterSpacing = (): ReactElement => {
+  const { results, heights } = useFrameReports();
+  const closeUps = SPACING_COLUMNS.map((column) => ({
+    ...column,
+    args: { ...column.args, closeUp: true },
+  }));
+  const frames = [...closeUps, ...SPACING_COLUMNS];
+  const isLoaded = useLoadQueue(
+    frames.map(({ args }) => frameKey(args, SPACING_WIDTH)),
+    heights,
+  );
+
+  return (
+    <div className="min-h-screen bg-background-default p-6 tablet:p-10">
+      <div className="flex max-w-[100rem] flex-col gap-10">
+        <header className="flex max-w-[50rem] flex-col gap-3">
+          <p className="font-bold uppercase text-text-tertiary typo-caption1">
+            Should the counters sit closer to their icons, like X?
+          </p>
+          <h1 className="font-bold text-text-primary typo-title1">
+            Counter spacing vs X
+          </h1>
+          <p className="text-text-secondary typo-body">
+            X’s numbers sit 4px from the icon at regular weight. Ours sit 6 to
+            8px away at medium, so each counted button is wider and the number
+            reads detached from its icon. Measured on x.com on Oct 30, 2026. All
+            cards use the number rule.
+          </p>
+        </header>
+
+        <div className="overflow-x-auto rounded-16 border border-border-subtlest-tertiary">
+          <table className="w-full text-left typo-footnote">
+            <thead>
+              <tr className="text-text-tertiary">
+                <th className="p-3 font-normal" />
+                <th className="p-3 font-normal">X</th>
+                <th className="p-3 font-normal">daily.dev today</th>
+                <th className="p-3 font-normal">X spacing variation</th>
+              </tr>
+            </thead>
+            <tbody>
+              {SPEC_ROWS.map((row) => (
+                <tr
+                  key={row.label}
+                  className="border-t border-border-subtlest-tertiary"
+                >
+                  <td className="p-3 font-bold text-text-primary">
+                    {row.label}
+                  </td>
+                  <td className="p-3 text-text-secondary">{row.x}</td>
+                  <td className="p-3 text-text-secondary">{row.today}</td>
+                  <td className="p-3 text-text-primary">{row.next}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <section className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <h2 className="font-bold text-text-primary typo-title3">
+              Close-up at 2x, upvote hovered
+            </h2>
+            <p className="text-text-tertiary typo-callout">
+              The hover square shows where the number now overlaps the button.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-start gap-6">
+            {closeUps.map(({ label, args }, index) => {
+              const key = frameKey(args, SPACING_WIDTH);
+              return (
+                <Phone
+                  key={key}
+                  args={args}
+                  width={SPACING_WIDTH}
+                  label={label}
+                  height={heights[key]}
+                  isLoaded={isLoaded(index)}
+                  scale={2}
+                />
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <h2 className="font-bold text-text-primary typo-title3">
+              List mode at {SPACING_WIDTH}px
+            </h2>
+            <p className="text-text-tertiary typo-callout">
+              The four count cases from the small-screens page, with the
+              smallest gap between buttons on each card.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-start gap-6">
+            {SPACING_COLUMNS.map(({ label, args }, index) => {
+              const key = frameKey(args, SPACING_WIDTH);
+              return (
+                <div key={key} className="flex flex-col gap-2">
+                  <Phone
+                    args={args}
+                    width={SPACING_WIDTH}
+                    label={label}
+                    height={heights[key]}
+                    isLoaded={isLoaded(closeUps.length + index)}
+                  />
+                  <span className="flex items-center gap-2 text-text-tertiary typo-caption1">
+                    Worst case <Badge measure={worstOf(results[key])} />
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </section>
       </div>
     </div>
   );
@@ -581,12 +947,19 @@ export const SmallScreensDecision: StoryObj = {
   render: () => <SmallScreens />,
 };
 
+export const CounterSpacingVsX: StoryObj = {
+  name: 'Counter spacing vs X',
+  parameters: { options: { showPanel: false } },
+  render: () => <CounterSpacing />,
+};
+
 export const Frame: StoryObj<FrameArgs> = {
   name: 'Small screens frame',
   tags: ['!dev'],
-  args: { option: 'a' },
+  args: { option: 'a', rule: true, counter: 'today', closeUp: false },
   argTypes: {
     option: { control: 'inline-radio', options: OPTION_ORDER },
+    counter: { control: 'inline-radio', options: ['today', 'x'] },
   },
   render: (args) => <FrameCards {...args} />,
 };
