@@ -129,8 +129,7 @@ const BAR_BUTTONS = [
 ]
   .map((name) => `[id$='-${name}-btn']`)
   .join(',');
-const LIST_BAR = `div:has(> div.flex-1 > .btn-quaternary [id$='-upvote-btn'])`;
-const GRID_BAR = `div.py-0\\.5:has([id$='-upvote-btn'])`;
+const BAR = `div:has(> div.flex-1 > .btn-quaternary [id$='-upvote-btn'])`;
 
 // List: 24px buttons with 16px icons become 32px with 19px icons, and the
 // upvote icon, not its button, lines up with the text. Both bars: the number
@@ -138,25 +137,25 @@ const GRID_BAR = `div.py-0\\.5:has([id$='-upvote-btn'])`;
 // the bar and the cover image, the card's left side and its bottom, and 8px
 // after the views number, so the row stays 36px.
 const FINAL_CSS = `
-  [data-arm='final'] :is(${LIST_BAR}, ${GRID_BAR}) :is(${BAR_BUTTONS}) svg {
+  [data-arm='final'] ${BAR} :is(${BAR_BUTTONS}) svg {
     width: 1.1875rem !important;
     height: 1.1875rem !important;
   }
-  [data-arm='final'] ${LIST_BAR} :is(${BAR_BUTTONS}) {
+  [data-arm='final'][data-surface='list'] ${BAR} :is(${BAR_BUTTONS}) {
     height: 2rem !important;
     width: 2rem !important;
     border-radius: 0.625rem !important;
   }
-  [data-arm='final'] ${LIST_BAR} {
+  [data-arm='final'][data-surface='list'] ${BAR} {
     margin-left: -0.40625rem;
   }
-  [data-arm='final'] :is(${LIST_BAR}, ${GRID_BAR}) .btn-quaternary > label {
+  [data-arm='final'] ${BAR} .btn-quaternary > label {
     padding-left: 0 !important;
     padding-right: 0 !important;
     margin-left: -0.15625rem;
     font-weight: 400 !important;
   }
-  [data-arm='final'] ${GRID_BAR} {
+  [data-arm='final'][data-surface='grid'] ${BAR} {
     padding: 0 0.5rem 0.25rem 0.25rem !important;
   }
 `;
@@ -173,11 +172,13 @@ const toggleLabelHover =
 
 const ArmScope = ({
   arm,
+  surface = 'list',
   className,
   children,
   innerRef,
 }: {
   arm: Arm;
+  surface?: 'list' | 'grid';
   className?: string;
   children: ReactNode;
   innerRef?: React.Ref<HTMLDivElement>;
@@ -185,6 +186,7 @@ const ArmScope = ({
   <div
     ref={innerRef}
     data-arm={arm}
+    data-surface={surface}
     className={className}
     onMouseOver={arm === 'final' ? toggleLabelHover(true) : undefined}
     onMouseOut={arm === 'final' ? toggleLabelHover(false) : undefined}
@@ -435,7 +437,7 @@ const RESULTS: { surface: string; widths: number[]; rows: string[][] }[] = [
     widths: GRID_WIDTHS,
     rows: [
       ['Production', '7.6px off screen', '2.3px', '12.3px'],
-      ['Final', '7.9px', '14.9px', '24.9px'],
+      ['Final', '6.3px', '13.3px', '23.3px'],
     ],
   },
 ];
@@ -837,7 +839,12 @@ const GridArm = ({
   }, [arm]);
 
   return (
-    <ArmScope arm={arm} innerRef={ref} className="flex flex-col gap-6">
+    <ArmScope
+      arm={arm}
+      surface="grid"
+      innerRef={ref}
+      className="flex flex-col gap-6"
+    >
       {GRID_WIDTHS.map((width) => (
         <div key={width} className="flex flex-col gap-2">
           <span className="font-bold text-text-tertiary typo-caption1">
