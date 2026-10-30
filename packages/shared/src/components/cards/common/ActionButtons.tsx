@@ -76,7 +76,7 @@ const variantConfig = {
 
 interface ActionButtonsV1Props extends ActionButtonsProps {
   /**
-   * The bar at 32px with 20px icons: grid cards in the same 36px row, list
+   * The bar at 32px with 19px icons: grid cards in the same 36px row, list
    * cards in the list_card_large_actions treatment.
    */
   large?: boolean;
@@ -99,7 +99,7 @@ const ActionButtonsV1 = ({
   const isFeedPreview = useFeedPreviewMode();
   const isLargeList = large && variant === 'list';
   const buttonSize = large ? ButtonSize.Small : config.buttonSize;
-  const iconSize = large ? IconSize.XSmall : config.iconSize;
+  const iconSize = large ? IconSize.Size19 : config.iconSize;
   const counterLabelClassName = isLargeList
     ? largeListActionCounterLabelClassName
     : actionCounterLabelClassName;
@@ -209,7 +209,7 @@ const ActionButtonsV1 = ({
           ? 'py-0.5 pl-1 pr-2.5'
           : config.containerClassName,
         // The upvote icon, not its button, lines up with the card's text.
-        isLargeList && '-ml-1.5',
+        isLargeList && '-ml-[0.40625rem]',
         className,
       )}
     >

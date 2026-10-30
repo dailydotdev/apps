@@ -8,7 +8,7 @@ export const FEED_ACTION_ICON_SIZE = IconSize.Size16;
 
 export const actionCounterClassName = 'tabular-nums typo-footnote';
 export const actionCounterLabelClassName = '!pl-0.5 pr-0.5';
-// List cards in list_card_large_actions: the number sits 4px from the 20px
+// List cards in list_card_large_actions: the number sits 4px from the 19px
 // icon, over the button's own padding, at regular weight with nothing after.
 export const largeListActionCounterLabelClassName =
-  '!pl-0 -ml-0.5 pr-0 !font-normal';
+  '!pl-0 -ml-[0.15625rem] pr-0 !font-normal';
