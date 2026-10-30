@@ -1346,8 +1346,10 @@ const OptionAGreen = (): ReactElement => {
 // before the upvote button puts its icon on the title's edge, and edge20 also
 // ends the views number on the title's right edge (16px after it). left and
 // edge do the same with 18px icons (9px). frame: 4px between the bar and the
-// cover image, the card's sides and its bottom, the same 4px the image sits
-// in from the card edges; the row stays 36px.
+// cover image, the card's left side and its bottom, the same 4px the image
+// sits in from the card edges, and 8px after the views number: the upvote
+// button's own padding puts its icon further in, so text needs more room to
+// look even. The row stays 36px.
 const GRID_BAR = `div.py-0\\.5`;
 
 const GRID_CSS = `
@@ -1379,7 +1381,7 @@ const GRID_CSS = `
     padding-right: 1rem !important;
   }
   [data-grid~='frame'] ${GRID_BAR} {
-    padding: 0 0.25rem 0.25rem !important;
+    padding: 0 0.5rem 0.25rem 0.25rem !important;
   }
 `;
 
@@ -1412,8 +1414,8 @@ const GRID_STEPS: {
   {
     key: 'x pad frame',
     tag: 'Final',
-    name: 'G2 + 4px around the bar',
-    what: 'Your rules: the number rule, 32px buttons, 20px icons, the number 4px from the icon at regular weight, nothing after it, and 4px between the bar and the cover image, the card’s sides and its bottom. The buttons line up with the image edges. The bookmark stays in the header next to ⋯.',
+    name: 'G2 + even spacing around the bar',
+    what: 'Your rules: the number rule, 32px buttons, 20px icons, the number 4px from the icon at regular weight, nothing after it. 4px between the bar and the cover image, the card’s left side and its bottom, and 8px after the views number so the right side looks as roomy as the left. The bookmark stays in the header next to ⋯.',
   },
   {
     key: 'x pad left20',
@@ -1568,7 +1570,7 @@ const GRID_DECISIONS: {
     decision: 'Bar edges',
     list: 'Upvote icon on the text edge',
     grid: '6px below the image, 4px left, 10px right, 2px bottom',
-    next: '4px on every side: to the cover image, the card’s sides and its bottom (today 6px, 4px, 10px and 2px)',
+    next: '4px to the cover image, the left side and the bottom; 8px after the views number (today 6px, 4px, 2px and 10px)',
   },
   {
     decision: 'Bookmark',
@@ -1615,8 +1617,9 @@ const GridCards = (): ReactElement => {
           <p className="text-text-secondary typo-body">
             Final: your rules on the grid bar. Today’s grid bar is already red
             at 272px with the worst-case counts. The list’s counter changes fix
-            it with the same 20px icons, and an even 4px around the bar gives
-            the right side 6px back.
+            it with the same 20px icons, and even spacing around the bar (8px
+            after the views number instead of 10px) gives the right side 2px
+            back.
           </p>
         </header>
 
@@ -2022,9 +2025,10 @@ const GridFinal = (): ReactElement => {
           <p className="text-text-secondary typo-body">
             Today’s grid bar next to the final one: the number rule, 32px
             buttons, 20px icons, the number 4px from the icon at regular weight,
-            nothing after it, and 4px between the bar and the cover image, the
-            card’s sides and its bottom. The bookmark stays in the header. Hover
-            a card to see its header buttons.
+            nothing after it, 4px between the bar and the cover image, the
+            card’s left side and its bottom, and 8px after the views number. The
+            bookmark stays in the header. Hover a card to see its header
+            buttons.
           </p>
         </header>
         <div className="overflow-x-auto rounded-16 border border-border-subtlest-tertiary">
