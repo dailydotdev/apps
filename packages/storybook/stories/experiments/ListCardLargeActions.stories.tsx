@@ -87,7 +87,9 @@ const Column = ({
         {on ? 'Treatment' : 'Control'}
       </p>
       <p className="text-text-tertiary typo-caption1">
-        {on ? '32px buttons, 20px icons' : 'Today: 24px buttons, 16px icons'}
+        {on ? '32px buttons' : 'Today: 24px buttons'}
+        {on && (counter === 'x' ? ', 18px icons' : ', 20px icons')}
+        {!on && ', 16px icons'}
         {counter === 'x' && ', numbers 4px from the icon'}
       </p>
     </div>
@@ -316,9 +318,21 @@ interface FrameArgs {
   closeUp: boolean;
 }
 
-// X: the number sits 4px from the icon at 13px regular. Ours today: 6px on
-// the 24px bar and 8px on the 32px bar, at 13px medium. The 4px gap pulls the
+// X: 18.75px icons, the number 4px away at 13px regular. Ours today: 6px on
+// the 24px bar and 8px on the 32px bar, at 13px medium, with 20px icons on the
+// 32px bar. The X style uses 18px icons there, and the 4px gap pulls the
 // number over the button's own padding, so it overlaps the hover background.
+const BAR_BUTTONS = [
+  'upvote',
+  'comment',
+  'downvote',
+  'bookmark',
+  'copy',
+  'impressions',
+]
+  .map((name) => `[id$='-${name}-btn']`)
+  .join(',');
+
 const X_COUNTER_CSS = `
   [data-counter='x'] .btn-quaternary > label {
     padding-left: 0 !important;
@@ -326,7 +340,11 @@ const X_COUNTER_CSS = `
   }
   [data-counter='x'] .btn-quaternary > label * { font-weight: 400; }
   [data-counter='x'][data-large='true'] .btn-quaternary > label {
-    margin-left: -0.125rem;
+    margin-left: -0.1875rem;
+  }
+  [data-counter='x'][data-large='true'] :is(${BAR_BUTTONS}) svg {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
   }
 `;
 
@@ -616,8 +634,8 @@ const Segmented = <T extends string | boolean>({
 );
 
 const COUNTER_OPTIONS: { value: CounterStyle; label: string }[] = [
-  { value: 'x', label: 'X spacing' },
-  { value: 'today', label: 'Today’s spacing' },
+  { value: 'x', label: 'X style' },
+  { value: 'today', label: 'Today’s style' },
 ];
 
 const formatCounts = (
@@ -705,9 +723,10 @@ const SmallScreens = (): ReactElement => {
                 Counter spacing
               </h2>
               <p className="text-text-tertiary typo-footnote">
-                Every option uses X spacing: the number 4px from the icon at
-                regular weight, instead of 6px (24px bar) or 8px (32px bar) at
-                medium. See “Counter spacing vs X” for close-ups.
+                Every option uses the X style: 18px icons on the 32px bar (from
+                20px), and the number 4px from the icon at regular weight,
+                instead of 6px (24px bar) or 8px (32px bar) at medium. See
+                “Counter spacing vs X” for close-ups.
               </p>
             </div>
             <Segmented
@@ -796,13 +815,13 @@ const SPEC_ROWS: { label: string; x: string; today: string; next: string }[] = [
     label: 'Icon',
     x: '18.75px',
     today: '16px (24px bar), 20px (32px bar)',
-    next: 'Unchanged',
+    next: '16px (24px bar), 18px (32px bar)',
   },
   {
     label: 'Hover',
     x: '36px pill around icon and number',
     today: 'Square on the icon; the number sits 2px outside it',
-    next: 'Square on the icon; the number overlaps it by 2px',
+    next: 'Square on the icon; on the 32px bar the number overlaps it by 3px',
   },
   {
     label: 'Rounding',
@@ -814,19 +833,19 @@ const SPEC_ROWS: { label: string; x: string; today: string; next: string }[] = [
 
 const SPACING_COLUMNS: { label: string; args: FrameArgs }[] = [
   {
-    label: 'Control 24px, today’s spacing',
+    label: 'Control 24px, today’s style',
     args: { option: 'control', rule: true, counter: 'today', closeUp: false },
   },
   {
-    label: 'Control 24px, X spacing',
+    label: 'Control 24px, X style',
     args: { option: 'control', rule: true, counter: 'x', closeUp: false },
   },
   {
-    label: 'Treatment 32px, today’s spacing',
+    label: 'Treatment 32px, today’s style',
     args: { option: 'a', rule: true, counter: 'today', closeUp: false },
   },
   {
-    label: 'Treatment 32px, X spacing',
+    label: 'Treatment 32px, X style',
     args: { option: 'a', rule: true, counter: 'x', closeUp: false },
   },
 ];
@@ -856,10 +875,10 @@ const CounterSpacing = (): ReactElement => {
             Counter spacing vs X
           </h1>
           <p className="text-text-secondary typo-body">
-            X’s numbers sit 4px from the icon at regular weight. Ours sit 6 to
-            8px away at medium, so each counted button is wider and the number
-            reads detached from its icon. Measured on x.com on Oct 30, 2026. All
-            cards use the number rule.
+            X’s numbers sit 4px from 18.75px icons at regular weight. Ours sit 6
+            to 8px away at medium, next to 20px icons on the 32px bar, so each
+            counted button is wider and the number reads detached from its icon.
+            Measured on x.com on Oct 30, 2026. All cards use the number rule.
           </p>
         </header>
 
@@ -870,7 +889,7 @@ const CounterSpacing = (): ReactElement => {
                 <th className="p-3 font-normal" />
                 <th className="p-3 font-normal">X</th>
                 <th className="p-3 font-normal">daily.dev today</th>
-                <th className="p-3 font-normal">X spacing variation</th>
+                <th className="p-3 font-normal">X style variation</th>
               </tr>
             </thead>
             <tbody>
