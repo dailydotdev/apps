@@ -29,7 +29,7 @@ export const FeedExplainBar = (): ReactElement => {
 
   return (
     // On a phone it stands one bar above the shell's, on the shell's floor.
-    <div className="pointer-events-none sticky bottom-[calc(var(--shell-floor)+4rem)] z-3 mt-8 flex w-full justify-center px-4 laptop:bottom-[calc(1.5rem+var(--sponsor-strip-height,0rem))]">
+    <div className="pointer-events-none sticky bottom-[calc(var(--shell-floor)+4rem)] z-3 mt-8 flex w-full justify-center px-4 laptop:bottom-[calc(1rem+var(--sponsor-strip-height,0.75rem))]">
       <div className="pointer-events-auto flex items-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-popover p-2 shadow-2">
         <Button
           type="button"
