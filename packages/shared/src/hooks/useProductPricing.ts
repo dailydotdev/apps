@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../contexts/AuthContext';
 import type { PurchaseType } from '../graphql/paddle';
 import {
@@ -12,12 +12,15 @@ export interface ProductPricingConfig {
   locale?: string;
   enabled?: boolean;
   discountId?: string;
+  // Keep the last prices on screen while a new discount is priced
+  keepPrevious?: boolean;
 }
 
 export const useProductPricing = ({
   type,
   enabled = true,
   discountId,
+  keepPrevious,
 }: ProductPricingConfig) => {
   const { user, isValidRegion } = useAuthContext();
 
@@ -26,6 +29,7 @@ export const useProductPricing = ({
     queryFn: () => fetchPricingPreview(type, undefined, discountId),
     enabled: enabled && isValidRegion,
     staleTime: StaleTime.Default,
+    placeholderData: keepPrevious ? keepPreviousData : undefined,
   });
 };
 

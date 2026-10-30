@@ -23,6 +23,9 @@ interface BasePaymentProviderProps {
   priceType: PurchaseType;
   setPriceType?: Dispatch<SetStateAction<PurchaseType>>;
   discountId?: string;
+  // Discount the open checkout applied (coupon, `d_id`, sale); null for none.
+  // undefined until a checkout has loaded.
+  appliedDiscountId?: string | null;
 }
 
 export const BasePaymentProvider = ({
@@ -33,13 +36,18 @@ export const BasePaymentProvider = ({
   priceType,
   setPriceType,
   discountId,
+  appliedDiscountId,
 }: PropsWithChildren<BasePaymentProviderProps>): ReactElement => {
   const { isValidRegion: isPlusAvailable } = useAuthContext();
   const { pricing: funnelPricing } = useFunnelPaymentPricingContext() ?? {};
   const { data: plusPricing, isPending: isPricesPending } = useProductPricing({
     type: priceType,
     enabled: !funnelPricing?.length,
-    discountId,
+    discountId:
+      appliedDiscountId === undefined
+        ? discountId
+        : appliedDiscountId ?? undefined,
+    keepPrevious: true,
   });
   const data = funnelPricing?.length ? funnelPricing : plusPricing;
 
