@@ -369,10 +369,6 @@ export const opportunityLiveIllustration =
 /**
  * Plus showcase video/images
  */
-export const plusShowcaseTeamImage =
-  'https://media.daily.dev/image/upload/s--FM6ekBTf--/f_auto/v1741698925/public/team';
-export const plusShowcaseTeamVideo =
-  'https://media.daily.dev/video/upload/v1741698572/videos/team.mp4';
 export const plusShowcaseCustomFeedsImage =
   'https://media.daily.dev/image/upload/s--OU22D-Xf--/f_auto/v1741690961/public/customfeed';
 export const plusShowcaseCustomFeedsVideo =
@@ -389,8 +385,6 @@ export const plusShowcaseKeywordImage =
   'https://media.daily.dev/image/upload/s--r2BZKWPk--/f_auto/v1741690961/public/Keyword filters';
 export const plusShowcaseAdFreeImage =
   'https://media.daily.dev/image/upload/s--jlfaLYq_--/f_auto/v1741690961/public/Ad-free experience';
-export const plusShowcaseSquadImage =
-  'https://media.daily.dev/image/upload/s--LKIr_f6r--/f_auto/v1741698925/public/Members-only Squad';
 
 export const boostSuccessCover =
   'https://media.daily.dev/image/upload/s--1ayRTI4g--/f_auto/v1758532937/public/Boost%20-%20Live%20Cover%20image%20(1)';
