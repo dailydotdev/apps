@@ -2,6 +2,10 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
+import {
+  railAboveFeedClassName,
+  useRailAboveFeed,
+} from '../feed/railAboveFeed';
 import PostContentContainer from '../PostContentContainer';
 import usePostContent from '../../../hooks/usePostContent';
 import { BasePostContent } from '../BasePostContent';
@@ -130,6 +134,22 @@ function PollPostContentRaw({
     onSendViewPost(post.id);
   }, [post.id, onSendViewPost, user?.id, shouldTrackView]);
 
+  const railAboveFeed = useRailAboveFeed(belowComments);
+  const widgets = (
+    <SquadPostWidgets
+      onCopyPostLink={onCopyPostLink}
+      onReadArticle={onReadArticle}
+      post={post}
+      className={
+        railAboveFeed
+          ? railAboveFeedClassName
+          : 'mb-6 !gap-2 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0'
+      }
+      onClose={onClose}
+      origin={origin}
+    />
+  );
+
   return (
     <PostContentContainer
       className={classNames(
@@ -166,7 +186,16 @@ function PollPostContentRaw({
             },
           }}
           isPostPage={isPostPage}
-          belowComments={belowComments}
+          belowComments={
+            railAboveFeed ? (
+              <>
+                {widgets}
+                {belowComments}
+              </>
+            ) : (
+              belowComments
+            )
+          }
           isFallback={isFallback}
           customNavigation={customNavigation}
           shouldOnboardAuthor={shouldOnboardAuthor}
@@ -269,14 +298,7 @@ function PollPostContentRaw({
           </div>
         </BasePostContent>
       </div>
-      <SquadPostWidgets
-        onCopyPostLink={onCopyPostLink}
-        onReadArticle={onReadArticle}
-        post={post}
-        className="mb-6 !gap-2 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0"
-        onClose={onClose}
-        origin={origin}
-      />
+      {!railAboveFeed && widgets}
     </PostContentContainer>
   );
 }
