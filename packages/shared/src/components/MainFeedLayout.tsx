@@ -14,6 +14,7 @@ import React, {
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
+import type { QueryKey } from '@tanstack/react-query';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
 import { feedGutter, feedWidth } from './utilities/common';
@@ -710,23 +711,43 @@ export default function MainFeedLayout({
     };
 
     // The draft goes last, so the feed's own key is this one without it.
+    const feedVariables = getVariables();
     const variables = isExplainFeed
       ? {
-          ...getVariables(),
+          ...feedVariables,
           explain: true,
           ...(tuneDraft && { draft: tuneDraft }),
         }
-      : getVariables();
+      : feedVariables;
+    const feedRequestKey = config.requestKey || feedName;
+    // Debug and Tune only add to the feed's own key, so a key that starts
+    // with it is the same feed. Switching between them keeps the cards on
+    // screen until the other one loads, instead of an empty feed.
+    const ownKey = generateQueryKey(
+      feedRequestKey,
+      user,
+      ...Object.values(feedVariables ?? {}),
+    );
+    const isSameFeedKey = (key: QueryKey): boolean =>
+      JSON.stringify(key.slice(0, ownKey.length)) === JSON.stringify(ownKey);
 
     return {
       feedName,
       feedQueryKey: generateQueryKey(
-        config.requestKey || feedName,
+        feedRequestKey,
         user,
         ...Object.values(variables ?? {}),
       ),
       query: isExplainFeed ? FEED_V2_EXPLAIN_QUERY : config.query,
       variables,
+      ...(canExplainPosts && {
+        options: {
+          placeholderData: (previousData, previousQuery) =>
+            previousQuery && isSameFeedKey(previousQuery.queryKey)
+              ? previousData
+              : undefined,
+        },
+      }),
       isExplaining: isExplainFeed,
       canExplainPosts,
       emptyScreen,
