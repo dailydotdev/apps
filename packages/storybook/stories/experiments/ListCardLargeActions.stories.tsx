@@ -1345,7 +1345,9 @@ const OptionAGreen = (): ReactElement => {
 // pad: no padding after the number. left20 / edge20: with 20px icons, 10px
 // before the upvote button puts its icon on the title's edge, and edge20 also
 // ends the views number on the title's right edge (16px after it). left and
-// edge do the same with 18px icons (9px).
+// edge do the same with 18px icons (9px). frame: 4px between the bar and the
+// cover image, the card's sides and its bottom, the same 4px the image sits
+// in from the card edges; the row stays 36px.
 const GRID_BAR = `div.py-0\\.5`;
 
 const GRID_CSS = `
@@ -1376,6 +1378,9 @@ const GRID_CSS = `
   [data-grid~='edge20'] ${GRID_BAR} {
     padding-right: 1rem !important;
   }
+  [data-grid~='frame'] ${GRID_BAR} {
+    padding: 0 0.25rem 0.25rem !important;
+  }
 `;
 
 const GRID_WIDTHS = [272, 300, 340];
@@ -1400,9 +1405,15 @@ const GRID_STEPS: {
   },
   {
     key: 'x pad',
-    tag: 'G2 · Recommended',
+    tag: 'G2',
     name: 'G1 + no padding after the number',
     what: 'The first of the two 320px rules from the list. Every counter decision from the list, with the same 20px icons, green at 272px.',
+  },
+  {
+    key: 'x pad frame',
+    tag: 'Final',
+    name: 'G2 + 4px around the bar',
+    what: 'Your rules: the number rule, 32px buttons, 20px icons, the number 4px from the icon at regular weight, nothing after it, and 4px between the bar and the cover image, the card’s sides and its bottom. The buttons line up with the image edges. The bookmark stays in the header next to ⋯.',
   },
   {
     key: 'x pad left20',
@@ -1545,19 +1556,19 @@ const GRID_DECISIONS: {
     decision: 'Icon to number',
     list: '4px, regular weight',
     grid: '8px, medium weight',
-    next: '4px, regular weight (G1)',
+    next: '4px, regular weight',
   },
   {
     decision: 'Padding after the number',
     list: 'None',
     grid: '2px',
-    next: 'None (G2)',
+    next: 'None',
   },
   {
     decision: 'Bar edges',
     list: 'Upvote icon on the text edge',
-    grid: 'Upvote icon 6px left of the title, views number 4px past it',
-    next: 'Keep today’s edges (G2). On the list, lining up gains room; on grid it costs room: G3 drops 272px to 3.9px',
+    grid: '6px below the image, 4px left, 10px right, 2px bottom',
+    next: '4px on every side: to the cover image, the card’s sides and its bottom (today 6px, 4px, 10px and 2px)',
   },
   {
     decision: 'Bookmark',
@@ -1602,12 +1613,10 @@ const GridCards = (): ReactElement => {
             measured live. Under {HEALTHY_GAP}px is flagged.
           </p>
           <p className="text-text-secondary typo-body">
-            Recommendation: G2. Today’s grid bar is already red at 272px with
-            the worst-case counts. The list’s counter changes (the number 4px
-            from the icon at regular weight, nothing after it) fix it with the
-            same 20px icons. Skip lining the upvote icon up with the text on
-            grid: there the bar already starts left of the text, so moving it in
-            costs room and drops 272px just under the line.
+            Final: your rules on the grid bar. Today’s grid bar is already red
+            at 272px with the worst-case counts. The list’s counter changes fix
+            it with the same 20px icons, and an even 4px around the bar gives
+            the right side 6px back.
           </p>
         </header>
 
@@ -1622,7 +1631,7 @@ const GridCards = (): ReactElement => {
                   <th className="p-3 font-normal">Decision</th>
                   <th className="p-3 font-normal">List treatment (#7127)</th>
                   <th className="p-3 font-normal">Grid today</th>
-                  <th className="p-3 font-normal">Grid recommendation</th>
+                  <th className="p-3 font-normal">Grid final</th>
                 </tr>
               </thead>
               <tbody>
@@ -1984,6 +1993,100 @@ export const IconSize18Or20: StoryObj = {
   name: 'Icon size: 18px or 20px',
   parameters: { options: { showPanel: false } },
   render: () => <IconSizeDecision />,
+};
+
+const GRID_FINAL_STEPS = GRID_STEPS.filter(({ key }) =>
+  ['', 'x pad frame'].includes(key),
+);
+
+const GridFinal = (): ReactElement => {
+  const [results, setResults] = useState<
+    Record<string, Record<string, Measure | null>>
+  >({});
+  const onMeasure = (
+    key: string,
+    measures: Record<string, Measure | null>,
+  ): void => setResults((prev) => ({ ...prev, [key]: measures }));
+
+  return (
+    <div className="min-h-screen bg-background-default p-6 tablet:p-10">
+      <style>{GRID_CSS}</style>
+      <div className="flex flex-col gap-10">
+        <header className="flex max-w-[50rem] flex-col gap-3">
+          <p className="font-bold uppercase text-text-tertiary typo-caption1">
+            How do grid cards look with the list decisions?
+          </p>
+          <h1 className="font-bold text-text-primary typo-title1">
+            Grid cards, final
+          </h1>
+          <p className="text-text-secondary typo-body">
+            Today’s grid bar next to the final one: the number rule, 32px
+            buttons, 20px icons, the number 4px from the icon at regular weight,
+            nothing after it, and 4px between the bar and the cover image, the
+            card’s sides and its bottom. The bookmark stays in the header. Hover
+            a card to see its header buttons.
+          </p>
+        </header>
+        <div className="overflow-x-auto rounded-16 border border-border-subtlest-tertiary">
+          <table className="w-full text-left typo-footnote">
+            <thead>
+              <tr className="text-text-tertiary">
+                <th className="p-3 font-normal" />
+                {GRID_WIDTHS.map((width) => (
+                  <th key={width} className="p-3 font-normal">
+                    Worst case at {width}px
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {GRID_FINAL_STEPS.map((step) => (
+                <tr
+                  key={step.key}
+                  className="border-t border-border-subtlest-tertiary"
+                >
+                  <td className="p-3 font-bold text-text-primary">
+                    {step.tag}
+                  </td>
+                  {GRID_WIDTHS.map((width) => (
+                    <td key={width} className="p-3">
+                      <Badge
+                        measure={worstOf(
+                          results[step.key] &&
+                            Object.fromEntries(
+                              Object.entries(results[step.key]).filter(
+                                ([key]) => key.endsWith(`@${width}`),
+                              ),
+                            ),
+                        )}
+                      />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {GRID_FINAL_STEPS.map((step) => (
+          <section
+            key={step.key}
+            className="flex flex-col gap-4 border-t border-border-subtlest-tertiary pt-8"
+          >
+            <h2 className="font-bold text-text-primary typo-title3">
+              {step.tag}: {step.name}
+            </h2>
+            <GridStep step={step} onMeasure={onMeasure} />
+          </section>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export const GridCardsFinal: StoryObj = {
+  name: 'Grid cards, final',
+  parameters: { options: { showPanel: false } },
+  render: () => <GridFinal />,
 };
 
 export const GridCardsMatchTheList: StoryObj = {
