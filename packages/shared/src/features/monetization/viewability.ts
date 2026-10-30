@@ -50,6 +50,12 @@ export const viewabilityThresholds = [
  */
 export const ratioTolerance = 0.001;
 
+// Pixels in the viewport are only on screen when the tab is the active one and
+// the browser window itself has focus.
+export const isPageInFocus = (): boolean =>
+  globalThis.document.visibilityState === 'visible' &&
+  globalThis.document.hasFocus();
+
 export interface ViewabilityData extends ViewabilityCriteria {
   /** Milliseconds between the creative rendering and meeting the criteria. */
   timeToViewable: number;

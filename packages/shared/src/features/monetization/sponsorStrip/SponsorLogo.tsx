@@ -2,7 +2,7 @@ import type { CSSProperties, ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { AdPixel } from '../../../components/cards/ad/common/AdPixel';
-import { getViewedPixels } from '../../../components/cards/ad/common/getViewedPixels';
+import { getViewedPixels } from '../../../components/cards/ad/common/ownPixels';
 import { anchorSponsoredRel } from '../../../lib/strings';
 import { boxedLogoHeight, boxedLogoWidth } from './sponsorLogoSizing';
 import type { ResolvedSponsor } from './sponsorStripCreative';
