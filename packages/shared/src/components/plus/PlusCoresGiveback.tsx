@@ -16,8 +16,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { hasAccessToCores } from '../../lib/cores';
 import { Tooltip } from '../tooltip/Tooltip';
 
-export const coresGivebackNote =
-  'Cores amount may vary depending on your final total at the time of purchase.';
+export const coresGivebackNote = 'Approximate. Final Cores amount may vary.';
 
 const givebackCadence: Partial<Record<PlusPriceType, string>> = {
   [PlusPriceType.Monthly]: 'every month',
