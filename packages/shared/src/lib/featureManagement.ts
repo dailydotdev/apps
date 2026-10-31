@@ -175,12 +175,11 @@ export const featureOnboardingCommitment = new Feature(
   false,
 );
 
-// Experiment: the reading reminder step becomes the reading commitment (how
-// much you read, a daily goal, a reminder time, then a preview of the push).
-// Its own flag, so Feed Patchy's experiment keeps its data. Default MUST stay
-// `false` — it is the control.
-export const featureOnboardingReadingCommitment = new Feature(
-  'onboarding_reading_commitment',
+// Experiment: the reading reminder step becomes a single ask, the push
+// preview with the reminder preset to 9 AM and "Turn on notifications".
+// Default MUST stay `false` — it is the control.
+export const featureOnboardingReminderPushOnly = new Feature(
+  'onboarding_reminder_push_only',
   false,
 );
 
