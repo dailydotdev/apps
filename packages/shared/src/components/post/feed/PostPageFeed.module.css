@@ -16,18 +16,10 @@
 }
 
 /*
- * Tablet and laptop: the tab row's bottom line is the first divider, so the
- * first card's own top line would double it. Phones have no tab line
- * (HomeSegments), so their first card keeps it. Without tabs, the section's
- * top line is the first divider at every width.
+ * The section's top line is the first divider, so the first card's own top
+ * line would double it.
  */
-@screen tablet {
-  .tabbed :global([data-testid='posts-feed'] article:first-of-type) {
-    border-top-color: transparent;
-  }
-}
-
-.untabbed :global([data-testid='posts-feed'] article:first-of-type) {
+.list :global([data-testid='posts-feed'] article:first-of-type) {
   border-top-color: transparent;
 }
 
