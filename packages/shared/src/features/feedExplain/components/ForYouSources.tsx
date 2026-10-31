@@ -35,6 +35,7 @@ import { useForYouControls } from '../useFeedExplainMode';
 import { useFrozenGroups } from '../useFrozenGroups';
 import { SourceLevelPicker } from './SourceLevelPicker';
 import { AuthorLevelPicker } from './AuthorLevelPicker';
+import type { MenuItemProps } from '../../../components/dropdown/common';
 import { SettingsList, SettingsListEmpty, SettingsRow } from './SettingsList';
 
 interface ListedSource {
@@ -75,6 +76,44 @@ const useFollowToggle = (entity: ContentPreferenceType) => {
   return { overrides, toggle };
 };
 
+/**
+ * Whether each listed row was followed when it first showed, so a note can
+ * say a follow changed on this page.
+ */
+const useFirstFollowState = (
+  ids: string[],
+  isFollowedNow: (id: string) => boolean,
+): ((id: string) => boolean) => {
+  const first = useRef(new Map<string, boolean>());
+  ids.forEach((id) => {
+    if (!first.current.has(id)) {
+      first.current.set(id, isFollowedNow(id));
+    }
+  });
+  return (id) => first.current.get(id) ?? false;
+};
+
+const getFollowNote = (
+  isFollowed: boolean,
+  wasFollowed: boolean,
+  pronoun: 'it' | 'them',
+): string | undefined => {
+  if (isFollowed !== wasFollowed) {
+    return isFollowed
+      ? `You follow ${pronoun} now.`
+      : `You no longer follow ${pronoun}.`;
+  }
+  return isFollowed ? undefined : `You don't follow ${pronoun}.`;
+};
+
+const getFollowOptions = (
+  name: string,
+  isFollowed: boolean,
+  onToggle: () => void,
+): MenuItemProps[] => [
+  { label: `${isFollowed ? 'Unfollow' : 'Follow'} ${name}`, action: onToggle },
+];
+
 interface ListsProps {
   profile: FeedProfile;
   controls: FeedControls;
@@ -108,6 +147,9 @@ const SourceList = ({
   const ids = useFrozenGroups({
     sources: [...followed, ...adjusted].map(({ id }) => id),
   }).sources.filter((id) => !blocked.has(id));
+  const wasFollowed = useFirstFollowState(ids, (id) =>
+    followed.some((item) => item.id === id),
+  );
   const multiplier = getRankingValue(profile, 'follows.source_multiplier');
 
   return (
@@ -133,13 +175,10 @@ const SourceList = ({
               />
             }
             name={name}
-            description={
-              meta?.text ??
-              (isFollowed
-                ? 'You follow it.'
-                : "You don't follow it. Its posts come in when they match your topics.")
+            note={
+              meta?.text ?? getFollowNote(isFollowed, wasFollowed(id), 'it')
             }
-            descriptionClassName={meta?.className}
+            noteClassName={meta?.className}
             boost={
               <SourceLevelPicker
                 name={name}
@@ -149,20 +188,9 @@ const SourceList = ({
                 onChange={(value) => setSource(id, value)}
               />
             }
-            action={
-              <Button
-                type="button"
-                className="w-24"
-                variant={
-                  isFollowed ? ButtonVariant.Float : ButtonVariant.Secondary
-                }
-                size={ButtonSize.Small}
-                aria-label={`${isFollowed ? 'Unfollow' : 'Follow'} ${name}`}
-                onClick={() => toggle(id, name, isFollowed)}
-              >
-                {isFollowed ? 'Unfollow' : 'Follow'}
-              </Button>
-            }
+            options={getFollowOptions(name, isFollowed, () =>
+              toggle(id, name, isFollowed),
+            )}
           />
         );
       })}
@@ -212,6 +240,9 @@ const CreatorList = ({
   const ids = useFrozenGroups({
     creators: [...followed, ...adjusted].map(({ id }) => id),
   }).creators;
+  const wasFollowed = useFirstFollowState(ids, (id) =>
+    followed.some((item) => item.id === id),
+  );
   const multiplier = getRankingValue(profile, 'follows.author_multiplier');
 
   return (
@@ -237,11 +268,10 @@ const CreatorList = ({
               />
             }
             name={name}
-            description={
-              meta?.text ??
-              (isFollowed ? 'You follow them.' : "You don't follow them.")
+            note={
+              meta?.text ?? getFollowNote(isFollowed, wasFollowed(id), 'them')
             }
-            descriptionClassName={meta?.className}
+            noteClassName={meta?.className}
             boost={
               <AuthorLevelPicker
                 name={name}
@@ -251,20 +281,9 @@ const CreatorList = ({
                 onChange={(value) => setAuthor(id, value)}
               />
             }
-            action={
-              <Button
-                type="button"
-                className="w-24"
-                variant={
-                  isFollowed ? ButtonVariant.Float : ButtonVariant.Secondary
-                }
-                size={ButtonSize.Small}
-                aria-label={`${isFollowed ? 'Unfollow' : 'Follow'} ${name}`}
-                onClick={() => toggle(id, name, isFollowed)}
-              >
-                {isFollowed ? 'Unfollow' : 'Follow'}
-              </Button>
-            }
+            options={getFollowOptions(name, isFollowed, () =>
+              toggle(id, name, isFollowed),
+            )}
           />
         );
       })}

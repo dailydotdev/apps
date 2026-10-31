@@ -1,6 +1,12 @@
 import React from 'react';
 import nock from 'nock';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient } from '@tanstack/react-query';
 import { GrowthBook } from '@growthbook/growthbook-react';
@@ -150,13 +156,17 @@ describe('ForYouSources', () => {
     });
     renderSources();
 
-    await userEvent.click(
-      await screen.findByRole('button', { name: 'Unfollow daily.dev' }),
+    fireEvent.keyDown(
+      await screen.findByRole('button', { name: 'Options for daily.dev' }),
+      { key: 'Enter' },
     );
+    await userEvent.click(await screen.findByText('Unfollow daily.dev'));
 
     await waitFor(() => expect(sent).toBe(true));
     expect(
-      screen.getByRole('button', { name: 'Follow daily.dev' }),
+      within(getList('Sources you follow')).getByText(
+        'You no longer follow it.',
+      ),
     ).toBeInTheDocument();
   });
 
