@@ -139,36 +139,25 @@ export const ForYouRankingSettings = (): ReactElement | null => {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-          className="min-w-0 flex-[1_1_16rem]"
+      <Typography
+        type={TypographyType.Callout}
+        color={TypographyColor.Tertiary}
+      >
+        Each post starts from how other readers liked it. Your topics and
+        follows boost it, and it drops as it gets older or as you scroll past
+        it. These settings apply to every post in For You.
+      </Typography>
+      <div className="flex flex-wrap items-center gap-3">
+        <Switch
+          inputId="for-you-ranking-advanced"
+          name="for-you-ranking-advanced"
+          compact={false}
+          checked={isAdvanced}
+          onToggle={() => setIsAdvanced(!isAdvanced)}
         >
-          Each post starts from how other readers liked it. Your topics and
-          follows boost it, and it drops as it gets older or as you scroll past
-          it. These settings apply to every post in For You.
-        </Typography>
-        <div className="flex items-center gap-3">
-          <Button
-            type="button"
-            variant={ButtonVariant.Float}
-            size={ButtonSize.Small}
-            onClick={() =>
-              openTune({ tab: FeedTuneTab.Ranking, goToFeed: true })
-            }
-          >
-            Live preview
-          </Button>
-          <Switch
-            inputId="for-you-ranking-advanced"
-            name="for-you-ranking-advanced"
-            compact={false}
-            checked={isAdvanced}
-            onToggle={() => setIsAdvanced(!isAdvanced)}
-          >
-            Advanced
-          </Switch>
+          Advanced
+        </Switch>
+        <div className="ml-auto flex items-center gap-2">
           {controls.ranking.length > 0 && (
             <Button
               type="button"
@@ -179,6 +168,16 @@ export const ForYouRankingSettings = (): ReactElement | null => {
               Reset all
             </Button>
           )}
+          <Button
+            type="button"
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Small}
+            onClick={() =>
+              openTune({ tab: FeedTuneTab.Ranking, goToFeed: true })
+            }
+          >
+            Live preview
+          </Button>
         </div>
       </div>
       <PlusBanner>
