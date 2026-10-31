@@ -1,6 +1,12 @@
 import React from 'react';
 import nock from 'nock';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient } from '@tanstack/react-query';
 import { GrowthBook } from '@growthbook/growthbook-react';
@@ -115,17 +121,17 @@ describe('ForYouTopics', () => {
   it('should keep an unfollowed topic in place, ready to follow again', async () => {
     const { onToggleFollow, setFollowedTags } = renderTopics();
 
-    await userEvent.click(
-      await screen.findByRole('button', { name: 'Unfollow #react' }),
+    fireEvent.keyDown(
+      await screen.findByRole('button', { name: 'Options for #react' }),
+      { key: 'Enter' },
     );
+    await userEvent.click(await screen.findByText('Unfollow #react'));
     expect(onToggleFollow).toHaveBeenCalledWith('react');
     setFollowedTags(['webdev']);
 
-    expect(
-      within(getList('Topics you follow')).getByRole('button', {
-        name: 'Follow #react',
-      }),
-    ).toBeInTheDocument();
+    const followed = within(getList('Topics you follow'));
+    expect(followed.getByText('#react')).toBeInTheDocument();
+    expect(followed.getByText('You no longer follow it.')).toBeInTheDocument();
   });
 
   it('should put a turned down topic back to Auto', async () => {

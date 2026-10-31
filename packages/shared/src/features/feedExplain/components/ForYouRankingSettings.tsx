@@ -15,6 +15,7 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { Divider } from '../../../components/utilities/Divider';
+import { PlusUser } from '../../../components/PlusUser';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { Origin } from '../../../lib/log';
@@ -139,6 +140,7 @@ export const ForYouRankingSettings = (): ReactElement | null => {
 
   return (
     <div className="flex flex-col gap-4">
+      <PlusUser className="self-start" />
       <Typography
         type={TypographyType.Callout}
         color={TypographyColor.Tertiary}
