@@ -124,7 +124,7 @@ const FeedSummary = (): ReactElement => {
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
         >
-          What For You uses right now. Open one to change it.
+          Open any of these to change it.
         </Typography>
       </div>
       <ul className="flex flex-col">
@@ -173,8 +173,8 @@ export const FeedSettingsOverviewSection = (): ReactElement => {
         type={TypographyType.Callout}
         color={TypographyColor.Tertiary}
       >
-        Everything that shapes your For You feed. Change anything here and your
-        feed follows.
+        Everything For You uses to rank your posts. Changes here apply the next
+        time your feed loads.
       </Typography>
       {isAvailable && <AgentSetup />}
       <ForYouOverviewControls />

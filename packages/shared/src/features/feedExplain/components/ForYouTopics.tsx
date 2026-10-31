@@ -174,8 +174,8 @@ const TopicLists = ({
                 type={TypographyType.Callout}
                 color={TypographyColor.Tertiary}
               >
-                Not topics of yours, but posts about them rank lower. Tap one to
-                put it back.
+                You don&apos;t follow these, but posts about them rank lower.
+                Remove one to put it back to Auto.
               </Typography>
             </span>
             <Button

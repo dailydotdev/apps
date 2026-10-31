@@ -202,7 +202,7 @@ const SourcesTab = ({ tune }: { tune: UseFeedTune }): ReactElement => {
         <>
           <Divider className="bg-border-subtlest-tertiary" />
           <Typography bold type={TypographyType.Callout}>
-            Authors
+            Creators
           </Typography>
           <ul className="flex flex-col">
             {authors.map((author) => {

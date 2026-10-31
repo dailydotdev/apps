@@ -210,6 +210,6 @@ export interface FeedControlsDraft {
 /** Tune's tabs, by the controls they hold. */
 export enum FeedTuneTab {
   Topics = 'Topics',
-  Sources = 'Sources and authors',
+  Sources = 'Sources and creators',
   Ranking = 'Ranking',
 }
