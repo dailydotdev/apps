@@ -8,11 +8,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import {
-  PlusList,
-  plusFeatureListApiFirst,
-  plusOrganizationFeatureList,
-} from './PlusList';
+import { PlusList, plusOrganizationFeatureList } from './PlusList';
 import { usePlusSubscription } from '../../hooks';
 import { usePaymentContext } from '../../contexts/payment/context';
 import type { OpenCheckoutFn } from '../../contexts/payment/context';
@@ -174,14 +170,11 @@ export const PlusInfo = ({
       className="mt-3"
     />
   );
-  let plusListContent: ReactElement;
-  if (isOrganization) {
-    plusListContent = <PlusList items={plusOrganizationFeatureList} />;
-  } else if (plusType === PlusType.Self) {
-    plusListContent = <PlusList items={plusFeatureListApiFirst} />;
-  } else {
-    plusListContent = <PlusList />;
-  }
+  const plusListContent = isOrganization ? (
+    <PlusList items={plusOrganizationFeatureList} />
+  ) : (
+    <PlusList />
+  );
 
   return (
     <>
