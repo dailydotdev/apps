@@ -256,21 +256,21 @@ describe('Debug mode', () => {
     ).not.toBeInTheDocument();
   });
 
-  it("ranks the feed with Tune's draft, with the panel beside it", async () => {
+  it("ranks the feed with Tune's last preview, with the panel beside it", async () => {
     mockFlags({ explain: true, version: 116 });
+    const demoteRust = {
+      kind: 'topic',
+      keyword: 'rust',
+      value: { mode: FeedTopicMode.Demote },
+    };
 
     renderDebugging(true, (client) => {
       client.setQueryData([QueryStateKeys.FeedTune], FeedTuneTab.Topics);
       client.setQueryData(
         [QueryStateKeys.FeedTuneChanges],
-        [
-          {
-            kind: 'topic',
-            keyword: 'rust',
-            value: { mode: FeedTopicMode.Demote },
-          },
-        ],
+        [demoteRust, { kind: 'learning', enabled: false }],
       );
+      client.setQueryData([QueryStateKeys.FeedTunePreviewed], [demoteRust]);
     });
 
     await screen.findByTestId('feed');
