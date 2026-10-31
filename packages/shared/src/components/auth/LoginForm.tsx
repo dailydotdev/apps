@@ -7,7 +7,7 @@ import type { LoginPasswordParameters } from '../../lib/auth';
 import { AuthEventNames } from '../../lib/auth';
 import { Origin } from '../../lib/log';
 import { formToJson } from '../../lib/form';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
@@ -178,9 +178,17 @@ function LoginForm({
         autoComplete="current-password"
         required
         showStrength={false}
-        saveHintSpace
         onChange={() => hint && setHint(null)}
       />
+      {onForgotPassword && (
+        <ClickableText
+          type="button"
+          className="btn-primary self-end underline"
+          onClick={() => onForgotPassword(innerEmail)}
+        >
+          Forgot password?
+        </ClickableText>
+      )}
       {turnstileSiteKey && (
         <Turnstile
           ref={turnstileRef}
@@ -202,26 +210,16 @@ function LoginForm({
           title="Please complete the security check."
         />
       )}
-      <span className="mt-4 flex w-full flex-row">
-        {onForgotPassword && (
-          <ClickableText
-            type="button"
-            className="btn-primary flex-1 grow-[2] underline"
-            onClick={() => onForgotPassword(innerEmail)}
-          >
-            Forgot password?
-          </ClickableText>
-        )}
-        <Button
-          className="flex-1"
-          variant={ButtonVariant.Primary}
-          type="submit"
-          loading={!isReady || isVerifyingTurnstile}
-          disabled={isLoading || (!!turnstileSiteKey && !turnstileLoaded)}
-        >
-          {loginButton}
-        </Button>
-      </span>
+      <Button
+        className="mt-2 w-full"
+        size={ButtonSize.Large}
+        variant={ButtonVariant.Primary}
+        type="submit"
+        loading={!isReady || isVerifyingTurnstile}
+        disabled={isLoading || (!!turnstileSiteKey && !turnstileLoaded)}
+      >
+        {loginButton}
+      </Button>
       {hint && hint === labels.auth.error.invalidEmailOrPassword && (
         <Alert className="mt-6" type={AlertType.Error} flexDirection="flex-row">
           <AlertParagraph className="!mt-0 flex-1">
@@ -231,7 +229,7 @@ function LoginForm({
               onClick={onSignup}
               className="font-bold text-white underline hover:no-underline"
             >
-              create new account.
+              create a new account.
             </ClickableText>
           </AlertParagraph>
         </Alert>

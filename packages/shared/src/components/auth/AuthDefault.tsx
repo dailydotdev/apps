@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
+import classNames from 'classnames';
 import type { AuthFormProps, Provider } from './common';
 import { getFormEmail } from './common';
 import EmailSignupForm from './EmailSignupForm';
@@ -11,10 +12,10 @@ import type { AuthTriggersType } from '../../lib/auth';
 import { AuthEventNames } from '../../lib/auth';
 import AuthContainer from './AuthContainer';
 import AuthHeader from './AuthHeader';
-import { authContextLine } from './authContextLines';
 import ConditionalWrapper from '../ConditionalWrapper';
 import OrDivider from './OrDivider';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { IconSize } from '../Icon';
 
 const AuthModalFooter = dynamic(
   () => import(/* webpackChunkName: "authModalFooter" */ './AuthModalFooter'),
@@ -149,12 +150,7 @@ const AuthDefault = ({
 
   return (
     <>
-      <AuthHeader simplified={simplified} title={title} closeOnPhone />
-      {!simplified && !shouldLogin && authContextLine(trigger) && (
-        <p className="px-6 pt-3 text-center text-text-secondary typo-callout tablet:hidden">
-          {authContextLine(trigger)}
-        </p>
-      )}
+      <AuthHeader simplified={simplified} title={title} />
       {simplified && !shouldLogin && (
         <p className="mt-3 whitespace-pre-line px-6 text-center text-text-secondary typo-body">
           Once you sign up, your personal feed will be ready to explore.
@@ -172,7 +168,7 @@ const AuthDefault = ({
               aria-label={`Continue with ${label}`}
               autoFocus={index === 0}
               disabled={!isReady || isSocialAuthLoading}
-              icon={icon}
+              icon={React.cloneElement(icon, { size: IconSize.Medium })}
               key={label}
               loading={!isReady || isSocialAuthLoading}
               onClick={() => onSocialClick(value)}
@@ -194,7 +190,13 @@ const AuthDefault = ({
           wrapper={(component) => <AuthContainer>{component}</AuthContainer>}
         >
           <AuthModalFooter
-            className={{ container: 'mt-4' }}
+            className={{
+              container: classNames(
+                'mt-4',
+                !simplified &&
+                  'sticky bottom-0 bg-background-default tablet:bg-accent-pepper-subtlest',
+              ),
+            }}
             text={{
               body: shouldLogin
                 ? 'Not a member yet?'

@@ -7,7 +7,7 @@ import type {
 } from 'react';
 import React from 'react';
 import { Button, ButtonVariant } from '../buttons/Button';
-import { ArrowIcon, MiniCloseIcon } from '../icons';
+import { ArrowIcon } from '../icons';
 import { Modal } from '../modals/common/Modal';
 import { ModalHeaderKind } from '../modals/common/types';
 import { onboardingHeadlineClasses } from '../onboarding/common';
@@ -23,9 +23,6 @@ export interface AuthHeaderProps extends ComponentProps<'h2'> {
   onboardingHeadline?: boolean;
   title: string;
   onBack?: (e: MouseEvent | KeyboardEvent | FormEvent) => void;
-  // A gated sign-up is a dead end on a phone: it closes, it does not go
-  // back, so the phone control is a close, not a chevron.
-  closeOnPhone?: boolean;
 }
 
 function AuthHeader({
@@ -34,7 +31,6 @@ function AuthHeader({
   title,
   className,
   onBack,
-  closeOnPhone,
   ...attrs
 }: AuthHeaderProps): ReactElement {
   if (simplified) {
@@ -74,7 +70,7 @@ function AuthHeader({
       className={className}
       kind={ModalHeaderKind.Secondary}
       title={title}
-      phoneCloseIcon={closeOnPhone ? <MiniCloseIcon /> : undefined}
+      closeOnPhone
     >
       {onBack && (
         <Button

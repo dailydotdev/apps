@@ -362,7 +362,7 @@ const RegistrationForm = ({
           // `simplified` is set by `/onboarding`, where the outer page already
           // applies horizontal padding. Anywhere else (e.g. the inline AuthModal)
           // the form would otherwise hug the container edge, so add it here.
-          !simplified && 'px-4 pb-4 tablet:px-6',
+          !simplified && 'px-6 pb-4',
         )}
       >
         {!isAuthenticating && (onBackToIntro || showHeadline) && (
