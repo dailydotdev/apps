@@ -173,8 +173,7 @@ const AgentSetupModal = ({
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
         >
-          Every change it makes shows up in these settings, and you can undo any
-          of it.{' '}
+          Every change it makes shows up here, so you can change it back.{' '}
           <a
             href={mcpServerDocs}
             target="_blank"
