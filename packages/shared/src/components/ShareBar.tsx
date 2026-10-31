@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useContext, useMemo, useState } from 'react';
+import classNames from 'classnames';
 import { CopyIcon, FacebookIcon, TwitterIcon, WhatsappIcon } from './icons';
 import type { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
@@ -24,6 +25,8 @@ import { useAuthContext } from '../contexts/AuthContext';
 
 interface ShareBarProps {
   post: Post;
+  /** Keep the card border, for rails that frame every widget. */
+  isBordered?: boolean;
 }
 
 const visibleRows = 2;
@@ -32,7 +35,10 @@ const fixedOptions = 5;
 const maxVisibleOptions = visibleRows * columns;
 const maxVisibleSquadsWhenCollapsed = maxVisibleOptions - fixedOptions;
 
-export default function ShareBar({ post }: ShareBarProps): ReactElement {
+export default function ShareBar({
+  post,
+  isBordered = false,
+}: ShareBarProps): ReactElement {
   const [isExpanded, setIsExpanded] = useState(false);
   const href = post.commentsPermalink;
   const cid = ReferralCampaignKey.SharePost;
@@ -91,7 +97,12 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
   };
 
   return (
-    <WidgetContainer className="hidden flex-col !border-0 p-3 laptop:flex">
+    <WidgetContainer
+      className={classNames(
+        'hidden flex-col p-3 laptop:flex',
+        !isBordered && '!border-0',
+      )}
+    >
       <h4 className="mb-4 font-bold text-text-primary typo-callout">
         Would you recommend this post?
       </h4>
