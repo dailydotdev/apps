@@ -244,6 +244,7 @@ interface ResetRowProps {
   doneMessage: string;
   isDisabled?: boolean;
   isPending?: boolean;
+  isDanger?: boolean;
   /** Resolves whether the reset went through. */
   onReset: () => Promise<boolean>;
 }
@@ -254,6 +255,7 @@ const ResetRow = ({
   doneMessage,
   isDisabled,
   isPending,
+  isDanger,
   onReset,
 }: ResetRowProps): ReactElement => {
   const [isConfirming, setIsConfirming] = useState(false);
@@ -301,7 +303,9 @@ const ResetRow = ({
       ) : (
         <Button
           type="button"
-          variant={ButtonVariant.Float}
+          {...(isDanger
+            ? { variant: ButtonVariant.Secondary, color: ButtonColor.Ketchup }
+            : { variant: ButtonVariant.Float })}
           size={ButtonSize.Small}
           disabled={isDisabled}
           onClick={() => setIsConfirming(true)}
@@ -328,9 +332,24 @@ const PersonalizationResetRow = ({
   );
 };
 
+// "2 topics, 1 source and 3 creators" go back to Auto.
+const describeLevels = ({ topics, sources, authors }: FeedControls): string => {
+  const counts = (
+    [
+      [topics.length, 'topic'],
+      [sources.length, 'source'],
+      [authors.length, 'creator'],
+    ] as const
+  )
+    .filter(([count]) => count > 0)
+    .map(([count, noun]) => `${count} ${pluralize(noun, count)}`);
+  const last = counts.pop();
+  return counts.length ? `${counts.join(', ')} and ${last}` : last ?? '';
+};
+
 /**
- * The resets, each on its own. Only where the reader's For You ranking takes
- * the controls.
+ * The resets, each on its own, and all of them at once. Only where the
+ * reader's For You ranking takes the controls.
  */
 export const ForYouStartOver = (): ReactElement | null => {
   const { isAvailable } = useForYouControls();
@@ -344,19 +363,34 @@ export const ForYouStartOver = (): ReactElement | null => {
   }
 
   const changedSettings = controls?.ranking.length ?? 0;
+  const levels = controls
+    ? controls.topics.length + controls.sources.length + controls.authors.length
+    : 0;
 
   return (
     <div className="flex flex-col gap-1">
       <SettingTitle title="Start over">
-        Each reset works on its own and leaves your follows, blocks and topic
-        levels alone.
+        Each reset works on its own and leaves your follows and blocks alone.
       </SettingTitle>
       <ul className="flex flex-col">
         <PersonalizationResetRow
           title="Forget my reading"
           description="For You forgets the topics it learned from your reading, and topics you follow lose the boost reading gave them."
-          reset={{ learned: true, seen: false }}
+          reset={{ learned: true }}
           doneMessage="For You forgot your reading"
+        />
+        <PersonalizationResetRow
+          title="Clear the boosts I set"
+          description={
+            controls && levels
+              ? `${describeLevels(controls)} ${
+                  levels === 1 ? 'goes' : 'go'
+                } back to Auto.`
+              : "You haven't set any boosts."
+          }
+          isDisabled={!levels}
+          reset={{ levels: true }}
+          doneMessage="Every topic, source and creator is back to Auto"
         />
         <ResetRow
           title="Reset ranking settings"
@@ -380,8 +414,15 @@ export const ForYouStartOver = (): ReactElement | null => {
         <PersonalizationResetRow
           title="Forget what I scrolled past"
           description="Posts you scrolled past can show up in For You again."
-          reset={{ learned: false, seen: true }}
+          reset={{ seen: true }}
           doneMessage="For You forgot what you scrolled past"
+        />
+        <PersonalizationResetRow
+          title="Reset everything"
+          description="All of the above at once. Learning and popular posts stay as you set them."
+          reset={{ learned: true, seen: true, levels: true, ranking: true }}
+          doneMessage="For You is starting over from your follows"
+          isDanger
         />
       </ul>
     </div>
