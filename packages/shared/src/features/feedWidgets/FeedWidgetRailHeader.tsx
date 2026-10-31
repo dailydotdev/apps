@@ -31,7 +31,7 @@ const RailPageActions = (): ReactElement => {
 
   return (
     <>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         <IntroQuestButton
           size={ButtonSize.Small}
           variant={ButtonVariant.Tertiary}
