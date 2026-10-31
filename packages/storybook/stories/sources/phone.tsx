@@ -212,7 +212,7 @@ const clusterTabs = [
 ];
 
 /** ShellCluster with Explore lit, and the Create square. */
-const Cluster = (): ReactElement => {
+export const Cluster = (): ReactElement => {
   const { goTo } = useSources();
   return (
     <div
@@ -256,7 +256,13 @@ const Cluster = (): ReactElement => {
 };
 
 /** ShellField: the search that floats one gap above the bar. */
-const FloatingSearch = ({ onOpen }: { onOpen: () => void }): ReactElement => (
+export const FloatingSearch = ({
+  onOpen,
+  label = 'Search sources',
+}: {
+  onOpen: () => void;
+  label?: string;
+}): ReactElement => (
   <button
     type="button"
     onClick={onOpen}
@@ -267,7 +273,7 @@ const FloatingSearch = ({ onOpen }: { onOpen: () => void }): ReactElement => (
     }}
   >
     <SearchIcon size={IconSize.Small} />
-    <span className="typo-body">Search sources</span>
+    <span className="typo-body">{label}</span>
   </button>
 );
 
