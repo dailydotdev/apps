@@ -11,6 +11,7 @@ import {
   ADD_BOOKMARKS_MUTATION,
   REMOVE_BOOKMARK_MUTATION,
 } from '../graphql/posts';
+import { getLatestBookmarksQueryKey } from '../graphql/bookmarks';
 import { useLogContext } from '../contexts/LogContext';
 import { useToastNotification } from './useToastNotification';
 import { useRequestProtocol } from './useRequestProtocol';
@@ -152,6 +153,9 @@ const useBookmarkPost = ({
     onMutate: onMutate || defaultOnMutate,
     onSuccess: () => {
       completeAction(ActionType.BookmarkPost);
+      client.invalidateQueries({
+        queryKey: getLatestBookmarksQueryKey(user),
+      });
     },
     onError: (err, _, rollback?: () => void) => rollback?.(),
   });
