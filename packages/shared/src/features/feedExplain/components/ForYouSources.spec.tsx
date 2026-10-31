@@ -116,7 +116,7 @@ beforeEach(() => {
 });
 
 describe('ForYouSources', () => {
-  it('should list followed sources, sources with a level and people, each with its boost', async () => {
+  it('should list followed sources, sources with a level and creators, each with its boost', async () => {
     renderSources();
 
     await screen.findByText('Sources you follow');
@@ -126,7 +126,7 @@ describe('ForYouSources', () => {
     ).toBeInTheDocument();
     expect(sources.getByText('Showing less')).toBeInTheDocument();
     expect(
-      within(getList('People you follow')).getByRole('button', {
+      within(getList('Creators you follow')).getByRole('button', {
         name: /^Boost for Ada/,
       }),
     ).toBeInTheDocument();

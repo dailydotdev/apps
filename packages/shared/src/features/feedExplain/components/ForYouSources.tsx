@@ -43,7 +43,7 @@ interface ListedSource {
   image?: string;
 }
 
-interface ListedPerson extends ListedSource {
+interface ListedCreator extends ListedSource {
   username?: string;
 }
 
@@ -175,7 +175,7 @@ const SourceList = ({
   );
 };
 
-const PeopleList = ({
+const CreatorList = ({
   profile,
   controls,
   feedControls,
@@ -191,37 +191,37 @@ const PeopleList = ({
       entity: ContentPreferenceType.User,
       feedId: feed?.id,
     });
-  const known = useRef(new Map<string, ListedPerson>());
+  const known = useRef(new Map<string, ListedCreator>());
   const followed = (data?.pages ?? []).flatMap(
     (page) =>
       page?.edges.flatMap(({ node }) =>
-        node.referenceUser ? [node.referenceUser as ListedPerson] : [],
+        node.referenceUser ? [node.referenceUser as ListedCreator] : [],
       ) ?? [],
   );
   const adjusted = controls.authors
     .filter(({ user: author }) => !followed.some(({ id }) => id === author.id))
     .map(
-      ({ user: author }): ListedPerson => ({
+      ({ user: author }): ListedCreator => ({
         id: author.id,
         name: author.name ?? author.id,
       }),
     );
-  [...followed, ...adjusted].forEach((person) =>
-    known.current.set(person.id, person),
+  [...followed, ...adjusted].forEach((creator) =>
+    known.current.set(creator.id, creator),
   );
   const ids = useFrozenGroups({
-    people: [...followed, ...adjusted].map(({ id }) => id),
-  }).people;
+    creators: [...followed, ...adjusted].map(({ id }) => id),
+  }).creators;
   const multiplier = getRankingValue(profile, 'follows.author_multiplier');
 
   return (
-    <SettingsList title="People you follow">
+    <SettingsList title="Creators you follow">
       {ids.map((id) => {
-        const person = known.current.get(id);
-        if (!person) {
+        const creator = known.current.get(id);
+        if (!creator) {
           return null;
         }
-        const name = person.name || person.username || id;
+        const name = creator.name || creator.username || id;
         const isFollowed =
           overrides[id] ?? followed.some((item) => item.id === id);
         const control = getAuthorControl(id);
@@ -231,7 +231,7 @@ const PeopleList = ({
             key={id}
             media={
               <ProfilePicture
-                user={{ image: person.image ?? '' }}
+                user={{ image: creator.image ?? '' }}
                 size={ProfileImageSize.Medium}
                 nativeLazyLoading
               />
@@ -270,7 +270,7 @@ const PeopleList = ({
       })}
       {!ids.length && (
         <SettingsListEmpty>
-          You don&apos;t follow anyone yet. Following a writer brings their
+          You don&apos;t follow any creators yet. Following one brings their
           posts into For You.
         </SettingsListEmpty>
       )}
@@ -292,7 +292,7 @@ const PeopleList = ({
 };
 
 /**
- * Sources and people's For You part: the sources and people the reader
+ * Sources and creators' For You part: the sources and creators the reader
  * follows, or set a level on, each with its boost. The lists wait for the
  * follows, the feed profile and the controls, so their order is set once.
  */
@@ -300,7 +300,7 @@ export const ForYouSources = (): ReactElement | null => {
   const { user } = useAuthContext();
   const { feed } = useFeedSettingsEditContext();
   const { feedSettings } = useFeedSettings();
-  const { isPending: isPeoplePending } = useFollowingQuery({
+  const { isPending: isCreatorsPending } = useFollowingQuery({
     id: user?.id ?? '',
     entity: ContentPreferenceType.User,
     feedId: feed?.id,
@@ -322,7 +322,7 @@ export const ForYouSources = (): ReactElement | null => {
     !profile ||
     !controls ||
     !feedSettings ||
-    isPeoplePending
+    isCreatorsPending
   ) {
     return null;
   }
@@ -335,12 +335,12 @@ export const ForYouSources = (): ReactElement | null => {
         type={TypographyType.Callout}
         color={TypographyColor.Tertiary}
       >
-        Posts from sources and people you follow get a boost. Open a boost to
-        show more or less of them, or to have For You ignore a follow. Reading
-        from a source doesn&apos;t add it here; only follows do.
+        Posts from sources and creators you follow get a boost. Open a boost to
+        show more or less of them, or to have For You ignore a follow. Sources
+        you only read from don&apos;t appear here.
       </Typography>
       <SourceList {...lists} />
-      <PeopleList {...lists} />
+      <CreatorList {...lists} />
     </>
   );
 };

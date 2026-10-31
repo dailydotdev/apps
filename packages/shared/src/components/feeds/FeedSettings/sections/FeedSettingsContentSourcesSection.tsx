@@ -186,14 +186,14 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
             className="tablet:typo-title3"
             bold
           >
-            Follow more sources and people
+            Follow more sources and creators
           </Typography>
           {!searchPanel.query?.length && (
             <Typography
               type={TypographyType.Callout}
               color={TypographyColor.Tertiary}
             >
-              Search for a source, squad or person to follow.
+              Search for a source, squad or creator to follow.
             </Typography>
           )}
         </>
