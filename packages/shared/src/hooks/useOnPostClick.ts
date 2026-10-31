@@ -183,9 +183,13 @@ export default function useOnPostClick({
                 client,
               );
 
-              const data = client.getQueryData(
-                queryKey,
-              ) as InfiniteData<FeedData>;
+              const data =
+                client.getQueryData<InfiniteData<FeedData>>(queryKey);
+              // A feed in the cache that never loaded (or failed) has no
+              // pages to look the post up in.
+              if (!data?.pages) {
+                return;
+              }
 
               const {
                 post: foundPost,

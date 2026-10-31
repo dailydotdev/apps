@@ -179,6 +179,9 @@ export enum LogEvent {
   VideoSticky = 'video sticky',
   OpenSmartComposer = 'open smart composer',
   CloseSmartComposer = 'close smart composer',
+  // The in-app reading drawer (step 4): the article behind the post page.
+  OpenReadingDrawer = 'open reading drawer',
+  CloseReadingDrawer = 'close reading drawer',
   SubmitSmartComposer = 'submit smart composer',
   CreatePost = 'create post',
   SwitchComposerKind = 'switch composer kind',

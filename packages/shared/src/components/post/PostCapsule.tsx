@@ -37,6 +37,7 @@ import { cluster, field, lerp, motion } from '../shell/constants';
 import { useRegisterShellField } from '../shell/shellFieldStore';
 import { useShellScroll } from '../shell/useShellScroll';
 import { hidesCluster } from '../shell/shellNav';
+import { useReading } from '../shell/readingStore';
 import { RootPortal } from '../tooltips/Portal';
 
 export interface PostCapsuleProps {
@@ -52,7 +53,7 @@ export const useHasPostCapsule = (post?: Pick<Post, 'type'>): boolean => {
   return !!post && post.type !== PostType.Brief && !appFooterTitle;
 };
 
-const transition = ['transform', 'height', 'border-radius', 'padding']
+const transition = ['transform', 'bottom', 'height', 'border-radius', 'padding']
   .map((property) => `${property} ${motion.snap}ms ${motion.interaction}`)
   .join(', ');
 
@@ -72,8 +73,13 @@ export const usePostCapsulePosition = (): PostCapsulePosition => {
   // Sideways the bar stays compact, so the capsule stands on its compact top.
   const barHeight = useIsPhoneLandscape() ? cluster.compact : cluster.rest;
   const router = useRouter();
-  const hasBar = !hidesCluster(router?.pathname ?? '', router?.asPath);
-  const { p } = useShellScroll();
+  // In the reading drawer the bar has folded away and the capsule stands on
+  // the floor at its rest size: the drawer's scroll is not the page's.
+  const { open: isReading } = useReading();
+  const hasBar =
+    !isReading && !hidesCluster(router?.pathname ?? '', router?.asPath);
+  const { p: pageP } = useShellScroll();
+  const p = isReading ? 0 : pageP;
   const lift = hasBar ? barHeight + field.gap : 0;
 
   return {

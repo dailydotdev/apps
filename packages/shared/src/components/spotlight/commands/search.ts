@@ -155,7 +155,7 @@ type SeeAllScope = Exclude<
 
 const seeAllProvider: Record<SeeAllScope, SearchProviderEnum> = {
   [SpotlightScope.Posts]: SearchProviderEnum.Posts,
-  [SpotlightScope.Squads]: SearchProviderEnum.Sources,
+  [SpotlightScope.Squads]: SearchProviderEnum.Squads,
   [SpotlightScope.People]: SearchProviderEnum.Users,
   [SpotlightScope.Tags]: SearchProviderEnum.Tags,
 };

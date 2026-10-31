@@ -21,6 +21,10 @@ let { deadZone } = scroll;
 let edge = 0;
 let lastY = 0;
 let armed = 0;
+// After a scroll the shell put there itself (a page landing back where it
+// stood), the events it fires are not reading.
+let expectedUntil = 0;
+const landingGrace = 600;
 const listeners = new Set<() => void>();
 
 const emit = (next: ShellScrollState) => {
@@ -40,6 +44,19 @@ const onScroll = () => {
   const y = window.scrollY;
   const delta = y - lastY;
   lastY = y;
+
+  // While the drawer is up to its full page the block stays in place over
+  // it; reading on down the post it hides and returns as on any page, as
+  // X's bar does.
+  const { classList } = document.documentElement;
+  if (
+    (classList.contains('reading') && !classList.contains('reading-past')) ||
+    performance.now() < expectedUntil
+  ) {
+    armed = 0;
+    emit(rest);
+    return;
+  }
 
   if (y <= deadZone) {
     armed = 0;
@@ -96,6 +113,13 @@ export const useShellEdge = (): number =>
 export const revealShell = (): void => {
   armed = 0;
   lastY = globalThis.window?.scrollY ?? 0;
+  emit(rest);
+};
+
+export const expectShellScroll = (y: number): void => {
+  armed = 0;
+  lastY = y;
+  expectedUntil = performance.now() + landingGrace;
   emit(rest);
 };
 

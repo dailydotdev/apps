@@ -17,6 +17,7 @@ import { useLegacyPostLayoutOptOut } from '@dailydotdev/shared/src/components/po
 import { useEnableReaderInside } from '@dailydotdev/shared/src/components/post/reader/hooks/useEnableReaderInside';
 import {
   Typography,
+  TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { ToggleRadio } from '@dailydotdev/shared/src/components/fields/ToggleRadio';
@@ -28,6 +29,7 @@ import {
 } from '@dailydotdev/shared/src/lib/log';
 import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import { iOSSupportsAppIconChange } from '@dailydotdev/shared/src/lib/ios';
+import { supportsReading } from '@dailydotdev/shared/src/components/shell/readingStore';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo, noindexSeoProps } from '../../next-seo';
@@ -47,6 +49,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
   const { logEvent } = useLogContext();
   const supportsAppIconChange =
     typeof window !== 'undefined' && iOSSupportsAppIconChange();
+  const canReadInApp = typeof window !== 'undefined' && supportsReading();
 
   const {
     openNewTab,
@@ -70,6 +73,8 @@ const AccountManageSubscriptionPage = (): ReactElement => {
   const showReaderToggle = isReaderEligible;
   const { value: isHighlightCardsOptedOut, toggle: toggleHighlightCards } =
     useSettingsBooleanFlag('highlightCardsOptOut');
+  const { value: isOpenLinksInAppOptedOut, toggle: toggleOpenLinksInApp } =
+    useSettingsBooleanFlag('openLinksInAppOptOut');
   const { value: isFeedWidgetsOptedOut, toggle: toggleFeedWidgets } =
     useSettingsBooleanFlag('feedWidgetsOptOut');
   // Only readers who have met the rail, so opening this page is no exposure.
@@ -160,6 +165,25 @@ const AccountManageSubscriptionPage = (): ReactElement => {
           >
             Open links in new tab
           </SettingsSwitch>
+
+          {canReadInApp && (
+            <div className="flex flex-col gap-1">
+              <SettingsSwitch
+                name="links-in-app"
+                checked={!isOpenLinksInAppOptedOut}
+                onToggle={toggleOpenLinksInApp}
+              >
+                Open links in the app
+              </SettingsSwitch>
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Quaternary}
+              >
+                Articles open inside daily.dev with the post underneath. Turn
+                this off to open every link in your browser.
+              </Typography>
+            </div>
+          )}
 
           <SettingsSwitch
             name="hide-companion"

@@ -8,6 +8,7 @@ import { ReadArticleButton, getReadPostButtonIcon } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
 import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
+import { openReadingFromFeed } from '../../shell/readingStore';
 import type { Post } from '../../../graphql/posts';
 import {
   getReadPostButtonText,
@@ -69,13 +70,6 @@ export const PostCardHeader = ({
   const { onReadClick: onReaderInstallGateClick } =
     useReaderInstallPromptGate(post);
 
-  const handleReadArticleClick = (event: React.MouseEvent) => {
-    if (onReaderInstallGateClick(event)) {
-      return;
-    }
-    onReadArticleClick?.(event);
-  };
-
   const readPostIcon = isReaderVariant ? (
     <EarthIcon />
   ) : (
@@ -94,6 +88,22 @@ export const PostCardHeader = ({
 
     return postLink;
   }, [post, postLink]);
+
+  const handleReadArticleClick = (event: React.MouseEvent) => {
+    if (onReaderInstallGateClick(event)) {
+      return;
+    }
+    const isOutsideArticle =
+      !post.sharedPost || articleLink === post.sharedPost.permalink;
+    if (
+      articleLink &&
+      isOutsideArticle &&
+      openReadingFromFeed(post, articleLink)
+    ) {
+      event.preventDefault();
+    }
+    onReadArticleClick?.(event);
+  };
 
   return (
     <>
