@@ -20,7 +20,7 @@ import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { Origin } from '../../../lib/log';
 import type { FeedControls, FeedProfile } from '../types';
 import { ExplainOrigin, FeedTopicMode } from '../types';
-import { describeTopic, getControlMeta } from '../describe';
+import { getControlMeta, getTopicNote } from '../describe';
 import { feedProfileQueryOptions } from '../queries';
 import type { UseFeedControls } from '../useFeedControls';
 import { useFeedControls } from '../useFeedControls';
@@ -88,18 +88,24 @@ const TopicLists = ({
     (tag) => turnedDownNow.includes(tag),
   );
 
-  const renderRow = (tag: string): ReactElement => {
+  const renderRow = (tag: string, wasFollowed: boolean): ReactElement => {
     const interest = interests.get(tag);
     const control = getTopicControl(tag);
     const meta = getControlMeta(control, isPlus);
     const isFollowed = followedTags.has(tag);
+    const getNote = (): string | undefined => {
+      if (isFollowed !== wasFollowed) {
+        return isFollowed ? 'You follow it now.' : 'You no longer follow it.';
+      }
+      return isFollowed ? undefined : getTopicNote(interest);
+    };
 
     return (
       <SettingsRow
         key={tag}
         name={`#${tag}`}
-        description={meta?.text ?? describeTopic(interest, isFollowed)}
-        descriptionClassName={meta?.className}
+        note={meta?.text ?? getNote()}
+        noteClassName={meta?.className}
         boost={
           <TopicLevelPicker
             tag={tag}
@@ -110,18 +116,12 @@ const TopicLists = ({
             onChange={(value) => setTopic(tag, value)}
           />
         }
-        action={
-          <Button
-            type="button"
-            className="w-24"
-            variant={isFollowed ? ButtonVariant.Float : ButtonVariant.Secondary}
-            size={ButtonSize.Small}
-            aria-label={`${isFollowed ? 'Unfollow' : 'Follow'} #${tag}`}
-            onClick={() => onToggleFollow(tag)}
-          >
-            {isFollowed ? 'Unfollow' : 'Follow'}
-          </Button>
-        }
+        options={[
+          {
+            label: isFollowed ? `Unfollow #${tag}` : `Follow #${tag}`,
+            action: () => onToggleFollow(tag),
+          },
+        ]}
       />
     );
   };
@@ -136,7 +136,7 @@ const TopicLists = ({
         of a topic, or to stop learning from what you read about it.
       </Typography>
       <SettingsList title="Topics you follow">
-        {lists.followed.map(renderRow)}
+        {lists.followed.map((tag) => renderRow(tag, true))}
         {!lists.followed.length && (
           <SettingsListEmpty>
             You don&apos;t follow any topics yet. Find some below.
@@ -149,7 +149,7 @@ const TopicLists = ({
           controls.learning ? "Topics you read about but don't follow." : null
         }
       >
-        {lists.learned.map(renderRow)}
+        {lists.learned.map((tag) => renderRow(tag, false))}
         {!lists.learned.length && (
           <SettingsListEmpty>
             {controls.learning

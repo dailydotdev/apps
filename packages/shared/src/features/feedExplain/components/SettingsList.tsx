@@ -6,6 +6,19 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuOptions,
+  DropdownMenuTrigger,
+} from '../../../components/dropdown/DropdownMenu';
+import type { MenuItemProps } from '../../../components/dropdown/common';
+import { MenuIcon } from '../../../components/icons/Menu';
 import { FeedSettingsMenu } from '../../../components/feeds/FeedSettings/types';
 import { useOpenForYouSettingsPage } from '../../../components/feeds/FeedSettings/forYouSettingsPages';
 
@@ -19,7 +32,7 @@ export const SettingsList = ({
   description?: ReactNode;
   children: ReactNode;
 }): ReactElement => (
-  <section className="flex flex-col gap-2">
+  <section className="flex flex-col gap-2 @container">
     <header className="flex flex-col gap-1">
       <Typography
         tag={TypographyTag.H2}
@@ -38,7 +51,7 @@ export const SettingsList = ({
         </Typography>
       )}
     </header>
-    <ul className="flex flex-col @container">{children}</ul>
+    <ul className="grid grid-cols-1 gap-x-8 @2xl:grid-cols-2">{children}</ul>
   </section>
 );
 
@@ -47,7 +60,7 @@ export const SettingsListEmpty = ({
 }: {
   children: ReactNode;
 }): ReactElement => (
-  <li className="py-2">
+  <li className="col-span-full py-2">
     <Typography type={TypographyType.Callout} color={TypographyColor.Tertiary}>
       {children}
     </Typography>
@@ -55,55 +68,63 @@ export const SettingsListEmpty = ({
 );
 
 /**
- * One topic, source or person: who it is, its boost and one action. The boost
- * sits between them on a wide list and under them on a narrow one.
+ * One topic, source or creator: who it is with its boost beside the name, a
+ * note on its own line when there's something to add, and its other actions
+ * in a menu.
  */
 export const SettingsRow = ({
   media,
   name,
-  description,
-  descriptionClassName,
+  note,
+  noteClassName,
   boost,
-  action,
+  options,
 }: {
   media?: ReactNode;
   name: string;
-  description?: string;
-  descriptionClassName?: string;
+  note?: string;
+  noteClassName?: string;
   boost?: ReactNode;
-  action: ReactNode;
+  options: MenuItemProps[];
 }): ReactElement => (
-  <li className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 py-3 @2xl:grid-cols-[minmax(0,1fr)_16rem_auto]">
-    <span className="flex min-w-0 items-center gap-3">
-      {media}
-      <span className="flex min-w-0 shrink flex-col">
+  <li className="flex min-h-12 items-center gap-3 py-1.5">
+    {media}
+    <span className="flex min-w-0 flex-1 shrink flex-col">
+      <span className="flex min-w-0 items-center gap-2">
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Primary}
-          className="truncate"
+          className="min-w-0 shrink truncate"
           bold
         >
           {name}
         </Typography>
-        {description && (
-          <Typography
-            type={TypographyType.Footnote}
-            color={descriptionClassName ? undefined : TypographyColor.Tertiary}
-            className={descriptionClassName}
-          >
-            {description}
-          </Typography>
-        )}
-      </span>
-    </span>
-    {boost && (
-      <span className="col-span-2 row-start-2 flex min-w-0 @2xl:col-span-1 @2xl:col-start-2 @2xl:row-start-1">
         {boost}
       </span>
-    )}
-    <span className="col-start-2 row-start-1 flex @2xl:col-start-3">
-      {action}
+      {note && (
+        <Typography
+          type={TypographyType.Footnote}
+          color={noteClassName ? undefined : TypographyColor.Tertiary}
+          className={noteClassName}
+        >
+          {note}
+        </Typography>
+      )}
     </span>
+    <DropdownMenu>
+      <DropdownMenuTrigger tooltip={{ content: 'Options' }} asChild>
+        <Button
+          type="button"
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
+          icon={<MenuIcon />}
+          aria-label={`Options for ${name}`}
+        />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuOptions options={options} />
+      </DropdownMenuContent>
+    </DropdownMenu>
   </li>
 );
 

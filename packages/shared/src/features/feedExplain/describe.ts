@@ -146,28 +146,21 @@ const strengthPhrase: Partial<Record<ExplainStrength, string>> = {
   [ExplainStrength.Confirmed]: 'and read a post on it',
 };
 
-/** What For You knows about a topic on its Feed settings row. */
-export const describeTopic = (
+/**
+ * A note for a topic's Feed settings row, when its boost alone doesn't say
+ * enough: why one from reading doesn't count yet, or that only a level the
+ * reader set brings it in.
+ */
+export const getTopicNote = (
   interest: FeedProfileInterest | undefined,
-  isFollowed: boolean,
-): string => {
-  if (isFollowed) {
-    const phrase = interest?.strength
-      ? strengthPhrase[interest.strength]
-      : undefined;
-    return `You follow it${phrase ? ` ${phrase}` : ''}.`;
-  }
+): string | undefined => {
   if (!interest || interest.origin === ExplainOrigin.Set) {
     return 'You set its boost.';
   }
-  switch (interest.strength) {
-    case ExplainStrength.Strong:
-      return "You've read a lot about it.";
-    case ExplainStrength.EarlySignal:
-      return "You've read a post about it. It counts once you read more.";
-    default:
-      return "You've read a few posts about it.";
-  }
+  return interest.origin === ExplainOrigin.Inferred &&
+    interest.strength === ExplainStrength.EarlySignal
+    ? 'Counts once you read more about it.'
+    : undefined;
 };
 
 export interface ReasonParts {
