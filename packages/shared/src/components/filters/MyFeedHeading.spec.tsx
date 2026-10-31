@@ -162,7 +162,7 @@ describe('MyFeedHeading', () => {
     );
   });
 
-  it('routes the home For you feed to the user edit page with the tags tab open', async () => {
+  it('routes the home For you feed to the user edit page on Overview', async () => {
     renderComponent();
 
     await userEvent.click(
@@ -170,11 +170,11 @@ describe('MyFeedHeading', () => {
     );
 
     expect(push).toHaveBeenCalledWith(
-      'https://app.daily.dev/feeds/user-1/edit?dview=tags',
+      'https://app.daily.dev/feeds/user-1/edit?dview=overview',
     );
   });
 
-  it('routes the For you feed to the user edit page with the tags tab open', async () => {
+  it('routes the For you feed to the user edit page on Overview', async () => {
     mockUseRouter.mockReturnValue({
       push,
       pathname: '/my-feed',
@@ -188,7 +188,7 @@ describe('MyFeedHeading', () => {
     );
 
     expect(push).toHaveBeenCalledWith(
-      'https://app.daily.dev/feeds/user-1/edit?dview=tags',
+      'https://app.daily.dev/feeds/user-1/edit?dview=overview',
     );
   });
 

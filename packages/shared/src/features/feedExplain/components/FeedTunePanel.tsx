@@ -27,7 +27,9 @@ import {
 import { SourceAvatar } from '../../../components/profile/source/SourceAvatar';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
-import { settingsUrl } from '../../../lib/constants';
+import { FeedSettingsMenu } from '../../../components/feeds/FeedSettings/types';
+import type { ForYouSettingsPageId } from '../../../components/feeds/FeedSettings/forYouSettingsPages';
+import { getForYouSettingsUrl } from '../../../components/feeds/FeedSettings/forYouSettingsPages';
 import { isSpecialUser } from '../../../lib/user';
 import { ExplainOrigin, FeedTuneTab } from '../types';
 import { feedProfileQueryOptions } from '../queries';
@@ -200,7 +202,7 @@ const SourcesTab = ({ tune }: { tune: UseFeedTune }): ReactElement => {
         <>
           <Divider className="bg-border-subtlest-tertiary" />
           <Typography bold type={TypographyType.Callout}>
-            Authors
+            Creators
           </Typography>
           <ul className="flex flex-col">
             {authors.map((author) => {
@@ -289,6 +291,13 @@ const RankingTab = ({
   );
 };
 
+// The Feed settings page that holds each tab's controls.
+const tabSettingsPage: Record<FeedTuneTab, ForYouSettingsPageId> = {
+  [FeedTuneTab.Topics]: FeedSettingsMenu.Tags,
+  [FeedTuneTab.Sources]: FeedSettingsMenu.ContentSources,
+  [FeedTuneTab.Ranking]: FeedSettingsMenu.Ranking,
+};
+
 interface FeedTunePanelProps {
   /** The For You version the controls are for. */
   version: number;
@@ -335,7 +344,7 @@ export const FeedTunePanel = ({
           </Typography>
           <Button
             tag="a"
-            href={`${settingsUrl}/feed/general`}
+            href={getForYouSettingsUrl(tabSettingsPage[tab])}
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
           >

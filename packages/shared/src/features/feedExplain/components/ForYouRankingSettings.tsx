@@ -15,6 +15,7 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { Divider } from '../../../components/utilities/Divider';
+import { PlusUser } from '../../../components/PlusUser';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { Origin } from '../../../lib/log';
@@ -25,6 +26,7 @@ import type { RankingSettingMeta } from '../ranking';
 import { formatRankingValue, rankingGroups, rankingSettings } from '../ranking';
 import { feedProfileQueryOptions } from '../queries';
 import { useFeedControls } from '../useFeedControls';
+import { useForYouControls } from '../useFeedExplainMode';
 import { PlusBanner } from './PlusUpsell';
 
 export interface RankingSliderProps {
@@ -106,26 +108,27 @@ export const RankingSlider = ({
 };
 
 /**
- * How For You ranks every post. Anyone sees the values the feed ranks with;
- * only Plus changes them. Values and defaults come from the feed profile, so
- * the section waits for it and stays out where the ranking takes no
- * settings.
+ * Feed settings' Ranking page: how For You ranks every post. Anyone sees the
+ * values the feed ranks with; only Plus changes them. Values and defaults
+ * come from the feed profile, so the page waits for it and stays empty where
+ * the ranking takes no settings.
  */
-export const ForYouRankingSettings = ({
-  version,
-}: {
-  version: number;
-}): ReactElement | null => {
+export const ForYouRankingSettings = (): ReactElement | null => {
   const { user } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const [isAdvanced, setIsAdvanced] = useState(false);
-  const { data: profile } = useQuery(feedProfileQueryOptions(user, version));
+  const { isAvailable, version } = useForYouControls();
+  const profileOptions = feedProfileQueryOptions(user, version);
+  const { data: profile } = useQuery({
+    ...profileOptions,
+    enabled: profileOptions.enabled && isAvailable,
+  });
   const { controls, setRankingSetting, resetRankingSettings } = useFeedControls(
-    { origin: Origin.Settings },
+    { origin: Origin.Settings, enabled: isAvailable },
   );
   const openTune = useOpenFeedTune(Origin.Settings);
 
-  if (!profile?.ranking.length || !controls) {
+  if (!isAvailable || !profile?.ranking.length || !controls) {
     return null;
   }
 
@@ -136,106 +139,99 @@ export const ForYouRankingSettings = ({
   const pausedCount = isPlus ? 0 : controls.ranking.length;
 
   return (
-    <>
-      <Divider className="my-1 bg-border-subtlest-tertiary" />
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="flex min-w-0 flex-[1_1_16rem] flex-col gap-1">
-            <Typography bold type={TypographyType.Body}>
-              Ranking
-            </Typography>
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Tertiary}
-            >
-              Each post starts from how other readers liked it. Your topics and
-              follows boost it, and it drops as it gets older or as you scroll
-              past it. These settings apply to every post in For You.
-            </Typography>
-          </div>
-          <div className="flex items-center gap-3">
+    <div className="flex flex-col gap-4">
+      <PlusUser className="self-start" />
+      <Typography
+        type={TypographyType.Callout}
+        color={TypographyColor.Tertiary}
+      >
+        Each post starts from how other readers liked it. Your topics and
+        follows boost it, and it drops as it gets older or as you scroll past
+        it. These settings apply to every post in For You.
+      </Typography>
+      <div className="flex flex-wrap items-center gap-3">
+        <Switch
+          inputId="for-you-ranking-advanced"
+          name="for-you-ranking-advanced"
+          compact={false}
+          checked={isAdvanced}
+          onToggle={() => setIsAdvanced(!isAdvanced)}
+        >
+          Advanced
+        </Switch>
+        <div className="ml-auto flex items-center gap-2">
+          {controls.ranking.length > 0 && (
             <Button
               type="button"
               variant={ButtonVariant.Float}
               size={ButtonSize.Small}
-              onClick={() =>
-                openTune({ tab: FeedTuneTab.Ranking, goToFeed: true })
-              }
+              onClick={resetRankingSettings}
             >
-              Live preview
+              Reset all
             </Button>
-            <Switch
-              inputId="for-you-ranking-advanced"
-              name="for-you-ranking-advanced"
-              compact={false}
-              checked={isAdvanced}
-              onToggle={() => setIsAdvanced(!isAdvanced)}
-            >
-              Advanced
-            </Switch>
-            {controls.ranking.length > 0 && (
-              <Button
-                type="button"
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Small}
-                onClick={resetRankingSettings}
-              >
-                Reset all
-              </Button>
-            )}
-          </div>
+          )}
+          <Button
+            type="button"
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Small}
+            onClick={() =>
+              openTune({ tab: FeedTuneTab.Ranking, goToFeed: true })
+            }
+          >
+            Live preview
+          </Button>
         </div>
-        <PlusBanner>
-          {pausedCount === 1 &&
-            'Your change is saved and counts again with Plus.'}
-          {pausedCount > 1 &&
-            `Your ${pausedCount} changes are saved and count again with Plus.`}
-          {!pausedCount && 'Change how For You ranks every post with Plus.'}
-        </PlusBanner>
-        {rankingGroups.map(({ group, title, description }, index) => {
-          const rows = rankingSettings.flatMap((meta) => {
-            const setting = settings.get(meta.key);
-            return meta.group === group &&
-              setting &&
-              (isAdvanced || !meta.isAdvanced)
-              ? [{ meta, setting }]
-              : [];
-          });
-          if (!rows.length) {
-            return null;
-          }
-          return (
-            <Fragment key={group}>
-              {index > 0 && (
-                <Divider className="my-1 bg-border-subtlest-tertiary" />
-              )}
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1">
-                  <Typography bold type={TypographyType.Callout}>
-                    {title}
-                  </Typography>
-                  <Typography
-                    type={TypographyType.Footnote}
-                    color={TypographyColor.Tertiary}
-                  >
-                    {description}
-                  </Typography>
-                </div>
-                {rows.map(({ meta, setting }) => (
-                  <RankingSlider
-                    key={meta.key}
-                    meta={meta}
-                    setting={setting}
-                    value={isPlus ? values.get(meta.key) : undefined}
-                    isLocked={!isPlus}
-                    onChange={(value) => setRankingSetting(meta.key, value)}
-                  />
-                ))}
-              </div>
-            </Fragment>
-          );
-        })}
       </div>
-    </>
+      <PlusBanner>
+        {pausedCount === 1 &&
+          'Your change is saved and counts again with Plus.'}
+        {pausedCount > 1 &&
+          `Your ${pausedCount} changes are saved and count again with Plus.`}
+        {!pausedCount && 'Change how For You ranks every post with Plus.'}
+      </PlusBanner>
+      {rankingGroups.map(({ group, title, description }, index) => {
+        const rows = rankingSettings.flatMap((meta) => {
+          const setting = settings.get(meta.key);
+          return meta.group === group &&
+            setting &&
+            (isAdvanced || !meta.isAdvanced)
+            ? [{ meta, setting }]
+            : [];
+        });
+        if (!rows.length) {
+          return null;
+        }
+        return (
+          <Fragment key={group}>
+            {index > 0 && (
+              <Divider className="my-1 bg-border-subtlest-tertiary" />
+            )}
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
+                <Typography bold type={TypographyType.Body}>
+                  {title}
+                </Typography>
+                <Typography
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Tertiary}
+                >
+                  {description}
+                </Typography>
+              </div>
+              {rows.map(({ meta, setting }) => (
+                <RankingSlider
+                  key={meta.key}
+                  meta={meta}
+                  setting={setting}
+                  value={isPlus ? values.get(meta.key) : undefined}
+                  isLocked={!isPlus}
+                  onChange={(value) => setRankingSetting(meta.key, value)}
+                />
+              ))}
+            </div>
+          </Fragment>
+        );
+      })}
+    </div>
   );
 };

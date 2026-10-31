@@ -3,6 +3,7 @@ import nock from 'nock';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient } from '@tanstack/react-query';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
 import defaultUser from '../../../../__tests__/fixture/loggedUser';
@@ -39,9 +40,16 @@ const renderRanking = ({
     ranking,
   });
 
+  const gb = new GrowthBook({
+    features: {
+      feed_version: { defaultValue: 116 },
+      feed_explain: { defaultValue: true },
+    },
+  });
+
   return render(
-    <TestBootProvider client={client} auth={{ user }}>
-      <ForYouRankingSettings version={116} />
+    <TestBootProvider client={client} auth={{ user }} gb={gb}>
+      <ForYouRankingSettings />
     </TestBootProvider>,
   );
 };
