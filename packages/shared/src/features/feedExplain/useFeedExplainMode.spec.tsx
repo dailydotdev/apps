@@ -9,7 +9,9 @@ import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { ActiveFeedNameContext } from '../../contexts/ActiveFeedNameContext';
 import { SharedFeedPage } from '../../components/utilities/common';
+import { Origin } from '../../lib/log';
 import { useFeedExplainMode } from './useFeedExplainMode';
+import { useSetFeedExplain } from './useSetFeedExplain';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -49,7 +51,13 @@ const renderMode = ({
     </TestBootProvider>
   );
 
-  return renderHook(() => useFeedExplainMode({ isRecommended }), { wrapper });
+  return renderHook(
+    () => ({
+      ...useFeedExplainMode({ isRecommended }),
+      setIsExplaining: useSetFeedExplain(Origin.Feed),
+    }),
+    { wrapper },
+  );
 };
 
 describe('useFeedExplainMode', () => {

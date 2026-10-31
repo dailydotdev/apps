@@ -17,6 +17,7 @@ import { useFeedTuneState } from '../useFeedTune';
 import { FeedTunePanel } from './FeedTunePanel';
 
 const user = { ...defaultUser, isPlus: true };
+const logEvent = jest.fn();
 const baseKey = ['feed', 'base'];
 
 const page = (ids: string[]) => ({
@@ -75,7 +76,7 @@ const openPanel = () => {
   const client = createClient();
 
   render(
-    <TestBootProvider client={client} auth={{ user }}>
+    <TestBootProvider client={client} auth={{ user }} log={{ logEvent }}>
       <FeedTuneProvider baseQueryKey={baseKey}>
         <FeedTunePanel version={116} />
       </FeedTuneProvider>
@@ -111,6 +112,7 @@ const TunedFeed = ({
 
 beforeEach(() => {
   nock.cleanAll();
+  logEvent.mockClear();
 });
 
 describe('FeedTunePanel', () => {
@@ -144,6 +146,9 @@ describe('FeedTunePanel', () => {
 
     await waitFor(() => expect(saved).toBe(true));
     expect(client.getQueryData([QueryStateKeys.FeedTune])).toBeNull();
+    expect(logEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({ event_name: LogEvent.CloseFeedTune }),
+    );
   });
 
   it('should re-rank the feed only when asked to preview', async () => {
@@ -154,7 +159,6 @@ describe('FeedTunePanel', () => {
           resolvePreview = resolve;
         }),
     );
-    const logEvent = jest.fn();
     render(
       <TestBootProvider
         client={createClient()}
@@ -212,6 +216,21 @@ describe('FeedTunePanel', () => {
       await screen.findByText('Out of date. Your feed shows the last preview.'),
     ).toBeInTheDocument();
     expect(fetchFeed).toHaveBeenCalledTimes(1);
+  });
+
+  it('should log the changes it drops when closed without saving', async () => {
+    const client = openPanel();
+
+    await userEvent.click(screen.getByLabelText('Boost for #rust: ×1.50'));
+    await userEvent.click(screen.getByRole('radio', { name: /^Show less/ }));
+    await screen.findByRole('button', { name: 'Save' });
+    await userEvent.click(screen.getByLabelText('Close Tune'));
+
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.CloseFeedTune,
+      extra: JSON.stringify({ changes: 1 }),
+    });
+    expect(client.getQueryData([QueryStateKeys.FeedTuneChanges])).toEqual([]);
   });
 
   it('should close on Done with nothing changed', async () => {

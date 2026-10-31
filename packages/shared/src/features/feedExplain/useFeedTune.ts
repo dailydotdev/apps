@@ -321,5 +321,12 @@ export const useFeedTune = (): UseFeedTune => {
     undo: () => setChanges(changes.slice(0, -1)),
     preview,
     save,
+    close: () => {
+      logEvent({
+        event_name: LogEvent.CloseFeedTune,
+        extra: JSON.stringify({ changes: latest.size }),
+      });
+      close();
+    },
   };
 };

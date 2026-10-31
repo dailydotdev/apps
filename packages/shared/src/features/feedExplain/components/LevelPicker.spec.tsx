@@ -4,12 +4,14 @@ import userEvent from '@testing-library/user-event';
 import { QueryClient } from '@tanstack/react-query';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import defaultUser from '../../../../__tests__/fixture/loggedUser';
+import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 import type { FeedControl } from '../types';
 import { FeedControlDuration, FeedTopicMode } from '../types';
 import { TopicLevelPicker } from './TopicLevelPicker';
 import { SourceLevelPicker } from './SourceLevelPicker';
 
 const onChange = jest.fn();
+const logEvent = jest.fn();
 
 const openPicker = async (
   isPlus: boolean,
@@ -19,6 +21,7 @@ const openPicker = async (
     <TestBootProvider
       client={new QueryClient()}
       auth={{ user: { ...defaultUser, isPlus } }}
+      log={{ logEvent }}
     >
       <TopicLevelPicker
         tag="rust"
@@ -41,6 +44,7 @@ const getDuration = (label: string) =>
 
 beforeEach(() => {
   onChange.mockClear();
+  logEvent.mockClear();
 });
 
 describe('TopicLevelPicker under Plus', () => {
@@ -97,6 +101,19 @@ describe('TopicLevelPicker under Plus', () => {
     await userEvent.click(screen.getByRole('radio', { name: /^Show more/ }));
 
     expect(onChange).toHaveBeenCalledWith({ mode: FeedTopicMode.Boost });
+  });
+
+  it('should log a Get Plus click as coming from the levels', async () => {
+    await openPicker(false);
+
+    fireEvent.click(screen.getByText('Get Plus'));
+
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.UpgradeSubscription,
+      target_type: TargetType.Plus,
+      target_id: TargetId.FeedControls,
+      extra: JSON.stringify({ feature: 'levels' }),
+    });
   });
 });
 

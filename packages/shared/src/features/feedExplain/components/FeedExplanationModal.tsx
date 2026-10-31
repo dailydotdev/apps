@@ -325,9 +325,9 @@ function FeedExplanationModal({
     shouldEvaluate: !!user,
   });
   const { data: profile } = useQuery(feedProfileQueryOptions(user, version));
-  const feedControls = useFeedControls({ origin: Origin.FeedExplain });
+  const feedControls = useFeedControls({ origin: Origin.FeedExplanation });
   const { isPlus } = usePlusSubscription();
-  const openTune = useOpenFeedTune(Origin.FeedExplain);
+  const openTune = useOpenFeedTune(Origin.FeedExplanation);
   const {
     onFollowTags,
     onUnfollowTags,
@@ -338,7 +338,7 @@ function FeedExplanationModal({
     onFollowSource,
     onUnfollowSource,
   } = useTagAndSource({
-    origin: Origin.FeedExplain,
+    origin: Origin.FeedExplanation,
     postId: post.id,
     shouldInvalidateQueries: false,
   });
@@ -377,7 +377,7 @@ function FeedExplanationModal({
       id: author.id,
       entity: ContentPreferenceType.User,
       entityName: authorName,
-      opts: { extra: { origin: Origin.FeedExplain, post_id: post.id } },
+      opts: { extra: { origin: Origin.FeedExplanation, post_id: post.id } },
     };
     const isFollowing = isFollowingContent(author.contentPreference);
     const isBlocked =

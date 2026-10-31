@@ -12,6 +12,7 @@ export enum Origin {
   Companion = 'companion',
   Feed = 'feed',
   FeedExplain = 'feed explain',
+  FeedExplanation = 'feed explanation',
   FeedTune = 'feed tune',
   PostHiddenPanel = 'post hidden panel',
   FeedHero = 'feed hero',
@@ -455,6 +456,7 @@ export enum LogEvent {
   OpenFeedTune = 'open feed tune',
   PreviewFeedTune = 'preview feed tune',
   SaveFeedTune = 'save feed tune',
+  CloseFeedTune = 'close feed tune',
   // End Feed explain
   SetHighlightsPlacement = 'set highlights placement',
   InstallPWA = 'install pwa',
@@ -799,6 +801,7 @@ export enum TargetId {
   BookmarkNote = 'bookmark note',
   BookmarksStrip = 'bookmarks strip',
   FeedSettings = 'feed settings',
+  FeedControls = 'feed controls',
   ClickbaitShield = 'clickbait shield',
   StreakTimezoneLabel = 'streak timezone label',
   StreakTimezoneMismatchPrompt = 'streak timezone mismatch prompt',

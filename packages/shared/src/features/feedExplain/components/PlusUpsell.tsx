@@ -20,23 +20,33 @@ import { featurePlusCtaCopy } from '../../../lib/featureManagement';
 import { plusUrl } from '../../../lib/constants';
 import { LogEvent, TargetId } from '../../../lib/log';
 
-const useUpgradeClick = () => {
+/** The Plus part of the controls an upgrade click came from. */
+export enum PlusUpsellFeature {
+  /** A level picker's exact boost and how long a change lasts. */
+  Levels = 'levels',
+  Ranking = 'ranking',
+}
+
+const useUpgradeClick = (feature: PlusUpsellFeature) => {
   const { logSubscriptionEvent } = usePlusSubscription();
 
   return () =>
     logSubscriptionEvent({
       event_name: LogEvent.UpgradeSubscription,
-      target_id: TargetId.FeedSettings,
+      target_id: TargetId.FeedControls,
+      extra: { feature },
     });
 };
 
 /** A small Get Plus button under controls a free reader sees locked. */
 export const GetPlusButton = ({
+  feature,
   className,
 }: {
+  feature: PlusUpsellFeature;
   className?: string;
 }): ReactElement => {
-  const onClick = useUpgradeClick();
+  const onClick = useUpgradeClick(feature);
 
   return (
     <Link href={plusUrl} passHref>
@@ -57,14 +67,16 @@ export const GetPlusButton = ({
 
 /** What Plus adds to a section, for free readers only. */
 export const PlusBanner = ({
+  feature,
   children,
   className,
 }: {
+  feature: PlusUpsellFeature;
   children: ReactNode;
   className?: string;
 }): ReactElement | null => {
   const { isPlus } = usePlusSubscription();
-  const onClick = useUpgradeClick();
+  const onClick = useUpgradeClick(feature);
   const {
     value: { full: plusCta },
   } = useConditionalFeature({
@@ -109,9 +121,11 @@ export const PlusBanner = ({
  * the last one.
  */
 export const PlusSection = ({
+  feature,
   children,
   className,
 }: {
+  feature: PlusUpsellFeature;
   children: ReactNode;
   className?: string;
 }): ReactElement => {
@@ -125,7 +139,7 @@ export const PlusSection = ({
         <span className="h-px flex-1 bg-border-subtlest-tertiary" />
       </div>
       {children}
-      {!isPlus && <GetPlusButton className="self-start" />}
+      {!isPlus && <GetPlusButton feature={feature} className="self-start" />}
     </div>
   );
 };

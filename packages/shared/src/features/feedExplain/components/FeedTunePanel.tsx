@@ -42,7 +42,7 @@ import { TopicLevelPicker } from './TopicLevelPicker';
 import { SourceLevelPicker } from './SourceLevelPicker';
 import { AuthorLevelPicker } from './AuthorLevelPicker';
 import { RankingSlider } from './ForYouRankingSettings';
-import { PlusBanner } from './PlusUpsell';
+import { PlusBanner, PlusUpsellFeature } from './PlusUpsell';
 
 const tuneTabs = Object.values(FeedTuneTab).map((label) => ({
   label,
@@ -257,7 +257,9 @@ const RankingTab = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <PlusBanner>Change how For You ranks every post with Plus.</PlusBanner>
+      <PlusBanner feature={PlusUpsellFeature.Ranking}>
+        Change how For You ranks every post with Plus.
+      </PlusBanner>
       {rankingGroups.map(({ group, title }, index) => {
         const rows = rankingSettings.flatMap((meta) => {
           const setting = settings.get(meta.key);
