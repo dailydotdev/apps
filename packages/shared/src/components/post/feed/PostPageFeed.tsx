@@ -69,7 +69,7 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
     >
       <h2
         id={headingId}
-        className="px-[var(--post-feed-gutter)] pb-2 pt-6 font-bold typo-title3"
+        className="px-[var(--post-feed-gutter)] pb-4 pt-6 font-bold typo-title3"
       >
         More for you
       </h2>

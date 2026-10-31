@@ -16,14 +16,6 @@
 }
 
 /*
- * The section's top line is the first divider, so the first card's own top
- * line would double it.
- */
-.list :global([data-testid='posts-feed'] article:first-of-type) {
-  border-top-color: transparent;
-}
-
-/*
  * List cards go side by side by WINDOW width (mobileXL, 500px), but here
  * they sit in the post's column: on a 1020-1130px laptop it is far
  * narrower than the side-by-side card needs (a 240px image, a 16px gap and
