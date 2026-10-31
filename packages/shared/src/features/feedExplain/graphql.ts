@@ -323,8 +323,18 @@ export const setFeedFillIns = (enabled: boolean): Promise<unknown> =>
   gqlClient.request(SET_FEED_FILL_INS_MUTATION, { enabled });
 
 export const RESET_FEED_PERSONALIZATION_MUTATION = gql`
-  mutation ResetFeedPersonalization($learned: Boolean!, $seen: Boolean!) {
-    resetFeedPersonalization(learned: $learned, seen: $seen) {
+  mutation ResetFeedPersonalization(
+    $learned: Boolean!
+    $seen: Boolean!
+    $levels: Boolean!
+    $ranking: Boolean!
+  ) {
+    resetFeedPersonalization(
+      learned: $learned
+      seen: $seen
+      levels: $levels
+      ranking: $ranking
+    ) {
       _
     }
   }
@@ -332,12 +342,24 @@ export const RESET_FEED_PERSONALIZATION_MUTATION = gql`
 
 export interface FeedPersonalizationReset {
   /** Forget what For You learned from the reader's reading. */
-  learned: boolean;
+  learned?: boolean;
   /** Forget what they scrolled past. */
-  seen: boolean;
+  seen?: boolean;
+  /** Take every topic, source and creator back to Auto. */
+  levels?: boolean;
+  /** Take every ranking setting back to the default. */
+  ranking?: boolean;
 }
 
-export const resetFeedPersonalization = (
-  reset: FeedPersonalizationReset,
-): Promise<unknown> =>
-  gqlClient.request(RESET_FEED_PERSONALIZATION_MUTATION, reset);
+export const resetFeedPersonalization = ({
+  learned = false,
+  seen = false,
+  levels = false,
+  ranking = false,
+}: FeedPersonalizationReset): Promise<unknown> =>
+  gqlClient.request(RESET_FEED_PERSONALIZATION_MUTATION, {
+    learned,
+    seen,
+    levels,
+    ranking,
+  });

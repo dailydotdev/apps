@@ -421,8 +421,9 @@ interface UseFeedPersonalizationReset {
 
 /**
  * Forgets what For You learned from the reader's reading or what they
- * scrolled past. The feed service drops their cached feeds, so every For You
- * page cached here restarts from page 1 too.
+ * scrolled past, takes their levels back to Auto or their ranking settings
+ * back to the default, or any of them at once. Every For You page cached
+ * here restarts from page 1, so no page ranked before the reset stays.
  */
 export const useFeedPersonalizationReset = ({
   origin,
@@ -440,10 +441,13 @@ export const useFeedPersonalizationReset = ({
           : labels.error.generic,
       );
     },
-    onSuccess: (_, { learned, seen }) => {
+    onSuccess: (
+      _,
+      { learned = false, seen = false, levels = false, ranking = false },
+    ) => {
       logEvent({
         event_name: LogEvent.ResetFeedPersonalization,
-        extra: JSON.stringify({ origin, learned, seen }),
+        extra: JSON.stringify({ origin, learned, seen, levels, ranking }),
       });
       client.resetQueries({
         queryKey: generateQueryKey(SharedFeedPage.MyFeed, user),
@@ -451,6 +455,9 @@ export const useFeedPersonalizationReset = ({
       client.invalidateQueries({
         queryKey: generateQueryKey(RequestKey.FeedProfile, user),
       });
+      if (levels || ranking) {
+        client.invalidateQueries({ queryKey: feedControlsQueryKey(user) });
+      }
     },
   });
 

@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import nock from 'nock';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, useQuery } from '@tanstack/react-query';
 import { GrowthBook } from '@growthbook/growthbook-react';
@@ -15,12 +15,16 @@ import type {
   FeedControls,
   FeedProfile,
 } from '../../../../features/feedExplain/types';
-import { FeedTopicMode } from '../../../../features/feedExplain/types';
+import {
+  FeedAuthorMode,
+  FeedTopicMode,
+} from '../../../../features/feedExplain/types';
 import {
   feedControlsQueryKey,
   feedProfileQueryKey,
 } from '../../../../features/feedExplain/queries';
 import {
+  FEED_CONTROLS_QUERY,
   RESET_FEED_PERSONALIZATION_MUTATION,
   SET_FEED_LEARNING_MUTATION,
   SET_FEED_TOPIC_MODE_MUTATION,
@@ -79,6 +83,9 @@ const renderOverview = ({
     </TestBootProvider>,
   );
 };
+
+const findResetRow = async (title: string) =>
+  (await screen.findByText(title)).closest('li') as HTMLElement;
 
 beforeEach(() => {
   nock.cleanAll();
@@ -154,7 +161,12 @@ describe('FeedSettingsOverviewSection', () => {
     mockGraphQL({
       request: {
         query: RESET_FEED_PERSONALIZATION_MUTATION,
-        variables: { learned: true, seen: false },
+        variables: {
+          learned: true,
+          seen: false,
+          levels: false,
+          ranking: false,
+        },
       },
       result: () => {
         sent = true;
@@ -173,5 +185,76 @@ describe('FeedSettingsOverviewSection', () => {
 
     await waitFor(() => expect(sent).toBe(true));
     await waitFor(() => expect(fetchForYou).toHaveBeenCalledTimes(2));
+  });
+
+  it('should clear the boosts set, then read the levels again', async () => {
+    let sent = false;
+    mockGraphQL({
+      request: {
+        query: RESET_FEED_PERSONALIZATION_MUTATION,
+        variables: {
+          learned: false,
+          seen: false,
+          levels: true,
+          ranking: false,
+        },
+      },
+      result: () => {
+        sent = true;
+        return { data: { resetFeedPersonalization: { _: true } } };
+      },
+    });
+    mockGraphQL({
+      request: { query: FEED_CONTROLS_QUERY },
+      result: { data: { feedControls: controls } },
+    });
+    const level = { mode: FeedTopicMode.Boost, weight: null, expiresAt: null };
+    renderOverview({
+      feedControls: {
+        ...controls,
+        topics: [
+          { keyword: 'docker', ...level },
+          { keyword: 'rust', ...level },
+        ],
+        authors: [{ user: { id: 'u1' }, ...level, mode: FeedAuthorMode.Boost }],
+      },
+    });
+
+    const row = await findResetRow('Clear the boosts I set');
+    expect(
+      within(row).getByText('2 topics and 1 creator go back to Auto.'),
+    ).toBeInTheDocument();
+    await userEvent.click(within(row).getByRole('button', { name: 'Reset' }));
+    await userEvent.click(
+      within(row).getByRole('button', { name: 'Yes, reset' }),
+    );
+
+    await waitFor(() => expect(sent).toBe(true));
+    expect(
+      await within(row).findByText("You haven't set any boosts."),
+    ).toBeInTheDocument();
+  });
+
+  it('should reset everything in one call', async () => {
+    let sent = false;
+    mockGraphQL({
+      request: {
+        query: RESET_FEED_PERSONALIZATION_MUTATION,
+        variables: { learned: true, seen: true, levels: true, ranking: true },
+      },
+      result: () => {
+        sent = true;
+        return { data: { resetFeedPersonalization: { _: true } } };
+      },
+    });
+    renderOverview();
+
+    const row = await findResetRow('Reset everything');
+    await userEvent.click(within(row).getByRole('button', { name: 'Reset' }));
+    await userEvent.click(
+      within(row).getByRole('button', { name: 'Yes, reset' }),
+    );
+
+    await waitFor(() => expect(sent).toBe(true));
   });
 });
