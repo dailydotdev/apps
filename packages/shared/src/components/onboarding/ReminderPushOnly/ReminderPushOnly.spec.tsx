@@ -62,7 +62,7 @@ describe('ReminderPushOnly', () => {
   it('ends the step without a reminder on skip', () => {
     renderStep();
 
-    press('Skip for now');
+    press('Skip');
 
     expect(mockOnSkip).toHaveBeenCalled();
     expect(mockOnSchedule).not.toHaveBeenCalled();

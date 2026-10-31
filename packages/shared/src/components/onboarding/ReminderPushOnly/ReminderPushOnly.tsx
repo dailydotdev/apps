@@ -6,7 +6,6 @@ import {
   funnelStepRail,
 } from '../../../features/onboarding/shared/FunnelStepCtaWrapper';
 import { OnboardingHeadline, OnboardingSubheadline } from '../common';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import {
   getHourTimezone,
@@ -96,19 +95,10 @@ export const ReminderPushOnly = ({
       cta={{ label: isDenied ? 'Continue' : 'Turn on notifications' }}
       loading={isPrompting}
       onClick={onTurnOn}
-      docked={
-        !isDenied && (
-          <Button
-            type="button"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Medium}
-            onClick={onSkip}
-            disabled={isPrompting}
-            className="w-full"
-          >
-            Skip for now
-          </Button>
-        )
+      skip={
+        isDenied
+          ? undefined
+          : { cta: 'Skip', onClick: onSkip, disabled: isPrompting }
       }
       containerClassName="flex w-full flex-1 flex-col"
     >
