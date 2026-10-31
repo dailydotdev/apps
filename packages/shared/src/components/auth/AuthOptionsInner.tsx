@@ -196,6 +196,16 @@ function AuthOptionsInner({
   };
 
   const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
+  // Parents that mirror `onAuthStateUpdate` into `defaultDisplay` (/onboarding,
+  // funnels, recruiter modal) flip it to ForgotPassword once the user gets
+  // there, so going "back to defaultDisplay" would be a no-op. Remember the
+  // screen the user came from instead.
+  const forgotPasswordReturnRef = useRef<AuthDisplay>(
+    defaultDisplay === AuthDisplay.ForgotPassword ||
+      defaultDisplay === AuthDisplay.CodeVerification
+      ? AuthDisplay.Default
+      : defaultDisplay,
+  );
   const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
   // A mistyped address is only fixable on the screen that owns the email
   // field, and verification is reached both from signup and from an
@@ -827,12 +837,23 @@ function AuthOptionsInner({
       target_type: AuthEventNames.ForgotPassword,
     });
     setEmail(withEmail);
+    if (
+      activeDisplay !== AuthDisplay.ForgotPassword &&
+      activeDisplay !== AuthDisplay.CodeVerification
+    ) {
+      forgotPasswordReturnRef.current = activeDisplay;
+    }
     onSetActiveDisplay(AuthDisplay.ForgotPassword);
   };
 
   const onForgotPasswordBack = () => {
     setIsForgotPasswordReturn(true);
     onSetActiveDisplay(defaultDisplay);
+  };
+
+  const onBackToLogin = () => {
+    setIsForgotPasswordReturn(true);
+    onSetActiveDisplay(forgotPasswordReturnRef.current);
   };
 
   const onBackFromVerify = () => onSetActiveDisplay(emailVerificationReturn);
@@ -1014,14 +1035,11 @@ function AuthOptionsInner({
           />
         </Tab>
         <Tab label={AuthDisplay.ForgotPassword}>
-          <ForgotPasswordForm
-            onBack={onForgotPasswordBack}
-            simplified={simplified}
-          />
+          <ForgotPasswordForm onBack={onBackToLogin} simplified={simplified} />
         </Tab>
         <Tab label={AuthDisplay.CodeVerification}>
           <CodeVerificationForm
-            onBack={onForgotPasswordBack}
+            onBack={onBackToLogin}
             simplified={simplified}
           />
         </Tab>
