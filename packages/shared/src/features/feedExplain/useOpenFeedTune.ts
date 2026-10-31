@@ -3,10 +3,10 @@ import { useRouter } from 'next/router';
 import { useLogContext } from '../../contexts/LogContext';
 import type { Origin } from '../../lib/log';
 import { LogEvent } from '../../lib/log';
-import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { FeedTuneTab } from './types';
 import { useFeedTuneState } from './useFeedTune';
+import { useSetFeedExplain } from './useSetFeedExplain';
 
 interface OpenFeedTuneOptions {
   tab?: FeedTuneTab;
@@ -21,10 +21,7 @@ export const useOpenFeedTune = (
   const router = useRouter();
   const { logEvent } = useLogContext();
   const { setTab } = useFeedTuneState();
-  const [, setIsExplaining] = useQueryState({
-    key: [QueryStateKeys.FeedExplain],
-    defaultValue: false,
-  });
+  const setIsExplaining = useSetFeedExplain(origin);
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
 
   return useCallback(

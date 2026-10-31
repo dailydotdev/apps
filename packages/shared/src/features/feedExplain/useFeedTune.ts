@@ -271,5 +271,12 @@ export const useFeedTune = (): UseFeedTune => {
     setLearning: (enabled) => add({ kind: 'learning', enabled }),
     undo: () => setChanges(changes.slice(0, -1)),
     save,
+    close: () => {
+      logEvent({
+        event_name: LogEvent.CloseFeedTune,
+        extra: JSON.stringify({ changes: latest.size }),
+      });
+      close();
+    },
   };
 };

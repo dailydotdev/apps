@@ -27,7 +27,7 @@ import { formatRankingValue, rankingGroups, rankingSettings } from '../ranking';
 import { feedProfileQueryOptions } from '../queries';
 import { useFeedControls } from '../useFeedControls';
 import { useForYouControls } from '../useFeedExplainMode';
-import { PlusBanner } from './PlusUpsell';
+import { PlusBanner, PlusUpsellFeature } from './PlusUpsell';
 
 export interface RankingSliderProps {
   meta: RankingSettingMeta;
@@ -182,7 +182,7 @@ export const ForYouRankingSettings = (): ReactElement | null => {
           </Button>
         </div>
       </div>
-      <PlusBanner>
+      <PlusBanner feature={PlusUpsellFeature.Ranking}>
         {pausedCount === 1 &&
           'Your change is saved and counts again with Plus.'}
         {pausedCount > 1 &&

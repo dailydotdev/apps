@@ -8,12 +8,9 @@ import {
 import { SortIcon } from '../../../components/icons/Sort';
 import { FilterIcon } from '../../../components/icons/Filter';
 import { useFeedSettingsAction } from '../../../components/filters/MyFeedHeading';
-import {
-  QueryStateKeys,
-  useQueryState,
-} from '../../../hooks/utils/useQueryState';
 import { Origin } from '../../../lib/log';
 import { useOpenFeedTune } from '../useOpenFeedTune';
+import { useSetFeedExplain } from '../useSetFeedExplain';
 
 /**
  * Debug mode's bar, floating at the bottom of For You: Tune the whole feed
@@ -22,10 +19,7 @@ import { useOpenFeedTune } from '../useOpenFeedTune';
 export const FeedExplainBar = (): ReactElement => {
   const openTune = useOpenFeedTune(Origin.FeedExplain);
   const { onClick: openFeedSettings } = useFeedSettingsAction();
-  const [, setIsExplaining] = useQueryState({
-    key: [QueryStateKeys.FeedExplain],
-    defaultValue: false,
-  });
+  const setIsExplaining = useSetFeedExplain(Origin.FeedExplain);
 
   return (
     // On a phone it stands one bar above the shell's, on the shell's floor.

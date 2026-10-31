@@ -15,7 +15,7 @@ import type { ControlValue } from '../useFeedControls';
 import { formatUntil, getDurationFor } from '../duration';
 import { DurationPicker } from './DurationPicker';
 import { ExactWeightSlider } from './ExactWeightSlider';
-import { PlusSection } from './PlusUpsell';
+import { PlusSection, PlusUpsellFeature } from './PlusUpsell';
 
 export interface Level<Mode> {
   /** No mode is Auto. */
@@ -235,7 +235,7 @@ export const LevelPicker = <Mode,>({
             );
           })}
         </div>
-        <PlusSection>
+        <PlusSection feature={PlusUpsellFeature.Levels}>
           <ExactWeightSlider
             label={`Exact boost for ${subject}`}
             value={control?.weight ?? exact.value}

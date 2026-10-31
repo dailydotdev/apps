@@ -7,6 +7,7 @@ import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
 import defaultUser from '../../../../__tests__/fixture/loggedUser';
 import { QueryStateKeys } from '../../../hooks/utils/useQueryState';
+import { LogEvent } from '../../../lib/log';
 import type { FeedControls, FeedProfile } from '../types';
 import { ExplainOrigin, FeedTopicMode, FeedTuneTab } from '../types';
 import { feedControlsQueryKey, feedProfileQueryKey } from '../queries';
@@ -15,6 +16,7 @@ import { FeedTuneProvider } from '../FeedTuneContext';
 import { FeedTunePanel } from './FeedTunePanel';
 
 const user = { ...defaultUser, isPlus: true };
+const logEvent = jest.fn();
 const baseKey = ['feed', 'base'];
 const previewKey = ['feed', 'base', 'draft'];
 
@@ -70,7 +72,7 @@ const openPanel = (seed?: (client: QueryClient) => void) => {
   seed?.(client);
 
   render(
-    <TestBootProvider client={client} auth={{ user }}>
+    <TestBootProvider client={client} auth={{ user }} log={{ logEvent }}>
       <FeedTuneProvider
         baseQueryKey={baseKey}
         previewQueryKey={seed ? previewKey : undefined}
@@ -84,6 +86,7 @@ const openPanel = (seed?: (client: QueryClient) => void) => {
 
 beforeEach(() => {
   nock.cleanAll();
+  logEvent.mockClear();
 });
 
 describe('FeedTunePanel', () => {
@@ -117,6 +120,9 @@ describe('FeedTunePanel', () => {
 
     await waitFor(() => expect(saved).toBe(true));
     expect(client.getQueryData([QueryStateKeys.FeedTune])).toBeNull();
+    expect(logEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({ event_name: LogEvent.CloseFeedTune }),
+    );
   });
 
   it('should say how the draft moved the page', () => {
@@ -131,6 +137,23 @@ describe('FeedTunePanel', () => {
     expect(
       screen.getByText('1 new post, 1 moved, 1 left the page.'),
     ).toBeInTheDocument();
+  });
+
+  it('should log the changes it drops when closed without saving', async () => {
+    const client = openPanel((seeded) =>
+      seeded.setQueryData(
+        [QueryStateKeys.FeedTuneChanges],
+        [{ kind: 'learning', enabled: false }],
+      ),
+    );
+
+    await userEvent.click(screen.getByLabelText('Close Tune'));
+
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.CloseFeedTune,
+      extra: JSON.stringify({ changes: 1 }),
+    });
+    expect(client.getQueryData([QueryStateKeys.FeedTuneChanges])).toEqual([]);
   });
 
   it('should close on Done with nothing changed', async () => {

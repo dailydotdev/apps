@@ -28,13 +28,12 @@ interface UseFeedExplainMode {
   isExplaining: boolean;
   /** The For You version, which the explanations and profile are for. */
   version: number;
-  setIsExplaining: (value: boolean) => void;
 }
 
 /**
  * Explain mode on For You: once turned on it stays on for the session, but
  * only applies where the feed can explain itself, so the switch, the feed
- * query and the cards agree.
+ * query and the cards agree. `useSetFeedExplain` turns it on and off.
  */
 export const useFeedExplainMode = ({
   isRecommended = true,
@@ -58,7 +57,7 @@ export const useFeedExplainMode = ({
     feature: featureFeedExplain,
     shouldEvaluate: isForYou && isChallenger,
   });
-  const [isOn, setIsExplaining] = useQueryState({
+  const [isOn] = useQueryState({
     key: [QueryStateKeys.FeedExplain],
     defaultValue: false,
   });
@@ -70,7 +69,6 @@ export const useFeedExplainMode = ({
     isOffered,
     isExplaining: isAvailable && isOn,
     version,
-    setIsExplaining,
   };
 };
 

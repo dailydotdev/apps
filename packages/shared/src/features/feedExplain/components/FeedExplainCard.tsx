@@ -714,7 +714,10 @@ export const FeedExplainCard = ({
           </ul>
           <div className="-mx-1.5 mt-auto flex flex-col gap-1">
             {isHidden && matchTag && (
-              <ShowLessTopicOffer tag={matchTag} origin={Origin.FeedExplain} />
+              <ShowLessTopicOffer
+                tag={matchTag}
+                origin={Origin.PostHiddenPanel}
+              />
             )}
             <div className="flex items-center justify-between gap-2">
               {isHidden ? (
