@@ -19,6 +19,7 @@ export enum QueryStateKeys {
   FeedExplain = 'feedExplain',
   FeedTune = 'feedTune',
   FeedTuneChanges = 'feedTuneChanges',
+  FeedTunePreviewed = 'feedTunePreviewed',
 }
 
 export const useQueryState = <T>({

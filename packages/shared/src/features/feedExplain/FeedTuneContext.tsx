@@ -16,6 +16,7 @@ import {
   isAuthorFollowed,
   isSourceFollowed,
 } from './describe';
+import { useFeedTuneState } from './useFeedTune';
 
 /** Where Tune moved a card: new on the page, or places up (+) or down (-). */
 export type TuneMovement = 'new' | number;
@@ -42,6 +43,10 @@ export interface TunePageAuthor extends TunePageEntity {
 interface FeedTuneContextValue {
   /** Set while the feed shows a draft, against the page it replaced. */
   getMovement: (postId: string) => TuneMovement | undefined;
+  /** The preview's first page is on its way. */
+  isLoading: boolean;
+  /** Changes were made since the preview, so its movement is not current. */
+  isOutdated: boolean;
   /** How the draft moved the page, in one line. */
   summary?: string;
   /** The sources and authors on the page, for the reader to steer. */
@@ -59,9 +64,13 @@ interface FeedTuneProviderProps {
 
 type CachedPost = Post & { explain?: FeedItemExplain | null };
 
+const noPosts: CachedPost[] = [];
+
 // The first page a feed query holds, followed without fetching it: the feed
 // fetches its own pages, and Tune only compares them.
-const useFirstPage = (queryKey: QueryKey | undefined): CachedPost[] => {
+const useFirstPage = (
+  queryKey: QueryKey | undefined,
+): CachedPost[] | undefined => {
   const client = useQueryClient();
   const data = useSyncExternalStore(
     (onChange) => client.getQueryCache().subscribe(onChange),
@@ -74,7 +83,8 @@ const useFirstPage = (queryKey: QueryKey | undefined): CachedPost[] => {
 
   return useMemo(
     () =>
-      (data?.pages[0]?.page.edges ?? []).flatMap(({ node }) => {
+      data &&
+      (data.pages[0]?.page.edges ?? []).flatMap(({ node }) => {
         const post = getFeedApiItemPost(node);
         return post ? [post as CachedPost] : [];
       }),
@@ -105,28 +115,28 @@ const [FeedTuneProvider, useFeedTuneContextHook] = createContextProvider(
     baseQueryKey,
     previewQueryKey,
   }: FeedTuneProviderProps): FeedTuneContextValue => {
-    const base = useFirstPage(baseQueryKey);
+    const base = useFirstPage(baseQueryKey) ?? noPosts;
     const preview = useFirstPage(previewQueryKey);
+    const { pendingCount } = useFeedTuneState();
     const before = useMemo(
       () => new Map(base.map(({ id }, index) => [id, index])),
       [base],
     );
     const after = useMemo(
-      () => new Map(preview.map(({ id }, index) => [id, index])),
+      () => new Map((preview ?? noPosts).map(({ id }, index) => [id, index])),
       [preview],
     );
-    const isPreviewing = !!previewQueryKey && preview.length > 0;
 
     const getMovement = useCallback(
       (postId: string): TuneMovement | undefined => {
         const index = after.get(postId);
-        if (!isPreviewing || index === undefined) {
+        if (index === undefined) {
           return undefined;
         }
         const was = before.get(postId);
         return was === undefined ? 'new' : was - index;
       },
-      [after, before, isPreviewing],
+      [after, before],
     );
     const sources = useMemo(() => {
       const byId = new Map<string, TunePageSource>();
@@ -166,11 +176,21 @@ const [FeedTuneProvider, useFeedTuneContextHook] = createContextProvider(
     return useMemo(
       () => ({
         getMovement,
-        summary: isPreviewing ? describeMovement(before, preview) : undefined,
+        isLoading: !!previewQueryKey && !preview,
+        isOutdated: !!preview && pendingCount > 0,
+        summary: preview ? describeMovement(before, preview) : undefined,
         sources,
         authors,
       }),
-      [getMovement, isPreviewing, before, preview, sources, authors],
+      [
+        getMovement,
+        previewQueryKey,
+        preview,
+        pendingCount,
+        before,
+        sources,
+        authors,
+      ],
     );
   },
   { errorMessage: 'ContextNotFound' },
@@ -179,7 +199,13 @@ const [FeedTuneProvider, useFeedTuneContextHook] = createContextProvider(
 const useFeedTuneContext = safeContextHookExport(
   useFeedTuneContextHook,
   'ContextNotFound',
-  { getMovement: () => undefined, sources: [], authors: [] },
+  {
+    getMovement: () => undefined,
+    isLoading: false,
+    isOutdated: false,
+    sources: [],
+    authors: [],
+  },
 );
 
 export { FeedTuneProvider, useFeedTuneContext };
