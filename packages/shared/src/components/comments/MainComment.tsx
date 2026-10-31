@@ -48,6 +48,13 @@ export interface MainCommentProps
   /** Inline reply/edit composers on small viewports too, so the companion
    * never covers the host page. */
   forceInlineComposer?: boolean;
+  /**
+   * Replies start folded and stay folded: the "N Replies" row calls
+   * `onLockedRepliesClick` instead of expanding (the logged-out comment
+   * teaser asks the reader to sign up there).
+   */
+  repliesLocked?: boolean;
+  onLockedRepliesClick?: () => void;
 }
 
 // Once rendered, a comment renders eagerly for the rest of the session, remounts
@@ -76,6 +83,8 @@ export default function MainComment({
   canReply = true,
   onReplyBlocked,
   forceInlineComposer = false,
+  repliesLocked = false,
+  onLockedRepliesClick,
   ...props
 }: MainCommentProps): ReactElement {
   const { logEvent } = useLogContext();
@@ -115,8 +124,10 @@ export default function MainComment({
     }
   }, [inView, comment.id]);
 
-  const [areRepliesExpanded, setAreRepliesExpanded] = useState(true);
-  const showThreadRepliesToggle = isModalThread && replyCount > 0;
+  const [isExpanded, setIsExpanded] = useState(true);
+  const areRepliesExpanded = !repliesLocked && isExpanded;
+  const showThreadRepliesToggle =
+    isModalThread && replyCount > 0 && !repliesLocked;
 
   const onClick = () => {
     if (!logClick && !props.linkToComment) {
@@ -196,7 +207,7 @@ export default function MainComment({
                   variant={ButtonVariant.Tertiary}
                   iconSecondaryOnHover
                   icon={<ThreadIcon open={areRepliesExpanded} />}
-                  onClick={() => setAreRepliesExpanded((expanded) => !expanded)}
+                  onClick={() => setIsExpanded((expanded) => !expanded)}
                   aria-label={
                     areRepliesExpanded
                       ? 'Collapse replies thread'
@@ -247,7 +258,9 @@ export default function MainComment({
       {inView && replyCount > 0 && !areRepliesExpanded && (
         <CollapsedRepliesPreview
           replies={commentChildren}
-          onExpand={() => setAreRepliesExpanded(true)}
+          onExpand={() =>
+            repliesLocked ? onLockedRepliesClick?.() : setIsExpanded(true)
+          }
           isThreadStyle={isModalThread}
           className={isModalThread ? 'ml-12 mt-3' : undefined}
         />
@@ -263,7 +276,7 @@ export default function MainComment({
             <button
               type="button"
               className="mx-4 my-2 flex cursor-pointer items-center gap-1.5 text-text-tertiary typo-callout hover:underline"
-              onClick={() => setAreRepliesExpanded(false)}
+              onClick={() => setIsExpanded(false)}
               data-testid="hide-replies-button"
             >
               <DiscussIcon className="text-xl" />

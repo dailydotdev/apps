@@ -88,6 +88,11 @@ import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/Engage
 import { getEngagementLogExtra } from '@dailydotdev/shared/src/lib/engagementAds';
 import { isSourceAdFree } from '@dailydotdev/shared/src/lib/ads';
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import { usePhoneBrowser } from '@dailydotdev/shared/src/features/getApp/hooks/usePhoneBrowser';
+import { useCommentsTeaser } from '@dailydotdev/shared/src/features/commentsTeaser/useCommentsTeaser';
+import { useRevealOnEngagement } from '@dailydotdev/shared/src/features/commentsTeaser/useRevealOnEngagement';
+import { getCommentsTeaserTitle } from '@dailydotdev/shared/src/features/commentsTeaser/commentsTeaser';
 import { AdHeadHints } from '../../../components/AdHeadHints';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
@@ -119,6 +124,18 @@ const PostAuthBanner = dynamic(() =>
   import(
     /* webpackChunkName: "postAuthBanner" */ '@dailydotdev/shared/src/components/auth/PostAuthBanner'
   ).then((module) => module.PostAuthBanner),
+);
+
+const CommentsTeaserFooter = dynamic(() =>
+  import(
+    /* webpackChunkName: "commentsTeaserFooter" */ '@dailydotdev/shared/src/features/commentsTeaser/CommentsTeaserFooter'
+  ).then((mod) => mod.CommentsTeaserFooter),
+);
+
+const PostAppPrompt = dynamic(() =>
+  import(
+    /* webpackChunkName: "postAppPrompt" */ '@dailydotdev/shared/src/features/commentsTeaser/PostAppPrompt'
+  ).then((mod) => mod.PostAppPrompt),
 );
 
 const PostPageFeed = dynamic(() =>
@@ -192,12 +209,25 @@ export const PostPage = ({
       feature: featurePostSignupStrip,
       shouldEvaluate: showLaptopAuthBanner,
     });
+  // The comment teaser brings its own ask: the pinned footer on tablet and
+  // laptop (instead of the banner or strip), the phone footer's new title
+  // and X's app card on phones.
+  const { showLogin, isLoggedIn } = useAuthContext();
+  const { isCommentsTeaser, isPending: isCommentsTeaserPending } =
+    useCommentsTeaser();
+  const isPhoneBrowser = usePhoneBrowser();
+  const isTablet = useViewSize(ViewSize.Tablet);
+  const showTeaserFooter = isCommentsTeaser && isTablet && !!post;
+  const isTeaserFooterRevealed = useRevealOnEngagement(showTeaserFooter);
   const showPostAuthBanner =
-    showLaptopAuthBanner && !isSignupStripLoading && !isSignupStripOn;
+    showLaptopAuthBanner &&
+    !isSignupStripLoading &&
+    !isSignupStripOn &&
+    !isCommentsTeaser &&
+    !isCommentsTeaserPending;
   // The feed after the comments is for signed-in readers: signed-out readers
   // keep the comments and the sign-up footer, and never enter the
   // experiment. Briefs and digests have no comments, so no feed either.
-  const { isLoggedIn } = useAuthContext();
   const { value: isPostPageFeedOn } = useConditionalFeature({
     feature: featurePostPageFeed,
     shouldEvaluate:
@@ -206,7 +236,11 @@ export const PostPage = ({
       ![PostType.Brief, PostType.Digest].includes(post.type),
   });
   const showSignupStrip =
-    showLaptopAuthBanner && !isSignupStripLoading && isSignupStripOn;
+    showLaptopAuthBanner &&
+    !isSignupStripLoading &&
+    isSignupStripOn &&
+    !isCommentsTeaser &&
+    !isCommentsTeaserPending;
   // Empty for every logged-in visitor and for posts in ad-free squads; the
   // slot components check the same hook, so with it empty neither markup nor
   // the Prebid bundle exists.
@@ -445,6 +479,17 @@ export const PostPage = ({
             </div>
           )}
           {showPostAuthBanner && <PostAuthBanner />}
+          {showTeaserFooter && isTeaserFooterRevealed && (
+            <CommentsTeaserFooter
+              title={getCommentsTeaserTitle(post.numComments)}
+              onContinue={() =>
+                showLogin({ trigger: AuthTriggers.CommentsTeaser })
+              }
+            />
+          )}
+          {isCommentsTeaser && isPhoneBrowser && post && (
+            <PostAppPrompt post={post} />
+          )}
           <CompanionDemoWidget />
         </FooterNavBarLayout>
       </LogExtraContextProvider>

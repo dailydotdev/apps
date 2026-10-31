@@ -290,6 +290,22 @@ export const featureFeedWidgets = new Feature('feed_widgets', false);
 // card pinned over the bottom of the window at the content's width.
 export const featurePostSignupStrip = new Feature('post_signup_strip', false);
 
+// Experiments: logged-out post pages show the first three comments,
+// skeleton comments for the rest and a pinned "See all the comments" footer,
+// after X's logged-out post page. Two tests, because the ask they replace
+// differs: phones get the app footer's new title and X's app card; tablet and
+// laptop get a pinned sign-up footer instead of the full-width banner or
+// strip. A reader is only ever evaluated for their device's flag. False is
+// today's full thread.
+export const featurePostCommentsTeaserMobile = new Feature(
+  'post_comments_teaser_mobile',
+  false,
+);
+export const featurePostCommentsTeaserDesktop = new Feature(
+  'post_comments_teaser_desktop',
+  false,
+);
+
 // Experiment: a feed after the post page's comments (For you, the post's
 // tags, its source), for signed-in readers. Control ends at the comments.
 export const featurePostPageFeed = new Feature('post_page_feed', false);
