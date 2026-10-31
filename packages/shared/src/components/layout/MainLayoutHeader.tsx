@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import HeaderLogo from './HeaderLogo';
@@ -30,7 +30,6 @@ export interface MainLayoutHeaderProps {
   activePage?: string;
   hasBanner?: boolean;
   sidebarRendered?: boolean;
-  additionalButtons?: ReactNode;
   onLogoClick?: (e: React.MouseEvent) => unknown;
 }
 
@@ -50,7 +49,6 @@ function MainLayoutHeader({
   activePage,
   hasBanner,
   sidebarRendered,
-  additionalButtons,
   onLogoClick,
 }: MainLayoutHeaderProps): ReactElement {
   const { loadedSettings } = useSettingsContext();
@@ -176,7 +174,7 @@ function MainLayoutHeader({
                   />
                 </div>
                 {renderSearchPanel()}
-                <HeaderButtons additionalButtons={additionalButtons} />
+                <HeaderButtons />
               </>
             )}
       </header>

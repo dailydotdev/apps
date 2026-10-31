@@ -1,10 +1,11 @@
 import type { RenderResult } from '@testing-library/react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { ExtensionContext } from '../../contexts/ExtensionContext';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { SpotlightProvider } from '../spotlight/SpotlightContext';
 import { SidebarDesktopV2 } from './SidebarDesktopV2';
@@ -115,6 +116,61 @@ describe('SidebarDesktopV2 panel items', () => {
       'href',
       expect.stringContaining(href),
     );
+  });
+});
+
+describe('SidebarDesktopV2 Support menu', () => {
+  const requestContentScripts = jest.fn();
+  const renderExtensionRail = (granted: boolean): RenderResult =>
+    render(
+      <TestBootProvider
+        client={new QueryClient()}
+        auth={{ user: defaultUser, isLoggedIn: true }}
+      >
+        <ExtensionContext.Provider
+          value={{
+            requestContentScripts,
+            getContentScriptPermission: () => Promise.resolve(granted),
+          }}
+        >
+          <SpotlightProvider>
+            <SidebarDesktopV2 activePage="/" />
+          </SpotlightProvider>
+        </ExtensionContext.Provider>
+      </TestBootProvider>,
+    );
+
+  beforeEach(() => {
+    requestContentScripts.mockReset();
+  });
+
+  it('offers to enable the companion while the extension lacks the permission', async () => {
+    renderExtensionRail(false);
+
+    fireEvent.click(screen.getByLabelText('Support'));
+    fireEvent.click(await screen.findByText('Enable the companion'));
+
+    expect(requestContentScripts).toHaveBeenCalledWith({
+      origin: 'companion support menu',
+    });
+  });
+
+  it('drops the row once the permission is granted', async () => {
+    renderExtensionRail(true);
+
+    fireEvent.click(screen.getByLabelText('Support'));
+    await screen.findByText('Changelog');
+
+    expect(screen.queryByText('Enable the companion')).not.toBeInTheDocument();
+  });
+
+  it('never offers it outside the extension', async () => {
+    renderRail('/');
+
+    fireEvent.click(screen.getByLabelText('Support'));
+    await screen.findByText('Changelog');
+
+    expect(screen.queryByText('Enable the companion')).not.toBeInTheDocument();
   });
 });
 
