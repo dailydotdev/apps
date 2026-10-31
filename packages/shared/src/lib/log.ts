@@ -60,6 +60,7 @@ export enum Origin {
   LfgHoverCard = 'lfg hover card',
   LfgProfile = 'lfg profile',
   LfgRequests = 'lfg requests',
+  LfgMessages = 'lfg messages',
   // Looking for group - end
   PostCommentButton = 'comment button',
   PollCommentButton = 'poll comment button',
