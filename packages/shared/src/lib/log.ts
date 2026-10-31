@@ -454,6 +454,7 @@ export enum LogEvent {
   SetFeedRankingSetting = 'set feed ranking setting',
   ResetFeedRankingSettings = 'reset feed ranking settings',
   OpenFeedTune = 'open feed tune',
+  PreviewFeedTune = 'preview feed tune',
   SaveFeedTune = 'save feed tune',
   CloseFeedTune = 'close feed tune',
   // End Feed explain

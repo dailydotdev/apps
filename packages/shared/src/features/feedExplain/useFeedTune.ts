@@ -41,6 +41,21 @@ const latestChanges = (changes: TuneChange[]): TuneChange[] => [
   ...new Map(changes.map((change) => [changeKey(change), change])).values(),
 ];
 
+// The controls whose latest change differs from the one last previewed,
+// including a change undone past the preview.
+const countPending = (
+  changes: TuneChange[],
+  previewed: TuneChange[],
+): number => {
+  const byKey = (list: TuneChange[]) =>
+    new Map(latestChanges(list).map((c) => [changeKey(c), JSON.stringify(c)]));
+  const latest = byKey(changes);
+  const shown = byKey(previewed);
+  return [...new Set([...latest.keys(), ...shown.keys()])].filter(
+    (key) => latest.get(key) !== shown.get(key),
+  ).length;
+};
+
 const toDraftEntry = <Mode>({ mode, weight }: ControlValue<Mode>) => ({
   ...(mode && { mode }),
   ...(weight !== undefined && { weight }),
@@ -108,16 +123,24 @@ interface UseFeedTuneState {
   setTab: (tab: FeedTuneTab) => void;
   changes: TuneChange[];
   setChanges: (changes: TuneChange[]) => void;
-  /** What the feed ranks with while Tune is open, on top of the saved controls. */
-  draft: FeedControlsDraft;
-  hasChanges: boolean;
+  /**
+   * What the feed ranks with while Tune is open, on top of the saved
+   * controls: the changes as they were last previewed.
+   */
+  previewDraft: FeedControlsDraft;
+  hasPreview: boolean;
+  /** Changes since the last preview, which the feed does not show yet. */
+  pendingCount: number;
+  /** Ranks the feed with every change made so far. */
+  preview: () => void;
   /** Leaves Tune, dropping what was not saved. */
   close: () => void;
 }
 
 /**
- * Tune's open tab and draft, kept with the feed's query state so the panel,
- * the feed it re-ranks and the cards it moves all read the same one.
+ * Tune's open tab, draft and preview, kept with the feed's query state so
+ * the panel, the feed it re-ranks and the cards it moves all read the same
+ * one.
  */
 export const useFeedTuneState = (): UseFeedTuneState => {
   const [tab, setTab] = useQueryState<FeedTuneTab | null>({
@@ -128,11 +151,24 @@ export const useFeedTuneState = (): UseFeedTuneState => {
     key: [QueryStateKeys.FeedTuneChanges],
     defaultValue: [],
   });
-  const draft = useMemo(() => toDraft(changes), [changes]);
+  const [previewed, setPreviewed] = useQueryState<TuneChange[]>({
+    key: [QueryStateKeys.FeedTunePreviewed],
+    defaultValue: [],
+  });
+  const previewDraft = useMemo(() => toDraft(previewed), [previewed]);
+  const pendingCount = useMemo(
+    () => countPending(changes, previewed),
+    [changes, previewed],
+  );
+  const preview = useCallback(
+    () => setPreviewed(changes),
+    [setPreviewed, changes],
+  );
   const close = useCallback(() => {
     setTab(null);
     setChanges([]);
-  }, [setTab, setChanges]);
+    setPreviewed([]);
+  }, [setTab, setChanges, setPreviewed]);
 
   return {
     tab,
@@ -140,8 +176,10 @@ export const useFeedTuneState = (): UseFeedTuneState => {
     setTab,
     changes,
     setChanges,
-    draft,
-    hasChanges: changes.length > 0,
+    previewDraft,
+    hasPreview: previewed.length > 0,
+    pendingCount,
+    preview,
     close,
   };
 };
@@ -167,12 +205,12 @@ export interface UseFeedTune extends UseFeedTuneState {
 }
 
 /**
- * Tune's controls: changes held as a draft the feed beside them ranks with,
- * saved together or dropped on close.
+ * Tune's controls: changes held as a draft the feed beside them ranks with
+ * once previewed, saved together or dropped on close.
  */
 export const useFeedTune = (): UseFeedTune => {
   const state = useFeedTuneState();
-  const { changes, setChanges, close } = state;
+  const { changes, setChanges, pendingCount, close } = state;
   const { logEvent } = useLogContext();
   const feedControls = useFeedControls({ origin: Origin.FeedTune });
   const latest = useMemo(
@@ -226,6 +264,17 @@ export const useFeedTune = (): UseFeedTune => {
 
   const add = (change: TuneChange) => setChanges([...changes, change]);
 
+  const preview = () => {
+    if (!pendingCount) {
+      return;
+    }
+    logEvent({
+      event_name: LogEvent.PreviewFeedTune,
+      extra: JSON.stringify({ changes: latest.size, pending: pendingCount }),
+    });
+    state.preview();
+  };
+
   const save = () => {
     const saved = latestChanges(changes);
     saved.forEach((change) => {
@@ -270,6 +319,7 @@ export const useFeedTune = (): UseFeedTune => {
     setRanking: (key, value) => add({ kind: 'ranking', key, value }),
     setLearning: (enabled) => add({ kind: 'learning', enabled }),
     undo: () => setChanges(changes.slice(0, -1)),
+    preview,
     save,
     close: () => {
       logEvent({

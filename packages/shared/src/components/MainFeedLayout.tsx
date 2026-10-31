@@ -561,10 +561,11 @@ export default function MainFeedLayout({
     feedName === SharedFeedPage.MyFeed &&
     config.query === FEED_V2_QUERY;
   const isExplainFeed = canExplainPosts && isExplaining;
-  // Tune ranks the feed with its draft, beside it, in Debug mode.
+  // Tune ranks the feed with its draft, beside it, in Debug mode, once the
+  // reader previews it.
   const tune = useFeedTuneState();
   const isTuning = isExplainFeed && tune.isOpen;
-  const tuneDraft = isTuning && tune.hasChanges ? tune.draft : undefined;
+  const tuneDraft = isTuning && tune.hasPreview ? tune.previewDraft : undefined;
   const { isOpen: isTuneOpen, close: closeTune } = tune;
   useEffect(() => {
     if (

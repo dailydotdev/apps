@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { cloudinaryAppIconMain } from '../../../lib/image';
 import { isAppleDevice, isIOS, isIOSNative, isMobile } from '../../../lib/func';
-import styles from './ReadingCommitment.module.css';
+import styles from './ReminderPreview.module.css';
 
 export type PreviewPlatform = 'ios' | 'android' | 'mac' | 'windows';
 

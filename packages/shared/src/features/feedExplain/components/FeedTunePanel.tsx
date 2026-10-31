@@ -300,6 +300,9 @@ const tabSettingsPage: Record<FeedTuneTab, ForYouSettingsPageId> = {
   [FeedTuneTab.Ranking]: FeedSettingsMenu.Ranking,
 };
 
+const getPreviewLabel = (count: number): string =>
+  count ? `Preview ${count} ${count === 1 ? 'change' : 'changes'}` : 'Preview';
+
 interface FeedTunePanelProps {
   /** The For You version the controls are for. */
   version: number;
@@ -309,15 +312,30 @@ interface FeedTunePanelProps {
 
 /**
  * Tune: the For You controls beside the live feed, which ranks with the
- * draft as it changes. Nothing is saved until Save; closing drops the draft.
+ * draft when the reader previews it. Nothing is saved until Save; closing
+ * drops the draft.
  */
 export const FeedTunePanel = ({
   version,
   isSheet,
 }: FeedTunePanelProps): ReactElement => {
   const tune = useFeedTune();
-  const { summary } = useFeedTuneContext();
+  const { summary, isLoading, isOutdated } = useFeedTuneContext();
   const tab = tune.tab ?? FeedTuneTab.Topics;
+  const getStatus = (): string => {
+    if (isLoading) {
+      return 'Updating your feed.';
+    }
+    if (isOutdated) {
+      return 'Out of date. Your feed shows the last preview.';
+    }
+    if (summary) {
+      return summary;
+    }
+    return tune.pendingCount
+      ? 'Preview to see these changes in your feed.'
+      : 'Change anything, then preview it in your feed.';
+  };
 
   return (
     <section
@@ -380,40 +398,53 @@ export const FeedTunePanel = ({
       </div>
       <footer
         className={classNames(
-          'flex items-center gap-2 border-t border-border-subtlest-tertiary',
+          'flex flex-col gap-2 border-t border-border-subtlest-tertiary',
           isSheet ? 'px-4 py-2' : 'px-6 py-3',
         )}
       >
         <Typography
           type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-          className="min-w-0 flex-1"
+          color={
+            isOutdated ? TypographyColor.Secondary : TypographyColor.Tertiary
+          }
           aria-live="polite"
         >
-          {summary ??
-            (tune.hasChanges
-              ? 'Updating your feed.'
-              : 'Change anything and watch your feed follow.')}
+          {getStatus()}
         </Typography>
-        {tune.changeCount > 0 && (
-          <Button
-            type="button"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<UndoIcon />}
-            onClick={tune.undo}
-          >
-            Undo
-          </Button>
-        )}
-        <Button
-          type="button"
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Small}
-          onClick={tune.changeCount ? tune.save : tune.close}
-        >
-          {tune.changeCount ? 'Save' : 'Done'}
-        </Button>
+        <div className="flex items-center gap-2">
+          {tune.changeCount > 0 && (
+            <Button
+              type="button"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<UndoIcon />}
+              onClick={tune.undo}
+            >
+              Undo
+            </Button>
+          )}
+          <span className="ml-auto flex gap-2">
+            {(tune.pendingCount > 0 || isLoading) && (
+              <Button
+                type="button"
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+                loading={isLoading && !tune.pendingCount}
+                onClick={tune.preview}
+              >
+                {getPreviewLabel(tune.pendingCount)}
+              </Button>
+            )}
+            <Button
+              type="button"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+              onClick={tune.changeCount ? tune.save : tune.close}
+            >
+              {tune.changeCount ? 'Save' : 'Done'}
+            </Button>
+          </span>
+        </div>
       </footer>
     </section>
   );

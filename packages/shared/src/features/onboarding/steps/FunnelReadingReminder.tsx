@@ -6,7 +6,7 @@ import { FunnelStepTransitionType } from '../types/funnel';
 import { ReadingReminder } from '../../../components/onboarding';
 import { useReadingReminder } from '../../../components/onboarding/useReadingReminder';
 import { FeedPatchy } from '../../../components/onboarding/FeedPatchy/FeedPatchy';
-import { ReadingCommitment } from '../../../components/onboarding/ReadingCommitment/ReadingCommitment';
+import { ReminderPushOnly } from '../../../components/onboarding/ReminderPushOnly/ReminderPushOnly';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { usePushNotificationContext } from '../../../contexts/PushNotificationContext';
@@ -16,7 +16,7 @@ import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import {
   featureOnboardingCommitment,
-  featureOnboardingReadingCommitment,
+  featureOnboardingReminderPushOnly,
 } from '../../../lib/featureManagement';
 
 function ReadingReminderStep({
@@ -67,16 +67,16 @@ function FunnelReadingReminderComponent(
   const isOnboarding = useIsOnboardingFunnel();
   const onComplete = () =>
     onTransition({ type: FunnelStepTransitionType.Complete });
-  const { value: isReadingCommitment, isLoading: isReadingLoading } =
+  const { value: isPushOnly, isLoading: isPushOnlyLoading } =
     useConditionalFeature({
-      feature: featureOnboardingReadingCommitment,
+      feature: featureOnboardingReminderPushOnly,
       shouldEvaluate: isOnboarding,
     });
-  // Only readers outside the reading commitment are bucketed into Feed
-  // Patchy, so neither experiment counts the other's readers.
+  // Only readers outside the push-only ask are bucketed into Feed Patchy, so
+  // neither experiment counts the other's readers.
   const { value: isCommitment, isLoading } = useConditionalFeature({
     feature: featureOnboardingCommitment,
-    shouldEvaluate: isOnboarding && !isReadingLoading && !isReadingCommitment,
+    shouldEvaluate: isOnboarding && !isPushOnlyLoading && !isPushOnly,
   });
 
   if (!isOnboarding) {
@@ -84,12 +84,12 @@ function FunnelReadingReminderComponent(
   }
 
   // Held until the flags settle, so only one arm's impression is logged.
-  if (isReadingLoading) {
+  if (isPushOnlyLoading) {
     return null;
   }
 
-  if (isReadingCommitment) {
-    return <ReadingCommitment onComplete={onComplete} />;
+  if (isPushOnly) {
+    return <ReminderPushOnly onComplete={onComplete} />;
   }
 
   if (isLoading) {

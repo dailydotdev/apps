@@ -93,6 +93,18 @@ const getMovementLabel = (movement: TuneMovement): string => {
   return movement > 0 ? `Up ${movement}` : `Down ${-movement}`;
 };
 
+const getMovementClassName = (
+  movement: TuneMovement,
+  isOutdated: boolean,
+): string => {
+  if (isOutdated) {
+    return 'text-text-quaternary';
+  }
+  return movement === 'new' || movement > 0
+    ? 'text-accent-avocado-default'
+    : 'text-text-tertiary';
+};
+
 const CardHead = ({
   post,
   position,
@@ -103,7 +115,8 @@ const CardHead = ({
   isList: boolean;
 }): ReactElement => {
   // Where Tune's draft moved the card, against the page it replaced.
-  const movement = useFeedTuneContext().getMovement(post.id);
+  const { getMovement, isOutdated } = useFeedTuneContext();
+  const movement = getMovement(post.id);
   const hasMoved = movement !== undefined && movement !== 0;
   const place =
     position || hasMoved ? (
@@ -112,10 +125,9 @@ const CardHead = ({
           <span
             className={classNames(
               'font-bold',
-              movement === 'new' || movement > 0
-                ? 'text-accent-avocado-default'
-                : 'text-text-tertiary',
+              getMovementClassName(movement, isOutdated),
             )}
+            title={isOutdated ? 'From your last preview' : undefined}
           >
             {getMovementLabel(movement)}
           </span>
