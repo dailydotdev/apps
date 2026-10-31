@@ -64,12 +64,24 @@ describe('PostPageFeed', () => {
       query: FEED_V2_QUERY,
       excludedPostIds: ['host-post'],
       disableListFrame: true,
-      disableAds: true,
     });
+    // Ads as on the home For you feed.
+    expect(lastFeed().disableAds).toBeFalsy();
     // For you never ends, so it has no end note.
     expect(lastFeed().footer).toBeUndefined();
     expect(lastFeed().emptyScreen).toBeDefined();
     expect(lastFeed().errorScreen).toBeDefined();
+  });
+
+  it('should title the feed More for you', () => {
+    renderFeed();
+
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'More for you' }),
+    ).toBeVisible();
+    expect(screen.getByTestId('postPageFeed')).toHaveAccessibleName(
+      'More for you',
+    );
   });
 
   it('should show no tabs', () => {
