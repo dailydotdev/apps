@@ -7,12 +7,14 @@ import {
 } from '@dailydotdev/shared/src/graphql/feed';
 import {
   BOOKMARK_FACETS_QUERY,
+  SET_BOOKMARK_ARCHIVED,
   SET_BOOKMARK_READ_STATE,
 } from '@dailydotdev/shared/src/graphql/bookmarks';
 import nock from 'nock';
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import {
+  act,
   fireEvent,
   render,
   screen,
@@ -33,6 +35,8 @@ import * as viewSize from '@dailydotdev/shared/src/hooks/useViewSize';
 import type { ReactNode } from 'react';
 import BookmarksPage from '../pages/bookmarks';
 
+let paneOnPostChange: ((post: Post) => void) | undefined;
+
 jest.mock('@dailydotdev/shared/src/components/post/PostPane', () => ({
   // The sheet renders in the header slot; the button stands in for the pane
   // reporting its post after the post cache changed.
@@ -44,24 +48,28 @@ jest.mock('@dailydotdev/shared/src/components/post/PostPane', () => ({
     postId?: string;
     header?: ReactNode;
     onPostChange?: (post: Post) => void;
-  }) => (
-    <div data-testid="bookmarks-pane">
-      {postId}
-      {header}
-      <button
-        type="button"
-        onClick={() =>
-          onPostChange?.({
-            id: postId,
-            bookmarked: true,
-            bookmark: { createdAt: new Date(), read: true },
-          } as Post)
-        }
-      >
-        pane change
-      </button>
-    </div>
-  ),
+  }) => {
+    paneOnPostChange = onPostChange;
+
+    return (
+      <div data-testid="bookmarks-pane">
+        {postId}
+        {header}
+        <button
+          type="button"
+          onClick={() =>
+            onPostChange?.({
+              id: postId,
+              bookmarked: true,
+              bookmark: { createdAt: new Date(), read: true },
+            } as Post)
+          }
+        >
+          pane change
+        </button>
+      </div>
+    );
+  },
 }));
 
 const routerReplace = jest.fn();
@@ -128,6 +136,25 @@ const createFacetsMock = (
   },
 });
 
+const emptyPage = {
+  pageInfo: {
+    hasNextPage: false,
+    endCursor: null,
+  },
+  edges: [],
+};
+
+const createArchivedMock = (
+  page: FeedData['page'] = emptyPage,
+): MockedGraphQLResponse<FeedData> =>
+  createFeedMock(page, BOOKMARKS_FEED_QUERY, {
+    loggedIn: true,
+    first: 1,
+    reminderOnly: false,
+    status: BookmarkStatus.Archived,
+    supportedTypes: baseFeedSupportedTypes,
+  });
+
 let client: QueryClient;
 
 function renderComponent(
@@ -170,15 +197,7 @@ it('should redirect to home page when logged-out', async () => {
 });
 
 it('should show empty screen when feed is empty', async () => {
-  renderComponent([
-    createFeedMock({
-      pageInfo: {
-        hasNextPage: false,
-        endCursor: null,
-      },
-      edges: [],
-    }),
-  ]);
+  renderComponent([createFeedMock(emptyPage), createArchivedMock()]);
   await waitForNock();
   await screen.findByText('Your bookmark list is empty.');
   await waitFor(() => {
@@ -351,4 +370,102 @@ it('should keep the sheet current once marking read takes the post out of the Un
       within(sheet()).getByRole('button', { name: 'Mark as unread' }),
     ).toBeInTheDocument(),
   );
+});
+
+it('should keep the status filters when every bookmark is archived', async () => {
+  renderComponent([
+    createFeedMock(emptyPage),
+    createFacetsMock(),
+    createArchivedMock(defaultFeedPage),
+  ]);
+  await waitForNock();
+
+  expect(
+    await screen.findByText('Everything here is archived'),
+  ).toBeInTheDocument();
+  expect(
+    screen.queryByText('Your bookmark list is empty.'),
+  ).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Archived' })).toBeInTheDocument();
+});
+
+it('should keep the filters and the pane after archiving the last bookmark', async () => {
+  useTablet();
+  jest.spyOn(viewSize, 'useViewSizeClient').mockReturnValue(true);
+  const [first] = defaultFeedPage.edges.map(({ node }) => node);
+  const post = {
+    ...first,
+    bookmarked: true,
+    bookmark: { createdAt: new Date(), read: false },
+  };
+  const page = { ...emptyPage, edges: [{ node: post }] };
+  renderComponent([createFeedMock(page), createFacetsMock()]);
+  await waitForNock();
+  fireEvent.click(await screen.findByTitle(post.title ?? ''));
+
+  mockGraphQL({
+    request: {
+      query: SET_BOOKMARK_ARCHIVED,
+      variables: { postId: post.id, archived: true },
+    },
+    result: { data: { setBookmarkArchived: { _: true } } },
+  });
+  mockGraphQL(createFacetsMock());
+  mockGraphQL(createArchivedMock(page));
+  const sheet = screen.getByRole('region', { name: 'Bookmark' });
+  fireEvent.click(within(sheet).getByRole('button', { name: 'Archive' }));
+  await waitForNock();
+
+  expect(
+    await screen.findByText('Everything here is archived'),
+  ).toBeInTheDocument();
+  expect(screen.queryByTitle(post.title ?? '')).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Archived' })).toBeInTheDocument();
+  expect(screen.getByTestId('bookmarks-pane')).toHaveTextContent(post.id);
+});
+
+it('should not write a post the list dropped over the next row', async () => {
+  useTablet();
+  jest.spyOn(viewSize, 'useViewSizeClient').mockReturnValue(true);
+  const bookmarkedPage = {
+    ...defaultFeedPage,
+    edges: defaultFeedPage.edges.map(({ node }) => ({
+      node: {
+        ...node,
+        bookmarked: true,
+        bookmark: { createdAt: new Date(), read: false },
+      },
+    })),
+  };
+  const [first, second] = bookmarkedPage.edges.map(({ node }) => node);
+  renderComponent([createFeedMock(bookmarkedPage), createFacetsMock()]);
+  await waitForNock();
+  fireEvent.click(await screen.findByTitle(first.title ?? ''));
+  // The pane reports the cache change before the list re-renders
+  const reportPaneChange = paneOnPostChange;
+
+  mockGraphQL({
+    request: {
+      query: SET_BOOKMARK_ARCHIVED,
+      variables: { postId: first.id, archived: true },
+    },
+    result: { data: { setBookmarkArchived: { _: true } } },
+  });
+  mockGraphQL(createFacetsMock());
+  const sheet = screen.getByRole('region', { name: 'Bookmark' });
+  fireEvent.click(within(sheet).getByRole('button', { name: 'Archive' }));
+  await waitForNock();
+  await waitFor(() =>
+    expect(screen.queryByTitle(first.title ?? '')).not.toBeInTheDocument(),
+  );
+
+  act(() =>
+    reportPaneChange?.({
+      ...first,
+      bookmark: { ...first.bookmark, archivedAt: new Date(), read: true },
+    }),
+  );
+
+  expect(screen.queryByTitle(first.title ?? '')).not.toBeInTheDocument();
+  expect(screen.getByTitle(second.title ?? '')).toBeInTheDocument();
 });

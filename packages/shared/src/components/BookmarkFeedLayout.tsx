@@ -8,6 +8,7 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
+import type { InfiniteData } from '@tanstack/react-query';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { webappUrl } from '../lib/constants';
@@ -17,7 +18,9 @@ import {
   BOOKMARKS_FEED_QUERY,
   SEARCH_BOOKMARKS_QUERY,
   baseFeedSupportedTypes,
+  getFeedApiItemPost,
 } from '../graphql/feed';
+import type { FeedItemData } from '../graphql/feed';
 import { ClientQuestEventType } from '../graphql/quests';
 import type { Post } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
@@ -29,6 +32,7 @@ import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import { ShareIcon, SortIcon } from './icons';
 import { IconSize } from './Icon';
 import {
+  findIndexOfPostInData,
   generateQueryKey,
   OtherFeedPage,
   RequestKey,
@@ -43,7 +47,6 @@ import {
   cloudinaryCharmReadLater,
 } from '../lib/image';
 import useFeed from '../hooks/useFeed';
-import type { PostItem } from '../hooks/useFeed';
 import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
 } from '../hooks/feed/useFeedInfiniteScroll';
@@ -61,7 +64,10 @@ import { ShellField } from './shell/ShellField';
 import { Segments, ShellRow } from './shell/ShellRow';
 import { SearchField } from './fields/SearchField';
 import { Dropdown } from './fields/Dropdown';
-import { bookmarkFacetsQueryOptions } from '../graphql/bookmarks';
+import {
+  archivedBookmarksQueryOptions,
+  bookmarkFacetsQueryOptions,
+} from '../graphql/bookmarks';
 import type { BookmarkFolder } from '../graphql/bookmarks';
 import { BookmarkFilters } from './bookmark/BookmarkFilters';
 import { BookmarkRow } from './bookmark/BookmarkRow';
@@ -408,15 +414,34 @@ export default function BookmarkFeedLayout({
       ),
     [items],
   );
-  const isLoading = isInitialLoading || (isFetching && canFetchMore);
+  // Archived bookmarks leave All, so an empty All may still have some
+  const { data: archivedData, isLoading: isLoadingArchived } = useQuery({
+    ...archivedBookmarksQueryOptions({
+      user,
+      listId,
+      reminderOnly: !!isReminderOnly,
+    }),
+    enabled: !!user && emptyFeed && !isFiltered,
+  });
+  const hasArchived = !!archivedData?.page.edges.length;
+  const isLoading =
+    isInitialLoading || (isFetching && canFetchMore) || isLoadingArchived;
 
   const findItem = useCallback(
-    (postId: string) =>
-      items.find(
-        (item): item is PostItem =>
-          item.type === FeedItemType.Post && item.post.id === postId,
-      ),
-    [items],
+    (postId: string) => {
+      const data =
+        client.getQueryData<InfiniteData<FeedItemData>>(feedQueryKey);
+      if (!data) {
+        return undefined;
+      }
+
+      const { pageIndex, index } = findIndexOfPostInData(data, postId);
+      const node = data.pages[pageIndex]?.page.edges[index]?.node;
+      const post = node && getFeedApiItemPost(node);
+
+      return post && { page: pageIndex, index, post };
+    },
+    [client, feedQueryKey],
   );
   const onRemovePost = useCallback(
     (index: number) => {
@@ -713,7 +738,7 @@ export default function BookmarkFeedLayout({
 
   const isEmptyList = !isLoading && posts.length === 0;
 
-  if (isEmptyList && !isFiltered && emptyFeed) {
+  if (isEmptyList && !isFiltered && emptyFeed && !hasArchived) {
     return (
       <>
         {shell}
@@ -761,12 +786,29 @@ export default function BookmarkFeedLayout({
     );
   }
 
+  const isAllArchived = !isFiltered && hasArchived;
+  const emptyPaneLabel = isAllArchived
+    ? 'Everything here is archived. Open Archived to find it again.'
+    : 'Nothing here matches. Clear the filters to see every bookmark.';
+
   const renderListEmpty = () => {
     if (isSearchResults) {
       return <SearchEmptyScreen />;
     }
 
     const isArchiveView = status === BookmarkStatus.Archived && !hasFilters;
+
+    if (isAllArchived) {
+      return (
+        <CharmEmptyState
+          placement={CharmEmptyStatePlacement.Inline}
+          image={cloudinaryCharmBookmarks}
+          imageAlt="daily.dev charm holding a bookmark"
+          title="Everything here is archived"
+          description="Open Archived to find the bookmarks you are done with."
+        />
+      );
+    }
 
     return (
       <CharmEmptyState
@@ -884,20 +926,22 @@ export default function BookmarkFeedLayout({
               {isEmptyList && (
                 <div className="flex flex-col items-center gap-4 py-6">
                   {renderListEmpty()}
-                  <Button
-                    type="button"
-                    variant={ButtonVariant.Float}
-                    size={ButtonSize.Small}
-                    onClick={() => {
-                      setStatus(BookmarkStatus.All);
-                      setSelectedTags([]);
-                      setSelectedSources([]);
-                      setDraft('');
-                      replaceQuery({ q: undefined });
-                    }}
-                  >
-                    Clear filters
-                  </Button>
+                  {!isAllArchived && (
+                    <Button
+                      type="button"
+                      variant={ButtonVariant.Float}
+                      size={ButtonSize.Small}
+                      onClick={() => {
+                        setStatus(BookmarkStatus.All);
+                        setSelectedTags([]);
+                        setSelectedSources([]);
+                        setDraft('');
+                        replaceQuery({ q: undefined });
+                      }}
+                    >
+                      Clear filters
+                    </Button>
+                  )}
                 </div>
               )}
               <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
@@ -909,11 +953,7 @@ export default function BookmarkFeedLayout({
               isLoading={isInitialLoading}
               fallbackTitle={current?.title}
               origin={Origin.Bookmarks}
-              emptyLabel={
-                isEmptyList
-                  ? 'Nothing here matches. Clear the filters to see every bookmark.'
-                  : undefined
-              }
+              emptyLabel={isEmptyList ? emptyPaneLabel : undefined}
               unavailable={{
                 description: 'It stays in your bookmarks until you remove it.',
                 action: current
