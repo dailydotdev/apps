@@ -124,8 +124,7 @@ const TimedChanges = ({
       <SettingDivider />
       <div className="flex flex-col gap-2">
         <SettingTitle title="Changes that end on their own">
-          Each one goes back to Auto on the day shown. End one now to undo it
-          today.
+          Each goes back to Auto on the day shown, unless you end it sooner.
         </SettingTitle>
         <ul className="flex flex-col">
           {[...seen.current.values()].map(({ key, name, meta, onEnd }) => {
