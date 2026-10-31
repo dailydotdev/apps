@@ -32,7 +32,7 @@ export interface ForYouSettingsPage {
 export const forYouSettingsTitle: Record<ForYouSettingsPageId, string> = {
   [FeedSettingsMenu.Overview]: 'Overview',
   [FeedSettingsMenu.Tags]: 'Topics',
-  [FeedSettingsMenu.ContentSources]: 'Sources and people',
+  [FeedSettingsMenu.ContentSources]: 'Sources and creators',
   [FeedSettingsMenu.Ranking]: 'Ranking',
   [FeedSettingsMenu.Filters]: 'Filters',
   [FeedSettingsMenu.AI]: 'AI superpowers',

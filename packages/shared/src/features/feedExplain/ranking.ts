@@ -140,8 +140,8 @@ export const rankingSettings: RankingSettingMeta[] = [
   {
     key: 'follows.author_multiplier',
     group: RankingGroup.Follows,
-    label: 'Boost for an author you follow',
-    help: 'For every post written by someone you follow.',
+    label: 'Boost for a creator you follow',
+    help: 'For every post by a creator you follow.',
     min: 1,
     max: 3,
     step: 0.05,
@@ -303,7 +303,7 @@ export const rankingGroups: {
   },
   {
     group: RankingGroup.Follows,
-    title: 'Sources and authors you follow',
+    title: 'Sources and creators you follow',
     description: 'Every post from them shows up, with this boost.',
   },
   {
