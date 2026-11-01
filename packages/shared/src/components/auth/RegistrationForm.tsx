@@ -27,6 +27,7 @@ import type { CloseModalFunc } from '../modals/common';
 import TokenInput from './TokenField';
 import AuthForm from './AuthForm';
 import AuthHeader from './AuthHeader';
+import { AuthActionBar } from './AuthActionBar';
 import { MemberAlready } from '../onboarding/MemberAlready';
 import SignupDisclaimer from './SignupDisclaimer';
 import { Checkbox } from '../fields/Checkbox';
@@ -94,6 +95,7 @@ export type RegistrationFormValues = Omit<
 
 const RegistrationForm = ({
   formRef,
+  onBack,
   onBackToIntro,
   onExistingEmailLoginClick,
   onSignup = () => undefined,
@@ -116,6 +118,7 @@ const RegistrationForm = ({
     useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [name, setName] = useState('');
+  const [isEmailFilled, setIsEmailFilled] = useState(!!email?.length);
   const isRecruiterOnboarding = trigger === AuthTriggers.RecruiterSelfServe;
   const hideExperienceLevel = isRecruiterOnboarding;
   const {
@@ -323,7 +326,6 @@ const RegistrationForm = ({
   // Only show the valid-state checkmark once the user has actually typed
   // a non-empty value; an untouched field shouldn't look like it passed
   // validation.
-  const isEmailFilled = !!email?.length;
   const isNameFilled = !!name?.length;
   const isUsernameFilled = !!username?.length;
   const successIcon = (
@@ -349,12 +351,13 @@ const RegistrationForm = ({
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_KEY ?? '';
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-1 flex-col">
       {!isAuthenticating && (
         <AuthHeader
           simplified={simplified}
           onboardingHeadline={isOnboardingFunnel}
           title={headerTitle}
+          onBack={simplified ? undefined : onBack}
         />
       )}
       <div
@@ -362,7 +365,7 @@ const RegistrationForm = ({
           // `simplified` is set by `/onboarding`, where the outer page already
           // applies horizontal padding. Anywhere else (e.g. the inline AuthModal)
           // the form would otherwise hug the container edge, so add it here.
-          !simplified && 'px-4 pb-4 tablet:px-6',
+          !simplified && 'flex flex-1 flex-col px-6',
         )}
       >
         {!isAuthenticating && (onBackToIntro || showHeadline) && (
@@ -394,7 +397,9 @@ const RegistrationForm = ({
         )}
         <AuthForm
           className={classNames(
-            'mt-10 w-full flex-1 place-items-center gap-2 self-center overflow-y-auto pb-2',
+            'w-full flex-1 place-items-center self-center',
+            simplified ? 'gap-2' : 'gap-1',
+            simplified ? 'mt-10 overflow-y-auto pb-2' : 'mt-6',
           )}
           data-testid="registration_form"
           id="auth-form"
@@ -413,6 +418,14 @@ const RegistrationForm = ({
             label="Email"
             type="email"
             value={email}
+            onChange={(e) => {
+              if (!e.target.value || !e.target.validity.valid) {
+                setIsEmailFilled(false);
+              }
+            }}
+            onBlur={(e) =>
+              setIsEmailFilled(!!e.target.value && e.target.validity.valid)
+            }
             rightIcon={isEmailFilled ? successIcon : undefined}
           />
           {hints?.['traits.email'] && !alreadyExists && (
@@ -585,32 +598,46 @@ const RegistrationForm = ({
             {turnstileErrorLoading && (
               <Alert
                 type={AlertType.Error}
-                title="Turnstile is taking too long to load. Please try again."
+                title="The security check didn’t load. Refresh the page and try again."
               />
             )}
             {/* The funnel's primary action always sits inside the glass bar, so
                 account details matches the seven steps behind it rather than
                 ending on a bare button. Medium + flex-1 keeps the nested radii
                 concentric; every other surface keeps the full-width Large. */}
-            <ConditionalWrapper
-              condition={!!isOnboardingFunnel}
-              wrapper={(component) => (
-                <FunnelGlassBar>{component}</FunnelGlassBar>
-              )}
-            >
-              <Button
-                className={isOnboardingFunnel ? funnelGlassBarCta : 'w-full'}
+            {!simplified ? (
+              <AuthActionBar
                 data-funnel-track={FunnelTargetId.StepCta}
                 disabled={isCheckPending || !turnstileLoaded}
                 form="auth-form"
                 loading={isVerifyingTurnstile}
-                size={isOnboardingFunnel ? ButtonSize.Medium : ButtonSize.Large}
                 type="submit"
-                variant={ButtonVariant.Primary}
               >
                 Sign up
-              </Button>
-            </ConditionalWrapper>
+              </AuthActionBar>
+            ) : (
+              <ConditionalWrapper
+                condition={!!isOnboardingFunnel}
+                wrapper={(component) => (
+                  <FunnelGlassBar>{component}</FunnelGlassBar>
+                )}
+              >
+                <Button
+                  className={isOnboardingFunnel ? funnelGlassBarCta : 'w-full'}
+                  data-funnel-track={FunnelTargetId.StepCta}
+                  disabled={isCheckPending || !turnstileLoaded}
+                  form="auth-form"
+                  loading={isVerifyingTurnstile}
+                  size={
+                    isOnboardingFunnel ? ButtonSize.Medium : ButtonSize.Large
+                  }
+                  type="submit"
+                  variant={ButtonVariant.Primary}
+                >
+                  Sign up
+                </Button>
+              </ConditionalWrapper>
+            )}
             {/* Consent belongs to the button that creates the account, so it
                 travels with this form instead of being docked on the funnel
                 shell — that shell also serves sign-back, login and

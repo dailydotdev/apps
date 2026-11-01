@@ -8,8 +8,9 @@ import classed from '../../../lib/classed';
 import type { ModalTabsProps } from './ModalTabs';
 import { ModalTabs } from './ModalTabs';
 import { ModalClose } from './ModalClose';
+import CloseButton from '../../CloseButton';
 import { ModalHeaderKind, ModalPropsContext } from './types';
-import type { ButtonProps, IconType } from '../../buttons/Button';
+import type { ButtonProps } from '../../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { ModalStepsWrapper } from './ModalStepsWrapper';
 import { ProgressBar } from '../../fields/ProgressBar';
@@ -20,9 +21,9 @@ export type ModalHeaderProps = {
   className?: string;
   title?: string;
   showCloseButton?: boolean;
-  // Replaces the phone's back chevron for modals that close rather than
-  // go back (a gated sign-up).
-  phoneCloseIcon?: IconType;
+  // Phones show the X at the right, like tablets, instead of a back chevron
+  // at the left, for modals that close rather than go back (sign-up).
+  closeOnPhone?: boolean;
 };
 
 const headerKindToTitleClassName: Record<ModalHeaderKind, string> = {
@@ -41,7 +42,7 @@ export function ModalHeader({
   className,
   title,
   showCloseButton = true,
-  phoneCloseIcon,
+  closeOnPhone,
 }: ModalHeaderProps): ReactElement | null {
   const {
     activeView,
@@ -100,16 +101,13 @@ export function ModalHeader({
         className,
       )}
     >
-      {shouldShowClose && (
+      {shouldShowClose && !closeOnPhone && (
         <Button
           type="button"
           size={ButtonSize.Small}
-          className={classNames(
-            'mr-2 flex tablet:hidden',
-            !phoneCloseIcon && '-rotate-90',
-          )}
-          icon={phoneCloseIcon ?? <ArrowIcon />}
-          aria-label={phoneCloseIcon ? 'Close' : 'Back'}
+          className="mr-2 flex -rotate-90 tablet:hidden"
+          icon={<ArrowIcon />}
+          aria-label="Back"
           onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
             if (isMobile && tabs && activeView) {
               setActiveView?.(undefined);
@@ -129,6 +127,13 @@ export function ModalHeader({
         >
           {modalTitle}
         </ModalHeaderTitle>
+      )}
+      {shouldShowClose && closeOnPhone && (
+        <CloseButton
+          type="button"
+          className="-mr-2 ml-auto flex tablet:hidden"
+          onClick={onRequestClose}
+        />
       )}
       {shouldShowClose && (
         <ModalClose

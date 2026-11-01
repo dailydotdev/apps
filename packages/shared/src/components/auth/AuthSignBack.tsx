@@ -11,16 +11,17 @@ import { SignBackButton } from './SignBackButton';
 import type { LoginFormProps } from './LoginForm';
 import LoginForm from './LoginForm';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { ClickableText } from '../buttons/ClickableText';
 
 interface AuthSignBackProps extends AuthFormProps {
   children?: ReactNode;
   isLoginFlow?: boolean;
   isConnectedAccount?: boolean;
-  onRegister?: () => void;
+  onRegister?: (canGoBack?: boolean) => void;
   onProviderClick?: (provider: string) => unknown;
   isProviderLoading?: boolean;
   loginFormProps?: LoginFormProps;
-  onShowLoginOptions?: () => void;
+  onShowLoginOptions?: (canGoBack?: boolean) => void;
   isOnboardingFunnel?: boolean;
 }
 
@@ -43,10 +44,10 @@ export const AuthSignBack = ({
   const providerItem = socialProvider ? providerMap[socialProvider] : undefined;
   const isValid = signBack && (provider === 'password' || !!providerItem);
   const handleShowLoginOptions = (): void => {
-    onShowLoginOptions?.();
+    onShowLoginOptions?.(true);
   };
   const handleRegister = (): void => {
-    onRegister?.();
+    onRegister?.(true);
   };
   const handleProviderClick = (): void => {
     if (!socialProvider || !onProviderClick) {
@@ -88,6 +89,7 @@ export const AuthSignBack = ({
       return (
         <LoginForm
           {...loginFormProps}
+          aboveFooter={!simplified}
           email={loginFormProps.email ?? signBack.email}
         />
       );
@@ -146,17 +148,29 @@ export const AuthSignBack = ({
           {signBack.email}
         </span>
         {renderAuthAction()}
-        <div className="flex flex-1" />
+        <div className="mt-4 flex items-center justify-center gap-1 text-text-tertiary typo-callout">
+          Not you?
+          <ClickableText
+            className="!text-text-primary"
+            inverseUnderline
+            onClick={handleShowLoginOptions}
+          >
+            Use another account
+          </ClickableText>
+        </div>
+      </AuthContainer>
+      <div className="flex flex-1" />
+      <ConditionalWrapper
+        condition={simplified ?? false}
+        wrapper={(component) => <AuthContainer>{component}</AuthContainer>}
+      >
         <AuthModalFooter
-          text={{ body: 'Not you?', button: 'Use another account' }}
-          onClick={handleShowLoginOptions}
-        />
-        <AuthModalFooter
+          className={{ container: 'mt-4' }}
+          pinned={!simplified}
           text={{ body: "Don't have an account?", button: 'Sign up' }}
-          className={{ container: 'h-auto !border-none pt-0' }}
           onClick={handleRegister}
         />
-      </AuthContainer>
+      </ConditionalWrapper>
     </span>
   );
 };

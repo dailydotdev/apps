@@ -53,7 +53,7 @@ const useLogin = ({
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
   const { refetchBoot } = useContext(AuthContext);
-  const hintState = useState<string | null>('Enter your password to login');
+  const hintState = useState<string | null>(null);
   const [, setHint] = hintState;
 
   const {

@@ -2,8 +2,8 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import type { AuthFormProps, Provider } from './common';
-import { getFormEmail } from './common';
-import EmailSignupForm from './EmailSignupForm';
+import { MailIcon } from '../icons';
+import SignupDisclaimer from './SignupDisclaimer';
 import LoginForm from './LoginForm';
 import type { LoginFormParams, LoginHintState } from './LoginForm';
 import { useLogContext } from '../../contexts/LogContext';
@@ -11,10 +11,10 @@ import type { AuthTriggersType } from '../../lib/auth';
 import { AuthEventNames } from '../../lib/auth';
 import AuthContainer from './AuthContainer';
 import AuthHeader from './AuthHeader';
-import { authContextLine } from './authContextLines';
 import ConditionalWrapper from '../ConditionalWrapper';
 import OrDivider from './OrDivider';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { IconSize } from '../Icon';
 
 const AuthModalFooter = dynamic(
   () => import(/* webpackChunkName: "authModalFooter" */ './AuthModalFooter'),
@@ -29,6 +29,8 @@ interface AuthDefaultProps extends AuthFormProps {
   onForgotPassword?: (email?: string) => unknown;
   targetId?: string;
   isLoginFlow?: boolean;
+  initialLoginFlow?: boolean;
+  onBack?: () => void;
   logInTitle?: string;
   signUpTitle?: string;
   providers: Provider[];
@@ -40,6 +42,7 @@ interface AuthDefaultProps extends AuthFormProps {
   isReady: boolean;
   loginButton?: string;
   onAuthOpenLogged?: () => void;
+  hideSignupDisclaimer?: boolean;
 }
 
 const AuthDefault = ({
@@ -50,6 +53,8 @@ const AuthDefault = ({
   onPasswordLogin,
   targetId,
   isLoginFlow,
+  initialLoginFlow,
+  onBack,
   providers,
   disableRegistration,
   disablePassword,
@@ -62,6 +67,7 @@ const AuthDefault = ({
   loginButton,
   simplified,
   onAuthOpenLogged,
+  hideSignupDisclaimer,
 }: AuthDefaultProps): ReactElement => {
   const { logEvent } = useLogContext();
   const [shouldLogin, setShouldLogin] = useState(isLoginFlow);
@@ -96,9 +102,7 @@ const AuthDefault = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldLogin]);
 
-  const onEmailSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const onEmailSignup = () => {
     logEvent({
       event_name: 'click',
       target_type: AuthEventNames.SignUpProvider,
@@ -106,17 +110,20 @@ const AuthDefault = ({
       extra: JSON.stringify({ trigger }),
     });
 
-    const email = getFormEmail(e);
-
-    if (!email) {
-      return null;
-    }
-
-    if (!onSignup) {
-      return null;
-    }
-    return onSignup(email);
+    onSignup?.('');
   };
+
+  const toggleLogin = () => {
+    focusFirstSocialLink();
+    if (!shouldLogin) {
+      setRegisterEmail(null);
+    }
+    setShouldLogin(!shouldLogin);
+  };
+
+  const isInitialMode =
+    initialLoginFlow === undefined || !!shouldLogin === initialLoginFlow;
+  const onHeaderBack = isInitialMode ? onBack : toggleLogin;
 
   const onSocialClick = (provider: string) => {
     onProviderClick?.(provider, shouldLogin);
@@ -134,6 +141,10 @@ const AuthDefault = ({
           isLoading={isLoading}
           email={registerEmail ?? undefined}
           loginButton={loginButton}
+          aboveFooter={!simplified && !disableRegistration}
+          loginButtonVariant={
+            providers.length ? ButtonVariant.Secondary : ButtonVariant.Primary
+          }
           loginHint={resolvedLoginHint}
           onPasswordLogin={onPasswordLogin}
           onForgotPassword={onForgotPassword}
@@ -142,25 +153,30 @@ const AuthDefault = ({
       );
     }
 
-    return <EmailSignupForm onSubmit={onEmailSignup} isReady={isReady} />;
+    return null;
   };
 
-  const renderOrDivider = providers.length || !disablePassword;
+  const form = getForm();
+  const isSignup = !shouldLogin && !disableRegistration;
 
   return (
     <>
-      <AuthHeader simplified={simplified} title={title} closeOnPhone />
-      {!simplified && !shouldLogin && authContextLine(trigger) && (
-        <p className="px-6 pt-3 text-center text-text-secondary typo-callout tablet:hidden">
-          {authContextLine(trigger)}
-        </p>
-      )}
+      <AuthHeader
+        simplified={simplified}
+        title={title}
+        onBack={simplified ? undefined : onHeaderBack}
+      />
       {simplified && !shouldLogin && (
         <p className="mt-3 whitespace-pre-line px-6 text-center text-text-secondary typo-body">
           Once you sign up, your personal feed will be ready to explore.
         </p>
       )}
       <AuthContainer className={disableRegistration ? 'mb-6' : undefined}>
+        {isSignup && !simplified && (
+          <p className="mb-3 text-center font-bold typo-title2">
+            Where developers discover what’s next.
+          </p>
+        )}
         <div
           aria-label="Social login buttons"
           className="flex flex-col gap-4"
@@ -172,7 +188,7 @@ const AuthDefault = ({
               aria-label={`Continue with ${label}`}
               autoFocus={index === 0}
               disabled={!isReady || isSocialAuthLoading}
-              icon={icon}
+              icon={React.cloneElement(icon, { size: IconSize.Medium })}
               key={label}
               loading={!isReady || isSocialAuthLoading}
               onClick={() => onSocialClick(value)}
@@ -183,9 +199,23 @@ const AuthDefault = ({
               Continue with {label}
             </Button>
           ))}
+          {isSignup && (
+            <Button
+              aria-label="Continue with email"
+              disabled={!isReady || isSocialAuthLoading}
+              icon={<MailIcon secondary size={IconSize.Medium} />}
+              onClick={onEmailSignup}
+              size={ButtonSize.Large}
+              type="button"
+              variant={ButtonVariant.Primary}
+            >
+              Continue with email
+            </Button>
+          )}
         </div>
-        {renderOrDivider && <OrDivider />}
-        {getForm()}
+        {isSignup && !hideSignupDisclaimer && <SignupDisclaimer />}
+        {form && providers.length > 0 && <OrDivider />}
+        {form}
       </AuthContainer>
       <div className="flex flex-1" />
       {!disableRegistration && (
@@ -195,19 +225,14 @@ const AuthDefault = ({
         >
           <AuthModalFooter
             className={{ container: 'mt-4' }}
+            pinned={!simplified}
             text={{
               body: shouldLogin
-                ? 'Not a member yet?'
-                : 'Already using daily.dev?',
+                ? "Don't have an account?"
+                : 'Already have an account?',
               button: shouldLogin ? 'Sign up' : 'Log in',
             }}
-            onClick={() => {
-              focusFirstSocialLink();
-              if (!shouldLogin) {
-                setRegisterEmail(null);
-              }
-              setShouldLogin(!shouldLogin);
-            }}
+            onClick={toggleLogin}
           />
         </ConditionalWrapper>
       )}

@@ -196,6 +196,10 @@ function AuthOptionsInner({
   };
 
   const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
+  const [defaultEntry, setDefaultEntry] = useState({
+    isLogin: !!isLoginFlow,
+    fromSignBack: false,
+  });
   // Parents that mirror `onAuthStateUpdate` into `defaultDisplay` (/onboarding,
   // funnels, recruiter modal) flip it to ForgotPassword once the user gets
   // there, so going "back to defaultDisplay" would be a no-op. Remember the
@@ -776,7 +780,9 @@ function AuthOptionsInner({
     !isIOSNative() &&
     !isAndroidApp &&
     !isNativeAuthSupported('google') &&
-    hasLoggedAuthOpen;
+    hasLoggedAuthOpen &&
+    (activeDisplay === AuthDisplay.Default ||
+      activeDisplay === AuthDisplay.OnboardingSignup);
   useGoogleOneTap({
     enabled: canUseOneTap,
     onCredential: handleOneTapCredential,
@@ -856,7 +862,18 @@ function AuthOptionsInner({
     onSetActiveDisplay(forgotPasswordReturnRef.current);
   };
 
-  const onBackFromVerify = () => onSetActiveDisplay(emailVerificationReturn);
+  const onBackFromVerify = () => {
+    if (emailVerificationReturn === AuthDisplay.Default) {
+      onAuthStateUpdate?.({ isLoginFlow: true });
+    }
+    onSetActiveDisplay(emailVerificationReturn);
+  };
+
+  const onBackFromRegistration = () => {
+    setIsForgotPasswordReturn(false);
+    onAuthStateUpdate?.({ isLoginFlow: false });
+    onSetActiveDisplay(defaultDisplay);
+  };
 
   const onEmailLogin: typeof onPasswordLogin = (params) => {
     setEmail(params.identifier);
@@ -867,7 +884,7 @@ function AuthOptionsInner({
     <div
       className={classNames(
         'z-1 flex w-full max-w-[26.25rem] flex-col overflow-y-auto rounded-16',
-        !simplified && 'bg-accent-pepper-subtlest',
+        !simplified && 'bg-background-default',
         defaultDisplay === AuthDisplay.OnboardingSignup && !compact
           ? 'min-h-[21.25rem]'
           : undefined,
@@ -884,12 +901,19 @@ function AuthOptionsInner({
           <AuthDefault
             isLoading={isPasswordLoginLoading}
             isLoginFlow={isForgotPasswordReturn || isLoginFlow}
+            initialLoginFlow={defaultEntry.isLogin}
+            onBack={
+              defaultEntry.fromSignBack
+                ? () => onSetActiveDisplay(AuthDisplay.SignBack)
+                : undefined
+            }
             isReady={isReady}
             loginHint={loginHint}
             onForgotPassword={onForgotPassword}
             onPasswordLogin={onEmailLogin}
             onProviderClick={onProviderClick}
             onSignup={onEmailRegistration}
+            hideSignupDisclaimer={hideSignupDisclaimer}
             isSocialAuthLoading={isSocialAuthLoading}
             providers={providers}
             simplified={simplified}
@@ -922,7 +946,7 @@ function AuthOptionsInner({
             hints={registrationHints}
             onBack={
               defaultDisplay !== AuthDisplay.Registration
-                ? () => onSetActiveDisplay(defaultDisplay)
+                ? onBackFromRegistration
                 : undefined
             }
             onBackToIntro={
@@ -1002,10 +1026,12 @@ function AuthOptionsInner({
         </Tab>
         <Tab label={AuthDisplay.SignBack}>
           <AuthSignBack
-            onRegister={() => {
+            onRegister={(canGoBack) => {
               if (isLoginFlow) {
                 onAuthStateUpdate?.({ isLoginFlow: false });
               }
+              setIsForgotPasswordReturn(false);
+              setDefaultEntry({ isLogin: false, fromSignBack: !!canGoBack });
               setIsConnected(false);
               onSetActiveDisplay(AuthDisplay.Default);
             }}
@@ -1015,10 +1041,11 @@ function AuthOptionsInner({
             isProviderLoading={isSocialAuthLoading}
             simplified={simplified}
             isOnboardingFunnel={isOnboardingFunnel}
-            onShowLoginOptions={() => {
+            onShowLoginOptions={(canGoBack) => {
               if (!isLoginFlow && onAuthStateUpdate) {
                 onAuthStateUpdate({ isLoginFlow: true });
               }
+              setDefaultEntry({ isLogin: true, fromSignBack: !!canGoBack });
               setIsConnected(false);
               setActiveDisplay(AuthDisplay.Default);
             }}
@@ -1050,16 +1077,22 @@ function AuthOptionsInner({
           />
         </Tab>
         <Tab label={AuthDisplay.EmailVerification}>
-          <MailIcon size={IconSize.XXLarge} className="mx-auto mb-2" />
+          {simplified && (
+            <MailIcon size={IconSize.XXLarge} className="mx-auto mb-2" />
+          )}
           <AuthHeader
             simplified={simplified}
             onboardingHeadline={isOnboardingFunnel}
             title="Verify your email"
-            onBack={isOnboardingFunnel ? undefined : onBackFromVerify}
+            onBack={simplified ? undefined : onBackFromVerify}
           />
+          {!simplified && (
+            <MailIcon size={IconSize.XXLarge} className="mx-auto mt-8" />
+          )}
           <EmailCodeVerification
+            className={simplified ? undefined : '!pt-4'}
             isOnboardingFunnel={isOnboardingFunnel}
-            onChangeEmail={isOnboardingFunnel ? onBackFromVerify : undefined}
+            onChangeEmail={onBackFromVerify}
             onSubmit={onProfileSuccess}
             onVerifyCode={async (code) => {
               const res = await betterAuthVerifyEmailOTP(email, code);

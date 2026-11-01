@@ -7,12 +7,13 @@ import type { LoginPasswordParameters } from '../../lib/auth';
 import { AuthEventNames } from '../../lib/auth';
 import { Origin } from '../../lib/log';
 import { formToJson } from '../../lib/form';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
 import { MailIcon } from '../icons';
 import AuthForm from './AuthForm';
+import { AuthActionBar } from './AuthActionBar';
 import { IconSize } from '../Icon';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { labels } from '../../lib';
@@ -29,6 +30,8 @@ export interface LoginFormProps {
   email?: string;
   loginHint: LoginHintState;
   loginButton?: string;
+  loginButtonVariant?: ButtonVariant;
+  aboveFooter?: boolean;
   className?: string;
   isLoading?: boolean;
   isReady: boolean;
@@ -48,12 +51,36 @@ export type LoginFormParams = Pick<
   turnstileToken?: string;
 };
 
+type LoginFieldErrors = Partial<Record<'identifier' | 'password', string>>;
+
+const getFieldErrors = (
+  form: HTMLFormElement,
+  { identifier, password }: LoginFormParams,
+): LoginFieldErrors => {
+  const email = form.elements.namedItem('identifier') as HTMLInputElement;
+  const errors: LoginFieldErrors = {};
+
+  if (!identifier) {
+    errors.identifier = 'Enter your email';
+  } else if (!email.validity.valid) {
+    errors.identifier = 'Enter a valid email address';
+  }
+
+  if (!password) {
+    errors.password = 'Enter your password';
+  }
+
+  return errors;
+};
+
 function LoginForm({
   onForgotPassword,
   onPasswordLogin,
   email,
   loginHint: [hint, setHint],
   loginButton = 'Log in',
+  loginButtonVariant = ButtonVariant.Primary,
+  aboveFooter,
   className,
   isLoading,
   isReady,
@@ -66,6 +93,9 @@ function LoginForm({
   const [turnstileError, setTurnstileError] = useState(false);
   const [isVerifyingTurnstile, setIsVerifyingTurnstile] = useState(false);
   const isTurnstileInteractiveRef = useRef(false);
+  const [hasEngaged, setHasEngaged] = useState(false);
+  const onEngage = () => setHasEngaged(true);
+  const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_KEY ?? '';
 
   useEffect(() => {
@@ -76,13 +106,18 @@ function LoginForm({
 
   const onLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    onEngage();
 
     if (!onPasswordLogin || isVerifyingTurnstile) {
       return;
     }
 
     const form = formToJson<LoginFormParams>(e.currentTarget);
-    if (!form.identifier || !form.password) {
+    const errors = getFieldErrors(e.currentTarget, form);
+    setFieldErrors(errors);
+    const invalidField = Object.keys(errors)[0];
+    if (invalidField) {
+      document.getElementById(invalidField)?.focus();
       return;
     }
 
@@ -133,8 +168,12 @@ function LoginForm({
   return (
     <AuthForm
       aria-label="Login using email and password"
-      className={classNames('gap-2', className)}
+      className={classNames('gap-1', className)}
+      noValidate
       onSubmit={onLogin}
+      onPointerDownCapture={onEngage}
+      onKeyDownCapture={onEngage}
+      onInputCapture={onEngage}
       data-testid="login_form"
       ref={(form) => {
         if (!form) {
@@ -160,14 +199,16 @@ function LoginForm({
         autoComplete="username"
         value={email}
         data-testid="login_email"
-        saveHintSpace
         onChange={(e) => {
           setInnerEmail(e.target.value);
+          setFieldErrors(({ password }) => ({ password }));
           if (hint) {
             setHint(null);
           }
         }}
-        valid={!hint}
+        hint={fieldErrors.identifier}
+        valid={!fieldErrors.identifier}
+        saveHintSpace
         required
       />
       <PasswordField
@@ -178,15 +219,33 @@ function LoginForm({
         autoComplete="current-password"
         required
         showStrength={false}
+        hint={fieldErrors.password}
         saveHintSpace
-        onChange={() => hint && setHint(null)}
+        onChange={() => {
+          setFieldErrors(({ identifier }) => ({ identifier }));
+          if (hint) {
+            setHint(null);
+          }
+        }}
       />
+      {onForgotPassword && (
+        <ClickableText
+          type="button"
+          className="btn-primary self-end underline"
+          onClick={() => onForgotPassword(innerEmail)}
+        >
+          Forgot password?
+        </ClickableText>
+      )}
       {turnstileSiteKey && (
         <Turnstile
           ref={turnstileRef}
           siteKey={turnstileSiteKey}
-          options={{ theme: 'dark' }}
-          className="mx-auto min-h-[4.5rem]"
+          options={{ theme: 'dark', appearance: 'interaction-only' }}
+          className={classNames(
+            'mx-auto',
+            !hasEngaged && 'invisible h-0 overflow-hidden',
+          )}
           onWidgetLoad={() => setTurnstileLoaded(true)}
           onBeforeInteractive={() => {
             isTurnstileInteractiveRef.current = true;
@@ -198,43 +257,51 @@ function LoginForm({
       )}
       {turnstileError && (
         <Alert
+          className="mt-3"
           type={AlertType.Error}
           title="Please complete the security check."
         />
       )}
-      <span className="mt-4 flex w-full flex-row">
-        {onForgotPassword && (
-          <ClickableText
-            type="button"
-            className="btn-primary flex-1 grow-[2] underline"
-            onClick={() => onForgotPassword(innerEmail)}
-          >
-            Forgot password?
-          </ClickableText>
-        )}
+      {hint && (
+        <Alert className="mt-3" type={AlertType.Error} flexDirection="flex-row">
+          <AlertParagraph className="!mt-0 flex-1">
+            {hint === labels.auth.error.invalidEmailOrPassword ? (
+              <>
+                The email or password you entered doesn&apos;t match our
+                records. Please try again or{' '}
+                <ClickableText
+                  onClick={onSignup}
+                  className="font-bold !text-text-primary underline hover:no-underline"
+                >
+                  create a new account.
+                </ClickableText>
+              </>
+            ) : (
+              'Something went wrong on our end. Please try again.'
+            )}
+          </AlertParagraph>
+        </Alert>
+      )}
+      {loginButtonVariant === ButtonVariant.Primary ? (
+        <AuthActionBar
+          aboveFooter={aboveFooter}
+          type="submit"
+          loading={!isReady || isVerifyingTurnstile}
+          disabled={isLoading || (!!turnstileSiteKey && !turnstileLoaded)}
+        >
+          {loginButton}
+        </AuthActionBar>
+      ) : (
         <Button
-          className="flex-1"
-          variant={ButtonVariant.Primary}
+          className="mt-3 w-full"
+          size={ButtonSize.Large}
+          variant={loginButtonVariant}
           type="submit"
           loading={!isReady || isVerifyingTurnstile}
           disabled={isLoading || (!!turnstileSiteKey && !turnstileLoaded)}
         >
           {loginButton}
         </Button>
-      </span>
-      {hint && hint === labels.auth.error.invalidEmailOrPassword && (
-        <Alert className="mt-6" type={AlertType.Error} flexDirection="flex-row">
-          <AlertParagraph className="!mt-0 flex-1">
-            The email or password you entered doesn&apos;t match our records.
-            Please try again or{' '}
-            <ClickableText
-              onClick={onSignup}
-              className="font-bold text-white underline hover:no-underline"
-            >
-              create new account.
-            </ClickableText>
-          </AlertParagraph>
-        </Alert>
       )}
     </AuthForm>
   );
