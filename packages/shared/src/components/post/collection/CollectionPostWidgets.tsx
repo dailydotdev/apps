@@ -19,6 +19,7 @@ export const CollectionPostWidgets = ({
   post,
   origin,
   className,
+  isHybrid = false,
 }: PostWidgetsProps): ReactElement => {
   return (
     <PageWidgets className={className}>
@@ -32,9 +33,10 @@ export const CollectionPostWidgets = ({
         postId={post.id}
         source={post.source}
         className={{ container: 'w-full bg-transparent' }}
+        isAdvertiseLinkStart={isHybrid}
       />
       <PostExcoPlayerWidget post={post} placement="rail" />
-      <ShareBar post={post} />
+      <ShareBar post={post} isBordered={isHybrid} />
       <ShareMobile
         post={post}
         origin={origin}

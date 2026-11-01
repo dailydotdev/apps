@@ -289,6 +289,10 @@ export const featureFeedWidgets = new Feature('feed_widgets', false);
 // card pinned over the bottom of the window at the content's width.
 export const featurePostSignupStrip = new Feature('post_signup_strip', false);
 
+// Experiment: the post page and modal with the redesign's reading column and
+// discussion beside the classic right sidebar, against the classic layout.
+export const featurePostPageHybrid = new Feature('post_page_hybrid', false);
+
 // Experiment: a feed after the post page's comments (For you, the post's
 // tags, its source), for signed-in readers. Control ends at the comments.
 export const featurePostPageFeed = new Feature('post_page_feed', false);
