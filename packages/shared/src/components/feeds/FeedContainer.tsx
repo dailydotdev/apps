@@ -248,17 +248,14 @@ export const FeedContainer = ({
       )}
       {shouldShowBanner && !isLaptopLayout && (
         <div
-          // A tablet grid sits inside `feedGutter`, so any horizontal
-          // padding here stacks on top of it and leaves the banner
-          // narrower than the cards underneath. A list has no gutter,
-          // and the banner needs one of its own: a post card runs
-          // full-bleed on purpose, but this is a rounded, bordered box,
-          // and without the inset it paints its border and clipped
-          // corners on the screen edge. Not the card's `px-4` — the
-          // banner has that already for its text; this is the box.
+          // Below laptop My Feed is a full-bleed list with no gutter, and
+          // the banner needs one of its own: a post card runs full-bleed
+          // on purpose, but this is a rounded, bordered box, and without
+          // the inset it paints its border and clipped corners on the
+          // screen edge. Not the card's `px-4` — the banner has that
+          // already for its text; this is the box.
           className={classNames(
-            'px-4 laptop:pt-0',
-            !isList && 'tablet:px-0',
+            'px-4 laptop:px-0 laptop:pt-0',
             !hasFirstSlotCard && 'tablet:pt-1',
           )}
         >
