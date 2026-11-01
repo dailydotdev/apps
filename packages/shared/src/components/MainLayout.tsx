@@ -108,7 +108,6 @@ function MainLayoutComponent({
   activePage,
   isNavItemsButton,
   customBanner,
-  additionalButtons,
   showSidebar = true,
   className,
   onLogoClick,
@@ -362,7 +361,6 @@ function MainLayoutComponent({
           activePage={activePage}
           hasBanner={isBannerAvailable}
           sidebarRendered={sidebarRendered}
-          additionalButtons={additionalButtons}
           onLogoClick={onLogoClick}
         />
       )}
@@ -413,7 +411,6 @@ function MainLayoutComponent({
       >
         {isAuthReadyOrCached && !isHoldingChrome && showSidebar && (
           <Sidebar
-            additionalButtons={additionalButtons}
             isNavButtons={isNavItemsButton}
             showFeedbackWidget={!hideFeedbackWidget}
             onNavTabClick={onNavTabClick}

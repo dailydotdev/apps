@@ -195,6 +195,10 @@ export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 export const featurePostTopicSignup = new Feature('post_topic_signup', false);
 
 export const featureShortcutsHub = new Feature('shortcuts_hub_v2', false);
+export const featureCompanionPermissionWidget = new Feature(
+  'companion_permission_widget',
+  false,
+);
 
 export const featureCompanionDemoWidget = new Feature(
   'companion_demo_widget',
