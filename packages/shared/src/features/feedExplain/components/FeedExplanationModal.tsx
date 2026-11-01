@@ -50,7 +50,8 @@ import { useContentPreference } from '../../../hooks/contentPreference/useConten
 import { isFollowingContent } from '../../../hooks/contentPreference/types';
 import { Origin } from '../../../lib/log';
 import { isSpecialUser } from '../../../lib/user';
-import { settingsUrl } from '../../../lib/constants';
+import { FeedSettingsMenu } from '../../../components/feeds/FeedSettings/types';
+import { getForYouSettingsUrl } from '../../../components/feeds/FeedSettings/forYouSettingsPages';
 import { feature } from '../../../lib/featureManagement';
 import type { FeedItemExplain } from '../types';
 import { useDropIdleForYouFeeds } from '../useDropIdleForYouFeeds';
@@ -324,9 +325,9 @@ function FeedExplanationModal({
     shouldEvaluate: !!user,
   });
   const { data: profile } = useQuery(feedProfileQueryOptions(user, version));
-  const feedControls = useFeedControls({ origin: Origin.FeedExplain });
+  const feedControls = useFeedControls({ origin: Origin.FeedExplanation });
   const { isPlus } = usePlusSubscription();
-  const openTune = useOpenFeedTune(Origin.FeedExplain);
+  const openTune = useOpenFeedTune(Origin.FeedExplanation);
   const {
     onFollowTags,
     onUnfollowTags,
@@ -337,7 +338,7 @@ function FeedExplanationModal({
     onFollowSource,
     onUnfollowSource,
   } = useTagAndSource({
-    origin: Origin.FeedExplain,
+    origin: Origin.FeedExplanation,
     postId: post.id,
     shouldInvalidateQueries: false,
   });
@@ -376,7 +377,7 @@ function FeedExplanationModal({
       id: author.id,
       entity: ContentPreferenceType.User,
       entityName: authorName,
-      opts: { extra: { origin: Origin.FeedExplain, post_id: post.id } },
+      opts: { extra: { origin: Origin.FeedExplanation, post_id: post.id } },
     };
     const isFollowing = isFollowingContent(author.contentPreference);
     const isBlocked =
@@ -570,7 +571,7 @@ function FeedExplanationModal({
                 />
                 <Button
                   tag="a"
-                  href={`${settingsUrl}/feed/general`}
+                  href={getForYouSettingsUrl(FeedSettingsMenu.Overview)}
                   variant={ButtonVariant.Tertiary}
                   size={ButtonSize.Small}
                   icon={<SettingsIcon />}

@@ -36,7 +36,7 @@ import { feedControlsQueryKey, feedControlsQueryOptions } from './queries';
 import { useDropIdleForYouFeeds } from './useDropIdleForYouFeeds';
 import { SharedFeedPage } from '../../components/utilities/common';
 
-enum ChangeKind {
+export enum ChangeKind {
   Topic = 'topic',
   Source = 'source',
   Author = 'author',
@@ -53,7 +53,7 @@ export interface ControlValue<Mode> {
   duration?: FeedControlDuration;
 }
 
-type FeedControlChange =
+export type FeedControlChange =
   | ({ kind: ChangeKind.Topic; keyword: string } & ControlValue<FeedTopicMode>)
   | ({
       kind: ChangeKind.Source;
@@ -103,24 +103,26 @@ const applyChange = (
       const sources = controls.sources.filter(
         ({ source }) => source.id !== change.sourceId,
       );
+      const source = controls.sources.find(
+        (item) => item.source.id === change.sourceId,
+      )?.source ?? { id: change.sourceId };
       const stored = toStored(change);
       return {
         ...controls,
-        sources: stored
-          ? [...sources, { source: { id: change.sourceId }, ...stored }]
-          : sources,
+        sources: stored ? [...sources, { source, ...stored }] : sources,
       };
     }
     case ChangeKind.Author: {
       const authors = controls.authors.filter(
         ({ user }) => user.id !== change.userId,
       );
+      const user = controls.authors.find(
+        (item) => item.user.id === change.userId,
+      )?.user ?? { id: change.userId };
       const stored = toStored(change);
       return {
         ...controls,
-        authors: stored
-          ? [...authors, { user: { id: change.userId }, ...stored }]
-          : authors,
+        authors: stored ? [...authors, { user, ...stored }] : authors,
       };
     }
     case ChangeKind.Learning:
@@ -272,6 +274,11 @@ export interface UseFeedControls {
   /** No value takes the setting back to the default. */
   setRankingSetting: (key: string, value: number | null) => void;
   resetRankingSettings: () => void;
+  /**
+   * Any change above, resolving whether it went through. A refused one rolls
+   * back and says why all the same.
+   */
+  saveChange: (change: FeedControlChange) => Promise<boolean>;
 }
 
 /**
@@ -296,7 +303,7 @@ export const useFeedControls = ({
     enabled: options.enabled && enabled,
   });
 
-  const { mutate } = useMutation({
+  const { mutate, mutateAsync } = useMutation({
     mutationFn: sendChange,
     // One change at a time, so a rollback never undoes a later change and
     // a quick double click lands in order.
@@ -393,6 +400,14 @@ export const useFeedControls = ({
     (value: boolean) => mutate({ kind: ChangeKind.FillIns, enabled: value }),
     [mutate],
   );
+  const saveChange = useCallback(
+    (change: FeedControlChange) =>
+      mutateAsync(change).then(
+        () => true,
+        () => false,
+      ),
+    [mutateAsync],
+  );
 
   return {
     controls,
@@ -409,6 +424,7 @@ export const useFeedControls = ({
     setFillIns,
     setRankingSetting,
     resetRankingSettings,
+    saveChange,
   };
 };
 
@@ -419,8 +435,9 @@ interface UseFeedPersonalizationReset {
 
 /**
  * Forgets what For You learned from the reader's reading or what they
- * scrolled past. The feed service drops their cached feeds, so every For You
- * page cached here restarts from page 1 too.
+ * scrolled past, takes their levels back to Auto or their ranking settings
+ * back to the default, or any of them at once. Every For You page cached
+ * here restarts from page 1, so no page ranked before the reset stays.
  */
 export const useFeedPersonalizationReset = ({
   origin,
@@ -438,10 +455,13 @@ export const useFeedPersonalizationReset = ({
           : labels.error.generic,
       );
     },
-    onSuccess: (_, { learned, seen }) => {
+    onSuccess: (
+      _,
+      { learned = false, seen = false, levels = false, ranking = false },
+    ) => {
       logEvent({
         event_name: LogEvent.ResetFeedPersonalization,
-        extra: JSON.stringify({ origin, learned, seen }),
+        extra: JSON.stringify({ origin, learned, seen, levels, ranking }),
       });
       client.resetQueries({
         queryKey: generateQueryKey(SharedFeedPage.MyFeed, user),
@@ -449,6 +469,9 @@ export const useFeedPersonalizationReset = ({
       client.invalidateQueries({
         queryKey: generateQueryKey(RequestKey.FeedProfile, user),
       });
+      if (levels || ranking) {
+        client.invalidateQueries({ queryKey: feedControlsQueryKey(user) });
+      }
     },
   });
 

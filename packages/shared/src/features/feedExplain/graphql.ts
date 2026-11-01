@@ -1,5 +1,6 @@
 import { gql } from 'graphql-request';
 import { gqlClient } from '../../graphql/common';
+import { gqlBatchRequest } from '../../graphql/batch';
 import type {
   FeedAuthorMode,
   FeedControlDuration,
@@ -8,6 +9,7 @@ import type {
   FeedProfile,
   FeedSourceMode,
   FeedTopicMode,
+  WhatsOff,
 } from './types';
 
 export const FEED_PROFILE_QUERY = gql`
@@ -38,7 +40,7 @@ export const FEED_PROFILE_QUERY = gql`
 `;
 
 export const getFeedProfile = async (version: number): Promise<FeedProfile> => {
-  const { feedProfile } = await gqlClient.request<{
+  const { feedProfile } = await gqlBatchRequest<{
     feedProfile: FeedProfile;
   }>(FEED_PROFILE_QUERY, { version });
 
@@ -76,7 +78,7 @@ export const getFeedPostExplanation = async (
   postId: string,
   request: FeedPostExplanationRequest | undefined,
 ): Promise<FeedItemExplain | null> => {
-  const { feedPostExplanation } = await gqlClient.request<{
+  const { feedPostExplanation } = await gqlBatchRequest<{
     feedPostExplanation: FeedItemExplain | null;
   }>(FEED_POST_EXPLANATION_QUERY, { postId, ...request });
 
@@ -95,6 +97,7 @@ export const FEED_CONTROLS_QUERY = gql`
       sources {
         source {
           id
+          name
         }
         mode
         weight
@@ -103,6 +106,7 @@ export const FEED_CONTROLS_QUERY = gql`
       authors {
         user {
           id
+          name
         }
         mode
         weight
@@ -119,7 +123,7 @@ export const FEED_CONTROLS_QUERY = gql`
 `;
 
 export const getFeedControls = async (): Promise<FeedControls> => {
-  const { feedControls } = await gqlClient.request<{
+  const { feedControls } = await gqlBatchRequest<{
     feedControls: FeedControls;
   }>(FEED_CONTROLS_QUERY);
 
@@ -321,8 +325,18 @@ export const setFeedFillIns = (enabled: boolean): Promise<unknown> =>
   gqlClient.request(SET_FEED_FILL_INS_MUTATION, { enabled });
 
 export const RESET_FEED_PERSONALIZATION_MUTATION = gql`
-  mutation ResetFeedPersonalization($learned: Boolean!, $seen: Boolean!) {
-    resetFeedPersonalization(learned: $learned, seen: $seen) {
+  mutation ResetFeedPersonalization(
+    $learned: Boolean!
+    $seen: Boolean!
+    $levels: Boolean!
+    $ranking: Boolean!
+  ) {
+    resetFeedPersonalization(
+      learned: $learned
+      seen: $seen
+      levels: $levels
+      ranking: $ranking
+    ) {
       _
     }
   }
@@ -330,12 +344,85 @@ export const RESET_FEED_PERSONALIZATION_MUTATION = gql`
 
 export interface FeedPersonalizationReset {
   /** Forget what For You learned from the reader's reading. */
-  learned: boolean;
+  learned?: boolean;
   /** Forget what they scrolled past. */
-  seen: boolean;
+  seen?: boolean;
+  /** Take every topic, source and creator back to Auto. */
+  levels?: boolean;
+  /** Take every ranking setting back to the default. */
+  ranking?: boolean;
 }
 
-export const resetFeedPersonalization = (
-  reset: FeedPersonalizationReset,
-): Promise<unknown> =>
-  gqlClient.request(RESET_FEED_PERSONALIZATION_MUTATION, reset);
+export const resetFeedPersonalization = ({
+  learned = false,
+  seen = false,
+  levels = false,
+  ranking = false,
+}: FeedPersonalizationReset): Promise<unknown> =>
+  gqlClient.request(RESET_FEED_PERSONALIZATION_MUTATION, {
+    learned,
+    seen,
+    levels,
+    ranking,
+  });
+
+const WHATS_OFF_CHANGE_FRAGMENT = gql`
+  fragment WhatsOffChangeFragment on WhatsOffChange {
+    op
+    target {
+      type
+      id
+      name
+      image
+      handle
+    }
+    mode
+    value
+    advancedSettingId
+    enabled
+    from
+    to
+    postIds
+    certainty
+    plusOnly
+  }
+`;
+
+export const WHATS_OFF_QUERY = gql`
+  query WhatsOff($version: Int!, $text: String!, $supportedTypes: [String!]) {
+    whatsOff(version: $version, text: $text, supportedTypes: $supportedTypes) {
+      id
+      response
+      scope
+      lines {
+        kind
+        words
+        gap
+        change {
+          ...WhatsOffChangeFragment
+        }
+        alternatives {
+          ...WhatsOffChangeFragment
+        }
+      }
+    }
+  }
+  ${WHATS_OFF_CHANGE_FRAGMENT}
+`;
+
+export interface WhatsOffRequest {
+  version: number;
+  text: string;
+  supportedTypes?: string[];
+}
+
+export const getWhatsOff = async (
+  request: WhatsOffRequest,
+): Promise<WhatsOff> => {
+  const { whatsOff } = await gqlClient.request<{ whatsOff: WhatsOff }>(
+    WHATS_OFF_QUERY,
+    request,
+  );
+
+  return whatsOff;
+};

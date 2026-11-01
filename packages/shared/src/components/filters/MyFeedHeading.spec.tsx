@@ -95,7 +95,8 @@ const mockSetHasSeenTags = setHasSeenTags as jest.Mock;
 const push = jest.fn();
 const completeAction = jest.fn();
 
-const renderComponent = () => render(<MyFeedHeading />);
+const renderComponent = (quiet?: boolean) =>
+  render(<MyFeedHeading quiet={quiet} />);
 
 describe('MyFeedHeading', () => {
   beforeEach(() => {
@@ -161,7 +162,7 @@ describe('MyFeedHeading', () => {
     );
   });
 
-  it('routes the home For you feed to the user edit page with the tags tab open', async () => {
+  it('routes the home For you feed to the user edit page on Overview', async () => {
     renderComponent();
 
     await userEvent.click(
@@ -169,11 +170,11 @@ describe('MyFeedHeading', () => {
     );
 
     expect(push).toHaveBeenCalledWith(
-      'https://app.daily.dev/feeds/user-1/edit?dview=tags',
+      'https://app.daily.dev/feeds/user-1/edit?dview=overview',
     );
   });
 
-  it('routes the For you feed to the user edit page with the tags tab open', async () => {
+  it('routes the For you feed to the user edit page on Overview', async () => {
     mockUseRouter.mockReturnValue({
       push,
       pathname: '/my-feed',
@@ -187,7 +188,7 @@ describe('MyFeedHeading', () => {
     );
 
     expect(push).toHaveBeenCalledWith(
-      'https://app.daily.dev/feeds/user-1/edit?dview=tags',
+      'https://app.daily.dev/feeds/user-1/edit?dview=overview',
     );
   });
 
@@ -218,6 +219,47 @@ describe('MyFeedHeading', () => {
     renderComponent();
 
     expect(screen.getByTestId('alert-dot')).toBeInTheDocument();
+  });
+
+  it('keeps Shortcuts after Feed settings, and first under the widget rail', () => {
+    mockUseShortcutsUser.mockReturnValue({
+      isOldUserWithNoShortcuts: false,
+      showToggleShortcuts: true,
+    });
+    const names = () =>
+      screen.getAllByRole('button').map((button) => button.textContent);
+
+    const { unmount } = renderComponent();
+    expect(names()).toEqual(['Feed settings', 'Shortcuts']);
+    unmount();
+
+    renderComponent(true);
+    expect(names()).toEqual(['Shortcuts', 'Feed settings']);
+    expect(screen.getByRole('button', { name: 'Shortcuts' })).toHaveClass(
+      'btn-tertiary',
+      'h-8',
+    );
+  });
+
+  it('names the icon-only Shortcuts toggle', () => {
+    mockUseShortcutsUser.mockReturnValue({
+      isOldUserWithNoShortcuts: false,
+      showToggleShortcuts: true,
+    });
+
+    render(<MyFeedHeading quiet iconOnly />);
+
+    const shortcuts = screen.getByRole('button', { name: 'Shortcuts' });
+    expect(shortcuts).toHaveTextContent('');
+  });
+
+  it('shows the shared attention dot for the tags reminder under the widget rail', () => {
+    mockGetHasSeenTags.mockReturnValue(false);
+
+    renderComponent(true);
+
+    expect(screen.getByTestId('attention-dot')).toBeInTheDocument();
+    expect(screen.queryByTestId('alert-dot')).not.toBeInTheDocument();
   });
 
   it('does not show the tags reminder dot for custom feeds', () => {

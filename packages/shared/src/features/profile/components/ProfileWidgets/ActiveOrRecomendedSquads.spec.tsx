@@ -231,7 +231,7 @@ describe('ActiveOrRecomendedSquads', () => {
 
       expect(screen.getByText('JavaScript Squad')).toBeInTheDocument();
       expect(screen.getByText('@javascript')).toBeInTheDocument();
-      expect(screen.getByText(/1\.3K members?/)).toBeInTheDocument();
+      expect(screen.getByText(/1\.2K members?/)).toBeInTheDocument();
 
       expect(screen.getByText('React Developers')).toBeInTheDocument();
       expect(screen.getByText('@react-dev')).toBeInTheDocument();

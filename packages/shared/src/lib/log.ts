@@ -12,7 +12,9 @@ export enum Origin {
   Companion = 'companion',
   Feed = 'feed',
   FeedExplain = 'feed explain',
+  FeedExplanation = 'feed explanation',
   FeedTune = 'feed tune',
+  WhatsOff = 'whats off',
   PostHiddenPanel = 'post hidden panel',
   FeedHero = 'feed hero',
   FeedWidgets = 'feed widgets',
@@ -203,7 +205,6 @@ export enum LogEvent {
   SearchTags = 'search tags',
   SearchTools = 'search tools',
   ClickFeedTagChip = 'click feed tag chip',
-  ChangePostPageFeedTab = 'change post page feed tab',
   ClickOnboardingBack = 'click onboarding back',
   ClickOnboardingNext = 'click onboarding next',
   OnboardingSkip = 'my feed onboarding skip',
@@ -453,7 +454,13 @@ export enum LogEvent {
   SetFeedRankingSetting = 'set feed ranking setting',
   ResetFeedRankingSettings = 'reset feed ranking settings',
   OpenFeedTune = 'open feed tune',
+  PreviewFeedTune = 'preview feed tune',
   SaveFeedTune = 'save feed tune',
+  CloseFeedTune = 'close feed tune',
+  SubmitWhatsOff = 'submit whats off',
+  ApplyWhatsOffChange = 'apply whats off change',
+  UndoWhatsOffChange = 'undo whats off change',
+  PickWhatsOffChoice = 'pick whats off choice',
   // End Feed explain
   SetHighlightsPlacement = 'set highlights placement',
   InstallPWA = 'install pwa',
@@ -630,6 +637,10 @@ export enum LogEvent {
   UpvotePlugin = 'upvote plugin',
   RemovePluginUpvote = 'remove plugin upvote',
   SubmitPlugin = 'submit plugin',
+  ClickSubmitPlugin = 'click submit plugin',
+  ImpressionMarketplacePromo = 'impression marketplace promo',
+  ImpressionPluginAgentPrompt = 'impression plugin agent prompt',
+  ImpressionPluginShareNudge = 'impression plugin share nudge',
   // Looking for group
   OpenLfgBoard = 'open lfg board',
   FilterLfgBoard = 'filter lfg board',
@@ -746,6 +757,7 @@ export enum TargetType {
   PostTopicSignup = 'post topic signup',
   SimilarSquads = 'similar squads',
   Plugin = 'plugin',
+  WhatsOff = 'whats off',
 }
 
 export enum TargetId {
@@ -794,6 +806,7 @@ export enum TargetId {
   BookmarkNote = 'bookmark note',
   BookmarksStrip = 'bookmarks strip',
   FeedSettings = 'feed settings',
+  FeedControls = 'feed controls',
   ClickbaitShield = 'clickbait shield',
   StreakTimezoneLabel = 'streak timezone label',
   StreakTimezoneMismatchPrompt = 'streak timezone mismatch prompt',

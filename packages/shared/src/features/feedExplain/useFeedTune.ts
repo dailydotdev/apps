@@ -1,93 +1,13 @@
 import { useCallback, useMemo } from 'react';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin } from '../../lib/log';
-import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
-import type {
-  FeedAuthorMode,
-  FeedControl,
-  FeedControlsDraft,
-  FeedSourceMode,
-  FeedTuneTab,
-} from './types';
+import type { FeedAuthorMode, FeedControl, FeedSourceMode } from './types';
 import { FeedTopicMode } from './types';
 import type { ControlValue, UseFeedControls } from './useFeedControls';
 import { useFeedControls } from './useFeedControls';
 import { getExpiresAt } from './duration';
-
-export type TuneChange =
-  | { kind: 'topic'; keyword: string; value: ControlValue<FeedTopicMode> }
-  | { kind: 'source'; sourceId: string; value: ControlValue<FeedSourceMode> }
-  | { kind: 'author'; userId: string; value: ControlValue<FeedAuthorMode> }
-  | { kind: 'ranking'; key: string; value: number | null }
-  | { kind: 'learning'; enabled: boolean };
-
-const changeKey = (change: TuneChange): string => {
-  switch (change.kind) {
-    case 'topic':
-      return `topic:${change.keyword}`;
-    case 'source':
-      return `source:${change.sourceId}`;
-    case 'author':
-      return `author:${change.userId}`;
-    case 'ranking':
-      return `ranking:${change.key}`;
-    default:
-      return 'learning';
-  }
-};
-
-// The latest change to each control, in the order they were first made.
-const latestChanges = (changes: TuneChange[]): TuneChange[] => [
-  ...new Map(changes.map((change) => [changeKey(change), change])).values(),
-];
-
-const toDraftEntry = <Mode>({ mode, weight }: ControlValue<Mode>) => ({
-  ...(mode && { mode }),
-  ...(weight !== undefined && { weight }),
-});
-
-const toDraft = (changes: TuneChange[]): FeedControlsDraft =>
-  latestChanges(changes).reduce<FeedControlsDraft>((draft, change) => {
-    switch (change.kind) {
-      case 'topic':
-        return {
-          ...draft,
-          topics: [
-            ...(draft.topics ?? []),
-            { keyword: change.keyword, ...toDraftEntry(change.value) },
-          ],
-        };
-      case 'source':
-        return {
-          ...draft,
-          sources: [
-            ...(draft.sources ?? []),
-            { sourceId: change.sourceId, ...toDraftEntry(change.value) },
-          ],
-        };
-      case 'author':
-        return {
-          ...draft,
-          authors: [
-            ...(draft.authors ?? []),
-            { userId: change.userId, ...toDraftEntry(change.value) },
-          ],
-        };
-      case 'ranking':
-        return {
-          ...draft,
-          ranking: [
-            ...(draft.ranking ?? []),
-            {
-              key: change.key,
-              ...(change.value !== null && { value: change.value }),
-            },
-          ],
-        };
-      default:
-        return { ...draft, learning: change.enabled };
-    }
-  }, {});
+import type { TuneChange, UseFeedTuneState } from './useFeedTuneState';
+import { changeKey, latestChanges, useFeedTuneState } from './useFeedTuneState';
 
 const toControl = <Mode>(
   { mode, weight, duration }: ControlValue<Mode>,
@@ -100,51 +20,6 @@ const toControl = <Mode>(
         expiresAt: getExpiresAt(duration),
       }
     : undefined;
-
-interface UseFeedTuneState {
-  /** The open tab; Tune is closed without one. */
-  tab: FeedTuneTab | null;
-  isOpen: boolean;
-  setTab: (tab: FeedTuneTab) => void;
-  changes: TuneChange[];
-  setChanges: (changes: TuneChange[]) => void;
-  /** What the feed ranks with while Tune is open, on top of the saved controls. */
-  draft: FeedControlsDraft;
-  hasChanges: boolean;
-  /** Leaves Tune, dropping what was not saved. */
-  close: () => void;
-}
-
-/**
- * Tune's open tab and draft, kept with the feed's query state so the panel,
- * the feed it re-ranks and the cards it moves all read the same one.
- */
-export const useFeedTuneState = (): UseFeedTuneState => {
-  const [tab, setTab] = useQueryState<FeedTuneTab | null>({
-    key: [QueryStateKeys.FeedTune],
-    defaultValue: null,
-  });
-  const [changes, setChanges] = useQueryState<TuneChange[]>({
-    key: [QueryStateKeys.FeedTuneChanges],
-    defaultValue: [],
-  });
-  const draft = useMemo(() => toDraft(changes), [changes]);
-  const close = useCallback(() => {
-    setTab(null);
-    setChanges([]);
-  }, [setTab, setChanges]);
-
-  return {
-    tab,
-    isOpen: !!tab,
-    setTab,
-    changes,
-    setChanges,
-    draft,
-    hasChanges: changes.length > 0,
-    close,
-  };
-};
 
 export interface UseFeedTune extends UseFeedTuneState {
   feedControls: UseFeedControls;
@@ -167,12 +42,12 @@ export interface UseFeedTune extends UseFeedTuneState {
 }
 
 /**
- * Tune's controls: changes held as a draft the feed beside them ranks with,
- * saved together or dropped on close.
+ * Tune's controls: changes held as a draft the feed beside them ranks with
+ * once previewed, saved together or dropped on close.
  */
 export const useFeedTune = (): UseFeedTune => {
   const state = useFeedTuneState();
-  const { changes, setChanges, close } = state;
+  const { changes, setChanges, pendingCount, close } = state;
   const { logEvent } = useLogContext();
   const feedControls = useFeedControls({ origin: Origin.FeedTune });
   const latest = useMemo(
@@ -226,6 +101,17 @@ export const useFeedTune = (): UseFeedTune => {
 
   const add = (change: TuneChange) => setChanges([...changes, change]);
 
+  const preview = () => {
+    if (!pendingCount) {
+      return;
+    }
+    logEvent({
+      event_name: LogEvent.PreviewFeedTune,
+      extra: JSON.stringify({ changes: latest.size, pending: pendingCount }),
+    });
+    state.preview();
+  };
+
   const save = () => {
     const saved = latestChanges(changes);
     saved.forEach((change) => {
@@ -270,6 +156,14 @@ export const useFeedTune = (): UseFeedTune => {
     setRanking: (key, value) => add({ kind: 'ranking', key, value }),
     setLearning: (enabled) => add({ kind: 'learning', enabled }),
     undo: () => setChanges(changes.slice(0, -1)),
+    preview,
     save,
+    close: () => {
+      logEvent({
+        event_name: LogEvent.CloseFeedTune,
+        extra: JSON.stringify({ changes: latest.size }),
+      });
+      close();
+    },
   };
 };

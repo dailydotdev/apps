@@ -9,7 +9,9 @@ import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { ActiveFeedNameContext } from '../../contexts/ActiveFeedNameContext';
 import { SharedFeedPage } from '../../components/utilities/common';
+import { Origin } from '../../lib/log';
 import { useFeedExplainMode } from './useFeedExplainMode';
+import { useSetFeedExplain } from './useSetFeedExplain';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -49,12 +51,18 @@ const renderMode = ({
     </TestBootProvider>
   );
 
-  return renderHook(() => useFeedExplainMode({ isRecommended }), { wrapper });
+  return renderHook(
+    () => ({
+      ...useFeedExplainMode({ isRecommended }),
+      setIsExplaining: useSetFeedExplain(Origin.Feed),
+    }),
+    { wrapper },
+  );
 };
 
 describe('useFeedExplainMode', () => {
-  it.each([116, 118])(
-    'should turn on for the challenger version %i with the flag on',
+  it.each([116, 15])(
+    'should turn on with the flag on, on feed version %i',
     async (version) => {
       const { result } = renderMode({ version, isFlagOn: true });
 
@@ -67,7 +75,6 @@ describe('useFeedExplainMode', () => {
   );
 
   it.each([
-    ['another feed version', { version: 15, isFlagOn: true }],
     ['the flag off', { version: 116, isFlagOn: false }],
     [
       'the By date sort',

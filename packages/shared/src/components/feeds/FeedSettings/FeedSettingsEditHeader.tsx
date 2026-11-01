@@ -16,6 +16,7 @@ import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Modal } from '../../modals/common/Modal';
 import { ModalPropsContext } from '../../modals/common/types';
 import { FeedSettingsTitle } from './FeedSettingsTitle';
+import { feedSettingsMenuTitle } from './types';
 import type { PromptOptions } from '../../../hooks/usePrompt';
 import { usePrompt } from '../../../hooks/usePrompt';
 import { labels } from '../../../lib/labels';
@@ -41,9 +42,14 @@ const createGenericFeedPrompt: PromptOptions = {
 };
 
 const SaveButton = ({ activeView }: { activeView: string }): ReactElement => {
-  const { onSubmit, isSubmitPending, isDirty, onBackToFeed, isNewFeed } =
+  const { onSubmit, isSubmitPending, isDirty, onBackToFeed, isNewFeed, feed } =
     useContext(FeedSettingsEditContext);
   const { showPrompt } = usePrompt();
+  // Only General and a custom feed's Filters are forms.
+  const isFormView =
+    activeView === feedSettingsMenuTitle.general ||
+    (feed?.type === FeedType.Custom &&
+      activeView === feedSettingsMenuTitle.filters);
 
   if (isNewFeed) {
     return (
@@ -69,7 +75,7 @@ const SaveButton = ({ activeView }: { activeView: string }): ReactElement => {
     );
   }
 
-  if (activeView !== 'General' && activeView !== 'Filters') {
+  if (!isFormView) {
     return (
       <Button
         type="submit"

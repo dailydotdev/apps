@@ -33,9 +33,9 @@ jest.mock('../../../components/onboarding/FeedPatchy/FeedPatchy', () => ({
 }));
 
 jest.mock(
-  '../../../components/onboarding/ReadingCommitment/ReadingCommitment',
+  '../../../components/onboarding/ReminderPushOnly/ReminderPushOnly',
   () => ({
-    ReadingCommitment: () => <div data-testid="reading-commitment" />,
+    ReminderPushOnly: () => <div data-testid="push-only" />,
   }),
 );
 
@@ -59,14 +59,14 @@ const mockCommitment = jest.fn<FeatureResult, [FeatureArgs]>(() => ({
   value: false,
   isLoading: false,
 }));
-const mockReadingCommitment = jest.fn<FeatureResult, [FeatureArgs]>(() => ({
+const mockPushOnly = jest.fn<FeatureResult, [FeatureArgs]>(() => ({
   value: false,
   isLoading: false,
 }));
 jest.mock('../../../hooks/useConditionalFeature', () => ({
   useConditionalFeature: (args: FeatureArgs) =>
-    args.feature.id === 'onboarding_reading_commitment'
-      ? mockReadingCommitment(args)
+    args.feature.id === 'onboarding_reminder_push_only'
+      ? mockPushOnly(args)
       : mockCommitment(args),
 }));
 
@@ -98,7 +98,7 @@ describe('FunnelReadingReminder', () => {
     mockUseViewSize.mockReturnValue(true);
     mockIsPushSupported.mockReturnValue(true);
     mockCommitment.mockReturnValue({ value: false, isLoading: false });
-    mockReadingCommitment.mockReturnValue({ value: false, isLoading: false });
+    mockPushOnly.mockReturnValue({ value: false, isLoading: false });
   });
 
   // The hook logs an impression and mounts the push/digest mutations, so a
@@ -162,7 +162,7 @@ describe('FunnelReadingReminder', () => {
 
       expect(screen.queryByTestId('feed-patchy')).not.toBeInTheDocument();
       expect(mockCommitment).not.toHaveBeenCalled();
-      expect(mockReadingCommitment).not.toHaveBeenCalled();
+      expect(mockPushOnly).not.toHaveBeenCalled();
     });
 
     it('renders neither arm until the flag settles', () => {
@@ -185,15 +185,15 @@ describe('FunnelReadingReminder', () => {
     });
   });
 
-  describe('reading commitment experiment', () => {
+  describe('push-only experiment', () => {
     beforeEach(() => {
-      mockReadingCommitment.mockReturnValue({ value: true, isLoading: false });
+      mockPushOnly.mockReturnValue({ value: true, isLoading: false });
     });
 
-    it('replaces the reminder with the reading commitment', () => {
+    it('replaces the reminder with the push-only ask', () => {
       renderStep(true);
 
-      expect(screen.getByTestId('reading-commitment')).toBeInTheDocument();
+      expect(screen.getByTestId('push-only')).toBeInTheDocument();
       expect(screen.queryByTestId('funnel-reminder')).not.toBeInTheDocument();
       expect(useReadingReminder).not.toHaveBeenCalled();
     });
@@ -204,7 +204,7 @@ describe('FunnelReadingReminder', () => {
 
       renderStep(true);
 
-      expect(screen.getByTestId('reading-commitment')).toBeInTheDocument();
+      expect(screen.getByTestId('push-only')).toBeInTheDocument();
       expect(screen.queryByTestId('feed-patchy')).not.toBeInTheDocument();
       expect(mockCommitment).toHaveBeenCalledWith(
         expect.objectContaining({ shouldEvaluate: false }),
@@ -212,13 +212,11 @@ describe('FunnelReadingReminder', () => {
     });
 
     it('renders no arm until its flag settles', () => {
-      mockReadingCommitment.mockReturnValue({ value: false, isLoading: true });
+      mockPushOnly.mockReturnValue({ value: false, isLoading: true });
 
       renderStep(true);
 
-      expect(
-        screen.queryByTestId('reading-commitment'),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByTestId('push-only')).not.toBeInTheDocument();
       expect(screen.queryByTestId('feed-patchy')).not.toBeInTheDocument();
       expect(useReadingReminder).not.toHaveBeenCalled();
     });

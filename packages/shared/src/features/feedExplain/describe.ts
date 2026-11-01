@@ -6,6 +6,7 @@ import type {
   FeedControls,
   FeedItemExplain,
   FeedProfile,
+  FeedProfileInterest,
   RankedExplain,
 } from './types';
 import {
@@ -143,6 +144,23 @@ const strengthPhrase: Partial<Record<ExplainStrength, string>> = {
   [ExplainStrength.Strong]: 'and read about it often',
   [ExplainStrength.Moderate]: 'and read about it sometimes',
   [ExplainStrength.Confirmed]: 'and read a post on it',
+};
+
+/**
+ * A note for a topic's Feed settings row, when its boost alone doesn't say
+ * enough: why one from reading doesn't count yet, or that only a level the
+ * reader set brings it in.
+ */
+export const getTopicNote = (
+  interest: FeedProfileInterest | undefined,
+): string | undefined => {
+  if (!interest || interest.origin === ExplainOrigin.Set) {
+    return 'You set its boost.';
+  }
+  return interest.origin === ExplainOrigin.Inferred &&
+    interest.strength === ExplainStrength.EarlySignal
+    ? 'Counts once you read more about it.'
+    : undefined;
 };
 
 export interface ReasonParts {

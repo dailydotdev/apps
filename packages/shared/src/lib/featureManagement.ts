@@ -175,12 +175,11 @@ export const featureOnboardingCommitment = new Feature(
   false,
 );
 
-// Experiment: the reading reminder step becomes the reading commitment (how
-// much you read, a daily goal, a reminder time, then a preview of the push).
-// Its own flag, so Feed Patchy's experiment keeps its data. Default MUST stay
-// `false` — it is the control.
-export const featureOnboardingReadingCommitment = new Feature(
-  'onboarding_reading_commitment',
+// Experiment: the reading reminder step becomes a single ask, the push
+// preview with the reminder preset to 9 AM and "Turn on notifications".
+// Default MUST stay `false` — it is the control.
+export const featureOnboardingReminderPushOnly = new Feature(
+  'onboarding_reminder_push_only',
   false,
 );
 
@@ -252,6 +251,15 @@ export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
 export const featureSponsorStrip = new Feature('sponsor_strip', isDevelopment);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
+
+// Experiment: list cards (the phone and tablet feed, and the desktop list
+// layout) get the grid bar: 32px buttons, 19px icons and the number 4px from
+// its icon. The bookmark stays in the bar and the row grows to fit, so the card
+// is 8px taller. Only list bars evaluate it, for logged-in users.
+export const featureListCardLargeActions = new Feature(
+  'list_card_large_actions',
+  false,
+);
 
 // Experiment: grid cards show the post's TLDR under the title, clamped, with
 // "Show more" to read it inside the card. Only grid cards with a TLDR evaluate
@@ -358,8 +366,8 @@ export const featureExcoPlayer = new Feature<ExcoPlayerConfig>('exco_player', {
   playerId: '',
 });
 
-// Explain mode on For You: why each card is on the feed. Only shown on the
-// challenger feed versions (`challengerFeedVersions`), which explain cards.
+// Explain mode on For You: why each card is on the feed, with the For You
+// controls. On whatever feed version the reader has.
 export const featureFeedExplain = new Feature('feed_explain', false);
 
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is

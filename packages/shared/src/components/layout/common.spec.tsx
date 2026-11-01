@@ -31,10 +31,17 @@ jest.mock('../../hooks/utils/useQueryState', () => ({
 
 jest.mock('../filters/MyFeedHeading', () => ({
   __esModule: true,
-  default: function MockMyFeedHeading({ iconOnly }: { iconOnly?: boolean }) {
+  default: function MockMyFeedHeading({
+    iconOnly,
+    quiet,
+  }: {
+    iconOnly?: boolean;
+    quiet?: boolean;
+  }) {
     return (
       <div
         data-icon-only={iconOnly ? 'true' : 'false'}
+        data-quiet={quiet ? 'true' : 'false'}
         data-testid="my-feed-heading"
       />
     );
@@ -42,8 +49,17 @@ jest.mock('../filters/MyFeedHeading', () => ({
 }));
 
 jest.mock('../../features/feedExplain/components/FeedExplainSwitch', () => ({
-  FeedExplainSwitch: function MockFeedExplainSwitch() {
-    return null;
+  FeedExplainSwitch: function MockFeedExplainSwitch({
+    iconOnly,
+  }: {
+    iconOnly?: boolean;
+  }) {
+    return (
+      <div
+        data-icon-only={iconOnly ? 'true' : 'false'}
+        data-testid="feed-explain-switch"
+      />
+    );
   },
 }));
 
@@ -54,20 +70,40 @@ jest.mock('../buttons/ToggleClickbaitShield', () => ({
 }));
 
 jest.mock('../filters/AchievementTrackerButton', () => ({
-  AchievementTrackerButton: function MockAchievementTrackerButton() {
-    return null;
+  AchievementTrackerButton: function MockAchievementTrackerButton({
+    quiet,
+  }: {
+    quiet?: boolean;
+  }) {
+    return (
+      <div
+        data-quiet={quiet ? 'true' : 'false'}
+        data-testid="achievement-tracker"
+      />
+    );
   },
 }));
 
 jest.mock('../filters/IntroQuestButton', () => ({
-  IntroQuestButton: function MockIntroQuestButton() {
-    return <div data-testid="intro-quest-button" />;
+  IntroQuestButton: function MockIntroQuestButton({
+    attentionDot,
+  }: {
+    attentionDot?: boolean;
+  }) {
+    return (
+      <div
+        data-attention-dot={attentionDot ? 'true' : 'false'}
+        data-testid="intro-quest-button"
+      />
+    );
   },
 }));
 
 jest.mock('../filters/LuckyButton', () => ({
-  LuckyButton: function MockLuckyButton() {
-    return null;
+  LuckyButton: function MockLuckyButton({ quiet }: { quiet?: boolean }) {
+    return (
+      <div data-quiet={quiet ? 'true' : 'false'} data-testid="lucky-button" />
+    );
   },
 }));
 
@@ -105,6 +141,15 @@ const renderComponent = ({
       />
     </SettingsContext.Provider>,
   );
+
+const expectDebugBesideFeedSettings = (iconOnly: 'true' | 'false') => {
+  const feedSettings = screen.getByTestId('my-feed-heading');
+  const debug = screen.getByTestId('feed-explain-switch');
+
+  expect(debug.nextElementSibling).toBe(feedSettings);
+  expect(feedSettings).toHaveAttribute('data-icon-only', iconOnly);
+  expect(debug).toHaveAttribute('data-icon-only', iconOnly);
+};
 
 const mockViewSize = ({
   isMobile = false,
@@ -166,15 +211,18 @@ describe('SearchControlHeader', () => {
     expect(screen.getByTestId('intro-quest-button')).toBeInTheDocument();
   });
 
+  it('puts a labeled Debug right before Feed settings in the tablet layout', () => {
+    renderComponent();
+
+    expectDebugBesideFeedSettings('false');
+  });
+
   it('renders laptop feed actions with labels without chips', () => {
     mockUseLaptopLayout.mockReturnValue(true);
 
     renderComponent();
 
-    expect(screen.getByTestId('my-feed-heading')).toHaveAttribute(
-      'data-icon-only',
-      'false',
-    );
+    expectDebugBesideFeedSettings('false');
   });
 
   it('keeps laptop feed actions icon-only when chips are present', () => {
@@ -182,9 +230,30 @@ describe('SearchControlHeader', () => {
 
     renderComponent({ chips: <div>Chips</div> });
 
-    expect(screen.getByTestId('my-feed-heading')).toHaveAttribute(
-      'data-icon-only',
-      'true',
-    );
+    expectDebugBesideFeedSettings('true');
   });
+
+  it.each([
+    ['tablet', false],
+    ['laptop', true],
+  ])(
+    'keeps the controls in their own style without the widget rail on %s',
+    (_, isLaptopLayout) => {
+      mockUseLaptopLayout.mockReturnValue(isLaptopLayout);
+
+      renderComponent();
+
+      [
+        screen.getByTestId('my-feed-heading'),
+        screen.getByTestId('achievement-tracker'),
+        ...screen.queryAllByTestId('lucky-button'),
+      ].forEach((control) =>
+        expect(control).toHaveAttribute('data-quiet', 'false'),
+      );
+      expect(screen.getByTestId('intro-quest-button')).toHaveAttribute(
+        'data-attention-dot',
+        'false',
+      );
+    },
+  );
 });

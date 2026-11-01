@@ -8,10 +8,6 @@ import { SharedFeedPage } from '../../components/utilities/common';
 import { feature, featureFeedExplain } from '../../lib/featureManagement';
 import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
 
-// The For You feed versions (GrowthBook `feed_version`) ranked by the
-// challenger, the only ranking that explains its cards.
-export const challengerFeedVersions = [116, 118];
-
 interface UseFeedExplainModeProps {
   /** The feed's sort is Recommended: By date is not ranked, so it explains nothing. */
   isRecommended?: boolean;
@@ -28,13 +24,12 @@ interface UseFeedExplainMode {
   isExplaining: boolean;
   /** The For You version, which the explanations and profile are for. */
   version: number;
-  setIsExplaining: (value: boolean) => void;
 }
 
 /**
  * Explain mode on For You: once turned on it stays on for the session, but
  * only applies where the feed can explain itself, so the switch, the feed
- * query and the cards agree.
+ * query and the cards agree. `useSetFeedExplain` turns it on and off.
  */
 export const useFeedExplainMode = ({
   isRecommended = true,
@@ -53,16 +48,15 @@ export const useFeedExplainMode = ({
     feature: feature.feedVersion,
     shouldEvaluate: isForYou,
   });
-  const isChallenger = challengerFeedVersions.includes(version);
   const { value: isFlagOn } = useConditionalFeature({
     feature: featureFeedExplain,
-    shouldEvaluate: isForYou && isChallenger,
+    shouldEvaluate: isForYou,
   });
-  const [isOn, setIsExplaining] = useQueryState({
+  const [isOn] = useQueryState({
     key: [QueryStateKeys.FeedExplain],
     defaultValue: false,
   });
-  const isOffered = isForYou && isChallenger && isFlagOn;
+  const isOffered = isForYou && isFlagOn;
   const isAvailable = isOffered && isRecommended;
 
   return {
@@ -70,14 +64,12 @@ export const useFeedExplainMode = ({
     isOffered,
     isExplaining: isAvailable && isOn,
     version,
-    setIsExplaining,
   };
 };
 
 /**
- * The reader's For You is ranked by the challenger and has Explain, so its
- * controls take effect. Unlike Explain mode it doesn't depend on the feed on
- * screen, for the settings pages.
+ * The reader has For You's Explain and controls. Unlike Explain mode it
+ * doesn't depend on the feed on screen, for the settings pages.
  */
 export const useForYouControls = (): Pick<
   UseFeedExplainMode,
@@ -96,7 +88,7 @@ export const useForYouControls = (): Pick<
   });
 
   return {
-    isAvailable: !!user && isFlagOn && challengerFeedVersions.includes(version),
+    isAvailable: !!user && isFlagOn,
     version,
   };
 };

@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { Fragment } from 'react';
+import React, { Fragment, useMemo } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -27,11 +27,23 @@ import {
 import { SourceAvatar } from '../../../components/profile/source/SourceAvatar';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
-import { settingsUrl } from '../../../lib/constants';
+import { FeedSettingsMenu } from '../../../components/feeds/FeedSettings/types';
+import type { ForYouSettingsPageId } from '../../../components/feeds/FeedSettings/forYouSettingsPages';
+import { getForYouSettingsUrl } from '../../../components/feeds/FeedSettings/forYouSettingsPages';
 import { isSpecialUser } from '../../../lib/user';
+import type { Post } from '../../../graphql/posts';
+import { isSourceUserSource } from '../../../graphql/sources';
 import { ExplainOrigin, FeedTuneTab } from '../types';
 import { feedProfileQueryOptions } from '../queries';
-import { followModeMeta, getControlMeta } from '../describe';
+import {
+  followModeMeta,
+  getAuthorFactor,
+  getAuthorLabel,
+  getControlMeta,
+  getSourceFactor,
+  isAuthorFollowed,
+  isSourceFollowed,
+} from '../describe';
 import { rankingGroups, rankingSettings } from '../ranking';
 import type { UseFeedTune } from '../useFeedTune';
 import { useFeedTune } from '../useFeedTune';
@@ -40,7 +52,7 @@ import { TopicLevelPicker } from './TopicLevelPicker';
 import { SourceLevelPicker } from './SourceLevelPicker';
 import { AuthorLevelPicker } from './AuthorLevelPicker';
 import { RankingSlider } from './ForYouRankingSettings';
-import { PlusBanner } from './PlusUpsell';
+import { PlusBanner, PlusUpsellFeature } from './PlusUpsell';
 
 const tuneTabs = Object.values(FeedTuneTab).map((label) => ({
   label,
@@ -153,12 +165,75 @@ const TopicsTab = ({
   );
 };
 
+interface PageEntity {
+  id: string;
+  name: string;
+  image: string;
+  /** What a follow or level gives its posts now, 1 without one. */
+  factor: number;
+  /** A card on the page was ranked with the reader following it. */
+  isFollowed: boolean;
+}
+
+interface PageSource extends PageEntity {
+  handle: string;
+}
+
+/** An author on the page, keyed by user id. */
+interface PageAuthor extends PageEntity {
+  username?: string;
+}
+
+// The sources and authors on the page Tune compares against, for the reader
+// to steer.
+const getPageSources = (posts: Post[]): PageSource[] => {
+  const byId = new Map<string, PageSource>();
+  posts.forEach(({ source, explain }) => {
+    if (source?.id && source.name && !isSourceUserSource(source)) {
+      byId.set(source.id, {
+        id: source.id,
+        name: source.name,
+        image: source.image,
+        handle: source.handle,
+        factor: getSourceFactor(explain),
+        isFollowed:
+          !!byId.get(source.id)?.isFollowed || isSourceFollowed(explain),
+      });
+    }
+  });
+  return [...byId.values()];
+};
+
+const getPageAuthors = (posts: Post[]): PageAuthor[] => {
+  const byId = new Map<string, PageAuthor>();
+  posts.forEach(({ author, explain }) => {
+    if (author?.id && (author.name || author.username)) {
+      byId.set(author.id, {
+        id: author.id,
+        name: getAuthorLabel(author),
+        image: author.image,
+        username: author.username,
+        factor: getAuthorFactor(explain),
+        isFollowed:
+          !!byId.get(author.id)?.isFollowed || isAuthorFollowed(explain),
+      });
+    }
+  });
+  return [...byId.values()];
+};
+
 const SourcesTab = ({ tune }: { tune: UseFeedTune }): ReactElement => {
   const { user } = useAuthContext();
   const { isPlus } = usePlusSubscription();
-  const { sources, authors: pageAuthors } = useFeedTuneContext();
-  const authors = pageAuthors.filter(
-    ({ id }) => !isSpecialUser({ userId: id, loggedUserId: user?.id ?? null }),
+  const { posts } = useFeedTuneContext();
+  const sources = useMemo(() => getPageSources(posts), [posts]);
+  const authors = useMemo(
+    () =>
+      getPageAuthors(posts).filter(
+        ({ id }) =>
+          !isSpecialUser({ userId: id, loggedUserId: user?.id ?? null }),
+      ),
+    [posts, user?.id],
   );
 
   return (
@@ -200,7 +275,7 @@ const SourcesTab = ({ tune }: { tune: UseFeedTune }): ReactElement => {
         <>
           <Divider className="bg-border-subtlest-tertiary" />
           <Typography bold type={TypographyType.Callout}>
-            Authors
+            Creators
           </Typography>
           <ul className="flex flex-col">
             {authors.map((author) => {
@@ -255,7 +330,9 @@ const RankingTab = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <PlusBanner>Change how For You ranks every post with Plus.</PlusBanner>
+      <PlusBanner feature={PlusUpsellFeature.Ranking}>
+        Change how For You ranks every post with Plus.
+      </PlusBanner>
       {rankingGroups.map(({ group, title }, index) => {
         const rows = rankingSettings.flatMap((meta) => {
           const setting = settings.get(meta.key);
@@ -289,6 +366,16 @@ const RankingTab = ({
   );
 };
 
+// The Feed settings page that holds each tab's controls.
+const tabSettingsPage: Record<FeedTuneTab, ForYouSettingsPageId> = {
+  [FeedTuneTab.Topics]: FeedSettingsMenu.Tags,
+  [FeedTuneTab.Sources]: FeedSettingsMenu.ContentSources,
+  [FeedTuneTab.Ranking]: FeedSettingsMenu.Ranking,
+};
+
+const getPreviewLabel = (count: number): string =>
+  count ? `Preview ${count} ${count === 1 ? 'change' : 'changes'}` : 'Preview';
+
 interface FeedTunePanelProps {
   /** The For You version the controls are for. */
   version: number;
@@ -298,15 +385,34 @@ interface FeedTunePanelProps {
 
 /**
  * Tune: the For You controls beside the live feed, which ranks with the
- * draft as it changes. Nothing is saved until Save; closing drops the draft.
+ * draft when the reader previews it. Nothing is saved until Save; closing
+ * drops the draft.
  */
 export const FeedTunePanel = ({
   version,
   isSheet,
 }: FeedTunePanelProps): ReactElement => {
   const tune = useFeedTune();
-  const { summary } = useFeedTuneContext();
+  const { summary, isLoading, isError, isOutdated, retry } =
+    useFeedTuneContext();
   const tab = tune.tab ?? FeedTuneTab.Topics;
+  const getStatus = (): string => {
+    if (isLoading) {
+      return 'Updating your feed.';
+    }
+    if (isError && !tune.pendingCount) {
+      return 'Couldn’t update your feed. Try again.';
+    }
+    if (isOutdated) {
+      return 'Out of date. Your feed shows the last preview.';
+    }
+    if (summary) {
+      return summary;
+    }
+    return tune.pendingCount
+      ? 'Preview to see these changes in your feed.'
+      : 'Change anything, then preview it in your feed.';
+  };
 
   return (
     <section
@@ -335,7 +441,7 @@ export const FeedTunePanel = ({
           </Typography>
           <Button
             tag="a"
-            href={`${settingsUrl}/feed/general`}
+            href={getForYouSettingsUrl(tabSettingsPage[tab])}
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
           >
@@ -369,40 +475,63 @@ export const FeedTunePanel = ({
       </div>
       <footer
         className={classNames(
-          'flex items-center gap-2 border-t border-border-subtlest-tertiary',
+          'flex flex-col gap-2 border-t border-border-subtlest-tertiary',
           isSheet ? 'px-4 py-2' : 'px-6 py-3',
         )}
       >
         <Typography
           type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-          className="min-w-0 flex-1"
+          color={
+            isOutdated ? TypographyColor.Secondary : TypographyColor.Tertiary
+          }
           aria-live="polite"
         >
-          {summary ??
-            (tune.hasChanges
-              ? 'Updating your feed.'
-              : 'Change anything and watch your feed follow.')}
+          {getStatus()}
         </Typography>
-        {tune.changeCount > 0 && (
-          <Button
-            type="button"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<UndoIcon />}
-            onClick={tune.undo}
-          >
-            Undo
-          </Button>
-        )}
-        <Button
-          type="button"
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Small}
-          onClick={tune.changeCount ? tune.save : tune.close}
-        >
-          {tune.changeCount ? 'Save' : 'Done'}
-        </Button>
+        <div className="flex items-center gap-2">
+          {tune.changeCount > 0 && (
+            <Button
+              type="button"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<UndoIcon />}
+              onClick={tune.undo}
+            >
+              Undo
+            </Button>
+          )}
+          <span className="ml-auto flex gap-2">
+            {isError && !tune.pendingCount && (
+              <Button
+                type="button"
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+                onClick={retry}
+              >
+                Try again
+              </Button>
+            )}
+            {(tune.pendingCount > 0 || isLoading) && (
+              <Button
+                type="button"
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+                loading={isLoading && !tune.pendingCount}
+                onClick={tune.preview}
+              >
+                {getPreviewLabel(tune.pendingCount)}
+              </Button>
+            )}
+            <Button
+              type="button"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+              onClick={tune.changeCount ? tune.save : tune.close}
+            >
+              {tune.changeCount ? 'Save' : 'Done'}
+            </Button>
+          </span>
+        </div>
       </footer>
     </section>
   );
