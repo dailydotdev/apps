@@ -393,6 +393,7 @@ export default function BookmarkFeedLayout({
     emptyFeed,
     isFetching,
     isInitialLoading,
+    isPending,
   } = useFeed(feedQueryKey, PAGE_SIZE, { adStart: 0 }, 1, {
     // The persisted sort decides the first key, so the request waits for it
     query: loadedSort || isSearchResults ? feedQuery.query : undefined,
@@ -421,7 +422,7 @@ export default function BookmarkFeedLayout({
       listId,
       reminderOnly: !!isReminderOnly,
     }),
-    enabled: !!user && emptyFeed && !isFiltered,
+    enabled: !!user && !isPending && emptyFeed && !isFiltered,
   });
   const hasArchived = !!archivedData?.page.edges.length;
   const isLoading =

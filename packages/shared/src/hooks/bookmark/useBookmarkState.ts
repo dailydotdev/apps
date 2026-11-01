@@ -9,10 +9,11 @@ import {
 import { BookmarkStatus } from '../../graphql/feed';
 import type { Post } from '../../graphql/posts';
 import { useActiveFeedContext } from '../../contexts';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { usePostLogEvent } from '../../lib/feed';
-import { RequestKey } from '../../lib/query';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useToastNotification } from '../useToastNotification';
 import { patchBookmarkInCaches } from './patchBookmarkInCaches';
 
@@ -42,6 +43,7 @@ const bookmarksFeedStatus = (
  */
 export const useBookmarkState = (): UseBookmarkState => {
   const client = useQueryClient();
+  const { user } = useAuthContext();
   const {
     queryKey: feedQueryKey,
     items,
@@ -88,6 +90,15 @@ export const useBookmarkState = (): UseBookmarkState => {
     [client],
   );
 
+  // Reset, not invalidated, so a stale answer never shows while it refetches
+  const resetArchivedCheck = useCallback(
+    () =>
+      client.resetQueries({
+        queryKey: generateQueryKey(RequestKey.Bookmarks, user, 'archived'),
+      }),
+    [client, user],
+  );
+
   const refetchFeed = useCallback(() => {
     if (feedQueryKey) {
       client.invalidateQueries({ queryKey: feedQueryKey });
@@ -113,6 +124,7 @@ export const useBookmarkState = (): UseBookmarkState => {
           : { archivedAt: null },
       );
       invalidateFacets();
+      resetArchivedCheck();
     },
     onError: () => displayToast('Failed to update the bookmark'),
   });

@@ -6,6 +6,7 @@ import {
   baseFeedSupportedTypes,
 } from '@dailydotdev/shared/src/graphql/feed';
 import {
+  archivedBookmarksQueryOptions,
   BOOKMARK_FACETS_QUERY,
   SET_BOOKMARK_ARCHIVED,
   SET_BOOKMARK_READ_STATE,
@@ -29,6 +30,7 @@ import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { StaleTime } from '@dailydotdev/shared/src/lib/query';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as viewSize from '@dailydotdev/shared/src/hooks/useViewSize';
@@ -160,9 +162,11 @@ let client: QueryClient;
 function renderComponent(
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
   user?: LoggedUser,
+  seedCache?: (queryClient: QueryClient) => void,
 ): RenderResult {
   const resolvedUser = arguments.length < 2 ? defaultUser : user;
   client = new QueryClient();
+  seedCache?.(client);
 
   mocks.forEach(mockGraphQL);
 
@@ -399,7 +403,16 @@ it('should keep the filters and the pane after archiving the last bookmark', asy
     bookmark: { createdAt: new Date(), read: false },
   };
   const page = { ...emptyPage, edges: [{ node: post }] };
-  renderComponent([createFeedMock(page), createFacetsMock()]);
+  // Checked while the bookmark was still unarchived, and still fresh
+  renderComponent(
+    [createFeedMock(page), createFacetsMock()],
+    defaultUser,
+    (queryClient) => {
+      const { queryKey } = archivedBookmarksQueryOptions({ user: defaultUser });
+      queryClient.setQueryDefaults(queryKey, { staleTime: StaleTime.Base });
+      queryClient.setQueryData(queryKey, { page: emptyPage });
+    },
+  );
   await waitForNock();
   fireEvent.click(await screen.findByTitle(post.title ?? ''));
 
