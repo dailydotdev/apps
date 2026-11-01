@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import nock from 'nock';
-import useFeed from './useFeed';
+import useFeed, { getAdJitterSeed } from './useFeed';
 import type { AuthContextData } from '../contexts/AuthContext';
 import { useAuthContext } from '../contexts/AuthContext';
 import { BootDataProvider } from '../contexts/BootProvider';
@@ -423,6 +423,16 @@ it('should leave a post the grid already shows when its exclusion comes late', a
   expect(
     result.current.items.filter(({ type }) => type === FeedItemType.Post),
   ).toHaveLength(defaultFeedPage.edges.length);
+});
+
+it('should keep the ad seed for a feed until it loads afresh', () => {
+  const loading = getAdJitterSeed('feed-a', false);
+  const loaded = getAdJitterSeed('feed-a', true);
+
+  expect(loaded).toBe(loading);
+  expect(getAdJitterSeed('feed-a', true)).toBe(loaded);
+  expect(getAdJitterSeed('feed-b', true)).not.toBe(loaded);
+  expect(getAdJitterSeed('feed-a', false)).not.toBe(loaded);
 });
 
 it('should report an empty feed once every loaded page held only excluded posts', async () => {

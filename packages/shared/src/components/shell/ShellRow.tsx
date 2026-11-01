@@ -17,17 +17,35 @@ export interface RowItem {
   // A view switched from inside the page keeps the reader where they are.
   keepScroll?: boolean;
   ariaLabel?: string;
+  // A tab with choices of its own: a tap on it while lit opens them.
+  menu?: {
+    ariaLabel: string;
+    onOpen: () => void;
+  };
 }
 
 const rowInset = 16;
 const litSelector = '[aria-current="page"], [aria-pressed="true"]';
+// The lit tab's mark: a short bar of one width under every label.
+const barWidth = 32;
+
+export enum ShellRowKind {
+  // Switch to content that is different altogether.
+  Tabs = 'tabs',
+  // Narrow the list the page already holds.
+  Chips = 'chips',
+}
 
 export const ShellRow = ({
   children,
+  kind = ShellRowKind.Tabs,
 }: {
   children: ReactNode;
+  kind?: ShellRowKind;
 }): ReactElement => {
   const rowRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLSpanElement>(null);
+  const isTabs = kind === ShellRowKind.Tabs;
 
   useEffect(() => {
     const row = rowRef.current;
@@ -36,7 +54,32 @@ export const ShellRow = ({
       return undefined;
     }
 
+    // The bar follows the lit label; it only slides once it has a place.
+    const placeBar = () => {
+      const bar = barRef.current;
+      const lit = row.querySelector<HTMLElement>(litSelector);
+      const label = lit?.querySelector<HTMLElement>('[data-tab-label]');
+
+      if (!bar || !lit || !label) {
+        if (bar) {
+          bar.style.opacity = '0';
+        }
+        return;
+      }
+
+      const left =
+        lit.offsetLeft +
+        label.offsetLeft +
+        label.offsetWidth / 2 -
+        barWidth / 2;
+      const isPlaced = bar.style.opacity === '1';
+      bar.style.transition = isPlaced ? '' : 'none';
+      bar.style.transform = `translateX(${left}px)`;
+      bar.style.opacity = '1';
+    };
+
     const reveal = () => {
+      placeBar();
       const lit = row.querySelector(litSelector);
 
       if (!row.clientWidth || !lit) {
@@ -74,32 +117,71 @@ export const ShellRow = ({
   return (
     <div
       ref={rowRef}
-      className="no-scrollbar flex h-11 w-full items-center gap-1 overflow-x-auto px-4"
+      data-shell-row
+      className={classNames(
+        'no-scrollbar relative flex h-12 w-full items-center overflow-x-auto',
+        isTabs ? 'border-b border-border-subtlest-tertiary' : 'gap-2 px-4',
+      )}
     >
       {children}
+      {isTabs && (
+        <span
+          ref={barRef}
+          aria-hidden
+          className="pointer-events-none absolute bottom-0 left-0 h-[0.1875rem] w-8 rounded-max bg-text-primary opacity-0 transition-transform duration-[260ms] ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none"
+        />
+      )}
     </div>
   );
 };
 
+// A tab takes an equal share of the row while every tab fits, and its
+// label's own width once they do not, so the row scrolls instead of
+// truncating.
+const tabClassName =
+  'relative flex h-12 min-w-max flex-1 items-center justify-center px-4 typo-callout';
+
 const chipClassName =
-  'shell-press flex h-7 shrink-0 items-center gap-1 rounded-8 border px-2 font-bold typo-footnote';
+  'shell-press flex h-8 shrink-0 items-center gap-1 rounded-10 px-3 font-medium typo-subhead';
+
+// The lit label is bold; an invisible bold copy holds every label at its
+// bold width, so lighting a tab never moves the row.
+const TabLabel = ({
+  label,
+  isLit,
+  children,
+}: {
+  label: ReactNode;
+  isLit?: boolean;
+  children?: ReactNode;
+}): ReactElement => (
+  <span data-tab-label className="relative flex items-center">
+    {typeof label === 'string' ? (
+      <span
+        data-text={label}
+        className={classNames(
+          'inline-flex flex-col after:invisible after:h-0 after:select-none after:overflow-hidden after:font-bold after:content-[attr(data-text)]',
+          isLit ? 'font-bold' : 'font-medium',
+        )}
+      >
+        {label}
+      </span>
+    ) : (
+      label
+    )}
+    {children}
+  </span>
+);
 
 const RowChip = ({
   item,
   className,
-  children,
+  content,
 }: {
   item: RowItem;
   className: string;
-  children?: ReactNode;
+  content: ReactNode;
 }): ReactElement => {
-  const content = (
-    <>
-      {item.label}
-      {children}
-    </>
-  );
-
   if (item.href) {
     return (
       <Link
@@ -120,7 +202,7 @@ const RowChip = ({
               event.currentTarget.click();
             }
           }}
-          className={classNames(chipClassName, className)}
+          className={className}
         >
           {content}
         </a>
@@ -134,48 +216,59 @@ const RowChip = ({
       aria-label={item.ariaLabel}
       aria-pressed={item.active}
       onClick={item.onClick}
-      className={classNames(chipClassName, className)}
+      className={className}
     >
       {content}
     </button>
   );
 };
 
-export const Segments = ({
-  items,
-  menu,
-  onMenu,
-}: {
-  items: RowItem[];
-  menu?: string;
-  onMenu?: () => void;
-}): ReactElement => (
+export const Segments = ({ items }: { items: RowItem[] }): ReactElement => (
   <>
     {items.map((item) => {
-      const className = item.active
-        ? 'border-border-subtlest-secondary bg-surface-float text-text-primary'
-        : 'border-transparent text-text-tertiary';
+      const className = classNames(
+        tabClassName,
+        item.active ? 'text-text-primary' : 'text-text-tertiary',
+      );
+      // The lit tab's chevron hangs in its side padding, so it appears
+      // without moving the label.
+      const content = (
+        <TabLabel label={item.label} isLit={item.active}>
+          {item.active && item.menu && (
+            <ArrowIcon
+              size={IconSize.XXSmall}
+              className="absolute left-full ml-1 rotate-180 text-text-secondary"
+            />
+          )}
+        </TabLabel>
+      );
 
-      // The lit segment that carries a menu is already the page, so its
-      // chip is the menu's button rather than a link with a button inside.
-      if (item.active && item.key === menu) {
+      // The lit tab that carries a menu is already the page, so it is the
+      // menu's button rather than a link with a button inside.
+      if (item.active && item.menu) {
         return (
           <RowChip
             key={item.key}
             item={{
               ...item,
               href: undefined,
-              ariaLabel: item.ariaLabel ?? `${item.label}, choose a channel`,
-              onClick: onMenu,
+              ariaLabel: item.menu.ariaLabel,
+              onClick: item.menu.onOpen,
             }}
             className={className}
-          >
-            <ArrowIcon size={IconSize.XSmall} className="-mr-1 rotate-180" />
-          </RowChip>
+            content={content}
+          />
         );
       }
 
-      return <RowChip key={item.key} item={item} className={className} />;
+      return (
+        <RowChip
+          key={item.key}
+          item={item}
+          className={className}
+          content={content}
+        />
+      );
     })}
   </>
 );
@@ -186,11 +279,13 @@ export const Chips = ({ items }: { items: RowItem[] }): ReactElement => (
       <RowChip
         key={item.key}
         item={item}
-        className={
+        className={classNames(
+          chipClassName,
           item.active
-            ? 'border-text-primary bg-text-primary text-surface-invert'
-            : 'border-border-subtlest-tertiary text-text-secondary'
-        }
+            ? 'bg-text-primary text-surface-invert'
+            : 'bg-surface-float text-text-secondary',
+        )}
+        content={item.label}
       />
     ))}
   </>

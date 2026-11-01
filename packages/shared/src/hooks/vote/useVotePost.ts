@@ -22,6 +22,7 @@ import type {
 import { voteMutationHandlers, UserVoteEntity } from './types';
 import { useVote } from './useVote';
 import { useActiveFeedContext } from '../../contexts';
+import { playHaptic } from '../../lib/nativeBridge';
 
 const prepareVotePostLogOptions = ({
   origin,
@@ -116,6 +117,7 @@ const useVotePost = ({
       }
 
       logEvent(postLogEvent(LogEvent.UpvotePost, post, finalLogOptions));
+      playHaptic();
 
       await upvotePost({ id: post.id });
     },

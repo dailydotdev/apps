@@ -16,6 +16,7 @@ import { BookmakProviderHeader } from './BookmarkProviderHeader';
 import { PostOptionButton } from '../../../../features/posts/PostOptionButton';
 import { AuthorSourceStack } from '../AuthorSourceStack';
 import { useReaderInstallPromptGate } from '../../../../hooks/useReaderInstallPromptGate';
+import { openReadingFromFeed } from '../../../shell/readingStore';
 
 interface CardHeaderProps {
   post: Post;
@@ -62,6 +63,9 @@ export const PostCardHeader = ({
   const handleReadArticleClick = (event: React.MouseEvent) => {
     if (onReaderInstallGateClick(event)) {
       return;
+    }
+    if (postLink && openReadingFromFeed(post, postLink)) {
+      event.preventDefault();
     }
     onReadArticleClick?.(event);
   };

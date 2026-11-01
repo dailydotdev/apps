@@ -308,9 +308,7 @@ describe('HomeFeedTabs', () => {
 
       try {
         renderTabs();
-        const row = screen
-          .getByRole('button', { name: 'For you, sort and feed settings' })
-          .closest('.overflow-hidden, .border-b') as HTMLElement;
+        const row = screen.getByTestId('home-feed-tabs-row');
         const passed = (isIntersecting: boolean) =>
           act(() =>
             observers.get(row)?.(

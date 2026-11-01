@@ -52,6 +52,9 @@ export const BlockedSourceList = ({
     );
   }, [data, type, searchQuery]);
 
+  const noun = type === SourceType.Squad ? 'squads' : 'sources';
+  const singular = type === SourceType.Squad ? 'squad' : 'source';
+
   return (
     <SourceList
       sources={sources}
@@ -61,9 +64,19 @@ export const BlockedSourceList = ({
         <CharmEmptyState
           placement={CharmEmptyStatePlacement.Page}
           image={cloudinaryCharmEmptySquads}
-          imageAlt="daily.dev charm waiting for sources"
-          title="No sources yet"
-          description="Sources you block are listed here."
+          imageAlt={`daily.dev charm waiting for ${noun}`}
+          title={
+            searchQuery?.length
+              ? `No blocked ${noun} match \u201c${searchQuery}\u201d`
+              : `No ${noun} yet`
+          }
+          description={
+            searchQuery?.length
+              ? `To block a ${singular}, choose Block in the menu of any of its posts.`
+              : `${noun[0].toUpperCase()}${noun.slice(
+                  1,
+                )} you block are listed here.`
+          }
         />
       }
       scrollingProps={{
