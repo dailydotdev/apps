@@ -11,7 +11,7 @@ import { useFeedWidgetAdSlot } from './feedState';
  */
 export const RAIL_HEIGHT = '25.375rem';
 /** Half the rail, less the row gap: a Small widget, or one row of a Tall one. */
-export const RAIL_CELL_HEIGHT = `calc((${RAIL_HEIGHT} - 1rem) / 2)`;
+export const RAIL_CELL_HEIGHT = `calc((${RAIL_HEIGHT} - 1.5rem) / 2)`;
 
 /*
  * The rail's frame, shared by the rail and the skeleton that holds its place
@@ -31,7 +31,7 @@ export const railScrollerClassName =
 // One row gap on every screen: the rail's height never depends on the phone
 // check, which reads "not a phone" for a frame before it settles.
 export const railGridClassName = (isPhone: boolean): string =>
-  classNames('relative grid gap-y-4', isPhone ? 'gap-x-3' : 'gap-x-8');
+  classNames('relative grid gap-y-6', isPhone ? 'gap-x-3' : 'gap-x-6');
 
 export const railGridStyle = (
   columns: number,
@@ -42,7 +42,7 @@ export const railGridStyle = (
   // says it scrolls.
   gridAutoColumns: isPhone
     ? 'calc((100% - 0.75rem) / 1.18)'
-    : `calc((100% - ${(columns - 1) * 2}rem) / ${columns})`,
+    : `calc((100% - ${(columns - 1) * 1.5}rem) / ${columns})`,
 });
 
 /** The rail's shape with nothing in it yet. */

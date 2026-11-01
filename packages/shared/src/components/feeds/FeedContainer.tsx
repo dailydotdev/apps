@@ -59,10 +59,10 @@ export const v2FeedSideInsetClass = 'tablet:px-2 laptop:px-6';
 const v2FeedInsetClass = `${v2FeedSideInsetClass} tablet:py-2 laptop:py-6`;
 
 const listGapClass = 'gap-2';
-const gridGapClass = 'gap-8';
+const gridGapClass = 'gap-6';
 const feedGapPx = {
   [listGapClass]: 8,
-  [gridGapClass]: 32,
+  [gridGapClass]: 24,
 };
 
 const cardListClass: Partial<Record<number, string>> = {

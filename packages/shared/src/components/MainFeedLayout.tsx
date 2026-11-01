@@ -257,7 +257,7 @@ const getQueryBasedOnLogin = (
 
 // The feed's own width: full width normally, and clamped + centered to the
 // same card-based max-width as the grid on wide screens (desktopL). The CSS
-// vars feed the `styles.container` max-width calc (grid gap is 2rem).
+// vars feed the `styles.container` max-width calc (grid gap is 1.5rem).
 const feedWidthClassName = classNames('relative flex flex-col', feedWidth);
 
 const feedWithDateRange = [
@@ -283,7 +283,7 @@ export default function MainFeedLayout({
   const { numCards: feedSpacinessCards } = useContext(FeedContext);
   const feedWidthStyle = {
     '--num-cards': feedSpacinessCards.eco,
-    '--feed-gap': '2rem',
+    '--feed-gap': '1.5rem',
   } as CSSProperties;
   const router = useRouter();
   const [tab, setTab] = useState(ExploreTabs.Popular);
