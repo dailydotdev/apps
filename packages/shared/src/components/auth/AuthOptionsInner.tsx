@@ -871,6 +871,7 @@ function AuthOptionsInner({
             onPasswordLogin={onEmailLogin}
             onProviderClick={onProviderClick}
             onSignup={onEmailRegistration}
+            hideSignupDisclaimer={hideSignupDisclaimer}
             isSocialAuthLoading={isSocialAuthLoading}
             providers={providers}
             simplified={simplified}
@@ -1046,7 +1047,7 @@ function AuthOptionsInner({
             <MailIcon size={IconSize.XXLarge} className="mx-auto mt-8" />
           )}
           <EmailCodeVerification
-            className={simplified ? undefined : 'pt-4'}
+            className={simplified ? undefined : '!pt-4'}
             isOnboardingFunnel={isOnboardingFunnel}
             onChangeEmail={onBackFromVerify}
             onSubmit={onProfileSuccess}

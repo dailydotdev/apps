@@ -418,6 +418,11 @@ const RegistrationForm = ({
             label="Email"
             type="email"
             value={email}
+            onChange={(e) => {
+              if (!e.target.value || !e.target.validity.valid) {
+                setIsEmailFilled(false);
+              }
+            }}
             onBlur={(e) =>
               setIsEmailFilled(!!e.target.value && e.target.validity.valid)
             }

@@ -40,6 +40,7 @@ interface AuthDefaultProps extends AuthFormProps {
   isReady: boolean;
   loginButton?: string;
   onAuthOpenLogged?: () => void;
+  hideSignupDisclaimer?: boolean;
 }
 
 const AuthDefault = ({
@@ -62,6 +63,7 @@ const AuthDefault = ({
   loginButton,
   simplified,
   onAuthOpenLogged,
+  hideSignupDisclaimer,
 }: AuthDefaultProps): ReactElement => {
   const { logEvent } = useLogContext();
   const [shouldLogin, setShouldLogin] = useState(isLoginFlow);
@@ -191,7 +193,7 @@ const AuthDefault = ({
             </Button>
           )}
         </div>
-        {isSignup && <SignupDisclaimer />}
+        {isSignup && !hideSignupDisclaimer && <SignupDisclaimer />}
         {form && providers.length > 0 && <OrDivider />}
         {form}
       </AuthContainer>

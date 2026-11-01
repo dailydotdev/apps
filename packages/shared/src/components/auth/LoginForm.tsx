@@ -106,6 +106,7 @@ function LoginForm({
 
   const onLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    onEngage();
 
     if (!onPasswordLogin || isVerifyingTurnstile) {
       return;
