@@ -320,11 +320,15 @@ export const FeedTunePanel = ({
   isSheet,
 }: FeedTunePanelProps): ReactElement => {
   const tune = useFeedTune();
-  const { summary, isLoading, isOutdated } = useFeedTuneContext();
+  const { summary, isLoading, isError, isOutdated, retry } =
+    useFeedTuneContext();
   const tab = tune.tab ?? FeedTuneTab.Topics;
   const getStatus = (): string => {
     if (isLoading) {
       return 'Updating your feed.';
+    }
+    if (isError && !tune.pendingCount) {
+      return 'Couldn’t update your feed. Try again.';
     }
     if (isOutdated) {
       return 'Out of date. Your feed shows the last preview.';
@@ -424,6 +428,16 @@ export const FeedTunePanel = ({
             </Button>
           )}
           <span className="ml-auto flex gap-2">
+            {isError && !tune.pendingCount && (
+              <Button
+                type="button"
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+                onClick={retry}
+              >
+                Try again
+              </Button>
+            )}
             {(tune.pendingCount > 0 || isLoading) && (
               <Button
                 type="button"

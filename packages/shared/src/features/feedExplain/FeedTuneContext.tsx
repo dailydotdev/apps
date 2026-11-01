@@ -45,6 +45,10 @@ interface FeedTuneContextValue {
   getMovement: (postId: string) => TuneMovement | undefined;
   /** The preview's first page is on its way. */
   isLoading: boolean;
+  /** The preview's first page failed to load. */
+  isError: boolean;
+  /** Fetches the failed preview again. */
+  retry: () => void;
   /** Changes were made since the preview, so its movement is not current. */
   isOutdated: boolean;
   /** How the draft moved the page, in one line. */
@@ -92,6 +96,16 @@ const useFirstPage = (
   );
 };
 
+// Whether a feed query failed, followed the same way as its first page.
+const useHasFailed = (queryKey: QueryKey | undefined): boolean => {
+  const client = useQueryClient();
+  return useSyncExternalStore(
+    (onChange) => client.getQueryCache().subscribe(onChange),
+    () => !!queryKey && client.getQueryState(queryKey)?.status === 'error',
+    () => false,
+  );
+};
+
 const describeMovement = (
   before: Map<string, number>,
   after: CachedPost[],
@@ -117,6 +131,8 @@ const [FeedTuneProvider, useFeedTuneContextHook] = createContextProvider(
   }: FeedTuneProviderProps): FeedTuneContextValue => {
     const base = useFirstPage(baseQueryKey) ?? noPosts;
     const preview = useFirstPage(previewQueryKey);
+    const hasFailed = useHasFailed(previewQueryKey);
+    const client = useQueryClient();
     const { pendingCount } = useFeedTuneState();
     const before = useMemo(
       () => new Map(base.map(({ id }, index) => [id, index])),
@@ -138,6 +154,11 @@ const [FeedTuneProvider, useFeedTuneContextHook] = createContextProvider(
       },
       [after, before],
     );
+    const retry = useCallback(() => {
+      if (previewQueryKey) {
+        client.resetQueries({ queryKey: previewQueryKey });
+      }
+    }, [client, previewQueryKey]);
     const sources = useMemo(() => {
       const byId = new Map<string, TunePageSource>();
       base.forEach(({ source, explain }) => {
@@ -176,7 +197,9 @@ const [FeedTuneProvider, useFeedTuneContextHook] = createContextProvider(
     return useMemo(
       () => ({
         getMovement,
-        isLoading: !!previewQueryKey && !preview,
+        isLoading: !!previewQueryKey && !preview && !hasFailed,
+        isError: !preview && hasFailed,
+        retry,
         isOutdated: !!preview && pendingCount > 0,
         summary: preview ? describeMovement(before, preview) : undefined,
         sources,
@@ -186,6 +209,8 @@ const [FeedTuneProvider, useFeedTuneContextHook] = createContextProvider(
         getMovement,
         previewQueryKey,
         preview,
+        hasFailed,
+        retry,
         pendingCount,
         before,
         sources,
@@ -202,6 +227,8 @@ const useFeedTuneContext = safeContextHookExport(
   {
     getMovement: () => undefined,
     isLoading: false,
+    isError: false,
+    retry: () => undefined,
     isOutdated: false,
     sources: [],
     authors: [],

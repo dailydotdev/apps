@@ -218,6 +218,48 @@ describe('FeedTunePanel', () => {
     expect(fetchFeed).toHaveBeenCalledTimes(1);
   });
 
+  it('should offer to try again when the preview fails', async () => {
+    const client = createClient();
+    client.setDefaultOptions({ queries: { retry: false } });
+    let settlePreview: { resolve: (data: unknown) => void; reject: () => void };
+    const fetchFeed = jest.fn(
+      () =>
+        new Promise((resolve, reject) => {
+          settlePreview = { resolve, reject };
+        }),
+    );
+    render(
+      <TestBootProvider client={client} auth={{ user }} log={{ logEvent }}>
+        <TunedFeed fetchFeed={fetchFeed} />
+      </TestBootProvider>,
+    );
+
+    await userEvent.click(screen.getByLabelText('Boost for #rust: ×1.50'));
+    await userEvent.click(screen.getByRole('radio', { name: /^Show less/ }));
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Preview 1 change' }),
+    );
+    expect(await screen.findByText('Updating your feed.')).toBeInTheDocument();
+    act(() => settlePreview.reject());
+
+    expect(
+      await screen.findByText('Couldn’t update your feed. Try again.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Updating your feed.')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /^Preview/ }),
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(await screen.findByText('Updating your feed.')).toBeInTheDocument();
+    act(() => settlePreview.resolve(page(['p2', 'p3'])));
+
+    expect(
+      await screen.findByText('1 new post, 1 moved, 1 left the page.'),
+    ).toBeInTheDocument();
+    expect(fetchFeed).toHaveBeenCalledTimes(2);
+  });
+
   it('should log the changes it drops when closed without saving', async () => {
     const client = openPanel();
 
