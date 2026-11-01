@@ -2,13 +2,12 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
-import { Typography, TypographyType } from '../typography/Typography';
 import { webappUrl } from '../../lib/constants';
-import { BellIcon, MailIcon, SettingsIcon } from '../icons';
-import { AlertColor, AlertDot } from '../AlertDot';
+import { BellIcon, SettingsIcon } from '../icons';
 import type { SidebarMenuItem } from '../sidebar/common';
 import { ListIcon, isSidebarItemActive } from '../sidebar/common';
 import { Section } from '../sidebar/Section';
+import { SidebarCountBadge } from '../sidebar/SidebarCountBadge';
 import type { NotificationFilterCategory } from './utils';
 import {
   notificationCategoryBadge,
@@ -16,9 +15,6 @@ import {
 } from './utils';
 import { useNotificationFilterCategories } from '../../hooks/notifications/useNotificationFilterCategories';
 import { isExtension } from '../../lib/func';
-import { useMessagesEnabled } from '../../features/messages/hooks/useMessagesEnabled';
-import { useHasUnreadMessages } from '../../features/messages/hooks/useHasUnreadMessages';
-import { getMessagesUrl } from '../../features/messages/urls';
 
 const notificationsPath = (
   category: NotificationFilterCategory | null,
@@ -37,8 +33,6 @@ export const NotificationsRailPanel = (): ReactElement => {
   const activeType =
     typeof router.query?.type === 'string' ? router.query.type : undefined;
   const filterCategories = useNotificationFilterCategories();
-  const { isEnabled: showMessages } = useMessagesEnabled();
-  const hasUnreadMessages = useHasUnreadMessages(showMessages);
 
   // On the webapp, filters navigate via `action` (button), NOT `path`.
   // SidebarItem treats any `?type=` path as active for the whole
@@ -79,17 +73,7 @@ export const NotificationsRailPanel = (): ReactElement => {
     // (the canonical /settings/notifications page keeps the Settings panel).
     const settingsPath = `${webappUrl}notifications/settings`;
     const unreadBadge = hasUnread && {
-      rightIcon: () => (
-        <Typography
-          type={TypographyType.Caption1}
-          bold
-          // Cabbage, matching the bell's unread badge — red reads as an
-          // error, not an unread count.
-          className="rounded-6 bg-accent-cabbage-default px-1.5 text-white"
-        >
-          {unreadCount}
-        </Typography>
-      ),
+      rightIcon: () => <SidebarCountBadge count={unreadCount} />,
     };
 
     const settings: SidebarMenuItem = {
@@ -111,24 +95,6 @@ export const NotificationsRailPanel = (): ReactElement => {
       ...unreadBadge,
     };
 
-    // The inbox sits with the other things waiting for you. Its row stays a
-    // link: the messages page is its own route, not a filter of this list.
-    // Open threads live under /messages/<peer>, so an exact match won't do.
-    const messages: SidebarMenuItem | null = showMessages
-      ? {
-          title: 'Messages',
-          path: getMessagesUrl(),
-          isForcedLink: true,
-          active: /^\/messages(?:[/?#]|$)/.test(activePage),
-          icon: (active: boolean) => (
-            <ListIcon Icon={() => <MailIcon secondary={active} />} />
-          ),
-          alert: hasUnreadMessages ? (
-            <AlertDot className="right-2 top-1" color={AlertColor.Cabbage} />
-          ) : undefined,
-        }
-      : null;
-
     const categoryItems: SidebarMenuItem[] = filterCategories.map(
       (category) => {
         const { Icon } = notificationCategoryBadge[category];
@@ -143,18 +109,14 @@ export const NotificationsRailPanel = (): ReactElement => {
       },
     );
 
-    return [allActivity, messages, ...categoryItems, settings].filter(
-      (item): item is SidebarMenuItem => !!item,
-    );
+    return [allActivity, ...categoryItems, settings];
   }, [
     activePage,
     activeType,
     filterCategories,
     hasUnread,
-    hasUnreadMessages,
     isListPage,
     navigationFor,
-    showMessages,
     unreadCount,
   ]);
 

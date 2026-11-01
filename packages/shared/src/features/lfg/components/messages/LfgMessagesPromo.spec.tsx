@@ -57,22 +57,38 @@ beforeEach(() => {
 });
 
 describe('LfgMessagesPromo', () => {
-  it('sends someone without a post to the board', async () => {
+  it('invites someone without a post to write one or browse the board', async () => {
     renderPromo();
 
-    const link = await screen.findByRole('link', {
-      name: 'Find your people',
-    });
-    expect(link).toHaveAttribute('href', expect.stringMatching(/\/lfg$/));
+    expect(
+      await screen.findByRole('link', { name: 'New post' }),
+    ).toHaveAttribute('href', expect.stringMatching(/\/lfg\/new$/));
+    expect(screen.getByRole('link', { name: 'Browse board' })).toHaveAttribute(
+      'href',
+      expect.stringMatching(/\/lfg$/),
+    );
   });
 
-  it('stays hidden for someone who already has a post', async () => {
-    jest.mocked(getMyLfgPost).mockResolvedValue({ id: 'post-1' } as LfgPost);
+  it('shows an open post with its responses one tap away', async () => {
+    jest.mocked(getMyLfgPost).mockResolvedValue({
+      id: 'post-1',
+      title: 'Pair on a Rust CLI',
+      pendingCount: 3,
+      expiresAt: new Date(Date.now() + 5 * 86_400_000).toISOString(),
+    } as LfgPost);
+    mockActions([ActionType.DismissLfgMessagesPromo]);
 
     renderPromo();
 
-    await waitFor(() => expect(getMyLfgPost).toHaveBeenCalled());
-    expect(screen.queryByText('Looking for group')).not.toBeInTheDocument();
+    expect(
+      await screen.findByRole('link', { name: 'Review 3' }),
+    ).toHaveAttribute(
+      'href',
+      expect.stringMatching(/\/messages\?tab=requests$/),
+    );
+    expect(
+      screen.queryByRole('button', { name: 'Dismiss Looking for group' }),
+    ).not.toBeInTheDocument();
   });
 
   it('records a dismissal so it stays gone', async () => {
@@ -87,12 +103,12 @@ describe('LfgMessagesPromo', () => {
     );
   });
 
-  it('stays hidden once dismissed', () => {
+  it('stays hidden once dismissed', async () => {
     mockActions([ActionType.DismissLfgMessagesPromo]);
 
     renderPromo();
 
+    await waitFor(() => expect(getMyLfgPost).toHaveBeenCalled());
     expect(screen.queryByText('Looking for group')).not.toBeInTheDocument();
-    expect(getMyLfgPost).not.toHaveBeenCalled();
   });
 });

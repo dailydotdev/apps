@@ -11,7 +11,6 @@ import { QuestHeaderButton } from '../header/QuestHeaderButton';
 import { ButtonIconPosition } from '../buttons/common';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { ArrowIcon, DevPlusIcon, MailIcon, SettingsIcon } from '../icons';
-import { AlertColor, AlertDot } from '../AlertDot';
 import { IconSize } from '../Icon';
 import { useMobileAppHeader } from '../../features/getApp/hooks/useMobileAppHeader';
 import { MobileAppActions } from '../../features/getApp/components/MobileAppActions';
@@ -23,7 +22,10 @@ import { motion, topButton } from './constants';
 import { revealShell, setShellEdge, useShellScroll } from './useShellScroll';
 import { useOnline } from './useOnline';
 import { useMessagesEnabled } from '../../features/messages/hooks/useMessagesEnabled';
-import { useHasUnreadMessages } from '../../features/messages/hooks/useHasUnreadMessages';
+import { useUnreadMessagesCount } from '../../features/messages/hooks/useUnreadMessagesCount';
+import { Bubble } from '../tooltips/utils';
+import { railCountBubbleClass } from '../sidebar/common';
+import { getUnreadText } from '../notifications/utils';
 import { DmOrigin, getMessagesUrl } from '../../features/messages/urls';
 import { isIOS, isIOSNative } from '../../lib/func';
 import {
@@ -96,7 +98,7 @@ const PlusSquare = (): ReactElement | null => {
 // in passing, not browsed, so they live in the header rather than a tab.
 const MessagesSquare = (): ReactElement | null => {
   const { isEnabled } = useMessagesEnabled();
-  const hasUnread = useHasUnreadMessages(isEnabled);
+  const { total: unreadCount } = useUnreadMessagesCount(isEnabled);
 
   if (!isEnabled) {
     return null;
@@ -109,12 +111,20 @@ const MessagesSquare = (): ReactElement | null => {
     >
       <ShellSquare
         tag="a"
-        aria-label={hasUnread ? 'Messages, unread' : 'Messages'}
+        aria-label={
+          unreadCount
+            ? `Messages, ${getUnreadText(unreadCount)} unread`
+            : 'Messages'
+        }
       >
-        <MailIcon size={IconSize.Small} />
-        {hasUnread && (
-          <AlertDot className="right-1.5 top-1.5" color={AlertColor.Cabbage} />
-        )}
+        <span className="relative flex">
+          <MailIcon size={IconSize.Small} />
+          {!!unreadCount && (
+            <Bubble className={railCountBubbleClass}>
+              {getUnreadText(unreadCount)}
+            </Bubble>
+          )}
+        </span>
       </ShellSquare>
     </Link>
   );
