@@ -11,6 +11,7 @@ import {
   ArrowIcon,
   CopyIcon,
   MiniCloseIcon,
+  ReadingStreakIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
@@ -19,6 +20,9 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
+import { ProfileTooltip } from '@dailydotdev/shared/src/components/profile/ProfileTooltip';
+import { ReputationUserBadge } from '@dailydotdev/shared/src/components/ReputationUserBadge';
+import { getQuestLevelProgress } from '@dailydotdev/shared/src/components/quest/QuestLevelProgressCircle';
 import { PlusTitle } from '@dailydotdev/shared/src/components/plus/PlusTitle';
 import { TypographyType } from '@dailydotdev/shared/src/components/typography/Typography';
 import { VerifiedSquadBadge } from '@dailydotdev/shared/src/features/squads/components/VerifiedSquad';
@@ -30,6 +34,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/leaderboard';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
+import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
 import {
   formatReferralLadderMonths,
   REFERRAL_INVITE_COPIED_TOAST,
@@ -50,8 +55,7 @@ import {
   unitFor,
 } from './data';
 import { Avatar, Dropdown, Rank, youHighlight } from './kit';
-import { LeaderboardSnapshotCard } from './connected';
-import { useStandouts } from './layouts4';
+import { LeaderboardSnapshotCard } from './snapshot';
 import { LeaderboardPhoneChrome } from './phone';
 
 // The chosen direction, Option B at full width, on production data only:
@@ -107,12 +111,167 @@ const titleOf = (board: BoardId): string =>
 const scoreLabel = (board: BoardId, score: number): string =>
   `${formatNumber(score)} ${unitFor(score, boardById(board).unit)}`;
 
+/** Reputation always reads as production's badge: the bolt and the number. */
+const Reputation = ({
+  value,
+  className,
+}: {
+  value: number;
+  className?: string;
+}): ReactElement => (
+  <ReputationUserBadge className={className} user={{ reputation: value }} />
+);
+
+/** Streak days read as the header's streak counter: the flame and the days. */
+const Streak = ({
+  days,
+  className,
+}: {
+  days: number;
+  className?: string;
+}): ReactElement => (
+  <span
+    className={classNames(
+      'flex items-center font-bold text-text-primary typo-footnote',
+      className,
+    )}
+  >
+    {/* The flame fills its box; the reputation bolt sits inside one, so the
+        flame is drawn smaller in the same 20px slot to match it. */}
+    <span className="flex size-5 shrink-0 items-center justify-center">
+      <ReadingStreakIcon secondary className="!size-3.5" />
+    </span>
+    {formatNumber(days)}
+  </span>
+);
+
+/** The mock's XP per level, so a board's levels follow its XP order. */
+const XP_PER_LEVEL = 160;
+
+const levelOf = (xp: number) => ({
+  level: Math.floor(xp / XP_PER_LEVEL),
+  xpInLevel: xp % XP_PER_LEVEL,
+  xpToNextLevel: XP_PER_LEVEL - (xp % XP_PER_LEVEL),
+});
+
+/** Production's level ring, in its colors, small enough for a row. */
+const RING_SIZE = 16;
+const RING_STROKE = 3;
+
+const Ring = ({ progress }: { progress: number }): ReactElement => {
+  const size = RING_SIZE;
+  const stroke = RING_STROKE;
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      fill="none"
+      className="shrink-0 -rotate-90"
+      aria-hidden
+    >
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        strokeWidth={stroke}
+        className="stroke-border-subtlest-tertiary"
+      />
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        strokeWidth={stroke}
+        strokeLinecap="round"
+        strokeDasharray={circumference}
+        strokeDashoffset={circumference * (1 - progress / 100)}
+        className="stroke-accent-avocado-default"
+      />
+    </svg>
+  );
+};
+
+/** Highest level reads as the level, with a small ring for its progress. */
+const Level = ({
+  xp,
+  label = false,
+  className,
+}: {
+  xp: number;
+  /** Says "Level 120" where the board's title isn't beside it. */
+  label?: boolean;
+  className?: string;
+}): ReactElement => {
+  const level = levelOf(xp);
+  return (
+    <span className={classNames('flex items-center gap-1.5', className)}>
+      <Ring progress={getQuestLevelProgress(level)} />
+      {label ? `Level ${level.level}` : level.level}
+    </span>
+  );
+};
+
+const scoreValue = (board: BoardId, score: number): ReactNode => {
+  if (board === 'reputation') {
+    return <Reputation value={score} />;
+  }
+  if (board === 'level') {
+    return <Level xp={score} />;
+  }
+  if (board === 'streak') {
+    return <Streak days={score} />;
+  }
+  return formatNumber(score);
+};
+
 const isPhoneWidth = (event: React.SyntheticEvent): boolean =>
   !!event.currentTarget.ownerDocument.defaultView?.matchMedia(
     '(max-width: 655px)',
   ).matches;
 
 /* ---------------------------------------------------------------- atoms */
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** A mock developer as the short profile production's hover card reads. */
+const toProfile = (dev: Dev): UserShortProfile => ({
+  id: dev.id,
+  name: dev.name,
+  username: dev.username,
+  image: dev.image,
+  bio: dev.bio,
+  permalink: `https://app.daily.dev/${dev.username}`,
+  createdAt: new Date(Date.now() - dev.joinedDaysAgo * DAY_MS).toISOString(),
+  reputation: dev.scores.reputation.all,
+  companies: [],
+  isPlus: false,
+});
+
+/**
+ * An avatar that opens production's profile hover card. The card attaches to
+ * the device frame's own page, so it lines up with the avatar inside it.
+ */
+const ProfileAvatar = ({
+  dev,
+  size,
+  className,
+}: {
+  dev: Dev;
+  size?: string;
+  className?: string;
+}): ReactElement => (
+  <ProfileTooltip
+    userId={dev.id}
+    initialUser={toProfile(dev)}
+    tooltip={{ appendTo: (reference) => reference.ownerDocument.body }}
+  >
+    <span className="flex shrink-0">
+      <Avatar dev={dev} size={size} className={className} />
+    </span>
+  </ProfileTooltip>
+);
 
 const Heading = ({
   title,
@@ -244,13 +403,6 @@ export const RankCard = ({
   loading?: boolean;
 }): ReactElement => {
   const [board, setBoard] = useState<BoardId>(initialBoard);
-  const mine = myEntry(board, 'all');
-  const title = titleOf(board);
-  const rank =
-    position === 'capped'
-      ? `${largeNumberFormat(CAPPED_AT)}+`
-      : `#${(MY_RANKS[board] ?? 0).toLocaleString('en-US')}`;
-  const score = position === 'empty' ? 0 : mine.score;
 
   if (loading) {
     return (
@@ -264,78 +416,98 @@ export const RankCard = ({
     );
   }
 
-  const picker = (
-    <span className="mr-auto">
-      <Dropdown
-        value={board}
-        onChange={setBoard}
-        options={POSITION_BOARDS.map((id) => ({ id, label: titleOf(id) }))}
-      />
+  const rankOf = (id: BoardId): string =>
+    position === 'capped'
+      ? `${largeNumberFormat(CAPPED_AT)}+`
+      : `#${(MY_RANKS[id] ?? 0).toLocaleString('en-US')}`;
+  const scoreOf = (id: BoardId): number =>
+    position === 'empty' ? 0 : myEntry(id, 'all').score;
+  const headlineOf = (id: BoardId): string => {
+    if (position === 'empty') {
+      return `No rank yet on ${titleOf(id)}`;
+    }
+    return position === 'capped'
+      ? `You’re outside the top ${largeNumberFormat(CAPPED_AT)}`
+      : `You’re ${rankOf(id)} on ${titleOf(id)}`;
+  };
+  const detailOf = (id: BoardId): ReactNode => {
+    if (position === 'empty') {
+      return boardById(id).howTo;
+    }
+    const score = scoreOf(id);
+    if (id === 'reputation' || id === 'streak') {
+      return (
+        <span className="flex items-center gap-1">
+          {scoreValue(id, score)}
+          {id === 'reputation' ? 'reputation in total' : 'days in a row'}
+        </span>
+      );
+    }
+    return `${scoreLabel(id, score)} in total`;
+  };
+
+  const title = titleOf(board);
+  const rank = rankOf(board);
+  const score = scoreOf(board);
+  const heading = (
+    <span className="flex items-center gap-2">
+      <Avatar dev={ME} size="size-6" />
+      {headlineOf(board)}
     </span>
   );
 
-  if (position === 'empty') {
-    return (
-      <ActionCard
-        className={`border-transparent ${youHighlight}`}
-        title={
-          <span className="flex items-center gap-2">
-            <Avatar dev={ME} size="size-6" />
-            No rank yet on {title}
-          </span>
-        }
-        detail={boardById(board).howTo}
-        aside={picker}
+  // Production's profile snapshot flow: the card staged off-screen at
+  // 1080px, captured, copied, then the snapshot share panel.
+  const snapshot =
+    position === 'empty' ? undefined : (
+      <ProfileSnapshotButton
+        origin={Origin.Leaderboard}
+        filename={`daily-leaderboard-${board}`}
+        ownerId={ME.id}
+        showLabel
+        size={ButtonSize.Small}
+        variant={ButtonVariant.Primary}
+        renderCard={(ref) => (
+          <LeaderboardSnapshotCard
+            ref={ref}
+            title={title}
+            rank={rank}
+            stat={{
+              value: formatNumber(score),
+              label: unitFor(score, boardById(board).unit),
+            }}
+            listTitle={`Top 3 · ${title}`}
+            rows={rankBoard(board, 'all', DEVS)
+              .slice(0, 3)
+              .map((entry) => ({
+                rank: entry.rank,
+                name: entry.dev.name,
+                value: scoreLabel(board, entry.score),
+                isMe: false,
+              }))}
+          />
+        )}
       />
     );
-  }
 
   return (
     <ActionCard
       className={`border-transparent ${youHighlight}`}
-      title={
-        <span className="flex items-center gap-2">
-          <Avatar dev={ME} size="size-6" />
-          {position === 'capped'
-            ? `You’re outside the top ${largeNumberFormat(CAPPED_AT)}`
-            : `You’re ${rank} on ${title}`}
+      title={heading}
+      detail={detailOf(board)}
+      aside={
+        <span className="mr-auto">
+          <Dropdown
+            value={board}
+            onChange={setBoard}
+            options={POSITION_BOARDS.map((id) => ({
+              id,
+              label: titleOf(id),
+            }))}
+          />
         </span>
       }
-      detail={`${scoreLabel(board, score)} in total`}
-      aside={picker}
-      action={
-        // Production's profile snapshot flow: the card staged off-screen at
-        // 1080px, captured, copied, then the snapshot share panel.
-        <ProfileSnapshotButton
-          origin={Origin.Leaderboard}
-          filename={`daily-leaderboard-${board}`}
-          ownerId={ME.id}
-          showLabel
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Primary}
-          renderCard={(ref) => (
-            <LeaderboardSnapshotCard
-              ref={ref}
-              title={title}
-              rank={rank.replace('#', '')}
-              eyebrow="Leaderboard"
-              stat={{
-                value: formatNumber(score),
-                label: unitFor(score, boardById(board).unit),
-              }}
-              listTitle={`Top 3 · ${title}`}
-              neighbors={rankBoard(board, 'all', DEVS)
-                .slice(0, 3)
-                .map((entry) => ({
-                  rank: entry.rank,
-                  name: entry.dev.name,
-                  value: scoreLabel(board, entry.score),
-                  isMe: false,
-                }))}
-            />
-          )}
-        />
-      }
+      action={snapshot}
     />
   );
 };
@@ -420,14 +592,11 @@ const PersonRow = ({ entry }: { entry: Entry }): ReactElement => {
         className="flex h-12 cursor-pointer items-center gap-3 rounded-12 px-2 hover:bg-surface-hover"
       >
         <Rank rank={entry.rank} />
-        <Avatar dev={entry.dev} />
+        <ProfileAvatar dev={entry.dev} />
         <span className="min-w-0 flex-1 truncate font-bold typo-callout">
           {entry.dev.name}
         </span>
-        <span className="shrink-0 tabular-nums typo-footnote">
-          <span className="font-bold">{formatNumber(entry.score)}</span>{' '}
-          <span className="text-text-quaternary">rep</span>
-        </span>
+        <Reputation value={entry.score} className="shrink-0 tabular-nums" />
         <span className="flex w-16 shrink-0 justify-end">
           <Follow dev={entry.dev} />
         </span>
@@ -474,9 +643,40 @@ const TopReputation = ({
 
 /* ------------------------------------------------------------ standouts */
 
+/** The #1 of every production people leaderboard, which store score only. */
+const STANDOUT_BOARDS: { board: BoardId; eyebrow: string }[] = [
+  { board: 'reputation', eyebrow: 'HIGHEST REPUTATION' },
+  { board: 'streak', eyebrow: 'LONGEST STREAK' },
+  { board: 'views', eyebrow: 'MOST POST VIEWS' },
+  { board: 'upvotes', eyebrow: 'MOST UPVOTED' },
+  { board: 'referrals', eyebrow: 'TOP REFERRER' },
+  { board: 'readingDays', eyebrow: 'MOST READING DAYS' },
+  { board: 'level', eyebrow: 'HIGHEST LEVEL' },
+];
+
+const standouts = STANDOUT_BOARDS.map(({ board, eyebrow }) => {
+  const [top] = rankBoard(board, 'all', DEVS);
+  return {
+    eyebrow,
+    dev: top.dev,
+    stat:
+      {
+        level: <Level xp={top.score} label className="justify-center" />,
+        reputation: (
+          <Reputation
+            value={top.score}
+            className="justify-center !typo-caption1"
+          />
+        ),
+        streak: (
+          <Streak days={top.score} className="justify-center !typo-caption1" />
+        ),
+      }[board as string] ?? scoreLabel(board, top.score),
+  };
+});
+
 const Standouts = ({ loading }: { loading: boolean }): ReactElement => {
   const { goTo } = useSources();
-  const standouts = useStandouts();
   return (
     <section className="flex flex-col gap-3">
       <Heading title="Standouts" />
@@ -501,14 +701,14 @@ const Standouts = ({ loading }: { loading: boolean }): ReactElement => {
               <span className="w-full truncate font-bold uppercase tracking-wide text-text-primary typo-caption2">
                 {eyebrow}
               </span>
-              <Avatar dev={dev} size="size-12" className="rounded-14" />
+              <ProfileAvatar dev={dev} size="size-12" className="rounded-14" />
               <span className="flex w-full min-w-0 flex-col">
                 <span className="truncate font-bold typo-footnote">
                   {dev.name}
                 </span>
-                <span className="truncate text-text-tertiary typo-caption1">
+                <div className="flex h-4 items-center justify-center truncate text-text-tertiary typo-caption1">
                   {stat}
-                </span>
+                </div>
               </span>
               <span className="flex h-6 items-center">
                 <Follow dev={dev} />
@@ -534,7 +734,7 @@ const MiniRow = ({
   rank: number | string;
   name: string;
   image: ReactNode;
-  value: string;
+  value: ReactNode;
   highlight?: boolean;
   suffix?: ReactNode;
 }): ReactElement => (
@@ -563,9 +763,9 @@ const MiniRow = ({
       <span className="truncate">{name}</span>
       {suffix}
     </span>
-    <span className="shrink-0 font-bold tabular-nums typo-footnote">
+    <div className="flex shrink-0 font-bold tabular-nums typo-footnote">
       {value}
-    </span>
+    </div>
   </li>
 );
 
@@ -741,8 +941,10 @@ const UserBoardTile = ({
         key={entry.dev.id}
         rank={entry.rank}
         name={entry.dev.name}
-        image={<Avatar dev={entry.dev} size="size-6" className="!rounded-8" />}
-        value={formatNumber(entry.score)}
+        image={
+          <ProfileAvatar dev={entry.dev} size="size-6" className="!rounded-8" />
+        }
+        value={scoreValue(board, entry.score)}
       />
     ));
   const showYou = POSITION_BOARDS.includes(board) && position !== 'empty';
@@ -764,7 +966,7 @@ const UserBoardTile = ({
             }
             name="You"
             image={<Avatar dev={ME} size="size-6" className="!rounded-8" />}
-            value={formatNumber(mine.score)}
+            value={scoreValue(board, mine.score)}
             highlight
           />
         ) : undefined
@@ -849,13 +1051,19 @@ export const LeaderboardFinal = ({
         className="!hidden laptop:!flex"
       />
       <div className="flex flex-col gap-8 px-4 pb-6 pt-3 tablet:gap-10 tablet:p-4 laptop:p-10">
-        <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2 tablet:gap-4">
-          <RankCard
-            position={position}
-            initialBoard={initialBoard}
-            loading={loading}
-          />
-          <InviteCard friends={friends} loading={loading} />
+        {/* Phones: one strip you scroll sideways, the Plus card peeking in
+            at the edge so it reads as more to see. */}
+        <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 tablet:mx-0 tablet:grid tablet:grid-cols-2 tablet:gap-4 tablet:overflow-visible tablet:px-0">
+          <div className="w-5/6 shrink-0 snap-start tablet:w-auto">
+            <RankCard
+              position={position}
+              initialBoard={initialBoard}
+              loading={loading}
+            />
+          </div>
+          <div className="w-5/6 shrink-0 snap-start tablet:w-auto">
+            <InviteCard friends={friends} loading={loading} />
+          </div>
         </div>
 
         <TopReputation loading={loading} empty={empty} />

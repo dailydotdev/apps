@@ -116,6 +116,7 @@ const flows: { title: string; steps: string[] }[] = [
     title: 'First visit, signed in',
     steps: [
       'The first row shows your rank on Highest reputation with Snapshot, and the Plus invite with its ladder.',
+      'Phones: those two cards are one strip you scroll sideways; the Plus card peeks in at the edge and each card snaps into place.',
       'Then the top 10 on Highest reputation, the Standouts row, and all 8 production boards.',
       'Signed out on a phone, app.daily.dev/users sends you to daily.dev/users on the marketing site, so these frames are signed in.',
     ],

@@ -1,13 +1,7 @@
-// Fictional developers and companies for the leaderboard layouts. Avatars
+// Fictional developers and companies for the leaderboard pages. Avatars
 // are daily.dev's generic placeholders, never real users.
 
 export type Range = 'week' | 'month' | 'all';
-
-export const RANGES: { id: Range; label: string }[] = [
-  { id: 'week', label: 'This week' },
-  { id: 'month', label: 'This month' },
-  { id: 'all', label: 'All time' },
-];
 
 export type BoardId =
   | 'reputation'
@@ -31,7 +25,7 @@ export interface Board {
   cta: string;
 }
 
-export const BOARDS: Board[] = [
+const BOARDS: Board[] = [
   {
     id: 'reputation',
     title: 'Highest reputation',
@@ -354,15 +348,7 @@ export const rankBoard = (
 export const myEntry = (board: BoardId, range: Range, pool?: Dev[]): Entry =>
   rankBoard(board, range, pool).find((e) => e.dev.isMe) as Entry;
 
-/** All-time ranks run far deeper than this mock: scale them to feel real. */
-export const ALL_TIME_RANK_SCALE = 37;
-
-export const displayRank = (entry: Entry, range: Range): number =>
-  entry.dev.isMe && range === 'all'
-    ? entry.rank * ALL_TIME_RANK_SCALE
-    : entry.rank;
-
-export interface Company {
+interface Company {
   id: string;
   name: string;
   verified: number;
@@ -400,26 +386,6 @@ export const REFERRAL_LADDER = [
   { friends: 2, months: 3, reward: '3 months of Plus' },
   { friends: 3, months: 12, reward: '1 year of Plus' },
 ];
-
-export const MY_LADDER_FRIENDS = 1;
-
-export interface PluginMaker {
-  dev: Dev;
-  plugin: string;
-  upvotes: number;
-}
-
-export const PLUGIN_MAKERS: PluginMaker[] = [
-  'pr-review-buddy',
-  'postgres-explain',
-  'k8s-doctor',
-  'changelog-writer',
-  'test-scout',
-].map((plugin, index) => ({
-  dev: DEVS[(index * 7 + 3) % DEVS.length],
-  plugin,
-  upvotes: Math.round(1400 / (index + 1.2)),
-}));
 
 export const formatNumber = (value: number): string => {
   if (value >= 1000000) {
