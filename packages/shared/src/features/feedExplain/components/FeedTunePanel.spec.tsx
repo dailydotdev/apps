@@ -13,7 +13,7 @@ import { ExplainOrigin, FeedTopicMode, FeedTuneTab } from '../types';
 import { feedControlsQueryKey, feedProfileQueryKey } from '../queries';
 import { SET_FEED_TOPIC_MODE_MUTATION } from '../graphql';
 import { FeedTuneProvider } from '../FeedTuneContext';
-import { useFeedTuneState } from '../useFeedTune';
+import { useFeedTuneState } from '../useFeedTuneState';
 import { FeedTunePanel } from './FeedTunePanel';
 
 const user = { ...defaultUser, isPlus: true };

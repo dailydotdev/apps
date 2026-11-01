@@ -14,6 +14,10 @@ import React, {
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
+import {
+  cancelIdleCallback,
+  requestIdleCallback,
+} from 'next/dist/client/request-idle-callback';
 import type { QueryKey } from '@tanstack/react-query';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
@@ -115,9 +119,8 @@ import {
   SearchProviderSegments,
 } from './search/SearchResults/SearchProviderTabs';
 import { useFeedExplainMode } from '../features/feedExplain/useFeedExplainMode';
-import { useFeedTuneState } from '../features/feedExplain/useFeedTune';
+import { useFeedTuneState } from '../features/feedExplain/useFeedTuneState';
 import { FeedTuneProvider } from '../features/feedExplain/FeedTuneContext';
-import { FeedTunePanel } from '../features/feedExplain/components/FeedTunePanel';
 import { FeedExplainBar } from '../features/feedExplain/components/FeedExplainBar';
 
 // Its own chunk, so readers without the rail never download it; the skeleton
@@ -128,6 +131,12 @@ const FeedWidgetRail = dynamic(
       /* webpackChunkName: "feedWidgetRail" */ '../features/feedWidgets/FeedWidgetRail'
     ).then((mod) => mod.FeedWidgetRail),
   { loading: () => <FeedWidgetRailLoading /> },
+);
+
+const FeedTunePanel = dynamic(() =>
+  import(
+    /* webpackChunkName: "feedTunePanel" */ '../features/feedExplain/components/FeedTunePanel'
+  ).then((mod) => mod.FeedTunePanel),
 );
 
 const SpotlightField = dynamic(() =>
@@ -576,6 +585,28 @@ export default function MainFeedLayout({
       closeTune();
     }
   }, [isTuneOpen, canExplain, isExplaining, feedName, closeTune]);
+  // Where For You explains its posts, Debug's card, Tune and the hidden
+  // post's Show less offer load once the page is idle, so none of them waits
+  // for its chunk when first used.
+  useEffect(() => {
+    if (!canExplainPosts) {
+      return undefined;
+    }
+    const handle = requestIdleCallback(() => {
+      Promise.all([
+        import(
+          /* webpackChunkName: "feedExplainCard" */ '../features/feedExplain/components/FeedExplainCard'
+        ),
+        import(
+          /* webpackChunkName: "feedTunePanel" */ '../features/feedExplain/components/FeedTunePanel'
+        ),
+        import(
+          /* webpackChunkName: "showLessTopicOffer" */ '../features/feedExplain/components/ShowLessTopicOffer'
+        ),
+      ]).catch(() => undefined);
+    });
+    return () => cancelIdleCallback(handle);
+  }, [canExplainPosts]);
 
   const hasSearchContent = !!navChildren || (isSearchOn && !!searchChildren);
   const search = useMemo(
@@ -985,12 +1016,13 @@ export default function MainFeedLayout({
       (!isFeedWidgetsEnabled && (!!v2ActionButtons || !!feedHeading)));
 
   const tunePreviewKey = tuneDraft ? feedProps?.feedQueryKey : undefined;
+  const tuneBaseKey = tunePreviewKey
+    ? tunePreviewKey.slice(0, -1)
+    : feedProps?.feedQueryKey;
 
   return (
     <FeedTuneProvider
-      baseQueryKey={
-        tunePreviewKey ? tunePreviewKey.slice(0, -1) : feedProps?.feedQueryKey
-      }
+      baseQueryKey={isTuning ? tuneBaseKey : undefined}
       previewQueryKey={tunePreviewKey}
     >
       {showExploreV2PageHeader && (

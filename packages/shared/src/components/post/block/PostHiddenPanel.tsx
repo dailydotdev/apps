@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
+import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { useHidePost } from '../../../hooks/post/useHidePost';
@@ -17,11 +18,14 @@ import CloseButton from '../../CloseButton';
 import { SourceAvatar } from '../../profile/source';
 import { GenericTagButton } from '../../filters/TagButton';
 import { Origin } from '../../../lib/log';
-import { isRankedExplain } from '../../../features/feedExplain/types';
-import { ShowLessTopicOffer } from '../../../features/feedExplain/components/ShowLessTopicOffer';
-import { useFeedPostExplanation } from '../../../features/feedExplain/useFeedPostExplanation';
 import { useActiveFeedContext } from '../../../contexts/ActiveFeedContext';
 import { useFeedCardContext } from '../../../features/posts/FeedCardContext';
+
+const ShowLessPostTopicOffer = dynamic(() =>
+  import(
+    /* webpackChunkName: "showLessTopicOffer" */ '../../../features/feedExplain/components/ShowLessTopicOffer'
+  ).then((mod) => mod.ShowLessPostTopicOffer),
+);
 
 interface PostHiddenPanelProps {
   post: Post;
@@ -60,16 +64,12 @@ export function PostHiddenPanel({
       ),
   );
   const [isConfirmed, setIsConfirmed] = useState(false);
-  // Outside Debug mode the post carries no explanation, so the matched topic
-  // is asked for.
+  // Only For You explains its posts: in Debug mode the post carries its
+  // explanation, otherwise its feed request can ask for it.
   const { getExplainRequest } = useActiveFeedContext();
   const { isAd } = useFeedCardContext();
-  const { explain } = useFeedPostExplanation({
-    postId: post.id,
-    explain: post.explain,
-    request: isAd ? undefined : getExplainRequest?.(post.id),
-  });
-  const showLessTag = isRankedExplain(explain) ? explain.match?.tag : undefined;
+  const explainRequest = isAd ? undefined : getExplainRequest?.(post.id);
+  const canShowLessTopic = post.explain !== undefined || !!explainRequest;
 
   const { onUnhide, onSubmitFeedback, onDismiss, onReportSubmitted } =
     useHidePost({ post });
@@ -148,9 +148,10 @@ export function PostHiddenPanel({
       <h4 className="font-bold text-text-primary typo-body">
         Got it. You&apos;ll see less like this.
       </h4>
-      {showLessTag && (
-        <ShowLessTopicOffer
-          tag={showLessTag}
+      {canShowLessTopic && (
+        <ShowLessPostTopicOffer
+          post={post}
+          request={explainRequest}
           origin={Origin.PostHiddenPanel}
           className="-ml-1.5 mt-1"
         />

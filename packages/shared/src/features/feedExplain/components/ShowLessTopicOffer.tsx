@@ -10,8 +10,11 @@ import {
 import { MinusIcon } from '../../../components/icons/Minus';
 import useFeedSettings from '../../../hooks/useFeedSettings';
 import type { Origin } from '../../../lib/log';
-import { FeedTopicMode } from '../types';
+import type { Post } from '../../../graphql/posts';
+import { FeedTopicMode, isRankedExplain } from '../types';
 import { useFeedControls } from '../useFeedControls';
+import type { FeedPostExplanationRequest } from '../graphql';
+import { useFeedPostExplanation } from '../useFeedPostExplanation';
 
 interface ShowLessTopicOfferProps {
   /** The topic that brought the hidden post in. */
@@ -99,4 +102,36 @@ export const ShowLessTopicOffer = ({
       Show less #{tag}?
     </Button>
   );
+};
+
+interface ShowLessPostTopicOfferProps {
+  post: Post;
+  /** The feed request the post was served in, to ask for its explanation. */
+  request: FeedPostExplanationRequest | undefined;
+  origin: Origin;
+  className?: string;
+}
+
+/**
+ * The offer for a hidden post, on the topic that matched it: outside Debug
+ * mode the post carries no explanation, so it is asked for.
+ */
+export const ShowLessPostTopicOffer = ({
+  post,
+  request,
+  origin,
+  className,
+}: ShowLessPostTopicOfferProps): ReactElement | null => {
+  const { explain } = useFeedPostExplanation({
+    postId: post.id,
+    explain: post.explain,
+    request,
+  });
+  const tag = isRankedExplain(explain) ? explain.match?.tag : undefined;
+
+  if (!tag) {
+    return null;
+  }
+
+  return <ShowLessTopicOffer tag={tag} origin={origin} className={className} />;
 };

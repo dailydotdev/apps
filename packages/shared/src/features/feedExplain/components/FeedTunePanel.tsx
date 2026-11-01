@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { Fragment } from 'react';
+import React, { Fragment, useMemo } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -31,9 +31,19 @@ import { FeedSettingsMenu } from '../../../components/feeds/FeedSettings/types';
 import type { ForYouSettingsPageId } from '../../../components/feeds/FeedSettings/forYouSettingsPages';
 import { getForYouSettingsUrl } from '../../../components/feeds/FeedSettings/forYouSettingsPages';
 import { isSpecialUser } from '../../../lib/user';
+import type { Post } from '../../../graphql/posts';
+import { isSourceUserSource } from '../../../graphql/sources';
 import { ExplainOrigin, FeedTuneTab } from '../types';
 import { feedProfileQueryOptions } from '../queries';
-import { followModeMeta, getControlMeta } from '../describe';
+import {
+  followModeMeta,
+  getAuthorFactor,
+  getAuthorLabel,
+  getControlMeta,
+  getSourceFactor,
+  isAuthorFollowed,
+  isSourceFollowed,
+} from '../describe';
 import { rankingGroups, rankingSettings } from '../ranking';
 import type { UseFeedTune } from '../useFeedTune';
 import { useFeedTune } from '../useFeedTune';
@@ -155,12 +165,75 @@ const TopicsTab = ({
   );
 };
 
+interface PageEntity {
+  id: string;
+  name: string;
+  image: string;
+  /** What a follow or level gives its posts now, 1 without one. */
+  factor: number;
+  /** A card on the page was ranked with the reader following it. */
+  isFollowed: boolean;
+}
+
+interface PageSource extends PageEntity {
+  handle: string;
+}
+
+/** An author on the page, keyed by user id. */
+interface PageAuthor extends PageEntity {
+  username?: string;
+}
+
+// The sources and authors on the page Tune compares against, for the reader
+// to steer.
+const getPageSources = (posts: Post[]): PageSource[] => {
+  const byId = new Map<string, PageSource>();
+  posts.forEach(({ source, explain }) => {
+    if (source?.id && source.name && !isSourceUserSource(source)) {
+      byId.set(source.id, {
+        id: source.id,
+        name: source.name,
+        image: source.image,
+        handle: source.handle,
+        factor: getSourceFactor(explain),
+        isFollowed:
+          !!byId.get(source.id)?.isFollowed || isSourceFollowed(explain),
+      });
+    }
+  });
+  return [...byId.values()];
+};
+
+const getPageAuthors = (posts: Post[]): PageAuthor[] => {
+  const byId = new Map<string, PageAuthor>();
+  posts.forEach(({ author, explain }) => {
+    if (author?.id && (author.name || author.username)) {
+      byId.set(author.id, {
+        id: author.id,
+        name: getAuthorLabel(author),
+        image: author.image,
+        username: author.username,
+        factor: getAuthorFactor(explain),
+        isFollowed:
+          !!byId.get(author.id)?.isFollowed || isAuthorFollowed(explain),
+      });
+    }
+  });
+  return [...byId.values()];
+};
+
 const SourcesTab = ({ tune }: { tune: UseFeedTune }): ReactElement => {
   const { user } = useAuthContext();
   const { isPlus } = usePlusSubscription();
-  const { sources, authors: pageAuthors } = useFeedTuneContext();
-  const authors = pageAuthors.filter(
-    ({ id }) => !isSpecialUser({ userId: id, loggedUserId: user?.id ?? null }),
+  const { posts } = useFeedTuneContext();
+  const sources = useMemo(() => getPageSources(posts), [posts]);
+  const authors = useMemo(
+    () =>
+      getPageAuthors(posts).filter(
+        ({ id }) =>
+          !isSpecialUser({ userId: id, loggedUserId: user?.id ?? null }),
+      ),
+    [posts, user?.id],
   );
 
   return (
