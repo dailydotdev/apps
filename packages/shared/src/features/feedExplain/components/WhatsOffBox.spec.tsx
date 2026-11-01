@@ -1,6 +1,6 @@
 import React from 'react';
 import nock from 'nock';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient } from '@tanstack/react-query';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
@@ -21,6 +21,7 @@ import {
   WhatsOffScope,
   WhatsOffTargetType,
 } from '../types';
+import { WHATS_OFF_MAX_LENGTH } from '../whatsOff';
 import { WhatsOffBox } from './WhatsOffBox';
 
 const logEvent = jest.fn();
@@ -39,24 +40,24 @@ const showLessAgents: WhatsOffChange = {
   plusOnly: false,
 };
 
-const askWith = async (lines: WhatsOffLine[]) => {
-  mockGraphQL({
-    request: {
-      query: WHATS_OFF_QUERY,
-      variables: { version: 116, text, supportedTypes: feedV2SupportedTypes },
+const whatsOffRequest = {
+  query: WHATS_OFF_QUERY,
+  variables: { version: 116, text, supportedTypes: feedV2SupportedTypes },
+};
+
+const answerWith = (lines: WhatsOffLine[]) => ({
+  data: {
+    whatsOff: {
+      id: answerId,
+      response: WhatsOffResponse.Act,
+      scope: WhatsOffScope.Feed,
+      asks: [{ words: 'AI agents', direction: 'less' }],
+      lines,
     },
-    result: {
-      data: {
-        whatsOff: {
-          id: answerId,
-          response: WhatsOffResponse.Act,
-          scope: WhatsOffScope.Feed,
-          asks: [{ words: 'AI agents', direction: 'less' }],
-          lines,
-        },
-      },
-    },
-  });
+  },
+});
+
+const showBox = () => {
   const client = new QueryClient();
   client.setQueryData(feedControlsQueryKey(defaultUser), {
     topics: [],
@@ -80,12 +81,20 @@ const askWith = async (lines: WhatsOffLine[]) => {
       </WhatsOffBox>
     </TestBootProvider>,
   );
+  return screen.getByRole('textbox', {
+    name: "Tell us what's off about your feed",
+  });
+};
 
-  await userEvent.type(
-    screen.getByRole('textbox', { name: "Tell us what's off about your feed" }),
-    text,
-  );
+const askWith = async (
+  lines: WhatsOffLine[],
+  result: Record<string, unknown> = answerWith(lines),
+) => {
+  mockGraphQL({ request: whatsOffRequest, result });
+  const input = showBox();
+  await userEvent.type(input, text);
   await userEvent.click(screen.getByRole('button', { name: 'Send' }));
+  return input;
 };
 
 const mockMutation = (query: string, variables: Record<string, unknown>) => {
@@ -270,5 +279,91 @@ describe('WhatsOffBox', () => {
         locked: false,
       }),
     });
+  });
+
+  it('should offer to try again when the answer fails, with the text back in the input', async () => {
+    const input = await askWith([], { errors: [{ message: 'boom' }] });
+
+    expect(
+      await screen.findByText("Couldn't get an answer just now."),
+    ).toBeInTheDocument();
+    expect(input).toHaveValue(text);
+
+    mockGraphQL({
+      request: whatsOffRequest,
+      result: answerWith([
+        {
+          kind: WhatsOffLineKind.Sure,
+          words: 'AI agents',
+          change: showLessAgents,
+          alternatives: [],
+        },
+      ]),
+    });
+    await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
+
+    expect(await screen.findByText('Show less #ai-agents')).toBeInTheDocument();
+    expect(input).toHaveValue('');
+  });
+
+  it('should say when the daily limit is reached, with nothing to retry', async () => {
+    await askWith([], {
+      errors: [{ message: 'Too many', extensions: { code: 'RATE_LIMITED' } }],
+    });
+
+    expect(
+      await screen.findByText(
+        "You've reached today's limit. Try again tomorrow.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Try again' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should say when the text reaches its length limit', async () => {
+    const input = showBox();
+    userEvent.paste(input, 'a'.repeat(WHATS_OFF_MAX_LENGTH + 20));
+
+    expect(input).toHaveAttribute('maxLength', String(WHATS_OFF_MAX_LENGTH));
+    expect(
+      screen.getByText(
+        `You've reached the ${WHATS_OFF_MAX_LENGTH}-character limit.`,
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('should keep a level change applied when its undo fails', async () => {
+    await askWith([
+      {
+        kind: WhatsOffLineKind.Sure,
+        words: 'AI agents',
+        change: showLessAgents,
+        alternatives: [],
+      },
+    ]);
+    mockMutation(SET_FEED_TOPIC_MODE_MUTATION, {
+      keyword: 'ai-agents',
+      mode: FeedTopicMode.Demote,
+    });
+    await userEvent.click(await screen.findByRole('button', { name: 'Apply' }));
+    expect(await screen.findByText('Applied')).toBeInTheDocument();
+
+    const undo = { sent: false };
+    mockGraphQL({
+      request: {
+        query: SET_FEED_TOPIC_MODE_MUTATION,
+        variables: { keyword: 'ai-agents', mode: null },
+      },
+      result: () => {
+        undo.sent = true;
+        return { errors: [{ message: 'boom' }] };
+      },
+    });
+    await userEvent.click(screen.getByRole('button', { name: 'Undo' }));
+
+    await waitFor(() => expect(undo.sent).toBe(true));
+    expect(await screen.findByText('Applied')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Undo' })).toBeInTheDocument();
   });
 });

@@ -67,6 +67,11 @@ const toValue = <Mode>(
 export interface AppliedWhatsOffChange {
   /** Takes the change back, where it has a clear inverse. */
   undo?: () => Promise<boolean>;
+  /**
+   * The For You controls carry the change, so whether it is in effect follows
+   * them: a refused change or undo rolls back there.
+   */
+  isTracked?: boolean;
 }
 
 interface UseWhatsOffChange {
@@ -241,6 +246,7 @@ export const useWhatsOffChange = (): UseWhatsOffChange => {
           setTopic(target.id, { mode: mode as FeedTopicMode | null });
           return {
             undo: () => run(() => setTopic(target.id, toValue(previous))),
+            isTracked: true,
           };
         }
         case WhatsOffOp.Source: {
@@ -251,6 +257,7 @@ export const useWhatsOffChange = (): UseWhatsOffChange => {
           setSource(target.id, { mode: mode as FeedSourceMode | null });
           return {
             undo: () => run(() => setSource(target.id, toValue(previous))),
+            isTracked: true,
           };
         }
         case WhatsOffOp.Author: {
@@ -261,6 +268,7 @@ export const useWhatsOffChange = (): UseWhatsOffChange => {
           setAuthor(target.id, { mode: mode as FeedAuthorMode | null });
           return {
             undo: () => run(() => setAuthor(target.id, toValue(previous))),
+            isTracked: true,
           };
         }
         case WhatsOffOp.Follow:
@@ -302,12 +310,18 @@ export const useWhatsOffChange = (): UseWhatsOffChange => {
         case WhatsOffOp.Learning: {
           const previous = controls?.learning ?? true;
           setLearning(enabled);
-          return { undo: () => run(() => setLearning(previous)) };
+          return {
+            undo: () => run(() => setLearning(previous)),
+            isTracked: true,
+          };
         }
         case WhatsOffOp.FillIns: {
           const previous = controls?.fillIns ?? true;
           setFillIns(enabled);
-          return { undo: () => run(() => setFillIns(previous)) };
+          return {
+            undo: () => run(() => setFillIns(previous)),
+            isTracked: true,
+          };
         }
         case WhatsOffOp.Reset: {
           const flags = resetFlags[change.value ?? ''];
@@ -323,7 +337,10 @@ export const useWhatsOffChange = (): UseWhatsOffChange => {
             controls?.ranking.find((setting) => setting.key === key)?.value ??
             null;
           setRankingSetting(key, change.to);
-          return { undo: () => run(() => setRankingSetting(key, previous)) };
+          return {
+            undo: () => run(() => setRankingSetting(key, previous)),
+            isTracked: true,
+          };
         }
         case WhatsOffOp.HidePosts: {
           const postIds = change.postIds ?? [];

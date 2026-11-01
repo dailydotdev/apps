@@ -1,3 +1,4 @@
+import type { UseMutateFunction } from '@tanstack/react-query';
 import { useMutation } from '@tanstack/react-query';
 import { useLogContext } from '../../contexts/LogContext';
 import { feedV2SupportedTypes } from '../../graphql/feed';
@@ -14,7 +15,7 @@ interface UseWhatsOff {
   error: unknown;
   /** Changes on every submit, so each answer starts fresh. */
   submittedAt: number;
-  ask: (text: string) => void;
+  ask: UseMutateFunction<WhatsOff, unknown, string>;
   clear: () => void;
 }
 

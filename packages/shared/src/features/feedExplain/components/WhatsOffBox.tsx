@@ -22,7 +22,6 @@ import type { ApiErrorResult } from '../../../graphql/common';
 import { ApiError, getApiError } from '../../../graphql/common';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
-import { labels } from '../../../lib/labels';
 import { LogEvent, TargetType } from '../../../lib/log';
 import type { WhatsOff, WhatsOffChange, WhatsOffLine } from '../types';
 import { WhatsOffLineKind, WhatsOffResponse, WhatsOffScope } from '../types';
@@ -269,7 +268,9 @@ const LineRow = ({
     const isUndone = await applied.undo();
     setIsPending(false);
     if (isUndone) {
-      setApplied(undefined);
+      if (!applied.isTracked) {
+        setApplied(undefined);
+      }
       log(LogEvent.UndoWhatsOffChange, applied.change);
     }
   };
@@ -420,10 +421,8 @@ const Answer = ({ answer }: { answer: WhatsOff }): ReactElement => {
   );
 };
 
-const getErrorMessage = (error: unknown): string =>
-  getApiError(error as ApiErrorResult, ApiError.RateLimited)
-    ? "You've reached today's limit. Try again tomorrow."
-    : labels.error.generic;
+const isRateLimited = (error: unknown): boolean =>
+  !!getApiError(error as ApiErrorResult, ApiError.RateLimited);
 
 interface WhatsOffBoxProps {
   version: number;
@@ -450,13 +449,22 @@ export const WhatsOffBox = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const isOpen = isPending || !!answer || !!error;
 
+  // A complaint that fails goes back in the input, so the reader can fix or
+  // resend it, and leaves it once an answer comes.
+  const send = (complaint: string) =>
+    ask(complaint, {
+      onError: () => setValue((current) => current || complaint),
+      onSuccess: () =>
+        setValue((current) => (current === complaint ? '' : current)),
+    });
+
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
     const complaint = value.trim();
     if (!complaint || isPending) {
       return;
     }
-    ask(complaint);
+    send(complaint);
     setValue('');
   };
 
@@ -503,13 +511,35 @@ export const WhatsOffBox = ({
             />
           </header>
           {isPending && <WhatsOffProgress />}
-          {!!error && (
+          {!!error && isRateLimited(error) && (
             <p className="text-text-secondary typo-callout">
-              {getErrorMessage(error)}
+              You&apos;ve reached today&apos;s limit. Try again tomorrow.
             </p>
+          )}
+          {!!error && !isRateLimited(error) && (
+            <div className="flex flex-col items-start gap-2">
+              <p className="text-text-secondary typo-callout">
+                Couldn&apos;t get an answer just now.
+              </p>
+              {text && (
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Secondary}
+                  size={ButtonSize.Small}
+                  onClick={() => send(text)}
+                >
+                  Try again
+                </Button>
+              )}
+            </div>
           )}
           {answer && <Answer answer={answer} />}
         </section>
+      )}
+      {value.length >= WHATS_OFF_MAX_LENGTH && (
+        <p role="status" className="px-4 pt-2 text-text-tertiary typo-footnote">
+          You&apos;ve reached the {WHATS_OFF_MAX_LENGTH}-character limit.
+        </p>
       )}
       <form className="flex items-center gap-2 p-2" onSubmit={onSubmit}>
         <div className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-12 border border-transparent bg-surface-float pl-3 focus-within:border-border-subtlest-primary">
