@@ -25,6 +25,7 @@ export enum PlusUpsellFeature {
   /** A level picker's exact boost and how long a change lasts. */
   Levels = 'levels',
   Ranking = 'ranking',
+  WhatsOff = 'whats_off',
 }
 
 const useUpgradeClick = (feature: PlusUpsellFeature) => {
