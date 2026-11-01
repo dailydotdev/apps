@@ -31,6 +31,7 @@ import {
 import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
 import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
 import { useEngagementBarV2 } from '../../../hooks/useEngagementBarV2';
+import { useListCardLargeActions } from '../../../hooks/cards/useListCardLargeActions';
 import ActionButtonsV2 from './ActionButtons.v2';
 import { getPostPath } from '../../../lib/links';
 
@@ -74,7 +75,10 @@ const variantConfig = {
 } as const;
 
 interface ActionButtonsV1Props extends ActionButtonsProps {
-  /** Grid cards: the bar at 32px with 19px icons, in the same 36px row. */
+  /**
+   * The bar at 32px with 19px icons: grid cards in the same 36px row, list
+   * cards in the list_card_large_actions treatment.
+   */
   large?: boolean;
 }
 
@@ -198,9 +202,12 @@ const ActionButtonsV1 = ({
     <div
       className={classNames(
         'flex flex-row items-center justify-between',
-        // 32px buttons keep the 36px row: 4px from the card's left side and
-        // its bottom, and 8px after the views number.
-        large ? 'pb-1 pl-1 pr-2' : config.containerClassName,
+        // 32px grid buttons keep the 36px row: 4px from the card's left side
+        // and its bottom, and 8px after the views number.
+        large && variant === 'grid'
+          ? 'pb-1 pl-1 pr-2'
+          : config.containerClassName,
+        large && variant === 'list' && '-ml-[0.40625rem]',
         className,
       )}
     >
@@ -340,15 +347,18 @@ const ActionButtons = (props: ActionButtonsProps): ReactElement | null => {
   const { variant = 'grid', bookmarkInHeader, ...rest } = props;
   const useV2 = useEngagementBarV2();
   // Grid cards get the larger bar and, when the card renders it in its header,
-  // drop the bookmark from the bar. List cards keep the default bar.
+  // drop the bookmark from the bar. List cards get the larger bar only in the
+  // list_card_large_actions treatment, and always keep the bookmark.
   const isGrid = variant === 'grid';
+  const isListLarge = useListCardLargeActions({ shouldEvaluate: !isGrid });
+  const large = isGrid || isListLarge;
   const inHeader = isGrid && !!bookmarkInHeader;
   if (useV2) {
     return (
       <ActionButtonsV2
         {...rest}
         variant={variant}
-        density={isGrid ? 'compact' : undefined}
+        density={large ? 'compact' : undefined}
         bookmarkInHeader={inHeader}
       />
     );
@@ -357,7 +367,7 @@ const ActionButtons = (props: ActionButtonsProps): ReactElement | null => {
     <ActionButtonsV1
       {...rest}
       variant={variant}
-      large={isGrid}
+      large={large}
       bookmarkInHeader={inHeader}
     />
   );
