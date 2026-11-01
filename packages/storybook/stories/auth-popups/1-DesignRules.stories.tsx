@@ -58,8 +58,15 @@ export const DesignRules: StoryObj = {
             {
               aspect: 'Fields',
               cells: [
-                '12px between fields. An error appears right under its field only when there is one, instead of every field reserving an empty row for it.',
+                'Every field keeps a 20px row under it for its message: an error, or the password strength. The message swaps into that row, so nothing below it moves. 24px from one field to the next.',
                 'LoginForm.tsx, RegistrationForm.tsx, SocialRegistrationForm.tsx',
+              ],
+            },
+            {
+              aspect: 'Errors',
+              cells: [
+                'An empty or invalid field gets its message right under it, in place of the browser’s tooltip. A problem with the whole form, like an email and password that don’t match, gets one strip right above the main button.',
+                'LoginForm.tsx, RegistrationForm.tsx',
               ],
             },
             {
@@ -85,6 +92,50 @@ export const DesignRules: StoryObj = {
             },
           ]}
         />
+      </Section>
+
+      <Section
+        title="Why fields keep a message row"
+        note="Research behind the Fields rule: should a field's message take space only when it appears, or keep a fixed row?"
+      >
+        <CompareTable
+          firstColumn="Source"
+          columns={['What it says']}
+          rows={[
+            {
+              aspect: 'Material Design',
+              cells: [
+                'Error text replaces the helper text in the same spot instead of adding a line, and never sits under the helper text, because that shifts the content below.',
+              ],
+            },
+            {
+              aspect: 'SEEK Braid design system',
+              cells: [
+                'Its form layout reserves message space under fields to prevent layout shifts, for forms likely to show inline errors.',
+              ],
+            },
+            {
+              aspect: 'Smashing Magazine, live validation guide',
+              cells: [
+                'Communicate errors without distractions or layout shifts, and don’t validate a field before someone has used it.',
+              ],
+            },
+            {
+              aspect: 'Design system issue threads',
+              cells: [
+                'Fields that jump when a message appears make it harder to hit the right field. The accepted fix reserves the row, at the cost of 20px under fields that stay empty.',
+              ],
+            },
+          ]}
+        />
+        <p className="max-w-[52rem] text-text-secondary typo-callout">
+          <strong>Our forms validate as people type:</strong> the email check,
+          the password strength and username availability. With no reserved row,
+          every one of those pushes the fields and the button down mid-typing,
+          which is the noise in the 16px version. So every field keeps its row,
+          the message swaps in, and 24px between fields keeps the form tighter
+          than production’s 28px.
+        </p>
       </Section>
 
       <Section title="Buttons">

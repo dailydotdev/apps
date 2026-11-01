@@ -13,7 +13,7 @@ import {
 } from './mock';
 
 const meta: Meta = {
-  title: 'Auth Pop-ups/5. Still to decide/5. Legal line',
+  title: 'Auth Pop-ups/5. Decisions/5. Legal line',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -26,6 +26,7 @@ export const LegalLinePage: StoryObj = {
   render: () => (
     <DecisionPage
       number={5}
+      decided
       question="Where do the terms go?"
       title="The legal line in the same place"
       today={
@@ -35,7 +36,7 @@ export const LegalLinePage: StoryObj = {
           in and the full page’s first screen don’t show it.
         </p>
       }
-      recommendation="Decided: Sign up only. Log in is for people who already agreed when they signed up."
+      recommendation="Sign up only. Log in is for people who already agreed when they signed up."
       why={[
         'Log in stays short, and the line keeps its weight on the one screen where an account is created.',
         'It’s where the landing page shows it too.',

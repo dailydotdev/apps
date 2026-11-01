@@ -10,7 +10,7 @@ import {
 } from './mock';
 
 const meta: Meta = {
-  title: 'Auth Pop-ups/5. Still to decide/3. Title',
+  title: 'Auth Pop-ups/5. Decisions/3. Title',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -24,6 +24,7 @@ export const Title: StoryObj = {
   render: () => (
     <DecisionPage
       number={3}
+      decided
       question="How does the pop-up name itself?"
       title="One title"
       today={
@@ -33,7 +34,7 @@ export const Title: StoryObj = {
           title.
         </p>
       }
-      recommendation="Decided: the header bar, with the landing page’s headline under it on Sign up. Full pages keep their centered title."
+      recommendation="The header bar, with the landing page’s headline under it on Sign up. Full pages keep their centered title."
       why={[
         'The bar keeps the close button and a back arrow in the same row on every step.',
         'The headline carries the landing page’s voice into the app, so a visitor from daily.dev sees the same promise in both pop-ups.',

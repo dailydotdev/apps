@@ -11,7 +11,7 @@ import {
 } from './mock';
 
 const meta: Meta = {
-  title: 'Auth Pop-ups/5. Still to decide/6. Phone layout',
+  title: 'Auth Pop-ups/5. Decisions/6. Phone layout',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -25,6 +25,7 @@ export const PhoneLayout: StoryObj = {
   render: () => (
     <DecisionPage
       number={6}
+      decided
       question="How does the pop-up sit on a phone?"
       title="The landing card and the phone layout"
       today={
@@ -34,7 +35,7 @@ export const PhoneLayout: StoryObj = {
           of the primary background.
         </p>
       }
-      recommendation="Decided: keep today’s layouts for now. The landing pop-up stays a card on phones, and the webapp stays full screen. Full screen for the landing is a later call."
+      recommendation="Keep today’s layouts for now. The landing pop-up stays a card on phones, and the webapp stays full screen. Full screen for the landing is a later call."
       why={[
         'Nothing changes on phones in this round, on either site.',
         'The webapp stays full screen because its later steps have fields and a pinned footer and action bar that need a fixed bottom edge.',

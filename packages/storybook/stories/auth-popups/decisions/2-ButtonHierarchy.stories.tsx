@@ -9,7 +9,7 @@ import {
 } from './mock';
 
 const meta: Meta = {
-  title: 'Auth Pop-ups/5. Still to decide/2. Button hierarchy',
+  title: 'Auth Pop-ups/5. Decisions/2. Button hierarchy',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -23,6 +23,7 @@ export const ButtonHierarchy: StoryObj = {
   render: () => (
     <DecisionPage
       number={2}
+      decided
       question="Does one sign-in option lead?"
       title="One button hierarchy"
       today={
@@ -31,16 +32,16 @@ export const ButtonHierarchy: StoryObj = {
           translucent. The webapp makes every provider white, so nothing leads.
         </p>
       }
-      recommendation="Google leads in white. The other options are outlined."
+      recommendation="Keep today’s pop-up: every provider button is white."
       why={[
-        'One clear first choice reads faster than a column of equal buttons.',
-        'Google is the most common choice and the one One Tap already promotes, so the page and One Tap point the same way.',
-        'It’s what the landing page does today, so both sites match without a redesign there.',
+        'No provider is favored over another.',
+        'Log in still sets its email button apart: it’s the outlined one under the white providers.',
       ]}
-      cost="Small. One variant per button in AuthDefault, using the existing secondary style."
+      cost="Nothing to build."
       options={[
         {
           label: 'A · All white',
+          recommended: true,
           caption: 'Today’s webapp. Nothing leads.',
           mock: (
             <MockPopup title="Sign up" footer={footer}>
@@ -51,7 +52,6 @@ export const ButtonHierarchy: StoryObj = {
         },
         {
           label: 'B · Google leads',
-          recommended: true,
           caption: 'Like the landing page.',
           mock: (
             <MockPopup title="Sign up" footer={footer}>

@@ -207,10 +207,6 @@ export const SecurityCheck = (): ReactElement => (
   </div>
 );
 
-export const Note = ({ children }: { children: ReactNode }): ReactElement => (
-  <p className="text-center text-text-tertiary typo-footnote">{children}</p>
-);
-
 export interface DecisionOption {
   label: string;
   recommended?: boolean;
@@ -222,6 +218,7 @@ export interface DecisionOption {
 // the recommendation with its reasoning.
 export const DecisionPage = ({
   number,
+  decided,
   title,
   question,
   today,
@@ -232,6 +229,7 @@ export const DecisionPage = ({
   children,
 }: {
   number: number;
+  decided?: boolean;
   title: string;
   question: string;
   today: ReactNode;
@@ -242,13 +240,15 @@ export const DecisionPage = ({
   children?: ReactNode;
 }): ReactElement => (
   <Page
-    eyebrow={`Still to decide ${number} · ${question}`}
+    eyebrow={`${
+      decided ? 'Decided' : 'Still to decide'
+    } ${number} · ${question}`}
     title={title}
     goal={today}
   >
     <section className="flex flex-col gap-3 rounded-16 border border-accent-avocado-default p-5">
       <p className="self-start rounded-8 bg-accent-avocado-default px-2 py-0.5 font-bold text-white typo-caption1">
-        Recommendation
+        {decided ? 'Decision' : 'Recommendation'}
       </p>
       <div className="font-bold typo-title3">{recommendation}</div>
       <ul className="flex list-disc flex-col gap-1 pl-5 text-text-secondary typo-callout">
@@ -266,7 +266,11 @@ export const DecisionPage = ({
         {options.map(({ label, recommended, mock, caption }) => (
           <Labeled
             key={label}
-            label={recommended ? `${label} · recommended` : label}
+            label={
+              recommended
+                ? `${label} · ${decided ? 'decided' : 'recommended'}`
+                : label
+            }
             tone={recommended ? 'proposed' : 'neutral'}
             caption={caption}
           >

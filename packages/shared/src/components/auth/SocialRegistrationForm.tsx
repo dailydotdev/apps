@@ -247,7 +247,7 @@ export const SocialRegistrationForm = ({
       )}
       {(!isAppleRegistration || shouldShowAppleEmail) && (
         <TextField
-          saveHintSpace={simplified}
+          saveHintSpace
           className={{ container: 'w-full' }}
           leftIcon={emailFieldIcon(provider)}
           name="email"
@@ -262,7 +262,7 @@ export const SocialRegistrationForm = ({
       )}
       {!isAppleRegistration && (
         <TextField
-          saveHintSpace={simplified}
+          saveHintSpace
           className={{ container: 'w-full' }}
           leftIcon={<UserIcon size={IconSize.Small} />}
           name="name"
@@ -283,7 +283,7 @@ export const SocialRegistrationForm = ({
         />
       )}
       <TextField
-        saveHintSpace={simplified}
+        saveHintSpace
         className={{ container: 'w-full' }}
         leftIcon={<AtIcon size={IconSize.Small} secondary />}
         name="username"
@@ -318,7 +318,7 @@ export const SocialRegistrationForm = ({
         }}
         valid={experienceLevelHint === null}
         hint={experienceLevelHint}
-        saveHintSpace={simplified}
+        saveHintSpace
       />
       <Checkbox name="optOutMarketing" className="font-normal">
         I don’t want to receive updates and promotions via email
@@ -364,7 +364,7 @@ export const SocialRegistrationForm = ({
       <AuthHeader simplified={simplified} title={title} />
       <AuthForm
         className={classNames(
-          'mt-6 w-full flex-1 place-items-center gap-3 self-center overflow-y-auto px-6 pb-2',
+          'mt-6 w-full flex-1 place-items-center gap-1 self-center overflow-y-auto px-6 pb-2',
           className,
         )}
         ref={formRef}

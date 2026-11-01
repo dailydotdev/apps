@@ -13,7 +13,7 @@ import {
 } from './mock';
 
 const meta: Meta = {
-  title: 'Auth Pop-ups/5. Still to decide/1. Provider list',
+  title: 'Auth Pop-ups/5. Decisions/1. Provider list',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -29,6 +29,7 @@ export const ProviderListPage: StoryObj = {
   render: () => (
     <DecisionPage
       number={1}
+      decided
       question="Which sign-in options do we offer?"
       title="One provider list"
       today={
@@ -38,17 +39,17 @@ export const ProviderListPage: StoryObj = {
           The same person sees three options on daily.dev and five in the app.
         </p>
       }
-      recommendation="Sign up offers Google, GitHub and email, plus Apple in the iOS app. Log in keeps all four providers."
+      recommendation="Keep today’s list: Google, GitHub, Apple and Facebook on every pop-up, plus email."
       why={[
-        'Developers sign up with Google or GitHub. Fewer choices on the first screen make the choice faster, and it’s already what the landing page and onboarding hero show.',
-        'People who signed up with Apple or Facebook still need those buttons to get back in, so Log in can’t drop them.',
-        'A social button on Log in still creates an account for someone new, so nobody gets stuck.',
-        'The iOS app shows this same pop-up and runs its Apple and Google buttons natively. App Store rules require Sign in with Apple wherever Google sign-in is offered, so Apple stays on Sign up there.',
+        'Everyone keeps their way in, whichever provider they signed up with.',
+        'The iOS app keeps Sign in with Apple next to Google, as App Store rules require.',
+        'The landing page keeps its shorter list of three.',
       ]}
-      cost="Small. The provider list in AuthDefault depends on Sign up vs Log in. Check Apple and Facebook’s share of new sign-ups first: if either is large, keep it on Sign up."
+      cost="Nothing to build."
       options={[
         {
           label: 'A · All four everywhere',
+          recommended: true,
           caption: 'Today’s webapp. Five buttons before email.',
           mock: (
             <MockPopup title="Sign up" footer={signUpFooter}>
@@ -72,7 +73,6 @@ export const ProviderListPage: StoryObj = {
         },
         {
           label: 'C · Short Sign up, full Log in',
-          recommended: true,
           caption:
             'Sign up matches the landing page. Log in keeps every way back in.',
           mock: (

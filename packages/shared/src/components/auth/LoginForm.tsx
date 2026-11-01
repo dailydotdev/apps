@@ -50,6 +50,28 @@ export type LoginFormParams = Pick<
   turnstileToken?: string;
 };
 
+type LoginFieldErrors = Partial<Record<'identifier' | 'password', string>>;
+
+const getFieldErrors = (
+  form: HTMLFormElement,
+  { identifier, password }: LoginFormParams,
+): LoginFieldErrors => {
+  const email = form.elements.namedItem('identifier') as HTMLInputElement;
+  const errors: LoginFieldErrors = {};
+
+  if (!identifier) {
+    errors.identifier = 'Enter your email';
+  } else if (!email.validity.valid) {
+    errors.identifier = 'Enter a valid email address';
+  }
+
+  if (!password) {
+    errors.password = 'Enter your password';
+  }
+
+  return errors;
+};
+
 function LoginForm({
   onForgotPassword,
   onPasswordLogin,
@@ -71,6 +93,7 @@ function LoginForm({
   const isTurnstileInteractiveRef = useRef(false);
   const [hasEngaged, setHasEngaged] = useState(false);
   const onEngage = () => setHasEngaged(true);
+  const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_KEY ?? '';
 
   useEffect(() => {
@@ -87,7 +110,11 @@ function LoginForm({
     }
 
     const form = formToJson<LoginFormParams>(e.currentTarget);
-    if (!form.identifier || !form.password) {
+    const errors = getFieldErrors(e.currentTarget, form);
+    setFieldErrors(errors);
+    const invalidField = Object.keys(errors)[0];
+    if (invalidField) {
+      document.getElementById(invalidField)?.focus();
       return;
     }
 
@@ -138,7 +165,8 @@ function LoginForm({
   return (
     <AuthForm
       aria-label="Login using email and password"
-      className={classNames('gap-3', className)}
+      className={classNames('gap-1', className)}
+      noValidate
       onSubmit={onLogin}
       onPointerDownCapture={onEngage}
       onKeyDownCapture={onEngage}
@@ -170,11 +198,14 @@ function LoginForm({
         data-testid="login_email"
         onChange={(e) => {
           setInnerEmail(e.target.value);
+          setFieldErrors(({ password }) => ({ password }));
           if (hint) {
             setHint(null);
           }
         }}
-        valid={!hint}
+        hint={fieldErrors.identifier}
+        valid={!fieldErrors.identifier}
+        saveHintSpace
         required
       />
       <PasswordField
@@ -185,7 +216,14 @@ function LoginForm({
         autoComplete="current-password"
         required
         showStrength={false}
-        onChange={() => hint && setHint(null)}
+        hint={fieldErrors.password}
+        saveHintSpace
+        onChange={() => {
+          setFieldErrors(({ identifier }) => ({ identifier }));
+          if (hint) {
+            setHint(null);
+          }
+        }}
       />
       {onForgotPassword && (
         <ClickableText
@@ -216,9 +254,30 @@ function LoginForm({
       )}
       {turnstileError && (
         <Alert
+          className="mt-3"
           type={AlertType.Error}
           title="Please complete the security check."
         />
+      )}
+      {hint && (
+        <Alert className="mt-3" type={AlertType.Error} flexDirection="flex-row">
+          <AlertParagraph className="!mt-0 flex-1">
+            {hint === labels.auth.error.invalidEmailOrPassword ? (
+              <>
+                The email or password you entered doesn&apos;t match our
+                records. Please try again or{' '}
+                <ClickableText
+                  onClick={onSignup}
+                  className="font-bold !text-text-primary underline hover:no-underline"
+                >
+                  create a new account.
+                </ClickableText>
+              </>
+            ) : (
+              'Something went wrong on our end. Please try again.'
+            )}
+          </AlertParagraph>
+        </Alert>
       )}
       {loginButtonVariant === ButtonVariant.Primary ? (
         <AuthActionBar
@@ -231,7 +290,7 @@ function LoginForm({
         </AuthActionBar>
       ) : (
         <Button
-          className="mt-2 w-full"
+          className="mt-3 w-full"
           size={ButtonSize.Large}
           variant={loginButtonVariant}
           type="submit"
@@ -240,20 +299,6 @@ function LoginForm({
         >
           {loginButton}
         </Button>
-      )}
-      {hint && hint === labels.auth.error.invalidEmailOrPassword && (
-        <Alert className="mt-6" type={AlertType.Error} flexDirection="flex-row">
-          <AlertParagraph className="!mt-0 flex-1">
-            The email or password you entered doesn&apos;t match our records.
-            Please try again or{' '}
-            <ClickableText
-              onClick={onSignup}
-              className="font-bold text-white underline hover:no-underline"
-            >
-              create a new account.
-            </ClickableText>
-          </AlertParagraph>
-        </Alert>
       )}
     </AuthForm>
   );

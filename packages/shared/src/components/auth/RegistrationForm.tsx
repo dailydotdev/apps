@@ -396,7 +396,7 @@ const RegistrationForm = ({
         <AuthForm
           className={classNames(
             'w-full flex-1 place-items-center self-center',
-            simplified ? 'gap-2' : 'gap-3',
+            simplified ? 'gap-2' : 'gap-1',
             simplified ? 'mt-10 overflow-y-auto pb-2' : 'mt-6',
           )}
           data-testid="registration_form"
@@ -408,7 +408,7 @@ const RegistrationForm = ({
           <TextField
             autoFocus
             autoComplete="email"
-            saveHintSpace={simplified}
+            saveHintSpace
             className={{ container: 'w-full' }}
             leftIcon={<MailIcon aria-hidden role="presentation" />}
             name="traits.email"
@@ -420,14 +420,14 @@ const RegistrationForm = ({
           />
           {hints?.['traits.email'] && !alreadyExists && (
             <Alert
-              className={classNames('min-w-full', simplified && '-mt-4 mb-3')}
+              className="-mt-4 mb-3 min-w-full"
               type={AlertType.Error}
               title={hints['traits.email']}
             />
           )}
           {alreadyExists && (
             <Alert
-              className={classNames('min-w-full', simplified && '-mt-4 mb-3')}
+              className="-mt-4 mb-3 min-w-full"
               type={AlertType.Error}
               flexDirection="flex-row"
             >
@@ -445,7 +445,7 @@ const RegistrationForm = ({
           )}
           <TextField
             autoComplete="name"
-            saveHintSpace={simplified}
+            saveHintSpace
             className={{ container: 'w-full' }}
             valid={isNameValid}
             leftIcon={<UserIcon aria-hidden role="presentation" />}
@@ -465,7 +465,7 @@ const RegistrationForm = ({
             required
             minLength={8}
             maxLength={72}
-            saveHintSpace={simplified}
+            saveHintSpace
             className={{ container: 'w-full' }}
             name="password"
             inputId="password"
@@ -478,7 +478,7 @@ const RegistrationForm = ({
           />
           <TextField
             autoComplete="user"
-            saveHintSpace={simplified}
+            saveHintSpace
             className={{ container: 'w-full' }}
             valid={isLoadingUsername || isUsernameValid}
             leftIcon={<AtIcon aria-hidden role="presentation" />}
@@ -508,13 +508,13 @@ const RegistrationForm = ({
                 hints?.['traits.experienceLevel'] &&
                 onUpdateHints({ ...hints, 'traits.experienceLevel': '' })
               }
-              saveHintSpace={simplified}
+              saveHintSpace
             />
           )}
           {extraFields.includes('company') && (
             <TextField
               autoComplete="organization"
-              saveHintSpace={simplified}
+              saveHintSpace
               className={{ container: 'w-full' }}
               leftIcon={<BriefIcon aria-hidden role="presentation" />}
               name="traits.company"
@@ -525,7 +525,7 @@ const RegistrationForm = ({
           {extraFields.includes('jobTitle') && (
             <TextField
               autoComplete="organization-title"
-              saveHintSpace={simplified}
+              saveHintSpace
               className={{ container: 'w-full' }}
               leftIcon={<JobIcon aria-hidden role="presentation" />}
               name="traits.title"
@@ -543,7 +543,7 @@ const RegistrationForm = ({
                 hints?.['traits.cloudProvider'] &&
                 onUpdateHints({ ...hints, 'traits.cloudProvider': '' })
               }
-              saveHintSpace={simplified}
+              saveHintSpace
             />
           )}
           <Checkbox className="w-full" name="optOutMarketing">
@@ -588,7 +588,7 @@ const RegistrationForm = ({
             {turnstileErrorLoading && (
               <Alert
                 type={AlertType.Error}
-                title="Turnstile is taking too long to load. Please try again."
+                title="The security check didn’t load. Refresh the page and try again."
               />
             )}
             {/* The funnel's primary action always sits inside the glass bar, so

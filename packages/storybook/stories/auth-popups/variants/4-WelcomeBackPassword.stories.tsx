@@ -5,7 +5,9 @@ import {
   cardRow,
   closeRow,
   errorCopyRow,
+  fieldsRow,
   footerRow,
+  loginErrorsRow,
   paddingRow,
 } from '../changes';
 
@@ -26,8 +28,9 @@ export const WelcomeBackPassword: StoryObj = {
       goal={
         <p>
           The email is filled in and the password form takes the place of the
-          provider button. Storybook has no Cloudflare site key, so the After
-          frames show no security check.
+          provider button. Storybook uses Cloudflare’s always-pass test key, so
+          the After frames pass the security check without a box, as most people
+          do.
         </p>
       }
       capture="webapp-welcome-password"
@@ -58,6 +61,8 @@ export const WelcomeBackPassword: StoryObj = {
         footerRow(
           'Two stacked links with no bar: “Not you?” and “Don’t have an account? Sign up”',
         ),
+        loginErrorsRow,
+        fieldsRow,
         errorCopyRow,
         paddingRow,
         cardRow,

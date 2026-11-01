@@ -7,7 +7,6 @@ import {
   EmailField,
   FooterLink,
   MockPopup,
-  Note,
   PasswordField,
   ProviderList,
   SecurityCheck,
@@ -19,7 +18,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 
 const meta: Meta = {
-  title: 'Auth Pop-ups/5. Still to decide/7. Security check',
+  title: 'Auth Pop-ups/5. Decisions/7. Security check',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -41,6 +40,7 @@ export const SecurityCheckPage: StoryObj = {
   render: () => (
     <DecisionPage
       number={7}
+      decided
       question="When does Cloudflare’s box show?"
       title="The security check only when it’s needed"
       today={
@@ -50,7 +50,7 @@ export const SecurityCheckPage: StoryObj = {
           invisibly, and only shows the box when Cloudflare needs a click.
         </p>
       }
-      recommendation="Decided and built: the box shows only after someone uses the email and password form, and only if Cloudflare needs a click."
+      recommendation="Built: the box shows only after someone uses the email and password form, and only if Cloudflare needs a click."
       why={[
         'The check still runs silently from the moment Log in opens, so people who pass get no delay and the button never waits on it.',
         'Someone who taps Google or GitHub never sees the box.',
@@ -84,9 +84,6 @@ export const SecurityCheckPage: StoryObj = {
               <EmailField />
               <PasswordField />
               {logIn}
-              <Note>
-                The box appears here only if Cloudflare needs a click.
-              </Note>
             </MockPopup>
           ),
         },

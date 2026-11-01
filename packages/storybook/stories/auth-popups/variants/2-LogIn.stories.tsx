@@ -1,12 +1,22 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { screen, Variant } from '../kit';
+import {
+  Labeled,
+  LiveFrame,
+  PHONE,
+  PhoneRow,
+  screen,
+  Section,
+  Variant,
+} from '../kit';
 import {
   cardRow,
   closeRow,
   errorCopyRow,
+  fieldsRow,
   footerRow,
   iconsRow,
+  loginErrorsRow,
   logInButtonRow,
   paddingRow,
 } from '../changes';
@@ -28,8 +38,9 @@ export const LogIn: StoryObj = {
       goal={
         <p>
           The same pop-up with a password form under the four providers, the
-          tallest screen in the flow. Storybook has no Cloudflare site key, so
-          the After frames show no “Verify you are human” box.
+          tallest screen in the flow. Storybook uses Cloudflare’s always-pass
+          test key, so the After frames pass the security check without a box,
+          as most people do.
         </p>
       }
       capture="webapp-login"
@@ -45,11 +56,43 @@ export const LogIn: StoryObj = {
         footerRow(
           '“Not a member yet? Sign up”, only after a scroll on phones: the Cloudflare box pushes it out',
         ),
+        loginErrorsRow,
+        fieldsRow,
         errorCopyRow,
         iconsRow,
         paddingRow,
         cardRow,
       ]}
-    />
+    >
+      <Section
+        title="Errors"
+        note="Live: each frame fills the form and presses Log in. Storybook has no auth API, so any password comes back as a wrong one."
+      >
+        <PhoneRow>
+          <Labeled
+            label="After · empty or invalid field"
+            tone="proposed"
+            caption="An invalid email and no password: each field says what to fix, and the first one gets focus."
+          >
+            <LiveFrame
+              storyId={screen('log-in-field-errors')}
+              title="Log in with field errors on a phone"
+              {...PHONE}
+            />
+          </Labeled>
+          <Labeled
+            label="After · wrong password"
+            tone="proposed"
+            caption="One strip right above Log in, with a way to create an account. Typing in either field clears it."
+          >
+            <LiveFrame
+              storyId={screen('log-in-wrong-password')}
+              title="Log in with a wrong password on a phone"
+              {...PHONE}
+            />
+          </Labeled>
+        </PhoneRow>
+      </Section>
+    </Variant>
   ),
 };

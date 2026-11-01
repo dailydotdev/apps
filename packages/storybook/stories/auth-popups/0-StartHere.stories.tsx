@@ -21,8 +21,8 @@ const pages = [
     'The landing page’s own pop-up, and production compared side by side.',
   ],
   [
-    '5. Still to decide',
-    'Seven open items, each with its options mocked side by side and a recommendation.',
+    '5. Decisions',
+    'The seven questions this review raised, each decided, with the options mocked side by side.',
   ],
 ];
 
@@ -40,7 +40,8 @@ const fixed = [
   '“Not you? Use another account” moved into Welcome back’s content',
   'Verify email works like the onboarding: no back arrow, a Change email link, the mail icon above the message, “Resend code” centered on its own line',
   'The remembered email on Welcome back no longer shows a red error border',
-  'Fields sit 12px apart, with errors appearing under a field only when there is one',
+  'Every field keeps a fixed row for its message, so errors and the password strength never push the form around. Fields sit 24px apart, down from 28px.',
+  'Log in explains every error: a message under an empty or invalid field, and a strip above the button when the email and password don’t match or something fails',
   'Cloudflare’s box on Log in shows only after the form is used, and only when Cloudflare needs a click',
   'Sign up opens on the landing page’s headline under the header bar',
   '“create a new account” in the wrong-password error',

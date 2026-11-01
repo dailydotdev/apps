@@ -45,6 +45,22 @@ export const footerRow = (before: string): CompareRow => ({
   ],
 });
 
+export const fieldsRow: CompareRow = {
+  aspect: 'Fields',
+  cells: [
+    'A reserved message row under every field, 28px from one field to the next',
+    'The same reserved row, so errors and the password strength never move the form, with 24px from one field to the next',
+  ],
+};
+
+export const loginErrorsRow: CompareRow = {
+  aspect: 'Errors',
+  cells: [
+    'An empty field shows only the browser’s tooltip. A wrong password turns just the email red, with the message under the Log in button. Any other failure turns the email red with no message at all.',
+    'A message under an empty or invalid field. A wrong password or any other failure shows one strip right above the Log in button, like Sign up, and no field is blamed.',
+  ],
+};
+
 export const errorCopyRow: CompareRow = {
   aspect: 'Wrong-password error',
   cells: ['“…or create new account.”', '“…or create a new account.”'],

@@ -48,6 +48,56 @@ export const LogIn: Story = {
   ),
 };
 
+// Fills the Log in form the way a person would and submits it. Storybook has
+// no auth API, so a submitted password comes back as a wrong password.
+const submitLogin = async (values: {
+  identifier: string;
+  password: string;
+}): Promise<void> => {
+  const startedAt = Date.now();
+  let form: HTMLFormElement | null = null;
+  while (!form && Date.now() - startedAt < 5000) {
+    // eslint-disable-next-line no-await-in-loop
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    form = document.querySelector<HTMLFormElement>(
+      'form[aria-label="Login using email and password"]',
+    );
+  }
+  if (!form) {
+    return;
+  }
+
+  const setValue = Object.getOwnPropertyDescriptor(
+    HTMLInputElement.prototype,
+    'value',
+  )?.set;
+  Object.entries(values).forEach(([name, value]) => {
+    const input = form?.elements.namedItem(name) as HTMLInputElement;
+    setValue?.call(input, value);
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  form.requestSubmit();
+};
+
+export const LogInFieldErrors: Story = {
+  render: () => (
+    <Providers>
+      <AuthPopup isLogin />
+    </Providers>
+  ),
+  play: () => submitLogin({ identifier: 'ada.lovelace.dev', password: '' }),
+};
+
+export const LogInWrongPassword: Story = {
+  render: () => (
+    <Providers>
+      <AuthPopup isLogin />
+    </Providers>
+  ),
+  play: () =>
+    submitLogin({ identifier: DEMO_EMAIL, password: 'analytical-engine' }),
+};
+
 export const WelcomeBackGoogle: Story = {
   render: () => (
     <Providers rememberedProvider={SocialProvider.Google}>

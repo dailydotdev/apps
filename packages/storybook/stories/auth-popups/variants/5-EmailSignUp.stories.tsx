@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { screen, Variant } from '../kit';
-import { cardRow, closeRow, paddingRow } from '../changes';
+import { cardRow, closeRow, fieldsRow, paddingRow } from '../changes';
 
 const meta: Meta = {
   title: 'Auth Pop-ups/3. Variants/5. Email sign-up',
@@ -22,9 +22,8 @@ export const EmailSignUp: StoryObj = {
           Email, name, password, username and experience level, with the Sign up
           button at the bottom. It used to open with the email typed on Sign up;
           now “Continue with email” opens it with the email field empty and
-          focused. Storybook has no Cloudflare site key, so the After frames
-          show a “taking too long” notice where production shows the security
-          check.
+          focused. Storybook uses Cloudflare’s always-pass test key, so the
+          After frames pass the security check without a box, as most people do.
         </p>
       }
       capture="webapp-email-signup"
@@ -52,6 +51,7 @@ export const EmailSignUp: StoryObj = {
           aspect: 'Side padding',
           cells: ['16px on phones, 24px on desktop', '24px at every size'],
         },
+        fieldsRow,
         cardRow,
       ]}
     />
