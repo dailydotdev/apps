@@ -39,6 +39,7 @@ export const FeedExplainBar = ({
   return (
     // On a phone it stands one bar above the shell's, on the shell's floor.
     <div
+      hidden={isHidden}
       className={classNames(
         'pointer-events-none sticky bottom-[calc(var(--shell-floor)+4rem)] z-3 mt-8 w-full justify-center px-4 laptop:bottom-[calc(1rem+var(--sponsor-strip-height,0.75rem))]',
         isHidden ? 'hidden' : 'flex',
