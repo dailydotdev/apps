@@ -88,6 +88,8 @@ const config: StorybookConfig = {
       define: {
         'process.env': {
           NEXT_PUBLIC_WEBAPP_URL: 'https://app.daily.dev',
+          // Cloudflare's public test key that always passes without a click.
+          NEXT_PUBLIC_TURNSTILE_KEY: '1x00000000000000000000AA',
         },
         browser,
       },
