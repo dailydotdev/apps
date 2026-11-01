@@ -61,8 +61,8 @@ const renderMode = ({
 };
 
 describe('useFeedExplainMode', () => {
-  it.each([116, 118])(
-    'should turn on for the challenger version %i with the flag on',
+  it.each([116, 15])(
+    'should turn on with the flag on, on feed version %i',
     async (version) => {
       const { result } = renderMode({ version, isFlagOn: true });
 
@@ -75,7 +75,6 @@ describe('useFeedExplainMode', () => {
   );
 
   it.each([
-    ['another feed version', { version: 15, isFlagOn: true }],
     ['the flag off', { version: 116, isFlagOn: false }],
     [
       'the By date sort',

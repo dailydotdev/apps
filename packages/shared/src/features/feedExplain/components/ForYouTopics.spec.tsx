@@ -63,11 +63,13 @@ const controls: FeedControls = {
   ranking: [],
 };
 
-const renderTopics = (version = 116) => {
+const version = 116;
+
+const renderTopics = (isFlagOn = true) => {
   const gb = new GrowthBook({
     features: {
       feed_version: { defaultValue: version },
-      feed_explain: { defaultValue: true },
+      feed_explain: { defaultValue: isFlagOn },
     },
   });
   const client = new QueryClient();
@@ -155,8 +157,8 @@ describe('ForYouTopics', () => {
     await waitFor(() => expect(sent).toBe(true));
   });
 
-  it('should not show where the For You ranking ignores the levels', () => {
-    renderTopics(15);
+  it('should not show without the flag', () => {
+    renderTopics(false);
 
     expect(screen.queryByText('Topics you follow')).not.toBeInTheDocument();
   });

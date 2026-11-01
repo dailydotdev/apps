@@ -181,11 +181,8 @@ describe('Debug mode', () => {
     );
   };
 
-  it.each([
-    ['the flag off', { explain: false, version: 116 }],
-    ['a feed version that does not explain', { explain: true, version: 15 }],
-  ])('keeps the regular For You query with %s', async (_, flagValues) => {
-    mockFlags(flagValues);
+  it('keeps the regular For You query with the flag off', async () => {
+    mockFlags({ explain: false, version: 116 });
 
     renderDebugging();
 
@@ -195,18 +192,22 @@ describe('Debug mode', () => {
     expect(lastFeedProps().canExplainPosts).toBe(false);
   });
 
-  it('asks the challenger version for an explanation per card in Debug', async () => {
-    mockFlags({ explain: true, version: 116 });
+  it.each([116, 15])(
+    'asks for an explanation per card in Debug on feed version %i',
+    async (version) => {
+      mockFlags({ explain: true, version });
 
-    renderDebugging();
+      renderDebugging();
 
-    await screen.findByTestId('feed');
-    const { query, variables, isExplaining, canExplainPosts } = lastFeedProps();
-    expect(query).toBe(FEED_V2_EXPLAIN_QUERY);
-    expect(variables).toEqual(expect.objectContaining({ explain: true }));
-    expect(isExplaining).toBe(true);
-    expect(canExplainPosts).toBe(true);
-  });
+      await screen.findByTestId('feed');
+      const { query, variables, isExplaining, canExplainPosts } =
+        lastFeedProps();
+      expect(query).toBe(FEED_V2_EXPLAIN_QUERY);
+      expect(variables).toEqual(expect.objectContaining({ explain: true }));
+      expect(isExplaining).toBe(true);
+      expect(canExplainPosts).toBe(true);
+    },
+  );
 
   it('leaves explanations to the post menu with Debug off', async () => {
     mockFlags({ explain: true, version: 116 });
