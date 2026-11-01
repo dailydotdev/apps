@@ -1,13 +1,20 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
-import { ContentPreferenceType } from '../../graphql/contentPreference';
+import {
+  ContentPreferenceStatus,
+  ContentPreferenceType,
+} from '../../graphql/contentPreference';
 import { SidebarSettingsFlags } from '../../graphql/settings';
 import type { Source } from '../../graphql/sources';
+import { isFollowingContent } from '../../hooks/contentPreference/types';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
+import { contentPreferenceStatusQueryOptions } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import { useAdvancedSettings } from '../../hooks/feed/useAdvancedSettings';
+import { setPostHiddenPanel } from '../../hooks/post/useBlockPostPanel';
+import useFeedSettings from '../../hooks/useFeedSettings';
 import useReportPost from '../../hooks/useReportPost';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import { useToastNotification } from '../../hooks/useToastNotification';
@@ -27,9 +34,11 @@ import type {
 import { WhatsOffOp, WhatsOffTargetType } from './types';
 import type { ControlValue } from './useFeedControls';
 import {
+  ChangeKind,
   useFeedControls,
   useFeedPersonalizationReset,
 } from './useFeedControls';
+import { useDropIdleForYouFeeds } from './useDropIdleForYouFeeds';
 
 const origin = Origin.WhatsOff;
 
@@ -39,12 +48,20 @@ type PreferenceOp =
   | WhatsOffOp.Block
   | WhatsOffOp.Unblock;
 
-const inverseOp: Record<PreferenceOp, PreferenceOp> = {
+/**
+ * Where the reader stands with a topic, source or person: the op that puts
+ * them there, or none.
+ */
+type Preference = WhatsOffOp.Follow | WhatsOffOp.Block | null;
+
+const clearOp: Record<NonNullable<Preference>, PreferenceOp> = {
   [WhatsOffOp.Follow]: WhatsOffOp.Unfollow,
-  [WhatsOffOp.Unfollow]: WhatsOffOp.Follow,
   [WhatsOffOp.Block]: WhatsOffOp.Unblock,
-  [WhatsOffOp.Unblock]: WhatsOffOp.Block,
 };
+
+// Follow and block set where the reader stands; unfollow and unblock clear it.
+const getPreferenceAfter = (op: PreferenceOp): Preference =>
+  op === WhatsOffOp.Follow || op === WhatsOffOp.Block ? op : null;
 
 const resetFlags: Record<string, FeedPersonalizationReset> = {
   learned: { learned: true },
@@ -65,19 +82,21 @@ const toValue = <Mode>(
     : { mode: null };
 
 export interface AppliedWhatsOffChange {
-  /** Takes the change back, where it has a clear inverse. */
+  /** Takes the change back to how things were, where that can be done. */
   undo?: () => Promise<boolean>;
-  /**
-   * The For You controls carry the change, so whether it is in effect follows
-   * them: a refused change or undo rolls back there.
-   */
-  isTracked?: boolean;
 }
+
+// A timed level would lose its end date, so it has no undo.
+const getLevelUndo = <Mode>(
+  previous: FeedControl<Mode> | undefined,
+  save: (value: ControlValue<Mode>) => Promise<boolean>,
+): AppliedWhatsOffChange['undo'] =>
+  previous?.expiresAt ? undefined : () => save(toValue(previous));
 
 interface UseWhatsOffChange {
   /** Null when the change didn't go through; the reader was told why. */
   apply: (change: WhatsOffChange) => Promise<AppliedWhatsOffChange | null>;
-  /** The controls still carry the change: a refused one rolls back. */
+  /** The controls still carry the change: one set back elsewhere doesn't. */
   isInEffect: (change: WhatsOffChange) => boolean;
 }
 
@@ -90,20 +109,21 @@ export const useWhatsOffChange = (): UseWhatsOffChange => {
   const client = useQueryClient();
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
-  const { updateFlag } = useSettingsContext();
+  const { flags, updateFlag } = useSettingsContext();
+  // An undo comes after the settings changed, and the updateFlag of the
+  // apply would write the old ones back.
+  const updateFlagRef = useRef(updateFlag);
+  updateFlagRef.current = updateFlag;
+  const dropIdleFeeds = useDropIdleForYouFeeds();
   const {
     controls,
     getTopicControl,
     getSourceControl,
     getAuthorControl,
-    setTopic,
-    setSource,
-    setAuthor,
-    setLearning,
-    setFillIns,
-    setRankingSetting,
+    saveChange,
   } = useFeedControls({ origin });
   const { reset } = useFeedPersonalizationReset({ origin });
+  const { feedSettings } = useFeedSettings();
   const { onUpdateSettings } = useAdvancedSettings();
   const {
     onFollowTags,
@@ -114,20 +134,63 @@ export const useWhatsOffChange = (): UseWhatsOffChange => {
     onUnfollowSource,
     onBlockSource,
     onUnblockSource,
-  } = useTagAndSource({ origin });
+  } = useTagAndSource({ origin, shouldInvalidateQueries: false });
   const { follow, unfollow, block, unblock } = useContentPreference();
   const { hidePost, unhidePost } = useReportPost();
 
+  // Changes the For You controls don't carry drop the idle For You feeds
+  // here; the controls drop them on their own.
   const run = useCallback(
     async (action: () => unknown): Promise<boolean> => {
       try {
-        return (await action()) !== false;
+        if ((await action()) === false) {
+          return false;
+        }
       } catch {
         displayToast(labels.error.generic);
         return false;
       }
+      dropIdleFeeds();
+      return true;
     },
-    [displayToast],
+    [displayToast, dropIdleFeeds],
+  );
+
+  // A change missing what it acts on: nothing else tells the reader.
+  const refuse = useCallback((): null => {
+    displayToast(labels.error.generic);
+    return null;
+  }, [displayToast]);
+
+  const getPreference = useCallback(
+    async ({ type, id }: WhatsOffTarget): Promise<Preference> => {
+      if (type === WhatsOffTargetType.User) {
+        const preference = await client.fetchQuery(
+          contentPreferenceStatusQueryOptions(user, {
+            id,
+            entity: ContentPreferenceType.User,
+          }),
+        );
+        if (preference?.status === ContentPreferenceStatus.Blocked) {
+          return WhatsOffOp.Block;
+        }
+        return isFollowingContent(preference ?? undefined)
+          ? WhatsOffOp.Follow
+          : null;
+      }
+      const isKeyword = type === WhatsOffTargetType.Keyword;
+      const isBlocked = isKeyword
+        ? !!feedSettings?.blockedTags?.includes(id)
+        : !!feedSettings?.excludeSources?.some((source) => source.id === id);
+      if (isBlocked) {
+        return WhatsOffOp.Block;
+      }
+      const isFollowed = isKeyword
+        ? !!feedSettings?.includeTags?.includes(id)
+        : !!feedSettings?.includeSources?.some((source) => source.id === id);
+      return isFollowed ? WhatsOffOp.Follow : null;
+    },
+    [client, user, feedSettings],
   );
 
   const setPreference = useCallback(
@@ -139,7 +202,14 @@ export const useWhatsOffChange = (): UseWhatsOffChange => {
           [WhatsOffOp.Block]: onBlockTags,
           [WhatsOffOp.Unblock]: onUnblockTags,
         };
-        return (await tagActions[op]({ tags: [target.id] })).successful;
+        const { successful } = await tagActions[op]({ tags: [target.id] });
+        // A topic's follow or block changes the weights the profile shows.
+        if (successful) {
+          await client.invalidateQueries({
+            queryKey: generateQueryKey(RequestKey.FeedProfile, user),
+          });
+        }
+        return successful;
       }
       if (target.type === WhatsOffTargetType.Source) {
         const sourceActions = {
@@ -171,6 +241,8 @@ export const useWhatsOffChange = (): UseWhatsOffChange => {
       return true;
     },
     [
+      client,
+      user,
       onFollowTags,
       onUnfollowTags,
       onBlockTags,
@@ -184,6 +256,26 @@ export const useWhatsOffChange = (): UseWhatsOffChange => {
       block,
       unblock,
     ],
+  );
+
+  // Clears what the change set, then sets what the reader had, so a block
+  // over a follow undoes to the follow.
+  const restorePreference = useCallback(
+    async (
+      target: WhatsOffTarget,
+      op: PreferenceOp,
+      previous: Preference,
+    ): Promise<boolean> => {
+      const current = getPreferenceAfter(op);
+      if (current === previous) {
+        return true;
+      }
+      if (current && !(await setPreference(clearOp[current], target))) {
+        return false;
+      }
+      return previous ? setPreference(previous, target) : true;
+    },
+    [setPreference],
   );
 
   const setBlockedWord = useCallback(
@@ -209,7 +301,10 @@ export const useWhatsOffChange = (): UseWhatsOffChange => {
 
   const setClickbaitShield = useCallback(
     async (enabled: boolean) => {
-      await updateFlag(SidebarSettingsFlags.ClickbaitShieldEnabled, enabled);
+      await updateFlagRef.current(
+        SidebarSettingsFlags.ClickbaitShieldEnabled,
+        enabled,
+      );
       logEvent({
         event_name: LogEvent.ToggleClickbaitShield,
         target_id: enabled ? TargetId.On : TargetId.Off,
@@ -219,7 +314,7 @@ export const useWhatsOffChange = (): UseWhatsOffChange => {
         queryKey: generateQueryKey(SharedFeedPage.MyFeed, user),
       });
     },
-    [updateFlag, logEvent, client, user],
+    [logEvent, client, user],
   );
 
   const setPostsHidden = useCallback(
@@ -227,9 +322,13 @@ export const useWhatsOffChange = (): UseWhatsOffChange => {
       const results = await Promise.all(
         postIds.map((id) => (isHidden ? hidePost(id) : unhidePost(id))),
       );
-      return results.every(({ successful }) => successful);
+      if (!results.every(({ successful }) => successful)) {
+        return false;
+      }
+      postIds.forEach((id) => setPostHiddenPanel(client, user, id, isHidden));
+      return true;
     },
-    [hidePost, unhidePost],
+    [hidePost, unhidePost, client, user],
   );
 
   const apply = useCallback(
@@ -240,53 +339,79 @@ export const useWhatsOffChange = (): UseWhatsOffChange => {
       switch (op) {
         case WhatsOffOp.Topic: {
           if (!target) {
-            return null;
+            return refuse();
           }
           const previous = getTopicControl(target.id);
-          setTopic(target.id, { mode: mode as FeedTopicMode | null });
-          return {
-            undo: () => run(() => setTopic(target.id, toValue(previous))),
-            isTracked: true,
-          };
+          const save = (value: ControlValue<FeedTopicMode>) =>
+            saveChange({
+              kind: ChangeKind.Topic,
+              keyword: target.id,
+              ...value,
+            });
+          if (!(await save({ mode: mode as FeedTopicMode | null }))) {
+            return null;
+          }
+          return { undo: getLevelUndo(previous, save) };
         }
         case WhatsOffOp.Source: {
           if (!target) {
-            return null;
+            return refuse();
           }
           const previous = getSourceControl(target.id);
-          setSource(target.id, { mode: mode as FeedSourceMode | null });
-          return {
-            undo: () => run(() => setSource(target.id, toValue(previous))),
-            isTracked: true,
-          };
+          const save = (value: ControlValue<FeedSourceMode>) =>
+            saveChange({
+              kind: ChangeKind.Source,
+              sourceId: target.id,
+              ...value,
+            });
+          if (!(await save({ mode: mode as FeedSourceMode | null }))) {
+            return null;
+          }
+          return { undo: getLevelUndo(previous, save) };
         }
         case WhatsOffOp.Author: {
           if (!target) {
-            return null;
+            return refuse();
           }
           const previous = getAuthorControl(target.id);
-          setAuthor(target.id, { mode: mode as FeedAuthorMode | null });
-          return {
-            undo: () => run(() => setAuthor(target.id, toValue(previous))),
-            isTracked: true,
-          };
+          const save = (value: ControlValue<FeedAuthorMode>) =>
+            saveChange({
+              kind: ChangeKind.Author,
+              userId: target.id,
+              ...value,
+            });
+          if (!(await save({ mode: mode as FeedAuthorMode | null }))) {
+            return null;
+          }
+          return { undo: getLevelUndo(previous, save) };
         }
         case WhatsOffOp.Follow:
         case WhatsOffOp.Unfollow:
         case WhatsOffOp.Block:
         case WhatsOffOp.Unblock: {
-          if (!target || !(await run(() => setPreference(op, target)))) {
+          if (!target) {
+            return refuse();
+          }
+          let previous: Preference = null;
+          const isDone = await run(async () => {
+            previous = await getPreference(target);
+            return setPreference(op, target);
+          });
+          if (!isDone) {
             return null;
           }
           return {
-            undo: () => run(() => setPreference(inverseOp[op], target)),
+            undo: () => run(() => restorePreference(target, op, previous)),
           };
         }
         case WhatsOffOp.Format:
         case WhatsOffOp.Curation:
         case WhatsOffOp.Squads: {
           const id = change.advancedSettingId;
-          if (!id || !(await run(() => onUpdateSettings([{ id, enabled }])))) {
+          if (!id) {
+            return refuse();
+          }
+          if (!(await run(() => onUpdateSettings([{ id, enabled }])))) {
             return null;
           }
           return {
@@ -296,84 +421,97 @@ export const useWhatsOffChange = (): UseWhatsOffChange => {
         }
         case WhatsOffOp.BlockedWord: {
           const word = change.value;
-          if (!word || !(await run(() => setBlockedWord(word, true)))) {
+          if (!word) {
+            return refuse();
+          }
+          if (!(await run(() => setBlockedWord(word, true)))) {
             return null;
           }
           return { undo: () => run(() => setBlockedWord(word, false)) };
         }
         case WhatsOffOp.ClickbaitShield: {
+          const previous = !!flags?.clickbaitShieldEnabled;
           if (!(await run(() => setClickbaitShield(enabled)))) {
             return null;
           }
-          return { undo: () => run(() => setClickbaitShield(!enabled)) };
+          return { undo: () => run(() => setClickbaitShield(previous)) };
         }
         case WhatsOffOp.Learning: {
           const previous = controls?.learning ?? true;
-          setLearning(enabled);
+          if (!(await saveChange({ kind: ChangeKind.Learning, enabled }))) {
+            return null;
+          }
           return {
-            undo: () => run(() => setLearning(previous)),
-            isTracked: true,
+            undo: () =>
+              saveChange({ kind: ChangeKind.Learning, enabled: previous }),
           };
         }
         case WhatsOffOp.FillIns: {
           const previous = controls?.fillIns ?? true;
-          setFillIns(enabled);
+          if (!(await saveChange({ kind: ChangeKind.FillIns, enabled }))) {
+            return null;
+          }
           return {
-            undo: () => run(() => setFillIns(previous)),
-            isTracked: true,
+            undo: () =>
+              saveChange({ kind: ChangeKind.FillIns, enabled: previous }),
           };
         }
         case WhatsOffOp.Reset: {
-          const flags = resetFlags[change.value ?? ''];
+          const flagsToReset = resetFlags[change.value ?? ''];
+          if (!flagsToReset) {
+            return refuse();
+          }
           // Nothing brings back what a reset forgets.
-          return flags && (await reset(flags)) ? {} : null;
+          return (await reset(flagsToReset)) ? {} : null;
         }
         case WhatsOffOp.Ranking: {
           const key = change.value;
-          if (!key || typeof change.to !== 'number') {
-            return null;
+          const value = change.to;
+          if (!key || typeof value !== 'number') {
+            return refuse();
           }
           const previous =
             controls?.ranking.find((setting) => setting.key === key)?.value ??
             null;
-          setRankingSetting(key, change.to);
+          if (!(await saveChange({ kind: ChangeKind.Ranking, key, value }))) {
+            return null;
+          }
           return {
-            undo: () => run(() => setRankingSetting(key, previous)),
-            isTracked: true,
+            undo: () =>
+              saveChange({ kind: ChangeKind.Ranking, key, value: previous }),
           };
         }
         case WhatsOffOp.HidePosts: {
           const postIds = change.postIds ?? [];
-          if (
-            !postIds.length ||
-            !(await run(() => setPostsHidden(postIds, true)))
-          ) {
+          if (!postIds.length) {
+            return refuse();
+          }
+          if (!(await run(() => setPostsHidden(postIds, true)))) {
             return null;
           }
           return { undo: () => run(() => setPostsHidden(postIds, false)) };
         }
         default:
-          return null;
+          return refuse();
       }
     },
     [
       controls,
+      flags,
       getTopicControl,
       getSourceControl,
       getAuthorControl,
-      setTopic,
-      setSource,
-      setAuthor,
-      setLearning,
-      setFillIns,
-      setRankingSetting,
+      saveChange,
       reset,
       onUpdateSettings,
+      getPreference,
       setPreference,
+      restorePreference,
       setBlockedWord,
       setClickbaitShield,
       setPostsHidden,
       run,
+      refuse,
     ],
   );
 

@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import {
   Button,
   ButtonSize,
@@ -15,11 +16,18 @@ import { useOpenFeedTune } from '../useOpenFeedTune';
 import { useSetFeedExplain } from '../useSetFeedExplain';
 import { WhatsOffBox } from './WhatsOffBox';
 
+interface FeedExplainBarProps {
+  /** Tune is open: the bar hides but keeps What's off's answer. */
+  isHidden?: boolean;
+}
+
 /**
  * Debug mode's bar, floating at the bottom of For You: say what's off, Tune
  * the whole feed beside it, open Feed settings, or leave Debug.
  */
-export const FeedExplainBar = (): ReactElement => {
+export const FeedExplainBar = ({
+  isHidden,
+}: FeedExplainBarProps): ReactElement => {
   const openTune = useOpenFeedTune(Origin.FeedExplain);
   const { onClick: openFeedSettings } = useFeedSettingsAction();
   const setIsExplaining = useSetFeedExplain(Origin.FeedExplain);
@@ -30,7 +38,12 @@ export const FeedExplainBar = (): ReactElement => {
 
   return (
     // On a phone it stands one bar above the shell's, on the shell's floor.
-    <div className="pointer-events-none sticky bottom-[calc(var(--shell-floor)+4rem)] z-3 mt-8 flex w-full justify-center px-4 laptop:bottom-[calc(1rem+var(--sponsor-strip-height,0.75rem))]">
+    <div
+      className={classNames(
+        'pointer-events-none sticky bottom-[calc(var(--shell-floor)+4rem)] z-3 mt-8 w-full justify-center px-4 laptop:bottom-[calc(1rem+var(--sponsor-strip-height,0.75rem))]',
+        isHidden ? 'hidden' : 'flex',
+      )}
+    >
       <WhatsOffBox
         version={version}
         isCompact={isCompact}

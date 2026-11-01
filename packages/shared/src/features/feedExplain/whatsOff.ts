@@ -183,14 +183,36 @@ export const getWhatsOffChangeCopy = (
       return resetCopy[change.value ?? ''] ?? resetCopy.everything;
     case WhatsOffOp.Ranking:
       return getRankingCopy(change);
-    default: {
+    case WhatsOffOp.HidePosts: {
       const count = change.postIds?.length ?? 0;
       return {
         title: count === 1 ? 'Hide this post' : `Hide these ${count} posts`,
       };
     }
+    // Never shown: the answer drops the ops this build doesn't know.
+    default:
+      return { title: '' };
   }
 };
+
+const knownOps = new Set<string>(Object.values(WhatsOffOp));
+
+/**
+ * The line's changes this build can show, its own first. The API can send ops
+ * added after it, which it couldn't apply.
+ */
+export const getWhatsOffLineChanges = (line: WhatsOffLine): WhatsOffChange[] =>
+  [line.change, ...line.alternatives].filter(
+    (change): change is WhatsOffChange => !!change && knownOps.has(change.op),
+  );
+
+/** Missing and already lines say something; the others offer changes. */
+export const isWhatsOffNoteLine = ({ kind }: WhatsOffLine): boolean =>
+  kind === WhatsOffLineKind.Missing || kind === WhatsOffLineKind.Already;
+
+/** A line left with no change to offer isn't shown. */
+export const isWhatsOffLineShown = (line: WhatsOffLine): boolean =>
+  isWhatsOffNoteLine(line) || getWhatsOffLineChanges(line).length > 0;
 
 /** Tells two changes apart, for list keys and the picked one. */
 export const getWhatsOffChangeKey = ({

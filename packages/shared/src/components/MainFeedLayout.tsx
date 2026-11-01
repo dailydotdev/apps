@@ -1110,7 +1110,7 @@ export default function MainFeedLayout({
             )}
           />
         )}
-        {isExplainFeed && !isTuning && <FeedExplainBar />}
+        {isExplainFeed && <FeedExplainBar isHidden={isTuning} />}
         {isFeedPending && isPhone && (
           <>
             {/* Where the rail lands once the feed can render, so the

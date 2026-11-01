@@ -36,7 +36,7 @@ import { feedControlsQueryKey, feedControlsQueryOptions } from './queries';
 import { useDropIdleForYouFeeds } from './useDropIdleForYouFeeds';
 import { SharedFeedPage } from '../../components/utilities/common';
 
-enum ChangeKind {
+export enum ChangeKind {
   Topic = 'topic',
   Source = 'source',
   Author = 'author',
@@ -53,7 +53,7 @@ export interface ControlValue<Mode> {
   duration?: FeedControlDuration;
 }
 
-type FeedControlChange =
+export type FeedControlChange =
   | ({ kind: ChangeKind.Topic; keyword: string } & ControlValue<FeedTopicMode>)
   | ({
       kind: ChangeKind.Source;
@@ -274,6 +274,11 @@ export interface UseFeedControls {
   /** No value takes the setting back to the default. */
   setRankingSetting: (key: string, value: number | null) => void;
   resetRankingSettings: () => void;
+  /**
+   * Any change above, resolving whether it went through. A refused one rolls
+   * back and says why all the same.
+   */
+  saveChange: (change: FeedControlChange) => Promise<boolean>;
 }
 
 /**
@@ -298,7 +303,7 @@ export const useFeedControls = ({
     enabled: options.enabled && enabled,
   });
 
-  const { mutate } = useMutation({
+  const { mutate, mutateAsync } = useMutation({
     mutationFn: sendChange,
     // One change at a time, so a rollback never undoes a later change and
     // a quick double click lands in order.
@@ -395,6 +400,14 @@ export const useFeedControls = ({
     (value: boolean) => mutate({ kind: ChangeKind.FillIns, enabled: value }),
     [mutate],
   );
+  const saveChange = useCallback(
+    (change: FeedControlChange) =>
+      mutateAsync(change).then(
+        () => true,
+        () => false,
+      ),
+    [mutateAsync],
+  );
 
   return {
     controls,
@@ -411,6 +424,7 @@ export const useFeedControls = ({
     setFillIns,
     setRankingSetting,
     resetRankingSettings,
+    saveChange,
   };
 };
 

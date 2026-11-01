@@ -1,16 +1,29 @@
 import React from 'react';
 import nock from 'nock';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient } from '@tanstack/react-query';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
 import defaultUser from '../../../../__tests__/fixture/loggedUser';
+import { ALERT_DEFAULTS } from '../../../contexts/AlertContext';
+import type { SettingsContextData } from '../../../contexts/SettingsContext';
 import { feedV2SupportedTypes } from '../../../graphql/feed';
-import { UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION } from '../../../graphql/feedSettings';
+import type { FeedSettings } from '../../../graphql/feedSettings';
+import {
+  ADD_FILTERS_TO_FEED_MUTATION,
+  REMOVE_FILTERS_FROM_FEED_MUTATION,
+  UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION,
+} from '../../../graphql/feedSettings';
+import type { SettingsFlags } from '../../../graphql/settings';
+import { SidebarSettingsFlags } from '../../../graphql/settings';
 import { getFeedSettingsQueryKey } from '../../../hooks/useFeedSettings';
 import { LogEvent, TargetType } from '../../../lib/log';
-import { SET_FEED_TOPIC_MODE_MUTATION, WHATS_OFF_QUERY } from '../graphql';
+import {
+  RESET_FEED_PERSONALIZATION_MUTATION,
+  SET_FEED_TOPIC_MODE_MUTATION,
+  WHATS_OFF_QUERY,
+} from '../graphql';
 import { feedControlsQueryKey } from '../queries';
 import type { WhatsOffChange, WhatsOffLine } from '../types';
 import {
@@ -28,13 +41,15 @@ const logEvent = jest.fn();
 const text = 'too much AI agents';
 const answerId = 'answer-1';
 
+const agents = {
+  type: WhatsOffTargetType.Keyword,
+  id: 'ai-agents',
+  name: 'ai-agents',
+};
+
 const showLessAgents: WhatsOffChange = {
   op: WhatsOffOp.Topic,
-  target: {
-    type: WhatsOffTargetType.Keyword,
-    id: 'ai-agents',
-    name: 'ai-agents',
-  },
+  target: agents,
   mode: FeedTopicMode.Demote,
   certainty: 0.9,
   plusOnly: false,
@@ -57,7 +72,12 @@ const answerWith = (lines: WhatsOffLine[]) => ({
   },
 });
 
-const showBox = () => {
+interface BoxOptions {
+  feedSettings?: FeedSettings;
+  settings?: Partial<SettingsContextData>;
+}
+
+const showBox = ({ feedSettings, settings }: BoxOptions = {}) => {
   const client = new QueryClient();
   client.setQueryData(feedControlsQueryKey(defaultUser), {
     topics: [],
@@ -68,34 +88,52 @@ const showBox = () => {
     ranking: [],
   });
   client.setQueryData(getFeedSettingsQueryKey(defaultUser), {
-    feedSettings: { advancedSettings: [] },
+    feedSettings: { advancedSettings: [], ...feedSettings },
   });
-  render(
+  const box = (boxSettings?: Partial<SettingsContextData>) => (
     <TestBootProvider
       client={client}
       auth={{ user: defaultUser }}
+      // Past the feed filter alert, which a topic follow would update.
+      alerts={{ alerts: { ...ALERT_DEFAULTS, filter: false } }}
       log={{ logEvent }}
+      settings={boxSettings}
     >
       <WhatsOffBox version={116}>
         <button type="button">Done</button>
       </WhatsOffBox>
-    </TestBootProvider>,
+    </TestBootProvider>
   );
-  return screen.getByRole('textbox', {
-    name: "Tell us what's off about your feed",
-  });
+  const { rerender } = render(box(settings));
+  return {
+    client,
+    input: screen.getByRole('textbox', {
+      name: "Tell us what's off about your feed",
+    }),
+    setSettings: (next: Partial<SettingsContextData>) => rerender(box(next)),
+  };
 };
 
 const askWith = async (
   lines: WhatsOffLine[],
-  result: Record<string, unknown> = answerWith(lines),
+  {
+    result = answerWith(lines),
+    ...options
+  }: BoxOptions & { result?: Record<string, unknown> } = {},
 ) => {
   mockGraphQL({ request: whatsOffRequest, result });
-  const input = showBox();
-  await userEvent.type(input, text);
+  const box = showBox(options);
+  await userEvent.type(box.input, text);
   await userEvent.click(screen.getByRole('button', { name: 'Send' }));
-  return input;
+  return box;
 };
+
+const sureLine = (change: WhatsOffChange): WhatsOffLine => ({
+  kind: WhatsOffLineKind.Sure,
+  words: 'AI agents',
+  change,
+  alternatives: [],
+});
 
 const mockMutation = (query: string, variables: Record<string, unknown>) => {
   const request = { sent: false };
@@ -142,9 +180,14 @@ describe('WhatsOffBox', () => {
       keyword: 'ai-agents',
       mode: FeedTopicMode.Demote,
     });
-    await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Apply: Show less #ai-agents' }),
+    );
     expect(await screen.findByText('Applied')).toBeInTheDocument();
     expect(demote.sent).toBe(true);
+    expect(
+      screen.getByRole('button', { name: 'Undo: Show less #ai-agents' }),
+    ).toHaveFocus();
     expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.ApplyWhatsOffChange,
       target_type: TargetType.WhatsOff,
@@ -187,7 +230,9 @@ describe('WhatsOffBox', () => {
     const toggle = mockMutation(UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION, {
       settings: [{ id: 14, enabled: false }],
     });
-    await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Apply: Hide tutorials' }),
+    );
     expect(await screen.findByText('Applied')).toBeInTheDocument();
     expect(toggle.sent).toBe(true);
   });
@@ -213,7 +258,7 @@ describe('WhatsOffBox', () => {
       await screen.findByText('A post counts half as much after'),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: 'Apply' }),
+      screen.queryByRole('button', { name: /^Apply/ }),
     ).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Get Plus' })).toBeInTheDocument();
   });
@@ -237,7 +282,7 @@ describe('WhatsOffBox', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('Already set')).toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: 'Apply' }),
+      screen.queryByRole('button', { name: /^Apply/ }),
     ).not.toBeInTheDocument();
   });
 
@@ -282,10 +327,13 @@ describe('WhatsOffBox', () => {
   });
 
   it('should offer to try again when the answer fails, with the text back in the input', async () => {
-    const input = await askWith([], { errors: [{ message: 'boom' }] });
+    const { input } = await askWith([], {
+      result: { errors: [{ message: 'boom' }] },
+    });
 
+    const panel = await screen.findByRole('region', { name: "What's off" });
     expect(
-      await screen.findByText("Couldn't get an answer just now."),
+      await within(panel).findByText("Couldn't get an answer just now."),
     ).toBeInTheDocument();
     expect(input).toHaveValue(text);
 
@@ -308,11 +356,14 @@ describe('WhatsOffBox', () => {
 
   it('should say when the daily limit is reached, with nothing to retry', async () => {
     await askWith([], {
-      errors: [{ message: 'Too many', extensions: { code: 'RATE_LIMITED' } }],
+      result: {
+        errors: [{ message: 'Too many', extensions: { code: 'RATE_LIMITED' } }],
+      },
     });
 
+    const panel = await screen.findByRole('region', { name: "What's off" });
     expect(
-      await screen.findByText(
+      await within(panel).findByText(
         "You've reached today's limit. Try again tomorrow.",
       ),
     ).toBeInTheDocument();
@@ -322,7 +373,7 @@ describe('WhatsOffBox', () => {
   });
 
   it('should say when the text reaches its length limit', async () => {
-    const input = showBox();
+    const { input } = showBox();
     userEvent.paste(input, 'a'.repeat(WHATS_OFF_MAX_LENGTH + 20));
 
     expect(input).toHaveAttribute('maxLength', String(WHATS_OFF_MAX_LENGTH));
@@ -333,20 +384,17 @@ describe('WhatsOffBox', () => {
     ).toBeInTheDocument();
   });
 
-  it('should keep a level change applied when its undo fails', async () => {
-    await askWith([
-      {
-        kind: WhatsOffLineKind.Sure,
-        words: 'AI agents',
-        change: showLessAgents,
-        alternatives: [],
-      },
-    ]);
+  it('should keep a level change applied, and not log the undo, when its undo fails', async () => {
+    await askWith([sureLine(showLessAgents)]);
     mockMutation(SET_FEED_TOPIC_MODE_MUTATION, {
       keyword: 'ai-agents',
       mode: FeedTopicMode.Demote,
     });
-    await userEvent.click(await screen.findByRole('button', { name: 'Apply' }));
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: 'Apply: Show less #ai-agents',
+      }),
+    );
     expect(await screen.findByText('Applied')).toBeInTheDocument();
 
     const undo = { sent: false };
@@ -360,10 +408,150 @@ describe('WhatsOffBox', () => {
         return { errors: [{ message: 'boom' }] };
       },
     });
-    await userEvent.click(screen.getByRole('button', { name: 'Undo' }));
+    const undoButton = screen.getByRole('button', {
+      name: 'Undo: Show less #ai-agents',
+    });
+    await userEvent.click(undoButton);
 
     await waitFor(() => expect(undo.sent).toBe(true));
+    await waitFor(() => expect(undoButton).toBeEnabled());
+    expect(screen.getByText('Applied')).toBeInTheDocument();
+    expect(logEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.UndoWhatsOffChange,
+      }),
+    );
+  });
+
+  it('should undo a block on a followed topic back to the follow', async () => {
+    const { client } = await askWith(
+      [sureLine({ op: WhatsOffOp.Block, target: agents, plusOnly: false })],
+      { feedSettings: { includeTags: ['ai-agents'], blockedTags: [] } },
+    );
+    const block = mockMutation(ADD_FILTERS_TO_FEED_MUTATION, {
+      filters: { blockedTags: ['ai-agents'] },
+    });
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Apply: Block #ai-agents' }),
+    );
     expect(await screen.findByText('Applied')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Undo' })).toBeInTheDocument();
+    expect(block.sent).toBe(true);
+
+    const unblock = mockMutation(REMOVE_FILTERS_FROM_FEED_MUTATION, {
+      filters: { blockedTags: ['ai-agents'] },
+    });
+    const follow = mockMutation(ADD_FILTERS_TO_FEED_MUTATION, {
+      filters: { includeTags: ['ai-agents'] },
+    });
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Undo: Block #ai-agents' }),
+    );
+
+    expect(
+      await screen.findByRole('button', { name: 'Apply: Block #ai-agents' }),
+    ).toBeInTheDocument();
+    expect(unblock.sent).toBe(true);
+    expect(follow.sent).toBe(true);
+    expect(
+      client.getQueryData(getFeedSettingsQueryKey(defaultUser)),
+    ).toMatchObject({
+      feedSettings: { includeTags: ['ai-agents'], blockedTags: [] },
+    });
+  });
+
+  it('should undo Clickbait Shield to the value it had, with the settings of the undo', async () => {
+    const applyFlag = jest.fn();
+    const { setSettings } = await askWith(
+      [
+        sureLine({
+          op: WhatsOffOp.ClickbaitShield,
+          enabled: false,
+          plusOnly: false,
+        }),
+      ],
+      {
+        settings: {
+          flags: { clickbaitShieldEnabled: true } as SettingsFlags,
+          updateFlag: applyFlag,
+        },
+      },
+    );
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: 'Apply: Turn off Clickbait Shield',
+      }),
+    );
+    expect(await screen.findByText('Applied')).toBeInTheDocument();
+    expect(applyFlag).toHaveBeenCalledWith(
+      SidebarSettingsFlags.ClickbaitShieldEnabled,
+      false,
+    );
+
+    const undoFlag = jest.fn();
+    setSettings({
+      flags: { clickbaitShieldEnabled: false } as SettingsFlags,
+      updateFlag: undoFlag,
+    });
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Undo: Turn off Clickbait Shield' }),
+    );
+
+    await waitFor(() =>
+      expect(undoFlag).toHaveBeenCalledWith(
+        SidebarSettingsFlags.ClickbaitShieldEnabled,
+        true,
+      ),
+    );
+    expect(applyFlag).toHaveBeenCalledTimes(1);
+  });
+
+  it('should send a reset only once the reader confirms it', async () => {
+    await askWith([
+      sureLine({ op: WhatsOffOp.Reset, value: 'everything', plusOnly: false }),
+    ]);
+    const reset = mockMutation(RESET_FEED_PERSONALIZATION_MUTATION, {
+      learned: true,
+      seen: true,
+      levels: true,
+      ranking: true,
+    });
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: 'Apply: Start your feed over',
+      }),
+    );
+
+    expect(
+      screen.getByRole('button', { name: 'Cancel: Start your feed over' }),
+    ).toHaveFocus();
+    expect(reset.sent).toBe(false);
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Yes, reset: Start your feed over' }),
+    );
+    expect(await screen.findByText('Applied')).toBeInTheDocument();
+    expect(reset.sent).toBe(true);
+  });
+
+  it('should leave out the changes this build does not know', async () => {
+    const unknown = {
+      op: 'boost_vibes' as WhatsOffOp,
+      plusOnly: false,
+    };
+    await askWith([
+      { ...sureLine(unknown), words: 'good vibes' },
+      {
+        kind: WhatsOffLineKind.Unsure,
+        words: 'AI agents',
+        change: showLessAgents,
+        alternatives: [unknown],
+      },
+    ]);
+
+    expect(await screen.findByText('Show less #ai-agents')).toBeInTheDocument();
+    expect(screen.getByText('1 suggested change')).toBeInTheDocument();
+    expect(screen.queryByText('“good vibes”')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /^Apply/ })).toHaveLength(1);
+    expect(screen.queryByText('Or')).not.toBeInTheDocument();
   });
 });
