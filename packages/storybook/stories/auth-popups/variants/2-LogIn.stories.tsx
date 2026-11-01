@@ -2,15 +2,17 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { screen, Variant } from '../kit';
 import {
+  cardRow,
   closeRow,
   errorCopyRow,
+  footerRow,
   iconsRow,
   logInButtonRow,
   paddingRow,
 } from '../changes';
 
 const meta: Meta = {
-  title: 'Auth Pop-ups/1. Variants/2. Log in',
+  title: 'Auth Pop-ups/3. Variants/2. Log in',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -40,16 +42,13 @@ export const LogIn: StoryObj = {
       changes={[
         closeRow,
         logInButtonRow,
-        {
-          aspect: 'Footer on phones',
-          cells: [
-            'Only after a scroll, pushed out by the Cloudflare box',
-            'Pinned to the bottom, always visible',
-          ],
-        },
+        footerRow(
+          '“Not a member yet? Sign up”, only after a scroll on phones: the Cloudflare box pushes it out',
+        ),
         errorCopyRow,
         iconsRow,
         paddingRow,
+        cardRow,
       ]}
     />
   ),

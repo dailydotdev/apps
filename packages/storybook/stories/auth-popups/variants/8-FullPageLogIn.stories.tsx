@@ -4,7 +4,7 @@ import { screen, Variant } from '../kit';
 import { errorCopyRow, iconsRow, logInButtonRow } from '../changes';
 
 const meta: Meta = {
-  title: 'Auth Pop-ups/1. Variants/8. Full-page log in',
+  title: 'Auth Pop-ups/3. Variants/8. Full-page log in',
   parameters: { layout: 'fullscreen' },
 };
 

@@ -846,7 +846,7 @@ function AuthOptionsInner({
     <div
       className={classNames(
         'z-1 flex w-full max-w-[26.25rem] flex-col overflow-y-auto rounded-16',
-        !simplified && 'bg-accent-pepper-subtlest',
+        !simplified && 'bg-background-default',
         defaultDisplay === AuthDisplay.OnboardingSignup && !compact
           ? 'min-h-[21.25rem]'
           : undefined,

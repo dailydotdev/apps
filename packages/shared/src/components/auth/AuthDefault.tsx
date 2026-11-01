@@ -1,10 +1,9 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
-import classNames from 'classnames';
 import type { AuthFormProps, Provider } from './common';
-import { getFormEmail } from './common';
-import EmailSignupForm from './EmailSignupForm';
+import { MailIcon } from '../icons';
+import SignupDisclaimer from './SignupDisclaimer';
 import LoginForm from './LoginForm';
 import type { LoginFormParams, LoginHintState } from './LoginForm';
 import { useLogContext } from '../../contexts/LogContext';
@@ -97,9 +96,7 @@ const AuthDefault = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldLogin]);
 
-  const onEmailSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const onEmailSignup = () => {
     logEvent({
       event_name: 'click',
       target_type: AuthEventNames.SignUpProvider,
@@ -107,16 +104,7 @@ const AuthDefault = ({
       extra: JSON.stringify({ trigger }),
     });
 
-    const email = getFormEmail(e);
-
-    if (!email) {
-      return null;
-    }
-
-    if (!onSignup) {
-      return null;
-    }
-    return onSignup(email);
+    onSignup?.('');
   };
 
   const onSocialClick = (provider: string) => {
@@ -135,6 +123,9 @@ const AuthDefault = ({
           isLoading={isLoading}
           email={registerEmail ?? undefined}
           loginButton={loginButton}
+          loginButtonVariant={
+            providers.length ? ButtonVariant.Secondary : ButtonVariant.Primary
+          }
           loginHint={resolvedLoginHint}
           onPasswordLogin={onPasswordLogin}
           onForgotPassword={onForgotPassword}
@@ -143,10 +134,11 @@ const AuthDefault = ({
       );
     }
 
-    return <EmailSignupForm onSubmit={onEmailSignup} isReady={isReady} />;
+    return null;
   };
 
-  const renderOrDivider = providers.length || !disablePassword;
+  const form = getForm();
+  const isSignup = !shouldLogin && !disableRegistration;
 
   return (
     <>
@@ -179,9 +171,23 @@ const AuthDefault = ({
               Continue with {label}
             </Button>
           ))}
+          {isSignup && (
+            <Button
+              aria-label="Continue with email"
+              disabled={!isReady || isSocialAuthLoading}
+              icon={<MailIcon size={IconSize.Medium} />}
+              onClick={onEmailSignup}
+              size={ButtonSize.Large}
+              type="button"
+              variant={ButtonVariant.Primary}
+            >
+              Continue with email
+            </Button>
+          )}
         </div>
-        {renderOrDivider && <OrDivider />}
-        {getForm()}
+        {isSignup && <SignupDisclaimer />}
+        {form && providers.length > 0 && <OrDivider />}
+        {form}
       </AuthContainer>
       <div className="flex flex-1" />
       {!disableRegistration && (
@@ -190,17 +196,12 @@ const AuthDefault = ({
           wrapper={(component) => <AuthContainer>{component}</AuthContainer>}
         >
           <AuthModalFooter
-            className={{
-              container: classNames(
-                'mt-4',
-                !simplified &&
-                  'sticky bottom-0 bg-background-default tablet:bg-accent-pepper-subtlest',
-              ),
-            }}
+            className={{ container: 'mt-4' }}
+            pinned={!simplified}
             text={{
               body: shouldLogin
-                ? 'Not a member yet?'
-                : 'Already using daily.dev?',
+                ? "Don't have an account?"
+                : 'Already have an account?',
               button: shouldLogin ? 'Sign up' : 'Log in',
             }}
             onClick={() => {

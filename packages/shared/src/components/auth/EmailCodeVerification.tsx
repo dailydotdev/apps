@@ -2,13 +2,13 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import ConditionalWrapper from '../ConditionalWrapper';
 import {
   FunnelGlassBar,
   funnelGlassBarCta,
 } from '../../features/onboarding/shared/FunnelGlassBar';
 import type { AuthFormProps } from './common';
 import AuthForm from './AuthForm';
+import { AuthActionBar } from './AuthActionBar';
 import { AuthEventNames } from '../../lib/auth';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
@@ -210,7 +210,7 @@ function EmailCodeVerification({
           Don&apos;t see it? Also check your spam or junk folder.
         </Typography>
       </div>
-      <div className="my-10 flex w-full flex-col items-center gap-4">
+      <div className="my-6 flex w-full flex-col items-center gap-4">
         <input
           type="text"
           id="email"
@@ -235,8 +235,8 @@ function EmailCodeVerification({
             {hint}
           </Typography>
         )}
-        <span className="text-text-tertiary">
-          Didn&#39;t get a verification code?{' '}
+        <span className="flex flex-col items-center gap-1 text-center text-text-tertiary">
+          Didn&#39;t get a verification code?
           <button
             type="button"
             disabled={resendTimer > 0}
@@ -264,20 +264,23 @@ function EmailCodeVerification({
       </div>
       {/* Same glass bar as the funnel steps and account details, so the last
           screen before the funnel opens is not the one bare button in the flow. */}
-      <ConditionalWrapper
-        condition={!!isOnboardingFunnel}
-        wrapper={(component) => <FunnelGlassBar>{component}</FunnelGlassBar>}
-      >
-        <Button
-          className={isOnboardingFunnel ? funnelGlassBarCta : 'w-full'}
-          type="submit"
-          size={isOnboardingFunnel ? ButtonSize.Medium : ButtonSize.Large}
-          variant={ButtonVariant.Primary}
-          loading={isVerifying}
-        >
+      {isOnboardingFunnel ? (
+        <FunnelGlassBar>
+          <Button
+            className={funnelGlassBarCta}
+            type="submit"
+            size={ButtonSize.Medium}
+            variant={ButtonVariant.Primary}
+            loading={isVerifying}
+          >
+            Verify
+          </Button>
+        </FunnelGlassBar>
+      ) : (
+        <AuthActionBar type="submit" loading={isVerifying}>
           Verify
-        </Button>
-      </ConditionalWrapper>
+        </AuthActionBar>
+      )}
     </AuthForm>
   );
 }

@@ -9,10 +9,10 @@ import {
   Section,
   Variant,
 } from '../kit';
-import { closeRow } from '../changes';
+import { cardRow, closeRow } from '../changes';
 
 const meta: Meta = {
-  title: 'Auth Pop-ups/1. Variants/6. Verify email',
+  title: 'Auth Pop-ups/3. Variants/6. Verify email',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -53,9 +53,17 @@ export const VerifyEmail: StoryObj = {
           aspect: 'Verify button',
           cells: [
             '40px tall. Edge to edge on phones narrower than 420px, 56px in on desktop.',
-            'Full width and 48px tall, 24px in at every size',
+            'In the onboarding steps’ glass bar: it follows the content and pins to the bottom when the content is taller than the screen, 24px in at every size',
           ],
         },
+        {
+          aspect: 'Spacing',
+          cells: [
+            '40px between the message and the code boxes. “Resend code” runs on after “Didn’t get a verification code?”, wrapping left-aligned.',
+            '24px. “Didn’t get a verification code?” centered, with “Resend code” on its own line under it.',
+          ],
+        },
+        cardRow,
       ]}
     >
       <Section

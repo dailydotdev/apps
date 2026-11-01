@@ -1,10 +1,10 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { screen, Variant } from '../kit';
-import { closeRow, paddingRow } from '../changes';
+import { cardRow, closeRow, paddingRow } from '../changes';
 
 const meta: Meta = {
-  title: 'Auth Pop-ups/1. Variants/5. Email sign-up',
+  title: 'Auth Pop-ups/3. Variants/5. Email sign-up',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -15,14 +15,16 @@ export const EmailSignUp: StoryObj = {
   render: () => (
     <Variant
       number={5}
-      question="After typing an email on Sign up"
+      question="After “Continue with email” on Sign up"
       title="Email sign-up"
       goal={
         <p>
-          Name, password, username and experience level, with the Sign up button
-          at the bottom. Storybook has no Cloudflare site key, so the After
-          frames show a “taking too long” notice where production shows the
-          security check.
+          Email, name, password, username and experience level, with the Sign up
+          button at the bottom. It used to open with the email typed on Sign up;
+          now “Continue with email” opens it with the email field empty and
+          focused. Storybook has no Cloudflare site key, so the After frames
+          show a “taking too long” notice where production shows the security
+          check.
         </p>
       }
       capture="webapp-email-signup"
@@ -40,9 +42,17 @@ export const EmailSignUp: StoryObj = {
           ],
         },
         {
+          aspect: 'Sign up button',
+          cells: [
+            'At the end of the form, 40px under the header’s gap',
+            'In the onboarding steps’ glass bar: it follows the content and pins to the bottom when the content is taller than the screen. The form starts 24px under the header, like the other screens.',
+          ],
+        },
+        {
           aspect: 'Side padding',
           cells: ['16px on phones, 24px on desktop', '24px at every size'],
         },
+        cardRow,
       ]}
     />
   ),

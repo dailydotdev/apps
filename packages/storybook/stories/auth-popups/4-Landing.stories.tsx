@@ -12,7 +12,7 @@ import {
 } from './kit';
 
 const meta: Meta = {
-  title: 'Auth Pop-ups/2. Landing page pop-up',
+  title: 'Auth Pop-ups/4. Reference/Landing page pop-up',
   parameters: { layout: 'fullscreen' },
 };
 

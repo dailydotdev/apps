@@ -1,8 +1,8 @@
 import type { FormEvent, ReactElement } from 'react';
 import React, { useState } from 'react';
 import { formToJson } from '../../lib/form';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import AuthHeader from './AuthHeader';
+import { AuthActionBar } from './AuthActionBar';
 import type { AuthFormProps } from './common';
 import { AuthModalText } from './common';
 import AuthForm from './AuthForm';
@@ -73,15 +73,9 @@ function ChangePasswordForm({
           name="password"
           className={{ container: 'w-full' }}
         />
-        <Button
-          className="mt-6 w-full"
-          size={ButtonSize.Large}
-          variant={ButtonVariant.Primary}
-          type="submit"
-          disabled={isLoading}
-        >
+        <AuthActionBar type="submit" disabled={isLoading}>
           Change password
-        </Button>
+        </AuthActionBar>
       </AuthForm>
     </>
   );

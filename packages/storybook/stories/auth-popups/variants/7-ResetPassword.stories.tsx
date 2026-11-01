@@ -1,10 +1,10 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { screen, Variant } from '../kit';
-import { closeRow } from '../changes';
+import { cardRow, closeRow } from '../changes';
 
 const meta: Meta = {
-  title: 'Auth Pop-ups/1. Variants/7. Reset password',
+  title: 'Auth Pop-ups/3. Variants/7. Reset password',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -41,13 +41,14 @@ export const ResetPassword: StoryObj = {
           aspect: 'Send reset link',
           cells: [
             '40px tall and right-aligned, smaller than every other button in the pop-up',
-            'Full width and 48px tall, like Verify and the provider buttons',
+            'In the onboarding steps’ glass bar: it follows the content and pins to the bottom when the content is taller than the screen, like Verify',
           ],
         },
         {
           aspect: 'Side padding',
           cells: ['56px at every size', '24px at every size'],
         },
+        cardRow,
       ]}
     />
   ),

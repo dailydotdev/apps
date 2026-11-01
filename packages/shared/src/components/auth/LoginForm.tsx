@@ -13,6 +13,7 @@ import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
 import { MailIcon } from '../icons';
 import AuthForm from './AuthForm';
+import { AuthActionBar } from './AuthActionBar';
 import { IconSize } from '../Icon';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { labels } from '../../lib';
@@ -29,6 +30,7 @@ export interface LoginFormProps {
   email?: string;
   loginHint: LoginHintState;
   loginButton?: string;
+  loginButtonVariant?: ButtonVariant;
   className?: string;
   isLoading?: boolean;
   isReady: boolean;
@@ -54,6 +56,7 @@ function LoginForm({
   email,
   loginHint: [hint, setHint],
   loginButton = 'Log in',
+  loginButtonVariant = ButtonVariant.Primary,
   className,
   isLoading,
   isReady,
@@ -210,16 +213,27 @@ function LoginForm({
           title="Please complete the security check."
         />
       )}
-      <Button
-        className="mt-2 w-full"
-        size={ButtonSize.Large}
-        variant={ButtonVariant.Primary}
-        type="submit"
-        loading={!isReady || isVerifyingTurnstile}
-        disabled={isLoading || (!!turnstileSiteKey && !turnstileLoaded)}
-      >
-        {loginButton}
-      </Button>
+      {loginButtonVariant === ButtonVariant.Primary ? (
+        <AuthActionBar
+          aboveFooter
+          type="submit"
+          loading={!isReady || isVerifyingTurnstile}
+          disabled={isLoading || (!!turnstileSiteKey && !turnstileLoaded)}
+        >
+          {loginButton}
+        </AuthActionBar>
+      ) : (
+        <Button
+          className="mt-2 w-full"
+          size={ButtonSize.Large}
+          variant={loginButtonVariant}
+          type="submit"
+          loading={!isReady || isVerifyingTurnstile}
+          disabled={isLoading || (!!turnstileSiteKey && !turnstileLoaded)}
+        >
+          {loginButton}
+        </Button>
+      )}
       {hint && hint === labels.auth.error.invalidEmailOrPassword && (
         <Alert className="mt-6" type={AlertType.Error} flexDirection="flex-row">
           <AlertParagraph className="!mt-0 flex-1">

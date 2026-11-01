@@ -10,39 +10,31 @@ const meta: Meta = {
 export default meta;
 
 const pages = [
-  ['Variant 1 · Sign up', 'What every logged-out action opens.'],
-  ['Variant 2 · Log in', 'Four providers plus email and password.'],
+  ['1. Design rules', 'The checklist every screen now follows.'],
+  ['2. All screens', 'Every proposed screen side by side, phone and desktop.'],
   [
-    'Variant 3 · Welcome back with Google',
-    'A returning visitor who signed in with a provider.',
+    '3. Variants',
+    'Eight pages, one per screen: what changes, then production next to proposed on a phone and on desktop.',
   ],
   [
-    'Variant 4 · Welcome back with a password',
-    'A returning visitor who signed in with email.',
+    '4. Reference',
+    'The landing page’s own pop-up, and production compared side by side.',
   ],
-  ['Variant 5 · Email sign-up', 'Name, password, username and experience.'],
-  ['Variant 6 · Verify email', 'The 6-digit code, now like the onboarding.'],
-  ['Variant 7 · Reset password', 'After “Forgot password?” on Log in.'],
-  [
-    'Variant 8 · Full-page log in',
-    '/onboarding?action=login, where the landing page sends “Log in”.',
-  ],
-  [
-    'Landing page pop-up',
-    'daily.dev’s own pop-up and hero form, a separate codebase.',
-  ],
-  ['Side by side', 'Every aspect compared across the three, in production.'],
-  ['Still to decide', 'What this PR leaves open.'],
+  ['5. Still to decide', 'What this PR leaves open.'],
 ];
 
 const fixed = [
+  'Every pop-up is 400px wide on desktop, on the primary background (white in light theme), with 24px side padding at every size',
   'The close button sits on the right at every size, so phones no longer show two back arrows on Reset password and Verify email',
-  'No per-action line under the Sign up title on phones',
+  'No per-action line under the Sign up title',
+  'Sign up offers “Continue with email” as a fifth button, like the landing page, instead of an email field under an “or” divider',
   'Provider icons at 28px, so the Google mark matches the landing page',
-  '24px side padding on every screen, at every size',
-  'Log in, Verify, Send reset link and Change password are full-width 48px buttons, like the providers',
-  'The Log in footer is pinned, so the Cloudflare box can’t push it off a phone screen',
-  'Verify email works like the onboarding: no back arrow, a Change email link, the mail icon above the message',
+  'Each screen’s one white action sits in the onboarding steps’ glass bar, which pins to the bottom when the content is taller than the screen',
+  'Log in’s button is the outlined secondary one, since the providers above it lead',
+  'One footer bar pinned to the bottom of every pop-up, with two wordings, so the Cloudflare box can’t push it off a phone screen',
+  '“Not you? Use another account” moved into Welcome back’s content',
+  'Verify email works like the onboarding: no back arrow, a Change email link, the mail icon above the message, “Resend code” centered on its own line',
+  'The remembered email on Welcome back no longer shows a red error border',
   '“create a new account” in the wrong-password error',
 ];
 

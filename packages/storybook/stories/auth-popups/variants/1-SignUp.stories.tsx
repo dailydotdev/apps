@@ -11,10 +11,10 @@ import {
   Section,
   Variant,
 } from '../kit';
-import { closeRow, iconsRow, paddingRow } from '../changes';
+import { cardRow, closeRow, footerRow, iconsRow, paddingRow } from '../changes';
 
 const meta: Meta = {
-  title: 'Auth Pop-ups/1. Variants/1. Sign up',
+  title: 'Auth Pop-ups/3. Variants/1. Sign up',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -84,8 +84,17 @@ export const SignUp: StoryObj = {
             'Removed. Every pop-up opens on the Sign up header and the buttons, whatever opened it.',
           ],
         },
+        {
+          aspect: 'Email',
+          cells: [
+            '“or”, then an Email field with an arrow button, the legal line under it',
+            'A “Continue with email” button with the providers, opening the email sign-up form (variant 5). No divider. The legal line sits under the five buttons, like the landing page.',
+          ],
+        },
         iconsRow,
+        footerRow('“Already using daily.dev? Log in”'),
         paddingRow,
+        cardRow,
       ]}
     >
       <Section

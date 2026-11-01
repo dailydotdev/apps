@@ -1,10 +1,10 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { screen, Variant } from '../kit';
-import { closeRow, paddingRow } from '../changes';
+import { cardRow, closeRow, footerRow, paddingRow } from '../changes';
 
 const meta: Meta = {
-  title: 'Auth Pop-ups/1. Variants/3. Welcome back with Google',
+  title: 'Auth Pop-ups/3. Variants/3. Welcome back with Google',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -30,7 +30,21 @@ export const WelcomeBackGoogle: StoryObj = {
         phoneBefore:
           'The back arrow at the top left closes the pop-up, it doesn’t go back',
       }}
-      changes={[closeRow, paddingRow]}
+      changes={[
+        closeRow,
+        {
+          aspect: 'Not you?',
+          cells: [
+            'A second footer line, stacked over “Don’t have an account? Sign up”',
+            '“Not you? Use another account” under the button, in the content',
+          ],
+        },
+        footerRow(
+          'Two stacked links with no bar: “Not you?” and “Don’t have an account? Sign up”',
+        ),
+        paddingRow,
+        cardRow,
+      ]}
     />
   ),
 };

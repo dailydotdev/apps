@@ -96,7 +96,10 @@ export default function AuthModal({
       size={Modal.Size.Small}
       overlayRef={onContainerChange}
       onRequestClose={onDiscardAttempt}
-      className={classNames(className, 'auth')}
+      className={classNames(
+        className,
+        'auth tablet:!w-[25rem] tablet:!bg-background-default',
+      )}
     >
       <AuthOptions
         className={{ container: 'h-full' }}

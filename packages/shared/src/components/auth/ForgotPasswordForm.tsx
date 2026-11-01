@@ -8,6 +8,7 @@ import { MailIcon } from '../icons';
 import { IconSize } from '../Icon';
 import type { CloseModalFunc } from '../modals/common';
 import AuthHeader from './AuthHeader';
+import { AuthActionBar } from './AuthActionBar';
 import type { AuthFormProps } from './common';
 import { AuthModalText } from './common';
 import { AuthEventNames } from '../../lib/auth';
@@ -122,15 +123,9 @@ function ForgotPasswordForm({
           leftIcon={<MailIcon aria-hidden role="presentation" />}
           autoFocus
         />
-        <Button
-          className="mt-6 w-full"
-          size={ButtonSize.Large}
-          variant={ButtonVariant.Primary}
-          type="submit"
-          disabled={isLoading}
-        >
+        <AuthActionBar className="mt-2" type="submit" disabled={isLoading}>
           Send reset link
-        </Button>
+        </AuthActionBar>
       </AuthForm>
       {simplified && onBack && (
         <AuthModalFooter

@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Capture, CompareTable, Labeled, Page, PhoneRow, Section } from './kit';
 
 const meta: Meta = {
-  title: 'Auth Pop-ups/3. Side by side',
+  title: 'Auth Pop-ups/4. Reference/Production side by side',
   parameters: { layout: 'fullscreen' },
 };
 

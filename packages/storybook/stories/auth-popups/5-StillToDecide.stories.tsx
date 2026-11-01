@@ -4,7 +4,7 @@ import type { Finding } from './kit';
 import { Findings, Page, Section } from './kit';
 
 const meta: Meta = {
-  title: 'Auth Pop-ups/4. Still to decide',
+  title: 'Auth Pop-ups/5. Still to decide',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -26,13 +26,6 @@ const decisions: Finding[] = [
       'apps: AuthDefault.tsx provider buttons · recruiter-landing: HeroSignupForm.astro',
   },
   {
-    title: 'One way into email',
-    detail:
-      'A “Continue with email” button on the landing page, an inline Email field in the pop-up. Choose one and keep the next step in the same frame.',
-    where:
-      'apps: EmailSignupForm.tsx · recruiter-landing: HeroSignupForm.astro',
-  },
-  {
     title: 'One title',
     detail:
       'The landing headline, a 17px “Sign up” header bar, or a 24px page title. One pattern for the pop-up on both sites, with “Welcome back!” following it.',
@@ -49,24 +42,17 @@ const decisions: Finding[] = [
 
 const fixes: Finding[] = [
   {
-    title: 'One footer line, both directions',
-    detail:
-      'Five wordings today: “Already have an account? Log in”, “Already using daily.dev? Log in”, “Not a member yet? Sign up”, “Don’t have an account? Sign up” and “Not you? Use another account”. Suggested: “Already have an account? Log in” and “Don’t have an account? Sign up”.',
-    where:
-      'apps: AuthDefault.tsx, AuthSignBack.tsx · recruiter-landing: HeroSignupForm.astro',
-  },
-  {
     title: 'The legal line in the same place',
     detail:
-      'Under the buttons on the landing page, under the email field in the pop-up’s Sign up, missing from Log in and from the full page’s first screen.',
+      'Under the buttons on the landing page and now on the pop-up’s Sign up. Still missing from Log in and from the full page’s first screen.',
     where: 'apps: SignupDisclaimer.tsx, AuthDefault.tsx',
   },
   {
-    title: 'One card, and the phone layout',
+    title: 'The landing page card, and the phone layout',
     detail:
-      '464px, #17171C and a blurred backdrop on the landing page. 420px, #161921 and the default overlay in the webapp, which also goes full screen on phones instead of staying a card.',
+      'The webapp pop-up is now 400px on the primary background. The landing page’s is 464px, #17171C, with a blurred backdrop, so it needs its own PR to match. The webapp also goes full screen on phones instead of staying a card.',
     where:
-      'apps: AuthModal.tsx, modals/common/Modal.tsx · recruiter-landing: SignupModal.astro',
+      'recruiter-landing: SignupModal.astro · apps: modals/common/Modal.tsx',
   },
   {
     title: 'Keep One Tap away from the open pop-up',
