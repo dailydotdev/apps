@@ -111,7 +111,7 @@ const EntityFeedGrid = ({
     : `repeat(${numCards?.eco ?? 1}, minmax(0, 1fr))`;
 
   return (
-    <div className="grid gap-8" style={{ gridTemplateColumns }}>
+    <div className="grid gap-6" style={{ gridTemplateColumns }}>
       {children}
     </div>
   );
