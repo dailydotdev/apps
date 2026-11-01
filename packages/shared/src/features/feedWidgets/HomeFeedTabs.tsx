@@ -223,7 +223,7 @@ export function HomeFeedTabs({
         <div ref={anchorRef} />
         <div
           ref={rowRef}
-          className="sticky top-0 z-3 flex items-center gap-2 border-b border-border-subtlest-tertiary bg-background-default px-3 tablet:-mx-6 tablet:px-6"
+          className="sticky top-0 z-3 flex items-center gap-2 border-b border-border-subtlest-tertiary bg-background-default px-3 laptop:-mx-6 laptop:px-6"
         >
           <UnifiedMobileFeedNav
             className="py-3"
