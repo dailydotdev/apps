@@ -28,17 +28,26 @@ beforeEach(() => {
   jest.spyOn(ads, 'fetchAdByPlacement').mockResolvedValue(null);
 });
 
-it('does not refetch the ad when the page view changes', async () => {
-  jest.mocked(useAdPageViewId).mockReturnValue('page-view-1');
-  const { rerender } = renderHook(
+const renderAdQuery = (refreshOnPageView?: boolean) =>
+  renderHook(
     () =>
       useAdQuery({
         queryKey: ['test-ad'],
         placement: ads.AdPlacement.Feed,
         staleTime: 60 * 60 * 1000,
+        refreshOnPageView,
       }),
     { wrapper },
   );
+
+const flush = () =>
+  new Promise((resolve) => {
+    setTimeout(resolve, 50);
+  });
+
+it('keeps a persistent ad when the page view changes', async () => {
+  jest.mocked(useAdPageViewId).mockReturnValue('page-view-1');
+  const { rerender } = renderAdQuery();
   await waitFor(() => expect(ads.fetchAdByPlacement).toHaveBeenCalledTimes(1));
   expect(ads.fetchAdByPlacement).toHaveBeenCalledWith(
     expect.objectContaining({ pageViewId: 'page-view-1' }),
@@ -48,8 +57,20 @@ it('does not refetch the ad when the page view changes', async () => {
   jest.mocked(useAdPageViewId).mockReturnValue('page-view-2');
   rerender();
 
-  await new Promise((resolve) => {
-    setTimeout(resolve, 50);
-  });
+  await flush();
   expect(ads.fetchAdByPlacement).toHaveBeenCalledTimes(1);
+});
+
+it('fetches a fresh page-owned ad on every page view', async () => {
+  jest.mocked(useAdPageViewId).mockReturnValue('page-view-1');
+  const { rerender } = renderAdQuery(true);
+  await waitFor(() => expect(ads.fetchAdByPlacement).toHaveBeenCalledTimes(1));
+
+  jest.mocked(useAdPageViewId).mockReturnValue('page-view-2');
+  rerender();
+
+  await waitFor(() => expect(ads.fetchAdByPlacement).toHaveBeenCalledTimes(2));
+  expect(ads.fetchAdByPlacement).toHaveBeenLastCalledWith(
+    expect.objectContaining({ pageViewId: 'page-view-2' }),
+  );
 });

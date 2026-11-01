@@ -17,6 +17,13 @@ interface UseAdQueryOptions {
   placement: FetchAdByPlacementOptions['placement'];
   active?: boolean;
   retry?: UseQueryOptions<Ad | null>['retry'];
+  /**
+   * Serve a fresh ad on every page view, e.g. each time a post is opened,
+   * including reopening one already seen. Only for ads that belong to the
+   * page itself. Persistent slots such as the feed widget or hero leave it
+   * off, or they refetch whenever a post modal opens over the feed.
+   */
+  refreshOnPageView?: boolean;
 }
 
 export const useAdQuery = ({
@@ -26,6 +33,7 @@ export const useAdQuery = ({
   placement,
   active,
   retry,
+  refreshOnPageView = false,
 }: UseAdQueryOptions) => {
   const boostsEnabled = useFeature(featurePostBoostAds);
   const consent = useAdRequestConsent(enabled);
@@ -46,14 +54,13 @@ export const useAdQuery = ({
   );
 
   return useQuery<Ad | null>({
-    // consent fingerprint so ads refetch when the user answers the CMP banner,
-    // and login state so signing in swaps an anonymous-only ad. The page-view
-    // id stays out of the key on purpose: it changes on every navigation
-    // (opening a post modal included), which would refetch persistent ads such
-    // as the feed widget and hero on each click. It is still sent with the
-    // request that fetches the ad.
+    // the page-view id, for page-owned ads, so each page view gets a fresh
+    // ad. It is sent with every request either way. Then the consent
+    // fingerprint so ads refetch when the user answers the CMP banner, and
+    // login state so signing in swaps an anonymous-only ad
     queryKey: [
       ...queryKey,
+      ...(refreshOnPageView ? [pageViewId] : []),
       consent?.gdprApplies,
       consent?.consentString ?? '',
       consent?.consentExists ?? '',

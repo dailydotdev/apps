@@ -61,6 +61,7 @@ export function PostSidebarAdWidget({
     queryKey: generateQueryKey(RequestKey.Ads, user, postId, 'post-sidebar'),
     enabled: !isAdFree,
     staleTime: StaleTime.OneHour,
+    refreshOnPageView: true,
   });
 
   const onAdAction = useCallback(
