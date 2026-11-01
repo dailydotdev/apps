@@ -230,11 +230,17 @@ export const getWhatsOffSubmitExtra = ({
   gaps: lines.flatMap(({ gap }) => (gap ? [gap] : [])),
 });
 
+// Which change of the answer the reader acted on: the line's position, and 0
+// for its own change or n for its nth alternative. With the answer id it
+// points at the exact change in the API's log of the answer.
 export const getWhatsOffChangeExtra = (
   line: WhatsOffLine,
+  lineIndex: number,
   change: WhatsOffChange,
   isPlus: boolean,
 ) => ({
+  line: lineIndex,
+  option: change === line.change ? 0 : line.alternatives.indexOf(change) + 1,
   kind: line.kind,
   op: change.op,
   gap: line.gap ?? undefined,

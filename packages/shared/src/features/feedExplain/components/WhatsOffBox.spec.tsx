@@ -141,6 +141,8 @@ describe('WhatsOffBox', () => {
       target_type: TargetType.WhatsOff,
       target_id: answerId,
       extra: JSON.stringify({
+        line: 0,
+        option: 0,
         kind: WhatsOffLineKind.Sure,
         op: WhatsOffOp.Topic,
         certainty: 0.9,
@@ -261,6 +263,8 @@ describe('WhatsOffBox', () => {
       target_type: TargetType.WhatsOff,
       target_id: answerId,
       extra: JSON.stringify({
+        line: 0,
+        option: 1,
         kind: WhatsOffLineKind.Unsure,
         op: WhatsOffOp.Topic,
         locked: false,

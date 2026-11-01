@@ -1,5 +1,5 @@
-import type { FormEvent, ReactElement, ReactNode } from 'react';
-import React, { useRef, useState } from 'react';
+import type { CSSProperties, FormEvent, ReactElement, ReactNode } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -7,6 +7,7 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import CloseButton from '../../../components/CloseButton';
+import { ElementPlaceholder } from '../../../components/ElementPlaceholder';
 import { FeedbackIcon } from '../../../components/icons/Feedback';
 import { MagicIcon } from '../../../components/icons/Magic';
 import { SendAirplaneIcon } from '../../../components/icons/SendAirplane';
@@ -42,6 +43,87 @@ const kindLabels: Partial<Record<WhatsOffLineKind, string>> = {
   [WhatsOffLineKind.Unsure]: 'Did you mean',
   [WhatsOffLineKind.Choose]: 'Which did you mean?',
   [WhatsOffLineKind.Closest]: 'Closest we have',
+};
+
+// The answer's steps in the order the API runs them, with when each starts
+// to show. The API answers once, so the steps follow the usual timing of a
+// read, a lookup and a pick; the last one stays until the answer is in.
+const progressSteps = [
+  { label: 'Reading your feed', startsAt: 0 },
+  { label: 'Finding the topics and sources you mean', startsAt: 900 },
+  { label: 'Picking the changes', startsAt: 1300 },
+];
+
+// Each row of the answer rises in a beat after the one above it.
+const rowStagger = (index: number): CSSProperties => ({
+  animationDelay: `${index * 60}ms`,
+});
+
+const WhatsOffProgress = (): ReactElement => {
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    const timers = progressSteps
+      .slice(1)
+      .map(({ startsAt }, index) =>
+        setTimeout(() => setStep(index + 1), startsAt),
+      );
+    return () => timers.forEach(clearTimeout);
+  }, []);
+
+  return (
+    <div className="flex flex-col gap-3">
+      <ol className="flex flex-col gap-1.5" aria-label="Working on it">
+        {progressSteps.map(({ label }, index) => {
+          const isDone = index < step;
+          const isActive = index === step;
+          return (
+            <li
+              key={label}
+              aria-current={isActive ? 'step' : undefined}
+              className={classNames(
+                'flex items-center gap-2 transition-colors duration-200 typo-callout',
+                isActive && 'text-text-primary',
+                isDone && 'text-text-tertiary',
+                !isActive && !isDone && 'text-text-quaternary',
+              )}
+            >
+              <span className="flex size-5 shrink-0 items-center justify-center">
+                {isDone && (
+                  <VIcon
+                    size={IconSize.Size16}
+                    className="text-accent-avocado-default motion-safe:animate-composer-in"
+                  />
+                )}
+                {isActive && <Loader />}
+                {!isDone && !isActive && (
+                  <span className="size-1.5 rounded-4 bg-text-quaternary" />
+                )}
+              </span>
+              {label}
+            </li>
+          );
+        })}
+      </ol>
+      {/* Where the changes will land, so the answer takes their place. */}
+      <div aria-hidden className="flex flex-col gap-2">
+        {['w-2/5', 'w-1/3'].map((width) => (
+          <div
+            key={width}
+            className="flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary p-3"
+          >
+            <ElementPlaceholder
+              className={classNames(
+                'h-3 rounded-8 motion-safe:animate-pulse',
+                width,
+              )}
+            />
+            <ElementPlaceholder className="h-3 w-3/4 rounded-8 motion-safe:animate-pulse" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 interface ChangeRowProps {
@@ -125,11 +207,13 @@ type ChangeActions = ReturnType<typeof useWhatsOffChange>;
 interface LineRowProps extends ChangeActions {
   answerId: string;
   line: WhatsOffLine;
+  index: number;
 }
 
 const LineRow = ({
   answerId,
   line,
+  index,
   apply,
   isInEffect,
 }: LineRowProps): ReactElement => {
@@ -154,7 +238,9 @@ const LineRow = ({
       event_name: event,
       target_type: TargetType.WhatsOff,
       target_id: answerId,
-      extra: JSON.stringify(getWhatsOffChangeExtra(line, change, isPlus)),
+      extra: JSON.stringify(
+        getWhatsOffChangeExtra(line, index, change, isPlus),
+      ),
     });
 
   const onPick = (change: WhatsOffChange) => {
@@ -194,7 +280,10 @@ const LineRow = ({
   ) {
     const isMissing = line.kind === WhatsOffLineKind.Missing;
     return (
-      <li className="flex flex-col gap-1 rounded-12 border border-border-subtlest-tertiary p-3">
+      <li
+        className="flex flex-col gap-1 rounded-12 border border-border-subtlest-tertiary p-3 motion-safe:animate-composer-in"
+        style={rowStagger(index + 1)}
+      >
         <span className="break-words text-text-tertiary typo-footnote">
           “{line.words}”
         </span>
@@ -211,7 +300,10 @@ const LineRow = ({
   }
 
   return (
-    <li className="flex flex-col gap-2 rounded-12 bg-surface-float p-3">
+    <li
+      className="flex flex-col gap-2 rounded-12 bg-surface-float p-3 motion-safe:animate-composer-in"
+      style={rowStagger(index + 1)}
+    >
       <span className="flex flex-wrap items-center gap-x-2 gap-y-1 typo-footnote">
         <span className="min-w-0 break-words text-text-tertiary">
           “{line.words}”
@@ -294,7 +386,10 @@ const Answer = ({ answer }: { answer: WhatsOff }): ReactElement => {
   return (
     <>
       {asks.length > 0 && (
-        <ul aria-label="What you asked for" className="flex flex-wrap gap-2">
+        <ul
+          aria-label="What you asked for"
+          className="flex flex-wrap gap-2 motion-safe:animate-composer-in"
+        >
           {asks.map(({ words, direction }) => (
             <li
               key={`${direction}:${words}`}
@@ -306,7 +401,7 @@ const Answer = ({ answer }: { answer: WhatsOff }): ReactElement => {
         </ul>
       )}
       <ul aria-label="Suggested changes" className="flex flex-col gap-2">
-        {lines.map((line) => (
+        {lines.map((line, index) => (
           <LineRow
             key={[
               line.kind,
@@ -315,6 +410,7 @@ const Answer = ({ answer }: { answer: WhatsOff }): ReactElement => {
             ].join(':')}
             answerId={id}
             line={line}
+            index={index}
             apply={apply}
             isInEffect={isInEffect}
           />
@@ -406,12 +502,7 @@ export const WhatsOffBox = ({
               onClick={onClose}
             />
           </header>
-          {isPending && (
-            <div className="flex items-center gap-2 text-text-tertiary typo-callout">
-              <Loader />
-              Reading your feed
-            </div>
-          )}
+          {isPending && <WhatsOffProgress />}
           {!!error && (
             <p className="text-text-secondary typo-callout">
               {getErrorMessage(error)}
@@ -444,6 +535,7 @@ export const WhatsOffBox = ({
             size={ButtonSize.Small}
             icon={<SendAirplaneIcon />}
             aria-label="Send"
+            loading={isPending}
             disabled={!value.trim() || isPending}
           />
         </div>
