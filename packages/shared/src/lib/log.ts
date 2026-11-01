@@ -833,6 +833,8 @@ export enum TargetId {
   ReaderPermissionPrompt = 'reader permission prompt',
   MobileFooter = 'mobile footer',
   MobileFooterNav = 'mobile footer nav',
+  PostAppPrompt = 'post app prompt',
+  CommentsTeaserFooter = 'comments teaser footer',
 }
 
 export enum NotificationChannel {
