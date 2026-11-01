@@ -21,7 +21,7 @@ import {
 import type { QueryKey } from '@tanstack/react-query';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
-import { feedGutter, feedWidth } from './utilities/common';
+import { feedGutter, feedWidth, listFeedGutter } from './utilities/common';
 import { PlaceholderFeed } from './cards/placeholder/PlaceholderFeed';
 import { SponsorStrip } from '../features/monetization/sponsorStrip/SponsorStrip';
 import { useSponsorStrip } from '../features/monetization/sponsorStrip/useSponsorStrip';
@@ -72,6 +72,7 @@ import {
   ViewSize,
 } from '../hooks';
 import { useIsPhone } from '../hooks/useViewSize';
+import { FeedLayoutMobileFeedPages } from '../hooks/useFeedLayout';
 import { feedNameToHeading, v2FeedSideInsetClass } from './feeds/FeedContainer';
 import { pageHeaderClassName } from './layout/PageHeader';
 import {
@@ -266,7 +267,7 @@ const getQueryBasedOnLogin = (
 
 // The feed's own width: full width normally, and clamped + centered to the
 // same card-based max-width as the grid on wide screens (desktopL). The CSS
-// vars feed the `styles.container` max-width calc (grid gap is 2rem).
+// vars feed the `styles.container` max-width calc (grid gap is 1.5rem).
 const feedWidthClassName = classNames('relative flex flex-col', feedWidth);
 
 const feedWithDateRange = [
@@ -292,7 +293,7 @@ export default function MainFeedLayout({
   const { numCards: feedSpacinessCards } = useContext(FeedContext);
   const feedWidthStyle = {
     '--num-cards': feedSpacinessCards.eco,
-    '--feed-gap': '2rem',
+    '--feed-gap': '1.5rem',
   } as CSSProperties;
   const router = useRouter();
   const [tab, setTab] = useState(ExploreTabs.Popular);
@@ -335,6 +336,10 @@ export default function MainFeedLayout({
     enabled: feedName === OtherFeedPage.Explore,
   });
   const { shouldUseListFeedLayout, FeedPageLayoutComponent } = useFeedLayout();
+  // Which feeds are lists below laptop never depends on the viewport check,
+  // so a list gets its full-bleed gutter from the first paint.
+  const isListBelowLaptop = FeedLayoutMobileFeedPages.has(feedName);
+  const gutterClassName = isListBelowLaptop ? listFeedGutter : feedGutter;
 
   const { value: myFeedV } = useConditionalFeature({
     feature: feature.feedVersion,
@@ -878,14 +883,15 @@ export default function MainFeedLayout({
         className={{
           container: classNames(
             'z-header w-full border-b border-border-subtlest-tertiary bg-background-default tablet:sticky tablet:top-[4.5rem]',
-            feedGutter,
+            gutterClassName,
+            isListBelowLaptop && 'px-4',
           ),
           tabBarHeader: 'no-scrollbar overflow-x-auto',
           tabBarContainer: 'min-w-0 flex-1',
         }}
       />
     );
-  }, [onTabChange, tab]);
+  }, [gutterClassName, isListBelowLaptop, onTabChange, tab]);
 
   // v2 reaches the Explore hub sections (Explore, Tags, Sources, Leaderboard,
   // Discussions) from the sidebar's Explore panel, so the page header no longer
@@ -1137,7 +1143,7 @@ export default function MainFeedLayout({
             deferWideCards={isHeroRendered || widgetFeedState.hasTopStory}
             excludedPostIds={widgetFeedState.excludedPostIds}
             className={classNames(
-              !isFinder && feedGutter,
+              !isFinder && gutterClassName,
               isAwaitingFeatures && 'invisible',
             )}
           />
@@ -1157,7 +1163,7 @@ export default function MainFeedLayout({
             )}
             <PlaceholderFeed
               className={classNames(
-                !isFinder && feedGutter,
+                !isFinder && gutterClassName,
                 isFeedWidgetsEnabled && '!mt-0',
                 isAwaitingFeatures && 'invisible',
               )}

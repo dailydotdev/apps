@@ -625,13 +625,17 @@ export const TagTopicPage = ({
           <div className="my-2 h-px w-full bg-border-subtlest-tertiary" />
 
           <EntitySectionHeading>All posts about {title}</EntitySectionHeading>
-          <Feed
-            feedName={OtherFeedPage.Tag}
-            feedQueryKey={['tagFeed', user?.id ?? 'anonymous', tag]}
-            query={TAG_FEED_QUERY}
-            variables={mainFeedQueryVariables}
-            className="!mx-0 !w-auto"
-          />
+          {/* Below laptop the feed is a list, and a list runs full-bleed,
+              out past the page's padding. */}
+          <div className="-mx-4 tablet:-mx-6 laptop:mx-0">
+            <Feed
+              feedName={OtherFeedPage.Tag}
+              feedQueryKey={['tagFeed', user?.id ?? 'anonymous', tag]}
+              query={TAG_FEED_QUERY}
+              variables={mainFeedQueryVariables}
+              className="!mx-0 !w-auto"
+            />
+          </div>
         </div>
         <PublicPageSignupBanner />
       </FeedPageLayoutComponent>
