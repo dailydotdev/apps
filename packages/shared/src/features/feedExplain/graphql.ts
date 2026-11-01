@@ -9,6 +9,7 @@ import type {
   FeedProfile,
   FeedSourceMode,
   FeedTopicMode,
+  WhatsOff,
 } from './types';
 
 export const FEED_PROFILE_QUERY = gql`
@@ -364,3 +365,64 @@ export const resetFeedPersonalization = ({
     levels,
     ranking,
   });
+
+const WHATS_OFF_CHANGE_FRAGMENT = gql`
+  fragment WhatsOffChangeFragment on WhatsOffChange {
+    op
+    target {
+      type
+      id
+      name
+      image
+      handle
+    }
+    mode
+    value
+    advancedSettingId
+    enabled
+    from
+    to
+    postIds
+    certainty
+    plusOnly
+  }
+`;
+
+export const WHATS_OFF_QUERY = gql`
+  query WhatsOff($version: Int!, $text: String!, $supportedTypes: [String!]) {
+    whatsOff(version: $version, text: $text, supportedTypes: $supportedTypes) {
+      id
+      response
+      scope
+      lines {
+        kind
+        words
+        gap
+        change {
+          ...WhatsOffChangeFragment
+        }
+        alternatives {
+          ...WhatsOffChangeFragment
+        }
+      }
+    }
+  }
+  ${WHATS_OFF_CHANGE_FRAGMENT}
+`;
+
+export interface WhatsOffRequest {
+  version: number;
+  text: string;
+  supportedTypes?: string[];
+}
+
+export const getWhatsOff = async (
+  request: WhatsOffRequest,
+): Promise<WhatsOff> => {
+  const { whatsOff } = await gqlClient.request<{ whatsOff: WhatsOff }>(
+    WHATS_OFF_QUERY,
+    request,
+  );
+
+  return whatsOff;
+};

@@ -14,6 +14,7 @@ export enum Origin {
   FeedExplain = 'feed explain',
   FeedExplanation = 'feed explanation',
   FeedTune = 'feed tune',
+  WhatsOff = 'whats off',
   PostHiddenPanel = 'post hidden panel',
   FeedHero = 'feed hero',
   FeedWidgets = 'feed widgets',
@@ -456,6 +457,10 @@ export enum LogEvent {
   PreviewFeedTune = 'preview feed tune',
   SaveFeedTune = 'save feed tune',
   CloseFeedTune = 'close feed tune',
+  SubmitWhatsOff = 'submit whats off',
+  ApplyWhatsOffChange = 'apply whats off change',
+  UndoWhatsOffChange = 'undo whats off change',
+  PickWhatsOffChoice = 'pick whats off choice',
   // End Feed explain
   SetHighlightsPlacement = 'set highlights placement',
   InstallPWA = 'install pwa',
@@ -752,6 +757,7 @@ export enum TargetType {
   PostTopicSignup = 'post topic signup',
   SimilarSquads = 'similar squads',
   Plugin = 'plugin',
+  WhatsOff = 'whats off',
 }
 
 export enum TargetId {

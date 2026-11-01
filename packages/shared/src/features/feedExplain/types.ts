@@ -213,3 +213,115 @@ export enum FeedTuneTab {
   Sources = 'Sources and creators',
   Ranking = 'Ranking',
 }
+
+/** What the What's off box makes of a complaint. */
+export enum WhatsOffResponse {
+  /** Changes to offer. */
+  Act = 'act',
+  /** What the reader meant is unclear: the lines carry the choices. */
+  Ask = 'ask',
+  None = 'none',
+}
+
+export enum WhatsOffScope {
+  Feed = 'feed',
+  /** About the app or something no feed setting touches. */
+  OutOfScope = 'out_of_scope',
+  Abusive = 'abusive',
+  Injection = 'injection',
+  Vague = 'vague',
+}
+
+/** How a line of the answer is offered. */
+export enum WhatsOffLineKind {
+  /** An exact control, picked with confidence. */
+  Sure = 'sure',
+  /** An exact control, picked with little confidence: "Did you mean". */
+  Unsure = 'unsure',
+  /** No pick stands out: the alternatives are the choices. */
+  Choose = 'choose',
+  /** No exact control: the change is the nearest real one. */
+  Closest = 'closest',
+  /** No control at all yet. */
+  Missing = 'missing',
+  /** Already in place. */
+  Already = 'already',
+}
+
+export enum WhatsOffOp {
+  Topic = 'topic',
+  Source = 'source',
+  Author = 'author',
+  Follow = 'follow',
+  Unfollow = 'unfollow',
+  Block = 'block',
+  Unblock = 'unblock',
+  Format = 'format',
+  Curation = 'curation',
+  Squads = 'squads',
+  BlockedWord = 'blocked_word',
+  ClickbaitShield = 'clickbait_shield',
+  Learning = 'learning',
+  FillIns = 'fill_ins',
+  Reset = 'reset',
+  Ranking = 'ranking',
+  HidePosts = 'hide_posts',
+}
+
+export enum WhatsOffTargetType {
+  Keyword = 'keyword',
+  Source = 'source',
+  User = 'user',
+}
+
+/** The topic, source or person a change is about. */
+export interface WhatsOffTarget {
+  type: WhatsOffTargetType;
+  /** The keyword's value, or the source's or user's id. */
+  id: string;
+  name: string;
+  image?: string | null;
+  handle?: string | null;
+}
+
+/** One change, applied only when the reader taps it. */
+export interface WhatsOffChange {
+  op: WhatsOffOp;
+  target?: WhatsOffTarget | null;
+  /** The level of a topic, source or author. None is Auto. */
+  mode?: FeedTopicMode | FeedSourceMode | FeedAuthorMode | null;
+  /**
+   * The format or kind of post, the blocked word, what to reset, or the
+   * ranking setting's key.
+   */
+  value?: string | null;
+  /** The advanced setting a format, kind of post or squads change toggles. */
+  advancedSettingId?: number | null;
+  /** Shown for a format, kind of post or squads, on for a switch. */
+  enabled?: boolean | null;
+  /** A ranking setting's current value and the proposed one. */
+  from?: number | null;
+  to?: number | null;
+  postIds?: string[] | null;
+  /** How sure the pick of a line's main change is, 0 to 1. */
+  certainty?: number | null;
+  plusOnly: boolean;
+}
+
+export interface WhatsOffLine {
+  kind: WhatsOffLineKind;
+  /** The reader's words this line answers. */
+  words: string;
+  /** What no control covers yet, on closest and missing lines. */
+  gap?: string | null;
+  change?: WhatsOffChange | null;
+  alternatives: WhatsOffChange[];
+}
+
+export interface WhatsOff {
+  /** Ties the reader's taps on the answer to it in analytics. */
+  id: string;
+  response: WhatsOffResponse;
+  scope: WhatsOffScope;
+  lines: WhatsOffLine[];
+}
