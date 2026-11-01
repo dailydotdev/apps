@@ -1,17 +1,24 @@
 import React from 'react';
 import nock from 'nock';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import basePost from '../../../../__tests__/fixture/post';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
-import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
+import {
+  completeActionMock,
+  mockGraphQL,
+} from '../../../../__tests__/helpers/graphql';
 import {
   BOOKMARKS_FEED_QUERY,
   BookmarkSort,
   baseFeedSupportedTypes,
 } from '../../../graphql/feed';
+import { ADD_BOOKMARKS_MUTATION } from '../../../graphql/posts';
+import { ActionType } from '../../../graphql/actions';
+import { useBookmarkPost } from '../../../hooks/useBookmarkPost';
 import { getPostPath } from '../../../lib/links';
+import { Origin } from '../../../lib/log';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
 import { ReadingListWidget } from './ReadingListWidget';
 
@@ -44,9 +51,23 @@ const mockBookmarks = (posts = bookmarks) =>
     },
   });
 
+const BookmarkButton = ({ post }: { post: typeof basePost }) => {
+  const { toggleBookmark } = useBookmarkPost();
+
+  return (
+    <button
+      type="button"
+      onClick={() => toggleBookmark({ post, origin: Origin.Feed })}
+    >
+      Bookmark
+    </button>
+  );
+};
+
 const renderWidget = (
   size = FeedWidgetSize.Tall,
   user: typeof loggedUser | null = loggedUser,
+  postToBookmark?: typeof basePost,
 ) =>
   render(
     <TestBootProvider
@@ -62,6 +83,7 @@ const renderWidget = (
         isConfiguring={false}
         onConfigureEnd={() => undefined}
       />
+      {postToBookmark && <BookmarkButton post={postToBookmark} />}
     </TestBootProvider>,
   );
 
@@ -93,6 +115,27 @@ describe('ReadingListWidget', () => {
     renderWidget();
 
     expect(await screen.findByText(/Nothing saved yet/)).toBeInTheDocument();
+  });
+
+  it('shows a post bookmarked elsewhere on the page', async () => {
+    const post = { ...basePost, id: 'just-saved', title: 'Just saved' };
+    mockBookmarks();
+
+    renderWidget(FeedWidgetSize.Tall, loggedUser, post);
+
+    await screen.findByText('Newest bookmark');
+    mockGraphQL({
+      request: {
+        query: ADD_BOOKMARKS_MUTATION,
+        variables: { data: { postIds: [post.id] } },
+      },
+      result: { data: { addBookmarks: [] } },
+    });
+    mockGraphQL(completeActionMock({ action: ActionType.BookmarkPost }));
+    mockBookmarks([post, ...bookmarks]);
+    fireEvent.click(screen.getByRole('button', { name: 'Bookmark' }));
+
+    expect(await screen.findByText('Just saved')).toBeInTheDocument();
   });
 
   it('asks nothing of the API for a logged-out reader', async () => {
