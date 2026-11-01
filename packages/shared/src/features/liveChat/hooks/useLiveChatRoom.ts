@@ -82,6 +82,9 @@ export const useLiveChatRoom = ({
   // The room the viewer is seated in, for the leave on unmount and for
   // ignoring events about other rooms.
   const seatedJid = useRef<string | null>(null);
+  // The room asked for but not confirmed yet; the transport already holds it.
+  const joiningJid = useRef<string | null>(null);
+  const isMounted = useRef(false);
   const isComposing = useRef(false);
   const composingSentAt = useRef(0);
   const pauseTimer = useRef<ReturnType<typeof setTimeout>>();
@@ -168,19 +171,23 @@ export const useLiveChatRoom = ({
           break;
         case 'roomJoined':
           seatedJid.current = roomJid;
+          joiningJid.current = null;
           setStatus('joined');
           break;
         case 'roomLeft':
           seatedJid.current = null;
+          joiningJid.current = null;
           setStatus('left');
           break;
         case 'roomEnded':
           seatedJid.current = null;
+          joiningJid.current = null;
           setStatus('ended');
           queryClient.invalidateQueries({ queryKey: roomQuery.queryKey });
           break;
         case 'roomJoinFailed':
           seatedJid.current = null;
+          joiningJid.current = null;
           setFailure(event.reason);
           setStatus('failed');
           break;
@@ -260,11 +267,16 @@ export const useLiveChatRoom = ({
       if (!target?.jid || target.status !== ChatRoomStatus.Active) {
         target = await openPostChatRoom(postId);
         queryClient.setQueryData(roomQuery.queryKey, target);
+        // Closed while the room was opening; the unmount had nothing to leave.
+        if (!isMounted.current) {
+          return;
+        }
       }
       if (!target.jid) {
         throw new Error('The chat room is not ready yet');
       }
       setMessages([]);
+      joiningJid.current = target.jid;
       await getDmTransport(user.id).joinRoom(target.jid);
       log(LogEvent.JoinLiveChat);
     } catch (err) {
@@ -277,8 +289,9 @@ export const useLiveChatRoom = ({
   }, [log, postId, queryClient, room, status, user?.id]);
 
   const leave = useCallback(() => {
-    const jid = seatedJid.current;
+    const jid = seatedJid.current ?? joiningJid.current;
     seatedJid.current = null;
+    joiningJid.current = null;
     stopComposing(false);
     setStatus('left');
     if (user?.id && jid) {
@@ -342,9 +355,12 @@ export const useLiveChatRoom = ({
   // Leaving the page leaves the room; nothing about the seat survives it.
   useEffect(() => {
     const timers = typingTimers.current;
+    isMounted.current = true;
     return () => {
-      const jid = seatedJid.current;
+      isMounted.current = false;
+      const jid = seatedJid.current ?? joiningJid.current;
       seatedJid.current = null;
+      joiningJid.current = null;
       clearTimeout(pauseTimer.current);
       timers.forEach((timer) => clearTimeout(timer));
       timers.clear();

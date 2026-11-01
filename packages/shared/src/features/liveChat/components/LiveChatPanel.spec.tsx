@@ -296,6 +296,34 @@ describe('LiveChatPanel', () => {
     expect(transport.leaveRoom).toHaveBeenCalledWith(room.jid);
   });
 
+  it('leaves the room when the panel goes away before the join lands', async () => {
+    const { unmount } = renderPanel();
+    fireEvent.click(await screen.findByText('Join the chat'));
+    await waitFor(() =>
+      expect(transport.joinRoom).toHaveBeenCalledWith(room.jid),
+    );
+
+    unmount();
+    expect(transport.leaveRoom).toHaveBeenCalledWith(room.jid);
+  });
+
+  it('does not join a room it started after the panel goes away', async () => {
+    let resolveRoom: (value: ChatRoom) => void;
+    jest.mocked(getPostChatRoom).mockResolvedValue(null);
+    jest.mocked(openPostChatRoom).mockReturnValue(
+      new Promise((resolve) => {
+        resolveRoom = resolve;
+      }),
+    );
+    const { unmount } = renderPanel();
+    fireEvent.click(await screen.findByText('Start the live chat'));
+    await waitFor(() => expect(openPostChatRoom).toHaveBeenCalledWith('p1'));
+
+    unmount();
+    await act(async () => resolveRoom(room));
+    expect(transport.joinRoom).not.toHaveBeenCalled();
+  });
+
   it('asks an anonymous visitor to sign in', async () => {
     const showLogin = jest.fn();
     jest.mocked(useAuthContext).mockReturnValue({
