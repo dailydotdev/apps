@@ -53,4 +53,30 @@ describe('AuthDefault', () => {
     expect(screen.getByText('Enter your password')).toBeInTheDocument();
     expect(onPasswordLogin).not.toHaveBeenCalled();
   });
+
+  it('goes back to Sign up after switching to Log in', async () => {
+    renderAuthDefault({ initialLoginFlow: false });
+    expect(
+      screen.queryByRole('button', { name: 'Go back' }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
+    expect(await screen.findByTestId('login_form')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Go back' }));
+
+    expect(await screen.findByText('Continue with email')).toBeInTheDocument();
+    expect(screen.queryByTestId('login_form')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Go back' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('returns to the previous screen from the mode it opened in', () => {
+    const onBack = jest.fn();
+    renderAuthDefault({ initialLoginFlow: true, isLoginFlow: true, onBack });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Go back' }));
+
+    expect(onBack).toHaveBeenCalled();
+  });
 });

@@ -196,6 +196,10 @@ function AuthOptionsInner({
   };
 
   const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
+  const [defaultEntry, setDefaultEntry] = useState({
+    isLogin: !!isLoginFlow,
+    fromSignBack: false,
+  });
   const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
   // A mistyped address is only fixable on the screen that owns the email
   // field, and verification is reached both from signup and from an
@@ -837,7 +841,18 @@ function AuthOptionsInner({
     onSetActiveDisplay(defaultDisplay);
   };
 
-  const onBackFromVerify = () => onSetActiveDisplay(emailVerificationReturn);
+  const onBackFromVerify = () => {
+    if (emailVerificationReturn === AuthDisplay.Default) {
+      onAuthStateUpdate?.({ isLoginFlow: true });
+    }
+    onSetActiveDisplay(emailVerificationReturn);
+  };
+
+  const onBackFromRegistration = () => {
+    setIsForgotPasswordReturn(false);
+    onAuthStateUpdate?.({ isLoginFlow: false });
+    onSetActiveDisplay(defaultDisplay);
+  };
 
   const onEmailLogin: typeof onPasswordLogin = (params) => {
     setEmail(params.identifier);
@@ -865,6 +880,12 @@ function AuthOptionsInner({
           <AuthDefault
             isLoading={isPasswordLoginLoading}
             isLoginFlow={isForgotPasswordReturn || isLoginFlow}
+            initialLoginFlow={defaultEntry.isLogin}
+            onBack={
+              defaultEntry.fromSignBack
+                ? () => onSetActiveDisplay(AuthDisplay.SignBack)
+                : undefined
+            }
             isReady={isReady}
             loginHint={loginHint}
             onForgotPassword={onForgotPassword}
@@ -904,7 +925,7 @@ function AuthOptionsInner({
             hints={registrationHints}
             onBack={
               defaultDisplay !== AuthDisplay.Registration
-                ? () => onSetActiveDisplay(defaultDisplay)
+                ? onBackFromRegistration
                 : undefined
             }
             onBackToIntro={
@@ -984,10 +1005,12 @@ function AuthOptionsInner({
         </Tab>
         <Tab label={AuthDisplay.SignBack}>
           <AuthSignBack
-            onRegister={() => {
+            onRegister={(canGoBack) => {
               if (isLoginFlow) {
                 onAuthStateUpdate?.({ isLoginFlow: false });
               }
+              setIsForgotPasswordReturn(false);
+              setDefaultEntry({ isLogin: false, fromSignBack: !!canGoBack });
               setIsConnected(false);
               onSetActiveDisplay(AuthDisplay.Default);
             }}
@@ -997,10 +1020,11 @@ function AuthOptionsInner({
             isProviderLoading={isSocialAuthLoading}
             simplified={simplified}
             isOnboardingFunnel={isOnboardingFunnel}
-            onShowLoginOptions={() => {
+            onShowLoginOptions={(canGoBack) => {
               if (!isLoginFlow && onAuthStateUpdate) {
                 onAuthStateUpdate({ isLoginFlow: true });
               }
+              setDefaultEntry({ isLogin: true, fromSignBack: !!canGoBack });
               setIsConnected(false);
               setActiveDisplay(AuthDisplay.Default);
             }}
@@ -1042,6 +1066,7 @@ function AuthOptionsInner({
             simplified={simplified}
             onboardingHeadline={isOnboardingFunnel}
             title="Verify your email"
+            onBack={simplified ? undefined : onBackFromVerify}
           />
           {!simplified && (
             <MailIcon size={IconSize.XXLarge} className="mx-auto mt-8" />

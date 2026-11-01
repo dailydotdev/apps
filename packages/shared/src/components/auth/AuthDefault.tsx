@@ -29,6 +29,8 @@ interface AuthDefaultProps extends AuthFormProps {
   onForgotPassword?: (email?: string) => unknown;
   targetId?: string;
   isLoginFlow?: boolean;
+  initialLoginFlow?: boolean;
+  onBack?: () => void;
   logInTitle?: string;
   signUpTitle?: string;
   providers: Provider[];
@@ -51,6 +53,8 @@ const AuthDefault = ({
   onPasswordLogin,
   targetId,
   isLoginFlow,
+  initialLoginFlow,
+  onBack,
   providers,
   disableRegistration,
   disablePassword,
@@ -109,6 +113,18 @@ const AuthDefault = ({
     onSignup?.('');
   };
 
+  const toggleLogin = () => {
+    focusFirstSocialLink();
+    if (!shouldLogin) {
+      setRegisterEmail(null);
+    }
+    setShouldLogin(!shouldLogin);
+  };
+
+  const isInitialMode =
+    initialLoginFlow === undefined || !!shouldLogin === initialLoginFlow;
+  const onHeaderBack = isInitialMode ? onBack : toggleLogin;
+
   const onSocialClick = (provider: string) => {
     onProviderClick?.(provider, shouldLogin);
   };
@@ -145,7 +161,11 @@ const AuthDefault = ({
 
   return (
     <>
-      <AuthHeader simplified={simplified} title={title} />
+      <AuthHeader
+        simplified={simplified}
+        title={title}
+        onBack={simplified ? undefined : onHeaderBack}
+      />
       {simplified && !shouldLogin && (
         <p className="mt-3 whitespace-pre-line px-6 text-center text-text-secondary typo-body">
           Once you sign up, your personal feed will be ready to explore.
@@ -212,13 +232,7 @@ const AuthDefault = ({
                 : 'Already have an account?',
               button: shouldLogin ? 'Sign up' : 'Log in',
             }}
-            onClick={() => {
-              focusFirstSocialLink();
-              if (!shouldLogin) {
-                setRegisterEmail(null);
-              }
-              setShouldLogin(!shouldLogin);
-            }}
+            onClick={toggleLogin}
           />
         </ConditionalWrapper>
       )}

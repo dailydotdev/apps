@@ -17,11 +17,11 @@ interface AuthSignBackProps extends AuthFormProps {
   children?: ReactNode;
   isLoginFlow?: boolean;
   isConnectedAccount?: boolean;
-  onRegister?: () => void;
+  onRegister?: (canGoBack?: boolean) => void;
   onProviderClick?: (provider: string) => unknown;
   isProviderLoading?: boolean;
   loginFormProps?: LoginFormProps;
-  onShowLoginOptions?: () => void;
+  onShowLoginOptions?: (canGoBack?: boolean) => void;
   isOnboardingFunnel?: boolean;
 }
 
@@ -44,10 +44,10 @@ export const AuthSignBack = ({
   const providerItem = socialProvider ? providerMap[socialProvider] : undefined;
   const isValid = signBack && (provider === 'password' || !!providerItem);
   const handleShowLoginOptions = (): void => {
-    onShowLoginOptions?.();
+    onShowLoginOptions?.(true);
   };
   const handleRegister = (): void => {
-    onRegister?.();
+    onRegister?.(true);
   };
   const handleProviderClick = (): void => {
     if (!socialProvider || !onProviderClick) {
