@@ -10,7 +10,7 @@ import { useFeedWidgetAdSlot } from './feedState';
  * `min-h-card` to `max-h-cardLarge` with their content; most rows land here.
  */
 export const RAIL_HEIGHT = '25.375rem';
-/** Half the rail, less the row gap: a Small widget, or one row of a Tall one. */
+/** Half the rail, less the laptop row gap: a Small widget, or one row of a Tall one. */
 export const RAIL_CELL_HEIGHT = `calc((${RAIL_HEIGHT} - 1.5rem) / 2)`;
 
 /*
@@ -28,16 +28,21 @@ export const railHeaderClassName = 'flex min-h-12 items-center gap-2';
 export const railScrollerClassName =
   'no-scrollbar -mx-4 overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-px-4 px-4 pb-3 pt-4 laptop:-mx-2 laptop:scroll-px-2 laptop:px-2';
 
-// One row gap on every screen: the rail's height never depends on the phone
-// check, which reads "not a phone" for a frame before it settles.
+// The row gap follows the viewport, never the phone check, which reads "not a
+// phone" for a frame before it settles. The two rows split whatever the gap
+// leaves, so the rail is the same height on every screen.
 export const railGridClassName = (isPhone: boolean): string =>
-  classNames('relative grid gap-y-6', isPhone ? 'gap-x-3' : 'gap-x-6');
+  classNames(
+    'relative grid gap-y-4 laptop:gap-y-6',
+    isPhone ? 'gap-x-3' : 'gap-x-6',
+  );
 
 export const railGridStyle = (
   columns: number,
   isPhone: boolean,
 ): CSSProperties => ({
-  gridTemplateRows: `repeat(2, ${RAIL_CELL_HEIGHT})`,
+  height: RAIL_HEIGHT,
+  gridTemplateRows: 'repeat(2, minmax(0, 1fr))',
   // A phone shows one column and the edge of the next, so the rail always
   // says it scrolls.
   gridAutoColumns: isPhone
