@@ -1,0 +1,66 @@
+import React from 'react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { screen, Variant } from '../kit';
+import { cardRow, closeRow, fieldsRow, paddingRow } from '../changes';
+
+const meta: Meta = {
+  title: 'Auth Pop-ups/3. Variants/5. Email sign-up',
+  parameters: { layout: 'fullscreen' },
+};
+
+export default meta;
+
+export const EmailSignUp: StoryObj = {
+  name: 'Email sign-up',
+  render: () => (
+    <Variant
+      number={5}
+      question="After “Continue with email” on Sign up"
+      title="Email sign-up"
+      goal={
+        <p>
+          Email, name, password, username and experience level, with the Sign up
+          button at the bottom. It used to open with the email typed on Sign up;
+          now “Continue with email” opens it with the email field empty and
+          focused. Storybook uses Cloudflare’s always-pass test key, so the
+          After frames pass the security check without a box, as most people do.
+        </p>
+      }
+      capture="webapp-email-signup"
+      story={screen('email-sign-up')}
+      captions={{
+        phoneBefore:
+          'The back arrow at the top left closes the pop-up instead of returning to the providers',
+      }}
+      changes={[
+        {
+          ...closeRow,
+          cells: [
+            'A back arrow on the left on phones that closes the pop-up. A close button on the right on desktop.',
+            'The close button on the right at every size, and a back arrow before the title that returns to the provider buttons',
+          ],
+        },
+        {
+          aspect: 'Sign up button',
+          cells: [
+            'At the end of the form, 40px under the header’s gap',
+            'In the onboarding steps’ glass bar: it follows the content and pins to the bottom when the content is taller than the screen. The form starts 24px under the header, like the other screens.',
+          ],
+        },
+        {
+          aspect: 'Side padding',
+          cells: ['16px on phones, 24px on desktop', '24px at every size'],
+        },
+        {
+          aspect: 'Email checkmark',
+          cells: [
+            'Shown because the email arrived already typed',
+            'Shown once a valid email is typed, like Name and Username',
+          ],
+        },
+        fieldsRow,
+        cardRow,
+      ]}
+    />
+  ),
+};
