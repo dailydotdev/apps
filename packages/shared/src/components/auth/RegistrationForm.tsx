@@ -395,7 +395,8 @@ const RegistrationForm = ({
         )}
         <AuthForm
           className={classNames(
-            'w-full flex-1 place-items-center gap-2 self-center',
+            'w-full flex-1 place-items-center self-center',
+            simplified ? 'gap-2' : 'gap-3',
             simplified ? 'mt-10 overflow-y-auto pb-2' : 'mt-6',
           )}
           data-testid="registration_form"
@@ -407,7 +408,7 @@ const RegistrationForm = ({
           <TextField
             autoFocus
             autoComplete="email"
-            saveHintSpace
+            saveHintSpace={simplified}
             className={{ container: 'w-full' }}
             leftIcon={<MailIcon aria-hidden role="presentation" />}
             name="traits.email"
@@ -419,14 +420,14 @@ const RegistrationForm = ({
           />
           {hints?.['traits.email'] && !alreadyExists && (
             <Alert
-              className="-mt-4 mb-3 min-w-full"
+              className={classNames('min-w-full', simplified && '-mt-4 mb-3')}
               type={AlertType.Error}
               title={hints['traits.email']}
             />
           )}
           {alreadyExists && (
             <Alert
-              className="-mt-4 mb-3 min-w-full"
+              className={classNames('min-w-full', simplified && '-mt-4 mb-3')}
               type={AlertType.Error}
               flexDirection="flex-row"
             >
@@ -444,7 +445,7 @@ const RegistrationForm = ({
           )}
           <TextField
             autoComplete="name"
-            saveHintSpace
+            saveHintSpace={simplified}
             className={{ container: 'w-full' }}
             valid={isNameValid}
             leftIcon={<UserIcon aria-hidden role="presentation" />}
@@ -464,7 +465,7 @@ const RegistrationForm = ({
             required
             minLength={8}
             maxLength={72}
-            saveHintSpace
+            saveHintSpace={simplified}
             className={{ container: 'w-full' }}
             name="password"
             inputId="password"
@@ -477,7 +478,7 @@ const RegistrationForm = ({
           />
           <TextField
             autoComplete="user"
-            saveHintSpace
+            saveHintSpace={simplified}
             className={{ container: 'w-full' }}
             valid={isLoadingUsername || isUsernameValid}
             leftIcon={<AtIcon aria-hidden role="presentation" />}
@@ -507,13 +508,13 @@ const RegistrationForm = ({
                 hints?.['traits.experienceLevel'] &&
                 onUpdateHints({ ...hints, 'traits.experienceLevel': '' })
               }
-              saveHintSpace
+              saveHintSpace={simplified}
             />
           )}
           {extraFields.includes('company') && (
             <TextField
               autoComplete="organization"
-              saveHintSpace
+              saveHintSpace={simplified}
               className={{ container: 'w-full' }}
               leftIcon={<BriefIcon aria-hidden role="presentation" />}
               name="traits.company"
@@ -524,7 +525,7 @@ const RegistrationForm = ({
           {extraFields.includes('jobTitle') && (
             <TextField
               autoComplete="organization-title"
-              saveHintSpace
+              saveHintSpace={simplified}
               className={{ container: 'w-full' }}
               leftIcon={<JobIcon aria-hidden role="presentation" />}
               name="traits.title"
@@ -542,7 +543,7 @@ const RegistrationForm = ({
                 hints?.['traits.cloudProvider'] &&
                 onUpdateHints({ ...hints, 'traits.cloudProvider': '' })
               }
-              saveHintSpace
+              saveHintSpace={simplified}
             />
           )}
           <Checkbox className="w-full" name="optOutMarketing">

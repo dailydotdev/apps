@@ -25,7 +25,7 @@ export function AuthActionBar({
     <div
       className={classNames(
         'sticky z-1 w-full pt-4',
-        aboveFooter ? 'bottom-16' : 'bottom-0 pb-4',
+        aboveFooter ? 'bottom-[3.25rem]' : 'bottom-0 pb-6',
       )}
     >
       <div

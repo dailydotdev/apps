@@ -98,7 +98,7 @@ export default function AuthModal({
       onRequestClose={onDiscardAttempt}
       className={classNames(
         className,
-        'auth tablet:!w-[25rem] tablet:!bg-background-default',
+        'auth tablet:!h-[40rem] tablet:!w-[25rem] tablet:!bg-background-default',
       )}
     >
       <AuthOptions

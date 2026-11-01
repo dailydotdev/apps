@@ -187,7 +187,11 @@ function EmailCodeVerification({
 
   return (
     <AuthForm
-      className={classNames('flex flex-col items-end px-6 py-8', className)}
+      className={classNames(
+        'flex flex-col items-end px-6 pt-8',
+        isOnboardingFunnel && 'pb-8',
+        className,
+      )}
       onSubmit={onCodeVerification}
       data-testid="email_verification_form"
     >

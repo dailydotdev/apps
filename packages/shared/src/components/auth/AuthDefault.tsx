@@ -149,6 +149,11 @@ const AuthDefault = ({
         </p>
       )}
       <AuthContainer className={disableRegistration ? 'mb-6' : undefined}>
+        {isSignup && !simplified && (
+          <p className="mb-3 text-center font-bold typo-title2">
+            Where developers discover what’s next.
+          </p>
+        )}
         <div
           aria-label="Social login buttons"
           className="flex flex-col gap-4"
@@ -175,7 +180,7 @@ const AuthDefault = ({
             <Button
               aria-label="Continue with email"
               disabled={!isReady || isSocialAuthLoading}
-              icon={<MailIcon size={IconSize.Medium} />}
+              icon={<MailIcon secondary size={IconSize.Medium} />}
               onClick={onEmailSignup}
               size={ButtonSize.Large}
               type="button"

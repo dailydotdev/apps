@@ -69,6 +69,8 @@ function LoginForm({
   const [turnstileError, setTurnstileError] = useState(false);
   const [isVerifyingTurnstile, setIsVerifyingTurnstile] = useState(false);
   const isTurnstileInteractiveRef = useRef(false);
+  const [hasEngaged, setHasEngaged] = useState(false);
+  const onEngage = () => setHasEngaged(true);
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_KEY ?? '';
 
   useEffect(() => {
@@ -136,8 +138,11 @@ function LoginForm({
   return (
     <AuthForm
       aria-label="Login using email and password"
-      className={classNames('gap-2', className)}
+      className={classNames('gap-3', className)}
       onSubmit={onLogin}
+      onPointerDownCapture={onEngage}
+      onKeyDownCapture={onEngage}
+      onInputCapture={onEngage}
       data-testid="login_form"
       ref={(form) => {
         if (!form) {
@@ -163,7 +168,6 @@ function LoginForm({
         autoComplete="username"
         value={email}
         data-testid="login_email"
-        saveHintSpace
         onChange={(e) => {
           setInnerEmail(e.target.value);
           if (hint) {
@@ -196,8 +200,11 @@ function LoginForm({
         <Turnstile
           ref={turnstileRef}
           siteKey={turnstileSiteKey}
-          options={{ theme: 'dark' }}
-          className="mx-auto min-h-[4.5rem]"
+          options={{ theme: 'dark', appearance: 'interaction-only' }}
+          className={classNames(
+            'mx-auto',
+            !hasEngaged && 'invisible h-0 overflow-hidden',
+          )}
           onWidgetLoad={() => setTurnstileLoaded(true)}
           onBeforeInteractive={() => {
             isTurnstileInteractiveRef.current = true;

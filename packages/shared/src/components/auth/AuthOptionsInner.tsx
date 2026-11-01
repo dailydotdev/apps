@@ -766,7 +766,9 @@ function AuthOptionsInner({
     !isIOSNative() &&
     !isAndroidApp &&
     !isNativeAuthSupported('google') &&
-    hasLoggedAuthOpen;
+    hasLoggedAuthOpen &&
+    (activeDisplay === AuthDisplay.Default ||
+      activeDisplay === AuthDisplay.OnboardingSignup);
   useGoogleOneTap({
     enabled: canUseOneTap,
     onCredential: handleOneTapCredential,

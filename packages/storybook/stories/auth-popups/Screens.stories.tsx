@@ -1,6 +1,9 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { AuthDisplay } from '@dailydotdev/shared/src/components/auth/common';
+import {
+  AuthDisplay,
+  SocialProvider,
+} from '@dailydotdev/shared/src/components/auth/common';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import type { PopupProps } from './harness';
 import {
@@ -47,7 +50,7 @@ export const LogIn: Story = {
 
 export const WelcomeBackGoogle: Story = {
   render: () => (
-    <Providers rememberedProvider="google">
+    <Providers rememberedProvider={SocialProvider.Google}>
       <AuthPopup />
     </Providers>
   ),

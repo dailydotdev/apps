@@ -65,7 +65,7 @@ function ForgotPasswordForm({
           title="Check your email"
           onBack={onBack}
         />
-        <div className="flex flex-col items-center px-6 py-8">
+        <div className="flex flex-col items-center p-6">
           <MailIcon
             className="mb-4 text-text-tertiary"
             size={IconSize.XXLarge}
@@ -102,7 +102,7 @@ function ForgotPasswordForm({
       />
       <AuthForm
         aria-label="Forgot password"
-        className="flex flex-col items-end px-6 py-8"
+        className="flex flex-col items-end px-6 pt-6"
         onSubmit={onSendEmail}
         data-testid="recovery_form"
       >
@@ -123,7 +123,7 @@ function ForgotPasswordForm({
           leftIcon={<MailIcon aria-hidden role="presentation" />}
           autoFocus
         />
-        <AuthActionBar className="mt-2" type="submit" disabled={isLoading}>
+        <AuthActionBar type="submit" disabled={isLoading}>
           Send reset link
         </AuthActionBar>
       </AuthForm>

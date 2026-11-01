@@ -30,7 +30,7 @@ export const DesignRules: StoryObj = {
             {
               aspect: 'Size',
               cells: [
-                '400px wide on desktop. Full screen on phones.',
+                'Always 400×640 on desktop, whatever the screen holds, and never taller than the window minus 5rem. Full screen on phones. Content that runs longer scrolls inside, with the footer and the action bar pinned.',
                 'AuthModal.tsx',
               ],
             },
@@ -53,6 +53,20 @@ export const DesignRules: StoryObj = {
               cells: [
                 '24px on every screen, at every size',
                 'AuthContainer.tsx and each step',
+              ],
+            },
+            {
+              aspect: 'Fields',
+              cells: [
+                '12px between fields. An error appears right under its field only when there is one, instead of every field reserving an empty row for it.',
+                'LoginForm.tsx, RegistrationForm.tsx, SocialRegistrationForm.tsx',
+              ],
+            },
+            {
+              aspect: 'Security check',
+              cells: [
+                'Cloudflare runs silently. Its box shows only after someone uses the email and password form, and only when Cloudflare needs a click.',
+                'LoginForm.tsx, RegistrationForm.tsx',
               ],
             },
             {
@@ -103,6 +117,43 @@ export const DesignRules: StoryObj = {
         />
       </Section>
 
+      <Section title="Google One Tap">
+        <CompareTable
+          firstColumn="Screen"
+          columns={['One Tap', 'Why']}
+          rows={[
+            {
+              aspect: 'Sign up, Log in',
+              cells: [
+                'Shown',
+                'The visitor is still choosing how to sign in, so one tap on their Google account is the shortest path to an account',
+              ],
+            },
+            {
+              aspect: 'Page-level sign-up',
+              cells: [
+                'Shown, unchanged: feed banner, post page widget and strip, onboarding hero, full-page log in',
+                'Reaches logged-out visitors before they open the pop-up',
+              ],
+            },
+            {
+              aspect: 'Welcome back',
+              cells: [
+                'Not shown',
+                'The screen is already one tap for the remembered account. A second “Continue as” prompt would compete with it, and on a password account it would push a different method.',
+              ],
+            },
+            {
+              aspect: 'Email sign-up, Verify email, Reset password',
+              cells: [
+                'Closed when the visitor moves on',
+                'They picked email. On phones Google’s sheet would cover the pinned action bar mid-form.',
+              ],
+            },
+          ]}
+        />
+      </Section>
+
       <Section title="Copy and links">
         <CompareTable
           firstColumn="Part"
@@ -111,7 +162,7 @@ export const DesignRules: StoryObj = {
             {
               aspect: 'Footer',
               cells: [
-                'One bar pinned to the bottom of every pop-up that has one: “Already have an account? Log in” on Sign up, “Don’t have an account? Sign up” on Log in and Welcome back',
+                'One 52px bar pinned to the bottom of every pop-up that has one: “Already have an account? Log in” on Sign up, “Don’t have an account? Sign up” on Log in and Welcome back',
                 'AuthModalFooter.tsx',
               ],
             },
@@ -130,9 +181,9 @@ export const DesignRules: StoryObj = {
               ],
             },
             {
-              aspect: 'Title only',
+              aspect: 'Headline',
               cells: [
-                'No subtitle under the Sign up title. Welcome back keeps “Log in to access your account” above the avatar.',
+                'Sign up shows the landing page’s headline, “Where developers discover what’s next.”, under the bar, and no per-action line. Welcome back keeps “Log in to access your account” above the avatar.',
                 'AuthDefault.tsx, AuthSignBack.tsx',
               ],
             },

@@ -20,21 +20,29 @@ const pages = [
     '4. Reference',
     'The landing page’s own pop-up, and production compared side by side.',
   ],
-  ['5. Still to decide', 'What this PR leaves open.'],
+  [
+    '5. Still to decide',
+    'Seven open items, each with its options mocked side by side and a recommendation.',
+  ],
 ];
 
 const fixed = [
-  'Every pop-up is 400px wide on desktop, on the primary background (white in light theme), with 24px side padding at every size',
+  'Every pop-up is 400×640 on desktop, on the primary background (white in light theme), with 24px side padding at every size',
   'The close button sits on the right at every size, so phones no longer show two back arrows on Reset password and Verify email',
   'No per-action line under the Sign up title',
   'Sign up offers “Continue with email” as a fifth button, like the landing page, instead of an email field under an “or” divider',
   'Provider icons at 28px, so the Google mark matches the landing page',
   'Each screen’s one white action sits in the onboarding steps’ glass bar, which pins to the bottom when the content is taller than the screen',
   'Log in’s button is the outlined secondary one, since the providers above it lead',
-  'One footer bar pinned to the bottom of every pop-up, with two wordings, so the Cloudflare box can’t push it off a phone screen',
+  'One 52px footer bar pinned to the bottom of every pop-up, with two wordings, so the Cloudflare box can’t push it off a phone screen',
+  'Google One Tap stays on Sign up and Log in, and closes once someone picks email, so it can’t cover the email form’s action bar',
+  '“Continue with email” uses the filled mail icon, like the other provider marks',
   '“Not you? Use another account” moved into Welcome back’s content',
   'Verify email works like the onboarding: no back arrow, a Change email link, the mail icon above the message, “Resend code” centered on its own line',
   'The remembered email on Welcome back no longer shows a red error border',
+  'Fields sit 12px apart, with errors appearing under a field only when there is one',
+  'Cloudflare’s box on Log in shows only after the form is used, and only when Cloudflare needs a click',
+  'Sign up opens on the landing page’s headline under the header bar',
   '“create a new account” in the wrong-password error',
 ];
 

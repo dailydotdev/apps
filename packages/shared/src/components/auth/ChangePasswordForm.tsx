@@ -50,7 +50,7 @@ function ChangePasswordForm({
     <>
       <AuthHeader simplified={simplified} title="Create a new password" />
       <AuthForm
-        className="flex flex-col items-end px-6 py-8"
+        className="flex flex-col items-end px-6 pt-6"
         onSubmit={onChangePasswordSubmit}
         data-testid="recovery_form"
       >

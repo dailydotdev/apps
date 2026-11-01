@@ -81,7 +81,7 @@ export const SignUp: StoryObj = {
           aspect: 'Line under the title',
           cells: [
             'Phones only, worded per action: “Sign up to vote on posts and comments.”',
-            'Removed. Every pop-up opens on the Sign up header and the buttons, whatever opened it.',
+            'Removed. Every Sign up opens on the same headline, the landing page’s “Where developers discover what’s next.”, whatever opened it.',
           ],
         },
         {
@@ -99,7 +99,7 @@ export const SignUp: StoryObj = {
     >
       <Section
         title="Also on a phone"
-        note="One Tap is Google’s, and not changed here. Light theme follows the visitor’s setting."
+        note="Google One Tap still shows on Sign up and Log in, where people choose how to sign in, and now closes once they pick email. On phones it covers the footer while open. Light theme follows the visitor’s setting."
       >
         <PhoneRow>
           <Labeled
