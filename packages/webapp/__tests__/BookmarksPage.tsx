@@ -30,7 +30,7 @@ import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
-import { StaleTime } from '@dailydotdev/shared/src/lib/query';
+import { RequestKey, StaleTime } from '@dailydotdev/shared/src/lib/query';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as viewSize from '@dailydotdev/shared/src/hooks/useViewSize';
@@ -481,4 +481,65 @@ it('should not write a post the list dropped over the next row', async () => {
 
   expect(screen.queryByTitle(first.title ?? '')).not.toBeInTheDocument();
   expect(screen.getByTitle(second.title ?? '')).toBeInTheDocument();
+});
+
+it('should show a bookmark restored from Archived once All is open again', async () => {
+  useTablet();
+  jest.spyOn(viewSize, 'useViewSizeClient').mockReturnValue(true);
+  const [first] = defaultFeedPage.edges.map(({ node }) => node);
+  const post = {
+    ...first,
+    bookmarked: true,
+    bookmark: { createdAt: new Date(), read: true, archivedAt: new Date() },
+  };
+  const page = { ...emptyPage, edges: [{ node: post }] };
+  // Lists stay fresh in the app, so All would reuse its empty page
+  renderComponent(
+    [createFeedMock(emptyPage), createFacetsMock(), createArchivedMock(page)],
+    defaultUser,
+    (queryClient) =>
+      queryClient.setQueryDefaults([RequestKey.Bookmarks], {
+        staleTime: StaleTime.Base,
+      }),
+  );
+  await waitForNock();
+  await screen.findByText('Everything here is archived');
+
+  mockGraphQL(
+    createFeedMock(page, BOOKMARKS_FEED_QUERY, {
+      ...feedVariables,
+      status: BookmarkStatus.Archived,
+    }),
+  );
+  mockGraphQL(createFacetsMock(BookmarkStatus.Archived));
+  fireEvent.click(screen.getByRole('button', { name: 'Archived' }));
+  await waitForNock();
+  fireEvent.click(await screen.findByTitle(post.title ?? ''));
+
+  mockGraphQL({
+    request: {
+      query: SET_BOOKMARK_ARCHIVED,
+      variables: { postId: post.id, archived: false },
+    },
+    result: { data: { setBookmarkArchived: { _: true } } },
+  });
+  mockGraphQL(createFacetsMock(BookmarkStatus.Archived));
+  const sheet = screen.getByRole('region', { name: 'Bookmark' });
+  fireEvent.click(
+    within(sheet).getByRole('button', { name: 'Restore from archive' }),
+  );
+  await waitForNock();
+  await waitFor(() =>
+    expect(screen.queryByTitle(post.title ?? '')).not.toBeInTheDocument(),
+  );
+
+  mockGraphQL(createFeedMock(page));
+  mockGraphQL(createFacetsMock());
+  fireEvent.click(screen.getByRole('button', { name: 'All' }));
+  await waitForNock();
+
+  expect(await screen.findByTitle(post.title ?? '')).toBeInTheDocument();
+  expect(
+    screen.queryByText('Your bookmark list is empty.'),
+  ).not.toBeInTheDocument();
 });

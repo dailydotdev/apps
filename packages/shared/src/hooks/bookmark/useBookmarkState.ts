@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { hashKey, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Bookmark } from '../../graphql/bookmarks';
 import {
   setBookmarkArchived,
@@ -90,14 +90,16 @@ export const useBookmarkState = (): UseBookmarkState => {
     [client],
   );
 
-  // Reset, not invalidated, so a stale answer never shows while it refetches
-  const resetArchivedCheck = useCallback(
-    () =>
-      client.resetQueries({
-        queryKey: generateQueryKey(RequestKey.Bookmarks, user, 'archived'),
-      }),
-    [client, user],
-  );
+  // Archiving moves the bookmark between lists. The others are reset, not
+  // invalidated, so a stale answer never shows while they refetch
+  const resetOtherBookmarkLists = useCallback(() => {
+    const feedHash = feedQueryKey && hashKey(feedQueryKey);
+
+    return client.resetQueries({
+      queryKey: generateQueryKey(RequestKey.Bookmarks, user),
+      predicate: ({ queryHash }) => queryHash !== feedHash,
+    });
+  }, [client, feedQueryKey, user]);
 
   const refetchFeed = useCallback(() => {
     if (feedQueryKey) {
@@ -124,7 +126,7 @@ export const useBookmarkState = (): UseBookmarkState => {
           : { archivedAt: null },
       );
       invalidateFacets();
-      resetArchivedCheck();
+      resetOtherBookmarkLists();
     },
     onError: () => displayToast('Failed to update the bookmark'),
   });
