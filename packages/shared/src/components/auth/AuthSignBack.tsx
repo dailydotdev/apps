@@ -89,6 +89,7 @@ export const AuthSignBack = ({
       return (
         <LoginForm
           {...loginFormProps}
+          aboveFooter={!simplified}
           email={loginFormProps.email ?? signBack.email}
         />
       );

@@ -123,6 +123,7 @@ const AuthDefault = ({
           isLoading={isLoading}
           email={registerEmail ?? undefined}
           loginButton={loginButton}
+          aboveFooter={!simplified && !disableRegistration}
           loginButtonVariant={
             providers.length ? ButtonVariant.Secondary : ButtonVariant.Primary
           }

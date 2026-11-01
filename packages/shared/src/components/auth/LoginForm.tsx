@@ -31,6 +31,7 @@ export interface LoginFormProps {
   loginHint: LoginHintState;
   loginButton?: string;
   loginButtonVariant?: ButtonVariant;
+  aboveFooter?: boolean;
   className?: string;
   isLoading?: boolean;
   isReady: boolean;
@@ -79,6 +80,7 @@ function LoginForm({
   loginHint: [hint, setHint],
   loginButton = 'Log in',
   loginButtonVariant = ButtonVariant.Primary,
+  aboveFooter,
   className,
   isLoading,
   isReady,
@@ -281,7 +283,7 @@ function LoginForm({
       )}
       {loginButtonVariant === ButtonVariant.Primary ? (
         <AuthActionBar
-          aboveFooter
+          aboveFooter={aboveFooter}
           type="submit"
           loading={!isReady || isVerifyingTurnstile}
           disabled={isLoading || (!!turnstileSiteKey && !turnstileLoaded)}
