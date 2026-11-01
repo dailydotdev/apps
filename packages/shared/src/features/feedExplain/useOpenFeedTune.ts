@@ -5,7 +5,7 @@ import type { Origin } from '../../lib/log';
 import { LogEvent } from '../../lib/log';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { FeedTuneTab } from './types';
-import { useFeedTuneState } from './useFeedTune';
+import { useFeedTuneState } from './useFeedTuneState';
 import { useSetFeedExplain } from './useSetFeedExplain';
 
 interface OpenFeedTuneOptions {

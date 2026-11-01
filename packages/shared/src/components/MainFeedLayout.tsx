@@ -115,9 +115,8 @@ import {
   SearchProviderSegments,
 } from './search/SearchResults/SearchProviderTabs';
 import { useFeedExplainMode } from '../features/feedExplain/useFeedExplainMode';
-import { useFeedTuneState } from '../features/feedExplain/useFeedTune';
+import { useFeedTuneState } from '../features/feedExplain/useFeedTuneState';
 import { FeedTuneProvider } from '../features/feedExplain/FeedTuneContext';
-import { FeedTunePanel } from '../features/feedExplain/components/FeedTunePanel';
 import { FeedExplainBar } from '../features/feedExplain/components/FeedExplainBar';
 
 // Its own chunk, so readers without the rail never download it; the skeleton
@@ -128,6 +127,12 @@ const FeedWidgetRail = dynamic(
       /* webpackChunkName: "feedWidgetRail" */ '../features/feedWidgets/FeedWidgetRail'
     ).then((mod) => mod.FeedWidgetRail),
   { loading: () => <FeedWidgetRailLoading /> },
+);
+
+const FeedTunePanel = dynamic(() =>
+  import(
+    /* webpackChunkName: "feedTunePanel" */ '../features/feedExplain/components/FeedTunePanel'
+  ).then((mod) => mod.FeedTunePanel),
 );
 
 const SpotlightField = dynamic(() =>
@@ -985,12 +990,13 @@ export default function MainFeedLayout({
       (!isFeedWidgetsEnabled && (!!v2ActionButtons || !!feedHeading)));
 
   const tunePreviewKey = tuneDraft ? feedProps?.feedQueryKey : undefined;
+  const tuneBaseKey = tunePreviewKey
+    ? tunePreviewKey.slice(0, -1)
+    : feedProps?.feedQueryKey;
 
   return (
     <FeedTuneProvider
-      baseQueryKey={
-        tunePreviewKey ? tunePreviewKey.slice(0, -1) : feedProps?.feedQueryKey
-      }
+      baseQueryKey={isTuning ? tuneBaseKey : undefined}
       previewQueryKey={tunePreviewKey}
     >
       {showExploreV2PageHeader && (
