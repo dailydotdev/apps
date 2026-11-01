@@ -554,4 +554,27 @@ describe('WhatsOffBox', () => {
     expect(screen.getAllByRole('button', { name: /^Apply/ })).toHaveLength(1);
     expect(screen.queryByText('Or')).not.toBeInTheDocument();
   });
+
+  it('should quote a line only when its words differ from the complaint', async () => {
+    await askWith([
+      {
+        kind: WhatsOffLineKind.Sure,
+        words: text,
+        change: showLessAgents,
+        alternatives: [],
+      },
+      {
+        kind: WhatsOffLineKind.Missing,
+        words: 'posts in Spanish',
+        gap: 'language',
+        change: null,
+        alternatives: [],
+      },
+    ]);
+
+    expect(await screen.findByText('Show less #ai-agents')).toBeInTheDocument();
+    // Only the panel's header quotes the whole complaint.
+    expect(screen.getAllByText(`“${text}”`)).toHaveLength(1);
+    expect(screen.getByText('“posts in Spanish”')).toBeInTheDocument();
+  });
 });

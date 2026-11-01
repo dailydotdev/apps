@@ -45,7 +45,6 @@ import {
   getWhatsOffChangeCopy,
   getWhatsOffChangeExtra,
   getWhatsOffChangeKey,
-  getWhatsOffDirectionLabel,
   getWhatsOffGapNote,
   getWhatsOffLineChanges,
   isWhatsOffLineShown,
@@ -294,12 +293,15 @@ interface LineRowProps extends ChangeActions {
   answerId: string;
   line: WhatsOffLine;
   index: number;
+  /** The words differ from the whole complaint, so the row quotes them. */
+  isQuoted: boolean;
 }
 
 const LineRow = ({
   answerId,
   line,
   index,
+  isQuoted,
   apply,
   isInEffect,
 }: LineRowProps): ReactElement => {
@@ -392,6 +394,9 @@ const LineRow = ({
     }
   };
 
+  const shownLabel =
+    label && (!picked || line.kind !== WhatsOffLineKind.Choose) ? label : null;
+
   if (isWhatsOffNoteLine(line)) {
     const isMissing = line.kind === WhatsOffLineKind.Missing;
     return (
@@ -399,9 +404,11 @@ const LineRow = ({
         className="flex flex-col gap-1 rounded-12 border border-border-subtlest-tertiary p-3 motion-safe:animate-composer-in"
         style={rowStagger(index + 1)}
       >
-        <span className="break-words text-text-tertiary typo-footnote">
-          “{line.words}”
-        </span>
+        {isQuoted && (
+          <span className="break-words text-text-tertiary typo-footnote">
+            “{line.words}”
+          </span>
+        )}
         <span className="font-bold text-text-primary typo-callout">
           {isMissing ? 'Not possible yet' : 'Already set'}
         </span>
@@ -419,14 +426,18 @@ const LineRow = ({
       className="flex flex-col gap-2 rounded-12 bg-surface-float p-3 motion-safe:animate-composer-in"
       style={rowStagger(index + 1)}
     >
-      <span className="flex flex-wrap items-center gap-x-2 gap-y-1 typo-footnote">
-        <span className="min-w-0 shrink break-words text-text-tertiary">
-          “{line.words}”
+      {(isQuoted || shownLabel) && (
+        <span className="flex flex-wrap items-center gap-x-2 gap-y-1 typo-footnote">
+          {isQuoted && (
+            <span className="min-w-0 shrink break-words text-text-tertiary">
+              “{line.words}”
+            </span>
+          )}
+          {shownLabel && (
+            <span className="font-bold text-text-secondary">{shownLabel}</span>
+          )}
         </span>
-        {label && (!picked || line.kind !== WhatsOffLineKind.Choose) && (
-          <span className="font-bold text-text-secondary">{label}</span>
-        )}
-      </span>
+      )}
       {picked && (
         <ChangeRow
           change={picked}
@@ -470,10 +481,27 @@ const LineRow = ({
   );
 };
 
-const Answer = ({ answer }: { answer: WhatsOff }): ReactElement => {
+// Two texts say the same thing, whatever their case and punctuation.
+const isSameText = (a: string, b: string): boolean => {
+  const normalize = (value: string) =>
+    value
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}]+/gu, ' ')
+      .trim();
+  return normalize(a) === normalize(b);
+};
+
+const Answer = ({
+  answer,
+  complaint,
+}: {
+  answer: WhatsOff;
+  /** What the reader typed, quoted above the answer already. */
+  complaint: string;
+}): ReactElement => {
   const { openModal } = useLazyModal();
   const { apply, isInEffect } = useWhatsOffChange();
-  const { id, asks, lines } = answer;
+  const { id, lines } = answer;
 
   if (!lines.some(isWhatsOffLineShown)) {
     if (isOutOfScope(answer)) {
@@ -496,42 +524,26 @@ const Answer = ({ answer }: { answer: WhatsOff }): ReactElement => {
   }
 
   return (
-    <>
-      {asks.length > 0 && (
-        <ul
-          aria-label="What you asked for"
-          className="flex flex-wrap gap-2 motion-safe:animate-composer-in"
-        >
-          {asks.map(({ words, direction }) => (
-            <li
-              key={`${direction}:${words}`}
-              className="min-w-0 shrink break-words rounded-8 border border-border-subtlest-tertiary px-2 py-0.5 text-text-secondary typo-footnote"
-            >
-              {getWhatsOffDirectionLabel(direction)}: {words}
-            </li>
-          ))}
-        </ul>
+    <ul aria-label="Suggested changes" className="flex flex-col gap-2">
+      {lines.map(
+        (line, index) =>
+          isWhatsOffLineShown(line) && (
+            <LineRow
+              key={[
+                line.kind,
+                line.words,
+                line.change && getWhatsOffChangeKey(line.change),
+              ].join(':')}
+              answerId={id}
+              line={line}
+              index={index}
+              isQuoted={!isSameText(line.words, complaint)}
+              apply={apply}
+              isInEffect={isInEffect}
+            />
+          ),
       )}
-      <ul aria-label="Suggested changes" className="flex flex-col gap-2">
-        {lines.map(
-          (line, index) =>
-            isWhatsOffLineShown(line) && (
-              <LineRow
-                key={[
-                  line.kind,
-                  line.words,
-                  line.change && getWhatsOffChangeKey(line.change),
-                ].join(':')}
-                answerId={id}
-                line={line}
-                index={index}
-                apply={apply}
-                isInEffect={isInEffect}
-              />
-            ),
-        )}
-      </ul>
-    </>
+    </ul>
   );
 };
 
@@ -667,7 +679,7 @@ export const WhatsOffBox = ({
                 )}
               </div>
             )}
-            {answer && <Answer answer={answer} />}
+            {answer && <Answer answer={answer} complaint={text ?? ''} />}
           </React.Fragment>
         </section>
       )}

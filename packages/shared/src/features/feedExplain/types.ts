@@ -318,16 +318,10 @@ export interface WhatsOffLine {
   alternatives: WhatsOffChange[];
 }
 
-export interface WhatsOffAsk {
-  words: string;
-  direction: string;
-}
-
 export interface WhatsOff {
   /** Ties the reader's taps on the answer to it in analytics. */
   id: string;
   response: WhatsOffResponse;
   scope: WhatsOffScope;
-  asks: WhatsOffAsk[];
   lines: WhatsOffLine[];
 }

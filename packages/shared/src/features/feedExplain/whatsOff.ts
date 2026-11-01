@@ -59,13 +59,6 @@ const gapLabels: Record<string, string> = {
   quality: 'post quality',
 };
 
-const directionLabels: Record<string, string> = {
-  less: 'Less',
-  more: 'More',
-  undo: 'Back',
-  stop_learning: 'Stop learning',
-};
-
 // A topic reads as its title, or as the raw tag when it has none.
 const getTargetName = (target: WhatsOffTarget | null | undefined): string => {
   if (!target) {
@@ -234,9 +227,6 @@ export const getWhatsOffGapNote = (line: WhatsOffLine): string => {
     : "There's no setting for this yet.";
   return line.kind === WhatsOffLineKind.Missing ? `${note} We noted it.` : note;
 };
-
-export const getWhatsOffDirectionLabel = (direction: string): string =>
-  directionLabels[direction] ?? directionLabels.less;
 
 export const getWhatsOffSubmitExtra = ({
   response,

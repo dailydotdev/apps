@@ -393,10 +393,6 @@ export const WHATS_OFF_QUERY = gql`
       id
       response
       scope
-      asks {
-        words
-        direction
-      }
       lines {
         kind
         words
