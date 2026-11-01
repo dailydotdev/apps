@@ -178,6 +178,22 @@ describe('SquadUpdatesWidget', () => {
     expect(screen.queryByText('Squad rules')).not.toBeInTheDocument();
   });
 
+  it('truncates a long squad name at Small to keep "Open squad" in the card', async () => {
+    mockSquadPosts();
+    renderRail({
+      ...squadWidget({ sourceId: webteam.id }),
+      size: FeedWidgetSize.Small,
+    });
+    await revealWidgets();
+
+    await screen.findByText('Shipped the new nav');
+    expect(screen.getByText(webteam.name)).toHaveClass(
+      'min-w-0',
+      'flex-1',
+      'truncate',
+    );
+  });
+
   it('offers the picker again when the reader left the squad', async () => {
     renderRail(squadWidget({ sourceId: 'left-squad' }));
     await revealWidgets();
