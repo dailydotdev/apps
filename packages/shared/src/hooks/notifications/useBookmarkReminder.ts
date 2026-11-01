@@ -88,8 +88,7 @@ export const useBookmarkReminder = ({
       mutate: (_post) => ({
         bookmarked: true,
         bookmark: {
-          createdAt: _post.bookmark?.createdAt ?? new Date(),
-          listId: _post.bookmark?.listId,
+          ...(_post.bookmark ?? { createdAt: new Date() }),
           remindAt,
         },
       }),
