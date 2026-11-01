@@ -84,6 +84,7 @@ export const useLiveChatRoom = ({
   const seatedJid = useRef<string | null>(null);
   // The room asked for but not confirmed yet; the transport already holds it.
   const joiningJid = useRef<string | null>(null);
+  const isMounted = useRef(false);
   const isComposing = useRef(false);
   const composingSentAt = useRef(0);
   const pauseTimer = useRef<ReturnType<typeof setTimeout>>();
@@ -266,6 +267,10 @@ export const useLiveChatRoom = ({
       if (!target?.jid || target.status !== ChatRoomStatus.Active) {
         target = await openPostChatRoom(postId);
         queryClient.setQueryData(roomQuery.queryKey, target);
+        // Closed while the room was opening; the unmount had nothing to leave.
+        if (!isMounted.current) {
+          return;
+        }
       }
       if (!target.jid) {
         throw new Error('The chat room is not ready yet');
@@ -350,7 +355,9 @@ export const useLiveChatRoom = ({
   // Leaving the page leaves the room; nothing about the seat survives it.
   useEffect(() => {
     const timers = typingTimers.current;
+    isMounted.current = true;
     return () => {
+      isMounted.current = false;
       const jid = seatedJid.current ?? joiningJid.current;
       seatedJid.current = null;
       joiningJid.current = null;
