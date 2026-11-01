@@ -169,7 +169,7 @@ export function ReadPostContent({
 
           <GoBackHeaderMobile
             className={classNames(
-              '-mx-4 bg-background-subtle',
+              '-mx-4 bg-background-subtle tablet:-mx-6',
               !leaderboardReleased && '!static',
             )}
             hideOnScroll={leaderboardReleased}
