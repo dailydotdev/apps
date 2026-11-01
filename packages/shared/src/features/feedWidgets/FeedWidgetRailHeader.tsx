@@ -31,27 +31,29 @@ const RailPageActions = (): ReactElement => {
 
   return (
     <>
-      <IntroQuestButton
-        size={ButtonSize.Small}
-        variant={ButtonVariant.Tertiary}
-        showLabel={isLaptopXL}
-        attentionDot
-      />
-      <UpgradeToPlus
-        target={TargetId.FeedWidgets}
-        size={ButtonSize.Small}
-        variant={ButtonVariant.Tertiary}
-        iconClassName="text-accent-bacon-default"
-        label="Get Plus"
-        iconOnly={isTablet}
-        className="!flex-none"
-      />
-      <CreatePostButton
-        compact={isTablet}
-        showIcon
-        size={ButtonSize.Small}
-        aria-label="New post"
-      />
+      <div className="flex items-center gap-2">
+        <IntroQuestButton
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+          showLabel={isLaptopXL}
+          attentionDot
+        />
+        <UpgradeToPlus
+          target={TargetId.FeedWidgets}
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+          iconClassName="text-accent-bacon-default"
+          label="Get Plus"
+          iconOnly={isTablet}
+          className="!flex-none"
+        />
+        <CreatePostButton
+          compact={isTablet}
+          showIcon
+          size={ButtonSize.Small}
+          aria-label="New post"
+        />
+      </div>
       <Divider />
     </>
   );
