@@ -8,10 +8,6 @@ import { SharedFeedPage } from '../../components/utilities/common';
 import { feature, featureFeedExplain } from '../../lib/featureManagement';
 import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
 
-// The For You feed versions (GrowthBook `feed_version`) ranked by the
-// challenger, the only ranking that explains its cards.
-export const challengerFeedVersions = [116, 118];
-
 interface UseFeedExplainModeProps {
   /** The feed's sort is Recommended: By date is not ranked, so it explains nothing. */
   isRecommended?: boolean;
@@ -52,16 +48,15 @@ export const useFeedExplainMode = ({
     feature: feature.feedVersion,
     shouldEvaluate: isForYou,
   });
-  const isChallenger = challengerFeedVersions.includes(version);
   const { value: isFlagOn } = useConditionalFeature({
     feature: featureFeedExplain,
-    shouldEvaluate: isForYou && isChallenger,
+    shouldEvaluate: isForYou,
   });
   const [isOn] = useQueryState({
     key: [QueryStateKeys.FeedExplain],
     defaultValue: false,
   });
-  const isOffered = isForYou && isChallenger && isFlagOn;
+  const isOffered = isForYou && isFlagOn;
   const isAvailable = isOffered && isRecommended;
 
   return {
@@ -73,9 +68,8 @@ export const useFeedExplainMode = ({
 };
 
 /**
- * The reader's For You is ranked by the challenger and has Explain, so its
- * controls take effect. Unlike Explain mode it doesn't depend on the feed on
- * screen, for the settings pages.
+ * The reader has For You's Explain and controls. Unlike Explain mode it
+ * doesn't depend on the feed on screen, for the settings pages.
  */
 export const useForYouControls = (): Pick<
   UseFeedExplainMode,
@@ -94,7 +88,7 @@ export const useForYouControls = (): Pick<
   });
 
   return {
-    isAvailable: !!user && isFlagOn && challengerFeedVersions.includes(version),
+    isAvailable: !!user && isFlagOn,
     version,
   };
 };

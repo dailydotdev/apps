@@ -56,11 +56,13 @@ const controls: FeedControls = {
 };
 const feedId = defaultUser.id;
 
-const renderSources = (version = 116) => {
+const version = 116;
+
+const renderSources = (isFlagOn = true) => {
   const gb = new GrowthBook({
     features: {
       feed_version: { defaultValue: version },
-      feed_explain: { defaultValue: true },
+      feed_explain: { defaultValue: isFlagOn },
     },
   });
   const client = new QueryClient();
@@ -170,8 +172,8 @@ describe('ForYouSources', () => {
     ).toBeInTheDocument();
   });
 
-  it('should not show where the For You ranking ignores the levels', () => {
-    renderSources(15);
+  it('should not show without the flag', () => {
+    renderSources(false);
 
     expect(screen.queryByText('Sources you follow')).not.toBeInTheDocument();
   });
