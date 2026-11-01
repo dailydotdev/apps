@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React from 'react';
 import { providers } from './common';
 import AuthDefault from './AuthDefault';
 import { AuthTriggers } from '../../lib/auth';
@@ -18,13 +18,10 @@ function VerifySessionModal({
   onVerified,
   ...props
 }: VerifySessionModalProps): ReactElement {
-  const [hint, setHint] = useState<string | null>(
-    'Enter your password to login',
-  );
   const filteredProviders = providers.filter(
     ({ value }) => !userProviders?.indexOf(value),
   );
-  const { isReady, onSocialLogin, onPasswordLogin } = useLogin({
+  const { isReady, onSocialLogin, onPasswordLogin, loginHint } = useLogin({
     onSuccessfulLogin: () => {
       onVerified();
       onRequestClose?.(undefined as never);
@@ -46,7 +43,7 @@ function VerifySessionModal({
         disablePassword={!onPasswordLogin}
         onPasswordLogin={onPasswordLogin}
         onProviderClick={onSocialLogin}
-        loginHint={[hint, setHint]}
+        loginHint={loginHint}
         loginButton="Verify"
         trigger={AuthTriggers.VerifySession}
       />
