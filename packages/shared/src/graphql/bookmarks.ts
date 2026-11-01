@@ -317,3 +317,28 @@ export const latestBookmarksQueryOptions = ({
     }),
   staleTime: StaleTime.OneMinute,
 });
+
+/** Whether the folder or view keeps any archived bookmark, out of the All list. */
+export const archivedBookmarksQueryOptions = ({
+  user,
+  listId,
+  reminderOnly = false,
+}: {
+  user?: Pick<LoggedUser, 'id'>;
+  listId?: string;
+  reminderOnly?: boolean;
+}) => ({
+  queryKey: generateQueryKey(RequestKey.Bookmarks, user, 'archived', {
+    listId: listId ?? null,
+    reminderOnly,
+  }),
+  queryFn: () =>
+    gqlBatchRequest<FeedData>(BOOKMARKS_FEED_QUERY, {
+      loggedIn: true,
+      first: 1,
+      ...(listId && { listId }),
+      reminderOnly,
+      status: BookmarkStatus.Archived,
+      supportedTypes: baseFeedSupportedTypes,
+    }),
+});
