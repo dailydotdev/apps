@@ -95,6 +95,7 @@ export type RegistrationFormValues = Omit<
 
 const RegistrationForm = ({
   formRef,
+  onBack,
   onBackToIntro,
   onExistingEmailLoginClick,
   onSignup = () => undefined,
@@ -117,6 +118,7 @@ const RegistrationForm = ({
     useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [name, setName] = useState('');
+  const [isEmailFilled, setIsEmailFilled] = useState(!!email?.length);
   const isRecruiterOnboarding = trigger === AuthTriggers.RecruiterSelfServe;
   const hideExperienceLevel = isRecruiterOnboarding;
   const {
@@ -324,7 +326,6 @@ const RegistrationForm = ({
   // Only show the valid-state checkmark once the user has actually typed
   // a non-empty value; an untouched field shouldn't look like it passed
   // validation.
-  const isEmailFilled = !!email?.length;
   const isNameFilled = !!name?.length;
   const isUsernameFilled = !!username?.length;
   const successIcon = (
@@ -356,6 +357,7 @@ const RegistrationForm = ({
           simplified={simplified}
           onboardingHeadline={isOnboardingFunnel}
           title={headerTitle}
+          onBack={simplified ? undefined : onBack}
         />
       )}
       <div
@@ -416,6 +418,9 @@ const RegistrationForm = ({
             label="Email"
             type="email"
             value={email}
+            onBlur={(e) =>
+              setIsEmailFilled(!!e.target.value && e.target.validity.valid)
+            }
             rightIcon={isEmailFilled ? successIcon : undefined}
           />
           {hints?.['traits.email'] && !alreadyExists && (

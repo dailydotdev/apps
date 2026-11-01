@@ -37,7 +37,7 @@ export const EmailSignUp: StoryObj = {
           ...closeRow,
           cells: [
             'A back arrow on the left on phones that closes the pop-up. A close button on the right on desktop.',
-            'On the right at every size, like the landing page',
+            'The close button on the right at every size, and a back arrow before the title that returns to the provider buttons',
           ],
         },
         {
@@ -50,6 +50,13 @@ export const EmailSignUp: StoryObj = {
         {
           aspect: 'Side padding',
           cells: ['16px on phones, 24px on desktop', '24px at every size'],
+        },
+        {
+          aspect: 'Email checkmark',
+          cells: [
+            'Shown because the email arrived already typed',
+            'Shown once a valid email is typed, like Name and Username',
+          ],
         },
         fieldsRow,
         cardRow,
