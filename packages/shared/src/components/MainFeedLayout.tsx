@@ -14,6 +14,10 @@ import React, {
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
+import {
+  cancelIdleCallback,
+  requestIdleCallback,
+} from 'next/dist/client/request-idle-callback';
 import type { QueryKey } from '@tanstack/react-query';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
@@ -581,6 +585,28 @@ export default function MainFeedLayout({
       closeTune();
     }
   }, [isTuneOpen, canExplain, isExplaining, feedName, closeTune]);
+  // Where For You explains its posts, Debug's card, Tune and the hidden
+  // post's Show less offer load once the page is idle, so none of them waits
+  // for its chunk when first used.
+  useEffect(() => {
+    if (!canExplainPosts) {
+      return undefined;
+    }
+    const handle = requestIdleCallback(() => {
+      Promise.all([
+        import(
+          /* webpackChunkName: "feedExplainCard" */ '../features/feedExplain/components/FeedExplainCard'
+        ),
+        import(
+          /* webpackChunkName: "feedTunePanel" */ '../features/feedExplain/components/FeedTunePanel'
+        ),
+        import(
+          /* webpackChunkName: "showLessTopicOffer" */ '../features/feedExplain/components/ShowLessTopicOffer'
+        ),
+      ]).catch(() => undefined);
+    });
+    return () => cancelIdleCallback(handle);
+  }, [canExplainPosts]);
 
   const hasSearchContent = !!navChildren || (isSearchOn && !!searchChildren);
   const search = useMemo(
