@@ -1,5 +1,6 @@
 import { gql } from 'graphql-request';
 import { gqlClient } from '../../graphql/common';
+import { gqlBatchRequest } from '../../graphql/batch';
 import type {
   FeedAuthorMode,
   FeedControlDuration,
@@ -38,7 +39,7 @@ export const FEED_PROFILE_QUERY = gql`
 `;
 
 export const getFeedProfile = async (version: number): Promise<FeedProfile> => {
-  const { feedProfile } = await gqlClient.request<{
+  const { feedProfile } = await gqlBatchRequest<{
     feedProfile: FeedProfile;
   }>(FEED_PROFILE_QUERY, { version });
 
@@ -76,7 +77,7 @@ export const getFeedPostExplanation = async (
   postId: string,
   request: FeedPostExplanationRequest | undefined,
 ): Promise<FeedItemExplain | null> => {
-  const { feedPostExplanation } = await gqlClient.request<{
+  const { feedPostExplanation } = await gqlBatchRequest<{
     feedPostExplanation: FeedItemExplain | null;
   }>(FEED_POST_EXPLANATION_QUERY, { postId, ...request });
 
@@ -121,7 +122,7 @@ export const FEED_CONTROLS_QUERY = gql`
 `;
 
 export const getFeedControls = async (): Promise<FeedControls> => {
-  const { feedControls } = await gqlClient.request<{
+  const { feedControls } = await gqlBatchRequest<{
     feedControls: FeedControls;
   }>(FEED_CONTROLS_QUERY);
 
