@@ -376,6 +376,11 @@ const WHATS_OFF_CHANGE_FRAGMENT = gql`
       image
       handle
     }
+    tags {
+      type
+      id
+      name
+    }
     mode
     value
     advancedSettingId

@@ -93,6 +93,8 @@ const getLevelUndo = <Mode>(
 ): AppliedWhatsOffChange['undo'] =>
   previous?.expiresAt ? undefined : () => save(toValue(previous));
 
+type TopicValue = { keyword: string } & ControlValue<FeedTopicMode>;
+
 interface UseWhatsOffChange {
   /** Null when the change didn't go through; the reader was told why. */
   apply: (change: WhatsOffChange) => Promise<AppliedWhatsOffChange | null>;
@@ -161,6 +163,21 @@ export const useWhatsOffChange = (): UseWhatsOffChange => {
     displayToast(labels.error.generic);
     return null;
   }, [displayToast]);
+
+  // Sets each topic's level in turn and stops at the first one refused,
+  // which tells the reader why: how many went through.
+  const saveTopics = useCallback(
+    (topics: TopicValue[]): Promise<number> =>
+      topics.reduce<Promise<number>>(async (saving, topic, index) => {
+        const saved = await saving;
+        if (saved < index) {
+          return saved;
+        }
+        const isSaved = await saveChange({ kind: ChangeKind.Topic, ...topic });
+        return isSaved ? saved + 1 : saved;
+      }, Promise.resolve(0)),
+    [saveChange],
+  );
 
   const getPreference = useCallback(
     async ({ type, id }: WhatsOffTarget): Promise<Preference> => {
@@ -353,6 +370,36 @@ export const useWhatsOffChange = (): UseWhatsOffChange => {
           }
           return { undo: getLevelUndo(previous, save) };
         }
+        case WhatsOffOp.TopicFamily: {
+          const keywords = change.tags?.map(({ id }) => id) ?? [];
+          if (!keywords.length) {
+            return refuse();
+          }
+          const before = keywords.map((keyword) => getTopicControl(keyword));
+          const previous = keywords.map(
+            (keyword, index): TopicValue => ({
+              keyword,
+              ...toValue(before[index]),
+            }),
+          );
+          const saved = await saveTopics(
+            keywords.map((keyword) => ({
+              keyword,
+              mode: mode as FeedTopicMode | null,
+            })),
+          );
+          // The family applies whole or not at all.
+          if (saved < keywords.length) {
+            await saveTopics(previous.slice(0, saved));
+            return null;
+          }
+          // A timed level would lose its end date, so it has no undo.
+          return {
+            undo: before.some((control) => control?.expiresAt)
+              ? undefined
+              : async () => (await saveTopics(previous)) === previous.length,
+          };
+        }
         case WhatsOffOp.Source: {
           if (!target) {
             return refuse();
@@ -510,13 +557,22 @@ export const useWhatsOffChange = (): UseWhatsOffChange => {
       setBlockedWord,
       setClickbaitShield,
       setPostsHidden,
+      saveTopics,
       run,
       refuse,
     ],
   );
 
   const isInEffect = useCallback(
-    ({ op, target, mode, enabled, value, to }: WhatsOffChange): boolean => {
+    ({
+      op,
+      target,
+      tags,
+      mode,
+      enabled,
+      value,
+      to,
+    }: WhatsOffChange): boolean => {
       if (!controls) {
         return true;
       }
@@ -525,6 +581,10 @@ export const useWhatsOffChange = (): UseWhatsOffChange => {
       switch (op) {
         case WhatsOffOp.Topic:
           return (getTopicControl(id)?.mode ?? null) === level;
+        case WhatsOffOp.TopicFamily:
+          return (tags ?? []).every(
+            (tag) => (getTopicControl(tag.id)?.mode ?? null) === level,
+          );
         case WhatsOffOp.Source:
           return (getSourceControl(id)?.mode ?? null) === level;
         case WhatsOffOp.Author:

@@ -87,6 +87,32 @@ const getTopicCopy = (name: string, mode: string | null | undefined) => {
   }
 };
 
+const topicList = new Intl.ListFormat('en-US');
+
+// A family's title counts its topics and its detail names them.
+const getTopicFamilyCopy = (
+  names: string[],
+  mode: string | null | undefined,
+): WhatsOffChangeCopy => {
+  const topics = `these ${names.length} topics`;
+  const detail = topicList.format(names);
+  switch (mode) {
+    case FeedTopicMode.Boost:
+      return { title: `Show more of ${topics}`, detail };
+    case FeedTopicMode.Demote:
+      return { title: `Show less of ${topics}`, detail };
+    case FeedTopicMode.Off:
+      return {
+        title: `Turn off ${topics} in For You`,
+        detail: `${detail}. Other feeds keep them`,
+      };
+    case FeedTopicMode.StopLearning:
+      return { title: `Stop learning ${topics} from your reading`, detail };
+    default:
+      return { title: `Set ${topics} back to Auto`, detail };
+  }
+};
+
 const getFollowCopy = (name: string, mode: string | null | undefined) => {
   switch (mode) {
     case FeedSourceMode.Boost:
@@ -128,6 +154,11 @@ export const getWhatsOffChangeCopy = (
   switch (change.op) {
     case WhatsOffOp.Topic:
       return getTopicCopy(name, change.mode);
+    case WhatsOffOp.TopicFamily:
+      return getTopicFamilyCopy(
+        (change.tags ?? []).map(getTargetName),
+        change.mode,
+      );
     case WhatsOffOp.Source:
     case WhatsOffOp.Author:
       return getFollowCopy(name, change.mode);
@@ -211,13 +242,23 @@ export const isWhatsOffLineShown = (line: WhatsOffLine): boolean =>
 export const getWhatsOffChangeKey = ({
   op,
   target,
+  tags,
   mode,
   value,
   enabled,
   to,
   postIds,
 }: WhatsOffChange): string =>
-  JSON.stringify([op, target?.id, mode, value, enabled, to, postIds]);
+  JSON.stringify([
+    op,
+    target?.id,
+    tags?.map(({ id }) => id),
+    mode,
+    value,
+    enabled,
+    to,
+    postIds,
+  ]);
 
 /** The line's note on what no setting covers yet. */
 export const getWhatsOffGapNote = (line: WhatsOffLine): string => {

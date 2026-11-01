@@ -250,6 +250,8 @@ export enum WhatsOffLineKind {
 
 export enum WhatsOffOp {
   Topic = 'topic',
+  /** Several topics on the reader's page, set to one level together. */
+  TopicFamily = 'topic_family',
   Source = 'source',
   Author = 'author',
   Follow = 'follow',
@@ -288,7 +290,9 @@ export interface WhatsOffTarget {
 export interface WhatsOffChange {
   op: WhatsOffOp;
   target?: WhatsOffTarget | null;
-  /** The level of a topic, source or author. None is Auto. */
+  /** The topics of a family, each set to its mode. */
+  tags?: WhatsOffTarget[] | null;
+  /** The level of a topic, a family, a source or an author. None is Auto. */
   mode?: FeedTopicMode | FeedSourceMode | FeedAuthorMode | null;
   /**
    * The format or kind of post, the blocked word, what to reset, or the

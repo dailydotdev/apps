@@ -25,7 +25,7 @@ import {
   WHATS_OFF_QUERY,
 } from '../graphql';
 import { feedControlsQueryKey } from '../queries';
-import type { WhatsOffChange, WhatsOffLine } from '../types';
+import type { FeedControls, WhatsOffChange, WhatsOffLine } from '../types';
 import {
   FeedTopicMode,
   WhatsOffLineKind,
@@ -55,6 +55,14 @@ const showLessAgents: WhatsOffChange = {
   plusOnly: false,
 };
 
+const showLessFamily: WhatsOffChange = {
+  op: WhatsOffOp.TopicFamily,
+  tags: [agents, { type: WhatsOffTargetType.Keyword, id: 'llm', name: 'LLM' }],
+  mode: FeedTopicMode.Demote,
+  certainty: 0.8,
+  plusOnly: false,
+};
+
 const whatsOffRequest = {
   query: WHATS_OFF_QUERY,
   variables: { version: 116, text, supportedTypes: feedV2SupportedTypes },
@@ -75,9 +83,10 @@ const answerWith = (lines: WhatsOffLine[]) => ({
 interface BoxOptions {
   feedSettings?: FeedSettings;
   settings?: Partial<SettingsContextData>;
+  controls?: Partial<FeedControls>;
 }
 
-const showBox = ({ feedSettings, settings }: BoxOptions = {}) => {
+const showBox = ({ feedSettings, settings, controls }: BoxOptions = {}) => {
   const client = new QueryClient();
   client.setQueryData(feedControlsQueryKey(defaultUser), {
     topics: [],
@@ -86,6 +95,7 @@ const showBox = ({ feedSettings, settings }: BoxOptions = {}) => {
     learning: true,
     fillIns: true,
     ranking: [],
+    ...controls,
   });
   client.setQueryData(getFeedSettingsQueryKey(defaultUser), {
     feedSettings: { advancedSettings: [], ...feedSettings },
@@ -421,6 +431,88 @@ describe('WhatsOffBox', () => {
         event_name: LogEvent.UndoWhatsOffChange,
       }),
     );
+  });
+
+  it('should set each topic of a family, and undo each to the level it had', async () => {
+    await askWith([sureLine(showLessFamily)], {
+      controls: {
+        topics: [
+          {
+            keyword: 'llm',
+            mode: FeedTopicMode.Boost,
+            weight: null,
+            expiresAt: null,
+          },
+        ],
+      },
+    });
+    expect(
+      await screen.findByText('Show less of these 2 topics'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('#ai-agents and LLM')).toBeInTheDocument();
+
+    const demoted = ['ai-agents', 'llm'].map((keyword) =>
+      mockMutation(SET_FEED_TOPIC_MODE_MUTATION, {
+        keyword,
+        mode: FeedTopicMode.Demote,
+      }),
+    );
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: 'Apply: Show less of these 2 topics',
+      }),
+    );
+    expect(await screen.findByText('Applied')).toBeInTheDocument();
+    expect(demoted.map(({ sent }) => sent)).toEqual([true, true]);
+
+    const restored = [
+      mockMutation(SET_FEED_TOPIC_MODE_MUTATION, {
+        keyword: 'ai-agents',
+        mode: null,
+      }),
+      mockMutation(SET_FEED_TOPIC_MODE_MUTATION, {
+        keyword: 'llm',
+        mode: FeedTopicMode.Boost,
+      }),
+    ];
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Undo: Show less of these 2 topics' }),
+    );
+
+    expect(
+      await screen.findByRole('button', {
+        name: 'Apply: Show less of these 2 topics',
+      }),
+    ).toBeInTheDocument();
+    expect(restored.map(({ sent }) => sent)).toEqual([true, true]);
+  });
+
+  it('should set the topics before a refused one back, leaving the family unapplied', async () => {
+    await askWith([sureLine(showLessFamily)]);
+    const demote = mockMutation(SET_FEED_TOPIC_MODE_MUTATION, {
+      keyword: 'ai-agents',
+      mode: FeedTopicMode.Demote,
+    });
+    mockGraphQL({
+      request: {
+        query: SET_FEED_TOPIC_MODE_MUTATION,
+        variables: { keyword: 'llm', mode: FeedTopicMode.Demote },
+      },
+      result: { errors: [{ message: 'boom' }] },
+    });
+    const rollback = mockMutation(SET_FEED_TOPIC_MODE_MUTATION, {
+      keyword: 'ai-agents',
+      mode: null,
+    });
+    const apply = await screen.findByRole('button', {
+      name: 'Apply: Show less of these 2 topics',
+    });
+    await userEvent.click(apply);
+
+    await waitFor(() => expect(rollback.sent).toBe(true));
+    expect(demote.sent).toBe(true);
+    await waitFor(() => expect(apply).toBeEnabled());
+    expect(screen.queryByText('Applied')).not.toBeInTheDocument();
   });
 
   it('should undo a block on a followed topic back to the follow', async () => {
