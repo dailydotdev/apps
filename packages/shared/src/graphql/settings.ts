@@ -54,6 +54,9 @@ export type SettingsFlags = {
   sidebarShortcuts?: SidebarShortcut[];
   sidebarPinnedExpanded?: boolean;
   sidebarRecentExpanded?: boolean;
+  // Inside the apps, Read opens the article behind the post instead of the
+  // system browser view unless the member turned it off.
+  openLinksInAppOptOut?: boolean;
   // The feed's widget rail, in order. Unset means the default rail; `null`
   // is how a reset is written, since an undefined key is never sent.
   feedWidgets?: FeedWidgetRailState | null;
@@ -64,9 +67,9 @@ export type SettingsFlagValue = SettingsFlags[keyof SettingsFlags];
 // Keep only flags the API does not know yet. Sending an unknown flag fails
 // GraphQL validation, and since every write ships the whole `flags` object,
 // that breaks the persistence of all settings in the same payload.
-export const clientOnlySettingsFlags = [] as const satisfies ReadonlyArray<
-  keyof SettingsFlags
->;
+export const clientOnlySettingsFlags = [
+  'openLinksInAppOptOut',
+] as const satisfies ReadonlyArray<keyof SettingsFlags>;
 
 export type ClientOnlyFlagKey = (typeof clientOnlySettingsFlags)[number];
 

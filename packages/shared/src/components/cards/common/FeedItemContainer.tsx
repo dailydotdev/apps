@@ -104,6 +104,7 @@ function FeedItemContainer(
       <Card
         {...domProps}
         data-testid="postItem"
+        data-feed-item
         ref={ref}
         className={classNames(
           domProps.className,

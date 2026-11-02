@@ -20,6 +20,11 @@ export enum WebKitMessageHandlers {
   AppIconGet = 'app-icon-get',
   AppIconSet = 'app-icon-set',
 
+  Haptic = 'haptic',
+  StatusBar = 'status-bar',
+  NavState = 'nav-state',
+  Reading = 'reading',
+
   RequestTracking = 'request-tracking',
 }
 
