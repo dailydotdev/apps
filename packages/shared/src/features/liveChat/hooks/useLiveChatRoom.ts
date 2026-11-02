@@ -306,11 +306,25 @@ export const useLiveChatRoom = ({
 
   const participate = useCallback(async () => {
     setIsParticipating(true);
-    log(LogEvent.JoinLiveChat);
     if (status !== 'joined') {
       await join();
     }
-  }, [join, log, status]);
+  }, [join, status]);
+
+  // A join counts once the seat is confirmed and the viewer asked for it, so
+  // a click that fails, or one made while the preview seat is still landing,
+  // is not a join yet.
+  const joinLogged = useRef(false);
+  useEffect(() => {
+    if (status !== 'joined' || !isParticipating) {
+      joinLogged.current = false;
+      return;
+    }
+    if (!joinLogged.current) {
+      joinLogged.current = true;
+      log(LogEvent.JoinLiveChat);
+    }
+  }, [isParticipating, log, status]);
 
   // The preview takes the seat; nothing of the viewer's is said or shown yet.
   useEffect(() => {
