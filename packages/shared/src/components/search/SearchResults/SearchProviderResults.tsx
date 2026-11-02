@@ -84,9 +84,6 @@ export const SearchProviderResults = ({
       limit: searchPageResultsLimit,
       includeContentPreference: provider === SearchProviderEnum.Users,
     });
-  // Squads and Sources share one searchSourceSuggestions query and are split
-  // here by source type. The API has no type filter yet, so when one type
-  // fills the limit the other tab shows only what is left of it.
   const items = (suggestions?.hits ?? []).filter((hit) =>
     matchesSearchProvider(provider, hit),
   );
