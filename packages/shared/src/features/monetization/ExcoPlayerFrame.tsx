@@ -30,9 +30,9 @@ export function ExcoPlayerFrame({
   const readyTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const src = getExcoFrameUrl({ playerId, playlistId });
 
-  const fail = useCallback((reason: ExcoPlayerFailure) => {
+  const fail = useCallback((reason: ExcoPlayerFailure, error?: string) => {
     setHasFailed(true);
-    onErrorRef.current?.(reason);
+    onErrorRef.current?.(reason, error);
   }, []);
 
   // A frame-ancestors refusal or a network error still fires `load`, with the
@@ -73,7 +73,7 @@ export function ExcoPlayerFrame({
           setExcoPlayerBlocked(playerId);
         }
 
-        fail(event.data.reason);
+        fail(event.data.reason, event.data.error);
         return;
       }
 

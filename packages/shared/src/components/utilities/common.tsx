@@ -140,8 +140,15 @@ export const BaseFeedPage = classed(
  * descendant selector cannot — the inset is absent exactly when the frame
  * that replaces it is on screen.
  */
-export const feedGutter =
-  'tablet:px-6 laptop:px-10 laptop:[.layout-frame_&]:px-0';
+const laptopFeedGutter = 'laptop:px-10 laptop:[.layout-frame_&]:px-0';
+export const feedGutter = `tablet:px-6 ${laptopFeedGutter}`;
+
+/**
+ * `feedGutter` for a feed that renders as a list below laptop. A list runs
+ * full-bleed on tablets for the same reason it does on phones, so the
+ * tablet gutter is the phone's: none.
+ */
+export const listFeedGutter = laptopFeedGutter;
 
 /**
  * The feed grid's own width: full width normally, and clamped and centred to
@@ -195,7 +202,7 @@ export const FeedPage = ({
 export const FeedPageLayoutList = classed(
   BasePageContainer,
   pageContainerClassNames,
-  'tablet:pt-10 !ml-auto !px-0 tablet:!max-w-full laptop:!w-full laptop:!max-w-[42.5rem]',
+  'tablet:pt-10 laptop:[.layout-frame_&]:pt-0 !ml-auto !px-0 tablet:!max-w-full laptop:!w-full laptop:!max-w-[42.5rem]',
   styles.feedPage,
 );
 

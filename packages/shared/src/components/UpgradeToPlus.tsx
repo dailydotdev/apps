@@ -22,6 +22,9 @@ type Props = {
   size?: ButtonSize;
   variant?: ButtonVariant;
   color?: ButtonColor;
+  // Replaces the default call to action; also names an icon-only button.
+  label?: string;
+  iconClassName?: string;
 } & WithClassNameProps;
 
 export const UpgradeToPlus = ({
@@ -31,6 +34,8 @@ export const UpgradeToPlus = ({
   iconOnly = false,
   target,
   variant,
+  label,
+  iconClassName,
   ...attrs
 }: Props): ReactElement | null => {
   const { isLoggedIn, showLogin } = useAuthContext();
@@ -40,7 +45,7 @@ export const UpgradeToPlus = ({
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { isActive: isSaleActive } = usePlusSale();
   const ctaCopy = { full: plusCta, short: plusCtaShort };
-  const content = isFullCTAText ? ctaCopy.full : ctaCopy.short;
+  const content = label ?? (isFullCTAText ? ctaCopy.full : ctaCopy.short);
   const showSaleLabel = isSaleActive && !iconOnly;
   const defaultColor = ButtonColor.Bacon;
 
@@ -69,11 +74,12 @@ export const UpgradeToPlus = ({
       <Button
         tag="a"
         className={classNames(!iconOnly && 'flex-1', className)}
-        icon={<DevPlusIcon />}
+        icon={<DevPlusIcon className={iconClassName} />}
         size={size}
         color={defaultColor}
         variant={ButtonVariant.Primary}
         onClick={onClick}
+        aria-label={iconOnly ? label : undefined}
         {...(variant && { variant, color })}
         {...attrs}
       >

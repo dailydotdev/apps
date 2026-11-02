@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useLogContext } from '../../../contexts/LogContext';
+import { getVisiblePixels } from '../../../components/cards/ad/common/ownPixels';
 import { AdActions } from '../../../lib/ads';
-import type { ViewabilityData } from '../viewability';
-import { viewabilityLogExtra } from '../viewability';
+import { substituteMacros } from '../adMacros';
+import { firePixel } from '../firePixel';
+import { useAdMacroContext } from '../useAdMacroContext';
 import { useViewability } from '../useViewability';
+import { useVisibleTime } from '../useVisibleTime';
 import type { ResolvedSponsor } from './sponsorStripCreative';
-import { airTimeKey, sponsorStripLogEvent } from './sponsorStripLog';
+import { sponsorStripLogEvent } from './sponsorStripLog';
 
 interface UseSponsorSlotLogProps {
   sponsor: ResolvedSponsor;
@@ -19,69 +22,51 @@ interface UseSponsorSlotLog<T extends HTMLElement> {
 }
 
 /**
- * The four signals for one logo in one slot: an impression when it takes the
- * slot, an IAB viewable impression when it has actually been seen, air time
- * for as long as it holds the slot, and a click.
+ * The signals for one logo in one slot. The warehouse gets an impression when
+ * it takes the slot and a click; the ad server's pixel gets the rest — the IAB
+ * viewable impression (`viewed=true`, fired by the slot once `isViewable`) and
+ * the air time, reported here as `visible=<seconds>` increments.
  */
 export const useSponsorSlotLog = <T extends HTMLElement = HTMLElement>({
   sponsor,
   slotIndex,
 }: UseSponsorSlotLogProps): UseSponsorSlotLog<T> => {
-  const { logEvent, logEventStart, logEventEnd } = useLogContext();
+  const { logEvent } = useLogContext();
   const sponsorRef = useRef(sponsor);
   sponsorRef.current = sponsor;
   const { genId } = sponsor;
+  const macroContext = useAdMacroContext(true);
+  const macroContextRef = useRef(macroContext);
+  macroContextRef.current = macroContext;
 
   useEffect(() => {
-    const key = airTimeKey(slotIndex, genId);
-    const startAirTime = () =>
-      logEventStart(
-        key,
-        sponsorStripLogEvent(AdActions.AirTime, sponsorRef.current, slotIndex),
-      );
-
     logEvent(
       sponsorStripLogEvent(AdActions.Impression, sponsorRef.current, slotIndex),
     );
-    startAirTime();
+  }, [genId, slotIndex, logEvent]);
 
-    // Going inactive ends every open duration event and beacons it, so a logo
-    // still holding its slot when the reader comes back needs its air time
-    // reopened — `useLogPageView` reopens the page view for the same reason.
-    const onLifecycle = (event: Event) => {
-      const { newState } =
-        (event as CustomEvent<{ newState?: string }>).detail ?? {};
-
-      if (newState === 'active') {
-        startAirTime();
-      }
-    };
-
-    globalThis.addEventListener('statechange', onLifecycle);
-
-    return () => {
-      globalThis.removeEventListener('statechange', onLifecycle);
-      logEventEnd(key);
-    };
-  }, [genId, slotIndex, logEvent, logEventStart, logEventEnd]);
-
-  const onViewable = useCallback(
-    (data: ViewabilityData) =>
-      logEvent(
-        sponsorStripLogEvent(
-          AdActions.Viewable,
-          sponsorRef.current,
-          slotIndex,
-          viewabilityLogExtra(data),
-        ),
-      ),
-    [logEvent, slotIndex],
-  );
-
-  const { ref, isViewable } = useViewability<T>({
-    onViewable,
+  const { ref: viewabilityRef, isViewable } = useViewability<T>({
     trackingKey: genId,
   });
+
+  const onReport = useCallback((seconds: number) => {
+    getVisiblePixels(sponsorRef.current.pixel, seconds).forEach((pixel) =>
+      firePixel(substituteMacros(pixel, macroContextRef.current ?? {})),
+    );
+  }, []);
+
+  const { ref: visibleTimeRef } = useVisibleTime<T>({
+    onReport,
+    trackingKey: genId,
+  });
+
+  const ref = useCallback(
+    (node: T | null) => {
+      viewabilityRef(node);
+      visibleTimeRef(node);
+    },
+    [viewabilityRef, visibleTimeRef],
+  );
 
   const onClick = useCallback(
     () =>

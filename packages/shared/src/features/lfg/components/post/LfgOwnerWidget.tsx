@@ -284,43 +284,11 @@ const ManageRow = ({ post }: { post: LfgPost }): ReactElement => {
   );
 };
 
-export const LfgOwnerWidget = ({
-  post,
-  isLaunched,
-}: {
-  post: LfgPost;
-  isLaunched: boolean;
-}): ReactElement => {
+export const LfgOwnerWidget = ({ post }: { post: LfgPost }): ReactElement => {
   const [isFoundOpen, setFoundOpen] = useState(false);
   const { mutate: renew, isPending: isRenewing } = useRenew(post);
   const waiting = post.pendingCount ?? 0;
   const left = lfgDaysLeft(post.expiresAt);
-
-  if (!isLaunched && post.status === LfgPostStatus.Open) {
-    return (
-      <SquadWidget title="Your post is in">
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-          className="mt-1"
-        >
-          It goes live when connections open. Until then, your avatar shows the
-          LFG badge so people know you&apos;re looking.
-        </Typography>
-        <Link href={getLfgUrl()} passHref>
-          <Button
-            tag="a"
-            className="mt-3 w-full"
-            variant={ButtonVariant.Subtle}
-            size={ButtonSize.Small}
-          >
-            Back to the board
-          </Button>
-        </Link>
-        <ManageRow post={post} />
-      </SquadWidget>
-    );
-  }
 
   if (post.status !== LfgPostStatus.Open) {
     const isFound = post.status === LfgPostStatus.Found;

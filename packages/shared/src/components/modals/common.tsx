@@ -226,6 +226,13 @@ const MoveBookmarkModal = dynamic(
     ),
 );
 
+const BookmarkNoteModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "bookmarkNoteModal" */ './bookmark/BookmarkNoteModal'
+    ),
+);
+
 const AddToCustomFeedModal = dynamic(
   () =>
     import(
@@ -540,6 +547,13 @@ const LfgHelperModal = dynamic(
     ),
 );
 
+const FeedExplanationModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedExplanationModal" */ '../../features/feedExplain/components/FeedExplanationModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
   [LazyModal.RepostsPopup]: RepostsModal,
@@ -578,6 +592,7 @@ export const modals = {
   [LazyModal.BookmarkFolder]: BookmarkFolderModal,
   [LazyModal.ClickbaitShield]: ClickbaitShieldModal,
   [LazyModal.MoveBookmark]: MoveBookmarkModal,
+  [LazyModal.BookmarkNote]: BookmarkNoteModal,
   [LazyModal.AddToCustomFeed]: AddToCustomFeedModal,
   [LazyModal.CookieConsent]: CookieConsentModal,
   [LazyModal.ReportUser]: ReportUserModal,
@@ -627,6 +642,7 @@ export const modals = {
   [LazyModal.AgentIntro]: AgentIntroModal,
   [LazyModal.LfgReachOut]: LfgReachOutModal,
   [LazyModal.LfgHelper]: LfgHelperModal,
+  [LazyModal.FeedExplanation]: FeedExplanationModal,
 };
 
 type GetComponentProps<T> = T extends

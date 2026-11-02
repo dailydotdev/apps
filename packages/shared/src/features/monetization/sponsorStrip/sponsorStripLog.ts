@@ -4,11 +4,12 @@ import { AdPlacement } from '../../../lib/ads';
 import type { ResolvedSponsor } from './sponsorStripCreative';
 
 /**
- * Every sponsor-strip signal (impression, viewable impression, click, air
- * time) reports through this one builder, so a logo's whole story can be cut
- * by tier and slot in the warehouse. Shaped like `adLogEvent` in `lib/feed.ts`
- * — same `target_type`, same url field — so the strip sits alongside the other
- * placements rather than needing its own reporting.
+ * The sponsor-strip signals the warehouse keeps (impression, click) report
+ * through this one builder, so a logo's story can be cut by tier and slot.
+ * Shaped like `adLogEvent` in `lib/feed.ts` — same `target_type`, same url
+ * field — so the strip sits alongside the other placements rather than needing
+ * its own reporting. Viewability and air time go to the ad server's pixel
+ * instead, which is the only consumer that wants them.
  */
 export const sponsorStripLogEvent = (
   action: AdActions,
@@ -28,11 +29,3 @@ export const sponsorStripLogEvent = (
     ...extra,
   }),
 });
-
-/**
- * Air time is a duration event, so its key has to survive a rotation: the
- * outgoing logo's event ends under its own key while the incoming one starts
- * under a new one, in the same render.
- */
-export const airTimeKey = (slotIndex: number, genId: string): string =>
-  `ss-${slotIndex}-${genId}`;

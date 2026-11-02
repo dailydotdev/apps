@@ -10,7 +10,11 @@ import {
   useViewSize,
   ViewSize,
 } from '../../../hooks';
-import { isSocialTwitterPost, isVideoPost } from '../../../graphql/posts';
+import {
+  isPostRead,
+  isSocialTwitterPost,
+  isVideoPost,
+} from '../../../graphql/posts';
 import { EmbeddedTweetPreview } from '../socialTwitter/EmbeddedTweetPreview';
 import FeedItemContainer from '../common/list/FeedItemContainer';
 import { PostCardHeader } from '../common/list/PostCardHeader';
@@ -127,6 +131,7 @@ export const ShareList = forwardRef(function ShareList(
         ref={ref}
         flagProps={{ pinnedAt, trending, type }}
         bookmarked={post.bookmarked}
+        bookmarkNote={post.bookmark?.note}
       >
         {hiddenPanel}
       </FeedItemContainer>
@@ -151,6 +156,7 @@ export const ShareList = forwardRef(function ShareList(
           : undefined
       }
       bookmarked={post.bookmarked}
+      bookmarkNote={post.bookmark?.note}
     >
       <PostCardHeader
         post={{
@@ -177,7 +183,7 @@ export const ShareList = forwardRef(function ShareList(
             {!!post.title && (
               <CardTitle
                 lineClamp={undefined}
-                className={post.read ? 'text-text-tertiary' : undefined}
+                className={isPostRead(post) ? 'text-text-tertiary' : undefined}
               >
                 {truncatedTitle}
               </CardTitle>
@@ -202,7 +208,7 @@ export const ShareList = forwardRef(function ShareList(
           <div className="mr-4 flex flex-1 flex-col">
             <CardTitle
               lineClamp={undefined}
-              className={post.read ? 'text-text-tertiary' : undefined}
+              className={isPostRead(post) ? 'text-text-tertiary' : undefined}
             >
               {truncatedTitle}
             </CardTitle>

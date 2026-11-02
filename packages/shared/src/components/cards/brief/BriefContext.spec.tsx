@@ -115,6 +115,29 @@ describe('BriefContext', () => {
         undefined,
       );
     });
+    it('should not crash for logged-out visitors', () => {
+      mockUseAuthContext.mockReturnValue({
+        user: null,
+        isLoggedIn: false,
+        isAuthReady: true,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+      mockUsePersistentState.mockReturnValueOnce([
+        undefined,
+        mockSetBrief,
+        true,
+      ]);
+
+      const { result } = renderHook(() => useBriefContext(), {
+        wrapper: TestWrapper,
+      });
+
+      expect(result.current.brief).toBeUndefined();
+      expect(mockUsePersistentState).toHaveBeenCalledWith(
+        'brief_card_anonymous_v6',
+        undefined,
+      );
+    });
   });
 
   describe('useBriefContext', () => {

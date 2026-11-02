@@ -1,4 +1,17 @@
-import { resolveAdConsent } from './adConsent';
+import {
+  AdConsentExists,
+  resolveAdConsent,
+  resolveAdRequestConsent,
+} from './adConsent';
+import * as func from '../../lib/func';
+
+jest.mock('../../lib/func', () => ({
+  __esModule: true,
+  ...jest.requireActual('../../lib/func'),
+  isExtension: false,
+}));
+
+afterEach(() => jest.restoreAllMocks());
 
 const clearCookies = () => {
   document.cookie.split(';').forEach((c) => {
@@ -47,6 +60,78 @@ describe('resolveAdConsent', () => {
       expect(resolveAdConsent(true, { gdprApplies: false }).gdprApplies).toBe(
         false,
       );
+    });
+  });
+});
+
+describe('resolveAdRequestConsent', () => {
+  beforeEach(clearCookies);
+  afterEach(clearCookies);
+
+  it('keeps GDPR applicable when marketing consent was granted', () => {
+    document.cookie = 'ilikecookies_marketing=true';
+    expect(resolveAdRequestConsent(true)).toEqual({
+      gdprApplies: true,
+      consentExists: AdConsentExists.True,
+    });
+  });
+
+  it('preserves consent on install for the extension in both paths', () => {
+    jest.replaceProperty(func, 'isExtension', true);
+    expect(resolveAdRequestConsent(true)).toEqual({
+      gdprApplies: true,
+      consentExists: AdConsentExists.True,
+    });
+    expect(resolveAdConsent(true).gdprApplies).toBe(false);
+  });
+
+  it('uses the normalized marketing cookie rather than a raw CMP cookie', () => {
+    jest.replaceProperty(process, 'env', {
+      ...process.env,
+      NEXT_PUBLIC_IUBENDA_POLICY_ID: 'test-policy',
+    });
+    document.cookie = 'ilikecookies_marketing=true';
+    document.cookie = `_iub_cs-test-policy=${encodeURIComponent(
+      JSON.stringify({ consent: true }),
+    )}`;
+    expect(resolveAdRequestConsent(true).consentExists).toBe(
+      AdConsentExists.True,
+    );
+    expect(resolveAdConsent(true).gdprApplies).toBe(false);
+  });
+
+  it('distinguishes an explicit refusal from no recorded choice', () => {
+    expect(resolveAdRequestConsent(true).consentExists).toBe(
+      AdConsentExists.None,
+    );
+    document.cookie = 'ilikecookies=true';
+    expect(resolveAdRequestConsent(true).consentExists).toBe(
+      AdConsentExists.False,
+    );
+    expect(resolveAdConsent(true).gdprApplies).toBe(true);
+  });
+
+  it('prefers the TCF string over direct consent', () => {
+    document.cookie = 'ilikecookies_marketing=true';
+    expect(
+      resolveAdRequestConsent(true, {
+        gdprApplies: true,
+        tcString: 'tc-string',
+        addtlConsent: '1~1.2',
+      }),
+    ).toEqual({
+      gdprApplies: true,
+      consentString: 'tc-string',
+      addtlConsent: '1~1.2',
+    });
+  });
+
+  it('preserves unknown applicability and explicit non-applicability', () => {
+    expect(resolveAdRequestConsent(undefined)).toEqual({
+      gdprApplies: undefined,
+    });
+    expect(resolveAdRequestConsent(true, { gdprApplies: false })).toEqual({
+      gdprApplies: false,
     });
   });
 });

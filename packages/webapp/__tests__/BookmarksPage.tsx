@@ -1,26 +1,78 @@
-import type { FeedData } from '@dailydotdev/shared/src/graphql/posts';
+import type { FeedData, Post } from '@dailydotdev/shared/src/graphql/posts';
 import {
   BookmarkSort,
+  BookmarkStatus,
   BOOKMARKS_FEED_QUERY,
   baseFeedSupportedTypes,
 } from '@dailydotdev/shared/src/graphql/feed';
+import {
+  archivedBookmarksQueryOptions,
+  BOOKMARK_FACETS_QUERY,
+  SET_BOOKMARK_ARCHIVED,
+  SET_BOOKMARK_READ_STATE,
+} from '@dailydotdev/shared/src/graphql/bookmarks';
 import nock from 'nock';
-import React, { act } from 'react';
+import React from 'react';
 import type { RenderResult } from '@testing-library/react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
-import ad from '@dailydotdev/shared/__tests__/fixture/ad';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { RequestKey, StaleTime } from '@dailydotdev/shared/src/lib/query';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as viewSize from '@dailydotdev/shared/src/hooks/useViewSize';
+import type { ReactNode } from 'react';
 import BookmarksPage from '../pages/bookmarks';
+
+let paneOnPostChange: ((post: Post) => void) | undefined;
+
+jest.mock('@dailydotdev/shared/src/components/post/PostPane', () => ({
+  // The sheet renders in the header slot; the button stands in for the pane
+  // reporting its post after the post cache changed.
+  PostPane: ({
+    postId,
+    header,
+    onPostChange,
+  }: {
+    postId?: string;
+    header?: ReactNode;
+    onPostChange?: (post: Post) => void;
+  }) => {
+    paneOnPostChange = onPostChange;
+
+    return (
+      <div data-testid="bookmarks-pane">
+        {postId}
+        {header}
+        <button
+          type="button"
+          onClick={() =>
+            onPostChange?.({
+              id: postId,
+              bookmarked: true,
+              bookmark: { createdAt: new Date(), read: true },
+            } as Post)
+          }
+        >
+          pane change
+        </button>
+      </div>
+    );
+  },
+}));
 
 const routerReplace = jest.fn();
 
@@ -43,17 +95,19 @@ beforeEach(() => {
   );
 });
 
+const feedVariables = {
+  first: 20,
+  after: '',
+  loggedIn: true,
+  sort: BookmarkSort.TimeDesc,
+  supportedTypes: baseFeedSupportedTypes,
+  columns: 1,
+};
+
 const createFeedMock = (
   page = defaultFeedPage,
   query: string = BOOKMARKS_FEED_QUERY,
-  variables: Record<string, unknown> = {
-    first: 7,
-    after: '',
-    loggedIn: true,
-    sort: BookmarkSort.TimeDesc,
-    supportedTypes: baseFeedSupportedTypes,
-    columns: 1,
-  },
+  variables: Record<string, unknown> = feedVariables,
 ): MockedGraphQLResponse<FeedData> => ({
   request: {
     query,
@@ -66,19 +120,55 @@ const createFeedMock = (
   },
 });
 
+const createFacetsMock = (
+  status = BookmarkStatus.All,
+): MockedGraphQLResponse => ({
+  request: {
+    query: BOOKMARK_FACETS_QUERY,
+    variables: { status },
+  },
+  result: {
+    data: {
+      bookmarkFacets: {
+        tags: [{ tag: 'webdev', count: 2 }],
+        sources: [{ id: 'a', name: 'A', image: null, count: 1 }],
+        squads: [],
+      },
+    },
+  },
+});
+
+const emptyPage = {
+  pageInfo: {
+    hasNextPage: false,
+    endCursor: null,
+  },
+  edges: [],
+};
+
+const createArchivedMock = (
+  page: FeedData['page'] = emptyPage,
+): MockedGraphQLResponse<FeedData> =>
+  createFeedMock(page, BOOKMARKS_FEED_QUERY, {
+    loggedIn: true,
+    first: 1,
+    reminderOnly: false,
+    status: BookmarkStatus.Archived,
+    supportedTypes: baseFeedSupportedTypes,
+  });
+
 let client: QueryClient;
 
 function renderComponent(
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
   user?: LoggedUser,
+  seedCache?: (queryClient: QueryClient) => void,
 ): RenderResult {
   const resolvedUser = arguments.length < 2 ? defaultUser : user;
   client = new QueryClient();
+  seedCache?.(client);
 
   mocks.forEach(mockGraphQL);
-  nock('http://localhost:3000')
-    .get('/v1/a?active=false&registered=true&gdpr=0')
-    .reply(200, [ad]);
 
   return render(
     <TestBootProvider client={client} auth={{ user: resolvedUser }}>
@@ -90,11 +180,17 @@ function renderComponent(
     </TestBootProvider>,
   );
 }
+
+const useTablet = () => {
+  jest.spyOn(viewSize, 'useViewSize').mockReturnValue(false);
+  jest.spyOn(viewSize, 'useIsPhone').mockReturnValue(false);
+};
+
 it('should request bookmarks feed', async () => {
   renderComponent();
   await waitForNock();
   await waitFor(async () => {
-    const elements = await screen.findAllByTestId('postItem');
+    const elements = await screen.findAllByTestId('bookmarkRow');
     expect(elements.length).toBeTruthy();
   });
 });
@@ -105,29 +201,35 @@ it('should redirect to home page when logged-out', async () => {
 });
 
 it('should show empty screen when feed is empty', async () => {
-  renderComponent([
-    createFeedMock({
-      pageInfo: {
-        hasNextPage: false,
-        endCursor: null,
-      },
-      edges: [],
-    }),
-  ]);
+  renderComponent([createFeedMock(emptyPage), createArchivedMock()]);
   await waitForNock();
   await screen.findByText('Your bookmark list is empty.');
   await waitFor(() => {
-    const elements = screen.queryAllByTestId('postItem');
+    const elements = screen.queryAllByTestId('bookmarkRow');
     expect(elements.length).toBeFalsy();
   });
 });
 
 it('should show the search bar', async () => {
-  jest.spyOn(viewSize, 'useViewSize').mockReturnValue(false);
-  jest.spyOn(viewSize, 'useIsPhone').mockReturnValue(false);
+  useTablet();
   renderComponent();
   await waitForNock();
   expect(await screen.findByTestId('searchField')).toBeInTheDocument();
+});
+
+it('should search as the reader types', async () => {
+  useTablet();
+  renderComponent();
+  await waitForNock();
+  const input = await screen.findByPlaceholderText('Search bookmarks');
+  fireEvent.input(input, { target: { value: 'daily' } });
+  await waitFor(() =>
+    expect(routerReplace).toHaveBeenCalledWith(
+      { pathname: '/bookmarks', query: { q: 'daily' } },
+      undefined,
+      { shallow: true, scroll: false },
+    ),
+  );
 });
 
 it('should search from the floating field on a phone', async () => {
@@ -137,28 +239,307 @@ it('should search from the floating field on a phone', async () => {
     name: 'Search bookmarks',
   });
   fireEvent.change(input, { target: { value: 'daily' } });
-  fireEvent.submit(input);
   await waitFor(() =>
-    expect(routerReplace).toBeCalledWith({
-      pathname: '/bookmarks',
-      query: { q: 'daily' },
-    }),
+    expect(routerReplace).toHaveBeenCalledWith(
+      { pathname: '/bookmarks', query: { q: 'daily' } },
+      undefined,
+      { shallow: true, scroll: false },
+    ),
   );
 });
 
-it('should update query param on enter', async () => {
-  jest.spyOn(viewSize, 'useViewSize').mockReturnValue(false);
-  jest.spyOn(viewSize, 'useIsPhone').mockReturnValue(false);
-  renderComponent();
+it('should request unread bookmarks when the status changes', async () => {
+  renderComponent([createFeedMock(), createFacetsMock()]);
   await waitForNock();
-  const input = await screen.findByPlaceholderText('Search bookmarks');
-  fireEvent.input(input, { target: { value: 'daily' } });
-  await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
-  fireEvent.keyDown(input, { key: 'Enter', code: 'Enter', keyCode: 13 });
-  await waitFor(() =>
-    expect(routerReplace).toBeCalledWith({
-      pathname: '/bookmarks',
-      query: { q: 'daily' },
+
+  mockGraphQL(
+    createFeedMock(defaultFeedPage, BOOKMARKS_FEED_QUERY, {
+      ...feedVariables,
+      status: BookmarkStatus.Unread,
     }),
   );
+  mockGraphQL(createFacetsMock(BookmarkStatus.Unread));
+  fireEvent.click(await screen.findByRole('button', { name: 'Unread' }));
+  await waitForNock();
+
+  expect(
+    screen.getByRole('button', { name: 'Unread', pressed: true }),
+  ).toBeInTheDocument();
+});
+
+it('should filter the feed by a tag from the filter menu', async () => {
+  useTablet();
+  renderComponent([createFeedMock(), createFacetsMock()]);
+  await waitForNock();
+
+  mockGraphQL(
+    createFeedMock(defaultFeedPage, BOOKMARKS_FEED_QUERY, {
+      ...feedVariables,
+      tags: ['webdev'],
+    }),
+  );
+  fireEvent.click(
+    await screen.findByRole('button', { name: 'Filter bookmarks' }),
+  );
+  fireEvent.click(await screen.findByRole('button', { name: '#webdev 2' }));
+  await waitForNock();
+
+  expect(
+    screen.getByRole('button', { name: 'Remove filter #webdev' }),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: 'Filter bookmarks, 1 selected' }),
+  ).toBeInTheDocument();
+});
+
+it('should select a bookmark on laptop without leaving the page', async () => {
+  useTablet();
+  jest.spyOn(viewSize, 'useViewSizeClient').mockReturnValue(true);
+  renderComponent();
+  await waitForNock();
+  const [first, second] = defaultFeedPage.edges.map(({ node }) => node);
+  const secondTitle = second.title ?? '';
+  await screen.findByTitle(secondTitle);
+  await waitFor(() =>
+    expect(screen.getByTestId('bookmarks-pane')).toHaveTextContent(first.id),
+  );
+
+  fireEvent.click(screen.getByTitle(secondTitle));
+
+  expect(screen.getByTestId('bookmarks-pane')).toHaveTextContent(second.id);
+  expect(screen.getByTitle(secondTitle)).toHaveAttribute(
+    'aria-current',
+    'true',
+  );
+  expect(routerReplace).toHaveBeenCalledWith(
+    { pathname: '/bookmarks', query: { post: second.id } },
+    undefined,
+    { shallow: true, scroll: false },
+  );
+});
+
+it('should keep the sheet current once marking read takes the post out of the Unread view', async () => {
+  useTablet();
+  jest.spyOn(viewSize, 'useViewSizeClient').mockReturnValue(true);
+  const bookmarkedPage = {
+    ...defaultFeedPage,
+    edges: defaultFeedPage.edges.map(({ node }) => ({
+      node: {
+        ...node,
+        bookmarked: true,
+        bookmark: { createdAt: new Date(), read: false },
+      },
+    })),
+  };
+  renderComponent([createFeedMock(bookmarkedPage), createFacetsMock()]);
+  await waitForNock();
+
+  mockGraphQL(
+    createFeedMock(bookmarkedPage, BOOKMARKS_FEED_QUERY, {
+      ...feedVariables,
+      status: BookmarkStatus.Unread,
+    }),
+  );
+  mockGraphQL(createFacetsMock(BookmarkStatus.Unread));
+  fireEvent.click(await screen.findByRole('button', { name: 'Unread' }));
+  await waitForNock();
+
+  const [first] = bookmarkedPage.edges.map(({ node }) => node);
+  fireEvent.click(await screen.findByTitle(first.title ?? ''));
+  const sheet = () => screen.getByRole('region', { name: 'Bookmark' });
+  expect(
+    within(sheet()).getByRole('button', { name: 'Mark as read' }),
+  ).toBeInTheDocument();
+
+  mockGraphQL({
+    request: {
+      query: SET_BOOKMARK_READ_STATE,
+      variables: { postId: first.id, read: true },
+    },
+    result: { data: { setBookmarkReadState: { _: true } } },
+  });
+  mockGraphQL(createFacetsMock(BookmarkStatus.Unread));
+  fireEvent.click(
+    within(sheet()).getByRole('button', { name: 'Mark as read' }),
+  );
+  await waitForNock();
+  await waitFor(() =>
+    expect(screen.queryByTitle(first.title ?? '')).not.toBeInTheDocument(),
+  );
+
+  // The row is gone, the pane still shows the post; its fresh copy reaches the sheet
+  fireEvent.click(screen.getByRole('button', { name: 'pane change' }));
+  await waitFor(() =>
+    expect(
+      within(sheet()).getByRole('button', { name: 'Mark as unread' }),
+    ).toBeInTheDocument(),
+  );
+});
+
+it('should keep the status filters when every bookmark is archived', async () => {
+  renderComponent([
+    createFeedMock(emptyPage),
+    createFacetsMock(),
+    createArchivedMock(defaultFeedPage),
+  ]);
+  await waitForNock();
+
+  expect(
+    await screen.findByText('Everything here is archived'),
+  ).toBeInTheDocument();
+  expect(
+    screen.queryByText('Your bookmark list is empty.'),
+  ).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Archived' })).toBeInTheDocument();
+});
+
+it('should keep the filters and the pane after archiving the last bookmark', async () => {
+  useTablet();
+  jest.spyOn(viewSize, 'useViewSizeClient').mockReturnValue(true);
+  const [first] = defaultFeedPage.edges.map(({ node }) => node);
+  const post = {
+    ...first,
+    bookmarked: true,
+    bookmark: { createdAt: new Date(), read: false },
+  };
+  const page = { ...emptyPage, edges: [{ node: post }] };
+  // Checked while the bookmark was still unarchived, and still fresh
+  renderComponent(
+    [createFeedMock(page), createFacetsMock()],
+    defaultUser,
+    (queryClient) => {
+      const { queryKey } = archivedBookmarksQueryOptions({ user: defaultUser });
+      queryClient.setQueryDefaults(queryKey, { staleTime: StaleTime.Base });
+      queryClient.setQueryData(queryKey, { page: emptyPage });
+    },
+  );
+  await waitForNock();
+  fireEvent.click(await screen.findByTitle(post.title ?? ''));
+
+  mockGraphQL({
+    request: {
+      query: SET_BOOKMARK_ARCHIVED,
+      variables: { postId: post.id, archived: true },
+    },
+    result: { data: { setBookmarkArchived: { _: true } } },
+  });
+  mockGraphQL(createFacetsMock());
+  mockGraphQL(createArchivedMock(page));
+  const sheet = screen.getByRole('region', { name: 'Bookmark' });
+  fireEvent.click(within(sheet).getByRole('button', { name: 'Archive' }));
+  await waitForNock();
+
+  expect(
+    await screen.findByText('Everything here is archived'),
+  ).toBeInTheDocument();
+  expect(screen.queryByTitle(post.title ?? '')).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Archived' })).toBeInTheDocument();
+  expect(screen.getByTestId('bookmarks-pane')).toHaveTextContent(post.id);
+});
+
+it('should not write a post the list dropped over the next row', async () => {
+  useTablet();
+  jest.spyOn(viewSize, 'useViewSizeClient').mockReturnValue(true);
+  const bookmarkedPage = {
+    ...defaultFeedPage,
+    edges: defaultFeedPage.edges.map(({ node }) => ({
+      node: {
+        ...node,
+        bookmarked: true,
+        bookmark: { createdAt: new Date(), read: false },
+      },
+    })),
+  };
+  const [first, second] = bookmarkedPage.edges.map(({ node }) => node);
+  renderComponent([createFeedMock(bookmarkedPage), createFacetsMock()]);
+  await waitForNock();
+  fireEvent.click(await screen.findByTitle(first.title ?? ''));
+  // The pane reports the cache change before the list re-renders
+  const reportPaneChange = paneOnPostChange;
+
+  mockGraphQL({
+    request: {
+      query: SET_BOOKMARK_ARCHIVED,
+      variables: { postId: first.id, archived: true },
+    },
+    result: { data: { setBookmarkArchived: { _: true } } },
+  });
+  mockGraphQL(createFacetsMock());
+  const sheet = screen.getByRole('region', { name: 'Bookmark' });
+  fireEvent.click(within(sheet).getByRole('button', { name: 'Archive' }));
+  await waitForNock();
+  await waitFor(() =>
+    expect(screen.queryByTitle(first.title ?? '')).not.toBeInTheDocument(),
+  );
+
+  act(() =>
+    reportPaneChange?.({
+      ...first,
+      bookmark: { ...first.bookmark, archivedAt: new Date(), read: true },
+    }),
+  );
+
+  expect(screen.queryByTitle(first.title ?? '')).not.toBeInTheDocument();
+  expect(screen.getByTitle(second.title ?? '')).toBeInTheDocument();
+});
+
+it('should show a bookmark restored from Archived once All is open again', async () => {
+  useTablet();
+  jest.spyOn(viewSize, 'useViewSizeClient').mockReturnValue(true);
+  const [first] = defaultFeedPage.edges.map(({ node }) => node);
+  const post = {
+    ...first,
+    bookmarked: true,
+    bookmark: { createdAt: new Date(), read: true, archivedAt: new Date() },
+  };
+  const page = { ...emptyPage, edges: [{ node: post }] };
+  // Lists stay fresh in the app, so All would reuse its empty page
+  renderComponent(
+    [createFeedMock(emptyPage), createFacetsMock(), createArchivedMock(page)],
+    defaultUser,
+    (queryClient) =>
+      queryClient.setQueryDefaults([RequestKey.Bookmarks], {
+        staleTime: StaleTime.Base,
+      }),
+  );
+  await waitForNock();
+  await screen.findByText('Everything here is archived');
+
+  mockGraphQL(
+    createFeedMock(page, BOOKMARKS_FEED_QUERY, {
+      ...feedVariables,
+      status: BookmarkStatus.Archived,
+    }),
+  );
+  mockGraphQL(createFacetsMock(BookmarkStatus.Archived));
+  fireEvent.click(screen.getByRole('button', { name: 'Archived' }));
+  await waitForNock();
+  fireEvent.click(await screen.findByTitle(post.title ?? ''));
+
+  mockGraphQL({
+    request: {
+      query: SET_BOOKMARK_ARCHIVED,
+      variables: { postId: post.id, archived: false },
+    },
+    result: { data: { setBookmarkArchived: { _: true } } },
+  });
+  mockGraphQL(createFacetsMock(BookmarkStatus.Archived));
+  const sheet = screen.getByRole('region', { name: 'Bookmark' });
+  fireEvent.click(
+    within(sheet).getByRole('button', { name: 'Restore from archive' }),
+  );
+  await waitForNock();
+  await waitFor(() =>
+    expect(screen.queryByTitle(post.title ?? '')).not.toBeInTheDocument(),
+  );
+
+  mockGraphQL(createFeedMock(page));
+  mockGraphQL(createFacetsMock());
+  fireEvent.click(screen.getByRole('button', { name: 'All' }));
+  await waitForNock();
+
+  expect(await screen.findByTitle(post.title ?? '')).toBeInTheDocument();
+  expect(
+    screen.queryByText('Your bookmark list is empty.'),
+  ).not.toBeInTheDocument();
 });

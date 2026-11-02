@@ -1,11 +1,17 @@
 import { useCallback, useContext, useMemo, useRef } from 'react';
+import type { QueryKey } from '@tanstack/react-query';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureFeedWidgetsDefault } from '../../lib/featureManagement';
+import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
+import {
+  featureFeedWidgets,
+  featureFeedWidgetsDefault,
+} from '../../lib/featureManagement';
 import FeedContext from '../../contexts/FeedContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useIsPhone, useIsPhoneSettled } from '../../hooks/useViewSize';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import type { FeedWidget } from './types';
 import {
   FEED_WIDGET_AD_COLUMN,
   FEED_WIDGET_UNDO_MS,
@@ -26,6 +32,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import type { SettingsFlags } from '../../graphql/settings';
+import { SharedFeedPage } from '../../components/utilities/common';
 
 /**
  * What the rail puts on screen that the grid below must not repeat. The feed
@@ -50,6 +57,26 @@ export const emptyFeedWidgetFeedState: FeedWidgetFeedState = {
   hasHappeningNow: false,
   hasTopStory: false,
   isAdVisible: false,
+};
+
+/**
+ * Whether the rail renders on this feed: For you and Popular, behind the flag,
+ * unless the reader hid it. The page around the rail reads it too, so the
+ * shell's own feed tabs step aside wherever the rail brings its own.
+ */
+export const useFeedWidgetRailState = (
+  feedName?: string,
+): { isFlagOn: boolean; isEnabled: boolean } => {
+  const { flags } = useSettingsContext();
+  const isMainFeedPage =
+    feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
+  const { value: isFlagOn } = useConditionalFeature({
+    feature: featureFeedWidgets,
+    shouldEvaluate: isMainFeedPage,
+  });
+  const isOn = isMainFeedPage && !!isFlagOn;
+
+  return { isFlagOn: isOn, isEnabled: isOn && !flags?.feedWidgetsOptOut };
 };
 
 /**
@@ -82,6 +109,14 @@ export const useFeedWidgetAdSlot = (): {
 };
 
 /**
+ * The rail ad's query key, before `useAdQuery` suffixes the consent: a prefix
+ * that matches every variant of it.
+ */
+export const getFeedWidgetAdQueryKey = (
+  user: Parameters<typeof generateQueryKey>[1],
+): QueryKey => generateQueryKey(RequestKey.Ads, user, 'feed-widgets');
+
+/**
  * The creative for the rail's pinned slot. One per page view, like the hero's.
  * Fetching it logs nothing: the slot logs its impression once it is on screen.
  * The rail and the feed share its query, so both know when it came back empty.
@@ -93,7 +128,7 @@ export const useFeedWidgetAd = ({
 }): { ad?: Ad; isEnabled: boolean; isNoFill: boolean } => {
   const { user, isTokenValid } = useAuthContext();
   const { isPlus } = usePlusSubscription();
-  const queryKey = generateQueryKey(RequestKey.Ads, user, 'feed-widgets');
+  const queryKey = getFeedWidgetAdQueryKey(user);
   const isEnabled = enabled && isTokenValid && !isPlus;
   const { data: ad, isFetched } = useAdQuery({
     placement: AdPlacement.Feed,
@@ -113,6 +148,58 @@ export const useFeedWidgetAd = ({
 };
 
 /**
+ * The widgets the rail will show, as the page around it can know them before
+ * the rail's own code loads: the reader's stored rail, or the default for a
+ * reader who never customized. The stored rail and the default come straight
+ * from the light reader: the registry, the widgets and their config schemas
+ * stay out of this bundle, in the rail's own chunk.
+ */
+const useResolvedFeedWidgets = ({
+  enabled,
+}: {
+  enabled: boolean;
+}): FeedWidget[] => {
+  const { flags } = useSettingsContext();
+  const custom = useMemo(
+    () => customFeedWidgets(readStoredFeedRail(flags?.feedWidgets)),
+    [flags?.feedWidgets],
+  );
+  const { value: defaultFlag } = useConditionalFeature({
+    feature: featureFeedWidgetsDefault,
+    shouldEvaluate: enabled && custom === null,
+  });
+
+  return useMemo(
+    () => custom ?? resolveDefaultFeedRail(defaultFlag).widgets,
+    [custom, defaultFlag],
+  );
+};
+
+/**
+ * Whether the rail on this feed carries the Shortcuts widget, so the
+ * extension's own shortcuts row steps aside only where the rail shows them.
+ * `isPending` while the flag or the settings that hold the rail are still on
+ * their way, so the row does not paint and then go.
+ */
+export const useFeedWidgetShortcuts = (
+  feedName?: string,
+): { hasShortcuts: boolean; isPending: boolean } => {
+  const { loadedSettings } = useSettingsContext();
+  const { settled } = useFeaturesReadyContext();
+  const { isEnabled } = useFeedWidgetRailState(feedName);
+  const widgets = useResolvedFeedWidgets({ enabled: isEnabled });
+  const isMainFeedPage =
+    feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
+
+  return {
+    hasShortcuts:
+      isEnabled &&
+      widgets.some(({ kind }) => kind === FeedWidgetKind.Shortcuts),
+    isPending: isMainFeedPage && (!settled || !loadedSettings),
+  };
+};
+
+/**
  * What the grid must not repeat, worked out on the feed's side from what is
  * known before the grid paints: the widgets the reader has (their settings,
  * or the default), whether our slot is placed, and the top story's lead, held
@@ -125,22 +212,7 @@ export const useFeedWidgetFeedState = ({
 }: {
   enabled: boolean;
 }): FeedWidgetFeedState => {
-  const { flags } = useSettingsContext();
-  // The stored rail and the default straight from the light reader: the
-  // registry, the widgets and their config schemas stay out of the feed's
-  // bundle, in the rail's own chunk.
-  const custom = useMemo(
-    () => customFeedWidgets(readStoredFeedRail(flags?.feedWidgets)),
-    [flags?.feedWidgets],
-  );
-  const { value: defaultFlag } = useConditionalFeature({
-    feature: featureFeedWidgetsDefault,
-    shouldEvaluate: enabled && custom === null,
-  });
-  const widgets = useMemo(
-    () => custom ?? resolveDefaultFeedRail(defaultFlag).widgets,
-    [custom, defaultFlag],
-  );
+  const widgets = useResolvedFeedWidgets({ enabled });
   const { showAd } = useFeedWidgetAdSlot();
   const { isNoFill } = useFeedWidgetAd({ enabled: enabled && showAd });
   const hasTopStory = widgets.some(

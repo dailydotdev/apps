@@ -18,13 +18,7 @@ const seo: NextSeoProps = {
 };
 
 // Only the author edits, and only while the post is open.
-const EditLfgPost = ({
-  id,
-  isLaunched,
-}: {
-  id: string;
-  isLaunched: boolean;
-}): ReactElement | null => {
+const EditLfgPost = ({ id }: { id: string }): ReactElement | null => {
   const router = useRouter();
   const { user } = useAuthContext();
   const { data: post, isPending } = useQuery(lfgPostQueryOptions(user, id));
@@ -41,7 +35,7 @@ const EditLfgPost = ({
     return null;
   }
 
-  return <LfgComposer post={post} isLaunched={isLaunched} />;
+  return <LfgComposer post={post} />;
 };
 
 const EditLfgPostPage = (): ReactElement => {
@@ -50,7 +44,7 @@ const EditLfgPostPage = (): ReactElement => {
 
   return (
     <LfgGate>
-      {({ isLaunched }) => <EditLfgPost id={id} isLaunched={isLaunched} />}
+      <EditLfgPost id={id} />
     </LfgGate>
   );
 };

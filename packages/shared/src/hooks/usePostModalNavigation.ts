@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter as useRouterNext } from 'next/router';
 import { useLogContext } from '../contexts/LogContext';
 import type { Post } from '../graphql/posts';
-import { PostType } from '../graphql/posts';
+import { PostType, withPostRead } from '../graphql/posts';
 import { postLogEvent } from '../lib/feed';
 import type { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { isBoostedPostAd } from './useFeed';
@@ -187,7 +187,7 @@ export const usePostModalNavigation = ({
       if (post?.type === PostType.Share) {
         const item = getPostItem(index);
         if (item) {
-          updatePost(item.page, item.index, { ...post, read: true });
+          updatePost(item.page, item.index, { ...post, ...withPostRead(post) });
         }
       }
     },

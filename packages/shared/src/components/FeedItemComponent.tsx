@@ -1,10 +1,10 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import dynamic from 'next/dynamic';
 import type { AdSquadItem, FeedItem } from '../hooks/useFeed';
 import { isBoostedPostAd, isBoostedSquadAd } from '../hooks/useFeed';
 import { PlaceholderGrid } from './cards/placeholder/PlaceholderGrid';
 import { PlaceholderList } from './cards/placeholder/PlaceholderList';
-import { SignalPlaceholderList } from './cards/placeholder/SignalPlaceholderList';
 import type { Ad, Post, PostItem } from '../graphql/posts';
 import { isSocialTwitterPost, PostType } from '../graphql/posts';
 import type { LoggedUser } from '../lib/user';
@@ -17,7 +17,6 @@ import { useFeedLayout } from '../hooks';
 import { FeedItemType } from './cards/common/common';
 import { AdGrid } from './cards/ad/AdGrid';
 import { AdList } from './cards/ad/AdList';
-import { SignalAdList } from './cards/ad/SignalAdList';
 import type { AdCardProps } from './cards/ad/common/common';
 import type { PostClick } from '../lib/click';
 import { ArticleList } from './cards/article/ArticleList';
@@ -50,12 +49,18 @@ import {
 } from '../lib/engagementAds';
 import { useEngagementAdsContext } from '../contexts/EngagementAdsContext';
 import { useLogContext } from '../contexts/LogContext';
-import { SignalList } from './cards/common/list/SignalList';
-import { OtherFeedPage } from '../lib/query';
 import { isSourceSquadOrMachine } from '../graphql/sources';
 import { HighlightGrid } from './cards/highlight/HighlightGrid';
 import { HighlightList } from './cards/highlight/HighlightList';
 import { getHighlightIds, getHighlightIdsKey } from '../graphql/highlights';
+
+// Only Debug mode lays it over the cards, so readers without it never
+// download it.
+const FeedExplainCard = dynamic(() =>
+  import(
+    /* webpackChunkName: "feedExplainCard" */ '../features/feedExplain/components/FeedExplainCard'
+  ).then((mod) => mod.FeedExplainCard),
+);
 
 export type FeedItemComponentProps = {
   item: FeedItem;
@@ -101,6 +106,8 @@ export type FeedItemComponentProps = {
   wideColSpan?: FeaturedWideColSpan;
   /** Set on search feeds so impressions can be joined to the query. */
   searchLogExtra?: SearchLogExtra;
+  /** Debug mode: the card's explanation covers it. */
+  isExplaining?: boolean;
 } & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'> &
   Pick<UseBookmarkPost, 'toggleBookmark'>;
 
@@ -133,30 +140,22 @@ type GetTagsProps = {
   isListFeedLayout: boolean;
   shouldUseListMode: boolean;
   postType: PostType;
-  feedName: string;
 };
 
 const getTags = ({
   isListFeedLayout,
   shouldUseListMode,
   postType,
-  feedName,
 }: GetTagsProps) => {
   const useListCards = isListFeedLayout || shouldUseListMode;
-  const isSignalFeed = feedName === OtherFeedPage.AgentsVibes;
-  const listPostTag = isSignalFeed ? SignalList : PostTypeToListCard[postType];
-  const listPlaceholderTag = isSignalFeed
-    ? SignalPlaceholderList
-    : PlaceholderList;
-  const listAdTag = isSignalFeed ? SignalAdList : AdList;
 
   return {
     PostTag: useListCards
-      ? listPostTag ?? ArticleList
+      ? PostTypeToListCard[postType] ?? ArticleList
       : PostTypeToGridCard[postType] ?? ArticleGrid,
-    AdTag: useListCards ? listAdTag : AdGrid,
+    AdTag: useListCards ? AdList : AdGrid,
     SquadAdTag: useListCards ? SquadAdList : SquadAdGrid,
-    PlaceholderTag: useListCards ? listPlaceholderTag : PlaceholderGrid,
+    PlaceholderTag: useListCards ? PlaceholderList : PlaceholderGrid,
   };
 };
 
@@ -250,6 +249,7 @@ function FeedItemComponent({
   virtualizedNumCards,
   wideColSpan,
   searchLogExtra,
+  isExplaining = false,
 }: FeedItemComponentProps): ReactElement | null {
   const { logEvent } = useLogContext();
   const inViewRef = useLogImpression({
@@ -262,6 +262,7 @@ function FeedItemComponent({
     ranking,
     highlightColSpan: wideColSpan,
     searchLogExtra,
+    isExplaining,
   });
 
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
@@ -320,7 +321,6 @@ function FeedItemComponent({
     postType: getPostTypeForCard(
       isBoostedPostAd(item) ? item.ad.data?.post : (item as PostItem).post,
     ),
-    feedName,
   });
 
   const onAdAction = (
@@ -429,13 +429,26 @@ function FeedItemComponent({
     const WideCard = isWidenedFeaturedPost
       ? PostTypeToWideCard[itemPost.type]
       : undefined;
+    // Only posts of the explained For You feed carry `explain`, null included.
+    const explainCard = isExplaining &&
+      item.type === FeedItemType.Post &&
+      itemPost.explain !== undefined && (
+        <FeedExplainCard
+          post={itemPost}
+          explain={itemPost.explain}
+          isList={shouldUseListFeedLayout || shouldUseListMode}
+        />
+      );
 
     return (
       <ActivePostContextProvider post={itemPost}>
         {WideCard ? (
-          <WideCard {...postCardProps} wideColSpan={wideColSpan} />
+          <WideCard {...postCardProps} wideColSpan={wideColSpan}>
+            {explainCard}
+          </WideCard>
         ) : (
           <PostTag {...postCardProps}>
+            {explainCard}
             {item.type === FeedItemType.Ad && (
               <>
                 <AdPixel pixel={item.ad.pixel} />

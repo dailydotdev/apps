@@ -14,6 +14,9 @@ interface AddShortcutTileProps {
   // in its label + aria hints).
   acceptsDroppedUrl?: boolean;
   isDropActive?: boolean;
+  // Matches `ShortcutTile`'s launcher size.
+  isLarge?: boolean;
+  className?: string;
 }
 
 export function AddShortcutTile({
@@ -22,6 +25,8 @@ export function AddShortcutTile({
   disabled,
   acceptsDroppedUrl = false,
   isDropActive = false,
+  isLarge = false,
+  className,
 }: AddShortcutTileProps): ReactElement {
   const isChip = appearance === 'chip';
   const isIconOnly = appearance === 'icon';
@@ -33,11 +38,13 @@ export function AddShortcutTile({
   const iconBox = (
     <span
       className={classNames(
-        'flex items-center justify-center rounded-12 border border-dashed border-border-subtlest-tertiary bg-transparent text-text-tertiary transition-colors duration-150 ease-out',
+        'flex items-center justify-center border border-dashed border-border-subtlest-tertiary bg-transparent text-text-tertiary transition-colors duration-150 ease-out',
         'group-hover:border-solid group-hover:border-border-subtlest-secondary group-hover:bg-background-default group-hover:text-text-primary',
         'group-focus-visible:ring-2 group-focus-visible:ring-accent-cabbage-default group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-background-default',
         'motion-reduce:transition-none',
-        isChip ? 'size-5 rounded-6' : 'size-11',
+        isChip && 'size-5 rounded-6',
+        !isChip &&
+          (isLarge ? 'mb-0.5 size-18 rounded-16' : 'size-11 rounded-12'),
         dropStateClass,
       )}
     >
@@ -59,6 +66,7 @@ export function AddShortcutTile({
           'group flex h-9 max-w-[8.75rem] items-center gap-2 rounded-10 border border-dashed border-border-subtlest-tertiary bg-transparent px-2 text-text-tertiary outline-none transition-colors duration-150 ease-out hover:border-solid hover:border-border-subtlest-secondary hover:bg-surface-float hover:text-text-primary focus-visible:bg-surface-float motion-reduce:transition-none',
           'disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent',
           isDropActive && dropStateClass,
+          className,
         )}
         aria-label={`Add shortcut${dropHint}`}
       >
@@ -77,6 +85,7 @@ export function AddShortcutTile({
         className={classNames(
           'group flex size-12 items-center justify-center rounded-12 outline-none transition-colors duration-150 ease-out hover:bg-surface-float focus-visible:bg-surface-float motion-reduce:transition-none',
           'disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent',
+          className,
         )}
         aria-label={`Add shortcut${dropHint}`}
         title={
@@ -98,11 +107,17 @@ export function AddShortcutTile({
       className={classNames(
         'group flex w-[4.75rem] flex-col items-center gap-1.5 rounded-14 p-2 outline-none transition-colors duration-150 ease-out hover:bg-surface-float focus-visible:bg-surface-float motion-reduce:transition-none',
         'disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent',
+        className,
       )}
       aria-label={`Add shortcut${dropHint}`}
     >
       {iconBox}
-      <span className="max-w-full truncate text-text-tertiary typo-caption2 group-hover:text-text-primary">
+      <span
+        className={classNames(
+          'max-w-full truncate text-text-tertiary group-hover:text-text-primary',
+          isLarge ? 'typo-footnote' : 'typo-caption2',
+        )}
+      >
         {isDropActive ? 'Drop to add' : 'Add'}
       </span>
     </button>

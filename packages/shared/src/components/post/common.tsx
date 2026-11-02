@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import type {
   CSSProperties,
   KeyboardEventHandler,
@@ -107,6 +108,12 @@ export interface PostContentProps
   renderSummarySegments?: (summary: string) => ReactNode;
   /** Rendered between the article content and the engagement block. */
   aboveComments?: ReactNode;
+  /**
+   * Rendered after the comments, at the end of the post's main column. Only
+   * the webapp post page passes it (the post page feed): the modal, the
+   * reader and the history pane render the same component without it.
+   */
+  belowComments?: ReactNode;
   /** Interleaves the comment thread — see PostEngagements. */
   commentAds?: {
     interleaveEvery: number;
@@ -137,6 +144,7 @@ export interface BasePostContentProps extends UsePostContentProps {
   engagementProps?: UsePostContent;
   shouldOnboardAuthor?: boolean;
   aboveComments?: ReactNode;
+  belowComments?: ReactNode;
   commentAds?: {
     interleaveEvery: number;
     renderInterleaved: (occurrence: number) => ReactNode;
@@ -145,3 +153,13 @@ export interface BasePostContentProps extends UsePostContentProps {
   customNavigation?: ReactNode;
   isPostPage?: boolean;
 }
+
+/**
+ * The widgets column under a post's main column. Below laptop the page is one
+ * column, so with a feed after the comments (`belowComments`) the widgets
+ * would sit under an endless feed. Keep them for laptop up only.
+ */
+export const getPostWidgetsClassName = (
+  className: string,
+  hasBelowComments: boolean,
+): string => classNames(className, hasBelowComments && 'hidden laptop:flex');

@@ -32,6 +32,11 @@ import SignupDisclaimer from './SignupDisclaimer';
 import { Checkbox } from '../fields/Checkbox';
 import { useLogContext } from '../../contexts/LogContext';
 import { useGenerateUsername, useCheckExistingEmail } from '../../hooks';
+import {
+  getTurnstileWaitExtra,
+  TURNSTILE_WAIT_LOG_THRESHOLD_MS,
+  waitForTurnstileToken,
+} from '../../lib/turnstile';
 import type { AuthFormProps } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
 import AuthContainer from './AuthContainer';
@@ -84,7 +89,7 @@ export type RegistrationFormValues = Omit<
   'method' | 'provider'
 > & {
   'cf-turnstile-response'?: string;
-  headers?: Record<string, string>;
+  turnstileToken?: string;
 };
 
 const RegistrationForm = ({
@@ -119,6 +124,11 @@ const RegistrationForm = ({
     isLoading: isLoadingUsername,
   } = useGenerateUsername(name);
   const turnstileRef = useRef<TurnstileInstance>(null);
+  // The ref guards against double submits synchronously; the state drives the
+  // button's loading spinner while we wait for the Turnstile token.
+  const isVerifyingTurnstileRef = useRef(false);
+  const [isVerifyingTurnstile, setIsVerifyingTurnstile] = useState(false);
+  const isTurnstileInteractiveRef = useRef(false);
 
   const logRef = useRef(logEvent);
   logRef.current = logEvent;
@@ -130,7 +140,7 @@ const RegistrationForm = ({
   }, []);
 
   useEffect(() => {
-    if (Object.keys(hints).length) {
+    if (Object.values(hints).some(Boolean)) {
       logRef.current({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({ error: hints }),
@@ -175,7 +185,7 @@ const RegistrationForm = ({
     },
   });
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (isCheckPending || alreadyExists) {
@@ -227,11 +237,38 @@ const RegistrationForm = ({
       return;
     }
 
-    if (!turnstileRef?.current?.getResponse()) {
+    if (isVerifyingTurnstileRef.current) {
+      return;
+    }
+    isVerifyingTurnstileRef.current = true;
+    setIsVerifyingTurnstile(true);
+    const turnstileStartedAt = Date.now();
+    const turnstileResponse = await waitForTurnstileToken(
+      turnstileRef?.current,
+      { shouldStop: () => isTurnstileInteractiveRef.current },
+    ).finally(() => {
+      isVerifyingTurnstileRef.current = false;
+      setIsVerifyingTurnstile(false);
+    });
+    const turnstileWaitExtra = getTurnstileWaitExtra({
+      form: 'signup',
+      startedAt: turnstileStartedAt,
+      token: turnstileResponse,
+      isInteractive: isTurnstileInteractiveRef.current,
+    });
+    if (turnstileWaitExtra.waited_ms >= TURNSTILE_WAIT_LOG_THRESHOLD_MS) {
+      logRef.current({
+        event_name: AuthEventNames.TurnstileTokenWait,
+        extra: JSON.stringify(turnstileWaitExtra),
+      });
+    }
+    if (!turnstileResponse) {
       logRef.current({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({
           error: 'Turnstile not valid',
+          waited_ms: turnstileWaitExtra.waited_ms,
+          outcome: turnstileWaitExtra.outcome,
         }),
       });
       setTurnstileError(true);
@@ -256,11 +293,7 @@ const RegistrationForm = ({
       return;
     }
 
-    const turnstileResponse = turnstileRef.current?.getResponse();
-    let headers: Record<string, string> | undefined;
-    if (!(isDevelopment && !isProductionAPI) && turnstileResponse) {
-      headers = { 'True-Client-Ip': turnstileResponse };
-    }
+    const shouldSendTurnstileToken = !(isDevelopment && !isProductionAPI);
 
     onSignup({
       ...values,
@@ -269,14 +302,14 @@ const RegistrationForm = ({
       ...(isRecruiterOnboarding && {
         'traits.experienceLevel': 'NOT_ENGINEER',
       }),
-      ...(headers && { headers }),
+      ...(shouldSendTurnstileToken && { turnstileToken: turnstileResponse }),
     });
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     const emailCheck = await onEmailCheck(e);
     if (!!emailCheck && emailCheck.emailValue && !emailCheck.emailExists) {
-      onSubmit(e);
+      await onSubmit(e);
     }
   };
 
@@ -532,7 +565,16 @@ const RegistrationForm = ({
                 appearance: 'interaction-only',
               }}
               className="mx-auto"
-              onWidgetLoad={() => setTurnstileLoaded(true)}
+              onWidgetLoad={() => {
+                setTurnstileLoaded(true);
+                setTurnstileErrorLoading(false);
+              }}
+              onBeforeInteractive={() => {
+                isTurnstileInteractiveRef.current = true;
+              }}
+              onAfterInteractive={() => {
+                isTurnstileInteractiveRef.current = false;
+              }}
             />
             {turnstileError && (
               <Alert
@@ -561,6 +603,7 @@ const RegistrationForm = ({
                 data-funnel-track={FunnelTargetId.StepCta}
                 disabled={isCheckPending || !turnstileLoaded}
                 form="auth-form"
+                loading={isVerifyingTurnstile}
                 size={isOnboardingFunnel ? ButtonSize.Medium : ButtonSize.Large}
                 type="submit"
                 variant={ButtonVariant.Primary}

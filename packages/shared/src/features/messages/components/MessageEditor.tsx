@@ -7,11 +7,12 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { DM_MAX_LENGTH } from '../types';
+import { isSubmitEnter } from '../keyboard';
 
 const maxEditorHeight = 160;
 
-// Replaces a bubble while its text is being corrected. Enter saves, Escape
-// cancels, like the composer.
+// Replaces a bubble while its text is being corrected. Enter saves (a new
+// line on touch screens), Escape cancels, like the composer.
 export const MessageEditor = ({
   initialValue,
   onSave,
@@ -56,11 +57,7 @@ export const MessageEditor = ({
       return;
     }
 
-    if (
-      event.key === 'Enter' &&
-      !event.shiftKey &&
-      !event.nativeEvent.isComposing
-    ) {
+    if (isSubmitEnter(event)) {
       event.preventDefault();
       save();
     }

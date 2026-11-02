@@ -63,9 +63,9 @@ function PostExcoPlayer({
     playlistId,
     placement,
   });
-  const onPlayerError = (reason: ExcoPlayerFailure) => {
+  const onPlayerError = (reason: ExcoPlayerFailure, error?: string) => {
     setHasFailed(true);
-    onError(reason);
+    onError(reason, error);
   };
 
   if (hasFailed) {

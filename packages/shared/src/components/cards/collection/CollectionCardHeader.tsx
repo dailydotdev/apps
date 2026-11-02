@@ -12,7 +12,7 @@ import type { Post } from '../../../graphql/posts';
 
 interface CollectionCardHeaderProps {
   post: Post;
-  /** `card_save_on_hover`: the bookmark, right before ⋯. */
+  /** Grid cards: the bookmark, right before ⋯. */
   bookmark?: ReactNode;
 }
 

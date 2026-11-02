@@ -28,6 +28,10 @@ export const feedWidgetConfigSchemas: {
     location: z.string().min(1).max(MAX_TEXT).optional(),
     unit: z.enum(['c', 'f']).optional(),
   }),
+  [FeedWidgetKind.Shortcuts]: z.object({
+    layout: z.enum(['grid', 'list']).optional(),
+    showMostVisited: z.boolean().optional(),
+  }),
 };
 
 /**

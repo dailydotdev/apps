@@ -150,6 +150,25 @@ describe('FeedHero', () => {
     expect(screen.getByText('Third headline')).toBeInTheDocument();
   });
 
+  it('should open the post page from the lead card', async () => {
+    const push = jest.fn();
+    jest
+      .mocked(useRouter)
+      .mockImplementation(
+        () => ({ pathname: '/', push } as unknown as NextRouter),
+      );
+    mockHero({ posts, highlights });
+
+    renderComponent();
+
+    // The card's overlay cancels its own navigation and leaves it to the hero.
+    fireEvent.click(
+      await screen.findByRole('link', { name: 'First hero post' }),
+    );
+
+    expect(push).toHaveBeenCalledWith(posts[0].commentsPermalink);
+  });
+
   it('should render nothing when the query returns no posts', async () => {
     mockHero({ posts: [], highlights: [] });
 

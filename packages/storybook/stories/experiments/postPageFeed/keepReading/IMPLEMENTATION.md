@@ -1,5 +1,7 @@
 # Keep reading: implementation guide
 
+> **Update (dailydotdev/apps#7147):** the feed is now For you only, titled "More for you", with ads as on the home For you feed (same ad template, via `FeedLayoutProvider`), and no tab row (no Following, custom feed, tag or source tabs, and no `change post page feed tab` event). Below laptop the post widgets are hidden while the feed is on, so the feed follows the comments. The tab sections below describe the first version.
+
 Implemented behind `post_page_feed` in dailydotdev/apps#7018. This guide matches that PR; where the two disagree, the code wins.
 
 A feed under the post page, after the comments, for signed-in readers, behind a GrowthBook flag. This file is the source of truth for building it in production. Storybook (`Experiments / Post page feed`) shows every case it describes; the table at the end maps each requirement to the story that shows it.

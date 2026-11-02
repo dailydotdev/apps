@@ -253,6 +253,7 @@ describe('NotificationsWidget', () => {
         hasSquads: false,
         isReadingStreakOn: true,
         hasMessages: false,
+        hasLiveChat: false,
       }).map(({ kind }) => kind);
 
     expect(kinds(true)).toContain(FeedWidgetKind.Notifications);

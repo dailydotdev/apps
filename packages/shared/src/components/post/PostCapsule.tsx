@@ -46,7 +46,7 @@ export interface PostCapsuleProps {
 
 // The phone post page carries its actions in the capsule alone, unless the
 // app footer owns the bottom or the post type has no actions bar.
-export const useHasPostCapsule = (post?: Post): boolean => {
+export const useHasPostCapsule = (post?: Pick<Post, 'type'>): boolean => {
   const { title: appFooterTitle } = useMobileAppFooterContext();
 
   return !!post && post.type !== PostType.Brief && !appFooterTitle;
@@ -55,6 +55,36 @@ export const useHasPostCapsule = (post?: Post): boolean => {
 const transition = ['transform', 'height', 'border-radius', 'padding']
   .map((property) => `${property} ${motion.snap}ms ${motion.interaction}`)
   .join(', ');
+
+export interface PostCapsulePosition {
+  p: number;
+  // The capsule's bottom edge at rest, as a CSS length.
+  bottom: string;
+  // How far it slides down into the bar's slot while reading.
+  translateY: number;
+  height: number;
+}
+
+// Where the capsule stands: one gap above the bottom bar, sliding into the
+// bar's slot while reading. Anything floating over the capsule (the live
+// chat pill) reads it here, so the two never cover each other.
+export const usePostCapsulePosition = (): PostCapsulePosition => {
+  // Sideways the bar stays compact, so the capsule stands on its compact top.
+  const barHeight = useIsPhoneLandscape() ? cluster.compact : cluster.rest;
+  const router = useRouter();
+  const hasBar = !hidesCluster(router?.pathname ?? '', router?.asPath);
+  const { p } = useShellScroll();
+  const lift = hasBar ? barHeight + field.gap : 0;
+
+  return {
+    p,
+    bottom: `calc(${cluster.floor} + ${lift}px)`,
+    translateY: p * lift,
+    height: lerp(field.rest, field.compact, p),
+  };
+};
+
+export const postCapsuleTransition = transition;
 
 // The post page's actions, floating one gap above the bottom bar. While
 // reading, the bar slides below the screen and the capsule takes its slot
@@ -65,11 +95,7 @@ export function PostCapsule({
 }: PostCapsuleProps): ReactElement | null {
   const origin = LogOrigin.ArticlePage;
   const isPhone = useIsPhone();
-  // Sideways the bar stays compact, so the capsule stands on its compact top.
-  const barHeight = useIsPhoneLandscape() ? cluster.compact : cluster.rest;
-  const router = useRouter();
-  const hasBar = !hidesCluster(router?.pathname ?? '', router?.asPath);
-  const { p } = useShellScroll();
+  const { p, bottom, translateY, height } = usePostCapsulePosition();
   useRegisterShellField(isPhone);
   // Icons swap in with a short scale and blur once the reader has touched
   // the capsule; the first paint shows them as they are.
@@ -187,13 +213,9 @@ export function PostCapsule({
       <div
         className="shell-capsule pointer-events-none fixed inset-x-0 z-3 motion-reduce:!transition-none tablet:hidden"
         style={{
-          bottom: `calc(${cluster.floor} + ${
-            hasBar ? barHeight + field.gap : 0
-          }px)`,
+          bottom,
           paddingInline: lerp(cluster.inset, cluster.insetCompact, p),
-          transform: hasBar
-            ? `translateY(${p * (barHeight + field.gap)}px)`
-            : undefined,
+          transform: `translateY(${translateY}px)`,
           transition,
         }}
       >
@@ -204,7 +226,7 @@ export function PostCapsule({
             isTouched && 'shell-icon-swap',
           )}
           style={{
-            height: lerp(field.rest, field.compact, p),
+            height,
             borderRadius: lerp(field.radiusRest, field.radiusCompact, p),
             transition,
           }}

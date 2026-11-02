@@ -65,7 +65,8 @@ export const getTransactionLabel = ({
   }
 
   if (
-    transaction.referenceType === UserTransactionType.PostBoost &&
+    (transaction.referenceType === UserTransactionType.PostBoost ||
+      transaction.referenceType === UserTransactionType.PlusCoresGiveback) &&
     transaction.flags.note
   ) {
     return transaction.flags.note;

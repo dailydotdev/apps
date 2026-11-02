@@ -33,12 +33,12 @@ export const LfgRailPromo = ({
 }): ReactElement | null => {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
-  const { isEnabled, isLaunched, isLaunchKnown } = useLfgEnabled();
+  const { isEnabled } = useLfgEnabled();
   const { data: myPost, isPending } = useQuery(
     myLfgPostQueryOptions(user, { enabled: isEnabled }),
   );
-  const isVisible = isLaunchKnown && !isPending && !myPost;
-  const extra = JSON.stringify({ origin, launched: isLaunched });
+  const isVisible = isEnabled && !isPending && !myPost;
+  const extra = JSON.stringify({ origin });
 
   useLogEventOnce(
     () => ({ event_name: LogEvent.ImpressionLfgRailPromo, extra }),

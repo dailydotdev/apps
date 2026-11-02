@@ -2,8 +2,6 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../../graphql/posts';
-import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
-import { featureListCardTldr } from '../../../../lib/featureManagement';
 import { ClickableText } from '../../../buttons/ClickableText';
 import type { Callback } from '../common';
 
@@ -23,10 +21,6 @@ export const CardTldr = ({
   onExpand,
 }: CardTldrProps): ReactElement | null => {
   const summary = (post.sharedPost ?? post).summary?.trim();
-  const { value: isEnabled } = useConditionalFeature({
-    feature: featureListCardTldr,
-    shouldEvaluate: !!summary,
-  });
   const textRef = useRef<HTMLParagraphElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isTruncated, setIsTruncated] = useState(false);
@@ -50,9 +44,9 @@ export const CardTldr = ({
     observer.observe(text);
 
     return () => observer.disconnect();
-  }, [isExpanded, isEnabled, summary]);
+  }, [isExpanded, summary]);
 
-  if (!isEnabled || !summary) {
+  if (!summary) {
     return null;
   }
 

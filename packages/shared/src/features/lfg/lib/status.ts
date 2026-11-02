@@ -27,9 +27,7 @@ export const isLfgPostAuthor = (
 export const canReachOutToLfgPost = (
   post: StatusPost,
   viewerId: string | undefined,
-  isLaunched: boolean,
 ): boolean =>
-  isLaunched &&
   !!viewerId &&
   post.author.id !== viewerId &&
   post.status === LfgPostStatus.Open &&
@@ -41,15 +39,8 @@ export const canReachOutToLfgPost = (
 export const getLfgRowStatus = (
   post: StatusPost,
   viewerId: string | undefined,
-  isLaunched: boolean,
 ): string | undefined => {
-  const isMine = post.author.id === viewerId;
-
-  if (!isLaunched) {
-    return isMine ? 'Your post · goes live soon' : 'Opening soon';
-  }
-
-  if (isMine) {
+  if (post.author.id === viewerId) {
     return post.pendingCount
       ? `Your post · ${post.pendingCount} waiting`
       : 'Your post';

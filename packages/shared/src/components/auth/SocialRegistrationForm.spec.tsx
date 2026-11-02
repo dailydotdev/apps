@@ -7,6 +7,7 @@ import type { LoggedUser } from '../../lib/user';
 import { SocialProvider } from './common';
 import { SocialRegistrationForm } from './SocialRegistrationForm';
 import { useGenerateUsername } from '../../hooks';
+import { errorMessage } from '../../graphql/common';
 
 const mockOnUpdateSignBack = jest.fn();
 
@@ -170,5 +171,28 @@ describe('SocialRegistrationForm', () => {
       experienceLevel: 'LESS_THAN_1_YEAR',
       acceptedMarketing: true,
     });
+  });
+
+  it('blocks submission and explains the rule when the username is invalid', () => {
+    jest.mocked(useGenerateUsername).mockReturnValue({
+      username: 'not valid',
+      setUsername: jest.fn(),
+      isLoading: false,
+    });
+    const onSignup = jest.fn();
+    renderForm(
+      <SocialRegistrationForm
+        provider={SocialProvider.Apple}
+        hints={{}}
+        onSignup={onSignup}
+      />,
+    );
+
+    fireEvent.submit(screen.getByTestId('registration_form'));
+
+    expect(onSignup).not.toHaveBeenCalled();
+    expect(
+      screen.getByText(errorMessage.profile.invalidUsername),
+    ).toBeInTheDocument();
   });
 });

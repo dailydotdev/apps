@@ -35,7 +35,6 @@ import {
   useSocialTwitterCardData,
 } from './socialTwitterHelpers';
 import { EmbeddedTweetPreview } from './EmbeddedTweetPreview';
-import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
 import { CardHeaderBookmark } from '../common/CardHeaderBookmark';
 
 const HeaderActions = getGroupedHoverContainer('span');
@@ -56,7 +55,6 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const isFeedPreview = useFeedPreviewMode();
-  const saveOnHover = useCardSaveOnHover();
   const isUserSource = isSourceUserSource(post.source);
   const rawTitle = post.title || post.sharedPost?.title;
   const { normalizedContent, hasDailyDevMarkdown, socialTextDirectionProps } =
@@ -101,8 +99,12 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
         ),
       }}
       ref={ref}
-      flagProps={{ pinnedAt: post.pinnedAt, trending: post.trending }}
+      flagProps={{
+        pinnedAt: post.pinnedAt,
+        trending: post.trending,
+      }}
       bookmarked={post.bookmarked}
+      bookmarkNote={post.bookmark?.note}
     >
       <CardOverlay
         post={post}
@@ -133,12 +135,10 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
                   openNewTab
                 />
               )}
-              {saveOnHover && (
-                <CardHeaderBookmark
-                  post={post}
-                  onBookmarkClick={onBookmarkClick}
-                />
-              )}
+              <CardHeaderBookmark
+                post={post}
+                onBookmarkClick={onBookmarkClick}
+              />
               <PostOptionButton post={post} />
             </HeaderActions>
           </div>
@@ -184,7 +184,7 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
         <ActionButtons
           className="mt-auto shrink-0"
           onBookmarkClick={onBookmarkClick}
-          bookmarkInHeader={saveOnHover}
+          bookmarkInHeader
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}
           onDownvoteClick={onDownvoteClick}

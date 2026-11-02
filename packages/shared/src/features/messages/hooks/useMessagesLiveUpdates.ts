@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useToastNotification } from '../../../hooks/useToastNotification';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { getDmTransport } from '../transport';
 import {
@@ -13,7 +15,7 @@ import {
 } from '../queries';
 import { applyEdit, applyReaction } from '../stanzas';
 import type { DmMessage } from '../types';
-import { DmMessageStatus } from '../types';
+import { DmMessageStatus, isRoomEvent } from '../types';
 
 const peerUnavailableCopy = "This user isn't accepting messages";
 // A peer who stops typing without saying so (closed the tab, lost the
@@ -27,6 +29,7 @@ export const useMessagesLiveUpdates = (enabled: boolean): void => {
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
 
   useEffect(() => {
     if (!enabled || !user?.id) {
@@ -63,6 +66,11 @@ export const useMessagesLiveUpdates = (enabled: boolean): void => {
       );
 
     const unsubscribe = getDmTransport(user.id).subscribe((event) => {
+      // Live chat rooms have their own listener; nothing here is theirs.
+      if (isRoomEvent(event)) {
+        return;
+      }
+
       if (event.type === 'chatState') {
         setTyping(event.peerId, event.state === 'composing');
         return;
@@ -102,6 +110,13 @@ export const useMessagesLiveUpdates = (enabled: boolean): void => {
 
       if (event.type === 'failed') {
         setStatus(event.peerId, event.messageId, DmMessageStatus.Failed);
+        // `send direct message` fires when the stanza is handed to the
+        // socket, so this is the only record of a send the server never acked.
+        logEvent({
+          event_name: LogEvent.FailDirectMessage,
+          target_id: event.peerId,
+          extra: JSON.stringify({ reason: 'ack_timeout' }),
+        });
         return;
       }
 
@@ -173,5 +188,5 @@ export const useMessagesLiveUpdates = (enabled: boolean): void => {
       unsubscribe();
       typingTimers.forEach((timer) => clearTimeout(timer));
     };
-  }, [displayToast, enabled, queryClient, user]);
+  }, [displayToast, enabled, logEvent, queryClient, user]);
 };

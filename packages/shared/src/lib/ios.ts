@@ -19,6 +19,8 @@ export enum WebKitMessageHandlers {
 
   AppIconGet = 'app-icon-get',
   AppIconSet = 'app-icon-set',
+
+  RequestTracking = 'request-tracking',
 }
 
 type IOSWebkitGlobal = typeof globalThis & {
@@ -66,4 +68,12 @@ export const postWebKitMessage = <T = unknown>(
   }
 
   messageHandler.postMessage(payload);
+};
+
+export const requestIOSTracking = (): void => {
+  if (!messageHandlerExists(WebKitMessageHandlers.RequestTracking)) {
+    return;
+  }
+
+  postWebKitMessage(WebKitMessageHandlers.RequestTracking, null);
 };

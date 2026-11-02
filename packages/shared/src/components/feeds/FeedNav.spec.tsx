@@ -78,6 +78,10 @@ jest.mock('../../hooks/usePlusEntry', () => ({
   default: jest.fn(),
 }));
 
+jest.mock('../../features/feedExplain/useFeedExplainMode', () => ({
+  useFeedExplainMode: () => ({ isOffered: false, isExplaining: false }),
+}));
+
 jest.mock('./UnifiedMobileFeedNav', () => ({
   __esModule: true,
   default: () => (
@@ -215,6 +219,24 @@ describe('FeedNav', () => {
     mockUseFeatureTheme.mockReturnValue(null);
     mockUsePlusEntry.mockReturnValue({ plusEntryForYou: null });
     mockViewport({ isMobile: true, isBelowLaptop: true });
+  });
+
+  it('steps aside for the tabs the widget rail brings under it', () => {
+    mockViewport({ isMobile: false, isBelowLaptop: true });
+
+    const { container } = render(<FeedNav hasFeedWidgetRail />);
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('does not enroll the reader in the chips test while the rail owns the tabs', () => {
+    mockViewport({ isMobile: false, isBelowLaptop: true });
+
+    render(<FeedNav hasFeedWidgetRail />);
+
+    expect(useConditionalFeature).toHaveBeenCalledWith(
+      expect.objectContaining({ shouldEvaluate: false }),
+    );
   });
 
   it('keeps the chips scroll container and action controls as in-flow siblings', () => {

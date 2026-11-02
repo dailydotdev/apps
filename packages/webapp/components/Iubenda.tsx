@@ -182,6 +182,7 @@ export const Iubenda = (): ReactElement | null => {
       lgpdAppliesGlobally: false,
       perPurposeConsent: true,
       siteId: Number(siteId),
+      tcfPublisher: ['consent'],
       tcfPurposes: {
         '2': 'consent_only',
         '7': 'consent_only',

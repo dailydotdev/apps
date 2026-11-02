@@ -19,14 +19,14 @@
       "id": "storybook-user-1",
       "handle": "reader1",
       "name": "Alex Rivera",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/1",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/1",
       "permalink": "https://app.daily.dev/reader1",
       "type": "user"
     },
     "author": {
       "id": "storybook-user-1",
       "name": "Alex Rivera",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/1",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/1",
       "username": "reader1",
       "permalink": "https://app.daily.dev/reader1"
     },
@@ -84,7 +84,7 @@
     "author": {
       "id": "storybook-user-2",
       "name": "Sam Patel",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/2",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/2",
       "username": "reader2",
       "permalink": "https://app.daily.dev/reader2"
     },
@@ -212,7 +212,7 @@
     "author": {
       "id": "storybook-user-3",
       "name": "Jordan Lee",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/3",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/3",
       "username": "reader3",
       "permalink": "https://app.daily.dev/reader3"
     },
@@ -276,7 +276,7 @@
     "author": {
       "id": "storybook-user-4",
       "name": "Casey Morgan",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/4",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/4",
       "username": "reader4",
       "permalink": "https://app.daily.dev/reader4"
     },
@@ -423,14 +423,14 @@
       "id": "storybook-user-5",
       "handle": "reader5",
       "name": "Riley Chen",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/5",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/5",
       "permalink": "https://app.daily.dev/reader5",
       "type": "user"
     },
     "author": {
       "id": "storybook-user-5",
       "name": "Riley Chen",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/5",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/5",
       "username": "reader5",
       "permalink": "https://app.daily.dev/reader5"
     },
@@ -532,7 +532,7 @@
     "author": {
       "id": "storybook-user-6",
       "name": "Taylor Brooks",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/6",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/6",
       "username": "reader6",
       "permalink": "https://app.daily.dev/reader6"
     },
@@ -685,14 +685,14 @@
       "id": "storybook-user-7",
       "handle": "reader7",
       "name": "Jamie Novak",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/7",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/7",
       "permalink": "https://app.daily.dev/reader7",
       "type": "user"
     },
     "author": {
       "id": "storybook-user-7",
       "name": "Jamie Novak",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/7",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/7",
       "username": "reader7",
       "permalink": "https://app.daily.dev/reader7"
     },
@@ -954,7 +954,7 @@
     "author": {
       "id": "storybook-user-8",
       "name": "Morgan Diaz",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/8",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/8",
       "username": "reader8",
       "permalink": "https://app.daily.dev/reader8"
     },
@@ -1254,7 +1254,7 @@
     "author": {
       "id": "storybook-user-9",
       "name": "Alex Rivera",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/1",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/1",
       "username": "reader9",
       "permalink": "https://app.daily.dev/reader9"
     },
@@ -1496,7 +1496,7 @@
     "author": {
       "id": "storybook-user-10",
       "name": "Sam Patel",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/2",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/2",
       "username": "reader10",
       "permalink": "https://app.daily.dev/reader10"
     },
@@ -1656,7 +1656,7 @@
     "author": {
       "id": "storybook-user-11",
       "name": "Jordan Lee",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/3",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/3",
       "username": "reader11",
       "permalink": "https://app.daily.dev/reader11"
     },
@@ -1778,7 +1778,7 @@
     "author": {
       "id": "storybook-user-12",
       "name": "Casey Morgan",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/4",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/4",
       "username": "reader12",
       "permalink": "https://app.daily.dev/reader12"
     },
@@ -1815,14 +1815,14 @@
       "id": "storybook-user-13",
       "handle": "reader13",
       "name": "Riley Chen",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/5",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/5",
       "permalink": "https://app.daily.dev/reader13",
       "type": "user"
     },
     "author": {
       "id": "storybook-user-13",
       "name": "Riley Chen",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/5",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/5",
       "username": "reader13",
       "permalink": "https://app.daily.dev/reader13"
     },
@@ -1880,7 +1880,7 @@
     "author": {
       "id": "storybook-user-14",
       "name": "Taylor Brooks",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/6",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/6",
       "username": "reader14",
       "permalink": "https://app.daily.dev/reader14"
     },
@@ -2077,14 +2077,14 @@
       "id": "storybook-user-15",
       "handle": "reader15",
       "name": "Jamie Novak",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/7",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/7",
       "permalink": "https://app.daily.dev/reader15",
       "type": "user"
     },
     "author": {
       "id": "storybook-user-15",
       "name": "Jamie Novak",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/7",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/7",
       "username": "reader15",
       "permalink": "https://app.daily.dev/reader15"
     },
@@ -2179,14 +2179,14 @@
       "id": "storybook-user-16",
       "handle": "reader16",
       "name": "Morgan Diaz",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/8",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/8",
       "permalink": "https://app.daily.dev/reader16",
       "type": "user"
     },
     "author": {
       "id": "storybook-user-16",
       "name": "Morgan Diaz",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/8",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/8",
       "username": "reader16",
       "permalink": "https://app.daily.dev/reader16"
     },

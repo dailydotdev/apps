@@ -1535,7 +1535,7 @@ export const rawPosts: RawPost[] = [
       id: 'storybook-user-6',
       name: 'Taylor Brooks',
       image:
-        'https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/6',
+        'https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/6',
       handle: 'reader6',
     },
   },

@@ -47,6 +47,7 @@ const ExperienceLevelDropdown = ({
 
   return (
     <div
+      data-field={name}
       className={classNames(
         'relative flex flex-col items-stretch',
         containerClassName,

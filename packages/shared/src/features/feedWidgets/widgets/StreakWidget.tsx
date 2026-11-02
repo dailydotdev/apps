@@ -16,6 +16,7 @@ import { LazyModal } from '../../../components/modals/common/types';
 import { StreakMonthCalendar } from '../../../components/streak/popup/StreakMonthCalendar';
 import { useIsStreakFreezeEnabled } from '../../../components/streak/popup/StreakFreezeRow';
 import { CompactQuestList } from '../../../components/quest/CompactQuestList';
+import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
 import { ReadingStreakIcon } from '../../../components/icons/ReadingStreak';
 import { IconSize } from '../../../components/Icon';
 import Link from '../../../components/utilities/Link';
@@ -111,7 +112,7 @@ const UsageMeter = ({
       />
     </div>
     <div className="flex items-center justify-between gap-2">
-      <span className="min-w-0 truncate text-text-quaternary typo-caption1">
+      <span className="min-w-0 shrink truncate text-text-quaternary typo-caption1">
         {hint}
       </span>
       {action}
@@ -166,7 +167,9 @@ const TodayLine = ({ timezone }: { timezone: string }): ReactElement => {
       <span className="font-bold text-text-primary">
         Today, {dateFormatInTimezone(now, 'MMM d', timezone)}
       </span>
-      <span className="truncate text-text-tertiary">{timezone}</span>
+      <span className="min-w-0 shrink truncate text-text-tertiary">
+        {timezone}
+      </span>
     </div>
   );
 };
@@ -221,6 +224,9 @@ export const StreakWidget = ({
     countClassName,
   } = useStreakRingState();
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
+  const { data: questDashboard } = useQuestDashboard({
+    enabled: size === FeedWidgetSize.Large,
+  });
 
   const onClick = useCallback(
     () =>
@@ -318,14 +324,14 @@ export const StreakWidget = ({
   );
 
   const panel = isSmall ? (
-    <div className="flex min-h-0 flex-1 flex-col justify-between gap-3 px-4">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col justify-between gap-3 px-4">
       {summary}
       <StreakMonthCalendar streak={streak} />
     </div>
   ) : (
     <div
       className={classNames(
-        'flex min-h-0 flex-col gap-4 px-4',
+        'flex min-h-0 min-w-0 flex-col gap-4 px-4',
         isLarge ? 'w-1/2 shrink-0' : 'flex-1',
       )}
     >
@@ -356,16 +362,28 @@ export const StreakWidget = ({
       {panel}
       {isLarge && (
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-          <span className="px-4 text-text-quaternary typo-footnote">
-            Daily quests
-          </span>
           <div
             ref={scroll.ref}
             onScroll={scroll.onScroll}
             style={scroll.style}
-            className={classNames('mt-1 px-2', scroll.className)}
+            className={classNames('px-2', scroll.className)}
           >
-            <CompactQuestList />
+            {questDashboard && (
+              <>
+                <span className="block px-2 text-text-quaternary typo-footnote">
+                  Daily quests
+                </span>
+                <div className="mt-1">
+                  <CompactQuestList period="daily" />
+                </div>
+                <span className="mt-3 block px-2 text-text-quaternary typo-footnote">
+                  Weekly quests
+                </span>
+                <div className="mt-1">
+                  <CompactQuestList period="weekly" />
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

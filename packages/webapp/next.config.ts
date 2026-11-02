@@ -294,6 +294,16 @@ const nextConfig: NextConfig = {
           destination: '/:userId',
           permanent: true,
         },
+        // Creator links printed in YouTube descriptions (e.g.
+        // daily.dev/w/the-coding-sloth). No route in this app serves them, so every
+        // visitor landed on a 404. Send them to signup, keeping the creator
+        // slug for attribution.
+        {
+          source: '/w/:creator',
+          destination:
+            '/onboarding?utm_source=youtube&utm_medium=creator&utm_campaign=:creator',
+          permanent: false,
+        },
         {
           source: '/topic/:path*',
           destination: '/tags/:path*',
@@ -374,6 +384,12 @@ const nextConfig: NextConfig = {
             },
           ],
         },
+        // Content preferences and Blocked content are one Filters page now
+        {
+          source: '/settings/feed/:page(preferences|blocked)',
+          destination: '/settings/feed/filters',
+          permanent: false,
+        },
         {
           source: '/account/integrations',
           destination: '/settings/customization/integrations',
@@ -392,6 +408,11 @@ const nextConfig: NextConfig = {
         {
           source: '/opportunity/:path*',
           destination: '/jobs/:path*',
+          permanent: true,
+        },
+        {
+          source: '/welcome',
+          destination: '/onboarding',
           permanent: true,
         },
         {

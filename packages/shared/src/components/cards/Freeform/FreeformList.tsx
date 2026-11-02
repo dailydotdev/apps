@@ -70,7 +70,7 @@ export const FreeformList = forwardRef(function SharePostCard(
   const hasCover = !!image && (isLaptop || !isPlaceholderImage(image));
   const socialShare =
     interaction === 'copy' && post.type === PostType.Freeform && !hasCover;
-  const { title: truncatedTitle } = useTruncatedSummary(title, content);
+  const { title: truncatedTitle } = useTruncatedSummary(title ?? '', content);
   const isUserSource = isSourceUserSource(post.source);
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
 
@@ -132,6 +132,7 @@ export const FreeformList = forwardRef(function SharePostCard(
         ref={ref}
         flagProps={{ pinnedAt, type: postType }}
         bookmarked={post.bookmarked}
+        bookmarkNote={post.bookmark?.note}
       >
         {hiddenPanel}
       </FeedItemContainer>
@@ -156,6 +157,7 @@ export const FreeformList = forwardRef(function SharePostCard(
           : undefined
       }
       bookmarked={post.bookmarked}
+      bookmarkNote={post.bookmark?.note}
     >
       <CardContainer>
         <PostCardHeader

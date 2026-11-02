@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import type { PurchaseEvent } from '../../contexts/payment/StoreKit';
 import { DEFAULT_ERROR } from '../../graphql/common';
 import { promisifyEventListener } from '../../lib/func';
+import { getLogErrorDetails } from '../../lib/errors';
 import { LogEvent, purchaseTypeToTargetType } from '../../lib/log';
 import { SubscriptionProvider } from '../../lib/plus';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -60,37 +61,42 @@ export const useStoreKitPayment = ({
           ({ priceId }) => priceId === product?.attributes?.offerName,
         );
         switch (name) {
-          case PurchaseEventName.PurchaseCompleted:
+          case PurchaseEventName.PurchaseCompleted: {
+            const offer = product?.attributes?.offers?.[0];
             eventLoggerRef.current({
               event_name: LogEvent.CompleteCheckout,
               target_type: targetType,
               extra: JSON.stringify({
-                quantity: item.metadata.coresValue,
+                quantity: item?.metadata?.coresValue,
                 user_id: user?.id,
-                cycle: item.duration,
-                localCost: product.attributes.offers[0].price,
-                localCurrency: product.attributes.offers[0].currencyCode,
+                cycle: item?.duration,
+                localCost: offer?.price,
+                localCurrency: offer?.currencyCode,
                 payment: SubscriptionProvider.AppleStoreKit,
               }),
             });
             successCallbackRef.current?.(event);
             break;
+          }
           case PurchaseEventName.PurchaseInitiated:
             eventLoggerRef.current({
               event_name: LogEvent.InitiatePayment,
               target_type: targetType,
             });
             break;
-          case PurchaseEventName.PurchaseFailed:
+          case PurchaseEventName.PurchaseFailed: {
+            const error = getLogErrorDetails(detail);
             eventLoggerRef.current({
               event_name: LogEvent.ErrorCheckout,
               target_type: targetType,
               extra: JSON.stringify({
-                errorCode: detail,
+                errorCode: error?.code ?? error?.message,
+                error: error?.message,
               }),
             });
             displayToast(DEFAULT_ERROR);
             break;
+          }
           case PurchaseEventName.PurchasePending:
             displayToast('Please wait for the purchase to be completed.');
             break;
@@ -105,7 +111,11 @@ export const useStoreKitPayment = ({
     );
 
     return () => {
-      globalThis?.eventControllers?.[eventName]?.abort();
+      (
+        globalThis as typeof globalThis & {
+          eventControllers?: Partial<Record<string, AbortController | null>>;
+        }
+      ).eventControllers?.[eventName]?.abort();
     };
   }, [displayToast, products, targetType, user?.id]);
 

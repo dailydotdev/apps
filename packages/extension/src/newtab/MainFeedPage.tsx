@@ -21,13 +21,15 @@ import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { useShortcutLinks } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutLinks';
+import { useFeedWidgetShortcuts } from '@dailydotdev/shared/src/features/feedWidgets/feedState';
+import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
 import { FeedLayoutProvider } from '@dailydotdev/shared/src/contexts/FeedContext';
 import useCustomDefaultFeed from '@dailydotdev/shared/src/hooks/feed/useCustomDefaultFeed';
 import { DndBanner } from '@dailydotdev/shared/src/components/DndBanner';
 import ShortcutLinks from './ShortcutLinks/ShortcutLinks';
 import { ExtensionTopBanners } from './ExtensionTopBanners';
-import { ExtensionSignInStrip } from './ExtensionSignInStrip';
+import { ExtensionSignInContent } from './ExtensionSignInContent';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
 import { useCompanionSettings } from '../companion/useCompanionSettings';
 
@@ -46,7 +48,11 @@ export type MainFeedPageProps = {
   onPageChanged: (page: string) => unknown;
   initialPage?: string;
   shouldInitializeCurrentPage?: boolean;
-  shortcuts?: ReactNode;
+  // Cover strip for visitors who still need to log in or finish onboarding
+  // (the hijacking new tab). Laptop renders it above the feed card and puts
+  // the sign-in title and CTAs in the feed's page header; smaller screens
+  // render it in the feed's shortcuts slot.
+  loginStrip?: ReactNode;
 };
 
 const normalizePage = (page: string): string =>
@@ -70,7 +76,7 @@ const MainFeedPageInner = ({
   onPageChanged,
   initialPage,
   shouldInitializeCurrentPage = true,
-  shortcuts,
+  loginStrip,
 }: MainFeedPageProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { getFeatureValue } = useFeaturesReadyContext();
@@ -146,7 +152,18 @@ const MainFeedPageInner = ({
   // Mirror `ExtensionTopBanners`' "Add shortcuts" gate so the topBanner
   // shortcut row and the marketing CTA card are mutually exclusive.
   const { shortcutLinks } = useShortcutLinks();
-  const hasShortcutsToShow = showTopSites && (shortcutLinks?.length ?? 0) > 0;
+  // Where the rail shows the Shortcuts widget, the row and the "Add
+  // shortcuts" card step aside. A search from the header keeps the feed
+  // underneath, so the row holds still around it.
+  const { hasShortcuts: hasRailShortcuts, isPending: isRailPending } =
+    useFeedWidgetShortcuts(
+      getFeedName(isSearchOn ? normalizePage(feedName) : activePage, {
+        hasUser: !!user,
+      }),
+    );
+  const isShortcutsHidden = hasRailShortcuts || isRailPending;
+  const hasShortcutsToShow =
+    !isShortcutsHidden && showTopSites && (shortcutLinks?.length ?? 0) > 0;
 
   return (
     <>
@@ -166,13 +183,15 @@ const MainFeedPageInner = ({
           }
           topBanner={
             <>
-              <ExtensionSignInStrip />
+              {isLaptopLayout && loginStrip && (
+                <div className="mx-4 laptop:mx-0">{loginStrip}</div>
+              )}
               {isLaptopLayout && hasShortcutsToShow && (
                 <div className="mx-4 flex justify-center pt-2 laptop:mx-0 [&:empty]:hidden">
                   <ShortcutLinks shouldUseListFeedLayout={false} />
                 </div>
               )}
-              <ExtensionTopBanners />
+              {!isShortcutsHidden && <ExtensionTopBanners />}
             </>
           }
         >
@@ -182,6 +201,9 @@ const MainFeedPageInner = ({
               isSearchOn={isSearchOn}
               searchQuery={searchQuery}
               onNavTabClick={onNavTabClick}
+              pageHeaderContent={
+                !!loginStrip && !user && <ExtensionSignInContent />
+              }
               searchChildren={
                 <PostsSearch
                   onSubmitQuery={async (query, extraFlags) => {
@@ -205,11 +227,12 @@ const MainFeedPageInner = ({
               shortcuts={
                 isLaptopLayout
                   ? undefined
-                  : shortcuts ?? (
+                  : loginStrip ??
+                    (isShortcutsHidden ? undefined : (
                       <ShortcutLinks
                         shouldUseListFeedLayout={shouldUseListFeedLayout}
                       />
-                    )
+                    ))
               }
             />
           </FeedLayoutProvider>

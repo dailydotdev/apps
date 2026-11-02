@@ -17,7 +17,6 @@ import { useIsShortcutsHubEnabled } from '@dailydotdev/shared/src/features/short
 import { ShortcutLinksList } from './ShortcutLinksList';
 import { ShortcutGetStarted } from './ShortcutGetStarted';
 import { ShortcutLinksHub } from './ShortcutLinksHub';
-import { ShortcutImportFlow } from './ShortcutImportFlow';
 
 interface ShortcutLinksProps {
   shouldUseListFeedLayout: boolean;
@@ -144,24 +143,16 @@ function NewShortcutLinks({
 
   if (showOnboarding) {
     return (
-      <>
-        <ShortcutGetStarted
-          onTopSitesClick={toggleShowTopSites}
-          onCustomLinksClick={() =>
-            openModal({ type: LazyModal.ShortcutsManage })
-          }
-        />
-        <ShortcutImportFlow />
-      </>
+      <ShortcutGetStarted
+        onTopSitesClick={toggleShowTopSites}
+        onCustomLinksClick={() =>
+          openModal({ type: LazyModal.ShortcutsManage })
+        }
+      />
     );
   }
 
-  return (
-    <>
-      <ShortcutLinksHub shouldUseListFeedLayout={shouldUseListFeedLayout} />
-      <ShortcutImportFlow />
-    </>
-  );
+  return <ShortcutLinksHub shouldUseListFeedLayout={shouldUseListFeedLayout} />;
 }
 
 export default function ShortcutLinks(props: ShortcutLinksProps): ReactElement {

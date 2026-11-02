@@ -100,7 +100,7 @@ export const MentionedToolsWidget = ({
       }
 
       if (isToolInStack(tool.name)) {
-        router.push(`${webappUrl}${user.username}`);
+        router.push(`${webappUrl}${user.username || user.id}`);
         return;
       }
 

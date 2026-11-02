@@ -49,7 +49,7 @@ export const ProfileMenuHeader = ({
   return (
     <div className={classNames('relative flex items-center gap-2', className)}>
       {shouldOpenProfile && (
-        <Link href={`${webappUrl}${user.username}`} passHref>
+        <Link href={`${webappUrl}${user.username || user.id}`} passHref>
           <a aria-label="Open profile" className="absolute inset-0" />
         </Link>
       )}

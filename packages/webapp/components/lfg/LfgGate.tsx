@@ -7,15 +7,14 @@ import { getLayout as getFooterNavBarLayout } from '../layouts/FooterNavBarLayou
 import { getLayout } from '../layouts/MainLayout';
 import ProtectedPage from '../ProtectedPage';
 
-// Every Looking for group page: signed in, inside the flag, and knowing
-// whether connections are open before anything paints.
+// Every Looking for group page: signed in and inside the flag.
 export const LfgGate = ({
   children,
 }: {
-  children: (props: { isLaunched: boolean }) => ReactNode;
+  children: ReactNode;
 }): ReactElement | null => {
   const router = useRouter();
-  const { isEnabled, isGatedOut, isLaunched, isLaunchKnown } = useLfgEnabled();
+  const { isEnabled, isGatedOut } = useLfgEnabled();
 
   useEffect(() => {
     if (isGatedOut) {
@@ -27,11 +26,7 @@ export const LfgGate = ({
     return null;
   }
 
-  return (
-    <ProtectedPage>
-      {isEnabled && isLaunchKnown && children({ isLaunched })}
-    </ProtectedPage>
-  );
+  return <ProtectedPage>{isEnabled && children}</ProtectedPage>;
 };
 
 export const getLfgLayout: typeof getLayout = (...props) =>

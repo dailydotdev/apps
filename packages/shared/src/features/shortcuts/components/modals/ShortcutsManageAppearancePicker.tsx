@@ -8,9 +8,11 @@ import { SectionHeader } from './ShortcutsManageCommon';
 export function AppearancePicker({
   value,
   onChange,
+  description,
 }: {
   value: ShortcutsAppearance;
   onChange: (next: ShortcutsAppearance) => void;
+  description: string;
 }): ReactElement {
   const options: Array<{
     id: ShortcutsAppearance;
@@ -67,10 +69,7 @@ export function AppearancePicker({
   return (
     <fieldset className="flex flex-col gap-2">
       <legend className="contents">
-        <SectionHeader
-          title="Appearance"
-          description="How the row renders on the new-tab page."
-        />
+        <SectionHeader title="Appearance" description={description} />
       </legend>
       <div
         className="grid grid-cols-3 gap-2"

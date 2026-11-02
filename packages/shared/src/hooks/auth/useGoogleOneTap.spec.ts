@@ -1,5 +1,12 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { useGoogleOneTap } from './useGoogleOneTap';
+import { LogEvent } from '../../lib/log';
+import { GSI_SCRIPT_ID } from '../../types';
+
+const mockLogEvent = jest.fn();
+jest.mock('../../contexts/LogContext', () => ({
+  useLogContext: () => ({ logEvent: mockLogEvent }),
+}));
 
 type Callback = (response: { credential?: string }) => void;
 
@@ -111,5 +118,35 @@ describe('useGoogleOneTap', () => {
     await waitFor(() => expect(prompt).toHaveBeenCalled());
     unmount();
     expect(cancel).toHaveBeenCalled();
+  });
+
+  it('should log a dedicated event when the GSI script fails to load', async () => {
+    setGoogleGlobal(false);
+    document.getElementById(GSI_SCRIPT_ID)?.remove();
+    renderHook(() =>
+      useGoogleOneTap({
+        enabled: true,
+        clientId: 'client-123',
+        onCredential: jest.fn(),
+      }),
+    );
+
+    const script = document.getElementById(GSI_SCRIPT_ID);
+    expect(script).not.toBeNull();
+    script?.dispatchEvent(new Event('error'));
+
+    await waitFor(() =>
+      expect(mockLogEvent).toHaveBeenCalledWith({
+        event_name: LogEvent.GoogleOneTapLoadError,
+        extra: JSON.stringify({
+          msg: 'Failed to load Google Identity Services',
+        }),
+      }),
+    );
+    expect(mockLogEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({ event_name: LogEvent.GlobalError }),
+    );
+    expect(initialize).not.toHaveBeenCalled();
+    script?.remove();
   });
 });

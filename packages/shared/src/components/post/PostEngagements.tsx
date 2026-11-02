@@ -31,6 +31,7 @@ import { TimeSortIcon } from '../icons/Sort/Time';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import SocialBar from '../cards/socials/SocialBar';
 import { PostContentReminder } from './common/PostContentReminder';
+import { PostContentBookmarkNote } from './common/PostContentBookmarkNote';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useOpenPostCommentRequest } from '../../hooks/post/useOpenPostCommentRequest';
 import { usePostComments } from '../../hooks/comments/usePostComments';
@@ -146,6 +147,7 @@ function PostEngagements({
         className={actionsClassName}
       />
       <PostContentReminder post={post} />
+      <PostContentBookmarkNote post={post} />
       <PostContentShare post={post} />
       {showSocialBar && <SocialBar post={post} className="mt-6" />}
       {commentsCount > 0 && (

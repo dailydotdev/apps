@@ -15,6 +15,11 @@ import { LockIcon } from '../../../components/icons/Lock';
 import { AdGrid } from '../../../components/cards/ad/AdGrid';
 import { PlaceholderGrid } from '../../../components/cards/placeholder/PlaceholderGrid';
 import { useInertRef } from '../FeedWidgetFrame';
+import {
+  FeedWidgetBoostedAd,
+  isBoostedPostCreative,
+  isBoostedSquadCreative,
+} from './FeedWidgetBoostedAd';
 
 /**
  * The third slot of the rail: ours. Always Tall, never in the reader's list,
@@ -63,6 +68,40 @@ export const FeedWidgetAdSlot = ({
     ad.impressionStatus = ImpressionStatus.LOGGED;
   }, [ad, inView, onAdAction]);
 
+  const onViewable = (data: ViewabilityData) =>
+    onAdAction(AdActions.Viewable, viewabilityLogExtra(data));
+  const isBoost =
+    !!ad && (isBoostedPostCreative(ad) || isBoostedSquadCreative(ad));
+  let content: ReactElement = <PlaceholderGrid className="flex-1" />;
+
+  if (ad && isBoost) {
+    // A boost carries the post or squad, not a creative: the feed's boosted
+    // card, sized to the slot.
+    content = (
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden [&>*]:flex-1">
+        <FeedWidgetBoostedAd
+          ad={ad}
+          onClick={() => onAdAction(AdActions.Click)}
+          onViewable={onViewable}
+        />
+      </div>
+    );
+  } else if (ad) {
+    // The feed's own ad card, so the slot reads as the ad it replaces.
+    content = (
+      <AdGrid
+        ad={ad}
+        index={0}
+        feedIndex={0}
+        disableRotation
+        isCompact={isCompact}
+        domProps={{ className: 'flex-1' }}
+        onLinkClick={() => onAdAction(AdActions.Click)}
+        onViewable={(_, data: ViewabilityData) => onViewable(data)}
+      />
+    );
+  }
+
   return (
     <div
       ref={inViewRef}
@@ -74,23 +113,7 @@ export const FeedWidgetAdSlot = ({
       data-testid="feedWidgetAdSlot"
     >
       <div ref={contentRef} className="contents">
-        {ad ? (
-          // The feed's own ad card, so the slot reads as the ad it replaces.
-          <AdGrid
-            ad={ad}
-            index={0}
-            feedIndex={0}
-            disableRotation
-            isCompact={isCompact}
-            domProps={{ className: 'flex-1' }}
-            onLinkClick={() => onAdAction(AdActions.Click)}
-            onViewable={(_, data: ViewabilityData) =>
-              onAdAction(AdActions.Viewable, viewabilityLogExtra(data))
-            }
-          />
-        ) : (
-          <PlaceholderGrid className="flex-1" />
-        )}
+        {content}
       </div>
       {isEditing && (
         // Under a tip the slot's corner is the strip's edge, so the label

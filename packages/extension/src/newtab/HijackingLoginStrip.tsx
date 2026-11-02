@@ -12,7 +12,6 @@ import {
   ProfilePicture,
 } from '@dailydotdev/shared/src/components/ProfilePicture';
 import {
-  OnboardingActions,
   providerMap,
   type SocialProvider,
 } from '@dailydotdev/shared/src/components/auth/common';
@@ -24,25 +23,8 @@ import { onboardingGradientClasses } from '@dailydotdev/shared/src/components/on
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
-import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
-import feedStyles from '@dailydotdev/shared/src/components/Feed.module.css';
-
-// The extension can't run social OAuth from its own origin (the API rejects it
-// with a 403), so auth is handed off to the webapp onboarding flow, which runs
-// on a trusted origin and auto-triggers the relevant auth screen.
-const buildOnboardingHref = (action?: OnboardingActions): string => {
-  const base = new URL(onboardingUrl);
-  base.searchParams.append('r', 'extension');
-  if (action) {
-    base.searchParams.append('action', action);
-  }
-
-  return base.toString();
-};
-
-const onboardingHref = buildOnboardingHref();
-const loginHref = buildOnboardingHref(OnboardingActions.Login);
+import { loginHref, onboardingHref } from './onboardingHref';
 
 const COPY = {
   heading: 'Unlock the full daily.dev experience',
@@ -106,7 +88,7 @@ function CoverStrip({
     <HijackingCoverStrip
       copy={{ heading: COPY.heading, body: copy.body }}
       actions={action}
-      className={classNames('mb-4', feedStyles.cards)}
+      className="mb-4"
       sizer={<CoverStripSizer isLoggedOut={isLoggedOut} />}
     />
   );
@@ -186,7 +168,7 @@ export default function HijackingLoginStrip(): ReactElement {
 
   if (hasContinueAs && signBack) {
     return (
-      <section className={classNames('mb-4 w-full pb-0', feedStyles.cards)}>
+      <section className="mb-4 w-full pb-0">
         <div className="relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 shadow-2">
           <div className="top-hero-aurora pointer-events-none absolute inset-0" />
           <div className="dark relative z-1">

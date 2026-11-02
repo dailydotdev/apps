@@ -37,7 +37,7 @@ interface CardHeaderProps {
   flagProps?: FlagProps;
   showFeedback?: boolean;
   primaryAction?: ReactNode;
-  /** `card_save_on_hover`: the bookmark, right before ⋯. */
+  /** Grid cards: the bookmark, right before ⋯. */
   bookmark?: ReactNode;
 }
 

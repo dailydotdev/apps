@@ -3,6 +3,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { AdActions } from '../../lib/ads';
 import { LogEvent, TargetType } from '../../lib/log';
 import type { ExcoEventData, ExcoEventName } from './exco';
+import { getExcoErrorMessage } from './exco';
 import type { ExcoPlayerFailure } from './ExcoPlayer';
 import { useViewability } from './useViewability';
 import { videoCriteria, viewabilityLogExtra } from './viewability';
@@ -21,7 +22,7 @@ interface UseExcoPlayerLogging {
     data: ExcoEventData,
     element: HTMLElement,
   ) => void;
-  onError: (reason: ExcoPlayerFailure) => void;
+  onError: (reason: ExcoPlayerFailure, error?: string) => void;
 }
 
 const adQuartiles: Partial<Record<ExcoEventName, number>> = {
@@ -40,6 +41,15 @@ const contentExtra = (data: ExcoEventData): Record<string, unknown> => ({
   content_id: data.id,
   title: data.title,
   duration: data.duration,
+});
+
+/**
+ * The error, plus the payload's field names while EX.CO's error payloads
+ * stay undocumented, so a missing message can still be traced.
+ */
+const errorExtra = (data: ExcoEventData): Record<string, unknown> => ({
+  error: getExcoErrorMessage(data) ?? null,
+  error_fields: Object.keys(data).sort().join(','),
 });
 
 const adExtra = (data: ExcoEventData): Record<string, unknown> => ({
@@ -178,8 +188,8 @@ export const useExcoPlayerLogging = ({
       case 'content-error':
         logPlayerEvent(LogEvent.VideoPlayerError, {
           reason: 'content_error',
-          error: String(data.error),
           ...contentExtra(data),
+          ...errorExtra(data),
         });
         break;
       case 'cta-clicked':
@@ -237,7 +247,7 @@ export const useExcoPlayerLogging = ({
         setAdPlaying(false);
         logSlotEvent(LogEvent.AdSlotError, {
           error_type: 'ad_error',
-          error: String(data.error),
+          ...errorExtra(data),
         });
         break;
       case 'slot-end':
@@ -248,8 +258,17 @@ export const useExcoPlayerLogging = ({
     }
   };
 
-  const onError = (reason: ExcoPlayerFailure) =>
-    logPlayerEvent(LogEvent.VideoPlayerError, { reason });
+  // A blocked script is a content blocker in the reader's browser, not a
+  // player failure: it never loads for that reader (Oct 2026: 3 of ~1.1K
+  // blocked readers ever loaded it). It gets its own event so the error rate
+  // tracks the failures we can act on.
+  const onError = (reason: ExcoPlayerFailure, error?: string) =>
+    logPlayerEvent(
+      reason === 'blocked'
+        ? LogEvent.VideoPlayerBlocked
+        : LogEvent.VideoPlayerError,
+      { reason, error: error ?? null },
+    );
 
   return { onEvent, onError };
 };

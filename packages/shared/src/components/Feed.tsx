@@ -18,6 +18,7 @@ import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
 import SettingsContext from '../contexts/SettingsContext';
 import useFeedOnPostClick from '../hooks/feed/useFeedOnPostClick';
+import { PostModalMap } from './modals/PostModalMap';
 import type { PostLocation } from '../hooks/feed/useFeedContextMenu';
 import useFeedContextMenu from '../hooks/feed/useFeedContextMenu';
 import useFeedInfiniteScroll, {
@@ -72,7 +73,7 @@ import { useHasIntroQuests } from '../hooks/useHasIntroQuests';
 import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
-import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
+import { FeedPromoBannerSlot } from './plus/FeedPromoBannerSlot';
 import { ActionType } from '../graphql/actions';
 import ReadingReminderFeedHero from './marketing/banners/ReadingReminderFeedHero';
 import { TopHero } from './marketing/banners/HeroBottomBanner';
@@ -107,6 +108,8 @@ export interface FeedProps<T>
   disableHighlightCards?: boolean;
   /** The surface owns the top slot, so the feed must not render or measure its own hero. */
   disableTopHero?: boolean;
+  /** The top content stacks under the feed's own hero instead of replacing it. */
+  keepTopHero?: boolean;
   /** The surface shows an ad above the feed, so drop the grid's first one. */
   skipFirstAd?: boolean;
   /** The surface leads with a featured card, so keep wide ones out of row one. */
@@ -121,6 +124,10 @@ export interface FeedProps<T>
   feedContainerRef?: React.Ref<HTMLDivElement>;
   disableListFrame?: boolean;
   topContent?: ReactNode;
+  /** Rendered after the last post once the feed cannot fetch more. */
+  footer?: ReactNode;
+  /** Shown instead of the feed when its first page fails to load. */
+  errorScreen?: ReactNode;
   /**
    * Search feeds only: correlation id for the query execution and the backend
    * search version behind it. Both ride along on every engagement event so the
@@ -128,45 +135,20 @@ export interface FeedProps<T>
    */
   searchId?: string;
   searchVersion?: number;
+  /** Debug mode: each card's explanation covers it. */
+  isExplaining?: boolean;
+  /** The post menu explains a post on request, outside Debug mode. */
+  canExplainPosts?: boolean;
 }
 
 interface RankVariables {
   ranking?: string;
 }
 
-const ArticlePostModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "articlePostModal" */ './modals/ArticlePostModal'
-    ),
-);
-const SharePostModal = dynamic(
-  () =>
-    import(/* webpackChunkName: "sharePostModal" */ './modals/SharePostModal'),
-);
-const CollectionPostModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "collectionPostModal" */ './modals/CollectionPostModal'
-    ),
-);
-
-const BriefPostModal = dynamic(
-  () =>
-    import(/* webpackChunkName: "briefPostModal" */ './modals/BriefPostModal'),
-);
-
-const PollPostModal = dynamic(
-  () =>
-    import(/* webpackChunkName: "pollPostModal" */ './modals/PollPostModal'),
-);
-
-const SocialTwitterPostModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "socialTwitterPostModal" */ './modals/SocialTwitterPostModal'
-    ),
-);
+interface ExplainVariables {
+  version?: number;
+  supportedTypes?: string[];
+}
 
 const BriefCardFeed = dynamic(
   () =>
@@ -181,19 +163,6 @@ const ProfileCompletionCard = dynamic(
       /* webpackChunkName: "profileCompletionCard" */ './cards/ProfileCompletionCard'
     ),
 );
-
-export const PostModalMap: Partial<Record<PostType, typeof ArticlePostModal>> =
-  {
-    [PostType.Article]: ArticlePostModal,
-    [PostType.Share]: SharePostModal,
-    [PostType.Freeform]: SharePostModal,
-    [PostType.VideoYouTube]: ArticlePostModal,
-    [PostType.Collection]: CollectionPostModal,
-    [PostType.Brief]: BriefPostModal,
-    [PostType.Digest]: ArticlePostModal,
-    [PostType.Poll]: PollPostModal,
-    [PostType.SocialTwitter]: SocialTwitterPostModal,
-  };
 
 export default function Feed<T>({
   feedName,
@@ -213,6 +182,7 @@ export default function Feed<T>({
   disableAds,
   disableHighlightCards,
   disableTopHero,
+  keepTopHero = false,
   skipFirstAd,
   deferWideCards,
   excludedPostIds,
@@ -225,8 +195,12 @@ export default function Feed<T>({
   disableListFrame = false,
   excludePinnedPosts = false,
   topContent: topContentProp,
+  footer,
+  errorScreen,
   searchId,
   searchVersion,
+  isExplaining = false,
+  canExplainPosts = false,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { logEvent } = useLogContext();
@@ -349,6 +323,7 @@ export default function Feed<T>({
     bannerInsertions,
     updatePost,
     removePost,
+    getPageRequest,
     fetchPage,
     canFetchMore: queryCanFetchMore,
     emptyFeed,
@@ -513,6 +488,27 @@ export default function Feed<T>({
     [items, removePost],
   );
 
+  const { version: feedVersion, supportedTypes } =
+    (variables as ExplainVariables) || {};
+  // The feed service finds a post by its page's request: the hash of what the
+  // page was asked with, page size included, and the generation in its cursor.
+  const getExplainRequest = useCallback(
+    (postId: string) => {
+      if (!canExplainPosts || !feedVersion) {
+        return undefined;
+      }
+      const postItem = items.find(
+        (item): item is PostItem =>
+          item.type === 'post' && item.post.id === postId,
+      );
+      const pageRequest = postItem && getPageRequest(postItem.page);
+      return (
+        pageRequest && { version: feedVersion, supportedTypes, ...pageRequest }
+      );
+    },
+    [canExplainPosts, feedVersion, supportedTypes, items, getPageRequest],
+  );
+
   const feedContextValue = useMemo(() => {
     return {
       queryKey: feedQueryKey,
@@ -521,8 +517,17 @@ export default function Feed<T>({
       allowPin,
       origin,
       onRemovePost,
+      getExplainRequest,
     };
-  }, [feedQueryKey, items, logOpts, allowPin, origin, onRemovePost]);
+  }, [
+    feedQueryKey,
+    items,
+    logOpts,
+    allowPin,
+    origin,
+    onRemovePost,
+    getExplainRequest,
+  ]);
 
   const { ranking } = (variables as RankVariables) || {};
 
@@ -707,6 +712,10 @@ export default function Feed<T>({
     }
   };
 
+  if (errorScreen && feedError && !items.length) {
+    return <>{errorScreen}</>;
+  }
+
   if (isError) {
     return <FeedErrorScreen error={feedError} />;
   }
@@ -722,22 +731,31 @@ export default function Feed<T>({
   const FeedWrapperComponent = isSearchPageLaptop
     ? SearchResultsLayout
     : FeedContainer;
-  const showReadingReminder = shouldShowTopHero && !topContentProp;
+  const showReadingReminder =
+    shouldShowTopHero && (keepTopHero || !topContentProp);
+  const inlineReadingReminder =
+    showReadingReminder && !isLaptopLayout ? (
+      <ReadingReminderFeedHero
+        className="pt-2"
+        title={readingReminderTitle}
+        subtitle={readingReminderSubtitle}
+        ctaLabel={readingReminderCtaLabel}
+        onCtaClick={onEnableHero}
+        onClose={onDismissHero}
+      />
+    ) : undefined;
   const containerProps = isSearchPageLaptop
     ? {}
     : {
         topContent:
-          topContentProp ??
-          (showReadingReminder && !isLaptopLayout ? (
-            <ReadingReminderFeedHero
-              className="pt-2"
-              title={readingReminderTitle}
-              subtitle={readingReminderSubtitle}
-              ctaLabel={readingReminderCtaLabel}
-              onCtaClick={onEnableHero}
-              onClose={onDismissHero}
-            />
-          ) : undefined),
+          keepTopHero && inlineReadingReminder ? (
+            <>
+              {inlineReadingReminder}
+              {topContentProp}
+            </>
+          ) : (
+            topContentProp ?? inlineReadingReminder
+          ),
         header,
         inlineHeader,
         className,
@@ -803,6 +821,7 @@ export default function Feed<T>({
                   disableAdRefresh={disableAdRefresh}
                   wideColSpan={wideColSpan}
                   searchLogExtra={searchLogExtra}
+                  isExplaining={isExplaining}
                 />
               );
 
@@ -813,10 +832,11 @@ export default function Feed<T>({
                     boostedBy: isBoostedPostAd(item)
                       ? item.ad.data?.post?.author || item.ad.data?.post?.scout
                       : undefined,
+                    isAd: item.type === 'ad',
                   }}
                 >
                   {showPromoBanner && index === indexWhenShowingPromoBanner && (
-                    <BriefBannerFeed
+                    <FeedPromoBannerSlot
                       style={{
                         gridColumn: !shouldUseListFeedLayout
                           ? `span ${virtualizedNumCards}`
@@ -840,6 +860,9 @@ export default function Feed<T>({
             })}
             {!isFetching && !isInitialLoading && !isHorizontal && (
               <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
+            )}
+            {!!footer && !canFetchMore && !isFetching && !isInitialLoading && (
+              <div className="col-span-full">{footer}</div>
             )}
             {selectedPost &&
               PostModal &&

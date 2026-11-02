@@ -293,6 +293,9 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     }
     bookmark {
       remindAt
+      archivedAt
+      note
+      read
     }
     author {
       id
@@ -390,6 +393,9 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     creatorTwitterImage
     bookmark {
       remindAt
+      archivedAt
+      note
+      read
     }
     scout {
       ...UserAuthor

@@ -112,4 +112,47 @@ describe('FormInputCheckboxGroup', () => {
     const firstOption = screen.getByLabelText('Option 1');
     expect(firstOption).toBeChecked();
   });
+
+  it('does not render a selection mark unless asked for', () => {
+    const { rerender } = render(
+      <FormInputCheckboxGroup
+        name="test-group"
+        options={[{ label: 'Option 2', value: 'option2' }]}
+        defaultValue={['option2']}
+      />,
+    );
+
+    expect(screen.getByRole('checkbox').querySelector('svg')).toBeNull();
+
+    rerender(
+      <FormInputCheckboxGroup
+        name="test-group"
+        options={[{ label: 'Option 2', value: 'option2' }]}
+        defaultValue={['option2']}
+        hasSelectionMark
+      />,
+    );
+
+    expect(screen.getByRole('checkbox').querySelector('svg')).not.toBeNull();
+  });
+
+  it('includes the badge in the accessible name', () => {
+    render(
+      <FormInputCheckboxGroup
+        name="test-group"
+        options={[
+          {
+            label: '15 min a day',
+            hint: '15 min',
+            badge: 'Top pick',
+            value: 'fifteen',
+          },
+        ]}
+      />,
+    );
+
+    expect(
+      screen.getByRole('checkbox', { name: '15 min a day, 15 min, Top pick' }),
+    ).toBeInTheDocument();
+  });
 });

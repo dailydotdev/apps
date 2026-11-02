@@ -55,7 +55,7 @@ const profileFor = (person) => {
     profiles.set(person.id, {
       id: `storybook-user-${n + 1}`,
       name: names[n % names.length],
-      image: `https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/${(n % 8) + 1}`,
+      image: `https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/${(n % 8) + 1}`,
       permalink: `https://app.daily.dev/${username}`,
       username,
       bio: null,

@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import { ProfileImageSize, ProfilePicture } from '../../../ProfilePicture';
 import { CardHeader } from '../../common/Card';
 import type { Ad } from '../../../../graphql/posts';
@@ -11,19 +11,29 @@ import { getAdFaviconImageLink } from './getAdFaviconImageLink';
 type AdFaviconProps = {
   ad: Ad;
   className?: string;
+  /** Medium everywhere but the list card, which matches a post's source. */
+  size?: ProfileImageSize.Medium | ProfileImageSize.Large;
+  /** What shares the header row with the favicon, such as an options menu. */
+  children?: ReactNode;
 };
-export const AdFavicon = ({ ad, className }: AdFaviconProps): ReactElement => {
+
+export const AdFavicon = ({
+  ad,
+  className,
+  size = ProfileImageSize.Medium,
+  children,
+}: AdFaviconProps): ReactElement => {
   const adImprovementsV3 = useFeature(adImprovementsV3Feature);
   const imageLink = getAdFaviconImageLink({
     ad,
     adImprovementsV3,
-    size: 24,
+    size: size === ProfileImageSize.Large ? 40 : 24,
   });
   return (
     <CardHeader className={className}>
       <ProfilePicture
         rounded="full"
-        size={ProfileImageSize.Medium}
+        size={size}
         fallbackSrc={adFaviconPlaceholder}
         user={{
           id: ad.link,
@@ -32,6 +42,9 @@ export const AdFavicon = ({ ad, className }: AdFaviconProps): ReactElement => {
         }}
         nativeLazyLoading
       />
+      {/* The header's own `> button` margin beats ml-auto on the button
+          itself; the row keeps the actions right, as a post card's does. */}
+      {children && <div className="ml-auto flex">{children}</div>}
     </CardHeader>
   );
 };

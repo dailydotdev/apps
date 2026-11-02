@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { isTesting } from '../../lib/constants';
+import { getLogErrorDetails } from '../../lib/errors';
 import type {
   ExcoEventData,
   ExcoEventName,
@@ -32,8 +33,11 @@ export interface ExcoPlayerProps {
     data: ExcoEventData,
     element: HTMLElement,
   ) => void;
-  /** The player renders nothing after a failure. */
-  onError?: (reason: ExcoPlayerFailure) => void;
+  /**
+   * The player renders nothing after a failure. `error` is the underlying
+   * error's message, when there is one.
+   */
+  onError?: (reason: ExcoPlayerFailure, error?: string) => void;
 }
 
 // The selector EX.CO binds an instance to, and its key for that instance, so
@@ -126,10 +130,10 @@ export function ExcoPlayer({
       });
     };
 
-    const settled = setup().catch(() => {
+    const settled = setup().catch((error: unknown) => {
       if (!isUnmounted) {
         setHasFailed(true);
-        onErrorRef.current?.(stage);
+        onErrorRef.current?.(stage, getLogErrorDetails(error)?.message);
       }
     });
 

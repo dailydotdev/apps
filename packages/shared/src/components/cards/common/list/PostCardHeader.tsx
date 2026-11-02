@@ -57,6 +57,7 @@ export const PostCardHeader = ({
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
   const postButtonText = useReadPostButtonText(post);
+  const readText = readButtonContent ?? postButtonText;
   const { onReadClick: onReaderInstallGateClick } =
     useReaderInstallPromptGate(post);
   const handleReadArticleClick = (event: React.MouseEvent) => {
@@ -113,8 +114,8 @@ export const PostCardHeader = ({
               {showCTA &&
                 (primaryAction ?? (
                   <ReadArticleButton
-                    content={readButtonContent ?? postButtonText ?? ''}
-                    className="mr-2"
+                    content={readText}
+                    className={classNames(readText && 'mr-2')}
                     variant={ButtonVariant.Tertiary}
                     icon={readButtonIcon ?? <OpenLinkIcon />}
                     href={postLink ?? ''}

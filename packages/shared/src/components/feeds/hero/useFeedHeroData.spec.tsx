@@ -68,3 +68,34 @@ it('should lead with the first post it fetched when nothing was cached', async (
 
   await waitFor(() => expect(result.current.leadPost?.id).toEqual('first'));
 });
+
+it('should draw the lead from any of the posts', async () => {
+  const random = jest.spyOn(Math, 'random').mockReturnValue(0.7);
+  mockHero([post('first'), post('second'), post('third')]);
+
+  const { result } = renderData();
+
+  await waitFor(() => expect(result.current.leadPost?.id).toEqual('third'));
+  random.mockRestore();
+});
+
+it('should keep the drawn lead while the refetch still has it', async () => {
+  const random = jest.spyOn(Math, 'random').mockReturnValue(0.5);
+  storageWrapper.setItem(
+    cacheKey,
+    JSON.stringify({
+      data: { feedHero: { posts: [post('a'), post('b')], highlights: [] } },
+      savedAt: 0,
+    }),
+  );
+  mockHero([post('c'), post('b'), post('d')]);
+
+  const { result } = renderData();
+
+  expect(result.current.leadPost?.id).toEqual('b');
+  random.mockReturnValue(0);
+  await waitFor(() => expect(result.current.isLeadFresh).toBe(true));
+  expect(result.current.leadPost?.id).toEqual('b');
+  expect(result.current.shownLeadIds).toEqual(['b']);
+  random.mockRestore();
+});

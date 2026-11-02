@@ -27,6 +27,7 @@ import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
 import { Loader } from '../Loader';
 import { labels } from '../../lib';
 import { generateNameFromEmail } from '../../lib/strings';
+import { onValidateHandles } from '../../hooks/useProfileForm';
 import SignupDisclaimer from './SignupDisclaimer';
 import {
   FunnelGlassBar,
@@ -103,7 +104,7 @@ export const SocialRegistrationForm = ({
   };
 
   useEffect(() => {
-    if (Object.keys(hints).length) {
+    if (Object.values(hints ?? {}).some(Boolean)) {
       logError(hints);
     }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
@@ -134,21 +135,46 @@ export const SocialRegistrationForm = ({
       return;
     }
 
+    const invalidFields: string[] = [];
+
     if (!submittedName) {
       logError('Name not provided');
-      setNameHint('Please prove your name');
-      return;
+      setNameHint('Please provide your name');
+      invalidFields.push('name');
     }
 
     if (!values.username) {
       logError('Username not provided');
       setUsernameHint('Please choose a username');
-      return;
+      invalidFields.push('username');
+    } else {
+      const { username: usernameError } = onValidateHandles(
+        {},
+        { username: values.username },
+      );
+      if (usernameError) {
+        logError({ username: usernameError });
+        setUsernameHint(usernameError);
+        invalidFields.push('username');
+      }
     }
 
     if (!values.experienceLevel?.length) {
       logError('Experience level not provided');
       setExperienceLevelHint('Please select your experience level');
+      invalidFields.push('experienceLevel');
+    }
+
+    if (invalidFields.length) {
+      const firstInvalid = (
+        formRef?.current ?? form
+      ).querySelector<HTMLElement>(
+        invalidFields[0] === 'experienceLevel'
+          ? '[data-field="experienceLevel"] button'
+          : `#${invalidFields[0]}`,
+      );
+      firstInvalid?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      firstInvalid?.focus({ preventScroll: true });
       return;
     }
 
@@ -272,9 +298,14 @@ export const SocialRegistrationForm = ({
             : hints?.username || usernameHint
         }
         onBlur={(e) => setUsername(e.target.value)}
-        valueChanged={() =>
-          hints?.[username] && onUpdateHints({ ...hints, username: '' })
-        }
+        valueChanged={() => {
+          if (hints?.username) {
+            onUpdateHints?.({ ...hints, username: '' });
+          }
+          if (usernameHint) {
+            setUsernameHint('');
+          }
+        }}
         rightIcon={isLoadingUsername ? <Loader /> : null}
       />
       <ExperienceLevelDropdown

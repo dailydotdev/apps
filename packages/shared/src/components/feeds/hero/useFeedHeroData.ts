@@ -42,8 +42,32 @@ const readCachedFeedHero = (userId?: string): CachedFeedHero | undefined => {
  */
 const shownLeads = new Map<string, string[]>();
 
+/**
+ * The lead drawn for each reader this page load. Any of the hero's posts can
+ * lead, so the top story changes from load to load rather than sitting on the
+ * strongest post until it ages out; the draw holds while that post is still in
+ * the payload, so a refetch does not swap the card under the reader.
+ */
+const pickedLeads = new Map<string, string>();
+
+const pickLead = (readerKey: string, posts: Post[]): Post | undefined => {
+  if (!posts.length) {
+    return undefined;
+  }
+  const picked = posts.find(({ id }) => id === pickedLeads.get(readerKey));
+  if (picked) {
+    return picked;
+  }
+  const lead = posts[Math.floor(Math.random() * posts.length)];
+  pickedLeads.set(readerKey, lead.id);
+  return lead;
+};
+
 /** A fresh session's leads, for tests that render several sessions. */
-export const clearShownFeedHeroLeads = (): void => shownLeads.clear();
+export const clearShownFeedHeroLeads = (): void => {
+  shownLeads.clear();
+  pickedLeads.clear();
+};
 
 /**
  * The hero's one query, shared by the hero section and the top story and
@@ -109,8 +133,8 @@ export const useFeedHeroData = ({
   }, [data, dataUpdatedAt, isFetchedAfterMount, user?.id]);
 
   const posts = data?.feedHero?.posts ?? empty;
-  const leadPost = posts[0];
   const readerKey = user?.id ?? 'anonymous';
+  const leadPost = pickLead(readerKey, posts);
   const shown = shownLeads.get(readerKey) ?? empty;
   if (leadPost && !shown.includes(leadPost.id)) {
     shownLeads.set(readerKey, [...shown, leadPost.id]);

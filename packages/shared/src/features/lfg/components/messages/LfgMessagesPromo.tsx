@@ -30,27 +30,25 @@ import { useLfgEnabled } from '../../hooks/useLfgEnabled';
 export const LfgMessagesPromo = (): ReactElement | null => {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
-  const { isEnabled, isLaunched, isLaunchKnown } = useLfgEnabled();
+  const { isEnabled } = useLfgEnabled();
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const isDismissed = checkHasCompleted(ActionType.DismissLfgMessagesPromo);
   const canShow = isEnabled && isActionsFetched && !isDismissed;
   const { data: myPost, isPending } = useQuery(
     myLfgPostQueryOptions(user, { enabled: canShow }),
   );
-  const isVisible = canShow && isLaunchKnown && !isPending && !myPost;
-  const extra = JSON.stringify({ launched: isLaunched });
+  const isVisible = canShow && !isPending && !myPost;
 
-  useLogEventOnce(
-    () => ({ event_name: LogEvent.ImpressionLfgMessagesPromo, extra }),
-    { condition: isVisible },
-  );
+  useLogEventOnce(() => ({ event_name: LogEvent.ImpressionLfgMessagesPromo }), {
+    condition: isVisible,
+  });
 
   if (!isVisible) {
     return null;
   }
 
   const onDismiss = () => {
-    logEvent({ event_name: LogEvent.DismissLfgMessagesPromo, extra });
+    logEvent({ event_name: LogEvent.DismissLfgMessagesPromo });
     completeAction(ActionType.DismissLfgMessagesPromo);
   };
 
@@ -81,7 +79,7 @@ export const LfgMessagesPromo = (): ReactElement | null => {
           variant={ButtonVariant.Secondary}
           size={ButtonSize.Small}
           onClick={() =>
-            logEvent({ event_name: LogEvent.ClickLfgMessagesPromo, extra })
+            logEvent({ event_name: LogEvent.ClickLfgMessagesPromo })
           }
         >
           Find your people

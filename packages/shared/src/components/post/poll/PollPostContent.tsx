@@ -29,6 +29,7 @@ import { Typography, TypographyType } from '../../typography/Typography';
 import { DiscussIcon } from '../../icons';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import type { Post } from '../../../graphql/posts';
+import { getPostWidgetsClassName } from '../common';
 
 type PollPostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
@@ -48,6 +49,7 @@ function PollPostContentRaw({
   onClose,
   isBannerVisible,
   isPostPage,
+  belowComments,
   shouldTrackView = true,
 }: PollPostContentRawProps): ReactElement {
   const [justVoted, setJustVoted] = useState(false);
@@ -165,6 +167,7 @@ function PollPostContentRaw({
             },
           }}
           isPostPage={isPostPage}
+          belowComments={belowComments}
           isFallback={isFallback}
           customNavigation={customNavigation}
           shouldOnboardAuthor={shouldOnboardAuthor}
@@ -271,7 +274,10 @@ function PollPostContentRaw({
         onCopyPostLink={onCopyPostLink}
         onReadArticle={onReadArticle}
         post={post}
-        className="mb-6 !gap-2 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0"
+        className={getPostWidgetsClassName(
+          'mb-6 !gap-2 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0',
+          !!belowComments,
+        )}
         onClose={onClose}
         origin={origin}
       />

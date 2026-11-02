@@ -12,11 +12,10 @@ import { FeedWidgetIcon } from './registry';
  * `pointer-events-auto`, and the keyboard. Set as a property because React 18
  * does not carry the attribute.
  */
-export const useInertRef = <T extends HTMLElement>(
+export const useInert = <T extends HTMLElement>(
+  ref: RefObject<T>,
   isInert: boolean,
-): RefObject<T> => {
-  const ref = useRef<T>(null);
-
+): void => {
   useEffect(() => {
     const node = ref.current;
     if (!node) {
@@ -27,7 +26,14 @@ export const useInertRef = <T extends HTMLElement>(
     return () => {
       node.inert = false;
     };
-  }, [isInert]);
+  }, [ref, isInert]);
+};
+
+export const useInertRef = <T extends HTMLElement>(
+  isInert: boolean,
+): RefObject<T> => {
+  const ref = useRef<T>(null);
+  useInert(ref, isInert);
 
   return ref;
 };

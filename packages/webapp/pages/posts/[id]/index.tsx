@@ -51,7 +51,11 @@ import {
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { featurePostSignupStrip } from '@dailydotdev/shared/src/lib/featureManagement';
+import {
+  featurePostPageFeed,
+  featurePostSignupStrip,
+} from '@dailydotdev/shared/src/lib/featureManagement';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   useEventListener,
   useJoinReferral,
@@ -115,6 +119,12 @@ const PostAuthBanner = dynamic(() =>
   import(
     /* webpackChunkName: "postAuthBanner" */ '@dailydotdev/shared/src/components/auth/PostAuthBanner'
   ).then((module) => module.PostAuthBanner),
+);
+
+const PostPageFeed = dynamic(() =>
+  import(
+    /* webpackChunkName: "postPageFeed" */ '@dailydotdev/shared/src/components/post/feed/PostPageFeed'
+  ).then((module) => module.PostPageFeed),
 );
 
 const PinnedSignupStrip = dynamic(() =>
@@ -184,6 +194,17 @@ export const PostPage = ({
     });
   const showPostAuthBanner =
     showLaptopAuthBanner && !isSignupStripLoading && !isSignupStripOn;
+  // The feed after the comments is for signed-in readers: signed-out readers
+  // keep the comments and the sign-up footer, and never enter the
+  // experiment. Briefs and digests have no comments, so no feed either.
+  const { isLoggedIn } = useAuthContext();
+  const { value: isPostPageFeedOn } = useConditionalFeature({
+    feature: featurePostPageFeed,
+    shouldEvaluate:
+      isLoggedIn &&
+      !!post?.id &&
+      ![PostType.Brief, PostType.Digest].includes(post.type),
+  });
   const showSignupStrip =
     showLaptopAuthBanner && !isSignupStripLoading && isSignupStripOn;
   // Empty for every logged-in visitor and for posts in ad-free squads; the
@@ -392,6 +413,11 @@ export const PostPage = ({
             contentLeading={organicAds?.contentLeading}
             renderSummarySegments={organicAds?.renderSummarySegments}
             aboveComments={organicAds?.aboveComments}
+            belowComments={
+              isPostPageFeedOn && post ? (
+                <PostPageFeed post={post} />
+              ) : undefined
+            }
             commentAds={organicAds?.commentAds}
             // Only while ads are actually live: a truthy hook flattens the
             // further-reading widget around the slot, and without an ad that

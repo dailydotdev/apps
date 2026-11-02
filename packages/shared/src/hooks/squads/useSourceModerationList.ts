@@ -9,6 +9,7 @@ import type {
 import {
   deletePendingPostMutation,
   muteSourceAuthor,
+  POST_MODERATION_LIMIT,
   rejectSourceAuthorPendingPosts,
   squadApproveMutation,
   squadRejectMutation,
@@ -76,6 +77,27 @@ const isSameAuthor =
   (item: SourcePostModeration): boolean =>
     item.source?.id === sourceId && item.createdBy?.id === userId;
 
+const moderateInBatches = (
+  items: SourcePostModeration[],
+  moderate: (postIds: string[]) => Promise<SourcePostModeration[]>,
+): Promise<SourcePostModeration[]> =>
+  Array.from(
+    { length: Math.ceil(items.length / POST_MODERATION_LIMIT) },
+    (_, index) =>
+      items
+        .slice(
+          index * POST_MODERATION_LIMIT,
+          (index + 1) * POST_MODERATION_LIMIT,
+        )
+        .map(({ id }) => id),
+  ).reduce<Promise<SourcePostModeration[]>>(
+    async (moderated, postIds) => [
+      ...(await moderated),
+      ...(await moderate(postIds)),
+    ],
+    Promise.resolve([]),
+  );
+
 const pluralizePosts = (count: number): string =>
   count === 1 ? 'Post' : `${count} posts`;
 
@@ -127,7 +149,7 @@ export const useSourceModerationList = (): UseSourceModerationList => {
 
   const { mutateAsync: approve, isPending: isPendingApprove } = useMutation({
     mutationFn: (items: SourcePostModeration[]) =>
-      squadApproveMutation(items.map(({ id }) => id)),
+      moderateInBatches(items, squadApproveMutation),
     onSuccess: (data, items) => {
       const ids = items.map(({ id }) => id);
       removeFromQueue((item) => ids.includes(item.id), items);
@@ -136,7 +158,8 @@ export const useSourceModerationList = (): UseSourceModerationList => {
         logEvent(postLogEvent(LogEvent.ApprovePost, post));
       });
     },
-    onError: () => {
+    onError: (_, items) => {
+      refreshQueue(items);
       displayToast("Couldn't approve. Please try again.");
     },
   });
@@ -156,12 +179,14 @@ export const useSourceModerationList = (): UseSourceModerationList => {
             reason,
             note,
           })
-        : await squadRejectMutation({
-            postIds: items.map(({ id }) => id),
-            sourceId: first.source?.id ?? '',
-            reason,
-            note,
-          });
+        : await moderateInBatches(items, (postIds) =>
+            squadRejectMutation({
+              postIds,
+              sourceId: first.source?.id ?? '',
+              reason,
+              note,
+            }),
+          );
 
       if (mute) {
         await muteSourceAuthor(getAuthor(first));
@@ -196,7 +221,8 @@ export const useSourceModerationList = (): UseSourceModerationList => {
         });
       }
     },
-    onError: () => {
+    onError: (_, { items }) => {
+      refreshQueue(items);
       displayToast("Couldn't decline. Please try again.");
     },
   });

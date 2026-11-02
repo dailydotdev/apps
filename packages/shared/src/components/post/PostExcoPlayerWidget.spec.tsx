@@ -378,11 +378,15 @@ it('frames the player from the webapp in the extension and logs what the frame r
   postFromFrame(failure, 'https://example.com');
   expect(document.querySelector('iframe')).toBeInTheDocument();
 
-  postFromFrame(failure);
+  postFromFrame({ ...failure, error: 'Failed to load the EX.CO player' });
   expect(document.querySelector('iframe')).not.toBeInTheDocument();
-  expect(getLogged(LogEvent.VideoPlayerError)).toEqual([
+  expect(getLogged(LogEvent.VideoPlayerError)).toEqual([]);
+  expect(getLogged(LogEvent.VideoPlayerBlocked)).toEqual([
     expect.objectContaining({
-      extra: expect.objectContaining({ reason: 'blocked' }),
+      extra: expect.objectContaining({
+        reason: 'blocked',
+        error: 'Failed to load the EX.CO player',
+      }),
     }),
   ]);
 
@@ -418,10 +422,14 @@ it('collapses and logs when a blocker stops the script', async () => {
   });
 
   await waitFor(() => expect(container).toBeEmptyDOMElement());
-  expect(getLogged(LogEvent.VideoPlayerError)).toEqual([
+  expect(getLogged(LogEvent.VideoPlayerError)).toEqual([]);
+  expect(getLogged(LogEvent.VideoPlayerBlocked)).toEqual([
     expect.objectContaining({
       target_type: TargetType.VideoPlayer,
-      extra: expect.objectContaining({ reason: 'blocked' }),
+      extra: expect.objectContaining({
+        reason: 'blocked',
+        error: 'Failed to load the EX.CO player',
+      }),
     }),
   ]);
 
@@ -443,7 +451,10 @@ it('collapses and logs when the script never finishes loading', async () => {
   expect(getContainer()).not.toBeInTheDocument();
   expect(getLogged(LogEvent.VideoPlayerError)).toEqual([
     expect.objectContaining({
-      extra: expect.objectContaining({ reason: 'timeout' }),
+      extra: expect.objectContaining({
+        reason: 'timeout',
+        error: 'The EX.CO player script timed out',
+      }),
     }),
   ]);
 });
@@ -514,6 +525,43 @@ it('logs the player, its ad breaks and its video ads', async () => {
       extra: expect.objectContaining({
         cta: 'go to post',
         url: 'https://daily.dev/posts/p1',
+      }),
+    }),
+  ]);
+});
+
+it('logs what went wrong in content and ad errors', async () => {
+  const { player, emit } = createPlayer();
+  renderWidget('player-errors');
+  loadScript('player-errors');
+  await waitFor(() => expect(player.init).toHaveBeenCalled());
+
+  emit('content-error', { id: 'v1', error: new Error('Media failed') });
+  emit('ad-error', { code: 402, message: 'VAST timeout' } as ExcoEventData);
+  emit('content-error', {});
+
+  expect(getLogged(LogEvent.VideoPlayerError)).toEqual([
+    expect.objectContaining({
+      extra: expect.objectContaining({
+        reason: 'content_error',
+        error: 'Media failed',
+        error_fields: 'error,id',
+      }),
+    }),
+    expect.objectContaining({
+      extra: expect.objectContaining({
+        reason: 'content_error',
+        error: null,
+        error_fields: '',
+      }),
+    }),
+  ]);
+  expect(getLogged(LogEvent.AdSlotError)).toEqual([
+    expect.objectContaining({
+      extra: expect.objectContaining({
+        error_type: 'ad_error',
+        error: '402: VAST timeout',
+        error_fields: 'code,message',
       }),
     }),
   ]);

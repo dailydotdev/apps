@@ -54,3 +54,42 @@ it('should not suggest emojis for a colon inside a word', () => {
 
   expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
 });
+
+it('should send on Enter and add a new line on Shift+Enter', () => {
+  renderComposer();
+  const input = type('first line');
+
+  expect(fireEvent.keyDown(input, { key: 'Enter', shiftKey: true })).toBe(true);
+  expect(onSend).not.toHaveBeenCalled();
+
+  type('first line\nsecond line');
+  fireEvent.keyDown(input, { key: 'Enter' });
+
+  expect(onSend).toHaveBeenCalledWith('first line\nsecond line');
+});
+
+it('should add a new line on Enter on touch screens and send from the button', () => {
+  const { matchMedia } = globalThis;
+  globalThis.matchMedia = jest.fn().mockImplementation((query: string) => ({
+    matches: query === '(pointer: coarse)',
+    media: query,
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+  }));
+
+  try {
+    renderComposer();
+    const input = type('first line');
+
+    // Not prevented, so the browser inserts the line break.
+    expect(fireEvent.keyDown(input, { key: 'Enter' })).toBe(true);
+    expect(onSend).not.toHaveBeenCalled();
+
+    type('first line\nsecond line');
+    fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
+
+    expect(onSend).toHaveBeenCalledWith('first line\nsecond line');
+  } finally {
+    globalThis.matchMedia = matchMedia;
+  }
+});

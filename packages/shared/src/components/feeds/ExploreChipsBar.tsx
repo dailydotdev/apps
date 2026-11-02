@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
@@ -21,6 +21,10 @@ interface ExploreChipsBarProps {
   categories: ExploreCategory[];
   isPending?: boolean;
   className?: string;
+  // Takes the place of the For you link while it is the page, so the lit
+  // tab can open the feed's sort.
+  renderForYou?: () => ReactNode;
+  quiet?: boolean;
 }
 
 const PLACEHOLDER_WIDTHS = ['w-20', 'w-16', 'w-24', 'w-20', 'w-28', 'w-16'];
@@ -31,6 +35,8 @@ export function ExploreChipsBar({
   categories,
   isPending,
   className,
+  renderForYou,
+  quiet,
 }: ExploreChipsBarProps): ReactElement | null {
   const router = useRouter();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
@@ -131,21 +137,27 @@ export function ExploreChipsBar({
                   'after:absolute after:inset-x-0 after:bottom-0 after:mx-auto after:w-1/2 after:border-b-2 after:border-text-primary',
               )}
             >
-              <Link href={category.path} legacyBehavior>
-                <Button
-                  tag="a"
-                  href={category.path}
-                  aria-current={isActive ? 'page' : undefined}
-                  onClick={onClick}
-                  size={ButtonSize.Small}
-                  pressed={isActive}
-                  variant={
-                    isActive ? ButtonVariant.Float : ButtonVariant.Tertiary
-                  }
-                >
-                  {category.label}
-                </Button>
-              </Link>
+              {isActive &&
+              category.id === FOR_YOU_CATEGORY_ID &&
+              renderForYou ? (
+                renderForYou()
+              ) : (
+                <Link href={category.path} legacyBehavior>
+                  <Button
+                    tag="a"
+                    href={category.path}
+                    aria-current={isActive ? 'page' : undefined}
+                    onClick={onClick}
+                    size={ButtonSize.Small}
+                    pressed={isActive}
+                    variant={
+                      isActive ? ButtonVariant.Float : ButtonVariant.Tertiary
+                    }
+                  >
+                    {category.label}
+                  </Button>
+                </Link>
+              )}
             </span>
           );
         })}
@@ -164,7 +176,8 @@ export function ExploreChipsBar({
             href={`${webappUrl}feeds/new`}
             aria-label="New feed"
             className={classNames(
-              'inline-flex h-8 shrink-0 items-center justify-center rounded-10 border border-transparent bg-background-subtle px-2.5 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary',
+              'inline-flex h-8 shrink-0 items-center justify-center rounded-10 border border-transparent px-2.5 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary',
+              !quiet && 'bg-background-subtle',
             )}
           >
             <PlusIcon />

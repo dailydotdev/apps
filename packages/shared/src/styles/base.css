@@ -1265,25 +1265,6 @@ meter::-webkit-meter-bar {
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
   }
-
-  @keyframes enable-notification-bell-ring {
-    0%,
-    100% {
-      transform: rotate(0deg);
-    }
-    20% {
-      transform: rotate(-16deg);
-    }
-    40% {
-      transform: rotate(14deg);
-    }
-    60% {
-      transform: rotate(-10deg);
-    }
-    80% {
-      transform: rotate(8deg);
-    }
-  }
 }
 
 .modal-backdrop-rays {

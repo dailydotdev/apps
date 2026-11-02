@@ -24,6 +24,8 @@ import { useLogContext } from './LogContext';
 import { postWebKitMessage, WebKitMessageHandlers } from '../lib/ios';
 import { syncWebPushSubscription } from '../graphql/notifications';
 import { storageWrapper } from '../lib/storageWrapper';
+import { ApiError, getApiError } from '../graphql/common';
+import type { ApiErrorResult } from '../graphql/common';
 
 export interface PushNotificationsContextData {
   isPushSupported: boolean;
@@ -64,6 +66,35 @@ type WebPushSubscriptionState = {
 };
 
 const webPushSyncStorageKey = 'web-push-subscription-synced';
+// Mirrors the API's `z.uuid()` check (RFC 4122 version and variant nibbles).
+const uuidPattern =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const networkErrorMessages = new Set([
+  'Failed to fetch', // Chromium
+  'Load failed', // Safari
+  'NetworkError when attempting to fetch resource.', // Firefox
+]);
+
+// OneSignal hands out temporary `local-<uuid>` ids until the subscription is
+// registered on its servers. The API only accepts real UUIDs, so we wait for
+// the `change` event that carries the final id instead of failing validation.
+export const getSyncableSubscriptionId = (
+  subscriptionId?: string | null,
+): string | undefined =>
+  subscriptionId && uuidPattern.test(subscriptionId)
+    ? subscriptionId
+    : undefined;
+
+// Errors that are expected and not actionable from the client: the session
+// ended (UNAUTHENTICATED) or the network dropped. The sync is retried on the
+// next page load because the synced marker is not stored.
+const isExpectedSyncError = (err: unknown): boolean => {
+  if (err instanceof TypeError && networkErrorMessages.has(err.message)) {
+    return true;
+  }
+
+  return !!getApiError(err as ApiErrorResult, ApiError.Unauthenticated);
+};
 const nativePushStateTimeoutMs = 5000;
 
 function OneSignalSubProvider({
@@ -71,6 +102,11 @@ function OneSignalSubProvider({
 }: PushNotificationContextProviderProps): ReactElement {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const optInPromiseRef = useRef<Promise<boolean>>();
+  // OneSignal can re-emit `permissionChange` on every focus when it cannot
+  // persist its state (e.g. IndexedDB blocked), and opt-in then fails with
+  // "Missing app ID" each time. Stop retrying and logging after the first
+  // failure in this page session.
+  const permissionChangeFailedRef = useRef(false);
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
 
@@ -129,10 +165,9 @@ function OneSignalSubProvider({
         return;
       }
 
-      const subscriptionId =
-        state?.subscriptionId ??
-        OneSignalCache.User.PushSubscription.id ??
-        undefined;
+      const subscriptionId = getSyncableSubscriptionId(
+        state?.subscriptionId ?? OneSignalCache.User.PushSubscription.id,
+      );
       const optedIn =
         state?.optedIn ?? OneSignalCache.User.PushSubscription.optedIn ?? false;
       const marker =
@@ -157,6 +192,10 @@ function OneSignalSubProvider({
           storageWrapper.setItem(webPushSyncStorageKey, marker);
         }
       } catch (err) {
+        if (isExpectedSyncError(err)) {
+          return;
+        }
+
         logEvent({
           event_name: LogEvent.GlobalError,
           extra: JSON.stringify({
@@ -246,7 +285,15 @@ function OneSignalSubProvider({
         return;
       }
 
+      if (
+        permissionChangeFailedRef.current ||
+        OneSignalCache.User.PushSubscription.optedIn
+      ) {
+        return;
+      }
+
       optIn().catch((error: unknown) => {
+        permissionChangeFailedRef.current = true;
         logEvent({
           event_name: LogEvent.GlobalError,
           extra: JSON.stringify({

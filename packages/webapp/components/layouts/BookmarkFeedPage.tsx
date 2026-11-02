@@ -1,6 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useContext } from 'react';
-import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
@@ -8,14 +7,6 @@ import type { BookmarkFeedLayoutProps } from '@dailydotdev/shared/src/components
 import BookmarkFeedLayout from '@dailydotdev/shared/src/components/BookmarkFeedLayout';
 import { getLayout } from './FeedLayout';
 import type { MainFeedPageProps } from './MainFeedPage';
-
-const PostsSearch = dynamic(
-  () =>
-    import(/* webpackChunkName: "routerPostsSearch" */ '../RouterPostsSearch'),
-  {
-    ssr: false,
-  },
-);
 
 type BookmarkFeedPageProps = MainFeedPageProps &
   Pick<BookmarkFeedLayoutProps, 'title' | 'folder' | 'isReminderOnly'>;
@@ -41,16 +32,6 @@ export default function BookmarkFeedPage({
     <BookmarkFeedLayout
       folder={folder}
       isReminderOnly={isReminderOnly}
-      searchQuery={router.query?.q?.toString()}
-      searchChildren={
-        user && (
-          <PostsSearch
-            autoFocus={false}
-            placeholder="Search bookmarks"
-            suggestionType="searchBookmarksSuggestions"
-          />
-        )
-      }
       {...props}
     >
       {children}

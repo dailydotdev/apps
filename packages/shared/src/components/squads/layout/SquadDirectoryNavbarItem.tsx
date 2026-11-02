@@ -15,6 +15,8 @@ interface SquadNavbarItemProps {
   // Override the default "…'s directory page" label when this row is reused
   // outside the Squads directory (e.g. the explore / notifications headers).
   ariaLabel?: string;
+  /** Off for labels whose case matters, like tags (#react, not #React). */
+  capitalize?: boolean;
 }
 
 export function SquadDirectoryNavbarItem({
@@ -25,12 +27,13 @@ export function SquadDirectoryNavbarItem({
   onClick,
   elementProps = {},
   ariaLabel,
+  capitalize = true,
 }: SquadNavbarItemProps): ReactElement {
   const button = (
     <Button
       aria-current={isActive ? 'page' : undefined}
       aria-label={ariaLabel ?? `Navigate to ${label}'s directory page`}
-      className="capitalize"
+      className={capitalize ? 'capitalize' : undefined}
       href={path}
       onClick={onClick}
       size={buttonSize}

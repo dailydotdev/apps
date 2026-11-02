@@ -1,6 +1,7 @@
 import type { MouseEvent, ReactElement } from 'react';
 import React from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import type { IconSize } from '../Icon';
 import { LinkIcon } from '../icons/Link';
 import { CopyStateIcon } from '../share/CopyStateIcon';
 import { Tooltip } from '../tooltip/Tooltip';
@@ -17,12 +18,15 @@ export function CopyHighlightsLink({
   origin,
   className,
   size = ButtonSize.Small,
+  iconSize,
 }: {
   /** Links to this highlight's post, or to the page without one. */
   highlight?: Pick<PostHighlight, 'id' | 'post'>;
   origin: Origin;
   className?: string;
   size?: ButtonSize;
+  /** Defaults to the button size's own icon size. */
+  iconSize?: IconSize;
 }): ReactElement {
   const [copied, copyLink] = useCopyLink();
   const logShare = useLogHighlightShare(origin, highlight);
@@ -32,7 +36,7 @@ export function CopyHighlightsLink({
       <Button
         aria-label="Copy link"
         className={className}
-        icon={<CopyStateIcon copied={copied} icon={LinkIcon} />}
+        icon={<CopyStateIcon copied={copied} icon={LinkIcon} size={iconSize} />}
         onClick={(event: MouseEvent) => {
           // The feed card's rows are links.
           event.preventDefault();

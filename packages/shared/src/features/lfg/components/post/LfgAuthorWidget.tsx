@@ -64,21 +64,11 @@ const matchesHelper = (helper: LfgHelper, post: LfgPost): boolean =>
 // What stands in for the Reach out button when there's nothing to press.
 export const LfgReachOutState = ({
   post,
-  isLaunched,
 }: {
   post: LfgPost;
-  isLaunched: boolean;
 }): ReactElement | null => {
   const first = getFirstName(post.author.name);
   const { myReachOut } = post;
-
-  if (!isLaunched) {
-    return (
-      <Note title="Connections open in a few days">
-        You can reach out to {first} then.
-      </Note>
-    );
-  }
 
   if (myReachOut?.status === LfgReachOutStatus.Accepted) {
     return (
@@ -188,12 +178,10 @@ export const LfgCreditsLine = (): ReactElement | null => {
 
 export const LfgAuthorWidget = ({
   post,
-  isLaunched,
   canReachOut,
   onReachOut,
 }: {
   post: LfgPost;
-  isLaunched: boolean;
   canReachOut: boolean;
   onReachOut: () => void;
 }): ReactElement => {
@@ -264,7 +252,7 @@ export const LfgAuthorWidget = ({
           </>
         ) : (
           <div className="w-full">
-            <LfgReachOutState post={post} isLaunched={isLaunched} />
+            <LfgReachOutState post={post} />
           </div>
         )}
       </div>

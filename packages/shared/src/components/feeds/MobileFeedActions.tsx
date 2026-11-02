@@ -75,7 +75,7 @@ export function MobileFeedActions(): ReactElement {
                 onClose={() => setIsMenuOpen(false)}
               />
             </RootPortal>
-            <Link href={`${webappUrl}${user.username}`} passHref>
+            <Link href={`${webappUrl}${user.username || user.id}`} passHref>
               <a className="shell-press">
                 <ProfilePictureWithIndicator user={user} />
               </a>

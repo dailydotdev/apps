@@ -50,6 +50,7 @@ import { useCheckCoresRole } from '@dailydotdev/shared/src/hooks/useCheckCoresRo
 import {
   messageHandlerExists,
   postWebKitMessage,
+  requestIOSTracking,
   WebKitMessageHandlers,
 } from '@dailydotdev/shared/src/lib/ios';
 import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation';
@@ -200,6 +201,16 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       postWebKitMessage(WebKitMessageHandlers.UpdateUserId, id);
     }
   }, [user?.id, trackingId]);
+
+  // Members who log in on a fresh install never reach the onboarding prompt.
+  const isOnboardedMember =
+    !!user?.id && isOnboardingActionsReady && isOnboardingComplete;
+  const isOnboardingPage = router.pathname.startsWith('/onboarding');
+  useEffect(() => {
+    if (isOnboardedMember && !isOnboardingPage) {
+      requestIOSTracking();
+    }
+  }, [isOnboardedMember, isOnboardingPage]);
 
   useEffect(() => {
     if (

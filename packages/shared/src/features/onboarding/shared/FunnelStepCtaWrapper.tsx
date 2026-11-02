@@ -41,6 +41,9 @@ export type FunnelStepCtaWrapperProps = ButtonProps<'button'> &
     /** Keeps the rail on the bottom edge at every width, for steps whose
      * content is a full-height scene rather than a list. */
     isCtaPinned?: boolean;
+    /** A back arrow in the glass top bar, for steps with a screen of their
+     * own to step back from. */
+    onBack?: () => void;
   };
 
 /** 32rem = 440px of content plus the px-6 gutter on each side. */
@@ -60,6 +63,7 @@ export function FunnelStepCtaWrapper({
   docked,
   isCtaHidden,
   isCtaPinned,
+  onBack,
   ...props
 }: FunnelStepCtaWrapperProps): ReactElement {
   const { cta: skipLabel, ...skipProps } = skip ?? {};
@@ -121,7 +125,7 @@ export function FunnelStepCtaWrapper({
 
   return (
     <div className="relative flex flex-1 flex-col gap-4">
-      <FunnelStepTopBar skip={skip} />
+      <FunnelStepTopBar skip={skip} onBack={onBack} />
       <div
         className={classNames(
           'flex-1',

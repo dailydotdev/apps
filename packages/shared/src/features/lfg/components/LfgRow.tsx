@@ -74,7 +74,6 @@ export const LfgPostMeta = ({
 interface LfgRowProps {
   post: LfgPost;
   viewerId?: string;
-  isLaunched: boolean;
   // A preview row doesn't link anywhere.
   isPreview?: boolean;
   onOpen?: () => void;
@@ -86,12 +85,11 @@ interface LfgRowProps {
 export const LfgRow = ({
   post,
   viewerId,
-  isLaunched,
   isPreview = false,
   onOpen,
   onReachOut,
 }: LfgRowProps): ReactElement => {
-  const status = getLfgRowStatus(post, viewerId, isLaunched);
+  const status = getLfgRowStatus(post, viewerId);
   const href = getLfgUrl(post.id);
 
   return (
@@ -141,7 +139,7 @@ export const LfgRow = ({
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
-          className="line-clamp-2 break-words"
+          className="line-clamp-6 whitespace-pre-line break-words"
         >
           {post.body}
         </Typography>
@@ -150,7 +148,7 @@ export const LfgRow = ({
           <LfgPostMeta post={post} />
         </div>
       </div>
-      {onReachOut && canReachOutToLfgPost(post, viewerId, isLaunched) && (
+      {onReachOut && canReachOutToLfgPost(post, viewerId) && (
         <Button
           type="button"
           className="relative z-1 shrink-0"

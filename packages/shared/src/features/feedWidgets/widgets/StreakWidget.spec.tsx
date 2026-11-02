@@ -31,7 +31,13 @@ jest.mock('../../../components/streak/popup/StreakMonthCalendar', () => ({
 }));
 
 jest.mock('../../../components/quest/CompactQuestList', () => ({
-  CompactQuestList: () => <div data-testid="quest-list" />,
+  CompactQuestList: ({ period }: { period: string }) => (
+    <div data-testid={`quest-list-${period}`} />
+  ),
+}));
+
+jest.mock('../../../hooks/useQuestDashboard', () => ({
+  useQuestDashboard: () => ({ data: {} }),
 }));
 
 let mockIsFreezeEnabled = true;
@@ -112,22 +118,46 @@ it('nudges a reader who has not read today', () => {
   expect(screen.getByText(/left to read$/)).toBeInTheDocument();
 });
 
+it('lets the long status, timezone and freeze hint shrink to a one-column card', () => {
+  mockUser = { id: 'u1', timezone: 'America/Argentina/Buenos_Aires' };
+  jest
+    .mocked(useStreakRingState)
+    .mockReturnValue(ringState({ state: 'pending', hasReadToday: false }));
+  const { unmount } = renderWidget(FeedWidgetSize.Small);
+  expect(screen.getByRole('link').parentElement).toHaveClass('min-w-0');
+  unmount();
+
+  renderWidget(FeedWidgetSize.Tall);
+  expect(screen.getByRole('link').parentElement).toHaveClass('min-w-0');
+  expect(screen.getByText('America/Argentina/Buenos_Aires')).toHaveClass(
+    'min-w-0',
+    'shrink',
+  );
+  expect(screen.getByText('One left for a day off')).toHaveClass(
+    'min-w-0',
+    'shrink',
+  );
+});
+
 it('keeps Small to the count and calendar, adds the meters when taller and quests at Large', () => {
   const { unmount } = renderWidget(FeedWidgetSize.Small);
   expect(screen.getByTestId('streak-calendar')).toBeInTheDocument();
   expect(screen.queryByText('Today’s goal')).not.toBeInTheDocument();
-  expect(screen.queryByTestId('quest-list')).not.toBeInTheDocument();
+  expect(screen.queryByTestId('quest-list-daily')).not.toBeInTheDocument();
+  expect(screen.queryByTestId('quest-list-weekly')).not.toBeInTheDocument();
   unmount();
 
   const view = renderWidget(FeedWidgetSize.Tall);
   expect(screen.getByText('Today’s goal')).toBeInTheDocument();
   expect(screen.getByText('Streak freezes')).toBeInTheDocument();
-  expect(screen.queryByTestId('quest-list')).not.toBeInTheDocument();
+  expect(screen.queryByTestId('quest-list-daily')).not.toBeInTheDocument();
+  expect(screen.queryByTestId('quest-list-weekly')).not.toBeInTheDocument();
   view.unmount();
 
   renderWidget(FeedWidgetSize.Large);
   expect(screen.getByText('Today’s goal')).toBeInTheDocument();
-  expect(screen.getByTestId('quest-list')).toBeInTheDocument();
+  expect(screen.getByTestId('quest-list-daily')).toBeInTheDocument();
+  expect(screen.getByTestId('quest-list-weekly')).toBeInTheDocument();
 });
 
 it('offers more freezes, and hides the meter where freezes are off', () => {

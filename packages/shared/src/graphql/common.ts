@@ -248,5 +248,19 @@ export const gqlClient = new GraphQLClient(graphqlUrl, {
   fetch: globalThis.fetch,
 });
 
-export const gqlRequest: typeof gqlClient.request = (...args) =>
-  gqlClient.request(...args);
+const withoutRequestKey = (
+  headers: Parameters<typeof gqlClient.request>[2],
+): Parameters<typeof gqlClient.request>[2] => {
+  if (!headers || Array.isArray(headers) || !('requestKey' in headers)) {
+    return headers;
+  }
+
+  const { requestKey, ...rest } = headers as Record<string, string>;
+  return rest;
+};
+
+export const gqlRequest: typeof gqlClient.request = (
+  document,
+  variables,
+  headers,
+) => gqlClient.request(document, variables, withoutRequestKey(headers));

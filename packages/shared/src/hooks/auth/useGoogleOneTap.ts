@@ -113,14 +113,13 @@ export const useGoogleOneTap = ({
       try {
         await loadGsiScript();
       } catch (error) {
+        // The GSI script is commonly blocked by ad blockers, privacy browsers
+        // and some networks. One Tap is optional, so this is expected and is
+        // logged as its own event instead of a `global error`.
         logEventRef.current({
-          event_name: LogEvent.GlobalError,
+          event_name: LogEvent.GoogleOneTapLoadError,
           extra: JSON.stringify({
             msg: error instanceof Error ? error.message : 'unknown',
-            url: window.location.href,
-            error,
-            stack: error instanceof Error ? error.stack : undefined,
-            feature: 'google one tap',
           }),
         });
         return;

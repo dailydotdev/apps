@@ -120,13 +120,7 @@ const postReportReasons = reportUserReasons
       : reason,
   );
 
-const PostBody = ({
-  post,
-  isLaunched,
-}: {
-  post: LfgPost;
-  isLaunched: boolean;
-}): ReactElement => {
+const PostBody = ({ post }: { post: LfgPost }): ReactElement => {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
   const { openModal, closeModal } = useLazyModal();
@@ -137,7 +131,7 @@ const PostBody = ({
   const { author } = post;
   const isMine = author.id === user?.id;
   const first = getFirstName(author.name);
-  const canReachOut = canReachOutToLfgPost(post, user?.id, isLaunched);
+  const canReachOut = canReachOutToLfgPost(post, user?.id);
   // Once the in-page button scrolls away, Reach out joins the top block,
   // like Join does on a squad page.
   const hasCtaPassed = usePassedBlock(ctaRef, canReachOut);
@@ -153,7 +147,6 @@ const PostBody = ({
       kind: post.kind,
       status: post.status,
       is_author: isMine,
-      launched: isLaunched,
     }),
   }));
 
@@ -191,11 +184,10 @@ const PostBody = ({
     <LfgFrame
       side={
         isMine ? (
-          <LfgOwnerWidget post={post} isLaunched={isLaunched} />
+          <LfgOwnerWidget post={post} />
         ) : (
           <LfgAuthorWidget
             post={post}
-            isLaunched={isLaunched}
             canReachOut={canReachOut}
             onReachOut={reachOut}
           />
@@ -264,7 +256,7 @@ const PostBody = ({
                 <LfgCreditsLine />
               </>
             ) : (
-              <LfgReachOutState post={post} isLaunched={isLaunched} />
+              <LfgReachOutState post={post} />
             )}
           </div>
         )}
@@ -336,13 +328,7 @@ const PostBody = ({
   );
 };
 
-export const LfgPostPage = ({
-  id,
-  isLaunched,
-}: {
-  id: string;
-  isLaunched: boolean;
-}): ReactElement => {
+export const LfgPostPage = ({ id }: { id: string }): ReactElement => {
   const { user } = useAuthContext();
   const {
     data: post,
@@ -384,5 +370,5 @@ export const LfgPostPage = ({
     return <PostGone />;
   }
 
-  return <PostBody key={post.id} post={post} isLaunched={isLaunched} />;
+  return <PostBody key={post.id} post={post} />;
 };

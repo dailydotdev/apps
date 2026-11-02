@@ -1,5 +1,6 @@
 import type { ReactElement, Ref } from 'react';
 import React, { forwardRef, useMemo, useRef } from 'react';
+import classNames from 'classnames';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
 import { isSocialTwitterPost, isVideoPost } from '../../../graphql/posts';
@@ -29,8 +30,12 @@ import { useFeature } from '../../GrowthBookProvider';
 import { sharedPostPreviewFeature } from '../../../lib/featureManagement';
 import { SharedPostPreview } from './SharedPostPreview';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
-import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
 import { CardHeaderBookmark } from '../common/CardHeaderBookmark';
+import {
+  GridCardTldr,
+  gridCardTldrCoverClassName,
+  useGridCardTldr,
+} from '../common/GridCardTldr';
 
 const EmptyStateContainer = classed(
   'div',
@@ -44,6 +49,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
     onPostAuxClick,
     onUpvoteClick,
     onCommentClick,
+    onTldrExpand,
     onCopyLinkClick,
     onBookmarkClick,
     openNewTab,
@@ -59,7 +65,6 @@ export const ShareGrid = forwardRef(function ShareGrid(
   const onPostCardAuxClick = () => onPostAuxClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const { title } = useSmartTitle(post);
-  const saveOnHover = useCardSaveOnHover();
   const { sharedPost } = post;
   const isDeleted = sharedPost?.id === DeletedPostId;
   const { private: sharedPostPrivate, source: sharedPostSource } =
@@ -70,6 +75,9 @@ export const ShareGrid = forwardRef(function ShareGrid(
   const isSharedPostPreviewEnabled = useFeature(sharedPostPreviewFeature);
   const isSharedTweet = isSocialTwitterPost(sharedPost);
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
+  const tldr = useGridCardTldr(post);
+  const showTldr = tldr.isShown && !isDeleted && !isPrivate && !isSharedTweet;
+  const isTldrExpanded = showTldr && tldr.isExpanded;
 
   const footer = useMemo(() => {
     if (isDeleted) {
@@ -131,11 +139,12 @@ export const ShareGrid = forwardRef(function ShareGrid(
         openNewTab={openNewTab ?? false}
         post={footerPost}
         className={{
-          image: 'px-1',
+          image: classNames('px-1', showTldr && gridCardTldrCoverClassName),
         }}
       />
     );
   }, [
+    showTldr,
     isDeleted,
     isPrivate,
     isSharedTweet,
@@ -169,6 +178,9 @@ export const ShareGrid = forwardRef(function ShareGrid(
     <FeedItemContainer
       domProps={{
         ...domProps,
+        ...(isTldrExpanded && {
+          style: { ...domProps.style, ...tldr.cardStyle },
+        }),
         className: getPostClassNames(
           post,
           domProps.className,
@@ -178,6 +190,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
       ref={ref}
       flagProps={{ pinnedAt, trending }}
       bookmarked={post.bookmarked}
+      bookmarkNote={post.bookmark?.note}
     >
       <CardOverlay
         post={post}
@@ -187,7 +200,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
       />
 
       <>
-        <CardTextContainer>
+        <CardTextContainer className={showTldr ? 'min-h-0 flex-1' : undefined}>
           <PostCardHeader
             post={post}
             className="flex"
@@ -196,41 +209,55 @@ export const ShareGrid = forwardRef(function ShareGrid(
             postLink={sharedPost?.permalink}
             onReadArticleClick={onReadArticleClick}
             bookmark={
-              saveOnHover ? (
-                <CardHeaderBookmark
-                  post={post}
-                  onBookmarkClick={onBookmarkClick}
-                />
-              ) : undefined
+              <CardHeaderBookmark
+                post={post}
+                onBookmarkClick={onBookmarkClick}
+              />
             }
           />
           {(!isSharedTweet || post.title) && <CardTitle>{title}</CardTitle>}
+          {showTldr && tldr.summary && (
+            <GridCardTldr
+              summary={tldr.summary}
+              isExpanded={tldr.isExpanded}
+              onExpand={(cardHeight) => {
+                tldr.expand(cardHeight);
+                onTldrExpand?.(post);
+              }}
+              onOpen={onPostCardClick}
+            />
+          )}
         </CardTextContainer>
-        {(!isSharedTweet || post.title) && <CardSpace />}
-        <div className="relative flex flex-col">
-          <div className="mx-4 flex items-center">
-            {!post.title && sharedPost?.clickbaitTitleDetected && (
-              <ClickbaitShield post={post} />
-            )}
-            <PostTags post={sharedPost || post} />
+        {(!isSharedTweet || post.title) && !showTldr && <CardSpace />}
+        {!isTldrExpanded && (
+          <div className="relative flex flex-col">
+            <div className="mx-4 flex items-center">
+              {!post.title && sharedPost?.clickbaitTitleDetected && (
+                <ClickbaitShield post={post} />
+              )}
+              <PostTags post={sharedPost || post} />
+            </div>
+            <PostMetadata
+              createdAt={post.createdAt}
+              readTime={sharedPost?.readTime}
+              isVideoType={isVideoType}
+              className="mx-4"
+            />
           </div>
-          <PostMetadata
-            createdAt={post.createdAt}
-            readTime={sharedPost?.readTime}
-            isVideoType={isVideoType}
-            className="mx-4"
-          />
-        </div>
+        )}
       </>
-      <Container ref={containerRef}>
-        {footer}
+      <Container
+        ref={containerRef}
+        className={showTldr ? 'flex-none' : undefined}
+      >
+        {!isTldrExpanded && footer}
         <ActionButtons
           post={post}
           onUpvoteClick={onUpvoteClick}
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}
           onBookmarkClick={onBookmarkClick}
-          bookmarkInHeader={saveOnHover}
+          bookmarkInHeader
           onDownvoteClick={onDownvoteClick}
         />
       </Container>

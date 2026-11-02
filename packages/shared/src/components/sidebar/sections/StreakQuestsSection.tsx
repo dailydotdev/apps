@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { format } from 'date-fns';
@@ -9,6 +9,7 @@ import { useStreakRingState } from '../../../hooks/streaks/useStreakRingState';
 import { StreakMonthCalendar } from '../../streak/popup/StreakMonthCalendar';
 import { StreakFreezeRow } from '../../streak/popup/StreakFreezeRow';
 import { CompactQuestList } from '../../quest/CompactQuestList';
+import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
 import { HorizontalSeparator } from '../../utilities';
 import { railDividerBorderClass } from '../common';
 import Link from '../../utilities/Link';
@@ -21,8 +22,53 @@ import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { DEFAULT_TIMEZONE } from '../../../lib/timezones';
 
+const QuestsGroup = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}): ReactElement => {
+  const [isOpen, setIsOpen] = useState(true);
+
+  return (
+    <div className="group/section flex flex-col">
+      <div className="flex min-h-9 shrink-0 items-center px-3">
+        <button
+          type="button"
+          onClick={() => setIsOpen((open) => !open)}
+          aria-label={`Toggle ${title}`}
+          aria-expanded={isOpen}
+          className="flex items-center gap-1 rounded-6 px-1 py-0.5 transition-colors hover:bg-surface-hover hover:text-text-primary"
+        >
+          <span className="text-text-quaternary typo-callout">{title}</span>
+          <ArrowIcon
+            size={IconSize.XXSmall}
+            className={classNames(
+              'text-text-quaternary opacity-0 transition-[transform,opacity] duration-200 group-focus-within/section:opacity-100 group-hover/section:opacity-100',
+              isOpen ? 'rotate-180' : 'rotate-90',
+            )}
+          />
+        </button>
+      </div>
+      <div
+        className={classNames(
+          'grid transition-[grid-template-rows,opacity] duration-300',
+          isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+        )}
+      >
+        <div className="min-h-0 overflow-hidden">
+          {/* px-3 so the quest rows' hover pills inset like every other v2
+              panel list (mx-3 ≈ 12px). */}
+          <div className="px-3 pb-2">{children}</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // The streak rail tab's panel: a big current-streak hero with the 30-day
-// calendar, then today's quests. The single gear opens the combined
+// calendar, then the daily and weekly quests. The single gear opens the combined
 // Streaks & gamification settings (kept under /game-center/* so this panel
 // stays active). The Game Center and separate Quests-settings links are gone —
 // clicking the tab itself opens Game Center, and the two settings pages are now
@@ -30,12 +76,12 @@ import { DEFAULT_TIMEZONE } from '../../../lib/timezones';
 export const StreakQuestsSection = (): ReactElement => {
   const { user } = useAuthContext();
   const { isEnabled: isStreakEnabled, count, streak } = useStreakRingState();
+  const { data: questDashboard } = useQuestDashboard();
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
   // Compact label (e.g. "Jun 23") — no year; the full date with year lives in
   // the hover tooltip so the strip stays tidy day-to-day.
   const todayLabel = useMemo(() => format(new Date(), 'MMM d'), []);
   const fullDateLabel = useMemo(() => format(new Date(), 'MMMM d, yyyy'), []);
-  const [questsOpen, setQuestsOpen] = useState(true);
   // The streak hero only shows when reading streaks are on. When it's off the
   // panel is quests-only (and the panel title is already "Daily Quests").
   const heroShown = isStreakEnabled && !!streak;
@@ -129,56 +175,34 @@ export const StreakQuestsSection = (): ReactElement => {
         </>
       )}
 
-      {/* Today's quests. When the streak hero is shown they get their own
-          "Daily quests" header (the panel title is "Current Streak"); when
-          streaks are off the panel title is already "Daily Quests", so the list
+      {/* Quests, daily then weekly, scrolling together below the fixed hero.
+          When the streak hero is shown the daily list gets its own "Daily
+          quests" header (the panel title is "Current Streak"); when streaks are
+          off the panel title is already "Daily Quests", so the daily list
           stands alone with no redundant header. */}
-      {heroShown ? (
-        <div className="group/section flex min-h-0 flex-1 flex-col">
-          <div className="flex min-h-9 shrink-0 items-center px-3">
-            <button
-              type="button"
-              onClick={() => setQuestsOpen((open) => !open)}
-              aria-label="Toggle Daily quests"
-              aria-expanded={questsOpen}
-              className="flex items-center gap-1 rounded-6 px-1 py-0.5 transition-colors hover:bg-surface-hover hover:text-text-primary"
-            >
-              <span className="text-text-quaternary typo-callout">
-                Daily quests
-              </span>
-              <ArrowIcon
-                size={IconSize.XXSmall}
-                className={classNames(
-                  'text-text-quaternary opacity-0 transition-[transform,opacity] duration-200 group-focus-within/section:opacity-100 group-hover/section:opacity-100',
-                  questsOpen ? 'rotate-180' : 'rotate-90',
-                )}
-              />
-            </button>
-          </div>
-          <div
-            className={classNames(
-              'grid transition-[grid-template-rows,opacity] duration-300',
-              // When open the list flex-fills the panel and scrolls inside; when
-              // closed it collapses (no flex-1, so grid-rows-[0fr] can shrink it).
-              questsOpen
-                ? 'min-h-0 flex-1 grid-rows-[1fr] opacity-100'
-                : 'grid-rows-[0fr] opacity-0',
-            )}
-          >
-            <div className="flex min-h-0 flex-col overflow-hidden">
-              {/* px-3 so the quest rows' hover pills inset like every other v2
-                  panel list (mx-3 ≈ 12px). */}
-              <div className="flex-1 overflow-y-auto px-3 pb-2">
-                <CompactQuestList />
+      <div
+        className={classNames(
+          'min-h-0 flex-1 overflow-y-auto',
+          !heroShown && 'pt-2',
+        )}
+      >
+        {questDashboard && (
+          <>
+            {heroShown ? (
+              <QuestsGroup title="Daily quests">
+                <CompactQuestList period="daily" />
+              </QuestsGroup>
+            ) : (
+              <div className="px-3 pb-2">
+                <CompactQuestList period="daily" />
               </div>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-2 pt-2">
-          <CompactQuestList />
-        </div>
-      )}
+            )}
+            <QuestsGroup title="Weekly quests">
+              <CompactQuestList period="weekly" />
+            </QuestsGroup>
+          </>
+        )}
+      </div>
     </div>
   );
 };

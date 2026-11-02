@@ -1266,6 +1266,8 @@ export const postModerationReasonLabels: Record<PostModerationReason, string> =
 
 export const MODERATOR_MESSAGE_MAX_LENGTH = 500;
 
+export const POST_MODERATION_LIMIT = 50;
+
 export interface SquadPostModerationProps {
   postIds: string[];
   sourceId: Source['id'];
