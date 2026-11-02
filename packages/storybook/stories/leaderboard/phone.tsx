@@ -3,13 +3,14 @@ import React from 'react';
 import classNames from 'classnames';
 import { ShellSquare } from '@dailydotdev/shared/src/components/shell/ShellSquare';
 import { useSources } from '../sources/kit';
-import { Cluster, FloatingSearch } from '../sources/phone';
+import { Cluster } from '../sources/phone';
 import { ME } from './data';
 
 // /users on a phone after the phone shell (#6855): /users is one of
 // Explore's views, so the block is Explore's root row over its segments with
-// Leaderboard lit, the bar lights Explore, and search floats above the bar
-// as the "Search people" SpotlightField. Signed-out phone visitors are sent
+// Leaderboard lit, and the bar lights Explore. Production also floats a
+// "Search people" SpotlightField above the bar; the redesign drops it, so
+// pages/users.tsx loses that line when this ships. Signed-out phone visitors are sent
 // to the marketing site's /users, so there is no signed-out chrome here.
 // Every piece hides from tablet up.
 
@@ -61,19 +62,17 @@ const Block = (): ReactElement => {
   );
 };
 
-/** Explore's block on top, the search field and the bar at the bottom. */
-export const LeaderboardPhoneChrome = (): ReactElement => {
-  const { notify } = useSources();
-  return (
-    <>
-      <Block />
-      <div aria-hidden className="h-[6rem] tablet:hidden" />
-      <div aria-hidden className="shell-scrim tablet:hidden" />
-      <FloatingSearch
-        label="Search people"
-        onOpen={() => notify('Opens Spotlight, filtered to People')}
-      />
-      <Cluster />
-    </>
-  );
-};
+/** Explore's block on top, the bar at the bottom. */
+export const LeaderboardPhoneChrome = (): ReactElement => (
+  <>
+    <Block />
+    <div aria-hidden className="h-[6rem] tablet:hidden" />
+    <div aria-hidden className="shell-scrim tablet:hidden" />
+    <Cluster />
+  </>
+);
+
+/** Room under the content for the bar: its 8px floor, 56px, and a gap. */
+export const LeaderboardBottomSpace = (): ReactElement => (
+  <div aria-hidden className="h-20 tablet:hidden" />
+);

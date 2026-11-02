@@ -115,16 +115,16 @@ const flows: { title: string; steps: string[] }[] = [
   {
     title: 'First visit, signed in',
     steps: [
-      'The first row shows your rank on Highest reputation with Snapshot, and the Plus invite with its ladder.',
+      'The first row opens on the board you rank best on (here Longest streak, #317) with Snapshot, and the Plus invite with its ladder.',
       'Phones: those two cards are one strip you scroll sideways; the Plus card peeks in at the edge and each card snaps into place.',
-      'Then the top 10 on Highest reputation, the Standouts row, and all 8 production boards.',
+      'Then the top 12 on Highest reputation, the Standouts row, and all 8 production boards.',
       'Signed out on a phone, app.daily.dev/users sends you to daily.dev/users on the marketing site, so these frames are signed in.',
     ],
   },
   {
     title: 'Switch the board on your rank card',
     steps: [
-      'Open the picker: Highest reputation, Longest streak, Most reading days (the boards leaderboardPosition supports).',
+      'Open the picker: Highest reputation, Longest streak, Most reading days (the boards leaderboardPosition supports). On phones it opens as a bottom sheet, since a menu would be clipped by the sideways strip.',
       'Pick one: the title, the total and the Snapshot image change with it. Nothing else on the page moves.',
     ],
   },
@@ -145,16 +145,17 @@ const flows: { title: string; steps: string[] }[] = [
   {
     title: 'Follow someone',
     steps: [
-      'Press Follow on a row or a Standouts card: the button goes away and the toast says “✅ You are now following {name}”.',
-      'There is no Following state or Unfollow here. Your own row and people you already follow never show Follow.',
+      'Hover an avatar and press Follow in the profile hover card: production’s FollowButton, with its toast “✅ You are now following {name}”.',
+      'Rows and Standouts cards have no Follow of their own. Your own card and people you already follow never show it.',
     ],
   },
   {
-    title: 'Open a board’s top 100',
+    title: 'Open a board’s top 50',
     steps: [
       'Tablet and laptop: press anywhere on a tile. It grows in place into a popover; the list scrolls inside and your row stays pinned at the bottom.',
-      'Close with the X or a click outside it.',
-      'Phones: a tap opens the top 100 in a bottom sheet, your row pinned. Close with the square or a tap on the scrim.',
+      'Close with the X, a click outside it, or Escape.',
+      'A board with fewer than 50 entries says how many it has instead (“All 8”); Most verified employees lights your verified company, and pins it under the top rows when it is further down.',
+      'Phones: a tap opens the top 50 in a bottom sheet, your row pinned. Close with the square or a tap on the scrim.',
     ],
   },
   {
@@ -168,7 +169,7 @@ const flows: { title: string; steps: string[] }[] = [
     title: 'Navigate away',
     steps: [
       'A row or a Standouts card opens the profile. Full ranking opens /users/highestReputation.',
-      'Phones: the Explore segments switch to Posts, Tags or Sources; the bar keeps Explore lit; Search people opens Spotlight filtered to People.',
+      'Phones: the Explore segments switch to Posts, Tags or Sources and the bar keeps Explore lit. There is no floating search field: production’s “Search people” SpotlightField is dropped.',
       'Tablet and laptop: the rail keeps Explore lit; the laptop strip says Leaderboard.',
     ],
   },
@@ -209,14 +210,6 @@ const controls: Control[] = [
       'click · target_id “mobile footer nav” · extra {tab, logged_in}; Activity: “click notification icon”',
   },
   {
-    element: 'Search people',
-    where: 'Phone, above the bar',
-    look: 'SpotlightField',
-    states: 'Default · pressed',
-    goesTo: 'Spotlight, filtered to People',
-    event: 'click · target_type “spotlight” · target_id “spotlight open”',
-  },
-  {
     element: 'Rail',
     where: 'Tablet and laptop',
     look: 'Explore lit',
@@ -227,15 +220,16 @@ const controls: Control[] = [
   {
     element: 'Board picker',
     where: 'Rank card',
-    look: 'Dropdown, 36px',
-    states: 'Default · hover · open · selected',
+    look: 'Dropdown, 36px; on phones it says the short name (Reputation) and shares the line with Snapshot',
+    states:
+      'Default · hover · open (a menu, or a bottom sheet on phones) · selected',
     goesTo: 'Stays on the page',
     event: 'None today; no backend needed',
   },
   {
     element: 'Snapshot',
     where: 'Rank card',
-    look: 'Primary Small; full width on phones, 176px from tablet up',
+    look: 'Phones: Primary XSmall, beside the picker. Tablets: Primary Small at full width. Laptops: 176px',
     states:
       'Default · hover · pressed · busy while capturing · hidden with no rank',
     goesTo: 'Snapshot share panel',
@@ -245,7 +239,7 @@ const controls: Control[] = [
   {
     element: 'Copy invite link',
     where: 'Invite card',
-    look: 'Secondary Small, same size and place as Snapshot',
+    look: 'Phones: Secondary XSmall, right-aligned. Tablets: full width. Laptops: same size and place as Snapshot',
     states: 'Default · hover · pressed · toast after copy',
     goesTo: 'Clipboard',
     event:
@@ -269,27 +263,27 @@ const controls: Control[] = [
   },
   {
     element: 'Follow',
-    where: 'Rows, Standouts',
-    look: 'Primary XSmall, no icon',
+    where: 'Profile hover card',
+    look: 'Production’s FollowButton in UserEntityCard, Primary',
     states:
-      'Default · hover · pressed · gone after press, with toast · never on you or people you follow',
+      'Default · hover · pressed · Following after press, with toast · never on you or people you follow',
     goesTo: 'Stays on the page',
     event:
       '“follow” · target_type user · target_id the user’s id (useContentPreference)',
   },
   {
-    element: 'Board tile, Top 100',
+    element: 'Board tile, Top 50',
     where: 'Every leaderboard',
-    look: 'Whole card; “Top 100 ›” as its cue',
+    look: 'Whole card; “Top 50 ›” as its cue, or “All 8 ›” when the board is shorter',
     states:
       'Default · hover · open (popover or sheet) · not pressable while loading or empty',
-    goesTo: 'Top 100 in place; today it is the /users/[board] page',
+    goesTo: 'Top 50 in place; today it is the /users/[board] page',
     event:
       'None today: the popover replaces a page view, so add a click event if the team wants the count',
   },
   {
     element: 'Close (popover, sheet)',
-    where: 'Top 100',
+    where: 'Top 50',
     look: 'Tertiary XSmall X; sheet square',
     states: 'Default · hover · pressed; outside click or scrim also closes',
     goesTo: 'Back to the tile',
@@ -330,7 +324,7 @@ const ButtonStates = (): ReactElement => (
             Follow
           </Button>,
         ],
-        note: 'Default · sending · disabled. After it lands the button goes away.',
+        note: 'Default · sending · disabled. In the hover card it turns into Following once it lands.',
       },
       {
         name: 'Snapshot',
@@ -406,18 +400,19 @@ const ResponsivePage = (): ReactElement => (
         </p>
         <p>
           Everything on it is data /users already has: the 8 boards from
-          LEADERBOARD_QUERY (top 10 each, all time), each board’s top 100, and
-          your rank from leaderboardPosition, which only answers for Highest
-          reputation, Longest streak and Most reading days. No weekly boards, no
-          rank change, no new backend. Every frame works: follow, copy, switch
-          boards, open a top 100, take a Snapshot.
+          LEADERBOARD_QUERY (all time, with a limit of 12), each board’s top 50
+          (its own query, with a limit of 50), and your rank from
+          leaderboardPosition, which only answers for Highest reputation,
+          Longest streak and Most reading days. No weekly boards, no rank
+          change, no new backend. Every frame works: follow, copy, switch
+          boards, open a top 50, take a Snapshot.
         </p>
       </>
     }
   >
     <Section
       title="Laptop"
-      lead="1440 and 1024. The top 10 runs in two columns; the boards go four across at 1440 and two at 1024."
+      lead="1440 and 1024. Highest reputation runs in three columns of four; the boards go four across at 1440 and two at 1024."
     >
       <Screen device="laptopL" height={1500} />
       <Screen device="laptop" height={1500} />
@@ -425,7 +420,7 @@ const ResponsivePage = (): ReactElement => (
 
     <Section
       title="Tablet and phones"
-      lead="768: SidebarTablet, the top 10 in one column and the boards in two. Phones: one column, Standouts scrolls sideways, buttons fill the card, and the top 100 opens in a sheet."
+      lead="768: SidebarTablet, Highest reputation and the boards in two columns, and the card buttons at full width. Phones: one column, the first row scrolls sideways, Standouts too, and the top 50 opens in a sheet."
     >
       <div className="grid grid-cols-1 items-start gap-6 laptop:grid-cols-3">
         <Screen device="tablet" height={1400} />
@@ -502,20 +497,24 @@ interface State {
   toast?: string;
 }
 
+const TOP_REP_THIRD = rankBoard('reputation', 'all', DEVS)[2].dev;
+
 const groups: { title: string; lead: string; states: State[] }[] = [
   {
     title: 'Your rank',
-    lead: 'What leaderboardPosition can answer: a rank, past the cap, or nothing yet.',
+    lead: 'What leaderboardPosition can answer: a rank, past the cap, or nothing yet. The card opens on your best board; the picker switches it.',
     states: [
-      { label: 'Ranked · laptop', device: 'laptop' },
-      {
-        label: 'Ranked on Longest streak · phone',
-        device: 'phone',
-        props: { rankBoard: 'streak' },
-      },
+      { label: 'Ranked, best board · laptop', device: 'laptop' },
+      { label: 'Ranked, best board · tablet', device: 'tablet' },
+      { label: 'Ranked, best board · phone', device: 'phone' },
       {
         label: 'Outside the top 1K · laptop',
         device: 'laptop',
+        props: { position: 'capped' },
+      },
+      {
+        label: 'Outside the top 1K · tablet',
+        device: 'tablet',
         props: { position: 'capped' },
       },
       {
@@ -529,44 +528,102 @@ const groups: { title: string; lead: string; states: State[] }[] = [
         props: { position: 'empty' },
       },
       {
+        label: 'No rank yet · tablet',
+        device: 'tablet',
+        props: { position: 'empty' },
+      },
+      {
         label: 'No rank yet · phone',
         device: 'phone',
         props: { position: 'empty' },
       },
+      {
+        label: 'Picker open · laptop',
+        device: 'laptop',
+        props: { frame: { pickerOpen: true } },
+      },
+      {
+        label: 'Picker open · tablet',
+        device: 'tablet',
+        props: { frame: { pickerOpen: true } },
+      },
+      {
+        label: 'Picker open, short names · phone',
+        device: 'phone',
+        props: { frame: { pickerOpen: true } },
+      },
+      {
+        label: 'Picked Highest reputation · phone',
+        device: 'phone',
+        props: { rankBoard: 'reputation' },
+      },
+      {
+        label: 'Picked Most reading days · laptop',
+        device: 'laptop',
+        props: { rankBoard: 'readingDays' },
+      },
     ],
   },
   {
-    title: 'Top 100',
-    lead: 'Opened from a tile: a popover from tablet up. On phones, tap a tile to see the sheet.',
+    title: 'First row on phones',
+    lead: 'One strip you scroll sideways: the Plus card peeks in at rest, the rank card peeks back once you scroll.',
+    states: [
+      { label: 'At rest · phone', device: 'phone' },
+      {
+        label: 'Scrolled to Plus · phone',
+        device: 'phone',
+        props: { frame: { stripAtInvite: true } },
+      },
+      { label: 'At rest · small phone', device: 'phoneS' },
+    ],
+  },
+  {
+    title: 'Top 50',
+    lead: 'Pressing a tile: a popover in place from tablet up, a bottom sheet on phones. Your row stays pinned at the bottom; X, a press outside or Escape closes it.',
     states: [
       {
-        label: 'Popover open · laptop',
+        label: 'Popover · laptop',
         device: 'laptop',
         props: { openBoard: 'reputation' },
       },
       {
-        label: 'Popover open · tablet',
+        label: 'Popover · tablet',
         device: 'tablet',
         props: { openBoard: 'streak' },
+      },
+      {
+        label: 'Sheet · phone',
+        device: 'phone',
+        props: { openBoard: 'readingDays' },
+      },
+      {
+        label: 'Highest level, level rings · laptop',
+        device: 'laptop',
+        props: { openBoard: 'level' },
       },
     ],
   },
   {
-    title: 'Invite and follow',
-    lead: 'The toasts production shows, and the end of the ladder.',
+    title: 'People',
+    lead: 'Rows and Standouts open the profile. Hovering an avatar opens production’s hover card, the only place with Follow.',
     states: [
       {
-        label: 'Invite link copied · laptop',
+        label: 'Hover card · laptop',
         device: 'laptop',
-        toast: '✅ Copied your invite message and link',
+        props: { frame: { hoverCardFor: 3 } },
       },
       {
-        label: 'Ladder complete · phone',
-        device: 'phone',
-        props: { friends: 3 },
+        label: 'Hover card · tablet',
+        device: 'tablet',
+        props: { frame: { hoverCardFor: 3 } },
       },
       {
-        label: 'Followed · phone',
+        label: 'Already following: no Follow · laptop',
+        device: 'laptop',
+        props: { followed: [TOP_REP_THIRD.id], frame: { hoverCardFor: 3 } },
+      },
+      {
+        label: 'Followed from a hover card · phone',
         device: 'phone',
         toast: `✅ You are now following ${TOP_REP.name}`,
         props: { followed: [TOP_REP.id] },
@@ -574,14 +631,68 @@ const groups: { title: string; lead: string; states: State[] }[] = [
     ],
   },
   {
+    title: 'Plus invite',
+    lead: 'Copying confirms with production’s toast. At three friends the ladder is full and the button stays.',
+    states: [
+      {
+        label: 'Invite link copied · laptop',
+        device: 'laptop',
+        toast: '✅ Copied your invite message and link',
+      },
+      {
+        label: 'Invite link copied · phone',
+        device: 'phone',
+        toast: '✅ Copied your invite message and link',
+        props: { frame: { stripAtInvite: true } },
+      },
+      {
+        label: 'Ladder complete · tablet',
+        device: 'tablet',
+        props: { friends: 3 },
+      },
+      {
+        label: 'Ladder complete · phone',
+        device: 'phone',
+        props: { friends: 3, frame: { stripAtInvite: true } },
+      },
+    ],
+  },
+  {
+    title: 'Most verified employees',
+    lead: 'Fewer than 50 companies, so it says “All 8”. Your verified company is lit, and pinned under the top rows when it is further down.',
+    states: [
+      {
+        label: 'Your company in the top rows · laptop',
+        device: 'laptop',
+        props: { frame: { atBoards: true } },
+      },
+      {
+        label: 'Your company further down · laptop',
+        device: 'laptop',
+        props: { frame: { atBoards: true, myCompany: 'Hooli' } },
+      },
+      {
+        label: 'Your company further down · phone',
+        device: 'phone',
+        props: { frame: { atBoards: true, myCompany: 'Hooli' } },
+      },
+    ],
+  },
+  {
     title: 'Loading and errors',
-    lead: 'Placeholders while the page loads, and production’s fallback when the static props fail.',
+    lead: 'Placeholders while the page loads, and production’s fallback when the static props fail: empty lists, Standouts hidden, no tile opens.',
     states: [
       { label: 'Loading · laptop', device: 'laptop', props: { loading: true } },
+      { label: 'Loading · tablet', device: 'tablet', props: { loading: true } },
       { label: 'Loading · phone', device: 'phone', props: { loading: true } },
       {
         label: 'Empty lists · laptop',
         device: 'laptop',
+        props: { empty: true },
+      },
+      {
+        label: 'Empty lists · tablet',
+        device: 'tablet',
         props: { empty: true },
       },
       { label: 'Empty lists · phone', device: 'phone', props: { empty: true } },
@@ -594,6 +705,12 @@ const groups: { title: string; lead: string; states: State[] }[] = [
       { label: 'Laptop', device: 'laptop', theme: 'light' },
       { label: 'Tablet', device: 'tablet', theme: 'light' },
       { label: 'Phone', device: 'phone', theme: 'light' },
+      {
+        label: 'Top 50 sheet · phone',
+        device: 'phone',
+        theme: 'light',
+        props: { openBoard: 'streak' },
+      },
     ],
   },
 ];
@@ -605,7 +722,7 @@ const AllStatesPage = (): ReactElement => (
     intro={
       <p>
         Each frame is the full page in a device of its own width, frozen in one
-        state, and still works: switch boards, follow, open a top 100.
+        state, and still works: switch boards, follow, open a top 50.
       </p>
     }
   >
@@ -617,7 +734,7 @@ const AllStatesPage = (): ReactElement => (
               key={state.label}
               device={state.device}
               label={state.label}
-              height={state.device === 'phone' ? 812 : 900}
+              height={state.device.startsWith('phone') ? 812 : 900}
               theme={state.theme}
               toast={state.toast}
               {...state.props}

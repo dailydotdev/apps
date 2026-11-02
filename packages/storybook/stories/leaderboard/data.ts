@@ -154,6 +154,14 @@ const NAMES = [
   'Owen Hughes',
   'Lucía Romero',
   'Daniel Kim',
+  'Amara Okoye',
+  'Jakub Novak',
+  'Sana Malik',
+  'Mateus Costa',
+  'Yuki Nakamura',
+  'Elena Petrova',
+  'Kofi Mensah',
+  'Ingrid Larsen',
 ];
 
 const BIOS = [
@@ -259,6 +267,12 @@ export const DEVS: Dev[] = NAMES.map((name, index) => {
   const tags = [pick(TAGS), pick(TAGS), pick(TAGS)].filter(
     (tag, i, list) => list.indexOf(tag) === i,
   );
+  const scores = makeScores(bias);
+  // A streak is consecutive reading days, so it never beats the total.
+  scores.readingDays.all = Math.max(
+    scores.readingDays.all,
+    scores.streak.all + between(0, 200),
+  );
   const delta = {} as Dev['delta'];
   (Object.keys(ALL_TIME_MAX) as BoardId[]).forEach((board) => {
     delta[board] = random() < 0.3 ? 0 : between(-6, 9);
@@ -273,9 +287,13 @@ export const DEVS: Dev[] = NAMES.map((name, index) => {
     country: pick(COUNTRIES),
     tags,
     level: Math.max(3, Math.round(60 * bias - random() * 8)),
-    joinedDaysAgo: index > 32 ? between(9, 80) : between(200, 2400),
+    // Never newer than their reading days, which can't predate the account.
+    joinedDaysAgo: Math.max(
+      index > 32 ? between(9, 80) : between(200, 2400),
+      scores.readingDays.all + between(10, 120),
+    ),
     isFollowing: random() < 0.22,
-    scores: makeScores(bias),
+    scores,
     delta,
     trend: Array.from({ length: 7 }, () => between(20, 100)),
   };

@@ -1,9 +1,11 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { TopRankBadge } from '@dailydotdev/shared/src/components/cards/Leaderboard/TopRankBadge';
+import { SheetChoice } from '@dailydotdev/shared/src/components/shell/ShellRow';
+import { PhoneSheet } from '../sources/phone';
 import type { Dev } from './data';
 
 /** Your own row and card: a soft tint, no border. */
@@ -62,6 +64,8 @@ export const Rank = ({
 export interface Option<T extends string> {
   id: T;
   label: string;
+  /** What the trigger says on phones, where the label is too long. */
+  short?: string;
 }
 
 /** A plain menu: a quiet trigger, a popover list, closes on choice. */
@@ -70,26 +74,70 @@ export const Dropdown = <T extends string>({
   options,
   onChange,
   className,
+  defaultOpen = false,
+  sheetTitle,
 }: {
   value: T;
   options: Option<T>[];
   onChange: (value: T) => void;
   className?: string;
+  /** Opens with the menu up, for the states catalog. */
+  defaultOpen?: boolean;
+  /** Phones: the options open in a bottom sheet with this title. */
+  sheetTitle?: string;
 }): ReactElement => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
+  const [sheet, setSheet] = useState(false);
+  const root = useRef<HTMLSpanElement>(null);
   const current = options.find((option) => option.id === value) ?? options[0];
+  // A menu inside a sideways strip gets clipped, so on phones it is a sheet,
+  // the way the phone shell opens its other menus.
+  const isPhone = () =>
+    !!sheetTitle &&
+    !!root.current?.ownerDocument.defaultView?.matchMedia('(max-width: 655px)')
+      .matches;
+  useEffect(() => {
+    if (defaultOpen && isPhone()) {
+      setOpen(false);
+      setSheet(true);
+    }
+    // Only where the frame starts out.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  // Escape closes the menu or the sheet.
+  useEffect(() => {
+    const doc = root.current?.ownerDocument;
+    if (!doc || (!open && !sheet)) {
+      return undefined;
+    }
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpen(false);
+        setSheet(false);
+      }
+    };
+    doc.addEventListener('keydown', onKey);
+    return () => doc.removeEventListener('keydown', onKey);
+  }, [open, sheet]);
   return (
-    <span className={classNames('relative inline-flex', className)}>
+    <span ref={root} className={classNames('relative inline-flex', className)}>
       <button
         type="button"
-        onClick={() => setOpen(!open)}
-        className="flex h-9 items-center gap-1.5 rounded-12 border border-border-subtlest-tertiary px-3 font-bold transition-colors typo-callout hover:bg-surface-hover"
+        onClick={() => (isPhone() ? setSheet(true) : setOpen(!open))}
+        className="flex h-9 w-full min-w-0 items-center justify-between gap-1.5 whitespace-nowrap rounded-12 border border-border-subtlest-tertiary px-3 font-bold transition-colors typo-callout hover:bg-surface-hover"
       >
-        {current.label}
+        <span className="w-0 min-w-0 flex-1 truncate text-left laptop:w-auto laptop:flex-none">
+          {current.short && (
+            <span className="tablet:hidden">{current.short}</span>
+          )}
+          <span className={current.short ? 'hidden tablet:inline' : undefined}>
+            {current.label}
+          </span>
+        </span>
         <ArrowIcon
           size={IconSize.Size16}
           className={classNames(
-            'text-text-tertiary transition-transform',
+            'shrink-0 text-text-tertiary transition-transform',
             open ? '' : 'rotate-180',
           )}
         />
@@ -101,7 +149,7 @@ export const Dropdown = <T extends string>({
             onClick={() => setOpen(false)}
             aria-hidden
           />
-          <ul className="absolute left-0 top-full z-3 mt-1 flex min-w-[16rem] flex-col rounded-16 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-2 typo-callout">
+          <ul className="absolute left-0 top-full z-3 mt-1 flex w-full min-w-[16rem] flex-col rounded-16 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-2 typo-callout">
             {options.map((option) => (
               <li key={option.id}>
                 <button
@@ -121,6 +169,21 @@ export const Dropdown = <T extends string>({
             ))}
           </ul>
         </>
+      )}
+      {sheet && sheetTitle && (
+        <PhoneSheet title={sheetTitle} onClose={() => setSheet(false)}>
+          <SheetChoice
+            items={options.map((option) => ({
+              key: option.id,
+              label: option.label,
+              active: option.id === value,
+              onClick: () => {
+                onChange(option.id);
+                setSheet(false);
+              },
+            }))}
+          />
+        </PhoneSheet>
       )}
     </span>
   );

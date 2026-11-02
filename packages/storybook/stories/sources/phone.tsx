@@ -256,13 +256,7 @@ export const Cluster = (): ReactElement => {
 };
 
 /** ShellField: the search that floats one gap above the bar. */
-export const FloatingSearch = ({
-  onOpen,
-  label = 'Search sources',
-}: {
-  onOpen: () => void;
-  label?: string;
-}): ReactElement => (
+const FloatingSearch = ({ onOpen }: { onOpen: () => void }): ReactElement => (
   <button
     type="button"
     onClick={onOpen}
@@ -273,7 +267,7 @@ export const FloatingSearch = ({
     }}
   >
     <SearchIcon size={IconSize.Small} />
-    <span className="typo-body">{label}</span>
+    <span className="typo-body">Search sources</span>
   </button>
 );
 
