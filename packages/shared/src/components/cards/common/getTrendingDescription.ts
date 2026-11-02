@@ -12,7 +12,8 @@ export const getTrendingDescription = (
   return 'Trending now';
 };
 
-// The live label's own line: how many are in the chat right now.
+// The live label's own line: how many are in the chat right now, readers
+// following along included (they hold seats too).
 export const getLiveChatDescription = (
   occupantCount?: number | null,
 ): string | undefined => {
@@ -20,5 +21,5 @@ export const getLiveChatDescription = (
     return undefined;
   }
 
-  return `${occupantCount} chatting now`;
+  return `${occupantCount} in the chat`;
 };

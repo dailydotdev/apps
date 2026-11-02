@@ -71,11 +71,13 @@ export const useLiveChatRoom = ({
 }: {
   postId: string;
   origin: string;
-  // Seat a signed-in viewer in the open room as soon as it is known, so the
-  // chat is on screen before they decide to join. The room replays its recent
+  // Seat a signed-in viewer in the open room while this is true, so the chat
+  // is on screen before they decide to join. The room replays its recent
   // history on join and keeps nothing else, so a seat is the only way to see
   // it. The seat is the surface's, not the viewer's: a leave only drops the
-  // composer, and the seat goes with the unmount.
+  // composer, and the seat goes when this turns false (the panel scrolled
+  // away) or with the unmount, unless the viewer has joined. The last
+  // messages stay so the page does not jump.
   preview?: boolean;
 }): UseLiveChatRoom => {
   const { user } = useAuthContext();
@@ -192,6 +194,10 @@ export const useLiveChatRoom = ({
           setStatus('joined');
           break;
         case 'roomLeft':
+          // A seat given up here already moved on; the echo changes nothing.
+          if (!seatedJid.current && !joiningJid.current) {
+            break;
+          }
           seatedJid.current = null;
           joiningJid.current = null;
           setStatus('left');
@@ -292,7 +298,11 @@ export const useLiveChatRoom = ({
       if (!target.jid) {
         throw new Error('The chat room is not ready yet');
       }
-      setMessages([]);
+      // A preview seat taken again picks up where the last one left off; the
+      // replay fills the gap and repeats are merged by id.
+      if (!preview) {
+        setMessages([]);
+      }
       joiningJid.current = target.jid;
       await getDmTransport(user.id).joinRoom(target.jid);
     } catch (err) {
@@ -302,7 +312,7 @@ export const useLiveChatRoom = ({
     }
     // The query key is stable per post; the options object is not.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [log, postId, queryClient, room, status, user?.id]);
+  }, [postId, preview, queryClient, room, status, user?.id]);
 
   const participate = useCallback(async () => {
     setIsParticipating(true);
@@ -340,6 +350,30 @@ export const useLiveChatRoom = ({
     previewedJid.current = roomJid;
     join().catch(() => undefined);
   }, [join, preview, roomJid, status, user?.id]);
+
+  // The preview's seat goes when the panel does: nobody is reading, and the
+  // seat is better left to someone who is. It comes back with the panel.
+  useEffect(() => {
+    const jid = seatedJid.current;
+    if (
+      preview ||
+      isParticipating ||
+      status !== 'joined' ||
+      !jid ||
+      !previewedJid.current
+    ) {
+      return;
+    }
+    seatedJid.current = null;
+    joiningJid.current = null;
+    previewedJid.current = null;
+    setStatus('idle');
+    if (user?.id) {
+      getDmTransport(user.id)
+        .leaveRoom(jid)
+        .catch(() => undefined);
+    }
+  }, [isParticipating, preview, status, user?.id]);
 
   const leave = useCallback(() => {
     if (preview && seatedJid.current) {

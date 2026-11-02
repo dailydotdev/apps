@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import { useInView } from 'react-intersection-observer';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import {
   Button,
@@ -52,6 +53,13 @@ export const LiveChatPanel = ({
 }: LiveChatPanelProps): ReactElement | null => {
   const { user, showLogin } = useAuthContext();
   const isInline = variant === 'inline';
+  // Under a post the seat is held while the block is on screen or close to
+  // it (the comments just below still count), and given back once the
+  // reader has scrolled well past.
+  const { ref: viewRef, inView } = useInView({
+    rootMargin: '400px 0px',
+    fallbackInView: true,
+  });
   const {
     room,
     isRoomLoading,
@@ -66,7 +74,7 @@ export const LiveChatPanel = ({
     send,
     react,
     onDraftChange,
-  } = useLiveChatRoom({ postId, origin, preview: isInline });
+  } = useLiveChatRoom({ postId, origin, preview: isInline && inView });
   const { people, usernames } = useRoomPeople(senderIds);
   const hasEnded = status === 'ended';
   // The room poll can lag the presence that ended it.
@@ -125,15 +133,21 @@ export const LiveChatPanel = ({
   // Under a post the preview seats the viewer, so the chat itself is the
   // invitation: the messages run live above the way in. Until the seat is
   // there, and if it never is, there is no empty list to scroll past. Once the
-  // room ends the last messages stay readable, as in the rail.
+  // room ends, or the seat is given back off screen, the last messages stay
+  // so nothing jumps.
   const showMessages =
-    !isInline || isSeated || status === 'joining' || hasEnded;
+    !isInline ||
+    isSeated ||
+    status === 'joining' ||
+    hasEnded ||
+    messages.length > 0;
   // A preview that could not take a seat says nothing; the viewer only hears
   // about it when their own join fails.
   const showFailure = status === 'failed' && failure && isParticipating;
 
   return (
     <section
+      ref={viewRef}
       aria-label="Live chat"
       className={classNames(
         'flex min-h-0 flex-col bg-background-default',

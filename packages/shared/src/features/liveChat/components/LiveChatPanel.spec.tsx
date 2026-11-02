@@ -7,6 +7,7 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
 import { LiveChatPanel } from './LiveChatPanel';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -65,8 +66,8 @@ const emit = (event: DmEvent) =>
 
 const renderPanel = (
   props: Partial<React.ComponentProps<typeof LiveChatPanel>> = {},
-) =>
-  render(
+) => {
+  const result = render(
     <QueryClientProvider
       client={
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
@@ -75,6 +76,17 @@ const renderPanel = (
       <LiveChatPanel postId="p1" origin="article page" canStart {...props} />
     </QueryClientProvider>,
   );
+  return result;
+};
+
+// Under a post the block appears once the room is known, and starts on
+// screen; the mock only knows the element once it is observed.
+const renderInline = async () => {
+  const result = renderPanel({ variant: 'inline' });
+  await screen.findByLabelText('Live chat');
+  act(() => mockAllIsIntersecting(true));
+  return result;
+};
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -148,7 +160,7 @@ describe('LiveChatPanel', () => {
       .mockReturnValue({ logEvent } as unknown as ReturnType<
         typeof useLogContext
       >);
-    renderPanel({ variant: 'inline' });
+    await renderInline();
 
     expect(
       await screen.findByText('Live chat is on for this post'),
@@ -199,8 +211,52 @@ describe('LiveChatPanel', () => {
     expect(transport.leaveRoom).not.toHaveBeenCalled();
   });
 
+  it('under a post, gives the seat back off screen and takes it again on return', async () => {
+    await renderInline();
+    await waitFor(() => expect(transport.joinRoom).toHaveBeenCalledTimes(1));
+    emit({ type: 'roomJoined', roomJid: room.jid! });
+    emit({
+      type: 'roomMessage',
+      message: {
+        id: 'm1',
+        roomJid: room.jid!,
+        senderId: 'u2',
+        body: 'still here',
+        createdAt: new Date().toISOString(),
+      },
+    });
+    await screen.findByText('still here');
+
+    act(() => mockAllIsIntersecting(false));
+    await waitFor(() =>
+      expect(transport.leaveRoom).toHaveBeenCalledWith(room.jid),
+    );
+    // The echo of the own unavailable presence changes nothing.
+    emit({ type: 'roomLeft', roomJid: room.jid! });
+    // The last messages stay so the page does not jump.
+    expect(screen.getByText('still here')).toBeInTheDocument();
+
+    act(() => mockAllIsIntersecting(true));
+    await waitFor(() => expect(transport.joinRoom).toHaveBeenCalledTimes(2));
+    emit({ type: 'roomJoined', roomJid: room.jid! });
+    expect(screen.getByText('still here')).toBeInTheDocument();
+  });
+
+  it('under a post, keeps the seat off screen once the viewer has joined', async () => {
+    await renderInline();
+    await waitFor(() => expect(transport.joinRoom).toHaveBeenCalledTimes(1));
+    emit({ type: 'roomJoined', roomJid: room.jid! });
+    fireEvent.click(await screen.findByText('Join the chat'));
+    await screen.findByPlaceholderText(/Say something/);
+
+    act(() => mockAllIsIntersecting(false));
+    await act(async () => undefined);
+    expect(transport.leaveRoom).not.toHaveBeenCalled();
+    expect(screen.getByPlaceholderText(/Say something/)).toBeInTheDocument();
+  });
+
   it('under a post, a seat the preview could not take is only reported on the own join', async () => {
-    renderPanel({ variant: 'inline' });
+    await renderInline();
     await waitFor(() => expect(transport.joinRoom).toHaveBeenCalledTimes(1));
     emit({ type: 'roomJoinFailed', roomJid: room.jid!, reason: 'full' });
 
@@ -221,7 +277,7 @@ describe('LiveChatPanel', () => {
   });
 
   it('under a post, keeps the last messages readable once the room ends', async () => {
-    renderPanel({ variant: 'inline' });
+    await renderInline();
     fireEvent.click(await screen.findByText('Join the chat'));
     await waitFor(() => expect(transport.joinRoom).toHaveBeenCalled());
     emit({ type: 'roomJoined', roomJid: room.jid! });
