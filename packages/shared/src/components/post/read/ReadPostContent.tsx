@@ -233,7 +233,6 @@ export function ReadPostContent({
                 format={ReadAdFormat.MediumRectangle}
                 className="my-6"
                 hideOnPhone={index > 0}
-                logExtra={{ section: 'summary', occurrence: index + 1 }}
               />
             )}
           </React.Fragment>
@@ -306,7 +305,6 @@ export function ReadPostContent({
                 format={ReadAdFormat.MediumRectangle}
                 className="my-6"
                 hideOnPhone={summaryParts.length > 1 || index > 0}
-                logExtra={{ section: 'body', occurrence: index + 1 }}
               />
             )}
           </React.Fragment>
@@ -333,7 +331,7 @@ export function ReadPostContent({
           logOrigin={Origin.ArticlePage}
           hideInternalAd
           interleaveEvery={COMMENTS_PER_INTERLEAVED_AD}
-          renderInterleaved={(occurrence) => (
+          renderInterleaved={() => (
             // Phone-hidden until the density precondition in slots.ts is
             // satisfied: a repeating unit, and the phone figure was measured
             // without it.
@@ -341,7 +339,6 @@ export function ReadPostContent({
               slot={READ_SLOT.commentMpu}
               format={ReadAdFormat.MediumRectangle}
               hideOnPhone
-              logExtra={{ occurrence }}
             />
           )}
         />

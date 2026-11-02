@@ -2,9 +2,9 @@
  * The IAB TCF vendors the consent banner asks about, by Global Vendor List
  * id. iubenda has no default here: with nothing selected it declares the
  * entire GVL, well over a thousand vendors, which the TCF policies forbid
- * and no reader can review. This is Content Ignite's onboarding list (their
+ * and no reader can review. This is Content Ignite's onboarding list: their
  * tag reads consent as missing for any partner not on it and falls back to
- * non-personalized ads) plus the demand we run ourselves.
+ * non-personalized ads.
  *
  * Mirrored by hand into the marketing sites' embed (recruiter-landing,
  * custom-scripts/head.html): consent is shared across *.daily.dev through
@@ -30,8 +30,10 @@ export const tcfVendors: ReadonlyArray<{ id: number; name: string }> = [
   { id: 91, name: 'Criteo SA' },
   { id: 686, name: 'The MediaGrid Inc.' },
   { id: 617, name: 'Onfocus (Adagio)' },
-  // the onboarding doc lists 33 as Sharethrough; in the GVL it is ShareThis
+  // the onboarding doc listed 33 as Sharethrough; Content Ignite confirmed
+  // they want Sharethrough (80) and kept 33, ShareThis in the GVL
   { id: 33, name: 'ShareThis, Inc' },
+  { id: 80, name: 'Sharethrough, Inc' },
   { id: 149, name: 'ADman Interactive SLU' },
   { id: 737, name: 'Monet Engine Inc' },
   { id: 81, name: 'PulsePoint, Inc.' },
@@ -56,8 +58,6 @@ export const tcfVendors: ReadonlyArray<{ id: number; name: string }> = [
   { id: 14, name: 'Adkernel LLC (Madopi)' },
   { id: 285, name: 'Comcast International France SAS/FreeWheel Media' },
   { id: 1028, name: 'Sparteo' },
-  // our own programmatic demand (see features/monetization/kueez.ts)
-  { id: 1165, name: 'Kueez Entertainment Ltd.' },
 ];
 
 export const tcfVendorIds: number[] = tcfVendors.map(({ id }) => id);
