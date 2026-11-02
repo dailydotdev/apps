@@ -176,7 +176,14 @@ export interface RankedExplain {
  * card from another lane than the personalized one only names its lane, and
  * a version this client doesn't know reads the same way.
  */
-export type FeedItemExplain = RankedExplain | { lane: string; v?: never };
+export type FeedItemExplain =
+  | RankedExplain
+  | {
+      lane: string;
+      v?: never;
+      /** It topped up a page For You's ranking couldn't fill. */
+      fill_in?: boolean;
+    };
 
 export const isRankedExplain = (
   explain: FeedItemExplain | null | undefined,

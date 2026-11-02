@@ -48,7 +48,7 @@ describe('getReason', () => {
   it.each<[string, FeedItemExplain | null, string]>([
     [
       'a fill-in lane',
-      { lane: 'po' },
+      { lane: 'po', fill_in: true },
       "Popular this week. Your topics didn't have enough new posts, so we added it.",
     ],
     [
@@ -57,8 +57,8 @@ describe('getReason', () => {
       'Picked for you.',
     ],
     [
-      'a card from a feed version without explanations',
-      { lane: 'vector' },
+      'a card from a lane the feed did not mark as a fill-in',
+      { lane: 'po' },
       'Picked for you.',
     ],
     ['no explanation', null, 'Picked for you.'],

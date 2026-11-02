@@ -22,10 +22,6 @@ import {
 } from './types';
 import { formatUntil } from './duration';
 
-// The lanes that top up a page For You's ranking couldn't fill: coldstart
-// and popular.
-const fillInLanes = ['cs', 'po'];
-
 /** What put a card on the page, for the dot beside its reason. */
 enum ReasonCategory {
   Followed = 'followed',
@@ -42,7 +38,7 @@ const reasonDotClassName: Record<ReasonCategory, string> = {
 };
 
 const isFillIn = (explain: FeedItemExplain | null | undefined): boolean =>
-  !!explain && !isRankedExplain(explain) && fillInLanes.includes(explain.lane);
+  !!explain && !isRankedExplain(explain) && !!explain.fill_in;
 
 const isSourceFollow = (explain: RankedExplain): boolean =>
   explain.follow.kind === ExplainFollowKind.Source ||
