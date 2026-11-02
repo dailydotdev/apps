@@ -25,13 +25,11 @@ export const LiveChatMobileEntry = ({
   postId,
   origin,
   canStart,
-  isTrending,
   hasCapsule,
 }: {
   postId: string;
   origin: string;
   canStart: boolean;
-  isTrending?: boolean;
   hasCapsule?: boolean;
 }): ReactElement | null => {
   const { user } = useAuthContext();
@@ -93,7 +91,6 @@ export const LiveChatMobileEntry = ({
             postId={postId}
             origin={origin}
             canStart={canStart}
-            isTrending={isTrending}
             variant="sheet"
             className="flex-1"
           />

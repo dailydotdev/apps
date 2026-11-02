@@ -89,7 +89,7 @@ export const LiveChatWidget = ({
       <FeedWidgetEmpty
         kind={FeedWidgetKind.LiveChat}
         isPending={isEnabled && isPending}
-        message="No live chats right now. They open when a post takes off."
+        message="No live chats right now. The daily.dev team opens one on a post worth talking about."
       />
     );
   }

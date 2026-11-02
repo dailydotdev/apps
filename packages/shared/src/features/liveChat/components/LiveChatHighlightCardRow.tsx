@@ -7,10 +7,11 @@ import Link from '../../../components/utilities/Link';
 import { useLiveChatHighlight } from '../hooks/useLiveChatHighlight';
 import { formatTimeLeft } from '../timeLeft';
 import { LiveDot } from './LiveDot';
+import { LiveChatJoinChip } from './LiveChatHighlightRow';
 
-// The newest live room as the first row of the Happening Now card, drawn
-// like the headline rows around it. Renders nothing for readers outside
-// live chat or when no room is open.
+// The newest live room as the first row of the Happening Now card, framed
+// in brand so it stands apart from the headline rows under it. Renders
+// nothing for readers outside live chat or when no room is open.
 export const LiveChatHighlightCardRow = ({
   compact,
 }: {
@@ -41,10 +42,10 @@ export const LiveChatHighlightCardRow = ({
     <Link href={href}>
       <a
         className={classNames(
-          'flex w-full flex-col gap-0 text-left transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover',
-          compact
-            ? 'relative rounded-12 px-4 py-3 after:absolute after:inset-x-4 after:bottom-0 after:h-px after:bg-border-subtlest-tertiary'
-            : 'rounded-8 border-b border-border-subtlest-tertiary px-3 py-2',
+          // No width utility: a flex-col child of the card's column already
+          // stretches, and `w-full` would fight the compact inset margins.
+          'live-chat-frame flex flex-col gap-0 rounded-12 border border-brand-default text-left transition-colors hover:bg-brand-float focus-visible:bg-brand-float',
+          compact ? 'mx-4 mb-2 px-4 py-3' : 'mb-2 px-3 py-2',
         )}
         href={href}
         onClick={() =>
@@ -62,12 +63,15 @@ export const LiveChatHighlightCardRow = ({
         <span className="flex items-center gap-1.5 text-brand-default typo-footnote">
           <LiveDot />
           Live chat
+          {/* base.css sets flex-shrink: 0 on everything, so the meta has to
+              be allowed to shrink before `truncate` can do anything. */}
           {meta && (
-            <span className="text-text-tertiary">
+            <span className="min-w-0 flex-1 truncate text-text-tertiary">
               <span aria-hidden> · </span>
               {meta}
             </span>
           )}
+          <LiveChatJoinChip className="ml-auto" />
         </span>
         <span className="break-words font-bold text-text-primary typo-callout">
           {room.post?.title || room.title}
