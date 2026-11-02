@@ -53,10 +53,8 @@ type UseLiveChatRoom = {
   isParticipating: boolean;
   // Opens the post's room when there is none yet, then joins it.
   join: () => Promise<void>;
-  // Joins if needed and unlocks the composer; the "Join the chat" click.
+  // Joins if needed and unlocks the composer; the "Join" click.
   participate: () => Promise<void>;
-  // Under a preview, only gives up the composer; the seat stays for reading.
-  leave: () => void;
   send: (body: string) => Promise<void>;
   // Adds or removes the viewer's reaction on a message.
   react: (messageId: string, emoji: string) => void;
@@ -385,26 +383,6 @@ export const useLiveChatRoom = ({
     return () => clearTimeout(timer);
   }, [isParticipating, preview, status, user?.id]);
 
-  const leave = useCallback(() => {
-    if (preview && seatedJid.current) {
-      stopComposing(true);
-      setIsParticipating(false);
-      log(LogEvent.LeaveLiveChat);
-      return;
-    }
-    const jid = seatedJid.current ?? joiningJid.current;
-    seatedJid.current = null;
-    joiningJid.current = null;
-    stopComposing(false);
-    setStatus('left');
-    if (user?.id && jid) {
-      getDmTransport(user.id)
-        .leaveRoom(jid)
-        .catch(() => undefined);
-      log(LogEvent.LeaveLiveChat);
-    }
-  }, [log, preview, stopComposing, user?.id]);
-
   const send = useCallback(
     async (body: string) => {
       const jid = seatedJid.current;
@@ -496,7 +474,6 @@ export const useLiveChatRoom = ({
     isParticipating,
     join,
     participate,
-    leave,
     send,
     react,
     onDraftChange,

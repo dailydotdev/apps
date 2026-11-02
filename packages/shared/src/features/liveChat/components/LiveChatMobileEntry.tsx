@@ -27,18 +27,22 @@ export const LiveChatMobileEntry = ({
   origin,
   canStart,
   hasCapsule,
+  openOnMount,
 }: {
   postId: string;
   origin: string;
   canStart: boolean;
   hasCapsule?: boolean;
+  // The viewer came here to join (a "Join" row elsewhere): the sheet opens
+  // at once and joins on its own.
+  openOnMount?: boolean;
 }): ReactElement | null => {
   const { user } = useAuthContext();
   const isPhone = useIsPhone();
   const capsule = usePostCapsulePosition();
   const capsuleOffset = hasCapsule ? field.rest + field.gap : 0;
   const capsuleShrink = hasCapsule ? field.rest - capsule.height : 0;
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(!!openOnMount);
   const { data: room, isPending } = useQuery(
     postChatRoomQueryOptions(user, postId),
   );
@@ -92,6 +96,9 @@ export const LiveChatMobileEntry = ({
             origin={origin}
             canStart={canStart}
             variant="sheet"
+            // The pill said "Join"; opening the sheet is that tap, so the
+            // room is joined without asking a second time.
+            joinOnOpen={isLive}
             className="flex-1"
           />
         </Drawer>
