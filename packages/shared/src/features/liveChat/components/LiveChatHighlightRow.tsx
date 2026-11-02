@@ -6,6 +6,7 @@ import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import Link from '../../../components/utilities/Link';
 import type { ChatRoom } from '../graphql';
 import { formatEndsIn, formatOccupants } from '../timeLeft';
+import { withJoinIntent } from '../joinLink';
 
 // Happening Now rows share one list, so the live room and the highlights must
 // keep the same padding and headline type. Both rows build on these.
@@ -52,7 +53,10 @@ export const LiveChatHighlightRow = ({
   widget: string;
 }): ReactElement | null => {
   const { logEvent } = useLogContext();
-  const href = room.post?.commentsPermalink;
+  // The row is the yes: landing on the post joins the chat right away.
+  const href = room.post?.commentsPermalink
+    ? withJoinIntent(room.post.commentsPermalink)
+    : undefined;
   if (!href) {
     return null;
   }

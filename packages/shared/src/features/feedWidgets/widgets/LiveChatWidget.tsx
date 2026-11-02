@@ -11,13 +11,17 @@ import { liveChatRoomsQueryOptions } from '../../liveChat/queries';
 import { useLiveChatEnabled } from '../../liveChat/hooks/useLiveChatEnabled';
 import { LiveDot } from '../../liveChat/components/LiveDot';
 import { formatEndsIn, formatOccupants } from '../../liveChat/timeLeft';
+import { withJoinIntent } from '../../liveChat/joinLink';
 import type { FeedWidgetComponentProps } from '../registry';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
 import { FeedWidgetEmpty } from '../FeedWidgetFrame';
 import { useWidgetScroll } from '../useWidgetScroll';
 
+// The row is the yes: landing on the post joins the chat right away.
 const roomHref = (room: ChatRoom): string | undefined =>
-  room.post?.commentsPermalink;
+  room.post?.commentsPermalink
+    ? withJoinIntent(room.post.commentsPermalink)
+    : undefined;
 
 const RoomRow = ({
   room,

@@ -45,7 +45,10 @@ describe('LiveChatHighlightCardRow', () => {
     render(<LiveChatHighlightCardRow compact />);
 
     const link = screen.getByRole('link');
-    expect(link).toHaveAttribute('href', 'https://app.daily.dev/posts/p1');
+    expect(link).toHaveAttribute(
+      'href',
+      'https://app.daily.dev/posts/p1?chat=join',
+    );
     expect(link).toHaveTextContent('Live chat');
     expect(link).toHaveTextContent('23 here · ends in 2h');
     expect(link).toHaveTextContent('Bun 2.0');

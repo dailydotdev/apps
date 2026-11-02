@@ -31,14 +31,12 @@ export const LiveChatComposer = ({
   viewerId,
   onSend,
   onDraftChange,
-  onLeave,
   autoFocus,
 }: {
   people: RoomPerson[];
   viewerId?: string;
   onSend: (body: string) => Promise<void>;
   onDraftChange: (hasText: boolean) => void;
-  onLeave: () => void;
   autoFocus?: boolean;
 }): ReactElement => {
   const [value, setValue] = useState('');
@@ -193,18 +191,9 @@ export const LiveChatComposer = ({
           onClick={send}
         />
       </div>
-      <div className="flex items-center justify-between text-text-quaternary typo-caption2">
-        <span>
-          Text and links, up to {LIVE_CHAT_MESSAGE_MAX_LENGTH} characters
-        </span>
-        <button
-          type="button"
-          onClick={onLeave}
-          className="underline hover:text-text-tertiary"
-        >
-          Leave
-        </button>
-      </div>
+      <span className="text-text-quaternary typo-caption2">
+        Text and links, up to {LIVE_CHAT_MESSAGE_MAX_LENGTH} characters
+      </span>
     </div>
   );
 };
