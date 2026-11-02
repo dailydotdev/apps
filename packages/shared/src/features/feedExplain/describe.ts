@@ -495,14 +495,14 @@ export const getScoreBreakdown = (
   const multipliers: ScoreFactor[] = [
     {
       label: 'Engagement',
-      hint: "How much readers clicked, upvoted, and commented on this post, compared with a typical post. A post with little engagement yet also counts its source's track record.",
+      hint: "How much readers clicked, upvoted, and commented on this post compared with a typical post. Until a post has much of that, its source's past posts count too.",
       multiplier: cautious || base.value,
     },
     ...(cautious
       ? [
           {
             label: 'New post',
-            hint: "A lift toward how well a new post could do, since it hasn't had time to collect engagement. It fades as the post gets older.",
+            hint: "New posts haven't had time to collect clicks and upvotes, so they get a lift toward how well they could do. The lift fades as the post gets older.",
             multiplier: base.value / cautious,
           },
         ]
@@ -533,7 +533,7 @@ export const getScoreBreakdown = (
       ? [
           {
             label: 'Random nudge',
-            hint: 'A small random change, so your feed sometimes tries a post it would rank just below.',
+            hint: 'A small random change to the score, so your feed sometimes shows a post it would otherwise rank just below.',
             multiplier: explore,
           },
         ]
@@ -583,12 +583,12 @@ export const getScoreBreakdown = (
           slot?.fresh
             ? {
                 label: 'Spot for new posts',
-                hint: 'Your feed saves a spot for a brand-new post, ranked on how well it could do, and this post took it.',
+                hint: 'Your feed saves a spot for a brand-new post, picked by how well it could do. This post got it.',
                 multiplier: gap,
               }
             : {
                 label: 'Other adjustments',
-                hint: "Anything else that moved the post that the rows above don't cover.",
+                hint: 'Anything else that moved the post, beyond the rows above.',
                 multiplier: gap,
               },
         ]
