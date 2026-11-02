@@ -1,6 +1,15 @@
 import { useMemo } from 'react';
-import type { AdUtm } from './kueez';
-import { AD_UTM_KEYS } from './kueez';
+
+/**
+ * UTM dimensions worth attributing an ad impression to. The values ride our
+ * own slot events and the page-level targeting handed to Content Ignite, so
+ * a visitor from a paid campaign can be priced apart from an organic one.
+ */
+export const AD_UTM_KEYS = ['source', 'medium', 'campaign', 'content'] as const;
+
+export type AdUtmKey = (typeof AD_UTM_KEYS)[number];
+
+export type AdUtm = Partial<Record<AdUtmKey, string>>;
 
 const STORAGE_KEY = 'ad_utm';
 
@@ -41,8 +50,8 @@ export function resolveAdUtm(search: string): AdUtm | undefined {
 
 /**
  * The acquisition source behind this visit, for ad telemetry and for the
- * first-party data the bid request carries. Stable for the session, so the
- * memo never needs to re-run on navigation.
+ * targeting the ad tag carries. Stable for the session, so the memo never
+ * needs to re-run on navigation.
  */
 export function useAdUtm(): AdUtm | undefined {
   return useMemo(() => {

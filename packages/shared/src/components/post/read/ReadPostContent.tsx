@@ -83,7 +83,7 @@ export interface ReadPostContentProps {
  * Ad-monetised post template for paid and organic landing traffic.
  *
  * Forked from the classic PostContent layout: its widget column carries three
- * always-viewable slots. Signup surfaces (PostAuthBanner, CustomAuthBanner,
+ * always-viewable slots. Signup surfaces (PostAuthBanner,
  * PostSignupWidget) are deliberately absent — the header login/signup buttons
  * remain the only account entry point.
  *
@@ -233,7 +233,6 @@ export function ReadPostContent({
                 format={ReadAdFormat.MediumRectangle}
                 className="my-6"
                 hideOnPhone={index > 0}
-                logExtra={{ section: 'summary', occurrence: index + 1 }}
               />
             )}
           </React.Fragment>
@@ -306,7 +305,6 @@ export function ReadPostContent({
                 format={ReadAdFormat.MediumRectangle}
                 className="my-6"
                 hideOnPhone={summaryParts.length > 1 || index > 0}
-                logExtra={{ section: 'body', occurrence: index + 1 }}
               />
             )}
           </React.Fragment>
@@ -333,7 +331,7 @@ export function ReadPostContent({
           logOrigin={Origin.ArticlePage}
           hideInternalAd
           interleaveEvery={COMMENTS_PER_INTERLEAVED_AD}
-          renderInterleaved={(occurrence) => (
+          renderInterleaved={() => (
             // Phone-hidden until the density precondition in slots.ts is
             // satisfied: a repeating unit, and the phone figure was measured
             // without it.
@@ -341,7 +339,6 @@ export function ReadPostContent({
               slot={READ_SLOT.commentMpu}
               format={ReadAdFormat.MediumRectangle}
               hideOnPhone
-              logExtra={{ occurrence }}
             />
           )}
         />

@@ -3,7 +3,6 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { POST_CONTENT_MAP } from '@dailydotdev/shared/src/components/post/postContentMap';
-import Script from 'next/script';
 import {
   ReadAdFormat,
   ReadAdSlot,
@@ -13,9 +12,6 @@ import { PhoneTopAdStrip } from '@dailydotdev/shared/src/components/post/read/Ph
 import { PostWidgetPosition } from '@dailydotdev/shared/src/components/post/PostWidgets';
 import {
   hasLiveAdSlots,
-  PREBID_SCRIPT_SRC,
-} from '@dailydotdev/shared/src/features/monetization/kueez';
-import {
   COMMENTS_PER_INTERLEAVED_AD,
   CONTENT_CHARS_PER_AD,
   MAX_CONTENT_ADS_PER_SECTION,
@@ -82,7 +78,6 @@ import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoa
 import classNames from 'classnames';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth/useOnboardingActions';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
-import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { isSourceUserSource } from '@dailydotdev/shared/src/graphql/sources';
 import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
 import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/ActivePostContext';
@@ -93,7 +88,7 @@ import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/Engage
 import { getEngagementLogExtra } from '@dailydotdev/shared/src/lib/engagementAds';
 import { isSourceAdFree } from '@dailydotdev/shared/src/lib/ads';
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
-import { AdHeadHints } from '../../../components/AdHeadHints';
+import { ContentIgniteTag } from '../../../components/ContentIgniteTag';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
@@ -213,8 +208,8 @@ export const PostPage = ({
   const showSignupStrip =
     showLaptopAuthBanner && !isSignupStripLoading && isSignupStripOn;
   // Empty for every logged-in visitor and for posts in ad-free squads; the
-  // slot components check the same hook, so with it empty neither markup nor
-  // the Prebid bundle exists.
+  // slot components check the same hook, so with it empty neither anchors nor
+  // the ad tag exist.
   const adSlots = useOrganicAdSlots(post);
   const adsActive = hasLiveAdSlots(adSlots);
   // The same in-content treatment the /articles template ships, reused on
@@ -260,7 +255,6 @@ export const PostPage = ({
                 format={ReadAdFormat.MediumRectangle}
                 className="my-6"
                 hideOnPhone={index > 0}
-                logExtra={{ section: 'summary', occurrence: index + 1 }}
               />
             )}
           </React.Fragment>
@@ -300,13 +294,12 @@ export const PostPage = ({
             ),
             commentAds: {
               interleaveEvery: COMMENTS_PER_INTERLEAVED_AD,
-              renderInterleaved: (occurrence: number) => (
+              renderInterleaved: () => (
                 <ReadAdSlot
                   surface="organic"
                   slot={ORGANIC_SLOT.commentMpu}
                   format={ReadAdFormat.MediumRectangle}
                   hideOnPhone
-                  logExtra={{ occurrence }}
                 />
               ),
             },
@@ -408,16 +401,7 @@ export const PostPage = ({
             <Head>
               <link rel="preload" as="image" href={post?.image} />
             </Head>
-            {adsActive && (
-              <>
-                <AdHeadHints />
-                <Script
-                  id="prebid-loader"
-                  src={PREBID_SCRIPT_SRC}
-                  strategy="afterInteractive"
-                />
-              </>
-            )}
+            <ContentIgniteTag enabled={adsActive} />
             <PostSEOSchema post={post} topComments={topComments} />
             <Content
               position={position}
@@ -482,16 +466,8 @@ const getPostPageLayout: typeof getLayout = (page, pageProps, layoutProps) => {
     pageProps,
     {
       ...layoutProps,
-      // Strip first: both pin, and the banner's top offset is the strip's height.
       customBanner: (
-        <>
-          <PhoneTopAdStrip
-            key={id}
-            surface="organic"
-            post={initialData?.post}
-          />
-          <CustomAuthBanner />
-        </>
+        <PhoneTopAdStrip key={id} surface="organic" post={initialData?.post} />
       ),
     },
   );
