@@ -22,8 +22,6 @@ interface MobileAppActionsProps {
   isFloating?: boolean;
 }
 
-// Beside Log in, a browser tab offers the app; inside the app (or an
-// installed PWA) there is no app to offer, so the second button is Sign up.
 export function MobileAppActions({
   className,
   isFloating = false,

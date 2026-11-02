@@ -79,18 +79,20 @@ interface FeedNavProps {
   inShellBlock?: boolean;
   // The widget rail brings the feed's tabs, under it.
   hasFeedWidgetRail?: boolean;
+  canShowSignInStrip?: boolean;
 }
 
 function FeedNav({
   inShellBlock = false,
   hasFeedWidgetRail = false,
+  canShowSignInStrip = false,
 }: FeedNavProps): ReactElement | null {
   const router = useRouter();
   const { feedName: rawFeedName } = useActiveFeedNameContext();
   const feedName = rawFeedName as AllFeedPages;
   const { sortingEnabled } = useSettingsContext();
   const { isSortableFeed } = useFeedName({ feedName });
-  const { home, bookmarks } = useActiveNav(feedName);
+  const { home, bookmarks, profile } = useActiveNav(feedName);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isBelowLaptop = !useViewSize(ViewSize.Laptop);
   // The notifications bell only belongs to the tablet feed header: phones get it
@@ -205,13 +207,8 @@ function FeedNav({
   if (withoutLayoutVariantPrefix(router?.pathname).startsWith('/posts/[id]')) {
     return null;
   }
-  // A tablet page without feed tabs gets the sign-in strip the laptop shows,
-  // except where the page's own bar carries the pair (a profile).
   if (!shouldRenderNav) {
-    const hasOwnBar = withoutLayoutVariantPrefix(router?.pathname).startsWith(
-      '/[userId]',
-    );
-    return isTablet && isMobileAppHeader && !hasOwnBar ? (
+    return isTablet && isMobileAppHeader && canShowSignInStrip && !profile ? (
       <div className="pl-20 pr-4 pt-4">
         <SignInStrip />
       </div>

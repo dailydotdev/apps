@@ -168,6 +168,5 @@ export const getServerSideProps: GetServerSideProps<
 };
 
 SharePostPage.getLayout = getLayout;
-SharePostPage.layoutProps = {};
 
 export default SharePostPage;
