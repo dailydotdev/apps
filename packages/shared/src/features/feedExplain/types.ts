@@ -107,7 +107,19 @@ export interface RankedExplain {
   score: number;
   /** The card's place in the feed, when the ranking picked it. */
   position?: number;
-  base: { value: number; prior_lift?: number; viewers: number };
+  base: {
+    value: number;
+    prior_lift?: number;
+    viewers: number;
+    /**
+     * On a new post the feed ranks closer to how well it could do: `value`
+     * is `cautious`, what its engagement shows so far, moved `optimism` of
+     * the way toward `upper`. Absent otherwise.
+     */
+    cautious?: number;
+    upper?: number;
+    optimism?: number;
+  };
   /** The best-matching topic, absent when a follow alone let the card in. */
   match?: {
     tag: string;
@@ -135,7 +147,8 @@ export interface RankedExplain {
     author_control?: FollowControl;
   };
   age: { days: number; factor: number };
-  seen: { shows: number; factor: number };
+  /** `passive_shows` counts times it loaded in a tab the reader didn't look at. */
+  seen: { shows: number; passive_shows?: number; factor: number };
   /** The variety adjustments, on picked cards. */
   slot?: {
     source_repeat: number;
@@ -143,8 +156,12 @@ export interface RankedExplain {
     same_headline: number;
     waiting: number;
     waiting_tag?: string;
+    /** On the card that took the spot saved for a new post, scored on its own scale. */
+    fresh?: boolean;
     pick_score: number;
   };
+  /** The random nudge the score took, on feeds that try posts ranked just below. */
+  explore?: number;
 }
 
 /**
@@ -152,7 +169,14 @@ export interface RankedExplain {
  * card from another lane than the personalized one only names its lane, and
  * a version this client doesn't know reads the same way.
  */
-export type FeedItemExplain = RankedExplain | { lane: string; v?: never };
+export type FeedItemExplain =
+  | RankedExplain
+  | {
+      lane: string;
+      v?: never;
+      /** It topped up a page For You's ranking couldn't fill. */
+      fill_in?: boolean;
+    };
 
 export const isRankedExplain = (
   explain: FeedItemExplain | null | undefined,
