@@ -4,4 +4,3 @@ next.config.js
 public/push/onesignal/OneSignalSDKWorker.js
 public/scripts/*.js
 public/sw.js
-public/prebid/*.js
