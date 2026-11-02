@@ -796,6 +796,7 @@ export enum TargetId {
   MyProfile = 'my profile',
   PlusBadge = 'plus badge',
   PlusPage = 'plus page',
+  CoreWallet = 'core wallet',
   Marketplace = 'marketplace',
   ApiAccess = 'api access',
   PostPluginsWidget = 'post plugins widget',
