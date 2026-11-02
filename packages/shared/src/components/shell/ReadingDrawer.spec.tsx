@@ -137,6 +137,35 @@ describe('ReadingDrawer', () => {
     expect(document.documentElement).toHaveClass('reading');
   });
 
+  it('owns no history entry from a feed card, so one back leaves the post', () => {
+    jest.useFakeTimers();
+    withReadingBridge();
+    queueReadingOpen(post, post.permalink as string);
+    renderPostPage();
+    act(() => {
+      jest.advanceTimersByTime(openDuration);
+    });
+    expect(document.documentElement).toHaveClass('reading');
+    expect(mockRouter.beforePopState).not.toHaveBeenCalled();
+
+    const back = jest.spyOn(window.history, 'back').mockImplementation(() => {
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+    // The wrapper's press is not used: history moves, the post leaves.
+    expect(closeTopLayer()).toBe(false);
+    expect(back).not.toHaveBeenCalled();
+
+    // The drawer's own close keeps the post page, with nothing popped.
+    fireEvent.click(screen.getByLabelText('Close'));
+    act(() => {
+      jest.advanceTimersByTime(openDuration);
+    });
+    expect(back).not.toHaveBeenCalled();
+    expect(document.documentElement).not.toHaveClass('reading');
+    back.mockRestore();
+    jest.useRealTimers();
+  });
+
   it('opens the article behind the post instead of following the link', () => {
     withReadingBridge();
     renderPostPage();
