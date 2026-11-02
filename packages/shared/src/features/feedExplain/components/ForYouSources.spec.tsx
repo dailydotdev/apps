@@ -52,7 +52,6 @@ const controls: FeedControls = {
   authors: [],
   learning: true,
   fillIns: true,
-  ranking: [],
 };
 const feedId = defaultUser.id;
 

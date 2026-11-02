@@ -13,7 +13,6 @@ export type TuneChange =
   | { kind: 'topic'; keyword: string; value: ControlValue<FeedTopicMode> }
   | { kind: 'source'; sourceId: string; value: ControlValue<FeedSourceMode> }
   | { kind: 'author'; userId: string; value: ControlValue<FeedAuthorMode> }
-  | { kind: 'ranking'; key: string; value: number | null }
   | { kind: 'learning'; enabled: boolean };
 
 export const changeKey = (change: TuneChange): string => {
@@ -24,8 +23,6 @@ export const changeKey = (change: TuneChange): string => {
       return `source:${change.sourceId}`;
     case 'author':
       return `author:${change.userId}`;
-    case 'ranking':
-      return `ranking:${change.key}`;
     default:
       return 'learning';
   }
@@ -81,17 +78,6 @@ const toDraft = (changes: TuneChange[]): FeedControlsDraft =>
           authors: [
             ...(draft.authors ?? []),
             { userId: change.userId, ...toDraftEntry(change.value) },
-          ],
-        };
-      case 'ranking':
-        return {
-          ...draft,
-          ranking: [
-            ...(draft.ranking ?? []),
-            {
-              key: change.key,
-              ...(change.value !== null && { value: change.value }),
-            },
           ],
         };
       default:

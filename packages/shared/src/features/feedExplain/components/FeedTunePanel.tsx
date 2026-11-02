@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { Fragment, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -11,8 +11,6 @@ import CloseButton from '../../../components/CloseButton';
 import { Switch } from '../../../components/fields/Switch';
 import TabList from '../../../components/tabs/TabList';
 import { UndoIcon } from '../../../components/icons/Undo';
-import { DevPlusIcon } from '../../../components/icons/DevPlus';
-import { IconSize } from '../../../components/Icon';
 import {
   Typography,
   TypographyColor,
@@ -44,22 +42,14 @@ import {
   isAuthorFollowed,
   isSourceFollowed,
 } from '../describe';
-import { rankingGroups, rankingSettings } from '../ranking';
 import type { UseFeedTune } from '../useFeedTune';
 import { useFeedTune } from '../useFeedTune';
 import { useFeedTuneContext } from '../FeedTuneContext';
 import { TopicLevelPicker } from './TopicLevelPicker';
 import { SourceLevelPicker } from './SourceLevelPicker';
 import { AuthorLevelPicker } from './AuthorLevelPicker';
-import { RankingSlider } from './ForYouRankingSettings';
-import { PlusBanner, PlusUpsellFeature } from './PlusUpsell';
 
-const tuneTabs = Object.values(FeedTuneTab).map((label) => ({
-  label,
-  hint: label === FeedTuneTab.Ranking && (
-    <DevPlusIcon className="text-action-plus-default" size={IconSize.Size16} />
-  ),
-}));
+const tuneTabs = Object.values(FeedTuneTab).map((label) => ({ label }));
 
 // Enough rows to steer by without a wall of sliders; the rest are in Feed
 // settings.
@@ -314,63 +304,10 @@ const SourcesTab = ({ tune }: { tune: UseFeedTune }): ReactElement => {
   );
 };
 
-const RankingTab = ({
-  tune,
-  version,
-}: {
-  tune: UseFeedTune;
-  version: number;
-}): ReactElement => {
-  const { user } = useAuthContext();
-  const { isPlus } = usePlusSubscription();
-  const { data: profile } = useQuery(feedProfileQueryOptions(user, version));
-  const settings = new Map(
-    (profile?.ranking ?? []).map((item) => [item.key, item]),
-  );
-
-  return (
-    <div className="flex flex-col gap-4">
-      <PlusBanner feature={PlusUpsellFeature.Ranking}>
-        Change how For You ranks every post with Plus.
-      </PlusBanner>
-      {rankingGroups.map(({ group, title }, index) => {
-        const rows = rankingSettings.flatMap((meta) => {
-          const setting = settings.get(meta.key);
-          return meta.group === group && !meta.isAdvanced && setting
-            ? [{ meta, setting }]
-            : [];
-        });
-        if (!rows.length) {
-          return null;
-        }
-        return (
-          <Fragment key={group}>
-            {index > 0 && <Divider className="bg-border-subtlest-tertiary" />}
-            <Typography bold type={TypographyType.Callout}>
-              {title}
-            </Typography>
-            {rows.map(({ meta, setting }) => (
-              <RankingSlider
-                key={meta.key}
-                meta={meta}
-                setting={setting}
-                value={isPlus ? tune.getRankingValue(meta.key) : undefined}
-                isLocked={!isPlus}
-                onChange={(value) => tune.setRanking(meta.key, value)}
-              />
-            ))}
-          </Fragment>
-        );
-      })}
-    </div>
-  );
-};
-
 // The Feed settings page that holds each tab's controls.
 const tabSettingsPage: Record<FeedTuneTab, ForYouSettingsPageId> = {
   [FeedTuneTab.Topics]: FeedSettingsMenu.Tags,
   [FeedTuneTab.Sources]: FeedSettingsMenu.ContentSources,
-  [FeedTuneTab.Ranking]: FeedSettingsMenu.Ranking,
 };
 
 const getPreviewLabel = (count: number): string =>
@@ -469,9 +406,6 @@ export const FeedTunePanel = ({
           <TopicsTab tune={tune} version={version} />
         )}
         {tab === FeedTuneTab.Sources && <SourcesTab tune={tune} />}
-        {tab === FeedTuneTab.Ranking && (
-          <RankingTab tune={tune} version={version} />
-        )}
       </div>
       <footer
         className={classNames(

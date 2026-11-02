@@ -85,7 +85,6 @@ const showBox = ({ feedSettings, settings }: BoxOptions = {}) => {
     authors: [],
     learning: true,
     fillIns: true,
-    ranking: [],
   });
   client.setQueryData(getFeedSettingsQueryKey(defaultUser), {
     feedSettings: { advancedSettings: [], ...feedSettings },
@@ -238,25 +237,9 @@ describe('WhatsOffBox', () => {
   });
 
   it('should lock a Plus change for a free reader', async () => {
-    await askWith([
-      {
-        kind: WhatsOffLineKind.Sure,
-        words: 'old posts',
-        change: {
-          op: WhatsOffOp.Ranking,
-          value: 'age.half_life_days',
-          from: 3,
-          to: 1.5,
-          certainty: 0.8,
-          plusOnly: true,
-        },
-        alternatives: [],
-      },
-    ]);
+    await askWith([sureLine({ ...showLessAgents, plusOnly: true })]);
 
-    expect(
-      await screen.findByText('A post counts half as much after'),
-    ).toBeInTheDocument();
+    expect(await screen.findByText('Show less #ai-agents')).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: /^Apply/ }),
     ).not.toBeInTheDocument();
@@ -513,7 +496,6 @@ describe('WhatsOffBox', () => {
       learned: true,
       seen: true,
       levels: true,
-      ranking: true,
     });
     await userEvent.click(
       await screen.findByRole('button', {

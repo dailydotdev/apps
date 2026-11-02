@@ -30,8 +30,8 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { useJobsFeature } from '../../../hooks/useJobsFeature';
 import {
+  forYouSettingsPages,
   getForYouSettingsUrl,
-  useForYouSettingsPages,
 } from '../../feeds/FeedSettings/forYouSettingsPages';
 
 const settingsDefaultPath = `${settingsUrl}/profile`;
@@ -49,7 +49,6 @@ export const SettingsPanelSection = ({
   const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
   const { isJobsEnabled } = useJobsFeature();
-  const feedSettingsPages = useForYouSettingsPages();
 
   const groups: SettingsGroup[] = useMemo(
     () => [
@@ -119,7 +118,7 @@ export const SettingsPanelSection = ({
       {
         key: 'feed',
         title: 'Feed settings',
-        items: feedSettingsPages.map(({ id, title, icon: Icon }) => ({
+        items: forYouSettingsPages.map(({ id, title, icon: Icon }) => ({
           title,
           path: getForYouSettingsUrl(id),
           icon: (active: boolean) => (
@@ -238,7 +237,7 @@ export const SettingsPanelSection = ({
         ],
       },
     ],
-    [feedSettingsPages, isJobsEnabled, logEvent, openModal],
+    [isJobsEnabled, logEvent, openModal],
   );
 
   return (

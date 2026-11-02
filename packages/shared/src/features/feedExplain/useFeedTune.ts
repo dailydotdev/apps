@@ -29,12 +29,10 @@ export interface UseFeedTune extends UseFeedTuneState {
     sourceId: string,
   ) => FeedControl<FeedSourceMode> | undefined;
   getAuthorControl: (userId: string) => FeedControl<FeedAuthorMode> | undefined;
-  getRankingValue: (key: string) => number | undefined;
   learning: boolean;
   setTopic: (keyword: string, value: ControlValue<FeedTopicMode>) => void;
   setSource: (sourceId: string, value: ControlValue<FeedSourceMode>) => void;
   setAuthor: (userId: string, value: ControlValue<FeedAuthorMode>) => void;
-  setRanking: (key: string, value: number | null) => void;
   setLearning: (enabled: boolean) => void;
   undo: () => void;
   /** Saves every change in the draft, in order, and leaves Tune. */
@@ -82,17 +80,6 @@ export const useFeedTune = (): UseFeedTune => {
     },
     [latest, feedControls],
   );
-  const getRankingValue = useCallback(
-    (key: string) => {
-      const change = latest.get(`ranking:${key}`);
-      if (change?.kind === 'ranking') {
-        return change.value ?? undefined;
-      }
-      return feedControls.controls?.ranking.find((item) => item.key === key)
-        ?.value;
-    },
-    [latest, feedControls.controls],
-  );
   const learningChange = latest.get('learning');
   const learning =
     learningChange?.kind === 'learning'
@@ -125,9 +112,6 @@ export const useFeedTune = (): UseFeedTune => {
         case 'author':
           feedControls.setAuthor(change.userId, change.value);
           break;
-        case 'ranking':
-          feedControls.setRankingSetting(change.key, change.value);
-          break;
         default:
           feedControls.setLearning(change.enabled);
       }
@@ -148,12 +132,10 @@ export const useFeedTune = (): UseFeedTune => {
     getTopicControl,
     getSourceControl,
     getAuthorControl,
-    getRankingValue,
     learning,
     setTopic: (keyword, value) => add({ kind: 'topic', keyword, value }),
     setSource: (sourceId, value) => add({ kind: 'source', sourceId, value }),
     setAuthor: (userId, value) => add({ kind: 'author', userId, value }),
-    setRanking: (key, value) => add({ kind: 'ranking', key, value }),
     setLearning: (enabled) => add({ kind: 'learning', enabled }),
     undo: () => setChanges(changes.slice(0, -1)),
     preview,

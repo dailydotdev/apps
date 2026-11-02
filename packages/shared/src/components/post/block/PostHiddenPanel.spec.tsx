@@ -38,7 +38,6 @@ const renderPanel = (explain?: FeedItemExplain) => {
     authors: [],
     learning: true,
     fillIns: true,
-    ranking: [],
   });
   client.setQueryData(getFeedSettingsQueryKey(defaultUser), {
     feedSettings: { blockedTags: [] },

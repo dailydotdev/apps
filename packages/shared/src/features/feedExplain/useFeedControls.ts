@@ -20,12 +20,10 @@ import { FeedSourceMode, FeedTopicMode } from './types';
 import type { FeedPersonalizationReset } from './graphql';
 import {
   resetFeedPersonalization,
-  resetFeedRankingSettings,
   setFeedFillIns,
   setFeedLearning,
   setFeedAuthorMode,
   setFeedAuthorWeight,
-  setFeedRankingSetting,
   setFeedSourceMode,
   setFeedSourceWeight,
   setFeedTopicMode,
@@ -42,8 +40,6 @@ export enum ChangeKind {
   Author = 'author',
   Learning = 'learning',
   FillIns = 'fill_ins',
-  Ranking = 'ranking',
-  RankingReset = 'ranking_reset',
 }
 
 /** A level or an exact weight (Plus), for a while (Plus) or for good. */
@@ -63,9 +59,7 @@ export type FeedControlChange =
       kind: ChangeKind.Author;
       userId: string;
     } & ControlValue<FeedAuthorMode>)
-  | { kind: ChangeKind.Learning | ChangeKind.FillIns; enabled: boolean }
-  | { kind: ChangeKind.Ranking; key: string; value: number | null }
-  | { kind: ChangeKind.RankingReset };
+  | { kind: ChangeKind.Learning | ChangeKind.FillIns; enabled: boolean };
 
 // Mirrors how the API stores it: an exact weight of 0 is the off level.
 const toStored = <Mode>(
@@ -127,20 +121,8 @@ const applyChange = (
     }
     case ChangeKind.Learning:
       return { ...controls, learning: change.enabled };
-    case ChangeKind.FillIns:
-      return { ...controls, fillIns: change.enabled };
-    case ChangeKind.Ranking: {
-      const ranking = controls.ranking.filter(({ key }) => key !== change.key);
-      return {
-        ...controls,
-        ranking:
-          change.value === null
-            ? ranking
-            : [...ranking, { key: change.key, value: change.value }],
-      };
-    }
     default:
-      return { ...controls, ranking: [] };
+      return { ...controls, fillIns: change.enabled };
   }
 };
 
@@ -164,12 +146,8 @@ const sendChange = (change: FeedControlChange): Promise<unknown> => {
         : setFeedAuthorWeight(change.userId, change.weight, change.duration);
     case ChangeKind.Learning:
       return setFeedLearning(change.enabled);
-    case ChangeKind.FillIns:
-      return setFeedFillIns(change.enabled);
-    case ChangeKind.Ranking:
-      return setFeedRankingSetting(change.key, change.value);
     default:
-      return resetFeedRankingSettings();
+      return setFeedFillIns(change.enabled);
   }
 };
 
@@ -216,17 +194,6 @@ const getChangeEvent = (
           duration: change.duration,
         }),
       };
-    case ChangeKind.Ranking:
-      return {
-        event_name: LogEvent.SetFeedRankingSetting,
-        target_id: change.key,
-        extra: JSON.stringify({ origin, value: change.value }),
-      };
-    case ChangeKind.RankingReset:
-      return {
-        event_name: LogEvent.ResetFeedRankingSettings,
-        extra: JSON.stringify({ origin }),
-      };
     default:
       return {
         event_name:
@@ -271,9 +238,6 @@ export interface UseFeedControls {
   setAuthor: (userId: string, value: ControlValue<FeedAuthorMode>) => void;
   setLearning: (enabled: boolean) => void;
   setFillIns: (enabled: boolean) => void;
-  /** No value takes the setting back to the default. */
-  setRankingSetting: (key: string, value: number | null) => void;
-  resetRankingSettings: () => void;
   /**
    * Any change above, resolving whether it went through. A refused one rolls
    * back and says why all the same.
@@ -383,15 +347,6 @@ export const useFeedControls = ({
       mutate({ kind: ChangeKind.Author, userId, ...value }),
     [mutate],
   );
-  const setRankingSetting = useCallback(
-    (key: string, value: number | null) =>
-      mutate({ kind: ChangeKind.Ranking, key, value }),
-    [mutate],
-  );
-  const resetRankingSettings = useCallback(
-    () => mutate({ kind: ChangeKind.RankingReset }),
-    [mutate],
-  );
   const setLearning = useCallback(
     (value: boolean) => mutate({ kind: ChangeKind.Learning, enabled: value }),
     [mutate],
@@ -422,8 +377,6 @@ export const useFeedControls = ({
     setAuthor,
     setLearning,
     setFillIns,
-    setRankingSetting,
-    resetRankingSettings,
     saveChange,
   };
 };
@@ -435,8 +388,7 @@ interface UseFeedPersonalizationReset {
 
 /**
  * Forgets what For You learned from the reader's reading or what they
- * scrolled past, takes their levels back to Auto or their ranking settings
- * back to the default, or any of them at once. Every For You page cached
+ * scrolled past, takes their levels back to Auto, or any of them at once. Every For You page cached
  * here restarts from page 1, so no page ranked before the reset stays.
  */
 export const useFeedPersonalizationReset = ({
@@ -455,13 +407,10 @@ export const useFeedPersonalizationReset = ({
           : labels.error.generic,
       );
     },
-    onSuccess: (
-      _,
-      { learned = false, seen = false, levels = false, ranking = false },
-    ) => {
+    onSuccess: (_, { learned = false, seen = false, levels = false }) => {
       logEvent({
         event_name: LogEvent.ResetFeedPersonalization,
-        extra: JSON.stringify({ origin, learned, seen, levels, ranking }),
+        extra: JSON.stringify({ origin, learned, seen, levels }),
       });
       client.resetQueries({
         queryKey: generateQueryKey(SharedFeedPage.MyFeed, user),
@@ -469,7 +418,7 @@ export const useFeedPersonalizationReset = ({
       client.invalidateQueries({
         queryKey: generateQueryKey(RequestKey.FeedProfile, user),
       });
-      if (levels || ranking) {
+      if (levels) {
         client.invalidateQueries({ queryKey: feedControlsQueryKey(user) });
       }
     },
