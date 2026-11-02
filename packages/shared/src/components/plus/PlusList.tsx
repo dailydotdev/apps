@@ -101,7 +101,7 @@ export const plusFeatureList: Array<PlusItem> = [
     label: 'Fine-tune your For You feed',
     perk: 'Fine-tunes your For You feed',
     status: PlusItemStatus.Ready,
-    tooltip: `Set exact weights for topics, sources, and authors, change how For You ranks posts, and time any change. Your agent can do it too, through the public API and MCP tools.`,
+    tooltip: `Set an exact weight for any topic, source, or creator, and make a change last three days or a week. Your agent can do it too, through the public API and MCP tools.`,
     icon: <FilterIcon secondary />,
     iconClasses: 'bg-overlay-float-onion text-accent-onion-default',
   },
