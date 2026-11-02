@@ -160,6 +160,29 @@ describe('LiveChatPanel', () => {
     ).toBeInTheDocument();
   });
 
+  it('under a post, keeps the last messages readable once the room ends', async () => {
+    renderPanel({ variant: 'inline' });
+    fireEvent.click(await screen.findByText('Join the chat'));
+    await waitFor(() => expect(transport.joinRoom).toHaveBeenCalled());
+    emit({ type: 'roomJoined', roomJid: room.jid! });
+    emit({
+      type: 'roomMessage',
+      message: {
+        id: 'm1',
+        roomJid: room.jid!,
+        senderId: 'u2',
+        body: 'last word',
+        createdAt: new Date().toISOString(),
+      },
+    });
+    await screen.findByText('last word');
+
+    emit({ type: 'roomEnded', roomJid: room.jid! });
+
+    expect(await screen.findByText('This chat has ended')).toBeInTheDocument();
+    expect(screen.getByText('last word')).toBeInTheDocument();
+  });
+
   it('shows nothing for a post that cannot host a chat', async () => {
     jest.mocked(getPostChatRoom).mockResolvedValue(null);
     const { container } = renderPanel({ canStart: false });

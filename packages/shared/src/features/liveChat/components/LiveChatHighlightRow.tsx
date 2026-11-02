@@ -93,10 +93,12 @@ export const LiveChatHighlightRow = ({
           </span>
           <span className="flex items-center gap-1.5">
             <LiveDot />
-            <span className="truncate text-brand-default typo-caption1">
+            {/* base.css sets flex-shrink: 0 on everything, so the meta has
+                to be allowed to shrink before `truncate` can do anything. */}
+            <span className="min-w-0 flex-1 truncate text-brand-default typo-caption1">
               {meta}
             </span>
-            <LiveChatJoinChip className="ml-auto" />
+            <LiveChatJoinChip />
           </span>
         </a>
       </Link>

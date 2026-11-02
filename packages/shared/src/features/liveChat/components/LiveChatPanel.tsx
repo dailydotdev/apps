@@ -114,7 +114,8 @@ export const LiveChatPanel = ({
   }
   // Under a post the block is an invitation first: until the viewer joins
   // there is no empty list to scroll past, only the room and the way in.
-  const showMessages = !isInline || isJoined;
+  // Once the room ends the last messages stay readable, as in the rail.
+  const showMessages = !isInline || isJoined || hasEnded;
 
   return (
     <section

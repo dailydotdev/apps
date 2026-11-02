@@ -42,8 +42,10 @@ export const LiveChatHighlightCardRow = ({
     <Link href={href}>
       <a
         className={classNames(
-          'live-chat-frame flex w-full flex-col gap-0 rounded-12 border border-brand-default text-left transition-colors hover:bg-brand-float focus-visible:bg-brand-float',
-          compact ? 'mx-4 mb-2 w-auto px-4 py-3' : 'mb-2 px-3 py-2',
+          // No width utility: a flex-col child of the card's column already
+          // stretches, and `w-full` would fight the compact inset margins.
+          'live-chat-frame flex flex-col gap-0 rounded-12 border border-brand-default text-left transition-colors hover:bg-brand-float focus-visible:bg-brand-float',
+          compact ? 'mx-4 mb-2 px-4 py-3' : 'mb-2 px-3 py-2',
         )}
         href={href}
         onClick={() =>
@@ -61,8 +63,10 @@ export const LiveChatHighlightCardRow = ({
         <span className="flex items-center gap-1.5 text-brand-default typo-footnote">
           <LiveDot />
           Live chat
+          {/* base.css sets flex-shrink: 0 on everything, so the meta has to
+              be allowed to shrink before `truncate` can do anything. */}
           {meta && (
-            <span className="truncate text-text-tertiary">
+            <span className="min-w-0 flex-1 truncate text-text-tertiary">
               <span aria-hidden> · </span>
               {meta}
             </span>
