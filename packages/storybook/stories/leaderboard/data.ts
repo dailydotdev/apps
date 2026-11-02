@@ -1,7 +1,7 @@
 // Fictional developers and companies for the leaderboard pages. Avatars
 // are daily.dev's generic placeholders, never real users.
 
-export type Range = 'week' | 'month' | 'all';
+import type { ReferralLadderStep } from '@dailydotdev/shared/src/graphql/users';
 
 export type BoardId =
   | 'reputation'
@@ -14,73 +14,56 @@ export type BoardId =
 
 export interface Board {
   id: BoardId;
-  title: string;
   /** Short name for chips and tabs. */
   short: string;
   /** The unit after the number: "1,204 rep". */
   unit: string;
   /** One line on what moves this number. */
   howTo: string;
-  /** Where the next step lives on daily.dev. */
-  cta: string;
 }
 
 const BOARDS: Board[] = [
   {
     id: 'reputation',
-    title: 'Highest reputation',
     short: 'Reputation',
     unit: 'rep',
     howTo: 'Earn reputation when people upvote your posts and comments.',
-    cta: 'Write a comment',
   },
   {
     id: 'level',
-    title: 'Highest level',
     short: 'Level',
     unit: 'XP',
     howTo: 'Complete daily and weekly quests to earn XP and level up.',
-    cta: 'Open quests',
   },
   {
     id: 'streak',
-    title: 'Longest streak',
     short: 'Streak',
     unit: 'days',
     howTo: 'Read at least one post a day to keep your streak going.',
-    cta: 'Read a post',
   },
   {
     id: 'upvotes',
-    title: 'Most upvoted',
     short: 'Upvotes',
     unit: 'upvotes',
     howTo: 'Share posts and write comments other developers upvote.',
-    cta: 'Share a post',
   },
   {
     id: 'views',
-    title: 'Highest post views',
     short: 'Post views',
     unit: 'views',
     howTo: 'Post in squads. Views count across everything you share.',
-    cta: 'Post in a squad',
   },
   {
     id: 'readingDays',
-    title: 'Most reading days',
     short: 'Reading days',
     unit: 'days',
     howTo: 'Every day you read at least one post adds a reading day.',
-    cta: 'Read a post',
   },
   {
     id: 'referrals',
-    title: 'Most referrals',
     short: 'Referrals',
     unit: 'referrals',
     howTo: 'Invite developer friends. Each signup counts once.',
-    cta: 'Invite friends',
   },
 ];
 
@@ -94,18 +77,11 @@ export interface Dev {
   image: string;
   bio: string;
   company: string;
-  country: string;
-  tags: string[];
-  level: number;
   joinedDaysAgo: number;
   isFollowing: boolean;
   isMe?: boolean;
-  /** Per board and range. */
-  scores: Record<BoardId, Record<Range, number>>;
-  /** Places moved since last week, per board (positive is up). */
-  delta: Record<BoardId, number>;
-  /** Seven weekly totals, oldest first, for sparklines. */
-  trend: number[];
+  /** All-time score per board: production's boards have no other range. */
+  scores: Record<BoardId, number>;
 }
 
 const NAMES = [
@@ -188,32 +164,6 @@ const COMPANIES = [
   'Pied Piper',
 ];
 
-const COUNTRIES = [
-  'United States',
-  'India',
-  'Germany',
-  'Brazil',
-  'Israel',
-  'Nigeria',
-  'Japan',
-  'Poland',
-];
-
-const TAGS = [
-  'react',
-  'rust',
-  'kubernetes',
-  'ai',
-  'typescript',
-  'golang',
-  'devops',
-  'python',
-  'security',
-  'webdev',
-  'postgres',
-  'career',
-];
-
 // Seeded so every render, and every screenshot, shows the same board.
 let seed = 7;
 const random = (): number => {
@@ -242,18 +192,9 @@ const ALL_TIME_MAX: Record<BoardId, number> = {
 const makeScores = (rankBias: number): Dev['scores'] => {
   const scores = {} as Dev['scores'];
   (Object.keys(ALL_TIME_MAX) as BoardId[]).forEach((board) => {
-    const max = ALL_TIME_MAX[board];
-    // All-time follows seniority; week and month are far more open.
-    const all = Math.round(max * rankBias * (0.55 + random() * 0.45));
-    const capWeek =
-      board === 'streak' || board === 'readingDays' ? 7 : max / 120;
-    const capMonth =
-      board === 'streak' || board === 'readingDays' ? 30 : max / 30;
-    scores[board] = {
-      all,
-      month: Math.max(0, Math.round(capMonth * (0.15 + random() * 0.85))),
-      week: Math.max(0, Math.round(capWeek * (0.1 + random() * 0.9))),
-    };
+    scores[board] = Math.round(
+      ALL_TIME_MAX[board] * rankBias * (0.55 + random() * 0.45),
+    );
   });
   return scores;
 };
@@ -264,19 +205,12 @@ export const DEVS: Dev[] = NAMES.map((name, index) => {
     .toLowerCase()
     .normalize('NFD')
     .replace(/[^a-z]/g, '');
-  const tags = [pick(TAGS), pick(TAGS), pick(TAGS)].filter(
-    (tag, i, list) => list.indexOf(tag) === i,
-  );
   const scores = makeScores(bias);
   // A streak is consecutive reading days, so it never beats the total.
-  scores.readingDays.all = Math.max(
-    scores.readingDays.all,
-    scores.streak.all + between(0, 200),
+  scores.readingDays = Math.max(
+    scores.readingDays,
+    scores.streak + between(0, 200),
   );
-  const delta = {} as Dev['delta'];
-  (Object.keys(ALL_TIME_MAX) as BoardId[]).forEach((board) => {
-    delta[board] = random() < 0.3 ? 0 : between(-6, 9);
-  });
   return {
     id: `dev-${index}`,
     name,
@@ -284,18 +218,13 @@ export const DEVS: Dev[] = NAMES.map((name, index) => {
     image: avatar(index),
     bio: pick(BIOS),
     company: pick(COMPANIES),
-    country: pick(COUNTRIES),
-    tags,
-    level: Math.max(3, Math.round(60 * bias - random() * 8)),
     // Never newer than their reading days, which can't predate the account.
     joinedDaysAgo: Math.max(
       index > 32 ? between(9, 80) : between(200, 2400),
-      scores.readingDays.all + between(10, 120),
+      scores.readingDays + between(10, 120),
     ),
     isFollowing: random() < 0.22,
     scores,
-    delta,
-    trend: Array.from({ length: 7 }, () => between(20, 100)),
   };
 });
 
@@ -305,7 +234,7 @@ export const DEVS: Dev[] = NAMES.map((name, index) => {
  */
 export const ME_PROFILE = { name: 'Noa Levi', handle: 'noalevi' };
 
-/** The signed-in reader: mid-table all-time, close to the top this week. */
+/** The signed-in reader: mid-table. */
 export const ME: Dev = {
   id: 'me',
   name: 'You',
@@ -313,31 +242,18 @@ export const ME: Dev = {
   image: avatar(4),
   bio: 'Backend developer. Reading daily.dev with my morning coffee.',
   company: 'Northwind',
-  country: 'Israel',
-  tags: ['golang', 'postgres', 'devops'],
-  level: 18,
   joinedDaysAgo: 140,
   isFollowing: false,
   isMe: true,
   scores: {
-    reputation: { all: 3120, month: 980, week: 300 },
-    level: { all: 6100, month: 520, week: 60 },
-    streak: { all: 46, month: 30, week: 7 },
-    upvotes: { all: 1410, month: 610, week: 230 },
-    views: { all: 88000, month: 41000, week: 17800 },
-    readingDays: { all: 121, month: 27, week: 7 },
-    referrals: { all: 6, month: 2, week: 1 },
+    reputation: 3120,
+    level: 6100,
+    streak: 46,
+    upvotes: 1410,
+    views: 88000,
+    readingDays: 121,
+    referrals: 6,
   },
-  delta: {
-    reputation: 14,
-    level: 3,
-    streak: 0,
-    upvotes: 22,
-    views: 5,
-    readingDays: 1,
-    referrals: -2,
-  },
-  trend: [22, 30, 28, 45, 52, 61, 74],
 };
 
 const EVERYONE = [...DEVS, ME];
@@ -346,33 +262,26 @@ export interface Entry {
   rank: number;
   dev: Dev;
   score: number;
-  delta: number;
 }
 
-export const rankBoard = (
-  board: BoardId,
-  range: Range,
-  pool: Dev[] = EVERYONE,
-): Entry[] =>
+export const rankBoard = (board: BoardId, pool: Dev[] = EVERYONE): Entry[] =>
   [...pool]
-    .sort((a, b) => b.scores[board][range] - a.scores[board][range])
+    .sort((a, b) => b.scores[board] - a.scores[board])
     .map((dev, index) => ({
       rank: index + 1,
       dev,
-      score: dev.scores[board][range],
-      delta: dev.delta[board],
+      score: dev.scores[board],
     }));
 
-export const myEntry = (board: BoardId, range: Range, pool?: Dev[]): Entry =>
-  rankBoard(board, range, pool).find((e) => e.dev.isMe) as Entry;
+export const myEntry = (board: BoardId): Entry =>
+  rankBoard(board).find((e) => e.dev.isMe) as Entry;
 
 interface Company {
   id: string;
   name: string;
   verified: number;
-  delta: number;
   /** A Verified Company Squad, when the company runs one. */
-  squad?: { handle: string; members: number; brand: string };
+  squad?: { brand: string };
 }
 
 // Brand colors stay on accent tokens so they follow the theme.
@@ -387,23 +296,22 @@ export const COMPANY_BOARD: Company[] = COMPANIES.map((name, index) => ({
   id: `co-${index}`,
   name,
   verified: Math.round(1800 / (index + 1.4)),
-  delta: between(-2, 3),
   squad:
     index % 3 === 2
       ? undefined
-      : {
-          handle: name.toLowerCase().replace(/[^a-z]/g, ''),
-          members: between(400, 9000),
-          brand: SQUAD_BRANDS[index % SQUAD_BRANDS.length],
-        },
+      : { brand: SQUAD_BRANDS[index % SQUAD_BRANDS.length] },
 })).sort((a, b) => b.verified - a.verified);
 
-/** The Plus referral ladder: friends who signed up unlock Plus. */
-export const REFERRAL_LADDER = [
-  { friends: 1, months: 1, reward: '1 month of Plus' },
-  { friends: 2, months: 3, reward: '3 months of Plus' },
-  { friends: 3, months: 12, reward: '1 year of Plus' },
-];
+/**
+ * The Plus referral ladder in REFERRAL_LADDER_QUERY's shape: friends who
+ * signed up (`invites`) unlock Plus. Production serves the steps.
+ */
+export const REFERRAL_LADDER: Pick<ReferralLadderStep, 'invites' | 'months'>[] =
+  [
+    { invites: 1, months: 1 },
+    { invites: 2, months: 3 },
+    { invites: 3, months: 12 },
+  ];
 
 export const formatNumber = (value: number): string => {
   if (value >= 1000000) {

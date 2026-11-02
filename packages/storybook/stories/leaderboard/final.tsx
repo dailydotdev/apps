@@ -7,11 +7,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   ArrowIcon,
   CopyIcon,
@@ -50,9 +46,13 @@ import {
 } from '@dailydotdev/shared/src/graphql/leaderboard';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
-import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
+import type {
+  LoggedUser,
+  UserShortProfile,
+} from '@dailydotdev/shared/src/lib/user';
 import {
   formatReferralLadderMonths,
+  getReferralLadderReward,
   REFERRAL_INVITE_COPIED_TOAST,
 } from '@dailydotdev/shared/src/lib/referral';
 import { PageHeader, useSources } from '../sources/kit';
@@ -64,13 +64,12 @@ import {
   DEVS,
   formatNumber,
   ME,
-  ME_PROFILE,
   myEntry,
   rankBoard,
   REFERRAL_LADDER,
   unitFor,
 } from './data';
-import { Avatar, Dropdown, Rank, youHighlight } from './kit';
+import { Avatar, Dropdown, isPhoneView, Rank, youHighlight } from './kit';
 import { LeaderboardSnapshotCard } from './snapshot';
 import { LeaderboardBottomSpace, LeaderboardPhoneChrome } from './phone';
 
@@ -281,11 +280,6 @@ const scoreValue = (board: BoardId, score: number): ReactNode => {
   return formatNumber(score);
 };
 
-const isPhoneWidth = (event: React.SyntheticEvent): boolean =>
-  !!event.currentTarget.ownerDocument.defaultView?.matchMedia(
-    '(max-width: 655px)',
-  ).matches;
-
 /* ---------------------------------------------------------------- atoms */
 
 /** Where a frame in the states catalog starts out; the page works on from it. */
@@ -314,7 +308,7 @@ const toProfile = (dev: Dev): UserShortProfile => ({
   bio: dev.bio,
   permalink: `https://app.daily.dev/${dev.username}`,
   createdAt: new Date(Date.now() - dev.joinedDaysAgo * DAY_MS).toISOString(),
-  reputation: dev.scores.reputation.all,
+  reputation: dev.scores.reputation,
   companies: [],
   // Every third developer is a Plus member, so the card's Plus mark shows.
   isPlus: Number(dev.id.replace('dev-', '')) % 3 === 0,
@@ -325,28 +319,27 @@ const toProfile = (dev: Dev): UserShortProfile => ({
  * answered. Storybook has no API, so the answers are seeded: people you follow
  * already, everyone else not yet.
  */
-const useSeedFollowStatus = (followed: string[]): void => {
-  const queryClient = useQueryClient();
-  const { user } = useAuthContext();
-  useState(() => {
-    DEVS.forEach((dev) => {
-      const isFollowing = dev.isFollowing || followed.includes(dev.id);
-      queryClient.setQueryData<ContentPreference | null>(
-        generateQueryKey(RequestKey.ContentPreference, user, {
-          id: dev.id,
-          entity: ContentPreferenceType.User,
-        }),
-        isFollowing
-          ? {
-              referenceId: dev.id,
-              type: ContentPreferenceType.User,
-              createdAt: new Date(),
-              status: ContentPreferenceStatus.Follow,
-            }
-          : null,
-      );
-    });
-    return true;
+const seedFollowStatus = (
+  queryClient: QueryClient,
+  user: LoggedUser | undefined,
+  followed: string[],
+): void => {
+  DEVS.forEach((dev) => {
+    const isFollowing = dev.isFollowing || followed.includes(dev.id);
+    queryClient.setQueryData<ContentPreference | null>(
+      generateQueryKey(RequestKey.ContentPreference, user, {
+        id: dev.id,
+        entity: ContentPreferenceType.User,
+      }),
+      isFollowing
+        ? {
+            referenceId: dev.id,
+            type: ContentPreferenceType.User,
+            createdAt: new Date(),
+            status: ContentPreferenceStatus.Follow,
+          }
+        : null,
+    );
   });
 };
 
@@ -393,22 +386,36 @@ const Heading = ({
   </header>
 );
 
+const textLinkClassName =
+  'flex shrink-0 items-center gap-1 font-bold text-text-tertiary typo-footnote';
+
+/** A link-styled button; with no `onClick` it is only a pressable card's cue. */
 const TextLink = ({
   children,
   onClick,
 }: {
   children: ReactNode;
   onClick?: () => void;
-}): ReactElement => (
-  <button
-    type="button"
-    onClick={onClick}
-    className="flex shrink-0 items-center gap-1 font-bold text-text-tertiary typo-footnote hover:text-text-primary"
-  >
-    {children}
-    <ArrowIcon size={IconSize.Size16} className="rotate-90" />
-  </button>
-);
+}): ReactElement => {
+  const content = (
+    <>
+      {children}
+      <ArrowIcon size={IconSize.Size16} className="rotate-90" />
+    </>
+  );
+  if (!onClick) {
+    return <span className={textLinkClassName}>{content}</span>;
+  }
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={classNames(textLinkClassName, 'hover:text-text-primary')}
+    >
+      {content}
+    </button>
+  );
+};
 
 const RowPlaceholder = (): ReactElement => (
   <li className="flex h-12 items-center gap-3 px-2">
@@ -456,9 +463,9 @@ const ActionCard = ({
     )}
   >
     <header className="flex flex-col gap-0.5">
-      <span className="font-bold typo-callout">{title}</span>
+      <div className="font-bold typo-callout">{title}</div>
       {detail && (
-        <span className="text-text-tertiary typo-footnote">{detail}</span>
+        <div className="text-text-tertiary typo-footnote">{detail}</div>
       )}
     </header>
     {children}
@@ -511,7 +518,7 @@ export const RankCard = ({
       ? `${largeNumberFormat(CAPPED_AT)}+`
       : `#${(MY_RANKS[id] ?? 0).toLocaleString('en-US')}`;
   const scoreOf = (id: BoardId): number =>
-    position === 'empty' ? 0 : myEntry(id, 'all').score;
+    position === 'empty' ? 0 : myEntry(id).score;
   const headlineOf = (id: BoardId): string => {
     if (position === 'empty') {
       return `No rank yet on ${titleOf(id)}`;
@@ -579,13 +586,12 @@ export const RankCard = ({
               label: unitFor(score, boardById(board).unit),
             }}
             listTitle={`Top 3 · ${title}`}
-            rows={rankBoard(board, 'all', DEVS)
+            rows={rankBoard(board, DEVS)
               .slice(0, 3)
               .map((entry) => ({
                 rank: entry.rank,
                 name: entry.dev.name,
                 value: scoreLabel(board, entry.score),
-                isMe: false,
               }))}
           />
         )}
@@ -626,12 +632,15 @@ export const InviteCard = ({
   friends = 1,
   loading = false,
 }: {
-  /** Friends who joined through your link: 3 unlocks the last step. */
+  /** Friends who joined through your link (`referredCount`). */
   friends?: number;
   loading?: boolean;
 }): ReactElement => {
   const { notify } = useSources();
-  const next = REFERRAL_LADDER.find((step) => step.friends > friends);
+  // useReferralLadder's rules: the next step is the first one still ahead.
+  const next = REFERRAL_LADDER.find((step) => step.invites > friends);
+  const last = REFERRAL_LADDER[REFERRAL_LADDER.length - 1];
+  const remaining = next ? next.invites - friends : 0;
   const copyButton = (size: ButtonSize) => (
     <Button
       type="button"
@@ -644,19 +653,30 @@ export const InviteCard = ({
       Copy invite link
     </Button>
   );
+  const headline = next
+    ? `Invite ${remaining} ${
+        remaining === 1 ? 'friend' : 'friends'
+      }, get ${formatReferralLadderMonths(next.months)}`
+    : `You unlocked ${getReferralLadderReward(last.months)}`;
   return (
     <ActionCard
       title={
-        <span className="flex flex-wrap items-center gap-x-2">
+        <div className="flex flex-wrap items-center gap-x-2">
           <PlusTitle type={TypographyType.Callout} bold />
-          {next
-            ? `Invite ${next.friends - friends} ${
-                next.friends - friends === 1 ? 'friend' : 'friends'
-              }, get ${formatReferralLadderMonths(next.months)}`
-            : 'You unlocked a year of Plus'}
-        </span>
+          {loading ? (
+            <ElementPlaceholder className="h-4 w-40 rounded-4" />
+          ) : (
+            headline
+          )}
+        </div>
       }
-      detail={`${Math.min(friends, 3)} of 3 friends joined`}
+      detail={
+        loading ? (
+          <ElementPlaceholder className="mt-1 h-3 w-32 rounded-4" />
+        ) : (
+          `${Math.min(friends, last.invites)} of ${last.invites} friends joined`
+        )
+      }
       aside={
         // Phones: the same small size as Snapshot and Follow.
         <span className="ml-auto flex tablet:hidden">
@@ -666,30 +686,35 @@ export const InviteCard = ({
       action={copyButton(ButtonSize.Small)}
       actionClassName="hidden tablet:flex"
     >
-      <span className="grid grid-cols-3 gap-1.5">
-        {REFERRAL_LADDER.map((step) => (
-          <span key={step.friends} className="flex flex-col gap-1">
-            <span
-              className={classNames(
-                'h-1.5 rounded-4',
-                friends >= step.friends
-                  ? 'bg-action-plus-default'
-                  : 'bg-surface-float',
+      <div className="grid grid-cols-3 gap-1.5">
+        {REFERRAL_LADDER.map((step) => {
+          const unlocked = !loading && friends >= step.invites;
+          return (
+            <div key={step.invites} className="flex flex-col gap-1">
+              <span
+                className={classNames(
+                  'h-1.5 rounded-4',
+                  unlocked ? 'bg-action-plus-default' : 'bg-surface-float',
+                )}
+              />
+              {loading ? (
+                <ElementPlaceholder className="h-3 w-12 rounded-4" />
+              ) : (
+                <span
+                  className={classNames(
+                    'typo-caption2',
+                    unlocked
+                      ? 'text-action-plus-default'
+                      : 'text-text-quaternary',
+                  )}
+                >
+                  {formatReferralLadderMonths(step.months)}
+                </span>
               )}
-            />
-            <span
-              className={classNames(
-                'typo-caption2',
-                friends >= step.friends
-                  ? 'text-action-plus-default'
-                  : 'text-text-quaternary',
-              )}
-            >
-              {formatReferralLadderMonths(step.months)}
-            </span>
-          </span>
-        ))}
-      </span>
+            </div>
+          );
+        })}
+      </div>
     </ActionCard>
   );
 };
@@ -729,7 +754,7 @@ const TopReputation = ({
   empty: boolean;
 }): ReactElement => {
   const { goTo } = useSources();
-  const top = rankBoard('reputation', 'all', DEVS).slice(0, LIST_LIMIT);
+  const top = rankBoard('reputation', DEVS).slice(0, LIST_LIMIT);
   return (
     <section className="flex flex-col gap-2">
       <Heading
@@ -771,7 +796,7 @@ const STANDOUT_BOARDS: { board: BoardId; eyebrow: string }[] = [
 ];
 
 const standouts = STANDOUT_BOARDS.map(({ board, eyebrow }) => {
-  const [top] = rankBoard(board, 'all', DEVS);
+  const [top] = rankBoard(board, DEVS);
   return {
     eyebrow,
     dev: top.dev,
@@ -822,9 +847,9 @@ const Standouts = ({ loading }: { loading: boolean }): ReactElement => {
                 <span className="truncate font-bold typo-footnote">
                   {dev.name}
                 </span>
-                <div className="flex h-4 items-center justify-center truncate text-text-tertiary typo-caption1">
+                <span className="flex h-4 items-center justify-center truncate text-text-tertiary typo-caption1">
                   {stat}
-                </div>
+                </span>
               </span>
             </article>
           ),
@@ -913,10 +938,18 @@ const BoardTile = ({
   const [expanded, setExpanded] = useState(initialOpen);
   const [sheet, setSheet] = useState(false);
   const root = useRef<HTMLDivElement>(null);
+  const unmountTimer = useRef<ReturnType<typeof setTimeout>>();
+  const expandTimer = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(
+    () => () => {
+      clearTimeout(unmountTimer.current);
+      clearTimeout(expandTimer.current);
+    },
+    [],
+  );
   // A tile that starts open is a sheet on phones, as a tap would open it.
   useEffect(() => {
-    const view = root.current?.ownerDocument.defaultView;
-    if (initialOpen && view?.matchMedia('(max-width: 655px)').matches) {
+    if (initialOpen && isPhoneView(root.current)) {
       setMounted(false);
       setExpanded(false);
       setSheet(true);
@@ -933,17 +966,20 @@ const BoardTile = ({
       view.scrollTo(0, view.scrollY + top - 120);
     }
   }, [initialOpen]);
-  const open = (event: React.SyntheticEvent) => {
-    if (isPhoneWidth(event)) {
+  const open = () => {
+    if (isPhoneView(root.current)) {
       setSheet(true);
       return;
     }
+    clearTimeout(unmountTimer.current);
     setMounted(true);
-    setTimeout(() => setExpanded(true), 16);
+    expandTimer.current = setTimeout(() => setExpanded(true), 16);
   };
   const close = () => {
+    clearTimeout(expandTimer.current);
     setExpanded(false);
-    setTimeout(() => setMounted(false), EXPAND_MS);
+    clearTimeout(unmountTimer.current);
+    unmountTimer.current = setTimeout(() => setMounted(false), EXPAND_MS);
   };
   const popover = useRef<HTMLDivElement>(null);
   // Escape closes the popover or the sheet, like production's modals, and so
@@ -956,8 +992,10 @@ const BoardTile = ({
     }
     const dismiss = () => {
       setSheet(false);
+      clearTimeout(expandTimer.current);
       setExpanded(false);
-      setTimeout(() => setMounted(false), EXPAND_MS);
+      clearTimeout(unmountTimer.current);
+      unmountTimer.current = setTimeout(() => setMounted(false), EXPAND_MS);
     };
     const onKey = (event: KeyboardEvent) => event.key === 'Escape' && dismiss();
     const onPress = (event: MouseEvent) => {
@@ -985,7 +1023,7 @@ const BoardTile = ({
         onKeyDown={(event: React.KeyboardEvent) => {
           if (interactive && (event.key === 'Enter' || event.key === ' ')) {
             event.preventDefault();
-            open(event);
+            open();
           }
         }}
         className={classNames(
@@ -1090,8 +1128,8 @@ const UserBoardTile = ({
   loading: boolean;
   empty: boolean;
 }): ReactElement => {
-  const list = rankBoard(board, 'all', DEVS).slice(0, TOP_LIMIT);
-  const mine = myEntry(board, 'all');
+  const list = rankBoard(board, DEVS).slice(0, TOP_LIMIT);
+  const mine = myEntry(board);
   const rows = (entries: Entry[]) =>
     entries.map((entry) => (
       <MiniRow
@@ -1210,7 +1248,12 @@ export interface LeaderboardFinalProps {
 export const LeaderboardFinal = (
   props: LeaderboardFinalProps,
 ): ReactElement => {
-  const [client] = useState(() => new QueryClient());
+  const { user } = useAuthContext();
+  const [client] = useState(() => {
+    const queryClient = new QueryClient();
+    seedFollowStatus(queryClient, user, props.followed ?? []);
+    return queryClient;
+  });
   return (
     <QueryClientProvider client={client}>
       <LeaderboardPage {...props} />
@@ -1225,10 +1268,8 @@ const LeaderboardPage = ({
   loading = false,
   empty = false,
   openBoard,
-  followed = [],
   frame = {},
 }: LeaderboardFinalProps): ReactElement => {
-  useSeedFollowStatus(followed);
   const strip = useRef<HTMLDivElement>(null);
   const boards = useRef<HTMLElement>(null);
   useEffect(() => {

@@ -5,8 +5,14 @@ import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { TopRankBadge } from '@dailydotdev/shared/src/components/cards/Leaderboard/TopRankBadge';
 import { SheetChoice } from '@dailydotdev/shared/src/components/shell/ShellRow';
+import { phone } from '@dailydotdev/shared/src/styles/media';
 import { PhoneSheet } from '../sources/phone';
 import type { Dev } from './data';
+
+/** Production's phone media query, read in the device frame's own window. */
+export const isPhoneView = (node?: Node | null): boolean =>
+  !!node?.ownerDocument?.defaultView?.matchMedia(phone.replace('@media ', ''))
+    .matches;
 
 /** Your own row and card: a soft tint, no border. */
 export const youHighlight =
@@ -92,10 +98,7 @@ export const Dropdown = <T extends string>({
   const current = options.find((option) => option.id === value) ?? options[0];
   // A menu inside a sideways strip gets clipped, so on phones it is a sheet,
   // the way the phone shell opens its other menus.
-  const isPhone = () =>
-    !!sheetTitle &&
-    !!root.current?.ownerDocument.defaultView?.matchMedia('(max-width: 655px)')
-      .matches;
+  const isPhone = () => !!sheetTitle && isPhoneView(root.current);
   useEffect(() => {
     if (defaultOpen && isPhone()) {
       setOpen(false);

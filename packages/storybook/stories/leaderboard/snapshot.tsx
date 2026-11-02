@@ -13,7 +13,6 @@ export interface SnapshotRow {
   rank: number;
   name: string;
   value: string;
-  isMe?: boolean;
 }
 
 export interface LeaderboardSnapshotCardProps {
@@ -30,7 +29,7 @@ export interface LeaderboardSnapshotCardProps {
 /**
  * The leaderboard's share image, composed from production's snapshot pieces
  * the way the Reading overview card is: the mark with a surface label, who it
- * is, two headline tiles, then the board.s top rows.
+ * is, two headline tiles, then the board's top rows.
  */
 export const LeaderboardSnapshotCard = forwardRef(
   function LeaderboardSnapshotCard(
@@ -74,7 +73,7 @@ export const LeaderboardSnapshotCard = forwardRef(
                   <span
                     className="min-w-0 flex-1 truncate font-bold"
                     style={{
-                      color: row.isMe ? colors.cabbage['10'] : '#FFFFFF',
+                      color: '#FFFFFF',
                       fontSize: 30,
                     }}
                   >

@@ -18,7 +18,7 @@ import { LeaderboardFinal } from './final';
 import { DEVS, rankBoard } from './data';
 
 /** #1 on Highest reputation: the person the Followed frame just followed. */
-const TOP_REP = rankBoard('reputation', 'all', DEVS)[0].dev;
+const TOP_REP = rankBoard('reputation', DEVS)[0].dev;
 
 const meta: Meta = {
   title: 'Leaderboard/Final',
@@ -162,7 +162,7 @@ const flows: { title: string; steps: string[] }[] = [
     title: 'Invite a friend',
     steps: [
       'Copy invite link copies the invite message and link, with production’s toast “✅ Copied your invite message and link”.',
-      'At 3 of 3 friends the card says “You unlocked a year of Plus” and the button stays.',
+      'At 3 of 3 friends the card says “You unlocked 1 year of Plus” (the last step production serves) and the button stays.',
     ],
   },
   {
@@ -176,7 +176,7 @@ const flows: { title: string; steps: string[] }[] = [
   {
     title: 'Loading and errors',
     steps: [
-      'Loading: placeholders where the rank card, rows, Standouts and tiles go.',
+      'Loading: placeholders where the rank card, the invite card’s numbers, rows, Standouts and tiles go; Copy invite link stays disabled.',
       'If the static props fail, production serves empty lists: each board says “Nothing here right now”, Standouts is hidden and no tile opens.',
     ],
   },
@@ -399,9 +399,11 @@ const ResponsivePage = (): ReactElement => (
           Explore’s block with the bar on phones (#6855, #7017).
         </p>
         <p>
-          Everything on it is data /users already has: the 8 boards from
-          LEADERBOARD_QUERY (all time, with a limit of 12), each board’s top 50
-          (its own query, with a limit of 50), and your rank from
+          Everything on it is data /users already has: the 7 boards from
+          LEADERBOARD_QUERY plus Highest level from HIGHEST_LEVEL_QUERY (all
+          time, with a limit of 12 where production asks for 10), each board’s
+          top 50 (its own query, with a limit of 50 where /users/[board] asks
+          for 100), and your rank from
           leaderboardPosition, which only answers for Highest reputation,
           Longest streak and Most reading days. No weekly boards, no rank
           change, no new backend. Every frame works: follow, copy, switch
@@ -497,7 +499,7 @@ interface State {
   toast?: string;
 }
 
-const TOP_REP_THIRD = rankBoard('reputation', 'all', DEVS)[2].dev;
+const TOP_REP_THIRD = rankBoard('reputation', DEVS)[2].dev;
 
 const groups: { title: string; lead: string; states: State[] }[] = [
   {
