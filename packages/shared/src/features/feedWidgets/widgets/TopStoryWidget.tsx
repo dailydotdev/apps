@@ -5,6 +5,8 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { usePostLogEvent } from '../../../lib/feed';
 import { LogEvent, Origin } from '../../../lib/log';
 import type { Post } from '../../../graphql/posts';
+import type { FeedItem } from '../../../hooks/useFeed';
+import { FeedItemType } from '../../../components/cards/common/common';
 import { FeedHeroCarousel } from '../../../components/feeds/hero/FeedHeroCarousel';
 import { useFeedHeroCardProps } from '../../../components/feeds/hero/useFeedHeroCardProps';
 import { useFeedHeroData } from '../../../components/feeds/hero/useFeedHeroData';
@@ -16,7 +18,10 @@ import Link from '../../../components/utilities/Link';
 import { Image } from '../../../components/image/Image';
 import { IconSize } from '../../../components/Icon';
 import { HotIcon } from '../../../components/icons/Hot';
-import { useTopStoryPostModal } from './useTopStoryPostModal';
+import { useFeedWidgetPostModal } from '../useFeedWidgetPostModal';
+
+/** The modal's own name, so the feed under the rail never claims it. */
+export const TOP_STORY_MODAL_FEED_NAME = 'top-story-widget';
 
 /**
  * The lead story as a widget: one post, not a carousel, as the featured-wide
@@ -32,8 +37,26 @@ export const TopStoryWidget = ({
   // grid, so one that rotates off never drops into a painted page.
   const { queryKey, leadPost, isPending, isLeadFresh } = useFeedHeroData();
   const lead = useMemo(() => (leadPost ? [leadPost] : []), [leadPost]);
+  const items = useMemo<FeedItem[]>(
+    () =>
+      leadPost
+        ? [
+            {
+              type: FeedItemType.Post,
+              post: leadPost,
+              page: 0,
+              index: 0,
+              dataUpdatedAt: 0,
+            },
+          ]
+        : [],
+    [leadPost],
+  );
   // Like any card in the feed, the story opens in the post modal.
-  const { openPost, modal } = useTopStoryPostModal(leadPost);
+  const { openPost, modal } = useFeedWidgetPostModal({
+    items,
+    feedName: TOP_STORY_MODAL_FEED_NAME,
+  });
   const cardProps = useFeedHeroCardProps({
     queryKey,
     feedName,

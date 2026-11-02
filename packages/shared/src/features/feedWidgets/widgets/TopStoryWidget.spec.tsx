@@ -11,8 +11,7 @@ import { FEED_HERO_QUERY, baseFeedSupportedTypes } from '../../../graphql/feed';
 import { useFeedLayout } from '../../../hooks/useFeedLayout';
 import { FeedWidgetsProvider } from '../FeedWidgetsContext';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
-import { TopStoryWidget } from './TopStoryWidget';
-import { TOP_STORY_MODAL_FEED_NAME } from './useTopStoryPostModal';
+import { TopStoryWidget, TOP_STORY_MODAL_FEED_NAME } from './TopStoryWidget';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),

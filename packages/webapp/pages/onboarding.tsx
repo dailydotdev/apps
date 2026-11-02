@@ -275,6 +275,27 @@ const useOnboardingAuth = () => {
     updateAuth,
   ]);
 
+  // The page's own auth shell has no signup intro: OnboardingSignup only has
+  // its headline and layout inside the funnel's signup step. Whenever page
+  // level auth would land there (back from the email form, "back to intro"),
+  // hand control back to the funnel instead of showing the bare buttons.
+  const exitToFunnelSignup = useCallback(() => {
+    updateAuth({
+      isAuthenticating: false,
+      defaultDisplay: AuthDisplay.OnboardingSignup,
+      isLoginFlow: false,
+    });
+
+    // An action (e.g. signupEmail) keeps the funnel from initialising.
+    if (router.query.action) {
+      const query = { ...router.query };
+      delete query.action;
+      router.replace({ pathname: router.pathname, query }, undefined, {
+        shallow: true,
+      });
+    }
+  }, [router, updateAuth]);
+
   const authOptionProps: AuthOptionsProps = useMemo(
     () => ({
       simplified: true,
@@ -300,6 +321,14 @@ const useOnboardingAuth = () => {
       onSuccessfulLogin: () => updateAuth({ isAuthenticating: false }),
       onAuthStateUpdate: (props: Partial<AuthProps>) => {
         const { isAuthenticating: incoming, ...rest } = props;
+        if (
+          rest.defaultDisplay === AuthDisplay.OnboardingSignup &&
+          !rest.isLoginFlow
+        ) {
+          exitToFunnelSignup();
+          return;
+        }
+
         updateAuth({ isAuthenticating: incoming ?? true, ...rest });
       },
       onboardingSignupButton: {
@@ -315,6 +344,7 @@ const useOnboardingAuth = () => {
       isMobile,
       loginState?.trigger,
       updateAuth,
+      exitToFunnelSignup,
     ],
   );
 
@@ -325,6 +355,7 @@ const useOnboardingAuth = () => {
     isAuthReady,
     isAuthenticating: auth.isAuthenticating,
     updateAuth,
+    exitToFunnelSignup,
     isLoggedIn,
     shouldVerify: anonymous?.shouldVerify,
   };
@@ -344,6 +375,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
     isLoggedIn,
     shouldVerify,
     updateAuth,
+    exitToFunnelSignup,
   } = useOnboardingAuth();
   const { isOnboardingComplete, isOnboardingActionsReady, completeStep } =
     useOnboardingActions();
@@ -420,9 +452,18 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
       : AuthDisplay.Registration,
   };
   const authBack = authBackTarget[authOptionProps.defaultDisplay];
-  const onAuthBack = authBack
-    ? () => updateAuth({ defaultDisplay: authBack })
-    : undefined;
+  const getAuthBackHandler = (): (() => void) | undefined => {
+    if (!authBack) {
+      return undefined;
+    }
+
+    if (authBack === AuthDisplay.OnboardingSignup) {
+      return exitToFunnelSignup;
+    }
+
+    return () => updateAuth({ defaultDisplay: authBack });
+  };
+  const onAuthBack = getAuthBackHandler();
 
   if (isAuthenticating) {
     return (

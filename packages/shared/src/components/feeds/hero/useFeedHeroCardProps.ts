@@ -8,6 +8,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { useCopyLink } from '../../../hooks/useCopy';
 import { usePostLogEvent } from '../../../lib/feed';
 import { LogEvent, Origin } from '../../../lib/log';
+import type { PostCacheAdapter } from './useFeedHeroPostActions';
 import { useFeedHeroPostActions } from './useFeedHeroPostActions';
 
 /**
@@ -24,12 +25,15 @@ export const useFeedHeroCardProps = ({
   queryKey,
   feedName,
   origin = Origin.FeedHero,
+  cache,
   onOpenPost,
 }: {
   queryKey: QueryKey;
   feedName: string;
   /** The surface the events report, so the hero and the rail stay apart. */
   origin?: Origin;
+  /** Where the cards' posts live, when not in the hero's own query. */
+  cache?: PostCacheAdapter;
   /** Opens the post in place; returns false to fall back to the post page. */
   onOpenPost?: (post: Post) => boolean;
 }): Omit<FeaturedWideCardProps, 'post'> => {
@@ -42,6 +46,7 @@ export const useFeedHeroCardProps = ({
       queryKey,
       feedName,
       origin,
+      cache,
     });
 
   return useMemo(() => {

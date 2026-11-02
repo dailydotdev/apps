@@ -40,16 +40,67 @@ export enum FeedTopicMode {
   Off = 'off',
 }
 
+/**
+ * A source's level in For You. Off ignores the reader's follow of it there;
+ * they still follow it everywhere else.
+ */
 export enum FeedSourceMode {
+  Boost = 'boost',
   Demote = 'demote',
+  Off = 'off',
+}
+
+/** An author's level in For You, the same levels a source has. */
+export enum FeedAuthorMode {
+  Boost = 'boost',
+  Demote = 'demote',
+  Off = 'off',
+}
+
+/** What the reader set on a card's source or author, as it was ranked. */
+export enum FollowControl {
+  Boost = 'boost',
+  Demote = 'demote',
+  Off = 'off',
+  Weight = 'weight',
+}
+
+/** How long a change lasts. None lasts until the reader changes it. */
+export enum FeedControlDuration {
+  ThreeDays = 'three_days',
+  Week = 'week',
+}
+
+/**
+ * A topic or source the reader set: a level, or an exact weight (Plus),
+ * until `expiresAt` (Plus) or for good. An exact weight stays stored when
+ * Plus ends but counts only while the reader has it.
+ */
+export interface FeedControl<Mode> {
+  mode: Mode | null;
+  weight: number | null;
+  expiresAt: string | null;
+}
+
+export interface FeedRankingValue {
+  key: string;
+  value: number;
 }
 
 /** How the reader steers For You: levels, learning and popular fill-ins. */
 export interface FeedControls {
-  topics: { keyword: string; mode: FeedTopicMode }[];
-  sources: { source: { id: string }; mode: FeedSourceMode }[];
+  topics: ({ keyword: string } & FeedControl<FeedTopicMode>)[];
+  // The name is missing from a change shown before the API answers.
+  sources: ({
+    source: { id: string; name?: string };
+  } & FeedControl<FeedSourceMode>)[];
+  authors: ({
+    user: { id: string; name?: string };
+  } & FeedControl<FeedAuthorMode>)[];
   learning: boolean;
   fillIns: boolean;
+  /** The ranking settings the reader changed, which count with Plus. */
+  ranking: FeedRankingValue[];
 }
 
 /**
@@ -80,7 +131,16 @@ export interface RankedExplain {
     control?: TopicControl;
     factor: number;
   };
-  follow: { kind?: ExplainFollowKind; factor: number };
+  /**
+   * The larger of the source's and the author's follow, then the levels the
+   * reader set on either. A follow set to Off is no follow.
+   */
+  follow: {
+    kind?: ExplainFollowKind;
+    factor: number;
+    source_control?: FollowControl;
+    author_control?: FollowControl;
+  };
   age: { days: number; factor: number };
   seen: { shows: number; factor: number };
   /** The variety adjustments, on picked cards. */
@@ -117,6 +177,11 @@ export interface FeedProfileInterest {
   backed: boolean;
 }
 
+/** A ranking setting as For You ranks with it, and its value untouched. */
+export interface FeedProfileRankingSetting extends FeedRankingValue {
+  defaultValue: number;
+}
+
 export interface FeedProfile {
   cohort: boolean;
   learning: boolean;
@@ -124,4 +189,139 @@ export interface FeedProfile {
   /** Topics the reader turned off in For You. */
   muted: string[];
   blocked: string[];
+  /** Every ranking setting the reader can change, empty outside the cohort. */
+  ranking: FeedProfileRankingSetting[];
+}
+
+/**
+ * Changes to the controls on top of the stored ones, which the feed ranks
+ * with while Tune is open. An
+ * entry with neither a mode nor a weight is Auto, a ranking setting without
+ * a value its default.
+ */
+export interface FeedControlsDraft {
+  topics?: { keyword: string; mode?: FeedTopicMode; weight?: number }[];
+  sources?: { sourceId: string; mode?: FeedSourceMode; weight?: number }[];
+  authors?: { userId: string; mode?: FeedAuthorMode; weight?: number }[];
+  ranking?: { key: string; value?: number }[];
+  learning?: boolean;
+}
+
+/** Tune's tabs, by the controls they hold. */
+export enum FeedTuneTab {
+  Topics = 'Topics',
+  Sources = 'Sources and creators',
+  Ranking = 'Ranking',
+}
+
+/** What the What's off box makes of a complaint. */
+export enum WhatsOffResponse {
+  /** Changes to offer. */
+  Act = 'act',
+  /** What the reader meant is unclear: the lines carry the choices. */
+  Ask = 'ask',
+  None = 'none',
+}
+
+export enum WhatsOffScope {
+  Feed = 'feed',
+  /** About the app or something no feed setting touches. */
+  OutOfScope = 'out_of_scope',
+  Abusive = 'abusive',
+  Injection = 'injection',
+  Vague = 'vague',
+}
+
+/** How a line of the answer is offered. */
+export enum WhatsOffLineKind {
+  /** An exact control, picked with confidence. */
+  Sure = 'sure',
+  /** An exact control, picked with little confidence: "Did you mean". */
+  Unsure = 'unsure',
+  /** No pick stands out: the alternatives are the choices. */
+  Choose = 'choose',
+  /** No exact control: the change is the nearest real one. */
+  Closest = 'closest',
+  /** No control at all yet. */
+  Missing = 'missing',
+  /** Already in place. */
+  Already = 'already',
+}
+
+export enum WhatsOffOp {
+  Topic = 'topic',
+  Source = 'source',
+  Author = 'author',
+  Follow = 'follow',
+  Unfollow = 'unfollow',
+  Block = 'block',
+  Unblock = 'unblock',
+  Format = 'format',
+  Curation = 'curation',
+  Squads = 'squads',
+  BlockedWord = 'blocked_word',
+  ClickbaitShield = 'clickbait_shield',
+  Learning = 'learning',
+  FillIns = 'fill_ins',
+  Reset = 'reset',
+  Ranking = 'ranking',
+  HidePosts = 'hide_posts',
+}
+
+export enum WhatsOffTargetType {
+  Keyword = 'keyword',
+  Source = 'source',
+  User = 'user',
+}
+
+/** The topic, source or person a change is about. */
+export interface WhatsOffTarget {
+  type: WhatsOffTargetType;
+  /** The keyword's value, or the source's or user's id. */
+  id: string;
+  name: string;
+  image?: string | null;
+  handle?: string | null;
+}
+
+/** One change, applied only when the reader taps it. */
+export interface WhatsOffChange {
+  op: WhatsOffOp;
+  target?: WhatsOffTarget | null;
+  /** The level of a topic, source or author. None is Auto. */
+  mode?: FeedTopicMode | FeedSourceMode | FeedAuthorMode | null;
+  /**
+   * The format or kind of post, the blocked word, what to reset, or the
+   * ranking setting's key.
+   */
+  value?: string | null;
+  /** The advanced setting a format, kind of post or squads change toggles. */
+  advancedSettingId?: number | null;
+  /** Shown for a format, kind of post or squads, on for a switch. */
+  enabled?: boolean | null;
+  /** A ranking setting's current value and the proposed one. */
+  from?: number | null;
+  to?: number | null;
+  postIds?: string[] | null;
+  /** How sure the pick of a line's main change is, 0 to 1. */
+  certainty?: number | null;
+  plusOnly: boolean;
+}
+
+export interface WhatsOffLine {
+  kind: WhatsOffLineKind;
+  /** The reader's words this line answers. */
+  words: string;
+  /** What no control covers yet, on closest and missing lines. */
+  gap?: string | null;
+  change?: WhatsOffChange | null;
+  alternatives: WhatsOffChange[];
+}
+
+export interface WhatsOff {
+  /** Ties the reader's taps on the answer to it in analytics. */
+  id: string;
+  response: WhatsOffResponse;
+  scope: WhatsOffScope;
+  lines: WhatsOffLine[];
 }

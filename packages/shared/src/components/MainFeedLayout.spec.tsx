@@ -19,6 +19,7 @@ import { SearchProvider } from '../contexts/search/SearchContext';
 import { QueryStateKeys } from '../hooks/utils/useQueryState';
 import { ActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
 import { FEED_V2_EXPLAIN_QUERY, FEED_V2_QUERY } from '../graphql/feed';
+import { FeedTopicMode, FeedTuneTab } from '../features/feedExplain/types';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -157,9 +158,13 @@ it('keeps the feed’s actions and top slot without the rail', async () => {
 
 describe('Debug mode', () => {
   // The reader turned the switch on earlier in the session, on For You.
-  const renderDebugging = (isOn = true) => {
+  const renderDebugging = (
+    isOn = true,
+    seed?: (client: QueryClient) => void,
+  ) => {
     const client = new QueryClient();
     client.setQueryData([QueryStateKeys.FeedExplain], isOn);
+    seed?.(client);
     return render(
       <TestBootProvider client={client} auth={{ user: defaultUser }}>
         <ActiveFeedNameContext.Provider
@@ -176,34 +181,111 @@ describe('Debug mode', () => {
     );
   };
 
-  it.each([
-    ['the flag off', { explain: false, version: 116 }],
-    ['a feed version that does not explain', { explain: true, version: 15 }],
-  ])('keeps the regular For You query with %s', async (_, flagValues) => {
-    mockFlags(flagValues);
+  it('keeps the regular For You query with the flag off', async () => {
+    mockFlags({ explain: false, version: 116 });
 
     renderDebugging();
 
     await screen.findByTestId('feed');
     expect(lastFeedProps().query).toBe(FEED_V2_QUERY);
     expect(lastFeedProps().variables).not.toHaveProperty('explain');
+    expect(lastFeedProps().canExplainPosts).toBe(false);
   });
 
-  it.each([
-    ['on', true],
-    ['off', false],
-  ])(
-    'asks the challenger version for explanations with Debug %s',
-    async (_, isOn) => {
-      mockFlags({ explain: true, version: 116 });
+  it.each([116, 15])(
+    'asks for an explanation per card in Debug on feed version %i',
+    async (version) => {
+      mockFlags({ explain: true, version });
 
-      renderDebugging(isOn);
+      renderDebugging();
 
       await screen.findByTestId('feed');
-      const { query, variables, isExplaining } = lastFeedProps();
+      const { query, variables, isExplaining, canExplainPosts } =
+        lastFeedProps();
       expect(query).toBe(FEED_V2_EXPLAIN_QUERY);
       expect(variables).toEqual(expect.objectContaining({ explain: true }));
-      expect(isExplaining).toBe(isOn);
+      expect(isExplaining).toBe(true);
+      expect(canExplainPosts).toBe(true);
     },
   );
+
+  it('leaves explanations to the post menu with Debug off', async () => {
+    mockFlags({ explain: true, version: 116 });
+
+    renderDebugging(false);
+
+    await screen.findByTestId('feed');
+    const { query, variables, isExplaining, canExplainPosts } = lastFeedProps();
+    expect(query).toBe(FEED_V2_QUERY);
+    expect(variables).not.toHaveProperty('explain');
+    expect(isExplaining).toBe(false);
+    expect(canExplainPosts).toBe(true);
+  });
+
+  it('keeps the cards on screen while Debug or Tune loads the same feed', async () => {
+    mockFlags({ explain: true, version: 116 });
+
+    renderDebugging();
+
+    await screen.findByTestId('feed');
+    const { feedQueryKey, options } = lastFeedProps();
+    const keepPrevious = options?.placeholderData as unknown as (
+      data: unknown,
+      query?: { queryKey: unknown[] },
+    ) => unknown;
+    const cards = { pages: [] };
+    const plainKey = (feedQueryKey as unknown[]).slice(0, -1);
+
+    expect(keepPrevious(cards, { queryKey: plainKey })).toBe(cards);
+    expect(
+      keepPrevious(cards, { queryKey: [...feedQueryKey, { topics: [] }] }),
+    ).toBe(cards);
+    expect(
+      keepPrevious(cards, { queryKey: ['popular', defaultUser.id] }),
+    ).toBeUndefined();
+    expect(keepPrevious(cards, undefined)).toBeUndefined();
+  });
+
+  it('offers Tune and Feed settings on a floating bar in Debug mode', async () => {
+    mockFlags({ explain: true, version: 116 });
+
+    renderDebugging();
+
+    expect(await screen.findByRole('button', { name: 'Done' })).toBeVisible();
+    expect(
+      screen.queryByRole('region', { name: 'Tune your feed' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("ranks the feed with Tune's last preview, with the panel beside it", async () => {
+    mockFlags({ explain: true, version: 116 });
+    const demoteRust = {
+      kind: 'topic',
+      keyword: 'rust',
+      value: { mode: FeedTopicMode.Demote },
+    };
+
+    renderDebugging(true, (client) => {
+      client.setQueryData([QueryStateKeys.FeedTune], FeedTuneTab.Topics);
+      client.setQueryData(
+        [QueryStateKeys.FeedTuneChanges],
+        [demoteRust, { kind: 'learning', enabled: false }],
+      );
+      client.setQueryData([QueryStateKeys.FeedTunePreviewed], [demoteRust]);
+    });
+
+    await screen.findByTestId('feed');
+    expect(lastFeedProps().variables).toEqual(
+      expect.objectContaining({
+        explain: true,
+        draft: { topics: [{ keyword: 'rust', mode: FeedTopicMode.Demote }] },
+      }),
+    );
+    expect(
+      screen.getByRole('region', { name: 'Tune your feed' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Done' }),
+    ).not.toBeInTheDocument();
+  });
 });

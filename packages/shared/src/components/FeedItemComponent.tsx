@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import dynamic from 'next/dynamic';
 import type { AdSquadItem, FeedItem } from '../hooks/useFeed';
 import { isBoostedPostAd, isBoostedSquadAd } from '../hooks/useFeed';
 import { PlaceholderGrid } from './cards/placeholder/PlaceholderGrid';
@@ -33,7 +34,6 @@ import { AdViewability } from './cards/ad/common/AdViewability';
 import type { ViewabilityData } from '../features/monetization/viewability';
 import { viewabilityLogExtra } from '../features/monetization/viewability';
 import { ActivePostContextProvider } from '../contexts/ActivePostContext';
-import { FeedExplainCard } from '../features/feedExplain/components/FeedExplainCard';
 import { LogExtraContextProvider } from '../contexts/LogExtraContext';
 import { SquadAdList } from './cards/ad/squad/SquadAdList';
 import { SquadAdGrid } from './cards/ad/squad/SquadAdGrid';
@@ -53,6 +53,14 @@ import { isSourceSquadOrMachine } from '../graphql/sources';
 import { HighlightGrid } from './cards/highlight/HighlightGrid';
 import { HighlightList } from './cards/highlight/HighlightList';
 import { getHighlightIds, getHighlightIdsKey } from '../graphql/highlights';
+
+// Only Debug mode lays it over the cards, so readers without it never
+// download it.
+const FeedExplainCard = dynamic(() =>
+  import(
+    /* webpackChunkName: "feedExplainCard" */ '../features/feedExplain/components/FeedExplainCard'
+  ).then((mod) => mod.FeedExplainCard),
+);
 
 export type FeedItemComponentProps = {
   item: FeedItem;

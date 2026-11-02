@@ -3,23 +3,17 @@ import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import {
-  AddUserIcon,
   BellIcon,
-  EditIcon,
   DevCardIcon,
   EmbedIcon,
   DocsIcon,
   FeedbackIcon,
-  AppIcon,
   PrivacyIcon,
   MegaphoneIcon,
   UserIcon,
-  BlockIcon,
   CoinIcon,
   CreditCardIcon,
-  HashtagIcon,
   InviteIcon,
-  MagicIcon,
   MailIcon,
   EyeIcon,
   NewTabIcon,
@@ -71,6 +65,10 @@ import { MedalBadgeIcon } from '../icons/MedalBadge';
 import { MedalIcon } from '../icons/Medal';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
 import { PlusMenuEntry } from '../plus/PlusMenuEntry';
+import {
+  getForYouSettingsUrl,
+  useForYouSettingsPages,
+} from '../feeds/FeedSettings/forYouSettingsPages';
 
 type MenuItems = Record<
   string,
@@ -88,6 +86,7 @@ const useAccountPageItems = () => {
   const { user } = useAuthContext();
   const { optOutAchievements, isQuestExperienceEnabled } = useSettingsContext();
   const { isJobsEnabled } = useJobsFeature();
+  const feedSettingsPages = useForYouSettingsPages();
   const shouldHideGameCenter = !isQuestExperienceEnabled;
 
   const items = useMemo(
@@ -145,38 +144,12 @@ const useAccountPageItems = () => {
         },
         feed: {
           title: 'Feed settings',
-          items: {
-            general: {
-              title: 'General',
-              icon: EditIcon,
-              href: `${settingsUrl}/feed/general`,
-            },
-            tags: {
-              title: 'Tags',
-              icon: HashtagIcon,
-              href: `${settingsUrl}/feed/tags`,
-            },
-            sources: {
-              title: 'Content sources',
-              icon: AddUserIcon,
-              href: `${settingsUrl}/feed/sources`,
-            },
-            preferences: {
-              title: 'Content preferences',
-              icon: AppIcon,
-              href: `${settingsUrl}/feed/preferences`,
-            },
-            ai: {
-              title: 'AI superpowers',
-              icon: MagicIcon,
-              href: `${settingsUrl}/feed/ai`,
-            },
-            blocked: {
-              title: 'Blocked content',
-              icon: BlockIcon,
-              href: `${settingsUrl}/feed/blocked`,
-            },
-          },
+          items: Object.fromEntries(
+            feedSettingsPages.map(({ id, title, icon }) => [
+              id,
+              { title, icon, href: getForYouSettingsUrl(id) },
+            ]),
+          ),
         },
         career: {
           title: 'Career',
@@ -342,6 +315,7 @@ const useAccountPageItems = () => {
       optOutAchievements,
       shouldHideGameCenter,
       isJobsEnabled,
+      feedSettingsPages,
     ],
   );
 

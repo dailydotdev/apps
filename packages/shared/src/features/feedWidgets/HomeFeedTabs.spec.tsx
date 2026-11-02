@@ -21,22 +21,37 @@ jest.mock('next/router', () => ({
 }));
 
 jest.mock('../../components/buttons/ToggleClickbaitShield', () => ({
-  ToggleClickbaitShield: () => (
-    <button type="button" aria-label="Clickbait Shield" />
+  ToggleClickbaitShield: ({
+    buttonProps,
+  }: {
+    buttonProps: { size: string; variant: string };
+  }) => (
+    <button
+      type="button"
+      aria-label="Clickbait Shield"
+      data-size={buttonProps.size}
+      data-variant={buttonProps.variant}
+    />
   ),
 }));
 
 jest.mock('../../components/filters/AchievementTrackerButton', () => ({
-  AchievementTrackerButton: () => null,
+  AchievementTrackerButton: ({ quiet }: { quiet?: boolean }) =>
+    quiet ? <button type="button" aria-label="Track an achievement" /> : null,
 }));
 
 jest.mock('../../components/filters/LuckyButton', () => ({
   LuckyButton: () => null,
 }));
 
-jest.mock('../../components/notifications/NotificationsBell', () => ({
-  __esModule: true,
-  default: () => null,
+jest.mock('../feedExplain/useFeedExplainMode', () => ({
+  useFeedExplainMode: () => ({
+    isAvailable: true,
+    isOffered: true,
+    isExplaining: false,
+    version: 116,
+    setIsExplaining: jest.fn(),
+  }),
 }));
 
 // jsdom has no PointerEvent, and without one fireEvent drops the button and
@@ -104,6 +119,26 @@ const openMenu = (name: string | RegExp) =>
     pointerType: 'mouse',
   });
 
+const expectQuietActionsInOrder = () => {
+  const achievements = screen.getByRole('button', {
+    name: 'Track an achievement',
+  });
+  const shield = screen.getByRole('button', { name: 'Clickbait Shield' });
+  const debug = screen.getByRole('button', { name: 'Debug' });
+  const feedSettings = screen.getByRole('button', { name: 'Feed settings' });
+  const actions = Array.from(
+    (feedSettings.closest('.shrink-0') as HTMLElement).querySelectorAll(
+      'button',
+    ),
+  );
+
+  expect(actions).toEqual([achievements, shield, debug, feedSettings]);
+  expect(shield).toHaveAttribute('data-size', 'small');
+  expect(shield).toHaveAttribute('data-variant', 'tertiary');
+  expect(debug).toHaveClass('btn-tertiary-cabbage', 'h-8');
+  expect(feedSettings).toHaveClass('btn-tertiary', 'h-8');
+};
+
 beforeEach(() => {
   jest.clearAllMocks();
   jest.mocked(useRouter).mockImplementation(
@@ -158,10 +193,31 @@ describe('HomeFeedTabs', () => {
         screen.getByRole('button', { name: 'Feed settings' }),
       ).toHaveTextContent('Feed settings');
     });
+
+    it('orders achievements, the shield, Debug, then Feed settings, all Tertiary Small', () => {
+      renderTabs();
+
+      expectQuietActionsInOrder();
+      expect(screen.getByRole('button', { name: 'Debug' })).toHaveTextContent(
+        'Debug',
+      );
+    });
   });
 
   describe('on tablets', () => {
     beforeEach(() => mockTablet());
+
+    it('orders achievements, the shield, an icon-only Debug, then an icon-only Feed settings, all Tertiary Small', () => {
+      renderTabs();
+
+      expectQuietActionsInOrder();
+      expect(
+        screen.getByRole('button', { name: 'Debug' }),
+      ).not.toHaveTextContent('Debug');
+      expect(
+        screen.getByRole('button', { name: 'Feed settings' }),
+      ).not.toHaveTextContent('Feed settings');
+    });
 
     it('keeps the sort on Popular, where no chip is lit', async () => {
       mockPath('/popular');

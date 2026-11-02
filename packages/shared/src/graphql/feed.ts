@@ -62,6 +62,8 @@ export type FeedApiItem = FeedPostItem | FeedHighlightsItem;
 
 export interface FeedItemData {
   page: Connection<FeedApiItem>;
+  /** The page size it was asked with, which the layout can change between pages. */
+  first?: number;
 }
 
 type FeedV2PostItem = {
@@ -442,6 +444,7 @@ export const FEED_V2_EXPLAIN_QUERY = gql`
     $highlightsLimit: Int
     $columns: Int
     $explain: Boolean = true
+    $draft: FeedControlsDraft
     ${SUPPORTED_TYPES}
   ) {
     page: feedV2(
@@ -453,6 +456,7 @@ export const FEED_V2_EXPLAIN_QUERY = gql`
       supportedTypes: $supportedTypes
       columns: $columns
       explain: $explain
+      draft: $draft
     ) {
       pageInfo {
         hasNextPage

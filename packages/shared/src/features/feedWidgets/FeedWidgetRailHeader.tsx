@@ -16,29 +16,46 @@ import { TargetId } from '../../lib/log';
 import { railGreeting } from './greeting';
 import { railHeaderClassName } from './FeedWidgetRailFrame';
 
-/** The page's own actions, which the rail's header gives a place on the home page. */
+const Divider = (): ReactElement => (
+  <span aria-hidden className="mx-1 h-6 w-px bg-border-subtlest-tertiary" />
+);
+
+/**
+ * The page's own actions, which the rail's header gives a place on the home
+ * page. New post is the one filled button; the rest are Tertiary Small.
+ */
 const RailPageActions = (): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const isTablet = !isLaptop;
 
   return (
-    <span className="flex items-center gap-2">
-      <IntroQuestButton
-        size={ButtonSize.Small}
-        variant={ButtonVariant.Float}
-        showLabel={isLaptopXL}
-      />
-      <UpgradeToPlus
-        target={TargetId.FeedWidgets}
-        size={ButtonSize.Small}
-        label="Get Plus"
-        iconOnly={isTablet}
-        className="!flex-none"
-      />
-      <CreatePostButton compact={isTablet} showIcon size={ButtonSize.Small} />
-      <span aria-hidden className="mx-1 h-6 w-px bg-border-subtlest-tertiary" />
-    </span>
+    <>
+      <div className="flex items-center gap-2">
+        <IntroQuestButton
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+          showLabel={isLaptopXL}
+          attentionDot
+        />
+        <UpgradeToPlus
+          target={TargetId.FeedWidgets}
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+          iconClassName="text-accent-bacon-default"
+          label="Get Plus"
+          iconOnly={isTablet}
+          className="!flex-none"
+        />
+        <CreatePostButton
+          compact={isTablet}
+          showIcon
+          size={ButtonSize.Small}
+          aria-label="New post"
+        />
+      </div>
+      <Divider />
+    </>
   );
 };
 
@@ -98,53 +115,54 @@ export const FeedWidgetRailHeader = ({
             : greeting?.subtitle}
         </span>
       </div>
-      {/* Phones have these in the shell's top row. */}
-      {!isPhone && !isEditing && <RailPageActions />}
-      {canCustomize && isEditing && (
-        <>
-          {!isPhone && (
+      <div className="flex shrink-0 items-center gap-1">
+        {/* Phones have these in the shell's top row. */}
+        {!isPhone && !isEditing && <RailPageActions />}
+        {canCustomize && isEditing && (
+          <>
+            {!isPhone && (
+              <Button
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                onClick={onHide}
+              >
+                Hide widgets
+              </Button>
+            )}
+            {onAdd && (
+              <Button
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                icon={<PlusIcon />}
+                onClick={onAdd}
+              >
+                New widget
+              </Button>
+            )}
             <Button
-              variant={ButtonVariant.Tertiary}
+              variant={ButtonVariant.Primary}
               size={ButtonSize.Small}
-              onClick={onHide}
+              aria-pressed
+              onClick={onToggleEditing}
             >
-              Hide widgets
+              Done
             </Button>
-          )}
-          {onAdd && (
-            <Button
-              variant={ButtonVariant.Float}
-              size={ButtonSize.Small}
-              icon={<PlusIcon />}
-              onClick={onAdd}
-            >
-              New widget
-            </Button>
-          )}
+            {showArrows && <Divider />}
+          </>
+        )}
+        {canCustomize && !isEditing && (
           <Button
-            variant={ButtonVariant.Primary}
+            variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
-            aria-pressed
+            icon={<SettingsIcon />}
+            aria-label="Customize widgets"
+            title="Customize widgets"
+            aria-pressed={false}
             onClick={onToggleEditing}
-          >
-            Done
-          </Button>
-        </>
-      )}
-      {canCustomize && !isEditing && (
-        <Button
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.Small}
-          icon={<SettingsIcon />}
-          aria-label="Customize widgets"
-          title="Customize widgets"
-          aria-pressed={false}
-          onClick={onToggleEditing}
-        />
-      )}
-      {showArrows && (
-        <div className="flex items-center gap-1">
-          {(['start', 'end'] as const).map((side) => (
+          />
+        )}
+        {showArrows &&
+          (['start', 'end'] as const).map((side) => (
             <Button
               key={side}
               variant={ButtonVariant.Tertiary}
@@ -163,8 +181,7 @@ export const FeedWidgetRailHeader = ({
               onClick={() => onScroll(side === 'start' ? -1 : 1)}
             />
           ))}
-        </div>
-      )}
+      </div>
     </div>
   );
 };

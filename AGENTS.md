@@ -45,6 +45,7 @@ pnpm monorepo for the daily.dev app suite:
 - One-off styles outside the token system go in `packages/shared/src/styles/custom.ts`.
 - Full-screen media lightboxes need a dark overlay (`bg-overlay-primary-pepper`), not the Modal default `bg-overlay-quaternary-onion`. Close buttons over images use `ButtonVariant.Primary`; `Float` vanishes over photos.
 - Dismissible banners/cards use the shared `CloseButton`, not a full-width text "Dismiss" button.
+- Some pages have a sticky banner at the bottom of the viewport (the sponsor strip on the main feeds, for non-Plus users on tablet and up). Design bottom-pinned UI (floating bars, pills, toasts, sticky footers) with it in mind: lift clear of it with `var(--sponsor-strip-height,0rem)` (see `sponsorStripOffset.ts`) and check the layout with the strip showing.
 - CSS Grid feed: an item's intrinsic content height stretches the whole row even under `max-h-*`. Wrap content in an `absolute inset-0 flex flex-col` child and give the Card `min-h-card` (see `ArticleGrid.tsx`). Such constraints go on the grid variant of shared cards only.
 
 ## Product conventions

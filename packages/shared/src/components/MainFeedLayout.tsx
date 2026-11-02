@@ -14,9 +14,14 @@ import React, {
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
+import {
+  cancelIdleCallback,
+  requestIdleCallback,
+} from 'next/dist/client/request-idle-callback';
+import type { QueryKey } from '@tanstack/react-query';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
-import { feedGutter, feedWidth } from './utilities/common';
+import { feedGutter, feedWidth, listFeedGutter } from './utilities/common';
 import { PlaceholderFeed } from './cards/placeholder/PlaceholderFeed';
 import { SponsorStrip } from '../features/monetization/sponsorStrip/SponsorStrip';
 import { useSponsorStrip } from '../features/monetization/sponsorStrip/useSponsorStrip';
@@ -67,6 +72,7 @@ import {
   ViewSize,
 } from '../hooks';
 import { useIsPhone } from '../hooks/useViewSize';
+import { FeedLayoutMobileFeedPages } from '../hooks/useFeedLayout';
 import { feedNameToHeading, v2FeedSideInsetClass } from './feeds/FeedContainer';
 import { pageHeaderClassName } from './layout/PageHeader';
 import {
@@ -114,6 +120,9 @@ import {
   SearchProviderSegments,
 } from './search/SearchResults/SearchProviderTabs';
 import { useFeedExplainMode } from '../features/feedExplain/useFeedExplainMode';
+import { useFeedTuneState } from '../features/feedExplain/useFeedTuneState';
+import { FeedTuneProvider } from '../features/feedExplain/FeedTuneContext';
+import { FeedExplainBar } from '../features/feedExplain/components/FeedExplainBar';
 
 // Its own chunk, so readers without the rail never download it; the skeleton
 // holds the rail's exact height while it loads.
@@ -123,6 +132,12 @@ const FeedWidgetRail = dynamic(
       /* webpackChunkName: "feedWidgetRail" */ '../features/feedWidgets/FeedWidgetRail'
     ).then((mod) => mod.FeedWidgetRail),
   { loading: () => <FeedWidgetRailLoading /> },
+);
+
+const FeedTunePanel = dynamic(() =>
+  import(
+    /* webpackChunkName: "feedTunePanel" */ '../features/feedExplain/components/FeedTunePanel'
+  ).then((mod) => mod.FeedTunePanel),
 );
 
 const SpotlightField = dynamic(() =>
@@ -252,7 +267,7 @@ const getQueryBasedOnLogin = (
 
 // The feed's own width: full width normally, and clamped + centered to the
 // same card-based max-width as the grid on wide screens (desktopL). The CSS
-// vars feed the `styles.container` max-width calc (grid gap is 2rem).
+// vars feed the `styles.container` max-width calc (grid gap is 1.5rem).
 const feedWidthClassName = classNames('relative flex flex-col', feedWidth);
 
 const feedWithDateRange = [
@@ -278,7 +293,7 @@ export default function MainFeedLayout({
   const { numCards: feedSpacinessCards } = useContext(FeedContext);
   const feedWidthStyle = {
     '--num-cards': feedSpacinessCards.eco,
-    '--feed-gap': '2rem',
+    '--feed-gap': '1.5rem',
   } as CSSProperties;
   const router = useRouter();
   const [tab, setTab] = useState(ExploreTabs.Popular);
@@ -321,6 +336,10 @@ export default function MainFeedLayout({
     enabled: feedName === OtherFeedPage.Explore,
   });
   const { shouldUseListFeedLayout, FeedPageLayoutComponent } = useFeedLayout();
+  // Which feeds are lists below laptop never depends on the viewport check,
+  // so a list gets its full-bleed gutter from the first paint.
+  const isListBelowLaptop = FeedLayoutMobileFeedPages.has(feedName);
+  const gutterClassName = isListBelowLaptop ? listFeedGutter : feedGutter;
 
   const { value: myFeedV } = useConditionalFeature({
     feature: feature.feedVersion,
@@ -541,16 +560,58 @@ export default function MainFeedLayout({
     key: [QueryStateKeys.FeedPeriod],
     defaultValue: 0,
   });
-  // Wherever For You can explain itself it asks for an explanation per card,
-  // under its own query key: the post menu's Why am I seeing this? reads it,
-  // and Debug mode lays it over every card.
-  const { isAvailable: canExplain, isExplaining } = useFeedExplainMode({
+  // Debug mode lays an explanation over every card, so only then does For You
+  // ask for one per card, under its own query key. Otherwise the post menu's
+  // Why am I seeing this? asks for its post's when opened.
+  const {
+    isAvailable: canExplain,
+    isExplaining,
+    version: explainVersion,
+  } = useFeedExplainMode({
     isRecommended: selectedAlgo === DEFAULT_ALGORITHM_INDEX,
   });
-  const isExplainFeed =
+  const canExplainPosts =
     canExplain &&
     feedName === SharedFeedPage.MyFeed &&
     config.query === FEED_V2_QUERY;
+  const isExplainFeed = canExplainPosts && isExplaining;
+  // Tune ranks the feed with its draft, beside it, in Debug mode, once the
+  // reader previews it.
+  const tune = useFeedTuneState();
+  const isTuning = isExplainFeed && tune.isOpen;
+  const tuneDraft = isTuning && tune.hasPreview ? tune.previewDraft : undefined;
+  const { isOpen: isTuneOpen, close: closeTune } = tune;
+  useEffect(() => {
+    if (
+      isTuneOpen &&
+      ((canExplain && !isExplaining) ||
+        (!!feedName && feedName !== SharedFeedPage.MyFeed))
+    ) {
+      closeTune();
+    }
+  }, [isTuneOpen, canExplain, isExplaining, feedName, closeTune]);
+  // Where For You explains its posts, Debug's card, Tune and the hidden
+  // post's Show less offer load once the page is idle, so none of them waits
+  // for its chunk when first used.
+  useEffect(() => {
+    if (!canExplainPosts) {
+      return undefined;
+    }
+    const handle = requestIdleCallback(() => {
+      Promise.all([
+        import(
+          /* webpackChunkName: "feedExplainCard" */ '../features/feedExplain/components/FeedExplainCard'
+        ),
+        import(
+          /* webpackChunkName: "feedTunePanel" */ '../features/feedExplain/components/FeedTunePanel'
+        ),
+        import(
+          /* webpackChunkName: "showLessTopicOffer" */ '../features/feedExplain/components/ShowLessTopicOffer'
+        ),
+      ]).catch(() => undefined);
+    });
+    return () => cancelIdleCallback(handle);
+  }, [canExplainPosts]);
 
   const hasSearchContent = !!navChildren || (isSearchOn && !!searchChildren);
   const search = useMemo(
@@ -686,20 +747,46 @@ export default function MainFeedLayout({
       return config.variables;
     };
 
+    // The draft goes last, so the feed's own key is this one without it.
+    const feedVariables = getVariables();
     const variables = isExplainFeed
-      ? { ...getVariables(), explain: true }
-      : getVariables();
+      ? {
+          ...feedVariables,
+          explain: true,
+          ...(tuneDraft && { draft: tuneDraft }),
+        }
+      : feedVariables;
+    const feedRequestKey = config.requestKey || feedName;
+    // Debug and Tune only add to the feed's own key, so a key that starts
+    // with it is the same feed. Switching between them keeps the cards on
+    // screen until the other one loads, instead of an empty feed.
+    const ownKey = generateQueryKey(
+      feedRequestKey,
+      user,
+      ...Object.values(feedVariables ?? {}),
+    );
+    const isSameFeedKey = (key: QueryKey): boolean =>
+      JSON.stringify(key.slice(0, ownKey.length)) === JSON.stringify(ownKey);
 
     return {
       feedName,
       feedQueryKey: generateQueryKey(
-        config.requestKey || feedName,
+        feedRequestKey,
         user,
         ...Object.values(variables ?? {}),
       ),
       query: isExplainFeed ? FEED_V2_EXPLAIN_QUERY : config.query,
       variables,
-      isExplaining: isExplainFeed && isExplaining,
+      ...(canExplainPosts && {
+        options: {
+          placeholderData: (previousData, previousQuery) =>
+            previousQuery && isSameFeedKey(previousQuery.queryKey)
+              ? previousData
+              : undefined,
+        },
+      }),
+      isExplaining: isExplainFeed,
+      canExplainPosts,
       emptyScreen,
       actionButtons: feedWithActions && !isFeedWidgetsEnabled && (
         <SearchControlHeader
@@ -743,8 +830,9 @@ export default function MainFeedLayout({
     loadedAlgo,
     isTokenValid,
     isFeedWidgetsEnabled,
+    canExplainPosts,
     isExplainFeed,
-    isExplaining,
+    tuneDraft,
   ]);
 
   // The gates above that hold `feedProps` back until the session can ask for
@@ -795,14 +883,15 @@ export default function MainFeedLayout({
         className={{
           container: classNames(
             'z-header w-full border-b border-border-subtlest-tertiary bg-background-default tablet:sticky tablet:top-[4.5rem]',
-            feedGutter,
+            gutterClassName,
+            isListBelowLaptop && 'px-4',
           ),
           tabBarHeader: 'no-scrollbar overflow-x-auto',
           tabBarContainer: 'min-w-0 flex-1',
         }}
       />
     );
-  }, [onTabChange, tab]);
+  }, [gutterClassName, isListBelowLaptop, onTabChange, tab]);
 
   // v2 reaches the Explore hub sections (Explore, Tags, Sources, Leaderboard,
   // Discussions) from the sidebar's Explore panel, so the page header no longer
@@ -932,8 +1021,16 @@ export default function MainFeedLayout({
     (!!pageHeaderContent ||
       (!isFeedWidgetsEnabled && (!!v2ActionButtons || !!feedHeading)));
 
+  const tunePreviewKey = tuneDraft ? feedProps?.feedQueryKey : undefined;
+  const tuneBaseKey = tunePreviewKey
+    ? tunePreviewKey.slice(0, -1)
+    : feedProps?.feedQueryKey;
+
   return (
-    <>
+    <FeedTuneProvider
+      baseQueryKey={isTuning ? tuneBaseKey : undefined}
+      previewQueryKey={tunePreviewKey}
+    >
       {showExploreV2PageHeader && (
         <header className={classNames(pageHeaderClassName, '!py-0')}>
           {/* Sort options as pill tabs — same navbar as the Tags / Squad
@@ -972,7 +1069,12 @@ export default function MainFeedLayout({
         </header>
       )}
       <FeedPageLayoutComponent
-        className={classNames('relative', disableTopPadding && '!pt-0')}
+        className={classNames(
+          'relative',
+          disableTopPadding && '!pt-0',
+          // Room for Tune beside the feed, or under it on a phone.
+          isTuning && (isLaptop ? 'pr-[28rem]' : 'pb-[60vh]'),
+        )}
       >
         {isExploreRoot && (!hasMounted || isPhoneWidth) && (
           <div className="tablet:hidden">
@@ -1041,11 +1143,12 @@ export default function MainFeedLayout({
             deferWideCards={isHeroRendered || widgetFeedState.hasTopStory}
             excludedPostIds={widgetFeedState.excludedPostIds}
             className={classNames(
-              !isFinder && feedGutter,
+              !isFinder && gutterClassName,
               isAwaitingFeatures && 'invisible',
             )}
           />
         )}
+        {isExplainFeed && <FeedExplainBar isHidden={isTuning} />}
         {isFeedPending && isPhone && (
           <>
             {/* Where the rail lands once the feed can render, so the
@@ -1060,7 +1163,7 @@ export default function MainFeedLayout({
             )}
             <PlaceholderFeed
               className={classNames(
-                !isFinder && feedGutter,
+                !isFinder && gutterClassName,
                 isFeedWidgetsEnabled && '!mt-0',
                 isAwaitingFeatures && 'invisible',
               )}
@@ -1076,6 +1179,9 @@ export default function MainFeedLayout({
           the extension new tab render — and the only place the feed name is
           already resolved from `default` to the reader's own feed. */}
       {isSponsorStripEnabled && <SponsorStrip />}
-    </>
+      {isTuning && (
+        <FeedTunePanel version={explainVersion} isSheet={!isLaptop} />
+      )}
+    </FeedTuneProvider>
   );
 }

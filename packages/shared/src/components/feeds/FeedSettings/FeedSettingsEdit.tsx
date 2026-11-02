@@ -13,8 +13,12 @@ import {
   HashtagIcon,
   MagicIcon,
 } from '../../icons';
-import type { FeedSettingsMenu } from './types';
-import { feedSettingsMenuTitle } from './types';
+import { FeedSettingsMenu, feedSettingsMenuTitle } from './types';
+import {
+  forYouSettingsTitle,
+  getForYouSettingsPage,
+  useForYouSettingsPages,
+} from './forYouSettingsPages';
 import { IconSize } from '../../Icon';
 import { FeedSettingsEditContext } from './FeedSettingsEditContext';
 import { FeedSettingsEditHeader } from './FeedSettingsEditHeader';
@@ -100,6 +104,36 @@ const FeedSettingsBlockingSection = dynamic(
   },
 );
 
+const FeedSettingsOverviewSection = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedSettingsOverviewSection" */ './sections/FeedSettingsOverviewSection'
+    ).then((mod) => mod.FeedSettingsOverviewSection),
+  {
+    loading: SuspenseLoader,
+  },
+);
+
+const ForYouRankingSettings = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "forYouRankingSettings" */ '../../../features/feedExplain/components/ForYouRankingSettings'
+    ).then((mod) => mod.ForYouRankingSettings),
+  {
+    loading: SuspenseLoader,
+  },
+);
+
+const FeedSettingsContentFiltersSection = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedSettingsContentFiltersSection" */ './sections/FeedSettingsContentFiltersSection'
+    ).then((mod) => mod.FeedSettingsContentFiltersSection),
+  {
+    loading: SuspenseLoader,
+  },
+);
+
 type TabOptions = {
   title: string;
   options: {
@@ -114,8 +148,19 @@ export const FeedSettingsEdit = (
   const router = useRouter();
   const feedSettingsEditContext = useFeedSettingsEdit(props);
   const { feed, onBackToFeed, onDiscard } = feedSettingsEditContext;
+  const isMainFeed = feed?.type === FeedType.Main;
+  const forYouPages = useForYouSettingsPages();
 
   const tabs = useMemo(() => {
+    if (isMainFeed) {
+      return forYouPages.map(
+        ({ title, icon: Icon }): TabOptions => ({
+          title,
+          options: { icon: <Icon size={IconSize.Small} /> },
+        }),
+      );
+    }
+
     const base: TabOptions[] = [
       {
         title: feedSettingsMenuTitle.general,
@@ -152,11 +197,18 @@ export const FeedSettingsEdit = (
     });
 
     return base.filter(Boolean);
-  }, [feed?.type]);
+  }, [feed?.type, isMainFeed, forYouPages]);
 
   const defaultView = useMemo(() => {
-    return feedSettingsMenuTitle[router.query.dview as FeedSettingsMenu];
-  }, [router.query.dview]);
+    const view = router.query.dview as string | undefined;
+    if (!isMainFeed) {
+      return feedSettingsMenuTitle[view as FeedSettingsMenu];
+    }
+    const page = forYouPages.find(
+      ({ id }) => id === getForYouSettingsPage(view),
+    );
+    return page?.title;
+  }, [router.query.dview, isMainFeed, forYouPages]);
 
   if (!feed) {
     return null;
@@ -189,35 +241,77 @@ export const FeedSettingsEdit = (
             defaultOpen
           />
           <Modal.Sidebar.Inner>
-            <FeedSettingsEditBody view={feedSettingsMenuTitle.general}>
-              <FeedSettingsGeneralSection />
-            </FeedSettingsEditBody>
-            <FeedSettingsEditBody view={feedSettingsMenuTitle.tags}>
-              <FeedSettingsTagsSection />
-            </FeedSettingsEditBody>
-            <FeedSettingsEditBody view={feedSettingsMenuTitle.sources}>
-              <FeedSettingsPlusGate>
-                <FeedSettingsContentSourcesSection />
-              </FeedSettingsPlusGate>
-            </FeedSettingsEditBody>
-            <FeedSettingsEditBody view={feedSettingsMenuTitle.preferences}>
-              <FeedSettingsPlusGate>
-                <FeedSettingsContentPreferencesSection />
-              </FeedSettingsPlusGate>
-            </FeedSettingsEditBody>
-            <FeedSettingsEditBody view={feedSettingsMenuTitle.ai}>
-              <FeedSettingsAISection />
-            </FeedSettingsEditBody>
-            <FeedSettingsEditBody view={feedSettingsMenuTitle.filters}>
-              <FeedSettingsPlusGate>
-                <FeedSettingsFiltersSection />
-              </FeedSettingsPlusGate>
-            </FeedSettingsEditBody>
-            <FeedSettingsEditBody view={feedSettingsMenuTitle.blocking}>
-              <FeedSettingsPlusGate>
-                <FeedSettingsBlockingSection />
-              </FeedSettingsPlusGate>
-            </FeedSettingsEditBody>
+            {isMainFeed ? (
+              <>
+                <FeedSettingsEditBody
+                  view={forYouSettingsTitle[FeedSettingsMenu.Overview]}
+                >
+                  <FeedSettingsOverviewSection />
+                </FeedSettingsEditBody>
+                <FeedSettingsEditBody
+                  view={forYouSettingsTitle[FeedSettingsMenu.Tags]}
+                >
+                  <FeedSettingsTagsSection />
+                </FeedSettingsEditBody>
+                <FeedSettingsEditBody
+                  view={forYouSettingsTitle[FeedSettingsMenu.ContentSources]}
+                >
+                  <FeedSettingsContentSourcesSection />
+                </FeedSettingsEditBody>
+                <FeedSettingsEditBody
+                  view={forYouSettingsTitle[FeedSettingsMenu.Ranking]}
+                >
+                  <ForYouRankingSettings />
+                </FeedSettingsEditBody>
+                <FeedSettingsEditBody
+                  view={forYouSettingsTitle[FeedSettingsMenu.Filters]}
+                >
+                  <FeedSettingsContentFiltersSection />
+                </FeedSettingsEditBody>
+                <FeedSettingsEditBody
+                  view={forYouSettingsTitle[FeedSettingsMenu.AI]}
+                >
+                  <FeedSettingsAISection />
+                </FeedSettingsEditBody>
+                <FeedSettingsEditBody
+                  view={forYouSettingsTitle[FeedSettingsMenu.General]}
+                >
+                  <FeedSettingsGeneralSection />
+                </FeedSettingsEditBody>
+              </>
+            ) : (
+              <>
+                <FeedSettingsEditBody view={feedSettingsMenuTitle.general}>
+                  <FeedSettingsGeneralSection />
+                </FeedSettingsEditBody>
+                <FeedSettingsEditBody view={feedSettingsMenuTitle.tags}>
+                  <FeedSettingsTagsSection />
+                </FeedSettingsEditBody>
+                <FeedSettingsEditBody view={feedSettingsMenuTitle.sources}>
+                  <FeedSettingsPlusGate>
+                    <FeedSettingsContentSourcesSection />
+                  </FeedSettingsPlusGate>
+                </FeedSettingsEditBody>
+                <FeedSettingsEditBody view={feedSettingsMenuTitle.preferences}>
+                  <FeedSettingsPlusGate>
+                    <FeedSettingsContentPreferencesSection />
+                  </FeedSettingsPlusGate>
+                </FeedSettingsEditBody>
+                <FeedSettingsEditBody view={feedSettingsMenuTitle.ai}>
+                  <FeedSettingsAISection />
+                </FeedSettingsEditBody>
+                <FeedSettingsEditBody view={feedSettingsMenuTitle.filters}>
+                  <FeedSettingsPlusGate>
+                    <FeedSettingsFiltersSection />
+                  </FeedSettingsPlusGate>
+                </FeedSettingsEditBody>
+                <FeedSettingsEditBody view={feedSettingsMenuTitle.blocking}>
+                  <FeedSettingsPlusGate>
+                    <FeedSettingsBlockingSection />
+                  </FeedSettingsPlusGate>
+                </FeedSettingsEditBody>
+              </>
+            )}
           </Modal.Sidebar.Inner>
         </Modal.Sidebar>
       </Modal>

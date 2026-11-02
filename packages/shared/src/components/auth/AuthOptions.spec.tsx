@@ -29,16 +29,23 @@ jest.mock('./AuthDefault', () => ({
   __esModule: true,
   default: ({
     onProviderClick,
+    onForgotPassword,
   }: {
     onProviderClick: (provider: string) => void;
+    onForgotPassword?: (email?: string) => void;
   }) => (
-    <button
-      type="button"
-      data-testid="auth-default"
-      onClick={() => onProviderClick('google')}
-    >
-      Google
-    </button>
+    <>
+      <button
+        type="button"
+        data-testid="auth-default"
+        onClick={() => onProviderClick('google')}
+      >
+        Google
+      </button>
+      <button type="button" onClick={() => onForgotPassword?.()}>
+        Forgot password?
+      </button>
+    </>
   ),
 }));
 
@@ -72,6 +79,42 @@ describe('AuthOptions', () => {
 
     expect(await screen.findByTestId('provider-choice')).toBeInTheDocument();
     expect(screen.queryByTestId('registration-form')).not.toBeInTheDocument();
+  });
+});
+
+describe('AuthOptions forgot password', () => {
+  // Mirrors /onboarding, the funnels and the recruiter modal: they store the
+  // display AuthOptions reports and feed it back as `defaultDisplay`.
+  const MirroringParent = () => {
+    const [display, setDisplay] = React.useState(AuthDisplay.Default);
+    return (
+      <TestBootProvider client={new QueryClient()} auth={{ isLoggedIn: false }}>
+        <AuthOptions
+          simplified
+          formRef={{ current: document.createElement('form') }}
+          trigger={AuthTriggers.Onboarding}
+          defaultDisplay={display}
+          onAuthStateUpdate={({ defaultDisplay }) =>
+            defaultDisplay && setDisplay(defaultDisplay)
+          }
+        />
+      </TestBootProvider>
+    );
+  };
+
+  it.each([
+    ['header back button', () => screen.getByLabelText('Go back')],
+    ['back to log in link', () => screen.getByText(/Back to log in/)],
+  ])('goes back to log in with the %s', async (_, getBack) => {
+    render(<MirroringParent />);
+
+    fireEvent.click(await screen.findByText('Forgot password?'));
+    expect(await screen.findByText('Reset password')).toBeInTheDocument();
+
+    fireEvent.click(getBack());
+
+    expect(await screen.findByTestId('auth-default')).toBeInTheDocument();
+    expect(screen.queryByText('Reset password')).not.toBeInTheDocument();
   });
 });
 

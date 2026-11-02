@@ -1543,6 +1543,23 @@ describe('post page feed', () => {
     expect(screen.getByTestId('postContainer')).toContainElement(feed);
   });
 
+  it('should keep the widgets to laptop up while the feed is on, so the feed follows the comments', async () => {
+    mockPostPageFeedOn = true;
+    renderPost();
+    await screen.findByTestId('postPageFeed');
+    const widgets = screen.getByTestId('postContainer').nextElementSibling;
+    expect(widgets?.tagName).toBe('ASIDE');
+    expect(widgets).toHaveClass('hidden', 'laptop:flex');
+  });
+
+  it('should show the widgets at every width when the feed is off', async () => {
+    renderPost();
+    const widgets = (await screen.findByTestId('postContainer'))
+      .nextElementSibling;
+    expect(widgets?.tagName).toBe('ASIDE');
+    expect(widgets).not.toHaveClass('hidden');
+  });
+
   it('should not render the feed for signed-out readers, even when the experiment is on', async () => {
     mockPostPageFeedOn = true;
     renderPost({}, [createPostMock(), createCommentsMock()], undefined);

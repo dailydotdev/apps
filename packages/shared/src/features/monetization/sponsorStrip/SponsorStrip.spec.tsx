@@ -7,6 +7,7 @@ import { getLogContextStatic } from '../../../contexts/LogContext';
 import type { LogContextData } from '../../../hooks/log/useLogContextData';
 import { AdActions } from '../../../lib/ads';
 import { SponsorStrip } from './SponsorStrip';
+import { firePixel } from '../firePixel';
 import { fetchSponsorStripAds } from './fetchSponsorStripAds';
 import { SponsorTier } from './sponsorStripCreative';
 import {
@@ -25,7 +26,12 @@ jest.mock('../../../hooks/utils/useThemedAsset', () => ({
   useIsLightTheme: () => false,
 }));
 
+jest.mock('../firePixel', () => ({
+  firePixel: jest.fn(),
+}));
+
 const mockFetch = jest.mocked(fetchSponsorStripAds);
+const mockFirePixel = jest.mocked(firePixel);
 
 const advertiser = (company: string, pixels: string[] = []) => ({
   generation_id: `gen-${company}`,
@@ -63,8 +69,6 @@ const ads = bar({
 });
 
 const logEvent = jest.fn();
-const logEventStart = jest.fn();
-const logEventEnd = jest.fn();
 
 const LogContext = getLogContextStatic();
 
@@ -87,8 +91,6 @@ const renderStrip = () => {
           value={
             {
               logEvent,
-              logEventStart,
-              logEventEnd,
               sendBeacon: jest.fn(),
             } as unknown as LogContextData
           }
@@ -159,9 +161,9 @@ const setWallWidth = (width: number) =>
 // Gold sits outside the measured wall; premium and community share it.
 const NARROW_TOTAL_LOGOS = NARROW_WALL_SLOTS + 1;
 
-// The wall is overflow-hidden and a slot books its impression and opens its air
-// time on mount, not on viewport — so a premium mark mounted past the fit would
-// be paid-tier inventory logged as seen while clipped out of sight.
+// The wall is overflow-hidden and a slot books its impression on mount, not on
+// viewport — so a premium mark mounted past the fit would be paid-tier
+// inventory logged as seen while clipped out of sight.
 it('should not mount more premium slots than the measured wall fits', async () => {
   setWallWidth(NARROW_WALL_WIDTH);
   renderStrip();
@@ -186,14 +188,6 @@ it('should book no impression for a premium mark the wall cannot fit', async () 
   await settle();
 
   expect(callsFor(AdActions.Impression)).toHaveLength(NARROW_TOTAL_LOGOS);
-});
-
-it('should open no air time for a premium mark the wall cannot fit', async () => {
-  setWallWidth(NARROW_WALL_WIDTH);
-  renderStrip();
-  await settle();
-
-  expect(logEventStart).toHaveBeenCalledTimes(NARROW_TOTAL_LOGOS);
 });
 
 it('should render the gold sponsor, four premium slots and the community row', async () => {
@@ -258,15 +252,53 @@ it('should give a masked wall mark a box to paint into', async () => {
   expect(wall).toHaveStyle({ height: '16px', width: '56px' });
 });
 
-it('should open air time for every logo on the row', async () => {
+// Air time and the viewable impression are the ad server's to count, through
+// its own pixel, so neither is an analytics event any more: the strip was the
+// loudest placement in the warehouse and only the ad server read them.
+it('should report air time to the ad server as seconds seen, not as an event', async () => {
+  const observers: IntersectionObserverCallback[] = [];
+  jest.spyOn(global, 'IntersectionObserver').mockImplementation((callback) => {
+    observers.push(callback);
+    return {
+      observe: jest.fn(),
+      unobserve: jest.fn(),
+      disconnect: jest.fn(),
+    } as unknown as IntersectionObserver;
+  });
+  jest.spyOn(document, 'hasFocus').mockReturnValue(true);
   renderStrip();
   await settle();
 
-  expect(logEventStart).toHaveBeenCalledTimes(shownLogos().length);
-  expect(logEventStart.mock.calls[0][1]).toEqual(
-    expect.objectContaining({ event_name: AdActions.AirTime }),
+  act(() => {
+    observers.forEach((callback) =>
+      callback(
+        [
+          {
+            isIntersecting: true,
+            intersectionRatio: 1,
+            boundingClientRect: { width: 56, height: 16 },
+          } as unknown as IntersectionObserverEntry,
+        ],
+        {} as IntersectionObserver,
+      ),
+    );
+  });
+  await act(async () => {
+    jest.advanceTimersByTime(3_000);
+    window.dispatchEvent(new Event('pagehide'));
+  });
+
+  // Only the gold mark carries a pixel of ours, so only it has anywhere to
+  // report — and it reports exactly what it has seen, not an event name.
+  expect(mockFirePixel).toHaveBeenCalledTimes(1);
+  expect(mockFirePixel).toHaveBeenCalledWith(
+    'https://api.daily.dev/px?id=gold&visible=3',
   );
-  expect(logEventStart.mock.calls[0][0]).toMatch(/^ss-0-gen-gold$/);
+  expect(
+    logEvent.mock.calls.map(
+      ([event]) => (event as { event_name: string }).event_name,
+    ),
+  ).toEqual(Array(shownLogos().length).fill(AdActions.Impression));
 });
 
 it('should hold the same row for the life of the page', async () => {
@@ -421,7 +453,6 @@ it('should fill unused row space after measuring all candidates without logging 
     8,
   );
   expect(callsFor(AdActions.Impression)).toHaveLength(13);
-  expect(logEventStart).toHaveBeenCalledTimes(13);
 });
 
 it('should open the gap to a wide row\u2019s pair without re-fitting after mount', async () => {

@@ -15,9 +15,7 @@ import {
   LabelIcon,
   LanguageIcon,
   ShieldPlusIcon,
-  SourceIcon,
   TourIcon,
-  UserShareIcon,
 } from '../icons';
 import {
   plusShowcaseAdFreeImage,
@@ -29,9 +27,6 @@ import {
   plusShowcasePresidentialBriefImage,
   plusShowcaseShieldImage,
   plusShowcaseShieldVideo,
-  plusShowcaseSquadImage,
-  plusShowcaseTeamImage,
-  plusShowcaseTeamVideo,
   plusShowcaseTranslateImage,
 } from '../../lib/image';
 import { plusOverviewDocs } from '../../lib/constants';
@@ -64,10 +59,11 @@ export const defaultFeatureList: Array<PlusItem> = [
   },
 ];
 
-export const plusFeatureListControl: Array<PlusItem> = [
+export const plusFeatureList: Array<PlusItem> = [
   {
     id: 'cores-back',
     label: '50% back in Cores',
+    perk: 'Gives 50% back in Cores',
     status: PlusItemStatus.Ready,
     highlight: true,
     tooltip: `Every Plus payment, renewals included, gives you 50% back as Cores. Use them to award creators, boost posts, and more.`,
@@ -77,35 +73,23 @@ export const plusFeatureListControl: Array<PlusItem> = [
   {
     id: 'public-api',
     label: 'Full public API access and higher rate limits',
+    perk: 'Unlocks the full public API',
     status: PlusItemStatus.Ready,
-    tooltip: `Build custom integrations and access your personalized feed programmatically. Full API access to feeds, bookmarks, search, and more with higher rate limits.`,
-  },
-  {
-    id: 'presidential-briefing',
-    label: 'Unlimited presidential briefings',
-    status: PlusItemStatus.Ready,
-    tooltip: `daily.dev scans the latest dev content, filters the noise, and delivers a personalized briefing of what actually matters.`,
-    icon: <BriefIcon secondary />,
-    iconClasses: 'bg-overlay-float-mustard text-accent-mustard-default',
-    modalProps: {
-      title: 'Unlimited presidential briefings',
-      description:
-        'daily.dev scans the latest dev content, filters the noise, and delivers a personalized briefing of what actually matters.',
-      imageUrl: plusShowcasePresidentialBriefImage,
-      mediaType: 'image',
-    },
+    highlight: true,
+    tooltip: `Full API access across your feed, search, posts, and bookmarks, with higher rate limits. Plus pre-built integrations for Claude Code, Cursor, and Codex.`,
   },
   {
     id: 'custom feeds',
-    label: 'Advanced custom feeds',
+    label: 'Custom feeds you can query',
+    perk: 'Builds feeds you can query',
     status: PlusItemStatus.Ready,
-    tooltip: `Build laser-focused feeds for the tools, languages, and topics you care about. Search less, learn more.`,
+    tooltip: `Filter feeds by tools, languages, and topics. Pull them into your agent or dashboard through the feeds endpoint.`,
     icon: <HashtagIcon secondary />,
     iconClasses: 'bg-overlay-float-water text-accent-water-default',
     modalProps: {
-      title: 'Advanced custom feeds',
+      title: 'Custom feeds you can query',
       description:
-        'Build laser-focused feeds for the tools, languages, and topics you care about. Search less, learn more.',
+        'Filter feeds by tools, languages, and topics. Pull them into your agent or dashboard through the feeds endpoint.',
       videoUrl: plusShowcaseCustomFeedsVideo,
       imageUrl: plusShowcaseCustomFeedsImage,
       mediaType: 'video',
@@ -113,15 +97,16 @@ export const plusFeatureListControl: Array<PlusItem> = [
   },
   {
     id: 'clean titles',
-    label: 'AI-powered clean titles',
+    label: 'AI-cleaned titles',
+    perk: 'Rewrites clickbait titles',
     status: PlusItemStatus.Ready,
-    tooltip: `No more misinformation. AI rewrites titles so you see the real story at a glance and dive in only when relevant.`,
+    tooltip: `AI rewrites clickbait and low-signal titles so your agents and digests ingest accurate metadata, not ragebait.`,
     icon: <ShieldPlusIcon secondary />,
     iconClasses: 'bg-overlay-float-avocado text-accent-avocado-default',
     modalProps: {
-      title: 'AI-powered clean titles',
+      title: 'AI-cleaned titles',
       description:
-        'No more misinformation. AI rewrites titles so you see the real story at a glance and dive in only when relevant.',
+        'AI rewrites clickbait and low-signal titles so your agents and digests ingest accurate metadata, not ragebait.',
       videoUrl: plusShowcaseShieldVideo,
       imageUrl: plusShowcaseShieldImage,
       mediaType: 'video',
@@ -130,22 +115,56 @@ export const plusFeatureListControl: Array<PlusItem> = [
   {
     id: 'bookmark folders',
     label: 'Bookmark folders',
+    perk: 'Organizes bookmarks into folders',
     status: PlusItemStatus.Ready,
-    tooltip: `Easily categorize and organize your bookmarked posts into folders so you can find what you need quickly.`,
+    tooltip: `Organize posts into folders, then pull them via the bookmarks endpoint. Great for read-later apps, digests, or Notion mirrors.`,
     icon: <FolderIcon secondary />,
     iconClasses: 'bg-overlay-float-bun text-accent-bun-default',
     modalProps: {
       title: 'Bookmark folders',
       description:
-        'Easily categorize and organize your bookmarked posts into folders so you can find what you need quickly.',
+        'Organize posts into folders, then pull them via the bookmarks endpoint. Great for read-later apps, digests, or Notion mirrors.',
       videoUrl: plusShowcaseBookmarkVideo,
       imageUrl: plusShowcaseBookmarkImage,
       mediaType: 'video',
     },
   },
   {
+    id: 'keyword filter',
+    label: 'Keyword filters',
+    perk: 'Filters out keywords you mute',
+    status: PlusItemStatus.Ready,
+    tooltip: `Mute buzzwords once. They apply to every feed you query, so agents don't waste tokens on noise.`,
+    icon: <LabelIcon secondary />,
+    iconClasses: 'bg-overlay-float-cheese text-accent-cheese-default',
+    modalProps: {
+      title: 'Keyword filters',
+      description:
+        "Mute buzzwords once. They apply to every feed you query, so agents don't waste tokens on noise.",
+      imageUrl: plusShowcaseKeywordImage,
+      mediaType: 'image',
+    },
+  },
+  {
+    id: 'presidential-briefing',
+    label: 'Presidential Briefing',
+    perk: 'Unlocks Presidential Briefing',
+    status: PlusItemStatus.Ready,
+    tooltip: `Your personal AI agent scans posts, videos, Squad threads, changelogs, and releases to deliver a personalized briefing in 3–5 minutes. Auto-saved to bookmarks; customize frequency and delivery (Plus only).`,
+    icon: <BriefIcon secondary />,
+    iconClasses: 'bg-overlay-float-mustard text-accent-mustard-default',
+    modalProps: {
+      title: 'Presidential Briefing',
+      description:
+        'Your personal AI agent scans posts, videos, Squad threads, changelogs, and releases to deliver a personalized briefing in 3–5 minutes. Auto-saved to bookmarks; customize frequency and delivery (Plus only).',
+      imageUrl: plusShowcasePresidentialBriefImage,
+      mediaType: 'image',
+    },
+  },
+  {
     id: 'ad-free',
     label: 'Ad-free experience',
+    perk: 'Removes every ad',
     status: PlusItemStatus.Ready,
     tooltip: `No ads. No clutter. Just pure content. Your feed, distraction-free.`,
     icon: <BlockIcon secondary />,
@@ -161,157 +180,25 @@ export const plusFeatureListControl: Array<PlusItem> = [
   {
     id: 'auto-translate',
     label: 'Auto-translate your feed',
+    perk: 'Translates your feed',
     status: PlusItemStatus.Ready,
-    tooltip: `Translate post titles and summaries into your language for a smoother learning experience.`,
+    tooltip: `Translate post titles and summaries into your preferred language. Break language barriers and discover global sources without limitations.`,
     icon: <LanguageIcon secondary />,
     iconClasses: 'bg-overlay-float-bacon text-accent-bacon-default',
     modalProps: {
       title: 'Auto-translate your feed',
       description:
-        'Make your feed more accessible with automatically translated post titles in your preferred language.',
+        'Translate post titles and summaries into your preferred language. Break language barriers and discover global sources without limitations.',
       imageUrl: plusShowcaseTranslateImage,
       mediaType: 'image',
     },
   },
   {
-    id: 'keyword filter',
-    label: 'Keyword filters',
-    status: PlusItemStatus.Ready,
-    tooltip: `Mute the buzzwords you're sick of hearing. More signal, less noise.`,
-    icon: <LabelIcon secondary />,
-    iconClasses: 'bg-overlay-float-cheese text-accent-cheese-default',
-    modalProps: {
-      title: 'Keyword filters',
-      description:
-        'Mute the buzzwords you’re sick of hearing. More signal, less noise.',
-      imageUrl: plusShowcaseKeywordImage,
-      mediaType: 'image',
-    },
-  },
-  {
-    id: 'member squad',
-    label: 'Members-only Squad',
-    status: PlusItemStatus.Ready,
-    tooltip: `Join an exclusive community space to connect with other Plus members, share feedback, and get priority support.`,
-    icon: <SourceIcon secondary />,
-    iconClasses: 'bg-overlay-float-cabbage text-accent-cabbage-default',
-    modalProps: {
-      title: 'Members-only Squad',
-      description:
-        'Join an exclusive community space to connect with other Plus members, share feedback, and get priority support.',
-      imageUrl: plusShowcaseSquadImage,
-      mediaType: 'image',
-    },
-  },
-  {
-    id: 'support team',
-    label: 'Support the team and make us smile',
-    status: PlusItemStatus.Ready,
-    tooltip: `By subscribing to Plus, you help us suffer less and build more (well... mostly suffer less).`,
-    icon: <UserShareIcon secondary />,
-    iconClasses: 'bg-overlay-float-bacon text-accent-bacon-default',
-    modalProps: {
-      title: 'Support the team and make us smile',
-      description:
-        'By subscribing to Plus, you help us suffer less and build more (well... mostly suffer less).',
-      videoUrl: plusShowcaseTeamVideo,
-      imageUrl: plusShowcaseTeamImage,
-      mediaType: 'video',
-    },
-  },
-];
-
-export const plusFeatureList = plusFeatureListControl;
-
-const getControlItem = (baseId: string): PlusItem => {
-  const base = plusFeatureListControl.find((item) => item.id === baseId);
-  if (!base) {
-    throw new Error(
-      `plusFeatureListControl is missing item with id: ${baseId}`,
-    );
-  }
-  return base;
-};
-
-const reframeControlItem = (
-  baseId: string,
-  label: string,
-  tooltip: string,
-  perk: string,
-): PlusItem => {
-  const base = getControlItem(baseId);
-  return {
-    ...base,
-    label,
-    perk,
-    tooltip,
-    modalProps: base.modalProps
-      ? { ...base.modalProps, title: label, description: tooltip }
-      : undefined,
-  };
-};
-
-export const plusFeatureListApiFirst: Array<PlusItem> = [
-  {
-    ...getControlItem('cores-back'),
-    perk: 'Gives 50% back in Cores',
-  },
-  {
-    id: 'public-api',
-    label: 'Full public API access and higher rate limits',
-    perk: 'Unlocks the full public API',
-    status: PlusItemStatus.Ready,
-    highlight: true,
-    tooltip: `Full API access across your feed, search, posts, and bookmarks, with higher rate limits. Plus pre-built integrations for Claude Code, Cursor, and Codex.`,
-  },
-  reframeControlItem(
-    'custom feeds',
-    'Custom feeds you can query',
-    `Filter feeds by tools, languages, and topics. Pull them into your agent or dashboard through the feeds endpoint.`,
-    'Builds feeds you can query',
-  ),
-  reframeControlItem(
-    'clean titles',
-    'AI-cleaned titles',
-    `AI rewrites clickbait and low-signal titles so your agents and digests ingest accurate metadata, not ragebait.`,
-    'Rewrites clickbait titles',
-  ),
-  reframeControlItem(
-    'bookmark folders',
-    'Bookmark folders',
-    `Organize posts into folders, then pull them via the bookmarks endpoint. Great for read-later apps, digests, or Notion mirrors.`,
-    'Organizes bookmarks into folders',
-  ),
-  reframeControlItem(
-    'keyword filter',
-    'Keyword filters',
-    `Mute buzzwords once. They apply to every feed you query, so agents don't waste tokens on noise.`,
-    'Filters out keywords you mute',
-  ),
-  reframeControlItem(
-    'presidential-briefing',
-    'Presidential Briefing',
-    `Your personal AI agent scans posts, videos, Squad threads, changelogs, and releases to deliver a personalized briefing in 3–5 minutes. Auto-saved to bookmarks; customize frequency and delivery (Plus only).`,
-    'Unlocks Presidential Briefing',
-  ),
-  reframeControlItem(
-    'ad-free',
-    'Ad-free experience',
-    `No ads. No clutter. Just pure content — your feed, distraction-free.`,
-    'Removes every ad',
-  ),
-  reframeControlItem(
-    'auto-translate',
-    'Auto-translate your feed',
-    `Translate post titles and summaries into your preferred language. Break language barriers and discover global sources without limitations.`,
-    'Translates your feed',
-  ),
-  {
     id: 'bonus-quest-slots',
     label: 'Bonus quest slots',
     perk: 'Adds bonus quest slots',
     status: PlusItemStatus.Ready,
-    tooltip: `Get two additional quest slots — one in your daily bucket and one in your weekly bucket. More objectives in flight, more XP, Reputation, and Cores each rotation.`,
+    tooltip: `Get two additional quest slots: one in your daily bucket and one in your weekly bucket. More objectives in flight, more XP, Reputation, and Cores each rotation.`,
     icon: <TourIcon secondary />,
     iconClasses: 'bg-overlay-float-blueCheese text-accent-blueCheese-default',
   },
@@ -406,7 +293,7 @@ const usageRank = (item: PlusItem): number => {
   return rank === -1 ? plusFeaturesByUsage.length : rank;
 };
 
-const plusFeaturesInUsageOrder = plusFeatureListApiFirst
+const plusFeaturesInUsageOrder = plusFeatureList
   .filter((item) => !item.href)
   .sort((a, b) => usageRank(a) - usageRank(b));
 

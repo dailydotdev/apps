@@ -66,7 +66,10 @@ export function BasePostContent({
     <>
       {isPostPage && (
         <GoBackHeaderMobile
-          className={classNames(className.header, '-mx-4 bg-background-subtle')}
+          className={classNames(
+            className.header,
+            '-mx-4 bg-background-subtle tablet:-mx-6',
+          )}
         >
           <PostHeaderActions
             post={post}

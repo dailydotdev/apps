@@ -26,7 +26,6 @@ import { ToggleClickbaitShield } from '../../components/buttons/ToggleClickbaitS
 import { AchievementTrackerButton } from '../../components/filters/AchievementTrackerButton';
 import { LuckyButton } from '../../components/filters/LuckyButton';
 import { ReadingStreakButton } from '../../components/streak/ReadingStreakButton';
-import NotificationsBell from '../../components/notifications/NotificationsBell';
 import PlusMobileEntryBanner from '../../components/marketing/banners/PlusMobileEntryBanner';
 import { HomeSegments } from '../../components/shell/HomeSegments';
 import { ShellDockedRow } from '../../components/shell/ShellPageContext';
@@ -35,7 +34,7 @@ import { useShellEdge } from '../../components/shell/useShellScroll';
 import { pageHeaderClassName } from '../../components/layout/PageHeader';
 import { DEFAULT_ALGORITHM_INDEX } from '../../components/layout/common';
 import { SharedFeedPage } from '../../components/utilities/common';
-import { useIsPhoneNow, useViewSize, ViewSize } from '../../hooks/useViewSize';
+import { useIsPhoneNow } from '../../hooks/useViewSize';
 import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
 import { useReadingStreak } from '../../hooks/streaks/useReadingStreak';
 import usePlusEntry from '../../hooks/usePlusEntry';
@@ -63,7 +62,7 @@ const forYouLabel = 'For you';
  * with each screen's own feeds: the chips on laptop, the chip strip on
  * tablet, the shell's segments on phones. The lit For you tab holds the
  * feed's sort, so the separate sort button goes; phones keep Feed settings
- * in its sheet too.
+ * in its sheet too. The actions are all Tertiary Small, Feed settings last.
  */
 export function HomeFeedTabs({
   feedName,
@@ -76,7 +75,6 @@ export function HomeFeedTabs({
   // screen is read at once rather than painting the tablet strip first.
   const isPhone = useIsPhoneNow();
   const isLaptopLayout = useLaptopLayout();
-  const isTabletWidth = !useViewSize(ViewSize.MobileL);
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const { plusEntryForYou } = usePlusEntry();
   const blockBottom = useShellEdge();
@@ -160,6 +158,7 @@ export function HomeFeedTabs({
         {feedName === SharedFeedPage.Custom && (
           <MyFeedHeading
             iconOnly
+            quiet
             feedSettingsButtonProps={{
               size: ButtonSize.Small,
               variant: ButtonVariant.Tertiary,
@@ -196,33 +195,28 @@ export function HomeFeedTabs({
     );
   }
 
+  const quietButton = {
+    size: ButtonSize.Small,
+    variant: ButtonVariant.Tertiary,
+  };
   const shield = hasFeedActions && (
     <ToggleClickbaitShield
       origin={
         feedName === SharedFeedPage.Custom ? Origin.CustomFeed : Origin.Feed
       }
-      buttonProps={{
-        size: ButtonSize.Small,
-        variant: isLaptopLayout ? ButtonVariant.Tertiary : ButtonVariant.Float,
-      }}
-      iconButtonProps={{
-        size: ButtonSize.Small,
-        variant: isLaptopLayout ? ButtonVariant.Tertiary : ButtonVariant.Float,
-      }}
+      buttonProps={quietButton}
+      iconButtonProps={quietButton}
     />
   );
   const explainSwitch = isForYou && (
     <FeedExplainSwitch
       isRecommended={sort.selected === DEFAULT_ALGORITHM_INDEX}
+      buttonProps={quietButton}
+      iconOnly={!isLaptopLayout}
     />
   );
   const feedSettings = hasFeedActions && (
-    <MyFeedHeading
-      feedSettingsButtonProps={{
-        size: ButtonSize.Small,
-        variant: ButtonVariant.Float,
-      }}
-    />
+    <MyFeedHeading quiet feedSettingsButtonProps={quietButton} />
   );
   if (!isLaptopLayout) {
     return (
@@ -230,7 +224,7 @@ export function HomeFeedTabs({
         <div ref={anchorRef} />
         <div
           ref={rowRef}
-          className="sticky top-0 z-3 flex items-center gap-2 border-b border-border-subtlest-tertiary bg-background-default px-3 tablet:-mx-6 tablet:px-6"
+          className="sticky top-0 z-3 flex items-center gap-2 border-b border-border-subtlest-tertiary bg-background-default px-3 laptop:-mx-6 laptop:px-6"
         >
           <UnifiedMobileFeedNav
             className="py-3"
@@ -263,16 +257,16 @@ export function HomeFeedTabs({
               <ForYouSortMenu sort={sort}>
                 <Button
                   type="button"
-                  variant={ButtonVariant.Float}
+                  variant={ButtonVariant.Tertiary}
                   size={ButtonSize.Small}
                   icon={<SortIcon />}
                   aria-label="Sort"
                 />
               </ForYouSortMenu>
             )}
+            {hasFeedActions && <AchievementTrackerButton quiet />}
             {shield}
-            {hasFeedActions && <AchievementTrackerButton />}
-            {hasFeedActions && <LuckyButton />}
+            {hasFeedActions && <LuckyButton quiet />}
             {isStreaksEnabled && streak && (
               <ReadingStreakButton
                 streak={streak}
@@ -280,9 +274,14 @@ export function HomeFeedTabs({
                 compact
               />
             )}
-            {isTabletWidth && <NotificationsBell compact />}
             {explainSwitch}
-            {feedSettings}
+            {hasFeedActions && (
+              <MyFeedHeading
+                quiet
+                iconOnly
+                feedSettingsButtonProps={quietButton}
+              />
+            )}
           </div>
         </div>
         {banner}
@@ -327,6 +326,7 @@ export function HomeFeedTabs({
               categories={categories}
               isPending={isChipsPending}
               renderForYou={canSort ? () => laptopTab(forYouLabel) : undefined}
+              quiet
             />
           ) : (
             <span className="relative flex w-fit items-center py-3 after:absolute after:inset-x-0 after:bottom-0 after:mx-auto after:w-1/2 after:border-b-2 after:border-text-primary">
@@ -340,8 +340,8 @@ export function HomeFeedTabs({
         </div>
         {hasFeedActions && (
           <div className="flex shrink-0 items-center gap-1">
+            <AchievementTrackerButton quiet />
             {shield}
-            <AchievementTrackerButton />
             {explainSwitch}
             {feedSettings}
           </div>

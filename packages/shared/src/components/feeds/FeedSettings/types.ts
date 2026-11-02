@@ -30,10 +30,12 @@ export type FeedSettingsEditContextValue = {
 };
 
 export enum FeedSettingsMenu {
+  Overview = 'overview',
   General = 'general',
   Tags = 'tags',
   ContentSources = 'sources',
   ContentPreferences = 'preferences',
+  Ranking = 'ranking',
   AI = 'ai',
   Filters = 'filters',
   Blocking = 'blocking',
@@ -41,10 +43,12 @@ export enum FeedSettingsMenu {
 
 export const feedSettingsMenuTitle: Record<FeedSettingsMenu, string> =
   Object.freeze({
+    [FeedSettingsMenu.Overview]: 'Overview',
     [FeedSettingsMenu.General]: 'General',
     [FeedSettingsMenu.Tags]: 'Tags',
     [FeedSettingsMenu.ContentSources]: 'Content sources',
     [FeedSettingsMenu.ContentPreferences]: 'Content preferences',
+    [FeedSettingsMenu.Ranking]: 'Ranking',
     [FeedSettingsMenu.AI]: 'AI superpowers',
     [FeedSettingsMenu.Filters]: 'Filters',
     [FeedSettingsMenu.Blocking]: 'Blocked content',
