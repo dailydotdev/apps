@@ -198,6 +198,7 @@ jest.mock('../shell/HomeSegments', () => ({
 describe('FeedNav', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockIsVisitorBar = false;
     mockUseRouter.mockReturnValue({
       asPath: '/',
       pathname: '/',
@@ -313,7 +314,6 @@ describe('FeedNav', () => {
 
     expect(screen.getAllByTestId('visitor-actions')).toHaveLength(1);
     expect(screen.queryByTestId('notifications-bell')).not.toBeInTheDocument();
-    mockIsVisitorBar = false;
   });
 
   it('gives a tablet visitor the sign-in strip on a page without feed tabs', () => {
@@ -321,28 +321,34 @@ describe('FeedNav', () => {
     mockUseActiveNav.mockReturnValue({ home: false, bookmarks: false });
     mockViewport({ isMobile: false, isBelowLaptop: true });
 
-    render(<FeedNav />);
+    render(<FeedNav canShowSignInStrip />);
 
     expect(screen.getByTestId('sign-in-strip')).toBeInTheDocument();
     expect(screen.queryByRole('list')).not.toBeInTheDocument();
-    mockIsVisitorBar = false;
   });
 
-  it('leaves a profile to its own bar on tablets', () => {
+  it('leaves the strip out where the layout carries no sidebar or has a back bar', () => {
     mockIsVisitorBar = true;
     mockUseActiveNav.mockReturnValue({ home: false, bookmarks: false });
     mockViewport({ isMobile: false, isBelowLaptop: true });
-    mockUseRouter.mockReturnValue({
-      asPath: '/rosiesherry',
-      pathname: '/[userId]',
-      query: {},
-      push: jest.fn(),
-    });
 
     render(<FeedNav />);
 
     expect(screen.queryByTestId('sign-in-strip')).not.toBeInTheDocument();
-    mockIsVisitorBar = false;
+  });
+
+  it('leaves a profile to its own bar on tablets', () => {
+    mockIsVisitorBar = true;
+    mockUseActiveNav.mockReturnValue({
+      home: false,
+      bookmarks: false,
+      profile: true,
+    });
+    mockViewport({ isMobile: false, isBelowLaptop: true });
+
+    render(<FeedNav canShowSignInStrip />);
+
+    expect(screen.queryByTestId('sign-in-strip')).not.toBeInTheDocument();
   });
 
   it('renders tablet-only actions once in the chips row', () => {
