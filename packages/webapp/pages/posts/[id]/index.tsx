@@ -3,7 +3,6 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { POST_CONTENT_MAP } from '@dailydotdev/shared/src/components/post/postContentMap';
-import Script from 'next/script';
 import {
   ReadAdFormat,
   ReadAdSlot,
@@ -13,9 +12,6 @@ import { PhoneTopAdStrip } from '@dailydotdev/shared/src/components/post/read/Ph
 import { PostWidgetPosition } from '@dailydotdev/shared/src/components/post/PostWidgets';
 import {
   hasLiveAdSlots,
-  PREBID_SCRIPT_SRC,
-} from '@dailydotdev/shared/src/features/monetization/kueez';
-import {
   COMMENTS_PER_INTERLEAVED_AD,
   CONTENT_CHARS_PER_AD,
   MAX_CONTENT_ADS_PER_SECTION,
@@ -98,7 +94,7 @@ import { usePhoneBrowser } from '@dailydotdev/shared/src/features/getApp/hooks/u
 import { useCommentsTeaser } from '@dailydotdev/shared/src/features/commentsTeaser/useCommentsTeaser';
 import { useRevealOnEngagement } from '@dailydotdev/shared/src/features/commentsTeaser/useRevealOnEngagement';
 import { getCommentsTeaserTitle } from '@dailydotdev/shared/src/features/commentsTeaser/commentsTeaser';
-import { AdHeadHints } from '../../../components/AdHeadHints';
+import { ContentIgniteTag } from '../../../components/ContentIgniteTag';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
@@ -247,8 +243,8 @@ export const PostPage = ({
     !isCommentsTeaser &&
     !isCommentsTeaserPending;
   // Empty for every logged-in visitor and for posts in ad-free squads; the
-  // slot components check the same hook, so with it empty neither markup nor
-  // the Prebid bundle exists.
+  // slot components check the same hook, so with it empty neither anchors nor
+  // the ad tag exist.
   const adSlots = useOrganicAdSlots(post);
   const adsActive = hasLiveAdSlots(adSlots);
   // The same in-content treatment the /articles template ships, reused on
@@ -294,7 +290,6 @@ export const PostPage = ({
                 format={ReadAdFormat.MediumRectangle}
                 className="my-6"
                 hideOnPhone={index > 0}
-                logExtra={{ section: 'summary', occurrence: index + 1 }}
               />
             )}
           </React.Fragment>
@@ -334,13 +329,12 @@ export const PostPage = ({
             ),
             commentAds: {
               interleaveEvery: COMMENTS_PER_INTERLEAVED_AD,
-              renderInterleaved: (occurrence: number) => (
+              renderInterleaved: () => (
                 <ReadAdSlot
                   surface="organic"
                   slot={ORGANIC_SLOT.commentMpu}
                   format={ReadAdFormat.MediumRectangle}
                   hideOnPhone
-                  logExtra={{ occurrence }}
                 />
               ),
             },
@@ -442,16 +436,7 @@ export const PostPage = ({
             <Head>
               <link rel="preload" as="image" href={post?.image} />
             </Head>
-            {adsActive && (
-              <>
-                <AdHeadHints />
-                <Script
-                  id="prebid-loader"
-                  src={PREBID_SCRIPT_SRC}
-                  strategy="afterInteractive"
-                />
-              </>
-            )}
+            <ContentIgniteTag enabled={adsActive} />
             <PostSEOSchema post={post} topComments={topComments} />
             <Content
               position={position}
