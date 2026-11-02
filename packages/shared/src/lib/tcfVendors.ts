@@ -30,8 +30,10 @@ export const tcfVendors: ReadonlyArray<{ id: number; name: string }> = [
   { id: 91, name: 'Criteo SA' },
   { id: 686, name: 'The MediaGrid Inc.' },
   { id: 617, name: 'Onfocus (Adagio)' },
-  // the onboarding doc lists 33 as Sharethrough; in the GVL it is ShareThis
+  // the onboarding doc listed 33 as Sharethrough; Content Ignite confirmed
+  // they want Sharethrough (80) and kept 33, ShareThis in the GVL
   { id: 33, name: 'ShareThis, Inc' },
+  { id: 80, name: 'Sharethrough, Inc' },
   { id: 149, name: 'ADman Interactive SLU' },
   { id: 737, name: 'Monet Engine Inc' },
   { id: 81, name: 'PulsePoint, Inc.' },
