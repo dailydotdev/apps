@@ -27,7 +27,7 @@ export const useKeyboardNavigation = (
         (e.path as HTMLElement[]) ||
         [];
       const tagName =
-        base?.tagName.toLowerCase() as keyof JSX.IntrinsicElements;
+        base?.tagName?.toLowerCase() as keyof JSX.IntrinsicElements;
       if (optional?.disableOnTags?.includes(tagName)) {
         return;
       }
@@ -40,7 +40,7 @@ export const useKeyboardNavigation = (
         return;
       }
 
-      if (base.getAttribute('contenteditable') === 'true') {
+      if (base?.getAttribute?.('contenteditable') === 'true') {
         return;
       }
 

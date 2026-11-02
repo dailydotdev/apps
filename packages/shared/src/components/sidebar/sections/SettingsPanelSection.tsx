@@ -1,19 +1,13 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import {
-  AddUserIcon,
-  AppIcon,
   BellIcon,
-  BlockIcon,
   CreditCardIcon,
-  EditIcon,
   EmbedIcon,
   EyeIcon,
   FeatherIcon,
-  HashtagIcon,
   InviteIcon,
   JobIcon,
-  MagicIcon,
   MailIcon,
   NewTabIcon,
   OrganizationIcon,
@@ -35,6 +29,10 @@ import { LazyModal } from '../../modals/common/types';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { useJobsFeature } from '../../../hooks/useJobsFeature';
+import {
+  getForYouSettingsUrl,
+  useForYouSettingsPages,
+} from '../../feeds/FeedSettings/forYouSettingsPages';
 
 const settingsDefaultPath = `${settingsUrl}/profile`;
 
@@ -51,6 +49,7 @@ export const SettingsPanelSection = ({
   const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
   const { isJobsEnabled } = useJobsFeature();
+  const feedSettingsPages = useForYouSettingsPages();
 
   const groups: SettingsGroup[] = useMemo(
     () => [
@@ -120,50 +119,13 @@ export const SettingsPanelSection = ({
       {
         key: 'feed',
         title: 'Feed settings',
-        items: [
-          {
-            title: 'General',
-            path: `${settingsUrl}/feed/general`,
-            icon: (active: boolean) => (
-              <ListIcon Icon={() => <EditIcon secondary={active} />} />
-            ),
-          },
-          {
-            title: 'Tags',
-            path: `${settingsUrl}/feed/tags`,
-            icon: (active: boolean) => (
-              <ListIcon Icon={() => <HashtagIcon secondary={active} />} />
-            ),
-          },
-          {
-            title: 'Content sources',
-            path: `${settingsUrl}/feed/sources`,
-            icon: (active: boolean) => (
-              <ListIcon Icon={() => <AddUserIcon secondary={active} />} />
-            ),
-          },
-          {
-            title: 'Content preferences',
-            path: `${settingsUrl}/feed/preferences`,
-            icon: (active: boolean) => (
-              <ListIcon Icon={() => <AppIcon secondary={active} />} />
-            ),
-          },
-          {
-            title: 'AI superpowers',
-            path: `${settingsUrl}/feed/ai`,
-            icon: (active: boolean) => (
-              <ListIcon Icon={() => <MagicIcon secondary={active} />} />
-            ),
-          },
-          {
-            title: 'Blocked content',
-            path: `${settingsUrl}/feed/blocked`,
-            icon: (active: boolean) => (
-              <ListIcon Icon={() => <BlockIcon secondary={active} />} />
-            ),
-          },
-        ],
+        items: feedSettingsPages.map(({ id, title, icon: Icon }) => ({
+          title,
+          path: getForYouSettingsUrl(id),
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <Icon secondary={active} />} />
+          ),
+        })),
       },
       {
         key: 'career',
@@ -276,7 +238,7 @@ export const SettingsPanelSection = ({
         ],
       },
     ],
-    [isJobsEnabled, logEvent, openModal],
+    [feedSettingsPages, isJobsEnabled, logEvent, openModal],
   );
 
   return (

@@ -1,10 +1,18 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import AuthOptions from './AuthOptions';
 import { AuthDisplay } from './common';
 import { AuthTriggers } from '../../lib/auth';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { SOCIAL_AUTH_POPUP_CLOSED_ERROR } from './socialAuth';
+
+jest.mock('../../lib/betterAuth', () => ({
+  ...jest.requireActual('../../lib/betterAuth'),
+  getBetterAuthSocialRedirectData: jest
+    .fn()
+    .mockResolvedValue({ url: 'https://accounts.google.com/o/oauth2' }),
+}));
 
 jest.mock('./RegistrationForm', () => ({
   __esModule: true,
@@ -19,7 +27,26 @@ jest.mock('./OnboardingRegistrationForm', () => {
 
 jest.mock('./AuthDefault', () => ({
   __esModule: true,
-  default: () => <div data-testid="auth-default" />,
+  default: ({
+    onProviderClick,
+    onForgotPassword,
+  }: {
+    onProviderClick: (provider: string) => void;
+    onForgotPassword?: (email?: string) => void;
+  }) => (
+    <>
+      <button
+        type="button"
+        data-testid="auth-default"
+        onClick={() => onProviderClick('google')}
+      >
+        Google
+      </button>
+      <button type="button" onClick={() => onForgotPassword?.()}>
+        Forgot password?
+      </button>
+    </>
+  ),
 }));
 
 const renderOptions = (defaultDisplay: AuthDisplay) => {
@@ -53,4 +80,137 @@ describe('AuthOptions', () => {
     expect(await screen.findByTestId('provider-choice')).toBeInTheDocument();
     expect(screen.queryByTestId('registration-form')).not.toBeInTheDocument();
   });
+});
+
+describe('AuthOptions forgot password', () => {
+  // Mirrors /onboarding, the funnels and the recruiter modal: they store the
+  // display AuthOptions reports and feed it back as `defaultDisplay`.
+  const MirroringParent = () => {
+    const [display, setDisplay] = React.useState(AuthDisplay.Default);
+    return (
+      <TestBootProvider client={new QueryClient()} auth={{ isLoggedIn: false }}>
+        <AuthOptions
+          simplified
+          formRef={{ current: document.createElement('form') }}
+          trigger={AuthTriggers.Onboarding}
+          defaultDisplay={display}
+          onAuthStateUpdate={({ defaultDisplay }) =>
+            defaultDisplay && setDisplay(defaultDisplay)
+          }
+        />
+      </TestBootProvider>
+    );
+  };
+
+  it.each([
+    ['header back button', () => screen.getByLabelText('Go back')],
+    ['back to log in link', () => screen.getByText(/Back to log in/)],
+  ])('goes back to log in with the %s', async (_, getBack) => {
+    render(<MirroringParent />);
+
+    fireEvent.click(await screen.findByText('Forgot password?'));
+    expect(await screen.findByText('Reset password')).toBeInTheDocument();
+
+    fireEvent.click(getBack());
+
+    expect(await screen.findByTestId('auth-default')).toBeInTheDocument();
+    expect(screen.queryByText('Reset password')).not.toBeInTheDocument();
+  });
+});
+
+describe('AuthOptions social popup', () => {
+  it('logs a closed popup without a sign-in as a cancellation', async () => {
+    const popup = { closed: false, close: jest.fn(), location: { href: '' } };
+    jest.spyOn(window, 'open').mockReturnValue(popup as unknown as Window);
+    const logEvent = jest.fn();
+    const refetchBoot = jest
+      .fn()
+      .mockResolvedValue({ data: { user: { id: 'anonymous' } } });
+
+    render(
+      <TestBootProvider
+        client={new QueryClient()}
+        auth={{ isLoggedIn: false, user: undefined, refetchBoot }}
+        log={{ logEvent }}
+      >
+        <AuthOptions
+          formRef={{ current: document.createElement('form') }}
+          trigger={AuthTriggers.MainButton}
+          defaultDisplay={AuthDisplay.Default}
+          forceDefaultDisplay
+        />
+      </TestBootProvider>,
+    );
+
+    fireEvent.click(await screen.findByTestId('auth-default'));
+    await waitFor(() =>
+      expect(popup.location.href).toBe('https://accounts.google.com/o/oauth2'),
+    );
+    popup.closed = true;
+
+    await waitFor(
+      () =>
+        expect(logEvent).toHaveBeenCalledWith({
+          event_name: 'login error',
+          extra: JSON.stringify({
+            provider: 'google',
+            error: SOCIAL_AUTH_POPUP_CLOSED_ERROR,
+            origin: 'betterauth social popup closed',
+          }),
+        }),
+      { timeout: 3000 },
+    );
+    expect(refetchBoot).toHaveBeenCalledWith({ cancelRefetch: false });
+  });
+
+  it('finishes the sign-in when the session lands after the popup closed', async () => {
+    const popup = { closed: false, close: jest.fn(), location: { href: '' } };
+    jest.spyOn(window, 'open').mockReturnValue(popup as unknown as Window);
+    const logEvent = jest.fn();
+    const onAuthStateUpdate = jest.fn();
+    const anonymous = { data: { user: { id: 'anonymous' } } };
+    const refetchBoot = jest
+      .fn()
+      // the immediate popup-closed check (3 attempts) sees no session yet
+      .mockResolvedValueOnce(anonymous)
+      .mockResolvedValueOnce(anonymous)
+      .mockResolvedValueOnce(anonymous)
+      // the background re-check finds it
+      .mockResolvedValue({
+        data: {
+          user: { id: 'u1', email: 'u1@daily.dev', infoConfirmed: false },
+        },
+      });
+
+    render(
+      <TestBootProvider
+        client={new QueryClient()}
+        auth={{ isLoggedIn: false, user: undefined, refetchBoot }}
+        log={{ logEvent }}
+      >
+        <AuthOptions
+          formRef={{ current: document.createElement('form') }}
+          trigger={AuthTriggers.MainButton}
+          defaultDisplay={AuthDisplay.Default}
+          forceDefaultDisplay
+          onAuthStateUpdate={onAuthStateUpdate}
+        />
+      </TestBootProvider>,
+    );
+
+    fireEvent.click(await screen.findByTestId('auth-default'));
+    await waitFor(() =>
+      expect(popup.location.href).toBe('https://accounts.google.com/o/oauth2'),
+    );
+    popup.closed = true;
+
+    await waitFor(
+      () =>
+        expect(onAuthStateUpdate).toHaveBeenCalledWith({
+          defaultDisplay: AuthDisplay.SocialRegistration,
+        }),
+      { timeout: 8000 },
+    );
+    expect(refetchBoot.mock.calls.length).toBeGreaterThanOrEqual(4);
+  }, 15000);
 });

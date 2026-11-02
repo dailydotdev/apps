@@ -42,6 +42,7 @@ export interface BaseProductPricingPreview {
 
 export interface ProductPricingPreview extends BaseProductPricingPreview {
   metadata: ProductPricingMetadata;
+  coresGiveback?: number | null;
 }
 
 export enum PurchaseType {
@@ -100,6 +101,7 @@ const PRICING_PREVIEW_QUERY = gql`
         symbol
       }
       duration
+      coresGiveback
     }
   }
   ${PRICING_METADATA_FRAGMENT}

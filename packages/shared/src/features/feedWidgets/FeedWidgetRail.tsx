@@ -50,6 +50,10 @@ import {
 } from './FeedWidgetRailFrame';
 import { FeedWidgetRailHeader } from './FeedWidgetRailHeader';
 import { FeedWidgetAdSlot } from './widgets/FeedWidgetAdSlot';
+import {
+  isBoostedPostCreative,
+  isBoostedSquadCreative,
+} from '../../hooks/useFeed';
 import { FeedWidgetTip } from './widgets/FeedWidgetTip';
 import {
   feedWidgetTipLogEvent,
@@ -190,7 +194,12 @@ export const FeedWidgetRail = ({
   const tips = useFeedWidgetTips();
   const [tipDraw] = useState(Math.random);
   const tip = pickFeedWidgetTip(tips, tipDraw);
-  const showTip = showAd && !isTipHidden;
+  // A boost is the post's or squad's own card, which has no compact variant,
+  // so a tip over it would clip the card's actions: the tip waits for a
+  // creative.
+  const isBoost =
+    !!ad && (isBoostedPostCreative(ad) || isBoostedSquadCreative(ad));
+  const showTip = showAd && !isTipHidden && !isBoost;
 
   const logWidgetEvent = useCallback(
     (eventName: LogEvent, widget?: FeedWidget, extra?: object) =>
@@ -547,7 +556,9 @@ export const FeedWidgetRail = ({
                     data-flip-id={placement.key}
                     className={classNames(
                       'flex min-h-0 snap-start',
-                      showTip && 'flex-col gap-2',
+                      // The grid's own row gap, so the tip sits off the ad
+                      // as every widget sits off its neighbour.
+                      showTip && 'flex-col gap-6',
                     )}
                     style={gridArea(placement)}
                     aria-label="Sponsored, pinned"

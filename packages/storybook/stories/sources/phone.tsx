@@ -212,7 +212,7 @@ const clusterTabs = [
 ];
 
 /** ShellCluster with Explore lit, and the Create square. */
-const Cluster = (): ReactElement => {
+export const Cluster = (): ReactElement => {
   const { goTo } = useSources();
   return (
     <div

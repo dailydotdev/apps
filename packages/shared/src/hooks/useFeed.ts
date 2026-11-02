@@ -4,7 +4,11 @@ import type {
   QueryKey,
   UseInfiniteQueryOptions,
 } from '@tanstack/react-query';
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  hashKey,
+  useInfiniteQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import type { ClientError } from 'graphql-request';
 import { useRouter } from 'next/router';
 import type { Ad, Post, PostsEngaged, PostType } from '../graphql/posts';
@@ -143,11 +147,19 @@ export type FeedItem =
   | AdSquadItem
   | PlaceholderItem;
 
+// Skadi marks a boost by what it carries: the post or the squad, no creative.
+export const isBoostedPostCreative = (
+  ad: Ad,
+): ad is Ad & { data: { post: Post } } => !!ad.data?.post;
+
+export const isBoostedSquadCreative = (ad: Ad): ad is AdSquadItem['ad'] =>
+  !!ad.data?.source;
+
 export const isBoostedPostAd = (item: FeedItem): item is AdPostItem =>
-  item?.type === FeedItemType.Ad && !!item.ad.data?.post;
+  item?.type === FeedItemType.Ad && isBoostedPostCreative(item.ad);
 
 export const isBoostedSquadAd = (item: FeedItem): item is AdSquadItem =>
-  item?.type === FeedItemType.Ad && !!item.ad.data?.source;
+  item?.type === FeedItemType.Ad && isBoostedSquadCreative(item.ad);
 
 export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
 
@@ -192,6 +204,8 @@ export type FeedReturnType = {
   fetchPage: () => Promise<void>;
   updatePost: UpdateFeedPost;
   removePost: (page: number, index: number) => void;
+  /** What a loaded page was asked with, which keys the feed service's cache. */
+  getPageRequest: (page: number) => FeedPageRequest | undefined;
   canFetchMore: boolean;
   emptyFeed: boolean;
   isLoading: boolean;
@@ -201,6 +215,12 @@ export type FeedReturnType = {
   isPending: boolean;
   error?: ClientError;
 };
+
+export interface FeedPageRequest {
+  first: number;
+  /** The page's own cursor, as the request for the next page sends it. */
+  cursor?: string;
+}
 
 type UseFeedSettingParams = {
   adPostLength?: number;
@@ -271,6 +291,18 @@ export interface UseFeedOptionalParams<T> {
    */
   excludePinnedPosts?: boolean;
 }
+
+const adJitterSeeds = new Map<string, string>();
+
+export const getAdJitterSeed = (feedKey: string, hasData: boolean): string => {
+  const seed = adJitterSeeds.get(feedKey);
+  if (seed && hasData) {
+    return seed;
+  }
+  const next = Math.random().toString(36).slice(2);
+  adJitterSeeds.set(feedKey, next);
+  return next;
+};
 
 export default function useFeed<T>(
   feedQueryKey: QueryKey,
@@ -425,7 +457,7 @@ export default function useFeed<T>(
         }, []),
       );
 
-      return res;
+      return { ...res, first: pageSize };
     },
     refetchOnMount: false,
     gcTime: StaleTime.OneHour,
@@ -518,13 +550,12 @@ export default function useFeed<T>(
   }, [showPromoBanner, indexWhenShowingPromoBanner]);
 
   const { fetchAd, isAdConsentReady } = useFetchAd(isAdsQueryEnabled);
-  // Per-mount random seed for ad jitter. Stable across re-renders/pagination
-  // (so ads don't visibly jump as new pages load) but varies across mounts and
-  // sessions, so the same user doesn't see ads in the same spots every visit.
-  const adJitterSeedRef = useRef<string>();
-  if (!adJitterSeedRef.current) {
-    adJitterSeedRef.current = Math.random().toString(36).slice(2);
-  }
+  // One random seed per feed load: stable across re-renders and pagination
+  // (so ads don't visibly jump as new pages load) and across the mounts that
+  // show the same cached feed (a return from a post must not move the ads),
+  // new on a fresh load and every session, so the same user doesn't see ads
+  // in the same spots every visit.
+  const adJitterSeed = getAdJitterSeed(hashKey(feedQueryKey), !!feedQuery.data);
   const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
   useCachedTokenRecovery({
     queryKey: adsQueryKey,
@@ -587,7 +618,7 @@ export default function useFeed<T>(
         adStart,
         adRepeat,
         adJitter,
-        seed: adJitterSeedRef.current ?? '',
+        seed: adJitterSeed,
       });
 
       if (slot === undefined) {
@@ -636,6 +667,7 @@ export default function useFeed<T>(
       adTemplate?.adStart,
       adTemplate?.adRepeat,
       adTemplate?.adJitter,
+      adJitterSeed,
       adsUpdatedAt,
       pageSize,
       settings?.skipFirstAd,
@@ -907,12 +939,26 @@ export default function useFeed<T>(
     },
   };
 
+  const getPageRequest = useCallback(
+    (page: number): FeedPageRequest | undefined => {
+      const data = feedQuery.data?.pages[page];
+      return data?.first
+        ? {
+            first: data.first,
+            cursor: data.page.pageInfo.endCursor ?? undefined,
+          }
+        : undefined;
+    },
+    [feedQuery.data],
+  );
+
   return {
     items,
     placements,
     heroCardsConfig,
     bannerInsertions,
     hasFirstSlotCard,
+    getPageRequest,
     fetchPage: async () => {
       await feedQuery.fetchNextPage();
     },

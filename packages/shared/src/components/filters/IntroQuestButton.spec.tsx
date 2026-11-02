@@ -256,6 +256,20 @@ describe('IntroQuestButton', () => {
     ).toBeInTheDocument();
   });
 
+  it('swaps the badge for the shared attention dot under the widget rail', () => {
+    render(<IntroQuestButton attentionDot />);
+
+    expect(screen.getByTestId('attention-dot')).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('intro-quest-attention-badge'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: 'Open introduction quests (1/4), attention needed',
+      }),
+    ).toBeInTheDocument();
+  });
+
   it('does not render when auth is not ready', () => {
     mockUseAuthContext.mockReturnValue({
       isAuthReady: false,

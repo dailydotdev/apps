@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from 'react';
-import { usePushNotificationMutation } from '../../hooks/notifications';
+import { usePushNotificationMutation } from '../../hooks/notifications/usePushNotificationMutation';
 import { LogEvent, NotificationPromptSource, TargetType } from '../../lib/log';
-import { usePersonalizedDigest } from '../../hooks';
+import { usePersonalizedDigest } from '../../hooks/usePersonalizedDigest';
 import { UserPersonalizedDigestType } from '../../graphql/users';
 import { useLogContext } from '../../contexts/LogContext';
 import AuthContext from '../../contexts/AuthContext';
@@ -65,10 +65,11 @@ export const useReadingReminder = ({
       hour: selectedHour,
       type: UserPersonalizedDigestType.ReadingReminder,
     });
-    onEnablePush(NotificationPromptSource.ReadingReminder).then(() => {
-      onClickNext();
-      setLoading(false);
-    });
+    await onEnablePush(NotificationPromptSource.ReadingReminder).catch(
+      () => false,
+    );
+    onClickNext();
+    setLoading(false);
   };
 
   return {

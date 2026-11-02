@@ -27,6 +27,9 @@ import { PostReferrerContextProvider } from '@dailydotdev/shared/src/contexts/Po
 import useDeviceId from '@dailydotdev/shared/src/hooks/log/useDeviceId';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import { useIOSError } from '@dailydotdev/shared/src/hooks/useIOSError';
+import { useNativeBridge } from '@dailydotdev/shared/src/hooks/useNativeBridge';
+import { useInAppLinks } from '@dailydotdev/shared/src/hooks/useInAppLinks';
+import { usePostPrefetch } from '@dailydotdev/shared/src/hooks/usePostPrefetch';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
@@ -50,6 +53,7 @@ import { useCheckCoresRole } from '@dailydotdev/shared/src/hooks/useCheckCoresRo
 import {
   messageHandlerExists,
   postWebKitMessage,
+  requestIOSTracking,
   WebKitMessageHandlers,
 } from '@dailydotdev/shared/src/lib/ios';
 import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation';
@@ -157,6 +161,9 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { modal, closeModal } = useLazyModal();
   useConsoleLogo();
   useIOSError();
+  useNativeBridge();
+  useInAppLinks();
+  usePostPrefetch();
 
   useCheckCoresRole();
   useCheckLocation();
@@ -200,6 +207,16 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       postWebKitMessage(WebKitMessageHandlers.UpdateUserId, id);
     }
   }, [user?.id, trackingId]);
+
+  // Members who log in on a fresh install never reach the onboarding prompt.
+  const isOnboardedMember =
+    !!user?.id && isOnboardingActionsReady && isOnboardingComplete;
+  const isOnboardingPage = router.pathname.startsWith('/onboarding');
+  useEffect(() => {
+    if (isOnboardedMember && !isOnboardingPage) {
+      requestIOSTracking();
+    }
+  }, [isOnboardedMember, isOnboardingPage]);
 
   useEffect(() => {
     if (

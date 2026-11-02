@@ -3,6 +3,12 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { Drawer, DrawerPosition } from '../../../components/drawers/Drawer';
+import {
+  postCapsuleTransition,
+  usePostCapsulePosition,
+} from '../../../components/post/PostCapsule';
+import { field } from '../../../components/shell/constants';
+import { useIsPhone } from '../../../hooks/useViewSize';
 import { ChatRoomStatus } from '../graphql';
 import { postChatRoomQueryOptions } from '../queries';
 import { LiveChatPanel } from './LiveChatPanel';
@@ -10,18 +16,29 @@ import { LiveDot } from './LiveDot';
 
 // A phone has no rail, so the chat is a pill over the post that opens a
 // bottom sheet. The sheet keeps the seat: closing it leaves the room.
+// On a phone the pill stands one gap above the post's action capsule (or in
+// its slot when there is none) and moves with it, so it never covers the
+// upvote, comment and share actions. `bottom` is not transitioned, so it
+// holds the resting offset and the capsule's height change while reading
+// rides on the transform, which is.
 export const LiveChatMobileEntry = ({
   postId,
   origin,
   canStart,
   isTrending,
+  hasCapsule,
 }: {
   postId: string;
   origin: string;
   canStart: boolean;
   isTrending?: boolean;
+  hasCapsule?: boolean;
 }): ReactElement | null => {
   const { user } = useAuthContext();
+  const isPhone = useIsPhone();
+  const capsule = usePostCapsulePosition();
+  const capsuleOffset = hasCapsule ? field.rest + field.gap : 0;
+  const capsuleShrink = hasCapsule ? field.rest - capsule.height : 0;
   const [isOpen, setIsOpen] = useState(false);
   const { data: room, isPending } = useQuery(
     postChatRoomQueryOptions(user, postId),
@@ -37,7 +54,18 @@ export const LiveChatMobileEntry = ({
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-popup flex h-12 items-center gap-2.5 rounded-16 border border-border-subtlest-secondary bg-background-popover px-4 shadow-2 laptop:hidden"
+        style={
+          isPhone
+            ? {
+                bottom: `calc(${capsule.bottom} + ${capsuleOffset}px)`,
+                transform: `translateY(${
+                  capsule.translateY + capsuleShrink
+                }px)`,
+                transition: postCapsuleTransition,
+              }
+            : undefined
+        }
+        className="fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-popup flex h-12 items-center gap-2.5 rounded-16 border border-border-subtlest-secondary bg-background-popover px-4 shadow-2 motion-reduce:!transition-none laptop:hidden"
       >
         <LiveDot isLive={isLive} />
         <span className="font-bold typo-callout">Live chat</span>

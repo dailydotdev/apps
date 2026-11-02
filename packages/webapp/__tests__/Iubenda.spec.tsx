@@ -11,6 +11,7 @@ import { useConsentCookie } from '@dailydotdev/shared/src/hooks/useCookieConsent
 import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
 import { iubendaLocalizedPolicyIds } from '@dailydotdev/shared/src/lib/iubenda';
 import { startTcfSubscription } from '@dailydotdev/shared/src/lib/tcf';
+import { tcfVendorIds } from '@dailydotdev/shared/src/lib/tcfVendors';
 import { Iubenda, openIubendaPreferences } from '../components/Iubenda';
 import {
   enhanceIubendaBannerNow,
@@ -69,20 +70,35 @@ const bannerConfig = (): Record<string, unknown> =>
 const callbacks = (): Record<string, (arg?: unknown) => void> =>
   (config().callback as Record<string, (arg?: unknown) => void>) ?? {};
 
+const isInlineStub = (script: HTMLScriptElement, locator: string): boolean =>
+  !script.src && script.text.includes(locator);
+
+// everything the component injects: iubenda's scripts and the inline stubs
 const injectedScripts = (): HTMLScriptElement[] =>
-  Array.from(document.querySelectorAll('script[src*="iubenda.com"]'));
+  Array.from(document.querySelectorAll('script')).filter(
+    (script) =>
+      script.src.includes('iubenda.com') ||
+      isInlineStub(script, '__tcfapiLocator') ||
+      isInlineStub(script, '__gppLocator'),
+  );
 
-const hasScriptFor = (fragment: string): boolean =>
-  injectedScripts().some((item) => item.src.includes(fragment));
-
-const scriptFor = (fragment: string): HTMLScriptElement => {
-  const script = injectedScripts().find((item) => item.src.includes(fragment));
-
-  if (!script) {
-    throw new Error(`no injected script matching: ${fragment}`);
+// an inline script has no src, so name it after the API it stubs
+const scriptName = (script: HTMLScriptElement): string => {
+  if (script.src) {
+    return script.src;
   }
 
-  return script;
+  return isInlineStub(script, '__tcfapiLocator')
+    ? 'inline:tcf-stub'
+    : 'inline:gpp-stub';
+};
+
+const hasScriptFor = (fragment: string): boolean =>
+  injectedScripts().some((item) => scriptName(item).includes(fragment));
+
+type ConsentApiWindow = typeof globalThis & {
+  __tcfapi?: (...args: unknown[]) => void;
+  __gpp?: unknown;
 };
 
 const renderComponent = (auth: Partial<AuthContextData> = {}) =>
@@ -105,6 +121,15 @@ beforeEach(() => {
   mockWatchBanner.mockReturnValue(jest.fn());
   delete win._iub;
   injectedScripts().forEach((script) => script.remove());
+  // the inline stubs really run under jsdom: drop what they defined, or the
+  // next render's stub finds its locator frame and declines to redefine it
+  delete (globalThis as ConsentApiWindow).__tcfapi;
+  delete (globalThis as ConsentApiWindow).__gpp;
+  document
+    .querySelectorAll(
+      'iframe[name="__tcfapiLocator"], iframe[name="__gppLocator"]',
+    )
+    .forEach((frame) => frame.remove());
   localStorage.clear();
 });
 
@@ -200,11 +225,11 @@ describe('Iubenda script loading', () => {
     renderComponent();
 
     await waitFor(() => expect(injectedScripts().length).toBe(5));
-    expect(injectedScripts().map((script) => script.src)).toEqual([
+    expect(injectedScripts().map(scriptName)).toEqual([
       `https://cs.iubenda.com/sync/${SITE_ID}.js`,
-      'https://cdn.iubenda.com/cs/tcf/stub-v2.js',
+      'inline:tcf-stub',
       'https://cdn.iubenda.com/cs/tcf/safe-tcf-v2.js',
-      'https://cdn.iubenda.com/cs/gpp/stub.js',
+      'inline:gpp-stub',
       'https://cdn.iubenda.com/cs/iubenda_cs.js',
     ]);
   });
@@ -213,23 +238,23 @@ describe('Iubenda script loading', () => {
     renderComponent();
 
     await waitFor(() => expect(injectedScripts().length).toBe(5));
-    expect(injectedScripts().every((script) => script.async === false)).toBe(
-      true,
-    );
+    const fetched = injectedScripts().filter((script) => script.src);
+    expect(fetched).toHaveLength(3);
+    expect(fetched.every((script) => script.async === false)).toBe(true);
   });
 
-  it('starts the TCF subscription once the stub defines __tcfapi', async () => {
+  it('defines __tcfapi from the inline stub before the CMP even loads', async () => {
     renderComponent();
 
     await waitFor(() => expect(injectedScripts().length).toBe(5));
-    const stub = scriptFor('tcf/stub-v2');
-    expect(startTcfSubscription).not.toHaveBeenCalled();
-
-    stub.onload?.(new Event('load'));
-
+    // the stub ran on append: ad tags that ask now find a queue that reports
+    // itself as the stub, which is what tells them to wait for the CMP
+    const ping = jest.fn();
+    (globalThis as ConsentApiWindow).__tcfapi?.('ping', 2, ping);
+    expect(ping).toHaveBeenCalledWith(
+      expect.objectContaining({ cmpStatus: 'stub', cmpLoaded: false }),
+    );
     expect(startTcfSubscription).toHaveBeenCalled();
-    // only the stub carries the hook; the core script must not re-subscribe
-    expect(scriptFor('iubenda_cs.js').onload).toBeNull();
   });
 
   it('loads nothing when the policy id is not a number', async () => {
@@ -275,8 +300,16 @@ describe('Iubenda configuration', () => {
     await renderAndLoad();
     expect(config().enableTcf).toBe(true);
     expect(config().perPurposeConsent).toBe(true);
+    expect(config().tcfPublisher).toEqual(['consent']);
     expect(config().siteId).toBe(Number(SITE_ID));
     expect(config().cookiePolicyId).toBe(Number(POLICY_ID));
+  });
+
+  it('declares the vendors from the shared list, never the whole GVL', async () => {
+    await renderAndLoad();
+    expect(config().tcfVendors).toBe(tcfVendorIds.join(','));
+    // the two Content Ignite's tag cannot do without
+    expect(tcfVendorIds).toEqual(expect.arrayContaining([656, 755]));
   });
 
   it('owns the first layer and keeps Accept/Reject both present', async () => {
@@ -313,7 +346,7 @@ describe('Iubenda consent scoping by region', () => {
     await waitFor(() => expect(win._iub?.csConfiguration).toBeDefined());
     expect(config().enableTcf).toBe(true);
     expect(config().googleAdditionalConsentMode).toBe(true);
-    expect(hasScriptFor('tcf/stub-v2')).toBe(true);
+    expect(hasScriptFor('inline:tcf-stub')).toBe(true);
   });
 
   it('loads no TCF machinery outside the EEA, UK and Switzerland', async () => {
@@ -323,8 +356,9 @@ describe('Iubenda consent scoping by region', () => {
     expect(config().enableTcf).toBe(false);
     expect(config().googleAdditionalConsentMode).toBe(false);
     expect(config().enableUspr).toBe(false);
-    expect(hasScriptFor('tcf/stub-v2')).toBe(false);
-    expect(hasScriptFor('gpp/stub')).toBe(false);
+    expect(hasScriptFor('inline:tcf-stub')).toBe(false);
+    expect(hasScriptFor('inline:gpp-stub')).toBe(false);
+    expect((globalThis as ConsentApiWindow).__tcfapi).toBeUndefined();
     expect(startTcfSubscription).not.toHaveBeenCalled();
   });
 
@@ -334,8 +368,9 @@ describe('Iubenda consent scoping by region', () => {
     await waitFor(() => expect(win._iub?.csConfiguration).toBeDefined());
     expect(config().enableTcf).toBe(false);
     expect(config().enableUspr).toBe(true);
-    expect(hasScriptFor('gpp/stub')).toBe(true);
-    expect(hasScriptFor('tcf/stub-v2')).toBe(false);
+    expect(hasScriptFor('inline:gpp-stub')).toBe(true);
+    expect(typeof (globalThis as ConsentApiWindow).__gpp).toBe('function');
+    expect(hasScriptFor('inline:tcf-stub')).toBe(false);
   });
 
   it('keeps the full treatment when geo is unknown', async () => {
@@ -344,8 +379,8 @@ describe('Iubenda consent scoping by region', () => {
     await waitFor(() => expect(win._iub?.csConfiguration).toBeDefined());
     expect(config().enableTcf).toBe(true);
     expect(config().enableUspr).toBe(true);
-    expect(hasScriptFor('tcf/stub-v2')).toBe(true);
-    expect(hasScriptFor('gpp/stub')).toBe(true);
+    expect(hasScriptFor('inline:tcf-stub')).toBe(true);
+    expect(hasScriptFor('inline:gpp-stub')).toBe(true);
   });
 });
 

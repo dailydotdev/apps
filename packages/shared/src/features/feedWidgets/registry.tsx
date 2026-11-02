@@ -14,7 +14,7 @@ import { ReadingStreakIcon } from '../../components/icons/ReadingStreak';
 import { SunIcon } from '../../components/icons/Sun';
 import { ChecklistAIcon } from '../../components/icons/ChecklistA';
 import { ShortcutsIcon } from '../../components/icons/Shortcuts';
-import { FlagIcon } from '../../components/icons/Flag';
+import { ChecklistBIcon } from '../../components/icons/ChecklistB';
 import {
   settingsUrl,
   squadCategoriesPaths,
@@ -270,7 +270,7 @@ export const feedWidgetRegistry: {
     name: 'Getting started',
     description:
       'The intro quests, with their XP and Cores, one step at a time.',
-    icon: FlagIcon,
+    icon: ChecklistBIcon,
     category: FeedWidgetCategory.DailyDev,
     tone: 'cheese',
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],

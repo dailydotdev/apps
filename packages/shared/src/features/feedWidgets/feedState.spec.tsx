@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import nock from 'nock';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { mockDesktop } from '../../../__tests__/helpers/media';
@@ -13,9 +14,11 @@ import { FEED_HERO_QUERY, baseFeedSupportedTypes } from '../../graphql/feed';
 import { fetchAdByPlacement } from '../../lib/ads';
 import { clearShownFeedHeroLeads } from '../../components/feeds/hero/useFeedHeroData';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import { SharedFeedPage } from '../../components/utilities/common';
 import {
   emptyFeedWidgetFeedState,
   useFeedWidgetFeedState,
+  useFeedWidgetShortcuts,
   useFeedWidgetsOptOut,
 } from './feedState';
 
@@ -130,6 +133,86 @@ describe('useFeedWidgetFeedState', () => {
     const { result } = renderFeedState({ enabled: false });
 
     expect(result.current).toEqual(emptyFeedWidgetFeedState);
+  });
+});
+
+const shortcutsRail = {
+  version: 1,
+  widgets: [{ id: 'links', kind: 'shortcuts', size: 'small' }],
+};
+
+const renderShortcuts = ({
+  feedName = SharedFeedPage.MyFeed,
+  feedWidgets,
+  isFlagOn = true,
+  loadedSettings = true,
+}: {
+  feedName?: string;
+  feedWidgets?: unknown;
+  isFlagOn?: boolean;
+  loadedSettings?: boolean;
+} = {}) =>
+  renderHook(() => useFeedWidgetShortcuts(feedName), {
+    wrapper: ({ children }: { children: ReactNode }): ReactElement => (
+      <TestBootProvider
+        client={new QueryClient()}
+        gb={
+          new GrowthBook({
+            features: { feed_widgets: { defaultValue: isFlagOn } },
+          })
+        }
+        settings={{
+          loadedSettings,
+          flags: { feedWidgets } as unknown as SettingsFlags,
+        }}
+      >
+        {children}
+      </TestBootProvider>
+    ),
+  });
+
+describe('useFeedWidgetShortcuts', () => {
+  it('reports the Shortcuts widget on the stored rail', () => {
+    const { result } = renderShortcuts({ feedWidgets: shortcutsRail });
+
+    expect(result.current).toEqual({ hasShortcuts: true, isPending: false });
+  });
+
+  it('reports none for a rail without it, the default included', () => {
+    expect(renderShortcuts().result.current.hasShortcuts).toBe(false);
+    expect(
+      renderShortcuts({
+        feedWidgets: {
+          version: 1,
+          widgets: [{ id: 'now', kind: 'happeningNow', size: 'tall' }],
+        },
+      }).result.current.hasShortcuts,
+    ).toBe(false);
+  });
+
+  it('reports none where the rail does not render', () => {
+    expect(
+      renderShortcuts({ feedWidgets: shortcutsRail, isFlagOn: false }).result
+        .current.hasShortcuts,
+    ).toBe(false);
+    expect(
+      renderShortcuts({
+        feedWidgets: shortcutsRail,
+        feedName: SharedFeedPage.Custom,
+      }).result.current,
+    ).toEqual({ hasShortcuts: false, isPending: false });
+  });
+
+  it('is pending on a rail feed until the settings that hold the rail load', () => {
+    expect(
+      renderShortcuts({ loadedSettings: false }).result.current.isPending,
+    ).toBe(true);
+    expect(
+      renderShortcuts({
+        loadedSettings: false,
+        feedName: SharedFeedPage.Custom,
+      }).result.current.isPending,
+    ).toBe(false);
   });
 });
 

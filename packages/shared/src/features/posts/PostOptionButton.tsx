@@ -103,6 +103,7 @@ import { canViewPostAnalytics, Roles } from '../../lib/user';
 import type { PromptOptions } from '../../hooks/usePrompt';
 import { usePrompt } from '../../hooks/usePrompt';
 import { BoostIcon } from '../../components/icons/Boost';
+import { InfoIcon } from '../../components/icons/Info';
 import type { FeedItem } from '../../hooks/useFeed';
 import { isBoostedPostAd } from '../../hooks/useFeed';
 import type { MenuItemProps } from '../../components/dropdown/common';
@@ -147,6 +148,7 @@ const PostOptionButtonContent = ({
     items,
     origin: feedOrigin,
     onRemovePost,
+    getExplainRequest,
   } = feedContextData;
   const origin = initialOrigin || feedOrigin || Origin.Feed;
 
@@ -191,10 +193,14 @@ const PostOptionButtonContent = ({
   });
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
-  const { boostedBy } = useFeedCardContext();
+  const { boostedBy, isAd } = useFeedCardContext();
   const { onHide } = useHidePost({
     post,
     origin: Origin.PostContextMenu,
+  });
+  const { onHide: onHideFromExplanation } = useHidePost({
+    post,
+    origin: Origin.FeedExplain,
   });
   const { openSharePost } = useSharePost(origin);
   const { follow, unfollow, unblock, block } = useContentPreference();
@@ -470,6 +476,36 @@ const PostOptionButtonContent = ({
         }),
     },
   ];
+
+  // For You explains its posts: Debug mode loads each card's explanation with
+  // the feed, otherwise the modal asks for this post's. Ads aren't ranked by
+  // the feed, so there's nothing to ask about them.
+  const { explain } = initialPost;
+  const explainRequest = isAd ? undefined : getExplainRequest?.(post.id);
+  if ((explain !== undefined || explainRequest) && !isBriefPost) {
+    postOptions.push({
+      icon: <MenuIcon Icon={InfoIcon} />,
+      id: 'explain',
+      label: 'Why am I seeing this?',
+      action: () => {
+        logEvent(
+          postLogEvent(LogEvent.OpenFeedExplanation, post, {
+            extra: { origin: Origin.PostContextMenu, lane: explain?.lane },
+            ...logOpts,
+          }),
+        );
+        openModal({
+          type: LazyModal.FeedExplanation,
+          props: {
+            post,
+            explain,
+            request: explainRequest,
+            onHide: onHideFromExplanation,
+          },
+        });
+      },
+    });
+  }
 
   if (canViewPostAnalytics({ user, post })) {
     postOptions.push({

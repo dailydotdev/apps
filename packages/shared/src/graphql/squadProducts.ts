@@ -28,7 +28,6 @@ export interface SquadProduct extends DatasetTool {
   tagline: string | null;
   description: string | null;
   pricingModel: SquadProductPricing | null;
-  links: string[];
   category: string | null;
 }
 
@@ -43,7 +42,6 @@ const SQUAD_PRODUCT_FRAGMENT = gql`
     tagline
     description
     pricingModel
-    links
   }
 `;
 
@@ -83,7 +81,8 @@ export interface SquadProductInput {
   description: string | null;
   /** Null clears it. */
   pricingModel: SquadProductPricing | null;
-  links: string[];
+  /** The tool's website. Null clears it. */
+  url: string | null;
 }
 
 export interface AddSquadProductParams {

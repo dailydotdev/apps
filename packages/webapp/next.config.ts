@@ -384,6 +384,12 @@ const nextConfig: NextConfig = {
             },
           ],
         },
+        // Content preferences and Blocked content are one Filters page now
+        {
+          source: '/settings/feed/:page(preferences|blocked)',
+          destination: '/settings/feed/filters',
+          permanent: false,
+        },
         {
           source: '/account/integrations',
           destination: '/settings/customization/integrations',
@@ -402,6 +408,11 @@ const nextConfig: NextConfig = {
         {
           source: '/opportunity/:path*',
           destination: '/jobs/:path*',
+          permanent: true,
+        },
+        {
+          source: '/welcome',
+          destination: '/onboarding',
           permanent: true,
         },
         {

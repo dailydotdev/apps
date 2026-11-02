@@ -12,6 +12,8 @@ import {
   ButtonSize,
 } from '../../../components/buttons/Button';
 import type { ButtonProps } from '../../../components/buttons/Button';
+import { VIcon } from '../../../components/icons/V';
+import { IconSize } from '../../../components/Icon';
 import { FunnelTargetId } from '../../onboarding/types/funnelEvents';
 
 type CheckboxValue = string;
@@ -23,6 +25,8 @@ export interface CheckboxItem {
   label: string;
   /** Secondary detail, set apart at the end of the row. */
   hint?: string;
+  /** A tab on the row's top edge, to recommend an answer. */
+  badge?: string;
   value: CheckboxValue;
 }
 
@@ -59,6 +63,8 @@ export interface FormInputCheckboxGroupProps
    */
   variant?: CheckboxGroupVariant;
   optionStyle?: 'default' | 'simplified';
+  /** Ends each answer with a radio or checkbox mark that fills when picked. */
+  hasSelectionMark?: boolean;
 }
 
 const getChangedValue = ({
@@ -79,8 +85,34 @@ const getChangedValue = ({
   return isSingleChoice ? [selectedValue] : [...value, selectedValue];
 };
 
+const SelectionMark = ({
+  isSelected,
+  isSingleChoice,
+  className,
+}: {
+  isSelected: boolean;
+  isSingleChoice: boolean;
+  className?: string;
+}): ReactElement => (
+  <span
+    aria-hidden
+    className={classNames(
+      'flex size-6 shrink-0 items-center justify-center transition-colors duration-200',
+      isSingleChoice ? 'rounded-full' : 'rounded-6',
+      isSelected
+        ? 'bg-brand-default text-white'
+        : 'border-2 border-border-subtlest-primary',
+      className,
+    )}
+  >
+    {isSelected && <VIcon size={IconSize.XSmall} secondary />}
+  </span>
+);
+
 const FormInputCheckbox = ({
   isSelected,
+  isSingleChoice,
+  hasSelectionMark,
   isVertical,
   item,
   name,
@@ -88,6 +120,8 @@ const FormInputCheckbox = ({
   ...props
 }: ButtonProps<'button'> & {
   isSelected: boolean;
+  isSingleChoice: boolean;
+  hasSelectionMark: boolean;
   isVertical: boolean;
   name: string;
   item: CheckboxItem;
@@ -96,9 +130,12 @@ const FormInputCheckbox = ({
   return (
     <Button
       aria-checked={isSelected}
-      aria-label={item.hint ? `${item.label}, ${item.hint}` : item.label}
+      aria-label={[item.label, item.hint, item.badge]
+        .filter(Boolean)
+        .join(', ')}
       className={classNames(isVertical ? '!h-auto typo-subhead' : 'typo-body', {
         simplified: optionStyle === 'simplified',
+        relative: !!item.badge || (hasSelectionMark && isVertical),
       })}
       data-funnel-track={FunnelTargetId.QuizInput}
       name={name}
@@ -108,6 +145,23 @@ const FormInputCheckbox = ({
       value={item.value}
       {...props}
     >
+      {!!item.badge && (
+        <span
+          className={classNames(
+            'absolute -top-2.5 whitespace-nowrap rounded-max bg-brand-default px-2 py-0.5 font-bold text-white typo-caption2',
+            isVertical ? 'left-1/2 -translate-x-1/2' : 'right-4',
+          )}
+        >
+          {item.badge}
+        </span>
+      )}
+      {hasSelectionMark && isVertical && (
+        <SelectionMark
+          isSelected={isSelected}
+          isSingleChoice={isSingleChoice}
+          className="absolute right-2 top-2"
+        />
+      )}
       <div
         className={classNames(
           'flex min-h-12 flex-1 items-center',
@@ -148,6 +202,12 @@ const FormInputCheckbox = ({
             {item.hint}
           </span>
         )}
+        {hasSelectionMark && !isVertical && (
+          <SelectionMark
+            isSelected={isSelected}
+            isSingleChoice={isSingleChoice}
+          />
+        )}
       </div>
     </Button>
   );
@@ -163,6 +223,7 @@ export const FormInputCheckboxGroup = ({
   value,
   variant = CheckboxGroupVariant.Horizontal,
   optionStyle,
+  hasSelectionMark = false,
 }: FormInputCheckboxGroupProps): ReactElement => {
   const [checkedValue, setCheckedValue] =
     useState<CheckboxValues>(defaultValue);
@@ -181,11 +242,21 @@ export const FormInputCheckboxGroup = ({
     setCheckedValue(newValue);
   };
 
+  const hasBadge = options.some((option) => !!option.badge);
+
   return (
-    <div className={`grid-cols-${cols} grid gap-2`} role="group">
+    <div
+      className={classNames(
+        `grid-cols-${cols} grid`,
+        hasBadge ? 'gap-3 pt-3' : 'gap-2',
+      )}
+      role="group"
+    >
       {options.map((item) => (
         <FormInputCheckbox
           isSelected={inputValue.includes(item.value)}
+          isSingleChoice={isSingleChoice}
+          hasSelectionMark={hasSelectionMark}
           isVertical={isVertical}
           item={item}
           key={item.value}

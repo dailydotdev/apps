@@ -18,6 +18,7 @@ import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
 import SettingsContext from '../contexts/SettingsContext';
 import useFeedOnPostClick from '../hooks/feed/useFeedOnPostClick';
+import { PostModalMap } from './modals/PostModalMap';
 import type { PostLocation } from '../hooks/feed/useFeedContextMenu';
 import useFeedContextMenu from '../hooks/feed/useFeedContextMenu';
 import useFeedInfiniteScroll, {
@@ -72,7 +73,7 @@ import { useHasIntroQuests } from '../hooks/useHasIntroQuests';
 import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
-import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
+import { FeedPromoBannerSlot } from './plus/FeedPromoBannerSlot';
 import { ActionType } from '../graphql/actions';
 import ReadingReminderFeedHero from './marketing/banners/ReadingReminderFeedHero';
 import { TopHero } from './marketing/banners/HeroBottomBanner';
@@ -134,45 +135,20 @@ export interface FeedProps<T>
    */
   searchId?: string;
   searchVersion?: number;
+  /** Debug mode: each card's explanation covers it. */
+  isExplaining?: boolean;
+  /** The post menu explains a post on request, outside Debug mode. */
+  canExplainPosts?: boolean;
 }
 
 interface RankVariables {
   ranking?: string;
 }
 
-const ArticlePostModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "articlePostModal" */ './modals/ArticlePostModal'
-    ),
-);
-const SharePostModal = dynamic(
-  () =>
-    import(/* webpackChunkName: "sharePostModal" */ './modals/SharePostModal'),
-);
-const CollectionPostModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "collectionPostModal" */ './modals/CollectionPostModal'
-    ),
-);
-
-const BriefPostModal = dynamic(
-  () =>
-    import(/* webpackChunkName: "briefPostModal" */ './modals/BriefPostModal'),
-);
-
-const PollPostModal = dynamic(
-  () =>
-    import(/* webpackChunkName: "pollPostModal" */ './modals/PollPostModal'),
-);
-
-const SocialTwitterPostModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "socialTwitterPostModal" */ './modals/SocialTwitterPostModal'
-    ),
-);
+interface ExplainVariables {
+  version?: number;
+  supportedTypes?: string[];
+}
 
 const BriefCardFeed = dynamic(
   () =>
@@ -187,19 +163,6 @@ const ProfileCompletionCard = dynamic(
       /* webpackChunkName: "profileCompletionCard" */ './cards/ProfileCompletionCard'
     ),
 );
-
-export const PostModalMap: Partial<Record<PostType, typeof ArticlePostModal>> =
-  {
-    [PostType.Article]: ArticlePostModal,
-    [PostType.Share]: SharePostModal,
-    [PostType.Freeform]: SharePostModal,
-    [PostType.VideoYouTube]: ArticlePostModal,
-    [PostType.Collection]: CollectionPostModal,
-    [PostType.Brief]: BriefPostModal,
-    [PostType.Digest]: ArticlePostModal,
-    [PostType.Poll]: PollPostModal,
-    [PostType.SocialTwitter]: SocialTwitterPostModal,
-  };
 
 export default function Feed<T>({
   feedName,
@@ -236,6 +199,8 @@ export default function Feed<T>({
   errorScreen,
   searchId,
   searchVersion,
+  isExplaining = false,
+  canExplainPosts = false,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { logEvent } = useLogContext();
@@ -358,6 +323,7 @@ export default function Feed<T>({
     bannerInsertions,
     updatePost,
     removePost,
+    getPageRequest,
     fetchPage,
     canFetchMore: queryCanFetchMore,
     emptyFeed,
@@ -522,6 +488,27 @@ export default function Feed<T>({
     [items, removePost],
   );
 
+  const { version: feedVersion, supportedTypes } =
+    (variables as ExplainVariables) || {};
+  // The feed service finds a post by its page's request: the hash of what the
+  // page was asked with, page size included, and the generation in its cursor.
+  const getExplainRequest = useCallback(
+    (postId: string) => {
+      if (!canExplainPosts || !feedVersion) {
+        return undefined;
+      }
+      const postItem = items.find(
+        (item): item is PostItem =>
+          item.type === 'post' && item.post.id === postId,
+      );
+      const pageRequest = postItem && getPageRequest(postItem.page);
+      return (
+        pageRequest && { version: feedVersion, supportedTypes, ...pageRequest }
+      );
+    },
+    [canExplainPosts, feedVersion, supportedTypes, items, getPageRequest],
+  );
+
   const feedContextValue = useMemo(() => {
     return {
       queryKey: feedQueryKey,
@@ -530,8 +517,17 @@ export default function Feed<T>({
       allowPin,
       origin,
       onRemovePost,
+      getExplainRequest,
     };
-  }, [feedQueryKey, items, logOpts, allowPin, origin, onRemovePost]);
+  }, [
+    feedQueryKey,
+    items,
+    logOpts,
+    allowPin,
+    origin,
+    onRemovePost,
+    getExplainRequest,
+  ]);
 
   const { ranking } = (variables as RankVariables) || {};
 
@@ -825,6 +821,7 @@ export default function Feed<T>({
                   disableAdRefresh={disableAdRefresh}
                   wideColSpan={wideColSpan}
                   searchLogExtra={searchLogExtra}
+                  isExplaining={isExplaining}
                 />
               );
 
@@ -835,10 +832,11 @@ export default function Feed<T>({
                     boostedBy: isBoostedPostAd(item)
                       ? item.ad.data?.post?.author || item.ad.data?.post?.scout
                       : undefined,
+                    isAd: item.type === 'ad',
                   }}
                 >
                   {showPromoBanner && index === indexWhenShowingPromoBanner && (
-                    <BriefBannerFeed
+                    <FeedPromoBannerSlot
                       style={{
                         gridColumn: !shouldUseListFeedLayout
                           ? `span ${virtualizedNumCards}`

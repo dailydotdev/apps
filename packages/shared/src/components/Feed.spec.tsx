@@ -38,7 +38,19 @@ import {
   mockGraphQL,
 } from '../../__tests__/helpers/graphql';
 import { settingsContext as baseSettingsContext } from '../../__tests__/helpers/boot';
-import { ANONYMOUS_FEED_QUERY, FEED_V2_QUERY } from '../graphql/feed';
+import {
+  ANONYMOUS_FEED_QUERY,
+  FEED_V2_EXPLAIN_QUERY,
+  FEED_V2_QUERY,
+} from '../graphql/feed';
+import {
+  FEED_CONTROLS_QUERY,
+  FEED_POST_EXPLANATION_QUERY,
+  FEED_PROFILE_QUERY,
+  SET_FEED_AUTHOR_MODE_MUTATION,
+  SET_FEED_SOURCE_MODE_MUTATION,
+  SET_FEED_TOPIC_MODE_MUTATION,
+} from '../features/feedExplain/graphql';
 import AuthContext from '../contexts/AuthContext';
 import Feed from './Feed';
 import defaultFeedPage from '../../__tests__/fixture/feed';
@@ -83,6 +95,7 @@ import type { FeedContextData } from '../contexts/FeedContext';
 import { FeaturesReadyContext } from './GrowthBookProvider';
 import {
   briefFeedEntrypointPage,
+  featurePlusFeedBanner,
   featureHeroCards,
 } from '../lib/featureManagement';
 import type { Connection } from '../graphql/common';
@@ -306,8 +319,8 @@ function renderComponent(
           isAuthReadyOrCached: true,
         }}
       >
-        <LazyModalElement />
         <SettingsContext.Provider value={settingsContext}>
+          <LazyModalElement />
           <Toast autoDismissNotifications={false} />
           <TopHeroSlotProvider>
             <TopHeroSlotTarget />
@@ -983,6 +996,649 @@ describe('Feed logged in', () => {
     expect(
       screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
     ).not.toBeInTheDocument();
+  });
+
+  describe('in Explain mode', () => {
+    const explainedPost = {
+      ...defaultFeedPage.edges[0].node,
+      tags: ['javascript', 'php'],
+    };
+
+    const renderExplained = (
+      mocks: MockedGraphQLResponse[] = [],
+      isExplaining = true,
+      {
+        post = explainedPost,
+        follow = { factor: 1 },
+      }: {
+        post?: typeof explainedPost;
+        follow?: { kind?: string; factor: number };
+      } = {},
+    ) =>
+      renderComponent(
+        [
+          {
+            request: { query: FEED_V2_EXPLAIN_QUERY, variables },
+            result: {
+              data: {
+                page: {
+                  pageInfo: defaultFeedPage.pageInfo,
+                  edges: [
+                    {
+                      node: {
+                        __typename: 'FeedPostItem',
+                        feedMeta: null,
+                        post,
+                        explain: {
+                          lane: 'chal',
+                          v: 1,
+                          score: 0.81,
+                          position: 3,
+                          base: { value: 1.2, viewers: 1200 },
+                          match: {
+                            tag: 'javascript',
+                            origin: 'declared',
+                            role: 'central',
+                            role_weight: 1,
+                            strength: 'strong',
+                            weight: 0.62,
+                            computed_weight: 0.62,
+                            factor: 1.62,
+                          },
+                          follow,
+                          age: { days: 2.1, factor: 0.81 },
+                          seen: { shows: 1, factor: 0.69 },
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          createTagsSettingsMock({
+            includeTags: ['javascript'],
+            blockedTags: [],
+            excludeSources: [],
+          }),
+          {
+            request: { query: FEED_PROFILE_QUERY, variables: { version: 15 } },
+            result: {
+              data: {
+                feedProfile: {
+                  cohort: true,
+                  learning: true,
+                  interests: [
+                    {
+                      tag: 'javascript',
+                      origin: 'declared',
+                      strength: 'strong',
+                      stories: 6,
+                      hiddenStories: 0,
+                      computedWeight: 0.7,
+                      control: null,
+                      weight: 0.7,
+                      backed: true,
+                    },
+                    {
+                      tag: 'php',
+                      origin: 'inferred',
+                      strength: 'moderate',
+                      stories: 3,
+                      hiddenStories: 0,
+                      computedWeight: 0.45,
+                      control: null,
+                      weight: 0.45,
+                      backed: true,
+                    },
+                  ],
+                  muted: [],
+                  blocked: [],
+                },
+              },
+            },
+          },
+          {
+            request: { query: FEED_CONTROLS_QUERY },
+            result: {
+              data: {
+                feedControls: {
+                  topics: [],
+                  sources: [],
+                  authors: [],
+                  learning: true,
+                  fillIns: true,
+                  ranking: [],
+                },
+              },
+            },
+          },
+          ...mocks,
+        ],
+        defaultUser,
+        SharedFeedPage.MyFeed,
+        FEED_V2_EXPLAIN_QUERY,
+        { isExplaining },
+      );
+
+    it('should cover the card with why it is here and the boost of each topic', async () => {
+      let hideCalled = false;
+      renderExplained([
+        {
+          request: {
+            query: HIDE_POST_MUTATION,
+            variables: { id: explainedPost.id },
+          },
+          result: () => {
+            hideCalled = true;
+            return { data: { _: true } };
+          },
+        },
+      ]);
+
+      expect(
+        await screen.findByText(
+          (_, element) =>
+            element?.tagName === 'SPAN' &&
+            element.textContent ===
+              'You follow #javascript and read about it often.',
+        ),
+      ).toBeInTheDocument();
+      // The profile's weight, which follows the reader's latest levels.
+      expect(
+        await screen.findByLabelText('Boost for #javascript: ×1.70'),
+      ).toBeInTheDocument();
+      expect(
+        await screen.findByLabelText('Boost for #php: ×1.45'),
+      ).toBeInTheDocument();
+      expect(
+        await screen.findByText("You've read 3 posts on it"),
+      ).toBeInTheDocument();
+      expect(screen.getByText('#3')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Hide post' }));
+      await waitFor(() => expect(hideCalled).toBeTruthy());
+      expect(
+        await screen.findByText("Got it. You'll see less like this."),
+      ).toBeInTheDocument();
+      expect(screen.queryByText('Full explanation')).not.toBeInTheDocument();
+    });
+
+    it('should set a topic level from its boost', async () => {
+      let sent = false;
+      renderExplained([
+        {
+          request: {
+            query: SET_FEED_TOPIC_MODE_MUTATION,
+            variables: { keyword: 'javascript', mode: 'boost' },
+          },
+          result: () => {
+            sent = true;
+            return { data: { setFeedTopicMode: { _: true } } };
+          },
+        },
+        {
+          request: { query: FEED_CONTROLS_QUERY },
+          result: {
+            data: {
+              feedControls: {
+                topics: [{ keyword: 'javascript', mode: 'boost' }],
+                sources: [],
+                authors: [],
+                learning: true,
+                fillIns: true,
+                ranking: [],
+              },
+            },
+          },
+        },
+      ]);
+
+      fireEvent.click(
+        await screen.findByLabelText('Boost for #javascript: ×1.70'),
+      );
+      const levels = await screen.findByRole('radiogroup', {
+        name: 'Level for #javascript',
+      });
+      expect(
+        within(levels).getByRole('radio', { name: /^Auto/ }),
+      ).toHaveAttribute('aria-checked', 'true');
+      fireEvent.click(
+        within(levels).getByRole('radio', { name: /^Show more/ }),
+      );
+
+      await waitFor(() => expect(sent).toBe(true));
+      expect(await screen.findByText('Showing more')).toBeInTheDocument();
+    });
+
+    it('should turn off the follow of an author that counted', async () => {
+      let sent = false;
+      renderExplained(
+        [
+          {
+            request: {
+              query: SET_FEED_AUTHOR_MODE_MUTATION,
+              variables: { userId: 'u1', mode: 'off' },
+            },
+            result: () => {
+              sent = true;
+              return { data: { setFeedAuthorMode: { _: true } } };
+            },
+          },
+          {
+            request: { query: FEED_CONTROLS_QUERY },
+            result: {
+              data: {
+                feedControls: {
+                  topics: [],
+                  sources: [],
+                  authors: [
+                    {
+                      user: { id: 'u1' },
+                      mode: 'off',
+                      weight: null,
+                      expiresAt: null,
+                    },
+                  ],
+                  learning: true,
+                  fillIns: true,
+                  ranking: [],
+                },
+              },
+            },
+          },
+        ],
+        true,
+        {
+          post: {
+            ...explainedPost,
+            author: {
+              id: 'u1',
+              name: 'Ada Lovelace',
+              username: 'ada',
+              image: 'https://daily.dev/ada.jpg',
+              permalink: 'https://daily.dev/ada',
+            },
+          },
+          follow: { kind: 'author', factor: 1.6 },
+        },
+      );
+
+      expect(
+        await screen.findByText('Written by someone you follow.'),
+      ).toBeInTheDocument();
+      fireEvent.click(screen.getByLabelText('Boost for Ada Lovelace: ×1.60'));
+      const levels = await screen.findByRole('radiogroup', {
+        name: 'Level for Ada Lovelace',
+      });
+      fireEvent.click(within(levels).getByRole('radio', { name: /^Off/ }));
+
+      await waitFor(() => expect(sent).toBe(true));
+      expect(
+        await screen.findByText('Follow off in For You'),
+      ).toBeInTheDocument();
+    });
+
+    it('should show less from a source and set it back to Auto', async () => {
+      const sent: (string | null)[] = [];
+      const setSourceMode = (mode: string | null): MockedGraphQLResponse => ({
+        request: {
+          query: SET_FEED_SOURCE_MODE_MUTATION,
+          variables: { sourceId: 'echojs', mode },
+        },
+        result: () => {
+          sent.push(mode);
+          return { data: { setFeedSourceMode: { _: true } } };
+        },
+      });
+      // The controls come back from the API after each change.
+      const controlsAfter = (
+        sources: { source: { id: string }; mode: string }[],
+      ): MockedGraphQLResponse => ({
+        request: { query: FEED_CONTROLS_QUERY },
+        result: {
+          data: {
+            feedControls: {
+              topics: [],
+              sources,
+              authors: [],
+              learning: true,
+              fillIns: true,
+              ranking: [],
+            },
+          },
+        },
+      });
+      renderExplained([
+        setSourceMode('demote'),
+        controlsAfter([{ source: { id: 'echojs' }, mode: 'demote' }]),
+        setSourceMode(null),
+        controlsAfter([]),
+      ]);
+
+      const showLess = await screen.findByRole('button', {
+        name: 'Show less from Echo JS',
+      });
+      fireEvent.click(showLess);
+      await waitFor(() => expect(sent).toEqual(['demote']));
+      expect(await screen.findByText('Showing less')).toBeInTheDocument();
+
+      fireEvent.click(showLess);
+      await waitFor(() => expect(sent).toEqual(['demote', null]));
+      expect(
+        await screen.findByText("You don't follow it"),
+      ).toBeInTheDocument();
+    });
+
+    it('should open the full explanation with the score breakdown', async () => {
+      renderExplained([
+        {
+          request: {
+            query: POST_BY_ID_QUERY,
+            variables: { id: explainedPost.id },
+          },
+          result: { data: { post: explainedPost } },
+        },
+      ]);
+
+      fireEvent.click(await screen.findByText('Full explanation'));
+      const dialog = await screen.findByRole('dialog');
+      expect(
+        await within(dialog).findByText('Why am I seeing this?'),
+      ).toBeInTheDocument();
+      expect(
+        within(dialog).getByText(
+          (_, element) =>
+            element?.tagName === 'P' &&
+            element.textContent ===
+              'You follow #javascript and read about it often.',
+        ),
+      ).toBeInTheDocument();
+      expect(within(dialog).getByText('What matched you')).toBeInTheDocument();
+      expect(within(dialog).getByText('Score breakdown')).toBeInTheDocument();
+      expect(
+        within(dialog).getByRole('button', { name: 'Topic match' }),
+      ).toBeInTheDocument();
+      expect(within(dialog).getByText('×1.62')).toBeInTheDocument();
+      expect(
+        within(dialog).getByRole('button', { name: 'Score' }),
+      ).toBeInTheDocument();
+    });
+
+    it('should keep the card as is out of Debug mode and explain it from the post menu', async () => {
+      renderExplained(
+        [
+          {
+            request: {
+              query: POST_BY_ID_QUERY,
+              variables: { id: explainedPost.id },
+            },
+            result: { data: { post: explainedPost } },
+          },
+        ],
+        false,
+      );
+
+      const [menuBtn] = await screen.findAllByLabelText('Options');
+      expect(screen.queryByText('Full explanation')).not.toBeInTheDocument();
+      fireEvent.keyDown(menuBtn, { key: ' ' });
+      fireEvent.click(await screen.findByText('Why am I seeing this?'));
+      const dialog = await screen.findByRole('dialog');
+      expect(
+        await within(dialog).findByText('What matched you'),
+      ).toBeInTheDocument();
+      expect(within(dialog).getByText('Score breakdown')).toBeInTheDocument();
+    });
+
+    it('should set a topic level from the full explanation', async () => {
+      let sent = false;
+      renderExplained(
+        [
+          {
+            request: {
+              query: POST_BY_ID_QUERY,
+              variables: { id: explainedPost.id },
+            },
+            result: { data: { post: explainedPost } },
+          },
+          {
+            request: {
+              query: SET_FEED_TOPIC_MODE_MUTATION,
+              variables: { keyword: 'php', mode: 'demote' },
+            },
+            result: () => {
+              sent = true;
+              return { data: { setFeedTopicMode: { _: true } } };
+            },
+          },
+          {
+            request: { query: FEED_CONTROLS_QUERY },
+            result: {
+              data: {
+                feedControls: {
+                  topics: [{ keyword: 'php', mode: 'demote' }],
+                  sources: [],
+                  authors: [],
+                  learning: true,
+                  fillIns: true,
+                  ranking: [],
+                },
+              },
+            },
+          },
+        ],
+        false,
+      );
+
+      const [menuBtn] = await screen.findAllByLabelText('Options');
+      fireEvent.keyDown(menuBtn, { key: ' ' });
+      fireEvent.click(await screen.findByText('Why am I seeing this?'));
+      const dialog = await screen.findByRole('dialog');
+      const boost = await within(dialog).findByLabelText(
+        'Boost for #php: ×1.45',
+      );
+      fireEvent.click(boost);
+      const auto = within(
+        await screen.findByRole('radiogroup', { name: 'Level for #php' }),
+      ).getByRole('radio', { name: /^Auto/ });
+      expect(auto).toHaveAttribute('aria-checked', 'true');
+      // Esc closes the levels, not the explanation under them, which would
+      // take the sheet's 200ms exit to go.
+      await waitFor(() => expect(auto).toHaveFocus());
+      fireEvent.keyDown(auto, { key: 'Escape', code: 'Escape' });
+      await waitFor(() =>
+        expect(screen.queryByRole('radiogroup')).not.toBeInTheDocument(),
+      );
+      await new Promise((resolve) => {
+        setTimeout(resolve, 300);
+      });
+      expect(dialog).toBeInTheDocument();
+
+      fireEvent.click(boost);
+      const levels = await screen.findByRole('radiogroup', {
+        name: 'Level for #php',
+      });
+      fireEvent.click(
+        within(levels).getByRole('radio', { name: /^Show less/ }),
+      );
+
+      await waitFor(() => expect(sent).toBe(true));
+      expect(
+        await within(dialog).findByText('Showing less'),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('should not offer Why am I seeing this? on a feed without explanations', async () => {
+    renderComponent([
+      createFeedMock({
+        pageInfo: defaultFeedPage.pageInfo,
+        edges: [defaultFeedPage.edges[0]],
+      }),
+    ]);
+
+    const [menuBtn] = await screen.findAllByLabelText('Options');
+    fireEvent.keyDown(menuBtn, { key: ' ' });
+    await screen.findByText('Share via');
+    expect(screen.queryByText('Why am I seeing this?')).not.toBeInTheDocument();
+  });
+
+  describe('explaining a post on request outside Debug', () => {
+    const post = { ...defaultFeedPage.edges[0].node, tags: ['javascript'] };
+    // A page size the layout picked, not the default, which must reach the
+    // explanation as the page was asked with it.
+    const pageSize = 5;
+    const feedVariables = {
+      version: 116,
+      supportedTypes: ['article'],
+    };
+    const explanation = {
+      lane: 'chal',
+      v: 1,
+      score: 0.81,
+      base: { value: 1.2, viewers: 1200 },
+      match: {
+        tag: 'javascript',
+        origin: 'declared',
+        role: 'central',
+        role_weight: 1,
+        strength: 'strong',
+        weight: 0.62,
+        computed_weight: 0.62,
+        factor: 1.62,
+      },
+      follow: { factor: 1 },
+      age: { days: 2.1, factor: 0.81 },
+      seen: { shows: 1, factor: 0.69 },
+    };
+
+    const setUpFeed = (
+      feedPostExplanation: Record<string, unknown> | null,
+      mocks: MockedGraphQLResponse[] = [],
+    ) => {
+      const asked = { count: 0 };
+      variables = { ...defaultVariables, ...feedVariables, first: pageSize };
+      renderComponent(
+        [
+          {
+            request: { query: FEED_V2_QUERY, variables },
+            result: {
+              data: {
+                page: {
+                  pageInfo: defaultFeedPage.pageInfo,
+                  edges: [
+                    {
+                      node: {
+                        __typename: 'FeedPostItem',
+                        feedMeta: null,
+                        post,
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          {
+            request: { query: POST_BY_ID_QUERY, variables: { id: post.id } },
+            result: { data: { post } },
+          },
+          createTagsSettingsMock({
+            includeTags: ['javascript'],
+            blockedTags: [],
+            excludeSources: [],
+          }),
+          {
+            request: {
+              query: FEED_POST_EXPLANATION_QUERY,
+              variables: {
+                postId: post.id,
+                ...feedVariables,
+                first: pageSize,
+                cursor: defaultFeedPage.pageInfo.endCursor,
+              },
+            },
+            result: () => {
+              asked.count += 1;
+              return { data: { feedPostExplanation } };
+            },
+          },
+          ...mocks,
+        ],
+        defaultUser,
+        SharedFeedPage.MyFeed,
+        FEED_V2_QUERY,
+        { canExplainPosts: true, pageSize },
+      );
+      return asked;
+    };
+
+    const openExplanation = async (
+      feedPostExplanation: Record<string, unknown> | null,
+    ) => {
+      const asked = setUpFeed(feedPostExplanation);
+      const [menuBtn] = await screen.findAllByLabelText('Options');
+      expect(asked.count).toBe(0);
+      fireEvent.keyDown(menuBtn, { key: ' ' });
+      fireEvent.click(await screen.findByText('Why am I seeing this?'));
+      const dialog = await screen.findByRole('dialog');
+      await waitFor(() => expect(asked.count).toBe(1));
+      return dialog;
+    };
+
+    it('should ask for the post’s explanation with its page’s request when opened', async () => {
+      const dialog = await openExplanation(explanation);
+
+      expect(
+        await within(dialog).findByText('What matched you'),
+      ).toBeInTheDocument();
+      expect(within(dialog).getByText('Score breakdown')).toBeInTheDocument();
+    });
+
+    it('should say so when the feed no longer has the post', async () => {
+      const dialog = await openExplanation(null);
+
+      expect(
+        await within(dialog).findByText(/Your feed has changed since this/),
+      ).toBeInTheDocument();
+      expect(
+        within(dialog).queryByText('Score breakdown'),
+      ).not.toBeInTheDocument();
+      expect(within(dialog).getByText('In this post')).toBeInTheDocument();
+    });
+
+    it('should offer to show less of the matched topic after hiding the post', async () => {
+      const asked = setUpFeed(explanation, [
+        {
+          request: { query: HIDE_POST_MUTATION, variables: { id: post.id } },
+          result: () => ({ data: { _: true } }),
+        },
+        {
+          request: { query: FEED_CONTROLS_QUERY },
+          result: {
+            data: {
+              feedControls: {
+                topics: [],
+                sources: [],
+                authors: [],
+                learning: true,
+                fillIns: true,
+              },
+            },
+          },
+        },
+      ]);
+
+      const [menuBtn] = await screen.findAllByLabelText('Options');
+      fireEvent.keyDown(menuBtn, { key: ' ' });
+      await openNotInterested();
+      (await screen.findByText('Hide')).click();
+
+      expect(
+        await screen.findByText('Show less #javascript?'),
+      ).toBeInTheDocument();
+      expect(asked.count).toBe(1);
+    });
   });
 
   it('should restore the post when clicking Undo on the hidden feedback panel', async () => {
@@ -1986,6 +2642,7 @@ interface HighlightLayoutRenderParams {
   minSpacing?: number;
   startIndex?: number;
   briefBannerPage?: number;
+  plusFeedBanner?: boolean;
   staticAd?: { ad: Ad; index: number };
   disableAds?: boolean;
   skipFirstAd?: boolean;
@@ -2004,6 +2661,7 @@ const renderWithHighlightLayout = ({
   minSpacing = 5,
   startIndex = 0,
   briefBannerPage,
+  plusFeedBanner,
   staticAd,
   disableAds,
   skipFirstAd,
@@ -2058,6 +2716,9 @@ const renderWithHighlightLayout = ({
             defaultValue: briefBannerPage,
           },
         }
+      : {}),
+    ...(plusFeedBanner
+      ? { [featurePlusFeedBanner.id]: { defaultValue: true } }
       : {}),
   });
 
@@ -2348,7 +3009,26 @@ describe('Feed ad cadence with highlight cards', () => {
     await waitFor(() => {
       expect(screen.queryByTestId('brief-banner-feed')).toBeInTheDocument();
     });
+    expect(screen.queryByTestId('plus-feed-banner')).not.toBeInTheDocument();
     // Ads still render alongside the banner (no regression in cadence).
+    expect(await screen.findByTestId('adItem')).toBeInTheDocument();
+  });
+
+  it('renders the Plus banner in the same slot when plus_feed_banner is on', async () => {
+    const posts = Array.from({ length: 8 }, (_, i) => buildPost(`p${i}`));
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: false,
+      pageSize: 8,
+      briefBannerPage: 1,
+      plusFeedBanner: true,
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('plus-feed-banner')).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId('brief-banner-feed')).not.toBeInTheDocument();
     expect(await screen.findByTestId('adItem')).toBeInTheDocument();
   });
 

@@ -65,7 +65,6 @@ export const FeedLayoutMobileFeedPages = new Set<AllFeedPages>([
   OtherFeedPage.ExploreDiscussed,
   OtherFeedPage.ExploreUpvoted,
   OtherFeedPage.FeedByIds,
-  OtherFeedPage.Welcome,
   OtherFeedPage.Following,
 ]);
 
