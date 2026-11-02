@@ -33,7 +33,6 @@ import { LogEvent, TargetType } from '../../lib/log';
 import { motion, scroll } from './constants';
 import { expectShellScroll } from './useShellScroll';
 import { flowParts, holdScroll } from '../../lib/pageHold';
-import { installReadingDebug, readingLog } from './readingDebug';
 import { ShellSquare } from './ShellSquare';
 import type { ReadingArticle } from './readingStore';
 import {
@@ -319,8 +318,6 @@ export function ReadingDrawer({
       window.scrollY +
       parseFloat(getComputedStyle(page).paddingTop);
     const before = pageTop();
-    installReadingDebug();
-    readingLog(`open before=${Math.round(before)} returnTo=${returnTo.current} arrived=${arrived.current}`);
     root.classList.add('reading');
     // Both heights are layouts at the top of the document: the card has
     // the band above it, the full page has none, so the post page's top is
@@ -333,7 +330,6 @@ export function ReadingDrawer({
     window.scrollTo(0, 0);
     let current = measure(headElement, probe);
     geometry.current = current;
-    readingLog(`measure card=${current.card} full=${Math.round(current.full)} edge=${Math.round(current.edge)} probe=${probe.offsetHeight}`);
     // The page's flow pieces and the head travel together. The page can
     // swap its content while the drawer is open (a post arrived at from a
     // feed card draws its loading page first), so the pieces are looked up
@@ -399,9 +395,6 @@ export function ReadingDrawer({
         return;
       }
       const y = virtualY ?? restingY();
-      (globalThis as unknown as { __readingDebug?: unknown }).__readingDebug = {
-        layout, restY, vy: virtualY === null ? null : Math.round(virtualY), y: Math.round(y), full: Math.round(current.full), opening: !!opening, closing, glide: glideTarget,
-      };
       headElement.style.setProperty(
         '--reading-fold',
         `${Math.min(1, Math.max(0, y / current.card))}`,
@@ -492,7 +485,6 @@ export function ReadingDrawer({
       if (layout === next) {
         return;
       }
-      readingLog(`setLayout ${next}`);
       layout = next;
       root.classList.toggle('reading-full', next === 'full');
     };
@@ -502,7 +494,6 @@ export function ReadingDrawer({
     // it lands the band above the drawer keeps the page's own color, then
     // fades to the article.
     const land = () => {
-      readingLog('land');
       window.clearTimeout(opening);
       opening = 0;
       clearMoving();
@@ -545,7 +536,6 @@ export function ReadingDrawer({
       afterGlide = undefined;
     };
     const settleAt = (target: number) => {
-      readingLog(`settleAt ${Math.round(target)}`);
       virtualY = null;
       setLayout(target >= current.full ? 'full' : 'card');
       clearMoving();
@@ -567,7 +557,6 @@ export function ReadingDrawer({
     };
     const glideTo = (target: number, onEnd?: () => void) => {
       const from = virtualY ?? restingY();
-      readingLog(`glideTo ${Math.round(target)} from=${Math.round(from)}`);
       refreshMoving();
       dropGlide();
       if (Math.abs(target - from) < 1) {
@@ -645,7 +634,6 @@ export function ReadingDrawer({
       } else {
         take = null;
       }
-      readingLog(`touchstart take=${take} layer=${hasOpenLayer()}`);
     };
     const onTouchMove = (event: TouchEvent) => {
       const touch = event.touches[0];
@@ -674,7 +662,6 @@ export function ReadingDrawer({
           startY: touch.clientY,
           samples: [],
         };
-        readingLog(`held ${take} from=${Math.round(held.from)}`);
         styleMoving({ transition: null, 'will-change': 'transform' });
       }
       event.preventDefault();
@@ -707,7 +694,6 @@ export function ReadingDrawer({
         const [lastTouchY, lastAt] = samples[samples.length - 1];
         velocity = (lastTouchY - firstY) / Math.max(1, lastAt - firstAt);
       }
-      readingLog(`touchend y=${Math.round(y)} v=${velocity.toFixed(2)}`);
       glideTo(snapTarget(from, y, velocity));
     };
 
@@ -720,7 +706,6 @@ export function ReadingDrawer({
         return;
       }
       closing = true;
-      readingLog('rise');
       landGlide();
       const shift = root.classList.contains('reading-past')
         ? 0
@@ -867,7 +852,6 @@ export function ReadingDrawer({
         keep === null
           ? returnTo.current
           : window.scrollY + anchor.getBoundingClientRect().top - keep;
-      readingLog(`cleanup back=${Math.round(back)} keep=${keep}`);
       window.scrollTo(0, back);
       holdScroll(flowParts(page), back);
       // Landing back is not reading down: the bars stay where they are.
