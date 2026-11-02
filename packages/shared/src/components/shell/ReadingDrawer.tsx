@@ -383,7 +383,8 @@ export function ReadingDrawer({
         );
       const added = next.filter((element) => !moving.includes(element));
       moving = next;
-      if (!added.length) {
+      if (!shown.transform) {
+        added.forEach((element) => applyStyle(element, shown));
         return;
       }
       added.forEach((element) =>
