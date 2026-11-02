@@ -32,7 +32,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
 import { motion, scroll } from './constants';
 import { expectShellScroll } from './useShellScroll';
-import { flowParts, holdScroll } from '../../lib/pageHold';
+import { flowParts, holdScroll, standingSelector } from '../../lib/pageHold';
 import { ShellSquare } from './ShellSquare';
 import type { ReadingArticle } from './readingStore';
 import {
@@ -340,6 +340,7 @@ export function ReadingDrawer({
     >;
     let moving: HTMLElement[] = [];
     const shown: MovingStyle = {};
+    const echoes: Animation[] = [];
     const applyStyle = (element: HTMLElement, props: MovingStyle) =>
       Object.entries(props).forEach(([name, value]) => {
         if (value === null || value === undefined) {
@@ -348,6 +349,21 @@ export function ReadingDrawer({
           element.style.setProperty(name, value);
         }
       });
+    const followHead = (element: HTMLElement) => {
+      const running = headElement
+        .getAnimations?.()
+        .find(
+          (animation): animation is CSSTransition =>
+            (animation as CSSTransition).transitionProperty === 'transform',
+        );
+      const effect = running?.effect as KeyframeEffect | null | undefined;
+      if (!running || !effect?.getKeyframes || !element.animate) {
+        return;
+      }
+      const echo = element.animate(effect.getKeyframes(), effect.getTiming());
+      echo.currentTime = running.currentTime;
+      echoes.push(echo);
+    };
     const refreshMoving = () => {
       const next = [...flowParts(page), headElement];
       if (
@@ -356,13 +372,50 @@ export function ReadingDrawer({
       ) {
         return;
       }
+      moving
+        .filter((element) => !next.includes(element))
+        .forEach((element) =>
+          applyStyle(element, {
+            transform: null,
+            transition: null,
+            'will-change': null,
+          }),
+        );
+      const added = next.filter((element) => !moving.includes(element));
       moving = next;
-      moving.forEach((element) => applyStyle(element, shown));
+      if (!shown.transform) {
+        added.forEach((element) => applyStyle(element, shown));
+        return;
+      }
+      added.forEach((element) =>
+        applyStyle(element, { ...shown, transition: 'none' }),
+      );
+      headElement.getBoundingClientRect();
+      added.forEach((element) => {
+        applyStyle(element, { transition: shown.transition ?? null });
+        followHead(element);
+      });
     };
     refreshMoving();
-    const pageChanges = new MutationObserver(refreshMoving);
+    const isStanding = (node: Node) =>
+      node instanceof Element &&
+      (node.matches(standingSelector) ||
+        !!node.querySelector(standingSelector));
+    const pageChanges = new MutationObserver((records) => {
+      if (
+        records.every(
+          ({ target, addedNodes }) =>
+            moving.some((element) => element.contains(target)) &&
+            !Array.from(addedNodes).some(isStanding),
+        )
+      ) {
+        return;
+      }
+      refreshMoving();
+    });
     pageChanges.observe(page, { childList: true, subtree: true });
     const styleMoving = (props: MovingStyle) => {
+      echoes.splice(0).forEach((echo) => echo.cancel());
       Object.assign(shown, props);
       moving.forEach((element) => applyStyle(element, props));
     };

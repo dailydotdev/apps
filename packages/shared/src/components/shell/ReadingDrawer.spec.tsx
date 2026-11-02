@@ -79,6 +79,7 @@ afterEach(() => {
   act(() => setReadingOpen(false));
   delete (globalThis as BridgeGlobal).webkit;
   document.documentElement.classList.remove('ios', 'reading');
+  document.querySelector('.shell-layout')?.remove();
 });
 
 describe('ReadingDrawer', () => {
@@ -248,11 +249,7 @@ describe('ReadingDrawer', () => {
     expect(swipe({ clientX: 102, clientY: 450 })).toBe(false);
   });
 
-  it('keeps moving the page after its content was swapped under the drawer', () => {
-    withReadingBridge();
-    renderPostPage();
-    // The shell's layout: the bar lives inside main, so the pieces that
-    // travel are main's other children, which a page swap replaces.
+  const renderShellLayout = () => {
     const layout = document.createElement('div');
     layout.className = 'shell-layout';
     const main = document.createElement('main');
@@ -262,21 +259,73 @@ describe('ReadingDrawer', () => {
     main.append(loading, cluster);
     layout.appendChild(main);
     document.body.appendChild(layout);
-    fireEvent.click(screen.getByText('Read post'));
-
-    const arrived = document.createElement('article');
-    arrived.textContent = 'The post, once its page has loaded';
-    act(() => {
+    const arrive = () => {
+      const arrived = document.createElement('article');
+      arrived.textContent = 'The post, once its page has loaded';
       loading.remove();
       main.insertBefore(arrived, cluster);
-    });
+      return arrived;
+    };
+    return { main, loading, arrive };
+  };
+
+  it('keeps moving the page after its content was swapped under the drawer', () => {
+    withReadingBridge();
+    renderPostPage();
+    const { arrive } = renderShellLayout();
+    fireEvent.click(screen.getByText('Read post'));
+
+    const arrived = arrive();
 
     fireEvent.touchStart(window, { touches: [{ clientX: 100, clientY: 500 }] });
     fireEvent.touchMove(window, { touches: [{ clientX: 102, clientY: 420 }] });
 
     expect(arrived.style.transform).toMatch(/translateY\(-?\d+px\)/);
     fireEvent.touchEnd(window, { touches: [] });
-    act(() => setReadingOpen(false));
-    layout.remove();
+  });
+
+  it('moves the content that arrives in the middle of a drag, and lets go of what left', async () => {
+    withReadingBridge();
+    renderPostPage();
+    const { loading, arrive } = renderShellLayout();
+    fireEvent.click(screen.getByText('Read post'));
+    fireEvent.touchStart(window, { touches: [{ clientX: 100, clientY: 500 }] });
+    fireEvent.touchMove(window, { touches: [{ clientX: 102, clientY: 420 }] });
+    const { transform } = loading.style;
+    expect(transform).toMatch(/translateY\(-?\d+px\)/);
+
+    const arrived = arrive();
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(arrived.style.transform).toBe(transform);
+    expect(loading).not.toHaveStyle({ transform });
+    fireEvent.touchEnd(window, { touches: [] });
+  });
+
+  it('moves the pieces around something fixed that mounts in the middle of a drag', async () => {
+    withReadingBridge();
+    renderPostPage();
+    const { loading } = renderShellLayout();
+    const content = document.createElement('section');
+    loading.appendChild(content);
+    fireEvent.click(screen.getByText('Read post'));
+    fireEvent.touchStart(window, { touches: [{ clientX: 100, clientY: 500 }] });
+    fireEvent.touchMove(window, { touches: [{ clientX: 102, clientY: 420 }] });
+    const { transform } = loading.style;
+    expect(transform).toMatch(/translateY\(-?\d+px\)/);
+
+    const pill = document.createElement('button');
+    pill.className = 'fixed';
+    loading.appendChild(pill);
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(loading).not.toHaveStyle({ transform });
+    expect(content.style.transform).toBe(transform);
+    expect(pill).not.toHaveStyle({ transform });
+    fireEvent.touchEnd(window, { touches: [] });
   });
 });

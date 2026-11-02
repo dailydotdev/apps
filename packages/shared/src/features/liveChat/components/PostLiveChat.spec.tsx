@@ -95,22 +95,21 @@ describe('PostLiveChat on a phone', () => {
     jest.mocked(usePostCapsulePosition).mockReturnValue(atRest);
   });
 
-  it('stays out of the way while the article is behind the post, and returns once the post is up', async () => {
-    act(() => setReadingOpen(true, 'https://blog.example.com/post'));
-    renderPill(true);
+  afterEach(() => {
+    act(() => setReadingOpen(false));
+  });
 
-    await act(async () => {
-      await new Promise((resolve) => {
-        setTimeout(resolve, 0);
-      });
-    });
+  it('stays out of the way while the article is behind the post, and returns once the post is up', async () => {
+    renderPill(true);
+    expect(await pill()).toBeInTheDocument();
+
+    act(() => setReadingOpen(true, 'https://blog.example.com/post'));
     expect(
       screen.queryByRole('button', { name: /Live chat/ }),
     ).not.toBeInTheDocument();
 
     act(() => setReadingUp(true));
     expect(await pill()).toBeInTheDocument();
-    act(() => setReadingOpen(false));
   });
 
   it('stands one gap above the action capsule on the post page', async () => {
