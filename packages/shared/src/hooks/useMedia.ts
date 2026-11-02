@@ -3,6 +3,12 @@ import { useEffect, useState } from 'react';
 // Set once the first client render has committed. Markup rendered after that
 // never has to match the server, so a later mount can read the media query at
 // once instead of waiting an effect, which lands a frame after the page paints.
+//
+// This holds because the root hydrates in one commit: the pages router
+// preloads every server-rendered next/dynamic chunk before hydrating (its
+// loadable never suspends), and no server-rendered useMediaClient consumer
+// sits inside a <Suspense> boundary. A Suspense boundary or React.lazy around
+// one would hydrate it after this flag flips and cause a hydration mismatch.
 let hydrated = false;
 
 export default function useMedia<T>(
