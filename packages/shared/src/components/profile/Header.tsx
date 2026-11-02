@@ -245,6 +245,7 @@ export function Header({
         <BuyCreditsButton
           className="laptop:hidden"
           hideBuyButton={!canPurchaseCores}
+          origin={Origin.Profile}
           onPlusClick={() => {
             router.push(
               getPathnameWithQuery(

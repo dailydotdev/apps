@@ -39,7 +39,7 @@ export const CoreOptionButton = ({
   const onSelect = useCallback(() => {
     logEvent({
       event_name: LogEvent.SelectCreditsQuantity,
-      extra: JSON.stringify({ origin, quantity: selectedProduct?.value }),
+      extra: JSON.stringify({ origin, quantity: cores }),
     });
 
     setSelectedProduct({
@@ -50,16 +50,7 @@ export const CoreOptionButton = ({
     if (!isMobile) {
       openCheckout?.({ priceId: id });
     }
-  }, [
-    logEvent,
-    origin,
-    id,
-    setSelectedProduct,
-    cores,
-    isMobile,
-    openCheckout,
-    selectedProduct,
-  ]);
+  }, [logEvent, origin, id, setSelectedProduct, cores, isMobile, openCheckout]);
   return (
     <Button
       className={classNames(

@@ -7,6 +7,7 @@ import type {
 } from 'react';
 import type { Post } from '../../graphql/posts';
 import type { PostOrigin } from '../../hooks/log/useLogContextData';
+import type { Origin } from '../../lib/log';
 import classed from '../../lib/classed';
 import type { PostPosition } from '../../hooks/usePostModalNavigation';
 import type {
@@ -152,6 +153,7 @@ export interface BasePostContentProps extends UsePostContentProps {
   loadingPlaceholder?: ReactNode;
   customNavigation?: ReactNode;
   isPostPage?: boolean;
+  boostOrigin?: Origin;
 }
 
 /**

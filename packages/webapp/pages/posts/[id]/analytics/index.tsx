@@ -46,6 +46,7 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { BoostPostButton } from '@dailydotdev/shared/src/features/boost/BoostButton';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
 import type { Post, PostData } from '@dailydotdev/shared/src/graphql/posts';
 import {
   POST_BY_ID_STATIC_FIELDS_QUERY,
@@ -410,6 +411,7 @@ const PostAnalyticsPage = ({
       type: LazyModal.BoostPost,
       props: {
         post,
+        origin: Origin.PostAnalytics,
       },
     });
   };
@@ -441,6 +443,7 @@ const PostAnalyticsPage = ({
         size: ButtonSize.Small,
       }}
       post={post}
+      origin={Origin.PostAnalytics}
     />
   );
 
@@ -561,6 +564,7 @@ const PostAnalyticsPage = ({
               <BoostPostButton
                 post={post}
                 buttonProps={{ size: ButtonSize.Small, className: 'mr-auto' }}
+                origin={Origin.PostAnalytics}
               />
             </SectionContainer>
             <Divider className={dividerClassName} />
