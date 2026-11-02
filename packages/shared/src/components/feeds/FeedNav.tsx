@@ -201,11 +201,17 @@ function FeedNav({
   ]);
 
   const shouldRenderNav = inShellBlock || home || (isMobile && bookmarks);
-  if (
-    !shouldRenderNav ||
-    withoutLayoutVariantPrefix(router?.pathname).startsWith('/posts/[id]')
-  ) {
+  if (withoutLayoutVariantPrefix(router?.pathname).startsWith('/posts/[id]')) {
     return null;
+  }
+  // A tablet page without feed tabs or a back bar (a source, a profile, a
+  // directory) has no other place for a visitor's sign-in.
+  if (!shouldRenderNav) {
+    return isTablet && isMobileAppHeader ? (
+      <div className="sticky top-0 z-header flex h-12 items-center justify-end border-b border-border-subtlest-tertiary bg-background-default px-4">
+        <MobileAppActions />
+      </div>
+    ) : null;
   }
 
   if (hasFeedWidgetRail) {

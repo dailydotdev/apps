@@ -312,6 +312,18 @@ describe('FeedNav', () => {
     mockIsVisitorBar = false;
   });
 
+  it('gives a tablet visitor the sign-in pair on a page without feed tabs', () => {
+    mockIsVisitorBar = true;
+    mockUseActiveNav.mockReturnValue({ home: false, bookmarks: false });
+    mockViewport({ isMobile: false, isBelowLaptop: true });
+
+    render(<FeedNav />);
+
+    expect(screen.getByTestId('visitor-actions')).toBeInTheDocument();
+    expect(screen.queryByRole('list')).not.toBeInTheDocument();
+    mockIsVisitorBar = false;
+  });
+
   it('renders tablet-only actions once in the chips row', () => {
     mockViewport({ isMobile: false, isBelowLaptop: true });
 
