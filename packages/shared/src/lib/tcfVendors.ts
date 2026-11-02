@@ -58,6 +58,10 @@ export const tcfVendors: ReadonlyArray<{ id: number; name: string }> = [
   { id: 14, name: 'Adkernel LLC (Madopi)' },
   { id: 285, name: 'Comcast International France SAS/FreeWheel Media' },
   { id: 1028, name: 'Sparteo' },
+  { id: 687, name: 'Missena' },
+  { id: 333, name: 'InMobi Technology Services Pte. Ltd.' },
+  { id: 524, name: 'The Ozone Project Limited' },
+  { id: 1527, name: 'Panxo Stacks, inc' },
 ];
 
 export const tcfVendorIds: number[] = tcfVendors.map(({ id }) => id);
