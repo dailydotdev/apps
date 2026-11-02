@@ -1,6 +1,7 @@
 import { useCallback, useContext, useEffect, useMemo } from 'react';
 import type {
   InfiniteData,
+  QueryFunctionContext,
   QueryObserverBaseResult,
 } from '@tanstack/react-query';
 import { useQuery, useQueryClient, focusManager } from '@tanstack/react-query';
@@ -56,30 +57,36 @@ export const useAutoRotatingAds = (
     [feedQueryKey],
   );
 
-  const fetchNewAd = useCallback(async (): Promise<Ad | null> => {
-    const newAd = await fetchAd({
-      placement: AdPlacement.Feed,
-      active: true,
-    });
-    if (!newAd) {
-      return null;
-    }
+  const fetchNewAd = useCallback(
+    async ({ signal }: QueryFunctionContext) => {
+      const newAd = await fetchAd({
+        placement: AdPlacement.Feed,
+        active: true,
+      });
+      if (!newAd || signal.aborted) {
+        return null;
+      }
 
-    // End the impression event for the old ad
-    logEventEnd(generateAdLogEventKey(feedIndex));
+      // End the impression event for the old ad
+      logEventEnd(generateAdLogEventKey(feedIndex));
 
-    queryClient.setQueryData(
-      queryKey,
-      (currentData: InfiniteData<Ad, unknown>) => {
-        const data = currentData;
-        data.pages[index] = newAd;
-        data.pageParams[index] = Date.now();
-        return data;
-      },
-    );
+      queryClient.setQueryData(
+        queryKey,
+        (currentData: InfiniteData<Ad, unknown> | undefined) => {
+          if (!currentData) {
+            return currentData;
+          }
+          const data = currentData;
+          data.pages[index] = newAd;
+          data.pageParams[index] = Date.now();
+          return data;
+        },
+      );
 
-    return newAd;
-  }, [feedIndex, index, logEventEnd, fetchAd, queryClient, queryKey]);
+      return newAd;
+    },
+    [feedIndex, index, logEventEnd, fetchAd, queryClient, queryKey],
+  );
 
   const { refetch, isRefetching } = useQuery<Ad | null>({
     queryKey: [...queryKey, index],
