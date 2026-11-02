@@ -544,6 +544,54 @@ describe('FeedWidgetRail', () => {
     ).toBe(screen.getByTestId('feedWidgetTip').parentElement);
   });
 
+  it('adds from the empty slot at the usual size after the gallery opened from a gap', async () => {
+    jest
+      .mocked(useFeedWidgetAd)
+      .mockReturnValue({ ad: undefined, isEnabled: true, isNoFill: true });
+    mockHero();
+    const topStory = {
+      id: 'top-story',
+      kind: FeedWidgetKind.TopStory,
+      size: FeedWidgetSize.Small,
+    };
+
+    renderRail({ feedWidgets: { version: 1, widgets: [topStory] } });
+    await revealWidgets();
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Add a widget here' }));
+    fireEvent.click(
+      within(await screen.findByRole('dialog')).getByRole('button', {
+        name: 'Close',
+      }),
+    );
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Add another widget' }));
+    const gallery = await screen.findByRole('dialog');
+    fireEvent.click(
+      within(gallery).getByRole('button', { name: /^Happening Now/ }),
+    );
+    fireEvent.click(
+      within(gallery).getByRole('button', { name: 'Add widget' }),
+    );
+
+    expect(setSettings).toHaveBeenCalledWith({
+      flags: {
+        feedWidgets: {
+          version: 1,
+          widgets: [
+            topStory,
+            expect.objectContaining({
+              kind: FeedWidgetKind.HappeningNow,
+              size: FeedWidgetSize.Tall,
+            }),
+          ],
+        },
+      },
+    });
+  });
+
   it('leaves edit mode on Escape', async () => {
     mockHero();
 
