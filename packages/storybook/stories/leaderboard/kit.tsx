@@ -126,6 +126,8 @@ export const Dropdown = <T extends string>({
     <span ref={root} className={classNames('relative inline-flex', className)}>
       <button
         type="button"
+        aria-haspopup="true"
+        aria-expanded={open || sheet}
         onClick={() => (isPhone() ? setSheet(true) : setOpen(!open))}
         className="flex h-9 w-full min-w-0 items-center justify-between gap-1.5 whitespace-nowrap rounded-12 border border-border-subtlest-tertiary px-3 font-bold transition-colors typo-callout hover:bg-surface-hover"
       >
@@ -157,6 +159,7 @@ export const Dropdown = <T extends string>({
               <li key={option.id}>
                 <button
                   type="button"
+                  aria-current={option.id === value ? 'true' : undefined}
                   onClick={() => {
                     onChange(option.id);
                     setOpen(false);

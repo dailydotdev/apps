@@ -534,9 +534,9 @@ export const RankCard = ({
     const score = scoreOf(id);
     if (id === 'reputation') {
       return (
-        <span className="flex items-center gap-1">
+        <div className="flex items-center gap-1">
           <Reputation value={score} large /> reputation in total
-        </span>
+        </div>
       );
     }
     if (id === 'streak') {
@@ -554,15 +554,15 @@ export const RankCard = ({
   const score = scoreOf(board);
   // The page's welcome: a big headline beside your avatar, the total under it.
   const heading = (
-    <span className="flex items-center gap-3">
+    <div className="flex items-center gap-3">
       <Avatar dev={ME} size="size-12" className="rounded-14" />
-      <span className="flex w-0 min-w-0 flex-1 flex-col gap-0.5">
+      <div className="flex w-0 min-w-0 flex-1 flex-col gap-0.5">
         <span className="typo-title3">{headlineOf(board)}</span>
-        <span className="font-normal text-text-tertiary typo-callout">
+        <div className="font-normal text-text-tertiary typo-callout">
           {detailOf(board)}
-        </span>
-      </span>
-    </span>
+        </div>
+      </div>
+    </div>
   );
 
   // Production's profile snapshot flow: the card staged off-screen at
@@ -843,14 +843,14 @@ const Standouts = ({ loading }: { loading: boolean }): ReactElement => {
                 {eyebrow}
               </span>
               <ProfileAvatar dev={dev} size="size-12" className="rounded-14" />
-              <span className="flex w-full min-w-0 flex-col">
+              <div className="flex w-full min-w-0 flex-col">
                 <span className="truncate font-bold typo-footnote">
                   {dev.name}
                 </span>
-                <span className="flex h-4 items-center justify-center truncate text-text-tertiary typo-caption1">
+                <div className="flex h-4 items-center justify-center truncate text-text-tertiary typo-caption1">
                   {stat}
-                </span>
-              </span>
+                </div>
+              </div>
             </article>
           ),
         )}
