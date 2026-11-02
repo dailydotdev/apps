@@ -10,7 +10,7 @@ import type { ChatRoom } from '../../liveChat/graphql';
 import { liveChatRoomsQueryOptions } from '../../liveChat/queries';
 import { useLiveChatEnabled } from '../../liveChat/hooks/useLiveChatEnabled';
 import { LiveDot } from '../../liveChat/components/LiveDot';
-import { formatTimeLeft } from '../../liveChat/timeLeft';
+import { formatEndsIn, formatOccupants } from '../../liveChat/timeLeft';
 import type { FeedWidgetComponentProps } from '../registry';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
 import { FeedWidgetEmpty } from '../FeedWidgetFrame';
@@ -33,8 +33,8 @@ const RoomRow = ({
     return null;
   }
   const meta = [
-    room.occupantCount != null && `${room.occupantCount} here`,
-    room.expiresAt && `ends in ${formatTimeLeft(room.expiresAt)}`,
+    formatOccupants(room.occupantCount),
+    formatEndsIn(room.expiresAt),
   ]
     .filter(Boolean)
     .join(' · ');

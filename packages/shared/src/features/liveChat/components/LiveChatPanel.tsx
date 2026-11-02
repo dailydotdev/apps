@@ -16,7 +16,7 @@ import { useRoomPeople } from '../hooks/useRoomPeople';
 import { LiveChatMessageList } from './LiveChatMessageList';
 import { LiveChatComposer } from './LiveChatComposer';
 import { LiveDot } from './LiveDot';
-import { formatTimeLeft } from '../timeLeft';
+import { formatEndsIn, formatOccupants, formatTimeLeft } from '../timeLeft';
 
 const failureCopy: Record<RoomJoinFailure, string> = {
   banned: "You've been removed from this chat.",
@@ -101,7 +101,10 @@ export const LiveChatPanel = ({
   // Reading along: seated by the preview, composer not asked for yet.
   const isReadingAlong = isSeated && !isParticipating;
   const isJoined = isSeated && isParticipating;
-  const timeLeft = room?.expiresAt ? formatTimeLeft(room.expiresAt) : null;
+  // The clock only once the end is close enough to hurry for; the count
+  // only once it is a crowd.
+  const isEndingSoon = !!formatEndsIn(room?.expiresAt);
+  const occupants = formatOccupants(room?.occupantCount);
   let emptyCopy = 'Nobody has started this chat yet.';
   if (isJoined) {
     emptyCopy = 'Quiet for now. Say the first thing.';
@@ -127,8 +130,10 @@ export const LiveChatPanel = ({
   let subtitle = 'Open for 24 hours, then gone';
   if (hasEnded) {
     subtitle = 'This chat has ended';
-  } else if (isOpen && timeLeft) {
-    subtitle = `Ends in ${timeLeft} · nothing is saved`;
+  } else if (isOpen && isEndingSoon && room?.expiresAt) {
+    subtitle = `Ends in ${formatTimeLeft(room.expiresAt)} · nothing is saved`;
+  } else if (isOpen) {
+    subtitle = 'On now · nothing is saved';
   }
   // Under a post the preview seats the viewer, so the chat itself is the
   // invitation: the messages run live above the way in. Until the seat is
@@ -180,7 +185,7 @@ export const LiveChatPanel = ({
           >
             {heading}
           </h3>
-          {isOpen && room?.occupantCount != null && (
+          {isOpen && occupants && (
             <span
               className={classNames(
                 'ml-auto',
@@ -189,7 +194,7 @@ export const LiveChatPanel = ({
                   : 'text-text-tertiary typo-caption1',
               )}
             >
-              {room.occupantCount} here
+              {occupants}
             </span>
           )}
         </div>

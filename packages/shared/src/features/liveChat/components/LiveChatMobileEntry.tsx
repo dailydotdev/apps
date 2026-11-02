@@ -13,6 +13,7 @@ import { ChatRoomStatus } from '../graphql';
 import { postChatRoomQueryOptions } from '../queries';
 import { LiveChatPanel } from './LiveChatPanel';
 import { LiveDot } from './LiveDot';
+import { formatOccupants } from '../timeLeft';
 
 // A phone has no rail, so the chat is a pill over the post that opens a
 // bottom sheet. The sheet keeps the seat: closing it leaves the room.
@@ -42,6 +43,7 @@ export const LiveChatMobileEntry = ({
     postChatRoomQueryOptions(user, postId),
   );
   const isLive = room?.status === ChatRoomStatus.Active;
+  const occupants = formatOccupants(room?.occupantCount);
 
   if (isPending || (!isLive && !canStart)) {
     return null;
@@ -67,10 +69,8 @@ export const LiveChatMobileEntry = ({
       >
         <LiveDot isLive={isLive} />
         <span className="font-bold typo-callout">Live chat</span>
-        {isLive && room?.occupantCount != null && (
-          <span className="text-text-tertiary typo-footnote">
-            {room.occupantCount} here
-          </span>
+        {isLive && occupants && (
+          <span className="text-text-tertiary typo-footnote">{occupants}</span>
         )}
         <span className="ml-auto rounded-10 bg-brand-default px-3 py-1 font-bold text-white typo-footnote">
           {isLive ? 'Join' : 'Start'}
