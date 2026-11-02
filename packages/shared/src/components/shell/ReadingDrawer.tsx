@@ -360,9 +360,6 @@ export function ReadingDrawer({
       ) {
         return;
       }
-      const dropped = moving.filter((element) => !next.includes(element));
-      const added = next.filter((element) => !moving.includes(element));
-      readingLog(`moving ${moving.length}->${next.length} dropped=${dropped.map((e) => `${e.tagName}.${(e.className || '').toString().slice(0, 10)}${e.isConnected ? '' : '(gone)'}`).join(',')} added=${added.map((e) => `${e.tagName}.${(e.className || '').toString().slice(0, 10)}`).join(',')}`);
       moving = next;
       moving.forEach((element) => applyStyle(element, shown));
     };

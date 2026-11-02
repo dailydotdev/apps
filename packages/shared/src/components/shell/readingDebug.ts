@@ -30,10 +30,6 @@ const render = () => {
     `sy=${Math.round(window.scrollY)} docH=${root.scrollHeight} ih=${window.innerHeight} vv=${vv ? `${Math.round(vv.pageTop)}/${Math.round(vv.height)}` : '-'}`,
     `pad=${getComputedStyle(document.body).paddingTop} cls=${root.className.replace('js-focus-visible', '').trim()}`,
     `state=${JSON.stringify(state)}`,
-    `moved=${Array.from(document.querySelectorAll<HTMLElement>('.shell-layout [style*="translate"]'))
-      .filter((e) => !e.closest('.shell-block, .shell-cluster, [role="status"]'))
-      .map((e) => `${(e.className || '').toString().slice(0, 14)}:${e.style.transform}@${Math.round(e.getBoundingClientRect().top)}`)
-      .join(' | ')}`,
     ...lines,
   ].join('\n');
 };
