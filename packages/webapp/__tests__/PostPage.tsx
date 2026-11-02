@@ -4,6 +4,7 @@ import {
   act,
   fireEvent,
   queryByText,
+  within,
   render,
   screen,
   waitFor,
@@ -37,7 +38,11 @@ import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import adFixture from '@dailydotdev/shared/__tests__/fixture/ad';
-import { postWithCommunitySentiment } from '@dailydotdev/shared/__tests__/fixture/post';
+import {
+  postWithCommunitySentiment,
+  sharePost,
+} from '@dailydotdev/shared/__tests__/fixture/post';
+import { DeletedPostId } from '@dailydotdev/shared/src/lib/constants';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import {
   completeActionMock,
@@ -92,6 +97,7 @@ jest.mock('next/router', () => ({
 }));
 
 let mockSignupStripOn = false;
+let mockPostPageHybridOn = false;
 let mockPostPageFeedOn = false;
 
 jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
@@ -105,6 +111,12 @@ jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
     }
     if (args?.feature?.id === 'post_signup_strip') {
       return { value: mockSignupStripOn, isLoading: false };
+    }
+    if (args?.feature?.id === 'post_page_hybrid') {
+      return {
+        value: !!args.shouldEvaluate && mockPostPageHybridOn,
+        isLoading: false,
+      };
     }
     if (args?.feature?.id === 'post_page_feed') {
       // Like the real hook: the default (off) until the page evaluates it.
@@ -166,6 +178,7 @@ beforeEach(() => {
   // behind by one test must not leak into the next.
   jest.restoreAllMocks();
   mockSignupStripOn = false;
+  mockPostPageHybridOn = false;
   mockPostPageFeedOn = false;
   mockRouter();
 });
@@ -1427,6 +1440,21 @@ describe('organic ads', () => {
     expect(railBox().parentElement).not.toHaveClass('sticky');
   });
 
+  it('carries the article units in the hybrid layout', async () => {
+    mockPostPageHybridOn = true;
+    renderAnonymous();
+    expect(await screen.findByTestId('post-hybrid-column')).toBeInTheDocument();
+    expect(mountedUnits()).toEqual(
+      expect.arrayContaining([
+        'ad-slot-15',
+        'ad-slot-16',
+        'ad-slot-21',
+        'ad-slot-22',
+        'ad-slot-23',
+      ]),
+    );
+  });
+
   it('splits a long video summary', async () => {
     renderAnonymous({ type: PostType.VideoYouTube, videoId: 'abc123' });
     expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
@@ -1474,6 +1502,17 @@ describe('direct-sold post ads', () => {
         expect.stringMatching(/^\/v1\/a\?/),
         expect.stringMatching(/^\/v1\/a\/post/),
       ]),
+    );
+  });
+
+  it('renders the sidebar and comment ads in the hybrid layout', async () => {
+    mockPostPageHybridOn = true;
+    mockAdServer();
+    renderPost();
+
+    expect(await screen.findByTestId('post-hybrid-column')).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getAllByText(adFixture.description)).toHaveLength(2),
     );
   });
 
@@ -1528,6 +1567,85 @@ describe('post query failures', () => {
     ]);
 
     expect(await screen.findByTestId('notFound')).toBeInTheDocument();
+  });
+});
+
+describe('post_page_hybrid', () => {
+  it.each([
+    ['hybrid', true, '1'],
+    ['classic', false, '0'],
+  ])(
+    'remembers the %s arm and reveals the page once the flag is read',
+    async (_, isOn, storedArm) => {
+      document.documentElement.setAttribute('data-post-hybrid-pending', '');
+      mockPostPageHybridOn = isOn;
+      renderPost();
+      expect(await screen.findByText('Learn SQL')).toBeInTheDocument();
+      await waitFor(() =>
+        expect(document.documentElement).not.toHaveAttribute(
+          'data-post-hybrid-pending',
+        ),
+      );
+      expect(localStorage.getItem('post_page_hybrid:arm')).toBe(storedArm);
+    },
+  );
+
+  it('renders the hybrid column and opens the composer from its trigger', async () => {
+    mockPostPageHybridOn = true;
+    renderPost();
+    expect(await screen.findByTestId('post-hybrid-column')).toBeInTheDocument();
+    expect(screen.queryByTestId('postContainer')).not.toBeInTheDocument();
+    expect(await screen.findByText('Learn SQL')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add a comment' }));
+    const [commentBox] = await screen.findAllByRole('textbox');
+    expect(commentBox).toBeInTheDocument();
+  });
+
+  const renderHybridShare = (sharedPost: Partial<Post['sharedPost']>) => {
+    mockPostPageHybridOn = true;
+    renderPost({}, [
+      createPostMock({
+        ...sharePost,
+        id: defaultPost.id,
+        sharedPost: {
+          ...sharePost.sharedPost,
+          ...sharedPost,
+        } as Post['sharedPost'],
+      }),
+      createCommentsMock(),
+    ]);
+  };
+
+  it('shows a deleted shared post as unavailable', async () => {
+    renderHybridShare({ id: DeletedPostId });
+    const column = await screen.findByTestId('post-hybrid-column');
+    expect(
+      await within(column).findByText(/This post is no longer available/),
+    ).toBeInTheDocument();
+    expect(
+      within(column).queryByTestId('post-modal-title'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('links a shared squad post to its page on daily.dev', async () => {
+    renderHybridShare({
+      type: PostType.Freeform,
+      commentsPermalink: 'https://app.daily.dev/posts/internal',
+    });
+    const title = await screen.findByTestId('post-modal-title');
+    expect(within(title).getByRole('link')).toHaveAttribute(
+      'href',
+      'https://app.daily.dev/posts/internal',
+    );
+  });
+
+  it('renders the post page feed after the hybrid discussion', async () => {
+    mockPostPageHybridOn = true;
+    mockPostPageFeedOn = true;
+    renderPost();
+    const feed = await screen.findByTestId('postPageFeed');
+    expect(screen.getByTestId('post-hybrid-column')).toContainElement(feed);
   });
 });
 

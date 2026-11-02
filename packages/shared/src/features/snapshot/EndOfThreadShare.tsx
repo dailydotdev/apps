@@ -24,9 +24,12 @@ const MIN_COMMENTS = 3;
 export function EndOfThreadShare({
   post,
   commentsCount,
+  className = 'my-6',
 }: {
   post: Post;
   commentsCount: number;
+  /** The hosts space their children differently. */
+  className?: string;
 }): ReactElement | null {
   const { logEvent } = useLogContext();
 
@@ -50,7 +53,7 @@ export function EndOfThreadShare({
   return (
     <ShareBand
       cid={ReferralCampaignKey.SharePost}
-      className="my-6"
+      className={className}
       description="Send it to someone who’d have opinions."
       link={post.commentsPermalink}
       onShare={onShare}

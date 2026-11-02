@@ -76,6 +76,11 @@ export type PostWidgetsProps = Omit<PostHeaderActionsProps, 'contextMenuId'> &
     /** Drops the internal sidebar ad and video player, for ad templates. */
     hideAdWidget?: boolean;
     hidePluginsWidget?: boolean;
+    /**
+     * The post_page_hybrid rail: the share card keeps its border like every
+     * other card, and "Advertise here" sits at the start of the ad card.
+     */
+    isHybrid?: boolean;
   };
 
 /**
@@ -112,6 +117,7 @@ export function PostWidgets({
   trailing,
   hideAdWidget,
   hidePluginsWidget,
+  isHybrid = false,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const { source } = post;
@@ -192,6 +198,7 @@ export function PostWidgets({
             postId={post.id}
             source={post.source}
             className={{ container: cardClasses }}
+            isAdvertiseLinkStart={isHybrid}
           />,
         )}
       {!hideAdWidget && <PostExcoPlayerWidget post={post} placement="rail" />}
@@ -201,7 +208,7 @@ export function PostWidgets({
       {withAd(
         PostWidgetPosition.Share,
         <>
-          <ShareBar post={post} />
+          <ShareBar post={post} isBordered={isHybrid} />
           <ShareMobile
             post={post}
             origin={origin}

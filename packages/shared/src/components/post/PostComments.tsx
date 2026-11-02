@@ -37,6 +37,8 @@ interface PostCommentsProps {
   onClickUpvote?: (commentId: string, upvotes: number) => unknown;
   className?: CommentClassName;
   onCommented?: MainCommentProps['onCommented'];
+  /** Drop the list's own margins where the host spaces its children. */
+  removeSpacing?: boolean;
   canReply?: MainCommentProps['canReply'];
   onReplyBlocked?: MainCommentProps['onReplyBlocked'];
   forceInlineComposer?: MainCommentProps['forceInlineComposer'];
@@ -66,6 +68,7 @@ export function PostComments({
   joinNotificationCommentId,
   className = {},
   onCommented,
+  removeSpacing = false,
   canReply,
   onReplyBlocked,
   forceInlineComposer,
@@ -100,7 +103,7 @@ export function PostComments({
   if (commentsCount === 0) {
     return (
       <CharmEmptyState
-        className="mb-12 mt-8"
+        className={removeSpacing ? undefined : 'mb-12 mt-8'}
         image={cloudinaryCharmNoComments}
         imageAlt="daily.dev charm peeking over a glowing speech bubble"
         title="No comments yet"
@@ -114,14 +117,15 @@ export function PostComments({
 
   return (
     <div
-      className={
-        isModalThread
-          ? classNames(
-              'mb-12 flex flex-col gap-4',
-              isComposerOpen ? 'mt-2' : 'mt-5',
-            )
-          : '-mx-4 mb-12 mt-6 flex flex-col gap-4 mobileL:mx-0'
-      }
+      className={classNames(
+        'flex flex-col gap-4',
+        !isModalThread && '-mx-4 mobileL:mx-0',
+        !removeSpacing && [
+          'mb-12',
+          isModalThread && (isComposerOpen ? 'mt-2' : 'mt-5'),
+          !isModalThread && 'mt-6',
+        ],
+      )}
       ref={container}
     >
       {(() => {
