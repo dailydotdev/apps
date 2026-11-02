@@ -40,6 +40,7 @@ import { useLfgRequestCount } from '../../lfg/components/messages/LfgRequestSect
 import { LfgReachOutDetail } from '../../lfg/components/messages/LfgReachOutDetail';
 import { LfgMessagesPromo } from '../../lfg/components/messages/LfgMessagesPromo';
 import { useLfgEnabled } from '../../lfg/hooks/useLfgEnabled';
+import { Segments, ShellRow } from '../../../components/shell/ShellRow';
 
 // Two panes on laptop; below it the list and the thread are separate screens,
 // picked by whether a conversation is open.
@@ -161,7 +162,35 @@ export const MessagesScreen = ({
           <NewMessageSearch onClose={() => setIsComposing(false)} />
         ) : (
           <>
-            <nav aria-label="Inbox" className="flex shrink-0 gap-1 px-4 pb-2">
+            <nav aria-label="Inbox" className="shrink-0 tablet:hidden">
+              <ShellRow>
+                <Segments
+                  items={[
+                    {
+                      key: 'chats',
+                      label: 'Chats',
+                      href: getMessagesUrl(),
+                      active: !showRequests,
+                      replace: true,
+                    },
+                    {
+                      key: 'requests',
+                      label:
+                        requestCount > 0
+                          ? `Requests (${requestCount})`
+                          : 'Requests',
+                      href: getMessagesUrl(undefined, { requests: true }),
+                      active: showRequests,
+                      replace: true,
+                    },
+                  ]}
+                />
+              </ShellRow>
+            </nav>
+            <nav
+              aria-label="Inbox"
+              className="hidden shrink-0 gap-1 px-4 pb-2 tablet:flex"
+            >
               <Link href={getMessagesUrl()} passHref>
                 <Button
                   tag="a"

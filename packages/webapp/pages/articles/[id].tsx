@@ -7,7 +7,6 @@ import type {
   GetStaticPropsResult,
 } from 'next';
 import Head from 'next/head';
-import Script from 'next/script';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import type { ClientError } from 'graphql-request';
 import type { Post, PostData } from '@dailydotdev/shared/src/graphql/posts';
@@ -22,13 +21,10 @@ import {
   useSettingsContext,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { ReadPostContent } from '@dailydotdev/shared/src/components/post/read/ReadPostContent';
-import {
-  hasLiveAdSlots,
-  PREBID_SCRIPT_SRC,
-} from '@dailydotdev/shared/src/features/monetization/kueez';
+import { hasLiveAdSlots } from '@dailydotdev/shared/src/components/post/read/slots';
 import { useReadAdSlots } from '@dailydotdev/shared/src/components/post/read/useReadAdSlots';
 import { PhoneTopAdStrip } from '@dailydotdev/shared/src/components/post/read/PhoneTopAdStrip';
-import { AdHeadHints } from '../../components/AdHeadHints';
+import { ContentIgniteTag } from '../../components/ContentIgniteTag';
 import { getLayout } from '../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../components/layouts/FooterNavBarLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
@@ -113,16 +109,7 @@ const ReadPostPage = ({
         <Head>
           {!!post.image && <link rel="preload" as="image" href={post.image} />}
         </Head>
-        {adsLive && (
-          <>
-            <AdHeadHints />
-            <Script
-              id="prebid-loader"
-              src={PREBID_SCRIPT_SRC}
-              strategy="afterInteractive"
-            />
-          </>
-        )}
+        <ContentIgniteTag enabled={adsLive} />
         <ReadPostContent
           post={post}
           // 72rem, wider than the standard template's 69.25rem: the main column

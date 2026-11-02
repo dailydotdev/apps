@@ -1,3 +1,5 @@
+import { expectShellScroll } from '../components/shell/useShellScroll';
+
 const RESTORE_TIMEOUT_MS = 10000;
 const RESTORE_POLL_INTERVAL_MS = 100;
 const MAX_SCROLL_POSITIONS = 200;
@@ -85,6 +87,7 @@ export const restoreScrollPosition = (target: number): (() => void) => {
       document.documentElement.scrollHeight - window.innerHeight;
     if (maxScroll >= target) {
       window.scrollTo(0, target);
+      expectShellScroll(target);
       stop();
     }
   };
@@ -119,7 +122,12 @@ export const restoreScrollPosition = (target: number): (() => void) => {
     },
     { passive: true, signal },
   );
-  scheduleRestore();
+  // A page already at its full height (back to a cached feed) lands at
+  // once: a frame later is a frame at the top, and a move captures that.
+  restore();
+  if (!stopped) {
+    scheduleRestore();
+  }
 
   return stop;
 };

@@ -175,6 +175,7 @@ export function HomeFeedTabs({
         {/* Docked, the row's height moves into the block, so the feed stays put. */}
         <div
           ref={phoneRowRef}
+          data-testid="home-feed-tabs-row"
           className={classNames(
             'border-b border-border-subtlest-tertiary bg-background-default',
             hasPhoneRowPassed && 'h-0 overflow-hidden',

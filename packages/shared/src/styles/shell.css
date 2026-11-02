@@ -8,6 +8,7 @@
   --shell-ease-travel: cubic-bezier(0.32, 0.72, 0, 1);
   --shell-duration-feedback: 150ms;
   --shell-duration-enter: 300ms;
+  --shell-duration-page: 400ms;
   --shell-duration-exit: 200ms;
   --shell-duration-snap: 220ms;
   --shell-portrait-width: 23.4375rem;
@@ -17,7 +18,7 @@
 /*
  * Press feedback for tappable chrome: the control scales to 0.96 under the
  * finger and eases back on release. `scale` is listed beside the button
- * transitions so a `.btn` keeps its colour transitions.
+ * transitions so a `.btn` keeps its color transitions.
  */
 :root {
   /* Where the bar's bottom edge sits. Above the system's bottom inset by
@@ -136,8 +137,8 @@
    scrolls behind it. Its own layer under every bottom piece: it rises from
    the screen's edge to the bar's top edge and a little past it (the field
    and the capsule above are opaque and need no help), and the bottom third
-   is almost solid. A solid colour under a mask rather than a gradient
-   background: iOS Safari tints its toolbar from the colour at the page's
+   is almost solid. A solid color under a mask rather than a gradient
+   background: iOS Safari tints its toolbar from the color at the page's
    bottom edge and cannot read a gradient, so a light page got a dark bar. */
 .shell-scrim {
   position: fixed;
@@ -161,26 +162,37 @@
   );
 }
 
-/* The action pieces, the bar, the Create square, the field and the post
-   page's capsule, take the colour the layout v2 rail gives its panels: a
-   step above the page background, opaque, so a white image behind them
-   never washes them out, with the shadow token. */
+/* The action pieces, the bar, the Create square, the back-to-top square,
+   the field and the post page's capsule, are dark glass the way iOS 26's
+   tab bar is: a tint several steps lighter than the page, so they read as
+   floating over it rather than cut out of it, nearly opaque so a white
+   image behind never washes them out, with a light rim along the top edge. */
 .shell-material.shell-material-action {
-  background: var(--theme-accent-pepper-subtlest);
-  box-shadow: inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
-    0 0.25rem 1.5rem 0 var(--theme-shadow-shadow1);
+  background: color-mix(
+    in srgb,
+    var(--theme-accent-pepper-subtler),
+    transparent 12%
+  );
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  backdrop-filter: blur(40px) saturate(180%);
+  box-shadow: inset 0 1px 0 0 var(--theme-border-subtlest-secondary),
+    inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
+    0 0.5rem 2rem 0 var(--theme-shadow-shadow1);
 }
 
-/* In the light theme the action pieces are white, the page's own colour,
-   held off the page by the ring and the shadow; dark keeps the rail
-   panels' step. */
+/* In the light theme the action pieces are white, the page's own color,
+   held off the page by the ring and the shadow. */
 :root.light .shell-material.shell-material-action {
   background: var(--theme-background-default);
+  box-shadow: inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
+    0 0.25rem 1.5rem 0 var(--theme-shadow-shadow1);
 }
 
 @media (prefers-color-scheme: light) {
   :root.auto .shell-material.shell-material-action {
     background: var(--theme-background-default);
+    box-shadow: inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
+      0 0.25rem 1.5rem 0 var(--theme-shadow-shadow1);
   }
 }
 
@@ -655,44 +667,253 @@
 }
 
 /*
- * Moves (shellMove.ts): back slides the page away to the right on the
- * travel curve and uncovers the one under it drifting in from the left; a
- * change of root keeps the browser's cross-fade, shortened. The bar is its
- * own layer so it holds still while the pages move.
+ * Moves (shellMove.ts): the page being left stays on screen as a still
+ * copy (the ghost) until the next has arrived, then a page opened from
+ * content slides in over it from the right while it drifts back and
+ * darkens; back plays it in reverse. The bottom bar is left out of the
+ * copy and raised over it, so it holds still while the pages move.
  */
+.shell-ghost {
+  position: fixed;
+  inset: 0;
+  z-index: 75;
+  overflow: hidden;
+  contain: strict;
+  background: var(--theme-background-default);
+  pointer-events: auto;
+}
+
+.shell-ghost-over {
+  z-index: 76;
+  box-shadow: -0.5rem 0 1.5rem var(--theme-shadow-shadow1);
+}
+
+:root[data-shell-move] .shell-scrim,
 :root[data-shell-move] .shell-cluster {
-  view-transition-name: shell-cluster;
+  z-index: 77;
 }
 
-:root[data-shell-move]::view-transition-group(shell-cluster),
-:root[data-shell-move='switch']::view-transition-group(root) {
-  animation-duration: var(--shell-duration-feedback);
+/*
+ * The reading drawer (ReadingDrawer). The wrapper draws the article behind
+ * this web view, so the document is see-through above the drawer: the band
+ * is the body's top padding, the drawer's head stands at its foot, and the
+ * post page follows. Both heights are layouts at the document's top: the
+ * card keeps the band, the full page has none; the drawer travels between
+ * them by a transform.
+ */
+:root.reading {
+  --reading-gap: calc(100dvh - 4rem - var(--shell-floor) - 2.75rem);
 }
 
-:root[data-shell-move='pop']::view-transition-old(root),
-:root[data-shell-move='pop']::view-transition-new(root) {
-  mix-blend-mode: normal;
-  animation-duration: var(--shell-duration-enter);
-  animation-timing-function: var(--shell-ease-travel);
+:root.reading.reading-full {
+  --reading-gap: var(--safe-area-top, 0px);
 }
 
-:root[data-shell-move='pop']::view-transition-old(root) {
-  z-index: 1;
-  animation-name: shell-page-out;
+:root.reading,
+:root.reading body {
+  background: transparent;
+  transition: background-color var(--shell-duration-exit) ease-out;
 }
 
-:root[data-shell-move='pop']::view-transition-new(root) {
-  animation-name: shell-page-under;
+/* While the post sinks the band above it keeps the page's color; the
+   article shows once the drawer has landed, by the fade above. */
+:root.reading.reading-opening,
+:root.reading.reading-opening body {
+  background: var(--theme-background-default);
 }
 
-@keyframes shell-page-out {
-  to {
-    transform: translateX(100%);
+:root.reading body,
+:root.reading body[data-scroll-locked] {
+  padding-top: calc(var(--reading-gap) + 3.5rem) !important;
+}
+
+/* The post page's own background travels with it: on the pieces that move
+   when the drawer is pulled (the page's flow, which stands inside `main`
+   beside the fixed bar), never on an ancestor that stays, which would
+   cover the article the pull is meant to reveal. */
+:root.reading #__next,
+:root.reading .shell-layout > main {
+  min-height: 100dvh;
+}
+
+:root.reading
+  .shell-layout
+  > main
+  > :not(.fixed):not(.shell-cluster):not(.shell-scrim) {
+  min-height: 100dvh;
+  background: var(--theme-background-default);
+}
+
+/* The top block stays away until the post is pulled past the drawer's
+   head, so the room the layout keeps for it goes too. */
+:root.reading .shell-layout {
+  padding-top: 0;
+}
+
+.reading-head {
+  top: var(--reading-gap);
+  box-shadow: 0 -0.5rem 1.875rem var(--theme-shadow-shadow1),
+    inset 0 1px 0 var(--theme-border-subtlest-tertiary);
+  transition: border-radius var(--shell-duration-exit) ease-out,
+    box-shadow var(--shell-duration-exit) ease-out;
+}
+
+/* The pieces at the top trade places while the page travels: the drawer's
+   controls and title line go first, the page's block arrives as the page
+   lands under it, and the reverse on the way down. The head's rounded top
+   flattens as it reaches the status bar. */
+/* The title line leaves as the page's block arrives over it, so the two
+   never show through each other at the top. */
+.reading-line {
+  opacity: calc(1 - var(--reading-rise, 0));
+  transition: opacity var(--shell-duration-feedback) ease-out;
+}
+
+:root.reading-opening .reading-controls,
+:root.reading-closing .reading-line {
+  opacity: 0;
+  pointer-events: none;
+}
+
+:root.reading-closing .reading-head {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+:root.reading.reading-closing {
+  --shell-block-fade: var(--shell-duration-page);
+  --shell-block-fade-ease: ease-in;
+}
+
+/* Pulled up, the post stands over the page, which dims behind it by how
+   far it has come (--reading-dim), as a sheet's backdrop does on iOS; the
+   controls and the chevron turn over the first stretch of the lift
+   (--reading-lift). The drawer sets both on every frame, so a short ease
+   only smooths the finger, it never trails it. */
+.reading-dim {
+  opacity: var(--reading-dim, 0);
+  transition: opacity var(--shell-duration-feedback) ease-out;
+}
+
+.reading-title {
+  opacity: var(--reading-fold, 1);
+}
+
+.reading-controls {
+  opacity: calc(1 - var(--reading-lift, 0));
+  transition: opacity var(--shell-duration-feedback) ease-out;
+}
+
+:root.reading-up .reading-controls {
+  pointer-events: none;
+}
+
+/* The page's loading line runs under the status bar, X's way, and goes
+   with the controls once the post stands over the page. */
+.reading-progress {
+  opacity: calc(1 - var(--reading-lift, 0));
+  transition: opacity var(--shell-duration-feedback) ease-out;
+}
+
+.reading-chevron {
+  rotate: calc(var(--reading-lift, 0) * 180deg);
+  transition: rotate var(--shell-duration-feedback) ease-out;
+}
+
+/* The tab row folds away under the capsule, and the post page's top block
+   waits until the post is pulled past its head. The status area is the
+   article's until the post reaches the top. */
+:root.reading .shell-cluster {
+  translate: 0 calc(100% + var(--shell-floor));
+  opacity: 0;
+  pointer-events: none;
+  transition: translate var(--shell-duration-enter) var(--shell-ease-travel),
+    opacity var(--shell-duration-exit) ease-out;
+}
+
+/* The post page's block arrives over the last stretch of the pull, as the
+   controls have gone by then: the way out of the page takes over from the
+   way out of the article. */
+:root.reading {
+  --shell-block-fade: var(--shell-duration-feedback);
+}
+
+:root.reading .shell-block {
+  opacity: var(--reading-rise, 0);
+}
+
+:root.reading:not(.reading-rising):not(.reading-past) .shell-block {
+  visibility: hidden;
+}
+
+:root.reading.reading-past .shell-block {
+  opacity: 1;
+}
+
+:root.reading.reading-opening:not(.reading-closing) .shell-block {
+  visibility: visible;
+}
+
+:root.reading.reading-closing .shell-block {
+  visibility: visible;
+  opacity: 1;
+}
+
+:root.reading:not(.reading-full) body::before {
+  opacity: 0;
+}
+
+/* Reduce Transparency: the wrappers mirror the system setting as a class,
+   browsers that know the media query answer it themselves. The floating
+   pieces turn solid on the colors the action pieces already use. */
+:root.reduce-transparency .shell-material,
+:root.reduce-transparency.shell-edge body::before {
+  background: var(--theme-accent-pepper-subtlest);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+:root.reduce-transparency .shell-material.shell-material-action {
+  background: var(--theme-accent-pepper-subtler);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+:root.reduce-transparency.light .shell-material {
+  background: var(--theme-background-default);
+}
+
+@media (prefers-color-scheme: light) {
+  :root.reduce-transparency.auto .shell-material {
+    background: var(--theme-background-default);
   }
 }
 
-@keyframes shell-page-under {
-  from {
-    transform: translateX(-30%);
+@media (prefers-reduced-transparency: reduce) {
+  .shell-material,
+  :root.shell-edge body::before {
+    background: var(--theme-accent-pepper-subtlest);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .shell-material.shell-material-action {
+    background: var(--theme-accent-pepper-subtler);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  :root.light .shell-material {
+    background: var(--theme-background-default);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) and (prefers-color-scheme: light) {
+  :root.auto .shell-material {
+    background: var(--theme-background-default);
   }
 }

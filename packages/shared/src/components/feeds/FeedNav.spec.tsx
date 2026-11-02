@@ -312,20 +312,15 @@ describe('FeedNav', () => {
     );
   });
 
-  it('renders the actions once, inline, inside the block even with chips disabled', () => {
+  it('keeps the feed actions out of the row inside the block', () => {
     mockUseConditionalFeature.mockReturnValue({ value: FeedChipsVariant.None });
 
     render(<FeedNav inShellBlock />);
 
-    const feedSettingsButton = screen.getByRole('button', {
-      name: 'Feed settings',
-    });
-
     expect(document.querySelector('.-translate-y-16')).toBeNull();
-    expect(feedSettingsButton.parentElement).not.toHaveClass('sticky');
     expect(
-      screen.getAllByRole('button', { name: 'Feed settings' }),
-    ).toHaveLength(1);
+      screen.queryByRole('button', { name: 'Feed settings' }),
+    ).not.toBeInTheDocument();
   });
 
   it('keeps the legacy TabContainer classes and sticky actions when chips are disabled', () => {
