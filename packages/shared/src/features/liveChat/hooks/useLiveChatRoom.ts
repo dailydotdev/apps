@@ -45,8 +45,14 @@ type UseLiveChatRoom = {
   typingUserIds: string[];
   // Everyone the viewer has seen speak or type, the viewer included.
   senderIds: string[];
+  // Whether the viewer asked to take part, as opposed to reading along in a
+  // seat the surface took for them (see `preview`).
+  isParticipating: boolean;
   // Opens the post's room when there is none yet, then joins it.
   join: () => Promise<void>;
+  // Joins if needed and unlocks the composer; the "Join the chat" click.
+  participate: () => Promise<void>;
+  // Under a preview, only gives up the composer; the seat stays for reading.
   leave: () => void;
   send: (body: string) => Promise<void>;
   // Adds or removes the viewer's reaction on a message.
@@ -61,9 +67,16 @@ type UseLiveChatRoom = {
 export const useLiveChatRoom = ({
   postId,
   origin,
+  preview = false,
 }: {
   postId: string;
   origin: string;
+  // Seat a signed-in viewer in the open room as soon as it is known, so the
+  // chat is on screen before they decide to join. The room replays its recent
+  // history on join and keeps nothing else, so a seat is the only way to see
+  // it. The seat is the surface's, not the viewer's: a leave only drops the
+  // composer, and the seat goes with the unmount.
+  preview?: boolean;
 }): UseLiveChatRoom => {
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
@@ -74,6 +87,7 @@ export const useLiveChatRoom = ({
   const roomJid = room?.status === ChatRoomStatus.Active ? room.jid : null;
 
   const [status, setStatus] = useState<LiveChatStatus>('idle');
+  const [isParticipating, setIsParticipating] = useState(false);
   const [failure, setFailure] = useState<RoomJoinFailure>();
   const [messages, setMessages] = useState<RoomMessage[]>([]);
   const [typing, setTyping] = useState<Record<string, true>>({});
@@ -84,6 +98,9 @@ export const useLiveChatRoom = ({
   const seatedJid = useRef<string | null>(null);
   // The room asked for but not confirmed yet; the transport already holds it.
   const joiningJid = useRef<string | null>(null);
+  // The room the preview already tried to seat the viewer in; a failed or
+  // kicked preview does not try again on its own.
+  const previewedJid = useRef<string | null>(null);
   const isMounted = useRef(false);
   const isComposing = useRef(false);
   const composingSentAt = useRef(0);
@@ -278,7 +295,6 @@ export const useLiveChatRoom = ({
       setMessages([]);
       joiningJid.current = target.jid;
       await getDmTransport(user.id).joinRoom(target.jid);
-      log(LogEvent.JoinLiveChat);
     } catch (err) {
       setFailure('unknown');
       setStatus('failed');
@@ -288,7 +304,36 @@ export const useLiveChatRoom = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [log, postId, queryClient, room, status, user?.id]);
 
+  const participate = useCallback(async () => {
+    setIsParticipating(true);
+    log(LogEvent.JoinLiveChat);
+    if (status !== 'joined') {
+      await join();
+    }
+  }, [join, log, status]);
+
+  // The preview takes the seat; nothing of the viewer's is said or shown yet.
+  useEffect(() => {
+    if (
+      !preview ||
+      !user?.id ||
+      !roomJid ||
+      status !== 'idle' ||
+      previewedJid.current === roomJid
+    ) {
+      return;
+    }
+    previewedJid.current = roomJid;
+    join().catch(() => undefined);
+  }, [join, preview, roomJid, status, user?.id]);
+
   const leave = useCallback(() => {
+    if (preview && seatedJid.current) {
+      stopComposing(true);
+      setIsParticipating(false);
+      log(LogEvent.LeaveLiveChat);
+      return;
+    }
     const jid = seatedJid.current ?? joiningJid.current;
     seatedJid.current = null;
     joiningJid.current = null;
@@ -300,7 +345,7 @@ export const useLiveChatRoom = ({
         .catch(() => undefined);
       log(LogEvent.LeaveLiveChat);
     }
-  }, [log, stopComposing, user?.id]);
+  }, [log, preview, stopComposing, user?.id]);
 
   const send = useCallback(
     async (body: string) => {
@@ -326,7 +371,7 @@ export const useLiveChatRoom = ({
     (messageId: string, emoji: string) => {
       const jid = seatedJid.current;
       const message = messages.find(({ id }) => id === messageId);
-      if (!user?.id || !jid || !message) {
+      if (!user?.id || !jid || !message || !isParticipating) {
         return;
       }
       const own = getOwnReactions(message, user.id);
@@ -349,7 +394,7 @@ export const useLiveChatRoom = ({
         .catch(() => undefined);
       log(LogEvent.ReactLiveChatMessage, { emoji, removed: isRemoving });
     },
-    [displayToast, log, messages, user?.id],
+    [displayToast, isParticipating, log, messages, user?.id],
   );
 
   // Leaving the page leaves the room; nothing about the seat survives it.
@@ -390,7 +435,9 @@ export const useLiveChatRoom = ({
     messages,
     typingUserIds,
     senderIds,
+    isParticipating,
     join,
+    participate,
     leave,
     send,
     react,

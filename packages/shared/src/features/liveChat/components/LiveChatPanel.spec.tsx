@@ -141,22 +141,82 @@ describe('LiveChatPanel', () => {
     );
   });
 
-  it('under a post, invites first and shows the room once joined', async () => {
+  it('under a post, seats the reader so the chat shows before they join', async () => {
+    const logEvent = jest.fn();
+    jest
+      .mocked(useLogContext)
+      .mockReturnValue({ logEvent } as unknown as ReturnType<
+        typeof useLogContext
+      >);
     renderPanel({ variant: 'inline' });
 
     expect(
       await screen.findByText('Live chat is on for this post'),
     ).toBeInTheDocument();
     expect(screen.getByText('23 here')).toBeInTheDocument();
+    // The seat is taken for the reader, without a click.
+    await waitFor(() =>
+      expect(transport.joinRoom).toHaveBeenCalledWith(room.jid),
+    );
+    emit({ type: 'roomJoined', roomJid: room.jid! });
+    emit({
+      type: 'roomMessage',
+      message: {
+        id: 'm1',
+        roomJid: room.jid!,
+        senderId: 'u2',
+        body: 'already talking',
+        createdAt: new Date().toISOString(),
+      },
+    });
+
+    expect(await screen.findByText('already talking')).toBeInTheDocument();
+    expect(screen.getByText(/You are reading along/)).toBeInTheDocument();
     expect(
-      screen.queryByText('Join to see what people are saying.'),
+      screen.queryByPlaceholderText(/Say something/),
+    ).not.toBeInTheDocument();
+    expect(logEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({ event_name: 'join live chat' }),
+    );
+
+    fireEvent.click(screen.getByText('Join the chat'));
+
+    expect(await screen.findByPlaceholderText(/Say something/)).toBeVisible();
+    expect(screen.getByText('already talking')).toBeInTheDocument();
+    expect(transport.joinRoom).toHaveBeenCalledTimes(1);
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ event_name: 'join live chat' }),
+    );
+
+    // Leaving gives up the composer, not the seat.
+    fireEvent.click(screen.getByText('Leave'));
+    await waitFor(() =>
+      expect(
+        screen.queryByPlaceholderText(/Say something/),
+      ).not.toBeInTheDocument(),
+    );
+    expect(screen.getByText('already talking')).toBeInTheDocument();
+    expect(transport.leaveRoom).not.toHaveBeenCalled();
+  });
+
+  it('under a post, a seat the preview could not take is only reported on the own join', async () => {
+    renderPanel({ variant: 'inline' });
+    await waitFor(() => expect(transport.joinRoom).toHaveBeenCalledTimes(1));
+    emit({ type: 'roomJoinFailed', roomJid: room.jid!, reason: 'full' });
+
+    expect(await screen.findByText('Join the chat')).toBeInTheDocument();
+    expect(
+      screen.queryByText('This chat is full right now. Try again in a bit.'),
     ).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByText('Join the chat'));
-    emit({ type: 'roomJoined', roomJid: room.jid! });
+    await waitFor(() => expect(transport.joinRoom).toHaveBeenCalledTimes(2));
+    emit({ type: 'roomJoinFailed', roomJid: room.jid!, reason: 'full' });
 
     expect(
-      await screen.findByText('Quiet for now. Say the first thing.'),
+      await screen.findByText(
+        'This chat is full right now. Try again in a bit.',
+      ),
     ).toBeInTheDocument();
   });
 
