@@ -200,7 +200,7 @@ describe('iubenda consent banner css', () => {
         'align-items',
       ),
     ).toContain('stretch');
-    ['iubenda-cs-customize-btn', 'dd-cs-more'].forEach((cls) => {
+    ['iubenda-cs-customize-btn', 'dd-cs-links'].forEach((cls) => {
       expect(declared(rulesTargeting(cls), 'align-self')).toContain('center');
     });
   });
@@ -245,12 +245,13 @@ describe('iubenda consent banner css', () => {
       ),
     ).toContain('break-word');
 
-    // On phones the row wraps instead, handing the show-more control its
-    // own line so the pair keeps enough width in every banner language.
+    // On phones the row wraps instead, handing the text controls (Show
+    // more, the vendor list) their own line so the pair keeps enough width
+    // in every banner language.
     expect(
       declared(rulesTargeting('iubenda-cs-opt-group'), 'flex-wrap'),
     ).toContain('wrap');
-    expect(declared(rulesTargeting('dd-cs-more'), 'flex')).toContain(
+    expect(declared(rulesTargeting('dd-cs-links'), 'flex')).toContain(
       '1 1 100%',
     );
   });

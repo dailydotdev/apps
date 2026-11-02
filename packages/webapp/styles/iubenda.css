@@ -204,7 +204,10 @@ html.light #iubenda-cs-banner .iubenda-cs-container {
 #iubenda-cs-banner .iubenda-cs-opt-group {
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap;
+  /* The text controls (.dd-cs-links) take the first line, the choice the
+     second: beside the pair they leave Reject and Accept too narrow for
+     their captions at the card's width. */
+  flex-wrap: wrap;
   /* stretch, not center: Reject and Accept share one width, so a caption
      long enough to wrap in one of them and not the other would leave the
      pair the same width and different heights. Captions are
@@ -235,12 +238,11 @@ html.light #iubenda-cs-banner .iubenda-cs-container {
   display: contents;
 }
 
-#iubenda-cs-banner .iubenda-cs-opt-group button:not(.dd-cs-more) {
+#iubenda-cs-banner .iubenda-cs-opt-group button:not(.dd-cs-more):not(.dd-cs-vendors) {
   /* Equal basis so Reject and Accept always match each other; shrinkable so
-     the controls never overflow the strip (on phones they wrap onto a
-     second line instead — see below). The show-more label is pinned to a
-     fixed width in iubendaBanner.ts, which is what keeps the toggle from
-     resizing these. */
+     the controls never overflow the strip. The text controls take the row's
+     first line (.dd-cs-links below), so the pair shares the second line with
+     the gear alone. */
   flex: 1 1 0;
   width: auto;
   min-width: 0;
@@ -351,7 +353,8 @@ html.light #iubenda-cs-banner .iubenda-cs-container {
     padding: 0 18px 8px;
   }
 
-  #iubenda-cs-banner .iubenda-cs-opt-group .dd-cs-more {
+  #iubenda-cs-banner .iubenda-cs-opt-group .dd-cs-more,
+  #iubenda-cs-banner .iubenda-cs-opt-group .dd-cs-vendors {
     padding-inline-end: 4px;
   }
 
@@ -361,7 +364,7 @@ html.light #iubenda-cs-banner .iubenda-cs-container {
     padding-right: 12px;
   }
 
-  #iubenda-cs-banner .iubenda-cs-opt-group button:not(.dd-cs-more) {
+  #iubenda-cs-banner .iubenda-cs-opt-group button:not(.dd-cs-more):not(.dd-cs-vendors) {
     min-height: 34px;
   }
 
@@ -388,15 +391,23 @@ html.light #iubenda-cs-banner .iubenda-cs-container {
   padding-bottom: 8px;
 }
 
-#iubenda-cs-banner .dd-cs-more {
+/* Show more and the vendor list: text controls, not choices, on a line of
+   their own so the pair below keeps the full width in every language. */
+#iubenda-cs-banner .dd-cs-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  align-self: center;
+  flex: 1 1 100%;
+  gap: 0 12px;
+}
+
+#iubenda-cs-banner .dd-cs-more,
+#iubenda-cs-banner .dd-cs-vendors {
   display: inline-flex;
   align-items: center;
-  /* Text control, not a choice — it should not grow with the pair. */
-  align-self: center;
-  flex: 0 1 auto;
   width: auto;
   margin: 0;
-  margin-inline-end: auto;
   /* min-height keeps the target over the 24px floor (WCAG 2.5.8) without
      growing the 28px strip */
   padding: 4px 8px 4px 0;
@@ -418,27 +429,14 @@ html.light #iubenda-cs-banner .iubenda-cs-container {
   display: none;
 }
 
-#iubenda-cs-banner .dd-cs-more:focus-visible {
+#iubenda-cs-banner .dd-cs-more:focus-visible,
+#iubenda-cs-banner .dd-cs-vendors:focus-visible {
   border-radius: 4px;
 }
 
 @media (max-width: 520px) {
   #iubenda-cs-banner.dd-cs-has-more .iubenda-banner-content {
     padding-bottom: 6px;
-  }
-
-  /* Wrap rather than clip: the pair shares one width, so the WIDEST label
-     decides whether both fit, and a single long word ("Zustimmen",
-     "Ablehnen") cannot break. Handing the show-more control its own line
-     returns the row enough width for the pair in all banner languages.
-     Must stay below `.dd-cs-more`'s base rule or source order voids it. */
-  #iubenda-cs-banner .iubenda-cs-opt-group {
-    flex-wrap: wrap;
-  }
-
-  #iubenda-cs-banner .dd-cs-more {
-    flex: 1 1 100%;
-    margin-inline-end: 0;
   }
 }
 
