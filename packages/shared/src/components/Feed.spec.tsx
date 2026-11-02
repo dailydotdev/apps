@@ -37,7 +37,10 @@ import {
   completeActionMock,
   mockGraphQL,
 } from '../../__tests__/helpers/graphql';
-import { settingsContext as baseSettingsContext } from '../../__tests__/helpers/boot';
+import {
+  defaultLogContextData,
+  settingsContext as baseSettingsContext,
+} from '../../__tests__/helpers/boot';
 import {
   ANONYMOUS_FEED_QUERY,
   FEED_V2_EXPLAIN_QUERY,
@@ -52,6 +55,7 @@ import {
   SET_FEED_TOPIC_MODE_MUTATION,
 } from '../features/feedExplain/graphql';
 import AuthContext from '../contexts/AuthContext';
+import { getLogContextStatic } from '../contexts/LogContext';
 import Feed from './Feed';
 import defaultFeedPage from '../../__tests__/fixture/feed';
 import defaultUser from '../../__tests__/fixture/loggedUser';
@@ -125,6 +129,8 @@ jest.mocked(useRouter).mockImplementation(
 );
 
 const showLogin = jest.fn();
+const logEvent = jest.fn();
+const LogContext = getLogContextStatic();
 let nextCallback: ((value: PostsEngaged) => unknown) | undefined;
 
 jest.mock('../hooks', () => {
@@ -320,18 +326,20 @@ function renderComponent(
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
-          <LazyModalElement />
-          <Toast autoDismissNotifications={false} />
-          <TopHeroSlotProvider>
-            <TopHeroSlotTarget />
-            <Feed
-              feedQueryKey={['feed']}
-              feedName={feedName}
-              query={query}
-              variables={variables}
-              {...feedProps}
-            />
-          </TopHeroSlotProvider>
+          <LogContext.Provider value={{ ...defaultLogContextData, logEvent }}>
+            <LazyModalElement />
+            <Toast autoDismissNotifications={false} />
+            <TopHeroSlotProvider>
+              <TopHeroSlotTarget />
+              <Feed
+                feedQueryKey={['feed']}
+                feedName={feedName}
+                query={query}
+                variables={variables}
+                {...feedProps}
+              />
+            </TopHeroSlotProvider>
+          </LogContext.Provider>
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
@@ -2127,6 +2135,67 @@ describe('Feed logged in', () => {
         { scroll: false, shallow: true },
       ),
     );
+  });
+
+  it("should mark a boosted post's click and go to link as an ad", async () => {
+    jest.mocked(useRouter).mockImplementation(
+      () =>
+        ({
+          pathname: '/',
+          asPath: '/',
+          query: {},
+          push: jest.fn().mockResolvedValue(true),
+          events: { on: jest.fn(), off: jest.fn(), emit: jest.fn() },
+        } as unknown as NextRouter),
+    );
+    nock('http://localhost:3000')
+      .persist()
+      .post('/graphql', (body: { query?: string }) =>
+        Boolean(body.query?.includes('mutation ViewPost(')),
+      )
+      .reply(200, { data: { viewPost: { _: true } } });
+    nock('http://localhost:3000')
+      .get(
+        '/v1/a?active=false&registered=true&gdpr=1&consent_exists=NONE_CONSENT',
+      )
+      .reply(200, [
+        {
+          ...ad,
+          data: {
+            post: {
+              ...defaultFeedPage.edges[0].node,
+              id: 'boosted-post',
+              title: 'A boosted post',
+            },
+          },
+        },
+      ]);
+    renderComponent();
+    const postEvent = (eventName: string) =>
+      logEvent.mock.calls
+        .map(([event]) => event)
+        .find(
+          (event) =>
+            event.event_name === eventName &&
+            event.target_id === 'boosted-post',
+        );
+
+    const [card] = await screen.findAllByLabelText('A boosted post');
+    fireEvent.click(card);
+    expect(JSON.parse(postEvent('click').extra)).toMatchObject({
+      is_ad: true,
+    });
+
+    const boostedItem = getRequiredValue(
+      card.closest<HTMLElement>('[data-testid="postItem"]'),
+      'Expected the boosted card',
+    );
+    fireEvent.click(
+      within(boostedItem).getByRole('link', { name: 'Read post' }),
+    );
+    expect(JSON.parse(postEvent('go to link').extra)).toMatchObject({
+      is_ad: true,
+    });
   });
 
   const createPostMock = (

@@ -52,13 +52,19 @@ export default function useFeedOnPostClick({
   return useMemo(
     () =>
       async (post, index, row, column, optional): Promise<void> => {
-        await onPostClick({ post, row, column, index, optional });
+        const item = items[index];
+        await onPostClick({
+          post,
+          row,
+          column,
+          index,
+          optional: { ...optional, is_ad: isBoostedPostAd(item) },
+        });
 
         if (optional?.skipPostUpdate) {
           return;
         }
 
-        const item = items[index];
         if (item.type === 'post') {
           updatePost(item.page, item.index, { ...post, read: true });
         } else if (isBoostedPostAd(item) && feedQueryKey) {
