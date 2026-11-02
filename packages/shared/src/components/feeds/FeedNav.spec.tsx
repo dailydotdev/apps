@@ -104,6 +104,10 @@ jest.mock('../../features/getApp/components/MobileAppActions', () => ({
   MobileAppActions: () => <div data-testid="visitor-actions" />,
 }));
 
+jest.mock('../auth/SignInStrip', () => ({
+  SignInStrip: () => <div data-testid="sign-in-strip" />,
+}));
+
 jest.mock('./MobileFeedActions', () => ({
   MobileFeedActions: () => <div data-testid="mobile-feed-actions" />,
   hideLoggedOutRowClassName: '-translate-y-10',
@@ -312,15 +316,32 @@ describe('FeedNav', () => {
     mockIsVisitorBar = false;
   });
 
-  it('gives a tablet visitor the sign-in pair on a page without feed tabs', () => {
+  it('gives a tablet visitor the sign-in strip on a page without feed tabs', () => {
     mockIsVisitorBar = true;
     mockUseActiveNav.mockReturnValue({ home: false, bookmarks: false });
     mockViewport({ isMobile: false, isBelowLaptop: true });
 
     render(<FeedNav />);
 
-    expect(screen.getByTestId('visitor-actions')).toBeInTheDocument();
+    expect(screen.getByTestId('sign-in-strip')).toBeInTheDocument();
     expect(screen.queryByRole('list')).not.toBeInTheDocument();
+    mockIsVisitorBar = false;
+  });
+
+  it('leaves a profile to its own bar on tablets', () => {
+    mockIsVisitorBar = true;
+    mockUseActiveNav.mockReturnValue({ home: false, bookmarks: false });
+    mockViewport({ isMobile: false, isBelowLaptop: true });
+    mockUseRouter.mockReturnValue({
+      asPath: '/rosiesherry',
+      pathname: '/[userId]',
+      query: {},
+      push: jest.fn(),
+    });
+
+    render(<FeedNav />);
+
+    expect(screen.queryByTestId('sign-in-strip')).not.toBeInTheDocument();
     mockIsVisitorBar = false;
   });
 
