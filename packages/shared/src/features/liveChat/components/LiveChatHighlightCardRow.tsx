@@ -5,7 +5,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import Link from '../../../components/utilities/Link';
 import { useLiveChatHighlight } from '../hooks/useLiveChatHighlight';
-import { formatTimeLeft } from '../timeLeft';
+import { formatEndsIn, formatOccupants } from '../timeLeft';
 import { LiveDot } from './LiveDot';
 import { LiveChatJoinChip } from './LiveChatHighlightRow';
 
@@ -31,9 +31,11 @@ export const LiveChatHighlightCardRow = ({
     return null;
   }
 
+  // The count and the clock only once they work for the room: a crowd, or
+  // an end close enough to hurry for.
   const meta = [
-    room.occupantCount != null && `${room.occupantCount} here`,
-    room.expiresAt && `ends in ${formatTimeLeft(room.expiresAt)}`,
+    formatOccupants(room.occupantCount),
+    formatEndsIn(room.expiresAt),
   ]
     .filter(Boolean)
     .join(' · ');
