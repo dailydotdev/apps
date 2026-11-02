@@ -82,11 +82,6 @@ export interface FeedControl<Mode> {
   expiresAt: string | null;
 }
 
-export interface FeedRankingValue {
-  key: string;
-  value: number;
-}
-
 /** How the reader steers For You: levels, learning and popular fill-ins. */
 export interface FeedControls {
   topics: ({ keyword: string } & FeedControl<FeedTopicMode>)[];
@@ -99,8 +94,6 @@ export interface FeedControls {
   } & FeedControl<FeedAuthorMode>)[];
   learning: boolean;
   fillIns: boolean;
-  /** The ranking settings the reader changed, which count with Plus. */
-  ranking: FeedRankingValue[];
 }
 
 /**
@@ -178,7 +171,9 @@ export interface FeedProfileInterest {
 }
 
 /** A ranking setting as For You ranks with it, and its value untouched. */
-export interface FeedProfileRankingSetting extends FeedRankingValue {
+export interface FeedProfileRankingSetting {
+  key: string;
+  value: number;
   defaultValue: number;
 }
 
@@ -189,21 +184,18 @@ export interface FeedProfile {
   /** Topics the reader turned off in For You. */
   muted: string[];
   blocked: string[];
-  /** Every ranking setting the reader can change, empty outside the cohort. */
+  /** The ranking settings For You ranks with, empty outside the cohort. */
   ranking: FeedProfileRankingSetting[];
 }
 
 /**
  * Changes to the controls on top of the stored ones, which the feed ranks
- * with while Tune is open. An
- * entry with neither a mode nor a weight is Auto, a ranking setting without
- * a value its default.
+ * with while Tune is open. An entry with neither a mode nor a weight is Auto.
  */
 export interface FeedControlsDraft {
   topics?: { keyword: string; mode?: FeedTopicMode; weight?: number }[];
   sources?: { sourceId: string; mode?: FeedSourceMode; weight?: number }[];
   authors?: { userId: string; mode?: FeedAuthorMode; weight?: number }[];
-  ranking?: { key: string; value?: number }[];
   learning?: boolean;
 }
 
@@ -211,7 +203,6 @@ export interface FeedControlsDraft {
 export enum FeedTuneTab {
   Topics = 'Topics',
   Sources = 'Sources and creators',
-  Ranking = 'Ranking',
 }
 
 /** What the What's off box makes of a complaint. */
@@ -264,7 +255,6 @@ export enum WhatsOffOp {
   Learning = 'learning',
   FillIns = 'fill_ins',
   Reset = 'reset',
-  Ranking = 'ranking',
   HidePosts = 'hide_posts',
 }
 
@@ -290,18 +280,12 @@ export interface WhatsOffChange {
   target?: WhatsOffTarget | null;
   /** The level of a topic, source or author. None is Auto. */
   mode?: FeedTopicMode | FeedSourceMode | FeedAuthorMode | null;
-  /**
-   * The format or kind of post, the blocked word, what to reset, or the
-   * ranking setting's key.
-   */
+  /** The format or kind of post, the blocked word, or what to reset. */
   value?: string | null;
   /** The advanced setting a format, kind of post or squads change toggles. */
   advancedSettingId?: number | null;
   /** Shown for a format, kind of post or squads, on for a switch. */
   enabled?: boolean | null;
-  /** A ranking setting's current value and the proposed one. */
-  from?: number | null;
-  to?: number | null;
   postIds?: string[] | null;
   /** How sure the pick of a line's main change is, 0 to 1. */
   certainty?: number | null;

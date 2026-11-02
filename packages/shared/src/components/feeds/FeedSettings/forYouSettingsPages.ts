@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { useRouter } from 'next/router';
 import type { IconProps } from '../../Icon';
 import { AddUserIcon } from '../../icons/AddUser';
@@ -8,17 +8,14 @@ import { FilterIcon } from '../../icons/Filter';
 import { HashtagIcon } from '../../icons/Hashtag';
 import { HomeIcon } from '../../icons/Home';
 import { MagicIcon } from '../../icons/Magic';
-import { SortIcon } from '../../icons/Sort';
 import { useModalContext } from '../../modals/common/types';
 import { settingsUrl } from '../../../lib/constants';
-import { useForYouControls } from '../../../features/feedExplain/useFeedExplainMode';
 import { FeedSettingsMenu } from './types';
 
 export type ForYouSettingsPageId =
   | FeedSettingsMenu.Overview
   | FeedSettingsMenu.Tags
   | FeedSettingsMenu.ContentSources
-  | FeedSettingsMenu.Ranking
   | FeedSettingsMenu.Filters
   | FeedSettingsMenu.AI
   | FeedSettingsMenu.General;
@@ -33,7 +30,6 @@ export const forYouSettingsTitle: Record<ForYouSettingsPageId, string> = {
   [FeedSettingsMenu.Overview]: 'Overview',
   [FeedSettingsMenu.Tags]: 'Topics',
   [FeedSettingsMenu.ContentSources]: 'Sources and creators',
-  [FeedSettingsMenu.Ranking]: 'Ranking',
   [FeedSettingsMenu.Filters]: 'Filters',
   [FeedSettingsMenu.AI]: 'AI superpowers',
   [FeedSettingsMenu.General]: 'General',
@@ -43,13 +39,13 @@ const pageIcons: Record<ForYouSettingsPageId, ForYouSettingsPage['icon']> = {
   [FeedSettingsMenu.Overview]: HomeIcon,
   [FeedSettingsMenu.Tags]: HashtagIcon,
   [FeedSettingsMenu.ContentSources]: AddUserIcon,
-  [FeedSettingsMenu.Ranking]: SortIcon,
   [FeedSettingsMenu.Filters]: FilterIcon,
   [FeedSettingsMenu.AI]: MagicIcon,
   [FeedSettingsMenu.General]: EditIcon,
 };
 
-const pages: ForYouSettingsPage[] = (
+/** For You's Feed settings pages, in menu order. */
+export const forYouSettingsPages: ForYouSettingsPage[] = (
   Object.keys(forYouSettingsTitle) as ForYouSettingsPageId[]
 ).map((id) => ({ id, title: forYouSettingsTitle[id], icon: pageIcons[id] }));
 
@@ -69,23 +65,7 @@ export const getForYouSettingsPage = (
   ) {
     return FeedSettingsMenu.Filters;
   }
-  return pages.find(({ id }) => id === menu)?.id;
-};
-
-/**
- * For You's Feed settings pages, in menu order. Ranking holds only the
- * ranking settings, so it shows only where For You ranks with them.
- */
-export const useForYouSettingsPages = (): ForYouSettingsPage[] => {
-  const { isAvailable } = useForYouControls();
-
-  return useMemo(
-    () =>
-      isAvailable
-        ? pages
-        : pages.filter(({ id }) => id !== FeedSettingsMenu.Ranking),
-    [isAvailable],
-  );
+  return forYouSettingsPages.find(({ id }) => id === menu)?.id;
 };
 
 /**

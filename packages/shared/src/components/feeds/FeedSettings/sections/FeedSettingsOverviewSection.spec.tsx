@@ -37,7 +37,6 @@ const controls: FeedControls = {
   authors: [],
   learning: true,
   fillIns: true,
-  ranking: [],
 };
 const profile: FeedProfile = {
   cohort: true,
@@ -105,7 +104,6 @@ describe('FeedSettingsOverviewSection', () => {
     expect(screen.queryByText('Learn from my reading')).not.toBeInTheDocument();
     expect(screen.queryByText('Start over')).not.toBeInTheDocument();
     expect(screen.queryByText('Connect your agent')).not.toBeInTheDocument();
-    expect(screen.queryByText('Ranking')).not.toBeInTheDocument();
   });
 
   it('should turn learning off', async () => {
@@ -170,7 +168,6 @@ describe('FeedSettingsOverviewSection', () => {
           learned: true,
           seen: false,
           levels: false,
-          ranking: false,
         },
       },
       result: () => {
@@ -201,7 +198,6 @@ describe('FeedSettingsOverviewSection', () => {
           learned: false,
           seen: false,
           levels: true,
-          ranking: false,
         },
       },
       result: () => {
@@ -245,7 +241,7 @@ describe('FeedSettingsOverviewSection', () => {
     mockGraphQL({
       request: {
         query: RESET_FEED_PERSONALIZATION_MUTATION,
-        variables: { learned: true, seen: true, levels: true, ranking: true },
+        variables: { learned: true, seen: true, levels: true },
       },
       result: () => {
         sent = true;

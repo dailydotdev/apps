@@ -67,7 +67,7 @@ const resetFlags: Record<string, FeedPersonalizationReset> = {
   learned: { learned: true },
   seen: { seen: true },
   levels: { levels: true },
-  everything: { learned: true, seen: true, levels: true, ranking: true },
+  everything: { learned: true, seen: true, levels: true },
 };
 
 // The control as it was, to undo to: its level or exact weight, or Auto.
@@ -464,23 +464,6 @@ export const useWhatsOffChange = (): UseWhatsOffChange => {
           // Nothing brings back what a reset forgets.
           return (await reset(flagsToReset)) ? {} : null;
         }
-        case WhatsOffOp.Ranking: {
-          const key = change.value;
-          const value = change.to;
-          if (!key || typeof value !== 'number') {
-            return refuse();
-          }
-          const previous =
-            controls?.ranking.find((setting) => setting.key === key)?.value ??
-            null;
-          if (!(await saveChange({ kind: ChangeKind.Ranking, key, value }))) {
-            return null;
-          }
-          return {
-            undo: () =>
-              saveChange({ kind: ChangeKind.Ranking, key, value: previous }),
-          };
-        }
         case WhatsOffOp.HidePosts: {
           const postIds = change.postIds ?? [];
           if (!postIds.length) {
@@ -516,7 +499,7 @@ export const useWhatsOffChange = (): UseWhatsOffChange => {
   );
 
   const isInEffect = useCallback(
-    ({ op, target, mode, enabled, value, to }: WhatsOffChange): boolean => {
+    ({ op, target, mode, enabled }: WhatsOffChange): boolean => {
       if (!controls) {
         return true;
       }
@@ -533,11 +516,6 @@ export const useWhatsOffChange = (): UseWhatsOffChange => {
           return controls.learning === !!enabled;
         case WhatsOffOp.FillIns:
           return controls.fillIns === !!enabled;
-        case WhatsOffOp.Ranking:
-          return (
-            controls.ranking.find((setting) => setting.key === value)?.value ===
-            to
-          );
         default:
           return true;
       }

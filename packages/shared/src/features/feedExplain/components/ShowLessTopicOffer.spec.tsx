@@ -34,7 +34,6 @@ const renderOffer = ({
     authors: [],
     learning: true,
     fillIns: true,
-    ranking: [],
   });
   client.setQueryData(getFeedSettingsQueryKey(defaultUser), {
     feedSettings: { blockedTags },
