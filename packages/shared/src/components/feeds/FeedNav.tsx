@@ -32,6 +32,7 @@ import { webappUrl } from '../../lib/constants';
 import NotificationsBell from '../notifications/NotificationsBell';
 import { useMobileAppHeader } from '../../features/getApp/hooks/useMobileAppHeader';
 import { MobileAppActions } from '../../features/getApp/components/MobileAppActions';
+import { SignInStrip } from '../auth/SignInStrip';
 import classed from '../../lib/classed';
 import type { AllFeedPages } from '../../lib/query';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
@@ -204,12 +205,15 @@ function FeedNav({
   if (withoutLayoutVariantPrefix(router?.pathname).startsWith('/posts/[id]')) {
     return null;
   }
-  // A tablet page without feed tabs or a back bar (a source, a profile, a
-  // directory) has no other place for a visitor's sign-in.
+  // A tablet page without feed tabs gets the sign-in strip the laptop shows,
+  // except where the page's own bar carries the pair (a profile).
   if (!shouldRenderNav) {
-    return isTablet && isMobileAppHeader ? (
-      <div className="sticky top-0 z-header flex h-12 items-center justify-end border-b border-border-subtlest-tertiary bg-background-default px-4">
-        <MobileAppActions />
+    const hasOwnBar = withoutLayoutVariantPrefix(router?.pathname).startsWith(
+      '/[userId]',
+    );
+    return isTablet && isMobileAppHeader && !hasOwnBar ? (
+      <div className="px-4 pt-4">
+        <SignInStrip />
       </div>
     ) : null;
   }
