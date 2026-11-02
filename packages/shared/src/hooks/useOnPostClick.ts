@@ -30,6 +30,7 @@ import { isBoostedPostAd } from './useFeed';
 interface PostClickOptionalProps {
   skipPostUpdate?: boolean;
   parent_id?: string;
+  is_ad?: boolean;
 }
 
 export type FeedPostClick = ({
@@ -121,6 +122,7 @@ export default function useOnPostClick({
             column,
             row,
             index,
+            is_ad: optional?.is_ad,
             extra: {
               ...feedLogExtra(
                 feedName ?? '',
