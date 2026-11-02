@@ -50,6 +50,7 @@ const renderBlock = (ui: React.ReactElement, pathname = '/') => {
     query: {},
     push: jest.fn(),
     back: jest.fn(),
+    events: { on: jest.fn(), off: jest.fn() },
   } as unknown as NextRouter);
 
   return render(

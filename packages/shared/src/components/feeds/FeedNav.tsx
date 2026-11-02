@@ -253,11 +253,6 @@ function FeedNav({
                 }
               />
             </div>
-            {showFeedActions && (
-              <FeedNavActionsWrapper className="!py-0">
-                {renderFeedActions(true)}
-              </FeedNavActionsWrapper>
-            )}
             {hasForYouSheet && (
               <ForYouSheet
                 title={FeedNavTab.ForYou}

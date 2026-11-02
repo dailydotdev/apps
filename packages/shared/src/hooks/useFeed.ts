@@ -4,7 +4,11 @@ import type {
   QueryKey,
   UseInfiniteQueryOptions,
 } from '@tanstack/react-query';
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  hashKey,
+  useInfiniteQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import type { ClientError } from 'graphql-request';
 import { useRouter } from 'next/router';
 import type { Ad, Post, PostsEngaged, PostType } from '../graphql/posts';
@@ -288,6 +292,18 @@ export interface UseFeedOptionalParams<T> {
   excludePinnedPosts?: boolean;
 }
 
+const adJitterSeeds = new Map<string, string>();
+
+export const getAdJitterSeed = (feedKey: string, hasData: boolean): string => {
+  const seed = adJitterSeeds.get(feedKey);
+  if (seed && hasData) {
+    return seed;
+  }
+  const next = Math.random().toString(36).slice(2);
+  adJitterSeeds.set(feedKey, next);
+  return next;
+};
+
 export default function useFeed<T>(
   feedQueryKey: QueryKey,
   pageSize: number,
@@ -534,13 +550,12 @@ export default function useFeed<T>(
   }, [showPromoBanner, indexWhenShowingPromoBanner]);
 
   const { fetchAd, isAdConsentReady } = useFetchAd(isAdsQueryEnabled);
-  // Per-mount random seed for ad jitter. Stable across re-renders/pagination
-  // (so ads don't visibly jump as new pages load) but varies across mounts and
-  // sessions, so the same user doesn't see ads in the same spots every visit.
-  const adJitterSeedRef = useRef<string>();
-  if (!adJitterSeedRef.current) {
-    adJitterSeedRef.current = Math.random().toString(36).slice(2);
-  }
+  // One random seed per feed load: stable across re-renders and pagination
+  // (so ads don't visibly jump as new pages load) and across the mounts that
+  // show the same cached feed (a return from a post must not move the ads),
+  // new on a fresh load and every session, so the same user doesn't see ads
+  // in the same spots every visit.
+  const adJitterSeed = getAdJitterSeed(hashKey(feedQueryKey), !!feedQuery.data);
   const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
   useCachedTokenRecovery({
     queryKey: adsQueryKey,
@@ -603,7 +618,7 @@ export default function useFeed<T>(
         adStart,
         adRepeat,
         adJitter,
-        seed: adJitterSeedRef.current ?? '',
+        seed: adJitterSeed,
       });
 
       if (slot === undefined) {
@@ -652,6 +667,7 @@ export default function useFeed<T>(
       adTemplate?.adStart,
       adTemplate?.adRepeat,
       adTemplate?.adJitter,
+      adJitterSeed,
       adsUpdatedAt,
       pageSize,
       settings?.skipFirstAd,
