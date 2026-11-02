@@ -10,6 +10,7 @@ import {
 import { field } from '../../../components/shell/constants';
 import { useIsPhone } from '../../../hooks/useViewSize';
 import { useReading } from '../../../components/shell/readingStore';
+import { RootPortal } from '../../../components/tooltips/Portal';
 import { ChatRoomStatus } from '../graphql';
 import { postChatRoomQueryOptions } from '../queries';
 import { LiveChatPanel } from './LiveChatPanel';
@@ -21,7 +22,9 @@ import { LiveDot } from './LiveDot';
 // its slot when there is none) and moves with it, so it never covers the
 // upvote, comment and share actions. `bottom` is not transitioned, so it
 // holds the resting offset and the capsule's height change while reading
-// rides on the transform, which is.
+// rides on the transform, which is. The pill is drawn at the root, outside
+// the page's flow: a fixed element inside a page piece makes the reading
+// drawer split that piece, and it arrives as the post is being lifted.
 export const LiveChatMobileEntry = ({
   postId,
   origin,
@@ -54,7 +57,7 @@ export const LiveChatMobileEntry = ({
   }
 
   return (
-    <>
+    <RootPortal>
       {(!isReading || isPostUp) && (
         <button
           type="button"
@@ -105,6 +108,6 @@ export const LiveChatMobileEntry = ({
           />
         </Drawer>
       )}
-    </>
+    </RootPortal>
   );
 };
