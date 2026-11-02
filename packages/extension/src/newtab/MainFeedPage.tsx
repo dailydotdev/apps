@@ -227,7 +227,7 @@ const MainFeedPageInner = ({
               shortcuts={
                 isLaptopLayout
                   ? undefined
-                  : loginStrip ??
+                  : (loginStrip && <div className="mx-4">{loginStrip}</div>) ??
                     (isShortcutsHidden ? undefined : (
                       <ShortcutLinks
                         shouldUseListFeedLayout={shouldUseListFeedLayout}

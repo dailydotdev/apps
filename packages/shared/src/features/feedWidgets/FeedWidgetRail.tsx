@@ -558,7 +558,7 @@ export const FeedWidgetRail = ({
                       'flex min-h-0 snap-start',
                       // The grid's own row gap, so the tip sits off the ad
                       // as every widget sits off its neighbour.
-                      showTip && 'flex-col gap-6',
+                      showTip && 'flex-col gap-4 laptop:gap-6',
                     )}
                     style={gridArea(placement)}
                     aria-label="Sponsored, pinned"
