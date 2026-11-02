@@ -238,7 +238,7 @@ html.light #iubenda-cs-banner .iubenda-cs-container {
   display: contents;
 }
 
-#iubenda-cs-banner .iubenda-cs-opt-group button:not(.dd-cs-more):not(.dd-cs-vendors) {
+#iubenda-cs-banner .iubenda-cs-opt-group button:not(.dd-cs-more, .dd-cs-vendors) {
   /* Equal basis so Reject and Accept always match each other; shrinkable so
      the controls never overflow the strip. The text controls take the row's
      first line (.dd-cs-links below), so the pair shares the second line with
@@ -364,7 +364,7 @@ html.light #iubenda-cs-banner .iubenda-cs-container {
     padding-right: 12px;
   }
 
-  #iubenda-cs-banner .iubenda-cs-opt-group button:not(.dd-cs-more):not(.dd-cs-vendors) {
+  #iubenda-cs-banner .iubenda-cs-opt-group button:not(.dd-cs-more, .dd-cs-vendors) {
     min-height: 34px;
   }
 
@@ -438,6 +438,16 @@ html.light #iubenda-cs-banner .iubenda-cs-container {
   #iubenda-cs-banner.dd-cs-has-more .iubenda-banner-content {
     padding-bottom: 6px;
   }
+}
+
+/* iubenda's preferences modal keeps its own styles, with one repair: its TCF
+   vendor panel scrolls inside #iub-cmp-widget, a flex child that relies on
+   the default flex-shrink, and base.css resets every element to
+   `flex-shrink: 0`. Unrepaired, the panel grows to the height of the whole
+   vendor list and nothing scrolls, so the vendors are out of reach. */
+#iubenda-iframe #iub-cmp-widget {
+  flex-shrink: 1;
+  min-height: 0;
 }
 
 /* Phones (the shell, under the tablet breakpoint): the marketing card as on
