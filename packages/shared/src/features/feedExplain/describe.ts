@@ -22,9 +22,9 @@ import {
 } from './types';
 import { formatUntil } from './duration';
 
-// The lane the challenger ranks; the others (coldstart, popular) top up a
-// short page.
-export const challengerLane = 'chal';
+// The lanes that top up a page For You's ranking couldn't fill: coldstart
+// and popular.
+const fillInLanes = ['cs', 'po'];
 
 /** What put a card on the page, for the dot beside its reason. */
 enum ReasonCategory {
@@ -42,7 +42,7 @@ const reasonDotClassName: Record<ReasonCategory, string> = {
 };
 
 const isFillIn = (explain: FeedItemExplain | null | undefined): boolean =>
-  !!explain && explain.lane !== challengerLane;
+  !!explain && !isRankedExplain(explain) && fillInLanes.includes(explain.lane);
 
 const isSourceFollow = (explain: RankedExplain): boolean =>
   explain.follow.kind === ExplainFollowKind.Source ||
@@ -490,13 +490,23 @@ const hasEffect = ({ multiplier }: ScoreFactor): boolean =>
 export const getScoreBreakdown = (
   explain: RankedExplain,
 ): ScoreBreakdownParts => {
-  const { score, base, match, follow, age, seen, slot } = explain;
+  const { score, base, match, follow, age, seen, slot, explore } = explain;
+  const cautious = base.optimism && base.cautious;
   const multipliers: ScoreFactor[] = [
     {
       label: 'Engagement',
-      hint: 'How much other readers clicked, upvoted, and commented on this post, compared with a typical post.',
-      multiplier: base.value,
+      hint: "How much readers clicked, upvoted, and commented on this post, compared with a typical post. A post with little engagement yet also counts its source's track record.",
+      multiplier: cautious || base.value,
     },
+    ...(cautious
+      ? [
+          {
+            label: 'New post',
+            hint: "A lift toward how well a new post could do, since it hasn't had time to collect engagement. It fades as the post gets older.",
+            multiplier: base.value / cautious,
+          },
+        ]
+      : []),
     {
       label: 'Topic match',
       hint: 'How close the post is to the topics you follow and read.',
@@ -514,9 +524,20 @@ export const getScoreBreakdown = (
     },
     {
       label: 'Seen before',
-      hint: "Moves the post down if you've already seen it in your feed.",
+      hint: seen.passive_shows
+        ? "Moves the post down if it was already in your feed, including times it loaded in a tab you didn't look at."
+        : "Moves the post down if you've already seen it in your feed.",
       multiplier: seen.factor,
     },
+    ...(explore
+      ? [
+          {
+            label: 'Random nudge',
+            hint: 'A small random change, so your feed sometimes tries a post it would rank just below.',
+            multiplier: explore,
+          },
+        ]
+      : []),
     ...(slot
       ? [
           {
@@ -551,19 +572,25 @@ export const getScoreBreakdown = (
   const recorded = slot?.pick_score ?? score;
   const finalScore = recorded > 0 ? recorded : explained;
 
-  // The exploration draw and the fresh slot's own scale move the recorded
-  // score without a factor of their own; the gap gets its row, past what
-  // the factors' 3-decimal rounding leaves.
+  // The spot saved for a new post scores on its own scale, and an older
+  // record may miss a factor; the gap gets its row, past what the factors'
+  // 3-decimal rounding leaves.
   const gap = finalScore / explained;
   const moved = [
     ...known,
     ...(Math.abs(Math.log(gap)) >= 0.01
       ? [
-          {
-            label: 'Other adjustments',
-            hint: 'Everything else, like a bit of randomness and a spot saved for brand-new posts.',
-            multiplier: gap,
-          },
+          slot?.fresh
+            ? {
+                label: 'Spot for new posts',
+                hint: 'Your feed saves a spot for a brand-new post, ranked on how well it could do, and this post took it.',
+                multiplier: gap,
+              }
+            : {
+                label: 'Other adjustments',
+                hint: "Anything else that moved the post that the rows above don't cover.",
+                multiplier: gap,
+              },
         ]
       : []),
   ].filter(hasEffect);
