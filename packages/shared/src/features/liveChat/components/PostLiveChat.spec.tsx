@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PostLiveChat } from './PostLiveChat';
 import { useLiveChatEnabled } from '../hooks/useLiveChatEnabled';
@@ -10,6 +10,10 @@ import { ChatRoomStatus, getPostChatRoom } from '../graphql';
 import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { field } from '../../../components/shell/constants';
+import {
+  setReadingOpen,
+  setReadingUp,
+} from '../../../components/shell/readingStore';
 
 jest.mock('../hooks/useLiveChatEnabled', () => ({
   useLiveChatEnabled: jest.fn(),
@@ -89,6 +93,24 @@ describe('PostLiveChat on a phone', () => {
     } as unknown as ReturnType<typeof useAuthContext>);
     jest.mocked(getPostChatRoom).mockResolvedValue(room);
     jest.mocked(usePostCapsulePosition).mockReturnValue(atRest);
+  });
+
+  it('stays out of the way while the article is behind the post, and returns once the post is up', async () => {
+    act(() => setReadingOpen(true, 'https://blog.example.com/post'));
+    renderPill(true);
+
+    await act(async () => {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 0);
+      });
+    });
+    expect(
+      screen.queryByRole('button', { name: /Live chat/ }),
+    ).not.toBeInTheDocument();
+
+    act(() => setReadingUp(true));
+    expect(await pill()).toBeInTheDocument();
+    act(() => setReadingOpen(false));
   });
 
   it('stands one gap above the action capsule on the post page', async () => {

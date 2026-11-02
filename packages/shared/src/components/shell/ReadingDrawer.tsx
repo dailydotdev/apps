@@ -45,6 +45,7 @@ import {
   isShareLink,
   requestReadingClose,
   setReadingOpen,
+  setReadingUp,
   supportsReading,
   takeReadingOpen,
   updateReadingArticle,
@@ -329,22 +330,51 @@ export function ReadingDrawer({
     window.scrollTo(0, 0);
     let current = measure(headElement, probe);
     geometry.current = current;
-    const moving = [...flowParts(page), headElement];
+    // The page's flow pieces and the head travel together. The page can
+    // swap its content while the drawer is open (a post arrived at from a
+    // feed card draws its loading page first), so the pieces are looked up
+    // again when they change, and whatever the drawer is showing is put on
+    // the new ones too.
+    type MovingStyle = Partial<
+      Record<'transform' | 'transition' | 'will-change', string | null>
+    >;
+    let moving: HTMLElement[] = [];
+    const shown: MovingStyle = {};
+    const applyStyle = (element: HTMLElement, props: MovingStyle) =>
+      Object.entries(props).forEach(([name, value]) => {
+        if (value === null || value === undefined) {
+          element.style.removeProperty(name);
+        } else {
+          element.style.setProperty(name, value);
+        }
+      });
+    const refreshMoving = () => {
+      const next = [...flowParts(page), headElement];
+      if (
+        next.length === moving.length &&
+        next.every((element, index) => element === moving[index])
+      ) {
+        return;
+      }
+      moving = next;
+      moving.forEach((element) => applyStyle(element, shown));
+    };
+    refreshMoving();
+    const pageChanges = new MutationObserver(refreshMoving);
+    pageChanges.observe(page, { childList: true, subtree: true });
+    const styleMoving = (props: MovingStyle) => {
+      Object.assign(shown, props);
+      moving.forEach((element) => applyStyle(element, props));
+    };
     const base = () => (layout === 'full' ? current.full : current.card);
     // The rubber band at the page's top is not the drawer coming down.
     const restingY = () =>
       layout === 'full' ? current.full + Math.max(0, window.scrollY) : restY;
     const clearMoving = () =>
-      moving.forEach(({ style }) => {
-        style.removeProperty('transform');
-        style.removeProperty('transition');
-        style.removeProperty('will-change');
-      });
+      styleMoving({ transform: null, transition: null, 'will-change': null });
     const present = (y: number) => {
       const shift = Math.round(base() - y);
-      moving.forEach(({ style }) =>
-        style.setProperty('transform', `translateY(${shift}px)`),
-      );
+      styleMoving({ transform: `translateY(${shift}px)` });
     };
 
     // The wrapper hands touches above the drawer to the article only while
@@ -397,6 +427,7 @@ export function ReadingDrawer({
         : lifted > liftHold;
       const full = layout === 'full';
       root.classList.toggle('reading-up', up);
+      setReadingUp(up);
       root.classList.toggle('reading-rising', riseAmount > 0);
       root.classList.toggle('reading-past', y > current.full + head);
       const boundary = up || hasOpenLayer() ? null : current.edge - controls;
@@ -477,19 +508,15 @@ export function ReadingDrawer({
     arrived.current = false;
     if (lift !== 0) {
       root.classList.add('reading-opening');
-      moving.forEach(({ style }) => {
-        Object.assign(style, {
-          transition: 'none',
-          transform: `translateY(${-lift}px)`,
-          willChange: 'transform',
-        });
+      styleMoving({
+        transition: 'none',
+        transform: `translateY(${-lift}px)`,
+        'will-change': 'transform',
       });
       headElement.getBoundingClientRect();
-      moving.forEach(({ style }) => {
-        Object.assign(style, {
-          transition: `transform ${openDuration}ms var(--shell-ease-travel)`,
-          transform: 'translateY(0)',
-        });
+      styleMoving({
+        transition: `transform ${openDuration}ms var(--shell-ease-travel)`,
+        transform: 'translateY(0)',
       });
       opening = window.setTimeout(() => {
         land();
@@ -530,6 +557,7 @@ export function ReadingDrawer({
     };
     const glideTo = (target: number, onEnd?: () => void) => {
       const from = virtualY ?? restingY();
+      refreshMoving();
       dropGlide();
       if (Math.abs(target - from) < 1) {
         settleAt(target);
@@ -538,11 +566,9 @@ export function ReadingDrawer({
       }
       glideTarget = target;
       afterGlide = onEnd;
-      moving.forEach(({ style }) => {
-        Object.assign(style, {
-          transition: `transform ${motion.snap}ms var(--shell-ease-travel)`,
-          willChange: 'transform',
-        });
+      styleMoving({
+        transition: `transform ${motion.snap}ms var(--shell-ease-travel)`,
+        'will-change': 'transform',
       });
       present(target);
       const started = performance.now();
@@ -591,6 +617,7 @@ export function ReadingDrawer({
     };
     const onTouchStart = (event: TouchEvent) => {
       dragging = true;
+      refreshMoving();
       landGlide();
       if (opening && !closing) {
         land();
@@ -635,10 +662,7 @@ export function ReadingDrawer({
           startY: touch.clientY,
           samples: [],
         };
-        moving.forEach(({ style }) => {
-          style.removeProperty('transition');
-          style.setProperty('will-change', 'transform');
-        });
+        styleMoving({ transition: null, 'will-change': 'transform' });
       }
       event.preventDefault();
       const moved = held.startY - touch.clientY;
@@ -691,12 +715,10 @@ export function ReadingDrawer({
         return;
       }
       root.classList.add('reading-opening', 'reading-closing');
-      moving.forEach(({ style }) => {
-        Object.assign(style, {
-          transition: `transform ${openDuration}ms var(--shell-ease-travel)`,
-          transform: `translateY(${shift}px)`,
-          willChange: 'transform',
-        });
+      styleMoving({
+        transition: `transform ${openDuration}ms var(--shell-ease-travel)`,
+        transform: `translateY(${shift}px)`,
+        'will-change': 'transform',
       });
       opening = window.setTimeout(() => requestReadingClose(), openDuration);
     };
@@ -800,6 +822,7 @@ export function ReadingDrawer({
       window.removeEventListener(ReadingEvent.State, onArticleState);
       window.removeEventListener(ReadingEvent.Link, onArticleLink);
       document.removeEventListener('click', onClick);
+      pageChanges.disconnect();
       postReading(ReadingAction.Close);
       // How long the article was read, and how the member came back: the
       // reactions made meanwhile carry reading_drawer from the post page.

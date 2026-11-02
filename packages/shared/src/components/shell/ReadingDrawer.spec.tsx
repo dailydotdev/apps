@@ -247,4 +247,36 @@ describe('ReadingDrawer', () => {
     expect(swipe({ clientX: 160, clientY: 490 })).toBe(true);
     expect(swipe({ clientX: 102, clientY: 450 })).toBe(false);
   });
+
+  it('keeps moving the page after its content was swapped under the drawer', () => {
+    withReadingBridge();
+    renderPostPage();
+    // The shell's layout: the bar lives inside main, so the pieces that
+    // travel are main's other children, which a page swap replaces.
+    const layout = document.createElement('div');
+    layout.className = 'shell-layout';
+    const main = document.createElement('main');
+    const cluster = document.createElement('div');
+    cluster.className = 'shell-cluster';
+    const loading = document.createElement('div');
+    main.append(loading, cluster);
+    layout.appendChild(main);
+    document.body.appendChild(layout);
+    fireEvent.click(screen.getByText('Read post'));
+
+    const arrived = document.createElement('article');
+    arrived.textContent = 'The post, once its page has loaded';
+    act(() => {
+      loading.remove();
+      main.insertBefore(arrived, cluster);
+    });
+
+    fireEvent.touchStart(window, { touches: [{ clientX: 100, clientY: 500 }] });
+    fireEvent.touchMove(window, { touches: [{ clientX: 102, clientY: 420 }] });
+
+    expect(arrived.style.transform).toMatch(/translateY\(-?\d+px\)/);
+    fireEvent.touchEnd(window, { touches: [] });
+    act(() => setReadingOpen(false));
+    layout.remove();
+  });
 });

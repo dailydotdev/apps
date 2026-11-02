@@ -9,6 +9,7 @@ import {
 } from '../../../components/post/PostCapsule';
 import { field } from '../../../components/shell/constants';
 import { useIsPhone } from '../../../hooks/useViewSize';
+import { useReading } from '../../../components/shell/readingStore';
 import { ChatRoomStatus } from '../graphql';
 import { postChatRoomQueryOptions } from '../queries';
 import { LiveChatPanel } from './LiveChatPanel';
@@ -37,6 +38,9 @@ export const LiveChatMobileEntry = ({
   const { user } = useAuthContext();
   const isPhone = useIsPhone();
   const capsule = usePostCapsulePosition();
+  // While the article is behind the post, the drawer's controls own that
+  // band; the pill comes back once the post is lifted over the article.
+  const { open: isReading, up: isPostUp } = useReading();
   const capsuleOffset = hasCapsule ? field.rest + field.gap : 0;
   const capsuleShrink = hasCapsule ? field.rest - capsule.height : 0;
   const [isOpen, setIsOpen] = useState(false);
@@ -45,7 +49,7 @@ export const LiveChatMobileEntry = ({
   );
   const isLive = room?.status === ChatRoomStatus.Active;
 
-  if (isPending || (!isLive && !canStart)) {
+  if (isPending || (!isLive && !canStart) || (isReading && !isPostUp)) {
     return null;
   }
 

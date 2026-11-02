@@ -20,6 +20,8 @@ export interface ReadingArticle {
 export interface ReadingState {
   open: boolean;
   article: ReadingArticle;
+  // The post is lifted off the card, clearly above the article.
+  up?: boolean;
 }
 
 export enum ReadingAction {
@@ -106,6 +108,13 @@ export const hasOpenLayer = (): boolean =>
 
 export const setReadingOpen = (open: boolean, url?: string): void =>
   set(open ? { open, article: { url } } : closed);
+
+export const setReadingUp = (up: boolean): void => {
+  if (!state.open || !!state.up === up) {
+    return;
+  }
+  set({ ...state, up });
+};
 
 export const updateReadingArticle = (article: ReadingArticle): void => {
   if (!state.open) {
