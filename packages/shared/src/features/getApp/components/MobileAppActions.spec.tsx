@@ -112,12 +112,25 @@ describe('MobileAppActions', () => {
   it.each([
     ['iOS', () => mockIsIOSNative.mockReturnValue(true), {}],
     ['Android', () => undefined, { isAndroidApp: true }],
-  ])('should never ask the %s app to open the app', (_, arrange, auth) => {
-    arrange();
-    renderComponent(auth);
+  ])(
+    'should offer the %s app visitor Sign up instead of Open app',
+    async (_, arrange, auth) => {
+      arrange();
+      renderComponent(auth);
 
-    expect(screen.queryByText('Open app')).not.toBeInTheDocument();
-  });
+      expect(screen.queryByText('Open app')).not.toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Log in' }),
+      ).toBeInTheDocument();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Sign up' }));
+
+      expect(showLogin).toHaveBeenCalledWith({
+        trigger: AuthTriggers.MainButton,
+        options: { isLogin: false },
+      });
+    },
+  );
 
   describe('post bar Read button', () => {
     const renderIconOnlyRead = (

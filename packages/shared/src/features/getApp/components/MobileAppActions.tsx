@@ -11,6 +11,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { AuthTriggers } from '../../../lib/auth';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 import { getAppDownloadUrl } from '../appStoreLinks';
+import { usePhoneBrowser } from '../hooks/usePhoneBrowser';
 
 export const openAppUrl = getAppDownloadUrl('mobile_header');
 
@@ -21,22 +22,25 @@ interface MobileAppActionsProps {
   isFloating?: boolean;
 }
 
+// Beside Log in, a browser tab offers the app; inside the app (or an
+// installed PWA) there is no app to offer, so the second button is Sign up.
 export function MobileAppActions({
   className,
   isFloating = false,
 }: MobileAppActionsProps): ReactElement {
   const { logEvent } = useLogContext();
   const { showLogin } = useAuthContext();
+  const isPhoneBrowser = usePhoneBrowser();
 
-  const onLogin = () => {
+  const onAuth = (isLogin: boolean) => () => {
     logEvent({
       event_name: LogEvent.Click,
-      target_type: TargetType.LoginButton,
+      target_type: isLogin ? TargetType.LoginButton : TargetType.SignupButton,
       target_id: TargetId.MobileHeader,
     });
     showLogin({
       trigger: AuthTriggers.MainButton,
-      options: { isLogin: true },
+      options: { isLogin },
     });
   };
 
@@ -55,19 +59,30 @@ export function MobileAppActions({
         variant={ButtonVariant.Tertiary}
         size={ButtonSize.Small}
         className={isFloating ? 'shell-material' : undefined}
-        onClick={onLogin}
+        onClick={onAuth(true)}
       >
         Log in
       </Button>
-      <Button
-        tag="a"
-        href={openAppUrl}
-        variant={ButtonVariant.Primary}
-        size={ButtonSize.Small}
-        onClick={onOpenApp}
-      >
-        Open app
-      </Button>
+      {isPhoneBrowser ? (
+        <Button
+          tag="a"
+          href={openAppUrl}
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Small}
+          onClick={onOpenApp}
+        >
+          Open app
+        </Button>
+      ) : (
+        <Button
+          type="button"
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Small}
+          onClick={onAuth(false)}
+        >
+          Sign up
+        </Button>
+      )}
     </span>
   );
 }

@@ -1,12 +1,14 @@
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useMedia } from '../../../hooks/useMedia';
-import { usePhoneBrowser } from './usePhoneBrowser';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 
+// A phone visitor's sign-in lives in the page bar, in a browser tab and
+// inside the apps alike; the bar's second button is what differs.
 export const useMobileAppHeader = (): boolean => {
-  const { isLoggedIn } = useAuthContext();
-  const isPhoneBrowser = usePhoneBrowser();
+  const { isAuthReady, isLoggedIn } = useAuthContext();
+  const isTablet = useViewSize(ViewSize.Tablet);
 
-  return isPhoneBrowser && !isLoggedIn;
+  return isAuthReady && !isTablet && !isLoggedIn;
 };
 
 // Below 360px the post bar can't hold the Read label ("Watch video" is the
