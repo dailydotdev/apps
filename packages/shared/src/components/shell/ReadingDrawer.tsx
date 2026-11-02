@@ -43,7 +43,7 @@ import {
   hasOpenLayer,
   isOutsideLink,
   isShareLink,
-  requestReadingClose,
+  closeReading,
   setReadingOpen,
   setReadingUp,
   supportsReading,
@@ -168,7 +168,7 @@ export function ReadingDrawer({
   // data (a production route) must open the drawer before its first frame.
   const isPhone = useIsPhoneNow();
   const { value: isOptedOut } = useSettingsBooleanFlag('openLinksInAppOptOut');
-  const { open, article } = useReading();
+  const { open, article, fromFeed } = useReading();
   const [isAvailable, setIsAvailable] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [, copyLink] = useCopyLink();
@@ -215,15 +215,16 @@ export function ReadingDrawer({
         extra: JSON.stringify({ origin }),
       });
       postReading(ReadingAction.Open, { url, postId: post.id });
-      setReadingOpen(true, url);
+      setReadingOpen(true, url, arrived.current);
     },
     [post.id, logEvent],
   );
 
   // One history entry of its own, so back closes the drawer before it
-  // leaves the post.
+  // leaves the post. Not from a feed card: the member never chose the post
+  // page, so back leaves it for the feed, article and all.
   useCloseOnBack({
-    enabled: open,
+    enabled: open && !fromFeed,
     onBack: () => setReadingOpen(false),
   });
 
@@ -764,7 +765,7 @@ export function ReadingDrawer({
         ? 0
         : window.scrollY - (returnTo.current + pageTop() - before);
       if (!shift) {
-        requestReadingClose();
+        closeReading();
         return;
       }
       root.classList.add('reading-opening', 'reading-closing');
@@ -773,7 +774,7 @@ export function ReadingDrawer({
         transform: `translateY(${shift}px)`,
         'will-change': 'transform',
       });
-      opening = window.setTimeout(() => requestReadingClose(), openDuration);
+      opening = window.setTimeout(closeReading, openDuration);
     };
 
     // Reading down the article folds the title line away; a nudge up
@@ -820,7 +821,7 @@ export function ReadingDrawer({
       if (url) {
         linkAfterClose.current = url;
         closedBy.current = CloseReason.Link;
-        requestReadingClose();
+        closeReading();
       }
     };
     // A tap on the dimmed page puts the post back down.
