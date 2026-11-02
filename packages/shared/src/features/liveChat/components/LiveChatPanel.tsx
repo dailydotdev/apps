@@ -27,12 +27,12 @@ const failureCopy: Record<RoomJoinFailure, string> = {
 export type LiveChatPanelProps = {
   postId: string;
   origin: string;
-  // The post can host a chat that nobody opened yet.
+  // The viewer may open the chat when nobody has yet (the daily.dev team).
   canStart: boolean;
-  // Why it can: the copy says so when the post is trending.
-  isTrending?: boolean;
-  // A sheet is already a dialog; a rail panel draws its own frame.
-  variant?: 'rail' | 'sheet';
+  // A sheet is already a dialog; a rail panel draws its own frame; the
+  // inline block under a post draws a louder one, since it has to be seen
+  // on the way to the comments.
+  variant?: 'rail' | 'sheet' | 'inline';
   className?: string;
   // Reports whether there is anything to show, so a rail can drop the slot.
   onVisibilityChange?: (isVisible: boolean) => void;
@@ -46,7 +46,6 @@ export const LiveChatPanel = ({
   postId,
   origin,
   canStart,
-  isTrending = false,
   variant = 'rail',
   className,
   onVisibilityChange,
@@ -96,11 +95,16 @@ export const LiveChatPanel = ({
   } else if (isOpen) {
     emptyCopy = 'Join to see what people are saying.';
   }
-  let startCopy = 'Open a live chat about this post.';
+  const isInline = variant === 'inline';
+  let startCopy = 'Open a live chat about this post for everyone to join.';
   if (isOpen) {
-    startCopy = 'Jump in while it is hot.';
-  } else if (isTrending) {
-    startCopy = 'This post is trending. Open a live chat about it.';
+    startCopy = isInline
+      ? 'People are talking about this post right now. Jump in while it is on.'
+      : 'Jump in while it is hot.';
+  }
+  let heading = 'Live chat';
+  if (isInline && isOpen) {
+    heading = 'Live chat is on for this post';
   }
   let subtitle = 'Open for 24 hours, then gone';
   if (hasEnded) {
@@ -108,6 +112,9 @@ export const LiveChatPanel = ({
   } else if (isOpen && timeLeft) {
     subtitle = `Ends in ${timeLeft} · nothing is saved`;
   }
+  // Under a post the block is an invitation first: until the viewer joins
+  // there is no empty list to scroll past, only the room and the way in.
+  const showMessages = !isInline || isJoined;
 
   return (
     <section
@@ -116,35 +123,76 @@ export const LiveChatPanel = ({
         'flex min-h-0 flex-col bg-background-default',
         variant === 'rail' &&
           'overflow-hidden rounded-16 border border-border-subtlest-tertiary',
+        isInline &&
+          'live-chat-frame overflow-hidden rounded-16 border border-brand-default',
         className,
       )}
     >
-      <header className="flex flex-col gap-1 border-b border-border-subtlest-tertiary px-3 py-2.5">
+      <header
+        className={classNames(
+          'flex flex-col gap-1 px-3 py-2.5',
+          isInline ? 'px-4 py-3' : 'border-b border-border-subtlest-tertiary',
+          isInline &&
+            showMessages &&
+            'border-b border-border-subtlest-tertiary',
+        )}
+      >
         <div className="flex items-center gap-2">
-          <LiveDot isLive={isOpen} />
-          <h3 className="font-bold typo-callout">Live chat</h3>
+          <LiveDot
+            isLive={isOpen}
+            className={isInline ? 'size-2.5' : undefined}
+          />
+          <h3
+            className={classNames(
+              'font-bold',
+              isInline ? 'typo-title3' : 'typo-callout',
+            )}
+          >
+            {heading}
+          </h3>
           {isOpen && room?.occupantCount != null && (
-            <span className="ml-auto text-text-tertiary typo-caption1">
+            <span
+              className={classNames(
+                'ml-auto',
+                isInline
+                  ? 'rounded-10 bg-brand-float px-2 py-0.5 font-bold text-brand-default typo-footnote'
+                  : 'text-text-tertiary typo-caption1',
+              )}
+            >
               {room.occupantCount} here
             </span>
           )}
         </div>
-        <p className="text-text-tertiary typo-caption1">{subtitle}</p>
+        <p
+          className={classNames(
+            'text-text-tertiary',
+            isInline ? 'typo-footnote' : 'typo-caption1',
+          )}
+        >
+          {subtitle}
+        </p>
       </header>
 
-      <LiveChatMessageList
-        messages={messages}
-        typingUserIds={typingUserIds}
-        people={people}
-        usernames={usernames}
-        viewerId={user?.id}
-        viewerUsername={user?.username}
-        onReact={isJoined ? react : undefined}
-        emptyCopy={emptyCopy}
-        // In a sheet the list takes whatever the keyboard leaves, so it must
-        // shrink; a minimum here would push the composer out of view.
-        className={variant === 'sheet' ? 'min-h-0' : 'min-h-[16rem]'}
-      />
+      {showMessages && (
+        <LiveChatMessageList
+          messages={messages}
+          typingUserIds={typingUserIds}
+          people={people}
+          usernames={usernames}
+          viewerId={user?.id}
+          viewerUsername={user?.username}
+          onReact={isJoined ? react : undefined}
+          emptyCopy={emptyCopy}
+          // In a sheet the list takes whatever the keyboard leaves, so it must
+          // shrink; a minimum here would push the composer out of view. Under
+          // a post it is capped so the comments stay within reach.
+          className={classNames(
+            variant === 'sheet' && 'min-h-0',
+            variant === 'rail' && 'min-h-[16rem]',
+            isInline && 'max-h-[26rem] min-h-[14rem]',
+          )}
+        />
+      )}
 
       {isJoined ? (
         <LiveChatComposer
@@ -157,32 +205,51 @@ export const LiveChatPanel = ({
         />
       ) : (
         !hasEnded && (
-          <div className="flex flex-col gap-2 border-t border-border-subtlest-tertiary bg-surface-float px-3 py-3">
+          <div
+            className={classNames(
+              'flex flex-col gap-2 px-3 py-3',
+              isInline
+                ? 'px-4 pb-4 pt-1'
+                : 'border-t border-border-subtlest-tertiary bg-surface-float',
+            )}
+          >
             {status === 'failed' && failure && (
               <p className="text-status-error typo-caption1">
                 {failureCopy[failure]}
               </p>
             )}
-            <p className="text-text-secondary typo-callout">
-              {startCopy}{' '}
-              {user && (
-                <>
-                  You will show up as{' '}
-                  <strong className="text-text-primary">
-                    @{user.username}
-                  </strong>
-                  .
-                </>
+            <div
+              className={classNames(
+                'flex flex-col gap-3',
+                isInline && 'tablet:flex-row tablet:items-center',
               )}
-            </p>
-            <Button
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Medium}
-              loading={status === 'joining'}
-              onClick={onJoin}
             >
-              {isOpen ? 'Join the chat' : 'Start the live chat'}
-            </Button>
+              <p
+                className={classNames(
+                  'text-text-secondary typo-callout',
+                  isInline && 'min-w-0 flex-1',
+                )}
+              >
+                {startCopy}{' '}
+                {user && (
+                  <>
+                    You will show up as{' '}
+                    <strong className="text-text-primary">
+                      @{user.username}
+                    </strong>
+                    .
+                  </>
+                )}
+              </p>
+              <Button
+                variant={ButtonVariant.Primary}
+                size={isInline ? ButtonSize.Large : ButtonSize.Medium}
+                loading={status === 'joining'}
+                onClick={onJoin}
+              >
+                {isOpen ? 'Join the chat' : 'Start the live chat'}
+              </Button>
+            </div>
             <p className="text-text-quaternary typo-caption2">
               Be kind. The same rules as comments apply, and moderators can
               remove anyone.

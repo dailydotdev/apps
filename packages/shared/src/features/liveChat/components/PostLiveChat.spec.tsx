@@ -47,7 +47,6 @@ const room: ChatRoom = {
 const post = {
   id: 'p1',
   type: PostType.Article,
-  trending: 12,
 } as unknown as Post;
 
 // The capsule at rest, one gap above the bar, and slid into the bar's slot

@@ -23,8 +23,25 @@ export const highlightHeadlineClassName = (isSmall: boolean): string =>
     isSmall ? 'line-clamp-2 typo-footnote' : '!leading-[1.375rem] typo-callout',
   );
 
+// The chip that says what a tap does; the row is a link, so it stays a span.
+export const LiveChatJoinChip = ({
+  className,
+}: {
+  className?: string;
+}): ReactElement => (
+  <span
+    className={classNames(
+      'shrink-0 rounded-8 bg-brand-default px-2 py-0.5 font-bold text-white typo-caption2',
+      className,
+    )}
+  >
+    Join
+  </span>
+);
+
 // A live room as the first line of Happening Now: the post, and that people
-// are talking about it right now.
+// are talking about it right now. It is framed in brand, apart from the
+// headlines below it, since it is the one line a reader can step into.
 export const LiveChatHighlightRow = ({
   room,
   isSmall,
@@ -66,14 +83,20 @@ export const LiveChatHighlightRow = ({
               }),
             })
           }
-          className={highlightRowClassName(isSmall)}
+          className={classNames(
+            highlightRowClassName(isSmall),
+            'live-chat-frame mb-1 border border-brand-default hover:bg-brand-float focus-visible:bg-brand-float',
+          )}
         >
           <span className={highlightHeadlineClassName(isSmall)}>
             {room.post?.title || room.title}
           </span>
-          <span className="flex items-center gap-1.5 truncate text-brand-default typo-caption1">
+          <span className="flex items-center gap-1.5">
             <LiveDot />
-            {meta}
+            <span className="truncate text-brand-default typo-caption1">
+              {meta}
+            </span>
+            <LiveChatJoinChip className="ml-auto" />
           </span>
         </a>
       </Link>

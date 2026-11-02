@@ -11,7 +11,7 @@ import Link from '../../../utilities/Link';
 import type { Post } from '../../../../graphql/posts';
 import { ListCard, CardLink } from './ListCard';
 import { RaisedLabel } from '../RaisedLabel';
-import { getRaisedLabel } from '../FeedItemContainer';
+import { getRaisedLabel, liveChatCardClassName } from '../FeedItemContainer';
 import { useLiveChatRoomOf } from '../../../../features/liveChat/hooks/useLiveChatRooms';
 import { useFeedPreviewMode, useBookmarkProvider } from '../../../../hooks';
 import { TypeLabel } from './TypeLabel';
@@ -70,6 +70,7 @@ function FeedItemContainer(
       className={classNames(
         domProps?.className,
         focus && 'bg-surface-float',
+        showFlag && !!chatRoom && liveChatCardClassName,
         highlightBookmarkedPost &&
           '!border-action-bookmark-active hover:!border-action-bookmark-default',
       )}

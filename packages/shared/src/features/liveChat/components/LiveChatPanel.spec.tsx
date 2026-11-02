@@ -129,7 +129,7 @@ beforeEach(() => {
 });
 
 describe('LiveChatPanel', () => {
-  it('offers to start the chat on a trending post without one', async () => {
+  it('offers the team to start the chat on a post without one', async () => {
     jest.mocked(getPostChatRoom).mockResolvedValue(null);
     renderPanel();
 
@@ -139,6 +139,25 @@ describe('LiveChatPanel', () => {
     await waitFor(() =>
       expect(transport.joinRoom).toHaveBeenCalledWith(room.jid),
     );
+  });
+
+  it('under a post, invites first and shows the room once joined', async () => {
+    renderPanel({ variant: 'inline' });
+
+    expect(
+      await screen.findByText('Live chat is on for this post'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('23 here')).toBeInTheDocument();
+    expect(
+      screen.queryByText('Join to see what people are saying.'),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('Join the chat'));
+    emit({ type: 'roomJoined', roomJid: room.jid! });
+
+    expect(
+      await screen.findByText('Quiet for now. Say the first thing.'),
+    ).toBeInTheDocument();
   });
 
   it('shows nothing for a post that cannot host a chat', async () => {

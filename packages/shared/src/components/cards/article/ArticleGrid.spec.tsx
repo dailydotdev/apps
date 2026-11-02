@@ -163,6 +163,11 @@ it('should show the live label over trending while a chat is open', async () => 
   expect(await screen.findByText('Live')).toBeInTheDocument();
   expect(screen.getByText('12 chatting now')).toBeInTheDocument();
   expect(screen.queryByText('Trending now')).not.toBeInTheDocument();
+  // The frame goes brand too, so the card stands out beyond its label.
+  expect(screen.getByTestId('postItem')).toHaveClass(
+    'live-chat-card',
+    '!border-brand-default',
+  );
 });
 
 it('should keep the trending flag for readers outside live chat', async () => {
