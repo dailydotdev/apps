@@ -25,12 +25,13 @@ import {
 } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { Squad } from '../../graphql/sources';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../../components/modals/common/types';
 
 interface BoostedViewModalProps extends ModalProps {
   campaign: Campaign;
   isLoading?: boolean;
   onBack?: () => void;
-  onBoostAgain?: (props: Campaign) => void;
 }
 
 export const stopBoostPromptOptions: PromptOptions = {
@@ -54,12 +55,12 @@ export const stopBoostPromptOptions: PromptOptions = {
 export function BoostedViewModal({
   campaign,
   isLoading,
-  onBoostAgain,
   onBack,
   ...props
 }: BoostedViewModalProps): ReactElement {
   const { user } = useAuthContext();
   const client = useQueryClient();
+  const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
   const callbackFn = onBack || (() => props.onRequestClose(null));
   const { onCancelBoost, isLoadingCancel } = useCampaignMutation({
@@ -112,6 +113,24 @@ export function BoostedViewModal({
       return callbackFn();
     },
   });
+
+  const onBoostAgain = ({ type, post, source }: Campaign) => {
+    if (type === CampaignType.Post && post) {
+      return openModal({
+        type: LazyModal.BoostPost,
+        props: { post },
+      });
+    }
+
+    if (type === CampaignType.Squad && source) {
+      return openModal({
+        type: LazyModal.BoostSquad,
+        props: { squad: source },
+      });
+    }
+
+    return null;
+  };
 
   const handleBoostClick = async () => {
     if (campaign.state === 'ACTIVE') {

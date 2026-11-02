@@ -15,9 +15,7 @@ import {
 import { boostDocsLink } from '../../lib/constants';
 import { CampaignStatsGrid } from './CampaignListView';
 import type { Campaign } from '../../graphql/campaigns';
-import { CampaignType, getUserCampaignStats } from '../../graphql/campaigns';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { LazyModal } from '../../components/modals/common/types';
+import { getUserCampaignStats } from '../../graphql/campaigns';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 
@@ -29,7 +27,6 @@ export function AdsDashboardModal({
   initialCampaign,
   ...props
 }: AdsDashboardModalProps): ReactElement {
-  const { openModal } = useLazyModal();
   const { user } = useAuthContext();
   const { data, isLoading, infiniteScrollingProps } = useCampaigns();
   const { data: stats } = useQuery({
@@ -44,30 +41,12 @@ export function AdsDashboardModal({
     return data?.pages.flatMap((page) => page.edges.map((edge) => edge.node));
   }, [data]);
 
-  const onBoostAgain = ({ type, post, source }: Campaign) => {
-    switch (type) {
-      case CampaignType.Post:
-        return openModal({
-          type: LazyModal.BoostPost,
-          props: { post },
-        });
-      case CampaignType.Squad:
-        return openModal({
-          type: LazyModal.BoostSquad,
-          props: { squad: source },
-        });
-      default:
-        return null;
-    }
-  };
-
   if (boosted) {
     return (
       <BoostedViewModal
         {...props}
         campaign={boosted}
         isLoading={isLoading}
-        onBoostAgain={onBoostAgain}
         onBack={() => setBoosted(null)}
         onRequestClose={props.onRequestClose}
       />
