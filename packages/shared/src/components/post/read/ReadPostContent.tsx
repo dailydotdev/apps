@@ -83,7 +83,7 @@ export interface ReadPostContentProps {
  * Ad-monetised post template for paid and organic landing traffic.
  *
  * Forked from the classic PostContent layout: its widget column carries three
- * always-viewable slots. Signup surfaces (PostAuthBanner, CustomAuthBanner,
+ * always-viewable slots. Signup surfaces (PostAuthBanner,
  * PostSignupWidget) are deliberately absent — the header login/signup buttons
  * remain the only account entry point.
  *

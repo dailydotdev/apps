@@ -30,6 +30,8 @@ import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { webappUrl } from '../../lib/constants';
 import NotificationsBell from '../notifications/NotificationsBell';
+import { useMobileAppHeader } from '../../features/getApp/hooks/useMobileAppHeader';
+import { MobileAppActions } from '../../features/getApp/components/MobileAppActions';
 import classed from '../../lib/classed';
 import type { AllFeedPages } from '../../lib/query';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
@@ -94,6 +96,7 @@ function FeedNav({
   // from the footer nav and laptop+ from the app header. JS-gated (not CSS) so
   // it never mounts alongside those placements.
   const isTablet = isBelowLaptop && !isMobile;
+  const isMobileAppHeader = useMobileAppHeader();
   const { value: feedChipsVariant } = useConditionalFeature({
     feature: featureFeedChips,
     shouldEvaluate: isBelowLaptop && !inShellBlock && !hasFeedWidgetRail,
@@ -273,7 +276,11 @@ function FeedNav({
             )}
             {isTablet && (
               <div className="hidden shrink-0 items-center bg-background-default py-2 pl-2 pr-4 tablet:flex laptop:hidden">
-                <NotificationsBell compact />
+                {isMobileAppHeader ? (
+                  <MobileAppActions />
+                ) : (
+                  <NotificationsBell compact />
+                )}
               </div>
             )}
           </div>
@@ -326,7 +333,11 @@ function FeedNav({
         )}
         {!inShellBlock && !shouldRenderFeedChips && (
           <div className="hidden items-center bg-background-default tablet:absolute tablet:inset-y-0 tablet:right-0 tablet:flex laptop:hidden">
-            <NotificationsBell compact />
+            {isMobileAppHeader ? (
+              <MobileAppActions />
+            ) : (
+              <NotificationsBell compact />
+            )}
           </div>
         )}
       </div>

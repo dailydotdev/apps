@@ -94,8 +94,14 @@ jest.mock('./UnifiedMobileFeedNav', () => ({
   ),
 }));
 
+let mockIsVisitorBar = false;
+
 jest.mock('../../features/getApp/hooks/useMobileAppHeader', () => ({
-  useMobileAppHeader: () => false,
+  useMobileAppHeader: () => mockIsVisitorBar,
+}));
+
+jest.mock('../../features/getApp/components/MobileAppActions', () => ({
+  MobileAppActions: () => <div data-testid="visitor-actions" />,
 }));
 
 jest.mock('./MobileFeedActions', () => ({
@@ -293,6 +299,17 @@ describe('FeedNav', () => {
     expect(chipsScrollContainer.parentElement).toBe(
       feedSettingsButton.parentElement?.parentElement,
     );
+  });
+
+  it('gives a tablet visitor the sign-in pair where the bell stands', () => {
+    mockIsVisitorBar = true;
+    mockViewport({ isMobile: false, isBelowLaptop: true });
+
+    render(<FeedNav />);
+
+    expect(screen.getAllByTestId('visitor-actions')).toHaveLength(1);
+    expect(screen.queryByTestId('notifications-bell')).not.toBeInTheDocument();
+    mockIsVisitorBar = false;
   });
 
   it('renders tablet-only actions once in the chips row', () => {

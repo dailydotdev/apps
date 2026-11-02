@@ -11,7 +11,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { AuthTriggers } from '../../../lib/auth';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 import { getAppDownloadUrl } from '../appStoreLinks';
-import { usePhoneBrowser } from '../hooks/usePhoneBrowser';
+import { isIOSNative, isPWA } from '../../../lib/func';
 
 export const openAppUrl = getAppDownloadUrl('mobile_header');
 
@@ -29,8 +29,8 @@ export function MobileAppActions({
   isFloating = false,
 }: MobileAppActionsProps): ReactElement {
   const { logEvent } = useLogContext();
-  const { showLogin } = useAuthContext();
-  const isPhoneBrowser = usePhoneBrowser();
+  const { showLogin, isAndroidApp } = useAuthContext();
+  const isBrowser = !isAndroidApp && !isIOSNative() && !isPWA();
 
   const onAuth = (isLogin: boolean) => () => {
     logEvent({
@@ -63,7 +63,7 @@ export function MobileAppActions({
       >
         Log in
       </Button>
-      {isPhoneBrowser ? (
+      {isBrowser ? (
         <Button
           tag="a"
           href={openAppUrl}
