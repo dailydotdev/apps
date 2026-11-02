@@ -27,6 +27,9 @@ export type LiveChatStatus =
   | 'failed';
 
 export const LIVE_CHAT_MESSAGE_MAX_LENGTH = 500;
+// How long a preview seat is kept after the panel leaves the screen, so a
+// reader moving around the edge does not leave and rejoin on every crossing.
+export const PREVIEW_SEAT_RELEASE_MS = 5 * 1000;
 // Enough scrollback for a busy hour; the room itself keeps nothing.
 const MESSAGE_CAP = 300;
 // A sender who stops typing without saying so shouldn't look busy forever.
@@ -351,28 +354,35 @@ export const useLiveChatRoom = ({
     join().catch(() => undefined);
   }, [join, preview, roomJid, status, user?.id]);
 
-  // The preview's seat goes when the panel does: nobody is reading, and the
-  // seat is better left to someone who is. It comes back with the panel.
+  // The preview's seat goes a moment after the panel does: nobody is reading,
+  // and the seat is better left to someone who is. It comes back with the
+  // panel; a panel back within the moment keeps the seat it had.
   useEffect(() => {
-    const jid = seatedJid.current;
     if (
       preview ||
       isParticipating ||
       status !== 'joined' ||
-      !jid ||
+      !seatedJid.current ||
       !previewedJid.current
     ) {
-      return;
+      return undefined;
     }
-    seatedJid.current = null;
-    joiningJid.current = null;
-    previewedJid.current = null;
-    setStatus('idle');
-    if (user?.id) {
-      getDmTransport(user.id)
-        .leaveRoom(jid)
-        .catch(() => undefined);
-    }
+    const timer = setTimeout(() => {
+      const jid = seatedJid.current;
+      if (!jid) {
+        return;
+      }
+      seatedJid.current = null;
+      joiningJid.current = null;
+      previewedJid.current = null;
+      setStatus('idle');
+      if (user?.id) {
+        getDmTransport(user.id)
+          .leaveRoom(jid)
+          .catch(() => undefined);
+      }
+    }, PREVIEW_SEAT_RELEASE_MS);
+    return () => clearTimeout(timer);
   }, [isParticipating, preview, status, user?.id]);
 
   const leave = useCallback(() => {

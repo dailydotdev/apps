@@ -9,6 +9,7 @@ import {
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
 import { LiveChatPanel } from './LiveChatPanel';
+import { PREVIEW_SEAT_RELEASE_MS } from '../hooks/useLiveChatRoom';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { getDmTransport } from '../../messages/transport';
@@ -66,8 +67,8 @@ const emit = (event: DmEvent) =>
 
 const renderPanel = (
   props: Partial<React.ComponentProps<typeof LiveChatPanel>> = {},
-) => {
-  const result = render(
+) =>
+  render(
     <QueryClientProvider
       client={
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
@@ -76,16 +77,13 @@ const renderPanel = (
       <LiveChatPanel postId="p1" origin="article page" canStart {...props} />
     </QueryClientProvider>,
   );
-  return result;
-};
 
 // Under a post the block appears once the room is known, and starts on
 // screen; the mock only knows the element once it is observed.
 const renderInline = async () => {
-  const result = renderPanel({ variant: 'inline' });
+  renderPanel({ variant: 'inline' });
   await screen.findByLabelText('Live chat');
   act(() => mockAllIsIntersecting(true));
-  return result;
 };
 
 beforeEach(() => {
@@ -227,10 +225,18 @@ describe('LiveChatPanel', () => {
     });
     await screen.findByText('still here');
 
+    jest.useFakeTimers();
+    // A quick return keeps the seat.
     act(() => mockAllIsIntersecting(false));
-    await waitFor(() =>
-      expect(transport.leaveRoom).toHaveBeenCalledWith(room.jid),
-    );
+    act(() => jest.advanceTimersByTime(PREVIEW_SEAT_RELEASE_MS / 2));
+    act(() => mockAllIsIntersecting(true));
+    act(() => jest.advanceTimersByTime(PREVIEW_SEAT_RELEASE_MS * 2));
+    expect(transport.leaveRoom).not.toHaveBeenCalled();
+
+    act(() => mockAllIsIntersecting(false));
+    act(() => jest.advanceTimersByTime(PREVIEW_SEAT_RELEASE_MS));
+    jest.useRealTimers();
+    expect(transport.leaveRoom).toHaveBeenCalledWith(room.jid);
     // The echo of the own unavailable presence changes nothing.
     emit({ type: 'roomLeft', roomJid: room.jid! });
     // The last messages stay so the page does not jump.
@@ -249,8 +255,10 @@ describe('LiveChatPanel', () => {
     fireEvent.click(await screen.findByText('Join the chat'));
     await screen.findByPlaceholderText(/Say something/);
 
+    jest.useFakeTimers();
     act(() => mockAllIsIntersecting(false));
-    await act(async () => undefined);
+    act(() => jest.advanceTimersByTime(PREVIEW_SEAT_RELEASE_MS * 2));
+    jest.useRealTimers();
     expect(transport.leaveRoom).not.toHaveBeenCalled();
     expect(screen.getByPlaceholderText(/Say something/)).toBeInTheDocument();
   });
