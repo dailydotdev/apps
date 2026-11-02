@@ -340,6 +340,7 @@ export function ReadingDrawer({
     >;
     let moving: HTMLElement[] = [];
     const shown: MovingStyle = {};
+    const echoes: Animation[] = [];
     const applyStyle = (element: HTMLElement, props: MovingStyle) =>
       Object.entries(props).forEach(([name, value]) => {
         if (value === null || value === undefined) {
@@ -348,6 +349,21 @@ export function ReadingDrawer({
           element.style.setProperty(name, value);
         }
       });
+    const followHead = (element: HTMLElement) => {
+      const running = headElement
+        .getAnimations?.()
+        .find(
+          (animation): animation is CSSTransition =>
+            (animation as CSSTransition).transitionProperty === 'transform',
+        );
+      const effect = running?.effect as KeyframeEffect | null | undefined;
+      if (!running || !effect?.getKeyframes || !element.animate) {
+        return;
+      }
+      const echo = element.animate(effect.getKeyframes(), effect.getTiming());
+      echo.currentTime = running.currentTime;
+      echoes.push(echo);
+    };
     const refreshMoving = () => {
       const next = [...flowParts(page), headElement];
       if (
@@ -356,13 +372,36 @@ export function ReadingDrawer({
       ) {
         return;
       }
+      moving
+        .filter((element) => !next.includes(element))
+        .forEach((element) =>
+          applyStyle(element, {
+            transform: null,
+            transition: null,
+            'will-change': null,
+          }),
+        );
+      const added = next.filter((element) => !moving.includes(element));
       moving = next;
-      moving.forEach((element) => applyStyle(element, shown));
+      added.forEach((element) => {
+        applyStyle(element, shown);
+        followHead(element);
+      });
     };
     refreshMoving();
-    const pageChanges = new MutationObserver(refreshMoving);
+    const pageChanges = new MutationObserver((records) => {
+      if (
+        records.every(({ target }) =>
+          moving.some((element) => element.contains(target)),
+        )
+      ) {
+        return;
+      }
+      refreshMoving();
+    });
     pageChanges.observe(page, { childList: true, subtree: true });
     const styleMoving = (props: MovingStyle) => {
+      echoes.splice(0).forEach((echo) => echo.cancel());
       Object.assign(shown, props);
       moving.forEach((element) => applyStyle(element, props));
     };

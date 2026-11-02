@@ -49,39 +49,41 @@ export const LiveChatMobileEntry = ({
   );
   const isLive = room?.status === ChatRoomStatus.Active;
 
-  if (isPending || (!isLive && !canStart) || (isReading && !isPostUp)) {
+  if (isPending || (!isLive && !canStart)) {
     return null;
   }
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setIsOpen(true)}
-        style={
-          isPhone
-            ? {
-                bottom: `calc(${capsule.bottom} + ${capsuleOffset}px)`,
-                transform: `translateY(${
-                  capsule.translateY + capsuleShrink
-                }px)`,
-                transition: postCapsuleTransition,
-              }
-            : undefined
-        }
-        className="fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-popup flex h-12 items-center gap-2.5 rounded-16 border border-border-subtlest-secondary bg-background-popover px-4 shadow-2 motion-reduce:!transition-none laptop:hidden"
-      >
-        <LiveDot isLive={isLive} />
-        <span className="font-bold typo-callout">Live chat</span>
-        {isLive && room?.occupantCount != null && (
-          <span className="text-text-tertiary typo-footnote">
-            {room.occupantCount} here
+      {(!isReading || isPostUp) && (
+        <button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          style={
+            isPhone
+              ? {
+                  bottom: `calc(${capsule.bottom} + ${capsuleOffset}px)`,
+                  transform: `translateY(${
+                    capsule.translateY + capsuleShrink
+                  }px)`,
+                  transition: postCapsuleTransition,
+                }
+              : undefined
+          }
+          className="fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-popup flex h-12 items-center gap-2.5 rounded-16 border border-border-subtlest-secondary bg-background-popover px-4 shadow-2 motion-reduce:!transition-none laptop:hidden"
+        >
+          <LiveDot isLive={isLive} />
+          <span className="font-bold typo-callout">Live chat</span>
+          {isLive && room?.occupantCount != null && (
+            <span className="text-text-tertiary typo-footnote">
+              {room.occupantCount} here
+            </span>
+          )}
+          <span className="ml-auto rounded-10 bg-brand-default px-3 py-1 font-bold text-white typo-footnote">
+            {isLive ? 'Join' : 'Start'}
           </span>
-        )}
-        <span className="ml-auto rounded-10 bg-brand-default px-3 py-1 font-bold text-white typo-footnote">
-          {isLive ? 'Join' : 'Start'}
-        </span>
-      </button>
+        </button>
+      )}
       {isOpen && (
         <Drawer
           isOpen
