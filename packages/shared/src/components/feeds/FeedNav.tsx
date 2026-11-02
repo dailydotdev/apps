@@ -212,7 +212,7 @@ function FeedNav({
       '/[userId]',
     );
     return isTablet && isMobileAppHeader && !hasOwnBar ? (
-      <div className="px-4 pt-4">
+      <div className="pl-20 pr-4 pt-4">
         <SignInStrip />
       </div>
     ) : null;
