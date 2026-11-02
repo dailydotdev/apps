@@ -109,7 +109,7 @@ const renderComponent = (
 
   mocks.forEach(mockGraphQL);
   return render(
-    <TestBootProvider client={client} auth={{ user: null }}>
+    <TestBootProvider client={client} auth={{ user: undefined }}>
       <ProfilePage
         user={{ ...defaultProfile, ...profile }}
         userStats={defaultUserStats}
