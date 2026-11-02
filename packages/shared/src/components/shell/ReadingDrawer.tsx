@@ -32,7 +32,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
 import { motion, scroll } from './constants';
 import { expectShellScroll } from './useShellScroll';
-import { flowParts, holdScroll } from '../../lib/pageHold';
+import { flowParts, holdScroll, standingSelector } from '../../lib/pageHold';
 import { ShellSquare } from './ShellSquare';
 import type { ReadingArticle } from './readingStore';
 import {
@@ -383,16 +383,29 @@ export function ReadingDrawer({
         );
       const added = next.filter((element) => !moving.includes(element));
       moving = next;
+      if (!added.length) {
+        return;
+      }
+      added.forEach((element) =>
+        applyStyle(element, { ...shown, transition: 'none' }),
+      );
+      headElement.getBoundingClientRect();
       added.forEach((element) => {
-        applyStyle(element, shown);
+        applyStyle(element, { transition: shown.transition ?? null });
         followHead(element);
       });
     };
     refreshMoving();
+    const isStanding = (node: Node) =>
+      node instanceof Element &&
+      (node.matches(standingSelector) ||
+        !!node.querySelector(standingSelector));
     const pageChanges = new MutationObserver((records) => {
       if (
-        records.every(({ target }) =>
-          moving.some((element) => element.contains(target)),
+        records.every(
+          ({ target, addedNodes }) =>
+            moving.some((element) => element.contains(target)) &&
+            !Array.from(addedNodes).some(isStanding),
         )
       ) {
         return;

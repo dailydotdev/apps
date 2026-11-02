@@ -266,7 +266,7 @@ describe('ReadingDrawer', () => {
       main.insertBefore(arrived, cluster);
       return arrived;
     };
-    return { loading, arrive };
+    return { main, loading, arrive };
   };
 
   it('keeps moving the page after its content was swapped under the drawer', () => {
@@ -301,6 +301,31 @@ describe('ReadingDrawer', () => {
 
     expect(arrived.style.transform).toBe(transform);
     expect(loading).not.toHaveStyle({ transform });
+    fireEvent.touchEnd(window, { touches: [] });
+  });
+
+  it('moves the pieces around something fixed that mounts in the middle of a drag', async () => {
+    withReadingBridge();
+    renderPostPage();
+    const { loading } = renderShellLayout();
+    const content = document.createElement('section');
+    loading.appendChild(content);
+    fireEvent.click(screen.getByText('Read post'));
+    fireEvent.touchStart(window, { touches: [{ clientX: 100, clientY: 500 }] });
+    fireEvent.touchMove(window, { touches: [{ clientX: 102, clientY: 420 }] });
+    const { transform } = loading.style;
+    expect(transform).toMatch(/translateY\(-?\d+px\)/);
+
+    const pill = document.createElement('button');
+    pill.className = 'fixed';
+    loading.appendChild(pill);
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(loading).not.toHaveStyle({ transform });
+    expect(content.style.transform).toBe(transform);
+    expect(pill).not.toHaveStyle({ transform });
     fireEvent.touchEnd(window, { touches: [] });
   });
 });

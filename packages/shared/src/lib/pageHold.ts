@@ -1,20 +1,21 @@
 import { motion } from '../components/shell/constants';
 
+export const standingSelector =
+  '.fixed, .shell-cluster, .shell-scrim, .shell-block';
+
 // The page's flow in pieces around what stands fixed on screen (the cluster,
 // the post's capsule): a transformed ancestor would carry those along.
 export const flowParts = (root: HTMLElement): HTMLElement[] => {
   const standing = new Set<Element>();
-  root
-    .querySelectorAll('.fixed, .shell-cluster, .shell-scrim, .shell-block')
-    .forEach((element) => {
-      for (
-        let node: Element | null = element;
-        node && node !== root;
-        node = node.parentElement
-      ) {
-        standing.add(node);
-      }
-    });
+  root.querySelectorAll(standingSelector).forEach((element) => {
+    for (
+      let node: Element | null = element;
+      node && node !== root;
+      node = node.parentElement
+    ) {
+      standing.add(node);
+    }
+  });
   const parts: HTMLElement[] = [];
   const walk = (parent: Element) =>
     Array.from(parent.children).forEach((child) => {
