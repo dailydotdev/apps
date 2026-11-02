@@ -34,7 +34,7 @@ export const coresFAQItems: FAQItem[] = [
   {
     title: 'Are Cores included in the daily.dev Plus subscription?',
     description:
-      'No. Cores are sold separately and are not bundled with daily.dev Plus.',
+      'Plus does not come with a fixed Cores bundle, but every Plus payment, renewals included, gives you 50% of what you paid back as Cores. Gifted and team plans are not included.',
   },
   {
     title: 'What happens if I don’t have enough Cores?',
