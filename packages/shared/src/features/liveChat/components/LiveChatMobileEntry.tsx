@@ -15,6 +15,7 @@ import { ChatRoomStatus } from '../graphql';
 import { postChatRoomQueryOptions } from '../queries';
 import { LiveChatPanel } from './LiveChatPanel';
 import { LiveDot } from './LiveDot';
+import { formatOccupants } from '../timeLeft';
 
 // A phone has no rail, so the chat is a pill over the post that opens a
 // bottom sheet. The sheet keeps the seat: closing it leaves the room.
@@ -30,11 +31,15 @@ export const LiveChatMobileEntry = ({
   origin,
   canStart,
   hasCapsule,
+  openOnMount,
 }: {
   postId: string;
   origin: string;
   canStart: boolean;
   hasCapsule?: boolean;
+  // The viewer came here to join (a "Join" row elsewhere): the sheet opens
+  // at once and joins on its own.
+  openOnMount?: boolean;
 }): ReactElement | null => {
   const { user } = useAuthContext();
   const isPhone = useIsPhone();
@@ -44,11 +49,12 @@ export const LiveChatMobileEntry = ({
   const { open: isReading, up: isPostUp } = useReading();
   const capsuleOffset = hasCapsule ? field.rest + field.gap : 0;
   const capsuleShrink = hasCapsule ? field.rest - capsule.height : 0;
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(!!openOnMount);
   const { data: room, isPending } = useQuery(
     postChatRoomQueryOptions(user, postId),
   );
   const isLive = room?.status === ChatRoomStatus.Active;
+  const occupants = formatOccupants(room?.occupantCount);
 
   if (isPending || (!isLive && !canStart)) {
     return null;
@@ -75,9 +81,9 @@ export const LiveChatMobileEntry = ({
         >
           <LiveDot isLive={isLive} />
           <span className="font-bold typo-callout">Live chat</span>
-          {isLive && room?.occupantCount != null && (
+          {isLive && occupants && (
             <span className="text-text-tertiary typo-footnote">
-              {room.occupantCount} here
+              {occupants}
             </span>
           )}
           <span className="ml-auto rounded-10 bg-brand-default px-3 py-1 font-bold text-white typo-footnote">
@@ -101,6 +107,9 @@ export const LiveChatMobileEntry = ({
             origin={origin}
             canStart={canStart}
             variant="sheet"
+            // The pill said "Join"; opening the sheet is that tap, so the
+            // room is joined without asking a second time.
+            joinOnOpen={isLive}
             className="flex-1"
           />
         </Drawer>

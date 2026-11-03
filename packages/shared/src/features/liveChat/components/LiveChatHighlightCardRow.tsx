@@ -5,7 +5,8 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import Link from '../../../components/utilities/Link';
 import { useLiveChatHighlight } from '../hooks/useLiveChatHighlight';
-import { formatTimeLeft } from '../timeLeft';
+import { formatEndsIn, formatOccupants } from '../timeLeft';
+import { withJoinIntent } from '../joinLink';
 import { LiveDot } from './LiveDot';
 import { LiveChatJoinChip } from './LiveChatHighlightRow';
 
@@ -19,7 +20,10 @@ export const LiveChatHighlightCardRow = ({
 }): ReactElement | null => {
   const { logEvent } = useLogContext();
   const { room, isPending } = useLiveChatHighlight();
-  const href = room?.post?.commentsPermalink;
+  // The row is the yes: landing on the post joins the chat right away.
+  const href = room?.post?.commentsPermalink
+    ? withJoinIntent(room.post.commentsPermalink)
+    : undefined;
   // The card has painted by the time the rooms answer; holding the row's
   // height meanwhile keeps the headlines from jumping.
   if (isPending) {
@@ -31,9 +35,11 @@ export const LiveChatHighlightCardRow = ({
     return null;
   }
 
+  // The count and the clock only once they work for the room: a crowd, or
+  // an end close enough to hurry for.
   const meta = [
-    room.occupantCount != null && `${room.occupantCount} here`,
-    room.expiresAt && `ends in ${formatTimeLeft(room.expiresAt)}`,
+    formatOccupants(room.occupantCount),
+    formatEndsIn(room.expiresAt),
   ]
     .filter(Boolean)
     .join(' · ');

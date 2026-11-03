@@ -1,13 +1,8 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { useInView } from 'react-intersection-observer';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../../components/buttons/Button';
 import { AuthTriggers } from '../../../lib/auth';
 import type { RoomJoinFailure } from '../../messages/types';
 import { ChatRoomStatus } from '../graphql';
@@ -15,8 +10,8 @@ import { useLiveChatRoom } from '../hooks/useLiveChatRoom';
 import { useRoomPeople } from '../hooks/useRoomPeople';
 import { LiveChatMessageList } from './LiveChatMessageList';
 import { LiveChatComposer } from './LiveChatComposer';
-import { LiveDot } from './LiveDot';
-import { formatTimeLeft } from '../timeLeft';
+import { LiveChatLockedComposer } from './LiveChatLockedComposer';
+import { formatEndsIn, formatOccupants, formatTimeLeft } from '../timeLeft';
 
 const failureCopy: Record<RoomJoinFailure, string> = {
   banned: "You've been removed from this chat.",
@@ -34,6 +29,9 @@ export type LiveChatPanelProps = {
   // inline block under a post draws a louder one, since it has to be seen
   // on the way to the comments.
   variant?: 'rail' | 'sheet' | 'inline';
+  // The viewer already said yes somewhere else (a "Join" row, the phone
+  // pill): join as soon as the room is known instead of asking again.
+  joinOnOpen?: boolean;
   className?: string;
   // Reports whether there is anything to show, so a rail can drop the slot.
   onVisibilityChange?: (isVisible: boolean) => void;
@@ -48,10 +46,12 @@ export const LiveChatPanel = ({
   origin,
   canStart,
   variant = 'rail',
+  joinOnOpen,
   className,
   onVisibilityChange,
 }: LiveChatPanelProps): ReactElement | null => {
-  const { user, showLogin } = useAuthContext();
+  const { user, showLogin, isAuthReady } = useAuthContext();
+  const sectionRef = useRef<HTMLElement | null>(null);
   const isInline = variant === 'inline';
   // Under a post the seat is held while the block is on screen or close to
   // it (the comments just below still count), and given back once the
@@ -70,7 +70,6 @@ export const LiveChatPanel = ({
     senderIds,
     isParticipating,
     participate,
-    leave,
     send,
     react,
     onDraftChange,
@@ -81,27 +80,53 @@ export const LiveChatPanel = ({
   const isOpen = room?.status === ChatRoomStatus.Active && !hasEnded;
   const isVisible = isOpen || canStart || hasEnded;
 
-  React.useEffect(() => {
+  useEffect(() => {
     onVisibilityChange?.(!isRoomLoading && isVisible);
   }, [isRoomLoading, isVisible, onVisibilityChange]);
 
-  if (isRoomLoading || !isVisible) {
-    return null;
-  }
-
-  const onJoin = () => {
+  const onJoin = useCallback(() => {
     if (!user) {
       showLogin({ trigger: AuthTriggers.LiveChat });
       return;
     }
     participate().catch(() => undefined);
-  };
+  }, [participate, showLogin, user]);
+
+  // The yes was given on the way here; the first open room is joined once,
+  // and under a post the block is brought into view so the join is seen.
+  const hasAutoJoined = useRef(false);
+  useEffect(() => {
+    if (
+      !joinOnOpen ||
+      hasAutoJoined.current ||
+      isRoomLoading ||
+      !isOpen ||
+      !isAuthReady
+    ) {
+      return;
+    }
+    hasAutoJoined.current = true;
+    onJoin();
+    if (isInline) {
+      sectionRef.current?.scrollIntoView?.({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
+  }, [isAuthReady, isInline, isOpen, isRoomLoading, joinOnOpen, onJoin]);
+
+  if (isRoomLoading || !isVisible) {
+    return null;
+  }
 
   const isSeated = status === 'joined';
   // Reading along: seated by the preview, composer not asked for yet.
   const isReadingAlong = isSeated && !isParticipating;
   const isJoined = isSeated && isParticipating;
-  const timeLeft = room?.expiresAt ? formatTimeLeft(room.expiresAt) : null;
+  // The clock only once the end is close enough to hurry for; the count
+  // only once it is a crowd.
+  const isEndingSoon = !!formatEndsIn(room?.expiresAt);
+  const occupants = formatOccupants(room?.occupantCount);
   let emptyCopy = 'Nobody has started this chat yet.';
   if (isJoined) {
     emptyCopy = 'Quiet for now. Say the first thing.';
@@ -112,13 +137,12 @@ export const LiveChatPanel = ({
   } else if (isOpen) {
     emptyCopy = 'Join to see what people are saying.';
   }
-  let startCopy = 'Open a live chat about this post for everyone to join.';
-  if (isReadingAlong) {
-    startCopy = 'You are reading along. Join to say something yourself.';
+  // The locked composer says what its button does.
+  let lockedPlaceholder = 'Open a live chat on this post for everyone';
+  if (!user) {
+    lockedPlaceholder = 'Sign in to join the chat';
   } else if (isOpen) {
-    startCopy = isInline
-      ? 'People are talking about this post right now. Jump in while it is on.'
-      : 'Jump in while it is hot.';
+    lockedPlaceholder = 'Join to say something';
   }
   let heading = 'Live chat';
   if (isInline && isOpen) {
@@ -127,8 +151,10 @@ export const LiveChatPanel = ({
   let subtitle = 'Open for 24 hours, then gone';
   if (hasEnded) {
     subtitle = 'This chat has ended';
-  } else if (isOpen && timeLeft) {
-    subtitle = `Ends in ${timeLeft} · nothing is saved`;
+  } else if (isOpen && isEndingSoon && room?.expiresAt) {
+    subtitle = `Ends in ${formatTimeLeft(room.expiresAt)} · nothing is saved`;
+  } else if (isOpen) {
+    subtitle = 'On now · nothing is saved';
   }
   // Under a post the preview seats the viewer, so the chat itself is the
   // invitation: the messages run live above the way in. Until the seat is
@@ -147,7 +173,10 @@ export const LiveChatPanel = ({
 
   return (
     <section
-      ref={viewRef}
+      ref={(node) => {
+        sectionRef.current = node;
+        viewRef(node);
+      }}
       aria-label="Live chat"
       className={classNames(
         'flex min-h-0 flex-col bg-background-default',
@@ -168,10 +197,6 @@ export const LiveChatPanel = ({
         )}
       >
         <div className="flex items-center gap-2">
-          <LiveDot
-            isLive={isOpen}
-            className={isInline ? 'size-2.5' : undefined}
-          />
           <h3
             className={classNames(
               'font-bold',
@@ -180,7 +205,7 @@ export const LiveChatPanel = ({
           >
             {heading}
           </h3>
-          {isOpen && room?.occupantCount != null && (
+          {isOpen && occupants && (
             <span
               className={classNames(
                 'ml-auto',
@@ -189,7 +214,7 @@ export const LiveChatPanel = ({
                   : 'text-text-tertiary typo-caption1',
               )}
             >
-              {room.occupantCount} here
+              {occupants}
             </span>
           )}
         </div>
@@ -230,61 +255,17 @@ export const LiveChatPanel = ({
           viewerId={user?.id}
           onSend={send}
           onDraftChange={onDraftChange}
-          onLeave={leave}
           autoFocus={variant === 'sheet'}
         />
       ) : (
         !hasEnded && (
-          <div
-            className={classNames(
-              'flex flex-col gap-2 px-3 py-3',
-              isInline
-                ? 'px-4 pb-4 pt-1'
-                : 'border-t border-border-subtlest-tertiary bg-surface-float',
-            )}
-          >
-            {showFailure && (
-              <p className="text-status-error typo-caption1">
-                {failureCopy[failure]}
-              </p>
-            )}
-            <div
-              className={classNames(
-                'flex flex-col gap-3',
-                isInline && 'tablet:flex-row tablet:items-center',
-              )}
-            >
-              <p
-                className={classNames(
-                  'text-text-secondary typo-callout',
-                  isInline && 'min-w-0 flex-1',
-                )}
-              >
-                {startCopy}{' '}
-                {user && (
-                  <>
-                    You will show up as{' '}
-                    <strong className="text-text-primary">
-                      @{user.username}
-                    </strong>
-                    .
-                  </>
-                )}
-              </p>
-              <Button
-                variant={ButtonVariant.Primary}
-                size={isInline ? ButtonSize.Large : ButtonSize.Medium}
-                loading={status === 'joining' && isParticipating}
-                onClick={onJoin}
-              >
-                {isOpen ? 'Join the chat' : 'Start the live chat'}
-              </Button>
-            </div>
-            <p className="text-text-quaternary typo-caption2">
-              Be kind. The same rules as comments apply, and moderators can
-              remove anyone.
-            </p>
-          </div>
+          <LiveChatLockedComposer
+            placeholder={lockedPlaceholder}
+            action={isOpen ? 'Join' : 'Start'}
+            loading={status === 'joining' && isParticipating}
+            failure={showFailure ? failureCopy[failure] : undefined}
+            onAction={onJoin}
+          />
         )
       )}
     </section>

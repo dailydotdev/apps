@@ -4,6 +4,7 @@ import type { Post } from '../../../graphql/posts';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { useLiveChatEnabled } from '../hooks/useLiveChatEnabled';
+import { useLiveChatJoinIntent } from '../hooks/useLiveChatJoinIntent';
 import { LiveChatPanel } from './LiveChatPanel';
 import { LiveChatMobileEntry } from './LiveChatMobileEntry';
 import { useHasPostCapsule } from '../../../components/post/PostCapsule';
@@ -33,6 +34,7 @@ export const PostLiveChat = ({
   const { isEnabled } = useLiveChatEnabled();
   const isTablet = useViewSize(ViewSize.Tablet);
   const hasCapsule = useHasPostCapsule(isPostPage ? post : undefined);
+  const wantsToJoin = useLiveChatJoinIntent();
 
   if (!isEnabled || (placement === 'inline') !== isTablet) {
     return null;
@@ -49,6 +51,7 @@ export const PostLiveChat = ({
         origin={origin}
         canStart={canStart}
         hasCapsule={hasCapsule}
+        openOnMount={wantsToJoin}
       />
     );
   }
@@ -59,6 +62,7 @@ export const PostLiveChat = ({
       origin={origin}
       canStart={canStart}
       variant="inline"
+      joinOnOpen={wantsToJoin}
       className={className}
     />
   );
