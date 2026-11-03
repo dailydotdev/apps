@@ -105,7 +105,7 @@ jobs:
   test_shared:
     docker:
       - image: cimg/node:24.22.1
-    parallelism: 3
+    parallelism: 4
     steps:
       - checkout
       - restore_cache:
