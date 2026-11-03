@@ -25,7 +25,7 @@ const toSuggestion = (person: RoomPerson): UserShortProfile =>
     companies: [],
     isPlus: false,
     plusMemberSince: undefined,
-  } as UserShortProfile);
+  }) as UserShortProfile;
 
 // Text only: the room keeps nothing, so there is nothing to attach it to.
 // Typing "@" offers the people in the room, since they are who a mention
