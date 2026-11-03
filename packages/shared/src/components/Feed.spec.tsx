@@ -125,7 +125,7 @@ jest.mocked(useRouter).mockImplementation(
     ({
       pathname: '/',
       query: {},
-    } as unknown as NextRouter),
+    }) as unknown as NextRouter,
 );
 
 const showLogin = jest.fn();
@@ -288,7 +288,7 @@ function renderComponent(
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000')
     .get(
-      `/v1/a?active=false&registered=${!!resolvedUser}&gdpr=1&consent_exists=NONE_CONSENT`,
+      `/v1/a?active=false&allow_post_boost=true&allow_squad_boost=true&registered=${!!resolvedUser}&gdpr=1&consent_exists=NONE_CONSENT`,
     )
     .reply(200, [ad]);
   const settingsContext: SettingsContextData = {
@@ -2146,7 +2146,7 @@ describe('Feed logged in', () => {
           query: {},
           push: jest.fn().mockResolvedValue(true),
           events: { on: jest.fn(), off: jest.fn(), emit: jest.fn() },
-        } as unknown as NextRouter),
+        }) as unknown as NextRouter,
     );
     nock('http://localhost:3000')
       .persist()
@@ -2156,7 +2156,7 @@ describe('Feed logged in', () => {
       .reply(200, { data: { viewPost: { _: true } } });
     nock('http://localhost:3000')
       .get(
-        '/v1/a?active=false&registered=true&gdpr=1&consent_exists=NONE_CONSENT',
+        '/v1/a?active=false&allow_post_boost=true&allow_squad_boost=true&registered=true&gdpr=1&consent_exists=NONE_CONSENT',
       )
       .reply(200, [
         {
@@ -2355,7 +2355,7 @@ describe('Feed logged in', () => {
         ({
           pathname: '/',
           query: {},
-        } as unknown as NextRouter),
+        }) as unknown as NextRouter,
     );
     let mutationCalled = false;
     renderComponent([
@@ -2421,7 +2421,7 @@ describe('Feed logged in', () => {
         ({
           pathname: '/',
           query: {},
-        } as unknown as NextRouter),
+        }) as unknown as NextRouter,
     );
     renderComponent([
       createFeedMock({
@@ -2490,7 +2490,7 @@ describe('Feed logged in', () => {
               off: jest.fn(),
               emit: jest.fn(),
             },
-          } as unknown as NextRouter),
+          }) as unknown as NextRouter,
       );
 
       Object.defineProperty(window, 'location', {
@@ -2673,7 +2673,7 @@ const buildPost = (id: string, hero?: PostHero | null): Post =>
     type: PostType.Article,
     domain: 'example.com',
     hero: hero ?? null,
-  } as Post);
+  }) as Post;
 
 const SIGNIFICANCE_BY_SIZE: Record<number, PostHeroSignificance> = {
   4: 'breaking',
@@ -2739,11 +2739,13 @@ const renderWithHighlightLayout = ({
   // both up to a handful of refills so multi-ad scenarios don't run dry.
   nock('http://localhost:3000')
     .get(
-      '/v1/a?active=false&registered=true&gdpr=1&consent_exists=NONE_CONSENT',
+      '/v1/a?active=false&allow_post_boost=true&allow_squad_boost=true&registered=true&gdpr=1&consent_exists=NONE_CONSENT',
     )
     .reply(200, [ad]);
   nock('http://localhost:3000')
-    .get('/v1/a?active=true&registered=true&gdpr=1&consent_exists=NONE_CONSENT')
+    .get(
+      '/v1/a?active=true&allow_post_boost=true&allow_squad_boost=true&registered=true&gdpr=1&consent_exists=NONE_CONSENT',
+    )
     .times(10)
     .reply(200, [ad]);
 
@@ -2886,7 +2888,7 @@ describe('Feed ad cadence with highlight cards', () => {
         ({
           pathname: '/',
           query: {},
-        } as unknown as NextRouter),
+        }) as unknown as NextRouter,
     );
     jest.mocked(useBoot).mockReturnValue({
       addSquad: jest.fn(),
@@ -3253,7 +3255,7 @@ describe('Feed ad cadence with highlight cards', () => {
         ({
           pathname: '/',
           query: { ua: 'true' },
-        } as unknown as NextRouter),
+        }) as unknown as NextRouter,
     );
     const marketingCtaTitle = 'Priority CTA';
     const marketingCta: MarketingCta = {
@@ -3583,7 +3585,7 @@ describe('Feed top hero placements', () => {
     jest
       .mocked(useRouter)
       .mockImplementation(
-        () => ({ pathname: '/', query: {} } as unknown as NextRouter),
+        () => ({ pathname: '/', query: {} }) as unknown as NextRouter,
       );
     jest.mocked(useBoot).mockReturnValue({
       addSquad: jest.fn(),

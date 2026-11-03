@@ -227,12 +227,12 @@ const MainFeedPageInner = ({
               shortcuts={
                 isLaptopLayout
                   ? undefined
-                  : loginStrip ??
+                  : (loginStrip ??
                     (isShortcutsHidden ? undefined : (
                       <ShortcutLinks
                         shouldUseListFeedLayout={shouldUseListFeedLayout}
                       />
-                    ))
+                    )))
               }
             />
           </FeedLayoutProvider>

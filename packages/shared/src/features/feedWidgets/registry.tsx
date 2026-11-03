@@ -171,7 +171,8 @@ export const feedWidgetRegistry: {
   [FeedWidgetKind.LiveChat]: {
     kind: FeedWidgetKind.LiveChat,
     name: 'Live chat',
-    description: 'The live chats happening on trending posts right now.',
+    description:
+      'The live chats the daily.dev team opens on posts worth talking about.',
     icon: DiscussIcon,
     category: FeedWidgetCategory.Community,
     tone: 'bun',

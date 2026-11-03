@@ -5,8 +5,8 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import Link from '../../../components/utilities/Link';
 import type { ChatRoom } from '../graphql';
-import { formatTimeLeft } from '../timeLeft';
-import { LiveDot } from './LiveDot';
+import { formatEndsIn, formatOccupants } from '../timeLeft';
+import { withJoinIntent } from '../joinLink';
 
 // Happening Now rows share one list, so the live room and the highlights must
 // keep the same padding and headline type. Both rows build on these.
@@ -53,15 +53,20 @@ export const LiveChatHighlightRow = ({
   widget: string;
 }): ReactElement | null => {
   const { logEvent } = useLogContext();
-  const href = room.post?.commentsPermalink;
+  // The row is the yes: landing on the post joins the chat right away.
+  const href = room.post?.commentsPermalink
+    ? withJoinIntent(room.post.commentsPermalink)
+    : undefined;
   if (!href) {
     return null;
   }
 
+  // The count and the clock only once they work for the room: a crowd, or
+  // an end close enough to hurry for. The section's own dot says it is live.
   const meta = [
     'Live chat',
-    room.occupantCount != null && `${room.occupantCount} here`,
-    room.expiresAt && `ends in ${formatTimeLeft(room.expiresAt)}`,
+    formatOccupants(room.occupantCount),
+    formatEndsIn(room.expiresAt),
   ]
     .filter(Boolean)
     .join(' · ');
@@ -92,7 +97,6 @@ export const LiveChatHighlightRow = ({
             {room.post?.title || room.title}
           </span>
           <span className="flex items-center gap-1.5">
-            <LiveDot />
             {/* base.css sets flex-shrink: 0 on everything, so the meta has
                 to be allowed to shrink before `truncate` can do anything. */}
             <span className="min-w-0 flex-1 truncate text-brand-default typo-caption1">

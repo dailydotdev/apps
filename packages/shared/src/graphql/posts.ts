@@ -821,8 +821,10 @@ export const getExternalLinkPreview = async (
   return res.checkLinkPreview;
 };
 
-export interface SubmitExternalLink
-  extends Pick<ExternalLinkPreview, 'title' | 'image' | 'url'> {
+export interface SubmitExternalLink extends Pick<
+  ExternalLinkPreview,
+  'title' | 'image' | 'url'
+> {
   sourceId: string;
   commentary: string;
   scheduledAt?: string | null;
@@ -883,8 +885,10 @@ export type CreatePostProps = Pick<
   'title' | 'content' | 'image' | 'scheduledAt'
 >;
 
-export interface CreatePostPollProps
-  extends Pick<EditPostProps, 'title' | 'content' | 'image'> {
+export interface CreatePostPollProps extends Pick<
+  EditPostProps,
+  'title' | 'content' | 'image'
+> {
   duration: number;
   options: string[];
 }
@@ -1080,7 +1084,8 @@ export const CREATE_POST_IN_MULTIPLE_SOURCES = gql`
 `;
 
 export interface CreatePostInMultipleSourcesArgs
-  extends Partial<Omit<CreatePostProps, 'scheduledAt'>>,
+  extends
+    Partial<Omit<CreatePostProps, 'scheduledAt'>>,
     Partial<Pick<CreatePollPostProps, 'options' | 'duration'>> {
   commentary?: string;
   externalLink?: string;

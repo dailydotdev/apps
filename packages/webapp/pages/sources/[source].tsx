@@ -54,7 +54,6 @@ import { RelatedEntities } from '@dailydotdev/shared/src/components/RelatedEntit
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts/ActiveFeedNameContext';
-import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { ArchiveEntryCard } from '@dailydotdev/shared/src/components/archive/ArchiveEntryCard';
 import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/ArchiveBreadcrumbs';
@@ -449,7 +448,6 @@ const SourcePage = ({
 SourcePage.getLayout = getLayout;
 SourcePage.layoutProps = {
   ...mainFeedLayoutProps,
-  customBanner: <CustomAuthBanner />,
 };
 export default SourcePage;
 

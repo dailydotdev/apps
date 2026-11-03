@@ -157,14 +157,12 @@ const fetchAdRequest = async ({
 export const resolveAdFetchOptions = ({
   placement = AdPlacement.Feed,
   active,
-  boostsEnabled = false,
   consent,
   registered,
   pageViewId,
 }: {
   placement?: AdPlacement;
   active?: boolean;
-  boostsEnabled?: boolean;
   consent?: AdRequestConsent;
   registered?: boolean;
   pageViewId?: string;
@@ -184,7 +182,7 @@ export const resolveAdFetchOptions = ({
       return {
         placement,
         active,
-        allowSquadBoost: boostsEnabled,
+        allowSquadBoost: true,
         consent,
         registered,
         pageViewId,
@@ -194,8 +192,8 @@ export const resolveAdFetchOptions = ({
       return {
         placement,
         active,
-        allowPostBoost: boostsEnabled,
-        allowSquadBoost: boostsEnabled,
+        allowPostBoost: true,
+        allowSquadBoost: true,
         consent,
         registered,
         pageViewId,

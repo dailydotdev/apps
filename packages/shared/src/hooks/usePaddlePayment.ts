@@ -10,6 +10,7 @@ import { CheckoutEventNames, initializePaddle } from '@paddle/paddle-js';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useLogContext } from '../contexts/LogContext';
+import type { Origin } from '../lib/log';
 import { LogEvent, purchaseTypeToTargetType } from '../lib/log';
 import { plusSuccessUrl } from '../lib/constants';
 import { checkIsExtension } from '../lib/func';
@@ -19,13 +20,13 @@ import type {
 } from '../contexts/payment/context';
 import { PlusPlanType, PurchaseType } from '../graphql/paddle';
 
-interface UsePaddlePaymentProps
-  extends Pick<
-    PaymentContextProviderProps<PaddleEventData, CheckoutEventNames>,
-    'successCallback' | 'disabledEvents'
-  > {
+interface UsePaddlePaymentProps extends Pick<
+  PaymentContextProviderProps<PaddleEventData, CheckoutEventNames>,
+  'successCallback' | 'disabledEvents'
+> {
   priceType: PurchaseType;
   getProductQuantity?: (event: PaddleEventData) => number;
+  origin?: Origin;
 }
 
 /**
@@ -48,6 +49,7 @@ export const usePaddlePayment = ({
   disabledEvents,
   priceType,
   getProductQuantity,
+  origin,
 }: UsePaddlePaymentProps) => {
   const targetType = purchaseTypeToTargetType[priceType];
   const router = useRouter();
@@ -67,6 +69,8 @@ export const usePaddlePayment = ({
   successCallbackRef.current = successCallback;
   const getProductQuantityRef = useRef(getProductQuantity);
   getProductQuantityRef.current = getProductQuantity;
+  const originRef = useRef(origin);
+  originRef.current = origin;
   const discountIdQuery = router.query?.d_id as string | undefined;
 
   const isOrganization = priceType === PurchaseType.Organization;
@@ -120,6 +124,7 @@ export const usePaddlePayment = ({
               target_id: event?.data?.payment.method_details.type,
               extra: JSON.stringify({
                 ...plusPlanExtra,
+                origin: originRef.current,
               }),
             });
             break;
@@ -132,6 +137,7 @@ export const usePaddlePayment = ({
               target_id: event?.data?.payment.method_details.type,
               extra: JSON.stringify({
                 ...plusPlanExtra,
+                origin: originRef.current,
               }),
             });
             break;
@@ -142,6 +148,7 @@ export const usePaddlePayment = ({
               target_id: event?.data?.payment.method_details.type,
               extra: JSON.stringify({
                 ...plusPlanExtra,
+                origin: originRef.current,
               }),
             });
             break;
@@ -162,6 +169,7 @@ export const usePaddlePayment = ({
                 cycle:
                   event?.data?.items?.[0]?.billing_cycle?.interval ?? 'one-off',
                 ...plusPlanExtra,
+                origin: originRef.current,
               }),
             });
 
@@ -178,6 +186,7 @@ export const usePaddlePayment = ({
               event_name: LogEvent.WarningCheckout,
               extra: JSON.stringify({
                 transaction_id: event?.data?.transaction_id,
+                origin: originRef.current,
               }),
             });
             break;
@@ -185,7 +194,10 @@ export const usePaddlePayment = ({
             logRef.current({
               target_type: targetType,
               event_name: LogEvent.ErrorCheckout,
-              extra: JSON.stringify(getCheckoutErrorExtra(event)),
+              extra: JSON.stringify({
+                ...getCheckoutErrorExtra(event),
+                origin: originRef.current,
+              }),
             });
             break;
           case CheckoutEventNames.CHECKOUT_PAYMENT_FAILED:
@@ -193,7 +205,10 @@ export const usePaddlePayment = ({
             logRef.current({
               target_type: targetType,
               event_name: LogEvent.ErrorPayment,
-              extra: JSON.stringify(getCheckoutErrorExtra(event)),
+              extra: JSON.stringify({
+                ...getCheckoutErrorExtra(event),
+                origin: originRef.current,
+              }),
             });
             break;
           case CheckoutEventNames.CHECKOUT_CLOSED:

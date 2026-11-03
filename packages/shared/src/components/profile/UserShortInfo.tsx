@@ -29,8 +29,8 @@ import { ButtonVariant } from '../buttons/Button';
 type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? JSX.IntrinsicElements[Tag]
   : Tag extends React.ComponentType<infer Props>
-  ? Props & JSX.IntrinsicAttributes
-  : never;
+    ? Props & JSX.IntrinsicAttributes
+    : never;
 
 export interface UserInfoClassName {
   container?: string;

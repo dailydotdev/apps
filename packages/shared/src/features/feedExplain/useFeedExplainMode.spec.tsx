@@ -21,7 +21,7 @@ beforeEach(() => {
   jest
     .mocked(useRouter)
     .mockImplementation(
-      () => ({ pathname: '/', query: {} } as unknown as NextRouter),
+      () => ({ pathname: '/', query: {} }) as unknown as NextRouter,
     );
 });
 

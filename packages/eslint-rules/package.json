@@ -10,10 +10,7 @@
     "lib": "lib",
     "test": "__tests__"
   },
-  "prettier": "@dailydotdev/prettier-config",
-  "devDependencies": {
-    "@dailydotdev/prettier-config": "workspace:*"
-  },
+  "devDependencies": {},
   "files": [
     "lib"
   ],

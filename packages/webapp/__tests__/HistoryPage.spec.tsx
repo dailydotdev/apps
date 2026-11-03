@@ -41,7 +41,7 @@ beforeEach(() => {
         replace: routerReplace,
         push: jest.fn(),
         isReady: true,
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
 });
 
@@ -214,7 +214,7 @@ describe('user reading history page', () => {
     const withPost = (id: string, title: string) =>
       ({
         node: { ...edge.node, post: { ...edge.node.post, id, title } },
-      } as ReadHistoryData['readHistory']['edges'][number]);
+      }) as ReadHistoryData['readHistory']['edges'][number];
     renderComponent([
       createReadingHistoryMock(
         getDefaultHistory([

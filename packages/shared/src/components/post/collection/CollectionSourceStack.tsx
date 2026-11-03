@@ -88,7 +88,7 @@ export const CollectionSourceStack = ({
       transitionProperty: 'margin-left',
       transitionDuration: '260ms',
       transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
-    } as React.CSSProperties);
+    }) as React.CSSProperties;
 
   // Squads read from their handle; every other source lazily fetches its
   // details by id when the hover card mounts.

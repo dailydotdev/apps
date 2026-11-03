@@ -65,7 +65,7 @@ beforeEach(() => {
   jest
     .mocked(useRouter)
     .mockImplementation(
-      () => ({ pathname: '/', query: {}, route: '/' } as unknown as NextRouter),
+      () => ({ pathname: '/', query: {}, route: '/' }) as unknown as NextRouter,
     );
   jest
     .mocked(useQuestDashboard)

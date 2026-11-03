@@ -45,7 +45,7 @@ export const SquadDirectoryNavbar = (
         />
       )}
       <ul
-        className="no-scrollbar relative flex flex-1 flex-row flex-nowrap gap-2 overflow-x-auto scroll-smooth "
+        className="no-scrollbar relative flex flex-1 flex-row flex-nowrap gap-2 overflow-x-auto scroll-smooth"
         ref={ref}
       >
         {children}

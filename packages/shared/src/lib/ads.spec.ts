@@ -56,7 +56,6 @@ describe('ads', () => {
         resolveAdFetchOptions({
           placement: AdPlacement.Feed,
           active: true,
-          boostsEnabled: true,
         }),
       ).toEqual({
         placement: AdPlacement.Feed,
@@ -70,7 +69,6 @@ describe('ads', () => {
       expect(
         resolveAdFetchOptions({
           placement: AdPlacement.PostSidebar,
-          boostsEnabled: true,
         }),
       ).toEqual({
         placement: AdPlacement.PostSidebar,
@@ -82,7 +80,6 @@ describe('ads', () => {
       expect(
         resolveAdFetchOptions({
           placement: AdPlacement.PostComment,
-          boostsEnabled: true,
         }),
       ).toEqual({
         placement: AdPlacement.PostComment,
@@ -93,7 +90,6 @@ describe('ads', () => {
       expect(
         resolveAdFetchOptions({
           placement: AdPlacement.SquadDirectory,
-          boostsEnabled: false,
         }),
       ).toEqual({
         placement: AdPlacement.SquadDirectory,

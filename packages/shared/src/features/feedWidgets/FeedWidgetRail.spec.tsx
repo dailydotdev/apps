@@ -98,7 +98,7 @@ beforeEach(() => {
   jest
     .mocked(useRouter)
     .mockImplementation(
-      () => ({ pathname: '/', push: jest.fn() } as unknown as NextRouter),
+      () => ({ pathname: '/', push: jest.fn() }) as unknown as NextRouter,
     );
   jest
     .mocked(useFeedWidgetAd)

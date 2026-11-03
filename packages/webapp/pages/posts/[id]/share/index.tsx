@@ -8,7 +8,6 @@ import type { TopCommentsData } from '@dailydotdev/shared/src/graphql/comments';
 import { TOP_COMMENTS_QUERY } from '@dailydotdev/shared/src/graphql/comments';
 import type { ClientError } from 'graphql-request';
 import type { NextSeoProps } from 'next-seo';
-import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { useUserShortByIdQuery } from '@dailydotdev/shared/src/hooks/user/useUserShortByIdQuery';
 import { USER_SHORT_BY_ID } from '@dailydotdev/shared/src/graphql/users';
@@ -169,8 +168,5 @@ export const getServerSideProps: GetServerSideProps<
 };
 
 SharePostPage.getLayout = getLayout;
-SharePostPage.layoutProps = {
-  customBanner: <CustomAuthBanner />,
-};
 
 export default SharePostPage;

@@ -58,7 +58,7 @@ export interface ReadPostPageProps extends DynamicSeoProps {
  * Ad-monetised post template for paid-acquisition and organic landing traffic.
  *
  * Lives on its own route so `/posts/[id]` is untouched. Differences from the
- * standard template, all deliberate: no PostAuthBanner, no CustomAuthBanner
+ * standard template, all deliberate: no PostAuthBanner
  * (never passed in layoutProps), no PostSignupWidget, and no sidebar at all —
  * it carries no ad unit anymore, and its post-boot mount was the page's last
  * source of layout shift. The header login/signup buttons are unaffected and
@@ -129,7 +129,7 @@ const getReadPostPageLayout: typeof getLayout = (
 ) =>
   getLayout(page, pageProps, {
     ...layoutProps,
-    // Only the pinned phone ad here, never CustomAuthBanner: this template
+    // Only the pinned phone ad here, no sign-up strip: this template
     // carries no auth banner.
     customBanner: (
       <PhoneTopAdStrip

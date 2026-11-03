@@ -100,7 +100,7 @@ export function DevCard({
           <div
             className={classNames(
               'relative flex flex-col rounded-24 bg-cover p-2 pb-10',
-              isHorizontal && 'm-2 ',
+              isHorizontal && 'm-2',
             )}
             style={{
               backgroundImage: `url(${coverImage})`,

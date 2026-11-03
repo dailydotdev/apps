@@ -124,4 +124,4 @@ export const getIntroQuestDestination = (
 ): QuestDestination | null =>
   eventType === 'extension_install'
     ? getExtensionIntroDestination(browserName)
-    : introDestinationByEventType[eventType] ?? null;
+    : (introDestinationByEventType[eventType] ?? null);

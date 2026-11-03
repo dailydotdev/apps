@@ -1,4 +1,4 @@
-import type { MouseEvent, ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';

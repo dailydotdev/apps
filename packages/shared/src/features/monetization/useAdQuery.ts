@@ -1,11 +1,9 @@
 import type { QueryKey, UseQueryOptions } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import { useFeature } from '../../components/GrowthBookProvider';
 import type { Ad } from '../../graphql/posts';
 import { fetchAdByPlacement, resolveAdFetchOptions } from '../../lib/ads';
 import type { FetchAdByPlacementOptions } from '../../lib/ads';
-import { featurePostBoostAds } from '../../lib/featureManagement';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useAdRequestConsent } from './useAdRequestConsent';
 import { useAdPageViewId } from './useAdPageViewId';
@@ -35,7 +33,6 @@ export const useAdQuery = ({
   retry,
   refreshOnPageView = false,
 }: UseAdQueryOptions) => {
-  const boostsEnabled = useFeature(featurePostBoostAds);
   const consent = useAdRequestConsent(enabled);
   const { isAuthReady, isLoggedIn } = useAuthContext();
   const registered = isAuthReady ? isLoggedIn : undefined;
@@ -45,12 +42,11 @@ export const useAdQuery = ({
       resolveAdFetchOptions({
         placement,
         active,
-        boostsEnabled,
         consent: consent ?? undefined,
         registered,
         pageViewId,
       }),
-    [placement, active, boostsEnabled, consent, registered, pageViewId],
+    [placement, active, consent, registered, pageViewId],
   );
 
   return useQuery<Ad | null>({

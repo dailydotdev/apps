@@ -32,7 +32,7 @@ export const useAutoRotatingAds = (
   isRefetching: QueryObserverBaseResult<Ad | null>['isRefetching'];
 } => {
   const autorotateFlag = useFeature(featureAutorotateAds);
-  const autorotateAds = disabled ? 0 : autorotateFlag ?? 0;
+  const autorotateAds = disabled ? 0 : (autorotateFlag ?? 0);
   const { logEventEnd } = useLogContext();
   const { queryKey: feedQueryKey = [] } = useContext(ActiveFeedContext);
   const queryClient = useQueryClient();

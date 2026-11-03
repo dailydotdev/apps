@@ -45,10 +45,30 @@ describe('LiveChatHighlightCardRow', () => {
     render(<LiveChatHighlightCardRow compact />);
 
     const link = screen.getByRole('link');
-    expect(link).toHaveAttribute('href', 'https://app.daily.dev/posts/p1');
+    expect(link).toHaveAttribute(
+      'href',
+      'https://app.daily.dev/posts/p1?chat=join',
+    );
     expect(link).toHaveTextContent('Live chat');
     expect(link).toHaveTextContent('23 here · ends in 2h');
     expect(link).toHaveTextContent('Bun 2.0');
+  });
+
+  it('keeps a small room with hours ahead to the fact that it is live', () => {
+    jest.mocked(useLiveChatHighlight).mockReturnValue({
+      room: {
+        ...room,
+        occupantCount: 3,
+        expiresAt: new Date(Date.now() + 22 * 60 * 60 * 1000).toISOString(),
+      },
+      isPending: false,
+    });
+    render(<LiveChatHighlightCardRow compact />);
+
+    const link = screen.getByRole('link');
+    expect(link).toHaveTextContent('Live chat');
+    expect(link).not.toHaveTextContent('here');
+    expect(link).not.toHaveTextContent('ends in');
   });
 
   it('holds the row while the rooms are still loading', () => {

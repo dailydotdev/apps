@@ -488,12 +488,12 @@ export default function useFeed<T>(
 
   const isAdsQueryEnabled = Boolean(
     !isPlus &&
-      query &&
-      isTokenValid &&
-      !isFeedPreview &&
-      (!adPostLength ||
-        (feedQuery.data?.pages[0]?.page.edges.length ?? 0) > adPostLength) &&
-      !settings?.disableAds,
+    query &&
+    isTokenValid &&
+    !isFeedPreview &&
+    (!adPostLength ||
+      (feedQuery.data?.pages[0]?.page.edges.length ?? 0) > adPostLength) &&
+    !settings?.disableAds,
   );
 
   const shouldEvaluateHighlightCards = useMemo(() => {

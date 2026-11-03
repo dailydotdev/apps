@@ -481,12 +481,15 @@ export const notificationFilterCategoryLabel: Record<
 
 const notificationTypeToCategory = Object.entries(
   notificationCategoryToTypes,
-).reduce((acc, [category, types]) => {
-  types.forEach((type) => {
-    acc[type] = category as NotificationFilterCategory;
-  });
-  return acc;
-}, {} as Partial<Record<NotificationType, NotificationFilterCategory>>);
+).reduce(
+  (acc, [category, types]) => {
+    types.forEach((type) => {
+      acc[type] = category as NotificationFilterCategory;
+    });
+    return acc;
+  },
+  {} as Partial<Record<NotificationType, NotificationFilterCategory>>,
+);
 
 export const getNotificationCategory = (
   type: NotificationType,

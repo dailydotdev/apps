@@ -535,6 +535,7 @@ export function ShellCluster(): ReactElement | null {
                   <a
                     aria-label={tab.label}
                     aria-current={isActive ? 'page' : undefined}
+                    // eslint-disable-next-line jsx-a11y/no-redundant-roles
                     role="link"
                     tabIndex={0}
                     onClick={onTabClick(tab)}

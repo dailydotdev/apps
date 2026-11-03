@@ -33,6 +33,7 @@ import {
   mapCommunitySentimentPost,
 } from './focus/CommunitySentiment';
 import { getPostWidgetsClassName } from './common';
+import { Origin } from '../../lib/log';
 
 type SocialTwitterPostContentRawProps = Omit<PostContentProps, 'post'> & {
   post: Post;
@@ -156,6 +157,7 @@ export function SocialTwitterPostContentRaw({
           navigationProps={navigationProps}
           engagementProps={engagementActions}
           origin={origin}
+          boostOrigin={shouldShowBanner ? Origin.NewPostBoostStrip : undefined}
           post={post}
         >
           {shouldShowBanner && !isLaptop && (

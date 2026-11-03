@@ -32,6 +32,7 @@ export interface MainLayoutHeaderProps {
   sidebarRendered?: boolean;
   additionalButtons?: ReactNode;
   onLogoClick?: (e: React.MouseEvent) => unknown;
+  canShowSignInStrip?: boolean;
 }
 
 const SpotlightTrigger = dynamic(
@@ -52,6 +53,7 @@ function MainLayoutHeader({
   sidebarRendered,
   additionalButtons,
   onLogoClick,
+  canShowSignInStrip = false,
 }: MainLayoutHeaderProps): ReactElement {
   const { loadedSettings } = useSettingsContext();
   const hasHydrated = useIsHydrated();
@@ -138,7 +140,10 @@ function MainLayoutHeader({
   if (shouldRenderFeedNav) {
     return (
       <>
-        <FeedNav hasFeedWidgetRail={isFeedWidgetRailOn} />
+        <FeedNav
+          hasFeedWidgetRail={isFeedWidgetRailOn}
+          canShowSignInStrip={canShowSignInStrip}
+        />
       </>
     );
   }

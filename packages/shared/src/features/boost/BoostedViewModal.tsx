@@ -27,6 +27,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import type { Squad } from '../../graphql/sources';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
+import { Origin } from '../../lib/log';
 
 interface BoostedViewModalProps extends ModalProps {
   campaign: Campaign;
@@ -115,17 +116,19 @@ export function BoostedViewModal({
   });
 
   const onBoostAgain = ({ type, post, source }: Campaign) => {
+    const origin = onBack ? Origin.AdsDashboard : Origin.BoostAgain;
+
     if (type === CampaignType.Post && post) {
       return openModal({
         type: LazyModal.BoostPost,
-        props: { post },
+        props: { post, origin },
       });
     }
 
     if (type === CampaignType.Squad && source) {
       return openModal({
         type: LazyModal.BoostSquad,
-        props: { squad: source },
+        props: { squad: source, origin },
       });
     }
 
@@ -138,7 +141,7 @@ export function BoostedViewModal({
         return null;
       }
 
-      return onCancelBoost(campaign.id);
+      return onCancelBoost(campaign);
     }
 
     return onBoostAgain(campaign);

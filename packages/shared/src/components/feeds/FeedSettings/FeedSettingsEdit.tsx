@@ -141,12 +141,10 @@ export const FeedSettingsEdit = (
   const isMainFeed = feed?.type === FeedType.Main;
   const tabs = useMemo(() => {
     if (isMainFeed) {
-      return forYouSettingsPages.map(
-        ({ title, icon: Icon }): TabOptions => ({
-          title,
-          options: { icon: <Icon size={IconSize.Small} /> },
-        }),
-      );
+      return forYouSettingsPages.map(({ title, icon: Icon }): TabOptions => ({
+        title,
+        options: { icon: <Icon size={IconSize.Small} /> },
+      }));
     }
 
     const base: TabOptions[] = [

@@ -22,8 +22,7 @@ interface UseDiscardPostProps {
 }
 
 interface UseDiscardPost
-  extends UseExitConfirmation,
-    Pick<WritePostProps, 'draft' | 'updateDraft'> {
+  extends UseExitConfirmation, Pick<WritePostProps, 'draft' | 'updateDraft'> {
   formRef: MutableRefObject<HTMLFormElement | undefined>;
   isDraftReady: boolean;
   clearDraft: () => void;
