@@ -319,7 +319,11 @@ export function HomeSegments({
           ...item,
           keepScroll: keepScroll || item.keepScroll,
           onClick: () => {
-            onSelect?.();
+            // The lit tab is already the view: a tap on it switches nothing,
+            // so it must not leave a switch announced for the next route.
+            if (!item.active) {
+              onSelect?.();
+            }
             item.onClick?.();
           },
         }))

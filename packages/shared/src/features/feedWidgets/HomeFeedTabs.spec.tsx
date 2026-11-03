@@ -14,6 +14,7 @@ import { mockDesktop, mockMatchMedia } from '../../../__tests__/helpers/media';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import type { LoggedUser } from '../../lib/user';
 import { SharedFeedPage } from '../../components/utilities/common';
+import { takeViewSwitch } from '../../lib/scrollRestoration';
 import { HomeFeedTabs } from './HomeFeedTabs';
 
 jest.mock('next/router', () => ({
@@ -339,6 +340,28 @@ describe('HomeFeedTabs', () => {
           name: 'For you, sort and feed settings',
         }),
       ).not.toBeInTheDocument();
+    });
+
+    it('announces no view switch from a tap on the lit tab', () => {
+      jest.mocked(useRouter).mockImplementation(
+        () =>
+          ({
+            pathname: '/following',
+            asPath: '/following',
+            query: {},
+            push: jest.fn(),
+            replace: jest.fn(),
+            events: { on: jest.fn(), off: jest.fn() },
+          }) as unknown as NextRouter,
+      );
+      renderTabs();
+      takeViewSwitch();
+
+      fireEvent.click(screen.getByRole('link', { name: 'Following' }));
+      expect(takeViewSwitch()).toBe(false);
+
+      fireEvent.click(screen.getByRole('link', { name: 'For you' }));
+      expect(takeViewSwitch()).toBe(true);
     });
 
     it('takes the collapsed row out of reach while its copy is docked', () => {
