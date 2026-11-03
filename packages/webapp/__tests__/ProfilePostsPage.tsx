@@ -18,11 +18,16 @@ import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
+import * as viewSize from '@dailydotdev/shared/src/hooks/useViewSize';
 import ProfilePage from '../pages/[userId]/posts';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
 }));
+
+afterEach(() => {
+  jest.restoreAllMocks();
+});
 
 beforeEach(() => {
   nock.cleanAll();
@@ -165,4 +170,35 @@ it('should not offer the owner a new post CTA in preview mode', async () => {
     await screen.findByText("Daily Dev hasn't posted yet"),
   ).toBeInTheDocument();
   expect(screen.queryByText('New post')).not.toBeInTheDocument();
+});
+
+it('should render the profile with the posts segment open on a phone', async () => {
+  jest.spyOn(viewSize, 'useIsPhone').mockReturnValue(true);
+  jest.mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        pathname: '/[userId]/posts',
+        asPath: '/dailydotdev/posts',
+        query: { userId: 'dailydotdev' },
+        isReady: true,
+        isFallback: false,
+        replace: jest.fn(),
+        push: jest.fn(),
+        events: { on: jest.fn(), off: jest.fn() },
+      }) as unknown as NextRouter,
+  );
+  renderComponent();
+  await waitForNock();
+
+  expect(await screen.findByRole('button', { name: 'Posts' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  expect(screen.getByRole('button', { name: 'About' })).toHaveAttribute(
+    'aria-pressed',
+    'false',
+  );
+  expect(screen.getAllByText('Daily Dev').length).toBeGreaterThan(0);
+  const articles = await screen.findAllByRole('article');
+  expect(articles.length).toBeGreaterThan(0);
 });
