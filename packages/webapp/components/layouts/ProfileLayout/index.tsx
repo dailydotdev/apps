@@ -20,7 +20,6 @@ import type { NextSeoProps } from 'next-seo';
 import { ClientQuestEventType } from '@dailydotdev/shared/src/graphql/quests';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import { useTrackQuestClientEvent } from '@dailydotdev/shared/src/hooks/useTrackQuestClientEvent';
-import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -177,9 +176,7 @@ export const getLayout = (
   props: ProfileLayoutProps,
 ): ReactNode =>
   getFooterNavBarLayout(
-    getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>, undefined, {
-      customBanner: <CustomAuthBanner />,
-    }),
+    getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>),
   );
 
 interface ProfileParams extends ParsedUrlQuery {
