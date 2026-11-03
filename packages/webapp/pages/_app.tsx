@@ -44,6 +44,7 @@ import { PushNotificationContextProvider } from '@dailydotdev/shared/src/context
 import { SerwistProvider } from '@serwist/turbopack/react';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { useIsLightTheme } from '@dailydotdev/shared/src/hooks/utils/useThemedAsset';
+import { useIsStandaloneApp } from '@dailydotdev/shared/src/hooks/utils/useIsStandaloneApp';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { installDomMutationGuard } from '@dailydotdev/shared/src/lib/domMutationGuard';
@@ -254,6 +255,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   const { themeColor } = useThemedAsset();
   const isLightTheme = useIsLightTheme();
+  const isStandaloneApp = useIsStandaloneApp();
   const seo = (pageProps?.seo || layoutProps?.seo) as Record<string, unknown>;
 
   const showAppStoreBanner = !router.pathname.startsWith('/helloworld');
@@ -271,7 +273,13 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
         <Head>
           <meta
             name="viewport"
-            content="initial-scale=1.0, width=device-width, viewport-fit=cover"
+            // Pinch-zoom is kept in the browser for accessibility (WCAG 1.4.4)
+            // and only disabled when installed, to match native app behaviour.
+            content={
+              isStandaloneApp
+                ? 'initial-scale=1.0, width=device-width, viewport-fit=cover, maximum-scale=1.0, user-scalable=no'
+                : 'initial-scale=1.0, width=device-width, viewport-fit=cover'
+            }
           />
           <meta name="theme-color" content={themeColor} />
           <meta
