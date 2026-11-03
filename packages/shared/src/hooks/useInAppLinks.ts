@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useIsPhone } from './useViewSize';
 import { useSettingsBooleanFlag } from './useSettingsBooleanFlag';
+import { useSettingsContext } from '../contexts/SettingsContext';
 import {
   isOutsideLink,
   openInSystemBrowser,
@@ -24,6 +25,7 @@ export const useInAppLinks = (): void => {
   const { value: isOptedOut, set: setOptedOut } = useSettingsBooleanFlag(
     'openLinksInAppOptOut',
   );
+  const { loadedSettings } = useSettingsContext();
   const setOptedOutRef = useRef(setOptedOut);
   setOptedOutRef.current = setOptedOut;
 
@@ -31,7 +33,7 @@ export const useInAppLinks = (): void => {
   // change made there when the app comes back; both sides say what they
   // know, and only a difference writes.
   useEffect(() => {
-    if (!supportsReading()) {
+    if (!loadedSettings || !supportsReading()) {
       return undefined;
     }
     postReading(ReadingAction.Preference, { inApp: !isOptedOut });
@@ -45,7 +47,7 @@ export const useInAppLinks = (): void => {
     window.addEventListener(ReadingEvent.Preference, onPreference);
     return () =>
       window.removeEventListener(ReadingEvent.Preference, onPreference);
-  }, [isOptedOut]);
+  }, [isOptedOut, loadedSettings]);
 
   useEffect(() => {
     if (!isPhone || !supportsReading()) {
