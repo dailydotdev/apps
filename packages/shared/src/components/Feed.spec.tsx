@@ -125,7 +125,7 @@ jest.mocked(useRouter).mockImplementation(
     ({
       pathname: '/',
       query: {},
-    } as unknown as NextRouter),
+    }) as unknown as NextRouter,
 );
 
 const showLogin = jest.fn();
@@ -2146,7 +2146,7 @@ describe('Feed logged in', () => {
           query: {},
           push: jest.fn().mockResolvedValue(true),
           events: { on: jest.fn(), off: jest.fn(), emit: jest.fn() },
-        } as unknown as NextRouter),
+        }) as unknown as NextRouter,
     );
     nock('http://localhost:3000')
       .persist()
@@ -2355,7 +2355,7 @@ describe('Feed logged in', () => {
         ({
           pathname: '/',
           query: {},
-        } as unknown as NextRouter),
+        }) as unknown as NextRouter,
     );
     let mutationCalled = false;
     renderComponent([
@@ -2421,7 +2421,7 @@ describe('Feed logged in', () => {
         ({
           pathname: '/',
           query: {},
-        } as unknown as NextRouter),
+        }) as unknown as NextRouter,
     );
     renderComponent([
       createFeedMock({
@@ -2490,7 +2490,7 @@ describe('Feed logged in', () => {
               off: jest.fn(),
               emit: jest.fn(),
             },
-          } as unknown as NextRouter),
+          }) as unknown as NextRouter,
       );
 
       Object.defineProperty(window, 'location', {
@@ -2673,7 +2673,7 @@ const buildPost = (id: string, hero?: PostHero | null): Post =>
     type: PostType.Article,
     domain: 'example.com',
     hero: hero ?? null,
-  } as Post);
+  }) as Post;
 
 const SIGNIFICANCE_BY_SIZE: Record<number, PostHeroSignificance> = {
   4: 'breaking',
@@ -2888,7 +2888,7 @@ describe('Feed ad cadence with highlight cards', () => {
         ({
           pathname: '/',
           query: {},
-        } as unknown as NextRouter),
+        }) as unknown as NextRouter,
     );
     jest.mocked(useBoot).mockReturnValue({
       addSquad: jest.fn(),
@@ -3255,7 +3255,7 @@ describe('Feed ad cadence with highlight cards', () => {
         ({
           pathname: '/',
           query: { ua: 'true' },
-        } as unknown as NextRouter),
+        }) as unknown as NextRouter,
     );
     const marketingCtaTitle = 'Priority CTA';
     const marketingCta: MarketingCta = {
@@ -3585,7 +3585,7 @@ describe('Feed top hero placements', () => {
     jest
       .mocked(useRouter)
       .mockImplementation(
-        () => ({ pathname: '/', query: {} } as unknown as NextRouter),
+        () => ({ pathname: '/', query: {} }) as unknown as NextRouter,
       );
     jest.mocked(useBoot).mockReturnValue({
       addSquad: jest.fn(),

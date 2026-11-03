@@ -47,7 +47,7 @@ const makePost = (
 };
 
 const makePostItem = (post: Post): FeedItem =>
-  ({ type: FeedItemType.Post, post } as FeedItem);
+  ({ type: FeedItemType.Post, post }) as FeedItem;
 
 const ALL_WIDENABLE: ReadonlySet<PostType> = new Set([
   PostType.Article,
@@ -67,7 +67,7 @@ const makeAdItem = (): FeedItem =>
       description: '',
       image: '',
     } as Ad,
-  } as FeedItem);
+  }) as FeedItem;
 
 describe('requestedColSpan', () => {
   it('returns 1 for items without hero', () => {

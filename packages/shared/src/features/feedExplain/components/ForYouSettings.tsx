@@ -64,33 +64,27 @@ const getTimedChanges = (
   { setTopic, setSource, setAuthor }: UseFeedControls,
 ): TimedChange[] =>
   [
-    ...controls.topics.map(
-      (control): Partial<TimedChange> => ({
-        key: `topic:${control.keyword}`,
-        name: `#${control.keyword}`,
-        expiresAt: control.expiresAt ?? undefined,
-        meta: getControlMeta(control, isPlus),
-        onEnd: () => setTopic(control.keyword, { mode: null }),
-      }),
-    ),
-    ...controls.sources.map(
-      (control): Partial<TimedChange> => ({
-        key: `source:${control.source.id}`,
-        name: control.source.name ?? control.source.id,
-        expiresAt: control.expiresAt ?? undefined,
-        meta: getControlMeta(control, isPlus, followModeMeta),
-        onEnd: () => setSource(control.source.id, { mode: null }),
-      }),
-    ),
-    ...controls.authors.map(
-      (control): Partial<TimedChange> => ({
-        key: `author:${control.user.id}`,
-        name: control.user.name ?? control.user.id,
-        expiresAt: control.expiresAt ?? undefined,
-        meta: getControlMeta(control, isPlus, followModeMeta),
-        onEnd: () => setAuthor(control.user.id, { mode: null }),
-      }),
-    ),
+    ...controls.topics.map((control): Partial<TimedChange> => ({
+      key: `topic:${control.keyword}`,
+      name: `#${control.keyword}`,
+      expiresAt: control.expiresAt ?? undefined,
+      meta: getControlMeta(control, isPlus),
+      onEnd: () => setTopic(control.keyword, { mode: null }),
+    })),
+    ...controls.sources.map((control): Partial<TimedChange> => ({
+      key: `source:${control.source.id}`,
+      name: control.source.name ?? control.source.id,
+      expiresAt: control.expiresAt ?? undefined,
+      meta: getControlMeta(control, isPlus, followModeMeta),
+      onEnd: () => setSource(control.source.id, { mode: null }),
+    })),
+    ...controls.authors.map((control): Partial<TimedChange> => ({
+      key: `author:${control.user.id}`,
+      name: control.user.name ?? control.user.id,
+      expiresAt: control.expiresAt ?? undefined,
+      meta: getControlMeta(control, isPlus, followModeMeta),
+      onEnd: () => setAuthor(control.user.id, { mode: null }),
+    })),
   ]
     .filter((change): change is TimedChange => !!change.expiresAt)
     .sort(
@@ -344,7 +338,7 @@ const describeLevels = ({ topics, sources, authors }: FeedControls): string => {
     .filter(([count]) => count > 0)
     .map(([count, noun]) => `${count} ${pluralize(noun, count)}`);
   const last = counts.pop();
-  return counts.length ? `${counts.join(', ')} and ${last}` : last ?? '';
+  return counts.length ? `${counts.join(', ')} and ${last}` : (last ?? '');
 };
 
 /**

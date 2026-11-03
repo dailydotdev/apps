@@ -25,7 +25,7 @@ export const useAdRequestConsent = (
   const [cmpTimedOut, setCmpTimedOut] = useState(false);
   const cmpConfigured = Boolean(
     process.env.NEXT_PUBLIC_IUBENDA_SITE_ID &&
-      Number(process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID),
+    Number(process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID),
   );
   const shouldWaitForCmp =
     enabled &&

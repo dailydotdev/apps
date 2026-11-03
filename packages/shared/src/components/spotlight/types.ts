@@ -203,8 +203,7 @@ export interface SpotlightSearchLogContext {
   searchVersion?: number;
 }
 
-export interface SpotlightResultsImpressionDetails
-  extends SpotlightSearchLogContext {
+export interface SpotlightResultsImpressionDetails extends SpotlightSearchLogContext {
   resultCount: number;
   counts: { posts: number; tags: number; sources: number; users: number };
 }

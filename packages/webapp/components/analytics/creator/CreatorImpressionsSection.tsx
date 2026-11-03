@@ -15,9 +15,9 @@ import { buildImpressionsChartData, periodLabel } from './common';
 
 const CombinedImpressionsChart = dynamic(
   () =>
-    import(
-      '@dailydotdev/shared/src/components/analytics/CombinedImpressionsChart'
-    ).then((mod) => mod.CombinedImpressionsChart),
+    import('@dailydotdev/shared/src/components/analytics/CombinedImpressionsChart').then(
+      (mod) => mod.CombinedImpressionsChart,
+    ),
   {
     loading: () => <ElementPlaceholder className="h-40 w-full rounded-12" />,
   },

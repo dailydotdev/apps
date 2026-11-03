@@ -15,8 +15,10 @@ interface SearchResultsSourceListProps {
   className?: string;
 }
 
-interface SearchResultsSourcesProps
-  extends Omit<SearchResultsSourceListProps, 'className'> {
+interface SearchResultsSourcesProps extends Omit<
+  SearchResultsSourceListProps,
+  'className'
+> {
   isLoading: boolean;
 }
 

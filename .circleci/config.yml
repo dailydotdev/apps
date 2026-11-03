@@ -23,9 +23,7 @@ jobs:
           key: deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
           paths:
             - ./node_modules
-            - ./packages/eslint-config/node_modules
             - ./packages/eslint-rules/node_modules
-            - ./packages/prettier-config/node_modules
             - ./packages/shared/node_modules
             - ./packages/webapp/node_modules
             - ./packages/extension/node_modules

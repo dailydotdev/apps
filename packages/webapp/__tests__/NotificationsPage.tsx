@@ -37,7 +37,7 @@ beforeEach(() => {
         isFallback: false,
         query: {},
         pathname: '/notifications',
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
 });
 

@@ -48,7 +48,7 @@ const AddToCustomFeedModal = ({
         <Button
           onClick={onCreateNewFeed}
           icon={
-            <div className="flex  rounded-6 bg-background-subtle">
+            <div className="flex rounded-6 bg-background-subtle">
               <PlusIcon className="m-auto" />
             </div>
           }
@@ -70,6 +70,7 @@ const AddToCustomFeedModal = ({
                   <HashtagIcon />
                 )
               }
+              // eslint-disable-next-line jsx-a11y/role-has-required-aria-props
               role="radio"
             >
               {feed.node?.flags?.name}

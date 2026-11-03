@@ -157,7 +157,7 @@ export const FeedSettingsEditHeader = (): ReactElement | null => {
   if (isMobile) {
     const feedName =
       feed?.type === FeedType.Custom
-        ? feed.flags?.name ?? 'Feed settings'
+        ? (feed.flags?.name ?? 'Feed settings')
         : 'For You';
     const rowTitle = activeView ?? feedName;
 

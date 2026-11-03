@@ -194,6 +194,7 @@ const RowChip = ({
           aria-label={item.ariaLabel}
           aria-current={item.active ? 'page' : undefined}
           onClick={item.onClick}
+          // eslint-disable-next-line jsx-a11y/no-redundant-roles
           role="link"
           tabIndex={0}
           onKeyDown={(event) => {
@@ -334,6 +335,7 @@ export const SheetChoice = ({ items }: { items: RowItem[] }): ReactElement => (
             <a
               aria-current={item.active ? 'page' : undefined}
               onClick={item.onClick}
+              // eslint-disable-next-line jsx-a11y/no-redundant-roles
               role="link"
               tabIndex={0}
               onKeyDown={(event) => {

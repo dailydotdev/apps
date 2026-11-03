@@ -134,7 +134,7 @@ beforeEach(() => {
           bio: '',
           reputation: 1250,
         }),
-      } as unknown as ReturnType<typeof dmPeerQueryOptions>),
+      }) as unknown as ReturnType<typeof dmPeerQueryOptions>,
   );
   jest.mocked(getPostChatRoom).mockResolvedValue(room);
   jest.mocked(openPostChatRoom).mockResolvedValue(room);

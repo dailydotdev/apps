@@ -88,7 +88,8 @@ const FeedErrorScreen = dynamic(
 );
 
 export interface FeedProps<T>
-  extends Pick<UseFeedOptionalParams<T>, 'options' | 'excludePinnedPosts'>,
+  extends
+    Pick<UseFeedOptionalParams<T>, 'options' | 'excludePinnedPosts'>,
     Pick<FeedContainerProps, 'shortcuts'> {
   feedName: AllFeedPages;
   feedQueryKey: QueryKey;
@@ -743,7 +744,7 @@ export default function Feed<T>({
               {topContentProp}
             </>
           ) : (
-            topContentProp ?? inlineReadingReminder
+            (topContentProp ?? inlineReadingReminder)
           ),
         header,
         inlineHeader,

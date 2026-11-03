@@ -37,7 +37,7 @@ const mockRouterQuery = (query: Record<string, string>) =>
         query,
         push: jest.fn(),
         isReady: true,
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
 
 beforeEach(() => {

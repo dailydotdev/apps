@@ -50,8 +50,8 @@ export const AgentMark = ({
         isWorking
           ? 'animate-pulse bg-brand-default'
           : status === UserInterestStatus.Active
-          ? 'bg-action-upvote-default'
-          : 'bg-text-quaternary',
+            ? 'bg-action-upvote-default'
+            : 'bg-text-quaternary',
       )}
     />
   </span>

@@ -28,8 +28,10 @@ import { anchorDefaultRel } from '../../../lib/strings';
 import { StreakFreezeUpsell } from '../../streak/StreakFreezeUpsell';
 import { CoresBalanceNote } from '../../cores/CoresBalanceNote';
 
-export interface StreakRecoverModalProps
-  extends Pick<ModalProps, 'isOpen' | 'onAfterClose'> {
+export interface StreakRecoverModalProps extends Pick<
+  ModalProps,
+  'isOpen' | 'onAfterClose'
+> {
   onRequestClose: () => void;
   user: LoggedUser;
 }

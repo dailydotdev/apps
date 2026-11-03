@@ -78,10 +78,8 @@ const Sidebar = dynamic(() =>
 );
 
 export interface MainLayoutProps
-  extends Omit<
-      MainLayoutHeaderProps,
-      'onMobileSidebarToggle' | 'canShowSignInStrip'
-    >,
+  extends
+    Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle' | 'canShowSignInStrip'>,
     HTMLAttributes<HTMLDivElement> {
   mainPage?: boolean;
   activePage?: string;

@@ -33,8 +33,8 @@ export const useQueryTab = <T extends string>(
     ? tabs.find((tab) => toSlug(tab) === queryTab)
     : undefined;
   const activeTab = fromQuery
-    ? addressedTab ?? tabs[0]
-    : localTab ?? addressedTab ?? tabs[0];
+    ? (addressedTab ?? tabs[0])
+    : (localTab ?? addressedTab ?? tabs[0]);
 
   const setActiveTab = useCallback(
     (tab: T) => {

@@ -62,9 +62,8 @@ export function UserStackModal({
 }: UserStackModalProps): ReactElement {
   // Don't show suggestions initially if we have a pre-selected title
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [hasSelectedFromDefault, setHasSelectedFromDefault] = useState(
-    !!defaultTitle,
-  );
+  const [hasSelectedFromDefault, setHasSelectedFromDefault] =
+    useState(!!defaultTitle);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isEditing = !!existingItem;
 

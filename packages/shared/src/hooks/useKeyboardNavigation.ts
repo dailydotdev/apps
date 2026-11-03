@@ -59,7 +59,7 @@ export const useKeyboardNavigation = (
 
     element.addEventListener('keydown', onPress);
 
-    // eslint-disable-next-line consistent-return
+    // eslint-disable-next-line eslint-compat/consistent-return
     return () => {
       element.removeEventListener('keydown', onPress);
     };

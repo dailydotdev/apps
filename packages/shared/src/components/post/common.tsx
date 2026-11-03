@@ -79,7 +79,8 @@ export interface PostHeaderActionsProps {
 }
 
 export interface PostContentProps
-  extends Pick<
+  extends
+    Pick<
       PostHeaderActionsProps,
       'onClose' | 'inlineActions' | 'hideSubscribeAction'
     >,

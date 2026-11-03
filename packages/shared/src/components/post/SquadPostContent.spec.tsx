@@ -77,7 +77,7 @@ describe('SquadPostContent snapshot placements', () => {
   beforeAll(() => {
     // jsdom has no layout, and the bar refuses a selection it cannot place.
     Range.prototype.getBoundingClientRect = () =>
-      ({ top: 400, bottom: 440, left: 100, width: 300 } as DOMRect);
+      ({ top: 400, bottom: 440, left: 100, width: 300 }) as DOMRect;
   });
 
   it('ends a paragraph of a freeform body with a snapshot control', async () => {

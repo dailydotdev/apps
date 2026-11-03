@@ -40,8 +40,9 @@ export enum CheckboxGroupBehaviour {
   Checkbox = 'checkbox',
 }
 
-export interface FormInputCheckboxGroupProps
-  extends PropsWithChildren<ComponentProps<'div'>> {
+export interface FormInputCheckboxGroupProps extends PropsWithChildren<
+  ComponentProps<'div'>
+> {
   behaviour?: CheckboxGroupBehaviour;
   /**
    * @default []

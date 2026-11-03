@@ -228,12 +228,10 @@ const CreatorList = ({
   );
   const adjusted = controls.authors
     .filter(({ user: author }) => !followed.some(({ id }) => id === author.id))
-    .map(
-      ({ user: author }): ListedCreator => ({
-        id: author.id,
-        name: author.name ?? author.id,
-      }),
-    );
+    .map(({ user: author }): ListedCreator => ({
+      id: author.id,
+      name: author.name ?? author.id,
+    }));
   [...followed, ...adjusted].forEach((creator) =>
     known.current.set(creator.id, creator),
   );

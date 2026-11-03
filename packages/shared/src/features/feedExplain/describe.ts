@@ -239,7 +239,7 @@ export const getReason = (
 };
 
 export const getPostTags = (post: Post): string[] =>
-  (post.tags?.length ? post.tags : post.sharedPost?.tags ?? []).filter(
+  (post.tags?.length ? post.tags : (post.sharedPost?.tags ?? [])).filter(
     (tag) => tag.length,
   );
 
@@ -271,13 +271,11 @@ export const getExplainSignals = (
   const matched = isRankedExplain(explain) ? explain.match?.tag : undefined;
   const topics = [
     ...new Set([...(matched ? [matched] : []), ...getPostTags(post)]),
-  ].map(
-    (tag): ExplainSignal => ({
-      kind: ExplainSignalKind.Topic,
-      id: tag,
-      label: `#${tag}`,
-    }),
-  );
+  ].map((tag): ExplainSignal => ({
+    kind: ExplainSignalKind.Topic,
+    id: tag,
+    label: `#${tag}`,
+  }));
   const { source, author } = post;
   const ranked = isRankedExplain(explain) ? explain : undefined;
   let leadSide: FollowSide | undefined;

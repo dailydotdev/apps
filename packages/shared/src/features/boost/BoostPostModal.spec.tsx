@@ -53,7 +53,7 @@ const createMockPost = (overrides: Record<string, unknown> = {}): Post =>
     yggdrasilId: undefined,
     sharedPost: undefined,
     ...overrides,
-  } as Post);
+  }) as Post;
 
 const createMockUser = (balance = 50000) => ({
   ...loggedUser,

@@ -95,7 +95,7 @@ beforeEach(() => {
         push: jest.fn(),
         isReady: true,
         events: { on: jest.fn(), off: jest.fn(), emit: jest.fn() },
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
 });
 
