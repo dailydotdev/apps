@@ -209,7 +209,7 @@ function FeedNav({
   }
   if (!shouldRenderNav) {
     return isTablet && isMobileAppHeader && canShowSignInStrip && !profile ? (
-      <div className="pl-20 pr-4 pt-4">
+      <div className="sticky top-0 z-3 ml-20 mr-4 mt-4">
         <SignInStrip />
       </div>
     ) : null;
