@@ -67,9 +67,9 @@ export type SettingsFlagValue = SettingsFlags[keyof SettingsFlags];
 // Keep only flags the API does not know yet. Sending an unknown flag fails
 // GraphQL validation, and since every write ships the whole `flags` object,
 // that breaks the persistence of all settings in the same payload.
-export const clientOnlySettingsFlags = [
-  'openLinksInAppOptOut',
-] as const satisfies ReadonlyArray<keyof SettingsFlags>;
+export const clientOnlySettingsFlags = [] as const satisfies ReadonlyArray<
+  keyof SettingsFlags
+>;
 
 export type ClientOnlyFlagKey = (typeof clientOnlySettingsFlags)[number];
 
