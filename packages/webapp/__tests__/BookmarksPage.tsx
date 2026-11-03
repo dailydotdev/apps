@@ -79,11 +79,23 @@ jest.mock('@dailydotdev/shared/src/components/post/PostPane', () => ({
 
 const routerReplace = jest.fn();
 
+// On phones the page's actions are portaled into the shell block's slot, which
+// this layout does not mount; render them inline when a spec asks for it.
+let mockInlineShellActions = false;
+jest.mock('@dailydotdev/shared/src/components/shell/ShellPageContext', () => ({
+  ...jest.requireActual(
+    '@dailydotdev/shared/src/components/shell/ShellPageContext',
+  ),
+  ShellPage: ({ actions }: { actions?: React.ReactNode }) =>
+    mockInlineShellActions ? <>{actions}</> : null,
+}));
+
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
 }));
 
 beforeEach(() => {
+  mockInlineShellActions = false;
   jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
@@ -235,6 +247,25 @@ describe('weekly picks entry point', () => {
       'href',
       expect.stringContaining('picks/new?origin=bookmarks'),
     );
+  });
+
+  it('should render an icon-only button on phones', async () => {
+    jest.spyOn(viewSize, 'useViewSize').mockReturnValue(true);
+    jest.spyOn(viewSize, 'useIsPhone').mockReturnValue(true);
+    mockInlineShellActions = true;
+    renderComponent(
+      [createFeedMock()],
+      defaultUser,
+      undefined,
+      picksGrowthBook(true),
+    );
+    await waitForNock();
+    const link = await screen.findByRole('link', { name: 'Make your picks' });
+    expect(link).toHaveAttribute(
+      'href',
+      expect.stringContaining('picks/new?origin=bookmarks'),
+    );
+    expect(link).not.toHaveTextContent('Make your picks');
   });
 
   it('should hide the button when the flag is off', async () => {

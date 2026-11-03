@@ -29,7 +29,7 @@ import { useLogContext } from '../contexts/LogContext';
 import SearchEmptyScreen from './SearchEmptyScreen';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
-import { ShareIcon, SortIcon } from './icons';
+import { ShareIcon, SortIcon, StarIcon } from './icons';
 import Link from './utilities/Link';
 import { useFeature } from './GrowthBookProvider';
 import { featureWeeklyPicks } from '../lib/featureManagement';
@@ -672,8 +672,16 @@ export default function BookmarkFeedLayout({
   );
   const picksButton = !!user && isWeeklyPicksEnabled && (
     <Link href={`${webappUrl}picks/new?origin=bookmarks`} passHref>
-      <Button tag="a" size={ButtonSize.Small} variant={ButtonVariant.Secondary}>
-        Make your picks
+      <Button
+        tag="a"
+        aria-label="Make your picks"
+        size={ButtonSize.Small}
+        variant={isPhone ? ButtonVariant.Tertiary : ButtonVariant.Secondary}
+        icon={
+          isPhone ? <StarIcon size={IconSize.Small} aria-hidden /> : undefined
+        }
+      >
+        {isPhone ? undefined : 'Make your picks'}
       </Button>
     </Link>
   );
