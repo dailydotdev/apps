@@ -11,7 +11,6 @@ import { useRoomPeople } from '../hooks/useRoomPeople';
 import { LiveChatMessageList } from './LiveChatMessageList';
 import { LiveChatComposer } from './LiveChatComposer';
 import { LiveChatLockedComposer } from './LiveChatLockedComposer';
-import { LiveDot } from './LiveDot';
 import { formatEndsIn, formatOccupants, formatTimeLeft } from '../timeLeft';
 
 const failureCopy: Record<RoomJoinFailure, string> = {
@@ -198,10 +197,6 @@ export const LiveChatPanel = ({
         )}
       >
         <div className="flex items-center gap-2">
-          <LiveDot
-            isLive={isOpen}
-            className={isInline ? 'size-2.5' : undefined}
-          />
           <h3
             className={classNames(
               'font-bold',
