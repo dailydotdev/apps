@@ -9,10 +9,7 @@ import { defaultQueryClientTestingConfig } from '../../../../../__tests__/helper
 import { mockDesktop } from '../../../../../__tests__/helpers/media';
 import type { Squad } from '../../../../graphql/sources';
 import { SourcePermissions } from '../../../../graphql/sources';
-import {
-  SQUAD_ANALYTICS_HISTORY_QUERY,
-  SQUAD_ANALYTICS_QUERY,
-} from '../../../../graphql/squads';
+import { SQUAD_ANALYTICS_QUERY } from '../../../../graphql/squads';
 import {
   CreatorMetricSemantics,
   CreatorPerformancePeriod,
@@ -152,13 +149,6 @@ beforeEach(() => {
         },
       },
     },
-  });
-  mockGraphQL({
-    request: {
-      query: SQUAD_ANALYTICS_HISTORY_QUERY,
-      variables: { sourceId: squad.id },
-    },
-    result: { data: { squadAnalyticsHistory: [] } },
   });
 });
 

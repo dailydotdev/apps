@@ -42,8 +42,12 @@ import {
   squadPostPerformanceQueryOptions,
 } from '../../../../graphql/creatorAnalytics';
 import { HorizontalSeparator } from '../../../../components/utilities/common';
+import { SourcePermissions } from '../../../../graphql/sources';
+import {
+  squadAnalyticsQueryOptions,
+  verifyPermission,
+} from '../../../../graphql/squads';
 import { useSquadPageContext } from '../../SquadPageContext';
-import { useSquadAnalytics } from '../../hooks/useSquadAnalytics';
 import { SquadManageSection } from '../../lib/routes';
 import { SquadManageSectionPanel } from './SquadManageLayout';
 
@@ -73,7 +77,12 @@ const Section = ({
 
 export const SquadManageAnalytics = (): ReactElement => {
   const { squad } = useSquadPageContext();
-  const { canViewAnalytics, analytics } = useSquadAnalytics(squad);
+  const canViewAnalytics =
+    !!squad && verifyPermission(squad, SourcePermissions.ViewAnalytics);
+  const { data: analytics } = useQuery({
+    ...squadAnalyticsQueryOptions({ sourceId: squad?.id }),
+    enabled: !!squad?.id && canViewAnalytics,
+  });
   const [period, setPeriod] = useState(CreatorPerformancePeriod.Last30Days);
   const [sort, setSort] = useState<CreatorPostSort>({
     sortBy: CreatorPostSortBy.PublishedAt,
