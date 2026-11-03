@@ -32,3 +32,16 @@ it('should show only three titles and a count of the rest', () => {
   expect(screen.queryByText('Four')).not.toBeInTheDocument();
   expect(screen.getByText('+2 more')).toBeInTheDocument();
 });
+
+it('should render duplicate titles without key collisions', () => {
+  const error = jest.spyOn(console, 'error').mockImplementation(() => {});
+  render(
+    <PicksShareCard
+      data={{ author, week: 1, titles: ['Same', 'Same'], ids: ['a', 'b'] }}
+    />,
+  );
+
+  expect(screen.getAllByText('Same')).toHaveLength(2);
+  expect(error).not.toHaveBeenCalled();
+  error.mockRestore();
+});

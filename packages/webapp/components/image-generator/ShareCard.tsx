@@ -784,6 +784,8 @@ export interface PicksCardData {
   author: { name: string; image?: string };
   week: number;
   titles: string[];
+  /** Post ids, index-aligned with `titles`; keys fall back to index without them. */
+  ids?: string[];
 }
 
 export const PicksShareCard = ({
@@ -806,7 +808,10 @@ export const PicksShareCard = ({
     >
       <ol className="flex flex-col gap-6">
         {shown.map((title, index) => (
-          <li key={title} className="flex items-baseline gap-5">
+          <li
+            key={data.ids?.[index] ?? index}
+            className="flex items-baseline gap-5"
+          >
             <span className="w-10 shrink-0 text-[44px] font-bold text-accent-cabbage-default">
               {index + 1}
             </span>

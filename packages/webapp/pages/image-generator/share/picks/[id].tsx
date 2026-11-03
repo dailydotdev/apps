@@ -8,6 +8,9 @@ import { getIsoWeekNumber } from '@dailydotdev/shared/src/lib/picks';
 import { PicksShareCard } from '../../../../components/image-generator/ShareCard';
 import type { PicksCardData } from '../../../../components/image-generator/ShareCard';
 
+// A static sibling route (not a case in share/[type]/[id]) on purpose: it is
+// server-rendered so the scraper screenshot never waits on a client query, same
+// as share/stack.
 // Renders anonymously and is screenshotted by daily-api at #screenshot_wrapper,
 // so it only uses the public `picks` query: no auth hooks, no boot wait.
 
@@ -34,6 +37,11 @@ export const getServerSideProps: GetServerSideProps<
     return { notFound: true };
   }
 
+  const posts = [...picks.items]
+    .sort((a, b) => a.position - b.position)
+    .map(({ post }) => post)
+    .filter((post): post is typeof post & { title: string } => !!post.title);
+
   return {
     props: {
       data: {
@@ -42,10 +50,8 @@ export const getServerSideProps: GetServerSideProps<
           image: picks.author.image || undefined,
         },
         week: getIsoWeekNumber(picks.weekStart),
-        titles: [...picks.items]
-          .sort((a, b) => a.position - b.position)
-          .map(({ post }) => post.title)
-          .filter((title): title is string => !!title),
+        titles: posts.map(({ title }) => title),
+        ids: posts.map(({ id: postId }) => postId),
       },
     },
   };
