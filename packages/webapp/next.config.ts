@@ -3,7 +3,7 @@ import { withSerwist } from '@serwist/turbopack';
 import withBundleAnalyzerInit from '@next/bundle-analyzer';
 import { readFileSync } from 'fs';
 import type { NextConfig } from 'next';
-import type { Rewrite } from 'next/dist/lib/load-custom-routes';
+import type { Redirect, Rewrite } from 'next/dist/lib/load-custom-routes';
 import { getMarkdownRewrites } from './lib/markdownRoutes';
 
 const { version } = JSON.parse(
@@ -51,6 +51,31 @@ const noindexHeaders = [
     value: 'noindex, nofollow',
   },
 ];
+
+// The daily.dev router (a Cloudflare Worker) proves its requests with this
+// secret. Anything else reached the Vercel host directly, skipping the
+// router's agent gateway and noindex rules, so it goes to the same path on
+// daily.dev. Only the production build has the secret.
+const appOriginAuth = process.env.APP_ORIGIN_AUTH;
+
+// Header conditions match as regexes; a value that stops matching the
+// router's header would loop every request.
+if (appOriginAuth && !/^[\w-]+$/.test(appOriginAuth)) {
+  throw new Error('APP_ORIGIN_AUTH may only contain letters, digits, _ and -');
+}
+
+const appOriginRedirects: Redirect[] = appOriginAuth
+  ? [
+      {
+        source: '/:path*',
+        missing: [
+          { type: 'header', key: 'x-app-origin-auth', value: appOriginAuth },
+        ],
+        destination: 'https://daily.dev/:path*',
+        permanent: true,
+      },
+    ]
+  : [];
 
 const nextConfig: NextConfig = {
   transpilePackages: ['@dailydotdev/shared'],
@@ -217,6 +242,7 @@ const nextConfig: NextConfig = {
       ];
 
       return [
+        ...appOriginRedirects,
         // The webapp's old /assets files moved to public/app/assets (served at
         // /app/assets, which the daily.dev router proxies to the app origin). New webapp
         // assets go in public/app/assets/; this wildcard redirect keeps old /assets URLs
