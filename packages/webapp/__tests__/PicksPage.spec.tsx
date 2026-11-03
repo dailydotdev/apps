@@ -9,10 +9,15 @@ import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import type { Picks } from '@dailydotdev/shared/src/graphql/picks';
 import { PICKS_QUERY } from '@dailydotdev/shared/src/graphql/picks';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import PicksPage from '../pages/picks/[id]';
 
 const mockPush = jest.fn();
+const mockOpenShareSheet = jest.fn();
+
+jest.mock('@dailydotdev/shared/src/hooks/picks/useSharePicks', () => ({
+  useSharePicks: () => ({ openShareSheet: mockOpenShareSheet }),
+}));
 
 jest.mock('next/router', () => ({
   useRouter: () => ({
@@ -170,4 +175,26 @@ it('should send logged out viewers through auth and back to the create flow', as
       `after_auth=${encodeURIComponent('/picks/new?origin=picks_page')}`,
     ),
   );
+});
+
+it('should show the author a Share button that opens the share sheet', async () => {
+  renderPage(picks, {
+    user: { ...loggedUser, id: 'author-1' },
+    isLoggedIn: true,
+  });
+  await userEvent.click(await screen.findByRole('button', { name: 'Share' }));
+
+  expect(mockOpenShareSheet).toHaveBeenCalledWith(
+    expect.objectContaining({ id: 'picks-1' }),
+    Origin.PicksPage,
+  );
+});
+
+it('should not show a Share button to other viewers', async () => {
+  renderPage(picks, { user: loggedUser, isLoggedIn: true });
+  await screen.findByText(/Ada Lovelace's picks/);
+
+  expect(
+    screen.queryByRole('button', { name: 'Share' }),
+  ).not.toBeInTheDocument();
 });

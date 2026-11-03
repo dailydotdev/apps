@@ -14,6 +14,7 @@ import {
 import { StaleTime } from '@dailydotdev/shared/src/lib/query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { useSharePicks } from '@dailydotdev/shared/src/hooks/picks/useSharePicks';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
 import { AFTER_AUTH_PARAM } from '@dailydotdev/shared/src/components/auth/common';
@@ -129,6 +130,7 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
   });
   const hasLoggedView = useRef(false);
   const isAuthor = !!user && user.id === picks?.author.id;
+  const { openShareSheet } = useSharePicks();
 
   useEffect(() => {
     if (!picks || !isAuthReady || hasLoggedView.current) {
@@ -197,8 +199,17 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
               {getPostsLabel(picks)}
             </Typography>
           </div>
+          {isAuthor && (
+            <Button
+              type="button"
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              onClick={() => openShareSheet(picks, Origin.PicksPage)}
+            >
+              Share
+            </Button>
+          )}
         </header>
-        {/* TODO(picks): author Share button opens LazyModal.SharePicks */}
         {items.length ? (
           <ul className="flex flex-col">
             {items.map((item) => (
