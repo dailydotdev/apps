@@ -14,6 +14,8 @@ import {
 import { StaleTime } from '@dailydotdev/shared/src/lib/query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { featureWeeklyPicks } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useSharePicks } from '@dailydotdev/shared/src/hooks/picks/useSharePicks';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
@@ -131,6 +133,13 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
   const hasLoggedView = useRef(false);
   const isAuthor = !!user && user.id === picks?.author.id;
   const { openShareSheet } = useSharePicks();
+  // `/picks/new` is flag-gated, so only offer the CTA to viewers who can use
+  // it. Logged out viewers go through auth first and keep the CTA.
+  const { value: isPicksEnabled } = useConditionalFeature({
+    feature: featureWeeklyPicks,
+    shouldEvaluate: isLoggedIn,
+  });
+  const showMakePicksCta = !isLoggedIn || isPicksEnabled;
 
   useEffect(() => {
     if (!picks || !isAuthReady || hasLoggedView.current) {
@@ -224,22 +233,24 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
             These picks are no longer available
           </Typography>
         )}
-        <section className="flex flex-col items-start gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
-          <Typography
-            type={TypographyType.Body}
-            bold
-            color={TypographyColor.Primary}
-          >
-            Read something good this week? Make your own picks in 30 seconds
-          </Typography>
-          <Button
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Medium}
-            onClick={onMakePicks}
-          >
-            Make your picks
-          </Button>
-        </section>
+        {showMakePicksCta && (
+          <section className="flex flex-col items-start gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
+            <Typography
+              type={TypographyType.Body}
+              bold
+              color={TypographyColor.Primary}
+            >
+              Read something good this week? Make your own picks in 30 seconds
+            </Typography>
+            <Button
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Medium}
+              onClick={onMakePicks}
+            >
+              Make your picks
+            </Button>
+          </section>
+        )}
       </ResponsivePageContainer>
     </div>
   );
@@ -253,7 +264,7 @@ PicksPage.getLayout = getPicksPageLayout;
 export const getServerSideProps: GetServerSideProps<
   PicksPageProps,
   { id: string }
-> = async ({ params }) => {
+> = async ({ params, res }) => {
   const id = params?.id;
 
   if (!id) {
@@ -266,6 +277,11 @@ export const getServerSideProps: GetServerSideProps<
   if (!picks) {
     return { notFound: true };
   }
+
+  res.setHeader(
+    'Cache-Control',
+    'public, max-age=0, must-revalidate, s-maxage=60',
+  );
 
   const { name } = picks.author;
   const seoTitles = getPageSeoTitles(`${name}'s weekly picks`);
