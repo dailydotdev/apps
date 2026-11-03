@@ -1054,7 +1054,12 @@ export function ReadingDrawer({
             </span>
             <MenuIcon size={IconSize.XSmall} className="text-text-secondary" />
           </button>
-          <ShellSquare aria-label="Share the page" onClick={onShare}>
+          <ShellSquare
+            aria-label="Share the page"
+            aria-disabled={!article.url || undefined}
+            className={classNames(!article.url && 'text-text-disabled')}
+            onClick={onShare}
+          >
             <UploadIcon size={IconSize.Small} />
           </ShellSquare>
           <ShellSquare

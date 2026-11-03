@@ -23,8 +23,10 @@ jest.mock('../../hooks/useSettingsBooleanFlag', () => ({
   useSettingsBooleanFlag: () => ({ value: false, set: mockSetFlag }),
 }));
 
+const mockCopyLink = jest.fn();
+
 jest.mock('../../hooks/useCopy', () => ({
-  useCopyLink: () => [false, jest.fn()],
+  useCopyLink: () => [false, mockCopyLink],
 }));
 
 const mockLogEvent = jest.fn();
@@ -75,6 +77,7 @@ beforeEach(() => {
   postMessage.mockClear();
   mockLogEvent.mockClear();
   mockSetFlag.mockClear();
+  mockCopyLink.mockClear();
   window.scrollTo = jest.fn();
 });
 
@@ -307,6 +310,16 @@ describe('ReadingDrawer', () => {
     });
     delete (navigator as { share?: unknown }).share;
     delete (navigator as { maxTouchPoints?: unknown }).maxTouchPoints;
+  });
+
+  it('copies the page link where there is no share sheet', () => {
+    withReadingBridge();
+    renderPostPage();
+    fireEvent.click(screen.getByText('Read post'));
+
+    fireEvent.click(screen.getByLabelText('Share the page'));
+
+    expect(mockCopyLink).toHaveBeenCalledWith({ link: post.permalink });
   });
 
   it('closes on back before the post itself is left', () => {

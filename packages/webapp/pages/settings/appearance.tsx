@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import dynamic from 'next/dynamic';
@@ -92,7 +92,12 @@ const AccountManageSubscriptionPage = (): ReactElement => {
   const { logEvent } = useLogContext();
   const supportsAppIconChange =
     typeof window !== 'undefined' && iOSSupportsAppIconChange();
-  const canReadInApp = typeof window !== 'undefined' && supportsReading();
+  // Known after mount: the bridge exists only on the client, and the rows
+  // it picks must match what the server drew.
+  const [canReadInApp, setCanReadInApp] = useState(false);
+  useEffect(() => {
+    setCanReadInApp(supportsReading());
+  }, []);
 
   const {
     openNewTab,
@@ -118,8 +123,8 @@ const AccountManageSubscriptionPage = (): ReactElement => {
     useSettingsBooleanFlag('highlightCardsOptOut');
   const { value: isOpenLinksInAppOptedOut, set: setOpenLinksInAppOptOut } =
     useSettingsBooleanFlag('openLinksInAppOptOut');
-  const browser =
-    typeof window !== 'undefined' && isIOSNative() ? 'Safari' : 'your browser';
+  const isIos = canReadInApp && isIOSNative();
+  const browser = isIos ? 'Safari' : 'your browser';
   const openLinksInOptions: RadioItemProps<OpenLinksIn>[] = canReadInApp
     ? [
         {
@@ -137,7 +142,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             <OpenLinksInLabel
               label={`In ${browser}`}
               help={
-                browser === 'Safari'
+                isIos
                   ? 'Every link leaves the app for Safari. The daily.dev link at the top left brings you back.'
                   : 'Every link leaves the app for your browser.'
               }

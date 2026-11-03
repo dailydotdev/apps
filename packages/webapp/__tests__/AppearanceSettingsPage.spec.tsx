@@ -7,6 +7,7 @@ import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import * as readerEligibility from '@dailydotdev/shared/src/components/post/reader/hooks/useReaderModalEligibility';
 import * as laptopLayout from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import type { SettingsContextData } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import type { SettingsFlags } from '@dailydotdev/shared/src/graphql/settings';
 import AppearanceSettingsPage from '../pages/settings/appearance';
 
 type BridgeGlobal = typeof globalThis & { webkit?: unknown };
@@ -60,11 +61,20 @@ it('offers a new tab or this tab for links in a browser', () => {
   expect(toggleOpenNewTab).toHaveBeenCalledTimes(1);
 });
 
-it('offers daily.dev or Safari for links inside the iOS app', () => {
+const withReadingBridge = () => {
   (globalThis as BridgeGlobal).webkit = {
     messageHandlers: { reading: { postMessage: jest.fn() } },
   };
   document.documentElement.classList.add('ios');
+};
+
+afterEach(() => {
+  delete (globalThis as BridgeGlobal).webkit;
+  document.documentElement.classList.remove('ios');
+});
+
+it('offers daily.dev or Safari for links inside the iOS app', () => {
+  withReadingBridge();
   const updateFlag = jest.fn();
   renderPage({ settings: { updateFlag } });
 
@@ -73,8 +83,25 @@ it('offers daily.dev or Safari for links inside the iOS app', () => {
   fireEvent.click(screen.getByRole('radio', { name: /In Safari/ }));
 
   expect(updateFlag).toHaveBeenCalledWith('openLinksInAppOptOut', true);
-  delete (globalThis as BridgeGlobal).webkit;
-  document.documentElement.classList.remove('ios');
+});
+
+it('shows Safari as the choice once links were turned off in the app', () => {
+  withReadingBridge();
+  const updateFlag = jest.fn();
+  renderPage({
+    settings: {
+      updateFlag,
+      flags: {
+        openLinksInAppOptOut: true,
+      } as Partial<SettingsFlags> as SettingsFlags,
+    },
+  });
+
+  expect(screen.getByRole('radio', { name: /In Safari/ })).toBeChecked();
+
+  fireEvent.click(screen.getByRole('radio', { name: /In daily.dev/ }));
+
+  expect(updateFlag).toHaveBeenCalledWith('openLinksInAppOptOut', false);
 });
 
 it('reflects the feedback button setting on the Appearance page', () => {
