@@ -22,7 +22,8 @@ import { useCopyLink } from '../../../hooks/useCopy';
 import { useGetShortUrl } from '../../../hooks/utils/useGetShortUrl';
 import { useSlackShareButton } from '../../../hooks/integrations/slack/useSlackShareButton';
 import { useLogContext } from '../../../contexts/LogContext';
-import { webappUrl } from '../../../lib/constants';
+import { getAbsoluteWebappUrl } from '../../../lib/links';
+import { shouldUseNativeShare } from '../../../lib/func';
 import { LogEvent } from '../../../lib/log';
 import type { Origin } from '../../../lib/log';
 import { ReferralCampaignKey } from '../../../lib/referral';
@@ -34,7 +35,7 @@ export type SharePicksModalProps = Omit<ModalProps, 'children'> & {
 
 const maxThumbnails = 3;
 
-type SharePicksProvider = 'copy_link' | 'slack' | 'native';
+type SharePicksProvider = 'copy_link' | 'native';
 
 const SharePicksModal = ({
   picks,
@@ -42,7 +43,7 @@ const SharePicksModal = ({
   ...props
 }: SharePicksModalProps): ReactElement => {
   const { logEvent } = useLogContext();
-  const baseLink = `${webappUrl}${getPicksPath(picks.id).replace(/^\//, '')}`;
+  const baseLink = getAbsoluteWebappUrl(getPicksPath(picks.id).slice(1));
   const { getTrackedUrl, getShortUrl, shareLink } = useGetShortUrl({
     query: { url: baseLink, cid: ReferralCampaignKey.SharePicks },
   });
@@ -55,8 +56,7 @@ const SharePicksModal = ({
   const [first] = picks.items;
   const thumbnails = picks.items.slice(0, maxThumbnails);
   const count = picks.items.length;
-  const canNativeShare =
-    typeof navigator !== 'undefined' && typeof navigator.share === 'function';
+  const canNativeShare = shouldUseNativeShare();
 
   const log = (provider: SharePicksProvider) =>
     logEvent({
@@ -69,14 +69,7 @@ const SharePicksModal = ({
     copyLink({ link: trackedLink, shorten: true, message: 'Link copied' });
   };
 
-  const onSlack = () => {
-    log('slack');
-    onSlackClick();
-  };
-
   const onNative = async () => {
-    log('native');
-
     try {
       const shortLink = await getShortUrl(
         baseLink,
@@ -86,6 +79,7 @@ const SharePicksModal = ({
         title: 'My weekly picks',
         url: shortLink,
       });
+      log('native');
     } catch {
       // dismissing the native sheet rejects, which is not an error to report
     }
@@ -179,7 +173,7 @@ const SharePicksModal = ({
             size={ButtonSize.Large}
             icon={<SlackIcon />}
             loading={isSlackLoading}
-            onClick={onSlack}
+            onClick={onSlackClick}
           >
             Share to Slack
           </Button>

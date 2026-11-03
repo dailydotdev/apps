@@ -173,8 +173,8 @@ export const useSlackConnect = ({
   const router = useRouter();
   const { logEvent } = useLogContext();
   const { connect } = useSlack();
-  const subject = useMemo(
-    () => ({ post, picks }) as SlackShareSubject,
+  const subject = useMemo<SlackShareSubject>(
+    () => (picks ? { picks } : { post }),
     [post, picks],
   );
 
@@ -228,18 +228,17 @@ export const useSlackShareButton = ({
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
   const { integration, canPostAsUser, isLoading } = useSlackShare();
-  const connectSlack = useSlackConnect({
-    post,
-    picks,
-    origin,
-    placement,
-  } as SlackShareContext);
+  const connectSlack = useSlackConnect(
+    picks ? { picks, origin, placement } : { post, origin, placement },
+  );
   const isConnected = !!integration;
 
   const openPicker = useCallback(() => {
     openModal({
       type: LazyModal.SlackShare,
-      props: { post, picks, origin, placement, snapshot, extra } as never,
+      props: picks
+        ? { picks, origin, placement, snapshot, extra }
+        : { post, origin, placement, snapshot, extra },
     });
   }, [openModal, post, picks, origin, placement, snapshot, extra]);
 

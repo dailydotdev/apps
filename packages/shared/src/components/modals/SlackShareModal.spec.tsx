@@ -23,7 +23,7 @@ import { slackShareSnapshotKey } from '../../hooks/integrations/slack/slackShare
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { INTEGRATION_SHARE_PICKS_MUTATION } from '../../graphql/picks';
 import type { Picks } from '../../graphql/picks';
-import { Origin } from '../../lib/log';
+import { LogEvent, Origin } from '../../lib/log';
 
 const mockConnect = jest.fn();
 const mockDisplayToast = jest.fn();
@@ -233,6 +233,7 @@ it('should switch to the reconnect prompt when Slack refuses the image', async (
 
 describe('picks subject', () => {
   const picks = { id: 'picks-1', items: [] } as unknown as Picks;
+  const mockPicksLogEvent = jest.fn();
 
   const renderPicksModal = (integration: Partial<UserIntegration>) => {
     const client = new QueryClient();
@@ -256,7 +257,11 @@ describe('picks subject', () => {
     );
 
     return render(
-      <TestBootProvider client={client} auth={{ user: loggedUser }}>
+      <TestBootProvider
+        client={client}
+        auth={{ user: loggedUser }}
+        log={{ logEvent: mockPicksLogEvent }}
+      >
         <SlackShareModal
           isOpen
           ariaHideApp={false}
@@ -301,6 +306,30 @@ describe('picks subject', () => {
       picksId: 'picks-1',
       message: "Here's what I read this week",
     });
+    expect(mockPicksLogEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.SharePicks,
+      extra: JSON.stringify({
+        provider: 'slack',
+        picks_id: 'picks-1',
+        origin: Origin.PicksPage,
+      }),
+    });
+  });
+
+  it('should not log a picks share when the post fails', async () => {
+    mockShare.mockRejectedValue(new Error('nope'));
+    renderPicksModal({});
+
+    fireEvent.click(screen.getByRole('button', { name: '#general' }));
+
+    await waitFor(() =>
+      expect(mockDisplayToast).toHaveBeenCalledWith(
+        'Could not share to Slack, please try again',
+      ),
+    );
+    expect(mockPicksLogEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({ event_name: LogEvent.SharePicks }),
+    );
   });
 
   it('should keep the app-token warning and return to the picks sheet on reconnect', async () => {

@@ -76,12 +76,9 @@ const SlackShareModal = ({
     share,
     isSharing,
   } = useSlackShare();
-  const connectSlack = useSlackConnect({
-    post,
-    picks,
-    origin,
-    placement,
-  } as SlackShareSubject & { origin?: Origin; placement?: Origin });
+  const connectSlack = useSlackConnect(
+    picks ? { picks, origin, placement } : { post, origin, placement },
+  );
   const { data: recentChannels = [] } = useQuery(
     integrationRecentChannelsQueryOptions({
       integrationId: integration?.id,
@@ -152,15 +149,20 @@ const SlackShareModal = ({
         }),
       });
 
-      // a picks share is logged by the sheet it was opened from, which owns
-      // the SharePicks event
-      if (!picks) {
-        logEvent(
-          postLogEvent(LogEvent.SharePost, post, {
-            extra: { provider: ShareProvider.Slack, ...attribution },
-          }),
-        );
-      }
+      logEvent(
+        picks
+          ? {
+              event_name: LogEvent.SharePicks,
+              extra: JSON.stringify({
+                provider: ShareProvider.Slack,
+                picks_id: picks.id,
+                origin,
+              }),
+            }
+          : postLogEvent(LogEvent.SharePost, post, {
+              extra: { provider: ShareProvider.Slack, ...attribution },
+            }),
+      );
 
       displayToast('Shared to Slack');
       props.onRequestClose?.(event);

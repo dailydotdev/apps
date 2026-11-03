@@ -8,10 +8,13 @@ import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import type { Picks } from '../../../graphql/picks';
 import { LogEvent, Origin } from '../../../lib/log';
 import { gqlClient } from '../../../graphql/common';
+import { webappUrl } from '../../../lib/constants';
 
-jest.mock('../../../lib/constants', () => ({
-  ...jest.requireActual('../../../lib/constants'),
-  webappUrl: 'https://app.daily.dev/',
+const mockShouldUseNativeShare = jest.fn();
+
+jest.mock('../../../lib/func', () => ({
+  ...jest.requireActual('../../../lib/func'),
+  shouldUseNativeShare: () => mockShouldUseNativeShare(),
 }));
 
 const mockLogEvent = jest.fn();
@@ -78,8 +81,10 @@ const renderModal = () =>
     </TestBootProvider>,
   );
 
-const setShare = (value?: unknown) =>
+const setShare = (value?: unknown) => {
+  mockShouldUseNativeShare.mockReturnValue(!!value);
   Object.defineProperty(navigator, 'share', { value, configurable: true });
+};
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -128,6 +133,7 @@ it('should copy the shortened link with the referral params and log it', async (
   expect(requested).toContain(`userid=${loggedUser.id}`);
   expect(requested).toContain('cid=share_picks');
   expect(mockWriteText.mock.calls[0][0]).toContain('/picks/picks-1');
+  expect(() => new URL(mockWriteText.mock.calls[0][0])).not.toThrow();
   expect(mockLogEvent).toHaveBeenCalledWith({
     event_name: LogEvent.SharePicks,
     extra: JSON.stringify({
@@ -136,6 +142,18 @@ it('should copy the shortened link with the referral params and log it', async (
       origin: Origin.PicksPage,
     }),
   });
+});
+
+it('should build an absolute link when the webapp url is relative', async () => {
+  expect(webappUrl).toBe('/');
+  renderModal();
+
+  const input = screen.getByRole('textbox') as HTMLInputElement;
+  await waitFor(() => expect(input.value).toBe('https://dly.to/abc'));
+  const requested = (gqlClient.request as jest.Mock).mock.calls.find(
+    ([, vars]) => vars?.url,
+  )[1].url as string;
+  expect(new URL(requested).pathname).toBe('/picks/picks-1');
 });
 
 it('should hide Share… when the browser has no native share', () => {
@@ -158,12 +176,25 @@ it('should share natively with the short link when available', async () => {
       expect.objectContaining({ url: 'https://dly.to/abc' }),
     ),
   );
-  expect(mockLogEvent).toHaveBeenCalledWith(
-    expect.objectContaining({
-      event_name: LogEvent.SharePicks,
-      extra: expect.stringContaining('"provider":"native"'),
-    }),
+  await waitFor(() =>
+    expect(mockLogEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.SharePicks,
+        extra: expect.stringContaining('"provider":"native"'),
+      }),
+    ),
   );
+});
+
+it('should not log a native share the user dismissed', async () => {
+  const share = jest.fn().mockRejectedValue(new Error('AbortError'));
+  setShare(share);
+  renderModal();
+
+  fireEvent.click(screen.getByRole('button', { name: 'Share…' }));
+
+  await waitFor(() => expect(share).toHaveBeenCalled());
+  expect(mockLogEvent).not.toHaveBeenCalled();
 });
 
 it('should hand off to the Slack flow with the picks subject', () => {
@@ -176,9 +207,5 @@ it('should hand off to the Slack flow with the picks subject', () => {
   fireEvent.click(screen.getByRole('button', { name: 'Share to Slack' }));
 
   expect(mockOnSlack).toHaveBeenCalledTimes(1);
-  expect(mockLogEvent).toHaveBeenCalledWith(
-    expect.objectContaining({
-      extra: expect.stringContaining('"provider":"slack"'),
-    }),
-  );
+  expect(mockLogEvent).not.toHaveBeenCalled();
 });
