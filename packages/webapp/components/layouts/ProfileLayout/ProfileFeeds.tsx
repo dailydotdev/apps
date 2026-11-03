@@ -70,10 +70,7 @@ export const ProfilePostsFeed = ({ user }: ProfileFeedProps): ReactElement => {
   return (
     <Feed
       {...feedProps}
-      className={classNames(
-        'pb-6 tablet:pt-6',
-        !shouldUseListFeedLayout && 'px-4',
-      )}
+      className={classNames('py-6', !shouldUseListFeedLayout && 'px-4')}
     />
   );
 };
@@ -151,10 +148,7 @@ export const ProfileUpvotedFeed = ({
   return (
     <Feed
       {...feedProps}
-      className={classNames(
-        'pb-6 tablet:pt-6',
-        !shouldUseListFeedLayout && 'px-4',
-      )}
+      className={classNames('py-6', !shouldUseListFeedLayout && 'px-4')}
     />
   );
 };
