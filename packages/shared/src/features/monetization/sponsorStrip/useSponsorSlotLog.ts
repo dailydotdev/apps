@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { useLogContext } from '../../../contexts/LogContext';
 import { getVisiblePixels } from '../../../components/cards/ad/common/ownPixels';
 import { AdActions } from '../../../lib/ads';
@@ -22,10 +22,11 @@ interface UseSponsorSlotLog<T extends HTMLElement> {
 }
 
 /**
- * The signals for one logo in one slot. The warehouse gets an impression when
- * it takes the slot and a click; the ad server's pixel gets the rest — the IAB
- * viewable impression (`viewed=true`, fired by the slot once `isViewable`) and
- * the air time, reported here as `visible=<seconds>` increments.
+ * The signals for one logo in one slot. The warehouse gets its click (the
+ * impression is logged once for the whole row, by `useSponsorStripImpressions`);
+ * the ad server's pixel gets the rest — the IAB viewable impression
+ * (`viewed=true`, fired by the slot once `isViewable`) and the air time,
+ * reported here as `visible=<seconds>` increments.
  */
 export const useSponsorSlotLog = <T extends HTMLElement = HTMLElement>({
   sponsor,
@@ -38,12 +39,6 @@ export const useSponsorSlotLog = <T extends HTMLElement = HTMLElement>({
   const macroContext = useAdMacroContext(true);
   const macroContextRef = useRef(macroContext);
   macroContextRef.current = macroContext;
-
-  useEffect(() => {
-    logEvent(
-      sponsorStripLogEvent(AdActions.Impression, sponsorRef.current, slotIndex),
-    );
-  }, [genId, slotIndex, logEvent]);
 
   const { ref: viewabilityRef, isViewable } = useViewability<T>({
     trackingKey: genId,

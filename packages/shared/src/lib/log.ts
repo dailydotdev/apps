@@ -766,6 +766,7 @@ export enum TargetType {
   BriefCard = 'brief card',
   HighlightsCard = 'highlights card',
   AdvertiseHereCta = 'advertise here cta',
+  SponsorStrip = 'sponsor strip',
   ExtensionPromo = 'extension promo',
   PostTopicSignup = 'post topic signup',
   SimilarSquads = 'similar squads',
