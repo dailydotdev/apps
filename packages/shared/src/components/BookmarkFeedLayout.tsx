@@ -30,6 +30,9 @@ import SearchEmptyScreen from './SearchEmptyScreen';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import { ShareIcon, SortIcon } from './icons';
+import Link from './utilities/Link';
+import { useFeature } from './GrowthBookProvider';
+import { featureWeeklyPicks } from '../lib/featureManagement';
 import { IconSize } from './Icon';
 import {
   findIndexOfPostInData,
@@ -139,6 +142,7 @@ export default function BookmarkFeedLayout({
   const { folders: bookmarkFolders } = useBookmarkFolderList();
   const bookmarkPath = (router.asPath ?? router.pathname ?? '').split('?')[0];
   const { user } = useContext(AuthContext);
+  const isWeeklyPicksEnabled = useFeature(featureWeeklyPicks);
   const { logEvent } = useLogContext();
   const isPhone = useIsPhone();
   const isLaptop = useViewSizeClient(ViewSize.Laptop);
@@ -666,6 +670,13 @@ export default function BookmarkFeedLayout({
       variant={isPhone ? ButtonVariant.Tertiary : ButtonVariant.Float}
     />
   );
+  const picksButton = !!user && isWeeklyPicksEnabled && (
+    <Link href={`${webappUrl}picks/new?origin=bookmarks`} passHref>
+      <Button tag="a" size={ButtonSize.Small} variant={ButtonVariant.Secondary}>
+        Make your picks
+      </Button>
+    </Link>
+  );
   const folderMenu = folder && !isReminderOnly && (
     <BookmarkFolderContextMenu
       folder={folder}
@@ -678,6 +689,7 @@ export default function BookmarkFeedLayout({
   );
   const actions = (
     <>
+      {picksButton}
       {sortDropdown}
       {shareButton}
       {folderMenu}

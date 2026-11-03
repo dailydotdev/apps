@@ -32,7 +32,10 @@ import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helper
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { RequestKey, StaleTime } from '@dailydotdev/shared/src/lib/query';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
-import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
+import {
+  createReadyGrowthBook,
+  TestBootProvider,
+} from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as viewSize from '@dailydotdev/shared/src/hooks/useViewSize';
 import type { ReactNode } from 'react';
 import BookmarksPage from '../pages/bookmarks';
@@ -163,6 +166,7 @@ function renderComponent(
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
   user?: LoggedUser,
   seedCache?: (queryClient: QueryClient) => void,
+  gb?: ReturnType<typeof createReadyGrowthBook>,
 ): RenderResult {
   const resolvedUser = arguments.length < 2 ? defaultUser : user;
   client = new QueryClient();
@@ -171,7 +175,7 @@ function renderComponent(
   mocks.forEach(mockGraphQL);
 
   return render(
-    <TestBootProvider client={client} auth={{ user: resolvedUser }}>
+    <TestBootProvider client={client} auth={{ user: resolvedUser }} gb={gb}>
       {BookmarksPage.getLayout(
         <BookmarksPage />,
         {},
@@ -207,6 +211,50 @@ it('should show empty screen when feed is empty', async () => {
   await waitFor(() => {
     const elements = screen.queryAllByTestId('bookmarkRow');
     expect(elements.length).toBeFalsy();
+  });
+});
+
+describe('weekly picks entry point', () => {
+  const picksGrowthBook = (enabled: boolean) => {
+    const gb = createReadyGrowthBook();
+    gb.setFeatures({ weekly_picks: { defaultValue: enabled } });
+    return gb;
+  };
+
+  it('should link to the picks flow when the flag is on', async () => {
+    useTablet();
+    renderComponent(
+      [createFeedMock()],
+      defaultUser,
+      undefined,
+      picksGrowthBook(true),
+    );
+    await waitForNock();
+    const link = await screen.findByRole('link', { name: 'Make your picks' });
+    expect(link).toHaveAttribute(
+      'href',
+      expect.stringContaining('picks/new?origin=bookmarks'),
+    );
+  });
+
+  it('should hide the button when the flag is off', async () => {
+    useTablet();
+    renderComponent(
+      [createFeedMock()],
+      defaultUser,
+      undefined,
+      picksGrowthBook(false),
+    );
+    await waitForNock();
+    await screen.findByTestId('searchField');
+    expect(screen.queryByText('Make your picks')).not.toBeInTheDocument();
+  });
+
+  it('should hide the button when logged out', async () => {
+    useTablet();
+    renderComponent([], undefined, undefined, picksGrowthBook(true));
+    await waitFor(() => expect(routerReplace).toBeCalledWith('/'));
+    expect(screen.queryByText('Make your picks')).not.toBeInTheDocument();
   });
 });
 
