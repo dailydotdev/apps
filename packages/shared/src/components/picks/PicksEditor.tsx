@@ -22,6 +22,24 @@ export function PicksEditor({ origin }: PicksEditorProps): ReactElement | null {
     return null;
   }
 
+  if (editor.isError) {
+    return (
+      <div className="flex flex-col items-center gap-3 px-4 py-16 text-center">
+        <h1 className="font-bold typo-title2">Could not load your picks</h1>
+        <p className="text-text-tertiary typo-body">
+          Something went wrong on our side. Give it another try.
+        </p>
+        <Button
+          type="button"
+          variant={ButtonVariant.Primary}
+          onClick={editor.retry}
+        >
+          Retry
+        </Button>
+      </div>
+    );
+  }
+
   if (editor.isEmpty) {
     return (
       <div className="flex flex-col items-center gap-3 px-4 py-16 text-center">

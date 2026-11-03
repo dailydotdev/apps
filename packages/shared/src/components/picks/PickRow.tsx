@@ -7,14 +7,15 @@ import { FieldSize } from '../fields/fieldSizes';
 import { Image } from '../image/Image';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { PICKS_NOTE_MAX_LENGTH } from '../../graphql/picks';
-import type { PicksSuggestion } from '../../graphql/picks';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
+import type { PickRowData } from '../../hooks/picks/usePicksEditor';
 
 export const getPickSignal = ({
   upvoted,
   bookmarked,
   read,
   post,
-}: PicksSuggestion): string => {
+}: Omit<PickRowData, 'reason'>): string => {
   const parts: string[] = [];
   if (upvoted) {
     parts.push('▲ upvoted');
@@ -32,10 +33,10 @@ export const getPickSignal = ({
 };
 
 interface PickRowProps {
-  row: PicksSuggestion;
+  row: PickRowData;
   selected: boolean;
   note: string;
-  onToggle: (row: PicksSuggestion) => void;
+  onToggle: (row: PickRowData) => void;
   onNoteChange: (postId: string, note: string) => void;
   onNoteBlur: (postId: string) => void;
 }
@@ -49,6 +50,8 @@ export function PickRow({
   onNoteBlur,
 }: PickRowProps): ReactElement {
   const { post } = row;
+  // iOS Safari zooms into inputs under 16px, so phones get the body size.
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const signal = getPickSignal(row);
   const toggle = (): void => onToggle(row);
   // The checkbox is fully controlled by the page state, so a blocked selection
@@ -103,7 +106,7 @@ export function PickRow({
               inputId={`pick-note-${post.id}`}
               name={`pick-note-${post.id}`}
               label="Why is it worth reading? (optional)"
-              fieldSize={FieldSize.Small}
+              fieldSize={isLaptop ? FieldSize.Small : FieldSize.Large}
               maxLength={PICKS_NOTE_MAX_LENGTH}
               showMaxLength={false}
               value={note}

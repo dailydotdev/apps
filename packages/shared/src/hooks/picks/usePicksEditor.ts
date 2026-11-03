@@ -1,17 +1,25 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useToastNotification } from '../useToastNotification';
 import { useSharePicks } from './useSharePicks';
 import {
+  getPicksPath,
   myCurrentPicksQueryOptions,
   PICKS_MAX_ITEMS,
   PICKS_NOTE_MAX_LENGTH,
+  picksQueryOptions,
   picksSuggestionsQueryOptions,
   upsertPicks,
 } from '../../graphql/picks';
-import type { Picks, PicksSuggestion } from '../../graphql/picks';
+import type {
+  Picks,
+  PicksSuggestion,
+  PicksSuggestionReason,
+} from '../../graphql/picks';
+import type { GraphQLError } from '../../lib/errors';
 import { LogEvent, Origin } from '../../lib/log';
 import { labels } from '../../lib/labels';
 
@@ -32,9 +40,22 @@ export const getPicksOrigin = (
   }
 };
 
+/** Suggestion reasons plus rows kept from the user's current picks. */
+export type PickRowReason = PicksSuggestionReason | 'current';
+
+export interface PickRowData extends Omit<PicksSuggestion, 'reason'> {
+  reason: PickRowReason;
+}
+
+const getErrorMessage = (error: unknown): string =>
+  (error as GraphQLError)?.response?.errors?.[0]?.message ||
+  labels.error.generic;
+
 export interface UsePicksEditor {
-  rows: PicksSuggestion[];
+  rows: PickRowData[];
   isLoading: boolean;
+  isError: boolean;
+  retry: () => void;
   isEdit: boolean;
   isEmpty: boolean;
   isPublishing: boolean;
@@ -43,7 +64,7 @@ export interface UsePicksEditor {
   notes: Record<string, string>;
   showLimitHint: boolean;
   isSelected: (postId: string) => boolean;
-  toggle: (row: PicksSuggestion) => void;
+  toggle: (row: PickRowData) => void;
   setNote: (postId: string, note: string) => void;
   commitNote: (postId: string) => void;
   publish: () => Promise<void>;
@@ -56,13 +77,20 @@ export const usePicksEditor = ({
   const client = useQueryClient();
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
+  const router = useRouter();
   const { openShareSheet } = useSharePicks();
-  const { data: currentPicks, isFetched: isCurrentFetched } = useQuery(
-    myCurrentPicksQueryOptions(user),
-  );
-  const { data: suggestions, isFetched: isSuggestionsFetched } = useQuery(
-    picksSuggestionsQueryOptions(user),
-  );
+  const {
+    data: currentPicks,
+    isSuccess: isCurrentFetched,
+    isError: isCurrentError,
+    refetch: refetchCurrent,
+  } = useQuery(myCurrentPicksQueryOptions(user));
+  const {
+    data: suggestions,
+    isSuccess: isSuggestionsFetched,
+    isError: isSuggestionsError,
+    refetch: refetchSuggestions,
+  } = useQuery(picksSuggestionsQueryOptions(user));
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [showLimitHint, setShowLimitHint] = useState(false);
@@ -70,7 +98,16 @@ export const usePicksEditor = ({
   const prefilled = useRef(false);
   const started = useRef(false);
   const loggedNotes = useRef<Record<string, string>>({});
-  const isLoading = !isCurrentFetched || !isSuggestionsFetched;
+  const isError = isCurrentError || isSuggestionsError;
+  const isLoading = !isError && (!isCurrentFetched || !isSuggestionsFetched);
+  const retry = useCallback(() => {
+    if (isCurrentError) {
+      refetchCurrent();
+    }
+    if (isSuggestionsError) {
+      refetchSuggestions();
+    }
+  }, [isCurrentError, isSuggestionsError, refetchCurrent, refetchSuggestions]);
   const isEdit = !!currentPicks;
 
   useEffect(() => {
@@ -105,14 +142,14 @@ export const usePicksEditor = ({
 
   // Current picks missing from the suggestions stay visible on top, so
   // editing never drops an item.
-  const rows = useMemo<PicksSuggestion[]>(() => {
+  const rows = useMemo<PickRowData[]>(() => {
     const list = suggestions ?? [];
     const known = new Set(list.map((row) => row.post.id));
-    const extra: PicksSuggestion[] = (currentPicks?.items ?? [])
+    const extra: PickRowData[] = (currentPicks?.items ?? [])
       .filter((item) => !known.has(item.post.id))
       .map((item) => ({
         post: item.post,
-        reason: 'read',
+        reason: 'current',
         upvoted: false,
         bookmarked: false,
         read: false,
@@ -120,11 +157,11 @@ export const usePicksEditor = ({
     return [...extra, ...list];
   }, [suggestions, currentPicks]);
 
-  const reasonLog = (row: PicksSuggestion) =>
+  const reasonLog = (row: PickRowData) =>
     JSON.stringify({ post_id: row.post.id, reason: row.reason });
 
   const toggle = useCallback(
-    (row: PicksSuggestion) => {
+    (row: PickRowData) => {
       const postId = row.post.id;
       if (selectedIds.includes(postId)) {
         setSelectedIds((ids) => ids.filter((id) => id !== postId));
@@ -166,7 +203,7 @@ export const usePicksEditor = ({
   );
 
   const publish = useCallback(async () => {
-    if (isPublishing || !selectedIds.length) {
+    if (isPublishing || !selectedIds.length || !isCurrentFetched) {
       return;
     }
     setIsPublishing(true);
@@ -175,7 +212,7 @@ export const usePicksEditor = ({
         postId,
         note: notes[postId]?.trim() || null,
       }));
-      await upsertPicks(items);
+      const result = await upsertPicks(items);
       logEvent({
         event_name: LogEvent.PublishPicks,
         extra: JSON.stringify({
@@ -184,15 +221,28 @@ export const usePicksEditor = ({
           is_edit: isEdit,
         }),
       });
-      const picks = await client.fetchQuery({
-        ...myCurrentPicksQueryOptions(user),
-        staleTime: 0,
+      client.invalidateQueries({
+        queryKey: myCurrentPicksQueryOptions(user).queryKey,
       });
+      // The mutation result is the source of truth; the share sheet must not
+      // depend on the "current week" read agreeing with the write.
+      let picks: Picks | null = null;
+      try {
+        picks = await client.fetchQuery({
+          ...picksQueryOptions(result.id),
+          staleTime: 0,
+        });
+      } catch (fetchError) {
+        picks = null;
+      }
       if (picks) {
+        client.setQueryData(myCurrentPicksQueryOptions(user).queryKey, picks);
         openShareSheet(picks, origin ?? Origin.PicksPage);
+      } else {
+        router.push(getPicksPath(result.id));
       }
     } catch (error) {
-      displayToast(labels.error.generic);
+      displayToast(getErrorMessage(error));
     } finally {
       setIsPublishing(false);
     }
@@ -201,6 +251,8 @@ export const usePicksEditor = ({
     selectedIds,
     notes,
     isEdit,
+    isCurrentFetched,
+    router,
     client,
     user,
     origin,
@@ -212,6 +264,8 @@ export const usePicksEditor = ({
   return {
     rows,
     isLoading,
+    isError,
+    retry,
     isEdit,
     isEmpty: !isLoading && !rows.length,
     isPublishing,

@@ -10,6 +10,7 @@ import { waitForNock } from '../../../__tests__/helpers/utilities';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import {
   MY_CURRENT_PICKS_QUERY,
+  PICKS_QUERY,
   PICKS_SUGGESTIONS_QUERY,
   UPSERT_PICKS_MUTATION,
 } from '../../graphql/picks';
@@ -193,8 +194,8 @@ it('should publish in selection order and open the share sheet', async () => {
     },
   });
   mockGraphQL({
-    request: { query: MY_CURRENT_PICKS_QUERY },
-    result: { data: { myCurrentPicks: published } },
+    request: { query: PICKS_QUERY, variables: { id: 'picks-1' } },
+    result: { data: { picks: published } },
   });
   fireEvent.click(screen.getAllByText('Done, share my picks')[0]);
   await waitFor(() =>
@@ -208,6 +209,25 @@ it('should publish in selection order and open the share sheet', async () => {
     expect.objectContaining({
       event_name: LogEvent.PublishPicks,
       extra: JSON.stringify({ count: 2, notes_count: 1, is_edit: false }),
+    }),
+  );
+});
+
+it('should log a distinct reason for current picks missing from the suggestions', async () => {
+  const current = {
+    id: 'picks-1',
+    weekStart: '2026-11-02',
+    author: { id: 'u1', name: 'A', username: 'a', image: '', permalink: '' },
+    items: [{ position: 0, note: null, post: makePost(9) }],
+  } as Picks;
+  mockData(current);
+  renderEditor();
+  await waitForNock();
+  fireEvent.click(await findTitle('Post 9'));
+  expect(logEvent).toHaveBeenCalledWith(
+    expect.objectContaining({
+      event_name: LogEvent.DeselectPick,
+      extra: JSON.stringify({ post_id: 'p9', reason: 'current' }),
     }),
   );
 });
