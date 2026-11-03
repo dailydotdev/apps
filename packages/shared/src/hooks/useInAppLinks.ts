@@ -1,11 +1,15 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useIsPhone } from './useViewSize';
 import { useSettingsBooleanFlag } from './useSettingsBooleanFlag';
+import { useSettingsContext } from '../contexts/SettingsContext';
 import {
   isOutsideLink,
   openInSystemBrowser,
+  postReading,
   queueReadingOpen,
+  ReadingAction,
+  ReadingEvent,
   setFeedReadingOpener,
   supportsReading,
 } from '../components/shell/readingStore';
@@ -18,7 +22,32 @@ import { getPostPath } from '../lib/links';
 export const useInAppLinks = (): void => {
   const router = useRouter();
   const isPhone = useIsPhone();
-  const { value: isOptedOut } = useSettingsBooleanFlag('openLinksInAppOptOut');
+  const { value: isOptedOut, set: setOptedOut } = useSettingsBooleanFlag(
+    'openLinksInAppOptOut',
+  );
+  const { loadedSettings } = useSettingsContext();
+  const setOptedOutRef = useRef(setOptedOut);
+  setOptedOutRef.current = setOptedOut;
+
+  // The wrapper mirrors the choice into the system Settings and reports a
+  // change made there when the app comes back; both sides say what they
+  // know, and only a difference writes.
+  useEffect(() => {
+    if (!loadedSettings || !supportsReading()) {
+      return undefined;
+    }
+    postReading(ReadingAction.Preference, { inApp: !isOptedOut });
+    const onPreference = (event: Event) => {
+      const { inApp } =
+        (event as CustomEvent<{ inApp?: boolean }>).detail ?? {};
+      if (typeof inApp === 'boolean' && inApp === isOptedOut) {
+        setOptedOutRef.current(!inApp);
+      }
+    };
+    window.addEventListener(ReadingEvent.Preference, onPreference);
+    return () =>
+      window.removeEventListener(ReadingEvent.Preference, onPreference);
+  }, [isOptedOut, loadedSettings]);
 
   useEffect(() => {
     if (!isPhone || !supportsReading()) {
