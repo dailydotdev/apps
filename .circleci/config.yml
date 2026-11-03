@@ -52,7 +52,7 @@ jobs:
   test_webapp:
     docker:
       - image: cimg/node:24.22.1
-    parallelism: 1
+    parallelism: 2
     steps:
       - checkout
       - restore_cache:
@@ -64,9 +64,11 @@ jobs:
           command: |
             npm run pretest
             TEST=$(./node_modules/.bin/jest --listTests)
-            echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --reporters=default --reporters=jest-junit --" --split-by=timings
+            echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --reporters=default --reporters=jest-junit --" --split-by=timings --timings-type=filename
           environment:
             JEST_JUNIT_OUTPUT_DIR: ../../test-results
+            JEST_JUNIT_ADD_FILE_ATTRIBUTE: "true"
+            JEST_JUNIT_FILE_PATH_PREFIX: "/home/circleci/project/packages/webapp/"
           working_directory: packages/webapp
       - store_test_results:
           path: ./test-results
@@ -103,7 +105,7 @@ jobs:
   test_shared:
     docker:
       - image: cimg/node:24.22.1
-    parallelism: 1
+    parallelism: 4
     steps:
       - checkout
       - restore_cache:
@@ -114,9 +116,11 @@ jobs:
           name: Test
           command: |
             TEST=$(./node_modules/.bin/jest --listTests)
-            echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --silent --reporters=default --reporters=jest-junit --" --split-by=timings
+            echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --silent --reporters=default --reporters=jest-junit --" --split-by=timings --timings-type=filename
           environment:
             JEST_JUNIT_OUTPUT_DIR: ../../test-results
+            JEST_JUNIT_ADD_FILE_ATTRIBUTE: "true"
+            JEST_JUNIT_FILE_PATH_PREFIX: "/home/circleci/project/packages/shared/"
           working_directory: packages/shared
       - store_test_results:
           path: ./test-results
