@@ -19,6 +19,7 @@ import type {
 import { CampaignCtaPlacement } from '@dailydotdev/shared/src/graphql/settings';
 import {
   ADD_FILTERS_TO_FEED_MUTATION,
+  FEED_SETTINGS_QUERY,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { SortCommentsBy } from '@dailydotdev/shared/src/graphql/comments';
@@ -37,7 +38,6 @@ import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertCont
 import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import { ARCHIVE_INDEX_QUERY } from '@dailydotdev/shared/src/graphql/archive';
 import TagPage from '../pages/tags/[tag]';
-import { FEED_SETTINGS_QUERY } from '../../shared/src/graphql/feedSettings';
 
 const showLogin = jest.fn();
 

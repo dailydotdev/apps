@@ -356,6 +356,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
       {renderLink && targetUrl && (
         <Link href={targetUrl} passHref>
           <a
+            // eslint-disable-next-line jsx-a11y/no-redundant-roles
             role="link"
             aria-label="Open notification"
             className="absolute inset-0 z-0"
