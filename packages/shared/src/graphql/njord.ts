@@ -211,7 +211,7 @@ export const coresPricesQueryOptions = ({
   user,
 }: {
   isLoggedIn: boolean;
-  user: LoggedUser;
+  user?: LoggedUser;
 }) => {
   return {
     queryKey: generateQueryKey(

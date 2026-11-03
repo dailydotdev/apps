@@ -143,24 +143,29 @@ export function BoostSquadModal({
   };
 
   if (activeScreen === SCREENS.BUY_CORES) {
+    const missingCores = Math.max(
+      0,
+      totalSpendInt - (user?.balance.amount ?? 0),
+    );
+
     return (
       <BuyCoresModal
         isOpen
         product={null}
+        minCoresToBuy={missingCores || undefined}
         onCompletion={() => setActiveScreen(SCREENS.FORM)}
         onRequestClose={() => setActiveScreen(SCREENS.FORM)}
         amountNeededCopy={
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Secondary}
-          >
-            You need{' '}
-            <strong>
-              {Math.abs(user.balance.amount - totalSpendInt).toLocaleString()}{' '}
-              more Cores
-            </strong>{' '}
-            to boost the Squad.
-          </Typography>
+          missingCores > 0 ? (
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Secondary}
+            >
+              You need{' '}
+              <strong>{missingCores.toLocaleString()} more Cores</strong> to
+              boost the Squad.
+            </Typography>
+          ) : undefined
         }
         origin={Origin.SquadBoost}
       />
@@ -245,6 +250,7 @@ export function BoostSquadModal({
             size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
             onClick={onBuyCores}
+            aria-label="Buy Cores"
           />
         </div>
       </Modal.Header>

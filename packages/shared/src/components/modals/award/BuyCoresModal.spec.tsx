@@ -11,10 +11,12 @@ import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { LogEvent, Origin } from '../../../lib/log';
 import { CoresRole } from '../../../lib/user';
 
+const mockOpenCheckout = jest.fn();
+
 jest.mock('../../../hooks/usePaddlePayment', () => ({
   usePaddlePayment: jest.fn(() => ({
     paddle: {},
-    openCheckout: jest.fn(),
+    openCheckout: mockOpenCheckout,
   })),
 }));
 
@@ -34,7 +36,7 @@ const prices = [
   },
 ] as ProductPricingPreview[];
 
-const renderModal = (origin: Origin) => {
+const renderModal = (origin: Origin, minCoresToBuy?: number) => {
   const client = new QueryClient();
   client.setQueryData(
     generateQueryKey(RequestKey.PricePreview, user, PurchaseType.Cores),
@@ -46,6 +48,7 @@ const renderModal = (origin: Origin) => {
       <BuyCoresModal
         isOpen
         origin={origin}
+        minCoresToBuy={minCoresToBuy}
         onRequestClose={jest.fn()}
         ariaHideApp={false}
       />
@@ -87,5 +90,82 @@ describe('BuyCoresModal origin', () => {
         origin: Origin.SquadBoost,
       }),
     );
+  });
+});
+
+describe('BuyCoresModal with Cores to cover', () => {
+  const matchMedia = window.matchMedia as jest.Mock;
+  const defaultMatchMedia = matchMedia.getMockImplementation();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    matchMedia.mockImplementation(defaultMatchMedia);
+  });
+
+  it('should recommend the smallest pack that covers the missing Cores and dim smaller ones', () => {
+    renderModal(Origin.BoostPost, 1000);
+
+    const small = screen.getByRole('radio', { name: /600 Cores/ });
+    const covering = screen.getByRole('radio', { name: /1,200 Cores/ });
+
+    expect(covering).toHaveTextContent('Recommended');
+    expect(small).not.toHaveTextContent('Recommended');
+    expect(small).toHaveClass('opacity-64');
+    expect(covering).not.toHaveClass('opacity-64');
+  });
+
+  it('should only highlight the recommended pack on mobile', () => {
+    renderModal(Origin.BoostPost, 1000);
+
+    expect(mockOpenCheckout).not.toHaveBeenCalled();
+    expect(screen.getByRole('radio', { name: /1,200 Cores/ })).toHaveAttribute(
+      'aria-checked',
+      'false',
+    );
+  });
+
+  it('should open the checkout on the recommended pack on desktop', () => {
+    // laptop and up: every min-width media query matches
+    matchMedia.mockImplementation(() => ({
+      matches: true,
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+    }));
+    renderModal(Origin.BoostPost, 1000);
+
+    expect(mockOpenCheckout).toHaveBeenCalledTimes(1);
+    expect(mockOpenCheckout).toHaveBeenCalledWith({ priceId: 'pri_1200' });
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.SelectCreditsQuantity,
+      extra: JSON.stringify({
+        origin: Origin.BoostPost,
+        quantity: 1200,
+        preselected: true,
+      }),
+    });
+    expect(screen.getByRole('radio', { name: /1,200 Cores/ })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    );
+  });
+
+  it('should recommend the biggest pack when none covers the missing Cores', () => {
+    renderModal(Origin.BoostPost, 50000);
+
+    expect(
+      screen.getByRole('radio', { name: /1,200 Cores/ }),
+    ).toHaveTextContent('Recommended');
+  });
+
+  it('should not recommend or preselect a pack without Cores to cover', () => {
+    renderModal(Origin.BoostPost);
+
+    expect(screen.queryByText('Recommended')).not.toBeInTheDocument();
+    expect(mockOpenCheckout).not.toHaveBeenCalled();
   });
 });

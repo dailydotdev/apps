@@ -21,6 +21,7 @@ export const PaddleBuyCoresContextProvider = ({
   onCompletion,
   origin,
   amountNeeded,
+  minCoresToBuy,
   children,
 }: BuyCoresContextProviderProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
@@ -71,6 +72,7 @@ export const PaddleBuyCoresContextProvider = ({
     () => ({
       paddle,
       amountNeeded,
+      minCoresToBuy,
       onCompletion,
       activeStep: activeStep.step,
       error: activeStep.error,
@@ -84,6 +86,7 @@ export const PaddleBuyCoresContextProvider = ({
     [
       activeStep,
       amountNeeded,
+      minCoresToBuy,
       onCompletion,
       openCheckout,
       origin,

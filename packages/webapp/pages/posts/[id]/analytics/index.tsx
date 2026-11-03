@@ -402,7 +402,7 @@ const PostAnalyticsPage = ({
         return;
       }
 
-      await onCancelBoost(campaign.id);
+      await onCancelBoost(campaign);
 
       return;
     }

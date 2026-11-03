@@ -130,24 +130,29 @@ export function BoostPostModal({
   };
 
   if (activeScreen === SCREENS.BUY_CORES) {
+    const missingCores = Math.max(
+      0,
+      totalSpendInt - (user?.balance.amount ?? 0),
+    );
+
     return (
       <BuyCoresModal
         isOpen
         product={null}
+        minCoresToBuy={missingCores || undefined}
         onCompletion={() => setActiveScreen(SCREENS.FORM)}
         onRequestClose={() => setActiveScreen(SCREENS.FORM)}
         amountNeededCopy={
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Secondary}
-          >
-            You need{' '}
-            <strong>
-              {Math.abs(user.balance.amount - totalSpendInt).toLocaleString()}{' '}
-              more Cores
-            </strong>{' '}
-            to boost the post.
-          </Typography>
+          missingCores > 0 ? (
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Secondary}
+            >
+              You need{' '}
+              <strong>{missingCores.toLocaleString()} more Cores</strong> to
+              boost the post.
+            </Typography>
+          ) : undefined
         }
         origin={Origin.BoostPost}
       />
@@ -232,6 +237,7 @@ export function BoostPostModal({
             size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
             onClick={onBuyCores}
+            aria-label="Buy Cores"
           />
         </div>
       </Modal.Header>

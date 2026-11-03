@@ -7,12 +7,6 @@ import { defaultStats, useCampaigns } from './useCampaigns';
 import { BoostHistoryLoading } from './BoostHistoryLoading';
 import { BoostedViewModal } from './BoostedViewModal';
 import { CampaignList } from './CampaignList';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '../../components/typography/Typography';
-import { boostDocsLink } from '../../lib/constants';
 import { CampaignStatsGrid } from './CampaignListView';
 import type { Campaign } from '../../graphql/campaigns';
 import { getUserCampaignStats } from '../../graphql/campaigns';
@@ -70,24 +64,6 @@ export function AdsDashboardModal({
           members={stats.newMembers}
         />
         <Modal.Subtitle>Active ads</Modal.Subtitle>
-        {!isLoading && !!list?.length && (
-          <div className="flex flex-col gap-1">
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Secondary}
-            >
-              Learn how boosting works and launch your first campaign to get
-              discovered by more developers.
-            </Typography>
-            <a
-              href={boostDocsLink}
-              className="text-text-link typo-callout"
-              target="_blank"
-            >
-              Learn more about boosting
-            </a>
-          </div>
-        )}
         {isLoading ? (
           <BoostHistoryLoading />
         ) : (
