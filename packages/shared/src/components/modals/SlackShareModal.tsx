@@ -23,6 +23,7 @@ import {
   slackShareMessageMaxLength,
 } from '../../graphql/integrations';
 import { useSlackShare } from '../../hooks/integrations/slack/useSlackShare';
+import type { SlackShareSubject } from '../../hooks/integrations/slack/useSlackShare';
 import type { SlackShareSnapshot } from '../../hooks/integrations/slack/slackShareSnapshot';
 import type { SlackConnectReason } from '../../hooks/integrations/slack/useSlackShareButton';
 import { useSlackConnect } from '../../hooks/integrations/slack/useSlackShareButton';
@@ -31,7 +32,6 @@ import { useToastNotification } from '../../hooks/useToastNotification';
 import { useObjectUrl } from '../../hooks/useObjectUrl';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
-import type { ShareablePost } from '../../lib/feed';
 import { postLogEvent } from '../../lib/feed';
 import { isExtension } from '../../lib/func';
 import type { Origin } from '../../lib/log';
@@ -39,23 +39,26 @@ import { LogEvent } from '../../lib/log';
 import { ShareProvider } from '../../lib/share';
 import { toPngFile } from '../../lib/imageShare/toPngFile';
 
-export type SlackShareModalProps = Omit<ModalProps, 'children'> & {
-  post: ShareablePost;
-  origin?: Origin;
-  placement?: Origin;
-  /** Shown above the channel picker, under the message. */
-  snapshot?: SlackShareSnapshot;
-  /** Logged beside the share's own fields, like a highlight's id. */
-  extra?: Record<string, unknown>;
-};
+export type SlackShareModalProps = Omit<ModalProps, 'children'> &
+  SlackShareSubject & {
+    origin?: Origin;
+    placement?: Origin;
+    /** Shown above the channel picker, under the message. */
+    snapshot?: SlackShareSnapshot;
+    /** Logged beside the share's own fields, like a highlight's id. */
+    extra?: Record<string, unknown>;
+  };
 
 const channelLabel = (name: string) =>
   name.startsWith('#') ? name : `#${name}`;
 
 const maxVisibleChannels = 20;
 
+export const picksSlackDefaultMessage = "Here's what I read this week";
+
 const SlackShareModal = ({
   post,
+  picks,
   origin,
   placement,
   snapshot,
@@ -73,7 +76,12 @@ const SlackShareModal = ({
     share,
     isSharing,
   } = useSlackShare();
-  const connectSlack = useSlackConnect({ post, origin, placement });
+  const connectSlack = useSlackConnect({
+    post,
+    picks,
+    origin,
+    placement,
+  } as SlackShareSubject & { origin?: Origin; placement?: Origin });
   const { data: recentChannels = [] } = useQuery(
     integrationRecentChannelsQueryOptions({
       integrationId: integration?.id,
@@ -89,7 +97,9 @@ const SlackShareModal = ({
   const [selectedChannelId, setSelectedChannelId] = useState(
     snapshot?.channel?.id,
   );
-  const [message, setMessage] = useState(snapshot?.message ?? '');
+  const [message, setMessage] = useState(
+    snapshot?.message ?? (picks ? picksSlackDefaultMessage : ''),
+  );
   const preview = useObjectUrl(snapshot?.image);
   const [isMissingScope, setIsMissingScope] = useState(false);
   const [isReconnecting, setIsReconnecting] = useState(false);
@@ -135,31 +145,38 @@ const SlackShareModal = ({
     try {
       await share({
         channelId,
-        postId: post.id,
+        ...(picks ? { picksId: picks.id } : { postId: post.id }),
         message,
         ...(snapshot && {
           image: toPngFile(snapshot.image, snapshot.filename),
         }),
       });
 
-      logEvent(
-        postLogEvent(LogEvent.SharePost, post, {
-          extra: { provider: ShareProvider.Slack, ...attribution },
-        }),
-      );
+      // a picks share is logged by the sheet it was opened from, which owns
+      // the SharePicks event
+      if (!picks) {
+        logEvent(
+          postLogEvent(LogEvent.SharePost, post, {
+            extra: { provider: ShareProvider.Slack, ...attribution },
+          }),
+        );
+      }
 
       displayToast('Shared to Slack');
       props.onRequestClose?.(event);
     } catch (error) {
       // the bot path fails on private channels by design, so the reason matters
       // as much as the count
+      const errorExtra = { ...attribution, error: (error as Error)?.message };
       logEvent(
-        postLogEvent(LogEvent.ShareToSlackError, post, {
-          extra: {
-            ...attribution,
-            error: (error as Error)?.message,
-          },
-        }),
+        picks
+          ? {
+              event_name: LogEvent.ShareToSlackError,
+              extra: JSON.stringify({ ...errorExtra, picks_id: picks.id }),
+            }
+          : postLogEvent(LogEvent.ShareToSlackError, post, {
+              extra: errorExtra,
+            }),
       );
 
       if (snapshot && isIntegrationMissingScopeError(error)) {

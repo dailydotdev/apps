@@ -1,11 +1,13 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import { v4 as uuidv4 } from 'uuid';
 import { getPostById } from '../../../graphql/posts';
+import { getPicksPath, picksQueryOptions } from '../../../graphql/picks';
 import { UserIntegrationType } from '../../../graphql/integrations';
 import { useSlackShare } from './useSlackShare';
+import type { SlackShareSubject } from './useSlackShare';
 import { useSlack } from './useSlack';
 import type { SlackShareSnapshot } from './slackShareSnapshot';
 import {
@@ -20,7 +22,6 @@ import { LazyModal } from '../../../components/modals/common/types';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { LogEvent, Origin } from '../../../lib/log';
-import type { ShareablePost } from '../../../lib/feed';
 import { postLogEvent } from '../../../lib/feed';
 import { getPathnameWithQuery } from '../../../lib/links';
 import { isExtension } from '../../../lib/func';
@@ -42,6 +43,7 @@ export type UseSlackShareButton = {
 };
 
 const postIdParam = 'slackPostId';
+const picksIdParam = 'slackPicksId';
 const scrollParam = 'slackScrollY';
 const originParam = 'slackOrigin';
 const placementParam = 'slackPlacement';
@@ -50,6 +52,7 @@ const snapshotParam = 'slackSnapshot';
 const returnParams = [
   'lzym',
   postIdParam,
+  picksIdParam,
   scrollParam,
   originParam,
   placementParam,
@@ -60,20 +63,28 @@ const origins = new Set<string>(Object.values(Origin));
 
 export type SlackConnectReason = 'share' | 'upgrade' | 'image_permission';
 
-type SlackShareReturnParams = {
-  post: ShareablePost;
+type SlackShareContext = SlackShareSubject & {
   origin?: Origin;
   placement?: Origin;
+};
+
+type SlackShareReturnParams = SlackShareContext & {
   /** The attempt the stored snapshot belongs to. */
   snapshotId?: string;
 };
 
 const setSlackShareReturnParams = (
   params: URLSearchParams,
-  { post, origin, placement, snapshotId }: SlackShareReturnParams,
+  { post, picks, origin, placement, snapshotId }: SlackShareReturnParams,
 ): void => {
-  params.set('lzym', LazyModal.SlackShare);
-  params.set(postIdParam, post.id);
+  if (picks) {
+    // a picks share returns to its own sheet, which the post flow never opens
+    params.set('lzym', LazyModal.SharePicks);
+    params.set(picksIdParam, picks.id);
+  } else {
+    params.set('lzym', LazyModal.SlackShare);
+    params.set(postIdParam, post.id);
+  }
 
   if (origin) {
     params.set(originParam, origin);
@@ -100,7 +111,9 @@ const getSlackShareRedirectPath = (
   setSlackShareReturnParams(params, returnTo);
 
   return getPathnameWithQuery(
-    `/posts/${returnTo.post.slug ?? returnTo.post.id}`,
+    returnTo.picks
+      ? getPicksPath(returnTo.picks.id)
+      : `/posts/${returnTo.post.slug ?? returnTo.post.id}`,
     params,
   );
 };
@@ -150,15 +163,20 @@ const getSlackShareReturnPath = ({
  */
 export const useSlackConnect = ({
   post,
+  picks,
   origin,
   placement,
-}: Omit<SlackShareReturnParams, 'snapshotId'>): ((params: {
+}: SlackShareContext): ((params: {
   reason: SlackConnectReason;
   snapshot?: SlackShareSnapshot;
 }) => Promise<void>) => {
   const router = useRouter();
   const { logEvent } = useLogContext();
   const { connect } = useSlack();
+  const subject = useMemo(
+    () => ({ post, picks }) as SlackShareSubject,
+    [post, picks],
+  );
 
   return useCallback(
     async ({ reason, snapshot }) => {
@@ -183,7 +201,7 @@ export const useSlackConnect = ({
 
       connect({
         redirectPath: getSlackShareReturnPath({
-          post,
+          ...subject,
           origin,
           placement,
           router,
@@ -191,21 +209,18 @@ export const useSlackConnect = ({
         }),
       });
     },
-    [logEvent, origin, placement, post, router, connect],
+    [logEvent, origin, placement, subject, router, connect],
   );
 };
 
 export const useSlackShareButton = ({
   post,
+  picks,
   origin,
   placement,
   snapshot,
   extra,
-}: {
-  post: ShareablePost;
-  origin?: Origin;
-  /** The surface the share control sits in, when `origin` names a control. */
-  placement?: Origin;
+}: SlackShareContext & {
   snapshot?: SlackShareSnapshot;
   /** Logged beside the share's own fields, like a highlight's id. */
   extra?: Record<string, unknown>;
@@ -213,15 +228,20 @@ export const useSlackShareButton = ({
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
   const { integration, canPostAsUser, isLoading } = useSlackShare();
-  const connectSlack = useSlackConnect({ post, origin, placement });
+  const connectSlack = useSlackConnect({
+    post,
+    picks,
+    origin,
+    placement,
+  } as SlackShareContext);
   const isConnected = !!integration;
 
   const openPicker = useCallback(() => {
     openModal({
       type: LazyModal.SlackShare,
-      props: { post, origin, placement, snapshot, extra },
+      props: { post, picks, origin, placement, snapshot, extra } as never,
     });
-  }, [openModal, post, origin, placement, snapshot, extra]);
+  }, [openModal, post, picks, origin, placement, snapshot, extra]);
 
   const onClick = useCallback(() => {
     if (isLoading) {
@@ -230,17 +250,23 @@ export const useSlackShareButton = ({
 
     // logged on both branches: counting only the ones that go to OAuth would
     // hide every share attempt by someone already connected
+    const attribution = {
+      origin,
+      placement,
+      has_integration: !!integration,
+      can_post_as_user: canPostAsUser,
+      ...(snapshot && { content: 'snapshot' }),
+      ...extra,
+    };
     logEvent(
-      postLogEvent(LogEvent.StartShareToSlack, post, {
-        extra: {
-          origin,
-          placement,
-          has_integration: !!integration,
-          can_post_as_user: canPostAsUser,
-          ...(snapshot && { content: 'snapshot' }),
-          ...extra,
-        },
-      }),
+      picks
+        ? {
+            event_name: LogEvent.StartShareToSlack,
+            extra: JSON.stringify({ ...attribution, picks_id: picks.id }),
+          }
+        : postLogEvent(LogEvent.StartShareToSlack, post, {
+            extra: attribution,
+          }),
     );
 
     if (integration) {
@@ -260,6 +286,7 @@ export const useSlackShareButton = ({
     placement,
     connectSlack,
     post,
+    picks,
     snapshot,
     extra,
   ]);
@@ -273,7 +300,8 @@ export const useSlackShareButton = ({
 };
 
 type SlackShareReturn = {
-  postId: string;
+  postId?: string;
+  picksId?: string;
   scrollY?: number;
   origin?: Origin;
   placement?: Origin;
@@ -291,13 +319,22 @@ const readSlackShareReturn = (): SlackShareReturn | undefined => {
 
   const params = new URLSearchParams(window.location.search);
   const postId = params.get(postIdParam);
+  const picksId = params.get(picksIdParam);
+  const lzym = params.get('lzym');
 
-  if (params.get('lzym') !== LazyModal.SlackShare || !postId) {
+  if (
+    !(
+      (lzym === LazyModal.SlackShare && postId) ||
+      (lzym === LazyModal.SharePicks && picksId)
+    )
+  ) {
     return undefined;
   }
 
   return {
-    postId,
+    ...(lzym === LazyModal.SharePicks
+      ? { picksId: picksId as string }
+      : { postId: postId as string }),
     scrollY: Number(params.get(scrollParam)) || undefined,
     origin: readOrigin(params.get(originParam)),
     placement: readOrigin(params.get(placementParam)),
@@ -327,12 +364,18 @@ export const useSlackShareReturn = (): void => {
   } = useIntegrationsQuery({ queryOptions: { enabled: !!pending } });
   const { data, isError: isPostMissing } = useQuery({
     queryKey: getPostByIdKey(pending?.postId ?? ''),
-    queryFn: () => getPostById(pending!.postId),
+    queryFn: () => getPostById(pending!.postId as string),
     staleTime: StaleTime.Default,
-    enabled: !!pending && !isRefused && tokenRefreshed,
+    enabled: !!pending?.postId && !isRefused && tokenRefreshed,
+  });
+  const { data: picks, isError: isPicksError } = useQuery({
+    ...picksQueryOptions(pending?.picksId ?? ''),
+    staleTime: StaleTime.Default,
+    enabled: !!pending?.picksId && !isRefused && tokenRefreshed,
   });
   const handled = useRef(false);
   const post = data?.post;
+  const isPicksMissing = isPicksError || picks === null;
   const isConnected = !!integrations?.some(
     ({ type }) => type === UserIntegrationType.Slack,
   );
@@ -345,7 +388,10 @@ export const useSlackShareReturn = (): void => {
       handled.current ||
       !(isRefused
         ? hasSettled
-        : isNotConnected || isPostMissing || (isConnected && post))
+        : isNotConnected ||
+          isPostMissing ||
+          isPicksMissing ||
+          (isConnected && (post || picks)))
     ) {
       return;
     }
@@ -392,11 +438,28 @@ export const useSlackShareReturn = (): void => {
       return;
     }
 
-    if (!post) {
+    if (!post && !picks) {
       return;
     }
 
     const { scrollY, origin, placement } = pending;
+    const onAfterClose = () => {
+      if (scrollY) {
+        restoreScrollPosition(scrollY);
+      }
+    };
+
+    if (picks) {
+      // the sheet is the surface the reader left from; the Slack picker opens
+      // from its button, now connected
+      openModal({
+        type: LazyModal.SharePicks,
+        props: { picks, origin: origin as Origin, onAfterClose },
+      });
+
+      return;
+    }
+
     const openPicker = (snapshot?: SlackShareSnapshot) =>
       openModal({
         type: LazyModal.SlackShare,
@@ -407,11 +470,7 @@ export const useSlackShareReturn = (): void => {
           snapshot,
           // the feed behind the picker is still loading; by the time the picker
           // closes it is tall enough to scroll back to where the share started
-          onAfterClose: () => {
-            if (scrollY) {
-              restoreScrollPosition(scrollY);
-            }
-          },
+          onAfterClose,
         },
       });
 
@@ -438,8 +497,10 @@ export const useSlackShareReturn = (): void => {
     hasIntegrations,
     isNotConnected,
     isPostMissing,
+    isPicksMissing,
     isConnected,
     post,
+    picks,
     router,
     openModal,
     displayToast,

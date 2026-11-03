@@ -161,6 +161,11 @@ const SlackShareModal = dynamic(
   () => import(/* webpackChunkName: "slackShareModal" */ './SlackShareModal'),
 );
 
+const SharePicksModal = dynamic(
+  () =>
+    import(/* webpackChunkName: "sharePicksModal" */ './picks/SharePicksModal'),
+);
+
 const ReportSourceModal = dynamic(
   () =>
     import(
@@ -580,6 +585,7 @@ export const modals = {
   [LazyModal.StreakFreezePurchase]: StreakFreezePurchaseModal,
   [LazyModal.SlackIntegration]: SlackIntegrationModal,
   [LazyModal.SlackShare]: SlackShareModal,
+  [LazyModal.SharePicks]: SharePicksModal,
   [LazyModal.ReportSource]: ReportSourceModal,
   [LazyModal.UserFollowersModal]: UserFollowersModal,
   [LazyModal.UserFollowingModal]: UserFollowingModal,
