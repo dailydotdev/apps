@@ -81,13 +81,11 @@ export const usePicksEditor = ({
   const { openShareSheet } = useSharePicks();
   const {
     data: currentPicks,
-    isSuccess: isCurrentFetched,
     isError: isCurrentError,
     refetch: refetchCurrent,
   } = useQuery(myCurrentPicksQueryOptions(user));
   const {
     data: suggestions,
-    isSuccess: isSuggestionsFetched,
     isError: isSuggestionsError,
     refetch: refetchSuggestions,
   } = useQuery(picksSuggestionsQueryOptions(user));
@@ -98,8 +96,15 @@ export const usePicksEditor = ({
   const prefilled = useRef(false);
   const started = useRef(false);
   const loggedNotes = useRef<Record<string, string>>({});
-  const isError = isCurrentError || isSuggestionsError;
-  const isLoading = !isError && (!isCurrentFetched || !isSuggestionsFetched);
+  // A failed background refetch keeps the cached data and flips the status to
+  // error; only a load with nothing to show is an error state for the editor.
+  const hasCurrent = currentPicks !== undefined;
+  // Prefill, the start event and publishing wait for a settled current list.
+  const isCurrentFetched = hasCurrent;
+  const hasSuggestions = suggestions !== undefined;
+  const isError =
+    (isCurrentError && !hasCurrent) || (isSuggestionsError && !hasSuggestions);
+  const isLoading = !isError && (!hasCurrent || !hasSuggestions);
   const retry = useCallback(() => {
     if (isCurrentError) {
       refetchCurrent();
