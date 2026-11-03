@@ -283,7 +283,7 @@ export function HomeSegments({ forYou }: HomeSegmentsProps = {}): ReactElement {
   return (
     <>
       <div className="flex w-full items-center">
-        <div className="min-w-0 flex-1 [mask-image:linear-gradient(to_right,black_calc(100%-1.5rem),transparent)]">
+        <div className="min-w-0 flex-1 [mask-image:linear-gradient(to_right,black_calc(100%-1.5rem),transparent),linear-gradient(black,black)] [mask-position:0_0,0_100%] [mask-repeat:no-repeat] [mask-size:100%_100%,100%_1px]">
           <ShellRow>
             <Segments items={items} />
           </ShellRow>
