@@ -727,7 +727,6 @@ export enum TargetType {
   MarketingCtaPopover = 'promotion_popover',
   MarketingCtaPopoverSmall = 'promotion_popover_small',
   MarketingCtaPlus = 'promotion_plus',
-  MarketingCtaBrief = 'promotion_briefing',
   MarketingCtaHelpGuide = 'promotion_help_guide',
   PlusEntryCard = 'plus_entry_card',
   PlusEntryForYouTab = 'plus_entry_for_you_tab',

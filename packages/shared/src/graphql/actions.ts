@@ -47,7 +47,6 @@ export enum ActionType {
   IntroQuestsCompleted = 'intro_quests_completed',
   ClosedProfileBanner = 'closed_profile_banner',
   UploadedCV = 'uploaded_cv',
-  DisableBriefCardCta = 'disable_brief_card_cta',
   SeenPostPollTooltip = 'seen_post_poll_tooltip',
   SeenPostPollTab = 'seen_post_poll_tab',
   OpportunityWelcomePage = 'opportunity_welcome_page',
