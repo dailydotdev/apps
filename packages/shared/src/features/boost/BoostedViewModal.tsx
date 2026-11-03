@@ -141,7 +141,7 @@ export function BoostedViewModal({
         return null;
       }
 
-      return onCancelBoost(campaign.id);
+      return onCancelBoost(campaign);
     }
 
     return onBoostAgain(campaign);

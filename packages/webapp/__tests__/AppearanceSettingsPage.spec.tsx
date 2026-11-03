@@ -73,19 +73,19 @@ afterEach(() => {
   document.documentElement.classList.remove('ios');
 });
 
-it('offers daily.dev or Safari for links inside the iOS app', () => {
+it('offers daily.dev or the browser for links inside the iOS app', () => {
   withReadingBridge();
   const updateFlag = jest.fn();
   renderPage({ settings: { updateFlag } });
 
   expect(screen.getByRole('radio', { name: /In daily.dev/ })).toBeChecked();
 
-  fireEvent.click(screen.getByRole('radio', { name: /In Safari/ }));
+  fireEvent.click(screen.getByRole('radio', { name: /In your browser/ }));
 
   expect(updateFlag).toHaveBeenCalledWith('openLinksInAppOptOut', true);
 });
 
-it('shows Safari as the choice once links were turned off in the app', () => {
+it('shows the browser as the choice once links were turned off in the app', () => {
   withReadingBridge();
   const updateFlag = jest.fn();
   renderPage({
@@ -97,7 +97,7 @@ it('shows Safari as the choice once links were turned off in the app', () => {
     },
   });
 
-  expect(screen.getByRole('radio', { name: /In Safari/ })).toBeChecked();
+  expect(screen.getByRole('radio', { name: /In your browser/ })).toBeChecked();
 
   fireEvent.click(screen.getByRole('radio', { name: /In daily.dev/ }));
 

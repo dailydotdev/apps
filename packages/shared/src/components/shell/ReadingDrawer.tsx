@@ -34,7 +34,7 @@ import { useToastNotification } from '../../hooks/useToastNotification';
 import { useCloseOnBack } from '../../hooks/useCloseOnBack';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
-import { isIOSNative, shouldUseNativeShare } from '../../lib/func';
+import { shouldUseNativeShare } from '../../lib/func';
 import { motion, scroll } from './constants';
 import { expectShellScroll } from './useShellScroll';
 import { flowParts, holdScroll, standingSelector } from '../../lib/pageHold';
@@ -62,6 +62,7 @@ enum CloseReason {
   Back = 'back',
   Link = 'link',
   Leave = 'leave',
+  AlwaysExternal = 'always_external',
 }
 
 enum OpenOrigin {
@@ -962,10 +963,7 @@ export function ReadingDrawer({
 
   const host = hostOf(article.url);
   const title = getPostTitle(post);
-  // Named where the wrapper is known: the iOS app hands a link to Safari.
-  const browser = isIOSNative() ? 'Safari' : null;
-  const openLabel = browser ? `Open in ${browser}` : 'Open in browser';
-  const alwaysLabel = `Always open links in ${browser ?? 'your browser'}`;
+  const alwaysLabel = 'Always open links in your browser';
 
   const onShare = async () => {
     if (!article.url) {
@@ -986,13 +984,11 @@ export function ReadingDrawer({
   // drawer is gone on this device until the setting is turned back.
   const onAlways = runMenu(() => {
     postReading(ReadingAction.External);
-    closedBy.current = CloseReason.Close;
+    closedBy.current = CloseReason.AlwaysExternal;
     closeReading();
     setOptedOut(true);
     displayToast(
-      `Links open in ${
-        browser ?? 'your browser'
-      } from now on. Change it in Settings, Appearance.`,
+      'Links open in your browser from now on. Change it in Settings, Appearance.',
     );
   });
 
@@ -1103,11 +1099,18 @@ export function ReadingDrawer({
         aria-label={host || 'Page'}
         className={{ drawer: 'py-1' }}
       >
-        {/* No close square: the app's other sheets have none; the grabber
-            and a swipe down close it. */}
+        {/* No visible close square: the grabber and a swipe down close it.
+            Screen readers still get a Close button. */}
         <h3 className="flex h-[2.375rem] shrink-0 items-center px-4 font-bold typo-title3">
           {host || 'Page'}
         </h3>
+        <button
+          type="button"
+          className="sr-only"
+          onClick={() => setIsMenuOpen(false)}
+        >
+          Close the menu
+        </button>
         <MenuRow
           icon={<ArrowIcon size={IconSize.Small} className="-rotate-90" />}
           label="Back"
@@ -1128,7 +1131,7 @@ export function ReadingDrawer({
         />
         <MenuRow
           icon={<OpenLinkIcon size={IconSize.Small} />}
-          label={openLabel}
+          label="Open in browser"
           disabled={!article.url}
           onClick={runMenu(() => postReading(ReadingAction.External))}
         />

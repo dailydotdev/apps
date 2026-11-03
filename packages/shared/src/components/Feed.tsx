@@ -49,7 +49,6 @@ import { OtherFeedPage, RequestKey } from '../lib/query';
 import { MarketingCtaVariant } from './marketing/cta/common';
 import { MarketingCtaCard } from './marketing/cta';
 import { MarketingCtaList } from './marketing/cta/MarketingCtaList';
-import { MarketingCtaBriefing } from './marketing/cta/MarketingCtaBriefing';
 import { MarketingCtaYearInReview } from './marketing/cta/MarketingCtaYearInReview';
 import { MarketingCtaVideo } from './marketing/cta/MarketingCtaVideo';
 import { AcquisitionFormGrid } from './cards/AcquisitionForm/AcquisitionFormGrid';
@@ -221,16 +220,9 @@ export default function Feed<T>({
   const { isActionsFetched, checkHasCompleted } = useActions();
   const marketingCta =
     getMarketingCta(MarketingCtaVariant.Card) ||
-    getMarketingCta(MarketingCtaVariant.BriefCard) ||
     getMarketingCta(MarketingCtaVariant.YearInReview) ||
     getMarketingCta(MarketingCtaVariant.Video);
   const { plusEntryFeed } = usePlusEntry();
-  const hasDismissBriefCta =
-    isActionsFetched && checkHasCompleted(ActionType.DisableBriefCardCta);
-  const showMarketingCta =
-    !!marketingCta &&
-    (marketingCta?.variant !== MarketingCtaVariant.BriefCard ||
-      !hasDismissBriefCta);
   const { isSearchPageLaptop } = useSearchResultsLayout();
   const hasNoBriefAction =
     isActionsFetched && !checkHasCompleted(ActionType.GeneratedBrief);
@@ -281,10 +273,7 @@ export default function Feed<T>({
     if (canShowNonPlusCta && plusEntryFeed) {
       return <PlusGrid {...plusEntryFeed} />;
     }
-    if (canShowGrowthCta && showMarketingCta && marketingCta) {
-      if (marketingCta.variant === MarketingCtaVariant.BriefCard) {
-        return <MarketingCtaBriefing {...marketingCta} />;
-      }
+    if (canShowGrowthCta && marketingCta) {
       if (marketingCta.variant === MarketingCtaVariant.YearInReview) {
         return <MarketingCtaYearInReview marketingCta={marketingCta} />;
       }

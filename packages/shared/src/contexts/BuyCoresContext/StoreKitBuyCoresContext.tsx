@@ -17,6 +17,7 @@ export const StoreKitBuyCoresContextProvider = ({
   onCompletion,
   origin,
   amountNeeded,
+  minCoresToBuy,
   children,
 }: BuyCoresContextProviderProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
@@ -54,6 +55,7 @@ export const StoreKitBuyCoresContextProvider = ({
   const contextData = useMemo<BuyCoresContextData>(
     () => ({
       amountNeeded,
+      minCoresToBuy,
       onCompletion,
       activeStep: activeStep.step,
       error: activeStep.error,
@@ -67,6 +69,7 @@ export const StoreKitBuyCoresContextProvider = ({
     [
       activeStep,
       amountNeeded,
+      minCoresToBuy,
       onCompletion,
       openCheckout,
       origin,

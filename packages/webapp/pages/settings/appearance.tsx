@@ -94,7 +94,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
     typeof window !== 'undefined' && iOSSupportsAppIconChange();
   // Known after mount: the bridge exists only on the client, and the rows
   // it picks must match what the server drew.
-  const [canReadInApp, setCanReadInApp] = useState(false);
+  const [canReadInApp, setCanReadInApp] = useState<boolean>();
   useEffect(() => {
     setCanReadInApp(supportsReading());
   }, []);
@@ -124,7 +124,6 @@ const AccountManageSubscriptionPage = (): ReactElement => {
   const { value: isOpenLinksInAppOptedOut, set: setOpenLinksInAppOptOut } =
     useSettingsBooleanFlag('openLinksInAppOptOut');
   const isIos = canReadInApp && isIOSNative();
-  const browser = isIos ? 'Safari' : 'your browser';
   const openLinksInOptions: RadioItemProps<OpenLinksIn>[] = canReadInApp
     ? [
         {
@@ -140,10 +139,10 @@ const AccountManageSubscriptionPage = (): ReactElement => {
           value: OpenLinksIn.Browser,
           label: (
             <OpenLinksInLabel
-              label={`In ${browser}`}
+              label="In your browser"
               help={
                 isIos
-                  ? 'Every link leaves the app for Safari. The daily.dev link at the top left brings you back.'
+                  ? 'Every link leaves the app for your browser. The daily.dev link at the top left brings you back.'
                   : 'Every link leaves the app for your browser.'
               }
             />
@@ -339,14 +338,16 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             >
               Open links in
             </Typography>
-            <Radio<OpenLinksIn>
-              name="open-links-in"
-              reverse
-              className={openLinksInClassName}
-              options={openLinksInOptions}
-              value={openLinksIn}
-              onChange={onOpenLinksIn}
-            />
+            {canReadInApp !== undefined && (
+              <Radio<OpenLinksIn>
+                name="open-links-in"
+                reverse
+                className={openLinksInClassName}
+                options={openLinksInOptions}
+                value={openLinksIn}
+                onChange={onOpenLinksIn}
+              />
+            )}
           </FlexCol>
         </FlexCol>
       </FlexCol>

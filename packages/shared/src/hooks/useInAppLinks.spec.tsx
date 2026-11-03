@@ -27,6 +27,12 @@ jest.mock('./useSettingsBooleanFlag', () => ({
   }),
 }));
 
+let mockLoadedSettings = true;
+
+jest.mock('../contexts/SettingsContext', () => ({
+  useSettingsContext: () => ({ loadedSettings: mockLoadedSettings }),
+}));
+
 type BridgeGlobal = typeof globalThis & { webkit?: unknown };
 
 const postMessage = jest.fn();
@@ -45,6 +51,7 @@ beforeEach(() => {
   postMessage.mockClear();
   mockPush.mockClear();
   mockSetOptedOut.mockClear();
+  mockLoadedSettings = true;
   (globalThis as BridgeGlobal).webkit = {
     messageHandlers: { reading: { postMessage } },
   };
@@ -95,6 +102,24 @@ describe('useInAppLinks', () => {
       new CustomEvent(ReadingEvent.Preference, { detail: { inApp: false } }),
     );
     expect(mockSetOptedOut).toHaveBeenCalledWith(true);
+  });
+
+  it('mirrors nothing to the wrapper before the settings are read', () => {
+    mockOptedOut = false;
+    mockLoadedSettings = false;
+    const { rerender } = render(<Page />);
+
+    expect(postMessage).not.toHaveBeenCalled();
+
+    mockOptedOut = true;
+    mockLoadedSettings = true;
+    rerender(<Page />);
+
+    expect(postMessage).toHaveBeenCalledTimes(1);
+    expect(postMessage).toHaveBeenCalledWith({
+      action: 'preference',
+      inApp: false,
+    });
   });
 
   it('hands every link out of the app to the system browser when turned off', () => {

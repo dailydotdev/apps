@@ -502,16 +502,20 @@ type BuyCoresModalProps = ModalProps &
     origin: Origin;
     onCompletion?: () => void;
     product?: Product;
+    /** The Cores the user is missing, see `BuyCoresContextData.minCoresToBuy` */
+    minCoresToBuy?: number;
   };
 export const BuyCoresModal = ({
   origin,
   onCompletion,
   product,
+  minCoresToBuy,
   ...props
 }: BuyCoresModalProps): ReactElement => {
   return (
     <BuyCoresContextProvider
       amountNeeded={product?.value}
+      minCoresToBuy={minCoresToBuy}
       onCompletion={onCompletion}
       origin={origin}
     >
