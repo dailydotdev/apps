@@ -1,15 +1,13 @@
 import type { LogEvent } from '../../../hooks/log/useLogQueue';
-import type { AdActions } from '../../../lib/ads';
-import { AdPlacement } from '../../../lib/ads';
+import { AdActions, AdPlacement } from '../../../lib/ads';
+import { TargetType } from '../../../lib/log';
 import type { ResolvedSponsor } from './sponsorStripCreative';
+import type { SponsorSlot } from './sponsorStripSlots';
 
 /**
- * The sponsor-strip signals the warehouse keeps (impression, click) report
- * through this one builder, so a logo's story can be cut by tier and slot.
- * Shaped like `adLogEvent` in `lib/feed.ts` — same `target_type`, same url
- * field — so the strip sits alongside the other placements rather than needing
- * its own reporting. Viewability and air time go to the ad server's pixel
- * instead, which is the only consumer that wants them.
+ * A click on one logo. Shaped like `adLogEvent` in `lib/feed.ts` — same
+ * `target_type`, same url field — so strip clicks sit alongside the other
+ * placements rather than needing their own reporting.
  */
 export const sponsorStripLogEvent = (
   action: AdActions,
@@ -27,5 +25,30 @@ export const sponsorStripLogEvent = (
     slot_index: slotIndex,
     gen_id: sponsor.genId,
     ...extra,
+  }),
+});
+
+/**
+ * One impression for the marks a strip render put on screen, with the
+ * advertisers listed in `extra.sponsors`, rather than one event per logo: a
+ * render holds about a dozen marks and the per-logo events were the largest
+ * share of the warehouse's traffic. Its own `target_type`, not `ad`, so the
+ * rows stay out of the per-ad views built on top of `target_type = 'ad'`.
+ * Billing does not read this: the ad server counts each logo from its pixel.
+ */
+export const sponsorStripImpressionLogEvent = (
+  slots: SponsorSlot[],
+): LogEvent => ({
+  event_name: AdActions.Impression,
+  target_id: AdPlacement.SponsorStrip,
+  target_type: TargetType.SponsorStrip,
+  extra: JSON.stringify({
+    placement: AdPlacement.SponsorStrip,
+    sponsors: slots.map(({ sponsor, slotIndex }) => ({
+      company: sponsor.company,
+      tier: sponsor.tier,
+      slot_index: slotIndex,
+      gen_id: sponsor.genId,
+    })),
   }),
 });

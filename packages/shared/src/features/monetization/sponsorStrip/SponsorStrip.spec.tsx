@@ -6,6 +6,7 @@ import AuthContext from '../../../contexts/AuthContext';
 import { getLogContextStatic } from '../../../contexts/LogContext';
 import type { LogContextData } from '../../../hooks/log/useLogContextData';
 import { AdActions } from '../../../lib/ads';
+import { TargetType } from '../../../lib/log';
 import { SponsorStrip } from './SponsorStrip';
 import { firePixel } from '../firePixel';
 import { fetchSponsorStripAds } from './fetchSponsorStripAds';
@@ -128,6 +129,18 @@ const callsFor = (action: AdActions) =>
     ([event]) => (event as { event_name: string }).event_name === action,
   );
 
+interface LoggedSponsor {
+  company: string;
+  tier: SponsorTier;
+  slot_index: number;
+  gen_id: string;
+}
+
+const loggedSponsors = (): LoggedSponsor[] =>
+  callsFor(AdActions.Impression).flatMap(
+    (call) => extraOf(call).sponsors as LoggedSponsor[],
+  );
+
 beforeEach(() => {
   jest.clearAllMocks();
   jest.useFakeTimers();
@@ -187,7 +200,7 @@ it('should book no impression for a premium mark the wall cannot fit', async () 
   renderStrip();
   await settle();
 
-  expect(callsFor(AdActions.Impression)).toHaveLength(NARROW_TOTAL_LOGOS);
+  expect(loggedSponsors()).toHaveLength(NARROW_TOTAL_LOGOS);
 });
 
 it('should render the gold sponsor, four premium slots and the community row', async () => {
@@ -203,24 +216,31 @@ it('should render the gold sponsor, four premium slots and the community row', a
   );
 });
 
-it('should log an impression per logo with its tier and slot', async () => {
+it('should log one impression for the row, listing each logo with its tier and slot', async () => {
   renderStrip();
   await settle();
 
   const impressions = callsFor(AdActions.Impression);
 
-  // Exactly one per mark on the row, and none for a mark the row trimmed: the
-  // wall waits to be measured precisely so a creative it is about to drop
-  // never bills an impression on its way through.
-  expect(impressions).toHaveLength(shownLogos().length);
-  expect(extraOf(impressions[0])).toEqual(
+  // One event for the whole row rather than one per mark, so the strip does
+  // not multiply the warehouse's traffic by the size of the wall.
+  expect(impressions).toHaveLength(1);
+  expect(impressions[0][0]).toEqual(
     expect.objectContaining({
-      placement: 'advertiser_bar',
-      tier: SponsorTier.Gold,
-      slot_index: 0,
-      gen_id: 'gen-gold',
+      target_type: TargetType.SponsorStrip,
+      target_id: 'advertiser_bar',
     }),
   );
+  expect(extraOf(impressions[0]).placement).toEqual('advertiser_bar');
+  // Every mark on the row, and none the row trimmed: the wall waits to be
+  // measured precisely so a creative it is about to drop is never listed.
+  expect(loggedSponsors().map(({ company }) => company)).toEqual(shownLogos());
+  expect(loggedSponsors()[0]).toEqual({
+    company: 'gold',
+    tier: SponsorTier.Gold,
+    slot_index: 0,
+    gen_id: 'gen-gold',
+  });
 });
 
 // The wire sends no dimensions, so every mark carries the stand-in ratio. A
@@ -298,7 +318,7 @@ it('should report air time to the ad server as seconds seen, not as an event', a
     logEvent.mock.calls.map(
       ([event]) => (event as { event_name: string }).event_name,
     ),
-  ).toEqual(Array(shownLogos().length).fill(AdActions.Impression));
+  ).toEqual([AdActions.Impression]);
 });
 
 it('should hold the same row for the life of the page', async () => {
@@ -314,7 +334,7 @@ it('should hold the same row for the life of the page', async () => {
   });
 
   expect(shownLogos()).toEqual(before);
-  expect(callsFor(AdActions.Impression)).toHaveLength(before.length);
+  expect(callsFor(AdActions.Impression)).toHaveLength(1);
 });
 
 it('should log a click with the logo that was clicked', async () => {
@@ -441,7 +461,7 @@ it('should fill unused row space after measuring all candidates without logging 
   await settle();
 
   expect(shownLogos()).toHaveLength(7);
-  expect(callsFor(AdActions.Impression)).toHaveLength(7);
+  expect(loggedSponsors()).toHaveLength(7);
   expect(images).toHaveLength(4 + COMMUNITY.length);
 
   loadLogos(images, 2);
@@ -452,7 +472,7 @@ it('should fill unused row space after measuring all candidates without logging 
   expect(logos.filter((company) => COMMUNITY.includes(company))).toHaveLength(
     8,
   );
-  expect(callsFor(AdActions.Impression)).toHaveLength(13);
+  expect(loggedSponsors()).toHaveLength(13);
 });
 
 it('should open the gap to a wide row\u2019s pair without re-fitting after mount', async () => {
@@ -466,7 +486,7 @@ it('should open the gap to a wide row\u2019s pair without re-fitting after mount
   // Every mark in the deck fits with room to spare, so the gap sits at the
   // wide ceiling rather than spreading to fill the row.
   expect(shownLogos()).toHaveLength(1 + 4 + COMMUNITY.length);
-  expect(callsFor(AdActions.Impression)).toHaveLength(1 + 4 + COMMUNITY.length);
+  expect(loggedSponsors()).toHaveLength(1 + 4 + COMMUNITY.length);
   const wall = screen.getByTestId('sponsorStripRow').lastElementChild;
   expect(wall).toHaveStyle({ gap: `${WIDE_SLOT_GAP_MAX}px` });
 });
@@ -484,5 +504,5 @@ it('should fit measured logos on a row narrower than the maximum logo width', as
   await settle();
 
   expect(shownLogos()).toHaveLength(3);
-  expect(callsFor(AdActions.Impression)).toHaveLength(3);
+  expect(loggedSponsors()).toHaveLength(3);
 });
