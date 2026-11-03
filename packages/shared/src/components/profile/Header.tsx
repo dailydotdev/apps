@@ -56,6 +56,8 @@ import { ProfileMobileBackButton } from './ProfileBackButton';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
 import { ShellPage } from '../shell/ShellPageContext';
 import { useIsPhone } from '../../hooks/useViewSize';
+import { useMobileAppHeader } from '../../features/getApp/hooks/useMobileAppHeader';
+import { MobileAppActions } from '../../features/getApp/components/MobileAppActions';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -106,6 +108,7 @@ export function Header({
   const canPurchaseCores = useCanPurchaseCores();
   const { isJobsEnabled } = useJobsFeature();
   const isPhone = useIsPhone();
+  const isMobileAppHeader = useMobileAppHeader();
 
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {
@@ -388,7 +391,9 @@ export function Header({
       ) : (
         <h2 className="mr-auto font-bold typo-body">Profile</h2>
       )}
-      <div className="flex flex-row gap-2">{actions}</div>
+      <div className="flex flex-row gap-2">
+        {isMobileAppHeader ? <MobileAppActions /> : actions}
+      </div>
       <div className="ml-2 flex flex-row gap-2 empty:hidden">
         {ownerActions}
       </div>
