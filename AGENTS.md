@@ -9,7 +9,8 @@ pnpm monorepo for the daily.dev app suite:
 - `packages/webapp`: Next.js Pages Router, not App Router (`app/` exists only for the service worker and the not-found page), deployed on Vercel.
 - `packages/extension`: Chrome/Edge/Opera extension.
 - `packages/shared`: components, hooks, GraphQL, design system. Code used by both surfaces lives here.
-- `packages/storybook`, `packages/playwright`, eslint/prettier config packages.
+- `packages/storybook`, `packages/playwright`, `packages/eslint-rules`.
+- Lint and format with oxlint and oxfmt, configured once at the root (`.oxlintrc.json`, `.oxfmtrc.json`). Plugins oxlint lacks natively (testing-library, jest-dom, tailwindcss, sort-exports) load as `jsPlugins`; `import/order` loads as `import-js/order`, and `naming-convention` and `consistent-return` come from `oxlint-plugins/eslint-compat.mjs`, so their directives use the `eslint-compat/` prefix. Suppress with `eslint-disable-next-line` directives, never `oxlint-disable`.
 - Storybook is designer territory: Vercel deploys it only when `packages/storybook`, `packages/shared` or the root `vercel.json` changes (`ignoreCommand`), and it has no CI job, no strict typecheck, and `.gitattributes` collapses its diffs on GitHub. Don't add checks for it.
 
 ## Verification
