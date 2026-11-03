@@ -2,7 +2,7 @@ import { getRecommendedCorePrice } from './recommendedCorePrice';
 import type { ProductPricingPreview } from '../../graphql/paddle';
 
 const pack = (priceId: string, coresValue: number) =>
-  ({ priceId, metadata: { coresValue } } as ProductPricingPreview);
+  ({ priceId, metadata: { coresValue } }) as ProductPricingPreview;
 
 const prices = [pack('p600', 600), pack('p100', 100), pack('p5k', 5000)];
 
