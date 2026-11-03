@@ -64,9 +64,21 @@ export const emptyFeedWidgetFeedState: FeedWidgetFeedState = {
   isAdVisible: false,
 };
 
+// The flag's answer from the last For you or Popular this session. The other
+// home tabs reuse it rather than evaluate the flag themselves, so they enrol
+// no one in its experiment: only a reader the home page already enrolled
+// keeps the rail on them. Browser only, so no request shares it.
+let homeRailFlag: boolean | undefined;
+
+export const resetHomeRailFlag = (): void => {
+  homeRailFlag = undefined;
+};
+
 /**
  * Whether the rail renders on this feed: For you and Popular, behind the flag,
- * unless the reader hid it. The page around the rail reads it too, so the
+ * unless the reader hid it. On a phone it also heads Following and the custom
+ * feeds, whose tabs switch only the feed under it, but only with the answer
+ * the home page already got. The page around the rail reads it too, so the
  * shell's own feed tabs step aside wherever the rail brings its own.
  */
 export const useFeedWidgetRailState = (
@@ -76,18 +88,19 @@ export const useFeedWidgetRailState = (
   const isPhone = useIsPhone();
   const isMainFeedPage =
     feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
-  // On a phone the rail heads the home page, and its tabs (Following and the
-  // custom feeds) switch only the feed under it, so the rail stays on them.
   const isPhoneHomeTab =
     isPhone &&
     (feedName === OtherFeedPage.Following ||
       feedName === SharedFeedPage.Custom);
-  const isRailPage = isMainFeedPage || isPhoneHomeTab;
-  const { value: isFlagOn } = useConditionalFeature({
+  const { value: isFlagOn, isLoading } = useConditionalFeature({
     feature: featureFeedWidgets,
-    shouldEvaluate: isRailPage,
+    shouldEvaluate: isMainFeedPage,
   });
-  const isOn = isRailPage && !!isFlagOn;
+  if (isMainFeedPage && !isLoading && typeof window !== 'undefined') {
+    homeRailFlag = !!isFlagOn;
+  }
+  const isOn =
+    (isMainFeedPage && !!isFlagOn) || (isPhoneHomeTab && !!homeRailFlag);
 
   return { isFlagOn: isOn, isEnabled: isOn && !flags?.feedWidgetsOptOut };
 };

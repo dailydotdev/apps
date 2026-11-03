@@ -1,6 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { GrowthBook } from '@growthbook/growthbook-react';
 import nock from 'nock';
@@ -18,6 +18,7 @@ import { SharedFeedPage } from '../../components/utilities/common';
 import { OtherFeedPage } from '../../lib/query';
 import {
   emptyFeedWidgetFeedState,
+  resetHomeRailFlag,
   useFeedWidgetFeedState,
   useFeedWidgetRailState,
   useFeedWidgetShortcuts,
@@ -260,23 +261,23 @@ describe('useFeedWidgetsOptOut', () => {
   });
 });
 
-const renderRailState = (feedName: string) =>
+const renderRailState = (
+  feedName: string,
+  gb = new GrowthBook({
+    features: { feed_widgets: { defaultValue: true } },
+  }),
+) =>
   renderHook(() => useFeedWidgetRailState(feedName), {
     wrapper: ({ children }: { children: ReactNode }): ReactElement => (
-      <TestBootProvider
-        client={new QueryClient()}
-        gb={
-          new GrowthBook({
-            features: { feed_widgets: { defaultValue: true } },
-          })
-        }
-      >
+      <TestBootProvider client={new QueryClient()} gb={gb}>
         {children}
       </TestBootProvider>
     ),
   });
 
 describe('useFeedWidgetRailState', () => {
+  beforeEach(() => resetHomeRailFlag());
+
   it('heads For you and Popular on every screen', () => {
     expect(
       renderRailState(SharedFeedPage.MyFeed).result.current.isEnabled,
@@ -286,9 +287,10 @@ describe('useFeedWidgetRailState', () => {
     ).toBe(true);
   });
 
-  it('stays on the other home tabs on a phone, where a tab swaps only the feed under it', async () => {
+  it('keeps the rail on the other home tabs on a phone, with the answer home got', async () => {
     // No width breakpoint matches: a phone.
     mockMatchMedia(() => false);
+    renderRailState(SharedFeedPage.MyFeed);
 
     await waitFor(() =>
       expect(
@@ -301,6 +303,31 @@ describe('useFeedWidgetRailState', () => {
     expect(
       renderRailState(OtherFeedPage.Explore).result.current.isEnabled,
     ).toBe(false);
+  });
+
+  it('never evaluates the flag on the other home tabs, so they enrol no one', async () => {
+    mockMatchMedia(() => false);
+    const gb = new GrowthBook({
+      features: { feed_widgets: { defaultValue: true } },
+    });
+    const evaluate = jest.spyOn(gb, 'getFeatureValue');
+    const { result } = renderRailState(OtherFeedPage.Following, gb);
+    const { result: customResult } = renderRailState(SharedFeedPage.Custom, gb);
+
+    // Past the mount, where the phone check lands.
+    await act(async () => {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 50);
+      });
+    });
+
+    // A direct load, with no home page before it: no rail, as on main.
+    expect(result.current.isEnabled).toBe(false);
+    expect(customResult.current.isEnabled).toBe(false);
+    expect(evaluate).not.toHaveBeenCalledWith(
+      'feed_widgets',
+      expect.anything(),
+    );
   });
 
   it('leaves Following and the custom feeds alone from the tablet up', () => {
