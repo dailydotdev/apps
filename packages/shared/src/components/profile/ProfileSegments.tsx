@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
+import { expectViewSwitch } from '../../lib/scrollRestoration';
 import type { RowItem } from '../shell/ShellRow';
 import { Segments, ShellRow } from '../shell/ShellRow';
 
@@ -62,6 +63,9 @@ export const useProfileSegment = (
       const [path, search = ''] = router.asPath.split('#')[0].split('?');
       const base = path.replace(/\/$/, '').replace(segmentPath, '');
       const as = `${base}${paths[next]}${search ? `?${search}` : ''}`;
+      if (as !== router.asPath) {
+        expectViewSwitch();
+      }
 
       router.replace({ pathname: router.pathname, query: router.query }, as, {
         shallow: true,

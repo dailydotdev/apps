@@ -1,5 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import { useScrollRestoration } from './useScrollRestoration';
+import { expectViewSwitch } from '../lib/scrollRestoration';
 
 type RouterEvent = 'routeChangeStart' | 'hashChangeStart';
 
@@ -119,6 +120,7 @@ const traverse = (entry: HistoryEntry, height: number, shallow = false) => {
 // entry keeps its key, the scroll is left where it is and Next announces
 // the change before the address moves.
 const switchView = (entry: HistoryEntry, path: string): HistoryEntry => {
+  expectViewSwitch();
   emitRouterEvent('routeChangeStart', path, { shallow: true });
   window.history.replaceState({ key: entry.key }, '', path);
   mockRouter.asPath = path;
@@ -226,6 +228,21 @@ describe('useScrollRestoration', () => {
     const feed = startOnScrolledFeed();
     const post = navigate(POST_PATH, POST_HEIGHT);
     switchView(post, '/posts/abc?tab=replies');
+
+    traverse(feed, FEED_HEIGHT, true);
+    advanceFrames();
+
+    expect(scrollTo).toHaveBeenCalledWith(0, FEED_POSITION);
+  });
+
+  it('still saves the page left by a shallow push to a new entry', () => {
+    const feed = startOnScrolledFeed();
+    // A shallow push (a step of a funnel, a post opened over the feed): Next
+    // announces it while the browser is still on the entry being left.
+    const step = createEntry('/?step=2');
+    emitRouterEvent('routeChangeStart', step.path, { shallow: true });
+    window.history.pushState({ key: step.key }, '', step.path);
+    commit(step, FEED_HEIGHT);
 
     traverse(feed, FEED_HEIGHT, true);
     advanceFrames();

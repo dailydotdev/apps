@@ -7,6 +7,7 @@ import {
   isScrollRestoring,
   restoreScrollPosition,
   saveHistoryEntryScrollPosition,
+  takeViewSwitch,
 } from '../lib/scrollRestoration';
 
 export const useScrollRestoration = (): void => {
@@ -19,12 +20,15 @@ export const useScrollRestoration = (): void => {
       window.history.scrollRestoration = 'manual';
     }
 
-    // A shallow change of the entry on screen (a tab switched in place) is
-    // not leaving it: nothing is saved and nothing is restored. On back and
-    // forward the browser is already on the other entry when Next speaks.
+    // A view switched in place (a tab, announced with expectViewSwitch) is
+    // not leaving the entry: nothing is saved and nothing is restored. On
+    // back and forward the browser is already on the other entry when Next
+    // speaks, which Next can flag shallow too.
     const onLeave = (_: string, { shallow }: { shallow?: boolean } = {}) => {
       isSwitchingView.current =
-        !!shallow && displayedEntry.current === getHistoryEntryKey();
+        takeViewSwitch() &&
+        !!shallow &&
+        displayedEntry.current === getHistoryEntryKey();
       if (isSwitchingView.current) {
         return;
       }
