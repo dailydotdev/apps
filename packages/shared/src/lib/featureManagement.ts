@@ -350,6 +350,10 @@ export const featureReadAds = new Feature('read_ads', true);
 // Turning it on in GrowthBook brings them back without a deploy.
 export const featureOrganicAds = new Feature('organic_ads', false);
 
+// Shows ads to a Plus member wherever a free reader would get them, so the
+// team can see ads without leaving Plus. Off is the default: Plus stays ad-free.
+export const featureForceAd = new Feature('force_ad', false);
+
 export type ExcoPlayerConfig = {
   /** The EX.CO player the embed script loads. */
   playerId: string;

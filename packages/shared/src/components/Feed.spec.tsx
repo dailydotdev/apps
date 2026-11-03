@@ -99,6 +99,7 @@ import type { FeedContextData } from '../contexts/FeedContext';
 import { FeaturesReadyContext } from './GrowthBookProvider';
 import {
   briefFeedEntrypointPage,
+  featureForceAd,
   featurePlusFeedBanner,
   featureHeroCards,
 } from '../lib/featureManagement';
@@ -2707,6 +2708,7 @@ interface HighlightLayoutRenderParams {
   startIndex?: number;
   briefBannerPage?: number;
   plusFeedBanner?: boolean;
+  forceAd?: boolean;
   staticAd?: { ad: Ad; index: number };
   disableAds?: boolean;
   skipFirstAd?: boolean;
@@ -2726,6 +2728,7 @@ const renderWithHighlightLayout = ({
   startIndex = 0,
   briefBannerPage,
   plusFeedBanner,
+  forceAd,
   staticAd,
   disableAds,
   skipFirstAd,
@@ -2786,6 +2789,7 @@ const renderWithHighlightLayout = ({
     ...(plusFeedBanner
       ? { [featurePlusFeedBanner.id]: { defaultValue: true } }
       : {}),
+    ...(forceAd ? { [featureForceAd.id]: { defaultValue: true } } : {}),
   });
 
   const settingsContext: SettingsContextData = {
@@ -3352,6 +3356,29 @@ describe('Feed ad cadence with highlight cards', () => {
       expect(screen.queryAllByTestId('postItem').length).toBe(posts.length);
     });
     expect(screen.queryAllByTestId('adItem').length).toBe(0);
+  });
+
+  it('renders ads for Plus users when force_ad is on', async () => {
+    const posts = [
+      buildPost('p0'),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+    ];
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: false,
+      adStart: 2,
+      adRepeat: 8,
+      forceAd: true,
+      user: { ...defaultUser, isPlus: true },
+    });
+
+    expect(
+      await screen.findAllByTestId('adItem', undefined, { timeout: 5000 }),
+    ).not.toHaveLength(0);
   });
 
   it('skips the ad-cadence clamp on wide cards for Plus users', async () => {
