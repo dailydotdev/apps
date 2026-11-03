@@ -17,9 +17,12 @@ import { WarningIcon } from '../icons/Warning';
 import { MenuIcon } from '../icons/Menu';
 import { MiniCloseIcon } from '../icons/MiniClose';
 import { OpenLinkIcon } from '../icons/OpenLink';
+import { CompassIcon } from '../icons/Compass';
+import { UploadIcon } from '../icons/Upload';
 import { RefreshIcon } from '../icons/Refresh';
 import { IconSize } from '../Icon';
 import { Drawer } from '../drawers/Drawer';
+import { Switch } from '../fields/Switch';
 import { RootPortal } from '../tooltips/Portal';
 import progress from '../RouteProgressBar.module.css';
 import { SourceAvatar } from '../profile/source/SourceAvatar';
@@ -27,9 +30,11 @@ import { ProfileImageSize } from '../ProfilePicture';
 import { useIsPhoneNow } from '../../hooks/useViewSize';
 import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
 import { useCopyLink } from '../../hooks/useCopy';
+import { useToastNotification } from '../../hooks/useToastNotification';
 import { useCloseOnBack } from '../../hooks/useCloseOnBack';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
+import { shouldUseNativeShare } from '../../lib/func';
 import { motion, scroll } from './constants';
 import { expectShellScroll } from './useShellScroll';
 import { flowParts, holdScroll, standingSelector } from '../../lib/pageHold';
@@ -57,6 +62,7 @@ enum CloseReason {
   Back = 'back',
   Link = 'link',
   Leave = 'leave',
+  AlwaysExternal = 'always_external',
 }
 
 enum OpenOrigin {
@@ -167,11 +173,14 @@ export function ReadingDrawer({
   // Known at mount, not after a paint: a post page that arrives with its
   // data (a production route) must open the drawer before its first frame.
   const isPhone = useIsPhoneNow();
-  const { value: isOptedOut } = useSettingsBooleanFlag('openLinksInAppOptOut');
+  const { value: isOptedOut, set: setOptedOut } = useSettingsBooleanFlag(
+    'openLinksInAppOptOut',
+  );
   const { open, article, fromFeed } = useReading();
   const [isAvailable, setIsAvailable] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [, copyLink] = useCopyLink();
+  const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
   const headRef = useRef<HTMLDivElement>(null);
   const probeRef = useRef<HTMLDivElement>(null);
@@ -954,6 +963,34 @@ export function ReadingDrawer({
 
   const host = hostOf(article.url);
   const title = getPostTitle(post);
+  const alwaysLabel = 'Always open links in your browser';
+
+  const onShare = async () => {
+    if (!article.url) {
+      return;
+    }
+    if (!shouldUseNativeShare()) {
+      copyLink({ link: article.url });
+      return;
+    }
+    try {
+      await navigator.share({ title: article.title, url: article.url });
+    } catch {
+      // The sheet was dismissed.
+    }
+  };
+
+  // This page goes to the system browser now and every link after it: the
+  // drawer is gone on this device until the setting is turned back.
+  const onAlways = runMenu(() => {
+    postReading(ReadingAction.External);
+    closedBy.current = CloseReason.AlwaysExternal;
+    closeReading();
+    setOptedOut(true);
+    displayToast(
+      'Links open in your browser from now on. Change it in Settings, Appearance.',
+    );
+  });
 
   return (
     <RootPortal>
@@ -985,7 +1022,7 @@ export function ReadingDrawer({
         ref={headRef}
         className="reading-head absolute inset-x-0 z-2 rounded-t-22 bg-background-default tablet:hidden"
       >
-        <div className="reading-controls absolute inset-x-0 bottom-full mb-2.5 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4">
+        <div className="reading-controls absolute inset-x-0 bottom-full mb-2.5 grid grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-2 px-4">
           <ShellSquare aria-label="Close" onClick={onClose}>
             <MiniCloseIcon size={IconSize.Small} />
           </ShellSquare>
@@ -1013,6 +1050,14 @@ export function ReadingDrawer({
             </span>
             <MenuIcon size={IconSize.XSmall} className="text-text-secondary" />
           </button>
+          <ShellSquare
+            aria-label="Share the page"
+            aria-disabled={!article.url || undefined}
+            className={classNames(!article.url && 'text-text-disabled')}
+            onClick={onShare}
+          >
+            <UploadIcon size={IconSize.Small} />
+          </ShellSquare>
           <ShellSquare
             aria-label="Reload"
             onClick={() => postReading(ReadingAction.Reload)}
@@ -1051,9 +1096,21 @@ export function ReadingDrawer({
       <Drawer
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
-        title={host || 'Page'}
+        aria-label={host || 'Page'}
         className={{ drawer: 'py-1' }}
       >
+        {/* No visible close square: the grabber and a swipe down close it.
+            Screen readers still get a Close button. */}
+        <h3 className="flex h-[2.375rem] shrink-0 items-center px-4 font-bold typo-title3">
+          {host || 'Page'}
+        </h3>
+        <button
+          type="button"
+          className="sr-only"
+          onClick={() => setIsMenuOpen(false)}
+        >
+          Close the menu
+        </button>
         <MenuRow
           icon={<ArrowIcon size={IconSize.Small} className="-rotate-90" />}
           label="Back"
@@ -1078,6 +1135,19 @@ export function ReadingDrawer({
           disabled={!article.url}
           onClick={runMenu(() => postReading(ReadingAction.External))}
         />
+        <div className="mx-4 my-1 border-t border-border-subtlest-tertiary" />
+        <div className="flex h-12 w-full items-center gap-3 px-4 text-text-primary typo-callout">
+          <CompassIcon size={IconSize.Small} />
+          <span className="flex-1">{alwaysLabel}</span>
+          <Switch
+            inputId="reading-always-external"
+            name="reading-always-external"
+            compact={false}
+            aria-label={alwaysLabel}
+            checked={false}
+            onToggle={onAlways}
+          />
+        </div>
       </Drawer>
     </RootPortal>
   );
