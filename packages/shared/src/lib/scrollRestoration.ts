@@ -48,8 +48,8 @@ export const saveScrollPosition = (
 ): void => saveHistoryEntryScrollPosition(getScrollKey(asPath, kind), position);
 
 // The next route change switches a view of the page on screen in place (a
-// shallow replace of the same entry), so nothing is saved or restored for
-// it. Set by the caller that starts it; any other shallow change, a push
+// replace of the entry on screen, by a tab), so nothing is saved or restored
+// for it. Set by the caller that starts it; any other shallow change, a push
 // to a new entry included, still saves the page it leaves.
 let pendingViewSwitch = false;
 

@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { Button } from '../../components/buttons/Button';
 import {
@@ -30,7 +31,10 @@ import PlusMobileEntryBanner from '../../components/marketing/banners/PlusMobile
 import { HomeSegments } from '../../components/shell/HomeSegments';
 import { ShellDockedRow } from '../../components/shell/ShellPageContext';
 import { usePassedBlock } from '../../components/shell/usePassedBlock';
-import { useShellEdge } from '../../components/shell/useShellScroll';
+import {
+  expectShellScroll,
+  useShellEdge,
+} from '../../components/shell/useShellScroll';
 import { pageHeaderClassName } from '../../components/layout/PageHeader';
 import { DEFAULT_ALGORITHM_INDEX } from '../../components/layout/common';
 import { SharedFeedPage } from '../../components/utilities/common';
@@ -40,7 +44,10 @@ import { useReadingStreak } from '../../hooks/streaks/useReadingStreak';
 import usePlusEntry from '../../hooks/usePlusEntry';
 import { Origin, TargetType } from '../../lib/log';
 import type { AllFeedPages } from '../../lib/query';
+import { expectViewSwitch } from '../../lib/scrollRestoration';
 import { useInert } from './FeedWidgetFrame';
+import type { HomeHighlightsView } from './homeHighlightsView';
+import { showHomeHighlights } from './homeHighlightsView';
 import { FeedExplainSwitch } from '../feedExplain/components/FeedExplainSwitch';
 import { useFeedExplainMode } from '../feedExplain/useFeedExplainMode';
 
@@ -56,6 +63,11 @@ export interface HomeFeedTabsProps {
 }
 
 const forYouLabel = 'For you';
+
+// Set when a tab is tapped from the docked row: the next feed lands right
+// under it rather than somewhere down the previous feed's length. Module
+// state, so it holds across the feed the switch swaps in.
+let isLandingUnderBlock = false;
 
 /**
  * The feed's tabs under the widget rail, pinned once the rail scrolls away,
@@ -86,6 +98,35 @@ export function HomeFeedTabs({
   // second copy; so the collapsed one leaves the tab order and the tree.
   useInert(phoneRowRef, hasPhoneRowPassed);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const router = useRouter();
+  const { asPath } = router;
+
+  // A tab switches only the feed under the row (the page keeps its scroll),
+  // and from the docked row the new feed starts right under the row.
+  const onTabSelect = useCallback(() => {
+    expectViewSwitch();
+    isLandingUnderBlock = hasPhoneRowPassed;
+  }, [hasPhoneRowPassed]);
+  const onHighlights = useCallback(
+    (view: HomeHighlightsView) => {
+      onTabSelect();
+      showHomeHighlights(router, view);
+    },
+    [onTabSelect, router],
+  );
+  useEffect(() => {
+    const anchor = anchorRef.current;
+    if (!isLandingUnderBlock || !anchor) {
+      return;
+    }
+    isLandingUnderBlock = false;
+    const top = Math.max(
+      0,
+      window.scrollY + anchor.getBoundingClientRect().top - blockBottom,
+    );
+    window.scrollTo({ top });
+    expectShellScroll(top);
+  }, [asPath, blockBottom]);
 
   // A new sort starts the feed over, so a reader who sorted from the pinned
   // row lands on its first cards instead of deep in a shorter page.
@@ -125,6 +166,9 @@ export function HomeFeedTabs({
       <div className="flex items-stretch">
         <div className="min-w-0 flex-1">
           <HomeSegments
+            keepScroll
+            onSelect={onTabSelect}
+            onHighlights={onHighlights}
             forYou={{
               label: (
                 <ForYouTabLabel
@@ -177,7 +221,7 @@ export function HomeFeedTabs({
           ref={phoneRowRef}
           data-testid="home-feed-tabs-row"
           className={classNames(
-            'mb-4 border-b border-border-subtlest-tertiary bg-background-default',
+            'border-b border-border-subtlest-tertiary bg-background-default',
             hasPhoneRowPassed && 'h-0 overflow-hidden',
           )}
         >
