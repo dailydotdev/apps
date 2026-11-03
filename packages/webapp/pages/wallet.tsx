@@ -375,7 +375,7 @@ const Wallet = (): ReactElement | null => {
                             });
                             const transactionUser =
                               type === 'receive'
-                                ? transaction.sender ?? transaction.receiver
+                                ? (transaction.sender ?? transaction.receiver)
                                 : transaction.receiver;
 
                             return (

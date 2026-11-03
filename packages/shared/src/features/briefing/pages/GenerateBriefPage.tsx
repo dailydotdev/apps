@@ -73,11 +73,7 @@ export const GenerateBriefPage = () => {
       <div className="relative mt-6">
         <MockPresidentialBrief />
         <div
-          className={`
-          relative z-2 -mx-4
-          flex flex-col gap-6 bg-gradient-to-b from-transparent
-          from-0% to-surface-invert to-40% px-4 pt-20  backdrop-blur tablet:to-95%
-          `}
+          className={`relative z-2 -mx-4 flex flex-col gap-6 bg-gradient-to-b from-transparent from-0% to-surface-invert to-40% px-4 pt-20 backdrop-blur tablet:to-95%`}
         >
           <div className="mx-auto mb-6 flex flex-col gap-2 text-center">
             <Typography

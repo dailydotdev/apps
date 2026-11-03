@@ -53,7 +53,7 @@ const mockRouter = (query: NextRouter['query'] = {}) =>
         replace: jest.fn(),
         isReady: true,
         events: { on: jest.fn(), off: jest.fn(), emit: jest.fn() },
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
 
 const boostedPostAd = (): Ad =>
@@ -70,7 +70,7 @@ const boostedPostAd = (): Ad =>
         numUpvotes: 5,
       },
     },
-  } as unknown as Ad);
+  }) as unknown as Ad;
 
 const renderSlot = (ad: Ad, client = new QueryClient()) =>
   render(

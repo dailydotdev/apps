@@ -48,7 +48,7 @@ const AddToCustomFeedModal = ({
         <Button
           onClick={onCreateNewFeed}
           icon={
-            <div className="flex  rounded-6 bg-background-subtle">
+            <div className="flex rounded-6 bg-background-subtle">
               <PlusIcon className="m-auto" />
             </div>
           }

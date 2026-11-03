@@ -83,8 +83,10 @@ export const UserProfileFeedPages = new Set([
 
 export const PostFeedPages = new Set([OtherFeedPage.Post]);
 
-interface GetFeedPageLayoutComponentProps
-  extends Pick<UseFeedLayoutReturn, 'shouldUseListMode'> {
+interface GetFeedPageLayoutComponentProps extends Pick<
+  UseFeedLayoutReturn,
+  'shouldUseListMode'
+> {
   shouldUseListFeedLayoutOnMobileTablet: boolean;
   isSearchPageLaptop: boolean;
 }

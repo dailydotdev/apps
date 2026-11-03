@@ -93,7 +93,7 @@ const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
     enabled: shouldFetch,
     placeholderData: keepPreviousData,
   });
-  const results = shouldFetch ? fetchedPlugins ?? plugins : plugins;
+  const results = shouldFetch ? (fetchedPlugins ?? plugins) : plugins;
   const logClickSubmitPlugin = () =>
     logEvent({
       event_name: LogEvent.ClickSubmitPlugin,

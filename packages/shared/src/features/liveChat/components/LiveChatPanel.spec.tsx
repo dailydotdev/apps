@@ -133,7 +133,7 @@ beforeEach(() => {
           permalink: '',
           bio: '',
         }),
-      } as unknown as ReturnType<typeof dmPeerQueryOptions>),
+      }) as unknown as ReturnType<typeof dmPeerQueryOptions>,
   );
   jest.mocked(getPostChatRoom).mockResolvedValue(room);
   jest.mocked(openPostChatRoom).mockResolvedValue(room);

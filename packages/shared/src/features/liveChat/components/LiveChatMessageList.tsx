@@ -110,7 +110,7 @@ const MessageRow = ({
                 isMe ? 'text-brand-default' : 'text-text-primary',
               )}
             >
-              {isMe ? 'You' : sender?.name ?? '…'}
+              {isMe ? 'You' : (sender?.name ?? '…')}
             </span>
             <span className="text-text-quaternary">{time}</span>
           </span>

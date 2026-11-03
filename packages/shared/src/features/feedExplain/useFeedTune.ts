@@ -15,7 +15,7 @@ const toControl = <Mode>(
 ): FeedControl<Mode> | undefined =>
   mode || weight !== undefined
     ? {
-        mode: weight === 0 && off ? off : mode ?? null,
+        mode: weight === 0 && off ? off : (mode ?? null),
         weight: weight || null,
         expiresAt: getExpiresAt(duration),
       }
@@ -84,7 +84,7 @@ export const useFeedTune = (): UseFeedTune => {
   const learning =
     learningChange?.kind === 'learning'
       ? learningChange.enabled
-      : feedControls.controls?.learning ?? true;
+      : (feedControls.controls?.learning ?? true);
 
   const add = (change: TuneChange) => setChanges([...changes, change]);
 

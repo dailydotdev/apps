@@ -64,7 +64,7 @@ export const getBrandInk = (color: string): BrandInk => {
 
 /** The squad's brand colour, if it is set and valid. */
 export const getBrandColor = (branding?: SquadBranding | null): string | null =>
-  isHexColor(branding?.color) ? branding?.color ?? null : null;
+  isHexColor(branding?.color) ? (branding?.color ?? null) : null;
 
 /** The header button styled in the brand colour. */
 export const getBrandButtonStyle = (color: string): CSSProperties => ({

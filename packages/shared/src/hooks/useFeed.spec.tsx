@@ -111,7 +111,7 @@ it('keeps loaded feed ads across post modal navigation and consent changes', asy
         pathname: '/',
         asPath,
         push: jest.fn(),
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
   let requests = 0;
   const fetchAd = jest

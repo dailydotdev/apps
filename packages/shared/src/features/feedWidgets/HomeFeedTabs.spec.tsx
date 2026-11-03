@@ -110,7 +110,7 @@ const mockPath = (pathname: string) =>
         push: jest.fn(),
         replace: jest.fn(),
         events: { on: jest.fn(), off: jest.fn() },
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
 
 const openMenu = (name: string | RegExp) =>
@@ -150,7 +150,7 @@ beforeEach(() => {
         push: jest.fn(),
         replace: jest.fn(),
         events: { on: jest.fn(), off: jest.fn() },
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
 });
 
@@ -303,7 +303,7 @@ describe('HomeFeedTabs', () => {
             observe: (element: Element) => observers.set(element, callback),
             unobserve: jest.fn(),
             disconnect: jest.fn(),
-          } as unknown as IntersectionObserver),
+          }) as unknown as IntersectionObserver,
       );
 
       try {

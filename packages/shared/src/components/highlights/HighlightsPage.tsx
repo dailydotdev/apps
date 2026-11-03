@@ -182,7 +182,7 @@ export const HighlightsPage = (): ReactElement => {
   const isLaptopLayout = useLaptopLayout();
   const activeTab = isAllTab
     ? ALL_HIGHLIGHTS_LABEL
-    : channelLabel ?? MAJOR_HEADLINES_LABEL;
+    : (channelLabel ?? MAJOR_HEADLINES_LABEL);
 
   const tabs = [
     { label: MAJOR_HEADLINES_LABEL, url: HIGHLIGHTS_BASE_URL },

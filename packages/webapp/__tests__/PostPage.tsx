@@ -155,7 +155,7 @@ const mockRouter = (overrides: Partial<NextRouter> = {}): void => {
         events: routerEvents,
         beforePopState: jest.fn(),
         ...overrides,
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
 };
 
@@ -313,9 +313,9 @@ const mockVoteMutation = ({
       }) =>
         Boolean(
           body.query?.includes('mutation Vote(') &&
-            body.variables?.id === defaultPost.id &&
-            body.variables?.vote === vote &&
-            body.variables?.entity === UserVoteEntity.Post,
+          body.variables?.id === defaultPost.id &&
+          body.variables?.vote === vote &&
+          body.variables?.entity === UserVoteEntity.Post,
         ),
     )
     .reply(200, () => {
@@ -331,7 +331,7 @@ const mockCompleteActionMutation = (action: ActionType): void => {
       (body: { query?: string; variables?: { type?: ActionType } }) =>
         Boolean(
           body.query?.includes('mutation CompleteAction(') &&
-            body.variables?.type === action,
+          body.variables?.type === action,
         ),
     )
     .reply(200, { data: { _: true } });

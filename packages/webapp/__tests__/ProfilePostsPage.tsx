@@ -34,7 +34,7 @@ beforeEach(() => {
         pathname: '/',
         query: {},
         isFallback: false,
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
 });
 
@@ -145,7 +145,7 @@ it('should not offer the owner a new post CTA in preview mode', async () => {
         pathname: '/[userId]/posts',
         query: { userId: 'dailydotdev', preview: 'true' },
         isFallback: false,
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
   renderComponent(
     [

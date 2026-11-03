@@ -22,7 +22,7 @@ const answeredQuestions = [
 ];
 
 const buildPost = (props: Partial<Post> = {}): Post =>
-  ({ id: 'p1', answeredQuestions, ...props } as Post);
+  ({ id: 'p1', answeredQuestions, ...props }) as Post;
 
 const mockAuth = (isLoggedIn: boolean) =>
   jest.mocked(useAuthContext).mockReturnValue({ isLoggedIn } as never);

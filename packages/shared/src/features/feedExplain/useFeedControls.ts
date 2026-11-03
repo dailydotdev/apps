@@ -70,7 +70,7 @@ const toStored = <Mode>(
     return null;
   }
   return {
-    mode: weight === 0 && off ? off : mode ?? null,
+    mode: weight === 0 && off ? off : (mode ?? null),
     weight: weight || null,
     expiresAt: getExpiresAt(duration),
   };
@@ -189,7 +189,8 @@ const getChangeEvent = (
         target_id: getControlTarget(change),
         extra: JSON.stringify({
           origin,
-          mode: change.weight === undefined ? change.mode ?? 'auto' : 'weight',
+          mode:
+            change.weight === undefined ? (change.mode ?? 'auto') : 'weight',
           weight: change.weight,
           duration: change.duration,
         }),

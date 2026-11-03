@@ -31,7 +31,7 @@ beforeEach(() => {
         ({
           lineHeight: `${LINE_HEIGHT}px`,
           paddingBottom: '0px',
-        } as CSSStyleDeclaration),
+        }) as CSSStyleDeclaration,
     );
 });
 
@@ -47,8 +47,8 @@ const attach = (
   const container = document.createElement('div');
   const text = document.createElement('p');
 
-  container.getBoundingClientRect = () => ({ bottom: room } as DOMRect);
-  text.getBoundingClientRect = () => ({ top: 0 } as DOMRect);
+  container.getBoundingClientRect = () => ({ bottom: room }) as DOMRect;
+  text.getBoundingClientRect = () => ({ top: 0 }) as DOMRect;
 
   act(() => {
     result.current.containerRef(container);

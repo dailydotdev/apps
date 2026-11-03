@@ -139,7 +139,7 @@ const getSlackShareReturnPath = ({
     ...returnTo,
     path: feedPath ?? router?.asPath ?? window.location.pathname,
     scrollY: feedPath
-      ? getScrollPosition(window.location.href, 'post-modal') ?? 0
+      ? (getScrollPosition(window.location.href, 'post-modal') ?? 0)
       : window.scrollY,
   });
 };
