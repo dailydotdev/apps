@@ -73,7 +73,6 @@ export enum AuthTriggers {
   GiveAward = 'give award',
   Organization = 'organization',
   OAuth = 'oauth',
-  WeeklyPicks = 'weekly picks',
   Opportunity = 'opportunity',
   RecruiterSelfServe = 'recruiter self serve',
   AiFluencyQuiz = 'ai fluency quiz',

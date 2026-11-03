@@ -10,7 +10,6 @@ import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import type { Picks } from '@dailydotdev/shared/src/graphql/picks';
 import { PICKS_QUERY } from '@dailydotdev/shared/src/graphql/picks';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
-import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import PicksPage from '../pages/picks/[id]';
 
 const mockPush = jest.fn();
@@ -70,22 +69,18 @@ const picks: Picks = {
 
 const logEvent = jest.fn();
 
-let client: QueryClient;
-
-const pageElement = (data: Picks, auth: Record<string, unknown> = {}) => (
-  <TestBootProvider client={client} auth={auth} log={{ logEvent }}>
-    <PicksPage picksId={data.id} seo={{}} dehydratedState={{} as never} />
-  </TestBootProvider>
-);
-
 const renderPage = (data: Picks, auth: Record<string, unknown> = {}) => {
   mockGraphQL({
     request: { query: PICKS_QUERY, variables: { id: data.id } },
     result: { data: { picks: data } },
   });
-  client = new QueryClient();
+  const client = new QueryClient();
 
-  return render(pageElement(data, auth));
+  return render(
+    <TestBootProvider client={client} auth={auth} log={{ logEvent }}>
+      <PicksPage picksId={data.id} seo={{}} dehydratedState={{} as never} />
+    </TestBootProvider>,
+  );
 };
 
 beforeEach(() => {
@@ -181,48 +176,15 @@ it('should send logged in viewers to the create flow', async () => {
   );
 });
 
-it('should open the login pop-up for logged out viewers', async () => {
-  const showLogin = jest.fn();
-  renderPage(picks, { user: undefined, isLoggedIn: false, showLogin });
+it('should send logged out viewers through auth and back to the create flow', async () => {
+  renderPage(picks, { user: undefined, isLoggedIn: false });
   await userEvent.click(await screen.findByText('Make your picks'));
 
-  expect(showLogin).toHaveBeenCalledWith({ trigger: AuthTriggers.WeeklyPicks });
-  expect(mockPush).not.toHaveBeenCalled();
-});
-
-it('should continue to the create flow after login when the flag is on', async () => {
-  mockPicksEnabled = true;
-  const showLogin = jest.fn();
-  const { rerender } = renderPage(picks, {
-    user: undefined,
-    isLoggedIn: false,
-    showLogin,
-  });
-  await userEvent.click(await screen.findByText('Make your picks'));
-  expect(mockPush).not.toHaveBeenCalled();
-
-  rerender(pageElement(picks, { user: loggedUser, isLoggedIn: true }));
-
-  await waitFor(() =>
-    expect(mockPush).toHaveBeenCalledWith('/picks/new?origin=picks_page'),
+  expect(mockPush).toHaveBeenCalledWith(
+    expect.stringContaining(
+      `after_auth=${encodeURIComponent('/picks/new?origin=picks_page')}`,
+    ),
   );
-});
-
-it('should stay on the page after login when the flag is off', async () => {
-  mockPicksEnabled = false;
-  const showLogin = jest.fn();
-  const { rerender } = renderPage(picks, {
-    user: undefined,
-    isLoggedIn: false,
-    showLogin,
-  });
-  await userEvent.click(await screen.findByText('Make your picks'));
-
-  rerender(pageElement(picks, { user: loggedUser, isLoggedIn: true }));
-  await screen.findByText(/Ada Lovelace's picks/);
-
-  expect(mockPush).not.toHaveBeenCalled();
-  expect(screen.queryByText('Make your picks')).not.toBeInTheDocument();
 });
 
 it('should show the author a Share button that opens the share sheet', async () => {
