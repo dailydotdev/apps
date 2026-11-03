@@ -256,7 +256,7 @@ describe('ReadingDrawer', () => {
     expect(screen.getByLabelText('Reload')).toBeInTheDocument();
   });
 
-  it('names Safari in the page menu and remembers the choice from the Always switch', () => {
+  it('offers the browser in the page menu and remembers the choice from the Always switch', () => {
     withReadingBridge();
     renderPostPage();
     fireEvent.click(screen.getByText('Read post'));
@@ -266,14 +266,21 @@ describe('ReadingDrawer', () => {
 
     fireEvent.click(screen.getByLabelText('Page options'));
 
-    expect(screen.getByText('Open in Safari')).toBeInTheDocument();
+    expect(screen.getByText('Open in browser')).toBeInTheDocument();
+    expect(screen.getByText('Close the menu')).toBeInTheDocument();
     expect(screen.getAllByLabelText('Close')).toHaveLength(1);
 
-    fireEvent.click(screen.getByLabelText('Always open links in Safari'));
+    fireEvent.click(screen.getByLabelText('Always open links in your browser'));
 
     expect(postMessage).toHaveBeenCalledWith({ action: 'external' });
     expect(back).toHaveBeenCalledTimes(1);
     expect(mockSetFlag).toHaveBeenCalledWith(true);
+    expect(mockLogEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: 'close reading drawer',
+        extra: expect.stringContaining('"closed_by":"always_external"'),
+      }),
+    );
     expect(document.documentElement).not.toHaveClass('reading');
     back.mockRestore();
   });
