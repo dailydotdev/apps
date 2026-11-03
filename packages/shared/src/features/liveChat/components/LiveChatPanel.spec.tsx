@@ -132,6 +132,7 @@ beforeEach(() => {
           image: '',
           permalink: '',
           bio: '',
+          reputation: 1250,
         }),
       } as unknown as ReturnType<typeof dmPeerQueryOptions>),
   );
@@ -452,7 +453,11 @@ describe('LiveChatPanel', () => {
     await screen.findByText('User u2');
 
     fireEvent.change(input, { target: { value: 'hey @u', selectionStart: 6 } });
-    expect(await screen.findByRole('option')).toHaveTextContent('User u2');
+    const option = await screen.findByRole('option');
+    expect(option).toHaveTextContent('User u2');
+    // Their real reputation, not a placeholder 0.
+    expect(option).toHaveTextContent('1.2K');
+    expect(option).not.toHaveTextContent(/\b0\b/);
 
     fireEvent.keyDown(input, { key: 'Enter' });
     expect(input).toHaveValue('hey @u2 ');

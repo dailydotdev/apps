@@ -13,11 +13,13 @@ const maxSuggestions = 5;
 // "@" plus whatever the viewer typed since, up to the caret.
 const mentionAtCaret = /(?:^|\s)(@[A-Za-z0-9_.-]*)$/;
 
+// The reputation is the person's own, or absent while it is still being
+// looked up: the badge then stays hidden rather than claiming 0.
 const toSuggestion = (person: RoomPerson): UserShortProfile => ({
   ...person,
+  reputation: person.reputation,
   bio: '',
   createdAt: '',
-  reputation: 0,
   companies: [],
   isPlus: false,
   plusMemberSince: undefined,
