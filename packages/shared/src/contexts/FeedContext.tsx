@@ -7,7 +7,7 @@ import useSidebarRendered from '../hooks/useSidebarRendered';
 import type { Spaciness } from '../graphql/settings';
 import { featureFeedAdTemplate } from '../lib/featureManagement';
 import type { FeedAdTemplate } from '../lib/feed';
-import { usePlusSubscription } from '../hooks/usePlusSubscription';
+import { useIsPlusAdFree } from '../hooks/useIsPlusAdFree';
 import { useConditionalFeature } from '../hooks/useConditionalFeature';
 import { useMedia } from '../hooks/useMedia';
 import { useIsHydrated } from '../hooks/useIsHydrated';
@@ -138,10 +138,10 @@ export function FeedLayoutProvider({
     key: [QueryStateKeys.FeedTune],
     defaultValue: null,
   });
-  const { isPlus } = usePlusSubscription();
+  const isPlusAdFree = useIsPlusAdFree();
   const feedAdTemplateFeature = useConditionalFeature({
     feature: featureFeedAdTemplate,
-    shouldEvaluate: !isPlus,
+    shouldEvaluate: !isPlusAdFree,
   });
 
   // Debounce sidebar expanded state to sync with sidebar CSS transition

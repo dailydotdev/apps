@@ -7,6 +7,7 @@ import type { LogContextData } from '../../../hooks/log/useLogContextData';
 import { SharedFeedPage } from '../../../components/utilities/common';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { useViewSizeClient } from '../../../hooks/useViewSize';
+import { featureForceAd } from '../../../lib/featureManagement';
 import { useSponsorStrip } from './useSponsorStrip';
 
 jest.mock('../../../hooks/useConditionalFeature', () => ({
@@ -25,6 +26,12 @@ const mockFeature = jest.mocked(useConditionalFeature);
 const mockViewSize = jest.mocked(useViewSizeClient);
 
 const LogContext = getLogContextStatic();
+
+const mockFlags = ({ forceAd = false }: { forceAd?: boolean } = {}) =>
+  mockFeature.mockImplementation(({ feature }) => ({
+    value: feature.id === featureForceAd.id ? forceAd : true,
+    isLoading: false,
+  }));
 
 const render = ({
   feedName = SharedFeedPage.MyFeed as string,
@@ -58,7 +65,7 @@ const render = ({
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockFeature.mockReturnValue({ value: true, isLoading: false });
+  mockFlags();
   mockViewSize.mockReturnValue(true);
 });
 
@@ -81,6 +88,12 @@ it('should be off when the experiment is off', () => {
 
 it('should be off for a Plus subscriber, who paid for no ads', () => {
   expect(render({ isPlus: true }).result.current).toBe(false);
+});
+
+it('should be on for a Plus subscriber when force_ad is on', () => {
+  mockFlags({ forceAd: true });
+
+  expect(render({ isPlus: true }).result.current).toBe(true);
 });
 
 it('should be off on a feed with ads switched off', () => {

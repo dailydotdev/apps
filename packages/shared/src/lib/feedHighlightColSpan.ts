@@ -69,7 +69,7 @@ export interface PlacementBuilderOptions {
 /**
  * Ad cadence pair. When supplied to a placement walk, wide cards are
  * clamped so their right edge does not cross the next scheduled slot
- * (`visualCellsSoFar === adStart + n*adRepeat`). Omit it (Plus user,
+ * (`visualCellsSoFar === adStart + n*adRepeat`). Omit it (ad-free Plus user,
  * feed preview, `disableAds`) to skip the clamp — no ad will fire, so
  * the wide card can take its full requested span.
  */
@@ -101,13 +101,13 @@ export const computeAdClamp = (
 };
 
 export interface DeriveAdCadenceArgs extends AdCadence {
-  isPlus: boolean;
+  isAdFree: boolean;
   isFeedPreview: boolean;
   disableAds?: boolean;
 }
 
 /**
- * Returns the cadence pair when ads are STRUCTURALLY on (non-Plus, not
+ * Returns the cadence pair when ads are STRUCTURALLY on (not ad-free Plus, not
  * a feed preview, `disableAds` off), or `undefined` when no ad will
  * ever fire this session so wide cards can take their full requested
  * span. Transient gates (e.g. `adPostLength` keeping the query
@@ -116,13 +116,13 @@ export interface DeriveAdCadenceArgs extends AdCadence {
  * the threshold is crossed, otherwise the layout reflows mid-session.
  */
 export const deriveAdCadence = ({
-  isPlus,
+  isAdFree,
   isFeedPreview,
   disableAds,
   adStart,
   adRepeat,
 }: DeriveAdCadenceArgs): AdCadence | undefined => {
-  if (isPlus || isFeedPreview || disableAds) {
+  if (isAdFree || isFeedPreview || disableAds) {
     return undefined;
   }
   return { adStart, adRepeat };

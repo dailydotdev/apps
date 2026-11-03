@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { Squad } from '../../../graphql/sources';
 import { similarSquadsQueryOptions } from '../../../graphql/squads';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
+import { useIsPlusAdFree } from '../../../hooks/useIsPlusAdFree';
 import { useSquad } from '../../../hooks/squads/useSquad';
 import { useAdQuery } from '../../monetization/useAdQuery';
 import { AdPlacement, shouldSkipSourceAds } from '../../../lib/ads';
@@ -28,13 +28,13 @@ export const useSimilarSquads = ({
   adKey,
 }: UseSimilarSquadsProps) => {
   const { user, isAuthReady, squads } = useAuthContext();
-  const { isPlus } = usePlusSubscription();
+  const isPlusAdFree = useIsPlusAdFree();
   const squadId = getSquadId(squad);
   // Ad-free squads get no similar squads, and a squad still loading its
   // features could be one. Private squads have no similar squads to list.
   const canShow = !!squad.public && !shouldSkipSourceAds(squad);
   const isEnabled = canShow && isAuthReady;
-  const canPromote = isEnabled && !isPlus;
+  const canPromote = isEnabled && !isPlusAdFree;
 
   const { data: similarSquads, isPending } = useQuery({
     ...similarSquadsQueryOptions({
