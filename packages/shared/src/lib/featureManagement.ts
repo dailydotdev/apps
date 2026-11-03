@@ -382,3 +382,8 @@ export const featureFeedWidgetsDefault = new Feature<{
   id: 'default-1',
   widgets: [{ id: 'top-story', kind: 'topStory', size: 'large' }],
 });
+
+// Weekly picks MVP: gates the Friday nudge, the /bookmarks button, /picks/new
+// and the share sheet. The public page /picks/:id is never gated so shared
+// links keep working.
+export const featureWeeklyPicks = new Feature('weekly_picks', false);
