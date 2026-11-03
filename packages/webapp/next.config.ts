@@ -56,7 +56,7 @@ const noindexHeaders = [
 // secret. Anything else reached the Vercel host directly, skipping the
 // router's agent gateway and noindex rules, so it goes to the same path on
 // daily.dev. Only the production build has the secret.
-const appOriginAuth = process.env.APP_ORIGIN_AUTH || 'preview-check';
+const appOriginAuth = process.env.APP_ORIGIN_AUTH;
 
 // Header conditions match as regexes; a value that stops matching the
 // router's header would loop every request.
