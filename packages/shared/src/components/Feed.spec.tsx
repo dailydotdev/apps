@@ -288,7 +288,7 @@ function renderComponent(
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000')
     .get(
-      `/v1/a?active=false&registered=${!!resolvedUser}&gdpr=1&consent_exists=NONE_CONSENT`,
+      `/v1/a?active=false&allow_post_boost=true&allow_squad_boost=true&registered=${!!resolvedUser}&gdpr=1&consent_exists=NONE_CONSENT`,
     )
     .reply(200, [ad]);
   const settingsContext: SettingsContextData = {
@@ -2156,7 +2156,7 @@ describe('Feed logged in', () => {
       .reply(200, { data: { viewPost: { _: true } } });
     nock('http://localhost:3000')
       .get(
-        '/v1/a?active=false&registered=true&gdpr=1&consent_exists=NONE_CONSENT',
+        '/v1/a?active=false&allow_post_boost=true&allow_squad_boost=true&registered=true&gdpr=1&consent_exists=NONE_CONSENT',
       )
       .reply(200, [
         {
@@ -2739,11 +2739,13 @@ const renderWithHighlightLayout = ({
   // both up to a handful of refills so multi-ad scenarios don't run dry.
   nock('http://localhost:3000')
     .get(
-      '/v1/a?active=false&registered=true&gdpr=1&consent_exists=NONE_CONSENT',
+      '/v1/a?active=false&allow_post_boost=true&allow_squad_boost=true&registered=true&gdpr=1&consent_exists=NONE_CONSENT',
     )
     .reply(200, [ad]);
   nock('http://localhost:3000')
-    .get('/v1/a?active=true&registered=true&gdpr=1&consent_exists=NONE_CONSENT')
+    .get(
+      '/v1/a?active=true&allow_post_boost=true&allow_squad_boost=true&registered=true&gdpr=1&consent_exists=NONE_CONSENT',
+    )
     .times(10)
     .reply(200, [ad]);
 
