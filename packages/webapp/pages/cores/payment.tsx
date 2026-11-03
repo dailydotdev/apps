@@ -15,7 +15,7 @@ import {
 import { getCoresLayout } from '../../components/layouts/CoresLayout';
 import { CorePageMobileCheckout, seo, useCoresOriginFromQuery } from './index';
 
-const CoresPaymentPage = (): ReactElement => {
+const CoresPaymentPage = (): ReactElement | null => {
   const isLaptop = useViewSizeClient(ViewSize.Laptop);
   const router = useRouter();
   const pid = router?.query?.pid;
@@ -30,9 +30,13 @@ const CoresPaymentPage = (): ReactElement => {
       const searchParams = new URLSearchParams(window.location.search);
       const nextParams = new URLSearchParams();
 
-      if (searchParams.get('next')) {
-        nextParams.set('next', searchParams.get('next'));
-      }
+      ['next', 'origin'].forEach((key) => {
+        const value = searchParams.get(key);
+
+        if (value) {
+          nextParams.set(key, value);
+        }
+      });
 
       router?.replace(getPathnameWithQuery(`${webappUrl}cores`, nextParams));
     }
