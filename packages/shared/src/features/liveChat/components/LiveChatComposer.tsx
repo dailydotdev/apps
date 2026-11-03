@@ -13,17 +13,19 @@ const maxSuggestions = 5;
 // "@" plus whatever the viewer typed since, up to the caret.
 const mentionAtCaret = /(?:^|\s)(@[A-Za-z0-9_.-]*)$/;
 
-// The reputation is the person's own, or absent while it is still being
-// looked up: the badge then stays hidden rather than claiming 0.
-const toSuggestion = (person: RoomPerson): UserShortProfile => ({
-  ...person,
-  reputation: person.reputation,
-  bio: '',
-  createdAt: '',
-  companies: [],
-  isPlus: false,
-  plusMemberSince: undefined,
-});
+// The reputation is the person's own, or absent while the profile lookup is
+// still pending: the badge then stays hidden rather than claiming 0. The
+// profile type declares it present, hence the cast; the badge checks for a
+// number at run time.
+const toSuggestion = (person: RoomPerson): UserShortProfile =>
+  ({
+    ...person,
+    bio: '',
+    createdAt: '',
+    companies: [],
+    isPlus: false,
+    plusMemberSince: undefined,
+  } as UserShortProfile);
 
 // Text only: the room keeps nothing, so there is nothing to attach it to.
 // Typing "@" offers the people in the room, since they are who a mention
