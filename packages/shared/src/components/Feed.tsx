@@ -124,6 +124,12 @@ export interface FeedProps<T>
   feedContainerRef?: React.Ref<HTMLDivElement>;
   disableListFrame?: boolean;
   topContent?: ReactNode;
+  /**
+   * The empty screen is at least a screen tall: the page above the feed stays
+   * when the feed changes under it (the home tabs under the widget rail), so
+   * switching to an empty feed must not pull that page back into view.
+   */
+  fillEmptyScreen?: boolean;
   /** Rendered after the last post once the feed cannot fetch more. */
   footer?: ReactNode;
   /** Shown instead of the feed when its first page fails to load. */
@@ -195,6 +201,7 @@ export default function Feed<T>({
   disableListFrame = false,
   excludePinnedPosts = false,
   topContent: topContentProp,
+  fillEmptyScreen = false,
   footer,
   errorScreen,
   searchId,
@@ -711,7 +718,11 @@ export default function Feed<T>({
   }
 
   if (emptyScreen && emptyFeed && !isSearchPageLaptop) {
-    return <>{emptyScreen}</>;
+    return fillEmptyScreen ? (
+      <div className="min-h-screen">{emptyScreen}</div>
+    ) : (
+      <>{emptyScreen}</>
+    );
   }
 
   const isValidFeed = Object.values(SharedFeedPage).includes(

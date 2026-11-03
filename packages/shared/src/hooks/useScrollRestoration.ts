@@ -21,14 +21,13 @@ export const useScrollRestoration = (): void => {
     }
 
     // A view switched in place (a tab, announced with expectViewSwitch) is
-    // not leaving the entry: nothing is saved and nothing is restored. On
-    // back and forward the browser is already on the other entry when Next
-    // speaks, which Next can flag shallow too.
-    const onLeave = (_: string, { shallow }: { shallow?: boolean } = {}) => {
+    // not leaving the entry: nothing is saved and nothing is restored. That
+    // holds for a shallow switch (the profile tabs) and for one that swaps
+    // the page under a layout that stays (the home tabs). On back and forward
+    // the browser is already on the other entry when Next speaks.
+    const onLeave = () => {
       isSwitchingView.current =
-        takeViewSwitch() &&
-        !!shallow &&
-        displayedEntry.current === getHistoryEntryKey();
+        takeViewSwitch() && displayedEntry.current === getHistoryEntryKey();
       if (isSwitchingView.current) {
         return;
       }

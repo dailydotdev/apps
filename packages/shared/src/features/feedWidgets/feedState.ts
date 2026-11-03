@@ -26,7 +26,12 @@ import type { Ad } from '../../graphql/posts';
 import { useAdQuery } from '../monetization/useAdQuery';
 import { useCachedTokenRecovery } from '../../hooks/useCachedTokenRecovery';
 import { AdPlacement } from '../../lib/ads';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import {
+  generateQueryKey,
+  OtherFeedPage,
+  RequestKey,
+  StaleTime,
+} from '../../lib/query';
 import { useFeedHeroData } from '../../components/feeds/hero/useFeedHeroData';
 import { useLogContext } from '../../contexts/LogContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
@@ -59,22 +64,43 @@ export const emptyFeedWidgetFeedState: FeedWidgetFeedState = {
   isAdVisible: false,
 };
 
+// The flag's answer from the last For you or Popular this session. The other
+// home tabs reuse it rather than evaluate the flag themselves, so they enrol
+// no one in its experiment: only a reader the home page already enrolled
+// keeps the rail on them. Browser only, so no request shares it.
+let homeRailFlag: boolean | undefined;
+
+export const resetHomeRailFlag = (): void => {
+  homeRailFlag = undefined;
+};
+
 /**
  * Whether the rail renders on this feed: For you and Popular, behind the flag,
- * unless the reader hid it. The page around the rail reads it too, so the
+ * unless the reader hid it. On a phone it also heads Following and the custom
+ * feeds, whose tabs switch only the feed under it, but only with the answer
+ * the home page already got. The page around the rail reads it too, so the
  * shell's own feed tabs step aside wherever the rail brings its own.
  */
 export const useFeedWidgetRailState = (
   feedName?: string,
 ): { isFlagOn: boolean; isEnabled: boolean } => {
   const { flags } = useSettingsContext();
+  const isPhone = useIsPhone();
   const isMainFeedPage =
     feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
-  const { value: isFlagOn } = useConditionalFeature({
+  const isPhoneHomeTab =
+    isPhone &&
+    (feedName === OtherFeedPage.Following ||
+      feedName === SharedFeedPage.Custom);
+  const { value: isFlagOn, isLoading } = useConditionalFeature({
     feature: featureFeedWidgets,
     shouldEvaluate: isMainFeedPage,
   });
-  const isOn = isMainFeedPage && !!isFlagOn;
+  if (isMainFeedPage && !isLoading && typeof window !== 'undefined') {
+    homeRailFlag = !!isFlagOn;
+  }
+  const isOn =
+    (isMainFeedPage && !!isFlagOn) || (isPhoneHomeTab && !!homeRailFlag);
 
   return { isFlagOn: isOn, isEnabled: isOn && !flags?.feedWidgetsOptOut };
 };

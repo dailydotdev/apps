@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useState } from 'react';
+import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -29,8 +30,16 @@ import {
 } from '../layout/common';
 import type { RowItem } from './ShellRow';
 import { Segments, SheetChoice, ShellRow } from './ShellRow';
+import type { HomeHighlightsView } from '../../features/feedWidgets/homeHighlightsView';
 
 const highlightsUrl = `${webappUrl}highlights`;
+
+// The address on screen, which can differ from the route: Happening now in
+// place under the widget rail keeps the feed page's route.
+const getAsPathname = (router: NextRouter): string =>
+  withoutLayoutVariantPrefix(
+    (router.asPath ?? router.pathname ?? '').split(/[?#]/)[0],
+  );
 
 interface OpenFeed {
   title: string;
@@ -116,9 +125,11 @@ const FeedSheet = ({
 const HappeningNowSheet = ({
   isOpen,
   onClose,
+  onHighlights,
 }: {
   isOpen: boolean;
   onClose: () => void;
+  onHighlights?: (view: HomeHighlightsView) => void;
 }): ReactElement => {
   const router = useRouter();
   const { data } = useQuery({
@@ -126,32 +137,40 @@ const HappeningNowSheet = ({
     enabled: isOpen,
   });
   const channels = data?.channelConfigurations ?? [];
-  const path = (router.asPath ?? router.pathname ?? '').split('?')[0];
+  const path = getAsPathname(router);
+
+  // In place under the widget rail, a choice swaps the view instead of
+  // opening the highlights page.
+  const choice = (href: string, view: HomeHighlightsView) =>
+    onHighlights
+      ? {
+          onClick: () => {
+            onClose();
+            onHighlights(view);
+          },
+        }
+      : { href, replace: true, onClick: onClose };
 
   const items: RowItem[] = [
     {
       key: 'headlines',
       label: 'Headlines',
-      href: highlightsUrl,
       active: path === '/highlights',
-      replace: true,
-      onClick: onClose,
+      ...choice(highlightsUrl, {}),
     },
     {
       key: 'all',
       label: 'All',
-      href: `${highlightsUrl}/all`,
       active: path === '/highlights/all',
-      replace: true,
-      onClick: onClose,
+      ...choice(`${highlightsUrl}/all`, { isAll: true }),
     },
     ...channels.map((channel) => ({
       key: channel.channel,
       label: channel.displayName,
-      href: `${highlightsUrl}/${channel.channel}`,
       active: path === `/highlights/${channel.channel}`,
-      replace: true,
-      onClick: onClose,
+      ...choice(`${highlightsUrl}/${channel.channel}`, {
+        channel: channel.channel,
+      }),
     })),
   ];
 
@@ -175,9 +194,21 @@ interface HomeSegmentsProps {
   // Makes the lit For you segment a button for the feed's own sheet, with
   // this label in place of the plain name.
   forYou?: { label: ReactNode; ariaLabel: string; onMenu: () => void };
+  // The row sits in the page under the widget rail: a tab switches only the
+  // feed under it, so the page keeps its scroll rather than jumping to the top.
+  keepScroll?: boolean;
+  // Called on a tap on any of the row's tabs, before it switches.
+  onSelect?: () => void;
+  // Shows Happening now in place rather than opening its page.
+  onHighlights?: (view: HomeHighlightsView) => void;
 }
 
-export function HomeSegments({ forYou }: HomeSegmentsProps = {}): ReactElement {
+export function HomeSegments({
+  forYou,
+  keepScroll,
+  onSelect,
+  onHighlights,
+}: HomeSegmentsProps = {}): ReactElement {
   const router = useRouter();
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -186,10 +217,11 @@ export function HomeSegments({ forYou }: HomeSegmentsProps = {}): ReactElement {
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
   const [isChannelsOpen, setIsChannelsOpen] = useState(false);
   const [openFeed, setOpenFeed] = useState<OpenFeed | null>(null);
-  const pathname = withoutLayoutVariantPrefix(router.pathname);
-  const path = (router.asPath ?? router.pathname ?? '').split('?')[0];
+  // From the address rather than the route: with Happening now in place the
+  // route is still the feed page's.
+  const path = getAsPathname(router);
   const forYouHref = isCustomDefaultFeed ? `${webappUrl}my-feed` : webappUrl;
-  const isHighlights = pathname.startsWith('/highlights');
+  const isHighlights = path.startsWith('/highlights');
 
   const items: RowItem[] = [];
 
@@ -203,7 +235,7 @@ export function HomeSegments({ forYou }: HomeSegmentsProps = {}): ReactElement {
   const isForYouMenu =
     !!user &&
     !!forYou &&
-    (pathname === '/my-feed' || (pathname === '/' && !isCustomDefaultFeed));
+    (path === '/my-feed' || (path === '/' && !isCustomDefaultFeed));
 
   // A caller with its own For you sheet owns that tab's menu, and shows the
   // feed's settings itself while a custom default feed is the page.
@@ -222,13 +254,13 @@ export function HomeSegments({ forYou }: HomeSegmentsProps = {}): ReactElement {
   };
 
   if (user) {
-    const isDefaultCustom = isCustomDefaultFeed && pathname === '/';
+    const isDefaultCustom = isCustomDefaultFeed && path === '/';
     items.push({
       key: forYouKey,
       label: isForYouMenu ? forYou?.label : 'For you',
       ariaLabel: isForYouMenu ? forYou?.ariaLabel : undefined,
       href: forYouHref,
-      active: pathname === '/' || pathname === '/my-feed',
+      active: path === '/' || path === '/my-feed',
       replace: true,
       menu: forYouMenu(isDefaultCustom),
     });
@@ -237,9 +269,10 @@ export function HomeSegments({ forYou }: HomeSegmentsProps = {}): ReactElement {
   items.push({
     key: 'happening-now',
     label: 'Happening now',
-    href: highlightsUrl,
+    ...(onHighlights
+      ? { onClick: () => onHighlights({}) }
+      : { href: highlightsUrl, replace: true }),
     active: isHighlights,
-    replace: true,
     menu: {
       ariaLabel: 'Happening now, choose a channel',
       onOpen: () => setIsChannelsOpen(true),
@@ -251,7 +284,7 @@ export function HomeSegments({ forYou }: HomeSegmentsProps = {}): ReactElement {
       key: 'following',
       label: 'Following',
       href: `${webappUrl}following`,
-      active: pathname === '/following',
+      active: path === '/following',
       replace: true,
     });
 
@@ -263,7 +296,7 @@ export function HomeSegments({ forYou }: HomeSegmentsProps = {}): ReactElement {
         label: feed.flags?.name || `Feed ${feed.id}`,
         href,
         active: isDefault
-          ? pathname === '/'
+          ? path === '/'
           : path === `/feeds/${feed.id}` || path === `/feeds/${feed.id}/edit`,
         replace: true,
         menu: feedMenu(
@@ -280,12 +313,28 @@ export function HomeSegments({ forYou }: HomeSegmentsProps = {}): ReactElement {
     });
   }
 
+  const rowItems =
+    keepScroll || onSelect
+      ? items.map((item) => ({
+          ...item,
+          keepScroll: keepScroll || item.keepScroll,
+          onClick: () => {
+            // The lit tab is already the view: a tap on it switches nothing,
+            // so it must not leave a switch announced for the next route.
+            if (!item.active) {
+              onSelect?.();
+            }
+            item.onClick?.();
+          },
+        }))
+      : items;
+
   return (
     <>
       <div className="flex w-full items-center">
         <div className="min-w-0 flex-1 [mask-image:linear-gradient(to_right,black_calc(100%-1.5rem),transparent),linear-gradient(black,black)] [mask-position:0_0,0_100%] [mask-repeat:no-repeat] [mask-size:100%_100%,100%_1px]">
           <ShellRow>
-            <Segments items={items} />
+            <Segments items={rowItems} />
           </ShellRow>
         </div>
         {user && (
@@ -293,7 +342,7 @@ export function HomeSegments({ forYou }: HomeSegmentsProps = {}): ReactElement {
             <Link href={`${webappUrl}feeds/new`} passHref>
               <a
                 aria-label="New custom feed"
-                aria-current={pathname === '/feeds/new' ? 'page' : undefined}
+                aria-current={path === '/feeds/new' ? 'page' : undefined}
                 className="shell-press shell-hit relative flex size-[2.375rem] items-center justify-center rounded-14 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
               >
                 <PlusIcon size={IconSize.Small} />
@@ -305,6 +354,7 @@ export function HomeSegments({ forYou }: HomeSegmentsProps = {}): ReactElement {
       <HappeningNowSheet
         isOpen={isChannelsOpen}
         onClose={() => setIsChannelsOpen(false)}
+        onHighlights={onHighlights}
       />
       <FeedSheet feed={openFeed} onClose={() => setOpenFeed(null)} />
     </>
