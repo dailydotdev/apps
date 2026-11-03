@@ -232,12 +232,13 @@ export const Iubenda = (): ReactElement | null => {
       siteId: Number(siteId),
       tcfPublisher: ['consent'],
       tcfVendors: tcfVendorIds.join(','),
+      // Purposes 2, 7, 9 and 10 (basic ads, ad measurement, audience
+      // insights, product improvement) keep each vendor's declared legal
+      // basis, so a visitor who rejects consent can still be served
+      // non-personalized ads on legitimate interest. 8 and 11 stay consent
+      // only; 1 and 3 to 6 are consent only under TCF policy regardless.
       tcfPurposes: {
-        '2': 'consent_only',
-        '7': 'consent_only',
         '8': 'consent_only',
-        '9': 'consent_only',
-        '10': 'consent_only',
         '11': 'consent_only',
       },
       whitelabel: false,
