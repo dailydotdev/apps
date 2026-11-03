@@ -342,6 +342,11 @@ export default function MainFeedLayout({
   // so a list gets its full-bleed gutter from the first paint.
   const isListBelowLaptop = FeedLayoutMobileFeedPages.has(feedName);
   const gutterClassName = isListBelowLaptop ? listFeedGutter : feedGutter;
+  const isHomeTabFeed =
+    feedName === SharedFeedPage.MyFeed ||
+    feedName === SharedFeedPage.Popular ||
+    feedName === OtherFeedPage.Following ||
+    isCustomFeed;
 
   const { value: myFeedV } = useConditionalFeature({
     feature: feature.feedVersion,
@@ -445,6 +450,11 @@ export default function MainFeedLayout({
   // The rail is the hero's successor: where it is on, the hero yields, and a
   // reader who turned the rail off gets the plain feed, not the hero back.
   const isFeedHeroEnabled = isFeedHeroFlagOn && !isFeedWidgetsFlagOn;
+  const homeTabGapClassName =
+    isHomeTabFeed &&
+    !isFeedWidgetsEnabled &&
+    !isExtension &&
+    'pt-2 tablet:pt-0';
   // What the grid must not repeat, known before it paints and never waiting
   // on the rail's own code or data, so the grid never moves when it lands.
   const widgetFeedState = useFeedWidgetFeedState({
@@ -1146,6 +1156,7 @@ export default function MainFeedLayout({
             excludedPostIds={widgetFeedState.excludedPostIds}
             className={classNames(
               !isFinder && gutterClassName,
+              homeTabGapClassName,
               isAwaitingFeatures && 'invisible',
             )}
           />
@@ -1166,6 +1177,7 @@ export default function MainFeedLayout({
             <PlaceholderFeed
               className={classNames(
                 !isFinder && gutterClassName,
+                homeTabGapClassName,
                 isFeedWidgetsEnabled && '!mt-0',
                 isAwaitingFeatures && 'invisible',
               )}

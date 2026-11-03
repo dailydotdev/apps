@@ -218,7 +218,7 @@ export const NotificationsFeed = (): ReactElement => {
           'pb-12',
         )}
       >
-        <EnableNotification />
+        <EnableNotification className="mt-4 tablet:mt-0" />
         {!showPushBanner && <DigestUpsellBanner />}
         {!isLaptopLayout && (
           <div className="hidden items-center justify-between px-4 pb-2 pt-4 tablet:flex">

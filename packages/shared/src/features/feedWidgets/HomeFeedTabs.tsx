@@ -177,7 +177,7 @@ export function HomeFeedTabs({
           ref={phoneRowRef}
           data-testid="home-feed-tabs-row"
           className={classNames(
-            'border-b border-border-subtlest-tertiary bg-background-default',
+            'mb-4 border-b border-border-subtlest-tertiary bg-background-default',
             hasPhoneRowPassed && 'h-0 overflow-hidden',
           )}
         >
