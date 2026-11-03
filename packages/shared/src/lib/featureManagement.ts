@@ -89,10 +89,6 @@ export const featureCores = new Feature('cores', isDevelopment);
 // automated streak freeze: auto-apply purchased freezes on missed reading days
 export const featureStreakFreeze = new Feature('streak_freeze', isDevelopment);
 
-// whether the user will see post boost ads
-// does not necessarily mean they can't boost a post if they have access to cores
-export const featurePostBoostAds = new Feature('post_boost_ads', isDevelopment);
-
 export const briefCardFeedFeature = new Feature(
   'brief_card_feed',
   isDevelopment,
@@ -243,8 +239,8 @@ export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
 /**
  * Experiment: the sponsor strip — a logo wall docked under the main feeds.
  *
- * On in development and off everywhere else, the way `cores`, `quest_offers`
- * and `post_boost_ads` are: `isDevelopment` is false in a production build, so
+ * On in development and off everywhere else, the way `cores` and
+ * `quest_offers` are: `isDevelopment` is false in a production build, so
  * this cannot ship the experiment to anyone — GrowthBook ramps it — while a
  * local session still gets the strip without anybody forcing a flag.
  */
