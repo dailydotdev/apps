@@ -166,7 +166,7 @@ it('should switch the segment in place on a phone', async () => {
         replace,
         push: jest.fn(),
         events: { on: jest.fn(), off: jest.fn() },
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
   renderComponent();
   await waitForNock();

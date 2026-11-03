@@ -185,7 +185,7 @@ it('should render the profile with the posts segment open on a phone', async () 
         replace: jest.fn(),
         push: jest.fn(),
         events: { on: jest.fn(), off: jest.fn() },
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
   renderComponent();
   await waitForNock();
