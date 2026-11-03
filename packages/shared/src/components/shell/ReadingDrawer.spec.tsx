@@ -17,8 +17,10 @@ jest.mock('next/router', () => ({
   useRouter: () => mockRouter,
 }));
 
+const mockSetFlag = jest.fn();
+
 jest.mock('../../hooks/useSettingsBooleanFlag', () => ({
-  useSettingsBooleanFlag: () => ({ value: false }),
+  useSettingsBooleanFlag: () => ({ value: false, set: mockSetFlag }),
 }));
 
 jest.mock('../../hooks/useCopy', () => ({
@@ -72,6 +74,7 @@ beforeEach(() => {
   mockRouter.beforePopState.mockClear();
   postMessage.mockClear();
   mockLogEvent.mockClear();
+  mockSetFlag.mockClear();
   window.scrollTo = jest.fn();
 });
 
@@ -248,6 +251,62 @@ describe('ReadingDrawer', () => {
       "rust-lang.org didn't load",
     );
     expect(screen.getByLabelText('Reload')).toBeInTheDocument();
+  });
+
+  it('names Safari in the page menu and remembers the choice from the Always switch', () => {
+    withReadingBridge();
+    renderPostPage();
+    fireEvent.click(screen.getByText('Read post'));
+    const back = jest.spyOn(window.history, 'back').mockImplementation(() => {
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+
+    fireEvent.click(screen.getByLabelText('Page options'));
+
+    expect(screen.getByText('Open in Safari')).toBeInTheDocument();
+    expect(screen.getAllByLabelText('Close')).toHaveLength(1);
+
+    fireEvent.click(screen.getByLabelText('Always open links in Safari'));
+
+    expect(postMessage).toHaveBeenCalledWith({ action: 'external' });
+    expect(back).toHaveBeenCalledTimes(1);
+    expect(mockSetFlag).toHaveBeenCalledWith(true);
+    expect(document.documentElement).not.toHaveClass('reading');
+    back.mockRestore();
+  });
+
+  it('shares the page through the system share sheet', async () => {
+    withReadingBridge();
+    const share = jest.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'share', {
+      value: share,
+      configurable: true,
+    });
+    Object.defineProperty(navigator, 'maxTouchPoints', {
+      value: 5,
+      configurable: true,
+    });
+    renderPostPage();
+    fireEvent.click(screen.getByText('Read post'));
+    act(() => {
+      window.dispatchEvent(
+        new CustomEvent(ReadingEvent.State, {
+          detail: { url: 'https://www.rust-lang.org/blog', title: 'Rust Blog' },
+        }),
+      );
+    });
+
+    fireEvent.click(screen.getByLabelText('Share the page'));
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(share).toHaveBeenCalledWith({
+      title: 'Rust Blog',
+      url: 'https://www.rust-lang.org/blog',
+    });
+    delete (navigator as { share?: unknown }).share;
+    delete (navigator as { maxTouchPoints?: unknown }).maxTouchPoints;
   });
 
   it('closes on back before the post itself is left', () => {
