@@ -166,6 +166,33 @@ describe('ReadingDrawer', () => {
     jest.useRealTimers();
   });
 
+  it('leaves the scroll to the page it goes back to when back leaves a feed arrival', () => {
+    jest.useFakeTimers();
+    withReadingBridge();
+    queueReadingOpen(post, post.permalink as string);
+    renderPostPage();
+    act(() => {
+      jest.advanceTimersByTime(openDuration);
+    });
+    expect(document.documentElement).toHaveClass('reading');
+    jest.mocked(window.scrollTo).mockClear();
+
+    const onRouteChange = mockRouter.events.on.mock.calls
+      .filter(([name]) => name === 'routeChangeStart')
+      .map(([, handler]) => handler)
+      .at(-1);
+    act(() => onRouteChange());
+
+    expect(document.documentElement).not.toHaveClass('reading');
+    expect(window.scrollTo).not.toHaveBeenCalled();
+    expect(mockLogEvent).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        extra: expect.stringContaining('"closed_by":"leave"'),
+      }),
+    );
+    jest.useRealTimers();
+  });
+
   it('opens the article behind the post instead of following the link', () => {
     withReadingBridge();
     renderPostPage();

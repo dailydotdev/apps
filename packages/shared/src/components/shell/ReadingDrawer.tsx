@@ -902,14 +902,19 @@ export function ReadingDrawer({
       sink.current = undefined;
       rise.current = undefined;
       glide.current = undefined;
-      const back =
-        keep === null
-          ? returnTo.current
-          : window.scrollY + anchor.getBoundingClientRect().top - keep;
-      window.scrollTo(0, back);
-      holdScroll(flowParts(page), back);
-      // Landing back is not reading down: the bars stay where they are.
-      expectShellScroll(back);
+      // Leaving the post page (back to the feed from a feed card, or any
+      // other route): the page that comes owns its scroll, and holding this
+      // one would shift the restored feed under the same layout.
+      if (closedBy.current !== CloseReason.Leave) {
+        const back =
+          keep === null
+            ? returnTo.current
+            : window.scrollY + anchor.getBoundingClientRect().top - keep;
+        window.scrollTo(0, back);
+        holdScroll(flowParts(page), back);
+        // Landing back is not reading down: the bars stay where they are.
+        expectShellScroll(back);
+      }
       const link = linkAfterClose.current;
       linkAfterClose.current = null;
       if (link) {
