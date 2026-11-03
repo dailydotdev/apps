@@ -170,7 +170,7 @@ const TabLabel = ({
         {label}
       </span>
     ) : (
-      label
+      <span className={isLit ? 'font-bold' : 'font-medium'}>{label}</span>
     )}
     {children}
   </span>

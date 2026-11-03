@@ -106,6 +106,31 @@ describe('ShellRow', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('bolds a lit segment whose label is not plain text', () => {
+    render(
+      <Segments
+        items={[
+          {
+            key: 'for-you',
+            label: <span>For you</span>,
+            href: '/',
+            active: true,
+            menu: {
+              ariaLabel: 'For you, sort and feed settings',
+              onOpen: jest.fn(),
+            },
+          },
+          { key: 'b', label: <span>Following</span>, href: '/following' },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText('For you').parentElement).toHaveClass('font-bold');
+    expect(screen.getByText('Following').parentElement).toHaveClass(
+      'font-medium',
+    );
+  });
+
   it('draws a filter chip as a pressed button when it has no address', () => {
     const onClick = jest.fn();
     render(
