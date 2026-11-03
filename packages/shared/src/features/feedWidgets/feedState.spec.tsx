@@ -5,7 +5,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { GrowthBook } from '@growthbook/growthbook-react';
 import nock from 'nock';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
-import { mockDesktop } from '../../../__tests__/helpers/media';
+import { mockDesktop, mockMatchMedia } from '../../../__tests__/helpers/media';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import basePost from '../../../__tests__/fixture/post';
 import FeedContext from '../../contexts/FeedContext';
@@ -15,9 +15,11 @@ import { fetchAdByPlacement } from '../../lib/ads';
 import { clearShownFeedHeroLeads } from '../../components/feeds/hero/useFeedHeroData';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { SharedFeedPage } from '../../components/utilities/common';
+import { OtherFeedPage } from '../../lib/query';
 import {
   emptyFeedWidgetFeedState,
   useFeedWidgetFeedState,
+  useFeedWidgetRailState,
   useFeedWidgetShortcuts,
   useFeedWidgetsOptOut,
 } from './feedState';
@@ -255,5 +257,58 @@ describe('useFeedWidgetsOptOut', () => {
     expect(setSettings).toHaveBeenLastCalledWith({
       flags: { feedWidgetsOptOut: false, sidebarResourcesExpanded: true },
     });
+  });
+});
+
+const renderRailState = (feedName: string) =>
+  renderHook(() => useFeedWidgetRailState(feedName), {
+    wrapper: ({ children }: { children: ReactNode }): ReactElement => (
+      <TestBootProvider
+        client={new QueryClient()}
+        gb={
+          new GrowthBook({
+            features: { feed_widgets: { defaultValue: true } },
+          })
+        }
+      >
+        {children}
+      </TestBootProvider>
+    ),
+  });
+
+describe('useFeedWidgetRailState', () => {
+  it('heads For you and Popular on every screen', () => {
+    expect(
+      renderRailState(SharedFeedPage.MyFeed).result.current.isEnabled,
+    ).toBe(true);
+    expect(
+      renderRailState(SharedFeedPage.Popular).result.current.isEnabled,
+    ).toBe(true);
+  });
+
+  it('stays on the other home tabs on a phone, where a tab swaps only the feed under it', async () => {
+    // No width breakpoint matches: a phone.
+    mockMatchMedia(() => false);
+
+    await waitFor(() =>
+      expect(
+        renderRailState(OtherFeedPage.Following).result.current.isEnabled,
+      ).toBe(true),
+    );
+    expect(
+      renderRailState(SharedFeedPage.Custom).result.current.isEnabled,
+    ).toBe(true);
+    expect(
+      renderRailState(OtherFeedPage.Explore).result.current.isEnabled,
+    ).toBe(false);
+  });
+
+  it('leaves Following and the custom feeds alone from the tablet up', () => {
+    expect(
+      renderRailState(OtherFeedPage.Following).result.current.isEnabled,
+    ).toBe(false);
+    expect(
+      renderRailState(SharedFeedPage.Custom).result.current.isEnabled,
+    ).toBe(false);
   });
 });

@@ -224,6 +224,27 @@ describe('useScrollRestoration', () => {
     expect(scrollTo).toHaveBeenCalledWith(0, 1200);
   });
 
+  it('leaves the scroll alone when a tab replaces the page under a layout that stays', () => {
+    const feed = startOnScrolledFeed();
+    // The home tabs under the widget rail: a replace to another page (not a
+    // shallow one, and the entry keeps its key) with `scroll: false`.
+    const switchPage = (path: string) => {
+      expectViewSwitch();
+      emitRouterEvent('routeChangeStart', path);
+      window.history.replaceState({ key: feed.key }, '', path);
+      mockRouter.asPath = path;
+      rerenderHook();
+      advanceFrames(2);
+    };
+
+    switchPage('/following');
+    scrollUserTo(1200);
+    switchPage(FEED_PATH);
+
+    expect(scrollTo).not.toHaveBeenCalled();
+    expect(window.scrollY).toBe(1200);
+  });
+
   it('restores on back when Next calls the move shallow', () => {
     const feed = startOnScrolledFeed();
     const post = navigate(POST_PATH, POST_HEIGHT);

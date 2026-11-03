@@ -293,6 +293,54 @@ describe('HomeFeedTabs', () => {
       ).toBeInTheDocument();
     });
 
+    it('switches Happening now in place, under the rail, keeping the highlights address', () => {
+      const replace = jest.fn().mockResolvedValue(true);
+      jest.mocked(useRouter).mockImplementation(
+        () =>
+          ({
+            pathname: '/',
+            asPath: '/',
+            query: {},
+            push: jest.fn(),
+            replace,
+            events: { on: jest.fn(), off: jest.fn() },
+          }) as unknown as NextRouter,
+      );
+      renderTabs();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Happening now' }));
+
+      expect(replace).toHaveBeenCalledWith(
+        { pathname: '/', query: { homeView: 'highlights' } },
+        '/highlights',
+        { shallow: true, scroll: false },
+      );
+    });
+
+    it('lights Happening now while it shows in place on the feed route', () => {
+      jest.mocked(useRouter).mockImplementation(
+        () =>
+          ({
+            pathname: '/',
+            asPath: '/highlights',
+            query: { homeView: 'highlights' },
+            push: jest.fn(),
+            replace: jest.fn(),
+            events: { on: jest.fn(), off: jest.fn() },
+          }) as unknown as NextRouter,
+      );
+      renderTabs();
+
+      expect(
+        screen.getByRole('button', { name: 'Happening now, choose a channel' }),
+      ).toHaveAttribute('aria-pressed', 'true');
+      expect(
+        screen.queryByRole('button', {
+          name: 'For you, sort and feed settings',
+        }),
+      ).not.toBeInTheDocument();
+    });
+
     it('takes the collapsed row out of reach while its copy is docked', () => {
       const observers = new Map<Element, IntersectionObserverCallback>();
       const Observer = jest.mocked(IntersectionObserver);

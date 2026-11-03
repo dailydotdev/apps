@@ -26,7 +26,12 @@ import type { Ad } from '../../graphql/posts';
 import { useAdQuery } from '../monetization/useAdQuery';
 import { useCachedTokenRecovery } from '../../hooks/useCachedTokenRecovery';
 import { AdPlacement } from '../../lib/ads';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import {
+  generateQueryKey,
+  OtherFeedPage,
+  RequestKey,
+  StaleTime,
+} from '../../lib/query';
 import { useFeedHeroData } from '../../components/feeds/hero/useFeedHeroData';
 import { useLogContext } from '../../contexts/LogContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
@@ -68,13 +73,21 @@ export const useFeedWidgetRailState = (
   feedName?: string,
 ): { isFlagOn: boolean; isEnabled: boolean } => {
   const { flags } = useSettingsContext();
+  const isPhone = useIsPhone();
   const isMainFeedPage =
     feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
+  // On a phone the rail heads the home page, and its tabs (Following and the
+  // custom feeds) switch only the feed under it, so the rail stays on them.
+  const isPhoneHomeTab =
+    isPhone &&
+    (feedName === OtherFeedPage.Following ||
+      feedName === SharedFeedPage.Custom);
+  const isRailPage = isMainFeedPage || isPhoneHomeTab;
   const { value: isFlagOn } = useConditionalFeature({
     feature: featureFeedWidgets,
-    shouldEvaluate: isMainFeedPage,
+    shouldEvaluate: isRailPage,
   });
-  const isOn = isMainFeedPage && !!isFlagOn;
+  const isOn = isRailPage && !!isFlagOn;
 
   return { isFlagOn: isOn, isEnabled: isOn && !flags?.feedWidgetsOptOut };
 };
