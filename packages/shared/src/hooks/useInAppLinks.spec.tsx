@@ -1,7 +1,10 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { useInAppLinks } from './useInAppLinks';
-import { openReadingFromFeed } from '../components/shell/readingStore';
+import {
+  openReadingFromFeed,
+  ReadingEvent,
+} from '../components/shell/readingStore';
 import type { Post } from '../graphql/posts';
 
 const mockPush = jest.fn();
@@ -15,9 +18,13 @@ jest.mock('./useViewSize', () => ({
 }));
 
 let mockOptedOut = false;
+const mockSetOptedOut = jest.fn();
 
 jest.mock('./useSettingsBooleanFlag', () => ({
-  useSettingsBooleanFlag: () => ({ value: mockOptedOut }),
+  useSettingsBooleanFlag: () => ({
+    value: mockOptedOut,
+    set: mockSetOptedOut,
+  }),
 }));
 
 type BridgeGlobal = typeof globalThis & { webkit?: unknown };
@@ -37,6 +44,7 @@ const Page = () => {
 beforeEach(() => {
   postMessage.mockClear();
   mockPush.mockClear();
+  mockSetOptedOut.mockClear();
   (globalThis as BridgeGlobal).webkit = {
     messageHandlers: { reading: { postMessage } },
   };
@@ -64,7 +72,29 @@ describe('useInAppLinks', () => {
       undefined,
       { scroll: false },
     );
-    expect(postMessage).not.toHaveBeenCalled();
+    expect(postMessage.mock.calls.map(([payload]) => payload.action)).toEqual([
+      'preference',
+    ]);
+  });
+
+  it('tells the wrapper the choice, and takes one made in the system Settings', () => {
+    mockOptedOut = false;
+    render(<Page />);
+
+    expect(postMessage).toHaveBeenCalledWith({
+      action: 'preference',
+      inApp: true,
+    });
+
+    window.dispatchEvent(
+      new CustomEvent(ReadingEvent.Preference, { detail: { inApp: true } }),
+    );
+    expect(mockSetOptedOut).not.toHaveBeenCalled();
+
+    window.dispatchEvent(
+      new CustomEvent(ReadingEvent.Preference, { detail: { inApp: false } }),
+    );
+    expect(mockSetOptedOut).toHaveBeenCalledWith(true);
   });
 
   it('hands every link out of the app to the system browser when turned off', () => {
@@ -72,7 +102,9 @@ describe('useInAppLinks', () => {
     render(<Page />);
 
     fireEvent.click(screen.getByText('Inside'));
-    expect(postMessage).not.toHaveBeenCalled();
+    expect(postMessage.mock.calls.map(([payload]) => payload.action)).toEqual([
+      'preference',
+    ]);
 
     fireEvent.click(screen.getByText('Outside'));
     expect(postMessage).toHaveBeenCalledWith({

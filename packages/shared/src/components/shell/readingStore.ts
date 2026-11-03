@@ -35,12 +35,16 @@ export enum ReadingAction {
   Back = 'back',
   Forward = 'forward',
   External = 'external',
+  // The Open links in setting, for the wrapper to mirror into the system
+  // Settings; it reports a change made there as the event below.
+  Preference = 'preference',
 }
 
 export enum ReadingEvent {
   State = 'reading-state',
   Scroll = 'reading-scroll',
   Link = 'reading-link',
+  Preference = 'reading-preference',
 }
 
 const closed: ReadingState = { open: false, article: {} };
