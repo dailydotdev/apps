@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { GetServerSideProps } from 'next';
 import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
@@ -18,8 +18,7 @@ import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditio
 import { featureWeeklyPicks } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useSharePicks } from '@dailydotdev/shared/src/hooks/picks/useSharePicks';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
-import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
-import { AFTER_AUTH_PARAM } from '@dailydotdev/shared/src/components/auth/common';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { cloudinaryPostImageCoverPlaceholder } from '@dailydotdev/shared/src/lib/image';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
@@ -124,7 +123,7 @@ const PickRow = ({
 
 const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
   const router = useRouter();
-  const { user, isLoggedIn, isAuthReady } = useAuthContext();
+  const { user, isLoggedIn, isAuthReady, showLogin } = useAuthContext();
   const { logEvent } = useLogContext();
   const { data: picks } = useQuery({
     ...picksQueryOptions(picksId),
@@ -134,12 +133,25 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
   const isAuthor = !!user && user.id === picks?.author.id;
   const { openShareSheet } = useSharePicks();
   // `/picks/new` is flag-gated, so only offer the CTA to viewers who can use
-  // it. Logged out viewers go through auth first and keep the CTA.
-  const { value: isPicksEnabled } = useConditionalFeature({
-    feature: featureWeeklyPicks,
-    shouldEvaluate: isLoggedIn,
-  });
+  // it. Logged out viewers see it too: it opens the login pop-up, and once
+  // they are in the flag decides whether the picker follows.
+  const { value: isPicksEnabled, isLoading: isPicksFlagLoading } =
+    useConditionalFeature({
+      feature: featureWeeklyPicks,
+      shouldEvaluate: isLoggedIn,
+    });
   const showMakePicksCta = !isLoggedIn || isPicksEnabled;
+  const [wantsPicks, setWantsPicks] = useState(false);
+
+  useEffect(() => {
+    if (!wantsPicks || !isLoggedIn || isPicksFlagLoading) {
+      return;
+    }
+    setWantsPicks(false);
+    if (isPicksEnabled) {
+      router.push(MAKE_PICKS_PATH);
+    }
+  }, [wantsPicks, isLoggedIn, isPicksFlagLoading, isPicksEnabled, router]);
 
   useEffect(() => {
     if (!picks || !isAuthReady || hasLoggedView.current) {
@@ -176,12 +188,8 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
       return;
     }
 
-    // Same hand-off ProtectedPage uses: onboarding/auth, then `after_auth`.
-    router.push(
-      `${onboardingUrl}?${new URLSearchParams({
-        [AFTER_AUTH_PARAM]: MAKE_PICKS_PATH,
-      }).toString()}`,
-    );
+    setWantsPicks(true);
+    showLogin({ trigger: AuthTriggers.WeeklyPicks });
   };
 
   return (
@@ -234,7 +242,7 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
           </Typography>
         )}
         {showMakePicksCta && (
-          <section className="flex flex-col items-start gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
+          <section className="sticky bottom-[calc(var(--shell-bottom,5rem)+0.75rem)] flex flex-col items-start gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-default p-4 tablet:static">
             <Typography
               type={TypographyType.Body}
               bold
