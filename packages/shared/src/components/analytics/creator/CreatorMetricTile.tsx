@@ -1,16 +1,16 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
-import { DataTile } from '@dailydotdev/shared/src/components/DataTile';
+import { DataTile } from '../../DataTile';
 import {
   Typography,
   TypographyColor,
   TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
-import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
+} from '../../typography/Typography';
+import { Tooltip } from '../../tooltip/Tooltip';
 import type {
   CreatorMetric,
   CreatorPerformancePeriod,
-} from '@dailydotdev/shared/src/graphql/creatorAnalytics';
+} from '../../../graphql/creatorAnalytics';
 import { getMetricDelta, metricScopeLabel, unknownValueLabel } from './common';
 
 interface CreatorMetricTileProps {

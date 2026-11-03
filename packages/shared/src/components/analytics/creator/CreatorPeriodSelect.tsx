@@ -5,16 +5,16 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@dailydotdev/shared/src/components/dropdown/DropdownMenu';
+} from '../../dropdown/DropdownMenu';
 import {
   Button,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
-import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import type { CreatorPerformancePeriod } from '@dailydotdev/shared/src/graphql/creatorAnalytics';
+} from '../../buttons/Button';
+import { ArrowIcon } from '../../icons';
+import { IconSize } from '../../Icon';
+import type { CreatorPerformancePeriod } from '../../../graphql/creatorAnalytics';
 import { periodLabel, periodOptions } from './common';
 
 interface CreatorPeriodSelectProps {

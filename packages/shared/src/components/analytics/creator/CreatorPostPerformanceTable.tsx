@@ -1,45 +1,42 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import Link from '../../utilities/Link';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
+} from '../../typography/Typography';
 import {
   Button,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '../../buttons/Button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@dailydotdev/shared/src/components/dropdown/DropdownMenu';
-import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
-import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
-import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
-import { cloudinaryPostImageCoverPlaceholder } from '@dailydotdev/shared/src/lib/image';
-import { largeNumberFormat } from '@dailydotdev/shared/src/lib';
-import { getPostTitle } from '@dailydotdev/shared/src/graphql/posts';
-import {
-  TimeFormatType,
-  formatDate,
-} from '@dailydotdev/shared/src/lib/dateFormat';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { getPostPath } from '@dailydotdev/shared/src/lib/links';
-import type { CreatorPostPerformance } from '@dailydotdev/shared/src/graphql/creatorAnalytics';
+} from '../../dropdown/DropdownMenu';
+import { ArrowIcon } from '../../icons';
+import { IconSize } from '../../Icon';
+import { ElementPlaceholder } from '../../ElementPlaceholder';
+import { Tooltip } from '../../tooltip/Tooltip';
+import { LazyImage } from '../../LazyImage';
+import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
+import { largeNumberFormat } from '../../../lib';
+import { getPostTitle } from '../../../graphql/posts';
+import { TimeFormatType, formatDate } from '../../../lib/dateFormat';
+import { webappUrl } from '../../../lib/constants';
+import { getPostPath } from '../../../lib/links';
+import type { CreatorPostPerformance } from '../../../graphql/creatorAnalytics';
 import {
   CreatorPostSortBy,
   CreatorPostSortOrder,
-} from '@dailydotdev/shared/src/graphql/creatorAnalytics';
-import { unknownValueLabel } from './common';
+} from '../../../graphql/creatorAnalytics';
+import { CreatorAnalyticsAudience, unknownValueLabel } from './common';
 
 export interface CreatorPostSort {
   sortBy: CreatorPostSortBy;
@@ -54,7 +51,23 @@ interface CreatorPostPerformanceTableProps {
   hasNextPage: boolean | undefined;
   isFetchingNextPage: boolean;
   fetchNextPage: () => void;
+  audience?: CreatorAnalyticsAudience;
 }
+
+const tableCaption: Record<CreatorAnalyticsAudience, string> = {
+  [CreatorAnalyticsAudience.Creator]:
+    'Your posts and how they performed in the selected period, sortable by column.',
+  [CreatorAnalyticsAudience.Squad]:
+    'Posts in this squad and how they performed in the selected period, sortable by column.',
+};
+
+const getRowHref = (
+  post: CreatorPostPerformance['post'],
+  audience: CreatorAnalyticsAudience,
+): string =>
+  audience === CreatorAnalyticsAudience.Squad
+    ? getPostPath(post)
+    : `${webappUrl}posts/${post.id}/analytics`;
 
 type Column = {
   key: CreatorPostSortBy;
@@ -296,15 +309,13 @@ export const CreatorPostPerformanceTable = ({
   hasNextPage,
   isFetchingNextPage,
   fetchNextPage,
+  audience = CreatorAnalyticsAudience.Creator,
 }: CreatorPostPerformanceTableProps): ReactElement => (
   <div className="flex flex-col gap-4">
     <SortSelect sort={sort} onSortChange={onSortChange} />
     <div>
       <table className="w-full border-collapse text-left">
-        <caption className="sr-only">
-          Your posts and how they performed in the selected period, sortable by
-          column.
-        </caption>
+        <caption className="sr-only">{tableCaption[audience]}</caption>
         <thead className="hidden laptop:table-header-group">
           <tr className="border-b border-border-subtlest-tertiary">
             {/* The publish date sits under each title, so the post column
@@ -354,7 +365,7 @@ export const CreatorPostPerformanceTable = ({
                       'col-span-4 min-w-0 pb-2 pt-3 laptop:w-full laptop:max-w-0',
                     )}
                   >
-                    <Link href={`${webappUrl}posts/${row.post.id}/analytics`}>
+                    <Link href={getRowHref(row.post, audience)}>
                       <a className="focus-outline group flex min-w-0 items-center gap-3">
                         <LazyImage
                           imgSrc={getCreatorPostImage(row.post)}
