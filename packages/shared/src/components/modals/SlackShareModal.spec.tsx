@@ -21,6 +21,9 @@ import {
 import type { SlackShareSnapshot } from '../../hooks/integrations/slack/slackShareSnapshot';
 import { slackShareSnapshotKey } from '../../hooks/integrations/slack/slackShareSnapshot';
 import { generateQueryKey, RequestKey } from '../../lib/query';
+import { INTEGRATION_SHARE_PICKS_MUTATION } from '../../graphql/picks';
+import type { Picks } from '../../graphql/picks';
+import { Origin } from '../../lib/log';
 
 const mockConnect = jest.fn();
 const mockDisplayToast = jest.fn();
@@ -225,5 +228,92 @@ it('should switch to the reconnect prompt when Slack refuses the image', async (
   await waitFor(() => expect(mockConnect).toHaveBeenCalledTimes(1));
   expect(await getCache(slackShareSnapshotKey)).toMatchObject({
     channel,
+  });
+});
+
+describe('picks subject', () => {
+  const picks = { id: 'picks-1', items: [] } as unknown as Picks;
+
+  const renderPicksModal = (integration: Partial<UserIntegration>) => {
+    const client = new QueryClient();
+    const slackIntegration = {
+      id: 'slack-1',
+      type: UserIntegrationType.Slack,
+      name: 'daily.dev',
+      canPostAsUser: true,
+      ...integration,
+    };
+    client.setQueryData(
+      generateQueryKey(RequestKey.UserIntegrations, loggedUser),
+      [slackIntegration],
+    );
+    client.setQueryData(
+      integrationRecentChannelsQueryOptions({
+        integrationId: slackIntegration.id,
+        user: loggedUser,
+      }).queryKey,
+      [channel],
+    );
+
+    return render(
+      <TestBootProvider client={client} auth={{ user: loggedUser }}>
+        <SlackShareModal
+          isOpen
+          ariaHideApp={false}
+          picks={picks}
+          origin={Origin.PicksPage}
+          onRequestClose={jest.fn()}
+        />
+      </TestBootProvider>,
+    );
+  };
+
+  beforeEach(() => {
+    jest.spyOn(gqlClient, 'request').mockImplementation((async (
+      query: string,
+      variables: unknown,
+    ) => {
+      if (query === SLACK_CHANNELS_QUERY) {
+        return { slackChannels: { data: [channel], cursor: null } };
+      }
+
+      return query === INTEGRATION_SHARE_PICKS_MUTATION
+        ? mockShare(query, variables)
+        : {};
+    }) as never);
+  });
+
+  it('should share the picks with the default message', async () => {
+    mockShare.mockResolvedValue({ integrationSharePicks: { _: true } });
+    renderPicksModal({});
+
+    expect(screen.getByPlaceholderText('Add a message (optional)')).toHaveValue(
+      "Here's what I read this week",
+    );
+    fireEvent.click(screen.getByRole('button', { name: '#general' }));
+
+    await waitFor(() =>
+      expect(mockDisplayToast).toHaveBeenCalledWith('Shared to Slack'),
+    );
+    expect(mockShare).toHaveBeenCalledWith(INTEGRATION_SHARE_PICKS_MUTATION, {
+      integrationId: 'slack-1',
+      channelId: channel.id,
+      picksId: 'picks-1',
+      message: "Here's what I read this week",
+    });
+  });
+
+  it('should keep the app-token warning and return to the picks sheet on reconnect', async () => {
+    renderPicksModal({ canPostAsUser: false });
+
+    expect(screen.getByText(/posts as the daily.dev app/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Reconnect Slack' }));
+
+    await waitFor(() => expect(mockConnect).toHaveBeenCalledTimes(1));
+    const params = new URLSearchParams(
+      mockConnect.mock.calls[0][0].redirectPath.split('?')[1],
+    );
+    expect(params.get('lzym')).toBe('sharePicks');
+    expect(params.get('slackPicksId')).toBe('picks-1');
   });
 });

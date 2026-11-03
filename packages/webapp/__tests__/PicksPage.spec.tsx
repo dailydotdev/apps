@@ -9,10 +9,24 @@ import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import type { Picks } from '@dailydotdev/shared/src/graphql/picks';
 import { PICKS_QUERY } from '@dailydotdev/shared/src/graphql/picks';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import PicksPage from '../pages/picks/[id]';
 
 const mockPush = jest.fn();
+let mockPicksEnabled = true;
+
+const mockOpenShareSheet = jest.fn();
+
+jest.mock('@dailydotdev/shared/src/hooks/picks/useSharePicks', () => ({
+  useSharePicks: () => ({ openShareSheet: mockOpenShareSheet }),
+}));
+
+jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
+  useConditionalFeature: () => ({
+    value: mockPicksEnabled,
+    isLoading: false,
+  }),
+}));
 
 jest.mock('next/router', () => ({
   useRouter: () => ({
@@ -72,6 +86,7 @@ const renderPage = (data: Picks, auth: Record<string, unknown> = {}) => {
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
+  mockPicksEnabled = true;
 });
 
 it('should render the author, subtitle and rows in position order', async () => {
@@ -170,4 +185,48 @@ it('should send logged out viewers through auth and back to the create flow', as
       `after_auth=${encodeURIComponent('/picks/new?origin=picks_page')}`,
     ),
   );
+});
+
+it('should show the author a Share button that opens the share sheet', async () => {
+  renderPage(picks, {
+    user: { ...loggedUser, id: 'author-1' },
+    isLoggedIn: true,
+  });
+  await userEvent.click(await screen.findByRole('button', { name: 'Share' }));
+
+  expect(mockOpenShareSheet).toHaveBeenCalledWith(
+    expect.objectContaining({ id: 'picks-1' }),
+    Origin.PicksPage,
+  );
+});
+
+it('should not show a Share button to other viewers', async () => {
+  renderPage(picks, { user: loggedUser, isLoggedIn: true });
+  await screen.findByText(/Ada Lovelace's picks/);
+
+  expect(
+    screen.queryByRole('button', { name: 'Share' }),
+  ).not.toBeInTheDocument();
+});
+
+it('should hide the make picks CTA from logged in viewers when the flag is off', async () => {
+  mockPicksEnabled = false;
+  renderPage(picks, { user: loggedUser, isLoggedIn: true });
+  await screen.findByText(/Ada Lovelace's picks/);
+
+  expect(screen.queryByText('Make your picks')).not.toBeInTheDocument();
+});
+
+it('should show the make picks CTA to logged in viewers when the flag is on', async () => {
+  mockPicksEnabled = true;
+  renderPage(picks, { user: loggedUser, isLoggedIn: true });
+
+  expect(await screen.findByText('Make your picks')).toBeInTheDocument();
+});
+
+it('should keep the CTA for logged out viewers regardless of the flag', async () => {
+  mockPicksEnabled = false;
+  renderPage(picks, { user: undefined, isLoggedIn: false });
+
+  expect(await screen.findByText('Make your picks')).toBeInTheDocument();
 });
