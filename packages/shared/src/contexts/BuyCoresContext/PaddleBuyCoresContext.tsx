@@ -64,6 +64,7 @@ export const PaddleBuyCoresContextProvider = ({
         priceId: event.data.items[0]?.price_id,
       }),
     priceType: PurchaseType.Cores,
+    origin,
   });
 
   const contextData = useMemo<BuyCoresContextData>(

@@ -7,9 +7,11 @@ import { isNullOrUndefined } from '../../lib/func';
 import { useTransactionError } from '../../hooks/useTransactionError';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import type { TransactionCreated } from '../../graphql/njord';
+import type { ApiErrorResult } from '../../graphql/common';
 
 interface UseCampaignMutationProps {
   onBoostSuccess?: (data: TransactionCreated, vars: StartCampaignProps) => void;
+  onBoostError?: (error: ApiErrorResult, vars: StartCampaignProps) => void;
   onCancelSuccess?: (data: TransactionCreated, id: string) => void;
 }
 
@@ -21,11 +23,13 @@ interface UseCampaignMutation {
 
 export const useCampaignMutation = ({
   onBoostSuccess,
+  onBoostError,
   onCancelSuccess,
 }: UseCampaignMutationProps = {}): UseCampaignMutation => {
   const client = useQueryClient();
   const { displayToast } = useToastNotification();
   const { user, updateUser } = useAuthContext();
+  const onTransactionError = useTransactionError();
 
   const { mutateAsync: onStartBoost } = useMutation({
     mutationFn: startCampaign,
@@ -52,7 +56,11 @@ export const useCampaignMutation = ({
 
       onBoostSuccess?.(data, vars);
     },
-    onError: useTransactionError(),
+    onError: (error: ApiErrorResult, vars) => {
+      onBoostError?.(error, vars);
+
+      return onTransactionError(error);
+    },
   });
 
   const { mutateAsync: onCancelBoost, isPending } = useMutation({

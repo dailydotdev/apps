@@ -560,6 +560,7 @@ const PostOptionButtonContent = ({
       type: LazyModal.BoostPost,
       props: {
         post,
+        origin: Origin.PostContextMenu,
       },
     });
   };

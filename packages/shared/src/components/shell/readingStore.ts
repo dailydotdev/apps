@@ -20,6 +20,11 @@ export interface ReadingArticle {
 export interface ReadingState {
   open: boolean;
   article: ReadingArticle;
+  // The post is lifted off the card, clearly above the article.
+  up?: boolean;
+  // Opened from a feed card: the post page was never a step of its own, so
+  // the drawer owns no history entry and leaving it leaves the post.
+  fromFeed?: boolean;
 }
 
 export enum ReadingAction {
@@ -104,8 +109,18 @@ const layerSelector =
 export const hasOpenLayer = (): boolean =>
   !!document.querySelector(layerSelector);
 
-export const setReadingOpen = (open: boolean, url?: string): void =>
-  set(open ? { open, article: { url } } : closed);
+export const setReadingOpen = (
+  open: boolean,
+  url?: string,
+  fromFeed = false,
+): void => set(open ? { open, article: { url }, fromFeed } : closed);
+
+export const setReadingUp = (up: boolean): void => {
+  if (!state.open || !!state.up === up) {
+    return;
+  }
+  set({ ...state, up });
+};
 
 export const updateReadingArticle = (article: ReadingArticle): void => {
   if (!state.open) {
@@ -114,14 +129,25 @@ export const updateReadingArticle = (article: ReadingArticle): void => {
   set({ ...state, article: { ...state.article, ...article } });
 };
 
-// The wrappers' back press and the drawer's own close both end up here: the
-// drawer owns one history entry, so leaving it is a history pop.
+// The wrappers' back press: the drawer owns one history entry, so leaving
+// it is a history pop. Reached from a feed card it owns none, and the press
+// goes to history as it would on the post page, back to the feed.
 export const requestReadingClose = (): boolean => {
-  if (!state.open) {
+  if (!state.open || state.fromFeed) {
     return false;
   }
   globalThis.history.back();
   return true;
+};
+
+// The drawer's own close (the X, a link in the article to a page of the
+// app): the post page stays, so from a feed card nothing in history moves.
+export const closeReading = (): void => {
+  if (state.fromFeed) {
+    set(closed);
+    return;
+  }
+  requestReadingClose();
 };
 
 // Read on a feed card: the shell routes to the post page, which opens the
