@@ -9,6 +9,8 @@ import {
 } from '../../../components/post/PostCapsule';
 import { field } from '../../../components/shell/constants';
 import { useIsPhone } from '../../../hooks/useViewSize';
+import { useReading } from '../../../components/shell/readingStore';
+import { RootPortal } from '../../../components/tooltips/Portal';
 import { ChatRoomStatus } from '../graphql';
 import { postChatRoomQueryOptions } from '../queries';
 import { LiveChatPanel } from './LiveChatPanel';
@@ -20,7 +22,9 @@ import { LiveDot } from './LiveDot';
 // its slot when there is none) and moves with it, so it never covers the
 // upvote, comment and share actions. `bottom` is not transitioned, so it
 // holds the resting offset and the capsule's height change while reading
-// rides on the transform, which is.
+// rides on the transform, which is. The pill is drawn at the root, outside
+// the page's flow: a fixed element inside a page piece makes the reading
+// drawer split that piece, and it arrives as the post is being lifted.
 export const LiveChatMobileEntry = ({
   postId,
   origin,
@@ -35,6 +39,9 @@ export const LiveChatMobileEntry = ({
   const { user } = useAuthContext();
   const isPhone = useIsPhone();
   const capsule = usePostCapsulePosition();
+  // While the article is behind the post, the drawer's controls own that
+  // band; the pill comes back once the post is lifted over the article.
+  const { open: isReading, up: isPostUp } = useReading();
   const capsuleOffset = hasCapsule ? field.rest + field.gap : 0;
   const capsuleShrink = hasCapsule ? field.rest - capsule.height : 0;
   const [isOpen, setIsOpen] = useState(false);
@@ -48,34 +55,36 @@ export const LiveChatMobileEntry = ({
   }
 
   return (
-    <>
-      <button
-        type="button"
-        onClick={() => setIsOpen(true)}
-        style={
-          isPhone
-            ? {
-                bottom: `calc(${capsule.bottom} + ${capsuleOffset}px)`,
-                transform: `translateY(${
-                  capsule.translateY + capsuleShrink
-                }px)`,
-                transition: postCapsuleTransition,
-              }
-            : undefined
-        }
-        className="fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-popup flex h-12 items-center gap-2.5 rounded-16 border border-border-subtlest-secondary bg-background-popover px-4 shadow-2 motion-reduce:!transition-none laptop:hidden"
-      >
-        <LiveDot isLive={isLive} />
-        <span className="font-bold typo-callout">Live chat</span>
-        {isLive && room?.occupantCount != null && (
-          <span className="text-text-tertiary typo-footnote">
-            {room.occupantCount} here
+    <RootPortal>
+      {(!isReading || isPostUp) && (
+        <button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          style={
+            isPhone
+              ? {
+                  bottom: `calc(${capsule.bottom} + ${capsuleOffset}px)`,
+                  transform: `translateY(${
+                    capsule.translateY + capsuleShrink
+                  }px)`,
+                  transition: postCapsuleTransition,
+                }
+              : undefined
+          }
+          className="fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-popup flex h-12 items-center gap-2.5 rounded-16 border border-border-subtlest-secondary bg-background-popover px-4 shadow-2 motion-reduce:!transition-none laptop:hidden"
+        >
+          <LiveDot isLive={isLive} />
+          <span className="font-bold typo-callout">Live chat</span>
+          {isLive && room?.occupantCount != null && (
+            <span className="text-text-tertiary typo-footnote">
+              {room.occupantCount} here
+            </span>
+          )}
+          <span className="ml-auto rounded-10 bg-brand-default px-3 py-1 font-bold text-white typo-footnote">
+            {isLive ? 'Join' : 'Start'}
           </span>
-        )}
-        <span className="ml-auto rounded-10 bg-brand-default px-3 py-1 font-bold text-white typo-footnote">
-          {isLive ? 'Join' : 'Start'}
-        </span>
-      </button>
+        </button>
+      )}
       {isOpen && (
         <Drawer
           isOpen
@@ -96,6 +105,6 @@ export const LiveChatMobileEntry = ({
           />
         </Drawer>
       )}
-    </>
+    </RootPortal>
   );
 };
