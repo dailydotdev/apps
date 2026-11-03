@@ -45,7 +45,7 @@ beforeEach(() => {
         pathname: '/posts',
         isReady: true,
         query: {},
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
 });
 

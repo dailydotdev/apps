@@ -41,7 +41,7 @@ beforeEach(() => {
         asPath: '/my-feed',
         query: {},
         push,
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
   jest
     .mocked(useFeedLayout)

@@ -64,33 +64,27 @@ const getTimedChanges = (
   { setTopic, setSource, setAuthor }: UseFeedControls,
 ): TimedChange[] =>
   [
-    ...controls.topics.map(
-      (control): Partial<TimedChange> => ({
-        key: `topic:${control.keyword}`,
-        name: `#${control.keyword}`,
-        expiresAt: control.expiresAt ?? undefined,
-        meta: getControlMeta(control, isPlus),
-        onEnd: () => setTopic(control.keyword, { mode: null }),
-      }),
-    ),
-    ...controls.sources.map(
-      (control): Partial<TimedChange> => ({
-        key: `source:${control.source.id}`,
-        name: control.source.name ?? control.source.id,
-        expiresAt: control.expiresAt ?? undefined,
-        meta: getControlMeta(control, isPlus, followModeMeta),
-        onEnd: () => setSource(control.source.id, { mode: null }),
-      }),
-    ),
-    ...controls.authors.map(
-      (control): Partial<TimedChange> => ({
-        key: `author:${control.user.id}`,
-        name: control.user.name ?? control.user.id,
-        expiresAt: control.expiresAt ?? undefined,
-        meta: getControlMeta(control, isPlus, followModeMeta),
-        onEnd: () => setAuthor(control.user.id, { mode: null }),
-      }),
-    ),
+    ...controls.topics.map((control): Partial<TimedChange> => ({
+      key: `topic:${control.keyword}`,
+      name: `#${control.keyword}`,
+      expiresAt: control.expiresAt ?? undefined,
+      meta: getControlMeta(control, isPlus),
+      onEnd: () => setTopic(control.keyword, { mode: null }),
+    })),
+    ...controls.sources.map((control): Partial<TimedChange> => ({
+      key: `source:${control.source.id}`,
+      name: control.source.name ?? control.source.id,
+      expiresAt: control.expiresAt ?? undefined,
+      meta: getControlMeta(control, isPlus, followModeMeta),
+      onEnd: () => setSource(control.source.id, { mode: null }),
+    })),
+    ...controls.authors.map((control): Partial<TimedChange> => ({
+      key: `author:${control.user.id}`,
+      name: control.user.name ?? control.user.id,
+      expiresAt: control.expiresAt ?? undefined,
+      meta: getControlMeta(control, isPlus, followModeMeta),
+      onEnd: () => setAuthor(control.user.id, { mode: null }),
+    })),
   ]
     .filter((change): change is TimedChange => !!change.expiresAt)
     .sort(
@@ -344,7 +338,7 @@ const describeLevels = ({ topics, sources, authors }: FeedControls): string => {
     .filter(([count]) => count > 0)
     .map(([count, noun]) => `${count} ${pluralize(noun, count)}`);
   const last = counts.pop();
-  return counts.length ? `${counts.join(', ')} and ${last}` : last ?? '';
+  return counts.length ? `${counts.join(', ')} and ${last}` : (last ?? '');
 };
 
 /**
@@ -353,7 +347,7 @@ const describeLevels = ({ topics, sources, authors }: FeedControls): string => {
  */
 export const ForYouStartOver = (): ReactElement | null => {
   const { isAvailable } = useForYouControls();
-  const { controls, resetRankingSettings } = useFeedControls({
+  const { controls } = useFeedControls({
     origin: Origin.Settings,
     enabled: isAvailable,
   });
@@ -362,7 +356,6 @@ export const ForYouStartOver = (): ReactElement | null => {
     return null;
   }
 
-  const changedSettings = controls?.ranking.length ?? 0;
   const levels = controls
     ? controls.topics.length + controls.sources.length + controls.authors.length
     : 0;
@@ -392,25 +385,6 @@ export const ForYouStartOver = (): ReactElement | null => {
           reset={{ levels: true }}
           doneMessage="Every topic, source and creator is back to Auto"
         />
-        <ResetRow
-          title="Reset ranking settings"
-          description={
-            changedSettings
-              ? `${changedSettings} changed ${pluralize(
-                  'setting',
-                  changedSettings,
-                )} ${
-                  changedSettings === 1 ? 'goes' : 'go'
-                } back to the default.`
-              : 'Every ranking setting is at its default.'
-          }
-          isDisabled={!changedSettings}
-          doneMessage="Your ranking settings are back to the default"
-          onReset={async () => {
-            resetRankingSettings();
-            return true;
-          }}
-        />
         <PersonalizationResetRow
           title="Forget what I scrolled past"
           description="Posts you scrolled past can show up in For You again."
@@ -420,7 +394,7 @@ export const ForYouStartOver = (): ReactElement | null => {
         <PersonalizationResetRow
           title="Reset everything"
           description="All of the above at once. Learning and popular posts stay as you set them."
-          reset={{ learned: true, seen: true, levels: true, ranking: true }}
+          reset={{ learned: true, seen: true, levels: true }}
           doneMessage="For You is starting over from your follows"
           isDanger
         />

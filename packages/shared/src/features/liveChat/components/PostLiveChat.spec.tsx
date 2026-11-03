@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PostLiveChat } from './PostLiveChat';
 import { useLiveChatEnabled } from '../hooks/useLiveChatEnabled';
@@ -10,6 +10,10 @@ import { ChatRoomStatus, getPostChatRoom } from '../graphql';
 import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { field } from '../../../components/shell/constants';
+import {
+  setReadingOpen,
+  setReadingUp,
+} from '../../../components/shell/readingStore';
 
 jest.mock('../hooks/useLiveChatEnabled', () => ({
   useLiveChatEnabled: jest.fn(),
@@ -47,7 +51,6 @@ const room: ChatRoom = {
 const post = {
   id: 'p1',
   type: PostType.Article,
-  trending: 12,
 } as unknown as Post;
 
 // The capsule at rest, one gap above the bar, and slid into the bar's slot
@@ -89,6 +92,23 @@ describe('PostLiveChat on a phone', () => {
     } as unknown as ReturnType<typeof useAuthContext>);
     jest.mocked(getPostChatRoom).mockResolvedValue(room);
     jest.mocked(usePostCapsulePosition).mockReturnValue(atRest);
+  });
+
+  afterEach(() => {
+    act(() => setReadingOpen(false));
+  });
+
+  it('stays out of the way while the article is behind the post, and returns once the post is up', async () => {
+    renderPill(true);
+    expect(await pill()).toBeInTheDocument();
+
+    act(() => setReadingOpen(true, 'https://blog.example.com/post'));
+    expect(
+      screen.queryByRole('button', { name: /Live chat/ }),
+    ).not.toBeInTheDocument();
+
+    act(() => setReadingUp(true));
+    expect(await pill()).toBeInTheDocument();
   });
 
   it('stands one gap above the action capsule on the post page', async () => {

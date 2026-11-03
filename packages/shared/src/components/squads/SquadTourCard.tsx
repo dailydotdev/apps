@@ -39,7 +39,7 @@ function SquadTourCard({
       >
         {bannerAsBg ? (
           <div
-            className={classNames('w-full ', className?.banner)}
+            className={classNames('w-full', className?.banner)}
             style={{ backgroundImage: `url(${banner})` }}
           />
         ) : (

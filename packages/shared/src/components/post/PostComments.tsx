@@ -186,7 +186,7 @@ export function PostComments({
         shownEdges.forEach((edge, i) => {
           const replies = isLocked(i)
             ? 0
-            : edge.node.children?.edges?.length ?? 0;
+            : (edge.node.children?.edges?.length ?? 0);
           totals.push(totals[i] + 1 + replies);
         });
         return shownEdges.map((e, index, edges) => {

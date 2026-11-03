@@ -2,6 +2,7 @@ import type { Ad } from '../../../../graphql/posts';
 import type { Squad } from '../../../../graphql/sources';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useSquad } from '../../../../hooks/squads/useSquad';
+import { useIsPlusAdFree } from '../../../../hooks/useIsPlusAdFree';
 import { useAdQuery } from '../../../monetization/useAdQuery';
 import { AdPlacement } from '../../../../lib/ads';
 import { generateQueryKey, RequestKey } from '../../../../lib/query';
@@ -26,11 +27,11 @@ export const usePromotedSquad = ({
   excludeId,
 }: UsePromotedSquadProps): UsePromotedSquad => {
   const { user, isAuthReady } = useAuthContext();
-  const isPlus = !!user?.isPlus;
+  const isPlusAdFree = useIsPlusAdFree();
   const { data: ad, isLoading: isLoadingAd } = useAdQuery({
     placement: AdPlacement.SquadDirectory,
     queryKey: generateQueryKey(RequestKey.Ads, user, 'squads_directory', slot),
-    enabled: enabled && isAuthReady && !isPlus,
+    enabled: enabled && isAuthReady && !isPlusAdFree,
     // A blocked or empty campaign is no campaign: the list it holds a slot
     // in should not wait out retries.
     retry: false,
@@ -41,7 +42,8 @@ export const usePromotedSquad = ({
   // A slot still waiting to ask counts as loading, so its list holds the
   // promoted position instead of shifting once the campaign arrives.
   const isLoading =
-    !isPlus && (!isAuthReady || !enabled || isLoadingAd || isLoadingSquad);
+    !isPlusAdFree &&
+    (!isAuthReady || !enabled || isLoadingAd || isLoadingSquad);
 
   if (!ad || !squad || squad.id === excludeId) {
     return { isLoading };

@@ -320,6 +320,14 @@ export function PostContentRaw({
             className={isCompactModalSpacing ? 'mb-4' : 'mb-6'}
           />
         )}
+        {/* Right under the post and above the comments, where a reader on
+            their way down cannot miss that there is a chat on. */}
+        <PostLiveChat
+          post={post}
+          origin={origin}
+          placement="inline"
+          className={isCompactModalSpacing ? 'mb-4' : 'mb-6'}
+        />
       </BasePostContent>
     </PostContainer>
   );
@@ -328,7 +336,6 @@ export function PostContentRaw({
     <PostWidgets
       onReadArticle={onReadArticle}
       post={post}
-      leading={<PostLiveChat post={post} origin={origin} placement="rail" />}
       className={getPostWidgetsClassName(
         '!gap-2 pb-8 pt-4 tablet:border-l tablet:border-border-subtlest-tertiary',
         !!belowComments,

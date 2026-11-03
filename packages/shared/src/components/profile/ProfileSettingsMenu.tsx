@@ -66,8 +66,8 @@ import { MedalIcon } from '../icons/Medal';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
 import { PlusMenuEntry } from '../plus/PlusMenuEntry';
 import {
+  forYouSettingsPages,
   getForYouSettingsUrl,
-  useForYouSettingsPages,
 } from '../feeds/FeedSettings/forYouSettingsPages';
 
 type MenuItems = Record<
@@ -86,7 +86,6 @@ const useAccountPageItems = () => {
   const { user } = useAuthContext();
   const { optOutAchievements, isQuestExperienceEnabled } = useSettingsContext();
   const { isJobsEnabled } = useJobsFeature();
-  const feedSettingsPages = useForYouSettingsPages();
   const shouldHideGameCenter = !isQuestExperienceEnabled;
 
   const items = useMemo(
@@ -145,7 +144,7 @@ const useAccountPageItems = () => {
         feed: {
           title: 'Feed settings',
           items: Object.fromEntries(
-            feedSettingsPages.map(({ id, title, icon }) => [
+            forYouSettingsPages.map(({ id, title, icon }) => [
               id,
               { title, icon, href: getForYouSettingsUrl(id) },
             ]),
@@ -315,7 +314,6 @@ const useAccountPageItems = () => {
       optOutAchievements,
       shouldHideGameCenter,
       isJobsEnabled,
-      feedSettingsPages,
     ],
   );
 

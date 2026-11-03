@@ -17,12 +17,16 @@ jest.mock('next/router', () => ({
   useRouter: () => mockRouter,
 }));
 
+const mockSetFlag = jest.fn();
+
 jest.mock('../../hooks/useSettingsBooleanFlag', () => ({
-  useSettingsBooleanFlag: () => ({ value: false }),
+  useSettingsBooleanFlag: () => ({ value: false, set: mockSetFlag }),
 }));
 
+const mockCopyLink = jest.fn();
+
 jest.mock('../../hooks/useCopy', () => ({
-  useCopyLink: () => [false, jest.fn()],
+  useCopyLink: () => [false, mockCopyLink],
 }));
 
 const mockLogEvent = jest.fn();
@@ -72,6 +76,8 @@ beforeEach(() => {
   mockRouter.beforePopState.mockClear();
   postMessage.mockClear();
   mockLogEvent.mockClear();
+  mockSetFlag.mockClear();
+  mockCopyLink.mockClear();
   window.scrollTo = jest.fn();
 });
 
@@ -79,6 +85,7 @@ afterEach(() => {
   act(() => setReadingOpen(false));
   delete (globalThis as BridgeGlobal).webkit;
   document.documentElement.classList.remove('ios', 'reading');
+  document.querySelector('.shell-layout')?.remove();
 });
 
 describe('ReadingDrawer', () => {
@@ -134,6 +141,62 @@ describe('ReadingDrawer', () => {
       postId: post.id,
     });
     expect(document.documentElement).toHaveClass('reading');
+  });
+
+  it('owns no history entry from a feed card, so one back leaves the post', () => {
+    jest.useFakeTimers();
+    withReadingBridge();
+    queueReadingOpen(post, post.permalink as string);
+    renderPostPage();
+    act(() => {
+      jest.advanceTimersByTime(openDuration);
+    });
+    expect(document.documentElement).toHaveClass('reading');
+    expect(mockRouter.beforePopState).not.toHaveBeenCalled();
+
+    const back = jest.spyOn(window.history, 'back').mockImplementation(() => {
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+    // The wrapper's press is not used: history moves, the post leaves.
+    expect(closeTopLayer()).toBe(false);
+    expect(back).not.toHaveBeenCalled();
+
+    // The drawer's own close keeps the post page, with nothing popped.
+    fireEvent.click(screen.getByLabelText('Close'));
+    act(() => {
+      jest.advanceTimersByTime(openDuration);
+    });
+    expect(back).not.toHaveBeenCalled();
+    expect(document.documentElement).not.toHaveClass('reading');
+    back.mockRestore();
+    jest.useRealTimers();
+  });
+
+  it('leaves the scroll to the page it goes back to when back leaves a feed arrival', () => {
+    jest.useFakeTimers();
+    withReadingBridge();
+    queueReadingOpen(post, post.permalink as string);
+    renderPostPage();
+    act(() => {
+      jest.advanceTimersByTime(openDuration);
+    });
+    expect(document.documentElement).toHaveClass('reading');
+    jest.mocked(window.scrollTo).mockClear();
+
+    const onRouteChange = mockRouter.events.on.mock.calls
+      .filter(([name]) => name === 'routeChangeStart')
+      .map(([, handler]) => handler)
+      .at(-1);
+    act(() => onRouteChange());
+
+    expect(document.documentElement).not.toHaveClass('reading');
+    expect(window.scrollTo).not.toHaveBeenCalled();
+    expect(mockLogEvent).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        extra: expect.stringContaining('"closed_by":"leave"'),
+      }),
+    );
+    jest.useRealTimers();
   });
 
   it('opens the article behind the post instead of following the link', () => {
@@ -193,6 +256,79 @@ describe('ReadingDrawer', () => {
     expect(screen.getByLabelText('Reload')).toBeInTheDocument();
   });
 
+  it('offers the browser in the page menu and remembers the choice from the Always switch', () => {
+    withReadingBridge();
+    renderPostPage();
+    fireEvent.click(screen.getByText('Read post'));
+    const back = jest.spyOn(window.history, 'back').mockImplementation(() => {
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+
+    fireEvent.click(screen.getByLabelText('Page options'));
+
+    expect(screen.getByText('Open in browser')).toBeInTheDocument();
+    expect(screen.getByText('Close the menu')).toBeInTheDocument();
+    expect(screen.getAllByLabelText('Close')).toHaveLength(1);
+
+    fireEvent.click(screen.getByLabelText('Always open links in your browser'));
+
+    expect(postMessage).toHaveBeenCalledWith({ action: 'external' });
+    expect(back).toHaveBeenCalledTimes(1);
+    expect(mockSetFlag).toHaveBeenCalledWith(true);
+    expect(mockLogEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: 'close reading drawer',
+        extra: expect.stringContaining('"closed_by":"always_external"'),
+      }),
+    );
+    expect(document.documentElement).not.toHaveClass('reading');
+    back.mockRestore();
+  });
+
+  it('shares the page through the system share sheet', async () => {
+    withReadingBridge();
+    const share = jest.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'share', {
+      value: share,
+      configurable: true,
+    });
+    Object.defineProperty(navigator, 'maxTouchPoints', {
+      value: 5,
+      configurable: true,
+    });
+    renderPostPage();
+    fireEvent.click(screen.getByText('Read post'));
+    act(() => {
+      window.dispatchEvent(
+        new CustomEvent(ReadingEvent.State, {
+          detail: { url: 'https://www.rust-lang.org/blog', title: 'Rust Blog' },
+        }),
+      );
+    });
+
+    fireEvent.click(screen.getByLabelText('Share the page'));
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(share).toHaveBeenCalledWith({
+      title: 'Rust Blog',
+      url: 'https://www.rust-lang.org/blog',
+    });
+    delete (navigator as { share?: unknown }).share;
+    delete (navigator as { maxTouchPoints?: unknown }).maxTouchPoints;
+  });
+
+  it('copies the page link where there is no share sheet', () => {
+    withReadingBridge();
+    renderPostPage();
+    fireEvent.click(screen.getByText('Read post'));
+
+    fireEvent.click(screen.getByLabelText('Share the page'));
+
+    expect(mockCopyLink).toHaveBeenCalledWith({ link: post.permalink });
+  });
+
   it('closes on back before the post itself is left', () => {
     jest.useFakeTimers();
     withReadingBridge();
@@ -246,5 +382,85 @@ describe('ReadingDrawer', () => {
 
     expect(swipe({ clientX: 160, clientY: 490 })).toBe(true);
     expect(swipe({ clientX: 102, clientY: 450 })).toBe(false);
+  });
+
+  const renderShellLayout = () => {
+    const layout = document.createElement('div');
+    layout.className = 'shell-layout';
+    const main = document.createElement('main');
+    const cluster = document.createElement('div');
+    cluster.className = 'shell-cluster';
+    const loading = document.createElement('div');
+    main.append(loading, cluster);
+    layout.appendChild(main);
+    document.body.appendChild(layout);
+    const arrive = () => {
+      const arrived = document.createElement('article');
+      arrived.textContent = 'The post, once its page has loaded';
+      loading.remove();
+      main.insertBefore(arrived, cluster);
+      return arrived;
+    };
+    return { main, loading, arrive };
+  };
+
+  it('keeps moving the page after its content was swapped under the drawer', () => {
+    withReadingBridge();
+    renderPostPage();
+    const { arrive } = renderShellLayout();
+    fireEvent.click(screen.getByText('Read post'));
+
+    const arrived = arrive();
+
+    fireEvent.touchStart(window, { touches: [{ clientX: 100, clientY: 500 }] });
+    fireEvent.touchMove(window, { touches: [{ clientX: 102, clientY: 420 }] });
+
+    expect(arrived.style.transform).toMatch(/translateY\(-?\d+px\)/);
+    fireEvent.touchEnd(window, { touches: [] });
+  });
+
+  it('moves the content that arrives in the middle of a drag, and lets go of what left', async () => {
+    withReadingBridge();
+    renderPostPage();
+    const { loading, arrive } = renderShellLayout();
+    fireEvent.click(screen.getByText('Read post'));
+    fireEvent.touchStart(window, { touches: [{ clientX: 100, clientY: 500 }] });
+    fireEvent.touchMove(window, { touches: [{ clientX: 102, clientY: 420 }] });
+    const { transform } = loading.style;
+    expect(transform).toMatch(/translateY\(-?\d+px\)/);
+
+    const arrived = arrive();
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(arrived.style.transform).toBe(transform);
+    expect(loading).not.toHaveStyle({ transform });
+    fireEvent.touchEnd(window, { touches: [] });
+  });
+
+  it('moves the pieces around something fixed that mounts in the middle of a drag', async () => {
+    withReadingBridge();
+    renderPostPage();
+    const { loading } = renderShellLayout();
+    const content = document.createElement('section');
+    loading.appendChild(content);
+    fireEvent.click(screen.getByText('Read post'));
+    fireEvent.touchStart(window, { touches: [{ clientX: 100, clientY: 500 }] });
+    fireEvent.touchMove(window, { touches: [{ clientX: 102, clientY: 420 }] });
+    const { transform } = loading.style;
+    expect(transform).toMatch(/translateY\(-?\d+px\)/);
+
+    const pill = document.createElement('button');
+    pill.className = 'fixed';
+    loading.appendChild(pill);
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(loading).not.toHaveStyle({ transform });
+    expect(content.style.transform).toBe(transform);
+    expect(pill).not.toHaveStyle({ transform });
+    fireEvent.touchEnd(window, { touches: [] });
   });
 });

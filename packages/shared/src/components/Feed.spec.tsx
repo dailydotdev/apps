@@ -37,7 +37,10 @@ import {
   completeActionMock,
   mockGraphQL,
 } from '../../__tests__/helpers/graphql';
-import { settingsContext as baseSettingsContext } from '../../__tests__/helpers/boot';
+import {
+  defaultLogContextData,
+  settingsContext as baseSettingsContext,
+} from '../../__tests__/helpers/boot';
 import {
   ANONYMOUS_FEED_QUERY,
   FEED_V2_EXPLAIN_QUERY,
@@ -52,6 +55,7 @@ import {
   SET_FEED_TOPIC_MODE_MUTATION,
 } from '../features/feedExplain/graphql';
 import AuthContext from '../contexts/AuthContext';
+import { getLogContextStatic } from '../contexts/LogContext';
 import Feed from './Feed';
 import defaultFeedPage from '../../__tests__/fixture/feed';
 import defaultUser from '../../__tests__/fixture/loggedUser';
@@ -95,6 +99,7 @@ import type { FeedContextData } from '../contexts/FeedContext';
 import { FeaturesReadyContext } from './GrowthBookProvider';
 import {
   briefFeedEntrypointPage,
+  featureForceAd,
   featurePlusFeedBanner,
   featureHeroCards,
 } from '../lib/featureManagement';
@@ -121,10 +126,12 @@ jest.mocked(useRouter).mockImplementation(
     ({
       pathname: '/',
       query: {},
-    } as unknown as NextRouter),
+    }) as unknown as NextRouter,
 );
 
 const showLogin = jest.fn();
+const logEvent = jest.fn();
+const LogContext = getLogContextStatic();
 let nextCallback: ((value: PostsEngaged) => unknown) | undefined;
 
 jest.mock('../hooks', () => {
@@ -282,7 +289,7 @@ function renderComponent(
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000')
     .get(
-      `/v1/a?active=false&registered=${!!resolvedUser}&gdpr=1&consent_exists=NONE_CONSENT`,
+      `/v1/a?active=false&allow_post_boost=true&allow_squad_boost=true&registered=${!!resolvedUser}&gdpr=1&consent_exists=NONE_CONSENT`,
     )
     .reply(200, [ad]);
   const settingsContext: SettingsContextData = {
@@ -320,18 +327,20 @@ function renderComponent(
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
-          <LazyModalElement />
-          <Toast autoDismissNotifications={false} />
-          <TopHeroSlotProvider>
-            <TopHeroSlotTarget />
-            <Feed
-              feedQueryKey={['feed']}
-              feedName={feedName}
-              query={query}
-              variables={variables}
-              {...feedProps}
-            />
-          </TopHeroSlotProvider>
+          <LogContext.Provider value={{ ...defaultLogContextData, logEvent }}>
+            <LazyModalElement />
+            <Toast autoDismissNotifications={false} />
+            <TopHeroSlotProvider>
+              <TopHeroSlotTarget />
+              <Feed
+                feedQueryKey={['feed']}
+                feedName={feedName}
+                query={query}
+                variables={variables}
+                {...feedProps}
+              />
+            </TopHeroSlotProvider>
+          </LogContext.Provider>
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
@@ -1108,7 +1117,6 @@ describe('Feed logged in', () => {
                   authors: [],
                   learning: true,
                   fillIns: true,
-                  ranking: [],
                 },
               },
             },
@@ -1187,7 +1195,6 @@ describe('Feed logged in', () => {
                 authors: [],
                 learning: true,
                 fillIns: true,
-                ranking: [],
               },
             },
           },
@@ -1242,7 +1249,6 @@ describe('Feed logged in', () => {
                   ],
                   learning: true,
                   fillIns: true,
-                  ranking: [],
                 },
               },
             },
@@ -1304,7 +1310,6 @@ describe('Feed logged in', () => {
               authors: [],
               learning: true,
               fillIns: true,
-              ranking: [],
             },
           },
         },
@@ -1421,7 +1426,6 @@ describe('Feed logged in', () => {
                   authors: [],
                   learning: true,
                   fillIns: true,
-                  ranking: [],
                 },
               },
             },
@@ -2134,6 +2138,67 @@ describe('Feed logged in', () => {
     );
   });
 
+  it("should mark a boosted post's click and go to link as an ad", async () => {
+    jest.mocked(useRouter).mockImplementation(
+      () =>
+        ({
+          pathname: '/',
+          asPath: '/',
+          query: {},
+          push: jest.fn().mockResolvedValue(true),
+          events: { on: jest.fn(), off: jest.fn(), emit: jest.fn() },
+        }) as unknown as NextRouter,
+    );
+    nock('http://localhost:3000')
+      .persist()
+      .post('/graphql', (body: { query?: string }) =>
+        Boolean(body.query?.includes('mutation ViewPost(')),
+      )
+      .reply(200, { data: { viewPost: { _: true } } });
+    nock('http://localhost:3000')
+      .get(
+        '/v1/a?active=false&allow_post_boost=true&allow_squad_boost=true&registered=true&gdpr=1&consent_exists=NONE_CONSENT',
+      )
+      .reply(200, [
+        {
+          ...ad,
+          data: {
+            post: {
+              ...defaultFeedPage.edges[0].node,
+              id: 'boosted-post',
+              title: 'A boosted post',
+            },
+          },
+        },
+      ]);
+    renderComponent();
+    const postEvent = (eventName: string) =>
+      logEvent.mock.calls
+        .map(([event]) => event)
+        .find(
+          (event) =>
+            event.event_name === eventName &&
+            event.target_id === 'boosted-post',
+        );
+
+    const [card] = await screen.findAllByLabelText('A boosted post');
+    fireEvent.click(card);
+    expect(JSON.parse(postEvent('click').extra)).toMatchObject({
+      is_ad: true,
+    });
+
+    const boostedItem = getRequiredValue(
+      card.closest<HTMLElement>('[data-testid="postItem"]'),
+      'Expected the boosted card',
+    );
+    fireEvent.click(
+      within(boostedItem).getByRole('link', { name: 'Read post' }),
+    );
+    expect(JSON.parse(postEvent('go to link').extra)).toMatchObject({
+      is_ad: true,
+    });
+  });
+
   const createPostMock = (
     data: Partial<Post> = {},
   ): MockedGraphQLResponse<PostData> => ({
@@ -2291,7 +2356,7 @@ describe('Feed logged in', () => {
         ({
           pathname: '/',
           query: {},
-        } as unknown as NextRouter),
+        }) as unknown as NextRouter,
     );
     let mutationCalled = false;
     renderComponent([
@@ -2357,7 +2422,7 @@ describe('Feed logged in', () => {
         ({
           pathname: '/',
           query: {},
-        } as unknown as NextRouter),
+        }) as unknown as NextRouter,
     );
     renderComponent([
       createFeedMock({
@@ -2426,7 +2491,7 @@ describe('Feed logged in', () => {
               off: jest.fn(),
               emit: jest.fn(),
             },
-          } as unknown as NextRouter),
+          }) as unknown as NextRouter,
       );
 
       Object.defineProperty(window, 'location', {
@@ -2609,7 +2674,7 @@ const buildPost = (id: string, hero?: PostHero | null): Post =>
     type: PostType.Article,
     domain: 'example.com',
     hero: hero ?? null,
-  } as Post);
+  }) as Post;
 
 const SIGNIFICANCE_BY_SIZE: Record<number, PostHeroSignificance> = {
   4: 'breaking',
@@ -2643,6 +2708,7 @@ interface HighlightLayoutRenderParams {
   startIndex?: number;
   briefBannerPage?: number;
   plusFeedBanner?: boolean;
+  forceAd?: boolean;
   staticAd?: { ad: Ad; index: number };
   disableAds?: boolean;
   skipFirstAd?: boolean;
@@ -2662,6 +2728,7 @@ const renderWithHighlightLayout = ({
   startIndex = 0,
   briefBannerPage,
   plusFeedBanner,
+  forceAd,
   staticAd,
   disableAds,
   skipFirstAd,
@@ -2675,11 +2742,13 @@ const renderWithHighlightLayout = ({
   // both up to a handful of refills so multi-ad scenarios don't run dry.
   nock('http://localhost:3000')
     .get(
-      '/v1/a?active=false&registered=true&gdpr=1&consent_exists=NONE_CONSENT',
+      '/v1/a?active=false&allow_post_boost=true&allow_squad_boost=true&registered=true&gdpr=1&consent_exists=NONE_CONSENT',
     )
     .reply(200, [ad]);
   nock('http://localhost:3000')
-    .get('/v1/a?active=true&registered=true&gdpr=1&consent_exists=NONE_CONSENT')
+    .get(
+      '/v1/a?active=true&allow_post_boost=true&allow_squad_boost=true&registered=true&gdpr=1&consent_exists=NONE_CONSENT',
+    )
     .times(10)
     .reply(200, [ad]);
 
@@ -2720,6 +2789,7 @@ const renderWithHighlightLayout = ({
     ...(plusFeedBanner
       ? { [featurePlusFeedBanner.id]: { defaultValue: true } }
       : {}),
+    ...(forceAd ? { [featureForceAd.id]: { defaultValue: true } } : {}),
   });
 
   const settingsContext: SettingsContextData = {
@@ -2822,7 +2892,7 @@ describe('Feed ad cadence with highlight cards', () => {
         ({
           pathname: '/',
           query: {},
-        } as unknown as NextRouter),
+        }) as unknown as NextRouter,
     );
     jest.mocked(useBoot).mockReturnValue({
       addSquad: jest.fn(),
@@ -3189,7 +3259,7 @@ describe('Feed ad cadence with highlight cards', () => {
         ({
           pathname: '/',
           query: { ua: 'true' },
-        } as unknown as NextRouter),
+        }) as unknown as NextRouter,
     );
     const marketingCtaTitle = 'Priority CTA';
     const marketingCta: MarketingCta = {
@@ -3286,6 +3356,29 @@ describe('Feed ad cadence with highlight cards', () => {
       expect(screen.queryAllByTestId('postItem').length).toBe(posts.length);
     });
     expect(screen.queryAllByTestId('adItem').length).toBe(0);
+  });
+
+  it('renders ads for Plus users when force_ad is on', async () => {
+    const posts = [
+      buildPost('p0'),
+      buildPost('p1'),
+      buildPost('p2'),
+      buildPost('p3'),
+      buildPost('p4'),
+    ];
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: false,
+      adStart: 2,
+      adRepeat: 8,
+      forceAd: true,
+      user: { ...defaultUser, isPlus: true },
+    });
+
+    expect(
+      await screen.findAllByTestId('adItem', undefined, { timeout: 5000 }),
+    ).not.toHaveLength(0);
   });
 
   it('skips the ad-cadence clamp on wide cards for Plus users', async () => {
@@ -3519,7 +3612,7 @@ describe('Feed top hero placements', () => {
     jest
       .mocked(useRouter)
       .mockImplementation(
-        () => ({ pathname: '/', query: {} } as unknown as NextRouter),
+        () => ({ pathname: '/', query: {} }) as unknown as NextRouter,
       );
     jest.mocked(useBoot).mockReturnValue({
       addSquad: jest.fn(),

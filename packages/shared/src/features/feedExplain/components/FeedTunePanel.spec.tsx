@@ -65,7 +65,6 @@ const createClient = () => {
     authors: [],
     learning: true,
     fillIns: true,
-    ranking: [],
   });
   client.setQueryData([QueryStateKeys.FeedTune], FeedTuneTab.Topics);
   client.setQueryData(baseKey, page(['p1', 'p2']));

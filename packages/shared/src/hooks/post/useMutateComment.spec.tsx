@@ -107,7 +107,7 @@ describe('useMutateComment', () => {
           edges: children.map((node) => ({ node })),
           pageInfo: null,
         },
-      } as unknown as Comment);
+      }) as unknown as Comment;
     const setComments = (comments: Comment[]) =>
       client.setQueryData<PostCommentsData>(queryKey, {
         postComments: {

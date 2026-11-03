@@ -7,7 +7,9 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
 import { LiveChatPanel } from './LiveChatPanel';
+import { PREVIEW_SEAT_RELEASE_MS } from '../hooks/useLiveChatRoom';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { getDmTransport } from '../../messages/transport';
@@ -76,6 +78,14 @@ const renderPanel = (
     </QueryClientProvider>,
   );
 
+// Under a post the block appears once the room is known, and starts on
+// screen; the mock only knows the element once it is observed.
+const renderInline = async () => {
+  renderPanel({ variant: 'inline' });
+  await screen.findByLabelText('Live chat');
+  act(() => mockAllIsIntersecting(true));
+};
+
 beforeEach(() => {
   jest.clearAllMocks();
   listeners = [];
@@ -104,6 +114,7 @@ beforeEach(() => {
   jest.mocked(useAuthContext).mockReturnValue({
     user: { id: 'me', username: 'me', name: 'Me', image: '' },
     showLogin: jest.fn(),
+    isAuthReady: true,
   } as unknown as ReturnType<typeof useAuthContext>);
   jest
     .mocked(useLogContext)
@@ -121,24 +132,206 @@ beforeEach(() => {
           image: '',
           permalink: '',
           bio: '',
+          reputation: 1250,
         }),
-      } as unknown as ReturnType<typeof dmPeerQueryOptions>),
+      }) as unknown as ReturnType<typeof dmPeerQueryOptions>,
   );
   jest.mocked(getPostChatRoom).mockResolvedValue(room);
   jest.mocked(openPostChatRoom).mockResolvedValue(room);
 });
 
 describe('LiveChatPanel', () => {
-  it('offers to start the chat on a trending post without one', async () => {
+  it('offers the team to start the chat on a post without one', async () => {
     jest.mocked(getPostChatRoom).mockResolvedValue(null);
     renderPanel();
 
-    fireEvent.click(await screen.findByText('Start the live chat'));
+    fireEvent.click(await screen.findByRole('button', { name: 'Start' }));
 
     await waitFor(() => expect(openPostChatRoom).toHaveBeenCalledWith('p1'));
     await waitFor(() =>
       expect(transport.joinRoom).toHaveBeenCalledWith(room.jid),
     );
+  });
+
+  it('under a post, seats the reader so the chat shows before they join', async () => {
+    const logEvent = jest.fn();
+    jest
+      .mocked(useLogContext)
+      .mockReturnValue({ logEvent } as unknown as ReturnType<
+        typeof useLogContext
+      >);
+    await renderInline();
+
+    expect(
+      await screen.findByText('Live chat is on for this post'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('23 here')).toBeInTheDocument();
+    // The seat is taken for the reader, without a click.
+    await waitFor(() =>
+      expect(transport.joinRoom).toHaveBeenCalledWith(room.jid),
+    );
+    emit({ type: 'roomJoined', roomJid: room.jid! });
+    emit({
+      type: 'roomMessage',
+      message: {
+        id: 'm1',
+        roomJid: room.jid!,
+        senderId: 'u2',
+        body: 'already talking',
+        createdAt: new Date().toISOString(),
+      },
+    });
+
+    expect(await screen.findByText('already talking')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Join to say something')).toBeDisabled();
+    expect(
+      screen.queryByPlaceholderText(/Say something/),
+    ).not.toBeInTheDocument();
+    expect(logEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({ event_name: 'join live chat' }),
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Join' }));
+
+    expect(await screen.findByPlaceholderText(/Say something/)).toBeVisible();
+    expect(screen.getByText('already talking')).toBeInTheDocument();
+    expect(transport.joinRoom).toHaveBeenCalledTimes(1);
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ event_name: 'join live chat' }),
+    );
+  });
+
+  it('under a post, gives the seat back off screen and takes it again on return', async () => {
+    await renderInline();
+    await waitFor(() => expect(transport.joinRoom).toHaveBeenCalledTimes(1));
+    emit({ type: 'roomJoined', roomJid: room.jid! });
+    emit({
+      type: 'roomMessage',
+      message: {
+        id: 'm1',
+        roomJid: room.jid!,
+        senderId: 'u2',
+        body: 'still here',
+        createdAt: new Date().toISOString(),
+      },
+    });
+    await screen.findByText('still here');
+
+    jest.useFakeTimers();
+    // A quick return keeps the seat.
+    act(() => mockAllIsIntersecting(false));
+    act(() => jest.advanceTimersByTime(PREVIEW_SEAT_RELEASE_MS / 2));
+    act(() => mockAllIsIntersecting(true));
+    act(() => jest.advanceTimersByTime(PREVIEW_SEAT_RELEASE_MS * 2));
+    expect(transport.leaveRoom).not.toHaveBeenCalled();
+
+    act(() => mockAllIsIntersecting(false));
+    act(() => jest.advanceTimersByTime(PREVIEW_SEAT_RELEASE_MS));
+    jest.useRealTimers();
+    expect(transport.leaveRoom).toHaveBeenCalledWith(room.jid);
+    // The echo of the own unavailable presence changes nothing.
+    emit({ type: 'roomLeft', roomJid: room.jid! });
+    // The last messages stay so the page does not jump.
+    expect(screen.getByText('still here')).toBeInTheDocument();
+
+    act(() => mockAllIsIntersecting(true));
+    await waitFor(() => expect(transport.joinRoom).toHaveBeenCalledTimes(2));
+    emit({ type: 'roomJoined', roomJid: room.jid! });
+    expect(screen.getByText('still here')).toBeInTheDocument();
+  });
+
+  it('under a post, keeps the seat off screen once the viewer has joined', async () => {
+    await renderInline();
+    await waitFor(() => expect(transport.joinRoom).toHaveBeenCalledTimes(1));
+    emit({ type: 'roomJoined', roomJid: room.jid! });
+    fireEvent.click(await screen.findByRole('button', { name: 'Join' }));
+    await screen.findByPlaceholderText(/Say something/);
+
+    jest.useFakeTimers();
+    act(() => mockAllIsIntersecting(false));
+    act(() => jest.advanceTimersByTime(PREVIEW_SEAT_RELEASE_MS * 2));
+    jest.useRealTimers();
+    expect(transport.leaveRoom).not.toHaveBeenCalled();
+    expect(screen.getByPlaceholderText(/Say something/)).toBeInTheDocument();
+  });
+
+  it('joins on its own when the viewer already said yes on the way here', async () => {
+    const logEvent = jest.fn();
+    jest
+      .mocked(useLogContext)
+      .mockReturnValue({ logEvent } as unknown as ReturnType<
+        typeof useLogContext
+      >);
+    renderPanel({ variant: 'inline', joinOnOpen: true });
+    await screen.findByLabelText('Live chat');
+    act(() => mockAllIsIntersecting(true));
+
+    await waitFor(() => expect(transport.joinRoom).toHaveBeenCalledTimes(1));
+    emit({ type: 'roomJoined', roomJid: room.jid! });
+
+    expect(await screen.findByPlaceholderText(/Say something/)).toBeVisible();
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ event_name: 'join live chat' }),
+    );
+  });
+
+  it('asks a visitor who said yes elsewhere to sign in, once', async () => {
+    const showLogin = jest.fn();
+    jest.mocked(useAuthContext).mockReturnValue({
+      user: null,
+      showLogin,
+      isAuthReady: true,
+    } as unknown as ReturnType<typeof useAuthContext>);
+    renderPanel({ variant: 'sheet', joinOnOpen: true });
+
+    await waitFor(() => expect(showLogin).toHaveBeenCalledTimes(1));
+    expect(transport.joinRoom).not.toHaveBeenCalled();
+  });
+
+  it('under a post, a seat the preview could not take is only reported on the own join', async () => {
+    await renderInline();
+    await waitFor(() => expect(transport.joinRoom).toHaveBeenCalledTimes(1));
+    emit({ type: 'roomJoinFailed', roomJid: room.jid!, reason: 'full' });
+
+    expect(
+      await screen.findByRole('button', { name: 'Join' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText('This chat is full right now. Try again in a bit.'),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Join' }));
+    await waitFor(() => expect(transport.joinRoom).toHaveBeenCalledTimes(2));
+    emit({ type: 'roomJoinFailed', roomJid: room.jid!, reason: 'full' });
+
+    expect(
+      await screen.findByText(
+        'This chat is full right now. Try again in a bit.',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('under a post, keeps the last messages readable once the room ends', async () => {
+    await renderInline();
+    fireEvent.click(await screen.findByRole('button', { name: 'Join' }));
+    await waitFor(() => expect(transport.joinRoom).toHaveBeenCalled());
+    emit({ type: 'roomJoined', roomJid: room.jid! });
+    emit({
+      type: 'roomMessage',
+      message: {
+        id: 'm1',
+        roomJid: room.jid!,
+        senderId: 'u2',
+        body: 'last word',
+        createdAt: new Date().toISOString(),
+      },
+    });
+    await screen.findByText('last word');
+
+    emit({ type: 'roomEnded', roomJid: room.jid! });
+
+    expect(await screen.findByText('This chat has ended')).toBeInTheDocument();
+    expect(screen.getByText('last word')).toBeInTheDocument();
   });
 
   it('shows nothing for a post that cannot host a chat', async () => {
@@ -153,7 +346,7 @@ describe('LiveChatPanel', () => {
     renderPanel();
     expect(await screen.findByText('23 here')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByText('Join the chat'));
+    fireEvent.click(screen.getByRole('button', { name: 'Join' }));
     await waitFor(() =>
       expect(transport.joinRoom).toHaveBeenCalledWith(room.jid),
     );
@@ -204,7 +397,7 @@ describe('LiveChatPanel', () => {
 
   it("shows reactions as they arrive and toggles the viewer's own", async () => {
     renderPanel();
-    fireEvent.click(await screen.findByText('Join the chat'));
+    fireEvent.click(await screen.findByRole('button', { name: 'Join' }));
     await waitFor(() => expect(transport.joinRoom).toHaveBeenCalled());
     emit({ type: 'roomJoined', roomJid: room.jid! });
     await screen.findByPlaceholderText(/Say something/);
@@ -243,7 +436,7 @@ describe('LiveChatPanel', () => {
 
   it('offers the people in the room when the viewer types @', async () => {
     renderPanel();
-    fireEvent.click(await screen.findByText('Join the chat'));
+    fireEvent.click(await screen.findByRole('button', { name: 'Join' }));
     await waitFor(() => expect(transport.joinRoom).toHaveBeenCalled());
     emit({ type: 'roomJoined', roomJid: room.jid! });
     const input = await screen.findByPlaceholderText(/Say something/);
@@ -260,7 +453,11 @@ describe('LiveChatPanel', () => {
     await screen.findByText('User u2');
 
     fireEvent.change(input, { target: { value: 'hey @u', selectionStart: 6 } });
-    expect(await screen.findByRole('option')).toHaveTextContent('User u2');
+    const option = await screen.findByRole('option');
+    expect(option).toHaveTextContent('User u2');
+    // Their real reputation, not a placeholder 0.
+    expect(option).toHaveTextContent('1.2K');
+    expect(option).not.toHaveTextContent(/\b0\b/);
 
     fireEvent.keyDown(input, { key: 'Enter' });
     expect(input).toHaveValue('hey @u2 ');
@@ -269,7 +466,7 @@ describe('LiveChatPanel', () => {
 
   it('tells the viewer when the room ends and leaves on unmount', async () => {
     const { unmount } = renderPanel();
-    fireEvent.click(await screen.findByText('Join the chat'));
+    fireEvent.click(await screen.findByRole('button', { name: 'Join' }));
     await waitFor(() => expect(transport.joinRoom).toHaveBeenCalled());
     emit({ type: 'roomJoined', roomJid: room.jid! });
     await screen.findByPlaceholderText(/Say something/);
@@ -287,7 +484,7 @@ describe('LiveChatPanel', () => {
 
   it('leaves the room when the panel goes away', async () => {
     const { unmount } = renderPanel();
-    fireEvent.click(await screen.findByText('Join the chat'));
+    fireEvent.click(await screen.findByRole('button', { name: 'Join' }));
     await waitFor(() => expect(transport.joinRoom).toHaveBeenCalled());
     emit({ type: 'roomJoined', roomJid: room.jid! });
     await screen.findByPlaceholderText(/Say something/);
@@ -298,7 +495,7 @@ describe('LiveChatPanel', () => {
 
   it('leaves the room when the panel goes away before the join lands', async () => {
     const { unmount } = renderPanel();
-    fireEvent.click(await screen.findByText('Join the chat'));
+    fireEvent.click(await screen.findByRole('button', { name: 'Join' }));
     await waitFor(() =>
       expect(transport.joinRoom).toHaveBeenCalledWith(room.jid),
     );
@@ -316,7 +513,7 @@ describe('LiveChatPanel', () => {
       }),
     );
     const { unmount } = renderPanel();
-    fireEvent.click(await screen.findByText('Start the live chat'));
+    fireEvent.click(await screen.findByRole('button', { name: 'Start' }));
     await waitFor(() => expect(openPostChatRoom).toHaveBeenCalledWith('p1'));
 
     unmount();
@@ -329,10 +526,11 @@ describe('LiveChatPanel', () => {
     jest.mocked(useAuthContext).mockReturnValue({
       user: null,
       showLogin,
+      isAuthReady: true,
     } as unknown as ReturnType<typeof useAuthContext>);
     renderPanel();
 
-    fireEvent.click(await screen.findByText('Join the chat'));
+    fireEvent.click(await screen.findByRole('button', { name: 'Join' }));
     expect(showLogin).toHaveBeenCalled();
     expect(transport.joinRoom).not.toHaveBeenCalled();
   });

@@ -13,7 +13,6 @@ import {
   evaluateAgentSignupWall,
   trackAgentSignupWallAllocation,
 } from './lib/agentMarkdownAccess';
-import { logServerPageRequest } from './lib/serverPageRequestLog';
 
 const POSTS_PREFIX = '/posts/';
 const MARKDOWN_PAGE_PATHS = Object.keys(MARKDOWN_ROUTES).map(
@@ -31,18 +30,17 @@ const generateTrackingId = (): string => {
   ).join('');
 };
 
+// Only the routes the proxy acts on: the post page (markdown negotiation, the
+// agent signup wall and the laptop mirror) and the markdown routes. Next reads
+// the matcher statically, so the `.md` pages are spelled out: keep them in sync
+// with MARKDOWN_ROUTES.
 export const config = {
   matcher: [
-    // markdown routes live under `/api`, which the pattern below skips
+    '/posts/:path*',
     '/api/md/:path*',
-    // every other request, minus:
-    // - `api`: JSON endpoints, never documents
-    // - `_next/static`, `_next/image`: build output and the image optimizer
-    // - `.well-known`: static platform association files without extensions
-    // - trailing extensions: `public/` assets (icons, fonts, audio, sw.js, robots, sitemap)
-    // All three have to stay in one pattern: matcher entries are OR'd, so a
-    // separate entry per group would re-admit what the others skip.
-    '/((?!api|_next/static|_next/image|\\.well-known(?:/|$)|.*\\.(?:avif|css|eot|gif|ico|jpe?g|js|json|map|mp3|mp4|otf|png|svg|ttf|txt|wasm|webm|webp|woff2?|xml)$).*)',
+    '/sources.md',
+    '/tags.md',
+    '/squads/discover.md',
   ],
 };
 
@@ -161,13 +159,7 @@ export const getLayoutVariantResponse = (
 };
 
 export async function proxy(req: NextRequest): Promise<NextResponse> {
-  const isMarkdown = isMarkdownRequest(req);
-
-  after(async () => {
-    await logServerPageRequest(req, isMarkdown ? 'markdown' : 'html');
-  });
-
-  if (isMarkdown) {
+  if (isMarkdownRequest(req)) {
     return handleMarkdownRequest(req);
   }
 

@@ -22,8 +22,10 @@ import { STREAK_FREEZE_CAP } from '../../../graphql/streakFreeze';
 import type { StreakFreezeProduct } from '../../../graphql/streakFreeze';
 import { CoresBalanceNote } from '../../cores/CoresBalanceNote';
 
-export interface StreakFreezePurchaseModalProps
-  extends Pick<ModalProps, 'isOpen' | 'onAfterClose'> {
+export interface StreakFreezePurchaseModalProps extends Pick<
+  ModalProps,
+  'isOpen' | 'onAfterClose'
+> {
   onRequestClose: () => void;
 }
 

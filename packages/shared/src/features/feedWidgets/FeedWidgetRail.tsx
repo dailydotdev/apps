@@ -116,7 +116,7 @@ const sizeForScreen = (widget: FeedWidget, isPhone: boolean): FeedWidget => {
   const sizes = feedWidgetSizes(widget.kind);
   const size = sizes.includes(FeedWidgetSize.Tall)
     ? FeedWidgetSize.Tall
-    : sizes.find((item) => item !== FeedWidgetSize.Large) ?? widget.size;
+    : (sizes.find((item) => item !== FeedWidgetSize.Large) ?? widget.size);
   return { ...widget, size };
 };
 

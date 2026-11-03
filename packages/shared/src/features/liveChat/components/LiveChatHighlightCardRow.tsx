@@ -5,12 +5,14 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import Link from '../../../components/utilities/Link';
 import { useLiveChatHighlight } from '../hooks/useLiveChatHighlight';
-import { formatTimeLeft } from '../timeLeft';
+import { formatEndsIn, formatOccupants } from '../timeLeft';
+import { withJoinIntent } from '../joinLink';
 import { LiveDot } from './LiveDot';
+import { LiveChatJoinChip } from './LiveChatHighlightRow';
 
-// The newest live room as the first row of the Happening Now card, drawn
-// like the headline rows around it. Renders nothing for readers outside
-// live chat or when no room is open.
+// The newest live room as the first row of the Happening Now card, framed
+// in brand so it stands apart from the headline rows under it. Renders
+// nothing for readers outside live chat or when no room is open.
 export const LiveChatHighlightCardRow = ({
   compact,
 }: {
@@ -18,7 +20,10 @@ export const LiveChatHighlightCardRow = ({
 }): ReactElement | null => {
   const { logEvent } = useLogContext();
   const { room, isPending } = useLiveChatHighlight();
-  const href = room?.post?.commentsPermalink;
+  // The row is the yes: landing on the post joins the chat right away.
+  const href = room?.post?.commentsPermalink
+    ? withJoinIntent(room.post.commentsPermalink)
+    : undefined;
   // The card has painted by the time the rooms answer; holding the row's
   // height meanwhile keeps the headlines from jumping.
   if (isPending) {
@@ -30,9 +35,11 @@ export const LiveChatHighlightCardRow = ({
     return null;
   }
 
+  // The count and the clock only once they work for the room: a crowd, or
+  // an end close enough to hurry for.
   const meta = [
-    room.occupantCount != null && `${room.occupantCount} here`,
-    room.expiresAt && `ends in ${formatTimeLeft(room.expiresAt)}`,
+    formatOccupants(room.occupantCount),
+    formatEndsIn(room.expiresAt),
   ]
     .filter(Boolean)
     .join(' · ');
@@ -41,10 +48,10 @@ export const LiveChatHighlightCardRow = ({
     <Link href={href}>
       <a
         className={classNames(
-          'flex w-full flex-col gap-0 text-left transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover',
-          compact
-            ? 'relative rounded-12 px-4 py-3 after:absolute after:inset-x-4 after:bottom-0 after:h-px after:bg-border-subtlest-tertiary'
-            : 'rounded-8 border-b border-border-subtlest-tertiary px-3 py-2',
+          // No width utility: a flex-col child of the card's column already
+          // stretches, and `w-full` would fight the compact inset margins.
+          'live-chat-frame flex flex-col gap-0 rounded-12 border border-brand-default text-left transition-colors hover:bg-brand-float focus-visible:bg-brand-float',
+          compact ? 'mx-4 mb-2 px-4 py-3' : 'mb-2 px-3 py-2',
         )}
         href={href}
         onClick={() =>
@@ -62,12 +69,15 @@ export const LiveChatHighlightCardRow = ({
         <span className="flex items-center gap-1.5 text-brand-default typo-footnote">
           <LiveDot />
           Live chat
+          {/* base.css sets flex-shrink: 0 on everything, so the meta has to
+              be allowed to shrink before `truncate` can do anything. */}
           {meta && (
-            <span className="text-text-tertiary">
+            <span className="min-w-0 flex-1 truncate text-text-tertiary">
               <span aria-hidden> · </span>
               {meta}
             </span>
           )}
+          <LiveChatJoinChip className="ml-auto" />
         </span>
         <span className="break-words font-bold text-text-primary typo-callout">
           {room.post?.title || room.title}

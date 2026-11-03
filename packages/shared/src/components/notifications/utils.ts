@@ -75,6 +75,7 @@ export enum NotificationType {
   LfgReachOutReceived = 'lfg_reach_out_received',
   LfgHelpMatch = 'lfg_help_match',
   LfgStillLooking = 'lfg_still_looking',
+  LiveChatOpened = 'live_chat_opened',
   ArticleUpvoteMilestone = 'article_upvote_milestone',
   CommentUpvoteMilestone = 'comment_upvote_milestone',
   ArticleReportApproved = 'article_report_approved',
@@ -225,6 +226,7 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.LfgReachOutReceived]: 'text-brand-default',
     [NotificationType.LfgHelpMatch]: 'text-brand-default',
     [NotificationType.LfgStillLooking]: 'text-brand-default',
+    [NotificationType.LiveChatOpened]: 'text-brand-default',
   };
 
 export const contentArrivalNotificationTypes = new Set<NotificationType>([
@@ -479,12 +481,15 @@ export const notificationFilterCategoryLabel: Record<
 
 const notificationTypeToCategory = Object.entries(
   notificationCategoryToTypes,
-).reduce((acc, [category, types]) => {
-  types.forEach((type) => {
-    acc[type] = category as NotificationFilterCategory;
-  });
-  return acc;
-}, {} as Partial<Record<NotificationType, NotificationFilterCategory>>);
+).reduce(
+  (acc, [category, types]) => {
+    types.forEach((type) => {
+      acc[type] = category as NotificationFilterCategory;
+    });
+    return acc;
+  },
+  {} as Partial<Record<NotificationType, NotificationFilterCategory>>,
+);
 
 export const getNotificationCategory = (
   type: NotificationType,
@@ -584,6 +589,16 @@ export const DIRECT_MESSAGE_NOTIFICATIONS: NotificationItem[] = [
   {
     id: NotificationType.DirectMessageRequestAccepted,
     label: 'Accepted message requests',
+    group: false,
+  },
+];
+
+export const LIVE_CHAT_NOTIFICATIONS: NotificationItem[] = [
+  {
+    id: NotificationType.LiveChatOpened,
+    label: 'A live chat opens on a post',
+    description:
+      'A push when the daily.dev team opens a live chat on a post. Each one is on for a day, then gone.',
     group: false,
   },
 ];

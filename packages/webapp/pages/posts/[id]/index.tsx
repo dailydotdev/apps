@@ -78,7 +78,6 @@ import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoa
 import classNames from 'classnames';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth/useOnboardingActions';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
-import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { isSourceUserSource } from '@dailydotdev/shared/src/graphql/sources';
 import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
 import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/ActivePostContext';
@@ -512,16 +511,8 @@ const getPostPageLayout: typeof getLayout = (page, pageProps, layoutProps) => {
     pageProps,
     {
       ...layoutProps,
-      // Strip first: both pin, and the banner's top offset is the strip's height.
       customBanner: (
-        <>
-          <PhoneTopAdStrip
-            key={id}
-            surface="organic"
-            post={initialData?.post}
-          />
-          <CustomAuthBanner />
-        </>
+        <PhoneTopAdStrip key={id} surface="organic" post={initialData?.post} />
       ),
     },
   );

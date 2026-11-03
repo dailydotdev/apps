@@ -14,7 +14,7 @@ import { useFeature } from '../GrowthBookProvider';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useAdQuery } from '../../features/monetization/useAdQuery';
-import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { useIsPlusAdFree } from '../../hooks/useIsPlusAdFree';
 import { ImpressionStatus } from '../../hooks/feed/useLogImpression';
 import { AdActions, AdPlacement, shouldSkipSourceAds } from '../../lib/ads';
 import type { Post } from '../../graphql/posts';
@@ -51,10 +51,10 @@ export function PostSidebarAdWidget({
   className,
 }: PostSidebarAdWidgetProps): ReactElement | null {
   const { user } = useAuthContext();
-  const { isPlus } = usePlusSubscription();
+  const isPlusAdFree = useIsPlusAdFree();
   const { logEvent } = useLogContext();
   const adImprovementsV3 = Boolean(useFeature(adImprovementsV3Feature));
-  const isAdFree = isPlus || shouldSkipSourceAds(source);
+  const isAdFree = isPlusAdFree || shouldSkipSourceAds(source);
 
   const { data: ad, isPending } = useAdQuery({
     placement: AdPlacement.PostSidebar,

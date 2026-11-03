@@ -10,7 +10,7 @@ import {
 import FeedContext from '../../contexts/FeedContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useIsPhone, useIsPhoneSettled } from '../../hooks/useViewSize';
-import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { useIsPlusAdFree } from '../../hooks/useIsPlusAdFree';
 import type { FeedWidget } from './types';
 import {
   FEED_WIDGET_AD_COLUMN,
@@ -81,7 +81,7 @@ export const useFeedWidgetRailState = (
 
 /**
  * Whether our slot sits on the rail: only where it lands on the first screen.
- * Never on a phone (nor before that check settles), not for Plus, and not with
+ * Never on a phone (nor before that check settles), not for ad-free Plus, and not with
  * fewer columns than its own, where it would sit past the rail's edge.
  * Everywhere else the feed keeps its own first ad. The rail and the feed both
  * read this, so they always agree.
@@ -95,13 +95,14 @@ export const useFeedWidgetAdSlot = (): {
   const { numCards } = useContext(FeedContext);
   const isPhone = useIsPhone();
   const isSettled = useIsPhoneSettled();
-  const { isPlus } = usePlusSubscription();
+  const isPlusAdFree = useIsPlusAdFree();
   // `.eco` regardless of the reader's spaciness: the count the grid renders
   // with — see `FeedContainer`.
   const columns = isPhone ? 1 : numCards.eco;
 
   return {
-    showAd: isSettled && !isPhone && !isPlus && columns > FEED_WIDGET_AD_COLUMN,
+    showAd:
+      isSettled && !isPhone && !isPlusAdFree && columns > FEED_WIDGET_AD_COLUMN,
     isSettled,
     columns,
     isPhone,
@@ -127,9 +128,9 @@ export const useFeedWidgetAd = ({
   enabled: boolean;
 }): { ad?: Ad; isEnabled: boolean; isNoFill: boolean } => {
   const { user, isTokenValid } = useAuthContext();
-  const { isPlus } = usePlusSubscription();
+  const isPlusAdFree = useIsPlusAdFree();
   const queryKey = getFeedWidgetAdQueryKey(user);
-  const isEnabled = enabled && isTokenValid && !isPlus;
+  const isEnabled = enabled && isTokenValid && !isPlusAdFree;
   const { data: ad, isFetched } = useAdQuery({
     placement: AdPlacement.Feed,
     queryKey,

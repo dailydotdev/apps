@@ -22,10 +22,6 @@ import {
 } from './types';
 import { formatUntil } from './duration';
 
-// The lane the challenger ranks; the others (coldstart, popular) top up a
-// short page.
-export const challengerLane = 'chal';
-
 /** What put a card on the page, for the dot beside its reason. */
 enum ReasonCategory {
   Followed = 'followed',
@@ -42,7 +38,7 @@ const reasonDotClassName: Record<ReasonCategory, string> = {
 };
 
 const isFillIn = (explain: FeedItemExplain | null | undefined): boolean =>
-  !!explain && explain.lane !== challengerLane;
+  !!explain && !isRankedExplain(explain) && !!explain.fill_in;
 
 const isSourceFollow = (explain: RankedExplain): boolean =>
   explain.follow.kind === ExplainFollowKind.Source ||
@@ -243,7 +239,7 @@ export const getReason = (
 };
 
 export const getPostTags = (post: Post): string[] =>
-  (post.tags?.length ? post.tags : post.sharedPost?.tags ?? []).filter(
+  (post.tags?.length ? post.tags : (post.sharedPost?.tags ?? [])).filter(
     (tag) => tag.length,
   );
 
@@ -275,13 +271,11 @@ export const getExplainSignals = (
   const matched = isRankedExplain(explain) ? explain.match?.tag : undefined;
   const topics = [
     ...new Set([...(matched ? [matched] : []), ...getPostTags(post)]),
-  ].map(
-    (tag): ExplainSignal => ({
-      kind: ExplainSignalKind.Topic,
-      id: tag,
-      label: `#${tag}`,
-    }),
-  );
+  ].map((tag): ExplainSignal => ({
+    kind: ExplainSignalKind.Topic,
+    id: tag,
+    label: `#${tag}`,
+  }));
   const { source, author } = post;
   const ranked = isRankedExplain(explain) ? explain : undefined;
   let leadSide: FollowSide | undefined;
@@ -490,13 +484,23 @@ const hasEffect = ({ multiplier }: ScoreFactor): boolean =>
 export const getScoreBreakdown = (
   explain: RankedExplain,
 ): ScoreBreakdownParts => {
-  const { score, base, match, follow, age, seen, slot } = explain;
+  const { score, base, match, follow, age, seen, slot, explore } = explain;
+  const cautious = base.optimism && base.cautious;
   const multipliers: ScoreFactor[] = [
     {
       label: 'Engagement',
-      hint: 'How much other readers clicked, upvoted, and commented on this post, compared with a typical post.',
-      multiplier: base.value,
+      hint: "How much readers clicked, upvoted, and commented on this post compared with a typical post. Until a post has much of that, its source's past posts count too.",
+      multiplier: cautious || base.value,
     },
+    ...(cautious
+      ? [
+          {
+            label: 'New post',
+            hint: "New posts haven't had time to collect clicks and upvotes, so they get a lift toward how well they could do. The lift fades as the post gets older.",
+            multiplier: base.value / cautious,
+          },
+        ]
+      : []),
     {
       label: 'Topic match',
       hint: 'How close the post is to the topics you follow and read.',
@@ -514,9 +518,20 @@ export const getScoreBreakdown = (
     },
     {
       label: 'Seen before',
-      hint: "Moves the post down if you've already seen it in your feed.",
+      hint: seen.passive_shows
+        ? "Moves the post down if it was already in your feed, including times it loaded in a tab you didn't look at."
+        : "Moves the post down if you've already seen it in your feed.",
       multiplier: seen.factor,
     },
+    ...(explore
+      ? [
+          {
+            label: 'Random nudge',
+            hint: 'A small random change to the score, so your feed sometimes shows a post it would otherwise rank just below.',
+            multiplier: explore,
+          },
+        ]
+      : []),
     ...(slot
       ? [
           {
@@ -551,19 +566,25 @@ export const getScoreBreakdown = (
   const recorded = slot?.pick_score ?? score;
   const finalScore = recorded > 0 ? recorded : explained;
 
-  // The exploration draw and the fresh slot's own scale move the recorded
-  // score without a factor of their own; the gap gets its row, past what
-  // the factors' 3-decimal rounding leaves.
+  // The spot saved for a new post scores on its own scale, and an older
+  // record may miss a factor; the gap gets its row, past what the factors'
+  // 3-decimal rounding leaves.
   const gap = finalScore / explained;
   const moved = [
     ...known,
     ...(Math.abs(Math.log(gap)) >= 0.01
       ? [
-          {
-            label: 'Other adjustments',
-            hint: 'Everything else, like a bit of randomness and a spot saved for brand-new posts.',
-            multiplier: gap,
-          },
+          slot?.fresh
+            ? {
+                label: 'Spot for new posts',
+                hint: 'Your feed saves a spot for a brand-new post, picked by how well it could do. This post got it.',
+                multiplier: gap,
+              }
+            : {
+                label: 'Other adjustments',
+                hint: 'Anything else that moved the post, beyond the rows above.',
+                multiplier: gap,
+              },
         ]
       : []),
   ].filter(hasEffect);

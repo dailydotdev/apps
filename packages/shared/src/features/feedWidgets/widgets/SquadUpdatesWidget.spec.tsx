@@ -76,7 +76,7 @@ beforeEach(() => {
   mockDesktop();
   jest
     .mocked(useRouter)
-    .mockImplementation(() => ({ pathname: '/' } as unknown as NextRouter));
+    .mockImplementation(() => ({ pathname: '/' }) as unknown as NextRouter);
   jest
     .mocked(useFeedWidgetAd)
     .mockReturnValue({ ad, isEnabled: true, isNoFill: false });

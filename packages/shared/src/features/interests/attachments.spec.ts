@@ -18,7 +18,7 @@ const makePost = (id: string, title = `Post ${id}`): Post =>
     id,
     title,
     source: { name: 'GitHub' },
-  } as Post);
+  }) as Post;
 
 describe('postAttachment', () => {
   it('carries the title and the source', () => {

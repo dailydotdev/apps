@@ -20,7 +20,7 @@ import type { Post } from '../../graphql/posts';
 import { Image } from '../../components/image/Image';
 import { largeNumberFormat } from '../../lib';
 import { IconSize } from '../../components/Icon';
-import { Origin } from '../../lib/log';
+import { LogEvent, Origin } from '../../lib/log';
 import { BuyCoresModal } from '../../components/modals/award/BuyCoresModal';
 import { usePostImage } from '../../hooks/post/usePostImage';
 import { useCampaignMutation } from './useCampaignMutation';
@@ -36,6 +36,7 @@ import { usePostBoostEstimation } from './usePostBoostEstimation';
 import { updatePostCache } from '../../lib/query';
 import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
 import { boostSettingsFeature } from '../../lib/featureManagement';
+import { getBoostErrorExtra, useBoostLogging } from './useBoostLogging';
 
 const Slider = dynamic(
   () => import('../../components/fields/Slider').then((mod) => mod.Slider),
@@ -44,6 +45,7 @@ const Slider = dynamic(
 
 interface BoostPostModalProps extends ModalProps {
   post: Post;
+  origin?: Origin;
 }
 
 const SCREENS = {
@@ -56,6 +58,7 @@ export type Screens = keyof typeof SCREENS;
 
 export function BoostPostModal({
   post,
+  origin,
   ...props
 }: BoostPostModalProps): ReactElement {
   const { user } = useAuthContext();
@@ -76,8 +79,17 @@ export function BoostPostModal({
     post,
     query: { budget: estimate.coresPerDay },
   });
+  const { logBoostEvent, logBuyCores } = useBoostLogging({
+    type: CampaignType.Post,
+    referenceId: post.id,
+    origin,
+  });
   const { onStartBoost: onBoostPost } = useCampaignMutation({
     onBoostSuccess: (data, vars) => {
+      logBoostEvent(LogEvent.CompleteBoost, vars, {
+        campaign_id: data.referenceId,
+      });
+
       if (data.referenceId) {
         updatePostCache(client, vars.value, (old) => ({
           flags: { ...old.flags, campaignId: data.referenceId },
@@ -86,12 +98,27 @@ export function BoostPostModal({
 
       setActiveScreen(SCREENS.SUCCESS);
     },
+    onBoostError: (error, vars) =>
+      logBoostEvent(LogEvent.ErrorBoost, vars, getBoostErrorExtra(error)),
   });
   const image = usePostImage(post);
 
+  const onBuyCores = () => {
+    logBuyCores();
+    setActiveScreen(SCREENS.BUY_CORES);
+  };
+
   const onButtonClick = () => {
-    if (user.balance.amount < totalSpendInt) {
-      return setActiveScreen(SCREENS.BUY_CORES);
+    const hasEnoughBalance = (user?.balance.amount ?? 0) >= totalSpendInt;
+
+    logBoostEvent(
+      LogEvent.StartBoost,
+      { budget: coresPerDay, duration: totalDays },
+      { has_enough_balance: hasEnoughBalance },
+    );
+
+    if (!hasEnoughBalance) {
+      return onBuyCores();
     }
 
     return onBoostPost({
@@ -103,24 +130,29 @@ export function BoostPostModal({
   };
 
   if (activeScreen === SCREENS.BUY_CORES) {
+    const missingCores = Math.max(
+      0,
+      totalSpendInt - (user?.balance.amount ?? 0),
+    );
+
     return (
       <BuyCoresModal
         isOpen
         product={null}
+        minCoresToBuy={missingCores || undefined}
         onCompletion={() => setActiveScreen(SCREENS.FORM)}
         onRequestClose={() => setActiveScreen(SCREENS.FORM)}
         amountNeededCopy={
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Secondary}
-          >
-            You need{' '}
-            <strong>
-              {Math.abs(user.balance.amount - totalSpendInt).toLocaleString()}{' '}
-              more Cores
-            </strong>{' '}
-            to boost the post.
-          </Typography>
+          missingCores > 0 ? (
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Secondary}
+            >
+              You need{' '}
+              <strong>{missingCores.toLocaleString()} more Cores</strong> to
+              boost the post.
+            </Typography>
+          ) : undefined
         }
         origin={Origin.BoostPost}
       />
@@ -167,9 +199,18 @@ export function BoostPostModal({
     return `${min} - ${max}`;
   })();
 
+  const onRequestClose: ModalProps['onRequestClose'] = (event) => {
+    logBoostEvent(LogEvent.CloseBoost, {
+      budget: coresPerDay,
+      duration: totalDays,
+    });
+    props.onRequestClose?.(event);
+  };
+
   return (
     <Modal
       {...props}
+      onRequestClose={onRequestClose}
       isOpen
       shouldCloseOnOverlayClick={false}
       kind={Modal.Kind.FixedCenter}
@@ -195,7 +236,8 @@ export function BoostPostModal({
             icon={<PlusIcon />}
             size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
-            onClick={() => setActiveScreen('BUY_CORES')}
+            onClick={onBuyCores}
+            aria-label="Buy Cores"
           />
         </div>
       </Modal.Header>

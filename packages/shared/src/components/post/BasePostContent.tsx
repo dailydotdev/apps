@@ -15,6 +15,7 @@ import {
 import { useIsPhone } from '../../hooks/useViewSize';
 import { useHasPostCapsule } from './PostCapsule';
 import { PostExcoPlayerWidget } from './PostExcoPlayerWidget';
+import { BoostOriginContextProvider } from '../../features/boost/BoostOriginContext';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "custom404" */ '../Custom404'),
@@ -44,6 +45,7 @@ export function BasePostContent({
   belowComments,
   commentAds,
   isPostPage,
+  boostOrigin,
 }: BasePostContentProps): ReactElement {
   const { id } = post ?? {};
   const { onCopyPostLink } = engagementProps ?? {};
@@ -63,7 +65,7 @@ export function BasePostContent({
   }
 
   return (
-    <>
+    <BoostOriginContextProvider origin={boostOrigin}>
       {isPostPage && (
         <GoBackHeaderMobile
           className={classNames(
@@ -105,6 +107,6 @@ export function BasePostContent({
         />
       )}
       {belowComments}
-    </>
+    </BoostOriginContextProvider>
   );
 }

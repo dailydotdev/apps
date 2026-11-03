@@ -1,31 +1,41 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { StartCampaignProps } from '../../graphql/campaigns';
-import { startCampaign, stopCampaign } from '../../graphql/campaigns';
+import type { Campaign, StartCampaignProps } from '../../graphql/campaigns';
+import {
+  CampaignType,
+  startCampaign,
+  stopCampaign,
+} from '../../graphql/campaigns';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { isNullOrUndefined } from '../../lib/func';
 import { useTransactionError } from '../../hooks/useTransactionError';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import type { TransactionCreated } from '../../graphql/njord';
+import type { ApiErrorResult } from '../../graphql/common';
 
 interface UseCampaignMutationProps {
   onBoostSuccess?: (data: TransactionCreated, vars: StartCampaignProps) => void;
+  onBoostError?: (error: ApiErrorResult, vars: StartCampaignProps) => void;
   onCancelSuccess?: (data: TransactionCreated, id: string) => void;
 }
 
+type CancelBoostCampaign = Pick<Campaign, 'id' | 'type'>;
+
 interface UseCampaignMutation {
   onStartBoost: typeof startCampaign;
-  onCancelBoost: typeof stopCampaign;
+  onCancelBoost: (campaign: CancelBoostCampaign) => Promise<TransactionCreated>;
   isLoadingCancel: boolean;
 }
 
 export const useCampaignMutation = ({
   onBoostSuccess,
+  onBoostError,
   onCancelSuccess,
 }: UseCampaignMutationProps = {}): UseCampaignMutation => {
   const client = useQueryClient();
   const { displayToast } = useToastNotification();
   const { user, updateUser } = useAuthContext();
+  const onTransactionError = useTransactionError();
 
   const { mutateAsync: onStartBoost } = useMutation({
     mutationFn: startCampaign,
@@ -52,12 +62,16 @@ export const useCampaignMutation = ({
 
       onBoostSuccess?.(data, vars);
     },
-    onError: useTransactionError(),
+    onError: (error: ApiErrorResult, vars) => {
+      onBoostError?.(error, vars);
+
+      return onTransactionError(error);
+    },
   });
 
   const { mutateAsync: onCancelBoost, isPending } = useMutation({
-    mutationFn: stopCampaign,
-    onSuccess: async (data, id) => {
+    mutationFn: ({ id }: CancelBoostCampaign) => stopCampaign(id),
+    onSuccess: async (data, campaign) => {
       if (!data.transactionId) {
         return;
       }
@@ -78,9 +92,16 @@ export const useCampaignMutation = ({
         exact: false,
       });
 
-      displayToast('Post boost canceled!');
+      displayToast(
+        campaign.type === CampaignType.Squad
+          ? 'Squad boost canceled!'
+          : 'Post boost canceled!',
+      );
 
-      onCancelSuccess?.(data, id);
+      onCancelSuccess?.(data, campaign.id);
+    },
+    onError: () => {
+      displayToast("We couldn't stop the boost. Please try again.");
     },
   });
 

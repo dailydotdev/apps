@@ -412,7 +412,7 @@ export const ConversationThread = ({
         {
           id: `request-${pairing.id}`,
           peerId,
-          senderId: pairing.createdByViewer ? user?.id ?? '' : peerId,
+          senderId: pairing.createdByViewer ? (user?.id ?? '') : peerId,
           body: pairing.requestMessage,
           createdAt: pairing.createdAt,
           status: DmMessageStatus.Sent,

@@ -114,10 +114,6 @@ export const FEED_CONTROLS_QUERY = gql`
       }
       learning
       fillIns
-      ranking {
-        key
-        value
-      }
     }
   }
 `;
@@ -276,32 +272,6 @@ export const setFeedAuthorWeight = (
     duration,
   });
 
-export const SET_FEED_RANKING_SETTING_MUTATION = gql`
-  mutation SetFeedRankingSetting($key: String!, $value: Float) {
-    setFeedRankingSetting(key: $key, value: $value) {
-      _
-    }
-  }
-`;
-
-// A value is Plus; no value takes the setting back to the default.
-export const setFeedRankingSetting = (
-  key: string,
-  value: number | null,
-): Promise<unknown> =>
-  gqlClient.request(SET_FEED_RANKING_SETTING_MUTATION, { key, value });
-
-export const RESET_FEED_RANKING_SETTINGS_MUTATION = gql`
-  mutation ResetFeedRankingSettings {
-    resetFeedRankingSettings {
-      _
-    }
-  }
-`;
-
-export const resetFeedRankingSettings = (): Promise<unknown> =>
-  gqlClient.request(RESET_FEED_RANKING_SETTINGS_MUTATION);
-
 export const SET_FEED_LEARNING_MUTATION = gql`
   mutation SetFeedLearning($enabled: Boolean!) {
     setFeedLearning(enabled: $enabled) {
@@ -329,14 +299,8 @@ export const RESET_FEED_PERSONALIZATION_MUTATION = gql`
     $learned: Boolean!
     $seen: Boolean!
     $levels: Boolean!
-    $ranking: Boolean!
   ) {
-    resetFeedPersonalization(
-      learned: $learned
-      seen: $seen
-      levels: $levels
-      ranking: $ranking
-    ) {
+    resetFeedPersonalization(learned: $learned, seen: $seen, levels: $levels) {
       _
     }
   }
@@ -349,21 +313,17 @@ export interface FeedPersonalizationReset {
   seen?: boolean;
   /** Take every topic, source and creator back to Auto. */
   levels?: boolean;
-  /** Take every ranking setting back to the default. */
-  ranking?: boolean;
 }
 
 export const resetFeedPersonalization = ({
   learned = false,
   seen = false,
   levels = false,
-  ranking = false,
 }: FeedPersonalizationReset): Promise<unknown> =>
   gqlClient.request(RESET_FEED_PERSONALIZATION_MUTATION, {
     learned,
     seen,
     levels,
-    ranking,
   });
 
 const WHATS_OFF_CHANGE_FRAGMENT = gql`
@@ -380,8 +340,6 @@ const WHATS_OFF_CHANGE_FRAGMENT = gql`
     value
     advancedSettingId
     enabled
-    from
-    to
     postIds
     certainty
     plusOnly

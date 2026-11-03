@@ -11,7 +11,6 @@ import {
   WhatsOffOp,
   WhatsOffTargetType,
 } from './types';
-import { formatRankingValue, getRankingSettingMeta } from './ranking';
 
 // The API turns away longer text (its own WHATS_OFF_MAX_LENGTH).
 export const WHATS_OFF_MAX_LENGTH = 500;
@@ -49,7 +48,7 @@ const resetCopy: Record<string, WhatsOffChangeCopy> = {
   everything: {
     title: 'Start your feed over',
     detail:
-      'Forgets your reading and what you scrolled past, and clears your levels and ranking settings',
+      'Forgets your reading and what you scrolled past, and clears your levels',
   },
 };
 
@@ -98,25 +97,6 @@ const getFollowCopy = (name: string, mode: string | null | undefined) => {
     default:
       return { title: `Set ${name} back to Auto` };
   }
-};
-
-const getRankingCopy = ({
-  value: key,
-  from,
-  to,
-}: WhatsOffChange): WhatsOffChangeCopy => {
-  const meta = key ? getRankingSettingMeta(key) : undefined;
-  const title = meta?.label ?? key ?? 'Ranking setting';
-  if (!meta || typeof from !== 'number' || typeof to !== 'number') {
-    return { title };
-  }
-  return {
-    title,
-    detail: `From ${formatRankingValue(
-      meta.format,
-      from,
-    )} to ${formatRankingValue(meta.format, to)}`,
-  };
 };
 
 /** What a change does, in the words its row shows. */
@@ -174,8 +154,6 @@ export const getWhatsOffChangeCopy = (
           };
     case WhatsOffOp.Reset:
       return resetCopy[change.value ?? ''] ?? resetCopy.everything;
-    case WhatsOffOp.Ranking:
-      return getRankingCopy(change);
     case WhatsOffOp.HidePosts: {
       const count = change.postIds?.length ?? 0;
       return {
@@ -214,10 +192,9 @@ export const getWhatsOffChangeKey = ({
   mode,
   value,
   enabled,
-  to,
   postIds,
 }: WhatsOffChange): string =>
-  JSON.stringify([op, target?.id, mode, value, enabled, to, postIds]);
+  JSON.stringify([op, target?.id, mode, value, enabled, postIds]);
 
 /** The line's note on what no setting covers yet. */
 export const getWhatsOffGapNote = (line: WhatsOffLine): string => {

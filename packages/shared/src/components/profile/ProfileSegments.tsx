@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
-import React from 'react';
-import type { PublicProfile } from '../../lib/user';
-import { webappUrl } from '../../lib/constants';
+import React, { useCallback } from 'react';
+import { useRouter } from 'next/router';
+import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
+import { expectViewSwitch } from '../../lib/scrollRestoration';
 import type { RowItem } from '../shell/ShellRow';
 import { Segments, ShellRow } from '../shell/ShellRow';
 
@@ -19,27 +20,78 @@ const paths: Record<ProfileSegment, string> = {
   [ProfileSegment.Upvoted]: '/upvoted',
 };
 
-const getItems = (
-  user: Pick<PublicProfile, 'username'>,
-  active: ProfileSegment,
-): RowItem[] =>
-  Object.values(ProfileSegment).map((segment) => ({
+const segmentPath = /\/(posts|replies|upvoted)$/;
+
+// The segment an address names: the profile's own address is About, and
+// each other segment is a path under it.
+export const getProfileSegment = (
+  asPath: string,
+): ProfileSegment | undefined => {
+  const path = withoutLayoutVariantPrefix(asPath.split(/[?#]/)[0]).replace(
+    /\/$/,
+    '',
+  );
+  const match = path.match(/^\/[^/]+(\/[^/]+)?$/);
+  if (!match) {
+    return undefined;
+  }
+  const suffix = match[1] ?? '';
+
+  return Object.values(ProfileSegment).find(
+    (segment) => paths[segment] === suffix,
+  );
+};
+
+interface ProfileSegmentState {
+  segment: ProfileSegment;
+  setSegment: (segment: ProfileSegment) => void;
+}
+
+// Every segment keeps its own address, so a reload and a shared link land
+// on it, but a switch is a view of the page the reader is on: the page
+// stays mounted (the address is masked over the current route, shallow),
+// the entry is replaced and the scroll is left alone. `fallback` is the
+// segment of the route itself, for before the router has the address.
+export const useProfileSegment = (
+  fallback: ProfileSegment,
+): ProfileSegmentState => {
+  const router = useRouter();
+  const segment = getProfileSegment(router?.asPath ?? '') ?? fallback;
+
+  const setSegment = useCallback(
+    (next: ProfileSegment) => {
+      const [path, search = ''] = router.asPath.split('#')[0].split('?');
+      const base = path.replace(/\/$/, '').replace(segmentPath, '');
+      const as = `${base}${paths[next]}${search ? `?${search}` : ''}`;
+      if (as !== router.asPath) {
+        expectViewSwitch();
+      }
+
+      router.replace({ pathname: router.pathname, query: router.query }, as, {
+        shallow: true,
+        scroll: false,
+      });
+    },
+    [router],
+  );
+
+  return { segment, setSegment };
+};
+
+// A profile's views on a phone.
+export function ProfileSegments({
+  active,
+  onSelect,
+}: {
+  active: ProfileSegment;
+  onSelect: (segment: ProfileSegment) => void;
+}): ReactElement {
+  const items: RowItem[] = Object.values(ProfileSegment).map((segment) => ({
     key: segment,
     label: segment,
-    href: `${webappUrl}${user.username}${paths[segment]}`,
     active: segment === active,
-    replace: true,
+    onClick: () => onSelect(segment),
   }));
-
-// A profile's views on a phone, each on the address it already has.
-export function ProfileSegments({
-  user,
-  active,
-}: {
-  user: Pick<PublicProfile, 'username'>;
-  active: ProfileSegment;
-}): ReactElement {
-  const items = getItems(user, active);
 
   return (
     <ShellRow>

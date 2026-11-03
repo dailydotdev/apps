@@ -15,9 +15,9 @@ import {
 } from '../../icons';
 import { FeedSettingsMenu, feedSettingsMenuTitle } from './types';
 import {
+  forYouSettingsPages,
   forYouSettingsTitle,
   getForYouSettingsPage,
-  useForYouSettingsPages,
 } from './forYouSettingsPages';
 import { IconSize } from '../../Icon';
 import { FeedSettingsEditContext } from './FeedSettingsEditContext';
@@ -114,16 +114,6 @@ const FeedSettingsOverviewSection = dynamic(
   },
 );
 
-const ForYouRankingSettings = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "forYouRankingSettings" */ '../../../features/feedExplain/components/ForYouRankingSettings'
-    ).then((mod) => mod.ForYouRankingSettings),
-  {
-    loading: SuspenseLoader,
-  },
-);
-
 const FeedSettingsContentFiltersSection = dynamic(
   () =>
     import(
@@ -149,16 +139,12 @@ export const FeedSettingsEdit = (
   const feedSettingsEditContext = useFeedSettingsEdit(props);
   const { feed, onBackToFeed, onDiscard } = feedSettingsEditContext;
   const isMainFeed = feed?.type === FeedType.Main;
-  const forYouPages = useForYouSettingsPages();
-
   const tabs = useMemo(() => {
     if (isMainFeed) {
-      return forYouPages.map(
-        ({ title, icon: Icon }): TabOptions => ({
-          title,
-          options: { icon: <Icon size={IconSize.Small} /> },
-        }),
-      );
+      return forYouSettingsPages.map(({ title, icon: Icon }): TabOptions => ({
+        title,
+        options: { icon: <Icon size={IconSize.Small} /> },
+      }));
     }
 
     const base: TabOptions[] = [
@@ -197,18 +183,18 @@ export const FeedSettingsEdit = (
     });
 
     return base.filter(Boolean);
-  }, [feed?.type, isMainFeed, forYouPages]);
+  }, [feed?.type, isMainFeed]);
 
   const defaultView = useMemo(() => {
     const view = router.query.dview as string | undefined;
     if (!isMainFeed) {
       return feedSettingsMenuTitle[view as FeedSettingsMenu];
     }
-    const page = forYouPages.find(
+    const page = forYouSettingsPages.find(
       ({ id }) => id === getForYouSettingsPage(view),
     );
     return page?.title;
-  }, [router.query.dview, isMainFeed, forYouPages]);
+  }, [router.query.dview, isMainFeed]);
 
   if (!feed) {
     return null;
@@ -257,11 +243,6 @@ export const FeedSettingsEdit = (
                   view={forYouSettingsTitle[FeedSettingsMenu.ContentSources]}
                 >
                   <FeedSettingsContentSourcesSection />
-                </FeedSettingsEditBody>
-                <FeedSettingsEditBody
-                  view={forYouSettingsTitle[FeedSettingsMenu.Ranking]}
-                >
-                  <ForYouRankingSettings />
                 </FeedSettingsEditBody>
                 <FeedSettingsEditBody
                   view={forYouSettingsTitle[FeedSettingsMenu.Filters]}

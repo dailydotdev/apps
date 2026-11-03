@@ -39,6 +39,7 @@ import {
   gqlClient,
 } from '../graphql/common';
 import { usePlusSubscription } from './usePlusSubscription';
+import { useIsPlusAdFree } from './useIsPlusAdFree';
 import { LogEvent } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
 import type { FeedAdTemplate } from '../lib/feed';
@@ -329,6 +330,7 @@ export default function useFeed<T>(
   const numCards = numCardsBySpaciness.eco;
   const { user, isTokenValid } = useContext(AuthContext);
   const { isPlus } = usePlusSubscription();
+  const isPlusAdFree = useIsPlusAdFree();
   const queryClient = useQueryClient();
   const isTabletViewport = useViewSize(ViewSize.Tablet);
   const isMobileViewport = !isTabletViewport;
@@ -487,13 +489,13 @@ export default function useFeed<T>(
   const hasFirstSlotCard = effectiveFirstSlotOffset > 0;
 
   const isAdsQueryEnabled = Boolean(
-    !isPlus &&
-      query &&
-      isTokenValid &&
-      !isFeedPreview &&
-      (!adPostLength ||
-        (feedQuery.data?.pages[0]?.page.edges.length ?? 0) > adPostLength) &&
-      !settings?.disableAds,
+    !isPlusAdFree &&
+    query &&
+    isTokenValid &&
+    !isFeedPreview &&
+    (!adPostLength ||
+      (feedQuery.data?.pages[0]?.page.edges.length ?? 0) > adPostLength) &&
+    !settings?.disableAds,
   );
 
   const shouldEvaluateHighlightCards = useMemo(() => {
@@ -677,7 +679,7 @@ export default function useFeed<T>(
   const cadence = useMemo(
     () =>
       deriveAdCadence({
-        isPlus,
+        isAdFree: isPlusAdFree,
         isFeedPreview,
         disableAds: settings?.disableAds,
         adStart:
@@ -686,7 +688,7 @@ export default function useFeed<T>(
         adRepeat: adTemplate?.adRepeat ?? pageSize + 1,
       }),
     [
-      isPlus,
+      isPlusAdFree,
       isFeedPreview,
       settings?.disableAds,
       adTemplate?.adStart,

@@ -1256,7 +1256,7 @@ export const SidebarDesktopV2 = ({
     tour.step?.extra === 'gameCenterPanel' ? SidebarCategory.GameCenter : null;
   const activeCategory = isSettingsSelected
     ? SidebarCategory.Settings
-    : tourForcedCategory ?? hoveredCategory ?? selectedCategory;
+    : (tourForcedCategory ?? hoveredCategory ?? selectedCategory);
   // Hovering the "+" previews the create-post options panel (takes precedence
   // over a hovered category). Clicking "+" opens the composer modal instead.
   const [isCreateHovered, setIsCreateHovered] = useState(false);
@@ -1821,7 +1821,7 @@ export const SidebarDesktopV2 = ({
     // the tab icon's own label stays the short `displayLabel`.
     const panelTitle = isStreakTab
       ? gameCenterPanelTitle
-      : category.panelTitle ?? category.label;
+      : (category.panelTitle ?? category.label);
     let iconNode: ReactElement;
     if (showStreakBadge) {
       iconNode = (
@@ -1968,7 +1968,7 @@ export const SidebarDesktopV2 = ({
   const activeLabel =
     activeCategory === SidebarCategory.GameCenter
       ? gameCenterPanelTitle
-      : activeCategoryConfig?.panelTitle ?? activeCategoryConfig?.label;
+      : (activeCategoryConfig?.panelTitle ?? activeCategoryConfig?.label);
   // Preview state (panel content/title) vs committed selection (the bell's
   // filled indicator) — kept separate so hover-preview never moves the
   // selected indicator.
@@ -2636,8 +2636,8 @@ export const SidebarDesktopV2 = ({
             isSettingsSelected
               ? 'w-full opacity-100'
               : isExpanded
-              ? 'w-60 opacity-100'
-              : 'pointer-events-none w-0 opacity-0',
+                ? 'w-60 opacity-100'
+                : 'pointer-events-none w-0 opacity-0',
             suppressTransition,
           )}
         >

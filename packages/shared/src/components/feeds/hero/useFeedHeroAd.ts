@@ -4,7 +4,7 @@ import { useAdQuery } from '../../../features/monetization/useAdQuery';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import FeedContext from '../../../contexts/FeedContext';
 import { useFeedLayout } from '../../../hooks/useFeedLayout';
-import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
+import { useIsPlusAdFree } from '../../../hooks/useIsPlusAdFree';
 import { useCachedTokenRecovery } from '../../../hooks/useCachedTokenRecovery';
 import { AdPlacement } from '../../../lib/ads';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
@@ -25,7 +25,7 @@ export type FeedHeroAdSlot = {
  */
 export const useFeedHeroAd = (): FeedHeroAdSlot => {
   const { user, isTokenValid } = useAuthContext();
-  const { isPlus } = usePlusSubscription();
+  const isPlusAdFree = useIsPlusAdFree();
   const { numCards } = useContext(FeedContext);
   // The same call the feed makes, so the two agree on what a list is.
   const { shouldUseListFeedLayout } = useFeedLayout();
@@ -34,7 +34,7 @@ export const useFeedHeroAd = (): FeedHeroAdSlot => {
   const shape = feedHeroShape(numCards.eco, shouldUseListFeedLayout);
 
   const queryKey = generateQueryKey(RequestKey.Ads, user, 'feed-hero');
-  const enabled = isTokenValid && !isPlus && shape.adPlacement !== 'none';
+  const enabled = isTokenValid && !isPlusAdFree && shape.adPlacement !== 'none';
   const { data: ad } = useAdQuery({
     placement: AdPlacement.Feed,
     queryKey,

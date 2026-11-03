@@ -46,7 +46,7 @@ export const BasePaymentProvider = ({
     discountId:
       appliedDiscountId === undefined
         ? discountId
-        : appliedDiscountId ?? undefined,
+        : (appliedDiscountId ?? undefined),
   });
   const data = funnelPricing?.length ? funnelPricing : plusPricing;
 

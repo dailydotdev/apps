@@ -7,7 +7,7 @@ const createInstance = (
   ({
     getResponse: jest.fn(getResponse),
     getResponsePromise: jest.fn(),
-  } as unknown as TurnstileInstance);
+  }) as unknown as TurnstileInstance;
 
 describe('waitForTurnstileToken', () => {
   it('returns undefined without a widget', async () => {

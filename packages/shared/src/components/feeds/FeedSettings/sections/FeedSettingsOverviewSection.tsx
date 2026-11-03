@@ -3,7 +3,6 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowIcon } from '../../../icons/Arrow';
 import { IconSize } from '../../../Icon';
-import { PlusUser } from '../../../PlusUser';
 import {
   Typography,
   TypographyColor,
@@ -12,12 +11,9 @@ import {
 import { Divider } from '../../../utilities/Divider';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import useFeedSettings from '../../../../hooks/useFeedSettings';
-import { usePlusSubscription } from '../../../../hooks/usePlusSubscription';
-import { Origin } from '../../../../lib/log';
 import { pluralize } from '../../../../lib/strings';
 import { ExplainOrigin } from '../../../../features/feedExplain/types';
 import { feedProfileQueryOptions } from '../../../../features/feedExplain/queries';
-import { useFeedControls } from '../../../../features/feedExplain/useFeedControls';
 import { useForYouControls } from '../../../../features/feedExplain/useFeedExplainMode';
 import { AgentSetup } from '../../../../features/feedExplain/components/AgentSetup';
 import {
@@ -37,11 +33,9 @@ const count = (amount: number, word: string): string =>
 const SummaryRow = ({
   page,
   summary,
-  isPlusOnly,
 }: {
   page: ForYouSettingsPageId;
   summary: string;
-  isPlusOnly?: boolean;
 }): ReactElement => {
   const openPage = useOpenForYouSettingsPage();
 
@@ -53,12 +47,9 @@ const SummaryRow = ({
         className="-mx-3 flex w-[calc(100%+1.5rem)] items-center gap-3 rounded-12 px-3 py-3 text-left hover:bg-surface-hover"
       >
         <span className="flex min-w-0 flex-1 flex-col">
-          <span className="flex items-center gap-2">
-            <Typography type={TypographyType.Callout} bold>
-              {forYouSettingsTitle[page]}
-            </Typography>
-            {isPlusOnly && <PlusUser />}
-          </span>
+          <Typography type={TypographyType.Callout} bold>
+            {forYouSettingsTitle[page]}
+          </Typography>
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
@@ -78,7 +69,6 @@ const SummaryRow = ({
 /** What shapes For You, one row per page that changes it. */
 const FeedSummary = (): ReactElement => {
   const { user } = useAuthContext();
-  const { isPlus } = usePlusSubscription();
   const { isAvailable, version } = useForYouControls();
   const { feedSettings } = useFeedSettings();
   const profileOptions = feedProfileQueryOptions(user, version);
@@ -86,13 +76,8 @@ const FeedSummary = (): ReactElement => {
     ...profileOptions,
     enabled: profileOptions.enabled && isAvailable,
   });
-  const { controls } = useFeedControls({
-    origin: Origin.Settings,
-    enabled: isAvailable,
-  });
   const followedTopics = feedSettings?.includeTags?.length ?? 0;
   const followedSources = feedSettings?.includeSources?.length ?? 0;
-  const changedSettings = controls?.ranking.length ?? 0;
 
   const getTopicsSummary = (): string => {
     if (!isAvailable || !profile) {
@@ -137,20 +122,6 @@ const FeedSummary = (): ReactElement => {
               : "You don't follow any sources yet."
           }
         />
-        {isAvailable && (
-          <SummaryRow
-            page={FeedSettingsMenu.Ranking}
-            isPlusOnly={!isPlus}
-            summary={
-              changedSettings
-                ? `${count(
-                    changedSettings,
-                    'setting',
-                  )} changed from the default.`
-                : 'Every setting is at its default.'
-            }
-          />
-        )}
         <SummaryRow
           page={FeedSettingsMenu.Filters}
           summary="Content and post types you hide, and what you blocked."

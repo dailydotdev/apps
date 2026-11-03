@@ -7,13 +7,16 @@ import {
 } from './aiFluencyQuiz';
 
 const getAnswersByOptionIndex = (optionIndex: number): Record<string, string> =>
-  aiFluencyQuestions.reduce((acc, question) => {
-    const option = question.options[optionIndex] || question.options.at(-1);
+  aiFluencyQuestions.reduce(
+    (acc, question) => {
+      const option = question.options[optionIndex] || question.options.at(-1);
 
-    acc[question.id] = option.id;
+      acc[question.id] = option.id;
 
-    return acc;
-  }, {} as Record<string, string>);
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
 
 describe('aiFluencyQuiz', () => {
   it('returns Casual User when lowest options are selected', () => {

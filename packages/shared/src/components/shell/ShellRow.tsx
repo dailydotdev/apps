@@ -114,12 +114,15 @@ export const ShellRow = ({
     };
   }, []);
 
+  // The row is h-12 with a border-b, so its content box is 1px shorter than
+  // h-12. Tabs fill it (h-full) instead: any vertical overflow lets iOS drag
+  // the row up and down, and overflow-y-hidden keeps it from coming back.
   return (
     <div
       ref={rowRef}
       data-shell-row
       className={classNames(
-        'no-scrollbar relative flex h-12 w-full items-center overflow-x-auto',
+        'no-scrollbar relative flex h-12 w-full items-center overflow-x-auto overflow-y-hidden overscroll-x-contain',
         isTabs ? 'border-b border-border-subtlest-tertiary' : 'gap-2 px-4',
       )}
     >
@@ -139,7 +142,7 @@ export const ShellRow = ({
 // label's own width once they do not, so the row scrolls instead of
 // truncating.
 const tabClassName =
-  'relative flex h-12 min-w-max flex-1 items-center justify-center px-4 typo-callout';
+  'relative flex h-full min-w-max flex-1 items-center justify-center px-4 typo-callout';
 
 const chipClassName =
   'shell-press flex h-8 shrink-0 items-center gap-1 rounded-10 px-3 font-medium typo-subhead';
@@ -167,7 +170,7 @@ const TabLabel = ({
         {label}
       </span>
     ) : (
-      label
+      <span className={isLit ? 'font-bold' : 'font-medium'}>{label}</span>
     )}
     {children}
   </span>
@@ -194,6 +197,7 @@ const RowChip = ({
           aria-label={item.ariaLabel}
           aria-current={item.active ? 'page' : undefined}
           onClick={item.onClick}
+          // eslint-disable-next-line jsx-a11y/no-redundant-roles
           role="link"
           tabIndex={0}
           onKeyDown={(event) => {
@@ -334,6 +338,7 @@ export const SheetChoice = ({ items }: { items: RowItem[] }): ReactElement => (
             <a
               aria-current={item.active ? 'page' : undefined}
               onClick={item.onClick}
+              // eslint-disable-next-line jsx-a11y/no-redundant-roles
               role="link"
               tabIndex={0}
               onKeyDown={(event) => {
