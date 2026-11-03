@@ -48,6 +48,7 @@ export const StoreKitBuyCoresContextProvider = ({
         providerTransactionId: event.detail.transactionId,
       });
     },
+    origin,
   });
 
   const contextData = useMemo<BuyCoresContextData>(

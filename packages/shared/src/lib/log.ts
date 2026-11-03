@@ -140,6 +140,12 @@ export enum Origin {
   BriefModal = 'brief modal',
   BriefPage = 'brief page',
   SquadBoost = 'squad boost',
+  // Boost modal entry points
+  NewPostBoostStrip = 'new post boost strip',
+  PostBoostButton = 'post boost button',
+  PostAnalytics = 'post analytics',
+  BoostAgain = 'boost again',
+  AdsDashboard = 'ads dashboard',
   Leaderboard = 'leaderboard',
   // Auth
   BetterAuthEmailLogin = 'betterauth email login',
@@ -513,6 +519,13 @@ export enum LogEvent {
   PickAwardPlugin = 'pick award plugin',
   AwardPlugin = 'award plugin',
   // End Credits
+  // Start Boost
+  OpenBoost = 'open boost',
+  StartBoost = 'start boost',
+  CompleteBoost = 'complete boost',
+  ErrorBoost = 'error boost',
+  CloseBoost = 'close boost',
+  // End Boost
   // Start Brief
   ImpressionBrief = 'impression brief',
   ClickBrief = 'click brief',

@@ -32,6 +32,7 @@ import {
 } from './focus/CommunitySentiment';
 import { SelectionSnapshotBar } from '../../features/snapshot/SelectionSnapshotBar';
 import { getPostWidgetsClassName } from './common';
+import { Origin } from '../../lib/log';
 
 // The three bodies share one call site, so they share one props shape; each
 // takes the subset it needs.
@@ -187,6 +188,7 @@ export function SquadPostContentRaw({
           navigationProps={navigationProps}
           engagementProps={engagementActions}
           origin={origin}
+          boostOrigin={shouldShowBanner ? Origin.NewPostBoostStrip : undefined}
           post={post}
         >
           {shouldShowBanner && !isLaptop && (
