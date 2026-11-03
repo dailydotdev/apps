@@ -526,6 +526,36 @@ describe('BoostPostModal', () => {
       ]);
     });
 
+    it('should tell a short balance how many Cores the boost is missing', () => {
+      renderBoostPostModal(
+        createMockPost({ tags: ['javascript'] }),
+        createMockUser(1000),
+      );
+      clickBoost();
+
+      expect(
+        screen.getByText(
+          (_, element) =>
+            element?.tagName === 'P' &&
+            element.textContent ===
+              'You need 34,000 more Cores to boost the post.',
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it('should not claim Cores are missing when buying more with enough balance', () => {
+      renderBoostPostModal(
+        createMockPost({ tags: ['javascript'] }),
+        createMockUser(50000),
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Buy Cores' }));
+
+      expect(screen.queryByText(/more Cores/)).not.toBeInTheDocument();
+      expect(
+        screen.getByText('Choose how many Cores to buy.'),
+      ).toBeInTheDocument();
+    });
+
     it('should log the final budget and duration when closed without boosting', () => {
       renderBoostPostModal(
         createMockPost({ tags: ['javascript'] }),
