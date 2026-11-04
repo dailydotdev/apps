@@ -6,6 +6,7 @@ export enum Origin {
   ReadingHistoryContextMenu = 'reading history context menu',
   Bookmarks = 'bookmarks',
   BookmarksContextMenu = 'bookmarks context menu',
+  PicksPage = 'picks page',
   ArticlePage = 'article page',
   ArticleModal = 'article modal',
   ReaderModal = 'reader modal',
@@ -481,6 +482,17 @@ export enum LogEvent {
   ShareLog = 'share log',
   ShareTool = 'share tool',
   SharePlugin = 'share plugin',
+  // Start Weekly picks
+  StartPicks = 'start picks',
+  SelectPick = 'select pick',
+  DeselectPick = 'deselect pick',
+  AddPickNote = 'add pick note',
+  PublishPicks = 'publish picks',
+  SharePicks = 'share picks',
+  ViewPicksPage = 'view picks page',
+  ClickPickPost = 'click pick post',
+  ClickMakeYourPicks = 'click make your picks',
+  // End Weekly picks
   // The creator copied a link to, or downloaded the card of, one of their
   // achievements. Records the action, not that anything was posted anywhere.
   ShareCreatorAchievement = 'share creator achievement',
