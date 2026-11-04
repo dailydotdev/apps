@@ -69,6 +69,12 @@ export const MAX_FEED_WIDGETS = 12;
 /** The sponsored slot's column, zero-based: the third slot of the rail. */
 export const FEED_WIDGET_AD_COLUMN = 2;
 
+/**
+ * On a phone, where the rail swipes one column at a time: the second card,
+ * one swipe in.
+ */
+export const FEED_WIDGET_PHONE_AD_COLUMN = 1;
+
 export type FeedWidgetSpan = {
   /** Feed columns the widget covers. */
   cols: number;

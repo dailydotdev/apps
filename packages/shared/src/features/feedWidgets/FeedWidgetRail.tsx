@@ -169,6 +169,7 @@ export const FeedWidgetRail = ({
   const { displayToast } = useToastNotification();
   const {
     showAd,
+    adColumn,
     isSettled: isPhoneSettled,
     columns,
     isPhone,
@@ -199,7 +200,10 @@ export const FeedWidgetRail = ({
   // creative.
   const isBoost =
     !!ad && (isBoostedPostCreative(ad) || isBoostedSquadCreative(ad));
-  const showTip = showAd && !isTipHidden && !isBoost;
+  // Not on a phone: the slot is a swipe in, and the ad there keeps its full
+  // card rather than share the column.
+  const canShowTip = showAd && !isPhone;
+  const showTip = canShowTip && !isTipHidden && !isBoost;
 
   const logWidgetEvent = useCallback(
     (eventName: LogEvent, widget?: FeedWidget, extra?: object) =>
@@ -307,8 +311,8 @@ export const FeedWidgetRail = ({
     [displayed, isPhone],
   );
   const layout = useMemo(
-    () => buildRailPlacement(shown, { showAd }),
-    [shown, showAd],
+    () => buildRailPlacement(shown, { showAd, adColumn }),
+    [shown, showAd, adColumn],
   );
   const updateEdges = useCallback(() => {
     const node = scroller.current;
@@ -813,7 +817,7 @@ export const FeedWidgetRail = ({
           onAdd={onAdd}
           // Only where the slot shows, so the reader sees the tips come back.
           tips={
-            showAd
+            canShowTip
               ? {
                   tip,
                   isShown: !isTipHidden,

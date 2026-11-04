@@ -109,14 +109,17 @@ const columnsUsed = (occupied: Set<string>): number =>
 
 /**
  * Lays the rail out on a two-row grid with the sponsored slot pinned to the
- * third column. A Large first widget fills the first two columns, so the ad
- * comes second; two Talls (or four Smalls) push it to third. When the reader's
- * widgets do not reach the third column, the slot closes up behind them
- * rather than leaving a hole.
+ * third column (the second on a phone). A Large first widget fills the first
+ * two columns, so the ad comes second; two Talls (or four Smalls) push it to
+ * third. When the reader's widgets do not reach the slot's column, the slot
+ * closes up behind them rather than leaving a hole.
  */
 export const buildRailPlacement = (
   widgets: FeedWidget[],
-  { showAd = true }: { showAd?: boolean } = {},
+  {
+    showAd = true,
+    adColumn: pinnedColumn = FEED_WIDGET_AD_COLUMN,
+  }: { showAd?: boolean; adColumn?: number } = {},
 ): RailLayout => {
   if (!showAd) {
     const { placements, occupied } = pack(widgets, null);
@@ -124,12 +127,8 @@ export const buildRailPlacement = (
   }
 
   const unreserved = pack(widgets, null);
-  let adColumn = Math.min(
-    FEED_WIDGET_AD_COLUMN,
-    columnsUsed(unreserved.occupied),
-  );
-  let packed =
-    adColumn === FEED_WIDGET_AD_COLUMN ? pack(widgets, adColumn) : unreserved;
+  let adColumn = Math.min(pinnedColumn, columnsUsed(unreserved.occupied));
+  let packed = adColumn === pinnedColumn ? pack(widgets, adColumn) : unreserved;
 
   // A Large that would straddle the reserved column jumps past it and can
   // leave a whole column before the ad empty. A hole there reads as broken,

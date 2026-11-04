@@ -43,6 +43,23 @@ describe('buildRailPlacement', () => {
     ]);
   });
 
+  it('pins the ad second where the rail asks for it there', () => {
+    const widgets = [
+      widget('a', FeedWidgetSize.Tall),
+      widget('b', FeedWidgetSize.Tall),
+    ];
+
+    expect(
+      buildRailPlacement(widgets, { adColumn: 1 }).placements.map(
+        ({ key, column }) => [key, column],
+      ),
+    ).toEqual([
+      ['a', 0],
+      [FEED_WIDGET_AD_KEY, 1],
+      ['b', 2],
+    ]);
+  });
+
   it('pins the ad third when two Talls come first', () => {
     const widgets = [
       widget('a', FeedWidgetSize.Tall),

@@ -159,6 +159,14 @@ describe('useFeedWidgetFeedState', () => {
     await waitFor(() => expect(fetchAdByPlacement).toHaveBeenCalledTimes(2));
   });
 
+  it('keeps the grid its first ad on a phone, where the slot is a swipe in', () => {
+    // No width breakpoint matches: a phone.
+    mockMatchMedia(() => false);
+    const { result } = renderFeedState();
+
+    expect(result.current.isAdVisible).toBe(false);
+  });
+
   it('holds back nothing while the rail is off', () => {
     const { result } = renderFeedState({ enabled: false });
 

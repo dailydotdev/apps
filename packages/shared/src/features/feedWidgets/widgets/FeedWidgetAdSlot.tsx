@@ -22,7 +22,7 @@ import {
 } from './FeedWidgetBoostedAd';
 
 /**
- * The third slot of the rail: ours. Always Tall, never in the reader's list,
+ * The rail's pinned slot (third, or second on a phone): ours. Always Tall, never in the reader's list,
  * so no reorder can move it; edit mode says so instead of offering controls.
  */
 export const FeedWidgetAdSlot = ({

@@ -14,6 +14,7 @@ import { useIsPlusAdFree } from '../../hooks/useIsPlusAdFree';
 import type { FeedWidget } from './types';
 import {
   FEED_WIDGET_AD_COLUMN,
+  FEED_WIDGET_PHONE_AD_COLUMN,
   FEED_WIDGET_UNDO_MS,
   FeedWidgetKind,
 } from './types';
@@ -101,14 +102,19 @@ export const useFeedWidgetRailState = (
 };
 
 /**
- * Whether our slot sits on the rail: only where it lands on the first screen.
- * Never on a phone (nor before that check settles), not for ad-free Plus, and not with
- * fewer columns than its own, where it would sit past the rail's edge.
- * Everywhere else the feed keeps its own first ad. The rail and the feed both
- * read this, so they always agree.
+ * Whether our slot sits on the rail, and where. On a wide screen only where it
+ * lands on the first screen: not with fewer columns than its own, where it
+ * would sit past the rail's edge, and there it stands in for the feed's first
+ * ad. On a phone it is the second card, one swipe in, so it is seen less often
+ * than the feed's first ad and comes on top of it instead. Never before the
+ * phone check settles, nor for ad-free Plus. The rail and the feed both read
+ * this, so they always agree.
  */
 export const useFeedWidgetAdSlot = (): {
   showAd: boolean;
+  /** The slot takes the feed's first ad, which moves down a slot. */
+  replacesFeedAd: boolean;
+  adColumn: number;
   isSettled: boolean;
   columns: number;
   isPhone: boolean;
@@ -120,10 +126,13 @@ export const useFeedWidgetAdSlot = (): {
   // `.eco` regardless of the reader's spaciness: the count the grid renders
   // with — see `FeedContainer`.
   const columns = isPhone ? 1 : numCards.eco;
+  const showAd =
+    isSettled && !isPlusAdFree && (isPhone || columns > FEED_WIDGET_AD_COLUMN);
 
   return {
-    showAd:
-      isSettled && !isPhone && !isPlusAdFree && columns > FEED_WIDGET_AD_COLUMN,
+    showAd,
+    replacesFeedAd: showAd && !isPhone,
+    adColumn: isPhone ? FEED_WIDGET_PHONE_AD_COLUMN : FEED_WIDGET_AD_COLUMN,
     isSettled,
     columns,
     isPhone,
@@ -242,7 +251,7 @@ export const useFeedWidgetFeedState = ({
   feedName: string;
 }): FeedWidgetFeedState => {
   const widgets = useResolvedFeedWidgets({ enabled });
-  const { showAd } = useFeedWidgetAdSlot();
+  const { showAd, replacesFeedAd } = useFeedWidgetAdSlot();
   const { isNoFill } = useFeedWidgetAd({
     enabled: enabled && showAd,
     feedName,
@@ -264,10 +273,17 @@ export const useFeedWidgetFeedState = ({
             excludedPostIds: hasTopStory ? shownLeadIds : [],
             hasHappeningNow,
             hasTopStory,
-            isAdVisible: showAd && !isNoFill,
+            isAdVisible: replacesFeedAd && !isNoFill,
           }
         : emptyFeedWidgetFeedState,
-    [enabled, hasTopStory, hasHappeningNow, shownLeadIds, showAd, isNoFill],
+    [
+      enabled,
+      hasTopStory,
+      hasHappeningNow,
+      shownLeadIds,
+      replacesFeedAd,
+      isNoFill,
+    ],
   );
 };
 
