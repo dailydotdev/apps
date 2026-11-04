@@ -16,7 +16,12 @@ import { getDmTransport } from '../../messages/transport';
 import { dmPeerQueryOptions } from '../../messages/queries';
 import type { DmEvent, DmTransport } from '../../messages/types';
 import type { ChatRoom } from '../graphql';
-import { ChatRoomStatus, getPostChatRoom, openPostChatRoom } from '../graphql';
+import {
+  ChatRoomStatus,
+  getChatRoomPresence,
+  getPostChatRoom,
+  openPostChatRoom,
+} from '../graphql';
 
 jest.mock('../../../contexts/AuthContext', () => ({
   useAuthContext: jest.fn(),
@@ -36,6 +41,7 @@ jest.mock('../graphql', () => ({
   ...jest.requireActual('../graphql'),
   getPostChatRoom: jest.fn(),
   openPostChatRoom: jest.fn(),
+  getChatRoomPresence: jest.fn(),
 }));
 
 const room: ChatRoom = {
@@ -138,9 +144,84 @@ beforeEach(() => {
   );
   jest.mocked(getPostChatRoom).mockResolvedValue(room);
   jest.mocked(openPostChatRoom).mockResolvedValue(room);
+  jest.mocked(getChatRoomPresence).mockResolvedValue([]);
 });
 
+const minutesAgo = (minutes: number) =>
+  new Date(Date.now() - minutes * 60 * 1000).toISOString();
+
+const emitHistory = (senders: [string, number][]) =>
+  senders.forEach(([senderId, minutes], index) =>
+    emit({
+      type: 'roomMessage',
+      message: {
+        id: `h${index}`,
+        roomJid: room.jid!,
+        senderId,
+        body: `from ${senderId}`,
+        createdAt: minutesAgo(minutes),
+        isHistory: true,
+      },
+    }),
+  );
+
+const presenceOfRow = (body: string) =>
+  screen.getByText(body).closest('li')?.querySelector('.sr-only')
+    ?.textContent ?? null;
+
 describe('LiveChatPanel', () => {
+  it('marks who is still in the room and who left', async () => {
+    jest.mocked(getChatRoomPresence).mockResolvedValue(['u2']);
+    await renderInline();
+    await waitFor(() => expect(transport.joinRoom).toHaveBeenCalled());
+    emit({ type: 'roomJoined', roomJid: room.jid! });
+    emitHistory([
+      ['u2', 20],
+      ['u3', 15],
+      ['me', 12],
+      ['u4', 1],
+    ]);
+
+    await waitFor(() =>
+      expect(getChatRoomPresence).toHaveBeenCalledWith('r1', [
+        'u2',
+        'u3',
+        'u4',
+      ]),
+    );
+    await waitFor(() =>
+      expect(presenceOfRow('from u3')).toEqual('Left the chat'),
+    );
+    expect(presenceOfRow('from u2')).toEqual('In the chat');
+    // Spoke a minute ago: here, whatever the poll says.
+    expect(presenceOfRow('from u4')).toEqual('In the chat');
+    // The viewer knows they are here.
+    expect(presenceOfRow('from me')).toBeNull();
+  });
+
+  it('shows no presence when the chat server could not say', async () => {
+    jest.mocked(getChatRoomPresence).mockResolvedValue(null);
+    await renderInline();
+    await waitFor(() => expect(transport.joinRoom).toHaveBeenCalled());
+    emit({ type: 'roomJoined', roomJid: room.jid! });
+    emitHistory([
+      ['u2', 20],
+      ['u4', 1],
+    ]);
+
+    await waitFor(() => expect(getChatRoomPresence).toHaveBeenCalled());
+    await screen.findByText('from u2');
+    expect(presenceOfRow('from u2')).toBeNull();
+    expect(presenceOfRow('from u4')).toEqual('In the chat');
+  });
+
+  it('does not ask about presence without a seat', async () => {
+    renderPanel();
+    await screen.findByLabelText('Live chat');
+
+    expect(getChatRoomPresence).not.toHaveBeenCalled();
+  });
+
   it('offers the team to start the chat on a post without one', async () => {
     jest.mocked(getPostChatRoom).mockResolvedValue(null);
     renderPanel();

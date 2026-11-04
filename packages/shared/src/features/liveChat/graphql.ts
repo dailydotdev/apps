@@ -57,6 +57,15 @@ const OPEN_POST_CHAT_ROOM_MUTATION = gql`
   ${CHAT_ROOM_FRAGMENT}
 `;
 
+const CHAT_ROOM_PRESENCE_QUERY = gql`
+  query ChatRoomPresence($id: ID!, $userIds: [ID!]!) {
+    chatRoom(id: $id) {
+      id
+      presentUserIds(userIds: $userIds)
+    }
+  }
+`;
+
 const LIVE_CHAT_ROOMS_QUERY = gql`
   query LiveChatRooms($first: Int) {
     liveChatRooms(first: $first) {
@@ -93,4 +102,17 @@ export const getLiveChatRooms = async (first: number): Promise<ChatRoom[]> => {
   );
 
   return res.liveChatRooms;
+};
+
+// Of the given users, those in the room right now. Null when the chat server
+// couldn't say.
+export const getChatRoomPresence = async (
+  id: string,
+  userIds: string[],
+): Promise<string[] | null> => {
+  const res = await gqlClient.request<{
+    chatRoom: { presentUserIds: string[] | null } | null;
+  }>(CHAT_ROOM_PRESENCE_QUERY, { id, userIds });
+
+  return res.chatRoom?.presentUserIds ?? null;
 };

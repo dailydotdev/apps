@@ -1,8 +1,12 @@
-import { queryOptions } from '@tanstack/react-query';
+import { keepPreviousData, queryOptions } from '@tanstack/react-query';
 import type { LoggedUser } from '../../lib/user';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import type { ChatRoom } from './graphql';
-import { getLiveChatRooms, getPostChatRoom } from './graphql';
+import {
+  getChatRoomPresence,
+  getLiveChatRooms,
+  getPostChatRoom,
+} from './graphql';
 
 type QueryUser = Pick<LoggedUser, 'id'> | undefined;
 
@@ -25,6 +29,32 @@ export const postChatRoomQueryOptions = (user: QueryUser, postId: string) =>
     staleTime: StaleTime.Default,
     refetchInterval: LIVE_CHAT_ROOM_REFRESH_MS,
     enabled: !!postId,
+  });
+
+// The API answers for at most this many users per call.
+export const LIVE_CHAT_PRESENCE_MAX_USERS = 100;
+
+// Which of the given users are in the room, polled like the room itself (the
+// API caches the room's list for 15s). The previous answer stays up while a
+// new sender changes the key, so dots don't blink.
+export const chatRoomPresenceQueryOptions = (
+  user: QueryUser,
+  roomId: string | undefined,
+  userIds: string[],
+) =>
+  queryOptions<string[] | null>({
+    queryKey: generateQueryKey(
+      RequestKey.ChatRooms,
+      user,
+      'presence',
+      roomId,
+      userIds.join(','),
+    ),
+    queryFn: () => getChatRoomPresence(roomId as string, userIds),
+    staleTime: StaleTime.Default,
+    refetchInterval: LIVE_CHAT_ROOM_REFRESH_MS,
+    placeholderData: keepPreviousData,
+    enabled: !!user && !!roomId && userIds.length > 0,
   });
 
 export const liveChatRoomsQueryOptions = (user: QueryUser) =>
