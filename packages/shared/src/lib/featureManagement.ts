@@ -392,3 +392,8 @@ export const featureFeedWidgetsDefault = new Feature<{
 // and the share sheet. The public page /picks/:id is never gated so shared
 // links keep working.
 export const featureWeeklyPicks = new Feature('weekly_picks', false);
+
+// daily.dev for Startups self-serve checkout: the plan picker at
+// /squads/for-startups and the Plan section of Squad Manage. Off until launch;
+// the landing page reads the same flag to swap its waitlist for Get started.
+export const featureStartupsCheckout = new Feature('startups_checkout', false);

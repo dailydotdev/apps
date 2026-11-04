@@ -26,6 +26,7 @@ const typeToHandler: Record<PurchaseType, WebKitMessageHandlers> = {
   plus: WebKitMessageHandlers.IAPSubscriptionRequest,
   organization: WebKitMessageHandlers.IAPSubscriptionRequest,
   recruiter: WebKitMessageHandlers.IAPSubscriptionRequest, // not used for now on apple side
+  startups: WebKitMessageHandlers.IAPSubscriptionRequest, // not sold on iOS
 };
 
 export const useStoreKitPayment = ({

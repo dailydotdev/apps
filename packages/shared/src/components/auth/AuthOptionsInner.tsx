@@ -11,8 +11,8 @@ import {
   iosNativeAuth,
   isNativeAuthSupported,
   AuthEventNames,
-  AuthTriggers,
   AuthEvent,
+  autoProfileTriggers,
 } from '../../lib/auth';
 import {
   getBetterAuthErrorMessage,
@@ -412,7 +412,7 @@ function AuthOptionsInner({
       if (!isAlreadyOnboarded) {
         onSuccessfulLogin?.();
       }
-    } else if (trigger === AuthTriggers.RecruiterSelfServe) {
+    } else if (autoProfileTriggers.includes(trigger)) {
       await autoCompleteProfile(user.email, user.name, false);
     } else {
       onSetActiveDisplay(AuthDisplay.SocialRegistration);
@@ -474,7 +474,7 @@ function AuthOptionsInner({
       return;
     }
 
-    if (trigger === AuthTriggers.RecruiterSelfServe) {
+    if (autoProfileTriggers.includes(trigger)) {
       setIsSocialAuthLoading(false);
       const loggedUser = bootUser as LoggedUser;
       await autoCompleteProfile(loggedUser.email, loggedUser.name, false);

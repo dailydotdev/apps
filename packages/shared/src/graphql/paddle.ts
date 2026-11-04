@@ -50,6 +50,7 @@ export enum PurchaseType {
   Organization = 'organization',
   Cores = 'cores',
   Recruiter = 'recruiter',
+  Startups = 'startups',
 }
 
 export enum PlusPlanType {
