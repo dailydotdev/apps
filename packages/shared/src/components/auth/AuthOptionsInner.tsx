@@ -772,6 +772,9 @@ function AuthOptionsInner({
   };
 
   const [hasLoggedAuthOpen, setHasLoggedAuthOpen] = useState(false);
+  // Picking email closes One Tap: on Sign up that's the move to the
+  // registration form, on Log in it's using the inline email/password form.
+  const [isEmailLoginEngaged, setIsEmailLoginEngaged] = useState(false);
 
   const canUseOneTap =
     isAuthReady &&
@@ -781,6 +784,7 @@ function AuthOptionsInner({
     !isAndroidApp &&
     !isNativeAuthSupported('google') &&
     hasLoggedAuthOpen &&
+    !isEmailLoginEngaged &&
     (activeDisplay === AuthDisplay.Default ||
       activeDisplay === AuthDisplay.OnboardingSignup);
   useGoogleOneTap({
@@ -913,6 +917,7 @@ function AuthOptionsInner({
             onPasswordLogin={onEmailLogin}
             onProviderClick={onProviderClick}
             onSignup={onEmailRegistration}
+            onLoginFormEngage={() => setIsEmailLoginEngaged(true)}
             hideSignupDisclaimer={hideSignupDisclaimer}
             isSocialAuthLoading={isSocialAuthLoading}
             providers={providers}

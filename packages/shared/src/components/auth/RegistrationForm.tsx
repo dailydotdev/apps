@@ -28,6 +28,7 @@ import TokenInput from './TokenField';
 import AuthForm from './AuthForm';
 import AuthHeader from './AuthHeader';
 import { AuthActionBar } from './AuthActionBar';
+import { useTurnstileTheme } from '../../hooks/auth/useTurnstileTheme';
 import { MemberAlready } from '../onboarding/MemberAlready';
 import SignupDisclaimer from './SignupDisclaimer';
 import { Checkbox } from '../fields/Checkbox';
@@ -132,6 +133,7 @@ const RegistrationForm = ({
   const isVerifyingTurnstileRef = useRef(false);
   const [isVerifyingTurnstile, setIsVerifyingTurnstile] = useState(false);
   const isTurnstileInteractiveRef = useRef(false);
+  const turnstileTheme = useTurnstileTheme();
 
   const logRef = useRef(logEvent);
   logRef.current = logEvent;
@@ -571,7 +573,7 @@ const RegistrationForm = ({
               ref={turnstileRef}
               siteKey={turnstileSiteKey}
               options={{
-                theme: 'dark',
+                theme: turnstileTheme,
                 // Run the challenge silently and only surface the widget when a
                 // human interaction is actually required, so the branded box
                 // doesn't clash with the form for the common (passing) case.

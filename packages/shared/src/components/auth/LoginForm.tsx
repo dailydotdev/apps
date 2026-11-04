@@ -18,6 +18,7 @@ import { IconSize } from '../Icon';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { labels } from '../../lib';
 import { useLogContext } from '../../contexts/LogContext';
+import { useTurnstileTheme } from '../../hooks/auth/useTurnstileTheme';
 import {
   getTurnstileWaitExtra,
   TURNSTILE_WAIT_LOG_THRESHOLD_MS,
@@ -37,6 +38,8 @@ export interface LoginFormProps {
   isReady: boolean;
   autoFocus?: boolean;
   onSignup: () => void;
+  /** Called once the visitor starts using the email and password form. */
+  onEngage?: () => void;
 }
 
 export type LoginHintState = [
@@ -86,6 +89,7 @@ function LoginForm({
   isReady,
   autoFocus = true,
   onSignup,
+  onEngage: onEngageProp,
 }: LoginFormProps): ReactElement {
   const { logEvent } = useLogContext();
   const turnstileRef = useRef<TurnstileInstance>(null);
@@ -93,16 +97,45 @@ function LoginForm({
   const [turnstileError, setTurnstileError] = useState(false);
   const [isVerifyingTurnstile, setIsVerifyingTurnstile] = useState(false);
   const isTurnstileInteractiveRef = useRef(false);
+  const [turnstileErrorLoading, setTurnstileErrorLoading] = useState(false);
+  const turnstileTheme = useTurnstileTheme();
   const [hasEngaged, setHasEngaged] = useState(false);
-  const onEngage = () => setHasEngaged(true);
+  const onEngage = () => {
+    if (hasEngaged) {
+      return;
+    }
+    setHasEngaged(true);
+    onEngageProp?.();
+  };
   const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_KEY ?? '';
+  const logRef = useRef(logEvent);
+  logRef.current = logEvent;
 
   useEffect(() => {
     if (hint) {
       turnstileRef.current?.reset();
     }
   }, [hint]);
+
+  // Same as sign up: when Cloudflare's script is blocked (ad blockers, some
+  // networks) the Log in button stays disabled, so explain why after 5s
+  // instead of leaving a dead button.
+  useEffect(() => {
+    if (!turnstileSiteKey || turnstileLoaded) {
+      return undefined;
+    }
+
+    const turnstileLoadTimeout = setTimeout(() => {
+      logRef.current({
+        event_name: AuthEventNames.TurnstileLoadError,
+        extra: JSON.stringify({ form: 'login' }),
+      });
+      setTurnstileErrorLoading(true);
+    }, 5000);
+
+    return () => clearTimeout(turnstileLoadTimeout);
+  }, [turnstileSiteKey, turnstileLoaded]);
 
   const onLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -241,18 +274,28 @@ function LoginForm({
         <Turnstile
           ref={turnstileRef}
           siteKey={turnstileSiteKey}
-          options={{ theme: 'dark', appearance: 'interaction-only' }}
+          options={{ theme: turnstileTheme, appearance: 'interaction-only' }}
           className={classNames(
             'mx-auto',
             !hasEngaged && 'invisible h-0 overflow-hidden',
           )}
-          onWidgetLoad={() => setTurnstileLoaded(true)}
+          onWidgetLoad={() => {
+            setTurnstileLoaded(true);
+            setTurnstileErrorLoading(false);
+          }}
           onBeforeInteractive={() => {
             isTurnstileInteractiveRef.current = true;
           }}
           onAfterInteractive={() => {
             isTurnstileInteractiveRef.current = false;
           }}
+        />
+      )}
+      {turnstileErrorLoading && hasEngaged && (
+        <Alert
+          className="mt-3"
+          type={AlertType.Error}
+          title="The security check didn’t load. Refresh the page and try again."
         />
       )}
       {turnstileError && (
