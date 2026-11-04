@@ -308,8 +308,8 @@ const MessageBubble = ({
             <Button
               type="button"
               variant={ButtonVariant.Tertiary}
-              size={ButtonSize.XSmall}
-              icon={<EditIcon />}
+              size={ButtonSize.Small}
+              icon={<EditIcon size={IconSize.XSmall} />}
               aria-label="Edit message"
               className={hoverActionClassName}
               onClick={() => onEdit(message)}
