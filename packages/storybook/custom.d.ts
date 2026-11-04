@@ -9,3 +9,8 @@ declare module 'react-syntax-highlighter/dist/esm/languages/hljs' {
   const languages: Record<string, unknown>;
   export = languages;
 }
+
+declare module '*?raw' {
+  const content: string;
+  export default content;
+}

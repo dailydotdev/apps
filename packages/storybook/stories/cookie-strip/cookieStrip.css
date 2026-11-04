@@ -1,0 +1,157 @@
+/*
+ * What the variants add on top of the production iubenda.css. In production
+ * these rules move into packages/webapp/styles/iubenda.css (see README.md).
+ *
+ * Signals on <html>:
+ *   .dd-consent-open   the cookie card is on screen (mirrors its visibility)
+ *   .dd-strip-dock     the Handoff dock strip is mounted
+ *   --dd-strip-h       that strip's rendered height
+ *   --dd-cookie-h      the card's rendered height
+ */
+
+#iubenda-cs-banner {
+  transition: bottom 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    inset-inline-end 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/*
+ * The cookie card is sized in px (iubenda.css: 340px wide, 24px inset), so
+ * its lane and the column that must clear it are px too, whatever the
+ * reader's root font size.
+ */
+.dd-stage-column {
+  max-width: min(48rem, 768px);
+}
+
+html.dd-consent-open .dd-stage-strip {
+  /* card 340 + inset 24 + gap 24 */
+  padding-inline-end: 388px;
+}
+
+html.dd-consent-open.dd-strip-dock .dd-stage-strip {
+  /* card 340 + dock inset 40 + gap 40 */
+  padding-inline-end: 420px;
+}
+
+/* From laptopXL a 768px column centered on the full width clears the card */
+@media (min-width: 1668px) {
+  html.dd-consent-open .dd-stage-strip,
+  html.dd-consent-open.dd-strip-dock .dd-stage-strip {
+    padding-inline-end: 2.5rem;
+  }
+}
+
+.dd-stage-divider {
+  right: 400px;
+}
+
+/* The artwork is dark in both themes; light mode shows the token gradient */
+html.light .dd-stage-art {
+  display: none;
+}
+
+@media (prefers-color-scheme: light) {
+  html.auto .dd-stage-art {
+    display: none;
+  }
+}
+
+/* Handoff dock: the card becomes the strip's right column */
+html.dd-strip-dock #iubenda-cs-banner {
+  inset-inline-end: 40px;
+  bottom: max(16px, calc((var(--dd-strip-h) - var(--dd-cookie-h)) / 2));
+}
+
+html.dd-strip-dock #iubenda-cs-banner .iubenda-cs-container {
+  background: color-mix(
+    in srgb,
+    var(--theme-background-default) 56%,
+    transparent
+  );
+  border-color: var(--theme-border-subtlest-tertiary);
+  box-shadow: none;
+  backdrop-filter: blur(12px);
+}
+
+/* Show more grows the card past the strip's top edge, over the feed: an
+   opaque fill keeps the mandated copy legible there */
+html.dd-strip-dock
+  #iubenda-cs-banner.dd-cs-has-more:not(.dd-cs-collapsed)
+  .iubenda-cs-container {
+  background: var(--theme-background-popover);
+  backdrop-filter: none;
+}
+
+/* Handoff dock: the slot confirms the answer, then hands its space back */
+@keyframes dd-saved {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  15%,
+  70% {
+    opacity: 1;
+    transform: none;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+.dd-saved {
+  animation: dd-saved 2200ms ease both;
+}
+
+/*
+ * Email and log in on one row under the providers, as the agreed mock.
+ * Storybook-only shim over AuthOptions' inline footer; production adds a prop
+ * to OnboardingRegistrationForm instead (README.md, step 4).
+ */
+.dd-stage-auth [aria-label='Login/Register options'] > div:last-child {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  column-gap: 4px;
+}
+
+/* Left-aligned with the column while it sits beside the card */
+@media (max-width: 1667.98px) {
+  html.dd-consent-open
+    .dd-stage-auth
+    [aria-label='Login/Register options']
+    > div:last-child {
+    justify-content: flex-start;
+  }
+}
+
+.dd-stage-auth [aria-label='Login/Register options'] > div:last-child > * {
+  margin: 0;
+}
+
+.dd-stage-auth [aria-label='Login/Register options'] > div:last-child > button {
+  min-height: 2rem;
+  padding-inline: 0;
+}
+
+.dd-stage-auth
+  [aria-label='Login/Register options']
+  > div:last-child
+  > button
+  + *::before {
+  content: '·';
+  margin-inline-end: 4px;
+  color: var(--theme-text-tertiary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #iubenda-cs-banner {
+    transition: none;
+  }
+
+  .dd-saved {
+    animation: none;
+  }
+}
