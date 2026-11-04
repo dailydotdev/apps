@@ -1,25 +1,25 @@
-import type { CSSProperties, ReactElement, ReactNode } from "react";
-import React, { useEffect, useState } from "react";
-import classNames from "classnames";
-import { IconSize } from "@dailydotdev/shared/src/components/Icon";
-import { BookmarkIcon } from "@dailydotdev/shared/src/components/icons/Bookmark";
-import { ChecklistAIcon } from "@dailydotdev/shared/src/components/icons/ChecklistA";
-import { EarthIcon } from "@dailydotdev/shared/src/components/icons/Earth";
-import { FlagIcon } from "@dailydotdev/shared/src/components/icons/Flag";
-import { HashtagIcon } from "@dailydotdev/shared/src/components/icons/Hashtag";
-import { PlusIcon } from "@dailydotdev/shared/src/components/icons/Plus";
-import { ReadingStreakIcon } from "@dailydotdev/shared/src/components/icons/ReadingStreak";
-import { ShortcutsIcon } from "@dailydotdev/shared/src/components/icons/Shortcuts";
-import { SparkleIcon } from "@dailydotdev/shared/src/components/icons/Sparkle";
-import { VIcon } from "@dailydotdev/shared/src/components/icons/V";
-import { Button } from "@dailydotdev/shared/src/components/buttons/Button";
+import type { CSSProperties, ReactElement, ReactNode } from 'react';
+import React, { useEffect, useState } from 'react';
+import classNames from 'classnames';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { BookmarkIcon } from '@dailydotdev/shared/src/components/icons/Bookmark';
+import { ChecklistAIcon } from '@dailydotdev/shared/src/components/icons/ChecklistA';
+import { EarthIcon } from '@dailydotdev/shared/src/components/icons/Earth';
+import { FlagIcon } from '@dailydotdev/shared/src/components/icons/Flag';
+import { HashtagIcon } from '@dailydotdev/shared/src/components/icons/Hashtag';
+import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
+import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons/ReadingStreak';
+import { ShortcutsIcon } from '@dailydotdev/shared/src/components/icons/Shortcuts';
+import { SparkleIcon } from '@dailydotdev/shared/src/components/icons/Sparkle';
+import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   ButtonSize,
   ButtonVariant,
-} from "@dailydotdev/shared/src/components/buttons/common";
-import { cloudinaryPatchyWaiting } from "@dailydotdev/shared/src/lib/image";
-import type { Tone } from "../data";
-import { toneClass } from "../data";
+} from '@dailydotdev/shared/src/components/buttons/common';
+import { cloudinaryPatchyWaiting } from '@dailydotdev/shared/src/lib/image';
+import type { Tone } from '../data';
+import { toneClass } from '../data';
 
 /*
  * The dashed "Add a widget" tile at the end of a rail nobody has customized
@@ -29,9 +29,9 @@ import { toneClass } from "../data";
  * for them.
  */
 
-export type Surface = "webapp" | "extension";
+export type Surface = 'webapp' | 'extension';
 /** The empty slot's edge: production's dashes, or dots. */
-export type Edge = "dashed" | "dotted";
+export type Edge = 'dashed' | 'dotted';
 
 export const addTileCss = `
 @keyframes atEnter {
@@ -74,26 +74,26 @@ const favicon = (domain: string): string =>
 /** The extension's most visited sites; on the webapp, sites a reader pins. */
 const sites: Record<Surface, { domain: string; name: string }[]> = {
   extension: [
-    { domain: "github.com", name: "GitHub" },
-    { domain: "stackoverflow.com", name: "Stack Overflow" },
-    { domain: "mail.google.com", name: "Gmail" },
-    { domain: "claude.ai", name: "Claude" },
-    { domain: "youtube.com", name: "YouTube" },
-    { domain: "figma.com", name: "Figma" },
-    { domain: "linear.app", name: "Linear" },
-    { domain: "vercel.com", name: "Vercel" },
-    { domain: "news.ycombinator.com", name: "Hacker News" },
+    { domain: 'github.com', name: 'GitHub' },
+    { domain: 'stackoverflow.com', name: 'Stack Overflow' },
+    { domain: 'mail.google.com', name: 'Gmail' },
+    { domain: 'claude.ai', name: 'Claude' },
+    { domain: 'youtube.com', name: 'YouTube' },
+    { domain: 'figma.com', name: 'Figma' },
+    { domain: 'linear.app', name: 'Linear' },
+    { domain: 'vercel.com', name: 'Vercel' },
+    { domain: 'news.ycombinator.com', name: 'Hacker News' },
   ],
   webapp: [
-    { domain: "github.com", name: "GitHub" },
-    { domain: "linear.app", name: "Linear" },
-    { domain: "vercel.com", name: "Vercel" },
-    { domain: "figma.com", name: "Figma" },
-    { domain: "claude.ai", name: "Claude" },
-    { domain: "developer.mozilla.org", name: "MDN" },
-    { domain: "notion.so", name: "Notion" },
-    { domain: "slack.com", name: "Slack" },
-    { domain: "npmjs.com", name: "npm" },
+    { domain: 'github.com', name: 'GitHub' },
+    { domain: 'linear.app', name: 'Linear' },
+    { domain: 'vercel.com', name: 'Vercel' },
+    { domain: 'figma.com', name: 'Figma' },
+    { domain: 'claude.ai', name: 'Claude' },
+    { domain: 'developer.mozilla.org', name: 'MDN' },
+    { domain: 'notion.so', name: 'Notion' },
+    { domain: 'slack.com', name: 'Slack' },
+    { domain: 'npmjs.com', name: 'npm' },
   ],
 };
 
@@ -106,8 +106,8 @@ const Favicon = ({
 }): ReactElement => (
   <span
     className={classNames(
-      "flex shrink-0 items-center justify-center rounded-10 bg-surface-float",
-      className ?? "size-9"
+      'flex shrink-0 items-center justify-center rounded-10 bg-surface-float',
+      className ?? 'size-9',
     )}
   >
     <img
@@ -120,62 +120,62 @@ const Favicon = ({
 );
 
 export type Pick = {
-  id: "shortcuts" | "streak" | "bookmarks" | "todo" | "happening";
+  id: 'shortcuts' | 'streak' | 'bookmarks' | 'todo' | 'happening';
   name: string;
   tone: Tone;
   icon: (size: IconSize) => ReactElement;
   blurb: Record<Surface, string>;
 };
 
-export const picks: Record<Pick["id"], Pick> = {
+export const picks: Record<Pick['id'], Pick> = {
   shortcuts: {
-    id: "shortcuts",
-    name: "Shortcuts",
-    tone: "onion",
+    id: 'shortcuts',
+    name: 'Shortcuts',
+    tone: 'onion',
     icon: (size) => <ShortcutsIcon secondary size={size} />,
     blurb: {
-      webapp: "The sites you pinned, one tap from the feed.",
-      extension: "Your most visited sites, here instead of the browser bar.",
+      webapp: 'The sites you pinned, one tap from the feed.',
+      extension: 'Your most visited sites, here instead of the browser bar.',
     },
   },
   streak: {
-    id: "streak",
-    name: "Streak",
-    tone: "bacon",
+    id: 'streak',
+    name: 'Streak',
+    tone: 'bacon',
     icon: (size) => <ReadingStreakIcon secondary size={size} />,
     blurb: {
-      webapp: "Your reading streak and today’s goal.",
-      extension: "Your reading streak and today’s goal.",
+      webapp: 'Your reading streak and today’s goal.',
+      extension: 'Your reading streak and today’s goal.',
     },
   },
   bookmarks: {
-    id: "bookmarks",
-    name: "Bookmarks",
-    tone: "bun",
+    id: 'bookmarks',
+    name: 'Bookmarks',
+    tone: 'bun',
     icon: (size) => <BookmarkIcon secondary size={size} />,
     blurb: {
-      webapp: "The posts you saved, newest first.",
-      extension: "The posts you saved, newest first.",
+      webapp: 'The posts you saved, newest first.',
+      extension: 'The posts you saved, newest first.',
     },
   },
   todo: {
-    id: "todo",
-    name: "To-do list",
-    tone: "cabbage",
+    id: 'todo',
+    name: 'To-do list',
+    tone: 'cabbage',
     icon: (size) => <ChecklistAIcon secondary size={size} />,
     blurb: {
-      webapp: "A short list of things to get to today.",
-      extension: "A short list of things to get to today.",
+      webapp: 'A short list of things to get to today.',
+      extension: 'A short list of things to get to today.',
     },
   },
   happening: {
-    id: "happening",
-    name: "Happening Now",
-    tone: "avocado",
+    id: 'happening',
+    name: 'Happening Now',
+    tone: 'avocado',
     icon: (size) => <EarthIcon secondary size={size} />,
     blurb: {
-      webapp: "The major headlines, as they break.",
-      extension: "The major headlines, as they break.",
+      webapp: 'The major headlines, as they break.',
+      extension: 'The major headlines, as they break.',
     },
   },
 };
@@ -183,7 +183,7 @@ export const picks: Record<Pick["id"], Pick> = {
 /** The order the tile shows them in: the extension leads with Shortcuts. */
 export const picksFor = (surface: Surface): Pick[] => {
   const rest = [picks.happening, picks.todo, picks.streak, picks.bookmarks];
-  return surface === "extension"
+  return surface === 'extension'
     ? [picks.shortcuts, ...rest]
     : [...rest.slice(0, 2), picks.shortcuts, ...rest.slice(2)];
 };
@@ -192,8 +192,8 @@ const WIDGET_COUNT = 12;
 
 /** More kinds than the tile previews, for rows of icons. */
 const moreIcons: { tone: Tone; icon: (size: IconSize) => ReactElement }[] = [
-  { tone: "water", icon: (size) => <HashtagIcon secondary size={size} /> },
-  { tone: "cheese", icon: (size) => <FlagIcon secondary size={size} /> },
+  { tone: 'water', icon: (size) => <HashtagIcon secondary size={size} /> },
+  { tone: 'cheese', icon: (size) => <FlagIcon secondary size={size} /> },
 ];
 
 const KindTile = ({
@@ -207,10 +207,10 @@ const KindTile = ({
 }): ReactElement => (
   <span
     className={classNames(
-      "flex shrink-0 items-center justify-center",
+      'flex shrink-0 items-center justify-center',
       toneClass[pick.tone].subtle,
       toneClass[pick.tone].text,
-      className ?? "size-9 rounded-10"
+      className ?? 'size-9 rounded-10',
     )}
   >
     {pick.icon(iconSize)}
@@ -225,7 +225,7 @@ const IconStrip = ({
   surface: Surface;
   className?: string;
 }): ReactElement => (
-  <span className={classNames("flex items-center -space-x-1", className)}>
+  <span className={classNames('flex items-center -space-x-1', className)}>
     {picksFor(surface)
       .slice(0, 5)
       .map((pick) => (
@@ -247,7 +247,7 @@ const FaviconStrip = ({
   count?: number;
   className?: string;
 }): ReactElement => (
-  <span className={classNames("flex items-center -space-x-1", className)}>
+  <span className={classNames('flex items-center -space-x-1', className)}>
     {sites[surface].slice(0, count).map(({ domain }) => (
       <Favicon
         key={domain}
@@ -263,7 +263,7 @@ const FaviconStrip = ({
 /* ------------------------------------------------------------------ */
 
 const Bar = ({ className }: { className?: string }): ReactElement => (
-  <span className={classNames("h-2 rounded-max bg-surface-float", className)} />
+  <span className={classNames('h-2 rounded-max bg-surface-float', className)} />
 );
 
 const MiniCard = ({
@@ -277,8 +277,8 @@ const MiniCard = ({
 }): ReactElement => (
   <div
     className={classNames(
-      "flex flex-col gap-2.5 rounded-12 border border-border-subtlest-tertiary bg-background-default p-3 shadow-2",
-      className
+      'flex flex-col gap-2.5 rounded-12 border border-border-subtlest-tertiary bg-background-default p-3 shadow-2',
+      className,
     )}
   >
     <div className="flex items-center gap-1.5">
@@ -310,12 +310,12 @@ export const Mini = ({
     outerClassName,
     isTinted &&
       classNames(
-        "bg-gradient-to-b to-background-default",
-        toneClass[pick.tone].wash
-      )
+        'bg-gradient-to-b to-background-default',
+        toneClass[pick.tone].wash,
+      ),
   );
   switch (pick.id) {
-    case "streak":
+    case 'streak':
       return (
         <MiniCard pick={pick} className={className}>
           <div className="flex items-baseline gap-1.5">
@@ -331,65 +331,65 @@ export const Mini = ({
                 // eslint-disable-next-line react/no-array-index-key
                 key={day}
                 className={classNames(
-                  "size-2.5 rounded-max",
-                  day < 5 ? toneClass.bacon.fill : "bg-surface-float"
+                  'size-2.5 rounded-max',
+                  day < 5 ? toneClass.bacon.fill : 'bg-surface-float',
                 )}
               />
             ))}
           </div>
         </MiniCard>
       );
-    case "bookmarks":
+    case 'bookmarks':
       return (
         <MiniCard pick={pick} className={className}>
           {[0, 1, 2].map((row) => (
             <div key={row} className="flex items-center gap-2">
               <span className="size-6 shrink-0 rounded-6 bg-surface-float" />
               <span className="flex flex-1 flex-col gap-1">
-                <Bar className={row === 1 ? "w-3/4" : "w-full"} />
+                <Bar className={row === 1 ? 'w-3/4' : 'w-full'} />
                 <Bar className="w-1/3" />
               </span>
             </div>
           ))}
         </MiniCard>
       );
-    case "todo":
+    case 'todo':
       return (
         <MiniCard pick={pick} className={className}>
-          {["Review the PR", "Reply to Ido", "Ship the widget"].map(
+          {['Review the PR', 'Reply to Ido', 'Ship the widget'].map(
             (task, row) => (
               <div key={task} className="flex items-center gap-2">
                 <span
                   className={classNames(
-                    "flex size-4 shrink-0 items-center justify-center rounded-4 border",
+                    'flex size-4 shrink-0 items-center justify-center rounded-4 border',
                     row === 0
-                      ? "border-accent-cabbage-default bg-accent-cabbage-default text-white"
-                      : "border-border-subtlest-primary"
+                      ? 'border-accent-cabbage-default bg-accent-cabbage-default text-white'
+                      : 'border-border-subtlest-primary',
                   )}
                 >
                   {row === 0 && <VIcon size={IconSize.XXSmall} />}
                 </span>
                 <span
                   className={classNames(
-                    "truncate typo-caption1",
+                    'truncate typo-caption1',
                     row === 0
-                      ? "text-text-quaternary line-through"
-                      : "text-text-secondary"
+                      ? 'text-text-quaternary line-through'
+                      : 'text-text-secondary',
                   )}
                 >
                   {task}
                 </span>
               </div>
-            )
+            ),
           )}
         </MiniCard>
       );
-    case "happening":
+    case 'happening':
       return (
         <MiniCard pick={pick} className={className}>
           {[
-            "OpenAI ships GPT‑6 to the API",
-            "Bun 2.0 lands with Node parity",
+            'OpenAI ships GPT‑6 to the API',
+            'Bun 2.0 lands with Node parity',
           ].map((title) => (
             <div key={title} className="flex items-start gap-2">
               <span className="mt-1.5 size-1.5 shrink-0 rounded-max bg-accent-avocado-default" />
@@ -400,7 +400,7 @@ export const Mini = ({
           ))}
         </MiniCard>
       );
-    case "shortcuts":
+    case 'shortcuts':
     default:
       return (
         <MiniCard pick={pick} className={className}>
@@ -421,7 +421,7 @@ export const Mini = ({
 const useCycle = (
   length: number,
   dwell: (index: number) => number,
-  isPaused: boolean
+  isPaused: boolean,
 ): number => {
   const [index, setIndex] = useState(0);
   useEffect(() => {
@@ -430,7 +430,7 @@ const useCycle = (
     }
     const id = window.setTimeout(
       () => setIndex((current) => (current + 1) % length),
-      dwell(index)
+      dwell(index),
     );
     return () => window.clearTimeout(id);
   }, [index, length, dwell, isPaused]);
@@ -438,11 +438,11 @@ const useCycle = (
 };
 
 const frameClassName =
-  "add-tile group relative flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-16 border-2 border-border-subtlest-secondary text-left transition-colors duration-200 hover:border-border-subtlest-primary hover:bg-surface-hover motion-reduce:transition-none";
+  'add-tile group relative flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-16 border-2 border-border-subtlest-secondary text-left transition-colors duration-200 hover:border-border-subtlest-primary hover:bg-surface-hover motion-reduce:transition-none';
 
 const edgeClassName: Record<Edge, string> = {
-  dashed: "border-dashed",
-  dotted: "border-dotted",
+  dashed: 'border-dashed',
+  dotted: 'border-dotted',
 };
 
 /**
@@ -451,7 +451,7 @@ const edgeClassName: Record<Edge, string> = {
  * thing to click; the rest of the tile shows what the click gives.
  */
 const TileGroup = ({
-  label = "Add a widget",
+  label = 'Add a widget',
   edge,
   className,
   onHover,
@@ -487,8 +487,8 @@ const PrimaryCta = ({
 }): ReactElement => (
   <div
     className={classNames(
-      "flex flex-col items-center gap-2 px-4 pb-4",
-      className
+      'flex flex-col items-center gap-2 px-4 pb-4',
+      className,
     )}
   >
     <Button
@@ -541,10 +541,10 @@ const Dots = ({
         // eslint-disable-next-line react/no-array-index-key
         key={dot}
         className={classNames(
-          "h-1 rounded-max transition-all duration-300",
+          'h-1 rounded-max transition-all duration-300',
           dot === index
-            ? "w-3 bg-text-primary"
-            : "w-1 bg-border-subtlest-primary"
+            ? 'w-3 bg-text-primary'
+            : 'w-1 bg-border-subtlest-primary',
         )}
       />
     ))}
@@ -570,7 +570,7 @@ export const RotatingStageTile = ({
   const [isHovered, setIsHovered] = useState(false);
   const index = useCycle(list.length, () => 3200, isHovered);
   const pick = list[index];
-  const isSites = pick.id === "shortcuts" && surface === "extension";
+  const isSites = pick.id === 'shortcuts' && surface === 'extension';
 
   return (
     <TileGroup edge={edge} onHover={setIsHovered}>
@@ -595,7 +595,7 @@ export const RotatingStageTile = ({
         </span>
       </div>
       <PrimaryCta secondary={`or browse all ${WIDGET_COUNT}`}>
-        Add {isSites ? "your shortcuts" : pick.name}
+        Add {isSites ? 'your shortcuts' : pick.name}
       </PrimaryCta>
     </TileGroup>
   );
@@ -612,9 +612,9 @@ export const RotatingStageTile = ({
  */
 export const HandOfCardsTile = ({ surface, edge }: TileProps): ReactElement => {
   const [front, left, right] = picksFor(surface);
-  const isExtension = surface === "extension";
+  const isExtension = surface === 'extension';
   const card =
-    "absolute left-1/2 top-1/2 w-40 transition-transform duration-500 ease-out motion-reduce:transition-none";
+    'absolute left-1/2 top-1/2 w-40 transition-transform duration-500 ease-out motion-reduce:transition-none';
 
   return (
     <TileGroup edge={edge}>
@@ -622,25 +622,25 @@ export const HandOfCardsTile = ({ surface, edge }: TileProps): ReactElement => {
         <div
           className={classNames(
             card,
-            "-translate-x-1/2 -translate-y-1/2 -rotate-12 group-hover:-translate-x-[72%] group-hover:-rotate-[18deg]"
+            '-translate-x-1/2 -translate-y-1/2 -rotate-12 group-hover:-translate-x-[72%] group-hover:-rotate-[18deg]',
           )}
-          style={{ marginLeft: "-3.5rem", marginTop: "1.25rem" }}
+          style={{ marginLeft: '-3.5rem', marginTop: '1.25rem' }}
         >
           <Mini pick={left} surface={surface} />
         </div>
         <div
           className={classNames(
             card,
-            "-translate-x-1/2 -translate-y-1/2 rotate-12 group-hover:-translate-x-[28%] group-hover:rotate-[18deg]"
+            '-translate-x-1/2 -translate-y-1/2 rotate-12 group-hover:-translate-x-[28%] group-hover:rotate-[18deg]',
           )}
-          style={{ marginLeft: "3.5rem", marginTop: "1.25rem" }}
+          style={{ marginLeft: '3.5rem', marginTop: '1.25rem' }}
         >
           <Mini pick={right} surface={surface} />
         </div>
         <div
           className={classNames(
             card,
-            "-translate-x-1/2 -translate-y-1/2 group-hover:-translate-y-[56%]"
+            '-translate-x-1/2 -translate-y-1/2 group-hover:-translate-y-[56%]',
           )}
         >
           <Mini pick={front} surface={surface} />
@@ -648,7 +648,7 @@ export const HandOfCardsTile = ({ surface, edge }: TileProps): ReactElement => {
       </div>
       <div className="flex flex-col gap-1 px-4 pb-3">
         <span className="font-bold text-text-primary typo-callout">
-          {isExtension ? "Start with your shortcuts" : "Pick your first widget"}
+          {isExtension ? 'Start with your shortcuts' : 'Pick your first widget'}
         </span>
         <span className="text-text-tertiary typo-footnote">
           {isExtension
@@ -659,7 +659,7 @@ export const HandOfCardsTile = ({ surface, edge }: TileProps): ReactElement => {
         </span>
       </div>
       <PrimaryCta>
-        {isExtension ? "Add your shortcuts" : "Add a widget"}
+        {isExtension ? 'Add your shortcuts' : 'Add a widget'}
       </PrimaryCta>
     </TileGroup>
   );
@@ -677,7 +677,7 @@ export const HandOfCardsTile = ({ surface, edge }: TileProps): ReactElement => {
  */
 export const OrbitTile = ({ surface, edge }: TileProps): ReactElement => {
   const list = picksFor(surface);
-  const isExtension = surface === "extension";
+  const isExtension = surface === 'extension';
   const radius = 5;
 
   return (
@@ -690,7 +690,7 @@ export const OrbitTile = ({ surface, edge }: TileProps): ReactElement => {
               left: `calc(50% + ${Math.cos(angle) * radius}rem)`,
               top: `calc(50% + ${Math.sin(angle) * radius}rem)`,
             };
-            const isSites = surface === "extension" && pick.id === "shortcuts";
+            const isSites = surface === 'extension' && pick.id === 'shortcuts';
             return (
               <span
                 key={pick.id}
@@ -724,16 +724,16 @@ export const OrbitTile = ({ surface, edge }: TileProps): ReactElement => {
       </div>
       <div className="flex flex-col gap-1 px-4 pb-3 text-center">
         <span className="font-bold text-text-primary typo-callout">
-          {isExtension ? "Your shortcuts and 11 more" : "Pick a widget"}
+          {isExtension ? 'Your shortcuts and 11 more' : 'Pick a widget'}
         </span>
         <span className="text-text-tertiary typo-footnote">
           {isExtension
-            ? "Your most visited sites, your streak, your bookmarks."
+            ? 'Your most visited sites, your streak, your bookmarks.'
             : `${WIDGET_COUNT} to choose from, each in three sizes.`}
         </span>
       </div>
-      <PrimaryCta secondary={isExtension ? "or any other widget" : undefined}>
-        {isExtension ? "Add your shortcuts" : "Add a widget"}
+      <PrimaryCta secondary={isExtension ? 'or any other widget' : undefined}>
+        {isExtension ? 'Add your shortcuts' : 'Add a widget'}
       </PrimaryCta>
     </TileGroup>
   );
@@ -750,7 +750,7 @@ export const OrbitTile = ({ surface, edge }: TileProps): ReactElement => {
  * below. On the webapp the grid is the widgets' icons.
  */
 export const YourSitesTile = ({ surface, edge }: TileProps): ReactElement => {
-  const isExtension = surface === "extension";
+  const isExtension = surface === 'extension';
   const list = picksFor(surface);
 
   return (
@@ -773,30 +773,30 @@ export const YourSitesTile = ({ surface, edge }: TileProps): ReactElement => {
                     // eslint-disable-next-line react/no-array-index-key
                     key={index}
                     className={classNames(
-                      "flex h-14 items-center justify-center rounded-12",
+                      'flex h-14 items-center justify-center rounded-12',
                       toneClass[item.tone].subtle,
-                      toneClass[item.tone].text
+                      toneClass[item.tone].text,
                     )}
                   >
                     {item.icon(IconSize.Small)}
                   </span>
-                )
+                ),
               )}
         </div>
         <span className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-background-default to-transparent" />
       </div>
       <div className="flex flex-col gap-1 px-4 pb-3">
         <span className="font-bold text-text-primary typo-callout">
-          {isExtension ? "Your shortcuts belong here" : "Add a widget"}
+          {isExtension ? 'Your shortcuts belong here' : 'Add a widget'}
         </span>
         <span className="text-text-tertiary typo-footnote">
           {isExtension
-            ? "The sites you open most, where your new tab starts."
-            : "Streak, bookmarks, shortcuts, to-do and more."}
+            ? 'The sites you open most, where your new tab starts.'
+            : 'Streak, bookmarks, shortcuts, to-do and more.'}
         </span>
       </div>
-      <PrimaryCta secondary={isExtension ? "or any other widget" : undefined}>
-        {isExtension ? "Add your shortcuts" : "Add a widget"}
+      <PrimaryCta secondary={isExtension ? 'or any other widget' : undefined}>
+        {isExtension ? 'Add your shortcuts' : 'Add a widget'}
       </PrimaryCta>
     </TileGroup>
   );
@@ -831,7 +831,7 @@ export const QuickPicksTile = ({ surface, edge }: TileProps): ReactElement => {
                 <span className="truncate font-bold text-text-primary typo-footnote">
                   {pick.name}
                 </span>
-                {surface === "extension" && pick.id === "shortcuts" && (
+                {surface === 'extension' && pick.id === 'shortcuts' && (
                   <span className="rounded-6 bg-accent-onion-flat px-1.5 text-accent-onion-default typo-caption2">
                     New tab
                   </span>
@@ -864,7 +864,7 @@ export const QuickPicksTile = ({ surface, edge }: TileProps): ReactElement => {
  */
 export const TryOneTile = ({ surface, edge }: TileProps): ReactElement => {
   const [pick] = picksFor(surface);
-  const isSites = pick.id === "shortcuts";
+  const isSites = pick.id === 'shortcuts';
 
   return (
     <TileGroup edge={edge}>
@@ -906,10 +906,10 @@ export const TryOneTile = ({ surface, edge }: TileProps): ReactElement => {
                     // eslint-disable-next-line react/no-array-index-key
                     key={day}
                     className={classNames(
-                      "aspect-square rounded-4",
+                      'aspect-square rounded-4',
                       day >= 14 && day < 26
                         ? toneClass.bacon.fill
-                        : "bg-surface-float"
+                        : 'bg-surface-float',
                     )}
                   />
                 ))}
@@ -923,15 +923,15 @@ export const TryOneTile = ({ surface, edge }: TileProps): ReactElement => {
         <KindTile pick={pick} className="size-8 rounded-10" />
         <span className="flex min-w-0 flex-1 flex-col">
           <span className="truncate font-bold text-text-primary typo-footnote">
-            {isSites ? "Your shortcuts" : pick.name}
+            {isSites ? 'Your shortcuts' : pick.name}
           </span>
           <span className="truncate text-text-tertiary typo-caption2">
-            {isSites ? "Could live right here" : "What most readers add first"}
+            {isSites ? 'Could live right here' : 'What most readers add first'}
           </span>
         </span>
       </div>
       <PrimaryCta secondary="or choose another widget">
-        Add {isSites ? "your shortcuts" : pick.name}
+        Add {isSites ? 'your shortcuts' : pick.name}
       </PrimaryCta>
     </TileGroup>
   );
@@ -948,7 +948,7 @@ export const TryOneTile = ({ surface, edge }: TileProps): ReactElement => {
  * the strip is the reader's favicons and the line names the shortcuts.
  */
 export const BeaconTile = ({ surface, edge }: TileProps): ReactElement => {
-  const isExtension = surface === "extension";
+  const isExtension = surface === 'extension';
 
   return (
     <TileGroup edge={edge}>
@@ -959,12 +959,12 @@ export const BeaconTile = ({ surface, edge }: TileProps): ReactElement => {
           <SparkleIcon secondary size={IconSize.XLarge} />
         </span>
         <span className="text-balance font-bold text-text-primary typo-title3">
-          {isExtension ? "Bring your shortcuts here" : "Make this space yours"}
+          {isExtension ? 'Bring your shortcuts here' : 'Make this space yours'}
         </span>
         <span className="text-pretty text-text-secondary typo-footnote">
           {isExtension
-            ? "Your most visited sites, your streak, your bookmarks, whatever your new tab should open with."
-            : "Your streak, your bookmarks, your shortcuts, a to-do list. Pick what your day starts with."}
+            ? 'Your most visited sites, your streak, your bookmarks, whatever your new tab should open with.'
+            : 'Your streak, your bookmarks, your shortcuts, a to-do list. Pick what your day starts with.'}
         </span>
       </div>
       <div className="relative flex justify-center pb-3">
@@ -975,7 +975,7 @@ export const BeaconTile = ({ surface, edge }: TileProps): ReactElement => {
         )}
       </div>
       <PrimaryCta className="relative">
-        {isExtension ? "Add your shortcuts" : "Add a widget"}
+        {isExtension ? 'Add your shortcuts' : 'Add a widget'}
       </PrimaryCta>
     </TileGroup>
   );
@@ -993,7 +993,7 @@ export const BeaconTile = ({ surface, edge }: TileProps): ReactElement => {
  */
 export const PatchyTile = ({ surface, edge }: TileProps): ReactElement => {
   const [first, ...others] = picksFor(surface).slice(0, 3);
-  const isSites = first.id === "shortcuts" && surface === "extension";
+  const isSites = first.id === 'shortcuts' && surface === 'extension';
 
   return (
     <TileGroup edge={edge}>
@@ -1005,9 +1005,9 @@ export const PatchyTile = ({ surface, edge }: TileProps): ReactElement => {
         />
         <span className="relative rounded-14 bg-surface-float px-3 py-2 text-center text-text-primary typo-footnote">
           <span className="absolute -top-1.5 left-1/2 size-3 -translate-x-1/2 rotate-45 bg-surface-float" />
-          {surface === "extension"
-            ? "Your new tab. What goes here?"
-            : "What should go here?"}
+          {surface === 'extension'
+            ? 'Your new tab. What goes here?'
+            : 'What should go here?'}
         </span>
       </div>
       <div className="flex flex-wrap justify-center gap-1.5 px-3 pb-3 pt-3">
@@ -1032,7 +1032,7 @@ export const PatchyTile = ({ surface, edge }: TileProps): ReactElement => {
         </button>
       </div>
       <PrimaryCta>
-        {isSites ? "Add your shortcuts" : `Add ${first.name}`}
+        {isSites ? 'Add your shortcuts' : `Add ${first.name}`}
       </PrimaryCta>
     </TileGroup>
   );
@@ -1054,11 +1054,11 @@ export const SplitFlapTile = ({ surface, edge }: TileProps): ReactElement => {
   const index = useCycle(
     list.length,
     (current) =>
-      surface === "extension" && list[current].id === "shortcuts" ? 4200 : 2100,
-    isHovered
+      surface === 'extension' && list[current].id === 'shortcuts' ? 4200 : 2100,
+    isHovered,
   );
   const pick = list[index];
-  const isSites = pick.id === "shortcuts" && surface === "extension";
+  const isSites = pick.id === 'shortcuts' && surface === 'extension';
 
   return (
     <TileGroup edge={edge} onHover={setIsHovered}>
@@ -1076,11 +1076,11 @@ export const SplitFlapTile = ({ surface, edge }: TileProps): ReactElement => {
             <span
               key={pick.id}
               className={classNames(
-                "at-flap font-bold typo-title2",
-                toneClass[pick.tone].text
+                'at-flap font-bold typo-title2',
+                toneClass[pick.tone].text,
               )}
             >
-              {isSites ? "your shortcuts" : pick.name}
+              {isSites ? 'your shortcuts' : pick.name}
             </span>
           </span>
         </span>
@@ -1088,12 +1088,12 @@ export const SplitFlapTile = ({ surface, edge }: TileProps): ReactElement => {
       <div className="flex flex-col items-center gap-2 px-4 pb-3 text-center">
         <span className="line-clamp-2 text-text-tertiary typo-footnote">
           {isSites
-            ? "Your new tab’s sites live here now."
+            ? 'Your new tab’s sites live here now.'
             : `or any of ${WIDGET_COUNT} widgets`}
         </span>
         <Dots count={list.length} index={index} />
       </div>
-      <PrimaryCta>Add {isSites ? "your shortcuts" : pick.name}</PrimaryCta>
+      <PrimaryCta>Add {isSites ? 'your shortcuts' : pick.name}</PrimaryCta>
     </TileGroup>
   );
 };
@@ -1109,10 +1109,10 @@ export const SplitFlapTile = ({ surface, edge }: TileProps): ReactElement => {
  * this slot can do without opening anything.
  */
 export const TwoDoorsTile = ({ surface, edge }: TileProps): ReactElement => {
-  const isExtension = surface === "extension";
+  const isExtension = surface === 'extension';
   const [featured] = picksFor(surface);
   const door =
-    "flex flex-1 flex-col items-center justify-center gap-3 px-4 text-center";
+    'flex flex-1 flex-col items-center justify-center gap-3 px-4 text-center';
 
   return (
     <TileGroup edge={edge}>
@@ -1134,8 +1134,8 @@ export const TwoDoorsTile = ({ surface, edge }: TileProps): ReactElement => {
       <div
         className={classNames(
           door,
-          "bg-gradient-to-t to-transparent",
-          toneClass[featured.tone].wash
+          'bg-gradient-to-t to-transparent',
+          toneClass[featured.tone].wash,
         )}
       >
         {isExtension ? (
@@ -1149,12 +1149,12 @@ export const TwoDoorsTile = ({ surface, edge }: TileProps): ReactElement => {
         )}
         <span className="flex flex-col gap-0.5">
           <span className="font-bold text-text-primary typo-callout">
-            {isExtension ? "Your shortcuts" : `Start with ${featured.name}`}
+            {isExtension ? 'Your shortcuts' : `Start with ${featured.name}`}
           </span>
           <span className="text-text-tertiary typo-footnote">
             {isExtension
-              ? "GitHub, Gmail, Claude and the rest of your new tab"
-              : "What most readers add first"}
+              ? 'GitHub, Gmail, Claude and the rest of your new tab'
+              : 'What most readers add first'}
           </span>
         </span>
         <Button
@@ -1163,7 +1163,7 @@ export const TwoDoorsTile = ({ surface, edge }: TileProps): ReactElement => {
           className="w-full"
           icon={<PlusIcon />}
         >
-          {isExtension ? "Add your shortcuts" : `Add ${featured.name}`}
+          {isExtension ? 'Add your shortcuts' : `Add ${featured.name}`}
         </Button>
       </div>
     </TileGroup>
@@ -1181,63 +1181,63 @@ export type Variation = {
 
 export const variations: Variation[] = [
   {
-    id: "stage",
-    name: "1. Rotating stage",
-    note: "One miniature at a time, swapped every three seconds with a soft blur and named underneath, so the tile shows what can go here instead of saying it. Hover holds the current one. The extension starts on Shortcuts and its line says where the new tab’s sites now live.",
+    id: 'stage',
+    name: '1. Rotating stage',
+    note: 'One miniature at a time, swapped every three seconds with a soft blur and named underneath, so the tile shows what can go here instead of saying it. Hover holds the current one. The extension starts on Shortcuts and its line says where the new tab’s sites now live.',
     Tile: RotatingStageTile,
   },
   {
-    id: "hand",
-    name: "2. Hand of cards",
-    note: "Three miniatures fanned like a hand, the one we suggest first on top. Hover spreads the hand. It says “there is a set to pick from” before a word is read. The extension’s top card is Shortcuts, the line says “Start with your shortcuts”.",
+    id: 'hand',
+    name: '2. Hand of cards',
+    note: 'Three miniatures fanned like a hand, the one we suggest first on top. Hover spreads the hand. It says “there is a set to pick from” before a word is read. The extension’s top card is Shortcuts, the line says “Start with your shortcuts”.',
     Tile: HandOfCardsTile,
   },
   {
-    id: "orbit",
-    name: "3. Orbit",
-    note: "The widgets’ icons on a slow ring around a plus, each in its own tint, like a launcher showing what it holds. One turn a minute, paused under the pointer. In the extension the Shortcuts chip is a cluster of the reader’s favicons at twice the size.",
+    id: 'orbit',
+    name: '3. Orbit',
+    note: 'The widgets’ icons on a slow ring around a plus, each in its own tint, like a launcher showing what it holds. One turn a minute, paused under the pointer. In the extension the Shortcuts chip is a cluster of the reader’s favicons at twice the size.',
     Tile: OrbitTile,
   },
   {
-    id: "sites",
-    name: "4. Your sites, here",
-    note: "A faint grid of what the slot would hold with a panel that names it and a primary button. In the extension the grid is the reader’s most visited sites, so the tile is the shortcuts row’s new home and “any other widget” is the second line. On the webapp the grid is the widgets’ icons.",
+    id: 'sites',
+    name: '4. Your sites, here',
+    note: 'A faint grid of what the slot would hold with a panel that names it and a primary button. In the extension the grid is the reader’s most visited sites, so the tile is the shortcuts row’s new home and “any other widget” is the second line. On the webapp the grid is the widgets’ icons.',
     Tile: YourSitesTile,
   },
   {
-    id: "picks",
-    name: "5. Quick picks",
-    note: "The tile is the gallery’s first page: four rows add that widget in one tap, the last row opens the rest. One step fewer than today and the names are right there. The extension’s first row is Shortcuts, tagged “New tab”.",
+    id: 'picks',
+    name: '5. Quick picks',
+    note: 'The tile is the gallery’s first page: four rows add that widget in one tap, the last row opens the rest. One step fewer than today and the names are right there. The extension’s first row is Shortcuts, tagged “New tab”.',
     Tile: QuickPicksTile,
   },
   {
-    id: "try",
-    name: "6. Try one",
-    note: "The slot shows what it will become: one widget drawn faintly at full size, with a card over it that names it and adds it. The before picture of the after. The extension’s ghost is the shortcuts grid with the reader’s sites.",
+    id: 'try',
+    name: '6. Try one',
+    note: 'The slot shows what it will become: one widget drawn faintly at full size, with a card over it that names it and adds it. The before picture of the after. The extension’s ghost is the shortcuts grid with the reader’s sites.',
     Tile: TryOneTile,
   },
   {
-    id: "beacon",
-    name: "7. Beacon",
-    note: "The one tile on the rail that glows: two soft orbs of our accent behind the surface, a sparkle, and an invitation (“Make this space yours”) over an instruction. The chips along the bottom are the widgets; in the extension they are the reader’s favicons and the title says “Bring your shortcuts here”.",
+    id: 'beacon',
+    name: '7. Beacon',
+    note: 'The one tile on the rail that glows: two soft orbs of our accent behind the surface, a sparkle, and an invitation (“Make this space yours”) over an instruction. The chips along the bottom are the widgets; in the extension they are the reader’s favicons and the title says “Bring your shortcuts here”.',
     Tile: BeaconTile,
   },
   {
-    id: "patchy",
-    name: "8. Patchy asks",
-    note: "Patchy waits in the empty slot and asks what should go there; the pills answer, each adding a widget in one tap, the first one highlighted. A character instead of a dashed box, kept concrete by the pills. In the extension the first pill is “Your shortcuts” with three of the reader’s favicons in it.",
+    id: 'patchy',
+    name: '8. Patchy asks',
+    note: 'Patchy waits in the empty slot and asks what should go there; the pills answer, each adding a widget in one tap, the first one highlighted. A character instead of a dashed box, kept concrete by the pills. In the extension the first pill is “Your shortcuts” with three of the reader’s favicons in it.',
     Tile: PatchyTile,
   },
   {
-    id: "flap",
-    name: "9. Split flap",
-    note: "Type does the work: “Add” and a word that flips through the widgets’ names like a departures board, its icon flipping with it, inside the dashed frame so it still reads as an empty slot. In the extension the board lingers twice as long on “your shortcuts” and says why.",
+    id: 'flap',
+    name: '9. Split flap',
+    note: 'Type does the work: “Add” and a word that flips through the widgets’ names like a departures board, its icon flipping with it, inside the dashed frame so it still reads as an empty slot. In the extension the board lingers twice as long on “your shortcuts” and says why.',
     Tile: SplitFlapTile,
   },
   {
-    id: "doors",
-    name: "10. Two doors",
-    note: "The Tall slot split into its two Smalls, each a door: the gallery above, the one widget we most want added below, on a wash of its color. In the extension the lower door is the shortcuts row, favicons and all, so both things the slot can do are visible without opening anything.",
+    id: 'doors',
+    name: '10. Two doors',
+    note: 'The Tall slot split into its two Smalls, each a door: the gallery above, the one widget we most want added below, on a wash of its color. In the extension the lower door is the shortcuts row, favicons and all, so both things the slot can do are visible without opening anything.',
     Tile: TwoDoorsTile,
   },
 ];
@@ -1257,7 +1257,7 @@ export const variations: Variation[] = [
 
 /** Today's center, with the one button under it. */
 const CenterAction = ({ surface }: { surface: Surface }): ReactElement => {
-  const isExtension = surface === "extension";
+  const isExtension = surface === 'extension';
   const [first, second, third] = picksFor(surface);
 
   return (
@@ -1267,7 +1267,7 @@ const CenterAction = ({ surface }: { surface: Surface }): ReactElement => {
         className="pointer-events-none absolute left-1/2 top-1/2 size-72 -translate-x-1/2 -translate-y-1/2"
         style={{
           background:
-            "radial-gradient(closest-side, var(--theme-background-default) 45%, transparent 100%)",
+            'radial-gradient(closest-side, var(--theme-background-default) 45%, transparent 100%)',
         }}
       />
       <span className="relative flex size-14 items-center justify-center rounded-max bg-surface-float text-text-primary transition-transform duration-300 group-hover:scale-110 motion-reduce:transition-none">
@@ -1292,7 +1292,7 @@ const CenterAction = ({ surface }: { surface: Surface }): ReactElement => {
         size={ButtonSize.Medium}
         className="relative w-full"
       >
-        {isExtension ? "Add your shortcuts" : "Add a widget"}
+        {isExtension ? 'Add your shortcuts' : 'Add a widget'}
       </Button>
       {isExtension && (
         <button
@@ -1320,8 +1320,8 @@ const BackLayer = ({
   <div
     aria-hidden
     className={classNames(
-      "pointer-events-none absolute inset-0 opacity-64 transition-opacity duration-500 group-hover:opacity-100 motion-reduce:transition-none",
-      className
+      'pointer-events-none absolute inset-0 opacity-64 transition-opacity duration-500 group-hover:opacity-100 motion-reduce:transition-none',
+      className,
     )}
   >
     {children}
@@ -1339,8 +1339,8 @@ const BackCard = ({
 }): ReactElement => (
   <div
     className={classNames(
-      "absolute w-36 transition-transform duration-500 ease-out motion-reduce:transition-none",
-      className
+      'absolute w-36 transition-transform duration-500 ease-out motion-reduce:transition-none',
+      className,
     )}
   >
     <Mini pick={pick} surface={surface} />
@@ -1512,33 +1512,33 @@ export const PeekTile = ({ surface, edge }: TileProps): ReactElement => {
 
 export const roundTwo: Variation[] = [
   {
-    id: "fan-behind",
-    name: "11. Fan behind",
-    note: "Today’s center (plus, “Add a widget”, the button) with the hand of cards fanned above it, the suggested widget on top. Hover spreads the fan and lifts the plus. The closest to 2 with today’s bones.",
+    id: 'fan-behind',
+    name: '11. Fan behind',
+    note: 'Today’s center (plus, “Add a widget”, the button) with the hand of cards fanned above it, the suggested widget on top. Hover spreads the fan and lifts the plus. The closest to 2 with today’s bones.',
     Tile: FanBehindTile,
   },
   {
-    id: "spread",
-    name: "12. Spread to the corners",
-    note: "The center stays clean and four cards sit in the corners, each half past the frame, so they read as what is lying around waiting to be picked up. Hover nudges them outward.",
+    id: 'spread',
+    name: '12. Spread to the corners',
+    note: 'The center stays clean and four cards sit in the corners, each half past the frame, so they read as what is lying around waiting to be picked up. Hover nudges them outward.',
     Tile: SpreadTile,
   },
   {
-    id: "card-orbit",
-    name: "13. Orbit of cards",
-    note: "The orbit from 3 with the cards from 2: four miniatures on a ring around the center, turning once a minute, paused under the pointer. The center block sits on a soft fade so the words stay readable as cards pass behind.",
+    id: 'card-orbit',
+    name: '13. Orbit of cards',
+    note: 'The orbit from 3 with the cards from 2: four miniatures on a ring around the center, turning once a minute, paused under the pointer. The center block sits on a soft fade so the words stay readable as cards pass behind.',
     Tile: CardOrbitTile,
   },
   {
-    id: "deck",
-    name: "14. Deck behind",
-    note: "A straight pile: the suggested widget in front, two behind it stepping back and shrinking, the center under the pile. The quietest of the five; hover lifts the back cards.",
+    id: 'deck',
+    name: '14. Deck behind',
+    note: 'A straight pile: the suggested widget in front, two behind it stepping back and shrinking, the center under the pile. The quietest of the five; hover lifts the back cards.',
     Tile: DeckBehindTile,
   },
   {
-    id: "peek",
-    name: "15. Peeking in",
-    note: "Four cards tucked into the frame’s four sides, cropped by it, as if more were just outside the slot. Hover slides each a little further in.",
+    id: 'peek',
+    name: '15. Peeking in',
+    note: 'Four cards tucked into the frame’s four sides, cropped by it, as if more were just outside the slot. Hover slides each a little further in.',
     Tile: PeekTile,
   },
 ];
@@ -1556,13 +1556,13 @@ export const roundTwo: Variation[] = [
  */
 
 /** How the square is painted: today's quiet float, our primary, or brand. */
-export type SquareLook = "float" | "primary" | "brand";
+export type SquareLook = 'float' | 'primary' | 'brand';
 
 const squareClassName: Record<SquareLook, string> = {
   float:
-    "bg-surface-float text-text-primary group-hover:bg-text-primary group-hover:text-surface-invert",
-  primary: "bg-text-primary text-surface-invert",
-  brand: "bg-accent-cabbage-default text-white",
+    'bg-surface-float text-text-primary group-hover:bg-text-primary group-hover:text-surface-invert',
+  primary: 'bg-text-primary text-surface-invert',
+  brand: 'bg-accent-cabbage-default text-white',
 };
 
 export type RoundThreeProps = TileProps & {
@@ -1573,7 +1573,7 @@ export type RoundThreeProps = TileProps & {
 
 /** No hover fill: the cards fade into the slot, and a fill would band. */
 const slotClassName =
-  "add-tile group relative flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-16 border-2 border-border-subtlest-secondary text-left transition-colors duration-200 hover:border-border-subtlest-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default motion-reduce:transition-none";
+  'add-tile group relative flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-16 border-2 border-border-subtlest-secondary text-left transition-colors duration-200 hover:border-border-subtlest-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default motion-reduce:transition-none';
 
 /** The whole slot is the one button; the square is where the eye lands. */
 const AddSlot = ({
@@ -1590,9 +1590,9 @@ const AddSlot = ({
   <button
     type="button"
     aria-label={
-      surface === "extension"
-        ? "Add a widget, like your shortcuts"
-        : "Add a widget"
+      surface === 'extension'
+        ? 'Add a widget, like your shortcuts'
+        : 'Add a widget'
     }
     onMouseEnter={() => onHover?.(true)}
     onMouseLeave={() => onHover?.(false)}
@@ -1615,14 +1615,14 @@ const AddHead = ({
 }): ReactElement => (
   <span
     className={classNames(
-      "relative z-1 flex flex-col items-center gap-3 px-4 text-center",
-      isCentered ? "pt-28" : "pt-10"
+      'relative z-1 flex flex-col items-center gap-3 px-4 text-center',
+      isCentered ? 'pt-28' : 'pt-10',
     )}
   >
     <span
       className={classNames(
-        "flex size-14 items-center justify-center rounded-16 shadow-2 transition-[transform,background-color,color] duration-200 group-hover:scale-105 group-active:scale-95 motion-reduce:transition-none",
-        squareClassName[square]
+        'flex size-14 items-center justify-center rounded-16 shadow-2 transition-[transform,background-color,color] duration-200 group-hover:scale-105 group-active:scale-95 motion-reduce:transition-none',
+        squareClassName[square],
       )}
     >
       <PlusIcon size={IconSize.Large} />
@@ -1632,9 +1632,9 @@ const AddHead = ({
         Add a widget
       </span>
       <span className="text-text-tertiary typo-footnote">
-        {surface === "extension"
-          ? "Shortcuts, Happening Now, To-do list, Streak and more"
-          : "Happening Now, To-do list, Shortcuts, Streak and more"}
+        {surface === 'extension'
+          ? 'Shortcuts, Happening Now, To-do list, Streak and more'
+          : 'Happening Now, To-do list, Shortcuts, Streak and more'}
       </span>
     </span>
   </span>
@@ -1653,9 +1653,9 @@ const CardFloor = ({
   <span
     aria-hidden
     className={classNames(
-      "relative block flex-1",
-      isCentered ? "mt-3" : "mt-6",
-      className
+      'relative block flex-1',
+      isCentered ? 'mt-3' : 'mt-6',
+      className,
     )}
   >
     {children}
@@ -1672,7 +1672,7 @@ export const FanBelowTile = ({
 }: RoundThreeProps): ReactElement => {
   const [front, left, right] = picksFor(surface);
   const card =
-    "absolute w-40 transition-transform duration-500 ease-out motion-reduce:transition-none";
+    'absolute w-40 transition-transform duration-500 ease-out motion-reduce:transition-none';
 
   return (
     <AddSlot edge={edge} surface={surface}>
@@ -1681,8 +1681,8 @@ export const FanBelowTile = ({
         <span
           className={classNames(
             card,
-            "left-1/2 -translate-x-[92%] -rotate-12 group-hover:-translate-x-[104%] group-hover:-rotate-[16deg]",
-            isCentered ? "top-8" : "top-14"
+            'left-1/2 -translate-x-[92%] -rotate-12 group-hover:-translate-x-[104%] group-hover:-rotate-[16deg]',
+            isCentered ? 'top-8' : 'top-14',
           )}
         >
           <Mini pick={left} surface={surface} />
@@ -1690,8 +1690,8 @@ export const FanBelowTile = ({
         <span
           className={classNames(
             card,
-            "left-1/2 -translate-x-[8%] rotate-12 group-hover:translate-x-[4%] group-hover:rotate-[16deg]",
-            isCentered ? "top-8" : "top-14"
+            'left-1/2 -translate-x-[8%] rotate-12 group-hover:translate-x-[4%] group-hover:rotate-[16deg]',
+            isCentered ? 'top-8' : 'top-14',
           )}
         >
           <Mini pick={right} surface={surface} />
@@ -1699,8 +1699,8 @@ export const FanBelowTile = ({
         <span
           className={classNames(
             card,
-            "left-1/2 -translate-x-1/2 group-hover:-translate-y-2",
-            isCentered ? "top-2" : "top-8"
+            'left-1/2 -translate-x-1/2 group-hover:-translate-y-2',
+            isCentered ? 'top-2' : 'top-8',
           )}
         >
           <Mini pick={front} surface={surface} />
@@ -1724,7 +1724,7 @@ export const SmartStackTile = ({
   const index = useCycle(list.length, () => 3200, isHovered);
   const pick = list[index];
   const edgeCard =
-    "absolute inset-0 rounded-12 border border-border-subtlest-tertiary bg-background-default";
+    'absolute inset-0 rounded-12 border border-border-subtlest-tertiary bg-background-default';
 
   return (
     <AddSlot edge={edge} surface={surface} onHover={setIsHovered}>
@@ -1732,17 +1732,17 @@ export const SmartStackTile = ({
       <CardFloor className="flex justify-center">
         <span className="relative -mt-4 block w-48 self-center">
           <span
-            className={classNames(edgeCard, "opacity-40")}
+            className={classNames(edgeCard, 'opacity-40')}
             style={{
-              transform: "translateY(1.25rem) scale(0.84)",
-              transformOrigin: "bottom center",
+              transform: 'translateY(1.25rem) scale(0.84)',
+              transformOrigin: 'bottom center',
             }}
           />
           <span
-            className={classNames(edgeCard, "opacity-64 shadow-2")}
+            className={classNames(edgeCard, 'opacity-64 shadow-2')}
             style={{
-              transform: "translateY(0.625rem) scale(0.92)",
-              transformOrigin: "bottom center",
+              transform: 'translateY(0.625rem) scale(0.92)',
+              transformOrigin: 'bottom center',
             }}
           />
           <span key={pick.id} className="at-enter relative block">
@@ -1753,10 +1753,10 @@ export const SmartStackTile = ({
               <span
                 key={item.id}
                 className={classNames(
-                  "w-1 rounded-max transition-all duration-300",
+                  'w-1 rounded-max transition-all duration-300',
                   dot === index
-                    ? "h-3 bg-text-primary"
-                    : "h-1 bg-border-subtlest-primary"
+                    ? 'h-3 bg-text-primary'
+                    : 'h-1 bg-border-subtlest-primary',
                 )}
               />
             ))}
@@ -1780,10 +1780,10 @@ export const WalletTile = ({
   // Filed back to front, so the lead widget is the open card.
   const list = picksFor(surface).slice(0, 4).reverse();
   const spread = [
-    "group-hover:-translate-y-3",
-    "group-hover:-translate-y-2",
-    "group-hover:-translate-y-1",
-    "",
+    'group-hover:-translate-y-3',
+    'group-hover:-translate-y-2',
+    'group-hover:-translate-y-1',
+    '',
   ].slice(-list.length);
   const step = isCentered ? 2 : 2.5;
 
@@ -1795,8 +1795,8 @@ export const WalletTile = ({
           <span
             key={pick.id}
             className={classNames(
-              "absolute inset-x-6 block transition-transform duration-500 ease-out motion-reduce:transition-none",
-              spread[index]
+              'absolute inset-x-6 block transition-transform duration-500 ease-out motion-reduce:transition-none',
+              spread[index],
             )}
             style={{ top: `${0.5 + index * step}rem` }}
           >
@@ -1826,15 +1826,15 @@ export const CascadeTile = ({
   const steps = [
     {
       pick: third,
-      at: "0",
-      hover: "group-hover:-translate-x-2 group-hover:-translate-y-2",
+      at: '0',
+      hover: 'group-hover:-translate-x-2 group-hover:-translate-y-2',
     },
     {
       pick: second,
-      at: "1.75rem",
-      hover: "group-hover:-translate-x-1 group-hover:-translate-y-1",
+      at: '1.75rem',
+      hover: 'group-hover:-translate-x-1 group-hover:-translate-y-1',
     },
-    { pick: front, at: "3.5rem", hover: "" },
+    { pick: front, at: '3.5rem', hover: '' },
   ];
 
   return (
@@ -1846,8 +1846,8 @@ export const CascadeTile = ({
             <span
               key={pick.id}
               className={classNames(
-                "absolute w-40 transition-transform duration-500 ease-out motion-reduce:transition-none",
-                hover
+                'absolute w-40 transition-transform duration-500 ease-out motion-reduce:transition-none',
+                hover,
               )}
               style={{ left: at, top: at }}
             >
@@ -1868,15 +1868,15 @@ const CardFace = ({
   pick: Pick;
   surface: Surface;
 }): ReactElement => {
-  const isSites = pick.id === "shortcuts" && surface === "extension";
+  const isSites = pick.id === 'shortcuts' && surface === 'extension';
   return (
     <span
       className={classNames(
-        "flex h-32 w-24 flex-col rounded-14 border border-border-subtlest-tertiary bg-background-default bg-gradient-to-b to-transparent p-2 shadow-2",
-        toneClass[pick.tone].wash
+        'flex h-32 w-24 flex-col rounded-14 border border-border-subtlest-tertiary bg-background-default bg-gradient-to-b to-transparent p-2 shadow-2',
+        toneClass[pick.tone].wash,
       )}
     >
-      <span className={classNames("flex", toneClass[pick.tone].text)}>
+      <span className={classNames('flex', toneClass[pick.tone].text)}>
         {isSites ? (
           <Favicon
             domain={sites.extension[0].domain}
@@ -1906,7 +1906,7 @@ const CardFace = ({
         )}
       </span>
       <span className="w-full truncate text-center font-bold text-text-primary typo-caption2">
-        {isSites ? "Your sites" : pick.name}
+        {isSites ? 'Your sites' : pick.name}
       </span>
     </span>
   );
@@ -1935,7 +1935,7 @@ export const ArcTile = ({
             className="absolute left-1/2 top-16 block transition-transform duration-500 ease-out motion-reduce:transition-none"
             style={{
               transform: `translateX(-50%) rotate(${(index - 2) * step}deg)`,
-              transformOrigin: "50% 220%",
+              transformOrigin: '50% 220%',
             }}
           >
             <CardFace pick={pick} surface={surface} />
@@ -1955,48 +1955,48 @@ export type RoundThreeVariation = {
 
 export const roundThree: RoundThreeVariation[] = [
   {
-    id: "fan-below",
-    name: "16. Fan below",
-    note: "Round two’s fan (11), laid under the words instead of over them, fading into the slot’s floor. Hover spreads the hand and lifts the front card.",
+    id: 'fan-below',
+    name: '16. Fan below',
+    note: 'Round two’s fan (11), laid under the words instead of over them, fading into the slot’s floor. Hover spreads the hand and lifts the front card.',
     Tile: FanBelowTile,
   },
   {
-    id: "smart-stack",
-    name: "17. Smart Stack",
-    note: "The iOS Smart Stack: one widget in front, the next two as card edges under it, flipping every three seconds with the dots on its side. Hover holds the one in front.",
+    id: 'smart-stack',
+    name: '17. Smart Stack',
+    note: 'The iOS Smart Stack: one widget in front, the next two as card edges under it, flipping every three seconds with the dots on its side. Hover holds the one in front.',
     Tile: SmartStackTile,
   },
   {
-    id: "wallet",
-    name: "18. Wallet",
-    note: "Apple Wallet: the widgets filed one behind the other, each showing its tinted header so every name reads, the front one open at the bottom. Hover fans the files apart a little.",
+    id: 'wallet',
+    name: '18. Wallet',
+    note: 'Apple Wallet: the widgets filed one behind the other, each showing its tinted header so every name reads, the front one open at the bottom. Hover fans the files apart a little.',
     Tile: WalletTile,
   },
   {
-    id: "cascade",
-    name: "19. Cascade",
-    note: "Three cards stepped down and to the right like windows on a desktop, each title in its tint still readable, the front one whole. Hover pulls the back cards further out.",
+    id: 'cascade',
+    name: '19. Cascade',
+    note: 'Three cards stepped down and to the right like windows on a desktop, each title in its tint still readable, the front one whole. Hover pulls the back cards further out.',
     Tile: CascadeTile,
   },
   {
-    id: "arc",
-    name: "20. Hand of five",
-    note: "A hand held up from the slot’s floor: five cards on an arc, each a widget’s face with its icon in the corner like a playing card’s index, so every card names itself even when covered (in the extension, your sites). Hover opens the hand wider.",
+    id: 'arc',
+    name: '20. Hand of five',
+    note: 'A hand held up from the slot’s floor: five cards on an arc, each a widget’s face with its icon in the corner like a playing card’s index, so every card names itself even when covered (in the extension, your sites). Hover opens the hand wider.',
     Tile: ArcTile,
   },
 ];
 
 export const finalists: RoundThreeVariation[] = [
   {
-    id: "final-fan",
-    name: "16. Fan below",
-    note: "The square and its words sit near the middle of the slot, the fan of three close under them and running off the floor. Hover spreads the fan and lifts the front card.",
+    id: 'final-fan',
+    name: '16. Fan below',
+    note: 'The square and its words sit near the middle of the slot, the fan of three close under them and running off the floor. Hover spreads the fan and lifts the front card.',
     Tile: (props) => <FanBelowTile {...props} isCentered />,
   },
   {
-    id: "final-wallet",
-    name: "18. Wallet",
-    note: "The square and its words near the middle, four widgets filed close under them, each tinted header readable, the front one open and running off the floor. Hover fans the files apart a little.",
+    id: 'final-wallet',
+    name: '18. Wallet',
+    note: 'The square and its words near the middle, four widgets filed close under them, each tinted header readable, the front one open and running off the floor. Hover fans the files apart a little.',
     Tile: (props) => <WalletTile {...props} isCentered />,
   },
 ];

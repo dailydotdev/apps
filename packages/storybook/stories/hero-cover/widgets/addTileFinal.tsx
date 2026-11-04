@@ -1,19 +1,19 @@
-import type { CSSProperties, ReactElement, ReactNode } from "react";
-import React from "react";
-import classNames from "classnames";
-import { PlusIcon } from "@dailydotdev/shared/src/components/icons/Plus";
-import { BookmarkIcon } from "@dailydotdev/shared/src/components/icons/Bookmark";
-import { ChecklistAIcon } from "@dailydotdev/shared/src/components/icons/ChecklistA";
-import { ReadingStreakIcon } from "@dailydotdev/shared/src/components/icons/ReadingStreak";
-import { ShortcutsIcon } from "@dailydotdev/shared/src/components/icons/Shortcuts";
-import { IconSize } from "@dailydotdev/shared/src/components/Icon";
-import { FeedWidgetKind } from "@dailydotdev/shared/src/features/feedWidgets/types";
-import type { FeedWidgetAvailability } from "@dailydotdev/shared/src/features/feedWidgets/registry";
+import type { CSSProperties, ReactElement, ReactNode } from 'react';
+import React from 'react';
+import classNames from 'classnames';
+import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
+import { BookmarkIcon } from '@dailydotdev/shared/src/components/icons/Bookmark';
+import { ChecklistAIcon } from '@dailydotdev/shared/src/components/icons/ChecklistA';
+import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons/ReadingStreak';
+import { ShortcutsIcon } from '@dailydotdev/shared/src/components/icons/Shortcuts';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { FeedWidgetKind } from '@dailydotdev/shared/src/features/feedWidgets/types';
+import type { FeedWidgetAvailability } from '@dailydotdev/shared/src/features/feedWidgets/registry';
 import {
   FeedWidgetIcon,
   getFeedWidgetDefinition,
-} from "@dailydotdev/shared/src/features/feedWidgets/registry";
-import { availableFeedWidgets } from "@dailydotdev/shared/src/features/feedWidgets/components";
+} from '@dailydotdev/shared/src/features/feedWidgets/registry';
+import { availableFeedWidgets } from '@dailydotdev/shared/src/features/feedWidgets/components';
 
 /*
  * The tile we would ship, kept in Storybook until it goes into the app: it
@@ -24,12 +24,12 @@ import { availableFeedWidgets } from "@dailydotdev/shared/src/features/feedWidge
 
 const happeningNowGlow: CSSProperties = {
   backgroundImage:
-    "radial-gradient(90% 60% at 0% 0%, color-mix(in srgb, var(--theme-accent-avocado-default) 22%, transparent) 0%, transparent 70%)",
+    'radial-gradient(90% 60% at 0% 0%, color-mix(in srgb, var(--theme-accent-avocado-default) 22%, transparent) 0%, transparent 70%)',
 };
 
 const todoListGlow: CSSProperties = {
   backgroundImage:
-    "radial-gradient(90% 60% at 100% 0%, color-mix(in srgb, var(--theme-accent-cabbage-default) 18%, transparent) 0%, transparent 70%)",
+    'radial-gradient(90% 60% at 100% 0%, color-mix(in srgb, var(--theme-accent-cabbage-default) 18%, transparent) 0%, transparent 70%)',
 };
 
 const LiveDot = (): ReactElement => (
@@ -61,7 +61,7 @@ export const getAddTileKinds = ({
   isLoggedIn,
   isReadingStreakOn,
   isExtension,
-}: Pick<FeedWidgetAvailability, "isLoggedIn" | "isReadingStreakOn"> & {
+}: Pick<FeedWidgetAvailability, 'isLoggedIn' | 'isReadingStreakOn'> & {
   onRail: FeedWidgetKind[];
   isExtension: boolean;
 }): FeedWidgetKind[] => {
@@ -75,7 +75,7 @@ export const getAddTileKinds = ({
   const addable = new Set(
     availableFeedWidgets(availability)
       .filter((definition) => !definition.disabledReason?.(availability))
-      .map(({ kind }) => kind)
+      .map(({ kind }) => kind),
   );
 
   return (isExtension ? extensionOrder : webappOrder)
@@ -90,7 +90,7 @@ type FiledHeader = { icon: ReactNode; title: string; glow?: CSSProperties };
 const filedHeaders: Partial<Record<FeedWidgetKind, FiledHeader>> = {
   [FeedWidgetKind.HappeningNow]: {
     icon: <LiveDot />,
-    title: "Happening now",
+    title: 'Happening now',
     glow: happeningNowGlow,
   },
   [FeedWidgetKind.TodoList]: {
@@ -101,7 +101,7 @@ const filedHeaders: Partial<Record<FeedWidgetKind, FiledHeader>> = {
         className="shrink-0 text-accent-cabbage-default"
       />
     ),
-    title: "To-do list",
+    title: 'To-do list',
     glow: todoListGlow,
   },
   [FeedWidgetKind.Shortcuts]: {
@@ -112,7 +112,7 @@ const filedHeaders: Partial<Record<FeedWidgetKind, FiledHeader>> = {
         className="shrink-0 text-accent-water-default"
       />
     ),
-    title: "Shortcuts",
+    title: 'Shortcuts',
   },
   [FeedWidgetKind.Streak]: {
     icon: (
@@ -122,7 +122,7 @@ const filedHeaders: Partial<Record<FeedWidgetKind, FiledHeader>> = {
         className="shrink-0 text-accent-bacon-default"
       />
     ),
-    title: "Streak",
+    title: 'Streak',
   },
   [FeedWidgetKind.ReadingList]: {
     icon: (
@@ -132,7 +132,7 @@ const filedHeaders: Partial<Record<FeedWidgetKind, FiledHeader>> = {
         className="shrink-0 text-accent-bun-default"
       />
     ),
-    title: "Bookmarks",
+    title: 'Bookmarks',
   },
 };
 
@@ -150,14 +150,14 @@ const headerFor = (kind: FeedWidgetKind): FiledHeader =>
 
 /** The rows a widget shows while its data loads, as FeedWidgetLoading draws them. */
 const loadingRowClassNames = [
-  "h-5 w-2/5",
-  "h-4 w-full",
-  "h-4 w-4/5",
-  "h-4 w-3/5",
+  'h-5 w-2/5',
+  'h-4 w-full',
+  'h-4 w-4/5',
+  'h-4 w-3/5',
 ];
 
 // Cards further back sit in less light.
-const dimClassName = ["", "opacity-16", "opacity-40", "opacity-50"];
+const dimClassName = ['', 'opacity-16', 'opacity-40', 'opacity-50'];
 
 /** A widget as a card: the widget surface, its own header, its loading rows. */
 const WidgetCard = ({
@@ -193,15 +193,15 @@ const WidgetCard = ({
         {loadingRowClassNames.map((row) => (
           <span
             key={row}
-            className={classNames("rounded-8 bg-surface-float", row)}
+            className={classNames('rounded-8 bg-surface-float', row)}
           />
         ))}
       </span>
       {depth > 0 && (
         <span
           className={classNames(
-            "pointer-events-none absolute inset-0 bg-background-default",
-            dimClassName[depth]
+            'pointer-events-none absolute inset-0 bg-background-default',
+            dimClassName[depth],
           )}
         />
       )}
@@ -234,7 +234,7 @@ const StackedCards = ({ kinds }: { kinds: FeedWidgetKind[] }): ReactElement => {
               transform: `translateY(calc(var(--add-tile-lift, 0) * -${
                 depth * STACK_LIFT_REM
               }rem)) scale(${1 - depth * STACK_SCALE_STEP})`,
-              transformOrigin: "top center",
+              transformOrigin: 'top center',
             }}
           />
         );
@@ -273,7 +273,7 @@ export const FeedWidgetAddTile = ({
     </span>
     {kinds.length > 0 && (
       <span className="px-4 text-text-tertiary typo-footnote">
-        {kinds.map((kind) => getFeedWidgetDefinition(kind).name).join(", ")} and
+        {kinds.map((kind) => getFeedWidgetDefinition(kind).name).join(', ')} and
         more
       </span>
     )}

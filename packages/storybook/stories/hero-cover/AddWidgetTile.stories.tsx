@@ -1,26 +1,26 @@
-import type { Meta, StoryObj } from "@storybook/react-vite";
-import type { ReactElement, ReactNode } from "react";
-import React, { useState } from "react";
-import classNames from "classnames";
-import { IconSize } from "@dailydotdev/shared/src/components/Icon";
-import { PlusIcon } from "@dailydotdev/shared/src/components/icons/Plus";
-import { FeedWidgetKind } from "@dailydotdev/shared/src/features/feedWidgets/types";
-import { Case, Page, Stage } from "./parts";
-import { WidgetContent, WidgetSurface } from "./widgets/catalog";
-import { AdSlot, campaignStrips } from "./widgets/adSlot";
-import { FeedWidgetAddTile, getAddTileKinds } from "./widgets/addTileFinal";
-import type { Edge, SquareLook, Surface } from "./widgets/addTile";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useState } from 'react';
+import classNames from 'classnames';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
+import { FeedWidgetKind } from '@dailydotdev/shared/src/features/feedWidgets/types';
+import { Case, Page, Stage } from './parts';
+import { WidgetContent, WidgetSurface } from './widgets/catalog';
+import { AdSlot, campaignStrips } from './widgets/adSlot';
+import { FeedWidgetAddTile, getAddTileKinds } from './widgets/addTileFinal';
+import type { Edge, SquareLook, Surface } from './widgets/addTile';
 import {
   addTileCss,
   finalists,
   roundThree,
   roundTwo,
   variations,
-} from "./widgets/addTile";
+} from './widgets/addTile';
 
 const meta: Meta = {
-  title: "Hero Cover/Final/6. Add a widget tile",
-  parameters: { layout: "fullscreen" },
+  title: 'Hero Cover/Final/6. Add a widget tile',
+  parameters: { layout: 'fullscreen' },
 };
 
 export default meta;
@@ -35,7 +35,7 @@ export default meta;
  * shortcuts belong in this slot rather than in a row of their own.
  */
 
-const CELL_HEIGHT = "13.25rem";
+const CELL_HEIGHT = '13.25rem';
 
 /** The default rail at four columns: Top story, our ad slot, the tile. */
 const RailStage = ({ children }: { children: ReactNode }): ReactElement => (
@@ -43,7 +43,7 @@ const RailStage = ({ children }: { children: ReactNode }): ReactElement => (
     <div
       className="grid gap-x-8 gap-y-4"
       style={{
-        gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+        gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
         gridTemplateRows: `repeat(2, ${CELL_HEIGHT})`,
       }}
     >
@@ -73,10 +73,10 @@ const Segmented = <T extends string>({
         aria-pressed={value === option}
         onClick={() => onChange(option)}
         className={classNames(
-          "h-8 rounded-max px-4 font-bold typo-callout transition-colors",
+          'h-8 rounded-max px-4 font-bold typo-callout transition-colors',
           value === option
-            ? "bg-text-primary text-surface-invert"
-            : "text-text-tertiary hover:text-text-primary"
+            ? 'bg-text-primary text-surface-invert'
+            : 'text-text-tertiary hover:text-text-primary',
         )}
       >
         {label}
@@ -104,16 +104,16 @@ const Toggles = ({
     <Segmented
       value={surface}
       options={[
-        ["webapp", "Webapp"],
-        ["extension", "Extension"],
+        ['webapp', 'Webapp'],
+        ['extension', 'Extension'],
       ]}
       onChange={onSurface}
     />
     <Segmented
       value={edge}
       options={[
-        ["dashed", "Dashed"],
-        ["dotted", "Dotted"],
+        ['dashed', 'Dashed'],
+        ['dotted', 'Dotted'],
       ]}
       onChange={onEdge}
     />
@@ -121,26 +121,26 @@ const Toggles = ({
       <Segmented
         value={square}
         options={[
-          ["float", "Float"],
-          ["primary", "Primary"],
-          ["brand", "Brand"],
+          ['float', 'Float'],
+          ['primary', 'Primary'],
+          ['brand', 'Brand'],
         ]}
         onChange={onSquare}
       />
     )}
     <span className="text-text-tertiary typo-footnote">
-      {surface === "extension"
-        ? "New tab: every tile leads with Shortcuts."
-        : "daily.dev in a tab: the usual suggestions first."}
+      {surface === 'extension'
+        ? 'New tab: every tile leads with Shortcuts.'
+        : 'daily.dev in a tab: the usual suggestions first.'}
     </span>
   </div>
 );
 
 export const InTheRail: StoryObj = {
-  name: "1. In the rail",
+  name: '1. In the rail',
   render: function Render() {
-    const [surface, setSurface] = useState<Surface>("webapp");
-    const [edge, setEdge] = useState<Edge>("dashed");
+    const [surface, setSurface] = useState<Surface>('webapp');
+    const [edge, setEdge] = useState<Edge>('dashed');
     return (
       <Page
         chapter="Add a widget tile"
@@ -189,9 +189,9 @@ export const InTheRail: StoryObj = {
 };
 
 export const SideBySide: StoryObj = {
-  name: "2. Side by side",
+  name: '2. Side by side',
   render: function Render() {
-    const [edge, setEdge] = useState<Edge>("dashed");
+    const [edge, setEdge] = useState<Edge>('dashed');
     return (
       <Page
         chapter="Add a widget tile"
@@ -205,20 +205,20 @@ export const SideBySide: StoryObj = {
           <Segmented
             value={edge}
             options={[
-              ["dashed", "Dashed"],
-              ["dotted", "Dotted"],
+              ['dashed', 'Dashed'],
+              ['dotted', 'Dotted'],
             ]}
             onChange={setEdge}
           />
         </div>
-        {(["webapp", "extension"] as Surface[]).map((surface) => (
+        {(['webapp', 'extension'] as Surface[]).map((surface) => (
           <Case
             key={surface}
-            title={surface === "webapp" ? "Webapp" : "Extension"}
+            title={surface === 'webapp' ? 'Webapp' : 'Extension'}
             note={
-              surface === "webapp"
-                ? "The usual suggestions first: Happening Now, To-do list, Shortcuts, Streak."
-                : "Shortcuts first, with the reader’s most visited sites."
+              surface === 'webapp'
+                ? 'The usual suggestions first: Happening Now, To-do list, Shortcuts, Streak.'
+                : 'Shortcuts first, with the reader’s most visited sites.'
             }
           >
             <div className="flex flex-wrap gap-6">
@@ -229,7 +229,7 @@ export const SideBySide: StoryObj = {
                   </figcaption>
                   <div
                     className="flex"
-                    style={{ width: "17.25rem", height: "27.5rem" }}
+                    style={{ width: '17.25rem', height: '27.5rem' }}
                   >
                     <Tile surface={surface} edge={edge} />
                   </div>
@@ -244,10 +244,10 @@ export const SideBySide: StoryObj = {
 };
 
 export const RoundTwo: StoryObj = {
-  name: "3. Round two: today + cards",
+  name: '3. Round two: today + cards',
   render: function Render() {
-    const [surface, setSurface] = useState<Surface>("webapp");
-    const [edge, setEdge] = useState<Edge>("dashed");
+    const [surface, setSurface] = useState<Surface>('webapp');
+    const [edge, setEdge] = useState<Edge>('dashed');
     return (
       <Page
         chapter="Add a widget tile"
@@ -279,7 +279,7 @@ export const RoundTwo: StoryObj = {
                 </figcaption>
                 <div
                   className="flex"
-                  style={{ width: "17.25rem", height: "27.5rem" }}
+                  style={{ width: '17.25rem', height: '27.5rem' }}
                 >
                   <Tile surface={surface} edge={edge} />
                 </div>
@@ -293,11 +293,11 @@ export const RoundTwo: StoryObj = {
 };
 
 export const RoundThree: StoryObj = {
-  name: "4. Round three: square plus, cards below",
+  name: '4. Round three: square plus, cards below',
   render: function Render() {
-    const [surface, setSurface] = useState<Surface>("webapp");
-    const [edge, setEdge] = useState<Edge>("dashed");
-    const [square, setSquare] = useState<SquareLook>("float");
+    const [surface, setSurface] = useState<Surface>('webapp');
+    const [edge, setEdge] = useState<Edge>('dashed');
+    const [square, setSquare] = useState<SquareLook>('float');
     return (
       <Page
         chapter="Add a widget tile"
@@ -327,7 +327,7 @@ export const RoundThree: StoryObj = {
                 </figcaption>
                 <div
                   className="flex"
-                  style={{ width: "17.25rem", height: "27.5rem" }}
+                  style={{ width: '17.25rem', height: '27.5rem' }}
                 >
                   <Tile surface={surface} edge={edge} square={square} />
                 </div>
@@ -348,11 +348,11 @@ export const RoundThree: StoryObj = {
 };
 
 export const Finalists: StoryObj = {
-  name: "5. Finalists: 16 and 18",
+  name: '5. Finalists: 16 and 18',
   render: function Render() {
-    const [surface, setSurface] = useState<Surface>("webapp");
-    const [edge, setEdge] = useState<Edge>("dashed");
-    const [square, setSquare] = useState<SquareLook>("float");
+    const [surface, setSurface] = useState<Surface>('webapp');
+    const [edge, setEdge] = useState<Edge>('dashed');
+    const [square, setSquare] = useState<SquareLook>('float');
     return (
       <Page
         chapter="Add a widget tile"
@@ -372,20 +372,20 @@ export const Finalists: StoryObj = {
         />
         <Case title="Side by side, both surfaces">
           <div className="flex flex-wrap gap-6">
-            {(["webapp", "extension"] as Surface[]).flatMap((each) =>
+            {(['webapp', 'extension'] as Surface[]).flatMap((each) =>
               finalists.map(({ id, name, Tile }) => (
                 <figure key={`${each}-${id}`} className="flex flex-col gap-2">
                   <figcaption className="text-text-tertiary typo-footnote">
-                    {name} · {each === "webapp" ? "Webapp" : "Extension"}
+                    {name} · {each === 'webapp' ? 'Webapp' : 'Extension'}
                   </figcaption>
                   <div
                     className="flex"
-                    style={{ width: "17.25rem", height: "27.5rem" }}
+                    style={{ width: '17.25rem', height: '27.5rem' }}
                   >
                     <Tile surface={each} edge={edge} square={square} />
                   </div>
                 </figure>
-              ))
+              )),
             )}
           </div>
         </Case>
@@ -404,7 +404,7 @@ export const Finalists: StoryObj = {
 const noop = (): void => undefined;
 
 export const FinalTile: StoryObj = {
-  name: "6. The final tile",
+  name: '6. The final tile',
   render: function Render() {
     const states: {
       title: string;
@@ -414,29 +414,29 @@ export const FinalTile: StoryObj = {
       isReadingStreakOn: boolean;
     }[] = [
       {
-        title: "Webapp, signed in",
-        note: "Happening Now in front, To-do list, Shortcuts and Streak behind it, each a step up, smaller and dimmer.",
+        title: 'Webapp, signed in',
+        note: 'Happening Now in front, To-do list, Shortcuts and Streak behind it, each a step up, smaller and dimmer.',
         isExtension: false,
         isLoggedIn: true,
         isReadingStreakOn: true,
       },
       {
-        title: "Extension, signed in",
-        note: "Shortcuts leads and is the card in front: the new tab’s shortcuts belong on the rail.",
+        title: 'Extension, signed in',
+        note: 'Shortcuts leads and is the card in front: the new tab’s shortcuts belong on the rail.',
         isExtension: true,
         isLoggedIn: true,
         isReadingStreakOn: true,
       },
       {
-        title: "Webapp, streaks turned off",
-        note: "Streak is left out, since the gallery could not add it; Bookmarks takes its place.",
+        title: 'Webapp, streaks turned off',
+        note: 'Streak is left out, since the gallery could not add it; Bookmarks takes its place.',
         isExtension: false,
         isLoggedIn: true,
         isReadingStreakOn: false,
       },
       {
-        title: "Signed out",
-        note: "Only widgets a guest can add: Happening Now and Shortcuts.",
+        title: 'Signed out',
+        note: 'Only widgets a guest can add: Happening Now and Shortcuts.',
         isExtension: false,
         isLoggedIn: false,
         isReadingStreakOn: true,
@@ -466,7 +466,7 @@ export const FinalTile: StoryObj = {
                 />
               </RailStage>
             </Case>
-          )
+          ),
         )}
       </Page>
     );
