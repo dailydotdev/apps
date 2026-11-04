@@ -188,7 +188,7 @@ const renderShortcuts = ({
         client={new QueryClient()}
         gb={
           new GrowthBook({
-            features: { feed_widgets: { defaultValue: isFlagOn } },
+            features: { feed_widgets_v2: { defaultValue: isFlagOn } },
           })
         }
         settings={{
@@ -291,7 +291,7 @@ describe('useFeedWidgetsOptOut', () => {
 const renderRailState = (
   feedName: string,
   gb = new GrowthBook({
-    features: { feed_widgets: { defaultValue: true } },
+    features: { feed_widgets_v2: { defaultValue: true } },
   }),
 ) =>
   renderHook(() => useFeedWidgetRailState(feedName), {
@@ -318,7 +318,7 @@ describe('useFeedWidgetRailState', () => {
     // No width breakpoint matches: a phone.
     mockMatchMedia(() => false);
     const gb = new GrowthBook({
-      features: { feed_widgets: { defaultValue: true } },
+      features: { feed_widgets_v2: { defaultValue: true } },
     });
     const evaluate = jest.spyOn(gb, 'getFeatureValue');
     const feeds = [
@@ -337,7 +337,7 @@ describe('useFeedWidgetRailState', () => {
 
     feeds.forEach((result) => expect(result.current.isEnabled).toBe(false));
     expect(evaluate).not.toHaveBeenCalledWith(
-      'feed_widgets',
+      'feed_widgets_v2',
       expect.anything(),
     );
   });
