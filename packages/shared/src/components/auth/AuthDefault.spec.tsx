@@ -67,6 +67,7 @@ describe('AuthDefault', () => {
     });
     expect(await screen.findByTestId('login_form')).toBeInTheDocument();
     expect(screen.queryByText('Continue with Google')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Log in' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'Email' })).toHaveFocus();
 
     fireEvent.click(screen.getByRole('button', { name: 'Go back' }));
@@ -95,12 +96,12 @@ describe('AuthDefault', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
     expect(
-      await screen.findByRole('heading', { name: 'Log in' }),
+      await screen.findByRole('heading', { name: 'Log in to daily.dev' }),
     ).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Go back' }));
 
     expect(
-      await screen.findByRole('heading', { name: 'Sign up' }),
+      await screen.findByRole('heading', { name: 'Sign up for daily.dev' }),
     ).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Go back' }),

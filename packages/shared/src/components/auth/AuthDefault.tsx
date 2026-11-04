@@ -65,8 +65,8 @@ const AuthDefault = ({
   isSocialAuthLoading,
   isReady,
   trigger,
-  signUpTitle = 'Sign up',
-  logInTitle = 'Log in',
+  signUpTitle = 'Sign up for daily.dev',
+  logInTitle = 'Log in to daily.dev',
   loginButton,
   simplified,
   onAuthOpenLogged,
@@ -75,7 +75,6 @@ const AuthDefault = ({
 }: AuthDefaultProps): ReactElement => {
   const { logEvent } = useLogContext();
   const [shouldLogin, setShouldLogin] = useState(isLoginFlow);
-  const title = shouldLogin ? logInTitle : signUpTitle;
   const [registerEmail, setRegisterEmail] = useState<string | null>(null);
   const fallbackLoginHint = useState<string | null>(null);
   const resolvedLoginHint = loginHint ?? fallbackLoginHint;
@@ -146,6 +145,8 @@ const AuthDefault = ({
   const hasEmailLoginScreen =
     !!shouldLogin && !disableRegistration && !disablePassword;
   const isEmailLoginScreen = hasEmailLoginScreen && isEmailLogin;
+  const listTitle = shouldLogin ? logInTitle : signUpTitle;
+  const title = isEmailLoginScreen ? 'Log in' : listTitle;
   const showProviders = !isEmailLoginScreen;
 
   const getHeaderBack = () => {
@@ -192,11 +193,6 @@ const AuthDefault = ({
         onBack={getHeaderBack()}
       />
       <AuthContainer className={disableRegistration ? 'mb-6' : undefined}>
-        {isSignup && !simplified && (
-          <p className="mb-3 text-center font-bold typo-title2">
-            Where developers discover what’s next.
-          </p>
-        )}
         {showProviders && (
           <div
             aria-label="Social login buttons"
@@ -235,11 +231,13 @@ const AuthDefault = ({
             )}
           </div>
         )}
-        {isSignup && <SignupDisclaimer />}
         {form && showProviders && providers.length > 0 && <OrDivider />}
         {form}
       </AuthContainer>
       <div className="flex flex-1" />
+      {isSignup && (
+        <SignupDisclaimer className="mt-6 text-balance px-6 !text-text-tertiary" />
+      )}
       {!disableRegistration && (
         <ConditionalWrapper
           condition={simplified ?? false}

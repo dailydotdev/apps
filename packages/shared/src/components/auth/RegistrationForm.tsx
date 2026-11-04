@@ -641,7 +641,8 @@ const RegistrationForm = ({
               <MemberAlready
                 onLogin={onExistingEmailLoginClick}
                 className={{
-                  container: 'justify-center text-text-tertiary typo-callout',
+                  container:
+                    'mt-7 justify-center text-text-tertiary typo-callout',
                   login: '!text-text-primary',
                 }}
               />
