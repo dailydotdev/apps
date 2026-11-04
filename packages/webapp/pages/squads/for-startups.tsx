@@ -5,45 +5,48 @@ import { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { featureStartupsCheckout } from '@dailydotdev/shared/src/lib/featureManagement';
-import { StartupsCheckout } from '@dailydotdev/shared/src/features/squads/components/checkout/StartupsCheckout';
-import ProtectedPage from '../../components/ProtectedPage';
+import {
+  StartupsCheckout,
+  StartupsCheckoutStep,
+} from '@dailydotdev/shared/src/features/squads/components/checkout/StartupsCheckout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { noindexSeoProps } from '../../next-seo';
 
-const StartupsCheckoutContent = (): ReactElement | null => {
+const StartupsCheckoutPage = (): ReactElement | null => {
   const router = useRouter();
-  const { user } = useAuthContext();
+  const { user, isAuthReady } = useAuthContext();
+  // A new social account has a user before its profile is complete; it stays
+  // on the account step until then.
+  const isSignedUp = !!user?.infoConfirmed;
   const { value: isEnabled, isLoading } = useConditionalFeature({
     feature: featureStartupsCheckout,
-    shouldEvaluate: !!user,
+    shouldEvaluate: isSignedUp,
   });
 
+  // The flag targets accounts, so a visitor from the landing page signs up
+  // first and is checked after.
   useEffect(() => {
-    if (user && !isLoading && !isEnabled) {
+    if (isSignedUp && !isLoading && !isEnabled) {
       router.replace('/squads');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, isLoading, isEnabled]);
+  }, [isSignedUp, isLoading, isEnabled]);
 
-  if (!user || !router.isReady || isLoading || !isEnabled) {
+  if (!isAuthReady || !router.isReady || (isSignedUp && !isEnabled)) {
     return null;
   }
 
   return (
     <StartupsCheckout
+      key={isSignedUp ? 'checkout' : 'account'}
       initialPlan={router.query.plan as string | undefined}
       initialSquadId={router.query.squad as string | undefined}
+      initialStep={
+        isSignedUp ? StartupsCheckoutStep.Company : StartupsCheckoutStep.Account
+      }
     />
   );
 };
-
-// ProtectedPage comes first so a visitor from the landing page signs up and
-// comes back here, instead of being bounced by the flag check.
-const StartupsCheckoutPage = (): ReactElement => (
-  <ProtectedPage>
-    <StartupsCheckoutContent />
-  </ProtectedPage>
-);
 
 const seo: NextSeoProps = {
   title: 'daily.dev for Startups',

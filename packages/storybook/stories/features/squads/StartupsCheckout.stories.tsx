@@ -47,7 +47,9 @@ import { featureStartupsCheckout } from '@dailydotdev/shared/src/lib/featureMana
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import { FeatureOverrides } from '../../../mock/GrowthBookProvider';
 import { defaultBootData, getBootMock } from '../../../mock/boot';
-import ExtensionProviders from '../../extension/_providers';
+import ExtensionProviders, {
+  bootAsAnonymous,
+} from '../../extension/_providers';
 
 // daily.dev for Startups self-serve: the checkout at /squads/for-startups,
 // Manage › Plan, and the upsell on the squad page. Acme is the sample company, as on the landing page. The API
@@ -341,6 +343,25 @@ export const ManageTeam: Story = {
 export const ManageTeamPhone: Story = { ...ManageTeam, globals: phone };
 
 /** Step 1 for a founder with no squad: create the company page. */
+/**
+ * Signed out, from the landing page: sign up on the page (GitHub, Google or
+ * email with a code), then step 1 right away.
+ */
+export const CheckoutSignUp: Story = {
+  beforeEach: bootAsAnonymous,
+  render: () => (
+    <StartupsCheckout
+      initialPlan={SquadPlan.Team}
+      initialStep={StartupsCheckoutStep.Account}
+    />
+  ),
+};
+
+export const CheckoutSignUpPhone: Story = {
+  ...CheckoutSignUp,
+  globals: phone,
+};
+
 export const CheckoutNewCompany: Story = {
   render: () => <StartupsCheckout initialPlan={SquadPlan.Starter} />,
 };

@@ -1,4 +1,9 @@
-import type { FormEvent, ReactElement, ReactNode } from 'react';
+import type {
+  FormEvent,
+  MutableRefObject,
+  ReactElement,
+  ReactNode,
+} from 'react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -32,6 +37,10 @@ import { usePaddlePayment } from '../../../../hooks/usePaddlePayment';
 import type { Squad } from '../../../../graphql/sources';
 import { SourceMemberRole } from '../../../../graphql/sources';
 import { PrivacyOption } from '../../../../graphql/squads';
+import AuthOptions from '../../../../components/auth/AuthOptions';
+import type { AuthProps } from '../../../../components/auth/common';
+import { AuthDisplay } from '../../../../components/auth/common';
+import { AuthTriggers } from '../../../../lib/auth';
 import { findFreeSquadHandle } from '../../lib/handle';
 import { PurchaseType } from '../../../../graphql/paddle';
 import { squadSubscriptionQueryOptions } from '../../../../graphql/squadSubscription';
@@ -59,12 +68,14 @@ import {
 } from './SquadPlanCard';
 
 export enum StartupsCheckoutStep {
+  Account = 'account',
   Company = 'company',
   Plan = 'plan',
   Checkout = 'checkout',
   Done = 'done',
 }
 
+const accountStep = { id: StartupsCheckoutStep.Account, label: 'Account' };
 const steps = [
   { id: StartupsCheckoutStep.Company, label: 'Company page' },
   { id: StartupsCheckoutStep.Plan, label: 'Plan' },
@@ -86,11 +97,13 @@ const StepHeader = ({
 }: {
   current: StartupsCheckoutStep;
 }): ReactElement => {
-  const currentIndex = steps.findIndex(({ id }) => id === current);
+  const shownSteps =
+    current === StartupsCheckoutStep.Account ? [accountStep, ...steps] : steps;
+  const currentIndex = shownSteps.findIndex(({ id }) => id === current);
 
   return (
     <ol className="flex flex-wrap items-center gap-2">
-      {steps.map((step, index) => {
+      {shownSteps.map((step, index) => {
         const isDone =
           current === StartupsCheckoutStep.Done || index < currentIndex;
         const isCurrent = index === currentIndex;
@@ -213,6 +226,44 @@ const CompanyForm = ({
         Create and continue
       </Button>
     </form>
+  );
+};
+
+/**
+ * A visitor from the landing page signs up right here, then the page starts
+ * the checkout for them: no feed onboarding in between.
+ */
+const AccountStep = ({ plan }: { plan: SquadPlan }): ReactElement => {
+  const [authState, setAuthState] = useState<AuthProps>({
+    isAuthenticating: false,
+    isLoginFlow: false,
+    isLoading: false,
+    defaultDisplay: AuthDisplay.OnboardingSignup,
+  });
+  const display = authState.isLoginFlow
+    ? AuthDisplay.Default
+    : (authState.defaultDisplay ?? AuthDisplay.OnboardingSignup);
+
+  return (
+    <div className="flex max-w-md flex-col gap-6">
+      <StepTitle
+        title="Create your account"
+        description={`Then name your company and start on ${squadPlanDetails[plan].title}.`}
+      />
+      <AuthOptions
+        formRef={null as unknown as MutableRefObject<HTMLFormElement>}
+        trigger={AuthTriggers.StartupsCheckout}
+        simplified
+        preferGithub
+        defaultDisplay={display}
+        forceDefaultDisplay
+        isLoginFlow={authState.isLoginFlow}
+        onAuthStateUpdate={(props) =>
+          setAuthState((prev) => ({ ...prev, ...props }))
+        }
+        onboardingSignupButton={{ variant: ButtonVariant.Primary }}
+      />
+    </div>
   );
 };
 
@@ -693,6 +744,7 @@ export const StartupsCheckout = ({
         </Typography>
         {step !== StartupsCheckoutStep.Done && <StepHeader current={step} />}
       </div>
+      {step === StartupsCheckoutStep.Account && <AccountStep plan={plan} />}
       {step === StartupsCheckoutStep.Company && (
         <div className="max-w-xl">
           <CompanyStep
