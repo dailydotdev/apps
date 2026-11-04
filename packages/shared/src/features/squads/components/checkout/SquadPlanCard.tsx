@@ -45,6 +45,7 @@ export const SquadPlanFeatureList = ({
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Secondary}
+          className="min-w-0 flex-1"
         >
           {feature}
         </Typography>
