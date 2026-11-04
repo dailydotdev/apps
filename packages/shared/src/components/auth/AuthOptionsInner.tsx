@@ -775,7 +775,7 @@ function AuthOptionsInner({
   // Lives here so Log in's email screen survives the trip to Forgot password or
   // Verify email and back. Picking email closes One Tap: on Sign up that's the
   // move to the registration form, on Log in it's this screen.
-  const emailLogin = useState(false);
+  const emailLogin = useState(() => !!isLoginFlow && !!email);
   const [isEmailLogin, setIsEmailLogin] = emailLogin;
   const isEmailFormFromSignup = useRef(false);
 
@@ -905,6 +905,8 @@ function AuthOptionsInner({
 
   useEffect(() => {
     onScreenBackChange?.(hasScreenBack ? onScreenBack : undefined);
+
+    return () => onScreenBackChange?.(undefined);
   }, [onScreenBackChange, hasScreenBack, onScreenBack]);
 
   const onBackFromRegistration = () => {
@@ -996,7 +998,7 @@ function AuthOptionsInner({
               // return to.
               defaultDisplay === AuthDisplay.OnboardingSignup
                 ? () => {
-                    onAuthStateUpdate({
+                    onAuthStateUpdate?.({
                       isAuthenticating: undefined,
                       defaultDisplay: AuthDisplay.OnboardingSignup,
                     });
@@ -1008,9 +1010,10 @@ function AuthOptionsInner({
                 setEmail(existingEmail);
                 setIsEmailLogin(true);
               }
-              onAuthStateUpdate({
+              onAuthStateUpdate?.({
                 isLoginFlow: true,
                 defaultDisplay: AuthDisplay.Default,
+                ...(existingEmail && { email: existingEmail }),
               });
               setActiveDisplay(AuthDisplay.Default);
             }}

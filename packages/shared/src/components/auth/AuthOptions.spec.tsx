@@ -269,6 +269,37 @@ describe('AuthOptions screen back', () => {
   });
 });
 
+describe('AuthOptions email Log in entry', () => {
+  const renderLogin = (initialEmail?: string) =>
+    render(
+      <TestBootProvider client={new QueryClient()} auth={{ isLoggedIn: false }}>
+        <AuthOptions
+          simplified
+          isLoginFlow
+          initialEmail={initialEmail}
+          formRef={{ current: document.createElement('form') }}
+          trigger={AuthTriggers.Onboarding}
+          defaultDisplay={AuthDisplay.Default}
+        />
+      </TestBootProvider>,
+    );
+
+  it('opens on the email screen when Log in starts with a known email', async () => {
+    renderLogin('taken@daily.dev');
+
+    expect(await screen.findByTestId('email-login')).toHaveTextContent(
+      'taken@daily.dev',
+    );
+  });
+
+  it('opens on the provider list without an email', async () => {
+    renderLogin();
+
+    expect(await screen.findByTestId('auth-default')).toBeInTheDocument();
+    expect(screen.queryByTestId('email-login')).not.toBeInTheDocument();
+  });
+});
+
 describe('AuthOptions social popup', () => {
   it('logs a closed popup without a sign-in as a cancellation', async () => {
     const popup = { closed: false, close: jest.fn(), location: { href: '' } };

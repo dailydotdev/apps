@@ -172,6 +172,7 @@ export const FunnelHeroLanding = withIsActiveGuard(
             isLoginFlow: true,
             isAuthenticating: true,
             defaultDisplay: AuthDisplay.Default,
+            ...(data.email && { email: data.email }),
           }));
           return;
         }

@@ -121,6 +121,7 @@ export const FunnelOrganicSignup = withIsActiveGuard(
             isLoginFlow: true,
             isAuthenticating: true,
             defaultDisplay: AuthDisplay.Default,
+            ...(data.email && { email: data.email }),
           }));
           return;
         }
