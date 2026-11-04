@@ -41,6 +41,7 @@ import { cloudinarySquadsImageFallback } from '../../../../lib/image';
 import { webappUrl } from '../../../../lib/constants';
 import { formToJson } from '../../../../lib/form';
 import { RequestKey } from '../../../../lib/query';
+import { LogEvent, Origin } from '../../../../lib/log';
 import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
 import { getSquadId } from '../../lib/features';
 import {
@@ -53,6 +54,7 @@ import {
   startupsEnterpriseUrl,
 } from '../../lib/plans';
 import { useSquadPlanPrices } from '../../hooks/useSquadPlanPrices';
+import { useLogStartups } from '../../hooks/useLogStartups';
 import { SquadUploadButton } from '../manage/SquadUploadButton';
 import {
   SquadPlanCard,
@@ -347,7 +349,7 @@ const CompanyStep = ({
   adminSquads: CompanyChoice[];
   selectedId?: string | null;
   onSelect: (id: string | null) => void;
-  onContinue: (squad: CompanyChoice) => void;
+  onContinue: (squad: CompanyChoice, isNew: boolean) => void;
 }): ReactElement => {
   const { user } = useAuthContext();
   const selected = adminSquads.find(({ id }) => id === selectedId);
@@ -393,7 +395,9 @@ const CompanyStep = ({
       )}
       {isNew ? (
         <CompanyForm
-          onCreated={(squad) => onContinue({ ...squad, id: getSquadId(squad) })}
+          onCreated={(squad) =>
+            onContinue({ ...squad, id: getSquadId(squad) }, true)
+          }
         />
       ) : (
         <div className="flex flex-col gap-3">
@@ -420,7 +424,7 @@ const CompanyStep = ({
               className="self-start"
               loading={isFetching}
               disabled={isFetching}
-              onClick={() => onContinue(selected)}
+              onClick={() => onContinue(selected, false)}
             >
               Continue
             </Button>
@@ -443,6 +447,7 @@ const PlanStep = ({
   onContinue: () => void;
 }): ReactElement => {
   const prices = useSquadPlanPrices();
+  const logStartups = useLogStartups();
 
   return (
     <div className="flex flex-col gap-6">
@@ -468,6 +473,12 @@ const PlanStep = ({
           href={startupsEnterpriseUrl}
           target="_blank"
           rel="noopener"
+          onClick={() =>
+            logStartups(LogEvent.UpgradeSubscription, 'enterprise', {
+              origin: Origin.StartupsCheckout,
+              source_id: company.id,
+            })
+          }
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Small}
           icon={<OpenLinkIcon />}
@@ -554,6 +565,8 @@ const CheckoutStep = ({
   const { openCheckout, isPaddleReady } = usePaddlePayment({
     priceType: PurchaseType.Startups,
     successCallback: onPaid,
+    origin: Origin.StartupsCheckout,
+    logExtra: { plan, source_id: company.id },
   });
   const openedRef = useRef<string>();
 
@@ -613,9 +626,14 @@ const DoneStep = ({
     }),
   );
   const isActive = !!subscription?.plan;
+  const logStartups = useLogStartups();
 
   useEffect(() => {
     if (isActive) {
+      logStartups(LogEvent.ActivateSquadPlan, plan, {
+        source_id: company.id,
+        seconds: Math.round((Date.now() - startedAt) / 1000),
+      });
       // The squad's features changed with the plan
       client.invalidateQueries({ queryKey: [RequestKey.Squad] });
       return undefined;
@@ -627,7 +645,17 @@ const DoneStep = ({
     );
 
     return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [client, isActive, startedAt]);
+
+  useEffect(() => {
+    if (isTimedOut) {
+      logStartups(LogEvent.DelaySquadPlanActivation, plan, {
+        source_id: company.id,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isTimedOut]);
 
   const pageUrl = company.permalink ?? `${webappUrl}squads/${company.handle}`;
 
@@ -769,6 +797,8 @@ export const StartupsCheckout = ({
   const [company, setCompany] = useState<CompanyChoice | undefined>(
     initialCompany,
   );
+  const [isNewCompany, setNewCompany] = useState(false);
+  const logStartups = useLogStartups();
 
   useEffect(() => {
     // Squads arrive with boot; pick the one the link asked for once they do
@@ -785,6 +815,13 @@ export const StartupsCheckout = ({
 
   useEffect(() => {
     globalThis.scrollTo?.({ top: 0 });
+    logStartups(LogEvent.ViewStartupsCheckout, step, {
+      plan,
+      source_id: company?.id,
+      new_company: isNewCompany,
+      admin_squads: adminSquads.length,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
   return (
@@ -805,8 +842,9 @@ export const StartupsCheckout = ({
             adminSquads={adminSquads}
             selectedId={selectedId}
             onSelect={setSelectedId}
-            onContinue={(next) => {
+            onContinue={(next, isNew) => {
               setCompany(next);
+              setNewCompany(isNew);
               setStep(StartupsCheckoutStep.Plan);
             }}
           />
@@ -816,7 +854,15 @@ export const StartupsCheckout = ({
         <PlanStep
           company={company}
           plan={plan}
-          onSelect={setPlan}
+          onSelect={(next) => {
+            if (next !== plan) {
+              setPlan(next);
+              logStartups(LogEvent.SelectSquadPlan, next, {
+                origin: Origin.StartupsCheckout,
+                source_id: company.id,
+              });
+            }
+          }}
           onContinue={() => setStep(StartupsCheckoutStep.Checkout)}
         />
       )}

@@ -56,6 +56,8 @@ export enum Origin {
   SimilarSquadsPromoted = 'similar squads promoted',
   SquadJoinSuggestions = 'squad join suggestions',
   SquadJoinSuggestionsPromoted = 'squad join suggestions promoted',
+  SquadManagePlan = 'squad manage plan',
+  StartupsCheckout = 'startups checkout',
   // squads - end
   // Looking for group - start
   LfgBoard = 'lfg board',
@@ -444,6 +446,13 @@ export enum LogEvent {
   CompleteGiftCheckout = 'complete gift checkout',
   ClickPlusFaq = 'click plus faq',
   HoverCheckoutWidget = 'hover checkout widget',
+  // daily.dev for Startups (the paid checkout steps reuse the Plus events)
+  ViewStartupsCheckout = 'view startups checkout',
+  SelectSquadPlan = 'select squad plan',
+  ActivateSquadPlan = 'activate squad plan',
+  DelaySquadPlanActivation = 'delay squad plan activation',
+  GiveSquadSeat = 'give squad seat',
+  RemoveSquadSeat = 'remove squad seat',
   PageScroll = 'page scroll',
   SelectSubscriptionType = 'select subscription type',
   SetOrgSize = 'set org size',

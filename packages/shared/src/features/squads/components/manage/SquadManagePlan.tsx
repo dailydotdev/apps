@@ -37,6 +37,7 @@ import {
 } from '../../../../graphql/squadSubscription';
 import { managePlusUrl } from '../../../../lib/constants';
 import { largeNumberFormat } from '../../../../lib/numberFormat';
+import { LogEvent, Origin } from '../../../../lib/log';
 import { useSquadPageContext } from '../../SquadPageContext';
 import { getSquadId } from '../../lib/features';
 import { getStartupsCheckoutUrl, SquadManageSection } from '../../lib/routes';
@@ -47,6 +48,7 @@ import {
   startupsEnterpriseUrl,
 } from '../../lib/plans';
 import { useSquadPlanPrices } from '../../hooks/useSquadPlanPrices';
+import { useLogStartups } from '../../hooks/useLogStartups';
 import { SquadPlanCard, SquadPlanPrice } from '../checkout/SquadPlanCard';
 import { SquadManageSectionPanel } from './SquadManageLayout';
 
@@ -80,6 +82,13 @@ const SectionTitle = ({
 const ChoosePlan = ({ isAdmin }: { isAdmin: boolean }): ReactElement => {
   const { squad } = useSquadPageContext();
   const prices = useSquadPlanPrices();
+  const logStartups = useLogStartups();
+  const sourceId = getSquadId(squad);
+  const logUpgrade = (targetId: string) =>
+    logStartups(LogEvent.UpgradeSubscription, targetId, {
+      origin: Origin.SquadManagePlan,
+      source_id: sourceId,
+    });
 
   return (
     <>
@@ -98,10 +107,8 @@ const ChoosePlan = ({ isAdmin }: { isAdmin: boolean }): ReactElement => {
               isAdmin && (
                 <Button
                   tag="a"
-                  href={getStartupsCheckoutUrl({
-                    plan,
-                    sourceId: getSquadId(squad),
-                  })}
+                  href={getStartupsCheckoutUrl({ plan, sourceId })}
+                  onClick={() => logUpgrade(plan)}
                   variant={
                     plan === SquadPlan.Starter
                       ? ButtonVariant.Primary
@@ -141,6 +148,7 @@ const ChoosePlan = ({ isAdmin }: { isAdmin: boolean }): ReactElement => {
           href={startupsEnterpriseUrl}
           target="_blank"
           rel="noopener"
+          onClick={() => logUpgrade('enterprise')}
           variant={ButtonVariant.Float}
           size={ButtonSize.Small}
           icon={<OpenLinkIcon />}
@@ -169,10 +177,16 @@ const SeatRow = ({
   const sourceId = getSquadId(squad);
   const isOwner = member.user.id === subscription.ownerId;
   const isFull = subscription.seatsUsed >= subscription.seatLimit;
+  const logStartups = useLogStartups();
   const { mutate, isPending } = useMutation({
     mutationFn: () =>
       setSquadSeat({ sourceId, userId: member.user.id, seat: !member.seat }),
     onSuccess: () => {
+      logStartups(
+        member.seat ? LogEvent.RemoveSquadSeat : LogEvent.GiveSquadSeat,
+        sourceId,
+        { user_id: member.user.id, role: member.role },
+      );
       client.invalidateQueries({
         queryKey: squadSubscriptionQueryOptions({ user, sourceId }).queryKey,
       });
@@ -265,6 +279,7 @@ const ActivePlan = ({
   const owner = members?.find(
     ({ user: { id } }) => id === subscription.ownerId,
   );
+  const logStartups = useLogStartups();
 
   return (
     <>
@@ -291,6 +306,11 @@ const ActivePlan = ({
               href={managePlusUrl}
               target="_blank"
               rel="noopener"
+              onClick={() =>
+                logStartups(LogEvent.ManageSubscription, plan, {
+                  source_id: sourceId,
+                })
+              }
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               icon={<OpenLinkIcon />}
