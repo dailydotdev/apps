@@ -17,6 +17,7 @@ import {
 import { useAuthContext } from '../../contexts/AuthContext';
 import { CoreIcon, PlusIcon } from '../../components/icons';
 import type { Post } from '../../graphql/posts';
+import { SourceType } from '../../graphql/sources';
 import { Image } from '../../components/image/Image';
 import { largeNumberFormat } from '../../lib';
 import { IconSize } from '../../components/Icon';
@@ -24,6 +25,8 @@ import { LogEvent, Origin } from '../../lib/log';
 import { BuyCoresModal } from '../../components/modals/award/BuyCoresModal';
 import { usePostImage } from '../../hooks/post/usePostImage';
 import { useCampaignMutation } from './useCampaignMutation';
+import { useBoostWallet } from './useBoostWallet';
+import { BoostWalletPicker } from './BoostWalletPicker';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
 import { ActionSuccessModal } from '../../components/modals/utils/ActionSuccessModal';
@@ -31,7 +34,7 @@ import { boostSuccessCover } from '../../lib/image';
 import { boostDocsLink, walletUrl } from '../../lib/constants';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { Loader } from '../../components/Loader';
-import { CampaignType } from '../../graphql/campaigns';
+import { CampaignType, CampaignWallet } from '../../graphql/campaigns';
 import { usePostBoostEstimation } from './usePostBoostEstimation';
 import { updatePostCache } from '../../lib/query';
 import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
@@ -75,6 +78,9 @@ export function BoostPostModal({
   const [updateEstimate] = useDebounceFn(setEstimate, 400);
   const totalSpendInt = coresPerDay * totalDays;
   const totalSpend = largeNumberFormat(totalSpendInt);
+  const { squadWallet, wallet, setWallet, balance } = useBoostWallet(
+    post.source?.type === SourceType.Squad ? post.source.id : undefined,
+  );
   const { estimatedReach, canBoost, isLoading } = usePostBoostEstimation({
     post,
     query: { budget: estimate.coresPerDay },
@@ -109,7 +115,7 @@ export function BoostPostModal({
   };
 
   const onButtonClick = () => {
-    const hasEnoughBalance = (user?.balance.amount ?? 0) >= totalSpendInt;
+    const hasEnoughBalance = balance >= totalSpendInt;
 
     logBoostEvent(
       LogEvent.StartBoost,
@@ -118,7 +124,8 @@ export function BoostPostModal({
     );
 
     if (!hasEnoughBalance) {
-      return onBuyCores();
+      // Cores are bought for the user, not for the squad wallet
+      return wallet === CampaignWallet.User ? onBuyCores() : undefined;
     }
 
     return onBoostPost({
@@ -126,6 +133,7 @@ export function BoostPostModal({
       budget: coresPerDay,
       value: post.id,
       type: CampaignType.Post,
+      wallet,
     });
   };
 
@@ -337,6 +345,15 @@ export function BoostPostModal({
             onValueChange={([value]) => setTotalDays(value)}
           />
         </div>
+        {squadWallet && (
+          <BoostWalletPicker
+            squadWallet={squadWallet}
+            userBalance={user.balance.amount}
+            wallet={wallet}
+            onChange={setWallet}
+            totalSpend={totalSpendInt}
+          />
+        )}
       </Modal.Body>
       <Modal.Footer>
         <Button
@@ -344,7 +361,11 @@ export function BoostPostModal({
           className="w-full"
           type="button"
           onClick={onButtonClick}
-          disabled={!canBoost || isLoading}
+          disabled={
+            !canBoost ||
+            isLoading ||
+            (wallet === CampaignWallet.Squad && balance < totalSpendInt)
+          }
         >
           Boost post for <CoreIcon className="mx-1" size={IconSize.Small} />
           {totalSpend}

@@ -12,7 +12,10 @@ import postFixture from '../../../__tests__/fixture/post';
 import type { Post } from '../../graphql/posts';
 import type { ApiErrorResult } from '../../graphql/common';
 import { ApiError } from '../../graphql/common';
-import { CampaignType } from '../../graphql/campaigns';
+import { CampaignType, CampaignWallet } from '../../graphql/campaigns';
+import { SQUAD_WALLET_QUERY } from '../../graphql/squadWallet';
+import { SourceType } from '../../graphql/sources';
+import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 
 // Mock the hooks
@@ -252,6 +255,7 @@ describe('BoostPostModal', () => {
         budget: 5000, // default coresPerDay
         type: 'POST',
         value: 'post-1',
+        wallet: CampaignWallet.User,
       });
     });
 
@@ -280,6 +284,7 @@ describe('BoostPostModal', () => {
         budget: 5000,
         type: 'POST',
         value: 'post-1',
+        wallet: CampaignWallet.User,
       });
     });
 
@@ -302,6 +307,110 @@ describe('BoostPostModal', () => {
 
       // Should not call onBoostPost, should trigger BUY_CORES screen instead
       expect(mockOnBoostPost).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Squad wallet', () => {
+    const squadPost = () =>
+      createMockPost({
+        tags: ['javascript'],
+        source: {
+          ...postFixture.source,
+          id: 'squad-1',
+          name: 'Acme',
+          type: SourceType.Squad,
+        },
+      });
+
+    const mockSquadWallet = ({
+      seat = true,
+      plan = 'starter',
+      coresBalance = 40000,
+    }: {
+      seat?: boolean;
+      plan?: string | null;
+      coresBalance?: number;
+    } = {}) =>
+      mockGraphQL({
+        request: {
+          query: SQUAD_WALLET_QUERY,
+          variables: { sourceId: 'squad-1' },
+        },
+        result: {
+          data: {
+            source: { id: 'squad-1', name: 'Acme', currentMember: { seat } },
+            squadSubscription: { plan, coresBalance },
+          },
+        },
+      });
+
+    beforeEach(() => {
+      mockUsePostBoostEstimation.mockReturnValue(defaultMockBoostEstimation);
+    });
+
+    it('should pay with the squad wallet by default for a paid seat', async () => {
+      const mockOnBoostPost = jest.fn();
+      mockUsePostBoostMutation.mockReturnValue({
+        ...defaultMockBoostMutation,
+        onStartBoost: mockOnBoostPost,
+      });
+      mockSquadWallet();
+
+      renderBoostPostModal(squadPost(), createMockUser(0));
+
+      const squadOption = await screen.findByLabelText(/Acme wallet/);
+      expect(squadOption).toBeChecked();
+
+      fireEvent.click(screen.getByRole('button', { name: /Boost post for/ }));
+
+      expect(mockOnBoostPost).toHaveBeenCalledWith({
+        duration: 7,
+        budget: 5000,
+        type: 'POST',
+        value: 'post-1',
+        wallet: CampaignWallet.Squad,
+      });
+    });
+
+    it('should pay with the user wallet when picked', async () => {
+      const mockOnBoostPost = jest.fn();
+      mockUsePostBoostMutation.mockReturnValue({
+        ...defaultMockBoostMutation,
+        onStartBoost: mockOnBoostPost,
+      });
+      mockSquadWallet();
+
+      renderBoostPostModal(squadPost());
+
+      await screen.findByLabelText(/Acme wallet/);
+      fireEvent.click(screen.getByLabelText(/My Cores/));
+      fireEvent.click(screen.getByRole('button', { name: /Boost post for/ }));
+
+      expect(mockOnBoostPost).toHaveBeenCalledWith(
+        expect.objectContaining({ wallet: CampaignWallet.User }),
+      );
+    });
+
+    it('should block the boost when the squad wallet is short', async () => {
+      mockSquadWallet({ coresBalance: 1000 });
+
+      renderBoostPostModal(squadPost());
+
+      expect(
+        await screen.findByText(/doesn't have enough Cores/),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /Boost post for/ }),
+      ).toBeDisabled();
+    });
+
+    it('should not offer the squad wallet without a seat', async () => {
+      mockSquadWallet({ seat: false });
+
+      renderBoostPostModal(squadPost());
+
+      await act(() => new Promise((resolve) => setTimeout(resolve, 50)));
+      expect(screen.queryByText('Pay with')).not.toBeInTheDocument();
     });
   });
 
