@@ -10,6 +10,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
 import { LiveChatPanel } from './LiveChatPanel';
 import { PREVIEW_SEAT_RELEASE_MS } from '../hooks/useLiveChatRoom';
+import { LIVE_CHAT_ROOM_REFRESH_MS } from '../queries';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { getDmTransport } from '../../messages/transport';
@@ -147,6 +148,9 @@ beforeEach(() => {
   jest.mocked(getChatRoomPresence).mockResolvedValue([]);
 });
 
+// A spec that switched to the fake clock and failed must not leave it on.
+afterEach(() => jest.useRealTimers());
+
 const minutesAgo = (minutes: number) =>
   new Date(Date.now() - minutes * 60 * 1000).toISOString();
 
@@ -175,6 +179,8 @@ describe('LiveChatPanel', () => {
     await renderInline();
     await waitFor(() => expect(transport.joinRoom).toHaveBeenCalled());
     emit({ type: 'roomJoined', roomJid: room.jid! });
+    // Before the poll starts, so its interval runs on the fake clock.
+    jest.useFakeTimers();
     emitHistory([
       ['u2', 20],
       ['u3', 15],
@@ -182,8 +188,25 @@ describe('LiveChatPanel', () => {
       ['u4', 1],
     ]);
 
+    // The first poll goes out with the first sender; the rest of the
+    // history landed after it.
     await waitFor(() =>
-      expect(getChatRoomPresence).toHaveBeenCalledWith('r1', [
+      expect(getChatRoomPresence).toHaveBeenCalledWith('r1', ['u2']),
+    );
+    await waitFor(() =>
+      expect(presenceOfRow('from u2')).toEqual('In the chat'),
+    );
+    // Not asked about yet: unknown, not gone.
+    expect(presenceOfRow('from u3')).toBeNull();
+    // Spoke a minute ago: here, whatever the poll says.
+    expect(presenceOfRow('from u4')).toEqual('In the chat');
+    // The viewer knows they are here.
+    expect(presenceOfRow('from me')).toBeNull();
+
+    // The next tick asks about everyone on screen, under the same key.
+    act(() => jest.advanceTimersByTime(LIVE_CHAT_ROOM_REFRESH_MS));
+    await waitFor(() =>
+      expect(getChatRoomPresence).toHaveBeenLastCalledWith('r1', [
         'u2',
         'u3',
         'u4',
@@ -192,11 +215,7 @@ describe('LiveChatPanel', () => {
     await waitFor(() =>
       expect(presenceOfRow('from u3')).toEqual('Left the chat'),
     );
-    expect(presenceOfRow('from u2')).toEqual('In the chat');
-    // Spoke a minute ago: here, whatever the poll says.
-    expect(presenceOfRow('from u4')).toEqual('In the chat');
-    // The viewer knows they are here.
-    expect(presenceOfRow('from me')).toBeNull();
+    expect(getChatRoomPresence).toHaveBeenCalledTimes(2);
   });
 
   it('shows no presence when the chat server could not say', async () => {

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import type { RoomMessage } from '../../messages/types';
@@ -47,16 +47,22 @@ export const useRoomPresence = ({
     };
   }, [messages, user?.id]);
 
+  // The poll reads the senders when it runs rather than keying on them.
+  const senderIdsRef = useRef(senderIds);
+  senderIdsRef.current = senderIds;
+
   // Reading dataUpdatedAt re-renders on every poll, even an unchanged
   // answer, which is what lets a recent speaker's grace run out.
-  const { data: present, dataUpdatedAt } = useQuery({
-    ...chatRoomPresenceQueryOptions(user, roomId, senderIds),
+  const { data, dataUpdatedAt } = useQuery({
+    ...chatRoomPresenceQueryOptions(user, roomId, () => senderIdsRef.current),
     enabled: enabled && !!user && !!roomId && senderIds.length > 0,
   });
 
   return useMemo(() => {
-    const presentIds = present ? new Set(present) : undefined;
-    const asked = new Set(senderIds);
+    const presentIds = data?.present ? new Set(data.present) : undefined;
+    // Only the senders this answer covers: one who appeared since is
+    // unknown until the next poll, not gone.
+    const asked = new Set(data?.userIds);
     const now = Date.now();
 
     return (userId: string) => {
@@ -64,7 +70,6 @@ export const useRoomPresence = ({
       if (spokeAt && now - spokeAt < LIVE_CHAT_RECENTLY_ACTIVE_MS) {
         return true;
       }
-      // Past the cap nobody was asked, which is not the same as gone.
       if (!presentIds || !asked.has(userId)) {
         return undefined;
       }
@@ -72,5 +77,5 @@ export const useRoomPresence = ({
     };
     // dataUpdatedAt only moves `now` along.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [present, lastSpokeAt, senderIds, dataUpdatedAt]);
+  }, [data, lastSpokeAt, dataUpdatedAt]);
 };

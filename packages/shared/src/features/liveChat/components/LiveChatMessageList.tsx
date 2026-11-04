@@ -53,8 +53,8 @@ export const mentionsUser = (body: string, username?: string): boolean =>
     body,
   );
 
-// On the sender's avatar: green while they are still in the room, a hollow
-// ring once they left. Nothing when nobody could tell.
+// On the sender's avatar: green while they are still in the room, grey once
+// they left. Nothing when nobody could tell. Same dot as DiscussionShareRow.
 const PresenceDot = ({ isHere }: { isHere: boolean }): ReactElement => (
   <span
     className={classNames(
