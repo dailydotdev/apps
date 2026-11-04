@@ -353,8 +353,6 @@ const useOnboardingAuth = () => {
     funnelState,
     isAuthReady,
     isAuthenticating: auth.isAuthenticating,
-    updateAuth,
-    exitToFunnelSignup,
     isLoggedIn,
     screenBack,
     shouldVerify: anonymous?.shouldVerify,
@@ -375,8 +373,6 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
     isLoggedIn,
     screenBack,
     shouldVerify,
-    updateAuth,
-    exitToFunnelSignup,
   } = useOnboardingAuth();
   const { isOnboardingComplete, isOnboardingActionsReady, completeStep } =
     useOnboardingActions();
@@ -443,35 +439,6 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
     router,
   ]);
 
-  const { isLoginFlow: isPageLoginFlow } = authOptionProps;
-  const authBackTarget: Partial<Record<AuthDisplay, AuthDisplay>> = {
-    [AuthDisplay.Registration]: isPageLoginFlow
-      ? AuthDisplay.Default
-      : AuthDisplay.OnboardingSignup,
-    [AuthDisplay.EmailVerification]: isPageLoginFlow
-      ? AuthDisplay.Default
-      : AuthDisplay.Registration,
-  };
-  const authBack = authBackTarget[authOptionProps.defaultDisplay];
-  const getAuthBackHandler = (): (() => void) | undefined => {
-    if (!authBack) {
-      return undefined;
-    }
-
-    if (authBack === AuthDisplay.OnboardingSignup) {
-      return exitToFunnelSignup;
-    }
-
-    // Email sign-up is only reachable from Sign up on the page's Log in flow,
-    // so its back returns there.
-    if (authOptionProps.defaultDisplay === AuthDisplay.Registration) {
-      return () => updateAuth({ defaultDisplay: authBack, isLoginFlow: false });
-    }
-
-    return () => updateAuth({ defaultDisplay: authBack });
-  };
-  const onAuthBack = getAuthBackHandler();
-
   if (isAuthenticating) {
     return (
       // These screens render before FunnelStepper mounts, so they take the
@@ -481,7 +448,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
           'relative z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
         )}
       >
-        <FunnelStepTopBar onBack={onAuthBack ?? screenBack} />
+        <FunnelStepTopBar onBack={screenBack} />
         <div className="relative z-2 flex w-full flex-grow flex-col flex-wrap justify-start px-5 pt-3 tablet:flex-row tablet:justify-center tablet:gap-10 tablet:px-6">
           <AuthOptions {...authOptionProps} />
         </div>

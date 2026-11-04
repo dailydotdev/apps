@@ -20,7 +20,7 @@ const AuthModalFooter = dynamic(
   () => import(/* webpackChunkName: "authModalFooter" */ './AuthModalFooter'),
 );
 
-export type EmailLoginState = [boolean, Dispatch<SetStateAction<boolean>>];
+type EmailLoginState = [boolean, Dispatch<SetStateAction<boolean>>];
 
 interface AuthDefaultProps extends AuthFormProps {
   children?: ReactNode;
@@ -46,6 +46,7 @@ interface AuthDefaultProps extends AuthFormProps {
   onAuthOpenLogged?: () => void;
   emailLogin?: EmailLoginState;
   hasTopBarBack?: boolean;
+  loginEmail?: string;
 }
 
 const AuthDefault = ({
@@ -72,10 +73,10 @@ const AuthDefault = ({
   onAuthOpenLogged,
   emailLogin,
   hasTopBarBack,
+  loginEmail,
 }: AuthDefaultProps): ReactElement => {
   const { logEvent } = useLogContext();
   const [shouldLogin, setShouldLogin] = useState(isLoginFlow);
-  const [registerEmail, setRegisterEmail] = useState<string | null>(null);
   const fallbackLoginHint = useState<string | null>(null);
   const resolvedLoginHint = loginHint ?? fallbackLoginHint;
   const fallbackEmailLogin = useState(false);
@@ -118,6 +119,7 @@ const AuthDefault = ({
     });
 
     if (shouldLogin) {
+      resolvedLoginHint[1](null);
       setIsEmailLogin(true);
       return;
     }
@@ -127,9 +129,6 @@ const AuthDefault = ({
 
   const toggleLogin = () => {
     focusFirstSocialLink();
-    if (!shouldLogin) {
-      setRegisterEmail(null);
-    }
     setIsEmailLogin(false);
     setShouldLogin(!shouldLogin);
   };
@@ -147,7 +146,6 @@ const AuthDefault = ({
   const isEmailLoginScreen = hasEmailLoginScreen && isEmailLogin;
   const listTitle = shouldLogin ? logInTitle : signUpTitle;
   const title = isEmailLoginScreen ? 'Log in' : listTitle;
-  const showProviders = !isEmailLoginScreen;
 
   const getHeaderBack = () => {
     if (isEmailLoginScreen) {
@@ -163,18 +161,21 @@ const AuthDefault = ({
         <LoginForm
           isReady={isReady}
           isLoading={isLoading}
-          email={registerEmail ?? undefined}
+          email={loginEmail}
           loginButton={loginButton}
           aboveFooter={!simplified && !disableRegistration}
           loginButtonVariant={
-            showProviders && providers.length
+            !isEmailLoginScreen && providers.length
               ? ButtonVariant.Secondary
               : ButtonVariant.Primary
           }
           loginHint={resolvedLoginHint}
           onPasswordLogin={onPasswordLogin}
           onForgotPassword={onForgotPassword}
-          onSignup={toggleLogin}
+          onSignup={() => {
+            setIsEmailLogin(false);
+            setShouldLogin(false);
+          }}
         />
       );
     }
@@ -193,7 +194,7 @@ const AuthDefault = ({
         onBack={getHeaderBack()}
       />
       <AuthContainer className={disableRegistration ? 'mb-6' : undefined}>
-        {showProviders && (
+        {!isEmailLoginScreen && (
           <div
             aria-label="Social login buttons"
             className="flex flex-col gap-4"
@@ -231,7 +232,7 @@ const AuthDefault = ({
             )}
           </div>
         )}
-        {form && showProviders && providers.length > 0 && <OrDivider />}
+        {form && !isEmailLoginScreen && providers.length > 0 && <OrDivider />}
         {form}
       </AuthContainer>
       <div className="flex flex-1" />

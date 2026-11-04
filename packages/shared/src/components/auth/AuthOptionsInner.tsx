@@ -777,6 +777,7 @@ function AuthOptionsInner({
   // move to the registration form, on Log in it's this screen.
   const emailLogin = useState(false);
   const [isEmailLogin, setIsEmailLogin] = emailLogin;
+  const isEmailFormFromSignup = useRef(false);
 
   const canUseOneTap =
     isAuthReady &&
@@ -827,6 +828,7 @@ function AuthOptionsInner({
 
   const onEmailRegistration = (emailAd: string) => {
     // before displaying registration, ensure the email doesn't exist
+    isEmailFormFromSignup.current = true;
     setIsForgotPasswordReturn(false);
     onSetActiveDisplay(AuthDisplay.Registration);
     setEmail(emailAd);
@@ -869,27 +871,37 @@ function AuthOptionsInner({
     onSetActiveDisplay(forgotPasswordReturnRef.current);
   };
 
-  useEffect(() => {
-    if (activeDisplay === AuthDisplay.ForgotPassword) {
-      onScreenBackChange?.(onBackToLogin);
-      return;
-    }
-
-    onScreenBackChange?.(
-      activeDisplay === AuthDisplay.Default && isEmailLogin
-        ? () => setIsEmailLogin(false)
-        : undefined,
-    );
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeDisplay, isEmailLogin]);
-
   const onBackFromVerify = () => {
     if (emailVerificationReturn === AuthDisplay.Default) {
       onAuthStateUpdate?.({ isLoginFlow: true });
     }
     onSetActiveDisplay(emailVerificationReturn);
   };
+
+  const onBackFromEmailForm = () => {
+    if (!isEmailFormFromSignup.current) {
+      onAuthStateUpdate?.({ defaultDisplay: AuthDisplay.OnboardingSignup });
+      return;
+    }
+
+    onAuthStateUpdate?.({ isLoginFlow: false });
+    onSetActiveDisplay(AuthDisplay.Default);
+  };
+
+  const screenBacks: Partial<Record<AuthDisplay, () => void>> = {
+    [AuthDisplay.Registration]: onBackFromEmailForm,
+    [AuthDisplay.EmailVerification]: onBackFromVerify,
+    [AuthDisplay.ForgotPassword]: onBackToLogin,
+    ...(isEmailLogin && {
+      [AuthDisplay.Default]: () => setIsEmailLogin(false),
+    }),
+  };
+
+  useEffect(() => {
+    onScreenBackChange?.(screenBacks[activeDisplay]);
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeDisplay, isEmailLogin, emailVerificationReturn]);
 
   const onBackFromRegistration = () => {
     setIsForgotPasswordReturn(false);
@@ -936,6 +948,7 @@ function AuthOptionsInner({
             onProviderClick={onProviderClick}
             onSignup={onEmailRegistration}
             emailLogin={emailLogin}
+            loginEmail={email}
             hasTopBarBack={!!onScreenBackChange}
             isSocialAuthLoading={isSocialAuthLoading}
             providers={providers}
@@ -989,6 +1002,7 @@ function AuthOptionsInner({
             onExistingEmailLoginClick={() => {
               onAuthStateUpdate({
                 isLoginFlow: true,
+                defaultDisplay: AuthDisplay.Default,
               });
               setActiveDisplay(AuthDisplay.Default);
             }}

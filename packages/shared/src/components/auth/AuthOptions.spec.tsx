@@ -22,7 +22,17 @@ jest.mock('../../lib/betterAuth', () => ({
 
 jest.mock('./RegistrationForm', () => ({
   __esModule: true,
-  default: () => <div data-testid="registration-form" />,
+  default: ({
+    onExistingEmailLoginClick,
+  }: {
+    onExistingEmailLoginClick?: () => void;
+  }) => (
+    <div data-testid="registration-form">
+      <button type="button" onClick={onExistingEmailLoginClick}>
+        Existing email
+      </button>
+    </div>
+  ),
 }));
 
 jest.mock('./OnboardingRegistrationForm', () => {
@@ -36,9 +46,11 @@ jest.mock('./AuthDefault', () => ({
   default: ({
     onProviderClick,
     onForgotPassword,
+    onSignup,
   }: {
     onProviderClick: (provider: string) => void;
     onForgotPassword?: (email?: string) => void;
+    onSignup?: (email: string) => void;
   }) => (
     <>
       <button
@@ -50,6 +62,9 @@ jest.mock('./AuthDefault', () => ({
       </button>
       <button type="button" onClick={() => onForgotPassword?.()}>
         Forgot password?
+      </button>
+      <button type="button" onClick={() => onSignup?.('')}>
+        Sign up with email
       </button>
     </>
   ),
@@ -125,34 +140,102 @@ describe('AuthOptions forgot password', () => {
 });
 
 describe('AuthOptions screen back', () => {
-  it('hands Reset password back to a page with its own top bar', async () => {
+  const renderMirrored = (initialDisplay: AuthDisplay) => {
     const onScreenBackChange = jest.fn();
-    render(
-      <TestBootProvider client={new QueryClient()} auth={{ isLoggedIn: false }}>
-        <AuthOptions
-          simplified
-          formRef={{ current: document.createElement('form') }}
-          trigger={AuthTriggers.Onboarding}
-          defaultDisplay={AuthDisplay.Default}
-          onScreenBackChange={onScreenBackChange}
-        />
-      </TestBootProvider>,
-    );
+    const onAuthStateUpdate = jest.fn();
+    const MirroringParent = () => {
+      const [display, setDisplay] = React.useState(initialDisplay);
+      return (
+        <TestBootProvider
+          client={new QueryClient()}
+          auth={{ isLoggedIn: false }}
+        >
+          <AuthOptions
+            simplified
+            formRef={{ current: document.createElement('form') }}
+            trigger={AuthTriggers.Onboarding}
+            defaultDisplay={display}
+            onScreenBackChange={onScreenBackChange}
+            onAuthStateUpdate={(state) => {
+              onAuthStateUpdate(state);
+              if (state.defaultDisplay) {
+                setDisplay(state.defaultDisplay);
+              }
+            }}
+          />
+        </TestBootProvider>
+      );
+    };
+    render(<MirroringParent />);
+
+    return {
+      onAuthStateUpdate,
+      goBack: () => act(() => onScreenBackChange.mock.lastCall?.[0]()),
+      expectBack: (back: unknown) =>
+        waitFor(() =>
+          expect(onScreenBackChange).toHaveBeenLastCalledWith(back),
+        ),
+    };
+  };
+
+  it('hands Reset password back to a page with its own top bar', async () => {
+    const { goBack, expectBack } = renderMirrored(AuthDisplay.Default);
 
     fireEvent.click(await screen.findByText('Forgot password?'));
 
     expect(await screen.findByText('Reset password')).toBeInTheDocument();
     expect(screen.queryByLabelText('Go back')).not.toBeInTheDocument();
-    await waitFor(() =>
-      expect(onScreenBackChange).toHaveBeenLastCalledWith(expect.any(Function)),
-    );
+    await expectBack(expect.any(Function));
 
-    act(() => onScreenBackChange.mock.lastCall?.[0]());
+    goBack();
 
     expect(await screen.findByTestId('auth-default')).toBeInTheDocument();
-    await waitFor(() =>
-      expect(onScreenBackChange).toHaveBeenLastCalledWith(undefined),
+    await expectBack(undefined);
+  });
+
+  it('returns email sign-up to the Sign up list it came from', async () => {
+    const { goBack, expectBack, onAuthStateUpdate } = renderMirrored(
+      AuthDisplay.Default,
     );
+
+    fireEvent.click(await screen.findByText('Sign up with email'));
+    expect(await screen.findByTestId('registration-form')).toBeInTheDocument();
+    await expectBack(expect.any(Function));
+
+    goBack();
+
+    expect(onAuthStateUpdate).toHaveBeenCalledWith({ isLoginFlow: false });
+    expect(await screen.findByTestId('auth-default')).toBeInTheDocument();
+  });
+
+  it('leaves a directly opened email form for the funnel', async () => {
+    const { goBack, expectBack, onAuthStateUpdate } = renderMirrored(
+      AuthDisplay.Registration,
+    );
+
+    expect(await screen.findByTestId('registration-form')).toBeInTheDocument();
+    await expectBack(expect.any(Function));
+
+    goBack();
+
+    expect(onAuthStateUpdate).toHaveBeenCalledWith({
+      defaultDisplay: AuthDisplay.OnboardingSignup,
+    });
+  });
+
+  it('has no back on Log in reached from the email form', async () => {
+    const { expectBack, onAuthStateUpdate } = renderMirrored(
+      AuthDisplay.Registration,
+    );
+
+    fireEvent.click(await screen.findByText('Existing email'));
+
+    expect(await screen.findByTestId('auth-default')).toBeInTheDocument();
+    expect(onAuthStateUpdate).toHaveBeenCalledWith({
+      isLoginFlow: true,
+      defaultDisplay: AuthDisplay.Default,
+    });
+    await expectBack(undefined);
   });
 });
 

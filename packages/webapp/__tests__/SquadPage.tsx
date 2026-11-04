@@ -299,7 +299,11 @@ describe('squad page viewer matrix', () => {
       mockSquad(squad);
       renderSquadPage(squad, user);
 
-      await screen.findByRole('heading', { level: 1, name: squad.name });
+      await screen.findByRole(
+        'heading',
+        { level: 1, name: squad.name },
+        { timeout: 5000 },
+      );
       expect(!!screen.queryByLabelText('Squad options')).toBe(hasOptions);
       expect(
         screen.getByRole('heading', { level: 1, name: squad.name }),

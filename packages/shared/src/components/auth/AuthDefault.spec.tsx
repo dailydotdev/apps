@@ -4,6 +4,7 @@ import { QueryClient } from '@tanstack/react-query';
 import AuthDefault from './AuthDefault';
 import { providers } from './common';
 import { AuthEventNames, AuthTriggers } from '../../lib/auth';
+import { labels } from '../../lib';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 
 const renderAuthDefault = (
@@ -74,6 +75,34 @@ describe('AuthDefault', () => {
 
     expect(await screen.findByText('Continue with Google')).toBeInTheDocument();
     expect(screen.queryByTestId('login_form')).not.toBeInTheDocument();
+  });
+
+  it('opens the email screen without a stale error and keeps the email', async () => {
+    const setHint = jest.fn();
+    renderAuthDefault({
+      isLoginFlow: true,
+      loginEmail: 'dev@daily.dev',
+      loginHint: ['Wrong', setHint],
+    });
+
+    fireEvent.click(screen.getByText('Continue with email'));
+
+    expect(setHint).toHaveBeenCalledWith(null);
+    expect(await screen.findByRole('textbox', { name: 'Email' })).toHaveValue(
+      'dev@daily.dev',
+    );
+  });
+
+  it('keeps the verify title when the error links to sign up', async () => {
+    renderAuthDefault({
+      disableRegistration: true,
+      signUpTitle: 'Verify',
+      loginHint: [labels.auth.error.invalidEmailOrPassword, jest.fn()],
+    });
+
+    fireEvent.click(screen.getByText('create a new account.'));
+
+    expect(screen.getByRole('heading', { name: 'Verify' })).toBeInTheDocument();
   });
 
   it('asks for the missing fields instead of submitting an empty log in', async () => {
