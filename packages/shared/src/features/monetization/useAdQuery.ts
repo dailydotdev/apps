@@ -12,6 +12,8 @@ interface UseAdQueryOptions {
   queryKey: QueryKey;
   enabled?: boolean;
   staleTime?: number;
+  /** How long the ad outlives the last slot showing it. */
+  gcTime?: number;
   placement: FetchAdByPlacementOptions['placement'];
   active?: boolean;
   retry?: UseQueryOptions<Ad | null>['retry'];
@@ -28,6 +30,7 @@ export const useAdQuery = ({
   queryKey,
   enabled = true,
   staleTime,
+  gcTime,
   placement,
   active,
   retry,
@@ -65,6 +68,7 @@ export const useAdQuery = ({
     queryFn: async () => (consent ? fetchAdByPlacement(fetchOptions) : null),
     enabled: enabled && !!consent,
     staleTime,
+    ...(gcTime !== undefined && { gcTime }),
     // an explicit undefined would replace the client's default retry rule
     ...(retry !== undefined && { retry }),
     refetchOnMount: false,

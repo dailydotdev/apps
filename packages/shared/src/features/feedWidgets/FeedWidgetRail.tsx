@@ -188,7 +188,7 @@ export const FeedWidgetRail = ({
   // Customize brings the add tile into view, so adding is never a hunt.
   const shouldRevealAdd = useRef(false);
 
-  const { ad, isNoFill } = useFeedWidgetAd({ enabled: showAd });
+  const { ad, isNoFill } = useFeedWidgetAd({ enabled: showAd, feedName });
   // One tip per page view, over our slot: it is known from the settings and
   // the slot alone, so it is there from the first paint.
   const tips = useFeedWidgetTips();

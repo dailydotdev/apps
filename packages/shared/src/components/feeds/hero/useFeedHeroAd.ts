@@ -7,7 +7,7 @@ import { useFeedLayout } from '../../../hooks/useFeedLayout';
 import { useIsPlusAdFree } from '../../../hooks/useIsPlusAdFree';
 import { useCachedTokenRecovery } from '../../../hooks/useCachedTokenRecovery';
 import { AdPlacement } from '../../../lib/ads';
-import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
 import type { FeedHeroAdPlacement, FeedHeroShape } from './feedHeroShape';
 import { feedHeroShape } from './feedHeroShape';
 
@@ -39,7 +39,8 @@ export const useFeedHeroAd = (): FeedHeroAdSlot => {
     placement: AdPlacement.Feed,
     queryKey,
     enabled,
-    staleTime: StaleTime.OneHour,
+    // Gone with the feed, so the next visit gets a fresh one.
+    gcTime: 0,
   });
   // The ad query suffixes the consent to this key, so it matches as a prefix
   useCachedTokenRecovery({ queryKey, enabled });

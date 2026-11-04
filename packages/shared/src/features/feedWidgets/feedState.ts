@@ -26,12 +26,7 @@ import type { Ad } from '../../graphql/posts';
 import { useAdQuery } from '../monetization/useAdQuery';
 import { useCachedTokenRecovery } from '../../hooks/useCachedTokenRecovery';
 import { AdPlacement } from '../../lib/ads';
-import {
-  generateQueryKey,
-  OtherFeedPage,
-  RequestKey,
-  StaleTime,
-} from '../../lib/query';
+import { generateQueryKey, OtherFeedPage, RequestKey } from '../../lib/query';
 import { useFeedHeroData } from '../../components/feeds/hero/useFeedHeroData';
 import { useLogContext } from '../../contexts/LogContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
@@ -137,31 +132,36 @@ export const useFeedWidgetAdSlot = (): {
 
 /**
  * The rail ad's query key, before `useAdQuery` suffixes the consent: a prefix
- * that matches every variant of it.
+ * that matches every variant of it. One per feed, as the feed's own ads are.
  */
 export const getFeedWidgetAdQueryKey = (
   user: Parameters<typeof generateQueryKey>[1],
-): QueryKey => generateQueryKey(RequestKey.Ads, user, 'feed-widgets');
+  feedName: string,
+): QueryKey => generateQueryKey(RequestKey.Ads, user, 'feed-widgets', feedName);
 
 /**
- * The creative for the rail's pinned slot. One per page view, like the hero's.
+ * The creative for the rail's pinned slot. One per visit to the feed: it lasts
+ * while the feed is on screen, a post opened over it included, and goes with
+ * the feed, so the next visit gets a fresh one.
  * Fetching it logs nothing: the slot logs its impression once it is on screen.
  * The rail and the feed share its query, so both know when it came back empty.
  */
 export const useFeedWidgetAd = ({
   enabled,
+  feedName,
 }: {
   enabled: boolean;
+  feedName: string;
 }): { ad?: Ad; isEnabled: boolean; isNoFill: boolean } => {
   const { user, isTokenValid } = useAuthContext();
   const isPlusAdFree = useIsPlusAdFree();
-  const queryKey = getFeedWidgetAdQueryKey(user);
+  const queryKey = getFeedWidgetAdQueryKey(user, feedName);
   const isEnabled = enabled && isTokenValid && !isPlusAdFree;
   const { data: ad, isFetched } = useAdQuery({
     placement: AdPlacement.Feed,
     queryKey,
     enabled: isEnabled,
-    staleTime: StaleTime.OneHour,
+    gcTime: 0,
   });
   // The ad query suffixes the consent to this key, so it matches as a prefix.
   useCachedTokenRecovery({ queryKey, enabled: isEnabled });
@@ -236,12 +236,17 @@ export const useFeedWidgetShortcuts = (
  */
 export const useFeedWidgetFeedState = ({
   enabled,
+  feedName,
 }: {
   enabled: boolean;
+  feedName: string;
 }): FeedWidgetFeedState => {
   const widgets = useResolvedFeedWidgets({ enabled });
   const { showAd } = useFeedWidgetAdSlot();
-  const { isNoFill } = useFeedWidgetAd({ enabled: enabled && showAd });
+  const { isNoFill } = useFeedWidgetAd({
+    enabled: enabled && showAd,
+    feedName,
+  });
   const hasTopStory = widgets.some(
     ({ kind }) => kind === FeedWidgetKind.TopStory,
   );

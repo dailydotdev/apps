@@ -78,7 +78,10 @@ const BoostedPostCard = ({
   const { user } = useAuthContext();
   const { feedName } = useFeedWidgetsContext();
   const queryClient = useQueryClient();
-  const queryKey = useMemo(() => getFeedWidgetAdQueryKey(user), [user]);
+  const queryKey = useMemo(
+    () => getFeedWidgetAdQueryKey(user, feedName),
+    [user, feedName],
+  );
   const cache = useMemo(() => widgetAdPostCache(queryKey), [queryKey]);
   const items = useMemo<AdItem[]>(
     () => [

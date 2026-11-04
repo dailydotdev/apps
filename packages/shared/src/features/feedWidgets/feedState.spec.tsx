@@ -15,7 +15,7 @@ import { fetchAdByPlacement } from '../../lib/ads';
 import { clearShownFeedHeroLeads } from '../../components/feeds/hero/useFeedHeroData';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { SharedFeedPage } from '../../components/utilities/common';
-import { OtherFeedPage } from '../../lib/query';
+import { OtherFeedPage, RequestKey } from '../../lib/query';
 import {
   emptyFeedWidgetFeedState,
   resetHomeRailFlag,
@@ -50,26 +50,33 @@ const renderFeedState = ({
   enabled = true,
   feedWidgets,
   columns = 4,
-}: { enabled?: boolean; feedWidgets?: unknown; columns?: number } = {}) =>
-  renderHook(() => useFeedWidgetFeedState({ enabled }), {
-    wrapper: ({ children }: { children: ReactNode }): ReactElement => (
-      <TestBootProvider
-        client={
-          new QueryClient({ defaultOptions: { queries: { retry: false } } })
-        }
-        settings={{ flags: { feedWidgets } as unknown as SettingsFlags }}
-      >
-        <FeedContext.Provider
-          value={{
-            pageSize: 13,
-            numCards: { eco: columns, roomy: columns, cozy: columns },
-          }}
+  client = new QueryClient({ defaultOptions: { queries: { retry: false } } }),
+}: {
+  enabled?: boolean;
+  feedWidgets?: unknown;
+  columns?: number;
+  client?: QueryClient;
+} = {}) =>
+  renderHook(
+    () => useFeedWidgetFeedState({ enabled, feedName: SharedFeedPage.MyFeed }),
+    {
+      wrapper: ({ children }: { children: ReactNode }): ReactElement => (
+        <TestBootProvider
+          client={client}
+          settings={{ flags: { feedWidgets } as unknown as SettingsFlags }}
         >
-          {children}
-        </FeedContext.Provider>
-      </TestBootProvider>
-    ),
-  });
+          <FeedContext.Provider
+            value={{
+              pageSize: 13,
+              numCards: { eco: columns, roomy: columns, cozy: columns },
+            }}
+          >
+            {children}
+          </FeedContext.Provider>
+        </TestBootProvider>
+      ),
+    },
+  );
 
 beforeEach(() => {
   nock.cleanAll();
@@ -130,6 +137,26 @@ describe('useFeedWidgetFeedState', () => {
     const { result } = renderFeedState({ columns: 2 });
 
     expect(result.current.isAdVisible).toBe(false);
+  });
+
+  it('fetches a fresh ad for the next visit to the feed', async () => {
+    jest.mocked(fetchAdByPlacement).mockClear().mockResolvedValue(null);
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+
+    const { result, unmount } = renderFeedState({ client });
+    await waitFor(() => expect(result.current.isAdVisible).toBe(false));
+    unmount();
+    // Leaving the feed drops its ad.
+    await waitFor(() =>
+      expect(
+        client.getQueryCache().findAll({ queryKey: [RequestKey.Ads] }),
+      ).toHaveLength(0),
+    );
+    renderFeedState({ client });
+
+    await waitFor(() => expect(fetchAdByPlacement).toHaveBeenCalledTimes(2));
   });
 
   it('holds back nothing while the rail is off', () => {
