@@ -287,8 +287,9 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
 export const featureFeedHero = new Feature('feed_hero', false);
 
 // Experiment: the hero as a rail of widgets the reader arranges, with the ad
-// slot pinned third. Supersedes `feed_hero` where it is on.
-export const featureFeedWidgets = new Feature('feed_widgets', false);
+// slot pinned third. Supersedes `feed_hero` where it is on. Tablet and up
+// only; relaunched from `feed_widgets` once phones were taken out of it.
+export const featureFeedWidgets = new Feature('feed_widgets_v2', false);
 
 // Experiment: the post page's full-width signup banner against the cover
 // card pinned over the bottom of the window at the content's width.
