@@ -1,5 +1,11 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import AuthOptions from './AuthOptions';
 import { AuthDisplay } from './common';
@@ -16,7 +22,23 @@ jest.mock('../../lib/betterAuth', () => ({
 
 jest.mock('./RegistrationForm', () => ({
   __esModule: true,
-  default: () => <div data-testid="registration-form" />,
+  default: ({
+    onExistingEmailLoginClick,
+  }: {
+    onExistingEmailLoginClick?: (existingEmail?: string) => void;
+  }) => (
+    <div data-testid="registration-form">
+      <button type="button" onClick={() => onExistingEmailLoginClick?.()}>
+        Existing email
+      </button>
+      <button
+        type="button"
+        onClick={() => onExistingEmailLoginClick?.('taken@daily.dev')}
+      >
+        Email is taken
+      </button>
+    </div>
+  ),
 }));
 
 jest.mock('./OnboardingRegistrationForm', () => {
@@ -30,11 +52,20 @@ jest.mock('./AuthDefault', () => ({
   default: ({
     onProviderClick,
     onForgotPassword,
+    onSignup,
+    emailLogin,
+    loginEmail,
   }: {
     onProviderClick: (provider: string) => void;
     onForgotPassword?: (email?: string) => void;
+    onSignup?: (email: string) => void;
+    emailLogin?: [boolean, (value: boolean) => void];
+    loginEmail?: string;
   }) => (
     <>
+      {emailLogin?.[0] && (
+        <span data-testid="email-login">{loginEmail ?? ''}</span>
+      )}
       <button
         type="button"
         data-testid="auth-default"
@@ -44,6 +75,9 @@ jest.mock('./AuthDefault', () => ({
       </button>
       <button type="button" onClick={() => onForgotPassword?.()}>
         Forgot password?
+      </button>
+      <button type="button" onClick={() => onSignup?.('')}>
+        Sign up with email
       </button>
     </>
   ),
@@ -115,6 +149,154 @@ describe('AuthOptions forgot password', () => {
 
     expect(await screen.findByTestId('auth-default')).toBeInTheDocument();
     expect(screen.queryByText('Reset password')).not.toBeInTheDocument();
+  });
+});
+
+describe('AuthOptions screen back', () => {
+  const renderMirrored = (initialDisplay: AuthDisplay) => {
+    const onScreenBackChange = jest.fn();
+    const onAuthStateUpdate = jest.fn();
+    const MirroringParent = () => {
+      const [display, setDisplay] = React.useState(initialDisplay);
+      return (
+        <TestBootProvider
+          client={new QueryClient()}
+          auth={{ isLoggedIn: false }}
+        >
+          <AuthOptions
+            simplified
+            formRef={{ current: document.createElement('form') }}
+            trigger={AuthTriggers.Onboarding}
+            defaultDisplay={display}
+            onScreenBackChange={onScreenBackChange}
+            onAuthStateUpdate={(state) => {
+              onAuthStateUpdate(state);
+              if (state.defaultDisplay) {
+                setDisplay(state.defaultDisplay);
+              }
+            }}
+          />
+        </TestBootProvider>
+      );
+    };
+    render(<MirroringParent />);
+
+    return {
+      onAuthStateUpdate,
+      goBack: () => act(() => onScreenBackChange.mock.lastCall?.[0]()),
+      expectBack: (back: unknown) =>
+        waitFor(() =>
+          expect(onScreenBackChange).toHaveBeenLastCalledWith(back),
+        ),
+    };
+  };
+
+  it('hands Reset password back to a page with its own top bar', async () => {
+    const { goBack, expectBack } = renderMirrored(AuthDisplay.Default);
+
+    fireEvent.click(await screen.findByText('Forgot password?'));
+
+    expect(await screen.findByText('Reset password')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Go back')).not.toBeInTheDocument();
+    await expectBack(expect.any(Function));
+
+    goBack();
+
+    expect(await screen.findByTestId('auth-default')).toBeInTheDocument();
+    await expectBack(undefined);
+  });
+
+  it('returns email sign-up to the Sign up list it came from', async () => {
+    const { goBack, expectBack, onAuthStateUpdate } = renderMirrored(
+      AuthDisplay.Default,
+    );
+
+    fireEvent.click(await screen.findByText('Sign up with email'));
+    expect(await screen.findByTestId('registration-form')).toBeInTheDocument();
+    await expectBack(expect.any(Function));
+
+    goBack();
+
+    expect(onAuthStateUpdate).toHaveBeenCalledWith({ isLoginFlow: false });
+    expect(await screen.findByTestId('auth-default')).toBeInTheDocument();
+  });
+
+  it('leaves a directly opened email form for the funnel', async () => {
+    const { goBack, expectBack, onAuthStateUpdate } = renderMirrored(
+      AuthDisplay.Registration,
+    );
+
+    expect(await screen.findByTestId('registration-form')).toBeInTheDocument();
+    await expectBack(expect.any(Function));
+
+    goBack();
+
+    expect(onAuthStateUpdate).toHaveBeenCalledWith({
+      defaultDisplay: AuthDisplay.OnboardingSignup,
+    });
+  });
+
+  it('has no back on Log in reached from the email form', async () => {
+    const { expectBack, onAuthStateUpdate } = renderMirrored(
+      AuthDisplay.Registration,
+    );
+
+    fireEvent.click(await screen.findByText('Existing email'));
+
+    expect(await screen.findByTestId('auth-default')).toBeInTheDocument();
+    expect(onAuthStateUpdate).toHaveBeenCalledWith({
+      isLoginFlow: true,
+      defaultDisplay: AuthDisplay.Default,
+    });
+    await expectBack(undefined);
+  });
+
+  it('opens the email Log in screen with the taken email', async () => {
+    const { goBack, expectBack } = renderMirrored(AuthDisplay.Registration);
+
+    fireEvent.click(await screen.findByText('Email is taken'));
+
+    expect(await screen.findByTestId('email-login')).toHaveTextContent(
+      'taken@daily.dev',
+    );
+    await expectBack(expect.any(Function));
+
+    goBack();
+
+    expect(screen.queryByTestId('email-login')).not.toBeInTheDocument();
+    expect(screen.getByTestId('auth-default')).toBeInTheDocument();
+    await expectBack(undefined);
+  });
+});
+
+describe('AuthOptions email Log in entry', () => {
+  const renderLogin = (initialEmail?: string) =>
+    render(
+      <TestBootProvider client={new QueryClient()} auth={{ isLoggedIn: false }}>
+        <AuthOptions
+          simplified
+          isLoginFlow
+          initialEmail={initialEmail}
+          formRef={{ current: document.createElement('form') }}
+          trigger={AuthTriggers.Onboarding}
+          defaultDisplay={AuthDisplay.Default}
+        />
+      </TestBootProvider>,
+    );
+
+  it('opens on the email screen when Log in starts with a known email', async () => {
+    renderLogin('taken@daily.dev');
+
+    expect(await screen.findByTestId('email-login')).toHaveTextContent(
+      'taken@daily.dev',
+    );
+  });
+
+  it('opens on the provider list without an email', async () => {
+    renderLogin();
+
+    expect(await screen.findByTestId('auth-default')).toBeInTheDocument();
+    expect(screen.queryByTestId('email-login')).not.toBeInTheDocument();
   });
 });
 

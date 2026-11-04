@@ -172,6 +172,7 @@ export const FunnelHeroLanding = withIsActiveGuard(
             isLoginFlow: true,
             isAuthenticating: true,
             defaultDisplay: AuthDisplay.Default,
+            ...(data.email && { email: data.email }),
           }));
           return;
         }
@@ -255,10 +256,8 @@ export const FunnelHeroLanding = withIsActiveGuard(
         <AuthOptions
           {...staticAuthProps}
           // Post-signup funnel only: the account-details screen takes the
-          // funnel's headline scale and drops the terms strip, so it reads as
-          // the same flow as the steps after it. The paid funnel's landing keeps
-          // its own treatment.
-          hideSignupDisclaimer={isOnboarding}
+          // funnel's headline scale, so it reads as the same flow as the steps
+          // after it. The paid funnel's landing keeps its own treatment.
           isOnboardingFunnel={isOnboarding}
           className={
             isSplitColumnBackground
