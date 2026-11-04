@@ -3,6 +3,8 @@
 export const SQUAD_LINKS_MAX = 10;
 export const SQUAD_LINK_MAX_LENGTH = 500;
 export const SQUAD_PRODUCTS_MAX = 20;
+// Startups plan squads, which are not verified, show one product
+export const SQUAD_PLAN_PRODUCTS_MAX = 1;
 export const SQUAD_PRODUCT_NAME_MAX_LENGTH = 100;
 export const SQUAD_PRODUCT_TAGLINE_MAX_LENGTH = 120;
 export const SQUAD_PRODUCT_DESCRIPTION_MAX_LENGTH = 500;

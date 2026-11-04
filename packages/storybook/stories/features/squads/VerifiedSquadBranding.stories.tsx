@@ -14,6 +14,9 @@ import {
 import { squadMembersPreviewQueryOptions } from '@dailydotdev/shared/src/graphql/squads';
 import type { SquadBranding } from '@dailydotdev/shared/src/graphql/squadBranding';
 import { squadBrandingQueryOptions } from '@dailydotdev/shared/src/graphql/squadBranding';
+import type { SquadProduct } from '@dailydotdev/shared/src/graphql/squadProducts';
+import { squadProductsQueryOptions } from '@dailydotdev/shared/src/graphql/squadProducts';
+import { SquadManageProducts } from '@dailydotdev/shared/src/features/squads/components/manage/SquadManageProducts';
 import {
   generateQueryKey,
   RequestKey,
@@ -123,10 +126,12 @@ const posts = entries
 const Seeded = ({
   squad,
   brand,
+  products,
   children,
 }: {
   squad: Squad;
   brand?: SquadBranding;
+  products?: SquadProduct[];
   children: ReactNode;
 }): ReactElement => {
   const client = useQueryClient();
@@ -146,6 +151,12 @@ const Seeded = ({
       }).queryKey;
       client.setQueryData(brandingKey, brand ?? { color: null, button: null });
       client.setQueryDefaults(brandingKey, { staleTime: Infinity });
+      const productsKey = squadProductsQueryOptions({
+        squad,
+        user: who,
+      }).queryKey;
+      client.setQueryData(productsKey, products ?? []);
+      client.setQueryDefaults(productsKey, { staleTime: Infinity });
     });
   };
   useState(() => {
@@ -354,6 +365,56 @@ export const SealAcrossTheApp: Story = {
           />
         </div>
       </div>
+    </Seeded>
+  ),
+};
+
+// daily.dev for Startups, Team plan: the header button without the brand
+// color, links, and one product. The rest is Enterprise.
+const teamPlanSquad = {
+  ...verifiedSquad,
+  features: { cta: true, links: true, products: true },
+} as unknown as Squad;
+
+const teamPlanBranding: SquadBranding = { ...branding, color: null };
+
+const teamPlanProduct = {
+  id: 'coderabbit-cli',
+  title: 'CodeRabbit CLI',
+  slug: 'coderabbit-cli',
+  url: 'https://www.coderabbit.ai/cli',
+  faviconUrl: verifiedSquad.image,
+  category: 'Code review',
+  tagline: 'AI code reviews in your terminal',
+  description: null,
+  pricingModel: 'freemium',
+} as unknown as SquadProduct;
+
+/** Team plan member: the button replaces Join, in the app's primary color. */
+export const TeamPlanMember: Story = {
+  render: () => (
+    <Page squad={asMember(teamPlanSquad)} brand={teamPlanBranding} />
+  ),
+};
+
+/** Team plan › Manage › Branding: the button, the brand color locked. */
+export const TeamPlanManageBranding: Story = {
+  render: () => (
+    <Seeded squad={asAdmin(teamPlanSquad)} brand={teamPlanBranding}>
+      <SquadManageLayout section={SquadManageSection.Branding}>
+        <SquadManageBranding />
+      </SquadManageLayout>
+    </Seeded>
+  ),
+};
+
+/** Startups plan › Manage › Products: one product, more is Enterprise. */
+export const PlanManageProducts: Story = {
+  render: () => (
+    <Seeded squad={asAdmin(teamPlanSquad)} products={[teamPlanProduct]}>
+      <SquadManageLayout section={SquadManageSection.Products}>
+        <SquadManageProducts />
+      </SquadManageLayout>
     </Seeded>
   ),
 };
