@@ -228,7 +228,7 @@ export const SettingsPanelSection = ({
             ),
           },
           {
-            title: 'Ads dashboard',
+            title: 'Boosts',
             icon: (active: boolean) => (
               <ListIcon Icon={() => <TrendingIcon secondary={active} />} />
             ),

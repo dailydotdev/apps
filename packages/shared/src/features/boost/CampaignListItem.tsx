@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import type { MouseEventHandler, ReactElement } from 'react';
 import React from 'react';
 import { IconSize } from '../../components/Icon';
-import { ArrowIcon } from '../../components/icons';
+import { ArrowIcon, CoreIcon } from '../../components/icons';
 import {
   Typography,
   TypographyType,
@@ -12,13 +12,13 @@ import { getAbsoluteDifferenceInDays } from './utils';
 import type { Campaign } from '../../graphql/campaigns';
 import { CampaignType } from '../../graphql/campaigns';
 import { isNullOrUndefined } from '../../lib/func';
-import { CampaignListItemPost } from './CampaignListItemPost';
-import { CampaignListItemSquad } from './CampaignListItemSquad';
+import { largeNumberFormat } from '../../lib';
+import { BoostTarget } from './BoostTarget';
 
-const statusToColor: Record<Campaign['state'], string> = {
-  ACTIVE: 'bg-action-upvote-active text-action-upvote-default',
-  COMPLETED: 'bg-action-share-active text-action-share-default',
-  CANCELLED: 'bg-surface-float text-text-secondary',
+const statusToClassName: Record<Campaign['state'], string> = {
+  ACTIVE: 'bg-action-upvote-float text-status-success',
+  COMPLETED: 'bg-surface-float text-text-secondary',
+  CANCELLED: 'bg-surface-float text-text-tertiary',
 };
 
 export const BoostStatus = ({
@@ -27,7 +27,7 @@ export const BoostStatus = ({
 }: {
   status: Campaign['state'];
   remainingDays?: number;
-}) => {
+}): ReactElement => {
   const copy = (() => {
     switch (status) {
       case 'ACTIVE':
@@ -48,10 +48,11 @@ export const BoostStatus = ({
   return (
     <Typography
       tag={TypographyTag.Span}
-      type={TypographyType.Footnote}
+      type={TypographyType.Caption1}
+      bold
       className={classNames(
-        'rounded-6 px-1',
-        statusToColor[status] ?? statusToColor.ACTIVE,
+        'shrink-0 whitespace-nowrap rounded-8 px-2 py-0.5',
+        statusToClassName[status] ?? statusToClassName.ACTIVE,
       )}
     >
       {copy}
@@ -65,42 +66,43 @@ interface CampaignListItemProps {
   onClick: MouseEventHandler<HTMLButtonElement>;
 }
 
-const PreviewComponent = ({ campaign }: { campaign: Campaign }) => {
-  switch (campaign.type) {
-    case CampaignType.Post:
-      return <CampaignListItemPost post={campaign.post} />;
-    case CampaignType.Squad:
-      return <CampaignListItemSquad squad={campaign.source} />;
-    default:
-      return null;
-  }
-};
-
 export function CampaignListItem({
   campaign,
   className,
   onClick,
 }: CampaignListItemProps): ReactElement {
-  const getRemaining = () => {
-    if (campaign.state !== 'ACTIVE') {
-      return undefined;
-    }
-
-    return getAbsoluteDifferenceInDays(new Date(campaign.endedAt), new Date());
-  };
+  const isActive = campaign.state === 'ACTIVE';
+  const remainingDays = isActive
+    ? getAbsoluteDifferenceInDays(new Date(campaign.endedAt), new Date())
+    : undefined;
+  const isPost = campaign.type === CampaignType.Post;
 
   return (
     <button
       type="button"
       onClick={onClick}
       className={classNames(
-        'flex w-full flex-row items-center gap-4 hover:bg-surface-hover',
+        'flex w-full flex-row items-center gap-3 text-left hover:bg-surface-hover',
         className,
       )}
     >
-      <PreviewComponent campaign={campaign} />
-      <BoostStatus status={campaign.state} remainingDays={getRemaining()} />
-      <ArrowIcon size={IconSize.Medium} className="rotate-90" />
+      <BoostTarget
+        post={isPost ? campaign.post : undefined}
+        squad={isPost ? undefined : campaign.source}
+        className="flex-1"
+        subtitle={
+          <span className="flex items-center gap-1">
+            <CoreIcon size={IconSize.XXSmall} />
+            {largeNumberFormat(campaign.flags?.spend || 0)} spent ·{' '}
+            {largeNumberFormat(campaign.flags?.users || 0)} reached
+          </span>
+        }
+      />
+      <BoostStatus status={campaign.state} remainingDays={remainingDays} />
+      <ArrowIcon
+        size={IconSize.Small}
+        className="shrink-0 rotate-90 text-text-tertiary"
+      />
     </button>
   );
 }

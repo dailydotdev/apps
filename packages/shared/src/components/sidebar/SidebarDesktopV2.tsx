@@ -621,7 +621,7 @@ const SidebarSettingsButton = (): ReactElement => {
     ...(canPurchaseCores
       ? [
           {
-            title: 'Ads dashboard',
+            title: 'Boosts',
             icon: TrendingIcon,
             onClick: () => openModal({ type: LazyModal.AdsDashboard }),
           } satisfies ProfileSectionItemProps,

@@ -1,26 +1,21 @@
 import React from 'react';
-
 import { ElementPlaceholder } from '../../components/ElementPlaceholder';
-import { IconSize } from '../../components/Icon';
-import { ArrowIcon } from '../../components/icons';
 
 const campaignPlaceholder = (
-  <div className="flex w-full flex-row items-center gap-4 py-2">
-    <ElementPlaceholder className="h-12 w-12 rounded-8" />
+  <div className="flex w-full flex-row items-center gap-3 py-2">
+    <ElementPlaceholder className="h-12 w-16 rounded-12" />
     <div className="flex h-full flex-1 flex-col justify-center gap-2">
       <ElementPlaceholder className="h-3 w-full rounded-8" />
-      <ElementPlaceholder className="h-3 w-3/5 rounded-8" />
+      <ElementPlaceholder className="h-3 w-2/5 rounded-8" />
     </div>
-    <ArrowIcon
-      size={IconSize.Medium}
-      className="rotate-90 text-text-disabled"
-    />
+    <ElementPlaceholder className="h-5 w-16 rounded-8" />
   </div>
 );
 
 export function BoostHistoryLoading(): React.ReactElement {
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex flex-col items-center gap-2" aria-busy>
+      {campaignPlaceholder}
       {campaignPlaceholder}
       {campaignPlaceholder}
     </div>

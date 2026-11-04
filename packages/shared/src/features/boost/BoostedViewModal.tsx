@@ -1,8 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { BoostStatus } from './CampaignListItem';
-import { CampaignListView, CampaignStatsGrid } from './CampaignListView';
+import { CampaignListView } from './CampaignListView';
 import type { ModalProps } from '../../components/modals/common/Modal';
 import { Modal } from '../../components/modals/common/Modal';
 import type { Campaign } from '../../graphql/campaigns';
@@ -13,8 +12,15 @@ import { usePrompt } from '../../hooks/usePrompt';
 import {
   Button,
   ButtonColor,
+  ButtonSize,
   ButtonVariant,
 } from '../../components/buttons/Button';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../components/typography/Typography';
+import { ElementPlaceholder } from '../../components/ElementPlaceholder';
 import { ArrowIcon } from '../../components/icons';
 import type { PostData } from '../../graphql/posts';
 import {
@@ -38,13 +44,14 @@ interface BoostedViewModalProps extends ModalProps {
 export const stopBoostPromptOptions: PromptOptions = {
   title: 'Stop this boost?',
   description:
-    "If you stop this boost now, it will no longer be promoted. We'll credit the remaining Cores back to your balance for the unused budget",
+    'It stops being promoted right away. The Cores it has not spent yet go back to the wallet that paid for it.',
   okButton: {
     title: 'Stop boost',
     color: ButtonColor.Ketchup,
     className: 'flex !w-full',
   },
   cancelButton: {
+    title: 'Keep boosting',
     className: 'flex !w-full',
     variant: ButtonVariant.Float,
   },
@@ -154,22 +161,24 @@ export function BoostedViewModal({
       kind={Modal.Kind.FixedCenter}
       size={Modal.Size.Small}
     >
-      <Modal.Header className="flex flex-row gap-2">
+      <Modal.Header
+        title={
+          campaign.type === CampaignType.Squad ? 'Squad boost' : 'Post boost'
+        }
+        closeOnPhone={!!onBack}
+      >
         {!!onBack && (
           <Button
             onClick={onBack}
-            className="hidden tablet:flex"
+            className="-ml-2 mr-1"
+            size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
             icon={<ArrowIcon className="-rotate-90" />}
+            aria-label="Back to boosts"
           />
         )}
-        <Modal.Header.Title>Boost</Modal.Header.Title>
       </Modal.Header>
-      <Modal.Body className="flex flex-col gap-4">
-        <span className="flex flex-row items-center justify-between">
-          <Modal.Subtitle>Overview</Modal.Subtitle>
-          <BoostStatus status={campaign.state} />
-        </span>
+      <Modal.Body>
         <CampaignListView
           campaign={campaign}
           isLoading={isLoading || isLoadingCancel}
@@ -179,6 +188,41 @@ export function BoostedViewModal({
     </Modal>
   );
 }
+
+const BoostedViewPlaceholder = ({
+  message,
+  ...props
+}: ModalProps & { message?: string }): ReactElement => (
+  <Modal
+    {...props}
+    isOpen
+    kind={Modal.Kind.FixedCenter}
+    size={Modal.Size.Small}
+  >
+    <Modal.Header title="Boost" closeOnPhone />
+    <Modal.Body className="flex flex-col gap-6">
+      {message ? (
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+          className="py-8 text-center"
+        >
+          {message}
+        </Typography>
+      ) : (
+        <div className="flex flex-col gap-6" aria-busy>
+          <ElementPlaceholder className="h-[4.5rem] rounded-16" />
+          <ElementPlaceholder className="h-10 rounded-12" />
+          <div className="grid grid-cols-2 gap-3">
+            {[0, 1, 2, 3].map((index) => (
+              <ElementPlaceholder key={index} className="h-24 rounded-14" />
+            ))}
+          </div>
+        </div>
+      )}
+    </Modal.Body>
+  </Modal>
+);
 
 export function FetchBoostedViewModal({
   campaignId,
@@ -190,40 +234,15 @@ export function FetchBoostedViewModal({
   const { data, isLoading } = useCampaignById(campaignId);
 
   if (isLoading) {
-    return (
-      <Modal
-        {...props}
-        isOpen
-        kind={Modal.Kind.FixedCenter}
-        size={Modal.Size.Small}
-      >
-        <Modal.Header title="Boost" showCloseButton={false} />
-        <div className="flex flex-col gap-4 py-4">
-          <span className="text-text-quaternary typo-caption1">
-            Fetching data, please hold...
-          </span>
-          <CampaignStatsGrid users={0} spend={0} impressions={0} />
-        </div>
-      </Modal>
-    );
+    return <BoostedViewPlaceholder {...props} />;
   }
 
   if (!data || !user || data.user.id !== user.id) {
     return (
-      <Modal
+      <BoostedViewPlaceholder
         {...props}
-        isOpen
-        kind={Modal.Kind.FixedCenter}
-        size={Modal.Size.Small}
-      >
-        <Modal.Header title="Boost" showCloseButton={false} />
-        <div className="flex flex-col gap-4 py-4">
-          <span className="text-text-quaternary typo-caption1">
-            No campaign found
-          </span>
-          <CampaignStatsGrid users={0} spend={0} impressions={0} />
-        </div>
-      </Modal>
+        message="This boost could not be found."
+      />
     );
   }
 

@@ -1,32 +1,36 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
+  TypographyTag,
   TypographyType,
 } from '../../components/typography/Typography';
 import {
   Button,
-  ButtonColor,
+  ButtonSize,
   ButtonVariant,
 } from '../../components/buttons/Button';
-import { CoreIcon } from '../../components/icons';
+import {
+  AddUserIcon,
+  CoreIcon,
+  EyeIcon,
+  OpenLinkIcon,
+  UserIcon,
+} from '../../components/icons';
 import { IconSize } from '../../components/Icon';
 import { DataTile } from '../../components/DataTile';
-import { BeforeIcon } from '../../components/icons/Before';
 import { ProgressBar } from '../../components/fields/ProgressBar';
 import { getAbsoluteDifferenceInDays } from './utils';
 import type { Campaign } from '../../graphql/campaigns';
 import { CampaignType } from '../../graphql/campaigns';
-import { DateFormat } from '../../components/utilities';
-import { TimeFormatType } from '../../lib/dateFormat';
 import { boostDashboardInfo } from './common';
-import { Modal } from '../../components/modals/common/Modal';
-import { formatDataTileValue } from '../../lib';
-import { CampaignListViewPost } from './CampaignListViewPost';
-import { CampaignListViewSquad } from './CampaignListViewSquad';
+import { formatDataTileValue, largeNumberFormat } from '../../lib';
 import { isNullOrUndefined } from '../../lib/func';
+import { BoostTarget } from './BoostTarget';
+import { BoostStatus } from './CampaignListItem';
+import { getPostPath } from '../../lib/links';
 
 interface CampaignListViewProps {
   campaign: Campaign;
@@ -39,8 +43,18 @@ interface CampaignStatsGridProps {
   users: number;
   spend: number;
   members?: number;
+  /** Shown under the spend, e.g. "of 35K budget". */
+  spendCaption?: ReactNode;
   className?: string;
 }
+
+const iconClassName = 'text-text-tertiary';
+
+const Caption = ({ children }: { children: ReactNode }): ReactElement => (
+  <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
+    {children}
+  </Typography>
+);
 
 export const CampaignStatsGrid = ({
   className,
@@ -48,151 +62,213 @@ export const CampaignStatsGrid = ({
   users,
   members,
   impressions,
-}: CampaignStatsGridProps) => (
-  <div className={classNames('grid grid-cols-2 gap-4', className)}>
+  spendCaption,
+}: CampaignStatsGridProps): ReactElement => {
+  const hasMembers = !isNullOrUndefined(members);
+
+  const spendTile = (
     <DataTile
-      label="Spend"
+      label="Spent"
       value={spend}
       info={boostDashboardInfo.spend}
-      icon={<CoreIcon size={IconSize.XSmall} />}
+      icon={<CoreIcon size={IconSize.Size16} />}
+      subtitle={spendCaption && <Caption>{spendCaption}</Caption>}
     />
-    <DataTile
-      label="Impressions"
-      value={impressions}
-      info={boostDashboardInfo.impressions}
-    />
-    <DataTile label="Users" value={users} info={boostDashboardInfo.users} />
-    {!isNullOrUndefined(members) && (
+  );
+  const restTiles = (
+    <>
       <DataTile
-        label="New members"
-        value={members}
-        info={boostDashboardInfo.members}
+        label="Impressions"
+        value={impressions}
+        info={boostDashboardInfo.impressions}
+        icon={<EyeIcon size={IconSize.Size16} className={iconClassName} />}
       />
-    )}
-  </div>
-);
+      <DataTile
+        label="Developers reached"
+        value={users}
+        info={boostDashboardInfo.users}
+        icon={<UserIcon size={IconSize.Size16} className={iconClassName} />}
+      />
+      {hasMembers && (
+        <DataTile
+          label="New members"
+          value={members}
+          info={boostDashboardInfo.members}
+          icon={
+            <AddUserIcon size={IconSize.Size16} className={iconClassName} />
+          }
+        />
+      )}
+    </>
+  );
 
-const CampaignListViewPreview = ({ campaign }: { campaign: Campaign }) => {
-  switch (campaign.type) {
-    case CampaignType.Post:
-      return <CampaignListViewPost post={campaign.post} />;
-    case CampaignType.Squad:
-      return <CampaignListViewSquad squad={campaign.source} />;
-    default:
-      return null;
+  if (!spendCaption) {
+    return (
+      <div className={classNames('grid grid-cols-2 gap-3', className)}>
+        {spendTile}
+        {restTiles}
+      </div>
+    );
   }
+
+  return (
+    <div className={classNames('flex flex-col gap-3', className)}>
+      {spendTile}
+      <div className="grid grid-cols-2 gap-3">{restTiles}</div>
+    </div>
+  );
 };
 
+const shortDate = (date: Date): string =>
+  date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+const pluralDays = (days: number): string =>
+  `${days} ${days === 1 ? 'day' : 'days'}`;
+
+export const getCampaignTimeline = (campaign: Campaign) => {
+  const isActive = campaign.state === 'ACTIVE';
+  const startedAt = new Date(campaign.createdAt);
+  const endedAt = new Date(campaign.endedAt);
+  const totalDays = Math.max(
+    1,
+    getAbsoluteDifferenceInDays(endedAt, startedAt),
+  );
+  const elapsedDays = Math.min(
+    totalDays,
+    getAbsoluteDifferenceInDays(new Date(), startedAt),
+  );
+  const daysLeft = isActive
+    ? getAbsoluteDifferenceInDays(endedAt, new Date())
+    : 0;
+
+  return { isActive, startedAt, endedAt, totalDays, elapsedDays, daysLeft };
+};
+
+const getProgressCopy = ({
+  isActive,
+  daysLeft,
+  endedAt,
+  state,
+}: ReturnType<typeof getCampaignTimeline> & {
+  state: Campaign['state'];
+}): string => {
+  if (!isActive) {
+    return `${state === 'CANCELLED' ? 'Stopped' : 'Ended'} ${shortDate(
+      endedAt,
+    )}`;
+  }
+
+  if (daysLeft === 0) {
+    return 'Ends today';
+  }
+
+  return daysLeft === 1 ? 'Ends tomorrow' : `${pluralDays(daysLeft)} left`;
+};
+
+const getTargetLink = (campaign: Campaign): string | undefined => {
+  if (campaign.type === CampaignType.Post && campaign.post) {
+    return getPostPath(campaign.post);
+  }
+
+  return campaign.source?.permalink;
+};
+
+/** The details of one boost: what, how far along, results, and its action. */
 export function CampaignListView({
   campaign,
   isLoading,
   onBoostClick,
 }: CampaignListViewProps): ReactElement {
-  const isActive = campaign.state === 'ACTIVE';
-  const date = useMemo(() => {
-    const startedAt = new Date(campaign.createdAt);
-    const endedAt = new Date(campaign.endedAt);
-    const totalDays = getAbsoluteDifferenceInDays(endedAt, startedAt);
-
-    const getEndsIn = () => {
-      if (isActive) {
-        return getAbsoluteDifferenceInDays(endedAt, new Date());
-      }
-
-      return totalDays;
-    };
-
-    return {
-      endsIn: getEndsIn(),
-      startedIn: getAbsoluteDifferenceInDays(new Date(), startedAt),
-      totalDays,
-    };
-  }, [campaign, isActive]);
-
-  const percentage = useMemo(() => {
-    if (campaign.state !== 'ACTIVE') {
-      return 100;
-    }
-
-    return (date.startedIn / date.totalDays) * 100;
-  }, [campaign.state, date]);
-
-  const endsIn = (() => {
-    if (date.endsIn === 0) {
-      return 'Ends in less than a day';
-    }
-
-    if (date.endsIn === 1) {
-      return 'Ends tomorrow';
-    }
-
-    return `Ends in ${date.endsIn} days`;
-  })();
+  const timeline = useMemo(() => getCampaignTimeline(campaign), [campaign]);
+  const { isActive, startedAt, endedAt, totalDays, elapsedDays } = timeline;
+  const percentage = isActive ? (elapsedDays / totalDays) * 100 : 100;
+  const budget = campaign.flags?.budget || 0;
+  const link = getTargetLink(campaign);
 
   return (
     <div className="flex flex-col gap-6">
-      <CampaignListViewPreview campaign={campaign} />
-      <div className="flex flex-col gap-1">
+      <BoostTarget
+        post={campaign.type === CampaignType.Post ? campaign.post : undefined}
+        squad={
+          campaign.type === CampaignType.Squad ? campaign.source : undefined
+        }
+        className="rounded-16 border border-border-subtlest-tertiary p-3"
+        action={
+          link && (
+            <Button
+              tag="a"
+              href={link}
+              icon={<OpenLinkIcon />}
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Tertiary}
+              aria-label="Open"
+            />
+          )
+        }
+      />
+      <div className="flex flex-col gap-2">
+        <span className="flex items-center justify-between gap-2">
+          <BoostStatus status={campaign.state} />
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Footnote}
+            color={TypographyColor.Secondary}
+          >
+            {getProgressCopy({ ...timeline, state: campaign.state })}
+          </Typography>
+        </span>
         <ProgressBar
           percentage={percentage}
           shouldShowBg
           className={{ wrapper: 'h-2 rounded-6' }}
         />
-        <span className="flex flex-row justify-between">
-          <Typography
-            type={TypographyType.Subhead}
-            color={TypographyColor.Secondary}
-          >
-            Started{' '}
-            <DateFormat date={campaign.createdAt} type={TimeFormatType.Post} />
-          </Typography>
-          {isActive && (
-            <Typography
-              type={TypographyType.Subhead}
-              color={TypographyColor.Secondary}
-            >
-              {endsIn}
-            </Typography>
-          )}
+        <span className="flex justify-between">
+          <Caption>Started {shortDate(startedAt)}</Caption>
+          <Caption>
+            {isActive ? `Ends ${shortDate(endedAt)}` : pluralDays(totalDays)}
+          </Caption>
         </span>
-        <CampaignStatsGrid
-          className="mt-3"
-          spend={campaign.flags?.spend || 0}
-          users={campaign.flags?.users || 0}
-          impressions={campaign.flags?.impressions || 0}
-          members={
-            campaign.type === CampaignType.Squad
-              ? campaign.flags?.newMembers || 0
-              : undefined
-          }
-        />
       </div>
-      <div className="h-px w-full bg-border-subtlest-tertiary" />
-      <div className="flex flex-col gap-2">
-        <Modal.Subtitle>Summary</Modal.Subtitle>
-        <Typography
-          type={TypographyType.Callout}
-          className="flex flex-row items-center"
+      <CampaignStatsGrid
+        spend={campaign.flags?.spend || 0}
+        spendCaption={
+          <>
+            of a {formatDataTileValue(budget)} budget,{' '}
+            {largeNumberFormat(Math.round(budget / totalDays))} a day for{' '}
+            {pluralDays(totalDays)}
+          </>
+        }
+        users={campaign.flags?.users || 0}
+        impressions={campaign.flags?.impressions || 0}
+        members={
+          campaign.type === CampaignType.Squad
+            ? campaign.flags?.newMembers || 0
+            : undefined
+        }
+      />
+      {isActive ? (
+        <Button
+          type="button"
+          variant={ButtonVariant.Float}
+          className="w-full"
+          onClick={onBoostClick}
+          disabled={isLoading}
+          loading={isLoading}
         >
-          <CoreIcon className="mr-1" size={IconSize.Size16} />{' '}
-          {formatDataTileValue(campaign.flags?.budget || 0)} | {date.totalDays}{' '}
-          {date.totalDays === 1 ? 'day' : 'days'}
-        </Typography>
-      </div>
-      <Button
-        variant={ButtonVariant.Float}
-        className={classNames('w-full', {
-          'bg-action-downvote-float hover:bg-action-downvote-hover': isActive,
-        })}
-        pressed={isActive}
-        color={isActive && ButtonColor.Ketchup}
-        icon={!isActive && <BeforeIcon secondary />}
-        onClick={onBoostClick}
-        disabled={isLoading}
-        loading={isLoading}
-      >
-        {isActive ? 'Stop campaign' : 'Boost again'}
-      </Button>
+          Stop boost
+        </Button>
+      ) : (
+        <Button
+          type="button"
+          variant={ButtonVariant.Primary}
+          className="w-full"
+          onClick={onBoostClick}
+          disabled={isLoading}
+          loading={isLoading}
+        >
+          Boost again
+        </Button>
+      )}
     </div>
   );
 }

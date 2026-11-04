@@ -17,6 +17,7 @@ import { SQUAD_WALLET_QUERY } from '../../graphql/squadWallet';
 import { SourceType } from '../../graphql/sources';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
+import { CoresRole } from '../../lib/user';
 
 // Mock the hooks
 jest.mock('./useCampaignMutation');
@@ -61,6 +62,7 @@ const createMockPost = (overrides: Record<string, unknown> = {}): Post =>
 const createMockUser = (balance = 50000) => ({
   ...loggedUser,
   id: 'user-1',
+  coresRole: CoresRole.User,
   balance: { amount: balance },
 });
 
@@ -301,7 +303,7 @@ describe('BoostPostModal', () => {
       renderBoostPostModal(post, userWithLowBalance);
 
       const boostButton = screen.getByRole('button', {
-        name: /Boost post for/,
+        name: 'Buy Cores to boost',
       });
       fireEvent.click(boostButton);
 
@@ -397,7 +399,7 @@ describe('BoostPostModal', () => {
       renderBoostPostModal(squadPost());
 
       expect(
-        await screen.findByText(/doesn't have enough Cores/),
+        await screen.findByText('34K short for this boost'),
       ).toBeInTheDocument();
       expect(
         screen.getByRole('button', { name: /Boost post for/ }),
@@ -410,7 +412,8 @@ describe('BoostPostModal', () => {
       renderBoostPostModal(squadPost());
 
       await act(() => new Promise((resolve) => setTimeout(resolve, 50)));
-      expect(screen.queryByText('Pay with')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(/Acme wallet/)).not.toBeInTheDocument();
+      expect(screen.queryByRole('radio')).not.toBeInTheDocument();
     });
   });
 
@@ -491,7 +494,9 @@ describe('BoostPostModal', () => {
       renderBoostPostModal(post);
 
       // Default: 5000 cores per day * 7 days = 35K cores
-      expect(screen.getByText('35K Cores over 7 days')).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /Boost post for .*35K/ }),
+      ).toBeInTheDocument();
     });
   });
 
@@ -514,6 +519,10 @@ describe('BoostPostModal', () => {
 
     const clickBoost = () =>
       fireEvent.click(screen.getByRole('button', { name: /Boost post for/ }));
+    const clickBuyToBoost = () =>
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Buy Cores to boost' }),
+      );
 
     it('should log the modal opening once with where it was opened from', () => {
       renderBoostPostModal(
@@ -618,7 +627,7 @@ describe('BoostPostModal', () => {
         createMockUser(1000),
         Origin.BoostAgain,
       );
-      clickBoost();
+      clickBuyToBoost();
 
       expect(getLoggedEvents(LogEvent.StartBoost)[0].extra).toEqual({
         origin: Origin.BoostAgain,
@@ -640,7 +649,7 @@ describe('BoostPostModal', () => {
         createMockPost({ tags: ['javascript'] }),
         createMockUser(1000),
       );
-      clickBoost();
+      clickBuyToBoost();
 
       expect(
         screen.getByText(

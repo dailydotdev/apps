@@ -18,38 +18,41 @@ interface CampaignListProps {
   list: Campaign[];
   onClick?: (campaign: Campaign) => void;
   infiniteScrollingProps: InfiniteScrollingQueryProps;
+  emptyTitle?: string;
+  emptyDescription?: string;
 }
 
 export function CampaignList({
   list,
   onClick,
   infiniteScrollingProps,
+  emptyTitle = 'No boosts yet',
+  emptyDescription = 'Boost a post from its menu, or your Squad from its page, to reach more developers.',
 }: CampaignListProps): ReactElement {
   if (!list?.length) {
     return (
-      <div className="flex flex-col items-center gap-4">
+      <div className="flex flex-col items-center gap-2 rounded-16 border border-border-subtlest-tertiary px-6 py-8 text-center">
         <BoostIcon
           secondary
-          className="text-text-disabled"
-          size={IconSize.XXLarge}
+          className="text-text-tertiary"
+          size={IconSize.XLarge}
         />
-        <Typography type={TypographyType.Title2} bold>
-          No running ads yet
+        <Typography type={TypographyType.Callout} bold>
+          {emptyTitle}
         </Typography>
         <Typography
           color={TypographyColor.Tertiary}
-          type={TypographyType.Callout}
-          className="text-center"
+          type={TypographyType.Footnote}
         >
-          Learn how boosting works and launch your first campaign to get
-          discovered by more developers.
+          {emptyDescription}
         </Typography>
         <a
           href={boostDocsLink}
-          className="mt-3 text-text-link typo-callout"
+          className="mt-1 text-text-link typo-footnote"
           target="_blank"
+          rel="noopener"
         >
-          Learn more about boosting
+          How boosting works
         </a>
       </div>
     );
@@ -66,7 +69,7 @@ export function CampaignList({
           key={campaign.id}
           campaign={campaign}
           onClick={() => onClick?.(campaign)}
-          className="px-6 py-2"
+          className="px-6 py-2.5"
         />
       ))}
     </InfiniteScrolling>

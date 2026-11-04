@@ -251,7 +251,7 @@ const useAccountPageItems = () => {
               external: true,
             },
             adsDashboard: {
-              title: 'Ads dashboard',
+              title: 'Boosts',
               icon: TrendingIcon,
               onClick: () => openModal({ type: LazyModal.AdsDashboard }),
             } as ProfileSectionItemPropsWithoutHref,

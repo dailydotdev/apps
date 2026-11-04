@@ -43,7 +43,7 @@ export const AccountSection = (): ReactElement => {
 
   if (canBuy) {
     items.push({
-      title: 'Ads dashboard',
+      title: 'Boosts',
       icon: TrendingIcon,
       onClick: () => {
         openModal({ type: LazyModal.AdsDashboard });
