@@ -27,11 +27,17 @@ import type { CloseModalFunc } from '../modals/common';
 import TokenInput from './TokenField';
 import AuthForm from './AuthForm';
 import AuthHeader from './AuthHeader';
+import { AuthActionBar } from './AuthActionBar';
+import { useTurnstileTheme } from '../../hooks/auth/useTurnstileTheme';
 import { MemberAlready } from '../onboarding/MemberAlready';
-import SignupDisclaimer from './SignupDisclaimer';
 import { Checkbox } from '../fields/Checkbox';
 import { useLogContext } from '../../contexts/LogContext';
 import { useGenerateUsername, useCheckExistingEmail } from '../../hooks';
+import {
+  getTurnstileWaitExtra,
+  TURNSTILE_WAIT_LOG_THRESHOLD_MS,
+  waitForTurnstileToken,
+} from '../../lib/turnstile';
 import type { AuthFormProps } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
 import AuthContainer from './AuthContainer';
@@ -60,7 +66,7 @@ export interface RegistrationFormProps extends AuthFormProps {
   onSignup?: (params: RegistrationFormValues) => void;
   token?: string;
   trigger: AuthTriggersType;
-  onExistingEmailLoginClick?: () => void;
+  onExistingEmailLoginClick?: (existingEmail?: string) => void;
   onBackToIntro?: () => void;
   targetId?: string;
   // Header title above the form. Defaults to "Sign up" because this form is
@@ -84,11 +90,12 @@ export type RegistrationFormValues = Omit<
   'method' | 'provider'
 > & {
   'cf-turnstile-response'?: string;
-  headers?: Record<string, string>;
+  turnstileToken?: string;
 };
 
 const RegistrationForm = ({
   formRef,
+  onBack,
   onBackToIntro,
   onExistingEmailLoginClick,
   onSignup = () => undefined,
@@ -111,14 +118,22 @@ const RegistrationForm = ({
     useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [name, setName] = useState('');
+  const [isEmailFilled, setIsEmailFilled] = useState(!!email?.length);
   const isRecruiterOnboarding = trigger === AuthTriggers.RecruiterSelfServe;
-  const hideExperienceLevel = isRecruiterOnboarding;
+  const hideExperienceLevel =
+    isRecruiterOnboarding || trigger === AuthTriggers.StartupsCheckout;
   const {
     username,
     setUsername,
     isLoading: isLoadingUsername,
   } = useGenerateUsername(name);
   const turnstileRef = useRef<TurnstileInstance>(null);
+  // The ref guards against double submits synchronously; the state drives the
+  // button's loading spinner while we wait for the Turnstile token.
+  const isVerifyingTurnstileRef = useRef(false);
+  const [isVerifyingTurnstile, setIsVerifyingTurnstile] = useState(false);
+  const isTurnstileInteractiveRef = useRef(false);
+  const turnstileTheme = useTurnstileTheme();
 
   const logRef = useRef(logEvent);
   logRef.current = logEvent;
@@ -175,7 +190,7 @@ const RegistrationForm = ({
     },
   });
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (isCheckPending || alreadyExists) {
@@ -227,11 +242,38 @@ const RegistrationForm = ({
       return;
     }
 
-    if (!turnstileRef?.current?.getResponse()) {
+    if (isVerifyingTurnstileRef.current) {
+      return;
+    }
+    isVerifyingTurnstileRef.current = true;
+    setIsVerifyingTurnstile(true);
+    const turnstileStartedAt = Date.now();
+    const turnstileResponse = await waitForTurnstileToken(
+      turnstileRef?.current,
+      { shouldStop: () => isTurnstileInteractiveRef.current },
+    ).finally(() => {
+      isVerifyingTurnstileRef.current = false;
+      setIsVerifyingTurnstile(false);
+    });
+    const turnstileWaitExtra = getTurnstileWaitExtra({
+      form: 'signup',
+      startedAt: turnstileStartedAt,
+      token: turnstileResponse,
+      isInteractive: isTurnstileInteractiveRef.current,
+    });
+    if (turnstileWaitExtra.waited_ms >= TURNSTILE_WAIT_LOG_THRESHOLD_MS) {
+      logRef.current({
+        event_name: AuthEventNames.TurnstileTokenWait,
+        extra: JSON.stringify(turnstileWaitExtra),
+      });
+    }
+    if (!turnstileResponse) {
       logRef.current({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({
           error: 'Turnstile not valid',
+          waited_ms: turnstileWaitExtra.waited_ms,
+          outcome: turnstileWaitExtra.outcome,
         }),
       });
       setTurnstileError(true);
@@ -256,11 +298,7 @@ const RegistrationForm = ({
       return;
     }
 
-    const turnstileResponse = turnstileRef.current?.getResponse();
-    let headers: Record<string, string> | undefined;
-    if (!(isDevelopment && !isProductionAPI) && turnstileResponse) {
-      headers = { 'True-Client-Ip': turnstileResponse };
-    }
+    const shouldSendTurnstileToken = !(isDevelopment && !isProductionAPI);
 
     onSignup({
       ...values,
@@ -269,14 +307,14 @@ const RegistrationForm = ({
       ...(isRecruiterOnboarding && {
         'traits.experienceLevel': 'NOT_ENGINEER',
       }),
-      ...(headers && { headers }),
+      ...(shouldSendTurnstileToken && { turnstileToken: turnstileResponse }),
     });
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     const emailCheck = await onEmailCheck(e);
     if (!!emailCheck && emailCheck.emailValue && !emailCheck.emailExists) {
-      onSubmit(e);
+      await onSubmit(e);
     }
   };
 
@@ -290,7 +328,6 @@ const RegistrationForm = ({
   // Only show the valid-state checkmark once the user has actually typed
   // a non-empty value; an untouched field shouldn't look like it passed
   // validation.
-  const isEmailFilled = !!email?.length;
   const isNameFilled = !!name?.length;
   const isUsernameFilled = !!username?.length;
   const successIcon = (
@@ -316,20 +353,19 @@ const RegistrationForm = ({
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_KEY ?? '';
 
   return (
-    <div className="flex flex-col">
-      {!isAuthenticating && (
-        <AuthHeader
-          simplified={simplified}
-          onboardingHeadline={isOnboardingFunnel}
-          title={headerTitle}
-        />
-      )}
+    <div className="flex flex-1 flex-col">
+      <AuthHeader
+        simplified={simplified}
+        onboardingHeadline={isOnboardingFunnel}
+        title={headerTitle}
+        onBack={simplified ? undefined : onBack}
+      />
       <div
         className={classNames(
           // `simplified` is set by `/onboarding`, where the outer page already
           // applies horizontal padding. Anywhere else (e.g. the inline AuthModal)
           // the form would otherwise hug the container edge, so add it here.
-          !simplified && 'px-4 pb-4 tablet:px-6',
+          !simplified && 'flex flex-1 flex-col px-6',
         )}
       >
         {!isAuthenticating && (onBackToIntro || showHeadline) && (
@@ -361,7 +397,9 @@ const RegistrationForm = ({
         )}
         <AuthForm
           className={classNames(
-            'mt-10 w-full flex-1 place-items-center gap-2 self-center overflow-y-auto pb-2',
+            'w-full flex-1 place-items-center self-center',
+            simplified ? 'gap-2' : 'gap-1',
+            simplified ? 'mt-10 overflow-y-auto pb-2' : 'mt-6',
           )}
           data-testid="registration_form"
           id="auth-form"
@@ -380,6 +418,14 @@ const RegistrationForm = ({
             label="Email"
             type="email"
             value={email}
+            onChange={(e) => {
+              if (!e.target.value || !e.target.validity.valid) {
+                setIsEmailFilled(false);
+              }
+            }}
+            onBlur={(e) =>
+              setIsEmailFilled(!!e.target.value && e.target.validity.valid)
+            }
             rightIcon={isEmailFilled ? successIcon : undefined}
           />
           {hints?.['traits.email'] && !alreadyExists && (
@@ -399,7 +445,15 @@ const RegistrationForm = ({
                 Email is taken. Existing user?{' '}
                 <button
                   type="button"
-                  onClick={() => onExistingEmailLoginClick?.()}
+                  onClick={(e) =>
+                    onExistingEmailLoginClick?.(
+                      (
+                        e.currentTarget.form?.elements.namedItem(
+                          'traits.email',
+                        ) as HTMLInputElement | null
+                      )?.value,
+                    )
+                  }
                   className="font-bold underline"
                 >
                   Log in.
@@ -516,7 +570,7 @@ const RegistrationForm = ({
           <ConditionalWrapper
             condition={simplified ?? false}
             wrapper={(component) => (
-              <AuthContainer className="!mt-0 !px-0 pb-1 pt-3">
+              <AuthContainer className="!mt-0 !px-0 pb-1 pt-1">
                 {component}
               </AuthContainer>
             )}
@@ -525,14 +579,23 @@ const RegistrationForm = ({
               ref={turnstileRef}
               siteKey={turnstileSiteKey}
               options={{
-                theme: 'dark',
+                theme: turnstileTheme,
                 // Run the challenge silently and only surface the widget when a
                 // human interaction is actually required, so the branded box
                 // doesn't clash with the form for the common (passing) case.
                 appearance: 'interaction-only',
               }}
               className="mx-auto"
-              onWidgetLoad={() => setTurnstileLoaded(true)}
+              onWidgetLoad={() => {
+                setTurnstileLoaded(true);
+                setTurnstileErrorLoading(false);
+              }}
+              onBeforeInteractive={() => {
+                isTurnstileInteractiveRef.current = true;
+              }}
+              onAfterInteractive={() => {
+                isTurnstileInteractiveRef.current = false;
+              }}
             />
             {turnstileError && (
               <Alert
@@ -543,45 +606,52 @@ const RegistrationForm = ({
             {turnstileErrorLoading && (
               <Alert
                 type={AlertType.Error}
-                title="Turnstile is taking too long to load. Please try again."
+                title="The security check didn’t load. Refresh the page and try again."
               />
             )}
             {/* The funnel's primary action always sits inside the glass bar, so
                 account details matches the seven steps behind it rather than
                 ending on a bare button. Medium + flex-1 keeps the nested radii
                 concentric; every other surface keeps the full-width Large. */}
-            <ConditionalWrapper
-              condition={!!isOnboardingFunnel}
-              wrapper={(component) => (
-                <FunnelGlassBar>{component}</FunnelGlassBar>
-              )}
-            >
-              <Button
-                className={isOnboardingFunnel ? funnelGlassBarCta : 'w-full'}
+            {!simplified ? (
+              <AuthActionBar
                 data-funnel-track={FunnelTargetId.StepCta}
                 disabled={isCheckPending || !turnstileLoaded}
                 form="auth-form"
-                size={isOnboardingFunnel ? ButtonSize.Medium : ButtonSize.Large}
+                loading={isVerifyingTurnstile}
                 type="submit"
-                variant={ButtonVariant.Primary}
               >
                 Sign up
-              </Button>
-            </ConditionalWrapper>
-            {/* Consent belongs to the button that creates the account, so it
-                travels with this form instead of being docked on the funnel
-                shell — that shell also serves sign-back, login and
-                verify-email, where the account already exists. The funnel's
-                signup wall suppresses its own inline copy, which makes this the
-                notice shown before the account is created, at every width. */}
-            {isOnboardingFunnel && (
-              <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
+              </AuthActionBar>
+            ) : (
+              <ConditionalWrapper
+                condition={!!isOnboardingFunnel}
+                wrapper={(component) => (
+                  <FunnelGlassBar>{component}</FunnelGlassBar>
+                )}
+              >
+                <Button
+                  className={isOnboardingFunnel ? funnelGlassBarCta : 'w-full'}
+                  data-funnel-track={FunnelTargetId.StepCta}
+                  disabled={isCheckPending || !turnstileLoaded}
+                  form="auth-form"
+                  loading={isVerifyingTurnstile}
+                  size={
+                    isOnboardingFunnel ? ButtonSize.Medium : ButtonSize.Large
+                  }
+                  type="submit"
+                  variant={ButtonVariant.Primary}
+                >
+                  Sign up
+                </Button>
+              </ConditionalWrapper>
             )}
             {isOnboardingFunnel && onExistingEmailLoginClick && (
               <MemberAlready
-                onLogin={onExistingEmailLoginClick}
+                onLogin={() => onExistingEmailLoginClick()}
                 className={{
-                  container: 'justify-center text-text-tertiary typo-callout',
+                  container:
+                    'mt-7 justify-center text-text-tertiary typo-callout',
                   login: '!text-text-primary',
                 }}
               />

@@ -43,7 +43,8 @@ interface HeaderNavigation {
 }
 
 interface SkipNavigation
-  extends Omit<HeaderNavigation, 'navigate'>,
+  extends
+    Omit<HeaderNavigation, 'navigate'>,
     Pick<FunnelStepTransition, 'placement'> {}
 
 export interface UseFunnelNavigationReturn {

@@ -3,7 +3,6 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { POST_CONTENT_MAP } from '@dailydotdev/shared/src/components/post/postContentMap';
-import Script from 'next/script';
 import {
   ReadAdFormat,
   ReadAdSlot,
@@ -13,9 +12,6 @@ import { PhoneTopAdStrip } from '@dailydotdev/shared/src/components/post/read/Ph
 import { PostWidgetPosition } from '@dailydotdev/shared/src/components/post/PostWidgets';
 import {
   hasLiveAdSlots,
-  PREBID_SCRIPT_SRC,
-} from '@dailydotdev/shared/src/features/monetization/kueez';
-import {
   COMMENTS_PER_INTERLEAVED_AD,
   CONTENT_CHARS_PER_AD,
   MAX_CONTENT_ADS_PER_SECTION,
@@ -42,6 +38,11 @@ import { TOP_COMMENTS_QUERY } from '@dailydotdev/shared/src/graphql/comments';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import type { ClientError } from 'graphql-request';
+import { ReadingDrawer } from '@dailydotdev/shared/src/components/shell/ReadingDrawer';
+import {
+  isReadingOpen,
+  peekReadingOpen,
+} from '@dailydotdev/shared/src/components/shell/readingStore';
 import { SCROLL_OFFSET } from '@dailydotdev/shared/src/components/post/PostContent';
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
 import {
@@ -77,7 +78,6 @@ import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoa
 import classNames from 'classnames';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth/useOnboardingActions';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
-import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { isSourceUserSource } from '@dailydotdev/shared/src/graphql/sources';
 import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
 import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/ActivePostContext';
@@ -88,7 +88,7 @@ import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/Engage
 import { getEngagementLogExtra } from '@dailydotdev/shared/src/lib/engagementAds';
 import { isSourceAdFree } from '@dailydotdev/shared/src/lib/ads';
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
-import { AdHeadHints } from '../../../components/AdHeadHints';
+import { ContentIgniteTag } from '../../../components/ContentIgniteTag';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
@@ -208,8 +208,8 @@ export const PostPage = ({
   const showSignupStrip =
     showLaptopAuthBanner && !isSignupStripLoading && isSignupStripOn;
   // Empty for every logged-in visitor and for posts in ad-free squads; the
-  // slot components check the same hook, so with it empty neither markup nor
-  // the Prebid bundle exists.
+  // slot components check the same hook, so with it empty neither anchors nor
+  // the ad tag exist.
   const adSlots = useOrganicAdSlots(post);
   const adsActive = hasLiveAdSlots(adSlots);
   // The same in-content treatment the /articles template ships, reused on
@@ -255,7 +255,6 @@ export const PostPage = ({
                 format={ReadAdFormat.MediumRectangle}
                 className="my-6"
                 hideOnPhone={index > 0}
-                logExtra={{ section: 'summary', occurrence: index + 1 }}
               />
             )}
           </React.Fragment>
@@ -295,13 +294,12 @@ export const PostPage = ({
             ),
             commentAds: {
               interleaveEvery: COMMENTS_PER_INTERLEAVED_AD,
-              renderInterleaved: (occurrence: number) => (
+              renderInterleaved: () => (
                 <ReadAdSlot
                   surface="organic"
                   slot={ORGANIC_SLOT.commentMpu}
                   format={ReadAdFormat.MediumRectangle}
                   hideOnPhone
-                  logExtra={{ occurrence }}
                 />
               ),
             },
@@ -348,11 +346,34 @@ export const PostPage = ({
 
   usePostReferrer({ post });
 
+  // Arriving from a feed card's Read, the drawer opens over the loading
+  // page with the card's copy of the post, and stays the same drawer once
+  // the page has its own.
+  const arrivingPost = useMemo(() => peekReadingOpen(id), [id]);
+  const drawerPost = post ?? arrivingPost;
+  const logExtra = () => {
+    const creative = isSourceAdFree(drawerPost?.source)
+      ? null
+      : getCreativeForTags(drawerPost?.tags || []);
+    return {
+      referrer_target_id: drawerPost?.id,
+      referrer_target_type: drawerPost?.id ? TargetType.Post : undefined,
+      ...(creative && getEngagementLogExtra(creative)),
+      ...(isReadingOpen() && { reading_drawer: true }),
+    };
+  };
+  const readingDrawer = drawerPost && (
+    <LogExtraContextProvider key="reading-drawer" selector={logExtra}>
+      <ReadingDrawer post={drawerPost} />
+    </LogExtraContextProvider>
+  );
+
   if (isLoading || privateSourceJoin.isActive) {
     return (
       <>
         <PostSEOSchema post={post} topComments={topComments} />
         <PostLoadingSkeleton className={containerClass} />
+        {readingDrawer}
       </>
     );
   }
@@ -373,82 +394,65 @@ export const PostPage = ({
   }
 
   return (
-    <ActivePostContextProvider post={post}>
-      <LogExtraContextProvider
-        selector={() => {
-          const creative = isSourceAdFree(post?.source)
-            ? null
-            : getCreativeForTags(post?.tags || []);
-          return {
-            referrer_target_id: post?.id,
-            referrer_target_type: post?.id ? TargetType.Post : undefined,
-            ...(creative && getEngagementLogExtra(creative)),
-          };
-        }}
-      >
-        <FooterNavBarLayout post={post}>
-          <Head>
-            <link rel="preload" as="image" href={post?.image} />
-          </Head>
-          {adsActive && (
-            <>
-              <AdHeadHints />
-              <Script
-                id="prebid-loader"
-                src={PREBID_SCRIPT_SRC}
-                strategy="afterInteractive"
-              />
-            </>
-          )}
-          <PostSEOSchema post={post} topComments={topComments} />
-          <Content
-            position={position}
-            isPostPage
-            post={post}
-            isFallback={isFallback}
-            backToSquad={!!router?.query?.squad}
-            shouldOnboardAuthor={!!router.query?.author}
-            origin={Origin.ArticlePage}
-            isBannerVisible={shouldShowAuthBanner && !isLaptop}
-            contentLeading={organicAds?.contentLeading}
-            renderSummarySegments={organicAds?.renderSummarySegments}
-            aboveComments={organicAds?.aboveComments}
-            belowComments={
-              isPostPageFeedOn && post ? (
-                <PostPageFeed post={post} />
-              ) : undefined
-            }
-            commentAds={organicAds?.commentAds}
-            // Only while ads are actually live: a truthy hook flattens the
-            // further-reading widget around the slot, and without an ad that
-            // changes rail spacing for members who never see one.
-            getWidgetRailAd={
-              organicAds
-                ? (widgetPosition) =>
-                    widgetPosition === PostWidgetPosition.DirectAd
-                      ? organicAds.railAd
-                      : null
-                : undefined
-            }
-            className={{
-              container: containerClass,
-              fixedNavigation: { container: 'flex laptop:hidden' },
-              navigation: {
-                container: 'flex tablet:hidden',
-                actions: 'flex-1 justify-between',
-              },
-            }}
-          />
-          {showSignupStrip && (
-            <div className="m-auto w-full max-w-[69.25rem]">
-              <PinnedSignupStrip targetId={TargetId.PostStrip} />
-            </div>
-          )}
-          {showPostAuthBanner && <PostAuthBanner />}
-          <CompanionDemoWidget />
-        </FooterNavBarLayout>
-      </LogExtraContextProvider>
-    </ActivePostContextProvider>
+    <>
+      <ActivePostContextProvider post={post}>
+        <LogExtraContextProvider selector={logExtra}>
+          <FooterNavBarLayout post={post}>
+            <Head>
+              <link rel="preload" as="image" href={post?.image} />
+            </Head>
+            <ContentIgniteTag enabled={adsActive} />
+            <PostSEOSchema post={post} topComments={topComments} />
+            <Content
+              position={position}
+              isPostPage
+              post={post}
+              isFallback={isFallback}
+              backToSquad={!!router?.query?.squad}
+              shouldOnboardAuthor={!!router.query?.author}
+              origin={Origin.ArticlePage}
+              isBannerVisible={shouldShowAuthBanner && !isLaptop}
+              contentLeading={organicAds?.contentLeading}
+              renderSummarySegments={organicAds?.renderSummarySegments}
+              aboveComments={organicAds?.aboveComments}
+              belowComments={
+                isPostPageFeedOn && post ? (
+                  <PostPageFeed post={post} />
+                ) : undefined
+              }
+              commentAds={organicAds?.commentAds}
+              // Only while ads are actually live: a truthy hook flattens the
+              // further-reading widget around the slot, and without an ad that
+              // changes rail spacing for members who never see one.
+              getWidgetRailAd={
+                organicAds
+                  ? (widgetPosition) =>
+                      widgetPosition === PostWidgetPosition.DirectAd
+                        ? organicAds.railAd
+                        : null
+                  : undefined
+              }
+              className={{
+                container: containerClass,
+                fixedNavigation: { container: 'flex laptop:hidden' },
+                navigation: {
+                  container: 'flex tablet:hidden',
+                  actions: 'flex-1 justify-between',
+                },
+              }}
+            />
+            {showSignupStrip && (
+              <div className="m-auto w-full max-w-[69.25rem]">
+                <PinnedSignupStrip targetId={TargetId.PostStrip} />
+              </div>
+            )}
+            {showPostAuthBanner && <PostAuthBanner />}
+            <CompanionDemoWidget />
+          </FooterNavBarLayout>
+        </LogExtraContextProvider>
+      </ActivePostContextProvider>
+      {readingDrawer}
+    </>
   );
 };
 
@@ -462,16 +466,8 @@ const getPostPageLayout: typeof getLayout = (page, pageProps, layoutProps) => {
     pageProps,
     {
       ...layoutProps,
-      // Strip first: both pin, and the banner's top offset is the strip's height.
       customBanner: (
-        <>
-          <PhoneTopAdStrip
-            key={id}
-            surface="organic"
-            post={initialData?.post}
-          />
-          <CustomAuthBanner />
-        </>
+        <PhoneTopAdStrip key={id} surface="organic" post={initialData?.post} />
       ),
     },
   );

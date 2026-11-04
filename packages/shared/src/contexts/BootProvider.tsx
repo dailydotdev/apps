@@ -38,6 +38,7 @@ import { REQUEST_APP_ACCOUNT_TOKEN_MUTATION } from '../graphql/users';
 import { isConnectionError } from '../lib/errors';
 import { EngagementAdsProvider } from './EngagementAdsContext';
 import { FIVE_MINUTES } from '../lib/time';
+import { clearSignedOut } from '../lib/signedOut';
 
 export const BOOT_FOCUS_REFETCH_INTERVAL = FIVE_MINUTES;
 
@@ -401,6 +402,9 @@ export const BootDataProvider = ({
         ...remoteData,
         accessTokenExpiresIn: remoteData.accessToken?.expiresIn,
       });
+      if (!isExtension && remoteData.user && 'providers' in remoteData.user) {
+        clearSignedOut();
+      }
       setRemoteBootApplied({
         dataUpdatedAt,
         userId: remoteData.user?.id,

@@ -120,6 +120,7 @@ const IntroScreen = () => {
         <BuyCreditsButton
           hideBuyButton={!canPurchaseCores}
           onPlusClick={onBuyCores}
+          origin={Origin.Award}
         />
         {isMobile ? (
           <Button

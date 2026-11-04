@@ -137,6 +137,7 @@ export default function SettingsLayout({
           <BuyCreditsButton
             className="ml-auto"
             hideBuyButton={!canPurchaseCores}
+            origin={Origin.Settings}
             onPlusClick={() => {
               router.push(
                 getPathnameWithQuery(

@@ -185,7 +185,7 @@ export function SmartComposerModal({
     }
     return editShare.title === editShare.sharedPost.title
       ? ''
-      : editShare.title ?? '';
+      : (editShare.title ?? '');
   })();
   const [link, setLink] = useState<LinkFormState>(() => {
     if (editShare) {
@@ -409,8 +409,8 @@ export function SmartComposerModal({
   // cast mirrors generateUserSourceAsSquad: non-squad sources are deliberately
   // handled as squads here.
   const editSource = editPost
-    ? audiences.find((audience) => audience.id === editPost.source?.id) ??
-      (editPost.source as Squad | undefined)
+    ? (audiences.find((audience) => audience.id === editPost.source?.id) ??
+      (editPost.source as Squad | undefined))
     : undefined;
   const primary = editSource ?? selected[0];
   const isMulti = !editPost && selected.length > 1;

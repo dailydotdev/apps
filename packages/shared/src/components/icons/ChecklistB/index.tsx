@@ -9,7 +9,7 @@ export const ChecklistBIcon = ({ size, ...rest }: IconProps): ReactElement => (
   <Icon
     {...rest}
     size={size}
-    IconPrimary={FilledIcon}
-    IconSecondary={OutlinedIcon}
+    IconPrimary={OutlinedIcon}
+    IconSecondary={FilledIcon}
   />
 );

@@ -92,7 +92,7 @@ export default function ShortcutsManageModal({
     props?.onRequestClose?.(undefined as never);
   };
 
-  const mode = showRowSettings ? flags?.shortcutsMode ?? 'manual' : 'manual';
+  const mode = showRowSettings ? (flags?.shortcutsMode ?? 'manual') : 'manual';
   const appearance: ShortcutsAppearance =
     flags?.shortcutsAppearance ?? DEFAULT_SHORTCUTS_APPEARANCE;
   const showOnWebapp = flags?.showShortcutsOnWebapp ?? false;

@@ -227,7 +227,34 @@
   animation: coach-card-in 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/*
+ * `backwards`, not `both`: a transform left on the card after the enter would
+ * trap the post modal's fixed navigation.
+ */
+@keyframes modal-overlay-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes modal-content-in {
+  from {
+    transform: translateY(0.5rem);
+  }
+}
+
+@screen tablet {
+  .modal-enter {
+    animation: modal-overlay-in 200ms ease-out backwards;
+  }
+
+  .modal-enter > .ReactModal__Content {
+    animation: modal-content-in 240ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .modal-enter > .ReactModal__Content,
   .animate-rail-popup-in,
   .animate-coach-card-in,
   .rail-popup-panel[data-state='open'],
@@ -1579,4 +1606,32 @@ img.agent-media-ring {
   .feed-widget-controls-in {
     animation: none;
   }
+}
+
+/* A feed card whose post has a live chat on: the frame is brand and glows a
+   little, so the card reads as "on" from across the feed. Color-only, so
+   reduced motion keeps it. */
+.live-chat-card {
+  box-shadow: 0 0 0 1px
+      color-mix(in srgb, var(--theme-brand-default) 45%, transparent),
+    0 0 28px color-mix(in srgb, var(--theme-brand-default) 24%, transparent);
+}
+
+.live-chat-card:hover {
+  box-shadow: 0 0 0 1px
+      color-mix(in srgb, var(--theme-brand-bolder) 60%, transparent),
+    0 0 36px color-mix(in srgb, var(--theme-brand-default) 32%, transparent);
+}
+
+/* The live chat block under a post, and the live row in Happening Now: a
+   brand wash that fades out to the right, over the surface it sits on. */
+.live-chat-frame {
+  background-image: radial-gradient(
+    120% 90% at 0% 0%,
+    color-mix(in srgb, var(--theme-brand-default) 18%, transparent) 0%,
+    transparent 70%
+  );
+  box-shadow: 0 0 0 1px
+      color-mix(in srgb, var(--theme-brand-default) 45%, transparent),
+    0 0 32px color-mix(in srgb, var(--theme-brand-default) 18%, transparent);
 }

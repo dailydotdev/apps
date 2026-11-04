@@ -1,19 +1,11 @@
 import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import type { ParsedUrlQuery } from 'querystring';
 import type { ReactElement } from 'react';
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import type { ClientError } from 'graphql-request';
-import { BellIcon } from '@dailydotdev/shared/src/components/icons';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import type { SquadStaticData } from '@dailydotdev/shared/src/graphql/squads';
 import {
@@ -29,10 +21,7 @@ import {
   SOURCE_QUERY,
   SourceType,
 } from '@dailydotdev/shared/src/graphql/sources';
-import {
-  LogEvent,
-  NotificationPromptSource,
-} from '@dailydotdev/shared/src/lib/log';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useJoinReferral } from '@dailydotdev/shared/src/hooks/referral/useJoinReferral';
 import { useSquad } from '@dailydotdev/shared/src/hooks/squads/useSquad';
@@ -48,18 +37,7 @@ import type {
   PublicProfile,
   UserShortProfile,
 } from '@dailydotdev/shared/src/lib/user';
-import {
-  ToastSubject,
-  useToastNotification,
-} from '@dailydotdev/shared/src/hooks/useToastNotification';
-import { useEnableNotification } from '@dailydotdev/shared/src/hooks/notifications/useEnableNotification';
 import { useRecentPageMeta } from '@dailydotdev/shared/src/hooks/useRecentPages';
-import {
-  ButtonColor,
-  ButtonIconPosition,
-  ButtonSize,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
 import { SquadHome } from '@dailydotdev/shared/src/features/squads/components/SquadHome';
 import { SquadPageSkeleton } from '@dailydotdev/shared/src/features/squads/components/SquadPageSkeleton';
 import { hasSquadFeature } from '@dailydotdev/shared/src/features/squads/lib/features';
@@ -69,7 +47,6 @@ import { getSquadOpenGraph, noindexSeoProps } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import type { DynamicSeoProps } from '../../../components/common';
 import { getAppOrigin, toJsonLd } from '../../../lib/seo';
-import { createSquadNotificationToastStateStore } from '../../../lib/squadNotificationToastState';
 import { SquadRoute } from '../../../components/squads/SquadRoute';
 
 const appOrigin = getAppOrigin();
@@ -211,79 +188,10 @@ const SquadPage = ({
   const { openModal } = useLazyModal();
   useJoinReferral();
   const { logEvent } = useLogContext();
-  const { displayToast } = useToastNotification();
-  const { user } = useAuthContext();
   const [loggedImpression, setLoggedImpression] = useState(false);
-  const { squad, isFetched, isForbidden } = useSquad({ handle });
+  const { squad, isForbidden } = useSquad({ handle });
   const squadId = squad?.id;
   useRecentPageMeta({ image: squad?.image ?? initialSquad?.image });
-  const shownToastForSquadInSession = useRef<Record<string, boolean>>({});
-  const squadNotificationToastState = useMemo(
-    () => createSquadNotificationToastStateStore(user?.id),
-    [user?.id],
-  );
-  const { shouldShowCta, onEnable, onDismiss } = useEnableNotification({
-    source: NotificationPromptSource.SquadPage,
-  });
-
-  useEffect(() => {
-    if (
-      !shouldShowCta ||
-      !squadId ||
-      !isFetched ||
-      shownToastForSquadInSession.current[squadId]
-    ) {
-      return;
-    }
-
-    const shouldShowToast = squadNotificationToastState.registerToastView({
-      squadId,
-      isSquadMember: !!squad?.currentMember,
-    });
-    if (!shouldShowToast) {
-      return;
-    }
-
-    shownToastForSquadInSession.current[squadId] = true;
-
-    displayToast('Get notified about new Squad activity.', {
-      subject: ToastSubject.Feed,
-      persistent: true,
-      action: {
-        copy: 'Turn on',
-        onClick: async () => {
-          const didEnable = await onEnable();
-          if (!didEnable) {
-            squadNotificationToastState.dismissUntilTomorrow({ squadId });
-          }
-
-          return didEnable;
-        },
-        buttonProps: {
-          size: ButtonSize.Small,
-          variant: ButtonVariant.Primary,
-          color: ButtonColor.Cabbage,
-          icon: (
-            <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_1.5s_infinite]" />
-          ),
-          iconPosition: ButtonIconPosition.Left,
-        },
-      },
-      onClose: () => {
-        onDismiss();
-      },
-    });
-  }, [
-    displayToast,
-    isFetched,
-    onDismiss,
-    onEnable,
-    shouldShowCta,
-    squad?.currentMember,
-    squadId,
-    squadNotificationToastState,
-  ]);
-
   useEffect(() => {
     if (loggedImpression || !squadId) {
       return;

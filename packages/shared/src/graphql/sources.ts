@@ -118,6 +118,8 @@ export interface SourceFeatures {
   adFree: boolean | null;
   links: boolean | null;
   products: boolean | null;
+  /** The header button without the brand color, on the Startups Team plan */
+  cta?: boolean | null;
 }
 
 export interface Source {

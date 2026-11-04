@@ -6,13 +6,9 @@ WORKDIR /opt/app
 
 COPY package*.json .
 
-COPY packages/eslint-config/package*.json ./packages/eslint-config/
-
 COPY packages/eslint-rules/package*.json ./packages/eslint-rules/
 
 COPY packages/extension/package*.json ./packages/extension/
-
-COPY packages/prettier-config/package*.json ./packages/prettier-config/
 
 COPY packages/shared/package*.json ./packages/shared/
 

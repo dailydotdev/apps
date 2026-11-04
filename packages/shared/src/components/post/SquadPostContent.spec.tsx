@@ -2,6 +2,7 @@ import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import loggedUser from '../../../__tests__/fixture/loggedUser';
 import {
   postWithCommunitySentiment,
   sharePost,
@@ -9,6 +10,12 @@ import {
 import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import { Origin } from '../../lib/log';
+import { CoresRole } from '../../lib/user';
+import type { Action } from '../../graphql/actions';
+import { ActionType } from '../../graphql/actions';
+import { generateQueryKey, getPostByIdKey, RequestKey } from '../../lib/query';
+import { LazyModal } from '../modals/common/types';
+import * as lazyModal from '../../hooks/useLazyModal';
 import { SquadPostContentRaw } from './SquadPostContent';
 
 jest.mock('./SquadPostWidgets', () => ({
@@ -70,7 +77,7 @@ describe('SquadPostContent snapshot placements', () => {
   beforeAll(() => {
     // jsdom has no layout, and the bar refuses a selection it cannot place.
     Range.prototype.getBoundingClientRect = () =>
-      ({ top: 400, bottom: 440, left: 100, width: 300 } as DOMRect);
+      ({ top: 400, bottom: 440, left: 100, width: 300 }) as DOMRect;
   });
 
   it('ends a paragraph of a freeform body with a snapshot control', async () => {
@@ -135,5 +142,75 @@ describe('SquadPostContent snapshot placements', () => {
     expect(
       screen.getByRole('toolbar', { name: 'Share selected text' }),
     ).toBeInTheDocument();
+  });
+});
+
+describe('SquadPostContent new post boost strip', () => {
+  const author = { ...loggedUser, coresRole: CoresRole.User };
+  const ownPost: Post = {
+    ...freeformPost,
+    private: false,
+    author: { ...freeformPost.author!, id: author.id },
+  };
+  const openModal = jest.fn();
+
+  const renderOwnPostPage = (actions: Action[]) => {
+    const client = new QueryClient();
+    client.setQueryData(getPostByIdKey(ownPost.id), { post: ownPost });
+    client.setQueryData(generateQueryKey(RequestKey.Actions, author), {
+      actions,
+      serverLoaded: true,
+    });
+    jest.spyOn(lazyModal, 'useLazyModal').mockReturnValue({
+      openModal,
+      closeModal: jest.fn(),
+      modal: undefined,
+    } as unknown as ReturnType<typeof lazyModal.useLazyModal>);
+
+    render(
+      <TestBootProvider client={client} auth={{ user: author }}>
+        <SquadPostContentRaw
+          post={ownPost}
+          origin={Origin.ArticlePage}
+          isPostPage
+        />
+      </TestBootProvider>,
+    );
+  };
+
+  afterEach(() => {
+    openModal.mockClear();
+    jest.restoreAllMocks();
+  });
+
+  it('attributes a boost opened while the strip shows to the strip', async () => {
+    renderOwnPostPage([]);
+
+    await screen.findByText('Boost to reach');
+    fireEvent.click(screen.getAllByRole('button', { name: 'Boost' })[0]);
+
+    expect(openModal).toHaveBeenCalledWith({
+      type: LazyModal.BoostPost,
+      props: { post: ownPost, origin: Origin.NewPostBoostStrip },
+    });
+  });
+
+  it('attributes the Boost button to itself once the strip was dismissed', async () => {
+    renderOwnPostPage([
+      {
+        type: ActionType.ClosedNewPostBoostBanner,
+        completedAt: new Date(),
+      },
+    ]);
+
+    fireEvent.click(
+      (await screen.findAllByRole('button', { name: 'Boost' }))[0],
+    );
+
+    expect(screen.queryByText('Boost to reach')).not.toBeInTheDocument();
+    expect(openModal).toHaveBeenCalledWith({
+      type: LazyModal.BoostPost,
+      props: { post: ownPost, origin: Origin.PostBoostButton },
+    });
   });
 });

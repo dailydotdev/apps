@@ -33,11 +33,6 @@ export enum AdActions {
   // Rendered and seen by IAB rules, unlike `Impression` which only means the
   // creative reached the viewport.
   Viewable = 'viewable impression',
-  // Duration event: logged through `logEventStart`/`logEventEnd`, so it lands
-  // with `event_duration` set to how long the creative held its slot. A
-  // rotating placement needs it because a count of impressions says nothing
-  // about how long any one logo was actually up.
-  AirTime = 'air time',
 }
 
 export enum AdPlacement {
@@ -162,14 +157,12 @@ const fetchAdRequest = async ({
 export const resolveAdFetchOptions = ({
   placement = AdPlacement.Feed,
   active,
-  boostsEnabled = false,
   consent,
   registered,
   pageViewId,
 }: {
   placement?: AdPlacement;
   active?: boolean;
-  boostsEnabled?: boolean;
   consent?: AdRequestConsent;
   registered?: boolean;
   pageViewId?: string;
@@ -189,7 +182,7 @@ export const resolveAdFetchOptions = ({
       return {
         placement,
         active,
-        allowSquadBoost: boostsEnabled,
+        allowSquadBoost: true,
         consent,
         registered,
         pageViewId,
@@ -199,8 +192,8 @@ export const resolveAdFetchOptions = ({
       return {
         placement,
         active,
-        allowPostBoost: boostsEnabled,
-        allowSquadBoost: boostsEnabled,
+        allowPostBoost: true,
+        allowSquadBoost: true,
         consent,
         registered,
         pageViewId,

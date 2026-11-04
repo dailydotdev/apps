@@ -90,7 +90,7 @@ describe('LiveChatWidget', () => {
     expect(screen.getByText('23 here · ends in 2h')).toBeInTheDocument();
     expect(screen.getByText('Bun 2.0').closest('a')).toHaveAttribute(
       'href',
-      'https://app.daily.dev/posts/a',
+      'https://app.daily.dev/posts/a?chat=join',
     );
   });
 

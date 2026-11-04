@@ -23,7 +23,7 @@ interface ProfileParams extends ParsedUrlQuery {
 }
 
 const context = (userId?: string) =>
-  ({ params: { userId } } as unknown as GetStaticPropsContext<ProfileParams>);
+  ({ params: { userId } }) as unknown as GetStaticPropsContext<ProfileParams>;
 
 const respondProfile = (body: unknown, status = 200) =>
   fetchMock.mockResolvedValue({

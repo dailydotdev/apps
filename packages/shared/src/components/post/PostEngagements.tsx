@@ -28,7 +28,7 @@ import { AdAsComment } from '../comments/AdAsComment';
 import { Typography, TypographyType } from '../typography/Typography';
 import { Button, ButtonIconPosition, ButtonSize } from '../buttons/Button';
 import { TimeSortIcon } from '../icons/Sort/Time';
-import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { useIsPlusAdFree } from '../../hooks/useIsPlusAdFree';
 import SocialBar from '../cards/socials/SocialBar';
 import { PostContentReminder } from './common/PostContentReminder';
 import { PostContentBookmarkNote } from './common/PostContentBookmarkNote';
@@ -80,7 +80,7 @@ function PostEngagements({
     useSettingsContext();
   const { commentsCount } = usePostComments({ postId: post.id, sortBy });
   const { user, showLogin } = useAuthContext();
-  const { isPlus } = usePlusSubscription();
+  const isPlusAdFree = useIsPlusAdFree();
   const commentRef = useRef<NewCommentRef>(null);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const [joinNotificationCommentId, setJoinNotificationCommentId] =
@@ -194,7 +194,7 @@ function PostEngagements({
           composer — the one place on the page where someone has already
           decided to engage. */}
       <DiscussionShareRow className="mt-3" post={post} withSquads />
-      {!isPlus && !hideInternalAd && (
+      {!isPlusAdFree && !hideInternalAd && (
         <AdAsComment postId={post.id} source={post.source} />
       )}
       <PostComments

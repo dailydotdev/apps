@@ -42,10 +42,13 @@ const PollResults = ({
 
     if (shouldAnimate) {
       timer = setTimeout(() => {
-        const finalWidths = options.reduce((acc, option) => {
-          acc[option.id] = getPercentage(numPollVotes, option.numVotes || 0);
-          return acc;
-        }, {} as Record<string, number>);
+        const finalWidths = options.reduce(
+          (acc, option) => {
+            acc[option.id] = getPercentage(numPollVotes, option.numVotes || 0);
+            return acc;
+          },
+          {} as Record<string, number>,
+        );
         setAnimatedWidths(finalWidths);
       }, 100);
     }

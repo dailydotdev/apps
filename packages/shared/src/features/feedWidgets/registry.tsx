@@ -14,7 +14,7 @@ import { ReadingStreakIcon } from '../../components/icons/ReadingStreak';
 import { SunIcon } from '../../components/icons/Sun';
 import { ChecklistAIcon } from '../../components/icons/ChecklistA';
 import { ShortcutsIcon } from '../../components/icons/Shortcuts';
-import { FlagIcon } from '../../components/icons/Flag';
+import { ChecklistBIcon } from '../../components/icons/ChecklistB';
 import {
   settingsUrl,
   squadCategoriesPaths,
@@ -171,7 +171,8 @@ export const feedWidgetRegistry: {
   [FeedWidgetKind.LiveChat]: {
     kind: FeedWidgetKind.LiveChat,
     name: 'Live chat',
-    description: 'The live chats happening on trending posts right now.',
+    description:
+      'The live chats the daily.dev team opens on posts worth talking about.',
     icon: DiscussIcon,
     category: FeedWidgetCategory.Community,
     tone: 'bun',
@@ -270,7 +271,7 @@ export const feedWidgetRegistry: {
     name: 'Getting started',
     description:
       'The intro quests, with their XP and Cores, one step at a time.',
-    icon: FlagIcon,
+    icon: ChecklistBIcon,
     category: FeedWidgetCategory.DailyDev,
     tone: 'cheese',
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],

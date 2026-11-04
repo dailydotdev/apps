@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import type {
   CSSProperties,
   KeyboardEventHandler,
@@ -6,6 +7,7 @@ import type {
 } from 'react';
 import type { Post } from '../../graphql/posts';
 import type { PostOrigin } from '../../hooks/log/useLogContextData';
+import type { Origin } from '../../lib/log';
 import classed from '../../lib/classed';
 import type { PostPosition } from '../../hooks/usePostModalNavigation';
 import type {
@@ -77,7 +79,8 @@ export interface PostHeaderActionsProps {
 }
 
 export interface PostContentProps
-  extends Pick<
+  extends
+    Pick<
       PostHeaderActionsProps,
       'onClose' | 'inlineActions' | 'hideSubscribeAction'
     >,
@@ -151,4 +154,15 @@ export interface BasePostContentProps extends UsePostContentProps {
   loadingPlaceholder?: ReactNode;
   customNavigation?: ReactNode;
   isPostPage?: boolean;
+  boostOrigin?: Origin;
 }
+
+/**
+ * The widgets column under a post's main column. Below laptop the page is one
+ * column, so with a feed after the comments (`belowComments`) the widgets
+ * would sit under an endless feed. Keep them for laptop up only.
+ */
+export const getPostWidgetsClassName = (
+  className: string,
+  hasBelowComments: boolean,
+): string => classNames(className, hasBelowComments && 'hidden laptop:flex');

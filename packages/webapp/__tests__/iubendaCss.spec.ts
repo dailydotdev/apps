@@ -95,6 +95,20 @@ describe('iubenda consent banner css', () => {
     expect(rulesTargeting('iubenda-cs-accept-btn').length).toBeGreaterThan(0);
   });
 
+  it('keeps the shared pair rule below the Customize rule in specificity', () => {
+    // The pair rule excludes the text controls with one :not() holding a
+    // selector list. Chaining a second :not() instead adds a class to the
+    // specificity and the rule beats `button.iubenda-cs-customize-btn`, which
+    // shipped a 92px "Customize" caption where the gear belongs.
+    const shared = rules()
+      .map(({ selector }) => selector)
+      .filter((selector) => selector.includes('button:not(.dd-cs-more'));
+    expect(shared.length).toBeGreaterThan(0);
+    shared.forEach((selector) => {
+      expect(selector.split(':not(').length - 1).toBe(1);
+    });
+  });
+
   it('cannot recess one side of the choice through its wrapper', () => {
     // iubenda puts Reject in .iubenda-cs-opt-group-custom and Accept in
     // .iubenda-cs-opt-group-consent, so a rule scoped to one wrapper — by
@@ -136,7 +150,7 @@ describe('iubenda consent banner css', () => {
 
   it('sizes the pair from one shared rule they cannot drift from', () => {
     const shared = rules().filter(({ selector }) =>
-      selector.includes('button:not(.dd-cs-more)'),
+      selector.includes('button:not(.dd-cs-more'),
     );
     expect(shared.length).toBeGreaterThan(0);
     ['min-height', 'font-size', 'font-weight', 'padding'].forEach((prop) => {
@@ -179,7 +193,7 @@ describe('iubenda consent banner css', () => {
     });
 
     const shared = rules().filter(({ selector }) =>
-      selector.includes('button:not(.dd-cs-more)'),
+      selector.includes('button:not(.dd-cs-more'),
     );
     expect(
       declared(
@@ -200,7 +214,7 @@ describe('iubenda consent banner css', () => {
         'align-items',
       ),
     ).toContain('stretch');
-    ['iubenda-cs-customize-btn', 'dd-cs-more'].forEach((cls) => {
+    ['iubenda-cs-customize-btn', 'dd-cs-links'].forEach((cls) => {
       expect(declared(rulesTargeting(cls), 'align-self')).toContain('center');
     });
   });
@@ -236,7 +250,7 @@ describe('iubenda consent banner css', () => {
     // one shared width plus a long unbreakable word ("Zustimmen") clips
     // without overflow-wrap
     const shared = rules().filter(({ selector }) =>
-      selector.includes('button:not(.dd-cs-more)'),
+      selector.includes('button:not(.dd-cs-more'),
     );
     expect(
       declared(
@@ -245,14 +259,27 @@ describe('iubenda consent banner css', () => {
       ),
     ).toContain('break-word');
 
-    // On phones the row wraps instead, handing the show-more control its
-    // own line so the pair keeps enough width in every banner language.
+    // On phones the row wraps instead, handing the text controls (Show
+    // more, the vendor list) their own line so the pair keeps enough width
+    // in every banner language.
     expect(
       declared(rulesTargeting('iubenda-cs-opt-group'), 'flex-wrap'),
     ).toContain('wrap');
-    expect(declared(rulesTargeting('dd-cs-more'), 'flex')).toContain(
+    expect(declared(rulesTargeting('dd-cs-links'), 'flex')).toContain(
       '1 1 100%',
     );
+  });
+
+  it("lets iubenda's TCF vendor panel scroll under the global flex-shrink reset", () => {
+    // base.css sets `* { flex-shrink: 0 }`; the panel's scroller is a flex
+    // child that relies on the default, and without this it grows to the
+    // height of the vendor list and nothing scrolls
+    expect(declared(rulesTargeting('iub-cmp-widget'), 'flex-shrink')).toEqual([
+      '1',
+    ]);
+    expect(declared(rulesTargeting('iub-cmp-widget'), 'min-height')).toEqual([
+      '0',
+    ]);
   });
 
   it('hides the raw close glyph so the redrawn cross is the only one', () => {

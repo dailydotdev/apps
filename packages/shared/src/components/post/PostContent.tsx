@@ -14,7 +14,7 @@ import usePostContent from '../../hooks/usePostContent';
 import { BasePostContent } from './BasePostContent';
 import { combinedClicks } from '../../lib/click';
 import type { PostContentProps, PostNavigationProps } from './common';
-import { PostContainer } from './common';
+import { PostContainer, getPostWidgetsClassName } from './common';
 import YoutubeVideo from '../video/YoutubeVideo';
 import { useTrackPostView } from '../../hooks/post/useTrackPostView';
 import { TruncateText } from '../utilities';
@@ -320,6 +320,14 @@ export function PostContentRaw({
             className={isCompactModalSpacing ? 'mb-4' : 'mb-6'}
           />
         )}
+        {/* Right under the post and above the comments, where a reader on
+            their way down cannot miss that there is a chat on. */}
+        <PostLiveChat
+          post={post}
+          origin={origin}
+          placement="inline"
+          className={isCompactModalSpacing ? 'mb-4' : 'mb-6'}
+        />
       </BasePostContent>
     </PostContainer>
   );
@@ -328,8 +336,10 @@ export function PostContentRaw({
     <PostWidgets
       onReadArticle={onReadArticle}
       post={post}
-      leading={<PostLiveChat post={post} origin={origin} placement="rail" />}
-      className="!gap-2 pb-8 pt-4 tablet:border-l tablet:border-border-subtlest-tertiary"
+      className={getPostWidgetsClassName(
+        '!gap-2 pb-8 pt-4 tablet:border-l tablet:border-border-subtlest-tertiary',
+        !!belowComments,
+      )}
       onClose={onClose}
       origin={origin}
       onCopyPostLink={onCopyPostLink}
@@ -359,7 +369,12 @@ export function PostContentRaw({
       }
     >
       {postMainColumn}
-      <PostLiveChat post={post} origin={origin} placement="mobile" />
+      <PostLiveChat
+        post={post}
+        origin={origin}
+        placement="mobile"
+        isPostPage={isPostPage}
+      />
       {postWidgetsColumn}
     </PostContentContainer>
   );

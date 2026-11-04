@@ -8,7 +8,13 @@ import { GdprConsentKey } from '../../hooks/useCookieBanner';
 import { requiresCertifiedCmp } from '../../lib/geo';
 import { startTcfSubscription } from '../../lib/tcf';
 import { isExtension, isIOSNative } from '../../lib/func';
-import { PREBID_CMP_TIMEOUT_MS } from './kueez';
+
+/**
+ * How long an ad request waits for the CMP to deliver a terminal answer
+ * before going out without consent data. Only ever applied for GDPR-covered
+ * visitors, who are the only ones the TCF stub loads for (see `Iubenda.tsx`).
+ */
+export const AD_REQUEST_CMP_TIMEOUT_MS = 3_000;
 
 export const useAdRequestConsent = (
   enabled: boolean,
@@ -19,7 +25,7 @@ export const useAdRequestConsent = (
   const [cmpTimedOut, setCmpTimedOut] = useState(false);
   const cmpConfigured = Boolean(
     process.env.NEXT_PUBLIC_IUBENDA_SITE_ID &&
-      Number(process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID),
+    Number(process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID),
   );
   const shouldWaitForCmp =
     enabled &&
@@ -38,7 +44,7 @@ export const useAdRequestConsent = (
     startTcfSubscription();
     const timeout = setTimeout(
       () => setCmpTimedOut(true),
-      PREBID_CMP_TIMEOUT_MS,
+      AD_REQUEST_CMP_TIMEOUT_MS,
     );
     return () => clearTimeout(timeout);
   }, [shouldWaitForCmp, isAuthReady]);

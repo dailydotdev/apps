@@ -1,13 +1,14 @@
 import type { FormEvent, ReactElement } from 'react';
 import React, { useState } from 'react';
-import dynamic from 'next/dynamic';
 import { formToJson } from '../../lib/form';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import { MailIcon } from '../icons';
 import { IconSize } from '../Icon';
 import type { CloseModalFunc } from '../modals/common';
 import AuthHeader from './AuthHeader';
+import { AuthActionBar } from './AuthActionBar';
+import { ClickableText } from '../buttons/ClickableText';
 import type { AuthFormProps } from './common';
 import { AuthModalText } from './common';
 import { AuthEventNames } from '../../lib/auth';
@@ -16,16 +17,14 @@ import AuthForm from './AuthForm';
 import { useAuthData } from '../../contexts/AuthDataContext';
 import { betterAuthForgetPassword } from '../../lib/betterAuth';
 
-const AuthModalFooter = dynamic(
-  () => import(/* webpackChunkName: "authModalFooter" */ './AuthModalFooter'),
-);
-
 interface ForgotPasswordFormProps extends AuthFormProps {
   onBack?: CloseModalFunc;
+  hasTopBarBack?: boolean;
 }
 
 function ForgotPasswordForm({
   onBack,
+  hasTopBarBack,
   simplified,
 }: ForgotPasswordFormProps): ReactElement {
   const { email: initialEmail, setEmail } = useAuthData();
@@ -56,15 +55,22 @@ function ForgotPasswordForm({
     setEmailSent(true);
   };
 
+  const headerBack = hasTopBarBack ? undefined : onBack;
+  const backToLogin = simplified && onBack && (
+    <ClickableText className="self-center" type="button" onClick={onBack}>
+      ← Back to log in
+    </ClickableText>
+  );
+
   if (emailSent) {
     return (
       <>
         <AuthHeader
           simplified={simplified}
           title="Check your email"
-          onBack={onBack}
+          onBack={headerBack}
         />
-        <div className="flex flex-col items-center px-14 py-8">
+        <div className="flex flex-col items-center p-6">
           <MailIcon
             className="mb-4 text-text-tertiary"
             size={IconSize.XXLarge}
@@ -74,19 +80,15 @@ function ForgotPasswordForm({
             email to reset your password.
           </AuthModalText>
           <Button
-            className="mt-6"
+            className="mt-6 w-full"
+            size={ButtonSize.Large}
             variant={ButtonVariant.Secondary}
             onClick={() => setEmailSent(false)}
           >
             Didn&apos;t receive it? Try again
           </Button>
+          {backToLogin && <div className="mt-6">{backToLogin}</div>}
         </div>
-        {simplified && onBack && (
-          <AuthModalFooter
-            text={{ button: `\u2190 Back to log in` }}
-            onClick={onBack}
-          />
-        )}
       </>
     );
   }
@@ -96,11 +98,11 @@ function ForgotPasswordForm({
       <AuthHeader
         simplified={simplified}
         title="Reset password"
-        onBack={onBack}
+        onBack={headerBack}
       />
       <AuthForm
         aria-label="Forgot password"
-        className="flex flex-col items-end px-14 py-8"
+        className="flex flex-col items-end px-6 pt-6"
         onSubmit={onSendEmail}
         data-testid="recovery_form"
       >
@@ -121,21 +123,11 @@ function ForgotPasswordForm({
           leftIcon={<MailIcon aria-hidden role="presentation" />}
           autoFocus
         />
-        <Button
-          className="mt-6"
-          variant={ButtonVariant.Primary}
-          type="submit"
-          disabled={isLoading}
-        >
+        <AuthActionBar type="submit" disabled={isLoading}>
           Send reset link
-        </Button>
+        </AuthActionBar>
+        {backToLogin}
       </AuthForm>
-      {simplified && onBack && (
-        <AuthModalFooter
-          text={{ button: `\u2190 Back to log in` }}
-          onClick={onBack}
-        />
-      )}
     </>
   );
 }

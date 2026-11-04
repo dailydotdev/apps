@@ -21,6 +21,7 @@ export const PaddleBuyCoresContextProvider = ({
   onCompletion,
   origin,
   amountNeeded,
+  minCoresToBuy,
   children,
 }: BuyCoresContextProviderProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
@@ -64,12 +65,14 @@ export const PaddleBuyCoresContextProvider = ({
         priceId: event.data.items[0]?.price_id,
       }),
     priceType: PurchaseType.Cores,
+    origin,
   });
 
   const contextData = useMemo<BuyCoresContextData>(
     () => ({
       paddle,
       amountNeeded,
+      minCoresToBuy,
       onCompletion,
       activeStep: activeStep.step,
       error: activeStep.error,
@@ -83,6 +86,7 @@ export const PaddleBuyCoresContextProvider = ({
     [
       activeStep,
       amountNeeded,
+      minCoresToBuy,
       onCompletion,
       openCheckout,
       origin,

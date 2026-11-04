@@ -90,7 +90,7 @@ beforeEach(() => {
         query: { id: postId },
         events: { on: jest.fn(), off: jest.fn(), emit: jest.fn() },
         beforePopState: jest.fn(),
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
 });
 
@@ -147,7 +147,7 @@ describe('ReadPostPage', () => {
     const range = document.createRange();
     range.selectNodeContents(body);
     range.getBoundingClientRect = () =>
-      ({ top: 400, bottom: 440, left: 100, width: 300 } as DOMRect);
+      ({ top: 400, bottom: 440, left: 100, width: 300 }) as DOMRect;
     const selection = window.getSelection()!;
     selection.removeAllRanges();
     selection.addRange(range);

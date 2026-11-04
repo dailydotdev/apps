@@ -1,10 +1,11 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import nock from 'nock';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
-import { mockDesktop } from '../../../__tests__/helpers/media';
+import { mockDesktop, mockMatchMedia } from '../../../__tests__/helpers/media';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import basePost from '../../../__tests__/fixture/post';
 import FeedContext from '../../contexts/FeedContext';
@@ -13,9 +14,14 @@ import { FEED_HERO_QUERY, baseFeedSupportedTypes } from '../../graphql/feed';
 import { fetchAdByPlacement } from '../../lib/ads';
 import { clearShownFeedHeroLeads } from '../../components/feeds/hero/useFeedHeroData';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import { SharedFeedPage } from '../../components/utilities/common';
+import { OtherFeedPage, RequestKey } from '../../lib/query';
 import {
   emptyFeedWidgetFeedState,
+  resetHomeRailFlag,
   useFeedWidgetFeedState,
+  useFeedWidgetRailState,
+  useFeedWidgetShortcuts,
   useFeedWidgetsOptOut,
 } from './feedState';
 
@@ -44,26 +50,33 @@ const renderFeedState = ({
   enabled = true,
   feedWidgets,
   columns = 4,
-}: { enabled?: boolean; feedWidgets?: unknown; columns?: number } = {}) =>
-  renderHook(() => useFeedWidgetFeedState({ enabled }), {
-    wrapper: ({ children }: { children: ReactNode }): ReactElement => (
-      <TestBootProvider
-        client={
-          new QueryClient({ defaultOptions: { queries: { retry: false } } })
-        }
-        settings={{ flags: { feedWidgets } as unknown as SettingsFlags }}
-      >
-        <FeedContext.Provider
-          value={{
-            pageSize: 13,
-            numCards: { eco: columns, roomy: columns, cozy: columns },
-          }}
+  client = new QueryClient({ defaultOptions: { queries: { retry: false } } }),
+}: {
+  enabled?: boolean;
+  feedWidgets?: unknown;
+  columns?: number;
+  client?: QueryClient;
+} = {}) =>
+  renderHook(
+    () => useFeedWidgetFeedState({ enabled, feedName: SharedFeedPage.MyFeed }),
+    {
+      wrapper: ({ children }: { children: ReactNode }): ReactElement => (
+        <TestBootProvider
+          client={client}
+          settings={{ flags: { feedWidgets } as unknown as SettingsFlags }}
         >
-          {children}
-        </FeedContext.Provider>
-      </TestBootProvider>
-    ),
-  });
+          <FeedContext.Provider
+            value={{
+              pageSize: 13,
+              numCards: { eco: columns, roomy: columns, cozy: columns },
+            }}
+          >
+            {children}
+          </FeedContext.Provider>
+        </TestBootProvider>
+      ),
+    },
+  );
 
 beforeEach(() => {
   nock.cleanAll();
@@ -126,10 +139,110 @@ describe('useFeedWidgetFeedState', () => {
     expect(result.current.isAdVisible).toBe(false);
   });
 
+  it('fetches a fresh ad for the next visit to the feed', async () => {
+    jest.mocked(fetchAdByPlacement).mockClear().mockResolvedValue(null);
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+
+    const { result, unmount } = renderFeedState({ client });
+    await waitFor(() => expect(result.current.isAdVisible).toBe(false));
+    unmount();
+    // Leaving the feed drops its ad.
+    await waitFor(() =>
+      expect(
+        client.getQueryCache().findAll({ queryKey: [RequestKey.Ads] }),
+      ).toHaveLength(0),
+    );
+    renderFeedState({ client });
+
+    await waitFor(() => expect(fetchAdByPlacement).toHaveBeenCalledTimes(2));
+  });
+
   it('holds back nothing while the rail is off', () => {
     const { result } = renderFeedState({ enabled: false });
 
     expect(result.current).toEqual(emptyFeedWidgetFeedState);
+  });
+});
+
+const shortcutsRail = {
+  version: 1,
+  widgets: [{ id: 'links', kind: 'shortcuts', size: 'small' }],
+};
+
+const renderShortcuts = ({
+  feedName = SharedFeedPage.MyFeed,
+  feedWidgets,
+  isFlagOn = true,
+  loadedSettings = true,
+}: {
+  feedName?: string;
+  feedWidgets?: unknown;
+  isFlagOn?: boolean;
+  loadedSettings?: boolean;
+} = {}) =>
+  renderHook(() => useFeedWidgetShortcuts(feedName), {
+    wrapper: ({ children }: { children: ReactNode }): ReactElement => (
+      <TestBootProvider
+        client={new QueryClient()}
+        gb={
+          new GrowthBook({
+            features: { feed_widgets_v2: { defaultValue: isFlagOn } },
+          })
+        }
+        settings={{
+          loadedSettings,
+          flags: { feedWidgets } as unknown as SettingsFlags,
+        }}
+      >
+        {children}
+      </TestBootProvider>
+    ),
+  });
+
+describe('useFeedWidgetShortcuts', () => {
+  it('reports the Shortcuts widget on the stored rail', () => {
+    const { result } = renderShortcuts({ feedWidgets: shortcutsRail });
+
+    expect(result.current).toEqual({ hasShortcuts: true, isPending: false });
+  });
+
+  it('reports none for a rail without it, the default included', () => {
+    expect(renderShortcuts().result.current.hasShortcuts).toBe(false);
+    expect(
+      renderShortcuts({
+        feedWidgets: {
+          version: 1,
+          widgets: [{ id: 'now', kind: 'happeningNow', size: 'tall' }],
+        },
+      }).result.current.hasShortcuts,
+    ).toBe(false);
+  });
+
+  it('reports none where the rail does not render', () => {
+    expect(
+      renderShortcuts({ feedWidgets: shortcutsRail, isFlagOn: false }).result
+        .current.hasShortcuts,
+    ).toBe(false);
+    expect(
+      renderShortcuts({
+        feedWidgets: shortcutsRail,
+        feedName: SharedFeedPage.Custom,
+      }).result.current,
+    ).toEqual({ hasShortcuts: false, isPending: false });
+  });
+
+  it('is pending on a rail feed until the settings that hold the rail load', () => {
+    expect(
+      renderShortcuts({ loadedSettings: false }).result.current.isPending,
+    ).toBe(true);
+    expect(
+      renderShortcuts({
+        loadedSettings: false,
+        feedName: SharedFeedPage.Custom,
+      }).result.current.isPending,
+    ).toBe(false);
   });
 });
 
@@ -172,5 +285,69 @@ describe('useFeedWidgetsOptOut', () => {
     expect(setSettings).toHaveBeenLastCalledWith({
       flags: { feedWidgetsOptOut: false, sidebarResourcesExpanded: true },
     });
+  });
+});
+
+const renderRailState = (
+  feedName: string,
+  gb = new GrowthBook({
+    features: { feed_widgets_v2: { defaultValue: true } },
+  }),
+) =>
+  renderHook(() => useFeedWidgetRailState(feedName), {
+    wrapper: ({ children }: { children: ReactNode }): ReactElement => (
+      <TestBootProvider client={new QueryClient()} gb={gb}>
+        {children}
+      </TestBootProvider>
+    ),
+  });
+
+describe('useFeedWidgetRailState', () => {
+  beforeEach(() => resetHomeRailFlag());
+
+  it('heads For you and Popular from the tablet up', () => {
+    expect(
+      renderRailState(SharedFeedPage.MyFeed).result.current.isEnabled,
+    ).toBe(true);
+    expect(
+      renderRailState(SharedFeedPage.Popular).result.current.isEnabled,
+    ).toBe(true);
+  });
+
+  it('keeps phones on the plain feed, never enrolled in the flag', async () => {
+    // No width breakpoint matches: a phone.
+    mockMatchMedia(() => false);
+    const gb = new GrowthBook({
+      features: { feed_widgets_v2: { defaultValue: true } },
+    });
+    const evaluate = jest.spyOn(gb, 'getFeatureValue');
+    const feeds = [
+      SharedFeedPage.MyFeed,
+      SharedFeedPage.Popular,
+      OtherFeedPage.Following,
+      SharedFeedPage.Custom,
+    ].map((feedName) => renderRailState(feedName, gb).result);
+
+    // Past the mount, where the phone check lands.
+    await act(async () => {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 50);
+      });
+    });
+
+    feeds.forEach((result) => expect(result.current.isEnabled).toBe(false));
+    expect(evaluate).not.toHaveBeenCalledWith(
+      'feed_widgets_v2',
+      expect.anything(),
+    );
+  });
+
+  it('leaves Following and the custom feeds alone from the tablet up', () => {
+    expect(
+      renderRailState(OtherFeedPage.Following).result.current.isEnabled,
+    ).toBe(false);
+    expect(
+      renderRailState(SharedFeedPage.Custom).result.current.isEnabled,
+    ).toBe(false);
   });
 });

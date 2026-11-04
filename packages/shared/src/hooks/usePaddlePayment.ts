@@ -10,6 +10,7 @@ import { CheckoutEventNames, initializePaddle } from '@paddle/paddle-js';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useLogContext } from '../contexts/LogContext';
+import type { Origin } from '../lib/log';
 import { LogEvent, purchaseTypeToTargetType } from '../lib/log';
 import { plusSuccessUrl } from '../lib/constants';
 import { checkIsExtension } from '../lib/func';
@@ -19,13 +20,15 @@ import type {
 } from '../contexts/payment/context';
 import { PlusPlanType, PurchaseType } from '../graphql/paddle';
 
-interface UsePaddlePaymentProps
-  extends Pick<
-    PaymentContextProviderProps<PaddleEventData, CheckoutEventNames>,
-    'successCallback' | 'disabledEvents'
-  > {
+interface UsePaddlePaymentProps extends Pick<
+  PaymentContextProviderProps<PaddleEventData, CheckoutEventNames>,
+  'successCallback' | 'disabledEvents'
+> {
   priceType: PurchaseType;
   getProductQuantity?: (event: PaddleEventData) => number;
+  origin?: Origin;
+  /** Merged into the extra of every checkout event */
+  logExtra?: Record<string, unknown>;
 }
 
 /**
@@ -48,6 +51,8 @@ export const usePaddlePayment = ({
   disabledEvents,
   priceType,
   getProductQuantity,
+  origin,
+  logExtra,
 }: UsePaddlePaymentProps) => {
   const targetType = purchaseTypeToTargetType[priceType];
   const router = useRouter();
@@ -56,15 +61,21 @@ export const usePaddlePayment = ({
   const [paddle, setPaddle] = useState<Paddle>();
   const isCheckoutOpenRef = useRef(false);
   const [checkoutItemsLoading, setCheckoutItemsLoading] = useState(false);
-  const [appliedDiscountId, setAppliedDiscountId] = useState<string | null>(
-    null,
-  );
+  // undefined until the checkout reports which discount it applied,
+  // null when it applied none
+  const [appliedDiscountId, setAppliedDiscountId] = useState<
+    string | null | undefined
+  >();
   const logRef = useRef(logEvent);
   logRef.current = logEvent;
   const successCallbackRef = useRef(successCallback);
   successCallbackRef.current = successCallback;
   const getProductQuantityRef = useRef(getProductQuantity);
   getProductQuantityRef.current = getProductQuantity;
+  const originRef = useRef(origin);
+  originRef.current = origin;
+  const logExtraRef = useRef(logExtra);
+  logExtraRef.current = logExtra;
   const discountIdQuery = router.query?.d_id as string | undefined;
 
   const isOrganization = priceType === PurchaseType.Organization;
@@ -118,17 +129,22 @@ export const usePaddlePayment = ({
               target_id: event?.data?.payment.method_details.type,
               extra: JSON.stringify({
                 ...plusPlanExtra,
+                ...logExtraRef.current,
+                origin: originRef.current,
               }),
             });
             break;
           case CheckoutEventNames.CHECKOUT_LOADED:
             isCheckoutOpenRef.current = true;
+            setAppliedDiscountId(event?.data?.discount?.id ?? null);
             logRef.current({
               target_type: targetType,
               event_name: LogEvent.InitiateCheckout,
               target_id: event?.data?.payment.method_details.type,
               extra: JSON.stringify({
                 ...plusPlanExtra,
+                ...logExtraRef.current,
+                origin: originRef.current,
               }),
             });
             break;
@@ -139,6 +155,8 @@ export const usePaddlePayment = ({
               target_id: event?.data?.payment.method_details.type,
               extra: JSON.stringify({
                 ...plusPlanExtra,
+                ...logExtraRef.current,
+                origin: originRef.current,
               }),
             });
             break;
@@ -159,6 +177,8 @@ export const usePaddlePayment = ({
                 cycle:
                   event?.data?.items?.[0]?.billing_cycle?.interval ?? 'one-off',
                 ...plusPlanExtra,
+                ...logExtraRef.current,
+                origin: originRef.current,
               }),
             });
 
@@ -175,6 +195,8 @@ export const usePaddlePayment = ({
               event_name: LogEvent.WarningCheckout,
               extra: JSON.stringify({
                 transaction_id: event?.data?.transaction_id,
+                ...logExtraRef.current,
+                origin: originRef.current,
               }),
             });
             break;
@@ -182,7 +204,11 @@ export const usePaddlePayment = ({
             logRef.current({
               target_type: targetType,
               event_name: LogEvent.ErrorCheckout,
-              extra: JSON.stringify(getCheckoutErrorExtra(event)),
+              extra: JSON.stringify({
+                ...getCheckoutErrorExtra(event),
+                ...logExtraRef.current,
+                origin: originRef.current,
+              }),
             });
             break;
           case CheckoutEventNames.CHECKOUT_PAYMENT_FAILED:
@@ -190,7 +216,11 @@ export const usePaddlePayment = ({
             logRef.current({
               target_type: targetType,
               event_name: LogEvent.ErrorPayment,
-              extra: JSON.stringify(getCheckoutErrorExtra(event)),
+              extra: JSON.stringify({
+                ...getCheckoutErrorExtra(event),
+                ...logExtraRef.current,
+                origin: originRef.current,
+              }),
             });
             break;
           case CheckoutEventNames.CHECKOUT_CLOSED:
@@ -198,6 +228,7 @@ export const usePaddlePayment = ({
             break;
           case CheckoutEventNames.CHECKOUT_ITEMS_UPDATED:
             setCheckoutItemsLoading(false);
+            setAppliedDiscountId(event?.data?.discount?.id ?? null);
             break;
           case CheckoutEventNames.CHECKOUT_DISCOUNT_APPLIED:
             setAppliedDiscountId(event?.data?.discount?.id ?? null);

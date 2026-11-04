@@ -42,6 +42,7 @@ export interface BaseProductPricingPreview {
 
 export interface ProductPricingPreview extends BaseProductPricingPreview {
   metadata: ProductPricingMetadata;
+  coresGiveback?: number | null;
 }
 
 export enum PurchaseType {
@@ -49,6 +50,7 @@ export enum PurchaseType {
   Organization = 'organization',
   Cores = 'cores',
   Recruiter = 'recruiter',
+  Startups = 'startups',
 }
 
 export enum PlusPlanType {
@@ -100,6 +102,7 @@ const PRICING_PREVIEW_QUERY = gql`
         symbol
       }
       duration
+      coresGiveback
     }
   }
   ${PRICING_METADATA_FRAGMENT}

@@ -97,10 +97,10 @@ const todos: TodoItem[] = [
   { id: 'c', text: 'Book the hackathon room', done: true },
 ];
 
-const renderWidget = (size = FeedWidgetSize.Tall) =>
+const renderWidget = (size = FeedWidgetSize.Tall, client = new QueryClient()) =>
   render(
     <TestBootProvider
-      client={new QueryClient()}
+      client={client}
       auth={{ user: loggedUser, isLoggedIn: true }}
       log={{ logEvent }}
     >
@@ -220,6 +220,28 @@ describe('TodoListWidget', () => {
       'aria-expanded',
       'false',
     );
+  });
+
+  it('says the list is unavailable when it could not be read', async () => {
+    mockGraphQL({
+      request: {
+        query: FEED_WIDGET_DATA_QUERY,
+        variables: { key: TODO_LIST_DATA_KEY },
+      },
+      result: {
+        errors: [{ message: 'Unexpected error' } as unknown as GraphQLError],
+      },
+    });
+
+    renderWidget(
+      FeedWidgetSize.Tall,
+      new QueryClient({ defaultOptions: { queries: { retry: false } } }),
+    );
+
+    expect(
+      await screen.findByText('Your to-do list is unavailable right now.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
   });
 
   it('leaves a ticked to-do struck through, then folds it into Done', async () => {

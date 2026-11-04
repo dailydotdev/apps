@@ -69,8 +69,6 @@ export type PostWidgetsProps = Omit<PostHeaderActionsProps, 'contextMenuId'> &
     hideToc?: boolean;
     /** Renders a slot after the widget at each position. */
     getRailAd?: (position: PostWidgetPosition) => ReactNode;
-    /** Rendered first, above everything else in the rail. */
-    leading?: ReactNode;
     /** Rendered last, below the footer links. */
     trailing?: ReactNode;
     /** Drops the internal sidebar ad and video player, for ad templates. */
@@ -108,7 +106,6 @@ export function PostWidgets({
   hideSignupWidget = false,
   hideToc = false,
   getRailAd,
-  leading,
   trailing,
   hideAdWidget,
   hidePluginsWidget,
@@ -170,7 +167,6 @@ export function PostWidgets({
 
   return (
     <PageWidgets className={className}>
-      {leading}
       {!hideSignupWidget && <PostSignupWidget post={post} />}
       {withAd(PostWidgetPosition.Source, sourceCard)}
       {withAd(

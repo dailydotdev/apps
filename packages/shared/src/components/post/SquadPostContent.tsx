@@ -31,6 +31,8 @@ import {
   mapCommunitySentimentPost,
 } from './focus/CommunitySentiment';
 import { SelectionSnapshotBar } from '../../features/snapshot/SelectionSnapshotBar';
+import { getPostWidgetsClassName } from './common';
+import { Origin } from '../../lib/log';
 
 // The three bodies share one call site, so they share one props shape; each
 // takes the subset it needs.
@@ -161,7 +163,7 @@ export function SquadPostContentRaw({
       <div
         ref={contentRef}
         className={classNames(
-          'relative flex min-w-0 flex-1 flex-col px-4 tablet:px-6 laptop:px-8 laptop:pt-6',
+          'relative flex min-w-0 flex-1 flex-col px-4 pt-6 tablet:px-6 tablet:pt-0 laptop:px-8 laptop:pt-6',
           className?.content,
         )}
       >
@@ -186,6 +188,7 @@ export function SquadPostContentRaw({
           navigationProps={navigationProps}
           engagementProps={engagementActions}
           origin={origin}
+          boostOrigin={shouldShowBanner ? Origin.NewPostBoostStrip : undefined}
           post={post}
         >
           {shouldShowBanner && !isLaptop && (
@@ -248,7 +251,10 @@ export function SquadPostContentRaw({
         onCopyPostLink={onCopyPostLink}
         onReadArticle={onReadArticle}
         post={post}
-        className="mb-6 !gap-2 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0"
+        className={getPostWidgetsClassName(
+          'mb-6 !gap-2 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0',
+          !!belowComments,
+        )}
         onClose={onClose}
         origin={origin}
       />

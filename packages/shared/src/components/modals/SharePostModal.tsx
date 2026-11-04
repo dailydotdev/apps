@@ -6,13 +6,11 @@ import { Modal } from './common/Modal';
 import BasePostModal, {
   postModalFixedNavigationClassName,
 } from './BasePostModal';
-import { NotificationPromptSource, Origin } from '../../lib/log';
+import { Origin } from '../../lib/log';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import type { PassedPostNavigationProps } from '../post/common';
 import type { Post } from '../../graphql/posts';
-import EnableNotification from '../notifications/EnableNotification';
 import { SquadPostContent } from '../post/SquadPostContent';
-import { isSourceUserSource } from '../../graphql/sources';
 
 interface PostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
@@ -48,14 +46,6 @@ export default function PostModal({
       onPreviousPost={onPreviousPost}
       onNextPost={onNextPost}
     >
-      <EnableNotification
-        source={NotificationPromptSource.SquadPostModal}
-        label={
-          isSourceUserSource(post?.source)
-            ? post?.author?.username
-            : post?.source?.handle
-        }
-      />
       <SquadPostContent
         position={position}
         post={post}

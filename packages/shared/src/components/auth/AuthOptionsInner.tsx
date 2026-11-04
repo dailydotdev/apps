@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useCallback, useRef, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
@@ -11,8 +11,8 @@ import {
   iosNativeAuth,
   isNativeAuthSupported,
   AuthEventNames,
-  AuthTriggers,
   AuthEvent,
+  autoProfileTriggers,
 } from '../../lib/auth';
 import {
   getBetterAuthErrorMessage,
@@ -27,6 +27,10 @@ import {
   GITHUB_EMAIL_NOT_VERIFIED_ERROR,
   hasSocialAuthBootUser,
   refetchSocialAuthBoot,
+  SOCIAL_AUTH_CALLBACK_BOOT_RETRY_DELAYS_MS,
+  SOCIAL_AUTH_POPUP_CLOSED_ERROR,
+  SOCIAL_AUTH_POPUP_CLOSED_RECHECK_DELAYS_MS,
+  type SocialAuthBootUser,
   SOCIAL_AUTH_RETRY_MESSAGE,
 } from './socialAuth';
 import { webappUrl, broadcastChannel, isTesting } from '../../lib/constants';
@@ -142,8 +146,8 @@ function AuthOptionsInner({
   ignoreMessages = false,
   onboardingSignupButton,
   hideLoginLink,
-  hideSignupDisclaimer,
   isOnboardingFunnel,
+  onScreenBackChange,
   compact,
   signupStyle,
   inlineProviders,
@@ -192,6 +196,20 @@ function AuthOptionsInner({
   };
 
   const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
+  const [defaultEntry, setDefaultEntry] = useState({
+    isLogin: !!isLoginFlow,
+    fromSignBack: false,
+  });
+  // Parents that mirror `onAuthStateUpdate` into `defaultDisplay` (/onboarding,
+  // funnels, recruiter modal) flip it to ForgotPassword once the user gets
+  // there, so going "back to defaultDisplay" would be a no-op. Remember the
+  // screen the user came from instead.
+  const forgotPasswordReturnRef = useRef<AuthDisplay>(
+    defaultDisplay === AuthDisplay.ForgotPassword ||
+      defaultDisplay === AuthDisplay.CodeVerification
+      ? AuthDisplay.Default
+      : defaultDisplay,
+  );
   const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
   // A mistyped address is only fixable on the screen that owns the email
   // field, and verification is reached both from signup and from an
@@ -220,6 +238,11 @@ function AuthOptionsInner({
   );
   const authFlowCompletedRef = useRef(false);
   const authFlowSucceededRef = useRef(false);
+  const socialAuthProviderRef = useRef<string | null>(null);
+  // Bumped on every new social auth attempt so stale background checks from a
+  // previous attempt (e.g. the late popup-closed recheck) become no-ops.
+  const socialAuthAttemptRef = useRef(0);
+  const isMountedRef = useRef(true);
 
   const clearPopupCheck = () => {
     if (popupCheckIntervalRef.current) {
@@ -229,7 +252,9 @@ function AuthOptionsInner({
   };
 
   useEffect(() => {
+    isMountedRef.current = true;
     return () => {
+      isMountedRef.current = false;
       clearPopupCheck();
     };
   }, []);
@@ -387,7 +412,7 @@ function AuthOptionsInner({
       if (!isAlreadyOnboarded) {
         onSuccessfulLogin?.();
       }
-    } else if (trigger === AuthTriggers.RecruiterSelfServe) {
+    } else if (autoProfileTriggers.includes(trigger)) {
       await autoCompleteProfile(user.email, user.name, false);
     } else {
       onSetActiveDisplay(AuthDisplay.SocialRegistration);
@@ -417,11 +442,83 @@ function AuthOptionsInner({
     return e.data.login === 'true' && e.data.eventKey === AuthEvent.Login;
   };
 
+  const completeSocialAuthRef =
+    useRef<
+      (user: SocialAuthBootUser, provider?: string | null) => Promise<void>
+    >();
+
+  const completeSocialAuth = async (
+    bootUser: SocialAuthBootUser,
+    authProvider?: string | null,
+  ) => {
+    // The popup-closed poll and a late callback message can both reach this
+    // point for the same attempt. Only the first one may run the success flow.
+    if (authFlowSucceededRef.current) {
+      return;
+    }
+    authFlowSucceededRef.current = true;
+
+    // If user is confirmed we can proceed with logging them in
+    if ('infoConfirmed' in bootUser && bootUser.infoConfirmed) {
+      setIsSocialAuthLoading(false);
+      await onSignBackLogin(
+        bootUser as LoggedUser,
+        authProvider as SignBackProvider,
+      );
+      const isAlreadyOnboarded = await checkForOnboardedUser(
+        bootUser as LoggedUser,
+      );
+      if (!isAlreadyOnboarded) {
+        onSuccessfulLogin?.();
+      }
+      return;
+    }
+
+    if (autoProfileTriggers.includes(trigger)) {
+      setIsSocialAuthLoading(false);
+      const loggedUser = bootUser as LoggedUser;
+      await autoCompleteProfile(loggedUser.email, loggedUser.name, false);
+      return;
+    }
+
+    setIsSocialAuthLoading(false);
+    await setChosenProvider(authProvider || 'password');
+    onAuthStateUpdate?.({ defaultDisplay: AuthDisplay.SocialRegistration });
+    onSetActiveDisplay(AuthDisplay.SocialRegistration);
+  };
+
+  const recheckSessionAfterPopupClosed = async (
+    authProvider?: string | null,
+  ) => {
+    const attempt = socialAuthAttemptRef.current;
+    let boot: Awaited<ReturnType<typeof refetchSocialAuthBoot>>;
+    try {
+      boot = await refetchSocialAuthBoot(
+        refetchBoot,
+        SOCIAL_AUTH_POPUP_CLOSED_RECHECK_DELAYS_MS,
+      );
+    } catch {
+      return;
+    }
+
+    const isStale =
+      !isMountedRef.current ||
+      attempt !== socialAuthAttemptRef.current ||
+      authFlowSucceededRef.current;
+    if (isStale || !hasSocialAuthBootUser(boot?.user)) {
+      return;
+    }
+
+    await completeSocialAuthRef.current?.(boot.user, authProvider);
+  };
+
   const handleLoginMessage = async (
     e?: MessageEvent,
     providerOverride?: string,
+    { isPopupClosed = false }: { isPopupClosed?: boolean } = {},
   ) => {
-    const authProvider = providerOverride || chosenProvider;
+    const authProvider =
+      providerOverride || chosenProvider || socialAuthProviderRef.current;
     setActiveSocialProvider(authProvider);
     authFlowCompletedRef.current = true;
     clearPopupCheck();
@@ -448,7 +545,12 @@ function AuthOptionsInner({
 
     let boot;
     try {
-      boot = await refetchSocialAuthBoot(refetchBoot);
+      boot = await refetchSocialAuthBoot(
+        refetchBoot,
+        e && !callbackError
+          ? SOCIAL_AUTH_CALLBACK_BOOT_RETRY_DELAYS_MS
+          : undefined,
+      );
     } catch (error) {
       setIsSocialAuthLoading(false);
       onAuthStateUpdate?.({ isLoading: false });
@@ -468,6 +570,24 @@ function AuthOptionsInner({
       if (!authFlowSucceededRef.current) {
         displayToast(socialErrorMessage);
       }
+      return;
+    }
+
+    if (!hasSocialAuthBootUser(boot?.user) && isPopupClosed) {
+      setIsSocialAuthLoading(false);
+      onAuthStateUpdate?.({ isLoading: false });
+      logEvent({
+        event_name: socialErrorEventName.current,
+        extra: JSON.stringify({
+          provider: authProvider,
+          error: SOCIAL_AUTH_POPUP_CLOSED_ERROR,
+          origin: 'betterauth social popup closed',
+        }),
+      });
+      // Some browsers report the popup as closed before the session cookie
+      // lands. Re-check boot once more in the background (no loading state)
+      // and finish the sign-in if a session shows up.
+      recheckSessionAfterPopupClosed(authProvider);
       return;
     }
 
@@ -493,31 +613,10 @@ function AuthOptionsInner({
       return;
     }
 
-    authFlowSucceededRef.current = true;
-
-    // If user is confirmed we can proceed with logging them in
-    if ('infoConfirmed' in boot.user && boot.user.infoConfirmed) {
-      setIsSocialAuthLoading(false);
-      await onSignBackLogin(boot.user, authProvider as SignBackProvider);
-      const isAlreadyOnboarded = await checkForOnboardedUser(boot.user);
-      if (!isAlreadyOnboarded) {
-        onSuccessfulLogin?.();
-      }
-      return;
-    }
-
-    if (trigger === AuthTriggers.RecruiterSelfServe) {
-      setIsSocialAuthLoading(false);
-      const loggedUser = boot.user as LoggedUser;
-      await autoCompleteProfile(loggedUser.email, loggedUser.name, false);
-      return;
-    }
-
-    setIsSocialAuthLoading(false);
-    await setChosenProvider(authProvider || 'password');
-    onAuthStateUpdate({ defaultDisplay: AuthDisplay.SocialRegistration });
-    onSetActiveDisplay(AuthDisplay.SocialRegistration);
+    await completeSocialAuth(boot.user, authProvider);
   };
+
+  completeSocialAuthRef.current = completeSocialAuth;
 
   const onProviderClick = async (provider: string, login = true) => {
     if (isSocialAuthLoading) {
@@ -537,6 +636,8 @@ function AuthOptionsInner({
     });
     socialErrorEventName.current = authErrorEventName;
     authFlowSucceededRef.current = false;
+    socialAuthAttemptRef.current += 1;
+    socialAuthProviderRef.current = provider;
     setActiveSocialProvider(provider);
     setIsSocialAuthLoading(true);
 
@@ -623,7 +724,7 @@ function AuthOptionsInner({
       // Popup closed without delivering a completion message. The user may
       // still be authenticated (session cookies set even when postMessage is
       // missed/dropped); verify via boot before surfacing an error toast.
-      handleLoginMessage();
+      handleLoginMessage(undefined, provider, { isPopupClosed: true });
     }, 500);
   };
 
@@ -636,6 +737,7 @@ function AuthOptionsInner({
       ? AuthEventNames.LoginError
       : AuthEventNames.RegistrationError;
     authFlowSucceededRef.current = false;
+    socialAuthAttemptRef.current += 1;
     setIsSocialAuthLoading(true);
     logEvent({
       event_name: 'click',
@@ -666,10 +768,16 @@ function AuthOptionsInner({
     }
 
     await setChosenProvider('google');
-    await handleLoginMessage();
+    await handleLoginMessage(undefined, 'google');
   };
 
   const [hasLoggedAuthOpen, setHasLoggedAuthOpen] = useState(false);
+  // Lives here so Log in's email screen survives the trip to Forgot password or
+  // Verify email and back. Picking email closes One Tap: on Sign up that's the
+  // move to the registration form, on Log in it's this screen.
+  const emailLogin = useState(() => !!isLoginFlow && !!email);
+  const [isEmailLogin, setIsEmailLogin] = emailLogin;
+  const isEmailFormFromSignup = useRef(false);
 
   const canUseOneTap =
     isAuthReady &&
@@ -678,7 +786,10 @@ function AuthOptionsInner({
     !isIOSNative() &&
     !isAndroidApp &&
     !isNativeAuthSupported('google') &&
-    hasLoggedAuthOpen;
+    hasLoggedAuthOpen &&
+    !isEmailLogin &&
+    (activeDisplay === AuthDisplay.Default ||
+      activeDisplay === AuthDisplay.OnboardingSignup);
   useGoogleOneTap({
     enabled: canUseOneTap,
     onCredential: handleOneTapCredential,
@@ -717,6 +828,8 @@ function AuthOptionsInner({
 
   const onEmailRegistration = (emailAd: string) => {
     // before displaying registration, ensure the email doesn't exist
+    isEmailFormFromSignup.current = true;
+    setIsForgotPasswordReturn(false);
     onSetActiveDisplay(AuthDisplay.Registration);
     setEmail(emailAd);
   };
@@ -739,6 +852,12 @@ function AuthOptionsInner({
       target_type: AuthEventNames.ForgotPassword,
     });
     setEmail(withEmail);
+    if (
+      activeDisplay !== AuthDisplay.ForgotPassword &&
+      activeDisplay !== AuthDisplay.CodeVerification
+    ) {
+      forgotPasswordReturnRef.current = activeDisplay;
+    }
     onSetActiveDisplay(AuthDisplay.ForgotPassword);
   };
 
@@ -747,7 +866,54 @@ function AuthOptionsInner({
     onSetActiveDisplay(defaultDisplay);
   };
 
-  const onBackFromVerify = () => onSetActiveDisplay(emailVerificationReturn);
+  const onBackToLogin = () => {
+    setIsForgotPasswordReturn(true);
+    onSetActiveDisplay(forgotPasswordReturnRef.current);
+  };
+
+  const onBackFromVerify = () => {
+    if (emailVerificationReturn === AuthDisplay.Default) {
+      onAuthStateUpdate?.({ isLoginFlow: true });
+    }
+    onSetActiveDisplay(emailVerificationReturn);
+  };
+
+  const onBackFromEmailForm = () => {
+    if (!isEmailFormFromSignup.current) {
+      onAuthStateUpdate?.({ defaultDisplay: AuthDisplay.OnboardingSignup });
+      return;
+    }
+
+    onAuthStateUpdate?.({ isLoginFlow: false });
+    onSetActiveDisplay(AuthDisplay.Default);
+  };
+
+  const screenBacks: Partial<Record<AuthDisplay, () => void>> = {
+    [AuthDisplay.Registration]: onBackFromEmailForm,
+    [AuthDisplay.EmailVerification]: onBackFromVerify,
+    [AuthDisplay.ForgotPassword]: onBackToLogin,
+    ...(isEmailLogin && {
+      [AuthDisplay.Default]: () => setIsEmailLogin(false),
+    }),
+  };
+
+  const screenBack = screenBacks[activeDisplay];
+  const screenBackRef = useRef(screenBack);
+  screenBackRef.current = screenBack;
+  const hasScreenBack = !!screenBack;
+  const onScreenBack = useCallback(() => screenBackRef.current?.(), []);
+
+  useEffect(() => {
+    onScreenBackChange?.(hasScreenBack ? onScreenBack : undefined);
+
+    return () => onScreenBackChange?.(undefined);
+  }, [onScreenBackChange, hasScreenBack, onScreenBack]);
+
+  const onBackFromRegistration = () => {
+    setIsForgotPasswordReturn(false);
+    onAuthStateUpdate?.({ isLoginFlow: false });
+    onSetActiveDisplay(defaultDisplay);
+  };
 
   const onEmailLogin: typeof onPasswordLogin = (params) => {
     setEmail(params.identifier);
@@ -758,7 +924,7 @@ function AuthOptionsInner({
     <div
       className={classNames(
         'z-1 flex w-full max-w-[26.25rem] flex-col overflow-y-auto rounded-16',
-        !simplified && 'bg-accent-pepper-subtlest',
+        !simplified && 'bg-background-default',
         defaultDisplay === AuthDisplay.OnboardingSignup && !compact
           ? 'min-h-[21.25rem]'
           : undefined,
@@ -775,12 +941,21 @@ function AuthOptionsInner({
           <AuthDefault
             isLoading={isPasswordLoginLoading}
             isLoginFlow={isForgotPasswordReturn || isLoginFlow}
+            initialLoginFlow={defaultEntry.isLogin}
+            onBack={
+              defaultEntry.fromSignBack
+                ? () => onSetActiveDisplay(AuthDisplay.SignBack)
+                : undefined
+            }
             isReady={isReady}
             loginHint={loginHint}
             onForgotPassword={onForgotPassword}
             onPasswordLogin={onEmailLogin}
             onProviderClick={onProviderClick}
             onSignup={onEmailRegistration}
+            emailLogin={emailLogin}
+            loginEmail={email}
+            hasTopBarBack={!!onScreenBackChange}
             isSocialAuthLoading={isSocialAuthLoading}
             providers={providers}
             simplified={simplified}
@@ -813,7 +988,7 @@ function AuthOptionsInner({
             hints={registrationHints}
             onBack={
               defaultDisplay !== AuthDisplay.Registration
-                ? () => onSetActiveDisplay(defaultDisplay)
+                ? onBackFromRegistration
                 : undefined
             }
             onBackToIntro={
@@ -823,16 +998,22 @@ function AuthOptionsInner({
               // return to.
               defaultDisplay === AuthDisplay.OnboardingSignup
                 ? () => {
-                    onAuthStateUpdate({
+                    onAuthStateUpdate?.({
                       isAuthenticating: undefined,
                       defaultDisplay: AuthDisplay.OnboardingSignup,
                     });
                   }
                 : undefined
             }
-            onExistingEmailLoginClick={() => {
-              onAuthStateUpdate({
+            onExistingEmailLoginClick={(existingEmail) => {
+              if (existingEmail) {
+                setEmail(existingEmail);
+                setIsEmailLogin(true);
+              }
+              onAuthStateUpdate?.({
                 isLoginFlow: true,
+                defaultDisplay: AuthDisplay.Default,
+                ...(existingEmail && { email: existingEmail }),
               });
               setActiveDisplay(AuthDisplay.Default);
             }}
@@ -849,6 +1030,7 @@ function AuthOptionsInner({
         <Tab label={AuthDisplay.OnboardingSignup}>
           <OnboardingRegistrationForm
             onContinueWithEmail={() => {
+              isEmailFormFromSignup.current = false;
               onAuthStateUpdate?.({
                 isAuthenticating: true,
                 defaultDisplay: AuthDisplay.Registration,
@@ -856,6 +1038,7 @@ function AuthOptionsInner({
               setActiveDisplay(AuthDisplay.Registration);
             }}
             onSignup={(signupEmail) => {
+              isEmailFormFromSignup.current = false;
               onAuthStateUpdate?.({
                 isAuthenticating: true,
                 email: signupEmail,
@@ -882,7 +1065,6 @@ function AuthOptionsInner({
             className={className}
             onboardingSignupButton={onboardingSignupButton}
             hideLoginLink={hideLoginLink}
-            hideSignupDisclaimer={hideSignupDisclaimer}
             compact={compact}
             signupStyle={signupStyle}
             inlineProviders={inlineProviders}
@@ -893,10 +1075,12 @@ function AuthOptionsInner({
         </Tab>
         <Tab label={AuthDisplay.SignBack}>
           <AuthSignBack
-            onRegister={() => {
+            onRegister={(canGoBack) => {
               if (isLoginFlow) {
                 onAuthStateUpdate?.({ isLoginFlow: false });
               }
+              setIsForgotPasswordReturn(false);
+              setDefaultEntry({ isLogin: false, fromSignBack: !!canGoBack });
               setIsConnected(false);
               onSetActiveDisplay(AuthDisplay.Default);
             }}
@@ -906,10 +1090,11 @@ function AuthOptionsInner({
             isProviderLoading={isSocialAuthLoading}
             simplified={simplified}
             isOnboardingFunnel={isOnboardingFunnel}
-            onShowLoginOptions={() => {
+            onShowLoginOptions={(canGoBack) => {
               if (!isLoginFlow && onAuthStateUpdate) {
                 onAuthStateUpdate({ isLoginFlow: true });
               }
+              setDefaultEntry({ isLogin: true, fromSignBack: !!canGoBack });
               setIsConnected(false);
               setActiveDisplay(AuthDisplay.Default);
             }}
@@ -927,13 +1112,14 @@ function AuthOptionsInner({
         </Tab>
         <Tab label={AuthDisplay.ForgotPassword}>
           <ForgotPasswordForm
-            onBack={onForgotPasswordBack}
+            hasTopBarBack={!!onScreenBackChange}
+            onBack={onBackToLogin}
             simplified={simplified}
           />
         </Tab>
         <Tab label={AuthDisplay.CodeVerification}>
           <CodeVerificationForm
-            onBack={onForgotPasswordBack}
+            onBack={onBackToLogin}
             simplified={simplified}
           />
         </Tab>
@@ -944,16 +1130,22 @@ function AuthOptionsInner({
           />
         </Tab>
         <Tab label={AuthDisplay.EmailVerification}>
-          <MailIcon size={IconSize.XXLarge} className="mx-auto mb-2" />
+          {simplified && (
+            <MailIcon size={IconSize.XXLarge} className="mx-auto mb-2" />
+          )}
           <AuthHeader
             simplified={simplified}
             onboardingHeadline={isOnboardingFunnel}
             title="Verify your email"
-            onBack={isOnboardingFunnel ? undefined : onBackFromVerify}
+            onBack={simplified ? undefined : onBackFromVerify}
           />
+          {!simplified && (
+            <MailIcon size={IconSize.XXLarge} className="mx-auto mt-8" />
+          )}
           <EmailCodeVerification
+            className={simplified ? undefined : '!pt-4'}
             isOnboardingFunnel={isOnboardingFunnel}
-            onChangeEmail={isOnboardingFunnel ? onBackFromVerify : undefined}
+            onChangeEmail={onBackFromVerify}
             onSubmit={onProfileSuccess}
             onVerifyCode={async (code) => {
               const res = await betterAuthVerifyEmailOTP(email, code);

@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
-import type { QueryKey } from '@tanstack/react-query';
+import { useCallback, useMemo } from 'react';
+import type { QueryClient, QueryKey } from '@tanstack/react-query';
 import { useQueryClient } from '@tanstack/react-query';
 import type { FeedHeroData } from '../../../graphql/feed';
 import type { Post } from '../../../graphql/posts';
@@ -19,7 +19,37 @@ import { useVotePost } from '../../../hooks/vote/useVotePost';
 import { updatePostCache } from '../../../lib/query';
 import type { Origin } from '../../../lib/log';
 
-type UpdateHeroPost = (post: Post) => Partial<Post>;
+type UpdatePost = (post: Post) => Partial<Post>;
+
+/**
+ * Where a surface's cards read their posts from and write them back to, so
+ * the actions below patch the query those cards actually render.
+ */
+export interface PostCacheAdapter {
+  readPost: (client: QueryClient, id: string) => Post | undefined;
+  writePost: (client: QueryClient, id: string, patch: Partial<Post>) => void;
+}
+
+const heroPostCache = (queryKey: QueryKey): PostCacheAdapter => ({
+  readPost: (client, id) =>
+    client
+      .getQueryData<FeedHeroData>(queryKey)
+      ?.feedHero.posts.find((item) => item.id === id),
+  writePost: (client, id, patch) =>
+    client.setQueryData<FeedHeroData>(
+      queryKey,
+      (current) =>
+        current && {
+          ...current,
+          feedHero: {
+            ...current.feedHero,
+            posts: current.feedHero.posts.map((item) =>
+              item.id === id ? { ...item, ...patch } : item,
+            ),
+          },
+        },
+    ),
+});
 
 /**
  * Vote and bookmark for the hero's cards, patching the hero's own query.
@@ -30,46 +60,38 @@ type UpdateHeroPost = (post: Post) => Partial<Post>;
  * `useFeedBookmarkPost`: an optimistic patch of the query the cards render
  * from, keyed mutations so that patch is not applied a second time when the
  * hero's own subscription sees the mutation succeed, and a subscription so a
- * vote fired elsewhere still lands here.
+ * vote fired elsewhere still lands here. `cache` points it at another query
+ * (the widget rail's boosted post); the hero's by default.
  */
 export const useFeedHeroPostActions = ({
   queryKey,
   feedName,
   origin,
+  cache,
 }: {
   queryKey: QueryKey;
   feedName: string;
   origin: Origin;
+  cache?: PostCacheAdapter;
 }): Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'> &
   Pick<UseBookmarkPost, 'toggleBookmark'> => {
   const queryClient = useQueryClient();
+  const { readPost, writePost } = useMemo(
+    () => cache ?? heroPostCache(queryKey),
+    [cache, queryKey],
+  );
 
   const writeHeroPost = useCallback(
-    (id: string, patch: Partial<Post>) =>
-      queryClient.setQueryData<FeedHeroData>(
-        queryKey,
-        (current) =>
-          current && {
-            ...current,
-            feedHero: {
-              ...current.feedHero,
-              posts: current.feedHero.posts.map((item) =>
-                item.id === id ? { ...item, ...patch } : item,
-              ),
-            },
-          },
-      ),
-    [queryClient, queryKey],
+    (id: string, patch: Partial<Post>) => writePost(queryClient, id, patch),
+    [queryClient, writePost],
   );
 
   // The rollback restores only the fields this patch touched, on this post.
   // Restoring a whole snapshot would also undo a patch that landed in between —
   // a bookmark on another card while an upvote is still in flight.
   const patchHeroPost = useCallback(
-    (id: string, update: UpdateHeroPost): (() => void) | undefined => {
-      const post = queryClient
-        .getQueryData<FeedHeroData>(queryKey)
-        ?.feedHero.posts.find((item) => item.id === id);
+    (id: string, update: UpdatePost): (() => void) | undefined => {
+      const post = readPost(queryClient, id);
 
       if (!post) {
         return undefined;
@@ -85,7 +107,7 @@ export const useFeedHeroPostActions = ({
 
       return () => writeHeroPost(id, before);
     },
-    [queryClient, queryKey, writeHeroPost],
+    [queryClient, readPost, writeHeroPost],
   );
 
   const applyVote = useCallback(

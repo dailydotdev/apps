@@ -6,6 +6,7 @@ import type {
 } from '../../graphql/contentPreference';
 import { CONTENT_PREFERENCE_STATUS_QUERY } from '../../graphql/contentPreference';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import type { LoggedUser } from '../../lib/user';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { ApiErrorResult } from '../../graphql/common';
 import { ApiError } from '../../graphql/common';
@@ -28,6 +29,32 @@ export type UseContentPreferenceStatusQueryProps = {
 export type UseContentPreferenceStatusQuery =
   UseQueryResult<ContentPreference | null>;
 
+export const contentPreferenceStatusQueryOptions = (
+  user: Pick<LoggedUser, 'id'> | undefined,
+  variables: { id: string; entity: ContentPreferenceType },
+) => ({
+  queryKey: generateQueryKey(RequestKey.ContentPreference, user, variables),
+  queryFn: async (): Promise<ContentPreference | null> => {
+    try {
+      const result = await gqlBatchRequest<{
+        contentPreferenceStatus: ContentPreference;
+      }>(CONTENT_PREFERENCE_STATUS_QUERY, variables);
+
+      return result.contentPreferenceStatus;
+    } catch (originalError) {
+      const error = originalError as ApiErrorResult;
+      const errorCode = error.response?.errors?.[0]?.extensions?.code;
+
+      if ([ApiError.NotFound].includes(errorCode)) {
+        return null;
+      }
+
+      throw originalError;
+    }
+  },
+  staleTime: StaleTime.Default,
+});
+
 export const useContentPreferenceStatusQuery = ({
   id,
   entity,
@@ -36,38 +63,14 @@ export const useContentPreferenceStatusQuery = ({
   const { user, isLoggedIn } = useAuthContext();
   const entityId = id ?? '';
   const enabled = !!(isLoggedIn && entityId && entity);
-  const queryKey = generateQueryKey(RequestKey.ContentPreference, user, {
+  const statusQueryOptions = contentPreferenceStatusQueryOptions(user, {
     id: entityId,
     entity,
   });
+  const { queryKey } = statusQueryOptions;
 
   const queryResult = useQuery<ContentPreference | null>({
-    queryKey,
-    queryFn: async ({ queryKey: fnQueryKey }) => {
-      const [, , queryVariables] = fnQueryKey as [
-        unknown,
-        unknown,
-        { id: string; entity: ContentPreferenceType },
-      ];
-
-      try {
-        const result = await gqlBatchRequest<{
-          contentPreferenceStatus: ContentPreference;
-        }>(CONTENT_PREFERENCE_STATUS_QUERY, queryVariables);
-
-        return result.contentPreferenceStatus;
-      } catch (originalError) {
-        const error = originalError as ApiErrorResult;
-        const errorCode = error.response?.errors?.[0]?.extensions?.code;
-
-        if ([ApiError.NotFound].includes(errorCode)) {
-          return null;
-        }
-
-        throw originalError;
-      }
-    },
-    staleTime: StaleTime.Default,
+    ...statusQueryOptions,
     ...queryOptions,
     enabled:
       typeof queryOptions?.enabled !== 'undefined'

@@ -59,10 +59,10 @@ export const v2FeedSideInsetClass = 'tablet:px-2 laptop:px-6';
 const v2FeedInsetClass = `${v2FeedSideInsetClass} tablet:py-2 laptop:py-6`;
 
 const listGapClass = 'gap-2';
-const gridGapClass = 'gap-8';
+const gridGapClass = 'gap-6';
 const feedGapPx = {
   [listGapClass]: 8,
-  [gridGapClass]: 32,
+  [gridGapClass]: 24,
 };
 
 const cardListClass: Partial<Record<number, string>> = {
@@ -105,7 +105,9 @@ const cardClass = ({
   if (isHorizontal) {
     return 'auto-cols-[calc((100%/var(--num-cards))-var(--feed-gap)-calc(var(--feed-gap)*+1)/var(--num-cards))] tablet:auto-cols-[calc((100%/var(--num-cards))-var(--feed-gap)-calc(var(--feed-gap)*-1)/var(--num-cards))]';
   }
-  return isList ? 'grid-cols-1' : cardListClass[numberOfCards] ?? 'grid-cols-1';
+  return isList
+    ? 'grid-cols-1'
+    : (cardListClass[numberOfCards] ?? 'grid-cols-1');
 };
 
 export const feedNameToHeading: Record<
@@ -248,16 +250,17 @@ export const FeedContainer = ({
       )}
       {shouldShowBanner && !isLaptopLayout && (
         <div
-          // From tablet up the container above carries `feedGutter`, so
-          // any horizontal padding here stacks on top of it and leaves
-          // the banner narrower than the cards underneath. Below tablet
-          // there is no gutter, and the banner needs one of its own: a
-          // post card runs full-bleed on purpose, but this is a rounded,
-          // bordered box, and without the inset it paints its border and
-          // clipped corners on the screen edge. Not the card's `px-4` —
-          // the banner has that already for its text; this is the box.
+          // A tablet grid sits inside `feedGutter`, so any horizontal
+          // padding here stacks on top of it and leaves the banner
+          // narrower than the cards underneath. A list has no gutter,
+          // and the banner needs one of its own: a post card runs
+          // full-bleed on purpose, but this is a rounded, bordered box,
+          // and without the inset it paints its border and clipped
+          // corners on the screen edge. Not the card's `px-4` — the
+          // banner has that already for its text; this is the box.
           className={classNames(
-            'px-4 tablet:px-0 laptop:pt-0',
+            'px-4 laptop:pt-0',
+            !isList && 'tablet:px-0',
             !hasFirstSlotCard && 'tablet:pt-1',
           )}
         >
