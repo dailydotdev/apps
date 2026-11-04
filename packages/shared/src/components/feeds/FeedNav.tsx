@@ -30,6 +30,9 @@ import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { webappUrl } from '../../lib/constants';
 import NotificationsBell from '../notifications/NotificationsBell';
+import { useMobileAppHeader } from '../../features/getApp/hooks/useMobileAppHeader';
+import { MobileAppActions } from '../../features/getApp/components/MobileAppActions';
+import { SignInStrip } from '../auth/SignInStrip';
 import classed from '../../lib/classed';
 import type { AllFeedPages } from '../../lib/query';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
@@ -76,24 +79,27 @@ interface FeedNavProps {
   inShellBlock?: boolean;
   // The widget rail brings the feed's tabs, under it.
   hasFeedWidgetRail?: boolean;
+  canShowSignInStrip?: boolean;
 }
 
 function FeedNav({
   inShellBlock = false,
   hasFeedWidgetRail = false,
+  canShowSignInStrip = false,
 }: FeedNavProps): ReactElement | null {
   const router = useRouter();
   const { feedName: rawFeedName } = useActiveFeedNameContext();
   const feedName = rawFeedName as AllFeedPages;
   const { sortingEnabled } = useSettingsContext();
   const { isSortableFeed } = useFeedName({ feedName });
-  const { home, bookmarks } = useActiveNav(feedName);
+  const { home, bookmarks, profile } = useActiveNav(feedName);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isBelowLaptop = !useViewSize(ViewSize.Laptop);
   // The notifications bell only belongs to the tablet feed header: phones get it
   // from the footer nav and laptop+ from the app header. JS-gated (not CSS) so
   // it never mounts alongside those placements.
   const isTablet = isBelowLaptop && !isMobile;
+  const isMobileAppHeader = useMobileAppHeader();
   const { value: feedChipsVariant } = useConditionalFeature({
     feature: featureFeedChips,
     shouldEvaluate: isBelowLaptop && !inShellBlock && !hasFeedWidgetRail,
@@ -198,11 +204,15 @@ function FeedNav({
   ]);
 
   const shouldRenderNav = inShellBlock || home || (isMobile && bookmarks);
-  if (
-    !shouldRenderNav ||
-    withoutLayoutVariantPrefix(router?.pathname).startsWith('/posts/[id]')
-  ) {
+  if (withoutLayoutVariantPrefix(router?.pathname).startsWith('/posts/[id]')) {
     return null;
+  }
+  if (!shouldRenderNav) {
+    return isTablet && isMobileAppHeader && canShowSignInStrip && !profile ? (
+      <div className="sticky top-0 z-3 ml-20 mr-4 mt-4">
+        <SignInStrip />
+      </div>
+    ) : null;
   }
 
   if (hasFeedWidgetRail) {
@@ -253,11 +263,6 @@ function FeedNav({
                 }
               />
             </div>
-            {showFeedActions && (
-              <FeedNavActionsWrapper className="!py-0">
-                {renderFeedActions(true)}
-              </FeedNavActionsWrapper>
-            )}
             {hasForYouSheet && (
               <ForYouSheet
                 title={FeedNavTab.ForYou}
@@ -278,7 +283,11 @@ function FeedNav({
             )}
             {isTablet && (
               <div className="hidden shrink-0 items-center bg-background-default py-2 pl-2 pr-4 tablet:flex laptop:hidden">
-                <NotificationsBell compact />
+                {isMobileAppHeader ? (
+                  <MobileAppActions />
+                ) : (
+                  <NotificationsBell compact />
+                )}
               </div>
             )}
           </div>
@@ -331,7 +340,11 @@ function FeedNav({
         )}
         {!inShellBlock && !shouldRenderFeedChips && (
           <div className="hidden items-center bg-background-default tablet:absolute tablet:inset-y-0 tablet:right-0 tablet:flex laptop:hidden">
-            <NotificationsBell compact />
+            {isMobileAppHeader ? (
+              <MobileAppActions />
+            ) : (
+              <NotificationsBell compact />
+            )}
           </div>
         )}
       </div>

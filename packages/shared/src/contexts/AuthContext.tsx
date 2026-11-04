@@ -6,7 +6,10 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import type { QueryObserverResult } from '@tanstack/react-query';
+import type {
+  QueryObserverResult,
+  RefetchOptions,
+} from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { useGrowthBook } from '@growthbook/growthbook-react';
 import type { AnonymousUser, LoggedUser } from '../lib/user';
@@ -77,7 +80,9 @@ export interface AuthContextData {
   visit?: Visit;
   firstVisit?: string;
   deleteAccount?: () => Promise<void>;
-  refetchBoot?: () => Promise<QueryObserverResult<Partial<Boot>>>;
+  refetchBoot?: (
+    options?: RefetchOptions,
+  ) => Promise<QueryObserverResult<Partial<Boot>>>;
   accessToken?: AccessToken;
   squads?: Squad[];
   isAuthReady: boolean;

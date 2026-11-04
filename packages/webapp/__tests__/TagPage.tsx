@@ -19,6 +19,7 @@ import type {
 import { CampaignCtaPlacement } from '@dailydotdev/shared/src/graphql/settings';
 import {
   ADD_FILTERS_TO_FEED_MUTATION,
+  FEED_SETTINGS_QUERY,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { SortCommentsBy } from '@dailydotdev/shared/src/graphql/comments';
@@ -37,7 +38,6 @@ import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertCont
 import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import { ARCHIVE_INDEX_QUERY } from '@dailydotdev/shared/src/graphql/archive';
 import TagPage from '../pages/tags/[tag]';
-import { FEED_SETTINGS_QUERY } from '../../shared/src/graphql/feedSettings';
 
 const showLogin = jest.fn();
 
@@ -48,7 +48,7 @@ jest.mock('next/router', () => ({
         isFallback: false,
         pathname: '/tags',
         query: {},
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   ),
 }));
 
@@ -156,7 +156,7 @@ const renderComponent = (
   mockGraphQL(createArchiveIndexMock());
   nock('http://localhost:3000')
     .get(
-      `/v1/a?active=false&registered=${!!user}&gdpr=1&consent_exists=NONE_CONSENT`,
+      `/v1/a?active=false&allow_post_boost=true&allow_squad_boost=true&registered=${!!user}&gdpr=1&consent_exists=NONE_CONSENT`,
     )
     .reply(200, [ad]);
   const settingsContext: SettingsContextData = {

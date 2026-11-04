@@ -1,9 +1,12 @@
+import type { Author } from '../../graphql/comments';
 import type { Post } from '../../graphql/posts';
-import { isSourceUserSource } from '../../graphql/sources';
+import { isSourceUserSource, SourceType } from '../../graphql/sources';
 import type {
+  FeedControl,
   FeedControls,
   FeedItemExplain,
   FeedProfile,
+  FeedProfileInterest,
   RankedExplain,
 } from './types';
 import {
@@ -11,14 +14,13 @@ import {
   ExplainOrigin,
   ExplainRole,
   ExplainStrength,
+  FeedSourceMode,
   FeedTopicMode,
+  FollowControl,
   isRankedExplain,
   TopicControl,
 } from './types';
-
-// The lane the challenger ranks; the others (coldstart, popular) top up a
-// short page.
-export const challengerLane = 'chal';
+import { formatUntil } from './duration';
 
 /** What put a card on the page, for the dot beside its reason. */
 enum ReasonCategory {
@@ -36,11 +38,78 @@ const reasonDotClassName: Record<ReasonCategory, string> = {
 };
 
 const isFillIn = (explain: FeedItemExplain | null | undefined): boolean =>
-  !!explain && explain.lane !== challengerLane;
+  !!explain && !isRankedExplain(explain) && !!explain.fill_in;
 
 const isSourceFollow = (explain: RankedExplain): boolean =>
   explain.follow.kind === ExplainFollowKind.Source ||
   explain.follow.kind === ExplainFollowKind.Squad;
+
+enum FollowSide {
+  Source = 'source',
+  Author = 'author',
+}
+
+const raisingControls: (FollowControl | undefined)[] = [
+  FollowControl.Boost,
+  FollowControl.Weight,
+];
+
+/**
+ * Whose follow factor a card got: the follow that counted, or without one
+ * the source or author the reader set a level on.
+ */
+const getFollowSide = ({ follow }: RankedExplain): FollowSide | undefined => {
+  if (follow.kind) {
+    return follow.kind === ExplainFollowKind.Author
+      ? FollowSide.Author
+      : FollowSide.Source;
+  }
+  if (follow.source_control && follow.source_control !== FollowControl.Off) {
+    return FollowSide.Source;
+  }
+  if (follow.author_control && follow.author_control !== FollowControl.Off) {
+    return FollowSide.Author;
+  }
+  return undefined;
+};
+
+// Show more, or an exact weight above 1, brings a source's or author's posts
+// in the way a follow does.
+const getGatheringSide = (explain: RankedExplain): FollowSide | undefined => {
+  const { match, follow } = explain;
+  if (match || follow.kind) {
+    return undefined;
+  }
+  if (raisingControls.includes(follow.source_control)) {
+    return FollowSide.Source;
+  }
+  return raisingControls.includes(follow.author_control)
+    ? FollowSide.Author
+    : undefined;
+};
+
+/**
+ * The reader followed the card's source or squad when it was ranked: the
+ * follow counted, or was set to Off, which only a follow is offered.
+ */
+export const isSourceFollowed = (
+  explain: FeedItemExplain | null | undefined,
+): boolean =>
+  isRankedExplain(explain) &&
+  (isSourceFollow(explain) ||
+    explain.follow.source_control === FollowControl.Off);
+
+/** The reader followed the card's author when it was ranked. */
+export const isAuthorFollowed = (
+  explain: FeedItemExplain | null | undefined,
+): boolean =>
+  isRankedExplain(explain) &&
+  (explain.follow.kind === ExplainFollowKind.Author ||
+    explain.follow.author_control === FollowControl.Off);
+
+export const getAuthorLabel = (
+  author: Pick<Author, 'name' | 'username'>,
+): string => author.name || `@${author.username}`;
 
 const getCategory = (
   explain: FeedItemExplain | null | undefined,
@@ -51,7 +120,7 @@ const getCategory = (
   if (!isRankedExplain(explain)) {
     return ReasonCategory.Followed;
   }
-  if (explain.follow.kind) {
+  if (explain.follow.kind || getGatheringSide(explain)) {
     return ReasonCategory.Following;
   }
   return explain.match?.origin === ExplainOrigin.Inferred
@@ -71,6 +140,23 @@ const strengthPhrase: Partial<Record<ExplainStrength, string>> = {
   [ExplainStrength.Strong]: 'and read about it often',
   [ExplainStrength.Moderate]: 'and read about it sometimes',
   [ExplainStrength.Confirmed]: 'and read a post on it',
+};
+
+/**
+ * A note for a topic's Feed settings row, when its boost alone doesn't say
+ * enough: why one from reading doesn't count yet, or that only a level the
+ * reader set brings it in.
+ */
+export const getTopicNote = (
+  interest: FeedProfileInterest | undefined,
+): string | undefined => {
+  if (!interest || interest.origin === ExplainOrigin.Set) {
+    return 'You set its boost.';
+  }
+  return interest.origin === ExplainOrigin.Inferred &&
+    interest.strength === ExplainStrength.EarlySignal
+    ? 'Counts once you read more about it.'
+    : undefined;
 };
 
 export interface ReasonParts {
@@ -108,6 +194,17 @@ export const getReason = (
   if (follow.kind === ExplainFollowKind.Author) {
     return { lead: 'Written by someone you follow', tail: '.' };
   }
+  const gatheredBy = getGatheringSide(explain);
+  if (gatheredBy) {
+    return {
+      lead: 'You asked for more from ',
+      name:
+        gatheredBy === FollowSide.Source || !post.author
+          ? post.source?.name
+          : getAuthorLabel(post.author),
+      tail: '.',
+    };
+  }
   if (!match) {
     return pickedForYou;
   }
@@ -142,54 +239,84 @@ export const getReason = (
 };
 
 export const getPostTags = (post: Post): string[] =>
-  (post.tags?.length ? post.tags : post.sharedPost?.tags ?? []).filter(
+  (post.tags?.length ? post.tags : (post.sharedPost?.tags ?? [])).filter(
     (tag) => tag.length,
   );
 
 export enum ExplainSignalKind {
   Topic = 'topic',
   Source = 'source',
+  Author = 'author',
 }
 
 export interface ExplainSignal {
   kind: ExplainSignalKind;
-  /** The tag or the source id. */
+  /** The tag, the source id or the author's user id. */
   id: string;
   label: string;
 }
 
 /**
- * The rows a card lists: its topics, the one that matched first, and its
- * source, first when a follow brought the card in.
+ * The rows a card lists: its topics, the one that matched first, its source
+ * and, when they count for the card, its author. The follow or level that
+ * brought the card in puts its source or author first.
  */
 export const getExplainSignals = (
   post: Post,
   explain: FeedItemExplain | null | undefined,
   limit: number,
+  /** The reader set a level on the author since the card was ranked. */
+  hasAuthorControl = false,
 ): ExplainSignal[] => {
   const matched = isRankedExplain(explain) ? explain.match?.tag : undefined;
   const topics = [
     ...new Set([...(matched ? [matched] : []), ...getPostTags(post)]),
-  ].map(
-    (tag): ExplainSignal => ({
-      kind: ExplainSignalKind.Topic,
-      id: tag,
-      label: `#${tag}`,
-    }),
-  );
-  const { source } = post;
-  if (!source?.id || isSourceUserSource(source)) {
-    return topics.slice(0, limit);
+  ].map((tag): ExplainSignal => ({
+    kind: ExplainSignalKind.Topic,
+    id: tag,
+    label: `#${tag}`,
+  }));
+  const { source, author } = post;
+  const ranked = isRankedExplain(explain) ? explain : undefined;
+  let leadSide: FollowSide | undefined;
+  if (ranked) {
+    leadSide = ranked.follow.kind
+      ? getFollowSide(ranked)
+      : getGatheringSide(ranked);
   }
-  const sourceSignal: ExplainSignal = {
-    kind: ExplainSignalKind.Source,
-    id: source.id,
-    label: source.name ?? source.id,
+  const sourceSignal: ExplainSignal | undefined =
+    source?.id && !isSourceUserSource(source)
+      ? {
+          kind: ExplainSignalKind.Source,
+          id: source.id,
+          label: source.name ?? source.id,
+        }
+      : undefined;
+  const isAuthorCounted =
+    hasAuthorControl ||
+    leadSide === FollowSide.Author ||
+    !!ranked?.follow.author_control;
+  const authorSignal: ExplainSignal | undefined =
+    author?.id && isAuthorCounted
+      ? {
+          kind: ExplainSignalKind.Author,
+          id: author.id,
+          label: getAuthorLabel(author),
+        }
+      : undefined;
+  const sideSignal: Record<FollowSide, ExplainSignal | undefined> = {
+    [FollowSide.Source]: sourceSignal,
+    [FollowSide.Author]: authorSignal,
   };
-  const otherTopics = topics.slice(0, Math.max(0, limit - 1));
-  return isRankedExplain(explain) && isSourceFollow(explain)
-    ? [sourceSignal, ...otherTopics]
-    : [...otherTopics, sourceSignal];
+  const lead = leadSide && sideSignal[leadSide];
+  const trailing = [sourceSignal, authorSignal].filter(
+    (signal): signal is ExplainSignal => !!signal && signal !== lead,
+  );
+  const otherTopics = topics.slice(
+    0,
+    Math.max(0, limit - trailing.length - (lead ? 1 : 0)),
+  );
+  return [...(lead ? [lead] : []), ...otherTopics, ...trailing].slice(0, limit);
 };
 
 export interface SignalMeta {
@@ -216,6 +343,65 @@ export const topicModeMeta: Record<FeedTopicMode, SignalMeta> = {
   },
 };
 
+const exactWeightMeta: SignalMeta = {
+  text: 'Your exact boost',
+  className: 'text-accent-cabbage-default',
+};
+
+const pausedWeightMeta: SignalMeta = {
+  text: 'Your exact boost, kept for Plus',
+  className: 'text-text-quaternary',
+};
+
+/** A source's or author's level. Off ignores the follow, it hides nothing. */
+export const followModeMeta: Record<FeedSourceMode, SignalMeta> = {
+  [FeedSourceMode.Boost]: topicModeMeta[FeedTopicMode.Boost],
+  [FeedSourceMode.Demote]: topicModeMeta[FeedTopicMode.Demote],
+  [FeedSourceMode.Off]: {
+    text: 'Follow off in For You',
+    className: 'text-accent-ketchup-default',
+  },
+};
+
+/**
+ * What the reader set on a topic, source or author, and when it ends. An
+ * exact boost only counts while the reader has Plus.
+ */
+export const getControlMeta = <Mode extends string>(
+  control: FeedControl<Mode> | undefined,
+  isPlus: boolean,
+  modeMeta: Partial<Record<string, SignalMeta>> = topicModeMeta,
+): SignalMeta | undefined => {
+  if (!control) {
+    return undefined;
+  }
+  if (!control.mode && !isPlus) {
+    return pausedWeightMeta;
+  }
+  const meta = (control.mode && modeMeta[control.mode]) || exactWeightMeta;
+  return control.expiresAt
+    ? { ...meta, text: `${meta.text} ${formatUntil(control.expiresAt)}` }
+    : meta;
+};
+
+const getSideFactor = (
+  explain: FeedItemExplain | null | undefined,
+  side: FollowSide,
+): number =>
+  isRankedExplain(explain) && getFollowSide(explain) === side
+    ? explain.follow.factor
+    : 1;
+
+/** The multiplier a source's posts got from a follow or level, else 1. */
+export const getSourceFactor = (
+  explain: FeedItemExplain | null | undefined,
+): number => getSideFactor(explain, FollowSide.Source);
+
+/** The multiplier an author's posts got from a follow or level, else 1. */
+export const getAuthorFactor = (
+  explain: FeedItemExplain | null | undefined,
+): number => getSideFactor(explain, FollowSide.Author);
+
 /** The level the reader set on a topic. */
 export const getTopicLevel = (
   tag: string,
@@ -223,7 +409,9 @@ export const getTopicLevel = (
   profile: FeedProfile | undefined,
 ): FeedTopicMode | undefined => {
   if (controls) {
-    return controls.topics.find(({ keyword }) => keyword === tag)?.mode;
+    return (
+      controls.topics.find(({ keyword }) => keyword === tag)?.mode ?? undefined
+    );
   }
   // The profile lags a change behind the controls, so it only stands in
   // until they load.
@@ -240,15 +428,30 @@ export const getTopicWeight = (
   tag: string,
   explain: FeedItemExplain | null | undefined,
   profile: FeedProfile | undefined,
-): { weight: number; isSet: boolean } | undefined => {
+):
+  | {
+      weight: number;
+      /** What Auto gives it, before the reader's level or weight. */
+      computedWeight: number;
+      isSet: boolean;
+    }
+  | undefined => {
   // The profile is weighed with the reader's latest levels, the
   // explanation with the ones the card was ranked on.
   if (profile) {
     const interest = profile.interests.find((item) => item.tag === tag);
-    return { weight: interest?.weight ?? 0, isSet: !!interest?.control };
+    return {
+      weight: interest?.weight ?? 0,
+      computedWeight: interest?.computedWeight ?? 0,
+      isSet: !!interest?.control,
+    };
   }
   if (isRankedExplain(explain) && explain.match?.tag === tag) {
-    return { weight: explain.match.weight, isSet: !!explain.match.control };
+    return {
+      weight: explain.match.weight,
+      computedWeight: explain.match.computed_weight,
+      isSet: !!explain.match.control,
+    };
   }
   return undefined;
 };
@@ -281,13 +484,23 @@ const hasEffect = ({ multiplier }: ScoreFactor): boolean =>
 export const getScoreBreakdown = (
   explain: RankedExplain,
 ): ScoreBreakdownParts => {
-  const { score, base, match, follow, age, seen, slot } = explain;
+  const { score, base, match, follow, age, seen, slot, explore } = explain;
+  const cautious = base.optimism && base.cautious;
   const multipliers: ScoreFactor[] = [
     {
       label: 'Engagement',
-      hint: 'How much other readers clicked, upvoted, and commented on this post, compared with a typical post.',
-      multiplier: base.value,
+      hint: "How much readers clicked, upvoted, and commented on this post compared with a typical post. Until a post has much of that, its source's past posts count too.",
+      multiplier: cautious || base.value,
     },
+    ...(cautious
+      ? [
+          {
+            label: 'New post',
+            hint: "New posts haven't had time to collect clicks and upvotes, so they get a lift toward how well they could do. The lift fades as the post gets older.",
+            multiplier: base.value / cautious,
+          },
+        ]
+      : []),
     {
       label: 'Topic match',
       hint: 'How close the post is to the topics you follow and read.',
@@ -295,7 +508,7 @@ export const getScoreBreakdown = (
     },
     {
       label: 'Follow',
-      hint: 'A boost when you follow its source, squad, or author.',
+      hint: 'A boost when you follow its source, squad, or author, with the level you set on them.',
       multiplier: follow.factor,
     },
     {
@@ -305,9 +518,20 @@ export const getScoreBreakdown = (
     },
     {
       label: 'Seen before',
-      hint: "Moves the post down if you've already seen it in your feed.",
+      hint: seen.passive_shows
+        ? "Moves the post down if it was already in your feed, including times it loaded in a tab you didn't look at."
+        : "Moves the post down if you've already seen it in your feed.",
       multiplier: seen.factor,
     },
+    ...(explore
+      ? [
+          {
+            label: 'Random nudge',
+            hint: 'A small random change to the score, so your feed sometimes shows a post it would otherwise rank just below.',
+            multiplier: explore,
+          },
+        ]
+      : []),
     ...(slot
       ? [
           {
@@ -342,19 +566,25 @@ export const getScoreBreakdown = (
   const recorded = slot?.pick_score ?? score;
   const finalScore = recorded > 0 ? recorded : explained;
 
-  // The exploration draw and the fresh slot's own scale move the recorded
-  // score without a factor of their own; the gap gets its row, past what
-  // the factors' 3-decimal rounding leaves.
+  // The spot saved for a new post scores on its own scale, and an older
+  // record may miss a factor; the gap gets its row, past what the factors'
+  // 3-decimal rounding leaves.
   const gap = finalScore / explained;
   const moved = [
     ...known,
     ...(Math.abs(Math.log(gap)) >= 0.01
       ? [
-          {
-            label: 'Other adjustments',
-            hint: 'Everything else, like a bit of randomness and a spot saved for brand-new posts.',
-            multiplier: gap,
-          },
+          slot?.fresh
+            ? {
+                label: 'Spot for new posts',
+                hint: 'Your feed saves a spot for a brand-new post, picked by how well it could do. This post got it.',
+                multiplier: gap,
+              }
+            : {
+                label: 'Other adjustments',
+                hint: 'Anything else that moved the post, beyond the rows above.',
+                multiplier: gap,
+              },
         ]
       : []),
   ].filter(hasEffect);
@@ -402,32 +632,53 @@ const topicOrigin: Record<ExplainOrigin, string> = {
 
 const toPoints = (factor: number): number => Math.round((factor - 1) * 100);
 
-/** What matched the reader, strongest first: the follow and the best topic. */
+const levelOrigin: Partial<Record<FollowControl, string>> = {
+  [FollowControl.Boost]: 'set to Show more',
+  [FollowControl.Demote]: 'set to Show less',
+  [FollowControl.Weight]: 'given an exact boost',
+};
+
+const getLevelOrigin = (control: FollowControl | undefined): string =>
+  (control && levelOrigin[control]) || 'a level you set';
+
+/**
+ * What matched the reader, strongest first: the follow or the level set on
+ * the source or author, and the best topic.
+ */
 export const getExplanationMatches = (
   post: Post,
   explain: RankedExplain,
 ): ExplanationMatch[] => {
   const { follow, match } = explain;
   const matches: ExplanationMatch[] = [];
-  if (isSourceFollow(explain) && post.source?.id) {
-    const isSquad = follow.kind === ExplainFollowKind.Squad;
+  const side = getFollowSide(explain);
+  if (side === FollowSide.Source && post.source?.id) {
+    const isSquad = follow.kind
+      ? follow.kind === ExplainFollowKind.Squad
+      : post.source.type === SourceType.Squad;
     const kind = isSquad
       ? ExplanationMatchKind.Squad
       : ExplanationMatchKind.Source;
+    let origin = getLevelOrigin(follow.source_control);
+    if (follow.kind) {
+      origin = isSquad ? "a squad you're in" : 'something you follow';
+    }
     matches.push({
       key: getMatchKey(kind, post.source.id),
       kind,
       label: post.source.name ?? post.source.id,
-      origin: isSquad ? "a squad you're in" : 'something you follow',
+      origin,
       points: toPoints(follow.factor),
     });
   }
-  if (follow.kind === ExplainFollowKind.Author && post.author) {
+  if (side === FollowSide.Author && post.author) {
     matches.push({
       key: getMatchKey(ExplanationMatchKind.Author, post.author.id),
       kind: ExplanationMatchKind.Author,
-      label: post.author.name || `@${post.author.username}`,
-      origin: 'someone you follow',
+      label: getAuthorLabel(post.author),
+      origin: follow.kind
+        ? 'someone you follow'
+        : getLevelOrigin(follow.author_control),
       points: toPoints(follow.factor),
     });
   }

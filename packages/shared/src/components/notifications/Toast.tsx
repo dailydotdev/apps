@@ -199,7 +199,7 @@ const Toast = ({
     window.addEventListener('scroll', handler);
     router.events.on('routeChangeStart', handler);
 
-    // eslint-disable-next-line consistent-return
+    // eslint-disable-next-line eslint-compat/consistent-return
     return () => {
       window.removeEventListener('scroll', handler);
       router.events.off('routeChangeStart', handler);

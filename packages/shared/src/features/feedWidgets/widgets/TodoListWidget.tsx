@@ -32,7 +32,7 @@ import { PlusIcon } from '../../../components/icons/Plus';
 import { VIcon } from '../../../components/icons/V';
 import type { FeedWidgetComponentProps } from '../registry';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
-import { FeedWidgetLoading } from '../FeedWidgetFrame';
+import { FeedWidgetEmpty } from '../FeedWidgetFrame';
 import { useWidgetScroll } from '../useWidgetScroll';
 
 export type TodoItem = { id: string; text: string; done: boolean };
@@ -155,6 +155,7 @@ const useStoredTodoList = (): {
   list: TodoListState | null;
   save: (change: TodoChange) => void;
   reload: () => Promise<TodoListState | null>;
+  isError: boolean;
   isSaveFailed: boolean;
 } => {
   const { user } = useAuthContext();
@@ -168,7 +169,7 @@ const useStoredTodoList = (): {
       }),
     [userId],
   );
-  const { data: row, isSuccess, refetch } = useQuery(options);
+  const { data: row, isSuccess, isError, refetch } = useQuery(options);
   const [isSaveFailed, setIsSaveFailed] = useState(false);
   const pending = useRef(0);
   // Writes go out one at a time, so each carries the revision the last one
@@ -233,7 +234,7 @@ const useStoredTodoList = (): {
     [queryClient, options],
   );
 
-  return { list, save, reload, isSaveFailed };
+  return { list, save, reload, isError, isSaveFailed };
 };
 
 const Check = ({
@@ -550,7 +551,7 @@ const orderOf = (todos: TodoItem[]): string =>
 const TodoList = ({ size }: { size: FeedWidgetSize }): ReactElement => {
   const { logEvent } = useLogContext();
   const scroll = useWidgetScroll();
-  const { list, save, reload, isSaveFailed } = useStoredTodoList();
+  const { list, save, reload, isError, isSaveFailed } = useStoredTodoList();
   const restored = list?.todos ?? null;
   const isReadOnly = !!list?.isReadOnly;
   // The list renders from here once touched, never off the store, so a write
@@ -889,7 +890,13 @@ const TodoList = ({ size }: { size: FeedWidgetSize }): ReactElement => {
   };
 
   if (!restored) {
-    return <FeedWidgetLoading />;
+    return (
+      <FeedWidgetEmpty
+        kind={FeedWidgetKind.TodoList}
+        isPending={!isError}
+        message="Your to-do list is unavailable right now."
+      />
+    );
   }
 
   const isSmall = size === FeedWidgetSize.Small;

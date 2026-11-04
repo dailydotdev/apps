@@ -506,8 +506,8 @@ const FoldersScene = (): ReactElement => {
 };
 
 export interface PlusBannerFeature {
-  // Matches the ids in plusFeatureListApiFirst, so feature clicks read the
-  // same in analytics wherever they come from.
+  // Matches the ids in plusFeatureList, so feature clicks read the same in
+  // analytics wherever they come from.
   id: string;
   label: string;
   perk: string;

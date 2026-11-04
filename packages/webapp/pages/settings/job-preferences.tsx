@@ -165,7 +165,7 @@ const JobPreferencesPage = (): ReactElement => {
                 className={classNames(
                   '!h-auto w-auto flex-row-reverse gap-3 border border-border-subtlest-tertiary !p-3 laptop:flex-row',
                   {
-                    'bg-brand-float border-brand-default': option === key,
+                    'border-brand-default bg-brand-float': option === key,
                   },
                 )}
                 onClick={() => updatePreferences({ status: key })}

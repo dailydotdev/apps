@@ -1,16 +1,36 @@
 /* eslint-disable no-underscore-dangle -- _iub is iubenda's mandated global */
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import type { ReactNode } from 'react';
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { act, render, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
+import nock from 'nock';
+import {
+  createReadyGrowthBook,
+  TestBootProvider,
+} from '@dailydotdev/shared/__tests__/helpers/boot';
+import { defaultQueryClientTestingConfig } from '@dailydotdev/shared/__tests__/helpers/tanstack-query';
+import defaultAd from '@dailydotdev/shared/__tests__/fixture/ad';
+import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
+import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import { FeaturesReadyContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { ActiveFeedContext } from '@dailydotdev/shared/src/contexts/ActiveFeedContext';
+import { FeedItemType } from '@dailydotdev/shared/src/components/cards/common/common';
+import { SharedFeedPage } from '@dailydotdev/shared/src/components/utilities';
 import type { AuthContextData } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { CUSTOM_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+import useFeed from '@dailydotdev/shared/src/hooks/useFeed';
+import { useAutoRotatingAds } from '@dailydotdev/shared/src/hooks/feed/useAutoRotatingAds';
 import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { useConsentCookie } from '@dailydotdev/shared/src/hooks/useCookieConsent';
 import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
 import { iubendaLocalizedPolicyIds } from '@dailydotdev/shared/src/lib/iubenda';
 import { startTcfSubscription } from '@dailydotdev/shared/src/lib/tcf';
+import { tcfVendorIds } from '@dailydotdev/shared/src/lib/tcfVendors';
+import * as ads from '@dailydotdev/shared/src/lib/ads';
+import { RequestKey } from '@dailydotdev/shared/src/lib/query';
+import { useTcfConsent } from '@dailydotdev/shared/src/features/monetization/useTcfConsent';
 import { Iubenda, openIubendaPreferences } from '../components/Iubenda';
 import {
   enhanceIubendaBannerNow,
@@ -27,8 +47,11 @@ jest.mock('@dailydotdev/shared/src/lib/func', () => ({
 }));
 
 jest.mock('@dailydotdev/shared/src/lib/tcf', () => ({
+  ...jest.requireActual('@dailydotdev/shared/src/lib/tcf'),
   startTcfSubscription: jest.fn(),
 }));
+
+jest.mock('@dailydotdev/shared/src/features/monetization/useTcfConsent');
 
 jest.mock('../components/iubendaBanner', () => ({
   watchIubendaBanner: jest.fn(() => jest.fn()),
@@ -69,20 +92,35 @@ const bannerConfig = (): Record<string, unknown> =>
 const callbacks = (): Record<string, (arg?: unknown) => void> =>
   (config().callback as Record<string, (arg?: unknown) => void>) ?? {};
 
+const isInlineStub = (script: HTMLScriptElement, locator: string): boolean =>
+  !script.src && script.text.includes(locator);
+
+// everything the component injects: iubenda's scripts and the inline stubs
 const injectedScripts = (): HTMLScriptElement[] =>
-  Array.from(document.querySelectorAll('script[src*="iubenda.com"]'));
+  Array.from(document.querySelectorAll('script')).filter(
+    (script) =>
+      script.src.includes('iubenda.com') ||
+      isInlineStub(script, '__tcfapiLocator') ||
+      isInlineStub(script, '__gppLocator'),
+  );
 
-const hasScriptFor = (fragment: string): boolean =>
-  injectedScripts().some((item) => item.src.includes(fragment));
-
-const scriptFor = (fragment: string): HTMLScriptElement => {
-  const script = injectedScripts().find((item) => item.src.includes(fragment));
-
-  if (!script) {
-    throw new Error(`no injected script matching: ${fragment}`);
+// an inline script has no src, so name it after the API it stubs
+const scriptName = (script: HTMLScriptElement): string => {
+  if (script.src) {
+    return script.src;
   }
 
-  return script;
+  return isInlineStub(script, '__tcfapiLocator')
+    ? 'inline:tcf-stub'
+    : 'inline:gpp-stub';
+};
+
+const hasScriptFor = (fragment: string): boolean =>
+  injectedScripts().some((item) => scriptName(item).includes(fragment));
+
+type ConsentApiWindow = typeof globalThis & {
+  __tcfapi?: (...args: unknown[]) => void;
+  __gpp?: unknown;
 };
 
 const renderComponent = (auth: Partial<AuthContextData> = {}) =>
@@ -103,8 +141,19 @@ beforeEach(() => {
   mockUseConsentCookie.mockReturnValue({ saveCookies, cookieExists: false });
   mockIsIOSNative.mockReturnValue(false);
   mockWatchBanner.mockReturnValue(jest.fn());
+  jest.mocked(useTcfConsent).mockReturnValue(undefined);
+  document.cookie = 'euconsent-v2=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
   delete win._iub;
   injectedScripts().forEach((script) => script.remove());
+  // the inline stubs really run under jsdom: drop what they defined, or the
+  // next render's stub finds its locator frame and declines to redefine it
+  delete (globalThis as ConsentApiWindow).__tcfapi;
+  delete (globalThis as ConsentApiWindow).__gpp;
+  document
+    .querySelectorAll(
+      'iframe[name="__tcfapiLocator"], iframe[name="__gppLocator"]',
+    )
+    .forEach((frame) => frame.remove());
   localStorage.clear();
 });
 
@@ -112,6 +161,189 @@ afterEach(() => {
   delete process.env.NEXT_PUBLIC_IUBENDA_SITE_ID;
   delete process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID;
   delete process.env.NEXT_PUBLIC_DOMAIN;
+});
+
+describe('Iubenda publisher consent renewal', () => {
+  const legacyConsent = 'CQs2X0AQs2X0AB7ABAENABFgAIIAAAAAAAwIAAoAAAAA.IAAo';
+
+  it('reopens preferences once for stored consent missing Publisher TC without granting anything', async () => {
+    document.cookie = `euconsent-v2=${legacyConsent}`;
+    jest.mocked(useTcfConsent).mockReturnValue({
+      gdprApplies: true,
+      tcString: legacyConsent,
+    });
+    const openPreferences = jest.fn();
+    win._iub = { cs: { api: { openPreferences } } };
+    const client = new QueryClient();
+    const content = () => (
+      <TestBootProvider
+        client={client}
+        auth={{ isAuthReady: true, geo: { region: 'PL' } }}
+      >
+        <Iubenda />
+      </TestBootProvider>
+    );
+    const { rerender } = render(content());
+    await waitFor(() => expect(openPreferences).toHaveBeenCalledTimes(1));
+    expect(saveCookies).not.toHaveBeenCalled();
+    expect(document.cookie).toContain(`euconsent-v2=${legacyConsent}`);
+
+    jest.mocked(useTcfConsent).mockReturnValue({
+      gdprApplies: true,
+      tcString: `${legacyConsent}A`,
+    });
+    rerender(content());
+    expect(openPreferences).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(['cEAAAAAAAAAA', 'YAAAAAAAAAAA'])(
+    'does not reopen a publisher choice, including refusal (%s)',
+    async (publisherSegment) => {
+      const tcString = `${legacyConsent}.${publisherSegment}`;
+      document.cookie = `euconsent-v2=${tcString}`;
+      jest
+        .mocked(useTcfConsent)
+        .mockReturnValue({ gdprApplies: true, tcString });
+      const openPreferences = jest.fn();
+      win._iub = { cs: { api: { openPreferences } } };
+      renderComponent({ geo: { region: 'PL' } });
+      await waitFor(() => expect(win._iub?.csConfiguration).toBeDefined());
+      expect(openPreferences).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([
+    { region: 'US', stored: true, gdprApplies: false },
+    { region: 'PL', stored: false, gdprApplies: true },
+  ])(
+    'leaves non-GDPR and first-visit banners alone ($region, $stored)',
+    async ({ region, stored, gdprApplies }) => {
+      if (stored) {
+        document.cookie = `euconsent-v2=${legacyConsent}`;
+      }
+      jest
+        .mocked(useTcfConsent)
+        .mockReturnValue({ gdprApplies, tcString: legacyConsent });
+      const openPreferences = jest.fn();
+      win._iub = { cs: { api: { openPreferences } } };
+      renderComponent({ geo: { region } });
+      await waitFor(() => expect(win._iub?.csConfiguration).toBeDefined());
+      expect(openPreferences).not.toHaveBeenCalled();
+    },
+  );
+});
+
+it('replaces cached ad links on consent changes and cancels stale feed and rotation responses', async () => {
+  const client = new QueryClient(defaultQueryClientTestingConfig);
+  const feedKey = ['custom', 'consent-refresh'];
+  const inactiveAdKey = [RequestKey.Ads, 'inactive-feed'];
+  client.setQueryData(inactiveAdKey, { pages: [defaultAd], pageParams: [''] });
+  const gb = createReadyGrowthBook();
+  gb.setFeatures({ autorotate_ads: { defaultValue: 60 } });
+  jest.mocked(useTcfConsent).mockReturnValue({
+    gdprApplies: true,
+    tcString: 'legacy-consent',
+  });
+  let delayRotation = false;
+  const pending: ((ad: typeof defaultAd) => void)[] = [];
+  const fetchAd = jest
+    .spyOn(ads, 'fetchAdByPlacement')
+    .mockImplementation(async (options) => {
+      const value = options.consent?.consentString;
+      if (
+        value === 'granted-consent' ||
+        (value === 'legacy-consent' && delayRotation)
+      ) {
+        return new Promise((resolve) => pending.push(resolve));
+      }
+      return { ...defaultAd, generationId: value };
+    });
+  nock('http://localhost:3000')
+    .post('/graphql', ({ query }) => query === CUSTOM_FEED_QUERY)
+    .reply(200, { data: { page: defaultFeedPage } });
+  const wrapper = ({ children }: { children: ReactNode }) => (
+    <TestBootProvider
+      client={client}
+      auth={{ user: defaultUser, geo: { region: 'PL' } }}
+      gb={gb}
+    >
+      <FeaturesReadyContext.Provider
+        value={{
+          ready: true,
+          settled: true,
+          getFeatureValue: (feature) =>
+            gb.getFeatureValue(feature.id, feature.defaultValue),
+        }}
+      >
+        <ActiveFeedContext.Provider value={{ queryKey: feedKey, items: [] }}>
+          {children}
+        </ActiveFeedContext.Provider>
+      </FeaturesReadyContext.Provider>
+      <Iubenda />
+    </TestBootProvider>
+  );
+  const { result, rerender } = renderHook(
+    () => ({
+      feed: useFeed(feedKey, 10, { adStart: 1, adRepeat: 100 }, 1, {
+        query: CUSTOM_FEED_QUERY,
+        settings: { feedName: SharedFeedPage.Custom },
+      }),
+      rotation: useAutoRotatingAds(defaultAd, 0, 0, () => undefined),
+    }),
+    { wrapper },
+  );
+  const adIds = () =>
+    result.current.feed.items.flatMap((item) =>
+      item.type === FeedItemType.Ad ? [item.ad.generationId] : [],
+    );
+  await waitFor(() => expect(adIds()).toContain('legacy-consent'));
+  const posts = result.current.feed.items.filter(
+    (item) => item.type === FeedItemType.Post,
+  );
+  const initialRequests = fetchAd.mock.calls.length;
+  rerender();
+  expect(fetchAd).toHaveBeenCalledTimes(initialRequests);
+  expect(client.getQueryData(inactiveAdKey)).toBeDefined();
+
+  delayRotation = true;
+  act(() => {
+    result.current.rotation.refetch();
+  });
+  await waitFor(() => expect(pending).toHaveLength(1));
+  jest.mocked(useTcfConsent).mockReturnValue({
+    gdprApplies: true,
+    tcString: 'granted-consent',
+  });
+  rerender();
+  await waitFor(() => expect(adIds()).not.toContain('legacy-consent'));
+  expect(client.getQueryData(inactiveAdKey)).toBeUndefined();
+  await waitFor(() => expect(pending.length).toBeGreaterThan(1));
+
+  jest.mocked(useTcfConsent).mockReturnValue({
+    gdprApplies: true,
+    tcString: 'refused-consent',
+  });
+  rerender();
+  await waitFor(() => expect(adIds()).toContain('refused-consent'));
+  await act(async () => {
+    pending.forEach((resolve) =>
+      resolve({ ...defaultAd, generationId: 'late-stale-link' }),
+    );
+  });
+  expect(adIds()).toEqual(['refused-consent']);
+  expect(
+    result.current.feed.items.filter((item) => item.type === FeedItemType.Post),
+  ).toEqual(posts);
+  fetchAd.mockResolvedValueOnce({
+    ...defaultAd,
+    generationId: 'fresh-rotation',
+  });
+  await act(async () => {
+    await result.current.rotation.refetch();
+  });
+  await waitFor(() => expect(adIds()).toEqual(['fresh-rotation']));
+  fetchAd.mockRestore();
+  client.clear();
 });
 
 describe('Iubenda injection gating', () => {
@@ -200,11 +432,11 @@ describe('Iubenda script loading', () => {
     renderComponent();
 
     await waitFor(() => expect(injectedScripts().length).toBe(5));
-    expect(injectedScripts().map((script) => script.src)).toEqual([
+    expect(injectedScripts().map(scriptName)).toEqual([
       `https://cs.iubenda.com/sync/${SITE_ID}.js`,
-      'https://cdn.iubenda.com/cs/tcf/stub-v2.js',
+      'inline:tcf-stub',
       'https://cdn.iubenda.com/cs/tcf/safe-tcf-v2.js',
-      'https://cdn.iubenda.com/cs/gpp/stub.js',
+      'inline:gpp-stub',
       'https://cdn.iubenda.com/cs/iubenda_cs.js',
     ]);
   });
@@ -213,23 +445,23 @@ describe('Iubenda script loading', () => {
     renderComponent();
 
     await waitFor(() => expect(injectedScripts().length).toBe(5));
-    expect(injectedScripts().every((script) => script.async === false)).toBe(
-      true,
-    );
+    const fetched = injectedScripts().filter((script) => script.src);
+    expect(fetched).toHaveLength(3);
+    expect(fetched.every((script) => script.async === false)).toBe(true);
   });
 
-  it('starts the TCF subscription once the stub defines __tcfapi', async () => {
+  it('defines __tcfapi from the inline stub before the CMP even loads', async () => {
     renderComponent();
 
     await waitFor(() => expect(injectedScripts().length).toBe(5));
-    const stub = scriptFor('tcf/stub-v2');
-    expect(startTcfSubscription).not.toHaveBeenCalled();
-
-    stub.onload?.(new Event('load'));
-
+    // the stub ran on append: ad tags that ask now find a queue that reports
+    // itself as the stub, which is what tells them to wait for the CMP
+    const ping = jest.fn();
+    (globalThis as ConsentApiWindow).__tcfapi?.('ping', 2, ping);
+    expect(ping).toHaveBeenCalledWith(
+      expect.objectContaining({ cmpStatus: 'stub', cmpLoaded: false }),
+    );
     expect(startTcfSubscription).toHaveBeenCalled();
-    // only the stub carries the hook; the core script must not re-subscribe
-    expect(scriptFor('iubenda_cs.js').onload).toBeNull();
   });
 
   it('loads nothing when the policy id is not a number', async () => {
@@ -275,8 +507,16 @@ describe('Iubenda configuration', () => {
     await renderAndLoad();
     expect(config().enableTcf).toBe(true);
     expect(config().perPurposeConsent).toBe(true);
+    expect(config().tcfPublisher).toEqual(['consent']);
     expect(config().siteId).toBe(Number(SITE_ID));
     expect(config().cookiePolicyId).toBe(Number(POLICY_ID));
+  });
+
+  it('declares the vendors from the shared list, never the whole GVL', async () => {
+    await renderAndLoad();
+    expect(config().tcfVendors).toBe(tcfVendorIds.join(','));
+    // the two Content Ignite's tag cannot do without
+    expect(tcfVendorIds).toEqual(expect.arrayContaining([656, 755]));
   });
 
   it('owns the first layer and keeps Accept/Reject both present', async () => {
@@ -313,7 +553,7 @@ describe('Iubenda consent scoping by region', () => {
     await waitFor(() => expect(win._iub?.csConfiguration).toBeDefined());
     expect(config().enableTcf).toBe(true);
     expect(config().googleAdditionalConsentMode).toBe(true);
-    expect(hasScriptFor('tcf/stub-v2')).toBe(true);
+    expect(hasScriptFor('inline:tcf-stub')).toBe(true);
   });
 
   it('loads no TCF machinery outside the EEA, UK and Switzerland', async () => {
@@ -323,8 +563,9 @@ describe('Iubenda consent scoping by region', () => {
     expect(config().enableTcf).toBe(false);
     expect(config().googleAdditionalConsentMode).toBe(false);
     expect(config().enableUspr).toBe(false);
-    expect(hasScriptFor('tcf/stub-v2')).toBe(false);
-    expect(hasScriptFor('gpp/stub')).toBe(false);
+    expect(hasScriptFor('inline:tcf-stub')).toBe(false);
+    expect(hasScriptFor('inline:gpp-stub')).toBe(false);
+    expect((globalThis as ConsentApiWindow).__tcfapi).toBeUndefined();
     expect(startTcfSubscription).not.toHaveBeenCalled();
   });
 
@@ -334,8 +575,9 @@ describe('Iubenda consent scoping by region', () => {
     await waitFor(() => expect(win._iub?.csConfiguration).toBeDefined());
     expect(config().enableTcf).toBe(false);
     expect(config().enableUspr).toBe(true);
-    expect(hasScriptFor('gpp/stub')).toBe(true);
-    expect(hasScriptFor('tcf/stub-v2')).toBe(false);
+    expect(hasScriptFor('inline:gpp-stub')).toBe(true);
+    expect(typeof (globalThis as ConsentApiWindow).__gpp).toBe('function');
+    expect(hasScriptFor('inline:tcf-stub')).toBe(false);
   });
 
   it('keeps the full treatment when geo is unknown', async () => {
@@ -344,8 +586,8 @@ describe('Iubenda consent scoping by region', () => {
     await waitFor(() => expect(win._iub?.csConfiguration).toBeDefined());
     expect(config().enableTcf).toBe(true);
     expect(config().enableUspr).toBe(true);
-    expect(hasScriptFor('tcf/stub-v2')).toBe(true);
-    expect(hasScriptFor('gpp/stub')).toBe(true);
+    expect(hasScriptFor('inline:tcf-stub')).toBe(true);
+    expect(hasScriptFor('inline:gpp-stub')).toBe(true);
   });
 });
 

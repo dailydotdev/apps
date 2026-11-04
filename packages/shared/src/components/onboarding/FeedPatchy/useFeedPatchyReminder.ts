@@ -21,8 +21,9 @@ const getWebPermission = (): NotificationPermission | undefined =>
   isIOSNative() ? undefined : globalThis.Notification?.permission;
 
 // Logs the same events as the control's reading-reminder step, so the two
-// arms read side by side; only the commitment itself is new.
-export const useFeedPatchyReminder = () => {
+// arms read side by side; only the commitment itself is new. `variant` names
+// the experiment arm in every event.
+export const useFeedPatchyReminder = (variant = 'feed_patchy') => {
   const { logEvent } = useLogContext();
   const { isSubscribed } = usePushNotificationContext();
   const { onEnablePush } = usePushNotificationMutation();
@@ -37,26 +38,26 @@ export const useFeedPatchyReminder = () => {
     logEvent({
       event_name: LogEvent.Impression,
       target_type: TargetType.ReadingReminder,
-      extra: JSON.stringify({ variant: 'feed_patchy' }),
+      extra: JSON.stringify({ variant }),
     });
-  }, [logEvent]);
+  }, [logEvent, variant]);
 
   const onCommit = useCallback(
     (method: FeedMethod) => {
       logEvent({
         event_name: LogEvent.CommitOnboarding,
-        extra: JSON.stringify({ method, variant: 'feed_patchy' }),
+        extra: JSON.stringify({ method, variant }),
       });
     },
-    [logEvent],
+    [logEvent, variant],
   );
 
   const onSkip = useCallback(() => {
     logEvent({
       event_name: LogEvent.SkipReadingReminder,
-      extra: JSON.stringify({ variant: 'feed_patchy' }),
+      extra: JSON.stringify({ variant }),
     });
-  }, [logEvent]);
+  }, [logEvent, variant]);
 
   /** Notifications are refused on this device: no prompt would show. */
   const isBlocked = useCallback(() => getWebPermission() === 'denied', []);
@@ -91,7 +92,7 @@ export const useFeedPatchyReminder = () => {
     async (hour: number, timezone: string): Promise<ReminderOutcome> => {
       logEvent({
         event_name: LogEvent.ScheduleReadingReminder,
-        extra: JSON.stringify({ hour, timezone, variant: 'feed_patchy' }),
+        extra: JSON.stringify({ hour, timezone, variant }),
       });
       subscribePersonalizedDigest({
         hour,
@@ -101,12 +102,12 @@ export const useFeedPatchyReminder = () => {
       const outcome = await getOutcome();
       logEvent({
         event_name: LogEvent.ReadingReminderPermission,
-        extra: JSON.stringify({ outcome, variant: 'feed_patchy' }),
+        extra: JSON.stringify({ outcome, variant }),
       });
 
       return outcome;
     },
-    [getOutcome, logEvent, subscribePersonalizedDigest],
+    [getOutcome, logEvent, subscribePersonalizedDigest, variant],
   );
 
   return {

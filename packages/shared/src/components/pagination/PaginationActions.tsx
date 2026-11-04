@@ -30,7 +30,7 @@ export const PaginationActions = ({
       <p className="ml-1 text-text-tertiary typo-callout">
         {current}/{max}
       </p>
-      <div className="flex ">
+      <div className="flex">
         <Button
           {...buttonProps}
           icon={<ArrowIcon className="-rotate-90" />}
@@ -50,8 +50,10 @@ export const PaginationActions = ({
   );
 };
 
-export interface InfinitePaginationActionsProps
-  extends Pick<UsePagination, 'onPrevious' | 'onNext'> {
+export interface InfinitePaginationActionsProps extends Pick<
+  UsePagination,
+  'onPrevious' | 'onNext'
+> {
   hasNext: boolean;
   hasPrevious: boolean;
 }

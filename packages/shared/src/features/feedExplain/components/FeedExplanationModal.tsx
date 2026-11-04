@@ -16,6 +16,7 @@ import { HashtagIcon } from '../../../components/icons/Hashtag';
 import { MinusIcon } from '../../../components/icons/Minus';
 import { PlusIcon } from '../../../components/icons/Plus';
 import { SettingsIcon } from '../../../components/icons/Settings';
+import { MagicIcon } from '../../../components/icons/Magic';
 import { VIcon } from '../../../components/icons/V';
 import { IconSize } from '../../../components/Icon';
 import {
@@ -28,6 +29,7 @@ import {
   ProfileImageSize,
   ProfilePicture,
 } from '../../../components/ProfilePicture';
+import { ElementPlaceholder } from '../../../components/ElementPlaceholder';
 import type { Post } from '../../../graphql/posts';
 import { isSourceUserSource, SourceType } from '../../../graphql/sources';
 import {
@@ -36,6 +38,11 @@ import {
 } from '../../../graphql/contentPreference';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { usePostById } from '../../../hooks/usePostById';
+import type { FeedPostExplanationRequest } from '../graphql';
+import {
+  FeedPostExplanationStatus,
+  useFeedPostExplanation,
+} from '../useFeedPostExplanation';
 import useFeedSettings from '../../../hooks/useFeedSettings';
 import useTagAndSource from '../../../hooks/useTagAndSource';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
@@ -43,33 +50,53 @@ import { useContentPreference } from '../../../hooks/contentPreference/useConten
 import { isFollowingContent } from '../../../hooks/contentPreference/types';
 import { Origin } from '../../../lib/log';
 import { isSpecialUser } from '../../../lib/user';
-import { settingsUrl } from '../../../lib/constants';
+import { FeedSettingsMenu } from '../../../components/feeds/FeedSettings/types';
+import { getForYouSettingsUrl } from '../../../components/feeds/FeedSettings/forYouSettingsPages';
 import { feature } from '../../../lib/featureManagement';
 import type { FeedItemExplain } from '../types';
 import { useDropIdleForYouFeeds } from '../useDropIdleForYouFeeds';
 import { useFeedControls } from '../useFeedControls';
-import { FeedSourceMode, FeedTopicMode, isRankedExplain } from '../types';
+import { useOpenFeedTune } from '../useOpenFeedTune';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
+import { FeedAuthorMode, FeedSourceMode, isRankedExplain } from '../types';
 import { feedProfileQueryKey, feedProfileQueryOptions } from '../queries';
 import type { ExplanationMatch, SignalMeta } from '../describe';
 import {
   ExplanationMatchKind,
+  followModeMeta,
+  getAuthorFactor,
+  getAuthorLabel,
   getExplanationMatches,
   getMatchKey,
   getPostTags,
+  getControlMeta,
   getReason,
   getScoreBreakdown,
+  getSourceFactor,
   getTopicLevel,
   getTopicWeight,
+  isSourceFollowed,
   topicModeMeta,
 } from '../describe';
 import { ScoreBreakdown } from './ScoreBreakdown';
 import { TopicLevelPicker } from './TopicLevelPicker';
+import { SourceLevelPicker } from './SourceLevelPicker';
+import { AuthorLevelPicker } from './AuthorLevelPicker';
 
 export interface FeedExplanationModalProps extends LazyModalCommonProps {
   post: Post;
-  explain: FeedItemExplain | null;
+  /** Left out when the feed didn't load it: the modal asks with `request`. */
+  explain?: FeedItemExplain | null;
+  request?: FeedPostExplanationRequest;
   onHide: () => unknown;
 }
+
+const unavailableReason: Partial<Record<FeedPostExplanationStatus, string>> = {
+  [FeedPostExplanationStatus.Expired]:
+    "Your feed has changed since this post was shown, so we can't explain it anymore. Refresh your feed to see why its posts are there.",
+  [FeedPostExplanationStatus.Failed]:
+    "We couldn't load why this post is here. Try again in a moment.",
+};
 
 const Strong = ({ children }: { children: ReactNode }): ReactElement => (
   <strong className="font-bold text-text-primary">{children}</strong>
@@ -100,7 +127,7 @@ interface EntityRow {
   /** Colors the meta when it names a level the reader set. */
   metaClassName?: string;
   leading: ReactNode;
-  /** A topic's level picker, beside its title. */
+  /** A topic's, source's or author's level picker, beside its title. */
   level?: ReactNode;
   isBlocked: boolean;
   isFollowing?: boolean;
@@ -234,7 +261,7 @@ const EntityRowItem = ({
           title={
             row.isShowingLess
               ? `Set ${row.title} back to Auto.`
-              : `Show less from ${row.title}. Its posts rank lower, but the best ones still show.`
+              : `Show less from ${row.title}. Their posts rank lower, but the best ones still show.`
           }
           onClick={row.onToggleShowLess}
         />
@@ -269,11 +296,12 @@ const TopicGlyph = (): ReactElement => (
 /**
  * "Why am I seeing this?" for a For You card: what matched the reader, then
  * the score breakdown, and the controls for everything the post is about:
- * follow, block, topic levels and show less from the source.
+ * follow, block, and the levels of its topics, source and author.
  */
 function FeedExplanationModal({
   post: feedPost,
-  explain,
+  explain: cardExplain,
+  request,
   onHide,
   ...props
 }: FeedExplanationModalProps): ReactElement {
@@ -283,6 +311,12 @@ function FeedExplanationModal({
   const { post: loadedPost } = usePostById({ id: feedPost.id });
   const post = loadedPost ?? feedPost;
   const { source, author } = post;
+  const { explain, status } = useFeedPostExplanation({
+    postId: feedPost.id,
+    explain: cardExplain,
+    request,
+  });
+  const isLoading = status === FeedPostExplanationStatus.Loading;
   const { feedSettings } = useFeedSettings();
   // A lazy modal renders outside the feed, where `useFeedExplainMode` can't
   // tell For You apart, so the version comes from the flag itself.
@@ -291,7 +325,9 @@ function FeedExplanationModal({
     shouldEvaluate: !!user,
   });
   const { data: profile } = useQuery(feedProfileQueryOptions(user, version));
-  const feedControls = useFeedControls({ origin: Origin.FeedExplain });
+  const feedControls = useFeedControls({ origin: Origin.FeedExplanation });
+  const { isPlus } = usePlusSubscription();
+  const openTune = useOpenFeedTune(Origin.FeedExplanation);
   const {
     onFollowTags,
     onUnfollowTags,
@@ -302,7 +338,7 @@ function FeedExplanationModal({
     onFollowSource,
     onUnfollowSource,
   } = useTagAndSource({
-    origin: Origin.FeedExplain,
+    origin: Origin.FeedExplanation,
     postId: post.id,
     shouldInvalidateQueries: false,
   });
@@ -331,7 +367,7 @@ function FeedExplanationModal({
 
   const rows: EntityRow[] = [];
   const authorName =
-    author?.name || (author?.username ? `@${author.username}` : null);
+    author && (author.name || author.username) ? getAuthorLabel(author) : null;
   if (
     author &&
     authorName &&
@@ -341,25 +377,41 @@ function FeedExplanationModal({
       id: author.id,
       entity: ContentPreferenceType.User,
       entityName: authorName,
-      opts: { extra: { origin: Origin.FeedExplain, post_id: post.id } },
+      opts: { extra: { origin: Origin.FeedExplanation, post_id: post.id } },
     };
     const isFollowing = isFollowingContent(author.contentPreference);
     const isBlocked =
       author.contentPreference?.status === ContentPreferenceStatus.Blocked;
-    const key = getMatchKey(ExplanationMatchKind.Author, author.id);
+    const authorId = author.id;
+    const authorControl = feedControls.getAuthorControl(authorId);
+    const isShowingLess = authorControl?.mode === FeedAuthorMode.Demote;
+    const key = getMatchKey(ExplanationMatchKind.Author, authorId);
     rows.push({
       key,
       title: authorName,
-      ...getMeta(key, 'author', isBlocked),
-      leading: (
-        <ProfilePicture
-          user={author}
-          size={ProfileImageSize.Small}
-          rounded="full"
+      ...getMeta(
+        key,
+        'author',
+        isBlocked,
+        getControlMeta(authorControl, isPlus, followModeMeta),
+      ),
+      level: (
+        <AuthorLevelPicker
+          name={authorName}
+          factor={getAuthorFactor(explain)}
+          isFollowed={isFollowing}
+          control={authorControl}
+          onChange={(value) => feedControls.setAuthor(authorId, value)}
         />
       ),
+      leading: <ProfilePicture user={author} size={ProfileImageSize.Small} />,
       isBlocked,
       isFollowing,
+      isShowingLess,
+      onToggleShowLess: () =>
+        feedControls.setAuthor(authorId, {
+          mode: isShowingLess ? null : FeedAuthorMode.Demote,
+        }),
       onToggleFollow: () => (isFollowing ? unfollow(params) : follow(params)),
       onToggleBlock: () => (isBlocked ? unblock(params) : block(params)),
     });
@@ -375,6 +427,7 @@ function FeedExplanationModal({
     );
     const sourceId = source.id;
     const isShowingLess = feedControls.isSourceDemoted(sourceId);
+    const sourceControl = feedControls.getSourceControl(sourceId);
     const key = getMatchKey(ExplanationMatchKind.Source, sourceId);
     rows.push({
       key,
@@ -383,7 +436,16 @@ function FeedExplanationModal({
         key,
         isSquad ? 'squad' : 'source',
         isBlocked,
-        isShowingLess ? topicModeMeta[FeedTopicMode.Demote] : undefined,
+        getControlMeta(sourceControl, isPlus, followModeMeta),
+      ),
+      level: (
+        <SourceLevelPicker
+          name={source.name}
+          factor={getSourceFactor(explain)}
+          isFollowed={isFollowing || isSourceFollowed(explain)}
+          control={sourceControl}
+          onChange={(value) => feedControls.setSource(sourceId, value)}
+        />
       ),
       leading: (
         <SourceAvatar
@@ -421,20 +483,26 @@ function FeedExplanationModal({
     const key = getMatchKey(ExplanationMatchKind.Topic, tag);
     const tags = [tag];
     const weight = getTopicWeight(tag, explain, profile);
-    const mode = feedControls.getTopicMode(tag);
+    const control = feedControls.getTopicControl(tag);
     const level = getTopicLevel(tag, feedControls.controls, profile);
     rows.push({
       key,
       title: `#${tag}`,
-      ...getMeta(key, 'topic', isBlocked, level && topicModeMeta[level]),
+      ...getMeta(
+        key,
+        'topic',
+        isBlocked,
+        getControlMeta(control, isPlus) ?? (level && topicModeMeta[level]),
+      ),
       leading: <TopicGlyph />,
       level: weight && (
         <TopicLevelPicker
           tag={tag}
           weight={weight.weight}
-          isSet={weight.isSet || !!mode}
-          mode={mode}
-          onChange={(value) => feedControls.setTopicMode(tag, value)}
+          computedWeight={weight.computedWeight}
+          isSet={weight.isSet || !!control}
+          control={control}
+          onChange={(value) => feedControls.setTopic(tag, value)}
         />
       ),
       isBlocked,
@@ -455,7 +523,8 @@ function FeedExplanationModal({
     await action();
     dropIdleFeeds();
   };
-  const actionRows = rows.map((row) => ({
+  // The rows wait for the explanation, which sorts them into what matched.
+  const actionRows = (isLoading ? [] : rows).map((row) => ({
     ...row,
     onToggleFollow: row.onToggleFollow && afterChange(row.onToggleFollow),
     onToggleBlock: afterChange(row.onToggleBlock),
@@ -489,8 +558,20 @@ function FeedExplanationModal({
                   Why am I seeing this?
                 </Typography>
                 <Button
+                  type="button"
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.Small}
+                  icon={<MagicIcon />}
+                  aria-label="Tune your feed"
+                  title="Tune your feed"
+                  onClick={() => {
+                    openTune();
+                    onRequestClose();
+                  }}
+                />
+                <Button
                   tag="a"
-                  href={`${settingsUrl}/feed/general`}
+                  href={getForYouSettingsUrl(FeedSettingsMenu.Overview)}
                   variant={ButtonVariant.Tertiary}
                   size={ButtonSize.Small}
                   icon={<SettingsIcon />}
@@ -503,11 +584,22 @@ function FeedExplanationModal({
                   onClick={onRequestClose}
                 />
               </div>
-              <p className="text-text-secondary typo-body">
-                {reason.lead}
-                {reason.name && <Strong>{reason.name}</Strong>}
-                {reason.tail}
-              </p>
+              {isLoading ? (
+                <div className="flex flex-col gap-2 py-1" aria-busy>
+                  <ElementPlaceholder className="h-4 w-full rounded-8" />
+                  <ElementPlaceholder className="h-4 w-2/3 rounded-8" />
+                </div>
+              ) : (
+                <p className="text-text-secondary typo-body">
+                  {unavailableReason[status] ?? (
+                    <>
+                      {reason.lead}
+                      {reason.name && <Strong>{reason.name}</Strong>}
+                      {reason.tail}
+                    </>
+                  )}
+                </p>
+              )}
             </header>
             <div className="flex flex-col gap-6 p-4 tablet:p-6">
               {matchedRows.length > 0 && (

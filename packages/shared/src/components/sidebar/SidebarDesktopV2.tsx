@@ -47,7 +47,7 @@ import {
 } from './common';
 import type { SidebarMenuItem } from './common';
 import { Section } from './Section';
-import { mergeRailOrder } from './railOrder';
+import { mergeRailOrder, replaceRailItem } from './railOrder';
 import { getSidebarCategoryForPath, SidebarCategory } from './sidebarCategory';
 import type { SidebarCategoryId } from './sidebarCategory';
 import { useSettingsContext } from '../../contexts/SettingsContext';
@@ -105,6 +105,7 @@ import {
   useSidebarShortcutItems,
 } from './SidebarShortcutsDock';
 import { RailMoreMenu } from './RailMoreMenu';
+import { SidebarCountBadge } from './SidebarCountBadge';
 import {
   SidebarDragStateProvider,
   useSidebarDragState,
@@ -113,9 +114,12 @@ import { useSpotlight } from '../spotlight/SpotlightContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import NotificationsBell from '../notifications/NotificationsBell';
 import { NotificationsRailPanel } from '../notifications/NotificationsRailPanel';
-import { SignalIcon } from '../icons/Signal';
-import { LfgSection } from './sections/LfgSection';
-import { useLfgEnabled } from '../../features/lfg/hooks/useLfgEnabled';
+import { MailIcon } from '../icons/Mail';
+import { MessagesSection } from './sections/MessagesSection';
+import { useMessagesEnabled } from '../../features/messages/hooks/useMessagesEnabled';
+import { useUnreadMessagesCount } from '../../features/messages/hooks/useUnreadMessagesCount';
+import { useNotificationContext } from '../../contexts/NotificationsContext';
+import { getUnreadText } from '../notifications/utils';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import Link from '../utilities/Link';
 import { SharedFeedPage, HorizontalSeparator } from '../utilities';
@@ -206,12 +210,11 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     ),
   },
   {
-    id: SidebarCategory.Lfg,
-    label: 'LFG',
-    panelTitle: 'Looking for group',
-    defaultPath: `${webappUrl}lfg`,
+    id: SidebarCategory.Messages,
+    label: 'Messages',
+    defaultPath: `${webappUrl}messages`,
     icon: (active) => (
-      <SignalIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />
+      <MailIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />
     ),
   },
   {
@@ -243,6 +246,9 @@ const SEP_PX = 1 + 24; // framing separator `h-px` + its `my-3`
 // order. It matches the key the panel preview already uses for the create panel.
 const RAIL_CREATE_ID = 'create';
 type RailItemId = SidebarCategoryId | typeof RAIL_CREATE_ID;
+// Looking for group had its own tab before it moved into Messages. Saved
+// orders still hold its id, and Messages takes the slot the user gave it.
+const LEGACY_LFG_RAIL_ID = 'lfg' as RailItemId;
 // Rail items that never fold into "More" — they keep their slot at every
 // viewport height. Both are "you" controls rather than browsing destinations:
 // New post is the rail's primary action, and the avatar is the account entry
@@ -788,7 +794,10 @@ export const SidebarDesktopV2 = ({
   // remain) it stays but reads as the broader "Quests" / Game Center tab
   // instead of a streak.
   const showGameCenterTab = isLoggedIn && isGamificationEnabled;
-  const { isEnabled: showLfgTab } = useLfgEnabled();
+  const { isEnabled: showMessagesTab } = useMessagesEnabled();
+  const { total: unreadMessagesCount } =
+    useUnreadMessagesCount(showMessagesTab);
+  const { unreadCount: unreadNotificationsCount } = useNotificationContext();
   const isStreakTabAStreak = !optOutReadingStreak;
   // Short label under the rail tab icon (and the More-menu row): "Streak" /
   // "Quests" — kept compact for the narrow rail (the tab usually shows the day
@@ -846,7 +855,7 @@ export const SidebarDesktopV2 = ({
         // tabs fold into "More" from the end, so this keeps it on short rails.
         isLoggedIn ? SidebarCategory.Notifications : null,
         SidebarCategory.Squads,
-        showLfgTab ? SidebarCategory.Lfg : null,
+        showMessagesTab ? SidebarCategory.Messages : null,
         // Drops out of the rail entirely when all gamification is opted out.
         showGameCenterTab ? SidebarCategory.GameCenter : null,
         // The avatar sits at the end of the tabs, directly above New post —
@@ -854,7 +863,7 @@ export const SidebarDesktopV2 = ({
         isLoggedIn ? SidebarCategory.Profile : null,
         isLoggedIn ? RAIL_CREATE_ID : null,
       ].filter(Boolean) as RailItemId[],
-    [isLoggedIn, showGameCenterTab, showLfgTab],
+    [isLoggedIn, showGameCenterTab, showMessagesTab],
   );
   const [storedRailOrder, setStoredRailOrder] = usePersistentContext<
     RailItemId[]
@@ -882,7 +891,11 @@ export const SidebarDesktopV2 = ({
   const railOrder = useMemo(
     () =>
       mergeRailOrder(
-        railOrderOverride ?? storedRailOrder ?? [],
+        replaceRailItem(
+          railOrderOverride ?? storedRailOrder ?? [],
+          LEGACY_LFG_RAIL_ID,
+          SidebarCategory.Messages,
+        ),
         reorderableRailItems,
       ),
     [reorderableRailItems, storedRailOrder, railOrderOverride],
@@ -1256,7 +1269,7 @@ export const SidebarDesktopV2 = ({
     tour.step?.extra === 'gameCenterPanel' ? SidebarCategory.GameCenter : null;
   const activeCategory = isSettingsSelected
     ? SidebarCategory.Settings
-    : tourForcedCategory ?? hoveredCategory ?? selectedCategory;
+    : (tourForcedCategory ?? hoveredCategory ?? selectedCategory);
   // Hovering the "+" previews the create-post options panel (takes precedence
   // over a hovered category). Clicking "+" opens the composer modal instead.
   const [isCreateHovered, setIsCreateHovered] = useState(false);
@@ -1748,9 +1761,9 @@ export const SidebarDesktopV2 = ({
     if (category === SidebarCategory.Notifications) {
       return <NotificationsRailPanel />;
     }
-    if (category === SidebarCategory.Lfg) {
+    if (category === SidebarCategory.Messages) {
       return (
-        <LfgSection
+        <MessagesSection
           {...defaultRenderSectionProps}
           isItemsButton={isNavButtons ?? false}
         />
@@ -1821,7 +1834,7 @@ export const SidebarDesktopV2 = ({
     // the tab icon's own label stays the short `displayLabel`.
     const panelTitle = isStreakTab
       ? gameCenterPanelTitle
-      : category.panelTitle ?? category.label;
+      : (category.panelTitle ?? category.label);
     let iconNode: ReactElement;
     if (showStreakBadge) {
       iconNode = (
@@ -1900,6 +1913,12 @@ export const SidebarDesktopV2 = ({
                 {claimableQuestCount}
               </Bubble>
             )}
+            {category.id === SidebarCategory.Messages &&
+              unreadMessagesCount > 0 && (
+                <Bubble className={railCountBubbleClass}>
+                  {getUnreadText(unreadMessagesCount)}
+                </Bubble>
+              )}
           </span>
           {!isCompact && <span className={railTabLabelClass}>{labelText}</span>}
         </button>
@@ -1968,7 +1987,7 @@ export const SidebarDesktopV2 = ({
   const activeLabel =
     activeCategory === SidebarCategory.GameCenter
       ? gameCenterPanelTitle
-      : activeCategoryConfig?.panelTitle ?? activeCategoryConfig?.label;
+      : (activeCategoryConfig?.panelTitle ?? activeCategoryConfig?.label);
   // Preview state (panel content/title) vs committed selection (the bell's
   // filled indicator) — kept separate so hover-preview never moves the
   // selected indicator.
@@ -2111,6 +2130,20 @@ export const SidebarDesktopV2 = ({
     return activeLabel ?? '';
   })();
 
+  const getTabUnreadCount = (id: SidebarCategoryId): number => {
+    if (id === SidebarCategory.Notifications) {
+      return unreadNotificationsCount ?? 0;
+    }
+    if (id === SidebarCategory.Messages) {
+      return unreadMessagesCount;
+    }
+    return 0;
+  };
+  const overflowUnreadCount = overflowTabIds.reduce(
+    (total, id) => total + getTabUnreadCount(id),
+    0,
+  );
+
   // Content of the rail "More" menu: each overflowed tab as a navigable row,
   // then a Shortcuts category listing every pinned shortcut. Only the tabs that
   // didn't fit inline are listed here — the inline tabs aren't repeated.
@@ -2126,6 +2159,7 @@ export const SidebarDesktopV2 = ({
           label: 'Notifications',
           href: `${webappUrl}notifications`,
           icon: <BellIcon size={IconSize.Small} aria-hidden />,
+          count: getTabUnreadCount(id),
         };
       }
       if (id === SidebarCategory.GameCenter) {
@@ -2149,6 +2183,7 @@ export const SidebarDesktopV2 = ({
         label: category?.label ?? '',
         href: category?.defaultPath ?? webappUrl,
         icon: category?.icon?.(false) ?? null,
+        count: getTabUnreadCount(id),
       };
     });
     return (
@@ -2159,7 +2194,10 @@ export const SidebarDesktopV2 = ({
               <span className="flex size-5 items-center justify-center">
                 {row.icon}
               </span>
-              <Typography type={TypographyType.Callout}>{row.label}</Typography>
+              <Typography type={TypographyType.Callout} className="flex-1">
+                {row.label}
+              </Typography>
+              {!!row.count && <SidebarCountBadge count={row.count} />}
             </a>
           </Link>
         ))}
@@ -2517,7 +2555,10 @@ export const SidebarDesktopV2 = ({
               {/* The "More" tab: collects the overflowed tabs and (once the
                 inline dock can't fit) all the shortcuts, in one dropdown. */}
               {moreNeeded && (
-                <RailMoreMenu compact={isCompact}>
+                <RailMoreMenu
+                  compact={isCompact}
+                  unreadCount={overflowUnreadCount}
+                >
                   {renderMoreMenuContent(overflowTabIds)}
                 </RailMoreMenu>
               )}
@@ -2636,8 +2677,8 @@ export const SidebarDesktopV2 = ({
             isSettingsSelected
               ? 'w-full opacity-100'
               : isExpanded
-              ? 'w-60 opacity-100'
-              : 'pointer-events-none w-0 opacity-0',
+                ? 'w-60 opacity-100'
+                : 'pointer-events-none w-0 opacity-0',
             suppressTransition,
           )}
         >

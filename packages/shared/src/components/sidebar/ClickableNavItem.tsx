@@ -6,8 +6,9 @@ import type { SidebarMenuItem } from './common';
 import { navBtnClass } from './common';
 import { combinedClicks } from '../../lib/click';
 
-interface ClickableNavItemProps
-  extends HTMLAttributes<HTMLButtonElement | HTMLAnchorElement> {
+interface ClickableNavItemProps extends HTMLAttributes<
+  HTMLButtonElement | HTMLAnchorElement
+> {
   item: SidebarMenuItem;
   isButton?: boolean;
   children?: ReactNode;

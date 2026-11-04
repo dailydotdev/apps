@@ -126,7 +126,7 @@ export const AuthorSourceStack = ({
       // zIndex is inline (this build doesn't emit Tailwind z-* utilities) so the
       // author (primary) always wins the stacking order over the source.
       zIndex: index === 0 ? 2 : 1,
-    } as CSSProperties);
+    }) as CSSProperties;
 
   return (
     <div

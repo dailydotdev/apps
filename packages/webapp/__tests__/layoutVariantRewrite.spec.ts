@@ -5,9 +5,6 @@ import { NextRequest } from 'next/server';
 import { LAYOUT_VARIANT_COOKIE } from '@dailydotdev/shared/src/lib/layoutVariant';
 import { getLayoutVariantResponse } from '../proxy';
 
-jest.mock('../lib/serverPageRequestLog', () => ({
-  logServerPageRequest: jest.fn(),
-}));
 jest.mock('../lib/agentMarkdownAccess', () => ({
   evaluateAgentSignupWall: jest.fn(),
   getAgentSignupRequiredBody: jest.fn(),

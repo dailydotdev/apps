@@ -183,11 +183,17 @@ export enum CampaignType {
   Squad = 'SQUAD',
 }
 
+export enum CampaignWallet {
+  User = 'USER',
+  Squad = 'SQUAD',
+}
+
 export interface StartCampaignProps {
   value: string;
   budget: number;
   duration: number;
   type: CampaignType;
+  wallet?: CampaignWallet;
 }
 
 export interface EstimatedReach {
@@ -215,15 +221,18 @@ export const START_CAMPAIGN = gql`
     $value: ID!
     $budget: Int!
     $duration: Int!
+    $wallet: CampaignWallet
   ) {
     startCampaign(
       type: $type
       value: $value
       duration: $duration
       budget: $budget
+      wallet: $wallet
     ) {
       transactionId
       referenceId
+      walletSourceId
       balance {
         amount
       }
@@ -236,12 +245,14 @@ export const startCampaign = async ({
   value,
   budget,
   duration,
+  wallet,
 }: StartCampaignProps): Promise<TransactionCreated> => {
   const result = await gqlClient.request(START_CAMPAIGN, {
     type,
     value,
     budget,
     duration,
+    wallet,
   });
 
   return result.startCampaign;
@@ -252,6 +263,7 @@ export const STOP_CAMPAIGN = gql`
     stopCampaign(campaignId: $campaignId) {
       transactionId
       referenceId
+      walletSourceId
       balance {
         amount
       }

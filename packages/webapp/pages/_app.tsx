@@ -27,6 +27,9 @@ import { PostReferrerContextProvider } from '@dailydotdev/shared/src/contexts/Po
 import useDeviceId from '@dailydotdev/shared/src/hooks/log/useDeviceId';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import { useIOSError } from '@dailydotdev/shared/src/hooks/useIOSError';
+import { useNativeBridge } from '@dailydotdev/shared/src/hooks/useNativeBridge';
+import { useInAppLinks } from '@dailydotdev/shared/src/hooks/useInAppLinks';
+import { usePostPrefetch } from '@dailydotdev/shared/src/hooks/usePostPrefetch';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
@@ -41,6 +44,7 @@ import { PushNotificationContextProvider } from '@dailydotdev/shared/src/context
 import { SerwistProvider } from '@serwist/turbopack/react';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { useIsLightTheme } from '@dailydotdev/shared/src/hooks/utils/useThemedAsset';
+import { useIsStandaloneApp } from '@dailydotdev/shared/src/hooks/utils/useIsStandaloneApp';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { installDomMutationGuard } from '@dailydotdev/shared/src/lib/domMutationGuard';
@@ -50,6 +54,7 @@ import { useCheckCoresRole } from '@dailydotdev/shared/src/hooks/useCheckCoresRo
 import {
   messageHandlerExists,
   postWebKitMessage,
+  requestIOSTracking,
   WebKitMessageHandlers,
 } from '@dailydotdev/shared/src/lib/ios';
 import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation';
@@ -157,6 +162,9 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { modal, closeModal } = useLazyModal();
   useConsoleLogo();
   useIOSError();
+  useNativeBridge();
+  useInAppLinks();
+  usePostPrefetch();
 
   useCheckCoresRole();
   useCheckLocation();
@@ -201,6 +209,16 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     }
   }, [user?.id, trackingId]);
 
+  // Members who log in on a fresh install never reach the onboarding prompt.
+  const isOnboardedMember =
+    !!user?.id && isOnboardingActionsReady && isOnboardingComplete;
+  const isOnboardingPage = router.pathname.startsWith('/onboarding');
+  useEffect(() => {
+    if (isOnboardedMember && !isOnboardingPage) {
+      requestIOSTracking();
+    }
+  }, [isOnboardedMember, isOnboardingPage]);
+
   useEffect(() => {
     if (
       user?.subscriptionFlags?.appAccountToken &&
@@ -237,6 +255,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   const { themeColor } = useThemedAsset();
   const isLightTheme = useIsLightTheme();
+  const isStandaloneApp = useIsStandaloneApp();
   const seo = (pageProps?.seo || layoutProps?.seo) as Record<string, unknown>;
 
   const showAppStoreBanner = !router.pathname.startsWith('/helloworld');
@@ -254,7 +273,13 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
         <Head>
           <meta
             name="viewport"
-            content="initial-scale=1.0, width=device-width, viewport-fit=cover"
+            // Pinch-zoom is kept in the browser for accessibility (WCAG 1.4.4)
+            // and only disabled when installed, to match native app behaviour.
+            content={
+              isStandaloneApp
+                ? 'initial-scale=1.0, width=device-width, viewport-fit=cover, maximum-scale=1.0, user-scalable=no'
+                : 'initial-scale=1.0, width=device-width, viewport-fit=cover'
+            }
           />
           <meta name="theme-color" content={themeColor} />
           <meta

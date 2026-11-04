@@ -50,6 +50,10 @@ import {
 } from './FeedWidgetRailFrame';
 import { FeedWidgetRailHeader } from './FeedWidgetRailHeader';
 import { FeedWidgetAdSlot } from './widgets/FeedWidgetAdSlot';
+import {
+  isBoostedPostCreative,
+  isBoostedSquadCreative,
+} from '../../hooks/useFeed';
 import { FeedWidgetTip } from './widgets/FeedWidgetTip';
 import {
   feedWidgetTipLogEvent,
@@ -112,7 +116,7 @@ const sizeForScreen = (widget: FeedWidget, isPhone: boolean): FeedWidget => {
   const sizes = feedWidgetSizes(widget.kind);
   const size = sizes.includes(FeedWidgetSize.Tall)
     ? FeedWidgetSize.Tall
-    : sizes.find((item) => item !== FeedWidgetSize.Large) ?? widget.size;
+    : (sizes.find((item) => item !== FeedWidgetSize.Large) ?? widget.size);
   return { ...widget, size };
 };
 
@@ -184,13 +188,18 @@ export const FeedWidgetRail = ({
   // Customize brings the add tile into view, so adding is never a hunt.
   const shouldRevealAdd = useRef(false);
 
-  const { ad, isNoFill } = useFeedWidgetAd({ enabled: showAd });
+  const { ad, isNoFill } = useFeedWidgetAd({ enabled: showAd, feedName });
   // One tip per page view, over our slot: it is known from the settings and
   // the slot alone, so it is there from the first paint.
   const tips = useFeedWidgetTips();
   const [tipDraw] = useState(Math.random);
   const tip = pickFeedWidgetTip(tips, tipDraw);
-  const showTip = showAd && !isTipHidden;
+  // A boost is the post's or squad's own card, which has no compact variant,
+  // so a tip over it would clip the card's actions: the tip waits for a
+  // creative.
+  const isBoost =
+    !!ad && (isBoostedPostCreative(ad) || isBoostedSquadCreative(ad));
+  const showTip = showAd && !isTipHidden && !isBoost;
 
   const logWidgetEvent = useCallback(
     (eventName: LogEvent, widget?: FeedWidget, extra?: object) =>
@@ -549,7 +558,7 @@ export const FeedWidgetRail = ({
                       'flex min-h-0 snap-start',
                       // The grid's own row gap, so the tip sits off the ad
                       // as every widget sits off its neighbour.
-                      showTip && 'flex-col gap-4',
+                      showTip && 'flex-col gap-6',
                     )}
                     style={gridArea(placement)}
                     aria-label="Sponsored, pinned"

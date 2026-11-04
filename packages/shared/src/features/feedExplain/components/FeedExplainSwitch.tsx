@@ -11,9 +11,9 @@ import {
 } from '../../../components/buttons/Button';
 import { TerminalIcon } from '../../../components/icons/Terminal';
 import type { IconSize } from '../../../components/Icon';
-import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent, TargetId } from '../../../lib/log';
+import { Origin } from '../../../lib/log';
 import { useFeedExplainMode } from '../useFeedExplainMode';
+import { useSetFeedExplain } from '../useSetFeedExplain';
 
 interface FeedExplainSwitchProps {
   /** The feed's sort is Recommended, the only one that explains itself. */
@@ -39,22 +39,16 @@ export const FeedExplainSwitch = ({
   buttonProps,
   iconOnly,
 }: FeedExplainSwitchProps): ReactElement | null => {
-  const { logEvent } = useLogContext();
-  const { isAvailable, isExplaining, setIsExplaining } = useFeedExplainMode({
+  const { isAvailable, isExplaining } = useFeedExplainMode({
     isRecommended,
   });
+  const setIsExplaining = useSetFeedExplain(Origin.Feed);
 
   if (!isAvailable) {
     return null;
   }
 
-  const onToggle = () => {
-    logEvent({
-      event_name: LogEvent.ToggleFeedExplain,
-      target_id: isExplaining ? TargetId.Off : TargetId.On,
-    });
-    setIsExplaining(!isExplaining);
-  };
+  const onToggle = () => setIsExplaining(!isExplaining);
 
   if (isRow) {
     return (

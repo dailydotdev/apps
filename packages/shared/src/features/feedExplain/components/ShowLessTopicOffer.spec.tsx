@@ -31,6 +31,7 @@ const renderOffer = ({
   client.setQueryData(feedControlsQueryKey(defaultUser), {
     topics,
     sources: [],
+    authors: [],
     learning: true,
     fillIns: true,
   });
@@ -120,7 +121,24 @@ describe('ShowLessTopicOffer', () => {
   });
 
   it('should not offer it once the reader set the topic', () => {
-    renderOffer({ topics: [{ keyword: 'react', mode: FeedTopicMode.Boost }] });
+    renderOffer({
+      topics: [
+        {
+          keyword: 'react',
+          mode: FeedTopicMode.Boost,
+          weight: null,
+          expiresAt: null,
+        },
+      ],
+    });
+
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
+  it('should not offer it over an exact boost', () => {
+    renderOffer({
+      topics: [{ keyword: 'react', mode: null, weight: 1.2, expiresAt: null }],
+    });
 
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });

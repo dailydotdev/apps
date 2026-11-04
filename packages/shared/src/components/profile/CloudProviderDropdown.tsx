@@ -14,8 +14,10 @@ interface ClassName extends DropdownClassName {
 
 type CloudProviderKey = keyof typeof CloudProvider;
 
-interface Props
-  extends Pick<BaseFieldProps, 'name' | 'valid' | 'hint' | 'saveHintSpace'> {
+interface Props extends Pick<
+  BaseFieldProps,
+  'name' | 'valid' | 'hint' | 'saveHintSpace'
+> {
   className?: ClassName;
   defaultValue?: CloudProviderKey;
   onChange?: (value: CloudProviderKey, index: number) => void;

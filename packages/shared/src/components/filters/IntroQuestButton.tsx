@@ -5,6 +5,7 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ChecklistBIcon } from '../icons/ChecklistB';
 import { Tooltip } from '../tooltip/Tooltip';
 import { Bubble } from '../tooltips/utils';
+import { AttentionDot } from '../AttentionDot';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { ActionType } from '../../graphql/actions';
@@ -25,12 +26,15 @@ interface IntroQuestButtonProps {
   variant?: ButtonVariant;
   // Names the button beside the count, where a row has the room.
   showLabel?: boolean;
+  // The small dot the controls around the widget rail share, for the badge.
+  attentionDot?: boolean;
 }
 
 export function IntroQuestButton({
   size = ButtonSize.Medium,
   variant,
   showLabel = false,
+  attentionDot = false,
 }: IntroQuestButtonProps = {}): ReactElement | null {
   const { isAuthReady, isLoggedIn } = useAuthContext();
   const { loadedSettings } = useSettingsContext();
@@ -138,7 +142,8 @@ export function IntroQuestButton({
           showAttentionBadge ? ', attention needed' : ''
         }`}
       >
-        {showAttentionBadge && (
+        {showAttentionBadge && attentionDot && <AttentionDot />}
+        {showAttentionBadge && !attentionDot && (
           <Bubble
             data-testid="intro-quest-attention-badge"
             className="-right-1 -top-1 size-5 !min-h-5 !min-w-5 !rounded-full !bg-accent-onion-default p-0"

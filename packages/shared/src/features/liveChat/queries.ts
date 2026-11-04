@@ -10,7 +10,7 @@ type QueryUser = Pick<LoggedUser, 'id'> | undefined;
 // only repeats the cached answer.
 export const LIVE_CHAT_ROOM_REFRESH_MS = 30 * 1000;
 
-// The API caps a page at 20; only trending posts get rooms, so one page is all of them.
+// The API caps a page at 20; rooms are team picks, so one page is all of them.
 export const LIVE_CHAT_ROOMS_PAGE = 20;
 
 export const postChatRoomQueryKey = (user: QueryUser, postId: string) =>

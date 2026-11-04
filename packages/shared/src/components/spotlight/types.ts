@@ -177,7 +177,7 @@ export const scopeMeta: Record<
     triggerLabel: 'Search squads',
     placeholder: 'Search squads...',
     shortcutIndex: 3,
-    searchProvider: SearchProviderEnum.Sources,
+    searchProvider: SearchProviderEnum.Squads,
   },
   [SpotlightScope.People]: {
     label: 'People',
@@ -203,8 +203,7 @@ export interface SpotlightSearchLogContext {
   searchVersion?: number;
 }
 
-export interface SpotlightResultsImpressionDetails
-  extends SpotlightSearchLogContext {
+export interface SpotlightResultsImpressionDetails extends SpotlightSearchLogContext {
   resultCount: number;
   counts: { posts: number; tags: number; sources: number; users: number };
 }

@@ -219,6 +219,7 @@ export const SOURCE_BASE_FRAGMENT = gql`
       adFree
       links
       products
+      cta
     }
     currentMember {
       ...CurrentMember

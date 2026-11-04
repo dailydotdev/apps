@@ -8,7 +8,7 @@ import {
 } from './replyText';
 
 const post = (title: string, permalink: string): Post =>
-  ({ id: title, title, commentsPermalink: permalink } as Post);
+  ({ id: title, title, commentsPermalink: permalink }) as Post;
 
 const reply = (...blocks: AgentBlock[]): AgentMessage => ({
   id: 'm1',

@@ -1607,3 +1607,31 @@ img.agent-media-ring {
     animation: none;
   }
 }
+
+/* A feed card whose post has a live chat on: the frame is brand and glows a
+   little, so the card reads as "on" from across the feed. Color-only, so
+   reduced motion keeps it. */
+.live-chat-card {
+  box-shadow: 0 0 0 1px
+      color-mix(in srgb, var(--theme-brand-default) 45%, transparent),
+    0 0 28px color-mix(in srgb, var(--theme-brand-default) 24%, transparent);
+}
+
+.live-chat-card:hover {
+  box-shadow: 0 0 0 1px
+      color-mix(in srgb, var(--theme-brand-bolder) 60%, transparent),
+    0 0 36px color-mix(in srgb, var(--theme-brand-default) 32%, transparent);
+}
+
+/* The live chat block under a post, and the live row in Happening Now: a
+   brand wash that fades out to the right, over the surface it sits on. */
+.live-chat-frame {
+  background-image: radial-gradient(
+    120% 90% at 0% 0%,
+    color-mix(in srgb, var(--theme-brand-default) 18%, transparent) 0%,
+    transparent 70%
+  );
+  box-shadow: 0 0 0 1px
+      color-mix(in srgb, var(--theme-brand-default) 45%, transparent),
+    0 0 32px color-mix(in srgb, var(--theme-brand-default) 18%, transparent);
+}

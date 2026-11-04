@@ -107,7 +107,7 @@ describe('PostComments hash scrolling', () => {
     targetTop = 1200;
     jest
       .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
-      .mockImplementation(() => ({ top: targetTop, height: 100 } as DOMRect));
+      .mockImplementation(() => ({ top: targetTop, height: 100 }) as DOMRect);
     scrollIntoView = jest.fn(() => {
       targetTop = 300;
     });

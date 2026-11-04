@@ -94,8 +94,18 @@ jest.mock('./UnifiedMobileFeedNav', () => ({
   ),
 }));
 
+let mockIsVisitorBar = false;
+
 jest.mock('../../features/getApp/hooks/useMobileAppHeader', () => ({
-  useMobileAppHeader: () => false,
+  useMobileAppHeader: () => mockIsVisitorBar,
+}));
+
+jest.mock('../../features/getApp/components/MobileAppActions', () => ({
+  MobileAppActions: () => <div data-testid="visitor-actions" />,
+}));
+
+jest.mock('../auth/SignInStrip', () => ({
+  SignInStrip: () => <div data-testid="sign-in-strip" />,
 }));
 
 jest.mock('./MobileFeedActions', () => ({
@@ -188,6 +198,7 @@ jest.mock('../shell/HomeSegments', () => ({
 describe('FeedNav', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockIsVisitorBar = false;
     mockUseRouter.mockReturnValue({
       asPath: '/',
       pathname: '/',
@@ -295,6 +306,51 @@ describe('FeedNav', () => {
     );
   });
 
+  it('gives a tablet visitor the sign-in pair where the bell stands', () => {
+    mockIsVisitorBar = true;
+    mockViewport({ isMobile: false, isBelowLaptop: true });
+
+    render(<FeedNav />);
+
+    expect(screen.getAllByTestId('visitor-actions')).toHaveLength(1);
+    expect(screen.queryByTestId('notifications-bell')).not.toBeInTheDocument();
+  });
+
+  it('gives a tablet visitor the sign-in strip on a page without feed tabs', () => {
+    mockIsVisitorBar = true;
+    mockUseActiveNav.mockReturnValue({ home: false, bookmarks: false });
+    mockViewport({ isMobile: false, isBelowLaptop: true });
+
+    render(<FeedNav canShowSignInStrip />);
+
+    expect(screen.getByTestId('sign-in-strip')).toBeInTheDocument();
+    expect(screen.queryByRole('list')).not.toBeInTheDocument();
+  });
+
+  it('leaves the strip out where the layout carries no sidebar or has a back bar', () => {
+    mockIsVisitorBar = true;
+    mockUseActiveNav.mockReturnValue({ home: false, bookmarks: false });
+    mockViewport({ isMobile: false, isBelowLaptop: true });
+
+    render(<FeedNav />);
+
+    expect(screen.queryByTestId('sign-in-strip')).not.toBeInTheDocument();
+  });
+
+  it('leaves a profile to its own bar on tablets', () => {
+    mockIsVisitorBar = true;
+    mockUseActiveNav.mockReturnValue({
+      home: false,
+      bookmarks: false,
+      profile: true,
+    });
+    mockViewport({ isMobile: false, isBelowLaptop: true });
+
+    render(<FeedNav canShowSignInStrip />);
+
+    expect(screen.queryByTestId('sign-in-strip')).not.toBeInTheDocument();
+  });
+
   it('renders tablet-only actions once in the chips row', () => {
     mockViewport({ isMobile: false, isBelowLaptop: true });
 
@@ -312,20 +368,15 @@ describe('FeedNav', () => {
     );
   });
 
-  it('renders the actions once, inline, inside the block even with chips disabled', () => {
+  it('keeps the feed actions out of the row inside the block', () => {
     mockUseConditionalFeature.mockReturnValue({ value: FeedChipsVariant.None });
 
     render(<FeedNav inShellBlock />);
 
-    const feedSettingsButton = screen.getByRole('button', {
-      name: 'Feed settings',
-    });
-
     expect(document.querySelector('.-translate-y-16')).toBeNull();
-    expect(feedSettingsButton.parentElement).not.toHaveClass('sticky');
     expect(
-      screen.getAllByRole('button', { name: 'Feed settings' }),
-    ).toHaveLength(1);
+      screen.queryByRole('button', { name: 'Feed settings' }),
+    ).not.toBeInTheDocument();
   });
 
   it('keeps the legacy TabContainer classes and sticky actions when chips are disabled', () => {

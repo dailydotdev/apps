@@ -118,6 +118,27 @@ it('nudges a reader who has not read today', () => {
   expect(screen.getByText(/left to read$/)).toBeInTheDocument();
 });
 
+it('lets the long status, timezone and freeze hint shrink to a one-column card', () => {
+  mockUser = { id: 'u1', timezone: 'America/Argentina/Buenos_Aires' };
+  jest
+    .mocked(useStreakRingState)
+    .mockReturnValue(ringState({ state: 'pending', hasReadToday: false }));
+  const { unmount } = renderWidget(FeedWidgetSize.Small);
+  expect(screen.getByRole('link').parentElement).toHaveClass('min-w-0');
+  unmount();
+
+  renderWidget(FeedWidgetSize.Tall);
+  expect(screen.getByRole('link').parentElement).toHaveClass('min-w-0');
+  expect(screen.getByText('America/Argentina/Buenos_Aires')).toHaveClass(
+    'min-w-0',
+    'shrink',
+  );
+  expect(screen.getByText('One left for a day off')).toHaveClass(
+    'min-w-0',
+    'shrink',
+  );
+});
+
 it('keeps Small to the count and calendar, adds the meters when taller and quests at Large', () => {
   const { unmount } = renderWidget(FeedWidgetSize.Small);
   expect(screen.getByTestId('streak-calendar')).toBeInTheDocument();

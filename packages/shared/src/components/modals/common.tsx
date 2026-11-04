@@ -161,6 +161,11 @@ const SlackShareModal = dynamic(
   () => import(/* webpackChunkName: "slackShareModal" */ './SlackShareModal'),
 );
 
+const SharePicksModal = dynamic(
+  () =>
+    import(/* webpackChunkName: "sharePicksModal" */ './picks/SharePicksModal'),
+);
+
 const ReportSourceModal = dynamic(
   () =>
     import(
@@ -580,6 +585,7 @@ export const modals = {
   [LazyModal.StreakFreezePurchase]: StreakFreezePurchaseModal,
   [LazyModal.SlackIntegration]: SlackIntegrationModal,
   [LazyModal.SlackShare]: SlackShareModal,
+  [LazyModal.SharePicks]: SharePicksModal,
   [LazyModal.ReportSource]: ReportSourceModal,
   [LazyModal.UserFollowersModal]: UserFollowersModal,
   [LazyModal.UserFollowingModal]: UserFollowingModal,
@@ -646,8 +652,8 @@ export const modals = {
 };
 
 type GetComponentProps<T> = T extends
-  | React.ComponentType<infer P>
-  | React.Component<infer P>
+  // eslint-disable-next-line @typescript-eslint/no-redeclare
+  React.ComponentType<infer P> | React.Component<infer P>
   ? P
   : never;
 

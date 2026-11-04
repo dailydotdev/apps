@@ -161,8 +161,8 @@ export const achievementCardData = (
     // the headline is the article it is about.
     detail:
       achievement.type === CreatorAchievementType.CategoryRanking
-        ? achievement.post?.title ?? undefined
-        : achievementSubtitle(achievement, 'public') ?? undefined,
+        ? (achievement.post?.title ?? undefined)
+        : (achievementSubtitle(achievement, 'public') ?? undefined),
     date: `Earned ${achievementDateLabel(achievement)}`,
   };
 };

@@ -1,100 +1,97 @@
 import type { NextRouter } from 'next/router';
-import mitt from 'next/dist/shared/lib/mitt';
-import { mockMatchMedia } from '../../../__tests__/helpers/media';
 import { moveShell, ShellMove } from './shellMove';
 
-const reducedMotion = '(prefers-reduced-motion: reduce)';
+type Handler = (...args: unknown[]) => void;
 
-const createRouter = () => ({ events: mitt() } as unknown as NextRouter);
-
-const mockViewTransition = () => {
-  const skipTransition = jest.fn();
-  let update: () => Promise<void> = () => Promise.resolve();
-  let finish: () => void = () => {};
-  const finished = new Promise<void>((resolve) => {
-    finish = resolve;
-  });
-  document.startViewTransition = jest.fn((callback) => {
-    update = callback as () => Promise<void>;
-    return { skipTransition, finished } as unknown as ViewTransition;
-  });
-
-  return {
-    skipTransition,
-    run: () => update(),
-    finish,
+const createRouter = () => {
+  const handlers = new Map<string, Set<Handler>>();
+  const events = {
+    on: (name: string, handler: Handler) => {
+      handlers.set(name, (handlers.get(name) ?? new Set()).add(handler));
+    },
+    off: (name: string, handler: Handler) => {
+      handlers.get(name)?.delete(handler);
+    },
+    emit: (name: string, ...args: unknown[]) => {
+      Array.from(handlers.get(name) ?? []).forEach((handler) =>
+        handler(...args),
+      );
+    },
   };
+  return { events } as unknown as NextRouter & { events: typeof events };
 };
+
+const mockMatchMedia = (reduced: () => boolean) => {
+  window.matchMedia = jest.fn().mockImplementation((query: string) => ({
+    matches: query.includes('reduced-motion') ? reduced() : true,
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+  }));
+};
+
+const ghost = () => document.querySelector('.shell-ghost');
 
 beforeEach(() => {
   jest.useFakeTimers();
-  mockMatchMedia((query) => query !== reducedMotion);
+  mockMatchMedia(() => false);
+  document.body.innerHTML =
+    '<div class="shell-layout"><header class="shell-block fixed"></header><main><div>Feed</div><nav class="shell-cluster fixed"></nav></main></div>';
 });
 
 afterEach(() => {
+  jest.runOnlyPendingTimers();
   jest.useRealTimers();
-  delete (document as Partial<Document>).startViewTransition;
+  document.body.innerHTML = '';
   delete document.documentElement.dataset.shellMove;
 });
 
-it('navigates at once without view transitions', () => {
-  const navigate = jest.fn();
-
-  moveShell(createRouter(), ShellMove.Pop, navigate);
-
-  expect(navigate).toHaveBeenCalled();
-});
-
 it('cuts under reduced motion', () => {
-  const transition = mockViewTransition();
   mockMatchMedia(() => true);
   const navigate = jest.fn();
 
   moveShell(createRouter(), ShellMove.Pop, navigate);
 
   expect(navigate).toHaveBeenCalled();
-  expect(document.startViewTransition).not.toHaveBeenCalled();
-  expect(transition.skipTransition).not.toHaveBeenCalled();
+  expect(ghost()).toBeNull();
 });
 
-it('navigates after the page is captured and holds it until the next arrives', async () => {
-  const transition = mockViewTransition();
+it('keeps a still copy of the page, without its bar, until the next has arrived', () => {
   const router = createRouter();
   const navigate = jest.fn();
 
-  moveShell(router, ShellMove.Switch, navigate);
+  moveShell(router, ShellMove.Pop, navigate);
 
-  expect(navigate).not.toHaveBeenCalled();
-  expect(document.documentElement.dataset.shellMove).toBe(ShellMove.Switch);
-
-  const arrived = jest.fn();
-  transition.run().then(arrived);
   expect(navigate).toHaveBeenCalled();
-  await Promise.resolve();
-  expect(arrived).not.toHaveBeenCalled();
+  expect(document.documentElement.dataset.shellMove).toBe(ShellMove.Pop);
+  expect(ghost()).not.toBeNull();
+  expect(ghost()?.querySelector('.shell-cluster')).toBeNull();
+  expect(ghost()?.textContent).toContain('Feed');
 
   router.events.emit('routeChangeComplete', '/posts');
-  await Promise.resolve();
-  expect(arrived).toHaveBeenCalled();
-  expect(transition.skipTransition).not.toHaveBeenCalled();
+  jest.advanceTimersByTime(100);
+  expect(ghost()).not.toBeNull();
 
-  transition.finish();
-  await Promise.resolve();
-  await Promise.resolve();
+  jest.advanceTimersByTime(400);
+  expect(ghost()).toBeNull();
   expect(document.documentElement.dataset.shellMove).toBeUndefined();
 });
 
-it('drops the move when the next page is slow, never the navigation', async () => {
-  const transition = mockViewTransition();
+it('drops the copy when the next page is slow, never the navigation', () => {
   const navigate = jest.fn();
 
   moveShell(createRouter(), ShellMove.Pop, navigate);
-  const arrived = jest.fn();
-  transition.run().then(arrived);
-  jest.advanceTimersByTime(300);
-  await Promise.resolve();
+  jest.advanceTimersByTime(1200);
 
   expect(navigate).toHaveBeenCalled();
-  expect(transition.skipTransition).toHaveBeenCalled();
-  expect(arrived).toHaveBeenCalled();
+  expect(ghost()).toBeNull();
+});
+
+it('drops the copy when the route fails', () => {
+  const router = createRouter();
+
+  moveShell(router, ShellMove.Pop, jest.fn());
+  router.events.emit('routeChangeError', new Error('no'), '/x');
+
+  expect(ghost()).toBeNull();
+  expect(document.documentElement.dataset.shellMove).toBeUndefined();
 });

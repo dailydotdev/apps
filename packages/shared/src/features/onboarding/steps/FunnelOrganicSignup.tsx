@@ -32,6 +32,7 @@ import {
 } from '../../../components/typography/Typography';
 import { sanitizeMessage } from '../lib/utils';
 import ConditionalWrapper from '../../../components/ConditionalWrapper';
+import SignupDisclaimer from '../../../components/auth/SignupDisclaimer';
 import { phone } from '../../../styles/media';
 
 const phoneMediaQuery = phone.replace('@media ', '');
@@ -120,6 +121,7 @@ export const FunnelOrganicSignup = withIsActiveGuard(
             isLoginFlow: true,
             isAuthenticating: true,
             defaultDisplay: AuthDisplay.Default,
+            ...(data.email && { email: data.email }),
           }));
           return;
         }
@@ -256,9 +258,8 @@ export const FunnelOrganicSignup = withIsActiveGuard(
               )}
               <AuthOptions
                 {...staticAuthProps}
-                // Post-signup funnel only: the funnel's headline scale, and no
-                // terms strip (the funnel shows it once, on the wall).
-                hideSignupDisclaimer={isOnboarding}
+                // Post-signup funnel only: the funnel's headline scale, and the
+                // terms line once, on the wall.
                 isOnboardingFunnel={isOnboarding}
                 registrationExtraFields={extraFields}
                 defaultDisplay={
@@ -282,6 +283,11 @@ export const FunnelOrganicSignup = withIsActiveGuard(
                   });
                 }}
               />
+              {isOnboarding &&
+                !isEmailSignupActive &&
+                !isSocialSignupActive && (
+                  <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
+                )}
             </div>
             <div className="flex flex-1 tablet:ml-auto tablet:flex-1 laptop:max-w-[37.5rem]" />
           </div>

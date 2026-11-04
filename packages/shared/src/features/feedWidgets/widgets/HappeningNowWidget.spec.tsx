@@ -110,7 +110,7 @@ describe('HappeningNowWidget live chat line', () => {
     ).toBeInTheDocument();
     expect(live.closest('a')).toHaveAttribute(
       'href',
-      'https://app.daily.dev/posts/p1',
+      'https://app.daily.dev/posts/p1?chat=join',
     );
     const items = screen.getAllByRole('listitem');
     expect(items[0]).toHaveTextContent('Bun 2.0');

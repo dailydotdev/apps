@@ -76,7 +76,7 @@ beforeEach(() => {
   mockDesktop();
   jest
     .mocked(useRouter)
-    .mockImplementation(() => ({ pathname: '/' } as unknown as NextRouter));
+    .mockImplementation(() => ({ pathname: '/' }) as unknown as NextRouter);
   jest
     .mocked(useFeedWidgetAd)
     .mockReturnValue({ ad, isEnabled: true, isNoFill: false });
@@ -176,6 +176,22 @@ describe('SquadUpdatesWidget', () => {
       screen.getByRole('link', { name: `Open ${webteam.name}` }),
     ).toHaveAttribute('href', webteam.permalink);
     expect(screen.queryByText('Squad rules')).not.toBeInTheDocument();
+  });
+
+  it('truncates a long squad name at Small to keep "Open squad" in the card', async () => {
+    mockSquadPosts();
+    renderRail({
+      ...squadWidget({ sourceId: webteam.id }),
+      size: FeedWidgetSize.Small,
+    });
+    await revealWidgets();
+
+    await screen.findByText('Shipped the new nav');
+    expect(screen.getByText(webteam.name)).toHaveClass(
+      'min-w-0',
+      'flex-1',
+      'truncate',
+    );
   });
 
   it('offers the picker again when the reader left the squad', async () => {

@@ -9,7 +9,8 @@ pnpm monorepo for the daily.dev app suite:
 - `packages/webapp`: Next.js Pages Router, not App Router (`app/` exists only for the service worker and the not-found page), deployed on Vercel.
 - `packages/extension`: Chrome/Edge/Opera extension.
 - `packages/shared`: components, hooks, GraphQL, design system. Code used by both surfaces lives here.
-- `packages/storybook`, `packages/playwright`, eslint/prettier config packages.
+- `packages/storybook`, `packages/playwright`, `packages/eslint-rules`.
+- Lint and format with oxlint and oxfmt, configured once at the root (`.oxlintrc.json`, `.oxfmtrc.json`). Plugins oxlint lacks natively (testing-library, jest-dom, tailwindcss, sort-exports) load as `jsPlugins`; `import/order` loads as `import-js/order`, and `naming-convention` and `consistent-return` come from `oxlint-plugins/eslint-compat.mjs`, so their directives use the `eslint-compat/` prefix. Suppress with `eslint-disable-next-line` directives, never `oxlint-disable`.
 - Storybook is designer territory: Vercel deploys it only when `packages/storybook`, `packages/shared` or the root `vercel.json` changes (`ignoreCommand`), and it has no CI job, no strict typecheck, and `.gitattributes` collapses its diffs on GitHub. Don't add checks for it.
 
 ## Verification
@@ -45,6 +46,7 @@ pnpm monorepo for the daily.dev app suite:
 - One-off styles outside the token system go in `packages/shared/src/styles/custom.ts`.
 - Full-screen media lightboxes need a dark overlay (`bg-overlay-primary-pepper`), not the Modal default `bg-overlay-quaternary-onion`. Close buttons over images use `ButtonVariant.Primary`; `Float` vanishes over photos.
 - Dismissible banners/cards use the shared `CloseButton`, not a full-width text "Dismiss" button.
+- Some pages have a sticky banner at the bottom of the viewport (the sponsor strip on the main feeds, for non-Plus users on tablet and up). Design bottom-pinned UI (floating bars, pills, toasts, sticky footers) with it in mind: lift clear of it with `var(--sponsor-strip-height,0rem)` (see `sponsorStripOffset.ts`) and check the layout with the strip showing.
 - CSS Grid feed: an item's intrinsic content height stretches the whole row even under `max-h-*`. Wrap content in an `absolute inset-0 flex flex-col` child and give the Card `min-h-card` (see `ArticleGrid.tsx`). Such constraints go on the grid variant of shared cards only.
 
 ## Product conventions

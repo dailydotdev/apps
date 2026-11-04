@@ -127,6 +127,7 @@ export * from './Poll';
 export * from './Power';
 export * from './Privacy';
 export * from './PWA';
+export * from './Reaction';
 export * from './ReadingStreak';
 export * from './Reddit';
 export * from './Redis';
