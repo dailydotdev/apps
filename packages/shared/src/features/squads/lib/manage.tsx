@@ -16,7 +16,7 @@ import {
   TrashIcon,
   UserIcon,
 } from '../../../components/icons';
-import { hasSquadFeature } from './features';
+import { canSetSquadButton, hasSquadFeature } from './features';
 import { SquadManageSection } from './routes';
 import type { SquadViewer } from './viewer';
 import { isStaffViewer } from './viewer';
@@ -60,7 +60,7 @@ const canSeeSection = (squad: Squad, section: SquadManageSection): boolean => {
     case SquadManageSection.Links:
       return canEdit && hasSquadFeature(squad, 'links');
     case SquadManageSection.Branding:
-      return canEdit && hasSquadFeature(squad, 'verified');
+      return canEdit && canSetSquadButton(squad);
     case SquadManageSection.Members:
       return true;
     case SquadManageSection.Moderation:
