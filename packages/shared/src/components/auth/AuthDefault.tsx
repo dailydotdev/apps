@@ -161,7 +161,7 @@ const AuthDefault = ({
         <LoginForm
           isReady={isReady}
           isLoading={isLoading}
-          email={loginEmail}
+          email={loginEmail || undefined}
           loginButton={loginButton}
           aboveFooter={!simplified && !disableRegistration}
           loginButtonVariant={

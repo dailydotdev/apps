@@ -93,6 +93,15 @@ describe('AuthDefault', () => {
     );
   });
 
+  it('opens the email screen without marking an untouched email invalid', async () => {
+    renderAuthDefault({ isLoginFlow: true, loginEmail: '' });
+
+    fireEvent.click(screen.getByText('Continue with email'));
+
+    const emailInput = await screen.findByRole('textbox', { name: 'Email' });
+    expect(emailInput.closest('.invalid')).toBeNull();
+  });
+
   it('keeps the verify title when the error links to sign up', async () => {
     renderAuthDefault({
       disableRegistration: true,
