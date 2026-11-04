@@ -53,12 +53,14 @@ export const LfgFindYourPeopleWidget = (): ReactElement => (
 
 export const LfgYourPostWidget = ({
   post,
+  className,
 }: {
   post: LfgPost | null | undefined;
+  className?: string;
 }): ReactElement => {
   if (!post) {
     return (
-      <SquadWidget title="Looking for someone?">
+      <SquadWidget title="Looking for someone?" className={className}>
         <Typography
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
@@ -87,6 +89,7 @@ export const LfgYourPostWidget = ({
   return (
     <SquadWidget
       title="Your post"
+      className={className}
       action={
         <Link href={getLfgUrl(post.id)} passHref>
           <Button
