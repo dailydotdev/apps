@@ -107,6 +107,7 @@ export enum NotificationType {
   ExperienceCompanyEnriched = 'experience_company_enriched',
   ReferralSignup = 'referral_signup',
   CreatorAchievement = 'creator_achievement',
+  WeeklyPicksReady = 'weekly_picks_ready',
 }
 
 export enum NotificationIconType {
@@ -227,6 +228,7 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.LfgHelpMatch]: 'text-brand-default',
     [NotificationType.LfgStillLooking]: 'text-brand-default',
     [NotificationType.LiveChatOpened]: 'text-brand-default',
+    [NotificationType.WeeklyPicksReady]: 'text-brand-default',
   };
 
 export const contentArrivalNotificationTypes = new Set<NotificationType>([
@@ -452,6 +454,7 @@ export const notificationCategoryToTypes: Record<
     NotificationType.WarmIntro,
     NotificationType.ExperienceCompanyEnriched,
     NotificationType.ReferralSignup,
+    NotificationType.WeeklyPicksReady,
   ],
 };
 
