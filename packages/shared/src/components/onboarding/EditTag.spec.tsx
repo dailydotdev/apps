@@ -30,7 +30,7 @@ jest.mock('../../hooks/useTagSearch', () => ({
 const feedSettingsWith = (count: number) =>
   ({
     includeTags: Array.from({ length: count }, (_, index) => `tag-${index}`),
-  } as FeedSettings);
+  }) as FeedSettings;
 
 const renderEditTag = (
   count: number,
