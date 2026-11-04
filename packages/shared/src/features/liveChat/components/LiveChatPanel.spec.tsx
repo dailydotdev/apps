@@ -44,7 +44,7 @@ const room: ChatRoom = {
   jid: 'r1@conference.chat.daily.dev',
   title: 'Bun 2.0',
   post: { id: 'p1' },
-  expiresAt: new Date(Date.now() + 17 * 60 * 60 * 1000).toISOString(),
+  expiresAt: new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString(),
   occupantCount: 23,
   createdAt: new Date().toISOString(),
 };

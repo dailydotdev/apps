@@ -38,12 +38,12 @@ describe('formatEndsIn', () => {
 
   it('keeps quiet while the room has hours ahead of it', () => {
     expect(formatEndsIn('2026-10-27T10:00:00Z', now)).toBeUndefined();
-    expect(formatEndsIn('2026-10-26T15:00:01Z', now)).toBeUndefined();
+    expect(formatEndsIn('2026-10-26T13:00:01Z', now)).toBeUndefined();
     expect(formatEndsIn(null, now)).toBeUndefined();
   });
 
   it('shows the clock once the end is close', () => {
-    expect(formatEndsIn('2026-10-26T15:00:00Z', now)).toEqual('ends in 3h');
+    expect(formatEndsIn('2026-10-26T13:00:00Z', now)).toEqual('ends in 1h');
     expect(formatEndsIn('2026-10-26T12:45:00Z', now)).toEqual('ends in 45m');
   });
 });

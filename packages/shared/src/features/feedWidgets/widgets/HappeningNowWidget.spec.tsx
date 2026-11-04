@@ -41,7 +41,7 @@ const room: ChatRoom = {
     title: 'Bun 2.0',
     commentsPermalink: 'https://app.daily.dev/posts/p1',
   },
-  expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+  expiresAt: new Date(Date.now() + 45 * 60 * 1000).toISOString(),
   occupantCount: 23,
   createdAt: new Date().toISOString(),
 };
@@ -106,7 +106,7 @@ describe('HappeningNowWidget live chat line', () => {
 
     const live = await screen.findByText('Bun 2.0');
     expect(
-      screen.getByText('Live chat · 23 here · ends in 2h'),
+      screen.getByText('Live chat · 23 here · ends in 45m'),
     ).toBeInTheDocument();
     expect(live.closest('a')).toHaveAttribute(
       'href',
