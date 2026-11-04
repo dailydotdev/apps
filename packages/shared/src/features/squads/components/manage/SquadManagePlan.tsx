@@ -56,6 +56,7 @@ import {
   SquadPlanPrice,
 } from '../checkout/SquadPlanCard';
 import { SquadManageSectionPanel } from './SquadManageLayout';
+import { StartupsSetup } from '../setup/StartupsSetup';
 
 const roleLabel: Partial<Record<SourceMemberRole, string>> = {
   [SourceMemberRole.Admin]: 'Admin',
@@ -355,6 +356,17 @@ const ActivePlan = ({
             </Typography>
           </span>
         </div>
+      </div>
+      <div className="flex flex-col gap-3">
+        <SectionTitle
+          title="Set up your plan"
+          description="Hand it to your agent, or do it yourself."
+        />
+        <StartupsSetup
+          squad={squad}
+          plan={plan}
+          origin={Origin.SquadManagePlan}
+        />
       </div>
       <div className="flex flex-col gap-2">
         <SectionTitle

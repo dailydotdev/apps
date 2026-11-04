@@ -20,6 +20,12 @@ export const SQUAD_PLAN_CASHBACK_PERCENTAGE: Record<SquadPlan, number> = {
   [SquadPlan.Team]: 200,
 };
 
+// Topics the weekly brief covers. The brief is not built yet.
+export const SQUAD_PLAN_BRIEF_TOPICS: Record<SquadPlan, number> = {
+  [SquadPlan.Starter]: 5,
+  [SquadPlan.Team]: 20,
+};
+
 // The live Paddle prices of the daily.dev for Startups product, one per plan.
 // No Paddle sandbox is wired to any environment, so there is no sandbox copy.
 const squadPlanPriceIds: Record<SquadPlan, string> = {

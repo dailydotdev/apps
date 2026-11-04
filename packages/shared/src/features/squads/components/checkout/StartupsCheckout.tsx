@@ -31,6 +31,7 @@ import { SquadImage } from '../../../../components/squads/SquadImage';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useSquadCategories } from '../../../../hooks/squads/useSquadCategories';
 import { useSquadCreate } from '../../../../hooks/squads/useSquadCreate';
+import { useSquad } from '../../../../hooks/squads/useSquad';
 import { usePaddlePayment } from '../../../../hooks/usePaddlePayment';
 import type { Squad } from '../../../../graphql/sources';
 import { SourceMemberRole } from '../../../../graphql/sources';
@@ -56,6 +57,7 @@ import {
 import { useSquadPlanPrices } from '../../hooks/useSquadPlanPrices';
 import { useLogStartups } from '../../hooks/useLogStartups';
 import { SquadUploadButton } from '../manage/SquadUploadButton';
+import { StartupsSetup } from '../setup/StartupsSetup';
 import {
   SquadPlanCard,
   SquadPlanCashback,
@@ -599,13 +601,6 @@ const CheckoutStep = ({
   );
 };
 
-interface NextStep {
-  title: string;
-  description: string;
-  href: string;
-  cta: string;
-}
-
 const DoneStep = ({
   company,
   plan,
@@ -626,6 +621,7 @@ const DoneStep = ({
     }),
   );
   const isActive = !!subscription?.plan;
+  const { squad } = useSquad({ handle: company.handle });
   const logStartups = useLogStartups();
 
   useEffect(() => {
@@ -688,62 +684,15 @@ const DoneStep = ({
     <div className="flex flex-col gap-6">
       <StepTitle
         title={`${company.name} is on ${squadPlanDetails[plan].title}`}
-        description="Your company page is live. Next, connect your agent so it can post and boost for you."
+        description="Your company page is live. Here is what you just got: hand the setup to your agent, or do it yourself."
       />
-      <ol className="flex flex-col gap-3">
-        {[
-          {
-            title: 'Fill in your page',
-            description: 'Add your website, product and links.',
-            href: getSquadManageUrl(company.handle, SquadManageSection.Details),
-            cta: 'Edit page',
-          },
-          {
-            title: 'Connect your agent',
-            description:
-              'Create an API token and add daily.dev to Claude Code, Codex, Cursor or any MCP agent.',
-            href: `${webappUrl}settings/api`,
-            cta: 'Get a token',
-          },
-          SQUAD_PLAN_SEATS[plan] > 1 && {
-            title: 'Give your team seats',
-            description:
-              'Seats can post and boost through the API. You hold the first one.',
-            href: getSquadManageUrl(company.handle, SquadManageSection.Plan),
-            cta: 'Manage seats',
-          },
-        ]
-          .filter((item): item is NextStep => !!item)
-          .map((item, index) => (
-            <li
-              key={item.title}
-              className="flex items-center gap-4 rounded-16 border border-border-subtlest-tertiary p-4"
-            >
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-float font-bold typo-callout">
-                {index + 1}
-              </span>
-              <span className="flex min-w-0 flex-1 flex-col gap-1">
-                <Typography type={TypographyType.Callout} bold>
-                  {item.title}
-                </Typography>
-                <Typography
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Tertiary}
-                >
-                  {item.description}
-                </Typography>
-              </span>
-              <Button
-                tag="a"
-                href={item.href}
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Small}
-              >
-                {item.cta}
-              </Button>
-            </li>
-          ))}
-      </ol>
+      {squad && (
+        <StartupsSetup
+          squad={squad}
+          plan={plan}
+          origin={Origin.StartupsCheckout}
+        />
+      )}
       <Button
         tag="a"
         href={pageUrl}

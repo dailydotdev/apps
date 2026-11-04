@@ -29,6 +29,13 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadPageContextProvider } from '@dailydotdev/shared/src/features/squads/SquadPageContext';
 import { SquadManageLayout } from '@dailydotdev/shared/src/features/squads/components/manage/SquadManageLayout';
 import { SquadManagePlan } from '@dailydotdev/shared/src/features/squads/components/manage/SquadManagePlan';
+import {
+  StartupsSetup,
+  StartupsSetupPath,
+} from '@dailydotdev/shared/src/features/squads/components/setup/StartupsSetup';
+import { squadProductsQueryOptions } from '@dailydotdev/shared/src/graphql/squadProducts';
+import { squadBrandingQueryOptions } from '@dailydotdev/shared/src/graphql/squadBranding';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { SquadPlanUpsellWidget } from '@dailydotdev/shared/src/features/squads/components/widgets/SquadPlanUpsellWidget';
 import { SquadManageSection } from '@dailydotdev/shared/src/features/squads/lib/routes';
 import { SquadPlan } from '@dailydotdev/shared/src/features/squads/lib/plans';
@@ -108,6 +115,14 @@ const acme = {
     referralToken: 'token',
     user: owner.user,
   } as unknown as SourceMember,
+} as unknown as Squad;
+
+// Acme once the Team plan switched its features on, with the description and
+// website filled in and no product or header CTA yet.
+const acmeTeam = {
+  ...acme,
+  website: 'https://acme.dev',
+  features: { links: true, products: true, cta: true, apiPosting: true },
 } as unknown as Squad;
 
 const asModerator = (squad: Squad): Squad => ({
@@ -241,6 +256,39 @@ const SquadPageUpsellPreview = (): ReactElement => {
   );
 };
 
+/** The setup panel on its own, half done, on the path a story pins. */
+const SetupPreview = ({ path }: { path: StartupsSetupPath }): ReactElement => {
+  const client = useQueryClient();
+  const { user } = useAuthContext();
+  [undefined, user].forEach((who) => {
+    [
+      [squadProductsQueryOptions({ squad: acmeTeam, user: who }).queryKey, []],
+      [
+        squadBrandingQueryOptions({ squad: acmeTeam, user: who }).queryKey,
+        { color: null, button: null },
+      ],
+    ].forEach(([queryKey, data]) => {
+      client.setQueryData(queryKey as readonly unknown[], data);
+      client.setQueryDefaults(queryKey as readonly unknown[], {
+        staleTime: Infinity,
+      });
+    });
+  });
+
+  return (
+    <Seeded squad={acmeTeam} subscription={teamPlan}>
+      <div className="mx-auto flex max-w-[40rem] flex-col p-4 tablet:p-6">
+        <StartupsSetup
+          squad={acmeTeam}
+          plan={SquadPlan.Team}
+          origin={Origin.StartupsCheckout}
+          initialPath={path}
+        />
+      </div>
+    </Seeded>
+  );
+};
+
 const meta: Meta = {
   title: 'Features/Squads/daily.dev for Startups checkout',
   parameters: { layout: 'fullscreen' },
@@ -355,6 +403,34 @@ export const CheckoutDone: Story = {
       />
     </Seeded>
   ),
+};
+
+/** After payment on Team: the agent path, with the Team steps in its prompt. */
+export const CheckoutDoneTeam: Story = {
+  render: () => (
+    <Seeded squad={acmeTeam} subscription={teamPlan}>
+      <StartupsCheckout
+        initialStep={StartupsCheckoutStep.Done}
+        initialCompany={acmeTeam}
+        initialPlan={SquadPlan.Team}
+      />
+    </Seeded>
+  ),
+};
+
+export const CheckoutDoneTeamPhone: Story = {
+  ...CheckoutDoneTeam,
+  globals: phone,
+};
+
+/** The setup's other path: the checklist, ticked from the page's own data. */
+export const SetupDoItYourself: Story = {
+  render: () => <SetupPreview path={StartupsSetupPath.Manual} />,
+};
+
+export const SetupDoItYourselfPhone: Story = {
+  ...SetupDoItYourself,
+  globals: phone,
 };
 
 /** After payment, while waiting for the webhook. */
