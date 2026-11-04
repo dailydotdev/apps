@@ -468,6 +468,7 @@ export default function MainFeedLayout({
   // the custom feeds (on a phone the rail heads them too) keep their own.
   const widgetFeedState = useFeedWidgetFeedState({
     enabled: isFeedWidgetsEnabled && isMainFeedPage,
+    feedName,
   });
   // The hero reports back rather than being asked: it only has a placement once
   // its column exists and an ad has come back for it, and it renders nothing at
