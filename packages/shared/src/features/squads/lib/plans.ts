@@ -73,19 +73,5 @@ export const squadPlanDetails: Record<SquadPlan, SquadPlanDetails> = {
   },
 };
 
-export const startupsEnterpriseDetails = {
-  tagline: 'For established teams with a marketer.',
-  featuresTitle: 'Everything in Team, plus:',
-  features: [
-    'Weekly brief on up to 40 topics',
-    'Region filter, plus your keywords',
-    'Verified badge and priority ranking',
-    'Your logo on the daily.dev homepage',
-    'Targeted campaigns and newsletters',
-    'Guaranteed reads and creative',
-    'An account team',
-  ],
-};
-
 export const startupsEnterpriseUrl =
   'https://business.daily.dev/?ref=daily-startups-checkout';

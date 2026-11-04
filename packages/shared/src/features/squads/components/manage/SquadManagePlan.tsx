@@ -45,16 +45,11 @@ import {
   SquadPlan,
   squadPlanDetails,
   squadPlans,
-  startupsEnterpriseDetails,
   startupsEnterpriseUrl,
 } from '../../lib/plans';
 import { useSquadPlanPrices } from '../../hooks/useSquadPlanPrices';
 import { useLogStartups } from '../../hooks/useLogStartups';
-import {
-  SquadPlanCard,
-  SquadPlanFeatureList,
-  SquadPlanPrice,
-} from '../checkout/SquadPlanCard';
+import { SquadPlanCard, SquadPlanPrice } from '../checkout/SquadPlanCard';
 import { SquadManageSectionPanel } from './SquadManageLayout';
 import { StartupsSetup } from '../setup/StartupsSetup';
 
@@ -137,30 +132,26 @@ const ChoosePlan = ({ isAdmin }: { isAdmin: boolean }): ReactElement => {
           Only an admin of this Squad can choose a plan.
         </Typography>
       )}
-      <div className="flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-5">
-        <div className="flex flex-col gap-1">
-          <Typography type={TypographyType.Title3} bold>
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
+        <div className="flex min-w-0 flex-col gap-1">
+          <Typography type={TypographyType.Callout} bold>
             Enterprise
           </Typography>
           <Typography
-            type={TypographyType.Callout}
+            type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            {startupsEnterpriseDetails.tagline}
+            Verified badge, homepage placement, campaigns and an account team.
           </Typography>
         </div>
-        <SquadPlanFeatureList
-          title={startupsEnterpriseDetails.featuresTitle}
-          features={startupsEnterpriseDetails.features}
-        />
         <Button
           tag="a"
           href={startupsEnterpriseUrl}
           target="_blank"
           rel="noopener"
           onClick={() => logUpgrade('enterprise')}
-          variant={ButtonVariant.Secondary}
-          className="w-full tablet:w-auto tablet:self-start"
+          variant={ButtonVariant.Float}
+          size={ButtonSize.Small}
           icon={<OpenLinkIcon />}
           iconPosition={ButtonIconPosition.Right}
         >
