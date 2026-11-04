@@ -296,17 +296,16 @@ const useOnboardingAuth = () => {
     }
   }, [router, updateAuth]);
 
+  const [screenBack, setScreenBack] = useState<() => void>();
+
   const authOptionProps: AuthOptionsProps = useMemo(
     () => ({
       simplified: true,
-      // The trigger below takes `loginState` before its Onboarding fallback, so
-      // the inline strip's branch is reachable. The consent line the flow relies
-      // on lives on `RegistrationForm`, by the button that creates the account.
-      hideSignupDisclaimer: true,
       isOnboardingFunnel: true,
+      onScreenBackChange: (back) => setScreenBack(() => back),
       className: {
         container: classNames(
-          'w-full rounded-none tablet:max-w-[30rem]',
+          'w-full rounded-none tablet:max-w-[27.5rem]',
           auth.isAuthenticating ? 'h-full' : 'max-w-full',
         ),
         onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
@@ -357,6 +356,7 @@ const useOnboardingAuth = () => {
     updateAuth,
     exitToFunnelSignup,
     isLoggedIn,
+    screenBack,
     shouldVerify: anonymous?.shouldVerify,
   };
 };
@@ -373,6 +373,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
     authOptionProps,
     funnelState,
     isLoggedIn,
+    screenBack,
     shouldVerify,
     updateAuth,
     exitToFunnelSignup,
@@ -444,9 +445,9 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
 
   const { isLoginFlow: isPageLoginFlow } = authOptionProps;
   const authBackTarget: Partial<Record<AuthDisplay, AuthDisplay>> = {
-    ...(!isPageLoginFlow && {
-      [AuthDisplay.Registration]: AuthDisplay.OnboardingSignup,
-    }),
+    [AuthDisplay.Registration]: isPageLoginFlow
+      ? AuthDisplay.Default
+      : AuthDisplay.OnboardingSignup,
     [AuthDisplay.EmailVerification]: isPageLoginFlow
       ? AuthDisplay.Default
       : AuthDisplay.Registration,
@@ -459,6 +460,12 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
 
     if (authBack === AuthDisplay.OnboardingSignup) {
       return exitToFunnelSignup;
+    }
+
+    // Email sign-up is only reachable from Sign up on the page's Log in flow,
+    // so its back returns there.
+    if (authOptionProps.defaultDisplay === AuthDisplay.Registration) {
+      return () => updateAuth({ defaultDisplay: authBack, isLoginFlow: false });
     }
 
     return () => updateAuth({ defaultDisplay: authBack });
@@ -474,8 +481,8 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
           'relative z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
         )}
       >
-        <FunnelStepTopBar onBack={onAuthBack} />
-        <div className="relative z-2 flex w-full flex-grow flex-col flex-wrap justify-start px-4 pt-3 tablet:flex-row tablet:justify-center tablet:gap-10 tablet:px-6">
+        <FunnelStepTopBar onBack={onAuthBack ?? screenBack} />
+        <div className="relative z-2 flex w-full flex-grow flex-col flex-wrap justify-start px-5 pt-3 tablet:flex-row tablet:justify-center tablet:gap-10 tablet:px-6">
           <AuthOptions {...authOptionProps} />
         </div>
       </div>

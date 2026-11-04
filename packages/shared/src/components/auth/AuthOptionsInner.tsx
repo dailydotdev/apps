@@ -146,8 +146,8 @@ function AuthOptionsInner({
   ignoreMessages = false,
   onboardingSignupButton,
   hideLoginLink,
-  hideSignupDisclaimer,
   isOnboardingFunnel,
+  onScreenBackChange,
   compact,
   signupStyle,
   inlineProviders,
@@ -772,9 +772,11 @@ function AuthOptionsInner({
   };
 
   const [hasLoggedAuthOpen, setHasLoggedAuthOpen] = useState(false);
-  // Picking email closes One Tap: on Sign up that's the move to the
-  // registration form, on Log in it's using the inline email/password form.
-  const [isEmailLoginEngaged, setIsEmailLoginEngaged] = useState(false);
+  // Lives here so Log in's email screen survives the trip to Forgot password or
+  // Verify email and back. Picking email closes One Tap: on Sign up that's the
+  // move to the registration form, on Log in it's this screen.
+  const emailLogin = useState(false);
+  const [isEmailLogin, setIsEmailLogin] = emailLogin;
 
   const canUseOneTap =
     isAuthReady &&
@@ -784,7 +786,7 @@ function AuthOptionsInner({
     !isAndroidApp &&
     !isNativeAuthSupported('google') &&
     hasLoggedAuthOpen &&
-    !isEmailLoginEngaged &&
+    !isEmailLogin &&
     (activeDisplay === AuthDisplay.Default ||
       activeDisplay === AuthDisplay.OnboardingSignup);
   useGoogleOneTap({
@@ -825,6 +827,7 @@ function AuthOptionsInner({
 
   const onEmailRegistration = (emailAd: string) => {
     // before displaying registration, ensure the email doesn't exist
+    setIsForgotPasswordReturn(false);
     onSetActiveDisplay(AuthDisplay.Registration);
     setEmail(emailAd);
   };
@@ -865,6 +868,21 @@ function AuthOptionsInner({
     setIsForgotPasswordReturn(true);
     onSetActiveDisplay(forgotPasswordReturnRef.current);
   };
+
+  useEffect(() => {
+    if (activeDisplay === AuthDisplay.ForgotPassword) {
+      onScreenBackChange?.(onBackToLogin);
+      return;
+    }
+
+    onScreenBackChange?.(
+      activeDisplay === AuthDisplay.Default && isEmailLogin
+        ? () => setIsEmailLogin(false)
+        : undefined,
+    );
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeDisplay, isEmailLogin]);
 
   const onBackFromVerify = () => {
     if (emailVerificationReturn === AuthDisplay.Default) {
@@ -917,8 +935,8 @@ function AuthOptionsInner({
             onPasswordLogin={onEmailLogin}
             onProviderClick={onProviderClick}
             onSignup={onEmailRegistration}
-            onLoginFormEngage={() => setIsEmailLoginEngaged(true)}
-            hideSignupDisclaimer={hideSignupDisclaimer}
+            emailLogin={emailLogin}
+            hasTopBarBack={!!onScreenBackChange}
             isSocialAuthLoading={isSocialAuthLoading}
             providers={providers}
             simplified={simplified}
@@ -1020,7 +1038,6 @@ function AuthOptionsInner({
             className={className}
             onboardingSignupButton={onboardingSignupButton}
             hideLoginLink={hideLoginLink}
-            hideSignupDisclaimer={hideSignupDisclaimer}
             compact={compact}
             signupStyle={signupStyle}
             inlineProviders={inlineProviders}
@@ -1067,7 +1084,11 @@ function AuthOptionsInner({
           />
         </Tab>
         <Tab label={AuthDisplay.ForgotPassword}>
-          <ForgotPasswordForm onBack={onBackToLogin} simplified={simplified} />
+          <ForgotPasswordForm
+            hasTopBarBack={!!onScreenBackChange}
+            onBack={onBackToLogin}
+            simplified={simplified}
+          />
         </Tab>
         <Tab label={AuthDisplay.CodeVerification}>
           <CodeVerificationForm

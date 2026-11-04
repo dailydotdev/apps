@@ -1,16 +1,13 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createStore, Provider } from 'jotai';
 import RegistrationForm from './RegistrationForm';
 import { AuthTriggers } from '../../lib/auth';
+import { authAtom } from '../../features/onboarding/store/onboarding.store';
 
 jest.mock('@marsidev/react-turnstile', () => ({
   Turnstile: () => <div data-testid="turnstile" />,
-}));
-
-jest.mock('./SignupDisclaimer', () => ({
-  __esModule: true,
-  default: () => <div data-testid="disclaimer" />,
 }));
 
 jest.mock('../../contexts/LogContext', () => ({
@@ -51,19 +48,24 @@ const renderForm = (props = {}) =>
   );
 
 describe('RegistrationForm', () => {
-  // The consent line lives with the button that creates the account, not on the
-  // funnel shell — that shell also serves sign-back, login and verify-email,
-  // where the account already exists and the notice would be wrong.
-  it('shows the signup disclaimer in the onboarding funnel', () => {
-    renderForm({ isOnboardingFunnel: true });
+  it('keeps its title while /onboarding is authenticating', () => {
+    const store = createStore();
+    store.set(authAtom, (prev) => ({ ...prev, isAuthenticating: true }));
+    render(
+      <Provider store={store}>
+        <QueryClientProvider client={new QueryClient()}>
+          <RegistrationForm
+            trigger={AuthTriggers.Onboarding}
+            simplified
+            isOnboardingFunnel
+          />
+        </QueryClientProvider>
+      </Provider>,
+    );
 
-    expect(screen.getByTestId('disclaimer')).toBeInTheDocument();
-  });
-
-  it('leaves the disclaimer to the caller everywhere else', () => {
-    renderForm();
-
-    expect(screen.queryByTestId('disclaimer')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Sign up' }),
+    ).toBeInTheDocument();
   });
 
   it('lets someone who meant to log in switch to login from the funnel', () => {

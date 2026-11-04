@@ -38,8 +38,6 @@ export interface LoginFormProps {
   isReady: boolean;
   autoFocus?: boolean;
   onSignup: () => void;
-  /** Called once the visitor starts using the email and password form. */
-  onEngage?: () => void;
 }
 
 export type LoginHintState = [
@@ -89,7 +87,6 @@ function LoginForm({
   isReady,
   autoFocus = true,
   onSignup,
-  onEngage: onEngageProp,
 }: LoginFormProps): ReactElement {
   const { logEvent } = useLogContext();
   const turnstileRef = useRef<TurnstileInstance>(null);
@@ -105,7 +102,6 @@ function LoginForm({
       return;
     }
     setHasEngaged(true);
-    onEngageProp?.();
   };
   const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_KEY ?? '';
@@ -150,7 +146,9 @@ function LoginForm({
     setFieldErrors(errors);
     const invalidField = Object.keys(errors)[0];
     if (invalidField) {
-      document.getElementById(invalidField)?.focus();
+      (
+        e.currentTarget.elements.namedItem(invalidField) as HTMLInputElement
+      ).focus();
       return;
     }
 
@@ -213,8 +211,8 @@ function LoginForm({
           return;
         }
 
-        const id = email ? 'password' : 'identifier';
-        const element = document.getElementById(id);
+        const name = email ? 'password' : 'identifier';
+        const element = form.elements.namedItem(name) as HTMLInputElement;
         if (shouldFocus && !!element) {
           element?.focus();
           setShouldFocus(false);
@@ -261,15 +259,6 @@ function LoginForm({
           }
         }}
       />
-      {onForgotPassword && (
-        <ClickableText
-          type="button"
-          className="btn-primary self-end underline"
-          onClick={() => onForgotPassword(innerEmail)}
-        >
-          Forgot password?
-        </ClickableText>
-      )}
       {turnstileSiteKey && (
         <Turnstile
           ref={turnstileRef}
@@ -345,6 +334,15 @@ function LoginForm({
         >
           {loginButton}
         </Button>
+      )}
+      {onForgotPassword && (
+        <ClickableText
+          type="button"
+          className={classNames('self-center', aboveFooter && 'mt-4')}
+          onClick={() => onForgotPassword(innerEmail)}
+        >
+          Forgot password?
+        </ClickableText>
       )}
     </AuthForm>
   );

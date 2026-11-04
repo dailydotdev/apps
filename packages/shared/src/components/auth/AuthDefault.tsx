@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { Dispatch, ReactElement, ReactNode, SetStateAction } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import type { AuthFormProps, Provider } from './common';
@@ -19,6 +19,8 @@ import { IconSize } from '../Icon';
 const AuthModalFooter = dynamic(
   () => import(/* webpackChunkName: "authModalFooter" */ './AuthModalFooter'),
 );
+
+export type EmailLoginState = [boolean, Dispatch<SetStateAction<boolean>>];
 
 interface AuthDefaultProps extends AuthFormProps {
   children?: ReactNode;
@@ -42,8 +44,8 @@ interface AuthDefaultProps extends AuthFormProps {
   isReady: boolean;
   loginButton?: string;
   onAuthOpenLogged?: () => void;
-  hideSignupDisclaimer?: boolean;
-  onLoginFormEngage?: () => void;
+  emailLogin?: EmailLoginState;
+  hasTopBarBack?: boolean;
 }
 
 const AuthDefault = ({
@@ -68,8 +70,8 @@ const AuthDefault = ({
   loginButton,
   simplified,
   onAuthOpenLogged,
-  hideSignupDisclaimer,
-  onLoginFormEngage,
+  emailLogin,
+  hasTopBarBack,
 }: AuthDefaultProps): ReactElement => {
   const { logEvent } = useLogContext();
   const [shouldLogin, setShouldLogin] = useState(isLoginFlow);
@@ -77,6 +79,8 @@ const AuthDefault = ({
   const [registerEmail, setRegisterEmail] = useState<string | null>(null);
   const fallbackLoginHint = useState<string | null>(null);
   const resolvedLoginHint = loginHint ?? fallbackLoginHint;
+  const fallbackEmailLogin = useState(false);
+  const [isEmailLogin, setIsEmailLogin] = emailLogin ?? fallbackEmailLogin;
   const socialLoginListRef = useRef<HTMLDivElement>(null);
 
   const focusFirstSocialLink = () => {
@@ -104,13 +108,20 @@ const AuthDefault = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldLogin]);
 
-  const onEmailSignup = () => {
+  const onEmailClick = () => {
     logEvent({
       event_name: 'click',
-      target_type: AuthEventNames.SignUpProvider,
+      target_type: shouldLogin
+        ? AuthEventNames.LoginProvider
+        : AuthEventNames.SignUpProvider,
       target_id: 'email',
       extra: JSON.stringify({ trigger }),
     });
+
+    if (shouldLogin) {
+      setIsEmailLogin(true);
+      return;
+    }
 
     onSignup?.('');
   };
@@ -120,6 +131,7 @@ const AuthDefault = ({
     if (!shouldLogin) {
       setRegisterEmail(null);
     }
+    setIsEmailLogin(false);
     setShouldLogin(!shouldLogin);
   };
 
@@ -131,12 +143,21 @@ const AuthDefault = ({
     onProviderClick?.(provider, shouldLogin);
   };
 
-  const getForm = () => {
-    if (disablePassword && disableRegistration) {
-      return null;
+  const hasEmailLoginScreen =
+    !!shouldLogin && !disableRegistration && !disablePassword;
+  const isEmailLoginScreen = hasEmailLoginScreen && isEmailLogin;
+  const showProviders = !isEmailLoginScreen;
+
+  const getHeaderBack = () => {
+    if (isEmailLoginScreen) {
+      return hasTopBarBack ? undefined : () => setIsEmailLogin(false);
     }
 
-    if (!disablePassword && (shouldLogin || disableRegistration)) {
+    return simplified ? undefined : onHeaderBack;
+  };
+
+  const getForm = () => {
+    if (isEmailLoginScreen || (disableRegistration && !disablePassword)) {
       return (
         <LoginForm
           isReady={isReady}
@@ -145,13 +166,14 @@ const AuthDefault = ({
           loginButton={loginButton}
           aboveFooter={!simplified && !disableRegistration}
           loginButtonVariant={
-            providers.length ? ButtonVariant.Secondary : ButtonVariant.Primary
+            showProviders && providers.length
+              ? ButtonVariant.Secondary
+              : ButtonVariant.Primary
           }
           loginHint={resolvedLoginHint}
           onPasswordLogin={onPasswordLogin}
           onForgotPassword={onForgotPassword}
-          onSignup={() => setShouldLogin(false)}
-          onEngage={onLoginFormEngage}
+          onSignup={toggleLogin}
         />
       );
     }
@@ -167,57 +189,54 @@ const AuthDefault = ({
       <AuthHeader
         simplified={simplified}
         title={title}
-        onBack={simplified ? undefined : onHeaderBack}
+        onBack={getHeaderBack()}
       />
-      {simplified && !shouldLogin && (
-        <p className="mt-3 whitespace-pre-line px-6 text-center text-text-secondary typo-body">
-          Once you sign up, your personal feed will be ready to explore.
-        </p>
-      )}
       <AuthContainer className={disableRegistration ? 'mb-6' : undefined}>
         {isSignup && !simplified && (
           <p className="mb-3 text-center font-bold typo-title2">
             Where developers discover what’s next.
           </p>
         )}
-        <div
-          aria-label="Social login buttons"
-          className="flex flex-col gap-4"
-          ref={socialLoginListRef}
-          role="list"
-        >
-          {providers.map(({ label, value, icon }, index) => (
-            <Button
-              aria-label={`Continue with ${label}`}
-              autoFocus={index === 0}
-              disabled={!isReady || isSocialAuthLoading}
-              icon={React.cloneElement(icon, { size: IconSize.Medium })}
-              key={label}
-              loading={!isReady || isSocialAuthLoading}
-              onClick={() => onSocialClick(value)}
-              size={ButtonSize.Large}
-              type="button"
-              variant={ButtonVariant.Primary}
-            >
-              Continue with {label}
-            </Button>
-          ))}
-          {isSignup && (
-            <Button
-              aria-label="Continue with email"
-              disabled={!isReady || isSocialAuthLoading}
-              icon={<MailIcon secondary size={IconSize.Medium} />}
-              onClick={onEmailSignup}
-              size={ButtonSize.Large}
-              type="button"
-              variant={ButtonVariant.Primary}
-            >
-              Continue with email
-            </Button>
-          )}
-        </div>
-        {isSignup && !hideSignupDisclaimer && <SignupDisclaimer />}
-        {form && providers.length > 0 && <OrDivider />}
+        {showProviders && (
+          <div
+            aria-label="Social login buttons"
+            className="flex flex-col gap-4"
+            ref={socialLoginListRef}
+            role="list"
+          >
+            {providers.map(({ label, value, icon }, index) => (
+              <Button
+                aria-label={`Continue with ${label}`}
+                autoFocus={index === 0}
+                disabled={!isReady || isSocialAuthLoading}
+                icon={React.cloneElement(icon, { size: IconSize.Medium })}
+                key={label}
+                loading={!isReady || isSocialAuthLoading}
+                onClick={() => onSocialClick(value)}
+                size={ButtonSize.Large}
+                type="button"
+                variant={ButtonVariant.Primary}
+              >
+                Continue with {label}
+              </Button>
+            ))}
+            {(isSignup || hasEmailLoginScreen) && (
+              <Button
+                aria-label="Continue with email"
+                disabled={!isReady || isSocialAuthLoading}
+                icon={<MailIcon secondary size={IconSize.Medium} />}
+                onClick={onEmailClick}
+                size={ButtonSize.Large}
+                type="button"
+                variant={ButtonVariant.Primary}
+              >
+                Continue with email
+              </Button>
+            )}
+          </div>
+        )}
+        {isSignup && <SignupDisclaimer />}
+        {form && showProviders && providers.length > 0 && <OrDivider />}
         {form}
       </AuthContainer>
       <div className="flex flex-1" />

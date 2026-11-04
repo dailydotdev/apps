@@ -43,10 +43,43 @@ describe('AuthDefault', () => {
     expect(onSignup).toHaveBeenCalledWith('');
   });
 
+  it('shows the legal line on Sign up only', async () => {
+    renderAuthDefault({ simplified: true });
+    expect(screen.getByText(/By continuing/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
+
+    expect(await screen.findByText('Continue with email')).toBeInTheDocument();
+    expect(screen.queryByText(/By continuing/)).not.toBeInTheDocument();
+  });
+
+  it('moves Log in by email to its own screen and back', async () => {
+    const { logEvent } = renderAuthDefault({ isLoginFlow: true });
+    expect(screen.queryByTestId('login_form')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('Continue with email'));
+
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: 'click',
+      target_type: AuthEventNames.LoginProvider,
+      target_id: 'email',
+      extra: JSON.stringify({ trigger: AuthTriggers.Upvote }),
+    });
+    expect(await screen.findByTestId('login_form')).toBeInTheDocument();
+    expect(screen.queryByText('Continue with Google')).not.toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Email' })).toHaveFocus();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Go back' }));
+
+    expect(await screen.findByText('Continue with Google')).toBeInTheDocument();
+    expect(screen.queryByTestId('login_form')).not.toBeInTheDocument();
+  });
+
   it('asks for the missing fields instead of submitting an empty log in', async () => {
     const onPasswordLogin = jest.fn();
     renderAuthDefault({ isLoginFlow: true, onPasswordLogin });
 
+    fireEvent.click(screen.getByText('Continue with email'));
     fireEvent.submit(screen.getByTestId('login_form'));
 
     expect(await screen.findByText('Enter your email')).toBeInTheDocument();
@@ -61,11 +94,14 @@ describe('AuthDefault', () => {
     ).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
-    expect(await screen.findByTestId('login_form')).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Log in' }),
+    ).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Go back' }));
 
-    expect(await screen.findByText('Continue with email')).toBeInTheDocument();
-    expect(screen.queryByTestId('login_form')).not.toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Sign up' }),
+    ).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Go back' }),
     ).not.toBeInTheDocument();

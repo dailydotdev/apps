@@ -1,5 +1,11 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import AuthOptions from './AuthOptions';
 import { AuthDisplay } from './common';
@@ -115,6 +121,38 @@ describe('AuthOptions forgot password', () => {
 
     expect(await screen.findByTestId('auth-default')).toBeInTheDocument();
     expect(screen.queryByText('Reset password')).not.toBeInTheDocument();
+  });
+});
+
+describe('AuthOptions screen back', () => {
+  it('hands Reset password back to a page with its own top bar', async () => {
+    const onScreenBackChange = jest.fn();
+    render(
+      <TestBootProvider client={new QueryClient()} auth={{ isLoggedIn: false }}>
+        <AuthOptions
+          simplified
+          formRef={{ current: document.createElement('form') }}
+          trigger={AuthTriggers.Onboarding}
+          defaultDisplay={AuthDisplay.Default}
+          onScreenBackChange={onScreenBackChange}
+        />
+      </TestBootProvider>,
+    );
+
+    fireEvent.click(await screen.findByText('Forgot password?'));
+
+    expect(await screen.findByText('Reset password')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Go back')).not.toBeInTheDocument();
+    await waitFor(() =>
+      expect(onScreenBackChange).toHaveBeenLastCalledWith(expect.any(Function)),
+    );
+
+    act(() => onScreenBackChange.mock.lastCall?.[0]());
+
+    expect(await screen.findByTestId('auth-default')).toBeInTheDocument();
+    await waitFor(() =>
+      expect(onScreenBackChange).toHaveBeenLastCalledWith(undefined),
+    );
   });
 });
 

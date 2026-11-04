@@ -30,7 +30,6 @@ import AuthHeader from './AuthHeader';
 import { AuthActionBar } from './AuthActionBar';
 import { useTurnstileTheme } from '../../hooks/auth/useTurnstileTheme';
 import { MemberAlready } from '../onboarding/MemberAlready';
-import SignupDisclaimer from './SignupDisclaimer';
 import { Checkbox } from '../fields/Checkbox';
 import { useLogContext } from '../../contexts/LogContext';
 import { useGenerateUsername, useCheckExistingEmail } from '../../hooks';
@@ -354,14 +353,12 @@ const RegistrationForm = ({
 
   return (
     <div className="flex flex-1 flex-col">
-      {!isAuthenticating && (
-        <AuthHeader
-          simplified={simplified}
-          onboardingHeadline={isOnboardingFunnel}
-          title={headerTitle}
-          onBack={simplified ? undefined : onBack}
-        />
-      )}
+      <AuthHeader
+        simplified={simplified}
+        onboardingHeadline={isOnboardingFunnel}
+        title={headerTitle}
+        onBack={simplified ? undefined : onBack}
+      />
       <div
         className={classNames(
           // `simplified` is set by `/onboarding`, where the outer page already
@@ -564,7 +561,7 @@ const RegistrationForm = ({
           <ConditionalWrapper
             condition={simplified ?? false}
             wrapper={(component) => (
-              <AuthContainer className="!mt-0 !px-0 pb-1 pt-3">
+              <AuthContainer className="!mt-0 !px-0 pb-1 pt-1">
                 {component}
               </AuthContainer>
             )}
@@ -639,15 +636,6 @@ const RegistrationForm = ({
                   Sign up
                 </Button>
               </ConditionalWrapper>
-            )}
-            {/* Consent belongs to the button that creates the account, so it
-                travels with this form instead of being docked on the funnel
-                shell — that shell also serves sign-back, login and
-                verify-email, where the account already exists. The funnel's
-                signup wall suppresses its own inline copy, which makes this the
-                notice shown before the account is created, at every width. */}
-            {isOnboardingFunnel && (
-              <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
             )}
             {isOnboardingFunnel && onExistingEmailLoginClick && (
               <MemberAlready
