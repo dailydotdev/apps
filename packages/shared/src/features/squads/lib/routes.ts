@@ -10,6 +10,7 @@ export enum SquadManageSection {
   Moderation = 'moderation',
   Posting = 'posting',
   Analytics = 'analytics',
+  Plan = 'plan',
   Integrations = 'integrations',
   DangerZone = 'danger-zone',
 }
@@ -43,6 +44,33 @@ export const getSquadManageUrl = (
   section
     ? `${getSquadUrl(handle)}/manage/${section}`
     : `${getSquadUrl(handle)}/manage`;
+
+// Hyphens are not allowed in squad handles, so this can never shadow a squad
+export const startupsCheckoutPath = '/squads/for-startups';
+
+export const getStartupsCheckoutUrl = ({
+  plan,
+  sourceId,
+}: {
+  plan?: string;
+  sourceId?: string;
+} = {}): string => {
+  const params = new URLSearchParams();
+
+  if (plan) {
+    params.set('plan', plan);
+  }
+
+  if (sourceId) {
+    params.set('squad', sourceId);
+  }
+
+  const query = params.toString();
+
+  return `${webappUrl}${startupsCheckoutPath.slice(1)}${
+    query ? `?${query}` : ''
+  }`;
+};
 
 export const getSquadProductFormUrl = (
   handle: string,

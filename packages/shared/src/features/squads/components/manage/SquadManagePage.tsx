@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { SquadModerationList } from '../../../../components/squads/moderation/SquadModerationList';
 import { SquadDangerZone } from '../../../../components/squads/settings/SquadDangerZone';
 import { useSquadPageContext } from '../../SquadPageContext';
-import { getSquadManageGroups } from '../../lib/manage';
+import { useSquadManageGroups } from '../../hooks/useSquadManageGroups';
 import { isJoinedViewer } from '../../lib/viewer';
 import {
   getSquadManageUrl,
@@ -28,6 +28,7 @@ import {
 } from './SquadManageProducts';
 import { SquadManageAnalytics } from './SquadManageAnalytics';
 import { SquadManageIntegrations } from './SquadManageIntegrations';
+import { SquadManagePlan } from './SquadManagePlan';
 
 const SectionContent = ({
   section,
@@ -63,6 +64,8 @@ const SectionContent = ({
       return <SquadManageAnalytics />;
     case SquadManageSection.Integrations:
       return <SquadManageIntegrations />;
+    case SquadManageSection.Plan:
+      return <SquadManagePlan />;
     case SquadManageSection.DangerZone:
       return (
         <SquadManageSectionPanel section={section}>
@@ -88,13 +91,13 @@ export const SquadManagePage = ({
 }: SquadManagePageProps): ReactElement | null => {
   const router = useRouter();
   const { squad, viewer, isViewerReady } = useSquadPageContext();
-  const sections = getSquadManageGroups(squad, viewer).flatMap(({ items }) =>
-    items.map(({ id }) => id),
-  );
+  const { groups, isLoading: isGroupsLoading } = useSquadManageGroups();
+  const sections = groups.flatMap(({ items }) => items.map(({ id }) => id));
+  const isReady = isViewerReady && !isGroupsLoading;
   const isAllowed = !section || sections.includes(section);
 
   useEffect(() => {
-    if (!isViewerReady) {
+    if (!isReady) {
       return;
     }
 
@@ -113,17 +116,9 @@ export const SquadManagePage = ({
     if (!isAllowed) {
       router.replace(getSquadManageUrl(squad.handle));
     }
-  }, [
-    isAllowed,
-    isViewerReady,
-    router,
-    section,
-    sections.length,
-    squad,
-    viewer,
-  ]);
+  }, [isAllowed, isReady, router, section, sections.length, squad, viewer]);
 
-  if (!isViewerReady || !sections.length || !isAllowed) {
+  if (!isReady || !sections.length || !isAllowed) {
     return null;
   }
 

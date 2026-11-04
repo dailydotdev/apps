@@ -771,6 +771,7 @@ export enum TargetType {
   CvBanner = 'cv banner',
   Post = 'post',
   Recruiter = 'recruiter',
+  Startups = 'startups',
   ProfileCompletionCard = 'profile completion card',
   OpportunityInterestButton = 'opportunity interest button',
   AchievementTracker = 'achievement tracker',
@@ -945,4 +946,5 @@ export const purchaseTypeToTargetType: Record<PurchaseType, TargetType> = {
   plus: TargetType.Plus,
   organization: TargetType.Plus,
   recruiter: TargetType.Recruiter,
+  startups: TargetType.Startups,
 };
