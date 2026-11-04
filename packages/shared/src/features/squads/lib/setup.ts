@@ -67,8 +67,8 @@ export const agentClients = Object.values(AgentClient);
 
 /**
  * The prompt that has an agent set up the page through the daily.dev MCP
- * server. It lists only what the API can do: logos and the weekly brief stay
- * in the app.
+ * server. It lists only what the API can do: the weekly brief stays in the
+ * app.
  */
 export const getStartupsSetupPrompt = ({
   name,
@@ -80,9 +80,10 @@ export const getStartupsSetupPrompt = ({
   plan: SquadPlan;
 }): string => {
   const steps = [
-    `Read the squad "${handle}" and check its features and my role.`,
+    `Find @${handle} in my squads and check its features and my role.`,
     "Learn what we build from this project (README, docs, package metadata, our website). Ask me for anything you can't find.",
     'Write the page description: one or two sentences on what we build and for which developers.',
+    'Set our logo, and a cover image if we have one, from image URLs on our site or ones I give you.',
     `Set our website and up to ${SQUAD_LINKS_MAX} links developers look for: docs, GitHub, changelog, community.`,
     'Add our product with its name, tagline, URL and pricing.',
   ];
@@ -92,15 +93,19 @@ export const getStartupsSetupPrompt = ({
       'Add the header CTA: a short label and the URL developers should land on, such as sign up or docs.',
       `List the admins and moderators and ask me who gets the ${
         SQUAD_PLAN_SEATS[plan] - 1
-      } remaining seats.`,
+      } remaining seats. For a teammate who isn't on the page yet, give me the invite link to send them.`,
     );
   }
+
+  steps.push(
+    'Offer to publish a first post: our latest launch, release or blog post as a link with a line of commentary.',
+  );
 
   return [
     `Set up ${name}'s company page on daily.dev (@${handle}, ${squadPlanDetails[plan].title} plan) with the daily.dev MCP server. If its tools aren't connected, stop and tell me to add ${DAILY_MCP_URL}.`,
     '',
     ...steps.map((step, index) => `${index + 1}. ${step}`),
     '',
-    'Before each change, show me exactly what you will save and wait for my OK. The logo can only be changed in the daily.dev app, so remind me if the page still has the default one. Finish with a short summary of what is set and what is left.',
+    'Before each change, show me exactly what you will save and wait for my OK. Finish with a short summary of what is set and what is left.',
   ].join('\n');
 };

@@ -253,6 +253,24 @@ const AccountStep = ({ plan }: { plan: SquadPlan }): ReactElement => {
           description={`Then name your company and start on ${squadPlanDetails[plan].title}.`}
         />
       )}
+      {display === AuthDisplay.Registration && (
+        <Button
+          type="button"
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
+          className="self-start"
+          icon={<ArrowIcon className="-rotate-90" />}
+          onClick={() =>
+            setAuthState((prev) => ({
+              ...prev,
+              isAuthenticating: false,
+              defaultDisplay: AuthDisplay.OnboardingSignup,
+            }))
+          }
+        >
+          Other options
+        </Button>
+      )}
       <AuthOptions
         formRef={null as unknown as MutableRefObject<HTMLFormElement>}
         trigger={AuthTriggers.StartupsCheckout}

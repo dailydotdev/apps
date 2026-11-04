@@ -421,7 +421,7 @@ export const StartupsSetup = ({
       >
         {path === StartupsSetupPath.Agent
           ? 'Prefer clicking? Everything here is in your page settings too.'
-          : 'Your agent can do all of this but the logo, through the daily.dev MCP server.'}
+          : 'Your agent can do all of this through the daily.dev MCP server.'}
       </Typography>
     </section>
   );
