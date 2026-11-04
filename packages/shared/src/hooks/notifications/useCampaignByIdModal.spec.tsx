@@ -89,7 +89,7 @@ it('should open the post boost modal when boosting an ended post again', async (
 
   fireEvent.click(await screen.findByRole('button', { name: 'Boost again' }));
 
-  expect(await screen.findByText('Boost your post')).toBeInTheDocument();
+  expect(await screen.findByText('Boost post')).toBeInTheDocument();
   expect(replace).toHaveBeenCalledWith('/notifications');
 });
 
@@ -101,6 +101,6 @@ it('should open the squad boost modal when boosting an ended squad again', async
 
   fireEvent.click(await screen.findByRole('button', { name: 'Boost again' }));
 
-  expect(await screen.findByText('Boost your Squad')).toBeInTheDocument();
+  expect(await screen.findByText('Boost Squad')).toBeInTheDocument();
   expect(replace).toHaveBeenCalledWith('/notifications');
 });
