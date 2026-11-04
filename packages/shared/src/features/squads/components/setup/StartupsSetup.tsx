@@ -51,7 +51,7 @@ export enum StartupsSetupPath {
 }
 
 const pathLabel: Record<StartupsSetupPath, string> = {
-  [StartupsSetupPath.Agent]: 'Let your agent do it',
+  [StartupsSetupPath.Agent]: 'Use your agent',
   [StartupsSetupPath.Manual]: 'Do it yourself',
 };
 
@@ -396,7 +396,7 @@ export const StartupsSetup = ({
             aria-selected={option === path}
             onClick={() => selectPath(option)}
             className={classNames(
-              'flex items-center justify-center gap-2 rounded-10 px-3 py-2 typo-callout',
+              'flex items-center justify-center gap-2 whitespace-nowrap rounded-10 px-3 py-2 typo-callout',
               option === path
                 ? 'bg-background-default font-bold text-text-primary'
                 : 'text-text-tertiary hover:text-text-secondary',

@@ -351,7 +351,7 @@ const ActivePlan = ({
       <div className="flex flex-col gap-3">
         <SectionTitle
           title="Set up your plan"
-          description="Hand it to your agent, or do it yourself."
+          description="With your agent, or yourself."
         />
         <StartupsSetup
           squad={squad}

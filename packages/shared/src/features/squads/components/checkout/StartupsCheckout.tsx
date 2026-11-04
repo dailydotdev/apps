@@ -9,11 +9,8 @@ import {
   ButtonVariant,
 } from '../../../../components/buttons/Button';
 import { TextField } from '../../../../components/fields/TextField';
-import Textarea from '../../../../components/fields/Textarea';
-import { Dropdown } from '../../../../components/fields/Dropdown';
 import {
   ArrowIcon,
-  AtIcon,
   OpenLinkIcon,
   PlusIcon,
   SquadIcon,
@@ -29,18 +26,16 @@ import {
 import { HorizontalSeparator } from '../../../../components/utilities/common';
 import { SquadImage } from '../../../../components/squads/SquadImage';
 import { useAuthContext } from '../../../../contexts/AuthContext';
-import { useSquadCategories } from '../../../../hooks/squads/useSquadCategories';
 import { useSquadCreate } from '../../../../hooks/squads/useSquadCreate';
 import { useSquad } from '../../../../hooks/squads/useSquad';
 import { usePaddlePayment } from '../../../../hooks/usePaddlePayment';
 import type { Squad } from '../../../../graphql/sources';
 import { SourceMemberRole } from '../../../../graphql/sources';
 import { PrivacyOption } from '../../../../graphql/squads';
+import { findFreeSquadHandle } from '../../lib/handle';
 import { PurchaseType } from '../../../../graphql/paddle';
 import { squadSubscriptionQueryOptions } from '../../../../graphql/squadSubscription';
-import { cloudinarySquadsImageFallback } from '../../../../lib/image';
 import { webappUrl } from '../../../../lib/constants';
-import { formToJson } from '../../../../lib/form';
 import { RequestKey } from '../../../../lib/query';
 import { LogEvent, Origin } from '../../../../lib/log';
 import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
@@ -56,7 +51,6 @@ import {
 } from '../../lib/plans';
 import { useSquadPlanPrices } from '../../hooks/useSquadPlanPrices';
 import { useLogStartups } from '../../hooks/useLogStartups';
-import { SquadUploadButton } from '../manage/SquadUploadButton';
 import { StartupsSetup } from '../setup/StartupsSetup';
 import {
   SquadPlanCard,
@@ -157,53 +151,37 @@ const StepTitle = ({
 
 const companyFormId = 'startups-company';
 
-type CompanyFields = {
-  name: string;
-  handle: string;
-  description: string;
-};
-
 const CompanyForm = ({
   onCreated,
 }: {
   onCreated: (squad: Squad) => void;
 }): ReactElement => {
-  const [image, setImage] = useState<{ preview: string; file: File }>();
-  const [handle, setHandle] = useState('');
-  const [isHandleTouched, setHandleTouched] = useState(false);
-  const [category, setCategory] = useState(-1);
-  const [categoryHint, setCategoryHint] = useState<string>();
-  const { data: categoryPages } = useSquadCategories();
-  const categories = useMemo(
-    () =>
-      categoryPages?.pages
-        .flatMap((page) => page.categories.edges)
-        .map(({ node }) => node) ?? [],
-    [categoryPages],
-  );
+  const [name, setName] = useState('');
+  const [isFindingHandle, setFindingHandle] = useState(false);
   const { onCreateSquad, isLoading } = useSquadCreate({ onSuccess: onCreated });
+  const isBusy = isFindingHandle || isLoading;
 
-  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+  // Only the name is asked: the logo, description and the rest are set up
+  // after payment, by hand or by the buyer's agent.
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const fields = formToJson<CompanyFields>(event.currentTarget);
+    const companyName = name.trim();
 
-    if (!fields.name?.trim() || !fields.handle?.trim()) {
+    if (!companyName || isBusy) {
       return;
     }
 
-    if (category === -1) {
-      setCategoryHint('Pick the category developers would look under');
-      return;
-    }
+    setFindingHandle(true);
+    const handle = await findFreeSquadHandle(companyName).finally(() =>
+      setFindingHandle(false),
+    );
 
     // A company page is public, and only its team posts to it
     onCreateSquad({
-      name: fields.name.trim(),
-      handle: fields.handle.trim(),
-      description: fields.description?.trim(),
-      file: image?.file,
+      name: companyName,
+      handle,
+      description: '',
       status: PrivacyOption.Public,
-      categoryId: categories[category].id,
       memberPostingRole: SourceMemberRole.Moderator,
       memberInviteRole: SourceMemberRole.Member,
       moderationRequired: false,
@@ -216,90 +194,20 @@ const CompanyForm = ({
       onSubmit={onSubmit}
       className="flex flex-col gap-4"
     >
-      <div className="flex items-center gap-4">
-        <div className="relative size-20 shrink-0">
-          <img
-            src={image?.preview ?? cloudinarySquadsImageFallback}
-            alt="Company logo"
-            className="size-full rounded-full bg-background-default object-cover"
-          />
-          <SquadUploadButton
-            label="logo"
-            onFile={(preview, file) => setImage({ preview, file })}
-            className="absolute inset-0 items-center justify-center"
-          />
-        </div>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          Your logo, square, up to 2 MB. It shows on your page, your posts and
-          in search.
-        </Typography>
-      </div>
       <TextField
         inputId="startups-company-name"
         name="name"
         label="Company name"
         leftIcon={<SquadIcon />}
         className={{ container: 'w-full' }}
-        valueChanged={(value) => {
-          if (!isHandleTouched) {
-            setHandle(value.toLowerCase().replace(/[^a-z0-9_]/g, ''));
-          }
-        }}
+        valueChanged={setName}
+        hint="You can add your logo, description and links after you pay."
       />
-      <TextField
-        inputId="startups-company-handle"
-        name="handle"
-        label="Page handle"
-        leftIcon={<AtIcon />}
-        value={handle}
-        valueChanged={(value) => {
-          setHandle(value);
-          setHandleTouched(true);
-        }}
-        hint={handle ? `daily.dev/squads/${handle}` : undefined}
-        className={{ container: 'w-full' }}
-      />
-      <Textarea
-        inputId="startups-company-description"
-        name="description"
-        label="What does your product do?"
-        rows={3}
-        maxLength={250}
-      />
-      <div className="flex flex-col gap-2">
-        <Typography type={TypographyType.Callout} bold>
-          Category
-        </Typography>
-        <Dropdown
-          placeholder="Select category"
-          className={{
-            container: 'w-full tablet:w-64',
-            button: categoryHint && 'border border-status-error',
-          }}
-          options={categories.map(({ title }) => title)}
-          selectedIndex={category}
-          onChange={(_, index) => {
-            setCategory(index);
-            setCategoryHint(undefined);
-          }}
-        />
-        {categoryHint && (
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.StatusError}
-          >
-            {categoryHint}
-          </Typography>
-        )}
-      </div>
       <Button
         type="submit"
         variant={ButtonVariant.Primary}
-        loading={isLoading}
-        disabled={isLoading}
+        loading={isBusy}
+        disabled={isBusy || !name.trim()}
         className="self-start"
       >
         Create and continue
@@ -684,7 +592,7 @@ const DoneStep = ({
     <div className="flex flex-col gap-6">
       <StepTitle
         title={`${company.name} is on ${squadPlanDetails[plan].title}`}
-        description="Your company page is live. Here is what you just got: hand the setup to your agent, or do it yourself."
+        description="Your page is live. Set it up with your agent, or yourself."
       />
       {squad && (
         <StartupsSetup
