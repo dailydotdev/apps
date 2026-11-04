@@ -39,6 +39,16 @@ function ForgotPasswordForm({
       event_name: AuthEventNames.SubmitForgotPassword,
     });
     const { email } = formToJson<{ email: string }>(e.currentTarget);
+    const emailInput = e.currentTarget.elements.namedItem(
+      'email',
+    ) as HTMLInputElement;
+
+    if (!email) {
+      setHint('Enter your email');
+      emailInput.focus();
+      return;
+    }
+
     setEmail(email);
 
     setIsLoading(true);
