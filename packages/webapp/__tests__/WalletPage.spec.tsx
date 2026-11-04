@@ -207,22 +207,20 @@ describe('wallet transaction history', () => {
     expect(within(links[1]).getByText(recipient.name)).toBeInTheDocument();
   });
 
-  it('links a boost row to the system profile', async () => {
+  it('shows a boost row as a boost, not as the system profile', async () => {
     const rows = await getWalletRows();
-    const links = getRowLinks(rows[2]);
 
-    links.forEach((link) =>
-      expect(link).toHaveAttribute('href', system.permalink),
-    );
-    expect(within(links[1]).getByText(system.name)).toBeInTheDocument();
+    expect(within(rows[2]).queryAllByRole('link')).toHaveLength(0);
+    expect(within(rows[2]).getByText('Boost')).toBeInTheDocument();
+    expect(within(rows[2]).queryByText(system.name)).not.toBeInTheDocument();
   });
 
-  it('links a purchase row to your own profile', async () => {
+  it('shows a purchase row as a purchase, not as your own profile', async () => {
     const rows = await getWalletRows();
-    const links = getRowLinks(rows[3]);
 
-    links.forEach((link) => expect(link).toHaveAttribute('href', me.permalink));
-    expect(within(links[1]).getByText(me.name)).toBeInTheDocument();
+    expect(within(rows[3]).queryAllByRole('link')).toHaveLength(0);
+    expect(within(rows[3]).getByText('Bought Cores')).toBeInTheDocument();
+    expect(within(rows[3]).queryByText(me.name)).not.toBeInTheDocument();
   });
 
   it('keeps amounts, labels and dates outside of the profile link', async () => {
@@ -233,7 +231,6 @@ describe('wallet transaction history', () => {
     expect(within(rows[0]).getByText('Web Squad')).toBeInTheDocument();
     expect(within(rows[1]).getByText('-20')).toBeInTheDocument();
     expect(within(rows[2]).getByText('Post boost refund')).toBeInTheDocument();
-    expect(within(rows[3]).getByText('Purchased')).toBeInTheDocument();
     expect(within(rows[4]).getByText('Free')).toBeInTheDocument();
 
     rows.forEach((row) => {
@@ -241,11 +238,13 @@ describe('wallet transaction history', () => {
         within(row).getByText(/Mar 05, 2024 \d{2}:\d{2}/),
       ).toBeInTheDocument();
 
-      getRowLinks(row).forEach((link) => {
-        expect(
-          within(link).queryByText(/Mar 05, 2024/),
-        ).not.toBeInTheDocument();
-      });
+      within(row)
+        .queryAllByRole('link')
+        .forEach((link) => {
+          expect(
+            within(link).queryByText(/Mar 05, 2024/),
+          ).not.toBeInTheDocument();
+        });
     });
   });
 });

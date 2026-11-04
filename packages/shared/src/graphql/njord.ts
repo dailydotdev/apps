@@ -235,7 +235,7 @@ export const coresPricesQueryOptions = ({
   };
 };
 
-type UserTransactionSummary = {
+export type UserTransactionSummary = {
   purchased: number;
   received: number;
   spent: number;

@@ -3,7 +3,8 @@ import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useBuyCoresContext } from '../../contexts/BuyCoresContext/types';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { Loader } from '../Loader';
+import { ElementPlaceholder } from '../ElementPlaceholder';
 import {
   Typography,
   TypographyColor,
@@ -58,72 +59,67 @@ export const CoreOptionButton = ({
       openCheckout?.({ priceId: id });
     }
   }, [logEvent, origin, id, setSelectedProduct, cores, isMobile, openCheckout]);
+  const isSelected = selectedProduct?.id === id;
+
   return (
-    <Button
+    <button
+      type="button"
+      role="radio"
+      aria-checked={isSelected}
+      onClick={onSelect}
+      disabled={isDisabled || (isIOSNative() ? false : !paddle)}
       className={classNames(
-        'w-full',
-        selectedProduct?.id === id
+        'relative flex min-w-0 flex-col gap-1 rounded-14 border p-3 text-left transition-colors disabled:cursor-not-allowed',
+        isSelected
           ? 'border-action-cores-default bg-action-cores-float'
-          : undefined,
-        isNotEnough && selectedProduct?.id !== id && 'opacity-64',
+          : 'border-border-subtlest-tertiary bg-surface-float hover:border-border-subtlest-secondary',
+        isNotEnough && !isSelected && 'opacity-64',
       )}
-      variant={ButtonVariant.Float}
-      icon={
+    >
+      <span className="flex items-center gap-2">
         <Image
-          className="mr-2 size-8"
+          className="size-6 shrink-0"
           src={getCoreCurrencyImage(cores)}
           fallbackSrc={coreImage}
         />
-      }
-      size={ButtonSize.Large}
-      aria-checked={selectedProduct?.id === id}
-      role="radio"
-      onClick={onSelect}
-      disabled={isDisabled || (isIOSNative() ? false : !paddle)}
-      loading={isLoading}
-    >
-      <Typography
-        type={TypographyType.Body}
-        color={TypographyColor.Primary}
-        bold
-      >
-        {label}
-      </Typography>
-      {isRecommended && (
         <Typography
           tag={TypographyTag.Span}
-          type={TypographyType.Caption2}
-          className="ml-2 rounded-6 bg-action-cores-float px-1.5 py-0.5 text-action-cores-default"
+          type={TypographyType.Body}
+          color={TypographyColor.Primary}
+          className="truncate tabular-nums"
           bold
         >
-          Recommended
+          {label}
         </Typography>
+      </span>
+      <span className="flex items-center justify-between gap-2">
+        <Typography
+          tag={TypographyTag.Span}
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          {priceFormatted}
+        </Typography>
+        {isRecommended && (
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Caption2}
+            className="rounded-6 bg-action-cores-float px-1.5 py-0.5 text-action-cores-default"
+            bold
+          >
+            Recommended
+          </Typography>
+        )}
+      </span>
+      {isLoading && (
+        <span className="absolute inset-0 flex items-center justify-center rounded-14 bg-background-default/[0.8]">
+          <Loader />
+        </span>
       )}
-      <div className="flex-1" />
-      <Typography
-        type={TypographyType.Callout}
-        color={TypographyColor.Tertiary}
-        className="font-normal"
-      >
-        {priceFormatted}
-      </Typography>
-    </Button>
+    </button>
   );
 };
 
-export const CoreOptionButtonPlaceholder = (): ReactElement => {
-  return (
-    <Button
-      className="w-full"
-      variant={ButtonVariant.Float}
-      size={ButtonSize.Large}
-      disabled
-    >
-      <Typography
-        type={TypographyType.Body}
-        color={TypographyColor.Primary}
-        bold
-      />
-    </Button>
-  );
-};
+export const CoreOptionButtonPlaceholder = (): ReactElement => (
+  <ElementPlaceholder className="h-[4.25rem] rounded-14" />
+);

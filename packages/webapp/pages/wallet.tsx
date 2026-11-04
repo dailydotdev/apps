@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect } from 'react';
 import type { NextSeoProps } from 'next-seo';
-import type { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
 import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';
 import {
   Button,
@@ -10,6 +9,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   Typography,
+  TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
@@ -21,22 +21,20 @@ import {
 import {
   CoreIcon,
   CreditCardIcon,
+  DevPlusIcon,
   DocsIcon,
-  FeedbackIcon,
-  InfoIcon,
-  MinusIcon,
-  PlusIcon,
+  ShieldIcon,
 } from '@dailydotdev/shared/src/components/icons';
+import { BoostIcon } from '@dailydotdev/shared/src/components/icons/Boost';
 import { ListCardDivider } from '@dailydotdev/shared/src/components/cards/common/Card';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
-import classNames from 'classnames';
-import classed from '@dailydotdev/shared/src/lib/classed';
 
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { formatCoresCurrency } from '@dailydotdev/shared/src/lib/utils';
+import type { TransactionItemType } from '@dailydotdev/shared/src/lib/transaction';
 import {
   getTransactionType,
   getTransactionLabel,
@@ -49,20 +47,27 @@ import {
   RequestKey,
   StaleTime,
 } from '@dailydotdev/shared/src/lib/query';
+import type {
+  UserTransaction,
+  UserTransactionSummary,
+} from '@dailydotdev/shared/src/graphql/njord';
 import {
   getTransactions,
   getTransactionSummary,
+  UserTransactionStatus,
+  UserTransactionType,
 } from '@dailydotdev/shared/src/graphql/njord';
 import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import type { LogStartBuyingCreditsProps } from '@dailydotdev/shared/src/types';
 import { FeaturedCoresWidget } from '@dailydotdev/shared/src/components/cores/FeaturedCoresWidget';
 import { PlusCoresGivebackWidget } from '@dailydotdev/shared/src/components/cores/PlusCoresGivebackWidget';
+import type { TransactionItemProps } from '@dailydotdev/shared/src/components/cores/TransactionItem';
 import { TransactionItem } from '@dailydotdev/shared/src/components/cores/TransactionItem';
+import { SquadWallets } from '@dailydotdev/shared/src/components/cores/SquadWallets';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import {
   BodyTextPlaceholder,
   TextPlaceholder,
-  TitleTextPlaceholder,
   WidgetContainer,
 } from '@dailydotdev/shared/src/components/widgets/common';
 import { useRouter } from 'next/router';
@@ -72,7 +77,6 @@ import {
 } from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
-import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
@@ -80,56 +84,111 @@ import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
 import { getPageSeoTitles } from '../components/layouts/utils';
 
-type BalanceBlockProps = {
-  Icon: ReactElement;
-  title: string;
-  description: string;
-  balance: number;
-  isLoading?: boolean;
-} & WithClassNameProps;
-const BalanceBlock = ({
-  Icon,
-  balance,
-  title,
-  description,
-  className,
+const BalanceStat = ({
+  label,
+  value,
   isLoading,
-}: BalanceBlockProps): ReactElement => {
-  return (
-    <div
-      className={classNames(
-        'flex flex-1 flex-col rounded-14 border border-border-subtlest-tertiary p-4',
-        className,
-      )}
-    >
-      {Icon}
-      <Tooltip content={description}>
-        <div className="mt-4 flex gap-1">
-          <Typography type={TypographyType.Callout}>{title}</Typography>
-          <InfoIcon />
-        </div>
-      </Tooltip>
-      {isLoading ? (
-        <span className="flex h-[1.875rem] items-center">
-          <TitleTextPlaceholder className="w-16" />
-        </span>
-      ) : (
-        <Typography type={TypographyType.Title2} bold>
-          {formatCoresCurrency(balance)}
-        </Typography>
-      )}
+}: {
+  label: string;
+  value: number;
+  isLoading: boolean;
+}): ReactElement => (
+  <div className="flex flex-col">
+    <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
+      {label}
+    </Typography>
+    {isLoading ? (
+      <span className="flex h-6 items-center">
+        <TextPlaceholder className="w-10" />
+      </span>
+    ) : (
+      <Typography type={TypographyType.Callout} className="tabular-nums" bold>
+        {formatCoresCurrency(value)}
+      </Typography>
+    )}
+  </div>
+);
+
+const BalanceCard = ({
+  balance,
+  summary,
+  isLoading,
+}: {
+  balance: number;
+  summary?: UserTransactionSummary;
+  isLoading: boolean;
+}): ReactElement => (
+  <section className="flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-4 tablet:p-6">
+    <div className="flex flex-col gap-1">
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Tertiary}
+        bold
+      >
+        Balance
+      </Typography>
+      <Typography
+        type={TypographyType.LargeTitle}
+        className="flex items-center gap-2 tabular-nums"
+        bold
+      >
+        <CoreIcon size={IconSize.Large} />
+        {formatCoresCurrency(balance)}
+      </Typography>
     </div>
-  );
+    <div className="flex gap-6 border-t border-border-subtlest-tertiary pt-4">
+      <BalanceStat
+        label="Purchased"
+        value={summary?.purchased ?? 0}
+        isLoading={isLoading}
+      />
+      <BalanceStat
+        label="Received"
+        value={summary?.received ?? 0}
+        isLoading={isLoading}
+      />
+      <BalanceStat
+        label="Spent"
+        value={summary?.spent ?? 0}
+        isLoading={isLoading}
+      />
+    </div>
+  </section>
+);
+
+const getTransactionVisual = (
+  transaction: UserTransaction,
+  type: TransactionItemType,
+): Pick<TransactionItemProps, 'icon' | 'title'> => {
+  if (type === 'purchase') {
+    return { icon: <CreditCardIcon />, title: 'Bought Cores' };
+  }
+
+  if (transaction.referenceType === UserTransactionType.PostBoost) {
+    return { icon: <BoostIcon />, title: 'Boost' };
+  }
+
+  if (transaction.referenceType === UserTransactionType.PlusCoresGiveback) {
+    return { icon: <DevPlusIcon />, title: 'Plus giveback' };
+  }
+
+  return {};
 };
 
-const Divider = classed('div', 'h-px w-full bg-border-subtlest-tertiary');
+// A finished purchase needs no "Purchased" label under "Bought Cores"
+const isSettledPurchase = (
+  transaction: UserTransaction,
+  type: TransactionItemType,
+): boolean =>
+  type === 'purchase' &&
+  transaction.status === UserTransactionStatus.Success &&
+  !transaction.flags.error;
 
 const TransactionHistoryPlaceholder = (): ReactElement => (
   <div className="flex flex-col gap-4" aria-busy>
     {[0, 1, 2, 3, 4].map((placeholder) => (
-      <div key={placeholder} className="flex h-[2.625rem] items-center gap-2">
-        <ElementPlaceholder className="size-4 shrink-0 rounded-10" />
-        <ElementPlaceholder className="size-8 shrink-0 rounded-12" />
+      <div key={placeholder} className="flex h-10 items-center gap-3">
+        <ElementPlaceholder className="size-10 shrink-0 rounded-12" />
         <div className="flex flex-1 flex-col gap-0.5">
           <BodyTextPlaceholder className="w-2/5" />
           <TextPlaceholder className="w-3/5" />
@@ -142,15 +201,7 @@ const TransactionHistoryPlaceholder = (): ReactElement => (
 
 const WalletPagePlaceholder = (): ReactElement => (
   <div aria-busy className="flex flex-col gap-6 p-4 tablet:p-6">
-    <section className="flex w-full flex-wrap gap-4">
-      {[0, 1, 2, 3].map((placeholder) => (
-        <ElementPlaceholder
-          key={placeholder}
-          className="h-[7.75rem] flex-1 basis-[calc(50%-0.5rem)] rounded-14 tablet:basis-0"
-        />
-      ))}
-    </section>
-    <Divider />
+    <ElementPlaceholder className="h-44 rounded-16" />
     <section className="flex w-full flex-col gap-6">
       <Typography type={TypographyType.Body} bold>
         Transaction history
@@ -303,50 +354,14 @@ const Wallet = (): ReactElement | null => {
           )}
           {desktopHeader}
           <div className="flex flex-col gap-6 p-4 tablet:p-6">
-            <section className="flex w-full flex-wrap gap-4">
-              <BalanceBlock
-                Icon={<CoreIcon size={IconSize.Small} />}
-                title="Balance"
-                description="Your current balance"
-                balance={user.balance.amount}
-              />
-              <BalanceBlock
-                Icon={
-                  <div className="size-6 rounded-10 bg-action-bookmark-float text-accent-bun-default">
-                    <CreditCardIcon size={IconSize.Small} />
-                  </div>
-                }
-                title="Purchased"
-                description="Amount of cores you have purchased"
-                balance={transactionSummary?.purchased || 0}
-                isLoading={isPendingSummary}
-              />
-              <BalanceBlock
-                Icon={
-                  <div className="size-6 rounded-10 bg-action-upvote-float text-accent-avocado-default">
-                    <PlusIcon size={IconSize.Small} />
-                  </div>
-                }
-                title="Received"
-                description="Amount of cores you have received"
-                balance={transactionSummary?.received || 0}
-                isLoading={isPendingSummary}
-              />
-              <BalanceBlock
-                Icon={
-                  <div className="size-6 rounded-10 bg-action-downvote-float text-accent-ketchup-default">
-                    <MinusIcon size={IconSize.Small} />
-                  </div>
-                }
-                title="Spent"
-                description="Amount of cores you have spent"
-                balance={transactionSummary?.spent || 0}
-                isLoading={isPendingSummary}
-              />
-            </section>
+            <BalanceCard
+              balance={user.balance.amount}
+              summary={transactionSummary}
+              isLoading={isPendingSummary}
+            />
             <PlusCoresGivebackWidget className="laptop:hidden" />
-            <Divider />
-            <section className="flex w-full flex-col gap-6">
+            <SquadWallets />
+            <section className="flex w-full flex-col gap-4">
               <Typography type={TypographyType.Body} bold>
                 Transaction history
               </Typography>
@@ -354,8 +369,11 @@ const Wallet = (): ReactElement | null => {
               {!isPendingTransactions && (
                 <>
                   {!hasTransactions && (
-                    <Typography type={TypographyType.Callout}>
-                      You have no transactions yet.
+                    <Typography
+                      type={TypographyType.Callout}
+                      color={TypographyColor.Tertiary}
+                    >
+                      Cores you buy, receive or spend show up here.
                     </Typography>
                   )}
                   {hasTransactions && (
@@ -381,7 +399,7 @@ const Wallet = (): ReactElement | null => {
                             return (
                               <TransactionItem
                                 key={transaction.id}
-                                type={type}
+                                {...getTransactionVisual(transaction, type)}
                                 user={transactionUser}
                                 profileUser={transactionUser}
                                 amount={
@@ -390,10 +408,14 @@ const Wallet = (): ReactElement | null => {
                                     : transaction.valueIncFees
                                 }
                                 date={new Date(transaction.createdAt)}
-                                label={getTransactionLabel({
-                                  transaction,
-                                  user,
-                                })}
+                                label={
+                                  isSettledPurchase(transaction, type)
+                                    ? undefined
+                                    : getTransactionLabel({
+                                        transaction,
+                                        user,
+                                      })
+                                }
                                 extraLabel={
                                   transaction?.sourceName
                                     ? `${transaction.sourceName} Squad`
@@ -429,7 +451,7 @@ const Wallet = (): ReactElement | null => {
                 target="_blank"
                 rel="noopener"
                 href={coresDocsLink}
-                icon={<FeedbackIcon />}
+                icon={<DocsIcon />}
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.Small}
               >
@@ -441,7 +463,7 @@ const Wallet = (): ReactElement | null => {
                 target="_blank"
                 rel="noopener"
                 href={creatorsTermsOfService}
-                icon={<DocsIcon />}
+                icon={<ShieldIcon />}
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.Small}
               >

@@ -61,20 +61,6 @@ describe('BuyCoresModal origin', () => {
     jest.clearAllMocks();
   });
 
-  it('should log buying more Cores from its header with the modal origin', () => {
-    renderModal(Origin.BoostPost);
-
-    const [buyMore] = screen
-      .getAllByRole('button')
-      .filter((button) => button.title !== 'Close');
-    fireEvent.click(buyMore);
-
-    expect(logEvent).toHaveBeenCalledWith({
-      event_name: LogEvent.StartBuyingCredits,
-      extra: JSON.stringify({ origin: Origin.BoostPost }),
-    });
-  });
-
   it('should log the picked pack with the modal origin and carry the origin to checkout', () => {
     renderModal(Origin.SquadBoost);
 
@@ -115,6 +101,7 @@ describe('BuyCoresModal with Cores to cover', () => {
     expect(small).not.toHaveTextContent('Recommended');
     expect(small).toHaveClass('opacity-64');
     expect(covering).not.toHaveClass('opacity-64');
+    expect(screen.getByText('You need 1,000 more Cores.')).toBeInTheDocument();
   });
 
   it('should only highlight the recommended pack on mobile', () => {

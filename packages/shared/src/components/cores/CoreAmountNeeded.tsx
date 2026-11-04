@@ -14,16 +14,20 @@ export const CoreAmountNeeded = ({
 }: {
   title?: string;
 }): ReactElement => {
-  const { amountNeeded, selectedProduct } = useBuyCoresContext();
+  const { amountNeeded, selectedProduct, minCoresToBuy } = useBuyCoresContext();
 
   if (!amountNeeded || !selectedProduct) {
+    const defaultTitle = minCoresToBuy
+      ? `You need ${formatCoresCurrency(minCoresToBuy)} more Cores.`
+      : 'Choose how many Cores to buy.';
+
     return (
       <Typography
         className="w-full flex-1"
         type={TypographyType.Callout}
         color={TypographyColor.Secondary}
       >
-        {title ?? 'Choose how many Cores to buy.'}
+        {title ?? defaultTitle}
       </Typography>
     );
   }

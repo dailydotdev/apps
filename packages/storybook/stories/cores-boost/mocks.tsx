@@ -62,7 +62,11 @@ export const squad = {
   flags: { totalPosts: 184, totalViews: 418000, totalUpvotes: 12000 },
   currentMember: {
     role: SourceMemberRole.Admin,
-    permissions: [SourcePermissions.BoostSquad, SourcePermissions.Post],
+    permissions: [
+      SourcePermissions.BoostSquad,
+      SourcePermissions.Post,
+      SourcePermissions.ModeratePost,
+    ],
   },
 } as unknown as Squad;
 

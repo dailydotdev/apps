@@ -13,8 +13,8 @@ import { Origin } from '@dailydotdev/shared/src/lib/log';
 import type { CoreOptionsProps } from '@dailydotdev/shared/src/components/modals/award/BuyCoresModal';
 import {
   BuyCoresCheckout,
+  CoreCheckoutPlaceholder,
   CoreOptions,
-  CorePageCheckoutVideo,
   TransactionStatusListener,
 } from '@dailydotdev/shared/src/components/modals/award/BuyCoresModal';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
@@ -85,7 +85,7 @@ export const PageCoreOptions = ({
   showCoresAtCheckout = true,
   title = (
     <Typography className="mb-4" type={TypographyType.LargeTitle} bold>
-      Get More Cores
+      Buy Cores
     </Typography>
   ),
   className,
@@ -144,7 +144,7 @@ const CorePageMobile = (): ReactElement => {
             <div className="flex flex-col items-center gap-2">
               <CoreIcon size={IconSize.Size80} />
               <Typography type={TypographyType.Body} bold className="mb-2">
-                Get More Cores
+                Buy Cores
               </Typography>
             </div>
           </>
@@ -171,11 +171,11 @@ const CorePageDesktop = (): ReactElement => {
           />
           <div
             className={classNames(
-              'm-6 flex flex-1 overflow-hidden rounded-16',
+              'flex flex-1 rounded-16 border border-border-subtlest-tertiary',
               selectedProduct && 'hidden',
             )}
           >
-            {!selectedProduct && <CorePageCheckoutVideo />}
+            {!selectedProduct && <CoreCheckoutPlaceholder />}
           </div>
         </div>
         <CoreFAQ />

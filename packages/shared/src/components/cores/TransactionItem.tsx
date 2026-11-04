@@ -1,15 +1,11 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
-import {
-  CoreIcon,
-  CreditCardIcon,
-  InfoIcon,
-  MinusIcon,
-  PlusIcon,
-} from '../icons';
+import classNames from 'classnames';
+import { CoreIcon } from '../icons';
 import {
   Typography,
   TypographyColor,
+  TypographyTag,
   TypographyType,
 } from '../typography/Typography';
 import type { UserImageProps } from '../ProfilePicture';
@@ -18,51 +14,29 @@ import { Separator } from '../cards/common/common';
 import { DateFormat } from '../utilities/DateFormat';
 import { TimeFormatType } from '../../lib/dateFormat';
 import { IconSize } from '../Icon';
-import type { TransactionItemType } from '../../lib/transaction';
 import { formatCoresCurrency } from '../../lib/utils';
 import type { UserShortProfile } from '../../lib/user';
 import { ProfileLink } from '../profile/ProfileLink';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 
 export type TransactionItemProps = {
-  type: TransactionItemType;
   user: UserImageProps;
   profileUser?: UserShortProfile;
   date: Date;
   amount: number;
-  label: ReactNode;
+  /** Status or what was sent, shown next to the date. */
+  label?: ReactNode;
   extraLabel?: ReactNode;
   note?: ReactNode;
-};
-
-const TransactionTypeToIcon: Record<
-  TransactionItemProps['type'],
-  ReactElement
-> = {
-  receive: (
-    <div className="size-4 rounded-10 bg-action-upvote-float text-accent-avocado-default">
-      <PlusIcon size={IconSize.Size16} />
-    </div>
-  ),
-  send: (
-    <div className="size-4 rounded-10 bg-action-downvote-float text-accent-ketchup-default">
-      <MinusIcon size={IconSize.Size16} />
-    </div>
-  ),
-  purchase: (
-    <div className="size-4 rounded-10 bg-action-bookmark-float text-accent-bun-default">
-      <CreditCardIcon size={IconSize.Size16} />
-    </div>
-  ),
-  unknown: (
-    <div className="size-4 rounded-10 bg-action-bookmark-float text-accent-bun-default">
-      <InfoIcon size={IconSize.Size16} />
-    </div>
-  ),
+  /**
+   * For transactions without another person (purchases, boosts, givebacks):
+   * an icon and a title replace the avatar and the name.
+   */
+  icon?: ReactElement;
+  title?: ReactNode;
 };
 
 export const TransactionItem = ({
-  type,
   user,
   profileUser,
   date,
@@ -70,15 +44,17 @@ export const TransactionItem = ({
   label,
   extraLabel,
   note,
+  icon,
+  title,
 }: TransactionItemProps): ReactElement => {
   const linkToProfile = (children: ReactElement): ReactElement => {
-    if (!profileUser) {
+    if (!profileUser || icon) {
       return children;
     }
 
     return (
       <ProfileTooltip userId={profileUser.id} initialUser={profileUser}>
-        <ProfileLink className="w-fit" href={profileUser.permalink}>
+        <ProfileLink className="w-fit min-w-0" href={profileUser.permalink}>
           {children}
         </ProfileLink>
       </ProfileTooltip>
@@ -86,58 +62,61 @@ export const TransactionItem = ({
   };
 
   return (
-    <li className="flex">
-      <div className="flex flex-1 items-center gap-2">
-        {TransactionTypeToIcon[type]}
+    <li className="flex items-center gap-3">
+      {icon ? (
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-surface-float text-text-secondary">
+          {icon}
+        </span>
+      ) : (
+        linkToProfile(
+          <ProfilePicture size={ProfileImageSize.Large} user={user} />,
+        )
+      )}
+      <div className="flex min-w-0 flex-1 flex-col">
         {linkToProfile(
-          <ProfilePicture size={ProfileImageSize.Medium} user={user} />,
-        )}{' '}
-        <div className="flex flex-col gap-1">
-          {linkToProfile(
-            <Typography type={TypographyType.Subhead} bold>
-              {user.name}
-            </Typography>,
+          <Typography type={TypographyType.Callout} className="truncate" bold>
+            {title ?? user.name}
+          </Typography>,
+        )}
+        <div className="flex flex-wrap items-center text-text-tertiary typo-footnote">
+          {!!extraLabel && (
+            <>
+              <span className="truncate">{extraLabel}</span>
+              <Separator />
+            </>
           )}
-          <div className="flex flex-col flex-wrap">
-            <Typography
-              className="line-clamp-2 max-w-[200px] tablet:max-w-[360px]"
-              type={TypographyType.Subhead}
-              color={TypographyColor.Tertiary}
-            >
-              {extraLabel}
-            </Typography>
-            <div className="flex flex-wrap items-center gap-1 text-text-tertiary typo-footnote tablet:gap-0">
-              <Typography
-                className="line-clamp-2 max-w-[200px] tablet:max-w-[360px]"
-                type={TypographyType.Footnote}
-              >
-                {label}
-              </Typography>
-              <div className="flex w-full items-end tablet:w-auto">
-                <Separator className="hidden tablet:inline" />
-                <DateFormat date={date} type={TimeFormatType.Transaction} />
-              </div>
-            </div>
-            {!!note && (
-              <Typography
-                className="line-clamp-2 max-w-[200px] tablet:max-w-[360px]"
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-              >
-                {note}
-              </Typography>
-            )}
-          </div>
+          {!!label && (
+            <>
+              <span className="flex items-center">{label}</span>
+              <Separator />
+            </>
+          )}
+          <DateFormat date={date} type={TimeFormatType.Transaction} />
         </div>
+        {!!note && (
+          <Typography
+            className="mt-1 line-clamp-2"
+            type={TypographyType.Footnote}
+            color={TypographyColor.Secondary}
+          >
+            {note}
+          </Typography>
+        )}
       </div>
-      <div className="flex items-center gap-1">
-        <CoreIcon secondary={amount < 0} />
-        <Typography type={TypographyType.Callout} bold>
-          {amount === 0 && 'Free'}
-          {amount !== 0 &&
-            `${amount > 0 ? '+' : ''}${formatCoresCurrency(amount)}`}
-        </Typography>
-      </div>
+      <Typography
+        tag={TypographyTag.Span}
+        type={TypographyType.Callout}
+        className={classNames(
+          'flex shrink-0 items-center gap-1 tabular-nums',
+          amount > 0 && 'text-status-success',
+        )}
+        bold
+      >
+        <CoreIcon size={IconSize.Size16} secondary={amount < 0} />
+        {amount === 0 && 'Free'}
+        {amount !== 0 &&
+          `${amount > 0 ? '+' : ''}${formatCoresCurrency(amount)}`}
+      </Typography>
     </li>
   );
 };

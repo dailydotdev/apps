@@ -12,7 +12,6 @@ const renderComponent = (props: Partial<TransactionItemProps> = {}) =>
       client={new QueryClient(defaultQueryClientTestingConfig)}
     >
       <TransactionItem
-        type="receive"
         user={author}
         date={new Date('2026-01-01')}
         amount={100}

@@ -48,9 +48,13 @@ import { useTransactionError } from '../../../hooks/useTransactionError';
 
 const AwardItem = ({
   item,
+  isSelected,
+  isAffordable,
   onClick: handleClick,
 }: {
   item: Product;
+  isSelected: boolean;
+  isAffordable: boolean;
   onClick: (props: { product: Product; event?: MouseEvent }) => void;
 }) => {
   const { logAwardEvent } = useGiveAwardModalContext();
@@ -58,7 +62,12 @@ const AwardItem = ({
   return (
     <Button
       variant={ButtonVariant.Float}
-      className="flex !h-auto flex-col items-center justify-center rounded-14 bg-surface-float !p-1"
+      pressed={isSelected}
+      className={classNames(
+        'flex !h-auto flex-col items-center justify-center rounded-14 border bg-surface-float !p-1',
+        isSelected ? 'border-action-cores-default' : 'border-transparent',
+        !isAffordable && !isSelected && 'opacity-64',
+      )}
       onClick={(event: React.MouseEvent<HTMLElement>) => {
         logAwardEvent({ awardEvent: 'PICK', extra: { award: item.value } });
 
@@ -101,6 +110,7 @@ const IntroScreen = () => {
   const canPurchaseCores = useCanPurchaseCores();
 
   const { data: awards } = useQuery(getProductsQueryOptions());
+  const balance = user?.balance.amount ?? 0;
 
   const onBuyCores = () => {
     setShowBuyCores(false);
@@ -206,8 +216,10 @@ const IntroScreen = () => {
             <AwardItem
               key={item.id}
               item={item}
+              isSelected={showBuyCores && product?.id === item.id}
+              isAffordable={item.value <= balance}
               onClick={({ product: clickedProduct }) => {
-                if (clickedProduct.value > (user?.balance.amount ?? 0)) {
+                if (clickedProduct.value > balance) {
                   setActiveStep({
                     screen: AWARD_SCREENS.INTRO,
                     product: clickedProduct,
@@ -229,28 +241,25 @@ const IntroScreen = () => {
       </Modal.Body>
       {showBuyCores && !!product && (
         <Modal.Footer className="!h-auto flex-col" justify={Justify.Center}>
-          {canPurchaseCores && (
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Secondary}
+            className="text-center"
+          >
+            You need {formatCoresCurrency(product.value - balance)} more Cores
+            for this Award.
+          </Typography>
+          {canPurchaseCores ? (
             <Button
               className="w-full"
               variant={ButtonVariant.Primary}
               onClick={onBuyCores}
             >
-              Buy Cores <CoreIcon />{' '}
-              {product.value === 0
-                ? 'Free'
-                : formatCoresCurrency(product.value)}
+              Buy Cores
             </Button>
-          )}
-          {!canPurchaseCores && (
+          ) : (
             <Button className="w-full" variant={ButtonVariant.Primary} disabled>
-              <span className="inline-flex gap-1">
-                {' '}
-                Insufficient Cores
-                <CoreIcon secondary />{' '}
-              </span>
-              {product.value === 0
-                ? 'Free'
-                : formatCoresCurrency(product.value)}
+              Not enough Cores
             </Button>
           )}
           <AwardFeesNote />
@@ -464,6 +473,7 @@ const ModalBody = () => {
 
 const ModalRender = ({ ...props }: ModalProps) => {
   const isMobile = useViewSize(ViewSize.MobileL);
+  const { user } = useAuthContext();
   const {
     activeStep,
     activeModal,
@@ -505,9 +515,6 @@ const ModalRender = ({ ...props }: ModalProps) => {
         <Modal
           kind={isMobile ? ModalKind.FlexibleTop : Modal.Kind.FlexibleCenter}
           size={Modal.Size.Small}
-          className={classNames(
-            !isMobile && activeStep !== 'SUCCESS' ? '!h-[40rem]' : undefined,
-          )}
           isDrawerOnMobile={activeStep === 'SUCCESS'}
           drawerProps={{
             instantOpen: true,
@@ -524,8 +531,13 @@ const ModalRender = ({ ...props }: ModalProps) => {
           onCompletion={onCompletion}
           onRequestClose={onRequestClose}
           product={product as Product}
+          minCoresToBuy={
+            product
+              ? Math.max(product.value - (user?.balance.amount ?? 0), 0) ||
+                undefined
+              : undefined
+          }
           origin={Origin.Award}
-          onPlusClick={() => setActiveModal('BUY_CORES')}
         />
       ) : null}
     </>

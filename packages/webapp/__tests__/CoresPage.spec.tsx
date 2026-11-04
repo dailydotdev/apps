@@ -37,7 +37,7 @@ jest.mock(
   () => ({
     BuyCoresCheckout: () => null,
     CoreOptions: () => null,
-    CorePageCheckoutVideo: () => null,
+    CoreCheckoutPlaceholder: () => null,
     TransactionStatusListener: () => null,
   }),
 );

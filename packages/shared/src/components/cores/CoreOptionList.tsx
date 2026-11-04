@@ -100,7 +100,7 @@ export const CoreOptionList = (): ReactElement => {
   }, []);
 
   return (
-    <ul className="mt-4 flex flex-col gap-2" role="radiogroup">
+    <ul className="mt-4 grid grid-cols-2 gap-2" role="radiogroup">
       {isPendingPrices &&
         new Array(9).fill(null).map((_, index) => {
           // eslint-disable-next-line react/no-array-index-key

@@ -30,10 +30,6 @@ import {
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { oneMinute } from '../../../lib/dateFormat';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import {
-  purchaseCoinsCheckoutVideoPoster,
-  purchaseCoinsCheckoutVideo,
-} from '../../../lib/image';
 import { walletUrl } from '../../../lib/constants';
 import { Loader } from '../../Loader';
 import { useIsLightTheme } from '../../../hooks/utils';
@@ -41,7 +37,6 @@ import type { Origin } from '../../../lib/log';
 import { formatCoresCurrency } from '../../../lib/utils';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import { labels } from '../../../lib';
-import { useCanPurchaseCores } from '../../../hooks/useCoresFeature';
 import { BuyCoresContextProvider } from '../../../contexts/BuyCoresContext/BuyCoresContext';
 import { iOSSupportsCoresPurchase } from '../../../lib/ios';
 
@@ -52,9 +47,7 @@ export type CoreOptionsProps = {
   amountNeededCopy?: ReactNode;
 };
 
-interface ModalHeaderProps extends Pick<CoreOptionsProps, 'amountNeededCopy'> {
-  onPlusClick?: () => void;
-}
+type ModalHeaderProps = Pick<CoreOptionsProps, 'amountNeededCopy'>;
 
 export const CoreOptions = ({
   className,
@@ -382,48 +375,38 @@ const BuyCoresMobile = ({ amountNeededCopy }: BuyCoresProps) => {
   );
 };
 
-export const CorePageCheckoutVideo = (): ReactElement => {
-  return (
-    <div className="relative flex h-[582px] max-h-full flex-1">
-      <video
-        className="bg-blue-500 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform"
-        poster={purchaseCoinsCheckoutVideoPoster}
-        src={purchaseCoinsCheckoutVideo}
-        muted
-        autoPlay
-        loop
-        playsInline
-        disablePictureInPicture
-        controls={false}
-      />
-    </div>
-  );
-};
+/** Stands in for the checkout until a pack is picked. */
+export const CoreCheckoutPlaceholder = (): ReactElement => (
+  <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
+    <CoreIcon size={IconSize.XXXLarge} />
+    <Typography type={TypographyType.Body} bold>
+      Pick a pack to check out
+    </Typography>
+    <Typography
+      type={TypographyType.Callout}
+      color={TypographyColor.Tertiary}
+      className="max-w-64"
+    >
+      Cores land in your balance as soon as the payment goes through.
+    </Typography>
+  </div>
+);
 
 const BuyCoreDesktop = ({ amountNeededCopy }: BuyCoresProps) => {
   const { selectedProduct } = useBuyCoresContext();
 
   return (
-    <ModalBody
-      className={classNames(
-        'bg-gradient-to-t from-theme-overlay-float-bun to-transparent !p-0 tablet:rounded-b-16',
-      )}
-    >
+    <ModalBody className="!p-0 tablet:rounded-b-16">
       <div className="flex flex-1 flex-row">
         <CoreOptions className="p-6" amountNeededCopy={amountNeededCopy} />
-        <BuyCoresCheckout
-          className={classNames(
-            !selectedProduct && 'hidden',
-            'rounded-br-16 p-6',
-          )}
-        />
-        <div
-          className={classNames(
-            'flex flex-1 overflow-hidden rounded-br-16',
-            selectedProduct && 'hidden',
-          )}
-        >
-          {!selectedProduct && <CorePageCheckoutVideo />}
+        <div className="flex flex-1 border-l border-border-subtlest-tertiary">
+          <BuyCoresCheckout
+            className={classNames(
+              !selectedProduct && 'hidden',
+              'rounded-br-16 p-6',
+            )}
+          />
+          {!selectedProduct && <CoreCheckoutPlaceholder />}
         </div>
       </div>
     </ModalBody>
@@ -431,12 +414,10 @@ const BuyCoreDesktop = ({ amountNeededCopy }: BuyCoresProps) => {
 };
 
 const BuyFlow = ({
-  onPlusClick: onPlusButtonClick,
   amountNeededCopy,
   ...props
 }: ModalProps & ModalHeaderProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const canPurchaseCores = useCanPurchaseCores();
   const { origin } = useBuyCoresContext();
 
   return (
@@ -447,15 +428,11 @@ const BuyFlow = ({
       {...props}
     >
       <Modal.Header
-        title={!isMobile ? 'Get More Cores' : undefined}
+        title={!isMobile ? 'Buy Cores' : undefined}
         className="mr-auto flex-row-reverse justify-between gap-4 laptop:justify-end"
         showCloseButton={!isMobile}
       >
-        <BuyCreditsButton
-          hideBuyButton={!canPurchaseCores}
-          onPlusClick={onPlusButtonClick}
-          origin={origin}
-        />
+        <BuyCreditsButton hideBuyButton origin={origin} />
         {isMobile && (
           <Button
             onClick={props.onRequestClose}
