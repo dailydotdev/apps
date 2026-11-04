@@ -45,11 +45,16 @@ import {
   SquadPlan,
   squadPlanDetails,
   squadPlans,
+  startupsEnterpriseDetails,
   startupsEnterpriseUrl,
 } from '../../lib/plans';
 import { useSquadPlanPrices } from '../../hooks/useSquadPlanPrices';
 import { useLogStartups } from '../../hooks/useLogStartups';
-import { SquadPlanCard, SquadPlanPrice } from '../checkout/SquadPlanCard';
+import {
+  SquadPlanCard,
+  SquadPlanFeatureList,
+  SquadPlanPrice,
+} from '../checkout/SquadPlanCard';
 import { SquadManageSectionPanel } from './SquadManageLayout';
 
 const roleLabel: Partial<Record<SourceMemberRole, string>> = {
@@ -94,7 +99,7 @@ const ChoosePlan = ({ isAdmin }: { isAdmin: boolean }): ReactElement => {
     <>
       <SectionTitle
         title="Make it your company page"
-        description={`A plan turns ${squad.name} into a company page developers find in the feed, search and Google, and lets your agent post and boost through the API.`}
+        description={`A plan turns ${squad.name} into a company page in the feed and search, cited by AI answers, that lets your agent post and boost through the API.`}
       />
       <div className="grid gap-4 tablet:grid-cols-2">
         {squadPlans.map((plan) => (
@@ -131,26 +136,30 @@ const ChoosePlan = ({ isAdmin }: { isAdmin: boolean }): ReactElement => {
           Only an admin of this Squad can choose a plan.
         </Typography>
       )}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
-        <div className="flex min-w-0 flex-col gap-1">
-          <Typography type={TypographyType.Callout} bold>
+      <div className="flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-5">
+        <div className="flex flex-col gap-1">
+          <Typography type={TypographyType.Title3} bold>
             Enterprise
           </Typography>
           <Typography
-            type={TypographyType.Footnote}
+            type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            Verified badge, homepage placement, campaigns and an account team.
+            {startupsEnterpriseDetails.tagline}
           </Typography>
         </div>
+        <SquadPlanFeatureList
+          title={startupsEnterpriseDetails.featuresTitle}
+          features={startupsEnterpriseDetails.features}
+        />
         <Button
           tag="a"
           href={startupsEnterpriseUrl}
           target="_blank"
           rel="noopener"
           onClick={() => logUpgrade('enterprise')}
-          variant={ButtonVariant.Float}
-          size={ButtonSize.Small}
+          variant={ButtonVariant.Secondary}
+          className="w-full tablet:w-auto tablet:self-start"
           icon={<OpenLinkIcon />}
           iconPosition={ButtonIconPosition.Right}
         >

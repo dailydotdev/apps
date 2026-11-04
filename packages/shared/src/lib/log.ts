@@ -453,6 +453,7 @@ export enum LogEvent {
   DelaySquadPlanActivation = 'delay squad plan activation',
   GiveSquadSeat = 'give squad seat',
   RemoveSquadSeat = 'remove squad seat',
+  DismissStartupsUpsell = 'dismiss startups upsell',
   PageScroll = 'page scroll',
   SelectSubscriptionType = 'select subscription type',
   SetOrgSize = 'set org size',

@@ -363,7 +363,7 @@ const CompanyStep = ({
     <div className="flex flex-col gap-6">
       <StepTitle
         title="Set up your company page"
-        description="Your page on daily.dev is where your posts live. Developers find it in the feed, search and Google, and your agent posts to it through the API."
+        description="Your page on daily.dev is where your posts live. Developers find it in the feed and search, AI answers cite it, and your agent posts to it through the API."
       />
       {adminSquads.length > 0 && (
         <div role="radiogroup" className="flex flex-col gap-2">

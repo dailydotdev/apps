@@ -29,6 +29,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadPageContextProvider } from '@dailydotdev/shared/src/features/squads/SquadPageContext';
 import { SquadManageLayout } from '@dailydotdev/shared/src/features/squads/components/manage/SquadManageLayout';
 import { SquadManagePlan } from '@dailydotdev/shared/src/features/squads/components/manage/SquadManagePlan';
+import { SquadPlanUpsellWidget } from '@dailydotdev/shared/src/features/squads/components/widgets/SquadPlanUpsellWidget';
 import { SquadManageSection } from '@dailydotdev/shared/src/features/squads/lib/routes';
 import { SquadPlan } from '@dailydotdev/shared/src/features/squads/lib/plans';
 import {
@@ -41,8 +42,8 @@ import { FeatureOverrides } from '../../../mock/GrowthBookProvider';
 import { defaultBootData, getBootMock } from '../../../mock/boot';
 import ExtensionProviders from '../../extension/_providers';
 
-// daily.dev for Startups self-serve: the checkout at /squads/for-startups and
-// Manage › Plan. Acme is the sample company, as on the landing page. The API
+// daily.dev for Startups self-serve: the checkout at /squads/for-startups,
+// Manage › Plan, and the upsell on the squad page. Acme is the sample company, as on the landing page. The API
 // does not need to be up: the queries are seeded below, and prices fall back
 // to the US list prices when the preview can't load.
 
@@ -218,6 +219,28 @@ const ManagePlan = ({
   </Seeded>
 );
 
+/**
+ * The squad-page upsell, at the width of the page's right column. Dismissing
+ * it hides it until the story reloads: the stored dismissal is reset here.
+ */
+const SquadPageUpsell = (): ReactElement => {
+  const client = useQueryClient();
+  useState(() => {
+    const queryKey = [`startups_upsell_dismissed_${acme.id}`, false];
+    client.setQueryData(queryKey, false);
+    client.setQueryDefaults(queryKey, { staleTime: Infinity });
+    return true;
+  });
+
+  return (
+    <Seeded squad={acme} subscription={noPlan}>
+      <div className="flex w-full flex-col p-4 laptop:w-80 laptop:p-6">
+        <SquadPlanUpsellWidget />
+      </div>
+    </Seeded>
+  );
+};
+
 const meta: Meta = {
   title: 'Features/Squads/daily.dev for Startups checkout',
   parameters: { layout: 'fullscreen' },
@@ -345,4 +368,14 @@ export const CheckoutActivating: Story = {
       />
     </Seeded>
   ),
+};
+
+/** The squad page's upsell for an admin of a Squad without a plan. */
+export const SquadPageUpsell: Story = {
+  render: () => <SquadPageUpsell />,
+};
+
+export const SquadPageUpsellPhone: Story = {
+  ...SquadPageUpsell,
+  globals: phone,
 };

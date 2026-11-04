@@ -30,10 +30,13 @@ const squadPlanPriceIds: Record<SquadPlan, string> = {
 export const getSquadPlanPriceId = (plan: SquadPlan): string =>
   squadPlanPriceIds[plan];
 
+// Copy mirrors the plan table on daily.dev/startups/ (recruiter-landing
+// `StartupPlanTable.astro`); change both together.
 export interface SquadPlanDetails {
   title: string;
   tagline: string;
-  /** Starter lists everything, Team only what it adds. */
+  /** The line above the features: what you get, or what the plan adds. */
+  featuresTitle: string;
   features: string[];
 }
 
@@ -41,9 +44,11 @@ export const squadPlanDetails: Record<SquadPlan, SquadPlanDetails> = {
   [SquadPlan.Starter]: {
     title: 'Starter',
     tagline: 'For founders finding their first users.',
+    featuresTitle: 'What you get:',
     features: [
       'Company page with a link to your site',
-      'Found in the feed, search and Google',
+      'In the feed and search, cited by AI answers',
+      'Weekly brief on up to 5 topics',
       'Skills for Claude Code and any agent',
       'API, so your agent posts and boosts',
       '1 seat',
@@ -52,8 +57,28 @@ export const squadPlanDetails: Record<SquadPlan, SquadPlanDetails> = {
   [SquadPlan.Team]: {
     title: 'Team',
     tagline: 'For a small team or a first marketer.',
-    features: ['Everything in Starter', 'A CTA on your page header', '5 seats'],
+    featuresTitle: 'Everything in Starter, plus:',
+    features: [
+      'Weekly brief on up to 20 topics',
+      'Seniority filter for the brief',
+      'A CTA on your page header',
+      '5 seats',
+    ],
   },
+};
+
+export const startupsEnterpriseDetails = {
+  tagline: 'For established teams with a marketer.',
+  featuresTitle: 'Everything in Team, plus:',
+  features: [
+    'Weekly brief on up to 40 topics',
+    'Region filter, plus your keywords',
+    'Verified badge and priority ranking',
+    'Your logo on the daily.dev homepage',
+    'Targeted campaigns and newsletters',
+    'Guaranteed reads and creative',
+    'An account team',
+  ],
 };
 
 export const startupsEnterpriseUrl =

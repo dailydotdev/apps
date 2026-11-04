@@ -28,11 +28,14 @@ interface SquadPlanCardProps {
 }
 
 export const SquadPlanFeatureList = ({
+  title,
   features,
 }: {
+  title: string;
   features: string[];
 }): ReactElement => (
   <ul className="flex flex-col gap-2">
+    <li className="font-bold text-text-tertiary typo-footnote">{title}</li>
     {features.map((feature) => (
       <li key={feature} className="flex items-start gap-2">
         <VIcon
@@ -95,7 +98,7 @@ export const SquadPlanCard = ({
   onClick,
   className,
 }: SquadPlanCardProps): ReactElement => {
-  const { title, tagline, features } = squadPlanDetails[plan];
+  const { title, tagline, featuresTitle, features } = squadPlanDetails[plan];
   const content = (
     <>
       <span className="flex flex-wrap items-center gap-2">
@@ -116,7 +119,7 @@ export const SquadPlanCard = ({
       >
         {tagline}
       </Typography>
-      <SquadPlanFeatureList features={features} />
+      <SquadPlanFeatureList title={featuresTitle} features={features} />
     </>
   );
   const cardClassName = classNames(
