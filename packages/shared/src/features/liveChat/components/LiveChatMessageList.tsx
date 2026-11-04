@@ -120,10 +120,14 @@ const MessageRow = ({
             {renderMentions(message.body, viewerUsername)}
           </span>
           {react && (
-            <AddReactionButton
-              onReact={react}
-              className={hoverActionClassName}
-            />
+            // Bleeds into the row's spacing so the roomier button doesn't
+            // make every single-line message taller.
+            <div className="-my-1.5">
+              <AddReactionButton
+                onReact={react}
+                className={hoverActionClassName}
+              />
+            </div>
           )}
         </div>
         {Object.keys(reactions).length > 0 && viewerId && (

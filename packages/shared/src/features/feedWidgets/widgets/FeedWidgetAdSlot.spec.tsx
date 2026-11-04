@@ -157,7 +157,12 @@ describe('FeedWidgetAdSlot', () => {
 
   it('patches the boosted post in the cached ad on upvote', async () => {
     // The ad query suffixes the consent to the rail's key.
-    const adKey = [...getFeedWidgetAdQueryKey(loggedUser), true, 'consent', ''];
+    const adKey = [
+      ...getFeedWidgetAdQueryKey(loggedUser, 'popular'),
+      true,
+      'consent',
+      '',
+    ];
     const client = new QueryClient();
     const ad = {
       ...boostedPostAd(),

@@ -20,6 +20,7 @@ import { QueryStateKeys } from '../hooks/utils/useQueryState';
 import { ActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
 import { FEED_V2_EXPLAIN_QUERY, FEED_V2_QUERY } from '../graphql/feed';
 import { FeedTopicMode, FeedTuneTab } from '../features/feedExplain/types';
+import { mockDesktop, mockMatchMedia } from '../../__tests__/helpers/media';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -111,6 +112,7 @@ beforeEach(() => {
 });
 
 it('keeps the reading reminder under the widget rail', async () => {
+  mockDesktop();
   mockFlags({ widgets: true });
 
   renderLayout();
@@ -133,6 +135,7 @@ it('lets the feed hero take the reading reminder’s place', async () => {
 });
 
 it('moves the feed’s tabs and actions under the widget rail', async () => {
+  mockDesktop();
   mockFlags({ widgets: true });
 
   renderLayout();
@@ -142,6 +145,21 @@ it('moves the feed’s tabs and actions under the widget rail', async () => {
   expect(actionButtons).toBeFalsy();
   render(<>{topContent}</>);
   expect(screen.getByTestId('home-feed-tabs')).toBeInTheDocument();
+});
+
+it('keeps a phone on the plain feed with the rail’s flag on', async () => {
+  // No width breakpoint matches: a phone.
+  mockMatchMedia(() => false);
+  mockFlags({ widgets: true });
+
+  renderLayout();
+
+  await screen.findByTestId('feed');
+  expect(lastFeedProps()).toEqual(
+    expect.objectContaining({ keepTopHero: false, skipFirstAd: false }),
+  );
+  expect(lastFeedProps().topContent).toBeUndefined();
+  expect(screen.queryByTestId('home-feed-tabs')).not.toBeInTheDocument();
 });
 
 it('keeps the feed’s actions and top slot without the rail', async () => {

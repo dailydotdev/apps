@@ -9,7 +9,11 @@ import {
 } from '../../lib/featureManagement';
 import FeedContext from '../../contexts/FeedContext';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useIsPhone, useIsPhoneSettled } from '../../hooks/useViewSize';
+import {
+  useIsPhone,
+  useIsPhoneNow,
+  useIsPhoneSettled,
+} from '../../hooks/useViewSize';
 import { useIsPlusAdFree } from '../../hooks/useIsPlusAdFree';
 import type { FeedWidget } from './types';
 import {
@@ -26,7 +30,7 @@ import type { Ad } from '../../graphql/posts';
 import { useAdQuery } from '../monetization/useAdQuery';
 import { useCachedTokenRecovery } from '../../hooks/useCachedTokenRecovery';
 import { AdPlacement } from '../../lib/ads';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import { generateQueryKey, OtherFeedPage, RequestKey } from '../../lib/query';
 import { useFeedHeroData } from '../../components/feeds/hero/useFeedHeroData';
 import { useLogContext } from '../../contexts/LogContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
@@ -59,22 +63,50 @@ export const emptyFeedWidgetFeedState: FeedWidgetFeedState = {
   isAdVisible: false,
 };
 
+// The flag's answer from the last For you or Popular this session. The other
+// home tabs reuse it rather than evaluate the flag themselves, so they enrol
+// no one in its experiment: only a reader the home page already enrolled
+// keeps the rail on them. Browser only, so no request shares it.
+let homeRailFlag: boolean | undefined;
+
+export const resetHomeRailFlag = (): void => {
+  homeRailFlag = undefined;
+};
+
 /**
  * Whether the rail renders on this feed: For you and Popular, behind the flag,
- * unless the reader hid it. The page around the rail reads it too, so the
- * shell's own feed tabs step aside wherever the rail brings its own.
+ * unless the reader hid it. Not on a phone for now: phones keep the plain
+ * feed and are never enrolled in the flag's experiment. The phone paths below
+ * stay for when the rail comes back there: it then also heads Following and
+ * the custom feeds, whose tabs switch only the feed under it, but only with
+ * the answer the home page already got. The page around the rail reads it
+ * too, so the shell's own feed tabs step aside wherever the rail brings its
+ * own.
  */
 export const useFeedWidgetRailState = (
   feedName?: string,
 ): { isFlagOn: boolean; isEnabled: boolean } => {
   const { flags } = useSettingsContext();
+  const isPhone = useIsPhone();
+  // Read at once, not after mount, so a phone never evaluates the flag nor
+  // paints the rail for a frame.
+  const isPhoneNow = useIsPhoneNow();
   const isMainFeedPage =
     feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
-  const { value: isFlagOn } = useConditionalFeature({
+  const isPhoneHomeTab =
+    isPhone &&
+    (feedName === OtherFeedPage.Following ||
+      feedName === SharedFeedPage.Custom);
+  const { value: isFlagOn, isLoading } = useConditionalFeature({
     feature: featureFeedWidgets,
-    shouldEvaluate: isMainFeedPage,
+    shouldEvaluate: isMainFeedPage && !isPhoneNow,
   });
-  const isOn = isMainFeedPage && !!isFlagOn;
+  if (isMainFeedPage && !isLoading && typeof window !== 'undefined') {
+    homeRailFlag = !!isFlagOn;
+  }
+  const isOn =
+    !isPhoneNow &&
+    ((isMainFeedPage && !!isFlagOn) || (isPhoneHomeTab && !!homeRailFlag));
 
   return { isFlagOn: isOn, isEnabled: isOn && !flags?.feedWidgetsOptOut };
 };
@@ -111,31 +143,36 @@ export const useFeedWidgetAdSlot = (): {
 
 /**
  * The rail ad's query key, before `useAdQuery` suffixes the consent: a prefix
- * that matches every variant of it.
+ * that matches every variant of it. One per feed, as the feed's own ads are.
  */
 export const getFeedWidgetAdQueryKey = (
   user: Parameters<typeof generateQueryKey>[1],
-): QueryKey => generateQueryKey(RequestKey.Ads, user, 'feed-widgets');
+  feedName: string,
+): QueryKey => generateQueryKey(RequestKey.Ads, user, 'feed-widgets', feedName);
 
 /**
- * The creative for the rail's pinned slot. One per page view, like the hero's.
+ * The creative for the rail's pinned slot. One per visit to the feed: it lasts
+ * while the feed is on screen, a post opened over it included, and goes with
+ * the feed, so the next visit gets a fresh one.
  * Fetching it logs nothing: the slot logs its impression once it is on screen.
  * The rail and the feed share its query, so both know when it came back empty.
  */
 export const useFeedWidgetAd = ({
   enabled,
+  feedName,
 }: {
   enabled: boolean;
+  feedName: string;
 }): { ad?: Ad; isEnabled: boolean; isNoFill: boolean } => {
   const { user, isTokenValid } = useAuthContext();
   const isPlusAdFree = useIsPlusAdFree();
-  const queryKey = getFeedWidgetAdQueryKey(user);
+  const queryKey = getFeedWidgetAdQueryKey(user, feedName);
   const isEnabled = enabled && isTokenValid && !isPlusAdFree;
   const { data: ad, isFetched } = useAdQuery({
     placement: AdPlacement.Feed,
     queryKey,
     enabled: isEnabled,
-    staleTime: StaleTime.OneHour,
+    gcTime: 0,
   });
   // The ad query suffixes the consent to this key, so it matches as a prefix.
   useCachedTokenRecovery({ queryKey, enabled: isEnabled });
@@ -210,12 +247,17 @@ export const useFeedWidgetShortcuts = (
  */
 export const useFeedWidgetFeedState = ({
   enabled,
+  feedName,
 }: {
   enabled: boolean;
+  feedName: string;
 }): FeedWidgetFeedState => {
   const widgets = useResolvedFeedWidgets({ enabled });
   const { showAd } = useFeedWidgetAdSlot();
-  const { isNoFill } = useFeedWidgetAd({ enabled: enabled && showAd });
+  const { isNoFill } = useFeedWidgetAd({
+    enabled: enabled && showAd,
+    feedName,
+  });
   const hasTopStory = widgets.some(
     ({ kind }) => kind === FeedWidgetKind.TopStory,
   );

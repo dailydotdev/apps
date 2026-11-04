@@ -18,6 +18,8 @@ html, #daily-companion-wrapper {
 
 body {
   min-width: 20rem;
+  /* Disable double-tap to zoom (and the tap delay); pinch-zoom still works. */
+  touch-action: manipulation;
   overflow-y: scroll;
   min-height: 100vh;
   /* mobile viewport bug fix */

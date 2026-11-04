@@ -6,8 +6,9 @@ import type {
   ComponentProps,
 } from 'react';
 import React from 'react';
-import { Button, ButtonVariant } from '../buttons/Button';
-import { ArrowIcon, MiniCloseIcon } from '../icons';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { IconSize } from '../Icon';
+import { MoveToIcon } from '../icons';
 import { Modal } from '../modals/common/Modal';
 import { ModalHeaderKind } from '../modals/common/types';
 import { onboardingHeadlineClasses } from '../onboarding/common';
@@ -23,9 +24,6 @@ export interface AuthHeaderProps extends ComponentProps<'h2'> {
   onboardingHeadline?: boolean;
   title: string;
   onBack?: (e: MouseEvent | KeyboardEvent | FormEvent) => void;
-  // A gated sign-up is a dead end on a phone: it closes, it does not go
-  // back, so the phone control is a close, not a chevron.
-  closeOnPhone?: boolean;
 }
 
 function AuthHeader({
@@ -34,7 +32,6 @@ function AuthHeader({
   title,
   className,
   onBack,
-  closeOnPhone,
   ...attrs
 }: AuthHeaderProps): ReactElement {
   if (simplified) {
@@ -59,7 +56,8 @@ function AuthHeader({
       <div className="relative">
         <Button
           aria-label="Go back"
-          icon={<ArrowIcon className="-rotate-90" />}
+          icon={<MoveToIcon size={IconSize.Small} className="rotate-180" />}
+          size={ButtonSize.Medium}
           variant={ButtonVariant.Tertiary}
           className="absolute left-0 top-1/2 -translate-y-1/2"
           onClick={onBack}
@@ -74,15 +72,16 @@ function AuthHeader({
       className={className}
       kind={ModalHeaderKind.Secondary}
       title={title}
-      phoneCloseIcon={closeOnPhone ? <MiniCloseIcon /> : undefined}
+      closeOnPhone
     >
       {onBack && (
         <Button
-          icon={<ArrowIcon className="-rotate-90" />}
-          variant={ButtonVariant.Tertiary}
-          className="mr-2"
-          onClick={onBack}
           aria-label="Go back"
+          icon={<MoveToIcon size={IconSize.Small} className="rotate-180" />}
+          size={ButtonSize.Medium}
+          variant={ButtonVariant.Tertiary}
+          className="-ml-2 mr-2 tablet:-ml-4"
+          onClick={onBack}
         />
       )}
     </Modal.Header>

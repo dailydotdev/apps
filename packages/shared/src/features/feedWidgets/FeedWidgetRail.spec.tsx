@@ -515,7 +515,10 @@ describe('FeedWidgetRail', () => {
       ).toBeInTheDocument(),
     );
     expect(screen.queryByTestId('feedWidgetAdSlot')).not.toBeInTheDocument();
-    expect(useFeedWidgetAd).toHaveBeenLastCalledWith({ enabled: false });
+    expect(useFeedWidgetAd).toHaveBeenLastCalledWith({
+      enabled: false,
+      feedName: 'popular',
+    });
     // The tips ride on the slot, so they go with it.
     expect(screen.queryByTestId('feedWidgetTip')).not.toBeInTheDocument();
   });
