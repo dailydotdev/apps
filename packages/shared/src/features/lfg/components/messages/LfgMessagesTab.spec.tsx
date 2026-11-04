@@ -23,7 +23,7 @@ jest.mock('../../graphql', () => ({
 }));
 
 const boardPost = (id: string, authorId: string) =>
-  ({ id, title: `Post ${id}`, author: { id: authorId } } as LfgPost);
+  ({ id, title: `Post ${id}`, author: { id: authorId } }) as LfgPost;
 
 const renderTab = () =>
   render(

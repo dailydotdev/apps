@@ -180,7 +180,7 @@ export const MessagesScreen = ({
                       key: 'chats',
                       label: 'Chats',
                       href: getMessagesUrl(),
-                      active: !showRequests,
+                      active: isChatsTab,
                       replace: true,
                     },
                     {
@@ -193,6 +193,17 @@ export const MessagesScreen = ({
                       active: showRequests,
                       replace: true,
                     },
+                    ...(isLfgEnabled
+                      ? [
+                          {
+                            key: 'lfg',
+                            label: 'LFG',
+                            href: getMessagesUrl(undefined, { lfg: true }),
+                            active: isLfgTab,
+                            replace: true,
+                          },
+                        ]
+                      : []),
                   ]}
                 />
               </ShellRow>
