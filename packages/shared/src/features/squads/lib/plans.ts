@@ -54,8 +54,7 @@ export const squadPlanDetails: Record<SquadPlan, SquadPlanDetails> = {
     tagline: 'For a small team or a first marketer.',
     features: [
       'Everything in Starter',
-      'A button on your page header',
-      'Higher API limits',
+      'A CTA on your page header',
       '5 seats',
     ],
   },
