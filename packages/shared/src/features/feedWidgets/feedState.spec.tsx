@@ -305,7 +305,7 @@ const renderRailState = (
 describe('useFeedWidgetRailState', () => {
   beforeEach(() => resetHomeRailFlag());
 
-  it('heads For you and Popular on every screen', () => {
+  it('heads For you and Popular from the tablet up', () => {
     expect(
       renderRailState(SharedFeedPage.MyFeed).result.current.isEnabled,
     ).toBe(true);
@@ -314,32 +314,19 @@ describe('useFeedWidgetRailState', () => {
     ).toBe(true);
   });
 
-  it('keeps the rail on the other home tabs on a phone, with the answer home got', async () => {
+  it('keeps phones on the plain feed, never enrolled in the flag', async () => {
     // No width breakpoint matches: a phone.
-    mockMatchMedia(() => false);
-    renderRailState(SharedFeedPage.MyFeed);
-
-    await waitFor(() =>
-      expect(
-        renderRailState(OtherFeedPage.Following).result.current.isEnabled,
-      ).toBe(true),
-    );
-    expect(
-      renderRailState(SharedFeedPage.Custom).result.current.isEnabled,
-    ).toBe(true);
-    expect(
-      renderRailState(OtherFeedPage.Explore).result.current.isEnabled,
-    ).toBe(false);
-  });
-
-  it('never evaluates the flag on the other home tabs, so they enrol no one', async () => {
     mockMatchMedia(() => false);
     const gb = new GrowthBook({
       features: { feed_widgets: { defaultValue: true } },
     });
     const evaluate = jest.spyOn(gb, 'getFeatureValue');
-    const { result } = renderRailState(OtherFeedPage.Following, gb);
-    const { result: customResult } = renderRailState(SharedFeedPage.Custom, gb);
+    const feeds = [
+      SharedFeedPage.MyFeed,
+      SharedFeedPage.Popular,
+      OtherFeedPage.Following,
+      SharedFeedPage.Custom,
+    ].map((feedName) => renderRailState(feedName, gb).result);
 
     // Past the mount, where the phone check lands.
     await act(async () => {
@@ -348,9 +335,7 @@ describe('useFeedWidgetRailState', () => {
       });
     });
 
-    // A direct load, with no home page before it: no rail, as on main.
-    expect(result.current.isEnabled).toBe(false);
-    expect(customResult.current.isEnabled).toBe(false);
+    feeds.forEach((result) => expect(result.current.isEnabled).toBe(false));
     expect(evaluate).not.toHaveBeenCalledWith(
       'feed_widgets',
       expect.anything(),

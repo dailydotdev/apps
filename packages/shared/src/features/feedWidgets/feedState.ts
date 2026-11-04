@@ -9,7 +9,11 @@ import {
 } from '../../lib/featureManagement';
 import FeedContext from '../../contexts/FeedContext';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useIsPhone, useIsPhoneSettled } from '../../hooks/useViewSize';
+import {
+  useIsPhone,
+  useIsPhoneNow,
+  useIsPhoneSettled,
+} from '../../hooks/useViewSize';
 import { useIsPlusAdFree } from '../../hooks/useIsPlusAdFree';
 import type { FeedWidget } from './types';
 import {
@@ -71,16 +75,22 @@ export const resetHomeRailFlag = (): void => {
 
 /**
  * Whether the rail renders on this feed: For you and Popular, behind the flag,
- * unless the reader hid it. On a phone it also heads Following and the custom
- * feeds, whose tabs switch only the feed under it, but only with the answer
- * the home page already got. The page around the rail reads it too, so the
- * shell's own feed tabs step aside wherever the rail brings its own.
+ * unless the reader hid it. Not on a phone for now: phones keep the plain
+ * feed and are never enrolled in the flag's experiment. The phone paths below
+ * stay for when the rail comes back there: it then also heads Following and
+ * the custom feeds, whose tabs switch only the feed under it, but only with
+ * the answer the home page already got. The page around the rail reads it
+ * too, so the shell's own feed tabs step aside wherever the rail brings its
+ * own.
  */
 export const useFeedWidgetRailState = (
   feedName?: string,
 ): { isFlagOn: boolean; isEnabled: boolean } => {
   const { flags } = useSettingsContext();
   const isPhone = useIsPhone();
+  // Read at once, not after mount, so a phone never evaluates the flag nor
+  // paints the rail for a frame.
+  const isPhoneNow = useIsPhoneNow();
   const isMainFeedPage =
     feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
   const isPhoneHomeTab =
@@ -89,13 +99,14 @@ export const useFeedWidgetRailState = (
       feedName === SharedFeedPage.Custom);
   const { value: isFlagOn, isLoading } = useConditionalFeature({
     feature: featureFeedWidgets,
-    shouldEvaluate: isMainFeedPage,
+    shouldEvaluate: isMainFeedPage && !isPhoneNow,
   });
   if (isMainFeedPage && !isLoading && typeof window !== 'undefined') {
     homeRailFlag = !!isFlagOn;
   }
   const isOn =
-    (isMainFeedPage && !!isFlagOn) || (isPhoneHomeTab && !!homeRailFlag);
+    !isPhoneNow &&
+    ((isMainFeedPage && !!isFlagOn) || (isPhoneHomeTab && !!homeRailFlag));
 
   return { isFlagOn: isOn, isEnabled: isOn && !flags?.feedWidgetsOptOut };
 };
