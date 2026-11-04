@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useCallback, useRef, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
@@ -897,11 +897,15 @@ function AuthOptionsInner({
     }),
   };
 
+  const screenBack = screenBacks[activeDisplay];
+  const screenBackRef = useRef(screenBack);
+  screenBackRef.current = screenBack;
+  const hasScreenBack = !!screenBack;
+  const onScreenBack = useCallback(() => screenBackRef.current?.(), []);
+
   useEffect(() => {
-    onScreenBackChange?.(screenBacks[activeDisplay]);
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeDisplay, isEmailLogin, emailVerificationReturn]);
+    onScreenBackChange?.(hasScreenBack ? onScreenBack : undefined);
+  }, [onScreenBackChange, hasScreenBack, onScreenBack]);
 
   const onBackFromRegistration = () => {
     setIsForgotPasswordReturn(false);
@@ -999,7 +1003,11 @@ function AuthOptionsInner({
                   }
                 : undefined
             }
-            onExistingEmailLoginClick={() => {
+            onExistingEmailLoginClick={(existingEmail) => {
+              if (existingEmail) {
+                setEmail(existingEmail);
+                setIsEmailLogin(true);
+              }
               onAuthStateUpdate({
                 isLoginFlow: true,
                 defaultDisplay: AuthDisplay.Default,
@@ -1019,6 +1027,7 @@ function AuthOptionsInner({
         <Tab label={AuthDisplay.OnboardingSignup}>
           <OnboardingRegistrationForm
             onContinueWithEmail={() => {
+              isEmailFormFromSignup.current = false;
               onAuthStateUpdate?.({
                 isAuthenticating: true,
                 defaultDisplay: AuthDisplay.Registration,
@@ -1026,6 +1035,7 @@ function AuthOptionsInner({
               setActiveDisplay(AuthDisplay.Registration);
             }}
             onSignup={(signupEmail) => {
+              isEmailFormFromSignup.current = false;
               onAuthStateUpdate?.({
                 isAuthenticating: true,
                 email: signupEmail,

@@ -25,11 +25,17 @@ jest.mock('./RegistrationForm', () => ({
   default: ({
     onExistingEmailLoginClick,
   }: {
-    onExistingEmailLoginClick?: () => void;
+    onExistingEmailLoginClick?: (existingEmail?: string) => void;
   }) => (
     <div data-testid="registration-form">
-      <button type="button" onClick={onExistingEmailLoginClick}>
+      <button type="button" onClick={() => onExistingEmailLoginClick?.()}>
         Existing email
+      </button>
+      <button
+        type="button"
+        onClick={() => onExistingEmailLoginClick?.('taken@daily.dev')}
+      >
+        Email is taken
       </button>
     </div>
   ),
@@ -47,12 +53,19 @@ jest.mock('./AuthDefault', () => ({
     onProviderClick,
     onForgotPassword,
     onSignup,
+    emailLogin,
+    loginEmail,
   }: {
     onProviderClick: (provider: string) => void;
     onForgotPassword?: (email?: string) => void;
     onSignup?: (email: string) => void;
+    emailLogin?: [boolean, (value: boolean) => void];
+    loginEmail?: string;
   }) => (
     <>
+      {emailLogin?.[0] && (
+        <span data-testid="email-login">{loginEmail ?? ''}</span>
+      )}
       <button
         type="button"
         data-testid="auth-default"
@@ -235,6 +248,23 @@ describe('AuthOptions screen back', () => {
       isLoginFlow: true,
       defaultDisplay: AuthDisplay.Default,
     });
+    await expectBack(undefined);
+  });
+
+  it('opens the email Log in screen with the taken email', async () => {
+    const { goBack, expectBack } = renderMirrored(AuthDisplay.Registration);
+
+    fireEvent.click(await screen.findByText('Email is taken'));
+
+    expect(await screen.findByTestId('email-login')).toHaveTextContent(
+      'taken@daily.dev',
+    );
+    await expectBack(expect.any(Function));
+
+    goBack();
+
+    expect(screen.queryByTestId('email-login')).not.toBeInTheDocument();
+    expect(screen.getByTestId('auth-default')).toBeInTheDocument();
     await expectBack(undefined);
   });
 });

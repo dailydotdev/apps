@@ -66,7 +66,7 @@ export interface RegistrationFormProps extends AuthFormProps {
   onSignup?: (params: RegistrationFormValues) => void;
   token?: string;
   trigger: AuthTriggersType;
-  onExistingEmailLoginClick?: () => void;
+  onExistingEmailLoginClick?: (existingEmail?: string) => void;
   onBackToIntro?: () => void;
   targetId?: string;
   // Header title above the form. Defaults to "Sign up" because this form is
@@ -444,7 +444,15 @@ const RegistrationForm = ({
                 Email is taken. Existing user?{' '}
                 <button
                   type="button"
-                  onClick={() => onExistingEmailLoginClick?.()}
+                  onClick={(e) =>
+                    onExistingEmailLoginClick?.(
+                      (
+                        e.currentTarget.form?.elements.namedItem(
+                          'traits.email',
+                        ) as HTMLInputElement | null
+                      )?.value,
+                    )
+                  }
                   className="font-bold underline"
                 >
                   Log in.
@@ -639,7 +647,7 @@ const RegistrationForm = ({
             )}
             {isOnboardingFunnel && onExistingEmailLoginClick && (
               <MemberAlready
-                onLogin={onExistingEmailLoginClick}
+                onLogin={() => onExistingEmailLoginClick()}
                 className={{
                   container:
                     'mt-7 justify-center text-text-tertiary typo-callout',

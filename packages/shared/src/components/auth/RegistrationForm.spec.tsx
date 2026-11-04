@@ -29,12 +29,17 @@ jest.mock('../../hooks/onboarding/useGenerateUsername', () => ({
   }),
 }));
 
+let mockAlreadyExists = false;
 jest.mock('../../hooks/onboarding/useCheckExistingEmail', () => ({
   useCheckExistingEmail: () => ({
-    email: { isCheckPending: false, alreadyExists: false },
+    email: { isCheckPending: false, alreadyExists: mockAlreadyExists },
     onEmailCheck: jest.fn(),
   }),
 }));
+
+beforeEach(() => {
+  mockAlreadyExists = false;
+});
 
 const renderForm = (props = {}) =>
   render(
@@ -75,6 +80,17 @@ describe('RegistrationForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
 
     expect(onExistingEmailLoginClick).toHaveBeenCalledTimes(1);
+    expect(onExistingEmailLoginClick).toHaveBeenCalledWith();
+  });
+
+  it('hands the taken email to Log in', () => {
+    mockAlreadyExists = true;
+    const onExistingEmailLoginClick = jest.fn();
+    renderForm({ onExistingEmailLoginClick });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Log in.' }));
+
+    expect(onExistingEmailLoginClick).toHaveBeenCalledWith('ada@daily.dev');
   });
 
   it('keeps the login link out of the other signup surfaces', () => {
