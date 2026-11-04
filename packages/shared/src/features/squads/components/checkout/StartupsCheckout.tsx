@@ -111,7 +111,7 @@ const StepHeader = ({
         return (
           <li key={step.id} className="flex items-center gap-2">
             {index > 0 && (
-              <span className="h-px w-6 bg-border-subtlest-tertiary" />
+              <span className="h-px w-4 bg-border-subtlest-tertiary tablet:w-6" />
             )}
             <span
               className={classNames(
@@ -127,6 +127,7 @@ const StepHeader = ({
               tag={TypographyTag.Span}
               type={TypographyType.Footnote}
               bold={isCurrent}
+              className={classNames(!isCurrent && 'hidden tablet:inline')}
               color={
                 isCurrent ? TypographyColor.Primary : TypographyColor.Tertiary
               }
@@ -246,10 +247,12 @@ const AccountStep = ({ plan }: { plan: SquadPlan }): ReactElement => {
 
   return (
     <div className="flex max-w-md flex-col gap-6">
-      <StepTitle
-        title="Create your account"
-        description={`Then name your company and start on ${squadPlanDetails[plan].title}.`}
-      />
+      {display === AuthDisplay.OnboardingSignup && (
+        <StepTitle
+          title="Create your account"
+          description={`Then name your company and start on ${squadPlanDetails[plan].title}.`}
+        />
+      )}
       <AuthOptions
         formRef={null as unknown as MutableRefObject<HTMLFormElement>}
         trigger={AuthTriggers.StartupsCheckout}
@@ -258,6 +261,7 @@ const AccountStep = ({ plan }: { plan: SquadPlan }): ReactElement => {
         defaultDisplay={display}
         forceDefaultDisplay
         isLoginFlow={authState.isLoginFlow}
+        hideRegistrationHeadline
         onAuthStateUpdate={(props) =>
           setAuthState((prev) => ({ ...prev, ...props }))
         }

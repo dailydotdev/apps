@@ -120,7 +120,8 @@ const RegistrationForm = ({
   const [name, setName] = useState('');
   const [isEmailFilled, setIsEmailFilled] = useState(!!email?.length);
   const isRecruiterOnboarding = trigger === AuthTriggers.RecruiterSelfServe;
-  const hideExperienceLevel = isRecruiterOnboarding;
+  const hideExperienceLevel =
+    isRecruiterOnboarding || trigger === AuthTriggers.StartupsCheckout;
   const {
     username,
     setUsername,
