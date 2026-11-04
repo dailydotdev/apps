@@ -1,12 +1,12 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import type { CreatorMetric } from '@dailydotdev/shared/src/graphql/creatorAnalytics';
+import type { CreatorMetric } from '../../../graphql/creatorAnalytics';
 import {
   CreatorMetricSemantics,
   CreatorPerformancePeriod,
-} from '@dailydotdev/shared/src/graphql/creatorAnalytics';
-import { CreatorMetricTile } from '../components/analytics/creator/CreatorMetricTile';
+} from '../../../graphql/creatorAnalytics';
+import { CreatorMetricTile } from './CreatorMetricTile';
 
 const renderTile = (metric: CreatorMetric) =>
   render(

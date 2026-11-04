@@ -4,7 +4,7 @@ import {
   Typography,
   TypographyColor,
   TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
+} from '../../typography/Typography';
 import {
   AddUserIcon,
   DiscussIcon,
@@ -12,18 +12,23 @@ import {
   LinkIcon,
   ReputationIcon,
   UpvoteIcon,
-} from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
+} from '../../icons';
+import { IconSize } from '../../Icon';
+import { ElementPlaceholder } from '../../ElementPlaceholder';
 import type {
   CreatorMetric,
   CreatorPerformance,
   CreatorPerformancePeriod,
-} from '@dailydotdev/shared/src/graphql/creatorAnalytics';
-import { CreatorMetricSemantics } from '@dailydotdev/shared/src/graphql/creatorAnalytics';
-import type { UserPostsAnalytics } from '@dailydotdev/shared/src/graphql/users';
+} from '../../../graphql/creatorAnalytics';
+import { CreatorMetricSemantics } from '../../../graphql/creatorAnalytics';
+import type { UserPostsAnalytics } from '../../../graphql/users';
 import { CreatorMetricTile } from './CreatorMetricTile';
-import { formatCoverageDate, getCoverageNote, periodLabel } from './common';
+import {
+  CreatorAnalyticsAudience,
+  formatCoverageDate,
+  getCoverageNote,
+  periodLabel,
+} from './common';
 
 const iconClassName = 'text-text-tertiary';
 
@@ -42,9 +47,13 @@ const lifetimeMetric = (value: number | null | undefined): CreatorMetric => ({
   semantics: CreatorMetricSemantics.Lifetime,
 });
 
-export const CreatorOverviewSkeleton = (): ReactElement => (
+export const CreatorOverviewSkeleton = ({
+  tiles = 6,
+}: {
+  tiles?: number;
+}): ReactElement => (
   <div className={gridClassName} aria-busy>
-    {Array.from({ length: 6 }, (_, index) => (
+    {Array.from({ length: tiles }, (_, index) => (
       <ElementPlaceholder
         // eslint-disable-next-line react/no-array-index-key
         key={index}
@@ -54,11 +63,31 @@ export const CreatorOverviewSkeleton = (): ReactElement => (
   </div>
 );
 
+const periodTileInfo: Record<
+  CreatorAnalyticsAudience,
+  { impressions: string; upvotes: string; comments: string }
+> = {
+  [CreatorAnalyticsAudience.Creator]: {
+    impressions:
+      'How many times your posts appeared in front of a developer, including while boosted.',
+    upvotes: 'Upvotes cast on your posts during this period that still stand.',
+    comments: 'Comments left on your posts during this period.',
+  },
+  [CreatorAnalyticsAudience.Squad]: {
+    impressions:
+      'How many times posts in this squad appeared in front of a developer, including while boosted.',
+    upvotes:
+      'Upvotes cast on posts in this squad during this period that still stand.',
+    comments: 'Comments left on posts in this squad during this period.',
+  },
+};
+
 interface CreatorOverviewSectionProps {
   performance: CreatorPerformance;
   period: CreatorPerformancePeriod;
   /** Lifetime counters, `null` when that query failed. */
-  lifetime: UserPostsAnalytics | null | undefined;
+  lifetime?: UserPostsAnalytics | null;
+  audience?: CreatorAnalyticsAudience;
 }
 
 /**
@@ -73,16 +102,18 @@ export const CreatorOverviewSection = ({
   performance,
   period,
   lifetime,
+  audience = CreatorAnalyticsAudience.Creator,
 }: CreatorOverviewSectionProps): ReactElement => {
   const { coverage, updatedAt } = performance;
   const coverageNote = getCoverageNote(coverage);
+  const info = periodTileInfo[audience];
 
   return (
     <div className="flex flex-col gap-3">
       <div className={gridClassName}>
         <CreatorMetricTile
           label="Impressions"
-          info="How many times your posts appeared in front of a developer, including while boosted."
+          info={info.impressions}
           icon={<EyeIcon size={IconSize.Small} className={iconClassName} />}
           metric={performance.impressions}
           period={period}
@@ -90,7 +121,7 @@ export const CreatorOverviewSection = ({
         />
         <CreatorMetricTile
           label="Upvotes"
-          info="Upvotes cast on your posts during this period that still stand."
+          info={info.upvotes}
           icon={<UpvoteIcon size={IconSize.Small} className={iconClassName} />}
           metric={performance.upvotes}
           period={period}
@@ -98,7 +129,7 @@ export const CreatorOverviewSection = ({
         />
         <CreatorMetricTile
           label="Comments"
-          info="Comments left on your posts during this period."
+          info={info.comments}
           icon={<DiscussIcon size={IconSize.Small} className={iconClassName} />}
           metric={performance.comments}
           period={period}
@@ -108,45 +139,53 @@ export const CreatorOverviewSection = ({
       {/* Lifetime counters are grouped apart from the period ones rather than
           mixed into the same grid, so the split is visible before anyone
           reads a caption. */}
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Tertiary}
-        bold
-      >
-        All time
-      </Typography>
-      <div className={gridClassName}>
-        <CreatorMetricTile
-          label="Outbound visits"
-          info="Readers who clicked through to your article. There is no daily breakdown for clicks, so this counts every visit since your first post."
-          icon={<LinkIcon size={IconSize.Small} className={iconClassName} />}
-          metric={performance.outboundVisits}
-          period={period}
-          unknownReason="No click data has been recorded for your posts yet."
-        />
-        <CreatorMetricTile
-          label="Followers"
-          info="Developers who followed you after discovering your content."
-          icon={<AddUserIcon size={IconSize.Small} className={iconClassName} />}
-          metric={lifetimeMetric(lifetime?.followers)}
-          period={period}
-          unknownReason="Your follower count could not be loaded."
-        />
-        <CreatorMetricTile
-          label="Reputation"
-          info="Reputation points earned across all of your posts."
-          icon={
-            <ReputationIcon
-              size={IconSize.Small}
-              secondary
-              className={iconClassName}
+      {audience === CreatorAnalyticsAudience.Creator && (
+        <>
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+            bold
+          >
+            All time
+          </Typography>
+          <div className={gridClassName}>
+            <CreatorMetricTile
+              label="Outbound visits"
+              info="Readers who clicked through to your article. There is no daily breakdown for clicks, so this counts every visit since your first post."
+              icon={
+                <LinkIcon size={IconSize.Small} className={iconClassName} />
+              }
+              metric={performance.outboundVisits}
+              period={period}
+              unknownReason="No click data has been recorded for your posts yet."
             />
-          }
-          metric={lifetimeMetric(lifetime?.reputation)}
-          period={period}
-          unknownReason="Your reputation could not be loaded."
-        />
-      </div>
+            <CreatorMetricTile
+              label="Followers"
+              info="Developers who followed you after discovering your content."
+              icon={
+                <AddUserIcon size={IconSize.Small} className={iconClassName} />
+              }
+              metric={lifetimeMetric(lifetime?.followers)}
+              period={period}
+              unknownReason="Your follower count could not be loaded."
+            />
+            <CreatorMetricTile
+              label="Reputation"
+              info="Reputation points earned across all of your posts."
+              icon={
+                <ReputationIcon
+                  size={IconSize.Small}
+                  secondary
+                  className={iconClassName}
+                />
+              }
+              metric={lifetimeMetric(lifetime?.reputation)}
+              period={period}
+              unknownReason="Your reputation could not be loaded."
+            />
+          </div>
+        </>
+      )}
       <div className="flex flex-col gap-1">
         <Typography
           type={TypographyType.Footnote}

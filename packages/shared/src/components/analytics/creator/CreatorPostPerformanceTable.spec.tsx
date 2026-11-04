@@ -2,12 +2,13 @@ import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import type { CreatorPostPerformance } from '@dailydotdev/shared/src/graphql/creatorAnalytics';
+import type { CreatorPostPerformance } from '../../../graphql/creatorAnalytics';
 import {
   CreatorPostSortBy,
   CreatorPostSortOrder,
-} from '@dailydotdev/shared/src/graphql/creatorAnalytics';
-import { CreatorPostPerformanceTable } from '../components/analytics/creator/CreatorPostPerformanceTable';
+} from '../../../graphql/creatorAnalytics';
+import { CreatorPostPerformanceTable } from './CreatorPostPerformanceTable';
+import { CreatorAnalyticsAudience } from './common';
 
 const row = (
   partial: Partial<CreatorPostPerformance> = {},
@@ -84,6 +85,15 @@ describe('CreatorPostPerformanceTable', () => {
         name: 'Open the discussion on A post that exists',
       }),
     ).toHaveAttribute('href', '/posts/p1');
+  });
+
+  it('should link squad rows to the post rather than its analytics', () => {
+    renderTable({ audience: CreatorAnalyticsAudience.Squad });
+
+    expect(screen.getByText('A post that exists').closest('a')).toHaveAttribute(
+      'href',
+      '/posts/p1',
+    );
   });
 
   it('should render shared post titles and images for share rows', () => {

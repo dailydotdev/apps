@@ -1,17 +1,17 @@
 import {
   CreatorMetricSemantics,
   CreatorPerformancePeriod,
-} from '@dailydotdev/shared/src/graphql/creatorAnalytics';
+} from '../../../graphql/creatorAnalytics';
 import type {
   CreatorMetric,
   CreatorPerformanceCoverage,
-} from '@dailydotdev/shared/src/graphql/creatorAnalytics';
+} from '../../../graphql/creatorAnalytics';
 import {
   buildImpressionsChartData,
   getCoverageNote,
   getMetricDelta,
   metricScopeLabel,
-} from '../components/analytics/creator/common';
+} from './common';
 
 const metric = (partial: Partial<CreatorMetric> = {}): CreatorMetric => ({
   value: 100,

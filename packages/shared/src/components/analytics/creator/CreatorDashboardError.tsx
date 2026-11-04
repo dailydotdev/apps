@@ -4,12 +4,8 @@ import {
   Typography,
   TypographyColor,
   TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '../../typography/Typography';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 
 interface CreatorDashboardErrorProps {
   /** What failed, so a partial failure does not blank the whole page. */

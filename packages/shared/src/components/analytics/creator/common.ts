@@ -2,11 +2,16 @@ import type {
   CreatorMetric,
   CreatorPerformance,
   CreatorPerformanceCoverage,
-} from '@dailydotdev/shared/src/graphql/creatorAnalytics';
+} from '../../../graphql/creatorAnalytics';
 import {
   CreatorMetricSemantics,
   CreatorPerformancePeriod,
-} from '@dailydotdev/shared/src/graphql/creatorAnalytics';
+} from '../../../graphql/creatorAnalytics';
+
+export enum CreatorAnalyticsAudience {
+  Creator = 'creator',
+  Squad = 'squad',
+}
 
 export const periodLabel: Record<CreatorPerformancePeriod, string> = {
   [CreatorPerformancePeriod.Last30Days]: 'Last 30 days',

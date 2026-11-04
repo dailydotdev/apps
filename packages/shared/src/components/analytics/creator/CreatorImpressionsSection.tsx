@@ -5,17 +5,21 @@ import {
   Typography,
   TypographyColor,
   TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
-import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
+} from '../../typography/Typography';
+import { ElementPlaceholder } from '../../ElementPlaceholder';
 import type {
   CreatorPerformance,
   CreatorPerformancePeriod,
-} from '@dailydotdev/shared/src/graphql/creatorAnalytics';
-import { buildImpressionsChartData, periodLabel } from './common';
+} from '../../../graphql/creatorAnalytics';
+import {
+  buildImpressionsChartData,
+  CreatorAnalyticsAudience,
+  periodLabel,
+} from './common';
 
 const CombinedImpressionsChart = dynamic(
   () =>
-    import('@dailydotdev/shared/src/components/analytics/CombinedImpressionsChart').then(
+    import('../../analytics/CombinedImpressionsChart').then(
       (mod) => mod.CombinedImpressionsChart,
     ),
   {
@@ -38,7 +42,15 @@ export const CreatorImpressionsSkeleton = (): ReactElement => (
 interface CreatorImpressionsSectionProps {
   performance: CreatorPerformance;
   period: CreatorPerformancePeriod;
+  audience?: CreatorAnalyticsAudience;
 }
+
+const noImpressionsCopy: Record<CreatorAnalyticsAudience, string> = {
+  [CreatorAnalyticsAudience.Creator]:
+    'No impressions in this period. Check back once your posts start getting views.',
+  [CreatorAnalyticsAudience.Squad]:
+    'No impressions in this period. Check back once posts in this squad start getting views.',
+};
 
 /**
  * Daily impressions for the selected window.
@@ -51,6 +63,7 @@ interface CreatorImpressionsSectionProps {
 export const CreatorImpressionsSection = ({
   performance,
   period,
+  audience = CreatorAnalyticsAudience.Creator,
 }: CreatorImpressionsSectionProps): ReactElement => {
   const data = useMemo(
     () => buildImpressionsChartData(performance),
@@ -85,10 +98,7 @@ export const CreatorImpressionsSection = ({
         </EmptyChart>
       )}
       {data.length > 0 && !hasImpressions && (
-        <EmptyChart>
-          No impressions in this period. Check back once your posts start
-          getting views.
-        </EmptyChart>
+        <EmptyChart>{noImpressionsCopy[audience]}</EmptyChart>
       )}
       {data.length > 0 && hasImpressions && (
         <CombinedImpressionsChart data={data} />
