@@ -12,10 +12,7 @@ import { TargetId } from '../../../lib/log';
 import { useAdLabel } from '../../../features/monetization/useAdLabel';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import type { TaboolaResult } from '../../../features/monetization/taboola';
-import {
-  getTaboolaContainerId,
-  requestTaboolaPlacement,
-} from '../../../features/monetization/taboola';
+import { requestTaboolaPlacement } from '../../../features/monetization/taboola';
 
 interface TaboolaAdProps {
   placement: number;
@@ -80,7 +77,6 @@ export const TaboolaAd = forwardRef<HTMLElement, TaboolaAdProps>(
           onClickCapture={onClick}
         >
           <div
-            id={getTaboolaContainerId(placement)}
             ref={containerRef}
             className={classNames(!isList && 'flex min-h-0 flex-1 flex-col')}
           />

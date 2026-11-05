@@ -17,16 +17,10 @@ beforeEach(async () => {
 
 afterEach(() => jest.useRealTimers());
 
-const createContainer = (placement: number): HTMLElement => {
-  const container = document.createElement('div');
-  container.id = taboola.getTaboolaContainerId(placement);
-  document.body.appendChild(container);
-  return container;
-};
-
 const request = (placement: number) => {
   const onResult = jest.fn<void, [TaboolaResult]>();
-  const container = createContainer(placement);
+  const container = document.createElement('div');
+  document.body.appendChild(container);
   taboola.requestTaboolaPlacement({ placement, container, onResult });
   return { container, onResult };
 };
@@ -44,11 +38,11 @@ it('should batch the placements mounted together into one request', () => {
   expect(commands()).toEqual([
     { homepage: 'auto', url: window.location.href },
     expect.objectContaining({
-      container: 'taboola-mid-article-thumbnails-1',
+      container: 'taboola-mid-article-thumbnails-1-1',
       placement: 'Mid Article Thumbnails 1',
     }),
     expect.objectContaining({
-      container: 'taboola-mid-article-thumbnails-2',
+      container: 'taboola-mid-article-thumbnails-2-2',
       placement: 'Mid Article Thumbnails 2',
     }),
     { flush: true },
@@ -76,12 +70,23 @@ it('should report a placement empty once the loaded Taboola left it empty', asyn
   expect(onResult).toHaveBeenCalledWith('empty');
 });
 
-it('should start a new page view when a container comes back on the same URL', () => {
-  request(1).container.remove();
+it('should refill a remounted card without clearing the page view', () => {
+  const first = request(1).container;
+  first.remove();
   jest.runOnlyPendingTimers();
+  const second = request(1).container;
+
+  expect(commands()).not.toContainEqual({ notify: 'newPageLoad' });
+  expect(second.id).not.toBe(first.id);
+});
+
+it('should start a new page view when the URL changes', () => {
   request(1);
+  window.history.replaceState(null, '', '/popular');
+  request(2);
 
   expect(commands()).toContainEqual({ notify: 'newPageLoad' });
+  window.history.replaceState(null, '', '/');
 });
 
 it('should keep the simulated domain once in-app navigation drops it', () => {

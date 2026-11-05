@@ -120,7 +120,11 @@ export function getFeedItemKey(item: FeedItem, index: number): string {
     case 'highlight':
       return getHighlightIdsKey(item.highlights) || `highlight-${index}`;
     case 'ad':
-      return `ad-${index}`;
+      // A Taboola unit costs a request and a redraw on every remount, so it
+      // keeps its key when the items above it change.
+      return item.taboolaPlacement
+        ? `taboola-${item.taboolaPlacement}`
+        : `ad-${index}`;
     default:
       return `placeholder-${index}`;
   }

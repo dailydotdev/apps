@@ -4,9 +4,9 @@
  * them all, so requests queue here and go out in batches.
  *
  * The app never reloads between pages, so a Taboola page view starts on the
- * first request after the URL changes, or when a container id comes back
- * (the feed remounted on the same URL). Taboola rejects a container it has
- * already filled in the same page view.
+ * first request after the URL changes. A new page view clears every unit
+ * Taboola drew, so a card that remounts on the same page asks again in the
+ * page view it is in, with a container Taboola has not filled before.
  */
 
 import type { Ad } from '../../graphql/posts';
@@ -44,8 +44,12 @@ export const isTaboolaPlacement = (placement: number): boolean =>
 export const isTaboolaAd = (ad: Ad, isEnabled: boolean): boolean =>
   isEnabled && !!ad.fallback && !ad.data && !isExtension;
 
-export const getTaboolaContainerId = (placement: number): string =>
-  `taboola-mid-article-thumbnails-${placement}`;
+let mounts = 0;
+
+const createContainerId = (placement: number): string => {
+  mounts += 1;
+  return `taboola-mid-article-thumbnails-${placement}-${mounts}`;
+};
 
 const getPlacementName = (placement: number): string =>
   `Mid Article Thumbnails ${placement}`;
@@ -82,7 +86,6 @@ interface TaboolaRequest {
 
 let loader: Promise<void> | undefined;
 let pageUrl: string | undefined;
-const usedContainers = new Set<string>();
 let queued: TaboolaRequest[] = [];
 const pending = new Set<TaboolaRequest>();
 let flushTimer: ReturnType<typeof setTimeout> | undefined;
@@ -198,13 +201,12 @@ const startPageView = (url: string): void => {
   }
 
   pageUrl = url;
-  usedContainers.clear();
   push({ homepage: 'auto', url });
 };
 
 /**
- * Asks Taboola to fill a placement into `container`, whose id must be
- * `getTaboolaContainerId(placement)`. `onResult` fires once, with `filled`
+ * Asks Taboola to fill a placement into `container`, which it gives a fresh
+ * id. `onResult` fires once, with `filled`
  * when Taboola rendered an item and `empty` when it had none or never loaded.
  * The returned function drops the callback, for a card that unmounts first.
  */
@@ -230,11 +232,12 @@ export const requestTaboolaPlacement = ({
   pending.add(request);
   const url = getPageUrl();
 
-  if (url !== pageUrl || usedContainers.has(container.id)) {
+  if (url !== pageUrl) {
     startPageView(url);
   }
 
-  usedContainers.add(container.id);
+  // eslint-disable-next-line no-param-reassign
+  container.id = createContainerId(placement);
   push({
     mode,
     container: container.id,
