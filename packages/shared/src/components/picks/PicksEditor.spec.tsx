@@ -99,7 +99,7 @@ it('should show the signal line for each suggestion', async () => {
   ]);
   renderEditor();
   await waitForNock();
-  expect(await screen.findByText('▲ upvoted · read 9 min')).toBeInTheDocument();
+  expect(await screen.findByText('▲ upvoted · 9 min')).toBeInTheDocument();
   expect(screen.getByText('bookmarked')).toBeInTheDocument();
   expect(screen.getByText('read')).toBeInTheDocument();
   expect(screen.getByText('0 of 5 selected')).toBeInTheDocument();

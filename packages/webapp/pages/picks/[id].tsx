@@ -8,6 +8,7 @@ import { dehydrate, QueryClient, useQuery } from '@tanstack/react-query';
 import { picksQueryOptions } from '@dailydotdev/shared/src/graphql/picks';
 import type { Picks, PicksItem } from '@dailydotdev/shared/src/graphql/picks';
 import {
+  getCurrentWeekStart,
   getIsoWeekNumber,
   getPickPostHref,
 } from '@dailydotdev/shared/src/lib/picks';
@@ -140,6 +141,8 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
     shouldEvaluate: isLoggedIn,
   });
   const showMakePicksCta = !isLoggedIn || isPicksEnabled;
+  // `/picks/new` edits the current week, so only this week's list is editable
+  const isEditable = isAuthor && picks?.weekStart === getCurrentWeekStart();
 
   useEffect(() => {
     if (!picks || !isAuthReady || hasLoggedView.current) {
@@ -240,14 +243,16 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
               bold
               color={TypographyColor.Primary}
             >
-              Read something good this week? Make your own picks in 30 seconds
+              {isEditable
+                ? 'Changed your mind? You can edit these picks until the week ends'
+                : 'Read something good this week? Make your own picks in 30 seconds'}
             </Typography>
             <Button
               variant={ButtonVariant.Primary}
               size={ButtonSize.Medium}
               onClick={onMakePicks}
             >
-              Make your picks
+              {isEditable ? "Edit this week's picks" : 'Make your picks'}
             </Button>
           </section>
         )}

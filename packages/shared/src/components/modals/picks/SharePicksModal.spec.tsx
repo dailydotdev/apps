@@ -156,6 +156,15 @@ it('should build an absolute link when the webapp url is relative', async () => 
   expect(new URL(requested).pathname).toBe('/picks/picks-1');
 });
 
+it('should link back to the picks page', () => {
+  renderModal();
+
+  expect(screen.getByRole('link', { name: 'View your page' })).toHaveAttribute(
+    'href',
+    '/picks/picks-1',
+  );
+});
+
 it('should hide Share… when the browser has no native share', () => {
   renderModal();
 
