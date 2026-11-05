@@ -460,6 +460,8 @@ export enum LogEvent {
   SelectStartupsSetupPath = 'select startups setup path',
   CopyStartupsSetup = 'copy startups setup',
   ClickStartupsSetupStep = 'click startups setup step',
+  SelectStartupsGoal = 'select startups goal',
+  SkipStartupsGoal = 'skip startups goal',
   UpdateSquadIntel = 'update squad intel',
   CopySquadIntel = 'copy squad intel',
   PageScroll = 'page scroll',

@@ -86,6 +86,11 @@ import {
 import { startupsCrewCheerImage } from './StartupsCrewOnBase';
 import { StartupsNameStunt } from './StartupsNameStunt';
 import { StartupsSignupPanel } from './StartupsSignupPanel';
+import type { StartupsGoalAnswers } from './StartupsGoalQuestion';
+import {
+  getStartupsGoalAnswers,
+  StartupsGoalQuestion,
+} from './StartupsGoalQuestion';
 
 export enum StartupsCheckoutStep {
   Account = 'account',
@@ -248,8 +253,39 @@ const CompanyStep = ({
   const [name, setName] = useState('');
   const [isMissing, setMissing] = useState(false);
   const [isFindingHandle, setFindingHandle] = useState(false);
+  const [goalAnswers, setGoalAnswers] = useState<StartupsGoalAnswers>({
+    goals: [],
+    text: '',
+  });
+  const logStartups = useLogStartups();
+
+  const logGoalAnswers = (sourceId: string) => {
+    const answers = getStartupsGoalAnswers(goalAnswers);
+    const extra = { source_id: sourceId };
+
+    if (!answers.length) {
+      logStartups(LogEvent.SkipStartupsGoal, undefined, extra);
+    }
+
+    // One event per answer, so counting an answer is counting its events
+    answers.forEach(({ goal, text }) =>
+      logStartups(LogEvent.SelectStartupsGoal, goal, {
+        ...extra,
+        ...(text && { text }),
+      }),
+    );
+  };
+
   const { onCreateSquad, isLoading } = useSquadCreate({
-    onSuccess: (squad) => onContinue({ ...squad, id: getSquadId(squad) }, true),
+    onSuccess: (squad) => {
+      const company = { ...squad, id: getSquadId(squad) };
+
+      if (!hasPages) {
+        logGoalAnswers(company.id);
+      }
+
+      onContinue(company, true);
+    },
   });
   const { data: subscription, isFetching } = useQuery(
     squadSubscriptionQueryOptions({ user, sourceId: selected?.id }),
@@ -351,36 +387,35 @@ const CompanyStep = ({
               hint={getHint()}
             />
           </div>
-          <div className="mt-2">
-            {activePlan ? (
-              <CheckoutCta>
-                <Button
-                  tag="a"
-                  href={getSquadManageUrl(
-                    selected.handle,
-                    SquadManageSection.Plan,
-                  )}
-                  variant={ButtonVariant.Primary}
-                  className="flex-1"
-                >
-                  Manage subscription
-                </Button>
-              </CheckoutCta>
-            ) : (
-              <CheckoutCta>
-                <Button
-                  type="submit"
-                  variant={ButtonVariant.Primary}
-                  className="flex-1"
-                  loading={isBusy || (!!selected && isFetching)}
-                  disabled={isBusy || (!!selected && isFetching)}
-                >
-                  Continue
-                </Button>
-              </CheckoutCta>
-            )}
-          </div>
         </div>
+        {/* Only for someone naming their first company */}
+        {!hasPages && (
+          <StartupsGoalQuestion value={goalAnswers} onChange={setGoalAnswers} />
+        )}
+        {activePlan ? (
+          <CheckoutCta>
+            <Button
+              tag="a"
+              href={getSquadManageUrl(selected.handle, SquadManageSection.Plan)}
+              variant={ButtonVariant.Primary}
+              className="flex-1"
+            >
+              Manage subscription
+            </Button>
+          </CheckoutCta>
+        ) : (
+          <CheckoutCta>
+            <Button
+              type="submit"
+              variant={ButtonVariant.Primary}
+              className="flex-1"
+              loading={isBusy || (!!selected && isFetching)}
+              disabled={isBusy || (!!selected && isFetching)}
+            >
+              Continue
+            </Button>
+          </CheckoutCta>
+        )}
       </form>
     </CheckoutShell>
   );
