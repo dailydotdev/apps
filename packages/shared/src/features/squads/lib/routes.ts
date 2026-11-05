@@ -11,6 +11,7 @@ export enum SquadManageSection {
   Posting = 'posting',
   Analytics = 'analytics',
   Plan = 'plan',
+  Intel = 'intel',
   Integrations = 'integrations',
   DangerZone = 'danger-zone',
 }
@@ -33,6 +34,9 @@ export const getSquadProductsUrl = (handle: string): string =>
 
 export const getSquadRulesUrl = (handle: string): string =>
   `${getSquadUrl(handle)}/rules`;
+
+export const getSquadIntelUrl = (handle: string): string =>
+  `${getSquadUrl(handle)}/intel`;
 
 export const getSquadPendingPostsUrl = (handle: string): string =>
   `${getSquadUrl(handle)}/pending`;
