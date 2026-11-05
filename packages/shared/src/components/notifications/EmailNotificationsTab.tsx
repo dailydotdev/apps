@@ -37,7 +37,7 @@ const EmailNotificationsTab = (): ReactElement => {
   const { isJobsEnabled } = useJobsFeature();
   const { squads } = useAuthContext();
   // The weekly intel only reaches paid seats of a daily.dev for Startups plan
-  const hasSeat = !!squads?.some((squad) => squad.currentMember?.flags?.seat);
+  const hasSeat = !!squads?.some((squad) => squad.currentMember?.seat);
   const showOpportunitiesToggle =
     isJobsEnabled || getGroupStatus('opportunities', 'email');
 

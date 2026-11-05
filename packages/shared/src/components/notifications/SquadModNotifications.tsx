@@ -37,7 +37,7 @@ const SquadModerationItem = ({
   onToggleExpanded,
 }: SquadModerationItemProps): ReactElement | null => {
   // The weekly intel only reaches paid seats of a daily.dev for Startups plan
-  const hasSeat = !!squad.currentMember?.flags?.seat;
+  const hasSeat = !!squad.currentMember?.seat;
   const keys = useMemo(
     () =>
       hasSeat

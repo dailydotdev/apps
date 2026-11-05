@@ -41,8 +41,6 @@ export enum SourcePermissions {
 export type SourceMemberFlag = Partial<{
   hideFeedPosts: boolean;
   collapsePinnedPosts: boolean;
-  // A paid daily.dev for Startups seat, sent by boot only when held
-  seat: boolean;
 }>;
 
 export interface SourceMember {
@@ -52,6 +50,8 @@ export interface SourceMember {
   referralToken: string;
   permissions?: SourcePermissions[];
   flags?: SourceMemberFlag;
+  // A paid daily.dev for Startups seat
+  seat?: boolean;
 }
 
 export interface BasicSourceMember {
