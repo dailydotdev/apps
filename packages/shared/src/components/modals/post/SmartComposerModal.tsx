@@ -28,6 +28,7 @@ import { Switch } from '../../fields/Switch';
 import { Drawer, DrawerPosition } from '../../drawers/Drawer';
 import { labels } from '../../../lib/labels';
 import { scheduledPostsUrl } from '../../../lib/constants';
+import { isIOSNative, isPWA } from '../../../lib/func';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
@@ -120,7 +121,7 @@ export function SmartComposerModal({
   closeOnBack = true,
   ...props
 }: SmartComposerModalProps): ReactElement {
-  const { user } = useAuthContext();
+  const { user, isAndroidApp } = useAuthContext();
   const { logEvent } = useLogContext();
   const router = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -327,6 +328,16 @@ export function SmartComposerModal({
   );
 
   const handleViewScheduled = useCallback(async () => {
+    // Never trade an in-progress draft for the scheduled posts list: open the
+    // list in a new tab and leave the composer as it is. The native app
+    // wrappers and installed PWAs have no tabs (a new window leaves the app),
+    // so there we keep asking before navigating away.
+    const canOpenNewTab = !isAndroidApp && !isIOSNative() && !isPWA();
+    if (isDirty && canOpenNewTab) {
+      window.open(scheduledPostsUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
     if (!(await confirmDiscardIfDirty())) {
       return;
     }
@@ -334,7 +345,13 @@ export function SmartComposerModal({
     const navigation = navigateAway(scheduledPostsUrl);
     onRequestClose?.();
     await navigation;
-  }, [confirmDiscardIfDirty, navigateAway, onRequestClose]);
+  }, [
+    confirmDiscardIfDirty,
+    isAndroidApp,
+    isDirty,
+    navigateAway,
+    onRequestClose,
+  ]);
 
   useEffect(() => {
     logEvent({
@@ -574,6 +591,7 @@ export function SmartComposerModal({
             onClick={handleViewScheduled}
             disabled={isInFlight}
             className={squareClassName}
+            showLabel={isLaptop}
           />
           {scheduleInHeader && scheduleButtonNode}
           {kind === 'text' && (
