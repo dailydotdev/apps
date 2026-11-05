@@ -174,6 +174,24 @@ const flush = (): void => {
   );
 };
 
+// Taboola serves a test host as the live site when its URL names that site
+// (`?taboola_sim_domain=daily.dev`). In-app navigation drops the query, so
+// every page view keeps the one an earlier page carried.
+const simDomainParam = 'taboola_sim_domain';
+let simDomain: string | null = null;
+
+const getPageUrl = (): string => {
+  const url = new URL(globalThis.location.href);
+  url.hash = '';
+  simDomain = url.searchParams.get(simDomainParam) ?? simDomain;
+
+  if (simDomain) {
+    url.searchParams.set(simDomainParam, simDomain);
+  }
+
+  return url.toString();
+};
+
 const startPageView = (url: string): void => {
   if (pageUrl !== undefined) {
     push({ notify: 'newPageLoad' });
@@ -210,7 +228,7 @@ export const requestTaboolaPlacement = ({
   };
   request.observer.observe(container, { childList: true, subtree: true });
   pending.add(request);
-  const url = globalThis.location.href.split('#')[0];
+  const url = getPageUrl();
 
   if (url !== pageUrl || usedContainers.has(container.id)) {
     startPageView(url);

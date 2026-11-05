@@ -84,6 +84,19 @@ it('should start a new page view when a container comes back on the same URL', (
   expect(commands()).toContainEqual({ notify: 'newPageLoad' });
 });
 
+it('should keep the simulated domain once in-app navigation drops it', () => {
+  window.history.replaceState(null, '', '/?taboola_sim_domain=daily.dev');
+  request(1);
+  window.history.replaceState(null, '', '/popular');
+  request(2);
+
+  expect(commands()).toContainEqual({
+    homepage: 'auto',
+    url: 'http://localhost/popular?taboola_sim_domain=daily.dev',
+  });
+  window.history.replaceState(null, '', '/');
+});
+
 it('should fall back when neither loader can load', async () => {
   const { onResult } = request(1);
   jest.runOnlyPendingTimers();
