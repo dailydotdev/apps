@@ -10,6 +10,7 @@ import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import type { Picks } from '@dailydotdev/shared/src/graphql/picks';
 import {
   PICKS_QUERY,
+  PICKS_VIEW_COUNT_QUERY,
   TRACK_PICKS_VIEW_MUTATION,
 } from '@dailydotdev/shared/src/graphql/picks';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
@@ -74,6 +75,16 @@ const picks: Picks = {
 const logEvent = jest.fn();
 
 const trackView = jest.fn();
+const readViewCount = jest.fn();
+
+const mockViewCount = (id: string, viewCount: number | null) =>
+  mockGraphQL({
+    request: { query: PICKS_VIEW_COUNT_QUERY, variables: { id } },
+    result: () => {
+      readViewCount();
+      return { data: { picks: { id, viewCount } } };
+    },
+  });
 
 const renderPage = (data: Picks, auth: Record<string, unknown> = {}) => {
   mockGraphQL({
@@ -279,13 +290,15 @@ it('should count the open for a logged out viewer', async () => {
   await waitFor(() => expect(trackView).toHaveBeenCalledTimes(1));
 });
 
-it('should not count the author and show them the opens', async () => {
-  renderPage(
-    { ...picks, viewCount: 12 },
-    { user: { ...loggedUser, id: 'author-1' }, isLoggedIn: true },
-  );
+it('should not count the author and show them the opens, read fresh', async () => {
+  mockViewCount('picks-1', 12);
+  renderPage(picks, {
+    user: { ...loggedUser, id: 'author-1' },
+    isLoggedIn: true,
+  });
 
   expect(await screen.findByText('Opened by 12')).toBeInTheDocument();
+  expect(readViewCount).toHaveBeenCalledTimes(1);
   await waitFor(() =>
     expect(logEvent).toHaveBeenCalledWith(
       expect.objectContaining({ event_name: LogEvent.ViewPicksPage }),
@@ -295,10 +308,19 @@ it('should not count the author and show them the opens', async () => {
 });
 
 it('should tell the author when nobody opened it yet', async () => {
-  renderPage(
-    { ...picks, viewCount: 0 },
-    { user: { ...loggedUser, id: 'author-1' }, isLoggedIn: true },
-  );
+  mockViewCount('picks-1', 0);
+  renderPage(picks, {
+    user: { ...loggedUser, id: 'author-1' },
+    isLoggedIn: true,
+  });
 
   expect(await screen.findByText('Not opened yet')).toBeInTheDocument();
+});
+
+it('should not read the count for other viewers', async () => {
+  renderPage(picks, { user: loggedUser, isLoggedIn: true });
+  await screen.findByText(/Ada Lovelace's picks/);
+  await waitFor(() => expect(trackView).toHaveBeenCalledTimes(1));
+
+  expect(readViewCount).not.toHaveBeenCalled();
 });

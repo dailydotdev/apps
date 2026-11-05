@@ -7,6 +7,7 @@ import type { DehydratedState } from '@tanstack/react-query';
 import { dehydrate, QueryClient, useQuery } from '@tanstack/react-query';
 import {
   picksQueryOptions,
+  picksViewCountQueryOptions,
   trackPicksView,
 } from '@dailydotdev/shared/src/graphql/picks';
 import type { Picks, PicksItem } from '@dailydotdev/shared/src/graphql/picks';
@@ -140,6 +141,12 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
   const hasLoggedView = useRef(false);
   const hasTrackedView = useRef(false);
   const isAuthor = !!user && user.id === picks?.author.id;
+  // Read fresh on every visit, so the count the notification promised is
+  // the count shown.
+  const { data: viewCount } = useQuery({
+    ...picksViewCountQueryOptions(picksId, user),
+    enabled: isAuthor,
+  });
   const { openShareSheet } = useSharePicks();
   // `/picks/new` is flag-gated, so only offer the CTA to viewers who can use
   // it. Logged out viewers go through auth first and keep the CTA.
@@ -228,12 +235,12 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
             >
               {getPostsLabel(picks)}
             </Typography>
-            {isAuthor && typeof picks.viewCount === 'number' && (
+            {isAuthor && typeof viewCount === 'number' && (
               <Typography
                 type={TypographyType.Footnote}
                 color={TypographyColor.Tertiary}
               >
-                {getOpensLabel(picks.viewCount)}
+                {getOpensLabel(viewCount)}
               </Typography>
             )}
           </div>
