@@ -102,6 +102,22 @@ it('should keep the simulated domain once in-app navigation drops it', () => {
   window.history.replaceState(null, '', '/');
 });
 
+it('should give Taboola every creative slot while QA simulates a domain', () => {
+  const ad = {
+    source: 'ad',
+    company: 'ad',
+    link: '',
+    description: '',
+    image: '',
+  };
+  expect(taboola.isTaboolaAd(ad, false)).toBe(false);
+
+  window.history.replaceState(null, '', '/?taboola_sim_domain=daily.dev');
+  expect(taboola.isTaboolaAd(ad, false)).toBe(true);
+  expect(taboola.isTaboolaAd({ ...ad, data: {} }, false)).toBe(false);
+  window.history.replaceState(null, '', '/');
+});
+
 it('should fall back when neither loader can load', async () => {
   const { onResult } = request(1);
   jest.runOnlyPendingTimers();

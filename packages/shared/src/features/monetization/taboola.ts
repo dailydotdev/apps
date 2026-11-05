@@ -36,14 +36,6 @@ export const isTaboolaPlacement = (placement: number): boolean =>
   placement >= 1 &&
   placement <= taboolaMaxPlacements;
 
-/**
- * Whether Taboola fills the slot the ad server sent `ad` for: only a house ad,
- * never a boost, which carries our own post or squad. The extension's pages
- * can't load Taboola's remote script.
- */
-export const isTaboolaAd = (ad: Ad, isEnabled: boolean): boolean =>
-  isEnabled && !!ad.fallback && !ad.data && !isExtension;
-
 let mounts = 0;
 
 const createContainerId = (placement: number): string => {
@@ -194,6 +186,27 @@ const getPageUrl = (): string => {
 
   return url.toString();
 };
+
+// Taboola's QA build: a page that names a simulated domain gets Taboola in
+// every creative slot, whatever the flag or the ad server says. Revert this
+// commit before merging.
+const isTaboolaQa = (): boolean => {
+  if (typeof globalThis.location === 'undefined') {
+    return false;
+  }
+
+  getPageUrl();
+
+  return !!simDomain;
+};
+
+/**
+ * Whether Taboola fills the slot the ad server sent `ad` for: only a house ad,
+ * never a boost, which carries our own post or squad. The extension's pages
+ * can't load Taboola's remote script.
+ */
+export const isTaboolaAd = (ad: Ad, isEnabled: boolean): boolean =>
+  (isTaboolaQa() || (isEnabled && !!ad.fallback)) && !ad.data && !isExtension;
 
 const startPageView = (url: string): void => {
   if (pageUrl !== undefined) {
