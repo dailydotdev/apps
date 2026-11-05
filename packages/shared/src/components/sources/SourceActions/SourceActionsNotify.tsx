@@ -10,6 +10,7 @@ interface SourceActionsNotifyProps {
   onClick: (e: React.MouseEvent) => void;
   disabled?: boolean;
   size?: ButtonSize;
+  variant?: ButtonVariant;
 }
 
 const SourceActionsNotify = (props: SourceActionsNotifyProps): ReactElement => {
@@ -18,13 +19,14 @@ const SourceActionsNotify = (props: SourceActionsNotifyProps): ReactElement => {
     onClick,
     disabled,
     size = ButtonSize.Small,
+    variant: variantOverride,
   } = props;
 
   const icon = haveNotificationsOn ? <BellSubscribedIcon /> : <BellAddIcon />;
   const label = `${haveNotificationsOn ? 'Disable' : 'Enable'} notifications`;
-  const variant = haveNotificationsOn
-    ? ButtonVariant.Subtle
-    : ButtonVariant.Secondary;
+  const variant =
+    variantOverride ??
+    (haveNotificationsOn ? ButtonVariant.Subtle : ButtonVariant.Secondary);
 
   return (
     <Tooltip content={label}>
