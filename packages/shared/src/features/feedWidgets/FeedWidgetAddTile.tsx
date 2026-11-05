@@ -130,25 +130,21 @@ const loadingRowClassNames = [
   'h-4 w-3/5',
 ];
 
-// Cards further back sit in less light.
-const dimClassName = ['', 'opacity-16', 'opacity-40', 'opacity-50'];
-
 /** A widget as a card: the widget surface, its own header, its loading rows. */
 const WidgetCard = ({
   kind,
-  depth,
+  isBehind = false,
   style,
 }: {
   kind: FeedWidgetKind;
-  /** How far behind the front card it sits; 0 is the front. */
-  depth: number;
+  isBehind?: boolean;
   style: CSSProperties;
 }): ReactElement => {
   const { icon, title, glow } = headerFor(kind);
 
   return (
     <span
-      className="absolute inset-x-6 isolate flex h-36 flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle py-3 text-left shadow-2 transition-transform duration-500 ease-out motion-reduce:transition-none"
+      className="absolute left-1/2 isolate flex h-36 w-40 flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle py-3 text-left shadow-2 transition-transform duration-500 ease-out motion-reduce:transition-none"
       style={style}
     >
       {glow && (
@@ -171,48 +167,45 @@ const WidgetCard = ({
           />
         ))}
       </span>
-      {depth > 0 && (
-        <span
-          className={classNames(
-            'pointer-events-none absolute inset-0 bg-background-default',
-            dimClassName[depth],
-          )}
-        />
+      {isBehind && (
+        <span className="pointer-events-none absolute inset-0 bg-background-default opacity-16" />
       )}
     </span>
   );
 };
 
-const STACK_STEP_REM = 2.5;
-const STACK_SCALE_STEP = 0.06;
-const STACK_LIFT_REM = 0.375;
+const MAX_FANNED = 3;
 
-/**
- * A deck seen from the front: the lead widget in front, each one behind it a
- * step up, a little smaller and dimmer. Hover lifts the deck apart.
- */
-const StackedCards = ({ kinds }: { kinds: FeedWidgetKind[] }): ReactElement => {
-  const back = kinds.length - 1;
+/** A hand of three: the lead widget in front, the next two fanned behind it. */
+const FannedCards = ({ kinds }: { kinds: FeedWidgetKind[] }): ReactElement => {
+  const [lead, ...behind] = kinds.slice(0, MAX_FANNED);
 
   return (
     <>
-      {[...kinds].reverse().map((kind, index) => {
-        const depth = back - index;
+      {behind.map((kind, index) => {
+        const side = index === 0 ? -1 : 1;
         return (
           <WidgetCard
             key={kind}
             kind={kind}
-            depth={depth}
+            isBehind
             style={{
-              top: `${0.5 + index * STACK_STEP_REM}rem`,
-              transform: `translateY(calc(var(--add-tile-lift, 0) * -${
-                depth * STACK_LIFT_REM
-              }rem)) scale(${1 - depth * STACK_SCALE_STEP})`,
-              transformOrigin: 'top center',
+              top: '2rem',
+              transform: `translateX(calc(-50% + ${side} * (42% + var(--add-tile-lift, 0) * 6%))) rotate(calc(${side} * (13deg + var(--add-tile-lift, 0) * 3deg)))`,
             }}
           />
         );
       })}
+      {lead && (
+        <WidgetCard
+          kind={lead}
+          style={{
+            top: '0.5rem',
+            transform:
+              'translateX(-50%) translateY(calc(var(--add-tile-lift, 0) * -0.375rem))',
+          }}
+        />
+      )}
     </>
   );
 };
@@ -221,7 +214,7 @@ const StackedCards = ({ kinds }: { kinds: FeedWidgetKind[] }): ReactElement => {
  * The empty slot at the end of a rail the reader has not made their own: a
  * plus that opens the gallery, the names of a few widgets it holds, and those
  * widgets as cards under it, each on the widget surface with its own header,
- * stacked one behind the other.
+ * fanned like a hand.
  */
 export const FeedWidgetAddTile = ({
   kinds,
@@ -252,7 +245,7 @@ export const FeedWidgetAddTile = ({
       </span>
     )}
     <span aria-hidden className="relative mt-3 w-full flex-1">
-      <StackedCards kinds={kinds} />
+      <FannedCards kinds={kinds} />
       <span className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-background-default to-transparent" />
     </span>
   </button>
