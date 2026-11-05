@@ -352,7 +352,8 @@ export const featureOrganicAds = new Feature('organic_ads', false);
 export const featureForceAd = new Feature('force_ad', false);
 
 // Fills the feed slots the ad server only has a house ad for with Taboola.
-export const featureTaboolaAds = new Feature('taboola_ads', false);
+// On by default for Taboola's QA only; revert this commit before merging.
+export const featureTaboolaAds = new Feature('taboola_ads', true);
 
 export type ExcoPlayerConfig = {
   /** The EX.CO player the embed script loads. */
