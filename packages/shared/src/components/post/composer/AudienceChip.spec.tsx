@@ -58,7 +58,7 @@ const createAudience = (
     memberInviteRole: SourceMemberRole.Member,
     moderationRequired: false,
     moderationPostCount: 0,
-  } as unknown as Squad);
+  }) as unknown as Squad;
 
 const userAudience = createAudience('user-1', 'Chris', SourceType.User);
 const frontendSquad = createAudience('squad-frontend', 'Frontend');

@@ -12,6 +12,7 @@ import {
   MessageReactions,
 } from '../../messages/components/MessageReactions';
 import type { RoomPerson } from '../hooks/useRoomPeople';
+import type { RoomPresenceOf } from '../hooks/useRoomPresence';
 
 // Messages from the same sender within this close together share a header.
 const groupWithinMs = 2 * 60 * 1000;
@@ -52,6 +53,19 @@ export const mentionsUser = (body: string, username?: string): boolean =>
     body,
   );
 
+// On the sender's avatar: green while they are still in the room, grey once
+// they left. Nothing when nobody could tell. Same dot as DiscussionShareRow.
+const PresenceDot = ({ isHere }: { isHere: boolean }): ReactElement => (
+  <span
+    className={classNames(
+      'pointer-events-none absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full border-2 border-background-default',
+      isHere ? 'bg-accent-avocado-default' : 'bg-text-quaternary',
+    )}
+  >
+    <span className="sr-only">{isHere ? 'In the chat' : 'Left the chat'}</span>
+  </span>
+);
+
 const hoverActionClassName =
   'opacity-0 transition-opacity group-hover/message:opacity-100 focus-visible:opacity-100 motion-reduce:transition-none';
 
@@ -59,6 +73,7 @@ const MessageRow = ({
   message,
   sender,
   showHeader,
+  isHere,
   viewerId,
   viewerUsername,
   usernames,
@@ -67,6 +82,8 @@ const MessageRow = ({
   message: RoomMessage;
   sender?: RoomPerson;
   showHeader: boolean;
+  // Whether the sender is still in the room; undefined when unknown.
+  isHere?: boolean;
   viewerId?: string;
   viewerUsername?: string;
   usernames: Record<string, string>;
@@ -92,13 +109,16 @@ const MessageRow = ({
         isMentioned && 'bg-brand-float',
       )}
     >
-      <span className="w-6 shrink-0">
+      <span className="relative h-fit w-6 shrink-0">
         {showHeader && sender && (
           <ProfilePicture
             user={{ id: sender.id, image: sender.image, username: sender.name }}
             size={ProfileImageSize.Small}
             nativeLazyLoading
           />
+        )}
+        {showHeader && sender && !isMe && isHere !== undefined && (
+          <PresenceDot isHere={isHere} />
         )}
       </span>
       <div className="flex min-w-0 flex-1 flex-col">
@@ -110,7 +130,7 @@ const MessageRow = ({
                 isMe ? 'text-brand-default' : 'text-text-primary',
               )}
             >
-              {isMe ? 'You' : sender?.name ?? '…'}
+              {isMe ? 'You' : (sender?.name ?? '…')}
             </span>
             <span className="text-text-quaternary">{time}</span>
           </span>
@@ -120,10 +140,14 @@ const MessageRow = ({
             {renderMentions(message.body, viewerUsername)}
           </span>
           {react && (
-            <AddReactionButton
-              onReact={react}
-              className={hoverActionClassName}
-            />
+            // Bleeds into the row's spacing so the roomier button doesn't
+            // make every single-line message taller.
+            <div className="-my-1.5">
+              <AddReactionButton
+                onReact={react}
+                className={hoverActionClassName}
+              />
+            </div>
           )}
         </div>
         {Object.keys(reactions).length > 0 && viewerId && (
@@ -156,6 +180,7 @@ export const LiveChatMessageList = ({
   typingUserIds,
   people,
   usernames,
+  presenceOf,
   viewerId,
   viewerUsername,
   onReact,
@@ -165,6 +190,7 @@ export const LiveChatMessageList = ({
   messages: RoomMessage[];
   typingUserIds: string[];
   people: RoomPerson[];
+  presenceOf?: RoomPresenceOf;
   usernames: Record<string, string>;
   viewerId?: string;
   viewerUsername?: string;
@@ -216,6 +242,7 @@ export const LiveChatMessageList = ({
               message={message}
               sender={personOf(message.senderId)}
               showHeader={showHeader}
+              isHere={presenceOf?.(message.senderId)}
               viewerId={viewerId}
               viewerUsername={viewerUsername}
               usernames={usernames}

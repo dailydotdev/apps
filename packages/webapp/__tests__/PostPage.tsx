@@ -155,7 +155,7 @@ const mockRouter = (overrides: Partial<NextRouter> = {}): void => {
         events: routerEvents,
         beforePopState: jest.fn(),
         ...overrides,
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
 };
 
@@ -313,9 +313,9 @@ const mockVoteMutation = ({
       }) =>
         Boolean(
           body.query?.includes('mutation Vote(') &&
-            body.variables?.id === defaultPost.id &&
-            body.variables?.vote === vote &&
-            body.variables?.entity === UserVoteEntity.Post,
+          body.variables?.id === defaultPost.id &&
+          body.variables?.vote === vote &&
+          body.variables?.entity === UserVoteEntity.Post,
         ),
     )
     .reply(200, () => {
@@ -331,7 +331,7 @@ const mockCompleteActionMutation = (action: ActionType): void => {
       (body: { query?: string; variables?: { type?: ActionType } }) =>
         Boolean(
           body.query?.includes('mutation CompleteAction(') &&
-            body.variables?.type === action,
+          body.variables?.type === action,
         ),
     )
     .reply(200, { data: { _: true } });
@@ -1541,6 +1541,23 @@ describe('post page feed', () => {
       '0e4005b2d3cf191f8c44c2718a457a1e',
     );
     expect(screen.getByTestId('postContainer')).toContainElement(feed);
+  });
+
+  it('should keep the widgets to laptop up while the feed is on, so the feed follows the comments', async () => {
+    mockPostPageFeedOn = true;
+    renderPost();
+    await screen.findByTestId('postPageFeed');
+    const widgets = screen.getByTestId('postContainer').nextElementSibling;
+    expect(widgets?.tagName).toBe('ASIDE');
+    expect(widgets).toHaveClass('hidden', 'laptop:flex');
+  });
+
+  it('should show the widgets at every width when the feed is off', async () => {
+    renderPost();
+    const widgets = (await screen.findByTestId('postContainer'))
+      .nextElementSibling;
+    expect(widgets?.tagName).toBe('ASIDE');
+    expect(widgets).not.toHaveClass('hidden');
   });
 
   it('should not render the feed for signed-out readers, even when the experiment is on', async () => {

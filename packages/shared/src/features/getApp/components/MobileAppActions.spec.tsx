@@ -6,7 +6,7 @@ import type { AuthContextData } from '../../../contexts/AuthContext';
 import AuthContext from '../../../contexts/AuthContext';
 import { getLogContextStatic } from '../../../contexts/LogContext';
 import type { LogContextData } from '../../../hooks/log/useLogContextData';
-import { useViewSize } from '../../../hooks/useViewSize';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { isIOSNative } from '../../../lib/func';
 import { AuthTriggers } from '../../../lib/auth';
 import {
@@ -102,7 +102,15 @@ describe('MobileAppActions', () => {
     expect(screen.queryByText('Open app')).not.toBeInTheDocument();
   });
 
-  it('should leave tablets with the Log in / Sign up strip', () => {
+  it('should serve a tablet visitor the same pair as a phone', () => {
+    mockIsTablet.mockImplementation((size) => size === ViewSize.Tablet);
+    renderComponent();
+
+    expect(screen.getByRole('button', { name: 'Log in' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Open app' })).toBeInTheDocument();
+  });
+
+  it('should leave laptops to the header and its own Log in and Sign up', () => {
     mockIsTablet.mockReturnValue(true);
     renderComponent();
 
@@ -112,12 +120,25 @@ describe('MobileAppActions', () => {
   it.each([
     ['iOS', () => mockIsIOSNative.mockReturnValue(true), {}],
     ['Android', () => undefined, { isAndroidApp: true }],
-  ])('should never ask the %s app to open the app', (_, arrange, auth) => {
-    arrange();
-    renderComponent(auth);
+  ])(
+    'should offer the %s app visitor Sign up instead of Open app',
+    async (_, arrange, auth) => {
+      arrange();
+      renderComponent(auth);
 
-    expect(screen.queryByText('Open app')).not.toBeInTheDocument();
-  });
+      expect(screen.queryByText('Open app')).not.toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Log in' }),
+      ).toBeInTheDocument();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Sign up' }));
+
+      expect(showLogin).toHaveBeenCalledWith({
+        trigger: AuthTriggers.MainButton,
+        options: { isLogin: false },
+      });
+    },
+  );
 
   describe('post bar Read button', () => {
     const renderIconOnlyRead = (

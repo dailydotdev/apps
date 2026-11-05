@@ -54,7 +54,6 @@ import { RelatedEntities } from '@dailydotdev/shared/src/components/RelatedEntit
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts/ActiveFeedNameContext';
-import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { ArchiveEntryCard } from '@dailydotdev/shared/src/components/archive/ArchiveEntryCard';
 import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/ArchiveBreadcrumbs';
@@ -92,7 +91,10 @@ const pageSectionAutoWidthClassName = `${pageSectionClassName} !w-auto`;
 // against their own intrinsic width, blowing the cards up to ~2x.
 // `self-stretch` (not `w-full`) accounts for the mx-4 margins.
 const pageFeedSectionClassName = `${pageSectionClassName} self-stretch`;
-const pageFeedClassName = '!mx-4 !w-auto';
+// Below laptop the feed is a list, and a list runs full-bleed, back out
+// past the section's margins.
+const pageFeedBleedClassName = '-mx-4 laptop:mx-0';
+const pageFeedClassName = '!mx-0 !w-auto laptop:!mx-4';
 const horizontalRailClassName = '!mx-0 !mb-0';
 
 interface SourcePageProps extends DynamicSeoProps {
@@ -423,17 +425,19 @@ const SourcePage = ({
           <EntitySectionHeading>
             All posts from {source.name}
           </EntitySectionHeading>
-          <Feed
-            feedName={OtherFeedPage.Source}
-            feedQueryKey={[
-              'sourceFeed',
-              user?.id ?? 'anonymous',
-              Object.values(queryVariables),
-            ]}
-            query={SOURCE_FEED_QUERY}
-            variables={queryVariables}
-            className={pageFeedClassName}
-          />
+          <div className={pageFeedBleedClassName}>
+            <Feed
+              feedName={OtherFeedPage.Source}
+              feedQueryKey={[
+                'sourceFeed',
+                user?.id ?? 'anonymous',
+                Object.values(queryVariables),
+              ]}
+              query={SOURCE_FEED_QUERY}
+              variables={queryVariables}
+              className={pageFeedClassName}
+            />
+          </div>
         </div>
         <PublicPageSignupBanner />
       </FeedPageLayoutComponent>
@@ -444,7 +448,6 @@ const SourcePage = ({
 SourcePage.getLayout = getLayout;
 SourcePage.layoutProps = {
   ...mainFeedLayoutProps,
-  customBanner: <CustomAuthBanner />,
 };
 export default SourcePage;
 

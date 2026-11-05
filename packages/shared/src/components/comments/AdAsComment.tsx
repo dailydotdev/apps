@@ -51,6 +51,7 @@ export const AdAsComment = ({
     queryKey: generateQueryKey(RequestKey.Ads, user, postId),
     enabled: !isAdFree,
     staleTime: StaleTime.OneHour,
+    refreshOnPageView: true,
   });
 
   const onAdAction = useCallback(

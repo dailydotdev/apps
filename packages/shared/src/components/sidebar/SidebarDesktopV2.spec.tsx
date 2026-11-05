@@ -13,6 +13,18 @@ jest.mock('../../hooks/layout/useLaptopLayout', () => ({
   useLaptopLayout: () => true,
 }));
 
+const mockMessagesEnabled = jest.fn(() => false);
+jest.mock('../../features/messages/hooks/useMessagesEnabled', () => ({
+  useMessagesEnabled: () => ({
+    isEnabled: mockMessagesEnabled(),
+    isGatedOut: false,
+  }),
+}));
+
+jest.mock('../../features/messages/hooks/useUnreadMessagesCount', () => ({
+  useUnreadMessagesCount: () => ({ unread: 2, requests: 3, total: 5 }),
+}));
+
 const renderRail = (activePage: string): RenderResult =>
   render(
     <TestBootProvider
@@ -28,7 +40,15 @@ const renderRail = (activePage: string): RenderResult =>
 const selectedTabs = () =>
   Array.from(document.querySelectorAll('[role="tab"][aria-selected="true"]'));
 
+const railTabIds = () =>
+  Array.from(
+    screen
+      .getByRole('tablist', { name: 'Sidebar categories' })
+      .querySelectorAll('[role="tab"]'),
+  ).map((tab) => tab.getAttribute('id') ?? tab.getAttribute('aria-label'));
+
 beforeEach(() => {
+  mockMessagesEnabled.mockReturnValue(false);
   jest.mocked(useRouter).mockReturnValue({
     query: {},
     pathname: '/',
@@ -76,16 +96,39 @@ describe('SidebarDesktopV2 rail order', () => {
   it('puts Notifications right under Explore, above Squads', () => {
     renderRail('/');
 
-    const tabs = Array.from(
-      screen
-        .getByRole('tablist', { name: 'Sidebar categories' })
-        .querySelectorAll('[role="tab"]'),
-    ).map((tab) => tab.getAttribute('id') ?? tab.getAttribute('aria-label'));
-
-    expect(tabs.slice(0, 3)).toEqual([
+    expect(railTabIds().slice(0, 3)).toEqual([
       'sidebar-category-main',
       'Notifications',
       'sidebar-category-squads',
+    ]);
+  });
+});
+
+describe('SidebarDesktopV2 Messages tab', () => {
+  beforeEach(() => {
+    mockMessagesEnabled.mockReturnValue(true);
+  });
+
+  it('sits after Squads with the unread count, in place of Looking for group', () => {
+    renderRail('/');
+
+    const tabs = railTabIds();
+    expect(tabs.slice(2, 4)).toEqual([
+      'sidebar-category-squads',
+      'sidebar-category-messages',
+    ]);
+    expect(tabs).not.toContain('sidebar-category-lfg');
+    expect(
+      // eslint-disable-next-line testing-library/no-node-access
+      document.getElementById('sidebar-category-messages'),
+    ).toHaveTextContent('5');
+  });
+
+  it('is selected on Looking for group pages', () => {
+    renderRail('/lfg/post-id');
+
+    expect(selectedTabs().map((tab) => tab.getAttribute('id'))).toEqual([
+      'sidebar-category-messages',
     ]);
   });
 });

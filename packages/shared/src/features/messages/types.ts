@@ -8,6 +8,9 @@ export type DmPeer = Pick<
   'id' | 'name' | 'image' | 'permalink' | 'bio'
 > & {
   username: string;
+  // Known when the peer was looked up as a daily.dev user; a peer taken from
+  // the chat server's archive carries none.
+  reputation?: number;
   // Unavailable when the peer turned direct messages off, or blocked the
   // viewer. The two are deliberately indistinguishable so a block is never
   // revealed.

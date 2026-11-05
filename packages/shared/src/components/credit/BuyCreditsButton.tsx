@@ -9,7 +9,8 @@ import { walletUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { largeNumberFormat } from '../../lib';
-import { LogEvent, Origin } from '../../lib/log';
+import type { Origin } from '../../lib/log';
+import { LogEvent } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import { useModalContext } from '../modals/common/types';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
@@ -18,11 +19,13 @@ type BuyCreditsButtonProps = {
   className?: string;
   onPlusClick?: () => void;
   hideBuyButton?: boolean;
+  origin?: Origin;
 };
 export const BuyCreditsButton = ({
   className,
   onPlusClick,
   hideBuyButton,
+  origin,
 }: BuyCreditsButtonProps): ReactElement | null => {
   const hasCoresAccess = useHasAccessToCores();
   const isInsideModal = useModalContext().onRequestClose !== null;
@@ -33,7 +36,7 @@ export const BuyCreditsButton = ({
   const trackBuyCredits = () => {
     logEvent({
       event_name: LogEvent.StartBuyingCredits,
-      extra: JSON.stringify({ origin: Origin.Award }),
+      extra: JSON.stringify({ origin }),
     });
     onPlusClick?.();
   };

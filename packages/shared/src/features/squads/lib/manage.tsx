@@ -6,6 +6,7 @@ import { verifyPermission } from '../../../graphql/squads';
 import {
   AnalyticsIcon,
   AppIcon,
+  CreditCardIcon,
   DocsIcon,
   EditIcon,
   EmbedIcon,
@@ -16,7 +17,7 @@ import {
   TrashIcon,
   UserIcon,
 } from '../../../components/icons';
-import { hasSquadFeature } from './features';
+import { canSetSquadButton, hasSquadFeature } from './features';
 import { SquadManageSection } from './routes';
 import type { SquadViewer } from './viewer';
 import { isStaffViewer } from './viewer';
@@ -43,11 +44,21 @@ export const squadManageTitles: Record<SquadManageSection, string> = {
   [SquadManageSection.Moderation]: 'Moderation',
   [SquadManageSection.Posting]: 'Posting and invitations',
   [SquadManageSection.Analytics]: 'Analytics',
+  [SquadManageSection.Plan]: 'Plan',
   [SquadManageSection.Integrations]: 'Integrations',
   [SquadManageSection.DangerZone]: 'Danger zone',
 };
 
-const canSeeSection = (squad: Squad, section: SquadManageSection): boolean => {
+export interface SquadManageOptions {
+  /** daily.dev for Startups checkout, behind `startups_checkout` */
+  isPlanEnabled?: boolean;
+}
+
+const canSeeSection = (
+  squad: Squad,
+  section: SquadManageSection,
+  { isPlanEnabled = false }: SquadManageOptions,
+): boolean => {
   const canEdit = verifyPermission(squad, SourcePermissions.Edit);
 
   switch (section) {
@@ -60,13 +71,15 @@ const canSeeSection = (squad: Squad, section: SquadManageSection): boolean => {
     case SquadManageSection.Links:
       return canEdit && hasSquadFeature(squad, 'links');
     case SquadManageSection.Branding:
-      return canEdit && hasSquadFeature(squad, 'verified');
+      return canEdit && canSetSquadButton(squad);
     case SquadManageSection.Members:
       return true;
     case SquadManageSection.Moderation:
       return verifyPermission(squad, SourcePermissions.ModeratePost);
     case SquadManageSection.Analytics:
       return verifyPermission(squad, SourcePermissions.ViewAnalytics);
+    case SquadManageSection.Plan:
+      return isPlanEnabled && canEdit;
     case SquadManageSection.Integrations:
       return verifyPermission(squad, SourcePermissions.ConnectSlack);
     case SquadManageSection.DangerZone:
@@ -85,6 +98,7 @@ const item = (
 export const getSquadManageGroups = (
   squad: Squad,
   viewer: SquadViewer,
+  options: SquadManageOptions = {},
 ): SquadManageGroup[] => {
   if (!isStaffViewer(viewer)) {
     return [];
@@ -116,6 +130,7 @@ export const getSquadManageGroups = (
     {
       title: 'Tools',
       items: [
+        item(SquadManageSection.Plan, <CreditCardIcon />),
         item(SquadManageSection.Analytics, <AnalyticsIcon />),
         item(SquadManageSection.Integrations, <EmbedIcon />),
         item(SquadManageSection.DangerZone, <TrashIcon />),
@@ -126,7 +141,7 @@ export const getSquadManageGroups = (
   return groups
     .map((group) => ({
       ...group,
-      items: group.items.filter(({ id }) => canSeeSection(squad, id)),
+      items: group.items.filter(({ id }) => canSeeSection(squad, id, options)),
     }))
     .filter((group) => group.items.length > 0);
 };

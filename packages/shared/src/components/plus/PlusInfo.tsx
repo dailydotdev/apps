@@ -8,11 +8,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import {
-  PlusList,
-  plusFeatureListApiFirst,
-  plusOrganizationFeatureList,
-} from './PlusList';
+import { PlusList, plusOrganizationFeatureList } from './PlusList';
 import { usePlusSubscription } from '../../hooks';
 import { usePaymentContext } from '../../contexts/payment/context';
 import type { OpenCheckoutFn } from '../../contexts/payment/context';
@@ -33,6 +29,7 @@ import { PlusPlanType } from '../../graphql/paddle';
 import { isIOSNative } from '../../lib/func';
 import { PlusPriceType } from '../../lib/featureValues';
 import { PlusAdjustQuantity } from './PlusAdjustQuantity';
+import { PlusCoresGiveback } from './PlusCoresGiveback';
 
 type PlusInfoProps = {
   productOptions: ProductPricingPreview[];
@@ -165,14 +162,19 @@ export const PlusInfo = ({
   const isOnboarding = router.pathname.startsWith('/onboarding');
   const showBuyAsAGiftButton =
     !giftToUser && showGiftButton && !!giftOneYear && !isOnboarding;
-  let plusListContent: ReactElement;
-  if (isOrganization) {
-    plusListContent = <PlusList items={plusOrganizationFeatureList} />;
-  } else if (plusType === PlusType.Self) {
-    plusListContent = <PlusList items={plusFeatureListApiFirst} />;
-  } else {
-    plusListContent = <PlusList />;
-  }
+  const coresGiveback = plusType === PlusType.Self && (
+    <PlusCoresGiveback
+      option={productOptions?.find(
+        (option) => option.priceId === selectedOption,
+      )}
+      className="mt-3"
+    />
+  );
+  const plusListContent = isOrganization ? (
+    <PlusList items={plusOrganizationFeatureList} />
+  ) : (
+    <PlusList />
+  );
 
   return (
     <>
@@ -302,6 +304,7 @@ export const PlusInfo = ({
           </>
         )}
       </div>
+      {!onContinue && coresGiveback}
       {onContinue ? (
         <div className="pt-6">
           <Button
@@ -314,6 +317,7 @@ export const PlusInfo = ({
           >
             Continue »
           </Button>
+          {coresGiveback}
         </div>
       ) : undefined}
       {showPlusList && plusListContent}

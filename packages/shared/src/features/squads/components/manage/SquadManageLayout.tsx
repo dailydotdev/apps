@@ -25,7 +25,8 @@ import { SquadImage } from '../../../../components/squads/SquadImage';
 import { useSquadPageContext } from '../../SquadPageContext';
 import { hasSquadFeature } from '../../lib/features';
 import type { SquadManageGroup } from '../../lib/manage';
-import { getSquadManageGroups, squadManageTitles } from '../../lib/manage';
+import { squadManageTitles } from '../../lib/manage';
+import { useSquadManageGroups } from '../../hooks/useSquadManageGroups';
 import type { SquadManageSection } from '../../lib/routes';
 import { getSquadManageUrl, getSquadUrl } from '../../lib/routes';
 import { VerifiedSquadBadge } from '../VerifiedSquad';
@@ -299,8 +300,8 @@ export const SquadManageLayout = ({
   section,
   children,
 }: SquadManageLayoutProps): ReactElement => {
-  const { squad, viewer } = useSquadPageContext();
-  const groups = getSquadManageGroups(squad, viewer);
+  const { squad } = useSquadPageContext();
+  const { groups } = useSquadManageGroups();
   const squadUrl = getSquadUrl(squad.handle);
   const isPhone = useIsPhone();
 

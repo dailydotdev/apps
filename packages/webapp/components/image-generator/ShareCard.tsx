@@ -777,3 +777,51 @@ export const AchievementShareCard = ({
     {!!data.detail && <Subtitle>{data.detail}</Subtitle>}
   </OgFrame>
 );
+
+export const PICKS_CARD_MAX_TITLES = 3;
+
+export interface PicksCardData {
+  author: { name: string; image?: string };
+  week: number;
+  titles: string[];
+  /** Post ids, index-aligned with `titles`; keys fall back to index without them. */
+  ids?: string[];
+}
+
+export const PicksShareCard = ({
+  data,
+}: {
+  data: PicksCardData;
+}): ReactElement => {
+  const shown = data.titles.slice(0, PICKS_CARD_MAX_TITLES);
+  const more = data.titles.length - shown.length;
+
+  return (
+    <OgFrame
+      identity={{
+        name: data.author.name,
+        image: data.author.image,
+        fallback: true,
+        label: 'Weekly picks',
+        meta: `week ${data.week}`,
+      }}
+    >
+      <ol className="flex flex-col gap-6">
+        {shown.map((title, index) => (
+          <li
+            key={data.ids?.[index] ?? index}
+            className="flex items-baseline gap-5"
+          >
+            <span className="w-10 shrink-0 text-[44px] font-bold text-accent-cabbage-default">
+              {index + 1}
+            </span>
+            <span className="line-clamp-1 min-w-0 flex-1 text-[48px] font-bold leading-[1.15] tracking-tight text-text-primary">
+              {title}
+            </span>
+          </li>
+        ))}
+      </ol>
+      {more > 0 && <Subtitle>+{more} more</Subtitle>}
+    </OgFrame>
+  );
+};

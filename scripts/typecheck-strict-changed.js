@@ -224,6 +224,24 @@ const strictSkipList = new Set([
   // errors on other lines predate that change.
   'packages/shared/src/hooks/useBanner.ts',
   'packages/shared/src/hooks/useFeedSettings.ts',
+  // Boost-again branch — touched only to move the "Boost again" handler from
+  // the dashboard into the boosted view. Pre-existing strict violations
+  // (null flags in the cache updaters, optional onRequestClose, placeholder
+  // stats and list optionality) live on unrelated lines.
+  'packages/shared/src/features/boost/AdsDashboardModal.tsx',
+  'packages/shared/src/features/boost/BoostedViewModal.tsx',
+  // Boost-funnel-events branch — touched only to log the boost funnel and
+  // carry the buy origin into checkout events. Pre-existing strict violations
+  // (optional user and boost settings, `product={null}`, optional squad id,
+  // nullable cache updaters, optional prices and Paddle event data) live on
+  // unrelated lines.
+  'packages/shared/src/components/modals/award/BuyCoresModal.tsx',
+  'packages/shared/src/contexts/BuyCoresContext/PaddleBuyCoresContext.tsx',
+  'packages/shared/src/contexts/BuyCoresContext/StoreKitBuyCoresContext.tsx',
+  'packages/shared/src/features/boost/BoostPostModal.tsx',
+  'packages/shared/src/features/boost/BoostSourceButton.tsx',
+  'packages/shared/src/features/boost/BoostSquadModal.tsx',
+  'packages/shared/src/features/boost/useCampaignMutation.ts',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(

@@ -4,35 +4,45 @@ import type { Post } from '../../../graphql/posts';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { useLiveChatEnabled } from '../hooks/useLiveChatEnabled';
+import { useLiveChatJoinIntent } from '../hooks/useLiveChatJoinIntent';
 import { LiveChatPanel } from './LiveChatPanel';
 import { LiveChatMobileEntry } from './LiveChatMobileEntry';
+import { useHasPostCapsule } from '../../../components/post/PostCapsule';
 
 /**
- * The post page's live chat, in the rail on a laptop and as a pill with a
- * sheet below it. Only one of the two mounts at a time, since each holds its
- * own seat in the room.
+ * The post page's live chat: a block right under the post, above the
+ * comments, on a tablet and up, and a pill with a sheet on a phone. It used
+ * to sit in the rail, where it was easy to scroll past. Only one of the two
+ * mounts at a time, since each holds its own seat in the room.
  */
 export const PostLiveChat = ({
   post,
   origin,
   placement,
+  isPostPage,
+  className,
 }: {
-  post: Pick<Post, 'id' | 'trending'>;
+  post: Pick<Post, 'id' | 'type'>;
   origin: string;
-  placement: 'rail' | 'mobile';
+  placement: 'inline' | 'mobile';
+  // The action capsule mounts on the post page alone (FooterWrapper), not
+  // in the post modals, so only there does the pill stand above it.
+  isPostPage?: boolean;
+  className?: string;
 }): ReactElement | null => {
   const { user } = useAuthContext();
   const { isEnabled } = useLiveChatEnabled();
-  const isLaptop = useViewSize(ViewSize.Laptop);
+  const isTablet = useViewSize(ViewSize.Tablet);
+  const hasCapsule = useHasPostCapsule(isPostPage ? post : undefined);
+  const wantsToJoin = useLiveChatJoinIntent();
 
-  if (!isEnabled || (placement === 'rail') !== isLaptop) {
+  if (!isEnabled || (placement === 'inline') !== isTablet) {
     return null;
   }
 
-  // The API opens a room on a trending post, and for the daily.dev team on
-  // any public post (to seed one, or test); the card is honest about what a
-  // click will do.
-  const canStart = !!post.trending || !!user?.isTeamMember;
+  // Rooms are team picks for now: the API lets the daily.dev team open one on
+  // any public post, and everyone else joins the ones that are open.
+  const canStart = !!user?.isTeamMember;
 
   if (placement === 'mobile') {
     return (
@@ -40,7 +50,8 @@ export const PostLiveChat = ({
         postId={post.id}
         origin={origin}
         canStart={canStart}
-        isTrending={!!post.trending}
+        hasCapsule={hasCapsule}
+        openOnMount={wantsToJoin}
       />
     );
   }
@@ -50,9 +61,9 @@ export const PostLiveChat = ({
       postId={post.id}
       origin={origin}
       canStart={canStart}
-      isTrending={!!post.trending}
-      variant="rail"
-      className="max-h-[70vh]"
+      variant="inline"
+      joinOnOpen={wantsToJoin}
+      className={className}
     />
   );
 };

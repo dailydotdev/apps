@@ -10,8 +10,9 @@ export const SidebarCategory = {
   // pins, custom feeds, account shortcuts) instead of a dropdown menu.
   Profile: 'profile',
   Squads: 'squads',
-  // Looking for group: the board, a post and the composer.
-  Lfg: 'lfg',
+  // Direct messages, with Looking for group inside: every reach-out turns
+  // into a chat.
+  Messages: 'messages',
   Notifications: 'notifications',
   GameCenter: 'gameCenter',
   Settings: 'settings',
@@ -54,8 +55,7 @@ export const getSidebarCategoryForPath = (
   if (segment === 'settings') {
     return SidebarCategory.Settings;
   }
-  // The inbox is a row of the Notifications panel, so it keeps that panel.
-  if (segment === 'notifications' || segment === 'messages') {
+  if (segment === 'notifications') {
     return SidebarCategory.Notifications;
   }
   if (segment === 'game-center' || segment === 'daily-quests') {
@@ -64,8 +64,8 @@ export const getSidebarCategoryForPath = (
   if (segment === 'squads') {
     return SidebarCategory.Squads;
   }
-  if (segment === 'lfg') {
-    return SidebarCategory.Lfg;
+  if (segment === 'messages' || segment === 'lfg') {
+    return SidebarCategory.Messages;
   }
   if (PROFILE_SEGMENTS.has(segment)) {
     return SidebarCategory.Profile;

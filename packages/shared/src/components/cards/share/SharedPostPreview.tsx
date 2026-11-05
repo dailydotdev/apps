@@ -72,7 +72,7 @@ export function SharedPostPreview({
             alt={title || 'Shared post cover image'}
             className="size-full overflow-hidden rounded-12 object-cover"
           />
-          <div className="absolute inset-x-0 top-0 ">
+          <div className="absolute inset-x-0 top-0">
             <div className="flex flex-col gap-2 rounded-t-8 bg-background-subtle p-2">
               {sourceImage && sourceHandle && (
                 <div className="flex min-w-0 items-center gap-1">

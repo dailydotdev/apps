@@ -294,6 +294,11 @@ export const deleteBookmarkFolder = async (
   return gqlClient.request(DELETE_BOOKMARK_FOLDER, { id });
 };
 
+export const getLatestBookmarksQueryKey = (
+  user?: Pick<LoggedUser, 'id'>,
+): ReturnType<typeof generateQueryKey> =>
+  generateQueryKey(RequestKey.Bookmarks, user, 'latest');
+
 /** The reader's latest bookmarks, newest first, as the bookmarks page lists them. */
 export const latestBookmarksQueryOptions = ({
   user,
@@ -302,7 +307,7 @@ export const latestBookmarksQueryOptions = ({
   user?: Pick<LoggedUser, 'id'>;
   first: number;
 }) => ({
-  queryKey: generateQueryKey(RequestKey.Bookmarks, user, 'latest', first),
+  queryKey: [...getLatestBookmarksQueryKey(user), first],
   queryFn: () =>
     gqlBatchRequest<FeedData>(BOOKMARKS_FEED_QUERY, {
       loggedIn: true,
@@ -311,4 +316,29 @@ export const latestBookmarksQueryOptions = ({
       supportedTypes: baseFeedSupportedTypes,
     }),
   staleTime: StaleTime.OneMinute,
+});
+
+/** Whether the folder or view keeps any archived bookmark, out of the All list. */
+export const archivedBookmarksQueryOptions = ({
+  user,
+  listId,
+  reminderOnly = false,
+}: {
+  user?: Pick<LoggedUser, 'id'>;
+  listId?: string;
+  reminderOnly?: boolean;
+}) => ({
+  queryKey: generateQueryKey(RequestKey.Bookmarks, user, 'archived', {
+    listId: listId ?? null,
+    reminderOnly,
+  }),
+  queryFn: () =>
+    gqlBatchRequest<FeedData>(BOOKMARKS_FEED_QUERY, {
+      loggedIn: true,
+      first: 1,
+      ...(listId && { listId }),
+      reminderOnly,
+      status: BookmarkStatus.Archived,
+      supportedTypes: baseFeedSupportedTypes,
+    }),
 });

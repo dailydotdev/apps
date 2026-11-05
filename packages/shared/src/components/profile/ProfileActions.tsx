@@ -177,6 +177,7 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
             entityName={`@${user.username}`}
             className="flex-row-reverse"
             buttonClassName={isPhone ? 'flex-1 !h-10 !rounded-12' : undefined}
+            notifySize={isPhone ? ButtonSize.Medium : undefined}
             alwaysShow
           />
         )}

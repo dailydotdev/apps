@@ -5,7 +5,8 @@ import classNames from 'classnames';
 type SquareTag = 'a' | 'button';
 
 interface ShellSquareProps
-  extends Omit<React.HTMLAttributes<HTMLElement>, 'children'>,
+  extends
+    Omit<React.HTMLAttributes<HTMLElement>, 'children'>,
     Pick<
       React.AnchorHTMLAttributes<HTMLAnchorElement>,
       'href' | 'target' | 'rel'

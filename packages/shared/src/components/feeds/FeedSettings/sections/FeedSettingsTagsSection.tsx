@@ -30,8 +30,26 @@ import {
 import { TutorialVideoButton } from '../../../video/TutorialVideoButton';
 import { feedTagsTutorialVideoId } from '../../../../lib/video';
 import { feedTagsTutorialVideo } from '../../../../lib/constants';
+import { Divider } from '../../../utilities/Divider';
+import { useForYouControls } from '../../../../features/feedExplain/useFeedExplainMode';
+import { ForYouTopics } from '../../../../features/feedExplain/components/ForYouTopics';
+import { BlockedNote } from '../../../../features/feedExplain/components/SettingsList';
 
 const columns = 'columns-1 gap-x-6 @xs:columns-2 @xl:columns-3';
+const maxBlockedNames = 3;
+
+const BlockedTopicsNote = ({ tags }: { tags: string[] }): ReactElement => {
+  const names = tags.slice(0, maxBlockedNames).map((tag) => `#${tag}`);
+  const more = tags.length - names.length;
+
+  return (
+    <BlockedNote>
+      {`You blocked ${new Intl.ListFormat('en-US').format(
+        more ? [...names, `${more} more`] : names,
+      )}, so posts about ${tags.length === 1 ? 'it' : 'them'} never show.`}
+    </BlockedNote>
+  );
+};
 
 export const FeedSettingsTagsSection = (): ReactElement => {
   const isInModal = !!useModalContext().onRequestClose;
@@ -44,6 +62,11 @@ export const FeedSettingsTagsSection = (): ReactElement => {
     shouldFilterLocally: false,
     shouldUpdateAlerts: false,
   });
+  const { isAvailable: hasForYouControls } = useForYouControls();
+  const isMainFeed = feed?.type === FeedType.Main;
+  // For You lists its topics with their boosts where its ranking takes them.
+  const hasForYouTopics = isMainFeed && hasForYouControls;
+  const blockedTags = feedSettings?.blockedTags ?? [];
   const [searchQuery, setSearchQuery] = useState('');
   const [activeLetter, setActiveLetter] = useState<string | null>(null);
   const {
@@ -130,6 +153,24 @@ export const FeedSettingsTagsSection = (): ReactElement => {
       )}
       aria-busy={isPending || undefined}
     >
+      {hasForYouTopics && (
+        <>
+          <ForYouTopics
+            followedTags={followedTags}
+            onToggleFollow={onToggleFollow}
+          />
+          {blockedTags.length > 0 && <BlockedTopicsNote tags={blockedTags} />}
+          <Divider className="my-1 bg-border-subtlest-tertiary" />
+          <Typography
+            tag={TypographyTag.H2}
+            type={TypographyType.Body}
+            className="tablet:typo-title3"
+            bold
+          >
+            Follow more topics
+          </Typography>
+        </>
+      )}
       <SearchField
         aria-label="Search tags"
         className="hidden border-none !bg-background-subtle tablet:flex"
@@ -157,55 +198,62 @@ export const FeedSettingsTagsSection = (): ReactElement => {
           />
         </div>
       )}
-      <div className="flex flex-col items-start gap-2">
-        <Typography
-          color={TypographyColor.Tertiary}
-          type={TypographyType.Callout}
-        >
-          Tags are a great way to tell the system what you&apos;re interested
-          in. They&apos;re a strong starting signal for your feed, and as you
-          engage with content over time, their weight gradually decreases in
-          favor of stronger signals based on your actual activity.
-        </Typography>
-        <TutorialVideoButton
-          videoId={feedTagsTutorialVideoId}
-          videoUrl={feedTagsTutorialVideo}
-          title="Make your feed your own"
-        />
-      </div>
-      <section aria-label="My tags" className="flex flex-col gap-3">
-        <Typography
-          tag={TypographyTag.H2}
-          type={TypographyType.Body}
-          className="tablet:typo-title3"
-          bold
-        >
-          My tags
-        </Typography>
-        {myTags.length ? (
-          <ul className={classNames('-mx-2 tablet:mx-0', columns)}>
-            {myTags.map((tag) => (
-              <TagDirectoryListItem
-                key={tag}
-                tag={tag}
-                title={tagTitles[tag]}
-                isFollowed
-                onToggleFollow={onToggleFollow}
-                selectable
-              />
-            ))}
-          </ul>
-        ) : (
+      {!hasForYouTopics && (
+        <div className="flex flex-col items-start gap-2">
           <Typography
-            type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
+            type={TypographyType.Callout}
           >
-            {followedTags.size
-              ? 'None of your tags match this search.'
-              : 'Follow tags below to personalize your feed.'}
+            Tags are a great way to tell the system what you&apos;re interested
+            in. They&apos;re a strong starting signal for your feed, and as you
+            engage with content over time, their weight gradually decreases in
+            favor of stronger signals based on your actual activity.
           </Typography>
-        )}
-      </section>
+          <TutorialVideoButton
+            videoId={feedTagsTutorialVideoId}
+            videoUrl={feedTagsTutorialVideo}
+            title="Make your feed your own"
+          />
+        </div>
+      )}
+      {!hasForYouTopics && (
+        <section aria-label="My tags" className="flex flex-col gap-3">
+          <Typography
+            tag={TypographyTag.H2}
+            type={TypographyType.Body}
+            className="tablet:typo-title3"
+            bold
+          >
+            My tags
+          </Typography>
+          {myTags.length ? (
+            <ul className={classNames('-mx-2 tablet:mx-0', columns)}>
+              {myTags.map((tag) => (
+                <TagDirectoryListItem
+                  key={tag}
+                  tag={tag}
+                  title={tagTitles[tag]}
+                  isFollowed
+                  onToggleFollow={onToggleFollow}
+                  selectable
+                />
+              ))}
+            </ul>
+          ) : (
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
+            >
+              {followedTags.size
+                ? 'None of your tags match this search.'
+                : 'Follow tags below to personalize your feed.'}
+            </Typography>
+          )}
+          {isMainFeed && blockedTags.length > 0 && (
+            <BlockedTopicsNote tags={blockedTags} />
+          )}
+        </section>
+      )}
       {!normalizedSearch && isPending && (
         <TagSectionsPlaceholder className="gap-6 @xl:grid-cols-3" />
       )}

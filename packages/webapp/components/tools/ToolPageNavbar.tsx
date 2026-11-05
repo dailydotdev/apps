@@ -8,6 +8,10 @@ import {
   SquadDirectoryNavbarItem,
 } from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryNavbar';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import {
+  Segments,
+  ShellRow,
+} from '@dailydotdev/shared/src/components/shell/ShellRow';
 
 interface NavbarTool {
   title: string;
@@ -41,35 +45,57 @@ export function ToolPageNavbar({
   }, [activeTool, relatedTools]);
 
   return (
-    <header
-      className={classNames(
-        pageHeaderClassName,
-        'gap-4 !px-4 !py-0 tablet:!px-6',
-        className,
-      )}
-    >
-      <SquadDirectoryNavbar
-        aria-label="Tools navigation"
-        className="!mx-0 min-w-0 flex-1 !border-0 !px-0"
-      >
-        <SquadDirectoryNavbarItem
-          buttonSize={ButtonSize.Small}
-          isActive={!activeTool}
-          label="All tools"
-          path={toolsUrl}
-          ariaLabel="All tools"
-        />
-        {tools.map((tool) => (
-          <SquadDirectoryNavbarItem
-            key={tool.slug}
-            buttonSize={ButtonSize.Small}
-            isActive={tool.slug === activeTool?.slug}
-            label={tool.title}
-            path={`${toolsUrl}/${tool.slug}`}
-            ariaLabel={tool.title}
+    <>
+      <div className={classNames('tablet:hidden', className)}>
+        <ShellRow>
+          <Segments
+            items={[
+              {
+                key: 'all',
+                label: 'All tools',
+                href: toolsUrl,
+                active: !activeTool,
+              },
+              ...tools.map((tool) => ({
+                key: tool.slug,
+                label: tool.title,
+                href: `${toolsUrl}/${tool.slug}`,
+                active: tool.slug === activeTool?.slug,
+              })),
+            ]}
           />
-        ))}
-      </SquadDirectoryNavbar>
-    </header>
+        </ShellRow>
+      </div>
+      <header
+        className={classNames(
+          pageHeaderClassName,
+          'hidden gap-4 !px-4 !py-0 tablet:flex tablet:!px-6',
+          className,
+        )}
+      >
+        <SquadDirectoryNavbar
+          aria-label="Tools navigation"
+          className="!mx-0 min-w-0 flex-1 !border-0 !px-0"
+        >
+          <SquadDirectoryNavbarItem
+            buttonSize={ButtonSize.Small}
+            isActive={!activeTool}
+            label="All tools"
+            path={toolsUrl}
+            ariaLabel="All tools"
+          />
+          {tools.map((tool) => (
+            <SquadDirectoryNavbarItem
+              key={tool.slug}
+              buttonSize={ButtonSize.Small}
+              isActive={tool.slug === activeTool?.slug}
+              label={tool.title}
+              path={`${toolsUrl}/${tool.slug}`}
+              ariaLabel={tool.title}
+            />
+          ))}
+        </SquadDirectoryNavbar>
+      </header>
+    </>
   );
 }

@@ -9,10 +9,16 @@ interface SourceActionsNotifyProps {
   haveNotificationsOn: boolean;
   onClick: (e: React.MouseEvent) => void;
   disabled?: boolean;
+  size?: ButtonSize;
 }
 
 const SourceActionsNotify = (props: SourceActionsNotifyProps): ReactElement => {
-  const { haveNotificationsOn, onClick, disabled } = props;
+  const {
+    haveNotificationsOn,
+    onClick,
+    disabled,
+    size = ButtonSize.Small,
+  } = props;
 
   const icon = haveNotificationsOn ? <BellSubscribedIcon /> : <BellAddIcon />;
   const label = `${haveNotificationsOn ? 'Disable' : 'Enable'} notifications`;
@@ -26,7 +32,7 @@ const SourceActionsNotify = (props: SourceActionsNotifyProps): ReactElement => {
         aria-label={label}
         icon={icon}
         onClick={onClick}
-        size={ButtonSize.Small}
+        size={size}
         title={label}
         variant={variant}
         disabled={disabled}

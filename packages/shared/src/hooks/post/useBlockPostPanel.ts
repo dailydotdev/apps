@@ -1,3 +1,4 @@
+import type { QueryClient } from '@tanstack/react-query';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 import type { Post, ReadHistoryPost } from '../../graphql/posts';
@@ -19,6 +20,7 @@ import { LazyModal } from '../../components/modals/common/types';
 import { disabledRefetch, isNullOrUndefined } from '../../lib/func';
 import { useToastNotification } from '../useToastNotification';
 import { generateQueryKey, RequestKey } from '../../lib/query';
+import type { LoggedUser } from '../../lib/user';
 
 export type BlockPanelMode = 'downvote' | 'hide';
 
@@ -70,6 +72,31 @@ const getParams = (tags: BlockTagSelection): Params => {
 
 const ignoredCall = () => Promise.resolve({ successful: true });
 
+const getBlockPanelQueryKey = (
+  user: Pick<LoggedUser, 'id'> | undefined,
+  postId: string | undefined,
+) => generateQueryKey(RequestKey.Post, user, `block:${postId}`);
+
+/**
+ * Hides or shows a post's card from outside it, the way Hide post on the card
+ * does: a hidden card turns into its hidden panel.
+ */
+export const setPostHiddenPanel = (
+  client: QueryClient,
+  user: Pick<LoggedUser, 'id'> | undefined,
+  postId: string,
+  isHidden: boolean,
+): void => {
+  client.setQueryData<BlockData>(
+    getBlockPanelQueryKey(user, postId),
+    (current) => ({
+      ...current,
+      showTagsPanel: isHidden || undefined,
+      mode: 'hide',
+    }),
+  );
+};
+
 export const useBlockPostPanel = (
   post: Post | ReadHistoryPost,
   { toastOnSuccess, blockedSource, feedId }: UseBlockPostProps = {},
@@ -86,7 +113,7 @@ export const useBlockPostPanel = (
   const client = useQueryClient();
   const { user } = useAuthContext();
   const { checkHasCompleted, completeAction } = useActions();
-  const key = generateQueryKey(RequestKey.Post, user, `block:${post?.id}`);
+  const key = getBlockPanelQueryKey(user, post?.id);
   const { data } = useQuery<BlockData>({
     queryKey: key,
     queryFn: () => client.getQueryData(key),

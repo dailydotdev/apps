@@ -7,7 +7,10 @@ import { dmPeerQueryOptions } from '../../messages/queries';
 export type RoomPerson = Pick<
   UserShortProfile,
   'id' | 'name' | 'username' | 'image' | 'permalink'
->;
+> & {
+  // Missing until the profile lookup answers; shown as nothing, not as 0.
+  reputation?: number;
+};
 
 // The people in a room, as far as the viewer can tell: a live room only
 // broadcasts moderators' presence, so "who is here" is whoever has spoken
@@ -32,7 +35,9 @@ export const useRoomPeople = (
   // a change (it compares the common prefix only), so the data is folded
   // into one key.
   const peersKey = peers
-    .map(({ data }) => (data ? `${data.id}:${data.username}:${data.name}` : ''))
+    .map(({ data }) =>
+      data ? `${data.id}:${data.username}:${data.name}:${data.reputation}` : '',
+    )
     .join('|');
 
   return useMemo(() => {
@@ -45,6 +50,7 @@ export const useRoomPeople = (
         username: user.username ?? '',
         image: user.image,
         permalink: user.permalink ?? '',
+        reputation: user.reputation,
       });
       usernames[user.id] = user.username ?? '';
     }
@@ -56,6 +62,7 @@ export const useRoomPeople = (
           username: data.username,
           image: data.image,
           permalink: data.permalink,
+          reputation: data.reputation,
         });
         usernames[data.id] = data.username;
       }

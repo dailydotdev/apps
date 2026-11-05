@@ -22,8 +22,10 @@ interface SearchResultsUserListProps {
   className?: string;
 }
 
-interface SearchResultsUsersProps
-  extends Omit<SearchResultsUserListProps, 'className'> {
+interface SearchResultsUsersProps extends Omit<
+  SearchResultsUserListProps,
+  'className'
+> {
   isLoading: boolean;
 }
 

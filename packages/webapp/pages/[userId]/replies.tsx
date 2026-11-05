@@ -1,113 +1,43 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { USER_COMMENTS_QUERY } from '@dailydotdev/shared/src/graphql/comments';
-import { Origin } from '@dailydotdev/shared/src/lib/log';
-import {
-  generateQueryKey,
-  RequestKey,
-} from '@dailydotdev/shared/src/lib/query';
-import { useProfilePreview } from '@dailydotdev/shared/src/hooks/profile/useProfilePreview';
-import { MyProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/MyProfileEmptyScreen';
-import { ProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/ProfileEmptyScreen';
-import { cloudinaryCharmEmptyProfile } from '@dailydotdev/shared/src/lib/image';
-import CommentFeed from '@dailydotdev/shared/src/components/CommentFeed';
-import type { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import GoBackHeaderMobile from '@dailydotdev/shared/src/components/post/GoBackHeaderMobile';
-import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
-import {
-  ProfileSegment,
-  ProfileSegments,
-} from '@dailydotdev/shared/src/components/profile/ProfileSegments';
+import { ProfileSegment } from '@dailydotdev/shared/src/components/profile/ProfileSegments';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
+  getLayout as getProfileLayout,
+  getProfileSegmentSeo,
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
-  getLayout as getProfileLayout,
-  getProfileSeoDefaults,
 } from '../../components/layouts/ProfileLayout';
-import { getPageSeoTitles } from '../../components/layouts/utils';
+import { ProfilePage } from '../../components/layouts/ProfileLayout/ProfilePage';
+import { ProfileRepliesFeed } from '../../components/layouts/ProfileLayout/ProfileFeeds';
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
 
-const commentClassName = {
-  container: 'rounded-none border-0 border-b',
-  commentBox: {
-    container: 'relative border-0 rounded-none',
-  },
-};
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ProfileCommentsPage = ({
-  user,
-  noindex,
-}: ProfileLayoutProps): ReactElement | null => {
-  const { isOwner } = useProfilePreview(user);
+const ProfileCommentsPage = (
+  props: ProfileLayoutProps,
+): ReactElement | null => {
+  const { user, noindex } = props;
   const isPhone = useIsPhone();
 
   if (!user) {
     return null;
   }
 
-  const userId = user.id;
-
-  const emptyScreen = isOwner ? (
-    <MyProfileEmptyScreen
-      image={cloudinaryCharmEmptyProfile}
-      imageAlt="daily.dev charm with an empty profile"
-      title="No replies yet"
-      text="Join a discussion and your replies show up here."
-      cta="Explore posts"
-      buttonProps={{ tag: 'a', href: '/' }}
-    />
-  ) : (
-    <ProfileEmptyScreen
-      image={cloudinaryCharmEmptyProfile}
-      imageAlt="daily.dev charm with an empty profile"
-      title={`${user?.name ?? 'User'} hasn't replied to any post yet`}
-      text="Once they do, those replies will show up here."
-    />
-  );
-
-  const seo: NextSeoProps = {
-    ...getProfileSeoDefaults(
-      user,
-      {
-        ...getPageSeoTitles(
-          `Posts with replies by ${user.name} (@${user.username})`,
-        ),
-        noindex: true,
-        nofollow: true,
-      },
-      noindex,
-    ),
-  };
+  if (isPhone) {
+    return <ProfilePage {...props} segment={ProfileSegment.Replies} />;
+  }
 
   return (
     <>
-      <NextSeo {...seo} />
-      {isPhone ? (
-        <ShellPage
-          title={user.name}
-          row={<ProfileSegments user={user} active={ProfileSegment.Replies} />}
-        />
-      ) : (
-        <GoBackHeaderMobile title="Replies" />
-      )}
-      <CommentFeed
-        feedQueryKey={generateQueryKey(
-          RequestKey.UserComments,
-          undefined,
-          userId,
-        )}
-        query={USER_COMMENTS_QUERY}
-        logOrigin={Origin.Profile}
-        variables={{ userId }}
-        emptyScreen={emptyScreen}
-        commentClassName={commentClassName}
+      <NextSeo
+        {...getProfileSegmentSeo(user, ProfileSegment.Replies, noindex)}
       />
+      <GoBackHeaderMobile title="Replies" />
+      <ProfileRepliesFeed user={user} />
     </>
   );
 };

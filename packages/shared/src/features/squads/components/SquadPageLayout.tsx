@@ -125,7 +125,8 @@ export const SquadPageLayout = ({
       </div>
       <aside
         className={classNames(
-          'order-3 w-full flex-col gap-4 px-4 pb-6 tablet:px-6 laptop:order-none laptop:flex laptop:w-80 laptop:shrink-0 laptop:p-0',
+          // Below laptop it is the About tab: it starts a gutter under the tabs.
+          'order-3 w-full flex-col gap-4 px-4 pb-6 pt-4 tablet:px-6 laptop:order-none laptop:flex laptop:w-80 laptop:shrink-0 laptop:p-0',
           isAbout ? 'flex' : 'hidden',
         )}
       >

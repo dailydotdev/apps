@@ -25,6 +25,11 @@ export interface FlagProps extends Pick<Post, 'trending' | 'pinnedAt'> {
   postId?: string;
 }
 
+// A card with a live chat on it stands out from the rest of the feed: the
+// label alone was easy to miss, so the frame itself goes brand and glows.
+export const liveChatCardClassName =
+  'live-chat-card !border-brand-default hover:!border-brand-bolder';
+
 /**
  * Which label a card raises: pinned first, then a live chat on the post (the
  * chat is the story while it is on), then trending.
@@ -104,10 +109,12 @@ function FeedItemContainer(
       <Card
         {...domProps}
         data-testid="postItem"
+        data-feed-item
         ref={ref}
         className={classNames(
           domProps.className,
           !listMode && isFeedPreview && 'hover:border-border-subtlest-tertiary',
+          !!chatRoom && !isFeedPreview && liveChatCardClassName,
           highlightBookmarkedPost &&
             '!border-action-bookmark-active !bg-action-bookmark-float hover:!border-action-bookmark-default',
         )}

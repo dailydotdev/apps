@@ -20,7 +20,6 @@ import type { NextSeoProps } from 'next-seo';
 import { ClientQuestEventType } from '@dailydotdev/shared/src/graphql/quests';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import { useTrackQuestClientEvent } from '@dailydotdev/shared/src/hooks/useTrackQuestClientEvent';
-import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -29,6 +28,7 @@ import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostRef
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { useRecentPageMeta } from '@dailydotdev/shared/src/hooks/useRecentPages';
+import { ProfileSegment } from '@dailydotdev/shared/src/components/profile/ProfileSegments';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getPageSeoTitles } from '../utils';
@@ -90,6 +90,34 @@ export const getProfileSeoDefaults = (
       ...seoOverrides.openGraph,
     },
   };
+};
+
+const segmentSeoTitles: Partial<
+  Record<ProfileSegment, (user: PublicProfile) => string>
+> = {
+  [ProfileSegment.Posts]: (user) =>
+    `Recent posts by ${user.name} (@${user.username})`,
+  [ProfileSegment.Replies]: (user) =>
+    `Posts with replies by ${user.name} (@${user.username})`,
+  [ProfileSegment.Upvoted]: (user) =>
+    `Posts upvoted by ${user.name} (@${user.username})`,
+};
+
+// Only the profile itself is indexed; its other segments are listed under it.
+export const getProfileSegmentSeo = (
+  user: PublicProfile,
+  segment: ProfileSegment,
+  noindex: boolean,
+): NextSeoProps => {
+  const title = segmentSeoTitles[segment];
+
+  return getProfileSeoDefaults(
+    user,
+    title
+      ? { ...getPageSeoTitles(title(user)), noindex: true, nofollow: true }
+      : {},
+    noindex,
+  );
 };
 
 export default function ProfileLayout({
@@ -177,9 +205,7 @@ export const getLayout = (
   props: ProfileLayoutProps,
 ): ReactNode =>
   getFooterNavBarLayout(
-    getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>, undefined, {
-      customBanner: <CustomAuthBanner />,
-    }),
+    getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>),
   );
 
 interface ProfileParams extends ParsedUrlQuery {

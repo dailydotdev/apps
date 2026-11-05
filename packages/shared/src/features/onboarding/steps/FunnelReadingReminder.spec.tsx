@@ -32,6 +32,13 @@ jest.mock('../../../components/onboarding/FeedPatchy/FeedPatchy', () => ({
   FeedPatchy: () => <div data-testid="feed-patchy" />,
 }));
 
+jest.mock(
+  '../../../components/onboarding/ReminderPushOnly/ReminderPushOnly',
+  () => ({
+    ReminderPushOnly: () => <div data-testid="push-only" />,
+  }),
+);
+
 const mockIsPushSupported = jest.fn(() => true);
 jest.mock('../../../contexts/PushNotificationContext', () => ({
   usePushNotificationContext: () => ({
@@ -47,12 +54,20 @@ jest.mock('../../../hooks', () => ({
 }));
 
 type FeatureArgs = { feature: { id: string }; shouldEvaluate?: boolean };
-const mockCommitment = jest.fn<
-  { value: boolean; isLoading: boolean },
-  [FeatureArgs]
->(() => ({ value: false, isLoading: false }));
+type FeatureResult = { value: boolean; isLoading: boolean };
+const mockCommitment = jest.fn<FeatureResult, [FeatureArgs]>(() => ({
+  value: false,
+  isLoading: false,
+}));
+const mockPushOnly = jest.fn<FeatureResult, [FeatureArgs]>(() => ({
+  value: false,
+  isLoading: false,
+}));
 jest.mock('../../../hooks/useConditionalFeature', () => ({
-  useConditionalFeature: (args: FeatureArgs) => mockCommitment(args),
+  useConditionalFeature: (args: FeatureArgs) =>
+    args.feature.id === 'onboarding_reminder_push_only'
+      ? mockPushOnly(args)
+      : mockCommitment(args),
 }));
 
 const defaultProps: FunnelStepReadingReminder = {
@@ -83,6 +98,7 @@ describe('FunnelReadingReminder', () => {
     mockUseViewSize.mockReturnValue(true);
     mockIsPushSupported.mockReturnValue(true);
     mockCommitment.mockReturnValue({ value: false, isLoading: false });
+    mockPushOnly.mockReturnValue({ value: false, isLoading: false });
   });
 
   // The hook logs an impression and mounts the push/digest mutations, so a
@@ -146,6 +162,7 @@ describe('FunnelReadingReminder', () => {
 
       expect(screen.queryByTestId('feed-patchy')).not.toBeInTheDocument();
       expect(mockCommitment).not.toHaveBeenCalled();
+      expect(mockPushOnly).not.toHaveBeenCalled();
     });
 
     it('renders neither arm until the flag settles', () => {
@@ -165,6 +182,43 @@ describe('FunnelReadingReminder', () => {
       expect(mockCommitment).toHaveBeenCalledWith(
         expect.objectContaining({ shouldEvaluate: false }),
       );
+    });
+  });
+
+  describe('push-only experiment', () => {
+    beforeEach(() => {
+      mockPushOnly.mockReturnValue({ value: true, isLoading: false });
+    });
+
+    it('replaces the reminder with the push-only ask', () => {
+      renderStep(true);
+
+      expect(screen.getByTestId('push-only')).toBeInTheDocument();
+      expect(screen.queryByTestId('funnel-reminder')).not.toBeInTheDocument();
+      expect(useReadingReminder).not.toHaveBeenCalled();
+    });
+
+    // Its readers must never count toward Feed Patchy's experiment.
+    it('never buckets its readers into Feed Patchy', () => {
+      mockCommitment.mockReturnValue({ value: true, isLoading: false });
+
+      renderStep(true);
+
+      expect(screen.getByTestId('push-only')).toBeInTheDocument();
+      expect(screen.queryByTestId('feed-patchy')).not.toBeInTheDocument();
+      expect(mockCommitment).toHaveBeenCalledWith(
+        expect.objectContaining({ shouldEvaluate: false }),
+      );
+    });
+
+    it('renders no arm until its flag settles', () => {
+      mockPushOnly.mockReturnValue({ value: false, isLoading: true });
+
+      renderStep(true);
+
+      expect(screen.queryByTestId('push-only')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('feed-patchy')).not.toBeInTheDocument();
+      expect(useReadingReminder).not.toHaveBeenCalled();
     });
   });
 });

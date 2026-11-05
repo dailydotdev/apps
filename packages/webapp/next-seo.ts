@@ -68,7 +68,8 @@ export type ShareImageType =
   | 'profile'
   | 'tags'
   | 'invite'
-  | 'plus';
+  | 'plus'
+  | 'picks';
 
 export const getShareImageUrl = (
   type: ShareImageType,

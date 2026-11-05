@@ -23,7 +23,7 @@ const room: ChatRoom = {
     title: 'Bun 2.0',
     commentsPermalink: 'https://app.daily.dev/posts/p1',
   },
-  expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+  expiresAt: new Date(Date.now() + 45 * 60 * 1000).toISOString(),
   occupantCount: 23,
   createdAt: new Date().toISOString(),
 };
@@ -45,10 +45,30 @@ describe('LiveChatHighlightCardRow', () => {
     render(<LiveChatHighlightCardRow compact />);
 
     const link = screen.getByRole('link');
-    expect(link).toHaveAttribute('href', 'https://app.daily.dev/posts/p1');
+    expect(link).toHaveAttribute(
+      'href',
+      'https://app.daily.dev/posts/p1?chat=join',
+    );
     expect(link).toHaveTextContent('Live chat');
-    expect(link).toHaveTextContent('23 here · ends in 2h');
+    expect(link).toHaveTextContent('23 here · ends in 45m');
     expect(link).toHaveTextContent('Bun 2.0');
+  });
+
+  it('drops the count for a small room but still says when it ends', () => {
+    jest.mocked(useLiveChatHighlight).mockReturnValue({
+      room: {
+        ...room,
+        occupantCount: 3,
+        expiresAt: new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString(),
+      },
+      isPending: false,
+    });
+    render(<LiveChatHighlightCardRow compact />);
+
+    const link = screen.getByRole('link');
+    expect(link).toHaveTextContent('Live chat');
+    expect(link).not.toHaveTextContent('here');
+    expect(link).toHaveTextContent('Live chat · ends in 3h');
   });
 
   it('holds the row while the rooms are still loading', () => {

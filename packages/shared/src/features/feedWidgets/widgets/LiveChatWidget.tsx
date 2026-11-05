@@ -9,15 +9,20 @@ import Link from '../../../components/utilities/Link';
 import type { ChatRoom } from '../../liveChat/graphql';
 import { liveChatRoomsQueryOptions } from '../../liveChat/queries';
 import { useLiveChatEnabled } from '../../liveChat/hooks/useLiveChatEnabled';
-import { LiveDot } from '../../liveChat/components/LiveDot';
-import { formatTimeLeft } from '../../liveChat/timeLeft';
+import { DiscussIcon } from '../../../components/icons';
+import { IconSize } from '../../../components/Icon';
+import { formatEndsIn, formatOccupants } from '../../liveChat/timeLeft';
+import { withJoinIntent } from '../../liveChat/joinLink';
 import type { FeedWidgetComponentProps } from '../registry';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
 import { FeedWidgetEmpty } from '../FeedWidgetFrame';
 import { useWidgetScroll } from '../useWidgetScroll';
 
+// The row is the yes: landing on the post joins the chat right away.
 const roomHref = (room: ChatRoom): string | undefined =>
-  room.post?.commentsPermalink;
+  room.post?.commentsPermalink
+    ? withJoinIntent(room.post.commentsPermalink)
+    : undefined;
 
 const RoomRow = ({
   room,
@@ -33,8 +38,8 @@ const RoomRow = ({
     return null;
   }
   const meta = [
-    room.occupantCount != null && `${room.occupantCount} here`,
-    room.expiresAt && `ends in ${formatTimeLeft(room.expiresAt)}`,
+    formatOccupants(room.occupantCount),
+    formatEndsIn(room.expiresAt),
   ]
     .filter(Boolean)
     .join(' · ');
@@ -89,24 +94,32 @@ export const LiveChatWidget = ({
       <FeedWidgetEmpty
         kind={FeedWidgetKind.LiveChat}
         isPending={isEnabled && isPending}
-        message="No live chats right now. They open when a post takes off."
+        message="No live chats right now. The daily.dev team opens one on a post worth talking about."
       />
     );
   }
 
+  // The same header and list inset as Happening Now, so the two read as one
+  // family on the rail; a chat icon rather than a pulsing dot, so they do
+  // not read as the same widget.
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex items-center gap-2 px-2 pb-1">
-        <LiveDot />
-        <span className="font-bold uppercase tracking-wide text-text-primary typo-caption1">
-          Live now
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <header className="flex h-6 min-w-0 shrink-0 items-center gap-1.5 px-4">
+        <DiscussIcon
+          size={IconSize.Size16}
+          className="shrink-0 text-brand-default"
+        />
+        <span className="truncate font-bold text-text-primary typo-caption1">
+          Live chats
         </span>
-      </div>
+      </header>
       <div
-        {...scroll}
-        className="flex min-h-0 flex-1 snap-y flex-col overflow-y-auto"
+        ref={scroll.ref}
+        onScroll={scroll.onScroll}
+        style={scroll.style}
+        className={classNames('mt-2 px-2', scroll.className)}
       >
-        <ul className="flex flex-col">
+        <ul aria-label="Live chats" className="flex flex-col gap-1">
           {shown.map((room) => (
             <RoomRow
               key={room.id}

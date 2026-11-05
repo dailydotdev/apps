@@ -15,8 +15,9 @@ type OptionItem = {
   value: RatingValue;
 };
 
-export interface FormInputRatingProps
-  extends PropsWithChildren<ComponentProps<'div'>> {
+export interface FormInputRatingProps extends PropsWithChildren<
+  ComponentProps<'div'>
+> {
   defaultValue?: RatingValue;
   name: string;
   onValueChange?: (value: RatingValue) => void;

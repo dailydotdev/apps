@@ -141,7 +141,7 @@ function TabList<T extends string = string>({
     // get the active tab's rect and offset so that we can position the indicator
     const activeTabRect = currentActiveTab.current?.getBoundingClientRect();
     const offset = activeTabRect
-      ? currentActiveTab.current?.offsetLeft ?? 0
+      ? (currentActiveTab.current?.offsetLeft ?? 0)
       : 0;
     const indicatorOffset = activeTabRect
       ? activeTabRect.width / 2 + offset
