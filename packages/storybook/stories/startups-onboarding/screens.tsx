@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { cloneElement, useState, useEffect } from 'react';
+import React, { cloneElement, useState, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -1609,7 +1609,10 @@ export const SetupPanel = ({
   done = {},
   onAdd,
   isChecking,
+  onPathChange,
 }: {
+  /** Lets the screen remember the tab while a row's settings are open. */
+  onPathChange?: (path: SetupPath) => void;
   isChecking?: boolean;
   company: string;
   plan: SquadPlan;
@@ -1618,7 +1621,11 @@ export const SetupPanel = ({
   done?: SetupProgress;
   onAdd?: (id: string) => void;
 }): ReactElement => {
-  const [path, setPath] = useState(initialPath);
+  const [path, setPathState] = useState(initialPath);
+  const setPath = (next: SetupPath) => {
+    setPathState(next);
+    onPathChange?.(next);
+  };
   const rows = getSetupRows(plan, done);
 
   return (
@@ -1696,6 +1703,23 @@ export const SetupScreen = ({
   const shownDone = isFinished ? everythingDone : added;
   const isLaptop = useViewSize(ViewSize.Laptop);
   const [editingId, setEditingId] = useState(initialEditingId);
+  // On a phone the settings replace this screen, so coming back has to land on
+  // the same tab, at the same place in the checklist.
+  const [path, setPath] = useState(initialPath);
+  const checklistScroll = useRef(0);
+  const openRow = (id: string) => {
+    checklistScroll.current = globalThis.scrollY;
+    setEditingId(id);
+  };
+
+  useEffect(() => {
+    if (!isLaptop) {
+      globalThis.scrollTo({
+        top: editingId ? 0 : checklistScroll.current,
+        behavior: 'instant',
+      });
+    }
+  }, [editingId, isLaptop]);
   const editing = editingId
     ? getSetupRows(plan, added).find(({ id }) => id === editingId)
     : undefined;
@@ -1783,11 +1807,12 @@ export const SetupScreen = ({
         <SetupPanel
           company={company}
           plan={plan}
-          initialPath={initialPath}
+          initialPath={path}
+          onPathChange={setPath}
           initialClient={initialClient}
           done={added}
           isChecking={isChecking}
-          onAdd={setEditingId}
+          onAdd={openRow}
         />
       )}
       <div className="flex flex-wrap items-center gap-3">

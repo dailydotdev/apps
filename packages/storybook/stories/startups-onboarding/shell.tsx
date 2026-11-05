@@ -813,7 +813,9 @@ export const Shell = ({
                   style={{ left: -8 }}
                   variant={ButtonVariant.Tertiary}
                   size={ButtonSize.Medium}
-                  icon={<MoveToIcon className="rotate-180" />}
+                  icon={
+                    <MoveToIcon size={IconSize.Size16} className="rotate-180" />
+                  }
                   onClick={phoneBack.onClick}
                 />
               )}

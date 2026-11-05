@@ -6,6 +6,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { MoveToIcon } from '@dailydotdev/shared/src/components/icons';
 import { toSquadHandle } from '@dailydotdev/shared/src/features/squads/lib/handle';
 import { SquadPlan } from '@dailydotdev/shared/src/features/squads/lib/plans';
@@ -99,7 +100,7 @@ export const SetupEditor = ({
           aria-label="Back to the checklist"
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Small}
-          icon={<MoveToIcon className="rotate-180" />}
+          icon={<MoveToIcon size={IconSize.Size16} className="rotate-180" />}
           onClick={onBack}
         />
         <h2 className="min-w-0 flex-1 truncate font-bold typo-callout">
