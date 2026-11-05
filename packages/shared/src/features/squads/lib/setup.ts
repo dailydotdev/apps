@@ -90,7 +90,11 @@ export const getStartupsSetupPrompt = ({
     'Set our logo, and a cover image if we have one, from image URLs on our site or ones I give you.',
     `Set our website and up to ${SQUAD_LINKS_MAX} links developers look for: docs, GitHub, changelog, community.`,
     'Add our product with its name, tagline, URL and pricing.',
-    `Pick up to ${SQUAD_PLAN_INTEL_TOPICS[plan]} existing daily.dev tags that match what we build and set them as the weekly intel topics.`,
+    `Pick up to ${SQUAD_PLAN_INTEL_TOPICS[plan]} existing daily.dev tags that match what we build and set them as the weekly intel topics.${
+      plan === SquadPlan.Team
+        ? ' Ask me which developer seniority the intel should count (junior, mid-level, senior), or leave it for every level.'
+        : ''
+    }`,
   ];
 
   if (plan === SquadPlan.Team) {
