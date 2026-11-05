@@ -33,10 +33,16 @@ const usedByChoices = [
   /^startups-onboarding-3-design-decisions--(progress-|centered)(?!options)/,
 ];
 
+// "Before" pictures keep the checkout as merged in #7238, now the app has moved
+// on. They only retake when asked for by name.
+const isBefore = (id) =>
+  /remaining-states|daily-dev-for-startups-(checkout|states-a-account)/.test(
+    id,
+  );
 const word = process.argv[2];
 const index = await fetch(`${BASE}index.json`).then((r) => r.json());
-const ids = Object.keys(index.entries).filter(
-  (id) => !word || id.includes(word),
+const ids = Object.keys(index.entries).filter((id) =>
+  word ? id.includes(word) : !isBefore(id),
 );
 const jobs = [
   ...ids

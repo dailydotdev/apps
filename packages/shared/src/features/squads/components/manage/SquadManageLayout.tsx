@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { createContext, useContext } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import Link from '../../../../components/utilities/Link';
@@ -163,6 +163,17 @@ interface SquadManagePanelProps {
   children: ReactNode;
 }
 
+/**
+ * A section shown outside Manage, in the Startups onboarding: its content only,
+ * under the onboarding's own header, and it reports a successful save.
+ */
+export const SquadManageEmbedContext = createContext<{
+  onSaved: () => void;
+} | null>(null);
+
+export const useSquadManageEmbed = (): { onSaved: () => void } | null =>
+  useContext(SquadManageEmbedContext);
+
 export const SquadManagePanel = ({
   title,
   backUrl,
@@ -172,6 +183,7 @@ export const SquadManagePanel = ({
   phoneAction,
   children,
 }: SquadManagePanelProps): ReactElement => {
+  const embed = useSquadManageEmbed();
   const router = useRouter();
   const { squad } = useSquadPageContext();
   const isPhone = useIsPhone();
@@ -191,6 +203,10 @@ export const SquadManagePanel = ({
 
     goBackPast(isManagePath, () => router.push(backUrl));
   };
+
+  if (embed) {
+    return <>{children}</>;
+  }
 
   return (
     <>

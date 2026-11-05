@@ -166,6 +166,11 @@ export interface AuthOptionsProps {
    * registration form (e.g. when the onboarding funnel already shows that copy
    * on the signup wall). */
   hideRegistrationHeadline?: boolean;
+  logInTitle?: string;
+  signUpTitle?: string;
+  logInDescription?: string;
+  signUpDescription?: string;
+  signupProviders?: Provider[];
   /**
    * The funnel's headline scale and glass CTA. Explicit rather than read from
    * `FunnelProgressContext`, because these screens render before the stepper

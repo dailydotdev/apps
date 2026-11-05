@@ -52,6 +52,12 @@ import { useLogStartups } from '../../hooks/useLogStartups';
 import { SquadPlanCard, SquadPlanPrice } from '../checkout/SquadPlanCard';
 import { SquadManageSectionPanel } from './SquadManageLayout';
 import { StartupsSetup } from '../setup/StartupsSetup';
+import {
+  CharmEmptyState,
+  CharmEmptyStatePlacement,
+} from '../../../../components/charm/CharmEmptyState';
+import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';
+import { cloudinaryCharmSomethingWentWrong } from '../../../../lib/image';
 
 const roleLabel: Partial<Record<SourceMemberRole, string>> = {
   [SourceMemberRole.Admin]: 'Admin',
@@ -258,6 +264,42 @@ const seatsLeftCopy = (left: number): string => {
   return left === 1 ? '1 seat left.' : `${left} seats left.`;
 };
 
+/** Who holds a seat. Also opened on its own from the onboarding's checklist. */
+export const SquadManageSeats = ({
+  subscription,
+  isAdmin,
+}: {
+  subscription: SquadSubscription;
+  isAdmin: boolean;
+}): ReactElement => {
+  const { squad } = useSquadPageContext();
+  const { user } = useAuthContext();
+  const { data: members } = useQuery(
+    squadSeatMembersQueryOptions({ user, sourceId: getSquadId(squad) }),
+  );
+
+  return (
+    <div className="flex flex-col gap-2">
+      <SectionTitle
+        title="Seats"
+        description={`Seats can post and boost through the API. Give them to the admins and moderators who run the page. ${seatsLeftCopy(
+          subscription.seatLimit - subscription.seatsUsed,
+        )}`}
+      />
+      <ul className="flex flex-col">
+        {members?.map((member) => (
+          <SeatRow
+            key={member.user.id}
+            member={member}
+            subscription={subscription}
+            canManage={isAdmin}
+          />
+        ))}
+      </ul>
+    </div>
+  );
+};
+
 const ActivePlan = ({
   subscription,
   isAdmin,
@@ -312,7 +354,7 @@ const ActivePlan = ({
                   source_id: sourceId,
                 })
               }
-              variant={ButtonVariant.Secondary}
+              variant={ButtonVariant.Subtle}
               size={ButtonSize.Small}
               icon={<OpenLinkIcon />}
               iconPosition={ButtonIconPosition.Right}
@@ -359,24 +401,7 @@ const ActivePlan = ({
           origin={Origin.SquadManagePlan}
         />
       </div>
-      <div className="flex flex-col gap-2">
-        <SectionTitle
-          title="Seats"
-          description={`Seats can post and boost through the API. Give them to the admins and moderators who run the page. ${seatsLeftCopy(
-            subscription.seatLimit - subscription.seatsUsed,
-          )}`}
-        />
-        <ul className="flex flex-col">
-          {members?.map((member) => (
-            <SeatRow
-              key={member.user.id}
-              member={member}
-              subscription={subscription}
-              canManage={isAdmin}
-            />
-          ))}
-        </ul>
-      </div>
+      <SquadManageSeats subscription={subscription} isAdmin={isAdmin} />
     </>
   );
 };
@@ -384,14 +409,41 @@ const ActivePlan = ({
 export const SquadManagePlan = (): ReactElement => {
   const { squad } = useSquadPageContext();
   const { user } = useAuthContext();
-  const { data: subscription, isPending } = useQuery(
+  const {
+    data: subscription,
+    isPending,
+    isError,
+    refetch,
+  } = useQuery(
     squadSubscriptionQueryOptions({ user, sourceId: getSquadId(squad) }),
   );
   const isAdmin = squad.currentMember?.role === SourceMemberRole.Admin;
 
+  if (isError) {
+    return (
+      <SquadManageSectionPanel section={SquadManageSection.Plan}>
+        <CharmEmptyState
+          placement={CharmEmptyStatePlacement.Page}
+          image={cloudinaryCharmSomethingWentWrong}
+          imageAlt="daily.dev charm with something gone wrong"
+          title="We couldn't load your subscription"
+          description="Nothing has changed with your plan or billing. This is only a problem showing it."
+          action={{ label: 'Try again', onClick: () => refetch() }}
+        />
+      </SquadManageSectionPanel>
+    );
+  }
+
   return (
     <SquadManageSectionPanel section={SquadManageSection.Plan}>
       <div className="flex flex-col gap-6 px-4 py-6 tablet:px-6">
+        {isPending && (
+          <div className="flex flex-col gap-6" aria-busy>
+            <ElementPlaceholder className="h-40 rounded-16" />
+            <ElementPlaceholder className="h-24 rounded-16" />
+            <ElementPlaceholder className="h-40 rounded-16" />
+          </div>
+        )}
         {!isPending &&
           (subscription?.plan ? (
             <ActivePlan subscription={subscription} isAdmin={isAdmin} />

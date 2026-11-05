@@ -7,7 +7,7 @@ import {
   ButtonVariant,
 } from '../../../../components/buttons/Button';
 import CloseButton from '../../../../components/CloseButton';
-import { CoreIcon } from '../../../../components/icons';
+import { VIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import {
   Typography,
@@ -88,7 +88,13 @@ export const SquadPlanUpsellWidget = (): ReactElement | null => {
   }
 
   return (
-    <section className="relative flex w-full flex-col gap-3 rounded-16 border border-accent-cabbage-default bg-surface-float p-4">
+    <section
+      className="relative flex w-full flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4"
+      style={{
+        background:
+          'linear-gradient(180deg, color-mix(in srgb, var(--theme-accent-cabbage-default) 10%, transparent), transparent 55%)',
+      }}
+    >
       <CloseButton
         size={ButtonSize.XSmall}
         className="absolute right-2 top-2"
@@ -120,7 +126,7 @@ export const SquadPlanUpsellWidget = (): ReactElement | null => {
             key={benefit}
             className="flex items-start gap-2 text-text-secondary typo-footnote"
           >
-            <CoreIcon
+            <VIcon
               size={IconSize.Size16}
               className="mt-0.5 shrink-0 text-accent-cabbage-default"
             />

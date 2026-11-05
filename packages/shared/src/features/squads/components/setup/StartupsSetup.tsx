@@ -44,11 +44,17 @@ import {
 } from '../../lib/setup';
 import { getSquadId } from '../../lib/features';
 import { useLogStartups } from '../../hooks/useLogStartups';
+import type { SquadProduct } from '../../../../graphql/squadProducts';
+import type { StartupsSetupRow } from './StartupsSetupEditor';
 
 export enum StartupsSetupPath {
   Agent = 'agent',
   Manual = 'manual',
 }
+
+export type { StartupsSetupRow };
+
+const DONE_COLOR = '#D8B4FE';
 
 const pathLabel: Record<StartupsSetupPath, string> = {
   [StartupsSetupPath.Agent]: 'Use your agent',
@@ -60,6 +66,8 @@ interface SetupItem {
   title: string;
   description: string;
   isDone?: boolean;
+  /** Counts towards "2 of 5": the agent and brief rows don't. */
+  isCounted?: boolean;
   /** Shown in place of the button, for features still on the way. */
   badge?: string;
   href?: string;
@@ -84,7 +92,7 @@ const CopyBlock = ({
     <div className="flex flex-col gap-2">
       <pre
         className={classNames(
-          'overflow-auto whitespace-pre-wrap break-words rounded-12 bg-surface-float p-3 font-mono text-text-secondary typo-footnote',
+          'overflow-auto whitespace-pre-wrap break-words rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 font-mono text-text-secondary typo-footnote',
           className,
         )}
       >
@@ -216,60 +224,152 @@ const AgentSetup = ({
 const ManualSetup = ({
   items,
   log,
+  onEditRow,
 }: {
   items: SetupItem[];
   log: (event: LogEvent, targetId: string, extra?: object) => void;
-}): ReactElement => (
-  <ul className="flex flex-col gap-2">
-    {items.map((item) => (
-      <li
-        key={item.id}
-        className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary p-3"
-      >
-        <span
-          className={classNames(
-            'flex size-6 shrink-0 items-center justify-center rounded-full',
-            item.isDone
-              ? 'bg-accent-avocado-flat text-accent-avocado-default'
-              : 'border border-border-subtlest-secondary',
-          )}
-        >
-          {item.isDone && <VIcon size={IconSize.Size16} />}
-        </span>
-        <span className="flex min-w-0 flex-1 flex-col">
-          <Typography type={TypographyType.Callout} bold>
-            {item.title}
-          </Typography>
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-          >
-            {item.description}
-          </Typography>
-        </span>
-        {item.badge && (
-          <span className="shrink-0 rounded-8 bg-surface-float px-2 py-0.5 font-bold text-text-tertiary typo-caption1">
-            {item.badge}
+  onEditRow?: (row: StartupsSetupRow) => void;
+}): ReactElement => {
+  const counted = items.filter(({ isCounted }) => isCounted);
+  const done = counted.filter(({ isDone }) => isDone).length;
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2">
+        <p className="flex justify-between typo-footnote">
+          <span className="font-bold">Your page</span>
+          <span className="tabular-nums text-text-tertiary">
+            {`${done} of ${counted.length} done`}
           </span>
-        )}
-        {item.cta && (
-          <Button
-            {...(item.href ? { tag: 'a' as const, href: item.href } : {})}
-            variant={item.isDone ? ButtonVariant.Tertiary : ButtonVariant.Float}
-            size={ButtonSize.Small}
-            className="shrink-0"
-            onClick={() => {
-              log(LogEvent.ClickStartupsSetupStep, item.id);
-              item.onClick?.();
+        </p>
+        <div className="h-1 w-full overflow-hidden rounded-50 bg-border-subtlest-tertiary">
+          <div
+            className="h-full rounded-50"
+            style={{
+              background: DONE_COLOR,
+              width: `${(done / counted.length) * 100}%`,
+              transition: 'width .4s ease',
             }}
-          >
-            {item.isDone ? 'Edit' : item.cta}
-          </Button>
-        )}
-      </li>
-    ))}
-  </ul>
-);
+          />
+        </div>
+      </div>
+      <ul className="flex flex-col">
+        {items.map((item) => {
+          const isEditable = !!onEditRow && !!item.isCounted;
+
+          return (
+            <li
+              key={item.id}
+              className="flex items-center gap-3 border-t border-border-subtlest-tertiary py-3 first:border-t-0"
+            >
+              <span
+                className="flex size-6 shrink-0 items-center justify-center rounded-full"
+                style={
+                  item.isDone
+                    ? { background: DONE_COLOR, color: '#111827' }
+                    : {
+                        boxShadow:
+                          'inset 0 0 0 1.5px var(--theme-border-subtlest-secondary)',
+                      }
+                }
+              >
+                {item.isDone && <VIcon size={IconSize.Size16} secondary />}
+              </span>
+              <span className="flex min-w-0 flex-1 flex-col">
+                <Typography type={TypographyType.Callout} bold>
+                  {item.title}
+                </Typography>
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                >
+                  {item.description}
+                </Typography>
+              </span>
+              {item.badge && (
+                <span className="shrink-0 rounded-8 bg-surface-float px-2 py-0.5 font-bold text-text-tertiary typo-caption1">
+                  {item.badge}
+                </span>
+              )}
+              {item.cta && (
+                <Button
+                  {...(item.href && !isEditable
+                    ? { tag: 'a' as const, href: item.href }
+                    : {})}
+                  variant={
+                    item.isDone ? ButtonVariant.Tertiary : ButtonVariant.Float
+                  }
+                  size={ButtonSize.Small}
+                  className="shrink-0"
+                  style={{ minWidth: 104 }}
+                  onClick={() => {
+                    log(LogEvent.ClickStartupsSetupStep, item.id);
+                    if (isEditable) {
+                      onEditRow?.(item.id as StartupsSetupRow);
+                    }
+                    item.onClick?.();
+                  }}
+                >
+                  {item.isDone ? 'Edit' : item.cta}
+                </Button>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+};
+
+export const startupsSetupRowTitles: Record<StartupsSetupRow, string> = {
+  details: 'Logo and description',
+  links: 'Website and links',
+  product: 'Your product',
+  cta: 'A CTA on your page header',
+  seats: 'Give your team seats',
+};
+
+/** What's been set up so far, from the page's own data. */
+export const useStartupsSetupProgress = (
+  squad: Squad,
+  plan: SquadPlan,
+): {
+  done: Record<StartupsSetupRow, boolean>;
+  isComplete: boolean;
+  product?: SquadProduct;
+  cta?: string;
+} => {
+  const { user } = useAuthContext();
+  const isTeam = plan === SquadPlan.Team;
+  const { data: products } = useQuery(
+    squadProductsQueryOptions({ squad, user }),
+  );
+  const { data: branding } = useQuery(
+    squadBrandingQueryOptions({ squad, user }),
+  );
+  const { data: subscription } = useQuery({
+    ...squadSubscriptionQueryOptions({ user, sourceId: getSquadId(squad) }),
+    enabled: !!user && isTeam,
+  });
+  const done = {
+    details: !!squad.description,
+    links: !!squad.website || !!squad.links?.length,
+    product: !!products?.length,
+    cta: !!branding?.button?.enabled,
+    seats: (subscription?.seatsUsed ?? 0) > 1,
+  };
+
+  return {
+    done,
+    isComplete:
+      done.details &&
+      done.links &&
+      done.product &&
+      (!isTeam || (done.cta && done.seats)),
+    product: products?.[0],
+    cta: branding?.button?.enabled ? branding.button.label : undefined,
+  };
+};
 
 interface StartupsSetupProps {
   squad: Squad;
@@ -277,6 +377,8 @@ interface StartupsSetupProps {
   origin: Origin;
   /** Pins the path, for stories */
   initialPath?: StartupsSetupPath;
+  /** Opens a row in place, in the onboarding, instead of going to settings. */
+  onEditRow?: (row: StartupsSetupRow) => void;
 }
 
 /**
@@ -288,8 +390,8 @@ export const StartupsSetup = ({
   plan,
   origin,
   initialPath = StartupsSetupPath.Agent,
+  onEditRow,
 }: StartupsSetupProps): ReactElement => {
-  const { user } = useAuthContext();
   const sourceId = getSquadId(squad);
   const [path, setPath] = useState(initialPath);
   const logStartups = useLogStartups();
@@ -301,16 +403,7 @@ export const StartupsSetup = ({
       ...extra,
     });
   const isTeam = plan === SquadPlan.Team;
-  const { data: products } = useQuery(
-    squadProductsQueryOptions({ squad, user }),
-  );
-  const { data: branding } = useQuery(
-    squadBrandingQueryOptions({ squad, user }),
-  );
-  const { data: subscription } = useQuery({
-    ...squadSubscriptionQueryOptions({ user, sourceId }),
-    enabled: !!user && isTeam,
-  });
+  const { done } = useStartupsSetupProgress(squad, plan);
   const manageUrl = (section: SquadManageSection) =>
     getSquadManageUrl(squad.handle, section);
   const selectPath = (option: StartupsSetupPath) => {
@@ -323,7 +416,8 @@ export const StartupsSetup = ({
       id: 'details',
       title: 'Logo and description',
       description: 'Say what you build and for which developers.',
-      isDone: !!squad.description,
+      isDone: done.details,
+      isCounted: true,
       href: manageUrl(SquadManageSection.Details),
       cta: 'Edit page',
     },
@@ -331,7 +425,8 @@ export const StartupsSetup = ({
       id: 'links',
       title: 'Website and links',
       description: 'Your site, docs, GitHub and changelog on the page.',
-      isDone: !!squad.website || !!squad.links?.length,
+      isDone: done.links,
+      isCounted: true,
       href: manageUrl(SquadManageSection.Links),
       cta: 'Add links',
     },
@@ -339,7 +434,8 @@ export const StartupsSetup = ({
       id: 'product',
       title: 'Your product',
       description: 'A card with its tagline, pricing and link.',
-      isDone: !!products?.length,
+      isDone: done.product,
+      isCounted: true,
       href: manageUrl(SquadManageSection.Products),
       cta: 'Add product',
     },
@@ -347,7 +443,8 @@ export const StartupsSetup = ({
       id: 'cta',
       title: 'A CTA on your page header',
       description: 'Send developers to sign up, your docs or a demo.',
-      isDone: !!branding?.button?.enabled,
+      isDone: done.cta,
+      isCounted: true,
       href: manageUrl(SquadManageSection.Branding),
       cta: 'Add CTA',
     },
@@ -355,7 +452,8 @@ export const StartupsSetup = ({
       id: 'seats',
       title: 'Give your team seats',
       description: `${SQUAD_PLAN_SEATS[plan]} seats, each can post and boost through the API.`,
-      isDone: (subscription?.seatsUsed ?? 0) > 1,
+      isDone: done.seats,
+      isCounted: true,
       href: manageUrl(SquadManageSection.Plan),
       cta: 'Give seats',
     },
@@ -397,9 +495,9 @@ export const StartupsSetup = ({
             aria-selected={option === path}
             onClick={() => selectPath(option)}
             className={classNames(
-              'flex items-center justify-center gap-2 whitespace-nowrap rounded-10 px-3 py-2 typo-callout',
+              'flex items-center justify-center gap-2 whitespace-nowrap rounded-10 px-3 py-2 font-bold typo-callout',
               option === path
-                ? 'bg-background-default font-bold text-text-primary'
+                ? 'bg-background-default text-text-primary'
                 : 'text-text-tertiary hover:text-text-secondary',
             )}
           >
@@ -413,7 +511,7 @@ export const StartupsSetup = ({
       {path === StartupsSetupPath.Agent ? (
         <AgentSetup squad={squad} plan={plan} log={log} />
       ) : (
-        <ManualSetup items={items} log={log} />
+        <ManualSetup items={items} log={log} onEditRow={onEditRow} />
       )}
       <Typography
         tag={TypographyTag.P}

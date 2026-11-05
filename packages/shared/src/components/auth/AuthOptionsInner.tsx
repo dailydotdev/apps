@@ -157,6 +157,11 @@ function AuthOptionsInner({
   socialProviderScopes,
   registrationExtraFields,
   hideRegistrationHeadline,
+  logInTitle,
+  signUpTitle,
+  logInDescription,
+  signUpDescription,
+  signupProviders,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
@@ -958,6 +963,11 @@ function AuthOptionsInner({
             hasTopBarBack={!!onScreenBackChange}
             isSocialAuthLoading={isSocialAuthLoading}
             providers={providers}
+            logInTitle={logInTitle}
+            signUpTitle={signUpTitle}
+            logInDescription={logInDescription}
+            signUpDescription={signUpDescription}
+            signupProviders={signupProviders}
             simplified={simplified}
             trigger={trigger}
             onAuthOpenLogged={() => setHasLoggedAuthOpen(true)}

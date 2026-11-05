@@ -35,6 +35,10 @@ interface AuthDefaultProps extends AuthFormProps {
   onBack?: () => void;
   logInTitle?: string;
   signUpTitle?: string;
+  logInDescription?: string;
+  signUpDescription?: string;
+  /** Sign-up's options, when they differ from log-in's. */
+  signupProviders?: Provider[];
   providers: Provider[];
   trigger: AuthTriggersType;
   disableRegistration?: boolean;
@@ -68,6 +72,9 @@ const AuthDefault = ({
   trigger,
   signUpTitle = 'Sign up for daily.dev',
   logInTitle = 'Log in to daily.dev',
+  signUpDescription,
+  logInDescription,
+  signupProviders,
   loginButton,
   simplified,
   onAuthOpenLogged,
@@ -193,6 +200,12 @@ const AuthDefault = ({
         title={title}
         onBack={getHeaderBack()}
       />
+      {(shouldLogin ? logInDescription : signUpDescription) &&
+        !isEmailLoginScreen && (
+          <p className="mt-2 text-center text-text-secondary typo-callout">
+            {shouldLogin ? logInDescription : signUpDescription}
+          </p>
+        )}
       <AuthContainer className={disableRegistration ? 'mb-6' : undefined}>
         {!isEmailLoginScreen && (
           <div
@@ -201,22 +214,24 @@ const AuthDefault = ({
             ref={socialLoginListRef}
             role="list"
           >
-            {providers.map(({ label, value, icon }, index) => (
-              <Button
-                aria-label={`Continue with ${label}`}
-                autoFocus={index === 0}
-                disabled={!isReady || isSocialAuthLoading}
-                icon={React.cloneElement(icon, { size: IconSize.Medium })}
-                key={label}
-                loading={!isReady || isSocialAuthLoading}
-                onClick={() => onSocialClick(value)}
-                size={ButtonSize.Large}
-                type="button"
-                variant={ButtonVariant.Primary}
-              >
-                Continue with {label}
-              </Button>
-            ))}
+            {(shouldLogin ? providers : (signupProviders ?? providers)).map(
+              ({ label, value, icon }, index) => (
+                <Button
+                  aria-label={`Continue with ${label}`}
+                  autoFocus={index === 0 && !signupProviders}
+                  disabled={!isReady || isSocialAuthLoading}
+                  icon={React.cloneElement(icon, { size: IconSize.Medium })}
+                  key={label}
+                  loading={!isReady || isSocialAuthLoading}
+                  onClick={() => onSocialClick(value)}
+                  size={ButtonSize.Large}
+                  type="button"
+                  variant={ButtonVariant.Primary}
+                >
+                  Continue with {label}
+                </Button>
+              ),
+            )}
             {(isSignup || hasEmailLoginScreen) && (
               <Button
                 aria-label="Continue with email"

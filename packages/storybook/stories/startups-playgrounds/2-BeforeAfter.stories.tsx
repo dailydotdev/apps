@@ -21,7 +21,7 @@ export default meta;
 type Story = StoryObj;
 
 const INTRO =
-  "Before is today's build, and After is the proposal. These are pictures, so they load quickly. Click one to open it live.";
+  'Before is the checkout as merged in #7238, and After is the design, now built into the app. These are pictures, so they load quickly. Click one to open it live.';
 
 const inFlows = new Set(flows.flatMap(({ steps }) => steps));
 

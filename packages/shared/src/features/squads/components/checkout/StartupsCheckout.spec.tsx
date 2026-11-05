@@ -39,7 +39,7 @@ describe('StartupsCheckout account step', () => {
 
     await click(/^log in$/i);
 
-    expect(await screen.findByText('Log in to daily.dev')).toBeInTheDocument();
+    expect(await screen.findByText('Welcome back')).toBeInTheDocument();
     expect(screen.queryByText('Create your account')).not.toBeInTheDocument();
   });
 
@@ -79,7 +79,7 @@ describe('StartupsCheckout account step', () => {
     await click(/^sign up$/i);
     await click(/continue with email/i);
 
-    await click(/other options/i);
+    await click(/^go back$/i);
 
     expect(await screen.findByText('Create your account')).toBeInTheDocument();
   });
