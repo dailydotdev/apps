@@ -7,7 +7,13 @@ import { useSquadCreate } from '../../../../hooks/squads/useSquadCreate';
 import { LogEvent, TargetType } from '../../../../lib/log';
 import { SourceMemberRole } from '../../../../graphql/sources';
 import type { Squad } from '../../../../graphql/sources';
+import { saveStartupsGoals } from '../../../../graphql/squadSubscription';
 import { StartupsCheckout, StartupsCheckoutStep } from './StartupsCheckout';
+
+jest.mock('../../../../graphql/squadSubscription', () => ({
+  ...jest.requireActual('../../../../graphql/squadSubscription'),
+  saveStartupsGoals: jest.fn().mockResolvedValue({ _: true }),
+}));
 
 jest.mock('../../../../lib/betterAuth', () => ({
   ...jest.requireActual('../../../../lib/betterAuth'),
@@ -154,6 +160,7 @@ describe('StartupsCheckout goal question', () => {
     eventName === LogEvent.SkipStartupsGoal;
 
   beforeEach(() => {
+    (saveStartupsGoals as jest.Mock).mockClear();
     (useSquadCreate as jest.Mock).mockImplementation(({ onSuccess }) => ({
       isLoading: false,
       onCreateSquad: async () => onSuccess(acme),
@@ -203,6 +210,25 @@ describe('StartupsCheckout goal question', () => {
     await createCompany();
 
     expect(logEvent).toHaveBeenCalledWith(goalEvent(LogEvent.SkipStartupsGoal));
+    expect(saveStartupsGoals).not.toHaveBeenCalled();
+  });
+
+  it('saves the answers on the buyer once the company is created', async () => {
+    renderCompanyStep();
+
+    chooseGoal('Get developers to try my product');
+    chooseGoal('Something else');
+    fireEvent.input(
+      screen.getByRole('textbox', { name: /in your own words/i }),
+      { target: { value: 'Hire developers' } },
+    );
+    await createCompany();
+
+    expect(saveStartupsGoals).toHaveBeenCalledWith({
+      sourceId: acme.id,
+      goals: ['users', 'other'],
+      other: 'Hire developers',
+    });
   });
 
   it('logs what they typed for something else', async () => {
