@@ -18,6 +18,7 @@ import { getSquadId } from '../../lib/features';
 import { useSquadProducts } from '../../hooks/useSquadProducts';
 import { SquadManageBranding } from '../manage/SquadManageBranding';
 import { SquadManageDetails } from '../manage/SquadManageDetails';
+import { SquadManageIntel } from '../manage/SquadManageIntel';
 import { SquadManageEmbedContext } from '../manage/SquadManageLayout';
 import { SquadManageLinks } from '../manage/SquadManageLinks';
 import { SquadManageSeats } from '../manage/SquadManagePlan';
@@ -27,6 +28,7 @@ export type StartupsSetupRow =
   | 'details'
   | 'links'
   | 'product'
+  | 'intel'
   | 'cta'
   | 'seats';
 
@@ -129,6 +131,7 @@ export const StartupsSetupEditor = ({
             {row === 'details' && <SquadManageDetails />}
             {row === 'links' && <SquadManageLinks />}
             {row === 'product' && <ProductEditor squad={squad} />}
+            {row === 'intel' && <SquadManageIntel />}
             {row === 'cta' && <SquadManageBranding />}
             {row === 'seats' && <SeatsEditor squad={squad} />}
           </SquadManageEmbedContext.Provider>

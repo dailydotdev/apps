@@ -22,6 +22,11 @@ import {
   squadSubscriptionQueryOptions,
 } from '@dailydotdev/shared/src/graphql/squadSubscription';
 import { squadMembersPreviewQueryOptions } from '@dailydotdev/shared/src/graphql/squads';
+import type { SquadIntelSettings } from '@dailydotdev/shared/src/graphql/squadIntel';
+import {
+  squadIntelQueryOptions,
+  squadIntelSettingsQueryOptions,
+} from '@dailydotdev/shared/src/graphql/squadIntel';
 import {
   generateQueryKey,
   RequestKey,
@@ -124,6 +129,8 @@ const acme = {
     permissions: Object.values(SourcePermissions),
     referralToken: 'token',
     user: owner.user,
+    // The buyer holds a seat from the moment the plan is on
+    seat: true,
   } as unknown as SourceMember,
 } as unknown as SeededSquad;
 
@@ -216,6 +223,16 @@ const teamPlan: SquadSubscription = {
   ownerId: defaultUser.id,
 };
 
+// Topics picked for the weekly intel, so the checklist can finish.
+const intelPicked = (isTeamPlan: boolean): SquadIntelSettings => ({
+  selection: {
+    tags: ['observability', 'opentelemetry', 'grafana'],
+    seniority: null,
+    regions: null,
+  },
+  limits: { tags: isTeamPlan ? 20 : 5, seniority: isTeamPlan, regions: false },
+});
+
 // Only the buyer holds a seat so far.
 const teamPlanNew: SquadSubscription = { ...teamPlan, seatsUsed: 1 };
 
@@ -227,6 +244,7 @@ const Seeded = ({
   balance = 9800,
   products = [],
   branding = { color: null, button: null } as unknown as SquadBranding,
+  intelSettings,
   children,
 }: {
   squad: Squad;
@@ -237,9 +255,20 @@ const Seeded = ({
   /** Null: still on its way, and it stays that way. */
   products?: SquadProduct[] | null;
   branding?: SquadBranding;
+  /** No topics yet, with the plan's limits, unless a story sets them. */
+  intelSettings?: SquadIntelSettings;
   children: ReactNode;
 }): ReactElement => {
   const client = useQueryClient();
+  const isTeamPlan = subscription?.plan === SquadPlan.Team;
+  const intel = intelSettings ?? {
+    selection: null,
+    limits: {
+      tags: isTeamPlan ? 20 : 5,
+      seniority: isTeamPlan,
+      regions: false,
+    },
+  };
   const { user } = useAuthContext();
   const seed = () => {
     client.setQueryData(
@@ -290,6 +319,11 @@ const Seeded = ({
         pending(productsKey);
       }
       pin(squadBrandingQueryOptions({ squad, user: who }).queryKey, branding);
+      pin(
+        squadIntelSettingsQueryOptions({ user: who, sourceId }).queryKey,
+        intel,
+      );
+      pin(squadIntelQueryOptions({ user: who, sourceId }).queryKey, null);
     });
   };
   useState(() => {
@@ -361,6 +395,7 @@ const SetupPreview = ({
       subscription={isAllDone ? teamPlan : teamPlanNew}
       products={isAllDone ? [sampleProduct] : []}
       branding={isAllDone ? headerCta : undefined}
+      intelSettings={isAllDone ? intelPicked(true) : undefined}
     >
       <div className="mx-auto flex max-w-[40rem] flex-col p-4 tablet:p-6">
         <StartupsSetup
@@ -515,6 +550,7 @@ export const ManageSetupComplete: Story = {
       subscription={teamPlan}
       products={[sampleProduct]}
       branding={headerCta}
+      intelSettings={intelPicked(true)}
     >
       <SquadManageLayout section={SquadManageSection.Plan}>
         <SquadManagePlan />
@@ -728,6 +764,7 @@ export const CheckoutDoneFinished: Story = {
       squad={acmeHalfDone}
       subscription={starter}
       products={[sampleProduct]}
+      intelSettings={intelPicked(false)}
     >
       <StartupsCheckout
         initialStep={StartupsCheckoutStep.Done}
@@ -746,6 +783,7 @@ export const CheckoutDoneTeamFinished: Story = {
       subscription={teamPlan}
       products={[sampleProduct]}
       branding={headerCta}
+      intelSettings={intelPicked(true)}
     >
       <StartupsCheckout
         initialStep={StartupsCheckoutStep.Done}
