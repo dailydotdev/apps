@@ -45,6 +45,7 @@ import { useLogStartups } from '../../hooks/useLogStartups';
 import {
   SquadManageSaveButton,
   SquadManageSectionPanel,
+  useSquadManageEmbed,
 } from './SquadManageLayout';
 import { SquadEnterpriseGate } from './SquadEnterpriseGate';
 
@@ -271,6 +272,7 @@ export const SquadManageIntel = (): ReactElement => {
   const client = useQueryClient();
   const { displayToast } = useToastNotification();
   const logStartups = useLogStartups();
+  const embed = useSquadManageEmbed();
   const sourceId = getSquadId(squad);
   const {
     data: settings,
@@ -302,6 +304,7 @@ export const SquadManageIntel = (): ReactElement => {
           ? 'Saved. The next intel covers it, on Monday.'
           : 'Saved. Your first intel arrives within the hour.',
       );
+      embed?.onSaved();
     },
     onError: (saveError: ApiErrorResult) =>
       displayToast(saveError?.response?.errors?.[0]?.message ?? DEFAULT_ERROR),

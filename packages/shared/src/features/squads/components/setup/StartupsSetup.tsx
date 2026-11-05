@@ -57,7 +57,7 @@ interface SetupItem {
   title: string;
   description: string;
   isDone?: boolean;
-  /** Counts towards "2 of 5": the agent and intel rows don't. */
+  /** Counts towards "2 of 5": the agent and cashback rows don't. */
   isCounted?: boolean;
   /** Shown in place of the button, for features still on the way. */
   badge?: string;
@@ -442,6 +442,7 @@ export const startupsSetupRowTitles: Record<StartupsSetupRow, string> = {
   details: 'Logo and description',
   links: 'Website and links',
   product: 'Your product',
+  intel: 'Weekly intel',
   cta: 'A CTA on your page header',
   seats: 'Give your team seats',
 };
@@ -452,6 +453,8 @@ export const useStartupsSetupProgress = (
   plan: SquadPlan,
 ): {
   done: Record<StartupsSetupRow, boolean>;
+  /** Only paid seats can pick the intel's topics, so it counts only for them. */
+  hasIntel: boolean;
   isComplete: boolean;
   /** Still finding out which rows are done. */
   isChecking: boolean;
@@ -460,6 +463,7 @@ export const useStartupsSetupProgress = (
 } => {
   const { user } = useAuthContext();
   const isTeam = plan === SquadPlan.Team;
+  const hasIntel = !!squad.currentMember?.seat;
   const { data: products, isLoading: isLoadingProducts } = useQuery(
     squadProductsQueryOptions({ squad, user }),
   );
@@ -470,22 +474,36 @@ export const useStartupsSetupProgress = (
     ...squadSubscriptionQueryOptions({ user, sourceId: getSquadId(squad) }),
     enabled: !!user && isTeam,
   });
+  const { data: intelSettings, isLoading: isLoadingIntel } = useQuery(
+    squadIntelSettingsQueryOptions({
+      user,
+      sourceId: getSquadId(squad),
+      enabled: hasIntel,
+    }),
+  );
   const done = {
     details: !!squad.description,
     links: !!squad.website || !!squad.links?.length,
     product: !!products?.length,
+    intel: !!intelSettings?.selection,
     cta: !!branding?.button?.enabled,
     seats: (subscription?.seatsUsed ?? 0) > 1,
   };
 
   return {
     done,
+    hasIntel,
     isComplete:
       done.details &&
       done.links &&
       done.product &&
+      (!hasIntel || done.intel) &&
       (!isTeam || (done.cta && done.seats)),
-    isChecking: isLoadingProducts || isLoadingBranding || isLoadingSubscription,
+    isChecking:
+      isLoadingProducts ||
+      isLoadingBranding ||
+      isLoadingSubscription ||
+      isLoadingIntel,
     product: products?.[0],
     cta: branding?.button?.enabled ? branding.button.label : undefined,
   };
@@ -523,16 +541,7 @@ export const StartupsSetup = ({
       ...extra,
     });
   const isTeam = plan === SquadPlan.Team;
-  const { done, isChecking } = useStartupsSetupProgress(squad, plan);
-  const { user } = useAuthContext();
-  // Only paid seats can read it; anyone else just sees the step as open
-  const { data: intelSettings } = useQuery(
-    squadIntelSettingsQueryOptions({
-      user,
-      sourceId,
-      enabled: !!squad.currentMember?.seat,
-    }),
-  );
+  const { done, hasIntel, isChecking } = useStartupsSetupProgress(squad, plan);
   const manageUrl = (section: SquadManageSection) =>
     getSquadManageUrl(squad.handle, section);
   const selectPath = (option: StartupsSetupPath) => {
@@ -568,6 +577,19 @@ export const StartupsSetup = ({
       href: manageUrl(SquadManageSection.Products),
       cta: 'Add product',
     },
+    {
+      id: 'intel',
+      title: `Weekly intel on up to ${SQUAD_PLAN_INTEL_TOPICS[plan]} topics`,
+      description: hasIntel
+        ? `What developers read in your topics, every Monday${
+            isTeam ? ', with a seniority filter' : ''
+          }.`
+        : 'What developers read in your topics. Only paid seats can set it up.',
+      isDone: done.intel,
+      isCounted: hasIntel,
+      href: manageUrl(SquadManageSection.Intel),
+      cta: hasIntel ? 'Pick topics' : undefined,
+    },
     isTeam && {
       id: 'cta',
       title: 'A CTA on your page header',
@@ -592,14 +614,6 @@ export const StartupsSetup = ({
       description: 'Post and boost from Claude Code, Cursor or Codex.',
       onClick: () => selectPath(StartupsSetupPath.Agent),
       cta: 'Show me',
-    },
-    {
-      id: 'intel',
-      title: `Weekly intel on up to ${SQUAD_PLAN_INTEL_TOPICS[plan]} topics`,
-      description: 'What developers read and discuss in your space.',
-      isDone: !!intelSettings?.selection,
-      href: manageUrl(SquadManageSection.Intel),
-      cta: 'Pick topics',
     },
     {
       id: 'cashback',
