@@ -8,6 +8,8 @@ import { dehydrate, QueryClient, useQuery } from '@tanstack/react-query';
 import {
   getNewPicksPath,
   picksQueryOptions,
+  picksViewCountQueryOptions,
+  trackPicksView,
 } from '@dailydotdev/shared/src/graphql/picks';
 import type { Picks, PicksItem } from '@dailydotdev/shared/src/graphql/picks';
 import {
@@ -61,6 +63,9 @@ interface PicksPageProps {
   seo: NextSeoProps;
   dehydratedState: DehydratedState;
 }
+
+const getOpensLabel = (count: number): string =>
+  count ? `Opened by ${count}` : 'Not opened yet';
 
 const getPostsLabel = (picks: Picks): string => {
   const count = picks.items.length;
@@ -150,7 +155,14 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
     staleTime: StaleTime.OneMinute,
   });
   const hasLoggedView = useRef(false);
+  const hasTrackedView = useRef(false);
   const isAuthor = !!user && user.id === picks?.author.id;
+  // Read fresh on every visit, so the count the notification promised is
+  // the count shown.
+  const { data: viewCount } = useQuery({
+    ...picksViewCountQueryOptions(picksId, user),
+    enabled: isAuthor,
+  });
   const { openShareSheet } = useSharePicks();
   // `/picks/new` edits the current week, so only this week's list is editable
   const isEditable = isAuthor && picks?.weekStart === getCurrentWeekStart();
@@ -172,6 +184,17 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
       }),
     });
   }, [picks, isAuthReady, isAuthor, isLoggedIn, user?.createdAt, logEvent]);
+
+  // One open per viewer per list; the API dedupes, this only saves a call
+  // for the author. Failing to count must never affect the page.
+  useEffect(() => {
+    if (!picks || !isAuthReady || isAuthor || hasTrackedView.current) {
+      return;
+    }
+
+    hasTrackedView.current = true;
+    trackPicksView(picks.id).catch(() => undefined);
+  }, [picks, isAuthReady, isAuthor]);
 
   if (!picks) {
     return null;
@@ -251,6 +274,14 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
             >
               {getPostsLabel(picks)}
             </Typography>
+            {isAuthor && typeof viewCount === 'number' && (
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                {getOpensLabel(viewCount)}
+              </Typography>
+            )}
           </div>
           {isAuthor && (
             <Button

@@ -159,6 +159,23 @@ export const UPSERT_PICKS_MUTATION = gql`
   }
 `;
 
+export const PICKS_VIEW_COUNT_QUERY = gql`
+  query PicksViewCount($id: ID!) {
+    picks(id: $id) {
+      id
+      viewCount
+    }
+  }
+`;
+
+export const TRACK_PICKS_VIEW_MUTATION = gql`
+  mutation TrackPicksView($id: ID!) {
+    trackPicksView(id: $id) {
+      _
+    }
+  }
+`;
+
 export const INTEGRATION_SHARE_PICKS_MUTATION = gql`
   mutation IntegrationSharePicks(
     $integrationId: ID!
@@ -248,6 +265,30 @@ export const upsertPicks = async (
     { items },
   );
   return data.upsertPicks;
+};
+
+/**
+ * The author's own count of unique opens, read on its own: the page itself
+ * is fetched on the server without cookies and cached, so it can never
+ * carry an author-only field.
+ */
+export const picksViewCountQueryOptions = (
+  id: string,
+  user?: Pick<LoggedUser, 'id'>,
+) => ({
+  queryKey: generateQueryKey(RequestKey.Picks, user, id, 'viewCount'),
+  queryFn: async (): Promise<number | null> => {
+    const data = await gqlClient.request<{
+      picks: { viewCount: number | null } | null;
+    }>(PICKS_VIEW_COUNT_QUERY, { id });
+    return data.picks?.viewCount ?? null;
+  },
+  staleTime: 0,
+});
+
+/** Counts the viewer once per list on the API; the author is never counted. */
+export const trackPicksView = async (id: string): Promise<void> => {
+  await gqlClient.request(TRACK_PICKS_VIEW_MUTATION, { id });
 };
 
 export const integrationSharePicks = async (variables: {
