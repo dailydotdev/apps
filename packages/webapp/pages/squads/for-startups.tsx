@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
+import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
@@ -49,6 +50,7 @@ const StartupsCheckoutPage = (): ReactElement | null => {
             : StartupsCheckoutStep.Account
         }
       />
+      <PromptElement />
       <Toast autoDismissNotifications />
     </>
   );

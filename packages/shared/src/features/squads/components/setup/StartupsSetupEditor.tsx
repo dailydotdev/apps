@@ -89,7 +89,9 @@ export const StartupsSetupEditor = ({
       return;
     }
 
-    onClose();
+    if (row === 'seats') {
+      onClose();
+    }
   };
 
   return (
