@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { useMutation } from '@tanstack/react-query';
 import type { ContentPreferenceType } from '../../graphql/contentPreference';
 import { ContentPreferenceStatus } from '../../graphql/contentPreference';
+import type { ButtonSize } from '../buttons/common';
 import { ButtonVariant } from '../buttons/Button';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
 import SourceActionsNotify from '../sources/SourceActions/SourceActionsNotify';
@@ -27,6 +28,7 @@ export type FollowButtonProps = {
   showSubscribe?: boolean;
   copyType?: CopyType;
   alwaysShow?: boolean;
+  notifySize?: ButtonSize;
 };
 
 export const FollowButton = ({
@@ -43,6 +45,7 @@ export const FollowButton = ({
   showSubscribe = true,
   copyType,
   alwaysShow = false,
+  notifySize,
 }: FollowButtonProps): ReactElement => {
   const { follow, unfollow, subscribe, unsubscribe } = useContentPreference();
   const { showActionBtn } = useShowFollowAction({
@@ -139,6 +142,7 @@ export const FollowButton = ({
             onNotifyClick();
           }}
           disabled={isLoading}
+          size={notifySize}
         />
       )}
     </div>
