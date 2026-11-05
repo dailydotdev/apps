@@ -85,6 +85,11 @@ import {
 import { startupsCrewCheerImage } from './StartupsCrewOnBase';
 import { StartupsNameStunt } from './StartupsNameStunt';
 import { StartupsSignupPanel } from './StartupsSignupPanel';
+import type { StartupsGoalAnswer } from './StartupsGoalQuestion';
+import {
+  getStartupsGoalAnswer,
+  StartupsGoalQuestion,
+} from './StartupsGoalQuestion';
 
 export enum StartupsCheckoutStep {
   Account = 'account',
@@ -247,8 +252,28 @@ const CompanyStep = ({
   const [name, setName] = useState('');
   const [isMissing, setMissing] = useState(false);
   const [isFindingHandle, setFindingHandle] = useState(false);
+  const [goalAnswer, setGoalAnswer] = useState<StartupsGoalAnswer>({
+    text: '',
+  });
+  const logStartups = useLogStartups();
+
+  const onDone = (squad: CompanyChoice, isNew: boolean) => {
+    const answer = getStartupsGoalAnswer(goalAnswer);
+
+    logStartups(
+      answer ? LogEvent.SelectStartupsGoal : LogEvent.SkipStartupsGoal,
+      answer?.goal,
+      {
+        source_id: squad.id,
+        new_company: isNew,
+        ...(answer?.text && { text: answer.text }),
+      },
+    );
+    onContinue(squad, isNew);
+  };
+
   const { onCreateSquad, isLoading } = useSquadCreate({
-    onSuccess: (squad) => onContinue({ ...squad, id: getSquadId(squad) }, true),
+    onSuccess: (squad) => onDone({ ...squad, id: getSquadId(squad) }, true),
   });
   const { data: subscription, isFetching } = useQuery(
     squadSubscriptionQueryOptions({ user, sourceId: selected?.id }),
@@ -277,7 +302,7 @@ const CompanyStep = ({
     }
 
     if (selected) {
-      onContinue(selected, false);
+      onDone(selected, false);
       return;
     }
 
@@ -350,36 +375,35 @@ const CompanyStep = ({
               hint={getHint()}
             />
           </div>
-          <div className="mt-2">
-            {activePlan ? (
-              <CheckoutCta>
-                <Button
-                  tag="a"
-                  href={getSquadManageUrl(
-                    selected.handle,
-                    SquadManageSection.Plan,
-                  )}
-                  variant={ButtonVariant.Primary}
-                  className="flex-1"
-                >
-                  Manage subscription
-                </Button>
-              </CheckoutCta>
-            ) : (
-              <CheckoutCta>
-                <Button
-                  type="submit"
-                  variant={ButtonVariant.Primary}
-                  className="flex-1"
-                  loading={isBusy || (!!selected && isFetching)}
-                  disabled={isBusy || (!!selected && isFetching)}
-                >
-                  Continue
-                </Button>
-              </CheckoutCta>
-            )}
-          </div>
         </div>
+        {/* A page that's already paid for has nothing left to sign up for */}
+        {!activePlan && (
+          <StartupsGoalQuestion value={goalAnswer} onChange={setGoalAnswer} />
+        )}
+        {activePlan ? (
+          <CheckoutCta>
+            <Button
+              tag="a"
+              href={getSquadManageUrl(selected.handle, SquadManageSection.Plan)}
+              variant={ButtonVariant.Primary}
+              className="flex-1"
+            >
+              Manage subscription
+            </Button>
+          </CheckoutCta>
+        ) : (
+          <CheckoutCta>
+            <Button
+              type="submit"
+              variant={ButtonVariant.Primary}
+              className="flex-1"
+              loading={isBusy || (!!selected && isFetching)}
+              disabled={isBusy || (!!selected && isFetching)}
+            >
+              Continue
+            </Button>
+          </CheckoutCta>
+        )}
       </form>
     </CheckoutShell>
   );
