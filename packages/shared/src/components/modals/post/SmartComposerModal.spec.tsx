@@ -395,6 +395,31 @@ describe('SmartComposerModal', () => {
       ).toHaveValue('ten minutes of writing');
     });
 
+    it('keeps asking before leaving in the native app, which has no tabs', async () => {
+      showPrompt.mockResolvedValue(false);
+      jest.mocked(useAuthContext).mockReturnValue({
+        user: null,
+        isAndroidApp: true,
+      } as unknown as ReturnType<typeof useAuthContext>);
+      renderWithClient(
+        <SmartComposerModal
+          isOpen
+          initialKind="link"
+          onRequestClose={onRequestClose}
+        />,
+      );
+
+      fireEvent.change(
+        screen.getByRole('textbox', { name: 'Post commentary' }),
+        { target: { value: 'ten minutes of writing' } },
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Scheduled posts' }));
+
+      await waitFor(() => expect(showPrompt).toHaveBeenCalledTimes(1));
+      expect(openSpy).not.toHaveBeenCalled();
+      expect(onRequestClose).not.toHaveBeenCalled();
+    });
+
     it('navigates in place when there is nothing to lose', async () => {
       renderWithClient(
         <SmartComposerModal
