@@ -515,8 +515,9 @@ describe('Iubenda configuration', () => {
   it('declares the vendors from the shared list, never the whole GVL', async () => {
     await renderAndLoad();
     expect(config().tcfVendors).toBe(tcfVendorIds.join(','));
-    // the two Content Ignite's tag cannot do without
-    expect(tcfVendorIds).toEqual(expect.arrayContaining([656, 755]));
+    // the video player's ads run under our consent string
+    expect(tcfVendorIds).toContain(444);
+    expect(tcfVendorIds).not.toContain(656);
   });
 
   it('owns the first layer and keeps Accept/Reject both present', async () => {

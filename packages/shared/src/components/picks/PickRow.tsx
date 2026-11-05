@@ -27,7 +27,7 @@ export const getPickSignal = ({
     parts.push('read');
   }
   if (post.readTime) {
-    parts.push(`read ${post.readTime} min`);
+    parts.push(`${post.readTime} min`);
   }
   return parts.join(' · ');
 };

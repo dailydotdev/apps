@@ -673,7 +673,7 @@ export const UpsellProposed = ({
       <ul className="flex flex-col gap-2">
         {[
           'In the feed and search, cited by AI answers',
-          'Weekly brief on up to 5 topics',
+          'Weekly intel on up to 5 topics',
           'API, so your agent posts and boosts',
         ].map((benefit) => (
           <li

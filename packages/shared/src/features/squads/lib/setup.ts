@@ -1,5 +1,10 @@
 import { SQUAD_LINKS_MAX } from './limits';
-import { SQUAD_PLAN_SEATS, SquadPlan, squadPlanDetails } from './plans';
+import {
+  SQUAD_PLAN_INTEL_TOPICS,
+  SQUAD_PLAN_SEATS,
+  SquadPlan,
+  squadPlanDetails,
+} from './plans';
 
 // What a buyer sets up after paying for daily.dev for Startups, by hand in
 // Manage or through their agent over the daily.dev MCP server.
@@ -67,8 +72,7 @@ export const agentClients = Object.values(AgentClient);
 
 /**
  * The prompt that has an agent set up the page through the daily.dev MCP
- * server. It lists only what the API can do: the weekly brief stays in the
- * app.
+ * server. It lists only what the API can do.
  */
 export const getStartupsSetupPrompt = ({
   name,
@@ -86,6 +90,7 @@ export const getStartupsSetupPrompt = ({
     'Set our logo, and a cover image if we have one, from image URLs on our site or ones I give you.',
     `Set our website and up to ${SQUAD_LINKS_MAX} links developers look for: docs, GitHub, changelog, community.`,
     'Add our product with its name, tagline, URL and pricing.',
+    `Pick up to ${SQUAD_PLAN_INTEL_TOPICS[plan]} existing daily.dev tags that match what we build and set them as the weekly intel topics.`,
   ];
 
   if (plan === SquadPlan.Team) {
@@ -109,3 +114,14 @@ export const getStartupsSetupPrompt = ({
     'Before each change, show me exactly what you will save and wait for my OK. Finish with a short summary of what is set and what is left.',
   ].join('\n');
 };
+
+/** What an agent can do with the weekly intel, over the same MCP server. */
+export const getIntelPrompt = (handle: string): string =>
+  [
+    `Read the latest weekly intel for @${handle} with the daily.dev MCP server. If its tools aren't connected, stop and tell me to add ${DAILY_MCP_URL}.`,
+    '',
+    'Then look at what I shipped or wrote recently and suggest three posts for our daily.dev page. For each, give the angle, format, title, length and the best day and hour to publish, and say which numbers in the intel back it.',
+  ].join('\n');
+
+export const getIntelApiUrl = (handle: string): string =>
+  `https://api.daily.dev/public/v1/squads/${handle}/intel`;

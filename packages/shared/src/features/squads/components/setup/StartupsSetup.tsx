@@ -16,11 +16,12 @@ import type { Squad } from '../../../../graphql/sources';
 import { squadProductsQueryOptions } from '../../../../graphql/squadProducts';
 import { squadBrandingQueryOptions } from '../../../../graphql/squadBranding';
 import { squadSubscriptionQueryOptions } from '../../../../graphql/squadSubscription';
+import { squadIntelSettingsQueryOptions } from '../../../../graphql/squadIntel';
 import type { Origin } from '../../../../lib/log';
 import { LogEvent } from '../../../../lib/log';
 import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
 import {
-  SQUAD_PLAN_BRIEF_TOPICS,
+  SQUAD_PLAN_INTEL_TOPICS,
   SQUAD_PLAN_CASHBACK_PERCENTAGE,
   SQUAD_PLAN_SEATS,
   SquadPlan,
@@ -56,7 +57,7 @@ interface SetupItem {
   title: string;
   description: string;
   isDone?: boolean;
-  /** Counts towards "2 of 5": the agent and brief rows don't. */
+  /** Counts towards "2 of 5": the agent and intel rows don't. */
   isCounted?: boolean;
   /** Shown in place of the button, for features still on the way. */
   badge?: string;
@@ -73,7 +74,7 @@ const PROMPT_FADE = 'linear-gradient(180deg, #000 55%, transparent)';
  * The code in its box, and what to do with it below the box. A fixed height keeps
  * every client the same size, and long text fades out at the cut.
  */
-const CopyRow = ({
+export const CopyBlock = ({
   text,
   label,
   height,
@@ -83,7 +84,7 @@ const CopyRow = ({
 }: {
   text: string;
   label: string;
-  height: number;
+  height?: number;
   isFaded?: boolean;
   secondary?: ReactNode;
   onCopy: () => void;
@@ -163,6 +164,106 @@ const AgentClientMark = ({
   );
 };
 
+export const StepNumber = ({
+  children,
+}: {
+  children: ReactNode;
+}): ReactElement => (
+  <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-surface-float font-bold typo-footnote">
+    {children}
+  </span>
+);
+
+/** The daily.dev MCP server's setup for the agent the founder uses. */
+export const AgentConnect = ({
+  client,
+  onClientChange,
+  log,
+}: {
+  client: AgentClient;
+  onClientChange: (client: AgentClient) => void;
+  log: (event: LogEvent, targetId: string, extra?: object) => void;
+}): ReactElement => (
+  <>
+    <div
+      role="tablist"
+      aria-label="Your agent"
+      className="flex flex-wrap gap-1.5"
+    >
+      {agentClients.map((option) => (
+        <button
+          key={option}
+          type="button"
+          role="tab"
+          aria-selected={option === client}
+          onClick={() => onClientChange(option)}
+          className={classNames(
+            'flex h-10 items-center gap-2 rounded-12 border px-3 font-bold typo-footnote',
+            option === client
+              ? 'border-accent-cabbage-default bg-surface-float text-text-primary'
+              : 'border-border-subtlest-tertiary text-text-tertiary hover:text-text-primary',
+          )}
+        >
+          <AgentClientMark client={option} />
+          {agentClientSetup[option].label}
+        </button>
+      ))}
+    </div>
+    {/* Every client is laid out at once, so switching moves nothing below. */}
+    <div className="grid">
+      {agentClients.map((option) => {
+        const setup = agentClientSetup[option];
+
+        return (
+          <div
+            key={option}
+            aria-hidden={option !== client}
+            style={{
+              gridArea: '1 / 1',
+              visibility: option === client ? 'visible' : 'hidden',
+            }}
+          >
+            <CopyBlock
+              text={setup.snippet}
+              label="Copy setup"
+              height={SETUP_BOX_HEIGHT}
+              onCopy={() =>
+                log(LogEvent.CopyStartupsSetup, 'mcp', { client: option })
+              }
+              secondary={
+                setup.installUrl && (
+                  <Button
+                    tag="a"
+                    href={setup.installUrl}
+                    target="_blank"
+                    rel="noopener"
+                    variant={ButtonVariant.Secondary}
+                    className="min-w-0 flex-1 whitespace-nowrap"
+                    icon={<OpenLinkIcon />}
+                    onClick={() =>
+                      log(LogEvent.CopyStartupsSetup, 'install', {
+                        client: option,
+                      })
+                    }
+                  >
+                    {`Add to ${setup.label}`}
+                  </Button>
+                )
+              }
+            />
+          </div>
+        );
+      })}
+    </div>
+    <p
+      className="text-pretty text-text-tertiary typo-footnote"
+      style={{ minHeight: 36 }}
+    >
+      {agentClientSetup[client].note}
+    </p>
+  </>
+);
+
 const AgentSetup = ({
   squad,
   plan,
@@ -185,82 +286,7 @@ const AgentSetup = ({
         <p className="font-bold typo-callout">
           1. Connect daily.dev to your agent
         </p>
-        <div
-          role="tablist"
-          aria-label="Your agent"
-          className="flex flex-wrap gap-1.5"
-        >
-          {agentClients.map((option) => (
-            <button
-              key={option}
-              type="button"
-              role="tab"
-              aria-selected={option === client}
-              onClick={() => setClient(option)}
-              className={classNames(
-                'flex h-10 items-center gap-2 rounded-12 border px-3 font-bold typo-footnote',
-                option === client
-                  ? 'border-accent-cabbage-default bg-surface-float text-text-primary'
-                  : 'border-border-subtlest-tertiary text-text-tertiary hover:text-text-primary',
-              )}
-            >
-              <AgentClientMark client={option} />
-              {agentClientSetup[option].label}
-            </button>
-          ))}
-        </div>
-        {/* Every client is laid out at once, so switching moves nothing below. */}
-        <div className="grid">
-          {agentClients.map((option) => {
-            const setup = agentClientSetup[option];
-
-            return (
-              <div
-                key={option}
-                aria-hidden={option !== client}
-                style={{
-                  gridArea: '1 / 1',
-                  visibility: option === client ? 'visible' : 'hidden',
-                }}
-              >
-                <CopyRow
-                  text={setup.snippet}
-                  label="Copy setup"
-                  height={SETUP_BOX_HEIGHT}
-                  onCopy={() =>
-                    log(LogEvent.CopyStartupsSetup, 'mcp', { client: option })
-                  }
-                  secondary={
-                    setup.installUrl && (
-                      <Button
-                        tag="a"
-                        href={setup.installUrl}
-                        target="_blank"
-                        rel="noopener"
-                        variant={ButtonVariant.Secondary}
-                        className="min-w-0 flex-1 whitespace-nowrap"
-                        icon={<OpenLinkIcon />}
-                        onClick={() =>
-                          log(LogEvent.CopyStartupsSetup, 'install', {
-                            client: option,
-                          })
-                        }
-                      >
-                        {`Add to ${setup.label}`}
-                      </Button>
-                    )
-                  }
-                />
-              </div>
-            );
-          })}
-        </div>
-        <p
-          className="text-pretty text-text-tertiary typo-footnote"
-          style={{ minHeight: 36 }}
-        >
-          {agentClientSetup[client].note}
-        </p>
+        <AgentConnect client={client} onClientChange={setClient} log={log} />
       </div>
       <div className="flex flex-col gap-3">
         <p className="font-bold typo-callout">2. Paste this prompt</p>
@@ -268,7 +294,7 @@ const AgentSetup = ({
           Your agent reads your project, drafts the page and asks you before it
           saves anything.
         </p>
-        <CopyRow
+        <CopyBlock
           text={prompt}
           label="Copy prompt"
           height={PROMPT_BOX_HEIGHT}
@@ -498,6 +524,15 @@ export const StartupsSetup = ({
     });
   const isTeam = plan === SquadPlan.Team;
   const { done, isChecking } = useStartupsSetupProgress(squad, plan);
+  const { user } = useAuthContext();
+  // Only paid seats can read it; anyone else just sees the step as open
+  const { data: intelSettings } = useQuery(
+    squadIntelSettingsQueryOptions({
+      user,
+      sourceId,
+      enabled: !!squad.currentMember?.seat,
+    }),
+  );
   const manageUrl = (section: SquadManageSection) =>
     getSquadManageUrl(squad.handle, section);
   const selectPath = (option: StartupsSetupPath) => {
@@ -559,10 +594,12 @@ export const StartupsSetup = ({
       cta: 'Show me',
     },
     {
-      id: 'brief',
-      title: `Weekly brief on up to ${SQUAD_PLAN_BRIEF_TOPICS[plan]} topics`,
-      description: 'What developers and their agents read in your space.',
-      badge: 'Coming soon',
+      id: 'intel',
+      title: `Weekly intel on up to ${SQUAD_PLAN_INTEL_TOPICS[plan]} topics`,
+      description: 'What developers read and discuss in your space.',
+      isDone: !!intelSettings?.selection,
+      href: manageUrl(SquadManageSection.Intel),
+      cta: 'Pick topics',
     },
     {
       id: 'cashback',

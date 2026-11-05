@@ -14,6 +14,18 @@ export const getIsoWeekNumber = (date: string): number => {
   return Math.ceil(((target.getTime() - yearStart) / DAY_MS + 1) / 7);
 };
 
+/** This ISO week's Monday as YYYY-MM-DD in UTC, the way the API keys picks. */
+export const getCurrentWeekStart = (now: Date = new Date()): string => {
+  const today = Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate(),
+  );
+  const daysSinceMonday = (new Date(today).getUTCDay() + 6) % 7;
+
+  return new Date(today - daysSinceMonday * DAY_MS).toISOString().slice(0, 10);
+};
+
 /** Post link with the author attached, so post sharing attribution works. */
 export const getPickPostHref = (
   commentsPermalink: string,

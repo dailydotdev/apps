@@ -45,7 +45,7 @@ import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { cloudinaryCharmSomethingWentWrong } from '@dailydotdev/shared/src/lib/image';
 import { toSquadHandle } from '@dailydotdev/shared/src/features/squads/lib/handle';
 import {
-  SQUAD_PLAN_BRIEF_TOPICS,
+  SQUAD_PLAN_INTEL_TOPICS,
   SQUAD_PLAN_CASHBACK_PERCENTAGE,
   SQUAD_PLAN_SEATS,
   SquadPlan,
@@ -1349,7 +1349,7 @@ interface SetupRow {
   title: string;
   description: string;
   isDone?: boolean;
-  /** Counts towards "2 of 5": the agent and brief rows don't. */
+  /** Counts towards "2 of 5": the agent and intel rows don't. */
   isCounted?: boolean;
   cta?: string;
   badge?: string;
@@ -1408,10 +1408,10 @@ const getSetupRows = (plan: SquadPlan, done: SetupProgress): SetupRow[] => {
       isAgentLink: true,
     },
     {
-      id: 'brief',
-      title: `Weekly brief on up to ${SQUAD_PLAN_BRIEF_TOPICS[plan]} topics`,
-      description: 'What developers and their agents read in your space.',
-      badge: 'Coming soon',
+      id: 'intel',
+      title: `Weekly intel on up to ${SQUAD_PLAN_INTEL_TOPICS[plan]} topics`,
+      description: 'What developers read and discuss in your space.',
+      cta: 'Pick topics',
     },
     {
       id: 'cashback',

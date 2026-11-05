@@ -108,6 +108,7 @@ export enum NotificationType {
   ReferralSignup = 'referral_signup',
   CreatorAchievement = 'creator_achievement',
   WeeklyPicksReady = 'weekly_picks_ready',
+  StartupsIntelReady = 'startups_intel_ready',
 }
 
 export enum NotificationIconType {
@@ -288,6 +289,10 @@ export const notificationMutingCopy: Partial<
     mute: 'Mute new member notifications',
     unmute: 'Unmute new member notifications',
   },
+  [NotificationType.StartupsIntelReady]: {
+    mute: 'Turn off weekly intel for this squad',
+    unmute: 'Turn on weekly intel for this squad',
+  },
 };
 
 export const FOLLOWING_KEYS = [
@@ -340,6 +345,7 @@ export const SQUAD_MODERATION_KEYS = [
   NotificationType.SourcePostSubmitted,
   NotificationType.SquadMemberJoined,
   NotificationType.SquadFeatured,
+  NotificationType.StartupsIntelReady,
 ];
 
 export const SQUAD_POST_REVIEW_KEYS = [

@@ -8,6 +8,7 @@ import type { RoomJoinFailure } from '../../messages/types';
 import { ChatRoomStatus } from '../graphql';
 import { useLiveChatRoom } from '../hooks/useLiveChatRoom';
 import { useRoomPeople } from '../hooks/useRoomPeople';
+import { useRoomPresence } from '../hooks/useRoomPresence';
 import { LiveChatMessageList } from './LiveChatMessageList';
 import { LiveChatComposer } from './LiveChatComposer';
 import { LiveChatLockedComposer } from './LiveChatLockedComposer';
@@ -75,6 +76,12 @@ export const LiveChatPanel = ({
     onDraftChange,
   } = useLiveChatRoom({ postId, origin, preview: isInline && inView });
   const { people, usernames } = useRoomPeople(senderIds);
+  // Asked only from a seat: that is when the messages on screen are current.
+  const presenceOf = useRoomPresence({
+    roomId: room?.id,
+    messages,
+    enabled: status === 'joined' && room?.status === ChatRoomStatus.Active,
+  });
   const hasEnded = status === 'ended';
   // The room poll can lag the presence that ended it.
   const isOpen = room?.status === ChatRoomStatus.Active && !hasEnded;
@@ -148,7 +155,7 @@ export const LiveChatPanel = ({
   if (isInline && isOpen) {
     heading = 'Live chat is on for this post';
   }
-  let subtitle = 'Open for 24 hours, then gone';
+  let subtitle = 'Open for 4 hours, then gone';
   if (hasEnded) {
     subtitle = 'This chat has ended';
   } else if (isOpen && isEndingSoon && room?.expiresAt) {
@@ -234,6 +241,7 @@ export const LiveChatPanel = ({
           typingUserIds={typingUserIds}
           people={people}
           usernames={usernames}
+          presenceOf={presenceOf}
           viewerId={user?.id}
           viewerUsername={user?.username}
           onReact={isJoined ? react : undefined}

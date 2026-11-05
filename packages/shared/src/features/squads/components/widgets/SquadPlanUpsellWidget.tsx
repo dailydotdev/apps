@@ -26,7 +26,7 @@ import { useLogStartups } from '../../hooks/useLogStartups';
 // Starter bullets from the plan table on daily.dev/startups/, word for word.
 const benefits = [
   'In the feed and search, cited by AI answers',
-  'Weekly brief on up to 5 topics',
+  'Weekly intel on up to 5 topics',
   'API, so your agent posts and boosts',
 ];
 

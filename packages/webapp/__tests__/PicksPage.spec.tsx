@@ -10,6 +10,7 @@ import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import type { Picks } from '@dailydotdev/shared/src/graphql/picks';
 import { PICKS_QUERY } from '@dailydotdev/shared/src/graphql/picks';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
+import { getCurrentWeekStart } from '@dailydotdev/shared/src/lib/picks';
 import PicksPage from '../pages/picks/[id]';
 
 const mockPush = jest.fn();
@@ -198,6 +199,26 @@ it('should show the author a Share button that opens the share sheet', async () 
     expect.objectContaining({ id: 'picks-1' }),
     Origin.PicksPage,
   );
+});
+
+it("should offer the author an edit of this week's picks", async () => {
+  renderPage(
+    { ...picks, weekStart: getCurrentWeekStart() },
+    { user: { ...loggedUser, id: 'author-1' }, isLoggedIn: true },
+  );
+  await userEvent.click(await screen.findByText("Edit this week's picks"));
+
+  expect(mockPush).toHaveBeenCalledWith('/picks/new?origin=picks_page');
+  expect(screen.queryByText('Make your picks')).not.toBeInTheDocument();
+});
+
+it('should keep Make your picks for the author of a past week', async () => {
+  renderPage(
+    { ...picks, weekStart: '2020-01-06' },
+    { user: { ...loggedUser, id: 'author-1' }, isLoggedIn: true },
+  );
+
+  expect(await screen.findByText('Make your picks')).toBeInTheDocument();
 });
 
 it('should not show a Share button to other viewers', async () => {

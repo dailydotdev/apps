@@ -25,8 +25,10 @@ import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import { Image } from '../image/Image';
 import { HorizontalSeparator } from '../utilities';
 
+type ModerationSquad = Squad & Required<Pick<Squad, 'id'>>;
+
 interface SquadModerationItemProps {
-  squad: Squad;
+  squad: ModerationSquad;
   expandedSquadId: string | null;
   onToggleExpanded: (squadId: string) => void;
 }
@@ -36,9 +38,20 @@ const SquadModerationItem = ({
   expandedSquadId,
   onToggleExpanded,
 }: SquadModerationItemProps): ReactElement | null => {
+  // The weekly intel only reaches paid seats of a daily.dev for Startups plan
+  const hasSeat = !!squad.currentMember?.seat;
+  const keys = useMemo(
+    () =>
+      hasSeat
+        ? SQUAD_MODERATION_KEYS
+        : SQUAD_MODERATION_KEYS.filter(
+            (type) => type !== NotificationType.StartupsIntelReady,
+          ),
+    [hasSeat],
+  );
   const { preferences, subscribeNotification, muteNotification } =
     useNotificationPreference({
-      params: SQUAD_MODERATION_KEYS.map((notificationType) => ({
+      params: keys.map((notificationType) => ({
         referenceId: squad.id,
         notificationType,
       })),
@@ -49,6 +62,7 @@ const SquadModerationItem = ({
     SourcePostSubmitted,
     SquadMemberJoined,
     SquadFeatured,
+    StartupsIntelReady,
     allowNotifications,
   } = useMemo(() => {
     const isNotificationSubscribed = (notificationType: NotificationType) => {
@@ -69,9 +83,12 @@ const SquadModerationItem = ({
         NotificationType.SquadMemberJoined,
       ),
       SquadFeatured: isNotificationSubscribed(NotificationType.SquadFeatured),
-      allowNotifications: SQUAD_MODERATION_KEYS.some(isNotificationSubscribed),
+      StartupsIntelReady: isNotificationSubscribed(
+        NotificationType.StartupsIntelReady,
+      ),
+      allowNotifications: keys.some(isNotificationSubscribed),
     };
-  }, [preferences, squad?.id]);
+  }, [preferences, squad?.id, keys]);
 
   const isExpanded = expandedSquadId === squad.id;
 
@@ -108,13 +125,24 @@ const SquadModerationItem = ({
     });
   };
 
+  const onToggleWeeklyIntel = () => {
+    const toggleAction = StartupsIntelReady
+      ? muteNotification
+      : subscribeNotification;
+
+    return toggleAction({
+      type: NotificationType.StartupsIntelReady,
+      referenceId: squad.id,
+    });
+  };
+
   const onToggleAllowNotifications = () => {
     const toggleAction = allowNotifications
       ? muteNotification
       : subscribeNotification;
 
     Promise.all(
-      SQUAD_MODERATION_KEYS.map((type) =>
+      keys.map((type) =>
         toggleAction({
           type,
           referenceId: squad.id,
@@ -219,6 +247,20 @@ const SquadModerationItem = ({
                   onToggleCallback={onToggleMilestonesAndAchievements}
                 />
               </div>
+              {hasSeat && (
+                <div className="flex w-full flex-row items-center justify-between">
+                  <Typography type={TypographyType.Callout}>
+                    Weekly intel
+                  </Typography>
+                  <Checkbox
+                    className="!px-0"
+                    checkmarkClassName="!mr-0"
+                    name={`weekly_intel_${squad.id}`}
+                    checked={StartupsIntelReady}
+                    onToggleCallback={onToggleWeeklyIntel}
+                  />
+                </div>
+              )}
             </div>
           </div>
           <HorizontalSeparator />
@@ -235,8 +277,9 @@ const SquadModNotifications = (): ReactElement => {
   const squadModerationEnabled = getGroupStatus('squadModeration', 'inApp');
 
   const moderationSquads =
-    squads?.filter((squad) =>
-      verifyPermission(squad, SourcePermissions.ModeratePost),
+    squads?.filter(
+      (squad): squad is ModerationSquad =>
+        !!squad.id && verifyPermission(squad, SourcePermissions.ModeratePost),
     ) || [];
 
   const toggleSquadExpansion = (squadId: string) => {

@@ -232,6 +232,7 @@ export enum RequestKey {
   SquadWallet = 'squad_wallet',
   SquadSubscription = 'squad_subscription',
   SquadSeats = 'squad_seats',
+  SquadIntel = 'squad_intel',
   CheckCoresRole = 'check_cores_role',
   Awards = 'awards',
   CampaignReach = 'campaignReach',

@@ -30,6 +30,7 @@ export const CURRENT_MEMBER_FRAGMENT = gql`
     permissions
     role
     referralToken
+    seat
     flags {
       hideFeedPosts
       collapsePinnedPosts

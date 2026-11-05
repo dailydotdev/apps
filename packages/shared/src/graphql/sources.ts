@@ -50,6 +50,8 @@ export interface SourceMember {
   referralToken: string;
   permissions?: SourcePermissions[];
   flags?: SourceMemberFlag;
+  // A paid daily.dev for Startups seat
+  seat?: boolean;
 }
 
 export interface BasicSourceMember {
