@@ -68,7 +68,7 @@ describe('LiveChatHighlightCardRow', () => {
     const link = screen.getByRole('link');
     expect(link).toHaveTextContent('Live chat');
     expect(link).not.toHaveTextContent('here');
-    expect(link).toHaveTextContent('Live chat · ends in 22h');
+    expect(link).toHaveTextContent('Live chat · ends in 3h');
   });
 
   it('holds the row while the rooms are still loading', () => {
