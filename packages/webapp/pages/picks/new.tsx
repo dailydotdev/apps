@@ -11,25 +11,40 @@ import ProtectedPage from '../../components/ProtectedPage';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { noindexSeoProps } from '../../next-seo';
 
+const getQueryValue = (value?: string | string[]): string | undefined =>
+  Array.isArray(value) ? value[0] : value;
+
 const NewPicksContent = (): ReactElement | null => {
   const router = useRouter();
   const { user } = useAuthContext();
+  const fromPicksId = getQueryValue(router.query.from);
+  const addPostId = getQueryValue(router.query.add);
+  // Arriving from a picks page opens the editor outside the rollout, so a
+  // viewer can make a list of their own; the flag only gates the entry points.
   const { value: isEnabled, isLoading } = useConditionalFeature({
     feature: featureWeeklyPicks,
+    shouldEvaluate: router.isReady && !fromPicksId,
   });
+  const canOpen = !!fromPicksId || (!isLoading && isEnabled);
 
   useEffect(() => {
-    if (user && !isLoading && !isEnabled) {
+    if (user && router.isReady && !isLoading && !canOpen) {
       router.replace('/');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, isLoading, isEnabled]);
+  }, [user, router.isReady, isLoading, canOpen]);
 
-  if (!user || !router.isReady || isLoading || !isEnabled) {
+  if (!user || !router.isReady || !canOpen) {
     return null;
   }
 
-  return <PicksEditor origin={getPicksOrigin(router.query.origin)} />;
+  return (
+    <PicksEditor
+      origin={getPicksOrigin(router.query.origin)}
+      fromPicksId={fromPicksId}
+      addPostId={addPostId}
+    />
+  );
 };
 
 // ProtectedPage comes first so a logged-out visitor is sent to auth, not

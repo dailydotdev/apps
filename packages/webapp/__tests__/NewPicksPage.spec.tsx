@@ -46,16 +46,35 @@ const suggestion = (n: number) => ({
 });
 const author = { id: 'u1', name: 'A', username: 'a', image: '', permalink: '' };
 
-const mockData = (current: Picks | null, suggestions: unknown[]) => {
+const mockData = (
+  current: Picks | null,
+  suggestions: unknown[],
+  fromPicksId?: string,
+) => {
   mockGraphQL({
     request: { query: MY_CURRENT_PICKS_QUERY },
     result: { data: { myCurrentPicks: current } },
   });
   mockGraphQL({
-    request: { query: PICKS_SUGGESTIONS_QUERY },
+    request: {
+      query: PICKS_SUGGESTIONS_QUERY,
+      ...(fromPicksId ? { variables: { fromPicksId } } : {}),
+    },
     result: { data: { picksSuggestions: suggestions } },
   });
 };
+
+const mockRouterQuery = (query: Record<string, string>) =>
+  jest.mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        pathname: '/picks/new',
+        query,
+        replace,
+        push: jest.fn(),
+        isReady: true,
+      }) as unknown as NextRouter,
+  );
 
 const renderPage = (enabled = true, user: unknown = loggedUser) => {
   const gb = createReadyGrowthBook();
@@ -105,6 +124,34 @@ it('should send a logged-out visitor to auth, not the feed, when the flag is off
   await waitFor(() => expect(replace).toHaveBeenCalled());
   expect(replace).not.toHaveBeenCalledWith('/');
   expect(replace.mock.calls[0][0]).toContain('onboarding');
+});
+
+it('should open for a viewer outside the rollout who came from a picks page', async () => {
+  mockRouterQuery({ origin: 'picks_page', from: 'picks-9', add: 'p2' });
+  mockData(
+    null,
+    [
+      suggestion(1),
+      { ...suggestion(2), reason: 'from_picks', upvoted: false, read: false },
+    ],
+    'picks-9',
+  );
+  renderPage(false);
+  await waitForNock();
+  await waitFor(() => expect(title('Post 2')).toBeTruthy());
+
+  expect(replace).not.toHaveBeenCalled();
+  expect(screen.getByText('1 of 5 selected')).toBeInTheDocument();
+  expect(screen.getByText('from the picks you opened')).toBeInTheDocument();
+  expect(screen.getByRole('textbox')).toHaveFocus();
+  await waitFor(() =>
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.StartPicks,
+        extra: JSON.stringify({ origin: Origin.PicksPage, is_edit: false }),
+      }),
+    ),
+  );
 });
 
 it('should render suggestions and log the start with the origin', async () => {

@@ -2,6 +2,7 @@ import {
   getCurrentWeekStart,
   getIsoWeekNumber,
   getPickPostHref,
+  isNewPicksViewer,
 } from './picks';
 
 describe('getIsoWeekNumber', () => {
@@ -36,13 +37,28 @@ describe('getCurrentWeekStart', () => {
 describe('getPickPostHref', () => {
   it('should append the author id', () => {
     expect(getPickPostHref('https://app.daily.dev/posts/abc', 'u1')).toBe(
-      'https://app.daily.dev/posts/abc?userid=u1',
+      'https://app.daily.dev/posts/abc?userid=u1&cid=share_picks',
     );
   });
 
   it('should keep existing query params', () => {
     expect(getPickPostHref('https://app.daily.dev/posts/abc?a=1', 'u1')).toBe(
-      'https://app.daily.dev/posts/abc?a=1&userid=u1',
+      'https://app.daily.dev/posts/abc?a=1&userid=u1&cid=share_picks',
     );
+  });
+});
+
+describe('isNewPicksViewer', () => {
+  const now = new Date('2026-11-05T12:00:00.000Z');
+
+  it('should be true within the first week', () => {
+    expect(isNewPicksViewer('2026-11-04T12:00:00.000Z', now)).toBe(true);
+    expect(isNewPicksViewer('2026-10-29T12:00:00.001Z', now)).toBe(true);
+  });
+
+  it('should be false after a week or without a date', () => {
+    expect(isNewPicksViewer('2026-10-29T12:00:00.000Z', now)).toBe(false);
+    expect(isNewPicksViewer(undefined, now)).toBe(false);
+    expect(isNewPicksViewer('not a date', now)).toBe(false);
   });
 });
