@@ -86,7 +86,7 @@ describe('ShellBlock', () => {
     renderBlock(<ShellBlock root={ShellRoot.Activity} />, '/notifications');
 
     expect(
-      screen.getByRole('heading', { name: 'Activity' }),
+      screen.getByRole('heading', { name: 'Notifications' }),
     ).toBeInTheDocument();
     expect(screen.getByLabelText('Notification settings')).toHaveAttribute(
       'href',

@@ -171,7 +171,7 @@ export const SidebarTablet = ({
           variant={ButtonVariant.Option}
           pressed={activeNav.notifications}
         >
-          Activity
+          Notifications
         </Button>
       </Link>
 

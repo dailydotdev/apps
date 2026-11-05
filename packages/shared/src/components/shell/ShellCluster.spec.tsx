@@ -291,7 +291,7 @@ describe('ShellCluster', () => {
   it('shows the unread count on Activity only', () => {
     renderCluster('/');
 
-    expect(screen.getByLabelText('Activity')).toHaveTextContent('3');
+    expect(screen.getByLabelText('Notifications')).toHaveTextContent('3');
     expect(screen.getByLabelText('Home')).not.toHaveTextContent('3');
   });
 
@@ -310,7 +310,7 @@ describe('ShellCluster', () => {
   it('logs the notification icon click from the footer', () => {
     renderCluster('/');
 
-    fireEvent.click(screen.getByLabelText('Activity'));
+    fireEvent.click(screen.getByLabelText('Notifications'));
 
     expect(mockLogEvent).toHaveBeenCalledWith({
       event_name: 'click notification icon',
@@ -333,7 +333,7 @@ describe('ShellCluster', () => {
     renderCluster('/posts', null);
 
     fireEvent.click(screen.getByLabelText('Home'));
-    fireEvent.click(screen.getByLabelText('Activity'));
+    fireEvent.click(screen.getByLabelText('Notifications'));
     fireEvent.click(screen.getByLabelText('Create post'));
 
     expect(mockShowLogin).toHaveBeenCalledTimes(3);

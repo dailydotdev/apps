@@ -44,7 +44,7 @@ const useClientLayoutEffect =
 const rootTitles: Record<Exclude<ShellRoot, ShellRoot.Home>, string> = {
   [ShellRoot.Explore]: 'Explore',
   [ShellRoot.Squads]: 'Squads',
-  [ShellRoot.Activity]: 'Activity',
+  [ShellRoot.Activity]: 'Notifications',
 };
 
 const AvatarSquare = (): ReactElement | null => {
