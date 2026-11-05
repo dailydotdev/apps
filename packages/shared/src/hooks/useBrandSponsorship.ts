@@ -39,6 +39,8 @@ interface SponsoredTagResult {
   isSponsored: boolean;
   brandName: string | null;
   brandLogo: string | null;
+  /** Square brand mark, suited to round avatars */
+  brandIcon: string | null;
   branding: TagBrandingConfig | null;
   colors: BrandColors | null;
   targetUrl: string | null;
@@ -93,6 +95,7 @@ const EMPTY_SPONSORED_TAG: SponsoredTagResult = {
   isSponsored: false,
   brandName: null,
   brandLogo: null,
+  brandIcon: null,
   branding: null,
   colors: null,
   targetUrl: null,
@@ -140,6 +143,7 @@ export const useBrandSponsorship = (): UseBrandSponsorshipReturn => {
         isSponsored: true,
         brandName: creative.name,
         brandLogo: creative.logo,
+        brandIcon: creative.icon || null,
         branding: {
           ...DEFAULT_TAG_BRANDING,
           targetUrl: creative.url,
