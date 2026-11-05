@@ -36,6 +36,8 @@ import { getStartupsCheckoutUrl, SquadManageSection } from '../../lib/routes';
 import {
   SQUAD_PLAN_CASHBACK_PERCENTAGE,
   SquadPlan,
+  getSquadPlanTitle,
+  isSquadPlan,
   squadPlanDetails,
   squadPlans,
   startupsEnterpriseUrl,
@@ -448,6 +450,7 @@ const ActivePlan = ({
   const prices = useSquadPlanPrices();
   const sourceId = getSquadId(squad);
   const plan = subscription.plan as SquadPlan;
+  const isSelfServe = isSquadPlan(plan);
   const isOwner = !!user && user.id === subscription.ownerId;
   const { data: balance } = useQuery(
     squadSubscriptionBalanceQueryOptions({ user, sourceId }),
@@ -470,20 +473,26 @@ const ActivePlan = ({
           <div className="flex flex-col gap-2">
             <span className="flex items-center gap-2">
               <span className="font-bold typo-title2">
-                {squadPlanDetails[plan].title}
+                {getSquadPlanTitle(plan)}
               </span>
               <span className="rounded-8 bg-accent-avocado-flat px-2 py-0.5 font-bold text-accent-avocado-default typo-caption1">
                 Active
               </span>
             </span>
-            <span className="text-text-secondary typo-callout">
-              <span className="font-bold tabular-nums text-text-primary">
-                {prices[plan]}
-              </span>{' '}
-              a month
-            </span>
+            {isSelfServe ? (
+              <span className="text-text-secondary typo-callout">
+                <span className="font-bold tabular-nums text-text-primary">
+                  {prices[plan]}
+                </span>{' '}
+                a month
+              </span>
+            ) : (
+              <span className="text-text-secondary typo-callout">
+                Billed through your daily.dev contract.
+              </span>
+            )}
           </div>
-          {isOwner && (
+          {isSelfServe && isOwner && (
             <Button
               tag="a"
               href={managePlusUrl}
@@ -501,26 +510,28 @@ const ActivePlan = ({
               Manage billing
             </Button>
           )}
-          {!isOwner && owner && (
+          {isSelfServe && !isOwner && owner && (
             <p className="text-text-tertiary typo-footnote">
               {`${owner.user.name} pays for this plan and manages its billing.`}
             </p>
           )}
         </div>
-        <div className="flex items-center gap-3 border-t border-border-subtlest-tertiary pt-4">
-          <CoreIcon size={IconSize.Medium} className="shrink-0" />
-          <div className="flex min-w-0 flex-1 flex-col">
-            <span className="font-bold tabular-nums typo-callout">
-              {`${largeNumberFormat(balance ?? 0)} in cashback`}
-            </span>
-            <span className="text-text-tertiary typo-footnote">
-              Your cashback lands here every month. Seats spend it to boost this
-              page&apos;s posts.
-            </span>
+        {isSelfServe && (
+          <div className="flex items-center gap-3 border-t border-border-subtlest-tertiary pt-4">
+            <CoreIcon size={IconSize.Medium} className="shrink-0" />
+            <div className="flex min-w-0 flex-1 flex-col">
+              <span className="font-bold tabular-nums typo-callout">
+                {`${largeNumberFormat(balance ?? 0)} in cashback`}
+              </span>
+              <span className="text-text-tertiary typo-footnote">
+                Your cashback lands here every month. Seats spend it to boost
+                this page&apos;s posts.
+              </span>
+            </div>
           </div>
-        </div>
+        )}
       </div>
-      <SetupSection plan={plan} />
+      {isSelfServe && <SetupSection plan={plan} />}
       <SquadManageSeats subscription={subscription} isAdmin={isAdmin} />
     </>
   );
