@@ -36,6 +36,13 @@ describe('usePersistentContext', () => {
       await update;
     });
 
+    await waitFor(() => expect(result.current[0]).toBe(1));
+    // The read has nothing left to land: the value stays.
+    await act(async () => {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 50);
+      });
+    });
     expect(result.current[0]).toBe(1);
   });
 });
