@@ -43,6 +43,7 @@ const onRail = (kind: FeedWidgetKind): FeedWidget => ({
 const renderGallery = ({
   widgets = [],
   isFull = false,
+  initialKind,
   initialSize,
   tips,
   optOutReadingStreak = false,
@@ -50,6 +51,7 @@ const renderGallery = ({
 }: {
   widgets?: FeedWidget[];
   isFull?: boolean;
+  initialKind?: FeedWidgetKind;
   initialSize?: FeedWidgetSize;
   tips?: FeedWidgetGalleryTips;
   optOutReadingStreak?: boolean;
@@ -65,6 +67,7 @@ const renderGallery = ({
       <FeedWidgetGallery
         widgets={widgets}
         isFull={isFull}
+        initialKind={initialKind}
         initialSize={initialSize}
         onAdd={onAdd}
         tips={tips}
@@ -100,6 +103,16 @@ describe('on desktop', () => {
     ).toBeInTheDocument();
     expect(sizes()).toEqual(['Small', 'Tall', 'Large']);
     expect(screen.getByRole('radio', { name: 'Small' })).toBeChecked();
+    expect(
+      within(screen.getByRole('group', { name: 'Small preview' })).getByText(
+        'notifications widget, small',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('opens on the widget the add tile showed in front', () => {
+    renderGallery({ initialKind: FeedWidgetKind.Notifications });
+
     expect(
       within(screen.getByRole('group', { name: 'Small preview' })).getByText(
         'notifications widget, small',
