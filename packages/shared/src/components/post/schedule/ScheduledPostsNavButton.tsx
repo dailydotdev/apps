@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { BulletListIcon } from '../../icons';
+import { TimerIcon } from '../../icons';
 import { Tooltip } from '../../tooltip/Tooltip';
 
 interface ScheduledPostsNavButtonProps {
@@ -25,7 +25,7 @@ export function ScheduledPostsNavButton({
         type="button"
         size={ButtonSize.Small}
         variant={ButtonVariant.Tertiary}
-        icon={<BulletListIcon />}
+        icon={<TimerIcon />}
         onClick={onClick}
         disabled={disabled}
         className={className}
