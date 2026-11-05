@@ -25,6 +25,22 @@ jest.mock('next/router', () => ({
 
 let mockTopicSignupEvaluated = false;
 
+// The template units sit behind the read_ads kill switch, off while no ad
+// tag fills the slots.
+jest.mock('@dailydotdev/shared/src/components/GrowthBookProvider', () => {
+  const actual = jest.requireActual(
+    '@dailydotdev/shared/src/components/GrowthBookProvider',
+  );
+
+  return {
+    ...actual,
+    useFeature: (feature: { id: string }) => {
+      const value = actual.useFeature(feature);
+      return feature.id === 'read_ads' ? true : value;
+    },
+  };
+});
+
 jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
   __esModule: true,
   useConditionalFeature: (args: {

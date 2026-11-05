@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 
 /**
  * UTM dimensions worth attributing an ad impression to. The values ride our
- * own slot events and the page-level targeting handed to Content Ignite, so
- * a visitor from a paid campaign can be priced apart from an organic one.
+ * own slot events, so a visitor from a paid campaign can be priced apart
+ * from an organic one.
  */
 export const AD_UTM_KEYS = ['source', 'medium', 'campaign', 'content'] as const;
 

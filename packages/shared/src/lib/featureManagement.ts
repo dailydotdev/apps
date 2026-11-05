@@ -339,15 +339,13 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
   },
 );
 
-// Emergency kill switch for the /read template's ads — NOT an experiment, so
-// the true default is deliberate: the surface ships always-on (it is only
-// reachable through paid placements), and the flag exists solely so a policy
-// warning, bad creative or revenue anomaly can be stopped without a deploy
-// and an ISR revalidation cycle. Never ramp or target with this flag.
-export const featureReadAds = new Feature('read_ads', true);
-
-// Kill switch for the post page's programmatic (Content Ignite) slots, off for now.
-// Turning it on in GrowthBook brings them back without a deploy.
+// Kill switches for the programmatic slots, NOT experiments: never ramp or
+// target with them. Both are off while no ad partner's tag fills the slots;
+// turning one on in GrowthBook brings that surface's anchors back without
+// a deploy once a tag is wired up again.
+// The /read template's slots.
+export const featureReadAds = new Feature('read_ads', false);
+// The organic post page's slots.
 export const featureOrganicAds = new Feature('organic_ads', false);
 
 export type ExcoPlayerConfig = {
