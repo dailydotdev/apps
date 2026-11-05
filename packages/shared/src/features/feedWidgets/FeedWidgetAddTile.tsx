@@ -14,6 +14,7 @@ import { availableFeedWidgets } from './components';
 import { happeningNowGlow, LiveDot, todoListGlow } from './widgets/material';
 
 const MAX_FILED = 4;
+const MAX_FANNED = 3;
 
 const webappOrder: FeedWidgetKind[] = [
   FeedWidgetKind.HappeningNow,
@@ -29,6 +30,16 @@ const extensionOrder: FeedWidgetKind[] = [
   ...webappOrder.filter((kind) => kind !== FeedWidgetKind.Shortcuts),
 ];
 
+export type AddTileKinds = {
+  /** What the tile names and the gallery opens on: addable, best first. */
+  addable: FeedWidgetKind[];
+  /**
+   * The cards in the hand: the addable ones, then widgets already on the
+   * rail, so a rail that holds every suggestion still shows what a widget is.
+   */
+  fanned: FeedWidgetKind[];
+};
+
 /** The widgets the tile names and files, best first, none already on the rail. */
 export const getAddTileKinds = ({
   onRail,
@@ -38,7 +49,7 @@ export const getAddTileKinds = ({
 }: Pick<FeedWidgetAvailability, 'isLoggedIn' | 'isReadingStreakOn'> & {
   onRail: FeedWidgetKind[];
   isExtension: boolean;
-}): FeedWidgetKind[] => {
+}): AddTileKinds => {
   const availability: FeedWidgetAvailability = {
     isLoggedIn,
     isReadingStreakOn,
@@ -46,15 +57,23 @@ export const getAddTileKinds = ({
     hasMessages: false,
     hasLiveChat: false,
   };
-  const addable = new Set(
+  const addableSet = new Set(
     availableFeedWidgets(availability)
       .filter((definition) => !definition.disabledReason?.(availability))
       .map(({ kind }) => kind),
   );
-
-  return (isExtension ? extensionOrder : webappOrder)
-    .filter((kind) => addable.has(kind) && !onRail.includes(kind))
+  const order = (isExtension ? extensionOrder : webappOrder).filter((kind) =>
+    addableSet.has(kind),
+  );
+  const addable = order
+    .filter((kind) => !onRail.includes(kind))
     .slice(0, MAX_FILED);
+  const fanned = [
+    ...addable,
+    ...order.filter((kind) => onRail.includes(kind)),
+  ].slice(0, MAX_FANNED);
+
+  return { addable, fanned };
 };
 
 type FiledHeader = { icon: ReactNode; title: string; glow?: CSSProperties };
@@ -174,8 +193,6 @@ const WidgetCard = ({
   );
 };
 
-const MAX_FANNED = 3;
-
 /** A hand of three: the lead widget in front, the next two fanned behind it. */
 const FannedCards = ({ kinds }: { kinds: FeedWidgetKind[] }): ReactElement => {
   const [lead, ...behind] = kinds.slice(0, MAX_FANNED);
@@ -221,7 +238,7 @@ export const FeedWidgetAddTile = ({
   onClick,
   style,
 }: {
-  kinds: FeedWidgetKind[];
+  kinds: AddTileKinds;
   onClick: () => void;
   style?: CSSProperties;
 }): ReactElement => (
@@ -238,14 +255,16 @@ export const FeedWidgetAddTile = ({
     <span className="mt-3 font-bold text-text-primary typo-callout">
       Add a widget
     </span>
-    {kinds.length > 0 && (
+    {kinds.addable.length > 0 && (
       <span className="px-4 text-text-tertiary typo-footnote">
-        {kinds.map((kind) => getFeedWidgetDefinition(kind).name).join(', ')} and
-        more
+        {kinds.addable
+          .map((kind) => getFeedWidgetDefinition(kind).name)
+          .join(', ')}{' '}
+        and more
       </span>
     )}
     <span aria-hidden className="relative mt-3 w-full flex-1">
-      <FannedCards kinds={kinds} />
+      <FannedCards kinds={kinds.fanned} />
       <span className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-background-default to-transparent" />
     </span>
   </button>

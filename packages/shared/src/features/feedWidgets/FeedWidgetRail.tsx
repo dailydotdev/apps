@@ -803,7 +803,7 @@ export const FeedWidgetRail = ({
             {showAddTile && (
               <FeedWidgetAddTile
                 kinds={addTileKinds}
-                onClick={() => openGallery(undefined, addTileKinds[0])}
+                onClick={() => openGallery(undefined, addTileKinds.addable[0])}
                 style={gridArea({
                   key: 'add',
                   column: layout.columns,

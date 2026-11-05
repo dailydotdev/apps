@@ -10,12 +10,19 @@ describe('getAddTileKinds', () => {
         isReadingStreakOn: true,
         isExtension: true,
       }),
-    ).toEqual([
-      FeedWidgetKind.Shortcuts,
-      FeedWidgetKind.HappeningNow,
-      FeedWidgetKind.TodoList,
-      FeedWidgetKind.Streak,
-    ]);
+    ).toEqual({
+      addable: [
+        FeedWidgetKind.Shortcuts,
+        FeedWidgetKind.HappeningNow,
+        FeedWidgetKind.TodoList,
+        FeedWidgetKind.Streak,
+      ],
+      fanned: [
+        FeedWidgetKind.Shortcuts,
+        FeedWidgetKind.HappeningNow,
+        FeedWidgetKind.TodoList,
+      ],
+    });
   });
 
   it('skips kinds already on the rail and kinds that need an account', () => {
@@ -26,7 +33,10 @@ describe('getAddTileKinds', () => {
         isReadingStreakOn: true,
         isExtension: false,
       }),
-    ).toEqual([FeedWidgetKind.HappeningNow]);
+    ).toEqual({
+      addable: [FeedWidgetKind.HappeningNow],
+      fanned: [FeedWidgetKind.HappeningNow, FeedWidgetKind.Shortcuts],
+    });
   });
 
   it('skips streak when the reader turned reading streaks off', () => {
@@ -37,11 +47,42 @@ describe('getAddTileKinds', () => {
         isReadingStreakOn: false,
         isExtension: false,
       }),
-    ).toEqual([
-      FeedWidgetKind.HappeningNow,
-      FeedWidgetKind.TodoList,
-      FeedWidgetKind.Shortcuts,
-      FeedWidgetKind.ReadingList,
-    ]);
+    ).toEqual({
+      addable: [
+        FeedWidgetKind.HappeningNow,
+        FeedWidgetKind.TodoList,
+        FeedWidgetKind.Shortcuts,
+        FeedWidgetKind.ReadingList,
+      ],
+      fanned: [
+        FeedWidgetKind.HappeningNow,
+        FeedWidgetKind.TodoList,
+        FeedWidgetKind.Shortcuts,
+      ],
+    });
+  });
+
+  it('still fans cards when every suggestion is already on the rail', () => {
+    expect(
+      getAddTileKinds({
+        onRail: [
+          FeedWidgetKind.HappeningNow,
+          FeedWidgetKind.TodoList,
+          FeedWidgetKind.Shortcuts,
+          FeedWidgetKind.Streak,
+          FeedWidgetKind.ReadingList,
+        ],
+        isLoggedIn: true,
+        isReadingStreakOn: true,
+        isExtension: false,
+      }),
+    ).toEqual({
+      addable: [],
+      fanned: [
+        FeedWidgetKind.HappeningNow,
+        FeedWidgetKind.TodoList,
+        FeedWidgetKind.Shortcuts,
+      ],
+    });
   });
 });
