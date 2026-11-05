@@ -86,7 +86,7 @@ export const NotificationsRailPanel = (): ReactElement => {
     };
 
     const allActivity: SidebarMenuItem = {
-      title: 'All activity',
+      title: 'All notifications',
       active: isListPage && !activeType,
       ...navigationFor(null),
       icon: (active: boolean) => (

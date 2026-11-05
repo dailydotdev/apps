@@ -211,7 +211,7 @@ const sidebarCategories: SidebarCategoryConfig[] = [
   },
   {
     id: SidebarCategory.Messages,
-    label: 'Messages',
+    label: 'Chat',
     defaultPath: `${webappUrl}messages`,
     icon: (active) => (
       <MailIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />

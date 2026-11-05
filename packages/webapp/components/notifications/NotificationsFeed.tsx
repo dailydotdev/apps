@@ -249,7 +249,7 @@ export const NotificationsFeed = (): ReactElement => {
                   items={[
                     {
                       key: 'all',
-                      label: 'All activity',
+                      label: 'All notifications',
                       active: activeCategory === null,
                       onClick: () => onSelectCategory(null),
                     },
@@ -316,7 +316,7 @@ export const NotificationsFeed = (): ReactElement => {
                 title={`No ${notificationFilterCategoryLabel[
                   activeCategory
                 ].toLowerCase()} yet`}
-                description="Activity of this kind shows up here as it happens."
+                description="Notifications of this kind show up here as they happen."
               />
             )}
           {isFetched &&

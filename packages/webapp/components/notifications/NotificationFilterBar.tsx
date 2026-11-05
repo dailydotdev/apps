@@ -34,7 +34,7 @@ export function NotificationFilterBar({
       <SquadDirectoryNavbarItem
         buttonSize={buttonSize}
         isActive={active === null}
-        label="All activity"
+        label="All notifications"
         ariaLabel="Show all notifications"
         onClick={() => onSelect(null)}
       />

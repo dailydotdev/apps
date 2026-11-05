@@ -44,7 +44,7 @@ const useClientLayoutEffect =
 const rootTitles: Record<Exclude<ShellRoot, ShellRoot.Home>, string> = {
   [ShellRoot.Explore]: 'Explore',
   [ShellRoot.Squads]: 'Squads',
-  [ShellRoot.Activity]: 'Activity',
+  [ShellRoot.Activity]: 'Notifications',
 };
 
 const AvatarSquare = (): ReactElement | null => {
@@ -113,9 +113,7 @@ const MessagesSquare = (): ReactElement | null => {
       <ShellSquare
         tag="a"
         aria-label={
-          unreadCount
-            ? `Messages, ${getUnreadText(unreadCount)} unread`
-            : 'Messages'
+          unreadCount ? `Chat, ${getUnreadText(unreadCount)} unread` : 'Chat'
         }
       >
         <span className="relative flex">
