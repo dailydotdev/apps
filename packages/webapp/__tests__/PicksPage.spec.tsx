@@ -8,7 +8,10 @@ import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import type { Picks } from '@dailydotdev/shared/src/graphql/picks';
-import { PICKS_QUERY } from '@dailydotdev/shared/src/graphql/picks';
+import {
+  PICKS_QUERY,
+  TRACK_PICKS_VIEW_MUTATION,
+} from '@dailydotdev/shared/src/graphql/picks';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { getCurrentWeekStart } from '@dailydotdev/shared/src/lib/picks';
 import PicksPage from '../pages/picks/[id]';
@@ -70,10 +73,19 @@ const picks: Picks = {
 
 const logEvent = jest.fn();
 
+const trackView = jest.fn();
+
 const renderPage = (data: Picks, auth: Record<string, unknown> = {}) => {
   mockGraphQL({
     request: { query: PICKS_QUERY, variables: { id: data.id } },
     result: { data: { picks: data } },
+  });
+  mockGraphQL({
+    request: { query: TRACK_PICKS_VIEW_MUTATION, variables: { id: data.id } },
+    result: () => {
+      trackView();
+      return { data: { trackPicksView: { _: true } } };
+    },
   });
   const client = new QueryClient();
 
@@ -250,4 +262,43 @@ it('should keep the CTA for logged out viewers regardless of the flag', async ()
   renderPage(picks, { user: undefined, isLoggedIn: false });
 
   expect(await screen.findByText('Make your picks')).toBeInTheDocument();
+});
+
+it('should count the open for a viewer', async () => {
+  renderPage(picks, { user: loggedUser, isLoggedIn: true });
+  await screen.findByText(/Ada Lovelace's picks/);
+
+  await waitFor(() => expect(trackView).toHaveBeenCalledTimes(1));
+  expect(screen.queryByText(/Opened by/)).not.toBeInTheDocument();
+});
+
+it('should count the open for a logged out viewer', async () => {
+  renderPage(picks, { user: undefined, isLoggedIn: false });
+  await screen.findByText(/Ada Lovelace's picks/);
+
+  await waitFor(() => expect(trackView).toHaveBeenCalledTimes(1));
+});
+
+it('should not count the author and show them the opens', async () => {
+  renderPage(
+    { ...picks, viewCount: 12 },
+    { user: { ...loggedUser, id: 'author-1' }, isLoggedIn: true },
+  );
+
+  expect(await screen.findByText('Opened by 12')).toBeInTheDocument();
+  await waitFor(() =>
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ event_name: LogEvent.ViewPicksPage }),
+    ),
+  );
+  expect(trackView).not.toHaveBeenCalled();
+});
+
+it('should tell the author when nobody opened it yet', async () => {
+  renderPage(
+    { ...picks, viewCount: 0 },
+    { user: { ...loggedUser, id: 'author-1' }, isLoggedIn: true },
+  );
+
+  expect(await screen.findByText('Not opened yet')).toBeInTheDocument();
 });

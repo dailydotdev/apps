@@ -5,7 +5,10 @@ import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import type { DehydratedState } from '@tanstack/react-query';
 import { dehydrate, QueryClient, useQuery } from '@tanstack/react-query';
-import { picksQueryOptions } from '@dailydotdev/shared/src/graphql/picks';
+import {
+  picksQueryOptions,
+  trackPicksView,
+} from '@dailydotdev/shared/src/graphql/picks';
 import type { Picks, PicksItem } from '@dailydotdev/shared/src/graphql/picks';
 import {
   getCurrentWeekStart,
@@ -59,6 +62,9 @@ interface PicksPageProps {
   seo: NextSeoProps;
   dehydratedState: DehydratedState;
 }
+
+const getOpensLabel = (count: number): string =>
+  count ? `Opened by ${count}` : 'Not opened yet';
 
 const getPostsLabel = (picks: Picks): string => {
   const count = picks.items.length;
@@ -132,6 +138,7 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
     staleTime: StaleTime.OneMinute,
   });
   const hasLoggedView = useRef(false);
+  const hasTrackedView = useRef(false);
   const isAuthor = !!user && user.id === picks?.author.id;
   const { openShareSheet } = useSharePicks();
   // `/picks/new` is flag-gated, so only offer the CTA to viewers who can use
@@ -160,6 +167,17 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
       }),
     });
   }, [picks, isAuthReady, isAuthor, isLoggedIn, logEvent]);
+
+  // One open per viewer per list; the API dedupes, this only saves a call
+  // for the author. Failing to count must never affect the page.
+  useEffect(() => {
+    if (!picks || !isAuthReady || isAuthor || hasTrackedView.current) {
+      return;
+    }
+
+    hasTrackedView.current = true;
+    trackPicksView(picks.id).catch(() => undefined);
+  }, [picks, isAuthReady, isAuthor]);
 
   if (!picks) {
     return null;
@@ -210,6 +228,14 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
             >
               {getPostsLabel(picks)}
             </Typography>
+            {isAuthor && typeof picks.viewCount === 'number' && (
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                {getOpensLabel(picks.viewCount)}
+              </Typography>
+            )}
           </div>
           {isAuthor && (
             <Button

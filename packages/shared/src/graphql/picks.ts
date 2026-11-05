@@ -56,6 +56,8 @@ export interface Picks {
   updatedAt?: string | null;
   author: PicksAuthor;
   items: PicksItem[];
+  /** Unique opens by others; the API returns it to the author only */
+  viewCount?: number | null;
 }
 
 export interface PicksItemInput {
@@ -93,6 +95,7 @@ const PICKS_FRAGMENT = gql`
     weekStart
     publishedAt
     updatedAt
+    viewCount
     author {
       id
       name
@@ -149,6 +152,14 @@ export const UPSERT_PICKS_MUTATION = gql`
     upsertPicks(items: $items) {
       id
       url
+    }
+  }
+`;
+
+export const TRACK_PICKS_VIEW_MUTATION = gql`
+  mutation TrackPicksView($id: ID!) {
+    trackPicksView(id: $id) {
+      _
     }
   }
 `;
@@ -216,6 +227,11 @@ export const upsertPicks = async (
     { items },
   );
   return data.upsertPicks;
+};
+
+/** Counts the viewer once per list on the API; the author is never counted. */
+export const trackPicksView = async (id: string): Promise<void> => {
+  await gqlClient.request(TRACK_PICKS_VIEW_MUTATION, { id });
 };
 
 export const integrationSharePicks = async (variables: {
