@@ -259,8 +259,14 @@ describe('weekly picks entry point', () => {
       undefined,
       picksGrowthBook(true),
     );
+    // The phone shell is the slowest first render in this file; on a loaded CI
+    // runner it can take longer than the 1s default to reach the actions.
+    const link = await screen.findByRole(
+      'link',
+      { name: 'Make your picks' },
+      { timeout: 3000 },
+    );
     await waitForNock();
-    const link = await screen.findByRole('link', { name: 'Make your picks' });
     expect(link).toHaveAttribute(
       'href',
       expect.stringContaining('picks/new?origin=bookmarks'),
