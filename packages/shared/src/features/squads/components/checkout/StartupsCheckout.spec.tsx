@@ -3,9 +3,8 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { TestBootProvider } from '../../../../../__tests__/helpers/boot';
 import { betterAuthSignIn } from '../../../../lib/betterAuth';
+import { useSquadCreate } from '../../../../hooks/squads/useSquadCreate';
 import { LogEvent, TargetType } from '../../../../lib/log';
-import { squadSubscriptionQueryOptions } from '../../../../graphql/squadSubscription';
-import type { LoggedUser } from '../../../../lib/user';
 import { SourceMemberRole } from '../../../../graphql/sources';
 import type { Squad } from '../../../../graphql/sources';
 import { StartupsCheckout, StartupsCheckoutStep } from './StartupsCheckout';
@@ -13,6 +12,15 @@ import { StartupsCheckout, StartupsCheckoutStep } from './StartupsCheckout';
 jest.mock('../../../../lib/betterAuth', () => ({
   ...jest.requireActual('../../../../lib/betterAuth'),
   betterAuthSignIn: jest.fn(),
+}));
+
+jest.mock('../../../../hooks/squads/useSquadCreate', () => ({
+  useSquadCreate: jest.fn(),
+}));
+
+jest.mock('../../lib/handle', () => ({
+  ...jest.requireActual('../../lib/handle'),
+  findFreeSquadHandle: jest.fn().mockResolvedValue('acme'),
 }));
 
 jest.mock('@marsidev/react-turnstile', () => ({
@@ -100,19 +108,16 @@ describe('StartupsCheckout goal question', () => {
     currentMember: { role: SourceMemberRole.Admin },
   } as Squad;
 
-  const renderCompanyStep = ({
-    user,
-    client = new QueryClient(),
-  }: { user?: LoggedUser; client?: QueryClient } = {}) => {
+  const renderCompanyStep = (squads: Squad[] = []) => {
     const logEvent = jest.fn();
 
     render(
       <TestBootProvider
-        client={client}
-        auth={{ isLoggedIn: true, user, squads: [acme] }}
+        client={new QueryClient()}
+        auth={{ isLoggedIn: true, squads }}
         log={{ logEvent }}
       >
-        <StartupsCheckout initialSquadId={acme.id} />
+        <StartupsCheckout />
       </TestBootProvider>,
     );
 
@@ -122,6 +127,17 @@ describe('StartupsCheckout goal question', () => {
   const chooseGoal = (name: string) =>
     fireEvent.click(screen.getByRole('checkbox', { name }));
 
+  const companyField = () =>
+    document.querySelector('input[name="name"]') as HTMLInputElement;
+
+  const createCompany = async () => {
+    fireEvent.input(companyField(), {
+      target: { value: 'Acme' },
+    });
+    await click(/^continue$/i);
+    await screen.findByText('Choose a plan for Acme');
+  };
+
   const goalEvent = (
     eventName: LogEvent,
     targetId?: string,
@@ -130,14 +146,21 @@ describe('StartupsCheckout goal question', () => {
     event_name: eventName,
     target_type: TargetType.Startups,
     target_id: targetId,
-    extra: JSON.stringify({
-      source_id: acme.id,
-      new_company: false,
-      ...(text && { text }),
-    }),
+    extra: JSON.stringify({ source_id: acme.id, ...(text && { text }) }),
   });
 
-  it('logs each goal they picked when they continue', async () => {
+  const isGoalEvent = ({ event_name: eventName }: { event_name: LogEvent }) =>
+    eventName === LogEvent.SelectStartupsGoal ||
+    eventName === LogEvent.SkipStartupsGoal;
+
+  beforeEach(() => {
+    (useSquadCreate as jest.Mock).mockImplementation(({ onSuccess }) => ({
+      isLoading: false,
+      onCreateSquad: async () => onSuccess(acme),
+    }));
+  });
+
+  it('logs each goal they picked once the company is created', async () => {
     const { logEvent } = renderCompanyStep();
 
     chooseGoal('Show up in AI answers');
@@ -145,7 +168,7 @@ describe('StartupsCheckout goal question', () => {
     expect(logEvent).not.toHaveBeenCalledWith(
       expect.objectContaining({ event_name: LogEvent.SelectStartupsGoal }),
     );
-    await click(/^continue$/i);
+    await createCompany();
 
     expect(logEvent).toHaveBeenCalledWith(
       goalEvent(LogEvent.SelectStartupsGoal, 'ai_answers'),
@@ -164,7 +187,7 @@ describe('StartupsCheckout goal question', () => {
     chooseGoal('Show up in AI answers');
     chooseGoal('Get developers to try my product');
     chooseGoal('Show up in AI answers');
-    await click(/^continue$/i);
+    await createCompany();
 
     expect(logEvent).toHaveBeenCalledWith(
       goalEvent(LogEvent.SelectStartupsGoal, 'users'),
@@ -177,7 +200,7 @@ describe('StartupsCheckout goal question', () => {
   it('logs a skip when they continue without answering', async () => {
     const { logEvent } = renderCompanyStep();
 
-    await click(/^continue$/i);
+    await createCompany();
 
     expect(logEvent).toHaveBeenCalledWith(goalEvent(LogEvent.SkipStartupsGoal));
   });
@@ -192,7 +215,7 @@ describe('StartupsCheckout goal question', () => {
         target: { value: '  Hire developers ' },
       },
     );
-    await click(/^continue$/i);
+    await createCompany();
 
     expect(logEvent).toHaveBeenCalledWith(
       goalEvent(LogEvent.SelectStartupsGoal, 'other', 'Hire developers'),
@@ -203,7 +226,7 @@ describe('StartupsCheckout goal question', () => {
     const { logEvent } = renderCompanyStep();
 
     chooseGoal('Something else');
-    await click(/^continue$/i);
+    await createCompany();
 
     expect(logEvent).toHaveBeenCalledWith(goalEvent(LogEvent.SkipStartupsGoal));
   });
@@ -225,7 +248,7 @@ describe('StartupsCheckout goal question', () => {
         name: 'Get developers to try my product',
       }),
     ).toBeChecked();
-    await click(/^continue$/i);
+    await createCompany();
 
     expect(logEvent).toHaveBeenCalledWith(
       goalEvent(LogEvent.SelectStartupsGoal, 'users'),
@@ -246,23 +269,39 @@ describe('StartupsCheckout goal question', () => {
     ).not.toBeInTheDocument();
   });
 
-  it("doesn't ask about a page that's already on a plan", async () => {
-    const user = { id: '1' } as LoggedUser;
-    const client = new QueryClient({
-      defaultOptions: { queries: { staleTime: Infinity } },
-    });
-    client.setQueryData(
-      squadSubscriptionQueryOptions({ user, sourceId: acme.id }).queryKey,
-      { plan: 'starter' },
-    );
-
-    renderCompanyStep({ user, client });
+  it("doesn't ask or log anything when they pick a page they already have", async () => {
+    const { logEvent } = renderCompanyStep([acme]);
 
     expect(
-      await screen.findByRole('link', { name: /manage subscription/i }),
+      await screen.findByText('Which page is this for?'),
     ).toBeInTheDocument();
     expect(
       screen.queryByText(/what do you want to achieve/i),
     ).not.toBeInTheDocument();
+
+    await click(/^continue$/i);
+    await screen.findByText('Choose a plan for Acme');
+
+    expect(
+      logEvent.mock.calls.map(([event]) => event).filter(isGoalEvent),
+    ).toEqual([]);
+  });
+
+  it("doesn't log anything when they create another page from the same screen", async () => {
+    const { logEvent } = renderCompanyStep([acme]);
+
+    fireEvent.focus(companyField());
+    fireEvent.input(companyField(), {
+      target: { value: 'Acme' },
+    });
+    expect(
+      screen.queryByText(/what do you want to achieve/i),
+    ).not.toBeInTheDocument();
+    await click(/^continue$/i);
+    await screen.findByText('Choose a plan for Acme');
+
+    expect(
+      logEvent.mock.calls.map(([event]) => event).filter(isGoalEvent),
+    ).toEqual([]);
   });
 });

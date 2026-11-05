@@ -258,9 +258,9 @@ const CompanyStep = ({
   });
   const logStartups = useLogStartups();
 
-  const onDone = (squad: CompanyChoice, isNew: boolean) => {
+  const logGoalAnswers = (sourceId: string) => {
     const answers = getStartupsGoalAnswers(goalAnswers);
-    const extra = { source_id: squad.id, new_company: isNew };
+    const extra = { source_id: sourceId };
 
     if (!answers.length) {
       logStartups(LogEvent.SkipStartupsGoal, undefined, extra);
@@ -273,11 +273,18 @@ const CompanyStep = ({
         ...(text && { text }),
       }),
     );
-    onContinue(squad, isNew);
   };
 
   const { onCreateSquad, isLoading } = useSquadCreate({
-    onSuccess: (squad) => onDone({ ...squad, id: getSquadId(squad) }, true),
+    onSuccess: (squad) => {
+      const company = { ...squad, id: getSquadId(squad) };
+
+      if (!hasPages) {
+        logGoalAnswers(company.id);
+      }
+
+      onContinue(company, true);
+    },
   });
   const { data: subscription, isFetching } = useQuery(
     squadSubscriptionQueryOptions({ user, sourceId: selected?.id }),
@@ -306,7 +313,7 @@ const CompanyStep = ({
     }
 
     if (selected) {
-      onDone(selected, false);
+      onContinue(selected, false);
       return;
     }
 
@@ -380,8 +387,8 @@ const CompanyStep = ({
             />
           </div>
         </div>
-        {/* A page that's already paid for has nothing left to sign up for */}
-        {!activePlan && (
+        {/* Only for someone naming their first company */}
+        {!hasPages && (
           <StartupsGoalQuestion value={goalAnswers} onChange={setGoalAnswers} />
         )}
         {activePlan ? (

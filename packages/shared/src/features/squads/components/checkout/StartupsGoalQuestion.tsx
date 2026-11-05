@@ -103,6 +103,7 @@ export const StartupsGoalQuestion = ({
         inputId="startups-goal-other"
         name="goalOther"
         label="In your own words"
+        aria-label="In your own words"
         maxLength={OTHER_MAX_LENGTH}
         showMaxLength={false}
         className={{ container: 'w-full' }}
