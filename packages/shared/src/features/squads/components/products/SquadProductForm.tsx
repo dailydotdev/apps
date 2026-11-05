@@ -192,7 +192,7 @@ export const SquadProductForm = ({
           className="hidden"
           onChange={(event) => onFileChange(event.target.files?.[0])}
         />
-        <div className="flex flex-col gap-1">
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
           <Label>Logo</Label>
           <Helper>
             {`Square PNG or JPG, up to ${LOGO_SIZE_LIMIT_MB} MB. It replaces the logo wherever the tool appears on daily.dev.`}

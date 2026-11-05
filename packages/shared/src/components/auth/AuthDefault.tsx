@@ -1,5 +1,6 @@
 import type { Dispatch, ReactElement, ReactNode, SetStateAction } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import type { AuthFormProps, Provider } from './common';
 import { MailIcon } from '../icons';
@@ -15,6 +16,8 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import OrDivider from './OrDivider';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { IconSize } from '../Icon';
+import { ClickableText } from '../buttons/ClickableText';
+import { AuthScreenTitle } from './AuthScreenTitle';
 
 const AuthModalFooter = dynamic(
   () => import(/* webpackChunkName: "authModalFooter" */ './AuthModalFooter'),
@@ -35,6 +38,10 @@ interface AuthDefaultProps extends AuthFormProps {
   onBack?: () => void;
   logInTitle?: string;
   signUpTitle?: string;
+  logInDescription?: string;
+  signUpDescription?: string;
+  /** Sign-up's options, when they differ from log-in's. */
+  signupProviders?: Provider[];
   providers: Provider[];
   trigger: AuthTriggersType;
   disableRegistration?: boolean;
@@ -47,6 +54,11 @@ interface AuthDefaultProps extends AuthFormProps {
   emailLogin?: EmailLoginState;
   hasTopBarBack?: boolean;
   loginEmail?: string;
+  /** The daily.dev for Startups page lays this out as its own full-page step. */
+  isStartups?: boolean;
+  onLogInChange?: (isLogIn: boolean) => void;
+  /** Shown on the screen, for a page without toasts in its flow. */
+  socialError?: string;
 }
 
 const AuthDefault = ({
@@ -68,12 +80,18 @@ const AuthDefault = ({
   trigger,
   signUpTitle = 'Sign up for daily.dev',
   logInTitle = 'Log in to daily.dev',
+  signUpDescription,
+  logInDescription,
+  signupProviders,
   loginButton,
   simplified,
   onAuthOpenLogged,
   emailLogin,
   hasTopBarBack,
   loginEmail,
+  isStartups,
+  onLogInChange,
+  socialError,
 }: AuthDefaultProps): ReactElement => {
   const { logEvent } = useLogContext();
   const [shouldLogin, setShouldLogin] = useState(isLoginFlow);
@@ -82,6 +100,7 @@ const AuthDefault = ({
   const fallbackEmailLogin = useState(false);
   const [isEmailLogin, setIsEmailLogin] = emailLogin ?? fallbackEmailLogin;
   const socialLoginListRef = useRef<HTMLDivElement>(null);
+  const [clickedProvider, setClickedProvider] = useState<string>();
 
   const focusFirstSocialLink = () => {
     if (!socialLoginListRef.current) {
@@ -104,6 +123,7 @@ const AuthDefault = ({
     });
 
     onAuthOpenLogged?.();
+    onLogInChange?.(!!shouldLogin);
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldLogin]);
@@ -138,6 +158,7 @@ const AuthDefault = ({
   const onHeaderBack = isInitialMode ? onBack : toggleLogin;
 
   const onSocialClick = (provider: string) => {
+    setClickedProvider(provider);
     onProviderClick?.(provider, shouldLogin);
   };
 
@@ -163,6 +184,7 @@ const AuthDefault = ({
           isLoading={isLoading}
           email={loginEmail || undefined}
           loginButton={loginButton}
+          autoFocus={!isStartups}
           aboveFooter={!simplified && !disableRegistration}
           loginButtonVariant={
             !isEmailLoginScreen && providers.length
@@ -172,6 +194,7 @@ const AuthDefault = ({
           loginHint={resolvedLoginHint}
           onPasswordLogin={onPasswordLogin}
           onForgotPassword={onForgotPassword}
+          isStartups={isStartups}
           onSignup={() => {
             setIsEmailLogin(false);
             setShouldLogin(false);
@@ -186,6 +209,106 @@ const AuthDefault = ({
   const form = getForm();
   const isSignup = !shouldLogin && !disableRegistration;
 
+  const listedProviders = shouldLogin
+    ? providers
+    : (signupProviders ?? providers);
+  const orderedProviders = isStartups
+    ? [...listedProviders].sort(
+        (a, b) => Number(b.value === 'github') - Number(a.value === 'github'),
+      )
+    : listedProviders;
+
+  const entryOptions = !isEmailLoginScreen && (
+    <div
+      aria-label="Social login buttons"
+      className={classNames('flex flex-col', isStartups ? 'gap-3' : 'gap-4')}
+      ref={socialLoginListRef}
+      role="list"
+    >
+      {orderedProviders.map(({ label, value, icon }, index) => (
+        <Button
+          aria-label={`Continue with ${label}`}
+          autoFocus={index === 0 && !signupProviders}
+          disabled={!isReady || isSocialAuthLoading}
+          icon={React.cloneElement(
+            icon,
+            isStartups
+              ? { size: IconSize.XSmall, secondary: true }
+              : { size: IconSize.Medium },
+          )}
+          key={label}
+          loading={
+            isStartups
+              ? isSocialAuthLoading && clickedProvider === value
+              : !isReady || isSocialAuthLoading
+          }
+          onClick={() => onSocialClick(value)}
+          size={ButtonSize.Large}
+          type="button"
+          variant={ButtonVariant.Primary}
+        >
+          Continue with {label}
+        </Button>
+      ))}
+      {(isSignup || hasEmailLoginScreen) && (
+        <Button
+          aria-label="Continue with email"
+          disabled={!isReady || isSocialAuthLoading}
+          icon={
+            <MailIcon
+              secondary
+              size={isStartups ? IconSize.XSmall : IconSize.Medium}
+            />
+          }
+          onClick={onEmailClick}
+          size={ButtonSize.Large}
+          type="button"
+          variant={ButtonVariant.Primary}
+        >
+          Continue with email
+        </Button>
+      )}
+    </div>
+  );
+
+  if (isStartups) {
+    const description = shouldLogin ? logInDescription : signUpDescription;
+
+    return (
+      <div className="flex flex-col gap-6">
+        {isEmailLoginScreen ? (
+          <AuthScreenTitle
+            title="Log in with email"
+            description="Then pick the page this plan is for."
+          />
+        ) : (
+          <AuthScreenTitle title={listTitle} description={description} />
+        )}
+        {entryOptions}
+        {form}
+        {!isEmailLoginScreen && (
+          <div className="flex flex-wrap items-center gap-1 text-text-secondary typo-callout">
+            {shouldLogin ? 'New to daily.dev?' : 'Already have an account?'}
+            <ClickableText inverseUnderline onClick={toggleLogin}>
+              {shouldLogin ? 'Sign up' : 'Log in'}
+            </ClickableText>
+          </div>
+        )}
+        {isSignup && (
+          <SignupDisclaimer className="!text-left !text-text-tertiary" />
+        )}
+        {socialError && (
+          <p
+            role="alert"
+            className="rounded-12 border border-border-subtlest-tertiary bg-surface-float p-3 typo-callout"
+          >
+            {socialError}
+          </p>
+        )}
+      </div>
+    );
+  }
+
   return (
     <>
       <AuthHeader
@@ -193,45 +316,14 @@ const AuthDefault = ({
         title={title}
         onBack={getHeaderBack()}
       />
-      <AuthContainer className={disableRegistration ? 'mb-6' : undefined}>
-        {!isEmailLoginScreen && (
-          <div
-            aria-label="Social login buttons"
-            className="flex flex-col gap-4"
-            ref={socialLoginListRef}
-            role="list"
-          >
-            {providers.map(({ label, value, icon }, index) => (
-              <Button
-                aria-label={`Continue with ${label}`}
-                autoFocus={index === 0}
-                disabled={!isReady || isSocialAuthLoading}
-                icon={React.cloneElement(icon, { size: IconSize.Medium })}
-                key={label}
-                loading={!isReady || isSocialAuthLoading}
-                onClick={() => onSocialClick(value)}
-                size={ButtonSize.Large}
-                type="button"
-                variant={ButtonVariant.Primary}
-              >
-                Continue with {label}
-              </Button>
-            ))}
-            {(isSignup || hasEmailLoginScreen) && (
-              <Button
-                aria-label="Continue with email"
-                disabled={!isReady || isSocialAuthLoading}
-                icon={<MailIcon secondary size={IconSize.Medium} />}
-                onClick={onEmailClick}
-                size={ButtonSize.Large}
-                type="button"
-                variant={ButtonVariant.Primary}
-              >
-                Continue with email
-              </Button>
-            )}
-          </div>
+      {(shouldLogin ? logInDescription : signUpDescription) &&
+        !isEmailLoginScreen && (
+          <p className="mt-2 text-center text-text-secondary typo-callout">
+            {shouldLogin ? logInDescription : signUpDescription}
+          </p>
         )}
+      <AuthContainer className={disableRegistration ? 'mb-6' : undefined}>
+        {entryOptions}
         {form && !isEmailLoginScreen && providers.length > 0 && <OrDivider />}
         {form}
       </AuthContainer>
