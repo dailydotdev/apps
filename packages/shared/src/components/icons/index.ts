@@ -19,6 +19,7 @@ export * from './BringForward';
 export * from './Browser/Chrome';
 export * from './Browser/Edge';
 export * from './Browsers';
+export * from './Brush';
 export * from './BulletList';
 export * from './Calendar';
 export * from './Camera';
