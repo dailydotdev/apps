@@ -451,9 +451,8 @@ const DecisionsPage = (): ReactElement => (
         <p className="text-text-secondary typo-body">
           Goal: a bigger, easier to tap action bar on list cards, the phone
           feed, that holds up on small phones, and one bar on list and grid
-          cards. The list change runs as the list_card_large_actions experiment,
-          measuring bookmarks, upvotes and comments per user, with post clicks
-          as the guardrail because list cards get 8px taller.
+          cards. The list change ran as the list_card_large_actions experiment
+          (Nov 2026) and shipped to every list card; the flag is removed.
         </p>
         <p className="text-text-secondary typo-body">
           Design metric: the smallest gap between two bar buttons with
@@ -504,8 +503,8 @@ const DecisionsPage = (): ReactElement => (
           ],
           [
             'List experiment',
-            'The list final behind list_card_large_actions: boolean, default false, 50/50 on user ID, logged-in users',
-            'The treatment arm, once the flag is set up in GrowthBook',
+            'The list final, tested as list_card_large_actions and shipped',
+            'Everyone on list cards',
           ],
           [
             'Grid cards',

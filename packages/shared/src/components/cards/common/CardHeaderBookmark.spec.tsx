@@ -95,14 +95,14 @@ describe('ActionButtons bookmark placement', () => {
     ]);
   });
 
-  it('keeps list cards at 24px, bookmark in the bar', () => {
+  it('renders list cards at 32px, bookmark in the bar', () => {
     const { container } = renderBar('list');
 
-    // List cards keep the v1 bar: 24px buttons, the bookmark included.
+    // List cards get the grid bar size and keep the bookmark in the bar.
     expect(barLabels(container)).toContain('Bookmark');
     expect(
       document.querySelector(`#post-${post.id}-upvote-btn`),
-    ).not.toHaveClass('h-8');
+    ).toHaveClass('h-8');
   });
 
   it('renders grid actions at 32px', () => {
