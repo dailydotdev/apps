@@ -232,7 +232,7 @@ export const FeedWidgetAddTile = ({
     style={style}
     className="group/add relative flex min-h-0 snap-start flex-col items-center overflow-hidden rounded-16 border-2 border-dashed border-border-subtlest-secondary pt-20 text-center transition-colors hover:border-border-subtlest-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default motion-safe:focus-visible:[--add-tile-lift:1] motion-safe:mouse:hover:[--add-tile-lift:1]"
   >
-    <span className="flex size-14 shrink-0 items-center justify-center rounded-16 bg-surface-float text-text-primary transition-[transform,background-color,color] duration-200 group-hover/add:scale-105 group-hover/add:bg-text-primary group-hover/add:text-surface-invert group-active/add:scale-95 motion-reduce:transition-none">
+    <span className="flex size-14 shrink-0 items-center justify-center rounded-16 bg-surface-float text-text-primary transition-[transform,background-color,color] duration-200 group-active/add:scale-95 motion-reduce:transition-none mouse:group-hover/add:scale-105 mouse:group-hover/add:bg-text-primary mouse:group-hover/add:text-surface-invert">
       <PlusIcon size={IconSize.Large} />
     </span>
     <span className="mt-3 font-bold text-text-primary typo-callout">

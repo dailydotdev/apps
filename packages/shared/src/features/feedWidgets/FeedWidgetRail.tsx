@@ -187,6 +187,7 @@ export const FeedWidgetRail = ({
   const [configuringId, setConfiguringId] = useState<string>();
   // Opened from an empty cell, a widget starts Small so it lands in that cell.
   const [addSize, setAddSize] = useState<FeedWidgetSize>();
+  const [addKind, setAddKind] = useState<FeedWidgetKind>();
   const [edges, setEdges] = useState({ start: false, end: false });
   const root = useRef<HTMLElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
@@ -383,8 +384,9 @@ export const FeedWidgetRail = ({
     [widgets, user, loadedSettings, optOutReadingStreak],
   );
 
-  const openGallery = (size?: FeedWidgetSize) => {
+  const openGallery = (size?: FeedWidgetSize, kind?: FeedWidgetKind) => {
     setAddSize(size);
+    setAddKind(kind);
     setIsGalleryOpen(true);
     logWidgetEvent(LogEvent.OpenFeedWidgetGallery, undefined, {
       source: size ? 'slot' : 'tile',
@@ -801,7 +803,7 @@ export const FeedWidgetRail = ({
             {showAddTile && (
               <FeedWidgetAddTile
                 kinds={addTileKinds}
-                onClick={() => openGallery()}
+                onClick={() => openGallery(undefined, addTileKinds[0])}
                 style={gridArea({
                   key: 'add',
                   column: layout.columns,
@@ -821,6 +823,7 @@ export const FeedWidgetRail = ({
         <FeedWidgetGallery
           widgets={widgets}
           isFull={!canAdd}
+          initialKind={addKind}
           initialSize={addSize}
           onAdd={onAdd}
           // Only where the slot shows, so the reader sees the tips come back.
