@@ -171,14 +171,6 @@ export const featureOnboardingCommitment = new Feature(
   false,
 );
 
-// Experiment: the reading reminder step becomes a single ask, the push
-// preview with the reminder preset to 9 AM and "Turn on notifications".
-// Default MUST stay `false` — it is the control.
-export const featureOnboardingReminderPushOnly = new Feature(
-  'onboarding_reminder_push_only',
-  false,
-);
-
 // Experiment: picking "Search engine" or "AI assistant" at the acquisition step
 // opens a second screen asking what they searched for or asked. Default MUST
 // stay `false` — it is the control.
