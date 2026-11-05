@@ -30,7 +30,6 @@ import AuthHeader from './AuthHeader';
 import { AuthActionBar } from './AuthActionBar';
 import { useTurnstileTheme } from '../../hooks/auth/useTurnstileTheme';
 import { MemberAlready } from '../onboarding/MemberAlready';
-import SignupDisclaimer from './SignupDisclaimer';
 import { Checkbox } from '../fields/Checkbox';
 import { useLogContext } from '../../contexts/LogContext';
 import { useGenerateUsername, useCheckExistingEmail } from '../../hooks';
@@ -67,7 +66,7 @@ export interface RegistrationFormProps extends AuthFormProps {
   onSignup?: (params: RegistrationFormValues) => void;
   token?: string;
   trigger: AuthTriggersType;
-  onExistingEmailLoginClick?: () => void;
+  onExistingEmailLoginClick?: (existingEmail?: string) => void;
   onBackToIntro?: () => void;
   targetId?: string;
   // Header title above the form. Defaults to "Sign up" because this form is
@@ -121,7 +120,8 @@ const RegistrationForm = ({
   const [name, setName] = useState('');
   const [isEmailFilled, setIsEmailFilled] = useState(!!email?.length);
   const isRecruiterOnboarding = trigger === AuthTriggers.RecruiterSelfServe;
-  const hideExperienceLevel = isRecruiterOnboarding;
+  const hideExperienceLevel =
+    isRecruiterOnboarding || trigger === AuthTriggers.StartupsCheckout;
   const {
     username,
     setUsername,
@@ -354,14 +354,12 @@ const RegistrationForm = ({
 
   return (
     <div className="flex flex-1 flex-col">
-      {!isAuthenticating && (
-        <AuthHeader
-          simplified={simplified}
-          onboardingHeadline={isOnboardingFunnel}
-          title={headerTitle}
-          onBack={simplified ? undefined : onBack}
-        />
-      )}
+      <AuthHeader
+        simplified={simplified}
+        onboardingHeadline={isOnboardingFunnel}
+        title={headerTitle}
+        onBack={simplified ? undefined : onBack}
+      />
       <div
         className={classNames(
           // `simplified` is set by `/onboarding`, where the outer page already
@@ -447,7 +445,15 @@ const RegistrationForm = ({
                 Email is taken. Existing user?{' '}
                 <button
                   type="button"
-                  onClick={() => onExistingEmailLoginClick?.()}
+                  onClick={(e) =>
+                    onExistingEmailLoginClick?.(
+                      (
+                        e.currentTarget.form?.elements.namedItem(
+                          'traits.email',
+                        ) as HTMLInputElement | null
+                      )?.value,
+                    )
+                  }
                   className="font-bold underline"
                 >
                   Log in.
@@ -564,7 +570,7 @@ const RegistrationForm = ({
           <ConditionalWrapper
             condition={simplified ?? false}
             wrapper={(component) => (
-              <AuthContainer className="!mt-0 !px-0 pb-1 pt-3">
+              <AuthContainer className="!mt-0 !px-0 pb-1 pt-1">
                 {component}
               </AuthContainer>
             )}
@@ -640,20 +646,12 @@ const RegistrationForm = ({
                 </Button>
               </ConditionalWrapper>
             )}
-            {/* Consent belongs to the button that creates the account, so it
-                travels with this form instead of being docked on the funnel
-                shell — that shell also serves sign-back, login and
-                verify-email, where the account already exists. The funnel's
-                signup wall suppresses its own inline copy, which makes this the
-                notice shown before the account is created, at every width. */}
-            {isOnboardingFunnel && (
-              <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
-            )}
             {isOnboardingFunnel && onExistingEmailLoginClick && (
               <MemberAlready
-                onLogin={onExistingEmailLoginClick}
+                onLogin={() => onExistingEmailLoginClick()}
                 className={{
-                  container: 'justify-center text-text-tertiary typo-callout',
+                  container:
+                    'mt-7 justify-center text-text-tertiary typo-callout',
                   login: '!text-text-primary',
                 }}
               />

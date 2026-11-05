@@ -93,7 +93,6 @@ import { usePhoneBrowser } from '@dailydotdev/shared/src/features/getApp/hooks/u
 import { useCommentsTeaser } from '@dailydotdev/shared/src/features/commentsTeaser/useCommentsTeaser';
 import { useRevealOnEngagement } from '@dailydotdev/shared/src/features/commentsTeaser/useRevealOnEngagement';
 import { getCommentsTeaserTitle } from '@dailydotdev/shared/src/features/commentsTeaser/commentsTeaser';
-import { ContentIgniteTag } from '../../../components/ContentIgniteTag';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
@@ -435,7 +434,6 @@ export const PostPage = ({
             <Head>
               <link rel="preload" as="image" href={post?.image} />
             </Head>
-            <ContentIgniteTag enabled={adsActive} />
             <PostSEOSchema post={post} topComments={topComments} />
             <Content
               position={position}

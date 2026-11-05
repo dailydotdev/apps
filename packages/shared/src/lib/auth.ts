@@ -76,6 +76,7 @@ export enum AuthTriggers {
   OAuth = 'oauth',
   Opportunity = 'opportunity',
   RecruiterSelfServe = 'recruiter self serve',
+  StartupsCheckout = 'startups checkout',
   AiFluencyQuiz = 'ai fluency quiz',
   AddToStack = 'add to stack',
   PostPage = 'post page',
@@ -94,6 +95,13 @@ export type AuthTriggersType =
       | Origin.SourcePage
       | Origin.TagPage
     >;
+
+// Flows that sign a social account up without the profile form and go
+// straight back to what the visitor came for
+export const autoProfileTriggers: AuthTriggersType[] = [
+  AuthTriggers.RecruiterSelfServe,
+  AuthTriggers.StartupsCheckout,
+];
 
 export interface LoginPasswordParameters {
   identifier: string;

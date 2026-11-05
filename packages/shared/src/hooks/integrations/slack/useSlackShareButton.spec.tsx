@@ -13,6 +13,8 @@ import type { UserIntegration } from '../../../graphql/integrations';
 import { UserIntegrationType } from '../../../graphql/integrations';
 import { gqlClient } from '../../../graphql/common';
 import { Origin } from '../../../lib/log';
+import { picksQueryOptions } from '../../../graphql/picks';
+import type { Picks } from '../../../graphql/picks';
 import { LazyModal } from '../../../components/modals/common/types';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
@@ -79,6 +81,81 @@ describe('getSlackShareOriginPath', () => {
       slackOrigin: Origin.SnapshotSharePanel,
       slackPlacement: Origin.PostSummary,
     });
+  });
+});
+
+describe('useSlackShareReturn for picks', () => {
+  const replace = jest.fn();
+  const picks = { id: 'picks-1', items: [] } as unknown as Picks;
+
+  const land = (params: Record<string, string>) => {
+    const search = new URLSearchParams({
+      lzym: LazyModal.SharePicks,
+      slackPicksId: picks.id,
+      slackScrollY: '0',
+      ...params,
+    });
+    window.history.replaceState({}, '', `/picks/${picks.id}?${search}`);
+    jest.mocked(useRouter).mockReturnValue({
+      pathname: '/picks/[id]',
+      query: Object.fromEntries(search),
+      replace,
+    } as unknown as ReturnType<typeof useRouter>);
+  };
+
+  const renderReturn = (integrations: UserIntegration[]) => {
+    const client = new QueryClient();
+    client.setQueryData(
+      generateQueryKey(RequestKey.UserIntegrations, loggedUser),
+      integrations,
+    );
+    client.setQueryData(picksQueryOptions(picks.id).queryKey, picks);
+
+    renderHook(() => useSlackShareReturn(), {
+      wrapper: ({ children }) => (
+        <TestBootProvider client={client} auth={{ user: loggedUser }}>
+          {children}
+        </TestBootProvider>
+      ),
+    });
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockIdbStore.clear();
+  });
+
+  afterAll(() => {
+    window.history.replaceState({}, '', '/');
+  });
+
+  it('should reopen the share sheet after Slack connects', async () => {
+    land({ slackOrigin: Origin.PicksPage });
+    renderReturn([slackIntegration]);
+
+    await waitFor(() =>
+      expect(mockOpenModal).toHaveBeenCalledWith({
+        type: LazyModal.SharePicks,
+        props: expect.objectContaining({ picks, origin: Origin.PicksPage }),
+      }),
+    );
+    expect(replace).toHaveBeenCalledWith(
+      { pathname: '/picks/[id]', query: {} },
+      `/picks/${picks.id}`,
+      { shallow: true, scroll: false },
+    );
+  });
+
+  it('should not open the sheet when Slack was not connected', async () => {
+    land({});
+    renderReturn([]);
+
+    await waitFor(() =>
+      expect(mockDisplayToast).toHaveBeenCalledWith(
+        'Slack was not connected, so nothing was shared',
+      ),
+    );
+    expect(mockOpenModal).not.toHaveBeenCalled();
   });
 });
 

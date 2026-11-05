@@ -187,6 +187,13 @@ export const featureOnboardingAcquisitionFollowUp = new Feature(
   false,
 );
 
+// Experiment: the onboarding tag step headline becomes a progress header whose
+// bar fills with every tag picked, to get people past the 5-tag minimum.
+export const featureOnboardingTagProgress = new Feature(
+  'onboarding_tag_progress',
+  false,
+);
+
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 export const featurePostTopicSignup = new Feature('post_topic_signup', false);
 
@@ -356,15 +363,13 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
   },
 );
 
-// Emergency kill switch for the /read template's ads — NOT an experiment, so
-// the true default is deliberate: the surface ships always-on (it is only
-// reachable through paid placements), and the flag exists solely so a policy
-// warning, bad creative or revenue anomaly can be stopped without a deploy
-// and an ISR revalidation cycle. Never ramp or target with this flag.
-export const featureReadAds = new Feature('read_ads', true);
-
-// Kill switch for the post page's programmatic (Content Ignite) slots, off for now.
-// Turning it on in GrowthBook brings them back without a deploy.
+// Kill switches for the programmatic slots, NOT experiments: never ramp or
+// target with them. Both are off while no ad partner's tag fills the slots;
+// turning one on in GrowthBook brings that surface's anchors back without
+// a deploy once a tag is wired up again.
+// The /read template's slots.
+export const featureReadAds = new Feature('read_ads', false);
+// The organic post page's slots.
 export const featureOrganicAds = new Feature('organic_ads', false);
 
 // Shows ads to a Plus member wherever a free reader would get them, so the
@@ -403,3 +408,13 @@ export const featureFeedWidgetsDefault = new Feature<{
   id: 'default-1',
   widgets: [{ id: 'top-story', kind: 'topStory', size: 'large' }],
 });
+
+// Weekly picks MVP: gates the Friday nudge, the /bookmarks button, /picks/new
+// and the share sheet. The public page /picks/:id is never gated so shared
+// links keep working.
+export const featureWeeklyPicks = new Feature('weekly_picks', false);
+
+// daily.dev for Startups self-serve checkout: the plan picker at
+// /squads/for-startups and the Plan section of Squad Manage. Off until launch;
+// the landing page reads the same flag to swap its waitlist for Get started.
+export const featureStartupsCheckout = new Feature('startups_checkout', false);

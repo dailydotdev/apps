@@ -93,4 +93,17 @@ describe('SidebarItem', () => {
 
     expect(showLogin).toHaveBeenCalledWith({ trigger: 'Following' });
   });
+
+  it('lets an explicit active flag win over a matching path', () => {
+    renderComponent(true, {
+      item: {
+        icon: (active: boolean) => <span>{active ? 'on' : 'off'}</span>,
+        title: 'Requests',
+        path: '/?tab=requests',
+        active: false,
+      },
+    });
+
+    expect(screen.getByText('off')).toBeInTheDocument();
+  });
 });

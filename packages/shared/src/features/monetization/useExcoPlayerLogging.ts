@@ -63,7 +63,7 @@ const adExtra = (data: ExcoEventData): Record<string, unknown> => ({
  * Logs the EX.CO player in three groups:
  * - The player: impression, load, errors, content progress, sound, sticky and
  *   the "Go to post" click, under target_type `video player`.
- * - Its ad breaks: the Content Ignite slots' fill and miss events, so fill
+ * - Its ad breaks: the programmatic slots' fill and miss events, so fill
  *   rate is one query across providers.
  * - Its video ads: the internal ads' AdActions with ad_provider_id `exco`
  *   (impression with cpm, MRC video viewable impression, click), plus

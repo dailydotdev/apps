@@ -122,42 +122,81 @@ const CREATOR_METRIC_FRAGMENT = gql`
   }
 `;
 
-export const CREATOR_PERFORMANCE_QUERY = gql`
-  query CreatorPerformance($period: CreatorPerformancePeriod) {
-    creatorPerformance(period: $period) {
-      period
-      coverage {
-        requestedStartDate
-        endDate
-        coveredStartDate
-        firstAvailableDate
-        lastAvailableDate
-        requestedDays
-        coveredDays
-        isComplete
-        isPreviousPeriodComplete
-      }
-      updatedAt
-      impressions {
-        ...CreatorMetricFragment
-      }
-      outboundVisits {
-        ...CreatorMetricFragment
-      }
-      upvotes {
-        ...CreatorMetricFragment
-      }
-      comments {
-        ...CreatorMetricFragment
-      }
-      impressionsSeries {
-        date
-        impressions
-        impressionsAds
-      }
+const CREATOR_PERFORMANCE_FRAGMENT = gql`
+  fragment CreatorPerformanceFragment on CreatorPerformance {
+    period
+    coverage {
+      requestedStartDate
+      endDate
+      coveredStartDate
+      firstAvailableDate
+      lastAvailableDate
+      requestedDays
+      coveredDays
+      isComplete
+      isPreviousPeriodComplete
+    }
+    updatedAt
+    impressions {
+      ...CreatorMetricFragment
+    }
+    outboundVisits {
+      ...CreatorMetricFragment
+    }
+    upvotes {
+      ...CreatorMetricFragment
+    }
+    comments {
+      ...CreatorMetricFragment
+    }
+    impressionsSeries {
+      date
+      impressions
+      impressionsAds
     }
   }
   ${CREATOR_METRIC_FRAGMENT}
+`;
+
+const CREATOR_POST_PERFORMANCE_CONNECTION_FRAGMENT = gql`
+  fragment CreatorPostPerformanceConnectionFragment on CreatorPostPerformanceConnection {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      cursor
+      node {
+        id
+        impressions
+        upvotes
+        comments
+        outboundVisits
+        post {
+          id
+          title
+          image
+          sharedPost {
+            id
+            title
+            image
+          }
+          createdAt
+          commentsPermalink
+          slug
+        }
+      }
+    }
+  }
+`;
+
+export const CREATOR_PERFORMANCE_QUERY = gql`
+  query CreatorPerformance($period: CreatorPerformancePeriod) {
+    creatorPerformance(period: $period) {
+      ...CreatorPerformanceFragment
+    }
+  }
+  ${CREATOR_PERFORMANCE_FRAGMENT}
 `;
 
 export const CREATOR_POST_PERFORMANCE_QUERY = gql`
@@ -175,35 +214,42 @@ export const CREATOR_POST_PERFORMANCE_QUERY = gql`
       sortBy: $sortBy
       order: $order
     ) {
-      pageInfo {
-        hasNextPage
-        endCursor
-      }
-      edges {
-        cursor
-        node {
-          id
-          impressions
-          upvotes
-          comments
-          outboundVisits
-          post {
-            id
-            title
-            image
-            sharedPost {
-              id
-              title
-              image
-            }
-            createdAt
-            commentsPermalink
-            slug
-          }
-        }
-      }
+      ...CreatorPostPerformanceConnectionFragment
     }
   }
+  ${CREATOR_POST_PERFORMANCE_CONNECTION_FRAGMENT}
+`;
+
+export const SQUAD_PERFORMANCE_QUERY = gql`
+  query SquadPerformance($sourceId: ID!, $period: CreatorPerformancePeriod) {
+    squadPerformance(sourceId: $sourceId, period: $period) {
+      ...CreatorPerformanceFragment
+    }
+  }
+  ${CREATOR_PERFORMANCE_FRAGMENT}
+`;
+
+export const SQUAD_POST_PERFORMANCE_QUERY = gql`
+  query SquadPostPerformance(
+    $sourceId: ID!
+    $after: String
+    $first: Int
+    $period: CreatorPerformancePeriod
+    $sortBy: CreatorPostSortBy
+    $order: CreatorPostSortOrder
+  ) {
+    squadPostPerformance(
+      sourceId: $sourceId
+      after: $after
+      first: $first
+      period: $period
+      sortBy: $sortBy
+      order: $order
+    ) {
+      ...CreatorPostPerformanceConnectionFragment
+    }
+  }
+  ${CREATOR_POST_PERFORMANCE_CONNECTION_FRAGMENT}
 `;
 
 export const creatorPostPerformancePageSize = 20;
@@ -282,6 +328,70 @@ export const creatorPostPerformanceQueryOptions = ({
   getNextPageParam: (lastPage: Connection<CreatorPostPerformance>) =>
     getNextPageParam(lastPage?.pageInfo),
   enabled: !!user,
+  staleTime: StaleTime.Default,
+});
+
+export const squadPerformanceQueryOptions = ({
+  sourceId,
+  period = CreatorPerformancePeriod.Last30Days,
+}: {
+  sourceId: string | undefined;
+  period?: CreatorPerformancePeriod;
+}) => ({
+  queryKey: generateQueryKey(
+    RequestKey.SquadPerformance,
+    undefined,
+    sourceId,
+    period,
+  ),
+  queryFn: async () => {
+    const { squadPerformance } = await gqlClient.request<{
+      squadPerformance: CreatorPerformance;
+    }>(SQUAD_PERFORMANCE_QUERY, { sourceId, period });
+
+    return squadPerformance;
+  },
+  enabled: !!sourceId,
+  staleTime: StaleTime.Default,
+});
+
+export const squadPostPerformanceQueryOptions = ({
+  sourceId,
+  period = CreatorPerformancePeriod.Last30Days,
+  sortBy = CreatorPostSortBy.PublishedAt,
+  order = CreatorPostSortOrder.Desc,
+  first = creatorPostPerformancePageSize,
+}: {
+  sourceId: string | undefined;
+  period?: CreatorPerformancePeriod;
+  sortBy?: CreatorPostSortBy;
+  order?: CreatorPostSortOrder;
+  first?: number;
+}) => ({
+  queryKey: generateQueryKey(
+    RequestKey.SquadPostPerformance,
+    undefined,
+    sourceId,
+    { period, sortBy, order, first },
+  ),
+  queryFn: async ({ pageParam }: { pageParam?: string }) => {
+    const { squadPostPerformance } = await gqlClient.request<{
+      squadPostPerformance: Connection<CreatorPostPerformance>;
+    }>(SQUAD_POST_PERFORMANCE_QUERY, {
+      sourceId,
+      after: pageParam,
+      first,
+      period,
+      sortBy,
+      order,
+    });
+
+    return squadPostPerformance;
+  },
+  initialPageParam: '',
+  getNextPageParam: (lastPage: Connection<CreatorPostPerformance>) =>
+    getNextPageParam(lastPage?.pageInfo),
+  enabled: !!sourceId,
   staleTime: StaleTime.Default,
 });
 

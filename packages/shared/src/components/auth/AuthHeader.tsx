@@ -53,7 +53,7 @@ function AuthHeader({
     }
 
     return (
-      <div className="relative">
+      <div className="relative flex min-h-10 flex-col justify-center">
         <Button
           aria-label="Go back"
           icon={<MoveToIcon size={IconSize.Small} className="rotate-180" />}

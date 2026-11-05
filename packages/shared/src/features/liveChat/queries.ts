@@ -2,7 +2,11 @@ import { queryOptions } from '@tanstack/react-query';
 import type { LoggedUser } from '../../lib/user';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import type { ChatRoom } from './graphql';
-import { getLiveChatRooms, getPostChatRoom } from './graphql';
+import {
+  getChatRoomPresence,
+  getLiveChatRooms,
+  getPostChatRoom,
+} from './graphql';
 
 type QueryUser = Pick<LoggedUser, 'id'> | undefined;
 
@@ -25,6 +29,40 @@ export const postChatRoomQueryOptions = (user: QueryUser, postId: string) =>
     staleTime: StaleTime.Default,
     refetchInterval: LIVE_CHAT_ROOM_REFRESH_MS,
     enabled: !!postId,
+  });
+
+// The API answers for at most this many users per call.
+export const LIVE_CHAT_PRESENCE_MAX_USERS = 100;
+
+// Which users the API was asked about, and which of them are in the room
+// (null when the chat server couldn't say, or the viewer holds no seat yet).
+export type ChatRoomPresence = {
+  userIds: string[];
+  present: string[] | null;
+};
+
+// Polled like the room itself (the API caches the room's list for 15s). The
+// key is the room alone and the senders are read when the poll runs, so a
+// new speaker waits for the next tick instead of every reader asking at
+// once; they just spoke, so they show as here meanwhile anyway.
+export const chatRoomPresenceQueryOptions = (
+  user: QueryUser,
+  roomId: string | undefined,
+  getUserIds: () => string[],
+) =>
+  queryOptions<ChatRoomPresence>({
+    queryKey: generateQueryKey(RequestKey.ChatRooms, user, 'presence', roomId),
+    queryFn: async () => {
+      const userIds = getUserIds();
+      const present = userIds.length
+        ? await getChatRoomPresence(roomId as string, userIds)
+        : [];
+
+      return { userIds, present };
+    },
+    staleTime: StaleTime.Default,
+    refetchInterval: LIVE_CHAT_ROOM_REFRESH_MS,
+    enabled: !!user && !!roomId,
   });
 
 export const liveChatRoomsQueryOptions = (user: QueryUser) =>

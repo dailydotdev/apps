@@ -54,7 +54,7 @@ describe('LiveChatHighlightCardRow', () => {
     expect(link).toHaveTextContent('Bun 2.0');
   });
 
-  it('keeps a small room with hours ahead to the fact that it is live', () => {
+  it('drops the count for a small room but still says when it ends', () => {
     jest.mocked(useLiveChatHighlight).mockReturnValue({
       room: {
         ...room,
@@ -68,7 +68,7 @@ describe('LiveChatHighlightCardRow', () => {
     const link = screen.getByRole('link');
     expect(link).toHaveTextContent('Live chat');
     expect(link).not.toHaveTextContent('here');
-    expect(link).not.toHaveTextContent('ends in');
+    expect(link).toHaveTextContent('Live chat · ends in 22h');
   });
 
   it('holds the row while the rooms are still loading', () => {

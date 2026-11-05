@@ -46,7 +46,8 @@ export const useCampaignMutation = ({
 
       const balance = data?.balance;
 
-      if (!isNullOrUndefined(balance)) {
+      // a squad wallet's balance is not the user's
+      if (!isNullOrUndefined(balance) && !data.walletSourceId) {
         updateUser({ ...user, balance });
       }
 
@@ -54,6 +55,16 @@ export const useCampaignMutation = ({
         queryKey: generateQueryKey(RequestKey.Transactions, user),
         exact: false,
       });
+
+      if (data.walletSourceId) {
+        client.invalidateQueries({
+          queryKey: generateQueryKey(
+            RequestKey.SquadWallet,
+            user,
+            data.walletSourceId,
+          ),
+        });
+      }
 
       client.invalidateQueries({
         queryKey: generateQueryKey(RequestKey.Campaigns, user),
@@ -78,7 +89,8 @@ export const useCampaignMutation = ({
 
       const balance = data?.balance;
 
-      if (!isNullOrUndefined(balance)) {
+      // a squad wallet's balance is not the user's
+      if (!isNullOrUndefined(balance) && !data.walletSourceId) {
         updateUser({ ...user, balance });
       }
 
@@ -86,6 +98,16 @@ export const useCampaignMutation = ({
         queryKey: generateQueryKey(RequestKey.Transactions, user),
         exact: false,
       });
+
+      if (data.walletSourceId) {
+        client.invalidateQueries({
+          queryKey: generateQueryKey(
+            RequestKey.SquadWallet,
+            user,
+            data.walletSourceId,
+          ),
+        });
+      }
 
       client.invalidateQueries({
         queryKey: generateQueryKey(RequestKey.Campaigns, user),
