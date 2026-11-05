@@ -194,7 +194,7 @@ export const SidebarTablet = ({
             variant={ButtonVariant.Option}
             pressed={isMessagesActive}
           >
-            Messages
+            Chat
           </Button>
         </Link>
       )}

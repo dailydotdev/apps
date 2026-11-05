@@ -86,7 +86,7 @@ const getMessagesLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 const seo: NextSeoProps = {
-  ...getPageSeoTitles('Messages'),
+  ...getPageSeoTitles('Chat'),
   nofollow: true,
   noindex: true,
 };
