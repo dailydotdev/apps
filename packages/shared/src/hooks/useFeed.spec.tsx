@@ -27,7 +27,7 @@ import defaultAd from '../../__tests__/fixture/ad';
 import * as tcf from '../lib/tcf';
 import * as consentHook from '../features/monetization/useTcfConsent';
 import * as conditionalFeature from './useConditionalFeature';
-import { featureTaboolaFallback } from '../lib/featureManagement';
+import { featureTaboolaAds } from '../lib/featureManagement';
 
 jest.mock('../lib/boot', () => ({
   ...jest.requireActual('../lib/boot'),
@@ -182,7 +182,7 @@ it('should hand only the house ad slots to Taboola', async () => {
   jest
     .spyOn(conditionalFeature, 'useConditionalFeature')
     .mockImplementation((props) =>
-      props.feature.id === featureTaboolaFallback.id
+      props.feature.id === featureTaboolaAds.id
         ? { value: !!props.shouldEvaluate, isLoading: false }
         : useConditionalFeature(props),
     );

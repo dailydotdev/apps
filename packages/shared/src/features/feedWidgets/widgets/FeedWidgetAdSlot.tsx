@@ -16,7 +16,7 @@ import { AdGrid } from '../../../components/cards/ad/AdGrid';
 import { PlaceholderGrid } from '../../../components/cards/placeholder/PlaceholderGrid';
 import { TaboolaAd } from '../../../components/cards/ad/TaboolaAd';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featureTaboolaFallback } from '../../../lib/featureManagement';
+import { featureTaboolaAds } from '../../../lib/featureManagement';
 import { isExtension } from '../../../lib/func';
 import {
   getTaboolaLogAd,
@@ -52,7 +52,7 @@ export const FeedWidgetAdSlot = ({
   const { ref: inViewRef, inView } = useInView({ threshold: 0.5 });
   const contentRef = useInertRef<HTMLDivElement>(isEditing);
   const { value: isTaboolaFallback } = useConditionalFeature({
-    feature: featureTaboolaFallback,
+    feature: featureTaboolaAds,
     shouldEvaluate: !isExtension && !!ad?.fallback,
   });
   const isTaboola = !!ad && isTaboolaAd(ad, isTaboolaFallback);

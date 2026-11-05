@@ -352,7 +352,7 @@ export const featureOrganicAds = new Feature('organic_ads', false);
 export const featureForceAd = new Feature('force_ad', false);
 
 // Fills the feed slots the ad server only has a house ad for with Taboola.
-export const featureTaboolaFallback = new Feature('taboola_fallback', false);
+export const featureTaboolaAds = new Feature('taboola_ads', false);
 
 export type ExcoPlayerConfig = {
   /** The EX.CO player the embed script loads. */

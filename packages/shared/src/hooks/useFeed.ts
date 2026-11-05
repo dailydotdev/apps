@@ -50,7 +50,7 @@ import {
   briefFeedEntrypointPage,
   featureFeedAdTemplate,
   featureHeroCards,
-  featureTaboolaFallback,
+  featureTaboolaAds,
 } from '../lib/featureManagement';
 import { useConditionalFeature } from './useConditionalFeature';
 import { useReadingReminderFeedHero } from './notifications/useReadingReminderFeedHero';
@@ -613,7 +613,7 @@ export default function useFeed<T>(
   } = adsQuery;
   // The extension's pages can't load Taboola's remote script.
   const { value: isTaboolaFallback } = useConditionalFeature({
-    feature: featureTaboolaFallback,
+    feature: featureTaboolaAds,
     shouldEvaluate: !isExtension && !!adsData?.pages.some((ad) => ad?.fallback),
   });
 
