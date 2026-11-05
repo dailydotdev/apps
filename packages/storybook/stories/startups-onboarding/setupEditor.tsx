@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useRef } from 'react';
+import classNames from 'classnames';
 import {
   Button,
   ButtonSize,
@@ -84,11 +85,10 @@ export const SetupEditor = ({
 
   return (
     <div
-      className={
-        isPage
-          ? 'flex min-h-dvh w-full flex-col bg-background-default text-text-primary'
-          : 'flex min-h-full w-full flex-col'
-      }
+      className={classNames(
+        'flex w-full flex-col bg-background-default text-text-primary',
+        isPage ? 'min-h-dvh' : 'min-h-full',
+      )}
     >
       <style dangerouslySetInnerHTML={{ __html: EDITOR_STYLES }} />
       <header
