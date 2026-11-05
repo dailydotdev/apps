@@ -1,3 +1,4 @@
+import { MY_CURRENT_PICKS_QUERY } from '@dailydotdev/shared/src/graphql/picks';
 import type { FeedData, Post } from '@dailydotdev/shared/src/graphql/posts';
 import {
   BookmarkSort,
@@ -285,6 +286,45 @@ describe('weekly picks entry point', () => {
     await waitForNock();
     await screen.findByTestId('searchField');
     expect(screen.queryByText('Make your picks')).not.toBeInTheDocument();
+  });
+
+  it('should offer the edit link when the flag is off but the user has picks this week', async () => {
+    useTablet();
+    renderComponent(
+      [
+        createFeedMock(),
+        {
+          request: { query: MY_CURRENT_PICKS_QUERY },
+          result: {
+            data: {
+              myCurrentPicks: {
+                id: 'picks-1',
+                weekStart: '2026-11-02',
+                author: {
+                  id: defaultUser.id,
+                  name: defaultUser.name,
+                  username: defaultUser.username,
+                  image: defaultUser.image,
+                  permalink: '',
+                },
+                items: [],
+              },
+            },
+          },
+        },
+      ],
+      defaultUser,
+      undefined,
+      picksGrowthBook(false),
+    );
+    await waitForNock();
+    const link = await screen.findByRole('link', {
+      name: "Edit this week's picks",
+    });
+    expect(link).toHaveAttribute(
+      'href',
+      expect.stringContaining('picks/new?origin=bookmarks'),
+    );
   });
 
   it('should hide the button when logged out', async () => {

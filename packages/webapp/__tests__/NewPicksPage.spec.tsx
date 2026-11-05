@@ -154,6 +154,22 @@ it('should open for a viewer outside the rollout who came from a picks page', as
   );
 });
 
+it('should open for a user with picks this week when the flag is off', async () => {
+  const current = {
+    id: 'picks-1',
+    weekStart: '2026-11-02',
+    author,
+    items: [{ position: 0, note: null, post: post(2) }],
+  } as Picks;
+  mockData(current, [suggestion(1), suggestion(2)]);
+  renderPage(false);
+  await waitForNock();
+  await waitFor(() => expect(title('Post 2')).toBeTruthy());
+
+  expect(replace).not.toHaveBeenCalled();
+  expect(screen.getByText("Edit this week's picks")).toBeInTheDocument();
+});
+
 it('should render suggestions and log the start with the origin', async () => {
   mockData(null, [suggestion(1), suggestion(2)]);
   renderPage();
