@@ -19,7 +19,6 @@ import {
 export enum Stage {
   Upsell,
   Manage,
-  ManageAfter,
   Account,
   Company,
   Plan,
@@ -86,12 +85,6 @@ export const Flow = ({
             />
           </div>
         );
-      case Stage.ManageAfter:
-        return (
-          <div className="min-h-screen bg-background-default">
-            <ManageProposed plan={plan} ownerId="owner" members={[]} />
-          </div>
-        );
       case Stage.Account:
         return (
           <AccountScreen
@@ -124,13 +117,7 @@ export const Flow = ({
       case Stage.Activating:
         return <ActivatingScreen company={company} plan={plan} />;
       default:
-        return (
-          <SetupScreen
-            company={company}
-            plan={plan}
-            onManage={() => setStage(Stage.ManageAfter)}
-          />
-        );
+        return <SetupScreen company={company} plan={plan} />;
     }
   };
 

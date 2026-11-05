@@ -1670,7 +1670,6 @@ export const SetupScreen = ({
   done = {},
   isFinished,
   isLoading,
-  onManage,
   onRowAction,
   isChecking,
 }: {
@@ -1687,7 +1686,6 @@ export const SetupScreen = ({
   isFinished?: boolean;
   /** The plan is on, and the page's details are still arriving. */
   isLoading?: boolean;
-  onManage?: () => void;
 }): ReactElement => {
   const [added, setAdded] = useState<SetupProgress>(done);
   const shownDone = isFinished ? everythingDone : added;
@@ -1766,17 +1764,12 @@ export const SetupScreen = ({
       )}
       <div className="flex flex-wrap items-center gap-3">
         <Button
-          variant={isFinished ? ButtonVariant.Primary : ButtonVariant.Secondary}
+          variant={isFinished ? ButtonVariant.Primary : ButtonVariant.Subtle}
           icon={<ArrowIcon className="rotate-90" />}
           iconPosition={ButtonIconPosition.Right}
         >
           Open your page
         </Button>
-        {onManage && (
-          <Button variant={ButtonVariant.Tertiary} onClick={onManage}>
-            Go to subscription settings
-          </Button>
-        )}
       </div>
     </Shell>
   );
