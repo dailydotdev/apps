@@ -26,9 +26,7 @@ const SourceActionsNotify = (props: SourceActionsNotifyProps): ReactElement => {
   const label = `${haveNotificationsOn ? 'Disable' : 'Enable'} notifications`;
   const variant =
     variantOverride ??
-    (haveNotificationsOn
-    ? ButtonVariant.Subtle
-    : ButtonVariant.Secondary);
+    (haveNotificationsOn ? ButtonVariant.Subtle : ButtonVariant.Secondary);
 
   return (
     <Tooltip content={label}>
