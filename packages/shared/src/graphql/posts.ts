@@ -365,6 +365,8 @@ export interface Ad {
   backgroundColor?: string;
   data?: { post?: Post; source?: Squad };
   generationId?: string;
+  /** A house ad the ad server serves when no paid campaign won the slot. */
+  fallback?: boolean;
   matchingTags?: string[];
   adDomain?: string;
   companyLogo?: string;

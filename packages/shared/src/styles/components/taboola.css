@@ -1,0 +1,302 @@
+/*
+ * Overrides for Taboola's feed unit (TaboolaAd.tsx). Its stylesheet is
+ * third-party, configured on Taboola's side for a dark page and more specific
+ * than anything scoped to our container, so the overrides use !important.
+ */
+.taboola-feed-ad {
+  & .video-title,
+  & .video-description,
+  & .branding {
+    font-family: theme('fontFamily.sans') !important;
+  }
+
+  & .video-title {
+    color: var(--theme-text-primary) !important;
+  }
+
+  & .video-description {
+    color: var(--theme-text-secondary) !important;
+  }
+
+  & .branding {
+    color: var(--theme-text-tertiary) !important;
+  }
+}
+
+/*
+ * On the grid the item takes our ad card's layout (AdGrid.tsx): the icon, the
+ * title, the attribution at the bottom of the copy, then the creative. Every
+ * wrapper Taboola nests the item in stretches, so the copy takes the height
+ * the row leaves it, like the card's own text container.
+ */
+.taboola-feed-ad--grid {
+  & .trc_related_container,
+  & .trc_rbox_container,
+  & .trc_rbox_container > div,
+  & .trc_rbox,
+  & .trc_rbox_outer,
+  & .trc_rbox_div,
+  & .trc_rbox_div > div,
+  & .videoCube {
+    display: flex !important;
+    flex: 1 1 auto !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  & .trc_rbox_header {
+    display: none !important;
+  }
+
+  /* The icon Taboola draws where our card shows the advertiser's. */
+  & .videoCube::before {
+    flex-shrink: 0;
+    width: 2rem !important;
+    height: 2rem !important;
+    margin: 1rem 1rem 0 !important;
+    border-radius: 100% !important;
+    background-size: cover !important;
+  }
+
+  & .item-label-href {
+    display: flex !important;
+    flex: 1 1 auto !important;
+    flex-direction: column !important;
+    padding: 0 1rem !important;
+  }
+
+  & .video-label-box {
+    display: flex !important;
+    flex: 1 1 auto !important;
+    flex-direction: column !important;
+    height: auto !important;
+    margin: 0.75rem 0 0 !important;
+  }
+
+  /* typo-title3 */
+  & .video-title {
+    display: -webkit-box !important;
+    max-height: none !important;
+    overflow: hidden !important;
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    line-height: 1.625rem !important;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
+
+  & .video-description {
+    display: none !important;
+  }
+
+  /* typo-footnote, as AdAttribution */
+  & .branding {
+    margin: auto 0 0.5rem !important;
+    padding-top: 0.75rem !important;
+    color: var(--theme-text-quaternary) !important;
+    font-size: 0.8125rem !important;
+    font-weight: 400 !important;
+    line-height: 1.125rem !important;
+
+    &::before {
+      content: 'Promoted by ';
+    }
+  }
+
+  /* The creative: CardImage's h-40 and rounded-12, mx-1 inside the card. */
+  & .item-thumbnail-href {
+    display: block !important;
+    margin: 0 0.25rem !important;
+  }
+
+  & .thumbBlock_holder {
+    height: 10rem !important;
+    overflow: hidden !important;
+    border-radius: 0.75rem !important;
+  }
+
+  & .thumbBlock {
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 0.75rem !important;
+    background-size: cover !important;
+    background-position: center !important;
+  }
+
+  & .videoCube_aspect {
+    display: none !important;
+  }
+
+  /* Taboola's own "remove this item" control, in the card's corner. */
+  & .trc_user_exclude_btn {
+    top: 1rem !important;
+    right: 1rem !important;
+  }
+}
+
+/* Under a tip (AdGrid's compact card): two lines of title, then the creative
+ * takes whatever height is left. */
+.taboola-feed-ad--compact {
+  & .video-title {
+    -webkit-line-clamp: 2;
+  }
+
+  & .item-label-href,
+  & .video-label-box {
+    flex: 0 0 auto !important;
+  }
+
+  & .item-thumbnail-href {
+    display: flex !important;
+    flex: 1 1 auto !important;
+    min-height: 5rem;
+    margin: 0 0.25rem 0.25rem !important;
+  }
+
+  & .thumbBlock_holder {
+    flex: 1 1 auto;
+    height: auto !important;
+  }
+}
+
+/*
+ * In a list the item takes AdList's layout: the icon and the attribution in
+ * the header, then the title beside the creative, stacked on narrow screens.
+ * The link wrappers step out of the layout so their parts can sit apart.
+ */
+.taboola-feed-ad--list {
+  & .trc_related_container,
+  & .trc_rbox_container,
+  & .trc_rbox_container > div,
+  & .trc_rbox,
+  & .trc_rbox_outer,
+  & .trc_rbox_div,
+  & .trc_rbox_div > div {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  & .trc_rbox_header,
+  & .video-description {
+    display: none !important;
+  }
+
+  & .videoCube {
+    display: grid !important;
+    grid-template-areas:
+      'icon brand'
+      'title title'
+      'thumb thumb';
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    align-items: center;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+
+    @screen mobileXL {
+      grid-template-areas:
+        'icon brand brand'
+        'title title thumb';
+      grid-template-columns: 2.5rem minmax(0, 1fr) 15rem;
+    }
+  }
+
+  & .videoCube::before {
+    grid-area: icon;
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    margin: 0 !important;
+    border-radius: 100% !important;
+    background-size: cover !important;
+  }
+
+  & .item-label-href,
+  & .video-label-box {
+    display: contents !important;
+  }
+
+  /* typo-footnote, as AdAttribution */
+  & .branding {
+    grid-area: brand;
+    overflow: hidden;
+    margin: 0 0.5rem 0 1rem !important;
+    padding: 0 !important;
+    color: var(--theme-text-quaternary) !important;
+    font-size: 0.8125rem !important;
+    font-weight: 400 !important;
+    line-height: 1.125rem !important;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    &::before {
+      content: 'Promoted by ';
+    }
+  }
+
+  /* typo-title3, under the header's mb-2 and the title's own mt-4 */
+  & .video-title {
+    grid-area: title;
+    display: -webkit-box !important;
+    align-self: start;
+    max-height: none !important;
+    margin: 1.5rem 0 0 !important;
+    overflow: hidden !important;
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    line-height: 1.625rem !important;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+
+    @screen mobileXL {
+      margin-right: 1rem !important;
+    }
+  }
+
+  /* The post cover's box: h-40, full width, w-60 beside the title. */
+  & .item-thumbnail-href {
+    grid-area: thumb;
+    display: block !important;
+    align-self: start;
+    margin: 1rem 0 0 !important;
+
+    @screen mobileXL {
+      margin-top: 1.5rem !important;
+    }
+  }
+
+  & .thumbBlock_holder {
+    width: 100% !important;
+    height: 10rem !important;
+    overflow: hidden !important;
+    border-radius: 0.75rem !important;
+  }
+
+  & .thumbBlock {
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 0.75rem !important;
+    background-size: cover !important;
+    background-position: center !important;
+  }
+
+  & .videoCube_aspect {
+    display: none !important;
+  }
+
+  & .trc_user_exclude_btn {
+    top: 0 !important;
+    right: 0 !important;
+  }
+}

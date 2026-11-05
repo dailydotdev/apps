@@ -37,6 +37,8 @@ import { ActivePostContextProvider } from '../contexts/ActivePostContext';
 import { LogExtraContextProvider } from '../contexts/LogExtraContext';
 import { SquadAdList } from './cards/ad/squad/SquadAdList';
 import { SquadAdGrid } from './cards/ad/squad/SquadAdGrid';
+import { TaboolaAd } from './cards/ad/TaboolaAd';
+import { getTaboolaLogAd } from '../features/monetization/taboola';
 import {
   adLogEvent,
   feedHighlightsLogEvent,
@@ -174,7 +176,11 @@ export const withFeedLogExtraContext = (
           selector={() => {
             const extraData: Record<string, unknown> = {};
 
-            if (item.type === FeedItemType.Ad && item.ad?.generationId) {
+            if (
+              item.type === FeedItemType.Ad &&
+              item.ad?.generationId &&
+              !item.taboolaPlacement
+            ) {
               extraData.gen_id = item.ad.generationId;
             }
 
@@ -470,7 +476,7 @@ function FeedItemComponent({
       const AdComponent = AdTag as React.ForwardRefExoticComponent<
         AdCardProps & React.RefAttributes<Element>
       >;
-      return (
+      const houseAd = (
         <AdComponent
           ref={inViewRef}
           ad={item.ad}
@@ -478,6 +484,23 @@ function FeedItemComponent({
           feedIndex={index}
           onLinkClick={(ad: Ad) => onAdAction(AdActions.Click, ad)}
           onViewable={onAdViewable}
+        />
+      );
+      const { taboolaPlacement } = item;
+
+      if (!taboolaPlacement) {
+        return houseAd;
+      }
+
+      return (
+        <TaboolaAd
+          ref={inViewRef}
+          placement={taboolaPlacement}
+          isList={shouldUseListFeedLayout || shouldUseListMode}
+          fallback={houseAd}
+          onClick={() =>
+            onAdAction(AdActions.Click, getTaboolaLogAd(taboolaPlacement))
+          }
         />
       );
     }

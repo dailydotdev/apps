@@ -1,0 +1,95 @@
+import type * as TaboolaModule from './taboola';
+import type { TaboolaResult } from './taboola';
+import { taboolaQueueKey } from './taboola';
+
+// Fresh per test: the module keeps the loader and page view for the page's
+// lifetime.
+let taboola: typeof TaboolaModule;
+
+beforeEach(async () => {
+  jest.useFakeTimers();
+  jest.resetModules();
+  taboola = await import('./taboola');
+  delete window[taboolaQueueKey];
+  document.head.innerHTML = '';
+  document.body.innerHTML = '';
+});
+
+afterEach(() => jest.useRealTimers());
+
+const createContainer = (placement: number): HTMLElement => {
+  const container = document.createElement('div');
+  container.id = taboola.getTaboolaContainerId(placement);
+  document.body.appendChild(container);
+  return container;
+};
+
+const request = (placement: number) => {
+  const onResult = jest.fn<void, [TaboolaResult]>();
+  const container = createContainer(placement);
+  taboola.requestTaboolaPlacement({ placement, container, onResult });
+  return { container, onResult };
+};
+
+const loadScript = (id: string, event: 'load' | 'error') =>
+  document.getElementById(id)?.dispatchEvent(new Event(event));
+
+const commands = () => window[taboolaQueueKey] ?? [];
+
+it('should batch the placements mounted together into one request', () => {
+  request(1);
+  request(2);
+  jest.runOnlyPendingTimers();
+
+  expect(commands()).toEqual([
+    { homepage: 'auto', url: window.location.href },
+    expect.objectContaining({
+      container: 'taboola-mid-article-thumbnails-1',
+      placement: 'Mid Article Thumbnails 1',
+    }),
+    expect.objectContaining({
+      container: 'taboola-mid-article-thumbnails-2',
+      placement: 'Mid Article Thumbnails 2',
+    }),
+    { flush: true },
+  ]);
+  expect(document.querySelectorAll('script')).toHaveLength(1);
+});
+
+it('should report a placement filled as soon as Taboola draws its item', async () => {
+  const { container, onResult } = request(1);
+  jest.runOnlyPendingTimers();
+  container.innerHTML = '<div class="videoCube"></div>';
+  await Promise.resolve();
+
+  expect(onResult).toHaveBeenCalledWith('filled');
+});
+
+it('should report a placement empty once the loaded Taboola left it empty', async () => {
+  const { onResult } = request(1);
+  jest.runOnlyPendingTimers();
+  loadScript('tb_loader_script', 'load');
+  await jest.advanceTimersByTimeAsync(3_000);
+  expect(onResult).not.toHaveBeenCalled();
+
+  await jest.advanceTimersByTimeAsync(1_000);
+  expect(onResult).toHaveBeenCalledWith('empty');
+});
+
+it('should start a new page view when a container comes back on the same URL', () => {
+  request(1).container.remove();
+  jest.runOnlyPendingTimers();
+  request(1);
+
+  expect(commands()).toContainEqual({ notify: 'newPageLoad' });
+});
+
+it('should fall back when neither loader can load', async () => {
+  const { onResult } = request(1);
+  jest.runOnlyPendingTimers();
+  loadScript('tb_loader_script', 'error');
+  loadScript('tb_loader_script_fb', 'error');
+  await jest.runAllTimersAsync();
+
+  expect(onResult).toHaveBeenCalledWith('empty');
+});
