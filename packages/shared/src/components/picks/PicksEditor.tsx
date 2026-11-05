@@ -4,18 +4,16 @@ import Link from '../utilities/Link';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { PickRow } from './PickRow';
 import { PICKS_MAX_ITEMS, getPicksPath } from '../../graphql/picks';
-import type { Origin } from '../../lib/log';
 import {
   PICKS_LIMIT_HINT,
   usePicksEditor,
 } from '../../hooks/picks/usePicksEditor';
+import type { UsePicksEditorParams } from '../../hooks/picks/usePicksEditor';
 
-interface PicksEditorProps {
-  origin?: Origin;
-}
+export type PicksEditorProps = UsePicksEditorParams;
 
-export function PicksEditor({ origin }: PicksEditorProps): ReactElement | null {
-  const editor = usePicksEditor({ origin });
+export function PicksEditor(props: PicksEditorProps): ReactElement | null {
+  const editor = usePicksEditor(props);
   const { selectedIds, isEdit, currentPicks } = editor;
 
   if (editor.isLoading) {
@@ -103,6 +101,7 @@ export function PicksEditor({ origin }: PicksEditorProps): ReactElement | null {
             row={row}
             selected={editor.isSelected(row.post.id)}
             note={editor.notes[row.post.id] ?? ''}
+            autoFocusNote={row.post.id === editor.focusNotePostId}
             onToggle={editor.toggle}
             onNoteChange={editor.setNote}
             onNoteBlur={editor.commitNote}

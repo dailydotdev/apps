@@ -12,7 +12,13 @@ export const PICKS_MAX_ITEMS = 5;
 export const PICKS_NOTE_MAX_LENGTH = 140;
 export const PICKS_SUGGESTIONS_MAX = 15;
 
-export type PicksSuggestionReason = 'upvoted' | 'bookmarked' | 'read';
+export type PicksSuggestionReason =
+  | 'upvoted'
+  | 'bookmarked'
+  | 'read'
+  // filled in for a viewer with little history of their own
+  | 'from_picks'
+  | 'popular';
 
 export interface PicksPost {
   id: string;
@@ -130,8 +136,8 @@ export const MY_CURRENT_PICKS_QUERY = gql`
 `;
 
 export const PICKS_SUGGESTIONS_QUERY = gql`
-  query PicksSuggestions {
-    picksSuggestions {
+  query PicksSuggestions($fromPicksId: ID) {
+    picksSuggestions(fromPicksId: $fromPicksId) {
       reason
       upvoted
       bookmarked
@@ -173,6 +179,26 @@ export const INTEGRATION_SHARE_PICKS_MUTATION = gql`
 
 export const getPicksPath = (id: string): string => `/picks/${id}`;
 
+export interface NewPicksParams {
+  origin?: string;
+  /** The picks page the user came from; fills an empty picker */
+  from?: string;
+  /** A post from that page to preselect */
+  add?: string;
+}
+
+export const getNewPicksPath = (params: NewPicksParams = {}): string => {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value) {
+      query.set(key, value);
+    }
+  });
+  const queryString = query.toString();
+
+  return `/picks/new${queryString ? `?${queryString}` : ''}`;
+};
+
 /** Public read, works logged out. Null means the id is unknown. */
 export const picksQueryOptions = (id: string) => ({
   queryKey: generateQueryKey(RequestKey.Picks, undefined, id),
@@ -197,12 +223,18 @@ export const myCurrentPicksQueryOptions = (user?: Pick<LoggedUser, 'id'>) => ({
 
 export const picksSuggestionsQueryOptions = (
   user?: Pick<LoggedUser, 'id'>,
+  fromPicksId?: string,
 ) => ({
-  queryKey: generateQueryKey(RequestKey.Picks, user, 'suggestions'),
+  queryKey: generateQueryKey(
+    RequestKey.Picks,
+    user,
+    'suggestions',
+    fromPicksId ?? null,
+  ),
   queryFn: async (): Promise<PicksSuggestion[]> => {
     const data = await gqlClient.request<{
       picksSuggestions: PicksSuggestion[];
-    }>(PICKS_SUGGESTIONS_QUERY);
+    }>(PICKS_SUGGESTIONS_QUERY, fromPicksId ? { fromPicksId } : undefined);
     return data.picksSuggestions ?? [];
   },
   enabled: !!user?.id,

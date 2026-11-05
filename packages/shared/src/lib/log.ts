@@ -512,6 +512,7 @@ export enum LogEvent {
   ViewPicksPage = 'view picks page',
   ClickPickPost = 'click pick post',
   ClickMakeYourPicks = 'click make your picks',
+  ClickAddToPicks = 'click add to picks',
   // End Weekly picks
   // The creator copied a link to, or downloaded the card of, one of their
   // achievements. Records the action, not that anything was posted anywhere.
