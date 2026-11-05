@@ -9,12 +9,6 @@ import {
 import CloseButton from '../../../../components/CloseButton';
 import { VIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
-import {
-  Typography,
-  TypographyColor,
-  TypographyTag,
-  TypographyType,
-} from '../../../../components/typography/Typography';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
 import usePersistentContext from '../../../../hooks/usePersistentContext';
@@ -89,10 +83,10 @@ export const SquadPlanUpsellWidget = (): ReactElement | null => {
 
   return (
     <section
-      className="relative flex w-full flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4"
+      className="relative flex w-full flex-col gap-5 rounded-16 border border-border-subtlest-tertiary p-4"
       style={{
         background:
-          'linear-gradient(180deg, color-mix(in srgb, var(--theme-accent-cabbage-default) 10%, transparent), transparent 55%)',
+          'linear-gradient(180deg, color-mix(in srgb, var(--theme-accent-cabbage-default) 9%, transparent), transparent 120px)',
       }}
     >
       <CloseButton
@@ -107,18 +101,15 @@ export const SquadPlanUpsellWidget = (): ReactElement | null => {
           });
         }}
       />
-      <div className="flex flex-col gap-1 pr-8">
-        <Typography tag={TypographyTag.H2} type={TypographyType.Callout} bold>
+      <div className="flex flex-col gap-1 pr-6">
+        <h2 className="text-balance font-bold typo-callout">
           {`Make ${squad.name} your company page`}
-        </Typography>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
+        </h2>
+        <p className="text-text-secondary typo-footnote">
           {`From ${prices[SquadPlan.Starter]} a month, with up to ${
             SQUAD_PLAN_CASHBACK_PERCENTAGE[SquadPlan.Team]
           }% back to boost your posts.`}
-        </Typography>
+        </p>
       </div>
       <ul className="flex flex-col gap-2">
         {benefits.map((benefit) => (
@@ -128,9 +119,9 @@ export const SquadPlanUpsellWidget = (): ReactElement | null => {
           >
             <VIcon
               size={IconSize.Size16}
-              className="mt-0.5 shrink-0 text-accent-cabbage-default"
+              className="shrink-0 text-accent-cabbage-default"
             />
-            {benefit}
+            <span className="min-w-0 flex-1">{benefit}</span>
           </li>
         ))}
       </ul>

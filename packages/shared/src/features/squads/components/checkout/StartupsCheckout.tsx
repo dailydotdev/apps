@@ -1,5 +1,11 @@
 import type { FormEvent, MutableRefObject, ReactElement } from 'react';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -62,7 +68,10 @@ import {
   startupsSetupRowTitles,
   useStartupsSetupProgress,
 } from '../setup/StartupsSetup';
-import { StartupsPagePreview } from '../setup/StartupsPagePreview';
+import {
+  StartupsPagePreview,
+  StartupsStageSurface,
+} from '../setup/StartupsPagePreview';
 import type { StartupsSetupRow } from '../setup/StartupsSetupEditor';
 import { StartupsSetupEditor } from '../setup/StartupsSetupEditor';
 import type { CheckoutBack } from './CheckoutShell';
@@ -73,6 +82,7 @@ import {
   CheckoutStage,
   CheckoutTitle,
 } from './CheckoutShell';
+import { startupsCrewCheerImage } from './StartupsCrewOnBase';
 import { StartupsNameStunt } from './StartupsNameStunt';
 import { StartupsSignupPanel } from './StartupsSignupPanel';
 
@@ -96,28 +106,36 @@ type CompanyChoice = Partial<Squad> &
     id: string;
   };
 
-const AUTH_STYLES = `
-.startups-auth .px-6 { padding-inline: 0; }
-.startups-auth [role="list"] { gap: 12px; }
-.startups-auth [role="list"] svg { width: 20px; height: 20px; }
-@media (min-width: 1020px) {
-  .startups-auth h2, .startups-auth > p, .startups-auth p.text-center { text-align: left; }
-  .startups-auth h2 { font-size: 2.125rem; line-height: 2.5rem; letter-spacing: -0.02em; }
-  .startups-auth:has(.items-center) h2 { text-align: center; }
-}
-`;
-
 const signupProviders = [providerMap.github, providerMap.google];
+
+// Where each screen's back goes
+const backLabels: Partial<Record<string, string>> = {
+  [AuthDisplay.Default]: 'Other options',
+  [AuthDisplay.Registration]: 'Other options',
+  [AuthDisplay.EmailVerification]: 'Change email',
+  [AuthDisplay.ForgotPassword]: 'Back to log in',
+};
 
 /**
  * A visitor from the landing page signs up right here, then the page starts
  * the checkout for them: no feed onboarding in between.
  */
-const AccountStep = (): ReactElement => {
-  const [display, setDisplay] = useState<string>(AuthDisplay.Default);
+const AccountStep = ({
+  initialDisplay = AuthDisplay.Default,
+  initialEmail,
+}: {
+  initialDisplay?: AuthDisplay;
+  initialEmail?: string;
+}): ReactElement => {
+  const [display, setDisplay] = useState<string>(initialDisplay);
+  const [isLogIn, setIsLogIn] = useState(false);
   const [onScreenBack, setOnScreenBack] = useState<() => void>();
+  const onScreenBackChange = useCallback(
+    (next?: () => void) => setOnScreenBack(() => next),
+    [],
+  );
   const back: CheckoutBack | undefined = onScreenBack && {
-    label: 'Go back',
+    label: backLabels[display] ?? 'Back',
     onClick: onScreenBack,
   };
 
@@ -125,11 +143,10 @@ const AccountStep = (): ReactElement => {
     <CheckoutShell
       current={CheckoutStage.Account}
       aside={<StartupsSignupPanel />}
-      isPhoneWall={display === AuthDisplay.Default && !onScreenBack}
+      isPhoneWall={display === AuthDisplay.Default && !back && !isLogIn}
       phoneBack={back}
     >
-      <style dangerouslySetInnerHTML={{ __html: AUTH_STYLES }} />
-      {back && (
+      {back && display !== AuthDisplay.EmailVerification && (
         <div
           className="relative hidden w-full laptop:block"
           style={{ height: 0, marginBottom: -24 }}
@@ -142,17 +159,18 @@ const AccountStep = (): ReactElement => {
             icon={<MoveToIcon size={IconSize.Size16} className="rotate-180" />}
             onClick={back.onClick}
           >
-            Back
+            {back.label}
           </Button>
         </div>
       )}
-      <div className="startups-auth flex flex-col">
+      <div className="flex flex-col">
         <AuthOptions
           formRef={null as unknown as MutableRefObject<HTMLFormElement>}
           trigger={AuthTriggers.StartupsCheckout}
           simplified
           preferGithub
-          defaultDisplay={AuthDisplay.Default}
+          defaultDisplay={initialDisplay}
+          initialEmail={initialEmail}
           isLoginFlow={false}
           hideRegistrationHeadline
           signUpTitle="Create your account"
@@ -161,7 +179,8 @@ const AccountStep = (): ReactElement => {
           logInDescription="Log in, then pick the page this plan is for."
           signupProviders={signupProviders}
           onDisplayChange={setDisplay}
-          onScreenBackChange={(next) => setOnScreenBack(() => next)}
+          onScreenBackChange={onScreenBackChange}
+          onLogInChange={setIsLogIn}
         />
       </div>
     </CheckoutShell>
@@ -312,10 +331,13 @@ const CompanyStep = ({
             ))}
           </div>
         )}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1">
           {/* Always here, so choosing to create one moves nothing. */}
           <div onFocusCapture={() => onSelect(null)}>
             <TextField
+              // Pages can arrive after the first render: keep the focus off it
+              key={hasPages ? 'new-page' : 'first-page'}
+              value={name}
               autoFocus={!hasPages}
               inputId="startups-company-name"
               name="name"
@@ -328,33 +350,35 @@ const CompanyStep = ({
               hint={getHint()}
             />
           </div>
-          {activePlan ? (
-            <CheckoutCta>
-              <Button
-                tag="a"
-                href={getSquadManageUrl(
-                  selected.handle,
-                  SquadManageSection.Plan,
-                )}
-                variant={ButtonVariant.Primary}
-                className="flex-1"
-              >
-                Manage subscription
-              </Button>
-            </CheckoutCta>
-          ) : (
-            <CheckoutCta>
-              <Button
-                type="submit"
-                variant={ButtonVariant.Primary}
-                className="flex-1"
-                loading={isBusy || (!!selected && isFetching)}
-                disabled={isBusy || (!!selected && isFetching)}
-              >
-                Continue
-              </Button>
-            </CheckoutCta>
-          )}
+          <div className="mt-2">
+            {activePlan ? (
+              <CheckoutCta>
+                <Button
+                  tag="a"
+                  href={getSquadManageUrl(
+                    selected.handle,
+                    SquadManageSection.Plan,
+                  )}
+                  variant={ButtonVariant.Primary}
+                  className="flex-1"
+                >
+                  Manage subscription
+                </Button>
+              </CheckoutCta>
+            ) : (
+              <CheckoutCta>
+                <Button
+                  type="submit"
+                  variant={ButtonVariant.Primary}
+                  className="flex-1"
+                  loading={isBusy || (!!selected && isFetching)}
+                  disabled={isBusy || (!!selected && isFetching)}
+                >
+                  Continue
+                </Button>
+              </CheckoutCta>
+            )}
+          </div>
         </div>
       </form>
     </CheckoutShell>
@@ -455,10 +479,12 @@ const SummaryRow = ({
   label,
   value,
   isBold,
+  isMuted,
 }: {
   label: string;
   value: string;
   isBold?: boolean;
+  isMuted?: boolean;
 }): ReactElement => (
   <div
     className={classNames(
@@ -467,14 +493,7 @@ const SummaryRow = ({
     )}
   >
     <dt className={isBold ? undefined : 'text-text-secondary'}>{label}</dt>
-    <dd
-      className={classNames(
-        'text-right tabular-nums',
-        !isBold && 'text-text-tertiary',
-      )}
-    >
-      {value}
-    </dd>
+    <dd className={isMuted ? 'text-text-tertiary' : 'tabular-nums'}>{value}</dd>
   </div>
 );
 
@@ -524,13 +543,11 @@ const PaymentPanel = ({
   }, [isPaddleReady]);
 
   return (
-    <div className="flex min-h-full w-full flex-col gap-6 p-5 laptop:p-6">
+    <StartupsStageSurface className="flex min-h-full w-full flex-col gap-6 p-2 laptop:p-6">
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <h2 className="font-bold typo-title2">Payment</h2>
-          <p className="truncate text-text-secondary typo-callout">
-            {company.name}
-          </p>
+          <p className="text-text-secondary typo-callout">{company.name}</p>
         </div>
         <Button
           className="laptop:hidden"
@@ -549,8 +566,13 @@ const PaymentPanel = ({
         <SummaryRow
           label="Includes"
           value={`${seats} ${seats === 1 ? 'seat' : 'seats'}, ${SQUAD_PLAN_CASHBACK_PERCENTAGE[plan]}% cashback`}
+          isMuted
         />
-        <SummaryRow label="Tax" value="Added by Paddle for your country" />
+        <SummaryRow
+          label="Tax"
+          value="Added by Paddle for your country"
+          isMuted
+        />
         <SummaryRow label="Due today" value={price} isBold />
         <p className="text-text-tertiary typo-footnote">
           Renews every month. Cancel any time, your page and posts stay.
@@ -570,7 +592,7 @@ const PaymentPanel = ({
           }}
         />
       ) : (
-        <div className="relative flex-1" style={{ minHeight: '31.25rem' }}>
+        <div className="relative flex-1" style={{ minHeight: '28rem' }}>
           {!isPaddleReady && (
             <div className="absolute inset-0 flex flex-col gap-3" aria-busy>
               <div className="grid grid-cols-2 gap-2">
@@ -579,13 +601,14 @@ const PaymentPanel = ({
               </div>
               <CheckoutSkeleton className="h-14 rounded-10" />
               <CheckoutSkeleton className="h-14 rounded-10" />
+              <span className="flex-1" />
               <CheckoutSkeleton className="h-12 rounded-14" />
             </div>
           )}
           <div className="checkout-container relative min-w-0" />
         </div>
       )}
-    </div>
+    </StartupsStageSurface>
   );
 };
 
@@ -612,24 +635,31 @@ const PlanStep = ({
   const prices = useSquadPlanPrices();
   const logStartups = useLogStartups();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const payment = (
+    <PaymentPanel
+      company={company}
+      plan={plan}
+      price={prices[plan]}
+      onChangePlan={onChoose}
+      onPaid={onPaid}
+    />
+  );
+
+  // On a phone, paying is a screen of its own under the same logo and stepper.
+  if (!isLaptop && isPaying) {
+    return (
+      <CheckoutShell current={CheckoutStage.Plan} answers={answers} isTall>
+        <div style={{ paddingTop: 24 }}>{payment}</div>
+      </CheckoutShell>
+    );
+  }
 
   return (
     <CheckoutShell
       current={CheckoutStage.Plan}
       answers={answers}
       isTall
-      isAsideOnPhone={isPaying}
-      aside={
-        (isLaptop || isPaying) && (
-          <PaymentPanel
-            company={company}
-            plan={plan}
-            price={prices[plan]}
-            onChangePlan={onChoose}
-            onPaid={onPaid}
-          />
-        )
-      }
+      aside={isLaptop && payment}
     >
       <CheckoutTitle
         title={`Choose a plan for ${company.name}`}
@@ -728,6 +758,15 @@ const SetupStep = ({
     squad,
     plan,
   );
+  const preview = (
+    <StartupsPagePreview
+      squad={squad}
+      isTeam={plan === SquadPlan.Team}
+      product={product}
+      cta={cta}
+      hasSeats={done.seats}
+    />
+  );
 
   // On a phone the settings cover this screen, so coming back lands at the same
   // place in the checklist.
@@ -761,17 +800,7 @@ const SetupStep = ({
           answers={answers}
           isComplete={isComplete}
           isTall
-          aside={
-            editor || (
-              <StartupsPagePreview
-                squad={squad}
-                isTeam={plan === SquadPlan.Team}
-                product={product}
-                cta={cta}
-                hasSeats={done.seats}
-              />
-            )
-          }
+          aside={isLaptop && (editor || preview)}
         >
           <CheckoutTitle
             title={
@@ -785,6 +814,13 @@ const SetupStep = ({
                 : 'Your page is live. Set it up with your agent, or yourself.'
             }
           />
+          {isComplete && (
+            <img
+              src={startupsCrewCheerImage}
+              alt=""
+              className="h-24 self-start object-contain"
+            />
+          )}
           {!isComplete && (
             <StartupsSetup
               squad={squad}
@@ -806,9 +842,70 @@ const SetupStep = ({
           >
             Open your page
           </Button>
+          {!isLaptop && <div className="p-2 pb-4">{preview}</div>}
         </CheckoutShell>
       </div>
     </>
+  );
+};
+
+/** The plan is on, and the page's details are still arriving. */
+const SetupLoading = ({
+  company,
+  plan,
+  answers,
+  pageUrl,
+}: {
+  company: CompanyChoice;
+  plan: SquadPlan;
+  answers: Partial<Record<CheckoutStage, string>>;
+  pageUrl: string;
+}): ReactElement => {
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const preview = (
+    <StartupsPagePreview
+      squad={company as Squad}
+      isTeam={plan === SquadPlan.Team}
+    />
+  );
+
+  return (
+    <CheckoutShell
+      current={CheckoutStage.Setup}
+      answers={answers}
+      isTall
+      aside={isLaptop && preview}
+    >
+      <CheckoutTitle
+        title={`You're in. ${company.name} is on ${squadPlanDetails[plan].title}.`}
+        description="Your page is live. Set it up with your agent, or yourself."
+      />
+      <div className="flex flex-col gap-5" aria-busy>
+        <CheckoutSkeleton className="h-11 rounded-14" />
+        <div className="flex flex-col gap-4">
+          {[0, 1, 2, 3].map((row) => (
+            <div key={row} className="flex items-center gap-3">
+              <CheckoutSkeleton className="size-6 rounded-full" />
+              <div className="flex min-w-0 flex-1 flex-col gap-2">
+                <CheckoutSkeleton className="h-4 w-1/2 rounded-6" />
+                <CheckoutSkeleton className="h-3 w-5/6 rounded-6" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <Button
+        tag="a"
+        href={pageUrl}
+        variant={ButtonVariant.Subtle}
+        className="self-start"
+        icon={<OpenLinkIcon size={IconSize.Size16} />}
+        iconPosition={ButtonIconPosition.Right}
+      >
+        Open your page
+      </Button>
+      {!isLaptop && <div className="p-2 pb-4">{preview}</div>}
+    </CheckoutShell>
   );
 };
 
@@ -881,6 +978,17 @@ const DoneStep = ({
     );
   }
 
+  if (isActive) {
+    return (
+      <SetupLoading
+        company={company}
+        plan={plan}
+        answers={answers}
+        pageUrl={pageUrl}
+      />
+    );
+  }
+
   return (
     <CheckoutShell
       current={CheckoutStage.Setup}
@@ -926,6 +1034,10 @@ interface StartupsCheckoutProps {
   initialStep?: StartupsCheckoutStep;
   /** Pins the company, for stories */
   initialCompany?: CompanyChoice;
+  /** Pins the account step's screen, for stories */
+  initialAuthDisplay?: AuthDisplay;
+  /** Pins the account step's email, for stories */
+  initialAuthEmail?: string;
 }
 
 export const StartupsCheckout = ({
@@ -933,6 +1045,8 @@ export const StartupsCheckout = ({
   initialSquadId,
   initialStep = StartupsCheckoutStep.Company,
   initialCompany,
+  initialAuthDisplay,
+  initialAuthEmail,
 }: StartupsCheckoutProps): ReactElement => {
   const { squads } = useAuthContext();
   const adminSquads = useMemo<CompanyChoice[]>(
@@ -988,7 +1102,12 @@ export const StartupsCheckout = ({
   }, [step]);
 
   if (step === StartupsCheckoutStep.Account) {
-    return <AccountStep />;
+    return (
+      <AccountStep
+        initialDisplay={initialAuthDisplay}
+        initialEmail={initialAuthEmail}
+      />
+    );
   }
 
   if (

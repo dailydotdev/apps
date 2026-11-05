@@ -1,30 +1,22 @@
-import type { ReactElement } from 'react';
-import React from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useState } from 'react';
+import classNames from 'classnames';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { ApiErrorResult } from '../../../../graphql/common';
 import {
   Button,
-  ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import { CoreIcon, OpenLinkIcon } from '../../../../components/icons';
+import { CoreIcon, OpenLinkIcon, VIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
-import {
-  Typography,
-  TypographyColor,
-  TypographyTag,
-  TypographyType,
-} from '../../../../components/typography/Typography';
-import { HorizontalSeparator } from '../../../../components/utilities/common';
 import {
   ProfileImageSize,
   ProfilePicture,
 } from '../../../../components/ProfilePicture';
 import { useAuthContext } from '../../../../contexts/AuthContext';
-import { useToastNotification } from '../../../../hooks/useToastNotification';
+import { useSquadInvitation } from '../../../../hooks/useSquadInvitation';
 import { SourceMemberRole } from '../../../../graphql/sources';
-import type { ApiErrorResult } from '../../../../graphql/common';
-import { DEFAULT_ERROR } from '../../../../graphql/common';
 import type {
   SquadSeatMember,
   SquadSubscription,
@@ -42,6 +34,7 @@ import { useSquadPageContext } from '../../SquadPageContext';
 import { getSquadId } from '../../lib/features';
 import { getStartupsCheckoutUrl, SquadManageSection } from '../../lib/routes';
 import {
+  SQUAD_PLAN_CASHBACK_PERCENTAGE,
   SquadPlan,
   squadPlanDetails,
   squadPlans,
@@ -49,9 +42,12 @@ import {
 } from '../../lib/plans';
 import { useSquadPlanPrices } from '../../hooks/useSquadPlanPrices';
 import { useLogStartups } from '../../hooks/useLogStartups';
-import { SquadPlanCard, SquadPlanPrice } from '../checkout/SquadPlanCard';
 import { SquadManageSectionPanel } from './SquadManageLayout';
-import { StartupsSetup } from '../setup/StartupsSetup';
+import {
+  StartupsSetup,
+  StartupsSetupPath,
+  useStartupsSetupProgress,
+} from '../setup/StartupsSetup';
 import {
   CharmEmptyState,
   CharmEmptyStatePlacement,
@@ -64,6 +60,9 @@ const roleLabel: Partial<Record<SourceMemberRole, string>> = {
   [SourceMemberRole.Moderator]: 'Moderator',
 };
 
+const PREMIUM_WASH =
+  'linear-gradient(180deg, color-mix(in srgb, var(--theme-accent-cabbage-default) 9%, transparent), transparent 120px)';
+
 const SectionTitle = ({
   title,
   description,
@@ -72,19 +71,86 @@ const SectionTitle = ({
   description?: string;
 }): ReactElement => (
   <div className="flex flex-col gap-1">
-    <Typography tag={TypographyTag.H2} type={TypographyType.Body} bold>
-      {title}
-    </Typography>
+    <h2 className="font-bold typo-title3">{title}</h2>
     {description && (
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Tertiary}
-      >
+      <p className="text-pretty text-text-tertiary typo-footnote">
         {description}
-      </Typography>
+      </p>
     )}
   </div>
 );
+
+const SectionSkeleton = ({
+  className,
+}: {
+  className?: string;
+}): ReactElement => (
+  <ElementPlaceholder
+    aria-hidden
+    className={classNames('shrink-0 animate-pulse', className)}
+  />
+);
+
+const PlanChoice = ({
+  plan,
+  price,
+  action,
+}: {
+  plan: SquadPlan;
+  price: string;
+  action?: ReactNode;
+}): ReactElement => {
+  const { title, tagline, featuresTitle, features } = squadPlanDetails[plan];
+  const isRecommended = plan === SquadPlan.Starter;
+
+  return (
+    <div
+      className="flex flex-col gap-3 rounded-16 border p-4"
+      style={{
+        borderColor: isRecommended
+          ? 'var(--theme-accent-cabbage-default)'
+          : 'var(--theme-border-subtlest-tertiary)',
+        background: isRecommended ? PREMIUM_WASH : undefined,
+      }}
+    >
+      <span className="flex flex-wrap items-center gap-2">
+        <span className="font-bold typo-title3">{title}</span>
+        {isRecommended && (
+          <span className="rounded-8 bg-accent-cabbage-flat px-2 py-0.5 font-bold text-accent-cabbage-default typo-caption1">
+            Recommended
+          </span>
+        )}
+      </span>
+      <span>
+        <span className="font-bold tabular-nums typo-title2">{price}</span>
+        <span className="text-text-tertiary typo-footnote"> / month</span>
+      </span>
+      <span className="flex items-center gap-1.5 text-text-secondary typo-footnote">
+        <CoreIcon size={IconSize.Size16} className="shrink-0" />
+        {`${SQUAD_PLAN_CASHBACK_PERCENTAGE[plan]}% cashback to boost your posts`}
+      </span>
+      <span className="text-text-tertiary typo-footnote">{tagline}</span>
+      <ul className="flex flex-col gap-1.5 border-t border-border-subtlest-tertiary pt-3">
+        <li className="font-bold text-text-tertiary typo-footnote">
+          {featuresTitle}
+        </li>
+        {features.map((feature) => (
+          <li
+            key={feature}
+            className="flex items-start gap-2 text-text-secondary typo-footnote"
+          >
+            <VIcon
+              size={IconSize.Size16}
+              className="shrink-0 text-accent-avocado-default"
+            />
+            <span className="min-w-0 flex-1">{feature}</span>
+          </li>
+        ))}
+      </ul>
+      {action}
+    </div>
+  );
+};
 
 const ChoosePlan = ({ isAdmin }: { isAdmin: boolean }): ReactElement => {
   const { squad } = useSquadPageContext();
@@ -98,18 +164,17 @@ const ChoosePlan = ({ isAdmin }: { isAdmin: boolean }): ReactElement => {
     });
 
   return (
-    <>
+    <div className="flex flex-col gap-5">
       <SectionTitle
         title="Make it your company page"
-        description={`A plan turns ${squad.name} into a company page in the feed and search, cited by AI answers, that lets your agent post and boost through the API.`}
+        description="In the feed and search, cited by AI answers, and your agent posts and boosts through the API."
       />
-      <div className="grid gap-4 tablet:grid-cols-2">
+      <div className="grid gap-3 tablet:grid-cols-2">
         {squadPlans.map((plan) => (
-          <SquadPlanCard
+          <PlanChoice
             key={plan}
             plan={plan}
             price={prices[plan]}
-            badge={plan === SquadPlan.Starter ? 'Recommended' : undefined}
             action={
               isAdmin && (
                 <Button
@@ -121,7 +186,7 @@ const ChoosePlan = ({ isAdmin }: { isAdmin: boolean }): ReactElement => {
                       ? ButtonVariant.Primary
                       : ButtonVariant.Secondary
                   }
-                  className="w-full"
+                  className="mt-auto w-full"
                 >
                   {`Choose ${squadPlanDetails[plan].title}`}
                 </Button>
@@ -131,24 +196,16 @@ const ChoosePlan = ({ isAdmin }: { isAdmin: boolean }): ReactElement => {
         ))}
       </div>
       {!isAdmin && (
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
+        <p className="text-text-secondary typo-footnote">
           Only an admin of this Squad can choose a plan.
-        </Typography>
+        </p>
       )}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
-        <div className="flex min-w-0 flex-col gap-1">
-          <Typography type={TypographyType.Callout} bold>
-            Enterprise
-          </Typography>
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-          >
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <p className="font-bold typo-callout">Enterprise</p>
+          <p className="text-text-tertiary typo-footnote">
             Verified badge, homepage placement, campaigns and an account team.
-          </Typography>
+          </p>
         </div>
         <Button
           tag="a"
@@ -159,12 +216,11 @@ const ChoosePlan = ({ isAdmin }: { isAdmin: boolean }): ReactElement => {
           variant={ButtonVariant.Float}
           size={ButtonSize.Small}
           icon={<OpenLinkIcon />}
-          iconPosition={ButtonIconPosition.Right}
         >
           Talk to our team
         </Button>
       </div>
-    </>
+    </div>
   );
 };
 
@@ -180,12 +236,11 @@ const SeatRow = ({
   const { squad } = useSquadPageContext();
   const { user } = useAuthContext();
   const client = useQueryClient();
-  const { displayToast } = useToastNotification();
   const sourceId = getSquadId(squad);
   const isOwner = member.user.id === subscription.ownerId;
   const isFull = subscription.seatsUsed >= subscription.seatLimit;
   const logStartups = useLogStartups();
-  const { mutate, isPending } = useMutation({
+  const { mutate, isPending, isError, error } = useMutation({
     mutationFn: () =>
       setSquadSeat({ sourceId, userId: member.user.id, seat: !member.seat }),
     onSuccess: () => {
@@ -201,19 +256,15 @@ const SeatRow = ({
         queryKey: squadSeatMembersQueryOptions({ user, sourceId }).queryKey,
       });
     },
-    onError: (error: ApiErrorResult) =>
-      displayToast(error?.response?.errors?.[0]?.message ?? DEFAULT_ERROR),
   });
+  const role = roleLabel[member.role];
 
   const renderAction = (): ReactElement | null => {
     if (isOwner) {
       return (
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
+        <span className="text-text-tertiary typo-footnote">
           Pays for the plan
-        </Typography>
+        </span>
       );
     }
 
@@ -235,33 +286,50 @@ const SeatRow = ({
   };
 
   return (
-    <li className="flex items-center gap-3 py-2">
+    <li className="flex items-center gap-3 border-t border-border-subtlest-tertiary py-3 first:border-t-0">
       <ProfilePicture user={member.user} size={ProfileImageSize.Large} />
       <span className="flex min-w-0 flex-1 flex-col">
-        <Typography type={TypographyType.Callout} bold truncate>
-          {member.user.name}
-        </Typography>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-          truncate
-        >
-          {[roleLabel[member.role], member.seat ? 'Seat' : 'No seat']
-            .filter(Boolean)
-            .join(' · ')}
-        </Typography>
+        <span className="font-bold typo-callout">{member.user.name}</span>
+        <span className="text-text-tertiary typo-footnote">
+          {role
+            ? `${role} · ${member.seat ? 'Seat' : 'No seat'}`
+            : 'No longer on the team, still holds a seat'}
+        </span>
+        {isError && (
+          <span role="alert" className="text-status-error typo-footnote">
+            {(error as unknown as ApiErrorResult)?.response?.errors?.[0]
+              ?.message ?? "That didn't save. Try again."}
+          </span>
+        )}
       </span>
       {renderAction()}
     </li>
   );
 };
 
-const seatsLeftCopy = (left: number): string => {
+const SeatRowsLoading = (): ReactElement => (
+  <ul className="flex flex-col gap-4" aria-busy>
+    {[0, 1, 2].map((row) => (
+      <li key={row} className="flex items-center gap-3">
+        <SectionSkeleton className="size-10 rounded-full" />
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
+          <SectionSkeleton className="h-4 w-1/3 rounded-6" />
+          <SectionSkeleton className="h-3 w-1/4 rounded-6" />
+        </div>
+        <SectionSkeleton className="h-8 w-24 rounded-10" />
+      </li>
+    ))}
+  </ul>
+);
+
+const getSeatsCopy = (left: number): string => {
   if (left <= 0) {
-    return 'Every seat is taken.';
+    return 'Seats can post and boost through the API. Every seat is taken, so remove one to give it to someone else.';
   }
 
-  return left === 1 ? '1 seat left.' : `${left} seats left.`;
+  return `Seats can post and boost through the API. Give them to the admins and moderators who run the page. ${
+    left === 1 ? '1 seat left.' : `${left} seats left.`
+  }`;
 };
 
 /** Who holds a seat. Also opened on its own from the onboarding's checklist. */
@@ -274,29 +342,97 @@ export const SquadManageSeats = ({
 }): ReactElement => {
   const { squad } = useSquadPageContext();
   const { user } = useAuthContext();
-  const { data: members } = useQuery(
+  const { data: members, isPending } = useQuery(
     squadSeatMembersQueryOptions({ user, sourceId: getSquadId(squad) }),
   );
+  const { copying, logAndCopyLink } = useSquadInvitation({
+    squad,
+    origin: Origin.SquadManagePlan,
+  });
+  const { seatLimit, seatsUsed } = subscription;
 
   return (
-    <div className="flex flex-col gap-2">
-      <SectionTitle
-        title="Seats"
-        description={`Seats can post and boost through the API. Give them to the admins and moderators who run the page. ${seatsLeftCopy(
-          subscription.seatLimit - subscription.seatsUsed,
-        )}`}
-      />
-      <ul className="flex flex-col">
-        {members?.map((member) => (
-          <SeatRow
-            key={member.user.id}
-            member={member}
-            subscription={subscription}
-            canManage={isAdmin}
-          />
-        ))}
-      </ul>
-    </div>
+    <section className="flex flex-col gap-2">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <SectionTitle title="Seats" />
+        {isPending ? (
+          <SectionSkeleton className="h-4 w-24 rounded-6" />
+        ) : (
+          <span className="tabular-nums text-text-tertiary typo-footnote">
+            {`${seatsUsed} of ${seatLimit} seats used`}
+          </span>
+        )}
+      </div>
+      <p className="text-pretty text-text-tertiary typo-footnote">
+        {getSeatsCopy(seatLimit - seatsUsed)}
+      </p>
+      {isPending ? (
+        <SeatRowsLoading />
+      ) : (
+        <ul className="flex flex-col">
+          {members?.map((member) => (
+            <SeatRow
+              key={member.user.id}
+              member={member}
+              subscription={subscription}
+              canManage={isAdmin}
+            />
+          ))}
+        </ul>
+      )}
+      {!isPending &&
+        (members?.length ?? 0) <= 1 &&
+        isAdmin &&
+        seatLimit > 1 && (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-16 bg-surface-float p-4">
+            <p className="min-w-0 flex-1 text-pretty text-text-secondary typo-footnote">
+              Only admins and moderators can hold a seat. Invite a teammate to
+              the page, then make them a moderator.
+            </p>
+            <Button
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              onClick={() => logAndCopyLink()}
+            >
+              {copying ? 'Copied' : 'Copy invite link'}
+            </Button>
+          </div>
+        )}
+    </section>
+  );
+};
+
+const SetupSection = ({ plan }: { plan: SquadPlan }): ReactElement => {
+  const { squad } = useSquadPageContext();
+  const { isComplete } = useStartupsSetupProgress(squad, plan);
+  const [isReviewing, setReviewing] = useState(false);
+
+  return (
+    <section className="flex flex-col gap-3">
+      <div className="flex items-center justify-between gap-3">
+        <SectionTitle
+          title={isComplete ? 'Your page is set up' : 'Set up your plan'}
+          description={isComplete ? undefined : 'With your agent, or yourself.'}
+        />
+        {isComplete && (
+          <Button
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            onClick={() => setReviewing(!isReviewing)}
+          >
+            {isReviewing ? 'Hide' : 'Review'}
+          </Button>
+        )}
+      </div>
+      {(!isComplete || isReviewing) && (
+        <StartupsSetup
+          squad={squad}
+          plan={plan}
+          origin={Origin.SquadManagePlan}
+          initialPath={StartupsSetupPath.Manual}
+        />
+      )}
+    </section>
   );
 };
 
@@ -326,22 +462,26 @@ const ActivePlan = ({
 
   return (
     <>
-      <div className="flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-5">
+      <div
+        className="relative flex flex-col gap-5 rounded-16 border border-border-subtlest-tertiary"
+        style={{ padding: 20, background: PREMIUM_WASH }}
+      >
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex flex-col gap-2">
             <span className="flex items-center gap-2">
-              <Typography
-                tag={TypographyTag.Span}
-                type={TypographyType.Title3}
-                bold
-              >
+              <span className="font-bold typo-title2">
                 {squadPlanDetails[plan].title}
-              </Typography>
+              </span>
               <span className="rounded-8 bg-accent-avocado-flat px-2 py-0.5 font-bold text-accent-avocado-default typo-caption1">
                 Active
               </span>
             </span>
-            <SquadPlanPrice price={prices[plan]} />
+            <span className="text-text-secondary typo-callout">
+              <span className="font-bold tabular-nums text-text-primary">
+                {prices[plan]}
+              </span>{' '}
+              a month
+            </span>
           </div>
           {isOwner && (
             <Button
@@ -357,50 +497,30 @@ const ActivePlan = ({
               variant={ButtonVariant.Subtle}
               size={ButtonSize.Small}
               icon={<OpenLinkIcon />}
-              iconPosition={ButtonIconPosition.Right}
             >
               Manage billing
             </Button>
           )}
+          {!isOwner && owner && (
+            <p className="text-text-tertiary typo-footnote">
+              {`${owner.user.name} pays for this plan and manages its billing.`}
+            </p>
+          )}
         </div>
-        {!isOwner && owner && (
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-          >
-            {`${owner.user.name} pays for this plan and manages its billing.`}
-          </Typography>
-        )}
-        <HorizontalSeparator />
-        <div className="flex items-center gap-3">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-surface-float">
-            <CoreIcon size={IconSize.Medium} />
-          </span>
-          <span className="flex min-w-0 flex-1 flex-col">
-            <Typography type={TypographyType.Callout} bold>
-              {`${largeNumberFormat(balance ?? 0)} Cores in the wallet`}
-            </Typography>
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-            >
+        <div className="flex items-center gap-3 border-t border-border-subtlest-tertiary pt-4">
+          <CoreIcon size={IconSize.Medium} className="shrink-0" />
+          <div className="flex min-w-0 flex-1 flex-col">
+            <span className="font-bold tabular-nums typo-callout">
+              {`${largeNumberFormat(balance ?? 0)} in cashback`}
+            </span>
+            <span className="text-text-tertiary typo-footnote">
               Your cashback lands here every month. Seats spend it to boost this
               page&apos;s posts.
-            </Typography>
-          </span>
+            </span>
+          </div>
         </div>
       </div>
-      <div className="flex flex-col gap-3">
-        <SectionTitle
-          title="Set up your plan"
-          description="With your agent, or yourself."
-        />
-        <StartupsSetup
-          squad={squad}
-          plan={plan}
-          origin={Origin.SquadManagePlan}
-        />
-      </div>
+      <SetupSection plan={plan} />
       <SquadManageSeats subscription={subscription} isAdmin={isAdmin} />
     </>
   );
@@ -419,7 +539,8 @@ export const SquadManagePlan = (): ReactElement => {
   );
   const isAdmin = squad.currentMember?.role === SourceMemberRole.Admin;
 
-  if (isError) {
+  // A failed refresh of a plan we already have isn't worth losing the page over.
+  if (isError && !subscription) {
     return (
       <SquadManageSectionPanel section={SquadManageSection.Plan}>
         <CharmEmptyState
@@ -436,12 +557,20 @@ export const SquadManagePlan = (): ReactElement => {
 
   return (
     <SquadManageSectionPanel section={SquadManageSection.Plan}>
-      <div className="flex flex-col gap-6 px-4 py-6 tablet:px-6">
+      <div className="flex flex-col gap-6 p-6">
         {isPending && (
           <div className="flex flex-col gap-6" aria-busy>
-            <ElementPlaceholder className="h-40 rounded-16" />
-            <ElementPlaceholder className="h-24 rounded-16" />
-            <ElementPlaceholder className="h-40 rounded-16" />
+            <div className="flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex flex-1 flex-col gap-2">
+                  <SectionSkeleton className="h-5 w-1/3 rounded-6" />
+                  <SectionSkeleton className="h-4 w-1/2 rounded-6" />
+                </div>
+                <SectionSkeleton className="h-8 w-32 rounded-10" />
+              </div>
+            </div>
+            <SectionSkeleton className="h-24 rounded-16" />
+            <SeatRowsLoading />
           </div>
         )}
         {!isPending &&

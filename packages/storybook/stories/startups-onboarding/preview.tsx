@@ -14,6 +14,10 @@ import {
   UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import {
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks/useViewSize';
 import { toSquadHandle } from '@dailydotdev/shared/src/features/squads/lib/handle';
 import { SquadPlan } from '@dailydotdev/shared/src/features/squads/lib/plans';
 
@@ -65,27 +69,34 @@ const toSquad = ({ name, description, links }: PageContent): Squad =>
 
 const useScale = (): {
   frameRef: React.RefObject<HTMLDivElement>;
+  canvasRef: React.RefObject<HTMLDivElement>;
   scale: number;
+  canvasHeight: number;
 } => {
   const frameRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.7);
+  const [canvasHeight, setCanvasHeight] = useState(0);
 
   useEffect(() => {
     const frame = frameRef.current;
+    const canvas = canvasRef.current;
 
-    if (!frame) {
+    if (!frame || !canvas) {
       return undefined;
     }
 
-    const observer = new ResizeObserver(() =>
-      setScale(Math.min(frame.clientWidth / CANVAS, 1.2)),
-    );
+    const observer = new ResizeObserver(() => {
+      setScale(Math.min(frame.clientWidth / CANVAS, 1.2));
+      setCanvasHeight(canvas.offsetHeight);
+    });
     observer.observe(frame);
+    observer.observe(canvas);
 
     return () => observer.disconnect();
   }, []);
 
-  return { frameRef, scale };
+  return { frameRef, canvasRef, scale, canvasHeight };
 };
 
 const Header = ({ content }: { content: PageContent }): ReactElement => {
@@ -153,7 +164,8 @@ export const FullPagePreview = ({
 }: {
   content: PageContent;
 }): ReactElement => {
-  const { frameRef, scale } = useScale();
+  const { frameRef, canvasRef, scale, canvasHeight } = useScale();
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const { name, links, product, cta, seats, post, plan } = content;
   const isTeam = plan === SquadPlan.Team;
 
@@ -162,9 +174,12 @@ export const FullPagePreview = ({
       ref={frameRef}
       aria-hidden
       className="startups-preview pointer-events-none relative h-full w-full overflow-hidden rounded-16"
-      style={{ minHeight: 480 }}
+      // A scaled page keeps its full size in the layout, so on a phone, where
+      // nothing else sets the height, the frame takes the size it's drawn at.
+      style={isLaptop ? { minHeight: 480 } : { height: canvasHeight * scale }}
     >
       <div
+        ref={canvasRef}
         style={{
           width: CANVAS,
           transform: `scale(${scale})`,
@@ -248,13 +263,15 @@ export const FullPagePreview = ({
           </Section>
         </div>
       </div>
-      <div
-        className="absolute inset-x-0 bottom-0"
-        style={{
-          height: 72,
-          background: 'linear-gradient(180deg, transparent, #141418)',
-        }}
-      />
+      {isLaptop && (
+        <div
+          className="absolute inset-x-0 bottom-0"
+          style={{
+            height: 72,
+            background: 'linear-gradient(180deg, transparent, #141418)',
+          }}
+        />
+      )}
     </div>
   );
 };

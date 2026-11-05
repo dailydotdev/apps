@@ -132,6 +132,8 @@ export interface AuthOptionsProps {
   onClose?: CloseAuthModalFunc;
   /** For a page with its own top bar: its back arrow replaces the screen's. */
   onScreenBackChange?: (back?: () => void) => void;
+  /** Whether the entry screen shows log-in's options instead of sign-up's. */
+  onLogInChange?: (isLogIn: boolean) => void;
   onAuthStateUpdate?: (props: Partial<AuthProps>) => void;
   onSuccessfulLogin?: () => unknown;
   onSuccessfulRegistration?: (user?: LoggedUser | AnonymousUser) => unknown;

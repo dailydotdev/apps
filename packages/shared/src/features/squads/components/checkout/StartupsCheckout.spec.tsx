@@ -48,7 +48,7 @@ describe('StartupsCheckout account step', () => {
     await openEmailLogIn();
 
     await click(/forgot password/i);
-    expect(await screen.findByText('Reset password')).toBeInTheDocument();
+    expect(await screen.findByText('Reset your password')).toBeInTheDocument();
 
     fireEvent.click(screen.getByText(/back to log in/i));
     expect(await screen.findByText('Forgot password?')).toBeInTheDocument();
@@ -62,7 +62,7 @@ describe('StartupsCheckout account step', () => {
     renderAccountStep(refetchBoot);
     await openEmailLogIn();
 
-    const email = await screen.findByLabelText('Email');
+    const email = await screen.findByPlaceholderText('Email');
     fireEvent.input(email, { target: { value: 'founder@acme.dev' } });
     const password = document.querySelector(
       'input[name="password"]',
@@ -70,7 +70,7 @@ describe('StartupsCheckout account step', () => {
     fireEvent.input(password, { target: { value: 'not-my-password' } });
     fireEvent.submit(screen.getByTestId('login_form'));
 
-    expect(await screen.findByText('Verify your email')).toBeInTheDocument();
+    expect(await screen.findByText('Check your email')).toBeInTheDocument();
   });
 
   it('opens the email form from log in, then back to the sign-up options', async () => {
@@ -79,7 +79,9 @@ describe('StartupsCheckout account step', () => {
     await click(/^sign up$/i);
     await click(/continue with email/i);
 
-    await click(/^go back$/i);
+    fireEvent.click(
+      screen.getAllByRole('button', { name: /^other options$/i })[0],
+    );
 
     expect(await screen.findByText('Create your account')).toBeInTheDocument();
   });

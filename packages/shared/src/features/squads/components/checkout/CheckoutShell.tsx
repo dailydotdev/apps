@@ -10,6 +10,7 @@ import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';
 import { IconSize } from '../../../../components/Icon';
 import { MoveToIcon, VIcon } from '../../../../components/icons';
 import { FunnelGlassBar } from '../../../onboarding/shared/FunnelGlassBar';
+import { AuthScreenTitle } from '../../../../components/auth/AuthScreenTitle';
 import LogoIcon from '../../../../svg/LogoIcon';
 import LogoText from '../../../../svg/LogoText';
 import {
@@ -85,7 +86,10 @@ const SHELL_STYLES = `
 @media (max-width: 1019px) {
   .startups-wall main { flex: 1; }
   .startups-wall main > div { justify-content: flex-end; gap: 24px; }
-  .startups-wall .startups-form { flex: none; }
+  .startups-wall header { align-items: center; }
+  .startups-wall .startups-form { flex: none; text-align: center; }
+  .startups-wall .startups-form p { text-align: center !important; }
+  .startups-wall .startups-form .flex-wrap { justify-content: center; }
 }
 `;
 
@@ -164,7 +168,9 @@ const CheckoutProgress = ({
                     secondary
                   />
                 )}
-                {isDone ? (answers?.[stage.id] ?? stage.label) : stage.label}
+                <span className="block truncate" style={{ maxWidth: 120 }}>
+                  {isDone ? (answers?.[stage.id] ?? stage.label) : stage.label}
+                </span>
               </span>
             </li>
           );
@@ -174,24 +180,7 @@ const CheckoutProgress = ({
   );
 };
 
-export const CheckoutTitle = ({
-  title,
-  description,
-}: {
-  title: ReactNode;
-  description?: ReactNode;
-}): ReactElement => (
-  <div className="flex flex-col gap-2">
-    <h1 className="text-balance font-bold tracking-tight typo-large-title">
-      {title}
-    </h1>
-    {description && (
-      <p className="text-pretty text-text-secondary typo-callout">
-        {description}
-      </p>
-    )}
-  </div>
-);
+export const CheckoutTitle = AuthScreenTitle;
 
 /** The step's primary action, the funnel's double-border button. */
 export const CheckoutCta = ({

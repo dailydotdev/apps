@@ -1,5 +1,11 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { cloneElement, useState, useEffect, useRef } from 'react';
+import React, {
+  cloneElement,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+} from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -59,6 +65,7 @@ import { SetupEditor } from './setupEditor';
 import {
   Cta,
   FormColumn,
+  ProgressContext,
   Shell,
   Skeleton,
   StageFill,
@@ -1155,6 +1162,31 @@ const StatusLine = ({
   </li>
 );
 
+/** The stepper's Plan chip says the plan this screen is on. */
+const WithPlanChip = ({
+  plan,
+  children,
+}: {
+  plan: SquadPlan;
+  children: ReactNode;
+}): ReactElement => {
+  const progress = useContext(ProgressContext);
+
+  return (
+    <ProgressContext.Provider
+      value={{
+        ...progress,
+        answers: {
+          ...progress.answers,
+          [StepId.Plan]: squadPlanDetails[plan].title,
+        },
+      }}
+    >
+      {children}
+    </ProgressContext.Provider>
+  );
+};
+
 const ACTIVATING_STEP_MS = 900;
 
 /** All the steps from the start, ticking off, so there's always a next thing. */
@@ -1202,36 +1234,38 @@ export const ActivatingScreen = ({
   };
 
   return (
-    <Shell
-      current={StepId.Setup}
-      asideClassName="hidden laptop:block"
-      isFullBleed
-      stageFill={StageFill.Surface}
-      aside={<StuntVisual name={company} />}
-    >
-      <FormColumn>
-        <Title
-          title={isSlow ? 'Payment received' : `Setting up ${company}…`}
-          description={
-            isSlow
-              ? `Your ${squadPlanDetails[plan].title} plan is taking longer than usual to switch on. You don't need to pay again or stay on this page. It will show on ${company} in a few minutes, and we'll email you the receipt.`
-              : 'Your payment went through. This takes a few seconds.'
-          }
-        />
-        <ul className="flex flex-col gap-3">
-          {lines.map((line, index) => (
-            <StatusLine key={line} state={getState(index)}>
-              {line}
-            </StatusLine>
-          ))}
-        </ul>
-        {isSlow && (
-          <Button variant={ButtonVariant.Secondary} className="self-start">
-            Go to your page
-          </Button>
-        )}
-      </FormColumn>
-    </Shell>
+    <WithPlanChip plan={plan}>
+      <Shell
+        current={StepId.Setup}
+        asideClassName="hidden laptop:block"
+        isFullBleed
+        stageFill={StageFill.Surface}
+        aside={<StuntVisual name={company} />}
+      >
+        <FormColumn>
+          <Title
+            title={isSlow ? 'Payment received' : `Setting up ${company}…`}
+            description={
+              isSlow
+                ? `Your ${squadPlanDetails[plan].title} plan is taking longer than usual to switch on. You don't need to pay again or stay on this page. It will show on ${company} in a few minutes, and we'll email you the receipt.`
+                : 'Your payment went through. This takes a few seconds.'
+            }
+          />
+          <ul className="flex flex-col gap-3">
+            {lines.map((line, index) => (
+              <StatusLine key={line} state={getState(index)}>
+                {line}
+              </StatusLine>
+            ))}
+          </ul>
+          {isSlow && (
+            <Button variant={ButtonVariant.Secondary} className="self-start">
+              Go to your page
+            </Button>
+          )}
+        </FormColumn>
+      </Shell>
+    </WithPlanChip>
   );
 };
 
@@ -1743,86 +1777,88 @@ export const SetupScreen = ({
   }
 
   return (
-    <Shell
-      current={StepId.Setup}
-      isComplete={isFinished}
-      isTall
-      isFullBleed
-      isPlainOnPhone
-      stageFill={StageFill.Surface}
-      aside={
-        editor ?? (
-          <FullPagePreview
-            content={{
-              name: company,
-              plan,
-              description: shownDone.details,
-              links: shownDone.links,
-              product: shownDone.product,
-              cta: shownDone.cta,
-              seats: shownDone.seats,
-              post: isFinished,
-            }}
+    <WithPlanChip plan={plan}>
+      <Shell
+        current={StepId.Setup}
+        isComplete={isFinished}
+        isTall
+        isFullBleed
+        isPlainOnPhone
+        stageFill={StageFill.Surface}
+        aside={
+          editor ?? (
+            <FullPagePreview
+              content={{
+                name: company,
+                plan,
+                description: shownDone.details,
+                links: shownDone.links,
+                product: shownDone.product,
+                cta: shownDone.cta,
+                seats: shownDone.seats,
+                post: isFinished,
+              }}
+            />
+          )
+        }
+      >
+        <Title
+          title={
+            isFinished
+              ? `${company} is ready`
+              : `You're in. ${company} is on ${squadPlanDetails[plan].title}.`
+          }
+          description={
+            isFinished
+              ? 'Your page is set up. Your agent can post and boost from here on.'
+              : 'Your page is live. Set it up with your agent, or yourself.'
+          }
+        />
+        {isFinished && (
+          <img
+            src="/startups-onboarding/crew-cheer.webp"
+            alt=""
+            className="h-24 self-start object-contain"
           />
-        )
-      }
-    >
-      <Title
-        title={
-          isFinished
-            ? `${company} is ready`
-            : `You're in. ${company} is on ${squadPlanDetails[plan].title}.`
-        }
-        description={
-          isFinished
-            ? 'Your page is set up. Your agent can post and boost from here on.'
-            : 'Your page is live. Set it up with your agent, or yourself.'
-        }
-      />
-      {isFinished && (
-        <img
-          src="/startups-onboarding/crew-cheer.webp"
-          alt=""
-          className="h-24 self-start object-contain"
-        />
-      )}
-      {isLoading && (
-        <div className="flex flex-col gap-5" aria-busy>
-          <Skeleton className="h-11 rounded-14" />
-          <div className="flex flex-col gap-4">
-            {[0, 1, 2, 3].map((row) => (
-              <div key={row} className="flex items-center gap-3">
-                <Skeleton className="size-6 rounded-full" />
-                <div className="flex min-w-0 flex-1 flex-col gap-2">
-                  <Skeleton className="h-4 w-1/2 rounded-6" />
-                  <Skeleton className="h-3 w-5/6 rounded-6" />
+        )}
+        {isLoading && (
+          <div className="flex flex-col gap-5" aria-busy>
+            <Skeleton className="h-11 rounded-14" />
+            <div className="flex flex-col gap-4">
+              {[0, 1, 2, 3].map((row) => (
+                <div key={row} className="flex items-center gap-3">
+                  <Skeleton className="size-6 rounded-full" />
+                  <div className="flex min-w-0 flex-1 flex-col gap-2">
+                    <Skeleton className="h-4 w-1/2 rounded-6" />
+                    <Skeleton className="h-3 w-5/6 rounded-6" />
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
+        )}
+        {!isLoading && !isFinished && (
+          <SetupPanel
+            company={company}
+            plan={plan}
+            initialPath={path}
+            onPathChange={setPath}
+            initialClient={initialClient}
+            done={added}
+            isChecking={isChecking}
+            onAdd={openRow}
+          />
+        )}
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
+            variant={isFinished ? ButtonVariant.Primary : ButtonVariant.Subtle}
+            icon={<OpenLinkIcon size={IconSize.Size16} />}
+            iconPosition={ButtonIconPosition.Right}
+          >
+            Open your page
+          </Button>
         </div>
-      )}
-      {!isLoading && !isFinished && (
-        <SetupPanel
-          company={company}
-          plan={plan}
-          initialPath={path}
-          onPathChange={setPath}
-          initialClient={initialClient}
-          done={added}
-          isChecking={isChecking}
-          onAdd={openRow}
-        />
-      )}
-      <div className="flex flex-wrap items-center gap-3">
-        <Button
-          variant={isFinished ? ButtonVariant.Primary : ButtonVariant.Subtle}
-          icon={<OpenLinkIcon size={IconSize.Size16} />}
-          iconPosition={ButtonIconPosition.Right}
-        >
-          Open your page
-        </Button>
-      </div>
-    </Shell>
+      </Shell>
+    </WithPlanChip>
   );
 };

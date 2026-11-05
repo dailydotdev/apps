@@ -5,6 +5,9 @@ import React from 'react';
 
 export const startupsCrewOnBaseImage = '/app/assets/startups-crew-on-base.webp';
 
+/** The crew cheering, once the page is fully set up. */
+export const startupsCrewCheerImage = '/app/assets/startups-crew-cheer.webp';
+
 /** The colour at the top of the art, so the sky runs on above it. */
 export const startupsPlazaSky = '#010028';
 
