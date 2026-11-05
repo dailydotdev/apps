@@ -113,7 +113,7 @@ it('should render suggestions and log the start with the origin', async () => {
   await waitForNock();
   await waitFor(() => expect(title('Post 1')).toBeTruthy());
   expect(screen.getByText('Weekly picks')).toBeInTheDocument();
-  expect(screen.queryByText('View my picks')).not.toBeInTheDocument();
+  expect(screen.queryByText('View your page')).not.toBeInTheDocument();
   await waitFor(() =>
     expect(logEvent).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -140,7 +140,8 @@ it('should prefill the selection and keep picks missing from the suggestions', a
   await waitFor(() => expect(title('Post 9')).toBeTruthy());
   expect(screen.getByText('2 of 5 selected')).toBeInTheDocument();
   expect(screen.getByDisplayValue('old note')).toBeInTheDocument();
-  expect(screen.getByText('View my picks').closest('a')).toHaveAttribute(
+  expect(screen.getByText("Edit this week's picks")).toBeInTheDocument();
+  expect(screen.getByText('View your page').closest('a')).toHaveAttribute(
     'href',
     '/picks/picks-1',
   );

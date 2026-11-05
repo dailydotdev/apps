@@ -1,4 +1,8 @@
-import { getIsoWeekNumber, getPickPostHref } from './picks';
+import {
+  getCurrentWeekStart,
+  getIsoWeekNumber,
+  getPickPostHref,
+} from './picks';
 
 describe('getIsoWeekNumber', () => {
   it.each([
@@ -12,6 +16,20 @@ describe('getIsoWeekNumber', () => {
     ['2026-01-05', 2],
   ])('should return the ISO week of %s', (date, week) => {
     expect(getIsoWeekNumber(date)).toBe(week);
+  });
+});
+
+describe('getCurrentWeekStart', () => {
+  it('should return the Monday of the week in UTC', () => {
+    expect(getCurrentWeekStart(new Date('2026-11-05T23:30:00Z'))).toBe(
+      '2026-11-02',
+    );
+    expect(getCurrentWeekStart(new Date('2026-11-08T23:59:59Z'))).toBe(
+      '2026-11-02',
+    );
+    expect(getCurrentWeekStart(new Date('2026-11-09T00:00:00Z'))).toBe(
+      '2026-11-09',
+    );
   });
 });
 
