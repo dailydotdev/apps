@@ -107,7 +107,7 @@ export function ShellCluster(): ReactElement | null {
     },
     {
       root: ShellRoot.Activity,
-      label: 'Notifications',
+      label: 'Activity',
       href: '/notifications',
       Icon: BellIcon,
       requiresLogin: true,

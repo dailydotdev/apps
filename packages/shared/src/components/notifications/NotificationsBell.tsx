@@ -101,7 +101,7 @@ function NotificationsBell({
               )}
             </span>
             {!railHideLabel && (
-              <span className={railTabLabelClass}>Notifications</span>
+              <span className={railTabLabelClass}>Activity</span>
             )}
           </a>
         </Link>

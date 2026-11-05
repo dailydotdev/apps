@@ -104,7 +104,7 @@ export const MessagesScreen = ({
     >
       {!hasDetail && (
         <ShellPage
-          title="Chat"
+          title="Messages"
           actions={
             <>
               <ShellSquare
