@@ -169,3 +169,23 @@ export const setSquadSeat = async ({
     seat ? ADD_SQUAD_SEAT_MUTATION : REMOVE_SQUAD_SEAT_MUTATION,
     { sourceId, userId },
   );
+
+const SAVE_STARTUPS_GOALS_MUTATION = gql`
+  mutation SaveStartupsGoals(
+    $sourceId: ID!
+    $goals: [String!]!
+    $other: String
+  ) {
+    saveStartupsGoals(sourceId: $sourceId, goals: $goals, other: $other) {
+      _
+    }
+  }
+`;
+
+// Kept on the buyer, so lifecycle emails can lead with what they came for
+export const saveStartupsGoals = async (variables: {
+  sourceId: string;
+  goals: string[];
+  other?: string;
+}): Promise<EmptyResponse> =>
+  gqlClient.request(SAVE_STARTUPS_GOALS_MUTATION, variables);

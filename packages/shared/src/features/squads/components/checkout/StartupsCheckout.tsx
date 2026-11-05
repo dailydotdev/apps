@@ -45,7 +45,10 @@ import { AuthTriggers } from '../../../../lib/auth';
 import { cloudinaryCharmSomethingWentWrong } from '../../../../lib/image';
 import { findFreeSquadHandle, toSquadHandle } from '../../lib/handle';
 import { PurchaseType } from '../../../../graphql/paddle';
-import { squadSubscriptionQueryOptions } from '../../../../graphql/squadSubscription';
+import {
+  saveStartupsGoals,
+  squadSubscriptionQueryOptions,
+} from '../../../../graphql/squadSubscription';
 import { webappUrl } from '../../../../lib/constants';
 import { RequestKey } from '../../../../lib/query';
 import { LogEvent, Origin } from '../../../../lib/log';
@@ -274,6 +277,15 @@ const CompanyStep = ({
         ...(text && { text }),
       }),
     );
+
+    if (answers.length) {
+      // The answer is a nice-to-have: a failed save never holds up checkout
+      saveStartupsGoals({
+        sourceId,
+        goals: answers.map(({ goal }) => goal),
+        other: answers.find(({ text }) => text)?.text,
+      }).catch(() => undefined);
+    }
   };
 
   const { onCreateSquad, isLoading } = useSquadCreate({
