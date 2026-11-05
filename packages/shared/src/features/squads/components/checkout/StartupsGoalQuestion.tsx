@@ -5,11 +5,11 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import { CompassIcon } from '../../../../components/icons';
+import { TextField } from '../../../../components/fields/TextField';
 
 // Which value people come for, so the messaging can lead with it. Every answer
-// is a real part of the Starter plan, and every plan gets all of them: the answer
-// is only logged, it changes nothing that comes next.
+// is a real part of the Starter plan, and every plan gets all of them: the answers
+// are only logged, they change nothing that comes next.
 
 export enum StartupsGoal {
   Users = 'users',
@@ -20,126 +20,95 @@ export enum StartupsGoal {
   Other = 'other',
 }
 
-export interface StartupsGoalAnswer {
-  goal?: StartupsGoal;
+export interface StartupsGoalAnswers {
+  goals: StartupsGoal[];
   /** What they typed for "Something else". */
   text: string;
 }
 
-const QUESTION = 'What do you want to achieve first?';
-const OTHER_PLACEHOLDER = 'In your own words';
+const QUESTION = 'What do you want to achieve?';
 const OTHER_MAX_LENGTH = 100;
 
-const goals: { value: StartupsGoal; label: string }[] = [
-  { value: StartupsGoal.Users, label: 'More users' },
-  { value: StartupsGoal.AiAnswers, label: 'AI answers' },
-  { value: StartupsGoal.WhatToPost, label: 'What to post' },
-  { value: StartupsGoal.Agent, label: 'Agent on autopilot' },
-  { value: StartupsGoal.Page, label: 'A company page' },
+const goalOptions: { value: StartupsGoal; label: string }[] = [
+  { value: StartupsGoal.Users, label: 'Get developers to try my product' },
+  { value: StartupsGoal.AiAnswers, label: 'Show up in AI answers' },
+  { value: StartupsGoal.WhatToPost, label: 'Know what to post' },
+  { value: StartupsGoal.Agent, label: 'Let my agent handle distribution' },
+  { value: StartupsGoal.Page, label: 'Have a page developers can find' },
   { value: StartupsGoal.Other, label: 'Something else' },
 ];
 
-/** "Something else" with nothing typed says nothing, so it counts as no answer */
-export const getStartupsGoalAnswer = ({
-  goal,
+/** "Something else" with nothing typed says nothing, so it isn't an answer */
+export const getStartupsGoalAnswers = ({
+  goals,
   text,
-}: StartupsGoalAnswer): StartupsGoalAnswer | undefined => {
+}: StartupsGoalAnswers): { goal: StartupsGoal; text?: string }[] => {
   const typed = text.trim();
 
-  if (!goal || (goal === StartupsGoal.Other && !typed)) {
-    return undefined;
-  }
-
-  return { goal, text: goal === StartupsGoal.Other ? typed : '' };
+  return goals
+    .filter((goal) => goal !== StartupsGoal.Other || !!typed)
+    .map((goal) =>
+      goal === StartupsGoal.Other ? { goal, text: typed } : { goal },
+    );
 };
 
 export const StartupsGoalQuestion = ({
-  value: { goal, text },
+  value: { goals, text },
   onChange,
 }: {
-  value: StartupsGoalAnswer;
-  onChange: (value: StartupsGoalAnswer) => void;
-}): ReactElement => {
-  const isOther = goal === StartupsGoal.Other;
-  const cell = { gridArea: '1 / 1' };
+  value: StartupsGoalAnswers;
+  onChange: (value: StartupsGoalAnswers) => void;
+}): ReactElement => (
+  <div className="flex flex-col gap-3">
+    <p className="font-bold typo-callout">{QUESTION}</p>
+    <div role="group" aria-label={QUESTION} className="flex flex-wrap gap-2">
+      {goalOptions.map(({ value, label }) => {
+        const isPicked = goals.includes(value);
 
-  return (
-    <div className="flex flex-col gap-3">
-      <p className="flex items-baseline justify-between gap-2 font-bold typo-callout">
-        {QUESTION}
-        <span className="font-normal text-text-tertiary typo-footnote">
-          Optional
-        </span>
-      </p>
-      {/* The chips and the text box share a cell, so swapping them moves nothing */}
-      <div style={{ display: 'grid' }}>
-        <div
-          role="radiogroup"
-          aria-label={QUESTION}
-          className="flex flex-wrap gap-2"
-          style={{ ...cell, visibility: isOther ? 'hidden' : undefined }}
-        >
-          {goals.map(({ value, label }) => (
-            <Button
-              key={value}
-              type="button"
-              role="radio"
-              aria-checked={goal === value}
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Float}
-              style={
-                goal === value
-                  ? {
-                      borderColor: 'var(--theme-brand-default)',
-                      background: 'var(--theme-brand-active)',
-                    }
-                  : undefined
-              }
-              onClick={() =>
-                onChange({ goal: goal === value ? undefined : value, text })
-              }
-            >
-              {label}
-            </Button>
-          ))}
-        </div>
-        {isOther && (
-          <div className="flex items-start gap-2" style={cell}>
-            <label
-              className="flex min-h-14 min-w-0 flex-1 cursor-text items-center gap-3 rounded-8 border border-solid border-brand-default bg-brand-active px-4 typo-body"
-              htmlFor="startups-goal-other"
-            >
-              <span className="flex size-6 items-center justify-center">
-                <CompassIcon secondary className="text-text-tertiary" />
-              </span>
-              <input
-                // Only ever mounted by choosing "Something else"
-                // eslint-disable-next-line jsx-a11y/no-autofocus
-                autoFocus
-                aria-label={QUESTION}
-                className="min-w-0 flex-1 bg-transparent py-3 text-text-primary outline-none placeholder:text-text-tertiary"
-                id="startups-goal-other"
-                maxLength={OTHER_MAX_LENGTH}
-                onChange={(event) =>
-                  onChange({ goal, text: event.target.value })
-                }
-                placeholder={OTHER_PLACEHOLDER}
-                type="text"
-                value={text}
-              />
-            </label>
-            <Button
-              type="button"
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Tertiary}
-              style={{ marginTop: 12 }}
-              onClick={() => onChange({ goal: undefined, text })}
-            >
-              Back
-            </Button>
-          </div>
-        )}
-      </div>
+        return (
+          <Button
+            key={value}
+            type="button"
+            role="checkbox"
+            aria-checked={isPicked}
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Float}
+            style={
+              isPicked
+                ? {
+                    borderColor: 'var(--theme-brand-default)',
+                    background: 'var(--theme-brand-active)',
+                  }
+                : undefined
+            }
+            onClick={() =>
+              onChange({
+                goals: isPicked
+                  ? goals.filter((goal) => goal !== value)
+                  : [...goals, value],
+                text,
+              })
+            }
+          >
+            {label}
+          </Button>
+        );
+      })}
     </div>
-  );
-};
+    {goals.includes(StartupsGoal.Other) && (
+      <TextField
+        // Only ever mounted by choosing "Something else"
+        // eslint-disable-next-line jsx-a11y/no-autofocus
+        autoFocus
+        inputId="startups-goal-other"
+        name="goalOther"
+        label="In your own words"
+        maxLength={OTHER_MAX_LENGTH}
+        showMaxLength={false}
+        className={{ container: 'w-full' }}
+        value={text}
+        valueChanged={(next) => onChange({ goals, text: next })}
+      />
+    )}
+  </div>
+);

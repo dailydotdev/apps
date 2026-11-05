@@ -85,9 +85,9 @@ import {
 import { startupsCrewCheerImage } from './StartupsCrewOnBase';
 import { StartupsNameStunt } from './StartupsNameStunt';
 import { StartupsSignupPanel } from './StartupsSignupPanel';
-import type { StartupsGoalAnswer } from './StartupsGoalQuestion';
+import type { StartupsGoalAnswers } from './StartupsGoalQuestion';
 import {
-  getStartupsGoalAnswer,
+  getStartupsGoalAnswers,
   StartupsGoalQuestion,
 } from './StartupsGoalQuestion';
 
@@ -252,22 +252,26 @@ const CompanyStep = ({
   const [name, setName] = useState('');
   const [isMissing, setMissing] = useState(false);
   const [isFindingHandle, setFindingHandle] = useState(false);
-  const [goalAnswer, setGoalAnswer] = useState<StartupsGoalAnswer>({
+  const [goalAnswers, setGoalAnswers] = useState<StartupsGoalAnswers>({
+    goals: [],
     text: '',
   });
   const logStartups = useLogStartups();
 
   const onDone = (squad: CompanyChoice, isNew: boolean) => {
-    const answer = getStartupsGoalAnswer(goalAnswer);
+    const answers = getStartupsGoalAnswers(goalAnswers);
+    const extra = { source_id: squad.id, new_company: isNew };
 
-    logStartups(
-      answer ? LogEvent.SelectStartupsGoal : LogEvent.SkipStartupsGoal,
-      answer?.goal,
-      {
-        source_id: squad.id,
-        new_company: isNew,
-        ...(answer?.text && { text: answer.text }),
-      },
+    if (!answers.length) {
+      logStartups(LogEvent.SkipStartupsGoal, undefined, extra);
+    }
+
+    // One event per answer, so counting an answer is counting its events
+    answers.forEach(({ goal, text }) =>
+      logStartups(LogEvent.SelectStartupsGoal, goal, {
+        ...extra,
+        ...(text && { text }),
+      }),
     );
     onContinue(squad, isNew);
   };
@@ -378,7 +382,7 @@ const CompanyStep = ({
         </div>
         {/* A page that's already paid for has nothing left to sign up for */}
         {!activePlan && (
-          <StartupsGoalQuestion value={goalAnswer} onChange={setGoalAnswer} />
+          <StartupsGoalQuestion value={goalAnswers} onChange={setGoalAnswers} />
         )}
         {activePlan ? (
           <CheckoutCta>

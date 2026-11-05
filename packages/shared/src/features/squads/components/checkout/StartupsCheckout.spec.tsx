@@ -120,7 +120,7 @@ describe('StartupsCheckout goal question', () => {
   };
 
   const chooseGoal = (name: string) =>
-    fireEvent.click(screen.getByRole('radio', { name }));
+    fireEvent.click(screen.getByRole('checkbox', { name }));
 
   const goalEvent = (
     eventName: LogEvent,
@@ -137,16 +137,39 @@ describe('StartupsCheckout goal question', () => {
     }),
   });
 
-  it('logs the goal they picked when they continue', async () => {
+  it('logs each goal they picked when they continue', async () => {
     const { logEvent } = renderCompanyStep();
 
-    chooseGoal('AI answers');
+    chooseGoal('Show up in AI answers');
+    chooseGoal('Get developers to try my product');
     expect(logEvent).not.toHaveBeenCalledWith(
       expect.objectContaining({ event_name: LogEvent.SelectStartupsGoal }),
     );
     await click(/^continue$/i);
 
     expect(logEvent).toHaveBeenCalledWith(
+      goalEvent(LogEvent.SelectStartupsGoal, 'ai_answers'),
+    );
+    expect(logEvent).toHaveBeenCalledWith(
+      goalEvent(LogEvent.SelectStartupsGoal, 'users'),
+    );
+    expect(logEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({ event_name: LogEvent.SkipStartupsGoal }),
+    );
+  });
+
+  it("doesn't log a goal they picked and then took back", async () => {
+    const { logEvent } = renderCompanyStep();
+
+    chooseGoal('Show up in AI answers');
+    chooseGoal('Get developers to try my product');
+    chooseGoal('Show up in AI answers');
+    await click(/^continue$/i);
+
+    expect(logEvent).toHaveBeenCalledWith(
+      goalEvent(LogEvent.SelectStartupsGoal, 'users'),
+    );
+    expect(logEvent).not.toHaveBeenCalledWith(
       goalEvent(LogEvent.SelectStartupsGoal, 'ai_answers'),
     );
   });
@@ -163,9 +186,12 @@ describe('StartupsCheckout goal question', () => {
     const { logEvent } = renderCompanyStep();
 
     chooseGoal('Something else');
-    fireEvent.input(screen.getByPlaceholderText(/in your own words/i), {
-      target: { value: '  Hire developers ' },
-    });
+    fireEvent.input(
+      screen.getByRole('textbox', { name: /in your own words/i }),
+      {
+        target: { value: '  Hire developers ' },
+      },
+    );
     await click(/^continue$/i);
 
     expect(logEvent).toHaveBeenCalledWith(
@@ -182,18 +208,42 @@ describe('StartupsCheckout goal question', () => {
     expect(logEvent).toHaveBeenCalledWith(goalEvent(LogEvent.SkipStartupsGoal));
   });
 
-  it('goes back from the text box to the answers', async () => {
+  it('keeps the other answers when they add something else', async () => {
+    const { logEvent } = renderCompanyStep();
+
+    chooseGoal('Get developers to try my product');
+    chooseGoal('Something else');
+    fireEvent.input(
+      screen.getByRole('textbox', { name: /in your own words/i }),
+      {
+        target: { value: 'Hire developers' },
+      },
+    );
+
+    expect(
+      screen.getByRole('checkbox', {
+        name: 'Get developers to try my product',
+      }),
+    ).toBeChecked();
+    await click(/^continue$/i);
+
+    expect(logEvent).toHaveBeenCalledWith(
+      goalEvent(LogEvent.SelectStartupsGoal, 'users'),
+    );
+    expect(logEvent).toHaveBeenCalledWith(
+      goalEvent(LogEvent.SelectStartupsGoal, 'other', 'Hire developers'),
+    );
+  });
+
+  it('removes the text box when they take back something else', () => {
     renderCompanyStep();
 
     chooseGoal('Something else');
-    await click(/^back$/i);
+    chooseGoal('Something else');
 
     expect(
-      screen.queryByPlaceholderText(/in your own words/i),
+      screen.queryByRole('textbox', { name: /in your own words/i }),
     ).not.toBeInTheDocument();
-    expect(
-      screen.getByRole('radio', { name: 'Something else' }),
-    ).toHaveAttribute('aria-checked', 'false');
   });
 
   it("doesn't ask about a page that's already on a plan", async () => {
