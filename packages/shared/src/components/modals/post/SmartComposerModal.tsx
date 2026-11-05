@@ -327,14 +327,17 @@ export function SmartComposerModal({
   );
 
   const handleViewScheduled = useCallback(async () => {
-    if (!(await confirmDiscardIfDirty())) {
+    // Never trade an in-progress draft for the scheduled posts list: open the
+    // list in a new tab and leave the composer as it is.
+    if (isDirty) {
+      window.open(scheduledPostsUrl, '_blank', 'noopener,noreferrer');
       return;
     }
 
     const navigation = navigateAway(scheduledPostsUrl);
     onRequestClose?.();
     await navigation;
-  }, [confirmDiscardIfDirty, navigateAway, onRequestClose]);
+  }, [isDirty, navigateAway, onRequestClose]);
 
   useEffect(() => {
     logEvent({
@@ -574,6 +577,7 @@ export function SmartComposerModal({
             onClick={handleViewScheduled}
             disabled={isInFlight}
             className={squareClassName}
+            showLabel={isLaptop}
           />
           {scheduleInHeader && scheduleButtonNode}
           {kind === 'text' && (

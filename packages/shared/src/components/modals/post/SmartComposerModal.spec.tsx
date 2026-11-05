@@ -12,6 +12,7 @@ import { useNotificationToggle } from '../../../hooks/notifications';
 import { useComposerAudience } from '../../post/composer/useComposerAudience';
 import { useComposerSubmit } from '../../post/composer/useComposerSubmit';
 import { LogEvent } from '../../../lib/log';
+import { scheduledPostsUrl } from '../../../lib/constants';
 import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { SmartComposerModal } from './SmartComposerModal';
@@ -352,6 +353,73 @@ describe('SmartComposerModal', () => {
       name: 'Scheduled posts',
     });
     expect(schedule.parentElement).not.toBe(scheduledNav.parentElement);
+  });
+
+  describe('scheduled posts link', () => {
+    let openSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      openSpy = jest.spyOn(window, 'open').mockImplementation(() => null);
+    });
+
+    afterEach(() => {
+      openSpy.mockRestore();
+    });
+
+    it('opens the list in a new tab and keeps a dirty draft, without the discard prompt', async () => {
+      renderWithClient(
+        <SmartComposerModal
+          isOpen
+          initialKind="link"
+          onRequestClose={onRequestClose}
+        />,
+      );
+
+      fireEvent.change(
+        screen.getByRole('textbox', { name: 'Post commentary' }),
+        { target: { value: 'ten minutes of writing' } },
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Scheduled posts' }));
+
+      await waitFor(() =>
+        expect(openSpy).toHaveBeenCalledWith(
+          scheduledPostsUrl,
+          '_blank',
+          'noopener,noreferrer',
+        ),
+      );
+      expect(showPrompt).not.toHaveBeenCalled();
+      expect(onRequestClose).not.toHaveBeenCalled();
+      expect(
+        screen.getByRole('textbox', { name: 'Post commentary' }),
+      ).toHaveValue('ten minutes of writing');
+    });
+
+    it('navigates in place when there is nothing to lose', async () => {
+      renderWithClient(
+        <SmartComposerModal
+          isOpen
+          initialKind="link"
+          onRequestClose={onRequestClose}
+        />,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'Scheduled posts' }));
+
+      await waitFor(() => expect(onRequestClose).toHaveBeenCalledTimes(1));
+      expect(openSpy).not.toHaveBeenCalled();
+      expect(showPrompt).not.toHaveBeenCalled();
+    });
+
+    it('labels the link on desktop so it is not mistaken for scheduling', () => {
+      renderWithClient(
+        <SmartComposerModal isOpen onRequestClose={onRequestClose} />,
+      );
+
+      expect(
+        screen.getByRole('button', { name: 'Scheduled posts' }),
+      ).toHaveTextContent('Scheduled');
+    });
   });
 
   describe('sharing a post to a squad', () => {
