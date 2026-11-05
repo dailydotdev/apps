@@ -241,9 +241,14 @@ const AccountStep = ({ plan }: { plan: SquadPlan }): ReactElement => {
     isLoading: false,
     defaultDisplay: AuthDisplay.OnboardingSignup,
   });
-  const display = authState.isLoginFlow
-    ? AuthDisplay.Default
-    : (authState.defaultDisplay ?? AuthDisplay.OnboardingSignup);
+  const currentDisplay =
+    authState.defaultDisplay ?? AuthDisplay.OnboardingSignup;
+  // "Log in" only sets the flag and leaves the display on the sign-up options.
+  // Screens after it (forgot password, email code) do set the display.
+  const display =
+    authState.isLoginFlow && currentDisplay === AuthDisplay.OnboardingSignup
+      ? AuthDisplay.Default
+      : currentDisplay;
 
   return (
     <div className="flex max-w-md flex-col gap-6">
@@ -264,6 +269,7 @@ const AccountStep = ({ plan }: { plan: SquadPlan }): ReactElement => {
             setAuthState((prev) => ({
               ...prev,
               isAuthenticating: false,
+              isLoginFlow: false,
               defaultDisplay: AuthDisplay.OnboardingSignup,
             }))
           }

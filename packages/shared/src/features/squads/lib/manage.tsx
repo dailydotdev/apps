@@ -44,7 +44,7 @@ export const squadManageTitles: Record<SquadManageSection, string> = {
   [SquadManageSection.Moderation]: 'Moderation',
   [SquadManageSection.Posting]: 'Posting and invitations',
   [SquadManageSection.Analytics]: 'Analytics',
-  [SquadManageSection.Plan]: 'Plan',
+  [SquadManageSection.Plan]: 'Subscription',
   [SquadManageSection.Integrations]: 'Integrations',
   [SquadManageSection.DangerZone]: 'Danger zone',
 };
@@ -128,9 +128,12 @@ export const getSquadManageGroups = (
       ],
     },
     {
+      title: 'Billing',
+      items: [item(SquadManageSection.Plan, <CreditCardIcon />)],
+    },
+    {
       title: 'Tools',
       items: [
-        item(SquadManageSection.Plan, <CreditCardIcon />),
         item(SquadManageSection.Analytics, <AnalyticsIcon />),
         item(SquadManageSection.Integrations, <EmbedIcon />),
         item(SquadManageSection.DangerZone, <TrashIcon />),

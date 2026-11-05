@@ -81,26 +81,27 @@ const CopyBlock = ({
   const [isCopying, copy] = useCopyLink(() => text);
 
   return (
-    <div className="relative">
+    <div className="flex flex-col gap-2">
       <pre
         className={classNames(
-          'overflow-auto whitespace-pre-wrap break-words rounded-12 bg-surface-float p-3 pr-12 font-mono text-text-secondary typo-footnote',
+          'overflow-auto whitespace-pre-wrap break-words rounded-12 bg-surface-float p-3 font-mono text-text-secondary typo-footnote',
           className,
         )}
       >
         {text}
       </pre>
       <Button
-        className="absolute right-2 top-2"
-        variant={ButtonVariant.Tertiary}
-        size={ButtonSize.Small}
+        className="w-full"
+        variant={ButtonVariant.Primary}
+        size={ButtonSize.Medium}
         icon={isCopying ? <VIcon /> : <CopyIcon />}
-        aria-label={label}
         onClick={() => {
           copy();
           onCopy();
         }}
-      />
+      >
+        {isCopying ? 'Copied' : label}
+      </Button>
     </div>
   );
 };
@@ -177,7 +178,7 @@ const AgentSetup = ({
         )}
         <CopyBlock
           text={setup.snippet}
-          label={`Copy the ${setup.label} setup`}
+          label="Copy setup"
           onCopy={() => log(LogEvent.CopyStartupsSetup, 'mcp', { client })}
         />
         <Typography
@@ -203,7 +204,7 @@ const AgentSetup = ({
         </Typography>
         <CopyBlock
           text={prompt}
-          label="Copy the prompt"
+          label="Copy prompt"
           className="max-h-64"
           onCopy={() => log(LogEvent.CopyStartupsSetup, 'prompt', { client })}
         />
