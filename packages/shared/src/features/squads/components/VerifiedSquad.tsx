@@ -108,6 +108,9 @@ export const FeaturedSquadCard = (): ReactElement => (
  * The seal on a logo's lower right, for places that show a verified squad's
  * logo without its name (feed cards). Wherever the name shows, the seal
  * follows the name instead (`VerifiedSquadBadge`).
+ *
+ * z-2: cards give every link `z-index: 1` (Card.module.css), which lifts the
+ * logo's link above an unindexed absolute seal and hides it.
  */
 export const VerifiedLogoCheck = ({
   className,
@@ -119,7 +122,7 @@ export const VerifiedLogoCheck = ({
     aria-label={verifiedSquadLabel}
     title={verifiedSquadLabel}
     className={classNames(
-      'pointer-events-none absolute -bottom-1 -right-1 flex size-3.5 rounded-full bg-background-default p-px text-accent-cabbage-default',
+      'pointer-events-none absolute -bottom-1 -right-1 z-2 flex size-3.5 rounded-full bg-background-default p-px text-accent-cabbage-default',
       className,
     )}
   >
