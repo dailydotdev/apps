@@ -1,0 +1,362 @@
+import type { FormEvent, ReactElement } from 'react';
+import React, { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../../components/buttons/Button';
+import { VIcon } from '../../../../components/icons';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+  TypographyType,
+} from '../../../../components/typography/Typography';
+import { HorizontalSeparator } from '../../../../components/utilities/common';
+import { useAuthContext } from '../../../../contexts/AuthContext';
+import { useToastNotification } from '../../../../hooks/useToastNotification';
+import type { ApiErrorResult } from '../../../../graphql/common';
+import { DEFAULT_ERROR } from '../../../../graphql/common';
+import type {
+  SquadIntel,
+  SquadIntelLimits,
+  SquadIntelSelection,
+} from '../../../../graphql/squadIntel';
+import {
+  squadIntelQueryOptions,
+  squadIntelSettingsQueryOptions,
+  updateSquadIntelSettings,
+} from '../../../../graphql/squadIntel';
+import { LogEvent, Origin } from '../../../../lib/log';
+import { LfgTagPicker } from '../../../lfg/components/LfgTagPicker';
+import { useSquadPageContext } from '../../SquadPageContext';
+import { getSquadId } from '../../lib/features';
+import Link from '../../../../components/utilities/Link';
+import { getSquadIntelUrl, SquadManageSection } from '../../lib/routes';
+import {
+  getIntelWeekLabel,
+  intelRegionLabels,
+  intelRegions,
+  intelSeniorities,
+  intelSeniorityLabels,
+} from '../../lib/intel';
+import { useLogStartups } from '../../hooks/useLogStartups';
+import {
+  SquadManageSaveButton,
+  SquadManageSectionPanel,
+  useSquadManageEmbed,
+} from './SquadManageLayout';
+import { SquadEnterpriseGate } from './SquadEnterpriseGate';
+
+const formId = 'squad-manage-intel';
+
+const SectionTitle = ({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}): ReactElement => (
+  <div className="flex flex-col gap-1">
+    <Typography tag={TypographyTag.H2} type={TypographyType.Callout} bold>
+      {title}
+    </Typography>
+    <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
+      {description}
+    </Typography>
+  </div>
+);
+
+/** Toggles for one audience filter; none on means every reader. */
+const FilterOptions = <T extends string>({
+  options,
+  labels,
+  value,
+  onChange,
+}: {
+  options: T[];
+  labels: Record<T, string>;
+  value: T[];
+  onChange: (value: T[]) => void;
+}): ReactElement => (
+  <div className="flex flex-wrap gap-2">
+    {options.map((option) => {
+      const isOn = value.includes(option);
+
+      return (
+        <Button
+          key={option}
+          type="button"
+          variant={isOn ? ButtonVariant.Primary : ButtonVariant.Float}
+          size={ButtonSize.Small}
+          pressed={isOn}
+          icon={isOn ? <VIcon /> : undefined}
+          onClick={() =>
+            onChange(
+              isOn
+                ? value.filter((item) => item !== option)
+                : [...value, option],
+            )
+          }
+        >
+          {labels[option]}
+        </Button>
+      );
+    })}
+  </div>
+);
+
+const IntelSettingsForm = ({
+  selection,
+  limits,
+  hasIntel,
+  onSave,
+}: {
+  selection: SquadIntelSelection | null;
+  limits: SquadIntelLimits;
+  hasIntel: boolean;
+  onSave: (selection: SquadIntelSelection) => void;
+}): ReactElement => {
+  const { displayToast } = useToastNotification();
+  const [tags, setTags] = useState(selection?.tags ?? []);
+  const [seniority, setSeniority] = useState(selection?.seniority ?? []);
+  const [regions, setRegions] = useState(selection?.regions ?? []);
+
+  const onSubmit = (event: FormEvent) => {
+    event.preventDefault();
+
+    if (!tags.length) {
+      displayToast('Pick at least one topic');
+      return;
+    }
+
+    onSave({
+      tags,
+      seniority: limits.seniority && seniority.length ? seniority : null,
+      regions: limits.regions && regions.length ? regions : null,
+    });
+  };
+
+  return (
+    <form
+      id={formId}
+      onSubmit={onSubmit}
+      noValidate
+      className="flex flex-col gap-6"
+    >
+      <div className="flex flex-col gap-3">
+        <SectionTitle
+          title="Topics"
+          description={`Up to ${limits.tags} daily.dev tags that match what you build. The intel compares them and shows what else their readers read.`}
+        />
+        <LfgTagPicker
+          value={tags}
+          onChange={setTags}
+          max={limits.tags}
+          origin={Origin.SquadManageIntel}
+          selectedVariant={ButtonVariant.Primary}
+        />
+      </div>
+      <HorizontalSeparator />
+      <div className="flex flex-col gap-3">
+        <SectionTitle
+          title="Seniority"
+          description="Count only readers at these levels. Leave all off for every level."
+        />
+        {limits.seniority ? (
+          <FilterOptions
+            options={intelSeniorities}
+            labels={intelSeniorityLabels}
+            value={seniority}
+            onChange={setSeniority}
+          />
+        ) : (
+          <SquadEnterpriseGate
+            plan="Team"
+            title="Target by seniority"
+            description="Focus the intel on junior, mid-level or senior developers."
+          />
+        )}
+      </div>
+      <HorizontalSeparator />
+      <div className="flex flex-col gap-3">
+        <SectionTitle
+          title="Region"
+          description="Count only readers in these regions. Leave all off for everywhere."
+        />
+        {limits.regions ? (
+          <FilterOptions
+            options={intelRegions}
+            labels={intelRegionLabels}
+            value={regions}
+            onChange={setRegions}
+          />
+        ) : (
+          <SquadEnterpriseGate
+            title="Target by region"
+            description="Focus the intel on developers in North America, Europe, Asia Pacific and more."
+          />
+        )}
+      </div>
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Tertiary}
+      >
+        {hasIntel
+          ? 'Changes show from the next intel, every Monday.'
+          : 'After you save, your first intel arrives within the hour, covering last week.'}
+      </Typography>
+    </form>
+  );
+};
+
+const LatestIntel = ({
+  intel,
+  hasTopics,
+}: {
+  intel?: SquadIntel | null;
+  hasTopics: boolean;
+}): ReactElement => {
+  const { squad } = useSquadPageContext();
+
+  if (!intel) {
+    return (
+      <div className="flex flex-col gap-1 rounded-16 border border-dashed border-border-subtlest-tertiary p-5">
+        <Typography type={TypographyType.Callout} bold>
+          {hasTopics ? 'Your first intel is on its way' : 'No intel yet'}
+        </Typography>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          {hasTopics
+            ? 'It covers last week and arrives within the hour. We will notify you when it is ready.'
+            : 'Pick your topics above and save. Your first intel arrives within the hour.'}
+        </Typography>
+      </div>
+    );
+  }
+
+  const url = getSquadIntelUrl(squad.handle);
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
+      <span className="flex min-w-0 flex-col gap-1">
+        <Typography type={TypographyType.Callout} bold>
+          {`Latest intel: ${getIntelWeekLabel(intel)}`}
+        </Typography>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          Your agent can read it too, through the daily.dev MCP server and API.
+        </Typography>
+      </span>
+      <Link href={url} passHref>
+        <Button
+          tag="a"
+          variant={ButtonVariant.Secondary}
+          size={ButtonSize.Small}
+        >
+          Read intel
+        </Button>
+      </Link>
+    </div>
+  );
+};
+
+export const SquadManageIntel = (): ReactElement => {
+  const { squad } = useSquadPageContext();
+  const { user } = useAuthContext();
+  const client = useQueryClient();
+  const { displayToast } = useToastNotification();
+  const logStartups = useLogStartups();
+  const embed = useSquadManageEmbed();
+  const sourceId = getSquadId(squad);
+  const {
+    data: settings,
+    error,
+    isPending,
+  } = useQuery(squadIntelSettingsQueryOptions({ user, sourceId }));
+  const { data: intel, isPending: isIntelPending } = useQuery(
+    squadIntelQueryOptions({ user, sourceId, enabled: !!settings }),
+  );
+  const {
+    mutate: onSave,
+    isPending: isSaving,
+    data: saved,
+  } = useMutation({
+    mutationFn: (selection: SquadIntelSelection) =>
+      updateSquadIntelSettings({ sourceId, ...selection }),
+    onSuccess: (next) => {
+      client.setQueryData(
+        squadIntelSettingsQueryOptions({ user, sourceId }).queryKey,
+        next,
+      );
+      logStartups(LogEvent.UpdateSquadIntel, sourceId, {
+        tags: next.selection?.tags.length ?? 0,
+        seniority: next.selection?.seniority ?? null,
+        regions: next.selection?.regions ?? null,
+      });
+      displayToast(
+        intel
+          ? 'Saved. The next intel covers it, on Monday.'
+          : 'Saved. Your first intel arrives within the hour.',
+      );
+      embed?.onSaved();
+    },
+    onError: (saveError: ApiErrorResult) =>
+      displayToast(saveError?.response?.errors?.[0]?.message ?? DEFAULT_ERROR),
+  });
+  const errorMessage = (error as unknown as ApiErrorResult | null)?.response
+    ?.errors?.[0]?.message;
+
+  return (
+    <SquadManageSectionPanel
+      section={SquadManageSection.Intel}
+      action={
+        settings && (
+          <SquadManageSaveButton
+            formId={formId}
+            isLoading={isSaving}
+            savedKey={saved}
+          />
+        )
+      }
+    >
+      <div className="flex flex-col gap-6 px-4 py-6 tablet:px-6">
+        {error && !settings && (
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            {errorMessage ?? DEFAULT_ERROR}
+          </Typography>
+        )}
+        {!isPending && settings && (
+          <>
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
+            >
+              Every Monday, a report on what developers read and discuss in your
+              topics: which topics grow, what else their readers read, and which
+              posts, titles and formats work.
+            </Typography>
+            <IntelSettingsForm
+              selection={settings.selection}
+              limits={settings.limits}
+              hasIntel={!!intel}
+              onSave={onSave}
+            />
+            <HorizontalSeparator />
+            {!isIntelPending && (
+              <LatestIntel intel={intel} hasTopics={!!settings.selection} />
+            )}
+          </>
+        )}
+      </div>
+    </SquadManageSectionPanel>
+  );
+};

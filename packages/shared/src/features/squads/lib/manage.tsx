@@ -12,8 +12,9 @@ import {
   EmbedIcon,
   LinkIcon,
   LockIcon,
-  SparkleIcon,
+  PaintRollerIcon,
   TimerIcon,
+  TrendingIcon,
   TrashIcon,
   UserIcon,
 } from '../../../components/icons';
@@ -44,7 +45,8 @@ export const squadManageTitles: Record<SquadManageSection, string> = {
   [SquadManageSection.Moderation]: 'Moderation',
   [SquadManageSection.Posting]: 'Posting and invitations',
   [SquadManageSection.Analytics]: 'Analytics',
-  [SquadManageSection.Plan]: 'Plan',
+  [SquadManageSection.Plan]: 'Subscription',
+  [SquadManageSection.Intel]: 'Weekly intel',
   [SquadManageSection.Integrations]: 'Integrations',
   [SquadManageSection.DangerZone]: 'Danger zone',
 };
@@ -80,6 +82,9 @@ const canSeeSection = (
       return verifyPermission(squad, SourcePermissions.ViewAnalytics);
     case SquadManageSection.Plan:
       return isPlanEnabled && canEdit;
+    case SquadManageSection.Intel:
+      // Only paid seats read it, whatever the role
+      return !!squad.currentMember?.seat;
     case SquadManageSection.Integrations:
       return verifyPermission(squad, SourcePermissions.ConnectSlack);
     case SquadManageSection.DangerZone:
@@ -111,7 +116,7 @@ export const getSquadManageGroups = (
         item(SquadManageSection.Details, <EditIcon />),
         item(SquadManageSection.Products, <AppIcon />),
         item(SquadManageSection.Links, <LinkIcon />),
-        item(SquadManageSection.Branding, <SparkleIcon />),
+        item(SquadManageSection.Branding, <PaintRollerIcon />),
         item(SquadManageSection.Rules, <DocsIcon />),
       ],
     },
@@ -128,9 +133,13 @@ export const getSquadManageGroups = (
       ],
     },
     {
+      title: 'Billing',
+      items: [item(SquadManageSection.Plan, <CreditCardIcon />)],
+    },
+    {
       title: 'Tools',
       items: [
-        item(SquadManageSection.Plan, <CreditCardIcon />),
+        item(SquadManageSection.Intel, <TrendingIcon />),
         item(SquadManageSection.Analytics, <AnalyticsIcon />),
         item(SquadManageSection.Integrations, <EmbedIcon />),
         item(SquadManageSection.DangerZone, <TrashIcon />),

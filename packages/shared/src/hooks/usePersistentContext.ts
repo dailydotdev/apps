@@ -58,8 +58,10 @@ export default function usePersistentContext<T>(
   const { mutateAsync: updateValue, isPending: isLoading } = useMutation({
     mutationFn: (value: T | null) => setCache(key, value),
 
-    onMutate: (mutatedData) => {
+    onMutate: async (mutatedData) => {
       const current = data;
+      // A read still in flight would land on top of this value and undo it.
+      await queryClient.cancelQueries({ queryKey });
       queryClient.setQueryData(queryKey, mutatedData);
       return current;
     },

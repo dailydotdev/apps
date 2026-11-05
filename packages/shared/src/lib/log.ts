@@ -57,6 +57,8 @@ export enum Origin {
   SquadJoinSuggestions = 'squad join suggestions',
   SquadJoinSuggestionsPromoted = 'squad join suggestions promoted',
   SquadManagePlan = 'squad manage plan',
+  SquadManageIntel = 'squad manage intel',
+  SquadIntel = 'squad intel',
   StartupsCheckout = 'startups checkout',
   // squads - end
   // Looking for group - start
@@ -458,6 +460,10 @@ export enum LogEvent {
   SelectStartupsSetupPath = 'select startups setup path',
   CopyStartupsSetup = 'copy startups setup',
   ClickStartupsSetupStep = 'click startups setup step',
+  SelectStartupsGoal = 'select startups goal',
+  SkipStartupsGoal = 'skip startups goal',
+  UpdateSquadIntel = 'update squad intel',
+  CopySquadIntel = 'copy squad intel',
   PageScroll = 'page scroll',
   SelectSubscriptionType = 'select subscription type',
   SetOrgSize = 'set org size',
@@ -506,6 +512,7 @@ export enum LogEvent {
   ViewPicksPage = 'view picks page',
   ClickPickPost = 'click pick post',
   ClickMakeYourPicks = 'click make your picks',
+  ClickAddToPicks = 'click add to picks',
   // End Weekly picks
   // The creator copied a link to, or downloaded the card of, one of their
   // achievements. Records the action, not that anything was posted anywhere.

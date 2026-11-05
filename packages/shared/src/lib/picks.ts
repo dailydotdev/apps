@@ -26,7 +26,16 @@ export const getCurrentWeekStart = (now: Date = new Date()): string => {
   return new Date(today - daysSinceMonday * DAY_MS).toISOString().slice(0, 10);
 };
 
-/** Post link with the author attached, so post sharing attribution works. */
+/** Campaign id on post links from a picks page, so clicks can be attributed. */
+export const PICKS_CAMPAIGN_ID = 'share_picks';
+
+/** Accounts younger than this count as new viewers in picks analytics. */
+export const PICKS_NEW_USER_DAYS = 7;
+
+/**
+ * Post link with the author and the campaign attached, so post sharing
+ * attribution and click analytics both work.
+ */
 export const getPickPostHref = (
   commentsPermalink: string,
   authorId: string,
@@ -34,9 +43,26 @@ export const getPickPostHref = (
   try {
     const url = new URL(commentsPermalink);
     url.searchParams.set('userid', authorId);
+    url.searchParams.set('cid', PICKS_CAMPAIGN_ID);
 
     return url.toString();
   } catch {
     return commentsPermalink;
   }
+};
+
+/** Whether the account was created within the last week. */
+export const isNewPicksViewer = (
+  createdAt?: string | null,
+  now: Date = new Date(),
+): boolean => {
+  if (!createdAt) {
+    return false;
+  }
+  const created = new Date(createdAt).getTime();
+
+  return (
+    !Number.isNaN(created) &&
+    now.getTime() - created < PICKS_NEW_USER_DAYS * DAY_MS
+  );
 };

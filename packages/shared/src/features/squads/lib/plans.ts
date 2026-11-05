@@ -20,8 +20,8 @@ export const SQUAD_PLAN_CASHBACK_PERCENTAGE: Record<SquadPlan, number> = {
   [SquadPlan.Team]: 200,
 };
 
-// Topics the weekly brief covers. The brief is not built yet.
-export const SQUAD_PLAN_BRIEF_TOPICS: Record<SquadPlan, number> = {
+// Topics the weekly intel covers, mirrored from the API's intel limits
+export const SQUAD_PLAN_INTEL_TOPICS: Record<SquadPlan, number> = {
   [SquadPlan.Starter]: 5,
   [SquadPlan.Team]: 20,
 };
@@ -54,7 +54,7 @@ export const squadPlanDetails: Record<SquadPlan, SquadPlanDetails> = {
     features: [
       'Company page with a link to your site',
       'In the feed and search, cited by AI answers',
-      'Weekly brief on up to 5 topics',
+      'Weekly intel on up to 5 topics',
       'Skills for Claude Code and any agent',
       'API, so your agent posts and boosts',
       '1 seat',
@@ -65,13 +65,18 @@ export const squadPlanDetails: Record<SquadPlan, SquadPlanDetails> = {
     tagline: 'For a small team or a first marketer.',
     featuresTitle: 'Everything in Starter, plus:',
     features: [
-      'Weekly brief on up to 20 topics',
-      'Seniority filter for the brief',
+      'Weekly intel on up to 20 topics',
+      'Seniority filter for the intel',
       'A CTA on your page header',
       '5 seats',
     ],
   },
 };
+
+// Enterprise is set by ops for a signed contract, never bought here, so it has
+// no price, cashback or details of its own
+export const getSquadPlanTitle = (plan: string): string =>
+  isSquadPlan(plan) ? squadPlanDetails[plan].title : 'Enterprise';
 
 export const startupsEnterpriseUrl =
   'https://business.daily.dev/?ref=daily-startups-checkout';

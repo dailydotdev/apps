@@ -8,7 +8,7 @@ import type { SidebarSectionProps } from './common';
 import { LfgSection } from './LfgSection';
 import { MailIcon } from '../../icons/Mail';
 import { SettingsIcon } from '../../icons/Settings';
-import { VolunteeringIcon } from '../../icons/Volunteering';
+import { AddUserIcon } from '../../icons/AddUser';
 import { useLfgEnabled } from '../../../features/lfg/hooks/useLfgEnabled';
 import { useUnreadMessagesCount } from '../../../features/messages/hooks/useUnreadMessagesCount';
 import { useMessagesEnabled } from '../../../features/messages/hooks/useMessagesEnabled';
@@ -51,7 +51,7 @@ export const MessagesSection = ({
         isForcedLink: true,
         active: isMessagesPage && isRequestsTab,
         icon: (active: boolean) => (
-          <ListIcon Icon={() => <VolunteeringIcon secondary={active} />} />
+          <ListIcon Icon={() => <AddUserIcon secondary={active} />} />
         ),
         rightIcon: requests
           ? () => <SidebarCountBadge count={requests} />

@@ -33,6 +33,7 @@ import { SquadProductForm } from '../products/SquadProductForm';
 import {
   SquadManagePanel,
   SquadManageSaveButton,
+  useSquadManageEmbed,
   SquadManageSectionPanel,
 } from './SquadManageLayout';
 
@@ -174,6 +175,7 @@ export const SquadManageProductForm = ({
   productId?: string;
 }): ReactElement | null => {
   const router = useRouter();
+  const embed = useSquadManageEmbed();
   const { squad } = useSquadPageContext();
   const { products, isPending } = useSquadProducts(squad);
   const [isSaving, setIsSaving] = useState(false);
@@ -216,7 +218,7 @@ export const SquadManageProductForm = ({
         squad={squad}
         formId={productFormId}
         product={product}
-        onDone={() => router.push(listUrl)}
+        onDone={() => (embed ? embed.onSaved() : router.push(listUrl))}
         onSavingChange={setIsSaving}
       />
     </SquadManagePanel>
