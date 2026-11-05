@@ -73,5 +73,10 @@ export const squadPlanDetails: Record<SquadPlan, SquadPlanDetails> = {
   },
 };
 
+// Enterprise is set by ops for a signed contract, never bought here, so it has
+// no price, cashback or details of its own
+export const getSquadPlanTitle = (plan: string): string =>
+  isSquadPlan(plan) ? squadPlanDetails[plan].title : 'Enterprise';
+
 export const startupsEnterpriseUrl =
   'https://business.daily.dev/?ref=daily-startups-checkout';

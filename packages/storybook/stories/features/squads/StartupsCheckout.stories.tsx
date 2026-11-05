@@ -455,6 +455,21 @@ export const ManageStarter: Story = {
   ),
 };
 
+/** Enterprise, set by ops for a contract: no price, billing or cashback. */
+export const ManageEnterprise: Story = {
+  render: () => (
+    <ManagePlan
+      subscription={
+        {
+          ...teamPlan,
+          plan: 'enterprise',
+          seatsUsed: 2,
+        } as unknown as SquadSubscription
+      }
+    />
+  ),
+};
+
 /** Team: the owner gives seats to admins and moderators. */
 export const ManageTeam: Story = {
   render: () => <ManagePlan subscription={teamPlan} />,

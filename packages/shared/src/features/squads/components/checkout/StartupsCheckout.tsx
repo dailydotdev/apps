@@ -53,6 +53,7 @@ import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
 import { getSquadId } from '../../lib/features';
 import {
   getSquadPlanPriceId,
+  getSquadPlanTitle,
   isSquadPlan,
   SQUAD_PLAN_CASHBACK_PERCENTAGE,
   SQUAD_PLAN_SEATS,
@@ -323,7 +324,7 @@ const CompanyStep = ({
                 isSelected={squad.id === selectedId}
                 planTitle={
                   squad.id === selectedId && activePlan
-                    ? squadPlanDetails[activePlan].title
+                    ? getSquadPlanTitle(activePlan)
                     : undefined
                 }
                 onClick={() => onSelect(squad.id)}
