@@ -16,11 +16,13 @@ import {
 import type { SquadBranding } from '@dailydotdev/shared/src/graphql/squadBranding';
 import type { SquadProduct } from '@dailydotdev/shared/src/graphql/squadProducts';
 import { SetupPath, SetupScreen } from '../startups-onboarding/screens';
+import { sampleProduct } from '../startups-onboarding/setupEditor';
 import { Providers } from '../startups-onboarding/providers';
 import { acmeTeam, Seeded, teamPlan } from './seed';
 
-// What each row of the do-it-yourself checklist opens: the real manage pages,
-// empty and filled. Everything but the first and last story is the merged code.
+// The do-it-yourself checklist first: in the onboarding, each action opens its
+// settings page in the right box, or as its own page on a phone. Then those real
+// manage pages on their own, empty and filled, as they look inside settings.
 
 const meta: Meta = {
   title: 'Startups Onboarding/3. Do it yourself',
@@ -52,18 +54,6 @@ const filled = {
   ],
 } as Squad;
 
-const product = {
-  id: 'acme-cli',
-  title: 'Acme CLI',
-  slug: 'acme-cli',
-  url: 'https://acme.dev/cli',
-  faviconUrl: '/squad-page/acme-logo.svg',
-  category: 'Developer tools',
-  tagline: 'Preview every pull request.',
-  description: 'One command for a live preview of any branch.',
-  pricingModel: null,
-} as unknown as SquadProduct;
-
 const buttonOn = {
   color: '#7C6BEA',
   button: { enabled: true, label: 'Start free', url: 'https://acme.dev' },
@@ -92,28 +82,13 @@ const Edit = ({
   </Seeded>
 );
 
-const rowStory: Record<string, string> = {
-  details: 'logo-and-description',
-  links: 'website-and-links',
-  product: 'your-product',
-  cta: 'header-cta',
-  seats: 'give-seats',
-};
-
-const openRow = (id: string): void => {
-  window.top?.location.assign(
-    `/?path=/story/startups-onboarding-3-do-it-yourself--${rowStory[id]}`,
-  );
-};
-
 export const TheList: Story = {
-  name: 'The list: click any action',
+  name: 'The list: click any action, then Save',
   render: () => (
     <SetupScreen
       plan={SquadPlan.Team}
       initialPath={SetupPath.Manual}
       done={{ details: true }}
-      onRowAction={openRow}
     />
   ),
 };
@@ -157,7 +132,7 @@ export const YourProduct: Story = {
 export const YourProductFilled: Story = {
   name: 'Your product, filled',
   render: () => (
-    <Edit section={SquadManageSection.Products} products={[product]}>
+    <Edit section={SquadManageSection.Products} products={[sampleProduct]}>
       <SquadManageProducts />
     </Edit>
   ),
@@ -175,8 +150,8 @@ export const AddProduct: Story = {
 export const EditProduct: Story = {
   name: 'Your product, edit',
   render: () => (
-    <Edit section={SquadManageSection.Products} products={[product]}>
-      <SquadManageProductForm productId={product.id} />
+    <Edit section={SquadManageSection.Products} products={[sampleProduct]}>
+      <SquadManageProductForm productId={sampleProduct.id} />
     </Edit>
   ),
 };

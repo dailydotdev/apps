@@ -76,18 +76,18 @@ const options: {
   note: string;
 }[] = [
   {
+    title: 'A. Subscription, with a credit card (our decision)',
+    group: 'Billing',
+    icon: <CreditCardIcon />,
+    label: 'Subscription',
+    note: 'The word and icon agree, and user settings already use both ("Payment & Subscription"). It still reads right before they buy. Gets its own group, away from tools.',
+  },
+  {
     title: 'Today: Plan, with a credit card',
     group: 'Tools',
     icon: <CreditCardIcon />,
     label: 'Plan',
     note: 'A card says "payment", but the word says "plan". The two pull apart, and it sits among tools.',
-  },
-  {
-    title: 'A. Subscription, with a credit card (chosen)',
-    group: 'Billing',
-    icon: <CreditCardIcon />,
-    label: 'Subscription',
-    note: 'The word and icon agree, and user settings already use both ("Payment & Subscription"). It still reads right before they buy. Gets its own group, away from tools.',
   },
   {
     title: 'B. Billing, with a credit card',
@@ -165,7 +165,7 @@ export const PlanNameAndIcon: StoryObj = {
       title="Plan is now Subscription"
       intro="Decided: Subscription, keeping the credit card, in its own Billing group. It's in the settings menu now. You choose a plan and you manage a subscription, so the Plan step in checkout keeps its name."
     >
-      <Section title="The options, in the menu">
+      <Section title="Our decision, and the options we compared">
         <Grid columns={3}>
           {options.map(({ title, group, icon, label, note }) => (
             <div key={title} className="flex flex-col gap-3">

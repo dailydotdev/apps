@@ -321,7 +321,7 @@ const SeatRowsLoading = (): ReactElement => (
   </ul>
 );
 
-const Seats = ({
+export const Seats = ({
   plan,
   members,
   isLoading,

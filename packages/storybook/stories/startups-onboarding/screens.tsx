@@ -29,6 +29,10 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import SignupDisclaimer from '@dailydotdev/shared/src/components/auth/SignupDisclaimer';
 import { providerMap } from '@dailydotdev/shared/src/components/auth/common';
 import {
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks/useViewSize';
+import {
   CharmEmptyState,
   CharmEmptyStatePlacement,
 } from '@dailydotdev/shared/src/components/charm/CharmEmptyState';
@@ -52,6 +56,7 @@ import {
 import { agentMarks } from './agentMarks';
 import { StuntVisual } from './companyVisuals';
 import { FullPagePreview } from './preview';
+import { SetupEditor } from './setupEditor';
 import {
   Cta,
   FormColumn,
@@ -1397,11 +1402,10 @@ const RowCheck = ({ isDone }: { isDone?: boolean }): ReactElement => (
   <span
     className={classNames(
       'flex size-6 shrink-0 items-center justify-center rounded-full',
-      isDone && 'bg-accent-avocado-default',
     )}
     style={
       isDone
-        ? { color: '#111827' }
+        ? { background: '#D8B4FE', color: '#111827' }
         : {
             boxShadow:
               'inset 0 0 0 1.5px var(--theme-border-subtlest-secondary)',
@@ -1441,8 +1445,9 @@ const ManualSetup = ({
         </p>
         <div className="h-1 w-full overflow-hidden rounded-50 bg-border-subtlest-tertiary">
           <div
-            className="h-full rounded-50 bg-accent-avocado-default"
+            className="h-full rounded-50"
             style={{
+              background: '#D8B4FE',
               width: `${(done / total) * 100}%`,
               transition: 'width .4s ease',
             }}
@@ -1670,13 +1675,13 @@ export const SetupScreen = ({
   done = {},
   isFinished,
   isLoading,
-  onRowAction,
   isChecking,
+  initialEditingId,
 }: {
+  /** A checklist row whose settings are open. */
+  initialEditingId?: string;
   /** The checklist is still finding out which rows are done. */
   isChecking?: boolean;
-  /** Replaces filling in the preview, for the page that opens each edit screen. */
-  onRowAction?: (id: string) => void;
   company?: string;
   plan?: SquadPlan;
   initialPath?: SetupPath;
@@ -1689,6 +1694,30 @@ export const SetupScreen = ({
 }): ReactElement => {
   const [added, setAdded] = useState<SetupProgress>(done);
   const shownDone = isFinished ? everythingDone : added;
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const [editingId, setEditingId] = useState(initialEditingId);
+  const editing = editingId
+    ? getSetupRows(plan, added).find(({ id }) => id === editingId)
+    : undefined;
+  const editor = editing && (
+    <SetupEditor
+      key={editing.id}
+      rowId={editing.id}
+      title={editing.title}
+      company={company}
+      isDone={editing.isDone}
+      isPage={!isLaptop}
+      onBack={() => setEditingId(undefined)}
+      onSave={() => {
+        setAdded((prev) => ({ ...prev, [editing.id]: true }));
+        setEditingId(undefined);
+      }}
+    />
+  );
+
+  if (editor && !isLaptop) {
+    return editor;
+  }
 
   return (
     <Shell
@@ -1699,18 +1728,20 @@ export const SetupScreen = ({
       isPlainOnPhone
       stageFill={StageFill.Surface}
       aside={
-        <FullPagePreview
-          content={{
-            name: company,
-            plan,
-            description: shownDone.details,
-            links: shownDone.links,
-            product: shownDone.product,
-            cta: shownDone.cta,
-            seats: shownDone.seats,
-            post: isFinished,
-          }}
-        />
+        editor ?? (
+          <FullPagePreview
+            content={{
+              name: company,
+              plan,
+              description: shownDone.details,
+              links: shownDone.links,
+              product: shownDone.product,
+              cta: shownDone.cta,
+              seats: shownDone.seats,
+              post: isFinished,
+            }}
+          />
+        )
       }
     >
       <Title
@@ -1756,10 +1787,7 @@ export const SetupScreen = ({
           initialClient={initialClient}
           done={added}
           isChecking={isChecking}
-          onAdd={
-            onRowAction ??
-            ((id) => setAdded((prev) => ({ ...prev, [id]: true })))
-          }
+          onAdd={setEditingId}
         />
       )}
       <div className="flex flex-wrap items-center gap-3">

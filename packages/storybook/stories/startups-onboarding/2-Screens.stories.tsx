@@ -327,6 +327,18 @@ export const SetupChecking: Story = {
   ),
 };
 
+export const SetupEditing: Story = {
+  name: '4n. Do it yourself, editing a row',
+  render: () => (
+    <SetupScreen
+      plan={SquadPlan.Team}
+      initialPath={SetupPath.Manual}
+      done={{ details: true }}
+      initialEditingId="links"
+    />
+  ),
+};
+
 export const SetupFinished: Story = {
   name: '4e. Finished',
   render: () => <SetupScreen isFinished />,

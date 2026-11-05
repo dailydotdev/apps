@@ -366,6 +366,12 @@ export const groups: PlaygroundGroup[] = [
         proposed: `${screens}setup-manual-done`,
       },
       {
+        id: 'F7',
+        label: 'Do it yourself, editing a row',
+        proposed: `${screens}setup-editing`,
+        note: "The row's settings page, in the right box or as its own page on a phone. Today this leaves for settings. Back and Save return to the checklist.",
+      },
+      {
         id: 'F6',
         label: 'Do it yourself, checking what is done',
         proposed: `${screens}setup-checking`,

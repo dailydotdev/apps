@@ -51,8 +51,12 @@ const groups: { title: string; note?: string; rules: [string, string][] }[] = [
         'Code sits in its box, with a full-width copy button below it, the same on every page.',
       ],
       [
-        'Finished means green',
-        'Checks on the stepper, the checklist and Setting up are all green. Setting up shows every step from the start.',
+        'Checks',
+        'Green on the stepper and Setting up, which shows every step from the start. Purple on the do-it-yourself checklist.',
+      ],
+      [
+        'Do it yourself',
+        "A checklist action opens that settings page's content in the right box, with Back and Save. On a phone it's a page of its own. Both return to the checklist, not settings, and Save ticks the row. Settings itself works as it does today.",
       ],
       [
         'Already paid',
