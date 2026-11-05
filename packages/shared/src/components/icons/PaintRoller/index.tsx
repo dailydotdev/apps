@@ -5,6 +5,6 @@ import Icon from '../../Icon';
 import OutlinedIcon from './outlined.svg';
 import FilledIcon from './filled.svg';
 
-export const BrushIcon = (props: IconProps): ReactElement => (
+export const PaintRollerIcon = (props: IconProps): ReactElement => (
   <Icon {...props} IconPrimary={OutlinedIcon} IconSecondary={FilledIcon} />
 );
