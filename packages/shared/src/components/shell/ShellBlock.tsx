@@ -113,9 +113,7 @@ const MessagesSquare = (): ReactElement | null => {
       <ShellSquare
         tag="a"
         aria-label={
-          unreadCount
-            ? `Chat, ${getUnreadText(unreadCount)} unread`
-            : 'Chat'
+          unreadCount ? `Chat, ${getUnreadText(unreadCount)} unread` : 'Chat'
         }
       >
         <span className="relative flex">

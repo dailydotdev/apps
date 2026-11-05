@@ -288,7 +288,7 @@ describe('ShellCluster', () => {
     );
   });
 
-  it('shows the unread count on Activity only', () => {
+  it('shows the unread count on Notifications only', () => {
     renderCluster('/');
 
     expect(screen.getByLabelText('Notifications')).toHaveTextContent('3');
