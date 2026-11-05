@@ -71,7 +71,7 @@ export const SidebarTablet = ({
     variant: ButtonVariant.Tertiary,
     size: ButtonSize.Large,
     className:
-      'w-full !bg-transparent active:bg-transparent aria-pressed:bg-transparent typo-caption1',
+      'w-full !bg-transparent active:bg-transparent aria-pressed:bg-transparent typo-caption2',
   };
   const feedName = getFeedName(activePage, {
     hasUser: !!user,
