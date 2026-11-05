@@ -29,6 +29,7 @@ import {
 import { SquadManageAnalytics } from './SquadManageAnalytics';
 import { SquadManageIntegrations } from './SquadManageIntegrations';
 import { SquadManagePlan } from './SquadManagePlan';
+import { SquadManageIntel } from './SquadManageIntel';
 
 const SectionContent = ({
   section,
@@ -66,6 +67,8 @@ const SectionContent = ({
       return <SquadManageIntegrations />;
     case SquadManageSection.Plan:
       return <SquadManagePlan />;
+    case SquadManageSection.Intel:
+      return <SquadManageIntel />;
     case SquadManageSection.DangerZone:
       return (
         <SquadManageSectionPanel section={section}>

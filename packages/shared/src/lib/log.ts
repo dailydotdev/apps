@@ -57,6 +57,8 @@ export enum Origin {
   SquadJoinSuggestions = 'squad join suggestions',
   SquadJoinSuggestionsPromoted = 'squad join suggestions promoted',
   SquadManagePlan = 'squad manage plan',
+  SquadManageIntel = 'squad manage intel',
+  SquadIntel = 'squad intel',
   StartupsCheckout = 'startups checkout',
   // squads - end
   // Looking for group - start
@@ -458,6 +460,8 @@ export enum LogEvent {
   SelectStartupsSetupPath = 'select startups setup path',
   CopyStartupsSetup = 'copy startups setup',
   ClickStartupsSetupStep = 'click startups setup step',
+  UpdateSquadIntel = 'update squad intel',
+  CopySquadIntel = 'copy squad intel',
   PageScroll = 'page scroll',
   SelectSubscriptionType = 'select subscription type',
   SetOrgSize = 'set org size',

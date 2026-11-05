@@ -27,11 +27,12 @@ import type { Squad } from '../../../../graphql/sources';
 import { squadProductsQueryOptions } from '../../../../graphql/squadProducts';
 import { squadBrandingQueryOptions } from '../../../../graphql/squadBranding';
 import { squadSubscriptionQueryOptions } from '../../../../graphql/squadSubscription';
+import { squadIntelSettingsQueryOptions } from '../../../../graphql/squadIntel';
 import type { Origin } from '../../../../lib/log';
 import { LogEvent } from '../../../../lib/log';
 import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
 import {
-  SQUAD_PLAN_BRIEF_TOPICS,
+  SQUAD_PLAN_INTEL_TOPICS,
   SQUAD_PLAN_CASHBACK_PERCENTAGE,
   SQUAD_PLAN_SEATS,
   SquadPlan,
@@ -67,7 +68,7 @@ interface SetupItem {
   cta?: string;
 }
 
-const CopyBlock = ({
+export const CopyBlock = ({
   text,
   label,
   onCopy,
@@ -105,11 +106,80 @@ const CopyBlock = ({
   );
 };
 
-const StepNumber = ({ children }: { children: ReactNode }): ReactElement => (
+export const StepNumber = ({
+  children,
+}: {
+  children: ReactNode;
+}): ReactElement => (
   <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-surface-float font-bold typo-footnote">
     {children}
   </span>
 );
+
+/** The daily.dev MCP server's setup for the agent the founder uses. */
+export const AgentConnect = ({
+  client,
+  onClientChange,
+  log,
+}: {
+  client: AgentClient;
+  onClientChange: (client: AgentClient) => void;
+  log: (event: LogEvent, targetId: string, extra?: object) => void;
+}): ReactElement => {
+  const setup = agentClientSetup[client];
+
+  return (
+    <>
+      <div
+        role="tablist"
+        aria-label="Your agent"
+        className="flex flex-wrap gap-1"
+      >
+        {agentClients.map((option) => (
+          <Button
+            key={option}
+            role="tab"
+            aria-selected={option === client}
+            variant={
+              option === client ? ButtonVariant.Float : ButtonVariant.Tertiary
+            }
+            size={ButtonSize.Small}
+            onClick={() => onClientChange(option)}
+          >
+            {agentClientSetup[option].label}
+          </Button>
+        ))}
+      </div>
+      {setup.installUrl && (
+        <Button
+          tag="a"
+          href={setup.installUrl}
+          target="_blank"
+          rel="noopener"
+          variant={ButtonVariant.Secondary}
+          size={ButtonSize.Small}
+          className="self-start"
+          icon={<OpenLinkIcon />}
+          iconPosition={ButtonIconPosition.Right}
+          onClick={() => log(LogEvent.CopyStartupsSetup, 'install', { client })}
+        >
+          {`Add to ${setup.label}`}
+        </Button>
+      )}
+      <CopyBlock
+        text={setup.snippet}
+        label={`Copy the ${setup.label} setup`}
+        onCopy={() => log(LogEvent.CopyStartupsSetup, 'mcp', { client })}
+      />
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Tertiary}
+      >
+        {setup.note}
+      </Typography>
+    </>
+  );
+};
 
 const AgentSetup = ({
   squad,
@@ -121,7 +191,6 @@ const AgentSetup = ({
   log: (event: LogEvent, targetId: string, extra?: object) => void;
 }): ReactElement => {
   const [client, setClient] = useState(AgentClient.ClaudeCode);
-  const setup = agentClientSetup[client];
   const prompt = getStartupsSetupPrompt({
     name: squad.name,
     handle: squad.handle,
@@ -137,55 +206,7 @@ const AgentSetup = ({
             Connect daily.dev to your agent
           </Typography>
         </span>
-        <div
-          role="tablist"
-          aria-label="Your agent"
-          className="flex flex-wrap gap-1"
-        >
-          {agentClients.map((option) => (
-            <Button
-              key={option}
-              role="tab"
-              aria-selected={option === client}
-              variant={
-                option === client ? ButtonVariant.Float : ButtonVariant.Tertiary
-              }
-              size={ButtonSize.Small}
-              onClick={() => setClient(option)}
-            >
-              {agentClientSetup[option].label}
-            </Button>
-          ))}
-        </div>
-        {setup.installUrl && (
-          <Button
-            tag="a"
-            href={setup.installUrl}
-            target="_blank"
-            rel="noopener"
-            variant={ButtonVariant.Secondary}
-            size={ButtonSize.Small}
-            className="self-start"
-            icon={<OpenLinkIcon />}
-            iconPosition={ButtonIconPosition.Right}
-            onClick={() =>
-              log(LogEvent.CopyStartupsSetup, 'install', { client })
-            }
-          >
-            {`Add to ${setup.label}`}
-          </Button>
-        )}
-        <CopyBlock
-          text={setup.snippet}
-          label={`Copy the ${setup.label} setup`}
-          onCopy={() => log(LogEvent.CopyStartupsSetup, 'mcp', { client })}
-        />
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          {setup.note}
-        </Typography>
+        <AgentConnect client={client} onClientChange={setClient} log={log} />
       </li>
       <li className="flex flex-col gap-3">
         <span className="flex items-center gap-2">
@@ -310,6 +331,14 @@ export const StartupsSetup = ({
     ...squadSubscriptionQueryOptions({ user, sourceId }),
     enabled: !!user && isTeam,
   });
+  // Only paid seats can read it; anyone else just sees the step as open
+  const { data: intelSettings } = useQuery(
+    squadIntelSettingsQueryOptions({
+      user,
+      sourceId,
+      enabled: !!squad.currentMember?.seat,
+    }),
+  );
   const manageUrl = (section: SquadManageSection) =>
     getSquadManageUrl(squad.handle, section);
   const selectPath = (option: StartupsSetupPath) => {
@@ -366,10 +395,12 @@ export const StartupsSetup = ({
       cta: 'Show me',
     },
     {
-      id: 'brief',
-      title: `Weekly brief on up to ${SQUAD_PLAN_BRIEF_TOPICS[plan]} topics`,
-      description: 'What developers and their agents read in your space.',
-      badge: 'Coming soon',
+      id: 'intel',
+      title: `Weekly intel on up to ${SQUAD_PLAN_INTEL_TOPICS[plan]} topics`,
+      description: 'What developers read and discuss in your space.',
+      isDone: !!intelSettings?.selection,
+      href: manageUrl(SquadManageSection.Intel),
+      cta: 'Pick topics',
     },
     {
       id: 'cashback',
