@@ -14,7 +14,6 @@ import {
 } from '../../../../components/charm/CharmEmptyState';
 import { TextField } from '../../../../components/fields/TextField';
 import {
-  ArrowIcon,
   CoreIcon,
   MoveToIcon,
   OpenLinkIcon,
@@ -802,7 +801,7 @@ const SetupStep = ({
             href={pageUrl}
             variant={isComplete ? ButtonVariant.Primary : ButtonVariant.Subtle}
             className="self-start"
-            icon={<ArrowIcon className="rotate-90" />}
+            icon={<OpenLinkIcon size={IconSize.Size16} />}
             iconPosition={ButtonIconPosition.Right}
           >
             Open your page

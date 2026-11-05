@@ -13,7 +13,6 @@ import { PasswordField } from '@dailydotdev/shared/src/components/fields/Passwor
 import { CodeField } from '@dailydotdev/shared/src/components/fields/CodeField';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import {
-  ArrowIcon,
   CopyIcon,
   CoreIcon,
   CreditCardIcon,
@@ -1818,7 +1817,7 @@ export const SetupScreen = ({
       <div className="flex flex-wrap items-center gap-3">
         <Button
           variant={isFinished ? ButtonVariant.Primary : ButtonVariant.Subtle}
-          icon={<ArrowIcon className="rotate-90" />}
+          icon={<OpenLinkIcon size={IconSize.Size16} />}
           iconPosition={ButtonIconPosition.Right}
         >
           Open your page
