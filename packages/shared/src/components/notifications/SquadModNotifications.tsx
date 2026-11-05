@@ -25,8 +25,10 @@ import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import { Image } from '../image/Image';
 import { HorizontalSeparator } from '../utilities';
 
+type ModerationSquad = Squad & Required<Pick<Squad, 'id'>>;
+
 interface SquadModerationItemProps {
-  squad: Squad;
+  squad: ModerationSquad;
   expandedSquadId: string | null;
   onToggleExpanded: (squadId: string) => void;
 }
@@ -275,8 +277,9 @@ const SquadModNotifications = (): ReactElement => {
   const squadModerationEnabled = getGroupStatus('squadModeration', 'inApp');
 
   const moderationSquads =
-    squads?.filter((squad) =>
-      verifyPermission(squad, SourcePermissions.ModeratePost),
+    squads?.filter(
+      (squad): squad is ModerationSquad =>
+        !!squad.id && verifyPermission(squad, SourcePermissions.ModeratePost),
     ) || [];
 
   const toggleSquadExpansion = (squadId: string) => {
