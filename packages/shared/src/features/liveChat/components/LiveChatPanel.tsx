@@ -155,7 +155,7 @@ export const LiveChatPanel = ({
   if (isInline && isOpen) {
     heading = 'Live chat is on for this post';
   }
-  let subtitle = 'Open for 24 hours, then gone';
+  let subtitle = 'Open for 4 hours, then gone';
   if (hasEnded) {
     subtitle = 'This chat has ended';
   } else if (isOpen && isEndingSoon && room?.expiresAt) {

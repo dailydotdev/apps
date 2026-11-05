@@ -38,7 +38,7 @@ const roomOf = (
     title,
     commentsPermalink: `https://app.daily.dev/posts/${id}`,
   },
-  expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+  expiresAt: new Date(Date.now() + 45 * 60 * 1000).toISOString(),
   occupantCount,
   createdAt: new Date().toISOString(),
 });
@@ -87,7 +87,7 @@ describe('LiveChatWidget', () => {
 
     expect(await screen.findByText('Bun 2.0')).toBeInTheDocument();
     expect(screen.getByText('Postgres 18')).toBeInTheDocument();
-    expect(screen.getByText('23 here · ends in 2h')).toBeInTheDocument();
+    expect(screen.getByText('23 here · ends in 45m')).toBeInTheDocument();
     expect(screen.getByText('Bun 2.0').closest('a')).toHaveAttribute(
       'href',
       'https://app.daily.dev/posts/a?chat=join',
