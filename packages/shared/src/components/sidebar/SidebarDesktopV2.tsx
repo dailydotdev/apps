@@ -64,6 +64,7 @@ import { NetworkSection } from './sections/NetworkSection';
 import { StreakQuestsSection } from './sections/StreakQuestsSection';
 import { HelpWidget } from '../help/HelpWidget';
 import {
+  AppIcon,
   BellIcon,
   BrowserGroupIcon,
   CompassIcon,
@@ -112,6 +113,8 @@ import {
 } from './useSidebarDragState';
 import { useSpotlight } from '../spotlight/SpotlightContext';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useExtensionContext } from '../../contexts/ExtensionContext';
+import { useContentScriptStatus } from '../../hooks/useContentScriptStatus';
 import NotificationsBell from '../notifications/NotificationsBell';
 import { NotificationsRailPanel } from '../notifications/NotificationsRailPanel';
 import { MailIcon } from '../icons/Mail';
@@ -511,6 +514,38 @@ const legalItems: ProfileSectionItemProps[] = [
   },
 ];
 
+const useEnableCompanionItem = (): ProfileSectionItemProps | null => {
+  const { isLoggedIn } = useAuthContext();
+  const { requestContentScripts } = useExtensionContext();
+  const { contentScriptGranted, isFetched } = useContentScriptStatus();
+  const { optOutCompanion } = useSettingsContext();
+
+  return useMemo(() => {
+    if (
+      !isLoggedIn ||
+      !requestContentScripts ||
+      !isFetched ||
+      contentScriptGranted ||
+      optOutCompanion
+    ) {
+      return null;
+    }
+
+    return {
+      title: 'Enable the companion',
+      icon: AppIcon,
+      onClick: () =>
+        requestContentScripts({ origin: 'companion support menu' }),
+    };
+  }, [
+    isLoggedIn,
+    requestContentScripts,
+    isFetched,
+    contentScriptGranted,
+    optOutCompanion,
+  ]);
+};
+
 const SidebarSupportButton = ({
   onLearnSidebar,
 }: {
@@ -520,30 +555,40 @@ const SidebarSupportButton = ({
 }): ReactElement => {
   const { isOpen, onUpdate, wrapHandler } =
     useInteractivePopup(RAIL_POPUP_GROUP);
+  const enableCompanion = useEnableCompanionItem();
   const items: ProfileSectionItemProps[] = useMemo(() => {
-    if (!onLearnSidebar) {
-      return supportItems;
-    }
-
-    const tutorial: ProfileSectionItemProps = {
-      title: 'Sidebar tutorial',
-      icon: MagicIcon,
-      onClick: () => {
-        onUpdate(false);
-        onLearnSidebar();
-      },
-    };
+    const tutorial: ProfileSectionItemProps | null = onLearnSidebar
+      ? {
+          title: 'Sidebar tutorial',
+          icon: MagicIcon,
+          onClick: () => {
+            onUpdate(false);
+            onLearnSidebar();
+          },
+        }
+      : null;
     // Sits under Changelog, with the other "how this works" entries, rather
     // than at the top where it would read as the menu's primary action.
     const afterChangelog =
       supportItems.findIndex(({ title }) => title === 'Changelog') + 1;
 
     return [
+      ...(enableCompanion
+        ? [
+            {
+              ...enableCompanion,
+              onClick: () => {
+                onUpdate(false);
+                enableCompanion.onClick?.();
+              },
+            },
+          ]
+        : []),
       ...supportItems.slice(0, afterChangelog),
-      tutorial,
+      ...(tutorial ? [tutorial] : []),
       ...supportItems.slice(afterChangelog),
     ];
-  }, [onLearnSidebar, onUpdate]);
+  }, [enableCompanion, onLearnSidebar, onUpdate]);
 
   return (
     <>
@@ -767,7 +812,6 @@ type SidebarDesktopV2Props = {
   showFeedbackWidget?: boolean;
   onNavTabClick?: (tab: string) => void;
   onLogoClick?: (e: React.MouseEvent) => unknown;
-  additionalButtons?: ReactNode;
 };
 
 export const SidebarDesktopV2 = ({
@@ -777,7 +821,6 @@ export const SidebarDesktopV2 = ({
   showFeedbackWidget,
   onNavTabClick,
   onLogoClick,
-  additionalButtons,
 }: SidebarDesktopV2Props): ReactElement => {
   const router = useRouter();
   const {
@@ -2718,12 +2761,6 @@ export const SidebarDesktopV2 = ({
                 </div>
               )}
             </div>
-
-            {isLoggedIn && !isUtilityPanelSelected && additionalButtons && (
-              <div className="mt-2 flex items-center gap-1 px-3">
-                {additionalButtons}
-              </div>
-            )}
 
             <SidebarScrollWrapper
               className={classNames(

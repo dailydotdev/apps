@@ -66,7 +66,7 @@ jest.mock('@dailydotdev/shared/src/components/GrowthBookProvider', () => ({
 }));
 
 jest.mock('@dailydotdev/shared/src/contexts/SettingsContext', () => ({
-  useSettingsContext: () => ({ optOutCompanion: true, showTopSites: false }),
+  useSettingsContext: () => ({ showTopSites: false }),
 }));
 
 jest.mock(
@@ -104,10 +104,6 @@ jest.mock('./ShortcutLinks/ShortcutLinks', () => ({
 
 jest.mock('./ExtensionTopBanners', () => ({
   ExtensionTopBanners: () => null,
-}));
-
-jest.mock('../companion/CompanionPopupButton', () => ({
-  CompanionPopupButton: () => null,
 }));
 
 jest.mock('../companion/useCompanionSettings', () => ({

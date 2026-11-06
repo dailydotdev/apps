@@ -30,7 +30,6 @@ import { DndBanner } from '@dailydotdev/shared/src/components/DndBanner';
 import ShortcutLinks from './ShortcutLinks/ShortcutLinks';
 import { ExtensionTopBanners } from './ExtensionTopBanners';
 import { ExtensionSignInContent } from './ExtensionSignInContent';
-import { CompanionPopupButton } from '../companion/CompanionPopupButton';
 import { useCompanionSettings } from '../companion/useCompanionSettings';
 
 const PostsSearch = dynamic(
@@ -81,7 +80,7 @@ const MainFeedPageInner = ({
   const { logEvent } = useLogContext();
   const { getFeatureValue } = useFeaturesReadyContext();
   const [isSearchOn, setIsSearchOn] = useState(false);
-  const { user, loadingUser } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const [feedName, setFeedName] = useState<string>(() =>
     getInitialFeedName(initialPage),
   );
@@ -148,7 +147,7 @@ const MainFeedPageInner = ({
     setSearchQuery(undefined);
   };
 
-  const { optOutCompanion, showTopSites } = useSettingsContext();
+  const { showTopSites } = useSettingsContext();
   // Mirror `ExtensionTopBanners`' "Add shortcuts" gate so the topBanner
   // shortcut row and the marketing CTA card are mutually exclusive.
   const { shortcutLinks } = useShortcutLinks();
@@ -178,9 +177,6 @@ const MainFeedPageInner = ({
           onLogoClick={onLogoClick}
           onNavTabClick={onNavTabClick}
           customBanner={isDndActive && <DndBanner />}
-          additionalButtons={
-            !loadingUser && !optOutCompanion && <CompanionPopupButton />
-          }
           topBanner={
             <>
               {isLaptopLayout && loginStrip && (
