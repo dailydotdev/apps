@@ -60,6 +60,7 @@ export enum AuthTriggers {
   CreateFeedFilters = 'create feed filters',
   AccountPage = 'account page',
   NewComment = 'new comment',
+  CommentsTeaser = 'comments teaser',
   SearchInput = 'search input',
   SearchSuggestion = 'search suggestion',
   LoginPage = 'login page',
