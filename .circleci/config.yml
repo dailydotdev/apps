@@ -6,12 +6,35 @@ executors:
       - image: cimg/node:24.22.1
 
 commands:
-  restore_deps:
+  enable_pnpm:
+    steps:
+      - run:
+          name: Enable pnpm
+          command: |
+            mkdir -p $HOME/.local/bin
+            corepack enable --install-directory $HOME/.local/bin
+            corepack prepare pnpm@10.33.4 --activate
+  # Jobs do not wait for install_deps. They restore the cache for this exact
+  # lockfile and install themselves only when it is missing, which happens
+  # once per lockfile change while install_deps saves the cache for the next
+  # pipeline. Only the exact key is used here: a stale branch fallback would
+  # look like a hit and skip the install.
+  ensure_deps:
     steps:
       - restore_cache:
           keys:
             - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
-            - deps-pnpm-10-33-4-{{ .Branch }}
+      - run:
+          name: Install dependencies if the cache missed
+          command: |
+            if [ -d node_modules/.pnpm ]; then
+              echo "Dependency cache hit"
+              exit 0
+            fi
+            mkdir -p $HOME/.local/bin
+            corepack enable --install-directory $HOME/.local/bin
+            corepack prepare pnpm@10.33.4 --activate
+            pnpm install --frozen-lockfile --prefer-offline
   # Jest's worker count defaults to the host's core count minus one, which on a
   # Docker executor is the metal underneath, not the container. Pin the workers
   # to the resource class so the suite does not swamp the container.
@@ -44,13 +67,11 @@ jobs:
     executor: node
     steps:
       - checkout
-      - run:
-          name: Enable pnpm
-          command: |
-            mkdir -p $HOME/.local/bin
-            corepack enable --install-directory $HOME/.local/bin
-            corepack prepare pnpm@10.33.4 --activate
-      - restore_deps
+      - enable_pnpm
+      - restore_cache:
+          keys:
+            - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
+            - deps-pnpm-10-33-4-{{ .Branch }}
       - run:
           name: Install dependencies
           command: pnpm install --frozen-lockfile --prefer-offline
@@ -68,7 +89,7 @@ jobs:
     parallelism: 4
     steps:
       - checkout
-      - restore_deps
+      - ensure_deps
       - run:
           name: Lint
           command: ./scripts/ci-lint.sh
@@ -77,7 +98,7 @@ jobs:
     parallelism: 1
     steps:
       - checkout
-      - restore_deps
+      - ensure_deps
       - jest:
           package: extension
   test_webapp:
@@ -86,7 +107,7 @@ jobs:
     parallelism: 2
     steps:
       - checkout
-      - restore_deps
+      - ensure_deps
       - jest:
           package: webapp
           workers: 4
@@ -96,7 +117,7 @@ jobs:
     parallelism: 4
     steps:
       - checkout
-      - restore_deps
+      - ensure_deps
       - jest:
           package: shared
           workers: 4
@@ -106,7 +127,7 @@ jobs:
     resource_class: large
     steps:
       - checkout
-      - restore_deps
+      - ensure_deps
       # The strict tsconfigs are incremental. Warm the build info from this
       # branch's previous run, or from main, so tsc only re-checks what changed
       # since instead of the whole program.
@@ -137,7 +158,7 @@ jobs:
     resource_class: medium
     steps:
       - checkout
-      - restore_deps
+      - ensure_deps
       - run:
           name: Build Extension
           command: npm run build
@@ -146,21 +167,9 @@ workflows:
   build:
     jobs:
       - install_deps
-      - test_extension:
-          requires:
-            - install_deps
-      - test_webapp:
-          requires:
-            - install_deps
-      - lint:
-          requires:
-            - install_deps
-      - typecheck_strict_changed:
-          requires:
-            - install_deps
-      - test_shared:
-          requires:
-            - install_deps
-      - build_extension:
-          requires:
-            - install_deps
+      - test_extension
+      - test_webapp
+      - lint
+      - typecheck_strict_changed
+      - test_shared
+      - build_extension
