@@ -94,6 +94,11 @@ export enum Origin {
   HappeningNowHighlight = 'happening now highlight',
   HappeningNowSelection = 'happening now selection',
   HighlightsCard = 'highlights card',
+  LiveChatPage = 'live chat page',
+  NewLiveChat = 'new live chat',
+  // Landed from the go-live push, or from a link pasted somewhere.
+  Push = 'push',
+  DirectLink = 'direct link',
   SnapshotSharePanel = 'snapshot share panel',
   // snapshot placements - end
   // profile share placements - start
@@ -669,7 +674,12 @@ export enum LogEvent {
   DeclineDirectMessageRequest = 'decline direct message request',
   // Live chat rooms
   OpenLiveChat = 'open live chat',
+  StartLiveChat = 'start live chat',
+  // Seated in the room, reading along, before (or without) joining.
+  ReadLiveChat = 'read live chat',
   JoinLiveChat = 'join live chat',
+  EndLiveChat = 'end live chat',
+  BanLiveChatUser = 'ban live chat user',
   LeaveLiveChat = 'leave live chat',
   SendLiveChatMessage = 'send live chat message',
   ReactLiveChatMessage = 'react live chat message',

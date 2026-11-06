@@ -6,7 +6,7 @@ import { useLiveChatEnabled } from '../hooks/useLiveChatEnabled';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { usePostCapsulePosition } from '../../../components/post/PostCapsule';
 import type { ChatRoom } from '../graphql';
-import { ChatRoomStatus, getPostChatRoom } from '../graphql';
+import { ChatRoomStatus, ChatRoomType, getPostChatRoom } from '../graphql';
 import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { field } from '../../../components/shell/constants';
@@ -39,6 +39,7 @@ jest.mock('../graphql', () => ({
 
 const room: ChatRoom = {
   id: 'r1',
+  type: ChatRoomType.PostLive,
   status: ChatRoomStatus.Active,
   jid: 'r1@conference.chat.daily.dev',
   title: 'Bun 2.0',
