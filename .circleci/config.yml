@@ -1,9 +1,47 @@
 version: 2.1
 
-jobs:
-  install_deps:
+executors:
+  node:
     docker:
       - image: cimg/node:24.22.1
+
+commands:
+  restore_deps:
+    steps:
+      - restore_cache:
+          keys:
+            - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
+            - deps-pnpm-10-33-4-{{ .Branch }}
+  # Jest's worker count defaults to the host's core count minus one, which on a
+  # Docker executor is the metal underneath, not the container. Pin the workers
+  # to the resource class so the suite does not swamp the container.
+  jest:
+    parameters:
+      package:
+        type: string
+      workers:
+        type: integer
+        default: 2
+      extra_args:
+        type: string
+        default: ""
+    steps:
+      - run:
+          name: Test
+          command: |
+            TEST=$(./node_modules/.bin/jest --listTests)
+            echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --maxWorkers=<< parameters.workers >> << parameters.extra_args >> --reporters=default --reporters=jest-junit --" --split-by=timings --timings-type=filename
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ../../test-results
+            JEST_JUNIT_ADD_FILE_ATTRIBUTE: "true"
+            JEST_JUNIT_FILE_PATH_PREFIX: /home/circleci/project/packages/<< parameters.package >>/
+          working_directory: packages/<< parameters.package >>
+      - store_test_results:
+          path: ./test-results
+
+jobs:
+  install_deps:
+    executor: node
     steps:
       - checkout
       - run:
@@ -12,13 +50,10 @@ jobs:
             mkdir -p $HOME/.local/bin
             corepack enable --install-directory $HOME/.local/bin
             corepack prepare pnpm@10.33.4 --activate
-      - restore_cache:
-          keys:
-            - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
-            - deps-pnpm-10-33-4-{{ .Branch }}
+      - restore_deps
       - run:
           name: Install dependencies
-          command: pnpm install
+          command: pnpm install --frozen-lockfile --prefer-offline
       - save_cache:
           key: deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
           paths:
@@ -28,124 +63,90 @@ jobs:
             - ./packages/webapp/node_modules
             - ./packages/extension/node_modules
             - ./packages/storybook/node_modules
+  lint:
+    executor: node
+    resource_class: large
+    steps:
+      - checkout
+      - restore_deps
+      - run:
+          name: Lint shared
+          command: npm run lint
+          working_directory: packages/shared
+      - run:
+          name: Lint webapp
+          command: npm run lint
+          working_directory: packages/webapp
+      - run:
+          name: Lint extension
+          command: npm run lint
+          working_directory: packages/extension
   test_extension:
-    docker:
-      - image: cimg/node:24.22.1
+    executor: node
     parallelism: 1
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
-            - deps-pnpm-10-33-4-{{ .Branch }}
-      - run:
-          name: Test
-          command: |
-            npm run pretest
-            TEST=$(./node_modules/.bin/jest --listTests)
-            echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --reporters=default --reporters=jest-junit --" --split-by=timings
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ../../test-results
-          working_directory: packages/extension
-      - store_test_results:
-          path: ./test-results
+      - restore_deps
+      - jest:
+          package: extension
   test_webapp:
-    docker:
-      - image: cimg/node:24.22.1
+    executor: node
     parallelism: 2
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
-            - deps-pnpm-10-33-4-{{ .Branch }}
-      - run:
-          name: Test
-          command: |
-            npm run pretest
-            TEST=$(./node_modules/.bin/jest --listTests)
-            echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --reporters=default --reporters=jest-junit --" --split-by=timings --timings-type=filename
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ../../test-results
-            JEST_JUNIT_ADD_FILE_ATTRIBUTE: "true"
-            JEST_JUNIT_FILE_PATH_PREFIX: "/home/circleci/project/packages/webapp/"
-          working_directory: packages/webapp
-      - store_test_results:
-          path: ./test-results
-  lint_shared:
-    docker:
-      - image: cimg/node:24.22.1
-    resource_class: large
+      - restore_deps
+      - jest:
+          package: webapp
+  test_shared:
+    executor: node
+    parallelism: 4
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
-            - deps-pnpm-10-33-4-{{ .Branch }}
-      - run:
-          name: Lint
-          command: npm run pretest
-          working_directory: packages/shared
+      - restore_deps
+      - jest:
+          package: shared
+          extra_args: --silent
   typecheck_strict_changed:
-    docker:
-      - image: cimg/node:24.22.1
+    executor: node
     resource_class: large
     steps:
       - checkout
+      - restore_deps
+      # The strict tsconfigs are incremental. Warm the build info from this
+      # branch's previous run, or from main, so tsc only re-checks what changed
+      # since instead of the whole program.
       - restore_cache:
           keys:
-            - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
-            - deps-pnpm-10-33-4-{{ .Branch }}
+            - tsbuildinfo-v1-{{ .Branch }}-{{ .Revision }}
+            - tsbuildinfo-v1-{{ .Branch }}-
+            - tsbuildinfo-v1-main-
       - run:
           name: Fetch base branch
           command: git fetch origin main
       - run:
           name: Check changed files in strict mode
           command: npm run typecheck:strict:changed
-  test_shared:
-    docker:
-      - image: cimg/node:24.22.1
-    parallelism: 4
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
-            - deps-pnpm-10-33-4-{{ .Branch }}
       - run:
-          name: Test
-          command: |
-            TEST=$(./node_modules/.bin/jest --listTests)
-            echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --silent --reporters=default --reporters=jest-junit --" --split-by=timings --timings-type=filename
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ../../test-results
-            JEST_JUNIT_ADD_FILE_ATTRIBUTE: "true"
-            JEST_JUNIT_FILE_PATH_PREFIX: "/home/circleci/project/packages/shared/"
-          working_directory: packages/shared
-      - store_test_results:
-          path: ./test-results
+          name: Prepare build info for caching
+          command: mkdir -p packages/shared/.tsbuildinfo packages/webapp/.tsbuildinfo packages/extension/.tsbuildinfo
+          when: always
+      - save_cache:
+          key: tsbuildinfo-v1-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - ./packages/shared/.tsbuildinfo
+            - ./packages/webapp/.tsbuildinfo
+            - ./packages/extension/.tsbuildinfo
+          when: always
   build_extension:
-    docker:
-      - image: cimg/node:24.22.1
+    executor: node
     resource_class: medium
     steps:
       - checkout
-      - run:
-          name: Enable pnpm
-          command: |
-            mkdir -p $HOME/.local/bin
-            corepack enable --install-directory $HOME/.local/bin
-            corepack prepare pnpm@10.33.4 --activate
-      - restore_cache:
-          keys:
-            - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
-            - deps-pnpm-10-33-4-{{ .Branch }}
-      - run:
-          name: Install dependencies
-          command: pnpm install
+      - restore_deps
       - run:
           name: Build Extension
-          command: pnpm --filter extension build
+          command: npm run build
+          working_directory: packages/extension
 workflows:
   build:
     jobs:
@@ -156,7 +157,7 @@ workflows:
       - test_webapp:
           requires:
             - install_deps
-      - lint_shared:
+      - lint:
           requires:
             - install_deps
       - typecheck_strict_changed:
