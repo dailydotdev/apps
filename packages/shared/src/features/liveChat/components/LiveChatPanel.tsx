@@ -7,6 +7,9 @@ import { AuthTriggers } from '../../../lib/auth';
 import type { RoomJoinFailure } from '../../messages/types';
 import { ChatRoomStatus } from '../graphql';
 import { useLiveChatRoom } from '../hooks/useLiveChatRoom';
+import { useLiveChatModeration } from '../hooks/useLiveChatModeration';
+import { Button } from '../../../components/buttons/Button';
+import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import { useRoomPeople } from '../hooks/useRoomPeople';
 import { useRoomPresence } from '../hooks/useRoomPresence';
 import { LiveChatMessageList } from './LiveChatMessageList';
@@ -28,6 +31,8 @@ export type LiveChatPanelProps = {
   origin: string;
   // The viewer may open the chat when nobody has yet (the daily.dev team).
   canStart: boolean;
+  // The viewer runs the room: may end it and remove people from it.
+  canModerate?: boolean;
   // A sheet is already a dialog; a rail panel draws its own frame; the
   // inline block under a post draws a louder one, since it has to be seen
   // on the way to the comments. A page is the chat on its own: the page
@@ -50,6 +55,7 @@ export const LiveChatPanel = ({
   roomId,
   origin,
   canStart,
+  canModerate,
   variant = 'rail',
   joinOnOpen,
   className,
@@ -79,6 +85,7 @@ export const LiveChatPanel = ({
     send,
     react,
     onDraftChange,
+    removeSender,
   } = useLiveChatRoom({
     postId,
     roomId,
@@ -88,6 +95,16 @@ export const LiveChatPanel = ({
     preview: isPage || (isInline && inView),
   });
   const { people, usernames } = useRoomPeople(senderIds);
+  const { end: endChat, ban } = useLiveChatModeration({
+    roomId: room?.id,
+    origin,
+    onBanned: removeSender,
+  });
+  const onBan = useCallback(
+    (userId: string) =>
+      ban(userId, people.find(({ id }) => id === userId)?.name),
+    [ban, people],
+  );
   // Asked only from a seat: that is when the messages on screen are current.
   const presenceOf = useRoomPresence({
     roomId: room?.id,
@@ -239,6 +256,17 @@ export const LiveChatPanel = ({
                 {occupants}
               </span>
             )}
+            {canModerate && isOpen && (
+              <Button
+                type="button"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.XSmall}
+                className={classNames('-mr-2', !occupants && 'ml-auto')}
+                onClick={() => endChat()}
+              >
+                End chat
+              </Button>
+            )}
           </div>
           <p
             className={classNames(
@@ -261,6 +289,7 @@ export const LiveChatPanel = ({
           viewerId={user?.id}
           viewerUsername={user?.username}
           onReact={isJoined ? react : undefined}
+          onBan={canModerate && isOpen ? onBan : undefined}
           emptyCopy={emptyCopy}
           // In a sheet the list takes whatever the keyboard leaves, so it must
           // shrink; a minimum here would push the composer out of view. Under

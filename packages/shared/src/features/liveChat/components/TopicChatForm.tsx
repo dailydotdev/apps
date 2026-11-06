@@ -6,6 +6,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
+import type { ApiErrorResult } from '../../../graphql/common';
 import { Button } from '../../../components/buttons/Button';
 import { ButtonVariant } from '../../../components/buttons/common';
 import { TextField } from '../../../components/fields/TextField';
@@ -38,14 +39,20 @@ export const TopicChatForm = (): ReactElement => {
         event_name: LogEvent.StartLiveChat,
         target_type: TargetType.ChatRoom,
         target_id: room.id,
-        extra: JSON.stringify({ origin: Origin.LiveChatPage }),
+        extra: JSON.stringify({ origin: Origin.NewLiveChat }),
       });
       queryClient.invalidateQueries({
         queryKey: liveChatRoomsQueryOptions(user).queryKey,
       });
       router.push(getChatRoomPath(room.id));
     },
-    onError: () => displayToast("Couldn't open the chat. Try again."),
+    // The API says why (a title past the limit, not on the team); only a
+    // failure with nothing to say reads as transient.
+    onError: (error: ApiErrorResult) =>
+      displayToast(
+        error.response?.errors?.[0]?.message ||
+          "Couldn't open the chat. Try again.",
+      ),
   });
   const trimmedTitle = title.trim();
 

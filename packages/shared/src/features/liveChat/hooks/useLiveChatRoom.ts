@@ -60,6 +60,8 @@ type UseLiveChatRoom = {
   react: (messageId: string, emoji: string) => void;
   // Whether the draft has text, on every change, for the typing indicator.
   onDraftChange: (hasText: boolean) => void;
+  // Drops everything the sender said from this screen, once they are out.
+  removeSender: (userId: string) => void;
 };
 
 // One live chat: the room from the API, and the viewer's seat in it over
@@ -334,6 +336,20 @@ export const useLiveChatRoom = ({
     }
   }, [join, status]);
 
+  // A seat counts as reading once it is confirmed, whether the surface took
+  // it or the viewer did; the funnel's "in the room" step.
+  const readLogged = useRef(false);
+  useEffect(() => {
+    if (status !== 'joined') {
+      readLogged.current = false;
+      return;
+    }
+    if (!readLogged.current) {
+      readLogged.current = true;
+      log(LogEvent.ReadLiveChat);
+    }
+  }, [log, status]);
+
   // A join counts once the seat is confirmed and the viewer asked for it, so
   // a click that fails, or one made while the preview seat is still landing,
   // is not a join yet.
@@ -445,6 +461,12 @@ export const useLiveChatRoom = ({
     [displayToast, isParticipating, log, messages, user?.id],
   );
 
+  const removeSender = useCallback((userId: string) => {
+    setMessages((current) =>
+      current.filter((message) => message.senderId !== userId),
+    );
+  }, []);
+
   // Leaving the page leaves the room; nothing about the seat survives it.
   useEffect(() => {
     const timers = typingTimers.current;
@@ -489,5 +511,6 @@ export const useLiveChatRoom = ({
     send,
     react,
     onDraftChange,
+    removeSender,
   };
 };

@@ -171,3 +171,39 @@ export const getChatRoomPresence = async (
 
   return res.chatRoom?.presentUserIds ?? null;
 };
+
+const CLOSE_CHAT_ROOM_MUTATION = gql`
+  mutation CloseChatRoom($id: ID!) {
+    closeChatRoom(id: $id) {
+      ...ChatRoomFragment
+    }
+  }
+  ${CHAT_ROOM_FRAGMENT}
+`;
+
+const BAN_CHAT_ROOM_USER_MUTATION = gql`
+  mutation BanChatRoomUser($id: ID!, $userId: ID!) {
+    banChatRoomUser(id: $id, userId: $userId) {
+      _
+    }
+  }
+`;
+
+// Ends the room early; the daily.dev team and moderators only.
+export const closeChatRoom = async (id: string): Promise<ChatRoom> => {
+  const res = await gqlClient.request<{ closeChatRoom: ChatRoom }>(
+    CLOSE_CHAT_ROOM_MUTATION,
+    { id },
+  );
+
+  return res.closeChatRoom;
+};
+
+// Removes the user from the room for good; the daily.dev team and
+// moderators only.
+export const banChatRoomUser = async (
+  id: string,
+  userId: string,
+): Promise<void> => {
+  await gqlClient.request(BAN_CHAT_ROOM_USER_MUTATION, { id, userId });
+};

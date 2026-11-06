@@ -2,17 +2,20 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { AuthTriggers } from '../../../lib/auth';
-import { Origin } from '../../../lib/log';
+import { LogEvent, Origin, TargetType } from '../../../lib/log';
+import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
+import { useLiveChatModeration } from '../hooks/useLiveChatModeration';
 import { Button } from '../../../components/buttons/Button';
-import { ButtonVariant } from '../../../components/buttons/common';
+import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import Link from '../../../components/utilities/Link';
 import { GoBackButton } from '../../../components/post/GoBackHeaderMobile';
 import { useAgentShellHeight } from '../../interests/shell';
 import { ChatRoomStatus } from '../graphql';
 import { chatRoomQueryOptions } from '../queries';
-import { useLiveChatEnabled } from '../hooks/useLiveChatEnabled';
+import { isDmAvailable } from '../../messages/transport';
 import { formatEndsIn, formatOccupants } from '../timeLeft';
 import { LiveChatPanel } from './LiveChatPanel';
 import { LiveDot } from './LiveDot';
@@ -36,6 +39,11 @@ const Notice = ({
  * A topic chat on its own page: what it is about up top, the chat below,
  * filling the rest of the screen. Landing here is the yes, so a signed-in
  * reader is seated and joined right away; a visitor is asked to sign in.
+ *
+ * The page does not ask the live chat flag: the go-live push reaches every
+ * active reader, and this page is all a topic room has, so a reader who
+ * followed the push is in. The flag keeps gating the feed surfaces that
+ * lead here on their own.
  */
 export const TopicChatScreen = ({
   roomId,
@@ -43,13 +51,37 @@ export const TopicChatScreen = ({
   roomId: string;
 }): ReactElement => {
   const { user, isAuthReady, showLogin } = useAuthContext();
-  const { isEnabled } = useLiveChatEnabled();
   // The bottom bar leaves on this route; the composer takes its place.
   const shellHeight = useAgentShellHeight(false, false);
-  const { data: room, isPending } = useQuery(
-    chatRoomQueryOptions(user, roomId),
-  );
+  const {
+    data: room,
+    isPending,
+    isError,
+    refetch,
+  } = useQuery(chatRoomQueryOptions(user, roomId));
   const isOpen = room?.status === ChatRoomStatus.Active;
+  const canModerate = !!user?.isTeamMember;
+  const { end: endChat } = useLiveChatModeration({
+    roomId,
+    origin: Origin.LiveChatPage,
+  });
+  // The funnel's "opened" step. The push tags its link, so an open from it
+  // is told apart from a link pasted somewhere; the feed rows log their own
+  // click before the page loads.
+  const router = useRouter();
+  const cameFromPush = router?.query?.utm_medium === 'push';
+  useLogEventOnce(
+    () => ({
+      event_name: LogEvent.OpenLiveChat,
+      target_type: TargetType.ChatRoom,
+      target_id: roomId,
+      extra: JSON.stringify({
+        origin: cameFromPush ? Origin.Push : Origin.DirectLink,
+        utm_campaign: router?.query?.utm_campaign,
+      }),
+    }),
+    { condition: !!router?.isReady && !!room },
+  );
   const meta = [
     formatOccupants(room?.occupantCount),
     formatEndsIn(room?.expiresAt),
@@ -61,6 +93,16 @@ export const TopicChatScreen = ({
   let body: ReactElement | null = null;
   if (isPending || !isAuthReady) {
     body = null;
+  } else if (isError && !room) {
+    // A failed read is not a missing room; someone in from the push gets
+    // another go rather than a dead end.
+    body = (
+      <Notice title="Couldn't load this chat">
+        <Button variant={ButtonVariant.Primary} onClick={() => refetch()}>
+          Try again
+        </Button>
+      </Notice>
+    );
   } else if (!room) {
     body = (
       <Notice title="This chat doesn't exist">
@@ -92,14 +134,23 @@ export const TopicChatScreen = ({
         </Button>
       </Notice>
     );
-  } else if (!isEnabled) {
-    body = <Notice title="Live chat isn't on for you yet" />;
+  } else if (!isDmAvailable) {
+    body = (
+      <Notice title="Live chat isn't available in this app yet">
+        <Link href="/" passHref>
+          <Button tag="a" href="/" variant={ButtonVariant.Primary}>
+            Back to the feed
+          </Button>
+        </Link>
+      </Notice>
+    );
   } else {
     body = (
       <LiveChatPanel
         roomId={roomId}
         origin={Origin.LiveChatPage}
         canStart={false}
+        canModerate={canModerate}
         variant="page"
         joinOnOpen
         className="flex-1"
@@ -131,6 +182,17 @@ export const TopicChatScreen = ({
               <span aria-hidden>· </span>
               {meta}
             </span>
+          )}
+          {canModerate && isOpen && (
+            <Button
+              type="button"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.XSmall}
+              className="-mr-2 ml-auto shrink-0"
+              onClick={() => endChat()}
+            >
+              End chat
+            </Button>
           )}
         </div>
         {room && (
