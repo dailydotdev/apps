@@ -19,6 +19,7 @@ import type { DmEvent, DmTransport } from '../../messages/types';
 import type { ChatRoom } from '../graphql';
 import {
   ChatRoomStatus,
+  ChatRoomType,
   getChatRoomPresence,
   getPostChatRoom,
   openPostChatRoom,
@@ -47,6 +48,7 @@ jest.mock('../graphql', () => ({
 
 const room: ChatRoom = {
   id: 'r1',
+  type: ChatRoomType.PostLive,
   status: ChatRoomStatus.Active,
   jid: 'r1@conference.chat.daily.dev',
   title: 'Bun 2.0',

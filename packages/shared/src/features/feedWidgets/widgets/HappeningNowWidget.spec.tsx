@@ -7,7 +7,11 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { useFeedHeroData } from '../../../components/feeds/hero/useFeedHeroData';
 import { useFeedWidgetsContext } from '../FeedWidgetsContext';
 import { useLiveChatEnabled } from '../../liveChat/hooks/useLiveChatEnabled';
-import { getLiveChatRooms, ChatRoomStatus } from '../../liveChat/graphql';
+import {
+  getLiveChatRooms,
+  ChatRoomStatus,
+  ChatRoomType,
+} from '../../liveChat/graphql';
 import type { ChatRoom } from '../../liveChat/graphql';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
 
@@ -33,6 +37,7 @@ jest.mock('../../liveChat/graphql', () => ({
 
 const room: ChatRoom = {
   id: 'r1',
+  type: ChatRoomType.PostLive,
   status: ChatRoomStatus.Active,
   jid: 'r1@conference.chat.daily.dev',
   title: 'Bun 2.0',

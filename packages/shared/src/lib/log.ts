@@ -94,6 +94,7 @@ export enum Origin {
   HappeningNowHighlight = 'happening now highlight',
   HappeningNowSelection = 'happening now selection',
   HighlightsCard = 'highlights card',
+  LiveChatPage = 'live chat page',
   SnapshotSharePanel = 'snapshot share panel',
   // snapshot placements - end
   // profile share placements - start
@@ -669,6 +670,7 @@ export enum LogEvent {
   DeclineDirectMessageRequest = 'decline direct message request',
   // Live chat rooms
   OpenLiveChat = 'open live chat',
+  StartLiveChat = 'start live chat',
   JoinLiveChat = 'join live chat',
   LeaveLiveChat = 'leave live chat',
   SendLiveChatMessage = 'send live chat message',

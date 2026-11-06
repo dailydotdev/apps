@@ -9,20 +9,16 @@ import Link from '../../../components/utilities/Link';
 import type { ChatRoom } from '../../liveChat/graphql';
 import { liveChatRoomsQueryOptions } from '../../liveChat/queries';
 import { useLiveChatEnabled } from '../../liveChat/hooks/useLiveChatEnabled';
-import { DiscussIcon } from '../../../components/icons';
+import { DiscussIcon, PlusIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { formatEndsIn, formatOccupants } from '../../liveChat/timeLeft';
-import { withJoinIntent } from '../../liveChat/joinLink';
+import { getChatRoomHref, getNewChatHref } from '../../liveChat/joinLink';
+import { Button } from '../../../components/buttons/Button';
+import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import type { FeedWidgetComponentProps } from '../registry';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
 import { FeedWidgetEmpty } from '../FeedWidgetFrame';
 import { useWidgetScroll } from '../useWidgetScroll';
-
-// The row is the yes: landing on the post joins the chat right away.
-const roomHref = (room: ChatRoom): string | undefined =>
-  room.post?.commentsPermalink
-    ? withJoinIntent(room.post.commentsPermalink)
-    : undefined;
 
 const RoomRow = ({
   room,
@@ -33,7 +29,7 @@ const RoomRow = ({
   isSmall: boolean;
   onClick: () => void;
 }): ReactElement | null => {
-  const href = roomHref(room);
+  const href = getChatRoomHref(room);
   if (!href) {
     return null;
   }
@@ -88,13 +84,16 @@ export const LiveChatWidget = ({
   });
   const isSmall = size === FeedWidgetSize.Small;
   const shown = isSmall ? rooms.slice(0, 1) : rooms;
+  // Rooms are team picks: the team opens one from here, on a topic of its
+  // own, so the widget stays up for them when nothing is on.
+  const canStart = !!user?.isTeamMember;
 
-  if (!isEnabled || !shown.length) {
+  if (!isEnabled || (!shown.length && !canStart)) {
     return (
       <FeedWidgetEmpty
         kind={FeedWidgetKind.LiveChat}
         isPending={isEnabled && isPending}
-        message="No live chats right now. The daily.dev team opens one on a post worth talking about."
+        message="No live chats right now. The daily.dev team opens one on something worth talking about."
       />
     );
   }
@@ -112,6 +111,20 @@ export const LiveChatWidget = ({
         <span className="truncate font-bold text-text-primary typo-caption1">
           Live chats
         </span>
+        {canStart && (
+          <Link href={getNewChatHref()} passHref>
+            <Button
+              tag="a"
+              href={getNewChatHref()}
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.XSmall}
+              icon={<PlusIcon />}
+              className="-mr-2 ml-auto"
+            >
+              New
+            </Button>
+          </Link>
+        )}
       </header>
       <div
         ref={scroll.ref}
@@ -119,6 +132,11 @@ export const LiveChatWidget = ({
         style={scroll.style}
         className={classNames('mt-2 px-2', scroll.className)}
       >
+        {!shown.length && (
+          <p className="px-2 py-1.5 text-text-tertiary typo-footnote">
+            No live chats right now. Open one on something worth talking about.
+          </p>
+        )}
         <ul aria-label="Live chats" className="flex flex-col gap-1">
           {shown.map((room) => (
             <RoomRow

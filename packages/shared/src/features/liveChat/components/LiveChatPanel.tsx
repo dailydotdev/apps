@@ -22,14 +22,17 @@ const failureCopy: Record<RoomJoinFailure, string> = {
 };
 
 export type LiveChatPanelProps = {
-  postId: string;
+  // The post whose room this is, or the room itself (a topic room).
+  postId?: string;
+  roomId?: string;
   origin: string;
   // The viewer may open the chat when nobody has yet (the daily.dev team).
   canStart: boolean;
   // A sheet is already a dialog; a rail panel draws its own frame; the
   // inline block under a post draws a louder one, since it has to be seen
-  // on the way to the comments.
-  variant?: 'rail' | 'sheet' | 'inline';
+  // on the way to the comments. A page is the chat on its own: the page
+  // draws the header, and the panel fills what is left of the screen.
+  variant?: 'rail' | 'sheet' | 'inline' | 'page';
   // The viewer already said yes somewhere else (a "Join" row, the phone
   // pill): join as soon as the room is known instead of asking again.
   joinOnOpen?: boolean;
@@ -44,6 +47,7 @@ export type LiveChatPanelProps = {
  */
 export const LiveChatPanel = ({
   postId,
+  roomId,
   origin,
   canStart,
   variant = 'rail',
@@ -54,6 +58,7 @@ export const LiveChatPanel = ({
   const { user, showLogin, isAuthReady } = useAuthContext();
   const sectionRef = useRef<HTMLElement | null>(null);
   const isInline = variant === 'inline';
+  const isPage = variant === 'page';
   // Under a post the seat is held while the block is on screen or close to
   // it (the comments just below still count), and given back once the
   // reader has scrolled well past.
@@ -74,7 +79,14 @@ export const LiveChatPanel = ({
     send,
     react,
     onDraftChange,
-  } = useLiveChatRoom({ postId, origin, preview: isInline && inView });
+  } = useLiveChatRoom({
+    postId,
+    roomId,
+    origin,
+    // On its own page the chat is what the reader came for, so the seat is
+    // held for as long as the page is.
+    preview: isPage || (isInline && inView),
+  });
   const { people, usernames } = useRoomPeople(senderIds);
   // Asked only from a seat: that is when the messages on screen are current.
   const presenceOf = useRoomPresence({
@@ -194,46 +206,50 @@ export const LiveChatPanel = ({
         className,
       )}
     >
-      <header
-        className={classNames(
-          'flex flex-col gap-1 px-3 py-2.5',
-          isInline ? 'px-4 py-3' : 'border-b border-border-subtlest-tertiary',
-          isInline &&
-            showMessages &&
-            'border-b border-border-subtlest-tertiary',
-        )}
-      >
-        <div className="flex items-center gap-2">
-          <h3
-            className={classNames(
-              'font-bold',
-              isInline ? 'typo-title3' : 'typo-callout',
-            )}
-          >
-            {heading}
-          </h3>
-          {isOpen && occupants && (
-            <span
-              className={classNames(
-                'ml-auto',
-                isInline
-                  ? 'rounded-10 bg-brand-float px-2 py-0.5 font-bold text-brand-default typo-footnote'
-                  : 'text-text-tertiary typo-caption1',
-              )}
-            >
-              {occupants}
-            </span>
-          )}
-        </div>
-        <p
+      {/* The page draws its own header, with the room's title and what it is
+          about, so the panel is only the chat. */}
+      {!isPage && (
+        <header
           className={classNames(
-            'text-text-tertiary',
-            isInline ? 'typo-footnote' : 'typo-caption1',
+            'flex flex-col gap-1 px-3 py-2.5',
+            isInline ? 'px-4 py-3' : 'border-b border-border-subtlest-tertiary',
+            isInline &&
+              showMessages &&
+              'border-b border-border-subtlest-tertiary',
           )}
         >
-          {subtitle}
-        </p>
-      </header>
+          <div className="flex items-center gap-2">
+            <h3
+              className={classNames(
+                'font-bold',
+                isInline ? 'typo-title3' : 'typo-callout',
+              )}
+            >
+              {heading}
+            </h3>
+            {isOpen && occupants && (
+              <span
+                className={classNames(
+                  'ml-auto',
+                  isInline
+                    ? 'rounded-10 bg-brand-float px-2 py-0.5 font-bold text-brand-default typo-footnote'
+                    : 'text-text-tertiary typo-caption1',
+                )}
+              >
+                {occupants}
+              </span>
+            )}
+          </div>
+          <p
+            className={classNames(
+              'text-text-tertiary',
+              isInline ? 'typo-footnote' : 'typo-caption1',
+            )}
+          >
+            {subtitle}
+          </p>
+        </header>
+      )}
 
       {showMessages && (
         <LiveChatMessageList
@@ -253,6 +269,7 @@ export const LiveChatPanel = ({
             variant === 'sheet' && 'min-h-0',
             variant === 'rail' && 'min-h-[16rem]',
             isInline && 'max-h-[26rem] min-h-[14rem]',
+            isPage && 'min-h-0 flex-1',
           )}
         />
       )}
