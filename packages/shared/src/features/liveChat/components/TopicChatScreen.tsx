@@ -12,6 +12,7 @@ import { Button } from '../../../components/buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import Link from '../../../components/utilities/Link';
 import { GoBackButton } from '../../../components/post/GoBackHeaderMobile';
+import { ShellPage } from '../../../components/shell/ShellPageContext';
 import { useAgentShellHeight } from '../../interests/shell';
 import { ChatRoomStatus } from '../graphql';
 import { chatRoomQueryOptions } from '../queries';
@@ -165,9 +166,16 @@ export const TopicChatScreen = ({
         shellHeight,
       )}
     >
+      {/* On phones the shell's top block already has a back square, so the
+          page's own back shows from tablet up and the block carries the name. */}
+      <ShellPage title="Live chat" />
       <header className="flex shrink-0 flex-col gap-1 border-b border-border-subtlest-tertiary px-4 py-3">
         <div className="flex items-center gap-2">
-          <GoBackButton showLogo={false} fallbackPath="/" className="-ml-2" />
+          <GoBackButton
+            showLogo={false}
+            fallbackPath="/"
+            className="-ml-2 hidden tablet:flex"
+          />
           <LiveDot isLive={isOpen} />
           <span
             className={classNames(
