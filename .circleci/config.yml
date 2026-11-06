@@ -65,22 +65,13 @@ jobs:
             - ./packages/storybook/node_modules
   lint:
     executor: node
-    resource_class: large
+    parallelism: 4
     steps:
       - checkout
       - restore_deps
       - run:
-          name: Lint shared
-          command: npm run lint
-          working_directory: packages/shared
-      - run:
-          name: Lint webapp
-          command: npm run lint
-          working_directory: packages/webapp
-      - run:
-          name: Lint extension
-          command: npm run lint
-          working_directory: packages/extension
+          name: Lint
+          command: ./scripts/ci-lint.sh
   test_extension:
     executor: node
     parallelism: 1
@@ -91,20 +82,24 @@ jobs:
           package: extension
   test_webapp:
     executor: node
+    resource_class: large
     parallelism: 2
     steps:
       - checkout
       - restore_deps
       - jest:
           package: webapp
+          workers: 4
   test_shared:
     executor: node
+    resource_class: large
     parallelism: 4
     steps:
       - checkout
       - restore_deps
       - jest:
           package: shared
+          workers: 4
           extra_args: --silent
   typecheck_strict_changed:
     executor: node
