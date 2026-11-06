@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { SQUAD_PERKS_MAX } from '../app/features/squads/components/manage/SquadManageJobsPerks';
-import { SQUAD_PERK_CODES_BATCH } from '../app/features/squads/lib/jobsPerks';
+import { SQUAD_PERKS_MAX } from '../app/features/squads/components/manage/SquadManagePerks';
+import { SQUAD_PERK_CODES_BATCH } from '../app/features/squads/lib/perks';
 import {
   Code,
   Decision,

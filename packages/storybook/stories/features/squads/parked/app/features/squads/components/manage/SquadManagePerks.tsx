@@ -2,20 +2,11 @@ import type { FormEvent, ReactElement, ReactNode } from 'react';
 import React, { useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
-import type {
-  SquadJob,
-  SquadJobInput,
-  SquadPerk,
-  SquadPerkInput,
-} from '../../../../graphql/squadJobsPerks';
+import type { SquadPerk, SquadPerkInput } from '../../../../graphql/squadPerks';
 import {
-  SquadJobEmploymentType,
-  squadJobEmploymentTypeLabel,
-  SquadJobWorkplace,
-  squadJobWorkplaceLabel,
   SquadPerkCodeKind,
   squadPerkQueryOptions,
-} from '../../../../graphql/squadJobsPerks';
+} from '../../../../graphql/squadPerks';
 import {
   Button,
   ButtonColor,
@@ -46,7 +37,6 @@ import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useSquadPageContext } from '@dailydotdev/shared/src/features/squads/SquadPageContext';
-import { useSquadJobMutations, useSquadJobs } from '../../hooks/useSquadJobs';
 import {
   useSquadPerkMutations,
   useSquadPerks,
@@ -55,15 +45,13 @@ import { useSquadProducts } from '@dailydotdev/shared/src/features/squads/hooks/
 import { moveItem } from '@dailydotdev/shared/src/features/squads/lib/order';
 import { isValidSquadLink } from '@dailydotdev/shared/src/features/squads/lib/links';
 import {
-  getSquadJobMeta,
   chunkSquadPerkCodes,
   fromPerkEndDateInput,
   getSquadPerkEndsLabel,
   parseSquadPerkCodes,
   toPerkEndDateInput,
-} from '../../lib/jobsPerks';
+} from '../../lib/perks';
 import {
-  getSquadJobFormUrl,
   getSquadManageUrl,
   getSquadPerkFormUrl,
   SquadManageSection,
@@ -74,13 +62,11 @@ import {
   SquadManageSectionPanel,
 } from './SquadManageLayout';
 
-// Manage › Jobs and Manage › Member perks, built like Manage › Products: a
+// Manage › Member perks, built like Manage › Products: a
 // list with Add, reorderable rows with an edit button, and a form page
 // with Back, Save in the header and Remove at the bottom.
 
-export const SQUAD_JOBS_MAX = 20;
 export const SQUAD_PERKS_MAX = 10;
-const JOB_BULLETS_MAX = 5;
 const PERK_STEPS_MAX = 4;
 const PERK_TERMS_MAX = 5;
 
@@ -348,312 +334,6 @@ const NotFoundPanel = ({
     </Typography>
   </SquadManagePanel>
 );
-
-/* --------------------------------------------------------------- jobs */
-
-export const SquadManageJobs = (): ReactElement => {
-  const { squad } = useSquadPageContext();
-  const { jobs, isPending } = useSquadJobs(squad);
-  const { onReorder } = useSquadJobMutations(squad);
-  const ids = jobs.map(({ id }) => id);
-
-  return (
-    <SquadManageSectionPanel
-      section={SquadManageSection.Jobs}
-      action={
-        jobs.length < SQUAD_JOBS_MAX && (
-          <AddLink href={getSquadJobFormUrl(squad.handle)} />
-        )
-      }
-    >
-      <ListBody
-        helper={`Open roles, shown on the Jobs tab in this order. Up to ${SQUAD_JOBS_MAX}.`}
-        empty="No roles yet. Add the first one to show the Jobs tab."
-        isEmpty={!isPending && !jobs.length}
-      >
-        {jobs.map((job, index) => (
-          <ListRow
-            key={job.id}
-            logo={squad.image}
-            title={job.title}
-            subtitle={getSquadJobMeta(job)}
-            meta={[job.team, job.salary].filter(Boolean).join(' · ')}
-            editUrl={getSquadJobFormUrl(squad.handle, job.id)}
-            isFirst={index === 0}
-            isLast={index === jobs.length - 1}
-            onMove={(by) => onReorder(moveItem(ids, index, index + by))}
-          />
-        ))}
-      </ListBody>
-    </SquadManageSectionPanel>
-  );
-};
-
-const jobFormId = 'squad-job-form';
-
-const workplaceOptions = Object.values(SquadJobWorkplace).map((value) => ({
-  label: squadJobWorkplaceLabel[value],
-  value,
-}));
-
-const employmentOptions = Object.values(SquadJobEmploymentType).map(
-  (value) => ({ label: squadJobEmploymentTypeLabel[value], value }),
-);
-
-const JobForm = ({
-  job,
-  onDone,
-  onSavingChange,
-}: {
-  job?: SquadJob;
-  onDone: () => void;
-  onSavingChange: (isSaving: boolean) => void;
-}): ReactElement => {
-  const { squad } = useSquadPageContext();
-  const { onAdd, onUpdate, onRemove, isRemoving } = useSquadJobMutations(squad);
-  const { showPrompt } = usePrompt();
-  const [title, setTitle] = useState(job?.title ?? '');
-  const [team, setTeam] = useState(job?.team ?? '');
-  const [location, setLocation] = useState(job?.location ?? '');
-  const [workplace, setWorkplace] = useState(
-    job?.workplace ?? SquadJobWorkplace.OnSite,
-  );
-  const [employmentType, setEmploymentType] = useState(
-    job?.employmentType ?? SquadJobEmploymentType.FullTime,
-  );
-  const [salary, setSalary] = useState(job?.salary ?? '');
-  const [about, setAbout] = useState(job?.about ?? '');
-  const [bullets, setBullets] = useState(orEmptyLine(job?.bullets));
-  const [applyUrl, setApplyUrl] = useState(job?.applyUrl ?? '');
-  const [showErrors, setShowErrors] = useState(false);
-  const isApplyValid = isValidSquadLink(applyUrl);
-
-  const onSubmit = async (event: FormEvent) => {
-    event.preventDefault();
-    setShowErrors(true);
-    if (!title.trim() || !location.trim() || !isApplyValid) {
-      return;
-    }
-
-    const input: SquadJobInput = {
-      title: title.trim(),
-      team: team.trim() || null,
-      location: location.trim(),
-      workplace,
-      employmentType,
-      salary: salary.trim() || null,
-      about: about.trim() || null,
-      bullets: filled(bullets),
-      applyUrl: applyUrl.trim(),
-    };
-
-    onSavingChange(true);
-    try {
-      if (job) {
-        await onUpdate({ id: job.id, input });
-      } else {
-        await onAdd(input);
-      }
-    } catch {
-      return;
-    } finally {
-      onSavingChange(false);
-    }
-
-    onDone();
-  };
-
-  const onRemoveJob = async () => {
-    if (!job) {
-      return;
-    }
-
-    const confirmed = await showPrompt({
-      title: `Remove ${job.title}?`,
-      description:
-        'It leaves the Jobs tab. People who saved the link see it is closed.',
-      okButton: { title: 'Remove', color: ButtonColor.Ketchup },
-    });
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      await onRemove(job.id);
-    } catch {
-      return;
-    }
-    onDone();
-  };
-
-  return (
-    <form
-      id={jobFormId}
-      onSubmit={onSubmit}
-      noValidate
-      className="flex flex-col gap-6 px-4 py-6 tablet:px-6"
-    >
-      <div className="flex flex-col gap-2">
-        <TextField
-          inputId="job-title"
-          name="title"
-          label="Role title*"
-          fieldType="secondary"
-          maxLength={100}
-          value={title}
-          valueChanged={setTitle}
-          valid={!showErrors || !!title.trim()}
-        />
-        <TextField
-          inputId="job-team"
-          name="team"
-          label="Team"
-          fieldType="secondary"
-          maxLength={40}
-          value={team}
-          valueChanged={setTeam}
-          hint="Shown on the role, like Engineering or Design."
-        />
-      </div>
-      <HorizontalSeparator />
-      <Field label="Where">
-        <TextField
-          inputId="job-location"
-          name="location"
-          label="Location*"
-          fieldType="secondary"
-          maxLength={80}
-          value={location}
-          valueChanged={setLocation}
-          valid={!showErrors || !!location.trim()}
-          hint="A city, or the region for remote roles, like Remote (EU)."
-        />
-        <Radio<SquadJobWorkplace>
-          name="job-workplace"
-          value={workplace}
-          onChange={setWorkplace}
-          className={{ container: 'flex-wrap !gap-4 tablet:!flex-row' }}
-          options={workplaceOptions}
-        />
-      </Field>
-      <Field label="Employment type">
-        <Radio<SquadJobEmploymentType>
-          name="job-type"
-          value={employmentType}
-          onChange={setEmploymentType}
-          className={{ container: 'flex-wrap !gap-4 tablet:!flex-row' }}
-          options={employmentOptions}
-        />
-      </Field>
-      <Field
-        label="Salary"
-        helper="Shown on the role and the list. Leave it empty to hide it."
-      >
-        <TextField
-          inputId="job-salary"
-          name="salary"
-          label="Range, like $150K–$180K"
-          fieldType="secondary"
-          maxLength={40}
-          value={salary}
-          valueChanged={setSalary}
-        />
-      </Field>
-      <HorizontalSeparator />
-      <Field label="About the role">
-        <Textarea
-          inputId="job-about"
-          name="about"
-          label="What the role is, in two or three lines"
-          rows={4}
-          maxLength={600}
-          value={about}
-          valueChanged={setAbout}
-        />
-      </Field>
-      <LinesField
-        id="job-bullet"
-        label="What you’ll do"
-        helper={`Up to ${JOB_BULLETS_MAX} short points.`}
-        itemLabel="Point"
-        addLabel="Add point"
-        lines={bullets}
-        max={JOB_BULLETS_MAX}
-        onChange={setBullets}
-      />
-      <HorizontalSeparator />
-      <Field
-        label="Apply link*"
-        helper="Apply sends people here, on your site. daily.dev never takes applications."
-      >
-        <TextField
-          inputId="job-link"
-          name="applyUrl"
-          label="Link"
-          type="url"
-          fieldType="secondary"
-          maxLength={500}
-          showMaxLength={false}
-          value={applyUrl}
-          valueChanged={setApplyUrl}
-          valid={!showErrors || isApplyValid}
-          hint={
-            showErrors && !isApplyValid
-              ? 'Use a full address starting with https://'
-              : undefined
-          }
-        />
-      </Field>
-      {job && (
-        <RemoveButton isLoading={isRemoving} onClick={onRemoveJob}>
-          Remove role
-        </RemoveButton>
-      )}
-    </form>
-  );
-};
-
-export const SquadManageJobForm = ({
-  jobId,
-}: {
-  /** Undefined adds a role. */
-  jobId?: string;
-}): ReactElement | null => {
-  const router = useRouter();
-  const { squad } = useSquadPageContext();
-  const { jobs, isPending } = useSquadJobs(squad);
-  const [isSaving, setIsSaving] = useState(false);
-  const job = jobId ? jobs.find(({ id }) => id === jobId) : undefined;
-  const listUrl = getSquadManageUrl(squad.handle, SquadManageSection.Jobs);
-
-  if (jobId && !job) {
-    return isPending ? null : (
-      <NotFoundPanel
-        title="Role not found"
-        backUrl={listUrl}
-        backLabel="Back to Jobs"
-        text="This role is no longer listed on the Squad."
-      />
-    );
-  }
-
-  return (
-    <SquadManagePanel
-      title={job ? 'Edit role' : 'Add role'}
-      backUrl={listUrl}
-      backLabel="Back to Jobs"
-      hasLaptopBack
-      action={<SquadManageSaveButton formId={jobFormId} isLoading={isSaving} />}
-    >
-      <JobForm
-        key={job?.id ?? 'new'}
-        job={job}
-        onDone={() => router.push(listUrl)}
-        onSavingChange={setIsSaving}
-      />
-    </SquadManagePanel>
-  );
-};
 
 /* -------------------------------------------------------------- perks */
 

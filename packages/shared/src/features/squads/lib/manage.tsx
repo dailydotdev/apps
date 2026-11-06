@@ -10,6 +10,7 @@ import {
   DocsIcon,
   EditIcon,
   EmbedIcon,
+  JobIcon,
   LinkIcon,
   LockIcon,
   PaintRollerIcon,
@@ -38,6 +39,7 @@ export interface SquadManageGroup {
 export const squadManageTitles: Record<SquadManageSection, string> = {
   [SquadManageSection.Details]: 'Details',
   [SquadManageSection.Products]: 'Products',
+  [SquadManageSection.Jobs]: 'Jobs',
   [SquadManageSection.Links]: 'Links',
   [SquadManageSection.Branding]: 'Branding',
   [SquadManageSection.Rules]: 'Rules',
@@ -70,6 +72,8 @@ const canSeeSection = (
       return canEdit;
     case SquadManageSection.Products:
       return canEdit && hasSquadFeature(squad, 'products');
+    case SquadManageSection.Jobs:
+      return canEdit && hasSquadFeature(squad, 'jobs');
     case SquadManageSection.Links:
       return canEdit && hasSquadFeature(squad, 'links');
     case SquadManageSection.Branding:
@@ -115,6 +119,7 @@ export const getSquadManageGroups = (
       items: [
         item(SquadManageSection.Details, <EditIcon />),
         item(SquadManageSection.Products, <AppIcon />),
+        item(SquadManageSection.Jobs, <JobIcon />),
         item(SquadManageSection.Links, <LinkIcon />),
         item(SquadManageSection.Branding, <PaintRollerIcon />),
         item(SquadManageSection.Rules, <DocsIcon />),

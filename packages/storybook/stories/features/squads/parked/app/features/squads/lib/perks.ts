@@ -1,22 +1,4 @@
-import type { SquadJob, SquadPerk } from '../../../graphql/squadJobsPerks';
-import {
-  squadJobEmploymentTypeLabel,
-  SquadJobWorkplace,
-} from '../../../graphql/squadJobsPerks';
-
-/** "Remote (EU) · Full-time", the line under a role's title. */
-export const getSquadJobMeta = (
-  job: Pick<SquadJob, 'location' | 'workplace' | 'employmentType'>,
-): string => {
-  const where =
-    job.workplace === SquadJobWorkplace.Hybrid
-      ? `${job.location} (hybrid)`
-      : job.location;
-
-  return [where, squadJobEmploymentTypeLabel[job.employmentType]]
-    .filter(Boolean)
-    .join(' · ');
-};
+import type { SquadPerk } from '../../../graphql/squadPerks';
 
 // A perk ends at the end of a calendar day in UTC, so everyone, wherever
 // they are, sees the same date the editor picked
@@ -55,7 +37,7 @@ export const parseSquadPerkCodes = (text: string): string[] => [
   ),
 ];
 
-/** "coderabbit.ai" from a link, for buttons like "Apply on coderabbit.ai". */
+/** "coderabbit.ai" from a link, for buttons like "Redeem on coderabbit.ai". */
 export const getLinkHost = (url: string): string | null => {
   try {
     return new URL(url).hostname.replace(/^www\./, '');

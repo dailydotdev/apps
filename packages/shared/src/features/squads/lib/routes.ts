@@ -3,6 +3,7 @@ import { webappUrl } from '../../../lib/constants';
 export enum SquadManageSection {
   Details = 'details',
   Products = 'products',
+  Jobs = 'jobs',
   Links = 'links',
   Branding = 'branding',
   Rules = 'rules',
@@ -31,6 +32,12 @@ export const getSquadMembersUrl = (handle: string): string =>
 
 export const getSquadProductsUrl = (handle: string): string =>
   `${getSquadUrl(handle)}/products`;
+
+export const getSquadJobsUrl = (handle: string): string =>
+  `${getSquadUrl(handle)}/jobs`;
+
+export const getSquadJobUrl = (handle: string, jobId: string): string =>
+  `${getSquadJobsUrl(handle)}/${jobId}`;
 
 export const getSquadRulesUrl = (handle: string): string =>
   `${getSquadUrl(handle)}/rules`;
@@ -83,3 +90,6 @@ export const getSquadProductFormUrl = (
   `${getSquadManageUrl(handle, SquadManageSection.Products)}/${
     productId ?? 'new'
   }`;
+
+export const getSquadJobFormUrl = (handle: string, jobId?: string): string =>
+  `${getSquadManageUrl(handle, SquadManageSection.Jobs)}/${jobId ?? 'new'}`;
