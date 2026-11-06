@@ -208,9 +208,14 @@ const JobSummary = ({ job }: { job: SquadJob }): ReactElement => {
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-3">
         <CompanyLogo className="size-14" />
-        <span className="flex min-w-0 flex-col">
-          <span className="flex items-center gap-1">
-            <Typography type={TypographyType.Callout} bold truncate>
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="flex min-w-0 items-center gap-1">
+            <Typography
+              type={TypographyType.Callout}
+              bold
+              truncate
+              className="min-w-0 shrink"
+            >
               {squad.name}
             </Typography>
             {hasSquadFeature(squad, 'verified') && <VerifiedSquadBadge />}
@@ -228,7 +233,7 @@ const JobSummary = ({ job }: { job: SquadJob }): ReactElement => {
         <Typography
           type={TypographyType.Body}
           color={TypographyColor.Secondary}
-          className="whitespace-pre-line text-pretty"
+          className="whitespace-pre-line text-pretty break-words"
         >
           {job.about}
         </Typography>
@@ -334,6 +339,7 @@ export const SquadJobPage = ({ jobId }: { jobId: string }): ReactElement => {
                       <Typography
                         type={TypographyType.Callout}
                         color={TypographyColor.Secondary}
+                        className="min-w-0 flex-1 break-words"
                       >
                         {bullet}
                       </Typography>
