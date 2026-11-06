@@ -79,8 +79,16 @@ const CHAT_ROOM_QUERY = gql`
 `;
 
 const OPEN_TOPIC_CHAT_ROOM_MUTATION = gql`
-  mutation OpenTopicChatRoom($title: String!, $description: String) {
-    openTopicChatRoom(title: $title, description: $description) {
+  mutation OpenTopicChatRoom(
+    $title: String!
+    $description: String
+    $silent: Boolean
+  ) {
+    openTopicChatRoom(
+      title: $title
+      description: $description
+      silent: $silent
+    ) {
       ...ChatRoomFragment
     }
   }
@@ -141,6 +149,8 @@ export const TOPIC_CHAT_ROOM_DESCRIPTION_MAX_LENGTH = 280;
 export const openTopicChatRoom = async (input: {
   title: string;
   description?: string;
+  // A test run: no go-live push.
+  silent?: boolean;
 }): Promise<ChatRoom> => {
   const res = await gqlClient.request<{ openTopicChatRoom: ChatRoom }>(
     OPEN_TOPIC_CHAT_ROOM_MUTATION,
