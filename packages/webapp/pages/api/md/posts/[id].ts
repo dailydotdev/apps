@@ -90,6 +90,9 @@ const handler = async (
       'public, s-maxage=86400, stale-while-revalidate=604800',
     );
     res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+    // The real id, which the URL slug only carries lowercased. The daily.dev
+    // router reads it from its indexability check to tag agent page requests.
+    res.setHeader('X-Post-Id', post.id);
     res.status(200).send(markdown);
   } catch (error: unknown) {
     const errorCode = (error as ClientError)?.response?.errors?.[0]?.extensions
