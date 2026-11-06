@@ -189,6 +189,10 @@ const nextConfig: NextConfig = {
           destination: '/squads/:handle?tab=about',
         },
         {
+          source: '/squads/:handle/jobs',
+          destination: '/squads/:handle?tab=jobs',
+        },
+        {
           source: '/posts/:id',
           destination: '/posts/:id/share',
           has: [

@@ -12,7 +12,7 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 
-// Pieces shared by a role's page and a perk's page.
+// Pieces of a perk's page.
 
 /** A section under a heading with a rule, like the tool page. */
 export const SquadDetailSection = ({
@@ -79,7 +79,7 @@ export const SquadDetailFacts = ({
 );
 
 /**
- * A role or perk page that has nothing to show: gone (or another squad's),
+ * A perk page that has nothing to show: gone (or another squad's),
  * or a load that failed and can be tried again.
  */
 export const SquadDetailUnavailable = ({

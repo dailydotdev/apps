@@ -10,7 +10,7 @@ import { SquadPageTab } from './app/features/squads/lib/routes';
 
 /**
  * The squad page as SquadHome builds it, with the feed swapped for a
- * placeholder: the header, the products row, Posts · Jobs · Perks.
+ * placeholder: the header, the products row, Posts · Perks.
  */
 export const SquadPage = ({
   tab = SquadPageTab.Posts,
