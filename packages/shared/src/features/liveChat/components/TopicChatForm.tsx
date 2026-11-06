@@ -11,6 +11,7 @@ import { Button } from '../../../components/buttons/Button';
 import { ButtonVariant } from '../../../components/buttons/common';
 import { TextField } from '../../../components/fields/TextField';
 import Textarea from '../../../components/fields/Textarea';
+import { Checkbox } from '../../../components/fields/Checkbox';
 import {
   openTopicChatRoom,
   TOPIC_CHAT_ROOM_DESCRIPTION_MAX_LENGTH,
@@ -32,6 +33,7 @@ export const TopicChatForm = (): ReactElement => {
   const queryClient = useQueryClient();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [isSilent, setIsSilent] = useState(false);
   const { mutate, isPending } = useMutation({
     mutationFn: openTopicChatRoom,
     onSuccess: (room) => {
@@ -39,7 +41,10 @@ export const TopicChatForm = (): ReactElement => {
         event_name: LogEvent.StartLiveChat,
         target_type: TargetType.ChatRoom,
         target_id: room.id,
-        extra: JSON.stringify({ origin: Origin.NewLiveChat }),
+        extra: JSON.stringify({
+          origin: Origin.NewLiveChat,
+          silent: isSilent,
+        }),
       });
       queryClient.invalidateQueries({
         queryKey: liveChatRoomsQueryOptions(user).queryKey,
@@ -64,6 +69,7 @@ export const TopicChatForm = (): ReactElement => {
     mutate({
       title: trimmedTitle,
       description: description.trim() || undefined,
+      silent: isSilent || undefined,
     });
   };
 
@@ -91,9 +97,16 @@ export const TopicChatForm = (): ReactElement => {
         rows={3}
       />
       <p className="text-text-tertiary typo-footnote">
-        The chat is on for a few hours, then gone. Everyone around gets a push
-        that it opened.
+        The chat is on for a few hours, then gone.{' '}
+        {isSilent
+          ? 'It shows on the feed, but nobody is pushed about it.'
+          : 'Everyone around gets a push that it opened.'}
       </p>
+      {/* A test run: the room is real and on the feed, just unannounced.
+          Off by default so a real chat is never opened quietly by mistake. */}
+      <Checkbox name="silent" checked={isSilent} onToggleCallback={setIsSilent}>
+        Don&apos;t send a push (test run)
+      </Checkbox>
       <Button
         type="submit"
         variant={ButtonVariant.Primary}
