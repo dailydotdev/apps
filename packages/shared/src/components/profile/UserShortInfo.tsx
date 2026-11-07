@@ -60,6 +60,7 @@ export interface UserShortInfoProps<
   origin?: Origin;
   feedId?: string;
   showAward?: boolean;
+  usernameOnNewLine?: boolean;
 }
 
 const defaultClassName = {
@@ -86,12 +87,21 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
     origin,
     feedId,
     showAward,
+    usernameOnNewLine,
     ...props
   }: UserShortInfoProps<Tag> & Omit<PropsOf<Tag>, 'className'>,
   ref?: Ref<Tag>,
 ): ReactElement => {
   const Element = (tag || 'a') as React.ElementType;
   const { name, username, bio, companies, isPlus, role } = user;
+  const usernameElement = (
+    <TruncateText
+      className="text-text-tertiary typo-footnote"
+      title={`@${username}`}
+    >
+      {transformUsername ? transformUsername(user) : `@${username}`}
+    </TruncateText>
+  );
   const tooltipProps: TooltipProps = {
     appendTo: appendTooltipTo || globalThis?.document?.body || 'parent',
     visible: disableTooltip ? false : undefined,
@@ -129,13 +139,9 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
               {name}
             </TruncateText>
             {isPlus && <PlusUserBadge user={{ isPlus }} tooltip={false} />}
-            <TruncateText
-              className="text-text-tertiary typo-footnote"
-              title={`@${username}`}
-            >
-              {transformUsername ? transformUsername(user) : `@${username}`}
-            </TruncateText>
+            {!usernameOnNewLine && usernameElement}
           </div>
+          {usernameOnNewLine && usernameElement}
           <div className="flex gap-2">
             <ReputationUserBadge user={user} />
             {companies?.length > 0 && (
