@@ -205,9 +205,9 @@ type UserShortInfoForwardedProps = Omit<
   'ref'
 >;
 
-export const UserShortInfo = forwardRef(
-  UserShortInfoComponent as (
-    props: UserShortInfoForwardedProps,
-    ref?: Ref<HTMLElement>,
-  ) => ReactElement,
-);
+const UserShortInfoRender = UserShortInfoComponent as (
+  props: UserShortInfoForwardedProps,
+  ref?: Ref<HTMLElement>,
+) => ReactElement;
+
+export const UserShortInfo = forwardRef(UserShortInfoRender);
