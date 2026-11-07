@@ -50,6 +50,7 @@ import {
   briefFeedEntrypointPage,
   featureFeedAdTemplate,
   featureHeroCards,
+  featureTaboolaAds,
 } from '../lib/featureManagement';
 import { useConditionalFeature } from './useConditionalFeature';
 import { useReadingReminderFeedHero } from './notifications/useReadingReminderFeedHero';
@@ -72,6 +73,12 @@ import { AdPlacement } from '../lib/ads';
 import { SharedFeedPage } from '../components/utilities';
 import { useTranslation } from './translation/useTranslation';
 import { useFetchAd } from '../features/monetization/useFetchAd';
+import {
+  getTaboolaFeedPlacement,
+  isTaboolaAd,
+  isTaboolaPlacement,
+} from '../features/monetization/taboola';
+import { isExtension } from '../lib/func';
 import type { Squad } from '../graphql/sources';
 import { useCachedTokenRecovery } from './useCachedTokenRecovery';
 
@@ -84,6 +91,8 @@ export interface AdItem extends FeedItemBase<FeedItemType.Ad> {
   ad: Ad;
   index: number;
   updatedAt: number;
+  /** The Taboola placement that fills the slot instead of its house ad. */
+  taboolaPlacement?: number;
 }
 
 export interface AdPostItem extends AdItem {
@@ -602,6 +611,11 @@ export default function useFeed<T>(
     isLoading,
     dataUpdatedAt: adsUpdatedAt,
   } = adsQuery;
+  // The extension's pages can't load Taboola's remote script.
+  const { value: isTaboolaFallback } = useConditionalFeature({
+    feature: featureTaboolaAds,
+    shouldEvaluate: !isExtension && !!adsData?.pages.some((ad) => ad?.fallback),
+  });
 
   const getAd = useCallback(
     ({ index }: { index: number }): AdItem | PlaceholderItem | undefined => {
@@ -653,11 +667,15 @@ export default function useFeed<T>(
         return createPlaceholderItem(adPage);
       }
 
+      const taboolaPlacement = getTaboolaFeedPlacement(adPage);
+
       return {
         type: FeedItemType.Ad,
         ad: nextAd,
         index: adPage,
         updatedAt: adsUpdatedAt,
+        ...(isTaboolaAd(nextAd, isTaboolaFallback) &&
+          isTaboolaPlacement(taboolaPlacement) && { taboolaPlacement }),
       } as AdItem;
     },
     [
@@ -666,6 +684,7 @@ export default function useFeed<T>(
       isAdsQueryEnabled,
       isAdConsentReady,
       isLoading,
+      isTaboolaFallback,
       adTemplate?.adStart,
       adTemplate?.adRepeat,
       adTemplate?.adJitter,
