@@ -1,0 +1,231 @@
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+
+// Today's design (the Flows pages: production plus the flow fixes) next to the
+// redesign, screen by screen, as screenshots of the real stories: dark mode,
+// 1440×900. Live frames took a minute to fill a page. After changing a
+// screen, shoot it again; each image links to its live story.
+
+const screenshots = import.meta.glob<string>('../assets/compare/*.jpg', {
+  eager: true,
+  import: 'default',
+});
+
+const screenshotOf = (id: string): string | undefined =>
+  screenshots[`../assets/compare/${id.replace('cores-boost-', '')}.jpg`];
+
+/** A walkthrough step (`walkthrough@step`) links to its walkthrough */
+const storyOf = (id: string): string => id.split('@')[0];
+
+type Pair = {
+  name: string;
+  /** Flows story id, `walkthrough@step` for a walkthrough's step, or null
+   * when there is no screen to compare */
+  today: string | null;
+  redesign: string;
+};
+
+const flows = (flow: string, story: string) =>
+  `cores-boost-flows-${flow}--${story}`;
+const redesign = (flow: string, story: string) =>
+  `cores-boost-redesign-${flow}--${story}`;
+
+const pairsFor = (
+  flow: string,
+  rows: [name: string, today: string | null, redesign: string][],
+): Pair[] =>
+  rows.map(([name, today, next]) => ({
+    name,
+    today:
+      today &&
+      (today.includes('--')
+        ? `cores-boost-flows-${today}`
+        : flows(flow, today)),
+    redesign: redesign(flow, next),
+  }));
+
+/** A story's screenshot, linking to the live story */
+const StoryShot = ({ id }: { id: string }): ReactElement => (
+  <a
+    href={`?path=/story/${storyOf(id)}`}
+    target="_top"
+    className="block overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-subtle"
+  >
+    <img
+      src={screenshotOf(id)}
+      alt={id}
+      loading="lazy"
+      className="aspect-[16/10] w-full object-cover object-top"
+    />
+  </a>
+);
+
+const Column = ({
+  label,
+  id,
+}: {
+  label: string;
+  id: string | null;
+}): ReactElement => (
+  <div className="flex min-w-0 flex-1 flex-col gap-2">
+    <span className="font-bold text-text-tertiary typo-caption1">{label}</span>
+    {id ? (
+      <StoryShot id={id} />
+    ) : (
+      <div className="flex aspect-[16/10] w-full items-center justify-center rounded-12 border border-dashed border-border-subtlest-tertiary p-6 text-center text-text-tertiary typo-callout">
+        Unchanged production screen, not part of the flow pages
+      </div>
+    )}
+  </div>
+);
+
+const ComparePage = ({ pairs }: { pairs: Pair[] }): ReactElement => (
+  <div className="flex min-h-screen flex-col gap-10 bg-background-default p-6">
+    {pairs.map((pair) => (
+      <section key={pair.redesign} className="flex flex-col gap-3">
+        <h2 className="font-bold typo-title3">{pair.name}</h2>
+        <div className="flex flex-col gap-4 laptop:flex-row">
+          <Column label="Today" id={pair.today} />
+          <Column label="Redesign" id={pair.redesign} />
+        </div>
+      </section>
+    ))}
+  </div>
+);
+
+const meta: Meta = {
+  title: 'Cores & Boost/Redesign/0. Today vs redesign',
+  parameters: { layout: 'fullscreen' },
+};
+
+export default meta;
+
+type Story = StoryObj;
+
+export const FirstCores: Story = {
+  name: '1. First Cores',
+  render: () => (
+    <ComparePage
+      pairs={pairsFor('1-first-cores', [
+        ['1 · Quest reward', 'quest-reward', 'quest-reward'],
+        ['2 · Your first Cores', 'your-first-cores', 'your-first-cores'],
+        [
+          '3 · Wallet with "Use your Cores"',
+          'wallet-use-your-cores',
+          'wallet-use-your-cores',
+        ],
+        ['4 · Nudge on own post', 'nudge-on-own-post', 'nudge-on-own-post'],
+      ])}
+    />
+  ),
+};
+
+export const GiveAward: Story = {
+  name: '2. Give an award',
+  render: () => (
+    <ComparePage
+      pairs={pairsFor('2-give-an-award', [
+        ['2 · Pick an award', 'pick-an-award', 'pick-an-award'],
+        ['3 · Buy Cores, pack preselected', 'buy-cores', 'buy-cores'],
+        ['5 · Processing', 'processing', 'processing'],
+        ['6 · Note and send', 'note-and-send', 'note-and-send'],
+        ['7 · Award sent', 'flow@award-sent', 'award-sent'],
+        ['8 · Back where you were · old iOS', 'old-ios', 'old-ios'],
+      ])}
+    />
+  ),
+};
+
+export const ReceiveAward: Story = {
+  name: '3. Receive an award',
+  render: () => (
+    <ComparePage
+      pairs={pairsFor('3-receive-an-award', [
+        [
+          '2 · Award received, with context',
+          'award-received-with-context',
+          'award-received-with-context',
+        ],
+        ['3 · Balance refreshes', 'balance-refreshes', 'balance-refreshes'],
+        [
+          '4 · Wallet, row highlighted',
+          'wallet-row-highlighted',
+          'wallet-row-highlighted',
+        ],
+      ])}
+    />
+  ),
+};
+
+export const WalletAndBuying: Story = {
+  name: '4. Wallet and buying',
+  render: () => (
+    <ComparePage
+      pairs={pairsFor('4-wallet-and-buying', [
+        ['1 · Ways in', 'ways-in', 'ways-in'],
+        ['2 · Wallet', 'wallet', 'wallet-screen'],
+        ['3 · /cores', 'cores', 'cores'],
+        [
+          '4 · You got your Cores!',
+          'walkthrough@you-got-your-cores',
+          'you-got-your-cores',
+        ],
+        ['5 · Back to the wallet', 'back-to-the-wallet', 'back-to-the-wallet'],
+      ])}
+    />
+  ),
+};
+
+export const FirstBoost: Story = {
+  name: '5. First boost',
+  render: () => (
+    <ComparePage
+      pairs={pairsFor('5-first-boost', [
+        ['1 · Own post', 'own-post-new', 'own-post-new'],
+        [
+          '1 · Own post · taking off',
+          'own-post-taking-off',
+          'own-post-taking-off',
+        ],
+        ['2 · Boost your post', 'boost-form', 'boost-form'],
+        ['2 · Boost your post · custom', 'boost-form', 'boost-form-custom'],
+        [
+          '2 · Boost your post · reading the post',
+          'boost-form-reading',
+          'boost-form-reading',
+        ],
+        ['3 · Buy Cores, pack preselected', 'buy-cores', 'buy-cores'],
+        ['4 · Processing', 'flow@processing', 'processing'],
+        ['5 · Boost launches', 'boost-launches', 'boost-launches'],
+        ['6 · Boost is live!', 'boost-is-live', 'boost-is-live'],
+      ])}
+    />
+  ),
+};
+
+export const AfterBoost: Story = {
+  name: '6. After the boost',
+  render: () => (
+    <ComparePage
+      pairs={pairsFor('6-after-the-boost', [
+        ['1 · Boosts page', 'boosts-page-story', 'boosts-page-story'],
+        [
+          '1 · Boosts page, nothing live',
+          'boosts-page-empty',
+          'boosts-page-empty',
+        ],
+        ['2 · Campaign', 'campaign-live', 'campaign-live'],
+        ['2 · Campaign, ended', 'campaign-ended', 'campaign-ended'],
+        ['3 · Boost is live', 'live-notification', 'live-notification'],
+        [
+          '4 · Boost ended, with results',
+          'ended-notification',
+          'ended-notification',
+        ],
+        ['5 · Boost again, prefilled', 'boost-again', 'boost-again'],
+        ['6 · Boost is live!', '5-first-boost--boost-is-live', 'boost-is-live'],
+      ])}
+    />
+  ),
+};

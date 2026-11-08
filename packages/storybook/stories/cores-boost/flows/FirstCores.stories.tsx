@@ -3,11 +3,6 @@ import React, { useEffect, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { mocked } from 'storybook/test';
 import mockedRouter, { useRouter } from 'next/router';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { CoresRole } from '@dailydotdev/shared/src/lib/user';
 import { CoresProviders } from '../real/providers';
@@ -16,11 +11,9 @@ import { FlowStepper } from './cores/FlowStepper';
 import type { FirstCoresPersona } from './cores/FirstCoresSheet';
 import { FirstCoresSheet } from './cores/FirstCoresSheet';
 import { FixedWallet } from './cores/FixedWallet';
-import {
-  GatedQuestCard,
-  GatedSidebarProfileStats,
-} from './cores/GatedEntryPoints';
-import { OwnPostScreen, QuestScreen } from './cores/screens';
+import { GatedQuestCard } from './cores/GatedEntryPoints';
+import { questHandlers, SwapInPage } from '../real/pages';
+import { findQuestCard, OwnPostScreen, QuestScreen } from './cores/screens';
 import { firstQuestReward, readQuest, walletHandlers } from './cores/fixtures';
 
 // Fixed lane of "First Cores: earning to a first spend" on the flow board.
@@ -122,34 +115,23 @@ export const Walkthrough: Story = {
     },
   },
   render: ({ persona }) => (
-    <CoresProviders balance={0}>
+    <CoresProviders balance={0} activePage="/daily-quests">
       <WalkthroughFlow persona={persona} />
     </CoresProviders>
   ),
 };
 
-const Column = ({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}): ReactElement => (
-  <div className="flex w-full max-w-[26rem] flex-col gap-3">
-    <Typography type={TypographyType.Caption1} color={TypographyColor.Tertiary}>
-      {label}
-    </Typography>
-    <div className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4">
-      <h4 className="font-bold text-text-primary typo-callout">Daily quests</h4>
-      <GatedQuestCard quest={readQuest} />
-    </div>
-    <GatedSidebarProfileStats />
-  </div>
-);
-
-export const QuestReward: Story = {
+export const QuestReward: StoryObj<Args & { coresAccess: boolean }> = {
   name: '1 · Quest reward',
+  args: { coresAccess: true },
+  argTypes: {
+    coresAccess: {
+      control: 'boolean',
+      description: 'Without Cores access (coresRole None) the reward hides',
+    },
+  },
   parameters: {
+    msw: { handlers },
     docs: {
       description: {
         story:
@@ -157,24 +139,27 @@ export const QuestReward: Story = {
       },
     },
   },
-  render: () => (
-    <div
-      id="__next"
-      className="flex min-h-screen flex-wrap gap-8 bg-background-default p-6"
+  render: ({ coresAccess }) => (
+    <CoresProviders
+      key={String(coresAccess)}
+      balance={FIRST_REWARD}
+      coresRole={coresAccess ? CoresRole.Creator : CoresRole.None}
+      activePage="/daily-quests"
     >
-      <CoresProviders balance={FIRST_REWARD}>
-        <Column label="With Cores access" />
-      </CoresProviders>
-      <CoresProviders balance={FIRST_REWARD} coresRole={CoresRole.None}>
-        <Column label="Without Cores access (coresRole None)" />
-      </CoresProviders>
-    </div>
+      <QuestScreen />
+      {!coresAccess && (
+        <SwapInPage find={findQuestCard}>
+          <GatedQuestCard quest={readQuest} />
+        </SwapInPage>
+      )}
+    </CoresProviders>
   ),
 };
 
 export const YourFirstCores: Story = {
   name: '2 · Your first Cores',
   parameters: {
+    msw: { handlers: [...questHandlers(readQuest, true), ...handlers] },
     docs: {
       description: {
         story:
@@ -183,7 +168,11 @@ export const YourFirstCores: Story = {
     },
   },
   render: ({ persona }) => (
-    <CoresProviders key={persona} balance={FIRST_REWARD}>
+    <CoresProviders
+      key={persona}
+      balance={FIRST_REWARD}
+      activePage="/daily-quests"
+    >
       <Shell>
         <QuestScreen isClaimed />
         <FirstCoresSheet
@@ -220,6 +209,7 @@ export const WalletUseYourCores: Story = {
 export const NudgeOnOwnPost: Story = {
   name: '4 · Nudge on own post',
   parameters: {
+    msw: { handlers },
     docs: {
       description: {
         story:
@@ -228,7 +218,7 @@ export const NudgeOnOwnPost: Story = {
     },
   },
   render: () => (
-    <CoresProviders balance={NUDGE_BALANCE}>
+    <CoresProviders balance={NUDGE_BALANCE} activePage="/posts/sb-bun-post">
       <Shell>
         <OwnPostScreen balance={NUDGE_BALANCE} />
       </Shell>

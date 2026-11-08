@@ -148,7 +148,9 @@ const story = (
     docs: { description: { story: description } },
   },
   render: () => (
-    <CoresProviders balance={startBalance}>{render()}</CoresProviders>
+    <CoresProviders balance={startBalance} activePage="/posts/sb-post">
+      {render()}
+    </CoresProviders>
   ),
 });
 

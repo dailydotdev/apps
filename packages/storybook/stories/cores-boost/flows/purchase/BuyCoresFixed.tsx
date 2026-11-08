@@ -82,7 +82,7 @@ export const CheckoutStandIn = ({
   </div>
 );
 
-const NeededCopy = ({
+export const NeededCopy = ({
   purpose,
   cost,
   balance,

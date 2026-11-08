@@ -16,6 +16,17 @@ import { cloudinaryPostImageCoverPlaceholder } from '@dailydotdev/shared/src/lib
 import { awards } from '../../real/catalog';
 import { activeHistory, coresHandlers } from '../../real/handlers';
 import { productionFlags, viewer } from '../../real/providers';
+import {
+  bunPost,
+  notificationsHandlers,
+  questHandlers,
+} from '../../real/pages';
+import {
+  NotificationIconType,
+  NotificationType,
+} from '@dailydotdev/shared/src/components/notifications/utils';
+import type { Notification } from '@dailydotdev/shared/src/graphql/notifications';
+import { NotificationAvatarType } from '@dailydotdev/shared/src/graphql/notifications';
 
 // People, posts and transactions for the Cores flows. Shapes follow
 // production, as in real/handlers.ts.
@@ -171,6 +182,8 @@ export const walletHandlers = (balance: number, history: History) => [
     await delay(400);
     return HttpResponse.json({ data: { sayThanksForAward: { _: true } } });
   }),
+  ...questHandlers(readQuest),
+  ...notificationsHandlers(awardNotifications()),
   ...coresHandlers({ balance }),
 ];
 
@@ -194,3 +207,58 @@ export const readQuest: UserQuest = {
     { type: QuestRewardType.Cores, amount: 20 },
   ],
 };
+
+const avatarOf = (person: UserShortProfile) => ({
+  type: NotificationAvatarType.User,
+  image: person.image,
+  name: person.name,
+  targetUrl: person.permalink,
+  referenceId: person.id,
+});
+
+/**
+ * The notifications page around the award: the award first, then the reader's
+ * other recent notifications on the same post. The award row is the
+ * production row; the flow stories draw their own over it.
+ */
+export const awardNotifications = (): Notification[] =>
+  [
+    {
+      id: 'sb-award-notification',
+      type: NotificationType.UserReceivedAward,
+      icon: NotificationIconType.Core,
+      title: `<p><b>${ido.name}</b> gave you ${coffee?.name} (+35 Cores)</p>`,
+      description: '“Great write-up!”',
+      avatars: [avatarOf(ido)],
+      attachments: [],
+      referenceId: 'sb-award-ido',
+      targetUrl: '/wallet',
+      createdAt: minutesAgo(2),
+    },
+    {
+      id: 'sb-upvote-milestone',
+      type: NotificationType.ArticleUpvoteMilestone,
+      icon: NotificationIconType.Upvote,
+      title: `<p>Your post <b>${bunPost.title}</b> reached 50 upvotes</p>`,
+      avatars: [],
+      attachments: [
+        { type: 'post', image: bunPost.image, title: bunPost.title },
+      ],
+      referenceId: bunPost.id,
+      targetUrl: bunPost.commentsPermalink,
+      createdAt: minutesAgo(48),
+    },
+    {
+      id: 'sb-new-comment',
+      type: NotificationType.ArticleNewComment,
+      icon: NotificationIconType.Comment,
+      title: `<p><b>Noa Levi</b> commented on <b>${bunPost.title}</b></p>`,
+      description:
+        'Did you hit any issues with native addons? We had to keep two services on Node because of sharp.',
+      avatars: [avatarOf({ ...ido, id: 'sb-noa', name: 'Noa Levi' })],
+      attachments: [],
+      referenceId: bunPost.id,
+      targetUrl: bunPost.commentsPermalink,
+      createdAt: minutesAgo(95),
+    },
+  ] as unknown as Notification[];

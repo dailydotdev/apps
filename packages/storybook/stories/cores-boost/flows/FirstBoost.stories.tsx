@@ -123,6 +123,11 @@ const Walkthrough = (): ReactElement => {
   );
 };
 
+/** Your own post behind the boost modals, as the strip leaves it */
+const OwnPostBackdrop = (): ReactElement => (
+  <OwnPostFixed post={boostablePost} state="new" onBoost={() => undefined} />
+);
+
 const meta: Meta = {
   title: 'Cores & Boost/Flows/5. First boost',
   parameters: {
@@ -147,7 +152,9 @@ const story = (
     docs: { description: { story: description } },
   },
   render: () => (
-    <CoresProviders balance={startBalance}>{render()}</CoresProviders>
+    <CoresProviders balance={startBalance} activePage="/posts/sb-boost-post">
+      {render()}
+    </CoresProviders>
   ),
 });
 
@@ -181,7 +188,7 @@ export const BoostForm = story(
   '2 · Boost your post',
   'A starter preset (1 day · 2,000 Cores) sits next to the custom sliders, and with a low balance the CTA says "Get 1,980 Cores and boost" instead of "Boost post for 50K".',
   () => (
-    <Stage>
+    <Stage background={<OwnPostBackdrop />}>
       <BoostPostFixedModal
         post={boostablePost}
         onBuyCores={noop}
@@ -196,7 +203,7 @@ export const BoostFormReading = story(
   '2 · Boost your post · reading the post',
   'While a new post is still being processed, the estimate says "Reading your post to estimate reach…" instead of a bare spinner.',
   () => (
-    <Stage>
+    <Stage background={<OwnPostBackdrop />}>
       <BoostPostFixedModal
         post={newPost}
         onBuyCores={noop}
@@ -211,7 +218,7 @@ export const BuyCores = story(
   '3 · Buy Cores, pack preselected',
   'The smallest pack covering the boost is selected, and the copy says "boost" instead of "Award".',
   () => (
-    <Stage>
+    <Stage background={<OwnPostBackdrop />}>
       <BuyCoresFixedModal
         purpose="boost"
         cost={starterBoost.coresPerDay * starterBoost.totalDays}
@@ -226,7 +233,7 @@ export const BoostLaunches = story(
   '5 · Boost launches',
   'New: once the Cores land, the boost the user set up starts by itself, with a Change option, instead of a second press on the form.',
   () => (
-    <Stage>
+    <Stage background={<OwnPostBackdrop />}>
       <BoostLaunchingModal
         post={boostablePost}
         budget={starterBoost}
@@ -244,7 +251,7 @@ export const BoostIsLive = story(
   '6 · Boost is live!',
   'The success modal points to the Boosts page ("See your boost") instead of opening the ads dashboard modal ("Track performance").',
   () => (
-    <Stage>
+    <Stage background={<OwnPostBackdrop />}>
       <BoostLiveFixedModal onSeeBoost={noop} onRequestClose={noop} />
     </Stage>
   ),

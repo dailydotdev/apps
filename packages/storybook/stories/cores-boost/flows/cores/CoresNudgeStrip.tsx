@@ -1,9 +1,10 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import stripArt from '../../assets/boost-strip-patchy-v2.png';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { BoostIcon } from '@dailydotdev/shared/src/components/icons/Boost';
-import { ClearIcon, CoreIcon } from '@dailydotdev/shared/src/components/icons';
+import { CoreIcon, MiniCloseIcon } from '@dailydotdev/shared/src/components/icons';
 import {
   Typography,
   TypographyTag,
@@ -14,8 +15,6 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { Image } from '@dailydotdev/shared/src/components/image/Image';
-import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils/useThemedAsset';
 import { formatCoresCurrency } from '@dailydotdev/shared/src/lib/utils';
 
 // New, on your own post once the balance covers the smallest boost. Same
@@ -35,8 +34,6 @@ export function CoresNudgeStrip({
   onClose,
   className,
 }: CoresNudgeStripProps): ReactElement {
-  const { postBoostStrip } = useThemedAsset();
-
   return (
     <div
       className={classNames(
@@ -44,16 +41,18 @@ export function CoresNudgeStrip({
         className,
       )}
     >
-      <Image
-        src={postBoostStrip}
-        className="absolute inset-0 z-0 hidden h-full w-full tablet:flex"
+      {/* New art: kept to the left so it never sits behind the copy */}
+      <img
+        src={stripArt}
+        alt=""
+        className="pointer-events-none absolute inset-y-0 left-0 z-0 hidden h-full w-auto max-w-none rounded-l-8 tablet:block"
       />
-      <div className="z-1 flex w-full flex-row items-center gap-1 tablet:justify-end">
+      <div className="z-1 flex w-full flex-row items-center gap-1 tablet:pl-24">
         <CoreIcon size={IconSize.Medium} className="shrink-0" />
         <Typography
           tag={TypographyTag.Span}
           type={TypographyType.Callout}
-          className="min-w-0 shrink"
+          className="min-w-0 flex-1"
         >
           <span>You have</span>
           <strong className="mx-1">
@@ -62,7 +61,7 @@ export function CoresNudgeStrip({
           <span>enough to boost this post</span>
         </Typography>
         <Button
-          className="ml-auto tablet:ml-2"
+          className="ml-auto shrink-0"
           variant={ButtonVariant.Primary}
           size={ButtonSize.XSmall}
           icon={<BoostIcon />}
@@ -73,7 +72,7 @@ export function CoresNudgeStrip({
         <Button
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Small}
-          icon={<ClearIcon secondary />}
+          icon={<MiniCloseIcon />}
           onClick={onClose}
         />
       </div>

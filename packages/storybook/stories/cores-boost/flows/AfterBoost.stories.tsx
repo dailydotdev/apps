@@ -36,14 +36,8 @@ const meta: Meta = {
   },
   decorators: [
     (Story) => (
-      <CoresProviders balance={BALANCE}>
-        <div id="__next" className="min-h-screen bg-background-default">
-          {/* #__next is a flex column, so pages need a block parent as in the
-              app layout, or `m-auto` centers them vertically */}
-          <div>
-            <Story />
-          </div>
-        </div>
+      <CoresProviders balance={BALANCE} activePage="/boosts">
+        <Story />
       </CoresProviders>
     ),
   ],
@@ -62,7 +56,7 @@ const lastBoostOf = (campaign: Campaign) => {
   };
 };
 
-/** react-modal binds to #__next, so open after the decorator mounted it */
+/** Boost again from the ended notification, over the notifications page */
 const BoostAgainScreen = ({
   onSeeBoost,
 }: {
@@ -73,16 +67,12 @@ const BoostAgainScreen = ({
 
   return (
     <>
-      {!isOpen && (
-        <div className="p-6">
-          <Button
-            variant={ButtonVariant.Primary}
-            onClick={() => setIsOpen(true)}
-          >
-            Boost again
-          </Button>
-        </div>
-      )}
+      <NotificationsColumn>
+        <BoostEndedNotification
+          campaign={endedCampaign}
+          onBoostAgain={() => setIsOpen(true)}
+        />
+      </NotificationsColumn>
       {isOpen && (
         <BoostAgainModal
           isOpen
@@ -197,6 +187,18 @@ export const BoostsPageStory: Story = {
       description: {
         story:
           'New: the Ads dashboard modal becomes a /boosts page with Live and Ended tabs and all-time totals, including clicks on the post.',
+      },
+    },
+  },
+};
+
+export const BoostsPageEmpty: Story = {
+  name: '1 · Boosts page, nothing live',
+  render: () => <BoostsPage campaigns={[]} />,
+  parameters: {
+    docs: {
+      description: {
+        story: 'The /boosts page before any boost, with the empty Live tab.',
       },
     },
   },

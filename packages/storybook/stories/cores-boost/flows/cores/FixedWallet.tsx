@@ -1,4 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
+import { useRoute } from '../../real/providers';
 import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import type { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
@@ -205,6 +206,7 @@ export const FixedWallet = ({
   onBuyCores,
   onUse,
 }: FixedWalletProps): ReactElement | null => {
+  useRoute('/wallet');
   const { user, isLoggedIn } = useAuthContext();
   const isLaptopLayout = useLaptopLayout();
   const isPhone = useIsPhone();

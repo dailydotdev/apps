@@ -2,6 +2,8 @@ import type { ReactElement } from 'react';
 import dynamic from 'next/dynamic';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
+import { ownArticle, PostPage } from '../../real/pages';
+import stripArt from '../../assets/boost-strip-patchy-v2.png';
 import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import {
   Typography,
@@ -17,19 +19,16 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { CoreIcon } from '@dailydotdev/shared/src/components/icons/Core';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
-import { ClearIcon } from '@dailydotdev/shared/src/components/icons/Clear';
+import { MiniCloseIcon } from '@dailydotdev/shared/src/components/icons/MiniClose';
 import { TrendingIcon } from '@dailydotdev/shared/src/components/icons/Trending';
-import { OpenLinkIcon } from '@dailydotdev/shared/src/components/icons/OpenLink';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { TooltipArrow } from '@dailydotdev/shared/src/svg/TooltipArrow';
 import { ActionSuccessModal } from '@dailydotdev/shared/src/components/modals/utils/ActionSuccessModal';
-import { BoostButton } from '@dailydotdev/shared/src/features/boost/BoostButton';
 import { BoostWalletPicker } from '@dailydotdev/shared/src/features/boost/BoostWalletPicker';
 import { useBoostWallet } from '@dailydotdev/shared/src/features/boost/useBoostWallet';
 import { usePostBoostEstimation } from '@dailydotdev/shared/src/features/boost/usePostBoostEstimation';
-import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils/useThemedAsset';
 import { useFeaturesReadyContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { boostSettingsFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
@@ -38,15 +37,11 @@ import { CampaignWallet } from '@dailydotdev/shared/src/graphql/campaigns';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
-import {
-  boostSuccessCover,
-  cloudinaryPostImageCoverPlaceholder,
-} from '@dailydotdev/shared/src/lib/image';
+import { boostSuccessCover } from '@dailydotdev/shared/src/lib/image';
 import {
   boostDocsLink,
   walletUrl,
 } from '@dailydotdev/shared/src/lib/constants';
-import { fallbackImages } from '@dailydotdev/shared/src/lib/config';
 
 const Slider = dynamic(
   () =>
@@ -77,8 +72,6 @@ const Strip = ({
   onDismiss?: () => void;
   className?: string;
 }): ReactElement => {
-  const { postBoostStrip } = useThemedAsset();
-
   return (
     <div
       className={classNames(
@@ -86,22 +79,24 @@ const Strip = ({
         className,
       )}
     >
-      <Image
-        src={postBoostStrip}
-        className="absolute inset-0 z-0 hidden h-full w-full tablet:flex"
+      {/* New art: kept to the left so it never sits behind the copy */}
+      <img
+        src={stripArt}
+        alt=""
+        className="pointer-events-none absolute inset-y-0 left-0 z-0 hidden h-full w-auto max-w-none rounded-l-8 tablet:block"
       />
-      <div className="z-1 flex w-full flex-row items-center gap-1 tablet:justify-end">
+      <div className="z-1 flex w-full flex-row items-center gap-1 tablet:pl-24">
         <TooltipArrow className="absolute -top-2 right-18 fill-accent-blueCheese-default" />
         <TrendingIcon size={IconSize.Medium} className="shrink-0" />
         <Typography
           tag={TypographyTag.Span}
           type={TypographyType.Callout}
-          className="min-w-0 flex-1 tablet:flex-none"
+          className="min-w-0 flex-1"
         >
           {children}
         </Typography>
         <Button
-          className="ml-auto shrink-0 tablet:ml-1"
+          className="ml-auto shrink-0"
           variant={ButtonVariant.Primary}
           color={ButtonColor.BlueCheese}
           size={ButtonSize.XSmall}
@@ -114,7 +109,7 @@ const Strip = ({
             className="shrink-0"
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
-            icon={<ClearIcon secondary />}
+            icon={<MiniCloseIcon />}
             onClick={onDismiss}
             aria-label="Dismiss"
           />
@@ -126,7 +121,7 @@ const Strip = ({
 
 export type OwnPostState = 'new' | 'takingOff';
 
-/** The top of your own article post: header actions, strip, title */
+/** Your own article on the real post page, the strip where production puts it */
 export const OwnPostFixed = ({
   post,
   state,
@@ -139,62 +134,24 @@ export const OwnPostFixed = ({
   const [isDismissed, setDismissed] = useState(false);
 
   return (
-    <article className="mx-auto flex w-full max-w-[40rem] flex-col gap-4 px-4 py-6 tablet:px-6">
-      <div className="flex items-center gap-2">
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-          className="flex-1"
-        >
-          Your post
-        </Typography>
-        <Button
-          variant={ButtonVariant.Secondary}
-          size={ButtonSize.Small}
-          icon={<OpenLinkIcon />}
-        >
-          Read post
-        </Button>
-        <BoostButton
-          buttonProps={{ size: ButtonSize.Small, onClick: onBoost }}
-        />
-      </div>
-      {!isDismissed && state === 'new' && (
-        <Strip onBoost={onBoost} onDismiss={() => setDismissed(true)}>
-          <span>Boost to reach</span>
-          <strong className="mx-1">10k more devs</strong>
-          <span>now!</span>
-        </Strip>
-      )}
-      {!isDismissed && state === 'takingOff' && (
-        <Strip onBoost={onBoost} onDismiss={() => setDismissed(true)}>
-          <strong className="mr-1">This post is taking off.</strong>
-          <span>Boost it while developers are paying attention.</span>
-        </Strip>
-      )}
-      <div className="flex items-center gap-2">
-        <Image
-          src={post.source?.image ?? fallbackImages.avatar}
-          className="size-8 rounded-10"
-        />
-        <Typography type={TypographyType.Callout} bold>
-          {post.source?.name}
-        </Typography>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          {state === 'new' ? 'Just now' : 'Yesterday · 54 upvotes'}
-        </Typography>
-      </div>
-      <Typography type={TypographyType.LargeTitle} bold>
-        {post.title}
-      </Typography>
-      <Image
-        src={post.image ?? cloudinaryPostImageCoverPlaceholder}
-        className="aspect-video w-full rounded-16 object-cover"
-      />
-    </article>
+    <PostPage
+      post={ownArticle(post, state === 'new')}
+      banner={
+        !isDismissed &&
+        (state === 'new' ? (
+          <Strip onBoost={onBoost} onDismiss={() => setDismissed(true)}>
+            <span>Boost to reach</span>
+            <strong className="mx-1">10k more devs</strong>
+            <span>now!</span>
+          </Strip>
+        ) : (
+          <Strip onBoost={onBoost} onDismiss={() => setDismissed(true)}>
+            <strong className="mr-1">This post is taking off.</strong>
+            <span>Boost it while developers are paying attention.</span>
+          </Strip>
+        ))
+      }
+    />
   );
 };
 

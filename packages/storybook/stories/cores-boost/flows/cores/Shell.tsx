@@ -1,14 +1,9 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useCallback, useEffect, useState } from 'react';
-import ProfileButton from '@dailydotdev/shared/src/components/profile/ProfileButton';
-import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
+import React, { useCallback } from 'react';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { QuestRewardType } from '@dailydotdev/shared/src/graphql/quests';
 import type { QuestRewardCounterEventDetail } from '@dailydotdev/shared/src/lib/questRewardAnimation';
 import { QUEST_REWARD_COUNTER_EVENT } from '@dailydotdev/shared/src/lib/questRewardAnimation';
-
-// A thin app header around the flow screens, so the production ProfileButton
-// (streak · Cores · reputation pill) shows the balance change.
 
 const emit = (detail: QuestRewardCounterEventDetail) =>
   window.dispatchEvent(
@@ -65,30 +60,7 @@ export const useAnimateCores = (): ((delta: number) => void) => {
   );
 };
 
-export const Shell = ({
-  children,
-  headerAddon,
-}: {
-  children: ReactNode;
-  headerAddon?: ReactNode;
-}): ReactElement => {
-  // react-modal binds to #__next, so screens with a modal mount after it
-  const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => setIsMounted(true), []);
-
-  return (
-    <div
-      id="__next"
-      className="flex min-h-screen flex-col bg-background-default"
-    >
-      <header className="sticky top-0 z-3 flex h-14 items-center gap-3 border-b border-border-subtlest-tertiary bg-background-default px-4">
-        <Logo position={LogoPosition.Initial} compact />
-        <div className="ml-auto flex items-center gap-3">
-          {headerAddon}
-          <ProfileButton />
-        </div>
-      </header>
-      <div className="flex flex-1 flex-col">{isMounted && children}</div>
-    </div>
-  );
-};
+/** The screen inside the production app shell (see CoresProviders) */
+export const Shell = ({ children }: { children: ReactNode }): ReactElement => (
+  <div className="flex flex-1 flex-col">{children}</div>
+);

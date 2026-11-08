@@ -1,10 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import {
-  pageBorders,
-  pageContainerClassNames,
-} from '@dailydotdev/shared/src/components/utilities/common';
 import { NotificationItemLead } from '@dailydotdev/shared/src/components/notifications/NotificationItemLead';
 import type { NotificationType } from '@dailydotdev/shared/src/components/notifications/utils';
 import { NotificationIconType } from '@dailydotdev/shared/src/components/notifications/utils';
@@ -22,7 +18,13 @@ import { CoreIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import type { Campaign } from '@dailydotdev/shared/src/graphql/campaigns';
+import { CampaignState } from '@dailydotdev/shared/src/graphql/campaigns';
 import { viewer } from '../../real/providers';
+import {
+  findNotificationRow,
+  NotificationsPage,
+  SwapInPage,
+} from '../../real/pages';
 import { unspentOf } from './fixtures';
 
 // The in-app rows for `campaign_post_first_milestone` and
@@ -183,21 +185,31 @@ export const BoostEndedNotification = ({
   );
 };
 
-/** The notifications page column the rows render in (`NotificationsFeed`) */
+/**
+ * The real notifications page, with the boost row production sends today
+ * drawn as the flow fixes it
+ */
 export const NotificationsColumn = ({
   children,
 }: {
   children: ReactNode;
-}): ReactElement => (
-  <main className={classNames(pageBorders, pageContainerClassNames, 'pb-12')}>
-    <div className="flex items-center justify-between px-4 pb-2 pt-4">
-      <h2 className="font-bold typo-body">Notifications</h2>
-    </div>
-    <section>
-      <h3 className="px-4 pb-1 pt-6 font-bold text-text-tertiary typo-footnote first:pt-4">
-        Today
-      </h3>
-      {children}
-    </section>
-  </main>
-);
+}): ReactElement => {
+  // The row's campaign says which production row it stands for
+  const isLive = React.Children.toArray(children).some(
+    (child) =>
+      React.isValidElement(child) &&
+      (child.props as { campaign?: Campaign }).campaign?.state ===
+        CampaignState.Active,
+  );
+
+  return (
+    <>
+      <NotificationsPage />
+      <SwapInPage
+        find={findNotificationRow(isLive ? '70% done' : 'boost has ended')}
+      >
+        {children}
+      </SwapInPage>
+    </>
+  );
+};

@@ -1122,13 +1122,12 @@ const afterBoostToday: Step[] = [
     surface: 'Modal',
     title: 'Boost again',
     via: 'click',
-    status: 'broken',
-    ui: ['! Crash: onBoostAgain is undefined'],
+    ui: ['Boost your post', 'Today’s defaults, not the last budget'],
     where: 'useCampaignByIdModal.ts',
     notes: [
       {
         tone: 'pain',
-        text: 'P0 from the audit: the rebuy moment crashes.',
+        text: 'The audit’s P0 crash is fixed (apps#7185), but the form opens on the defaults, not the last budget.',
       },
       {
         tone: 'data',
@@ -1215,7 +1214,7 @@ const afterBoostFixed: Step[] = [
     notes: [
       {
         tone: 'fix',
-        text: 'Pass onBoostAgain from useCampaignByIdModal and prefill the last budget.',
+        text: 'Prefill the last budget (onBoostAgain works since apps#7185).',
       },
       {
         tone: 'fix',
@@ -1231,7 +1230,7 @@ const AfterBoost = (): ReactElement => (
     number="8"
     title="After the boost, and boosting again"
     icon={frameIcons.boost}
-    summary="A quarter of boosters come back. The moment they’re most likely to rebuy crashes, and there’s no page to come back to."
+    summary="A quarter of boosters come back. The rebuy moment starts from scratch, and there’s no page to come back to."
   >
     <Lane label="Today" steps={afterBoostToday} />
     <Lane label="Fixed" tone="fixed" steps={afterBoostFixed} />
@@ -1249,7 +1248,6 @@ const planColumns: {
     lead: 'Small apps changes that stop users getting lost.',
     tone: 'pain',
     items: [
-      'Boost again from the notification crashes (onBoostAgain).',
       'Every /cores link passes next; streak flows use asPath.',
       'Gate SidebarProfileStats and the Cores shortcut by Cores access.',
       'Keep the picked award after buying Cores; fix the dead "+".',

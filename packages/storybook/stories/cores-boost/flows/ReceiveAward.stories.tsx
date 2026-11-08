@@ -8,21 +8,14 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { CoresProviders } from '../real/providers';
 import { Shell, useAnimateCores } from './cores/Shell';
 import { FlowStepper } from './cores/FlowStepper';
 import { FixedWallet } from './cores/FixedWallet';
-import {
-  AwardNotificationPopup,
-  AwardNotificationRow,
-} from './cores/AwardNotification';
-import { NotificationsScreen, OwnPostScreen } from './cores/screens';
+import { AwardNotificationPopup } from './cores/AwardNotification';
+import { NotificationsScreen } from './cores/screens';
+import { bunPost, PostModalOverFeed } from '../real/pages';
 import { idoAward, receiveHistory, walletHandlers } from './cores/fixtures';
 
 // Fixed lane of "Receive an award" on the flow board. Only the screens the
@@ -72,7 +65,7 @@ const AwardArrives = ({ onOpen }: { onOpen?: () => void }): ReactElement => {
 
   return (
     <>
-      <OwnPostScreen balance={BEFORE} showNudge={false} />
+      <PostModalOverFeed post={bunPost} />
       {isPopupOpen && (
         <AwardNotificationPopup
           isFloating
@@ -81,7 +74,7 @@ const AwardArrives = ({ onOpen }: { onOpen?: () => void }): ReactElement => {
         />
       )}
       <Button
-        className="fixed bottom-4 right-4 z-max"
+        className="opacity-60 fixed bottom-2 left-1/2 z-max -translate-x-1/2"
         size={ButtonSize.XSmall}
         variant={ButtonVariant.Float}
         onClick={() => {
@@ -129,17 +122,11 @@ export const Walkthrough: Story = {
     },
   },
   render: () => (
-    <CoresProviders balance={BEFORE}>
+    <CoresProviders balance={BEFORE} activePage="/">
       <WalkthroughFlow />
     </CoresProviders>
   ),
 };
-
-const Label = ({ children }: { children: string }): ReactElement => (
-  <Typography type={TypographyType.Caption1} color={TypographyColor.Tertiary}>
-    {children}
-  </Typography>
-);
 
 export const AwardReceivedWithContext: Story = {
   name: '2 · Award received, with context',
@@ -152,20 +139,10 @@ export const AwardReceivedWithContext: Story = {
     },
   },
   render: () => (
-    <CoresProviders balance={AFTER}>
+    <CoresProviders balance={AFTER} activePage="/notifications">
       <Shell>
-        <div className="flex flex-col gap-8 p-6 laptop:flex-row laptop:items-start">
-          <div className="flex w-full max-w-[40rem] flex-col gap-2">
-            <Label>Notifications page and bell</Label>
-            <div className="rounded-16 border border-border-subtlest-tertiary">
-              <AwardNotificationRow />
-            </div>
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label>Real-time popup</Label>
-            <AwardNotificationPopup />
-          </div>
-        </div>
+        <NotificationsScreen />
+        <AwardNotificationPopup isFloating />
       </Shell>
     </CoresProviders>
   ),
@@ -182,7 +159,7 @@ export const BalanceRefreshes: Story = {
     },
   },
   render: () => (
-    <CoresProviders balance={BEFORE}>
+    <CoresProviders balance={BEFORE} activePage="/">
       <Shell>
         <AwardArrives />
       </Shell>
@@ -201,7 +178,7 @@ export const WalletRowHighlighted: Story = {
     },
   },
   render: () => (
-    <CoresProviders balance={AFTER}>
+    <CoresProviders balance={AFTER} activePage="/wallet">
       <Shell>
         <FixedWallet highlightId={idoAward.id} />
       </Shell>

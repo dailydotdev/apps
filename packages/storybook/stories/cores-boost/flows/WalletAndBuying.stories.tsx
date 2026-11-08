@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { mocked } from 'storybook/test';
@@ -18,14 +18,13 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { RequestKey } from '@dailydotdev/shared/src/lib/query';
 import { useQueryClient } from '@tanstack/react-query';
+import { NotificationsScreen } from './cores/screens';
 import { CoresProviders } from '../real/providers';
 import { activeHistory } from '../real/handlers';
 import { Shell } from './cores/Shell';
 import { FlowStepper } from './cores/FlowStepper';
 import { FixedWallet } from './cores/FixedWallet';
 import { CoresPurchasedModal } from './cores/CoresPurchasedModal';
-import { GatedSidebarProfileStats } from './cores/GatedEntryPoints';
-import { AwardNotificationRow } from './cores/AwardNotification';
 import {
   afterPurchaseHistory,
   idoAward,
@@ -154,24 +153,10 @@ export const Walkthrough: Story = {
   ),
 };
 
-const Entry = ({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}): ReactElement => (
-  <div className="flex w-full max-w-[40rem] flex-col gap-2">
-    <Typography type={TypographyType.Caption1} color={TypographyColor.Tertiary}>
-      {label}
-    </Typography>
-    {children}
-  </div>
-);
-
 export const WaysIn: Story = {
   name: '1 · Ways in',
   parameters: {
+    msw: { handlers: walletHandlers(BALANCE, walletHistory) },
     docs: {
       description: {
         story:
@@ -180,28 +165,9 @@ export const WaysIn: Story = {
     },
   },
   render: () => (
-    <CoresProviders balance={BALANCE}>
+    <CoresProviders balance={BALANCE} activePage="/notifications">
       <Shell>
-        <div className="flex flex-col gap-8 p-6">
-          <Entry label="Header pill (production, already gated)">
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-            >
-              See the Cores count in the header above.
-            </Typography>
-          </Entry>
-          <Entry label="Sidebar profile menu, Cores cell gated">
-            <div className="w-60">
-              <GatedSidebarProfileStats />
-            </div>
-          </Entry>
-          <Entry label="Award notification, new View in wallet">
-            <div className="rounded-16 border border-border-subtlest-tertiary">
-              <AwardNotificationRow isUnread={false} />
-            </div>
-          </Entry>
-        </div>
+        <NotificationsScreen />
       </Shell>
     </CoresProviders>
   ),

@@ -1,38 +1,40 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   Button,
+  ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { PostPage, samPost } from '../../real/pages';
 
-/** The page behind a flow. react-modal binds to #__next, so modals mount
- * once that element is in the DOM. */
+/**
+ * The page behind a flow, inside the production app shell. By default the
+ * real post page of Sam's article, where an award is given.
+ */
 export const Stage = ({
   children,
-  background,
+  background = <PostPage post={samPost} />,
   onRestart,
   isDone,
 }: {
-  children: ReactNode;
+  children?: ReactNode;
   /** What the app shows behind the modals */
   background?: ReactNode;
   onRestart?: () => void;
   isDone?: boolean;
-}): ReactElement => {
-  const [isMounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
-  return (
-    <div id="__next" className="min-h-screen bg-background-default">
-      {background}
-      {isDone && onRestart && (
-        <div className="p-6">
-          <Button variant={ButtonVariant.Primary} onClick={onRestart}>
-            Start over
-          </Button>
-        </div>
-      )}
-      {isMounted && children}
-    </div>
-  );
-};
+}): ReactElement => (
+  <>
+    {background}
+    {isDone && onRestart && (
+      <Button
+        className="opacity-60 fixed bottom-2 left-1/2 z-max -translate-x-1/2"
+        size={ButtonSize.XSmall}
+        variant={ButtonVariant.Float}
+        onClick={onRestart}
+      >
+        Start over
+      </Button>
+    )}
+    {children}
+  </>
+);

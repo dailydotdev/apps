@@ -9,6 +9,12 @@ import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
 import { fallbackImages } from '@dailydotdev/shared/src/lib/config';
 import { awards, corePacks } from './catalog';
 import { viewer } from './providers';
+import {
+  boostNotifications,
+  homeFeedHandlers,
+  notificationsHandlers,
+  postPageHandlers,
+} from './pages';
 
 // The production GraphQL operations these screens run, answered by name.
 // Row shapes follow production: awards pay the receiver 70% (`valueIncFees`),
@@ -243,4 +249,8 @@ export const coresHandlers = ({
           },
     }),
   ),
+  // The real pages behind the screens: the home feed and the post page
+  ...homeFeedHandlers,
+  ...postPageHandlers,
+  ...notificationsHandlers(boostNotifications()),
 ];
