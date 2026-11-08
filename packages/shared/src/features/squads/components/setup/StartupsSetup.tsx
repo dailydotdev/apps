@@ -17,6 +17,8 @@ import { squadProductsQueryOptions } from '../../../../graphql/squadProducts';
 import { squadBrandingQueryOptions } from '../../../../graphql/squadBranding';
 import { squadSubscriptionQueryOptions } from '../../../../graphql/squadSubscription';
 import { squadIntelSettingsQueryOptions } from '../../../../graphql/squadIntel';
+import { oauthConsentsQueryOptions } from '../../../../lib/oauthApps';
+import { personalAccessTokensQueryOptions } from '../../../../hooks/api/usePersonalAccessTokens';
 import type { Origin } from '../../../../lib/log';
 import { LogEvent } from '../../../../lib/log';
 import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
@@ -424,7 +426,7 @@ const ManualSetup = ({
                     item.onClick?.();
                   }}
                 >
-                  {item.isDone ? 'Edit' : item.cta}
+                  {item.isDone && !item.onClick ? 'Edit' : item.cta}
                 </Button>
               )}
             </li>
@@ -458,6 +460,8 @@ export const useStartupsSetupProgress = (
   isComplete: boolean;
   /** Still finding out which rows are done. */
   isChecking: boolean;
+  /** The founder signed an agent in to daily.dev, or used an API token */
+  isAgentConnected: boolean;
   product?: SquadProduct;
   cta?: string;
 } => {
@@ -481,6 +485,14 @@ export const useStartupsSetupProgress = (
       enabled: hasIntel,
     }),
   );
+  const { data: consents } = useQuery({
+    ...oauthConsentsQueryOptions(),
+    enabled: !!user,
+  });
+  const { data: tokens } = useQuery({
+    ...personalAccessTokensQueryOptions(),
+    enabled: !!user,
+  });
   const done = {
     // Boosting the page needs a cover and a description
     details: !!squad.description && !!squad.headerImage,
@@ -505,6 +517,8 @@ export const useStartupsSetupProgress = (
       isLoadingBranding ||
       isLoadingSubscription ||
       isLoadingIntel,
+    isAgentConnected:
+      !!consents?.length || !!tokens?.some((token) => token.lastUsedAt),
     product: products?.[0],
     cta: branding?.button?.enabled ? branding.button.label : undefined,
   };
@@ -543,7 +557,8 @@ export const StartupsSetup = ({
       ...extra,
     });
   const isTeam = plan === SquadPlan.Team;
-  const { done, hasIntel, isChecking } = useStartupsSetupProgress(squad, plan);
+  const { done, hasIntel, isChecking, isAgentConnected } =
+    useStartupsSetupProgress(squad, plan);
   // Read from the cache: the checkout and Manage › Plan load it already
   const { data: subscription } = useQuery({
     ...squadSubscriptionQueryOptions({ user, sourceId }),
@@ -619,6 +634,7 @@ export const StartupsSetup = ({
       id: 'agent',
       title: 'Connect your agent',
       description: 'Post and boost from Claude Code, Cursor or Codex.',
+      isDone: isAgentConnected,
       onClick: () => selectPath(StartupsSetupPath.Agent),
       cta: 'Show me',
     },
