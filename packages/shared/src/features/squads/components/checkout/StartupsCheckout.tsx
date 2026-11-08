@@ -192,7 +192,7 @@ const AccountStep = ({
           hideRegistrationHeadline
           signUpTitle="Create your account"
           logInTitle="Welcome back"
-          signUpDescription="Create your company page and pick a plan on daily.dev for Startups."
+          signUpDescription="Get your company page on daily.dev. Your agent handles the marketing from there."
           logInDescription="Log in, then pick the page this plan is for."
           signupProviders={signupProviders}
           onDisplayChange={setDisplay}
