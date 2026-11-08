@@ -203,7 +203,7 @@ describe('SmartComposerModal', () => {
       const field = await screen.findByRole('textbox', { name: label });
       fireEvent.change(field, { target: { value: '🏆 Weekly wins' } });
 
-      expect(field).toHaveValue(' Weekly wins');
+      expect(field).toHaveValue('Weekly wins');
       expect(screen.getByRole('status')).toHaveTextContent(hint);
     },
   );

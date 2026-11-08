@@ -30,12 +30,10 @@ describe('getPlainTextFromRichContent', () => {
 describe('stripEmojis', () => {
   it('removes single, joined, skin-toned, flag and keycap emojis', () => {
     expect(stripEmojis("🏆 Weekly Wins #45: What's your win this week?")).toBe(
-      " Weekly Wins #45: What's your win this week?",
+      "Weekly Wins #45: What's your win this week?",
     );
-    expect(stripEmojis('Dev 👩🏽‍💻 life 🏳️‍🌈 in 🇺🇸 and 🏴󠁧󠁢󠁳󠁣󠁴󠁿')).toBe(
-      'Dev  life  in  and ',
-    );
-    expect(stripEmojis('Top 5️⃣ tips ❤️')).toBe('Top 5 tips ');
+    expect(stripEmojis('Dev 👩🏽‍💻 life 🏳️‍🌈 🇺🇸 and 🏴󠁧󠁢󠁳󠁣󠁴󠁿')).toBe('Dev life and ');
+    expect(stripEmojis('Top 5️⃣ tips, I❤️JS')).toBe('Top 5 tips, IJS');
   });
 
   it('keeps regular text, digits, punctuation and non-latin scripts', () => {

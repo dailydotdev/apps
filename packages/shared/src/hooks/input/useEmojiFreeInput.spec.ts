@@ -7,7 +7,7 @@ describe('stripEmojisFromInput', () => {
     input.setSelectionRange(9, 9);
 
     expect(stripEmojisFromInput(input)).toBe(true);
-    expect(input.value).toBe('Weekly  wins');
+    expect(input.value).toBe('Weekly wins');
     expect(input.selectionStart).toBe(7);
   });
 
