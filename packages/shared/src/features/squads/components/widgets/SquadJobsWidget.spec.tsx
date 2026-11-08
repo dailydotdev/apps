@@ -6,7 +6,7 @@ import {
   SquadJobWorkplace,
 } from '../../../../graphql/squadJobs';
 import { useSquadJobs } from '../../hooks/useSquadJobs';
-import { SquadPageTabsContext } from '../../SquadPageTabsContext';
+import { SquadPageTabsProvider } from '../../SquadPageTabsContext';
 import { SquadJobsWidget } from './SquadJobsWidget';
 
 jest.mock('../../SquadPageContext', () => ({
@@ -50,9 +50,9 @@ const openJobs = jest.fn();
 
 const renderWidget = (tabs = { openJobs, isJobsOpen: false }) =>
   render(
-    <SquadPageTabsContext.Provider value={tabs}>
+    <SquadPageTabsProvider {...tabs}>
       <SquadJobsWidget />
-    </SquadPageTabsContext.Provider>,
+    </SquadPageTabsProvider>,
   );
 
 beforeEach(() => {

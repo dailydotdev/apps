@@ -9,8 +9,7 @@ import {
 } from '../../../components/squads/layout/SquadDirectoryNavbar';
 import { SquadPreviewNotice } from './widgets/SquadPreview';
 import { SquadWidgets } from './widgets/SquadWidgets';
-import type { SquadPageTabs } from '../SquadPageTabsContext';
-import { SquadPageTabsContext } from '../SquadPageTabsContext';
+import { SquadPageTabsProvider } from '../SquadPageTabsContext';
 import { useIsPhone } from '../../../hooks/useViewSize';
 import { ShellDockedRow } from '../../../components/shell/ShellPageContext';
 import { Segments, ShellRow } from '../../../components/shell/ShellRow';
@@ -105,22 +104,18 @@ export const SquadPageLayout = ({
   const hasTabs = tabs.length > 1;
   const tabsRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const pageTabs: SquadPageTabs = {
-    isJobsOpen: isJobs,
-    openJobs: jobs
-      ? () => {
-          setTabletTab(SquadPageTab.Jobs);
-          setTab(SquadPageTab.Jobs);
-          // Bring the roles into view when the tabs have scrolled away: the
-          // tab row below laptop, the card's own tabs from laptop.
-          const target = [tabsRef.current, contentRef.current].find(
-            (element) => !!element?.getClientRects().length,
-          );
-          if (target && target.getBoundingClientRect().top < 0) {
-            target.scrollIntoView({ block: 'start' });
-          }
-        }
-      : undefined,
+  const hasJobs = !!jobs;
+  const openJobs = () => {
+    setTabletTab(SquadPageTab.Jobs);
+    setTab(SquadPageTab.Jobs);
+    // Bring the roles into view when the tabs have scrolled away: the tab row
+    // below laptop, the card's own tabs from laptop.
+    const target = [tabsRef.current, contentRef.current].find(
+      (element) => !!element?.getClientRects().length,
+    );
+    if (target && target.getBoundingClientRect().top < 0) {
+      target.scrollIntoView({ block: 'start' });
+    }
   };
   const haveTabsPassed = usePassedBlock(tabsRef, isPhone && hasTabs);
   const segments = tabs.map((item) => ({
@@ -148,7 +143,10 @@ export const SquadPageLayout = ({
   );
 
   return (
-    <SquadPageTabsContext.Provider value={pageTabs}>
+    <SquadPageTabsProvider
+      openJobs={hasJobs ? openJobs : undefined}
+      isJobsOpen={isJobs}
+    >
       <div className="mx-auto flex w-full flex-col laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
         <div className="contents laptop:flex laptop:min-w-0 laptop:flex-1 laptop:flex-col">
           <div className="order-1 flex flex-col">
@@ -208,6 +206,6 @@ export const SquadPageLayout = ({
           <SquadWidgets />
         </aside>
       </div>
-    </SquadPageTabsContext.Provider>
+    </SquadPageTabsProvider>
   );
 };
