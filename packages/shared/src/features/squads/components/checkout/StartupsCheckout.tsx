@@ -20,7 +20,6 @@ import {
 } from '../../../../components/charm/CharmEmptyState';
 import { TextField } from '../../../../components/fields/TextField';
 import {
-  CoreIcon,
   MoveToIcon,
   OpenLinkIcon,
   PlusIcon,
@@ -59,7 +58,7 @@ import {
   getSquadPlanPriceId,
   getSquadPlanTitle,
   isSquadPlan,
-  SQUAD_PLAN_CASHBACK_PERCENTAGE,
+  getSquadPlanCashback,
   SQUAD_PLAN_SEATS,
   SquadPlan,
   squadPlanDetails,
@@ -68,6 +67,8 @@ import {
 } from '../../lib/plans';
 import { useSquadPlanPrices } from '../../hooks/useSquadPlanPrices';
 import { useStartupsSetupRefresh } from '../../hooks/useStartupsSetupRefresh';
+import { useStartupsCashbackPromo } from '../../hooks/useStartupsCashbackPromo';
+import { SquadPlanCashback } from '../SquadPlanCashback';
 import { useLogStartups } from '../../hooks/useLogStartups';
 import {
   StartupsSetup,
@@ -499,10 +500,7 @@ const PlanOption = ({
         <span className="text-text-tertiary typo-footnote"> / month</span>
       </span>
     </span>
-    <span className="flex items-center gap-1.5 text-text-secondary typo-footnote">
-      <CoreIcon size={IconSize.Size16} className="shrink-0" />
-      {`${SQUAD_PLAN_CASHBACK_PERCENTAGE[plan]}% cashback to boost your posts`}
-    </span>
+    <SquadPlanCashback plan={plan} />
     <span className="text-text-tertiary typo-footnote">
       {squadPlanDetails[plan].tagline}
     </span>
@@ -577,6 +575,7 @@ const PaymentPanel = ({
   onChangePlan: () => void;
   onPaid: () => void;
 }): ReactElement => {
+  const cashbackPromo = useStartupsCashbackPromo();
   const { openCheckout, isPaddleReady, checkoutTotals } = usePaddlePayment({
     priceType: PurchaseType.Startups,
     successCallback: onPaid,
@@ -638,7 +637,7 @@ const PaymentPanel = ({
         />
         <SummaryRow
           label="Includes"
-          value={`${seats} ${seats === 1 ? 'seat' : 'seats'}, ${SQUAD_PLAN_CASHBACK_PERCENTAGE[plan]}% cashback`}
+          value={`${seats} ${seats === 1 ? 'seat' : 'seats'}, ${getSquadPlanCashback(plan, cashbackPromo)}% cashback`}
           isMuted
         />
         {!!checkoutTotals?.discount && (

@@ -20,6 +20,39 @@ export const SQUAD_PLAN_CASHBACK_PERCENTAGE: Record<SquadPlan, number> = {
   [SquadPlan.Team]: 200,
 };
 
+// The launch promo: subscriptions started while it is on get this cashback for
+// their first months. Never less than the plan's own.
+export interface StartupsCashbackPromo {
+  percentage: number;
+  months: number;
+}
+
+export const getSquadPlanCashback = (
+  plan: SquadPlan,
+  promo?: StartupsCashbackPromo | null,
+): number =>
+  Math.max(SQUAD_PLAN_CASHBACK_PERCENTAGE[plan], promo?.percentage ?? 0);
+
+export const formatCashbackPromoLength = (months: number): string =>
+  months === 12 ? 'your first year' : `your first ${months} months`;
+
+const isPromoHigher = (
+  plan: SquadPlan,
+  promo?: StartupsCashbackPromo | null,
+): promo is StartupsCashbackPromo =>
+  !!promo && promo.percentage > SQUAD_PLAN_CASHBACK_PERCENTAGE[plan];
+
+/** The plan card line: the launch promo's rate and length while it is on. */
+export const getSquadPlanCashbackLabel = (
+  plan: SquadPlan,
+  promo?: StartupsCashbackPromo | null,
+): string =>
+  isPromoHigher(plan, promo)
+    ? `${promo.percentage}% cashback for ${formatCashbackPromoLength(
+        promo.months,
+      )}`
+    : `${SQUAD_PLAN_CASHBACK_PERCENTAGE[plan]}% cashback to boost your posts`;
+
 // Topics the weekly intel covers, mirrored from the API's intel limits
 export const SQUAD_PLAN_INTEL_TOPICS: Record<SquadPlan, number> = {
   [SquadPlan.Starter]: 5,
