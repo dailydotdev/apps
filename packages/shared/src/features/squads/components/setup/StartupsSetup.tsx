@@ -499,7 +499,7 @@ export const useStartupsSetupProgress = (
       done.links &&
       done.product &&
       (!hasIntel || done.intel) &&
-      (!isTeam || (done.cta && done.seats)),
+      (!isTeam || done.cta),
     isChecking:
       isLoadingProducts ||
       isLoadingBranding ||
@@ -606,7 +606,6 @@ export const StartupsSetup = ({
       title: 'Give your team seats',
       description: `${SQUAD_PLAN_SEATS[plan]} seats, each can post and boost through the API.`,
       isDone: done.seats,
-      isCounted: true,
       href: manageUrl(SquadManageSection.Plan),
       cta: 'Give seats',
     },
