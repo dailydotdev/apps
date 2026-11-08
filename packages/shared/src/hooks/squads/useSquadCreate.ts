@@ -71,7 +71,11 @@ export const useSquadCreate: CustomHook = ({
         return;
       }
 
-      displayToast(typeof result === 'object' ? result.handle : DEFAULT_ERROR);
+      displayToast(
+        typeof result === 'object' && result.handle
+          ? result.handle
+          : DEFAULT_ERROR,
+      );
     },
   });
 
