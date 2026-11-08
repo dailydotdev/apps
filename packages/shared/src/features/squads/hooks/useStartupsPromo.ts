@@ -66,8 +66,8 @@ const isAdmin = (squad: Squad): boolean =>
 
 /**
  * daily.dev for Startups promotions outside the squad page, behind the same
- * flag as the squad page upsell. A squad already on a plan, or verified, is a
- * customer: nothing shows for it.
+ * flag as the squad page upsell. They pitch the first squad the viewer runs
+ * that has no plan, and never show to an admin of a verified squad.
  */
 export const useStartupsPromo = ({
   spot,
@@ -79,14 +79,36 @@ export const useStartupsPromo = ({
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const isDismissed = checkHasCompleted(ActionType.DismissStartupsPromo);
   const adminSquads = useMemo(() => (squads ?? []).filter(isAdmin), [squads]);
-  const isCustomer = adminSquads.some((squad) =>
-    hasSquadFeature(squad, 'verified'),
+  // Squads that could still take a plan: not verified, and no paid seat for
+  // the viewer, which every plan gives its owner
+  const freeSquads = useMemo(
+    () =>
+      adminSquads.filter(
+        (adminSquad) =>
+          !hasSquadFeature(adminSquad, 'verified') &&
+          !adminSquad.currentMember?.seat,
+      ),
+    [adminSquads],
   );
+  // Someone who already pays gets no pitch for a personal post
+  const isCustomer = freeSquads.length < adminSquads.length;
+  // Boosting a post of a squad the viewer already pays for
+  const sourceIdIsPaid =
+    !!sourceId &&
+    adminSquads.some(({ id }) => id === sourceId) &&
+    !freeSquads.some(({ id }) => id === sourceId);
   const squad = sourceId
-    ? adminSquads.find(({ id }) => id === sourceId)
-    : adminSquads[0];
+    ? freeSquads.find(({ id }) => id === sourceId)
+    : freeSquads[0];
+  // An admin of a verified squad is an Enterprise customer: no pitch at all
+  const isEnterprise = adminSquads.some((adminSquad) =>
+    hasSquadFeature(adminSquad, 'verified'),
+  );
   const isCandidate =
-    !!user && !isIOSNative() && !isCustomer && (!!squad || isPersonalAllowed);
+    !!user &&
+    !isIOSNative() &&
+    !isEnterprise &&
+    (!!squad || (isPersonalAllowed && !isCustomer && !sourceIdIsPaid));
   const { value: isEnabled } = useConditionalFeature({
     feature: featureStartupsCheckout,
     shouldEvaluate: isCandidate,
