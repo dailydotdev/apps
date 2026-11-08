@@ -44,6 +44,7 @@ import { labels } from '../../../lib';
 import { useCanPurchaseCores } from '../../../hooks/useCoresFeature';
 import { BuyCoresContextProvider } from '../../../contexts/BuyCoresContext/BuyCoresContext';
 import { iOSSupportsCoresPurchase } from '../../../lib/ios';
+import type { SquadWallet } from '../../../graphql/squadWallet';
 
 export type CoreOptionsProps = {
   className?: string;
@@ -143,7 +144,7 @@ const ProcessingLoading = ({
 };
 
 const ProcessingCompleted = () => {
-  const { onCompletion, selectedProduct } = useBuyCoresContext();
+  const { onCompletion, selectedProduct, squadWallet } = useBuyCoresContext();
 
   return (
     <>
@@ -158,7 +159,9 @@ const ProcessingCompleted = () => {
         type={TypographyType.Callout}
         color={TypographyColor.Tertiary}
       >
-        Success! Your Cores are now available in your balance.
+        {squadWallet
+          ? `Success! Your Cores are now in the ${squadWallet.name} wallet.`
+          : 'Success! Your Cores are now available in your balance.'}
       </Typography>
       <Button
         onClick={onCompletion}
@@ -219,7 +222,7 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
     onValidateAction,
   });
 
-  const { providerTransactionId } = useBuyCoresContext();
+  const { providerTransactionId, squadWallet } = useBuyCoresContext();
 
   const { data: transaction } = useQuery({
     queryKey: [RequestKey.Transactions, { providerId: providerTransactionId }],
@@ -239,6 +242,14 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
         queryKey: generateQueryKey(RequestKey.Transactions, user),
         exact: false,
       });
+
+      if (squadWallet) {
+        [RequestKey.SquadWallet, RequestKey.SquadSubscription].forEach((key) =>
+          queryClient.invalidateQueries({
+            queryKey: generateQueryKey(key, user, squadWallet.sourceId),
+          }),
+        );
+      }
 
       return result;
     },
@@ -449,7 +460,7 @@ const BuyFlow = ({
 }: ModalProps & ModalHeaderProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const canPurchaseCores = useCanPurchaseCores();
-  const { origin } = useBuyCoresContext();
+  const { origin, squadWallet } = useBuyCoresContext();
 
   return (
     <Modal
@@ -459,7 +470,11 @@ const BuyFlow = ({
       {...props}
     >
       <Modal.Header
-        title={!isMobile ? 'Get More Cores' : undefined}
+        title={
+          !isMobile
+            ? `Get More Cores${squadWallet ? ` for ${squadWallet.name}` : ''}`
+            : undefined
+        }
         className="mr-auto flex-row-reverse justify-between gap-4 laptop:justify-end"
         showCloseButton={!isMobile}
       >
@@ -467,6 +482,7 @@ const BuyFlow = ({
           hideBuyButton={!canPurchaseCores}
           onPlusClick={onPlusButtonClick}
           origin={origin}
+          squadWallet={squadWallet}
         />
         {isMobile && (
           <Button
@@ -516,18 +532,21 @@ type BuyCoresModalProps = ModalProps &
     product?: Product;
     /** The Cores the user is missing, see `BuyCoresContextData.minCoresToBuy` */
     minCoresToBuy?: number;
+    squadWallet?: SquadWallet;
   };
 export const BuyCoresModal = ({
   origin,
   onCompletion,
   product,
   minCoresToBuy,
+  squadWallet,
   ...props
 }: BuyCoresModalProps): ReactElement => {
   return (
     <BuyCoresContextProvider
       amountNeeded={product?.value}
       minCoresToBuy={minCoresToBuy}
+      squadWallet={squadWallet}
       onCompletion={onCompletion}
       origin={origin}
     >

@@ -8,6 +8,7 @@ export const SQUAD_WALLET_QUERY = gql`
     source(id: $sourceId) {
       id
       name
+      handle
       currentMember {
         seat
       }
@@ -23,6 +24,7 @@ interface SquadWalletData {
   source: {
     id: string;
     name: string;
+    handle: string;
     currentMember?: { seat: boolean } | null;
   };
   squadSubscription: {
@@ -35,6 +37,7 @@ interface SquadWalletData {
 export interface SquadWallet {
   sourceId: string;
   name: string;
+  handle: string;
   balance: number;
 }
 
@@ -61,6 +64,7 @@ export const squadWalletQueryOptions = ({
       return {
         sourceId: source.id,
         name: source.name,
+        handle: source.handle,
         balance: squadSubscription.coresBalance,
       };
     } catch {
