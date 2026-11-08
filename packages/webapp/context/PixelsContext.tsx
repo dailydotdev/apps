@@ -76,12 +76,17 @@ function WebPixelsProvider({
       //   });
       // }
     },
-    trackEvent(eventName: string) {
+    trackEvent(eventName, params, options) {
       if (typeof globalThis.gtag === 'function') {
         globalThis.gtag('event', eventName.replace(/ /g, '_').toLowerCase());
       }
       if (typeof globalThis.fbq === 'function') {
-        globalThis.fbq('track', eventName);
+        globalThis.fbq(
+          'track',
+          eventName,
+          params,
+          options?.eventId ? { eventID: options.eventId } : undefined,
+        );
       }
     },
   };

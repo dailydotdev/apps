@@ -34,6 +34,7 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useSquadCreate } from '../../../../hooks/squads/useSquadCreate';
 import { useSquad } from '../../../../hooks/squads/useSquad';
 import { usePaddlePayment } from '../../../../hooks/usePaddlePayment';
+import { usePixelsContext } from '../../../../contexts/PixelsContext';
 import { formatCurrency } from '../../../../lib/utils';
 import { useViewSize, ViewSize } from '../../../../hooks/useViewSize';
 import type { Squad } from '../../../../graphql/sources';
@@ -59,6 +60,7 @@ import {
   getSquadPlanTitle,
   isSquadPlan,
   getSquadPlanCashback,
+  SQUAD_PLAN_LIST_PRICE_USD,
   SQUAD_PLAN_SEATS,
   SquadPlan,
   squadPlanDetails,
@@ -579,9 +581,23 @@ const PaymentPanel = ({
   onPaid: () => void;
 }): ReactElement => {
   const cashbackPromo = useStartupsCashbackPromo();
+  const { trackEvent } = usePixelsContext();
   const { openCheckout, isPaddleReady, checkoutTotals } = usePaddlePayment({
     priceType: PurchaseType.Startups,
-    successCallback: onPaid,
+    successCallback: (event) => {
+      const totals = event?.data?.totals;
+      trackEvent(
+        'Subscribe',
+        {
+          content_name: 'startups',
+          content_category: plan,
+          value: totals ? totals.total - totals.tax : 0,
+          currency: event?.data?.currency_code,
+        },
+        { eventId: event?.data?.transaction_id },
+      );
+      onPaid();
+    },
     origin: Origin.StartupsCheckout,
     logExtra: { plan, source_id: company.id },
   });
@@ -602,10 +618,18 @@ const PaymentPanel = ({
       return;
     }
 
+    if (!openedRef.current) {
+      trackEvent('InitiateCheckout', {
+        content_name: 'startups',
+        content_category: plan,
+        value: SQUAD_PLAN_LIST_PRICE_USD[plan],
+        currency: 'USD',
+      });
+    }
     // A second call while the frame is open swaps the item in place
     openedRef.current = priceId;
     openCheckout({ priceId, customData: { source_id: company.id } });
-  }, [company.id, isPaddleReady, openCheckout, plan]);
+  }, [company.id, isPaddleReady, openCheckout, plan, trackEvent]);
 
   useEffect(() => {
     if (isPaddleReady) {
