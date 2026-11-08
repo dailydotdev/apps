@@ -332,3 +332,7 @@ it('should fall back to the picks page when reading the saved picks fails', asyn
   await waitFor(() => expect(push).toHaveBeenCalledWith('/picks/picks-9'));
   expect(mockOpenShareSheet).not.toHaveBeenCalled();
 });
+
+it('should hide the floating feedback widget that covers the bottom bar', () => {
+  expect(NewPicksPage.layoutProps).toMatchObject({ hideFeedbackWidget: true });
+});
