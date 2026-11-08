@@ -194,7 +194,7 @@ export const SquadIntelPage = (): ReactElement => {
       return (
         <EmptyState
           title="No intel yet"
-          description="Pick your topics in the intel settings. Your first intel arrives within the hour after you save them."
+          description="Pick your topics in the intel settings. Your first intel is ready a few minutes after you save them."
         />
       );
     }

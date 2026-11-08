@@ -26,6 +26,8 @@ export interface SquadIntelSettings {
   /** Null until tags are set */
   selection: SquadIntelSelection | null;
   limits: SquadIntelLimits;
+  /** Monday 00:00 UTC, when the weekly run builds the next intel */
+  nextIntelAt: string;
 }
 
 export interface SquadIntel {
@@ -50,6 +52,7 @@ const SQUAD_INTEL_SETTINGS_FRAGMENT = gql`
       seniority
       regions
     }
+    nextIntelAt
   }
 `;
 
@@ -79,7 +82,7 @@ const SQUAD_INTEL_QUERY = gql`
   }
 `;
 
-const UPDATE_SQUAD_INTEL_SETTINGS_MUTATION = gql`
+export const UPDATE_SQUAD_INTEL_SETTINGS_MUTATION = gql`
   mutation UpdateSquadIntelSettings(
     $sourceId: ID!
     $tags: [String!]!

@@ -31,6 +31,15 @@ export const intelRegionLabels: Record<IntelRegion, string> = {
 export const intelSeniorities = Object.values(IntelSeniority);
 export const intelRegions = Object.values(IntelRegion);
 
+// "Monday, Nov 9": the day the weekly run builds the next intel
+export const getIntelDayLabel = (date: string): string =>
+  new Date(date).toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  });
+
 // "Oct 26 to Nov 1": the week ends the Monday after, so the last day is the
 // Sunday before it
 export const getIntelWeekLabel = ({
