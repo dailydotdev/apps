@@ -87,7 +87,7 @@ export const getStartupsSetupPrompt = ({
     `Find @${handle} in my squads and check its features and my role.`,
     "Learn what we build from this project (README, docs, package metadata, our website). Ask me for anything you can't find.",
     'Write the page description: one or two sentences on what we build and for which developers.',
-    'Set our logo, and a cover image if we have one, from image URLs on our site or ones I give you.',
+    'Set our logo and a cover image (boosting the page needs one) from image URLs on our site or ones I give you.',
     `Set our website and up to ${SQUAD_LINKS_MAX} links developers look for: docs, GitHub, changelog, community.`,
     'Add our product with its name, tagline, URL and pricing.',
     `Pick up to ${SQUAD_PLAN_INTEL_TOPICS[plan]} existing daily.dev tags that match what we build and set them as the weekly intel topics.${

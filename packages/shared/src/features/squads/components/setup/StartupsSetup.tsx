@@ -439,7 +439,7 @@ const ManualSetup = ({
 };
 
 export const startupsSetupRowTitles: Record<StartupsSetupRow, string> = {
-  details: 'Logo and description',
+  details: 'Logo, cover and description',
   links: 'Website and links',
   product: 'Your product',
   intel: 'Weekly intel',
@@ -482,7 +482,8 @@ export const useStartupsSetupProgress = (
     }),
   );
   const done = {
-    details: !!squad.description,
+    // Boosting the page needs a cover and a description
+    details: !!squad.description && !!squad.headerImage,
     links: !!squad.website || !!squad.links?.length,
     product: !!products?.length,
     intel: !!intelSettings?.selection,
@@ -552,8 +553,9 @@ export const StartupsSetup = ({
   const candidates: Array<SetupItem | false> = [
     {
       id: 'details',
-      title: 'Logo and description',
-      description: 'Say what you build and for which developers.',
+      title: 'Logo, cover and description',
+      description:
+        'Say what you build and for which developers. Boosting the page needs the cover too.',
       isDone: done.details,
       isCounted: true,
       href: manageUrl(SquadManageSection.Details),

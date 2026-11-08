@@ -35,6 +35,7 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useSquadCreate } from '../../../../hooks/squads/useSquadCreate';
 import { useSquad } from '../../../../hooks/squads/useSquad';
 import { usePaddlePayment } from '../../../../hooks/usePaddlePayment';
+import { formatCurrency } from '../../../../lib/utils';
 import { useViewSize, ViewSize } from '../../../../hooks/useViewSize';
 import type { Squad } from '../../../../graphql/sources';
 import { SourceMemberRole } from '../../../../graphql/sources';
@@ -245,11 +246,14 @@ const CompanyStep = ({
   selectedId,
   onSelect,
   onContinue,
+  onSetUp,
 }: {
   adminSquads: CompanyChoice[];
   selectedId?: string | null;
   onSelect: (id: string | null) => void;
   onContinue: (squad: CompanyChoice, isNew: boolean) => void;
+  /** A page already on a plan goes on to its setup, as after paying */
+  onSetUp: (squad: CompanyChoice, plan: SquadPlan) => void;
 }): ReactElement => {
   const { user } = useAuthContext();
   const selected = adminSquads.find(({ id }) => id === selectedId);
@@ -410,11 +414,25 @@ const CompanyStep = ({
             <Button
               tag="a"
               href={getSquadManageUrl(selected.handle, SquadManageSection.Plan)}
-              variant={ButtonVariant.Primary}
+              variant={
+                isSquadPlan(activePlan)
+                  ? ButtonVariant.Float
+                  : ButtonVariant.Primary
+              }
               className="flex-1"
             >
               Manage subscription
             </Button>
+            {isSquadPlan(activePlan) && (
+              <Button
+                type="button"
+                variant={ButtonVariant.Primary}
+                className="flex-1"
+                onClick={() => onSetUp(selected, activePlan)}
+              >
+                Set up your page
+              </Button>
+            )}
           </CheckoutCta>
         ) : (
           <CheckoutCta>
@@ -559,7 +577,7 @@ const PaymentPanel = ({
   onChangePlan: () => void;
   onPaid: () => void;
 }): ReactElement => {
-  const { openCheckout, isPaddleReady } = usePaddlePayment({
+  const { openCheckout, isPaddleReady, checkoutTotals } = usePaddlePayment({
     priceType: PurchaseType.Startups,
     successCallback: onPaid,
     origin: Origin.StartupsCheckout,
@@ -568,6 +586,12 @@ const PaymentPanel = ({
   const openedRef = useRef<string>();
   const [isTimedOut, setTimedOut] = useState(false);
   const seats = SQUAD_PLAN_SEATS[plan];
+  // Paddle knows the real amount once a discount or tax is applied
+  const formatTotal = (value: number) =>
+    formatCurrency(value, {
+      style: 'currency',
+      currency: checkoutTotals?.currency,
+    });
 
   useEffect(() => {
     const priceId = getSquadPlanPriceId(plan);
@@ -617,12 +641,22 @@ const PaymentPanel = ({
           value={`${seats} ${seats === 1 ? 'seat' : 'seats'}, ${SQUAD_PLAN_CASHBACK_PERCENTAGE[plan]}% cashback`}
           isMuted
         />
+        {!!checkoutTotals?.discount && (
+          <SummaryRow
+            label="Discount"
+            value={`-${formatTotal(checkoutTotals.discount)}`}
+          />
+        )}
         <SummaryRow
           label="Tax"
           value="Added by Paddle for your country"
           isMuted
         />
-        <SummaryRow label="Due today" value={price} isBold />
+        <SummaryRow
+          label="Due today"
+          value={checkoutTotals ? formatTotal(checkoutTotals.total) : price}
+          isBold
+        />
         <p className="text-text-tertiary typo-footnote">
           Renews every month. Cancel any time, your page and posts stay.
         </p>
@@ -964,12 +998,15 @@ const DoneStep = ({
   company,
   plan,
   answers,
+  isReturning,
 }: {
   company: CompanyChoice;
   plan: SquadPlan;
   answers: Partial<Record<CheckoutStage, string>>;
+  /** Back to set up a page that was already on a plan, nothing was paid */
+  isReturning?: boolean;
 }): ReactElement => {
-  const { user } = useAuthContext();
+  const { user, refetchBoot } = useAuthContext();
   const client = useQueryClient();
   const [startedAt] = useState(() => Date.now());
   const [isTimedOut, setTimedOut] = useState(false);
@@ -988,12 +1025,18 @@ const DoneStep = ({
 
   useEffect(() => {
     if (isActive) {
+      if (isReturning) {
+        return undefined;
+      }
+
       logStartups(LogEvent.ActivateSquadPlan, plan, {
         source_id: company.id,
         seconds: Math.round((Date.now() - startedAt) / 1000),
       });
-      // The squad's features changed with the plan
+      // The squad's features changed with the plan, and boot's squads now
+      // carry the owner's seat, which seat-only settings read
       client.invalidateQueries({ queryKey: [RequestKey.Squad] });
+      refetchBoot?.();
       return undefined;
     }
 
@@ -1122,6 +1165,7 @@ export const StartupsCheckout = ({
     initialCompany,
   );
   const [isNewCompany, setNewCompany] = useState(false);
+  const [isReturning, setReturning] = useState(false);
   const logStartups = useLogStartups();
   const answers = {
     [CheckoutStage.Company]: company?.name,
@@ -1189,7 +1233,14 @@ export const StartupsCheckout = ({
   }
 
   if (step === StartupsCheckoutStep.Done && company) {
-    return <DoneStep company={company} plan={plan} answers={answers} />;
+    return (
+      <DoneStep
+        company={company}
+        plan={plan}
+        answers={answers}
+        isReturning={isReturning}
+      />
+    );
   }
 
   return (
@@ -1201,6 +1252,12 @@ export const StartupsCheckout = ({
         setCompany(next);
         setNewCompany(isNew);
         setStep(StartupsCheckoutStep.Plan);
+      }}
+      onSetUp={(next, activePlan) => {
+        setCompany(next);
+        setPlan(activePlan);
+        setReturning(true);
+        setStep(StartupsCheckoutStep.Done);
       }}
     />
   );

@@ -87,12 +87,6 @@ export const squadSubscriptionBalanceQueryOptions = ({
   enabled: enabled && !!user?.id && !!sourceId,
 });
 
-// Only admins and moderators can hold a paid seat
-export const SQUAD_SEAT_ROLES = [
-  SourceMemberRole.Admin,
-  SourceMemberRole.Moderator,
-];
-
 const SQUAD_SEAT_MEMBERS_QUERY = gql`
   query SquadSeatMembers($sourceId: ID!, $role: String) {
     sourceMembers(sourceId: $sourceId, role: $role, first: 50) {
@@ -125,17 +119,16 @@ export const squadSeatMembersQueryOptions = ({
 }) => ({
   queryKey: generateQueryKey(RequestKey.SquadSeats, user, sourceId),
   queryFn: async (): Promise<SquadSeatMember[]> => {
-    const results = await Promise.all(
-      SQUAD_SEAT_ROLES.map((role) =>
-        gqlClient.request<{
-          sourceMembers: { edges: { node: SquadSeatMember }[] };
-        }>(SQUAD_SEAT_MEMBERS_QUERY, { sourceId, role }),
-      ),
-    );
+    // Only admins and moderators can hold a paid seat. The moderator role
+    // already returns admins too, so one request lists everyone once.
+    const { sourceMembers } = await gqlClient.request<{
+      sourceMembers: { edges: { node: SquadSeatMember }[] };
+    }>(SQUAD_SEAT_MEMBERS_QUERY, {
+      sourceId,
+      role: SourceMemberRole.Moderator,
+    });
 
-    return results.flatMap(({ sourceMembers }) =>
-      sourceMembers.edges.map(({ node }) => node),
-    );
+    return sourceMembers.edges.map(({ node }) => node);
   },
   enabled: !!user?.id && !!sourceId,
 });
