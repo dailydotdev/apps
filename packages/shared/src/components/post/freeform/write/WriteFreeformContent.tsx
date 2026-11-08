@@ -10,10 +10,7 @@ import type { EditPostProps } from '../../../../graphql/posts';
 import { imageSizeLimitMB, PostType } from '../../../../graphql/posts';
 import { formToJson } from '../../../../lib/form';
 import useDebounceFn from '../../../../hooks/useDebounceFn';
-import AlertPointer, { AlertPlacement } from '../../../alert/AlertPointer';
-import { useActions, useViewSize, ViewSize } from '../../../../hooks';
-import { ActionType } from '../../../../graphql/actions';
-import useSidebarRendered from '../../../../hooks/useSidebarRendered';
+import { useViewSize, ViewSize } from '../../../../hooks';
 import { base64ToFile } from '../../../../lib/base64';
 import type { MergedWriteObject, WriteForm } from '../../../../contexts';
 import { useWritePostContext } from '../../../../contexts';
@@ -64,8 +61,6 @@ export function WriteFreeformContent({
   } = useWritePostContext();
   const formRef = useRef<HTMLFormElement>();
   useImperativeHandle(propRef, () => formRef?.current);
-  const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
-  const { sidebarRendered } = useSidebarRendered();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { hasStrippedEmojis, onEmojiFreeInput, resetEmojiHint } =
     useEmojiFreeInput();
@@ -80,7 +75,6 @@ export function WriteFreeformContent({
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-    completeAction(ActionType.WritePost);
     const {
       title,
       content,
@@ -134,42 +128,20 @@ export function WriteFreeformContent({
           Thumbnail
         </span>
       </ImageInput>
-      <AlertPointer
-        className={{ container: 'bg-background-default' }}
-        offset={[0, -12]}
-        message={
-          <div className="flex w-64 flex-col">
-            <h3 className="font-bold typo-body">First time? 👋</h3>
-            <p className="mt-1 typo-subhead">
-              It looks like this is your first time sharing a post with the
-              Squad! This is a community we build together. Please be welcoming
-              and open-minded.
-            </p>
-          </div>
-        }
-        isAlertDisabled={
-          !isActionsFetched ||
-          !sidebarRendered ||
-          checkHasCompleted(ActionType.WritePost)
-        }
-        onClose={() => completeAction(ActionType.WritePost)}
-        placement={AlertPlacement.Right}
-      >
-        <TextField
-          className={{ container: 'w-full' }}
-          inputId="title"
-          name="title"
-          label="Post Title*"
-          placeholder="Give your post a title"
-          required
-          defaultValue={draft?.title ?? initialTitle ?? fetchedPost?.title}
-          onInputCapture={onEmojiFreeInput}
-          onInput={onFormUpdate}
-          onBlur={resetEmojiHint}
-          hint={hasStrippedEmojis ? EMOJI_FREE_TITLE_HINT : undefined}
-          maxLength={MAX_TITLE_LENGTH}
-        />
-      </AlertPointer>
+      <TextField
+        className={{ container: 'w-full' }}
+        inputId="title"
+        name="title"
+        label="Post Title*"
+        placeholder="Give your post a title"
+        required
+        defaultValue={draft?.title ?? initialTitle ?? fetchedPost?.title}
+        onInputCapture={onEmojiFreeInput}
+        onInput={onFormUpdate}
+        onBlur={resetEmojiHint}
+        hint={hasStrippedEmojis ? EMOJI_FREE_TITLE_HINT : undefined}
+        maxLength={MAX_TITLE_LENGTH}
+      />
       <RichTextInput
         sourceId={squad?.id}
         onValueUpdate={onFormUpdate}
