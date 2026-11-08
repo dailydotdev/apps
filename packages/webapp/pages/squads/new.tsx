@@ -23,6 +23,8 @@ import { useIntegrationQuery } from '@dailydotdev/shared/src/hooks/integrations/
 
 import { useSlackConnectSourceMutation } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackConnectSourceMutation';
 import { SourceMemberRole } from '@dailydotdev/shared/src/graphql/sources';
+import { SquadPurpose } from '@dailydotdev/shared/src/features/squads/components/promos/StartupsPromo';
+import { getStartupsCheckoutUrl } from '@dailydotdev/shared/src/features/squads/lib/routes';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
@@ -38,6 +40,7 @@ const seo: NextSeoProps = {
 
 const NewSquad = (): ReactElement => {
   const [selectedChannel, setSelectedChannel] = useState<string | null>();
+  const [purpose, setPurpose] = useState<SquadPurpose>();
   const { isReady: isRouteReady, query } = useRouter();
   const { user, isAuthReady, isFetched } = useAuthContext();
   const { onSave } = useSlackConnectSourceMutation();
@@ -54,7 +57,11 @@ const NewSquad = (): ReactElement => {
         });
       }
 
-      router.push(squad.permalink);
+      router.push(
+        purpose === SquadPurpose.Company
+          ? getStartupsCheckoutUrl({ sourceId: squad.id })
+          : squad.permalink,
+      );
     },
   });
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -87,8 +94,9 @@ const NewSquad = (): ReactElement => {
     <ManageSquadPageContainer>
       <SquadDetails
         onRequestClose={handleClose}
-        onSubmit={(e, form, channelId) => {
+        onSubmit={(e, form, channelId, squadPurpose) => {
           setSelectedChannel(channelId);
+          setPurpose(squadPurpose);
           onCreateSquad(form);
         }}
         isLoading={isLoading}

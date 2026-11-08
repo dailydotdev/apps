@@ -19,8 +19,18 @@ import { AdsDashboardModal } from '@dailydotdev/shared/src/features/boost/AdsDas
 import { BuyCoresModal } from '@dailydotdev/shared/src/components/modals/award/BuyCoresModal';
 import {
   StartupsBuyCoresPromo,
+  StartupsSquadCreatePromo,
   StartupsWalletPromo,
 } from '@dailydotdev/shared/src/features/squads/components/promos/StartupsPromo';
+import { SquadDetails } from '@dailydotdev/shared/src/components/squads/Details';
+import {
+  ManageSquadPageContainer,
+  SquadSubTitle,
+  SquadTitle,
+} from '@dailydotdev/shared/src/components/squads/utils';
+import { SourceIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import NewSquadModal from '@dailydotdev/shared/src/components/modals/squads/NewSquadModal';
 import { PlusCoresGivebackWidget } from '@dailydotdev/shared/src/components/cores/PlusCoresGivebackWidget';
 import { SquadPageContextProvider } from '@dailydotdev/shared/src/features/squads/SquadPageContext';
 import { SquadManageLayout } from '@dailydotdev/shared/src/features/squads/components/manage/SquadManageLayout';
@@ -308,4 +318,56 @@ export const ManageLocked: Story = {
       </SquadManageLayout>
     </SquadPageContextProvider>
   ),
+};
+
+// The create squad page, as webapp/pages/squads/new.tsx lays it out
+const CreateSquadPage = ({
+  withPurpose = false,
+  promo,
+}: {
+  withPurpose?: boolean;
+  promo?: ReactElement;
+}) => (
+  <div className="flex justify-center">
+    <ManageSquadPageContainer>
+      <SquadDetails
+        onSubmit={noop}
+        withPurpose={withPurpose}
+        initialData={{
+          memberPostingRole: SourceMemberRole.Member,
+          moderationRequired: true,
+        }}
+      >
+        <div className="mx-4 mt-4 flex flex-col gap-2 tablet:mx-6 tablet:my-5">
+          <SquadTitle className="hidden flex-row tablet:flex">
+            <SourceIcon className="mr-0.5" size={IconSize.XLarge} />
+            Create new Squad
+          </SquadTitle>
+          <SquadSubTitle>
+            Create a group where you can learn and interact privately with
+            other developers around topics that matter to you
+          </SquadSubTitle>
+        </div>
+        {promo && <div className="px-4 tablet:px-6">{promo}</div>}
+      </SquadDetails>
+    </ManageSquadPageContainer>
+  </div>
+);
+
+/** 6A. Squad creation: a card on top of the create squad page */
+export const SquadCreateCard: Story = {
+  beforeEach: withSquads([]),
+  render: () => <CreateSquadPage promo={<StartupsSquadCreatePromo />} />,
+};
+
+/** 6B. Squad creation: the form asks who the squad is for */
+export const SquadCreatePurpose: Story = {
+  beforeEach: withSquads([]),
+  render: () => <CreateSquadPage withPurpose />,
+};
+
+/** 6C. Squad creation: the new squad modal */
+export const SquadCreateModal: Story = {
+  beforeEach: withSquads([]),
+  render: () => <NewSquadModal isOpen onRequestClose={noop} />,
 };

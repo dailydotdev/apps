@@ -30,6 +30,8 @@ export enum StartupsPromoSpot {
   BuyCores = 'buy cores promo',
   Wallet = 'wallet promo',
   AdsDashboard = 'ads dashboard promo',
+  SquadCreate = 'squad create promo',
+  NewSquadModal = 'new squad modal promo',
 }
 
 interface UseStartupsPromoProps {
@@ -40,6 +42,8 @@ interface UseStartupsPromoProps {
   isPersonalAllowed?: boolean;
   /** False while the host isn't on screen yet, so the impression waits. */
   isVisible?: boolean;
+  /** Pitches the squad about to be created, not one the viewer runs */
+  isNewSquad?: boolean;
 }
 
 export interface StartupsPromo {
@@ -74,6 +78,7 @@ export const useStartupsPromo = ({
   sourceId,
   isPersonalAllowed = true,
   isVisible = true,
+  isNewSquad = false,
 }: UseStartupsPromoProps): StartupsPromo => {
   const { user, squads } = useAuthContext();
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
@@ -97,9 +102,15 @@ export const useStartupsPromo = ({
     !!sourceId &&
     adminSquads.some(({ id }) => id === sourceId) &&
     !freeSquads.some(({ id }) => id === sourceId);
-  const squad = sourceId
-    ? freeSquads.find(({ id }) => id === sourceId)
-    : freeSquads[0];
+  const squad = (() => {
+    if (isNewSquad) {
+      return undefined;
+    }
+
+    return sourceId
+      ? freeSquads.find(({ id }) => id === sourceId)
+      : freeSquads[0];
+  })();
   // An admin of a verified squad is an Enterprise customer: no pitch at all
   const isEnterprise = adminSquads.some((adminSquad) =>
     hasSquadFeature(adminSquad, 'verified'),
@@ -108,7 +119,9 @@ export const useStartupsPromo = ({
     !!user &&
     !isIOSNative() &&
     !isEnterprise &&
-    (!!squad || (isPersonalAllowed && !isCustomer && !sourceIdIsPaid));
+    (isNewSquad
+      ? !isCustomer
+      : !!squad || (isPersonalAllowed && !isCustomer && !sourceIdIsPaid));
   const { value: isEnabled } = useConditionalFeature({
     feature: featureStartupsCheckout,
     shouldEvaluate: isCandidate,

@@ -19,6 +19,7 @@ import { ModalClose } from '../common/ModalClose';
 import { LogEvent, Origin } from '../../../lib/log';
 import { UserIntegrationType } from '../../../graphql/integrations';
 import { useLogContext } from '../../../contexts/LogContext';
+import { StartupsNewSquadModalPromo } from '../../../features/squads/components/promos/StartupsPromo';
 
 export default function NewSquadModal(props: ModalProps): ReactElement {
   const { onRequestClose } = props;
@@ -49,7 +50,7 @@ export default function NewSquadModal(props: ModalProps): ReactElement {
           variant={ButtonVariant.Primary}
         />
         <Image
-          className="h-56 w-56 object-contain"
+          className="h-40 w-40 object-contain"
           src={cloudinaryCharmEmptySquads}
           alt="daily.dev charm waving in an empty squad"
           loading="lazy"
@@ -97,6 +98,7 @@ export default function NewSquadModal(props: ModalProps): ReactElement {
         >
           Create manually
         </Button>
+        <StartupsNewSquadModalPromo />
       </Modal.Body>
     </Modal>
   );

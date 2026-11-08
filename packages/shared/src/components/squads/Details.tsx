@@ -9,6 +9,10 @@ import { TextField } from '../fields/TextField';
 import { ArrowIcon, AtIcon, SlackIcon, SquadIcon } from '../icons';
 import Textarea from '../fields/Textarea';
 import { formToJson } from '../../lib/form';
+import {
+  SquadPurpose,
+  StartupsSquadPurposeSection,
+} from '../../features/squads/components/promos/StartupsPromo';
 import type { SquadForm } from '../../graphql/squads';
 import { checkExistingHandle } from '../../graphql/squads';
 import { capitalize } from '../../lib/strings';
@@ -45,12 +49,15 @@ interface SquadDetailsProps {
     e: FormEvent,
     formJson: SquadForm,
     selectedChannel?: string,
+    purpose?: SquadPurpose,
   ) => void;
   onRequestClose?: () => void;
   children?: ReactNode;
   isLoading?: boolean;
   initialData?: Partial<Squad>;
   integrationId?: string;
+  /** Asks who the squad is for, and pitches a plan for a company */
+  withPurpose?: boolean;
 }
 
 export function SquadDetails({
@@ -59,6 +66,7 @@ export function SquadDetails({
   isLoading,
   initialData = {},
   integrationId,
+  withPurpose = true,
 }: SquadDetailsProps): ReactElement {
   const {
     name,
@@ -77,6 +85,8 @@ export function SquadDetails({
   const [isDescriptionOpen, setDescriptionOpen] = useState(false);
   const [selectedChannel, setSelectedChannel] = useState<string>(null);
   const [image, setImage] = useState<{ preview: string; file: File }>();
+  const [purpose, setPurpose] = useState(SquadPurpose.Community);
+  const isCompany = purpose === SquadPurpose.Company;
   const router = useRouter();
   const isMobile = useIsPhone();
 
@@ -140,7 +150,12 @@ export function SquadDetails({
     setHandleHint(handleExists ? 'The handle already exists' : null);
 
     if (!handleExists) {
-      return onSubmit(e, data, channels?.[selectedChannelIndex]?.id);
+      return onSubmit(
+        e,
+        data,
+        channels?.[selectedChannelIndex]?.id,
+        purpose,
+      );
     }
 
     return null;
@@ -173,7 +188,7 @@ export function SquadDetails({
         header: 'border-b-0',
       }}
       copy={{
-        right: 'Create Squad',
+        right: isCompany ? 'Create and see plans' : 'Create Squad',
         left: isMobile ? 'Cancel' : null,
       }}
       leftButtonProps={{
@@ -297,6 +312,9 @@ export function SquadDetails({
             )}
           </SquadSettingsSection>
         ) : undefined}
+        {withPurpose && (
+          <StartupsSquadPurposeSection value={purpose} onChange={setPurpose} />
+        )}
         <SquadPrivacySection
           initialCategory={category?.id}
           isPublic={false}

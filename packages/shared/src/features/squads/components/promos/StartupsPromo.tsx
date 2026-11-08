@@ -16,6 +16,8 @@ import {
   TypographyType,
 } from '../../../../components/typography/Typography';
 import { largeNumberFormat } from '../../../../lib';
+import { Radio } from '../../../../components/fields/Radio';
+import { SquadSettingsSection } from '../../../../components/squads/settings/SquadSettingsSection';
 import type { StartupsPromo } from '../../hooks/useStartupsPromo';
 import {
   StartupsPromoSpot,
@@ -326,6 +328,142 @@ export const StartupsAdsDashboardPromo = ({
               {' Cores back every month.'}
             </Body>
           </div>
+        </div>
+        <SeePlans
+          promo={promo}
+          variant={ButtonVariant.Secondary}
+          className="shrink-0"
+        />
+      </div>
+    </Card>
+  );
+};
+
+/** Spot 6, option A: a card on top of the create squad page. */
+export const StartupsSquadCreatePromo = ({
+  className,
+}: {
+  className?: string;
+}): ReactElement | null => {
+  const promo = useStartupsPromo({
+    spot: StartupsPromoSpot.SquadCreate,
+    isNewSquad: true,
+  });
+
+  if (!promo.isShown) {
+    return null;
+  }
+
+  return (
+    <Card promo={promo} className={className}>
+      <div className="flex flex-col gap-3 p-4 tablet:flex-row tablet:items-center">
+        <div className="flex min-w-0 flex-1 items-start gap-3">
+          <CoresBadge />
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <Title>Creating a squad for your company?</Title>
+            <Body>
+              {`Make it a company page with daily.dev for Startups. Starter is ${promo.starterPrice} a month, with weekly intel and `}
+              <MonthlyCores promo={promo} />
+              {' Cores back every month for boosts.'}
+            </Body>
+          </div>
+        </div>
+        <SeePlans
+          promo={promo}
+          variant={ButtonVariant.Secondary}
+          className="shrink-0"
+        />
+      </div>
+    </Card>
+  );
+};
+
+export enum SquadPurpose {
+  Community = 'community',
+  Company = 'company',
+}
+
+/**
+ * Spot 6, option B: the create squad form asks who the squad is for. "My
+ * company" shows the plan, and creating then continues to the plans.
+ */
+export const StartupsSquadPurposeSection = ({
+  value,
+  onChange,
+}: {
+  value: SquadPurpose;
+  onChange: (value: SquadPurpose) => void;
+}): ReactElement | null => {
+  const promo = useStartupsPromo({
+    spot: StartupsPromoSpot.SquadCreate,
+    isNewSquad: true,
+  });
+
+  if (!promo.isShown) {
+    return null;
+  }
+
+  return (
+    <SquadSettingsSection title="Who is this squad for?" className="w-full">
+      <Radio
+        name="purpose"
+        value={value}
+        className={{ container: 'mt-3 gap-4' }}
+        onChange={onChange}
+        options={[
+          {
+            label: 'A community of developers',
+            value: SquadPurpose.Community,
+            className: { wrapper: 'w-full', content: 'w-fit' },
+          },
+          {
+            label: 'My company or product',
+            value: SquadPurpose.Company,
+            className: { wrapper: 'w-full', content: 'w-fit' },
+            afterElement:
+              value === SquadPurpose.Company ? (
+                <Card promo={promo} className="ml-9 mt-2">
+                  <div className="flex items-start gap-3 p-3 pr-4">
+                    <CoresBadge />
+                    <div className="flex min-w-0 flex-1 flex-col gap-1">
+                      <Title>Make it a company page</Title>
+                      <Body>
+                        {`After you create it, pick a daily.dev for Startups plan. Starter is ${promo.starterPrice} a month, with weekly intel and `}
+                        <MonthlyCores promo={promo} />
+                        {' Cores back every month for boosts.'}
+                      </Body>
+                    </div>
+                  </div>
+                </Card>
+              ) : undefined,
+          },
+        ]}
+      />
+    </SquadSettingsSection>
+  );
+};
+
+/** Spot 6, option C: under the two ways to start in the new squad modal. */
+export const StartupsNewSquadModalPromo = (): ReactElement | null => {
+  const promo = useStartupsPromo({
+    spot: StartupsPromoSpot.NewSquadModal,
+    isNewSquad: true,
+  });
+
+  if (!promo.isShown) {
+    return null;
+  }
+
+  return (
+    <Card promo={promo} className="w-full text-left">
+      <div className="flex items-center gap-3 p-3 pr-4">
+        <CoresBadge />
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <Title>For your company?</Title>
+          <Body>
+            Company page, weekly intel and <MonthlyCores promo={promo} /> Cores
+            back a month.
+          </Body>
         </div>
         <SeePlans
           promo={promo}
