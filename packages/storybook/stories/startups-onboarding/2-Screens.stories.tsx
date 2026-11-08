@@ -137,7 +137,7 @@ export const AccountMissing: Story = {
   render: () => (
     <AccountScreen
       initialView={AccountView.Email}
-      nameError="Add your name so your team recognises you."
+      nameError="Add your name so your team recognizes you."
     />
   ),
 };

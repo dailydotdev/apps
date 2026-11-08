@@ -99,7 +99,7 @@ describe('RegistrationForm on the Startups page', () => {
     await waitFor(() =>
       expect(onUpdateHints).toHaveBeenCalledWith({
         'traits.email': 'Enter your email',
-        'traits.name': 'Add your name so your team recognises you.',
+        'traits.name': 'Add your name so your team recognizes you.',
         password: 'Use at least 8 characters.',
       }),
     );
