@@ -51,7 +51,7 @@ export const SquadLaunchOfferBanner = (): ReactElement | null => {
   return (
     <div
       data-promo="banner"
-      className="flex w-full items-start gap-3 rounded-16 border border-accent-bacon-default bg-accent-bacon-flat p-4"
+      className="flex w-full items-start gap-3 rounded-16 border border-accent-avocado-default bg-accent-avocado-flat p-4"
     >
       <CoreIcon size={IconSize.Medium} className="shrink-0" />
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
