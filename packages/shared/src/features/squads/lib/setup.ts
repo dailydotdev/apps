@@ -32,7 +32,7 @@ export interface AgentClientSetup {
 export const agentClientSetup: Record<AgentClient, AgentClientSetup> = {
   [AgentClient.ClaudeCode]: {
     label: 'Claude Code',
-    snippet: `claude mcp add --transport http daily.dev ${DAILY_MCP_URL}`,
+    snippet: `claude mcp add --transport http daily-dev ${DAILY_MCP_URL}`,
     note: 'Then run /mcp in Claude Code to sign in to daily.dev.',
   },
   [AgentClient.Cursor]: {
