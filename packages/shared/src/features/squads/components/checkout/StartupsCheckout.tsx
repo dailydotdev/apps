@@ -209,37 +209,52 @@ const CompanyRow = ({
   /** Already paid for. Says so on the row, with the detail on hover. */
   planTitle?: string;
   onClick: () => void;
-}): ReactElement => (
-  <button
-    type="button"
-    role="radio"
-    aria-checked={isSelected}
-    onClick={onClick}
-    className={classNames(
-      'flex items-center gap-3 rounded-16 border p-3 text-left',
-      isSelected
-        ? 'border-accent-cabbage-default bg-surface-float'
-        : 'border-border-subtlest-tertiary hover:border-border-subtlest-secondary',
-    )}
-  >
-    <SquadImage {...(company as Squad)} className="size-10 shrink-0" />
-    <span className="flex min-w-0 flex-1 flex-col">
-      <span className="truncate font-bold typo-callout">{company.name}</span>
-      <span className="truncate text-text-tertiary typo-footnote">
-        {`@${company.handle}`}
-      </span>
-    </span>
-    {planTitle && (
-      <Tooltip
-        content={`${company.name} is already on ${planTitle}, so there's nothing to pay for.`}
-      >
-        <span className="shrink-0 rounded-8 bg-surface-float px-2 py-0.5 font-bold text-text-secondary typo-caption1">
-          {`On ${planTitle}`}
+}): ReactElement => {
+  const ref = useRef<HTMLButtonElement>(null);
+
+  // A page picked from its own squad page may sit far down a long list
+  useEffect(() => {
+    if (isSelected) {
+      ref.current?.scrollIntoView?.({ block: 'nearest' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <button
+      ref={ref}
+      type="button"
+      role="radio"
+      aria-checked={isSelected}
+      onClick={onClick}
+      className={classNames(
+        'flex items-center gap-3 rounded-16 border p-3 text-left',
+        isSelected
+          ? 'border-accent-cabbage-default bg-surface-float'
+          : 'border-border-subtlest-tertiary hover:border-border-subtlest-secondary',
+      )}
+    >
+      <SquadImage {...(company as Squad)} className="size-10 shrink-0" />
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className="truncate font-bold typo-callout">{company.name}</span>
+        <span className="truncate text-text-tertiary typo-footnote">
+          {`@${company.handle}`}
         </span>
-      </Tooltip>
-    )}
-  </button>
-);
+      </span>
+      {planTitle && (
+        <Tooltip
+          content={`${company.name} is already on ${planTitle}, so there's nothing to pay for.`}
+        >
+          <span className="shrink-0 rounded-8 bg-surface-float px-2 py-0.5 font-bold text-text-secondary typo-caption1">
+            {`On ${planTitle}`}
+          </span>
+        </Tooltip>
+      )}
+    </button>
+  );
+};
+
+const MAX_VISIBLE_PAGES = 5;
 
 const CompanyStep = ({
   adminSquads,
@@ -369,7 +384,15 @@ const CompanyStep = ({
       />
       <form onSubmit={onSubmit} className="flex flex-col gap-6" noValidate>
         {hasPages && (
-          <div role="radiogroup" className="flex flex-col gap-2">
+          <div
+            role="radiogroup"
+            className={classNames(
+              'flex flex-col gap-2',
+              // A long list would push Continue far below the fold
+              adminSquads.length > MAX_VISIBLE_PAGES &&
+                'max-h-80 overflow-y-auto',
+            )}
+          >
             {adminSquads.map((squad) => (
               <CompanyRow
                 key={squad.id}
