@@ -66,6 +66,7 @@ import {
   startupsEnterpriseUrl,
 } from '../../lib/plans';
 import { useSquadPlanPrices } from '../../hooks/useSquadPlanPrices';
+import { useStartupsSetupRefresh } from '../../hooks/useStartupsSetupRefresh';
 import { useLogStartups } from '../../hooks/useLogStartups';
 import {
   StartupsSetup,
@@ -806,6 +807,8 @@ const SetupStep = ({
     squad,
     plan,
   );
+  // Shows what the founder's agent changes over MCP as it happens
+  useStartupsSetupRefresh({ squad, enabled: !editing });
   const preview = (
     <StartupsPagePreview
       squad={squad}
