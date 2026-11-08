@@ -21,6 +21,7 @@ import {
   StartupsBuyCoresPromo,
   StartupsWalletPromo,
 } from '@dailydotdev/shared/src/features/squads/components/promos/StartupsPromo';
+import NewSquadModal from '@dailydotdev/shared/src/components/modals/squads/NewSquadModal';
 import { PlusCoresGivebackWidget } from '@dailydotdev/shared/src/components/cores/PlusCoresGivebackWidget';
 import { SquadPageContextProvider } from '@dailydotdev/shared/src/features/squads/SquadPageContext';
 import { SquadManageLayout } from '@dailydotdev/shared/src/features/squads/components/manage/SquadManageLayout';
@@ -308,4 +309,10 @@ export const ManageLocked: Story = {
       </SquadManageLayout>
     </SquadPageContextProvider>
   ),
+};
+
+/** 6. Squad creation: the new squad modal */
+export const SquadCreateModal: Story = {
+  beforeEach: withSquads([]),
+  render: () => <NewSquadModal isOpen onRequestClose={noop} />,
 };
