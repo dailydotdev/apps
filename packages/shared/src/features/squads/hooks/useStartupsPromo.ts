@@ -67,7 +67,7 @@ const isAdmin = (squad: Squad): boolean =>
 /**
  * daily.dev for Startups promotions outside the squad page, behind the same
  * flag as the squad page upsell. They pitch the first squad the viewer runs
- * that has no plan; a squad already on a plan, or verified, never gets one.
+ * that has no plan, and never show to an admin of a verified squad.
  */
 export const useStartupsPromo = ({
   spot,
@@ -100,9 +100,14 @@ export const useStartupsPromo = ({
   const squad = sourceId
     ? freeSquads.find(({ id }) => id === sourceId)
     : freeSquads[0];
+  // An admin of a verified squad is an Enterprise customer: no pitch at all
+  const isEnterprise = adminSquads.some((adminSquad) =>
+    hasSquadFeature(adminSquad, 'verified'),
+  );
   const isCandidate =
     !!user &&
     !isIOSNative() &&
+    !isEnterprise &&
     (!!squad || (isPersonalAllowed && !isCustomer && !sourceIdIsPaid));
   const { value: isEnabled } = useConditionalFeature({
     feature: featureStartupsCheckout,
