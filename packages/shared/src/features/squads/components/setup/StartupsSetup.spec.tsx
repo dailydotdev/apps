@@ -7,6 +7,8 @@ import type { Squad } from '../../../../graphql/sources';
 import { SourceMemberRole } from '../../../../graphql/sources';
 import type { SquadIntelSettings } from '../../../../graphql/squadIntel';
 import { squadIntelSettingsQueryOptions } from '../../../../graphql/squadIntel';
+import type { SquadSubscription } from '../../../../graphql/squadSubscription';
+import { squadSubscriptionQueryOptions } from '../../../../graphql/squadSubscription';
 import { Origin } from '../../../../lib/log';
 import { SquadPlan } from '../../lib/plans';
 import { StartupsSetup, StartupsSetupPath } from './StartupsSetup';
@@ -22,13 +24,25 @@ const getSquad = (seat: boolean) =>
 const renderSetup = ({
   seat,
   settings,
+  plan = SquadPlan.Starter,
+  subscription,
   onEditRow = jest.fn(),
 }: {
   seat: boolean;
   settings?: SquadIntelSettings;
+  plan?: SquadPlan;
+  subscription?: SquadSubscription;
   onEditRow?: jest.Mock;
 }) => {
   const client = new QueryClient();
+
+  if (subscription) {
+    client.setQueryData(
+      squadSubscriptionQueryOptions({ user: defaultUser, sourceId: 'squad1' })
+        .queryKey,
+      subscription,
+    );
+  }
 
   if (settings) {
     client.setQueryData(
@@ -42,7 +56,7 @@ const renderSetup = ({
     <TestBootProvider client={client} auth={{ user: defaultUser }}>
       <StartupsSetup
         squad={getSquad(seat)}
-        plan={SquadPlan.Starter}
+        plan={plan}
         origin={Origin.StartupsCheckout}
         initialPath={StartupsSetupPath.Manual}
         onEditRow={onEditRow}
@@ -89,5 +103,27 @@ describe('StartupsSetup weekly intel row', () => {
     expect(
       screen.queryByRole('button', { name: 'Pick topics' }),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('StartupsSetup team seats row', () => {
+  it("doesn't count the seats for a founder who is the only seat", async () => {
+    renderSetup({
+      seat: true,
+      settings: { selection: null, limits, nextIntelAt },
+      plan: SquadPlan.Team,
+      subscription: {
+        plan: SquadPlan.Team,
+        status: 'active',
+        seatLimit: 5,
+        seatsUsed: 1,
+        ownerId: defaultUser.id,
+      },
+    });
+
+    expect(await screen.findByText('0 of 5 done')).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Give seats' }),
+    ).toBeInTheDocument();
   });
 });
