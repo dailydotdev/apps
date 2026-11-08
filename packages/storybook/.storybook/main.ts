@@ -18,6 +18,11 @@ const config: StorybookConfig = {
   framework: '@storybook/react-vite',
   typescript: {
     reactDocgen: 'react-docgen-typescript',
+    reactDocgenTypescriptOptions: {
+      // Webapp pages render in page layouts but have no docs. On a default
+      // export with getLayout (404.tsx), docgen writes invalid code.
+      exclude: ['**/**.stories.tsx', '**/webapp/pages/**'],
+    },
   },
   staticDirs: [
     '../public',
@@ -41,6 +46,15 @@ const config: StorybookConfig = {
       server: {
         fs: {
           strict: false,
+        },
+        // Page layouts render production pages on live, logged-out data;
+        // the API only answers its own origins, so the dev server asks it.
+        proxy: {
+          '/__daily-api': {
+            target: 'https://api.daily.dev',
+            changeOrigin: true,
+            rewrite: (url: string) => url.replace(/^\/__daily-api/, ''),
+          },
         },
       },
       resolve: {
@@ -71,6 +85,7 @@ const config: StorybookConfig = {
           ),
           '../lib/boot': path.resolve(__dirname, '../mock/boot.ts'),
           'next/navigation': path.resolve(__dirname, '../mock/next-router.ts'),
+          'next/dynamic': path.resolve(__dirname, '../mock/next-dynamic.tsx'),
           '../../../hooks/auth': path.resolve(
             __dirname,
             '../mock/hooks/useOnboardingActions.ts',
@@ -88,6 +103,13 @@ const config: StorybookConfig = {
       define: {
         'process.env': {
           NEXT_PUBLIC_WEBAPP_URL: 'https://app.daily.dev',
+          // Webapp pages build share-image URLs on it; MSW still answers
+          // GraphQL by operation, whatever the URL.
+          NEXT_PUBLIC_API_URL: 'https://api.daily.dev',
+          // The webapp's offline chat, so messages can render; it stays
+          // behind the direct_messages flag, which is off unless a story
+          // pins it.
+          NEXT_PUBLIC_CHAT_MOCK: 'true',
         },
         browser,
       },
