@@ -53,6 +53,7 @@ export enum Origin {
   SquadChecklist = 'squad checklist',
   SquadInvitation = 'squad invitation',
   SimilarSquads = 'similar squads',
+  SquadJobsWidget = 'squad jobs widget',
   SimilarSquadsPromoted = 'similar squads promoted',
   SquadJoinSuggestions = 'squad join suggestions',
   SquadJoinSuggestionsPromoted = 'squad join suggestions promoted',

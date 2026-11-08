@@ -9,6 +9,8 @@ import {
 } from '../../../components/squads/layout/SquadDirectoryNavbar';
 import { SquadPreviewNotice } from './widgets/SquadPreview';
 import { SquadWidgets } from './widgets/SquadWidgets';
+import type { SquadPageTabs } from '../SquadPageTabsContext';
+import { SquadPageTabsContext } from '../SquadPageTabsContext';
 import { useIsPhone } from '../../../hooks/useViewSize';
 import { ShellDockedRow } from '../../../components/shell/ShellPageContext';
 import { Segments, ShellRow } from '../../../components/shell/ShellRow';
@@ -102,6 +104,24 @@ export const SquadPageLayout = ({
   const isJobs = !!jobs && tab === SquadPageTab.Jobs;
   const hasTabs = tabs.length > 1;
   const tabsRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const pageTabs: SquadPageTabs = {
+    isJobsOpen: isJobs,
+    openJobs: jobs
+      ? () => {
+          setTabletTab(SquadPageTab.Jobs);
+          setTab(SquadPageTab.Jobs);
+          // Bring the roles into view when the tabs have scrolled away: the
+          // tab row below laptop, the card's own tabs from laptop.
+          const target = [tabsRef.current, contentRef.current].find(
+            (element) => !!element?.getClientRects().length,
+          );
+          if (target && target.getBoundingClientRect().top < 0) {
+            target.scrollIntoView({ block: 'start' });
+          }
+        }
+      : undefined,
+  };
   const haveTabsPassed = usePassedBlock(tabsRef, isPhone && hasTabs);
   const segments = tabs.map((item) => ({
     key: item,
@@ -128,63 +148,66 @@ export const SquadPageLayout = ({
   );
 
   return (
-    <div className="mx-auto flex w-full flex-col laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
-      <div className="contents laptop:flex laptop:min-w-0 laptop:flex-1 laptop:flex-col">
-        <div className="order-1 flex flex-col">
-          <SquadPreviewNotice />
-          <div className="border-border-subtlest-tertiary laptop:rounded-t-16 laptop:border laptop:border-b-0">
-            {header}
-            {belowHeader}
+    <SquadPageTabsContext.Provider value={pageTabs}>
+      <div className="mx-auto flex w-full flex-col laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
+        <div className="contents laptop:flex laptop:min-w-0 laptop:flex-1 laptop:flex-col">
+          <div className="order-1 flex flex-col">
+            <SquadPreviewNotice />
+            <div className="border-border-subtlest-tertiary laptop:rounded-t-16 laptop:border laptop:border-b-0">
+              {header}
+              {belowHeader}
+            </div>
           </div>
-        </div>
-        {haveTabsPassed && (
-          <ShellDockedRow>
-            <ShellRow>
-              <Segments items={segments} />
-            </ShellRow>
-          </ShellDockedRow>
-        )}
-        {hasTabs && (
-          <div
-            ref={tabsRef}
-            className="order-2 border-t border-border-subtlest-tertiary laptop:hidden"
-          >
-            <div className="tablet:hidden">
+          {haveTabsPassed && (
+            <ShellDockedRow>
               <ShellRow>
                 <Segments items={segments} />
               </ShellRow>
+            </ShellDockedRow>
+          )}
+          {hasTabs && (
+            <div
+              ref={tabsRef}
+              className="order-2 border-t border-border-subtlest-tertiary laptop:hidden"
+            >
+              <div className="tablet:hidden">
+                <ShellRow>
+                  <Segments items={segments} />
+                </ShellRow>
+              </div>
+              <div className="hidden px-6 tablet:block">
+                {renderTabletTabs(tabs, tabletTab)}
+              </div>
             </div>
-            <div className="hidden px-6 tablet:block">
-              {renderTabletTabs(tabs, tabletTab)}
-            </div>
+          )}
+          <div
+            ref={contentRef}
+            className={classNames(
+              'order-4 min-w-0 flex-1 flex-col border-border-subtlest-tertiary laptop:flex laptop:rounded-b-16 laptop:border laptop:border-t-0',
+              isAbout ? 'hidden' : 'flex',
+            )}
+          >
+            {!!jobs && (
+              <div className="hidden border-t border-border-subtlest-tertiary px-6 laptop:block">
+                {renderTabletTabs(
+                  [SquadPageTab.Posts, SquadPageTab.Jobs],
+                  isJobs ? SquadPageTab.Jobs : SquadPageTab.Posts,
+                )}
+              </div>
+            )}
+            {isJobs ? jobs : children}
           </div>
-        )}
-        <div
+        </div>
+        <aside
           className={classNames(
-            'order-4 min-w-0 flex-1 flex-col border-border-subtlest-tertiary laptop:flex laptop:rounded-b-16 laptop:border laptop:border-t-0',
-            isAbout ? 'hidden' : 'flex',
+            // Below laptop it is the About tab: it starts a gutter under the tabs.
+            'order-3 w-full flex-col gap-4 px-4 pb-6 pt-4 tablet:px-6 laptop:order-none laptop:flex laptop:w-80 laptop:shrink-0 laptop:p-0',
+            isAbout ? 'flex' : 'hidden',
           )}
         >
-          {!!jobs && (
-            <div className="hidden border-t border-border-subtlest-tertiary px-6 laptop:block">
-              {renderTabletTabs(
-                [SquadPageTab.Posts, SquadPageTab.Jobs],
-                isJobs ? SquadPageTab.Jobs : SquadPageTab.Posts,
-              )}
-            </div>
-          )}
-          {isJobs ? jobs : children}
-        </div>
+          <SquadWidgets />
+        </aside>
       </div>
-      <aside
-        className={classNames(
-          // Below laptop it is the About tab: it starts a gutter under the tabs.
-          'order-3 w-full flex-col gap-4 px-4 pb-6 pt-4 tablet:px-6 laptop:order-none laptop:flex laptop:w-80 laptop:shrink-0 laptop:p-0',
-          isAbout ? 'flex' : 'hidden',
-        )}
-      >
-        <SquadWidgets />
-      </aside>
-    </div>
+    </SquadPageTabsContext.Provider>
   );
 };
