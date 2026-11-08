@@ -185,6 +185,29 @@ describe('SmartComposerModal', () => {
     },
   );
 
+  it.each([
+    ['text', 'Post title', "Emojis aren't allowed in post titles"],
+    ['link', 'Post commentary', "Emojis aren't allowed in link comments"],
+    ['poll', 'Poll question', "Emojis aren't allowed in post titles"],
+  ] as const)(
+    'strips emojis from the %s title and explains why',
+    async (kind, label, hint) => {
+      renderWithClient(
+        <SmartComposerModal
+          isOpen
+          initialKind={kind}
+          onRequestClose={onRequestClose}
+        />,
+      );
+
+      const field = await screen.findByRole('textbox', { name: label });
+      fireEvent.change(field, { target: { value: '🏆 Weekly wins' } });
+
+      expect(field).toHaveValue('Weekly wins');
+      expect(screen.getByRole('status')).toHaveTextContent(hint);
+    },
+  );
+
   it('keeps the production notification CTA visible in the composer', () => {
     renderWithClient(
       <SmartComposerModal
