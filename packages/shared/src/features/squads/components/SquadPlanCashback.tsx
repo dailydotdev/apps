@@ -61,9 +61,7 @@ export const SquadLaunchOfferBanner = (): ReactElement | null => {
           )}`}
         </span>
         <span className="text-text-secondary typo-footnote">
-          {`Only for companies that join during our launch. The rate holds for ${formatCashbackPromoLength(
-            promo.months,
-          )}, even after the offer ends.`}
+          Only for companies that join during our launch.
         </span>
       </div>
     </div>
