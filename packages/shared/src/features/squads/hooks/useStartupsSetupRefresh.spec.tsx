@@ -50,7 +50,7 @@ describe('useStartupsSetupRefresh', () => {
     jest.useRealTimers();
   });
 
-  it('refetches the page, plan, seats and intel settings every 30 seconds', () => {
+  it('refetches the page, plan, seats, intel settings and agent sign-ins every 30 seconds', () => {
     const { refetchedKeys } = setup();
     expect(refetchedKeys()).toHaveLength(0);
 
@@ -68,6 +68,8 @@ describe('useStartupsSetupRefresh', () => {
         'squad1',
         'settings',
       ),
+      generateQueryKey(RequestKey.OAuthConsents),
+      generateQueryKey(RequestKey.PersonalAccessTokens),
     ]);
   });
 
@@ -78,7 +80,7 @@ describe('useStartupsSetupRefresh', () => {
       window.dispatchEvent(new Event('focus'));
     });
 
-    expect(invalidate).toHaveBeenCalledTimes(4);
+    expect(invalidate).toHaveBeenCalledTimes(6);
   });
 
   it('stops when disabled or unmounted', () => {

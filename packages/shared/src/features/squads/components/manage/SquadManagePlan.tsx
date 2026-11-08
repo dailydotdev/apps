@@ -44,6 +44,7 @@ import {
 } from '../../lib/plans';
 import { useSquadPlanPrices } from '../../hooks/useSquadPlanPrices';
 import { useLogStartups } from '../../hooks/useLogStartups';
+import { useStartupsSetupRefresh } from '../../hooks/useStartupsSetupRefresh';
 import { SquadManageSectionPanel } from './SquadManageLayout';
 import {
   StartupsSetup,
@@ -408,6 +409,8 @@ const SetupSection = ({ plan }: { plan: SquadPlan }): ReactElement => {
   const { squad } = useSquadPageContext();
   const { isComplete } = useStartupsSetupProgress(squad, plan);
   const [isReviewing, setReviewing] = useState(false);
+  // Ticks the rows as the founder's agent sets the page up over MCP
+  useStartupsSetupRefresh({ squad, enabled: !isComplete || isReviewing });
 
   return (
     <section className="flex flex-col gap-3">
