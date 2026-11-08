@@ -20,7 +20,7 @@ jest.mock('../AuthContext', () => ({
 const openPaddleCheckout = jest.fn();
 
 const renderContext = (squadWalletId?: string): BuyCoresContextData => {
-  let context: BuyCoresContextData;
+  let context = {} as BuyCoresContextData;
   const Consumer = () => {
     context = useBuyCoresContext();
     return null;
@@ -58,7 +58,7 @@ beforeEach(() => {
 });
 
 it('buys Cores into the squad wallet', () => {
-  renderContext('squad-1').openCheckout({ priceId: 'pri_1' });
+  renderContext('squad-1').openCheckout?.({ priceId: 'pri_1' });
 
   expect(openPaddleCheckout).toHaveBeenCalledWith({
     priceId: 'pri_1',
@@ -67,7 +67,7 @@ it('buys Cores into the squad wallet', () => {
 });
 
 it('buys Cores for the user without a squad wallet', () => {
-  renderContext().openCheckout({ priceId: 'pri_1' });
+  renderContext().openCheckout?.({ priceId: 'pri_1' });
 
   expect(openPaddleCheckout).toHaveBeenCalledWith({ priceId: 'pri_1' });
 });
