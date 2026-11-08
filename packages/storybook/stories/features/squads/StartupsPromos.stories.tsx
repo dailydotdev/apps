@@ -311,6 +311,83 @@ export const ManageLocked: Story = {
   ),
 };
 
+// A paid seat of a squad on a plan, with the launch cashback in its wallet and
+// no Cores of their own, like the first startups customer
+const paidAcme = {
+  ...acme,
+  features: { verified: true },
+  currentMember: { ...acme.currentMember, seat: true },
+} as unknown as Squad;
+
+const squadWalletHandlers = (coresBalance: number) => [
+  graphql.query('SquadWallet', () =>
+    HttpResponse.json({
+      data: {
+        source: {
+          id: acme.id,
+          name: acme.name,
+          handle: acme.handle,
+          currentMember: { seat: true },
+        },
+        squadSubscription: { plan: 'starter', coresBalance },
+      },
+    }),
+  ),
+  ...handlers,
+];
+
+/** 5. Boosting the squad from its wallet: the header shows the wallet paying */
+export const BoostSquadFromWallet: Story = {
+  beforeEach: withSquads([paidAcme], 0),
+  parameters: { msw: { handlers: squadWalletHandlers(20765) } },
+  render: () => (
+    <BoostSquadModal isOpen squad={paidAcme} onRequestClose={noop} />
+  ),
+};
+
+/** 5. Boosting a squad post when the squad wallet is short */
+export const BoostPostSquadWalletShort: Story = {
+  beforeEach: withSquads([paidAcme], 0),
+  parameters: { msw: { handlers: squadWalletHandlers(1000) } },
+  render: () => (
+    <BoostPostModal
+      isOpen
+      post={{ ...acmePost, source: paidAcme } as Post}
+      onRequestClose={noop}
+    />
+  ),
+};
+
+/** 5. Buying Cores into the squad wallet from a boost */
+export const BuyCoresIntoSquadWallet: Story = {
+  beforeEach: withSquads([paidAcme], 0),
+  render: () => (
+    <SeedCorePacks>
+      <BuyCoresModal
+        isOpen
+        product={null}
+        minCoresToBuy={14235}
+        squadWallet={{
+          sourceId: acme.id,
+          name: acme.name,
+          handle: acme.handle,
+          balance: 20765,
+        }}
+        onRequestClose={noop}
+        amountNeededCopy={
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Secondary}
+          >
+            You need <strong>14,235 more Cores</strong> to boost the Squad.
+          </Typography>
+        }
+        origin={Origin.SquadBoost}
+      />
+    </SeedCorePacks>
+  ),
+};
+
 /** 6. Squad creation: the new squad modal */
 export const SquadCreateModal: Story = {
   beforeEach: withSquads([]),
