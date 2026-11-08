@@ -308,7 +308,7 @@ export const AccountScreen = ({
           <>
             <Title
               title="Create your account"
-              description="Create your company page and pick a plan on daily.dev for Startups."
+              description="Get your company page on daily.dev. Your agent handles the marketing from there."
             />
             <ProviderButtons
               onNext={onNext}
