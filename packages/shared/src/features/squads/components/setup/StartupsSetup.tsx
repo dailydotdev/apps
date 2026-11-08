@@ -545,6 +545,7 @@ export const StartupsSetup = ({
   initialPath = StartupsSetupPath.Agent,
   onEditRow,
 }: StartupsSetupProps): ReactElement => {
+  const { user } = useAuthContext();
   const sourceId = getSquadId(squad);
   const [path, setPath] = useState(initialPath);
   const logStartups = useLogStartups();
@@ -558,6 +559,11 @@ export const StartupsSetup = ({
   const isTeam = plan === SquadPlan.Team;
   const { done, hasIntel, isChecking, isAgentConnected } =
     useStartupsSetupProgress(squad, plan);
+  // Read from the cache: the checkout and Manage › Plan load it already
+  const { data: subscription } = useQuery({
+    ...squadSubscriptionQueryOptions({ user, sourceId }),
+    enabled: false,
+  });
   const manageUrl = (section: SquadManageSection) =>
     getSquadManageUrl(squad.handle, section);
   const selectPath = (option: StartupsSetupPath) => {
@@ -634,7 +640,9 @@ export const StartupsSetup = ({
     },
     {
       id: 'cashback',
-      title: `${SQUAD_PLAN_CASHBACK_PERCENTAGE[plan]}% cashback`,
+      title: `${
+        subscription?.cashbackPercentage || SQUAD_PLAN_CASHBACK_PERCENTAGE[plan]
+      }% cashback`,
       description:
         'Lands in your page wallet every month, to boost your posts.',
       isDone: true,

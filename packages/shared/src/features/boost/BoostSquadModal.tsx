@@ -25,6 +25,10 @@ import { BuyCoresModal } from '../../components/modals/award/BuyCoresModal';
 import { useCampaignMutation } from './useCampaignMutation';
 import { useBoostWallet } from './useBoostWallet';
 import { BoostWalletPicker } from './BoostWalletPicker';
+import {
+  StartupsBoostPromo,
+  StartupsBuyCoresPromo,
+} from '../squads/components/promos/StartupsPromo';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
 import { ActionSuccessModal } from '../../components/modals/utils/ActionSuccessModal';
@@ -172,6 +176,7 @@ export function BoostSquadModal({
             </Typography>
           ) : undefined
         }
+        promo={<StartupsBuyCoresPromo sourceId={squad.id} />}
         origin={Origin.SquadBoost}
       />
     );
@@ -377,6 +382,7 @@ export function BoostSquadModal({
             totalSpend={totalSpendInt}
           />
         )}
+        <StartupsBoostPromo sourceId={squad.id} isSquadBoost />
       </Modal.Body>
       <Modal.Footer>
         <Button

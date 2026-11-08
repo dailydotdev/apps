@@ -29,6 +29,11 @@ export interface SquadManageItem {
   label: string;
   icon: ReactElement;
   badge?: number;
+  /**
+   * A section the squad's plan doesn't include yet, shown locked to promote
+   * daily.dev for Startups: it names the plan and links to Subscription.
+   */
+  lockedPlan?: string;
 }
 
 export interface SquadManageGroup {
@@ -98,6 +103,25 @@ const canSeeSection = (
   }
 };
 
+// Plan sections a squad with no plan shows locked, while the checkout is on
+const lockedSections = [
+  SquadManageSection.Products,
+  SquadManageSection.Links,
+  SquadManageSection.Intel,
+];
+
+const isLockedSection = (
+  squad: Squad,
+  section: SquadManageSection,
+  { isPlanEnabled = false }: SquadManageOptions,
+): boolean =>
+  isPlanEnabled &&
+  lockedSections.includes(section) &&
+  verifyPermission(squad, SourcePermissions.Edit) &&
+  !hasSquadFeature(squad, 'verified') &&
+  // Every plan turns links on
+  !hasSquadFeature(squad, 'links');
+
 const item = (
   id: SquadManageSection,
   icon: ReactElement,
@@ -155,7 +179,15 @@ export const getSquadManageGroups = (
   return groups
     .map((group) => ({
       ...group,
-      items: group.items.filter(({ id }) => canSeeSection(squad, id, options)),
+      items: group.items.flatMap((groupItem) => {
+        if (canSeeSection(squad, groupItem.id, options)) {
+          return [groupItem];
+        }
+
+        return isLockedSection(squad, groupItem.id, options)
+          ? [{ ...groupItem, lockedPlan: 'Starter' }]
+          : [];
+      }),
     }))
     .filter((group) => group.items.length > 0);
 };

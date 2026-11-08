@@ -27,6 +27,10 @@ import { usePostImage } from '../../hooks/post/usePostImage';
 import { useCampaignMutation } from './useCampaignMutation';
 import { useBoostWallet } from './useBoostWallet';
 import { BoostWalletPicker } from './BoostWalletPicker';
+import {
+  StartupsBoostPromo,
+  StartupsBuyCoresPromo,
+} from '../squads/components/promos/StartupsPromo';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
 import { ActionSuccessModal } from '../../components/modals/utils/ActionSuccessModal';
@@ -78,9 +82,9 @@ export function BoostPostModal({
   const [updateEstimate] = useDebounceFn(setEstimate, 400);
   const totalSpendInt = coresPerDay * totalDays;
   const totalSpend = largeNumberFormat(totalSpendInt);
-  const { squadWallet, wallet, setWallet, balance } = useBoostWallet(
-    post.source?.type === SourceType.Squad ? post.source.id : undefined,
-  );
+  const squadId =
+    post.source?.type === SourceType.Squad ? post.source.id : undefined;
+  const { squadWallet, wallet, setWallet, balance } = useBoostWallet(squadId);
   const { estimatedReach, canBoost, isLoading } = usePostBoostEstimation({
     post,
     query: { budget: estimate.coresPerDay },
@@ -162,6 +166,7 @@ export function BoostPostModal({
             </Typography>
           ) : undefined
         }
+        promo={<StartupsBuyCoresPromo sourceId={squadId} />}
         origin={Origin.BoostPost}
       />
     );
@@ -354,6 +359,7 @@ export function BoostPostModal({
             totalSpend={totalSpendInt}
           />
         )}
+        <StartupsBoostPromo sourceId={squadId} />
       </Modal.Body>
       <Modal.Footer>
         <Button

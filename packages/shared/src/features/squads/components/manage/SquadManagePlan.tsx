@@ -43,6 +43,11 @@ import {
   startupsEnterpriseUrl,
 } from '../../lib/plans';
 import { useSquadPlanPrices } from '../../hooks/useSquadPlanPrices';
+import {
+  SquadLaunchOfferBanner,
+  SquadPlanCashback,
+} from '../SquadPlanCashback';
+import { getPlusMemberDateFormat } from '../../../../lib/dateFormat';
 import { useLogStartups } from '../../hooks/useLogStartups';
 import { useStartupsSetupRefresh } from '../../hooks/useStartupsSetupRefresh';
 import { SquadManageSectionPanel } from './SquadManageLayout';
@@ -128,10 +133,7 @@ const PlanChoice = ({
         <span className="font-bold tabular-nums typo-title2">{price}</span>
         <span className="text-text-tertiary typo-footnote"> / month</span>
       </span>
-      <span className="flex items-center gap-1.5 text-text-secondary typo-footnote">
-        <CoreIcon size={IconSize.Size16} className="shrink-0" />
-        {`${SQUAD_PLAN_CASHBACK_PERCENTAGE[plan]}% cashback to boost your posts`}
-      </span>
+      <SquadPlanCashback plan={plan} />
       <span className="text-text-tertiary typo-footnote">{tagline}</span>
       <ul className="flex flex-col gap-1.5 border-t border-border-subtlest-tertiary pt-3">
         <li className="font-bold text-text-tertiary typo-footnote">
@@ -172,6 +174,7 @@ const ChoosePlan = ({ isAdmin }: { isAdmin: boolean }): ReactElement => {
         title="Make it your company page"
         description="In the feed and search, cited by AI answers, and your agent posts and boosts through the API."
       />
+      <SquadLaunchOfferBanner />
       <div className="grid gap-3 tablet:grid-cols-2">
         {squadPlans.map((plan) => (
           <PlanChoice
@@ -441,6 +444,19 @@ const SetupSection = ({ plan }: { plan: SquadPlan }): ReactElement => {
   );
 };
 
+const getActiveCashbackDescription = (
+  plan: SquadPlan,
+  { cashbackPercentage, cashbackPromoEndsAt }: SquadSubscription,
+): string => {
+  const until = cashbackPromoEndsAt
+    ? ` until ${getPlusMemberDateFormat(cashbackPromoEndsAt)}, then ${
+        SQUAD_PLAN_CASHBACK_PERCENTAGE[plan]
+      }%`
+    : '';
+
+  return `${cashbackPercentage}% of each payment lands here every month${until}. Seats spend it to boost this page's posts.`;
+};
+
 const ActivePlan = ({
   subscription,
   isAdmin,
@@ -527,8 +543,7 @@ const ActivePlan = ({
                 {`${largeNumberFormat(balance ?? 0)} in cashback`}
               </span>
               <span className="text-text-tertiary typo-footnote">
-                Your cashback lands here every month. Seats spend it to boost
-                this page&apos;s posts.
+                {getActiveCashbackDescription(plan, subscription)}
               </span>
             </div>
           </div>

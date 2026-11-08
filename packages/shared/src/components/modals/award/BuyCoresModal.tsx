@@ -50,9 +50,14 @@ export type CoreOptionsProps = {
   title?: ReactNode;
   showCoresAtCheckout?: boolean;
   amountNeededCopy?: ReactNode;
+  /** Shown above the Cores packages, see `StartupsBuyCoresPromo` */
+  promo?: ReactNode;
 };
 
-interface ModalHeaderProps extends Pick<CoreOptionsProps, 'amountNeededCopy'> {
+interface ModalHeaderProps extends Pick<
+  CoreOptionsProps,
+  'amountNeededCopy' | 'promo'
+> {
   onPlusClick?: () => void;
 }
 
@@ -61,6 +66,7 @@ export const CoreOptions = ({
   title,
   showCoresAtCheckout,
   amountNeededCopy,
+  promo,
 }: CoreOptionsProps): ReactElement => {
   const isText = typeof amountNeededCopy === 'string';
 
@@ -75,6 +81,7 @@ export const CoreOptions = ({
         )}
         {!!showCoresAtCheckout && <BuyCreditsButton hideBuyButton />}
       </div>
+      {promo && <div className="mt-4">{promo}</div>}
       <CoreOptionList />
     </div>
   );
@@ -339,9 +346,9 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
   );
 };
 
-type BuyCoresProps = Pick<CoreOptionsProps, 'amountNeededCopy'>;
+type BuyCoresProps = Pick<CoreOptionsProps, 'amountNeededCopy' | 'promo'>;
 
-const BuyCoresMobile = ({ amountNeededCopy }: BuyCoresProps) => {
+const BuyCoresMobile = ({ amountNeededCopy, promo }: BuyCoresProps) => {
   const { selectedProduct, openCheckout, paddle } = useBuyCoresContext();
 
   useEffect(() => {
@@ -361,7 +368,7 @@ const BuyCoresMobile = ({ amountNeededCopy }: BuyCoresProps) => {
           'bg-gradient-to-t from-theme-overlay-float-bun to-transparent',
         )}
       >
-        <CoreOptions amountNeededCopy={amountNeededCopy} />
+        <CoreOptions amountNeededCopy={amountNeededCopy} promo={promo} />
       </ModalBody>
     );
   }
@@ -376,7 +383,7 @@ const BuyCoresMobile = ({ amountNeededCopy }: BuyCoresProps) => {
       {selectedProduct ? (
         <BuyCoresCheckout className="p-6" />
       ) : (
-        <CoreOptions amountNeededCopy={amountNeededCopy} />
+        <CoreOptions amountNeededCopy={amountNeededCopy} promo={promo} />
       )}
     </ModalBody>
   );
@@ -400,7 +407,7 @@ export const CorePageCheckoutVideo = (): ReactElement => {
   );
 };
 
-const BuyCoreDesktop = ({ amountNeededCopy }: BuyCoresProps) => {
+const BuyCoreDesktop = ({ amountNeededCopy, promo }: BuyCoresProps) => {
   const { selectedProduct } = useBuyCoresContext();
 
   return (
@@ -410,7 +417,11 @@ const BuyCoreDesktop = ({ amountNeededCopy }: BuyCoresProps) => {
       )}
     >
       <div className="flex flex-1 flex-row">
-        <CoreOptions className="p-6" amountNeededCopy={amountNeededCopy} />
+        <CoreOptions
+          className="p-6"
+          amountNeededCopy={amountNeededCopy}
+          promo={promo}
+        />
         <BuyCoresCheckout
           className={classNames(
             !selectedProduct && 'hidden',
@@ -433,6 +444,7 @@ const BuyCoreDesktop = ({ amountNeededCopy }: BuyCoresProps) => {
 const BuyFlow = ({
   onPlusClick: onPlusButtonClick,
   amountNeededCopy,
+  promo,
   ...props
 }: ModalProps & ModalHeaderProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -468,9 +480,9 @@ const BuyFlow = ({
         )}
       </Modal.Header>
       {isMobile ? (
-        <BuyCoresMobile amountNeededCopy={amountNeededCopy} />
+        <BuyCoresMobile amountNeededCopy={amountNeededCopy} promo={promo} />
       ) : (
-        <BuyCoreDesktop amountNeededCopy={amountNeededCopy} />
+        <BuyCoreDesktop amountNeededCopy={amountNeededCopy} promo={promo} />
       )}
     </Modal>
   );
