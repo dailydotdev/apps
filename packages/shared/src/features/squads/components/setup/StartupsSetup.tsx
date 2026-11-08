@@ -293,8 +293,9 @@ const AgentSetup = ({
       <div className="flex flex-col gap-3">
         <p className="font-bold typo-callout">2. Paste this prompt</p>
         <p className="text-text-tertiary typo-footnote">
-          Your agent reads your project, drafts the page and asks you before it
-          saves anything.
+          Your agent sets up the page and your profile, picks your first post
+          and boosts it, then schedules a daily report. It asks before it saves
+          anything.
         </p>
         <CopyBlock
           text={prompt}
