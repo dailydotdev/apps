@@ -35,6 +35,8 @@ export const productionFlags: Record<string, unknown> = {
   cores: true,
   post_boost_ads: true,
   cores_pricing_ids: 'cores_default',
+  // daily.dev for Startups promos in the boost form and Buy Cores (#7296)
+  startups_checkout: true,
   boost_settings: {
     min: 5000,
     max: 100000,

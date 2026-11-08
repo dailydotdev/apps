@@ -28,6 +28,7 @@ import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { ModalClose } from '@dailydotdev/shared/src/components/modals/common/ModalClose';
 import { BoostWalletPicker } from '@dailydotdev/shared/src/features/boost/BoostWalletPicker';
+import { StartupsBoostPromo } from '@dailydotdev/shared/src/features/squads/components/promos/StartupsPromo';
 import { useBoostWallet } from '@dailydotdev/shared/src/features/boost/useBoostWallet';
 import { usePostBoostEstimation } from '@dailydotdev/shared/src/features/boost/usePostBoostEstimation';
 import { useFeaturesReadyContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
@@ -251,9 +252,9 @@ export const BoostPostRedesignModal = ({
   const [updateEstimate] = useDebounceFn(setEstimate, 400);
   const totalSpendInt = budget.coresPerDay * budget.totalDays;
   const totalSpend = largeNumberFormat(totalSpendInt);
-  const { squadWallet, wallet, setWallet, balance } = useBoostWallet(
-    post.source?.type === SourceType.Squad ? post.source.id : undefined,
-  );
+  const squadId =
+    post.source?.type === SourceType.Squad ? post.source.id : undefined;
+  const { squadWallet, wallet, setWallet, balance } = useBoostWallet(squadId);
   const { estimatedReach, canBoost, isLoading } = usePostBoostEstimation({
     post,
     query: { budget: estimate },
@@ -466,6 +467,7 @@ export const BoostPostRedesignModal = ({
             totalSpend={totalSpendInt}
           />
         )}
+        <StartupsBoostPromo sourceId={squadId} />
       </Modal.Body>
       <Modal.Footer>
         <Button

@@ -38,6 +38,7 @@ import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { formatCoresCurrency } from '@dailydotdev/shared/src/lib/utils';
 import { walletUrl } from '@dailydotdev/shared/src/lib/constants';
 import { noop } from '../../real/providers';
+import { StartupsBuyCoresPromo } from '@dailydotdev/shared/src/features/squads/components/promos/StartupsPromo';
 
 // Fixed copy of BuyCoresModal (components/modals/award/BuyCoresModal.tsx).
 // Changed: the smallest pack covering the shortfall is preselected on every
@@ -207,6 +208,11 @@ export const BuyCoresFixedModal = ({
         awardName={awardName}
         selected={selectedProduct}
       />
+      {purpose === 'boost' && (
+        <div className="mt-4">
+          <StartupsBuyCoresPromo />
+        </div>
+      )}
       <CoreOptionList />
     </div>
   );

@@ -38,6 +38,7 @@ import type { CoresPurpose } from '../../flows/purchase/BuyCoresFixed';
 import { NeededCopy } from '../../flows/purchase/BuyCoresFixed';
 import friendshipArt from '../../assets/cores-checkout-friendship.png';
 import { CoreHalo, Row } from './kit';
+import { StartupsBuyCoresPromo } from '@dailydotdev/shared/src/features/squads/components/promos/StartupsPromo';
 
 // BuyCoresFixedModal (flows/purchase/BuyCoresFixed.tsx) in the redesign's
 // line. Same packs, preselection, copy and actions; new: a "what it's for"
@@ -240,6 +241,7 @@ export const BuyCoresRedesignModal = ({
         awardName={product?.name}
         selected={selected}
       />
+      {purpose === 'boost' && <StartupsBuyCoresPromo />}
       <div className="flex flex-col gap-2">
         <Typography type={TypographyType.Callout} bold>
           Choose how many Cores to buy

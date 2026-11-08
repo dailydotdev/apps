@@ -249,6 +249,18 @@ export const coresHandlers = ({
           },
     }),
   ),
+  // daily.dev for Startups promos: none dismissed, the launch cashback on
+  graphql.query('CompletedUserActions', () =>
+    HttpResponse.json({ data: { actions: [] } }),
+  ),
+  graphql.mutation('CompleteAction', () =>
+    HttpResponse.json({ data: { completeAction: { _: true } } }),
+  ),
+  graphql.query('StartupsCashbackPromo', () =>
+    HttpResponse.json({
+      data: { startupsCashbackPromo: { percentage: 500, months: 12 } },
+    }),
+  ),
   // The real pages behind the screens: the home feed and the post page
   ...homeFeedHandlers,
   ...postPageHandlers,
