@@ -45,6 +45,9 @@ export const useStartupsSetupRefresh = ({
         generateQueryKey(RequestKey.SquadSubscription, user, sourceId),
         generateQueryKey(RequestKey.SquadSeats, user, sourceId),
         generateQueryKey(RequestKey.SquadIntel, user, sourceId, 'settings'),
+        // The agent signing in or using an API token
+        generateQueryKey(RequestKey.OAuthConsents),
+        generateQueryKey(RequestKey.PersonalAccessTokens),
       ].forEach((queryKey) => client.invalidateQueries({ queryKey }));
     };
     const isVisible = () => document.visibilityState !== 'hidden';

@@ -10,6 +10,7 @@ import { squadIntelSettingsQueryOptions } from '../../../../graphql/squadIntel';
 import type { SquadSubscription } from '../../../../graphql/squadSubscription';
 import { squadSubscriptionQueryOptions } from '../../../../graphql/squadSubscription';
 import { Origin } from '../../../../lib/log';
+import { oauthConsentsQueryOptions } from '../../../../lib/oauthApps';
 import { SquadPlan } from '../../lib/plans';
 import { StartupsSetup, StartupsSetupPath } from './StartupsSetup';
 
@@ -27,14 +28,32 @@ const renderSetup = ({
   plan = SquadPlan.Starter,
   subscription,
   onEditRow = jest.fn(),
+  isAgentSignedIn = false,
 }: {
   seat: boolean;
   settings?: SquadIntelSettings;
   plan?: SquadPlan;
   subscription?: SquadSubscription;
   onEditRow?: jest.Mock;
+  isAgentSignedIn?: boolean;
 }) => {
   const client = new QueryClient();
+
+  client.setQueryData(
+    oauthConsentsQueryOptions().queryKey,
+    isAgentSignedIn
+      ? [
+          {
+            id: 'c1',
+            clientId: 'claude-code',
+            scopes: ['read', 'write'],
+            createdAt: '2026-11-08T11:03:00.000Z',
+            client: null,
+            isClientDisabled: false,
+          },
+        ]
+      : [],
+  );
 
   if (subscription) {
     client.setQueryData(
@@ -125,5 +144,24 @@ describe('StartupsSetup team seats row', () => {
     expect(
       screen.getByRole('link', { name: 'Give seats' }),
     ).toBeInTheDocument();
+  });
+});
+
+describe('StartupsSetup agent row', () => {
+  const getAgentRow = () =>
+    screen.getByText('Connect your agent').closest('li') as HTMLElement;
+
+  it('ticks once an agent has signed in to daily.dev', async () => {
+    renderSetup({ seat: false, isAgentSignedIn: true });
+
+    expect(await screen.findByText('0 of 3 done')).toBeInTheDocument();
+    expect(getAgentRow().querySelector('svg')).toBeInTheDocument();
+  });
+
+  it('stays open until an agent signs in', async () => {
+    renderSetup({ seat: false });
+
+    expect(await screen.findByText('0 of 3 done')).toBeInTheDocument();
+    expect(getAgentRow().querySelector('svg')).not.toBeInTheDocument();
   });
 });
