@@ -6,6 +6,7 @@ import { initialize, mswLoader } from 'msw-storybook-addon';
 
 initialize({
   onUnhandledRequest: 'warn',
+  serviceWorker: { url: './storybookServiceWorker.js' },
 });
 
 const preview: Preview = {

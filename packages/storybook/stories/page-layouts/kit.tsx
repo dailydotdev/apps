@@ -646,7 +646,7 @@ const ProductionFrame = ({
       if (failed || painted) {
         release();
       }
-    }, 1500);
+    }, 250);
     const giveUp = window.setTimeout(release, 90000);
     return () => {
       window.clearInterval(check);

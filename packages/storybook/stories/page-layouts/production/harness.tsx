@@ -76,15 +76,47 @@ const log = (operation: string, entry: Record<string, unknown>): void => {
   target.liveOps = [...(target.liveOps ?? []), { operation, ...entry }];
 };
 
+// Each page loads at three breakpoints, in three frames that ask the same
+// queries. Answers are kept for a few minutes in the Cache API, which every
+// frame shares, and a lock per query lets one frame ask while the rest wait.
+const answers = 'page-layouts-answers';
+const answerLifetime = 10 * 60 * 1000;
+
 const ask = async (body: GraphQLBody) => {
-  const response = await fetch(
-    bypass(`${window.location.origin}/__daily-api/graphql`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(body),
-    }),
+  const json = JSON.stringify(body);
+  const digest = await crypto.subtle.digest(
+    'SHA-256',
+    new TextEncoder().encode(json),
   );
-  return response.json();
+  const hash = Array.from(new Uint8Array(digest), (byte) =>
+    byte.toString(16).padStart(2, '0'),
+  ).join('');
+  const key = `${window.location.origin}/__page-layouts-answer/${hash}`;
+  return navigator.locks.request(key, async () => {
+    const cache = await caches.open(answers);
+    const kept = await cache.match(key);
+    if (
+      kept &&
+      Date.now() - Number(kept.headers.get('date-kept')) < answerLifetime
+    ) {
+      return kept.json();
+    }
+    const response = await fetch(
+      bypass(`${window.location.origin}/__daily-api/graphql`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: json,
+      }),
+    );
+    const text = await response.text();
+    if (response.ok) {
+      await cache.put(
+        key,
+        new Response(text, { headers: { 'date-kept': String(Date.now()) } }),
+      );
+    }
+    return JSON.parse(text);
+  });
 };
 
 const operationOf = (body: GraphQLBody): string =>
@@ -238,6 +270,12 @@ const memberAnswers: Record<string, () => unknown> = {
   OrganizationsBase: () => ({ organizations: [placeholderOrganization] }),
   Organizations: () => ({ organizations: [placeholderOrganization] }),
   OpportunityById: () => ({ opportunityById: placeholderOpportunity }),
+  // A member with nothing saved yet; refused, the feed retries before it
+  // shows its empty state.
+  BookmarksFeed: () => ({
+    page: { pageInfo: { hasNextPage: false, endCursor: null }, edges: [] },
+  }),
+  GetBookmarkFolders: () => ({ bookmarkLists: [] }),
   OpportunityMatches: () => ({
     opportunityMatches: {
       pageInfo: { hasNextPage: false, endCursor: null, totalCount: 0 },

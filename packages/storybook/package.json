@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "storybook dev -p 6006",
     "build": "storybook build",
+    "preview": "storybook build && vite preview --config .storybook/preview-server.mjs",
     "clean": "rm -rf .turbo && rm -rf node_modules",
     "lint": "eslint --no-error-on-unmatched-pattern ./stories/*.stories.tsx"
   },
