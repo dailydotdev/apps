@@ -204,14 +204,18 @@ export const StartupsBoostPromo = ({
 /** Spot 2: Buy Cores, only when a boost opened it. */
 export const StartupsBuyCoresPromo = ({
   sourceId,
+  isPersonalAllowed,
   className,
 }: {
   sourceId?: string;
+  /** False on the Buy Cores page, where most people buy to give awards */
+  isPersonalAllowed?: boolean;
   className?: string;
 }): ReactElement | null => {
   const promo = useStartupsPromo({
     spot: StartupsPromoSpot.BuyCores,
     sourceId,
+    isPersonalAllowed,
   });
 
   if (!promo.isShown) {
