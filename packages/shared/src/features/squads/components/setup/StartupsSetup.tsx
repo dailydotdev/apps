@@ -36,7 +36,9 @@ import {
 } from '../../lib/setup';
 import { getSquadId } from '../../lib/features';
 import { useLogStartups } from '../../hooks/useLogStartups';
+import type { AgentMarkData } from '../checkout/agentMarks';
 import { agentMarks } from '../checkout/agentMarks';
+import { AgentMark } from '../checkout/AgentMark';
 import type { SquadProduct } from '../../../../graphql/squadProducts';
 import type { StartupsSetupRow } from './StartupsSetupEditor';
 
@@ -128,9 +130,7 @@ export const CopyBlock = ({
   );
 };
 
-const agentClientMarks: Partial<
-  Record<AgentClient, (typeof agentMarks)[keyof typeof agentMarks]>
-> = {
+const agentClientMarks: Partial<Record<AgentClient, AgentMarkData>> = {
   [AgentClient.ClaudeCode]: agentMarks['claude-code'],
   [AgentClient.Cursor]: agentMarks.cursor,
   [AgentClient.Codex]: agentMarks.codex,
@@ -148,21 +148,11 @@ const AgentClientMark = ({
   }
 
   return (
-    <span
-      className="flex size-6 items-center justify-center rounded-6"
-      style={{ background: mark.tile, color: '#fff' }}
-    >
-      <svg
-        viewBox={mark.glyph.viewBox}
-        className="size-4"
-        fill="currentColor"
-        aria-hidden
-      >
-        {mark.glyph.paths.map((d) => (
-          <path key={d} d={d} fillRule="evenodd" />
-        ))}
-      </svg>
-    </span>
+    <AgentMark
+      mark={mark}
+      className="size-6 rounded-6"
+      glyphClassName="size-4"
+    />
   );
 };
 
