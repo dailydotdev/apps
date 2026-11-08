@@ -105,7 +105,9 @@ const SquadJobRow = ({ job }: { job: SquadJob }): ReactElement => {
             >
               {!!job.salary && (
                 <>
-                  <span className="tabular-nums">{job.salary}</span>
+                  <span className="min-w-0 max-w-full break-words tabular-nums">
+                    {job.salary}
+                  </span>
                   <span aria-hidden>·</span>
                 </>
               )}
@@ -242,7 +244,7 @@ const JobSummary = ({ job }: { job: SquadJob }): ReactElement => {
         {facts.map((fact) => (
           <li
             key={fact}
-            className="rounded-10 bg-surface-float px-2.5 py-1 text-text-secondary typo-footnote"
+            className="min-w-0 max-w-full break-words rounded-10 bg-surface-float px-2.5 py-1 text-text-secondary typo-footnote"
           >
             {fact}
           </li>
