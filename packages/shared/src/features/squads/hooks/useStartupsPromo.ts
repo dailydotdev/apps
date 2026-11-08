@@ -30,7 +30,6 @@ export enum StartupsPromoSpot {
   BuyCores = 'buy cores promo',
   Wallet = 'wallet promo',
   AdsDashboard = 'ads dashboard promo',
-  SquadCreate = 'squad create promo',
   NewSquadModal = 'new squad modal promo',
 }
 

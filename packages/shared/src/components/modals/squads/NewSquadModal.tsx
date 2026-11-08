@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react';
+import classNames from 'classnames';
 import React, { useCallback } from 'react';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
@@ -20,6 +21,10 @@ import { LogEvent, Origin } from '../../../lib/log';
 import { UserIntegrationType } from '../../../graphql/integrations';
 import { useLogContext } from '../../../contexts/LogContext';
 import { StartupsNewSquadModalPromo } from '../../../features/squads/components/promos/StartupsPromo';
+import {
+  StartupsPromoSpot,
+  useStartupsPromo,
+} from '../../../features/squads/hooks/useStartupsPromo';
 
 export default function NewSquadModal(props: ModalProps): ReactElement {
   const { onRequestClose } = props;
@@ -27,6 +32,10 @@ export default function NewSquadModal(props: ModalProps): ReactElement {
   const { logEvent } = useLogContext();
 
   const { newSquadUrl } = useSquadNavigation();
+  const promo = useStartupsPromo({
+    spot: StartupsPromoSpot.NewSquadModal,
+    isNewSquad: true,
+  });
   const onConnectSlack = useCallback(() => {
     logEvent({
       event_name: LogEvent.StartAddingWorkspace,
@@ -50,7 +59,10 @@ export default function NewSquadModal(props: ModalProps): ReactElement {
           variant={ButtonVariant.Primary}
         />
         <Image
-          className="h-40 w-40 object-contain"
+          className={classNames(
+            'object-contain',
+            promo.isShown ? 'h-40 w-40' : 'h-56 w-56',
+          )}
           src={cloudinaryCharmEmptySquads}
           alt="daily.dev charm waving in an empty squad"
           loading="lazy"
@@ -98,7 +110,7 @@ export default function NewSquadModal(props: ModalProps): ReactElement {
         >
           Create manually
         </Button>
-        <StartupsNewSquadModalPromo />
+        <StartupsNewSquadModalPromo promo={promo} />
       </Modal.Body>
     </Modal>
   );
