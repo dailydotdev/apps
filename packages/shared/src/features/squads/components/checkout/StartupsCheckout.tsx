@@ -68,7 +68,10 @@ import {
 import { useSquadPlanPrices } from '../../hooks/useSquadPlanPrices';
 import { useStartupsSetupRefresh } from '../../hooks/useStartupsSetupRefresh';
 import { useStartupsCashbackPromo } from '../../hooks/useStartupsCashbackPromo';
-import { SquadPlanCashback } from '../SquadPlanCashback';
+import {
+  SquadLaunchOfferBanner,
+  SquadPlanCashback,
+} from '../SquadPlanCashback';
 import { useLogStartups } from '../../hooks/useLogStartups';
 import {
   StartupsSetup,
@@ -476,7 +479,7 @@ const PlanOption = ({
         : 'border-border-subtlest-tertiary hover:border-border-subtlest-secondary',
     )}
   >
-    <span className="flex items-center gap-2">
+    <span className="flex flex-wrap items-center gap-2">
       <span
         className={classNames(
           'flex size-5 shrink-0 items-center justify-center rounded-full border',
@@ -747,6 +750,7 @@ const PlanStep = ({
         title={`Choose a plan for ${company.name}`}
         description="Billed monthly. Cancel any time, your page and posts stay."
       />
+      <SquadLaunchOfferBanner />
       <div role="radiogroup" className="flex flex-col gap-3">
         {squadPlans.map((option) => (
           <PlanOption

@@ -43,7 +43,10 @@ import {
   startupsEnterpriseUrl,
 } from '../../lib/plans';
 import { useSquadPlanPrices } from '../../hooks/useSquadPlanPrices';
-import { SquadPlanCashback } from '../SquadPlanCashback';
+import {
+  SquadLaunchOfferBanner,
+  SquadPlanCashback,
+} from '../SquadPlanCashback';
 import { getPlusMemberDateFormat } from '../../../../lib/dateFormat';
 import { useLogStartups } from '../../hooks/useLogStartups';
 import { SquadManageSectionPanel } from './SquadManageLayout';
@@ -170,6 +173,7 @@ const ChoosePlan = ({ isAdmin }: { isAdmin: boolean }): ReactElement => {
         title="Make it your company page"
         description="In the feed and search, cited by AI answers, and your agent posts and boosts through the API."
       />
+      <SquadLaunchOfferBanner />
       <div className="grid gap-3 tablet:grid-cols-2">
         {squadPlans.map((plan) => (
           <PlanChoice
