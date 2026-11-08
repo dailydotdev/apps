@@ -29,8 +29,10 @@ const squad = {
   currentMember: { role: SourceMemberRole.Admin, seat: true },
 } as unknown as Squad;
 
+const selection = { tags: ['react'], seniority: null, regions: null };
+
 const settings: SquadIntelSettings = {
-  selection: { tags: ['react'], seniority: null, regions: null },
+  selection,
   limits: { tags: 5, seniority: false, regions: false },
   nextIntelAt: '2026-11-09T00:00:00.000Z',
 };
@@ -38,7 +40,7 @@ const settings: SquadIntelSettings = {
 const intel: SquadIntel = {
   weekStart: '2026-10-26T00:00:00.000Z',
   weekEnd: '2026-11-02T00:00:00.000Z',
-  selection: settings.selection,
+  selection,
   broadened: false,
   markdown: '# Weekly intel',
   generatedAt: '2026-11-02T00:20:00.000Z',
@@ -76,7 +78,7 @@ const mockSave = () => {
   mockGraphQL({
     request: {
       query: UPDATE_SQUAD_INTEL_SETTINGS_MUTATION,
-      variables: { sourceId: squad.id, ...settings.selection },
+      variables: { sourceId: squad.id, ...selection },
     },
     result: () => {
       saved = true;
