@@ -18,6 +18,10 @@ import { base64ToFile } from '../../../../lib/base64';
 import type { MergedWriteObject, WriteForm } from '../../../../contexts';
 import { useWritePostContext } from '../../../../contexts';
 import { defaultMarkdownCommands } from '../../../../hooks/input';
+import {
+  EMOJI_FREE_TITLE_HINT,
+  useEmojiFreeInput,
+} from '../../../../hooks/input/useEmojiFreeInput';
 import { WriteFooter } from '../../write';
 
 export const generateWritePostKey = (reference = 'create'): string =>
@@ -63,6 +67,8 @@ export function WriteFreeformContent({
   const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
   const { sidebarRendered } = useSidebarRendered();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { hasStrippedEmojis, onEmojiFreeInput, resetEmojiHint } =
+    useEmojiFreeInput();
 
   const getDraftImage = () => {
     if (!draft?.image) {
@@ -157,7 +163,10 @@ export function WriteFreeformContent({
           placeholder="Give your post a title"
           required
           defaultValue={draft?.title ?? initialTitle ?? fetchedPost?.title}
+          onInputCapture={onEmojiFreeInput}
           onInput={onFormUpdate}
+          onBlur={resetEmojiHint}
+          hint={hasStrippedEmojis ? EMOJI_FREE_TITLE_HINT : undefined}
           maxLength={MAX_TITLE_LENGTH}
         />
       </AlertPointer>
