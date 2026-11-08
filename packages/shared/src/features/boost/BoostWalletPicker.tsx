@@ -61,7 +61,7 @@ export function BoostWalletPicker({
         className={{
           container: 'mt-1 w-full !gap-0',
           content: 'w-full',
-          label: 'flex-1',
+          label: 'min-w-0 flex-1',
         }}
         options={[
           {
