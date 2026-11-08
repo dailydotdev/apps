@@ -203,6 +203,28 @@ export const SquadManageProductForm = ({
     );
   }
 
+  if (
+    !productId &&
+    !isPending &&
+    products.length >= getSquadProductsMax(squad)
+  ) {
+    return (
+      <SquadManagePanel
+        title="Add product"
+        backUrl={listUrl}
+        backLabel="Back to Products"
+        hasLaptopBack
+      >
+        <div className="px-4 py-6 tablet:px-6">
+          <SquadEnterpriseGate
+            title="More products"
+            description={`Show up to ${SQUAD_PRODUCTS_MAX} products on your page.`}
+          />
+        </div>
+      </SquadManagePanel>
+    );
+  }
+
   return (
     <SquadManagePanel
       title={product ? 'Edit product' : 'Add product'}
