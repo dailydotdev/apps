@@ -26,9 +26,11 @@ import {
   SquadManageProductForm,
   SquadManageProducts,
 } from './SquadManageProducts';
+import { SquadManageJobForm, SquadManageJobs } from './SquadManageJobs';
 import { SquadManageAnalytics } from './SquadManageAnalytics';
 import { SquadManageIntegrations } from './SquadManageIntegrations';
 import { SquadManagePlan } from './SquadManagePlan';
+import { SquadManageIntel } from './SquadManageIntel';
 
 const SectionContent = ({
   section,
@@ -40,6 +42,8 @@ const SectionContent = ({
   switch (section) {
     case SquadManageSection.Products:
       return <SquadManageProducts />;
+    case SquadManageSection.Jobs:
+      return <SquadManageJobs />;
     case SquadManageSection.Links:
       return <SquadManageLinks />;
     case SquadManageSection.Branding:
@@ -66,6 +70,8 @@ const SectionContent = ({
       return <SquadManageIntegrations />;
     case SquadManageSection.Plan:
       return <SquadManagePlan />;
+    case SquadManageSection.Intel:
+      return <SquadManageIntel />;
     case SquadManageSection.DangerZone:
       return (
         <SquadManageSectionPanel section={section}>
@@ -83,11 +89,14 @@ interface SquadManagePageProps {
   section?: SquadManageSection;
   /** Set on the product form routes: an id edits, `null` adds. */
   productId?: string | null;
+  /** Set on the job form routes: an id edits, `null` adds. */
+  jobId?: string | null;
 }
 
 export const SquadManagePage = ({
   section,
   productId,
+  jobId,
 }: SquadManagePageProps): ReactElement | null => {
   const router = useRouter();
   const { squad, viewer, isViewerReady } = useSquadPageContext();
@@ -122,15 +131,19 @@ export const SquadManagePage = ({
     return null;
   }
 
-  const isProductForm = productId !== undefined;
+  const getContent = (): ReactElement => {
+    if (productId !== undefined) {
+      return <SquadManageProductForm productId={productId ?? undefined} />;
+    }
+
+    if (jobId !== undefined) {
+      return <SquadManageJobForm jobId={jobId ?? undefined} />;
+    }
+
+    return <SectionContent section={section ?? sections[0]} />;
+  };
 
   return (
-    <SquadManageLayout section={section}>
-      {isProductForm ? (
-        <SquadManageProductForm productId={productId ?? undefined} />
-      ) : (
-        <SectionContent section={section ?? sections[0]} />
-      )}
-    </SquadManageLayout>
+    <SquadManageLayout section={section}>{getContent()}</SquadManageLayout>
   );
 };

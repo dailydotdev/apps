@@ -46,16 +46,35 @@ const suggestion = (n: number) => ({
 });
 const author = { id: 'u1', name: 'A', username: 'a', image: '', permalink: '' };
 
-const mockData = (current: Picks | null, suggestions: unknown[]) => {
+const mockData = (
+  current: Picks | null,
+  suggestions: unknown[],
+  fromPicksId?: string,
+) => {
   mockGraphQL({
     request: { query: MY_CURRENT_PICKS_QUERY },
     result: { data: { myCurrentPicks: current } },
   });
   mockGraphQL({
-    request: { query: PICKS_SUGGESTIONS_QUERY },
+    request: {
+      query: PICKS_SUGGESTIONS_QUERY,
+      ...(fromPicksId ? { variables: { fromPicksId } } : {}),
+    },
     result: { data: { picksSuggestions: suggestions } },
   });
 };
+
+const mockRouterQuery = (query: Record<string, string>) =>
+  jest.mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        pathname: '/picks/new',
+        query,
+        replace,
+        push: jest.fn(),
+        isReady: true,
+      }) as unknown as NextRouter,
+  );
 
 const renderPage = (enabled = true, user: unknown = loggedUser) => {
   const gb = createReadyGrowthBook();
@@ -107,13 +126,57 @@ it('should send a logged-out visitor to auth, not the feed, when the flag is off
   expect(replace.mock.calls[0][0]).toContain('onboarding');
 });
 
+it('should open for a viewer outside the rollout who came from a picks page', async () => {
+  mockRouterQuery({ origin: 'picks_page', from: 'picks-9', add: 'p2' });
+  mockData(
+    null,
+    [
+      suggestion(1),
+      { ...suggestion(2), reason: 'from_picks', upvoted: false, read: false },
+    ],
+    'picks-9',
+  );
+  renderPage(false);
+  await waitForNock();
+  await waitFor(() => expect(title('Post 2')).toBeTruthy());
+
+  expect(replace).not.toHaveBeenCalled();
+  expect(screen.getByText('1 of 5 selected')).toBeInTheDocument();
+  expect(screen.getByText('from the picks you opened')).toBeInTheDocument();
+  expect(screen.getByRole('textbox')).toHaveFocus();
+  await waitFor(() =>
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.StartPicks,
+        extra: JSON.stringify({ origin: Origin.PicksPage, is_edit: false }),
+      }),
+    ),
+  );
+});
+
+it('should open for a user with picks this week when the flag is off', async () => {
+  const current = {
+    id: 'picks-1',
+    weekStart: '2026-11-02',
+    author,
+    items: [{ position: 0, note: null, post: post(2) }],
+  } as Picks;
+  mockData(current, [suggestion(1), suggestion(2)]);
+  renderPage(false);
+  await waitForNock();
+  await waitFor(() => expect(title('Post 2')).toBeTruthy());
+
+  expect(replace).not.toHaveBeenCalled();
+  expect(screen.getByText("Edit this week's picks")).toBeInTheDocument();
+});
+
 it('should render suggestions and log the start with the origin', async () => {
   mockData(null, [suggestion(1), suggestion(2)]);
   renderPage();
   await waitForNock();
   await waitFor(() => expect(title('Post 1')).toBeTruthy());
   expect(screen.getByText('Weekly picks')).toBeInTheDocument();
-  expect(screen.queryByText('View my picks')).not.toBeInTheDocument();
+  expect(screen.queryByText('View your page')).not.toBeInTheDocument();
   await waitFor(() =>
     expect(logEvent).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -140,7 +203,8 @@ it('should prefill the selection and keep picks missing from the suggestions', a
   await waitFor(() => expect(title('Post 9')).toBeTruthy());
   expect(screen.getByText('2 of 5 selected')).toBeInTheDocument();
   expect(screen.getByDisplayValue('old note')).toBeInTheDocument();
-  expect(screen.getByText('View my picks').closest('a')).toHaveAttribute(
+  expect(screen.getByText("Edit this week's picks")).toBeInTheDocument();
+  expect(screen.getByText('View your page').closest('a')).toHaveAttribute(
     'href',
     '/picks/picks-1',
   );

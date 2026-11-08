@@ -43,8 +43,8 @@ const useIsAdFreePost = (post?: AdSlotsPost): boolean => {
 /**
  * The /read template's slots. Anonymous visitors only: the page exists for
  * paid-acquisition traffic, and ad-free is part of what Plus members pay for.
- * The `read_ads` flag is an emergency kill switch, on by default; there is no
- * ramp. Development builds get the dashed density placeholders instead of
+ * The `read_ads` flag is a kill switch, off while no ad tag fills the slots;
+ * there is no ramp. Development builds get the dashed density placeholders instead of
  * live units, hence the empty map there.
  */
 export const useReadAdSlots = (post?: AdSlotsPost): AdSlots => {

@@ -5,17 +5,22 @@ import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import type { DehydratedState } from '@tanstack/react-query';
 import { dehydrate, QueryClient, useQuery } from '@tanstack/react-query';
-import { picksQueryOptions } from '@dailydotdev/shared/src/graphql/picks';
+import {
+  getNewPicksPath,
+  picksQueryOptions,
+  picksViewCountQueryOptions,
+  trackPicksView,
+} from '@dailydotdev/shared/src/graphql/picks';
 import type { Picks, PicksItem } from '@dailydotdev/shared/src/graphql/picks';
 import {
+  getCurrentWeekStart,
   getIsoWeekNumber,
   getPickPostHref,
+  isNewPicksViewer,
 } from '@dailydotdev/shared/src/lib/picks';
 import { StaleTime } from '@dailydotdev/shared/src/lib/query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { featureWeeklyPicks } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useSharePicks } from '@dailydotdev/shared/src/hooks/picks/useSharePicks';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
@@ -51,13 +56,16 @@ import {
   noindexSeoProps,
 } from '../../next-seo';
 
-const MAKE_PICKS_PATH = '/picks/new?origin=picks_page';
+const PICKS_PAGE_ORIGIN = 'picks_page';
 
 interface PicksPageProps {
   picksId: string;
   seo: NextSeoProps;
   dehydratedState: DehydratedState;
 }
+
+const getOpensLabel = (count: number): string =>
+  count ? `Opened by ${count}` : 'Not opened yet';
 
 const getPostsLabel = (picks: Picks): string => {
   const count = picks.items.length;
@@ -68,20 +76,23 @@ const getPostsLabel = (picks: Picks): string => {
 const PickRow = ({
   item,
   picks,
+  onAdd,
 }: {
   item: PicksItem;
   picks: Picks;
+  /** Absent for the author: their own picks cannot be added to themselves */
+  onAdd?: (postId: string) => void;
 }): ReactElement => {
   const { logEvent } = useLogContext();
   const { post, note, position } = item;
   const href = getPickPostHref(post.commentsPermalink, picks.author.id);
 
   return (
-    <li className="border-b border-border-subtlest-tertiary last:border-0">
+    <li className="flex items-center gap-2 border-b border-border-subtlest-tertiary last:border-0">
       <Link href={href} passHref>
         <a
           href={href}
-          className="focus-outline -mx-2 flex w-[calc(100%+1rem)] items-start gap-3 rounded-12 px-2 py-3 hover:bg-surface-hover"
+          className="focus-outline -ml-2 flex min-w-0 flex-1 items-start gap-3 rounded-12 px-2 py-3 hover:bg-surface-hover"
           onClick={() =>
             logEvent({
               event_name: LogEvent.ClickPickPost,
@@ -118,6 +129,19 @@ const PickRow = ({
           </span>
         </a>
       </Link>
+      {!!onAdd && (
+        <Button
+          type="button"
+          variant={ButtonVariant.Secondary}
+          size={ButtonSize.Small}
+          aria-label="Add to my picks"
+          className="shrink-0"
+          onClick={() => onAdd(post.id)}
+        >
+          <span className="hidden tablet:inline">Add to my picks</span>
+          <span className="tablet:hidden">Add</span>
+        </Button>
+      )}
     </li>
   );
 };
@@ -131,15 +155,17 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
     staleTime: StaleTime.OneMinute,
   });
   const hasLoggedView = useRef(false);
+  const hasTrackedView = useRef(false);
   const isAuthor = !!user && user.id === picks?.author.id;
-  const { openShareSheet } = useSharePicks();
-  // `/picks/new` is flag-gated, so only offer the CTA to viewers who can use
-  // it. Logged out viewers go through auth first and keep the CTA.
-  const { value: isPicksEnabled } = useConditionalFeature({
-    feature: featureWeeklyPicks,
-    shouldEvaluate: isLoggedIn,
+  // Read fresh on every visit, so the count the notification promised is
+  // the count shown.
+  const { data: viewCount } = useQuery({
+    ...picksViewCountQueryOptions(picksId, user),
+    enabled: isAuthor,
   });
-  const showMakePicksCta = !isLoggedIn || isPicksEnabled;
+  const { openShareSheet } = useSharePicks();
+  // `/picks/new` edits the current week, so only this week's list is editable
+  const isEditable = isAuthor && picks?.weekStart === getCurrentWeekStart();
 
   useEffect(() => {
     if (!picks || !isAuthReady || hasLoggedView.current) {
@@ -154,9 +180,21 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
         picks_id: picks.id,
         is_author: isAuthor,
         logged_in: isLoggedIn,
+        is_new_user: isNewPicksViewer(user?.createdAt),
       }),
     });
-  }, [picks, isAuthReady, isAuthor, isLoggedIn, logEvent]);
+  }, [picks, isAuthReady, isAuthor, isLoggedIn, user?.createdAt, logEvent]);
+
+  // One open per viewer per list; the API dedupes, this only saves a call
+  // for the author. Failing to count must never affect the page.
+  useEffect(() => {
+    if (!picks || !isAuthReady || isAuthor || hasTrackedView.current) {
+      return;
+    }
+
+    hasTrackedView.current = true;
+    trackPicksView(picks.id).catch(() => undefined);
+  }, [picks, isAuthReady, isAuthor]);
 
   if (!picks) {
     return null;
@@ -164,23 +202,52 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
 
   const items = [...picks.items].sort((a, b) => a.position - b.position);
 
-  const onMakePicks = () => {
-    logEvent({
-      event_name: LogEvent.ClickMakeYourPicks,
-      origin: Origin.PicksPage,
-      extra: JSON.stringify({ picks_id: picks.id, logged_in: isLoggedIn }),
-    });
+  // Coming from someone else's page fills an empty picker with its posts and
+  // opens the editor outside the rollout. The author's own page has nothing
+  // to fill from.
+  const fromPicksId = isAuthor ? undefined : picks.id;
 
+  const goToEditor = (path: string) => {
     if (isLoggedIn) {
-      router.push(MAKE_PICKS_PATH);
+      router.push(path);
       return;
     }
 
     // Same hand-off ProtectedPage uses: onboarding/auth, then `after_auth`.
     router.push(
       `${onboardingUrl}?${new URLSearchParams({
-        [AFTER_AUTH_PARAM]: MAKE_PICKS_PATH,
+        [AFTER_AUTH_PARAM]: path,
       }).toString()}`,
+    );
+  };
+
+  const onMakePicks = () => {
+    logEvent({
+      event_name: LogEvent.ClickMakeYourPicks,
+      origin: Origin.PicksPage,
+      extra: JSON.stringify({ picks_id: picks.id, logged_in: isLoggedIn }),
+    });
+    goToEditor(
+      getNewPicksPath({ origin: PICKS_PAGE_ORIGIN, from: fromPicksId }),
+    );
+  };
+
+  const onAddToPicks = (postId: string) => {
+    logEvent({
+      event_name: LogEvent.ClickAddToPicks,
+      origin: Origin.PicksPage,
+      extra: JSON.stringify({
+        picks_id: picks.id,
+        post_id: postId,
+        logged_in: isLoggedIn,
+      }),
+    });
+    goToEditor(
+      getNewPicksPath({
+        origin: PICKS_PAGE_ORIGIN,
+        from: picks.id,
+        add: postId,
+      }),
     );
   };
 
@@ -207,6 +274,14 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
             >
               {getPostsLabel(picks)}
             </Typography>
+            {isAuthor && typeof viewCount === 'number' && (
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                {getOpensLabel(viewCount)}
+              </Typography>
+            )}
           </div>
           {isAuthor && (
             <Button
@@ -222,7 +297,12 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
         {items.length ? (
           <ul className="flex flex-col">
             {items.map((item) => (
-              <PickRow key={item.post.id} item={item} picks={picks} />
+              <PickRow
+                key={item.post.id}
+                item={item}
+                picks={picks}
+                onAdd={isAuthor ? undefined : onAddToPicks}
+              />
             ))}
           </ul>
         ) : (
@@ -233,24 +313,24 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
             These picks are no longer available
           </Typography>
         )}
-        {showMakePicksCta && (
-          <section className="flex flex-col items-start gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
-            <Typography
-              type={TypographyType.Body}
-              bold
-              color={TypographyColor.Primary}
-            >
-              Read something good this week? Make your own picks in 30 seconds
-            </Typography>
-            <Button
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Medium}
-              onClick={onMakePicks}
-            >
-              Make your picks
-            </Button>
-          </section>
-        )}
+        <section className="flex flex-col items-start gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
+          <Typography
+            type={TypographyType.Body}
+            bold
+            color={TypographyColor.Primary}
+          >
+            {isEditable
+              ? 'Changed your mind? You can edit these picks until the week ends'
+              : 'Read something good this week? Make your own picks in 30 seconds'}
+          </Typography>
+          <Button
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Medium}
+            onClick={onMakePicks}
+          >
+            {isEditable ? "Edit this week's picks" : 'Make your picks'}
+          </Button>
+        </section>
       </ResponsivePageContainer>
     </div>
   );

@@ -416,6 +416,7 @@ const SectionLabel = ({ children }: { children: ReactNode }): ReactElement => (
 export const FeedWidgetGallery = ({
   widgets,
   isFull,
+  initialKind,
   initialSize,
   onAdd,
   tips,
@@ -424,6 +425,8 @@ export const FeedWidgetGallery = ({
   widgets: FeedWidget[];
   /** At the most widgets a rail holds, so nothing more can be added. */
   isFull: boolean;
+  /** The widget it opens on, instead of the first suggestion. */
+  initialKind?: FeedWidgetKind;
   /** The size each widget starts at when it supports it. */
   initialSize?: FeedWidgetSize;
   onAdd: (kind: FeedWidgetKind, size: FeedWidgetSize) => void;
@@ -470,7 +473,9 @@ export const FeedWidgetGallery = ({
     .slice(0, SUGGESTED_COUNT);
 
   const [selected, setSelected] = useState<Selection>(
-    () => (suggested[0] ?? items[0])?.definition.kind ?? TIPS,
+    () =>
+      ((initialKind && itemFor(initialKind)) ?? suggested[0] ?? items[0])
+        ?.definition.kind ?? TIPS,
   );
   // On a phone the list comes first; a widget opens from it.
   const [isDetailOpen, setIsDetailOpen] = useState(false);

@@ -6,6 +6,9 @@ import {
   ProfilePicture,
 } from '../../../components/ProfilePicture';
 import { formatDate, TimeFormatType } from '../../../lib/dateFormat';
+import { Button } from '../../../components/buttons/Button';
+import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
+import { RemoveUserIcon } from '../../../components/icons';
 import type { RoomMessage } from '../../messages/types';
 import {
   AddReactionButton,
@@ -78,6 +81,7 @@ const MessageRow = ({
   viewerUsername,
   usernames,
   onReact,
+  onBan,
 }: {
   message: RoomMessage;
   sender?: RoomPerson;
@@ -88,6 +92,7 @@ const MessageRow = ({
   viewerUsername?: string;
   usernames: Record<string, string>;
   onReact?: (messageId: string, emoji: string) => void;
+  onBan?: (userId: string) => void;
 }): ReactElement => {
   const isMe = message.senderId === viewerId;
   const time = formatDate({
@@ -139,14 +144,27 @@ const MessageRow = ({
           <span className="min-w-0 flex-1 whitespace-pre-wrap break-words text-text-primary typo-callout">
             {renderMentions(message.body, viewerUsername)}
           </span>
-          {react && (
-            // Bleeds into the row's spacing so the roomier button doesn't
+          {(react || (onBan && !isMe)) && (
+            // Bleeds into the row's spacing so the roomier buttons don't
             // make every single-line message taller.
-            <div className="-my-1.5">
-              <AddReactionButton
-                onReact={react}
-                className={hoverActionClassName}
-              />
+            <div className="-my-1.5 flex items-center">
+              {react && (
+                <AddReactionButton
+                  onReact={react}
+                  className={hoverActionClassName}
+                />
+              )}
+              {onBan && !isMe && (
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.XSmall}
+                  icon={<RemoveUserIcon />}
+                  aria-label={`Remove ${sender?.name ?? 'this person'} from the chat`}
+                  className={hoverActionClassName}
+                  onClick={() => onBan(message.senderId)}
+                />
+              )}
             </div>
           )}
         </div>
@@ -184,6 +202,7 @@ export const LiveChatMessageList = ({
   viewerId,
   viewerUsername,
   onReact,
+  onBan,
   emptyCopy,
   className,
 }: {
@@ -196,6 +215,8 @@ export const LiveChatMessageList = ({
   viewerUsername?: string;
   // Missing while the viewer is not in the room, so messages are read-only.
   onReact?: (messageId: string, emoji: string) => void;
+  // Present for the daily.dev team: removes the sender from the room.
+  onBan?: (userId: string) => void;
   emptyCopy: string;
   className?: string;
 }): ReactElement => {
@@ -247,6 +268,7 @@ export const LiveChatMessageList = ({
               viewerUsername={viewerUsername}
               usernames={usernames}
               onReact={onReact}
+              onBan={onBan}
             />
           );
         })}

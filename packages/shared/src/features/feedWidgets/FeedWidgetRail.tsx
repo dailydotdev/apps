@@ -14,6 +14,9 @@ import { PlusIcon } from '../../components/icons/Plus';
 import { MinusIcon } from '../../components/icons/Minus';
 import { IconSize } from '../../components/Icon';
 import { useLogContext } from '../../contexts/LogContext';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useSettingsContext } from '../../contexts/SettingsContext';
+import { checkIsExtension } from '../../lib/func';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import {
@@ -49,6 +52,7 @@ import {
   railSectionClassName,
 } from './FeedWidgetRailFrame';
 import { FeedWidgetRailHeader } from './FeedWidgetRailHeader';
+import { FeedWidgetAddTile, getAddTileKinds } from './FeedWidgetAddTile';
 import { FeedWidgetAdSlot } from './widgets/FeedWidgetAdSlot';
 import {
   isBoostedPostCreative,
@@ -174,6 +178,8 @@ export const FeedWidgetRail = ({
     isPhone,
   } = useFeedWidgetAdSlot();
   const { logEvent } = useLogContext();
+  const { user } = useAuthContext();
+  const { loadedSettings, optOutReadingStreak } = useSettingsContext();
   const [isEditing, setIsEditing] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   // The widget whose config the reader is changing, out of edit mode so the
@@ -181,6 +187,7 @@ export const FeedWidgetRail = ({
   const [configuringId, setConfiguringId] = useState<string>();
   // Opened from an empty cell, a widget starts Small so it lands in that cell.
   const [addSize, setAddSize] = useState<FeedWidgetSize>();
+  const [addKind, setAddKind] = useState<FeedWidgetKind>();
   const [edges, setEdges] = useState({ start: false, end: false });
   const root = useRef<HTMLElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
@@ -366,9 +373,20 @@ export const FeedWidgetRail = ({
   }, [isEditing]);
 
   const showAddTile = canAdd && (isEditing || !isCustomized);
+  const addTileKinds = useMemo(
+    () =>
+      getAddTileKinds({
+        onRail: widgets.map(({ kind }) => kind),
+        isLoggedIn: !!user,
+        isReadingStreakOn: !(loadedSettings && optOutReadingStreak),
+        isExtension: checkIsExtension(),
+      }),
+    [widgets, user, loadedSettings, optOutReadingStreak],
+  );
 
-  const openGallery = (size?: FeedWidgetSize) => {
+  const openGallery = (size?: FeedWidgetSize, kind?: FeedWidgetKind) => {
     setAddSize(size);
+    setAddKind(kind);
     setIsGalleryOpen(true);
     logWidgetEvent(LogEvent.OpenFeedWidgetGallery, undefined, {
       source: size ? 'slot' : 'tile',
@@ -783,10 +801,9 @@ export const FeedWidgetRail = ({
               );
             })}
             {showAddTile && (
-              <button
-                type="button"
-                onClick={() => openGallery()}
-                className="flex min-h-0 snap-start flex-col items-center justify-center gap-2 rounded-16 border-2 border-dashed border-border-subtlest-secondary text-text-tertiary transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover hover:text-text-primary"
+              <FeedWidgetAddTile
+                kinds={addTileKinds}
+                onClick={() => openGallery(undefined, addTileKinds.addable[0])}
                 style={gridArea({
                   key: 'add',
                   column: layout.columns,
@@ -794,10 +811,7 @@ export const FeedWidgetRail = ({
                   colSpan: 1,
                   rowSpan: 2,
                 })}
-              >
-                <PlusIcon size={IconSize.Large} />
-                <span className="font-bold typo-callout">Add a widget</span>
-              </button>
+              />
             )}
           </div>
         </div>
@@ -809,6 +823,7 @@ export const FeedWidgetRail = ({
         <FeedWidgetGallery
           widgets={widgets}
           isFull={!canAdd}
+          initialKind={addKind}
           initialSize={addSize}
           onAdd={onAdd}
           // Only where the slot shows, so the reader sees the tips come back.

@@ -73,19 +73,6 @@ const ReadMe = () => (
           />,
         ],
         [
-          'Jobs',
-          <Code key="f">features.jobs</Code>,
-          <span key="p" className="flex flex-wrap gap-2">
-            {pr('apps', 6803)} {pr('daily-api', 4360)}
-          </span>,
-          <StoryLinks
-            key="s"
-            links={[
-              { label: 'Spec', title: titles.jobsSpec, story: 'JobsSpec' },
-            ]}
-          />,
-        ],
-        [
           'Member perks',
           <Code key="f">features.perks</Code>,
           <span key="p" className="flex flex-wrap gap-2">
@@ -106,7 +93,8 @@ const ReadMe = () => (
     />
     <P>
       Already live, for context: brand colour, header button, the verified seal
-      and Featured (PR 1, apps#6795 and daily-api#4358).
+      and Featured (PR 1, apps#6795 and daily-api#4358). Jobs left the parked
+      set and shipped behind <Code>features.jobs</Code>.
     </P>
 
     <H2>Where the code is</H2>
@@ -136,8 +124,8 @@ const ReadMe = () => (
       None of the parked code is in the app. So these stories run on main, the
       feature code is copied into <Code>parked/app/</Code>, in the same paths as{' '}
       <Code>packages/shared/src</Code> (for example{' '}
-      <Code>parked/app/features/squads/components/jobs/SquadJobs.tsx</Code> is{' '}
-      <Code>shared/src/features/squads/components/jobs/SquadJobs.tsx</Code>
+      <Code>parked/app/features/squads/components/perks/SquadPerks.tsx</Code> is{' '}
+      <Code>shared/src/features/squads/components/perks/SquadPerks.tsx</Code>
       ). Anything not copied is imported from shared. Where the copy differs
       from the parked branch, the code says “Parked:”:
     </P>
@@ -148,7 +136,7 @@ const ReadMe = () => (
           <Code>ParkedLogEvent</Code>) instead of the LogEvent enum.
         </>,
         <>
-          The jobs and perks flags are typed in{' '}
+          The perks flag is typed in{' '}
           <Code>app/features/squads/lib/features.ts</Code> instead of
           SourceFeatures.
         </>,
@@ -170,7 +158,7 @@ const ReadMe = () => (
         'Check the migration timestamp is still the newest in daily-api/src/migration and renumber if main has caught up (it already happened once).',
         'API first: merge and deploy the daily-api PR, then the apps PR. The apps side reads every new field through its own query, so the squad page never breaks while the API is a deploy behind.',
         'Sales ops switch the flag on for the customer’s squad (private route), next to verified.',
-        'Jobs and perks: once the API is live everywhere, move the jobs/perks flags into the squad fragment and delete squadJobsPerksFeaturesQueryOptions (it is only a deploy bridge).',
+        'Perks: once the API is live everywhere, move the perks flag into the squad fragment and delete squadPerksFeaturesQueryOptions (it is only a deploy bridge). Jobs already shipped, so reuse its API (daily-api src/common/squadJobs.ts) rather than the parked branch’s copy.',
         'Re-shoot the Responsive sheet for the feature and compare.',
       ]}
     />

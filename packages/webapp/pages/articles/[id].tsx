@@ -21,10 +21,7 @@ import {
   useSettingsContext,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { ReadPostContent } from '@dailydotdev/shared/src/components/post/read/ReadPostContent';
-import { hasLiveAdSlots } from '@dailydotdev/shared/src/components/post/read/slots';
-import { useReadAdSlots } from '@dailydotdev/shared/src/components/post/read/useReadAdSlots';
 import { PhoneTopAdStrip } from '@dailydotdev/shared/src/components/post/read/PhoneTopAdStrip';
-import { ContentIgniteTag } from '../../components/ContentIgniteTag';
 import { getLayout } from '../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../components/layouts/FooterNavBarLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
@@ -78,8 +75,6 @@ const ReadPostPage = ({
     id,
     options: { initialData, retry: false },
   });
-  const adSlots = useReadAdSlots(post);
-  const adsLive = hasLiveAdSlots(adSlots);
   // Display-only override; the stored theme preference is untouched and
   // restored the moment the visitor leaves.
   useEffect(() => {
@@ -109,7 +104,6 @@ const ReadPostPage = ({
         <Head>
           {!!post.image && <link rel="preload" as="image" href={post.image} />}
         </Head>
-        <ContentIgniteTag enabled={adsLive} />
         <ReadPostContent
           post={post}
           // 72rem, wider than the standard template's 69.25rem: the main column

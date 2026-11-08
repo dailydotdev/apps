@@ -6,7 +6,7 @@ import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import Link from '../../../components/utilities/Link';
 import { useLiveChatHighlight } from '../hooks/useLiveChatHighlight';
 import { formatOccupants, formatTimeLeft } from '../timeLeft';
-import { withJoinIntent } from '../joinLink';
+import { getChatRoomHref } from '../joinLink';
 import { LiveDot } from './LiveDot';
 import { LiveChatJoinChip } from './LiveChatHighlightRow';
 
@@ -20,10 +20,9 @@ export const LiveChatHighlightCardRow = ({
 }): ReactElement | null => {
   const { logEvent } = useLogContext();
   const { room, isPending } = useLiveChatHighlight();
-  // The row is the yes: landing on the post joins the chat right away.
-  const href = room?.post?.commentsPermalink
-    ? withJoinIntent(room.post.commentsPermalink)
-    : undefined;
+  // The row is the yes: landing on the post joins the chat right away, and
+  // a topic room's page joins on its own.
+  const href = room ? getChatRoomHref(room) : undefined;
   // The card has painted by the time the rooms answer; holding the row's
   // height meanwhile keeps the headlines from jumping.
   if (isPending) {

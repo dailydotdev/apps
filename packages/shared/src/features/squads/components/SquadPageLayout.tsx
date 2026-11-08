@@ -16,8 +16,29 @@ import { usePassedBlock } from '../../../components/shell/usePassedBlock';
 
 enum SquadPageTab {
   Posts = 'Posts',
+  Jobs = 'Jobs',
   About = 'About',
 }
+
+// Jobs and About have their own address, the same page with that tab open
+const tabSegments: Partial<Record<SquadPageTab, string>> = {
+  [SquadPageTab.Jobs]: 'jobs',
+  [SquadPageTab.About]: 'about',
+};
+
+const getPathTab = (
+  path: string,
+): { squadPath: string; requestedTab: SquadPageTab } => {
+  const [, squadPath, segment] =
+    path.match(/^(.*\/squads\/[^/]+)(?:\/([^/]+))?$/) ?? [];
+  const requestedTab = (Object.keys(tabSegments) as SquadPageTab[]).find(
+    (tab) => tabSegments[tab] === segment,
+  );
+
+  return requestedTab
+    ? { squadPath, requestedTab }
+    : { squadPath: path, requestedTab: SquadPageTab.Posts };
+};
 
 interface SquadPageLayoutProps {
   /** The card's top: the profile header on the page, a title bar elsewhere. */
@@ -30,6 +51,11 @@ interface SquadPageLayoutProps {
    * It stays in the DOM either way, since crawlers read the phone render.
    */
   hasAboutTab?: boolean;
+  /**
+   * A verified squad's jobs board, a Jobs tab beside Posts. From laptop the
+   * tabs sit over the feed; below laptop they join the About tab.
+   */
+  jobs?: ReactNode;
 }
 
 // One right column for every width: from laptop it sits beside the card,
@@ -40,33 +66,66 @@ export const SquadPageLayout = ({
   belowHeader,
   children,
   hasAboutTab = false,
+  jobs,
 }: SquadPageLayoutProps): ReactElement => {
   const router = useRouter();
   const path = (router?.asPath ?? '').split(/[?#]/)[0];
-  const squadPath = path.replace(/\/about$/, '');
-  const pathTab = path.endsWith('/about')
-    ? SquadPageTab.About
+  const tabs = [
+    SquadPageTab.Posts,
+    ...(jobs ? [SquadPageTab.Jobs] : []),
+    ...(hasAboutTab ? [SquadPageTab.About] : []),
+  ];
+  const { squadPath, requestedTab } = getPathTab(path);
+  const pathTab = tabs.includes(requestedTab)
+    ? requestedTab
     : SquadPageTab.Posts;
   const [tabletTab, setTabletTab] = useState(pathTab);
   // A segment is a view of the page: it replaces the entry, keeps the
   // reader's place and does not ask the server for the squad again.
   const setTab = (next: SquadPageTab) =>
     router.replace(
-      next === SquadPageTab.About ? `${squadPath}/about` : squadPath,
+      tabSegments[next] ? `${squadPath}/${tabSegments[next]}` : squadPath,
       undefined,
       { shallow: true, scroll: false },
     );
+  // From tablet About is a view, not an address, as laptop shows it as the
+  // right column. Jobs keeps its address, so Back from a role returns to it.
+  const onTabletSelect = (next: SquadPageTab) => {
+    setTabletTab(next);
+    if (next !== SquadPageTab.About) {
+      setTab(next);
+    }
+  };
   const isPhone = useIsPhone();
   const tab = isPhone ? pathTab : tabletTab;
   const isAbout = hasAboutTab && tab === SquadPageTab.About;
+  const isJobs = !!jobs && tab === SquadPageTab.Jobs;
+  const hasTabs = tabs.length > 1;
   const tabsRef = useRef<HTMLDivElement>(null);
-  const haveTabsPassed = usePassedBlock(tabsRef, isPhone && hasAboutTab);
-  const segments = Object.values(SquadPageTab).map((item) => ({
+  const haveTabsPassed = usePassedBlock(tabsRef, isPhone && hasTabs);
+  const segments = tabs.map((item) => ({
     key: item,
     label: item,
     active: pathTab === item,
     onClick: () => setTab(item),
   }));
+  const renderTabletTabs = (items: SquadPageTab[], active: SquadPageTab) => (
+    <SquadDirectoryNavbar
+      aria-label={items.join(', ')}
+      className="!mx-0 !border-0 !px-0"
+    >
+      {items.map((item) => (
+        <SquadDirectoryNavbarItem
+          key={item}
+          buttonSize={ButtonSize.Small}
+          isActive={active === item}
+          label={item}
+          ariaLabel={item}
+          onClick={() => onTabletSelect(item)}
+        />
+      ))}
+    </SquadDirectoryNavbar>
+  );
 
   return (
     <div className="mx-auto flex w-full flex-col laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
@@ -85,7 +144,7 @@ export const SquadPageLayout = ({
             </ShellRow>
           </ShellDockedRow>
         )}
-        {hasAboutTab && (
+        {hasTabs && (
           <div
             ref={tabsRef}
             className="order-2 border-t border-border-subtlest-tertiary laptop:hidden"
@@ -96,21 +155,7 @@ export const SquadPageLayout = ({
               </ShellRow>
             </div>
             <div className="hidden px-6 tablet:block">
-              <SquadDirectoryNavbar
-                aria-label="Posts and About"
-                className="!mx-0 !border-0 !px-0"
-              >
-                {Object.values(SquadPageTab).map((item) => (
-                  <SquadDirectoryNavbarItem
-                    key={item}
-                    buttonSize={ButtonSize.Small}
-                    isActive={tabletTab === item}
-                    label={item}
-                    ariaLabel={item}
-                    onClick={() => setTabletTab(item)}
-                  />
-                ))}
-              </SquadDirectoryNavbar>
+              {renderTabletTabs(tabs, tabletTab)}
             </div>
           </div>
         )}
@@ -120,7 +165,15 @@ export const SquadPageLayout = ({
             isAbout ? 'hidden' : 'flex',
           )}
         >
-          {children}
+          {!!jobs && (
+            <div className="hidden border-t border-border-subtlest-tertiary px-6 laptop:block">
+              {renderTabletTabs(
+                [SquadPageTab.Posts, SquadPageTab.Jobs],
+                isJobs ? SquadPageTab.Jobs : SquadPageTab.Posts,
+              )}
+            </div>
+          )}
+          {isJobs ? jobs : children}
         </div>
       </div>
       <aside

@@ -33,6 +33,7 @@ import { ShareIcon, SortIcon, StarIcon } from './icons';
 import Link from './utilities/Link';
 import { useFeature } from './GrowthBookProvider';
 import { featureWeeklyPicks } from '../lib/featureManagement';
+import { myCurrentPicksQueryOptions } from '../graphql/picks';
 import { IconSize } from './Icon';
 import {
   findIndexOfPostInData,
@@ -143,6 +144,13 @@ export default function BookmarkFeedLayout({
   const bookmarkPath = (router.asPath ?? router.pathname ?? '').split('?')[0];
   const { user } = useContext(AuthContext);
   const isWeeklyPicksEnabled = useFeature(featureWeeklyPicks);
+  // Someone who created picks from a shared link is outside the flag but
+  // still needs a way back to edit them this week.
+  const { data: currentPicks } = useQuery(myCurrentPicksQueryOptions(user));
+  const showPicksButton = !!user && (isWeeklyPicksEnabled || !!currentPicks);
+  const picksLabel = currentPicks
+    ? "Edit this week's picks"
+    : 'Make your picks';
   const { logEvent } = useLogContext();
   const isPhone = useIsPhone();
   const isLaptop = useViewSizeClient(ViewSize.Laptop);
@@ -670,18 +678,18 @@ export default function BookmarkFeedLayout({
       variant={isPhone ? ButtonVariant.Tertiary : ButtonVariant.Float}
     />
   );
-  const picksButton = !!user && isWeeklyPicksEnabled && (
+  const picksButton = showPicksButton && (
     <Link href={`${webappUrl}picks/new?origin=bookmarks`} passHref>
       <Button
         tag="a"
-        aria-label="Make your picks"
+        aria-label={picksLabel}
         size={ButtonSize.Small}
         variant={isPhone ? ButtonVariant.Tertiary : ButtonVariant.Secondary}
         icon={
           isPhone ? <StarIcon size={IconSize.Small} aria-hidden /> : undefined
         }
       >
-        {isPhone ? undefined : 'Make your picks'}
+        {isPhone ? undefined : picksLabel}
       </Button>
     </Link>
   );

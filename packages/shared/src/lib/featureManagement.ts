@@ -255,15 +255,6 @@ export const featureSponsorStrip = new Feature('sponsor_strip', isDevelopment);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 
-// Experiment: list cards (the phone and tablet feed, and the desktop list
-// layout) get the grid bar: 32px buttons, 19px icons and the number 4px from
-// its icon. The bookmark stays in the bar and the row grows to fit, so the card
-// is 8px taller. Only list bars evaluate it, for logged-in users.
-export const featureListCardLargeActions = new Feature(
-  'list_card_large_actions',
-  false,
-);
-
 // Experiment: grid cards show the post's TLDR under the title, clamped, with
 // "Show more" to read it inside the card. Only grid cards with a TLDR evaluate
 // it, so only readers on the grid layout are enrolled.
@@ -347,15 +338,13 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
   },
 );
 
-// Emergency kill switch for the /read template's ads — NOT an experiment, so
-// the true default is deliberate: the surface ships always-on (it is only
-// reachable through paid placements), and the flag exists solely so a policy
-// warning, bad creative or revenue anomaly can be stopped without a deploy
-// and an ISR revalidation cycle. Never ramp or target with this flag.
-export const featureReadAds = new Feature('read_ads', true);
-
-// Kill switch for the post page's programmatic (Content Ignite) slots, off for now.
-// Turning it on in GrowthBook brings them back without a deploy.
+// Kill switches for the programmatic slots, NOT experiments: never ramp or
+// target with them. Both are off while no ad partner's tag fills the slots;
+// turning one on in GrowthBook brings that surface's anchors back without
+// a deploy once a tag is wired up again.
+// The /read template's slots.
+export const featureReadAds = new Feature('read_ads', false);
+// The organic post page's slots.
 export const featureOrganicAds = new Feature('organic_ads', false);
 
 // Shows ads to a Plus member wherever a free reader would get them, so the
@@ -373,10 +362,6 @@ export type ExcoPlayerConfig = {
 export const featureExcoPlayer = new Feature<ExcoPlayerConfig>('exco_player', {
   playerId: '',
 });
-
-// Explain mode on For You: why each card is on the feed, with the For You
-// controls. On whatever feed version the reader has.
-export const featureFeedExplain = new Feature('feed_explain', false);
 
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.

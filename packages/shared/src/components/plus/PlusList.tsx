@@ -17,6 +17,7 @@ import {
   ShieldPlusIcon,
   TourIcon,
 } from '../icons';
+import { FilterIcon } from '../icons/Filter';
 import {
   plusShowcaseAdFreeImage,
   plusShowcaseBookmarkImage,
@@ -94,6 +95,15 @@ export const plusFeatureList: Array<PlusItem> = [
       imageUrl: plusShowcaseCustomFeedsImage,
       mediaType: 'video',
     },
+  },
+  {
+    id: 'feed-controls',
+    label: 'Fine-tune your For You feed',
+    perk: 'Fine-tunes your For You feed',
+    status: PlusItemStatus.Ready,
+    tooltip: `Set an exact weight for any topic, source, or creator, and make changes that end after three days or a week. Your agent can do the same through the public API and MCP tools.`,
+    icon: <FilterIcon secondary />,
+    iconClasses: 'bg-overlay-float-onion text-accent-onion-default',
   },
   {
     id: 'clean titles',

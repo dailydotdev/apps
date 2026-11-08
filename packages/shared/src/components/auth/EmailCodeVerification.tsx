@@ -8,6 +8,7 @@ import {
 } from '../../features/onboarding/shared/FunnelGlassBar';
 import type { AuthFormProps } from './common';
 import AuthForm from './AuthForm';
+import { AuthScreenMail, AuthScreenTitle } from './AuthScreenTitle';
 import { AuthActionBar } from './AuthActionBar';
 import { AuthEventNames } from '../../lib/auth';
 import { useLogContext } from '../../contexts/LogContext';
@@ -29,6 +30,7 @@ interface EmailCodeVerificationProps extends AuthFormProps {
   onResendCode?: () => Promise<void>;
   isOnboardingFunnel?: boolean;
   onChangeEmail?: () => void;
+  isStartups?: boolean;
 }
 
 const noop = (): void => undefined;
@@ -43,6 +45,7 @@ function EmailCodeVerification({
   onResendCode,
   isOnboardingFunnel,
   onChangeEmail,
+  isStartups,
 }: EmailCodeVerificationProps): ReactElement {
   const { email } = useAuthData();
   const { logEvent } = useLogContext();
@@ -73,7 +76,11 @@ function EmailCodeVerification({
       onSubmit?.();
     } catch (err) {
       verifyingRef.current = false;
-      setHint(err instanceof Error ? err.message : 'Verification failed');
+      if (isStartups) {
+        setHint("That code didn't match. Check it and try again.");
+      } else {
+        setHint(err instanceof Error ? err.message : 'Verification failed');
+      }
     } finally {
       setIsVerifying(false);
     }
@@ -184,6 +191,95 @@ function EmailCodeVerification({
       setHint('');
     }
   };
+
+  if (isStartups) {
+    return (
+      <AuthForm
+        className="flex flex-col gap-6"
+        onSubmit={onCodeVerification}
+        data-testid="email_verification_form"
+      >
+        <AuthScreenMail />
+        <AuthScreenTitle
+          title="Check your email"
+          description={
+            <>
+              We sent a 6-digit code to{' '}
+              <span className="break-words font-bold text-text-primary">
+                {email}
+              </span>
+              . Check your spam folder if it isn&apos;t there.
+            </>
+          }
+        />
+        <input
+          type="text"
+          id="email"
+          name="email"
+          value={email}
+          hidden
+          readOnly
+        />
+        <div className="flex flex-col gap-2">
+          <CodeField
+            defaultValue={linkedCode}
+            onSubmit={onCodeSubmit}
+            onChange={onCodeChange}
+            disabled={isVerifying}
+            invalid={!!hint}
+          />
+          <p
+            role="alert"
+            className="text-status-error typo-footnote"
+            style={{ minHeight: 18 }}
+          >
+            {hint}
+          </p>
+        </div>
+        <div
+          className="flex flex-col items-start gap-1 text-text-tertiary typo-callout"
+          style={{ marginTop: -12 }}
+        >
+          <p>Didn&apos;t get a verification code?</p>
+          <button
+            type="button"
+            disabled={resendTimer > 0}
+            onClick={onSendCode}
+            className={classNames(
+              'tabular-nums',
+              resendTimer === 0 ? 'text-text-link' : 'text-text-disabled',
+            )}
+          >
+            Resend code
+            {resendTimer > 0 && ` ${resendTimer}s`}
+          </button>
+          {onChangeEmail && (
+            <p className="pt-1">
+              Wrong email?{' '}
+              <button
+                type="button"
+                onClick={onChangeEmail}
+                className="text-text-link"
+              >
+                Change email
+              </button>
+            </p>
+          )}
+        </div>
+        <FunnelGlassBar>
+          <Button
+            className={funnelGlassBarCta}
+            type="submit"
+            size={ButtonSize.Medium}
+            variant={ButtonVariant.Primary}
+            loading={isVerifying}
+          >
+            Verify
+          </Button>
+        </FunnelGlassBar>
+      </AuthForm>
+    );
+  }
 
   return (
     <AuthForm

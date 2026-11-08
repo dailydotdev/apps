@@ -57,6 +57,8 @@ export enum Origin {
   SquadJoinSuggestions = 'squad join suggestions',
   SquadJoinSuggestionsPromoted = 'squad join suggestions promoted',
   SquadManagePlan = 'squad manage plan',
+  SquadManageIntel = 'squad manage intel',
+  SquadIntel = 'squad intel',
   StartupsCheckout = 'startups checkout',
   // squads - end
   // Looking for group - start
@@ -92,6 +94,11 @@ export enum Origin {
   HappeningNowHighlight = 'happening now highlight',
   HappeningNowSelection = 'happening now selection',
   HighlightsCard = 'highlights card',
+  LiveChatPage = 'live chat page',
+  NewLiveChat = 'new live chat',
+  // Landed from the go-live push, or from a link pasted somewhere.
+  Push = 'push',
+  DirectLink = 'direct link',
   SnapshotSharePanel = 'snapshot share panel',
   // snapshot placements - end
   // profile share placements - start
@@ -261,6 +268,8 @@ export enum LogEvent {
   ToggleSquadPreview = 'toggle squad preview',
   ClickSquadLink = 'click squad link',
   ClickSquadProduct = 'click squad product',
+  ClickSquadJob = 'click squad job',
+  ClickSquadJobApply = 'click squad job apply',
   ClickSquadHeaderButton = 'click squad header button',
   ClickSimilarSquad = 'click similar squad',
   DismissSquadJoinSuggestions = 'dismiss squad join suggestions',
@@ -458,6 +467,10 @@ export enum LogEvent {
   SelectStartupsSetupPath = 'select startups setup path',
   CopyStartupsSetup = 'copy startups setup',
   ClickStartupsSetupStep = 'click startups setup step',
+  SelectStartupsGoal = 'select startups goal',
+  SkipStartupsGoal = 'skip startups goal',
+  UpdateSquadIntel = 'update squad intel',
+  CopySquadIntel = 'copy squad intel',
   PageScroll = 'page scroll',
   SelectSubscriptionType = 'select subscription type',
   SetOrgSize = 'set org size',
@@ -506,6 +519,7 @@ export enum LogEvent {
   ViewPicksPage = 'view picks page',
   ClickPickPost = 'click pick post',
   ClickMakeYourPicks = 'click make your picks',
+  ClickAddToPicks = 'click add to picks',
   // End Weekly picks
   // The creator copied a link to, or downloaded the card of, one of their
   // achievements. Records the action, not that anything was posted anywhere.
@@ -662,7 +676,12 @@ export enum LogEvent {
   DeclineDirectMessageRequest = 'decline direct message request',
   // Live chat rooms
   OpenLiveChat = 'open live chat',
+  StartLiveChat = 'start live chat',
+  // Seated in the room, reading along, before (or without) joining.
+  ReadLiveChat = 'read live chat',
   JoinLiveChat = 'join live chat',
+  EndLiveChat = 'end live chat',
+  BanLiveChatUser = 'ban live chat user',
   LeaveLiveChat = 'leave live chat',
   SendLiveChatMessage = 'send live chat message',
   ReactLiveChatMessage = 'react live chat message',

@@ -88,7 +88,6 @@ import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/Engage
 import { getEngagementLogExtra } from '@dailydotdev/shared/src/lib/engagementAds';
 import { isSourceAdFree } from '@dailydotdev/shared/src/lib/ads';
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
-import { ContentIgniteTag } from '../../../components/ContentIgniteTag';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
@@ -401,7 +400,6 @@ export const PostPage = ({
             <Head>
               <link rel="preload" as="image" href={post?.image} />
             </Head>
-            <ContentIgniteTag enabled={adsActive} />
             <PostSEOSchema post={post} topComments={topComments} />
             <Content
               position={position}

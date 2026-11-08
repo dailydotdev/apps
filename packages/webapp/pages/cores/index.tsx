@@ -20,6 +20,7 @@ import {
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 
 import classNames from 'classnames';
+import { StartupsBuyCoresPromo } from '@dailydotdev/shared/src/features/squads/components/promos/StartupsPromo';
 import {
   Typography,
   TypographyType,
@@ -95,6 +96,12 @@ export const PageCoreOptions = ({
       className={classNames('p-6', className)}
       title={title}
       showCoresAtCheckout={showCoresAtCheckout}
+      promo={
+        <StartupsBuyCoresPromo
+          className="text-left"
+          isPersonalAllowed={false}
+        />
+      }
     />
   );
 };

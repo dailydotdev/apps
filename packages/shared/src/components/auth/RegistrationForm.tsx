@@ -27,6 +27,9 @@ import type { CloseModalFunc } from '../modals/common';
 import TokenInput from './TokenField';
 import AuthForm from './AuthForm';
 import AuthHeader from './AuthHeader';
+import { AuthScreenTitle } from './AuthScreenTitle';
+import SignupDisclaimer from './SignupDisclaimer';
+import { generateUsername } from '../../graphql/users';
 import { AuthActionBar } from './AuthActionBar';
 import { useTurnstileTheme } from '../../hooks/auth/useTurnstileTheme';
 import { MemberAlready } from '../onboarding/MemberAlready';
@@ -83,6 +86,12 @@ export interface RegistrationFormProps extends AuthFormProps {
   // Post-signup onboarding only: the funnel's headline scale, and the glass bar
   // around Sign up, so this screen matches the steps after it.
   isOnboardingFunnel?: boolean;
+  /**
+   * The daily.dev for Startups page: its own full-page layout, and only email,
+   * name and password. The username is generated, as it is for a social signup
+   * there, and only shown if it needs fixing.
+   */
+  isStartups?: boolean;
 }
 
 export type RegistrationFormValues = Omit<
@@ -91,6 +100,26 @@ export type RegistrationFormValues = Omit<
 > & {
   'cf-turnstile-response'?: string;
   turnstileToken?: string;
+};
+
+const getStartupsFieldErrors = (form: FormData): RegistrationError => {
+  const errors: RegistrationError = {};
+  const email = String(form.get('traits.email') ?? '').trim();
+  const password = String(form.get('password') ?? '');
+
+  if (!email) {
+    errors['traits.email'] = 'Enter your email';
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errors['traits.email'] = 'Enter a valid email address';
+  }
+  if (!String(form.get('traits.name') ?? '').trim()) {
+    errors['traits.name'] = 'Add your name so your team recognizes you.';
+  }
+  if (password.length < 8) {
+    errors.password = 'Use at least 8 characters.';
+  }
+
+  return errors;
 };
 
 const RegistrationForm = ({
@@ -109,6 +138,7 @@ const RegistrationForm = ({
   extraFields = [],
   showHeadline = true,
   isOnboardingFunnel,
+  isStartups,
 }: RegistrationFormProps): ReactElement => {
   const { email } = useAuthData();
   const { logEvent } = useLogContext();
@@ -127,9 +157,14 @@ const RegistrationForm = ({
     setUsername,
     isLoading: isLoadingUsername,
   } = useGenerateUsername(name);
+  const [isUsernameVisible, setIsUsernameVisible] = useState(!isStartups);
   const turnstileRef = useRef<TurnstileInstance>(null);
   // The ref guards against double submits synchronously; the state drives the
   // button's loading spinner while we wait for the Turnstile token.
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_KEY ?? '';
+  // With no key there's nothing to wait for, as on the log-in form
+  const isTurnstilePending =
+    !turnstileLoaded && (!isStartups || !!turnstileSiteKey);
   const isVerifyingTurnstileRef = useRef(false);
   const [isVerifyingTurnstile, setIsVerifyingTurnstile] = useState(false);
   const isTurnstileInteractiveRef = useRef(false);
@@ -153,12 +188,15 @@ const RegistrationForm = ({
       if (hints?.csrf_token) {
         setTurnstileError(true);
       }
+      if (hints?.['traits.username']) {
+        setIsUsernameVisible(true);
+      }
       turnstileRef?.current?.reset();
     }
   }, [hints]);
 
   useEffect(() => {
-    if (turnstileLoaded) {
+    if (!isTurnstilePending) {
       return () => {};
     }
 
@@ -172,7 +210,7 @@ const RegistrationForm = ({
     }, 5000);
 
     return () => clearTimeout(turnstileLoadTimeout);
-  }, [turnstileLoaded]);
+  }, [isTurnstilePending, turnstileLoaded]);
 
   const {
     email: { isCheckPending, alreadyExists },
@@ -209,6 +247,17 @@ const RegistrationForm = ({
     );
     delete values['cf-turnstile-response'];
 
+    // Pressing Enter in the name field submits before its blur asks for one
+    if (
+      !isUsernameVisible &&
+      !values['traits.username']?.length &&
+      values['traits.name']?.length
+    ) {
+      values['traits.username'] = await generateUsername(
+        values['traits.name'],
+      ).catch(() => '');
+    }
+
     const requiresExperienceLevel = !hideExperienceLevel;
     // Cloud provider is mandatory only when the funnel requests it (the
     // campaign flow); company/job title stay optional.
@@ -222,7 +271,9 @@ const RegistrationForm = ({
       const setHints = { ...hints };
 
       if (!values['traits.name']?.length) {
-        setHints['traits.name'] = 'Please provide name.';
+        setHints['traits.name'] = isStartups
+          ? 'Add your name so your team recognizes you.'
+          : 'Please provide name.';
       }
       if (!values['traits.username']?.length) {
         setHints['traits.username'] = 'Please provide username.';
@@ -302,7 +353,8 @@ const RegistrationForm = ({
 
     onSignup({
       ...values,
-      'traits.acceptedMarketing': !optOutMarketing,
+      // No opt-out on this form, so nobody is signed up to marketing by it
+      'traits.acceptedMarketing': isStartups ? false : !optOutMarketing,
       // Set experience level to "not an engineer" for recruiters
       ...(isRecruiterOnboarding && {
         'traits.experienceLevel': 'NOT_ENGINEER',
@@ -312,6 +364,18 @@ const RegistrationForm = ({
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
+    if (isStartups) {
+      e.preventDefault();
+      const errors = getStartupsFieldErrors(
+        new FormData(e.target as HTMLFormElement),
+      );
+      if (Object.keys(errors).length) {
+        setIsSubmitted(true);
+        onUpdateHints({ ...hints, ...errors });
+        return;
+      }
+    }
+
     const emailCheck = await onEmailCheck(e);
     if (!!emailCheck && emailCheck.emailValue && !emailCheck.emailExists) {
       await onSubmit(e);
@@ -350,16 +414,20 @@ const RegistrationForm = ({
     return undefined;
   })();
 
-  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_KEY ?? '';
+  const hasGlassBar = !!isOnboardingFunnel || !!isStartups;
 
   return (
-    <div className="flex flex-1 flex-col">
-      <AuthHeader
-        simplified={simplified}
-        onboardingHeadline={isOnboardingFunnel}
-        title={headerTitle}
-        onBack={simplified ? undefined : onBack}
-      />
+    <div className={classNames('flex flex-1 flex-col', isStartups && 'gap-6')}>
+      {isStartups ? (
+        <AuthScreenTitle title="Create your account" />
+      ) : (
+        <AuthHeader
+          simplified={simplified}
+          onboardingHeadline={isOnboardingFunnel}
+          title={headerTitle}
+          onBack={simplified ? undefined : onBack}
+        />
+      )}
       <div
         className={classNames(
           // `simplified` is set by `/onboarding`, where the outer page already
@@ -396,46 +464,56 @@ const RegistrationForm = ({
           </div>
         )}
         <AuthForm
-          className={classNames(
-            'w-full flex-1 place-items-center self-center',
-            simplified ? 'gap-2' : 'gap-1',
-            simplified ? 'mt-10 overflow-y-auto pb-2' : 'mt-6',
-          )}
+          className={
+            isStartups
+              ? 'w-full gap-1'
+              : classNames(
+                  'w-full flex-1 place-items-center self-center',
+                  simplified ? 'gap-2' : 'gap-1',
+                  simplified ? 'mt-10 overflow-y-auto pb-2' : 'mt-6',
+                )
+          }
           data-testid="registration_form"
           id="auth-form"
+          noValidate={isStartups}
           onSubmit={handleFormSubmit}
           ref={formRef}
         >
           {token && <TokenInput token={token} />}
           <TextField
-            autoFocus
+            autoFocus={!isStartups}
             autoComplete="email"
             saveHintSpace
+            valid={isStartups && hints?.['traits.email'] ? false : undefined}
+            hint={isStartups ? hints?.['traits.email'] : undefined}
             className={{ container: 'w-full' }}
             leftIcon={<MailIcon aria-hidden role="presentation" />}
             name="traits.email"
             inputId="email"
-            label="Email"
+            label={isStartups ? 'Work email' : 'Email'}
             type="email"
             value={email}
             onChange={(e) => {
               if (!e.target.value || !e.target.validity.valid) {
                 setIsEmailFilled(false);
               }
+              if (isStartups && hints?.['traits.email']) {
+                onUpdateHints({ ...hints, 'traits.email': '' });
+              }
             }}
             onBlur={(e) =>
               setIsEmailFilled(!!e.target.value && e.target.validity.valid)
             }
-            rightIcon={isEmailFilled ? successIcon : undefined}
+            rightIcon={isEmailFilled && !isStartups ? successIcon : undefined}
           />
-          {hints?.['traits.email'] && !alreadyExists && (
+          {!isStartups && hints?.['traits.email'] && !alreadyExists && (
             <Alert
               className="-mt-4 mb-3 min-w-full"
               type={AlertType.Error}
               title={hints['traits.email']}
             />
           )}
-          {alreadyExists && (
+          {!isStartups && alreadyExists && (
             <Alert
               className="-mt-4 mb-3 min-w-full"
               type={AlertType.Error}
@@ -469,7 +547,7 @@ const RegistrationForm = ({
             leftIcon={<UserIcon aria-hidden role="presentation" />}
             name="traits.name"
             inputId="traits.name"
-            label="Name"
+            label={isStartups ? 'Your name' : 'Name'}
             hint={hints?.['traits.name']}
             value={name}
             onBlur={(e) => setName(e.target.value)}
@@ -477,12 +555,17 @@ const RegistrationForm = ({
               hints?.['traits.name'] &&
               onUpdateHints({ ...hints, 'traits.name': '' })
             }
-            rightIcon={isNameFilled && isNameValid ? successIcon : undefined}
+            rightIcon={
+              isNameFilled && isNameValid && !isStartups
+                ? successIcon
+                : undefined
+            }
           />
           <PasswordField
             required
             minLength={8}
             maxLength={72}
+            showMaxLength={!isStartups}
             saveHintSpace
             className={{ container: 'w-full' }}
             name="password"
@@ -494,28 +577,33 @@ const RegistrationForm = ({
               hints?.password && onUpdateHints({ ...hints, password: '' })
             }
           />
-          <TextField
-            autoComplete="user"
-            saveHintSpace
-            className={{ container: 'w-full' }}
-            valid={isLoadingUsername || isUsernameValid}
-            leftIcon={<AtIcon aria-hidden role="presentation" />}
-            name="traits.username"
-            inputId="traits.username"
-            label="Enter a username"
-            value={username}
-            onBlur={(e) => setUsername(e.target.value)}
-            hint={
-              isLoadingUsername
-                ? labels.generatingUsername
-                : hints?.['traits.username']
-            }
-            valueChanged={() =>
-              hints?.['traits.username'] &&
-              onUpdateHints({ ...hints, 'traits.username': '' })
-            }
-            rightIcon={usernameIcon}
-          />
+          {!isUsernameVisible && (
+            <input type="hidden" name="traits.username" value={username} />
+          )}
+          {isUsernameVisible && (
+            <TextField
+              autoComplete="user"
+              saveHintSpace
+              className={{ container: 'w-full' }}
+              valid={isLoadingUsername || isUsernameValid}
+              leftIcon={<AtIcon aria-hidden role="presentation" />}
+              name="traits.username"
+              inputId="traits.username"
+              label="Enter a username"
+              value={username}
+              onBlur={(e) => setUsername(e.target.value)}
+              hint={
+                isLoadingUsername
+                  ? labels.generatingUsername
+                  : hints?.['traits.username']
+              }
+              valueChanged={() =>
+                hints?.['traits.username'] &&
+                onUpdateHints({ ...hints, 'traits.username': '' })
+              }
+              rightIcon={usernameIcon}
+            />
+          )}
           {!hideExperienceLevel && (
             <ExperienceLevelDropdown
               className={{ container: 'w-full' }}
@@ -564,16 +652,22 @@ const RegistrationForm = ({
               saveHintSpace
             />
           )}
-          <Checkbox className="w-full" name="optOutMarketing">
-            I don&apos;t want to receive updates and promotions via email
-          </Checkbox>
+          {!isStartups && (
+            <Checkbox className="w-full" name="optOutMarketing">
+              I don&apos;t want to receive updates and promotions via email
+            </Checkbox>
+          )}
           <ConditionalWrapper
             condition={simplified ?? false}
-            wrapper={(component) => (
-              <AuthContainer className="!mt-0 !px-0 pb-1 pt-1">
-                {component}
-              </AuthContainer>
-            )}
+            wrapper={(component) =>
+              isStartups ? (
+                <div className="mt-2 flex flex-col">{component}</div>
+              ) : (
+                <AuthContainer className="!mt-0 !px-0 pb-1 pt-1">
+                  {component}
+                </AuthContainer>
+              )
+            }
           >
             <Turnstile
               ref={turnstileRef}
@@ -616,7 +710,7 @@ const RegistrationForm = ({
             {!simplified ? (
               <AuthActionBar
                 data-funnel-track={FunnelTargetId.StepCta}
-                disabled={isCheckPending || !turnstileLoaded}
+                disabled={isCheckPending || isTurnstilePending}
                 form="auth-form"
                 loading={isVerifyingTurnstile}
                 type="submit"
@@ -625,24 +719,22 @@ const RegistrationForm = ({
               </AuthActionBar>
             ) : (
               <ConditionalWrapper
-                condition={!!isOnboardingFunnel}
+                condition={hasGlassBar}
                 wrapper={(component) => (
                   <FunnelGlassBar>{component}</FunnelGlassBar>
                 )}
               >
                 <Button
-                  className={isOnboardingFunnel ? funnelGlassBarCta : 'w-full'}
+                  className={hasGlassBar ? funnelGlassBarCta : 'w-full'}
                   data-funnel-track={FunnelTargetId.StepCta}
-                  disabled={isCheckPending || !turnstileLoaded}
+                  disabled={isCheckPending || isTurnstilePending}
                   form="auth-form"
                   loading={isVerifyingTurnstile}
-                  size={
-                    isOnboardingFunnel ? ButtonSize.Medium : ButtonSize.Large
-                  }
+                  size={hasGlassBar ? ButtonSize.Medium : ButtonSize.Large}
                   type="submit"
                   variant={ButtonVariant.Primary}
                 >
-                  Sign up
+                  {isStartups ? 'Continue' : 'Sign up'}
                 </Button>
               </ConditionalWrapper>
             )}
@@ -659,6 +751,9 @@ const RegistrationForm = ({
           </ConditionalWrapper>
         </AuthForm>
       </div>
+      {isStartups && (
+        <SignupDisclaimer className="!text-left !text-text-tertiary" />
+      )}
     </div>
   );
 };

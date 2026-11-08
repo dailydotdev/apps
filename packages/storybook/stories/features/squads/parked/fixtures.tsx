@@ -18,17 +18,13 @@ import {
   squadMembersPreviewQueryOptions,
 } from '@dailydotdev/shared/src/graphql/squads';
 import { squadProductsQueryOptions } from '@dailydotdev/shared/src/graphql/squadProducts';
-import type { SquadJob, SquadPerk } from './app/graphql/squadJobsPerks';
+import type { SquadPerk } from './app/graphql/squadPerks';
 import {
-  SquadJobEmploymentType,
-  SquadJobWorkplace,
   SquadPerkCodeKind,
-  squadJobQueryOptions,
-  squadJobsPerksFeaturesQueryOptions,
-  squadJobsQueryOptions,
   squadPerkQueryOptions,
+  squadPerksFeaturesQueryOptions,
   squadPerksQueryOptions,
-} from './app/graphql/squadJobsPerks';
+} from './app/graphql/squadPerks';
 import type {
   SquadAudience,
   SquadWelcome,
@@ -68,7 +64,7 @@ const member = (index: number, role: SourceMemberRole): SourceMember =>
       permalink: `https://app.daily.dev/${team[index].username}`,
       reputation: team[index].reputation,
     },
-  } as unknown as SourceMember);
+  }) as unknown as SourceMember;
 
 export const rules = [
   { title: 'Stay on topic' },
@@ -108,7 +104,7 @@ export const visitorSquad = {
     totalAwards: 0,
   },
   // Paid squads are ad-free, which also leaves out Similar squads
-  features: { verified: true, adFree: true, jobs: true, perks: true },
+  features: { verified: true, adFree: true, perks: true },
 } as unknown as Squad;
 
 export const memberSquad = {
@@ -139,129 +135,11 @@ export const squadFor: Record<Viewer, Squad> = {
   [Viewer.Admin]: adminSquad,
 };
 
-/* --------------------------------------------------------------- jobs */
-
 const daysAgo = (days: number): string =>
   new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
 
 const daysFromNow = (days: number): string =>
   new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
-
-const job = (extra: Partial<SquadJob> & Pick<SquadJob, 'id'>): SquadJob => ({
-  sourceId: 'coderabbit',
-  title: 'Senior Software Engineer, Agents',
-  team: 'Engineering',
-  location: 'San Francisco',
-  workplace: SquadJobWorkplace.OnSite,
-  employmentType: SquadJobEmploymentType.FullTime,
-  salary: '$190K–$240K',
-  about:
-    'Build the agents that review millions of pull requests a week. You will own how they read a codebase, decide what matters and explain it to the people who wrote it.',
-  bullets: [
-    'Design and ship agent workflows end to end',
-    'Measure review quality on real pull requests',
-    'Work with the code graph and model teams',
-  ],
-  applyUrl: 'https://www.coderabbit.ai/careers/agents',
-  createdAt: daysAgo(2),
-  ...extra,
-});
-
-export const jobs: SquadJob[] = [
-  job({ id: 'job-agents' }),
-  job({
-    id: 'job-devrel',
-    title: 'Developer Advocate',
-    team: 'DevRel',
-    location: 'Remote (US)',
-    workplace: SquadJobWorkplace.Remote,
-    salary: '$150K–$180K',
-    about: 'Be the voice of CodeRabbit with developers.',
-    bullets: [],
-    applyUrl: 'https://www.coderabbit.ai/careers/devrel',
-    createdAt: daysAgo(5),
-  }),
-  job({
-    id: 'job-graph',
-    title: 'Staff Engineer, Code Graph',
-    location: 'London',
-    workplace: SquadJobWorkplace.Hybrid,
-    salary: null,
-    about: null,
-    bullets: [],
-    applyUrl: 'https://www.coderabbit.ai/careers/graph',
-    createdAt: daysAgo(9),
-  }),
-  job({
-    id: 'job-intern',
-    title: 'Software Engineering Intern, Summer 2027',
-    team: 'Engineering',
-    location: 'Remote (EU)',
-    workplace: SquadJobWorkplace.Remote,
-    employmentType: SquadJobEmploymentType.Internship,
-    salary: null,
-    about: 'Twelve weeks on a real team, shipping to production from week two.',
-    bullets: ['Pair with a mentor every day', 'Ship one feature end to end'],
-    applyUrl: 'https://www.coderabbit.ai/careers/intern',
-    createdAt: daysAgo(14),
-  }),
-  job({
-    id: 'job-contract',
-    title: 'Technical Writer',
-    team: 'Docs',
-    location: 'Remote',
-    workplace: SquadJobWorkplace.Remote,
-    employmentType: SquadJobEmploymentType.Contract,
-    salary: '$90/hour',
-    about: null,
-    bullets: [],
-    applyUrl: 'https://www.coderabbit.ai/careers/writer',
-    createdAt: daysAgo(21),
-  }),
-];
-
-/** Only what the form requires: title, location and the apply link. */
-export const minimalJob = job({
-  id: 'job-minimal',
-  title: 'Solutions Engineer',
-  team: null,
-  location: 'New York',
-  salary: null,
-  about: null,
-  bullets: [],
-  applyUrl: 'https://jobs.ashbyhq.com/coderabbit/solutions',
-  createdAt: daysAgo(1),
-});
-
-/** The longest title and lines the form allows, to check wrapping. */
-export const longJob = job({
-  id: 'job-long',
-  title:
-    'Principal Software Engineer, Developer Experience and Platform Reliability for Enterprise',
-  team: 'Platform Engineering',
-  location: 'Remote (Americas, EMEA or APAC time zones)',
-  workplace: SquadJobWorkplace.Hybrid,
-  salary: '$250K–$320K + equity',
-  bullets: [
-    'Own the reliability of the review pipeline across every region and every customer tier we serve today',
-    'Set the bar for developer experience across the company, from local setup to production debugging',
-    'Mentor senior engineers and grow the platform team from five to twelve people over the next year',
-    'Partner with security on SOC 2, ISO 27001 and the enterprise controls our largest customers ask for',
-    'Write the design docs others build from',
-  ],
-  createdAt: daysAgo(0),
-});
-
-/** A full board: the 20 roles Manage allows. */
-export const fullBoard: SquadJob[] = Array.from({ length: 20 }, (_, i) =>
-  job({
-    id: `job-${i}`,
-    title: jobs[i % jobs.length].title,
-    location: jobs[i % jobs.length].location,
-    workplace: jobs[i % jobs.length].workplace,
-    createdAt: daysAgo(i),
-  }),
-);
 
 /* -------------------------------------------------------------- perks */
 
@@ -433,15 +311,13 @@ export interface SeedProps {
   viewer?: Viewer;
   /** Changes to the squad, like no rules or no cover. */
   squadPatch?: Partial<Squad>;
-  jobs?: SquadJob[];
   perks?: SquadPerk[];
-  /** Extra roles or perks only their own page reads, by id. */
-  extraJobs?: SquadJob[];
+  /** Extra perks only their own page reads, by id. */
   extraPerks?: SquadPerk[];
   welcome?: SquadWelcome;
   audience?: SquadAudience;
   /** Ids whose page should fail: gone (404) or a blip (Try again). */
-  failing?: { id: string; kind: 'job' | 'perk'; isGone: boolean }[];
+  failing?: { id: string; isGone: boolean }[];
 }
 
 const apiError = (code: ApiError) => ({
@@ -474,9 +350,7 @@ const seedError = (
 const Seeded = ({
   viewer = Viewer.Visitor,
   squadPatch,
-  jobs: board = jobs,
   perks: shelf,
-  extraJobs = [],
   extraPerks = [],
   welcome: saved = welcome,
   audience: insights = audience,
@@ -493,14 +367,9 @@ const Seeded = ({
   };
   const seed = () => {
     set(squadMembersPreviewQueryOptions({ squad }).queryKey, []);
-    set(squadJobsPerksFeaturesQueryOptions({ squad }).queryKey, {
-      jobs: hasSquadFeature(squad, 'jobs'),
+    set(squadPerksFeaturesQueryOptions({ squad }).queryKey, {
       perks: hasSquadFeature(squad, 'perks'),
     });
-    set(squadJobsQueryOptions({ squad }).queryKey, board);
-    [...board, ...extraJobs].forEach((item) =>
-      set(squadJobQueryOptions(item.id).queryKey, item),
-    );
     set(squadWelcomeQueryOptions({ squad }).queryKey, saved);
     set(squadAudienceQueryOptions({ squad }).queryKey, insights);
     set(squadAnalyticsQueryOptions({ sourceId: squad.id }).queryKey, {
@@ -528,12 +397,8 @@ const Seeded = ({
         set(squadPerkQueryOptions({ id: item.id, user: who }).queryKey, item),
       );
     });
-    failing.forEach(({ id, kind, isGone }) => {
+    failing.forEach(({ id, isGone }) => {
       const error = apiError(isGone ? ApiError.NotFound : ApiError.Unexpected);
-      if (kind === 'job') {
-        seedError(client, squadJobQueryOptions(id).queryKey, error);
-        return;
-      }
       [undefined, user].forEach((who) =>
         seedError(
           client,
@@ -563,12 +428,11 @@ const Seeded = ({
 export const withSeed =
   (seed: SeedProps = {}): Decorator =>
   // eslint-disable-next-line react/display-name
-  (Story) =>
-    (
-      <Seeded {...seed}>
-        <Story />
-      </Seeded>
-    );
+  (Story) => (
+    <Seeded {...seed}>
+      <Story />
+    </Seeded>
+  );
 
 /** The app providers only, for pages that read nothing from the squad. */
 export const withApp: Decorator = (Story) => (

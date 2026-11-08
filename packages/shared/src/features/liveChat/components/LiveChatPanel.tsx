@@ -7,6 +7,9 @@ import { AuthTriggers } from '../../../lib/auth';
 import type { RoomJoinFailure } from '../../messages/types';
 import { ChatRoomStatus } from '../graphql';
 import { useLiveChatRoom } from '../hooks/useLiveChatRoom';
+import { useLiveChatModeration } from '../hooks/useLiveChatModeration';
+import { Button } from '../../../components/buttons/Button';
+import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import { useRoomPeople } from '../hooks/useRoomPeople';
 import { useRoomPresence } from '../hooks/useRoomPresence';
 import { LiveChatMessageList } from './LiveChatMessageList';
@@ -22,14 +25,19 @@ const failureCopy: Record<RoomJoinFailure, string> = {
 };
 
 export type LiveChatPanelProps = {
-  postId: string;
+  // The post whose room this is, or the room itself (a topic room).
+  postId?: string;
+  roomId?: string;
   origin: string;
   // The viewer may open the chat when nobody has yet (the daily.dev team).
   canStart: boolean;
+  // The viewer runs the room: may end it and remove people from it.
+  canModerate?: boolean;
   // A sheet is already a dialog; a rail panel draws its own frame; the
   // inline block under a post draws a louder one, since it has to be seen
-  // on the way to the comments.
-  variant?: 'rail' | 'sheet' | 'inline';
+  // on the way to the comments. A page is the chat on its own: the page
+  // draws the header, and the panel fills what is left of the screen.
+  variant?: 'rail' | 'sheet' | 'inline' | 'page';
   // The viewer already said yes somewhere else (a "Join" row, the phone
   // pill): join as soon as the room is known instead of asking again.
   joinOnOpen?: boolean;
@@ -44,8 +52,10 @@ export type LiveChatPanelProps = {
  */
 export const LiveChatPanel = ({
   postId,
+  roomId,
   origin,
   canStart,
+  canModerate,
   variant = 'rail',
   joinOnOpen,
   className,
@@ -54,6 +64,7 @@ export const LiveChatPanel = ({
   const { user, showLogin, isAuthReady } = useAuthContext();
   const sectionRef = useRef<HTMLElement | null>(null);
   const isInline = variant === 'inline';
+  const isPage = variant === 'page';
   // Under a post the seat is held while the block is on screen or close to
   // it (the comments just below still count), and given back once the
   // reader has scrolled well past.
@@ -74,8 +85,26 @@ export const LiveChatPanel = ({
     send,
     react,
     onDraftChange,
-  } = useLiveChatRoom({ postId, origin, preview: isInline && inView });
+    removeSender,
+  } = useLiveChatRoom({
+    postId,
+    roomId,
+    origin,
+    // On its own page the chat is what the reader came for, so the seat is
+    // held for as long as the page is.
+    preview: isPage || (isInline && inView),
+  });
   const { people, usernames } = useRoomPeople(senderIds);
+  const { end: endChat, ban } = useLiveChatModeration({
+    roomId: room?.id,
+    origin,
+    onBanned: removeSender,
+  });
+  const onBan = useCallback(
+    (userId: string) =>
+      ban(userId, people.find(({ id }) => id === userId)?.name),
+    [ban, people],
+  );
   // Asked only from a seat: that is when the messages on screen are current.
   const presenceOf = useRoomPresence({
     roomId: room?.id,
@@ -155,7 +184,7 @@ export const LiveChatPanel = ({
   if (isInline && isOpen) {
     heading = 'Live chat is on for this post';
   }
-  let subtitle = 'Open for 24 hours, then gone';
+  let subtitle = 'Open for 4 hours, then gone';
   if (hasEnded) {
     subtitle = 'This chat has ended';
   } else if (isOpen && isEndingSoon && room?.expiresAt) {
@@ -194,46 +223,61 @@ export const LiveChatPanel = ({
         className,
       )}
     >
-      <header
-        className={classNames(
-          'flex flex-col gap-1 px-3 py-2.5',
-          isInline ? 'px-4 py-3' : 'border-b border-border-subtlest-tertiary',
-          isInline &&
-            showMessages &&
-            'border-b border-border-subtlest-tertiary',
-        )}
-      >
-        <div className="flex items-center gap-2">
-          <h3
-            className={classNames(
-              'font-bold',
-              isInline ? 'typo-title3' : 'typo-callout',
-            )}
-          >
-            {heading}
-          </h3>
-          {isOpen && occupants && (
-            <span
-              className={classNames(
-                'ml-auto',
-                isInline
-                  ? 'rounded-10 bg-brand-float px-2 py-0.5 font-bold text-brand-default typo-footnote'
-                  : 'text-text-tertiary typo-caption1',
-              )}
-            >
-              {occupants}
-            </span>
-          )}
-        </div>
-        <p
+      {/* The page draws its own header, with the room's title and what it is
+          about, so the panel is only the chat. */}
+      {!isPage && (
+        <header
           className={classNames(
-            'text-text-tertiary',
-            isInline ? 'typo-footnote' : 'typo-caption1',
+            'flex flex-col gap-1 px-3 py-2.5',
+            isInline ? 'px-4 py-3' : 'border-b border-border-subtlest-tertiary',
+            isInline &&
+              showMessages &&
+              'border-b border-border-subtlest-tertiary',
           )}
         >
-          {subtitle}
-        </p>
-      </header>
+          <div className="flex items-center gap-2">
+            <h3
+              className={classNames(
+                'font-bold',
+                isInline ? 'typo-title3' : 'typo-callout',
+              )}
+            >
+              {heading}
+            </h3>
+            {isOpen && occupants && (
+              <span
+                className={classNames(
+                  'ml-auto',
+                  isInline
+                    ? 'rounded-10 bg-brand-float px-2 py-0.5 font-bold text-brand-default typo-footnote'
+                    : 'text-text-tertiary typo-caption1',
+                )}
+              >
+                {occupants}
+              </span>
+            )}
+            {canModerate && isOpen && (
+              <Button
+                type="button"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.XSmall}
+                className={classNames('-mr-2', !occupants && 'ml-auto')}
+                onClick={() => endChat()}
+              >
+                End chat
+              </Button>
+            )}
+          </div>
+          <p
+            className={classNames(
+              'text-text-tertiary',
+              isInline ? 'typo-footnote' : 'typo-caption1',
+            )}
+          >
+            {subtitle}
+          </p>
+        </header>
+      )}
 
       {showMessages && (
         <LiveChatMessageList
@@ -245,6 +289,7 @@ export const LiveChatPanel = ({
           viewerId={user?.id}
           viewerUsername={user?.username}
           onReact={isJoined ? react : undefined}
+          onBan={canModerate && isOpen ? onBan : undefined}
           emptyCopy={emptyCopy}
           // In a sheet the list takes whatever the keyboard leaves, so it must
           // shrink; a minimum here would push the composer out of view. Under
@@ -253,6 +298,7 @@ export const LiveChatPanel = ({
             variant === 'sheet' && 'min-h-0',
             variant === 'rail' && 'min-h-[16rem]',
             isInline && 'max-h-[26rem] min-h-[14rem]',
+            isPage && 'min-h-0 flex-1',
           )}
         />
       )}

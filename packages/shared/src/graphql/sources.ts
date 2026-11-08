@@ -50,6 +50,8 @@ export interface SourceMember {
   referralToken: string;
   permissions?: SourcePermissions[];
   flags?: SourceMemberFlag;
+  // A paid daily.dev for Startups seat
+  seat?: boolean;
 }
 
 export interface BasicSourceMember {
@@ -120,6 +122,7 @@ export interface SourceFeatures {
   products: boolean | null;
   /** The header button without the brand color, on the Startups Team plan */
   cta?: boolean | null;
+  jobs?: boolean | null;
 }
 
 export interface Source {

@@ -7,6 +7,11 @@ import { MailIcon } from '../icons';
 import { IconSize } from '../Icon';
 import type { CloseModalFunc } from '../modals/common';
 import AuthHeader from './AuthHeader';
+import { AuthScreenMail, AuthScreenTitle } from './AuthScreenTitle';
+import {
+  FunnelGlassBar,
+  funnelGlassBarCta,
+} from '../../features/onboarding/shared/FunnelGlassBar';
 import { AuthActionBar } from './AuthActionBar';
 import { ClickableText } from '../buttons/ClickableText';
 import type { AuthFormProps } from './common';
@@ -20,12 +25,14 @@ import { betterAuthForgetPassword } from '../../lib/betterAuth';
 interface ForgotPasswordFormProps extends AuthFormProps {
   onBack?: CloseModalFunc;
   hasTopBarBack?: boolean;
+  isStartups?: boolean;
 }
 
 function ForgotPasswordForm({
   onBack,
   hasTopBarBack,
   simplified,
+  isStartups,
 }: ForgotPasswordFormProps): ReactElement {
   const { email: initialEmail, setEmail } = useAuthData();
   const { logEvent } = useLogContext();
@@ -61,6 +68,76 @@ function ForgotPasswordForm({
       ← Back to log in
     </ClickableText>
   );
+
+  if (isStartups && emailSent) {
+    return (
+      <div className="flex flex-col gap-6">
+        <AuthScreenMail />
+        <AuthScreenTitle
+          title="Check your email"
+          description={
+            <>
+              We sent a reset link to{' '}
+              <span className="font-bold text-text-primary">
+                {initialEmail}
+              </span>
+              . Open it, then come back to finish.
+            </>
+          }
+        />
+        <Button
+          className="w-full"
+          size={ButtonSize.Large}
+          variant={ButtonVariant.Float}
+          onClick={() => setEmailSent(false)}
+        >
+          Didn&apos;t receive it? Try again
+        </Button>
+      </div>
+    );
+  }
+
+  if (isStartups) {
+    return (
+      <div className="flex flex-col gap-6">
+        <AuthScreenTitle
+          title="Reset your password"
+          description="We'll email you a link to set a new one."
+        />
+        <AuthForm
+          aria-label="Forgot password"
+          className="flex flex-col gap-6"
+          onSubmit={onSendEmail}
+          data-testid="recovery_form"
+        >
+          <TextField
+            className={{ container: 'w-full' }}
+            name="email"
+            type="email"
+            autoComplete="email"
+            inputId="email"
+            label="Email"
+            defaultValue={initialEmail}
+            hint={hint}
+            valid={!hint}
+            onChange={() => hint && setHint('')}
+            leftIcon={<MailIcon aria-hidden role="presentation" />}
+          />
+          <FunnelGlassBar>
+            <Button
+              className={funnelGlassBarCta}
+              size={ButtonSize.Medium}
+              variant={ButtonVariant.Primary}
+              type="submit"
+              disabled={isLoading}
+            >
+              Send reset link
+            </Button>
+          </FunnelGlassBar>
+        </AuthForm>
+      </div>
+    );
+  }
 
   if (emailSent) {
     return (

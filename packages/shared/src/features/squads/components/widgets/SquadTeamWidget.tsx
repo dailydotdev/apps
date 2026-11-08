@@ -39,6 +39,7 @@ export const SquadTeamWidget = ({
                 href={user.permalink}
                 user={{ ...user, role }}
                 showDescription={false}
+                usernameOnNewLine
                 className={{
                   container:
                     '-mx-2 rounded-12 px-2 py-2 hover:bg-surface-hover',

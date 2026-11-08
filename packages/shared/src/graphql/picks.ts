@@ -12,7 +12,13 @@ export const PICKS_MAX_ITEMS = 5;
 export const PICKS_NOTE_MAX_LENGTH = 140;
 export const PICKS_SUGGESTIONS_MAX = 15;
 
-export type PicksSuggestionReason = 'upvoted' | 'bookmarked' | 'read';
+export type PicksSuggestionReason =
+  | 'upvoted'
+  | 'bookmarked'
+  | 'read'
+  // filled in for a viewer with little history of their own
+  | 'from_picks'
+  | 'popular';
 
 export interface PicksPost {
   id: string;
@@ -130,8 +136,8 @@ export const MY_CURRENT_PICKS_QUERY = gql`
 `;
 
 export const PICKS_SUGGESTIONS_QUERY = gql`
-  query PicksSuggestions {
-    picksSuggestions {
+  query PicksSuggestions($fromPicksId: ID) {
+    picksSuggestions(fromPicksId: $fromPicksId) {
       reason
       upvoted
       bookmarked
@@ -149,6 +155,23 @@ export const UPSERT_PICKS_MUTATION = gql`
     upsertPicks(items: $items) {
       id
       url
+    }
+  }
+`;
+
+export const PICKS_VIEW_COUNT_QUERY = gql`
+  query PicksViewCount($id: ID!) {
+    picks(id: $id) {
+      id
+      viewCount
+    }
+  }
+`;
+
+export const TRACK_PICKS_VIEW_MUTATION = gql`
+  mutation TrackPicksView($id: ID!) {
+    trackPicksView(id: $id) {
+      _
     }
   }
 `;
@@ -172,6 +195,26 @@ export const INTEGRATION_SHARE_PICKS_MUTATION = gql`
 `;
 
 export const getPicksPath = (id: string): string => `/picks/${id}`;
+
+export interface NewPicksParams {
+  origin?: string;
+  /** The picks page the user came from; fills an empty picker */
+  from?: string;
+  /** A post from that page to preselect */
+  add?: string;
+}
+
+export const getNewPicksPath = (params: NewPicksParams = {}): string => {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value) {
+      query.set(key, value);
+    }
+  });
+  const queryString = query.toString();
+
+  return `/picks/new${queryString ? `?${queryString}` : ''}`;
+};
 
 /** Public read, works logged out. Null means the id is unknown. */
 export const picksQueryOptions = (id: string) => ({
@@ -197,12 +240,18 @@ export const myCurrentPicksQueryOptions = (user?: Pick<LoggedUser, 'id'>) => ({
 
 export const picksSuggestionsQueryOptions = (
   user?: Pick<LoggedUser, 'id'>,
+  fromPicksId?: string,
 ) => ({
-  queryKey: generateQueryKey(RequestKey.Picks, user, 'suggestions'),
+  queryKey: generateQueryKey(
+    RequestKey.Picks,
+    user,
+    'suggestions',
+    fromPicksId ?? null,
+  ),
   queryFn: async (): Promise<PicksSuggestion[]> => {
     const data = await gqlClient.request<{
       picksSuggestions: PicksSuggestion[];
-    }>(PICKS_SUGGESTIONS_QUERY);
+    }>(PICKS_SUGGESTIONS_QUERY, fromPicksId ? { fromPicksId } : undefined);
     return data.picksSuggestions ?? [];
   },
   enabled: !!user?.id,
@@ -216,6 +265,30 @@ export const upsertPicks = async (
     { items },
   );
   return data.upsertPicks;
+};
+
+/**
+ * The author's own count of unique opens, read on its own: the page itself
+ * is fetched on the server without cookies and cached, so it can never
+ * carry an author-only field.
+ */
+export const picksViewCountQueryOptions = (
+  id: string,
+  user?: Pick<LoggedUser, 'id'>,
+) => ({
+  queryKey: generateQueryKey(RequestKey.Picks, user, id, 'viewCount'),
+  queryFn: async (): Promise<number | null> => {
+    const data = await gqlClient.request<{
+      picks: { viewCount: number | null } | null;
+    }>(PICKS_VIEW_COUNT_QUERY, { id });
+    return data.picks?.viewCount ?? null;
+  },
+  staleTime: 0,
+});
+
+/** Counts the viewer once per list on the API; the author is never counted. */
+export const trackPicksView = async (id: string): Promise<void> => {
+  await gqlClient.request(TRACK_PICKS_VIEW_MUTATION, { id });
 };
 
 export const integrationSharePicks = async (variables: {
