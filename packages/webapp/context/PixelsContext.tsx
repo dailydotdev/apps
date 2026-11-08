@@ -9,6 +9,17 @@ import {
 } from '@dailydotdev/shared/src/lib/ios';
 import { EXPERIENCE_TO_SENIORITY, Pixels } from '../components/Pixels';
 
+type Tracker = (...args: unknown[]) => void;
+
+const pixels = globalThis as typeof globalThis & {
+  gtag?: Tracker;
+  fbq?: Tracker;
+  updateFbUserData?: (userId: string, email?: string) => void;
+  twq?: Tracker;
+  rdt?: Tracker;
+  ttq?: { track?: Tracker };
+};
+
 interface PixelsContextProviderProps {
   children: ReactElement;
 }
@@ -23,65 +34,66 @@ function WebPixelsProvider({
 
       const isEngineer =
         !!experienceLevel && experienceLevel !== 'NOT_ENGINEER';
-      if (typeof globalThis.gtag === 'function') {
-        globalThis.gtag('event', 'signup');
+      if (typeof pixels.gtag === 'function') {
+        pixels.gtag('event', 'signup');
         if (isEngineer) {
-          globalThis.gtag('event', 'engineer_signup');
+          pixels.gtag('event', 'engineer_signup');
         }
         if (isExtension) {
-          globalThis.gtag('event', 'extension_signup');
+          pixels.gtag('event', 'extension_signup');
         }
       }
 
-      if (typeof globalThis.fbq === 'function') {
-        globalThis.updateFbUserData(id, email);
-        globalThis.fbq('track', 'signup');
-        const seniority = EXPERIENCE_TO_SENIORITY[experienceLevel];
+      if (typeof pixels.fbq === 'function') {
+        pixels.updateFbUserData?.(id, email);
+        pixels.fbq('track', 'signup');
+        const seniority =
+          experienceLevel && EXPERIENCE_TO_SENIORITY[experienceLevel];
         if (seniority) {
-          globalThis.fbq('track', `signup3_${seniority}`);
+          pixels.fbq('track', `signup3_${seniority}`);
         }
         if (isEngineer) {
-          globalThis.fbq('track', 'engineer signup');
+          pixels.fbq('track', 'engineer signup');
         }
         if (isExtension) {
-          globalThis.fbq('track', 'extension_signup');
+          pixels.fbq('track', 'extension_signup');
         }
       }
 
-      if (typeof globalThis.twq === 'function') {
-        globalThis.twq('event', 'tw-o6izs-okoq6', {});
+      if (typeof pixels.twq === 'function') {
+        pixels.twq('event', 'tw-o6izs-okoq6', {});
       }
 
-      if (typeof globalThis.rdt === 'function') {
-        globalThis.rdt('track', 'SignUp');
+      if (typeof pixels.rdt === 'function') {
+        pixels.rdt('track', 'SignUp');
       }
 
-      if (typeof globalThis.ttq?.track === 'function') {
-        globalThis.ttq.track('CompletePayment', { value: 1 });
+      if (typeof pixels.ttq?.track === 'function') {
+        pixels.ttq.track('CompletePayment', { value: 1 });
       }
     },
     trackPayment() {
-      // if (typeof globalThis.gtag === 'function') {
-      //   globalThis.gtag('event', 'purchase', {
+      // if (typeof pixels.gtag === 'function') {
+      //   pixels.gtag('event', 'purchase', {
       //     transaction_id: transactionId,
       //     value,
       //     currency,
       //   });
       // }
       //
-      // if (typeof globalThis.fbq === 'function') {
-      //   globalThis.fbq('track', 'Purchase', {
+      // if (typeof pixels.fbq === 'function') {
+      //   pixels.fbq('track', 'Purchase', {
       //     value,
       //     currency,
       //   });
       // }
     },
     trackEvent(eventName, params, options) {
-      if (typeof globalThis.gtag === 'function') {
-        globalThis.gtag('event', eventName.replace(/ /g, '_').toLowerCase());
+      if (typeof pixels.gtag === 'function') {
+        pixels.gtag('event', eventName.replace(/ /g, '_').toLowerCase());
       }
-      if (typeof globalThis.fbq === 'function') {
-        globalThis.fbq(
+      if (typeof pixels.fbq === 'function') {
+        pixels.fbq(
           'track',
           eventName,
           params,
