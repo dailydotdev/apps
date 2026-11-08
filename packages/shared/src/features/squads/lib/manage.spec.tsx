@@ -34,4 +34,34 @@ describe('getSquadManageGroups', () => {
 
     expect(sections(squad, true)).not.toContain(SquadManageSection.Plan);
   });
+
+  const locked = (squad: Squad, isPlanEnabled?: boolean) =>
+    getSquadManageGroups(squad, SquadViewer.Admin, { isPlanEnabled })
+      .flatMap(({ items }) => items)
+      .filter(({ lockedPlan }) => !!lockedPlan)
+      .map(({ id }) => id);
+
+  it('shows plan sections locked to editors of a squad with no plan', () => {
+    const squad = squadWith([SourcePermissions.Edit]);
+
+    expect(locked(squad, true)).toEqual([
+      SquadManageSection.Products,
+      SquadManageSection.Links,
+      SquadManageSection.Intel,
+    ]);
+  });
+
+  it('locks nothing while the flag is off', () => {
+    expect(locked(squadWith([SourcePermissions.Edit]))).toEqual([]);
+  });
+
+  it('locks nothing for a squad on a plan', () => {
+    const squad = {
+      ...squadWith([SourcePermissions.Edit]),
+      features: { links: true, products: true },
+      currentMember: { permissions: [SourcePermissions.Edit], seat: true },
+    } as unknown as Squad;
+
+    expect(locked(squad, true)).toEqual([]);
+  });
 });

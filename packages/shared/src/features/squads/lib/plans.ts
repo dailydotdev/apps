@@ -33,6 +33,24 @@ export const getSquadPlanCashback = (
 ): number =>
   Math.max(SQUAD_PLAN_CASHBACK_PERCENTAGE[plan], promo?.percentage ?? 0);
 
+// US list prices, which the cashback is paid on (100 Cores per $1)
+export const SQUAD_PLAN_LIST_PRICE_USD: Record<SquadPlan, number> = {
+  [SquadPlan.Starter]: 49,
+  [SquadPlan.Team]: 199,
+};
+
+const CORES_PER_USD = 100;
+
+/** The Cores a plan's monthly cashback adds to the squad wallet. */
+export const getSquadPlanMonthlyCores = (
+  plan: SquadPlan,
+  promo?: StartupsCashbackPromo | null,
+): number =>
+  (SQUAD_PLAN_LIST_PRICE_USD[plan] *
+    CORES_PER_USD *
+    getSquadPlanCashback(plan, promo)) /
+  100;
+
 export const formatCashbackPromoLength = (months: number): string =>
   months === 12 ? 'your first year' : `your first ${months} months`;
 

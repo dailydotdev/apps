@@ -28,6 +28,8 @@ import {
 import { useStartupsCashbackPromo } from '../../hooks/useStartupsCashbackPromo';
 import { useSquadPlanPrices } from '../../hooks/useSquadPlanPrices';
 import { useLogStartups } from '../../hooks/useLogStartups';
+import { ActionType } from '../../../../graphql/actions';
+import { useActions } from '../../../../hooks/useActions';
 
 // Starter bullets from the plan table on daily.dev/startups/, word for word.
 const benefits = [
@@ -62,11 +64,15 @@ export const SquadPlanUpsellWidget = (): ReactElement | null => {
   });
   const prices = useSquadPlanPrices();
   const logStartups = useLogStartups();
+  // Dismissing any Startups promotion hides them all
+  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const isShown =
     isCandidate &&
     isEnabled &&
     isDismissedFetched &&
     !isDismissed &&
+    isActionsFetched &&
+    !checkHasCompleted(ActionType.DismissStartupsPromo) &&
     !!subscription &&
     !subscription.plan;
   const cashbackPromo = useStartupsCashbackPromo();
@@ -102,6 +108,7 @@ export const SquadPlanUpsellWidget = (): ReactElement | null => {
         aria-label="Dismiss"
         onClick={() => {
           setDismissed(true);
+          completeAction(ActionType.DismissStartupsPromo);
           logStartups(LogEvent.DismissStartupsUpsell, 'squad upsell', {
             origin: Origin.SquadPage,
             source_id: sourceId,
