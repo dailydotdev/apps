@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { delay, graphql, HttpResponse } from 'msw';
 import { useQueryClient } from '@tanstack/react-query';
 import type {
   SourceMember,
@@ -37,6 +38,8 @@ import {
 import { featureStartupsCheckout } from '@dailydotdev/shared/src/lib/featureManagement';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import { FeatureOverrides } from '../../../mock/GrowthBookProvider';
+import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
+import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import ExtensionProviders from '../../extension/_providers';
 
 // Manage › Weekly intel for a paid seat of Acme, the sample company. The
@@ -69,6 +72,9 @@ const acme = {
     user: { id: defaultUser.id },
   } as unknown as SourceMember,
 } as unknown as Squad;
+
+// The Monday the weekly run builds the next intel
+const nextIntelAt = '2026-11-09T00:00:00.000Z';
 
 const starterLimits = { tags: 5, seniority: false, regions: false };
 const teamLimits = { tags: 20, seniority: true, regions: false };
@@ -134,6 +140,51 @@ const intel: SquadIntel = {
   generatedAt: '2026-11-02T00:20:00.000Z',
 };
 
+// Saving answers like the API, and the first intel is ready a few seconds
+// after the first save, so the stories show the whole flow
+let firstIntelReadyAt: number | null = null;
+
+const apiHandlers = (limits: SquadIntelSettings['limits']) => [
+  graphql.mutation('UpdateSquadIntelSettings', async ({ variables }) => {
+    await delay(600);
+    firstIntelReadyAt ??= Date.now() + 5000;
+
+    return HttpResponse.json({
+      data: {
+        updateSquadIntelSettings: {
+          selection: {
+            tags: variables.tags,
+            seniority: variables.seniority ?? null,
+            regions: variables.regions ?? null,
+          },
+          limits,
+          nextIntelAt,
+        },
+      },
+    });
+  }),
+  graphql.query('SearchTags', ({ variables }) =>
+    HttpResponse.json({
+      data: {
+        searchTags: {
+          query: variables.query,
+          tags: [...tags, 'grafana', 'prometheus']
+            .filter((tag) => tag.includes(variables.query))
+            .map((name) => ({ name })),
+        },
+      },
+    }),
+  ),
+  graphql.query('SquadIntel', () =>
+    HttpResponse.json({
+      data: {
+        squadIntel:
+          firstIntelReadyAt && Date.now() >= firstIntelReadyAt ? intel : null,
+      },
+    }),
+  ),
+];
+
 const Seeded = ({
   settings,
   latest,
@@ -169,6 +220,7 @@ const Seeded = ({
     });
   };
   useState(() => {
+    firstIntelReadyAt = null;
     seed();
     return true;
   });
@@ -183,6 +235,8 @@ const Seeded = ({
           <SquadManageIntel />
         </SquadManageLayout>
       )}
+      <PromptElement />
+      <Toast autoDismissNotifications />
     </SquadPageContextProvider>
   );
 };
@@ -194,7 +248,8 @@ const meta: Meta = {
     (Story) => (
       <ExtensionProviders>
         <FeatureOverrides values={{ [featureStartupsCheckout.id]: true }}>
-          <div className="min-h-screen bg-background-default">
+          {/* react-modal looks for the app root while the prompt renders */}
+          <div id="__next" className="min-h-screen bg-background-default">
             <Story />
           </div>
         </FeatureOverrides>
@@ -209,11 +264,15 @@ type Story = StoryObj;
 
 const phone = { viewport: { value: 'mobile2', isRotated: false } };
 
-/** Starter, right after checkout: no topics, no intel yet. */
+/**
+ * Starter, right after checkout: no topics, no intel yet. Saving asks to
+ * confirm the settings, then the first intel shows up a few seconds later.
+ */
 export const StarterEmpty: Story = {
+  parameters: { msw: { handlers: apiHandlers(starterLimits) } },
   render: () => (
     <Seeded
-      settings={{ selection: null, limits: starterLimits }}
+      settings={{ selection: null, limits: starterLimits, nextIntelAt }}
       latest={null}
     />
   ),
@@ -226,17 +285,20 @@ export const StarterWaiting: Story = {
       settings={{
         selection: { tags, seniority: null, regions: null },
         limits: starterLimits,
+        nextIntelAt,
       }}
       latest={null}
     />
   ),
 };
 
-/** Team with seniority on and last week's intel below. */
+/** Team with seniority on and last week's intel below. Saving says when the
+ * change shows. */
 export const TeamWithIntel: Story = {
+  parameters: { msw: { handlers: apiHandlers(teamLimits) } },
   render: () => (
     <Seeded
-      settings={{ selection: intel.selection, limits: teamLimits }}
+      settings={{ selection: intel.selection, limits: teamLimits, nextIntelAt }}
       latest={intel}
     />
   ),
@@ -255,6 +317,7 @@ export const Enterprise: Story = {
           regions: [IntelRegion.NorthAmerica, IntelRegion.Europe],
         },
         limits: enterpriseLimits,
+        nextIntelAt,
       }}
       latest={intel}
     />
@@ -265,7 +328,7 @@ export const Enterprise: Story = {
 export const IntelPage: Story = {
   render: () => (
     <Seeded
-      settings={{ selection: intel.selection, limits: teamLimits }}
+      settings={{ selection: intel.selection, limits: teamLimits, nextIntelAt }}
       latest={intel}
       isPage
     />

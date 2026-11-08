@@ -231,6 +231,7 @@ const intelPicked = (isTeamPlan: boolean): SquadIntelSettings => ({
     regions: null,
   },
   limits: { tags: isTeamPlan ? 20 : 5, seniority: isTeamPlan, regions: false },
+  nextIntelAt: '2026-11-09T00:00:00.000Z',
 });
 
 // Only the buyer holds a seat so far.
@@ -268,6 +269,7 @@ const Seeded = ({
       seniority: isTeamPlan,
       regions: false,
     },
+    nextIntelAt: '2026-11-09T00:00:00.000Z',
   };
   const { user } = useAuthContext();
   const seed = () => {

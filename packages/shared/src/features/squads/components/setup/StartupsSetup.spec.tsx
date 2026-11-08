@@ -54,12 +54,13 @@ const renderSetup = ({
 };
 
 const limits = { tags: 5, seniority: false, regions: false };
+const nextIntelAt = '2026-11-09T00:00:00.000Z';
 
 describe('StartupsSetup weekly intel row', () => {
   it('opens the intel settings in place for a paid seat', async () => {
     const { onEditRow } = renderSetup({
       seat: true,
-      settings: { selection: null, limits },
+      settings: { selection: null, limits, nextIntelAt },
     });
 
     expect(await screen.findByText('0 of 4 done')).toBeInTheDocument();
@@ -74,6 +75,7 @@ describe('StartupsSetup weekly intel row', () => {
       settings: {
         selection: { tags: ['react'], seniority: null, regions: null },
         limits,
+        nextIntelAt,
       },
     });
 
