@@ -44,7 +44,7 @@ export const oauthEndpoints = {
   mcpResource: `${publicApiUrl}/mcp`,
 };
 
-export const mcpClaudeInstallCommand = `claude mcp add --transport http daily.dev ${oauthEndpoints.mcpResource}`;
+export const mcpClaudeInstallCommand = `claude mcp add --transport http daily-dev ${oauthEndpoints.mcpResource}`;
 
 export class OAuthRequestError extends Error {
   status: number;
