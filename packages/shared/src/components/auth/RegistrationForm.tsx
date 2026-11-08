@@ -113,7 +113,7 @@ const getStartupsFieldErrors = (form: FormData): RegistrationError => {
     errors['traits.email'] = 'Enter a valid email address';
   }
   if (!String(form.get('traits.name') ?? '').trim()) {
-    errors['traits.name'] = 'Add your name so your team recognises you.';
+    errors['traits.name'] = 'Add your name so your team recognizes you.';
   }
   if (password.length < 8) {
     errors.password = 'Use at least 8 characters.';
@@ -272,7 +272,7 @@ const RegistrationForm = ({
 
       if (!values['traits.name']?.length) {
         setHints['traits.name'] = isStartups
-          ? 'Add your name so your team recognises you.'
+          ? 'Add your name so your team recognizes you.'
           : 'Please provide name.';
       }
       if (!values['traits.username']?.length) {
