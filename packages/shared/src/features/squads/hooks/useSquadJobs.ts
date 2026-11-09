@@ -1,18 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { Squad } from '@dailydotdev/shared/src/graphql/sources';
-import type { SquadJob, SquadJobInput } from '../../../graphql/squadJobsPerks';
+import type { Squad } from '../../../graphql/sources';
+import type { SquadJob, SquadJobInput } from '../../../graphql/squadJobs';
 import {
   addSquadJob,
   removeSquadJob,
   reorderSquadJobs,
   squadJobsQueryOptions,
   updateSquadJob,
-} from '../../../graphql/squadJobsPerks';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import { getSquadMutationErrorMessage } from './useSquadPerks';
+} from '../../../graphql/squadJobs';
+import { useToastNotification } from '../../../hooks/useToastNotification';
+import { labels } from '../../../lib/labels';
 import { getSquadId, hasSquadFeature } from '../lib/features';
 
-export const useSquadJobs = (squad: Squad) => {
+interface UseSquadJobs {
+  isEnabled: boolean;
+  jobs: SquadJob[];
+  isPending: boolean;
+}
+
+export const useSquadJobs = (squad: Squad): UseSquadJobs => {
   const { data, isPending } = useQuery(squadJobsQueryOptions({ squad }));
 
   return {
@@ -28,8 +34,7 @@ export const useSquadJobMutations = (squad: Squad) => {
   const { queryKey } = squadJobsQueryOptions({ squad });
   const setJobs = (update: (jobs: SquadJob[]) => SquadJob[]) =>
     client.setQueryData<SquadJob[]>(queryKey, (jobs) => update(jobs ?? []));
-  const onError = (error: unknown) =>
-    displayToast(getSquadMutationErrorMessage(error));
+  const onError = () => displayToast(labels.error.generic);
 
   const { mutateAsync: onAdd } = useMutation({
     mutationFn: (input: SquadJobInput) =>
@@ -73,9 +78,9 @@ export const useSquadJobMutations = (squad: Squad) => {
       return { previous };
     },
     onSuccess: (jobs) => client.setQueryData(queryKey, jobs),
-    onError: (error, __, context) => {
+    onError: (_, __, context) => {
       client.setQueryData(queryKey, context?.previous);
-      onError(error);
+      onError();
     },
   });
 

@@ -20,7 +20,6 @@ import {
 } from '../../../../components/charm/CharmEmptyState';
 import { TextField } from '../../../../components/fields/TextField';
 import {
-  CoreIcon,
   MoveToIcon,
   OpenLinkIcon,
   PlusIcon,
@@ -35,6 +34,8 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useSquadCreate } from '../../../../hooks/squads/useSquadCreate';
 import { useSquad } from '../../../../hooks/squads/useSquad';
 import { usePaddlePayment } from '../../../../hooks/usePaddlePayment';
+import { usePixelsContext } from '../../../../contexts/PixelsContext';
+import { formatCurrency } from '../../../../lib/utils';
 import { useViewSize, ViewSize } from '../../../../hooks/useViewSize';
 import type { Squad } from '../../../../graphql/sources';
 import { SourceMemberRole } from '../../../../graphql/sources';
@@ -45,7 +46,10 @@ import { AuthTriggers } from '../../../../lib/auth';
 import { cloudinaryCharmSomethingWentWrong } from '../../../../lib/image';
 import { findFreeSquadHandle, toSquadHandle } from '../../lib/handle';
 import { PurchaseType } from '../../../../graphql/paddle';
-import { squadSubscriptionQueryOptions } from '../../../../graphql/squadSubscription';
+import {
+  saveStartupsGoals,
+  squadSubscriptionQueryOptions,
+} from '../../../../graphql/squadSubscription';
 import { webappUrl } from '../../../../lib/constants';
 import { RequestKey } from '../../../../lib/query';
 import { LogEvent, Origin } from '../../../../lib/log';
@@ -53,8 +57,10 @@ import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
 import { getSquadId } from '../../lib/features';
 import {
   getSquadPlanPriceId,
+  getSquadPlanTitle,
   isSquadPlan,
-  SQUAD_PLAN_CASHBACK_PERCENTAGE,
+  getSquadPlanCashback,
+  SQUAD_PLAN_LIST_PRICE_USD,
   SQUAD_PLAN_SEATS,
   SquadPlan,
   squadPlanDetails,
@@ -62,6 +68,12 @@ import {
   startupsEnterpriseUrl,
 } from '../../lib/plans';
 import { useSquadPlanPrices } from '../../hooks/useSquadPlanPrices';
+import { useStartupsSetupRefresh } from '../../hooks/useStartupsSetupRefresh';
+import { useStartupsCashbackPromo } from '../../hooks/useStartupsCashbackPromo';
+import {
+  SquadLaunchOfferBanner,
+  SquadPlanCashback,
+} from '../SquadPlanCashback';
 import { useLogStartups } from '../../hooks/useLogStartups';
 import {
   StartupsSetup,
@@ -85,6 +97,11 @@ import {
 import { startupsCrewCheerImage } from './StartupsCrewOnBase';
 import { StartupsNameStunt } from './StartupsNameStunt';
 import { StartupsSignupPanel } from './StartupsSignupPanel';
+import type { StartupsGoalAnswers } from './StartupsGoalQuestion';
+import {
+  getStartupsGoalAnswers,
+  StartupsGoalQuestion,
+} from './StartupsGoalQuestion';
 
 export enum StartupsCheckoutStep {
   Account = 'account',
@@ -175,7 +192,7 @@ const AccountStep = ({
           hideRegistrationHeadline
           signUpTitle="Create your account"
           logInTitle="Welcome back"
-          signUpDescription="Create your company page and pick a plan on daily.dev for Startups."
+          signUpDescription="Get your company page on daily.dev. Your agent handles the marketing from there."
           logInDescription="Log in, then pick the page this plan is for."
           signupProviders={signupProviders}
           onDisplayChange={setDisplay}
@@ -235,11 +252,14 @@ const CompanyStep = ({
   selectedId,
   onSelect,
   onContinue,
+  onSetUp,
 }: {
   adminSquads: CompanyChoice[];
   selectedId?: string | null;
   onSelect: (id: string | null) => void;
   onContinue: (squad: CompanyChoice, isNew: boolean) => void;
+  /** A page already on a plan goes on to its setup, as after paying */
+  onSetUp: (squad: CompanyChoice, plan: SquadPlan) => void;
 }): ReactElement => {
   const { user } = useAuthContext();
   const selected = adminSquads.find(({ id }) => id === selectedId);
@@ -247,8 +267,48 @@ const CompanyStep = ({
   const [name, setName] = useState('');
   const [isMissing, setMissing] = useState(false);
   const [isFindingHandle, setFindingHandle] = useState(false);
+  const [goalAnswers, setGoalAnswers] = useState<StartupsGoalAnswers>({
+    goals: [],
+    text: '',
+  });
+  const logStartups = useLogStartups();
+
+  const logGoalAnswers = (sourceId: string) => {
+    const answers = getStartupsGoalAnswers(goalAnswers);
+    const extra = { source_id: sourceId };
+
+    if (!answers.length) {
+      logStartups(LogEvent.SkipStartupsGoal, undefined, extra);
+    }
+
+    // One event per answer, so counting an answer is counting its events
+    answers.forEach(({ goal, text }) =>
+      logStartups(LogEvent.SelectStartupsGoal, goal, {
+        ...extra,
+        ...(text && { text }),
+      }),
+    );
+
+    if (answers.length) {
+      // The answer is a nice-to-have: a failed save never holds up checkout
+      saveStartupsGoals({
+        sourceId,
+        goals: answers.map(({ goal }) => goal),
+        other: answers.find(({ text }) => text)?.text,
+      }).catch(() => undefined);
+    }
+  };
+
   const { onCreateSquad, isLoading } = useSquadCreate({
-    onSuccess: (squad) => onContinue({ ...squad, id: getSquadId(squad) }, true),
+    onSuccess: (squad) => {
+      const company = { ...squad, id: getSquadId(squad) };
+
+      if (!hasPages) {
+        logGoalAnswers(company.id);
+      }
+
+      onContinue(company, true);
+    },
   });
   const { data: subscription, isFetching } = useQuery(
     squadSubscriptionQueryOptions({ user, sourceId: selected?.id }),
@@ -323,7 +383,7 @@ const CompanyStep = ({
                 isSelected={squad.id === selectedId}
                 planTitle={
                   squad.id === selectedId && activePlan
-                    ? squadPlanDetails[activePlan].title
+                    ? getSquadPlanTitle(activePlan)
                     : undefined
                 }
                 onClick={() => onSelect(squad.id)}
@@ -350,36 +410,49 @@ const CompanyStep = ({
               hint={getHint()}
             />
           </div>
-          <div className="mt-2">
-            {activePlan ? (
-              <CheckoutCta>
-                <Button
-                  tag="a"
-                  href={getSquadManageUrl(
-                    selected.handle,
-                    SquadManageSection.Plan,
-                  )}
-                  variant={ButtonVariant.Primary}
-                  className="flex-1"
-                >
-                  Manage subscription
-                </Button>
-              </CheckoutCta>
-            ) : (
-              <CheckoutCta>
-                <Button
-                  type="submit"
-                  variant={ButtonVariant.Primary}
-                  className="flex-1"
-                  loading={isBusy || (!!selected && isFetching)}
-                  disabled={isBusy || (!!selected && isFetching)}
-                >
-                  Continue
-                </Button>
-              </CheckoutCta>
-            )}
-          </div>
         </div>
+        {/* Only for someone naming their first company */}
+        {!hasPages && (
+          <StartupsGoalQuestion value={goalAnswers} onChange={setGoalAnswers} />
+        )}
+        {activePlan ? (
+          <CheckoutCta>
+            <Button
+              tag="a"
+              href={getSquadManageUrl(selected.handle, SquadManageSection.Plan)}
+              variant={
+                isSquadPlan(activePlan)
+                  ? ButtonVariant.Float
+                  : ButtonVariant.Primary
+              }
+              className="flex-1"
+            >
+              Manage subscription
+            </Button>
+            {isSquadPlan(activePlan) && (
+              <Button
+                type="button"
+                variant={ButtonVariant.Primary}
+                className="flex-1"
+                onClick={() => onSetUp(selected, activePlan)}
+              >
+                Set up your page
+              </Button>
+            )}
+          </CheckoutCta>
+        ) : (
+          <CheckoutCta>
+            <Button
+              type="submit"
+              variant={ButtonVariant.Primary}
+              className="flex-1"
+              loading={isBusy || (!!selected && isFetching)}
+              disabled={isBusy || (!!selected && isFetching)}
+            >
+              Continue
+            </Button>
+          </CheckoutCta>
+        )}
       </form>
     </CheckoutShell>
   );
@@ -408,7 +481,7 @@ const PlanOption = ({
         : 'border-border-subtlest-tertiary hover:border-border-subtlest-secondary',
     )}
   >
-    <span className="flex items-center gap-2">
+    <span className="flex flex-wrap items-center gap-2">
       <span
         className={classNames(
           'flex size-5 shrink-0 items-center justify-center rounded-full border',
@@ -432,10 +505,7 @@ const PlanOption = ({
         <span className="text-text-tertiary typo-footnote"> / month</span>
       </span>
     </span>
-    <span className="flex items-center gap-1.5 text-text-secondary typo-footnote">
-      <CoreIcon size={IconSize.Size16} className="shrink-0" />
-      {`${SQUAD_PLAN_CASHBACK_PERCENTAGE[plan]}% cashback to boost your posts`}
-    </span>
+    <SquadPlanCashback plan={plan} />
     <span className="text-text-tertiary typo-footnote">
       {squadPlanDetails[plan].tagline}
     </span>
@@ -510,15 +580,36 @@ const PaymentPanel = ({
   onChangePlan: () => void;
   onPaid: () => void;
 }): ReactElement => {
-  const { openCheckout, isPaddleReady } = usePaddlePayment({
+  const cashbackPromo = useStartupsCashbackPromo();
+  const { trackEvent } = usePixelsContext();
+  const { openCheckout, isPaddleReady, checkoutTotals } = usePaddlePayment({
     priceType: PurchaseType.Startups,
-    successCallback: onPaid,
+    successCallback: (event) => {
+      const totals = event?.data?.totals;
+      trackEvent(
+        'Subscribe',
+        {
+          content_name: 'startups',
+          content_category: plan,
+          value: totals ? totals.total - totals.tax : 0,
+          currency: event?.data?.currency_code,
+        },
+        { eventId: event?.data?.transaction_id },
+      );
+      onPaid();
+    },
     origin: Origin.StartupsCheckout,
     logExtra: { plan, source_id: company.id },
   });
   const openedRef = useRef<string>();
   const [isTimedOut, setTimedOut] = useState(false);
   const seats = SQUAD_PLAN_SEATS[plan];
+  // Paddle knows the real amount once a discount or tax is applied
+  const formatTotal = (value: number) =>
+    formatCurrency(value, {
+      style: 'currency',
+      currency: checkoutTotals?.currency,
+    });
 
   useEffect(() => {
     const priceId = getSquadPlanPriceId(plan);
@@ -527,10 +618,18 @@ const PaymentPanel = ({
       return;
     }
 
+    if (!openedRef.current) {
+      trackEvent('InitiateCheckout', {
+        content_name: 'startups',
+        content_category: plan,
+        value: SQUAD_PLAN_LIST_PRICE_USD[plan],
+        currency: 'USD',
+      });
+    }
     // A second call while the frame is open swaps the item in place
     openedRef.current = priceId;
     openCheckout({ priceId, customData: { source_id: company.id } });
-  }, [company.id, isPaddleReady, openCheckout, plan]);
+  }, [company.id, isPaddleReady, openCheckout, plan, trackEvent]);
 
   useEffect(() => {
     if (isPaddleReady) {
@@ -565,15 +664,25 @@ const PaymentPanel = ({
         />
         <SummaryRow
           label="Includes"
-          value={`${seats} ${seats === 1 ? 'seat' : 'seats'}, ${SQUAD_PLAN_CASHBACK_PERCENTAGE[plan]}% cashback`}
+          value={`${seats} ${seats === 1 ? 'seat' : 'seats'}, ${getSquadPlanCashback(plan, cashbackPromo)}% cashback`}
           isMuted
         />
+        {!!checkoutTotals?.discount && (
+          <SummaryRow
+            label="Discount"
+            value={`-${formatTotal(checkoutTotals.discount)}`}
+          />
+        )}
         <SummaryRow
           label="Tax"
           value="Added by Paddle for your country"
           isMuted
         />
-        <SummaryRow label="Due today" value={price} isBold />
+        <SummaryRow
+          label="Due today"
+          value={checkoutTotals ? formatTotal(checkoutTotals.total) : price}
+          isBold
+        />
         <p className="text-text-tertiary typo-footnote">
           Renews every month. Cancel any time, your page and posts stay.
         </p>
@@ -665,6 +774,7 @@ const PlanStep = ({
         title={`Choose a plan for ${company.name}`}
         description="Billed monthly. Cancel any time, your page and posts stay."
       />
+      <SquadLaunchOfferBanner />
       <div role="radiogroup" className="flex flex-col gap-3">
         {squadPlans.map((option) => (
           <PlanOption
@@ -758,6 +868,8 @@ const SetupStep = ({
     squad,
     plan,
   );
+  // Shows what the founder's agent changes over MCP as it happens
+  useStartupsSetupRefresh({ squad, enabled: !editing });
   const preview = (
     <StartupsPagePreview
       squad={squad}
@@ -913,12 +1025,15 @@ const DoneStep = ({
   company,
   plan,
   answers,
+  isReturning,
 }: {
   company: CompanyChoice;
   plan: SquadPlan;
   answers: Partial<Record<CheckoutStage, string>>;
+  /** Back to set up a page that was already on a plan, nothing was paid */
+  isReturning?: boolean;
 }): ReactElement => {
-  const { user } = useAuthContext();
+  const { user, refetchBoot } = useAuthContext();
   const client = useQueryClient();
   const [startedAt] = useState(() => Date.now());
   const [isTimedOut, setTimedOut] = useState(false);
@@ -937,12 +1052,18 @@ const DoneStep = ({
 
   useEffect(() => {
     if (isActive) {
+      if (isReturning) {
+        return undefined;
+      }
+
       logStartups(LogEvent.ActivateSquadPlan, plan, {
         source_id: company.id,
         seconds: Math.round((Date.now() - startedAt) / 1000),
       });
-      // The squad's features changed with the plan
+      // The squad's features changed with the plan, and boot's squads now
+      // carry the owner's seat, which seat-only settings read
       client.invalidateQueries({ queryKey: [RequestKey.Squad] });
+      refetchBoot?.();
       return undefined;
     }
 
@@ -1071,6 +1192,7 @@ export const StartupsCheckout = ({
     initialCompany,
   );
   const [isNewCompany, setNewCompany] = useState(false);
+  const [isReturning, setReturning] = useState(false);
   const logStartups = useLogStartups();
   const answers = {
     [CheckoutStage.Company]: company?.name,
@@ -1138,7 +1260,14 @@ export const StartupsCheckout = ({
   }
 
   if (step === StartupsCheckoutStep.Done && company) {
-    return <DoneStep company={company} plan={plan} answers={answers} />;
+    return (
+      <DoneStep
+        company={company}
+        plan={plan}
+        answers={answers}
+        isReturning={isReturning}
+      />
+    );
   }
 
   return (
@@ -1150,6 +1279,12 @@ export const StartupsCheckout = ({
         setCompany(next);
         setNewCompany(isNew);
         setStep(StartupsCheckoutStep.Plan);
+      }}
+      onSetUp={(next, activePlan) => {
+        setCompany(next);
+        setPlan(activePlan);
+        setReturning(true);
+        setStep(StartupsCheckoutStep.Done);
       }}
     />
   );

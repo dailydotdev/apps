@@ -19,9 +19,15 @@ import type {
 import {
   squadSeatMembersQueryOptions,
   squadSubscriptionBalanceQueryOptions,
+  startupsCashbackPromoQueryOptions,
   squadSubscriptionQueryOptions,
 } from '@dailydotdev/shared/src/graphql/squadSubscription';
 import { squadMembersPreviewQueryOptions } from '@dailydotdev/shared/src/graphql/squads';
+import type { SquadIntelSettings } from '@dailydotdev/shared/src/graphql/squadIntel';
+import {
+  squadIntelQueryOptions,
+  squadIntelSettingsQueryOptions,
+} from '@dailydotdev/shared/src/graphql/squadIntel';
 import {
   generateQueryKey,
   RequestKey,
@@ -124,6 +130,8 @@ const acme = {
     permissions: Object.values(SourcePermissions),
     referralToken: 'token',
     user: owner.user,
+    // The buyer holds a seat from the moment the plan is on
+    seat: true,
   } as unknown as SourceMember,
 } as unknown as SeededSquad;
 
@@ -198,6 +206,8 @@ const noPlan: SquadSubscription = {
   seatLimit: 0,
   seatsUsed: 0,
   ownerId: null,
+  cashbackPercentage: 0,
+  cashbackPromoEndsAt: null,
 };
 
 const starter: SquadSubscription = {
@@ -206,6 +216,15 @@ const starter: SquadSubscription = {
   seatLimit: 1,
   seatsUsed: 1,
   ownerId: defaultUser.id,
+  cashbackPercentage: 100,
+  cashbackPromoEndsAt: null,
+};
+
+// Started during the launch promo
+const starterPromo: SquadSubscription = {
+  ...starter,
+  cashbackPercentage: 500,
+  cashbackPromoEndsAt: '2027-11-08T10:00:00.000Z',
 };
 
 const teamPlan: SquadSubscription = {
@@ -214,7 +233,20 @@ const teamPlan: SquadSubscription = {
   seatLimit: 5,
   seatsUsed: 2,
   ownerId: defaultUser.id,
+  cashbackPercentage: 200,
+  cashbackPromoEndsAt: null,
 };
+
+// Topics picked for the weekly intel, so the checklist can finish.
+const intelPicked = (isTeamPlan: boolean): SquadIntelSettings => ({
+  selection: {
+    tags: ['observability', 'opentelemetry', 'grafana'],
+    seniority: null,
+    regions: null,
+  },
+  limits: { tags: isTeamPlan ? 20 : 5, seniority: isTeamPlan, regions: false },
+  nextIntelAt: '2026-11-09T00:00:00.000Z',
+});
 
 // Only the buyer holds a seat so far.
 const teamPlanNew: SquadSubscription = { ...teamPlan, seatsUsed: 1 };
@@ -227,6 +259,7 @@ const Seeded = ({
   balance = 9800,
   products = [],
   branding = { color: null, button: null } as unknown as SquadBranding,
+  intelSettings,
   children,
 }: {
   squad: Squad;
@@ -237,9 +270,21 @@ const Seeded = ({
   /** Null: still on its way, and it stays that way. */
   products?: SquadProduct[] | null;
   branding?: SquadBranding;
+  /** No topics yet, with the plan's limits, unless a story sets them. */
+  intelSettings?: SquadIntelSettings;
   children: ReactNode;
 }): ReactElement => {
   const client = useQueryClient();
+  const isTeamPlan = subscription?.plan === SquadPlan.Team;
+  const intel = intelSettings ?? {
+    selection: null,
+    limits: {
+      tags: isTeamPlan ? 20 : 5,
+      seniority: isTeamPlan,
+      regions: false,
+    },
+    nextIntelAt: '2026-11-09T00:00:00.000Z',
+  };
   const { user } = useAuthContext();
   const seed = () => {
     client.setQueryData(
@@ -290,6 +335,11 @@ const Seeded = ({
         pending(productsKey);
       }
       pin(squadBrandingQueryOptions({ squad, user: who }).queryKey, branding);
+      pin(
+        squadIntelSettingsQueryOptions({ user: who, sourceId }).queryKey,
+        intel,
+      );
+      pin(squadIntelQueryOptions({ user: who, sourceId }).queryKey, null);
     });
   };
   useState(() => {
@@ -303,6 +353,19 @@ const Seeded = ({
       {children}
     </SquadPageContextProvider>
   );
+};
+
+/** The launch promo, on for new subscriptions. */
+const PromoOn = ({ children }: { children: ReactNode }): ReactElement => {
+  const client = useQueryClient();
+  useState(() => {
+    const { queryKey } = startupsCashbackPromoQueryOptions();
+    client.setQueryData(queryKey, { percentage: 500, months: 12 });
+    client.setQueryDefaults(queryKey, { staleTime: Infinity });
+    return true;
+  });
+
+  return <>{children}</>;
 };
 
 const ManagePlan = ({
@@ -361,6 +424,7 @@ const SetupPreview = ({
       subscription={isAllDone ? teamPlan : teamPlanNew}
       products={isAllDone ? [sampleProduct] : []}
       branding={isAllDone ? headerCta : undefined}
+      intelSettings={isAllDone ? intelPicked(true) : undefined}
     >
       <div className="mx-auto flex max-w-[40rem] flex-col p-4 tablet:p-6">
         <StartupsSetup
@@ -416,6 +480,21 @@ export const ManageStarter: Story = {
     <ManagePlan
       subscription={starter}
       members={[owner, ...team.slice(1).map((m) => ({ ...m, seat: false }))]}
+    />
+  ),
+};
+
+/** Enterprise, set by ops for a contract: no price, billing or cashback. */
+export const ManageEnterprise: Story = {
+  render: () => (
+    <ManagePlan
+      subscription={
+        {
+          ...teamPlan,
+          plan: 'enterprise',
+          seatsUsed: 2,
+        } as unknown as SquadSubscription
+      }
     />
   ),
 };
@@ -500,6 +579,7 @@ export const ManageSetupComplete: Story = {
       subscription={teamPlan}
       products={[sampleProduct]}
       branding={headerCta}
+      intelSettings={intelPicked(true)}
     >
       <SquadManageLayout section={SquadManageSection.Plan}>
         <SquadManagePlan />
@@ -713,6 +793,7 @@ export const CheckoutDoneFinished: Story = {
       squad={acmeHalfDone}
       subscription={starter}
       products={[sampleProduct]}
+      intelSettings={intelPicked(false)}
     >
       <StartupsCheckout
         initialStep={StartupsCheckoutStep.Done}
@@ -731,6 +812,7 @@ export const CheckoutDoneTeamFinished: Story = {
       subscription={teamPlan}
       products={[sampleProduct]}
       branding={headerCta}
+      intelSettings={intelPicked(true)}
     >
       <StartupsCheckout
         initialStep={StartupsCheckoutStep.Done}
@@ -795,4 +877,61 @@ export const SquadPageUpsell: Story = {
 export const SquadPageUpsellPhone: Story = {
   ...SquadPageUpsell,
   globals: phone,
+};
+
+/** The launch promo is on: plans show 500% for the first year. */
+export const PromoManageNoPlan: Story = {
+  render: () => (
+    <PromoOn>
+      <ManagePlan subscription={noPlan} />
+    </PromoOn>
+  ),
+};
+
+/** Starter bought during the launch promo. */
+export const PromoManageStarter: Story = {
+  render: () => (
+    <PromoOn>
+      <ManagePlan
+        subscription={starterPromo}
+        members={[owner, ...team.slice(1).map((m) => ({ ...m, seat: false }))]}
+      />
+    </PromoOn>
+  ),
+};
+
+export const PromoCheckoutPlan: Story = {
+  render: () => (
+    <PromoOn>
+      <StartupsCheckout
+        initialStep={StartupsCheckoutStep.Plan}
+        initialCompany={acme}
+      />
+    </PromoOn>
+  ),
+};
+
+export const PromoCheckoutPlanPhone: Story = {
+  ...PromoCheckoutPlan,
+  globals: phone,
+};
+
+export const PromoCheckoutPayment: Story = {
+  render: () => (
+    <PromoOn>
+      <StartupsCheckout
+        initialStep={StartupsCheckoutStep.Checkout}
+        initialCompany={acme}
+        initialPlan={SquadPlan.Starter}
+      />
+    </PromoOn>
+  ),
+};
+
+export const PromoSquadPageUpsell: Story = {
+  render: () => (
+    <PromoOn>
+      <SquadPageUpsellPreview />
+    </PromoOn>
+  ),
 };

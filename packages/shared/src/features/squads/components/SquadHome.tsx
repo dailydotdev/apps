@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import Feed from '../../../components/Feed';
 import type { FeedProps } from '../../../components/Feed';
 import {
@@ -29,6 +30,10 @@ import { SquadEmptyFeed, SquadSearchEmpty } from './feed/SquadEmptyFeed';
 import { SquadSearchHeader } from './feed/SquadSearchHeader';
 import { SquadProductsShelf } from './products/SquadProductsShelf';
 import { SquadJoinSuggestionsInline } from './joinSuggestions/SquadJoinSuggestionsInline';
+import { SquadJobsTab } from './jobs/SquadJobs';
+import { useSquadJobs } from '../hooks/useSquadJobs';
+import { SourcePermissions } from '../../../graphql/sources';
+import { verifyPermission } from '../../../graphql/squads';
 
 // Two cards a row at most: the feed shares the page with the right column.
 const MAX_FEED_COLUMNS = 2;
@@ -42,8 +47,25 @@ export const SquadHome = ({
   searchQuery,
   onClearSearch,
 }: SquadHomeProps): ReactElement => {
+  const router = useRouter();
   const { squad } = useSquadPageContext();
   const { user } = useAuthContext();
+  const {
+    jobs,
+    isEnabled: isJobsEnabled,
+    isPending: isJobsPending,
+  } = useSquadJobs(squad);
+  // Editors see the tab empty too, as a nudge to add a role. A tab asked for
+  // in the address shows while the roles load, so the feed never mounts just
+  // to be swapped out.
+  const isJobsRequested = /\/jobs$/.test(
+    (router?.asPath ?? '').split(/[?#]/)[0],
+  );
+  const hasJobsTab =
+    isJobsEnabled &&
+    (!!jobs.length ||
+      verifyPermission(squad, SourcePermissions.Edit) ||
+      (isJobsPending && isJobsRequested));
   const { shouldUseListFeedLayout } = useFeedLayout();
   const { postTypesFilter } = useSearchContextProvider();
   const isSearching = searchQuery.length > 0;
@@ -160,6 +182,7 @@ export const SquadHome = ({
         </>
       }
       hasAboutTab
+      jobs={hasJobsTab ? <SquadJobsTab /> : undefined}
     >
       <div className="flex flex-col gap-4 border-border-subtlest-tertiary pt-4 tablet:px-6 tablet:pt-6 laptop:border-t">
         <SquadComposer />

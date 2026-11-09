@@ -36,12 +36,20 @@ import { getStartupsCheckoutUrl, SquadManageSection } from '../../lib/routes';
 import {
   SQUAD_PLAN_CASHBACK_PERCENTAGE,
   SquadPlan,
+  getSquadPlanTitle,
+  isSquadPlan,
   squadPlanDetails,
   squadPlans,
   startupsEnterpriseUrl,
 } from '../../lib/plans';
 import { useSquadPlanPrices } from '../../hooks/useSquadPlanPrices';
+import {
+  SquadLaunchOfferBanner,
+  SquadPlanCashback,
+} from '../SquadPlanCashback';
+import { getPlusMemberDateFormat } from '../../../../lib/dateFormat';
 import { useLogStartups } from '../../hooks/useLogStartups';
+import { useStartupsSetupRefresh } from '../../hooks/useStartupsSetupRefresh';
 import { SquadManageSectionPanel } from './SquadManageLayout';
 import {
   StartupsSetup,
@@ -125,10 +133,7 @@ const PlanChoice = ({
         <span className="font-bold tabular-nums typo-title2">{price}</span>
         <span className="text-text-tertiary typo-footnote"> / month</span>
       </span>
-      <span className="flex items-center gap-1.5 text-text-secondary typo-footnote">
-        <CoreIcon size={IconSize.Size16} className="shrink-0" />
-        {`${SQUAD_PLAN_CASHBACK_PERCENTAGE[plan]}% cashback to boost your posts`}
-      </span>
+      <SquadPlanCashback plan={plan} />
       <span className="text-text-tertiary typo-footnote">{tagline}</span>
       <ul className="flex flex-col gap-1.5 border-t border-border-subtlest-tertiary pt-3">
         <li className="font-bold text-text-tertiary typo-footnote">
@@ -169,6 +174,7 @@ const ChoosePlan = ({ isAdmin }: { isAdmin: boolean }): ReactElement => {
         title="Make it your company page"
         description="In the feed and search, cited by AI answers, and your agent posts and boosts through the API."
       />
+      <SquadLaunchOfferBanner />
       <div className="grid gap-3 tablet:grid-cols-2">
         {squadPlans.map((plan) => (
           <PlanChoice
@@ -406,6 +412,8 @@ const SetupSection = ({ plan }: { plan: SquadPlan }): ReactElement => {
   const { squad } = useSquadPageContext();
   const { isComplete } = useStartupsSetupProgress(squad, plan);
   const [isReviewing, setReviewing] = useState(false);
+  // Ticks the rows as the founder's agent sets the page up over MCP
+  useStartupsSetupRefresh({ squad, enabled: !isComplete || isReviewing });
 
   return (
     <section className="flex flex-col gap-3">
@@ -436,6 +444,19 @@ const SetupSection = ({ plan }: { plan: SquadPlan }): ReactElement => {
   );
 };
 
+const getActiveCashbackDescription = (
+  plan: SquadPlan,
+  { cashbackPercentage, cashbackPromoEndsAt }: SquadSubscription,
+): string => {
+  const until = cashbackPromoEndsAt
+    ? ` until ${getPlusMemberDateFormat(cashbackPromoEndsAt)}, then ${
+        SQUAD_PLAN_CASHBACK_PERCENTAGE[plan]
+      }%`
+    : '';
+
+  return `${cashbackPercentage}% of each payment lands here every month${until}. Seats spend it to boost this page's posts.`;
+};
+
 const ActivePlan = ({
   subscription,
   isAdmin,
@@ -448,6 +469,7 @@ const ActivePlan = ({
   const prices = useSquadPlanPrices();
   const sourceId = getSquadId(squad);
   const plan = subscription.plan as SquadPlan;
+  const isSelfServe = isSquadPlan(plan);
   const isOwner = !!user && user.id === subscription.ownerId;
   const { data: balance } = useQuery(
     squadSubscriptionBalanceQueryOptions({ user, sourceId }),
@@ -470,20 +492,26 @@ const ActivePlan = ({
           <div className="flex flex-col gap-2">
             <span className="flex items-center gap-2">
               <span className="font-bold typo-title2">
-                {squadPlanDetails[plan].title}
+                {getSquadPlanTitle(plan)}
               </span>
               <span className="rounded-8 bg-accent-avocado-flat px-2 py-0.5 font-bold text-accent-avocado-default typo-caption1">
                 Active
               </span>
             </span>
-            <span className="text-text-secondary typo-callout">
-              <span className="font-bold tabular-nums text-text-primary">
-                {prices[plan]}
-              </span>{' '}
-              a month
-            </span>
+            {isSelfServe ? (
+              <span className="text-text-secondary typo-callout">
+                <span className="font-bold tabular-nums text-text-primary">
+                  {prices[plan]}
+                </span>{' '}
+                a month
+              </span>
+            ) : (
+              <span className="text-text-secondary typo-callout">
+                Billed through your daily.dev contract.
+              </span>
+            )}
           </div>
-          {isOwner && (
+          {isSelfServe && isOwner && (
             <Button
               tag="a"
               href={managePlusUrl}
@@ -501,26 +529,27 @@ const ActivePlan = ({
               Manage billing
             </Button>
           )}
-          {!isOwner && owner && (
+          {isSelfServe && !isOwner && owner && (
             <p className="text-text-tertiary typo-footnote">
               {`${owner.user.name} pays for this plan and manages its billing.`}
             </p>
           )}
         </div>
-        <div className="flex items-center gap-3 border-t border-border-subtlest-tertiary pt-4">
-          <CoreIcon size={IconSize.Medium} className="shrink-0" />
-          <div className="flex min-w-0 flex-1 flex-col">
-            <span className="font-bold tabular-nums typo-callout">
-              {`${largeNumberFormat(balance ?? 0)} in cashback`}
-            </span>
-            <span className="text-text-tertiary typo-footnote">
-              Your cashback lands here every month. Seats spend it to boost this
-              page&apos;s posts.
-            </span>
+        {isSelfServe && (
+          <div className="flex items-center gap-3 border-t border-border-subtlest-tertiary pt-4">
+            <CoreIcon size={IconSize.Medium} className="shrink-0" />
+            <div className="flex min-w-0 flex-1 flex-col">
+              <span className="font-bold tabular-nums typo-callout">
+                {`${largeNumberFormat(balance ?? 0)} in cashback`}
+              </span>
+              <span className="text-text-tertiary typo-footnote">
+                {getActiveCashbackDescription(plan, subscription)}
+              </span>
+            </div>
           </div>
-        </div>
+        )}
       </div>
-      <SetupSection plan={plan} />
+      {isSelfServe && <SetupSection plan={plan} />}
       <SquadManageSeats subscription={subscription} isAdmin={isAdmin} />
     </>
   );

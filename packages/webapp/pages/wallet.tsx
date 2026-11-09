@@ -57,6 +57,7 @@ import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/Inf
 import type { LogStartBuyingCreditsProps } from '@dailydotdev/shared/src/types';
 import { FeaturedCoresWidget } from '@dailydotdev/shared/src/components/cores/FeaturedCoresWidget';
 import { PlusCoresGivebackWidget } from '@dailydotdev/shared/src/components/cores/PlusCoresGivebackWidget';
+import { StartupsWalletPromo } from '@dailydotdev/shared/src/features/squads/components/promos/StartupsPromo';
 import { TransactionItem } from '@dailydotdev/shared/src/components/cores/TransactionItem';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import {
@@ -344,6 +345,7 @@ const Wallet = (): ReactElement | null => {
                 isLoading={isPendingSummary}
               />
             </section>
+            <StartupsWalletPromo className="laptop:hidden" />
             <PlusCoresGivebackWidget className="laptop:hidden" />
             <Divider />
             <section className="flex w-full flex-col gap-6">
@@ -421,6 +423,7 @@ const Wallet = (): ReactElement | null => {
               amounts={[100, 300, 600]}
             />
           )}
+          <StartupsWalletPromo className="hidden laptop:flex" />
           <PlusCoresGivebackWidget className="hidden laptop:flex" />
           <WidgetContainer className="flex flex-col">
             <div className="flex justify-around p-4">

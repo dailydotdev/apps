@@ -8,25 +8,21 @@ import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import type { Picks } from '@dailydotdev/shared/src/graphql/picks';
-import { PICKS_QUERY } from '@dailydotdev/shared/src/graphql/picks';
+import {
+  PICKS_QUERY,
+  PICKS_VIEW_COUNT_QUERY,
+  TRACK_PICKS_VIEW_MUTATION,
+} from '@dailydotdev/shared/src/graphql/picks';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { getCurrentWeekStart } from '@dailydotdev/shared/src/lib/picks';
 import PicksPage from '../pages/picks/[id]';
 
 const mockPush = jest.fn();
-let mockPicksEnabled = true;
 
 const mockOpenShareSheet = jest.fn();
 
 jest.mock('@dailydotdev/shared/src/hooks/picks/useSharePicks', () => ({
   useSharePicks: () => ({ openShareSheet: mockOpenShareSheet }),
-}));
-
-jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
-  useConditionalFeature: () => ({
-    value: mockPicksEnabled,
-    isLoading: false,
-  }),
 }));
 
 jest.mock('next/router', () => ({
@@ -70,10 +66,29 @@ const picks: Picks = {
 
 const logEvent = jest.fn();
 
+const trackView = jest.fn();
+const readViewCount = jest.fn();
+
+const mockViewCount = (id: string, viewCount: number | null) =>
+  mockGraphQL({
+    request: { query: PICKS_VIEW_COUNT_QUERY, variables: { id } },
+    result: () => {
+      readViewCount();
+      return { data: { picks: { id, viewCount } } };
+    },
+  });
+
 const renderPage = (data: Picks, auth: Record<string, unknown> = {}) => {
   mockGraphQL({
     request: { query: PICKS_QUERY, variables: { id: data.id } },
     result: { data: { picks: data } },
+  });
+  mockGraphQL({
+    request: { query: TRACK_PICKS_VIEW_MUTATION, variables: { id: data.id } },
+    result: () => {
+      trackView();
+      return { data: { trackPicksView: { _: true } } };
+    },
   });
   const client = new QueryClient();
 
@@ -87,7 +102,6 @@ const renderPage = (data: Picks, auth: Record<string, unknown> = {}) => {
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
-  mockPicksEnabled = true;
 });
 
 it('should render the author, subtitle and rows in position order', async () => {
@@ -110,7 +124,7 @@ it('should render the author, subtitle and rows in position order', async () => 
   expect(screen.getAllByText('9m read')).toHaveLength(2);
   expect(screen.getAllByRole('link')[0]).toHaveAttribute(
     'href',
-    'https://app.daily.dev/posts/p1?userid=author-1',
+    'https://app.daily.dev/posts/p1?userid=author-1&cid=share_picks',
   );
 });
 
@@ -126,6 +140,7 @@ it('should log the view once with viewer context', async () => {
           picks_id: 'picks-1',
           is_author: false,
           logged_in: false,
+          is_new_user: false,
         }),
       }),
     ),
@@ -164,11 +179,13 @@ it('should show a message when no picks are available', async () => {
   expect(screen.getByText('Make your picks')).toBeInTheDocument();
 });
 
-it('should send logged in viewers to the create flow', async () => {
+it('should send logged in viewers to the create flow with the page to fill from', async () => {
   renderPage(picks, { user: loggedUser, isLoggedIn: true });
   await userEvent.click(await screen.findByText('Make your picks'));
 
-  expect(mockPush).toHaveBeenCalledWith('/picks/new?origin=picks_page');
+  expect(mockPush).toHaveBeenCalledWith(
+    '/picks/new?origin=picks_page&from=picks-1',
+  );
   expect(logEvent).toHaveBeenCalledWith(
     expect.objectContaining({
       event_name: LogEvent.ClickMakeYourPicks,
@@ -183,9 +200,84 @@ it('should send logged out viewers through auth and back to the create flow', as
 
   expect(mockPush).toHaveBeenCalledWith(
     expect.stringContaining(
-      `after_auth=${encodeURIComponent('/picks/new?origin=picks_page')}`,
+      `after_auth=${encodeURIComponent(
+        '/picks/new?origin=picks_page&from=picks-1',
+      )}`,
     ),
   );
+});
+
+it('should flag a viewer who signed up this week', async () => {
+  renderPage(picks, {
+    user: { ...loggedUser, createdAt: new Date().toISOString() },
+    isLoggedIn: true,
+  });
+  await screen.findByText(/Ada Lovelace's picks/);
+
+  await waitFor(() =>
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.ViewPicksPage,
+        extra: JSON.stringify({
+          picks_id: 'picks-1',
+          is_author: false,
+          logged_in: true,
+          is_new_user: true,
+        }),
+      }),
+    ),
+  );
+});
+
+it('should send a viewer to the editor with a pick preselected', async () => {
+  renderPage(picks, { user: loggedUser, isLoggedIn: true });
+  await screen.findByText('First pick');
+  const [addSecond] = screen.getAllByRole('button', {
+    name: 'Add to my picks',
+  });
+  await userEvent.click(addSecond);
+
+  expect(mockPush).toHaveBeenCalledWith(
+    '/picks/new?origin=picks_page&from=picks-1&add=p1',
+  );
+  expect(logEvent).toHaveBeenCalledWith(
+    expect.objectContaining({
+      event_name: LogEvent.ClickAddToPicks,
+      extra: JSON.stringify({
+        picks_id: 'picks-1',
+        post_id: 'p1',
+        logged_in: true,
+      }),
+    }),
+  );
+});
+
+it('should keep the preselected pick through auth for logged out viewers', async () => {
+  renderPage(picks, { user: undefined, isLoggedIn: false });
+  await screen.findByText('First pick');
+  await userEvent.click(
+    screen.getAllByRole('button', { name: 'Add to my picks' })[1],
+  );
+
+  expect(mockPush).toHaveBeenCalledWith(
+    expect.stringContaining(
+      `after_auth=${encodeURIComponent(
+        '/picks/new?origin=picks_page&from=picks-1&add=p2',
+      )}`,
+    ),
+  );
+});
+
+it('should not offer the author to add their own picks', async () => {
+  renderPage(picks, {
+    user: { ...loggedUser, id: 'author-1' },
+    isLoggedIn: true,
+  });
+  await screen.findByText('First pick');
+
+  expect(
+    screen.queryByRole('button', { name: 'Add to my picks' }),
+  ).not.toBeInTheDocument();
 });
 
 it('should show the author a Share button that opens the share sheet', async () => {
@@ -230,24 +322,58 @@ it('should not show a Share button to other viewers', async () => {
   ).not.toBeInTheDocument();
 });
 
-it('should hide the make picks CTA from logged in viewers when the flag is off', async () => {
-  mockPicksEnabled = false;
+it('should show the make picks CTA to every viewer', async () => {
+  renderPage(picks, { user: loggedUser, isLoggedIn: true });
+
+  expect(await screen.findByText('Make your picks')).toBeInTheDocument();
+});
+
+it('should count the open for a viewer', async () => {
   renderPage(picks, { user: loggedUser, isLoggedIn: true });
   await screen.findByText(/Ada Lovelace's picks/);
 
-  expect(screen.queryByText('Make your picks')).not.toBeInTheDocument();
+  await waitFor(() => expect(trackView).toHaveBeenCalledTimes(1));
+  expect(screen.queryByText(/Opened by/)).not.toBeInTheDocument();
 });
 
-it('should show the make picks CTA to logged in viewers when the flag is on', async () => {
-  mockPicksEnabled = true;
-  renderPage(picks, { user: loggedUser, isLoggedIn: true });
-
-  expect(await screen.findByText('Make your picks')).toBeInTheDocument();
-});
-
-it('should keep the CTA for logged out viewers regardless of the flag', async () => {
-  mockPicksEnabled = false;
+it('should count the open for a logged out viewer', async () => {
   renderPage(picks, { user: undefined, isLoggedIn: false });
+  await screen.findByText(/Ada Lovelace's picks/);
 
-  expect(await screen.findByText('Make your picks')).toBeInTheDocument();
+  await waitFor(() => expect(trackView).toHaveBeenCalledTimes(1));
+});
+
+it('should not count the author and show them the opens, read fresh', async () => {
+  mockViewCount('picks-1', 12);
+  renderPage(picks, {
+    user: { ...loggedUser, id: 'author-1' },
+    isLoggedIn: true,
+  });
+
+  expect(await screen.findByText('Opened by 12')).toBeInTheDocument();
+  expect(readViewCount).toHaveBeenCalledTimes(1);
+  await waitFor(() =>
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ event_name: LogEvent.ViewPicksPage }),
+    ),
+  );
+  expect(trackView).not.toHaveBeenCalled();
+});
+
+it('should tell the author when nobody opened it yet', async () => {
+  mockViewCount('picks-1', 0);
+  renderPage(picks, {
+    user: { ...loggedUser, id: 'author-1' },
+    isLoggedIn: true,
+  });
+
+  expect(await screen.findByText('Not opened yet')).toBeInTheDocument();
+});
+
+it('should not read the count for other viewers', async () => {
+  renderPage(picks, { user: loggedUser, isLoggedIn: true });
+  await screen.findByText(/Ada Lovelace's picks/);
+  await waitFor(() => expect(trackView).toHaveBeenCalledTimes(1));
+
+  expect(readViewCount).not.toHaveBeenCalled();
 });

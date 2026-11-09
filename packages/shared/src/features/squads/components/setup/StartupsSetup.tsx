@@ -17,6 +17,8 @@ import { squadProductsQueryOptions } from '../../../../graphql/squadProducts';
 import { squadBrandingQueryOptions } from '../../../../graphql/squadBranding';
 import { squadSubscriptionQueryOptions } from '../../../../graphql/squadSubscription';
 import { squadIntelSettingsQueryOptions } from '../../../../graphql/squadIntel';
+import { oauthConsentsQueryOptions } from '../../../../lib/oauthApps';
+import { personalAccessTokensQueryOptions } from '../../../../hooks/api/usePersonalAccessTokens';
 import type { Origin } from '../../../../lib/log';
 import { LogEvent } from '../../../../lib/log';
 import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
@@ -34,7 +36,9 @@ import {
 } from '../../lib/setup';
 import { getSquadId } from '../../lib/features';
 import { useLogStartups } from '../../hooks/useLogStartups';
+import type { AgentMarkData } from '../checkout/agentMarks';
 import { agentMarks } from '../checkout/agentMarks';
+import { AgentMark } from '../checkout/AgentMark';
 import type { SquadProduct } from '../../../../graphql/squadProducts';
 import type { StartupsSetupRow } from './StartupsSetupEditor';
 
@@ -57,7 +61,7 @@ interface SetupItem {
   title: string;
   description: string;
   isDone?: boolean;
-  /** Counts towards "2 of 5": the agent and intel rows don't. */
+  /** Counts towards "2 of 5": the agent and cashback rows don't. */
   isCounted?: boolean;
   /** Shown in place of the button, for features still on the way. */
   badge?: string;
@@ -126,9 +130,7 @@ export const CopyBlock = ({
   );
 };
 
-const agentClientMarks: Partial<
-  Record<AgentClient, (typeof agentMarks)[keyof typeof agentMarks]>
-> = {
+const agentClientMarks: Partial<Record<AgentClient, AgentMarkData>> = {
   [AgentClient.ClaudeCode]: agentMarks['claude-code'],
   [AgentClient.Cursor]: agentMarks.cursor,
   [AgentClient.Codex]: agentMarks.codex,
@@ -146,21 +148,11 @@ const AgentClientMark = ({
   }
 
   return (
-    <span
-      className="flex size-6 items-center justify-center rounded-6"
-      style={{ background: mark.tile, color: '#fff' }}
-    >
-      <svg
-        viewBox={mark.glyph.viewBox}
-        className="size-4"
-        fill="currentColor"
-        aria-hidden
-      >
-        {mark.glyph.paths.map((d) => (
-          <path key={d} d={d} fillRule="evenodd" />
-        ))}
-      </svg>
-    </span>
+    <AgentMark
+      mark={mark}
+      className="size-6 rounded-6"
+      glyphClassName="size-4"
+    />
   );
 };
 
@@ -210,7 +202,7 @@ export const AgentConnect = ({
       ))}
     </div>
     {/* Every client is laid out at once, so switching moves nothing below. */}
-    <div className="grid">
+    <div className="grid grid-cols-1">
       {agentClients.map((option) => {
         const setup = agentClientSetup[option];
 
@@ -291,8 +283,9 @@ const AgentSetup = ({
       <div className="flex flex-col gap-3">
         <p className="font-bold typo-callout">2. Paste this prompt</p>
         <p className="text-text-tertiary typo-footnote">
-          Your agent reads your project, drafts the page and asks you before it
-          saves anything.
+          Your agent sets up the page and your profile, picks your first post
+          and boosts it, then schedules a daily report. It asks before it saves
+          anything.
         </p>
         <CopyBlock
           text={prompt}
@@ -424,7 +417,7 @@ const ManualSetup = ({
                     item.onClick?.();
                   }}
                 >
-                  {item.isDone ? 'Edit' : item.cta}
+                  {item.isDone && !item.onClick ? 'Edit' : item.cta}
                 </Button>
               )}
             </li>
@@ -439,9 +432,10 @@ const ManualSetup = ({
 };
 
 export const startupsSetupRowTitles: Record<StartupsSetupRow, string> = {
-  details: 'Logo and description',
+  details: 'Logo, cover and description',
   links: 'Website and links',
   product: 'Your product',
+  intel: 'Weekly intel',
   cta: 'A CTA on your page header',
   seats: 'Give your team seats',
 };
@@ -452,14 +446,19 @@ export const useStartupsSetupProgress = (
   plan: SquadPlan,
 ): {
   done: Record<StartupsSetupRow, boolean>;
+  /** Only paid seats can pick the intel's topics, so it counts only for them. */
+  hasIntel: boolean;
   isComplete: boolean;
   /** Still finding out which rows are done. */
   isChecking: boolean;
+  /** The founder signed an agent in to daily.dev, or used an API token */
+  isAgentConnected: boolean;
   product?: SquadProduct;
   cta?: string;
 } => {
   const { user } = useAuthContext();
   const isTeam = plan === SquadPlan.Team;
+  const hasIntel = !!squad.currentMember?.seat;
   const { data: products, isLoading: isLoadingProducts } = useQuery(
     squadProductsQueryOptions({ squad, user }),
   );
@@ -470,22 +469,47 @@ export const useStartupsSetupProgress = (
     ...squadSubscriptionQueryOptions({ user, sourceId: getSquadId(squad) }),
     enabled: !!user && isTeam,
   });
+  const { data: intelSettings, isLoading: isLoadingIntel } = useQuery(
+    squadIntelSettingsQueryOptions({
+      user,
+      sourceId: getSquadId(squad),
+      enabled: hasIntel,
+    }),
+  );
+  const { data: consents } = useQuery({
+    ...oauthConsentsQueryOptions(),
+    enabled: !!user,
+  });
+  const { data: tokens } = useQuery({
+    ...personalAccessTokensQueryOptions(),
+    enabled: !!user,
+  });
   const done = {
-    details: !!squad.description,
+    // Boosting the page needs a cover and a description
+    details: !!squad.description && !!squad.headerImage,
     links: !!squad.website || !!squad.links?.length,
     product: !!products?.length,
+    intel: !!intelSettings?.selection,
     cta: !!branding?.button?.enabled,
     seats: (subscription?.seatsUsed ?? 0) > 1,
   };
 
   return {
     done,
+    hasIntel,
     isComplete:
       done.details &&
       done.links &&
       done.product &&
-      (!isTeam || (done.cta && done.seats)),
-    isChecking: isLoadingProducts || isLoadingBranding || isLoadingSubscription,
+      (!hasIntel || done.intel) &&
+      (!isTeam || done.cta),
+    isChecking:
+      isLoadingProducts ||
+      isLoadingBranding ||
+      isLoadingSubscription ||
+      isLoadingIntel,
+    isAgentConnected:
+      !!consents?.length || !!tokens?.some((token) => token.lastUsedAt),
     product: products?.[0],
     cta: branding?.button?.enabled ? branding.button.label : undefined,
   };
@@ -512,6 +536,7 @@ export const StartupsSetup = ({
   initialPath = StartupsSetupPath.Agent,
   onEditRow,
 }: StartupsSetupProps): ReactElement => {
+  const { user } = useAuthContext();
   const sourceId = getSquadId(squad);
   const [path, setPath] = useState(initialPath);
   const logStartups = useLogStartups();
@@ -523,16 +548,13 @@ export const StartupsSetup = ({
       ...extra,
     });
   const isTeam = plan === SquadPlan.Team;
-  const { done, isChecking } = useStartupsSetupProgress(squad, plan);
-  const { user } = useAuthContext();
-  // Only paid seats can read it; anyone else just sees the step as open
-  const { data: intelSettings } = useQuery(
-    squadIntelSettingsQueryOptions({
-      user,
-      sourceId,
-      enabled: !!squad.currentMember?.seat,
-    }),
-  );
+  const { done, hasIntel, isChecking, isAgentConnected } =
+    useStartupsSetupProgress(squad, plan);
+  // Read from the cache: the checkout and Manage › Plan load it already
+  const { data: subscription } = useQuery({
+    ...squadSubscriptionQueryOptions({ user, sourceId }),
+    enabled: false,
+  });
   const manageUrl = (section: SquadManageSection) =>
     getSquadManageUrl(squad.handle, section);
   const selectPath = (option: StartupsSetupPath) => {
@@ -543,8 +565,9 @@ export const StartupsSetup = ({
   const candidates: Array<SetupItem | false> = [
     {
       id: 'details',
-      title: 'Logo and description',
-      description: 'Say what you build and for which developers.',
+      title: 'Logo, cover and description',
+      description:
+        'Say what you build and for which developers. Boosting the page needs the cover too.',
       isDone: done.details,
       isCounted: true,
       href: manageUrl(SquadManageSection.Details),
@@ -568,6 +591,19 @@ export const StartupsSetup = ({
       href: manageUrl(SquadManageSection.Products),
       cta: 'Add product',
     },
+    {
+      id: 'intel',
+      title: `Weekly intel on up to ${SQUAD_PLAN_INTEL_TOPICS[plan]} topics`,
+      description: hasIntel
+        ? `What developers read in your topics, every Monday${
+            isTeam ? ', with a seniority filter' : ''
+          }.`
+        : 'What developers read in your topics. Only paid seats can set it up.',
+      isDone: done.intel,
+      isCounted: hasIntel,
+      href: manageUrl(SquadManageSection.Intel),
+      cta: hasIntel ? 'Pick topics' : undefined,
+    },
     isTeam && {
       id: 'cta',
       title: 'A CTA on your page header',
@@ -582,7 +618,6 @@ export const StartupsSetup = ({
       title: 'Give your team seats',
       description: `${SQUAD_PLAN_SEATS[plan]} seats, each can post and boost through the API.`,
       isDone: done.seats,
-      isCounted: true,
       href: manageUrl(SquadManageSection.Plan),
       cta: 'Give seats',
     },
@@ -590,20 +625,15 @@ export const StartupsSetup = ({
       id: 'agent',
       title: 'Connect your agent',
       description: 'Post and boost from Claude Code, Cursor or Codex.',
+      isDone: isAgentConnected,
       onClick: () => selectPath(StartupsSetupPath.Agent),
       cta: 'Show me',
     },
     {
-      id: 'intel',
-      title: `Weekly intel on up to ${SQUAD_PLAN_INTEL_TOPICS[plan]} topics`,
-      description: 'What developers read and discuss in your space.',
-      isDone: !!intelSettings?.selection,
-      href: manageUrl(SquadManageSection.Intel),
-      cta: 'Pick topics',
-    },
-    {
       id: 'cashback',
-      title: `${SQUAD_PLAN_CASHBACK_PERCENTAGE[plan]}% cashback`,
+      title: `${
+        subscription?.cashbackPercentage || SQUAD_PLAN_CASHBACK_PERCENTAGE[plan]
+      }% cashback`,
       description:
         'Lands in your page wallet every month, to boost your posts.',
       isDone: true,

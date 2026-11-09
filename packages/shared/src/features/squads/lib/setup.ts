@@ -32,7 +32,7 @@ export interface AgentClientSetup {
 export const agentClientSetup: Record<AgentClient, AgentClientSetup> = {
   [AgentClient.ClaudeCode]: {
     label: 'Claude Code',
-    snippet: `claude mcp add --transport http daily.dev ${DAILY_MCP_URL}`,
+    snippet: `claude mcp add --transport http daily-dev ${DAILY_MCP_URL}`,
     note: 'Then run /mcp in Claude Code to sign in to daily.dev.',
   },
   [AgentClient.Cursor]: {
@@ -70,9 +70,17 @@ export const agentClientSetup: Record<AgentClient, AgentClientSetup> = {
 
 export const agentClients = Object.values(AgentClient);
 
+const SKILLS_URL = 'https://github.com/dailydotdev/daily/blob/master/skills';
+
+/** Points the agent at a daily.dev skill, with its file for clients without the plugin. */
+const skillRef = (name: string): string =>
+  `the ${name} skill (if you don't have it, read and follow ${SKILLS_URL}/${name}/SKILL.md)`;
+
 /**
- * The prompt that has an agent set up the page through the daily.dev MCP
- * server. It lists only what the API can do.
+ * The prompt for the founder's first agent session over the daily.dev MCP
+ * server: the page, their profile, a first post, a boost from the cashback
+ * wallet and a daily routine that brings them back. It lists only what the API
+ * can do.
  */
 export const getStartupsSetupPrompt = ({
   name,
@@ -83,35 +91,85 @@ export const getStartupsSetupPrompt = ({
   handle: string;
   plan: SquadPlan;
 }): string => {
-  const steps = [
-    `Find @${handle} in my squads and check its features and my role.`,
-    "Learn what we build from this project (README, docs, package metadata, our website). Ask me for anything you can't find.",
-    'Write the page description: one or two sentences on what we build and for which developers.',
-    'Set our logo, and a cover image if we have one, from image URLs on our site or ones I give you.',
-    `Set our website and up to ${SQUAD_LINKS_MAX} links developers look for: docs, GitHub, changelog, community.`,
-    'Add our product with its name, tagline, URL and pricing.',
-    `Pick up to ${SQUAD_PLAN_INTEL_TOPICS[plan]} existing daily.dev tags that match what we build and set them as the weekly intel topics.`,
+  const sections: { title: string; steps: string[] }[] = [
+    {
+      title: 'Weekly intel',
+      steps: [
+        `Find @${handle} in my squads and check its features and my role.`,
+        "Learn what we build from this project (README, docs, package metadata, our website). Ask me for anything you can't find.",
+        `Pick up to ${SQUAD_PLAN_INTEL_TOPICS[plan]} existing daily.dev tags that match what we build and save them as the weekly intel topics.${
+          plan === SquadPlan.Team
+            ? ' Ask me which developer seniority the intel should count (junior, mid-level, senior), or leave it for every level.'
+            : ''
+        } Our first intel builds in a minute or two; we use it for the first post.`,
+      ],
+    },
+    {
+      title: 'Company page',
+      steps: [
+        'Write the page description: one or two sentences on what we build and for which developers.',
+        'Set our logo and a cover image (boosting the page needs one). Use images from our site or ones I give you. If there is no good wide image, make a cover with our logo, name and one line on what we do, show it to me, and upload it.',
+        `Set our website and up to ${SQUAD_LINKS_MAX} links developers look for: docs, GitHub, changelog, community.`,
+        'Add our product with its name, tagline, URL and pricing.',
+        ...(plan === SquadPlan.Team
+          ? [
+              'Add the header CTA: a short label and the URL developers should land on, such as sign up or docs.',
+              `List the admins and moderators and ask me who gets the ${
+                SQUAD_PLAN_SEATS[plan] - 1
+              } remaining seats. For a teammate who isn't on the page yet, give me the invite link to send them.`,
+            ]
+          : []),
+      ],
+    },
+    {
+      title: 'My profile',
+      steps: [
+        `My name and photo sit on every post, so improve my daily.dev profile with ${skillRef(
+          'daily-dev-profile',
+        )}.`,
+      ],
+    },
+    {
+      title: 'First post',
+      steps: [
+        "Read our weekly intel. If it isn't ready yet, wait and check again for a few minutes.",
+        `List what we already published: blog posts, release notes, changelog entries, videos, talks, docs pages, launch posts. Recommend the one that fits the intel best, using any engagement you can see (views, comments, stars, earlier daily.dev posts). Say which intel numbers back it and give two runners-up. If nothing fits, suggest a new post with ${skillRef(
+          'daily-dev-content-ideas',
+        )}.`,
+        `Draft the post as a link with one or two lines of commentary in my voice, or as a written post when there is nothing to link. Publish it to @${handle} as me.`,
+      ],
+    },
+    {
+      title: 'Boost',
+      steps: [
+        "Check our page wallet and the estimated reach of boosting the post. Recommend 7 days at the daily budget closest to a third of the wallet, and show the cost in Cores, the reach and what stays in the wallet. Start the boost from the page wallet when I say yes. If the wallet can't cover a boost, tell me and skip this.",
+      ],
+    },
+    {
+      title: 'Daily routine',
+      steps: [
+        `Set up ${skillRef(
+          'daily-dev-growth-routine',
+        )}: ask me how often we want to publish, then schedule its daily report on our page, posts and boosts, with a reminder when the next post is due.`,
+      ],
+    },
   ];
 
-  if (plan === SquadPlan.Team) {
-    steps.push(
-      'Add the header CTA: a short label and the URL developers should land on, such as sign up or docs.',
-      `List the admins and moderators and ask me who gets the ${
-        SQUAD_PLAN_SEATS[plan] - 1
-      } remaining seats. For a teammate who isn't on the page yet, give me the invite link to send them.`,
-    );
-  }
-
-  steps.push(
-    'Offer to publish a first post: our latest launch, release or blog post as a link with a line of commentary.',
-  );
+  let step = 0;
+  const body = sections.flatMap(({ title, steps }) => [
+    '',
+    title,
+    ...steps.map((text) => {
+      step += 1;
+      return `${step}. ${text}`;
+    }),
+  ]);
 
   return [
-    `Set up ${name}'s company page on daily.dev (@${handle}, ${squadPlanDetails[plan].title} plan) with the daily.dev MCP server. If its tools aren't connected, stop and tell me to add ${DAILY_MCP_URL}.`,
+    `Set up ${name}'s company page on daily.dev (@${handle}, ${squadPlanDetails[plan].title} plan), polish my profile, get our first post out and boosted, and set up our daily routine, with the daily.dev MCP server. If its tools aren't connected, stop and tell me to add ${DAILY_MCP_URL}.`,
+    ...body,
     '',
-    ...steps.map((step, index) => `${index + 1}. ${step}`),
-    '',
-    'Before each change, show me exactly what you will save and wait for my OK. Finish with a short summary of what is set and what is left.',
+    'Before each change, show me exactly what you will save and wait for my OK. Finish with links to our page, my profile and the boosted post, and a short list of anything left.',
   ].join('\n');
 };
 

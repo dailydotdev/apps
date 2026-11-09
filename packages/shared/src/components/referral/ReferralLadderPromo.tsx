@@ -18,6 +18,7 @@ import ReferralSocialShareButtons from '../widgets/ReferralSocialShareButtons';
 import {
   getReferralLadderHeadline,
   pluralizeFriend,
+  REFERRAL_LADDER_PENDING_LABEL,
 } from './ReferralLadderRewards';
 import type { ReferralLadderStep } from '../../graphql/users';
 import { useReferralLadder } from '../../hooks/referral/useReferralLadder';
@@ -26,6 +27,7 @@ import {
   formatReferralLadderMonths,
   getReferralInviteMessage,
   getReferralLadderReward,
+  isReferralLadderStepPending,
   ReferralCampaignKey,
   REFERRAL_INVITE_COPIED_TOAST,
   REFERRAL_INVITE_TEXT,
@@ -46,6 +48,7 @@ const ReferralLadderPromoSteps = ({
   <ol className="grid grid-cols-3 gap-2">
     {steps.map((step) => {
       const isUnlocked = !!step.unlockedAt;
+      const isPending = isReferralLadderStepPending(step, referredCount);
 
       return (
         <li
@@ -64,7 +67,9 @@ const ReferralLadderPromoSteps = ({
             type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
           >
-            {step.invites} {pluralizeFriend(step.invites)}
+            {isPending
+              ? REFERRAL_LADDER_PENDING_LABEL
+              : `${step.invites} ${pluralizeFriend(step.invites)}`}
             {isUnlocked && <span className="sr-only">, unlocked</span>}
           </Typography>
           <span aria-hidden className="mt-1 flex gap-0.5">
@@ -94,8 +99,13 @@ export const ReferralLadderPromo = ({
   onClose,
   className,
 }: ReferralLadderPromoProps): ReactElement => {
-  const { referredCount, steps, nextStep, remainingInvites } =
-    useReferralLadder();
+  const {
+    referredCount,
+    steps,
+    nextStep,
+    remainingInvites,
+    hasPendingRewards,
+  } = useReferralLadder();
   const { url } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Generic,
   });
@@ -108,6 +118,7 @@ export const ReferralLadderPromo = ({
           referredCount,
           nextStep,
           remainingInvites,
+          hasPendingRewards,
         });
 
   return (

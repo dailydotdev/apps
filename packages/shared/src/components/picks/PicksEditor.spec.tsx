@@ -56,7 +56,7 @@ const mockData = (current: Picks | null, list = suggestions) => {
   });
 };
 
-const renderEditor = (origin?: Origin) => {
+const renderEditor = (origin?: Origin, addPostId?: string) => {
   const gb = new GrowthBook({
     features: { weekly_picks: { defaultValue: true } },
   });
@@ -67,7 +67,7 @@ const renderEditor = (origin?: Origin) => {
       log={{ logEvent }}
       gb={gb}
     >
-      <PicksEditor origin={origin} />
+      <PicksEditor origin={origin} addPostId={addPostId} />
     </TestBootProvider>,
   );
 };
@@ -208,7 +208,12 @@ it('should publish in selection order and open the share sheet', async () => {
   expect(logEvent).toHaveBeenCalledWith(
     expect.objectContaining({
       event_name: LogEvent.PublishPicks,
-      extra: JSON.stringify({ count: 2, notes_count: 1, is_edit: false }),
+      extra: JSON.stringify({
+        count: 2,
+        notes_count: 1,
+        is_edit: false,
+        origin: Origin.Bookmarks,
+      }),
     }),
   );
 });
@@ -230,4 +235,70 @@ it('should log a distinct reason for current picks missing from the suggestions'
       extra: JSON.stringify({ post_id: 'p9', reason: 'current' }),
     }),
   );
+});
+
+it('should label suggestions filled in from a picks page and popular posts', async () => {
+  mockData(null, [
+    makeSuggestion(1, { reason: 'from_picks', upvoted: false, read: false }),
+    makeSuggestion(2, { reason: 'popular', upvoted: false, read: false }),
+    makeSuggestion(3, { reason: 'popular', upvoted: false, read: true }),
+  ]);
+  renderEditor();
+  await waitForNock();
+  await findTitle('Post 1');
+
+  expect(screen.getByText('from the picks you opened')).toBeInTheDocument();
+  expect(screen.getByText('popular this week')).toBeInTheDocument();
+  expect(screen.getByText('read')).toBeInTheDocument();
+});
+
+it('should preselect the added post, focus its note and log the pick', async () => {
+  mockData(null);
+  renderEditor(Origin.PicksPage, 'p3');
+  await waitForNock();
+  await findTitle('Post 3');
+
+  await waitFor(() =>
+    expect(screen.getByText('1 of 5 selected')).toBeInTheDocument(),
+  );
+  expect(checkboxes()[2]).toBeChecked();
+  expect(screen.getByRole('textbox')).toHaveFocus();
+  expect(logEvent).toHaveBeenCalledWith(
+    expect.objectContaining({
+      event_name: LogEvent.SelectPick,
+      extra: JSON.stringify({ post_id: 'p3', reason: 'upvoted' }),
+    }),
+  );
+});
+
+it('should show the limit hint instead of adding a 6th pick', async () => {
+  const current = {
+    id: 'picks-1',
+    weekStart: '2026-11-02',
+    author: { id: 'u1', name: 'A', username: 'a', image: '', permalink: '' },
+    items: [1, 2, 3, 4, 5].map((n) => ({
+      position: n,
+      note: null,
+      post: makePost(n),
+    })),
+  } as Picks;
+  mockData(current);
+  renderEditor(Origin.PicksPage, 'p6');
+  await waitForNock();
+  await findTitle('Post 6');
+
+  expect(await screen.findByRole('status')).toHaveTextContent(
+    'You can pick up to 5 posts',
+  );
+  expect(screen.getByText('5 of 5 selected')).toBeInTheDocument();
+  expect(checkboxes()[5]).not.toBeChecked();
+});
+
+it('should ignore an added post that is not in the list', async () => {
+  mockData(null);
+  renderEditor(Origin.PicksPage, 'p99');
+  await waitForNock();
+  await findTitle('Post 1');
+
+  expect(screen.getByText('0 of 5 selected')).toBeInTheDocument();
 });

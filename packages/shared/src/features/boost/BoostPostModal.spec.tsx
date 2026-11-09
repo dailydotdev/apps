@@ -26,7 +26,6 @@ jest.mock('../../hooks/useLazyModal');
 jest.mock('../../hooks/post/usePostImage');
 jest.mock('../../hooks/useDebounceFn');
 jest.mock('next/dynamic', () => () => 'div');
-
 const mockUsePostBoostMutation = useCampaignMutation as jest.MockedFunction<
   typeof useCampaignMutation
 >;
@@ -338,7 +337,12 @@ describe('BoostPostModal', () => {
         },
         result: {
           data: {
-            source: { id: 'squad-1', name: 'Acme', currentMember: { seat } },
+            source: {
+              id: 'squad-1',
+              name: 'Acme',
+              handle: 'acme',
+              currentMember: { seat },
+            },
             squadSubscription: { plan, coresBalance },
           },
         },
@@ -391,7 +395,37 @@ describe('BoostPostModal', () => {
       );
     });
 
-    it('should block the boost when the squad wallet is short', async () => {
+    it('should show the squad wallet balance in the header', async () => {
+      mockSquadWallet({ coresBalance: 20765 });
+
+      renderBoostPostModal(squadPost(), createMockUser(0));
+
+      await screen.findByLabelText(/Acme wallet/);
+      expect(screen.getByTitle('Acme wallet')).toHaveTextContent('20K');
+      expect(screen.getByTitle('Acme wallet')).toHaveAttribute(
+        'href',
+        expect.stringContaining('/squads/acme/manage/plan'),
+      );
+
+      fireEvent.click(screen.getByLabelText(/My Cores/));
+      expect(screen.getByTitle('My Cores')).toHaveTextContent('0');
+    });
+
+    it('should buy Cores into the squad wallet from the header', async () => {
+      mockSquadWallet({ coresBalance: 20765 });
+
+      renderBoostPostModal(squadPost(), createMockUser(0));
+
+      await screen.findByLabelText(/Acme wallet/);
+      fireEvent.click(screen.getByLabelText('Buy Cores for Acme'));
+
+      expect(
+        await screen.findByText('Get More Cores for Acme'),
+      ).toBeInTheDocument();
+      expect(screen.getByText(/14,235 more Cores/)).toBeInTheDocument();
+    });
+
+    it('should buy the missing Cores into a short squad wallet', async () => {
       mockSquadWallet({ coresBalance: 1000 });
 
       renderBoostPostModal(squadPost());
@@ -399,9 +433,12 @@ describe('BoostPostModal', () => {
       expect(
         await screen.findByText(/doesn't have enough Cores/),
       ).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: /Boost post for/ }));
+
       expect(
-        screen.getByRole('button', { name: /Boost post for/ }),
-      ).toBeDisabled();
+        await screen.findByText('Get More Cores for Acme'),
+      ).toBeInTheDocument();
+      expect(screen.getByText(/34,000 more Cores/)).toBeInTheDocument();
     });
 
     it('should not offer the squad wallet without a seat', async () => {

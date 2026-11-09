@@ -20,6 +20,57 @@ export const SQUAD_PLAN_CASHBACK_PERCENTAGE: Record<SquadPlan, number> = {
   [SquadPlan.Team]: 200,
 };
 
+// The launch promo: subscriptions started while it is on get this cashback for
+// their first months. Never less than the plan's own.
+export interface StartupsCashbackPromo {
+  percentage: number;
+  months: number;
+}
+
+export const getSquadPlanCashback = (
+  plan: SquadPlan,
+  promo?: StartupsCashbackPromo | null,
+): number =>
+  Math.max(SQUAD_PLAN_CASHBACK_PERCENTAGE[plan], promo?.percentage ?? 0);
+
+// US list prices, which the cashback is paid on (100 Cores per $1)
+export const SQUAD_PLAN_LIST_PRICE_USD: Record<SquadPlan, number> = {
+  [SquadPlan.Starter]: 49,
+  [SquadPlan.Team]: 199,
+};
+
+const CORES_PER_USD = 100;
+
+/** The Cores a plan's monthly cashback adds to the squad wallet. */
+export const getSquadPlanMonthlyCores = (
+  plan: SquadPlan,
+  promo?: StartupsCashbackPromo | null,
+): number =>
+  (SQUAD_PLAN_LIST_PRICE_USD[plan] *
+    CORES_PER_USD *
+    getSquadPlanCashback(plan, promo)) /
+  100;
+
+export const formatCashbackPromoLength = (months: number): string =>
+  months === 12 ? 'your first year' : `your first ${months} months`;
+
+const isPromoHigher = (
+  plan: SquadPlan,
+  promo?: StartupsCashbackPromo | null,
+): promo is StartupsCashbackPromo =>
+  !!promo && promo.percentage > SQUAD_PLAN_CASHBACK_PERCENTAGE[plan];
+
+/** The plan card line: the launch promo's rate and length while it is on. */
+export const getSquadPlanCashbackLabel = (
+  plan: SquadPlan,
+  promo?: StartupsCashbackPromo | null,
+): string =>
+  isPromoHigher(plan, promo)
+    ? `${promo.percentage}% cashback for ${formatCashbackPromoLength(
+        promo.months,
+      )}`
+    : `${SQUAD_PLAN_CASHBACK_PERCENTAGE[plan]}% cashback to boost your posts`;
+
 // Topics the weekly intel covers, mirrored from the API's intel limits
 export const SQUAD_PLAN_INTEL_TOPICS: Record<SquadPlan, number> = {
   [SquadPlan.Starter]: 5,
@@ -72,6 +123,11 @@ export const squadPlanDetails: Record<SquadPlan, SquadPlanDetails> = {
     ],
   },
 };
+
+// Enterprise is set by ops for a signed contract, never bought here, so it has
+// no price, cashback or details of its own
+export const getSquadPlanTitle = (plan: string): string =>
+  isSquadPlan(plan) ? squadPlanDetails[plan].title : 'Enterprise';
 
 export const startupsEnterpriseUrl =
   'https://business.daily.dev/?ref=daily-startups-checkout';

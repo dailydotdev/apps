@@ -110,6 +110,7 @@ export const FeedWidgetAdSlot = ({
         feedIndex={0}
         disableRotation
         isCompact={isCompact}
+        isFitted
         domProps={{ className: 'flex-1' }}
         onLinkClick={() => onAdAction(AdActions.Click)}
         onViewable={(_, data: ViewabilityData) => onViewable(data)}

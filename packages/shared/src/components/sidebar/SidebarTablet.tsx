@@ -71,7 +71,7 @@ export const SidebarTablet = ({
     variant: ButtonVariant.Tertiary,
     size: ButtonSize.Large,
     className:
-      'w-full !bg-transparent active:bg-transparent aria-pressed:bg-transparent typo-caption2',
+      'w-full !bg-transparent active:bg-transparent aria-pressed:bg-transparent typo-caption1',
   };
   const feedName = getFeedName(activePage, {
     hasUser: !!user,
@@ -171,7 +171,7 @@ export const SidebarTablet = ({
           variant={ButtonVariant.Option}
           pressed={activeNav.notifications}
         >
-          Notifications
+          Activity
         </Button>
       </Link>
 
@@ -194,7 +194,7 @@ export const SidebarTablet = ({
             variant={ButtonVariant.Option}
             pressed={isMessagesActive}
           >
-            Chat
+            Messages
           </Button>
         </Link>
       )}

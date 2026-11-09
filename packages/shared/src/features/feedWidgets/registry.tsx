@@ -172,7 +172,7 @@ export const feedWidgetRegistry: {
     kind: FeedWidgetKind.LiveChat,
     name: 'Live chat',
     description:
-      'The live chats the daily.dev team opens on posts worth talking about.',
+      'The live chats the daily.dev team opens on things worth talking about.',
     icon: DiscussIcon,
     category: FeedWidgetCategory.Community,
     tone: 'bun',

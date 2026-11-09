@@ -221,6 +221,7 @@ export const SOURCE_BASE_FRAGMENT = gql`
       links
       products
       cta
+      jobs
     }
     currentMember {
       ...CurrentMember

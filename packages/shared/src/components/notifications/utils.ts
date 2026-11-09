@@ -108,6 +108,7 @@ export enum NotificationType {
   ReferralSignup = 'referral_signup',
   CreatorAchievement = 'creator_achievement',
   WeeklyPicksReady = 'weekly_picks_ready',
+  PicksOpened = 'picks_opened',
   StartupsIntelReady = 'startups_intel_ready',
 }
 
@@ -230,6 +231,7 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.LfgStillLooking]: 'text-brand-default',
     [NotificationType.LiveChatOpened]: 'text-brand-default',
     [NotificationType.WeeklyPicksReady]: 'text-brand-default',
+    [NotificationType.PicksOpened]: 'text-brand-default',
   };
 
 export const contentArrivalNotificationTypes = new Set<NotificationType>([
@@ -461,6 +463,7 @@ export const notificationCategoryToTypes: Record<
     NotificationType.ExperienceCompanyEnriched,
     NotificationType.ReferralSignup,
     NotificationType.WeeklyPicksReady,
+    NotificationType.PicksOpened,
   ],
 };
 
@@ -605,9 +608,9 @@ export const DIRECT_MESSAGE_NOTIFICATIONS: NotificationItem[] = [
 export const LIVE_CHAT_NOTIFICATIONS: NotificationItem[] = [
   {
     id: NotificationType.LiveChatOpened,
-    label: 'A live chat opens on a post',
+    label: 'A live chat opens',
     description:
-      'A push when the daily.dev team opens a live chat on a post. Each one is on for a day, then gone.',
+      'A push when the daily.dev team opens a live chat on a post or a topic. Each one is on for a few hours, then gone.',
     group: false,
   },
 ];

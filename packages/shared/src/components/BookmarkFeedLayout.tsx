@@ -144,10 +144,10 @@ export default function BookmarkFeedLayout({
   const bookmarkPath = (router.asPath ?? router.pathname ?? '').split('?')[0];
   const { user } = useContext(AuthContext);
   const isWeeklyPicksEnabled = useFeature(featureWeeklyPicks);
-  const { data: currentPicks } = useQuery({
-    ...myCurrentPicksQueryOptions(user),
-    enabled: !!user?.id && isWeeklyPicksEnabled,
-  });
+  // Someone who created picks from a shared link is outside the flag but
+  // still needs a way back to edit them this week.
+  const { data: currentPicks } = useQuery(myCurrentPicksQueryOptions(user));
+  const showPicksButton = !!user && (isWeeklyPicksEnabled || !!currentPicks);
   const picksLabel = currentPicks
     ? "Edit this week's picks"
     : 'Make your picks';
@@ -678,7 +678,7 @@ export default function BookmarkFeedLayout({
       variant={isPhone ? ButtonVariant.Tertiary : ButtonVariant.Float}
     />
   );
-  const picksButton = !!user && isWeeklyPicksEnabled && (
+  const picksButton = showPicksButton && (
     <Link href={`${webappUrl}picks/new?origin=bookmarks`} passHref>
       <Button
         tag="a"

@@ -16,6 +16,7 @@ import {
 import { HorizontalSeparator } from '../../../../components/utilities/common';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useToastNotification } from '../../../../hooks/useToastNotification';
+import { usePrompt } from '../../../../hooks/usePrompt';
 import type { ApiErrorResult } from '../../../../graphql/common';
 import { DEFAULT_ERROR } from '../../../../graphql/common';
 import type {
@@ -35,6 +36,7 @@ import { getSquadId } from '../../lib/features';
 import Link from '../../../../components/utilities/Link';
 import { getSquadIntelUrl, SquadManageSection } from '../../lib/routes';
 import {
+  getIntelDayLabel,
   getIntelWeekLabel,
   intelRegionLabels,
   intelRegions,
@@ -45,10 +47,12 @@ import { useLogStartups } from '../../hooks/useLogStartups';
 import {
   SquadManageSaveButton,
   SquadManageSectionPanel,
+  useSquadManageEmbed,
 } from './SquadManageLayout';
 import { SquadEnterpriseGate } from './SquadEnterpriseGate';
 
 const formId = 'squad-manage-intel';
+const FIRST_INTEL_POLL_MS = 10_000;
 
 const SectionTitle = ({
   title,
@@ -106,23 +110,74 @@ const FilterOptions = <T extends string>({
   </div>
 );
 
+/** What the first intel will cover, for the user to check before it is built */
+const SelectionSummary = ({
+  selection,
+}: {
+  selection: SquadIntelSelection;
+}): ReactElement => {
+  const rows = [
+    {
+      label: 'Topics',
+      value: selection.tags.map((tag) => `#${tag}`).join(', '),
+    },
+    {
+      label: 'Seniority',
+      value:
+        selection.seniority
+          ?.map((level) => intelSeniorityLabels[level])
+          .join(', ') ?? 'Every level',
+    },
+    {
+      label: 'Region',
+      value:
+        selection.regions
+          ?.map((region) => intelRegionLabels[region])
+          .join(', ') ?? 'Everywhere',
+    },
+  ];
+
+  return (
+    <div className="flex flex-col gap-2 rounded-12 bg-surface-float p-3 text-left">
+      {rows.map(({ label, value }) => (
+        <div key={label} className="flex flex-col">
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Caption1}
+            color={TypographyColor.Tertiary}
+          >
+            {label}
+          </Typography>
+          <Typography tag={TypographyTag.Span} type={TypographyType.Footnote}>
+            {value}
+          </Typography>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const IntelSettingsForm = ({
   selection,
   limits,
   hasIntel,
+  nextIntelAt,
   onSave,
 }: {
   selection: SquadIntelSelection | null;
   limits: SquadIntelLimits;
   hasIntel: boolean;
+  nextIntelAt: string;
   onSave: (selection: SquadIntelSelection) => void;
 }): ReactElement => {
   const { displayToast } = useToastNotification();
+  const { showPrompt } = usePrompt();
   const [tags, setTags] = useState(selection?.tags ?? []);
   const [seniority, setSeniority] = useState(selection?.seniority ?? []);
   const [regions, setRegions] = useState(selection?.regions ?? []);
+  const nextDay = getIntelDayLabel(nextIntelAt);
 
-  const onSubmit = (event: FormEvent) => {
+  const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
 
     if (!tags.length) {
@@ -130,11 +185,29 @@ const IntelSettingsForm = ({
       return;
     }
 
-    onSave({
+    const next = {
       tags,
       seniority: limits.seniority && seniority.length ? seniority : null,
       regions: limits.regions && regions.length ? regions : null,
-    });
+    };
+
+    // The first intel is built from these settings as soon as they are saved,
+    // and the next one only comes with the weekly run
+    if (!hasIntel) {
+      const confirmed = await showPrompt({
+        title: 'Build your first intel with these settings?',
+        description: `We build intel once a week. Your first one is built now and covers last week. The next one comes on ${nextDay}, and any change you make after today shows from then.`,
+        content: <SelectionSummary selection={next} />,
+        okButton: { title: 'Build my intel' },
+        cancelButton: { title: 'Keep editing' },
+      });
+
+      if (!confirmed) {
+        return;
+      }
+    }
+
+    onSave(next);
   };
 
   return (
@@ -203,8 +276,8 @@ const IntelSettingsForm = ({
         color={TypographyColor.Tertiary}
       >
         {hasIntel
-          ? 'Changes show from the next intel, every Monday.'
-          : 'After you save, your first intel arrives within the hour, covering last week.'}
+          ? `A new intel comes every Monday. Changes you save now show from the next one, on ${nextDay}.`
+          : 'A new intel comes every Monday. Your first one is built as soon as you save, covering last week.'}
       </Typography>
     </form>
   );
@@ -230,8 +303,8 @@ const LatestIntel = ({
           color={TypographyColor.Tertiary}
         >
           {hasTopics
-            ? 'It covers last week and arrives within the hour. We will notify you when it is ready.'
-            : 'Pick your topics above and save. Your first intel arrives within the hour.'}
+            ? 'It covers last week and is ready in a few minutes. We will notify you when it is ready.'
+            : 'Pick your topics above and save. Your first intel is ready a few minutes later.'}
         </Typography>
       </div>
     );
@@ -271,15 +344,21 @@ export const SquadManageIntel = (): ReactElement => {
   const client = useQueryClient();
   const { displayToast } = useToastNotification();
   const logStartups = useLogStartups();
+  const embed = useSquadManageEmbed();
   const sourceId = getSquadId(squad);
   const {
     data: settings,
     error,
     isPending,
   } = useQuery(squadIntelSettingsQueryOptions({ user, sourceId }));
-  const { data: intel, isPending: isIntelPending } = useQuery(
-    squadIntelQueryOptions({ user, sourceId, enabled: !!settings }),
-  );
+  const hasTopics = !!settings?.selection;
+  const { data: intel, isPending: isIntelPending } = useQuery({
+    ...squadIntelQueryOptions({ user, sourceId, enabled: !!settings }),
+    // The first intel is built in the background right after the topics are
+    // saved, so it shows up here when it is ready
+    refetchInterval: (query) =>
+      hasTopics && !query.state.data ? FIRST_INTEL_POLL_MS : false,
+  });
   const {
     mutate: onSave,
     isPending: isSaving,
@@ -299,9 +378,10 @@ export const SquadManageIntel = (): ReactElement => {
       });
       displayToast(
         intel
-          ? 'Saved. The next intel covers it, on Monday.'
-          : 'Saved. Your first intel arrives within the hour.',
+          ? `Saved. Your changes show in the next intel, on ${getIntelDayLabel(next.nextIntelAt)}.`
+          : 'Saved. Your first intel is being built and is ready in a few minutes.',
       );
+      embed?.onSaved();
     },
     onError: (saveError: ApiErrorResult) =>
       displayToast(saveError?.response?.errors?.[0]?.message ?? DEFAULT_ERROR),
@@ -345,11 +425,12 @@ export const SquadManageIntel = (): ReactElement => {
               selection={settings.selection}
               limits={settings.limits}
               hasIntel={!!intel}
+              nextIntelAt={settings.nextIntelAt}
               onSave={onSave}
             />
             <HorizontalSeparator />
             {!isIntelPending && (
-              <LatestIntel intel={intel} hasTopics={!!settings.selection} />
+              <LatestIntel intel={intel} hasTopics={hasTopics} />
             )}
           </>
         )}
