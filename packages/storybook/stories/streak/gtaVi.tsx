@@ -108,7 +108,7 @@ const GtaViDisc = ({
       className,
     )}
   >
-    VI
+    <span className="tracking-tighter">VI</span>
     {isToday && (
       <span
         aria-hidden
@@ -151,7 +151,7 @@ export const GtaViCalendar = (): ReactElement => {
                 className="place-self-center rounded-full"
               >
                 <GtaViDisc
-                  className="size-4 text-[0.4375rem]"
+                  className="size-4 text-[1.125rem]"
                   isToday={isToday}
                 />
               </button>
@@ -234,7 +234,7 @@ export const GtaViPopupStrip = (): ReactElement => {
                 <GtaViDisc
                   className={classNames(
                     iconSizeToClassName[IconSize.Medium],
-                    'typo-caption2',
+                    'text-[1.6875rem]',
                   )}
                 />
                 {dateFormatInTimezone(date, 'iiiii', timezone)}
