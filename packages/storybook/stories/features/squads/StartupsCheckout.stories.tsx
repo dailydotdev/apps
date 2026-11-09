@@ -492,6 +492,7 @@ export const ManageEnterprise: Story = {
         {
           ...teamPlan,
           plan: 'enterprise',
+          seatLimit: 100,
           seatsUsed: 2,
         } as unknown as SquadSubscription
       }
@@ -529,6 +530,33 @@ export const ManageStarterAdmin: Story = {
         person('maya', 'Maya Levi', SourceMemberRole.Admin, true),
         { ...owner, seat: false },
       ]}
+    />
+  ),
+};
+
+/**
+ * Another admin of an Enterprise squad whose seat was taken back: no invite
+ * banner, since only seat holders bring teammates in.
+ */
+export const ManageEnterpriseAdminNoSeat: Story = {
+  render: () => (
+    <ManagePlan
+      squad={
+        {
+          ...acmeNew,
+          currentMember: { ...acmeNew.currentMember, seat: false },
+        } as Squad
+      }
+      subscription={
+        {
+          ...teamPlan,
+          ...paidByMaya,
+          plan: 'enterprise',
+          seatLimit: 100,
+          seatsUsed: 1,
+        } as unknown as SquadSubscription
+      }
+      members={[person('maya', 'Maya Levi', SourceMemberRole.Admin, true)]}
     />
   ),
 };

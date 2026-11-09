@@ -328,12 +328,16 @@ const SeatRowsLoading = (): ReactElement => (
   </ul>
 );
 
-const getSeatsCopy = (left: number): string => {
+const getSeatsCopy = (left: number, isEnterprise: boolean): string => {
   if (left <= 0) {
     return 'Seats can post and boost through the API. Every seat is taken, so remove one to give it to someone else.';
   }
 
-  return `Seats can post and boost through the API. Give them to the admins and moderators who run the page. ${
+  const who = isEnterprise
+    ? 'Every admin and moderator gets one by default.'
+    : 'Give them to the admins and moderators who run the page.';
+
+  return `Seats can post and boost through the API. ${who} ${
     left === 1 ? '1 seat left.' : `${left} seats left.`
   }`;
 };
@@ -356,6 +360,12 @@ export const SquadManageSeats = ({
     origin: Origin.SquadManagePlan,
   });
   const { seatLimit, seatsUsed } = subscription;
+  // Only an admin who holds a seat can bring a teammate in to seat
+  const viewerHasSeat =
+    user?.id === subscription.ownerId ||
+    (members?.find((member) => member.user.id === user?.id)?.seat ??
+      !!squad.currentMember?.seat);
+  const canInvite = isAdmin && viewerHasSeat;
 
   return (
     <section className="flex flex-col gap-2">
@@ -370,7 +380,10 @@ export const SquadManageSeats = ({
         )}
       </div>
       <p className="text-pretty text-text-tertiary typo-footnote">
-        {getSeatsCopy(seatLimit - seatsUsed)}
+        {getSeatsCopy(
+          seatLimit - seatsUsed,
+          !!subscription.plan && !isSquadPlan(subscription.plan),
+        )}
       </p>
       {isPending ? (
         <SeatRowsLoading />
@@ -388,7 +401,7 @@ export const SquadManageSeats = ({
       )}
       {!isPending &&
         (members?.length ?? 0) <= 1 &&
-        isAdmin &&
+        canInvite &&
         seatLimit > 1 && (
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-16 bg-surface-float p-4">
             <p className="min-w-0 flex-1 text-pretty text-text-secondary typo-footnote">
