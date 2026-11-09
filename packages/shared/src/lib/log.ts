@@ -830,6 +830,7 @@ export enum TargetId {
   InviteBanner = 'invite banner',
   PostStrip = 'post strip',
   PublicPageSignupBanner = 'public page signup banner',
+  PicksSignupBanner = 'picks signup banner',
   MobileHeader = 'mobile header',
   InviteProfileMenu = 'invite in profile menu',
   SearchActivation = 'search activation',

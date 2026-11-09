@@ -15,6 +15,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/picks';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { getCurrentWeekStart } from '@dailydotdev/shared/src/lib/picks';
+import * as viewSize from '@dailydotdev/shared/src/hooks/useViewSize';
 import PicksPage from '../pages/picks/[id]';
 
 const mockPush = jest.fn();
@@ -376,4 +377,72 @@ it('should not read the count for other viewers', async () => {
   await waitFor(() => expect(trackView).toHaveBeenCalledTimes(1));
 
   expect(readViewCount).not.toHaveBeenCalled();
+});
+
+describe('signup banner', () => {
+  const headline = 'Ada Lovelace thought you may want to read these';
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it("should invite a logged out viewer in the author's voice and log the impression", async () => {
+    renderPage(picks, { user: undefined, isLoggedIn: false });
+
+    expect(await screen.findByText(headline)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        '2 posts picked this week. Join daily.dev to save them and share your own picks.',
+      ),
+    ).toBeInTheDocument();
+    await waitFor(() =>
+      expect(logEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event_name: LogEvent.Impression,
+          target_id: 'picks signup banner',
+          extra: JSON.stringify({ picks_id: 'picks-1' }),
+        }),
+      ),
+    );
+  });
+
+  it('should send a joining viewer through onboarding and back to this list', async () => {
+    renderPage(picks, { user: undefined, isLoggedIn: false });
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Join daily.dev' }),
+    );
+
+    expect(mockPush).toHaveBeenCalledWith(
+      expect.stringContaining('onboarding?after_auth=%2Fpicks%2Fpicks-1'),
+    );
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.Click,
+        target_id: 'picks signup banner',
+      }),
+    );
+  });
+
+  it('should pin the banner with inline signup on laptop', async () => {
+    jest.spyOn(viewSize, 'useViewSize').mockReturnValue(true);
+    renderPage(picks, { user: undefined, isLoggedIn: false });
+
+    expect(await screen.findByText('Ada Lovelace')).toBeInTheDocument();
+    expect(
+      screen.getByText('thought you may want to read these'),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Join daily.dev' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should not show the banner to members', async () => {
+    renderPage(picks, { user: loggedUser, isLoggedIn: true });
+    await screen.findByText(/Ada Lovelace's picks/);
+
+    expect(screen.queryByText(headline)).not.toBeInTheDocument();
+    expect(logEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({ target_id: 'picks signup banner' }),
+    );
+  });
 });
