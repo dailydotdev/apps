@@ -94,10 +94,10 @@ export const getLiveCopy = (viewCount: number | null): LiveCopy => {
 
 const stackRotation = ['-rotate-6', 'rotate-0', 'rotate-6'];
 
-/** A glow from the picks star's color, so the card is not another feed card. */
+/** A brand glow from the right, so the card is not another feed card. */
 const picksGlow: CSSProperties = {
   backgroundImage:
-    'radial-gradient(120% 180% at 100% 50%, color-mix(in srgb, var(--theme-accent-cheese-default) 22%, transparent) 0%, color-mix(in srgb, var(--theme-accent-cheese-default) 6%, transparent) 45%, transparent 70%)',
+    'radial-gradient(120% 180% at 100% 50%, color-mix(in srgb, var(--theme-brand-default) 22%, transparent) 0%, color-mix(in srgb, var(--theme-brand-default) 6%, transparent) 45%, transparent 70%)',
 };
 
 /**
@@ -138,7 +138,7 @@ const PicksStack = ({
             fallbackSrc={cloudinaryPostImageCoverPlaceholder}
             className="size-full object-cover"
           />
-          <span className="absolute left-1 top-1 flex size-5 items-center justify-center rounded-6 bg-accent-cheese-default font-bold text-surface-invert typo-caption2 tablet:left-1.5 tablet:top-1.5">
+          <span className="absolute left-1 top-1 flex size-5 items-center justify-center rounded-6 bg-brand-default font-bold text-white typo-caption2 tablet:left-1.5 tablet:top-1.5">
             {badges === 'question' ? '?' : index + 1}
           </span>
         </div>
@@ -175,7 +175,7 @@ const Shell = ({
       <Typography
         type={TypographyType.Caption1}
         bold
-        className="uppercase tracking-wide text-accent-cheese-default"
+        className="uppercase tracking-wide text-brand-default"
       >
         {label}
       </Typography>
@@ -234,7 +234,7 @@ export function WeeklyPicksHeroCard({
         key="share"
         type="button"
         {...(copy.primary === 'share'
-          ? { variant: ButtonVariant.Primary, color: ButtonColor.Cheese }
+          ? { variant: ButtonVariant.Primary, color: ButtonColor.Cabbage }
           : { variant: ButtonVariant.Secondary })}
         size={ButtonSize.Small}
         className="flex-1 tablet:flex-none"
@@ -251,7 +251,7 @@ export function WeeklyPicksHeroCard({
         key="copy"
         type="button"
         {...(copy.primary === 'copy'
-          ? { variant: ButtonVariant.Primary, color: ButtonColor.Cheese }
+          ? { variant: ButtonVariant.Primary, color: ButtonColor.Cabbage }
           : { variant: ButtonVariant.Secondary })}
         size={ButtonSize.Small}
         className="flex-1 tablet:flex-none"
@@ -271,13 +271,13 @@ export function WeeklyPicksHeroCard({
         stack={<PicksStack posts={posts} badges="ranked" />}
         onDismiss={onDismiss}
       >
-        <div className="flex items-baseline gap-2">
+        <div className="flex items-center gap-2">
           {copy.count !== null && (
             <Typography
               tag={TypographyTag.Span}
               type={TypographyType.LargeTitle}
               bold
-              className="text-accent-cheese-default"
+              className="leading-none text-brand-default"
             >
               {copy.count}
             </Typography>
@@ -320,7 +320,7 @@ export function WeeklyPicksHeroCard({
         {headline ? (
           <>
             {headline.before}
-            <span className="text-accent-cheese-default">{headline.count}</span>
+            <span className="text-brand-default">{headline.count}</span>
             {headline.after}
           </>
         ) : (
@@ -331,7 +331,7 @@ export function WeeklyPicksHeroCard({
         <Button
           tag="a"
           variant={ButtonVariant.Primary}
-          color={ButtonColor.Cheese}
+          color={ButtonColor.Cabbage}
           size={ButtonSize.Small}
           className="w-full tablet:w-auto"
           onClick={() => onCta?.('pick')}

@@ -21,6 +21,7 @@ import {
   PICKS_VIEW_COUNT_QUERY,
   PICKS_WEEK_SIGNALS_QUERY,
 } from '../../graphql/picks';
+import { GET_PERSONALIZED_DIGEST_SETTINGS } from '../../graphql/users';
 import { LogEvent, Origin } from '../../lib/log';
 import { useWeeklyPicksHero } from '../../hooks/picks/useWeeklyPicksHero';
 import { WeeklyPicksHero } from './WeeklyPicksHero';
@@ -140,6 +141,13 @@ const renderHero = ({
 }: { enabled?: boolean; user?: LoggedUser | null } = {}) => {
   const gb = createReadyGrowthBook();
   gb.setFeatures({ weekly_picks: { defaultValue: enabled } });
+  if (user) {
+    // The reading reminder's data, which the card waits for before landing
+    mockGraphQL({
+      request: { query: GET_PERSONALIZED_DIGEST_SETTINGS, variables: {} },
+      result: { data: { personalizedDigest: [] } },
+    });
+  }
 
   return render(
     <TestBootProvider

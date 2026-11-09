@@ -18,6 +18,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useFeature } from '../../components/GrowthBookProvider';
 import useLogEventOnce from '../log/useLogEventOnce';
+import { useReadingReminderHeroSettled } from '../notifications/useReadingReminderHero';
 import usePersistentContext, {
   PersistentContextKeys,
 } from '../usePersistentContext';
@@ -117,20 +118,25 @@ export const useWeeklyPicksHero = ({
     retry: false,
   });
 
+  // The reading reminder shares the strip and splits it in two when both
+  // show, so this card lands only once that one has decided too.
+  const isStripSettled = useReadingReminderHeroSettled();
+
   let state: WeeklyPicksHeroState | null = null;
   if (picks) {
     state = isViewCountFetched ? 'live' : null;
   } else if (isNudgeDay && isNudge) {
     state = 'nudge';
   }
-  const shouldShow = canEvaluate && !!state;
+  const shouldShow = canEvaluate && !!state && isStripSettled;
   const isSettled =
     !enabled ||
     !isEnabled ||
     isDismissed ||
     (isAuthReadyOrCached && !isLoggedIn) ||
     (isPicksFetched &&
-      (picks ? isViewCountFetched : !isNudgeDay || isSignalsFetched));
+      (picks ? isViewCountFetched : !isNudgeDay || isSignalsFetched) &&
+      (!state || isStripSettled));
 
   const extra = JSON.stringify({
     week: weekStart,
