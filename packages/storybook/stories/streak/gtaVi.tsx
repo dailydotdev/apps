@@ -69,7 +69,7 @@ const GtaViTooltip = ({ children }: { children: ReactNode }): ReactElement => {
           />
           <span
             aria-hidden
-            className="pointer-events-none absolute inset-0 bg-gradient-to-r from-background-subtle from-30% to-transparent to-85%"
+            className="pointer-events-none absolute inset-0 bg-gradient-to-r from-background-subtle from-50% to-transparent to-95%"
           />
           <span className="relative flex items-center gap-1.5 font-bold text-text-primary typo-callout">
             <span aria-hidden>🎮</span>
@@ -96,7 +96,7 @@ const GtaViDisc = ({
 }): ReactElement => (
   <span
     className={classNames(
-      'relative flex items-center justify-center rounded-full bg-gradient-to-b from-accent-cabbage-default via-accent-bacon-default to-accent-bun-default font-bold leading-none text-white',
+      'relative flex items-center justify-center rounded-full bg-gradient-to-b from-accent-onion-default via-accent-bacon-default to-accent-bun-default font-bold leading-none text-white',
       className,
     )}
   >
@@ -155,7 +155,7 @@ export const GtaViCalendar = (): ReactElement => {
                 aria-label="GTA VI release day"
                 className="place-self-center rounded-full"
               >
-                <GtaViDisc className="-m-1 size-6" isToday={isToday} />
+                <GtaViDisc className="-m-px size-[1.125rem]" isToday={isToday} />
               </button>
             </GtaViTooltip>
           );
