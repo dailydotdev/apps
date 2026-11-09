@@ -5,7 +5,10 @@ import {
   fetchAdByPlacement,
   resolveAdFetchOptions,
 } from '../../lib/ads';
-import { featureAdRefreshEngine } from '../../lib/featureManagement';
+import {
+  AdRefreshEngineVersion,
+  featureAdRefreshEngine,
+} from '../../lib/featureManagement';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useAdRequestConsent } from './useAdRequestConsent';
@@ -24,10 +27,11 @@ export const useFetchAd = (enabled = true): UseFetchAds => {
   const consent = useAdRequestConsent(enabled);
   const { isAuthReady, isLoggedIn } = useAuthContext();
   const registered = isAuthReady ? isLoggedIn : undefined;
-  const { value: isRefreshEngine } = useConditionalFeature({
+  const { value: refreshEngineVersion } = useConditionalFeature({
     feature: featureAdRefreshEngine,
     shouldEvaluate: enabled,
   });
+  const isRefreshEngine = refreshEngineVersion === AdRefreshEngineVersion.V2;
   const { platform } = useAdRefreshContext();
 
   const fetchAdQuery: UseFetchAds['fetchAd'] = useCallback(

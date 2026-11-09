@@ -4,7 +4,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useLogContext } from '../../contexts/LogContext';
 import { ActiveFeedContext } from '../../contexts/ActiveFeedContext';
 import { useFeature } from '../../components/GrowthBookProvider';
-import { featureAdRefreshEngine } from '../../lib/featureManagement';
+import {
+  AdRefreshEngineVersion,
+  featureAdRefreshEngine,
+} from '../../lib/featureManagement';
 import type { Ad } from '../../graphql/posts';
 import { AdActions, AdPlacement } from '../../lib/ads';
 import { adLogEvent } from '../../lib/feed';
@@ -35,7 +38,8 @@ export const useFeedAdRefresh = (
   ref: InViewRef,
   disabled = false,
 ): { ref: InViewRef } => {
-  const isRefreshEngine = useFeature(featureAdRefreshEngine);
+  const isRefreshEngine =
+    useFeature(featureAdRefreshEngine) === AdRefreshEngineVersion.V2;
   const legacy = useAutoRotatingAds(
     ad,
     index,

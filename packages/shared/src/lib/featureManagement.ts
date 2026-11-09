@@ -46,7 +46,14 @@ export const featureJobsUI = new Feature('jobs_ui', false);
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
-export const featureAdRefreshEngine = new Feature('ad_refresh_engine', false);
+export enum AdRefreshEngineVersion {
+  V1 = 'v1',
+  V2 = 'v2',
+}
+export const featureAdRefreshEngine = new Feature<AdRefreshEngineVersion>(
+  'ad_refresh_engine_version',
+  AdRefreshEngineVersion.V1,
+);
 
 export const featureFeedAdTemplate = new Feature('feed_ad_template', {
   default: {
