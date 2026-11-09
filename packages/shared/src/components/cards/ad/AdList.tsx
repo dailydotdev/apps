@@ -67,12 +67,16 @@ export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
   const { isPlus } = usePlusSubscription();
   const adImprovementsV3 = useFeature(adImprovementsV3Feature);
   const { showAdvertiseLink } = useAdLabel();
-  const { ref } = useFeedAdRefresh(
+  const { ref, onAdClick } = useFeedAdRefresh(
     ad,
     index,
     feedIndex,
     forwardedRef as InViewRef,
   );
+  const onAdLinkClick = (clickedAd: Ad) => {
+    onAdClick();
+    return onLinkClick?.(clickedAd);
+  };
   const matchingTags = ad?.matchingTags ?? [];
   const clickUrl = useAdClickUrl(ad);
   const isStacked = useViewSize(ViewSize.MobileL);
@@ -87,7 +91,7 @@ export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
           rel={anchorSponsoredRel}
           variant={ButtonVariant.Primary}
           size={ButtonSize.Small}
-          {...combinedClicks(() => onLinkClick?.(ad))}
+          {...combinedClicks(() => onAdLinkClick(ad))}
         >
           {ad.callToAction}
         </Button>
@@ -119,7 +123,7 @@ export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
       linkProps={getLinkProps({
         ad,
         href: clickUrl,
-        onLinkClick: onLinkClick ?? (() => undefined),
+        onLinkClick: onAdLinkClick,
       })}
     >
       <CardContainer>

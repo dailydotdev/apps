@@ -1,3 +1,4 @@
+import type { MutableRefObject } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import type { AdRefreshConfig } from '../../../graphql/posts';
@@ -13,9 +14,9 @@ import {
   getAdRefreshPolicy,
   MIN_VISIBLE_PERCENT,
 } from './adRefresh';
-import { useAdRefreshContext } from './AdRefreshContext';
 
 export const AD_REFRESH_TICK_MS = 1_000;
+const MAX_VISIBLE_TICK_MS = 2 * AD_REFRESH_TICK_MS;
 
 const activityEvents = [
   'pointermove',
@@ -57,6 +58,7 @@ const createPauses = (): Record<AdRefreshPause, AdRefreshPauseStats> => ({
 interface SlotState {
   elapsed: number;
   shownAt: number | null;
+  tickedAt: number | null;
   count: number;
   hovered: boolean;
   busy: boolean;
@@ -64,6 +66,64 @@ interface SlotState {
   pause: AdRefreshPause | null;
   pauses: Record<AdRefreshPause, AdRefreshPauseStats>;
 }
+
+const createSlotState = (): SlotState => ({
+  elapsed: 0,
+  shownAt: null,
+  tickedAt: null,
+  count: 0,
+  hovered: false,
+  busy: false,
+  stopped: false,
+  pause: null,
+  pauses: createPauses(),
+});
+
+const session = { count: 0, slots: new Map<string, SlotState>() };
+
+export const resetAdRefreshSession = (): void => {
+  session.count = 0;
+  session.slots.clear();
+};
+
+const getSessionCount = (): number => session.count;
+
+const resumeSlotState = (id?: string): SlotState => {
+  const saved = id ? session.slots.get(id) : undefined;
+
+  if (!saved) {
+    const slot = createSlotState();
+    if (id) {
+      session.slots.set(id, slot);
+    }
+    return slot;
+  }
+
+  saved.shownAt = null;
+  saved.tickedAt = null;
+  saved.hovered = false;
+  saved.pause = null;
+  return saved;
+};
+
+const useSlotState = (id?: string): MutableRefObject<SlotState> => {
+  const state = useRef<SlotState>();
+  const stateId = useRef(id);
+
+  if (!state.current) {
+    state.current = resumeSlotState(id);
+  } else if (id && id !== stateId.current) {
+    const saved = session.slots.get(id);
+    if (saved) {
+      state.current = saved;
+    } else {
+      session.slots.set(id, state.current);
+    }
+  }
+  stateId.current = id;
+
+  return state as MutableRefObject<SlotState>;
+};
 
 export interface AdRefreshAttempt {
   count: number;
@@ -80,6 +140,7 @@ export interface AdRefreshStop {
 }
 
 interface UseAdRefreshProps {
+  id?: string;
   refresh?: AdRefreshConfig | null;
   disabled?: boolean;
   onRefresh: (attempt: AdRefreshAttempt) => Promise<AdRefreshOutcome>;
@@ -87,6 +148,7 @@ interface UseAdRefreshProps {
 }
 
 export const useAdRefresh = ({
+  id,
   refresh,
   disabled = false,
   onRefresh,
@@ -94,8 +156,8 @@ export const useAdRefresh = ({
 }: UseAdRefreshProps): {
   ref: (node?: Element | null) => void;
   policy: AdRefreshPolicy | null;
+  onAdClick: () => void;
 } => {
-  const { getSessionCount, countSessionRefresh } = useAdRefreshContext();
   const policy = useMemo(
     () => (disabled ? null : getAdRefreshPolicy(refresh)),
     [disabled, refresh],
@@ -113,16 +175,7 @@ export const useAdRefresh = ({
   onRefreshRef.current = onRefresh;
   const onStopRef = useRef(onStop);
   onStopRef.current = onStop;
-  const state = useRef<SlotState>({
-    elapsed: 0,
-    shownAt: null,
-    count: 0,
-    hovered: false,
-    busy: false,
-    stopped: false,
-    pause: null,
-    pauses: createPauses(),
-  });
+  const state = useSlotState(id);
 
   const stop = useCallback(
     (reason: AdRefreshStopReason) => {
@@ -140,7 +193,7 @@ export const useAdRefresh = ({
         policy: policyRef.current,
       });
     },
-    [getSessionCount],
+    [state],
   );
 
   const ref = useCallback(
@@ -152,36 +205,39 @@ export const useAdRefresh = ({
   );
 
   useEffect(() => {
-    if (!disabled && !policy && state.current.count > 0) {
+    const { current } = state;
+
+    if (!disabled && !policy && current.count > 0) {
       stop(AdRefreshStopReason.NoConfig);
     }
-  }, [disabled, policy, stop]);
+  }, [disabled, policy, state, stop]);
 
   useEffect(() => {
     if (!node || !policy) {
       return undefined;
     }
 
-    const onEnter = () => {
-      state.current.hovered = true;
+    const setHovered = (hovered: boolean) => {
+      const { current } = state;
+      current.hovered = hovered;
     };
-    const onLeave = () => {
-      state.current.hovered = false;
-    };
-    const onClick = () => stop(AdRefreshStopReason.Clicked);
+    const onEnter = () => setHovered(true);
+    const onLeave = () => setHovered(false);
 
     node.addEventListener('mouseenter', onEnter);
     node.addEventListener('mouseleave', onLeave);
-    node.addEventListener('click', onClick, true);
-    node.addEventListener('auxclick', onClick, true);
 
     return () => {
       node.removeEventListener('mouseenter', onEnter);
       node.removeEventListener('mouseleave', onLeave);
-      node.removeEventListener('click', onClick, true);
-      node.removeEventListener('auxclick', onClick, true);
     };
-  }, [node, policy, stop]);
+  }, [node, policy, state]);
+
+  const onAdClick = useCallback(() => {
+    if (policyRef.current) {
+      stop(AdRefreshStopReason.Clicked);
+    }
+  }, [stop]);
 
   useEffect(() => {
     if (!policy) {
@@ -192,6 +248,10 @@ export const useAdRefresh = ({
 
     const interval = setInterval(() => {
       const { current } = state;
+      const now = Date.now();
+      const sinceLastTick =
+        now - (current.tickedAt ?? now - AD_REFRESH_TICK_MS);
+      current.tickedAt = now;
 
       if (current.busy || current.stopped) {
         return;
@@ -212,7 +272,6 @@ export const useAdRefresh = ({
         return;
       }
 
-      const now = Date.now();
       const shownAt = current.shownAt ?? now;
       current.shownAt = shownAt;
 
@@ -229,13 +288,13 @@ export const useAdRefresh = ({
         if (current.pause !== pause) {
           current.pauses[pause].count += 1;
         }
-        current.pauses[pause].ms += AD_REFRESH_TICK_MS;
+        current.pauses[pause].ms += sinceLastTick;
         current.pause = pause;
         return;
       }
 
       current.pause = null;
-      current.elapsed += AD_REFRESH_TICK_MS;
+      current.elapsed += Math.min(sinceLastTick, MAX_VISIBLE_TICK_MS);
 
       if (current.elapsed < policy.intervalMs) {
         return;
@@ -262,8 +321,15 @@ export const useAdRefresh = ({
 
           if (outcome === AdRefreshOutcome.Refreshed) {
             current.count += 1;
-            countSessionRefresh();
+            session.count += 1;
+            return;
           }
+
+          stop(
+            outcome === AdRefreshOutcome.NoFill
+              ? AdRefreshStopReason.NoFill
+              : AdRefreshStopReason.Failed,
+          );
         })
         .finally(() => {
           current.busy = false;
@@ -271,7 +337,7 @@ export const useAdRefresh = ({
     }, AD_REFRESH_TICK_MS);
 
     return () => clearInterval(interval);
-  }, [policy, getSessionCount, countSessionRefresh, stop]);
+  }, [policy, state, stop]);
 
-  return { ref, policy };
+  return { ref, policy, onAdClick };
 };

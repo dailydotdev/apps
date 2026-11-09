@@ -1,9 +1,15 @@
 import type { AdRefreshConfig } from '../../../graphql/posts';
+import { isIOSNative } from '../../../lib/func';
 import {
   AdRefreshPlatform,
   getAdRefreshPlatform,
   getAdRefreshPolicy,
 } from './adRefresh';
+
+jest.mock('../../../lib/func', () => ({
+  ...jest.requireActual('../../../lib/func'),
+  isIOSNative: jest.fn(),
+}));
 
 const config: AdRefreshConfig = {
   id: 'feed-us-desktop@v3',
@@ -47,12 +53,37 @@ describe('getAdRefreshPolicy', () => {
 });
 
 describe('getAdRefreshPlatform', () => {
+  const { matchMedia } = window;
+  const setViewport = (isWide?: boolean) =>
+    Object.assign(window, {
+      matchMedia:
+        typeof isWide === 'undefined' ? undefined : () => ({ matches: isWide }),
+    });
+
+  beforeEach(() => {
+    jest.mocked(isIOSNative).mockReturnValue(false);
+    setViewport(true);
+  });
+
+  afterEach(() => {
+    Object.assign(window, { matchMedia });
+  });
+
+  it('reports the iOS shell', () => {
+    jest.mocked(isIOSNative).mockReturnValue(true);
+    expect(getAdRefreshPlatform()).toEqual(AdRefreshPlatform.Ios);
+  });
+
+  it('reports the Android shell', () => {
+    expect(getAdRefreshPlatform(true)).toEqual(AdRefreshPlatform.Android);
+  });
+
   it.each([
-    ['ios', false, AdRefreshPlatform.Ios],
-    ['android', true, AdRefreshPlatform.Android],
-    [undefined, true, AdRefreshPlatform.WebMobile],
-    [undefined, false, AdRefreshPlatform.WebDesktop],
-  ])('maps version %s (phone: %s) to %s', (version, isPhone, expected) => {
-    expect(getAdRefreshPlatform({ version, isPhone })).toEqual(expected);
+    [false, AdRefreshPlatform.WebMobile],
+    [true, AdRefreshPlatform.WebDesktop],
+    [undefined, AdRefreshPlatform.WebDesktop],
+  ])('reads the viewport at call time (wide: %s)', (isWide, expected) => {
+    setViewport(isWide);
+    expect(getAdRefreshPlatform()).toEqual(expected);
   });
 });

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { AdRefreshConfig } from '../../../graphql/posts';
-import { getDailyClientPlatform } from '../../../lib/func';
+import { isExtension, isIOSNative } from '../../../lib/func';
+import { tablet } from '../../../styles/media';
 
 export enum AdRefreshSlot {
   FeedCard = 'feed_card',
@@ -25,6 +26,8 @@ export enum AdRefreshStopReason {
   SlotCap = 'slot_cap',
   SessionCap = 'session_cap',
   NoConfig = 'no_config',
+  NoFill = 'no_fill',
+  Failed = 'failed',
 }
 
 export enum AdRefreshPause {
@@ -93,25 +96,26 @@ export const getAdRefreshPolicy = (
   };
 };
 
-export const getAdRefreshPlatform = ({
-  version,
-  isPhone,
-}: {
-  version?: string;
-  isPhone: boolean;
-}): AdRefreshPlatform => {
-  switch (getDailyClientPlatform(version)) {
-    case 'extension':
-      return AdRefreshPlatform.Extension;
-    case 'android':
-      return AdRefreshPlatform.Android;
-    case 'ios':
-      return AdRefreshPlatform.Ios;
-    default:
-      return isPhone
-        ? AdRefreshPlatform.WebMobile
-        : AdRefreshPlatform.WebDesktop;
+const phoneQuery = tablet.replace('@media ', '');
+
+export const getAdRefreshPlatform = (
+  isAndroidApp?: boolean,
+): AdRefreshPlatform => {
+  if (isExtension) {
+    return AdRefreshPlatform.Extension;
   }
+
+  if (isIOSNative()) {
+    return AdRefreshPlatform.Ios;
+  }
+
+  if (isAndroidApp) {
+    return AdRefreshPlatform.Android;
+  }
+
+  return globalThis.matchMedia?.(phoneQuery).matches === false
+    ? AdRefreshPlatform.WebMobile
+    : AdRefreshPlatform.WebDesktop;
 };
 
 const toSec = (ms: number): number => Math.round(ms / 1_000);

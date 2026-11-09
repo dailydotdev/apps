@@ -12,7 +12,7 @@ import {
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useAdRequestConsent } from './useAdRequestConsent';
-import { useAdRefreshContext } from './refresh/AdRefreshContext';
+import { getAdRefreshPlatform } from './refresh/adRefresh';
 
 interface UseFetchAds {
   isAdConsentReady: boolean;
@@ -25,14 +25,13 @@ interface UseFetchAds {
 
 export const useFetchAd = (enabled = true): UseFetchAds => {
   const consent = useAdRequestConsent(enabled);
-  const { isAuthReady, isLoggedIn } = useAuthContext();
+  const { isAuthReady, isLoggedIn, isAndroidApp } = useAuthContext();
   const registered = isAuthReady ? isLoggedIn : undefined;
   const { value: refreshEngineVersion } = useConditionalFeature({
     feature: featureAdRefreshEngine,
     shouldEvaluate: enabled,
   });
   const isRefreshEngine = refreshEngineVersion === AdRefreshEngineVersion.V2;
-  const { platform } = useAdRefreshContext();
 
   const fetchAdQuery: UseFetchAds['fetchAd'] = useCallback(
     async ({ active, placement = AdPlacement.Feed, refresh }) => {
@@ -47,11 +46,15 @@ export const useFetchAd = (enabled = true): UseFetchAds => {
           registered,
         }),
         ...(isRefreshEngine && {
-          refresh: { platform, count: 0, ...refresh },
+          refresh: {
+            platform: getAdRefreshPlatform(isAndroidApp),
+            count: 0,
+            ...refresh,
+          },
         }),
       });
     },
-    [consent, isRefreshEngine, platform, registered],
+    [consent, isAndroidApp, isRefreshEngine, registered],
   );
 
   return {

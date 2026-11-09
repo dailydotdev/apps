@@ -82,7 +82,7 @@ export const AdAsComment = ({
   );
 
   const onRefreshClick = useCallback(async () => {
-    onAdAction(AdActions.Refresh);
+    onAdAction(AdActions.Refresh, { refresh_trigger: 'manual' });
     await refetch();
   }, [onAdAction, refetch]);
 

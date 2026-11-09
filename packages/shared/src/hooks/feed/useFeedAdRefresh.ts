@@ -2,6 +2,7 @@ import { useCallback, useContext } from 'react';
 import type { InfiniteData } from '@tanstack/react-query';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLogContext } from '../../contexts/LogContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { ActiveFeedContext } from '../../contexts/ActiveFeedContext';
 import { useFeature } from '../../components/GrowthBookProvider';
 import {
@@ -17,6 +18,7 @@ import {
   AdRefreshOutcome,
   AdRefreshSlot,
   getAdRefreshLogExtra,
+  getAdRefreshPlatform,
   getAdRefreshStopLogExtra,
 } from '../../features/monetization/refresh/adRefresh';
 import type {
@@ -24,7 +26,6 @@ import type {
   AdRefreshStop,
 } from '../../features/monetization/refresh/useAdRefresh';
 import { useAdRefresh } from '../../features/monetization/refresh/useAdRefresh';
-import { useAdRefreshContext } from '../../features/monetization/refresh/AdRefreshContext';
 import { generateAdLogEventKey } from './useLogImpression';
 import type { InViewRef } from './useAutoRotatingAds';
 import { useAutoRotatingAds } from './useAutoRotatingAds';
@@ -37,7 +38,7 @@ export const useFeedAdRefresh = (
   feedIndex: number,
   ref: InViewRef,
   disabled = false,
-): { ref: InViewRef } => {
+): { ref: InViewRef; onAdClick: () => void } => {
   const isRefreshEngine =
     useFeature(featureAdRefreshEngine) === AdRefreshEngineVersion.V2;
   const legacy = useAutoRotatingAds(
@@ -50,8 +51,10 @@ export const useFeedAdRefresh = (
   const { logEvent, logEventEnd } = useLogContext();
   const { queryKey: feedQueryKey } = useContext(ActiveFeedContext);
   const queryClient = useQueryClient();
-  const { fetchAd } = useFetchAd();
-  const { platform } = useAdRefreshContext();
+  const { fetchAd, isAdConsentReady } = useFetchAd(
+    isRefreshEngine && !disabled,
+  );
+  const { isAndroidApp } = useAuthContext();
 
   const onRefresh = useCallback(
     async ({
@@ -65,7 +68,7 @@ export const useFeedAdRefresh = (
           adLogEvent(AdActions.Refresh, ad, {
             extra: getAdRefreshLogExtra({
               slot,
-              platform,
+              platform: getAdRefreshPlatform(isAndroidApp),
               providerId: ad.providerId,
               count,
               sessionCount,
@@ -119,9 +122,9 @@ export const useFeedAdRefresh = (
       feedQueryKey,
       fetchAd,
       index,
+      isAndroidApp,
       logEvent,
       logEventEnd,
-      platform,
       queryClient,
     ],
   );
@@ -132,7 +135,7 @@ export const useFeedAdRefresh = (
         adLogEvent(AdActions.RefreshStop, ad, {
           extra: getAdRefreshStopLogExtra({
             slot,
-            platform,
+            platform: getAdRefreshPlatform(isAndroidApp),
             providerId: ad.providerId,
             reason,
             count,
@@ -141,12 +144,13 @@ export const useFeedAdRefresh = (
           }),
         }),
       ),
-    [ad, logEvent, platform],
+    [ad, isAndroidApp, logEvent],
   );
 
-  const { ref: engineRef } = useAdRefresh({
+  const { ref: engineRef, onAdClick } = useAdRefresh({
+    id: ad.generationId,
     refresh: ad.refresh,
-    disabled: disabled || !isRefreshEngine,
+    disabled: disabled || !isRefreshEngine || !isAdConsentReady,
     onRefresh,
     onStop,
   });
@@ -159,5 +163,5 @@ export const useFeedAdRefresh = (
     [engineRef, ref],
   );
 
-  return { ref: isRefreshEngine ? engineRefs : legacy.ref };
+  return { ref: isRefreshEngine ? engineRefs : legacy.ref, onAdClick };
 };

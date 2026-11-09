@@ -18,6 +18,7 @@ import { AdMeasurement } from './common/AdMeasurement';
 import { AdViewability } from './common/AdViewability';
 import { useAdClickUrl } from '../../../features/monetization/useAdClickUrl';
 import type { AdCardProps } from './common/common';
+import type { Ad } from '../../../graphql/posts';
 import { RemoveAd } from './common/RemoveAd';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import type { InViewRef } from '../../../hooks/feed/useAutoRotatingAds';
@@ -82,13 +83,17 @@ export const AdGrid = forwardRef<HTMLElement, AdGridProps>(function AdGrid(
   const { isPlus } = usePlusSubscription();
   const adImprovementsV3 = useFeature(adImprovementsV3Feature);
   const { showAdvertiseLink } = useAdLabel();
-  const { ref } = useFeedAdRefresh(
+  const { ref, onAdClick } = useFeedAdRefresh(
     ad,
     index,
     feedIndex,
     forwardedRef as InViewRef,
     disableRotation,
   );
+  const onAdLinkClick = (clickedAd: Ad) => {
+    onAdClick();
+    return onLinkClick?.(clickedAd);
+  };
   const matchingTags = ad?.matchingTags ?? [];
   const { value: isTldrArm } = useConditionalFeature({
     feature: featureGridCardTldr,
@@ -109,9 +114,9 @@ export const AdGrid = forwardRef<HTMLElement, AdGridProps>(function AdGrid(
       data-testid="adItem"
       ref={ref}
     >
-      <AdLink ad={ad} onLinkClick={onLinkClick} />
+      <AdLink ad={ad} onLinkClick={onAdLinkClick} />
       <AdFavicon ad={ad} className="mx-4">
-        {isCompact && <AdCompactMenu ad={ad} onLinkClick={onLinkClick} />}
+        {isCompact && <AdCompactMenu ad={ad} onLinkClick={onAdLinkClick} />}
       </AdFavicon>
       <CardTextContainer className={isCompact ? undefined : 'flex-1'}>
         <CardTitle
@@ -166,7 +171,7 @@ export const AdGrid = forwardRef<HTMLElement, AdGridProps>(function AdGrid(
                 variant={ButtonVariant.Primary}
                 size={ButtonSize.Small}
                 className="z-1"
-                {...combinedClicks(() => onLinkClick?.(ad))}
+                {...combinedClicks(() => onAdLinkClick(ad))}
               >
                 {ad.callToAction}
               </Button>

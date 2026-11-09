@@ -6,35 +6,41 @@ import type { AdRefreshConfig } from '../../../graphql/posts';
 import {
   AdRefreshOutcome,
   AdRefreshPause,
-  AdRefreshPlatform,
   AdRefreshStopReason,
 } from './adRefresh';
 import type { AdRefreshAttempt, AdRefreshStop } from './useAdRefresh';
-import { AD_REFRESH_TICK_MS, useAdRefresh } from './useAdRefresh';
-import { useAdRefreshContext } from './AdRefreshContext';
-
-jest.mock('./AdRefreshContext', () => ({
-  useAdRefreshContext: jest.fn(),
-}));
+import {
+  AD_REFRESH_TICK_MS,
+  resetAdRefreshSession,
+  useAdRefresh,
+} from './useAdRefresh';
 
 let config: AdRefreshConfig;
-let sessionCount: number;
 
 type OnRefresh = jest.Mock<Promise<AdRefreshOutcome>, [AdRefreshAttempt]>;
 type OnStop = jest.Mock<void, [AdRefreshStop]>;
 
 const Slot = ({
+  id,
   refresh,
   onRefresh,
   onStop,
 }: {
+  id?: string;
   refresh: AdRefreshConfig | null;
   onRefresh: OnRefresh;
   onStop: OnStop;
 }): ReactElement => {
-  const { ref } = useAdRefresh({ refresh, onRefresh, onStop });
+  const { ref, onAdClick } = useAdRefresh({ id, refresh, onRefresh, onStop });
 
-  return <div ref={ref} data-testid="slot" />;
+  return (
+    <div ref={ref} data-testid="slot">
+      <button type="button" onClick={onAdClick}>
+        ad
+      </button>
+      <button type="button">menu</button>
+    </div>
+  );
 };
 
 const advance = async (ms: number) => {
@@ -56,13 +62,13 @@ const setVisibility = (state: DocumentVisibilityState) => {
   });
 };
 
-const mountSlot = (refresh: AdRefreshConfig | null = config) => {
+const mountSlot = (refresh: AdRefreshConfig | null = config, id?: string) => {
   const onRefresh: OnRefresh = jest
     .fn()
     .mockResolvedValue(AdRefreshOutcome.Refreshed);
   const onStop: OnStop = jest.fn();
   const view = render(
-    <Slot refresh={refresh} onRefresh={onRefresh} onStop={onStop} />,
+    <Slot id={id} refresh={refresh} onRefresh={onRefresh} onStop={onStop} />,
   );
   act(() => mockAllIsIntersecting(true));
   fireEvent.pointerMove(window);
@@ -70,9 +76,15 @@ const mountSlot = (refresh: AdRefreshConfig | null = config) => {
   return {
     onRefresh,
     onStop,
-    rerender: (nextRefresh: AdRefreshConfig | null) =>
+    unmount: view.unmount,
+    rerender: (nextRefresh: AdRefreshConfig | null, nextId = id) =>
       view.rerender(
-        <Slot refresh={nextRefresh} onRefresh={onRefresh} onStop={onStop} />,
+        <Slot
+          id={nextId}
+          refresh={nextRefresh}
+          onRefresh={onRefresh}
+          onStop={onStop}
+        />,
       ),
   };
 };
@@ -80,20 +92,13 @@ const mountSlot = (refresh: AdRefreshConfig | null = config) => {
 beforeEach(() => {
   jest.useFakeTimers();
   setVisibility('visible');
-  sessionCount = 0;
+  resetAdRefreshSession();
   config = {
     id: 'test@v1',
     intervalSec: 3,
     maxPerSlot: 5,
     maxPerSession: 10,
   };
-  jest.mocked(useAdRefreshContext).mockReturnValue({
-    platform: AdRefreshPlatform.WebDesktop,
-    getSessionCount: () => sessionCount,
-    countSessionRefresh: () => {
-      sessionCount += 1;
-    },
-  });
 });
 
 afterEach(() => {
@@ -139,8 +144,11 @@ describe('useAdRefresh', () => {
     await advance(5 * AD_REFRESH_TICK_MS);
     expect(onRefresh).not.toHaveBeenCalled();
 
+    fireEvent.click(screen.getByText('menu'));
+    expect(onStop).not.toHaveBeenCalled();
+
     fireEvent.mouseLeave(slot);
-    fireEvent.click(slot);
+    fireEvent.click(screen.getByText('ad'));
     await advance(10 * AD_REFRESH_TICK_MS);
     expect(onRefresh).not.toHaveBeenCalled();
     expect(onStop).toHaveBeenCalledWith(
@@ -184,7 +192,9 @@ describe('useAdRefresh', () => {
 
     await advance(30 * AD_REFRESH_TICK_MS);
     expect(onRefresh).toHaveBeenCalledTimes(2);
-    expect(sessionCount).toEqual(2);
+    expect(onRefresh).toHaveBeenLastCalledWith(
+      expect.objectContaining({ sessionCount: 2 }),
+    );
     expect(onStop).toHaveBeenCalledTimes(1);
     expect(onStop).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -195,24 +205,28 @@ describe('useAdRefresh', () => {
   });
 
   it('stops at the per-session cap', async () => {
-    sessionCount = 10;
+    config = { ...config, maxPerSession: 2 };
     const { onRefresh, onStop } = mountSlot();
 
-    await advance(5 * AD_REFRESH_TICK_MS);
-    expect(onRefresh).not.toHaveBeenCalled();
+    await advance(30 * AD_REFRESH_TICK_MS);
+    expect(onRefresh).toHaveBeenCalledTimes(2);
     expect(onStop).toHaveBeenCalledWith(
       expect.objectContaining({ reason: AdRefreshStopReason.SessionCap }),
     );
   });
 
-  it('does not count a refresh that found no ad', async () => {
-    config = { ...config, maxPerSlot: 1 };
-    const { onRefresh } = mountSlot();
-    onRefresh.mockResolvedValueOnce(AdRefreshOutcome.NoFill);
+  it.each([
+    [AdRefreshOutcome.NoFill, AdRefreshStopReason.NoFill],
+    [AdRefreshOutcome.Failed, AdRefreshStopReason.Failed],
+  ])('stops for good when a refresh ends as %s', async (outcome, reason) => {
+    const { onRefresh, onStop } = mountSlot();
+    onRefresh.mockResolvedValueOnce(outcome);
 
-    await advance(6 * AD_REFRESH_TICK_MS);
-    expect(onRefresh).toHaveBeenCalledTimes(2);
-    expect(sessionCount).toEqual(1);
+    await advance(10 * AD_REFRESH_TICK_MS);
+    expect(onRefresh).toHaveBeenCalledTimes(1);
+    expect(onStop).toHaveBeenCalledWith(
+      expect.objectContaining({ reason, count: 0, sessionCount: 0 }),
+    );
   });
 
   it('stops when the new ad comes back without a config', async () => {
@@ -230,6 +244,50 @@ describe('useAdRefresh', () => {
         count: 1,
       }),
     );
+  });
+
+  it('keeps the slot count when its card remounts', async () => {
+    config = { ...config, maxPerSlot: 1 };
+    const { onRefresh, onStop, rerender, unmount } = mountSlot(config, 'gen-1');
+
+    await advance(3 * AD_REFRESH_TICK_MS);
+    expect(onRefresh).toHaveBeenCalledTimes(1);
+    rerender(config, 'gen-2');
+    await advance(AD_REFRESH_TICK_MS);
+    expect(onStop).toHaveBeenCalledTimes(1);
+    unmount();
+
+    const remounted = mountSlot(config, 'gen-2');
+    await advance(10 * AD_REFRESH_TICK_MS);
+    expect(remounted.onRefresh).not.toHaveBeenCalled();
+    expect(remounted.onStop).not.toHaveBeenCalled();
+  });
+
+  it('does not count a long gap between ticks as time on screen', async () => {
+    config = { ...config, intervalSec: 10 };
+    const { onRefresh } = mountSlot();
+
+    await advance(AD_REFRESH_TICK_MS);
+    jest.setSystemTime(Date.now() + 60 * 60 * 1_000);
+    fireEvent.pointerMove(window);
+    await advance(AD_REFRESH_TICK_MS);
+    expect(onRefresh).not.toHaveBeenCalled();
+  });
+
+  it('counts the real time between ticks while hidden', async () => {
+    const { onRefresh } = mountSlot();
+
+    setVisibility('hidden');
+    await advance(AD_REFRESH_TICK_MS);
+    jest.setSystemTime(Date.now() + 60 * 1_000);
+    await advance(AD_REFRESH_TICK_MS);
+
+    setVisibility('visible');
+    fireEvent.pointerMove(window);
+    await advance(3 * AD_REFRESH_TICK_MS);
+    expect(
+      onRefresh.mock.calls[0][0].stats.pauses[AdRefreshPause.Hidden],
+    ).toEqual({ count: 1, ms: 62 * AD_REFRESH_TICK_MS });
   });
 
   it('never refreshes without a config', async () => {
