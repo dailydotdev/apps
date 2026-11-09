@@ -88,6 +88,14 @@ export const resetAdRefreshSession = (): void => {
 
 const getSessionCount = (): number => session.count;
 
+export const carryAdRefreshSlot = (fromId?: string, toId?: string): void => {
+  const slot = fromId ? session.slots.get(fromId) : undefined;
+
+  if (slot && toId && !session.slots.has(toId)) {
+    session.slots.set(toId, slot);
+  }
+};
+
 const resumeSlotState = (id?: string): SlotState => {
   const saved = id ? session.slots.get(id) : undefined;
 

@@ -25,7 +25,10 @@ import type {
   AdRefreshAttempt,
   AdRefreshStop,
 } from '../../features/monetization/refresh/useAdRefresh';
-import { useAdRefresh } from '../../features/monetization/refresh/useAdRefresh';
+import {
+  carryAdRefreshSlot,
+  useAdRefresh,
+} from '../../features/monetization/refresh/useAdRefresh';
 import { generateAdLogEventKey } from './useLogImpression';
 import type { InViewRef } from './useAutoRotatingAds';
 import { useAutoRotatingAds } from './useAutoRotatingAds';
@@ -97,6 +100,7 @@ export const useFeedAdRefresh = (
         return AdRefreshOutcome.NoFill;
       }
 
+      carryAdRefreshSlot(ad.generationId, newAd.generationId);
       logRefresh(AdRefreshOutcome.Refreshed, newAd);
       logEventEnd(generateAdLogEventKey(feedIndex));
 

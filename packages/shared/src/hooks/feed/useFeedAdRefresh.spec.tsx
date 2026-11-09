@@ -9,7 +9,10 @@ import { useFeature } from '../../components/GrowthBookProvider';
 import { useLogContext } from '../../contexts/LogContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useFetchAd } from '../../features/monetization/useFetchAd';
-import { useAdRefresh } from '../../features/monetization/refresh/useAdRefresh';
+import {
+  carryAdRefreshSlot,
+  useAdRefresh,
+} from '../../features/monetization/refresh/useAdRefresh';
 import type { AdRefreshAttempt } from '../../features/monetization/refresh/useAdRefresh';
 import {
   AdRefreshOutcome,
@@ -35,6 +38,7 @@ jest.mock('../../features/monetization/useFetchAd', () => ({
   useFetchAd: jest.fn(),
 }));
 jest.mock('../../features/monetization/refresh/useAdRefresh', () => ({
+  carryAdRefreshSlot: jest.fn(),
   useAdRefresh: jest.fn(),
 }));
 jest.mock('./useAutoRotatingAds', () => ({
@@ -158,6 +162,7 @@ describe('useFeedAdRefresh', () => {
       }),
     );
     expect(getCachedAds()).toEqual([ads[0], replacement, ads[2]]);
+    expect(carryAdRefreshSlot).toHaveBeenCalledWith('gen-1', 'gen-new');
     expect(logEventEnd).toHaveBeenCalledWith(generateAdLogEventKey(7));
   });
 

@@ -11,6 +11,7 @@ import {
 import type { AdRefreshAttempt, AdRefreshStop } from './useAdRefresh';
 import {
   AD_REFRESH_TICK_MS,
+  carryAdRefreshSlot,
   resetAdRefreshSession,
   useAdRefresh,
 } from './useAdRefresh';
@@ -275,6 +276,33 @@ describe('useAdRefresh', () => {
     await advance(10 * AD_REFRESH_TICK_MS);
     expect(remounted.onRefresh).not.toHaveBeenCalled();
     expect(remounted.onStop).not.toHaveBeenCalled();
+  });
+
+  it('keeps the count when the card unmounts while a refresh is in flight', async () => {
+    config = { ...config, maxPerSlot: 1 };
+    const { onRefresh, unmount } = mountSlot(config, 'gen-1');
+    let finish: (outcome: AdRefreshOutcome) => void = () => {};
+    onRefresh.mockReturnValueOnce(
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+    );
+
+    await advance(3 * AD_REFRESH_TICK_MS);
+    expect(onRefresh).toHaveBeenCalledTimes(1);
+    unmount();
+    carryAdRefreshSlot('gen-1', 'gen-2');
+    await act(async () => finish(AdRefreshOutcome.Refreshed));
+
+    const remounted = mountSlot(config, 'gen-2');
+    await advance(10 * AD_REFRESH_TICK_MS);
+    expect(remounted.onRefresh).not.toHaveBeenCalled();
+    expect(remounted.onStop).toHaveBeenCalledWith(
+      expect.objectContaining({
+        reason: AdRefreshStopReason.SlotCap,
+        count: 1,
+      }),
+    );
   });
 
   it('does not count a long gap between ticks as time on screen', async () => {
