@@ -13,6 +13,7 @@ import {
 } from '@dailydotdev/shared/src/components/streak/popup/DayStreak';
 import {
   getStreak,
+  getStreakDays,
   useReadingStreak30Days,
 } from '@dailydotdev/shared/src/hooks/streaks/useStreakDays';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -116,8 +117,6 @@ export const Scene = ({
     </QueryClientProvider>
   );
 };
-
-const releaseDay = day(GTA_VI_RELEASE_DAY);
 
 /** The copy for where today sits against release day. */
 export const getGtaViCopy = (today: Date): { title: string; body: string } => {
@@ -252,37 +251,37 @@ const getLabel = (date: Date, isRead: boolean): string =>
     timezone,
   )}: GTA VI release day, free Freeze Day${isRead ? ', read' : ''}`;
 
-const freezePattern = (gap: string): string =>
-  gap === '4'
-    ? 'bg-[repeating-linear-gradient(135deg,currentColor_0_1.5px,transparent_1.5px_4px)] text-text-quaternary'
-    : 'bg-[repeating-linear-gradient(135deg,currentColor_0_1.5px,transparent_1.5px_5px)] text-text-quaternary';
+const calendarFreezeClass =
+  'bg-[repeating-linear-gradient(135deg,currentColor_0_0.09375rem,transparent_0.09375rem_0.25rem)] text-text-quaternary';
+const stripFreezeClass =
+  'bg-[repeating-linear-gradient(135deg,currentColor_0_0.09375rem,transparent_0.09375rem_0.3125rem)] text-text-quaternary';
 
 const DAYS = 30;
 const LEADING_DAYS = 4;
 
-const useDays = (start: Date, count: number) => {
+const useDays = (dates: Date[]) => {
   const { today } = useScene();
   const history = useReadingStreak30Days();
 
   return useMemo(
     () =>
-      Array.from({ length: count }, (_, index) => {
-        const date = addDays(start, index);
-        return {
-          date,
-          state: getStreak({ value: date, today, history, timezone }),
-          isToday: isSameDayInTimezone(date, today, timezone),
-        };
-      }),
-    [count, history, start, today],
+      dates.map((date) => ({
+        date,
+        state: getStreak({ value: date, today, history, timezone }),
+        isToday: isSameDayInTimezone(date, today, timezone),
+      })),
+    [dates, history, today],
   );
 };
 
 /** StreakMonthCalendar (sidebar panel, phone drawer, feed widget). */
 export const GtaViCalendar = (): ReactElement => {
   const { today, isEnabled } = useScene();
-  const start = useMemo(() => subDays(today, LEADING_DAYS), [today]);
-  const days = useDays(start, DAYS);
+  const dates = useMemo(() => {
+    const start = subDays(today, LEADING_DAYS);
+    return Array.from({ length: DAYS }, (_, index) => addDays(start, index));
+  }, [today]);
+  const days = useDays(dates);
 
   return (
     <div className="grid grid-cols-10 gap-x-2 gap-y-2.5">
@@ -312,7 +311,7 @@ export const GtaViCalendar = (): ReactElement => {
         } else if (isToday) {
           stateClass = 'border-transparent';
         } else if (isFreeze) {
-          stateClass = freezePattern('4');
+          stateClass = calendarFreezeClass;
         }
         const cell = (
           <div
@@ -363,8 +362,8 @@ export const GtaViCalendar = (): ReactElement => {
  */
 export const GtaViWeekStrip = (): ReactElement => {
   const { today, isEnabled } = useScene();
-  const start = useMemo(() => subDays(today, 4), [today]);
-  const days = useDays(start, 9);
+  const dates = useMemo(() => getStreakDays(today), [today]);
+  const days = useDays(dates);
 
   return (
     <div className="flex justify-between">
@@ -405,7 +404,7 @@ export const GtaViWeekStrip = (): ReactElement => {
         } else if (isToday) {
           stateClass = 'border-transparent';
         } else if (isFreeze) {
-          stateClass = freezePattern('5');
+          stateClass = stripFreezeClass;
         }
         return (
           <div
@@ -631,5 +630,3 @@ export const GtaViWidget = ({
     </div>
   );
 };
-
-export { releaseDay };
