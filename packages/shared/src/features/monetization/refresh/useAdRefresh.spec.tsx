@@ -55,6 +55,12 @@ const advance = async (ms: number) => {
   );
 };
 
+const hover = (element: HTMLElement, pointerType: string) => {
+  const event = new Event('pointerenter');
+  Object.assign(event, { pointerType });
+  fireEvent(element, event);
+};
+
 const setVisibility = (state: DocumentVisibilityState) => {
   Object.defineProperty(document, 'visibilityState', {
     value: state,
@@ -140,20 +146,28 @@ describe('useAdRefresh', () => {
     const { onRefresh, onStop } = mountSlot();
     const slot = screen.getByTestId('slot');
 
-    fireEvent.mouseEnter(slot);
+    hover(slot, 'mouse');
     await advance(5 * AD_REFRESH_TICK_MS);
     expect(onRefresh).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByText('menu'));
     expect(onStop).not.toHaveBeenCalled();
 
-    fireEvent.mouseLeave(slot);
+    fireEvent.pointerLeave(slot);
     fireEvent.click(screen.getByText('ad'));
     await advance(10 * AD_REFRESH_TICK_MS);
     expect(onRefresh).not.toHaveBeenCalled();
     expect(onStop).toHaveBeenCalledWith(
       expect.objectContaining({ reason: AdRefreshStopReason.Clicked }),
     );
+  });
+
+  it('ignores the hover a touch tap leaves behind', async () => {
+    const { onRefresh } = mountSlot();
+
+    hover(screen.getByTestId('slot'), 'touch');
+    await advance(3 * AD_REFRESH_TICK_MS);
+    expect(onRefresh).toHaveBeenCalledTimes(1);
   });
 
   it('pauses while the tab is hidden and reports the pause', async () => {

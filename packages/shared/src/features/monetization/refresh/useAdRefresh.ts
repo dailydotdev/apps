@@ -221,15 +221,19 @@ export const useAdRefresh = ({
       const { current } = state;
       current.hovered = hovered;
     };
-    const onEnter = () => setHovered(true);
+    const onEnter = (event: Event) => {
+      if ((event as PointerEvent).pointerType === 'mouse') {
+        setHovered(true);
+      }
+    };
     const onLeave = () => setHovered(false);
 
-    node.addEventListener('mouseenter', onEnter);
-    node.addEventListener('mouseleave', onLeave);
+    node.addEventListener('pointerenter', onEnter);
+    node.addEventListener('pointerleave', onLeave);
 
     return () => {
-      node.removeEventListener('mouseenter', onEnter);
-      node.removeEventListener('mouseleave', onLeave);
+      node.removeEventListener('pointerenter', onEnter);
+      node.removeEventListener('pointerleave', onLeave);
     };
   }, [node, policy, state]);
 
