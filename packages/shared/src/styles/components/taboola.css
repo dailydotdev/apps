@@ -1,7 +1,8 @@
 /*
- * Overrides for Taboola's feed unit (TaboolaAd.tsx). Its stylesheet is
- * third-party, configured on Taboola's side for a dark page and more specific
- * than anything scoped to our container, so the overrides use !important.
+ * Overrides for Taboola's feed unit (TaboolaAd.tsx, and the embed page that
+ * renders it for the extension). Its stylesheet is third-party, configured on
+ * Taboola's side for a dark page and more specific than anything scoped to our
+ * container, so the overrides use !important.
  */
 .taboola-feed-ad {
   & .video-title,
@@ -20,6 +21,30 @@
 
   & .branding {
     color: var(--theme-text-tertiary) !important;
+  }
+
+  /* The advertiser's call to action, as our cards' small primary button. */
+  & .video-cta-href {
+    display: flex !important;
+    margin: 0.75rem 0 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Taboola styles the button per theme with four classes and an element;
+   * the id-level `:not` outranks those. */
+  & .video-cta-button:not(#taboola-cta) {
+    width: auto !important;
+    height: 2rem !important;
+    margin: 0 !important;
+    padding: 0 0.75rem !important;
+    border: 0 !important;
+    border-radius: 0.625rem !important;
+    background: var(--theme-surface-primary) !important;
+    color: var(--theme-surface-invert) !important;
+    font-family: theme('fontFamily.sans') !important;
+    font-size: 0.8125rem !important;
+    font-weight: 600 !important;
+    line-height: 1.125rem !important;
   }
 }
 
@@ -69,17 +94,22 @@
     padding: 0 1rem !important;
   }
 
+  /* An item with a call to action wraps its copy into a centered row. */
   & .video-label-box {
     display: flex !important;
     flex: 1 1 auto !important;
     flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
     height: auto !important;
     margin: 0.75rem 0 0 !important;
   }
 
-  /* typo-title3 */
+  /* typo-title3. An item with a call to action lets the title grow over the
+   * attribution. */
   & .video-title {
     display: -webkit-box !important;
+    flex: 0 0 auto !important;
     max-height: none !important;
     overflow: hidden !important;
     font-size: 1.25rem !important;
@@ -93,8 +123,15 @@
     display: none !important;
   }
 
+  /* Under the title; the attribution stays at the bottom of the copy. */
+  & .video-cta-href {
+    order: 1;
+  }
+
   /* typo-footnote, as AdAttribution */
   & .branding {
+    flex: 0 0 auto !important;
+    order: 2;
     margin: auto 0 0.5rem !important;
     padding-top: 0.75rem !important;
     color: var(--theme-text-quaternary) !important;
@@ -139,11 +176,15 @@
   }
 }
 
-/* Under a tip (AdGrid's compact card): two lines of title, then the creative
- * takes whatever height is left. */
+/* Under a tip (AdGrid's compact card): two lines of title, no call to action,
+ * then the creative takes whatever height is left. */
 .taboola-feed-ad--compact {
   & .video-title {
     -webkit-line-clamp: 2;
+  }
+
+  & .video-cta-href {
+    display: none !important;
   }
 
   & .item-label-href,
@@ -161,6 +202,38 @@
   & .thumbBlock_holder {
     flex: 1 1 auto;
     height: auto !important;
+  }
+}
+
+/* Next to posts showing their TLDR, AdGrid's creative takes their shorter
+ * cover. */
+.taboola-feed-ad--short-cover .thumbBlock_holder {
+  height: 5.5rem !important;
+}
+
+/* The feed hero's ad (FeedHeroAdCard): the copy inset by the card's padding,
+ * the attribution right under it, the creative last at full width, and no
+ * call to action, as the card has none. */
+.taboola-feed-ad--hero {
+  & .videoCube::before {
+    margin: 0.75rem 1rem 0 !important;
+  }
+
+  & .branding {
+    overflow: hidden;
+    margin: auto 0 0 !important;
+    padding-top: 0.25rem !important;
+    color: var(--theme-text-tertiary) !important;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  & .item-thumbnail-href {
+    margin: 1rem 1rem 0.75rem !important;
+  }
+
+  & .video-cta-href {
+    display: none !important;
   }
 }
 
@@ -195,6 +268,7 @@
     grid-template-areas:
       'icon brand'
       'title title'
+      'cta cta'
       'thumb thumb';
     grid-template-columns: 2.5rem minmax(0, 1fr);
     align-items: center;
@@ -207,7 +281,9 @@
     @screen mobileXL {
       grid-template-areas:
         'icon brand brand'
-        'title title thumb';
+        'title title thumb'
+        'cta cta thumb';
+      grid-template-rows: auto auto 1fr;
       grid-template-columns: 2.5rem minmax(0, 1fr) 15rem;
     }
   }
@@ -261,6 +337,11 @@
     @screen mobileXL {
       margin-right: 1rem !important;
     }
+  }
+
+  & .video-cta-href {
+    grid-area: cta;
+    align-self: start;
   }
 
   /* The post cover's box: h-40, full width, w-60 beside the title. */

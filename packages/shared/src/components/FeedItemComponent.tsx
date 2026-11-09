@@ -500,7 +500,9 @@ function FeedItemComponent({
         <TaboolaAd
           ref={inViewRef}
           placement={taboolaPlacement}
-          isList={shouldUseListFeedLayout || shouldUseListMode}
+          variant={
+            shouldUseListFeedLayout || shouldUseListMode ? 'list' : 'grid'
+          }
           fallback={houseAd}
           onClick={() =>
             onAdAction(AdActions.Click, getTaboolaLogAd(taboolaPlacement))

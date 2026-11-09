@@ -10,7 +10,6 @@
  */
 
 import type { Ad } from '../../graphql/posts';
-import { isExtension } from '../../lib/func';
 
 const publisherId = 'dailydevnetwork';
 const loaderId = 'tb_loader_script';
@@ -25,8 +24,9 @@ const responseTimeout = 4_000;
 
 export const taboolaMaxPlacements = 15;
 
-// Placements count down the page: the rail's ad slot is the first ad a reader
-// meets, the feed's slots follow in order.
+// Placements count down the page: the ad above the feed (the rail's ad slot, or
+// the feed hero's, which never show together) is the first ad a reader meets,
+// the feed's slots follow in order.
 export const taboolaWidgetPlacement = 1;
 
 export const getTaboolaFeedPlacement = (adIndex: number): number => adIndex + 2;
@@ -172,19 +172,26 @@ const flush = (): void => {
 // Taboola serves a test host as the live site when its URL names that site
 // (`?taboola_sim_domain=daily.dev`). In-app navigation drops the query, so
 // every page view keeps the one an earlier page carried.
-const simDomainParam = 'taboola_sim_domain';
+export const taboolaSimDomainParam = 'taboola_sim_domain';
 let simDomain: string | null = null;
 
 const getPageUrl = (): string => {
   const url = new URL(globalThis.location.href);
   url.hash = '';
-  simDomain = url.searchParams.get(simDomainParam) ?? simDomain;
+  simDomain = url.searchParams.get(taboolaSimDomainParam) ?? simDomain;
 
   if (simDomain) {
-    url.searchParams.set(simDomainParam, simDomain);
+    url.searchParams.set(taboolaSimDomainParam, simDomain);
   }
 
   return url.toString();
+};
+
+/** The simulated domain a page named, for a frame that renders on its behalf. */
+export const getTaboolaSimDomain = (): string | undefined => {
+  getPageUrl();
+
+  return simDomain ?? undefined;
 };
 
 // Taboola's QA build: a page that names a simulated domain gets Taboola in
@@ -202,11 +209,10 @@ const isTaboolaQa = (): boolean => {
 
 /**
  * Whether Taboola fills the slot the ad server sent `ad` for: only a house ad,
- * never a boost, which carries our own post or squad. The extension's pages
- * can't load Taboola's remote script.
+ * never a boost, which carries our own post or squad.
  */
 export const isTaboolaAd = (ad: Ad, isEnabled: boolean): boolean =>
-  (isTaboolaQa() || (isEnabled && !!ad.fallback)) && !ad.data && !isExtension;
+  (isTaboolaQa() || (isEnabled && !!ad.fallback)) && !ad.data;
 
 const startPageView = (url: string): void => {
   if (pageUrl !== undefined) {
@@ -227,10 +233,13 @@ export const requestTaboolaPlacement = ({
   placement,
   container,
   onResult,
+  url = getPageUrl(),
 }: {
   placement: number;
   container: HTMLElement;
   onResult: (result: TaboolaResult) => void;
+  /** The page Taboola is told it is on, when it isn't the current one. */
+  url?: string;
 }): (() => void) => {
   const request: TaboolaRequest = {
     container,
@@ -243,7 +252,6 @@ export const requestTaboolaPlacement = ({
   };
   request.observer.observe(container, { childList: true, subtree: true });
   pending.add(request);
-  const url = getPageUrl();
 
   if (url !== pageUrl) {
     startPageView(url);

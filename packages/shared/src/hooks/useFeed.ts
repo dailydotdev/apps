@@ -78,7 +78,6 @@ import {
   isTaboolaAd,
   isTaboolaPlacement,
 } from '../features/monetization/taboola';
-import { isExtension } from '../lib/func';
 import type { Squad } from '../graphql/sources';
 import { useCachedTokenRecovery } from './useCachedTokenRecovery';
 
@@ -611,10 +610,9 @@ export default function useFeed<T>(
     isLoading,
     dataUpdatedAt: adsUpdatedAt,
   } = adsQuery;
-  // The extension's pages can't load Taboola's remote script.
   const { value: isTaboolaFallback } = useConditionalFeature({
     feature: featureTaboolaAds,
-    shouldEvaluate: !isExtension && !!adsData?.pages.some((ad) => ad?.fallback),
+    shouldEvaluate: !!adsData?.pages.some((ad) => ad?.fallback),
   });
 
   const getAd = useCallback(

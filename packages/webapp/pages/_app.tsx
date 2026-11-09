@@ -399,14 +399,15 @@ const isDevReviewRoute = (pathname: string | undefined): boolean =>
   !!pathname && pathname.startsWith('/dev/');
 
 /**
- * `/embed/mf` and `/embed/exco` are loaded as iframes by the extension and
- * must load as fast as possible. They need none of the app shell (boot, auth,
- * providers), so they share the minimal short-circuit tree.
+ * `/embed/mf`, `/embed/exco` and `/embed/taboola` are loaded as iframes by the
+ * extension and must load as fast as possible. They need none of the app shell
+ * (boot, auth, providers), so they share the minimal short-circuit tree.
  */
 const isBareEmbedRoute = (pathname: string | undefined): boolean =>
   isDevReviewRoute(pathname) ||
   pathname === '/embed/mf' ||
-  pathname === '/embed/exco';
+  pathname === '/embed/exco' ||
+  pathname === '/embed/taboola';
 
 export default function App(
   props: AppProps<{ dehydratedState: DehydratedState }>,

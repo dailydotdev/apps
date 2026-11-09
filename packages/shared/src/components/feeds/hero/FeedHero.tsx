@@ -11,6 +11,13 @@ import {
   usePostLogEvent,
 } from '../../../lib/feed';
 import { AdActions } from '../../../lib/ads';
+import { featureTaboolaAds } from '../../../lib/featureManagement';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import {
+  getTaboolaLogAd,
+  isTaboolaAd,
+  taboolaWidgetPlacement,
+} from '../../../features/monetization/taboola';
 import { LogEvent, Origin } from '../../../lib/log';
 import { FeedHeroSection } from './FeedHeroSection';
 import { useFeedHeroAd } from './useFeedHeroAd';
@@ -46,6 +53,11 @@ export const FeedHero = ({
   const postLogEvent = usePostLogEvent();
 
   const { ad, placement, shape } = useFeedHeroAd();
+  const { value: isTaboolaEnabled } = useConditionalFeature({
+    feature: featureTaboolaAds,
+    shouldEvaluate: !!ad?.fallback,
+  });
+  const isTaboola = !!ad && isTaboolaAd(ad, isTaboolaEnabled);
 
   const { queryKey, posts, highlights } = useFeedHeroData();
   const cardProps = useFeedHeroCardProps({ queryKey, feedName });
@@ -77,12 +89,14 @@ export const FeedHero = ({
       }
 
       logEvent(
-        adLogEvent(action, ad, {
-          extra: { origin: Origin.FeedHero, ...extra },
-        }),
+        adLogEvent(
+          action,
+          isTaboola ? getTaboolaLogAd(taboolaWidgetPlacement) : ad,
+          { extra: { origin: Origin.FeedHero, ...extra } },
+        ),
       );
     },
-    [ad, logEvent],
+    [ad, isTaboola, logEvent],
   );
 
   const logHighlightsClick = useCallback(
@@ -131,6 +145,7 @@ export const FeedHero = ({
       posts={posts}
       highlights={railHighlights}
       ad={isAdShown ? ad : undefined}
+      isTaboolaAd={isTaboola}
       adPlacement={adPlacement}
       shape={shape}
       cardProps={cardProps}
