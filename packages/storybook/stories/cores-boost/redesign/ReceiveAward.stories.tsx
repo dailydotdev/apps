@@ -7,6 +7,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { streakHandlers } from '../real/handlers';
 import { CoresProviders } from '../real/providers';
 import { Shell, useAnimateCores } from '../flows/cores/Shell';
 import { FlowStepper } from '../flows/cores/FlowStepper';
@@ -29,7 +30,12 @@ const meta: Meta = {
   title: 'Cores & Boost/Redesign/3. Receive an award',
   parameters: {
     layout: 'fullscreen',
-    msw: { handlers: walletHandlers(AFTER, receiveHistory) },
+    msw: {
+      handlers: [
+        ...streakHandlers({ balance: AFTER }),
+        ...walletHandlers(AFTER, receiveHistory),
+      ],
+    },
   },
 };
 
@@ -99,7 +105,7 @@ const WalkthroughFlow = (): ReactElement => {
     <Shell>
       {step === 0 && <AwardArrives onOpen={() => setStep(2)} />}
       {step === 1 && <NotificationsScreen onViewWallet={() => setStep(2)} />}
-      {step === 2 && <Wallet highlightId={idoAward.id} />}
+      {step === 2 && <Wallet />}
       <FlowStepper steps={steps} index={step} onChange={setStep} />
     </Shell>
   );
@@ -162,7 +168,7 @@ export const BalanceRefreshes: Story = {
 };
 
 export const WalletRowHighlighted: Story = {
-  name: '4 · Wallet, row highlighted',
+  name: '4 · Wallet, award in history',
   parameters: {
     docs: {
       description: {
@@ -174,7 +180,7 @@ export const WalletRowHighlighted: Story = {
   render: () => (
     <CoresProviders balance={AFTER} activePage="/wallet">
       <Shell>
-        <Wallet highlightId={idoAward.id} />
+        <Wallet />
       </Shell>
     </CoresProviders>
   ),

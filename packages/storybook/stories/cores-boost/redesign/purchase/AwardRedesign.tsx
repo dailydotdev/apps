@@ -47,7 +47,7 @@ import { CoreAmount } from './kit';
 // tiles are quiet cards that mark the shortfall in a corner chip, and a
 // summary card carries the pick, the balance and the next step.
 
-const receiverName = awardReceiver.name;
+export type AwardReceiver = Pick<typeof awardReceiver, 'name' | 'image'>;
 
 const AwardTile = ({
   item,
@@ -111,6 +111,7 @@ const AwardTile = ({
 export interface AwardPickerRedesignProps {
   initialAward?: string;
   canPurchaseCores?: boolean;
+  receiver?: AwardReceiver;
   onBuyCores: (product: Product) => void;
   onPicked: (product: Product) => void;
   onRequestClose: () => void;
@@ -119,6 +120,7 @@ export interface AwardPickerRedesignProps {
 export const AwardPickerRedesign = ({
   initialAward,
   canPurchaseCores = true,
+  receiver = awardReceiver,
   onBuyCores,
   onPicked,
   onRequestClose,
@@ -166,7 +168,7 @@ export const AwardPickerRedesign = ({
       <Modal.Body className="gap-4">
         <div className="flex items-center gap-3">
           <Image
-            src={awardReceiver.image}
+            src={receiver.image}
             alt="Award user"
             className="size-12 rounded-16"
           />
@@ -185,7 +187,7 @@ export const AwardPickerRedesign = ({
                 tag={TypographyTag.Span}
                 bold
               >
-                {receiverName}
+                {receiver.name}
               </Typography>
               !
             </Typography>
@@ -243,12 +245,14 @@ export const AwardPickerRedesign = ({
 export const AwardNoteRedesign = ({
   product,
   coresAdded,
+  receiver = awardReceiver,
   onBack,
   onSent,
   onRequestClose,
 }: {
   product: Product;
   coresAdded?: number;
+  receiver?: AwardReceiver;
   onBack: () => void;
   onSent: () => void;
   onRequestClose: () => void;
@@ -326,7 +330,7 @@ export const AwardNoteRedesign = ({
               color={TypographyColor.Primary}
               tag={TypographyTag.Span}
             >
-              {receiverName}
+              {receiver.name}
             </Typography>{' '}
             will appreciate this award!
           </Typography>
@@ -375,9 +379,11 @@ export const AwardNoteRedesign = ({
 /** The success screen, led by the friendship art the award stands for */
 export const AwardSentRedesign = ({
   product,
+  receiver = awardReceiver,
   onRequestClose,
 }: {
   product: Product;
+  receiver?: AwardReceiver;
   onRequestClose: () => void;
 }): ReactElement => (
   <Modal
@@ -416,7 +422,7 @@ export const AwardSentRedesign = ({
             bold
             className="text-center"
           >
-            Congrats! Your Award has been sent to {receiverName}
+            Congrats! Your Award has been sent to {receiver.name}
           </Typography>
           <Typography
             type={TypographyType.Callout}

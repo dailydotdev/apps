@@ -22,7 +22,7 @@ import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
-import { BuyCoresModal } from '@dailydotdev/shared/src/components/modals/award/BuyCoresModal';
+import { BuyCoresRedesignModal } from '../purchase/BuyCoresRedesign';
 import { usePostImage } from '@dailydotdev/shared/src/hooks/post/usePostImage';
 import { useCampaignMutation } from '@dailydotdev/shared/src/features/boost/useCampaignMutation';
 import { useBoostWallet } from '@dailydotdev/shared/src/features/boost/useBoostWallet';
@@ -90,7 +90,7 @@ export function BoostAgainModal({
   initialScreen = SCREENS.FORM,
   ...props
 }: BoostPostModalProps): ReactElement {
-  const { user } = useAuthContext();
+  const { user, updateUser } = useAuthContext();
   const client = useQueryClient();
   const { getFeatureValue } = useFeaturesReadyContext();
   const [activeScreen, setActiveScreen] = useState<Screens>(initialScreen);
@@ -162,31 +162,20 @@ export function BoostAgainModal({
   };
 
   if (activeScreen === SCREENS.BUY_CORES) {
-    const missingCores = Math.max(
-      0,
-      totalSpendInt - (user?.balance.amount ?? 0),
-    );
-
     return (
-      <BuyCoresModal
-        isOpen
-        product={null}
-        minCoresToBuy={missingCores || undefined}
-        onCompletion={() => setActiveScreen(SCREENS.FORM)}
+      <BuyCoresRedesignModal
+        purpose="boost"
+        cost={totalSpendInt}
+        onPay={(pack) => {
+          if (user) {
+            updateUser({
+              ...user,
+              balance: { amount: user.balance.amount + pack.value },
+            });
+          }
+          setActiveScreen(SCREENS.FORM);
+        }}
         onRequestClose={() => setActiveScreen(SCREENS.FORM)}
-        amountNeededCopy={
-          missingCores > 0 ? (
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Secondary}
-            >
-              You need{' '}
-              <strong>{missingCores.toLocaleString()} more Cores</strong> to
-              boost the post.
-            </Typography>
-          ) : undefined
-        }
-        origin={Origin.BoostPost}
       />
     );
   }

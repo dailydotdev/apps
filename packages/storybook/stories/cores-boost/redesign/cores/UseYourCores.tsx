@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import {
   ArrowIcon,
@@ -13,9 +13,17 @@ import { formatCoresCurrency } from '@dailydotdev/shared/src/lib/utils';
 import { awards } from '../../real/catalog';
 import { minAward, minBoost } from '../../flows/cores/fixtures';
 import type { CoresUse } from '../../flows/cores/UseYourCores';
+import { streakFreezeProducts } from '../../real/handlers';
+import { BoostHeroTile } from './BoostHeroTile';
+import {
+  AwardTileFlow,
+  StreakTileFlow,
+  useStreakRecoverState,
+} from './UseTileFlows';
 
-// "Use your Cores" in the new look: tiles in the wallet, compact rows in the
-// first Cores sheet. Same three uses, prices and coverage as the Flows copy.
+// "Use your Cores" in the new look: in the wallet, Boost takes the main tile
+// and the award and streak tiles stack beside it, each opening its flow;
+// compact rows in the first Cores sheet.
 
 export type { CoresUse };
 
@@ -117,13 +125,16 @@ const UseIcon = ({ use }: { use: CoresUse }): ReactElement => (
 export const CoresUseTile = ({
   use,
   balance,
+  override,
   onClick,
 }: {
   use: CoresUse;
   balance: number;
+  /** Copy and price that depend on the viewer, like a streak to restore */
+  override?: Partial<Pick<UseDefinition, 'title' | 'description' | 'from'>>;
   onClick?: () => void;
 }): ReactElement => {
-  const { title, description, from } = uses[use];
+  const { title, description, from } = { ...uses[use], ...override };
 
   return (
     <li className="flex">
@@ -160,30 +171,52 @@ export const UseYourCoresTiles = ({
 }: {
   balance: number;
   onUse?: (use: CoresUse) => void;
-}): ReactElement => (
-  <>
-    <ul className="flex flex-col gap-2 tablet:hidden">
-      {(['award', 'boost', 'streak'] as CoresUse[]).map((use) => (
-        <CoresUseRow
-          key={use}
-          use={use}
-          balance={balance}
-          onClick={() => onUse?.(use)}
-        />
-      ))}
-    </ul>
-    <ul className="hidden grid-cols-3 gap-3 tablet:grid">
-      {(['award', 'boost', 'streak'] as CoresUse[]).map((use) => (
+}): ReactElement => {
+  const [openUse, setOpenUse] = useState<CoresUse>();
+  const recover = useStreakRecoverState();
+  const canRecover = !!recover?.canRecover;
+  const streakOverride = canRecover
+    ? {
+        title: `Restore your ${recover.oldStreakLength}-day streak`,
+        description: 'It broke yesterday. Bring it back before it’s gone',
+        from: recover.cost,
+      }
+    : {
+        title: 'Protect your streak',
+        description: 'Streak freezes cover the days you miss reading',
+        from: Math.min(...streakFreezeProducts.map(({ value }) => value)),
+      };
+
+  return (
+    <ul className="flex flex-col gap-2 tablet:grid tablet:grid-cols-3 tablet:grid-rows-2 tablet:gap-3">
+      <BoostHeroTile
+        balance={balance}
+        className="tablet:col-span-2 tablet:row-span-2"
+      />
+      {(['award', 'streak'] as CoresUse[]).map((use) => (
         <CoresUseTile
           key={use}
           use={use}
           balance={balance}
-          onClick={() => onUse?.(use)}
+          override={use === 'streak' ? streakOverride : undefined}
+          onClick={() => {
+            setOpenUse(use);
+            onUse?.(use);
+          }}
         />
       ))}
+      {openUse === 'award' && (
+        <AwardTileFlow onDone={() => setOpenUse(undefined)} />
+      )}
+      {openUse === 'streak' && (
+        <StreakTileFlow
+          canRecover={canRecover}
+          onDone={() => setOpenUse(undefined)}
+        />
+      )}
     </ul>
-  </>
-);
+  );
+};
 
 /** One fixed-height row, for the first Cores sheet */
 export const CoresUseRow = ({

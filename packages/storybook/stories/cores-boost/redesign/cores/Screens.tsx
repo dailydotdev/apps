@@ -14,7 +14,10 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { CoreIcon, MiniCloseIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  CoreIcon,
+  MiniCloseIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import { BoostIcon } from '@dailydotdev/shared/src/components/icons/Boost';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { NotificationSayThanksButton } from '@dailydotdev/shared/src/components/notifications/NotificationSayThanksButton';

@@ -48,13 +48,7 @@ const StoryShot = ({ id }: { id: string }): ReactElement => (
   </a>
 );
 
-const Column = ({
-  label,
-  id,
-}: {
-  label: string;
-  id: string;
-}): ReactElement => (
+const Column = ({ label, id }: { label: string; id: string }): ReactElement => (
   <div className="flex min-w-0 flex-1 flex-col gap-2">
     <span className="font-bold text-text-tertiary typo-caption1">{label}</span>
     <StoryShot id={id} />
@@ -130,7 +124,7 @@ export const ReceiveAward: Story = {
         ],
         ['3 · Balance refreshes', 'receive-notification', 'balance-refreshes'],
         [
-          '4 · Wallet, row highlighted',
+          '4 · Wallet, award in history',
           'receive-wallet',
           'wallet-row-highlighted',
         ],
@@ -147,11 +141,7 @@ export const WalletAndBuying: Story = {
         ['1 · Ways in', 'wallet-ways-in', 'ways-in'],
         ['2 · Wallet', 'wallet', 'wallet-screen'],
         ['3 · /cores', 'cores', 'cores'],
-        [
-          '4 · You got your Cores!',
-          'cores-purchased',
-          'you-got-your-cores',
-        ],
+        ['4 · You got your Cores!', 'cores-purchased', 'you-got-your-cores'],
         ['5 · Back to the wallet', 'cores-got-it-home', 'back-to-the-wallet'],
       ])}
     />

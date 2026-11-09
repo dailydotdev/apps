@@ -24,12 +24,17 @@ import {
   PlusIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import {
+  Typography,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { Origin, TargetId } from '@dailydotdev/shared/src/lib/log';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { formatCoresCurrency } from '@dailydotdev/shared/src/lib/utils';
 import {
   getTransactionLabel,
+  getTransactionNote,
   getTransactionType,
 } from '@dailydotdev/shared/src/lib/transaction';
 import {
@@ -37,16 +42,11 @@ import {
   RequestKey,
   StaleTime,
 } from '@dailydotdev/shared/src/lib/query';
-import type { UserTransaction } from '@dailydotdev/shared/src/graphql/njord';
 import {
   coresPricesQueryOptions,
   getTransactions,
   getTransactionSummary,
-  ProductType,
-  UserTransactionStatus,
-  UserTransactionType,
 } from '@dailydotdev/shared/src/graphql/njord';
-import { NotificationSayThanksButton } from '@dailydotdev/shared/src/components/notifications/NotificationSayThanksButton';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
@@ -55,76 +55,16 @@ import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { SquadWidget } from '@dailydotdev/shared/src/features/squads/components/widgets/SquadWidget';
 import { UpgradeToPlus } from '@dailydotdev/shared/src/components/UpgradeToPlus';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
-import {
-  CharmEmptyState,
-  CharmEmptyStatePlacement,
-} from '@dailydotdev/shared/src/components/charm/CharmEmptyState';
-import { cloudinaryCharmReadLater } from '@dailydotdev/shared/src/lib/image';
 import type { CoresUse } from './UseYourCores';
 import { UseYourCoresTiles } from './UseYourCores';
-import { TransactionRow } from './TransactionRow';
+import { TransactionItem } from '@dailydotdev/shared/src/components/cores/TransactionItem';
 import { CardSection, friendshipArt, SquadFrame } from './frame';
 
 // The wallet in the squads hub layout. Same content as the Flows wallet:
 // balance and the four totals (with their tooltips), Use your Cores, the
-// transaction history, Buy Cores in the header, the 100/300/600 packs and
+// transaction history (production TransactionItem), Buy Cores in the header, the 100/300/600 packs and
 // See more options, the Plus giveback, Docs and Terms. The page now reads as
 // one card (balance → uses → history) with the buying and help as widgets.
-
-const PENDING_SUPPORT_MS = 10 * 60 * 1000;
-
-const isAwardFromPerson = (transaction: UserTransaction): boolean =>
-  !!transaction.sender &&
-  transaction.sender.id !== 'system' &&
-  transaction.product?.type !== ProductType.StreakFreeze &&
-  !!transaction.product;
-
-const getDetails = (
-  transaction: UserTransaction,
-  type: ReturnType<typeof getTransactionType>,
-): ReactNode => {
-  if (transaction.status === UserTransactionStatus.Processing) {
-    const age = Date.now() - new Date(transaction.createdAt).getTime();
-
-    if (age < PENDING_SUPPORT_MS) {
-      return 'Payment received. Your Cores usually land in under a minute.';
-    }
-
-    return (
-      <>
-        Taking longer than usual.{' '}
-        <a
-          href="mailto:support@daily.dev?subject=My Cores purchase is still pending"
-          className="font-bold underline"
-        >
-          Contact support
-        </a>
-      </>
-    );
-  }
-
-  if (type === 'receive' && isAwardFromPerson(transaction)) {
-    const fee = transaction.value - transaction.valueIncFees;
-
-    return `${formatCoresCurrency(transaction.value)} Cores award · ${formatCoresCurrency(fee)} Cores fee`;
-  }
-
-  return undefined;
-};
-
-const getNote = (transaction: UserTransaction): string | undefined => {
-  const { note } = transaction.flags;
-
-  if (
-    !note ||
-    !isAwardFromPerson(transaction) ||
-    transaction.referenceType === UserTransactionType.PostBoost
-  ) {
-    return undefined;
-  }
-
-  return `“${note}”`;
-};
 
 const coresLink = (params: Record<string, string>): string =>
   getPathnameWithQuery(
@@ -345,8 +285,6 @@ const HelpWidget = (): ReactElement => (
 );
 
 export interface WalletProps {
-  /** Transaction a notification or a purchase points at */
-  highlightId?: string;
   /** Cores a purchase just added, shown on the Purchased total */
   purchasedChange?: number;
   onBuyCores?: () => void;
@@ -354,7 +292,6 @@ export interface WalletProps {
 }
 
 export const Wallet = ({
-  highlightId,
   purchasedChange,
   onBuyCores,
   onUse,
@@ -496,64 +433,48 @@ export const Wallet = ({
         <CardSection title="Use your Cores">
           <UseYourCoresTiles balance={user.balance.amount} onUse={onUse} />
         </CardSection>
-        <section className="flex flex-col py-5">
-          <h2 className="px-4 pb-2 font-bold typo-body tablet:px-6">
+        <section className="flex flex-col gap-6 px-4 py-5 tablet:px-6">
+          <Typography type={TypographyType.Body} bold>
             Transaction history
-          </h2>
+          </Typography>
           {!isPendingTransactions && !edges.length && (
-            <CharmEmptyState
-              image={cloudinaryCharmReadLater}
-              imageAlt="No transactions"
-              title="You have no transactions yet."
-              placement={CharmEmptyStatePlacement.Inline}
-            />
+            <Typography type={TypographyType.Callout}>
+              You have no transactions yet.
+            </Typography>
           )}
-          <ul className="flex flex-col">
-            {edges.map(({ node: transaction }) => {
-              const type = getTransactionType({ transaction, user });
-              const transactionUser =
-                type === 'receive'
-                  ? (transaction.sender ?? transaction.receiver)
-                  : transaction.receiver;
-              const canThank =
-                type === 'receive' && isAwardFromPerson(transaction);
+          {!!edges.length && (
+            <ul className="flex flex-col gap-4">
+              {edges.map(({ node: transaction }) => {
+                const type = getTransactionType({ transaction, user });
+                const transactionUser =
+                  type === 'receive'
+                    ? (transaction.sender ?? transaction.receiver)
+                    : transaction.receiver;
 
-              return (
-                <TransactionRow
-                  key={transaction.id}
-                  type={type}
-                  user={transactionUser}
-                  profileUser={transactionUser}
-                  amount={
-                    type === 'send'
-                      ? -transaction.value
-                      : transaction.valueIncFees
-                  }
-                  date={new Date(transaction.createdAt)}
-                  label={getTransactionLabel({ transaction, user })}
-                  extraLabel={
-                    transaction?.sourceName
-                      ? `${transaction.sourceName} Squad`
-                      : undefined
-                  }
-                  details={getDetails(transaction, type)}
-                  isPending={
-                    transaction.status === UserTransactionStatus.Processing
-                  }
-                  note={getNote(transaction)}
-                  action={
-                    canThank && (
-                      <NotificationSayThanksButton
-                        referenceId={transaction.id}
-                        hasThanks={!!transaction.flags.thanksAt}
-                      />
-                    )
-                  }
-                  isHighlighted={transaction.id === highlightId}
-                />
-              );
-            })}
-          </ul>
+                return (
+                  <TransactionItem
+                    key={transaction.id}
+                    type={type}
+                    user={transactionUser}
+                    profileUser={transactionUser}
+                    amount={
+                      type === 'send'
+                        ? -transaction.value
+                        : transaction.valueIncFees
+                    }
+                    date={new Date(transaction.createdAt)}
+                    label={getTransactionLabel({ transaction, user })}
+                    extraLabel={
+                      transaction?.sourceName
+                        ? `${transaction.sourceName} Squad`
+                        : undefined
+                    }
+                    note={getTransactionNote({ transaction })}
+                  />
+                );
+              })}
+            </ul>
+          )}
         </section>
       </SquadFrame>
     </div>

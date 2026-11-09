@@ -18,8 +18,6 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { CoreIcon } from '@dailydotdev/shared/src/components/icons/Core';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
-import { MiniCloseIcon } from '@dailydotdev/shared/src/components/icons/MiniClose';
-import { TrendingIcon } from '@dailydotdev/shared/src/components/icons/Trending';
 import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { TimerIcon } from '@dailydotdev/shared/src/components/icons/Timer';
 import { EyeIcon } from '@dailydotdev/shared/src/components/icons/Eye';
@@ -47,6 +45,7 @@ import type { OwnPostState } from '../../flows/purchase/BoostFixed';
 import { starterBoost } from '../../flows/purchase/BoostFixed';
 import stripArt from '../../assets/boost-strip-patchy-v2.png';
 import { Row } from './kit';
+import { BoostStrip } from './BoostStrip';
 
 const Slider = dynamic(
   () =>
@@ -57,8 +56,8 @@ const Slider = dynamic(
 );
 
 // The first-boost screens of flows/purchase/BoostFixed.tsx in the redesign's
-// line. Same entries, presets, sliders, copy and actions; new: the strip is a
-// card with the Patchy art on its left, the form reads as stat tiles and
+// line. Same entries, presets, sliders, copy and actions; new: the strip spells
+// out reach, the starter price and your balance, the form reads as stat tiles and
 // radio cards, and the launch and live screens share the rocket art.
 
 type Budget = typeof starterBoost;
@@ -79,49 +78,6 @@ const RocketArt = ({ className }: { className?: string }) => (
   </div>
 );
 
-const Strip = ({
-  children,
-  onBoost,
-  onDismiss,
-}: {
-  children: ReactNode;
-  onBoost: () => void;
-  onDismiss?: () => void;
-}): ReactElement => (
-  <div className="relative flex w-full items-center gap-3 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float p-2 pr-3">
-    <RocketArt className="hidden h-12 w-24 shrink-0 rounded-12 tablet:block" />
-    <span className="flex size-8 shrink-0 items-center justify-center rounded-10 bg-accent-blueCheese-flat text-accent-blueCheese-default tablet:hidden">
-      <TrendingIcon size={IconSize.Small} />
-    </span>
-    <Typography
-      tag={TypographyTag.Span}
-      type={TypographyType.Callout}
-      className="min-w-0 flex-1"
-    >
-      {children}
-    </Typography>
-    <Button
-      className="shrink-0"
-      variant={ButtonVariant.Primary}
-      color={ButtonColor.BlueCheese}
-      size={ButtonSize.XSmall}
-      onClick={onBoost}
-    >
-      Boost
-    </Button>
-    {onDismiss && (
-      <Button
-        className="shrink-0"
-        variant={ButtonVariant.Tertiary}
-        size={ButtonSize.XSmall}
-        icon={<MiniCloseIcon />}
-        onClick={onDismiss}
-        aria-label="Dismiss"
-      />
-    )}
-  </div>
-);
-
 /** Your own article on the real post page, the strip where production puts it */
 export const OwnPostRedesign = ({
   post,
@@ -132,25 +88,25 @@ export const OwnPostRedesign = ({
   state: OwnPostState;
   onBoost: () => void;
 }): ReactElement => {
+  const { user } = useAuthContext();
   const [isDismissed, setDismissed] = useState(false);
 
   return (
     <PostPage
       post={ownArticle(post, state === 'new')}
       banner={
-        !isDismissed &&
-        (state === 'new' ? (
-          <Strip onBoost={onBoost} onDismiss={() => setDismissed(true)}>
-            <span>Boost to reach</span>
-            <strong className="mx-1">10k more devs</strong>
-            <span>now!</span>
-          </Strip>
-        ) : (
-          <Strip onBoost={onBoost} onDismiss={() => setDismissed(true)}>
-            <strong className="mr-1">This post is taking off.</strong>
-            <span>Boost it while developers are paying attention.</span>
-          </Strip>
-        ))
+        !isDismissed && (
+          <BoostStrip
+            title={
+              state === 'new'
+                ? 'Boost this post'
+                : 'This post is taking off. Boost it now'
+            }
+            balance={user?.balance.amount ?? 0}
+            onBoost={onBoost}
+            onDismiss={() => setDismissed(true)}
+          />
+        )
       }
     />
   );

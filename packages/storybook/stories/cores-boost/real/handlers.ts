@@ -161,6 +161,23 @@ export interface CoresHandlersOptions {
   squadWallet?: { name: string; balance: number } | null;
 }
 
+const streakFreezeImage =
+  'https://media.daily.dev/image/upload/s--p6OHIH91--/f_auto,q_auto/v1784706019/webapp/streak-freeze-cube-square';
+
+export const streakFreezeProducts = [
+  { id: 'sb-freeze-1', quantity: 1, value: 150 },
+  { id: 'sb-freeze-3', quantity: 3, value: 400 },
+].map(({ id, quantity, value }) => ({
+  id,
+  name: quantity === 1 ? 'Streak freeze' : `Streak freeze ${quantity}-pack`,
+  value,
+  image: streakFreezeImage,
+  flags: { quantity },
+}));
+
+/** What restoring a lost streak costs, the day after it breaks */
+export const STREAK_RECOVER_COST = 250;
+
 export const coresHandlers = ({
   balance = 0,
   history = [],
@@ -265,4 +282,83 @@ export const coresHandlers = ({
   ...homeFeedHandlers,
   ...postPageHandlers,
   ...notificationsHandlers(boostNotifications()),
+];
+
+/**
+ * Streak restore and freezes, behind the wallet's streak tile. Kept apart from
+ * coresHandlers so the shell's streak only shows where a story asks for it.
+ */
+export const streakHandlers = ({
+  balance,
+  brokenStreak,
+}: {
+  balance: number;
+  /** Length of the streak that broke yesterday, while it can be restored */
+  brokenStreak?: number;
+}) => [
+  graphql.query('UserStreak', () =>
+    HttpResponse.json({
+      data: {
+        userStreak: {
+          max: Math.max(brokenStreak ?? 0, 24),
+          total: 140,
+          current: brokenStreak ? 0 : 12,
+          lastViewAt: new Date().toISOString(),
+          weekStart: 1,
+          freezesAvailable: 1,
+        },
+      },
+    }),
+  ),
+  graphql.query('UserStreakRecover', () =>
+    HttpResponse.json({
+      data: {
+        streakRecover: {
+          canRecover: !!brokenStreak,
+          cost: STREAK_RECOVER_COST,
+          regularCost: STREAK_RECOVER_COST,
+          oldStreakLength: brokenStreak ?? 0,
+        },
+      },
+    }),
+  ),
+  graphql.mutation('RecoverStreak', async () => {
+    await delay(NETWORK_MS);
+    return HttpResponse.json({
+      data: {
+        recoverStreak: {
+          max: 24,
+          total: 140,
+          current: brokenStreak ?? 0,
+          lastViewAt: new Date().toISOString(),
+          weekStart: 1,
+          freezesAvailable: 1,
+          balance: { amount: balance - STREAK_RECOVER_COST },
+        },
+      },
+    });
+  }),
+  graphql.query('StreakFreezeProducts', () =>
+    HttpResponse.json({
+      data: { streakFreezeProducts },
+    }),
+  ),
+  graphql.query('UserStreakFreezeDates', () =>
+    HttpResponse.json({ data: { userStreakFreezeDates: [] } }),
+  ),
+  graphql.mutation('PurchaseStreakFreeze', async ({ variables }) => {
+    await delay(NETWORK_MS);
+    const product = streakFreezeProducts.find(
+      ({ id }) => id === variables.productId,
+    );
+    return HttpResponse.json({
+      data: {
+        purchaseStreakFreeze: {
+          freezesAvailable: 1 + (product?.flags.quantity ?? 0),
+          balance: { amount: balance - (product?.value ?? 0) },
+          transactionId: 'sb-freeze',
+        },
+      },
+    });
+  }),
 ];

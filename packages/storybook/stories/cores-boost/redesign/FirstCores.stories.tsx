@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { CoresRole } from '@dailydotdev/shared/src/lib/user';
+import { streakHandlers } from '../real/handlers';
 import { CoresProviders } from '../real/providers';
 import { Shell } from '../flows/cores/Shell';
 import { FlowStepper } from '../flows/cores/FlowStepper';
@@ -49,7 +50,10 @@ export default meta;
 
 type Story = StoryObj<Args>;
 
-const handlers = walletHandlers(FIRST_REWARD, [firstQuestReward]);
+const handlers = [
+  ...streakHandlers({ balance: FIRST_REWARD }),
+  ...walletHandlers(FIRST_REWARD, [firstQuestReward]),
+];
 
 const steps = [
   'Quest reward',

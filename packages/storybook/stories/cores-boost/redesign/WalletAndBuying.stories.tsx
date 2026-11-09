@@ -6,7 +6,7 @@ import { RequestKey } from '@dailydotdev/shared/src/lib/query';
 import { useQueryClient } from '@tanstack/react-query';
 import { NotificationsScreen } from './cores/Screens';
 import { CoresProviders } from '../real/providers';
-import { activeHistory } from '../real/handlers';
+import { activeHistory, streakHandlers } from '../real/handlers';
 import { Shell } from '../flows/cores/Shell';
 import { FlowStepper } from '../flows/cores/FlowStepper';
 import {
@@ -80,7 +80,10 @@ export const Walkthrough: Story = {
   name: 'Walkthrough',
   parameters: {
     msw: {
-      handlers: walletHandlers(BALANCE, () => walkthroughHistory),
+      handlers: [
+        ...streakHandlers({ balance: BALANCE }),
+        ...walletHandlers(BALANCE, () => walkthroughHistory),
+      ],
     },
     docs: {
       description: {
@@ -99,7 +102,12 @@ export const Walkthrough: Story = {
 export const WaysIn: Story = {
   name: '1 · Ways in',
   parameters: {
-    msw: { handlers: walletHandlers(BALANCE, walletHistory) },
+    msw: {
+      handlers: [
+        ...streakHandlers({ balance: BALANCE }),
+        ...walletHandlers(BALANCE, walletHistory),
+      ],
+    },
     docs: {
       description: {
         story:
@@ -130,7 +138,12 @@ export const WalletScreen: StoryObj<WalletArgs> = {
     },
   },
   parameters: {
-    msw: { handlers: walletHandlers(BALANCE, () => walletStoryHistory) },
+    msw: {
+      handlers: [
+        ...streakHandlers({ balance: BALANCE }),
+        ...walletHandlers(BALANCE, () => walletStoryHistory),
+      ],
+    },
     docs: {
       description: {
         story:
@@ -153,10 +166,40 @@ export const WalletScreen: StoryObj<WalletArgs> = {
   },
 };
 
+export const WalletStreakBroke: Story = {
+  name: '2 · Wallet, streak broke yesterday',
+  parameters: {
+    msw: {
+      handlers: [
+        ...streakHandlers({ balance: BALANCE, brokenStreak: 24 }),
+        ...walletHandlers(BALANCE, walletHistory),
+      ],
+    },
+    docs: {
+      description: {
+        story:
+          'The day after a streak breaks, the streak tile offers the restore and opens the production restore modal. Every other day it sells streak freezes.',
+      },
+    },
+  },
+  render: () => (
+    <CoresProviders balance={BALANCE}>
+      <Shell>
+        <Wallet />
+      </Shell>
+    </CoresProviders>
+  ),
+};
+
 export const Cores: Story = {
   name: '3 · /cores',
   parameters: {
-    msw: { handlers: walletHandlers(BALANCE, walletHistory) },
+    msw: {
+      handlers: [
+        ...streakHandlers({ balance: BALANCE }),
+        ...walletHandlers(BALANCE, walletHistory),
+      ],
+    },
     docs: {
       description: {
         story:
@@ -176,7 +219,12 @@ export const Cores: Story = {
 export const YouGotYourCores: Story = {
   name: '4 · You got your Cores!',
   parameters: {
-    msw: { handlers: walletHandlers(BALANCE, walletHistory) },
+    msw: {
+      handlers: [
+        ...streakHandlers({ balance: BALANCE }),
+        ...walletHandlers(BALANCE, walletHistory),
+      ],
+    },
     docs: {
       description: {
         story:
@@ -197,7 +245,12 @@ export const YouGotYourCores: Story = {
 export const BackToTheWallet: Story = {
   name: '5 · Back to the wallet',
   parameters: {
-    msw: { handlers: walletHandlers(BALANCE + PACK, afterPurchaseHistory) },
+    msw: {
+      handlers: [
+        ...streakHandlers({ balance: BALANCE + PACK }),
+        ...walletHandlers(BALANCE + PACK, afterPurchaseHistory),
+      ],
+    },
     docs: {
       description: {
         story:

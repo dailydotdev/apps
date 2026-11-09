@@ -172,12 +172,12 @@ export const Walkthrough = story(
 );
 
 export const OwnPostNew = story(
-  'The strip becomes a rounded card with the Patchy rocket in its own tile on the left, so the copy never sits on the art.',
+  'The strip spells the boost out: extra reach, what the starter preset costs, your balance, and how many Cores you are short.',
   () => <OwnPost state="new" />,
 );
 
 export const OwnPostTakingOff = story(
-  'The "taking off" strip uses the same card; on phones a trending tile replaces the art.',
+  'The "taking off" strip uses the same card with its own title.',
   () => <OwnPost state="takingOff" />,
 );
 

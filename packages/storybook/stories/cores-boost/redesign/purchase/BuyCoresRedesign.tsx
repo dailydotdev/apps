@@ -38,12 +38,13 @@ import type { CoresPurpose } from '../../flows/purchase/BuyCoresFixed';
 import { NeededCopy } from '../../flows/purchase/BuyCoresFixed';
 import friendshipArt from '../../assets/cores-checkout-friendship.png';
 import { CoreHalo, Row } from './kit';
-import { StartupsBuyCoresPromo } from '@dailydotdev/shared/src/features/squads/components/promos/StartupsPromo';
+import { Deals } from './Deals';
 
 // BuyCoresFixedModal (flows/purchase/BuyCoresFixed.tsx) in the redesign's
 // line. Same packs, preselection, copy and actions; new: a "what it's for"
 // card leads, packs are calm rows that say whether they cover it, and the
-// friendship art replaces the two-hands video beside the checkout.
+// friendship art fills the right side until a pack is picked, then the
+// checkout takes its place, as the Paddle iframe does in production.
 
 /** Stands in for the Paddle iframe, which needs a client token */
 const CheckoutStandIn = ({
@@ -167,7 +168,7 @@ const PackList = ({
 };
 
 /** The friendship art that stood in for the checkout video */
-const FriendshipPanel = ({ children }: { children: ReactNode }) => (
+const FriendshipPanel = ({ children }: { children?: ReactNode }) => (
   <div className="flex flex-1 flex-col overflow-hidden rounded-16 bg-background-default">
     <div className="relative min-h-0 flex-1">
       <img
@@ -177,7 +178,36 @@ const FriendshipPanel = ({ children }: { children: ReactNode }) => (
       />
       <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background-default to-transparent" />
     </div>
-    <div className="p-4">{children}</div>
+    {children && <div className="p-4">{children}</div>}
+  </div>
+);
+
+const CheckoutField = ({ label }: { label: string }): ReactElement => (
+  <span className="flex flex-col gap-1">
+    <span className="text-text-tertiary typo-caption1">{label}</span>
+    <span className="h-10 rounded-10 border border-border-subtlest-tertiary bg-surface-float" />
+  </span>
+);
+
+/** Where the Paddle checkout takes over the art once a pack is picked */
+const CheckoutPanel = ({
+  pack,
+  onPay,
+}: {
+  pack?: { cores: number; price: string };
+  onPay: () => void;
+}): ReactElement => (
+  <div className="flex flex-1 flex-col gap-4 overflow-y-auto rounded-16 bg-background-default p-4">
+    <CheckoutField label="Email" />
+    <CheckoutField label="Card number" />
+    <span className="grid grid-cols-2 gap-3">
+      <CheckoutField label="Expiry date" />
+      <CheckoutField label="Security code" />
+    </span>
+    <CheckoutField label="Country" />
+    <div className="mt-auto">
+      <CheckoutStandIn pack={pack} onPay={onPay} />
+    </div>
   </div>
 );
 
@@ -204,6 +234,8 @@ export const BuyCoresRedesignModal = ({
     coresPricesQueryOptions({ user, isLoggedIn }),
   );
   const [selected, setSelected] = useState<CoreProductOption>();
+  // The art shows until a pack is picked, then the checkout takes its place
+  const [hasPicked, setHasPicked] = useState(false);
   const [isCheckoutOpen, setCheckoutOpen] = useState(!isMobile);
   const origin = purpose === 'award' ? Origin.Award : Origin.BoostPost;
 
@@ -241,7 +273,7 @@ export const BuyCoresRedesignModal = ({
         awardName={product?.name}
         selected={selected}
       />
-      {purpose === 'boost' && <StartupsBuyCoresPromo />}
+      <Deals withStartups={purpose === 'boost'} />
       <div className="flex flex-col gap-2">
         <Typography type={TypographyType.Callout} bold>
           Choose how many Cores to buy
@@ -249,7 +281,10 @@ export const BuyCoresRedesignModal = ({
         <PackList
           minCores={missing}
           selected={selected}
-          onSelect={setSelected}
+          onSelect={(option) => {
+            setSelected(option);
+            setHasPicked(true);
+          }}
         />
       </div>
     </div>
@@ -313,9 +348,11 @@ export const BuyCoresRedesignModal = ({
         <ModalBody className="!p-0 tablet:rounded-b-16">
           <div className="flex min-h-0 flex-1 flex-row gap-4 p-4">
             <div className="min-w-0 flex-1 overflow-y-auto pr-1">{options}</div>
-            <FriendshipPanel>
-              <CheckoutStandIn pack={pack} onPay={pay} />
-            </FriendshipPanel>
+            {hasPicked ? (
+              <CheckoutPanel pack={pack} onPay={pay} />
+            ) : (
+              <FriendshipPanel />
+            )}
           </div>
         </ModalBody>
       )}
