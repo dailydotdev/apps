@@ -68,8 +68,8 @@ const skillRef = (name: string): string =>
 
 /**
  * The prompt for the founder's first agent session over the daily.dev MCP
- * server: the page, their profile, a first post, a boost from the cashback
- * wallet and a daily routine that brings them back. It lists only what the API
+ * server: the page, their profile, a first post, a boost paid with the boost
+ * credits in the wallet and a daily routine that brings them back. It lists only what the API
  * can do.
  */
 export const getStartupsSetupPrompt = ({
@@ -132,7 +132,7 @@ export const getStartupsSetupPrompt = ({
     {
       title: 'Boost',
       steps: [
-        "Check our page wallet and the estimated reach of boosting the post. Recommend 7 days at the daily budget closest to a third of the wallet, and show the cost in Cores, the reach and what stays in the wallet. Start the boost from the page wallet when I say yes. If the wallet can't cover a boost, tell me and skip this.",
+        "Check our page wallet and the estimated reach of boosting the post. Recommend 7 days at the daily budget closest to a third of the wallet, and show the cost in boost credits as dollars (100 Cores = $1), the reach and what stays in the wallet. Start the boost from the page wallet when I say yes. If the wallet can't cover a boost, tell me and skip this.",
       ],
     },
     {

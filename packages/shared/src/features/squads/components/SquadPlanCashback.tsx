@@ -4,13 +4,17 @@ import { CoreIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import type { SquadPlan } from '../lib/plans';
 import {
+  formatBoostCredits,
+  formatCashbackMultiple,
   formatCashbackPromoLength,
+  formatSquadPlanCredits,
   getSquadPlanCashbackLabel,
+  getSquadPlanCreditsForRate,
   SQUAD_PLAN_CASHBACK_PERCENTAGE,
 } from '../lib/plans';
 import { useStartupsCashbackPromo } from '../hooks/useStartupsCashbackPromo';
 
-/** A plan card's cashback line: the plan's rate struck out during the launch promo. */
+/** A plan card's boost credits line: the plan's own amount struck out during the launch promo. */
 export const SquadPlanCashback = ({
   plan,
 }: {
@@ -26,11 +30,15 @@ export const SquadPlanCashback = ({
       {isPromo ? (
         <>
           <del className="text-text-quaternary" data-promo="strike">
-            {`${planPercentage}%`}
+            {formatBoostCredits(
+              getSquadPlanCreditsForRate(plan, planPercentage),
+            )}
           </del>
           <span>
-            <strong className="text-text-primary">{`${promo.percentage}% cashback`}</strong>
-            {` for ${formatCashbackPromoLength(promo.months)}`}
+            <strong className="text-text-primary">
+              {formatSquadPlanCredits(plan, promo)}
+            </strong>
+            {` every month for ${formatCashbackPromoLength(promo.months)}`}
           </span>
         </>
       ) : (
@@ -56,7 +64,9 @@ export const SquadLaunchOfferBanner = (): ReactElement | null => {
       <CoreIcon size={IconSize.Medium} className="shrink-0" />
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="font-bold typo-callout">
-          {`Launch offer: ${promo.percentage}% cashback for ${formatCashbackPromoLength(
+          {`Launch offer: ${formatCashbackMultiple(
+            promo.percentage,
+          )} your plan in boost credits for ${formatCashbackPromoLength(
             promo.months,
           )}`}
         </span>

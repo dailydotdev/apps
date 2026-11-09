@@ -19,12 +19,7 @@ import { useSquadPageContext } from '../../SquadPageContext';
 import { getSquadId, hasSquadFeature } from '../../lib/features';
 import { SquadViewer } from '../../lib/viewer';
 import { getStartupsCheckoutUrl } from '../../lib/routes';
-import {
-  formatCashbackPromoLength,
-  getSquadPlanCashback,
-  SQUAD_PLAN_CASHBACK_PERCENTAGE,
-  SquadPlan,
-} from '../../lib/plans';
+import { getSquadPlanCashbackLabel, SquadPlan } from '../../lib/plans';
 import { useStartupsCashbackPromo } from '../../hooks/useStartupsCashbackPromo';
 import { useSquadPlanPrices } from '../../hooks/useSquadPlanPrices';
 import { useLogStartups } from '../../hooks/useLogStartups';
@@ -120,16 +115,10 @@ export const SquadPlanUpsellWidget = (): ReactElement | null => {
           {`Make ${squad.name} your company page`}
         </h2>
         <p className="text-text-secondary typo-footnote">
-          {cashbackPromo
-            ? `From ${prices[SquadPlan.Starter]} a month, with ${getSquadPlanCashback(
-                SquadPlan.Starter,
-                cashbackPromo,
-              )}% back to boost your posts for ${formatCashbackPromoLength(
-                cashbackPromo.months,
-              )}.`
-            : `From ${prices[SquadPlan.Starter]} a month, with up to ${
-                SQUAD_PLAN_CASHBACK_PERCENTAGE[SquadPlan.Team]
-              }% back to boost your posts.`}
+          {`From ${prices[SquadPlan.Starter]} a month, with ${getSquadPlanCashbackLabel(
+            SquadPlan.Starter,
+            cashbackPromo,
+          )}.`}
         </p>
       </div>
       <ul className="flex flex-col gap-2">

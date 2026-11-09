@@ -28,13 +28,15 @@ import {
   squadSubscriptionQueryOptions,
 } from '../../../../graphql/squadSubscription';
 import { managePlusUrl } from '../../../../lib/constants';
-import { largeNumberFormat } from '../../../../lib/numberFormat';
 import { LogEvent, Origin } from '../../../../lib/log';
 import { useSquadPageContext } from '../../SquadPageContext';
 import { getSquadId } from '../../lib/features';
 import { getStartupsCheckoutUrl, SquadManageSection } from '../../lib/routes';
 import {
-  SQUAD_PLAN_CASHBACK_PERCENTAGE,
+  CORES_PER_USD,
+  formatBoostCredits,
+  formatSquadPlanCredits,
+  getSquadPlanCreditsForRate,
   SquadPlan,
   getSquadPlanTitle,
   isSquadPlan,
@@ -461,13 +463,16 @@ const getActiveCashbackDescription = (
   plan: SquadPlan,
   { cashbackPercentage, cashbackPromoEndsAt }: SquadSubscription,
 ): string => {
+  const credits = formatBoostCredits(
+    getSquadPlanCreditsForRate(plan, cashbackPercentage),
+  );
   const until = cashbackPromoEndsAt
-    ? ` until ${getPlusMemberDateFormat(cashbackPromoEndsAt)}, then ${
-        SQUAD_PLAN_CASHBACK_PERCENTAGE[plan]
-      }%`
+    ? ` until ${getPlusMemberDateFormat(
+        cashbackPromoEndsAt,
+      )}, then ${formatSquadPlanCredits(plan)}`
     : '';
 
-  return `${cashbackPercentage}% of each payment lands here every month${until}. Seats spend it to boost this page's posts.`;
+  return `${credits} in boost credits lands here every month${until}. Seats spend them to boost this page's posts.`;
 };
 
 const ActivePlan = ({
@@ -553,7 +558,9 @@ const ActivePlan = ({
             <CoreIcon size={IconSize.Medium} className="shrink-0" />
             <div className="flex min-w-0 flex-1 flex-col">
               <span className="font-bold tabular-nums typo-callout">
-                {`${largeNumberFormat(balance ?? 0)} in cashback`}
+                {`${formatBoostCredits(
+                  (balance ?? 0) / CORES_PER_USD,
+                )} in boost credits`}
               </span>
               <span className="text-text-tertiary typo-footnote">
                 {getActiveCashbackDescription(plan, subscription)}
