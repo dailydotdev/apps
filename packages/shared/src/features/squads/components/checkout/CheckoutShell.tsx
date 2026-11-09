@@ -62,6 +62,16 @@ const SHELL_STYLES = `
 @media (max-width: 1019px) {
   .startups-form { padding-top: 0; }
 }
+@media (min-width: 1020px) {
+  aside.startups-aside-flow { position: relative; height: auto; min-height: 100dvh; }
+  aside.startups-aside-flow .startups-box { height: auto; min-height: calc(100dvh - 80px); }
+  aside.startups-aside-flow .startups-box-inner { height: auto; min-height: calc(100dvh - 80px - ${2 * STAGE_PADDING}px); overflow-y: visible; }
+}
+@media (min-width: 1020px) and (max-height: 899px) {
+  aside.startups-aside-flow { padding: 24px; }
+  aside.startups-aside-flow .startups-box { min-height: calc(100dvh - 48px); }
+  aside.startups-aside-flow .startups-box-inner { min-height: calc(100dvh - 48px - ${2 * STAGE_PADDING}px); }
+}
 .startups-wall-art { height: 50dvh; }
 .startups-wall-image { width: 320%; bottom: 10%; }
 @media (max-height: 759px) {
@@ -219,6 +229,12 @@ interface CheckoutShellProps {
   aside?: ReactNode;
   /** On a phone, the aside replaces the form. */
   isAsideOnPhone?: boolean;
+  /**
+   * The box grows with what it holds and the page scrolls, instead of a box
+   * fixed to the screen that scrolls on its own: the payment form's pay
+   * button hid at the bottom of that inner scroll.
+   */
+  isAsideFlowing?: boolean;
   children: ReactNode;
 }
 
@@ -235,6 +251,7 @@ export const CheckoutShell = ({
   phoneBack,
   aside,
   isAsideOnPhone,
+  isAsideFlowing,
   children,
 }: CheckoutShellProps): ReactElement => (
   <div
@@ -321,6 +338,7 @@ export const CheckoutShell = ({
         className={classNames(
           'relative min-w-0 laptop:sticky laptop:top-0 laptop:block laptop:h-dvh laptop:p-10',
           isAsideOnPhone ? 'block' : 'hidden',
+          isAsideFlowing && 'startups-aside-flow',
         )}
       >
         <div className="startups-box relative h-full w-full">
