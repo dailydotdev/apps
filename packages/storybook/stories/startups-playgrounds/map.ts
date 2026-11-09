@@ -330,12 +330,6 @@ export const groups: PlaygroundGroup[] = [
         proposed: `${screens}setup-codex`,
       },
       {
-        id: 'F1d',
-        label: 'Agent path, VS Code',
-        today: `${remaining}setup-vs-code`,
-        proposed: `${screens}setup-vs-code`,
-      },
-      {
         id: 'F1e',
         label: 'Agent path, any other client',
         today: `${remaining}setup-other`,

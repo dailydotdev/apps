@@ -15,7 +15,6 @@ export enum AgentClient {
   ClaudeCode = 'claude code',
   Cursor = 'cursor',
   Codex = 'codex',
-  VSCode = 'vs code',
   Other = 'other',
 }
 
@@ -51,15 +50,6 @@ export const agentClientSetup: Record<AgentClient, AgentClientSetup> = {
     label: 'Codex',
     snippet: `codex mcp add daily-dev --url ${DAILY_MCP_URL}`,
     note: 'Codex opens the daily.dev sign-in. Update Codex if it says dynamic client registration is not supported.',
-  },
-  [AgentClient.VSCode]: {
-    label: 'VS Code',
-    snippet: `code --add-mcp '${JSON.stringify({
-      name: 'daily.dev',
-      type: 'http',
-      url: DAILY_MCP_URL,
-    })}'`,
-    note: 'VS Code asks you to sign in to daily.dev the first time it connects.',
   },
   [AgentClient.Other]: {
     label: 'Other',

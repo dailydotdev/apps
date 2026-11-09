@@ -411,12 +411,6 @@ export const SetupCodex: Story = {
   play: pickClient(/^codex$/i),
 };
 
-export const SetupVsCode: Story = {
-  name: 'F1. Agent path, VS Code',
-  render: () => agentOnTeam,
-  play: pickClient(/^vs code$/i),
-};
-
 export const SetupOther: Story = {
   name: 'F1. Agent path, any other client',
   render: () => agentOnTeam,
