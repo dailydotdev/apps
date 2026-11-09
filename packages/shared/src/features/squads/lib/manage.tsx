@@ -58,16 +58,7 @@ export const squadManageTitles: Record<SquadManageSection, string> = {
   [SquadManageSection.DangerZone]: 'Danger zone',
 };
 
-export interface SquadManageOptions {
-  /** daily.dev for Startups checkout, behind `startups_checkout` */
-  isPlanEnabled?: boolean;
-}
-
-const canSeeSection = (
-  squad: Squad,
-  section: SquadManageSection,
-  { isPlanEnabled = false }: SquadManageOptions,
-): boolean => {
+const canSeeSection = (squad: Squad, section: SquadManageSection): boolean => {
   const canEdit = verifyPermission(squad, SourcePermissions.Edit);
 
   switch (section) {
@@ -90,7 +81,7 @@ const canSeeSection = (
     case SquadManageSection.Analytics:
       return verifyPermission(squad, SourcePermissions.ViewAnalytics);
     case SquadManageSection.Plan:
-      return isPlanEnabled && canEdit;
+      return canEdit;
     case SquadManageSection.Intel:
       // Only paid seats read it, whatever the role
       return !!squad.currentMember?.seat;
@@ -103,19 +94,14 @@ const canSeeSection = (
   }
 };
 
-// Plan sections a squad with no plan shows locked, while the checkout is on
+// Plan sections a squad with no plan shows locked
 const lockedSections = [
   SquadManageSection.Products,
   SquadManageSection.Links,
   SquadManageSection.Intel,
 ];
 
-const isLockedSection = (
-  squad: Squad,
-  section: SquadManageSection,
-  { isPlanEnabled = false }: SquadManageOptions,
-): boolean =>
-  isPlanEnabled &&
+const isLockedSection = (squad: Squad, section: SquadManageSection): boolean =>
   lockedSections.includes(section) &&
   verifyPermission(squad, SourcePermissions.Edit) &&
   !hasSquadFeature(squad, 'verified') &&
@@ -131,7 +117,6 @@ const item = (
 export const getSquadManageGroups = (
   squad: Squad,
   viewer: SquadViewer,
-  options: SquadManageOptions = {},
 ): SquadManageGroup[] => {
   if (!isStaffViewer(viewer)) {
     return [];
@@ -180,11 +165,11 @@ export const getSquadManageGroups = (
     .map((group) => ({
       ...group,
       items: group.items.flatMap((groupItem) => {
-        if (canSeeSection(squad, groupItem.id, options)) {
+        if (canSeeSection(squad, groupItem.id)) {
           return [groupItem];
         }
 
-        return isLockedSection(squad, groupItem.id, options)
+        return isLockedSection(squad, groupItem.id)
           ? [{ ...groupItem, lockedPlan: 'Starter' }]
           : [];
       }),
