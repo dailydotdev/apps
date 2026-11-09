@@ -1,8 +1,9 @@
 import { useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import type { Picks, PicksWeekSignals } from '../../graphql/picks';
+import type { Picks, PicksPost, PicksWeekSignals } from '../../graphql/picks';
 import {
   myCurrentPicksQueryOptions,
+  picksSuggestionsQueryOptions,
   picksViewCountQueryOptions,
   picksWeekSignalsQueryOptions,
 } from '../../graphql/picks';
@@ -27,6 +28,12 @@ import usePersistentContext, {
  */
 export type WeeklyPicksHeroState = 'nudge' | 'live';
 
+/** What the card's primary action was, in the click event. */
+export type WeeklyPicksHeroAction = 'pick' | 'share' | 'copy';
+
+/** How many of the week's posts the card shows as thumbnails. */
+export const PICKS_HERO_THUMBNAILS = 3;
+
 interface UseWeeklyPicksHeroProps {
   /** Off on every page but the home feed, where the card is mounted. */
   enabled?: boolean;
@@ -41,13 +48,19 @@ export interface UseWeeklyPicksHero {
   isSettled: boolean;
   state: WeeklyPicksHeroState | null;
   signals: PicksWeekSignals | null;
+  /** Posts from the reader's week to show on the nudge, up to three. */
+  suggestions: PicksPost[];
   picks: Picks | null;
   viewCount: number | null;
-  onCta: () => void;
+  /**
+   * Logs the click. Picking also closes the card for the week: the editor
+   * takes over from here, and coming back to the same prompt is nagging.
+   */
+  onCta: (action: WeeklyPicksHeroAction) => void;
   onDismiss: () => Promise<void>;
 }
 
-const countSignals = (signals: PicksWeekSignals): number =>
+export const countSignals = (signals: PicksWeekSignals): number =>
   signals.upvotes + signals.bookmarks + signals.reads;
 
 /**
@@ -82,24 +95,32 @@ export const useWeeklyPicksHero = ({
   const isNudgeDay = isPicksNudgeDay();
   // Alongside the picks rather than after them, so the verdict takes one
   // round trip, not two.
+  const isNudgeCandidate = canEvaluate && isNudgeDay && !picks;
   const { data: signals, isFetched: isSignalsFetched } = useQuery({
     ...picksWeekSignalsQueryOptions(user),
-    enabled: canEvaluate && isNudgeDay && !picks,
+    enabled: isNudgeCandidate,
     retry: false,
   });
-  const { data: viewCount } = useQuery({
+  const isNudge = !!signals && countSignals(signals) >= PICKS_HERO_MIN_SIGNALS;
+  // The reader's own posts, for the nudge's thumbnails. Decoration, so the
+  // card does not wait for them.
+  const { data: suggestions } = useQuery({
+    ...picksSuggestionsQueryOptions(user),
+    enabled: isNudgeCandidate && isNudge,
+    retry: false,
+  });
+  // The live card is about the count, so it waits for it rather than
+  // painting a number in late.
+  const { data: viewCount, isFetched: isViewCountFetched } = useQuery({
     ...picksViewCountQueryOptions(picks?.id ?? '', user),
     enabled: canEvaluate && !!picks,
+    retry: false,
   });
 
   let state: WeeklyPicksHeroState | null = null;
   if (picks) {
-    state = 'live';
-  } else if (
-    isNudgeDay &&
-    signals &&
-    countSignals(signals) >= PICKS_HERO_MIN_SIGNALS
-  ) {
+    state = isViewCountFetched ? 'live' : null;
+  } else if (isNudgeDay && isNudge) {
     state = 'nudge';
   }
   const shouldShow = canEvaluate && !!state;
@@ -108,7 +129,8 @@ export const useWeeklyPicksHero = ({
     !isEnabled ||
     isDismissed ||
     (isAuthReadyOrCached && !isLoggedIn) ||
-    (isPicksFetched && (!!picks || !isNudgeDay || isSignalsFetched));
+    (isPicksFetched &&
+      (picks ? isViewCountFetched : !isNudgeDay || isSignalsFetched));
 
   const extra = JSON.stringify({
     week: weekStart,
@@ -127,13 +149,19 @@ export const useWeeklyPicksHero = ({
     { condition: shouldShow },
   );
 
-  const onCta = useCallback(() => {
-    logEvent({
-      event_name: LogEvent.ClickPicksHero,
-      origin: Origin.HomePage,
-      extra,
-    });
-  }, [logEvent, extra]);
+  const onCta = useCallback(
+    (action: WeeklyPicksHeroAction) => {
+      logEvent({
+        event_name: LogEvent.ClickPicksHero,
+        origin: Origin.HomePage,
+        extra: JSON.stringify({ ...JSON.parse(extra), action }),
+      });
+      if (action === 'pick') {
+        setDismissedWeek(weekStart);
+      }
+    },
+    [logEvent, extra, setDismissedWeek, weekStart],
+  );
 
   const onDismiss = useCallback(async () => {
     logEvent({
@@ -149,6 +177,10 @@ export const useWeeklyPicksHero = ({
     isSettled,
     state,
     signals: signals ?? null,
+    suggestions: (suggestions ?? [])
+      .filter((entry) => entry.upvoted || entry.bookmarked || entry.read)
+      .slice(0, PICKS_HERO_THUMBNAILS)
+      .map((entry) => entry.post),
     picks: picks ?? null,
     viewCount: typeof viewCount === 'number' ? viewCount : null,
     onCta,

@@ -1,16 +1,27 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { Picks } from '@dailydotdev/shared/src/graphql/picks';
+import type { Picks, PicksPost } from '@dailydotdev/shared/src/graphql/picks';
 import { WeeklyPicksHeroCard } from '@dailydotdev/shared/src/components/picks/WeeklyPicksHero';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import ExtensionProviders from '../../extension/_providers';
 
 // The weekly picks card on the home feed. From Thursday, a member whose
-// week's reading clears the bar is nudged to turn it into picks; once this
-// week's picks are out, the card shows how far they went and offers the
-// share sheet. Closing it hides it until the next week. On laptop it sits
-// in the top-hero strip beside the reading reminder; below that, inline
-// above the feed.
+// week's reading clears the bar is asked which three posts were worth it,
+// with their own posts stacked beside the question; once this week's picks
+// are out, the card leads with how many people opened them and offers the
+// share sheet and a one-tap copy of the link. Closing it hides it until the
+// next week, and so does going to pick. On laptop it sits in the top-hero
+// strip beside the reading reminder; below that, inline above the feed.
+
+const post = (id: string, placeholder: number): PicksPost => ({
+  id,
+  permalink: `https://app.daily.dev/posts/${id}`,
+  commentsPermalink: `https://app.daily.dev/posts/${id}`,
+  image: `https://media.daily.dev/image/upload/f_auto/v1/placeholders/${placeholder}`,
+  type: 'article',
+});
+
+const week = [post('a', 1), post('b', 6), post('c', 11)];
 
 const picks: Picks = {
   id: 'picks-demo',
@@ -22,7 +33,7 @@ const picks: Picks = {
     image: defaultUser.image,
     permalink: defaultUser.permalink,
   },
-  items: [],
+  items: week.map((item, index) => ({ post: item, position: index + 1 })),
 };
 
 const meta: Meta = {
@@ -51,15 +62,17 @@ export const Nudge: Story = {
     <WeeklyPicksHeroCard
       state="nudge"
       signals={{ upvotes: 4, bookmarks: 2, reads: 6 }}
+      suggestions={week}
       onDismiss={() => undefined}
     />
   ),
 };
 
+/** The label shortens and the button goes full width. */
 export const NudgePhone: Story = { ...Nudge, globals: phone };
 
-/** Only one kind of signal reads naturally too. */
-export const NudgeReadsOnly: Story = {
+/** The thumbnails are decoration: the card reads the same before they land. */
+export const NudgeNoThumbnails: Story = {
   render: () => (
     <WeeklyPicksHeroCard
       state="nudge"
@@ -76,7 +89,6 @@ export const Live: Story = {
       state="live"
       picks={picks}
       viewCount={12}
-      user={defaultUser}
       onDismiss={() => undefined}
     />
   ),
@@ -84,14 +96,13 @@ export const Live: Story = {
 
 export const LivePhone: Story = { ...Live, globals: phone };
 
-/** Published, but nobody has opened the link yet. */
+/** Published, but nobody has opened the link yet: copying it leads. */
 export const LiveNotOpened: Story = {
   render: () => (
     <WeeklyPicksHeroCard
       state="live"
       picks={picks}
       viewCount={0}
-      user={defaultUser}
       onDismiss={() => undefined}
     />
   ),
