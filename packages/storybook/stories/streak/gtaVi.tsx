@@ -106,7 +106,7 @@ const GtaViDisc = ({
         y="52"
         textAnchor="middle"
         dominantBaseline="central"
-        textLength="80"
+        textLength="70"
         lengthAdjust="spacingAndGlyphs"
         fontSize="64"
         fill="currentColor"
@@ -155,7 +155,7 @@ export const GtaViCalendar = (): ReactElement => {
                 aria-label="GTA VI release day"
                 className="place-self-center rounded-full"
               >
-                <GtaViDisc className="size-4" isToday={isToday} />
+                <GtaViDisc className="-m-1 size-6" isToday={isToday} />
               </button>
             </GtaViTooltip>
           );
