@@ -109,6 +109,13 @@ export function PicksSignupBanner({
  * Below laptop, where the pinned banner never shows: a card under the
  * header that goes through onboarding and comes back to this list once
  * signed up.
+ *
+ * It is in the page from the first paint, server render included, and only
+ * a member leaves it out: one known from the boot cache before the remote
+ * boot answers, or any member once it has. Waiting for the answer instead
+ * would drop the card in between the header and the list a moment after the
+ * visitor started reading. The viewport is CSS, for the same reason: the
+ * server cannot measure it, and a laptop viewer is the pinned banner's.
  */
 export function PicksSignupCard({
   picks,
@@ -116,14 +123,15 @@ export function PicksSignupCard({
   const router = useRouter();
   const { logEvent } = useLogContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { isAuthReady, isLoggedIn } = useAuthContext();
-  const shouldShow =
-    !isLaptop && isAuthReady && !isLoggedIn && picks.items.length > 0;
+  const { user, isAuthReady, isAuthReadyOrCached, isLoggedIn } =
+    useAuthContext();
+  const mayShow = !(isAuthReadyOrCached && user) && picks.items.length > 0;
+  const shouldShow = mayShow && isAuthReady && !isLoggedIn;
   const { author } = picks;
 
-  useSignupImpression(picks, 'inline', shouldShow);
+  useSignupImpression(picks, 'inline', shouldShow && !isLaptop);
 
-  if (!shouldShow) {
+  if (!mayShow) {
     return null;
   }
 
@@ -145,7 +153,7 @@ export function PicksSignupCard({
   return (
     <section
       aria-label="Join daily.dev"
-      className="flex items-start gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4"
+      className="flex items-start gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 laptop:hidden"
     >
       <ProfilePicture
         user={author}
