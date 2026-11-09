@@ -10,8 +10,10 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { TopHeroPortal } from '../../contexts/TopHeroSlotContext';
 import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
 import { useSharePicks } from '../../hooks/picks/useSharePicks';
-import type { WeeklyPicksHeroState } from '../../hooks/picks/useWeeklyPicksHero';
-import { useWeeklyPicksHero } from '../../hooks/picks/useWeeklyPicksHero';
+import type {
+  UseWeeklyPicksHero,
+  WeeklyPicksHeroState,
+} from '../../hooks/picks/useWeeklyPicksHero';
 import { TopHero } from '../marketing/banners/HeroBottomBanner';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import Link from '../utilities/Link';
@@ -145,17 +147,24 @@ export function WeeklyPicksHeroCard({
   );
 }
 
+interface WeeklyPicksHeroProps {
+  /** From `useWeeklyPicksHero`, owned by the layout that holds the feed for it. */
+  hero: UseWeeklyPicksHero;
+}
+
 /**
  * The home feed's weekly picks card. On laptop it renders into the top-hero
  * strip beside the reading reminder; below that it sits inline above the
  * feed, where MainFeedLayout mounts it.
  */
-export function WeeklyPicksHero(): ReactElement | null {
+export function WeeklyPicksHero({
+  hero,
+}: WeeklyPicksHeroProps): ReactElement | null {
   const { user } = useAuthContext();
   const isLaptopLayout = useLaptopLayout();
   const { openShareSheet } = useSharePicks();
   const { shouldShow, state, signals, picks, viewCount, onCta, onDismiss } =
-    useWeeklyPicksHero();
+    hero;
 
   if (!shouldShow || !state) {
     return null;

@@ -10,12 +10,14 @@ import {
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import type { Picks, PicksWeekSignals } from '../../graphql/picks';
+import type { LoggedUser } from '../../lib/user';
 import {
   MY_CURRENT_PICKS_QUERY,
   PICKS_VIEW_COUNT_QUERY,
   PICKS_WEEK_SIGNALS_QUERY,
 } from '../../graphql/picks';
 import { LogEvent, Origin } from '../../lib/log';
+import { useWeeklyPicksHero } from '../../hooks/picks/useWeeklyPicksHero';
 import { WeeklyPicksHero } from './WeeklyPicksHero';
 
 let mockIsNudgeDay = true;
@@ -68,18 +70,33 @@ const mockViewCount = (viewCount: number) =>
     result: { data: { picks: { id: picks.id, viewCount } } },
   });
 
-const renderHero = ({ enabled = true, user = loggedUser } = {}) => {
+// The layout owns the hook so it can hold the feed; this stands in for it.
+const Harness = () => {
+  const hero = useWeeklyPicksHero();
+
+  return (
+    <>
+      <WeeklyPicksHero hero={hero} />
+      {hero.isSettled && <span data-testid="settled" />}
+    </>
+  );
+};
+
+const renderHero = ({
+  enabled = true,
+  user = loggedUser,
+}: { enabled?: boolean; user?: LoggedUser | null } = {}) => {
   const gb = createReadyGrowthBook();
   gb.setFeatures({ weekly_picks: { defaultValue: enabled } });
 
   return render(
     <TestBootProvider
       client={new QueryClient()}
-      auth={{ user, isLoggedIn: !!user }}
+      auth={{ user: user ?? undefined, isLoggedIn: !!user }}
       log={{ logEvent }}
       gb={gb}
     >
-      <WeeklyPicksHero />
+      <Harness />
     </TestBootProvider>,
   );
 };
@@ -139,6 +156,7 @@ it('should wait for Thursday before nudging', async () => {
 
 it('should show the live list with its opens and share it', async () => {
   mockCurrentPicks(picks);
+  mockSignals({ upvotes: 4, bookmarks: 2, reads: 6 });
   mockViewCount(12);
   renderHero();
 
@@ -161,6 +179,24 @@ it('should show nothing outside the rollout', async () => {
 
   await new Promise((resolve) => setTimeout(resolve, 50));
   expect(screen.queryByText('Make your picks')).not.toBeInTheDocument();
+  expect(screen.getByTestId('settled')).toBeInTheDocument();
+  expect(nock.pendingMocks()).toEqual([]);
+});
+
+it('should hold its verdict until the week has been read', async () => {
+  mockCurrentPicks(null);
+  mockSignals({ upvotes: 1, bookmarks: 0, reads: 0 });
+  renderHero();
+
+  expect(screen.queryByTestId('settled')).not.toBeInTheDocument();
+  await screen.findByTestId('settled');
+  expect(screen.queryByText(/this week/)).not.toBeInTheDocument();
+});
+
+it('should settle at once for a visitor who is not signed in', async () => {
+  renderHero({ user: null });
+
+  expect(screen.getByTestId('settled')).toBeInTheDocument();
   expect(nock.pendingMocks()).toEqual([]);
 });
 

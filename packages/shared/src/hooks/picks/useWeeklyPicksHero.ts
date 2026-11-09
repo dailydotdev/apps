@@ -27,8 +27,18 @@ import usePersistentContext, {
  */
 export type WeeklyPicksHeroState = 'nudge' | 'live';
 
-interface UseWeeklyPicksHero {
+interface UseWeeklyPicksHeroProps {
+  /** Off on every page but the home feed, where the card is mounted. */
+  enabled?: boolean;
+}
+
+export interface UseWeeklyPicksHero {
   shouldShow: boolean;
+  /**
+   * The verdict is in, one way or the other. The layout holds the feed's
+   * paint until then, so the card never lands on top of posts already drawn.
+   */
+  isSettled: boolean;
   state: WeeklyPicksHeroState | null;
   signals: PicksWeekSignals | null;
   picks: Picks | null;
@@ -46,8 +56,10 @@ const countSignals = (signals: PicksWeekSignals): number =>
  * and all week once this week's picks are published. Closing it hides it
  * until the next week.
  */
-export const useWeeklyPicksHero = (): UseWeeklyPicksHero => {
-  const { user, isLoggedIn } = useAuthContext();
+export const useWeeklyPicksHero = ({
+  enabled = true,
+}: UseWeeklyPicksHeroProps = {}): UseWeeklyPicksHero => {
+  const { user, isLoggedIn, isAuthReadyOrCached } = useAuthContext();
   const { logEvent } = useLogContext();
   const isEnabled = useFeature(featureWeeklyPicks);
   const weekStart = getCurrentWeekStart();
@@ -58,16 +70,22 @@ export const useWeeklyPicksHero = (): UseWeeklyPicksHero => {
     );
   const isDismissed = dismissedWeek === weekStart;
   const canEvaluate =
-    isLoggedIn && !!isEnabled && isDismissFetched && !isDismissed;
+    enabled && isLoggedIn && !!isEnabled && isDismissFetched && !isDismissed;
 
+  // Best effort, no retries: the feed is waiting on these, and a failed
+  // request just means no card this visit.
   const { data: picks, isFetched: isPicksFetched } = useQuery({
     ...myCurrentPicksQueryOptions(user),
     enabled: canEvaluate,
+    retry: false,
   });
   const isNudgeDay = isPicksNudgeDay();
-  const { data: signals } = useQuery({
+  // Alongside the picks rather than after them, so the verdict takes one
+  // round trip, not two.
+  const { data: signals, isFetched: isSignalsFetched } = useQuery({
     ...picksWeekSignalsQueryOptions(user),
-    enabled: canEvaluate && isPicksFetched && !picks && isNudgeDay,
+    enabled: canEvaluate && isNudgeDay && !picks,
+    retry: false,
   });
   const { data: viewCount } = useQuery({
     ...picksViewCountQueryOptions(picks?.id ?? '', user),
@@ -85,6 +103,12 @@ export const useWeeklyPicksHero = (): UseWeeklyPicksHero => {
     state = 'nudge';
   }
   const shouldShow = canEvaluate && !!state;
+  const isSettled =
+    !enabled ||
+    !isEnabled ||
+    isDismissed ||
+    (isAuthReadyOrCached && !isLoggedIn) ||
+    (isPicksFetched && (!!picks || !isNudgeDay || isSignalsFetched));
 
   const extra = JSON.stringify({
     week: weekStart,
@@ -122,6 +146,7 @@ export const useWeeklyPicksHero = (): UseWeeklyPicksHero => {
 
   return {
     shouldShow,
+    isSettled,
     state,
     signals: signals ?? null,
     picks: picks ?? null,
