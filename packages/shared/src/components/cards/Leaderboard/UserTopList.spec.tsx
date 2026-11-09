@@ -23,6 +23,7 @@ const makeItem = (level?: {
     id: 'user-1',
     username: 'user-1',
     permalink: '/users/user-1',
+    reputation: 10,
   },
   level,
 });
