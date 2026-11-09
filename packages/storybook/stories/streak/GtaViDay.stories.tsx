@@ -11,7 +11,7 @@ import {
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { dateFormatInTimezone } from '@dailydotdev/shared/src/lib/timezones';
-import { GtaViCalendar, GtaViPopupStrip, GtaViWidget } from './gtaVi';
+import { GtaViCalendar, GtaViPopup, GtaViWidget } from './gtaVi';
 
 const mockUser = { id: 'gta-vi-streak-user', timezone: 'Europe/Helsinki' };
 
@@ -122,9 +122,7 @@ export const PopupWeekStrip: Story = {
   render: () => (
     <StreakData>
       <div className="pb-28">
-        <div className="flex w-[22rem] flex-col rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4">
-          <GtaViPopupStrip />
-        </div>
+        <GtaViPopup />
       </div>
     </StreakData>
   ),

@@ -5,12 +5,8 @@ import { addDays, subDays } from 'date-fns';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { HotIcon } from '@dailydotdev/shared/src/components/icons';
 import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons/ReadingStreak';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
-  IconSize,
-  iconSizeToClassName,
-} from '@dailydotdev/shared/src/components/Icon';
-import {
-  DayStreak,
   freezeTooltipCopy,
   Streak,
 } from '@dailydotdev/shared/src/components/streak/popup/DayStreak';
@@ -87,6 +83,12 @@ const GtaViTooltip = ({ children }: { children: ReactNode }): ReactElement => {
   );
 };
 
+// Vice City sunset: violet, magenta, pink, orange, gold, from the accent tokens.
+const sunsetStyle: CSSProperties = {
+  backgroundImage:
+    'linear-gradient(to bottom, color-mix(in srgb, var(--theme-accent-onion-default) 55%, var(--theme-accent-cabbage-default)) 0%, color-mix(in srgb, var(--theme-accent-cabbage-default) 55%, var(--theme-accent-bacon-default)) 32%, var(--theme-accent-bacon-default) 55%, var(--theme-accent-bun-default) 78%, color-mix(in srgb, var(--theme-accent-bun-default) 55%, var(--theme-accent-cheese-default)) 100%)',
+};
+
 const GtaViDisc = ({
   className,
   isToday,
@@ -96,9 +98,10 @@ const GtaViDisc = ({
 }): ReactElement => (
   <span
     className={classNames(
-      'relative flex items-center justify-center rounded-full bg-gradient-to-b from-accent-onion-default via-accent-bacon-default to-accent-bun-default font-bold leading-none text-white',
+      'relative flex items-center justify-center rounded-full font-bold leading-none text-white',
       className,
     )}
+    style={sunsetStyle}
   >
     <svg viewBox="0 0 100 100" className="size-full" aria-hidden>
       <text
@@ -106,7 +109,7 @@ const GtaViDisc = ({
         y="52"
         textAnchor="middle"
         dominantBaseline="central"
-        textLength="55"
+        textLength="60"
         lengthAdjust="spacingAndGlyphs"
         fontSize="64"
         fill="currentColor"
@@ -155,7 +158,10 @@ export const GtaViCalendar = (): ReactElement => {
                 aria-label="GTA VI release day"
                 className="place-self-center rounded-full"
               >
-                <GtaViDisc className="-m-px size-[1.125rem]" isToday={isToday} />
+                <GtaViDisc
+                  className="-m-px size-[1.125rem]"
+                  isToday={isToday}
+                />
               </button>
             </GtaViTooltip>
           );
@@ -215,7 +221,9 @@ export const GtaViCalendar = (): ReactElement => {
 
 /**
  * The streak button popup's 9-day strip (header, mobile feed actions, profile
- * button), centered on release day since today's strip may not reach it.
+ * button), centered on release day since today's strip may not reach it. Its
+ * dots follow the calendar's look: pink discs with a white flame, outlined
+ * days ahead, striped weekends, and the VI disc a touch bigger.
  */
 export const GtaViPopupStrip = (): ReactElement => {
   const timezone = useTimezone();
@@ -225,31 +233,73 @@ export const GtaViPopupStrip = (): ReactElement => {
     <div className="flex justify-between">
       {Array.from({ length: 9 }, (_, index) => {
         const date = addDays(releaseDay, index - 4);
+        const letter = (
+          <span className="text-text-tertiary typo-caption1">
+            {dateFormatInTimezone(date, 'iiiii', timezone)}
+          </span>
+        );
         if (index === 4) {
           return (
             <GtaViTooltip key={date.getTime()}>
               <button
                 type="button"
                 aria-label="GTA VI release day"
-                className="relative flex flex-col items-center gap-1"
+                className="flex flex-col items-center gap-1.5"
               >
-                <GtaViDisc className={iconSizeToClassName[IconSize.Medium]} />
-                {dateFormatInTimezone(date, 'iiiii', timezone)}
+                <GtaViDisc className="-m-0.5 size-7" />
+                {letter}
               </button>
             </GtaViTooltip>
           );
         }
+        const isRead = index < 4;
+        const isWeekend = ['Sat', 'Sun'].includes(
+          dateFormatInTimezone(date, 'EEE', timezone),
+        );
+        let stateClass = 'border-text-quaternary';
+        if (isRead) {
+          stateClass = 'border-transparent bg-accent-bacon-default';
+        } else if (isWeekend) {
+          stateClass =
+            'bg-[repeating-linear-gradient(135deg,currentColor_0_1.5px,transparent_1.5px_5px)] text-text-quaternary';
+        }
         return (
-          <DayStreak
+          <div
             key={date.getTime()}
-            streak={index < 4 ? Streak.Completed : Streak.Upcoming}
-            date={date}
-          />
+            className="flex flex-col items-center gap-1.5"
+          >
+            <span
+              className={classNames(
+                'flex size-6 items-center justify-center rounded-full border',
+                stateClass,
+              )}
+            >
+              {isRead && (
+                <HotIcon
+                  secondary
+                  size={IconSize.XSmall}
+                  className="text-white"
+                />
+              )}
+            </span>
+            {letter}
+          </div>
         );
       })}
     </div>
   );
 };
+
+/** The popup's surface, with the widget's fire panel behind it. */
+export const GtaViPopup = (): ReactElement => (
+  <div
+    className="flex w-[22rem] flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4"
+    style={firePanelStyle}
+  >
+    <span className="font-bold text-text-primary typo-callout">Your week</span>
+    <GtaViPopupStrip />
+  </div>
+);
 
 // Production StreakWidget's fire panel and flame halo.
 const firePanelStyle: CSSProperties = {
