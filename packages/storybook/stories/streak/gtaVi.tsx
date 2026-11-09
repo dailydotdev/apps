@@ -162,6 +162,11 @@ const GtaViTooltip = ({ children }: { children: ReactNode }): ReactElement => {
           />
           <span
             aria-hidden
+            className="pointer-events-none absolute inset-y-0 right-0 w-4/5 mix-blend-color"
+            style={sunsetStyle}
+          />
+          <span
+            aria-hidden
             className="pointer-events-none absolute inset-0 bg-gradient-to-r from-background-subtle from-50% to-transparent to-95%"
           />
           <span className="relative flex items-center gap-1.5 font-bold text-text-primary typo-callout">
