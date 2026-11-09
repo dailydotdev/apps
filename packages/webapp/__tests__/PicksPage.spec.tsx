@@ -450,9 +450,11 @@ describe('signup banner', () => {
     expect(
       screen.getByText('thought you may want to read these'),
     ).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Join daily.dev' }),
-    ).not.toBeInTheDocument();
+    // The inline card is in the markup for every viewport and hidden here
+    // by CSS, so it must not count as seen.
+    expect(screen.getByRole('region', { name: 'Join daily.dev' })).toHaveClass(
+      'laptop:hidden',
+    );
     await waitFor(() =>
       expect(logEvent).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -462,6 +464,38 @@ describe('signup banner', () => {
         }),
       ),
     );
+    expect(logEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        extra: JSON.stringify({ picks_id: 'picks-1', placement: 'inline' }),
+      }),
+    );
+  });
+
+  it('should have the inline card in place before auth answers', async () => {
+    renderPage(picks, {
+      user: undefined,
+      isLoggedIn: false,
+      isAuthReady: false,
+      isAuthReadyOrCached: false,
+    });
+
+    expect(await screen.findByText(headline)).toBeInTheDocument();
+    // Not an impression yet: the viewer may still turn out to be a member.
+    expect(logEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({ target_id: 'picks signup banner' }),
+    );
+  });
+
+  it('should leave the inline card out for a member known from the cache', async () => {
+    renderPage(picks, {
+      user: loggedUser,
+      isLoggedIn: false,
+      isAuthReady: false,
+      isAuthReadyOrCached: true,
+    });
+    await screen.findByText(/Ada Lovelace's picks/);
+
+    expect(screen.queryByText(headline)).not.toBeInTheDocument();
   });
 
   it('should not show the banner to members', async () => {
