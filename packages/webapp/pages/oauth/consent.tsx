@@ -21,7 +21,7 @@ import {
 import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
 import { noindexSeoProps } from '../../next-seo';
 
-const OPTIONAL_SCOPES = ['write', 'offline_access'];
+const OPTIONAL_SCOPES = ['write', 'reading_history', 'offline_access'];
 
 const scopeDescriptions: Record<string, string> = {
   openid: 'Know who you are on daily.dev',
@@ -31,6 +31,8 @@ const scopeDescriptions: Record<string, string> = {
   read: 'Read content on daily.dev, like feeds, posts, comments and search, and your personal data: profile, bookmarks, custom feeds, followed and blocked tags and sources, notifications, tech stack and experiences',
   write:
     'Make changes on your behalf, like bookmarking posts and updating your feed settings',
+  reading_history:
+    "See the posts you've read on daily.dev and search your reading history",
 };
 
 const getUrlHost = (value?: string): string | null => {
