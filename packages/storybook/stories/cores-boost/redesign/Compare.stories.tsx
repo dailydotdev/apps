@@ -19,17 +19,18 @@ type Pair = {
   name: string;
   /** "Today (production)" story id */
   today: string;
-  redesign: string;
+  /** Unset where the redesign keeps the production screen */
+  redesign?: string;
 };
 
 const pairsFor = (
   flow: string,
-  rows: [name: string, today: string, redesign: string][],
+  rows: [name: string, today: string, redesign: string | null][],
 ): Pair[] =>
   rows.map(([name, today, next]) => ({
     name,
     today: `cores-boost-today-production--${today}`,
-    redesign: `cores-boost-redesign-${flow}--${next}`,
+    redesign: next ? `cores-boost-redesign-${flow}--${next}` : undefined,
   }));
 
 /** A story's screenshot, linking to the live story */
@@ -58,11 +59,14 @@ const Column = ({ label, id }: { label: string; id: string }): ReactElement => (
 const ComparePage = ({ pairs }: { pairs: Pair[] }): ReactElement => (
   <div className="flex min-h-screen flex-col gap-10 bg-background-default p-6">
     {pairs.map((pair) => (
-      <section key={pair.redesign} className="flex flex-col gap-3">
+      <section key={pair.name} className="flex flex-col gap-3">
         <h2 className="font-bold typo-title3">{pair.name}</h2>
         <div className="flex flex-col gap-4 laptop:flex-row">
           <Column label="Today · production" id={pair.today} />
-          <Column label="Redesign" id={pair.redesign} />
+          <Column
+            label={pair.redesign ? 'Redesign' : 'Redesign · unchanged'}
+            id={pair.redesign ?? pair.today}
+          />
         </div>
       </section>
     ))}
@@ -83,7 +87,7 @@ export const FirstCores: Story = {
   render: () => (
     <ComparePage
       pairs={pairsFor('1-first-cores', [
-        ['1 · Quest reward', 'first-cores-quest-reward', 'quest-reward'],
+        ['1 · Quest reward', 'first-cores-quest-reward', null],
         ['2 · Your first Cores', 'first-cores-after-claim', 'your-first-cores'],
         [
           '3 · Wallet with "Use your Cores"',
@@ -101,12 +105,12 @@ export const GiveAward: Story = {
   render: () => (
     <ComparePage
       pairs={pairsFor('2-give-an-award', [
-        ['2 · Pick an award', 'award-picked-too-expensive', 'pick-an-award'],
+        ['2 · Pick an award', 'award-picked-too-expensive', null],
         ['3 · Buy Cores, pack preselected', 'award-buy-cores', 'buy-cores'],
-        ['5 · Processing', 'award-processing-timed-out', 'processing'],
+        ['5 · Processing', 'award-processing-timed-out', null],
         ['6 · Note and send', 'award-note', 'note-and-send'],
-        ['7 · Award sent', 'award-sent', 'award-sent'],
-        ['8 · Back where you were · old iOS', 'award-old-ios', 'old-ios'],
+        ['7 · Award sent', 'award-sent', null],
+        ['8 · Back where you were · old iOS', 'award-old-ios', null],
       ])}
     />
   ),
@@ -117,12 +121,8 @@ export const ReceiveAward: Story = {
   render: () => (
     <ComparePage
       pairs={pairsFor('3-receive-an-award', [
-        [
-          '2 · Award received, with context',
-          'receive-notification',
-          'award-received-with-context',
-        ],
-        ['3 · Balance refreshes', 'receive-notification', 'balance-refreshes'],
+        ['2 · Award received, with context', 'receive-notification', null],
+        ['3 · Balance refreshes', 'receive-notification', null],
         [
           '4 · Wallet, award in history',
           'receive-wallet',
@@ -138,10 +138,10 @@ export const WalletAndBuying: Story = {
   render: () => (
     <ComparePage
       pairs={pairsFor('4-wallet-and-buying', [
-        ['1 · Ways in', 'wallet-ways-in', 'ways-in'],
+        ['1 · Ways in', 'wallet-ways-in', null],
         ['2 · Wallet', 'wallet', 'wallet-screen'],
         ['3 · /cores', 'cores', 'cores'],
-        ['4 · You got your Cores!', 'cores-purchased', 'you-got-your-cores'],
+        ['4 · You got your Cores!', 'cores-purchased', null],
         ['5 · Back to the wallet', 'cores-got-it-home', 'back-to-the-wallet'],
       ])}
     />
@@ -167,7 +167,7 @@ export const FirstBoost: Story = {
           'boost-form-reading',
         ],
         ['3 · Buy Cores, pack preselected', 'boost-buy', 'buy-cores'],
-        ['4 · Processing', 'boost-processing-timed-out', 'processing'],
+        ['4 · Processing', 'boost-processing-timed-out', null],
         ['5 · Boost launches', 'boost-back-to-form', 'boost-launches'],
         ['6 · Boost is live!', 'boost-is-live', 'boost-is-live'],
       ])}
@@ -188,12 +188,8 @@ export const AfterBoost: Story = {
         ],
         ['2 · Campaign', 'campaign-live', 'campaign-live'],
         ['2 · Campaign, ended', 'campaign-ended', 'campaign-ended'],
-        ['3 · Boost is live', 'boost-notifications', 'live-notification'],
-        [
-          '4 · Boost ended, with results',
-          'boost-notifications',
-          'ended-notification',
-        ],
+        ['3 · Boost is live', 'boost-notifications', null],
+        ['4 · Boost ended, with results', 'boost-notifications', null],
         ['5 · Boost again, prefilled', 'boost-again', 'boost-again'],
         ['6 · Boost is live!', 'boost-is-live', 'boost-is-live'],
       ])}

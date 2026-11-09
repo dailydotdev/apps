@@ -17,7 +17,6 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
-import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { getRecommendedCorePrice } from '@dailydotdev/shared/src/components/cores/recommendedCorePrice';
 import type { CoreProductOption } from '@dailydotdev/shared/src/contexts/BuyCoresContext/types';
 import { coresPricesQueryOptions } from '@dailydotdev/shared/src/graphql/njord';
@@ -29,7 +28,6 @@ import {
 } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { formatCoresCurrency } from '@dailydotdev/shared/src/lib/utils';
-import { walletUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
   coreImage,
   getCoreCurrencyImage,
@@ -37,7 +35,7 @@ import {
 import type { CoresPurpose } from '../../flows/purchase/BuyCoresFixed';
 import { NeededCopy } from '../../flows/purchase/BuyCoresFixed';
 import friendshipArt from '../../assets/cores-checkout-friendship.png';
-import { CoreHalo, Row } from './kit';
+import { Row } from './kit';
 import { Deals } from './Deals';
 
 // BuyCoresFixedModal (flows/purchase/BuyCoresFixed.tsx) in the redesign's
@@ -359,81 +357,3 @@ export const BuyCoresRedesignModal = ({
     </Modal>
   );
 };
-
-export type ProcessingState = 'processing' | 'timeout';
-
-/** BuyCoresProcessingFixed in the redesign's line */
-export const BuyCoresProcessingRedesign = ({
-  state,
-  draftName,
-  draftImage,
-  onCheckAgain,
-  onRequestClose,
-}: {
-  state: ProcessingState;
-  draftName: string;
-  /** The award or post the payment is for, shown with the draft */
-  draftImage?: string;
-  onCheckAgain: () => void;
-  onRequestClose: () => void;
-}): ReactElement => (
-  <Modal
-    isOpen
-    kind={Modal.Kind.FlexibleCenter}
-    size={Modal.Size.XSmall}
-    onRequestClose={onRequestClose}
-    isDrawerOnMobile
-  >
-    <Modal.Body className="flex items-center justify-center gap-4 !py-6 text-center">
-      <CoreHalo />
-      {state === 'processing' ? (
-        <>
-          <Typography type={TypographyType.Title3} bold>
-            Processing your payment, please wait...
-          </Typography>
-          <Loader className="hidden tablet:block" />
-        </>
-      ) : (
-        <>
-          <Typography type={TypographyType.Title3} bold>
-            Still processing…
-          </Typography>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            Payments usually land in under a minute. {draftName} is saved, and
-            we pick it up as soon as your Cores arrive.
-          </Typography>
-          {draftImage && (
-            <Row
-              className="w-full rounded-16 border border-border-subtlest-tertiary p-3 text-left"
-              visual={
-                <Image src={draftImage} className="size-10 object-contain" />
-              }
-              title={draftName}
-              meta="Saved, waiting for your Cores"
-            />
-          )}
-          <Button
-            onClick={onCheckAgain}
-            variant={ButtonVariant.Primary}
-            className="w-full"
-          >
-            Check again
-          </Button>
-          <Button
-            tag="a"
-            href={walletUrl}
-            target="_blank"
-            rel="noreferrer"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-          >
-            Check the status in your wallet
-          </Button>
-        </>
-      )}
-    </Modal.Body>
-  </Modal>
-);

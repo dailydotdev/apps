@@ -2,20 +2,19 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { CoresRole } from '@dailydotdev/shared/src/lib/user';
+import * as today from '../today/Today.stories';
+import { routeTo } from '../today/production';
 import { streakHandlers } from '../real/handlers';
 import { CoresProviders } from '../real/providers';
 import { Shell } from '../flows/cores/Shell';
 import { FlowStepper } from '../flows/cores/FlowStepper';
 import type { FirstCoresPersona } from '../flows/cores/FirstCoresSheet';
-import { GatedQuestCard } from '../flows/cores/GatedEntryPoints';
 import {
   firstQuestReward,
   readQuest,
   walletHandlers,
 } from '../flows/cores/fixtures';
-import { findQuestCard } from '../flows/cores/screens';
-import { questHandlers, SwapInPage } from '../real/pages';
+import { questHandlers } from '../real/pages';
 import { FirstCoresSheet } from './cores/Moments';
 import { Wallet } from './cores/Wallet';
 import { OwnPostScreen, QuestScreen } from './cores/Screens';
@@ -26,22 +25,17 @@ import { OwnPostScreen, QuestScreen } from './cores/Screens';
 const FIRST_REWARD = 20;
 const NUDGE_BALANCE = 5400;
 
-type Args = { persona: FirstCoresPersona; hasCoresAccess: boolean };
+type Args = { persona: FirstCoresPersona };
 
 const meta: Meta<Args> = {
   title: 'Cores & Boost/Redesign/1. First Cores',
   parameters: { layout: 'fullscreen' },
-  args: { persona: 'reader', hasCoresAccess: true },
+  args: { persona: 'reader' },
   argTypes: {
     persona: {
       control: { type: 'inline-radio' },
       options: ['reader', 'poster'],
       description: 'Posters see Boost first, readers see Award first',
-    },
-    hasCoresAccess: {
-      name: 'Cores access',
-      control: { type: 'boolean' },
-      description: 'Without it (coresRole None) Cores rewards are hidden',
     },
   },
 };
@@ -125,33 +119,13 @@ export const Walkthrough: Story = {
 };
 
 export const QuestReward: Story = {
+  ...today.FirstCoresQuestReward,
   name: '1 · Quest reward',
+  beforeEach: today.FirstCoresQuestReward.beforeEach ?? (() => routeTo('/')),
   parameters: {
-    msw: { handlers },
-    docs: {
-      description: {
-        story:
-          'The quest card sits in a rounded popover with a shadow, like the hub widgets; toggle Cores access to see the gated version.',
-      },
-    },
+    ...today.FirstCoresQuestReward.parameters,
+    docs: { description: { story: 'Unchanged: production, as in Today.' } },
   },
-  render: ({ hasCoresAccess }) => (
-    <CoresProviders
-      key={String(hasCoresAccess)}
-      balance={FIRST_REWARD}
-      coresRole={hasCoresAccess ? CoresRole.Creator : CoresRole.None}
-      activePage="/daily-quests"
-    >
-      <Shell>
-        <QuestScreen />
-        {!hasCoresAccess && (
-          <SwapInPage find={findQuestCard}>
-            <GatedQuestCard quest={readQuest} />
-          </SwapInPage>
-        )}
-      </Shell>
-    </CoresProviders>
-  ),
 };
 
 export const YourFirstCores: Story = {

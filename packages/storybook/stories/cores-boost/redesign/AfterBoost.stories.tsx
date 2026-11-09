@@ -8,13 +8,14 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import type { Campaign } from '@dailydotdev/shared/src/graphql/campaigns';
+import { routeTo } from '../today/production';
 import { CoresProviders } from '../real/providers';
 import { coresHandlers } from '../real/handlers';
 import {
   BoostEndedNotification,
-  BoostLiveNotification,
   NotificationsColumn,
 } from '../flows/after-boost/BoostNotifications';
+import { NotificationsPage } from '../real/pages';
 import {
   durationOf,
   endedCampaign,
@@ -26,7 +27,8 @@ import { BoostAgainModal } from './after-boost/BoostAgainModal';
 
 // The fixed "After the boost" flow (Flows/6) in the latest design line: the
 // squads page frame, hero cover widget rows and the Patchy art. Same
-// content, controls and click path as the fixed flow.
+// content, controls and click path as the fixed flow; the boost
+// notifications stay as production shows them.
 
 const BALANCE = 5000;
 
@@ -97,8 +99,7 @@ const BoostAgainScreen = ({
 enum Screen {
   Boosts = 'Boosts page',
   Campaign = 'Campaign',
-  Live = 'Boost is live',
-  Ended = 'Boost ended',
+  Notifications = 'Notifications',
   Again = 'Boost again',
 }
 
@@ -126,28 +127,12 @@ const WalkthroughStory = (): ReactElement => {
         <CampaignPage
           campaign={campaign}
           onBack={() => setScreen(Screen.Boosts)}
-          onStop={() => goTo(Screen.Live)}
-          onExtend={() => goTo(Screen.Live)}
+          onStop={() => goTo(Screen.Notifications)}
+          onExtend={() => goTo(Screen.Notifications)}
           onBoostAgain={() => setScreen(Screen.Again)}
         />
       )}
-      {screen === Screen.Live && (
-        <NotificationsColumn>
-          <BoostLiveNotification
-            campaign={liveCampaign}
-            onSeeBoost={() => openCampaign(liveCampaign)}
-          />
-        </NotificationsColumn>
-      )}
-      {screen === Screen.Ended && (
-        <NotificationsColumn>
-          <BoostEndedNotification
-            campaign={endedCampaign}
-            onSeeBoost={() => openCampaign(endedCampaign)}
-            onBoostAgain={() => setScreen(Screen.Again)}
-          />
-        </NotificationsColumn>
-      )}
+      {screen === Screen.Notifications && <NotificationsPage />}
       {screen === Screen.Again && (
         <BoostAgainScreen onSeeBoost={() => setScreen(Screen.Boosts)} />
       )}
@@ -238,33 +223,19 @@ export const CampaignEnded: Story = {
 
 export const LiveNotification: Story = {
   name: '3 · Boost is live',
-  render: () => (
-    <NotificationsColumn>
-      <BoostLiveNotification campaign={liveCampaign} />
-    </NotificationsColumn>
-  ),
+  beforeEach: () => routeTo('/notifications'),
+  render: () => <NotificationsPage />,
   parameters: {
-    docs: {
-      description: {
-        story: 'Same as the Flows page: the notification is unchanged.',
-      },
-    },
+    docs: { description: { story: 'Unchanged: production, as in Today.' } },
   },
 };
 
 export const EndedNotification: Story = {
   name: '4 · Boost ended, with results',
-  render: () => (
-    <NotificationsColumn>
-      <BoostEndedNotification campaign={endedCampaign} />
-    </NotificationsColumn>
-  ),
+  beforeEach: () => routeTo('/notifications'),
+  render: () => <NotificationsPage />,
   parameters: {
-    docs: {
-      description: {
-        story: 'Same as the Flows page: the notification is unchanged.',
-      },
-    },
+    docs: { description: { story: 'Unchanged: production, as in Today.' } },
   },
 };
 

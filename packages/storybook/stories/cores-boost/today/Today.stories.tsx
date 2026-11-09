@@ -1,18 +1,11 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect } from 'react';
+import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { mocked } from 'storybook/test';
-import mockedRouter, { useRouter } from 'next/router';
 import { graphql, HttpResponse } from 'msw';
 import type { RequestHandler } from 'msw';
-import type { Paddle } from '@paddle/paddle-js';
 import WalletPage from '../../../../webapp/pages/wallet';
 import CoresPage from '../../../../webapp/pages/cores/index';
-import GiveAwardModal from '@dailydotdev/shared/src/components/modals/award/GiveAwardModal';
-import {
-  BuyCoresModal,
-  BuyCoresProcessing,
-} from '@dailydotdev/shared/src/components/modals/award/BuyCoresModal';
+import { BuyCoresModal } from '@dailydotdev/shared/src/components/modals/award/BuyCoresModal';
 import { BoostPostModal } from '@dailydotdev/shared/src/features/boost/BoostPostModal';
 import { BoostNewPostStrip } from '@dailydotdev/shared/src/features/boost/BoostNewPostStrip';
 import { AdsDashboardModal } from '@dailydotdev/shared/src/features/boost/AdsDashboardModal';
@@ -24,21 +17,13 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import type {
-  BuyCoresContextData,
-  Screens,
-} from '@dailydotdev/shared/src/contexts/BuyCoresContext/types';
-import { BuyCoresContext } from '@dailydotdev/shared/src/contexts/BuyCoresContext/types';
 import type { Campaign } from '@dailydotdev/shared/src/graphql/campaigns';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
-import type { Product } from '@dailydotdev/shared/src/graphql/njord';
 import { boostDocsLink } from '@dailydotdev/shared/src/lib/constants';
 import { boostSuccessCover } from '@dailydotdev/shared/src/lib/image';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
-import { fallbackImages } from '@dailydotdev/shared/src/lib/config';
 import { CoresProviders, noop, productionFlags } from '../real/providers';
 import { coresHandlers } from '../real/handlers';
-import { awards } from '../real/catalog';
 import {
   DailyQuestsPage,
   HomeFeedPage,
@@ -50,6 +35,15 @@ import {
   samPost,
 } from '../real/pages';
 import { boostablePost } from '../real/screens';
+import {
+  AwardModal,
+  awardTile,
+  buttonWith,
+  ClickThrough,
+  coffee,
+  Processing,
+  routeTo,
+} from './production';
 import {
   firstQuestReward,
   landedPurchase,
@@ -71,124 +65,12 @@ import {
 // production components and pages; where the redesign adds a screen, the
 // story shows what production shows at that moment instead.
 
-const awardOf = (name: string) =>
-  awards.find((product) => product.name === name) as Product;
-const coffee = awardOf('Coffee Mug');
-
-const samReceiver = {
-  id: 'sb-sam',
-  name: 'Sam Rivera',
-  username: 'samrivera',
-  image: fallbackImages.avatar,
-};
-
 const { default_cores: defaultCores, default_days: defaultDays } =
   productionFlags.boost_settings as {
     default_cores: number;
     default_days: number;
   };
 const defaultBoost = defaultCores * defaultDays;
-
-const routeTo = (pathname: string, query: Record<string, string> = {}) => {
-  const search = new URLSearchParams(query).toString();
-
-  mocked(useRouter).mockReturnValue({
-    ...mockedRouter,
-    isReady: true,
-    pathname,
-    asPath: search ? `${pathname}?${search}` : pathname,
-    query,
-  } as never);
-};
-
-/** Clicks through production UI to reach a state it only opens on clicks */
-const ClickThrough = ({
-  targets,
-}: {
-  targets: (() => HTMLElement | null | undefined)[];
-}): null => {
-  useEffect(() => {
-    let index = 0;
-    const timer = window.setInterval(() => {
-      const target = targets[index]?.();
-
-      if (!target) {
-        return;
-      }
-
-      target.click();
-      index += 1;
-
-      if (index >= targets.length) {
-        window.clearInterval(timer);
-      }
-    }, 300);
-
-    return () => window.clearInterval(timer);
-  }, [targets]);
-
-  return null;
-};
-
-const awardTile = (name: string) => () =>
-  document
-    .querySelector<HTMLElement>(`[role="dialog"] img[alt="${name}"]`)
-    ?.closest('button');
-
-const buttonWith = (text: string) => () =>
-  [...document.querySelectorAll<HTMLElement>('[role="dialog"] button')].find(
-    (button) => button.textContent?.includes(text),
-  );
-
-/** Production BuyCoresProcessing at a step: processing, timeout, completed */
-const Processing = ({
-  step,
-  origin,
-  cores,
-}: {
-  step: Screens;
-  origin: Origin;
-  cores: number;
-}): ReactElement => {
-  const context: BuyCoresContextData = {
-    paddle: {} as Paddle,
-    activeStep: step,
-    setActiveStep: noop,
-    selectedProduct: { id: 'sb-pack', value: cores },
-    setSelectedProduct: noop,
-    onCompletion: noop,
-    origin,
-    error:
-      step === 'PROCESSING_ERROR'
-        ? {
-            title: 'Processing timed out',
-            description:
-              'Please check the status of your transaction in your Core Wallet.',
-          }
-        : undefined,
-  };
-
-  return (
-    <BuyCoresContext.Provider value={context}>
-      <BuyCoresProcessing isOpen onRequestClose={noop} />
-    </BuyCoresContext.Provider>
-  );
-};
-
-/** Production GiveAwardModal on Sam's post */
-const AwardModal = ({ children }: { children?: ReactNode }): ReactElement => (
-  <>
-    <PostPage post={samPost} />
-    <GiveAwardModal
-      isOpen
-      onRequestClose={noop}
-      type="POST"
-      post={samPost}
-      entity={{ id: samPost.id, receiver: samReceiver, numAwards: 0 }}
-    />
-    {children}
-  </>
-);
 
 /** Dana's own post as production shows it, with the new-post strip */
 const OwnPost = ({
@@ -320,10 +202,7 @@ export const FirstCoresQuestReward: Story = {
   ...screen({
     balance: 0,
     activePage: '/daily-quests',
-    handlers: [
-      ...questHandlers(readQuest),
-      ...walletHandlers(0, []),
-    ],
+    handlers: [...questHandlers(readQuest), ...walletHandlers(0, [])],
     render: () => <DailyQuestsPage />,
   }),
 };

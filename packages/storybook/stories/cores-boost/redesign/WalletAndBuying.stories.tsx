@@ -4,7 +4,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { RequestKey } from '@dailydotdev/shared/src/lib/query';
 import { useQueryClient } from '@tanstack/react-query';
-import { NotificationsScreen } from './cores/Screens';
+import * as today from '../today/Today.stories';
+import { routeTo } from '../today/production';
 import { CoresProviders } from '../real/providers';
 import { activeHistory, streakHandlers } from '../real/handlers';
 import { Shell } from '../flows/cores/Shell';
@@ -100,28 +101,13 @@ export const Walkthrough: Story = {
 };
 
 export const WaysIn: Story = {
+  ...today.WalletWaysIn,
   name: '1 · Ways in',
+  beforeEach: today.WalletWaysIn.beforeEach ?? (() => routeTo('/')),
   parameters: {
-    msw: {
-      handlers: [
-        ...streakHandlers({ balance: BALANCE }),
-        ...walletHandlers(BALANCE, walletHistory),
-      ],
-    },
-    docs: {
-      description: {
-        story:
-          'The same gated wallet links; the award notification row is the new card with View in wallet as a Float button.',
-      },
-    },
+    ...today.WalletWaysIn.parameters,
+    docs: { description: { story: 'Unchanged: production, as in Today.' } },
   },
-  render: () => (
-    <CoresProviders balance={BALANCE} activePage="/notifications">
-      <Shell>
-        <NotificationsScreen />
-      </Shell>
-    </CoresProviders>
-  ),
 };
 
 type WalletArgs = { isPendingLong: boolean };
@@ -217,29 +203,13 @@ export const Cores: Story = {
 };
 
 export const YouGotYourCores: Story = {
+  ...today.CoresPurchased,
   name: '4 · You got your Cores!',
+  beforeEach: today.CoresPurchased.beforeEach ?? (() => routeTo('/')),
   parameters: {
-    msw: {
-      handlers: [
-        ...streakHandlers({ balance: BALANCE }),
-        ...walletHandlers(BALANCE, walletHistory),
-      ],
-    },
-    docs: {
-      description: {
-        story:
-          'The success modal leads with the character art and the amount as a chip; same copy and Got it.',
-      },
-    },
+    ...today.CoresPurchased.parameters,
+    docs: { description: { story: 'Unchanged: production, as in Today.' } },
   },
-  render: () => (
-    <CoresProviders balance={BALANCE + PACK} activePage="/cores">
-      <Shell>
-        <CoresPage initialPack={PACK} />
-        <CoresPurchasedModal amount={PACK} onGotIt={() => undefined} />
-      </Shell>
-    </CoresProviders>
-  ),
 };
 
 export const BackToTheWallet: Story = {

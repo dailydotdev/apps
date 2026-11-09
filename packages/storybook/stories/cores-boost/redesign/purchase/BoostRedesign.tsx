@@ -7,12 +7,10 @@ import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import {
   Typography,
   TypographyColor,
-  TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
   Button,
-  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';

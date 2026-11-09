@@ -4,7 +4,10 @@ import classNames from 'classnames';
 import stripArt from '../../assets/boost-strip-patchy-v2.png';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { BoostIcon } from '@dailydotdev/shared/src/components/icons/Boost';
-import { CoreIcon, MiniCloseIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  CoreIcon,
+  MiniCloseIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import {
   Typography,
   TypographyTag,

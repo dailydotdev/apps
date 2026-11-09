@@ -3,6 +3,12 @@ import React, { useCallback, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
+import * as today from '../today/Today.stories';
+import {
+  Processing as ProductionProcessing,
+  routeTo,
+} from '../today/production';
 import { CoresProviders, noop } from '../real/providers';
 import { coresHandlers } from '../real/handlers';
 import { boostablePost } from '../real/screens';
@@ -17,10 +23,7 @@ import {
   BoostLiveRedesign,
   OwnPostRedesign,
 } from './purchase/BoostRedesign';
-import {
-  BuyCoresProcessingRedesign,
-  BuyCoresRedesignModal,
-} from './purchase/BuyCoresRedesign';
+import { BuyCoresRedesignModal } from './purchase/BuyCoresRedesign';
 
 // "5. First boost" from the Flows pages, redrawn in the squads hub line.
 // Same steps, labels and actions; only the look changes.
@@ -102,11 +105,10 @@ const WalkthroughFlow = (): ReactElement => {
         />
       )}
       {step === 'processing' && (
-        <BuyCoresProcessingRedesign
-          state="processing"
-          draftName="Your boost"
-          onCheckAgain={noop}
-          onRequestClose={toPost}
+        <ProductionProcessing
+          step="PROCESSING"
+          origin={Origin.BoostPost}
+          cores={total}
         />
       )}
       {step === 'launching' && (
@@ -235,19 +237,15 @@ export const BuyCores = story(
   ),
 );
 
-export const Processing = story(
-  'A glowing Core heads the processing screen.',
-  () => (
-    <Stage background={<OwnPostBackdrop />}>
-      <BuyCoresProcessingRedesign
-        state="processing"
-        draftName="Your boost"
-        onCheckAgain={noop}
-        onRequestClose={noop}
-      />
-    </Stage>
-  ),
-);
+export const Processing: Story = {
+  ...today.BoostProcessingTimedOut,
+  name: '4 · Processing',
+  beforeEach: today.BoostProcessingTimedOut.beforeEach ?? (() => routeTo('/')),
+  parameters: {
+    ...today.BoostProcessingTimedOut.parameters,
+    docs: { description: { story: 'Unchanged: production, as in Today.' } },
+  },
+};
 
 export const BoostLaunches = story(
   'The Patchy rocket heads the launch screen, the boost is a row with Change, and a progress bar counts down.',
@@ -284,6 +282,5 @@ BoostForm.storyName = '2 · Boost your post';
 BoostFormCustom.storyName = '2 · Boost your post · custom';
 BoostFormReading.storyName = '2 · Boost your post · reading the post';
 BuyCores.storyName = '3 · Buy Cores, pack preselected';
-Processing.storyName = '4 · Processing';
 BoostLaunches.storyName = '5 · Boost launches';
 BoostIsLive.storyName = '6 · Boost is live!';

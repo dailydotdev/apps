@@ -22,17 +22,17 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import { fallbackImages } from '@dailydotdev/shared/src/lib/config';
 import { realArticle, samPost } from '../../real/pages';
-import type { AwardReceiver } from '../purchase/AwardRedesign';
+import { AwardNoteRedesign } from '../purchase/AwardRedesign';
 import {
-  AwardNoteRedesign,
-  AwardPickerRedesign,
-  AwardSentRedesign,
-} from '../purchase/AwardRedesign';
+  ProductionAwardPicker,
+  ProductionAwardSent,
+} from '../../today/production';
 import { BuyCoresRedesignModal } from '../purchase/BuyCoresRedesign';
 
 // Where the wallet's award and streak tiles lead. An award always lands on
 // someone's post, so the tile starts from what you read lately and then runs
-// the award flow for its author. The streak tile restores a streak the day
+// the award flow for its author: production's picker and sent screen, the
+// redesigned Buy Cores and note. The streak tile restores a streak the day
 // after it breaks and sells streak freezes on every other day.
 
 const hoursAgo = (hours: number): string =>
@@ -149,18 +149,21 @@ export const AwardTileFlow = ({
 }): ReactElement => {
   const { user, updateUser } = useAuthContext();
   const [step, setStep] = useState<AwardStep>('posts');
-  const [receiver, setReceiver] = useState<AwardReceiver>();
+  const [post, setPost] = useState<Post>();
   const [product, setProduct] = useState<Product>();
   const [bought, setBought] = useState(0);
+  const receiver = post?.author && {
+    id: post.author.id,
+    name: post.author.name,
+    username: post.author.username ?? '',
+    image: post.author.image,
+  };
 
-  if (step === 'posts' || !receiver) {
+  if (step === 'posts' || !post || !receiver) {
     return (
       <RecentReadsPicker
-        onPick={(post) => {
-          setReceiver({
-            name: post.author?.name ?? '',
-            image: post.author?.image ?? fallbackImages.avatar,
-          });
+        onPick={(picked) => {
+          setPost(picked);
           setStep('pick');
         }}
         onRequestClose={onDone}
@@ -204,25 +207,27 @@ export const AwardTileFlow = ({
 
   if (step === 'sent' && product) {
     return (
-      <AwardSentRedesign
-        product={product}
+      <ProductionAwardSent
+        post={post}
         receiver={receiver}
+        product={product}
         onRequestClose={onDone}
       />
     );
   }
 
   return (
-    <AwardPickerRedesign
-      initialAward={product?.name}
+    <ProductionAwardPicker
+      post={post}
       receiver={receiver}
-      onBuyCores={(picked) => {
-        setProduct(picked);
-        setStep('buy');
-      }}
+      balance={user?.balance.amount ?? 0}
       onPicked={(picked) => {
         setProduct(picked);
         setStep('note');
+      }}
+      onBuyCores={(picked) => {
+        setProduct(picked);
+        setStep('buy');
       }}
       onRequestClose={onDone}
     />

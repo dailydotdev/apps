@@ -1,63 +1,38 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { Product } from '@dailydotdev/shared/src/graphql/njord';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
+import * as today from '../today/Today.stories';
+import {
+  Processing as ProductionProcessing,
+  ProductionAwardPicker,
+  ProductionAwardSent,
+  routeTo,
+} from '../today/production';
 import { CoresProviders, noop } from '../real/providers';
 import { coresHandlers } from '../real/handlers';
 import { awards } from '../real/catalog';
 import { Stage } from '../flows/purchase/stage';
-import {
-  AwardNoteRedesign,
-  AwardPickerRedesign,
-  AwardSentRedesign,
-} from './purchase/AwardRedesign';
-import {
-  BuyCoresProcessingRedesign,
-  BuyCoresRedesignModal,
-} from './purchase/BuyCoresRedesign';
+import { AwardNoteRedesign } from './purchase/AwardRedesign';
+import { BuyCoresRedesignModal } from './purchase/BuyCoresRedesign';
 
 // "2. Give an award" from the Flows pages, redrawn in the squads hub line.
-// Same steps, labels and actions; only the look changes.
+// Picking the award, processing and the sent screen stay as production has
+// them; Buy Cores and the note are redesigned.
 
 const balance = 20;
 const coffee = awards.find(({ name }) => name === 'Coffee Mug') as Product;
 
-type Step =
-  | 'pick'
-  | 'buy'
-  | 'processing'
-  | 'timeout'
-  | 'note'
-  | 'sent'
-  | 'done';
+type Step = 'pick' | 'buy' | 'processing' | 'note' | 'sent' | 'done';
 
 const WalkthroughFlow = (): ReactElement => {
   const { user, updateUser } = useAuthContext();
   const [step, setStep] = useState<Step>('pick');
   const [product, setProduct] = useState<Product>(coffee);
   const [bought, setBought] = useState(0);
-  const [hasTimedOut, setTimedOut] = useState(false);
   const close = () => setStep('done');
-
-  const settle = useCallback(
-    (cores: number) => {
-      const delay = hasTimedOut ? 1200 : 2000;
-      setTimeout(() => {
-        // The first try shows the timeout state, Check again lands the Cores
-        if (!hasTimedOut) {
-          setTimedOut(true);
-          setStep('timeout');
-          return;
-        }
-        if (user) {
-          updateUser({ ...user, balance: { amount: balance + cores } });
-        }
-        setStep('note');
-      }, delay);
-    },
-    [hasTimedOut, updateUser, user],
-  );
 
   return (
     <Stage
@@ -66,20 +41,19 @@ const WalkthroughFlow = (): ReactElement => {
         if (user) {
           updateUser({ ...user, balance: { amount: balance } });
         }
-        setTimedOut(false);
         setStep('pick');
       }}
     >
       {step === 'pick' && (
-        <AwardPickerRedesign
-          initialAward={product.name}
-          onBuyCores={(picked) => {
-            setProduct(picked);
-            setStep('buy');
-          }}
+        <ProductionAwardPicker
+          balance={user?.balance.amount ?? 0}
           onPicked={(picked) => {
             setProduct(picked);
             setStep('note');
+          }}
+          onBuyCores={(picked) => {
+            setProduct(picked);
+            setStep('buy');
           }}
           onRequestClose={close}
         />
@@ -92,21 +66,24 @@ const WalkthroughFlow = (): ReactElement => {
           onPay={(pack) => {
             setBought(pack.value);
             setStep('processing');
-            settle(pack.value);
+            setTimeout(() => {
+              if (user) {
+                updateUser({
+                  ...user,
+                  balance: { amount: balance + pack.value },
+                });
+              }
+              setStep('note');
+            }, 2000);
           }}
           onRequestClose={() => setStep('pick')}
         />
       )}
-      {(step === 'processing' || step === 'timeout') && (
-        <BuyCoresProcessingRedesign
-          state={step}
-          draftName={`Your ${product.name} award`}
-          draftImage={product.image}
-          onCheckAgain={() => {
-            setStep('processing');
-            settle(bought);
-          }}
-          onRequestClose={close}
+      {step === 'processing' && (
+        <ProductionProcessing
+          step="PROCESSING"
+          origin={Origin.Award}
+          cores={bought}
         />
       )}
       {step === 'note' && (
@@ -119,7 +96,7 @@ const WalkthroughFlow = (): ReactElement => {
         />
       )}
       {step === 'sent' && (
-        <AwardSentRedesign product={product} onRequestClose={close} />
+        <ProductionAwardSent product={product} onRequestClose={close} />
       )}
     </Stage>
   );
@@ -158,19 +135,15 @@ export const Walkthrough = story(
   () => <WalkthroughFlow />,
 );
 
-export const PickAnAward = story(
-  'The receiver leads the sheet, awards are quiet bordered tiles with the shortfall in a corner chip, and a summary row carries the pick above the CTA.',
-  () => (
-    <Stage>
-      <AwardPickerRedesign
-        initialAward="Coffee Mug"
-        onBuyCores={noop}
-        onPicked={noop}
-        onRequestClose={noop}
-      />
-    </Stage>
-  ),
-);
+export const PickAnAward: Story = {
+  ...today.AwardPickedTooExpensive,
+  name: '2 · Pick an award',
+  beforeEach: today.AwardPickedTooExpensive.beforeEach ?? (() => routeTo('/')),
+  parameters: {
+    ...today.AwardPickedTooExpensive.parameters,
+    docs: { description: { story: 'Unchanged: production, as in Today.' } },
+  },
+};
 
 export const BuyCores = story(
   'A card names what the Cores are for and ticks once a pack covers it, packs are calm rows, and the friendship art replaces the two-hands video beside the checkout.',
@@ -187,20 +160,15 @@ export const BuyCores = story(
   ),
 );
 
-export const Processing = story(
-  'A glowing Core heads the screen, the saved award shows as a row, and the wallet link is a tertiary button.',
-  () => (
-    <Stage>
-      <BuyCoresProcessingRedesign
-        state="timeout"
-        draftName="Your Coffee Mug award"
-        draftImage={coffee.image}
-        onCheckAgain={noop}
-        onRequestClose={noop}
-      />
-    </Stage>
-  ),
-);
+export const Processing: Story = {
+  ...today.AwardProcessingTimedOut,
+  name: '5 · Processing',
+  beforeEach: today.AwardProcessingTimedOut.beforeEach ?? (() => routeTo('/')),
+  parameters: {
+    ...today.AwardProcessingTimedOut.parameters,
+    docs: { description: { story: 'Unchanged: production, as in Today.' } },
+  },
+};
 
 export const NoteAndSend = story(
   'A check chip confirms the Cores, the award sits in a bordered card with its glow image and price, and the note follows.',
@@ -218,36 +186,27 @@ export const NoteAndSend = story(
   balance + 100,
 );
 
-export const AwardSent = story(
-  'The friendship art leads the success screen, with the award glowing over its edge and the Cores in a chip.',
-  () => (
-    <Stage>
-      <AwardSentRedesign product={coffee} onRequestClose={noop} />
-    </Stage>
-  ),
-  balance + 25,
-);
+export const AwardSent: Story = {
+  ...today.AwardSent,
+  name: '7 · Award sent',
+  beforeEach: today.AwardSent.beforeEach ?? (() => routeTo('/')),
+  parameters: {
+    ...today.AwardSent.parameters,
+    docs: { description: { story: 'Unchanged: production, as in Today.' } },
+  },
+};
 
-export const OldIos = story(
-  'Same redesigned picker; on builds without in-app purchase the CTA links to the App Store.',
-  () => (
-    <Stage>
-      <AwardPickerRedesign
-        initialAward="Coffee Mug"
-        canPurchaseCores={false}
-        onBuyCores={noop}
-        onPicked={noop}
-        onRequestClose={noop}
-      />
-    </Stage>
-  ),
-);
+export const OldIos: Story = {
+  ...today.AwardOldIos,
+  name: '8 · Back where you were · old iOS',
+  beforeEach: today.AwardOldIos.beforeEach ?? (() => routeTo('/')),
+  parameters: {
+    ...today.AwardOldIos.parameters,
+    docs: { description: { story: 'Unchanged: production, as in Today.' } },
+  },
+};
 
 // The story index reads names statically, not through the helper
 Walkthrough.storyName = 'Walkthrough';
-PickAnAward.storyName = '2 · Pick an award';
 BuyCores.storyName = '3 · Buy Cores, pack preselected';
-Processing.storyName = '5 · Processing';
 NoteAndSend.storyName = '6 · Note and send';
-AwardSent.storyName = '7 · Award sent';
-OldIos.storyName = '8 · Back where you were · old iOS';
