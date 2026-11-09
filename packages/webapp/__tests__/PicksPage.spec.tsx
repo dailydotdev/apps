@@ -381,13 +381,14 @@ it('should not read the count for other viewers', async () => {
 
 describe('signup banner', () => {
   const headline = 'Ada Lovelace thought you may want to read these';
+  const thisWeek = { ...picks, weekStart: getCurrentWeekStart() };
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
   it("should invite a logged out viewer in the author's voice and log the impression", async () => {
-    renderPage(picks, { user: undefined, isLoggedIn: false });
+    renderPage(thisWeek, { user: undefined, isLoggedIn: false });
 
     expect(await screen.findByText(headline)).toBeInTheDocument();
     expect(
@@ -400,10 +401,27 @@ describe('signup banner', () => {
         expect.objectContaining({
           event_name: LogEvent.Impression,
           target_id: 'picks signup banner',
-          extra: JSON.stringify({ picks_id: 'picks-1' }),
+          extra: JSON.stringify({ picks_id: 'picks-1', placement: 'inline' }),
         }),
       ),
     );
+  });
+
+  it('should drop the time phrase for a past week', async () => {
+    renderPage(picks, { user: undefined, isLoggedIn: false });
+
+    expect(
+      await screen.findByText(
+        '2 posts picked. Join daily.dev to save them and share your own picks.',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('should not invite anyone to an emptied list', async () => {
+    renderPage({ ...picks, items: [] }, { user: undefined, isLoggedIn: false });
+    await screen.findByText('These picks are no longer available');
+
+    expect(screen.queryByText(headline)).not.toBeInTheDocument();
   });
 
   it('should send a joining viewer through onboarding and back to this list', async () => {
@@ -419,6 +437,7 @@ describe('signup banner', () => {
       expect.objectContaining({
         event_name: LogEvent.Click,
         target_id: 'picks signup banner',
+        extra: JSON.stringify({ picks_id: 'picks-1', placement: 'inline' }),
       }),
     );
   });
@@ -434,6 +453,15 @@ describe('signup banner', () => {
     expect(
       screen.queryByRole('button', { name: 'Join daily.dev' }),
     ).not.toBeInTheDocument();
+    await waitFor(() =>
+      expect(logEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event_name: LogEvent.Impression,
+          target_id: 'picks signup banner',
+          extra: JSON.stringify({ picks_id: 'picks-1', placement: 'pinned' }),
+        }),
+      ),
+    );
   });
 
   it('should not show the banner to members', async () => {

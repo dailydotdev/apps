@@ -38,7 +38,7 @@ import {
 } from '@dailydotdev/shared/src/components/ProfilePicture';
 import {
   PicksSignupBanner,
-  usePicksSignupBannerGate,
+  PicksSignupCard,
 } from '@dailydotdev/shared/src/components/picks/PicksSignupBanner';
 import {
   Typography,
@@ -168,7 +168,6 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
     enabled: isAuthor,
   });
   const { openShareSheet } = useSharePicks();
-  const { isPinned: isSignupBannerPinned } = usePicksSignupBannerGate();
   // `/picks/new` edits the current week, so only this week's list is editable
   const isEditable = isAuthor && picks?.weekStart === getCurrentWeekStart();
 
@@ -299,7 +298,7 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
             </Button>
           )}
         </header>
-        <PicksSignupBanner picks={picks} />
+        <PicksSignupCard picks={picks} />
         {items.length ? (
           <ul className="flex flex-col">
             {items.map((item) => (
@@ -337,8 +336,7 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
             {isEditable ? "Edit this week's picks" : 'Make your picks'}
           </Button>
         </section>
-        {/* The pinned banner covers the window's bottom edge on laptop */}
-        {isSignupBannerPinned && <div aria-hidden className="h-72" />}
+        <PicksSignupBanner picks={picks} />
       </ResponsivePageContainer>
     </div>
   );
