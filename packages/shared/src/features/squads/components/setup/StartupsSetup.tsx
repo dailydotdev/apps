@@ -24,6 +24,8 @@ import { LogEvent } from '../../../../lib/log';
 import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
 import {
   SQUAD_PLAN_INTEL_TOPICS,
+  formatBoostCredits,
+  getSquadPlanCreditsForRate,
   SQUAD_PLAN_CASHBACK_PERCENTAGE,
   SQUAD_PLAN_SEATS,
   SquadPlan,
@@ -61,7 +63,7 @@ interface SetupItem {
   title: string;
   description: string;
   isDone?: boolean;
-  /** Counts towards "2 of 5": the agent and cashback rows don't. */
+  /** Counts towards "2 of 5": the agent and boost credits rows don't. */
   isCounted?: boolean;
   /** Shown in place of the button, for features still on the way. */
   badge?: string;
@@ -631,11 +633,14 @@ export const StartupsSetup = ({
     },
     {
       id: 'cashback',
-      title: `${
-        subscription?.cashbackPercentage || SQUAD_PLAN_CASHBACK_PERCENTAGE[plan]
-      }% cashback`,
-      description:
-        'Lands in your page wallet every month, to boost your posts.',
+      title: `${formatBoostCredits(
+        getSquadPlanCreditsForRate(
+          plan,
+          subscription?.cashbackPercentage ||
+            SQUAD_PLAN_CASHBACK_PERCENTAGE[plan],
+        ),
+      )} in boost credits every month`,
+      description: 'Lands in your page wallet. Use it to boost your posts.',
       isDone: true,
     },
   ];

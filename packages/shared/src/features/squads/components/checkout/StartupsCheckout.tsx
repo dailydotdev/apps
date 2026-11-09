@@ -59,7 +59,7 @@ import {
   getSquadPlanPriceId,
   getSquadPlanTitle,
   isSquadPlan,
-  getSquadPlanCashback,
+  formatSquadPlanCredits,
   SQUAD_PLAN_LIST_PRICE_USD,
   SQUAD_PLAN_SEATS,
   SquadPlan,
@@ -664,7 +664,7 @@ const PaymentPanel = ({
         />
         <SummaryRow
           label="Includes"
-          value={`${seats} ${seats === 1 ? 'seat' : 'seats'}, ${getSquadPlanCashback(plan, cashbackPromo)}% cashback`}
+          value={`${seats} ${seats === 1 ? 'seat' : 'seats'}, ${formatSquadPlanCredits(plan, cashbackPromo)} every month`}
           isMuted
         />
         {!!checkoutTotals?.discount && (
@@ -1127,7 +1127,7 @@ const DoneStep = ({
       <ul className="flex flex-col gap-3">
         <StatusLine state="done">Payment received</StatusLine>
         <StatusLine state="working">{`Switching on ${planTitle}`}</StatusLine>
-        <StatusLine state="waiting">Turning on your cashback</StatusLine>
+        <StatusLine state="waiting">Adding your boost credits</StatusLine>
         <StatusLine state="waiting">
           {`Getting ${company.name}'s page ready`}
         </StatusLine>

@@ -14,7 +14,7 @@ import { hasSquadFeature } from '../lib/features';
 import {
   formatCashbackPromoLength,
   getSquadPlanCashback,
-  getSquadPlanMonthlyCores,
+  getSquadPlanMonthlyCredits,
   SQUAD_PLAN_CASHBACK_PERCENTAGE,
   SquadPlan,
 } from '../lib/plans';
@@ -54,10 +54,10 @@ export interface StartupsPromo {
   cashback: number;
   /** "for your first year" while the launch promo is on */
   promoLength?: string;
-  /** Cores Starter's cashback adds to the squad wallet each month */
-  monthlyCores: number;
+  /** Boost credits, in US dollars, Starter adds to the squad wallet each month */
+  monthlyCredits: number;
   /** Set while the launch promo beats Starter's own rate: what to strike */
-  launchOffer?: { cashback: number; monthlyCores: number };
+  launchOffer?: { cashback: number; monthlyCredits: number };
   checkoutUrl: string;
   onClick: () => void;
   /** Hides this and every other Startups promotion, on all devices */
@@ -172,12 +172,12 @@ export const useStartupsPromo = ({
     starterPrice: prices[SquadPlan.Starter],
     cashback,
     promoLength: promo ? formatCashbackPromoLength(promo.months) : undefined,
-    monthlyCores: getSquadPlanMonthlyCores(SquadPlan.Starter, promo),
+    monthlyCredits: getSquadPlanMonthlyCredits(SquadPlan.Starter, promo),
     launchOffer:
       cashback > baseCashback
         ? {
             cashback: baseCashback,
-            monthlyCores: getSquadPlanMonthlyCores(SquadPlan.Starter),
+            monthlyCredits: getSquadPlanMonthlyCredits(SquadPlan.Starter),
           }
         : undefined,
     checkoutUrl: getStartupsCheckoutUrl({
