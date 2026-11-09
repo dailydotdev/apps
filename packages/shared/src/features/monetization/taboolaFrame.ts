@@ -15,10 +15,11 @@ export const taboolaFramePath = 'embed/taboola';
 
 export const taboolaFrameSource = 'dd-taboola-frame';
 
-export type TaboolaVariant = 'grid' | 'list' | 'compact' | 'hero';
+export type TaboolaVariant = 'grid' | 'fitted' | 'list' | 'compact' | 'hero';
 
 export const taboolaVariants: TaboolaVariant[] = [
   'grid',
+  'fitted',
   'list',
   'compact',
   'hero',

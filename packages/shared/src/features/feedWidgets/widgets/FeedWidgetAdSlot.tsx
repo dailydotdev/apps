@@ -122,7 +122,7 @@ export const FeedWidgetAdSlot = ({
     content = (
       <TaboolaAd
         placement={taboolaWidgetPlacement}
-        variant={isCompact ? 'compact' : 'grid'}
+        variant={isCompact ? 'compact' : 'fitted'}
         className="min-h-0 flex-1"
         fallback={content}
         onClick={() => onAdAction(AdActions.Click)}

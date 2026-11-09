@@ -28,6 +28,7 @@ const HeroCard = classed(
 
 const cardTags = {
   grid: ClickableCard,
+  fitted: ClickableCard,
   compact: ClickableCard,
   list: ListCard,
   hero: HeroCard,
@@ -97,6 +98,7 @@ export const getTaboolaVariantClassName = (variant: TaboolaVariant): string =>
   classNames(
     'taboola-feed-ad',
     variant === 'list' ? 'taboola-feed-ad--list' : 'taboola-feed-ad--grid',
+    variant === 'fitted' && 'taboola-feed-ad--fitted',
     variant === 'compact' && 'taboola-feed-ad--compact',
     variant === 'hero' && 'taboola-feed-ad--hero',
   );
@@ -104,9 +106,10 @@ export const getTaboolaVariantClassName = (variant: TaboolaVariant): string =>
 interface TaboolaAdProps {
   placement: number;
   /**
-   * The ad card the slot stands for: `AdGrid`, `AdList`, `AdGrid`'s compact
-   * card (the creative takes the height the copy leaves, no footer), or the
-   * feed hero's `FeedHeroAdCard`.
+   * The ad card the slot stands for: `AdGrid`, `AdGrid` fitted to a slot of
+   * fixed height (the creative gives up height when the copy runs long),
+   * `AdList`, `AdGrid`'s compact card (the creative takes the height the copy
+   * leaves, no footer), or the feed hero's `FeedHeroAdCard`.
    */
   variant?: TaboolaVariant;
   /** The house ad, for when Taboola has nothing for the slot. */
@@ -153,7 +156,7 @@ export const TaboolaAd = forwardRef<HTMLElement, TaboolaAdProps>(
           isHero &&
             // FeedHeroAdCard's, under the card, lined up with the copy.
             'shrink-0 justify-between gap-2 px-1 pb-3 pt-2',
-          variant === 'grid' && 'mx-1 my-1',
+          (variant === 'grid' || variant === 'fitted') && 'mx-1 my-1',
         )}
       >
         {showAdvertiseLink && (

@@ -205,6 +205,22 @@
   }
 }
 
+/* In a slot of fixed height (AdGrid's fitted card), the creative gives up
+ * height when the copy runs long, down to half. */
+.taboola-feed-ad--fitted {
+  & .item-thumbnail-href {
+    display: flex !important;
+    flex: 0 1 auto !important;
+    flex-direction: column;
+    min-height: 5rem;
+  }
+
+  & .thumbBlock_holder {
+    flex: 0 1 auto;
+    min-height: 5rem;
+  }
+}
+
 /* Next to posts showing their TLDR, AdGrid's creative takes their shorter
  * cover. */
 .taboola-feed-ad--short-cover .thumbBlock_holder {
