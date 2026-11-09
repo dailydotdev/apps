@@ -26,6 +26,22 @@ export const getCurrentWeekStart = (now: Date = new Date()): string => {
   return new Date(today - daysSinceMonday * DAY_MS).toISOString().slice(0, 10);
 };
 
+/**
+ * Distinct posts of the week below which there is nothing worth nudging
+ * about. The same bar the Friday notification uses.
+ */
+export const PICKS_HERO_MIN_SIGNALS = 3;
+
+/**
+ * Thursday to Sunday in the viewer's own time: late enough in the week to
+ * have read something, early enough to publish before it ends.
+ */
+export const isPicksNudgeDay = (now: Date = new Date()): boolean => {
+  const day = now.getDay();
+
+  return day === 0 || day >= 4;
+};
+
 /** Campaign id on post links from a picks page, so clicks can be attributed. */
 export const PICKS_CAMPAIGN_ID = 'share_picks';
 

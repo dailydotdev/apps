@@ -110,6 +110,7 @@ import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
 import { checkIsExtension } from '../lib/func';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { useLaptopLayout } from '../hooks/layout/useLaptopLayout';
+import { WeeklyPicksHero } from './picks/WeeklyPicksHero';
 import SearchMobileFiltersButton from './search/SearchMobileFiltersButton';
 
 import { ExploreSortMenu } from './shell/ExploreSortMenu';
@@ -1155,6 +1156,7 @@ export default function MainFeedLayout({
             query={searchQuery}
           />
         )}
+        {isHomePage && <WeeklyPicksHero />}
         {isRailPageHead && railContent}
         {homeHighlightsView && (
           // A screen tall, so a short list never pulls the rail back.

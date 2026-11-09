@@ -81,4 +81,6 @@ export enum PersistentContextKeys {
   PendingOpportunityId = 'pending_opportunity_id',
   ReadingReminderLastSeen = 'reading_reminder_last_seen',
   ReadingReminderPushPromptDismissed = 'reading_reminder_push_prompt_dismissed',
+  // The ISO week (Monday) whose picks card was closed; a new week brings it back
+  WeeklyPicksHeroDismissedWeek = 'weekly_picks_hero_dismissed_week',
 }

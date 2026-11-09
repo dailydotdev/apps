@@ -3,6 +3,7 @@ import {
   getIsoWeekNumber,
   getPickPostHref,
   isNewPicksViewer,
+  isPicksNudgeDay,
 } from './picks';
 
 describe('getIsoWeekNumber', () => {
@@ -31,6 +32,17 @@ describe('getCurrentWeekStart', () => {
     expect(getCurrentWeekStart(new Date('2026-11-09T00:00:00Z'))).toBe(
       '2026-11-09',
     );
+  });
+});
+
+describe('isPicksNudgeDay', () => {
+  it('should be Thursday to Sunday in local time', () => {
+    const local = (iso: string) => new Date(`${iso}T12:00:00`);
+    expect(isPicksNudgeDay(local('2026-11-02'))).toBe(false); // Monday
+    expect(isPicksNudgeDay(local('2026-11-04'))).toBe(false); // Wednesday
+    expect(isPicksNudgeDay(local('2026-11-05'))).toBe(true); // Thursday
+    expect(isPicksNudgeDay(local('2026-11-06'))).toBe(true); // Friday
+    expect(isPicksNudgeDay(local('2026-11-08'))).toBe(true); // Sunday
   });
 });
 
