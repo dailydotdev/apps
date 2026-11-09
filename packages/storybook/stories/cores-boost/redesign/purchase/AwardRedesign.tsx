@@ -127,7 +127,13 @@ export const AwardNoteRedesign = ({
               type={TypographyType.Callout}
               color={TypographyColor.Primary}
               tag={TypographyTag.Span}
+              className="inline-flex items-center gap-1 align-bottom"
             >
+              <Image
+                src={receiver.image}
+                alt=""
+                className="size-5 rounded-6 object-cover"
+              />
               {receiver.name}
             </Typography>{' '}
             will appreciate this award!
