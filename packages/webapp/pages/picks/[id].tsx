@@ -278,12 +278,17 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
             >
               {getPostsLabel(picks)}
             </Typography>
-            {isAuthor && typeof viewCount === 'number' && (
+            {isAuthor && (
+              // The line is there from the author's first paint and the
+              // count fills it in, so the list below does not move when
+              // the read lands.
               <Typography
                 type={TypographyType.Footnote}
                 color={TypographyColor.Tertiary}
               >
-                {getOpensLabel(viewCount)}
+                {typeof viewCount === 'number'
+                  ? getOpensLabel(viewCount)
+                  : '\u00a0'}
               </Typography>
             )}
           </div>
