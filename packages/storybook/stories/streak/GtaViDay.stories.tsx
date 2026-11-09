@@ -121,8 +121,10 @@ export const Widget: Story = {
 export const PopupWeekStrip: Story = {
   render: () => (
     <StreakData>
-      <div className="flex w-[22rem] flex-col rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4 pt-28">
-        <GtaViPopupStrip />
+      <div className="pb-28">
+        <div className="flex w-[22rem] flex-col rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4">
+          <GtaViPopupStrip />
+        </div>
       </div>
     </StreakData>
   ),

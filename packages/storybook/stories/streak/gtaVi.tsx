@@ -3,10 +3,7 @@ import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { addDays, subDays } from 'date-fns';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
-import {
-  HotIcon,
-  JoystickIcon,
-} from '@dailydotdev/shared/src/components/icons';
+import { HotIcon } from '@dailydotdev/shared/src/components/icons';
 import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons/ReadingStreak';
 import {
   IconSize,
@@ -53,12 +50,18 @@ const useTimezone = (): string => {
 };
 
 /** Production's Tooltip: hover on laptop, tap on phone and tablet. */
-const GtaViTooltip = ({ children }: { children: ReactNode }): ReactElement => {
+const GtaViTooltip = ({
+  side = 'top',
+  children,
+}: {
+  side?: 'top' | 'bottom';
+  children: ReactNode;
+}): ReactElement => {
   const timezone = useTimezone();
 
   return (
     <Tooltip
-      side="top"
+      side={side}
       showArrow
       enableMobileClick
       className="!p-0"
@@ -76,11 +79,7 @@ const GtaViTooltip = ({ children }: { children: ReactNode }): ReactElement => {
             <span className="absolute inset-0 bg-gradient-to-r from-background-subtle" />
           </span>
           <span className="relative flex items-center gap-1.5 font-bold typo-callout">
-            <JoystickIcon
-              secondary
-              size={IconSize.Small}
-              className="text-accent-cabbage-default"
-            />
+            <span aria-hidden>🎮</span>
             {getTitle(timezone)}
           </span>
           <span className="relative font-normal text-text-secondary typo-footnote">
@@ -225,7 +224,7 @@ export const GtaViPopupStrip = (): ReactElement => {
         const date = addDays(releaseDay, index - 4);
         if (index === 4) {
           return (
-            <GtaViTooltip key={date.getTime()}>
+            <GtaViTooltip key={date.getTime()} side="bottom">
               <button
                 type="button"
                 aria-label="GTA VI release day"
