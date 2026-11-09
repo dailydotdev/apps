@@ -139,6 +139,12 @@ export const getGtaViCopy = (today: Date): { title: string; body: string } => {
   };
 };
 
+// Vice City sunset: violet, magenta, pink, orange, gold, from the accent tokens.
+const sunsetStyle: CSSProperties = {
+  backgroundImage:
+    'linear-gradient(to bottom, color-mix(in srgb, var(--theme-accent-onion-default) 55%, var(--theme-accent-cabbage-default)) 0%, color-mix(in srgb, var(--theme-accent-cabbage-default) 55%, var(--theme-accent-bacon-default)) 32%, var(--theme-accent-bacon-default) 55%, var(--theme-accent-bun-default) 78%, color-mix(in srgb, var(--theme-accent-bun-default) 55%, var(--theme-accent-cheese-default)) 100%)',
+};
+
 /** Production's Tooltip: hover on laptop, tap on phone and tablet. */
 const GtaViTooltip = ({ children }: { children: ReactNode }): ReactElement => {
   const { today, forceOpen } = useScene();
@@ -181,12 +187,6 @@ const GtaViTooltip = ({ children }: { children: ReactNode }): ReactElement => {
       {children}
     </Tooltip>
   );
-};
-
-// Vice City sunset: violet, magenta, pink, orange, gold, from the accent tokens.
-const sunsetStyle: CSSProperties = {
-  backgroundImage:
-    'linear-gradient(to bottom, color-mix(in srgb, var(--theme-accent-onion-default) 55%, var(--theme-accent-cabbage-default)) 0%, color-mix(in srgb, var(--theme-accent-cabbage-default) 55%, var(--theme-accent-bacon-default)) 32%, var(--theme-accent-bacon-default) 55%, var(--theme-accent-bun-default) 78%, color-mix(in srgb, var(--theme-accent-bun-default) 55%, var(--theme-accent-cheese-default)) 100%)',
 };
 
 const GtaViDisc = ({
