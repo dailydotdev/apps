@@ -96,7 +96,7 @@ const GtaViDisc = ({
 }): ReactElement => (
   <span
     className={classNames(
-      'relative flex items-center justify-center rounded-full bg-gradient-to-br from-accent-cabbage-default via-accent-bacon-default to-accent-bun-default font-bold leading-none text-white',
+      'relative flex items-center justify-center rounded-full bg-gradient-to-b from-accent-cabbage-default via-accent-bacon-default to-accent-bun-default font-bold leading-none text-white',
       className,
     )}
   >
