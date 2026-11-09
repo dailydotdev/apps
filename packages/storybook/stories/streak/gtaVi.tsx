@@ -66,23 +66,22 @@ const GtaViTooltip = ({
       enableMobileClick
       className="!p-0"
       content={
-        <div className="relative flex w-full flex-col gap-1 overflow-hidden rounded-8 p-3 pr-24">
+        <div className="relative flex w-full flex-col gap-1 overflow-hidden rounded-8 p-3 pr-20">
+          <img
+            src={tooltipArt}
+            alt=""
+            aria-hidden
+            className="pointer-events-none absolute inset-0 size-full object-cover object-right"
+          />
           <span
             aria-hidden
-            className="pointer-events-none absolute inset-y-0 right-0 w-36"
-          >
-            <img
-              src={tooltipArt}
-              alt=""
-              className="size-full object-cover object-right"
-            />
-            <span className="absolute inset-0 bg-gradient-to-r from-background-subtle" />
-          </span>
-          <span className="relative flex items-center gap-1.5 font-bold typo-callout">
+            className="pointer-events-none absolute inset-0 bg-gradient-to-r from-overlay-primary-pepper from-20% to-transparent to-80%"
+          />
+          <span className="relative flex items-center gap-1.5 font-bold text-white typo-callout">
             <span aria-hidden>🎮</span>
             {getTitle(timezone)}
           </span>
-          <span className="relative font-normal text-text-secondary typo-footnote">
+          <span className="relative font-normal text-white typo-footnote">
             Here&apos;s a free Freeze Day so you can dive into Vice City without
             breaking your streak.
           </span>
