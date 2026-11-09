@@ -148,7 +148,6 @@ const GtaViTooltip = ({ children }: { children: ReactNode }): ReactElement => {
   return (
     <Tooltip
       side="bottom"
-      showArrow
       enableMobileClick
       open={forceOpen || undefined}
       avoidCollisions={!forceOpen}
