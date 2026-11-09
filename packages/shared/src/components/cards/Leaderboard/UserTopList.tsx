@@ -8,9 +8,10 @@ import { LeaderboardRowPlaceholder } from './LeaderboardRowPlaceholder';
 import { ElementPlaceholder } from '../../ElementPlaceholder';
 import { CurrentUserPositionRow } from './CurrentUserPositionRow';
 import { UserHighlight } from '../../widgets/PostUsersHighlights';
-import type { LoggedUser } from '../../../lib/user';
-import type { QuestLevel } from '../../../graphql/quests';
-import type { LeaderboardType } from '../../../graphql/leaderboard';
+import type {
+  LeaderboardType,
+  UserLeaderboard,
+} from '../../../graphql/leaderboard';
 import {
   runIconPopAnimation,
   runSparkAnimation,
@@ -22,11 +23,7 @@ import {
   QuestLevelProgressCircle,
 } from '../../quest/QuestLevelProgressCircle';
 
-export interface UserLeaderboard {
-  score: number;
-  user: LoggedUser;
-  level?: QuestLevel | null;
-}
+export type { UserLeaderboard };
 
 export function UserTopList({
   items,

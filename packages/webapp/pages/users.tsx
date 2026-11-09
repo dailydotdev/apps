@@ -3,8 +3,13 @@ import React from 'react';
 import type { GetStaticPropsResult } from 'next';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import type {
+  CompanyLeaderboard,
+  UserLeaderboard,
+} from '@dailydotdev/shared/src/graphql/leaderboard';
 import {
   HIGHEST_LEVEL_QUERY,
+  LEADERBOARD_LIST_LIMIT,
   LEADERBOARD_QUERY,
   LeaderboardType,
 } from '@dailydotdev/shared/src/graphql/leaderboard';
@@ -12,13 +17,9 @@ import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { ExploreHubHeader } from '@dailydotdev/shared/src/components/header/ExploreHubHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
-import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
-import { UserTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
-import type { CompanyLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard/CompanyTopList';
-import { CompanyTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard/CompanyTopList';
 import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
-import { SpotlightField } from '@dailydotdev/shared/src/components/spotlight/SpotlightTrigger';
-import { SpotlightScope } from '@dailydotdev/shared/src/components/spotlight/types';
+import type { LeaderboardBoards } from '@dailydotdev/shared/src/features/leaderboard/LeaderboardHub';
+import { LeaderboardHub } from '@dailydotdev/shared/src/features/leaderboard/LeaderboardHub';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
@@ -33,16 +34,19 @@ const seo: NextSeoProps = {
 };
 
 interface PageProps {
-  highestReputation: UserLeaderboard[];
-  longestStreak: UserLeaderboard[];
-  highestPostViews: UserLeaderboard[];
-  mostUpvoted: UserLeaderboard[];
-  mostReferrals: UserLeaderboard[];
-  mostReadingDays: UserLeaderboard[];
-  highestLevel: UserLeaderboard[];
-  isHighestLevelSupported: boolean;
-  mostVerifiedUsers: CompanyLeaderboard[];
+  boards: LeaderboardBoards;
+  companies: CompanyLeaderboard[];
 }
+
+type LeaderboardQueryResult = Record<
+  Exclude<
+    LeaderboardType,
+    | LeaderboardType.HighestLevel
+    | LeaderboardType.MostQuestsCompleted
+    | LeaderboardType.MostVerifiedUsers
+  >,
+  UserLeaderboard[]
+> & { mostVerifiedUsers: CompanyLeaderboard[] };
 
 const isHighestLevelSchemaMissing = (error: GraphQLError): boolean => {
   return (
@@ -54,92 +58,14 @@ const isHighestLevelSchemaMissing = (error: GraphQLError): boolean => {
   );
 };
 
-const LeaderboardPage = ({
-  highestReputation,
-  longestStreak,
-  highestPostViews,
-  mostUpvoted,
-  mostReferrals,
-  mostReadingDays,
-  highestLevel,
-  isHighestLevelSupported,
-  mostVerifiedUsers,
-}: PageProps): ReactElement => {
+const LeaderboardPage = ({ boards, companies }: PageProps): ReactElement => {
   const isLaptopLayout = useLaptopLayout();
 
   return (
     <>
       {isLaptopLayout && <ExploreHubHeader />}
-      <PageWrapperLayout>
-        <SpotlightField
-          placeholder="Search people"
-          scope={SpotlightScope.People}
-        />
-        <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-3">
-          {isHighestLevelSupported && (
-            <UserTopList
-              containerProps={{
-                title: 'Highest level',
-                titleHref: `/users/${LeaderboardType.HighestLevel}`,
-              }}
-              items={highestLevel}
-              showLevel
-            />
-          )}
-          <UserTopList
-            containerProps={{
-              title: 'Highest reputation',
-              titleHref: `/users/${LeaderboardType.HighestReputation}`,
-            }}
-            items={highestReputation}
-            leaderboardType={LeaderboardType.HighestReputation}
-          />
-          <UserTopList
-            containerProps={{
-              title: 'Longest streak',
-              titleHref: `/users/${LeaderboardType.LongestStreak}`,
-            }}
-            items={longestStreak}
-            concatScore={false}
-            leaderboardType={LeaderboardType.LongestStreak}
-          />
-          <UserTopList
-            containerProps={{
-              title: 'Highest post views',
-              titleHref: `/users/${LeaderboardType.HighestPostViews}`,
-            }}
-            items={highestPostViews}
-          />
-          <UserTopList
-            containerProps={{
-              title: 'Most upvoted',
-              titleHref: `/users/${LeaderboardType.MostUpvoted}`,
-            }}
-            items={mostUpvoted}
-          />
-          <UserTopList
-            containerProps={{
-              title: 'Most referrals',
-              titleHref: `/users/${LeaderboardType.MostReferrals}`,
-            }}
-            items={mostReferrals}
-          />
-          <UserTopList
-            containerProps={{
-              title: 'Most reading days',
-              titleHref: `/users/${LeaderboardType.MostReadingDays}`,
-            }}
-            items={mostReadingDays}
-            leaderboardType={LeaderboardType.MostReadingDays}
-          />
-          <CompanyTopList
-            containerProps={{
-              title: 'Most verified employees',
-              titleHref: `/users/${LeaderboardType.MostVerifiedUsers}`,
-            }}
-            items={mostVerifiedUsers}
-          />
-        </div>
+      <PageWrapperLayout className="flex flex-col gap-8 px-4 pb-6 pt-3 tablet:gap-10">
+        <LeaderboardHub boards={boards} companies={companies} />
       </PageWrapperLayout>
       <PublicPageSignupBanner />
     </>
@@ -160,20 +86,17 @@ export async function getStaticProps(): Promise<
   GetStaticPropsResult<PageProps>
 > {
   try {
-    const res =
-      await gqlClient.request<Omit<PageProps, 'highestLevel'>>(
-        LEADERBOARD_QUERY,
-      );
-
-    let highestLevel: UserLeaderboard[] = [];
-    let isHighestLevelSupported = false;
+    const { mostVerifiedUsers, ...res } =
+      await gqlClient.request<LeaderboardQueryResult>(LEADERBOARD_QUERY, {
+        limit: LEADERBOARD_LIST_LIMIT,
+      });
+    const boards: LeaderboardBoards = res;
 
     try {
       const levelRes = await gqlClient.request<{
         highestLevel: UserLeaderboard[];
-      }>(HIGHEST_LEVEL_QUERY, { limit: 10 });
-      highestLevel = levelRes.highestLevel ?? [];
-      isHighestLevelSupported = true;
+      }>(HIGHEST_LEVEL_QUERY, { limit: LEADERBOARD_LIST_LIMIT });
+      boards[LeaderboardType.HighestLevel] = levelRes.highestLevel ?? [];
     } catch (levelError: unknown) {
       const error = levelError as GraphQLError;
 
@@ -183,17 +106,7 @@ export async function getStaticProps(): Promise<
     }
 
     return {
-      props: {
-        highestReputation: res.highestReputation,
-        longestStreak: res.longestStreak,
-        highestPostViews: res.highestPostViews,
-        mostUpvoted: res.mostUpvoted,
-        mostReferrals: res.mostReferrals,
-        mostReadingDays: res.mostReadingDays,
-        highestLevel,
-        isHighestLevelSupported,
-        mostVerifiedUsers: res.mostVerifiedUsers,
-      },
+      props: { boards, companies: mostVerifiedUsers },
       revalidate: 3600,
     };
   } catch (err: unknown) {
@@ -205,17 +118,7 @@ export async function getStaticProps(): Promise<
       )
     ) {
       return {
-        props: {
-          highestReputation: [],
-          longestStreak: [],
-          highestPostViews: [],
-          mostUpvoted: [],
-          mostReferrals: [],
-          mostReadingDays: [],
-          highestLevel: [],
-          isHighestLevelSupported: false,
-          mostVerifiedUsers: [],
-        },
+        props: { boards: {}, companies: [] },
         revalidate: 60,
       };
     }

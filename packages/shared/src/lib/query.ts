@@ -300,6 +300,7 @@ export enum RequestKey {
   MarketingCtas = 'marketing_ctas',
   HackathonParticipation = 'hackathon_participation',
   BrowserExtensionInstalled = 'browser_extension_installed',
+  Leaderboard = 'leaderboard',
   LeaderboardPosition = 'leaderboard_position',
   ShellState = 'shell_state',
   AchievementTracker = 'achievement_tracker',
