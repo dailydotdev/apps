@@ -545,28 +545,6 @@ const PlanIncludes = ({ plan }: { plan: SquadPlan }): ReactElement => (
   </div>
 );
 
-const SummaryRow = ({
-  label,
-  value,
-  isBold,
-  isMuted,
-}: {
-  label: string;
-  value: string;
-  isBold?: boolean;
-  isMuted?: boolean;
-}): ReactElement => (
-  <div
-    className={classNames(
-      'flex justify-between gap-3',
-      isBold && 'border-t border-border-subtlest-tertiary pt-2 font-bold',
-    )}
-  >
-    <dt className={isBold ? undefined : 'text-text-secondary'}>{label}</dt>
-    <dd className={isMuted ? 'text-text-tertiary' : 'tabular-nums'}>{value}</dd>
-  </div>
-);
-
 const PaymentPanel = ({
   company,
   plan,
@@ -642,51 +620,39 @@ const PaymentPanel = ({
   }, [isPaddleReady]);
 
   return (
-    <StartupsStageSurface className="flex min-h-full w-full flex-col gap-6 p-2 laptop:p-6">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <h2 className="font-bold typo-title2">Payment</h2>
-          <p className="text-text-secondary typo-callout">{company.name}</p>
+    <StartupsStageSurface className="flex min-h-full w-full flex-col gap-4 p-2 laptop:p-6">
+      {/* The order summary Paddle asks for (items, renewal terms, tax and
+          total; its inline frame shows none of them) in two lines, so the
+          frame and its pay button start high enough to sit above the fold
+          (Ido, 2026-11-09: the button was easy to miss below it). */}
+      <div className="flex flex-col gap-1 border-b border-border-subtlest-tertiary pb-4">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="min-w-0 truncate font-bold typo-body">
+            {`${squadPlanDetails[plan].title} plan for ${company.name}`}
+          </h2>
+          <span className="shrink-0 font-bold tabular-nums typo-body">
+            {`${checkoutTotals ? formatTotal(checkoutTotals.total) : price} today`}
+          </span>
         </div>
+        <p className="text-text-tertiary typo-footnote">
+          {`${price} a month plus tax for your country. ${seats} ${
+            seats === 1 ? 'seat' : 'seats'
+          }, ${formatSquadPlanCredits(
+            plan,
+            cashbackPromo,
+          )} every month. Renews monthly, cancel any time.`}
+          {!!checkoutTotals?.discount &&
+            ` Discount: -${formatTotal(checkoutTotals.discount)}.`}
+        </p>
         <Button
-          className="laptop:hidden"
+          className="mt-1 self-start laptop:hidden"
           variant={ButtonVariant.Tertiary}
-          size={ButtonSize.Small}
+          size={ButtonSize.XSmall}
           onClick={onChangePlan}
         >
-          Change
+          Change plan
         </Button>
       </div>
-      <dl className="flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary p-4 typo-callout">
-        <SummaryRow
-          label={`${squadPlanDetails[plan].title} plan`}
-          value={price}
-        />
-        <SummaryRow
-          label="Includes"
-          value={`${seats} ${seats === 1 ? 'seat' : 'seats'}, ${formatSquadPlanCredits(plan, cashbackPromo)} every month`}
-          isMuted
-        />
-        {!!checkoutTotals?.discount && (
-          <SummaryRow
-            label="Discount"
-            value={`-${formatTotal(checkoutTotals.discount)}`}
-          />
-        )}
-        <SummaryRow
-          label="Tax"
-          value="Added by Paddle for your country"
-          isMuted
-        />
-        <SummaryRow
-          label="Due today"
-          value={checkoutTotals ? formatTotal(checkoutTotals.total) : price}
-          isBold
-        />
-        <p className="text-text-tertiary typo-footnote">
-          Renews every month. Cancel any time, your page and posts stay.
-        </p>
-      </dl>
       {isTimedOut && !isPaddleReady ? (
         <CharmEmptyState
           placement={CharmEmptyStatePlacement.Inline}
@@ -768,6 +734,7 @@ const PlanStep = ({
       current={CheckoutStage.Plan}
       answers={answers}
       isTall
+      isAsideFlowing
       aside={isLaptop && payment}
     >
       <CheckoutTitle
