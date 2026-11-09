@@ -6,7 +6,7 @@ import { LogEvent, TargetType } from '../../lib/log';
 export type LeaderboardBoardSurface = 'popover' | 'sheet' | 'page';
 
 /** Where on the page a person was pressed. */
-export type LeaderboardUserPlacement = 'top reputation' | 'standouts';
+export type LeaderboardUserPlacement = 'top reputation' | 'standouts' | 'board';
 
 export const leaderboardBoardClickEvent = (
   type: LeaderboardType,
@@ -35,7 +35,8 @@ export const leaderboardUserClickEvent = ({
   userId: string;
   placement: LeaderboardUserPlacement;
   board: LeaderboardType;
-  rank: number;
+  /** Left out for your own pinned row, which has no counted rank past the cap. */
+  rank?: number;
 }): LogEventData => ({
   event_name: LogEvent.Click,
   target_type: TargetType.LeaderboardUser,

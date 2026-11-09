@@ -42,9 +42,12 @@ const mockPositions = (
   );
 };
 
+const createClient = () =>
+  new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
 const renderCard = (user: LoggedUser | undefined = loggedUser) =>
   render(
-    <TestBootProvider client={new QueryClient()} auth={{ user }}>
+    <TestBootProvider client={createClient()} auth={{ user }}>
       <LeaderboardRankCard getBoard={() => []} />
     </TestBootProvider>,
   );
@@ -103,6 +106,29 @@ describe('LeaderboardRankCard', () => {
       ),
     ).toBeInTheDocument();
     await waitFor(() => expect(nock.isDone()).toBe(true));
+    expect(screen.queryAllByRole('button', { name: 'Snapshot' })).toHaveLength(
+      0,
+    );
+  });
+
+  it('should say the rank is unavailable when the answer fails', async () => {
+    [
+      LeaderboardType.HighestReputation,
+      LeaderboardType.LongestStreak,
+      LeaderboardType.MostReadingDays,
+    ].forEach((type) =>
+      mockGraphQL({
+        request: { query: LEADERBOARD_POSITION_QUERY, variables: { type } },
+        result: { errors: [{ message: 'boom' } as never] },
+      }),
+    );
+
+    renderCard();
+
+    await screen.findByText(
+      'Your rank on Highest reputation isn’t available right now',
+    );
+    expect(screen.getByText('Try again in a moment.')).toBeInTheDocument();
     expect(screen.queryAllByRole('button', { name: 'Snapshot' })).toHaveLength(
       0,
     );

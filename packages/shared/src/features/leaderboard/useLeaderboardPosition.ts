@@ -35,6 +35,7 @@ interface UseLeaderboardPosition {
   position?: LeaderboardPosition | null;
   state: LeaderboardRankState;
   isLoading: boolean;
+  isError: boolean;
 }
 
 /** Your rank on one board, where production can answer for it. */
@@ -43,7 +44,7 @@ export const useLeaderboardPosition = (
 ): UseLeaderboardPosition => {
   const { user, isAuthReady } = useAuthContext();
   const enabled = isAuthReady && !!user && isLeaderboardPositionSupported(type);
-  const { data, isPending } = useQuery({
+  const { data, isPending, isError } = useQuery({
     ...leaderboardPositionQueryOptions(user, type),
     enabled,
   });
@@ -52,5 +53,6 @@ export const useLeaderboardPosition = (
     position: data,
     state: getLeaderboardRankState(data),
     isLoading: enabled && isPending,
+    isError,
   };
 };

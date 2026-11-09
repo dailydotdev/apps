@@ -1,7 +1,13 @@
 import React from 'react';
 import nock from 'nock';
 import { QueryClient } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { mockDesktop } from '../../../__tests__/helpers/media';
@@ -32,10 +38,13 @@ const makeItems = (count: number, prefix = 'Dev'): UserLeaderboard[] =>
     },
   }));
 
+const createClient = () =>
+  new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
 const renderTile = (items: UserLeaderboard[]) =>
   render(
     <TestBootProvider
-      client={new QueryClient()}
+      client={createClient()}
       auth={{ user: undefined }}
       log={{ logEvent }}
     >
@@ -57,7 +66,10 @@ describe('LeaderboardBoardTile', () => {
     const items = makeItems(LEADERBOARD_LIST_LIMIT);
     renderTile(items);
 
-    expect(screen.getByText('Dev 0')).toBeInTheDocument();
+    expect(screen.getByText('Dev 0').closest('a')).toHaveAttribute(
+      'href',
+      '/Dev-0',
+    );
     expect(screen.getByText('Dev 3')).toBeInTheDocument();
     expect(screen.queryByText('Dev 4')).not.toBeInTheDocument();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -70,9 +82,11 @@ describe('LeaderboardBoardTile', () => {
       result: { data: { highestPostViews: makeItems(20, 'Top') } },
     });
 
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Highest post views, open top 50' }),
-    );
+    const cue = screen.getByRole('link', {
+      name: 'Highest post views, open top 50',
+    });
+    expect(cue).toHaveAttribute('href', '/users/highestPostViews');
+    fireEvent.click(cue);
 
     const dialog = await screen.findByRole('dialog');
     expect(dialog).toHaveAccessibleName('Highest post views · Top 50');
@@ -84,11 +98,38 @@ describe('LeaderboardBoardTile', () => {
     });
     await screen.findByText('Top 19');
     expect(nock.isDone()).toBe(true);
+    expect(screen.getByText('Top 19').closest('a')).toHaveAttribute(
+      'href',
+      '/Top-19',
+    );
 
     fireEvent.keyDown(document, { key: 'Escape' });
     await waitFor(() =>
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
     );
+  });
+
+  it('should fall back to the page rows with a retry when the list fails', async () => {
+    renderTile(makeItems(LEADERBOARD_LIST_LIMIT));
+    mockGraphQL({
+      request: {
+        query: HIGHEST_POST_VIEWS_QUERY,
+        variables: { limit: LEADERBOARD_TOP_LIMIT },
+      },
+      result: { errors: [{ message: 'boom' } as never] },
+    });
+
+    fireEvent.click(
+      screen.getByRole('link', { name: 'Highest post views, open top 50' }),
+    );
+
+    await screen.findByText('Couldn’t load the full list.');
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).not.toHaveAttribute('aria-busy');
+    expect(within(dialog).getByText('Dev 11')).toBeInTheDocument();
+    expect(
+      within(dialog).getByRole('button', { name: 'Retry' }),
+    ).toBeInTheDocument();
   });
 
   it('should say how many a short board has and not open an empty one', () => {
@@ -97,7 +138,7 @@ describe('LeaderboardBoardTile', () => {
     expect(screen.getByText('All 5')).toBeInTheDocument();
 
     rerender(
-      <TestBootProvider client={new QueryClient()} auth={{ user: undefined }}>
+      <TestBootProvider client={createClient()} auth={{ user: undefined }}>
         <LeaderboardUserBoardTile
           type={LeaderboardType.HighestPostViews}
           items={[]}
@@ -108,6 +149,6 @@ describe('LeaderboardBoardTile', () => {
     expect(
       screen.getByText('Nothing here right now. Check back soon.'),
     ).toBeInTheDocument();
-    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });
 });

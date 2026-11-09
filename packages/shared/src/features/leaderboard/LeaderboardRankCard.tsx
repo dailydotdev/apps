@@ -12,10 +12,10 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import type {
   LeaderboardPosition,
-  LeaderboardType,
   UserLeaderboard,
 } from '../../graphql/leaderboard';
 import {
+  LeaderboardType,
   leaderboardPositionQueryOptions,
   leaderboardTypeToTitle,
 } from '../../graphql/leaderboard';
@@ -101,12 +101,16 @@ export const LeaderboardRankCard = ({
   const boardIndex = LEADERBOARD_POSITION_BOARDS.findIndex(
     (item) => item.type === board,
   );
-  const position = positions[boardIndex].data;
+  const { data: position, isError } = positions[boardIndex];
   const state = getLeaderboardRankState(position);
   const title = leaderboardTypeToTitle[board];
   const score = position?.score ?? 0;
 
   const headline = ((): string => {
+    // A failed answer is not "no rank": it says nothing about you.
+    if (isError) {
+      return `Your rank on ${title} isn’t available right now`;
+    }
     if (state === 'empty' || !position) {
       return `No rank yet on ${title}`;
     }
@@ -120,17 +124,20 @@ export const LeaderboardRankCard = ({
   })();
 
   const detail = ((): ReactNode => {
+    if (isError) {
+      return 'Try again in a moment.';
+    }
     if (state === 'empty') {
       return getLeaderboardBoard(board).howTo;
     }
-    if (board === 'highestReputation') {
+    if (board === LeaderboardType.HighestReputation) {
       return (
         <div className="flex items-center gap-1">
           <LeaderboardReputation value={score} large /> reputation in total
         </div>
       );
     }
-    if (board === 'longestStreak') {
+    if (board === LeaderboardType.LongestStreak) {
       return (
         <span className="flex items-center gap-1">
           <LeaderboardStreak days={score} large /> days in a row
@@ -156,7 +163,7 @@ export const LeaderboardRankCard = ({
   // The profile snapshot flow: the card staged off-screen at its full size,
   // captured, copied, then the snapshot share panel.
   const snapshot = (size: ButtonSize): ReactNode =>
-    state === 'empty' || !position ? undefined : (
+    isError || state === 'empty' || !position ? undefined : (
       <ProfileSnapshotButton
         origin={Origin.Leaderboard}
         filename={`daily-leaderboard-${board}`}
