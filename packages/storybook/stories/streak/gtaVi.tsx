@@ -50,18 +50,12 @@ const useTimezone = (): string => {
 };
 
 /** Production's Tooltip: hover on laptop, tap on phone and tablet. */
-const GtaViTooltip = ({
-  side = 'top',
-  children,
-}: {
-  side?: 'top' | 'bottom';
-  children: ReactNode;
-}): ReactElement => {
+const GtaViTooltip = ({ children }: { children: ReactNode }): ReactElement => {
   const timezone = useTimezone();
 
   return (
     <Tooltip
-      side={side}
+      side="bottom"
       showArrow
       enableMobileClick
       className="!p-0"
@@ -71,17 +65,17 @@ const GtaViTooltip = ({
             src={tooltipArt}
             alt=""
             aria-hidden
-            className="pointer-events-none absolute inset-0 size-full object-cover object-right"
+            className="pointer-events-none absolute inset-y-0 right-0 h-full w-4/5 object-cover object-right"
           />
           <span
             aria-hidden
-            className="pointer-events-none absolute inset-0 bg-gradient-to-r from-overlay-primary-pepper from-20% to-transparent to-80%"
+            className="pointer-events-none absolute inset-0 bg-gradient-to-r from-background-subtle from-30% to-transparent to-85%"
           />
-          <span className="relative flex items-center gap-1.5 font-bold text-white typo-callout">
+          <span className="relative flex items-center gap-1.5 font-bold text-text-primary typo-callout">
             <span aria-hidden>🎮</span>
             {getTitle(timezone)}
           </span>
-          <span className="relative font-normal text-white typo-footnote">
+          <span className="relative font-normal text-text-secondary typo-footnote">
             Here&apos;s a free Freeze Day so you can dive into Vice City without
             breaking your streak.
           </span>
@@ -106,7 +100,20 @@ const GtaViDisc = ({
       className,
     )}
   >
-    <span className="tracking-tighter">VI</span>
+    <svg viewBox="0 0 100 100" className="size-full" aria-hidden>
+      <text
+        x="50"
+        y="52"
+        textAnchor="middle"
+        dominantBaseline="central"
+        textLength="80"
+        lengthAdjust="spacingAndGlyphs"
+        fontSize="64"
+        fill="currentColor"
+      >
+        VI
+      </text>
+    </svg>
     {isToday && (
       <span
         aria-hidden
@@ -148,10 +155,7 @@ export const GtaViCalendar = (): ReactElement => {
                 aria-label="GTA VI release day"
                 className="place-self-center rounded-full"
               >
-                <GtaViDisc
-                  className="size-4 text-[1.125rem]"
-                  isToday={isToday}
-                />
+                <GtaViDisc className="size-4" isToday={isToday} />
               </button>
             </GtaViTooltip>
           );
@@ -223,18 +227,13 @@ export const GtaViPopupStrip = (): ReactElement => {
         const date = addDays(releaseDay, index - 4);
         if (index === 4) {
           return (
-            <GtaViTooltip key={date.getTime()} side="bottom">
+            <GtaViTooltip key={date.getTime()}>
               <button
                 type="button"
                 aria-label="GTA VI release day"
                 className="relative flex flex-col items-center gap-1"
               >
-                <GtaViDisc
-                  className={classNames(
-                    iconSizeToClassName[IconSize.Medium],
-                    'text-[1.6875rem]',
-                  )}
-                />
+                <GtaViDisc className={iconSizeToClassName[IconSize.Medium]} />
                 {dateFormatInTimezone(date, 'iiiii', timezone)}
               </button>
             </GtaViTooltip>

@@ -61,7 +61,7 @@ const StreakPanel = ({ width = 'w-80' }: { width?: string }): ReactElement => (
         </span>
         <span className="text-text-tertiary">{mockUser.timezone}</span>
       </div>
-      <div className="pt-24">
+      <div className="pb-24">
         <GtaViCalendar />
       </div>
     </div>
@@ -109,7 +109,7 @@ export const Phone: Story = {
 export const Widget: Story = {
   render: () => (
     <StreakData>
-      <div className="pt-24">
+      <div className="pb-24">
         <GtaViWidget />
       </div>
     </StreakData>
