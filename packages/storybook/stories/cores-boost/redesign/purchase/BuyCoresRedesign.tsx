@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
+import type { Paddle } from '@paddle/paddle-js';
 import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { ModalBody } from '@dailydotdev/shared/src/components/modals/common/ModalBody';
 import { ModalKind } from '@dailydotdev/shared/src/components/modals/common/types';
@@ -18,7 +19,12 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import { getRecommendedCorePrice } from '@dailydotdev/shared/src/components/cores/recommendedCorePrice';
-import type { CoreProductOption } from '@dailydotdev/shared/src/contexts/BuyCoresContext/types';
+import type {
+  BuyCoresContextData,
+  CoreProductOption,
+} from '@dailydotdev/shared/src/contexts/BuyCoresContext/types';
+import { BuyCoresContext } from '@dailydotdev/shared/src/contexts/BuyCoresContext/types';
+import { CoreOptionList } from '@dailydotdev/shared/src/components/cores/CoreOptionList';
 import { coresPricesQueryOptions } from '@dailydotdev/shared/src/graphql/njord';
 import type { Product } from '@dailydotdev/shared/src/graphql/njord';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -37,10 +43,11 @@ import { NeededCopy } from '../../flows/purchase/BuyCoresFixed';
 import friendshipArt from '../../assets/cores-checkout-friendship.png';
 import { Row } from './kit';
 import { Deals } from './Deals';
+import { noop } from '../../real/providers';
 
 // BuyCoresFixedModal (flows/purchase/BuyCoresFixed.tsx) in the redesign's
 // line. Same packs, preselection, copy and actions; new: a "what it's for"
-// card leads, packs are calm rows that say whether they cover it, and the
+// card leads, packs are production's list, and the
 // friendship art fills the right side until a pack is picked, then the
 // checkout takes its place, as the Paddle iframe does in production.
 
@@ -80,90 +87,6 @@ const CheckoutStandIn = ({
     </Button>
   </div>
 );
-
-const PackList = ({
-  minCores,
-  selected,
-  onSelect,
-}: {
-  minCores: number;
-  selected?: CoreProductOption;
-  onSelect: (pack: CoreProductOption) => void;
-}): ReactElement => {
-  const { user, isLoggedIn } = useAuthContext();
-  const { data: prices, isPending } = useQuery(
-    coresPricesQueryOptions({ user, isLoggedIn }),
-  );
-  const recommended = getRecommendedCorePrice({ prices, minCores });
-
-  return (
-    <ul className="flex flex-col gap-1" role="radiogroup">
-      {isPending &&
-        Array.from({ length: 6 }).map((_, index) => (
-          <li
-            // eslint-disable-next-line react/no-array-index-key
-            key={index}
-            className="h-14 animate-pulse rounded-14 bg-surface-float"
-          />
-        ))}
-      {prices?.map((price) => {
-        const cores = price.metadata.coresValue ?? 0;
-        const isSelected = selected?.id === price.priceId;
-        const isRecommended = price.priceId === recommended?.priceId;
-        const isNotEnough = !!minCores && cores < minCores;
-
-        return (
-          <li key={price.priceId}>
-            <button
-              type="button"
-              role="radio"
-              aria-checked={isSelected}
-              onClick={() => onSelect({ id: price.priceId, value: cores })}
-              className={classNames(
-                'flex w-full items-center gap-3 rounded-14 border px-3 py-2 text-left transition-colors',
-                isSelected
-                  ? 'border-action-cores-default bg-action-cores-float'
-                  : 'border-transparent hover:bg-surface-hover',
-                isNotEnough && !isSelected && 'opacity-64',
-              )}
-            >
-              <Image
-                className="size-9"
-                src={getCoreCurrencyImage(cores)}
-                fallbackSrc={coreImage}
-              />
-              <div className="flex min-w-0 flex-1 flex-col">
-                <Typography type={TypographyType.Subhead} bold>
-                  {price.metadata.title}
-                </Typography>
-                {isRecommended && (
-                  <Typography
-                    type={TypographyType.Caption1}
-                    className="text-action-cores-default"
-                    bold
-                  >
-                    Recommended
-                  </Typography>
-                )}
-              </div>
-              <Typography
-                type={TypographyType.Callout}
-                color={
-                  isSelected
-                    ? TypographyColor.Primary
-                    : TypographyColor.Tertiary
-                }
-                bold={isSelected}
-              >
-                {price.price.formatted}
-              </Typography>
-            </button>
-          </li>
-        );
-      })}
-    </ul>
-  );
-};
 
 /** The friendship art that stood in for the checkout video */
 const FriendshipPanel = ({ children }: { children?: ReactNode }) => (
@@ -262,6 +185,20 @@ export const BuyCoresRedesignModal = ({
 
   const pay = () => selected && onPay(selected);
 
+  // Production's pack list. It needs a Paddle to enable its packs and
+  // preselects on its own, so the checkout opens on a real click instead
+  const packsContext: BuyCoresContextData = {
+    paddle: {} as Paddle,
+    openCheckout: noop,
+    amountNeeded: cost,
+    minCoresToBuy: missing,
+    selectedProduct: selected,
+    setSelectedProduct: setSelected,
+    activeStep: 'INTRO',
+    setActiveStep: noop,
+    origin,
+  };
+
   const options = (
     <div className="flex flex-col gap-4">
       <NeededCopy
@@ -272,18 +209,25 @@ export const BuyCoresRedesignModal = ({
         selected={selected}
       />
       <Deals withStartups={purpose === 'boost'} />
-      <div className="flex flex-col gap-2">
-        <Typography type={TypographyType.Callout} bold>
-          Choose how many Cores to buy
+      <div>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          Choose how many Cores to buy.
         </Typography>
-        <PackList
-          minCores={missing}
-          selected={selected}
-          onSelect={(option) => {
-            setSelected(option);
-            setHasPicked(true);
+        {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
+        <div
+          onClickCapture={(event) => {
+            if ((event.target as HTMLElement).closest('[role="radio"]')) {
+              setHasPicked(true);
+            }
           }}
-        />
+        >
+          <BuyCoresContext.Provider value={packsContext}>
+            <CoreOptionList />
+          </BuyCoresContext.Provider>
+        </div>
       </div>
     </div>
   );

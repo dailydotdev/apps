@@ -11,10 +11,6 @@ import type { Campaign } from '@dailydotdev/shared/src/graphql/campaigns';
 import { routeTo } from '../today/production';
 import { CoresProviders } from '../real/providers';
 import { coresHandlers } from '../real/handlers';
-import {
-  BoostEndedNotification,
-  NotificationsColumn,
-} from '../flows/after-boost/BoostNotifications';
 import { NotificationsPage } from '../real/pages';
 import {
   durationOf,
@@ -60,7 +56,7 @@ const lastBoostOf = (campaign: Campaign) => {
   };
 };
 
-/** Boost again from the ended notification, over the notifications page */
+/** Boost again from the ended notification, over production's notifications */
 const BoostAgainScreen = ({
   onSeeBoost,
   initialScreen,
@@ -73,12 +69,7 @@ const BoostAgainScreen = ({
 
   return (
     <>
-      <NotificationsColumn>
-        <BoostEndedNotification
-          campaign={endedCampaign}
-          onBoostAgain={() => setIsOpen(true)}
-        />
-      </NotificationsColumn>
+      <NotificationsPage />
       {isOpen && (
         <BoostAgainModal
           isOpen
