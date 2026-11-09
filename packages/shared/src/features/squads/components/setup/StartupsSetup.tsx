@@ -202,7 +202,7 @@ export const AgentConnect = ({
       ))}
     </div>
     {/* Every client is laid out at once, so switching moves nothing below. */}
-    <div className="grid">
+    <div className="grid grid-cols-1">
       {agentClients.map((option) => {
         const setup = agentClientSetup[option];
 
