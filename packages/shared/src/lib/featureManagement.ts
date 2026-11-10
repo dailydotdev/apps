@@ -123,6 +123,8 @@ export const boostSettingsFeature = new Feature('boost_settings', {
   default_days: 7,
 });
 
+export const boostAudienceFeature = new Feature('boost_audience', false);
+
 export const adImprovementsV3Feature = new Feature('ad_improvements_v3', false);
 
 // Experiment: ad disclosure wording. Control names the advertiser ("Promoted by

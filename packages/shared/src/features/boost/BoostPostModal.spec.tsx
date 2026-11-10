@@ -17,6 +17,8 @@ import { SQUAD_WALLET_QUERY } from '../../graphql/squadWallet';
 import { SourceType } from '../../graphql/sources';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
+import { boostAudienceFeature } from '../../lib/featureManagement';
+import type { Feature } from '../../lib/featureManagement';
 
 // Mock the hooks
 jest.mock('./useCampaignMutation');
@@ -306,6 +308,66 @@ describe('BoostPostModal', () => {
 
       // Should not call onBoostPost, should trigger BUY_CORES screen instead
       expect(mockOnBoostPost).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Target audience', () => {
+    beforeEach(() => {
+      // Tests read flags at their default, so the default turns it on
+      jest.replaceProperty(
+        boostAudienceFeature as Feature<boolean>,
+        'defaultValue',
+        true,
+      );
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    const startBoost = () =>
+      fireEvent.click(screen.getByRole('button', { name: /Boost post for/ }));
+
+    it("should keep the post's own tags worldwide until the audience is edited", () => {
+      const onStartBoost = jest.fn();
+      mockUsePostBoostMutation.mockReturnValue({
+        ...defaultMockBoostMutation,
+        onStartBoost,
+      });
+
+      renderBoostPostModal(createMockPost({ tags: ['javascript'] }));
+
+      expect(screen.getByText('#javascript')).toBeInTheDocument();
+      expect(screen.getByText('Worldwide')).toBeInTheDocument();
+      startBoost();
+      expect(onStartBoost).toHaveBeenCalledWith(
+        expect.objectContaining({ audience: undefined }),
+      );
+    });
+
+    it('should boost and estimate the picked countries with the post tags', () => {
+      const onStartBoost = jest.fn();
+      mockUsePostBoostMutation.mockReturnValue({
+        ...defaultMockBoostMutation,
+        onStartBoost,
+      });
+
+      renderBoostPostModal(createMockPost({ tags: ['javascript'] }));
+
+      fireEvent.click(screen.getAllByRole('button', { name: 'Edit' })[1]);
+      fireEvent.click(screen.getByText('Choose countries'));
+      fireEvent.click(screen.getByLabelText('Add United States'));
+
+      const audience = { tags: ['javascript'], countries: ['US'] };
+      expect(mockUsePostBoostEstimation).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          query: expect.objectContaining({ audience }),
+        }),
+      );
+      startBoost();
+      expect(onStartBoost).toHaveBeenCalledWith(
+        expect.objectContaining({ audience }),
+      );
     });
   });
 
