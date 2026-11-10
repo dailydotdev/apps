@@ -1,11 +1,14 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import type { Picks, PicksPost, PicksWeekSignals } from '../../graphql/picks';
+import type {
+  Picks,
+  PicksWeekPost,
+  PicksWeekSignals,
+} from '../../graphql/picks';
 import { getNewPicksPath, getPicksPath } from '../../graphql/picks';
-import { webappUrl } from '../../lib/constants';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
-import { getAbsoluteWebappUrl } from '../../lib/links';
+import { getAbsoluteWebappUrl, toWebappHref } from '../../lib/links';
 import { LogEvent, Origin } from '../../lib/log';
 import { ReferralCampaignKey } from '../../lib/referral';
 import { useLogContext } from '../../contexts/LogContext';
@@ -104,7 +107,7 @@ const PicksStack = ({
   size,
   className,
 }: {
-  posts: PicksPost[];
+  posts: PicksWeekPost[];
   badges: 'question' | 'ranked';
   size: 'small' | 'large';
   className?: string;
@@ -301,7 +304,7 @@ export interface WeeklyPicksHeroCardProps {
   variant?: WeeklyPicksHeroVariant;
   signals?: PicksWeekSignals | null;
   /** The reader's week, for the nudge's thumbnails. */
-  suggestions?: PicksPost[];
+  weekPosts?: PicksWeekPost[];
   picks?: Picks | null;
   viewCount?: number | null;
   className?: string;
@@ -319,7 +322,7 @@ export function WeeklyPicksHeroCard({
   state,
   variant = 'strip',
   signals,
-  suggestions = [],
+  weekPosts = [],
   picks,
   viewCount = null,
   className,
@@ -388,7 +391,7 @@ export function WeeklyPicksHeroCard({
     );
   }
 
-  const href = `${webappUrl}${getNewPicksPath({ origin: HERO_ORIGIN }).slice(1)}`;
+  const href = toWebappHref(getNewPicksPath({ origin: HERO_ORIGIN }));
   const headline: Headline = signals
     ? getNudgeHeadline(signals)
     : {
@@ -413,7 +416,7 @@ export function WeeklyPicksHeroCard({
           </Button>
         </Link>
       )}
-      stack={{ posts: suggestions, badges: 'question' }}
+      stack={{ posts: weekPosts, badges: 'question' }}
       onDismiss={onDismiss}
     />
   );
@@ -441,7 +444,7 @@ export function WeeklyPicksHero({
     shouldShow,
     state,
     signals,
-    suggestions,
+    weekPosts,
     picks,
     viewCount,
     onCta,
@@ -474,7 +477,7 @@ export function WeeklyPicksHero({
       state={state}
       variant={isLaptopLayout ? 'strip' : 'panel'}
       signals={signals}
-      suggestions={suggestions}
+      weekPosts={weekPosts}
       picks={picks}
       viewCount={viewCount}
       onCta={onCta}

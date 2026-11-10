@@ -33,14 +33,23 @@ export const getCurrentWeekStart = (now: Date = new Date()): string => {
 export const PICKS_HERO_MIN_SIGNALS = 3;
 
 /**
- * Thursday to Sunday in the viewer's own time: late enough in the week to
- * have read something, early enough to publish before it ends.
+ * Thursday to Sunday, on the same UTC week as the API's picks and the
+ * dismissal key, so the window ends exactly when the week rolls over: late
+ * enough in the week to have read something, early enough to publish
+ * before it ends.
  */
 export const isPicksNudgeDay = (now: Date = new Date()): boolean => {
-  const day = now.getDay();
+  const day = now.getUTCDay();
 
   return day === 0 || day >= 4;
 };
+
+/**
+ * How long the home feed waits for the card's verdict before painting
+ * without it: about the feed's own round trip. A card that misses it
+ * waits for the next load rather than landing on posts already drawn.
+ */
+export const PICKS_HERO_WAIT_MS = 2000;
 
 /** Campaign id on post links from a picks page, so clicks can be attributed. */
 export const PICKS_CAMPAIGN_ID = 'share_picks';

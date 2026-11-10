@@ -127,10 +127,15 @@ export const PICKS_QUERY = gql`
 `;
 
 /** The week's distinct posts by strongest signal, as the API attributes them */
+/** A post from the reader's week, enough for a thumbnail. */
+export type PicksWeekPost = Pick<PicksPost, 'id' | 'image'>;
+
 export interface PicksWeekSignals {
   upvotes: number;
   bookmarks: number;
   reads: number;
+  /** Up to three of the week's posts, strongest signal first. */
+  posts: PicksWeekPost[];
 }
 
 export const PICKS_WEEK_SIGNALS_QUERY = gql`
@@ -139,6 +144,10 @@ export const PICKS_WEEK_SIGNALS_QUERY = gql`
       upvotes
       bookmarks
       reads
+      posts {
+        id
+        image
+      }
     }
   }
 `;

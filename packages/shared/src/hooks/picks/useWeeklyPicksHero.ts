@@ -1,9 +1,12 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import type { Picks, PicksPost, PicksWeekSignals } from '../../graphql/picks';
+import type {
+  Picks,
+  PicksWeekPost,
+  PicksWeekSignals,
+} from '../../graphql/picks';
 import {
   myCurrentPicksQueryOptions,
-  picksSuggestionsQueryOptions,
   picksViewCountQueryOptions,
   picksWeekSignalsQueryOptions,
 } from '../../graphql/picks';
@@ -11,6 +14,7 @@ import {
   getCurrentWeekStart,
   isPicksNudgeDay,
   PICKS_HERO_MIN_SIGNALS,
+  PICKS_HERO_WAIT_MS,
 } from '../../lib/picks';
 import { featureWeeklyPicks } from '../../lib/featureManagement';
 import { LogEvent, Origin } from '../../lib/log';
@@ -38,6 +42,8 @@ export const PICKS_HERO_THUMBNAILS = 3;
 interface UseWeeklyPicksHeroProps {
   /** Off on every page but the home feed, where the card is mounted. */
   enabled?: boolean;
+  /** The feed's budget for the verdict; past it, no card this visit. */
+  waitMs?: number;
 }
 
 export interface UseWeeklyPicksHero {
@@ -50,7 +56,7 @@ export interface UseWeeklyPicksHero {
   state: WeeklyPicksHeroState | null;
   signals: PicksWeekSignals | null;
   /** Posts from the reader's week to show on the nudge, up to three. */
-  suggestions: PicksPost[];
+  weekPosts: PicksWeekPost[];
   picks: Picks | null;
   viewCount: number | null;
   /**
@@ -72,6 +78,7 @@ export const countSignals = (signals: PicksWeekSignals): number =>
  */
 export const useWeeklyPicksHero = ({
   enabled = true,
+  waitMs = PICKS_HERO_WAIT_MS,
 }: UseWeeklyPicksHeroProps = {}): UseWeeklyPicksHero => {
   const { user, isLoggedIn, isAuthReadyOrCached } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -87,30 +94,27 @@ export const useWeeklyPicksHero = ({
     enabled && isLoggedIn && !!isEnabled && isDismissFetched && !isDismissed;
 
   // Best effort, no retries: the feed is waiting on these, and a failed
-  // request just means no card this visit.
-  const { data: picks, isFetched: isPicksFetched } = useQuery({
+  // request just means no card this visit. A picks query that fails is
+  // not "no picks": the reader may well have published, so no nudge either.
+  const {
+    data: picks,
+    isFetched: isPicksFetched,
+    isError: isPicksError,
+  } = useQuery({
     ...myCurrentPicksQueryOptions(user),
     enabled: canEvaluate,
     retry: false,
   });
   const isNudgeDay = isPicksNudgeDay();
   // Alongside the picks rather than after them, so the verdict takes one
-  // round trip, not two.
-  const isNudgeCandidate = canEvaluate && isNudgeDay && !picks;
+  // round trip, not two. The signals bring the week's posts for the stack.
+  const isNudgeCandidate = canEvaluate && isNudgeDay && !picks && !isPicksError;
   const { data: signals, isFetched: isSignalsFetched } = useQuery({
     ...picksWeekSignalsQueryOptions(user),
     enabled: isNudgeCandidate,
     retry: false,
   });
   const isNudge = !!signals && countSignals(signals) >= PICKS_HERO_MIN_SIGNALS;
-  // The reader's own posts, for the nudge's thumbnails. The card waits for
-  // the answer: the stack takes the left of the card, so painting it in
-  // late would push the copy aside.
-  const { data: suggestions, isFetched: isSuggestionsFetched } = useQuery({
-    ...picksSuggestionsQueryOptions(user),
-    enabled: isNudgeCandidate && isNudge,
-    retry: false,
-  });
   // The live card is about the count, so it waits for it rather than
   // painting a number in late.
   const { data: viewCount, isFetched: isViewCountFetched } = useQuery({
@@ -126,26 +130,44 @@ export const useWeeklyPicksHero = ({
   let state: WeeklyPicksHeroState | null = null;
   if (picks) {
     state = isViewCountFetched ? 'live' : null;
-  } else if (isNudgeDay && isNudge) {
-    state = isSuggestionsFetched ? 'nudge' : null;
+  } else if (isPicksFetched && !isPicksError && isNudgeDay && isNudge) {
+    state = 'nudge';
   }
-  const shouldShow = canEvaluate && !!state && isStripSettled;
+  const isDecided =
+    isPicksFetched &&
+    (picks
+      ? isViewCountFetched
+      : isPicksError || !isNudgeDay || isSignalsFetched) &&
+    (!state || isStripSettled);
+
+  // The feed waits for the verdict, but not forever: a request that hangs
+  // must not hold the posts. Past the budget the feed paints without the
+  // card, and the card stays away for this visit even once the answers
+  // arrive, so it never moves what is already on screen.
+  const [isOutOfTime, setIsOutOfTime] = useState(false);
+  useEffect(() => {
+    if (!canEvaluate || isDecided || isOutOfTime) {
+      return undefined;
+    }
+    const timer = setTimeout(() => setIsOutOfTime(true), waitMs);
+    return () => clearTimeout(timer);
+  }, [canEvaluate, isDecided, isOutOfTime, waitMs]);
+
+  const shouldShow = canEvaluate && !isOutOfTime && !!state && isStripSettled;
   const isSettled =
     !enabled ||
     !isEnabled ||
     isDismissed ||
     (isAuthReadyOrCached && !isLoggedIn) ||
-    (isPicksFetched &&
-      (picks
-        ? isViewCountFetched
-        : !isNudgeDay ||
-          (isSignalsFetched && (!isNudge || isSuggestionsFetched))) &&
-      (!state || isStripSettled));
+    isOutOfTime ||
+    isDecided;
 
   const extra = JSON.stringify({
     week: weekStart,
     state,
-    ...(signals ?? {}),
+    upvotes: signals?.upvotes,
+    bookmarks: signals?.bookmarks,
+    reads: signals?.reads,
     picks_id: picks?.id,
     view_count: viewCount,
   });
@@ -187,10 +209,7 @@ export const useWeeklyPicksHero = ({
     isSettled,
     state,
     signals: signals ?? null,
-    suggestions: (suggestions ?? [])
-      .filter((entry) => entry.upvoted || entry.bookmarked || entry.read)
-      .slice(0, PICKS_HERO_THUMBNAILS)
-      .map((entry) => entry.post),
+    weekPosts: signals?.posts.slice(0, PICKS_HERO_THUMBNAILS) ?? [],
     picks: picks ?? null,
     viewCount: typeof viewCount === 'number' ? viewCount : null,
     onCta,

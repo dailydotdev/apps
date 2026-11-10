@@ -11,13 +11,12 @@ import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import type {
   Picks,
-  PicksSuggestion,
+  PicksWeekPost,
   PicksWeekSignals,
 } from '../../graphql/picks';
 import type { LoggedUser } from '../../lib/user';
 import {
   MY_CURRENT_PICKS_QUERY,
-  PICKS_SUGGESTIONS_QUERY,
   PICKS_VIEW_COUNT_QUERY,
   PICKS_WEEK_SIGNALS_QUERY,
 } from '../../graphql/picks';
@@ -85,25 +84,10 @@ const picks: Picks = {
   ],
 };
 
-const suggestion = (id: string, read = true): PicksSuggestion => ({
-  reason: 'read',
-  upvoted: false,
-  bookmarked: false,
-  read,
-  post: {
-    id,
-    permalink: `https://app.daily.dev/posts/${id}`,
-    commentsPermalink: `https://app.daily.dev/posts/${id}`,
-    image: `https://img/${id}.jpg`,
-    type: 'article',
-  },
+const weekPost = (id: string): PicksWeekPost => ({
+  id,
+  image: `https://img/${id}.jpg`,
 });
-
-const mockSuggestions = (suggestions: PicksSuggestion[]) =>
-  mockGraphQL({
-    request: { query: PICKS_SUGGESTIONS_QUERY },
-    result: { data: { picksSuggestions: suggestions } },
-  });
 
 const mockCurrentPicks = (current: Picks | null) =>
   mockGraphQL({
@@ -111,10 +95,12 @@ const mockCurrentPicks = (current: Picks | null) =>
     result: { data: { myCurrentPicks: current } },
   });
 
-const mockSignals = (signals: PicksWeekSignals) =>
+const mockSignals = (
+  signals: Omit<PicksWeekSignals, 'posts'> & { posts?: PicksWeekPost[] },
+) =>
   mockGraphQL({
     request: { query: PICKS_WEEK_SIGNALS_QUERY },
-    result: { data: { myPicksWeekSignals: signals } },
+    result: { data: { myPicksWeekSignals: { posts: [], ...signals } } },
   });
 
 const mockViewCount = (viewCount: number) =>
@@ -124,8 +110,8 @@ const mockViewCount = (viewCount: number) =>
   });
 
 // The layout owns the hook so it can hold the feed; this stands in for it.
-const Harness = () => {
-  const hero = useWeeklyPicksHero();
+const Harness = ({ waitMs }: { waitMs?: number }) => {
+  const hero = useWeeklyPicksHero({ waitMs });
 
   return (
     <>
@@ -138,7 +124,8 @@ const Harness = () => {
 const renderHero = ({
   enabled = true,
   user = loggedUser,
-}: { enabled?: boolean; user?: LoggedUser | null } = {}) => {
+  waitMs,
+}: { enabled?: boolean; user?: LoggedUser | null; waitMs?: number } = {}) => {
   const gb = createReadyGrowthBook();
   gb.setFeatures({ weekly_picks: { defaultValue: enabled } });
   if (user) {
@@ -156,7 +143,7 @@ const renderHero = ({
       log={{ logEvent }}
       gb={gb}
     >
-      <Harness />
+      <Harness waitMs={waitMs} />
     </TestBootProvider>,
   );
 };
@@ -169,14 +156,12 @@ beforeEach(() => {
 
 it("should ask which of the week's posts were worth it", async () => {
   mockCurrentPicks(null);
-  mockSignals({ upvotes: 4, bookmarks: 2, reads: 6 });
-  mockSuggestions([
-    suggestion('a'),
-    suggestion('popular', false),
-    suggestion('b'),
-    suggestion('c'),
-    suggestion('d'),
-  ]);
+  mockSignals({
+    upvotes: 4,
+    bookmarks: 2,
+    reads: 6,
+    posts: [weekPost('a'), weekPost('b'), weekPost('c')],
+  });
   renderHero();
 
   const headline = await screen.findByText(
@@ -191,7 +176,7 @@ it("should ask which of the week's posts were worth it", async () => {
     'href',
     '/picks/new?origin=home_hero',
   );
-  // The reader's own posts, three of them, the popular one skipped
+  // The reader's own posts, three of them
   await waitFor(() => expect(screen.getAllByText('?')).toHaveLength(3));
   expect(
     screen
@@ -212,7 +197,6 @@ it("should ask which of the week's posts were worth it", async () => {
 it('should close for the week once the reader goes to pick', async () => {
   mockCurrentPicks(null);
   mockSignals({ upvotes: 3, bookmarks: 0, reads: 0 });
-  mockSuggestions([]);
   renderHero();
 
   await userEvent.click(
@@ -329,25 +313,31 @@ it('should hold the live card until the opens count is in', async () => {
   expect(screen.getByTestId('settled')).toBeInTheDocument();
 });
 
-it("should hold the nudge until the week's posts are in", async () => {
-  mockCurrentPicks(null);
-  mockSignals({ upvotes: 4, bookmarks: 2, reads: 6 });
+it('should paint the feed without the card once the wait runs out', async () => {
   nock('http://localhost:3000')
-    .post('/graphql', { query: PICKS_SUGGESTIONS_QUERY })
-    .delay(150)
-    .reply(200, {
-      data: { picksSuggestions: [suggestion('a'), suggestion('b')] },
-    });
-  renderHero();
+    .post('/graphql', { query: MY_CURRENT_PICKS_QUERY })
+    .delay(300)
+    .reply(200, { data: { myCurrentPicks: null } });
+  mockSignals({ upvotes: 4, bookmarks: 2, reads: 6, posts: [weekPost('a')] });
+  renderHero({ waitMs: 100 });
 
-  await new Promise((resolve) => setTimeout(resolve, 50));
-  expect(screen.queryByTestId('settled')).not.toBeInTheDocument();
+  expect(await screen.findByTestId('settled')).toBeInTheDocument();
   expect(screen.queryByText('Pick my top 3')).not.toBeInTheDocument();
 
-  expect(
-    await screen.findAllByRole('presentation', { hidden: true }),
-  ).toHaveLength(2);
-  expect(screen.getByTestId('settled')).toBeInTheDocument();
+  // The late answer does not move what is already on screen
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  expect(screen.queryByText('Pick my top 3')).not.toBeInTheDocument();
+});
+
+it('should show no card when the picks query fails', async () => {
+  nock('http://localhost:3000')
+    .post('/graphql', { query: MY_CURRENT_PICKS_QUERY })
+    .reply(500);
+  mockSignals({ upvotes: 4, bookmarks: 2, reads: 6, posts: [weekPost('a')] });
+  renderHero();
+
+  expect(await screen.findByTestId('settled')).toBeInTheDocument();
+  expect(screen.queryByText('Pick my top 3')).not.toBeInTheDocument();
 });
 
 it('should show nothing outside the rollout', async () => {
@@ -379,7 +369,6 @@ it('should settle at once for a visitor who is not signed in', async () => {
 it('should stay closed for the rest of the week once dismissed', async () => {
   mockCurrentPicks(null);
   mockSignals({ upvotes: 3, bookmarks: 0, reads: 0 });
-  mockSuggestions([]);
   const { unmount } = renderHero();
   await screen.findByRole('link', { name: 'Pick my top 3' });
 

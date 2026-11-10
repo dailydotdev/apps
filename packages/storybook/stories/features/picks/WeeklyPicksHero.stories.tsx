@@ -64,8 +64,8 @@ export const Nudge: Story = {
   render: () => (
     <WeeklyPicksHeroCard
       state="nudge"
-      signals={{ upvotes: 4, bookmarks: 2, reads: 6 }}
-      suggestions={week}
+      signals={{ upvotes: 4, bookmarks: 2, reads: 6, posts: week }}
+      weekPosts={week}
       onDismiss={() => undefined}
     />
   ),
@@ -77,8 +77,8 @@ export const NudgePhone: Story = {
     <WeeklyPicksHeroCard
       variant="panel"
       state="nudge"
-      signals={{ upvotes: 4, bookmarks: 2, reads: 6 }}
-      suggestions={week}
+      signals={{ upvotes: 4, bookmarks: 2, reads: 6, posts: week }}
+      weekPosts={week}
       onDismiss={() => undefined}
     />
   ),
@@ -93,7 +93,7 @@ export const NudgeNoThumbnails: Story = {
   render: () => (
     <WeeklyPicksHeroCard
       state="nudge"
-      signals={{ upvotes: 0, bookmarks: 0, reads: 5 }}
+      signals={{ upvotes: 0, bookmarks: 0, reads: 5, posts: [] }}
       onDismiss={() => undefined}
     />
   ),
