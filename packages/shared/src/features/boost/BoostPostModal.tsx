@@ -39,10 +39,7 @@ import { CampaignType } from '../../graphql/campaigns';
 import { usePostBoostEstimation } from './usePostBoostEstimation';
 import { updatePostCache } from '../../lib/query';
 import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
-import {
-  boostAudienceFeature,
-  boostSettingsFeature,
-} from '../../lib/featureManagement';
+import { boostSettingsFeature } from '../../lib/featureManagement';
 import { getBoostErrorExtra, useBoostLogging } from './useBoostLogging';
 import type { BoostAudienceValue } from './BoostAudience';
 import {
@@ -81,7 +78,6 @@ export function BoostPostModal({
   const { getFeatureValue } = useFeaturesReadyContext();
   const [activeScreen, setActiveScreen] = useState<Screens>(SCREENS.FORM);
   const boostSettings = getFeatureValue(boostSettingsFeature);
-  const isAudienceEnabled = getFeatureValue(boostAudienceFeature);
   const [coresPerDay, setCoresPerDay] = React.useState(
     boostSettings.default_cores,
   );
@@ -94,9 +90,7 @@ export function BoostPostModal({
     location: BoostLocation.Worldwide,
     countries: [],
   });
-  const campaignAudience = isAudienceEnabled
-    ? toCampaignAudience(audience, postTags)
-    : undefined;
+  const campaignAudience = toCampaignAudience(audience, postTags);
   const [estimate, setEstimate] = useState<{
     coresPerDay: number;
     totalDays: number;
@@ -273,9 +267,9 @@ export function BoostPostModal({
           type={TypographyType.Callout}
           color={TypographyColor.Secondary}
         >
-          {isAudienceEnabled
-            ? "Give your content the spotlight it deserves. We start with the developers who read about your post's tags, anywhere in the world. Fine-tune who sees it below."
-            : 'Give your content the spotlight it deserves. Our auto-targeting engine ensures your post gets shown to the developers most likely to care.'}
+          Give your content the spotlight it deserves. We start with the
+          developers who read about your post&apos;s tags, anywhere in the
+          world. Fine-tune who sees it below.
           <a
             href={boostDocsLink}
             className="ml-1 text-text-link"
@@ -318,19 +312,17 @@ export function BoostPostModal({
             </Typography>
           </div>
         </div>
-        {isAudienceEnabled && (
-          <BoostAudience
-            postTags={postTags}
-            value={audience}
-            onChange={(value) => {
-              setAudience(value);
-              updateEstimate((state) => ({
-                ...state,
-                audience: toCampaignAudience(value, postTags),
-              }));
-            }}
-          />
-        )}
+        <BoostAudience
+          postTags={postTags}
+          value={audience}
+          onChange={(value) => {
+            setAudience(value);
+            updateEstimate((state) => ({
+              ...state,
+              audience: toCampaignAudience(value, postTags),
+            }));
+          }}
+        />
         <div className="flex flex-col">
           <Typography
             type={TypographyType.Callout}
