@@ -310,6 +310,10 @@ const omissions = [
     'Needs a backend field for the first renewal, the anniversary date and the monthly stats. If the stats don’t exist yet, ship the sheet with the thank-you text only.',
   ],
   [
+    'Testimonials source',
+    'Check where daily.dev/wall-of-love reads its quotes and whether the API can serve them to the app. Until it can, ship the review screen without the carousel.',
+  ],
+  [
     'Reading minutes',
     'Time in the reader may not be tracked. Count articles opened over 7 days instead, with the bars in GrowthBook.',
   ],
