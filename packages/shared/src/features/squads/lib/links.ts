@@ -16,6 +16,8 @@ interface Platform {
   hosts: string[];
   name: string;
   Icon: LinkIconComponent;
+  /** The path is not a handle, so the row shows the platform name. */
+  hideHandle?: boolean;
 }
 
 const platforms: Platform[] = [
@@ -23,7 +25,12 @@ const platforms: Platform[] = [
   { hosts: ['x.com', 'twitter.com'], name: 'X', Icon: TwitterIcon },
   { hosts: ['linkedin.com'], name: 'LinkedIn', Icon: LinkedInIcon },
   { hosts: ['youtube.com', 'youtu.be'], name: 'YouTube', Icon: YoutubeIcon },
-  { hosts: ['discord.gg', 'discord.com'], name: 'Discord', Icon: DiscordIcon },
+  {
+    hosts: ['discord.gg', 'discord.com'],
+    name: 'Discord',
+    Icon: DiscordIcon,
+    hideHandle: true,
+  },
   { hosts: ['reddit.com'], name: 'Reddit', Icon: RedditIcon },
 ];
 
@@ -82,7 +89,9 @@ export const getSquadLinkMeta = (value: string): SquadLinkMeta => {
     return { name: host, label: getDisplayUrl(value), Icon: LinkIcon };
   }
 
-  const handle = url.pathname.split('/').filter(Boolean).pop();
+  const handle = platform.hideHandle
+    ? undefined
+    : url.pathname.split('/').filter(Boolean).pop();
 
   return {
     name: platform.name,
