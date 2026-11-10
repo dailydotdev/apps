@@ -170,6 +170,12 @@ describe('buildRailPlacement', () => {
       row: 0,
       rowSpan: 2,
     });
+    // Nothing on the rail and no ad: the tile is the first column, whole.
+    expect(buildRailPlacement([], { showAd: false }).addTile).toMatchObject({
+      column: 0,
+      row: 0,
+      rowSpan: 2,
+    });
   });
 
   it('leaves the ad out when the surface says so', () => {

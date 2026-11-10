@@ -121,7 +121,7 @@ const addTileFor = (
   // end: a hole mid-rail is a gap, and the tile never sits between widgets.
   // Before the ad such a cell is offered as a gap already.
   const last = columns - 1;
-  if (adColumn === null || last > adColumn) {
+  if (columns > 0 && (adColumn === null || last > adColumn)) {
     for (let row = 0; row < FEED_WIDGET_RAIL_ROWS; row += 1) {
       if (!occupied.has(cellKey(last, row))) {
         return { key: 'add', column: last, row, colSpan: 1, rowSpan: 1 };
