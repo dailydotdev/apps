@@ -158,10 +158,12 @@ const fetchAdRequest = async ({
   path,
   params,
   pageViewId = getAdPageViewId(),
+  throwOnError = false,
 }: {
   path: string;
   params?: URLSearchParams;
   pageViewId?: string;
+  throwOnError?: boolean;
 }): Promise<Ad | null> => {
   const headers: Record<string, string> = {};
   if (pageViewId) {
@@ -178,6 +180,10 @@ const fetchAdRequest = async ({
     credentials: 'include',
     ...(Object.keys(headers).length > 0 && { headers }),
   });
+
+  if (throwOnError && !res.ok) {
+    throw new Error(`Ad request failed with status ${res.status}`);
+  }
 
   const ads = (await res.json()) as Ad[];
   return addGenerationIdHeader({ ad: ads[0] ?? null, res });
@@ -286,6 +292,7 @@ export const fetchAdByPlacement = async ({
         path: '/v1/a',
         params: appendConsentParams(params, consent),
         pageViewId,
+        throwOnError: !!refresh?.count,
       });
     }
   }
