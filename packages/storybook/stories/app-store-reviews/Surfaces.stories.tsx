@@ -32,7 +32,7 @@ import { ShieldPlusIcon } from '@dailydotdev/shared/src/components/icons/ShieldP
 import { BlockIcon } from '@dailydotdev/shared/src/components/icons/Block';
 import { BriefIcon } from '@dailydotdev/shared/src/components/icons/Brief';
 import { DevPlusIcon } from '@dailydotdev/shared/src/components/icons/DevPlus';
-import { GiftIcon } from '@dailydotdev/shared/src/components/icons/Gift';
+import { GiftIcon } from '@dailydotdev/shared/src/components/icons/gift';
 import { PlusUser } from '@dailydotdev/shared/src/components/PlusUser';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import LogoText from '@dailydotdev/shared/src/svg/LogoText';
