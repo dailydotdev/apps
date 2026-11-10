@@ -114,7 +114,9 @@ it('should ask for no posts, under its own key and cache, when only the headline
   storageWrapper.setItem(
     cacheKey,
     JSON.stringify({
-      data: { feedHero: { posts: [post('cached')], highlights: [] } },
+      data: {
+        feedHero: { posts: [post('cached')], highlights: [{ id: 'cached' }] },
+      },
       savedAt: 0,
     }),
   );
@@ -123,9 +125,10 @@ it('should ask for no posts, under its own key and cache, when only the headline
 
   const { result } = renderData(client, { withPosts: false });
 
-  // The copy with posts is not this payload.
+  // The full payload's headlines seed the first paint; its posts do not.
+  expect(result.current.highlights).toEqual([{ id: 'cached' }]);
   expect(result.current.leadPost).toBeUndefined();
-  await waitFor(() => expect(result.current.isPending).toBe(false));
+  await waitFor(() => expect(result.current.isLeadFresh).toBe(true));
   expect(result.current.queryKey).toEqual([
     'feedHero',
     'anonymous',

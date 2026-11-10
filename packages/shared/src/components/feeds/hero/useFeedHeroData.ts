@@ -23,11 +23,8 @@ const storageKey = (userId: string | undefined, withPosts: boolean): string =>
     userId ?? 'anonymous',
   );
 
-const readCachedFeedHero = (
-  userId: string | undefined,
-  withPosts: boolean,
-): CachedFeedHero | undefined => {
-  const raw = storageWrapper.getItem(storageKey(userId, withPosts));
+const readCache = (key: string): CachedFeedHero | undefined => {
+  const raw = storageWrapper.getItem(key);
   if (!raw) {
     return undefined;
   }
@@ -40,6 +37,28 @@ const readCachedFeedHero = (
   } catch (err) {
     return undefined;
   }
+};
+
+/**
+ * The last payload of this shape, or, for the headlines alone, the headlines
+ * of the last full payload: they are the same rows, so a reader whose rail
+ * just lost its top story still paints from what it had.
+ */
+const readCachedFeedHero = (
+  userId: string | undefined,
+  withPosts: boolean,
+): CachedFeedHero | undefined => {
+  const own = readCache(storageKey(userId, withPosts));
+  if (own || withPosts) {
+    return own;
+  }
+  const full = readCache(storageKey(userId, true));
+  return full
+    ? {
+        savedAt: full.savedAt,
+        data: { feedHero: { ...full.data.feedHero, posts: [] } },
+      }
+    : undefined;
 };
 
 /**

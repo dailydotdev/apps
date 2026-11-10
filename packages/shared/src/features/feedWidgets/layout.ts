@@ -117,16 +117,14 @@ const addTileFor = (
   columns: number,
   adColumn: number | null,
 ): RailPlacement => {
-  // Cells before the ad are offered as gaps already; past it, the tile
-  // takes the first one.
-  for (
-    let column = adColumn === null ? 0 : adColumn + 1;
-    column < columns;
-    column += 1
-  ) {
+  // Only a free cell in the rail's last column, under a lone Small at the
+  // end: a hole mid-rail is a gap, and the tile never sits between widgets.
+  // Before the ad such a cell is offered as a gap already.
+  const last = columns - 1;
+  if (adColumn === null || last > adColumn) {
     for (let row = 0; row < FEED_WIDGET_RAIL_ROWS; row += 1) {
-      if (!occupied.has(cellKey(column, row))) {
-        return { key: 'add', column, row, colSpan: 1, rowSpan: 1 };
+      if (!occupied.has(cellKey(last, row))) {
+        return { key: 'add', column: last, row, colSpan: 1, rowSpan: 1 };
       }
     }
   }

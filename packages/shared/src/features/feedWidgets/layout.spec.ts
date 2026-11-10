@@ -152,6 +152,26 @@ describe('buildRailPlacement', () => {
     ).toMatchObject({ column: 0, row: 1, rowSpan: 1 });
   });
 
+  it('never puts the add tile in a hole between widgets', () => {
+    // Large, ad, Small over a hole, Large: the hole stays a gap and the tile
+    // takes the column after the last Large.
+    const holed = [
+      widget('a', FeedWidgetSize.Large),
+      widget('b', FeedWidgetSize.Small),
+      widget('c', FeedWidgetSize.Large),
+    ];
+    expect(buildRailPlacement(holed).addTile).toMatchObject({
+      column: 6,
+      row: 0,
+      rowSpan: 2,
+    });
+    expect(buildRailPlacement(holed, { showAd: false }).addTile).toMatchObject({
+      column: 5,
+      row: 0,
+      rowSpan: 2,
+    });
+  });
+
   it('leaves the ad out when the surface says so', () => {
     const widgets = [widget('a', FeedWidgetSize.Tall)];
 

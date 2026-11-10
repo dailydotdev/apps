@@ -271,6 +271,7 @@ export const HighlightsPage = (): ReactElement => {
           showHeader={!isPhone && !isLaptopLayout}
           showBorder={false}
           shallow
+          swipeable
           tabListProps={{ autoScrollActive: true, dragScroll: true }}
           tabTag="a"
           className={{

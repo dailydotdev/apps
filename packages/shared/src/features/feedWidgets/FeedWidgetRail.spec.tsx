@@ -175,26 +175,21 @@ describe('FeedWidgetRail', () => {
       expect(screen.getByText('First headline')).toBeInTheDocument(),
     );
     expect(screen.getByText('Second headline')).toBeInTheDocument();
-    expect(widgetKinds()).toEqual([
-      FeedWidgetKind.HappeningNow,
-      FeedWidgetKind.Streak,
-    ]);
+    // Logged out, so the default's Streak, which needs an account, is not
+    // seated; the gallery would not offer it either.
+    expect(widgetKinds()).toEqual([FeedWidgetKind.HappeningNow]);
     const slot = screen.getByTestId('feedWidgetAdSlot');
     expect(slot).toBeInTheDocument();
-    // The Large takes columns one and two, so the ad is third, with the Small
-    // streak fourth and the add tile in the cell under it.
+    // The Large takes columns one and two, so the ad is third and the add
+    // tile has the column after it.
     expect(screen.getAllByTestId('feedWidget')[0]).toHaveStyle({
       gridColumn: '1 / span 2',
       gridRow: '1 / span 2',
     });
     expect(slot.parentElement).toHaveStyle({ gridColumn: '3 / span 1' });
-    expect(screen.getAllByTestId('feedWidget')[1]).toHaveStyle({
-      gridColumn: '4 / span 1',
-      gridRow: '1 / span 1',
-    });
     expect(screen.getByRole('button', { name: 'Add a widget' })).toHaveStyle({
       gridColumn: '4 / span 1',
-      gridRow: '2 / span 1',
+      gridRow: '1 / span 2',
     });
     expect(nock.isDone()).toBe(true);
   });

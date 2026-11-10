@@ -11,10 +11,6 @@ import { IconSize } from '../../components/Icon';
 import { LockIcon } from '../../components/icons/Lock';
 import { TipIcon } from '../../components/icons/Tip';
 import { VIcon } from '../../components/icons/V';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { useSettingsContext } from '../../contexts/SettingsContext';
-import { useMessagesEnabled } from '../messages/hooks/useMessagesEnabled';
-import { useLiveChatEnabled } from '../liveChat/hooks/useLiveChatEnabled';
 import type { FeedWidget } from './types';
 import {
   FeedWidgetKind,
@@ -22,13 +18,10 @@ import {
   feedWidgetSizeLabel,
   feedWidgetSizeSpan,
 } from './types';
-import type {
-  FeedWidgetAvailability,
-  FeedWidgetDefinition,
-  FeedWidgetTone,
-} from './registry';
+import type { FeedWidgetDefinition, FeedWidgetTone } from './registry';
 import { FeedWidgetCategory, FeedWidgetIcon } from './registry';
 import { availableFeedWidgets, feedWidgetSizes } from './components';
+import { useFeedWidgetAvailability } from './availability';
 import { FeedWidgetPreview, TipsPreview } from './FeedWidgetPreview';
 import { SizePicker } from './FeedWidgetSizePicker';
 import type { FeedWidgetTip as FeedWidgetTipItem } from './tips';
@@ -370,17 +363,7 @@ export const FeedWidgetGallery = ({
   tips?: FeedWidgetGalleryTips;
   onRequestClose: () => void;
 }): ReactElement => {
-  const { user, squads } = useAuthContext();
-  const { loadedSettings, optOutReadingStreak } = useSettingsContext();
-  const { isEnabled: hasMessages } = useMessagesEnabled();
-  const { isEnabled: hasLiveChat } = useLiveChatEnabled();
-  const availability: FeedWidgetAvailability = {
-    isLoggedIn: !!user,
-    hasSquads: !!squads?.length,
-    isReadingStreakOn: !(loadedSettings && optOutReadingStreak),
-    hasMessages,
-    hasLiveChat,
-  };
+  const availability = useFeedWidgetAvailability();
   const onRail = new Set(widgets.map(({ kind }) => kind));
   const items: GalleryItem[] = availableFeedWidgets(availability).map(
     (definition) => {

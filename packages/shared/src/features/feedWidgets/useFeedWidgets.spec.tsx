@@ -8,15 +8,24 @@ import type { SettingsFlags } from '../../graphql/settings';
 import { useFeedWidgets } from './useFeedWidgets';
 import { FeedWidgetKind, FeedWidgetSize } from './types';
 import { feedRailFingerprint } from './storedRail';
+import loggedUser from '../../../__tests__/fixture/loggedUser';
 
 const setSettings = jest.fn();
 
-const renderWidgets = (feedWidgets?: unknown, client = new QueryClient()) =>
+// Logged in, so the default's Streak is the reader's to have.
+const renderWidgets = (
+  feedWidgets?: unknown,
+  client = new QueryClient(),
+  { isLoggedOut = false, optOutReadingStreak = false } = {},
+) =>
   renderHook(() => useFeedWidgets(), {
     wrapper: ({ children }: { children: ReactNode }): ReactElement => (
       <TestBootProvider
         client={client}
+        auth={{ user: isLoggedOut ? undefined : loggedUser }}
         settings={{
+          loadedSettings: true,
+          optOutReadingStreak,
           flags: { feedWidgets } as unknown as SettingsFlags,
           setSettings,
         }}
@@ -60,6 +69,19 @@ describe('useFeedWidgets', () => {
         expect.objectContaining({ kind: 'notifications', size: 'small' }),
       ],
     });
+  });
+
+  it('seats no default widget the reader could not add themselves', () => {
+    expect(
+      renderWidgets(undefined, undefined, {
+        isLoggedOut: true,
+      }).result.current.widgets.map(({ kind }) => kind),
+    ).toEqual([FeedWidgetKind.HappeningNow]);
+    expect(
+      renderWidgets(undefined, undefined, {
+        optOutReadingStreak: true,
+      }).result.current.widgets.map(({ kind }) => kind),
+    ).toEqual([FeedWidgetKind.HappeningNow]);
   });
 
   it('does not stamp a default on a rail saved without one', () => {
