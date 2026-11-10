@@ -4,6 +4,7 @@ import type { SettingsFlags } from '../../graphql/settings';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { featureFeedWidgetsDefault } from '../../lib/featureManagement';
+import { useFeedWidgetAvailability, usableFeedWidgets } from './availability';
 import type {
   FeedWidget,
   FeedWidgetConfig,
@@ -131,10 +132,13 @@ export const useFeedWidgets = (): UseFeedWidgets => {
     feature: featureFeedWidgetsDefault,
     shouldEvaluate: custom === null,
   });
-  const defaultRail = useMemo(
-    () => resolveDefaultFeedRail(defaultFlag),
-    [defaultFlag],
-  );
+  // Only what this reader could add themselves: the default never seats a
+  // widget the gallery would refuse them.
+  const availability = useFeedWidgetAvailability();
+  const defaultRail = useMemo(() => {
+    const rail = resolveDefaultFeedRail(defaultFlag);
+    return { ...rail, widgets: usableFeedWidgets(rail.widgets, availability) };
+  }, [defaultFlag, availability]);
   const stored = custom ?? defaultRail.widgets;
   const isReadOnly = (saved?.version ?? 1) > FEED_WIDGET_RAIL_VERSION;
   const widgets = useMemo(

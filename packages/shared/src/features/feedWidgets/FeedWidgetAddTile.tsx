@@ -193,8 +193,18 @@ const WidgetCard = ({
   );
 };
 
-/** A hand of three: the lead widget in front, the next two fanned behind it. */
-const FannedCards = ({ kinds }: { kinds: FeedWidgetKind[] }): ReactElement => {
+/**
+ * A hand of three: the lead widget in front, the next two fanned behind it.
+ * Compact, the hand sits higher so its headers still peek out of a one-row
+ * cell before the tile's edge clips the rest.
+ */
+const FannedCards = ({
+  kinds,
+  isCompact = false,
+}: {
+  kinds: FeedWidgetKind[];
+  isCompact?: boolean;
+}): ReactElement => {
   const [lead, ...behind] = kinds.slice(0, MAX_FANNED);
 
   return (
@@ -207,7 +217,7 @@ const FannedCards = ({ kinds }: { kinds: FeedWidgetKind[] }): ReactElement => {
             kind={kind}
             isBehind
             style={{
-              top: '2rem',
+              top: isCompact ? '1.25rem' : '2rem',
               transform: `translateX(calc(-50% + ${side} * (42% + var(--add-tile-lift, 0) * 6%))) rotate(calc(${side} * (13deg + var(--add-tile-lift, 0) * 3deg)))`,
             }}
           />
@@ -217,7 +227,7 @@ const FannedCards = ({ kinds }: { kinds: FeedWidgetKind[] }): ReactElement => {
         <WidgetCard
           kind={lead}
           style={{
-            top: '0.5rem',
+            top: isCompact ? '0.25rem' : '0.5rem',
             transform:
               'translateX(-50%) translateY(calc(var(--add-tile-lift, 0) * -0.375rem))',
           }}
@@ -231,14 +241,17 @@ const FannedCards = ({ kinds }: { kinds: FeedWidgetKind[] }): ReactElement => {
  * The empty slot at the end of a rail the reader has not made their own: a
  * plus that opens the gallery, the names of a few widgets it holds, and those
  * widgets as cards under it, each on the widget surface with its own header,
- * fanned like a hand.
+ * fanned like a hand. Compact, in a single cell, the plus and the names sit
+ * tighter and only the hand's headers peek out below them.
  */
 export const FeedWidgetAddTile = ({
   kinds,
+  isCompact = false,
   onClick,
   style,
 }: {
   kinds: AddTileKinds;
+  isCompact?: boolean;
   onClick: () => void;
   style?: CSSProperties;
 }): ReactElement => (
@@ -247,25 +260,54 @@ export const FeedWidgetAddTile = ({
     aria-label="Add a widget"
     onClick={onClick}
     style={style}
-    className="group/add relative flex min-h-0 snap-start flex-col items-center overflow-hidden rounded-16 border-2 border-dashed border-border-subtlest-secondary pt-20 text-center transition-colors hover:border-border-subtlest-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default motion-safe:focus-visible:[--add-tile-lift:1] motion-safe:mouse:hover:[--add-tile-lift:1]"
+    className={classNames(
+      'group/add relative flex min-h-0 snap-start flex-col items-center overflow-hidden rounded-16 border-2 border-dashed border-border-subtlest-secondary text-center transition-colors hover:border-border-subtlest-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default motion-safe:focus-visible:[--add-tile-lift:1] motion-safe:mouse:hover:[--add-tile-lift:1]',
+      isCompact ? 'pt-4' : 'pt-20',
+    )}
   >
-    <span className="flex size-14 shrink-0 items-center justify-center rounded-16 bg-surface-float text-text-primary transition-[transform,background-color,color] duration-200 group-active/add:scale-95 motion-reduce:transition-none mouse:group-hover/add:scale-105 mouse:group-hover/add:bg-text-primary mouse:group-hover/add:text-surface-invert">
-      <PlusIcon size={IconSize.Large} />
+    <span
+      className={classNames(
+        'flex shrink-0 items-center justify-center rounded-16 bg-surface-float text-text-primary transition-[transform,background-color,color] duration-200 group-active/add:scale-95 motion-reduce:transition-none mouse:group-hover/add:scale-105 mouse:group-hover/add:bg-text-primary mouse:group-hover/add:text-surface-invert',
+        isCompact ? 'size-10' : 'size-14',
+      )}
+    >
+      <PlusIcon size={isCompact ? IconSize.Medium : IconSize.Large} />
     </span>
-    <span className="mt-3 font-bold text-text-primary typo-callout">
+    <span
+      className={classNames(
+        'font-bold text-text-primary typo-callout',
+        isCompact ? 'mt-2' : 'mt-3',
+      )}
+    >
       Add a widget
     </span>
     {kinds.addable.length > 0 && (
-      <span className="px-4 text-text-tertiary typo-footnote">
+      <span
+        className={classNames(
+          'px-4 text-text-tertiary typo-footnote',
+          isCompact && 'line-clamp-2',
+        )}
+      >
         {kinds.addable
           .map((kind) => getFeedWidgetDefinition(kind).name)
           .join(', ')}{' '}
         and more
       </span>
     )}
-    <span aria-hidden className="relative mt-3 w-full flex-1">
-      <FannedCards kinds={kinds.fanned} />
-      <span className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-background-default to-transparent" />
+    <span
+      aria-hidden
+      className={classNames(
+        'relative min-h-0 w-full flex-1',
+        isCompact ? 'mt-2' : 'mt-3',
+      )}
+    >
+      <FannedCards kinds={kinds.fanned} isCompact={isCompact} />
+      <span
+        className={classNames(
+          'pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-background-default to-transparent',
+          isCompact ? 'h-8' : 'h-14',
+        )}
+      />
     </span>
   </button>
 );

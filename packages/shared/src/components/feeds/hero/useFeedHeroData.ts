@@ -16,11 +16,15 @@ const empty: never[] = [];
 
 type CachedFeedHero = { data: FeedHeroData; savedAt: number };
 
-const storageKey = (userId?: string): string =>
-  generateStorageKey(StorageTopic.Post, 'feedHero', userId ?? 'anonymous');
+const storageKey = (userId: string | undefined, withPosts: boolean): string =>
+  generateStorageKey(
+    StorageTopic.Post,
+    withPosts ? 'feedHero' : 'feedHeroHeadlines',
+    userId ?? 'anonymous',
+  );
 
-const readCachedFeedHero = (userId?: string): CachedFeedHero | undefined => {
-  const raw = storageWrapper.getItem(storageKey(userId));
+const readCache = (key: string): CachedFeedHero | undefined => {
+  const raw = storageWrapper.getItem(key);
   if (!raw) {
     return undefined;
   }
@@ -33,6 +37,28 @@ const readCachedFeedHero = (userId?: string): CachedFeedHero | undefined => {
   } catch (err) {
     return undefined;
   }
+};
+
+/**
+ * The last payload of this shape, or, for the headlines alone, the headlines
+ * of the last full payload: they are the same rows, so a reader whose rail
+ * just lost its top story still paints from what it had.
+ */
+const readCachedFeedHero = (
+  userId: string | undefined,
+  withPosts: boolean,
+): CachedFeedHero | undefined => {
+  const own = readCache(storageKey(userId, withPosts));
+  if (own || withPosts) {
+    return own;
+  }
+  const full = readCache(storageKey(userId, true));
+  return full
+    ? {
+        savedAt: full.savedAt,
+        data: { feedHero: { ...full.data.feedHero, posts: [] } },
+      }
+    : undefined;
 };
 
 /**
@@ -78,10 +104,15 @@ export const clearShownFeedHeroLeads = (): void => {
  * It starts from the last payload this reader got, cached per reader, so the
  * rail paints with its content on the first frame and revalidates in the
  * background for the next load.
+ *
+ * A caller that shows only the headlines asks for no posts: the API then
+ * skips the reader's feed filters and the hero posts read. That payload is
+ * its own key and cache, so it never stands in for one with posts.
  */
 export const useFeedHeroData = ({
   enabled = true,
-}: { enabled?: boolean } = {}): {
+  withPosts = true,
+}: { enabled?: boolean; withPosts?: boolean } = {}): {
   queryKey: QueryKey;
   posts: Post[];
   highlights: PostHighlight[];
@@ -97,11 +128,17 @@ export const useFeedHeroData = ({
 } => {
   const { user, isTokenValid } = useAuthContext();
   const queryKey = useMemo(
-    () => generateQueryKey(RequestKey.FeedHero, user),
-    [user],
+    () =>
+      withPosts
+        ? generateQueryKey(RequestKey.FeedHero, user)
+        : generateQueryKey(RequestKey.FeedHero, user, 'headlines'),
+    [user, withPosts],
   );
   const isEnabled = isTokenValid && enabled;
-  const cached = useMemo(() => readCachedFeedHero(user?.id), [user?.id]);
+  const cached = useMemo(
+    () => readCachedFeedHero(user?.id, withPosts),
+    [user?.id, withPosts],
+  );
 
   const { data, isPending, isFetchedAfterMount, isStale, dataUpdatedAt } =
     useQuery({
@@ -110,6 +147,7 @@ export const useFeedHeroData = ({
         gqlClient.request<FeedHeroData>(FEED_HERO_QUERY, {
           loggedIn: !!user,
           supportedTypes: baseFeedSupportedTypes,
+          ...(withPosts ? {} : { featured: 0 }),
         }),
       enabled: isEnabled,
       // The same window `majorHeadlinesQueryOptions` gives the in-feed card, so
@@ -127,10 +165,10 @@ export const useFeedHeroData = ({
       return;
     }
     storageWrapper.setItem(
-      storageKey(user?.id),
+      storageKey(user?.id, withPosts),
       JSON.stringify({ data, savedAt: dataUpdatedAt }),
     );
-  }, [data, dataUpdatedAt, isFetchedAfterMount, user?.id]);
+  }, [data, dataUpdatedAt, isFetchedAfterMount, user?.id, withPosts]);
 
   const posts = data?.feedHero?.posts ?? empty;
   const readerKey = user?.id ?? 'anonymous';

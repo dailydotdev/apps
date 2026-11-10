@@ -21,6 +21,11 @@ export type RailLayout = {
   placements: RailPlacement[];
   /** Columns the rail spans, the pinned slot included. */
   columns: number;
+  /**
+   * Where the add tile goes: the first cell left empty past the ad (a Small
+   * alone in the last column leaves one), else a column of its own after.
+   */
+  addTile: RailPlacement;
 };
 
 const cellKey = (column: number, row: number): string => `${column}:${row}`;
@@ -107,6 +112,26 @@ const columnsUsed = (occupied: Set<string>): number =>
     0,
   );
 
+const addTileFor = (
+  occupied: Set<string>,
+  columns: number,
+  adColumn: number | null,
+): RailPlacement => {
+  // Only a free cell in the rail's last column, under a lone Small at the
+  // end: a hole mid-rail is a gap, and the tile never sits between widgets.
+  // Before the ad such a cell is offered as a gap already.
+  const last = columns - 1;
+  if (columns > 0 && (adColumn === null || last > adColumn)) {
+    for (let row = 0; row < FEED_WIDGET_RAIL_ROWS; row += 1) {
+      if (!occupied.has(cellKey(last, row))) {
+        return { key: 'add', column: last, row, colSpan: 1, rowSpan: 1 };
+      }
+    }
+  }
+
+  return { key: 'add', column: columns, row: 0, colSpan: 1, rowSpan: 2 };
+};
+
 /**
  * Lays the rail out on a two-row grid with the sponsored slot pinned to the
  * third column. A Large first widget fills the first two columns, so the ad
@@ -120,7 +145,12 @@ export const buildRailPlacement = (
 ): RailLayout => {
   if (!showAd) {
     const { placements, occupied } = pack(widgets, null);
-    return { placements, columns: columnsUsed(occupied) };
+    const columns = columnsUsed(occupied);
+    return {
+      placements,
+      columns,
+      addTile: addTileFor(occupied, columns, null),
+    };
   }
 
   const unreserved = pack(widgets, null);
@@ -177,9 +207,12 @@ export const buildRailPlacement = (
     (first, second) => first.column - second.column || first.row - second.row,
   );
 
+  const columns = Math.max(columnsUsed(packed.occupied), adColumn + 1);
+
   return {
     placements: all,
-    columns: Math.max(columnsUsed(packed.occupied), adColumn + 1),
+    columns,
+    addTile: addTileFor(packed.occupied, columns, adColumn),
   };
 };
 

@@ -37,19 +37,15 @@ const introQuests = (statuses: QuestStatus[]) => ({
 
 const renderHeader = ({
   isEditing = false,
-  isPhone = false,
   user = loggedUser,
 }: {
   isEditing?: boolean;
-  isPhone?: boolean;
   user?: LoggedUser;
 } = {}) =>
   render(
     <TestBootProvider client={new QueryClient()} auth={{ user }}>
       <FeedWidgetRailHeader
         isEditing={isEditing}
-        isPhone={isPhone}
-        showArrows={!isPhone}
         edges={{ start: false, end: true }}
         onScroll={jest.fn()}
         onToggleEditing={jest.fn()}
@@ -185,22 +181,5 @@ describe('FeedWidgetRailHeader', () => {
     expect(
       screen.getByRole('button', { name: 'Scroll widgets right' }),
     ).toBeInTheDocument();
-  });
-
-  it('keeps phones to the greeting and the gear', () => {
-    renderHeader({ isPhone: true });
-
-    expect(
-      screen.getByRole('button', { name: 'Customize widgets' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole('link', { name: 'New post' }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('link', { name: 'Get Plus' }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Scroll widgets left' }),
-    ).not.toBeInTheDocument();
   });
 });
