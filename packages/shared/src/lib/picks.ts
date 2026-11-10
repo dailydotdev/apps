@@ -39,8 +39,7 @@ export const PICKS_HERO_MIN_SIGNALS = 3;
 export const isPicksNudgeDay = (now: Date = new Date()): boolean => {
   const day = now.getDay();
 
-  // TEMP: forced on to test the nudge on the preview domain. Revert.
-  return true || day === 0 || day >= 4;
+  return day === 0 || day >= 4;
 };
 
 /** Campaign id on post links from a picks page, so clicks can be attributed. */
