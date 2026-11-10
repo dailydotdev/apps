@@ -75,11 +75,19 @@ const highlights = ['First headline', 'Second headline'].map(
   }),
 );
 
-const mockHero = (data = { posts, highlights }) =>
+// Headlines only unless the rail holds the top story, which reads the posts.
+const mockHero = (
+  data = { posts, highlights },
+  { withPosts = false }: { withPosts?: boolean } = {},
+) =>
   mockGraphQL({
     request: {
       query: FEED_HERO_QUERY,
-      variables: { loggedIn: false, supportedTypes: baseFeedSupportedTypes },
+      variables: {
+        loggedIn: false,
+        supportedTypes: baseFeedSupportedTypes,
+        ...(withPosts ? {} : { featured: 0 }),
+      },
     },
     result: { data: { feedHero: data } },
   });
@@ -279,7 +287,7 @@ describe('FeedWidgetRail', () => {
   });
 
   it('removes a widget from the menu and writes the whole flags object', async () => {
-    mockHero();
+    mockHero(undefined, { withPosts: true });
 
     renderRail({
       clickbaitShieldEnabled: true,
@@ -344,7 +352,7 @@ describe('FeedWidgetRail', () => {
   ];
 
   it('offers the add tile on a customized rail only in edit mode', async () => {
-    mockHero();
+    mockHero(undefined, { withPosts: true });
 
     renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
     await revealWidgets();
@@ -401,7 +409,7 @@ describe('FeedWidgetRail', () => {
   });
 
   it('hides the whole rail from edit mode', async () => {
-    mockHero();
+    mockHero(undefined, { withPosts: true });
 
     renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
     await revealWidgets();
@@ -415,7 +423,7 @@ describe('FeedWidgetRail', () => {
   });
 
   it('takes widget content out of reach in edit mode', async () => {
-    mockHero();
+    mockHero(undefined, { withPosts: true });
 
     renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
     await revealWidgets();
@@ -439,7 +447,7 @@ describe('FeedWidgetRail', () => {
   });
 
   it('removes a widget from its badge in edit mode', async () => {
-    mockHero();
+    mockHero(undefined, { withPosts: true });
 
     renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
     await revealWidgets();
@@ -456,7 +464,7 @@ describe('FeedWidgetRail', () => {
   });
 
   it('moves a widget with the keyboard and writes once, on drop', async () => {
-    mockHero();
+    mockHero(undefined, { withPosts: true });
 
     renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
     await revealWidgets();
@@ -488,7 +496,7 @@ describe('FeedWidgetRail', () => {
   });
 
   it('drops a keyboard move on Escape without writing', async () => {
-    mockHero();
+    mockHero(undefined, { withPosts: true });
 
     renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
     await revealWidgets();
@@ -557,7 +565,7 @@ describe('FeedWidgetRail', () => {
     jest
       .mocked(useFeedWidgetAd)
       .mockReturnValue({ ad: undefined, isEnabled: true, isNoFill: true });
-    mockHero();
+    mockHero(undefined, { withPosts: true });
     const topStory = {
       id: 'top-story',
       kind: FeedWidgetKind.TopStory,
@@ -749,7 +757,7 @@ describe('FeedWidgetRail', () => {
   });
 
   it('removes the tips from their badge in edit mode', async () => {
-    mockHero();
+    mockHero(undefined, { withPosts: true });
 
     renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
     await revealWidgets();
@@ -798,7 +806,7 @@ describe('FeedWidgetRail', () => {
   });
 
   it('keeps the pinned label off the tip in edit mode', async () => {
-    mockHero();
+    mockHero(undefined, { withPosts: true });
 
     const { unmount } = renderRail({
       feedWidgets: { version: 1, widgets: twoWidgets },
@@ -881,7 +889,7 @@ describe('FeedWidgetRail', () => {
     });
 
     it('says they are on while they show', async () => {
-      mockHero();
+      mockHero(undefined, { withPosts: true });
       renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
       await openGallery();
 

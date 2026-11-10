@@ -23,9 +23,10 @@ import {
   getScrollPosition,
   saveScrollPosition,
 } from '../../lib/scrollRestoration';
-import type { FeedWidget, FeedWidgetKind } from './types';
+import type { FeedWidget } from './types';
 import {
   FEED_WIDGET_UNDO_MS,
+  FeedWidgetKind,
   FeedWidgetSize,
   feedWidgetSizeLabel,
 } from './types';
@@ -456,7 +457,13 @@ export const FeedWidgetRail = ({
   const isBusy = editing.isDragging || !!resizing || !!liftedId;
 
   return (
-    <FeedWidgetsProvider feedName={feedName} isEditing={isEditing}>
+    <FeedWidgetsProvider
+      feedName={feedName}
+      isEditing={isEditing}
+      hasTopStory={displayed.some(
+        ({ kind }) => kind === FeedWidgetKind.TopStory,
+      )}
+    >
       <section
         ref={root}
         className={classNames(railSectionClassName, className)}
