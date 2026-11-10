@@ -18,6 +18,7 @@ import { SourceType } from '../../graphql/sources';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { boostAudienceFeature } from '../../lib/featureManagement';
+import type { Feature } from '../../lib/featureManagement';
 
 // Mock the hooks
 jest.mock('./useCampaignMutation');
@@ -312,7 +313,12 @@ describe('BoostPostModal', () => {
 
   describe('Target audience', () => {
     beforeEach(() => {
-      jest.replaceProperty(boostAudienceFeature, 'defaultValue', true);
+      // Tests read flags at their default, so the default turns it on
+      jest.replaceProperty(
+        boostAudienceFeature as Feature<boolean>,
+        'defaultValue',
+        true,
+      );
     });
 
     afterEach(() => {
