@@ -181,7 +181,8 @@ it("should ask which of the week's posts were worth it", async () => {
 
   const headline = await screen.findByText(
     (_, element) =>
-      ['P', 'H3'].includes(element?.tagName ?? '') &&
+      !!element &&
+      ['P', 'H3'].includes(element.tagName) &&
       element.textContent === '12 posts this week. Which 3 were worth\u00a0it?',
   );
   expect(headline).toBeInTheDocument();
@@ -260,7 +261,8 @@ it('should lead with the opens and share again', async () => {
   expect(
     screen.getByText(
       (_, element) =>
-        ['P', 'H3'].includes(element?.tagName ?? '') &&
+        !!element &&
+        ['P', 'H3'].includes(element.tagName) &&
         element.textContent === '12 people opened your picks',
     ),
   ).toBeInTheDocument();
@@ -324,6 +326,25 @@ it('should hold the live card until the opens count is in', async () => {
   expect(screen.queryByText('Copy link')).not.toBeInTheDocument();
 
   expect(await screen.findByText('12')).toBeInTheDocument();
+  expect(screen.getByTestId('settled')).toBeInTheDocument();
+});
+
+it("should hold the nudge until the week's posts are in", async () => {
+  mockCurrentPicks(null);
+  mockSignals({ upvotes: 4, bookmarks: 2, reads: 6 });
+  nock('http://localhost:3000')
+    .post('/graphql', { query: PICKS_SUGGESTIONS_QUERY })
+    .delay(150)
+    .reply(200, {
+      data: { picksSuggestions: [suggestion('a'), suggestion('b')] },
+    });
+  renderHero();
+
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(screen.queryByTestId('settled')).not.toBeInTheDocument();
+  expect(screen.queryByText('Pick my top 3')).not.toBeInTheDocument();
+
+  expect(await screen.findAllByText('?')).toHaveLength(2);
   expect(screen.getByTestId('settled')).toBeInTheDocument();
 });
 

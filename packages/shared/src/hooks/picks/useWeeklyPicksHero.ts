@@ -103,9 +103,10 @@ export const useWeeklyPicksHero = ({
     retry: false,
   });
   const isNudge = !!signals && countSignals(signals) >= PICKS_HERO_MIN_SIGNALS;
-  // The reader's own posts, for the nudge's thumbnails. Decoration, so the
-  // card does not wait for them.
-  const { data: suggestions } = useQuery({
+  // The reader's own posts, for the nudge's thumbnails. The card waits for
+  // the answer: the stack takes the left of the card, so painting it in
+  // late would push the copy aside.
+  const { data: suggestions, isFetched: isSuggestionsFetched } = useQuery({
     ...picksSuggestionsQueryOptions(user),
     enabled: isNudgeCandidate && isNudge,
     retry: false,
@@ -126,7 +127,7 @@ export const useWeeklyPicksHero = ({
   if (picks) {
     state = isViewCountFetched ? 'live' : null;
   } else if (isNudgeDay && isNudge) {
-    state = 'nudge';
+    state = isSuggestionsFetched ? 'nudge' : null;
   }
   const shouldShow = canEvaluate && !!state && isStripSettled;
   const isSettled =
@@ -135,7 +136,10 @@ export const useWeeklyPicksHero = ({
     isDismissed ||
     (isAuthReadyOrCached && !isLoggedIn) ||
     (isPicksFetched &&
-      (picks ? isViewCountFetched : !isNudgeDay || isSignalsFetched) &&
+      (picks
+        ? isViewCountFetched
+        : !isNudgeDay ||
+          (isSignalsFetched && (!isNudge || isSuggestionsFetched))) &&
       (!state || isStripSettled));
 
   const extra = JSON.stringify({
