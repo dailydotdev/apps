@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import classNames from 'classnames';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -45,15 +45,30 @@ const noop = (): void => undefined;
 
 // An iPhone 16 at 360 by 740 points: status bar, Dynamic Island and the home
 // indicator around whatever screen it holds.
+const phoneSizes = {
+  default: 'h-[46.25rem] w-[22.5rem]',
+  // iPhone SE, 320 by 568 points.
+  small: 'h-[35.5rem] w-[20rem]',
+  // iPhone 16 Pro Max, 430 by 932 points.
+  large: 'h-[58.25rem] w-[26.875rem]',
+};
+
 const Phone = ({
   children,
   label,
+  size = 'default',
 }: {
   children: ReactNode;
   label?: string;
+  size?: keyof typeof phoneSizes;
 }): ReactElement => (
   <figure className="flex shrink-0 flex-col items-center gap-3">
-    <div className="relative h-[46.25rem] w-[22.5rem] overflow-hidden rounded-[3rem] border-[0.375rem] border-border-subtlest-primary bg-background-default shadow-2">
+    <div
+      className={classNames(
+        'relative overflow-hidden rounded-[3rem] border-[0.375rem] border-border-subtlest-primary bg-background-default shadow-2',
+        phoneSizes[size],
+      )}
+    >
       <div className="absolute inset-x-0 top-0 z-3 flex h-12 items-center justify-between px-8 font-bold text-text-primary typo-callout">
         <span>9:41</span>
         <span className="absolute left-1/2 top-2.5 h-8 w-28 -translate-x-1/2 rounded-[1rem] bg-black" />
@@ -102,10 +117,10 @@ const Sheet = ({
   children: ReactNode;
   className?: string;
 }): ReactElement => (
-  <div className="absolute inset-0 z-2 flex flex-col justify-end bg-overlay-quaternary-onion">
+  <div className="absolute inset-0 z-2 flex flex-col justify-end bg-overlay-quaternary-onion pt-12">
     <div
       className={classNames(
-        'flex flex-col rounded-t-16 border-t border-border-subtlest-tertiary bg-background-default pb-8',
+        'flex max-h-full flex-col overflow-y-auto rounded-t-16 border-t border-border-subtlest-tertiary bg-background-default pb-8',
         className,
       )}
     >
@@ -120,74 +135,142 @@ const Sheet = ({
 // Our own ask around Apple's sheet, whose text stays fixed. The CTA is the
 // write-a-review link, never the prompt itself.
 const askCopy = {
-  headline: 'A little love goes a long way. ❤️',
+  headline: 'A little love goes a long way.',
+  emoji: '❤️',
   text: 'If daily.dev has made your day a little better, a quick rating would mean a lot to us.',
   shortText: 'Made your day a little better? A quick rating means a lot.',
   cta: 'Rate daily.dev',
+  ctaLabel: 'Rate daily.dev on the App Store',
   row: 'Show daily.dev some love ❤️',
 };
 
-// The ask as a card inside a sheet we already show.
-const AskCard = (): ReactElement => {
-  return (
-    <div className="flex w-full flex-col gap-1 rounded-16 bg-surface-float p-4 text-left">
-      <Typography type={TypographyType.Callout} bold>
-        {askCopy.headline}
-      </Typography>
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Tertiary}
-      >
-        {askCopy.shortText}
-      </Typography>
-      <Button
-        variant={ButtonVariant.Secondary}
-        size={ButtonSize.Small}
-        icon={<AppleIcon />}
-        className="mt-2 w-fit"
-      >
-        {askCopy.cta}
-      </Button>
-    </div>
-  );
+type AskCopy = typeof askCopy;
+
+// Copy at the length that stresses the layout.
+const longAskCopy: AskCopy = {
+  ...askCopy,
+  headline: 'A little love from developers like you goes a really long way.',
+  text: 'If daily.dev has made your day, your week or your whole morning routine a little better, a quick rating on the App Store would genuinely mean a lot to everyone on the team.',
+  shortText:
+    'Made your day, your week or your whole morning routine a little better? A quick rating would genuinely mean a lot.',
 };
 
+// A non-breaking space keeps the emoji with the last word, and screen
+// readers skip it.
+const AskHeadline = ({ copy }: { copy: AskCopy }): ReactElement => (
+  <>
+    {copy.headline}
+    {'\u00a0'}
+    <span aria-hidden>{copy.emoji}</span>
+  </>
+);
+
+// The focus ring and its place in the keyboard and VoiceOver order, drawn
+// only on the accessibility states.
+const Focus = ({
+  order,
+  show,
+  className,
+  children,
+}: {
+  order: number;
+  show: boolean;
+  className?: string;
+  children: ReactNode;
+}): ReactElement => (
+  <div
+    className={classNames(
+      'relative',
+      show &&
+        'rounded-8 outline outline-2 outline-offset-2 outline-accent-cabbage-default',
+      className,
+    )}
+  >
+    {show && (
+      <span className="absolute -left-3 -top-3 z-3 flex size-6 items-center justify-center rounded-full border-2 border-accent-cabbage-default bg-background-default font-bold text-accent-cabbage-default typo-caption1">
+        {order}
+      </span>
+    )}
+    {children}
+  </div>
+);
+
+// The ask as a card inside a sheet we already show.
+const AskCard = ({ copy = askCopy }: { copy?: AskCopy }): ReactElement => (
+  <div className="flex w-full flex-col gap-1 rounded-16 bg-surface-float p-4 text-left">
+    <Typography type={TypographyType.Callout} bold>
+      <AskHeadline copy={copy} />
+    </Typography>
+    <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
+      {copy.shortText}
+    </Typography>
+    <Button
+      variant={ButtonVariant.Secondary}
+      size={ButtonSize.Small}
+      icon={<AppleIcon />}
+      aria-label={copy.ctaLabel}
+      className="mt-2 w-fit"
+    >
+      {copy.cta}
+    </Button>
+  </div>
+);
+
 // The ask as its own sheet over the feed.
-const AskSheet = (): ReactElement => {
-  return (
-    <Sheet className="gap-5 px-4">
-      <div className="flex flex-col items-center gap-2 pt-4 text-center">
-        <span aria-hidden>
-          <LogoIcon className={{ container: 'size-12' }} />
-        </span>
-        <Typography type={TypographyType.Title2} bold className="mt-2">
-          {askCopy.headline}
+const AskSheet = ({
+  copy = askCopy,
+  showFocus = false,
+}: {
+  copy?: AskCopy;
+  showFocus?: boolean;
+}): ReactElement => (
+  <Sheet className="gap-5 px-4">
+    <div className="flex flex-col items-center gap-2 pt-4 text-center">
+      <span aria-hidden>
+        <LogoIcon className={{ container: 'size-12' }} />
+      </span>
+      <Focus order={1} show={showFocus} className="mt-2">
+        <Typography type={TypographyType.Title2} bold>
+          <AskHeadline copy={copy} />
         </Typography>
+      </Focus>
+      <Focus order={2} show={showFocus}>
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
         >
-          {askCopy.text}
+          {copy.text}
         </Typography>
-      </div>
-      <div className="flex flex-col gap-2">
+      </Focus>
+    </div>
+    <div className="flex flex-col gap-2">
+      <Focus order={3} show={showFocus} className="flex flex-col">
         <Button
           variant={ButtonVariant.Primary}
           size={ButtonSize.Large}
           icon={<AppleIcon />}
+          aria-label={copy.ctaLabel}
         >
-          {askCopy.cta}
+          {copy.cta}
         </Button>
+      </Focus>
+      <Focus order={4} show={showFocus} className="flex flex-col">
         <Button variant={ButtonVariant.Tertiary} size={ButtonSize.Medium}>
           Not now
         </Button>
-      </div>
-    </Sheet>
-  );
-};
+      </Focus>
+    </div>
+  </Sheet>
+);
 
 // NewStreakModal's body, as the drawer a phone gets.
-const StreakMilestoneSheet = (): ReactElement => (
+const StreakMilestoneSheet = ({
+  days = 30,
+  withAsk = true,
+}: {
+  days?: number;
+  withAsk?: boolean;
+}): ReactElement => (
   <Sheet>
     <div className="flex flex-col items-center px-4">
       <div className="relative flex h-14 w-full items-center justify-end">
@@ -199,15 +282,17 @@ const StreakMilestoneSheet = (): ReactElement => (
           alt="A large fire icon"
           className="h-[10rem] w-[10rem]"
         />
-        <strong className="absolute typo-tera">30</strong>
+        <strong className="absolute typo-tera">{days}</strong>
       </span>
-      <strong className="mt-6 typo-title1">30 days streak</strong>
+      <strong className="mt-6 typo-title1">{days} days streak</strong>
       <p className="mt-2 text-center text-text-tertiary typo-body">
         New milestone reached! You are unstoppable.
       </p>
-      <div className="mt-6 w-full">
-        <AskCard />
-      </div>
+      {withAsk && (
+        <div className="mt-6 w-full">
+          <AskCard />
+        </div>
+      )}
       <Checkbox name="show_streaks" className="mt-6">
         Never show this again
       </Checkbox>
@@ -315,7 +400,7 @@ const Page = ({ children }: { children: ReactNode }): ReactElement => (
 const StreakPromptSurface = (): ReactElement => (
   <Section
     title="Streak milestone: tie the ask to the moment"
-    idea="Apple draws the rating sheet, and its text is fixed: iOS always writes “Enjoying daily.dev?” in the user's language, and requestReview takes no askCopy. So the link to the milestone comes from timing: the emotional peak, at the end of something the reader completed, which is exactly where Apple says to ask. The fire animation and a success haptic play, then about 1.5s later review-request fires on its own while the 30 is still on screen behind Apple's sheet. People rate the feeling. Only when the session had no errors and the 120-day cooldown allows it."
+    idea="Apple draws the rating sheet, and its text is fixed: iOS always writes “Enjoying daily.dev?” in the user's language, and requestReview takes no copy. So the link to the milestone comes from timing: the emotional peak, at the end of something the reader completed, which is exactly where Apple says to ask. The fire animation and a success haptic play, then about 1.5s later review-request fires on its own while the 30 is still on screen behind Apple's sheet. People rate the feeling. Only when the session had no errors and the 120-day cooldown allows it."
   >
     <Phone label="1. The 30-day milestone drawer, with our ask under it">
       <FeedBehind />
@@ -367,7 +452,17 @@ const resourceItems = (rateItem: ProfileSectionItemProps) => [
 ];
 
 // The iOS profile tab, the real ProfileSection rows.
-const ProfileScreen = (): ReactElement => {
+const ProfileScreen = ({
+  withRateRow = true,
+}: {
+  withRateRow?: boolean;
+}): ReactElement => {
+  const rateItem = {
+    title: askCopy.row,
+    icon: AppleIcon,
+    onClick: noop,
+  };
+
   return (
     <div className="flex flex-1 flex-col gap-4 px-4 pt-4">
       <div className="flex items-center gap-3 px-1">
@@ -392,11 +487,9 @@ const ProfileScreen = (): ReactElement => {
       <ProfileSection items={accountItems} withSeparator />
       <ProfileSection
         title="Resources"
-        items={resourceItems({
-          title: askCopy.row,
-          icon: AppleIcon,
-          onClick: noop,
-        })}
+        items={resourceItems(rateItem).filter(
+          (item) => withRateRow || item !== rateItem,
+        )}
       />
     </div>
   );
@@ -421,7 +514,14 @@ const RateRowSurface = (): ReactElement => (
 const placeholderAvatar = (index: number): string =>
   `https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/${index}`;
 
-const testimonials = [
+type Testimonial = {
+  name: string;
+  role: string;
+  avatar?: string;
+  text: string;
+};
+
+const testimonials: Testimonial[] = [
   {
     name: 'Alex Rivera',
     role: 'Software Engineer',
@@ -454,92 +554,129 @@ const testimonials = [
   },
 ];
 
+const longTestimonial: Testimonial = {
+  name: 'Maximiliano Fernández-Castellanos',
+  role: 'Principal Software Engineer, Developer Experience and Platform',
+  avatar: placeholderAvatar(6),
+  text: 'I start every morning here before standup. It replaced four newsletters, two subreddits and a folder of bookmarks I never opened, and the comments under each post are where I actually learn how other teams solved the same problem I am stuck on this week.',
+};
+
 // Our own screen, shown when someone comes back to the feed from their first
 // article on a big release. It never asks for stars itself: review-request
 // fires on its own after a short pause, and the button is the write-a-review
 // link for people who want to add words.
 const ReviewScreen = ({
   withPrompt = false,
+  people = testimonials,
+  copy = askCopy,
+  showFocus = false,
 }: {
   withPrompt?: boolean;
+  people?: Testimonial[];
+  copy?: AskCopy;
+  showFocus?: boolean;
 }): ReactElement => {
+  const faces = people.filter(({ avatar }) => avatar);
+
   return (
     <div className="relative flex min-h-0 flex-1 flex-col">
       <div className="flex justify-end px-4 pt-2">
-        <ModalClose onClick={noop} className="!static" />
+        <Focus order={1} show={showFocus}>
+          <ModalClose onClick={noop} className="!static" />
+        </Focus>
       </div>
-      <div className="flex flex-col items-center gap-2 px-6 pt-2 text-center">
-        <span aria-hidden>
-          <LogoIcon className={{ container: 'size-12' }} />
-        </span>
-        <Typography type={TypographyType.Title1} bold className="mt-2">
-          {askCopy.headline}
-        </Typography>
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-        >
-          {askCopy.text}
-        </Typography>
-        <div className="mt-2 flex items-center gap-2">
-          <span className="flex -space-x-2">
-            {testimonials.map(({ name, avatar }) => (
-              <img
-                key={name}
-                src={avatar}
-                alt=""
-                className="size-6 rounded-8 border-2 border-background-default object-cover"
-              />
-            ))}
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+        <div className="flex flex-col items-center gap-2 px-6 pt-2 text-center">
+          <span aria-hidden>
+            <LogoIcon className={{ container: 'size-12' }} />
           </span>
-          <Typography type={TypographyType.Footnote} bold>
-            Join millions of developers
-          </Typography>
-        </div>
-      </div>
-      <div className="mt-6 flex snap-x gap-3 overflow-x-auto px-6 pb-2">
-        {testimonials.map((testimonial) => (
-          <article
-            key={testimonial.name}
-            className="flex w-64 shrink-0 snap-center flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4"
-          >
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Secondary}
-              className="line-clamp-4"
-            >
-              “{testimonial.text}”
+          <Focus order={2} show={showFocus} className="mt-2">
+            <Typography type={TypographyType.Title1} bold>
+              <AskHeadline copy={copy} />
             </Typography>
-            <div className="mt-auto flex items-center gap-2">
-              <img
-                src={testimonial.avatar}
-                alt={testimonial.name}
-                className="size-8 rounded-10 object-cover"
-              />
-              <div className="flex min-w-0 flex-col">
-                <Typography type={TypographyType.Caption1} bold truncate>
-                  {testimonial.name}
-                </Typography>
-                <Typography
-                  type={TypographyType.Caption2}
-                  color={TypographyColor.Tertiary}
-                  truncate
+          </Focus>
+          <Focus order={3} show={showFocus}>
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
+            >
+              {copy.text}
+            </Typography>
+          </Focus>
+          <div className="mt-2 flex items-center gap-2">
+            <span className="flex -space-x-2">
+              {faces.map(({ name, avatar }) => (
+                <img
+                  key={name}
+                  src={avatar}
+                  alt=""
+                  className="size-6 rounded-8 border-2 border-background-default object-cover"
+                />
+              ))}
+            </span>
+            <Typography type={TypographyType.Footnote} bold>
+              Join millions of developers
+            </Typography>
+          </div>
+        </div>
+        {people.length > 0 && (
+          <Focus order={4} show={showFocus} className="mx-6 mt-6">
+            <section
+              aria-label="What developers say"
+              className="flex snap-x gap-3 overflow-x-auto pb-2"
+            >
+              {people.map((testimonial) => (
+                <article
+                  key={testimonial.name}
+                  className="flex w-64 shrink-0 snap-center flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4"
                 >
-                  {testimonial.role}
-                </Typography>
-              </div>
-            </div>
-          </article>
-        ))}
+                  <Typography
+                    type={TypographyType.Footnote}
+                    color={TypographyColor.Secondary}
+                    className="line-clamp-4"
+                  >
+                    “{testimonial.text}”
+                  </Typography>
+                  <div className="mt-auto flex items-center gap-2">
+                    {testimonial.avatar ? (
+                      <img
+                        src={testimonial.avatar}
+                        alt={testimonial.name}
+                        className="size-8 rounded-10 object-cover"
+                      />
+                    ) : (
+                      <span className="size-8 shrink-0 rounded-10 bg-border-subtlest-tertiary" />
+                    )}
+                    <div className="flex min-w-0 flex-col">
+                      <Typography type={TypographyType.Caption1} bold truncate>
+                        {testimonial.name}
+                      </Typography>
+                      <Typography
+                        type={TypographyType.Caption2}
+                        color={TypographyColor.Tertiary}
+                        truncate
+                      >
+                        {testimonial.role}
+                      </Typography>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </section>
+          </Focus>
+        )}
       </div>
-      <div className="mt-auto flex flex-col px-6 pb-8">
-        <Button
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Large}
-          icon={<AppleIcon />}
-        >
-          {askCopy.cta}
-        </Button>
+      <div className="flex flex-col px-6 pb-8 pt-4">
+        <Focus order={5} show={showFocus} className="flex flex-col">
+          <Button
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Large}
+            icon={<AppleIcon />}
+            aria-label={copy.ctaLabel}
+          >
+            {copy.cta}
+          </Button>
+        </Focus>
       </div>
       {withPrompt && <AppleRatingSheet />}
     </div>
@@ -573,66 +710,123 @@ const readingWeek = [
 ];
 const weeklyMinutesBar = 90;
 const weeklyDaysBar = 5;
-const weekMinutes = readingWeek.reduce((sum, { minutes }) => sum + minutes, 0);
-const weekDays = readingWeek.filter(({ minutes }) => minutes > 0).length;
-const longestDay = Math.max(...readingWeek.map(({ minutes }) => minutes));
+type ReadingDay = { day: string; minutes: number };
 
-const WeekRule = (): ReactElement => (
-  <div className="flex w-[22.5rem] flex-col gap-5 rounded-24 border border-border-subtlest-tertiary bg-background-default p-6">
-    <div className="flex items-center gap-2">
-      <TimerIcon size={IconSize.Small} />
-      <Typography type={TypographyType.Callout} bold>
-        Dana’s last 7 days
+const lightWeek = readingWeek.map(({ day, minutes }) => ({
+  day,
+  minutes: Math.round(minutes / 3),
+}));
+
+const emptyWeek = readingWeek.map(({ day }) => ({ day, minutes: 0 }));
+
+const CheckMark = ({ pass }: { pass: boolean }): ReactElement => (
+  <span
+    className={classNames(
+      'flex size-5 shrink-0 items-center justify-center rounded-full typo-caption2',
+      pass
+        ? 'bg-accent-avocado-flat text-accent-avocado-default'
+        : 'bg-accent-ketchup-flat text-accent-ketchup-default',
+    )}
+  >
+    {pass ? '✓' : '✕'}
+  </span>
+);
+
+const WeekRule = ({
+  week = readingWeek,
+  sessionErrors = false,
+}: {
+  week?: ReadingDay[];
+  sessionErrors?: boolean;
+}): ReactElement => {
+  const weekMinutes = week.reduce((sum, { minutes }) => sum + minutes, 0);
+  const weekDays = week.filter(({ minutes }) => minutes > 0).length;
+  const longestDay = Math.max(...week.map(({ minutes }) => minutes));
+  const minutesPass = weekMinutes >= weeklyMinutesBar;
+  const daysPass = weekDays >= weeklyDaysBar;
+  const checks = [
+    {
+      pass: minutesPass,
+      text: `${Math.floor(weekMinutes / 60)}h ${weekMinutes % 60}m read, ${minutesPass ? 'over' : 'under'} the ${weeklyMinutesBar}m bar`,
+    },
+    {
+      pass: daysPass,
+      text: `${weekDays} reading days, ${daysPass ? 'over' : 'under'} the ${weeklyDaysBar}-day bar`,
+    },
+    {
+      pass: !sessionErrors,
+      text: sessionErrors
+        ? 'A failed request this session'
+        : 'No errors or slow loads this session',
+    },
+  ];
+  let result =
+    'Both bars crossed, so review-request fires the next time Dana closes an article and lands back on the feed.';
+  if (!weekMinutes) {
+    result = 'No reading data yet, so no trigger.';
+  } else if (!minutesPass || !daysPass) {
+    result = 'Under the bar, so no ask this week.';
+  } else if (sessionErrors) {
+    result =
+      'Bars crossed, but this session had errors, so no ask until a clean session.';
+  }
+
+  return (
+    <div className="flex w-[22.5rem] flex-col gap-5 rounded-24 border border-border-subtlest-tertiary bg-background-default p-6">
+      <div className="flex items-center gap-2">
+        <TimerIcon size={IconSize.Small} />
+        <Typography type={TypographyType.Callout} bold>
+          Dana’s last 7 days
+        </Typography>
+      </div>
+      <div className="flex h-32 items-end gap-2">
+        {week.map(({ day, minutes }) => (
+          <div
+            key={day}
+            className="flex h-full flex-1 flex-col items-center gap-1"
+          >
+            <div className="flex w-full flex-1 items-end">
+              <span
+                className={classNames(
+                  'w-full rounded-6',
+                  minutes && longestDay
+                    ? 'bg-accent-cabbage-default'
+                    : 'bg-surface-float',
+                )}
+                style={{
+                  height:
+                    minutes && longestDay
+                      ? `${(minutes / longestDay) * 100}%`
+                      : '0.25rem',
+                }}
+              />
+            </div>
+            <Typography
+              type={TypographyType.Caption2}
+              color={TypographyColor.Tertiary}
+            >
+              {day}
+            </Typography>
+          </div>
+        ))}
+      </div>
+      <div className="flex flex-col gap-2">
+        {checks.map((check) => (
+          <div key={check.text} className="flex items-center gap-2">
+            <CheckMark pass={check.pass} />
+            <Typography type={TypographyType.Footnote}>{check.text}</Typography>
+          </div>
+        ))}
+      </div>
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Tertiary}
+      >
+        {result}
       </Typography>
     </div>
-    <div className="flex h-32 items-end gap-2">
-      {readingWeek.map(({ day, minutes }) => (
-        <div
-          key={day}
-          className="flex h-full flex-1 flex-col items-center gap-1"
-        >
-          <div className="flex w-full flex-1 items-end">
-            <span
-              className={classNames(
-                'w-full rounded-6',
-                minutes ? 'bg-accent-cabbage-default' : 'bg-surface-float',
-              )}
-              style={{
-                height: minutes
-                  ? `${(minutes / longestDay) * 100}%`
-                  : '0.25rem',
-              }}
-            />
-          </div>
-          <Typography
-            type={TypographyType.Caption2}
-            color={TypographyColor.Tertiary}
-          >
-            {day}
-          </Typography>
-        </div>
-      ))}
-    </div>
-    <div className="flex flex-col gap-2">
-      {[
-        `${Math.floor(weekMinutes / 60)}h ${weekMinutes % 60}m read, over the ${weeklyMinutesBar}m bar`,
-        `${weekDays} reading days, over the ${weeklyDaysBar}-day bar`,
-        'No errors or slow loads this session',
-      ].map((check) => (
-        <div key={check} className="flex items-center gap-2">
-          <span className="flex size-5 items-center justify-center rounded-full bg-accent-avocado-flat text-accent-avocado-default typo-caption2">
-            ✓
-          </span>
-          <Typography type={TypographyType.Footnote}>{check}</Typography>
-        </div>
-      ))}
-    </div>
-    <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
-      Both bars crossed, so review-request fires the next time Dana closes an
-      article and lands back on the feed.
-    </Typography>
-  </div>
-);
+  );
+};
 
 const HeavyWeekSurface = (): ReactElement => (
   <Section
@@ -654,54 +848,70 @@ const HeavyWeekSurface = (): ReactElement => (
 
 // What Plus did for this member in their first month, with example numbers.
 const plusMonth = [
-  { icon: ShieldPlusIcon, text: '38 clickbait titles rewritten' },
-  { icon: BlockIcon, text: '412 posts read, zero ads' },
-  { icon: BriefIcon, text: '4 Presidential Briefings delivered' },
+  { icon: ShieldPlusIcon, count: 38, label: 'clickbait titles rewritten' },
+  { icon: BlockIcon, count: 412, label: 'posts read, zero ads' },
+  { icon: BriefIcon, count: 4, label: 'Presidential Briefings delivered' },
 ];
 
+type PlusStat = (typeof plusMonth)[number];
+
 // After the first renewal: they chose to stay.
-const PlusRenewalSheet = (): ReactElement => (
-  <Sheet className="gap-4 px-4">
-    <div className="flex flex-col items-center gap-2 pt-2 text-center">
-      <span className="flex size-16 items-center justify-center rounded-20 bg-action-plus-float text-action-plus-default">
-        <DevPlusIcon secondary size={IconSize.XXLarge} />
-      </span>
-      <PlusUser typographyType={TypographyType.Callout} />
-      <Typography type={TypographyType.Title2} bold>
-        Thanks for staying with Plus
-      </Typography>
-      <Typography
-        type={TypographyType.Callout}
-        color={TypographyColor.Tertiary}
-      >
-        Here’s your first month of Plus.
-      </Typography>
-    </div>
-    <div className="flex flex-col gap-1 rounded-16 bg-surface-float p-2">
-      {plusMonth.map(({ icon: Icon, text }) => (
-        <div key={text} className="flex items-center gap-3 px-2 py-2">
-          <span className="text-action-plus-default">
-            <Icon secondary size={IconSize.Small} />
-          </span>
-          <Typography type={TypographyType.Callout}>{text}</Typography>
+const PlusRenewalSheet = ({
+  stats = plusMonth,
+}: {
+  stats?: PlusStat[];
+}): ReactElement => {
+  const shown = stats.filter(({ count }) => count > 0);
+
+  return (
+    <Sheet className="gap-4 px-4">
+      <div className="flex flex-col items-center gap-2 pt-2 text-center">
+        <span className="flex size-16 items-center justify-center rounded-20 bg-action-plus-float text-action-plus-default">
+          <DevPlusIcon secondary size={IconSize.XXLarge} />
+        </span>
+        <PlusUser typographyType={TypographyType.Callout} />
+        <Typography type={TypographyType.Title2} bold>
+          Thanks for staying with Plus
+        </Typography>
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+        >
+          {shown.length
+            ? 'Here’s your first month of Plus.'
+            : 'Glad to have you for another month.'}
+        </Typography>
+      </div>
+      {shown.length > 0 && (
+        <div className="flex flex-col gap-1 rounded-16 bg-surface-float p-2">
+          {shown.map(({ icon: Icon, count, label }) => (
+            <div key={label} className="flex items-center gap-3 px-2 py-2">
+              <span className="text-action-plus-default">
+                <Icon secondary size={IconSize.Small} />
+              </span>
+              <Typography type={TypographyType.Callout}>
+                {count} {label}
+              </Typography>
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
-    <AskCard />
-    <div className="flex flex-col gap-2">
-      <Button
-        variant={ButtonVariant.Primary}
-        size={ButtonSize.Large}
-        icon={<GiftIcon />}
-      >
-        Gift Plus to a friend
-      </Button>
-      <Button variant={ButtonVariant.Tertiary} size={ButtonSize.Medium}>
-        Back to my feed
-      </Button>
-    </div>
-  </Sheet>
-);
+      )}
+      <AskCard />
+      <div className="flex flex-col gap-2">
+        <Button
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Large}
+          icon={<GiftIcon />}
+        >
+          Gift Plus to a friend
+        </Button>
+        <Button variant={ButtonVariant.Tertiary} size={ButtonSize.Medium}>
+          Back to my feed
+        </Button>
+      </div>
+    </Sheet>
+  );
+};
 
 const PlusMembersSurface = (): ReactElement => (
   <Section
@@ -756,6 +966,550 @@ const ShareCard = ({
   );
 };
 
+// WCAG contrast of each text and background pair, measured from the
+// rendered tokens so it follows the theme toggle.
+type Rgba = [number, number, number, number];
+
+const parseColor = (value: string): Rgba | null => {
+  const numbers = value.match(/[\d.]+/g)?.map(Number);
+  if (!numbers || numbers.length < 3) {
+    return null;
+  }
+  const [red, green, blue, alpha = 1] = numbers;
+  if (value.startsWith('color(')) {
+    return [red * 255, green * 255, blue * 255, alpha];
+  }
+  return [red, green, blue, alpha];
+};
+
+const blend = (top: Rgba, bottom: Rgba): Rgba => {
+  const alpha = top[3];
+  return [
+    top[0] * alpha + bottom[0] * (1 - alpha),
+    top[1] * alpha + bottom[1] * (1 - alpha),
+    top[2] * alpha + bottom[2] * (1 - alpha),
+    1,
+  ];
+};
+
+const backgroundOf = (element: HTMLElement): Rgba => {
+  const layers: Rgba[] = [];
+  let current: HTMLElement | null = element;
+  while (current) {
+    const color = parseColor(getComputedStyle(current).backgroundColor);
+    if (color && color[3] > 0) {
+      layers.push(color);
+      if (color[3] >= 1) {
+        break;
+      }
+    }
+    current = current.parentElement;
+  }
+  return layers.reduceRight<Rgba>(
+    (bottom, top) => blend(top, bottom),
+    [255, 255, 255, 1],
+  );
+};
+
+const luminance = ([red, green, blue]: Rgba): number => {
+  const [r, g, b] = [red, green, blue].map((channel) => {
+    const value = channel / 255;
+    return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+
+const contrastOf = (
+  element: HTMLElement,
+): { ratio: number; large: boolean } => {
+  const style = getComputedStyle(element);
+  const background = backgroundOf(element);
+  const text = blend(parseColor(style.color) ?? [0, 0, 0, 1], background);
+  const [light, dark] = [luminance(text), luminance(background)].sort(
+    (first, second) => second - first,
+  );
+  const size = parseFloat(style.fontSize);
+  const large =
+    size >= 24 || (size >= 18.66 && Number(style.fontWeight) >= 700);
+  return { ratio: (light + 0.05) / (dark + 0.05), large };
+};
+
+const contrastPairs: {
+  id: string;
+  where: string;
+  sample: ReactElement;
+}[] = [
+  {
+    id: 'headline',
+    where: 'Headlines: text-text-primary on bg-background-default',
+    sample: (
+      <Typography type={TypographyType.Title2} bold>
+        {askCopy.headline}
+      </Typography>
+    ),
+  },
+  {
+    id: 'sheet-body',
+    where: 'Ask sheet and review screen body: Callout, text-text-tertiary',
+    sample: (
+      <Typography
+        type={TypographyType.Callout}
+        color={TypographyColor.Tertiary}
+      >
+        {askCopy.text}
+      </Typography>
+    ),
+  },
+  {
+    id: 'card-body',
+    where: 'AskCard body: Footnote, text-text-tertiary on bg-surface-float',
+    sample: (
+      <div className="rounded-16 bg-surface-float p-3">
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          {askCopy.shortText}
+        </Typography>
+      </div>
+    ),
+  },
+  {
+    id: 'quote',
+    where:
+      'Testimonial quote: Footnote, text-text-secondary on bg-surface-float',
+    sample: (
+      <div className="rounded-16 bg-surface-float p-3">
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Secondary}
+        >
+          “{testimonials[0].text}”
+        </Typography>
+      </div>
+    ),
+  },
+  {
+    id: 'role',
+    where: 'Testimonial role: Caption2, text-text-tertiary on bg-surface-float',
+    sample: (
+      <div className="rounded-16 bg-surface-float p-3">
+        <Typography
+          type={TypographyType.Caption2}
+          color={TypographyColor.Tertiary}
+        >
+          {testimonials[0].role}
+        </Typography>
+      </div>
+    ),
+  },
+  {
+    id: 'primary-cta',
+    where: 'Primary CTA: Button Primary Large',
+    sample: (
+      <Button
+        variant={ButtonVariant.Primary}
+        size={ButtonSize.Large}
+        icon={<AppleIcon />}
+      >
+        {askCopy.cta}
+      </Button>
+    ),
+  },
+  {
+    id: 'secondary-cta',
+    where: 'AskCard CTA: Button Secondary Small on bg-surface-float',
+    sample: (
+      <div className="rounded-16 bg-surface-float p-3">
+        <Button
+          variant={ButtonVariant.Secondary}
+          size={ButtonSize.Small}
+          icon={<AppleIcon />}
+        >
+          {askCopy.cta}
+        </Button>
+      </div>
+    ),
+  },
+];
+
+type ContrastResult = { ratio: number; large: boolean };
+
+const Verdict = ({
+  label,
+  pass,
+}: {
+  label: string;
+  pass: boolean;
+}): ReactElement => (
+  <span
+    className={classNames(
+      'rounded-6 px-1.5 py-0.5 font-bold typo-caption1',
+      pass
+        ? 'bg-accent-avocado-flat text-accent-avocado-default'
+        : 'bg-accent-ketchup-flat text-accent-ketchup-default',
+    )}
+  >
+    {label} {pass ? 'pass' : 'fail'}
+  </span>
+);
+
+const ContrastCheck = (): ReactElement => {
+  const container = useRef<HTMLDivElement>(null);
+  const [results, setResults] = useState<Record<string, ContrastResult>>({});
+
+  useEffect(() => {
+    const measure = () => {
+      const next: Record<string, ContrastResult> = {};
+      container.current
+        ?.querySelectorAll<HTMLElement>('[data-contrast]')
+        .forEach((sample) => {
+          const text =
+            sample.querySelector<HTMLElement>('button, p, span, h1, h2, h3') ??
+            sample;
+          next[sample.dataset.contrast ?? ''] = contrastOf(text);
+        });
+      setResults(next);
+    };
+    // Measure again once late stylesheets have applied.
+    const timers = [0, 300, 1000].map((delay) => setTimeout(measure, delay));
+    const observer = new MutationObserver(() => requestAnimationFrame(measure));
+    observer.observe(document.documentElement, { attributes: true });
+    return () => {
+      timers.forEach(clearTimeout);
+      observer.disconnect();
+    };
+  }, []);
+
+  return (
+    <div
+      ref={container}
+      className="flex w-full max-w-[48rem] flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default"
+    >
+      {contrastPairs.map((pair) => {
+        const result = results[pair.id];
+        const aa = result?.large ? 3 : 4.5;
+        const aaa = result?.large ? 4.5 : 7;
+        return (
+          <div
+            key={pair.id}
+            className="flex flex-col gap-3 border-b border-border-subtlest-tertiary p-4 last:border-0 tablet:flex-row tablet:items-center"
+          >
+            <div data-contrast={pair.id} className="min-w-0 flex-1">
+              {pair.sample}
+            </div>
+            <div className="flex w-64 shrink-0 flex-col gap-1">
+              <Typography
+                type={TypographyType.Caption1}
+                color={TypographyColor.Tertiary}
+              >
+                {pair.where}
+              </Typography>
+              {result && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <Typography type={TypographyType.Callout} bold>
+                    {result.ratio.toFixed(2)}:1
+                  </Typography>
+                  <Verdict label="AA" pass={result.ratio >= aa} />
+                  <Verdict label="AAA" pass={result.ratio >= aaa} />
+                  {result.large && (
+                    <Typography
+                      type={TypographyType.Caption2}
+                      color={TypographyColor.Tertiary}
+                    >
+                      large text
+                    </Typography>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+// What VoiceOver reads, in swipe order, for each screen we draw.
+const readingOrders = [
+  {
+    title: 'Review screen',
+    items: [
+      'Close, button',
+      `${askCopy.headline}, heading (the ❤️ is skipped)`,
+      askCopy.text,
+      'What developers say, region, then each quote with its name and role',
+      `${askCopy.ctaLabel}, button`,
+    ],
+  },
+  {
+    title: 'Ask sheet',
+    items: [
+      `${askCopy.headline}, heading`,
+      askCopy.text,
+      `${askCopy.ctaLabel}, button`,
+      'Not now, button',
+    ],
+  },
+  {
+    title: 'AskCard, inside the streak and Plus sheets',
+    items: [
+      `${askCopy.headline}, heading`,
+      askCopy.shortText,
+      `${askCopy.ctaLabel}, button`,
+    ],
+  },
+  {
+    title: 'Profile row',
+    items: [`${askCopy.row.replace(' ❤️', '')}, button`],
+  },
+  {
+    title: 'Apple’s pop-up and Write a Review screen',
+    items: ['Drawn by iOS, which handles their VoiceOver labels and focus.'],
+  },
+];
+
+const ReadingOrder = (): ReactElement => (
+  <div className="grid w-full max-w-[48rem] gap-4 tablet:grid-cols-2">
+    {readingOrders.map((screen) => (
+      <div
+        key={screen.title}
+        className="flex min-w-0 flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-default p-5"
+      >
+        <Typography type={TypographyType.Body} bold>
+          {screen.title}
+        </Typography>
+        <ol className="flex list-decimal flex-col gap-1 pl-5 text-text-secondary typo-callout marker:text-text-quaternary">
+          {screen.items.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ol>
+      </div>
+    ))}
+  </div>
+);
+
+// Nothing on screen is a state too: these are the cases where we stay out of
+// the way.
+const NothingShows = (): ReactElement => (
+  <div className="flex w-[22.5rem] flex-col gap-3 rounded-24 border border-border-subtlest-tertiary bg-background-default p-6">
+    <Typography type={TypographyType.Callout} bold>
+      When the feed stays as it is
+    </Typography>
+    <ul className="flex list-disc flex-col gap-2 pl-5 text-text-secondary typo-footnote marker:text-text-quaternary">
+      <li>
+        Loading: the data a surface needs (Plus stats, streak) is not cached
+        yet. No skeleton, the ask is skipped this time.
+      </li>
+      <li>
+        The app is older than 1.26, or this is Android or desktop: no bridge, so
+        no surface at all.
+      </li>
+      <li>
+        The session had an error (a failed query, a crash boundary, a failed
+        payment): no asks until a clean session.
+      </li>
+      <li>
+        Rate daily.dev failed to open the App Store: the sheet closes, no error
+        toast.
+      </li>
+      <li>
+        Cooldown: asked in the last 120 days, already asked on this version, or
+        tapped Rate daily.dev before.
+      </li>
+      <li>Validation: there are no inputs, so nothing to validate.</li>
+    </ul>
+  </div>
+);
+
+const StatesPage = (): ReactElement => (
+  <Page>
+    <div className="flex flex-col gap-2">
+      <Typography type={TypographyType.LargeTitle} bold>
+        Every state of every ask
+      </Typography>
+      <Typography
+        type={TypographyType.Body}
+        color={TypographyColor.Secondary}
+        className="max-w-[48rem]"
+      >
+        Each idea’s happy path, its empty, loading and error cases, long text,
+        small and large phones, keyboard and VoiceOver order, and measured
+        contrast. Switch the theme in the toolbar to check dark mode; the
+        contrast numbers update with it.
+      </Typography>
+    </div>
+    <Section
+      title="1. Streak milestone"
+      idea="The ask card sits under the milestone copy. The milestone number can be three digits. When the person is not eligible, the drawer ships exactly as today."
+    >
+      <Phone label="Eligible: drawer with the ask card">
+        <FeedBehind />
+        <StreakMilestoneSheet />
+      </Phone>
+      <Phone label="About 1.5s later, Apple’s pop-up on its own">
+        <FeedBehind />
+        <StreakMilestoneSheet />
+        <AppleRatingSheet />
+      </Phone>
+      <Phone label="Three-digit milestone">
+        <FeedBehind />
+        <StreakMilestoneSheet days={365} />
+      </Phone>
+      <Phone label="Not eligible (cooldown, errors, rated): today’s drawer, no ask">
+        <FeedBehind />
+        <StreakMilestoneSheet withAsk={false} />
+      </Phone>
+    </Section>
+    <Section
+      title="2. Rate daily.dev row"
+      idea="Only where the bridge exists. The tap always opens Apple’s Write a Review screen and never uses up the yearly pop-up."
+    >
+      <Phone label="iOS 1.26 and later: the row shows">
+        <ProfileScreen />
+      </Phone>
+      <Phone label="Older app, Android or desktop: no row">
+        <ProfileScreen withRateRow={false} />
+      </Phone>
+      <Phone label="Tap: Apple’s Write a Review screen">
+        <AppStoreWriteReview />
+      </Phone>
+    </Section>
+    <Section
+      title="3. Review screen"
+      idea="The happy path, then what happens with no testimonials, avatars that fail to load, and the longest copy and names."
+    >
+      <Phone label="Happy path">
+        <ReviewScreen />
+      </Phone>
+      <Phone label="About 2s later, Apple’s pop-up on its own">
+        <ReviewScreen withPrompt />
+      </Phone>
+      <Phone label="Empty: no testimonials, the carousel is hidden">
+        <ReviewScreen people={[]} />
+      </Phone>
+      <Phone label="Avatars failed: dropped from the stack, a plain tile in cards">
+        <ReviewScreen
+          people={testimonials.map(({ avatar, ...person }, index) =>
+            index % 2 ? person : { ...person, avatar },
+          )}
+        />
+      </Phone>
+      <Phone label="Long copy, long name and role, long quote">
+        <ReviewScreen
+          copy={longAskCopy}
+          people={[longTestimonial, ...testimonials]}
+        />
+      </Phone>
+    </Section>
+    <Section
+      title="4. Heavy reading week"
+      idea="The rule decides; the sheet only shows when every check passes."
+    >
+      <WeekRule />
+      <WeekRule week={lightWeek} />
+      <WeekRule week={emptyWeek} />
+      <WeekRule sessionErrors />
+      <Phone label="All checks pass: the ask sheet">
+        <FeedBehind />
+        <AskSheet />
+      </Phone>
+      <Phone label="About 2s later, Apple’s pop-up on its own">
+        <FeedBehind />
+        <AskSheet />
+        <AppleRatingSheet />
+      </Phone>
+      <Phone label="Long copy">
+        <FeedBehind />
+        <AskSheet copy={longAskCopy} />
+      </Phone>
+    </Section>
+    <Section
+      title="5. Plus renewal"
+      idea="Stats at 0 are hidden; with none left, the sheet keeps only the thank-you. Never after a failed renewal."
+    >
+      <Phone label="All stats">
+        <FeedBehind />
+        <PlusRenewalSheet />
+      </Phone>
+      <Phone label="One stat at 0 is hidden">
+        <FeedBehind />
+        <PlusRenewalSheet
+          stats={plusMonth.map((stat, index) =>
+            index === 0 ? { ...stat, count: 0 } : stat,
+          )}
+        />
+      </Phone>
+      <Phone label="Empty: every stat at 0">
+        <FeedBehind />
+        <PlusRenewalSheet
+          stats={plusMonth.map((stat) => ({ ...stat, count: 0 }))}
+        />
+      </Phone>
+      <Phone label="About 2s later, Apple’s pop-up on its own">
+        <FeedBehind />
+        <PlusRenewalSheet />
+        <AppleRatingSheet />
+      </Phone>
+    </Section>
+    <Section
+      title="6. Loading and errors"
+      idea="No skeletons and no error toasts: these asks are optional, so when something is missing or fails, nothing shows. The one visible error case is Apple showing nothing after our sheet."
+    >
+      <Phone label="Apple’s yearly cap reached: our sheet stays, its CTA still works">
+        <FeedBehind />
+        <AskSheet />
+      </Phone>
+      <Phone label="Loading, errors, old app, cooldown: nothing shows">
+        <FeedBehind />
+      </Phone>
+      <NothingShows />
+    </Section>
+    <Section
+      title="7. Small and large phones"
+      idea="On an iPhone SE the drawers scroll and the CTA stays reachable; the Plus sheet is the tallest. On a Pro Max nothing stretches."
+    >
+      <Phone size="small" label="iPhone SE: Plus sheet scrolls">
+        <FeedBehind />
+        <PlusRenewalSheet />
+      </Phone>
+      <Phone size="small" label="iPhone SE: review screen scrolls">
+        <ReviewScreen />
+      </Phone>
+      <Phone size="small" label="iPhone SE: streak drawer scrolls">
+        <FeedBehind />
+        <StreakMilestoneSheet />
+      </Phone>
+      <Phone size="large" label="iPhone 16 Pro Max: review screen">
+        <ReviewScreen />
+      </Phone>
+      <Phone size="large" label="iPhone 16 Pro Max: ask sheet">
+        <FeedBehind />
+        <AskSheet />
+      </Phone>
+    </Section>
+    <Section
+      title="8. Keyboard and VoiceOver"
+      idea="Numbers are the focus order. Focus starts on the headline, not the CTA, so nobody rates by accident; Esc and Not now close. The CTA reads “Rate daily.dev on the App Store”, and decorative logos and the ❤️ are hidden."
+    >
+      <Phone label="Review screen focus order">
+        <ReviewScreen showFocus />
+      </Phone>
+      <Phone label="Ask sheet focus order">
+        <FeedBehind />
+        <AskSheet showFocus />
+      </Phone>
+      <ReadingOrder />
+    </Section>
+    <Section
+      title="9. Contrast"
+      idea="Measured from the rendered tokens, so it is right for the current theme. AA needs 4.5:1 for body text and 3:1 for large text; AAA needs 7:1 and 4.5:1."
+    >
+      <ContrastCheck />
+    </Section>
+  </Page>
+);
+
 const meta: Meta = {
   title: 'Growth/App Store reviews/Surfaces',
   id: 'app-store-review-surfaces',
@@ -777,6 +1531,11 @@ export const AllSurfaces: Story = {
       <PlusMembersSurface />
     </Page>
   ),
+};
+
+export const AllStates: Story = {
+  name: 'All states',
+  render: () => <StatesPage />,
 };
 
 export const ShareCards: Story = {
