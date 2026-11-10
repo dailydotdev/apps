@@ -163,7 +163,7 @@ const plumbing = [
   ],
   [
     'Last-ask storage',
-    '`usePersistentContext` key `review_prompt` holding `{ lastAskedAt, appVersion, rated }`. Device-local is enough for the first build: iOS only, and Apple caps the pop-up at 3 a year. Moving the cooldown to the server, per user across devices, is a later step on the ideas board.',
+    '`usePersistentContext` key `review_prompt` holding `{ lastAskedAt, appVersion, rated }`. Device-local is enough for the first build: iOS only, and Apple caps the pop-up at 3 a year. Moving the cooldown to the server, per user across devices, can come later.',
   ],
   [
     'Flags',
@@ -182,7 +182,7 @@ const plumbing = [
 const ideas = [
   [
     'Streak milestone',
-    '30-day and later milestones, the same on the board; Apple’s pop-up about 1.5s after',
+    '30-day and later milestones; Apple’s pop-up about 1.5s after',
     '`NewStreakModal.tsx` gets an `AskCard` under the copy, above the `Checkbox`.',
   ],
   [
