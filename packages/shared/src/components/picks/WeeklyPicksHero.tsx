@@ -208,7 +208,7 @@ const StripShell = ({
       size="small"
       className="relative h-24 w-28 shrink-0 self-center tablet:h-28 tablet:w-32"
     />
-    <div className="relative flex min-w-0 max-w-[18rem] flex-1 flex-col items-start gap-3">
+    <div className="relative flex min-w-0 flex-1 flex-col items-start gap-3">
       <div className="flex flex-col">
         <Typography
           type={TypographyType.Footnote}
