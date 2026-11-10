@@ -3,6 +3,48 @@ import { mergeConfig } from 'vite';
 import svgrPlugin from 'vite-plugin-svgr';
 import browser from '../mock/webextension-polyfill';
 import * as path from 'node:path';
+import type { Plugin } from 'vite';
+
+/*
+ * Production modules a story set swaps for its own version, keyed by the
+ * shared file they replace. Each override renders production's module
+ * untouched until its story turns a flag on, so every other story keeps
+ * production. The override itself still imports the real module.
+ */
+const productionOverrides: Record<string, string> = {
+  'shared/src/components/streak/popup/StreakMonthCalendar.tsx': path.resolve(
+    __dirname,
+    '../stories/streak/production/StreakMonthCalendar.tsx',
+  ),
+  'shared/src/components/streak/popup/DayStreak.tsx': path.resolve(
+    __dirname,
+    '../stories/streak/production/DayStreak.tsx',
+  ),
+};
+
+const productionOverridesPlugin = (): Plugin => ({
+  name: 'storybook-production-overrides',
+  enforce: 'pre',
+  async resolveId(source, importer, options) {
+    const overrideFiles = Object.values(productionOverrides);
+    if (
+      !importer ||
+      overrideFiles.includes(importer.split('?')[0]) ||
+      !/(StreakMonthCalendar|DayStreak)$/.test(source)
+    ) {
+      return null;
+    }
+    const resolved = await this.resolve(source, importer, {
+      ...options,
+      skipSelf: true,
+    });
+    const id = resolved?.id.split('?')[0];
+    const key = Object.keys(productionOverrides).find((file) =>
+      id?.endsWith(file),
+    );
+    return key ? productionOverrides[key] : null;
+  },
+});
 
 const config: StorybookConfig = {
   stories: [
@@ -92,6 +134,7 @@ const config: StorybookConfig = {
         browser,
       },
       plugins: [
+        productionOverridesPlugin(),
         svgrPlugin({
           include: '**/*.svg',
           svgrOptions: {
