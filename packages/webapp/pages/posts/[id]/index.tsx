@@ -521,16 +521,16 @@ export async function getStaticProps({
       title: pageSeoTitles.title,
       description: getSeoDescription(post),
       noindex,
-      additionalLinkTags:
-        post && !noindex
-          ? [
-              {
-                rel: 'alternate',
-                type: 'text/markdown',
-                href: getPostMarkdownUrl({ post }),
-              },
-            ]
-          : undefined,
+      ...(post &&
+        !noindex && {
+          additionalLinkTags: [
+            {
+              rel: 'alternate',
+              type: 'text/markdown',
+              href: getPostMarkdownUrl({ post }),
+            },
+          ],
+        }),
       openGraph: {
         ...pageSeoTitles.openGraph,
         images: [
