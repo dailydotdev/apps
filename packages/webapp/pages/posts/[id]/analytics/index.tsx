@@ -243,6 +243,7 @@ const LegendToggle = ({
       isLocked && 'cursor-default',
     )}
     aria-pressed={isActive}
+    aria-disabled={isLocked}
     onClick={isLocked ? undefined : onToggle}
   >
     <span
