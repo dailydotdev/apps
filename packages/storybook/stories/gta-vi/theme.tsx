@@ -255,21 +255,33 @@ const Shortcuts = ({
 );
 
 /** The art, fading into the page so the greeting under it stays legible. */
-const CoverArt = ({ isPhone }: { isPhone?: boolean }): ReactElement => (
-  <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0">
-    <img
-      src={coverArt}
-      alt=""
-      className={classNames(
-        'w-full object-cover',
-        isPhone ? 'h-56 object-[70%_60%]' : 'h-64 object-[center_65%]',
-      )}
-    />
-    <span className="absolute inset-0 bg-gradient-to-b from-transparent from-30% to-background-default to-90%" />
-  </div>
-);
-
-const greeting = 'Good afternoon, TheCoverLiker';
+const CoverArt = ({
+  isPhone,
+  src = coverArt,
+}: {
+  isPhone?: boolean;
+  src?: string;
+}): ReactElement => {
+  // A cover that fails to load leaves the default home, not a broken image.
+  const [isBroken, setIsBroken] = useState(false);
+  if (isBroken) {
+    return null;
+  }
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0">
+      <img
+        src={src}
+        alt=""
+        onError={() => setIsBroken(true)}
+        className={classNames(
+          'w-full object-cover',
+          isPhone ? 'h-56 object-[70%_60%]' : 'h-64 object-[center_65%]',
+        )}
+      />
+      <span className="absolute inset-0 bg-gradient-to-b from-transparent from-30% to-background-default to-90%" />
+    </div>
+  );
+};
 
 const tabs = ['For you', 'AI', 'Career', 'Architecture', 'My new feed'];
 
@@ -280,10 +292,14 @@ const tabs = ['For you', 'AI', 'Career', 'Architecture', 'My new feed'];
 export const ThemedHome = ({
   initialTheme = 'dark',
   isSettingsOpenInitially = false,
-  isPhone = false,
-  width = 1440,
-  height = 900,
-  columns = 4,
+  isPhone: isPhoneProp = false,
+  width: widthProp = 1440,
+  height: heightProp = 900,
+  columns: columnsProp = 4,
+  isFluid = false,
+  coverSrc,
+  userName = 'TheCoverLiker',
+  shortcutCount = 7,
 }: {
   initialTheme?: ThemeChoice;
   isSettingsOpenInitially?: boolean;
@@ -291,24 +307,41 @@ export const ThemedHome = ({
   width?: number;
   height?: number;
   columns?: number;
+  /** Fills the window at its own size, for device frames. */
+  isFluid?: boolean;
+  /** Another cover URL, to show a cover that fails to load. */
+  coverSrc?: string;
+  userName?: string;
+  shortcutCount?: number;
 }): ReactElement => {
   const [theme, setTheme] = useState<ThemeChoice>(initialTheme);
   const [isSettingsOpen, setIsSettingsOpen] = useState(isSettingsOpenInitially);
+  const width = isFluid ? window.innerWidth : widthProp;
+  const height = isFluid ? window.innerHeight : heightProp;
+  // styles/media.ts: phone < 656, tablet, laptop 1020, laptopL 1360,
+  // laptopXL 1668; the feed's columns follow.
+  const isPhone = isFluid ? width < 656 : isPhoneProp;
+  const columns = isFluid
+    ? (width < 656 && 1) ||
+      (width < 1020 && 2) ||
+      (width < 1360 && 3) ||
+      (width < 1668 && 4) ||
+      5
+    : columnsProp;
   const isThemed = theme === 'viceCity';
-  const scale = Math.min(1, 1380 / width);
+  const scale = isFluid ? 1 : Math.min(1, 1380 / width);
   const pad = isPhone ? 'px-4' : 'px-6';
 
   return (
     <div
-      className="shrink-0 overflow-hidden rounded-24 border border-border-subtlest-quaternary"
+      className={classNames(
+        'shrink-0 overflow-hidden',
+        !isFluid && 'rounded-24 border border-border-subtlest-quaternary',
+      )}
       style={{ width: width * scale, height: height * scale }}
     >
       <div
-        className={classNames(
-          'relative flex bg-background-default',
-          // Light is production's; the story shows it for the switch only.
-          theme === 'light' && 'light',
-        )}
+        className="relative flex bg-background-default"
         style={{
           width,
           height,
@@ -330,12 +363,12 @@ export const ThemedHome = ({
           />
         )}
         <div className="no-scrollbar relative min-w-0 flex-1 overflow-y-auto">
-          {isThemed && <CoverArt isPhone={isPhone} />}
+          {isThemed && <CoverArt isPhone={isPhone} src={coverSrc} />}
           <div className={classNames('relative flex flex-col gap-4', pad)}>
             <div className="relative flex min-h-12 items-start pt-4">
               {!isPhone && (
                 <div className="flex-1">
-                  <Shortcuts isThemed={isThemed} count={7} />
+                  <Shortcuts isThemed={isThemed} count={shortcutCount} />
                 </div>
               )}
             </div>
@@ -354,7 +387,7 @@ export const ThemedHome = ({
                     isPhone ? 'typo-title3' : 'typo-title2',
                   )}
                 >
-                  {greeting}
+                  Good afternoon, {userName}
                 </span>
                 <span
                   className={classNames(

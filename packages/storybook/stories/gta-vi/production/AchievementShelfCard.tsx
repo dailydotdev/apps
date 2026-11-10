@@ -61,7 +61,9 @@ const formatEventDate = (value: string): string =>
 const rarityPillClasses = 'bg-[#efab27] text-[#08110c]';
 
 const eventPillClasses: Record<GtaViAchievementKind, string> = {
-  free: 'bg-accent-cabbage-default text-white',
+  // Ink that flips with the theme: cabbage is light in dark mode and dark in
+  // light mode, and a fixed ink falls under 4.5:1 at 14px in one of them.
+  free: 'bg-accent-cabbage-default text-background-default',
   rare: rarityPillClasses,
 };
 
@@ -214,10 +216,13 @@ export const AchievementDetail = ({
 
 export function AchievementShelfCard({
   userAchievement,
+  initialExpanded = false,
 }: {
   userAchievement: UserAchievement;
+  /** Opens the detail on load, for review pages. */
+  initialExpanded?: boolean;
 }): ReactElement {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(initialExpanded);
   const { achievement, progress, unlockedAt } = userAchievement;
   const event = getEvent(userAchievement);
   const targetCount = getTargetCount(achievement);
