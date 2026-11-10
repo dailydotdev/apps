@@ -37,6 +37,10 @@ import {
   ProfilePicture,
 } from '@dailydotdev/shared/src/components/ProfilePicture';
 import {
+  PicksSignupBanner,
+  PicksSignupCard,
+} from '@dailydotdev/shared/src/components/picks/PicksSignupBanner';
+import {
   Typography,
   TypographyColor,
   TypographyTag,
@@ -294,6 +298,7 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
             </Button>
           )}
         </header>
+        <PicksSignupCard picks={picks} />
         {items.length ? (
           <ul className="flex flex-col">
             {items.map((item) => (
@@ -331,6 +336,7 @@ const PicksPage = ({ picksId }: PicksPageProps): ReactElement | null => {
             {isEditable ? "Edit this week's picks" : 'Make your picks'}
           </Button>
         </section>
+        <PicksSignupBanner picks={picks} />
       </ResponsivePageContainer>
     </div>
   );

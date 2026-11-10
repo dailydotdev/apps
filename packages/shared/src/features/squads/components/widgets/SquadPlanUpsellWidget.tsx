@@ -10,18 +10,19 @@ import CloseButton from '../../../../components/CloseButton';
 import { VIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import { useAuthContext } from '../../../../contexts/AuthContext';
-import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
 import usePersistentContext from '../../../../hooks/usePersistentContext';
-import { featureStartupsCheckout } from '../../../../lib/featureManagement';
 import { LogEvent, Origin } from '../../../../lib/log';
 import { squadSubscriptionQueryOptions } from '../../../../graphql/squadSubscription';
 import { useSquadPageContext } from '../../SquadPageContext';
 import { getSquadId, hasSquadFeature } from '../../lib/features';
 import { SquadViewer } from '../../lib/viewer';
 import { getStartupsCheckoutUrl } from '../../lib/routes';
-import { SQUAD_PLAN_CASHBACK_PERCENTAGE, SquadPlan } from '../../lib/plans';
+import { getSquadPlanCashbackLabel, SquadPlan } from '../../lib/plans';
+import { useStartupsCashbackPromo } from '../../hooks/useStartupsCashbackPromo';
 import { useSquadPlanPrices } from '../../hooks/useSquadPlanPrices';
 import { useLogStartups } from '../../hooks/useLogStartups';
+import { ActionType } from '../../../../graphql/actions';
+import { useActions } from '../../../../hooks/useActions';
 
 // Starter bullets from the plan table on daily.dev/startups/, word for word.
 const benefits = [
@@ -42,27 +43,27 @@ export const SquadPlanUpsellWidget = (): ReactElement | null => {
     isViewerKnown &&
     viewer === SquadViewer.Admin &&
     !hasSquadFeature(squad, 'verified');
-  const { value: isEnabled } = useConditionalFeature({
-    feature: featureStartupsCheckout,
-    shouldEvaluate: isCandidate,
-  });
   const [isDismissed, setDismissed, isDismissedFetched] = usePersistentContext(
     `startups_upsell_dismissed_${sourceId}`,
     false,
   );
   const { data: subscription } = useQuery({
     ...squadSubscriptionQueryOptions({ user, sourceId }),
-    enabled: !!user && isCandidate && isEnabled,
+    enabled: !!user && isCandidate,
   });
   const prices = useSquadPlanPrices();
   const logStartups = useLogStartups();
+  // Dismissing any Startups promotion hides them all
+  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const isShown =
     isCandidate &&
-    isEnabled &&
     isDismissedFetched &&
     !isDismissed &&
+    isActionsFetched &&
+    !checkHasCompleted(ActionType.DismissStartupsPromo) &&
     !!subscription &&
     !subscription.plan;
+  const cashbackPromo = useStartupsCashbackPromo();
   const loggedRef = useRef(false);
 
   useEffect(() => {
@@ -95,6 +96,7 @@ export const SquadPlanUpsellWidget = (): ReactElement | null => {
         aria-label="Dismiss"
         onClick={() => {
           setDismissed(true);
+          completeAction(ActionType.DismissStartupsPromo);
           logStartups(LogEvent.DismissStartupsUpsell, 'squad upsell', {
             origin: Origin.SquadPage,
             source_id: sourceId,
@@ -106,9 +108,10 @@ export const SquadPlanUpsellWidget = (): ReactElement | null => {
           {`Make ${squad.name} your company page`}
         </h2>
         <p className="text-text-secondary typo-footnote">
-          {`From ${prices[SquadPlan.Starter]} a month, with up to ${
-            SQUAD_PLAN_CASHBACK_PERCENTAGE[SquadPlan.Team]
-          }% back to boost your posts.`}
+          {`From ${prices[SquadPlan.Starter]} a month, with ${getSquadPlanCashbackLabel(
+            SquadPlan.Starter,
+            cashbackPromo,
+          )}.`}
         </p>
       </div>
       <ul className="flex flex-col gap-2">

@@ -100,13 +100,12 @@ export const SquadManagePage = ({
 }: SquadManagePageProps): ReactElement | null => {
   const router = useRouter();
   const { squad, viewer, isViewerReady } = useSquadPageContext();
-  const { groups, isLoading: isGroupsLoading } = useSquadManageGroups();
+  const groups = useSquadManageGroups();
   const sections = groups.flatMap(({ items }) => items.map(({ id }) => id));
-  const isReady = isViewerReady && !isGroupsLoading;
   const isAllowed = !section || sections.includes(section);
 
   useEffect(() => {
-    if (!isReady) {
+    if (!isViewerReady) {
       return;
     }
 
@@ -125,9 +124,17 @@ export const SquadManagePage = ({
     if (!isAllowed) {
       router.replace(getSquadManageUrl(squad.handle));
     }
-  }, [isAllowed, isReady, router, section, sections.length, squad, viewer]);
+  }, [
+    isAllowed,
+    isViewerReady,
+    router,
+    section,
+    sections.length,
+    squad,
+    viewer,
+  ]);
 
-  if (!isReady || !sections.length || !isAllowed) {
+  if (!isViewerReady || !sections.length || !isAllowed) {
     return null;
   }
 

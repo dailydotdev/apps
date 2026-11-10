@@ -28,7 +28,6 @@ import {
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import { RemoveAd } from '@dailydotdev/shared/src/components/cards/ad/common/RemoveAd';
-import { AdRefresh } from '@dailydotdev/shared/src/components/cards/ad/common/AdRefresh';
 import { ButtonVariant } from '@dailydotdev/shared/src/components/buttons/common';
 import { MiniCloseIcon } from '@dailydotdev/shared/src/components/icons';
 import { useAdQuery } from '@dailydotdev/shared/src/features/monetization/useAdQuery';
@@ -58,7 +57,6 @@ export const CommentAd = ({
 
   const {
     data: ad,
-    refetch,
     isFetching,
     isRefetching,
   } = useAdQuery({
@@ -94,11 +92,6 @@ export const CommentAd = ({
   const promotedText = useScrambler(
     !ad ? undefined : `Promoted by ${ad.source}`,
   );
-
-  const onRefreshClick = useCallback(async () => {
-    onAdAction(AdActions.Refresh);
-    await refetch();
-  }, [onAdAction, refetch]);
 
   useEffect(() => {
     if (!ad || ad?.impressionStatus === ImpressionStatus.LOGGED) {
@@ -143,20 +136,15 @@ export const CommentAd = ({
           {promotedText}
         </TruncateText>
       </div>
-      <div className="z-1 ml-auto flex gap-1">
-        <AdRefresh
-          variant={ButtonVariant.Tertiary}
-          onClick={onRefreshClick}
-          loading={isRefetching}
-        />
-        {!isPlus && (
+      {!isPlus && (
+        <div className="z-1 ml-auto flex gap-1">
           <RemoveAd
             iconOnly
             variant={ButtonVariant.Tertiary}
             icon={<MiniCloseIcon />}
           />
-        )}
-      </div>
+        </div>
+      )}
       <p className="mt-3 w-full text-text-primary typo-body">
         <b>{tagLine}</b>
         <br />

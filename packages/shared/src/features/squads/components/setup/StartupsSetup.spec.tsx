@@ -137,6 +137,8 @@ describe('StartupsSetup team seats row', () => {
         seatLimit: 5,
         seatsUsed: 1,
         ownerId: defaultUser.id,
+        cashbackPercentage: 200,
+        cashbackPromoEndsAt: null,
       },
     });
 

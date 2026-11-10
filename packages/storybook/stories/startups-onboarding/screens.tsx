@@ -308,7 +308,7 @@ export const AccountScreen = ({
           <>
             <Title
               title="Create your account"
-              description="Create your company page and pick a plan on daily.dev for Startups."
+              description="Get your company page on daily.dev. Your agent handles the marketing from there."
             />
             <ProviderButtons
               onNext={onNext}
@@ -1621,8 +1621,7 @@ const AgentSetup = ({
       <div className="flex flex-col gap-3">
         <p className="font-bold typo-callout">2. Paste this prompt</p>
         <p className="text-text-tertiary typo-footnote">
-          Your agent reads your project, drafts the page and asks you before it
-          saves anything.
+          Your agent sets up the page and your profile, picks your first post and boosts it, then schedules a daily report. It asks before it saves anything.
         </p>
         <CopyRow text={prompt} label="Copy prompt" height={136} isFaded />
       </div>

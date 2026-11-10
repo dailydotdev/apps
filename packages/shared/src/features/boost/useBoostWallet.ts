@@ -4,12 +4,18 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { CampaignWallet } from '../../graphql/campaigns';
 import type { SquadWallet } from '../../graphql/squadWallet';
 import { squadWalletQueryOptions } from '../../graphql/squadWallet';
+import { isIOSNative } from '../../lib/func';
 
 interface UseBoostWallet {
   squadWallet: SquadWallet | null;
   wallet: CampaignWallet;
   setWallet: (wallet: CampaignWallet) => void;
+  /** Balance of the selected wallet */
   balance: number;
+  /** The squad wallet when it is the selected one, Cores bought go there */
+  selectedSquadWallet: SquadWallet | null;
+  /** Cores can't be bought into a squad wallet through the App Store */
+  canBuyCores: boolean;
 }
 
 // Paid seats of a daily.dev for Startups squad can pay with the squad's
@@ -22,10 +28,18 @@ export const useBoostWallet = (sourceId?: string): UseBoostWallet => {
   const [selected, setWallet] = useState<CampaignWallet>();
   const wallet =
     selected ?? (squadWallet ? CampaignWallet.Squad : CampaignWallet.User);
-  const balance =
-    wallet === CampaignWallet.Squad && squadWallet
-      ? squadWallet.balance
-      : (user?.balance.amount ?? 0);
+  const selectedSquadWallet =
+    wallet === CampaignWallet.Squad ? squadWallet : null;
+  const balance = selectedSquadWallet
+    ? selectedSquadWallet.balance
+    : (user?.balance.amount ?? 0);
 
-  return { squadWallet, wallet, setWallet, balance };
+  return {
+    squadWallet,
+    wallet,
+    setWallet,
+    balance,
+    selectedSquadWallet,
+    canBuyCores: !selectedSquadWallet || !isIOSNative(),
+  };
 };

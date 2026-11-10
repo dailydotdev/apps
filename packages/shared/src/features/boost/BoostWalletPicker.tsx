@@ -87,7 +87,7 @@ export function BoostWalletPicker({
           color={TypographyColor.Tertiary}
         >
           The squad wallet doesn&apos;t have enough Cores for this boost. Lower
-          the budget or pay with your own Cores.
+          the budget, add Cores to it, or pay with your own Cores.
         </Typography>
       )}
     </div>

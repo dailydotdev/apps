@@ -81,6 +81,6 @@ const seo: NextSeoProps = {
 };
 
 NewPicksPage.getLayout = getLayout;
-NewPicksPage.layoutProps = { seo };
+NewPicksPage.layoutProps = { seo, hideFeedbackWidget: true };
 
 export default NewPicksPage;

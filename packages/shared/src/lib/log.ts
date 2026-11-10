@@ -53,6 +53,7 @@ export enum Origin {
   SquadChecklist = 'squad checklist',
   SquadInvitation = 'squad invitation',
   SimilarSquads = 'similar squads',
+  SquadJobsWidget = 'squad jobs widget',
   SimilarSquadsPromoted = 'similar squads promoted',
   SquadJoinSuggestions = 'squad join suggestions',
   SquadJoinSuggestionsPromoted = 'squad join suggestions promoted',
@@ -520,6 +521,10 @@ export enum LogEvent {
   ClickPickPost = 'click pick post',
   ClickMakeYourPicks = 'click make your picks',
   ClickAddToPicks = 'click add to picks',
+  // The home feed card: a nudge to make picks, or the live list's opens
+  ImpressionPicksHero = 'impression picks hero',
+  ClickPicksHero = 'click picks hero',
+  DismissPicksHero = 'dismiss picks hero',
   // End Weekly picks
   // The creator copied a link to, or downloaded the card of, one of their
   // achievements. Records the action, not that anything was posted anywhere.
@@ -829,6 +834,7 @@ export enum TargetId {
   InviteBanner = 'invite banner',
   PostStrip = 'post strip',
   PublicPageSignupBanner = 'public page signup banner',
+  PicksSignupBanner = 'picks signup banner',
   MobileHeader = 'mobile header',
   InviteProfileMenu = 'invite in profile menu',
   SearchActivation = 'search activation',

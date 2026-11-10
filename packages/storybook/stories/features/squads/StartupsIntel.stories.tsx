@@ -35,9 +35,7 @@ import {
   IntelRegion,
   IntelSeniority,
 } from '@dailydotdev/shared/src/features/squads/lib/intel';
-import { featureStartupsCheckout } from '@dailydotdev/shared/src/lib/featureManagement';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import { FeatureOverrides } from '../../../mock/GrowthBookProvider';
 import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import ExtensionProviders from '../../extension/_providers';
@@ -247,12 +245,10 @@ const meta: Meta = {
   decorators: [
     (Story) => (
       <ExtensionProviders>
-        <FeatureOverrides values={{ [featureStartupsCheckout.id]: true }}>
-          {/* react-modal looks for the app root while the prompt renders */}
-          <div id="__next" className="min-h-screen bg-background-default">
-            <Story />
-          </div>
-        </FeatureOverrides>
+        {/* react-modal looks for the app root while the prompt renders */}
+        <div id="__next" className="min-h-screen bg-background-default">
+          <Story />
+        </div>
       </ExtensionProviders>
     ),
   ],

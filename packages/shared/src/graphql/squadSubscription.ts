@@ -2,8 +2,11 @@ import { gql } from 'graphql-request';
 import { gqlClient } from './common';
 import type { EmptyResponse } from './emptyResponse';
 import type { LoggedUser, UserShortProfile } from '../lib/user';
-import { generateQueryKey, RequestKey } from '../lib/query';
-import type { SquadPlan } from '../features/squads/lib/plans';
+import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
+import type {
+  SquadPlan,
+  StartupsCashbackPromo,
+} from '../features/squads/lib/plans';
 import { SourceMemberRole } from './sources';
 import { USER_SHORT_INFO_FRAGMENT } from './fragments';
 
@@ -15,6 +18,17 @@ export const SQUAD_SUBSCRIPTION_QUERY = gql`
       seatLimit
       seatsUsed
       ownerId
+      cashbackPercentage
+      cashbackPromoEndsAt
+    }
+  }
+`;
+
+export const STARTUPS_CASHBACK_PROMO_QUERY = gql`
+  query StartupsCashbackPromo {
+    startupsCashbackPromo {
+      percentage
+      months
     }
   }
 `;
@@ -35,6 +49,9 @@ export interface SquadSubscription {
   seatLimit: number;
   seatsUsed: number;
   ownerId: string | null;
+  /** The cashback on each payment now, the launch promo's while it lasts. */
+  cashbackPercentage: number;
+  cashbackPromoEndsAt: string | null;
 }
 
 export const squadSubscriptionQueryOptions = ({
@@ -60,6 +77,19 @@ export const squadSubscriptionQueryOptions = ({
   },
   enabled: !!user?.id && !!sourceId,
   refetchInterval,
+});
+
+// The launch promo for new subscriptions, null while it is off
+export const startupsCashbackPromoQueryOptions = () => ({
+  queryKey: [RequestKey.StartupsCashbackPromo],
+  queryFn: async (): Promise<StartupsCashbackPromo | null> => {
+    const res = await gqlClient.request<{
+      startupsCashbackPromo: StartupsCashbackPromo | null;
+    }>(STARTUPS_CASHBACK_PROMO_QUERY);
+
+    return res.startupsCashbackPromo;
+  },
+  staleTime: StaleTime.Default,
 });
 
 export const squadSubscriptionBalanceQueryOptions = ({

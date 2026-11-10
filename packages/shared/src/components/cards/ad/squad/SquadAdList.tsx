@@ -23,6 +23,7 @@ import { SquadAdStat } from './SquadAdStat';
 import { SquadFeedStats } from './SquadFeedStats';
 import { SquadAdAction } from './SquadAdAction';
 import { useScrambler } from '../../../../hooks/useScrambler';
+import { pluralize } from '../../../../lib/strings';
 import { storeSquadBoostClick } from '../../../../features/monetization/squadBoostClick';
 
 export function SquadAdList({
@@ -99,29 +100,28 @@ export function SquadAdList({
         {source.description}
       </Typography>
       <HorizontalSeparator />
-      <div className="flex flex-col gap-1">
-        <div className="flex flex-row items-center">
-          {members?.slice(0, 3).map(({ user }, index) => (
-            <ProfilePicture
-              className={index > 0 && '-ml-2'}
-              size={ProfileImageSize.Small}
-              key={user.id}
-              user={user}
-            />
-          ))}
-          <SquadAdStat
-            className="ml-2"
-            label="members"
-            value={source.membersCount}
+      <div className="flex flex-row flex-wrap items-center gap-y-1">
+        {members?.slice(0, 3).map(({ user }, index) => (
+          <ProfilePicture
+            className={index > 0 && '-ml-2'}
+            size={ProfileImageSize.Small}
+            key={user.id}
+            user={user}
           />
-        </div>
+        ))}
+        <SquadAdStat
+          className="ml-2"
+          label={pluralize('member', source.membersCount)}
+          value={source.membersCount}
+        />
+        <Separator className="text-text-tertiary" />
         <SquadFeedStats source={source} />
       </div>
       <SquadAdAction
         squad={squad}
         onJustJoined={() => onJustJoined(true)}
         shouldShowAction={shouldShowAction}
-        className="relative w-full max-w-52"
+        className="relative w-full tablet:max-w-52"
       />
     </FeedItemContainer>
   );

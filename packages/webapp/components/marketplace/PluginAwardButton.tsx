@@ -21,7 +21,10 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { usePluginAwardSubscription } from '@dailydotdev/shared/src/hooks/usePluginAwardSubscription';
 import { pluralize } from '@dailydotdev/shared/src/lib/strings';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import { getPluginActionIconSize } from './PluginUpvoteButton';
+import {
+  getPluginActionIconSize,
+  getPluginActionTextClassName,
+} from './PluginUpvoteButton';
 
 interface PluginAwardButtonProps {
   plugin: Plugin;
@@ -48,6 +51,7 @@ export const PluginAwardButton = ({
   }
 
   const iconSize = getPluginActionIconSize(large);
+  const textClassName = getPluginActionTextClassName(large);
   const featuredAward = plugin.featuredAward?.award;
 
   const openAwardModal = () => {
@@ -107,11 +111,11 @@ export const PluginAwardButton = ({
         <span className="flex items-center gap-1">
           {plugin.numAwards > 0 && (
             <InteractionCounter
-              className="tabular-nums typo-callout"
+              className={classNames('tabular-nums', textClassName)}
               value={plugin.numAwards}
             />
           )}
-          <span className="typo-callout">
+          <span className={textClassName}>
             {pluralize('Award', Math.max(plugin.numAwards, 1))}
           </span>
         </span>

@@ -5,7 +5,6 @@ import { CoreIcon, PlusIcon } from '../icons';
 
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import Link from '../utilities/Link';
-import { walletUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { largeNumberFormat } from '../../lib';
@@ -14,18 +13,23 @@ import { LogEvent } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import { useModalContext } from '../modals/common/types';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
+import type { SquadWallet } from '../../graphql/squadWallet';
+import { getWalletUrl } from '../../features/boost/BoostWalletBalance';
 
 type BuyCreditsButtonProps = {
   className?: string;
   onPlusClick?: () => void;
   hideBuyButton?: boolean;
   origin?: Origin;
+  /** Shows this squad wallet instead of the user's own Cores */
+  squadWallet?: SquadWallet;
 };
 export const BuyCreditsButton = ({
   className,
   onPlusClick,
   hideBuyButton,
   origin,
+  squadWallet,
 }: BuyCreditsButtonProps): ReactElement | null => {
   const hasCoresAccess = useHasAccessToCores();
   const isInsideModal = useModalContext().onRequestClose !== null;
@@ -52,7 +56,7 @@ export const BuyCreditsButton = ({
         className,
       )}
     >
-      <Link href={walletUrl} passHref>
+      <Link href={getWalletUrl(squadWallet ?? null)} passHref>
         <Button
           tag="a"
           target={isInsideModal ? '_blank' : undefined}
@@ -61,7 +65,9 @@ export const BuyCreditsButton = ({
           icon={<CoreIcon />}
           size={ButtonSize.Small}
         >
-          {largeNumberFormat(user?.balance?.amount || 0)}
+          {largeNumberFormat(
+            squadWallet ? squadWallet.balance : user?.balance?.amount || 0,
+          )}
         </Button>
       </Link>
       {renderBuyButton ? (

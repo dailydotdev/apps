@@ -44,15 +44,21 @@ import { labels } from '../../../lib';
 import { useCanPurchaseCores } from '../../../hooks/useCoresFeature';
 import { BuyCoresContextProvider } from '../../../contexts/BuyCoresContext/BuyCoresContext';
 import { iOSSupportsCoresPurchase } from '../../../lib/ios';
+import type { SquadWallet } from '../../../graphql/squadWallet';
 
 export type CoreOptionsProps = {
   className?: string;
   title?: ReactNode;
   showCoresAtCheckout?: boolean;
   amountNeededCopy?: ReactNode;
+  /** Shown above the Cores packages, see `StartupsBuyCoresPromo` */
+  promo?: ReactNode;
 };
 
-interface ModalHeaderProps extends Pick<CoreOptionsProps, 'amountNeededCopy'> {
+interface ModalHeaderProps extends Pick<
+  CoreOptionsProps,
+  'amountNeededCopy' | 'promo'
+> {
   onPlusClick?: () => void;
 }
 
@@ -61,6 +67,7 @@ export const CoreOptions = ({
   title,
   showCoresAtCheckout,
   amountNeededCopy,
+  promo,
 }: CoreOptionsProps): ReactElement => {
   const isText = typeof amountNeededCopy === 'string';
 
@@ -75,6 +82,7 @@ export const CoreOptions = ({
         )}
         {!!showCoresAtCheckout && <BuyCreditsButton hideBuyButton />}
       </div>
+      {promo && <div className="mt-4">{promo}</div>}
       <CoreOptionList />
     </div>
   );
@@ -136,7 +144,7 @@ const ProcessingLoading = ({
 };
 
 const ProcessingCompleted = () => {
-  const { onCompletion, selectedProduct } = useBuyCoresContext();
+  const { onCompletion, selectedProduct, squadWallet } = useBuyCoresContext();
 
   return (
     <>
@@ -151,7 +159,9 @@ const ProcessingCompleted = () => {
         type={TypographyType.Callout}
         color={TypographyColor.Tertiary}
       >
-        Success! Your Cores are now available in your balance.
+        {squadWallet
+          ? `Success! Your Cores are now in the ${squadWallet.name} wallet.`
+          : 'Success! Your Cores are now available in your balance.'}
       </Typography>
       <Button
         onClick={onCompletion}
@@ -212,7 +222,7 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
     onValidateAction,
   });
 
-  const { providerTransactionId } = useBuyCoresContext();
+  const { providerTransactionId, squadWallet } = useBuyCoresContext();
 
   const { data: transaction } = useQuery({
     queryKey: [RequestKey.Transactions, { providerId: providerTransactionId }],
@@ -232,6 +242,14 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
         queryKey: generateQueryKey(RequestKey.Transactions, user),
         exact: false,
       });
+
+      if (squadWallet) {
+        [RequestKey.SquadWallet, RequestKey.SquadSubscription].forEach((key) =>
+          queryClient.invalidateQueries({
+            queryKey: generateQueryKey(key, user, squadWallet.sourceId),
+          }),
+        );
+      }
 
       return result;
     },
@@ -339,9 +357,9 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
   );
 };
 
-type BuyCoresProps = Pick<CoreOptionsProps, 'amountNeededCopy'>;
+type BuyCoresProps = Pick<CoreOptionsProps, 'amountNeededCopy' | 'promo'>;
 
-const BuyCoresMobile = ({ amountNeededCopy }: BuyCoresProps) => {
+const BuyCoresMobile = ({ amountNeededCopy, promo }: BuyCoresProps) => {
   const { selectedProduct, openCheckout, paddle } = useBuyCoresContext();
 
   useEffect(() => {
@@ -361,7 +379,7 @@ const BuyCoresMobile = ({ amountNeededCopy }: BuyCoresProps) => {
           'bg-gradient-to-t from-theme-overlay-float-bun to-transparent',
         )}
       >
-        <CoreOptions amountNeededCopy={amountNeededCopy} />
+        <CoreOptions amountNeededCopy={amountNeededCopy} promo={promo} />
       </ModalBody>
     );
   }
@@ -376,7 +394,7 @@ const BuyCoresMobile = ({ amountNeededCopy }: BuyCoresProps) => {
       {selectedProduct ? (
         <BuyCoresCheckout className="p-6" />
       ) : (
-        <CoreOptions amountNeededCopy={amountNeededCopy} />
+        <CoreOptions amountNeededCopy={amountNeededCopy} promo={promo} />
       )}
     </ModalBody>
   );
@@ -400,7 +418,7 @@ export const CorePageCheckoutVideo = (): ReactElement => {
   );
 };
 
-const BuyCoreDesktop = ({ amountNeededCopy }: BuyCoresProps) => {
+const BuyCoreDesktop = ({ amountNeededCopy, promo }: BuyCoresProps) => {
   const { selectedProduct } = useBuyCoresContext();
 
   return (
@@ -410,7 +428,11 @@ const BuyCoreDesktop = ({ amountNeededCopy }: BuyCoresProps) => {
       )}
     >
       <div className="flex flex-1 flex-row">
-        <CoreOptions className="p-6" amountNeededCopy={amountNeededCopy} />
+        <CoreOptions
+          className="p-6"
+          amountNeededCopy={amountNeededCopy}
+          promo={promo}
+        />
         <BuyCoresCheckout
           className={classNames(
             !selectedProduct && 'hidden',
@@ -433,11 +455,12 @@ const BuyCoreDesktop = ({ amountNeededCopy }: BuyCoresProps) => {
 const BuyFlow = ({
   onPlusClick: onPlusButtonClick,
   amountNeededCopy,
+  promo,
   ...props
 }: ModalProps & ModalHeaderProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const canPurchaseCores = useCanPurchaseCores();
-  const { origin } = useBuyCoresContext();
+  const { origin, squadWallet } = useBuyCoresContext();
 
   return (
     <Modal
@@ -447,7 +470,11 @@ const BuyFlow = ({
       {...props}
     >
       <Modal.Header
-        title={!isMobile ? 'Get More Cores' : undefined}
+        title={
+          !isMobile
+            ? `Get More Cores${squadWallet ? ` for ${squadWallet.name}` : ''}`
+            : undefined
+        }
         className="mr-auto flex-row-reverse justify-between gap-4 laptop:justify-end"
         showCloseButton={!isMobile}
       >
@@ -455,6 +482,7 @@ const BuyFlow = ({
           hideBuyButton={!canPurchaseCores}
           onPlusClick={onPlusButtonClick}
           origin={origin}
+          squadWallet={squadWallet}
         />
         {isMobile && (
           <Button
@@ -468,9 +496,9 @@ const BuyFlow = ({
         )}
       </Modal.Header>
       {isMobile ? (
-        <BuyCoresMobile amountNeededCopy={amountNeededCopy} />
+        <BuyCoresMobile amountNeededCopy={amountNeededCopy} promo={promo} />
       ) : (
-        <BuyCoreDesktop amountNeededCopy={amountNeededCopy} />
+        <BuyCoreDesktop amountNeededCopy={amountNeededCopy} promo={promo} />
       )}
     </Modal>
   );
@@ -504,18 +532,21 @@ type BuyCoresModalProps = ModalProps &
     product?: Product;
     /** The Cores the user is missing, see `BuyCoresContextData.minCoresToBuy` */
     minCoresToBuy?: number;
+    squadWallet?: SquadWallet;
   };
 export const BuyCoresModal = ({
   origin,
   onCompletion,
   product,
   minCoresToBuy,
+  squadWallet,
   ...props
 }: BuyCoresModalProps): ReactElement => {
   return (
     <BuyCoresContextProvider
       amountNeeded={product?.value}
       minCoresToBuy={minCoresToBuy}
+      squadWallet={squadWallet}
       onCompletion={onCompletion}
       origin={origin}
     >

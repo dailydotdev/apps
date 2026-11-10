@@ -264,11 +264,6 @@ export const SetupCodex: Story = {
   render: () => <SetupScreen initialClient={AgentClient.Codex} />,
 };
 
-export const SetupVsCode: Story = {
-  name: '4i. Agent path, VS Code',
-  render: () => <SetupScreen initialClient={AgentClient.VSCode} />,
-};
-
 export const SetupOther: Story = {
   name: '4j. Agent path, any other client',
   render: () => <SetupScreen initialClient={AgentClient.Other} />,

@@ -10,10 +10,12 @@ import {
 } from '../../../../components/buttons/Button';
 import {
   ArrowIcon,
+  LockIcon,
   MoveToIcon,
   OpenLinkIcon,
 } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
+import { Pill, PillSize } from '../../../../components/Pill';
 import {
   Typography,
   TypographyColor,
@@ -27,8 +29,11 @@ import { hasSquadFeature } from '../../lib/features';
 import type { SquadManageGroup } from '../../lib/manage';
 import { squadManageTitles } from '../../lib/manage';
 import { useSquadManageGroups } from '../../hooks/useSquadManageGroups';
-import type { SquadManageSection } from '../../lib/routes';
-import { getSquadManageUrl, getSquadUrl } from '../../lib/routes';
+import {
+  getSquadManageUrl,
+  getSquadUrl,
+  SquadManageSection,
+} from '../../lib/routes';
 import { VerifiedSquadBadge } from '../VerifiedSquad';
 import { ShellPage } from '../../../../components/shell/ShellPageContext';
 import { goBackPast } from '../../../../components/shell/shellNav';
@@ -99,7 +104,10 @@ const ManageMenu = ({
             </Typography>
             {group.items.map((item) => {
               const isActive = active === item.id;
-              const href = getSquadManageUrl(squad.handle, item.id);
+              const href = getSquadManageUrl(
+                squad.handle,
+                item.lockedPlan ? SquadManageSection.Plan : item.id,
+              );
 
               return (
                 <Link key={item.id} href={href} passHref>
@@ -119,6 +127,18 @@ const ManageMenu = ({
                       size: isLarge ? IconSize.Small : IconSize.XSmall,
                     })}
                     <span>{item.label}</span>
+                    {!!item.lockedPlan && (
+                      <Pill
+                        label={
+                          <>
+                            <LockIcon size={IconSize.Size16} />
+                            {item.lockedPlan}
+                          </>
+                        }
+                        size={PillSize.XSmall}
+                        className="ml-auto gap-0.5 bg-overlay-float-cabbage text-accent-cabbage-default"
+                      />
+                    )}
                     {!!item.badge && (
                       <span className="ml-auto tabular-nums text-text-quaternary typo-footnote">
                         {item.badge}
@@ -129,7 +149,7 @@ const ManageMenu = ({
                         size={IconSize.Size16}
                         className={classNames(
                           'rotate-90 text-text-quaternary',
-                          !item.badge && 'ml-auto',
+                          !item.badge && !item.lockedPlan && 'ml-auto',
                         )}
                       />
                     )}
@@ -317,7 +337,7 @@ export const SquadManageLayout = ({
   children,
 }: SquadManageLayoutProps): ReactElement => {
   const { squad } = useSquadPageContext();
-  const { groups } = useSquadManageGroups();
+  const groups = useSquadManageGroups();
   const squadUrl = getSquadUrl(squad.handle);
   const isPhone = useIsPhone();
 

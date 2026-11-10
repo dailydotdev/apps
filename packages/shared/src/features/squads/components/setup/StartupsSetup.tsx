@@ -24,6 +24,8 @@ import { LogEvent } from '../../../../lib/log';
 import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
 import {
   SQUAD_PLAN_INTEL_TOPICS,
+  formatBoostCredits,
+  getSquadPlanCreditsForRate,
   SQUAD_PLAN_CASHBACK_PERCENTAGE,
   SQUAD_PLAN_SEATS,
   SquadPlan,
@@ -36,7 +38,9 @@ import {
 } from '../../lib/setup';
 import { getSquadId } from '../../lib/features';
 import { useLogStartups } from '../../hooks/useLogStartups';
+import type { AgentMarkData } from '../checkout/agentMarks';
 import { agentMarks } from '../checkout/agentMarks';
+import { AgentMark } from '../checkout/AgentMark';
 import type { SquadProduct } from '../../../../graphql/squadProducts';
 import type { StartupsSetupRow } from './StartupsSetupEditor';
 
@@ -59,7 +63,7 @@ interface SetupItem {
   title: string;
   description: string;
   isDone?: boolean;
-  /** Counts towards "2 of 5": the agent and cashback rows don't. */
+  /** Counts towards "2 of 5": the agent and boost credits rows don't. */
   isCounted?: boolean;
   /** Shown in place of the button, for features still on the way. */
   badge?: string;
@@ -128,9 +132,7 @@ export const CopyBlock = ({
   );
 };
 
-const agentClientMarks: Partial<
-  Record<AgentClient, (typeof agentMarks)[keyof typeof agentMarks]>
-> = {
+const agentClientMarks: Partial<Record<AgentClient, AgentMarkData>> = {
   [AgentClient.ClaudeCode]: agentMarks['claude-code'],
   [AgentClient.Cursor]: agentMarks.cursor,
   [AgentClient.Codex]: agentMarks.codex,
@@ -148,21 +150,11 @@ const AgentClientMark = ({
   }
 
   return (
-    <span
-      className="flex size-6 items-center justify-center rounded-6"
-      style={{ background: mark.tile, color: '#fff' }}
-    >
-      <svg
-        viewBox={mark.glyph.viewBox}
-        className="size-4"
-        fill="currentColor"
-        aria-hidden
-      >
-        {mark.glyph.paths.map((d) => (
-          <path key={d} d={d} fillRule="evenodd" />
-        ))}
-      </svg>
-    </span>
+    <AgentMark
+      mark={mark}
+      className="size-6 rounded-6"
+      glyphClassName="size-4"
+    />
   );
 };
 
@@ -212,7 +204,7 @@ export const AgentConnect = ({
       ))}
     </div>
     {/* Every client is laid out at once, so switching moves nothing below. */}
-    <div className="grid">
+    <div className="grid grid-cols-1">
       {agentClients.map((option) => {
         const setup = agentClientSetup[option];
 
@@ -293,8 +285,9 @@ const AgentSetup = ({
       <div className="flex flex-col gap-3">
         <p className="font-bold typo-callout">2. Paste this prompt</p>
         <p className="text-text-tertiary typo-footnote">
-          Your agent reads your project, drafts the page and asks you before it
-          saves anything.
+          Your agent sets up the page and your profile, picks your first post
+          and boosts it, then schedules a daily report. It asks before it saves
+          anything.
         </p>
         <CopyBlock
           text={prompt}
@@ -545,6 +538,7 @@ export const StartupsSetup = ({
   initialPath = StartupsSetupPath.Agent,
   onEditRow,
 }: StartupsSetupProps): ReactElement => {
+  const { user } = useAuthContext();
   const sourceId = getSquadId(squad);
   const [path, setPath] = useState(initialPath);
   const logStartups = useLogStartups();
@@ -558,6 +552,11 @@ export const StartupsSetup = ({
   const isTeam = plan === SquadPlan.Team;
   const { done, hasIntel, isChecking, isAgentConnected } =
     useStartupsSetupProgress(squad, plan);
+  // Read from the cache: the checkout and Manage › Plan load it already
+  const { data: subscription } = useQuery({
+    ...squadSubscriptionQueryOptions({ user, sourceId }),
+    enabled: false,
+  });
   const manageUrl = (section: SquadManageSection) =>
     getSquadManageUrl(squad.handle, section);
   const selectPath = (option: StartupsSetupPath) => {
@@ -634,9 +633,14 @@ export const StartupsSetup = ({
     },
     {
       id: 'cashback',
-      title: `${SQUAD_PLAN_CASHBACK_PERCENTAGE[plan]}% cashback`,
-      description:
-        'Lands in your page wallet every month, to boost your posts.',
+      title: `${formatBoostCredits(
+        getSquadPlanCreditsForRate(
+          plan,
+          subscription?.cashbackPercentage ||
+            SQUAD_PLAN_CASHBACK_PERCENTAGE[plan],
+        ),
+      )} in boost credits every month`,
+      description: 'Lands in your page wallet. Use it to boost your posts.',
       isDone: true,
     },
   ];
