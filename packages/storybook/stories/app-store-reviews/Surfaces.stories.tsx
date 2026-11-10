@@ -157,7 +157,9 @@ const AskSheet = (): ReactElement => {
   return (
     <Sheet className="gap-5 px-4">
       <div className="flex flex-col items-center gap-2 pt-4 text-center">
-        <LogoIcon className={{ container: 'size-12' }} />
+        <span aria-hidden>
+          <LogoIcon className={{ container: 'size-12' }} />
+        </span>
         <Typography type={TypographyType.Title2} bold className="mt-2">
           {askCopy.headline}
         </Typography>
@@ -467,7 +469,9 @@ const ReviewScreen = ({
         <ModalClose onClick={noop} className="!static" />
       </div>
       <div className="flex flex-col items-center gap-2 px-6 pt-2 text-center">
-        <LogoIcon className={{ container: 'size-12' }} />
+        <span aria-hidden>
+          <LogoIcon className={{ container: 'size-12' }} />
+        </span>
         <Typography type={TypographyType.Title1} bold className="mt-2">
           {askCopy.headline}
         </Typography>
