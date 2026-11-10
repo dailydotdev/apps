@@ -117,14 +117,6 @@ const Sheet = ({
   </div>
 );
 
-const FiveStars = ({ size }: { size: IconSize }): ReactElement => (
-  <span className="flex text-accent-cheese-default" aria-label="5 stars">
-    {[1, 2, 3, 4, 5].map((star) => (
-      <StarIcon key={star} secondary size={size} />
-    ))}
-  </span>
-);
-
 // Our own ask around Apple's sheet, whose text stays fixed. The CTA is the
 // write-a-review link, never the prompt itself.
 const askCopy = {
@@ -165,7 +157,7 @@ const AskSheet = (): ReactElement => {
   return (
     <Sheet className="gap-5 px-4">
       <div className="flex flex-col items-center gap-2 pt-4 text-center">
-        <FiveStars size={IconSize.Large} />
+        <LogoIcon className={{ container: 'size-12' }} />
         <Typography type={TypographyType.Title2} bold className="mt-2">
           {askCopy.headline}
         </Typography>
@@ -422,42 +414,41 @@ const RateRowSurface = (): ReactElement => (
   </Section>
 );
 
-// Real testimonials from daily.dev/wall-of-love, word for word.
+// Placeholder people and quotes. In production the quotes come word for word
+// from the same source as daily.dev/wall-of-love, never a list in the bundle.
+const placeholderAvatar = (index: number): string =>
+  `https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/${index}`;
+
 const testimonials = [
   {
-    name: 'Kavinda Jayakody',
+    name: 'Alex Rivera',
     role: 'Software Engineer',
-    avatar:
-      'https://media.daily.dev/image/fetch/s--Nr50fvYN--/c_fill,dpr_auto,f_auto,g_auto,h_96,q_auto,w_96/https://avatars0.githubusercontent.com/u/19621533%3Fv%3D4',
-    text: 'It has fundamentally transformed how I grow as an engineer. I’m consistently the most up-to-date member of my team, and that’s entirely thanks to daily.dev.',
+    avatar: placeholderAvatar(1),
+    text: 'It changed how I keep up with my field. I am usually the one on my team who already read about the new release.',
   },
   {
-    name: 'SarcasmoRex',
+    name: 'Sam Patel',
     role: 'Senior Staff Software Engineer',
-    avatar:
-      'https://media.daily.dev/image/upload/s--38g7WNfZ--/f_auto/v1738777498/avatars/avatar_osFxhrSqOmGcuzGADoWTZ',
-    text: 'Daily.dev has become my daily (no pun intended) source of insight into emerging tech and the conversations around it.',
+    avatar: placeholderAvatar(2),
+    text: 'My daily source of what is new in tech, and of the conversations developers are having about it.',
   },
   {
-    name: 'Sten Roger',
+    name: 'Jordan Lee',
     role: 'CTO',
-    avatar:
-      'https://media.daily.dev/image/fetch/s--58S1Yctk--/c_fill,dpr_auto,f_auto,g_auto,h_96,q_auto,w_96/https://avatars.githubusercontent.com/u/45278%3Fv%3D4',
-    text: 'Amazing way to get latest news. Before I used to go to github.com/trending to look, but now I get it into my daily routine.',
+    avatar: placeholderAvatar(3),
+    text: 'I used to check a handful of sites every morning. Now it is one tab, and it is part of my routine.',
   },
   {
-    name: 'Claudette',
+    name: 'Casey Morgan',
     role: 'Software Developer',
-    avatar:
-      'https://media.daily.dev/image/upload/s--XETtmu2---/f_auto/v1768495176/avatars/avatar_kHOkBMuMUz4W1VBvtNmLd?_a=BAMAMiiu0',
-    text: 'Honestly, daily.dev is my browser startup page now. It keeps me up to date with the latest tech news and resources without having to hunt all over the internet.',
+    avatar: placeholderAvatar(4),
+    text: 'It is my browser start page now. The latest news and resources, without hunting all over the internet.',
   },
   {
-    name: 'coppnic',
-    role: 'Senior Developer, former CTO',
-    avatar:
-      'https://media.daily.dev/image/upload/s--8VyNl1cb--/f_auto/v1732889303/avatars/avatar_z5bNZJIOpNguomDjmmrE2',
-    text: 'Condensed news with industry relevant comments & a friendly community accelerate my opinion forming.',
+    name: 'Riley Chen',
+    role: 'Senior Developer',
+    avatar: placeholderAvatar(5),
+    text: 'Short summaries plus comments from people in the industry help me form an opinion fast.',
   },
 ];
 
@@ -476,7 +467,7 @@ const ReviewScreen = ({
         <ModalClose onClick={noop} className="!static" />
       </div>
       <div className="flex flex-col items-center gap-2 px-6 pt-2 text-center">
-        <FiveStars size={IconSize.Large} />
+        <LogoIcon className={{ container: 'size-12' }} />
         <Typography type={TypographyType.Title1} bold className="mt-2">
           {askCopy.headline}
         </Typography>
@@ -642,7 +633,7 @@ const WeekRule = (): ReactElement => (
 const HeavyWeekSurface = (): ReactElement => (
   <Section
     title="A heavy week of reading"
-    idea={`Apple suggests timing the ask by how often people use the app, and time spent is the most honest sign someone likes it. When a reader passes ${weeklyMinutesBar} minutes and ${weeklyDaysBar} reading days in the last 7 days, the next time they finish an article and land back on the feed, review-request fires on its own and Apple's sheet opens. That is a natural break, never mid-article, never at launch and never in a session with errors. The bars live in GrowthBook so we can tune them, and the 120-day cooldown is kept on the server.`}
+    idea={`Apple suggests timing the ask by how often people use the app, and time spent is the most honest sign someone likes it. When a reader passes ${weeklyMinutesBar} minutes and ${weeklyDaysBar} reading days in the last 7 days, the next time they finish an article and land back on the feed, review-request fires on its own and Apple's sheet opens. That is a natural break, never mid-article, never at launch and never in a session with errors. The bars live in GrowthBook so we can tune them, and the 120-day cooldown is kept on the device.`}
   >
     <WeekRule />
     <Phone label="1. Back on the feed after the article that crossed the bar">

@@ -9,9 +9,8 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/common';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 
-// Every idea from the "Find a hack to get more App Store reviews" brainstorm
-// with Agent Smith, on one board. Ratings data is from App Store Connect as
-// pulled on 2026-11-08.
+// Every idea from the "Find a hack to get more App Store reviews" brainstorm,
+// on one board. Ratings are the public App Store numbers as of 2026-11-08.
 
 type Risk = 'low' | 'medium' | 'gray';
 
@@ -43,9 +42,9 @@ const groups: Group[] = [
         name: 'Streak milestone close',
         ui: 'streak-prompt',
         mechanic:
-          'Call review-request about 1.5s after the 7, 30 or 100-day streak celebration lands, so Apple’s sheet shows over the milestone. Its text is fixed by iOS; the milestone behind it is the context.',
+          'Call review-request about 1.5s after a 30-day or later streak celebration lands, so Apple’s sheet shows over the milestone. Its text is fixed by iOS; the milestone behind it is the context.',
         trigger: 'Streak milestone drawer shown',
-        why: 'Proud and retained, with the streak count on screen when Apple asks. The patch is already written in ios/docs/aso/ratings-prompt.md.',
+        why: 'Proud and retained, with the streak count on screen when Apple asks.',
         risk: 'low',
         pick: true,
       },
@@ -53,10 +52,9 @@ const groups: Group[] = [
         name: 'Achievement unlocked',
         mechanic:
           'Fire review-request when the AchievementCompletionModal closes (it logs “dismiss achievement completion”).',
-        trigger: 'Achievement unlocked, about 150 iOS users a week',
+        trigger: 'Achievement unlocked',
         why: 'A full-screen “you did it” with a rarity tier and nothing to buy. The most common win on iOS, so it goes near the top.',
         risk: 'low',
-        pick: true,
       },
       {
         name: 'Push notification payoff',
@@ -116,15 +114,16 @@ const groups: Group[] = [
           'When someone passes 90 minutes and 5 reading days in the last 7 days, Apple’s sheet opens on its own the next time they finish an article and land back on the feed. Apple itself suggests timing the ask by how often people use the app.',
         trigger: 'Weekly reading bars crossed, back on the feed',
         why: 'Time spent is the most honest sign someone likes the app.',
-        risk: 'low',
-        riskNote: 'Never mid-article. Tune the bars in GrowthBook.',
+        risk: 'medium',
+        riskNote:
+          'Our own ask sheet comes before Apple’s, like the review screen. Its “Not now” never cancels review-request. Never mid-article. Tune the bars in GrowthBook.',
         pick: true,
       },
       {
         name: 'Joined a squad',
         mechanic:
           'After “complete joining squad”, fire on the first scroll back to the feed, not on the join itself.',
-        trigger: 'Squad joined, about 70 iOS users a week',
+        trigger: 'Squad joined',
         why: 'They chose to belong somewhere, and land on a fresh feed of their own people.',
         risk: 'low',
       },
@@ -132,7 +131,7 @@ const groups: Group[] = [
         name: 'Left a live chat',
         mechanic:
           'Fire when someone leaves a live chat on a trending post, never during it.',
-        trigger: '“join live chat”, about 55 iOS users a week',
+        trigger: 'Left a live chat',
         why: 'Live with other developers while news breaks: the most social moment in the product.',
         risk: 'low',
       },
@@ -140,7 +139,7 @@ const groups: Group[] = [
         name: 'Your squad grew',
         mechanic:
           'After a squad_member_joined notification is opened, once they leave the squad page. Never as the app launches from the push.',
-        trigger: 'Squad admins, about 19 iOS users a week',
+        trigger: 'Squad admins, when a member joins',
         why: 'They watch something they built grow.',
         risk: 'low',
       },
@@ -148,7 +147,7 @@ const groups: Group[] = [
         name: 'New follower',
         mechanic:
           'After a user_follow notification is opened, once they leave the new follower’s profile.',
-        trigger: 'About 12 iOS users a week',
+        trigger: 'Follow notification opened',
         why: 'A peer recognizing them personally counts for more than a vote.',
         risk: 'low',
       },
@@ -156,7 +155,7 @@ const groups: Group[] = [
         name: 'Your feature request shipped',
         mechanic:
           'After a feedback_resolved notification on a Feature Request is opened, once they leave the thread.',
-        trigger: 'About 15 iOS users a week',
+        trigger: 'Feature request resolved',
         why: 'Real people listened and built it: the strongest “they care” moment.',
         risk: 'low',
         riskNote:
@@ -169,9 +168,9 @@ const groups: Group[] = [
           'After the first renewal, and on the Plus anniversary, a thank-you sheet shows what Plus did for them that month when they come back to the feed from an article. After a short pause, Apple’s sheet opens on its own over it. “Gift Plus to a friend” is the sheet’s button.',
         trigger: 'First article after the first renewal, Plus anniversary',
         why: 'Paying members already decided daily.dev is worth it, and renewing is the proof.',
-        risk: 'low',
+        risk: 'medium',
         riskNote:
-          'Never on checkout or paywall screens, never after a failed payment, and no perk for rating.',
+          'Our own ask card comes before Apple’s sheet, and closing it never cancels review-request. Never on checkout or paywall screens, never after a failed payment, and no perk for rating.',
         pick: true,
       },
       {
@@ -224,16 +223,16 @@ const groups: Group[] = [
         pick: true,
       },
       {
-        name: 'Track the shot on the server',
+        name: 'Later: track the shot on the server',
         mechanic:
-          'Log review_prompt_requested with the trigger name, keep the 120-day cooldown per user across devices, ask at most once per app version (as Apple’s own sample does), and A/B which trigger goes first in GrowthBook.',
+          'The first build keeps the cooldown on the device. Later, log review_prompt_requested with the trigger name, move the 120-day cooldown to the server so it holds per user across devices, ask at most once per app version (as Apple’s own sample does), and A/B which trigger goes first in GrowthBook.',
         why: 'With ~1 shot a year per user, learn which moment earns the most ratings.',
         risk: 'low',
       },
       {
         name: 'Same thing on Android',
         mechanic:
-          'Build the bridge in dailydotdev/android with Play’s In-App Review API and reuse the web triggers.',
+          'Build the bridge in the Android app with Play’s In-App Review API and reuse the web triggers.',
         why: 'One web change feeds both stores.',
         risk: 'low',
         riskNote: 'Google bans "do you like us?" before the prompt too.',
@@ -413,7 +412,7 @@ const ReviewHacksBoard = (): ReactElement => {
               and review-open-store, but the webapp never calls either. How many
               ratings we have matters more than the average, so the biggest hack
               is wiring it up and spending the one shot a year on the best
-              moment. Every idea below came out of the session with Agent Smith.
+              moment.
             </p>
             <a
               href="/?path=/story/app-store-review-surfaces--all-surfaces"

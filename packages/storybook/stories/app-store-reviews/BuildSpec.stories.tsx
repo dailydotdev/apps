@@ -163,7 +163,7 @@ const plumbing = [
   ],
   [
     'Last-ask storage',
-    '`usePersistentContext` key `review_prompt` holding `{ lastAskedAt, appVersion, rated }`. Device-local is enough: iOS only, and Apple caps the pop-up at 3 a year.',
+    '`usePersistentContext` key `review_prompt` holding `{ lastAskedAt, appVersion, rated }`. Device-local is enough for the first build: iOS only, and Apple caps the pop-up at 3 a year. Moving the cooldown to the server, per user across devices, is a later step on the ideas board.',
   ],
   [
     'Flags',
@@ -182,7 +182,7 @@ const plumbing = [
 const ideas = [
   [
     'Streak milestone',
-    '30-day and later milestones; Apple’s pop-up about 1.5s after',
+    '30-day and later milestones, the same on the board; Apple’s pop-up about 1.5s after',
     '`NewStreakModal.tsx` gets an `AskCard` under the copy, above the `Checkbox`.',
   ],
   [
@@ -193,7 +193,7 @@ const ideas = [
   [
     'Review screen after a big release',
     'First article on a flagged release, back on the feed',
-    'A full-screen `Modal` with `ModalClose`, `FiveStars`, the testimonial carousel, and `Button` Primary Large with `AppleIcon`.',
+    'A full-screen `Modal` with `ModalClose`, `LogoIcon`, the testimonial carousel, and `Button` Primary Large with `AppleIcon`.',
   ],
   [
     'Heavy reading week',
@@ -214,11 +214,11 @@ const pieces = [
   ],
   [
     'AskSheet',
-    '`FiveStars` Large in `text-accent-cheese-default`; headline in Title2 bold; body in Callout Tertiary; `Button` Primary Large.',
+    '`LogoIcon` at `size-12`, no stars (only Apple’s own sheets draw stars); headline in Title2 bold; body in Callout Tertiary; `Button` Primary Large.',
   ],
   [
     'Testimonial card',
-    'Five quotes from daily.dev/wall-of-love, word for word, in a static list in the bundle. `rounded-16 border-border-subtlest-tertiary bg-surface-float p-4`, quote `line-clamp-4`, avatar `size-8 rounded-10`, name Caption1 bold `truncate`, role Caption2 Tertiary `truncate`. No stars: they are not App Store reviews.',
+    'Five quotes loaded from the same source as daily.dev/wall-of-love, word for word, never a static list in the bundle, so a removed testimonial disappears without an app release. Confirm the wall of love consent covers in-app use. The story uses placeholder people. `rounded-16 border-border-subtlest-tertiary bg-surface-float p-4`, quote `line-clamp-4`, avatar `size-8 rounded-10`, name Caption1 bold `truncate`, role Caption2 Tertiary `truncate`. No stars: they are not App Store reviews.',
   ],
 ];
 
@@ -236,7 +236,7 @@ const states = [
     title: 'Loading',
     items: [
       'No skeletons: the asks are opportunistic. If the data a surface needs (Plus stats, streak) is not in the cache yet, skip the ask this time.',
-      'Testimonials are static, so nothing loads.',
+      'Testimonials not loaded yet: hide the carousel, no skeleton.',
     ],
   },
   {
@@ -272,7 +272,7 @@ const accessibility = [
   {
     title: 'Screen readers',
     items: [
-      '`FiveStars` on ask screens is decorative: `aria-hidden`. Today it has `aria-label="5 stars"`, which reads as a rating claim.',
+      'No stars on our surfaces, so nothing reads as a rating claim. `LogoIcon` is decorative: `aria-hidden`.',
       'Wrap ❤️ in `aria-hidden` so headlines don’t end with “red heart”.',
       'Avatar stack `alt=""`; testimonial avatar `alt={name}`.',
       'Carousel: a `section` with `aria-label="What developers say"`, each card an `article`.',
@@ -320,6 +320,10 @@ const omissions = [
   [
     'Android and desktop',
     'Out of scope. Every surface is gated on `iOSSupportsReview()`, so nothing renders elsewhere.',
+  ],
+  [
+    '“Not now” before Apple’s pop-up',
+    '`review-request` is scheduled when our sheet or card opens. Closing it or tapping “Not now” in the ~2s before never cancels it. Otherwise only people who stay would be asked, which is review gating.',
   ],
   [
     'Our sheet behind Apple’s',
