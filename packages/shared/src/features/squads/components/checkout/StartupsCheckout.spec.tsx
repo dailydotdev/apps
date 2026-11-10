@@ -7,7 +7,12 @@ import { useSquadCreate } from '../../../../hooks/squads/useSquadCreate';
 import { LogEvent, TargetType } from '../../../../lib/log';
 import { SourceMemberRole } from '../../../../graphql/sources';
 import type { Squad } from '../../../../graphql/sources';
-import { saveStartupsGoals } from '../../../../graphql/squadSubscription';
+import {
+  saveStartupsGoals,
+  SQUAD_SUBSCRIPTION_QUERY,
+} from '../../../../graphql/squadSubscription';
+import { mockGraphQL } from '../../../../../__tests__/helpers/graphql';
+import defaultUser from '../../../../../__tests__/fixture/loggedUser';
 import { StartupsCheckout, StartupsCheckoutStep } from './StartupsCheckout';
 
 jest.mock('../../../../graphql/squadSubscription', () => ({
@@ -329,5 +334,114 @@ describe('StartupsCheckout goal question', () => {
     expect(
       logEvent.mock.calls.map(([event]) => event).filter(isGoalEvent),
     ).toEqual([]);
+  });
+});
+
+describe('StartupsCheckout linked from a squad', () => {
+  const acme = {
+    id: 'acme',
+    name: 'Acme',
+    handle: 'acme',
+    currentMember: { role: SourceMemberRole.Admin },
+  } as Squad;
+  const globexId = 'globex';
+  const globex = {
+    id: globexId,
+    name: 'Globex',
+    handle: 'globex',
+    currentMember: { role: SourceMemberRole.Admin },
+  } as Squad;
+
+  const mockSubscription = (plan: string | null) =>
+    mockGraphQL({
+      request: {
+        query: SQUAD_SUBSCRIPTION_QUERY,
+        variables: { sourceId: globexId },
+      },
+      result: {
+        data: {
+          squadSubscription: {
+            plan,
+            status: null,
+            seatLimit: null,
+            seatsUsed: 1,
+            ownerId: null,
+            cashbackPercentage: null,
+            cashbackPromoEndsAt: null,
+          },
+        },
+      },
+    });
+
+  const renderLinked = (initialSquadId: string, initialPlan?: string) => {
+    const logEvent = jest.fn();
+
+    render(
+      <TestBootProvider
+        client={new QueryClient()}
+        auth={{ isLoggedIn: true, user: defaultUser, squads: [acme, globex] }}
+        log={{ logEvent }}
+      >
+        <StartupsCheckout
+          initialSquadId={initialSquadId}
+          initialPlan={initialPlan}
+        />
+      </TestBootProvider>,
+    );
+
+    return { logEvent };
+  };
+
+  const viewedSteps = (logEvent: jest.Mock) =>
+    logEvent.mock.calls
+      .map(([event]) => event)
+      .filter(
+        ({ event_name: eventName }) =>
+          eventName === LogEvent.ViewStartupsCheckout,
+      )
+      .map(({ target_id: targetId }) => targetId);
+
+  it('goes straight to the plans for a page without a plan', async () => {
+    mockSubscription(null);
+    const { logEvent } = renderLinked(globexId);
+
+    expect(
+      await screen.findByText('Choose a plan for Globex'),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText('Which page is this for?'),
+    ).not.toBeInTheDocument();
+    expect(viewedSteps(logEvent)).toEqual([StartupsCheckoutStep.Plan]);
+  });
+
+  it('keeps the plan the link picked', async () => {
+    mockSubscription(null);
+    renderLinked(globexId, 'team');
+
+    await screen.findByText('Choose a plan for Globex');
+
+    expect(
+      screen.getByRole('radio', { name: /team/i, checked: true }),
+    ).toBeInTheDocument();
+  });
+
+  it('asks which page when the page is already on a plan', async () => {
+    mockSubscription('starter');
+    renderLinked(globexId);
+
+    expect(
+      await screen.findByText('Which page is this for?'),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText('Choose a plan for Globex'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('asks which page when the link is for a page they do not admin', async () => {
+    renderLinked('someone-elses-squad');
+
+    expect(
+      await screen.findByText('Which page is this for?'),
+    ).toBeInTheDocument();
   });
 });

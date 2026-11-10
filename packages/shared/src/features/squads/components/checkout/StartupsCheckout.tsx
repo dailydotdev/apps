@@ -1136,7 +1136,7 @@ export const StartupsCheckout = ({
   initialAuthDisplay,
   initialAuthEmail,
 }: StartupsCheckoutProps): ReactElement => {
-  const { squads } = useAuthContext();
+  const { squads, user } = useAuthContext();
   const adminSquads = useMemo<CompanyChoice[]>(
     () =>
       (squads ?? []).filter(
@@ -1160,6 +1160,22 @@ export const StartupsCheckout = ({
   );
   const [isNewCompany, setNewCompany] = useState(false);
   const [isReturning, setReturning] = useState(false);
+  // A link from a squad's own page already says which page this is for, so
+  // it goes straight to the plans, unless that page is already on a plan.
+  const linkedSquad = initialSquadId
+    ? adminSquads.find(({ id }) => id === initialSquadId)
+    : undefined;
+  const [isOpeningLink, setOpeningLink] = useState(
+    () =>
+      !!initialSquadId &&
+      initialStep === StartupsCheckoutStep.Company &&
+      !initialCompany,
+  );
+  const { data: linkedSubscription, isError: isLinkedSubscriptionError } =
+    useQuery({
+      ...squadSubscriptionQueryOptions({ user, sourceId: linkedSquad?.id }),
+      enabled: isOpeningLink && !!user?.id && !!linkedSquad,
+    });
   const logStartups = useLogStartups();
   const answers = {
     [CheckoutStage.Company]: company?.name,
@@ -1180,6 +1196,39 @@ export const StartupsCheckout = ({
   }, [adminSquads.length]);
 
   useEffect(() => {
+    if (!isOpeningLink) {
+      return;
+    }
+
+    if (!linkedSquad || !user?.id || isLinkedSubscriptionError) {
+      setOpeningLink(false);
+      return;
+    }
+
+    if (!linkedSubscription) {
+      return;
+    }
+
+    if (!linkedSubscription.plan) {
+      setCompany(linkedSquad);
+      setStep(StartupsCheckoutStep.Plan);
+    }
+
+    setOpeningLink(false);
+  }, [
+    isOpeningLink,
+    linkedSquad,
+    user?.id,
+    linkedSubscription,
+    isLinkedSubscriptionError,
+  ]);
+
+  useEffect(() => {
+    // Logs the step the link lands on, not the one it skips
+    if (isOpeningLink) {
+      return;
+    }
+
     globalThis.scrollTo?.({ top: 0 });
     logStartups(LogEvent.ViewStartupsCheckout, step, {
       plan,
@@ -1188,7 +1237,15 @@ export const StartupsCheckout = ({
       admin_squads: adminSquads.length,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step]);
+  }, [step, isOpeningLink]);
+
+  if (isOpeningLink) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
 
   if (step === StartupsCheckoutStep.Account) {
     return (
