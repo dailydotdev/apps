@@ -509,8 +509,6 @@ const RateRowSurface = (): ReactElement => (
   </Section>
 );
 
-// Placeholder people and quotes. In production the quotes come word for word
-// from the same source as daily.dev/wall-of-love, never a list in the bundle.
 const placeholderAvatar = (index: number): string =>
   `https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/${index}`;
 
@@ -521,39 +519,46 @@ type Testimonial = {
   text: string;
 };
 
+// Real testimonials from daily.dev/wall-of-love, word for word.
 const testimonials: Testimonial[] = [
   {
-    name: 'Alex Rivera',
+    name: 'Kavinda Jayakody',
     role: 'Software Engineer',
-    avatar: placeholderAvatar(1),
-    text: 'It changed how I keep up with my field. I am usually the one on my team who already read about the new release.',
+    avatar:
+      'https://media.daily.dev/image/fetch/s--Nr50fvYN--/c_fill,dpr_auto,f_auto,g_auto,h_96,q_auto,w_96/https://avatars0.githubusercontent.com/u/19621533%3Fv%3D4',
+    text: 'It has fundamentally transformed how I grow as an engineer. I’m consistently the most up-to-date member of my team, and that’s entirely thanks to daily.dev.',
   },
   {
-    name: 'Sam Patel',
+    name: 'SarcasmoRex',
     role: 'Senior Staff Software Engineer',
-    avatar: placeholderAvatar(2),
-    text: 'My daily source of what is new in tech, and of the conversations developers are having about it.',
+    avatar:
+      'https://media.daily.dev/image/upload/s--38g7WNfZ--/f_auto/v1738777498/avatars/avatar_osFxhrSqOmGcuzGADoWTZ',
+    text: 'Daily.dev has become my daily (no pun intended) source of insight into emerging tech and the conversations around it.',
   },
   {
-    name: 'Jordan Lee',
+    name: 'Sten Roger',
     role: 'CTO',
-    avatar: placeholderAvatar(3),
-    text: 'I used to check a handful of sites every morning. Now it is one tab, and it is part of my routine.',
+    avatar:
+      'https://media.daily.dev/image/fetch/s--58S1Yctk--/c_fill,dpr_auto,f_auto,g_auto,h_96,q_auto,w_96/https://avatars.githubusercontent.com/u/45278%3Fv%3D4',
+    text: 'Amazing way to get latest news. Before I used to go to github.com/trending to look, but now I get it into my daily routine.',
   },
   {
-    name: 'Casey Morgan',
+    name: 'Claudette',
     role: 'Software Developer',
-    avatar: placeholderAvatar(4),
-    text: 'It is my browser start page now. The latest news and resources, without hunting all over the internet.',
+    avatar:
+      'https://media.daily.dev/image/upload/s--XETtmu2---/f_auto/v1768495176/avatars/avatar_kHOkBMuMUz4W1VBvtNmLd?_a=BAMAMiiu0',
+    text: 'Honestly, daily.dev is my browser startup page now. It keeps me up to date with the latest tech news and resources without having to hunt all over the internet.',
   },
   {
-    name: 'Riley Chen',
-    role: 'Senior Developer',
-    avatar: placeholderAvatar(5),
-    text: 'Short summaries plus comments from people in the industry help me form an opinion fast.',
+    name: 'coppnic',
+    role: 'Senior Developer, former CTO',
+    avatar:
+      'https://media.daily.dev/image/upload/s--8VyNl1cb--/f_auto/v1732889303/avatars/avatar_z5bNZJIOpNguomDjmmrE2',
+    text: 'Condensed news with industry relevant comments & a friendly community accelerate my opinion forming.',
   },
 ];
 
+// Made-up person, only to stress the longest name, role and quote.
 const longTestimonial: Testimonial = {
   name: 'Maximiliano Fernández-Castellanos',
   role: 'Principal Software Engineer, Developer Experience and Platform',

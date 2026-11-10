@@ -218,7 +218,7 @@ const pieces = [
   ],
   [
     'Testimonial card',
-    'Five quotes loaded from the same source as daily.dev/wall-of-love, word for word, never a static list in the bundle, so a removed testimonial disappears without an app release. Confirm the wall of love consent covers in-app use. The story uses placeholder people. `rounded-16 border-border-subtlest-tertiary bg-surface-float p-4`, quote `line-clamp-4`, avatar `size-8 rounded-10`, name Caption1 bold `truncate`, role Caption2 Tertiary `truncate`. No stars: they are not App Store reviews.',
+    'Five quotes loaded from the same source as daily.dev/wall-of-love, word for word, never a static list in the bundle, so a removed testimonial disappears without an app release. Confirm the wall of love consent covers in-app use. The story shows the current wall of love quotes. `rounded-16 border-border-subtlest-tertiary bg-surface-float p-4`, quote `line-clamp-4`, avatar `size-8 rounded-10`, name Caption1 bold `truncate`, role Caption2 Tertiary `truncate`. No stars: they are not App Store reviews.',
   ],
 ];
 
