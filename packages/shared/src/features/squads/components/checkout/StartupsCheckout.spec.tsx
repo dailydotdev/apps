@@ -344,8 +344,9 @@ describe('StartupsCheckout linked from a squad', () => {
     handle: 'acme',
     currentMember: { role: SourceMemberRole.Admin },
   } as Squad;
+  const globexId = 'globex';
   const globex = {
-    id: 'globex',
+    id: globexId,
     name: 'Globex',
     handle: 'globex',
     currentMember: { role: SourceMemberRole.Admin },
@@ -355,7 +356,7 @@ describe('StartupsCheckout linked from a squad', () => {
     mockGraphQL({
       request: {
         query: SQUAD_SUBSCRIPTION_QUERY,
-        variables: { sourceId: globex.id },
+        variables: { sourceId: globexId },
       },
       result: {
         data: {
@@ -402,7 +403,7 @@ describe('StartupsCheckout linked from a squad', () => {
 
   it('goes straight to the plans for a page without a plan', async () => {
     mockSubscription(null);
-    const { logEvent } = renderLinked(globex.id);
+    const { logEvent } = renderLinked(globexId);
 
     expect(
       await screen.findByText('Choose a plan for Globex'),
@@ -415,7 +416,7 @@ describe('StartupsCheckout linked from a squad', () => {
 
   it('keeps the plan the link picked', async () => {
     mockSubscription(null);
-    renderLinked(globex.id, 'team');
+    renderLinked(globexId, 'team');
 
     await screen.findByText('Choose a plan for Globex');
 
@@ -426,7 +427,7 @@ describe('StartupsCheckout linked from a squad', () => {
 
   it('asks which page when the page is already on a plan', async () => {
     mockSubscription('starter');
-    renderLinked(globex.id);
+    renderLinked(globexId);
 
     expect(
       await screen.findByText('Which page is this for?'),
