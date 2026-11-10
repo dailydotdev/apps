@@ -10,9 +10,7 @@ import CloseButton from '../../../../components/CloseButton';
 import { VIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import { useAuthContext } from '../../../../contexts/AuthContext';
-import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
 import usePersistentContext from '../../../../hooks/usePersistentContext';
-import { featureStartupsCheckout } from '../../../../lib/featureManagement';
 import { LogEvent, Origin } from '../../../../lib/log';
 import { squadSubscriptionQueryOptions } from '../../../../graphql/squadSubscription';
 import { useSquadPageContext } from '../../SquadPageContext';
@@ -45,17 +43,13 @@ export const SquadPlanUpsellWidget = (): ReactElement | null => {
     isViewerKnown &&
     viewer === SquadViewer.Admin &&
     !hasSquadFeature(squad, 'verified');
-  const { value: isEnabled } = useConditionalFeature({
-    feature: featureStartupsCheckout,
-    shouldEvaluate: isCandidate,
-  });
   const [isDismissed, setDismissed, isDismissedFetched] = usePersistentContext(
     `startups_upsell_dismissed_${sourceId}`,
     false,
   );
   const { data: subscription } = useQuery({
     ...squadSubscriptionQueryOptions({ user, sourceId }),
-    enabled: !!user && isCandidate && isEnabled,
+    enabled: !!user && isCandidate,
   });
   const prices = useSquadPlanPrices();
   const logStartups = useLogStartups();
@@ -63,7 +57,6 @@ export const SquadPlanUpsellWidget = (): ReactElement | null => {
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const isShown =
     isCandidate &&
-    isEnabled &&
     isDismissedFetched &&
     !isDismissed &&
     isActionsFetched &&

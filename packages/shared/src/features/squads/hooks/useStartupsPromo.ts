@@ -4,8 +4,6 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import type { Squad } from '../../../graphql/sources';
 import { SourceMemberRole } from '../../../graphql/sources';
 import { squadSubscriptionQueryOptions } from '../../../graphql/squadSubscription';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featureStartupsCheckout } from '../../../lib/featureManagement';
 import { isIOSNative } from '../../../lib/func';
 import { ActionType } from '../../../graphql/actions';
 import { useActions } from '../../../hooks/useActions';
@@ -121,20 +119,15 @@ export const useStartupsPromo = ({
     (isNewSquad
       ? !isCustomer
       : !!squad || (isPersonalAllowed && !isCustomer && !sourceIdIsPaid));
-  const { value: isEnabled } = useConditionalFeature({
-    feature: featureStartupsCheckout,
-    shouldEvaluate: isCandidate,
-  });
   const { data: subscription, isPending } = useQuery({
     ...squadSubscriptionQueryOptions({ user, sourceId: squad?.id }),
-    enabled: !!squad && isCandidate && isEnabled,
+    enabled: !!squad && isCandidate,
   });
   const promo = useStartupsCashbackPromo();
   const prices = useSquadPlanPrices();
   const logStartups = useLogStartups();
   const isShown =
     isCandidate &&
-    isEnabled &&
     isActionsFetched &&
     !isDismissed &&
     (!squad || (!isPending && !!subscription && !subscription.plan));

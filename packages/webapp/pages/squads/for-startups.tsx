@@ -1,12 +1,10 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React from 'react';
 import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { featureStartupsCheckout } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   StartupsCheckout,
   StartupsCheckoutStep,
@@ -19,21 +17,8 @@ const StartupsCheckoutPage = (): ReactElement | null => {
   // A new social account has a user before its profile is complete; it stays
   // on the account step until then.
   const isSignedUp = !!user?.infoConfirmed;
-  const { value: isEnabled, isLoading } = useConditionalFeature({
-    feature: featureStartupsCheckout,
-    shouldEvaluate: isSignedUp,
-  });
 
-  // The flag targets accounts, so a visitor from the landing page signs up
-  // first and is checked after.
-  useEffect(() => {
-    if (isSignedUp && !isLoading && !isEnabled) {
-      router.replace('/squads');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSignedUp, isLoading, isEnabled]);
-
-  if (!isAuthReady || !router.isReady || (isSignedUp && !isEnabled)) {
+  if (!isAuthReady || !router.isReady) {
     return null;
   }
 
