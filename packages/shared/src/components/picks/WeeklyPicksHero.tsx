@@ -93,9 +93,10 @@ const picksGlow: CSSProperties = {
 };
 
 /**
- * Up to three of the week's posts as a fanned stack: on the nudge they are
- * the question marks the reader is asked to answer, on the live card the
- * numbered picks. Decoration only; the card reads the same without them.
+ * Three slots as a fanned stack, filled with the week's posts: on the nudge
+ * they carry the question marks the reader is asked to answer, on the live
+ * card the picks' numbers. The slots are there whether or not the posts
+ * are, so the card keeps its shape while images load.
  */
 const PicksStack = ({
   posts,
@@ -112,36 +113,42 @@ const PicksStack = ({
     aria-hidden
     className={classNames('flex items-center justify-center', className)}
   >
-    {posts.slice(0, PICKS_HERO_THUMBNAILS).map((post, index) => (
-      <div
-        key={post.id}
-        className={classNames(
-          'relative shrink-0 overflow-hidden rounded-10 border-2 border-background-default bg-surface-float shadow-2',
-          size === 'small' ? 'size-14' : 'size-20 rounded-14',
-          index > 0 && (size === 'small' ? '-ml-5' : '-ml-6'),
-          stackRotation[index],
-        )}
-        style={{ zIndex: index }}
-      >
-        <Image
-          src={post.image ?? undefined}
-          alt=""
-          loading="lazy"
-          fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-          className="size-full object-cover"
-        />
-        <span
+    {Array.from({ length: PICKS_HERO_THUMBNAILS }, (_, index) => {
+      const post = posts[index];
+
+      return (
+        <div
+          key={post?.id ?? index}
           className={classNames(
-            'absolute flex items-center justify-center rounded-6 bg-brand-default font-bold text-white',
-            size === 'small'
-              ? 'left-1 top-1 size-5 typo-caption2'
-              : 'left-1.5 top-1.5 size-6 typo-caption1',
+            'relative shrink-0 overflow-hidden rounded-10 border-2 border-background-default bg-surface-float shadow-2',
+            size === 'small' ? 'size-14' : 'size-20 rounded-14',
+            index > 0 && (size === 'small' ? '-ml-5' : '-ml-6'),
+            stackRotation[index],
           )}
+          style={{ zIndex: index }}
         >
-          {badges === 'question' ? '?' : index + 1}
-        </span>
-      </div>
-    ))}
+          {post && (
+            <Image
+              src={post.image ?? undefined}
+              alt=""
+              loading="eager"
+              fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+              className="size-full object-cover"
+            />
+          )}
+          <span
+            className={classNames(
+              'absolute flex items-center justify-center rounded-6 bg-brand-default font-bold text-white',
+              size === 'small'
+                ? 'left-1 top-1 size-5 typo-caption2'
+                : 'left-1.5 top-1.5 size-6 typo-caption1',
+            )}
+          >
+            {badges === 'question' ? '?' : index + 1}
+          </span>
+        </div>
+      );
+    })}
   </div>
 );
 
@@ -196,13 +203,11 @@ const StripShell = ({
       className="pointer-events-none absolute inset-0"
       style={picksGlow}
     />
-    {stack.posts.length > 0 && (
-      <PicksStack
-        {...stack}
-        size="small"
-        className="relative h-24 w-28 shrink-0 self-center tablet:h-28 tablet:w-32"
-      />
-    )}
+    <PicksStack
+      {...stack}
+      size="small"
+      className="relative h-24 w-28 shrink-0 self-center tablet:h-28 tablet:w-32"
+    />
     <div className="relative flex min-w-0 max-w-[18rem] flex-1 flex-col items-start gap-3">
       <div className="flex flex-col">
         <Typography
@@ -279,13 +284,11 @@ const PanelShell = ({
               <div className="mt-4 flex gap-2">{actions(undefined)}</div>
             </div>
           </div>
-          {stack.posts.length > 0 && (
-            <PicksStack
-              {...stack}
-              size="large"
-              className="bg-black/20 h-40 w-full p-2 tablet:h-auto tablet:w-[14.5rem] tablet:p-3 laptopL:w-[16rem]"
-            />
-          )}
+          <PicksStack
+            {...stack}
+            size="large"
+            className="bg-black/20 h-40 w-full p-2 tablet:h-auto tablet:w-[14.5rem] tablet:p-3 laptopL:w-[16rem]"
+          />
         </div>
       </div>
     </div>

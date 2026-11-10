@@ -88,7 +88,7 @@ export const NudgePhone: Story = {
 /** The panel from tablet: copy left, stack right. */
 export const NudgeTablet: Story = { ...NudgePhone, globals: tablet };
 
-/** The thumbnails are decoration: the card reads the same before they land. */
+/** No posts to show: the slots stay, so the card keeps its shape. */
 export const NudgeNoThumbnails: Story = {
   render: () => (
     <WeeklyPicksHeroCard

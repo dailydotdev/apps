@@ -344,7 +344,9 @@ it("should hold the nudge until the week's posts are in", async () => {
   expect(screen.queryByTestId('settled')).not.toBeInTheDocument();
   expect(screen.queryByText('Pick my top 3')).not.toBeInTheDocument();
 
-  expect(await screen.findAllByText('?')).toHaveLength(2);
+  expect(
+    await screen.findAllByRole('presentation', { hidden: true }),
+  ).toHaveLength(2);
   expect(screen.getByTestId('settled')).toBeInTheDocument();
 });
 
