@@ -181,12 +181,11 @@ it("should ask which of the week's posts were worth it", async () => {
 
   const headline = await screen.findByText(
     (_, element) =>
-      element?.tagName === 'P' &&
-      element.textContent ===
-        'You read 12 posts this week. Which 3 were worth it?',
+      ['P', 'H3'].includes(element?.tagName ?? '') &&
+      element.textContent === '12 posts this week. Which 3 were worth it?',
   );
   expect(headline).toBeInTheDocument();
-  expect(screen.getByText('Closes Sunday')).toBeInTheDocument();
+  expect(screen.getByText('Your week · Closes Sunday')).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'Pick my top 3' })).toHaveAttribute(
     'href',
     '/picks/new?origin=home_hero',
@@ -258,8 +257,13 @@ it('should lead with the opens and share again', async () => {
   renderHero();
 
   expect(await screen.findByText('12')).toBeInTheDocument();
-  expect(screen.getByText('people opened your picks.')).toBeInTheDocument();
-  expect(screen.getByText('Keep it going.')).toBeInTheDocument();
+  expect(
+    screen.getByText(
+      (_, element) =>
+        ['P', 'H3'].includes(element?.tagName ?? '') &&
+        element.textContent === '12 people opened your picks',
+    ),
+  ).toBeInTheDocument();
   // The picks in their order, numbered
   expect(screen.getAllByText(/^(12|1|2)$/).map((el) => el.textContent)).toEqual(
     ['12', '1', '2'],
@@ -285,7 +289,7 @@ it('should lead with the link when nobody opened the picks yet', async () => {
   renderHero();
 
   expect(
-    await screen.findByText("Nobody's seen your picks yet"),
+    await screen.findByText("Nobody's opened your picks yet"),
   ).toBeInTheDocument();
   await userEvent.click(screen.getByRole('button', { name: 'Copy link' }));
 

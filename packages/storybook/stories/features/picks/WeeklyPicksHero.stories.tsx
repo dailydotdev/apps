@@ -11,7 +11,9 @@ import ExtensionProviders from '../../extension/_providers';
 // are out, the card leads with how many people opened them and offers the
 // share sheet and a one-tap copy of the link. Closing it hides it until the
 // next week, and so does going to pick. On laptop it sits in the top-hero
-// strip beside the reading reminder; below that, inline above the feed.
+// strip beside the reading reminder, laid out like it: stack first, copy
+// and button after. Below laptop it is the reminder's dark panel above
+// the feed.
 
 const post = (id: string, placeholder: number): PicksPost => ({
   id,
@@ -55,8 +57,9 @@ export default meta;
 type Story = StoryObj;
 
 const phone = { viewport: { value: 'mobile2', isRotated: false } };
+const tablet = { viewport: { value: 'tablet', isRotated: false } };
 
-/** Thursday to Sunday, reading on the clock, no picks yet. */
+/** Thursday to Sunday, reading on the clock, no picks yet. In the strip on laptop. */
 export const Nudge: Story = {
   render: () => (
     <WeeklyPicksHeroCard
@@ -68,8 +71,22 @@ export const Nudge: Story = {
   ),
 };
 
-/** The label shortens and the button goes full width. */
-export const NudgePhone: Story = { ...Nudge, globals: phone };
+/** Below laptop: the reading reminder's panel, copy centered, stack in a band under it. */
+export const NudgePhone: Story = {
+  render: () => (
+    <WeeklyPicksHeroCard
+      variant="panel"
+      state="nudge"
+      signals={{ upvotes: 4, bookmarks: 2, reads: 6 }}
+      suggestions={week}
+      onDismiss={() => undefined}
+    />
+  ),
+  globals: phone,
+};
+
+/** The panel from tablet: copy left, stack right. */
+export const NudgeTablet: Story = { ...NudgePhone, globals: tablet };
 
 /** The thumbnails are decoration: the card reads the same before they land. */
 export const NudgeNoThumbnails: Story = {
@@ -94,7 +111,18 @@ export const Live: Story = {
   ),
 };
 
-export const LivePhone: Story = { ...Live, globals: phone };
+export const LivePhone: Story = {
+  render: () => (
+    <WeeklyPicksHeroCard
+      variant="panel"
+      state="live"
+      picks={picks}
+      viewCount={12}
+      onDismiss={() => undefined}
+    />
+  ),
+  globals: phone,
+};
 
 /** Published, but nobody has opened the link yet: copying it leads. */
 export const LiveNotOpened: Story = {

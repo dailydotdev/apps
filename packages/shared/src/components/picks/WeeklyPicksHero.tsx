@@ -24,13 +24,9 @@ import {
 } from '../../hooks/picks/useWeeklyPicksHero';
 import { useCopyLink } from '../../hooks/useCopy';
 import { useGetShortUrl } from '../../hooks/utils/useGetShortUrl';
-import {
-  Button,
-  ButtonColor,
-  ButtonSize,
-  ButtonVariant,
-} from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import CloseButton from '../CloseButton';
+import feedStyles from '../Feed.module.css';
 import { Image } from '../image/Image';
 import {
   Typography,
@@ -42,24 +38,24 @@ import Link from '../utilities/Link';
 
 const HERO_ORIGIN = 'home_hero';
 
+/** A headline that may lead with a number, shown in brand color. */
+export interface Headline {
+  count: number | null;
+  text: string;
+}
+
 /** The nudge's question: the week's total, and a job that sounds small. */
-export const getNudgeHeadline = (
-  signals: PicksWeekSignals,
-): { count: number; before: string; after: string } => {
+export const getNudgeHeadline = (signals: PicksWeekSignals): Headline => {
   const count = countSignals(signals);
 
   return {
     count,
-    before: 'You read ',
-    after: ` ${count === 1 ? 'post' : 'posts'} this week. Which ${PICKS_HERO_THUMBNAILS} were worth it?`,
+    text: ` ${count === 1 ? 'post' : 'posts'} this week. Which ${PICKS_HERO_THUMBNAILS} were worth it?`,
   };
 };
 
 export interface LiveCopy {
-  /** The opens count, shown big. Absent when there is nothing to celebrate yet. */
-  count: number | null;
-  headline: string;
-  subtitle: string;
+  headline: Headline;
   /** Which button leads: sharing again once it moves, copying the link before. */
   primary: Extract<WeeklyPicksHeroAction, 'share' | 'copy'>;
 }
@@ -68,36 +64,33 @@ export interface LiveCopy {
 export const getLiveCopy = (viewCount: number | null): LiveCopy => {
   if (viewCount === null) {
     return {
-      count: null,
-      headline: 'Your picks are live',
-      subtitle: 'Send the link to your team',
+      headline: { count: null, text: 'Send the link to your team' },
       primary: 'share',
     };
   }
 
   if (viewCount === 0) {
     return {
-      count: null,
-      headline: "Nobody's seen your picks yet",
-      subtitle: 'Send it to your team',
+      headline: { count: null, text: "Nobody's opened your picks yet" },
       primary: 'copy',
     };
   }
 
   return {
-    count: viewCount,
-    headline: `${viewCount === 1 ? 'person' : 'people'} opened your picks.`,
-    subtitle: 'Keep it going.',
+    headline: {
+      count: viewCount,
+      text: ` ${viewCount === 1 ? 'person' : 'people'} opened your picks`,
+    },
     primary: 'share',
   };
 };
 
 const stackRotation = ['-rotate-6', 'rotate-0', 'rotate-6'];
 
-/** A brand glow from the right, so the card is not another feed card. */
+/** A brand glow behind the stack, so the card is not another feed card. */
 const picksGlow: CSSProperties = {
   backgroundImage:
-    'radial-gradient(120% 180% at 100% 50%, color-mix(in srgb, var(--theme-brand-default) 22%, transparent) 0%, color-mix(in srgb, var(--theme-brand-default) 6%, transparent) 45%, transparent 70%)',
+    'radial-gradient(120% 180% at 0% 50%, color-mix(in srgb, var(--theme-brand-default) 22%, transparent) 0%, color-mix(in srgb, var(--theme-brand-default) 6%, transparent) 45%, transparent 70%)',
 };
 
 /**
@@ -108,61 +101,94 @@ const picksGlow: CSSProperties = {
 const PicksStack = ({
   posts,
   badges,
+  size,
+  className,
 }: {
   posts: PicksPost[];
   badges: 'question' | 'ranked';
-}): ReactElement | null => {
-  if (!posts.length) {
-    return null;
-  }
-
-  return (
-    <div
-      aria-hidden
-      className="flex shrink-0 items-center self-center pr-2 tablet:pr-4"
-    >
-      {posts.slice(0, PICKS_HERO_THUMBNAILS).map((post, index) => (
-        <div
-          key={post.id}
+  size: 'small' | 'large';
+  className?: string;
+}): ReactElement => (
+  <div
+    aria-hidden
+    className={classNames('flex items-center justify-center', className)}
+  >
+    {posts.slice(0, PICKS_HERO_THUMBNAILS).map((post, index) => (
+      <div
+        key={post.id}
+        className={classNames(
+          'relative shrink-0 overflow-hidden rounded-10 border-2 border-background-default bg-surface-float shadow-2',
+          size === 'small' ? 'size-14' : 'size-20 rounded-14',
+          index > 0 && (size === 'small' ? '-ml-5' : '-ml-6'),
+          stackRotation[index],
+        )}
+        style={{ zIndex: index }}
+      >
+        <Image
+          src={post.image ?? undefined}
+          alt=""
+          loading="lazy"
+          fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+          className="size-full object-cover"
+        />
+        <span
           className={classNames(
-            'relative size-12 shrink-0 overflow-hidden rounded-10 border-2 border-background-default bg-surface-float shadow-2 tablet:size-20 tablet:rounded-14',
-            index > 0 && '-ml-4 tablet:-ml-6',
-            stackRotation[index],
+            'absolute flex items-center justify-center rounded-6 bg-brand-default font-bold text-white',
+            size === 'small'
+              ? 'left-1 top-1 size-5 typo-caption2'
+              : 'left-1.5 top-1.5 size-6 typo-caption1',
           )}
-          style={{ zIndex: index }}
         >
-          <Image
-            src={post.image ?? undefined}
-            alt=""
-            loading="lazy"
-            fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-            className="size-full object-cover"
-          />
-          <span className="absolute left-1 top-1 flex size-5 items-center justify-center rounded-6 bg-brand-default font-bold text-white typo-caption2 tablet:left-1.5 tablet:top-1.5">
-            {badges === 'question' ? '?' : index + 1}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-};
+          {badges === 'question' ? '?' : index + 1}
+        </span>
+      </div>
+    ))}
+  </div>
+);
 
-const Shell = ({
+const HeadlineText = ({
+  headline,
   className,
-  label,
-  children,
+  ...props
+}: { headline: Headline } & Omit<
+  React.ComponentProps<typeof Typography>,
+  'children'
+>): ReactElement => (
+  <Typography className={className} {...props}>
+    {headline.count !== null && (
+      <span className="text-brand-default">{headline.count}</span>
+    )}
+    {headline.text}
+  </Typography>
+);
+
+export type WeeklyPicksHeroVariant = 'strip' | 'panel';
+
+interface ShellProps {
+  variant: WeeklyPicksHeroVariant;
+  className?: string;
+  title: string;
+  headline: Headline;
+  actions: (size: ButtonSize | undefined) => ReactNode;
+  stack: Omit<React.ComponentProps<typeof PicksStack>, 'size' | 'className'>;
+  onDismiss?: () => void;
+}
+
+/**
+ * The strip layout follows the reading reminder's `TopHero`: illustration
+ * first, then the copy and the button, so they sit nearer the page's center.
+ */
+const StripShell = ({
+  className,
+  title,
+  headline,
+  actions,
   stack,
   onDismiss,
-}: {
-  className?: string;
-  label: ReactNode;
-  children: ReactNode;
-  stack: ReactNode;
-  onDismiss?: () => void;
-}): ReactElement => (
+}: Omit<ShellProps, 'variant'>): ReactElement => (
   <section
     className={classNames(
-      'relative flex w-full items-center gap-3 overflow-hidden rounded-16 border border-border-subtlest-quaternary bg-background-default py-3 pl-4 pr-10 tablet:gap-5',
+      'relative flex w-full items-center gap-4 overflow-hidden rounded-16 border border-border-subtlest-quaternary bg-background-default py-2 pl-3 pr-8 tablet:gap-5',
       className,
     )}
   >
@@ -171,17 +197,31 @@ const Shell = ({
       className="pointer-events-none absolute inset-0"
       style={picksGlow}
     />
-    <div className="relative flex min-w-0 flex-1 flex-col items-start gap-3">
-      <Typography
-        type={TypographyType.Caption1}
-        bold
-        className="uppercase tracking-wide text-brand-default"
-      >
-        {label}
-      </Typography>
-      {children}
+    {stack.posts.length > 0 && (
+      <PicksStack
+        {...stack}
+        size="small"
+        className="relative h-24 w-28 shrink-0 self-center tablet:h-28 tablet:w-32"
+      />
+    )}
+    <div className="relative flex min-w-0 max-w-[18rem] flex-1 flex-col items-start gap-3">
+      <div className="flex flex-col">
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          {title}
+        </Typography>
+        <HeadlineText
+          headline={headline}
+          tag={TypographyTag.P}
+          type={TypographyType.Callout}
+          bold
+          className="mt-0.5"
+        />
+      </div>
+      <div className="flex gap-2">{actions(ButtonSize.Small)}</div>
     </div>
-    <div className="relative">{stack}</div>
     {onDismiss && (
       <CloseButton
         type="button"
@@ -194,8 +234,69 @@ const Shell = ({
   </section>
 );
 
+/**
+ * Below laptop the card is the reading reminder's inline panel: a dark card
+ * above the feed, copy centered on a phone with the stack in a band under
+ * it, side by side from tablet.
+ */
+const PanelShell = ({
+  className,
+  title,
+  headline,
+  actions,
+  stack,
+  onDismiss,
+}: Omit<ShellProps, 'variant'>): ReactElement => (
+  <section
+    className={classNames('mb-4 w-full pb-0', feedStyles.cards, className)}
+  >
+    <div className="relative overflow-hidden rounded-b-none rounded-t-16 px-px pb-0 pt-px">
+      <div className="top-hero-panel-border absolute inset-0 rounded-b-none rounded-t-16" />
+      <div className="top-hero-glow pointer-events-none absolute -right-12 top-1/2 h-40 w-40 -translate-y-1/2 rounded-full blur-3xl" />
+      <div className="pointer-events-none absolute bottom-0 left-0 h-10 w-5 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
+      <div className="pointer-events-none absolute bottom-0 right-0 h-10 w-5 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
+      <div className="relative overflow-hidden rounded-b-none rounded-t-[0.9375rem] bg-raw-pepper-90 shadow-2">
+        {onDismiss && (
+          <CloseButton
+            type="button"
+            className="text-white/80 absolute right-3 top-3 z-2 hover:text-white"
+            aria-label="Close banner"
+            onClick={onDismiss}
+          />
+        )}
+        <div className="flex flex-col tablet:flex-row tablet:items-stretch">
+          <div className="flex flex-1 flex-col items-center p-5 text-center tablet:items-start tablet:p-6 tablet:text-left">
+            <div className="flex flex-col items-center gap-1 tablet:items-start">
+              <p className="text-white/80 mt-2 text-[0.875rem] tablet:text-[0.9375rem]">
+                {title}
+              </p>
+              <HeadlineText
+                headline={headline}
+                tag={TypographyTag.H3}
+                type={TypographyType.Title3}
+                bold
+                className="text-white tablet:typo-title2"
+              />
+              <div className="mt-4 flex gap-2">{actions(undefined)}</div>
+            </div>
+          </div>
+          {stack.posts.length > 0 && (
+            <PicksStack
+              {...stack}
+              size="large"
+              className="bg-black/20 h-40 w-full p-2 tablet:h-auto tablet:w-[14.5rem] tablet:p-3 laptopL:w-[16rem]"
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
 export interface WeeklyPicksHeroCardProps {
   state: WeeklyPicksHeroState;
+  /** The top-hero strip on laptop, the reading reminder's panel below it. */
+  variant?: WeeklyPicksHeroVariant;
   signals?: PicksWeekSignals | null;
   /** The reader's week, for the nudge's thumbnails. */
   suggestions?: PicksPost[];
@@ -214,6 +315,7 @@ export interface WeeklyPicksHeroCardProps {
  */
 export function WeeklyPicksHeroCard({
   state,
+  variant = 'strip',
   signals,
   suggestions = [],
   picks,
@@ -224,122 +326,94 @@ export function WeeklyPicksHeroCard({
   onCopy,
   onDismiss,
 }: WeeklyPicksHeroCardProps): ReactElement {
+  const Shell = variant === 'strip' ? StripShell : PanelShell;
+
   if (state === 'live' && picks) {
     const copy = getLiveCopy(viewCount);
     const posts = [...picks.items]
       .sort((a, b) => a.position - b.position)
       .map((item) => item.post);
-    const share = (
-      <Button
-        key="share"
-        type="button"
-        {...(copy.primary === 'share'
-          ? { variant: ButtonVariant.Primary, color: ButtonColor.Cabbage }
-          : { variant: ButtonVariant.Secondary })}
-        size={ButtonSize.Small}
-        className="flex-1 tablet:flex-none"
-        onClick={() => {
-          onCta?.('share');
-          onShare?.(picks);
-        }}
-      >
-        {copy.count ? 'Share again' : 'Share'}
-      </Button>
-    );
-    const copyLink = (
-      <Button
-        key="copy"
-        type="button"
-        {...(copy.primary === 'copy'
-          ? { variant: ButtonVariant.Primary, color: ButtonColor.Cabbage }
-          : { variant: ButtonVariant.Secondary })}
-        size={ButtonSize.Small}
-        className="flex-1 tablet:flex-none"
-        onClick={() => {
-          onCta?.('copy');
-          onCopy?.(picks);
-        }}
-      >
-        Copy link
-      </Button>
-    );
+    const actions = (size: ButtonSize | undefined) => {
+      const share = (
+        <Button
+          key="share"
+          type="button"
+          variant={
+            copy.primary === 'share'
+              ? ButtonVariant.Primary
+              : ButtonVariant.Secondary
+          }
+          size={size}
+          onClick={() => {
+            onCta?.('share');
+            onShare?.(picks);
+          }}
+        >
+          {copy.headline.count ? 'Share again' : 'Share'}
+        </Button>
+      );
+      const copyLink = (
+        <Button
+          key="copy"
+          type="button"
+          variant={
+            copy.primary === 'copy'
+              ? ButtonVariant.Primary
+              : ButtonVariant.Secondary
+          }
+          size={size}
+          onClick={() => {
+            onCta?.('copy');
+            onCopy?.(picks);
+          }}
+        >
+          Copy link
+        </Button>
+      );
+
+      return copy.primary === 'copy' ? [copyLink, share] : [share, copyLink];
+    };
 
     return (
       <Shell
         className={className}
-        label="Your picks are live"
-        stack={<PicksStack posts={posts} badges="ranked" />}
+        title="Your picks are live"
+        headline={copy.headline}
+        actions={actions}
+        stack={{ posts, badges: 'ranked' }}
         onDismiss={onDismiss}
-      >
-        <div className="flex items-center gap-2">
-          {copy.count !== null && (
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.LargeTitle}
-              bold
-              className="leading-none text-brand-default"
-            >
-              {copy.count}
-            </Typography>
-          )}
-          <div className="flex flex-col">
-            <Typography type={TypographyType.Callout} bold>
-              {copy.headline}
-            </Typography>
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-            >
-              {copy.subtitle}
-            </Typography>
-          </div>
-        </div>
-        <div className="flex w-full gap-2 tablet:w-auto">
-          {copy.primary === 'copy' ? [copyLink, share] : [share, copyLink]}
-        </div>
-      </Shell>
+      />
     );
   }
 
   const href = `${webappUrl}${getNewPicksPath({ origin: HERO_ORIGIN }).slice(1)}`;
-  const headline = signals ? getNudgeHeadline(signals) : null;
+  const headline: Headline = signals
+    ? getNudgeHeadline(signals)
+    : {
+        count: null,
+        text: `Which ${PICKS_HERO_THUMBNAILS} posts were worth it this week?`,
+      };
 
   return (
     <Shell
       className={className}
-      label={
-        <>
-          <span className="hidden tablet:inline">Your week · </span>
-          {getPicksDeadlineLabel()}
-        </>
-      }
-      stack={<PicksStack posts={suggestions} badges="question" />}
+      title={`Your week · ${getPicksDeadlineLabel()}`}
+      headline={headline}
+      actions={(size) => (
+        <Link href={href} passHref>
+          <Button
+            tag="a"
+            variant={ButtonVariant.Primary}
+            size={size}
+            onClick={() => onCta?.('pick')}
+          >
+            Pick my top {PICKS_HERO_THUMBNAILS}
+          </Button>
+        </Link>
+      )}
+      stack={{ posts: suggestions, badges: 'question' }}
       onDismiss={onDismiss}
-    >
-      <Typography type={TypographyType.Body} bold tag={TypographyTag.P}>
-        {headline ? (
-          <>
-            {headline.before}
-            <span className="text-brand-default">{headline.count}</span>
-            {headline.after}
-          </>
-        ) : (
-          `Which ${PICKS_HERO_THUMBNAILS} posts were worth it this week?`
-        )}
-      </Typography>
-      <Link href={href} passHref>
-        <Button
-          tag="a"
-          variant={ButtonVariant.Primary}
-          color={ButtonColor.Cabbage}
-          size={ButtonSize.Small}
-          className="w-full tablet:w-auto"
-          onClick={() => onCta?.('pick')}
-        >
-          Pick my top {PICKS_HERO_THUMBNAILS}
-        </Button>
-      </Link>
-    </Shell>
+    />
   );
 }
 
@@ -396,11 +470,11 @@ export function WeeklyPicksHero({
   const card = (
     <WeeklyPicksHeroCard
       state={state}
+      variant={isLaptopLayout ? 'strip' : 'panel'}
       signals={signals}
       suggestions={suggestions}
       picks={picks}
       viewCount={viewCount}
-      className={classNames(!isLaptopLayout && 'mx-4 mb-4 w-auto')}
       onCta={onCta}
       onShare={(list) => openShareSheet(list, Origin.HomePage)}
       onCopy={onCopy}
