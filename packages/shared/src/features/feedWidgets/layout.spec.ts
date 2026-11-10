@@ -128,6 +128,30 @@ describe('buildRailPlacement', () => {
     expect(buildRailPlacement([]).columns).toBe(1);
   });
 
+  it('puts the add tile in the cell under a lone Small past the ad, else after', () => {
+    const lone = [
+      widget('a', FeedWidgetSize.Tall),
+      widget('b', FeedWidgetSize.Tall),
+      widget('c', FeedWidgetSize.Small),
+    ];
+    expect(buildRailPlacement(lone).addTile).toMatchObject({
+      column: 3,
+      row: 1,
+      rowSpan: 1,
+    });
+    expect(
+      buildRailPlacement([widget('a', FeedWidgetSize.Large)]).addTile,
+    ).toMatchObject({ column: 3, row: 0, rowSpan: 2 });
+    // Before the ad the empty cell is a gap already, so the tile goes after.
+    expect(
+      buildRailPlacement([widget('a', FeedWidgetSize.Small)]).addTile,
+    ).toMatchObject({ column: 2, row: 0, rowSpan: 2 });
+    expect(
+      buildRailPlacement([widget('a', FeedWidgetSize.Small)], { showAd: false })
+        .addTile,
+    ).toMatchObject({ column: 0, row: 1, rowSpan: 1 });
+  });
+
   it('leaves the ad out when the surface says so', () => {
     const widgets = [widget('a', FeedWidgetSize.Tall)];
 

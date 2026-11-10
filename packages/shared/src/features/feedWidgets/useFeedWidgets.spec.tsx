@@ -28,6 +28,12 @@ const renderWidgets = (feedWidgets?: unknown, client = new QueryClient()) =>
 
 const writtenRail = () => setSettings.mock.calls.at(-1)?.[0].flags.feedWidgets;
 
+// The flag's default rail, as it is stored.
+const defaultWidgets = [
+  { id: 'happening-now', kind: 'happeningNow', size: 'large' },
+  { id: 'streak', kind: 'streak', size: 'small' },
+];
+
 beforeEach(() => {
   setSettings.mockClear();
 });
@@ -38,19 +44,20 @@ describe('useFeedWidgets', () => {
 
     expect(result.current.isCustomized).toBe(false);
     expect(result.current.widgets.map(({ kind }) => kind)).toEqual([
-      FeedWidgetKind.TopStory,
+      FeedWidgetKind.HappeningNow,
+      FeedWidgetKind.Streak,
     ]);
 
     act(() => {
-      result.current.addWidget(FeedWidgetKind.HappeningNow);
+      result.current.addWidget(FeedWidgetKind.Notifications);
     });
 
     expect(writtenRail()).toEqual({
       version: 1,
-      startedFrom: 'default-1',
+      startedFrom: 'default-3',
       widgets: [
-        { id: 'top-story', kind: 'topStory', size: 'large' },
-        expect.objectContaining({ kind: 'happeningNow', size: 'tall' }),
+        ...defaultWidgets,
+        expect.objectContaining({ kind: 'notifications', size: 'small' }),
       ],
     });
   });
@@ -74,7 +81,7 @@ describe('useFeedWidgets', () => {
   it('keeps what another client stored when this one edits', () => {
     const { result } = renderWidgets({
       version: 1,
-      startedFrom: 'default-2',
+      startedFrom: 'default-3',
       offered: ['streak'],
       widgets: [
         { id: 'a', kind: 'happeningNow', size: 'tall' },
@@ -91,7 +98,7 @@ describe('useFeedWidgets', () => {
 
     expect(writtenRail()).toEqual({
       version: 1,
-      startedFrom: 'default-2',
+      startedFrom: 'default-3',
       offered: ['streak'],
       widgets: [
         { id: 'a', kind: 'happeningNow', size: 'small' },
@@ -192,9 +199,6 @@ describe('useFeedWidgets', () => {
   });
 
   describe('tips', () => {
-    const defaultWidgets = [
-      { id: 'top-story', kind: 'topStory', size: 'large' },
-    ];
     const onDefault = {
       version: 1,
       tipsHidden: true,
@@ -224,10 +228,13 @@ describe('useFeedWidgets', () => {
 
       expect(result.current.isCustomized).toBe(false);
       expect(result.current.isTipHidden).toBe(true);
-      expect(result.current.widgets.map(({ id }) => id)).toEqual(['top-story']);
+      expect(result.current.widgets.map(({ id }) => id)).toEqual([
+        'happening-now',
+        'streak',
+      ]);
 
       act(() => {
-        result.current.addWidget(FeedWidgetKind.HappeningNow);
+        result.current.addWidget(FeedWidgetKind.Notifications);
       });
 
       // The first edit customizes, from the live default, keeping the tips
@@ -235,10 +242,10 @@ describe('useFeedWidgets', () => {
       expect(writtenRail()).toEqual({
         version: 1,
         tipsHidden: true,
-        startedFrom: 'default-1',
+        startedFrom: 'default-3',
         widgets: [
-          { id: 'top-story', kind: 'topStory', size: 'large' },
-          expect.objectContaining({ kind: 'happeningNow' }),
+          ...defaultWidgets,
+          expect.objectContaining({ kind: 'notifications' }),
         ],
       });
     });

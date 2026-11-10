@@ -376,8 +376,11 @@ export const featureFeedWidgetsDefault = new Feature<{
   id: string;
   widgets: { id: string; kind: string; size: string }[];
 }>('feed_widgets_default', {
-  id: 'default-1',
-  widgets: [{ id: 'top-story', kind: 'topStory', size: 'large' }],
+  id: 'default-3',
+  widgets: [
+    { id: 'happening-now', kind: 'happeningNow', size: 'large' },
+    { id: 'streak', kind: 'streak', size: 'small' },
+  ],
 });
 
 // Weekly picks MVP: gates the Friday nudge, the /bookmarks button, /picks/new

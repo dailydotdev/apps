@@ -1,6 +1,5 @@
 import type { CSSProperties, ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
 import { ElementPlaceholder } from '../../components/ElementPlaceholder';
 import { useFeedWidgetAdSlot } from './feedState';
 
@@ -15,8 +14,8 @@ export const RAIL_CELL_HEIGHT = `calc((${RAIL_HEIGHT} - 1.5rem) / 2)`;
 
 /*
  * The rail's frame, shared by the rail and the skeleton that holds its place
- * while the rail's code loads and the phone check settles, so the two are the
- * same height to the pixel and nothing below the rail moves when it lands.
+ * while the rail's code loads, so the two are the same height to the pixel
+ * and nothing below the rail moves when it lands.
  */
 // Below laptop the feed is a full-bleed list with no gutter, so the rail
 // brings its own: the header and the first widget sit 1rem in from the edge.
@@ -28,30 +27,18 @@ export const railHeaderClassName = 'flex min-h-12 items-center gap-2';
 export const railScrollerClassName =
   'no-scrollbar -mx-4 overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-px-4 px-4 pb-3 pt-4 laptop:-mx-2 laptop:scroll-px-2 laptop:px-2';
 
-// One row gap on every screen: the rail's height never depends on the phone
-// check, which reads "not a phone" for a frame before it settles.
-export const railGridClassName = (isPhone: boolean): string =>
-  classNames('relative grid gap-y-6', isPhone ? 'gap-x-3' : 'gap-x-6');
+export const railGridClassName = 'relative grid gap-x-6 gap-y-6';
 
-export const railGridStyle = (
-  columns: number,
-  isPhone: boolean,
-): CSSProperties => ({
+export const railGridStyle = (columns: number): CSSProperties => ({
   gridTemplateRows: `repeat(2, ${RAIL_CELL_HEIGHT})`,
-  // A phone shows one column and the edge of the next, so the rail always
-  // says it scrolls.
-  gridAutoColumns: isPhone
-    ? 'calc((100% - 0.75rem) / 1.18)'
-    : `calc((100% - ${(columns - 1) * 1.5}rem) / ${columns})`,
+  gridAutoColumns: `calc((100% - ${(columns - 1) * 1.5}rem) / ${columns})`,
 });
 
 /** The rail's shape with nothing in it yet. */
 export const FeedWidgetRailSkeleton = ({
   columns = 4,
-  isPhone = false,
 }: {
   columns?: number;
-  isPhone?: boolean;
 }): ReactElement => (
   <section className={railSectionClassName} aria-busy aria-label="Your widgets">
     <div className={railHeaderClassName}>
@@ -61,10 +48,7 @@ export const FeedWidgetRailSkeleton = ({
       </div>
     </div>
     <div className={railScrollerClassName}>
-      <div
-        className={railGridClassName(isPhone)}
-        style={railGridStyle(columns, isPhone)}
-      >
+      <div className={railGridClassName} style={railGridStyle(columns)}>
         {Array.from({ length: Math.max(1, Math.min(columns, 4)) }, (_, i) => (
           <ElementPlaceholder
             // A fixed number of placeholder columns; their order never changes.
@@ -81,7 +65,7 @@ export const FeedWidgetRailSkeleton = ({
 
 /** The skeleton in the shape the rail will take on this screen. */
 export const FeedWidgetRailLoading = (): ReactElement => {
-  const { columns, isPhone } = useFeedWidgetAdSlot();
+  const { columns } = useFeedWidgetAdSlot();
 
-  return <FeedWidgetRailSkeleton columns={columns} isPhone={isPhone} />;
+  return <FeedWidgetRailSkeleton columns={columns} />;
 };

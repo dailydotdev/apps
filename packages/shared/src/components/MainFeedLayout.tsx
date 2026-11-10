@@ -96,7 +96,6 @@ import {
 } from '../features/feedWidgets/feedState';
 import { FeedWidgetRailLoading } from '../features/feedWidgets/FeedWidgetRailFrame';
 import { HomeFeedTabs } from '../features/feedWidgets/HomeFeedTabs';
-import { getHomeHighlightsView } from '../features/feedWidgets/homeHighlightsView';
 import { getFeedName } from '../lib/feed';
 import { ClientQuestEventType } from '../graphql/quests';
 import { ExploreTabs, tabToUrl, urlToTab } from './header';
@@ -166,12 +165,6 @@ const SearchProviderResults = dynamic(() =>
   import(
     /* webpackChunkName: "searchProviderResults" */ './search/SearchResults/SearchProviderResults'
   ).then((mod) => mod.SearchProviderResults),
-);
-
-const HighlightsPage = dynamic(() =>
-  import(
-    /* webpackChunkName: "highlightsPage" */ './highlights/HighlightsPage'
-  ).then((mod) => mod.HighlightsPage),
 );
 
 const FeedEmptyScreen = dynamic(
@@ -464,8 +457,6 @@ export default function MainFeedLayout({
     'pt-2 tablet:pt-0';
   // What the grid must not repeat, known before it paints and never waiting
   // on the rail's own code or data, so the grid never moves when it lands.
-  // Only For you and Popular share their posts with the rail: Following and
-  // the custom feeds (on a phone the rail heads them too) keep their own.
   const widgetFeedState = useFeedWidgetFeedState({
     enabled: isFeedWidgetsEnabled && isMainFeedPage,
     feedName,
@@ -991,28 +982,19 @@ export default function MainFeedLayout({
       isChipsPending={!feeds}
     />
   );
-  const railContent = (
-    <>
-      {/* The wrapper carries the insets, so the skeleton the lazy rail
-          shows while it loads sits exactly where the rail lands. */}
-      <div className={railClassName}>
-        <FeedWidgetRail feedName={feedName} onHide={hideFeedWidgets} />
-      </div>
-      {feedTabs}
-    </>
-  );
-  // On a phone the rail and its tabs head the page, outside the feed: a tab
-  // swaps the feed under them (its own feed, loading or empty), so they stay
-  // mounted and in place instead of coming back with each feed.
-  const isRailPageHead = isFeedWidgetsEnabled && isPhone;
-  // Happening now, switched in place under the rail from its tab.
-  const homeHighlightsView = isRailPageHead
-    ? getHomeHighlightsView(router.query)
-    : null;
   // Left undefined when neither is on so `Feed` keeps its own top slot.
   let topContent = chipsTopContent;
   if (isFeedWidgetsEnabled) {
-    topContent = isRailPageHead ? undefined : railContent;
+    topContent = (
+      <>
+        {/* The wrapper carries the insets, so the skeleton the lazy rail
+            shows while it loads sits exactly where the rail lands. */}
+        <div className={railClassName}>
+          <FeedWidgetRail feedName={feedName} onHide={hideFeedWidgets} />
+        </div>
+        {feedTabs}
+      </>
+    );
   } else if (isFeedHeroEnabled) {
     topContent = (
       <>
@@ -1155,14 +1137,7 @@ export default function MainFeedLayout({
             query={searchQuery}
           />
         )}
-        {isRailPageHead && railContent}
-        {homeHighlightsView && (
-          // A screen tall, so a short list never pulls the rail back.
-          <div className="min-h-screen">
-            <HighlightsPage view={homeHighlightsView} />
-          </div>
-        )}
-        {feedProps && !homeHighlightsView && (
+        {feedProps && (
           <Feed
             {...feedProps}
             shortcuts={shortcuts}
@@ -1172,7 +1147,6 @@ export default function MainFeedLayout({
             // rather than flickering in and out as the hero resolves.
             disableTopHero={isFeedHeroEnabled}
             keepTopHero={isFeedWidgetsEnabled}
-            fillEmptyScreen={isRailPageHead}
             // The render, so a hero that finds no headlines hands the
             // highlights card and row one back to the grid.
             disableHighlightCards={
@@ -1184,27 +1158,19 @@ export default function MainFeedLayout({
             className={classNames(
               !isFinder && gutterClassName,
               homeTabGapClassName,
-              // The feed starts a gutter under the rail's tab row.
-              isRailPageHead && 'pt-2',
               isAwaitingFeatures && 'invisible',
             )}
           />
         )}
         {isExplainFeed && <FeedExplainBar isHidden={isTuning} />}
-        {isFeedPending && isPhone && !homeHighlightsView && (
-          <>
-            {/* The rail heads the page (above), so the placeholders
-                under it stay put. */}
-            <PlaceholderFeed
-              className={classNames(
-                !isFinder && gutterClassName,
-                homeTabGapClassName,
-                isFeedWidgetsEnabled && '!mt-0',
-                isRailPageHead && 'pt-2',
-                isAwaitingFeatures && 'invisible',
-              )}
-            />
-          </>
+        {isFeedPending && isPhone && (
+          <PlaceholderFeed
+            className={classNames(
+              !isFinder && gutterClassName,
+              homeTabGapClassName,
+              isAwaitingFeatures && 'invisible',
+            )}
+          />
         )}
         {children}
         {showSignupBanner && <PublicPageSignupBanner />}
