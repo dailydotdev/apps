@@ -170,8 +170,14 @@ export const DAILY_CAMPAIGN_REACH_ESTIMATE = gql`
     $type: CampaignType!
     $value: ID!
     $budget: Int!
+    $audience: CampaignAudienceInput
   ) {
-    dailyCampaignReachEstimate(type: $type, value: $value, budget: $budget) {
+    dailyCampaignReachEstimate(
+      type: $type
+      value: $value
+      budget: $budget
+      audience: $audience
+    ) {
       min
       max
     }
@@ -188,12 +194,20 @@ export enum CampaignWallet {
   Squad = 'SQUAD',
 }
 
+// Who a post boost targets. Tags left out default to the post's tags, and
+// no countries means worldwide.
+export interface CampaignAudience {
+  tags?: string[];
+  countries?: string[];
+}
+
 export interface StartCampaignProps {
   value: string;
   budget: number;
   duration: number;
   type: CampaignType;
   wallet?: CampaignWallet;
+  audience?: CampaignAudience;
 }
 
 export interface EstimatedReach {
@@ -205,11 +219,13 @@ export const getDailyCampaignReachEstimate = async ({
   type,
   value,
   budget,
+  audience,
 }: Omit<StartCampaignProps, 'duration'>): Promise<EstimatedReach> => {
   const result = await gqlClient.request(DAILY_CAMPAIGN_REACH_ESTIMATE, {
     type,
     value,
     budget,
+    audience,
   });
 
   return result.dailyCampaignReachEstimate;
@@ -222,6 +238,7 @@ export const START_CAMPAIGN = gql`
     $budget: Int!
     $duration: Int!
     $wallet: CampaignWallet
+    $audience: CampaignAudienceInput
   ) {
     startCampaign(
       type: $type
@@ -229,6 +246,7 @@ export const START_CAMPAIGN = gql`
       duration: $duration
       budget: $budget
       wallet: $wallet
+      audience: $audience
     ) {
       transactionId
       referenceId
@@ -246,6 +264,7 @@ export const startCampaign = async ({
   budget,
   duration,
   wallet,
+  audience,
 }: StartCampaignProps): Promise<TransactionCreated> => {
   const result = await gqlClient.request(START_CAMPAIGN, {
     type,
@@ -253,6 +272,7 @@ export const startCampaign = async ({
     budget,
     duration,
     wallet,
+    audience,
   });
 
   return result.startCampaign;
