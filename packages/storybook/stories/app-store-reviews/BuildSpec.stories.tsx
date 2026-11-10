@@ -227,7 +227,7 @@ const states = [
     title: 'Empty',
     items: [
       'No testimonials: hide the carousel, the screen still works.',
-      'Avatar fails to load: it keeps its size on `bg-surface-float`; in the avatar stack, drop failed images.',
+      'Avatar fails to load: a `size-8 rounded-10` tile on `bg-border-subtlest-tertiary` (the card is already `bg-surface-float`); in the avatar stack, drop failed images.',
       'A Plus stat is 0: hide that row. All 0: thank-you headline and body only.',
       'Heavy week with no reading data: no trigger.',
     ],
@@ -273,6 +273,7 @@ const accessibility = [
     title: 'Screen readers',
     items: [
       'No stars on our surfaces, so nothing reads as a rating claim. `LogoIcon` is decorative: `aria-hidden`.',
+      'Headlines are real headings: `tag={TypographyTag.H2}` on the sheet and review screen, `TypographyTag.H3` in `AskCard`.',
       'Wrap ❤️ in `aria-hidden` so headlines don’t end with “red heart”.',
       'Avatar stack `alt=""`; testimonial avatar `alt={name}`.',
       'Carousel: a `section` with `aria-label="What developers say"`, each card an `article`.',
@@ -283,7 +284,7 @@ const accessibility = [
     title: 'Focus and keyboard',
     items: [
       '`Modal` traps focus. Order: close, headline, body, carousel, primary CTA, secondary action.',
-      'Initial focus on the headline, not the CTA, so nobody rates by accident.',
+      'Initial focus on the headline, not the CTA, so nobody rates by accident: `tabIndex={-1}` on it.',
       'Esc and “Not now” both close.',
     ],
   },

@@ -14,6 +14,7 @@ import type { ProfileSectionItemProps } from '@dailydotdev/shared/src/components
 import {
   Typography,
   TypographyColor,
+  TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -198,7 +199,7 @@ const Focus = ({
 // The ask as a card inside a sheet we already show.
 const AskCard = ({ copy = askCopy }: { copy?: AskCopy }): ReactElement => (
   <div className="flex w-full flex-col gap-1 rounded-16 bg-surface-float p-4 text-left">
-    <Typography type={TypographyType.Callout} bold>
+    <Typography type={TypographyType.Callout} tag={TypographyTag.H3} bold>
       <AskHeadline copy={copy} />
     </Typography>
     <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
@@ -230,7 +231,7 @@ const AskSheet = ({
         <LogoIcon className={{ container: 'size-12' }} />
       </span>
       <Focus order={1} show={showFocus} className="mt-2">
-        <Typography type={TypographyType.Title2} bold>
+        <Typography type={TypographyType.Title2} tag={TypographyTag.H2} bold>
           <AskHeadline copy={copy} />
         </Typography>
       </Focus>
@@ -596,7 +597,11 @@ const ReviewScreen = ({
             <LogoIcon className={{ container: 'size-12' }} />
           </span>
           <Focus order={2} show={showFocus} className="mt-2">
-            <Typography type={TypographyType.Title1} bold>
+            <Typography
+              type={TypographyType.Title1}
+              tag={TypographyTag.H2}
+              bold
+            >
               <AskHeadline copy={copy} />
             </Typography>
           </Focus>
@@ -855,7 +860,7 @@ const HeavyWeekSurface = (): ReactElement => (
 const plusMonth = [
   { icon: ShieldPlusIcon, count: 38, label: 'clickbait titles rewritten' },
   { icon: BlockIcon, count: 412, label: 'posts read, zero ads' },
-  { icon: BriefIcon, count: 4, label: 'Presidential Briefings delivered' },
+  { icon: BriefIcon, count: 4, label: 'Presidential briefings delivered' },
 ];
 
 type PlusStat = (typeof plusMonth)[number];
