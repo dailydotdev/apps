@@ -8,6 +8,8 @@ import { LogEvent, TargetType } from '../../../../lib/log';
 import { SourceMemberRole } from '../../../../graphql/sources';
 import type { Squad } from '../../../../graphql/sources';
 import { saveStartupsGoals } from '../../../../graphql/squadSubscription';
+import { PixelsContext } from '../../../../contexts/PixelsContext';
+import defaultUser from '../../../../../__tests__/fixture/loggedUser';
 import { StartupsCheckout, StartupsCheckoutStep } from './StartupsCheckout';
 
 jest.mock('../../../../graphql/squadSubscription', () => ({
@@ -329,5 +331,70 @@ describe('StartupsCheckout goal question', () => {
     expect(
       logEvent.mock.calls.map(([event]) => event).filter(isGoalEvent),
     ).toEqual([]);
+  });
+});
+
+describe('StartupsCheckout signup pixel', () => {
+  const renderCompanyStep = () => {
+    const trackEvent = jest.fn();
+
+    render(
+      <TestBootProvider
+        client={new QueryClient()}
+        auth={{ isLoggedIn: true, user: defaultUser, squads: [] }}
+      >
+        <PixelsContext.Provider
+          value={{
+            trackSignup: jest.fn(),
+            trackPayment: jest.fn(),
+            trackEvent,
+          }}
+        >
+          <StartupsCheckout initialPlan="team" />
+        </PixelsContext.Provider>
+      </TestBootProvider>,
+    );
+
+    return trackEvent;
+  };
+
+  beforeEach(() => localStorage.clear());
+
+  it('fires CompleteRegistration once per founder on the company step', () => {
+    expect(renderCompanyStep()).toHaveBeenCalledWith(
+      'CompleteRegistration',
+      { content_name: 'startups', content_category: 'team' },
+      { eventId: `startups-signup-${defaultUser.id}` },
+    );
+
+    // A second visit in the same browser
+    expect(renderCompanyStep()).not.toHaveBeenCalledWith(
+      'CompleteRegistration',
+      expect.anything(),
+      expect.anything(),
+    );
+  });
+
+  it("doesn't fire before the founder has an account", () => {
+    const trackEvent = jest.fn();
+
+    render(
+      <TestBootProvider
+        client={new QueryClient()}
+        auth={{ isLoggedIn: false, user: undefined }}
+      >
+        <PixelsContext.Provider
+          value={{
+            trackSignup: jest.fn(),
+            trackPayment: jest.fn(),
+            trackEvent,
+          }}
+        >
+          <StartupsCheckout initialStep={StartupsCheckoutStep.Account} />
+        </PixelsContext.Provider>
+      </TestBootProvider>,
+    );
+
+    expect(trackEvent).not.toHaveBeenCalled();
   });
 });
