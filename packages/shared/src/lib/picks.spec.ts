@@ -3,6 +3,7 @@ import {
   getIsoWeekNumber,
   getPickPostHref,
   isNewPicksViewer,
+  isPicksNudgeDay,
 } from './picks';
 
 describe('getIsoWeekNumber', () => {
@@ -31,6 +32,24 @@ describe('getCurrentWeekStart', () => {
     expect(getCurrentWeekStart(new Date('2026-11-09T00:00:00Z'))).toBe(
       '2026-11-09',
     );
+  });
+});
+
+describe('isPicksNudgeDay', () => {
+  it('should be Thursday to Sunday on the UTC week the picks use', () => {
+    expect(isPicksNudgeDay(new Date('2026-11-02T12:00:00Z'))).toBe(false); // Monday
+    expect(isPicksNudgeDay(new Date('2026-11-04T12:00:00Z'))).toBe(false); // Wednesday
+    expect(isPicksNudgeDay(new Date('2026-11-05T00:30:00Z'))).toBe(true); // Thursday
+    expect(isPicksNudgeDay(new Date('2026-11-06T12:00:00Z'))).toBe(true); // Friday
+    expect(isPicksNudgeDay(new Date('2026-11-08T23:30:00Z'))).toBe(true); // Sunday
+  });
+
+  it('should close with the week, not with the local Sunday', () => {
+    // Sunday evening in New York is already Monday for the picks week, so
+    // the nudge closes and the dismissal key rolls over together
+    const sundayEveningEst = new Date('2026-11-09T02:00:00Z');
+    expect(isPicksNudgeDay(sundayEveningEst)).toBe(false);
+    expect(getCurrentWeekStart(sundayEveningEst)).toBe('2026-11-09');
   });
 });
 

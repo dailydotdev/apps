@@ -110,6 +110,8 @@ import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
 import { checkIsExtension } from '../lib/func';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { useLaptopLayout } from '../hooks/layout/useLaptopLayout';
+import { WeeklyPicksHero } from './picks/WeeklyPicksHero';
+import { useWeeklyPicksHero } from '../hooks/picks/useWeeklyPicksHero';
 import SearchMobileFiltersButton from './search/SearchMobileFiltersButton';
 
 import { ExploreSortMenu } from './shell/ExploreSortMenu';
@@ -454,6 +456,10 @@ export default function MainFeedLayout({
   // that it could push down.
   const { settled: areFeaturesSettled } = useFeaturesReadyContext();
   const isAwaitingFeatures = isMainFeedPage && !areFeaturesSettled;
+  // The card sits above the feed, so the feed waits for its verdict the way
+  // it waits for the flags: painted once, in its final place.
+  const picksHero = useWeeklyPicksHero({ enabled: isHomePage });
+  const isAwaitingPicksHero = isHomePage && !picksHero.isSettled;
   // The rail is the hero's successor: where it is on, the hero yields, and a
   // reader who turned the rail off gets the plain feed, not the hero back.
   const isFeedHeroEnabled = isFeedHeroFlagOn && !isFeedWidgetsFlagOn;
@@ -1155,6 +1161,7 @@ export default function MainFeedLayout({
             query={searchQuery}
           />
         )}
+        {isHomePage && <WeeklyPicksHero hero={picksHero} />}
         {isRailPageHead && railContent}
         {homeHighlightsView && (
           // A screen tall, so a short list never pulls the rail back.
@@ -1169,8 +1176,9 @@ export default function MainFeedLayout({
             topContent={topContent}
             // The flag, not the hero's render: this placement logs an
             // impression, so it has to be suppressed from the first paint
-            // rather than flickering in and out as the hero resolves.
-            disableTopHero={isFeedHeroEnabled}
+            // rather than flickering in and out as the hero resolves. Held
+            // too while the picks card decides, so the two land together.
+            disableTopHero={isFeedHeroEnabled || isAwaitingPicksHero}
             keepTopHero={isFeedWidgetsEnabled}
             fillEmptyScreen={isRailPageHead}
             // The render, so a hero that finds no headlines hands the
@@ -1186,7 +1194,7 @@ export default function MainFeedLayout({
               homeTabGapClassName,
               // The feed starts a gutter under the rail's tab row.
               isRailPageHead && 'pt-2',
-              isAwaitingFeatures && 'invisible',
+              (isAwaitingFeatures || isAwaitingPicksHero) && 'invisible',
             )}
           />
         )}
@@ -1201,7 +1209,7 @@ export default function MainFeedLayout({
                 homeTabGapClassName,
                 isFeedWidgetsEnabled && '!mt-0',
                 isRailPageHead && 'pt-2',
-                isAwaitingFeatures && 'invisible',
+                (isAwaitingFeatures || isAwaitingPicksHero) && 'invisible',
               )}
             />
           </>
