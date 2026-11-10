@@ -29,8 +29,8 @@ import { gtaViAward, productionAwards, receiver } from '../data';
 /*
  * GiveAwardModal's three screens (components/modals/award) drawn inline, so
  * they sit side by side for review. The markup is production's; the GTA VI
- * branch is the event tile first in the grid, and a free event award's
- * footers, which say until when it's free instead of a balance.
+ * branch is the event award first in the grid, drawn like every other award,
+ * and a free event award's footer, which says until when it's free.
  */
 
 export type AwardStep = 'INTRO' | 'COMMENT' | 'SUCCESS';
@@ -105,38 +105,10 @@ const AwardItem = ({
         color={TypographyColor.Secondary}
         tag={TypographyTag.Span}
       >
-        {formatCoresCurrency(item.value)}
+        {item.value === 0 ? 'Free' : formatCoresCurrency(item.value)}
       </Typography>
     </div>
   </Button>
-);
-
-/**
- * The event tile: the art fills it, a cabbage ring and a Free chip set it
- * apart, and it keeps the grid's cell height.
- */
-export const EventAwardItem = ({
-  onClick,
-}: {
-  onClick?: () => void;
-}): ReactElement => (
-  <button
-    type="button"
-    aria-label={`${gtaViAward.name}, free`}
-    onClick={onClick}
-    className="relative flex flex-col items-center overflow-hidden rounded-14 bg-surface-float p-1 ring-2 ring-accent-cabbage-default transition-transform hover:scale-[1.03]"
-  >
-    <img
-      src={gtaViAward.image}
-      alt=""
-      className="absolute inset-0 size-full scale-110 object-cover"
-    />
-    <span aria-hidden className="size-20" />
-    <span aria-hidden className="h-5" />
-    <span className="absolute inset-x-0 bottom-1.5 mx-auto w-fit rounded-max bg-accent-cabbage-default px-2.5 py-0.5 font-bold text-white typo-footnote">
-      Free
-    </span>
-  </button>
 );
 
 const IntroScreen = ({
@@ -194,7 +166,9 @@ const IntroScreen = ({
       !
     </Typography>
     <div className="mt-4 grid grid-cols-3 gap-2 tablet:grid-cols-4">
-      {isEventLive && <EventAwardItem onClick={() => onPick(gtaViAward)} />}
+      {isEventLive && (
+        <AwardItem item={gtaViAward} onClick={() => onPick(gtaViAward)} />
+      )}
       {productionAwards.map((item) => (
         <AwardItem key={item.id} item={item} onClick={() => onPick(item)} />
       ))}

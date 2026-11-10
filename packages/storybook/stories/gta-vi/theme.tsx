@@ -1,26 +1,31 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
+  ButtonGroup,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
+import { HorizontalSeparator } from '@dailydotdev/shared/src/components/utilities/common';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   ArrowIcon,
   BellIcon,
   BookmarkIcon,
+  CreditCardIcon,
+  ExitIcon,
+  EyeIcon,
   FilterIcon,
   HomeIcon,
+  MegaphoneIcon,
   MoonIcon,
   PlusIcon,
   SearchIcon,
   SettingsIcon,
   SquadIcon,
   SunIcon,
-  VIcon,
+  TrendingIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons/ReadingStreak';
 import { ThemeAutoIcon } from '@dailydotdev/shared/src/components/icons/ThemeAuto';
@@ -32,14 +37,136 @@ import { myShortcuts } from '../hero-cover/widgets/shortcuts';
 import coverArt from './assets/theme-vice-city-cover.webp';
 
 /*
- * The Vice City theme: the home page's top wears the release art behind the
- * shortcuts and the greeting. It's never applied for the reader: they turn
- * it on from a one-time nudge on the home page or from Appearance, and turn
- * it off from either. The page around it is the Hero Cover home
+ * The Vice City theme: dark mode with the release art behind the home page's
+ * shortcuts and greeting. It's never applied for the reader: the Theme row in
+ * the settings popover (ThemeSection, also on Settings › Appearance) gets a
+ * fourth option, VI, beside dark, light and auto, and picking another theme
+ * turns it off. The page around it is the Hero Cover home
  * (stories/hero-cover), drawn here at two widths.
  */
 
-export type HomeCover = 'none' | 'viceCity';
+export type ThemeChoice = 'dark' | 'light' | 'auto' | 'viceCity';
+
+/** The VI option's glyph: the title's letters in the sunset gradient. */
+const ViGlyph = (): ReactElement => (
+  <svg viewBox="0 0 24 24" className="size-6" aria-hidden>
+    <defs>
+      <linearGradient id="gta-vi-glyph" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="var(--theme-accent-cabbage-default)" />
+        <stop offset="55%" stopColor="var(--theme-accent-bacon-default)" />
+        <stop offset="100%" stopColor="var(--theme-accent-bun-default)" />
+      </linearGradient>
+    </defs>
+    <text
+      x="12"
+      y="13"
+      textAnchor="middle"
+      dominantBaseline="central"
+      fontSize="17"
+      fontWeight="900"
+      textLength="20"
+      lengthAdjust="spacingAndGlyphs"
+      fill="url(#gta-vi-glyph)"
+    >
+      VI
+    </text>
+  </svg>
+);
+
+const themeOptions: {
+  value: ThemeChoice;
+  label: string;
+  icon: (isActive: boolean) => ReactElement;
+}[] = [
+  { value: 'dark', label: 'Dark', icon: (on) => <MoonIcon secondary={on} /> },
+  { value: 'light', label: 'Light', icon: (on) => <SunIcon secondary={on} /> },
+  {
+    value: 'auto',
+    label: 'Auto',
+    icon: (on) => <ThemeAutoIcon secondary={on} />,
+  },
+  { value: 'viceCity', label: 'Vice City', icon: () => <ViGlyph /> },
+];
+
+/** Production's ThemeSection with the VI option added last. */
+export const ThemeRow = ({
+  theme,
+  onTheme,
+}: {
+  theme: ThemeChoice;
+  onTheme: (theme: ThemeChoice) => void;
+}): ReactElement => (
+  <section className="flex items-center justify-between px-1">
+    <span className="text-text-tertiary typo-subhead">Theme</span>
+    <ButtonGroup>
+      {themeOptions.map((option) => {
+        const isActive = option.value === theme;
+        return (
+          <Button
+            key={option.value}
+            icon={option.icon(isActive)}
+            aria-label={option.label}
+            title={option.label}
+            aria-pressed={isActive}
+            variant={isActive ? ButtonVariant.Float : ButtonVariant.Tertiary}
+            size={ButtonSize.XSmall}
+            onClick={() => onTheme(option.value)}
+            className={isActive ? 'text-text-primary' : undefined}
+          />
+        );
+      })}
+    </ButtonGroup>
+  </section>
+);
+
+const menuGroups = [
+  [
+    { title: 'Settings', icon: SettingsIcon },
+    { title: 'Appearance', icon: EyeIcon },
+  ],
+  [
+    { title: 'Payment & Subscription', icon: CreditCardIcon },
+    { title: 'Ads dashboard', icon: TrendingIcon },
+    { title: 'Advertise', icon: MegaphoneIcon },
+  ],
+  [{ title: 'Log out', icon: ExitIcon }],
+];
+
+/** SidebarDesktopV2's settings popover, from the rail's bottom gear. */
+export const SettingsPopover = ({
+  theme,
+  onTheme,
+  className,
+}: {
+  theme: ThemeChoice;
+  onTheme: (theme: ThemeChoice) => void;
+  className?: string;
+}): ReactElement => (
+  <div
+    className={classNames(
+      'flex w-64 flex-col gap-2 rounded-10 border border-border-subtlest-tertiary bg-accent-pepper-subtlest p-3 shadow-2',
+      className,
+    )}
+  >
+    <ThemeRow theme={theme} onTheme={onTheme} />
+    {menuGroups.map((items) => (
+      <React.Fragment key={items[0].title}>
+        <HorizontalSeparator />
+        <div className="flex flex-col">
+          {items.map(({ title, icon: Icon }) => (
+            <span
+              key={title}
+              className="flex h-9 items-center gap-2 rounded-8 px-1 text-text-tertiary typo-subhead hover:bg-surface-hover hover:text-text-primary"
+            >
+              <Icon size={IconSize.Small} />
+              {title}
+            </span>
+          ))}
+        </div>
+      </React.Fragment>
+    ))}
+  </div>
+);
 
 const sideIcons = [
   HomeIcon,
@@ -50,7 +177,13 @@ const sideIcons = [
   BookmarkIcon,
 ];
 
-const SideRail = (): ReactElement => (
+const SideRail = ({
+  isSettingsOpen,
+  onSettings,
+}: {
+  isSettingsOpen: boolean;
+  onSettings: () => void;
+}): ReactElement => (
   <aside className="relative z-1 flex w-16 shrink-0 flex-col items-center gap-2 border-r border-border-subtlest-tertiary bg-background-default py-4">
     <span className="mb-2 flex size-9 items-center justify-center rounded-12 bg-text-primary font-bold text-surface-invert typo-callout">
       d
@@ -66,6 +199,18 @@ const SideRail = (): ReactElement => (
         <Icon size={IconSize.Small} />
       </span>
     ))}
+    <button
+      type="button"
+      aria-label="Settings"
+      aria-expanded={isSettingsOpen}
+      onClick={onSettings}
+      className={classNames(
+        'mt-auto flex size-10 items-center justify-center rounded-12 text-text-tertiary hover:bg-surface-hover hover:text-text-primary',
+        isSettingsOpen && 'bg-surface-float !text-text-primary',
+      )}
+    >
+      <SettingsIcon secondary={isSettingsOpen} size={IconSize.Small} />
+    </button>
   </aside>
 );
 
@@ -95,8 +240,11 @@ const Shortcuts = ({
         </span>
         <span
           className={classNames(
-            'w-full truncate text-center typo-caption1',
-            isThemed ? 'text-white' : 'text-text-tertiary',
+            'max-w-full truncate text-center typo-caption1',
+            // The skyline is busy behind the labels, so they sit on a scrim.
+            isThemed
+              ? 'rounded-6 bg-overlay-primary-pepper px-1.5 text-white'
+              : 'w-full text-text-tertiary',
           )}
         >
           {shortcut.name}
@@ -117,56 +265,7 @@ const CoverArt = ({ isPhone }: { isPhone?: boolean }): ReactElement => (
         isPhone ? 'h-56 object-[70%_60%]' : 'h-64 object-[center_65%]',
       )}
     />
-    <span className="absolute inset-0 bg-gradient-to-b from-transparent from-40% to-background-default" />
-  </div>
-);
-
-/** The one-time nudge: the art as a thumbnail, Try it, and a dismiss. */
-export const ThemeNudge = ({
-  onApply,
-  onDismiss,
-  isCompact,
-}: {
-  onApply?: () => void;
-  onDismiss?: () => void;
-  isCompact?: boolean;
-}): ReactElement => (
-  <div className="flex items-center gap-2 rounded-14 border border-border-subtlest-tertiary bg-background-subtle p-1 pr-1.5">
-    <img
-      src={coverArt}
-      alt=""
-      className="h-8 w-14 shrink-0 rounded-10 object-cover object-[75%_60%]"
-    />
-    <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
-      {isCompact ? 'Vice City theme' : 'GTA VI is out: try the Vice City theme'}
-    </span>
-    <Button
-      variant={ButtonVariant.Primary}
-      size={ButtonSize.XSmall}
-      onClick={onApply}
-    >
-      Try it
-    </Button>
-    <CloseButton size={ButtonSize.XSmall} onClick={onDismiss} />
-  </div>
-);
-
-const Toast = ({
-  children,
-  onUndo,
-}: {
-  children: ReactNode;
-  onUndo: () => void;
-}): ReactElement => (
-  <div className="absolute bottom-6 left-1/2 z-3 flex w-max -translate-x-1/2 items-center gap-3 rounded-12 bg-text-primary py-2 pl-4 pr-2 text-surface-invert shadow-2 typo-callout">
-    {children}
-    <button
-      type="button"
-      onClick={onUndo}
-      className="rounded-8 px-2 py-1 font-bold hover:bg-surface-hover"
-    >
-      Undo
-    </button>
+    <span className="absolute inset-0 bg-gradient-to-b from-transparent from-30% to-background-default to-90%" />
   </div>
 );
 
@@ -175,37 +274,29 @@ const greeting = 'Good afternoon, TheCoverLiker';
 const tabs = ['For you', 'AI', 'Career', 'Architecture', 'My new feed'];
 
 /**
- * The home page at one width. Interactive: Try it applies the cover, the
- * chip on the cover takes it off, and each shows a toast with Undo.
+ * The home page at one width. Interactive: the rail's gear opens the
+ * settings popover, and the Theme row's VI turns the theme on or off.
  */
 export const ThemedHome = ({
-  initialCover = 'none',
-  hasNudge = true,
+  initialTheme = 'dark',
+  isSettingsOpenInitially = false,
   isPhone = false,
   width = 1440,
   height = 900,
   columns = 4,
 }: {
-  initialCover?: HomeCover;
-  /** Launch week, and the reader hasn't tried or dismissed it yet. */
-  hasNudge?: boolean;
+  initialTheme?: ThemeChoice;
+  isSettingsOpenInitially?: boolean;
   isPhone?: boolean;
   width?: number;
   height?: number;
   columns?: number;
 }): ReactElement => {
-  const [cover, setCover] = useState<HomeCover>(initialCover);
-  const [isNudgeOpen, setIsNudgeOpen] = useState(hasNudge);
-  const [toast, setToast] = useState<HomeCover | null>(null);
-  const isThemed = cover === 'viceCity';
+  const [theme, setTheme] = useState<ThemeChoice>(initialTheme);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(isSettingsOpenInitially);
+  const isThemed = theme === 'viceCity';
   const scale = Math.min(1, 1380 / width);
   const pad = isPhone ? 'px-4' : 'px-6';
-
-  const apply = (next: HomeCover) => {
-    setCover(next);
-    setIsNudgeOpen(false);
-    setToast(next);
-  };
 
   return (
     <div
@@ -213,7 +304,11 @@ export const ThemedHome = ({
       style={{ width: width * scale, height: height * scale }}
     >
       <div
-        className="relative flex bg-background-default"
+        className={classNames(
+          'relative flex bg-background-default',
+          // Light is production's; the story shows it for the switch only.
+          theme === 'light' && 'light',
+        )}
         style={{
           width,
           height,
@@ -221,7 +316,19 @@ export const ThemedHome = ({
           transformOrigin: '0 0',
         }}
       >
-        {!isPhone && <SideRail />}
+        {!isPhone && (
+          <SideRail
+            isSettingsOpen={isSettingsOpen}
+            onSettings={() => setIsSettingsOpen((value) => !value)}
+          />
+        )}
+        {isSettingsOpen && !isPhone && (
+          <SettingsPopover
+            theme={theme}
+            onTheme={setTheme}
+            className="absolute bottom-4 left-[4.5rem] z-3"
+          />
+        )}
         <div className="no-scrollbar relative min-w-0 flex-1 overflow-y-auto">
           {isThemed && <CoverArt isPhone={isPhone} />}
           <div className={classNames('relative flex flex-col gap-4', pad)}>
@@ -230,21 +337,6 @@ export const ThemedHome = ({
                 <div className="flex-1">
                   <Shortcuts isThemed={isThemed} count={7} />
                 </div>
-              )}
-              {isPhone && <span className="flex-1" />}
-              {isThemed && (
-                <Button
-                  variant={ButtonVariant.Float}
-                  size={ButtonSize.XSmall}
-                  className={classNames(
-                    'bg-overlay-primary-pepper !text-white backdrop-blur-sm',
-                    !isPhone && 'absolute right-0 top-4',
-                  )}
-                  onClick={() => apply('none')}
-                  title="Turn off the Vice City theme"
-                >
-                  Vice City
-                </Button>
               )}
             </div>
 
@@ -258,23 +350,23 @@ export const ThemedHome = ({
                 <span
                   className={classNames(
                     'truncate font-bold text-text-primary',
+                    isThemed && 'drop-shadow-md',
                     isPhone ? 'typo-title3' : 'typo-title2',
                   )}
                 >
                   {greeting}
                 </span>
-                <span className="truncate text-text-tertiary typo-footnote">
+                <span
+                  className={classNames(
+                    'truncate typo-footnote',
+                    isThemed
+                      ? 'text-text-secondary drop-shadow-md'
+                      : 'text-text-tertiary',
+                  )}
+                >
                   Thursday, November 19 · 12 new since yesterday
                 </span>
               </div>
-              {isNudgeOpen && !isThemed && !isPhone && (
-                <div className="w-[25rem]">
-                  <ThemeNudge
-                    onApply={() => apply('viceCity')}
-                    onDismiss={() => setIsNudgeOpen(false)}
-                  />
-                </div>
-              )}
               {!isPhone && (
                 <>
                   <Button
@@ -308,13 +400,6 @@ export const ThemedHome = ({
                 </>
               )}
             </header>
-            {isNudgeOpen && !isThemed && isPhone && (
-              <ThemeNudge
-                isCompact
-                onApply={() => apply('viceCity')}
-                onDismiss={() => setIsNudgeOpen(false)}
-              />
-            )}
 
             <WidgetRail
               initialWidgets={[
@@ -374,125 +459,7 @@ export const ThemedHome = ({
             ))}
           </div>
         </div>
-
-        {toast && (
-          <Toast
-            onUndo={() => {
-              setCover(toast === 'viceCity' ? 'none' : 'viceCity');
-              setToast(null);
-            }}
-          >
-            {toast === 'viceCity'
-              ? 'Vice City theme on'
-              : 'Vice City theme off'}
-          </Toast>
-        )}
       </div>
-    </div>
-  );
-};
-
-/* ------------------------------------------------------------ Appearance */
-
-const themeIcons = [MoonIcon, SunIcon, ThemeAutoIcon];
-
-const CoverOption = ({
-  label,
-  isSelected,
-  onClick,
-  children,
-}: {
-  label: string;
-  isSelected: boolean;
-  onClick: () => void;
-  children: ReactNode;
-}): ReactElement => (
-  <button
-    type="button"
-    aria-pressed={isSelected}
-    onClick={onClick}
-    className="flex flex-1 flex-col gap-2 text-left"
-  >
-    <span
-      className={classNames(
-        'relative flex h-20 w-full overflow-hidden rounded-12 border',
-        isSelected
-          ? 'border-text-primary ring-1 ring-text-primary'
-          : 'border-border-subtlest-tertiary',
-      )}
-    >
-      {children}
-      {isSelected && (
-        <span className="absolute right-1.5 top-1.5 flex size-5 items-center justify-center rounded-full bg-text-primary text-surface-invert">
-          <VIcon size={IconSize.Size16} />
-        </span>
-      )}
-    </span>
-    <span className="font-bold text-text-primary typo-footnote">{label}</span>
-  </button>
-);
-
-/**
- * Settings › Appearance: production's Theme row, then a Home cover row with
- * the art. It stays listed after launch week, so a reader who missed the
- * nudge can still find it; nothing turns it on for them.
- */
-export const AppearanceCover = ({
-  initialCover = 'none',
-}: {
-  initialCover?: HomeCover;
-}): ReactElement => {
-  const [cover, setCover] = useState<HomeCover>(initialCover);
-  return (
-    <div className="flex w-[30rem] flex-col gap-6 rounded-16 border border-border-subtlest-tertiary bg-background-default p-6">
-      <span className="font-bold text-text-primary typo-title3">
-        Appearance
-      </span>
-      <section className="flex items-center justify-between">
-        <span className="text-text-tertiary typo-subhead">Theme</span>
-        <span className="flex gap-1">
-          {themeIcons.map((Icon, index) => (
-            <Button
-              key={Icon.name || index}
-              icon={<Icon secondary={index === 0} />}
-              variant={
-                index === 0 ? ButtonVariant.Float : ButtonVariant.Tertiary
-              }
-              size={ButtonSize.XSmall}
-            />
-          ))}
-        </span>
-      </section>
-      <section className="flex flex-col gap-3">
-        <div className="flex flex-col gap-1">
-          <span className="font-bold text-text-primary typo-subhead">
-            Home cover
-          </span>
-          <span className="text-text-tertiary typo-footnote">
-            Art behind your shortcuts and greeting, on the home page only.
-          </span>
-        </div>
-        <div className="flex gap-3">
-          <CoverOption
-            label="None"
-            isSelected={cover === 'none'}
-            onClick={() => setCover('none')}
-          >
-            <span className="size-full bg-background-subtle" />
-          </CoverOption>
-          <CoverOption
-            label="Vice City"
-            isSelected={cover === 'viceCity'}
-            onClick={() => setCover('viceCity')}
-          >
-            <img
-              src={coverArt}
-              alt=""
-              className="size-full object-cover object-[70%_60%]"
-            />
-          </CoverOption>
-        </div>
-      </section>
     </div>
   );
 };

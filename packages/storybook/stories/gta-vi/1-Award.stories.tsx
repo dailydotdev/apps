@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { Case, Page } from '../hero-cover/parts';
 import { GiveAwardFlow } from './production/GiveAward';
-import { gtaViAward, productionAwards } from './data';
+import { CommentWithAward, ProfileAwards } from './production/AwardPreviews';
+import { productionAwards } from './data';
 
 const meta: Meta = {
   title: 'GTA VI/1. Vice City award',
@@ -24,7 +25,7 @@ export const ViceCityAward: StoryObj = {
     >
       <Case
         title="The picker"
-        note="Give an Award as production draws it, with the Vice City award first. Its art fills the tile, a cabbage ring and a Free chip set it apart from the paid awards. Click any award to walk the flow."
+        note="Give an Award as production draws it, with the Vice City award first: the same tile and icon size as every other award, priced Free. Click any award to walk the flow."
       >
         <div className="flex flex-wrap items-start gap-10">
           <GiveAwardFlow />
@@ -52,12 +53,20 @@ export const ViceCityAward: StoryObj = {
         />
       </Case>
 
-      <Case title="The art">
-        <img
-          src={gtaViAward.image}
-          alt="Vice City award"
-          className="size-40 object-contain"
-        />
+      <Case
+        title="Received: on a comment"
+        note="Production's award count under a comment, with the Vice City award as the comment's featured award, at the size every featured award gets."
+      >
+        <CommentWithAward />
+      </Case>
+
+      <Case
+        title="Received: on the profile"
+        note="The profile's Badges & Awards widget, at production's award size. The Vice City award counts toward Total Awards like any other."
+      >
+        <div className="w-[22rem]">
+          <ProfileAwards />
+        </div>
       </Case>
     </Page>
   ),
