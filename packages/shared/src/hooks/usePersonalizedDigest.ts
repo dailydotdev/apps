@@ -26,6 +26,8 @@ export type UsePersonalizedDigest = {
     type: UserPersonalizedDigestType,
   ) => UserPersonalizedDigest | null;
   isLoading: boolean;
+  /** Answered or failed once: enough to know whether a reminder prompt shows. */
+  isSettled: boolean;
   subscribePersonalizedDigest: (params?: {
     hour?: number;
     type?: UserPersonalizedDigestType;
@@ -63,7 +65,11 @@ export const usePersonalizedDigest = ({
   const queryClient = useQueryClient();
   const queryKey = generateQueryKey(RequestKey.PersonalizedDigest, user);
 
-  const { data = null, isPending } = useQuery<PersonalizedDigestData>({
+  const {
+    data = null,
+    isPending,
+    failureCount,
+  } = useQuery<PersonalizedDigestData>({
     queryKey,
     queryFn: async () => {
       try {
@@ -201,6 +207,7 @@ export const usePersonalizedDigest = ({
   return {
     getPersonalizedDigest,
     isLoading: isPending,
+    isSettled: !isPending || failureCount > 0,
     subscribePersonalizedDigest: (params) =>
       subscribePersonalizedDigest(params),
     unsubscribePersonalizedDigest: (params) =>

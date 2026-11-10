@@ -41,6 +41,13 @@ import { updatePostCache } from '../../lib/query';
 import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
 import { boostSettingsFeature } from '../../lib/featureManagement';
 import { getBoostErrorExtra, useBoostLogging } from './useBoostLogging';
+import type { BoostAudienceValue } from './BoostAudience';
+import {
+  BoostAudience,
+  BoostLocation,
+  toCampaignAudience,
+} from './BoostAudience';
+import type { CampaignAudience } from '../../graphql/campaigns';
 
 const Slider = dynamic(
   () => import('../../components/fields/Slider').then((mod) => mod.Slider),
@@ -75,7 +82,20 @@ export function BoostPostModal({
     boostSettings.default_cores,
   );
   const [totalDays, setTotalDays] = React.useState(boostSettings.default_days);
-  const [estimate, setEstimate] = useState({ coresPerDay, totalDays });
+  const postTags = post.tags?.length
+    ? post.tags
+    : (post.sharedPost?.tags ?? []);
+  const [audience, setAudience] = useState<BoostAudienceValue>({
+    tags: postTags,
+    location: BoostLocation.Worldwide,
+    countries: [],
+  });
+  const campaignAudience = toCampaignAudience(audience, postTags);
+  const [estimate, setEstimate] = useState<{
+    coresPerDay: number;
+    totalDays: number;
+    audience?: CampaignAudience;
+  }>({ coresPerDay, totalDays });
   const [updateEstimate] = useDebounceFn(setEstimate, 400);
   const totalSpendInt = coresPerDay * totalDays;
   const totalSpend = largeNumberFormat(totalSpendInt);
@@ -91,7 +111,7 @@ export function BoostPostModal({
   } = useBoostWallet(squadId);
   const { estimatedReach, canBoost, isLoading } = usePostBoostEstimation({
     post,
-    query: { budget: estimate.coresPerDay },
+    query: { budget: estimate.coresPerDay, audience: estimate.audience },
   });
   const { logBoostEvent, logBuyCores } = useBoostLogging({
     type: CampaignType.Post,
@@ -142,6 +162,7 @@ export function BoostPostModal({
       value: post.id,
       type: CampaignType.Post,
       wallet,
+      audience: campaignAudience,
     });
   };
 
@@ -246,8 +267,9 @@ export function BoostPostModal({
           type={TypographyType.Callout}
           color={TypographyColor.Secondary}
         >
-          Give your content the spotlight it deserves. Our auto-targeting engine
-          ensures your post gets shown to the developers most likely to care.
+          Give your content the spotlight it deserves. We start with the
+          developers who read about your post&apos;s tags, anywhere in the
+          world. Fine-tune who sees it below.
           <a
             href={boostDocsLink}
             className="ml-1 text-text-link"
@@ -290,6 +312,17 @@ export function BoostPostModal({
             </Typography>
           </div>
         </div>
+        <BoostAudience
+          postTags={postTags}
+          value={audience}
+          onChange={(value) => {
+            setAudience(value);
+            updateEstimate((state) => ({
+              ...state,
+              audience: toCampaignAudience(value, postTags),
+            }));
+          }}
+        />
         <div className="flex flex-col">
           <Typography
             type={TypographyType.Callout}
