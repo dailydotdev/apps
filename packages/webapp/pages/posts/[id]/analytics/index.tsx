@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import type { GetServerSideProps } from 'next';
@@ -95,6 +95,12 @@ import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/type
 import { BoostIcon } from '@dailydotdev/shared/src/components/icons/Boost';
 import { useCampaignEstimation } from '@dailydotdev/shared/src/features/boost/useCampaignEstimation';
 import { useCampaigns } from '@dailydotdev/shared/src/features/boost/useCampaigns';
+import {
+  AgentViewsSeries,
+  agentViewsTotalSeries,
+  agentViewsVendorSeries,
+} from '@dailydotdev/shared/src/components/analytics/agentViews';
+import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import { getSeoDescription } from '../../../../components/PostSEOSchema';
 import type { Props } from '../index';
 import { seoTitle } from '../index';
@@ -109,6 +115,16 @@ const ImpressionsChart = dynamic(
   () =>
     import('../../../../../shared/src/components/analytics/ImpressionsChart').then(
       (mod) => mod.ImpressionsChart,
+    ),
+  {
+    loading: () => <div className="h-40 w-full" />,
+  },
+);
+
+const AgentViewsChart = dynamic(
+  () =>
+    import('../../../../../shared/src/components/analytics/AgentViewsChart').then(
+      (mod) => mod.AgentViewsChart,
     ),
   {
     loading: () => <div className="h-40 w-full" />,
@@ -197,6 +213,53 @@ const SectionHeader = ({ children }: SectionHeaderProps): ReactElement => {
   );
 };
 
+const AgentDot = ({
+  colorClassName,
+}: {
+  colorClassName: string;
+}): ReactElement => (
+  <span className={classNames('size-2 rounded-full', colorClassName)} />
+);
+
+const LegendToggle = ({
+  label,
+  dotClassName,
+  shapeClassName = 'size-2 rounded-full',
+  isActive,
+  isLocked = false,
+  onToggle,
+}: {
+  label: string;
+  dotClassName: string;
+  shapeClassName?: string;
+  isActive: boolean;
+  isLocked?: boolean;
+  onToggle: () => void;
+}): ReactElement => (
+  <button
+    type="button"
+    className={classNames(
+      'flex items-center gap-1',
+      isLocked && 'cursor-default',
+    )}
+    aria-pressed={isActive}
+    onClick={isLocked ? undefined : onToggle}
+  >
+    <span
+      className={classNames(
+        shapeClassName,
+        isActive ? dotClassName : 'border border-border-subtlest-primary',
+      )}
+    />
+    <Typography
+      type={TypographyType.Footnote}
+      color={isActive ? TypographyColor.Primary : TypographyColor.Tertiary}
+    >
+      {label}
+    </Typography>
+  </button>
+);
+
 const PostAnalyticsPage = ({
   id,
   initialData,
@@ -229,6 +292,48 @@ const PostAnalyticsPage = ({
     enabled: isAuthor && !!post?.id,
   });
   const campaign = campaignQuery.data?.pages[0]?.edges[0]?.node;
+
+  const [showOrganic, setShowOrganic] = useState(true);
+  const [showPromoted, setShowPromoted] = useState(true);
+  const [showAgentReads, setShowAgentReads] = useState(true);
+  const [showAgentCrawls, setShowAgentCrawls] = useState(true);
+  const [visibleAgentSeries, setVisibleAgentSeries] = useState<
+    AgentViewsSeries[]
+  >([AgentViewsSeries.Total]);
+  const [showAgentBreakdown, setShowAgentBreakdown] = useState(false);
+
+  const toggleAgentSeries = (key: AgentViewsSeries) => {
+    if (key === AgentViewsSeries.Total) {
+      setVisibleAgentSeries([AgentViewsSeries.Total]);
+
+      return;
+    }
+
+    setVisibleAgentSeries((current) => {
+      const vendors = current.filter((item) => item !== AgentViewsSeries.Total);
+      const next = vendors.includes(key)
+        ? vendors.filter((item) => item !== key)
+        : [...vendors, key];
+
+      return next.length ? next : [AgentViewsSeries.Total];
+    });
+  };
+
+  const agentViewsList: AnalyticsNumberList = agentViewsVendorSeries.map(
+    ({ key, label, dotClassName, botKey }) => {
+      const reads = largeNumberFormat(postAnalytics?.[key] ?? 0);
+
+      return {
+        icon: <AgentDot colorClassName={dotClassName} />,
+        label,
+        value: botKey
+          ? `${reads} reads · ${largeNumberFormat(
+              postAnalytics?.[botKey] ?? 0,
+            )} crawls`
+          : `${reads} reads`,
+      };
+    },
+  );
 
   const canBoost = useShowBoostButton({ post });
   const isBoosting = !!post?.flags?.campaignId;
@@ -525,22 +630,107 @@ const PostAnalyticsPage = ({
               }
             />
           </div>
-          <div className="flex items-center">
+          <div className="flex flex-wrap items-center gap-2">
             <Typography type={TypographyType.Footnote} bold>
               Impressions in the last 45 days
             </Typography>
-            <div className="ml-auto flex gap-2">
-              <div className="flex items-center gap-1">
-                <div className="size-2 rounded-full bg-brand-default" />{' '}
-                <Typography type={TypographyType.Footnote}>Organic</Typography>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="size-2 rounded-full bg-accent-blueCheese-default" />{' '}
-                <Typography type={TypographyType.Footnote}>Promoted</Typography>
-              </div>
+            <div className="ml-auto flex flex-wrap gap-2">
+              <LegendToggle
+                label="Organic"
+                dotClassName="bg-brand-default"
+                isActive={showOrganic}
+                isLocked={showOrganic && !showPromoted}
+                onToggle={() => setShowOrganic((current) => !current)}
+              />
+              <LegendToggle
+                label="Promoted"
+                dotClassName="bg-accent-blueCheese-default"
+                isActive={showPromoted}
+                isLocked={showPromoted && !showOrganic}
+                onToggle={() => setShowPromoted((current) => !current)}
+              />
             </div>
           </div>
-          <ImpressionsChart post={post} />
+          <ImpressionsChart
+            post={post}
+            showOrganic={showOrganic}
+            showPromoted={showPromoted}
+          />
+        </SectionContainer>
+        <Divider className={dividerClassName} />
+        <SectionContainer>
+          <SectionHeader>AI agents</SectionHeader>
+          <div className="flex gap-4">
+            <DataTile
+              label="AI agent reads"
+              value={postAnalytics?.agentViews ?? 0}
+              info="The number of times AI assistants like ChatGPT, Claude, and Gemini read your post because someone asked them about it."
+              className={{
+                container: 'flex-1',
+              }}
+            />
+            <DataTile
+              label="AI crawler visits"
+              value={postAnalytics?.agentViewsBot ?? 0}
+              info="The number of times AI crawlers visited your post to index it for AI search or crawling."
+              className={{
+                container: 'flex-1',
+              }}
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Typography type={TypographyType.Footnote} bold>
+              AI agents in the last 45 days
+            </Typography>
+            <div className="ml-auto flex flex-wrap gap-2">
+              <LegendToggle
+                label="Reads"
+                dotClassName="bg-text-secondary"
+                shapeClassName="h-0.5 w-3 rounded-full"
+                isActive={showAgentReads}
+                isLocked={showAgentReads && !showAgentCrawls}
+                onToggle={() => setShowAgentReads((current) => !current)}
+              />
+              <LegendToggle
+                label="Crawls"
+                dotClassName="border-text-secondary"
+                shapeClassName="w-3 border-t-2 border-dashed"
+                isActive={showAgentCrawls}
+                isLocked={showAgentCrawls && !showAgentReads}
+                onToggle={() => setShowAgentCrawls((current) => !current)}
+              />
+            </div>
+          </div>
+          <div className="flex flex-wrap justify-end gap-2">
+            {[agentViewsTotalSeries, ...agentViewsVendorSeries].map(
+              (series) => (
+                <LegendToggle
+                  key={series.key}
+                  label={series.label}
+                  dotClassName={series.dotClassName}
+                  isActive={visibleAgentSeries.includes(series.key)}
+                  isLocked={
+                    series.key === AgentViewsSeries.Total &&
+                    visibleAgentSeries.includes(AgentViewsSeries.Total)
+                  }
+                  onToggle={() => toggleAgentSeries(series.key)}
+                />
+              ),
+            )}
+          </div>
+          <AgentViewsChart
+            post={post}
+            visibleSeries={visibleAgentSeries}
+            showReads={showAgentReads}
+            showCrawls={showAgentCrawls}
+          />
+          <ClickableText
+            className="mr-auto"
+            onClick={() => setShowAgentBreakdown((current) => !current)}
+          >
+            {showAgentBreakdown ? 'Hide' : 'Show'} per agent
+          </ClickableText>
+          {showAgentBreakdown && <AnalyticsNumbersList data={agentViewsList} />}
         </SectionContainer>
         <Divider className={dividerClassName} />
         {canBoost && !campaign && (

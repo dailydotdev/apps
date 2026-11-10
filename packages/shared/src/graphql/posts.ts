@@ -1568,6 +1568,19 @@ export const POST_ANALYTICS_QUERY = gql`
       reachAds
       impressionsAds
       clicks
+      agentViews
+      agentViewsClaude
+      agentViewsChatgpt
+      agentViewsGemini
+      agentViewsPerplexity
+      agentViewsExa
+      agentViewsMeta
+      agentViewsBot
+      agentViewsClaudeBot
+      agentViewsChatgptBot
+      agentViewsPerplexityBot
+      agentViewsExaBot
+      agentViewsMetaBot
     }
   }
 `;
@@ -1590,6 +1603,19 @@ export type PostAnalytics = {
   reachAds: number;
   impressionsAds: number;
   clicks: number;
+  agentViews: number;
+  agentViewsClaude: number;
+  agentViewsChatgpt: number;
+  agentViewsGemini: number;
+  agentViewsPerplexity: number;
+  agentViewsExa: number;
+  agentViewsMeta: number;
+  agentViewsBot: number;
+  agentViewsClaudeBot: number;
+  agentViewsChatgptBot: number;
+  agentViewsPerplexityBot: number;
+  agentViewsExaBot: number;
+  agentViewsMetaBot: number;
 };
 
 export const postAnalyticsQueryOptions = ({ id }: { id?: string }) => {
@@ -1621,6 +1647,19 @@ export const POST_ANALYTICS_HISTORY_QUERY = gql`
           date
           impressions
           impressionsAds
+          agentViews
+          agentViewsClaude
+          agentViewsChatgpt
+          agentViewsGemini
+          agentViewsPerplexity
+          agentViewsExa
+          agentViewsMeta
+          agentViewsBot
+          agentViewsClaudeBot
+          agentViewsChatgptBot
+          agentViewsPerplexityBot
+          agentViewsExaBot
+          agentViewsMetaBot
         }
       }
     }
@@ -1629,7 +1668,22 @@ export const POST_ANALYTICS_HISTORY_QUERY = gql`
 
 export type PostAnalyticsHistory = Pick<
   PostAnalytics,
-  'id' | 'impressions' | 'impressionsAds'
+  | 'id'
+  | 'impressions'
+  | 'impressionsAds'
+  | 'agentViews'
+  | 'agentViewsClaude'
+  | 'agentViewsChatgpt'
+  | 'agentViewsGemini'
+  | 'agentViewsPerplexity'
+  | 'agentViewsExa'
+  | 'agentViewsMeta'
+  | 'agentViewsBot'
+  | 'agentViewsClaudeBot'
+  | 'agentViewsChatgptBot'
+  | 'agentViewsPerplexityBot'
+  | 'agentViewsExaBot'
+  | 'agentViewsMetaBot'
 > & {
   date: Date;
 };
