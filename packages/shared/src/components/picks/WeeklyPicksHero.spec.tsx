@@ -182,10 +182,10 @@ it("should ask which of the week's posts were worth it", async () => {
   const headline = await screen.findByText(
     (_, element) =>
       ['P', 'H3'].includes(element?.tagName ?? '') &&
-      element.textContent === '12 posts this week. Which 3 were worth it?',
+      element.textContent === '12 posts this week. Which 3 were worth\u00a0it?',
   );
   expect(headline).toBeInTheDocument();
-  expect(screen.getByText('Your week · Closes Sunday')).toBeInTheDocument();
+  expect(screen.getByText('Your week')).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'Pick my top 3' })).toHaveAttribute(
     'href',
     '/picks/new?origin=home_hero',

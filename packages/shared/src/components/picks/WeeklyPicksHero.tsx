@@ -7,7 +7,6 @@ import { webappUrl } from '../../lib/constants';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { getAbsoluteWebappUrl } from '../../lib/links';
 import { LogEvent, Origin } from '../../lib/log';
-import { getPicksDeadlineLabel } from '../../lib/picks';
 import { ReferralCampaignKey } from '../../lib/referral';
 import { useLogContext } from '../../contexts/LogContext';
 import { TopHeroPortal } from '../../contexts/TopHeroSlotContext';
@@ -50,7 +49,7 @@ export const getNudgeHeadline = (signals: PicksWeekSignals): Headline => {
 
   return {
     count,
-    text: ` ${count === 1 ? 'post' : 'posts'} this week. Which ${PICKS_HERO_THUMBNAILS} were worth it?`,
+    text: ` ${count === 1 ? 'post' : 'posts'} this week. Which ${PICKS_HERO_THUMBNAILS} were worth\u00a0it?`,
   };
 };
 
@@ -391,13 +390,13 @@ export function WeeklyPicksHeroCard({
     ? getNudgeHeadline(signals)
     : {
         count: null,
-        text: `Which ${PICKS_HERO_THUMBNAILS} posts were worth it this week?`,
+        text: `Which ${PICKS_HERO_THUMBNAILS} posts were worth it this\u00a0week?`,
       };
 
   return (
     <Shell
       className={className}
-      title={`Your week · ${getPicksDeadlineLabel()}`}
+      title="Your week"
       headline={headline}
       actions={(size) => (
         <Link href={href} passHref>

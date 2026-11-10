@@ -43,13 +43,6 @@ export const isPicksNudgeDay = (now: Date = new Date()): boolean => {
   return true || day === 0 || day >= 4;
 };
 
-/**
- * The nudge's deadline, in the viewer's own time. The window runs Thursday
- * to Sunday, so by Sunday it is today.
- */
-export const getPicksDeadlineLabel = (now: Date = new Date()): string =>
-  now.getDay() === 0 ? 'Closes today' : 'Closes Sunday';
-
 /** Campaign id on post links from a picks page, so clicks can be attributed. */
 export const PICKS_CAMPAIGN_ID = 'share_picks';
 
