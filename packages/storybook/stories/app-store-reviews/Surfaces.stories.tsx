@@ -647,12 +647,12 @@ const ReviewScreen = ({
                       <img
                         src={testimonial.avatar}
                         alt={testimonial.name}
-                        className="size-8 rounded-10 object-cover"
+                        className="size-8 shrink-0 rounded-10 object-cover"
                       />
                     ) : (
                       <span className="size-8 shrink-0 rounded-10 bg-border-subtlest-tertiary" />
                     )}
-                    <div className="flex min-w-0 flex-col">
+                    <div className="flex min-w-0 flex-1 flex-col">
                       <Typography type={TypographyType.Caption1} bold truncate>
                         {testimonial.name}
                       </Typography>
