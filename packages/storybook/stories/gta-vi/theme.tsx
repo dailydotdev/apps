@@ -42,7 +42,8 @@ import coverArt from './assets/theme-vice-city-cover.webp';
  * shortcuts and greeting. It's never applied for the reader: the Theme row in
  * the settings popover (ThemeSection, also on Settings › Appearance) gets a
  * fourth option, VI, beside dark, light and auto, and picking another theme
- * turns it off. The page around it is the Hero Cover home
+ * turns it off. VI is always dark: a reader in light mode who picks it gets
+ * the dark page too. The page around it is the Hero Cover home
  * (stories/hero-cover), drawn here at two widths.
  */
 
@@ -286,7 +287,9 @@ const CoverArt = ({
       aria-hidden
       className={classNames(
         'pointer-events-none absolute inset-x-0 top-0 transition-[opacity,filter,transform] duration-500 ease-out motion-reduce:transition-none',
-        isFocused ? 'scale-100 opacity-100 blur-0' : 'scale-105 opacity-0 blur-md',
+        isFocused
+          ? 'scale-100 opacity-100 blur-0'
+          : 'scale-105 opacity-0 blur-md',
       )}
     >
       <img
@@ -301,6 +304,33 @@ const CoverArt = ({
       <span className="absolute inset-0 bg-gradient-to-b from-transparent from-30% to-background-default to-90%" />
     </div>
   );
+};
+
+const readIsPageLight = (): boolean =>
+  document.documentElement.classList.contains('light');
+
+/** Whether Storybook's toolbar has the page in light mode, kept live. */
+export const useIsPageLight = (): boolean => {
+  const [isLight, setIsLight] = useState(readIsPageLight);
+  useEffect(() => {
+    const observer = new MutationObserver(() => setIsLight(readIsPageLight()));
+    observer.observe(document.documentElement, { attributes: true });
+    return () => observer.disconnect();
+  }, []);
+  return isLight;
+};
+
+/**
+ * Production's `.invert` when a picked theme differs from the page: Dark and
+ * VI are dark, Light is light, Auto follows the page.
+ */
+export const useThemeInvert = (theme: ThemeChoice): string | undefined => {
+  const isPageLight = useIsPageLight();
+  const isDark = theme === 'dark' || theme === 'viceCity';
+  const isLight = theme === 'light';
+  return (isPageLight && isDark) || (!isPageLight && isLight)
+    ? 'invert'
+    : undefined;
 };
 
 /**
@@ -326,7 +356,7 @@ const tabs = ['For you', 'AI', 'Career', 'Architecture', 'My new feed'];
  * settings popover, and the Theme row's VI turns the theme on or off.
  */
 export const ThemedHome = ({
-  initialTheme = 'dark',
+  initialTheme,
   isSettingsOpenInitially = false,
   isPhone: isPhoneProp = false,
   width: widthProp = 1440,
@@ -337,6 +367,7 @@ export const ThemedHome = ({
   userName = 'TheCoverLiker',
   shortcutCount = 7,
 }: {
+  /** Defaults to the toolbar's theme. */
   initialTheme?: ThemeChoice;
   isSettingsOpenInitially?: boolean;
   isPhone?: boolean;
@@ -350,7 +381,7 @@ export const ThemedHome = ({
   userName?: string;
   shortcutCount?: number;
 }): ReactElement => {
-  const [theme, setTheme] = useState<ThemeChoice>(initialTheme);
+  const [picked, setTheme] = useState(initialTheme);
   const [isSettingsOpen, setIsSettingsOpen] = useState(isSettingsOpenInitially);
   const width = isFluid ? window.innerWidth : widthProp;
   const height = isFluid ? window.innerHeight : heightProp;
@@ -364,6 +395,9 @@ export const ThemedHome = ({
       (width < 1668 && 4) ||
       5
     : columnsProp;
+  const isPageLight = useIsPageLight();
+  const theme: ThemeChoice = picked ?? (isPageLight ? 'light' : 'dark');
+  const invertClass = useThemeInvert(theme);
   const isThemed = theme === 'viceCity';
   const scale = isFluid ? 1 : Math.min(1, 1380 / width);
   const pad = isPhone ? 'px-4' : 'px-6';
@@ -373,6 +407,9 @@ export const ThemedHome = ({
       className={classNames(
         'shrink-0 overflow-hidden',
         !isFluid && 'rounded-24 border border-border-subtlest-quaternary',
+        // Production switches the whole page; here, production's .invert
+        // draws this home in the picked theme inside the Storybook page.
+        invertClass,
       )}
       style={{ width: width * scale, height: height * scale }}
     >

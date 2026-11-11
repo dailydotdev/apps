@@ -15,7 +15,6 @@ import {
 const meta: Meta = {
   title: 'GTA VI/2. Event achievements',
   parameters: { layout: 'fullscreen' },
-  globals: { theme: 'dark' },
 };
 
 export default meta;

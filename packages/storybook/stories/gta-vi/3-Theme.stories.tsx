@@ -3,19 +3,22 @@ import React, { useState } from 'react';
 import type { ReactElement } from 'react';
 import { Case, Page } from '../hero-cover/parts';
 import type { ThemeChoice } from './theme';
-import { SettingsPopover, ThemedHome } from './theme';
+import { SettingsPopover, ThemedHome, useThemeInvert } from './theme';
 
 const meta: Meta = {
   title: 'GTA VI/3. Vice City theme',
   parameters: { layout: 'fullscreen' },
-  globals: { theme: 'dark' },
 };
 
 export default meta;
 
 const Popover = ({ initial }: { initial: ThemeChoice }): ReactElement => {
   const [theme, setTheme] = useState<ThemeChoice>(initial);
-  return <SettingsPopover theme={theme} onTheme={setTheme} />;
+  return (
+    <div className={useThemeInvert(theme)}>
+      <SettingsPopover theme={theme} onTheme={setTheme} />
+    </div>
+  );
 };
 
 export const ViceCityTheme: StoryObj = {

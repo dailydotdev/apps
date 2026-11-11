@@ -1,11 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import { Case, Page } from '../hero-cover/parts';
 import { GiveAwardFlow } from './production/GiveAward';
 import { CommentWithAward, ProfileAwards } from './production/AwardPreviews';
 import { AchievementDetail } from './production/AchievementShelfCard';
 import { Shelf } from './production/Shelf';
-import { SettingsPopover, ThemedHome, ThemeRow } from './theme';
+import type { ThemeChoice } from './theme';
+import { SettingsPopover, ThemedHome, ThemeRow, useThemeInvert } from './theme';
 import { DeviceRow, State, StateGrid } from './parts';
 import {
   productionAwards,
@@ -24,7 +27,6 @@ import {
 const meta: Meta = {
   title: 'GTA VI/4. All states',
   parameters: { layout: 'fullscreen' },
-  globals: { theme: 'dark' },
 };
 
 export default meta;
@@ -365,6 +367,28 @@ export const Achievements: StoryObj = {
 
 /* -------------------------------------------------------------- theme */
 
+/** The popover in the theme it picks: Dark and VI are dark, Light is light. */
+const PickedPopover = ({ theme }: { theme: ThemeChoice }): ReactElement => (
+  <div className={classNames('w-fit', useThemeInvert(theme))}>
+    <SettingsPopover theme={theme} onTheme={() => undefined} />
+  </div>
+);
+
+/** Settings › Appearance with VI picked, so drawn dark like the popover. */
+const AppearanceWithVi = (): ReactElement => (
+  <div
+    className={classNames(
+      'w-[23.4375rem] rounded-16 border border-border-subtlest-tertiary bg-background-default p-4',
+      useThemeInvert('viceCity'),
+    )}
+  >
+    <span className="mb-4 block font-bold text-text-primary typo-title3">
+      Appearance
+    </span>
+    <ThemeRow theme="viceCity" onTheme={() => undefined} />
+  </div>
+);
+
 export const Theme: StoryObj = {
   name: '3. Theme',
   render: () => (
@@ -390,7 +414,7 @@ export const Theme: StoryObj = {
               } picked`}
               tag={theme === 'viceCity' ? 'GTA VI' : 'Production'}
             >
-              <SettingsPopover theme={theme} onTheme={() => undefined} />
+              <PickedPopover theme={theme} />
             </State>
           ))}
           <State
@@ -398,12 +422,7 @@ export const Theme: StoryObj = {
             tag="GTA VI"
             note="Phones have no rail popover; they pick from Appearance, which draws the same ThemeSection."
           >
-            <div className="w-[23.4375rem] rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
-              <span className="mb-4 block font-bold text-text-primary typo-title3">
-                Appearance
-              </span>
-              <ThemeRow theme="viceCity" onTheme={() => undefined} />
-            </div>
+            <AppearanceWithVi />
           </State>
         </StateGrid>
       </Case>

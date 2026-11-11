@@ -8,7 +8,6 @@ import { productionAwards } from './data';
 const meta: Meta = {
   title: 'GTA VI/1. Vice City award',
   parameters: { layout: 'fullscreen' },
-  globals: { theme: 'dark' },
 };
 
 export default meta;
