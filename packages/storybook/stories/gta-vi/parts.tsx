@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { createContext, useContext } from 'react';
 import { Frame } from '../startups-onboarding/frame';
 
 /*
@@ -61,6 +61,11 @@ export const devices = [
   { label: 'Desktop · 1920', width: 1920, height: 1080, shown: 520 },
 ];
 
+export type ReviewTheme = 'dark' | 'light';
+
+/** The toolbar's theme, so the device frames render in it too. */
+export const ReviewThemeContext = createContext<ReviewTheme>('dark');
+
 /** One story in a real iframe at every device width; click opens it live. */
 export const DeviceRow = ({
   storyId,
@@ -68,30 +73,36 @@ export const DeviceRow = ({
 }: {
   storyId: string;
   title: string;
-}): ReactElement => (
-  <div className="flex flex-wrap items-start gap-6">
-    {devices.map((device) => (
-      <div
-        key={device.label}
-        className="flex flex-col gap-2"
-        style={{ width: device.shown }}
-      >
-        <span className="text-text-tertiary typo-footnote">{device.label}</span>
-        <Frame
-          storyId={storyId}
-          title={`${title}, ${device.label}`}
-          width={device.width}
-          height={device.height}
-        />
-        <a
-          href={`/?path=/story/${storyId}`}
-          target="_blank"
-          rel="noreferrer"
-          className="text-text-link typo-caption1"
+}): ReactElement => {
+  const theme = useContext(ReviewThemeContext);
+  return (
+    <div className="flex flex-wrap items-start gap-6">
+      {devices.map((device) => (
+        <div
+          key={device.label}
+          className="flex flex-col gap-2"
+          style={{ width: device.shown }}
         >
-          Open full size
-        </a>
-      </div>
-    ))}
-  </div>
-);
+          <span className="text-text-tertiary typo-footnote">
+            {device.label}
+          </span>
+          <Frame
+            storyId={storyId}
+            title={`${title}, ${device.label}`}
+            width={device.width}
+            height={device.height}
+            theme={theme}
+          />
+          <a
+            href={`/?path=/story/${storyId}&globals=theme:${theme}`}
+            target="_blank"
+            rel="noreferrer"
+            className="text-text-link typo-caption1"
+          >
+            Open full size
+          </a>
+        </div>
+      ))}
+    </div>
+  );
+};

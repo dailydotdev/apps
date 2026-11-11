@@ -1,12 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import { Case, Page } from '../hero-cover/parts';
 import { GiveAwardFlow } from './production/GiveAward';
 import { CommentWithAward, ProfileAwards } from './production/AwardPreviews';
 import { AchievementDetail } from './production/AchievementShelfCard';
 import { Shelf } from './production/Shelf';
-import { SettingsPopover, ThemedHome, ThemeRow } from './theme';
-import { DeviceRow, State, StateGrid } from './parts';
+import type { ThemeChoice } from './theme';
+import { SettingsPopover, ThemedHome, ThemeRow, useIsPageLight } from './theme';
+import type { ReviewTheme } from './parts';
+import { DeviceRow, ReviewThemeContext, State, StateGrid } from './parts';
 import {
   productionAwards,
   readOnGtaDayAchievement,
@@ -24,7 +28,15 @@ import {
 const meta: Meta = {
   title: 'GTA VI/4. All states',
   parameters: { layout: 'fullscreen' },
-  globals: { theme: 'dark' },
+  decorators: [
+    (Story, { globals }) => (
+      <ReviewThemeContext.Provider
+        value={(globals.theme as ReviewTheme) ?? 'light'}
+      >
+        <Story />
+      </ReviewThemeContext.Provider>
+    ),
+  ],
 };
 
 export default meta;
@@ -365,6 +377,23 @@ export const Achievements: StoryObj = {
 
 /* -------------------------------------------------------------- theme */
 
+/** The popover in the theme it picks: Dark and VI are dark, Light is light. */
+const PickedPopover = ({ theme }: { theme: ThemeChoice }): ReactElement => {
+  const isPageLight = useIsPageLight();
+  const isDark = theme === 'dark' || theme === 'viceCity';
+  const isLight = theme === 'light';
+  return (
+    <div
+      className={classNames(
+        'w-fit',
+        ((isPageLight && isDark) || (!isPageLight && isLight)) && 'invert',
+      )}
+    >
+      <SettingsPopover theme={theme} onTheme={() => undefined} />
+    </div>
+  );
+};
+
 export const Theme: StoryObj = {
   name: '3. Theme',
   render: () => (
@@ -390,7 +419,7 @@ export const Theme: StoryObj = {
               } picked`}
               tag={theme === 'viceCity' ? 'GTA VI' : 'Production'}
             >
-              <SettingsPopover theme={theme} onTheme={() => undefined} />
+              <PickedPopover theme={theme} />
             </State>
           ))}
           <State

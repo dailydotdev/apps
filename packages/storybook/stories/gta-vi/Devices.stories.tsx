@@ -16,7 +16,6 @@ import { ThemedHome } from './theme';
 const meta: Meta = {
   title: 'GTA VI/Devices',
   parameters: { layout: 'fullscreen' },
-  globals: { theme: 'dark' },
 };
 
 export default meta;

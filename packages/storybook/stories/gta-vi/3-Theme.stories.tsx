@@ -8,7 +8,6 @@ import { SettingsPopover, ThemedHome } from './theme';
 const meta: Meta = {
   title: 'GTA VI/3. Vice City theme',
   parameters: { layout: 'fullscreen' },
-  globals: { theme: 'dark' },
 };
 
 export default meta;

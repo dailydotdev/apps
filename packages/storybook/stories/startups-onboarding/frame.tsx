@@ -79,12 +79,14 @@ export const Frame = ({
   width = 1280,
   height = 860,
   maxWidth,
+  theme = 'dark',
 }: {
   storyId: string;
   title: string;
   width?: number;
   height?: number;
   maxWidth?: number;
+  theme?: 'dark' | 'light';
 }): ReactElement => {
   const boxRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLIFrameElement>(null);
@@ -209,7 +211,7 @@ export const Frame = ({
           key={attempt}
           ref={frameRef}
           title={title}
-          src={`iframe.html?id=${storyId}&viewMode=story&globals=theme:dark`}
+          src={`iframe.html?id=${storyId}&viewMode=story&globals=theme:${theme}`}
           className="absolute left-0 top-0"
           style={{
             width,
