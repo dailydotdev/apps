@@ -12,6 +12,11 @@ jest.mock('../lib/agentMarkdownAccess', () => ({
   trackAgentSignupWallAllocation: jest.fn(),
 }));
 
+jest.mock('../lib/agentOnboardingAccess', () => ({
+  AGENT_ONBOARDING_PATHS: ['/agents/claim'],
+  isAgentOnboardingEnabled: jest.fn(),
+}));
+
 const runsOn = (url: string): boolean =>
   unstable_doesMiddlewareMatch({ config, url });
 
@@ -28,6 +33,10 @@ describe('proxy matcher', () => {
     Object.keys(MARKDOWN_ROUTES).forEach((path) => {
       expect(runsOn(`${path}.md`)).toBe(true);
     });
+  });
+
+  it('runs on the agent onboarding pages, which are flag gated', () => {
+    expect(runsOn('/agents/claim')).toBe(true);
   });
 
   it('skips every other page', () => {

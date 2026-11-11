@@ -81,6 +81,7 @@ export enum AuthTriggers {
   PostPage = 'post page',
   Hackathon = 'hackathon',
   Marketplace = 'marketplace',
+  AgentOnboarding = 'agent onboarding',
 }
 
 export type AuthTriggersType =
@@ -100,6 +101,7 @@ export type AuthTriggersType =
 export const autoProfileTriggers: AuthTriggersType[] = [
   AuthTriggers.RecruiterSelfServe,
   AuthTriggers.StartupsCheckout,
+  AuthTriggers.AgentOnboarding,
 ];
 
 export interface LoginPasswordParameters {

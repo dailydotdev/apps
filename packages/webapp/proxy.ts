@@ -13,6 +13,10 @@ import {
   evaluateAgentSignupWall,
   trackAgentSignupWallAllocation,
 } from './lib/agentMarkdownAccess';
+import {
+  AGENT_ONBOARDING_PATHS,
+  isAgentOnboardingEnabled,
+} from './lib/agentOnboardingAccess';
 
 const POSTS_PREFIX = '/posts/';
 const MARKDOWN_PAGE_PATHS = Object.keys(MARKDOWN_ROUTES).map(
@@ -33,7 +37,8 @@ const generateTrackingId = (): string => {
 // Only the routes the proxy acts on: the post page (markdown negotiation, the
 // agent signup wall and the laptop mirror) and the markdown routes. Next reads
 // the matcher statically, so the `.md` pages are spelled out: keep them in sync
-// with MARKDOWN_ROUTES.
+// with MARKDOWN_ROUTES, and the agent onboarding pages with
+// AGENT_ONBOARDING_PATHS.
 export const config = {
   matcher: [
     '/posts/:path*',
@@ -41,6 +46,7 @@ export const config = {
     '/sources.md',
     '/tags.md',
     '/squads/discover.md',
+    '/agents/claim',
   ],
 };
 
@@ -158,7 +164,24 @@ export const getLayoutVariantResponse = (
   });
 };
 
+const handleAgentOnboardingRequest = async (
+  req: NextRequest,
+): Promise<NextResponse> => {
+  const deviceId = req.cookies.get('da2')?.value ?? generateTrackingId();
+  const isEnabled =
+    process.env.NODE_ENV === 'development' ||
+    (await isAgentOnboardingEnabled(deviceId));
+
+  return isEnabled
+    ? NextResponse.next()
+    : NextResponse.redirect(new URL('/', req.url));
+};
+
 export async function proxy(req: NextRequest): Promise<NextResponse> {
+  if (AGENT_ONBOARDING_PATHS.includes(req.nextUrl.pathname)) {
+    return handleAgentOnboardingRequest(req);
+  }
+
   if (isMarkdownRequest(req)) {
     return handleMarkdownRequest(req);
   }
