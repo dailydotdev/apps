@@ -1,8 +1,6 @@
 import { addDays, subDays } from 'date-fns';
 import type { TickProp } from 'recharts/types/util/types';
-import type { PostAnalyticsHistory } from '../../graphql/posts';
 import { postAnalyticsHistoryLimit } from '../../graphql/posts';
-import type { Connection } from '../../graphql/common';
 import { dateFormatInTimezone } from '../../lib/timezones';
 
 export type PostAnalyticsHistoryDay<T> = T & {
@@ -20,21 +18,21 @@ const formatDayName = (date: Date): string =>
     day: 'numeric',
   });
 
-export const buildPostAnalyticsHistoryDays = <T>({
-  data,
+export const buildAnalyticsHistoryDays = <TItem extends { date: Date }, T>({
+  items,
   timezone,
   toNode,
 }: {
-  data: Connection<PostAnalyticsHistory> | undefined;
+  items: TItem[] | undefined;
   timezone: string;
-  toNode: (item?: PostAnalyticsHistory) => T;
+  toNode: (item?: TItem) => T;
 }): PostAnalyticsHistoryDay<T>[] => {
-  if (!data) {
+  if (!items) {
     return [];
   }
 
-  const daysMap = data.edges?.reduce(
-    (acc, { node: item }) => {
+  const daysMap = items.reduce(
+    (acc, item) => {
       const date = dateFormatInTimezone(
         new Date(item.date),
         'yyyy-MM-dd',

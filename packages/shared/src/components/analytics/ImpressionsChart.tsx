@@ -19,7 +19,7 @@ import { DEFAULT_TIMEZONE } from '../../lib/timezones';
 import type { Connection } from '../../graphql/common';
 import type { PostAnalyticsHistoryDay } from './postAnalyticsHistory';
 import {
-  buildPostAnalyticsHistoryDays,
+  buildAnalyticsHistoryDays,
   historyChartTickProp,
 } from './postAnalyticsHistory';
 
@@ -52,8 +52,8 @@ export const ImpressionsChart = ({
     enabled: canViewPostAnalytics({ post, user }),
     select: useCallback(
       (data: Connection<PostAnalyticsHistory>): ImpressionNode[] =>
-        buildPostAnalyticsHistoryDays({
-          data,
+        buildAnalyticsHistoryDays({
+          items: data?.edges.map(({ node }) => node),
           timezone: userTimezone,
           toNode: toImpressionNode,
         }),

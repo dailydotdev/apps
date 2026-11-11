@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useMemo } from 'react';
 import type { ReactElement } from 'react';
 import {
   CartesianGrid,
@@ -9,24 +9,19 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { useQuery } from '@tanstack/react-query';
 import { largeNumberFormat } from '../../lib';
-import type { Post, PostAnalyticsHistory } from '../../graphql/posts';
-import { postAnalyticsHistoryQuery } from '../../graphql/posts';
-import { canViewPostAnalytics } from '../../lib/user';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { DEFAULT_TIMEZONE } from '../../lib/timezones';
-import type { Connection } from '../../graphql/common';
 import type { PostAnalyticsHistoryDay } from './postAnalyticsHistory';
 import {
-  buildPostAnalyticsHistoryDays,
+  buildAnalyticsHistoryDays,
   historyChartTickProp,
 } from './postAnalyticsHistory';
-import type { AgentViewsSeries } from './agentViews';
+import type { AgentViewsHistoryItem, AgentViewsSeries } from './agentViews';
 import { agentViewsSeries } from './agentViews';
 
 export type AgentViewsChartProps = {
-  post: Pick<Post, 'id' | 'author'> | undefined;
+  history: AgentViewsHistoryItem[] | undefined;
   visibleSeries: AgentViewsSeries[];
   showReads?: boolean;
   showCrawls?: boolean;
@@ -34,7 +29,7 @@ export type AgentViewsChartProps = {
 
 type AgentViewsNode = PostAnalyticsHistoryDay<Record<string, number>>;
 
-const toAgentViewsNode = (item?: PostAnalyticsHistory) =>
+const toAgentViewsNode = (item?: AgentViewsHistoryItem) =>
   agentViewsSeries.reduce(
     (acc, { key, botKey }) => {
       acc[key] = item?.[key] ?? 0;
@@ -49,7 +44,7 @@ const toAgentViewsNode = (item?: PostAnalyticsHistory) =>
   );
 
 export const AgentViewsChart = ({
-  post,
+  history,
   visibleSeries,
   showReads = true,
   showCrawls = true,
@@ -57,19 +52,16 @@ export const AgentViewsChart = ({
   const { user } = useAuthContext();
   const userTimezone = user?.timezone || DEFAULT_TIMEZONE;
 
-  const { data: agentViewsHistory } = useQuery({
-    ...postAnalyticsHistoryQuery({ id: post?.id }),
-    enabled: canViewPostAnalytics({ post, user }),
-    select: useCallback(
-      (data: Connection<PostAnalyticsHistory>): AgentViewsNode[] =>
-        buildPostAnalyticsHistoryDays({
-          data,
-          timezone: userTimezone,
-          toNode: toAgentViewsNode,
-        }),
-      [userTimezone],
-    ),
-  });
+  const agentViewsHistory = useMemo(
+    (): AgentViewsNode[] | undefined =>
+      history &&
+      buildAnalyticsHistoryDays({
+        items: history,
+        timezone: userTimezone,
+        toNode: toAgentViewsNode,
+      }),
+    [history, userTimezone],
+  );
 
   const series = agentViewsSeries.filter(({ key }) =>
     visibleSeries.includes(key),

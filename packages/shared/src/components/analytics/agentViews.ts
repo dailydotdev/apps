@@ -1,4 +1,4 @@
-import type { PostAnalytics } from '../../graphql/posts';
+import type { PostAgentViews, PostAnalytics } from '../../graphql/posts';
 
 export enum AgentViewsSeries {
   Total = 'agentViews',
@@ -11,6 +11,12 @@ export enum AgentViewsSeries {
 }
 
 type AgentViewsBotKey = Extract<keyof PostAnalytics, `agentViews${string}Bot`>;
+
+export type AgentViewsValues = Partial<PostAgentViews>;
+
+export type AgentViewsHistoryItem = AgentViewsValues & {
+  date: Date;
+};
 
 export type AgentViewsSeriesConfig = {
   key: AgentViewsSeries;
