@@ -102,6 +102,7 @@ export function BasePostContent({
           interleaveEvery={commentAds?.interleaveEvery}
           renderInterleaved={commentAds?.renderInterleaved}
           actionsClassName={hasCapsule ? 'hidden tablet:flex' : undefined}
+          isPostPage={isPostPage}
         />
       )}
     </BoostOriginContextProvider>

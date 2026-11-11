@@ -10,6 +10,7 @@ import {
 import type { AuthContextData } from '@dailydotdev/shared/src/contexts/AuthContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useMobileAppFooterContext } from '@dailydotdev/shared/src/features/getApp/contexts/MobileAppFooterContext';
+import { useCommentsTeaser } from '@dailydotdev/shared/src/features/commentsTeaser/useCommentsTeaser';
 import FooterWrapper from '../components/footer/FooterWrapper';
 
 jest.mock('@dailydotdev/shared/src/components/ScrollToTopButton', () => ({
@@ -42,7 +43,18 @@ jest.mock(
   }),
 );
 
+jest.mock(
+  '@dailydotdev/shared/src/features/commentsTeaser/useCommentsTeaser',
+  () => ({ useCommentsTeaser: jest.fn() }),
+);
+
+jest.mock(
+  '@dailydotdev/shared/src/features/commentsTeaser/useRevealOnEngagement',
+  () => ({ useRevealOnEngagement: (enabled: boolean) => enabled }),
+);
+
 const mockAppFooter = jest.mocked(useMobileAppFooterContext);
+const mockCommentsTeaser = jest.mocked(useCommentsTeaser);
 
 const post = { id: 'p1', type: PostType.Article } as Post;
 
@@ -57,6 +69,10 @@ const renderFooter = (children: React.ReactNode) =>
 
 beforeEach(() => {
   mockAppFooter.mockReturnValue({});
+  mockCommentsTeaser.mockReturnValue({
+    isCommentsTeaser: false,
+    isPending: false,
+  });
 });
 
 const ComposerOwner = ({
@@ -116,5 +132,34 @@ describe('FooterWrapper', () => {
     );
 
     expect(pointerEventsOwner).toHaveClass('pointer-events-auto');
+  });
+
+  it('evaluates the comments teaser only with a post', () => {
+    renderFooter(<FooterWrapper />);
+
+    expect(mockCommentsTeaser).toHaveBeenCalledWith(false);
+  });
+
+  it('holds the Charm footer while the comments teaser resolves', () => {
+    mockAppFooter.mockReturnValue({ title: 'See all posts' });
+    mockCommentsTeaser.mockReturnValue({
+      isCommentsTeaser: false,
+      isPending: true,
+    });
+    renderFooter(<FooterWrapper post={post} />);
+
+    expect(screen.queryByText('See all posts')).not.toBeInTheDocument();
+  });
+
+  it('titles the Charm footer for the comments teaser', async () => {
+    mockAppFooter.mockReturnValue({ title: 'See all posts' });
+    mockCommentsTeaser.mockReturnValue({
+      isCommentsTeaser: true,
+      isPending: false,
+    });
+    renderFooter(<FooterWrapper post={{ ...post, numComments: 3 }} />);
+
+    expect(await screen.findByText('See all the comments')).toBeInTheDocument();
+    expect(screen.queryByText('See all posts')).not.toBeInTheDocument();
   });
 });
