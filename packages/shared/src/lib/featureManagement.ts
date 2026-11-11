@@ -381,7 +381,18 @@ export const featureFeedWidgetsDefault = new Feature<{
   ],
 });
 
-// Weekly picks MVP: gates the Friday nudge, the /bookmarks button, /picks/new
-// and the share sheet. The public page /picks/:id is never gated so shared
-// links keep working.
-export const featureWeeklyPicks = new Feature('weekly_picks', false);
+// Weekly picks: gates the home card, the /bookmarks button and /picks/new.
+// Only evaluated once the home card would show, so the experiment enrolls
+// just the readers it can reach; the other entry points follow that
+// enrollment. The public page /picks/:id is never gated so shared links keep
+// working.
+export const featureWeeklyPicks = new Feature('weekly_picks_v2', false);
+
+// The home card's background checks: this week's picks and reading signals,
+// fetched on every signed-in home load. A plain rollout flag with no
+// experiment rule, so evaluating it enrolls nobody: it is the kill switch
+// for the checks and keeps them to the experiment's traffic share.
+export const featureWeeklyPicksChecks = new Feature(
+  'weekly_picks_checks',
+  false,
+);

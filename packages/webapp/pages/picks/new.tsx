@@ -5,8 +5,7 @@ import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import { myCurrentPicksQueryOptions } from '@dailydotdev/shared/src/graphql/picks';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { featureWeeklyPicks } from '@dailydotdev/shared/src/lib/featureManagement';
+import { useWeeklyPicksEntry } from '@dailydotdev/shared/src/hooks/picks/useWeeklyPicksEntry';
 import { PicksEditor } from '@dailydotdev/shared/src/components/picks/PicksEditor';
 import { getPicksOrigin } from '@dailydotdev/shared/src/hooks/picks/usePicksEditor';
 import ProtectedPage from '../../components/ProtectedPage';
@@ -24,8 +23,7 @@ const NewPicksContent = (): ReactElement | null => {
   // The flag only gates the entry points. Arriving from a picks page opens
   // the editor outside the rollout, and so does having picks this week, so
   // someone who created via a link can come back and edit them.
-  const { value: isEnabled, isLoading: isFlagLoading } = useConditionalFeature({
-    feature: featureWeeklyPicks,
+  const { isEnabled, isLoading: isFlagLoading } = useWeeklyPicksEntry({
     shouldEvaluate: router.isReady && !fromPicksId,
   });
   const { data: currentPicks, isError: isCurrentError } = useQuery(

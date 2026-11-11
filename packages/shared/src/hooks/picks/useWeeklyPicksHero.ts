@@ -16,16 +16,20 @@ import {
   PICKS_HERO_MIN_SIGNALS,
   PICKS_HERO_WAIT_MS,
 } from '../../lib/picks';
-import { featureWeeklyPicks } from '../../lib/featureManagement';
+import {
+  featureWeeklyPicks,
+  featureWeeklyPicksChecks,
+} from '../../lib/featureManagement';
 import { LogEvent, Origin } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
-import { useFeature } from '../../components/GrowthBookProvider';
+import { useConditionalFeature } from '../useConditionalFeature';
 import useLogEventOnce from '../log/useLogEventOnce';
 import { useReadingReminderHeroSettled } from '../notifications/useReadingReminderHero';
 import usePersistentContext, {
   PersistentContextKeys,
 } from '../usePersistentContext';
+import { useWeeklyPicksEnrolled } from './useWeeklyPicksEntry';
 
 /**
  * nudge: the week's reading is worth turning into picks, none published yet.
@@ -67,6 +71,19 @@ export interface UseWeeklyPicksHero {
   onDismiss: () => Promise<void>;
 }
 
+/**
+ * The verdict from the reader's last visit and what the card needs to paint
+ * it, so the next visit shows it straight from the device.
+ */
+export interface WeeklyPicksHeroSnapshot {
+  userId: string;
+  week: string;
+  state: WeeklyPicksHeroState;
+  signals: PicksWeekSignals | null;
+  picks: Picks | null;
+  viewCount: number | null;
+}
+
 export const countSignals = (signals: PicksWeekSignals): number =>
   signals.upvotes + signals.bookmarks + signals.reads;
 
@@ -75,6 +92,14 @@ export const countSignals = (signals: PicksWeekSignals): number =>
  * Thursday while their week's reading clears the bar and no picks are out,
  * and all week once this week's picks are published. Closing it hides it
  * until the next week.
+ *
+ * The verdict is worked out in the background and saved on the device; the
+ * card paints from the saved one on the reader's next visit. The feed never
+ * waits on the network for it, and the flag is evaluated, enrolling the
+ * reader, only when the nudge is about to paint. The live card follows that
+ * enrollment, like the other entry points: a reader who published from a
+ * shared picks page is outside the nudge and does not enter the experiment
+ * from here.
  */
 export const useWeeklyPicksHero = ({
   enabled = true,
@@ -82,20 +107,36 @@ export const useWeeklyPicksHero = ({
 }: UseWeeklyPicksHeroProps = {}): UseWeeklyPicksHero => {
   const { user, isLoggedIn, isAuthReadyOrCached } = useAuthContext();
   const { logEvent } = useLogContext();
-  const isEnabled = useFeature(featureWeeklyPicks);
   const weekStart = getCurrentWeekStart();
+  const isNudgeDay = isPicksNudgeDay();
   const [dismissedWeek, setDismissedWeek, isDismissFetched] =
     usePersistentContext<string>(
       PersistentContextKeys.WeeklyPicksHeroDismissedWeek,
       '',
     );
+  const [snapshot, setSnapshot, isSnapshotFetched] =
+    usePersistentContext<WeeklyPicksHeroSnapshot | null>(
+      PersistentContextKeys.WeeklyPicksHeroSnapshot,
+      null,
+    );
+  const [isEnrolled, enroll, isEnrolledFetched] = useWeeklyPicksEnrolled();
   const isDismissed = dismissedWeek === weekStart;
+  // A plain rollout flag, not the experiment: the switch for the checks.
+  const { value: isChecksEnabled, isLoading: isChecksLoading } =
+    useConditionalFeature({
+      feature: featureWeeklyPicksChecks,
+      shouldEvaluate: enabled && isLoggedIn,
+    });
   const canEvaluate =
-    enabled && isLoggedIn && !!isEnabled && isDismissFetched && !isDismissed;
+    enabled &&
+    isLoggedIn &&
+    isDismissFetched &&
+    !isDismissed &&
+    !!isChecksEnabled;
 
-  // Best effort, no retries: the feed is waiting on these, and a failed
-  // request just means no card this visit. A picks query that fails is
-  // not "no picks": the reader may well have published, so no nudge either.
+  // Best effort, no retries, and nothing waits on these: they only refresh
+  // the saved verdict for the next visit. A picks query that fails is not
+  // "no picks": the reader may well have published, so no nudge either.
   const {
     data: picks,
     isFetched: isPicksFetched,
@@ -105,71 +146,158 @@ export const useWeeklyPicksHero = ({
     enabled: canEvaluate,
     retry: false,
   });
-  const isNudgeDay = isPicksNudgeDay();
-  // Alongside the picks rather than after them, so the verdict takes one
-  // round trip, not two. The signals bring the week's posts for the stack.
   const isNudgeCandidate = canEvaluate && isNudgeDay && !picks && !isPicksError;
   const { data: signals, isFetched: isSignalsFetched } = useQuery({
     ...picksWeekSignalsQueryOptions(user),
     enabled: isNudgeCandidate,
     retry: false,
   });
-  const isNudge = !!signals && countSignals(signals) >= PICKS_HERO_MIN_SIGNALS;
-  // The live card is about the count, so it waits for it rather than
-  // painting a number in late.
   const { data: viewCount, isFetched: isViewCountFetched } = useQuery({
     ...picksViewCountQueryOptions(picks?.id ?? '', user),
     enabled: canEvaluate && !!picks,
     retry: false,
   });
 
+  let freshState: WeeklyPicksHeroState | null = null;
+  if (picks) {
+    freshState = 'live';
+  } else if (
+    isNudgeDay &&
+    !!signals &&
+    countSignals(signals) >= PICKS_HERO_MIN_SIGNALS
+  ) {
+    freshState = 'nudge';
+  }
+  const isFreshDecided =
+    isPicksFetched &&
+    !isPicksError &&
+    (picks ? isViewCountFetched : !isNudgeDay || isSignalsFetched);
+
+  const hasSnapshot = !!snapshot;
+  useEffect(() => {
+    if (!isFreshDecided || !user) {
+      return;
+    }
+    if (!freshState) {
+      if (hasSnapshot) {
+        setSnapshot(null);
+      }
+      return;
+    }
+    setSnapshot({
+      userId: user.id,
+      week: weekStart,
+      state: freshState,
+      signals: signals ?? null,
+      picks: picks ?? null,
+      viewCount: typeof viewCount === 'number' ? viewCount : null,
+    });
+    // Saved once per verdict; the snapshot itself is not an input.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFreshDecided, freshState, user?.id, weekStart]);
+
+  // The card is decided once per home visit from the saved verdict, and
+  // kept, so answers arriving later never move what is already on screen.
+  // Fresh data already in the cache still wins: no nudge once picks are out.
+  const [savedState, setSavedState] = useState<
+    WeeklyPicksHeroState | null | undefined
+  >(undefined);
+  const [isOutOfTime, setIsOutOfTime] = useState(false);
+  const canDecide =
+    enabled &&
+    ((isAuthReadyOrCached && !isLoggedIn) ||
+      (isLoggedIn &&
+        isDismissFetched &&
+        isSnapshotFetched &&
+        isEnrolledFetched &&
+        !isChecksLoading));
+  useEffect(() => {
+    if (savedState !== undefined || !canDecide) {
+      return;
+    }
+    const saved =
+      canEvaluate &&
+      snapshot?.userId === user?.id &&
+      snapshot?.week === weekStart
+        ? snapshot.state
+        : null;
+    const isReachable =
+      (saved === 'nudge' && isNudgeDay && !picks) ||
+      (saved === 'live' && picks !== null && isEnrolled);
+    setSavedState(isReachable ? saved : null);
+    // Decided once, from what is in hand when the device read lands.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canDecide, savedState]);
+
+  // The layout stays mounted across the main feeds, so the decision is let
+  // go on leaving the home feed and made again on the next return, when the
+  // feed paints fresh anyway. A reader who landed on another feed first, or
+  // whose verdict was saved this session, gets the card without a reload.
+  useEffect(() => {
+    if (!enabled) {
+      setSavedState(undefined);
+      setIsOutOfTime(false);
+    }
+  }, [enabled]);
+
   // The reading reminder shares the strip and splits it in two when both
   // show, so this card lands only once that one has decided too.
   const isStripSettled = useReadingReminderHeroSettled();
 
-  let state: WeeklyPicksHeroState | null = null;
-  if (picks) {
-    state = isViewCountFetched ? 'live' : null;
-  } else if (isPicksFetched && !isPicksError && isNudgeDay && isNudge) {
-    state = 'nudge';
-  }
+  const isEligible =
+    canEvaluate && !isOutOfTime && !!savedState && isStripSettled;
+  const { value: isEnabled, isLoading: isFlagLoading } = useConditionalFeature({
+    feature: featureWeeklyPicks,
+    shouldEvaluate: isEligible,
+  });
   const isDecided =
-    isPicksFetched &&
-    (picks
-      ? isViewCountFetched
-      : isPicksError || !isNudgeDay || isSignalsFetched) &&
-    (!state || isStripSettled);
+    savedState !== undefined &&
+    (!savedState || (isStripSettled && !isFlagLoading));
 
-  // The feed waits for the verdict, but not forever: a request that hangs
-  // must not hold the posts. Past the budget the feed paints without the
-  // card, and the card stays away for this visit even once the answers
-  // arrive, so it never moves what is already on screen.
-  const [isOutOfTime, setIsOutOfTime] = useState(false);
+  // Holding the feed now waits on the device and the strip only, but still
+  // not forever.
+  const isWaiting = enabled && isLoggedIn && !isDecided && !isOutOfTime;
   useEffect(() => {
-    if (!canEvaluate || isDecided || isOutOfTime) {
+    if (!isWaiting) {
       return undefined;
     }
     const timer = setTimeout(() => setIsOutOfTime(true), waitMs);
     return () => clearTimeout(timer);
-  }, [canEvaluate, isDecided, isOutOfTime, waitMs]);
+  }, [isWaiting, waitMs]);
 
-  const shouldShow = canEvaluate && !isOutOfTime && !!state && isStripSettled;
+  // The other entry points evaluate the flag only for readers the card has
+  // enrolled, so they never widen the experiment.
+  const hasEvaluatedFlag = isEligible && !isFlagLoading;
+  useEffect(() => {
+    if (hasEvaluatedFlag && !isEnrolled) {
+      enroll();
+    }
+  }, [hasEvaluatedFlag, isEnrolled, enroll]);
+
+  const shouldShow = isEligible && !isFlagLoading && !!isEnabled;
   const isSettled =
     !enabled ||
-    !isEnabled ||
     isDismissed ||
     (isAuthReadyOrCached && !isLoggedIn) ||
     isOutOfTime ||
     isDecided;
 
+  // Fresh numbers replace the saved ones in place once they arrive.
+  const saved = savedState ? snapshot : null;
+  const state = savedState ?? null;
+  const shownSignals = signals ?? saved?.signals ?? null;
+  const shownPicks = picks ?? saved?.picks ?? null;
+  const shownViewCount =
+    typeof viewCount === 'number' ? viewCount : (saved?.viewCount ?? null);
+
   const extra = JSON.stringify({
     week: weekStart,
     state,
-    upvotes: signals?.upvotes,
-    bookmarks: signals?.bookmarks,
-    reads: signals?.reads,
-    picks_id: picks?.id,
-    view_count: viewCount,
+    upvotes: shownSignals?.upvotes,
+    bookmarks: shownSignals?.bookmarks,
+    reads: shownSignals?.reads,
+    picks_id: shownPicks?.id,
+    view_count: shownViewCount,
   });
 
   useLogEventOnce(
@@ -208,10 +336,10 @@ export const useWeeklyPicksHero = ({
     shouldShow,
     isSettled,
     state,
-    signals: signals ?? null,
-    weekPosts: signals?.posts.slice(0, PICKS_HERO_THUMBNAILS) ?? [],
-    picks: picks ?? null,
-    viewCount: typeof viewCount === 'number' ? viewCount : null,
+    signals: shownSignals,
+    weekPosts: shownSignals?.posts.slice(0, PICKS_HERO_THUMBNAILS) ?? [],
+    picks: shownPicks,
+    viewCount: shownViewCount,
     onCta,
     onDismiss,
   };

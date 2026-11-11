@@ -83,4 +83,8 @@ export enum PersistentContextKeys {
   ReadingReminderPushPromptDismissed = 'reading_reminder_push_prompt_dismissed',
   // The ISO week (Monday) whose picks card was closed; a new week brings it back
   WeeklyPicksHeroDismissedWeek = 'weekly_picks_hero_dismissed_week',
+  // The home card's verdict from the last visit, painted on the next one
+  WeeklyPicksHeroSnapshot = 'weekly_picks_hero_snapshot',
+  // The users the home card has evaluated the picks flag for, in either arm
+  WeeklyPicksEnrolled = 'weekly_picks_enrolled',
 }

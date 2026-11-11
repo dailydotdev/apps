@@ -1,8 +1,10 @@
 import React from 'react';
 import nock from 'nock';
+import { clear, get, set } from 'idb-keyval';
 import { QueryClient } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import {
   createReadyGrowthBook,
   TestBootProvider,
@@ -22,7 +24,10 @@ import {
 } from '../../graphql/picks';
 import { GET_PERSONALIZED_DIGEST_SETTINGS } from '../../graphql/users';
 import { LogEvent, Origin } from '../../lib/log';
+import type { WeeklyPicksHeroSnapshot } from '../../hooks/picks/useWeeklyPicksHero';
 import { useWeeklyPicksHero } from '../../hooks/picks/useWeeklyPicksHero';
+import { PersistentContextKeys } from '../../hooks/usePersistentContext';
+import { getCurrentWeekStart } from '../../lib/picks';
 import { WeeklyPicksHero } from './WeeklyPicksHero';
 
 let mockIsNudgeDay = true;
@@ -110,8 +115,14 @@ const mockViewCount = (viewCount: number) =>
   });
 
 // The layout owns the hook so it can hold the feed; this stands in for it.
-const Harness = ({ waitMs }: { waitMs?: number }) => {
-  const hero = useWeeklyPicksHero({ waitMs });
+const Harness = ({
+  enabled,
+  waitMs,
+}: {
+  enabled?: boolean;
+  waitMs?: number;
+}) => {
+  const hero = useWeeklyPicksHero({ enabled, waitMs });
 
   return (
     <>
@@ -123,11 +134,21 @@ const Harness = ({ waitMs }: { waitMs?: number }) => {
 
 const renderHero = ({
   enabled = true,
+  checks = true,
   user = loggedUser,
   waitMs,
-}: { enabled?: boolean; user?: LoggedUser | null; waitMs?: number } = {}) => {
+}: {
+  enabled?: boolean;
+  /** The switch for the background checks, on unless a test turns it off */
+  checks?: boolean;
+  user?: LoggedUser | null;
+  waitMs?: number;
+} = {}) => {
   const gb = createReadyGrowthBook();
-  gb.setFeatures({ weekly_picks: { defaultValue: enabled } });
+  gb.setFeatures({
+    weekly_picks_v2: { defaultValue: enabled },
+    weekly_picks_checks: { defaultValue: checks },
+  });
   if (user) {
     // The reading reminder's data, which the card waits for before landing
     mockGraphQL({
@@ -148,20 +169,50 @@ const renderHero = ({
   );
 };
 
-beforeEach(() => {
+const nudgeSignals: PicksWeekSignals = {
+  upvotes: 4,
+  bookmarks: 2,
+  reads: 6,
+  posts: [weekPost('a'), weekPost('b'), weekPost('c')],
+};
+
+// What an earlier visit saved: the card paints from it on this one.
+const seedSnapshot = (
+  snapshot: Pick<WeeklyPicksHeroSnapshot, 'state'> &
+    Partial<WeeklyPicksHeroSnapshot>,
+) =>
+  set(PersistentContextKeys.WeeklyPicksHeroSnapshot, {
+    userId: loggedUser.id,
+    week: getCurrentWeekStart(),
+    signals: null,
+    picks: null,
+    viewCount: null,
+    ...snapshot,
+  });
+
+const getSnapshot = () =>
+  get<WeeklyPicksHeroSnapshot | null>(
+    PersistentContextKeys.WeeklyPicksHeroSnapshot,
+  );
+
+// The home card enrolled this reader on an earlier visit.
+const seedEnrolled = (userId = loggedUser.id) =>
+  set(PersistentContextKeys.WeeklyPicksEnrolled, [userId]);
+
+const getEnrolled = () =>
+  get<string[]>(PersistentContextKeys.WeeklyPicksEnrolled);
+
+beforeEach(async () => {
   nock.cleanAll();
   jest.clearAllMocks();
   mockIsNudgeDay = true;
+  await clear();
 });
 
 it("should ask which of the week's posts were worth it", async () => {
+  await seedSnapshot({ state: 'nudge', signals: nudgeSignals });
   mockCurrentPicks(null);
-  mockSignals({
-    upvotes: 4,
-    bookmarks: 2,
-    reads: 6,
-    posts: [weekPost('a'), weekPost('b'), weekPost('c')],
-  });
+  mockSignals(nudgeSignals);
   renderHero();
 
   const headline = await screen.findByText(
@@ -194,9 +245,107 @@ it("should ask which of the week's posts were worth it", async () => {
   );
 });
 
-it('should close for the week once the reader goes to pick', async () => {
+it('should save the verdict on the first visit and show it on the next', async () => {
   mockCurrentPicks(null);
-  mockSignals({ upvotes: 3, bookmarks: 0, reads: 0 });
+  mockSignals(nudgeSignals);
+  const { unmount } = renderHero();
+
+  await waitFor(async () =>
+    expect(await getSnapshot()).toEqual(
+      expect.objectContaining({
+        userId: loggedUser.id,
+        week: getCurrentWeekStart(),
+        state: 'nudge',
+      }),
+    ),
+  );
+  expect(screen.queryByText('Pick my top 3')).not.toBeInTheDocument();
+  expect(logEvent).not.toHaveBeenCalled();
+
+  unmount();
+  mockCurrentPicks(null);
+  mockSignals(nudgeSignals);
+  renderHero();
+  expect(
+    await screen.findByRole('link', { name: 'Pick my top 3' }),
+  ).toBeInTheDocument();
+});
+
+it('should not hold the feed on the background checks', async () => {
+  nock('http://localhost:3000')
+    .post('/graphql', { query: MY_CURRENT_PICKS_QUERY })
+    .delay(300)
+    .reply(200, { data: { myCurrentPicks: null } });
+  mockSignals(nudgeSignals);
+  const startedAt = Date.now();
+  renderHero();
+
+  expect(await screen.findByTestId('settled')).toBeInTheDocument();
+  expect(Date.now() - startedAt).toBeLessThan(300);
+  // The late answer does not move what is already on screen
+  await new Promise((resolve) => setTimeout(resolve, 350));
+  expect(screen.queryByText('Pick my top 3')).not.toBeInTheDocument();
+});
+
+it('should decide again when the reader comes over to the home feed', async () => {
+  await seedSnapshot({ state: 'nudge', signals: nudgeSignals });
+  mockCurrentPicks(null);
+  mockSignals(nudgeSignals);
+  const gb = createReadyGrowthBook();
+  gb.setFeatures({
+    weekly_picks_v2: { defaultValue: true },
+    weekly_picks_checks: { defaultValue: true },
+  });
+  mockGraphQL({
+    request: { query: GET_PERSONALIZED_DIGEST_SETTINGS, variables: {} },
+    result: { data: { personalizedDigest: [] } },
+  });
+  const tree = (enabled: boolean) => (
+    <TestBootProvider
+      client={new QueryClient()}
+      auth={{ user: loggedUser, isLoggedIn: true }}
+      log={{ logEvent }}
+      gb={gb}
+    >
+      <Harness enabled={enabled} />
+    </TestBootProvider>
+  );
+  // Landed on another main feed first: settled at once, no card
+  const { rerender } = render(tree(false));
+  expect(screen.getByTestId('settled')).toBeInTheDocument();
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(screen.queryByText('Pick my top 3')).not.toBeInTheDocument();
+
+  rerender(tree(true));
+
+  expect(
+    await screen.findByRole('link', { name: 'Pick my top 3' }),
+  ).toBeInTheDocument();
+});
+
+it('should run no checks while the switch is off', async () => {
+  await seedSnapshot({ state: 'nudge', signals: nudgeSignals });
+  const onPicksRequest = jest.fn();
+  nock('http://localhost:3000')
+    .post('/graphql', (body) => {
+      if (body.query === MY_CURRENT_PICKS_QUERY) {
+        onPicksRequest();
+      }
+      return body.query === MY_CURRENT_PICKS_QUERY;
+    })
+    .reply(200, { data: { myCurrentPicks: null } });
+  renderHero({ checks: false });
+
+  expect(await screen.findByTestId('settled')).toBeInTheDocument();
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(onPicksRequest).not.toHaveBeenCalled();
+  expect(screen.queryByText('Pick my top 3')).not.toBeInTheDocument();
+});
+
+it('should close for the week once the reader goes to pick', async () => {
+  await seedSnapshot({ state: 'nudge', signals: nudgeSignals });
+  mockCurrentPicks(null);
+  mockSignals(nudgeSignals);
   renderHero();
 
   await userEvent.click(
@@ -216,28 +365,42 @@ it('should close for the week once the reader goes to pick', async () => {
   );
 });
 
-it('should stay quiet below the bar', async () => {
+it('should save nothing below the bar', async () => {
   mockCurrentPicks(null);
   mockSignals({ upvotes: 1, bookmarks: 0, reads: 1 });
   renderHero();
 
   await waitFor(() => expect(nock.isDone()).toBe(true));
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(await getSnapshot()).toBeFalsy();
   expect(screen.queryByText(/this week/)).not.toBeInTheDocument();
   expect(logEvent).not.toHaveBeenCalled();
 });
 
-it('should wait for Thursday before nudging', async () => {
+it('should forget a saved nudge once the week drops below the bar', async () => {
+  await seedSnapshot({ state: 'nudge', signals: nudgeSignals });
+  mockCurrentPicks(null);
+  mockSignals({ upvotes: 1, bookmarks: 0, reads: 1 });
+  renderHero();
+
+  await waitFor(async () => expect(await getSnapshot()).toBeNull());
+});
+
+it('should not nudge from a saved verdict outside the nudge days', async () => {
   mockIsNudgeDay = false;
+  await seedSnapshot({ state: 'nudge', signals: nudgeSignals });
   mockCurrentPicks(null);
   renderHero();
 
+  await screen.findByTestId('settled');
   await waitFor(() => expect(nock.isDone()).toBe(true));
   expect(screen.queryByText('Pick my top 3')).not.toBeInTheDocument();
 });
 
 it('should lead with the opens and share again', async () => {
+  await seedEnrolled();
+  await seedSnapshot({ state: 'live', picks, viewCount: 12 });
   mockCurrentPicks(picks);
-  mockSignals({ upvotes: 4, bookmarks: 2, reads: 6 });
   mockViewCount(12);
   renderHero();
 
@@ -269,8 +432,9 @@ it('should lead with the opens and share again', async () => {
 });
 
 it('should lead with the link when nobody opened the picks yet', async () => {
+  await seedEnrolled();
+  await seedSnapshot({ state: 'live', picks, viewCount: 0 });
   mockCurrentPicks(picks);
-  mockSignals({ upvotes: 4, bookmarks: 2, reads: 6 });
   mockViewCount(0);
   renderHero();
 
@@ -293,9 +457,10 @@ it('should lead with the link when nobody opened the picks yet', async () => {
   );
 });
 
-it('should hold the live card until the opens count is in', async () => {
+it('should paint the saved opens count and refresh it in place', async () => {
+  await seedEnrolled();
+  await seedSnapshot({ state: 'live', picks, viewCount: 7 });
   mockCurrentPicks(picks);
-  mockSignals({ upvotes: 4, bookmarks: 2, reads: 6 });
   nock('http://localhost:3000')
     .post('/graphql', {
       query: PICKS_VIEW_COUNT_QUERY,
@@ -305,28 +470,9 @@ it('should hold the live card until the opens count is in', async () => {
     .reply(200, { data: { picks: { id: picks.id, viewCount: 12 } } });
   renderHero();
 
-  await new Promise((resolve) => setTimeout(resolve, 50));
-  expect(screen.queryByTestId('settled')).not.toBeInTheDocument();
-  expect(screen.queryByText('Copy link')).not.toBeInTheDocument();
-
-  expect(await screen.findByText('12')).toBeInTheDocument();
+  expect(await screen.findByText('7')).toBeInTheDocument();
   expect(screen.getByTestId('settled')).toBeInTheDocument();
-});
-
-it('should paint the feed without the card once the wait runs out', async () => {
-  nock('http://localhost:3000')
-    .post('/graphql', { query: MY_CURRENT_PICKS_QUERY })
-    .delay(300)
-    .reply(200, { data: { myCurrentPicks: null } });
-  mockSignals({ upvotes: 4, bookmarks: 2, reads: 6, posts: [weekPost('a')] });
-  renderHero({ waitMs: 100 });
-
-  expect(await screen.findByTestId('settled')).toBeInTheDocument();
-  expect(screen.queryByText('Pick my top 3')).not.toBeInTheDocument();
-
-  // The late answer does not move what is already on screen
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  expect(screen.queryByText('Pick my top 3')).not.toBeInTheDocument();
+  expect(await screen.findByText('12')).toBeInTheDocument();
 });
 
 it('should show no card when the picks query fails', async () => {
@@ -341,22 +487,123 @@ it('should show no card when the picks query fails', async () => {
 });
 
 it('should show nothing outside the rollout', async () => {
+  await seedSnapshot({ state: 'nudge', signals: nudgeSignals });
+  mockCurrentPicks(null);
+  mockSignals(nudgeSignals);
   renderHero({ enabled: false });
 
+  await screen.findByTestId('settled');
   await new Promise((resolve) => setTimeout(resolve, 50));
   expect(screen.queryByText('Pick my top 3')).not.toBeInTheDocument();
-  expect(screen.getByTestId('settled')).toBeInTheDocument();
-  expect(nock.pendingMocks()).toEqual([]);
+  expect(logEvent).not.toHaveBeenCalled();
 });
 
-it('should hold its verdict until the week has been read', async () => {
-  mockCurrentPicks(null);
-  mockSignals({ upvotes: 1, bookmarks: 0, reads: 0 });
-  renderHero();
+describe('experiment exposure', () => {
+  const mountWithExperiment = () => {
+    const trackingCallback = jest.fn();
+    const gb = new GrowthBook({
+      attributes: { userId: loggedUser.id },
+      trackingCallback,
+    });
+    gb.setFeatures({
+      weekly_picks_v2: {
+        defaultValue: false,
+        rules: [
+          {
+            key: 'weekly_picks_v2',
+            hashAttribute: 'userId',
+            variations: [false, true],
+            weights: [0, 1],
+          },
+        ],
+      },
+      weekly_picks_checks: { defaultValue: true },
+    });
+    mockGraphQL({
+      request: { query: GET_PERSONALIZED_DIGEST_SETTINGS, variables: {} },
+      result: { data: { personalizedDigest: [] } },
+    });
+    const view = render(
+      <TestBootProvider
+        client={new QueryClient()}
+        auth={{ user: loggedUser, isLoggedIn: true }}
+        log={{ logEvent }}
+        gb={gb}
+      >
+        <Harness />
+      </TestBootProvider>,
+    );
 
-  expect(screen.queryByTestId('settled')).not.toBeInTheDocument();
-  await screen.findByTestId('settled');
-  expect(screen.queryByText(/this week/)).not.toBeInTheDocument();
+    return { trackingCallback, unmount: view.unmount };
+  };
+
+  it('should not enroll a reader on the visit that only works out the verdict', async () => {
+    mockCurrentPicks(null);
+    mockSignals(nudgeSignals);
+    const { trackingCallback } = mountWithExperiment();
+
+    await waitFor(async () => expect(await getSnapshot()).toBeTruthy());
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(trackingCallback).not.toHaveBeenCalled();
+  });
+
+  it('should enroll a reader when the card paints', async () => {
+    await seedSnapshot({ state: 'nudge', signals: nudgeSignals });
+    mockCurrentPicks(null);
+    mockSignals(nudgeSignals);
+    const { trackingCallback } = mountWithExperiment();
+
+    await screen.findByRole('link', { name: 'Pick my top 3' });
+    expect(trackingCallback).toHaveBeenCalledWith(
+      expect.objectContaining({ key: 'weekly_picks_v2' }),
+      expect.anything(),
+    );
+    // Remembered per user, so the other entry points open for this reader
+    await waitFor(async () =>
+      expect(await getEnrolled()).toEqual([loggedUser.id]),
+    );
+  });
+
+  it('should not enroll a reader whose live card follows another account', async () => {
+    // Published from a shared picks page, outside the nudge; the device's
+    // enrollment belongs to someone else
+    await seedEnrolled('someone-else');
+    await seedSnapshot({ state: 'live', picks, viewCount: 12 });
+    mockCurrentPicks(picks);
+    mockViewCount(12);
+    const { trackingCallback } = mountWithExperiment();
+
+    await screen.findByTestId('settled');
+    await waitFor(() => expect(nock.isDone()).toBe(true));
+    expect(screen.queryByText('Share again')).not.toBeInTheDocument();
+    expect(trackingCallback).not.toHaveBeenCalled();
+    expect(await getEnrolled()).toEqual(['someone-else']);
+  });
+
+  it('should show the live card to a reader the nudge enrolled', async () => {
+    await seedEnrolled();
+    await seedSnapshot({ state: 'live', picks, viewCount: 12 });
+    mockCurrentPicks(picks);
+    mockViewCount(12);
+    const { trackingCallback } = mountWithExperiment();
+
+    await screen.findByRole('button', { name: 'Share again' });
+    expect(trackingCallback).toHaveBeenCalledWith(
+      expect.objectContaining({ key: 'weekly_picks_v2' }),
+      expect.anything(),
+    );
+  });
+
+  it('should not enroll a reader whose saved nudge is stale', async () => {
+    mockIsNudgeDay = false;
+    await seedSnapshot({ state: 'nudge', signals: nudgeSignals });
+    mockCurrentPicks(null);
+    const { trackingCallback } = mountWithExperiment();
+
+    await screen.findByTestId('settled');
+    await waitFor(() => expect(nock.isDone()).toBe(true));
+    expect(trackingCallback).not.toHaveBeenCalled();
+  });
 });
 
 it('should settle at once for a visitor who is not signed in', async () => {
@@ -367,8 +614,9 @@ it('should settle at once for a visitor who is not signed in', async () => {
 });
 
 it('should stay closed for the rest of the week once dismissed', async () => {
+  await seedSnapshot({ state: 'nudge', signals: nudgeSignals });
   mockCurrentPicks(null);
-  mockSignals({ upvotes: 3, bookmarks: 0, reads: 0 });
+  mockSignals(nudgeSignals);
   const { unmount } = renderHero();
   await screen.findByRole('link', { name: 'Pick my top 3' });
 
@@ -384,8 +632,6 @@ it('should stay closed for the rest of the week once dismissed', async () => {
   );
 
   unmount();
-  mockCurrentPicks(null);
-  mockSignals({ upvotes: 3, bookmarks: 0, reads: 0 });
   renderHero();
   await new Promise((resolve) => setTimeout(resolve, 50));
   expect(
