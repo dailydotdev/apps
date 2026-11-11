@@ -3,6 +3,7 @@ import nock from 'nock';
 import { QueryClient } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import {
   createReadyGrowthBook,
   TestBootProvider,
@@ -127,7 +128,7 @@ const renderHero = ({
   waitMs,
 }: { enabled?: boolean; user?: LoggedUser | null; waitMs?: number } = {}) => {
   const gb = createReadyGrowthBook();
-  gb.setFeatures({ weekly_picks: { defaultValue: enabled } });
+  gb.setFeatures({ weekly_picks_v2: { defaultValue: enabled } });
   if (user) {
     // The reading reminder's data, which the card waits for before landing
     mockGraphQL({
@@ -341,12 +342,74 @@ it('should show no card when the picks query fails', async () => {
 });
 
 it('should show nothing outside the rollout', async () => {
+  mockCurrentPicks(null);
+  mockSignals({ upvotes: 3, bookmarks: 0, reads: 0 });
   renderHero({ enabled: false });
 
-  await new Promise((resolve) => setTimeout(resolve, 50));
+  await screen.findByTestId('settled');
+  expect(nock.isDone()).toBe(true);
   expect(screen.queryByText('Pick my top 3')).not.toBeInTheDocument();
-  expect(screen.getByTestId('settled')).toBeInTheDocument();
-  expect(nock.pendingMocks()).toEqual([]);
+  expect(logEvent).not.toHaveBeenCalled();
+});
+
+describe('experiment exposure', () => {
+  const mountWithExperiment = () => {
+    const trackingCallback = jest.fn();
+    const gb = new GrowthBook({
+      attributes: { userId: loggedUser.id },
+      trackingCallback,
+    });
+    gb.setFeatures({
+      weekly_picks_v2: {
+        defaultValue: false,
+        rules: [
+          {
+            key: 'weekly_picks_v2',
+            hashAttribute: 'userId',
+            variations: [false, true],
+            weights: [0, 1],
+          },
+        ],
+      },
+    });
+    mockGraphQL({
+      request: { query: GET_PERSONALIZED_DIGEST_SETTINGS, variables: {} },
+      result: { data: { personalizedDigest: [] } },
+    });
+    render(
+      <TestBootProvider
+        client={new QueryClient()}
+        auth={{ user: loggedUser, isLoggedIn: true }}
+        log={{ logEvent }}
+        gb={gb}
+      >
+        <Harness />
+      </TestBootProvider>,
+    );
+
+    return trackingCallback;
+  };
+
+  it('should not enroll a reader the card would not show to', async () => {
+    mockCurrentPicks(null);
+    mockSignals({ upvotes: 1, bookmarks: 0, reads: 1 });
+    const trackingCallback = mountWithExperiment();
+
+    await screen.findByTestId('settled');
+    expect(trackingCallback).not.toHaveBeenCalled();
+  });
+
+  it('should enroll a reader once the card would show', async () => {
+    mockCurrentPicks(null);
+    mockSignals({ upvotes: 3, bookmarks: 0, reads: 0 });
+    const trackingCallback = mountWithExperiment();
+
+    await screen.findByRole('link', { name: 'Pick my top 3' });
+    expect(trackingCallback).toHaveBeenCalledWith(
+      expect.objectContaining({ key: 'weekly_picks_v2' }),
+      expect.anything(),
+    );
+  });
 });
 
 it('should hold its verdict until the week has been read', async () => {

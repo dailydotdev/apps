@@ -13,6 +13,8 @@ import {
   SET_BOOKMARK_READ_STATE,
 } from '@dailydotdev/shared/src/graphql/bookmarks';
 import nock from 'nock';
+import { del, set } from 'idb-keyval';
+import { PersistentContextKeys } from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import {
@@ -230,9 +232,18 @@ it('should show empty screen when feed is empty', async () => {
 describe('weekly picks entry point', () => {
   const picksGrowthBook = (enabled: boolean) => {
     const gb = createReadyGrowthBook();
-    gb.setFeatures({ weekly_picks: { defaultValue: enabled } });
+    gb.setFeatures({ weekly_picks_v2: { defaultValue: enabled } });
     return gb;
   };
+
+  // The home card enrolls readers; the flag is read here only after it has
+  beforeEach(async () => {
+    await set(PersistentContextKeys.WeeklyPicksEnrolled, true);
+  });
+
+  afterEach(async () => {
+    await del(PersistentContextKeys.WeeklyPicksEnrolled);
+  });
 
   it('should link to the picks flow when the flag is on', async () => {
     useTablet();
@@ -282,6 +293,20 @@ describe('weekly picks entry point', () => {
       defaultUser,
       undefined,
       picksGrowthBook(false),
+    );
+    await waitForNock();
+    await screen.findByTestId('searchField');
+    expect(screen.queryByText('Make your picks')).not.toBeInTheDocument();
+  });
+
+  it('should hide the button for a reader the home card has not enrolled', async () => {
+    await del(PersistentContextKeys.WeeklyPicksEnrolled);
+    useTablet();
+    renderComponent(
+      [createFeedMock()],
+      defaultUser,
+      undefined,
+      picksGrowthBook(true),
     );
     await waitForNock();
     await screen.findByTestId('searchField');

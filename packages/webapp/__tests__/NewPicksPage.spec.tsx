@@ -2,6 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import nock from 'nock';
+import { del, set } from 'idb-keyval';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import {
@@ -19,6 +20,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/picks';
 import type { Picks } from '@dailydotdev/shared/src/graphql/picks';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
+import { PersistentContextKeys } from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import NewPicksPage from '../pages/picks/new';
 
 const mockOpenShareSheet = jest.fn();
@@ -78,7 +80,7 @@ const mockRouterQuery = (query: Record<string, string>) =>
 
 const renderPage = (enabled = true, user: unknown = loggedUser) => {
   const gb = createReadyGrowthBook();
-  gb.setFeatures({ weekly_picks: { defaultValue: enabled } });
+  gb.setFeatures({ weekly_picks_v2: { defaultValue: enabled } });
   return render(
     <TestBootProvider
       client={
@@ -98,9 +100,11 @@ const title = (text: string) =>
     .getAllByText(text)
     .find((el) => el.classList.contains('line-clamp-2')) as HTMLElement;
 
-beforeEach(() => {
+beforeEach(async () => {
   nock.cleanAll();
   jest.clearAllMocks();
+  // The home card enrolls readers; the flag is read here only after it has
+  await set(PersistentContextKeys.WeeklyPicksEnrolled, true);
   jest.mocked(useRouter).mockImplementation(
     () =>
       ({
@@ -115,6 +119,13 @@ beforeEach(() => {
 
 it('should redirect a logged-in user to the feed when the flag is off', async () => {
   renderPage(false);
+  await waitFor(() => expect(replace).toHaveBeenCalledWith('/'));
+  expect(screen.queryByText('Weekly picks')).not.toBeInTheDocument();
+});
+
+it('should redirect a reader the home card has not enrolled', async () => {
+  await del(PersistentContextKeys.WeeklyPicksEnrolled);
+  renderPage(true);
   await waitFor(() => expect(replace).toHaveBeenCalledWith('/'));
   expect(screen.queryByText('Weekly picks')).not.toBeInTheDocument();
 });

@@ -20,7 +20,7 @@ import { featureWeeklyPicks } from '../../lib/featureManagement';
 import { LogEvent, Origin } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
-import { useFeature } from '../../components/GrowthBookProvider';
+import { useConditionalFeature } from '../useConditionalFeature';
 import useLogEventOnce from '../log/useLogEventOnce';
 import { useReadingReminderHeroSettled } from '../notifications/useReadingReminderHero';
 import usePersistentContext, {
@@ -82,16 +82,20 @@ export const useWeeklyPicksHero = ({
 }: UseWeeklyPicksHeroProps = {}): UseWeeklyPicksHero => {
   const { user, isLoggedIn, isAuthReadyOrCached } = useAuthContext();
   const { logEvent } = useLogContext();
-  const isEnabled = useFeature(featureWeeklyPicks);
   const weekStart = getCurrentWeekStart();
   const [dismissedWeek, setDismissedWeek, isDismissFetched] =
     usePersistentContext<string>(
       PersistentContextKeys.WeeklyPicksHeroDismissedWeek,
       '',
     );
+  const [isEnrolled, setIsEnrolled] = usePersistentContext<boolean>(
+    PersistentContextKeys.WeeklyPicksEnrolled,
+    false,
+  );
   const isDismissed = dismissedWeek === weekStart;
-  const canEvaluate =
-    enabled && isLoggedIn && !!isEnabled && isDismissFetched && !isDismissed;
+  // The flag waits until the card would show, so only readers it can reach
+  // join the experiment: the verdict comes first, for both arms alike.
+  const canEvaluate = enabled && isLoggedIn && isDismissFetched && !isDismissed;
 
   // Best effort, no retries: the feed is waiting on these, and a failed
   // request just means no card this visit. A picks query that fails is
@@ -133,18 +137,24 @@ export const useWeeklyPicksHero = ({
   } else if (isPicksFetched && !isPicksError && isNudgeDay && isNudge) {
     state = 'nudge';
   }
-  const isDecided =
-    isPicksFetched &&
-    (picks
-      ? isViewCountFetched
-      : isPicksError || !isNudgeDay || isSignalsFetched) &&
-    (!state || isStripSettled);
 
   // The feed waits for the verdict, but not forever: a request that hangs
   // must not hold the posts. Past the budget the feed paints without the
   // card, and the card stays away for this visit even once the answers
   // arrive, so it never moves what is already on screen.
   const [isOutOfTime, setIsOutOfTime] = useState(false);
+  const isEligible = canEvaluate && !isOutOfTime && !!state && isStripSettled;
+  const { value: isEnabled, isLoading: isFlagLoading } = useConditionalFeature({
+    feature: featureWeeklyPicks,
+    shouldEvaluate: isEligible,
+  });
+  const isDecided =
+    isPicksFetched &&
+    (picks
+      ? isViewCountFetched
+      : isPicksError || !isNudgeDay || isSignalsFetched) &&
+    (!state || (isStripSettled && !isFlagLoading));
+
   useEffect(() => {
     if (!canEvaluate || isDecided || isOutOfTime) {
       return undefined;
@@ -153,10 +163,18 @@ export const useWeeklyPicksHero = ({
     return () => clearTimeout(timer);
   }, [canEvaluate, isDecided, isOutOfTime, waitMs]);
 
-  const shouldShow = canEvaluate && !isOutOfTime && !!state && isStripSettled;
+  // The other entry points evaluate the flag only for readers the card has
+  // enrolled, so they never widen the experiment.
+  const hasEvaluatedFlag = isEligible && !isFlagLoading;
+  useEffect(() => {
+    if (hasEvaluatedFlag && !isEnrolled) {
+      setIsEnrolled(true);
+    }
+  }, [hasEvaluatedFlag, isEnrolled, setIsEnrolled]);
+
+  const shouldShow = isEligible && !isFlagLoading && !!isEnabled;
   const isSettled =
     !enabled ||
-    !isEnabled ||
     isDismissed ||
     (isAuthReadyOrCached && !isLoggedIn) ||
     isOutOfTime ||
