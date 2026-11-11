@@ -138,7 +138,7 @@ const OwnPostBackdrop = (): ReactElement => (
 );
 
 const meta: Meta = {
-  title: 'Cores & Boost/Redesign/5. First boost',
+  title: 'Cores & Boost/Redesign/2. Boost and analytics/First boost',
   parameters: {
     layout: 'fullscreen',
     msw: { handlers: coresHandlers({ balance }) },

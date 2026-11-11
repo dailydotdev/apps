@@ -27,7 +27,7 @@ import { BoostAgainModal } from './after-boost/BoostAgainModal';
 const BALANCE = 5000;
 
 const meta: Meta = {
-  title: 'Cores & Boost/Redesign/6. After the boost',
+  title: 'Cores & Boost/Redesign/2. Boost and analytics/After the boost',
   parameters: {
     layout: 'fullscreen',
     msw: { handlers: coresHandlers({ balance: BALANCE }) },

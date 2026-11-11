@@ -101,7 +101,7 @@ const WalkthroughFlow = (): ReactElement => {
 };
 
 const meta: Meta = {
-  title: 'Cores & Boost/Redesign/2. Give an award',
+  title: 'Cores & Boost/Redesign/3. Awards/Give an award',
   parameters: {
     layout: 'fullscreen',
     msw: { handlers: coresHandlers({ balance }) },

@@ -26,7 +26,7 @@ const NUDGE_BALANCE = 5400;
 type Args = { persona: FirstCoresPersona };
 
 const meta: Meta<Args> = {
-  title: 'Cores & Boost/Redesign/1. First Cores',
+  title: 'Cores & Boost/Redesign/1. Wallet and buy Cores/First Cores',
   parameters: { layout: 'fullscreen' },
   args: { persona: 'reader' },
   argTypes: {

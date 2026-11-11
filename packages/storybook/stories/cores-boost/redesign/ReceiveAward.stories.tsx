@@ -20,7 +20,7 @@ const BEFORE = 20;
 const AFTER = BEFORE + idoAward.valueIncFees;
 
 const meta: Meta = {
-  title: 'Cores & Boost/Redesign/3. Receive an award',
+  title: 'Cores & Boost/Redesign/3. Awards/Receive an award',
   parameters: {
     layout: 'fullscreen',
     msw: {

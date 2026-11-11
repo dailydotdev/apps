@@ -26,7 +26,7 @@ const BALANCE = 1275;
 const PACK = landedPurchase.value;
 
 const meta: Meta = {
-  title: 'Cores & Boost/Redesign/4. Wallet and buying',
+  title: 'Cores & Boost/Redesign/1. Wallet and buy Cores/Wallet and buying',
   parameters: { layout: 'fullscreen' },
 };
 
