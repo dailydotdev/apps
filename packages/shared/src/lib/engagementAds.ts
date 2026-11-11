@@ -4,32 +4,86 @@
  * Defines the raw API shape (boot or the engagementCreatives query) and the
  * resolved creative type used by all downstream components.
  */
-import { z } from 'zod';
-import { urlParseSchema } from './links';
+import { parseHttpUrl } from './links';
 
-const themedStringSchema = z.object({
-  dark: z.string(),
-  light: z.string(),
-});
+export interface ThemedValue {
+  dark: string;
+  light: string;
+}
 
 /** Raw shape from the API (snake_case JSON) */
-export const engagementCreativeSchema = z.object({
-  gen_id: z.string(),
-  promoted_name: z.string(),
-  promoted_body: z.string(),
-  promoted_cta: z.string(),
-  promoted_url: urlParseSchema,
-  promoted_logo_img: themedStringSchema,
-  promoted_icon_img: themedStringSchema,
-  promoted_gradient_start: themedStringSchema,
-  promoted_gradient_end: themedStringSchema,
-  tools: z.array(z.string()),
-  keywords: z.array(z.string()).optional().default([]),
-  tags: z.array(z.string()),
-});
+export interface EngagementCreative {
+  gen_id: string;
+  promoted_name: string;
+  promoted_body: string;
+  promoted_cta: string;
+  promoted_url: string;
+  promoted_logo_img: ThemedValue;
+  promoted_icon_img: ThemedValue;
+  promoted_gradient_start: ThemedValue;
+  promoted_gradient_end: ThemedValue;
+  tools: string[];
+  keywords: string[];
+  tags: string[];
+}
 
-export type EngagementCreative = z.infer<typeof engagementCreativeSchema>;
-export type ThemedValue = z.infer<typeof themedStringSchema>;
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+const isStringArray = (value: unknown): value is string[] =>
+  Array.isArray(value) && value.every((item) => typeof item === 'string');
+
+const parseThemed = (value: unknown): ThemedValue | null =>
+  isRecord(value) &&
+  typeof value.dark === 'string' &&
+  typeof value.light === 'string'
+    ? { dark: value.dark, light: value.light }
+    : null;
+
+const parseCreative = (raw: unknown): EngagementCreative | null => {
+  if (!isRecord(raw)) {
+    return null;
+  }
+
+  const url = parseHttpUrl(raw.promoted_url);
+  const logo = parseThemed(raw.promoted_logo_img);
+  const icon = parseThemed(raw.promoted_icon_img);
+  const gradientStart = parseThemed(raw.promoted_gradient_start);
+  const gradientEnd = parseThemed(raw.promoted_gradient_end);
+  const { keywords = [] } = raw;
+
+  if (
+    typeof raw.gen_id !== 'string' ||
+    typeof raw.promoted_name !== 'string' ||
+    typeof raw.promoted_body !== 'string' ||
+    typeof raw.promoted_cta !== 'string' ||
+    url === null ||
+    !logo ||
+    !icon ||
+    !gradientStart ||
+    !gradientEnd ||
+    !isStringArray(raw.tools) ||
+    !isStringArray(keywords) ||
+    !isStringArray(raw.tags)
+  ) {
+    return null;
+  }
+
+  return {
+    gen_id: raw.gen_id,
+    promoted_name: raw.promoted_name,
+    promoted_body: raw.promoted_body,
+    promoted_cta: raw.promoted_cta,
+    promoted_url: url,
+    promoted_logo_img: logo,
+    promoted_icon_img: icon,
+    promoted_gradient_start: gradientStart,
+    promoted_gradient_end: gradientEnd,
+    tools: [...raw.tools],
+    keywords: [...keywords],
+    tags: [...raw.tags],
+  };
+};
 
 /** EngagementCreative with themed values resolved to the current theme */
 export interface ResolvedCreative {
@@ -57,8 +111,8 @@ export const parseCreatives = (rawCreatives: unknown): EngagementCreative[] => {
   }
 
   return rawCreatives.flatMap((raw) => {
-    const result = engagementCreativeSchema.safeParse(raw);
-    return result.success ? [result.data] : [];
+    const creative = parseCreative(raw);
+    return creative ? [creative] : [];
   });
 };
 

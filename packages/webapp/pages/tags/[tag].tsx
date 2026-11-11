@@ -22,8 +22,10 @@ import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
 import { formatKeyword } from '@dailydotdev/shared/src/lib/strings';
 import { TagTopicPage } from '@dailydotdev/shared/src/components/tags/TagTopicPage';
 import { getPageSeoTitles } from '../../components/layouts/utils';
-import { getLayout } from '../../components/layouts/FeedLayout';
-import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
+import {
+  getLayout,
+  mainFeedLayoutProps,
+} from '../../components/layouts/FeedLayout';
 import type { DynamicSeoProps } from '../../components/common';
 import { defaultOpenGraph, defaultSeo, getShareImageUrl } from '../../next-seo';
 import { getAppOrigin, toJsonLd } from '../../lib/seo';

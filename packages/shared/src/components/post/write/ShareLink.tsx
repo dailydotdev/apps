@@ -1,6 +1,6 @@
 import type { FormEventHandler, ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
-import z from 'zod';
+import { z } from 'zod';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { Squad } from '../../../graphql/sources';

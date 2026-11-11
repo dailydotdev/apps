@@ -30,7 +30,11 @@ export default {
   content: [],
   // Channel highlight colors are stored as full classes in the DB, so Tailwind
   // can't see them as literals — safelist the accent text utilities.
-  safelist: [{ pattern: /^text-accent-.+-default$/ }],
+  // `ButtonV2` builds its colored variant classes from template strings.
+  safelist: [
+    { pattern: /^text-accent-.+-default$/ },
+    { pattern: /^btn-v2-[a-zA-Z]+-[a-zA-Z]+$/ },
+  ],
   theme: {
     colors: {
       raw: {

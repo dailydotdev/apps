@@ -8,8 +8,7 @@ import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useBookmarkReminder } from '../../hooks/notifications';
-import type { ColorName } from '../../styles/colors';
-import { ColorName as ButtonColor } from '../../styles/colors';
+import { ButtonV2Color } from '../../styles/buttonColors';
 import type { TooltipProps } from '../tooltip/Tooltip';
 import { Tooltip } from '../tooltip/Tooltip';
 import {
@@ -26,7 +25,7 @@ export interface BookmarkButtonProps {
   labelVisible?: boolean;
   label?: string;
   count?: number | null;
-  color?: ColorName;
+  color?: ButtonV2Color;
   pressed?: boolean;
   onClick?: MouseEventHandler<HTMLElement>;
   className?: string;
@@ -41,7 +40,7 @@ export function BookmarkButton({
   labelVisible,
   label,
   count,
-  color = ButtonColor.Bun,
+  color = ButtonV2Color.Bun,
   pressed,
   onClick,
   className,

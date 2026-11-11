@@ -1,5 +1,8 @@
 import plugin from 'tailwindcss/plugin';
 import colors from './colors';
+import type { VariationStates } from './buttonTheme';
+import { buttonThemeStyles } from './buttonTheme';
+import { ButtonColor } from '../src/styles/buttonColors';
 
 type Shade = '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80' | '90';
 
@@ -11,19 +14,6 @@ type ColorPalette = Record<Shade, string> & {
 type ColorName = keyof typeof colors;
 
 type StateProps = Record<string, string | undefined>;
-
-type StateBlock = {
-  default?: StateProps;
-  hover?: StateProps;
-  active?: StateProps;
-  pressed?: StateProps;
-  disabled?: StateProps;
-};
-
-type VariationStates = {
-  darkStates: StateBlock;
-  lightStates: StateBlock;
-};
 
 type VariationFn = (color?: ColorName) => VariationStates;
 
@@ -486,63 +476,33 @@ const colorableVariants = [
   'option',
 ];
 
-type CssVarMap = Record<string, string>;
-type CssInJs = Record<string, CssVarMap | Record<string, CssVarMap>>;
+const buttonColors: ReadonlyArray<string> = Object.values(ButtonColor);
 
-const statesToCssInJs = (states: StateBlock): CssVarMap => {
-  const result: CssVarMap = {};
-  (Object.keys(states) as (keyof StateBlock)[]).forEach((state) => {
-    const props = states[state];
-    if (!props) {
-      return;
-    }
-    Object.keys(props).forEach((prop) => {
-      const value = props[prop];
-      if (value === undefined) {
-        return;
-      }
-      result[`--button-${state}-${prop}`] = value;
-    });
-  });
-  return result;
-};
-
-const styleToCssInJs = (style: VariationStates): CssInJs => ({
-  '&, .light .invert &': statesToCssInJs(style.darkStates),
-  '.light &, .invert &': statesToCssInJs(style.lightStates),
-  '@media (prefers-color-scheme: dark)': {
-    '.auto .invert &': statesToCssInJs(style.lightStates),
-  },
-  '@media (prefers-color-scheme: light)': {
-    '.auto &': statesToCssInJs(style.lightStates),
-    '.auto .invert &': statesToCssInJs(style.darkStates),
-  },
-});
-
-const variationToStyles = (variation: string): Record<string, CssInJs> => {
+const variationClasses = (
+  variation: string,
+): Array<[string, VariationStates]> => {
   const fn = variations[variation];
-  const base: Record<string, CssInJs> = {
-    [`.btn-${variation}`]: styleToCssInJs(fn()),
-  };
+  const base: Array<[string, VariationStates]> = [[`btn-${variation}`, fn()]];
   if (!colorableVariants.includes(variation)) {
     return base;
   }
-  return (Object.keys(colors) as ColorName[]).reduce(
-    (acc, color) => ({
-      ...acc,
-      [`.btn-${variation}-${color}`]: styleToCssInJs(fn(color)),
-    }),
-    base,
-  );
+  return [
+    ...base,
+    ...(Object.keys(colors) as ColorName[])
+      .filter((color) => buttonColors.includes(color))
+      .map((color): [string, VariationStates] => [
+        `btn-${variation}-${color}`,
+        fn(color),
+      ]),
+  ];
 };
 
 export default plugin(({ addComponents }) => {
-  const buttons = Object.keys(variations).reduce(
-    (acc, variation) => ({
-      ...acc,
-      ...variationToStyles(variation),
+  addComponents(
+    buttonThemeStyles({
+      varPrefix: '--button',
+      sourcePrefix: '--btn',
+      classes: Object.keys(variations).flatMap(variationClasses),
     }),
-    {} as Record<string, CssInJs>,
   );
-  addComponents(buttons);
 });

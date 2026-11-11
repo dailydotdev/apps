@@ -1,24 +1,39 @@
-import { z } from 'zod';
 import { apiUrl } from './config';
 import { webappUrl } from './constants';
 import { checkIsExtension, isExtension } from './func';
 
 export const urlStartRegexMatch = /^https?:\/\//i;
 
-export const urlParseSchema = z.preprocess(
-  (val) => {
-    if (typeof val === 'string') {
-      return val.match(urlStartRegexMatch) ? val : `https://${val}`;
+// Same pattern as zod's `z.regexes.domain`
+const domainRegex =
+  /^([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
+
+// Same result as zod's `z.url({ protocol: /^https?$/, hostname:
+// z.regexes.domain, normalize: true })` after prepending https:// to bare hosts
+export const parseHttpUrl = (value: unknown): string | null => {
+  if (typeof value !== 'string') {
+    return null;
+  }
+
+  const withProtocol = urlStartRegexMatch.test(value)
+    ? value
+    : `https://${value}`;
+
+  try {
+    const url = new URL(withProtocol.trim());
+
+    if (
+      !domainRegex.test(url.hostname) ||
+      (url.protocol !== 'http:' && url.protocol !== 'https:')
+    ) {
+      return null;
     }
 
-    return val;
-  },
-  z.url({
-    protocol: /^https?$/,
-    hostname: z.regexes.domain,
-    normalize: true,
-  }),
-);
+    return url.href;
+  } catch (_) {
+    return null;
+  }
+};
 
 export const getTagPageLink = (tag: string): string =>
   `${process.env.NEXT_PUBLIC_WEBAPP_URL}tags/${encodeURIComponent(tag)}`;
