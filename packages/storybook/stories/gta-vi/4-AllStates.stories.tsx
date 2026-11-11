@@ -8,9 +8,9 @@ import { Shelf } from './production/Shelf';
 import { SettingsPopover, ThemedHome, ThemeRow } from './theme';
 import { DeviceRow, State, StateGrid } from './parts';
 import {
-  GTA_VI_RELEASE_AT,
   productionAwards,
   readOnGtaDayAchievement,
+  unlockedOnReleaseDay as unlocked,
   viceCityAchievement,
 } from './data';
 
@@ -249,16 +249,6 @@ export const Award: StoryObj = {
 };
 
 /* ------------------------------------------------------- achievements */
-
-const unlocked = (
-  achievement: typeof viceCityAchievement,
-): Parameters<typeof AchievementDetail>[0]['userAchievement'] => ({
-  achievement,
-  progress: 1,
-  unlockedAt: GTA_VI_RELEASE_AT,
-  createdAt: null,
-  updatedAt: null,
-});
 
 const DetailFrame = ({
   achievement,

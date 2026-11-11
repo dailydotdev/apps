@@ -323,8 +323,10 @@ export const BuildNotes: StoryObj = {
             ],
             [
               'Unlocked date',
-              <Code>AchievementShelfCard</Code>,
-              'Event cards say "Unlocked Nov 19, 2026" (always the year) and the detail adds CalendarIcon.',
+              <>
+                <Code>AchievementShelfCard</Code>
+              </>,
+              'Event cards say "Unlocked Nov 19, 2026" (always the year) and the detail adds CalendarIcon. Locked, Still Read says "Read a post today to unlock" on the card and in the detail, and keeps production\'s Track chip.',
               <>
                 <Code>TypographyType.Subhead</Code>,{' '}
                 <Code>TypographyColor.Tertiary</Code>,{' '}
@@ -339,8 +341,9 @@ export const BuildNotes: StoryObj = {
                 <Code>ProfileMenu</Code> and Settings › Appearance
               </>,
               <>
-                A fourth <Code>themes</Code> entry. Picking it sets dark mode
-                plus the cover.
+                A fourth button after the <Code>themes</Code> entries, not a new{' '}
+                <Code>ThemeMode</Code>. Picking it sets dark mode plus the cover
+                flag; picking any other option clears the flag.
               </>,
               <>
                 <Code>ButtonGroup</Code>, <Code>ButtonSize.XSmall</Code>,{' '}
@@ -476,7 +479,7 @@ export const BuildNotes: StoryObj = {
                 where="Comment"
                 fg="text-text-tertiary"
                 bg="bg-background-default"
-                kind="large"
+                kind="text"
               />
               <Contrast
                 label="Shortcut label on scrim"
@@ -505,7 +508,7 @@ export const BuildNotes: StoryObj = {
         </div>
       </Case>
 
-      <Case title="3. Accessibility: keyboard and screen readers">
+      <Case title="4. Accessibility: keyboard and screen readers">
         <Table
           head={['Piece', 'Keyboard flow', 'Screen reader']}
           rows={[
@@ -539,7 +542,7 @@ export const BuildNotes: StoryObj = {
       </Case>
 
       <Case
-        title="4. Omissions: what a builder would get stuck on"
+        title="5. Omissions: what a builder would get stuck on"
         note="Each with the simplest fix we'd ship."
       >
         <Table
@@ -585,9 +588,14 @@ export const BuildNotes: StoryObj = {
             [
               'Storing the theme',
               <>
-                Add <Code>viceCity</Code> to the settings theme enum on the
-                backend. Clients that don’t know it fall back to dark, so old
-                extension versions don’t break.
+                Keep <Code>theme</Code> at <Code>darcula</Code> and store the
+                cover in its own setting (e.g.{' '}
+                <Code>flags.themeCover: &apos;viceCity&apos;</Code>). A new
+                value in the theme enum is unsafe: <Code>themeModes</Code> maps
+                an unknown remote theme to <Code>undefined</Code>, and{' '}
+                <Code>applyTheme</Code> then adds <Code>auto</Code>, so old
+                extension versions would switch VI readers to Auto. With a
+                separate flag they keep dark and simply don’t draw the cover.
               </>,
             ],
             [
@@ -636,7 +644,13 @@ export const BuildNotes: StoryObj = {
             ],
             [
               'Assets',
-              'Move the art to webapp/public/app/assets and load with fromCDN; give the cover explicit height so it never shifts the layout.',
+              <>
+                Upload the art to media.daily.dev (Cloudinary) and reference it
+                from constants in <Code>packages/shared/src/lib/image.ts</Code>
+                like every other production asset, never from{' '}
+                <Code>public/</Code>; give the cover an explicit height so it
+                never shifts the layout.
+              </>,
             ],
           ]}
         />

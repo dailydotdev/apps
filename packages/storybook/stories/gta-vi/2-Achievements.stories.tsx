@@ -3,15 +3,12 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { UserAchievement } from '@dailydotdev/shared/src/graphql/user/achievements';
 import { Case, Page } from '../hero-cover/parts';
-import {
-  AchievementDetail,
-  AchievementShelfCard,
-} from './production/AchievementShelfCard';
+import { AchievementDetail } from './production/AchievementShelfCard';
+import { Shelf } from './production/Shelf';
 import type { GtaViMoment } from './data';
 import {
-  getShelf,
-  GTA_VI_RELEASE_AT,
   readOnGtaDayAchievement,
+  unlockedOnReleaseDay as unlocked,
   viceCityAchievement,
 } from './data';
 
@@ -22,33 +19,6 @@ const meta: Meta = {
 };
 
 export default meta;
-
-/** Game Center's Achievement shelf: its header and grid, as production. */
-const Shelf = ({ moment }: { moment: GtaViMoment }): ReactElement => (
-  <section className="flex max-w-[86rem] flex-col gap-4 rounded-24 bg-background-subtle p-6">
-    <h2 className="font-bold text-text-primary typo-title3">
-      Achievement shelf
-    </h2>
-    <div className="grid grid-cols-3 gap-2 tablet:gap-3 laptop:grid-cols-5">
-      {getShelf(moment).map((item) => (
-        <AchievementShelfCard
-          key={item.achievement.id}
-          userAchievement={item}
-        />
-      ))}
-    </div>
-  </section>
-);
-
-const unlocked = (
-  achievement: UserAchievement['achievement'],
-): UserAchievement => ({
-  achievement,
-  progress: 1,
-  unlockedAt: GTA_VI_RELEASE_AT,
-  createdAt: null,
-  updatedAt: null,
-});
 
 const DetailFrame = ({
   userAchievement,
@@ -106,7 +76,9 @@ export const EventAchievements: StoryObj = {
 
         {moments.map(({ moment, title, note }) => (
           <Case key={moment} title={title} note={note}>
-            <Shelf moment={moment} />
+            <div className="max-w-[86rem] rounded-24 bg-background-subtle p-6">
+              <Shelf state={moment} />
+            </div>
           </Case>
         ))}
       </Page>

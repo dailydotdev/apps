@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -48,30 +48,34 @@ import coverArt from './assets/theme-vice-city-cover.webp';
 export type ThemeChoice = 'dark' | 'light' | 'auto' | 'viceCity';
 
 /** The VI option's glyph: the title's letters in the sunset gradient. */
-const ViGlyph = (): ReactElement => (
-  <svg viewBox="0 0 24 24" className="size-6" aria-hidden>
-    <defs>
-      <linearGradient id="gta-vi-glyph" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="var(--theme-accent-cabbage-default)" />
-        <stop offset="55%" stopColor="var(--theme-accent-bacon-default)" />
-        <stop offset="100%" stopColor="var(--theme-accent-bun-default)" />
-      </linearGradient>
-    </defs>
-    <text
-      x="12"
-      y="13"
-      textAnchor="middle"
-      dominantBaseline="central"
-      fontSize="17"
-      fontWeight="900"
-      textLength="20"
-      lengthAdjust="spacingAndGlyphs"
-      fill="url(#gta-vi-glyph)"
-    >
-      VI
-    </text>
-  </svg>
-);
+const ViGlyph = (): ReactElement => {
+  const gradientId = `gta-vi-glyph-${useId().replace(/:/g, '')}`;
+
+  return (
+    <svg viewBox="0 0 24 24" className="size-6" aria-hidden>
+      <defs>
+        <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="var(--theme-accent-cabbage-default)" />
+          <stop offset="55%" stopColor="var(--theme-accent-bacon-default)" />
+          <stop offset="100%" stopColor="var(--theme-accent-bun-default)" />
+        </linearGradient>
+      </defs>
+      <text
+        x="12"
+        y="13"
+        textAnchor="middle"
+        dominantBaseline="central"
+        fontSize="17"
+        fontWeight="900"
+        textLength="20"
+        lengthAdjust="spacingAndGlyphs"
+        fill={`url(#${gradientId})`}
+      >
+        VI
+      </text>
+    </svg>
+  );
+};
 
 const themeOptions: {
   value: ThemeChoice;
@@ -261,7 +265,7 @@ const CoverArt = ({
 }: {
   isPhone?: boolean;
   src?: string;
-}): ReactElement => {
+}): ReactElement | null => {
   // A cover that fails to load leaves the default home, not a broken image.
   const [isBroken, setIsBroken] = useState(false);
   if (isBroken) {

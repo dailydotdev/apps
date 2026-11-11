@@ -201,6 +201,10 @@ const owned = (
   updatedAt: null,
 });
 
+/** An achievement unlocked on release day. */
+export const unlockedOnReleaseDay = (item: Achievement): UserAchievement =>
+  owned(item, 1, GTA_VI_RELEASE_AT);
+
 /** The reader's shelf as production orders it: in progress, then rarest. */
 export const productionShelf: UserAchievement[] = [
   owned(

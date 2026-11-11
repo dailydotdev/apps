@@ -367,8 +367,8 @@ const CommentScreen = ({
                 className="text-center"
                 role="alert"
               >
-                The Vice City award stopped being free on Nov 25. Go back to
-                pick another Award.
+                The Vice City award was free through Nov 25. Go back to pick
+                another Award.
               </Typography>
             )}
             {isEvent && !isExpired && (
@@ -401,17 +401,17 @@ const CommentScreen = ({
             <ReceiverName scenario={scenario} /> will appreciate this award!
           </Typography>
         </div>
-        <label className="sr-only" htmlFor="gta-vi-award-note">
-          Note to the receiver (optional)
+        <label htmlFor="gta-vi-award-note" className="flex w-full flex-col">
+          <span className="sr-only">Note to the receiver (optional)</span>
+          <textarea
+            id="gta-vi-award-note"
+            rows={6}
+            maxLength={maxNoteLength}
+            defaultValue={scenario.note}
+            placeholder="Share a few words about why this Award is well deserved (optional)"
+            className="w-full resize-none rounded-12 bg-surface-float p-3 text-text-primary typo-callout placeholder:text-text-quaternary"
+          />
         </label>
-        <textarea
-          id="gta-vi-award-note"
-          rows={6}
-          maxLength={maxNoteLength}
-          defaultValue={scenario.note}
-          placeholder="Share a few words about why this Award is well deserved (optional)"
-          className="w-full resize-none rounded-12 bg-surface-float p-3 text-text-primary typo-callout placeholder:text-text-quaternary"
-        />
       </ModalFrame>
       {scenario.sendState === 'error' && <Toast>{labels.error.generic}</Toast>}
     </>
@@ -540,7 +540,11 @@ export const GiveAwardFlow = ({
         scenario={merged}
         product={product}
         onBack={() => setStep('INTRO')}
-        onSend={() => setStep('SUCCESS')}
+        onSend={() => {
+          if (merged.sendState === 'idle') {
+            setStep('SUCCESS');
+          }
+        }}
       />
     );
   }

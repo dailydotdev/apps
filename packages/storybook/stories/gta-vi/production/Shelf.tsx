@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Typography,
   TypographyColor,
@@ -11,8 +11,8 @@ import { AchievementShelfCard } from './AchievementShelfCard';
 import type { GtaViMoment } from '../data';
 import {
   getShelf,
-  GTA_VI_RELEASE_AT,
   readOnGtaDayAchievement,
+  unlockedOnReleaseDay as unlocked,
   viceCityAchievement,
 } from '../data';
 
@@ -29,16 +29,6 @@ export type ShelfState =
   | 'empty'
   | 'longText'
   | 'brokenImage';
-
-const unlocked = (
-  achievement: UserAchievement['achievement'],
-): UserAchievement => ({
-  achievement,
-  progress: 1,
-  unlockedAt: GTA_VI_RELEASE_AT,
-  createdAt: null,
-  updatedAt: null,
-});
 
 const stressShelf = (state: 'longText' | 'brokenImage'): UserAchievement[] => {
   const rest = getShelf('releaseRead').slice(2);
@@ -97,6 +87,7 @@ export const Shelf = ({
   /** Opens Still Read's detail, for device frames. */
   openFirst?: boolean;
 }): ReactElement => {
+  const [trackedId, setTrackedId] = useState<string | null>(null);
   let content: ReactElement;
 
   if (state === 'loading') {
@@ -131,6 +122,10 @@ export const Shelf = ({
           <AchievementShelfCard
             key={item.achievement.id}
             userAchievement={item}
+            isOwner
+            isTracked={trackedId === item.achievement.id}
+            onTrack={async (id) => setTrackedId(id)}
+            onUntrack={async () => setTrackedId(null)}
             initialExpanded={openFirst && index === 1}
           />
         ))}
