@@ -349,6 +349,15 @@ export type RelatedPost = Pick<
   source: Pick<Source, 'id' | 'handle' | 'name' | 'image'>;
 };
 
+export interface AdRefreshConfig {
+  id: string;
+  intervalSec: number;
+  maxPerSlot: number;
+  maxPerSession: number;
+  idleAfterSec?: number;
+  minVisiblePercent?: number;
+}
+
 export interface Ad {
   pixel?: string[];
   source: string;
@@ -365,6 +374,7 @@ export interface Ad {
   backgroundColor?: string;
   data?: { post?: Post; source?: Squad };
   generationId?: string;
+  refresh?: AdRefreshConfig | null;
   matchingTags?: string[];
   adDomain?: string;
   companyLogo?: string;
