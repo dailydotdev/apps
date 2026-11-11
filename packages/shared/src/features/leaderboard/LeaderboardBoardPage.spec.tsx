@@ -100,6 +100,11 @@ describe('LeaderboardBoardPage', () => {
     const row = screen.getByText('Dev 1');
     expect(row).toHaveClass('text-accent-cabbage-default');
     expect(screen.queryByText('You')).not.toBeInTheDocument();
+    // Already listed, so your position is never asked for.
+    await new Promise((resolve) => {
+      setTimeout(resolve, 50);
+    });
+    expect(nock.isDone()).toBe(false);
   });
 
   it('should light your verified company on Most verified employees', () => {

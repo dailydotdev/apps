@@ -30,18 +30,15 @@ interface LeaderboardBoardPageProps {
   companyItems?: CompanyLeaderboard[];
 }
 
-/** Your own row under the list, when the list doesn't already have you. */
-const YouRow = ({
-  type,
-  listed,
-}: {
-  type: LeaderboardType;
-  listed: boolean;
-}): ReactElement | null => {
+/**
+ * Your own row under the list. Only mounted when the list doesn't already have
+ * you, so a listed reader doesn't ask for their position.
+ */
+const YouRow = ({ type }: { type: LeaderboardType }): ReactElement | null => {
   const { user } = useAuthContext();
   const { position, state } = useLeaderboardPosition(type);
 
-  if (!user || !position || state === 'empty' || listed) {
+  if (!user || !position || state === 'empty') {
     return null;
   }
 
@@ -80,7 +77,7 @@ export const LeaderboardBoardPage = ({
 
   return (
     <section className="mx-auto flex w-full max-w-[40rem] flex-col gap-2">
-      <LeaderboardHeading title={title} className="px-5 tablet:px-0" />
+      <LeaderboardHeading title={title} />
       {count === 0 ? (
         <LeaderboardEmptyBoard />
       ) : (
@@ -130,12 +127,11 @@ export const LeaderboardBoardPage = ({
           ))}
         </ol>
       )}
-      {userItems && (
-        <YouRow
-          type={type}
-          listed={userItems.some((item) => item.user.id === user?.id)}
-        />
-      )}
+      {user &&
+        userItems &&
+        !userItems.some((item) => item.user.id === user.id) && (
+          <YouRow type={type} />
+        )}
     </section>
   );
 };

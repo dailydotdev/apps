@@ -96,7 +96,7 @@ const LeaderboardDetailPage = ({
           }
         />
       )}
-      <PageWrapperLayout>
+      <PageWrapperLayout className="px-4 pb-6 pt-3">
         <ShellPage title="Leaderboard" />
         <LeaderboardBoardPage
           type={leaderboardType}
