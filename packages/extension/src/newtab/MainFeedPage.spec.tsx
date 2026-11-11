@@ -122,7 +122,7 @@ const mockUseFeedWidgetShortcuts =
 
 beforeEach(() => {
   mockUseFeedWidgetShortcuts.mockReturnValue({
-    hasShortcuts: false,
+    hasRail: false,
     isPending: false,
   });
 });
@@ -211,9 +211,9 @@ describe('MainFeedPage login strip', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('leaves shortcuts to the rail where its Shortcuts widget shows them', () => {
+  it('leaves shortcuts to the rail where it renders', () => {
     mockUseFeedWidgetShortcuts.mockReturnValue({
-      hasShortcuts: true,
+      hasRail: true,
       isPending: false,
     });
     renderPage({ auth: loggedIn, isLaptop: false });
@@ -224,7 +224,7 @@ describe('MainFeedPage login strip', () => {
 
   it('holds the row while the rail is still unknown', () => {
     mockUseFeedWidgetShortcuts.mockReturnValue({
-      hasShortcuts: false,
+      hasRail: false,
       isPending: true,
     });
     renderPage({ auth: loggedIn, isLaptop: false });

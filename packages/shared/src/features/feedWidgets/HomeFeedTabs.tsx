@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/router';
+import React, { useCallback, useRef } from 'react';
 import classNames from 'classnames';
 import { Button } from '../../components/buttons/Button';
 import {
@@ -16,10 +15,8 @@ import type { ExploreCategory } from '../../components/feeds/exploreCategories';
 import UnifiedMobileFeedNav from '../../components/feeds/UnifiedMobileFeedNav';
 import {
   forYouChevronClassName,
-  ForYouSheet,
   ForYouSortMenu,
   ForYouTabLabel,
-  getForYouMenuAriaLabel,
   useForYouSort,
 } from '../../components/feeds/ForYouSort';
 import MyFeedHeading from '../../components/filters/MyFeedHeading';
@@ -28,28 +25,15 @@ import { AchievementTrackerButton } from '../../components/filters/AchievementTr
 import { LuckyButton } from '../../components/filters/LuckyButton';
 import { ReadingStreakButton } from '../../components/streak/ReadingStreakButton';
 import PlusMobileEntryBanner from '../../components/marketing/banners/PlusMobileEntryBanner';
-import { HomeSegments } from '../../components/shell/HomeSegments';
-import { ShellDockedRow } from '../../components/shell/ShellPageContext';
-import { usePassedBlock } from '../../components/shell/usePassedBlock';
-import {
-  expectShellScroll,
-  useShellEdge,
-} from '../../components/shell/useShellScroll';
 import { pageHeaderClassName } from '../../components/layout/PageHeader';
 import { DEFAULT_ALGORITHM_INDEX } from '../../components/layout/common';
 import { SharedFeedPage } from '../../components/utilities/common';
-import { useIsPhoneNow } from '../../hooks/useViewSize';
 import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
 import { useReadingStreak } from '../../hooks/streaks/useReadingStreak';
 import usePlusEntry from '../../hooks/usePlusEntry';
 import { Origin, TargetType } from '../../lib/log';
 import type { AllFeedPages } from '../../lib/query';
-import { expectViewSwitch } from '../../lib/scrollRestoration';
-import { useInert } from './FeedWidgetFrame';
-import type { HomeHighlightsView } from './homeHighlightsView';
-import { showHomeHighlights } from './homeHighlightsView';
 import { FeedExplainSwitch } from '../feedExplain/components/FeedExplainSwitch';
-import { useFeedExplainMode } from '../feedExplain/useFeedExplainMode';
 
 export interface HomeFeedTabsProps {
   /** The feed on screen: a custom feed when it is the reader's default. */
@@ -64,17 +48,11 @@ export interface HomeFeedTabsProps {
 
 const forYouLabel = 'For you';
 
-// Set when a tab is tapped from the docked row: the next feed lands right
-// under it rather than somewhere down the previous feed's length. Module
-// state, so it holds across the feed the switch swaps in.
-let isLandingUnderBlock = false;
-
 /**
  * The feed's tabs under the widget rail, pinned once the rail scrolls away,
  * with each screen's own feeds: the chips on laptop, the chip strip on
- * tablet, the shell's segments on phones. The lit For you tab holds the
- * feed's sort, so the separate sort button goes; phones keep Feed settings
- * in its sheet too. The actions are all Tertiary Small, Feed settings last.
+ * tablet. The lit For you tab holds the feed's sort, so the separate sort
+ * button goes. The actions are all Tertiary Small, Feed settings last.
  */
 export function HomeFeedTabs({
   feedName,
@@ -83,50 +61,11 @@ export function HomeFeedTabs({
   categories,
   isChipsPending,
 }: HomeFeedTabsProps): ReactElement {
-  // Never in the server render (the rail waits for the flags), so the
-  // screen is read at once rather than painting the tablet strip first.
-  const isPhone = useIsPhoneNow();
   const isLaptopLayout = useLaptopLayout();
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const { plusEntryForYou } = usePlusEntry();
-  const blockBottom = useShellEdge();
   const anchorRef = useRef<HTMLDivElement>(null);
   const rowRef = useRef<HTMLDivElement>(null);
-  const phoneRowRef = useRef<HTMLDivElement>(null);
-  const hasPhoneRowPassed = usePassedBlock(phoneRowRef, isPhone);
-  // Docked, the in-page row only collapses visually, and the block holds a
-  // second copy; so the collapsed one leaves the tab order and the tree.
-  useInert(phoneRowRef, hasPhoneRowPassed);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const router = useRouter();
-  const { asPath } = router;
-
-  // A tab switches only the feed under the row (the page keeps its scroll),
-  // and from the docked row the new feed starts right under the row.
-  const onTabSelect = useCallback(() => {
-    expectViewSwitch();
-    isLandingUnderBlock = hasPhoneRowPassed;
-  }, [hasPhoneRowPassed]);
-  const onHighlights = useCallback(
-    (view: HomeHighlightsView) => {
-      onTabSelect();
-      showHomeHighlights(router, view);
-    },
-    [onTabSelect, router],
-  );
-  useEffect(() => {
-    const anchor = anchorRef.current;
-    if (!isLandingUnderBlock || !anchor) {
-      return;
-    }
-    isLandingUnderBlock = false;
-    const top = Math.max(
-      0,
-      window.scrollY + anchor.getBoundingClientRect().top - blockBottom,
-    );
-    window.scrollTo({ top });
-    expectShellScroll(top);
-  }, [asPath, blockBottom]);
 
   // A new sort starts the feed over, so a reader who sorted from the pinned
   // row lands on its first cards instead of deep in a shorter page.
@@ -135,18 +74,14 @@ export function HomeFeedTabs({
     if (!anchor) {
       return;
     }
-    const pinnedAt = isPhone
-      ? blockBottom
-      : parseFloat(getComputedStyle(rowRef.current ?? anchor).top) || 0;
+    const pinnedAt =
+      parseFloat(getComputedStyle(rowRef.current ?? anchor).top) || 0;
     const top = anchor.getBoundingClientRect().top - pinnedAt;
     if (top < 0) {
       window.scrollTo({ top: window.scrollY + top });
     }
-  }, [blockBottom, isPhone]);
+  }, []);
   const sort = useForYouSort(onSortChange);
-  const { isExplaining } = useFeedExplainMode({
-    isRecommended: sort.selected === DEFAULT_ALGORITHM_INDEX,
-  });
   const isForYou = feedName === SharedFeedPage.MyFeed;
   const hasFeedActions = isForYou || feedName === SharedFeedPage.Custom;
   const canSort = sort.canSort && feedName !== SharedFeedPage.Custom;
@@ -160,84 +95,6 @@ export function HomeFeedTabs({
       {...plusEntryForYou}
     />
   );
-
-  if (isPhone) {
-    const phoneRow = (
-      <div className="flex items-stretch">
-        <div className="min-w-0 flex-1">
-          <HomeSegments
-            keepScroll
-            onSelect={onTabSelect}
-            onHighlights={onHighlights}
-            forYou={{
-              label: (
-                <ForYouTabLabel
-                  label={forYouLabel}
-                  selected={sort.selected}
-                  isExplaining={isExplaining}
-                />
-              ),
-              ariaLabel: getForYouMenuAriaLabel({
-                label: forYouLabel,
-                selected: sort.selected,
-                isExplaining,
-              }),
-              onMenu: () => setIsSheetOpen(true),
-            }}
-          />
-        </div>
-        {hasPopularSort && (
-          <Button
-            type="button"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<SortIcon />}
-            aria-label="Sort and feed settings"
-            className="my-auto mr-2"
-            onClick={() => setIsSheetOpen(true)}
-          />
-        )}
-        {/* A custom default feed is the page on `/`: its own chip is lit,
-            so Feed settings keeps the bar, as it does without the rail. */}
-        {feedName === SharedFeedPage.Custom && (
-          <MyFeedHeading
-            iconOnly
-            quiet
-            feedSettingsButtonProps={{
-              size: ButtonSize.Small,
-              variant: ButtonVariant.Tertiary,
-              className: 'my-auto mr-2',
-            }}
-          />
-        )}
-      </div>
-    );
-
-    return (
-      <>
-        <div ref={anchorRef} />
-        {/* Docked, the row's height moves into the block, so the feed stays put. */}
-        <div
-          ref={phoneRowRef}
-          data-testid="home-feed-tabs-row"
-          className={classNames(
-            'border-b border-border-subtlest-tertiary bg-background-default',
-            hasPhoneRowPassed && 'h-0 overflow-hidden',
-          )}
-        >
-          {phoneRow}
-        </div>
-        {hasPhoneRowPassed && <ShellDockedRow>{phoneRow}</ShellDockedRow>}
-        {banner}
-        <ForYouSheet
-          title={isPopular ? heading : forYouLabel}
-          sort={{ ...sort, canSort }}
-          isOpen={isSheetOpen}
-          onClose={() => setIsSheetOpen(false)}
-        />
-      </>
-    );
-  }
 
   const quietButton = {
     size: ButtonSize.Small,

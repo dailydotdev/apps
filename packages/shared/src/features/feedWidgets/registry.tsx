@@ -27,7 +27,7 @@ export type FeedWidgetComponentProps<
   K extends FeedWidgetKind = FeedWidgetKind,
 > = {
   widget: FeedWidget<K>;
-  /** The size being rendered; a phone clamps Large to Tall. */
+  /** The size being rendered. */
   size: FeedWidgetSize;
   isEditing: boolean;
   /**

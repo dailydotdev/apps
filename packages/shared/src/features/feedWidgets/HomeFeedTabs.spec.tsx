@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
@@ -14,7 +8,6 @@ import { mockDesktop, mockMatchMedia } from '../../../__tests__/helpers/media';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import type { LoggedUser } from '../../lib/user';
 import { SharedFeedPage } from '../../components/utilities/common';
-import { takeViewSwitch } from '../../lib/scrollRestoration';
 import { HomeFeedTabs } from './HomeFeedTabs';
 
 jest.mock('next/router', () => ({
@@ -232,177 +225,6 @@ describe('HomeFeedTabs', () => {
       expect(
         screen.getByRole('menuitemradio', { name: 'By date' }),
       ).toBeInTheDocument();
-    });
-  });
-
-  describe('on phones', () => {
-    beforeEach(() => mockMatchMedia());
-
-    it('opens a sheet with the sort and Feed settings from For you', async () => {
-      renderTabs();
-
-      fireEvent.click(
-        await screen.findByRole('button', {
-          name: 'For you, sort and feed settings',
-        }),
-      );
-
-      expect(await screen.findByText('Sort')).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: 'Recommended' }),
-      ).toHaveAttribute('aria-pressed', 'true');
-      expect(
-        screen.getByRole('button', { name: 'By date' }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /Feed settings/ }),
-      ).toBeInTheDocument();
-      expect(
-        screen.queryByRole('button', { name: 'Clickbait Shield' }),
-      ).not.toBeInTheDocument();
-    });
-
-    it('keeps the sort on Popular, where no segment is lit', async () => {
-      mockPath('/popular');
-      renderTabs({ feedName: SharedFeedPage.Popular, heading: 'Popular' });
-
-      fireEvent.click(
-        screen.getByRole('button', { name: 'Sort and feed settings' }),
-      );
-
-      expect(
-        await screen.findByRole('button', { name: 'By date' }),
-      ).toBeInTheDocument();
-    });
-
-    it('keeps For you a link and Feed settings in the bar on a custom default feed', () => {
-      renderTabs({
-        feedName: SharedFeedPage.Custom,
-        heading: 'Mine',
-        user: { ...loggedUser, defaultFeedId: 'f1' },
-      });
-
-      expect(screen.getByRole('link', { name: 'For you' })).toHaveAttribute(
-        'href',
-        expect.stringMatching(/\/my-feed$/),
-      );
-      expect(
-        screen.queryByRole('button', { name: /sort and feed settings/i }),
-      ).not.toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: 'Feed settings' }),
-      ).toBeInTheDocument();
-    });
-
-    it('switches Happening now in place, under the rail, keeping the highlights address', () => {
-      const replace = jest.fn().mockResolvedValue(true);
-      jest.mocked(useRouter).mockImplementation(
-        () =>
-          ({
-            pathname: '/',
-            asPath: '/',
-            query: {},
-            push: jest.fn(),
-            replace,
-            events: { on: jest.fn(), off: jest.fn() },
-          }) as unknown as NextRouter,
-      );
-      renderTabs();
-
-      fireEvent.click(screen.getByRole('button', { name: 'Happening now' }));
-
-      expect(replace).toHaveBeenCalledWith(
-        { pathname: '/', query: { homeView: 'highlights' } },
-        '/highlights',
-        { shallow: true, scroll: false },
-      );
-    });
-
-    it('lights Happening now while it shows in place on the feed route', () => {
-      jest.mocked(useRouter).mockImplementation(
-        () =>
-          ({
-            pathname: '/',
-            asPath: '/highlights',
-            query: { homeView: 'highlights' },
-            push: jest.fn(),
-            replace: jest.fn(),
-            events: { on: jest.fn(), off: jest.fn() },
-          }) as unknown as NextRouter,
-      );
-      renderTabs();
-
-      expect(
-        screen.getByRole('button', { name: 'Happening now, choose a channel' }),
-      ).toHaveAttribute('aria-pressed', 'true');
-      expect(
-        screen.queryByRole('button', {
-          name: 'For you, sort and feed settings',
-        }),
-      ).not.toBeInTheDocument();
-    });
-
-    it('announces no view switch from a tap on the lit tab', () => {
-      jest.mocked(useRouter).mockImplementation(
-        () =>
-          ({
-            pathname: '/following',
-            asPath: '/following',
-            query: {},
-            push: jest.fn(),
-            replace: jest.fn(),
-            events: { on: jest.fn(), off: jest.fn() },
-          }) as unknown as NextRouter,
-      );
-      renderTabs();
-      takeViewSwitch();
-
-      fireEvent.click(screen.getByRole('link', { name: 'Following' }));
-      expect(takeViewSwitch()).toBe(false);
-
-      fireEvent.click(screen.getByRole('link', { name: 'For you' }));
-      expect(takeViewSwitch()).toBe(true);
-    });
-
-    it('takes the collapsed row out of reach while its copy is docked', () => {
-      const observers = new Map<Element, IntersectionObserverCallback>();
-      const Observer = jest.mocked(IntersectionObserver);
-      const original = Observer.getMockImplementation();
-      Observer.mockImplementation(
-        (callback) =>
-          ({
-            observe: (element: Element) => observers.set(element, callback),
-            unobserve: jest.fn(),
-            disconnect: jest.fn(),
-          }) as unknown as IntersectionObserver,
-      );
-
-      try {
-        renderTabs();
-        const row = screen.getByTestId('home-feed-tabs-row');
-        const passed = (isIntersecting: boolean) =>
-          act(() =>
-            observers.get(row)?.(
-              [
-                {
-                  isIntersecting,
-                  boundingClientRect: { top: isIntersecting ? 10 : -10 },
-                } as IntersectionObserverEntry,
-              ],
-              {} as IntersectionObserver,
-            ),
-          );
-
-        expect(row.inert).toBe(false);
-        passed(true);
-        expect(row.inert).toBe(false);
-        passed(false);
-        expect(row.inert).toBe(true);
-        passed(true);
-        expect(row.inert).toBe(false);
-      } finally {
-        Observer.mockImplementation(original);
-      }
     });
   });
 });

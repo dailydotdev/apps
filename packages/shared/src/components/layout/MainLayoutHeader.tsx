@@ -107,11 +107,6 @@ function MainLayoutHeader({
 
   const row = (() => {
     if (root === ShellRoot.Home) {
-      // The widget rail brings the segments under it, docking them here once
-      // they scroll behind the block.
-      if (isFeedWidgetRailOn) {
-        return undefined;
-      }
       // The segments need the member's settings; until they load the row
       // keeps its height, so the block measures the same before and after.
       return shouldUseLoadedSettings ? (

@@ -295,10 +295,6 @@ export const featureFeedWidgets = new Feature('feed_widgets_v2', false);
 // card pinned over the bottom of the window at the content's width.
 export const featurePostSignupStrip = new Feature('post_signup_strip', false);
 
-// Experiment: a feed after the post page's comments (For you, the post's
-// tags, its source), for signed-in readers. Control ends at the comments.
-export const featurePostPageFeed = new Feature('post_page_feed', false);
-
 // Gates every agent surface; control hides all of them. Keep the default
 // `false`, GrowthBook ramps it.
 export const featureInterestAgent = new Feature('interest_agent', false);
@@ -378,8 +374,11 @@ export const featureFeedWidgetsDefault = new Feature<{
   id: string;
   widgets: { id: string; kind: string; size: string }[];
 }>('feed_widgets_default', {
-  id: 'default-1',
-  widgets: [{ id: 'top-story', kind: 'topStory', size: 'large' }],
+  id: 'default-3',
+  widgets: [
+    { id: 'happening-now', kind: 'happeningNow', size: 'large' },
+    { id: 'streak', kind: 'streak', size: 'small' },
+  ],
 });
 
 // Weekly picks MVP: gates the Friday nudge, the /bookmarks button, /picks/new
