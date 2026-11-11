@@ -45,7 +45,8 @@ import {
 import { HorizontalSeparator } from '../../../../components/utilities/common';
 import { SourcePermissions } from '../../../../graphql/sources';
 import {
-  squadAnalyticsHistoryQueryOptions,
+  squadAgentAnalyticsHistoryQueryOptions,
+  squadAgentAnalyticsQueryOptions,
   squadAnalyticsQueryOptions,
   verifyPermission,
 } from '../../../../graphql/squads';
@@ -85,9 +86,13 @@ export const SquadManageAnalytics = (): ReactElement => {
     ...squadAnalyticsQueryOptions({ sourceId: squad?.id }),
     enabled: !!squad?.id && canViewAnalytics,
   });
-  const canViewAgentViews = typeof analytics?.agentViews === 'number';
-  const { data: history } = useQuery({
-    ...squadAnalyticsHistoryQueryOptions({ sourceId: squad?.id }),
+  const { data: agentAnalytics } = useQuery({
+    ...squadAgentAnalyticsQueryOptions({ sourceId: squad?.id }),
+    enabled: !!squad?.id && canViewAnalytics,
+  });
+  const canViewAgentViews = typeof agentAnalytics?.agentViews === 'number';
+  const { data: agentHistory } = useQuery({
+    ...squadAgentAnalyticsHistoryQueryOptions({ sourceId: squad?.id }),
     enabled: !!squad?.id && canViewAgentViews,
   });
   const [period, setPeriod] = useState(CreatorPerformancePeriod.Last30Days);
@@ -215,8 +220,8 @@ export const SquadManageAnalytics = (): ReactElement => {
             <HorizontalSeparator />
             <Section title="AI agents">
               <AgentViewsSection
-                analytics={analytics}
-                history={history}
+                analytics={agentAnalytics ?? undefined}
+                history={agentHistory}
                 readsInfo="The number of times AI assistants like ChatGPT, Claude, and Gemini read posts from this squad because someone asked about them."
                 crawlsInfo="The number of times AI crawlers visited posts from this squad to index them for AI search or crawling."
               />

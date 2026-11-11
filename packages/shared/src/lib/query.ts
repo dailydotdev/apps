@@ -257,6 +257,8 @@ export enum RequestKey {
   CreatorPostPerformance = 'creator_post_performance',
   SquadAnalytics = 'squad_analytics',
   SquadAnalyticsHistory = 'squad_analytics_history',
+  SquadAgentAnalytics = 'squad_agent_analytics',
+  SquadAgentAnalyticsHistory = 'squad_agent_analytics_history',
   SquadPerformance = 'squad_performance',
   SquadPostPerformance = 'squad_post_performance',
   CheckLocation = 'check_location',

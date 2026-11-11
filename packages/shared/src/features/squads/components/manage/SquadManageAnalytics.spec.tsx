@@ -10,7 +10,8 @@ import { mockDesktop } from '../../../../../__tests__/helpers/media';
 import type { Squad } from '../../../../graphql/sources';
 import { SourcePermissions } from '../../../../graphql/sources';
 import {
-  SQUAD_ANALYTICS_HISTORY_QUERY,
+  SQUAD_AGENT_ANALYTICS_HISTORY_QUERY,
+  SQUAD_AGENT_ANALYTICS_QUERY,
   SQUAD_ANALYTICS_QUERY,
 } from '../../../../graphql/squads';
 import {
@@ -130,7 +131,7 @@ const renderPage = () =>
 const mockAnalytics = (
   agentViews: number | null,
   agentViewsBot: number | null,
-) =>
+) => {
   mockGraphQL({
     request: {
       query: SQUAD_ANALYTICS_QUERY,
@@ -150,12 +151,22 @@ const mockAnalytics = (
           shares: 3,
           clicks: 77,
           upvotesRatio: 95,
-          agentViews,
-          agentViewsBot,
         },
       },
     },
   });
+  mockGraphQL({
+    request: {
+      query: SQUAD_AGENT_ANALYTICS_QUERY,
+      variables: { sourceId: squad.id },
+    },
+    result: {
+      data: {
+        squadAnalytics: { id: squad.id, agentViews, agentViewsBot },
+      },
+    },
+  });
+};
 
 beforeEach(() => {
   nock.cleanAll();
@@ -188,7 +199,7 @@ it('should render the AI agents section when the squad has agent analytics', asy
   mockPosts(CreatorPerformancePeriod.Last30Days);
   mockGraphQL({
     request: {
-      query: SQUAD_ANALYTICS_HISTORY_QUERY,
+      query: SQUAD_AGENT_ANALYTICS_HISTORY_QUERY,
       variables: { sourceId: squad.id },
     },
     result: { data: { squadAnalyticsHistory: [] } },

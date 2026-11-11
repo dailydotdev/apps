@@ -577,6 +577,24 @@ export const SQUAD_ANALYTICS_QUERY = gql`
       shares
       clicks
       upvotesRatio
+    }
+  }
+`;
+
+export const SQUAD_ANALYTICS_HISTORY_QUERY = gql`
+  query SquadAnalyticsHistory($sourceId: ID!) {
+    squadAnalyticsHistory(sourceId: $sourceId) {
+      date
+      impressions
+      impressionsAds
+    }
+  }
+`;
+
+export const SQUAD_AGENT_ANALYTICS_QUERY = gql`
+  query SquadAgentAnalytics($sourceId: ID!) {
+    squadAnalytics(sourceId: $sourceId) {
+      id
       agentViews
       agentViewsClaude
       agentViewsChatgpt
@@ -594,12 +612,10 @@ export const SQUAD_ANALYTICS_QUERY = gql`
   }
 `;
 
-export const SQUAD_ANALYTICS_HISTORY_QUERY = gql`
-  query SquadAnalyticsHistory($sourceId: ID!) {
+export const SQUAD_AGENT_ANALYTICS_HISTORY_QUERY = gql`
+  query SquadAgentAnalyticsHistory($sourceId: ID!) {
     squadAnalyticsHistory(sourceId: $sourceId) {
       date
-      impressions
-      impressionsAds
       agentViews
       agentViewsClaude
       agentViewsChatgpt
@@ -916,6 +932,44 @@ export const squadAnalyticsHistoryQueryOptions = ({
   };
 };
 
+export const squadAgentAnalyticsQueryOptions = ({
+  sourceId,
+}: {
+  sourceId?: string;
+}) => {
+  return {
+    queryKey: [RequestKey.SquadAgentAnalytics, sourceId],
+    queryFn: async () => {
+      const result = await gqlClient.request<{
+        squadAnalytics: SquadAgentAnalytics | null;
+      }>(SQUAD_AGENT_ANALYTICS_QUERY, { sourceId });
+
+      return result.squadAnalytics;
+    },
+    enabled: !!sourceId,
+    staleTime: StaleTime.Default,
+  };
+};
+
+export const squadAgentAnalyticsHistoryQueryOptions = ({
+  sourceId,
+}: {
+  sourceId?: string;
+}) => {
+  return {
+    queryKey: [RequestKey.SquadAgentAnalyticsHistory, sourceId],
+    queryFn: async () => {
+      const result = await gqlClient.request<{
+        squadAnalyticsHistory: SquadAgentAnalyticsHistoryNode[];
+      }>(SQUAD_AGENT_ANALYTICS_HISTORY_QUERY, { sourceId });
+
+      return result.squadAnalyticsHistory;
+    },
+    enabled: !!sourceId,
+    staleTime: StaleTime.Default,
+  };
+};
+
 export async function getSquadMembers(
   id: string,
 ): Promise<BasicSourceMember[]> {
@@ -947,7 +1001,7 @@ export interface SquadInvitation {
   member: SourceMember;
 }
 
-export interface SquadAnalytics extends PostAgentViews {
+export interface SquadAnalytics {
   id: string;
   impressions: number;
   reach: number;
@@ -961,11 +1015,19 @@ export interface SquadAnalytics extends PostAgentViews {
   upvotesRatio: number;
 }
 
-export interface SquadAnalyticsHistoryNode extends PostAgentViews {
+export interface SquadAnalyticsHistoryNode {
   date: Date;
   impressions: number;
   impressionsAds: number;
 }
+
+export type SquadAgentAnalytics = PostAgentViews & {
+  id: string;
+};
+
+export type SquadAgentAnalyticsHistoryNode = PostAgentViews & {
+  date: Date;
+};
 
 export interface SquadInvitationProps {
   token?: string;
