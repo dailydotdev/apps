@@ -690,6 +690,10 @@ export enum LogEvent {
   LeaveLiveChat = 'leave live chat',
   SendLiveChatMessage = 'send live chat message',
   ReactLiveChatMessage = 'react live chat message',
+  // Agent onboarding
+  ViewAgentClaim = 'view agent claim',
+  ConfirmAgentClaim = 'confirm agent claim',
+  ErrorAgentClaim = 'error agent claim',
   // Plugin marketplace
   OpenMarketplace = 'open marketplace',
   ClickPluginCard = 'click plugin card',

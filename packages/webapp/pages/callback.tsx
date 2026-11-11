@@ -19,6 +19,7 @@ import {
   AUTH_REDIRECT_KEY,
   shouldRedirectAuth,
 } from '@dailydotdev/shared/src/features/onboarding/shared';
+import { AUTH_RETURN_PATH_KEY } from '@dailydotdev/shared/src/features/onboarding/lib/utils';
 import { noindexSeoProps } from '../next-seo';
 
 const seo: NextSeoProps = { ...noindexSeoProps };
@@ -61,6 +62,13 @@ const handleRedirectAuth = (params: URLSearchParams) => {
 
     window.location.replace(`${redirect}?${params}`);
   }
+};
+
+const getAuthReturnPath = (): string => {
+  const path = window.sessionStorage.getItem(AUTH_RETURN_PATH_KEY);
+  window.sessionStorage.removeItem(AUTH_RETURN_PATH_KEY);
+
+  return path?.startsWith('/') && !path.startsWith('//') ? path : '/onboarding';
 };
 
 function CallbackPage(): ReactElement | null {
@@ -114,7 +122,7 @@ function CallbackPage(): ReactElement | null {
       }
 
       setTimeout(() => {
-        window.location.replace('/onboarding');
+        window.location.replace(getAuthReturnPath());
       }, 300);
     } catch (err) {
       const url = `${process.env.NEXT_PUBLIC_WEBAPP_URL}?${search}`;

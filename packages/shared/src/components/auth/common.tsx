@@ -173,6 +173,7 @@ export interface AuthOptionsProps {
   logInDescription?: string;
   signUpDescription?: string;
   signupProviders?: Provider[];
+  socialSignupOnly?: boolean;
   /**
    * The funnel's headline scale and glass CTA. Explicit rather than read from
    * `FunnelProgressContext`, because these screens render before the stepper
