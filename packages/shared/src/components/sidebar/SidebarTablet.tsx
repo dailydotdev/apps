@@ -46,6 +46,7 @@ import { getUnreadText } from '../notifications/utils';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
 import { useMessagesEnabled } from '../../features/messages/hooks/useMessagesEnabled';
 import { useUnreadMessagesCount } from '../../features/messages/hooks/useUnreadMessagesCount';
+import { isDmAvailable } from '../../features/messages/transport';
 import { getMessagesUrl } from '../../features/messages/urls';
 
 export const SidebarTablet = ({
@@ -63,8 +64,12 @@ export const SidebarTablet = ({
   const { alerts } = useAlertsContext();
   const { user, isLoggedIn, squads } = useAuthContext();
   const { unreadCount } = useNotificationContext();
-  const { isEnabled: showMessages } = useMessagesEnabled();
-  const { total: unreadMessagesCount } = useUnreadMessagesCount(showMessages);
+  // Paints with the other signed-in items, from the cached session; only the
+  // count waits for boot (see SidebarDesktopV2).
+  const showMessages = isLoggedIn && isDmAvailable;
+  const { isEnabled: isMessagesEnabled } = useMessagesEnabled();
+  const { total: unreadMessagesCount } =
+    useUnreadMessagesCount(isMessagesEnabled);
   // Looking for group lives inside Messages, so its pages light this tab too.
   const isMessagesActive = /^\/(?:messages|lfg)(?:[/?#]|$)/.test(activePage);
   const buttonProps: ButtonProps<'a' | 'button'> = {

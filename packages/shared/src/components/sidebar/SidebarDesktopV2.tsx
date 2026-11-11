@@ -118,6 +118,7 @@ import { MailIcon } from '../icons/Mail';
 import { MessagesSection } from './sections/MessagesSection';
 import { useMessagesEnabled } from '../../features/messages/hooks/useMessagesEnabled';
 import { useUnreadMessagesCount } from '../../features/messages/hooks/useUnreadMessagesCount';
+import { isDmAvailable } from '../../features/messages/transport';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { getUnreadText } from '../notifications/utils';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
@@ -794,9 +795,13 @@ export const SidebarDesktopV2 = ({
   // remain) it stays but reads as the broader "Quests" / Game Center tab
   // instead of a streak.
   const showGameCenterTab = isLoggedIn && isGamificationEnabled;
-  const { isEnabled: showMessagesTab } = useMessagesEnabled();
+  // The tab paints with the other signed-in tabs, from the cached session.
+  // useMessagesEnabled waits for boot to land, which inserted the tab late and
+  // pushed the rail down. Only the count waits for it.
+  const showMessagesTab = isLoggedIn && isDmAvailable;
+  const { isEnabled: isMessagesEnabled } = useMessagesEnabled();
   const { total: unreadMessagesCount } =
-    useUnreadMessagesCount(showMessagesTab);
+    useUnreadMessagesCount(isMessagesEnabled);
   const { unreadCount: unreadNotificationsCount } = useNotificationContext();
   const isStreakTabAStreak = !optOutReadingStreak;
   // Short label under the rail tab icon (and the More-menu row): "Streak" /
