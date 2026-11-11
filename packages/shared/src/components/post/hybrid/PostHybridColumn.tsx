@@ -52,6 +52,10 @@ import { SelectionSnapshotBar } from '../../../features/snapshot/SelectionSnapsh
 import { PostOptionButton } from '../../../features/posts/PostOptionButton';
 import { BoostPostButton } from '../../../features/boost/BoostButton';
 import { useShowBoostButton } from '../../../features/boost/useShowBoostButton';
+import { BoostNewPostStrip } from '../../../features/boost/BoostNewPostStrip';
+import { BoostOriginContextProvider } from '../../../features/boost/BoostOriginContext';
+import { useActions } from '../../../hooks/useActions';
+import { ActionType } from '../../../graphql/actions';
 import { VerifiedSquadBadge } from '../../../features/squads/components/VerifiedSquad';
 import { hasSquadFeature } from '../../../features/squads/lib/features';
 import { PostTagList } from '../tags/PostTagList';
@@ -193,6 +197,20 @@ export function PostHybridColumn({
     isShared && post.title && post.title !== article.title ? post.title : null;
   const { openModal } = useLazyModal();
   const showBoostButton = useShowBoostButton({ post }) && !isModal;
+  const { checkHasCompleted, isActionsFetched } = useActions();
+  // Control's new-post strip (SquadPostContent, PollPostContent,
+  // SocialTwitterPostContent): the author of a fresh post, on the post page.
+  const showBoostStrip =
+    showBoostButton &&
+    isActionsFetched &&
+    !checkHasCompleted(ActionType.ClosedNewPostBoostBanner) &&
+    !post.flags?.campaignId &&
+    [
+      PostType.Share,
+      PostType.Freeform,
+      PostType.Poll,
+      PostType.SocialTwitter,
+    ].includes(post.type);
   const { onReadClick: onReaderInstallGateClick } = useReaderInstallPromptGate(
     post,
     { onCloseParent: onClose },
@@ -445,10 +463,16 @@ export function PostHybridColumn({
         {headerSource}
         <div className="ml-auto flex shrink-0 items-center gap-2">
           {showBoostButton && (
-            <BoostPostButton
-              post={post}
-              buttonProps={{ size: ButtonSize.Small }}
-            />
+            // Boosts started while the strip shows are credited to it, as in
+            // control's BasePostContent.
+            <BoostOriginContextProvider
+              origin={showBoostStrip ? Origin.NewPostBoostStrip : undefined}
+            >
+              <BoostPostButton
+                post={post}
+                buttonProps={{ size: ButtonSize.Small }}
+              />
+            </BoostOriginContextProvider>
           )}
           {getReadCta('hidden laptop:flex')}
           {isCollection && !isShared && (
@@ -465,6 +489,8 @@ export function PostHybridColumn({
           />
         </div>
       </div>
+
+      {showBoostStrip && <BoostNewPostStrip />}
 
       <div className="flex min-w-0 flex-col gap-3">
         {squadAttribution && (

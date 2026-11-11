@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
+import { useFeaturesReadyContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 
 const ARM_STORAGE_KEY = 'post_page_hybrid:arm';
 const PENDING_ATTRIBUTE = 'data-post-hybrid-pending';
@@ -32,13 +33,17 @@ export const usePostPageHybridPaint = ({
   isEvaluated,
   showHybrid,
 }: UsePostPageHybridPaint): void => {
+  // Settled without features (boot failed or sent none): the classic layout
+  // is final, so show it now rather than at the fallback timers.
+  const { settled } = useFeaturesReadyContext();
+
   useEffect(() => {
     if (isEvaluated) {
       storage.setItem(ARM_STORAGE_KEY, showHybrid ? '1' : '0');
     }
 
-    if (!isEligible || isEvaluated) {
+    if (!isEligible || isEvaluated || settled) {
       document.documentElement.removeAttribute(PENDING_ATTRIBUTE);
     }
-  }, [isEligible, isEvaluated, showHybrid]);
+  }, [isEligible, isEvaluated, showHybrid, settled]);
 };

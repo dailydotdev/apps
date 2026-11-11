@@ -33,6 +33,7 @@ import { PostComments } from '../PostComments';
 import { PostUpvotesCommentsCount } from '../PostUpvotesCommentsCount';
 import { PostContentShare } from '../common/PostContentShare';
 import { PostContentReminder } from '../common/PostContentReminder';
+import { PostContentBookmarkNote } from '../common/PostContentBookmarkNote';
 import { DiscussionShareRow } from '../focus/DiscussionShareRow';
 import { EndOfThreadShare } from '../../../features/snapshot/EndOfThreadShare';
 import { useStoredCommentDraft } from '../../fields/RichTextEditor/useDraftStorage';
@@ -177,6 +178,7 @@ export function PostHybridDiscussion({
         className={actionsClassName}
       />
       <PostContentReminder post={post} />
+      <PostContentBookmarkNote post={post} />
       <PostContentShare post={post} />
       {showSocialBar && <SocialBar post={post} />}
       {beforeDiscussion}
