@@ -92,7 +92,6 @@ jest.mock('next/router', () => ({
 }));
 
 let mockSignupStripOn = false;
-let mockPostPageFeedOn = false;
 
 jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
   __esModule: true,
@@ -106,22 +105,8 @@ jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
     if (args?.feature?.id === 'post_signup_strip') {
       return { value: mockSignupStripOn, isLoading: false };
     }
-    if (args?.feature?.id === 'post_page_feed') {
-      // Like the real hook: the default (off) until the page evaluates it.
-      return {
-        value: args.shouldEvaluate !== false && mockPostPageFeedOn,
-        isLoading: false,
-      };
-    }
     return { value: args?.feature?.defaultValue, isLoading: false };
   },
-}));
-
-// The feed's own behaviour is PostPageFeed.spec; here only where it renders.
-jest.mock('@dailydotdev/shared/src/components/post/feed/PostPageFeed', () => ({
-  PostPageFeed: ({ post }: { post: { id: string } }) => (
-    <section data-testid="postPageFeed" data-post-id={post.id} />
-  ),
 }));
 
 // The organic ad units sit behind the organic_ads kill switch, off by default.
@@ -166,7 +151,6 @@ beforeEach(() => {
   // behind by one test must not leak into the next.
   jest.restoreAllMocks();
   mockSignupStripOn = false;
-  mockPostPageFeedOn = false;
   mockRouter();
 });
 
@@ -1528,48 +1512,5 @@ describe('post query failures', () => {
     ]);
 
     expect(await screen.findByTestId('notFound')).toBeInTheDocument();
-  });
-});
-
-describe('post page feed', () => {
-  it('should render the feed after the comments for signed-in readers when the experiment is on', async () => {
-    mockPostPageFeedOn = true;
-    renderPost();
-    const feed = await screen.findByTestId('postPageFeed');
-    expect(feed).toHaveAttribute(
-      'data-post-id',
-      '0e4005b2d3cf191f8c44c2718a457a1e',
-    );
-    expect(screen.getByTestId('postContainer')).toContainElement(feed);
-  });
-
-  it('should keep the widgets to laptop up while the feed is on, so the feed follows the comments', async () => {
-    mockPostPageFeedOn = true;
-    renderPost();
-    await screen.findByTestId('postPageFeed');
-    const widgets = screen.getByTestId('postContainer').nextElementSibling;
-    expect(widgets?.tagName).toBe('ASIDE');
-    expect(widgets).toHaveClass('hidden', 'laptop:flex');
-  });
-
-  it('should show the widgets at every width when the feed is off', async () => {
-    renderPost();
-    const widgets = (await screen.findByTestId('postContainer'))
-      .nextElementSibling;
-    expect(widgets?.tagName).toBe('ASIDE');
-    expect(widgets).not.toHaveClass('hidden');
-  });
-
-  it('should not render the feed for signed-out readers, even when the experiment is on', async () => {
-    mockPostPageFeedOn = true;
-    renderPost({}, [createPostMock(), createCommentsMock()], undefined);
-    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
-    expect(screen.queryByTestId('postPageFeed')).not.toBeInTheDocument();
-  });
-
-  it('should not render the feed when the experiment is off', async () => {
-    renderPost();
-    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
-    expect(screen.queryByTestId('postPageFeed')).not.toBeInTheDocument();
   });
 });

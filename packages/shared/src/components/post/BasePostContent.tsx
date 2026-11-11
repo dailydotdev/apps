@@ -42,7 +42,6 @@ export function BasePostContent({
   engagementProps,
   shouldOnboardAuthor,
   aboveComments,
-  belowComments,
   commentAds,
   isPostPage,
   boostOrigin,
@@ -105,7 +104,6 @@ export function BasePostContent({
           actionsClassName={hasCapsule ? 'hidden tablet:flex' : undefined}
         />
       )}
-      {belowComments}
     </BoostOriginContextProvider>
   );
 }

@@ -32,7 +32,6 @@ import {
   CommunitySentiment,
   mapCommunitySentimentPost,
 } from './focus/CommunitySentiment';
-import { getPostWidgetsClassName } from './common';
 import { Origin } from '../../lib/log';
 
 type SocialTwitterPostContentRawProps = Omit<PostContentProps, 'post'> & {
@@ -55,7 +54,6 @@ export function SocialTwitterPostContentRaw({
   onClose,
   isBannerVisible,
   isPostPage,
-  belowComments,
   shouldTrackView = true,
 }: SocialTwitterPostContentRawProps): ReactElement {
   const isBoostButtonVisible = useShowBoostButton({ post });
@@ -150,7 +148,6 @@ export function SocialTwitterPostContentRaw({
             },
           }}
           isPostPage={isPostPage}
-          belowComments={belowComments}
           isFallback={isFallback}
           customNavigation={customNavigation}
           shouldOnboardAuthor={shouldOnboardAuthor}
@@ -239,10 +236,7 @@ export function SocialTwitterPostContentRaw({
         onCopyPostLink={onCopyPostLink}
         onReadArticle={onReadArticle}
         post={post}
-        className={getPostWidgetsClassName(
-          'mb-6 !gap-2 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0',
-          !!belowComments,
-        )}
+        className="mb-6 !gap-2 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0"
         onClose={onClose}
         origin={origin}
       />

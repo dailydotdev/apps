@@ -31,7 +31,6 @@ import {
   mapCommunitySentimentPost,
 } from './focus/CommunitySentiment';
 import { SelectionSnapshotBar } from '../../features/snapshot/SelectionSnapshotBar';
-import { getPostWidgetsClassName } from './common';
 import { Origin } from '../../lib/log';
 
 // The three bodies share one call site, so they share one props shape; each
@@ -83,7 +82,6 @@ export function SquadPostContentRaw({
   onClose,
   isBannerVisible,
   isPostPage,
-  belowComments,
   shouldTrackView,
 }: SquadPostContentRawProps): ReactElement {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -181,7 +179,6 @@ export function SquadPostContentRaw({
             },
           }}
           isPostPage={isPostPage}
-          belowComments={belowComments}
           isFallback={isFallback}
           customNavigation={customNavigation}
           shouldOnboardAuthor={shouldOnboardAuthor}
@@ -251,10 +248,7 @@ export function SquadPostContentRaw({
         onCopyPostLink={onCopyPostLink}
         onReadArticle={onReadArticle}
         post={post}
-        className={getPostWidgetsClassName(
-          'mb-6 !gap-2 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0',
-          !!belowComments,
-        )}
+        className="mb-6 !gap-2 border-l border-border-subtlest-tertiary pt-4 laptop:mb-0"
         onClose={onClose}
         origin={origin}
       />
