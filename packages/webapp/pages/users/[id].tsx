@@ -6,6 +6,10 @@ import type {
   GetStaticPropsResult,
 } from 'next';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import type {
+  CompanyLeaderboard,
+  UserLeaderboard,
+} from '@dailydotdev/shared/src/graphql/leaderboard';
 import {
   isCompanyLeaderboard,
   LeaderboardType,
@@ -19,10 +23,6 @@ import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
-import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
-import { UserTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
-import type { CompanyLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard/CompanyTopList';
-import { CompanyTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard/CompanyTopList';
 import {
   Button,
   ButtonSize,
@@ -30,11 +30,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import { LeaderboardPersonRow } from '@dailydotdev/shared/src/features/leaderboard/LeaderboardTopReputation';
-import {
-  LeaderboardEmptyBoard,
-  LeaderboardHeading,
-} from '@dailydotdev/shared/src/features/leaderboard/LeaderboardRows';
+import { LeaderboardBoardPage } from '@dailydotdev/shared/src/features/leaderboard/LeaderboardBoardPage';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../../next-seo';
@@ -74,12 +70,6 @@ const LeaderboardDetailPage = ({
   const { isFallback: isLoading } = useRouter();
   const isLaptopLayout = useLaptopLayout();
 
-  const isCompany = isCompanyLeaderboard(leaderboardType);
-  const isLevelLeaderboard = leaderboardType === LeaderboardType.HighestLevel;
-  const isReputationLeaderboard =
-    leaderboardType === LeaderboardType.HighestReputation;
-  const concatScore = leaderboardType !== LeaderboardType.LongestStreak;
-
   if (isLoading || !title) {
     return <></>;
   }
@@ -108,43 +98,12 @@ const LeaderboardDetailPage = ({
       )}
       <PageWrapperLayout>
         <ShellPage title="Leaderboard" />
-        {isReputationLeaderboard ? (
-          <section className="mx-auto flex w-full max-w-[40rem] flex-col gap-2">
-            <LeaderboardHeading title={title} />
-            {userItems?.length ? (
-              <ol className="flex flex-col">
-                {userItems.map((entry, index) => (
-                  <LeaderboardPersonRow
-                    key={entry.user.id}
-                    entry={entry}
-                    rank={index + 1}
-                  />
-                ))}
-              </ol>
-            ) : (
-              <LeaderboardEmptyBoard />
-            )}
-          </section>
-        ) : (
-          <div className="mx-auto w-full max-w-screen-laptop">
-            {isCompany ? (
-              <CompanyTopList
-                containerProps={{ title }}
-                items={companyItems || []}
-                isLoading={isLoading}
-              />
-            ) : (
-              <UserTopList
-                containerProps={{ title }}
-                items={userItems || []}
-                isLoading={isLoading}
-                concatScore={concatScore}
-                showLevel={isLevelLeaderboard}
-                leaderboardType={leaderboardType}
-              />
-            )}
-          </div>
-        )}
+        <LeaderboardBoardPage
+          type={leaderboardType}
+          title={title}
+          userItems={userItems}
+          companyItems={companyItems}
+        />
       </PageWrapperLayout>
     </>
   );
