@@ -391,7 +391,9 @@ export const featureWeeklyPicks = new Feature('weekly_picks_v2', false);
 // The home card's background checks: this week's picks and reading signals,
 // fetched on every signed-in home load. A plain rollout flag with no
 // experiment rule, so evaluating it enrolls nobody: it is the kill switch
-// for the checks and keeps them to the experiment's traffic share.
+// for the checks and the only place to set the experiment's reach. The
+// experiment itself runs at full coverage, since rollout and experiment
+// rules hash with different seeds and two shares would multiply.
 export const featureWeeklyPicksChecks = new Feature(
   'weekly_picks_checks',
   false,
