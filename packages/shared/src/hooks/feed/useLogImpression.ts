@@ -11,6 +11,7 @@ import type { Origin } from '../../lib/log';
 import { LogEvent } from '../../lib/log';
 import type { SearchLogExtra } from '../../lib/searchLog';
 import { useLogContext } from '../../contexts/LogContext';
+import { getTaboolaLogAd } from '../../features/monetization/taboola';
 import type { FeedItem } from '../useFeed';
 import { isShareLikePost, PostType } from '../../graphql/posts';
 
@@ -108,12 +109,18 @@ export default function useLogImpression({
       if (inView && !item.ad.impressionStatus) {
         logEventStart(
           eventKey,
-          adLogEvent('impression', item.ad, {
-            columns,
-            column,
-            row,
-            ...feedLogExtra(feedName, ranking, searchLogExtra, origin),
-          }),
+          adLogEvent(
+            'impression',
+            item.taboolaPlacement
+              ? getTaboolaLogAd(item.taboolaPlacement)
+              : item.ad,
+            {
+              columns,
+              column,
+              row,
+              ...feedLogExtra(feedName, ranking, searchLogExtra, origin),
+            },
+          ),
         );
         // eslint-disable-next-line no-param-reassign
         item.ad.impressionStatus = ImpressionStatus.LOGGING;

@@ -7,6 +7,8 @@ import type { ViewabilityData } from '../../../features/monetization/viewability
 import type { FeaturedWideCardProps } from '../../cards/common/featuredWide';
 import { HighlightCardContent } from '../../cards/highlight/common';
 import { FeedHeroAdCard } from './FeedHeroAdCard';
+import { TaboolaAd } from '../../cards/ad/TaboolaAd';
+import { taboolaWidgetPlacement } from '../../../features/monetization/taboola';
 import { FeedHeroCarousel } from './FeedHeroCarousel';
 import type { FeedHeroAdPlacement, FeedHeroShape } from './feedHeroShape';
 import { feedHeroShape } from './feedHeroShape';
@@ -35,6 +37,8 @@ interface FeedHeroSectionProps {
   posts: Post[];
   highlights: PostHighlight[];
   ad?: Ad;
+  /** Taboola fills the ad's slot, with the ad as its fallback. */
+  isTaboolaAd?: boolean;
   adPlacement?: FeedHeroAdPlacement;
   /** The section's row, measured against the feed grid's column count. */
   shape?: FeedHeroShape;
@@ -52,6 +56,7 @@ export function FeedHeroSection({
   posts,
   highlights,
   ad,
+  isTaboolaAd,
   adPlacement = 'none',
   shape = feedHeroShape(1),
   cardProps,
@@ -109,7 +114,16 @@ export function FeedHeroSection({
         </aside>
         {!!ad && adPlacement === 'column' && (
           <aside className="col-span-1 flex min-h-0 min-w-0 flex-col overflow-hidden">
-            <FeedHeroAdCard ad={ad} {...adProps} />
+            {isTaboolaAd ? (
+              <TaboolaAd
+                placement={taboolaWidgetPlacement}
+                variant="hero"
+                fallback={<FeedHeroAdCard ad={ad} {...adProps} />}
+                onClick={() => onAdLinkClick?.(ad)}
+              />
+            ) : (
+              <FeedHeroAdCard ad={ad} {...adProps} />
+            )}
           </aside>
         )}
       </section>

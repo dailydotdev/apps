@@ -14,6 +14,14 @@ import { IconSize } from '../../../components/Icon';
 import { LockIcon } from '../../../components/icons/Lock';
 import { AdGrid } from '../../../components/cards/ad/AdGrid';
 import { PlaceholderGrid } from '../../../components/cards/placeholder/PlaceholderGrid';
+import { TaboolaAd } from '../../../components/cards/ad/TaboolaAd';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { featureTaboolaAds } from '../../../lib/featureManagement';
+import {
+  getTaboolaLogAd,
+  isTaboolaAd,
+  taboolaWidgetPlacement,
+} from '../../monetization/taboola';
 import { useInertRef } from '../FeedWidgetFrame';
 import {
   FeedWidgetBoostedAd,
@@ -42,6 +50,11 @@ export const FeedWidgetAdSlot = ({
   // past the rail's visible columns, so having the ad is not enough.
   const { ref: inViewRef, inView } = useInView({ threshold: 0.5 });
   const contentRef = useInertRef<HTMLDivElement>(isEditing);
+  const { value: isTaboolaFallback } = useConditionalFeature({
+    feature: featureTaboolaAds,
+    shouldEvaluate: !!ad?.fallback,
+  });
+  const isTaboola = !!ad && isTaboolaAd(ad, isTaboolaFallback);
 
   const onAdAction = useCallback(
     (action: AdActions, extra?: Record<string, unknown>) => {
@@ -50,12 +63,14 @@ export const FeedWidgetAdSlot = ({
       }
 
       logEvent(
-        adLogEvent(action, ad, {
-          extra: { origin: Origin.FeedWidgets, ...extra },
-        }),
+        adLogEvent(
+          action,
+          isTaboola ? getTaboolaLogAd(taboolaWidgetPlacement) : ad,
+          { extra: { origin: Origin.FeedWidgets, ...extra } },
+        ),
       );
     },
-    [ad, logEvent],
+    [ad, isTaboola, logEvent],
   );
 
   useEffect(() => {
@@ -99,6 +114,18 @@ export const FeedWidgetAdSlot = ({
         domProps={{ className: 'flex-1' }}
         onLinkClick={() => onAdAction(AdActions.Click)}
         onViewable={(_, data: ViewabilityData) => onViewable(data)}
+      />
+    );
+  }
+
+  if (ad && isTaboola) {
+    content = (
+      <TaboolaAd
+        placement={taboolaWidgetPlacement}
+        variant={isCompact ? 'compact' : 'fitted'}
+        className="min-h-0 flex-1"
+        fallback={content}
+        onClick={() => onAdAction(AdActions.Click)}
       />
     );
   }

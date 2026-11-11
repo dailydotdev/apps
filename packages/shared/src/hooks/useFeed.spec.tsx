@@ -26,6 +26,8 @@ import * as ads from '../lib/ads';
 import defaultAd from '../../__tests__/fixture/ad';
 import * as tcf from '../lib/tcf';
 import * as consentHook from '../features/monetization/useTcfConsent';
+import * as conditionalFeature from './useConditionalFeature';
+import { featureTaboolaAds } from '../lib/featureManagement';
 
 jest.mock('../lib/boot', () => ({
   ...jest.requireActual('../lib/boot'),
@@ -171,6 +173,58 @@ it('keeps loaded feed ads across post modal navigation and consent changes', asy
   expect(requests).toBe(loadedRequests);
 
   fetchAd.mockRestore();
+  client.clear();
+});
+
+it('should hand only the house ad slots to Taboola', async () => {
+  const client = new QueryClient(defaultQueryClientTestingConfig);
+  const { useConditionalFeature } = conditionalFeature;
+  jest
+    .spyOn(conditionalFeature, 'useConditionalFeature')
+    .mockImplementation((props) =>
+      props.feature.id === featureTaboolaAds.id
+        ? { value: !!props.shouldEvaluate, isLoading: false }
+        : useConditionalFeature(props),
+    );
+  let requests = 0;
+  jest.spyOn(ads, 'fetchAdByPlacement').mockImplementation(async () => {
+    requests += 1;
+    return { ...defaultAd, fallback: requests !== 2 };
+  });
+  mockCustomFeedResponse({
+    data: {
+      page: {
+        ...defaultFeedPage,
+        edges: Array.from({ length: 6 }, (_, index) => ({
+          ...defaultFeedPage.edges[0],
+          node: { ...defaultFeedPage.edges[0].node, id: `post-${index}` },
+        })),
+      },
+    },
+  });
+  const wrapper = ({ children }: { children: ReactNode }): ReactElement => (
+    <TestBootProvider
+      client={client}
+      auth={{ user: defaultUser, isGdprCovered: false, geo: { region: 'US' } }}
+    >
+      {children}
+    </TestBootProvider>
+  );
+  const { result } = renderHook(
+    () =>
+      useFeed(['custom', 'taboola'], 10, { adStart: 1, adRepeat: 3 }, 1, {
+        query: CUSTOM_FEED_QUERY,
+        variables: { feedId: 'taboola' },
+        settings: { feedName: SharedFeedPage.Custom },
+      }),
+    { wrapper },
+  );
+  const placements = () =>
+    result.current.items.flatMap((item) =>
+      item.type === FeedItemType.Ad ? [item.taboolaPlacement] : [],
+    );
+
+  await waitFor(() => expect(placements()).toEqual([2, undefined, 4]));
   client.clear();
 });
 
