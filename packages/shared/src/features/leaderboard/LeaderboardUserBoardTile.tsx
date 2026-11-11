@@ -16,10 +16,8 @@ import { LeaderboardBoardTile } from './LeaderboardBoardTile';
 import { leaderboardUserClickEvent } from './leaderboardLog';
 import { LeaderboardMiniRow } from './LeaderboardRows';
 import { LeaderboardScoreValue } from './LeaderboardScore';
-import {
-  getLeaderboardRankLabel,
-  useLeaderboardPosition,
-} from './useLeaderboardPosition';
+import { formatLeaderboardCap } from './boards';
+import { useLeaderboardPosition } from './useLeaderboardPosition';
 
 interface LeaderboardUserBoardTileProps {
   type: LeaderboardType;
@@ -36,7 +34,7 @@ export const LeaderboardUserBoardTile = ({
   const you =
     user && position && state !== 'empty' ? (
       <LeaderboardMiniRow
-        rank={getLeaderboardRankLabel(position)}
+        rank={position.rank ?? formatLeaderboardCap(position.cappedAt)}
         name="You"
         href={user.permalink}
         onClick={() =>

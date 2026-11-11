@@ -23,6 +23,7 @@ import {
 import { Origin } from '../../lib/log';
 import { ProfileSnapshotButton } from '../snapshot/ProfileSnapshotButton';
 import {
+  formatLeaderboardCapValue,
   formatLeaderboardScore,
   formatLeaderboardScoreWithUnit,
   formatLeaderboardUnit,
@@ -51,7 +52,7 @@ const getBestBoard = (
   let best = 0;
   let bestRank = Infinity;
   positions.forEach((position, index) => {
-    if (position?.rank && position.rank < bestRank) {
+    if (position?.rank && position.score > 0 && position.rank < bestRank) {
       best = index;
       bestRank = position.rank;
     }
@@ -123,7 +124,7 @@ export const LeaderboardRankCard = ({
       return `No rank yet on ${title}`;
     }
     if (state === 'capped') {
-      return `You’re outside the top ${formatLeaderboardScore(
+      return `You’re outside the top ${formatLeaderboardCapValue(
         position.cappedAt,
       )}`;
     }

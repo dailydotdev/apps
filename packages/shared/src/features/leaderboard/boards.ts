@@ -91,10 +91,17 @@ export const LEADERBOARD_TILE_ROWS = 4;
 export const getLeaderboardBoard = (type: LeaderboardType): LeaderboardBoard =>
   LEADERBOARD_BOARDS.find((board) => board.type === type) as LeaderboardBoard;
 
-export const formatLeaderboardScore = (score: number): string =>
-  score < 10000
-    ? score.toLocaleString('en-US')
-    : (largeNumberFormat(score) ?? score.toString());
+/** "1,602", "29.6K", "2.1M": one decimal from 10K up, none when it is zero. */
+export const formatLeaderboardScore = (score: number): string => {
+  if (score >= 1000000) {
+    return `${(score / 1000000).toFixed(1).replace(/\.0$/, '')}M`;
+  }
+  if (score >= 10000) {
+    return `${(score / 1000).toFixed(1).replace(/\.0$/, '')}K`;
+  }
+
+  return score.toLocaleString('en-US');
+};
 
 /** "1 day", "2 days", "480 XP": units are stored plural. */
 export const formatLeaderboardUnit = (score: number, unit: string): string =>
@@ -112,6 +119,9 @@ export const formatLeaderboardScoreWithUnit = (
 export const formatLeaderboardRank = (rank: number): string =>
   `#${rank.toLocaleString('en-US')}`;
 
-/** Past the counted range leaderboardPosition has no rank, only the cap. */
+/** Past the counted range leaderboardPosition has no rank, only the cap: "100K". */
+export const formatLeaderboardCapValue = (cappedAt: number): string =>
+  largeNumberFormat(cappedAt) ?? cappedAt.toString();
+
 export const formatLeaderboardCap = (cappedAt: number): string =>
-  `${formatLeaderboardScore(cappedAt)}+`;
+  `${formatLeaderboardCapValue(cappedAt)}+`;
