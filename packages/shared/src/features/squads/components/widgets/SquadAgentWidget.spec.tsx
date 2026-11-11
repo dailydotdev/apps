@@ -9,11 +9,11 @@ import { SquadPageContextProvider } from '../../SquadPageContext';
 import { SquadAgentWidget } from './SquadAgentWidget';
 
 const makeSquad = ({
-  verified = true,
+  features = { verified: true },
   role = SourceMemberRole.Admin,
   seat = true,
 }: {
-  verified?: boolean;
+  features?: Partial<Squad['features']>;
   role?: SourceMemberRole;
   seat?: boolean;
 } = {}): Squad =>
@@ -21,7 +21,7 @@ const makeSquad = ({
     id: 'squad1',
     handle: 'acme',
     name: 'Acme',
-    features: { verified },
+    features,
     currentMember: { role, seat, permissions: [] },
   }) as unknown as Squad;
 
@@ -75,8 +75,16 @@ it('should not show to a moderator without a seat', () => {
   ).not.toBeInTheDocument();
 });
 
-it('should not show on a squad that is not verified', () => {
-  renderWidget(makeSquad({ verified: false }));
+it('should show to the admin of a daily.dev for Startups squad', async () => {
+  renderWidget(makeSquad({ features: { products: true, links: true } }));
+
+  expect(
+    await screen.findByText('Run Acme from your agent'),
+  ).toBeInTheDocument();
+});
+
+it('should not show on a squad with no plan', () => {
+  renderWidget(makeSquad({ features: {} }));
 
   expect(
     screen.queryByText('Run Acme from your agent'),
