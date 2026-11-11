@@ -15,6 +15,7 @@ import {
 } from '@dailydotdev/shared/src/components/utilities';
 import classNames from 'classnames';
 import {
+  ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/common';
@@ -729,12 +730,21 @@ const PostAnalyticsPage = ({
                 showReads={showAgentReads}
                 showCrawls={showAgentCrawls}
               />
-              <ClickableText
-                className="mr-auto"
+              <Button
+                className="w-full justify-between"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Medium}
+                icon={
+                  <ArrowIcon
+                    className={showAgentBreakdown ? 'rotate-180' : 'rotate-90'}
+                  />
+                }
+                iconPosition={ButtonIconPosition.Right}
+                aria-expanded={showAgentBreakdown}
                 onClick={() => setShowAgentBreakdown((current) => !current)}
               >
-                {showAgentBreakdown ? 'Hide' : 'Show'} per agent
-              </ClickableText>
+                {showAgentBreakdown ? 'Hide' : 'Show'} total per agent
+              </Button>
               {showAgentBreakdown && (
                 <AnalyticsNumbersList data={agentViewsList} />
               )}
