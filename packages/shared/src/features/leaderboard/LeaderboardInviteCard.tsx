@@ -71,7 +71,7 @@ export const LeaderboardInviteCard = (): ReactElement | null => {
     ? `Invite ${remainingInvites} ${pluralizeFriend(
         remainingInvites,
       )}, get ${formatReferralLadderMonths(nextStep.months)}`
-    : `You unlocked ${getReferralLadderReward(lastStep.months)}`;
+    : lastStep && `You unlocked ${getReferralLadderReward(lastStep.months)}`;
 
   return (
     <LeaderboardActionCard
