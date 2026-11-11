@@ -47,6 +47,9 @@ import { useRouter } from 'next/router';
 import { useProfileCompletionIndicator } from '@dailydotdev/shared/src/hooks/profile/useProfileCompletionIndicator';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts/ActiveFeedNameContext';
+import type { AllFeedPages } from '@dailydotdev/shared/src/lib/query';
+import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import type { ProfileLayoutProps } from './index';
 import { getProfileSegmentSeo } from './index';
 import {
@@ -65,6 +68,14 @@ const segmentFeeds: Partial<
   [ProfileSegment.Posts]: ProfilePostsFeed,
   [ProfileSegment.Replies]: ProfileRepliesFeed,
   [ProfileSegment.Upvoted]: ProfileUpvotedFeed,
+};
+
+// The feed name each segment's own route gives its feed. A switch keeps
+// the route the page was loaded on (/[userId]), which names no feed, so the
+// segment's feed is told its name: it decides the list layout on a phone.
+const segmentFeedNames: Partial<Record<ProfileSegment, AllFeedPages>> = {
+  [ProfileSegment.Posts]: OtherFeedPage.UserPosts,
+  [ProfileSegment.Upvoted]: OtherFeedPage.UserUpvoted,
 };
 
 interface ProfilePageProps extends ProfileLayoutProps {
@@ -146,6 +157,11 @@ export const ProfilePage = ({
     useProfileSegment(routeSegment);
   const segment = isPhone ? addressedSegment : ProfileSegment.About;
   const SegmentFeed = segmentFeeds[segment];
+  const segmentFeedName = segmentFeedNames[segment];
+  const segmentFeedNameValue = useMemo(
+    () => ({ feedName: segmentFeedName }),
+    [segmentFeedName],
+  );
 
   // A switch while the row is docked in the block keeps it there and
   // starts the new view right under it, instead of somewhere down the
@@ -221,7 +237,13 @@ export const ProfilePage = ({
           // At least a screen tall, so a short view cannot pull the hero
           // back down while the row is docked.
           <div className="-mx-4 -mb-6 min-h-[calc(100dvh-var(--shell-top,0px))]">
-            <SegmentFeed user={user} />
+            {segmentFeedName ? (
+              <ActiveFeedNameContext.Provider value={segmentFeedNameValue}>
+                <SegmentFeed user={user} />
+              </ActiveFeedNameContext.Provider>
+            ) : (
+              <SegmentFeed user={user} />
+            )}
           </div>
         ) : (
           <>
