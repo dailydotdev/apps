@@ -51,6 +51,7 @@ import {
   squadSubscriptionQueryOptions,
 } from '../../../../graphql/squadSubscription';
 import { webappUrl } from '../../../../lib/constants';
+import { storageWrapper } from '../../../../lib/storageWrapper';
 import { RequestKey } from '../../../../lib/query';
 import { LogEvent, Origin } from '../../../../lib/log';
 import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
@@ -70,6 +71,7 @@ import {
 import { useSquadPlanPrices } from '../../hooks/useSquadPlanPrices';
 import { useStartupsSetupRefresh } from '../../hooks/useStartupsSetupRefresh';
 import { useStartupsCashbackPromo } from '../../hooks/useStartupsCashbackPromo';
+import { getSavedCheckoutAttribution } from '../../lib/checkoutAttribution';
 import {
   SquadLaunchOfferBanner,
   SquadPlanCashback,
@@ -606,7 +608,10 @@ const PaymentPanel = ({
     }
     // A second call while the frame is open swaps the item in place
     openedRef.current = priceId;
-    openCheckout({ priceId, customData: { source_id: company.id } });
+    openCheckout({
+      priceId,
+      customData: { ...getSavedCheckoutAttribution(), source_id: company.id },
+    });
   }, [company.id, isPaddleReady, openCheckout, plan, trackEvent]);
 
   useEffect(() => {
@@ -1137,6 +1142,8 @@ export const StartupsCheckout = ({
   initialAuthEmail,
 }: StartupsCheckoutProps): ReactElement => {
   const { squads, user } = useAuthContext();
+  const { trackEvent } = usePixelsContext();
+  const isSignupTracked = useRef(false);
   const adminSquads = useMemo<CompanyChoice[]>(
     () =>
       (squads ?? []).filter(
@@ -1238,6 +1245,34 @@ export const StartupsCheckout = ({
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, isOpeningLink]);
+
+  const userId = user?.id;
+  useEffect(() => {
+    // Signed-in founders only reach the company step, so it counts as the
+    // signup for the ad pixel, once per founder
+    if (
+      isOpeningLink ||
+      step !== StartupsCheckoutStep.Company ||
+      !userId ||
+      isSignupTracked.current
+    ) {
+      return;
+    }
+
+    isSignupTracked.current = true;
+    const trackedKey = `startups_signup_tracked:${userId}`;
+
+    if (storageWrapper.getItem(trackedKey)) {
+      return;
+    }
+
+    storageWrapper.setItem(trackedKey, '1');
+    trackEvent(
+      'CompleteRegistration',
+      { content_name: 'startups', content_category: plan },
+      { eventId: `startups-signup-${userId}` },
+    );
+  }, [step, isOpeningLink, userId, plan, trackEvent]);
 
   if (isOpeningLink) {
     return (

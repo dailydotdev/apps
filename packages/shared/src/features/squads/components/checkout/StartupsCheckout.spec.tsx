@@ -12,6 +12,7 @@ import {
   SQUAD_SUBSCRIPTION_QUERY,
 } from '../../../../graphql/squadSubscription';
 import { mockGraphQL } from '../../../../../__tests__/helpers/graphql';
+import { PixelsContext } from '../../../../contexts/PixelsContext';
 import defaultUser from '../../../../../__tests__/fixture/loggedUser';
 import { StartupsCheckout, StartupsCheckoutStep } from './StartupsCheckout';
 
@@ -443,5 +444,70 @@ describe('StartupsCheckout linked from a squad', () => {
     expect(
       await screen.findByText('Which page is this for?'),
     ).toBeInTheDocument();
+  });
+});
+
+describe('StartupsCheckout signup pixel', () => {
+  const renderCompanyStep = () => {
+    const trackEvent = jest.fn();
+
+    render(
+      <TestBootProvider
+        client={new QueryClient()}
+        auth={{ isLoggedIn: true, user: defaultUser, squads: [] }}
+      >
+        <PixelsContext.Provider
+          value={{
+            trackSignup: jest.fn(),
+            trackPayment: jest.fn(),
+            trackEvent,
+          }}
+        >
+          <StartupsCheckout initialPlan="team" />
+        </PixelsContext.Provider>
+      </TestBootProvider>,
+    );
+
+    return trackEvent;
+  };
+
+  beforeEach(() => localStorage.clear());
+
+  it('fires CompleteRegistration once per founder on the company step', () => {
+    expect(renderCompanyStep()).toHaveBeenCalledWith(
+      'CompleteRegistration',
+      { content_name: 'startups', content_category: 'team' },
+      { eventId: `startups-signup-${defaultUser.id}` },
+    );
+
+    // A second visit in the same browser
+    expect(renderCompanyStep()).not.toHaveBeenCalledWith(
+      'CompleteRegistration',
+      expect.anything(),
+      expect.anything(),
+    );
+  });
+
+  it("doesn't fire before the founder has an account", () => {
+    const trackEvent = jest.fn();
+
+    render(
+      <TestBootProvider
+        client={new QueryClient()}
+        auth={{ isLoggedIn: false, user: undefined }}
+      >
+        <PixelsContext.Provider
+          value={{
+            trackSignup: jest.fn(),
+            trackPayment: jest.fn(),
+            trackEvent,
+          }}
+        >
+          <StartupsCheckout initialStep={StartupsCheckoutStep.Account} />
+        </PixelsContext.Provider>
+      </TestBootProvider>,
+    );
+
+    expect(trackEvent).not.toHaveBeenCalled();
   });
 });
