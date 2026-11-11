@@ -1,6 +1,9 @@
 import type { ComponentType, ReactElement } from 'react';
 import React, { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
-import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
+import {
+  useIsPhone,
+  useIsPhoneSettled,
+} from '@dailydotdev/shared/src/hooks/useViewSize';
 import {
   useHeroDeadZone,
   usePassedBlock,
@@ -141,6 +144,8 @@ export const ProfilePage = ({
     useDynamicHeader<HTMLDivElement>(true);
   const hideSticky = !stickyProgress;
   const isPhone = useIsPhone();
+  const isPhoneSettled = useIsPhoneSettled();
+  const rendersPhoneViews = isPhone || !isPhoneSettled;
   const coverRef = useRef<HTMLDivElement>(null);
   const nameRef = useRef<HTMLDivElement>(null);
   // The owner's completion card sits above the cover, so the cover is not
@@ -155,7 +160,7 @@ export const ProfilePage = ({
 
   const { segment: addressedSegment, setSegment } =
     useProfileSegment(routeSegment);
-  const segment = isPhone ? addressedSegment : ProfileSegment.About;
+  const segment = rendersPhoneViews ? addressedSegment : ProfileSegment.About;
   const SegmentFeed = segmentFeeds[segment];
   const segmentFeedName = segmentFeedNames[segment];
   const segmentFeedNameValue = useMemo(
@@ -227,8 +232,11 @@ export const ProfilePage = ({
           />
         )}
         {!shouldShowBanner && <div />}
-        {isPhone && (
-          <div ref={segmentsRef} className="-mx-4 [&+*]:!border-t-0">
+        {rendersPhoneViews && (
+          <div
+            ref={segmentsRef}
+            className="-mx-4 tablet:hidden phone:[&+*]:!border-t-0"
+          >
             {segments}
             {haveSegmentsPassed && <ShellDockedRow>{segments}</ShellDockedRow>}
           </div>

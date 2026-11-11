@@ -29,7 +29,7 @@ export const ReadingTagProgress = ({
   tag: { value: tag, count, percentage, total },
   title,
 }: ReadingTagProgressProps): ReactElement => {
-  const value = `+${(percentage * 100).toFixed(0)}%`;
+  const value = `+${((percentage ?? 0) * 100).toFixed(0)}%`;
 
   return (
     <Tooltip content={`${count}/${total} reading days`} side="top">
@@ -63,6 +63,16 @@ export const ReadingTagProgress = ({
   );
 };
 
+const ReadingTagProgressPlaceholder = (): ReactElement => (
+  <ElementPlaceholder
+    className="flex h-5 flex-row items-center justify-between rounded-6 px-2"
+    data-testid="tagProgressPlaceholder"
+  >
+    <ElementPlaceholder className="h-3 w-16 rounded-4" />
+    <ElementPlaceholder className="h-3 w-8 rounded-4" />
+  </ElementPlaceholder>
+);
+
 // ReadingStreaksSection component
 interface ReadingStreaksSectionProps {
   streak: UserStreak;
@@ -73,11 +83,11 @@ export const ReadingStreaksSection = ({
 }: ReadingStreaksSectionProps): ReactElement => (
   <div className="my-3 flex gap-2">
     <SummaryCard
-      count={largeNumberFormat(streak?.max)}
+      count={largeNumberFormat(streak.max) ?? 0}
       label="Longest streak 🏆"
     />
     <SummaryCard
-      count={largeNumberFormat(streak?.total)}
+      count={largeNumberFormat(streak.total) ?? 0}
       label="Total reading days"
     />
   </div>
@@ -91,7 +101,9 @@ interface ReadingTagsSectionProps {
 export const ReadingTagsSection = ({
   mostReadTags,
 }: ReadingTagsSectionProps): ReactElement => {
-  const { data: tagTitles = {} } = useQuery(tagTitlesQueryOptions());
+  const { data: tagTitles = {}, isPending: isTagTitlesPending } = useQuery(
+    tagTitlesQueryOptions(),
+  );
 
   return (
     <>
@@ -104,13 +116,17 @@ export const ReadingTagsSection = ({
         Top tags by reading days
       </Typography>
       <div className="my-3 grid max-w-full grid-cols-2 gap-2">
-        {mostReadTags?.map((tag) => (
-          <ReadingTagProgress
-            key={tag.value}
-            tag={tag}
-            title={tagTitles[tag.value]}
-          />
-        ))}
+        {mostReadTags?.map((tag) =>
+          isTagTitlesPending ? (
+            <ReadingTagProgressPlaceholder key={tag.value} />
+          ) : (
+            <ReadingTagProgress
+              key={tag.value}
+              tag={tag}
+              title={tagTitles[tag.value]}
+            />
+          ),
+        )}
       </div>
     </>
   );

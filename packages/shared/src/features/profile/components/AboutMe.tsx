@@ -33,15 +33,12 @@ export function AboutMe({
   const readme = user?.readmeHtml;
   const { logEvent } = useLogContext();
 
-  // Markdown is supported only in the client due to sanitization
-  const isClient = typeof window !== 'undefined';
-
   const socialLinks = useMemo(
     () => getUserSocialLinks(user, IconSize.XSmall),
     [user],
   );
 
-  const shouldShowReadme = readme && isClient;
+  const shouldShowReadme = !!readme;
   const shouldShowSocialLinks = socialLinks.length > 0;
 
   if (!shouldShowReadme && !shouldShowSocialLinks) {
