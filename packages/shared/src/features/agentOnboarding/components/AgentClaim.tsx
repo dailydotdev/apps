@@ -214,6 +214,7 @@ export const AgentClaim = ({ code }: AgentClaimProps): ReactElement => {
             signUpDescription="One click and you're done. Your agent sets up the rest."
             logInDescription="Log in to connect your agent to your account."
             signupProviders={signupProviders}
+            socialSignupOnly
             onSuccessfulRegistration={() => setHasSignedUpHere(true)}
           />
         </div>
