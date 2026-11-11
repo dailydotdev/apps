@@ -7,11 +7,11 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
+import { CopyBlock } from '../../../../components/CopyBlock';
 import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';
-import { CopyIcon, OpenLinkIcon, VIcon } from '../../../../components/icons';
+import { OpenLinkIcon, VIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import { useAuthContext } from '../../../../contexts/AuthContext';
-import { useCopyLink } from '../../../../hooks/useCopy';
 import type { Squad } from '../../../../graphql/sources';
 import { squadProductsQueryOptions } from '../../../../graphql/squadProducts';
 import { squadBrandingQueryOptions } from '../../../../graphql/squadBranding';
@@ -74,64 +74,6 @@ interface SetupItem {
 
 const SETUP_BOX_HEIGHT = 96;
 const PROMPT_BOX_HEIGHT = 136;
-const PROMPT_FADE = 'linear-gradient(180deg, #000 55%, transparent)';
-
-/**
- * The code in its box, and what to do with it below the box. A fixed height keeps
- * every client the same size, and long text fades out at the cut.
- */
-export const CopyBlock = ({
-  text,
-  label,
-  height,
-  isFaded,
-  secondary,
-  onCopy,
-}: {
-  text: string;
-  label: string;
-  height?: number;
-  isFaded?: boolean;
-  secondary?: ReactNode;
-  onCopy: () => void;
-}): ReactElement => {
-  const [isCopying, copy] = useCopyLink(() => text);
-
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="rounded-16 border border-border-subtlest-tertiary bg-surface-float">
-        <pre
-          className={classNames(
-            'whitespace-pre-wrap break-words p-4 font-mono text-text-secondary typo-footnote',
-            isFaded ? 'overflow-hidden' : 'overflow-y-auto',
-          )}
-          style={{
-            height,
-            maskImage: isFaded ? PROMPT_FADE : undefined,
-            WebkitMaskImage: isFaded ? PROMPT_FADE : undefined,
-          }}
-        >
-          {text}
-        </pre>
-      </div>
-      <div className="flex gap-2">
-        <Button
-          className="min-w-0 flex-1"
-          variant={ButtonVariant.Primary}
-          icon={isCopying ? <VIcon /> : <CopyIcon />}
-          onClick={() => {
-            copy();
-            onCopy();
-          }}
-        >
-          {isCopying ? 'Copied' : label}
-        </Button>
-        {secondary}
-      </div>
-    </div>
-  );
-};
-
 const agentClientMarks: Partial<Record<AgentClient, AgentMarkData>> = {
   [AgentClient.ClaudeCode]: agentMarks['claude-code'],
   [AgentClient.Cursor]: agentMarks.cursor,

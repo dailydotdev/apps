@@ -33,7 +33,8 @@ import {
 import { useLogStartups } from '../hooks/useLogStartups';
 import { SquadPageLayout } from './SquadPageLayout';
 import { SquadSubPageHeader } from './SquadSubPageHeader';
-import { AgentConnect, CopyBlock, StepNumber } from './setup/StartupsSetup';
+import { CopyBlock } from '../../../components/CopyBlock';
+import { AgentConnect, StepNumber } from './setup/StartupsSetup';
 import { AgentClient, getIntelApiUrl, getIntelPrompt } from '../lib/setup';
 
 // The intel is wide tables: they scroll sideways on their own instead of
