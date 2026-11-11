@@ -12,11 +12,15 @@ export const youHighlightClassName = 'bg-theme-overlay-float-cabbage';
 export const LeaderboardHeading = ({
   title,
   action,
+  className,
 }: {
   title: ReactNode;
   action?: ReactNode;
+  className?: string;
 }): ReactElement => (
-  <header className="flex items-center justify-between gap-4">
+  <header
+    className={classNames('flex items-center justify-between gap-4', className)}
+  >
     <h2 className="font-bold typo-title3">{title}</h2>
     {action}
   </header>

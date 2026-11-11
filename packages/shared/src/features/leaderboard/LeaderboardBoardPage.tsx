@@ -77,7 +77,7 @@ export const LeaderboardBoardPage = ({
 
   return (
     <section className="mx-auto flex w-full max-w-[40rem] flex-col gap-2">
-      <LeaderboardHeading title={title} />
+      <LeaderboardHeading title={title} className="px-5 tablet:px-0" />
       {count === 0 ? (
         <LeaderboardEmptyBoard />
       ) : (
