@@ -173,8 +173,8 @@ const ChoosePlan = ({ isAdmin }: { isAdmin: boolean }): ReactElement => {
   return (
     <div className="flex flex-col gap-5">
       <SectionTitle
-        title="Make it your company page"
-        description="In the feed and search, cited by AI answers, and your agent posts and boosts through the API."
+        title="Get your startup in front of developers"
+        description="In developers’ feeds by topic, on Google and in AI answers."
       />
       <SquadLaunchOfferBanner />
       <div className="grid gap-3 tablet:grid-cols-2">
