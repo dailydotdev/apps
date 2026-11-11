@@ -52,6 +52,7 @@ import {
 import Link from '../../../../components/utilities/Link';
 import { useSquadPageContext } from '../../SquadPageContext';
 import { useShareOrCopyLink } from '../../../../hooks/useShareOrCopyLink';
+import { useIsPhone } from '../../../../hooks/useViewSize';
 import { ReferralCampaignKey } from '../../../../lib/referral';
 import { getSquadShareText } from '../widgets/SquadShareWidget';
 import { isJoinedViewer, isStaffViewer, SquadViewer } from '../../lib/viewer';
@@ -65,7 +66,7 @@ interface ManageEntry {
   badge?: number;
 }
 
-const getManageEntries = (squad: Squad): ManageEntry[] => {
+const getManageEntries = (squad: Squad, isPhone: boolean): ManageEntry[] => {
   const entries: ManageEntry[] = [];
   const { handle } = squad;
 
@@ -98,7 +99,11 @@ const getManageEntries = (squad: Squad): ManageEntry[] => {
     entries.push({
       label: 'Settings',
       icon: <SettingsIcon size={IconSize.Small} />,
-      href: getSquadManageUrl(handle, SquadManageSection.Details),
+      // A phone has no Manage side menu, so Settings opens the list of
+      // sections; Details alone would leave the rest unreachable.
+      href: isPhone
+        ? getSquadManageUrl(handle)
+        : getSquadManageUrl(handle, SquadManageSection.Details),
     });
   }
 
@@ -144,9 +149,10 @@ export const SquadOptionsMenu = ({
   });
   const isStaff = isStaffViewer(viewer);
   const isJoined = isJoinedViewer(viewer);
+  const isPhone = useIsPhone();
   const manageEntries = useMemo(
-    () => (isStaff ? getManageEntries(squad) : []),
-    [isStaff, squad],
+    () => (isStaff ? getManageEntries(squad, isPhone) : []),
+    [isStaff, isPhone, squad],
   );
 
   const options = useMemo(() => {
