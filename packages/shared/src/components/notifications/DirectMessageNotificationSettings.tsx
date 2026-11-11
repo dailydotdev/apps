@@ -19,7 +19,7 @@ import {
 } from './utils';
 import NotificationSwitch from './NotificationSwitch';
 
-// Only people in the direct messages rollout get its notifications, so only
+// Only signed-in people on a build with chat get its notifications, so only
 // they see the section. The switch that turns messaging off altogether sits
 // with them: it's the one people look for first.
 export const DirectMessageNotificationSettings = (): ReactElement | null => {
