@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import type { CommonLeaderboardProps } from './LeaderboardList';
 import { LeaderboardList } from './LeaderboardList';
 import { LeaderboardListItem } from './LeaderboardListItem';
-import type { Company } from '../../../lib/userCompany';
+import type { CompanyLeaderboard } from '../../../graphql/leaderboard';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import {
   runIconPopAnimation,
@@ -13,10 +13,7 @@ import {
 } from './common';
 import { TopRankBadge } from './TopRankBadge';
 
-export interface CompanyLeaderboard {
-  score: number;
-  company: Company;
-}
+export type { CompanyLeaderboard };
 
 export function CompanyTopList({
   items,

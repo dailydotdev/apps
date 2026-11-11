@@ -1,5 +1,10 @@
 import { gql } from 'graphql-request';
 import { LEADERBOARD_FRAGMENT } from './fragments';
+import { gqlClient } from './common';
+import type { QuestLevel } from './quests';
+import type { Company } from '../lib/userCompany';
+import type { LoggedUser, UserShortProfile } from '../lib/user';
+import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 
 export const LEADERBOARD_QUERY = gql`
   query Leaderboard($limit: Int = 10) {
@@ -45,6 +50,22 @@ export enum LeaderboardType {
 }
 
 export const MOST_QUESTS_COMPLETED_LIMIT = 10;
+
+/** Rows a board on /users shows: Highest reputation fills three columns of four. */
+export const LEADERBOARD_LIST_LIMIT = 12;
+/** Rows a board's full list on /users opens with. */
+export const LEADERBOARD_TOP_LIMIT = 50;
+
+export interface UserLeaderboard {
+  score: number;
+  user: UserShortProfile;
+  level?: QuestLevel | null;
+}
+
+export interface CompanyLeaderboard {
+  score: number;
+  company: Pick<Company, 'name' | 'image'>;
+}
 
 export type QuestCompletionLeader = {
   questId: string;
@@ -99,6 +120,21 @@ export const LEADERBOARD_POSITION_QUERY = gql`
     }
   }
 `;
+
+export const leaderboardPositionQueryOptions = (
+  user: Pick<LoggedUser, 'id'> | undefined,
+  type: LeaderboardType,
+) => ({
+  queryKey: generateQueryKey(RequestKey.LeaderboardPosition, user, type),
+  queryFn: async (): Promise<LeaderboardPosition | null> => {
+    const res = await gqlClient.request<{
+      leaderboardPosition: LeaderboardPosition | null;
+    }>(LEADERBOARD_POSITION_QUERY, { type });
+
+    return res.leaderboardPosition;
+  },
+  staleTime: StaleTime.Default,
+});
 
 export const HIGHEST_REPUTATION_QUERY = gql`
   query HighestReputation($limit: Int = 100) {
@@ -221,3 +257,21 @@ export const leaderboardQueries: Record<LeaderboardType, string> = {
   [LeaderboardType.HighestLevel]: HIGHEST_LEVEL_QUERY,
   [LeaderboardType.MostVerifiedUsers]: MOST_VERIFIED_USERS_QUERY,
 };
+
+export const leaderboardBoardQueryOptions = <
+  T extends UserLeaderboard | CompanyLeaderboard,
+>(
+  type: LeaderboardType,
+  limit: number,
+) => ({
+  queryKey: generateQueryKey(RequestKey.Leaderboard, undefined, type, limit),
+  queryFn: async (): Promise<T[]> => {
+    const res = await gqlClient.request<Record<string, T[]>>(
+      leaderboardQueries[type],
+      { limit },
+    );
+
+    return res[type] ?? [];
+  },
+  staleTime: StaleTime.Default,
+});
