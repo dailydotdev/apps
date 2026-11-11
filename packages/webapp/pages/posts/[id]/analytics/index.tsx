@@ -320,6 +320,8 @@ const PostAnalyticsPage = ({
     });
   };
 
+  const canViewAgentViews = typeof postAnalytics?.agentViews === 'number';
+
   const agentViewsList: AnalyticsNumberList = agentViewsVendorSeries.map(
     ({ key, label, dotClassName, botKey }) => {
       const reads = largeNumberFormat(postAnalytics?.[key] ?? 0);
@@ -658,81 +660,87 @@ const PostAnalyticsPage = ({
             showPromoted={showPromoted}
           />
         </SectionContainer>
-        <Divider className={dividerClassName} />
-        <SectionContainer>
-          <SectionHeader>AI agents</SectionHeader>
-          <div className="flex gap-4">
-            <DataTile
-              label="AI agent reads"
-              value={postAnalytics?.agentViews ?? 0}
-              info="The number of times AI assistants like ChatGPT, Claude, and Gemini read your post because someone asked them about it."
-              className={{
-                container: 'flex-1',
-              }}
-            />
-            <DataTile
-              label="AI crawler visits"
-              value={postAnalytics?.agentViewsBot ?? 0}
-              info="The number of times AI crawlers visited your post to index it for AI search or crawling."
-              className={{
-                container: 'flex-1',
-              }}
-            />
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Typography type={TypographyType.Footnote} bold>
-              AI agents in the last 45 days
-            </Typography>
-            <div className="ml-auto flex flex-wrap gap-2">
-              <LegendToggle
-                label="Reads"
-                dotClassName="bg-text-secondary"
-                shapeClassName="h-0.5 w-3 rounded-full"
-                isActive={showAgentReads}
-                isLocked={showAgentReads && !showAgentCrawls}
-                onToggle={() => setShowAgentReads((current) => !current)}
-              />
-              <LegendToggle
-                label="Crawls"
-                dotClassName="border-text-secondary"
-                shapeClassName="w-3 border-t-2 border-dashed"
-                isActive={showAgentCrawls}
-                isLocked={showAgentCrawls && !showAgentReads}
-                onToggle={() => setShowAgentCrawls((current) => !current)}
-              />
-            </div>
-          </div>
-          <div className="flex flex-wrap justify-end gap-2">
-            {[agentViewsTotalSeries, ...agentViewsVendorSeries].map(
-              (series) => (
-                <LegendToggle
-                  key={series.key}
-                  label={series.label}
-                  dotClassName={series.dotClassName}
-                  isActive={visibleAgentSeries.includes(series.key)}
-                  isLocked={
-                    series.key === AgentViewsSeries.Total &&
-                    visibleAgentSeries.includes(AgentViewsSeries.Total)
-                  }
-                  onToggle={() => toggleAgentSeries(series.key)}
+        {canViewAgentViews && (
+          <>
+            <Divider className={dividerClassName} />
+            <SectionContainer>
+              <SectionHeader>AI agents</SectionHeader>
+              <div className="flex gap-4">
+                <DataTile
+                  label="AI agent reads"
+                  value={postAnalytics?.agentViews ?? 0}
+                  info="The number of times AI assistants like ChatGPT, Claude, and Gemini read your post because someone asked them about it."
+                  className={{
+                    container: 'flex-1',
+                  }}
                 />
-              ),
-            )}
-          </div>
-          <AgentViewsChart
-            post={post}
-            visibleSeries={visibleAgentSeries}
-            showReads={showAgentReads}
-            showCrawls={showAgentCrawls}
-          />
-          <ClickableText
-            className="mr-auto"
-            onClick={() => setShowAgentBreakdown((current) => !current)}
-          >
-            {showAgentBreakdown ? 'Hide' : 'Show'} per agent
-          </ClickableText>
-          {showAgentBreakdown && <AnalyticsNumbersList data={agentViewsList} />}
-        </SectionContainer>
+                <DataTile
+                  label="AI crawler visits"
+                  value={postAnalytics?.agentViewsBot ?? 0}
+                  info="The number of times AI crawlers visited your post to index it for AI search or crawling."
+                  className={{
+                    container: 'flex-1',
+                  }}
+                />
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Typography type={TypographyType.Footnote} bold>
+                  AI agents in the last 45 days
+                </Typography>
+                <div className="ml-auto flex flex-wrap gap-2">
+                  <LegendToggle
+                    label="Reads"
+                    dotClassName="bg-text-secondary"
+                    shapeClassName="h-0.5 w-3 rounded-full"
+                    isActive={showAgentReads}
+                    isLocked={showAgentReads && !showAgentCrawls}
+                    onToggle={() => setShowAgentReads((current) => !current)}
+                  />
+                  <LegendToggle
+                    label="Crawls"
+                    dotClassName="border-text-secondary"
+                    shapeClassName="w-3 border-t-2 border-dashed"
+                    isActive={showAgentCrawls}
+                    isLocked={showAgentCrawls && !showAgentReads}
+                    onToggle={() => setShowAgentCrawls((current) => !current)}
+                  />
+                </div>
+              </div>
+              <div className="flex flex-wrap justify-end gap-2">
+                {[agentViewsTotalSeries, ...agentViewsVendorSeries].map(
+                  (series) => (
+                    <LegendToggle
+                      key={series.key}
+                      label={series.label}
+                      dotClassName={series.dotClassName}
+                      isActive={visibleAgentSeries.includes(series.key)}
+                      isLocked={
+                        series.key === AgentViewsSeries.Total &&
+                        visibleAgentSeries.includes(AgentViewsSeries.Total)
+                      }
+                      onToggle={() => toggleAgentSeries(series.key)}
+                    />
+                  ),
+                )}
+              </div>
+              <AgentViewsChart
+                post={post}
+                visibleSeries={visibleAgentSeries}
+                showReads={showAgentReads}
+                showCrawls={showAgentCrawls}
+              />
+              <ClickableText
+                className="mr-auto"
+                onClick={() => setShowAgentBreakdown((current) => !current)}
+              >
+                {showAgentBreakdown ? 'Hide' : 'Show'} per agent
+              </ClickableText>
+              {showAgentBreakdown && (
+                <AnalyticsNumbersList data={agentViewsList} />
+              )}
+            </SectionContainer>
+          </>
+        )}
         <Divider className={dividerClassName} />
         {canBoost && !campaign && (
           <>

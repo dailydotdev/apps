@@ -1603,19 +1603,19 @@ export type PostAnalytics = {
   reachAds: number;
   impressionsAds: number;
   clicks: number;
-  agentViews: number;
-  agentViewsClaude: number;
-  agentViewsChatgpt: number;
-  agentViewsGemini: number;
-  agentViewsPerplexity: number;
-  agentViewsExa: number;
-  agentViewsMeta: number;
-  agentViewsBot: number;
-  agentViewsClaudeBot: number;
-  agentViewsChatgptBot: number;
-  agentViewsPerplexityBot: number;
-  agentViewsExaBot: number;
-  agentViewsMetaBot: number;
+  agentViews: number | null;
+  agentViewsClaude: number | null;
+  agentViewsChatgpt: number | null;
+  agentViewsGemini: number | null;
+  agentViewsPerplexity: number | null;
+  agentViewsExa: number | null;
+  agentViewsMeta: number | null;
+  agentViewsBot: number | null;
+  agentViewsClaudeBot: number | null;
+  agentViewsChatgptBot: number | null;
+  agentViewsPerplexityBot: number | null;
+  agentViewsExaBot: number | null;
+  agentViewsMetaBot: number | null;
 };
 
 export const postAnalyticsQueryOptions = ({ id }: { id?: string }) => {
