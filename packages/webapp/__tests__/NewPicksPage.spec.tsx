@@ -104,7 +104,7 @@ beforeEach(async () => {
   nock.cleanAll();
   jest.clearAllMocks();
   // The home card enrolls readers; the flag is read here only after it has
-  await set(PersistentContextKeys.WeeklyPicksEnrolled, true);
+  await set(PersistentContextKeys.WeeklyPicksEnrolled, [loggedUser.id]);
   jest.mocked(useRouter).mockImplementation(
     () =>
       ({

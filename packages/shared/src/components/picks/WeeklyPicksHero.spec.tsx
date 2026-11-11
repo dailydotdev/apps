@@ -115,8 +115,14 @@ const mockViewCount = (viewCount: number) =>
   });
 
 // The layout owns the hook so it can hold the feed; this stands in for it.
-const Harness = ({ waitMs }: { waitMs?: number }) => {
-  const hero = useWeeklyPicksHero({ waitMs });
+const Harness = ({
+  enabled,
+  waitMs,
+}: {
+  enabled?: boolean;
+  waitMs?: number;
+}) => {
+  const hero = useWeeklyPicksHero({ enabled, waitMs });
 
   return (
     <>
@@ -128,11 +134,21 @@ const Harness = ({ waitMs }: { waitMs?: number }) => {
 
 const renderHero = ({
   enabled = true,
+  checks = true,
   user = loggedUser,
   waitMs,
-}: { enabled?: boolean; user?: LoggedUser | null; waitMs?: number } = {}) => {
+}: {
+  enabled?: boolean;
+  /** The switch for the background checks, on unless a test turns it off */
+  checks?: boolean;
+  user?: LoggedUser | null;
+  waitMs?: number;
+} = {}) => {
   const gb = createReadyGrowthBook();
-  gb.setFeatures({ weekly_picks_v2: { defaultValue: enabled } });
+  gb.setFeatures({
+    weekly_picks_v2: { defaultValue: enabled },
+    weekly_picks_checks: { defaultValue: checks },
+  });
   if (user) {
     // The reading reminder's data, which the card waits for before landing
     mockGraphQL({
@@ -178,6 +194,13 @@ const getSnapshot = () =>
   get<WeeklyPicksHeroSnapshot | null>(
     PersistentContextKeys.WeeklyPicksHeroSnapshot,
   );
+
+// The home card enrolled this reader on an earlier visit.
+const seedEnrolled = (userId = loggedUser.id) =>
+  set(PersistentContextKeys.WeeklyPicksEnrolled, [userId]);
+
+const getEnrolled = () =>
+  get<string[]>(PersistentContextKeys.WeeklyPicksEnrolled);
 
 beforeEach(async () => {
   nock.cleanAll();
@@ -264,6 +287,61 @@ it('should not hold the feed on the background checks', async () => {
   expect(screen.queryByText('Pick my top 3')).not.toBeInTheDocument();
 });
 
+it('should decide again when the reader comes over to the home feed', async () => {
+  await seedSnapshot({ state: 'nudge', signals: nudgeSignals });
+  mockCurrentPicks(null);
+  mockSignals(nudgeSignals);
+  const gb = createReadyGrowthBook();
+  gb.setFeatures({
+    weekly_picks_v2: { defaultValue: true },
+    weekly_picks_checks: { defaultValue: true },
+  });
+  mockGraphQL({
+    request: { query: GET_PERSONALIZED_DIGEST_SETTINGS, variables: {} },
+    result: { data: { personalizedDigest: [] } },
+  });
+  const tree = (enabled: boolean) => (
+    <TestBootProvider
+      client={new QueryClient()}
+      auth={{ user: loggedUser, isLoggedIn: true }}
+      log={{ logEvent }}
+      gb={gb}
+    >
+      <Harness enabled={enabled} />
+    </TestBootProvider>
+  );
+  // Landed on another main feed first: settled at once, no card
+  const { rerender } = render(tree(false));
+  expect(screen.getByTestId('settled')).toBeInTheDocument();
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(screen.queryByText('Pick my top 3')).not.toBeInTheDocument();
+
+  rerender(tree(true));
+
+  expect(
+    await screen.findByRole('link', { name: 'Pick my top 3' }),
+  ).toBeInTheDocument();
+});
+
+it('should run no checks while the switch is off', async () => {
+  await seedSnapshot({ state: 'nudge', signals: nudgeSignals });
+  const onPicksRequest = jest.fn();
+  nock('http://localhost:3000')
+    .post('/graphql', (body) => {
+      if (body.query === MY_CURRENT_PICKS_QUERY) {
+        onPicksRequest();
+      }
+      return body.query === MY_CURRENT_PICKS_QUERY;
+    })
+    .reply(200, { data: { myCurrentPicks: null } });
+  renderHero({ checks: false });
+
+  expect(await screen.findByTestId('settled')).toBeInTheDocument();
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(onPicksRequest).not.toHaveBeenCalled();
+  expect(screen.queryByText('Pick my top 3')).not.toBeInTheDocument();
+});
+
 it('should close for the week once the reader goes to pick', async () => {
   await seedSnapshot({ state: 'nudge', signals: nudgeSignals });
   mockCurrentPicks(null);
@@ -320,6 +398,7 @@ it('should not nudge from a saved verdict outside the nudge days', async () => {
 });
 
 it('should lead with the opens and share again', async () => {
+  await seedEnrolled();
   await seedSnapshot({ state: 'live', picks, viewCount: 12 });
   mockCurrentPicks(picks);
   mockViewCount(12);
@@ -353,6 +432,7 @@ it('should lead with the opens and share again', async () => {
 });
 
 it('should lead with the link when nobody opened the picks yet', async () => {
+  await seedEnrolled();
   await seedSnapshot({ state: 'live', picks, viewCount: 0 });
   mockCurrentPicks(picks);
   mockViewCount(0);
@@ -378,6 +458,7 @@ it('should lead with the link when nobody opened the picks yet', async () => {
 });
 
 it('should paint the saved opens count and refresh it in place', async () => {
+  await seedEnrolled();
   await seedSnapshot({ state: 'live', picks, viewCount: 7 });
   mockCurrentPicks(picks);
   nock('http://localhost:3000')
@@ -436,6 +517,7 @@ describe('experiment exposure', () => {
           },
         ],
       },
+      weekly_picks_checks: { defaultValue: true },
     });
     mockGraphQL({
       request: { query: GET_PERSONALIZED_DIGEST_SETTINGS, variables: {} },
@@ -472,6 +554,40 @@ describe('experiment exposure', () => {
     const { trackingCallback } = mountWithExperiment();
 
     await screen.findByRole('link', { name: 'Pick my top 3' });
+    expect(trackingCallback).toHaveBeenCalledWith(
+      expect.objectContaining({ key: 'weekly_picks_v2' }),
+      expect.anything(),
+    );
+    // Remembered per user, so the other entry points open for this reader
+    await waitFor(async () =>
+      expect(await getEnrolled()).toEqual([loggedUser.id]),
+    );
+  });
+
+  it('should not enroll a reader whose live card follows another account', async () => {
+    // Published from a shared picks page, outside the nudge; the device's
+    // enrollment belongs to someone else
+    await seedEnrolled('someone-else');
+    await seedSnapshot({ state: 'live', picks, viewCount: 12 });
+    mockCurrentPicks(picks);
+    mockViewCount(12);
+    const { trackingCallback } = mountWithExperiment();
+
+    await screen.findByTestId('settled');
+    await waitFor(() => expect(nock.isDone()).toBe(true));
+    expect(screen.queryByText('Share again')).not.toBeInTheDocument();
+    expect(trackingCallback).not.toHaveBeenCalled();
+    expect(await getEnrolled()).toEqual(['someone-else']);
+  });
+
+  it('should show the live card to a reader the nudge enrolled', async () => {
+    await seedEnrolled();
+    await seedSnapshot({ state: 'live', picks, viewCount: 12 });
+    mockCurrentPicks(picks);
+    mockViewCount(12);
+    const { trackingCallback } = mountWithExperiment();
+
+    await screen.findByRole('button', { name: 'Share again' });
     expect(trackingCallback).toHaveBeenCalledWith(
       expect.objectContaining({ key: 'weekly_picks_v2' }),
       expect.anything(),

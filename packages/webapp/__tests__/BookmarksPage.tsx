@@ -238,7 +238,7 @@ describe('weekly picks entry point', () => {
 
   // The home card enrolls readers; the flag is read here only after it has
   beforeEach(async () => {
-    await set(PersistentContextKeys.WeeklyPicksEnrolled, true);
+    await set(PersistentContextKeys.WeeklyPicksEnrolled, [defaultUser.id]);
   });
 
   afterEach(async () => {
@@ -300,7 +300,8 @@ describe('weekly picks entry point', () => {
   });
 
   it('should hide the button for a reader the home card has not enrolled', async () => {
-    await del(PersistentContextKeys.WeeklyPicksEnrolled);
+    // Another account's enrollment on this device does not count
+    await set(PersistentContextKeys.WeeklyPicksEnrolled, ['someone-else']);
     useTablet();
     renderComponent(
       [createFeedMock()],

@@ -16,7 +16,10 @@ import {
   PICKS_HERO_MIN_SIGNALS,
   PICKS_HERO_WAIT_MS,
 } from '../../lib/picks';
-import { featureWeeklyPicks } from '../../lib/featureManagement';
+import {
+  featureWeeklyPicks,
+  featureWeeklyPicksChecks,
+} from '../../lib/featureManagement';
 import { LogEvent, Origin } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
@@ -26,6 +29,7 @@ import { useReadingReminderHeroSettled } from '../notifications/useReadingRemind
 import usePersistentContext, {
   PersistentContextKeys,
 } from '../usePersistentContext';
+import { useWeeklyPicksEnrolled } from './useWeeklyPicksEntry';
 
 /**
  * nudge: the week's reading is worth turning into picks, none published yet.
@@ -92,7 +96,10 @@ export const countSignals = (signals: PicksWeekSignals): number =>
  * The verdict is worked out in the background and saved on the device; the
  * card paints from the saved one on the reader's next visit. The feed never
  * waits on the network for it, and the flag is evaluated, enrolling the
- * reader, only when the card is about to paint.
+ * reader, only when the nudge is about to paint. The live card follows that
+ * enrollment, like the other entry points: a reader who published from a
+ * shared picks page is outside the nudge and does not enter the experiment
+ * from here.
  */
 export const useWeeklyPicksHero = ({
   enabled = true,
@@ -112,12 +119,20 @@ export const useWeeklyPicksHero = ({
       PersistentContextKeys.WeeklyPicksHeroSnapshot,
       null,
     );
-  const [isEnrolled, setIsEnrolled] = usePersistentContext<boolean>(
-    PersistentContextKeys.WeeklyPicksEnrolled,
-    false,
-  );
+  const [isEnrolled, enroll, isEnrolledFetched] = useWeeklyPicksEnrolled();
   const isDismissed = dismissedWeek === weekStart;
-  const canEvaluate = enabled && isLoggedIn && isDismissFetched && !isDismissed;
+  // A plain rollout flag, not the experiment: the switch for the checks.
+  const { value: isChecksEnabled, isLoading: isChecksLoading } =
+    useConditionalFeature({
+      feature: featureWeeklyPicksChecks,
+      shouldEvaluate: enabled && isLoggedIn,
+    });
+  const canEvaluate =
+    enabled &&
+    isLoggedIn &&
+    isDismissFetched &&
+    !isDismissed &&
+    !!isChecksEnabled;
 
   // Best effort, no retries, and nothing waits on these: they only refresh
   // the saved verdict for the next visit. A picks query that fails is not
@@ -181,16 +196,21 @@ export const useWeeklyPicksHero = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFreshDecided, freshState, user?.id, weekStart]);
 
-  // The card is decided once per visit from the saved verdict, and kept, so
-  // answers arriving later never move what is already on screen. Fresh data
-  // already in the cache still wins: no nudge once picks are out.
+  // The card is decided once per home visit from the saved verdict, and
+  // kept, so answers arriving later never move what is already on screen.
+  // Fresh data already in the cache still wins: no nudge once picks are out.
   const [savedState, setSavedState] = useState<
     WeeklyPicksHeroState | null | undefined
   >(undefined);
+  const [isOutOfTime, setIsOutOfTime] = useState(false);
   const canDecide =
-    !enabled ||
-    (isAuthReadyOrCached && !isLoggedIn) ||
-    (isLoggedIn && isDismissFetched && isSnapshotFetched);
+    enabled &&
+    ((isAuthReadyOrCached && !isLoggedIn) ||
+      (isLoggedIn &&
+        isDismissFetched &&
+        isSnapshotFetched &&
+        isEnrolledFetched &&
+        !isChecksLoading));
   useEffect(() => {
     if (savedState !== undefined || !canDecide) {
       return;
@@ -201,21 +221,29 @@ export const useWeeklyPicksHero = ({
       snapshot?.week === weekStart
         ? snapshot.state
         : null;
-    const isStale =
-      (saved === 'nudge' && (!isNudgeDay || !!picks)) ||
-      (saved === 'live' && picks === null);
-    setSavedState(saved && !isStale ? saved : null);
+    const isReachable =
+      (saved === 'nudge' && isNudgeDay && !picks) ||
+      (saved === 'live' && picks !== null && isEnrolled);
+    setSavedState(isReachable ? saved : null);
     // Decided once, from what is in hand when the device read lands.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canDecide, savedState]);
+
+  // The layout stays mounted across the main feeds, so the decision is let
+  // go on leaving the home feed and made again on the next return, when the
+  // feed paints fresh anyway. A reader who landed on another feed first, or
+  // whose verdict was saved this session, gets the card without a reload.
+  useEffect(() => {
+    if (!enabled) {
+      setSavedState(undefined);
+      setIsOutOfTime(false);
+    }
+  }, [enabled]);
 
   // The reading reminder shares the strip and splits it in two when both
   // show, so this card lands only once that one has decided too.
   const isStripSettled = useReadingReminderHeroSettled();
 
-  // Holding the feed now waits on the device and the strip only, but still
-  // not forever.
-  const [isOutOfTime, setIsOutOfTime] = useState(false);
   const isEligible =
     canEvaluate && !isOutOfTime && !!savedState && isStripSettled;
   const { value: isEnabled, isLoading: isFlagLoading } = useConditionalFeature({
@@ -226,22 +254,25 @@ export const useWeeklyPicksHero = ({
     savedState !== undefined &&
     (!savedState || (isStripSettled && !isFlagLoading));
 
+  // Holding the feed now waits on the device and the strip only, but still
+  // not forever.
+  const isWaiting = enabled && isLoggedIn && !isDecided && !isOutOfTime;
   useEffect(() => {
-    if (!canEvaluate || isDecided || isOutOfTime) {
+    if (!isWaiting) {
       return undefined;
     }
     const timer = setTimeout(() => setIsOutOfTime(true), waitMs);
     return () => clearTimeout(timer);
-  }, [canEvaluate, isDecided, isOutOfTime, waitMs]);
+  }, [isWaiting, waitMs]);
 
   // The other entry points evaluate the flag only for readers the card has
   // enrolled, so they never widen the experiment.
   const hasEvaluatedFlag = isEligible && !isFlagLoading;
   useEffect(() => {
     if (hasEvaluatedFlag && !isEnrolled) {
-      setIsEnrolled(true);
+      enroll();
     }
-  }, [hasEvaluatedFlag, isEnrolled, setIsEnrolled]);
+  }, [hasEvaluatedFlag, isEnrolled, enroll]);
 
   const shouldShow = isEligible && !isFlagLoading && !!isEnabled;
   const isSettled =

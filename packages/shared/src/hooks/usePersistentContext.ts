@@ -85,6 +85,6 @@ export enum PersistentContextKeys {
   WeeklyPicksHeroDismissedWeek = 'weekly_picks_hero_dismissed_week',
   // The home card's verdict from the last visit, painted on the next one
   WeeklyPicksHeroSnapshot = 'weekly_picks_hero_snapshot',
-  // Set once the home card has evaluated the picks flag, in either arm
+  // The users the home card has evaluated the picks flag for, in either arm
   WeeklyPicksEnrolled = 'weekly_picks_enrolled',
 }
