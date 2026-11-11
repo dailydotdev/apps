@@ -306,16 +306,31 @@ const CoverArt = ({
   );
 };
 
+const readIsPageLight = (): boolean =>
+  document.documentElement.classList.contains('light');
+
 /** Whether Storybook's toolbar has the page in light mode, kept live. */
 export const useIsPageLight = (): boolean => {
-  const read = () => document.documentElement.classList.contains('light');
-  const [isLight, setIsLight] = useState(read);
+  const [isLight, setIsLight] = useState(readIsPageLight);
   useEffect(() => {
-    const observer = new MutationObserver(() => setIsLight(read()));
+    const observer = new MutationObserver(() => setIsLight(readIsPageLight()));
     observer.observe(document.documentElement, { attributes: true });
     return () => observer.disconnect();
   }, []);
   return isLight;
+};
+
+/**
+ * Production's `.invert` when a picked theme differs from the page: Dark and
+ * VI are dark, Light is light, Auto follows the page.
+ */
+export const useThemeInvert = (theme: ThemeChoice): string | undefined => {
+  const isPageLight = useIsPageLight();
+  const isDark = theme === 'dark' || theme === 'viceCity';
+  const isLight = theme === 'light';
+  return (isPageLight && isDark) || (!isPageLight && isLight)
+    ? 'invert'
+    : undefined;
 };
 
 /**
@@ -382,6 +397,7 @@ export const ThemedHome = ({
     : columnsProp;
   const isPageLight = useIsPageLight();
   const theme: ThemeChoice = picked ?? (isPageLight ? 'light' : 'dark');
+  const invertClass = useThemeInvert(theme);
   const isThemed = theme === 'viceCity';
   const scale = isFluid ? 1 : Math.min(1, 1380 / width);
   const pad = isPhone ? 'px-4' : 'px-6';
@@ -391,9 +407,9 @@ export const ThemedHome = ({
       className={classNames(
         'shrink-0 overflow-hidden',
         !isFluid && 'rounded-24 border border-border-subtlest-quaternary',
-        // Production switches the whole page to dark; here, production's
-        // .invert turns this home dark inside a light Storybook page.
-        isThemed && isPageLight && 'invert',
+        // Production switches the whole page; here, production's .invert
+        // draws this home in the picked theme inside the Storybook page.
+        invertClass,
       )}
       style={{ width: width * scale, height: height * scale }}
     >

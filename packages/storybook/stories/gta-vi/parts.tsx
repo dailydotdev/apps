@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { createContext, useContext } from 'react';
+import React from 'react';
 import { Frame } from '../startups-onboarding/frame';
+import { useIsPageLight } from './theme';
 
 /*
  * Review furniture for the All states pages: a state grid with a label and
@@ -61,12 +62,10 @@ export const devices = [
   { label: 'Desktop · 1920', width: 1920, height: 1080, shown: 520 },
 ];
 
-export type ReviewTheme = 'dark' | 'light';
-
-/** The toolbar's theme, so the device frames render in it too. */
-export const ReviewThemeContext = createContext<ReviewTheme>('dark');
-
-/** One story in a real iframe at every device width; click opens it live. */
+/**
+ * One story in a real iframe at every device width, in the toolbar's theme;
+ * click opens it live.
+ */
 export const DeviceRow = ({
   storyId,
   title,
@@ -74,7 +73,7 @@ export const DeviceRow = ({
   storyId: string;
   title: string;
 }): ReactElement => {
-  const theme = useContext(ReviewThemeContext);
+  const theme = useIsPageLight() ? 'light' : 'dark';
   return (
     <div className="flex flex-wrap items-start gap-6">
       {devices.map((device) => (
