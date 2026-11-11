@@ -1,5 +1,4 @@
-import { z } from 'zod';
-import { urlParseSchema } from '../../../lib/links';
+import { parseHttpUrl } from '../../../lib/links';
 import { REFERENCE_RATIO } from './sponsorLogoSizing';
 
 export enum SponsorTier {
@@ -10,41 +9,122 @@ export enum SponsorTier {
 }
 
 /**
- * Raw shape of one advertiser in an `advertiser_bar` response (snake_case
- * JSON). There is no tier field: an advertiser's tier is the group it arrives
- * in, which `parseSponsors` stamps on.
+ * One advertiser in an `advertiser_bar` response (snake_case JSON). There is
+ * no tier field: an advertiser's tier is the group it arrives in, which
+ * `parseSponsors` stamps on.
  */
-const advertiserSchema = z
-  .object({
-    generation_id: z.string(),
-    company_name: z.string(),
-    icon: z.string().optional(),
-    icon_light: z.string().optional(),
-    icon_dark: z.string().optional(),
-    link: urlParseSchema,
-    pixels: z.array(z.string()).optional().default([]),
-  })
-  .refine(({ icon, icon_light: light, icon_dark: dark }) =>
-    Boolean(icon || light || dark),
-  );
+export interface SponsorStripCreative {
+  generation_id: string;
+  company_name: string;
+  icon?: string;
+  icon_light?: string;
+  icon_dark?: string;
+  link: string;
+  pixels: string[];
+  tier: SponsorTier;
+}
+
+type SponsorStripAdvertiser = Omit<SponsorStripCreative, 'tier'>;
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+const iconKeys = ['icon', 'icon_light', 'icon_dark'] as const;
+
+const parseAdvertiser = (raw: unknown): SponsorStripAdvertiser | null => {
+  if (!isRecord(raw)) {
+    return null;
+  }
+
+  const link = parseHttpUrl(raw.link);
+  const { pixels = [] } = raw;
+  const icons = iconKeys.filter((key) => key in raw);
+
+  if (
+    typeof raw.generation_id !== 'string' ||
+    typeof raw.company_name !== 'string' ||
+    icons.some(
+      (key) => raw[key] !== undefined && typeof raw[key] !== 'string',
+    ) ||
+    link === null ||
+    !Array.isArray(pixels) ||
+    !pixels.every((pixel) => typeof pixel === 'string') ||
+    !iconKeys.some((key) => raw[key])
+  ) {
+    return null;
+  }
+
+  return {
+    generation_id: raw.generation_id,
+    company_name: raw.company_name,
+    ...Object.fromEntries(icons.map((key) => [key, raw[key]])),
+    link,
+    pixels: [...pixels],
+  };
+};
+
+const groupKeys = ['pinned', 'top_tier', 'community'] as const;
 
 /**
  * The placement's own envelope. Each group is optional so a bar sold with only
  * a pinned advertiser still parses, and the advertisers inside stay `unknown`
  * so one malformed entry costs its own slot rather than the whole group.
  */
-const advertiserBarSchema = z.object({
-  value: z.object({
-    advertiser_bar: z.object({
-      pinned: z.array(z.unknown()).optional().default([]),
-      top_tier: z.array(z.unknown()).optional().default([]),
-      community: z.array(z.unknown()).optional().default([]),
-    }),
-  }),
-});
+const parseAdvertiserBar = (
+  raw: unknown,
+): Record<(typeof groupKeys)[number], unknown[]> | null => {
+  const bar =
+    isRecord(raw) && isRecord(raw.value) ? raw.value.advertiser_bar : undefined;
 
-export type SponsorStripCreative = z.infer<typeof advertiserSchema> & {
-  tier: SponsorTier;
+  if (
+    !isRecord(bar) ||
+    groupKeys.some((key) => bar[key] !== undefined && !Array.isArray(bar[key]))
+  ) {
+    return null;
+  }
+
+  const group = (key: (typeof groupKeys)[number]): unknown[] => {
+    const value = bar[key];
+    return Array.isArray(value) ? [...value] : [];
+  };
+
+  return {
+    pinned: group('pinned'),
+    top_tier: group('top_tier'),
+    community: group('community'),
+  };
+};
+
+const withTier = (
+  advertisers: unknown[],
+  tier: SponsorTier,
+): SponsorStripCreative[] =>
+  advertisers.flatMap((raw) => {
+    const advertiser = parseAdvertiser(raw);
+    return advertiser ? [{ ...advertiser, tier }] : [];
+  });
+
+/**
+ * Flatten the bar's three groups into one tiered list, which is the vocabulary
+ * the slots, the decks and the logging already speak. `pinned` is the slot that
+ * never shares, so it maps to gold; a second pinned advertiser is dropped
+ * downstream rather than demoted.
+ */
+export const parseSponsors = (raw: unknown): SponsorStripCreative[] => {
+  // `/v1/a/*` answers with a list of placements even when one was asked for.
+  const bar = parseAdvertiserBar(Array.isArray(raw) ? raw[0] : raw);
+
+  if (!bar) {
+    return [];
+  }
+
+  const { pinned, top_tier: topTier, community } = bar;
+
+  return [
+    ...withTier(pinned, SponsorTier.Gold),
+    ...withTier(topTier, SponsorTier.Premium),
+    ...withTier(community, SponsorTier.Community),
+  ];
 };
 
 /** A creative with everything the row draws it from. */
@@ -59,44 +139,6 @@ export interface ResolvedSponsor {
   pixel: string[];
   tier: SponsorTier;
 }
-
-const withTier = (
-  advertisers: unknown[],
-  tier: SponsorTier,
-): SponsorStripCreative[] =>
-  advertisers.flatMap((advertiser) => {
-    const result = advertiserSchema.safeParse(advertiser);
-    return result.success ? [{ ...result.data, tier }] : [];
-  });
-
-/**
- * Flatten the bar's three groups into one tiered list, which is the vocabulary
- * the slots, the decks and the logging already speak. `pinned` is the slot that
- * never shares, so it maps to gold; a second pinned advertiser is dropped
- * downstream rather than demoted.
- */
-export const parseSponsors = (raw: unknown): SponsorStripCreative[] => {
-  // `/v1/a/*` answers with a list of placements even when one was asked for.
-  const result = advertiserBarSchema.safeParse(
-    Array.isArray(raw) ? raw[0] : raw,
-  );
-
-  if (!result.success) {
-    return [];
-  }
-
-  const {
-    pinned,
-    top_tier: topTier,
-    community,
-  } = result.data.value.advertiser_bar;
-
-  return [
-    ...withTier(pinned, SponsorTier.Gold),
-    ...withTier(topTier, SponsorTier.Premium),
-    ...withTier(community, SponsorTier.Community),
-  ];
-};
 
 /** The image's intrinsic ratio replaces this fallback once it loads. */
 export const resolveSponsor = (

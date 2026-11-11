@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import type { AdRefreshConfig } from '../../../graphql/posts';
 import { isExtension, isIOSNative } from '../../../lib/func';
 import { tablet } from '../../../styles/media';
@@ -39,14 +38,28 @@ export enum AdRefreshPause {
 const DEFAULT_IDLE_AFTER_SEC = 60;
 export const MIN_VISIBLE_PERCENT = 50;
 
-const adRefreshConfigSchema = z.object({
-  id: z.string(),
-  intervalSec: z.number().positive(),
-  maxPerSlot: z.number().int().nonnegative(),
-  maxPerSession: z.number().int().nonnegative(),
-  idleAfterSec: z.number().positive().optional(),
-  minVisiblePercent: z.number().max(100).optional(),
-});
+const isNumber = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isFinite(value);
+
+const isPositive = (value: unknown): value is number =>
+  isNumber(value) && value > 0;
+
+const isCount = (value: unknown): value is number =>
+  Number.isSafeInteger(value) && (value as number) >= 0;
+
+const isValidConfig = (
+  refresh: AdRefreshConfig | null | undefined,
+): refresh is AdRefreshConfig =>
+  typeof refresh === 'object' &&
+  refresh !== null &&
+  !Array.isArray(refresh) &&
+  typeof refresh.id === 'string' &&
+  isPositive(refresh.intervalSec) &&
+  isCount(refresh.maxPerSlot) &&
+  isCount(refresh.maxPerSession) &&
+  (refresh.idleAfterSec === undefined || isPositive(refresh.idleAfterSec)) &&
+  (refresh.minVisiblePercent === undefined ||
+    (isNumber(refresh.minVisiblePercent) && refresh.minVisiblePercent <= 100));
 
 export interface AdRefreshPolicy {
   configId: string;
@@ -71,26 +84,22 @@ export interface AdRefreshStats {
 export const getAdRefreshPolicy = (
   refresh?: AdRefreshConfig | null,
 ): AdRefreshPolicy | null => {
-  const result = adRefreshConfigSchema.safeParse(refresh);
-
-  if (!result.success) {
+  if (!isValidConfig(refresh)) {
     return null;
   }
 
-  const config = result.data;
-
-  if (!config.maxPerSlot || !config.maxPerSession) {
+  if (!refresh.maxPerSlot || !refresh.maxPerSession) {
     return null;
   }
 
   return {
-    configId: config.id,
-    intervalMs: config.intervalSec * 1_000,
-    idleAfterMs: (config.idleAfterSec ?? DEFAULT_IDLE_AFTER_SEC) * 1_000,
-    maxPerSlot: config.maxPerSlot,
-    maxPerSession: config.maxPerSession,
+    configId: refresh.id,
+    intervalMs: refresh.intervalSec * 1_000,
+    idleAfterMs: (refresh.idleAfterSec ?? DEFAULT_IDLE_AFTER_SEC) * 1_000,
+    maxPerSlot: refresh.maxPerSlot,
+    maxPerSession: refresh.maxPerSession,
     minVisiblePercent: Math.max(
-      config.minVisiblePercent ?? MIN_VISIBLE_PERCENT,
+      refresh.minVisiblePercent ?? MIN_VISIBLE_PERCENT,
       MIN_VISIBLE_PERCENT,
     ),
   };
