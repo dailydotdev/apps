@@ -31,6 +31,7 @@ import { SquadManageAnalytics } from './SquadManageAnalytics';
 import { SquadManageIntegrations } from './SquadManageIntegrations';
 import { SquadManagePlan } from './SquadManagePlan';
 import { SquadManageIntel } from './SquadManageIntel';
+import { SquadManageAgent } from './SquadManageAgent';
 
 const SectionContent = ({
   section,
@@ -68,6 +69,8 @@ const SectionContent = ({
       return <SquadManageAnalytics />;
     case SquadManageSection.Integrations:
       return <SquadManageIntegrations />;
+    case SquadManageSection.Agent:
+      return <SquadManageAgent />;
     case SquadManageSection.Plan:
       return <SquadManagePlan />;
     case SquadManageSection.Intel:

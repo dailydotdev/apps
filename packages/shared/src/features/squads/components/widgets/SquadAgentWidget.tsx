@@ -26,7 +26,7 @@ import { AgentConnect } from '../setup/StartupsSetup';
 
 const TARGET_ID = 'agent widget';
 
-const benefits = [
+export const squadAgentBenefits = [
   'Post to the page as you',
   'Boost posts from the page wallet',
   'Pick and read your weekly intel',
@@ -108,7 +108,7 @@ export const SquadAgentWidget = (): ReactElement | null => {
         </p>
       </div>
       <ul className="flex flex-col gap-2">
-        {benefits.map((benefit) => (
+        {squadAgentBenefits.map((benefit) => (
           <li
             key={benefit}
             className="flex items-start gap-2 text-text-secondary typo-footnote"
