@@ -324,9 +324,6 @@ export const featurePostCommentsTeaserDesktop = new Feature(
 // `false`, GrowthBook ramps it.
 export const featureInterestAgent = new Feature('interest_agent', false);
 
-// Gates every direct message surface; control hides all of them. Keep the
-// default `false`, GrowthBook ramps it.
-export const featureDirectMessages = new Feature('direct_messages', false);
 export const featureLiveChat = new Feature('live_chat', false);
 
 // Who can use Looking for group at all: the board, posts, reach-outs and the
