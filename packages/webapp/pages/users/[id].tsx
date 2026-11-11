@@ -30,6 +30,11 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { LeaderboardPersonRow } from '@dailydotdev/shared/src/features/leaderboard/LeaderboardTopReputation';
+import {
+  LeaderboardEmptyBoard,
+  LeaderboardHeading,
+} from '@dailydotdev/shared/src/features/leaderboard/LeaderboardRows';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../../next-seo';
@@ -71,6 +76,8 @@ const LeaderboardDetailPage = ({
 
   const isCompany = isCompanyLeaderboard(leaderboardType);
   const isLevelLeaderboard = leaderboardType === LeaderboardType.HighestLevel;
+  const isReputationLeaderboard =
+    leaderboardType === LeaderboardType.HighestReputation;
   const concatScore = leaderboardType !== LeaderboardType.LongestStreak;
 
   if (isLoading || !title) {
@@ -101,24 +108,43 @@ const LeaderboardDetailPage = ({
       )}
       <PageWrapperLayout>
         <ShellPage title="Leaderboard" />
-        <div className="mx-auto w-full max-w-screen-laptop">
-          {isCompany ? (
-            <CompanyTopList
-              containerProps={{ title }}
-              items={companyItems || []}
-              isLoading={isLoading}
-            />
-          ) : (
-            <UserTopList
-              containerProps={{ title }}
-              items={userItems || []}
-              isLoading={isLoading}
-              concatScore={concatScore}
-              showLevel={isLevelLeaderboard}
-              leaderboardType={leaderboardType}
-            />
-          )}
-        </div>
+        {isReputationLeaderboard ? (
+          <section className="mx-auto flex w-full max-w-[40rem] flex-col gap-2">
+            <LeaderboardHeading title={title} />
+            {userItems?.length ? (
+              <ol className="flex flex-col">
+                {userItems.map((entry, index) => (
+                  <LeaderboardPersonRow
+                    key={entry.user.id}
+                    entry={entry}
+                    rank={index + 1}
+                  />
+                ))}
+              </ol>
+            ) : (
+              <LeaderboardEmptyBoard />
+            )}
+          </section>
+        ) : (
+          <div className="mx-auto w-full max-w-screen-laptop">
+            {isCompany ? (
+              <CompanyTopList
+                containerProps={{ title }}
+                items={companyItems || []}
+                isLoading={isLoading}
+              />
+            ) : (
+              <UserTopList
+                containerProps={{ title }}
+                items={userItems || []}
+                isLoading={isLoading}
+                concatScore={concatScore}
+                showLevel={isLevelLeaderboard}
+                leaderboardType={leaderboardType}
+              />
+            )}
+          </div>
+        )}
       </PageWrapperLayout>
     </>
   );

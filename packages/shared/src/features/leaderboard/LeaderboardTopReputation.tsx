@@ -24,14 +24,14 @@ import {
   LeaderboardTextLink,
 } from './LeaderboardRows';
 
-const PersonRow = ({
+export const LeaderboardPersonRow = ({
   entry,
   rank,
   onClick,
 }: {
   entry: UserLeaderboard;
   rank: number;
-  onClick: () => void;
+  onClick?: () => void;
 }): ReactElement => (
   <li>
     <Link href={entry.user.permalink} passHref prefetch={false}>
@@ -89,7 +89,7 @@ export const LeaderboardTopReputation = ({
       ) : (
         <ol className="grid grid-cols-1 gap-x-8 tablet:grid-flow-col tablet:grid-cols-2 tablet:grid-rows-6 laptop:grid-cols-3 laptop:grid-rows-4">
           {items.map((entry, index) => (
-            <PersonRow
+            <LeaderboardPersonRow
               key={entry.user.id}
               entry={entry}
               rank={index + 1}
