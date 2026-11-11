@@ -51,7 +51,7 @@ export enum AdRefreshEngineVersion {
   V2 = 'v2',
 }
 export const featureAdRefreshEngine = new Feature<AdRefreshEngineVersion>(
-  'ad_refresh_engine_version',
+  'ad_refresh_engine_config',
   AdRefreshEngineVersion.V1,
 );
 
