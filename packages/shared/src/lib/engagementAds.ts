@@ -1,8 +1,8 @@
 /**
  * Engagement Ads (Micro-Interaction Ads) — Types
  *
- * Defines the raw API shape from boot and the resolved creative type
- * used by all downstream components.
+ * Defines the raw API shape (boot or the engagementCreatives query) and the
+ * resolved creative type used by all downstream components.
  */
 import { z } from 'zod';
 import { urlParseSchema } from './links';
@@ -12,7 +12,7 @@ const themedStringSchema = z.object({
   light: z.string(),
 });
 
-/** Raw shape from boot API (snake_case JSON) */
+/** Raw shape from the API (snake_case JSON) */
 export const engagementCreativeSchema = z.object({
   gen_id: z.string(),
   promoted_name: z.string(),
@@ -26,9 +26,6 @@ export const engagementCreativeSchema = z.object({
   tools: z.array(z.string()),
   keywords: z.array(z.string()).optional().default([]),
   tags: z.array(z.string()),
-  // CPA campaign source id (from skadi). Optional — only CPA campaigns carry
-  // it. Sent alongside gen_id in engagement tracking for attribution.
-  source_id: z.string().optional(),
 });
 
 export type EngagementCreative = z.infer<typeof engagementCreativeSchema>;
@@ -48,7 +45,6 @@ export interface ResolvedCreative {
   tools: string[];
   keywords: string[];
   tags: string[];
-  sourceId?: string;
 }
 
 /**
@@ -86,19 +82,16 @@ export const resolveCreative = (
   tools: creative.tools,
   keywords: creative.keywords,
   tags: creative.tags,
-  sourceId: creative.source_id,
 });
 
 /**
- * Build the engagement-ad tracking `extra` payload for a creative: always the
- * gen_id, plus the CPA source_id when the creative carries one. Shared so every
- * surface that attributes an engagement creative reports it the same way.
+ * Build the engagement-ad tracking `extra` payload for a creative. Shared so
+ * every surface that attributes an engagement creative reports it the same way.
  */
 export const getEngagementLogExtra = (
-  creative: Pick<ResolvedCreative, 'genId' | 'sourceId'>,
-): { gen_id: string; source_id?: string } => ({
+  creative: Pick<ResolvedCreative, 'genId'>,
+): { gen_id: string } => ({
   gen_id: creative.genId,
-  ...(creative.sourceId ? { source_id: creative.sourceId } : {}),
 });
 
 /** Find the first creative whose tags overlap with the given tags */

@@ -305,6 +305,7 @@ export enum RequestKey {
   LeaderboardPosition = 'leaderboard_position',
   ShellState = 'shell_state',
   AchievementTracker = 'achievement_tracker',
+  EngagementCreatives = 'engagement_creatives',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];
