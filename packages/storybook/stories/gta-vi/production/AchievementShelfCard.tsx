@@ -1,5 +1,5 @@
 import type { MouseEvent, ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import type { UserAchievement } from '@dailydotdev/shared/src/graphql/user/achievements';
 import { getTargetCount } from '@dailydotdev/shared/src/graphql/user/achievements';
@@ -241,7 +241,13 @@ export function AchievementShelfCard({
   isUntrackPending = false,
   initialExpanded = false,
 }: AchievementShelfCardProps): ReactElement {
-  const [isExpanded, setIsExpanded] = useState(initialExpanded);
+  const [isExpanded, setIsExpanded] = useState(false);
+  // The modal needs #__next in the DOM, so it opens after the first commit.
+  useEffect(() => {
+    if (initialExpanded) {
+      setIsExpanded(true);
+    }
+  }, [initialExpanded]);
   const { achievement, progress, unlockedAt } = userAchievement;
   const event = getEvent(userAchievement);
   const targetCount = getTargetCount(achievement);
