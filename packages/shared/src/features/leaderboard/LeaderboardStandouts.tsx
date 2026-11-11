@@ -9,7 +9,10 @@ import Link from '../../components/utilities/Link';
 import { useLogContext } from '../../contexts/LogContext';
 import type { UserLeaderboard } from '../../graphql/leaderboard';
 import { LeaderboardType } from '../../graphql/leaderboard';
-import { formatLeaderboardScoreWithUnit, LEADERBOARD_BOARDS } from './boards';
+import {
+  formatLeaderboardScoreWithUnit,
+  LEADERBOARD_STANDOUT_BOARDS,
+} from './boards';
 import { LeaderboardHeading } from './LeaderboardRows';
 import { leaderboardUserClickEvent } from './leaderboardLog';
 import {
@@ -54,7 +57,7 @@ export const LeaderboardStandouts = ({
   getBoard,
 }: LeaderboardStandoutsProps): ReactElement | null => {
   const { logEvent } = useLogContext();
-  const standouts = LEADERBOARD_BOARDS.flatMap((board) => {
+  const standouts = LEADERBOARD_STANDOUT_BOARDS.flatMap((board) => {
     const [top] = getBoard(board.type);
 
     return top ? [{ board, top }] : [];

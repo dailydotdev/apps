@@ -70,6 +70,16 @@ export const LEADERBOARD_BOARDS: LeaderboardBoard[] = [
   },
 ];
 
+/** Standouts' order: Highest level closes the row, as its #1 reads as a level, not a score. */
+export const LEADERBOARD_STANDOUT_BOARDS: LeaderboardBoard[] = [
+  ...LEADERBOARD_BOARDS.filter(
+    (board) => board.type !== LeaderboardType.HighestLevel,
+  ),
+  ...LEADERBOARD_BOARDS.filter(
+    (board) => board.type === LeaderboardType.HighestLevel,
+  ),
+];
+
 /** The boards leaderboardPosition can rank you on, in the page's order. */
 export const LEADERBOARD_POSITION_BOARDS = LEADERBOARD_BOARDS.filter((board) =>
   isLeaderboardPositionSupported(board.type),

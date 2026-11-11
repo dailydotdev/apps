@@ -10,6 +10,7 @@ import {
 } from '../../components/ProfilePicture';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
+import { useIsPhone } from '../../hooks/useViewSize';
 import type {
   LeaderboardPosition,
   UserLeaderboard,
@@ -62,6 +63,12 @@ const getBestBoard = (
 const pickerOptions = LEADERBOARD_POSITION_BOARDS.map(
   (board) => leaderboardTypeToTitle[board.type],
 );
+// Phones: the button says the board's short name; the sheet keeps the titles.
+const shortPickerOptions = LEADERBOARD_POSITION_BOARDS.map(
+  (board) => board.short,
+);
+const renderPickerTitle = (_: string, index: number): string =>
+  pickerOptions[index];
 
 interface LeaderboardRankCardProps {
   /** Each board's top rows, for the snapshot's top 3. */
@@ -73,6 +80,7 @@ export const LeaderboardRankCard = ({
 }: LeaderboardRankCardProps): ReactElement | null => {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
+  const isPhone = useIsPhone();
   const [picked, setPicked] = useState<LeaderboardType>();
   const positions = useQueries({
     queries: LEADERBOARD_POSITION_BOARDS.map((board) => ({
@@ -219,7 +227,8 @@ export const LeaderboardRankCard = ({
             buttonSize={ButtonSize.Medium}
             buttonVariant={ButtonVariant.Tertiary}
             drawerProps={{ title: 'Your rank on' }}
-            options={pickerOptions}
+            options={isPhone ? shortPickerOptions : pickerOptions}
+            renderItem={isPhone ? renderPickerTitle : undefined}
             selectedIndex={boardIndex}
             onChange={(_, index) => {
               const { type } = LEADERBOARD_POSITION_BOARDS[index];
