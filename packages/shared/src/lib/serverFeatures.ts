@@ -5,4 +5,4 @@ export const featureAgentMarkdownSignupWall = new Feature(
   false,
 );
 
-export const featureAgentOnboarding = new Feature('agent_onboarding', false);
+export const featureAgentOnboarding = new Feature('agent_onboarding', true);
