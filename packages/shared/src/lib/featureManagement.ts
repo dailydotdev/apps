@@ -304,6 +304,10 @@ export const featureFeedWidgets = new Feature('feed_widgets_v2', false);
 // card pinned over the bottom of the window at the content's width.
 export const featurePostSignupStrip = new Feature('post_signup_strip', false);
 
+// Experiment: the post page and modal with the redesign's reading column and
+// discussion beside the classic right sidebar, against the classic layout.
+export const featurePostPageHybrid = new Feature('post_page_hybrid', false);
+
 // Experiments: logged-out post pages show the first three comments,
 // skeleton comments for the rest and a pinned "See all the comments" footer,
 // after X's logged-out post page. Two tests, because the ask they replace

@@ -30,6 +30,7 @@ import { useLogContext } from '../contexts/LogContext';
 import { feedLogExtra, postLogEvent } from '../lib/feed';
 import type { SearchLogExtra } from '../lib/searchLog';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
+import { usePostPageHybrid } from '../hooks/post/usePostPageHybrid';
 import { useSharePost } from '../hooks/useSharePost';
 import { LogEvent, Origin, TargetId } from '../lib/log';
 import { SharedFeedPage } from './utilities';
@@ -145,6 +146,13 @@ interface ExplainVariables {
   version?: number;
   supportedTypes?: string[];
 }
+
+const PostHybridModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "postHybridModal" */ './modals/PostHybridModal'
+    ),
+);
 
 const BriefCardFeed = dynamic(
   () =>
@@ -604,12 +612,16 @@ export default function Feed<T>({
     [openSharePost, virtualizedNumCards],
   );
 
+  const { showHybrid: showHybridPostModal } = usePostPageHybrid(selectedPost);
   const PostModal = useMemo(() => {
     if (!selectedPost) {
       return undefined;
     }
+    if (showHybridPostModal) {
+      return PostHybridModal;
+    }
     return PostModalMap[selectedPost.type];
-  }, [selectedPost]);
+  }, [selectedPost, showHybridPostModal]);
 
   if (!loadedSettings || isFallback) {
     return isPhone ? <PlaceholderFeed className={className} /> : <></>;

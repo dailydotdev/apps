@@ -90,6 +90,15 @@ import { usePhoneBrowser } from '@dailydotdev/shared/src/features/getApp/hooks/u
 import { useCommentsTeaser } from '@dailydotdev/shared/src/features/commentsTeaser/useCommentsTeaser';
 import { useRevealOnEngagement } from '@dailydotdev/shared/src/features/commentsTeaser/useRevealOnEngagement';
 import { getCommentsTeaserTitle } from '@dailydotdev/shared/src/features/commentsTeaser/commentsTeaser';
+import { PostHybridContent } from '@dailydotdev/shared/src/components/post/hybrid/PostHybridContent';
+import type { PostHybridAds } from '@dailydotdev/shared/src/components/post/hybrid/PostHybridColumn';
+import { usePostPageHybrid } from '@dailydotdev/shared/src/hooks/post/usePostPageHybrid';
+import {
+  postPageClassicClassName,
+  postPageHybridPrePaintScript,
+  postPageHybridPrePaintStyle,
+  usePostPageHybridPaint,
+} from '../../../hooks/usePostPageHybridPaint';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
@@ -193,6 +202,9 @@ export const PostPage = ({
   const postError = (isError
     ? queryClient.getQueryState(getPostByIdKey(id))?.error
     : undefined) as unknown as ApiErrorResult;
+  const postPageHybrid = usePostPageHybrid(post);
+  const { showHybrid } = postPageHybrid;
+  usePostPageHybridPaint(postPageHybrid);
   const showLaptopAuthBanner = shouldShowAuthBanner && isLaptop;
   const { value: isSignupStripOn, isLoading: isSignupStripLoading } =
     useConditionalFeature({
@@ -321,9 +333,45 @@ export const PostPage = ({
         : undefined,
     [adsActive, carriesInPageAds, renderSummarySegments],
   );
+  // The same units in the hybrid column, which spaces its children itself.
+  const hybridAds = useMemo<PostHybridAds | undefined>(
+    () =>
+      organicAds && {
+        contentLeading: organicAds.contentLeading,
+        summarySegments: summarySegments ?? undefined,
+        renderSummaryAd: (index) => (
+          <ReadAdSlot
+            surface="organic"
+            slot={ORGANIC_SLOT.inContentMpu}
+            format={ReadAdFormat.MediumRectangle}
+            className="my-2"
+            hideOnPhone={index > 0}
+          />
+        ),
+        aboveComments: (
+          <ReadAdSlot
+            surface="organic"
+            slot={ORGANIC_SLOT.aboveCommentsMpu}
+            format={ReadAdFormat.MediumRectangle}
+          />
+        ),
+        commentAds: organicAds.commentAds,
+      },
+    [organicAds, summarySegments],
+  );
+  // Only while ads are actually live: a truthy hook flattens the
+  // further-reading widget around the slot, and without an ad that changes
+  // rail spacing for members who never see one.
+  const getWidgetRailAd = organicAds
+    ? (widgetPosition: PostWidgetPosition) =>
+        widgetPosition === PostWidgetPosition.DirectAd
+          ? organicAds.railAd
+          : null
+    : undefined;
 
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
+    postPageClassicClassName,
     'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
     [PostType.Share, PostType.Freeform, PostType.SocialTwitter].includes(
       post?.type,
@@ -414,43 +462,61 @@ export const PostPage = ({
           <FooterNavBarLayout post={post}>
             <Head>
               <link rel="preload" as="image" href={post?.image} />
+              <style
+                dangerouslySetInnerHTML={{
+                  __html: postPageHybridPrePaintStyle,
+                }}
+              />
+              <script
+                dangerouslySetInnerHTML={{
+                  __html: postPageHybridPrePaintScript,
+                }}
+              />
             </Head>
             <PostSEOSchema post={post} topComments={topComments} />
-            <Content
-              position={position}
-              isPostPage
-              post={post}
-              isFallback={isFallback}
-              backToSquad={!!router?.query?.squad}
-              shouldOnboardAuthor={!!router.query?.author}
-              origin={Origin.ArticlePage}
-              isBannerVisible={shouldShowAuthBanner && !isLaptop}
-              contentLeading={organicAds?.contentLeading}
-              renderSummarySegments={organicAds?.renderSummarySegments}
-              aboveComments={organicAds?.aboveComments}
-              commentAds={organicAds?.commentAds}
-              // Only while ads are actually live: a truthy hook flattens the
-              // further-reading widget around the slot, and without an ad that
-              // changes rail spacing for members who never see one.
-              getWidgetRailAd={
-                organicAds
-                  ? (widgetPosition) =>
-                      widgetPosition === PostWidgetPosition.DirectAd
-                        ? organicAds.railAd
-                        : null
-                  : undefined
-              }
-              className={{
-                container: containerClass,
-                fixedNavigation: { container: 'flex laptop:hidden' },
-                navigation: {
-                  container: 'flex tablet:hidden',
-                  actions: 'flex-1 justify-between',
-                },
-              }}
-            />
+            {showHybrid ? (
+              <PostHybridContent
+                post={post}
+                origin={Origin.ArticlePage}
+                ads={hybridAds}
+                shouldOnboardAuthor={!!router.query?.author}
+                getRailAd={getWidgetRailAd}
+                className="mb-16 min-h-page tablet:mb-8 laptop:mb-0 laptop:pb-6"
+              />
+            ) : (
+              <Content
+                position={position}
+                isPostPage
+                post={post}
+                isFallback={isFallback}
+                backToSquad={!!router?.query?.squad}
+                shouldOnboardAuthor={!!router.query?.author}
+                origin={Origin.ArticlePage}
+                isBannerVisible={shouldShowAuthBanner && !isLaptop}
+                contentLeading={organicAds?.contentLeading}
+                renderSummarySegments={organicAds?.renderSummarySegments}
+                aboveComments={organicAds?.aboveComments}
+                commentAds={organicAds?.commentAds}
+                getWidgetRailAd={getWidgetRailAd}
+                className={{
+                  container: containerClass,
+                  fixedNavigation: { container: 'flex laptop:hidden' },
+                  navigation: {
+                    container: 'flex tablet:hidden',
+                    actions: 'flex-1 justify-between',
+                  },
+                }}
+              />
+            )}
             {showSignupStrip && (
-              <div className="m-auto w-full max-w-[69.25rem]">
+              <div
+                className={classNames(
+                  'm-auto w-full',
+                  showHybrid
+                    ? 'laptop:max-w-5xl laptop:px-4 laptopL:max-w-6xl'
+                    : 'max-w-[69.25rem]',
+                )}
+              >
                 <PinnedSignupStrip targetId={TargetId.PostStrip} />
               </div>
             )}
