@@ -4,43 +4,45 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Cell,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
-import { addDays, subDays } from 'date-fns';
-import type { TickProp } from 'recharts/types/util/types';
 import { largeNumberFormat } from '../../lib';
 import type { Post, PostAnalyticsHistory } from '../../graphql/posts';
-import {
-  postAnalyticsHistoryLimit,
-  postAnalyticsHistoryQuery,
-} from '../../graphql/posts';
+import { postAnalyticsHistoryQuery } from '../../graphql/posts';
 import { canViewPostAnalytics } from '../../lib/user';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { dateFormatInTimezone, DEFAULT_TIMEZONE } from '../../lib/timezones';
+import { DEFAULT_TIMEZONE } from '../../lib/timezones';
 import type { Connection } from '../../graphql/common';
+import type { PostAnalyticsHistoryDay } from './postAnalyticsHistory';
+import {
+  buildPostAnalyticsHistoryDays,
+  historyChartTickProp,
+} from './postAnalyticsHistory';
 
 export type ImpressionsChartProps = {
   post: Pick<Post, 'id' | 'author'> | undefined;
+  showOrganic?: boolean;
+  showPromoted?: boolean;
 };
 
-type ImpressionNode = {
-  name: string;
-  value: number;
-  isBoosted: boolean;
-};
+type ImpressionNode = PostAnalyticsHistoryDay<{
+  organic: number;
+  promoted: number;
+}>;
 
-const tickProp: TickProp = {
-  fill: 'var(--theme-text-tertiary)',
-  fontSize: '0.6875rem',
-};
+const toImpressionNode = (item?: PostAnalyticsHistory) => ({
+  organic: Math.max((item?.impressions ?? 0) - (item?.impressionsAds ?? 0), 0),
+  promoted: item?.impressionsAds ?? 0,
+});
 
 export const ImpressionsChart = ({
   post,
+  showOrganic = true,
+  showPromoted = true,
 }: ImpressionsChartProps): ReactElement => {
   const { user } = useAuthContext();
   const userTimezone = user?.timezone || DEFAULT_TIMEZONE;
@@ -49,65 +51,12 @@ export const ImpressionsChart = ({
     ...postAnalyticsHistoryQuery({ id: post?.id }),
     enabled: canViewPostAnalytics({ post, user }),
     select: useCallback(
-      (data: Connection<PostAnalyticsHistory>): ImpressionNode[] => {
-        if (!data) {
-          return [];
-        }
-
-        const impressionsMap = data?.edges?.reduce(
-          (acc, { node: item }) => {
-            const date = dateFormatInTimezone(
-              new Date(item.date),
-              'yyyy-MM-dd',
-              userTimezone,
-            );
-
-            acc[date] = {
-              name: new Date(item.date).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-              }),
-              value: item.impressions,
-              // if any boost was active on this date
-              isBoosted: item.impressionsAds > 0,
-            };
-
-            return acc;
-          },
-          {} as Record<string, ImpressionNode>,
-        );
-
-        const historyCutOffDate = subDays(
-          new Date(),
-          postAnalyticsHistoryLimit - 1,
-        );
-
-        const impressionsData: ImpressionNode[] = [];
-
-        for (let i = 0; i < postAnalyticsHistoryLimit; i += 1) {
-          const paddedDate = addDays(historyCutOffDate, i);
-          const date = dateFormatInTimezone(
-            paddedDate,
-            'yyyy-MM-dd',
-            userTimezone,
-          );
-
-          if (impressionsMap[date]) {
-            impressionsData.push(impressionsMap[date]);
-          } else {
-            impressionsData.push({
-              name: paddedDate.toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-              }),
-              value: 0,
-              isBoosted: false,
-            });
-          }
-        }
-
-        return impressionsData;
-      },
+      (data: Connection<PostAnalyticsHistory>): ImpressionNode[] =>
+        buildPostAnalyticsHistoryDays({
+          data,
+          timezone: userTimezone,
+          toNode: toImpressionNode,
+        }),
       [userTimezone],
     ),
   });
@@ -140,7 +89,7 @@ export const ImpressionsChart = ({
                 stroke: 'transparent',
               }}
               tickLine={false}
-              tick={tickProp}
+              tick={historyChartTickProp}
             />
             <YAxis
               axisLine={{
@@ -148,36 +97,47 @@ export const ImpressionsChart = ({
               }}
               tickFormatter={(value) => largeNumberFormat(value) ?? ''}
               tickLine={false}
-              tick={tickProp}
+              tick={historyChartTickProp}
               interval={1}
             />
             <Tooltip
               cursor={false}
-              content={({ payload, label }) => (
-                <div className="TooltipContent z-tooltip max-w-full rounded-10 bg-text-primary px-3 py-1 text-surface-invert typo-subhead">
-                  <strong>{largeNumberFormat(payload[0]?.value || 0)}</strong>{' '}
-                  impressions on {label}
-                </div>
-              )}
-            />
-            <Bar
-              dataKey="value"
-              radius={10}
-              activeBar={{ fill: 'var(--theme-text-primary)' }}
-            >
-              {postAnalyticsHistory.map((entry) => {
+              content={({ payload, label }) => {
+                const node = payload[0]?.payload as ImpressionNode | undefined;
+                const organic = showOrganic ? (node?.organic ?? 0) : 0;
+                const promoted = showPromoted ? (node?.promoted ?? 0) : 0;
+
                 return (
-                  <Cell
-                    key={`cell-${entry.name}`}
-                    fill={
-                      !entry.isBoosted
-                        ? 'var(--theme-brand-default)'
-                        : 'var(--theme-accent-blueCheese-default)'
-                    }
-                  />
+                  <div className="TooltipContent z-tooltip max-w-full rounded-10 bg-text-primary px-3 py-1 text-surface-invert typo-subhead">
+                    <strong>{largeNumberFormat(organic + promoted)}</strong>{' '}
+                    impressions on {label}
+                    {!!promoted && !!organic && (
+                      <div>
+                        <strong>{largeNumberFormat(promoted)}</strong> promoted
+                      </div>
+                    )}
+                  </div>
                 );
-              })}
-            </Bar>
+              }}
+            />
+            {showOrganic && (
+              <Bar
+                dataKey="organic"
+                stackId="impressions"
+                radius={10}
+                fill="var(--theme-brand-default)"
+                activeBar={{ fill: 'var(--theme-text-primary)' }}
+              />
+            )}
+            {showPromoted && (
+              <Bar
+                dataKey="promoted"
+                stackId="impressions"
+                radius={10}
+                fill="var(--theme-accent-blueCheese-default)"
+                activeBar={{ fill: 'var(--theme-text-primary)' }}
+              />
+            )}
           </BarChart>
         </ResponsiveContainer>
       )}
