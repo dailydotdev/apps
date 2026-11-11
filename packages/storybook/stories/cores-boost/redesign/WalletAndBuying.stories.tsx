@@ -4,8 +4,6 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { RequestKey } from '@dailydotdev/shared/src/lib/query';
 import { useQueryClient } from '@tanstack/react-query';
-import * as today from '../today/Today.stories';
-import { routeTo } from '../today/production';
 import { CoresProviders } from '../real/providers';
 import { activeHistory, streakHandlers } from '../real/handlers';
 import { Shell } from '../flows/cores/Shell';
@@ -22,7 +20,7 @@ import { Wallet } from './cores/Wallet';
 import { CoresPage } from './cores/CoresPage';
 import { CoresPurchasedModal } from './cores/Moments';
 
-// "Wallet and buying Cores", Flows/4 in the new look.
+// "Wallet and buying Cores" in the new look.
 
 const BALANCE = 1275;
 const PACK = landedPurchase.value;
@@ -89,7 +87,7 @@ export const Walkthrough: Story = {
     docs: {
       description: {
         story:
-          'Buy Cores, Pay for 300 Cores, Got it: back in the wallet with the new Cores showing. Same path as Flows/4.',
+          'Buy Cores, Pay for 300 Cores, Got it: back in the wallet with the new Cores showing.',
       },
     },
   },
@@ -98,16 +96,6 @@ export const Walkthrough: Story = {
       <WalkthroughFlow />
     </CoresProviders>
   ),
-};
-
-export const WaysIn: Story = {
-  ...today.WalletWaysIn,
-  name: '1 · Ways in',
-  beforeEach: today.WalletWaysIn.beforeEach ?? (() => routeTo('/')),
-  parameters: {
-    ...today.WalletWaysIn.parameters,
-    docs: { description: { story: 'Unchanged: production, as in Today.' } },
-  },
 };
 
 type WalletArgs = { isPendingLong: boolean };
@@ -200,16 +188,6 @@ export const Cores: Story = {
       </Shell>
     </CoresProviders>
   ),
-};
-
-export const YouGotYourCores: Story = {
-  ...today.CoresPurchased,
-  name: '4 · You got your Cores!',
-  beforeEach: today.CoresPurchased.beforeEach ?? (() => routeTo('/')),
-  parameters: {
-    ...today.CoresPurchased.parameters,
-    docs: { description: { story: 'Unchanged: production, as in Today.' } },
-  },
 };
 
 export const BackToTheWallet: Story = {

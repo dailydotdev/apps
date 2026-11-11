@@ -60,7 +60,7 @@ import { UseYourCoresTiles } from './UseYourCores';
 import { TransactionItem } from '@dailydotdev/shared/src/components/cores/TransactionItem';
 import { CardSection, friendshipArt, SquadFrame } from './frame';
 
-// The wallet in the squads hub layout. Same content as the Flows wallet:
+// The wallet in the squads hub layout. Same content as the fixed wallet:
 // balance and the four totals (with their tooltips), Use your Cores, the
 // transaction history (production TransactionItem), Buy Cores in the header, the 100/300/600 packs and
 // See more options, the Plus giveback, Docs and Terms. The page now reads as

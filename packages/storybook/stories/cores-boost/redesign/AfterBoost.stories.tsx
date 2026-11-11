@@ -8,7 +8,6 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import type { Campaign } from '@dailydotdev/shared/src/graphql/campaigns';
-import { routeTo } from '../today/production';
 import { CoresProviders } from '../real/providers';
 import { coresHandlers } from '../real/handlers';
 import { NotificationsPage } from '../real/pages';
@@ -21,10 +20,9 @@ import { BoostsPage, CampaignPage } from './after-boost/BoostsPage';
 import type { Screens } from './after-boost/BoostAgainModal';
 import { BoostAgainModal } from './after-boost/BoostAgainModal';
 
-// The fixed "After the boost" flow (Flows/6) in the latest design line: the
-// squads page frame, hero cover widget rows and the Patchy art. Same
-// content, controls and click path as the fixed flow; the boost
-// notifications stay as production shows them.
+// The "After the boost" flow in the latest design line: the squads page
+// frame, hero cover widget rows and the Patchy art. The boost notifications
+// stay as production shows them.
 
 const BALANCE = 5000;
 
@@ -212,31 +210,13 @@ export const CampaignEnded: Story = {
   },
 };
 
-export const LiveNotification: Story = {
-  name: '3 · Boost is live',
-  beforeEach: () => routeTo('/notifications'),
-  render: () => <NotificationsPage />,
-  parameters: {
-    docs: { description: { story: 'Unchanged: production, as in Today.' } },
-  },
-};
-
-export const EndedNotification: Story = {
-  name: '4 · Boost ended, with results',
-  beforeEach: () => routeTo('/notifications'),
-  render: () => <NotificationsPage />,
-  parameters: {
-    docs: { description: { story: 'Unchanged: production, as in Today.' } },
-  },
-};
-
 export const BoostAgain: Story = {
   name: '5 · Boost again, prefilled',
   render: () => <BoostAgainScreen />,
   parameters: {
     docs: {
       description: {
-        story: 'Same form as the Flows page: prefilled with the last budget.',
+        story: 'The boost form, prefilled with the last budget.',
       },
     },
   },

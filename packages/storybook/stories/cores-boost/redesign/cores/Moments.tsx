@@ -17,7 +17,7 @@ import { friendshipArt } from './frame';
 
 // The two "you have Cores now" moments, on one shared card: the character art
 // on top with the amount sitting on it, then the copy and the actions.
-// Same copy and buttons as Flows: Show me / Later, and Got it.
+// Same copy and buttons: Show me / Later, and Got it.
 
 const ArtHeader = ({
   amount,

@@ -43,7 +43,7 @@ import type { OwnPostState } from '../../flows/purchase/BoostFixed';
 import { starterBoost } from '../../flows/purchase/BoostFixed';
 import stripArt from '../../assets/boost-strip-patchy-v2.png';
 import { Row } from './kit';
-import { BoostStrip } from './BoostStrip';
+import { BoostStrip, BoostStripCompact } from './BoostStrip';
 
 const Slider = dynamic(
   () =>
@@ -93,18 +93,25 @@ export const OwnPostRedesign = ({
     <PostPage
       post={ownArticle(post, state === 'new')}
       banner={
-        !isDismissed && (
-          <BoostStrip
+        !isDismissed &&
+        (state === 'new' ? (
+          <BoostStripCompact
             title={
-              state === 'new'
-                ? 'Boost this post'
-                : 'This post is taking off. Boost it now'
+              <>
+                Boost to reach <strong>10k more devs</strong> now!
+              </>
             }
+            onBoost={onBoost}
+            onDismiss={() => setDismissed(true)}
+          />
+        ) : (
+          <BoostStrip
+            title="This post is taking off. Boost it now"
             balance={user?.balance.amount ?? 0}
             onBoost={onBoost}
             onDismiss={() => setDismissed(true)}
           />
-        )
+        ))
       }
     />
   );

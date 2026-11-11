@@ -19,7 +19,7 @@ import { stripArt } from './frame';
 // The Cores flow screens in the new look: the nudge strip on your own post.
 // The quest page and the award notification stay as production has them.
 
-/** The real daily quests page, as in the Flows (the quest card is production) */
+/** The real daily quests page (the quest card is production) */
 export { QuestScreen } from '../../flows/cores/screens';
 
 /** On your own post, once the balance covers the smallest boost */

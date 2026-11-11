@@ -1,8 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import * as today from '../today/Today.stories';
-import { routeTo } from '../today/production';
 import { streakHandlers } from '../real/handlers';
 import { CoresProviders } from '../real/providers';
 import { Shell } from '../flows/cores/Shell';
@@ -15,7 +13,7 @@ import {
 import { Wallet } from './cores/Wallet';
 import { NotificationsPage } from '../real/pages';
 
-// "Receive an award", Flows/3 in the new look. The award notification and
+// "Receive an award" in the new look. The award notification and
 // the balance refresh stay as production has them.
 
 const BEFORE = 20;
@@ -67,26 +65,6 @@ export const Walkthrough: Story = {
       <WalkthroughFlow />
     </CoresProviders>
   ),
-};
-
-export const AwardReceivedWithContext: Story = {
-  ...today.ReceiveNotification,
-  name: '2 · Award received, with context',
-  beforeEach: today.ReceiveNotification.beforeEach ?? (() => routeTo('/')),
-  parameters: {
-    ...today.ReceiveNotification.parameters,
-    docs: { description: { story: 'Unchanged: production, as in Today.' } },
-  },
-};
-
-export const BalanceRefreshes: Story = {
-  ...today.ReceiveNotification,
-  name: '3 · Balance refreshes',
-  beforeEach: today.ReceiveNotification.beforeEach ?? (() => routeTo('/')),
-  parameters: {
-    ...today.ReceiveNotification.parameters,
-    docs: { description: { story: 'Unchanged: production, as in Today.' } },
-  },
 };
 
 export const WalletRowHighlighted: Story = {

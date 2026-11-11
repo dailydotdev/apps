@@ -122,7 +122,6 @@ export const ReceiveAward: Story = {
     <ComparePage
       pairs={pairsFor('3-receive-an-award', [
         ['2 · Award received, with context', 'receive-notification', null],
-        ['3 · Balance refreshes', 'receive-notification', null],
         [
           '4 · Wallet, award in history',
           'receive-wallet',
@@ -166,6 +165,7 @@ export const FirstBoost: Story = {
           'boost-form-new-post',
           'boost-form-reading',
         ],
+        ['2 · Boost your post · compact', 'boost-form', 'boost-form-compare'],
         ['3 · Buy Cores, pack preselected', 'boost-buy', 'buy-cores'],
         ['4 · Processing', 'boost-processing-timed-out', null],
         ['5 · Boost launches', 'boost-back-to-form', 'boost-launches'],
@@ -188,8 +188,7 @@ export const AfterBoost: Story = {
         ],
         ['2 · Campaign', 'campaign-live', 'campaign-live'],
         ['2 · Campaign, ended', 'campaign-ended', 'campaign-ended'],
-        ['3 · Boost is live', 'boost-notifications', null],
-        ['4 · Boost ended, with results', 'boost-notifications', null],
+        ['3 · Boost notifications', 'boost-notifications', null],
         ['5 · Boost again, prefilled', 'boost-again', 'boost-again'],
         ['6 · Boost is live!', 'boost-is-live', 'boost-is-live'],
       ])}

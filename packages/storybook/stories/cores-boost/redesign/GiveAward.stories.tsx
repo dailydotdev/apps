@@ -4,12 +4,10 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { Product } from '@dailydotdev/shared/src/graphql/njord';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
-import * as today from '../today/Today.stories';
 import {
   Processing as ProductionProcessing,
   ProductionAwardPicker,
   ProductionAwardSent,
-  routeTo,
 } from '../today/production';
 import { CoresProviders, noop } from '../real/providers';
 import { coresHandlers } from '../real/handlers';
@@ -18,7 +16,7 @@ import { Stage } from '../flows/purchase/stage';
 import { AwardNoteRedesign } from './purchase/AwardRedesign';
 import { BuyCoresRedesignModal } from './purchase/BuyCoresRedesign';
 
-// "2. Give an award" from the Flows pages, redrawn in the squads hub line.
+// "2. Give an award", redrawn in the squads hub line.
 // Picking the award, processing and the sent screen stay as production has
 // them; Buy Cores and the note are redesigned.
 
@@ -135,16 +133,6 @@ export const Walkthrough = story(
   () => <WalkthroughFlow />,
 );
 
-export const PickAnAward: Story = {
-  ...today.AwardPickedTooExpensive,
-  name: '2 · Pick an award',
-  beforeEach: today.AwardPickedTooExpensive.beforeEach ?? (() => routeTo('/')),
-  parameters: {
-    ...today.AwardPickedTooExpensive.parameters,
-    docs: { description: { story: 'Unchanged: production, as in Today.' } },
-  },
-};
-
 export const BuyCores = story(
   'A card names what the Cores are for and ticks once a pack covers it, packs are calm rows, and the friendship art replaces the two-hands video beside the checkout.',
   () => (
@@ -159,16 +147,6 @@ export const BuyCores = story(
     </Stage>
   ),
 );
-
-export const Processing: Story = {
-  ...today.AwardProcessingTimedOut,
-  name: '5 · Processing',
-  beforeEach: today.AwardProcessingTimedOut.beforeEach ?? (() => routeTo('/')),
-  parameters: {
-    ...today.AwardProcessingTimedOut.parameters,
-    docs: { description: { story: 'Unchanged: production, as in Today.' } },
-  },
-};
 
 export const NoteAndSend = story(
   'A check chip confirms the Cores, the award sits in a bordered card with its glow image and price, and the note follows.',
@@ -185,26 +163,6 @@ export const NoteAndSend = story(
   ),
   balance + 100,
 );
-
-export const AwardSent: Story = {
-  ...today.AwardSent,
-  name: '7 · Award sent',
-  beforeEach: today.AwardSent.beforeEach ?? (() => routeTo('/')),
-  parameters: {
-    ...today.AwardSent.parameters,
-    docs: { description: { story: 'Unchanged: production, as in Today.' } },
-  },
-};
-
-export const OldIos: Story = {
-  ...today.AwardOldIos,
-  name: '8 · Back where you were · old iOS',
-  beforeEach: today.AwardOldIos.beforeEach ?? (() => routeTo('/')),
-  parameters: {
-    ...today.AwardOldIos.parameters,
-    docs: { description: { story: 'Unchanged: production, as in Today.' } },
-  },
-};
 
 // The story index reads names statically, not through the helper
 Walkthrough.storyName = 'Walkthrough';

@@ -2,8 +2,6 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import * as today from '../today/Today.stories';
-import { routeTo } from '../today/production';
 import { streakHandlers } from '../real/handlers';
 import { CoresProviders } from '../real/providers';
 import { Shell } from '../flows/cores/Shell';
@@ -19,7 +17,7 @@ import { FirstCoresSheet } from './cores/Moments';
 import { Wallet } from './cores/Wallet';
 import { OwnPostScreen, QuestScreen } from './cores/Screens';
 
-// "First Cores", Flows/1 in the new look: the same screens and click path,
+// "First Cores" in the new look: the same screens and click path,
 // on the squads hub frame with the character art.
 
 const FIRST_REWARD = 20;
@@ -106,8 +104,7 @@ export const Walkthrough: Story = {
     msw: { handlers },
     docs: {
       description: {
-        story:
-          'Claim, Show me, then Boost your post: the same path as Flows/1, in the new look.',
+        story: 'Claim, Show me, then Boost your post, in the new look.',
       },
     },
   },
@@ -116,16 +113,6 @@ export const Walkthrough: Story = {
       <WalkthroughFlow persona={persona} />
     </CoresProviders>
   ),
-};
-
-export const QuestReward: Story = {
-  ...today.FirstCoresQuestReward,
-  name: '1 · Quest reward',
-  beforeEach: today.FirstCoresQuestReward.beforeEach ?? (() => routeTo('/')),
-  parameters: {
-    ...today.FirstCoresQuestReward.parameters,
-    docs: { description: { story: 'Unchanged: production, as in Today.' } },
-  },
 };
 
 export const YourFirstCores: Story = {
