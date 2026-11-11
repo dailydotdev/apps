@@ -11,7 +11,7 @@ import type {
   LeaderboardType,
   UserLeaderboard,
 } from '../../graphql/leaderboard';
-import { formatLeaderboardScore } from './boards';
+import { findLeaderboardCompanyIndex, formatLeaderboardScore } from './boards';
 import { LeaderboardScoreValue } from './LeaderboardScore';
 import {
   LeaderboardEmptyBoard,
@@ -74,6 +74,9 @@ export const LeaderboardBoardPage = ({
 }: LeaderboardBoardPageProps): ReactElement => {
   const { user } = useAuthContext();
   const count = companyItems?.length ?? userItems?.length ?? 0;
+  const myCompany = companyItems
+    ? findLeaderboardCompanyIndex(companyItems, user)
+    : -1;
 
   return (
     <section className="mx-auto flex w-full max-w-[40rem] flex-col gap-2">
@@ -95,6 +98,7 @@ export const LeaderboardBoardPage = ({
                 />
               }
               value={formatLeaderboardScore(item.score)}
+              highlight={index === myCompany}
             />
           ))}
           {userItems?.map((item, index) => (

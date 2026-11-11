@@ -1,7 +1,9 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import type { QuestCompletionStats } from '@dailydotdev/shared/src/graphql/leaderboard';
-import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
+import type {
+  QuestCompletionStats,
+  UserLeaderboard,
+} from '@dailydotdev/shared/src/graphql/leaderboard';
 import {
   ProfileImageSize,
   ProfilePicture,
