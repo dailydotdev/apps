@@ -14,6 +14,7 @@ export enum SquadManageSection {
   Plan = 'plan',
   Intel = 'intel',
   Integrations = 'integrations',
+  Agent = 'agent',
   DangerZone = 'danger-zone',
 }
 
