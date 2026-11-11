@@ -29,7 +29,7 @@ const createPost = (
       public: true,
     },
     ...overrides,
-  } as PostMarkdownPost);
+  }) as PostMarkdownPost;
 
 const createComment = (overrides: Partial<Comment> = {}): Comment =>
   ({
@@ -42,7 +42,7 @@ const createComment = (overrides: Partial<Comment> = {}): Comment =>
     numAwards: 0,
     author: { username: 'gergely', name: 'Gergely Orosz' },
     ...overrides,
-  } as Comment);
+  }) as Comment;
 
 const build = (
   post = createPost(),

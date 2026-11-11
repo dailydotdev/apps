@@ -20,6 +20,7 @@ import {
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 
 import classNames from 'classnames';
+import { StartupsBuyCoresPromo } from '@dailydotdev/shared/src/features/squads/components/promos/StartupsPromo';
 import {
   Typography,
   TypographyType,
@@ -71,7 +72,7 @@ export const CorePageMobileCheckout = (): ReactElement => {
       return;
     }
 
-    openCheckout({ priceId: selectedProduct.id });
+    openCheckout?.({ priceId: selectedProduct.id });
   }, [openCheckout, selectedProduct, productFromQuery, paddle]);
 
   return (
@@ -95,6 +96,12 @@ export const PageCoreOptions = ({
       className={classNames('p-6', className)}
       title={title}
       showCoresAtCheckout={showCoresAtCheckout}
+      promo={
+        <StartupsBuyCoresPromo
+          className="text-left"
+          isPersonalAllowed={false}
+        />
+      }
     />
   );
 };
@@ -106,7 +113,7 @@ const CorePageMobile = (): ReactElement => {
   useEffect(() => {
     if (selectedProduct) {
       if (iOSSupportsCoresPurchase()) {
-        openCheckout({ priceId: selectedProduct.id });
+        openCheckout?.({ priceId: selectedProduct.id });
 
         return;
       }
@@ -114,9 +121,13 @@ const CorePageMobile = (): ReactElement => {
       const searchParams = new URLSearchParams(window.location.search);
       const nextParams = new URLSearchParams();
 
-      if (searchParams.get('next')) {
-        nextParams.set('next', searchParams.get('next'));
-      }
+      ['next', 'origin'].forEach((key) => {
+        const value = searchParams.get(key);
+
+        if (value) {
+          nextParams.set(key, value);
+        }
+      });
 
       nextParams.append('pid', selectedProduct.id);
 
@@ -203,7 +214,7 @@ const CorePageRenderer = ({ children }: { children: ReactNode }): ReactNode => {
     if (isLaptop) {
       setSelectedProduct(productFromQuery);
 
-      openCheckout({ priceId: productFromQuery.id });
+      openCheckout?.({ priceId: productFromQuery.id });
     }
   }, [
     isLaptop,
@@ -234,7 +245,7 @@ export const useCoresOriginFromQuery = (): Origin => {
 const CoresPage = (): ReactElement => {
   const router = useRouter();
   const isLaptop = useViewSizeClient(ViewSize.Laptop);
-  const amountNeeded = +router?.query?.need;
+  const amountNeeded = Number(router?.query?.need);
   const eventOrigin = useCoresOriginFromQuery();
 
   return (

@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useMemo, useState } from 'react';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import {
   Typography,
   TypographyColor,
@@ -20,34 +21,113 @@ import {
 } from '../../../../components/icons';
 import type { AnalyticsNumberList } from '../../../../components/analytics/common';
 import { AnalyticsNumbersList } from '../../../../components/analytics/AnalyticsNumbersList';
-import { CombinedImpressionsChart } from '../../../../components/analytics/CombinedImpressionsChart';
-import { HorizontalSeparator } from '../../../../components/utilities/common';
-import { useSquadPageContext } from '../../SquadPageContext';
+import { CreatorPeriodSelect } from '../../../../components/analytics/creator/CreatorPeriodSelect';
 import {
-  SQUAD_ANALYTICS_HISTORY_DAYS,
-  useSquadAnalytics,
-} from '../../hooks/useSquadAnalytics';
+  CreatorOverviewSection,
+  CreatorOverviewSkeleton,
+} from '../../../../components/analytics/creator/CreatorOverviewSection';
+import {
+  CreatorImpressionsSection,
+  CreatorImpressionsSkeleton,
+} from '../../../../components/analytics/creator/CreatorImpressionsSection';
+import type { CreatorPostSort } from '../../../../components/analytics/creator/CreatorPostPerformanceTable';
+import { CreatorPostPerformanceTable } from '../../../../components/analytics/creator/CreatorPostPerformanceTable';
+import { CreatorDashboardError } from '../../../../components/analytics/creator/CreatorDashboardError';
+import { CreatorAnalyticsAudience } from '../../../../components/analytics/creator/common';
+import {
+  CreatorPerformancePeriod,
+  CreatorPostSortBy,
+  CreatorPostSortOrder,
+  squadPerformanceQueryOptions,
+  squadPostPerformanceQueryOptions,
+} from '../../../../graphql/creatorAnalytics';
+import { HorizontalSeparator } from '../../../../components/utilities/common';
+import { SourcePermissions } from '../../../../graphql/sources';
+import {
+  squadAnalyticsQueryOptions,
+  verifyPermission,
+} from '../../../../graphql/squads';
+import { useSquadPageContext } from '../../SquadPageContext';
 import { SquadManageSection } from '../../lib/routes';
 import { SquadManageSectionPanel } from './SquadManageLayout';
 
 const Section = ({
   title,
+  action,
   children,
 }: {
-  title: string;
+  title?: string;
+  action?: ReactNode;
   children: ReactNode;
 }): ReactElement => (
   <section className="flex flex-col gap-4">
-    <Typography type={TypographyType.Body} bold tag={TypographyTag.H2}>
-      {title}
-    </Typography>
+    {(title || action) && (
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        {title && (
+          <Typography type={TypographyType.Body} bold tag={TypographyTag.H2}>
+            {title}
+          </Typography>
+        )}
+        {action}
+      </div>
+    )}
     {children}
   </section>
 );
 
 export const SquadManageAnalytics = (): ReactElement => {
   const { squad } = useSquadPageContext();
-  const { analytics, impressions, hasImpressions } = useSquadAnalytics(squad);
+  const canViewAnalytics =
+    !!squad && verifyPermission(squad, SourcePermissions.ViewAnalytics);
+  const { data: analytics } = useQuery({
+    ...squadAnalyticsQueryOptions({ sourceId: squad?.id }),
+    enabled: !!squad?.id && canViewAnalytics,
+  });
+  const [period, setPeriod] = useState(CreatorPerformancePeriod.Last30Days);
+  const [sort, setSort] = useState<CreatorPostSort>({
+    sortBy: CreatorPostSortBy.PublishedAt,
+    order: CreatorPostSortOrder.Desc,
+  });
+
+  const {
+    data: performance,
+    isPending: isPerformancePending,
+    isError: isPerformanceError,
+    isFetching: isPerformanceFetching,
+    refetch: refetchPerformance,
+  } = useQuery({
+    ...squadPerformanceQueryOptions({ sourceId: squad?.id, period }),
+    enabled: !!squad?.id && canViewAnalytics,
+  });
+
+  const {
+    data: postsData,
+    isPending: isPostsPending,
+    isError: isPostsError,
+    isFetching: isPostsFetching,
+    refetch: refetchPosts,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    ...squadPostPerformanceQueryOptions({
+      sourceId: squad?.id,
+      period,
+      sortBy: sort.sortBy,
+      order: sort.order,
+    }),
+    enabled: !!squad?.id && canViewAnalytics,
+  });
+
+  const posts = useMemo(
+    () =>
+      postsData?.pages.flatMap((page) => page.edges.map(({ node }) => node)) ??
+      [],
+    [postsData],
+  );
+
+  const hasNoPosts = !isPostsPending && !isPostsError && posts.length === 0;
+
   const engagement: AnalyticsNumberList = [
     { icon: <UpvoteIcon />, label: 'Upvotes', value: analytics?.upvotes ?? 0 },
     {
@@ -72,13 +152,89 @@ export const SquadManageAnalytics = (): ReactElement => {
       value: analytics?.awards ?? 0,
     },
     { icon: <ShareIcon />, label: 'Shares', value: analytics?.shares ?? 0 },
-    { icon: <ClickIcon />, label: 'Clicks', value: analytics?.clicks ?? 0 },
+    {
+      icon: <ClickIcon />,
+      label: 'Outbound visits',
+      value: analytics?.clicks ?? 0,
+    },
   ];
 
   return (
     <SquadManageSectionPanel section={SquadManageSection.Analytics}>
       <div className="flex flex-col gap-6 px-4 py-6 tablet:px-6">
-        <Section title="Discovery">
+        <Section
+          title="Overview"
+          action={
+            <CreatorPeriodSelect
+              period={period}
+              onChange={setPeriod}
+              disabled={isPerformancePending}
+            />
+          }
+        >
+          {isPerformancePending && <CreatorOverviewSkeleton tiles={3} />}
+          {!isPerformancePending && isPerformanceError && (
+            <CreatorDashboardError
+              title="Could not load the squad overview"
+              onRetry={refetchPerformance}
+              isRetrying={isPerformanceFetching}
+            />
+          )}
+          {!!performance && !isPerformancePending && !isPerformanceError && (
+            <CreatorOverviewSection
+              performance={performance}
+              period={period}
+              audience={CreatorAnalyticsAudience.Squad}
+            />
+          )}
+        </Section>
+        {!isPerformanceError && (
+          <>
+            <HorizontalSeparator />
+            <Section>
+              {isPerformancePending && <CreatorImpressionsSkeleton />}
+              {!!performance && (
+                <CreatorImpressionsSection
+                  performance={performance}
+                  period={period}
+                  audience={CreatorAnalyticsAudience.Squad}
+                />
+              )}
+            </Section>
+          </>
+        )}
+        <HorizontalSeparator />
+        <Section title="Post performance">
+          {isPostsError && (
+            <CreatorDashboardError
+              title="Could not load the squad posts"
+              onRetry={refetchPosts}
+              isRetrying={isPostsFetching}
+            />
+          )}
+          {!isPostsError && hasNoPosts && (
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Secondary}
+            >
+              No posts in this squad yet.
+            </Typography>
+          )}
+          {!isPostsError && !hasNoPosts && (
+            <CreatorPostPerformanceTable
+              posts={posts}
+              sort={sort}
+              onSortChange={setSort}
+              isPending={isPostsPending}
+              hasNextPage={hasNextPage}
+              isFetchingNextPage={isFetchingNextPage}
+              fetchNextPage={fetchNextPage}
+              audience={CreatorAnalyticsAudience.Squad}
+            />
+          )}
+        </Section>
+        <HorizontalSeparator />
+        <Section title="All time">
           <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
             <DataTile
               label="Lifetime impressions"
@@ -97,24 +253,6 @@ export const SquadManageAnalytics = (): ReactElement => {
               }
             />
           </div>
-        </Section>
-        <HorizontalSeparator />
-        <Section
-          title={`Impressions over time (last ${SQUAD_ANALYTICS_HISTORY_DAYS} days)`}
-        >
-          {hasImpressions ? (
-            <CombinedImpressionsChart data={impressions} />
-          ) : (
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Secondary}
-            >
-              {`No impressions data in the last ${SQUAD_ANALYTICS_HISTORY_DAYS} days.`}
-            </Typography>
-          )}
-        </Section>
-        <HorizontalSeparator />
-        <Section title="Engagement">
           <AnalyticsNumbersList data={engagement} />
         </Section>
       </div>

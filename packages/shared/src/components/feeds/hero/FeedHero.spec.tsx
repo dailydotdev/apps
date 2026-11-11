@@ -55,7 +55,7 @@ beforeEach(() => {
   nock.cleanAll();
   jest
     .mocked(useRouter)
-    .mockImplementation(() => ({ pathname: '/' } as unknown as NextRouter));
+    .mockImplementation(() => ({ pathname: '/' }) as unknown as NextRouter);
   jest.mocked(useFeedHeroAd).mockReturnValue({
     ad: undefined,
     placement: 'none',
@@ -155,7 +155,7 @@ describe('FeedHero', () => {
     jest
       .mocked(useRouter)
       .mockImplementation(
-        () => ({ pathname: '/', push } as unknown as NextRouter),
+        () => ({ pathname: '/', push }) as unknown as NextRouter,
       );
     mockHero({ posts, highlights });
 

@@ -61,7 +61,7 @@ const ClickbaitShieldModal = ({
           <Typography type={TypographyType.Title2} bold>
             Clickbait Shield
           </Typography>
-          <PlusUser className="rounded-4 bg-action-plus-float px-1 py-0.5 " />
+          <PlusUser className="rounded-4 bg-action-plus-float px-1 py-0.5" />
         </div>
 
         <Typography

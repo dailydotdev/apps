@@ -53,24 +53,51 @@ const refreshFirstPage = (
   );
 };
 
-export const refreshShell = async (queryClient: QueryClient): Promise<void> => {
+const bounded = (work: Promise<unknown>): Promise<unknown> =>
+  Promise.race([
+    work,
+    new Promise((resolve) => {
+      setTimeout(resolve, refreshBound);
+    }),
+  ]);
+
+export const refreshShell = async (
+  queryClient: QueryClient,
+  { indicator = true }: { indicator?: boolean } = {},
+): Promise<void> => {
   const feeds = queryClient
     .getQueryCache()
     .findAll({ type: 'active', predicate: isRootFeed });
 
-  set(true);
+  set(indicator);
   try {
-    await Promise.race([
+    await bounded(
       Promise.all(
         feeds.map(({ queryKey }) => refreshFirstPage(queryClient, queryKey)),
       ),
-      new Promise((resolve) => {
-        setTimeout(resolve, refreshBound);
-      }),
-    ]);
+    );
   } finally {
     set(false);
   }
+};
+
+// The wrappers' pull to refresh, which shows its own spinner: a root's feed
+// refreshes as the lit tab refreshes it, any other page refetches what is on
+// screen.
+export const refreshPage = async (queryClient: QueryClient): Promise<void> => {
+  const hasFeed =
+    queryClient
+      .getQueryCache()
+      .findAll({ type: 'active', predicate: isRootFeed }).length > 0;
+
+  if (hasFeed) {
+    await refreshShell(queryClient, { indicator: false });
+    return;
+  }
+
+  await bounded(
+    queryClient.refetchQueries({ type: 'active' }, { throwOnError: false }),
+  );
 };
 
 export const useShellRefreshing = (): boolean =>

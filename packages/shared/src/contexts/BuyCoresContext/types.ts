@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { createContext, useContext } from 'react';
 import type { OpenCheckoutFn } from '../payment/context';
 import type { Origin } from '../../lib/log';
+import type { SquadWallet } from '../../graphql/squadWallet';
 
 export const BuyCoresContext = createContext<BuyCoresContextData>(
   undefined as unknown as BuyCoresContextData,
@@ -34,6 +35,12 @@ export type BuyCoresContextData = {
   paddle?: Paddle | undefined;
   openCheckout?: OpenCheckoutFn;
   amountNeeded?: number;
+  /**
+   * The fewest Cores the user has to buy to finish what they came for
+   * (e.g. the Cores a boost is missing). Packs below it are marked as not
+   * enough, and the smallest pack that covers it is recommended.
+   */
+  minCoresToBuy?: number;
   onCompletion?: () => void;
   selectedProduct?: CoreProductOption;
   setSelectedProduct: (product: CoreProductOption) => void;
@@ -50,11 +57,15 @@ export type BuyCoresContextData = {
   }) => void;
   providerTransactionId?: string;
   origin?: Origin;
+  /** The squad wallet the Cores are bought into, the user's own when unset */
+  squadWallet?: SquadWallet;
 };
 
 export type BuyCoresContextProviderProps = {
   children?: ReactNode;
   origin: Origin;
   amountNeeded?: number;
+  minCoresToBuy?: number;
   onCompletion?: () => void;
+  squadWallet?: SquadWallet;
 };

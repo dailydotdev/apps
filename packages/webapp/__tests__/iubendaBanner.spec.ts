@@ -19,7 +19,12 @@ const query = <T extends Element>(selector: string): T => {
   return element;
 };
 
-const mountBanner = (): HTMLElement => {
+// the TCF banner carries iubenda's vendor-list link mid-paragraph, right
+// after the vendor count; a banner outside TCF has neither
+const mountBanner = ({ tcf = true } = {}): HTMLElement => {
+  const partners = tcf
+    ? '1233 selected <a href="#" class="iubenda-vendor-list-link">third parties</a>'
+    : 'selected third parties';
   const banner = document.createElement('div');
   banner.id = 'iubenda-cs-banner';
   banner.innerHTML = `
@@ -27,7 +32,7 @@ const mountBanner = (): HTMLElement => {
       <div class="iubenda-cs-content">
         <div class="iubenda-banner-content">
           <h2 id="iubenda-cs-title">We value your privacy</h2>
-          <div id="iubenda-cs-paragraph">Mandated copy<br>More mandated copy <a href="#">Cookie Policy</a></div>
+          <div id="iubenda-cs-paragraph">Mandated copy<br>With respect to advertising, we and ${partners} may process personal data. <a href="#">Cookie Policy</a></div>
         </div>
         <button class="iubenda-cs-close-btn"><span>×</span></button>
         <div class="iubenda-cs-counter">Press again to continue 0/2</div>
@@ -103,6 +108,36 @@ it('localizes the labels from the language iubenda resolved', () => {
     'aria-label',
     'Anpassen',
   );
+  expect(document.querySelector('.dd-cs-vendors')).toHaveTextContent(
+    'Anbieterliste (1233)',
+  );
+});
+
+it('keeps the vendor list reachable while the copy is clamped', () => {
+  mountBanner();
+  setClamped(true);
+  cleanup = watchIubendaBanner();
+
+  // iubenda's own link is clamped away with the paragraph; ours sits beside
+  // Show more, carries the count iubenda printed, and opens the same thing
+  const vendors = query<HTMLButtonElement>('.dd-cs-vendors');
+  expect(vendors.closest('.dd-cs-links')).toContainElement(
+    query<HTMLElement>('.dd-cs-more'),
+  );
+  expect(vendors).toHaveTextContent('Vendor list (1233)');
+
+  const onOpen = jest.fn((event: Event) => event.preventDefault());
+  query('.iubenda-vendor-list-link').addEventListener('click', onOpen);
+  vendors.click();
+  expect(onOpen).toHaveBeenCalledTimes(1);
+});
+
+it('adds no vendor control to a banner without a vendor list', () => {
+  mountBanner({ tcf: false });
+  cleanup = watchIubendaBanner();
+
+  expect(document.querySelector('.dd-cs-vendors')).toBeNull();
+  expect(query('.dd-cs-more')).toBeInTheDocument();
 });
 
 it('collapses copy taller than the clamp and expands it on demand', () => {
@@ -223,13 +258,17 @@ it('falls back to English for a language it has no labels for', () => {
 
 it('replaces an orphaned toggle instead of rendering a second one', () => {
   const banner = mountBanner();
-  const orphan = document.createElement('button');
-  orphan.className = 'dd-cs-more';
+  const orphan = document.createElement('span');
+  orphan.className = 'dd-cs-links';
+  orphan.innerHTML =
+    '<button class="dd-cs-more"></button><button class="dd-cs-vendors"></button>';
   query('.iubenda-cs-opt-group').appendChild(orphan);
 
   cleanup = watchIubendaBanner();
 
+  expect(banner.querySelectorAll('.dd-cs-links')).toHaveLength(1);
   expect(banner.querySelectorAll('.dd-cs-more')).toHaveLength(1);
+  expect(banner.querySelectorAll('.dd-cs-vendors')).toHaveLength(1);
 });
 
 it('disposes itself once iubenda removes the banner, and rebuilds for the next one', async () => {

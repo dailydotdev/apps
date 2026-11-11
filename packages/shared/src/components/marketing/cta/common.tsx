@@ -29,7 +29,6 @@ export enum MarketingCtaVariant {
   PlusBookmarkTab = 'plus_bookmark_tab',
   PlusAnnouncementBar = 'plus_announcement_bar',
   FeedBanner = 'feed_banner',
-  BriefCard = 'brief_card',
   YearInReview = 'year_in_review',
   HelpGuide = 'help_guide',
   Video = 'video',

@@ -65,7 +65,7 @@ describe('SquadMemberItemOptionsButton', () => {
         image: 'https://daily.dev/avatar.jpg',
         permalink: '/taylor',
       },
-    } as unknown as SourceMember);
+    }) as unknown as SourceMember;
 
   beforeEach(() => {
     jest.clearAllMocks();

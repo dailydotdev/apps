@@ -1,0 +1,1350 @@
+import type { FormEvent, MutableRefObject, ReactElement } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import classNames from 'classnames';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  Button,
+  ButtonIconPosition,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../../components/buttons/Button';
+import {
+  CharmEmptyState,
+  CharmEmptyStatePlacement,
+} from '../../../../components/charm/CharmEmptyState';
+import { TextField } from '../../../../components/fields/TextField';
+import {
+  MoveToIcon,
+  OpenLinkIcon,
+  PlusIcon,
+  SquadIcon,
+  VIcon,
+} from '../../../../components/icons';
+import { IconSize } from '../../../../components/Icon';
+import { Loader } from '../../../../components/Loader';
+import { Tooltip } from '../../../../components/tooltip/Tooltip';
+import { SquadImage } from '../../../../components/squads/SquadImage';
+import { useAuthContext } from '../../../../contexts/AuthContext';
+import { useSquadCreate } from '../../../../hooks/squads/useSquadCreate';
+import { useSquad } from '../../../../hooks/squads/useSquad';
+import { usePaddlePayment } from '../../../../hooks/usePaddlePayment';
+import { usePixelsContext } from '../../../../contexts/PixelsContext';
+import { formatCurrency } from '../../../../lib/utils';
+import { useViewSize, ViewSize } from '../../../../hooks/useViewSize';
+import type { Squad } from '../../../../graphql/sources';
+import { SourceMemberRole } from '../../../../graphql/sources';
+import { PrivacyOption } from '../../../../graphql/squads';
+import AuthOptions from '../../../../components/auth/AuthOptions';
+import { AuthDisplay, providerMap } from '../../../../components/auth/common';
+import { AuthTriggers } from '../../../../lib/auth';
+import { cloudinaryCharmSomethingWentWrong } from '../../../../lib/image';
+import { findFreeSquadHandle, toSquadHandle } from '../../lib/handle';
+import { PurchaseType } from '../../../../graphql/paddle';
+import {
+  saveStartupsGoals,
+  squadSubscriptionQueryOptions,
+} from '../../../../graphql/squadSubscription';
+import { webappUrl } from '../../../../lib/constants';
+import { storageWrapper } from '../../../../lib/storageWrapper';
+import { RequestKey } from '../../../../lib/query';
+import { LogEvent, Origin } from '../../../../lib/log';
+import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
+import { getSquadId } from '../../lib/features';
+import {
+  getSquadPlanPriceId,
+  getSquadPlanTitle,
+  isSquadPlan,
+  formatSquadPlanCredits,
+  SQUAD_PLAN_LIST_PRICE_USD,
+  SQUAD_PLAN_SEATS,
+  SquadPlan,
+  squadPlanDetails,
+  squadPlans,
+  startupsEnterpriseUrl,
+} from '../../lib/plans';
+import { useSquadPlanPrices } from '../../hooks/useSquadPlanPrices';
+import { useStartupsSetupRefresh } from '../../hooks/useStartupsSetupRefresh';
+import { useStartupsCashbackPromo } from '../../hooks/useStartupsCashbackPromo';
+import { getSavedCheckoutAttribution } from '../../lib/checkoutAttribution';
+import {
+  SquadLaunchOfferBanner,
+  SquadPlanCashback,
+} from '../SquadPlanCashback';
+import { useLogStartups } from '../../hooks/useLogStartups';
+import {
+  StartupsSetup,
+  startupsSetupRowTitles,
+  useStartupsSetupProgress,
+} from '../setup/StartupsSetup';
+import {
+  StartupsPagePreview,
+  StartupsStageSurface,
+} from '../setup/StartupsPagePreview';
+import type { StartupsSetupRow } from '../setup/StartupsSetupEditor';
+import { StartupsSetupEditor } from '../setup/StartupsSetupEditor';
+import type { CheckoutBack } from './CheckoutShell';
+import {
+  CheckoutCta,
+  CheckoutShell,
+  CheckoutSkeleton,
+  CheckoutStage,
+  CheckoutTitle,
+} from './CheckoutShell';
+import { startupsCrewCheerImage } from './StartupsCrewOnBase';
+import { StartupsNameStunt } from './StartupsNameStunt';
+import { StartupsSignupPanel } from './StartupsSignupPanel';
+import type { StartupsGoalAnswers } from './StartupsGoalQuestion';
+import {
+  getStartupsGoalAnswers,
+  StartupsGoalQuestion,
+} from './StartupsGoalQuestion';
+
+export enum StartupsCheckoutStep {
+  Account = 'account',
+  Company = 'company',
+  Plan = 'plan',
+  Checkout = 'checkout',
+  Done = 'done',
+}
+
+// How long the done step waits for the payment webhook before it asks the
+// buyer to check back
+const ACTIVATION_POLL_MS = 2000;
+const ACTIVATION_TIMEOUT_MS = 60000;
+// How long the payment form gets to load before it counts as failed
+const PADDLE_TIMEOUT_MS = 15000;
+
+type CompanyChoice = Partial<Squad> &
+  Pick<Squad, 'name' | 'handle'> & {
+    id: string;
+  };
+
+const signupProviders = [providerMap.github, providerMap.google];
+
+// Where each screen's back goes
+const backLabels: Partial<Record<string, string>> = {
+  [AuthDisplay.Default]: 'Other options',
+  [AuthDisplay.Registration]: 'Other options',
+  [AuthDisplay.EmailVerification]: 'Change email',
+  [AuthDisplay.ForgotPassword]: 'Back to log in',
+};
+
+/**
+ * A visitor from the landing page signs up right here, then the page starts
+ * the checkout for them: no feed onboarding in between.
+ */
+const AccountStep = ({
+  initialDisplay = AuthDisplay.Default,
+  initialEmail,
+}: {
+  initialDisplay?: AuthDisplay;
+  initialEmail?: string;
+}): ReactElement => {
+  const [display, setDisplay] = useState<string>(initialDisplay);
+  const [isLogIn, setIsLogIn] = useState(false);
+  const [onScreenBack, setOnScreenBack] = useState<() => void>();
+  const onScreenBackChange = useCallback(
+    (next?: () => void) => setOnScreenBack(() => next),
+    [],
+  );
+  const back: CheckoutBack | undefined = onScreenBack && {
+    label: backLabels[display] ?? 'Back',
+    onClick: onScreenBack,
+  };
+
+  return (
+    <CheckoutShell
+      current={CheckoutStage.Account}
+      aside={<StartupsSignupPanel />}
+      isPhoneWall={display === AuthDisplay.Default && !back && !isLogIn}
+      phoneBack={back}
+    >
+      {back && display !== AuthDisplay.EmailVerification && (
+        <div
+          className="relative hidden w-full laptop:block"
+          style={{ height: 0, marginBottom: -24 }}
+        >
+          <Button
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            className="absolute whitespace-nowrap"
+            style={{ left: -8, bottom: 12 }}
+            icon={<MoveToIcon size={IconSize.Size16} className="rotate-180" />}
+            onClick={back.onClick}
+          >
+            {back.label}
+          </Button>
+        </div>
+      )}
+      <div className="flex flex-col">
+        <AuthOptions
+          formRef={null as unknown as MutableRefObject<HTMLFormElement>}
+          trigger={AuthTriggers.StartupsCheckout}
+          simplified
+          preferGithub
+          defaultDisplay={initialDisplay}
+          initialEmail={initialEmail}
+          isLoginFlow={false}
+          hideRegistrationHeadline
+          signUpTitle="Create your account"
+          logInTitle="Welcome back"
+          signUpDescription="Get your company page on daily.dev. Your agent handles the marketing from there."
+          logInDescription="Log in, then pick the page this plan is for."
+          signupProviders={signupProviders}
+          onDisplayChange={setDisplay}
+          onScreenBackChange={onScreenBackChange}
+          onLogInChange={setIsLogIn}
+        />
+      </div>
+    </CheckoutShell>
+  );
+};
+
+const CompanyRow = ({
+  company,
+  isSelected,
+  planTitle,
+  onClick,
+}: {
+  company: CompanyChoice;
+  isSelected: boolean;
+  /** Already paid for. Says so on the row, with the detail on hover. */
+  planTitle?: string;
+  onClick: () => void;
+}): ReactElement => (
+  <button
+    type="button"
+    role="radio"
+    aria-checked={isSelected}
+    onClick={onClick}
+    className={classNames(
+      'flex items-center gap-3 rounded-16 border p-3 text-left',
+      isSelected
+        ? 'border-accent-cabbage-default bg-surface-float'
+        : 'border-border-subtlest-tertiary hover:border-border-subtlest-secondary',
+    )}
+  >
+    <SquadImage {...(company as Squad)} className="size-10 shrink-0" />
+    <span className="flex min-w-0 flex-1 flex-col">
+      <span className="truncate font-bold typo-callout">{company.name}</span>
+      <span className="truncate text-text-tertiary typo-footnote">
+        {`@${company.handle}`}
+      </span>
+    </span>
+    {planTitle && (
+      <Tooltip
+        content={`${company.name} is already on ${planTitle}, so there's nothing to pay for.`}
+      >
+        <span className="shrink-0 rounded-8 bg-surface-float px-2 py-0.5 font-bold text-text-secondary typo-caption1">
+          {`On ${planTitle}`}
+        </span>
+      </Tooltip>
+    )}
+  </button>
+);
+
+const CompanyStep = ({
+  adminSquads,
+  selectedId,
+  onSelect,
+  onContinue,
+  onSetUp,
+}: {
+  adminSquads: CompanyChoice[];
+  selectedId?: string | null;
+  onSelect: (id: string | null) => void;
+  onContinue: (squad: CompanyChoice, isNew: boolean) => void;
+  /** A page already on a plan goes on to its setup, as after paying */
+  onSetUp: (squad: CompanyChoice, plan: SquadPlan) => void;
+}): ReactElement => {
+  const { user } = useAuthContext();
+  const selected = adminSquads.find(({ id }) => id === selectedId);
+  const hasPages = adminSquads.length > 0;
+  const [name, setName] = useState('');
+  const [isMissing, setMissing] = useState(false);
+  const [isFindingHandle, setFindingHandle] = useState(false);
+  const [goalAnswers, setGoalAnswers] = useState<StartupsGoalAnswers>({
+    goals: [],
+    text: '',
+  });
+  const logStartups = useLogStartups();
+
+  const logGoalAnswers = (sourceId: string) => {
+    const answers = getStartupsGoalAnswers(goalAnswers);
+    const extra = { source_id: sourceId };
+
+    if (!answers.length) {
+      logStartups(LogEvent.SkipStartupsGoal, undefined, extra);
+    }
+
+    // One event per answer, so counting an answer is counting its events
+    answers.forEach(({ goal, text }) =>
+      logStartups(LogEvent.SelectStartupsGoal, goal, {
+        ...extra,
+        ...(text && { text }),
+      }),
+    );
+
+    if (answers.length) {
+      // The answer is a nice-to-have: a failed save never holds up checkout
+      saveStartupsGoals({
+        sourceId,
+        goals: answers.map(({ goal }) => goal),
+        other: answers.find(({ text }) => text)?.text,
+      }).catch(() => undefined);
+    }
+  };
+
+  const { onCreateSquad, isLoading } = useSquadCreate({
+    onSuccess: (squad) => {
+      const company = { ...squad, id: getSquadId(squad) };
+
+      if (!hasPages) {
+        logGoalAnswers(company.id);
+      }
+
+      onContinue(company, true);
+    },
+  });
+  const { data: subscription, isFetching } = useQuery(
+    squadSubscriptionQueryOptions({ user, sourceId: selected?.id }),
+  );
+  const activePlan = selected && subscription?.plan;
+  const companyName = name.trim();
+  const isBusy = isFindingHandle || isLoading;
+
+  const getHint = (): string => {
+    if (isMissing && !companyName) {
+      return 'Add a name to continue.';
+    }
+
+    return companyName
+      ? `Your page: daily.dev/squads/${toSquadHandle(companyName)}`
+      : ' ';
+  };
+
+  // Only the name is asked: the logo, description and the rest are set up
+  // after payment, by hand or by the buyer's agent.
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (isBusy) {
+      return;
+    }
+
+    if (selected) {
+      onContinue(selected, false);
+      return;
+    }
+
+    if (!companyName) {
+      setMissing(true);
+      return;
+    }
+
+    setFindingHandle(true);
+    const handle = await findFreeSquadHandle(companyName).finally(() =>
+      setFindingHandle(false),
+    );
+
+    // A company page is public, and only its team posts to it
+    onCreateSquad({
+      name: companyName,
+      handle,
+      description: '',
+      status: PrivacyOption.Public,
+      memberPostingRole: SourceMemberRole.Moderator,
+      memberInviteRole: SourceMemberRole.Member,
+      moderationRequired: false,
+    });
+  };
+
+  return (
+    <CheckoutShell
+      current={CheckoutStage.Company}
+      isTall={adminSquads.length > 3}
+      aside={<StartupsNameStunt name={selected?.name ?? name} />}
+    >
+      <CheckoutTitle
+        title={hasPages ? 'Which page is this for?' : 'Name your company'}
+        description="It becomes your page on daily.dev, where your posts live."
+      />
+      <form onSubmit={onSubmit} className="flex flex-col gap-6" noValidate>
+        {hasPages && (
+          <div role="radiogroup" className="flex flex-col gap-2">
+            {adminSquads.map((squad) => (
+              <CompanyRow
+                key={squad.id}
+                company={squad}
+                isSelected={squad.id === selectedId}
+                planTitle={
+                  squad.id === selectedId && activePlan
+                    ? getSquadPlanTitle(activePlan)
+                    : undefined
+                }
+                onClick={() => onSelect(squad.id)}
+              />
+            ))}
+          </div>
+        )}
+        <div className="flex flex-col gap-1">
+          {/* Always here, so choosing to create one moves nothing. */}
+          <div onFocusCapture={() => onSelect(null)}>
+            <TextField
+              // Pages can arrive after the first render: keep the focus off it
+              key={hasPages ? 'new-page' : 'first-page'}
+              value={name}
+              autoFocus={!hasPages}
+              inputId="startups-company-name"
+              name="name"
+              autoComplete="organization"
+              label={hasPages ? 'Or create a new page' : 'Company name'}
+              leftIcon={hasPages ? <PlusIcon /> : <SquadIcon />}
+              className={{ container: 'w-full' }}
+              valueChanged={setName}
+              valid={isMissing && !companyName ? false : undefined}
+              hint={getHint()}
+            />
+          </div>
+        </div>
+        {/* Only for someone naming their first company */}
+        {!hasPages && (
+          <StartupsGoalQuestion value={goalAnswers} onChange={setGoalAnswers} />
+        )}
+        {activePlan ? (
+          <CheckoutCta>
+            <Button
+              tag="a"
+              href={getSquadManageUrl(selected.handle, SquadManageSection.Plan)}
+              variant={
+                isSquadPlan(activePlan)
+                  ? ButtonVariant.Float
+                  : ButtonVariant.Primary
+              }
+              className="flex-1"
+            >
+              Manage subscription
+            </Button>
+            {isSquadPlan(activePlan) && (
+              <Button
+                type="button"
+                variant={ButtonVariant.Primary}
+                className="flex-1"
+                onClick={() => onSetUp(selected, activePlan)}
+              >
+                Set up your page
+              </Button>
+            )}
+          </CheckoutCta>
+        ) : (
+          <CheckoutCta>
+            <Button
+              type="submit"
+              variant={ButtonVariant.Primary}
+              className="flex-1"
+              loading={isBusy || (!!selected && isFetching)}
+              disabled={isBusy || (!!selected && isFetching)}
+            >
+              Continue
+            </Button>
+          </CheckoutCta>
+        )}
+      </form>
+    </CheckoutShell>
+  );
+};
+
+const PlanOption = ({
+  plan,
+  price,
+  isSelected,
+  onClick,
+}: {
+  plan: SquadPlan;
+  price: string;
+  isSelected: boolean;
+  onClick: () => void;
+}): ReactElement => (
+  <button
+    type="button"
+    role="radio"
+    aria-checked={isSelected}
+    onClick={onClick}
+    className={classNames(
+      'flex flex-col gap-3 rounded-16 border p-4 text-left',
+      isSelected
+        ? 'border-accent-cabbage-default bg-surface-float'
+        : 'border-border-subtlest-tertiary hover:border-border-subtlest-secondary',
+    )}
+  >
+    <span className="flex flex-wrap items-center gap-2">
+      <span
+        className={classNames(
+          'flex size-5 shrink-0 items-center justify-center rounded-full border',
+          isSelected
+            ? 'border-accent-cabbage-default bg-accent-cabbage-default'
+            : 'border-border-subtlest-secondary',
+        )}
+      >
+        {isSelected && <VIcon size={IconSize.Size16} />}
+      </span>
+      <span className="font-bold typo-title3">
+        {squadPlanDetails[plan].title}
+      </span>
+      {plan === SquadPlan.Starter && (
+        <span className="rounded-8 bg-accent-cabbage-flat px-2 py-0.5 font-bold text-accent-cabbage-default typo-caption1">
+          Recommended
+        </span>
+      )}
+      <span className="ml-auto whitespace-nowrap">
+        <span className="font-bold tabular-nums typo-title3">{price}</span>
+        <span className="text-text-tertiary typo-footnote"> / month</span>
+      </span>
+    </span>
+    <SquadPlanCashback plan={plan} />
+    <span className="text-text-tertiary typo-footnote">
+      {squadPlanDetails[plan].tagline}
+    </span>
+  </button>
+);
+
+/** One box under the plans, so choosing a plan changes its words and moves nothing. */
+const PlanIncludes = ({ plan }: { plan: SquadPlan }): ReactElement => (
+  <div className="grid">
+    {squadPlans.map((option) => (
+      <ul
+        key={option}
+        aria-hidden={option !== plan}
+        className="flex flex-col gap-1.5 px-1"
+        style={{
+          gridArea: '1 / 1',
+          visibility: option === plan ? 'visible' : 'hidden',
+        }}
+      >
+        <li className="font-bold text-text-tertiary typo-footnote">
+          {squadPlanDetails[option].featuresTitle}
+        </li>
+        {squadPlanDetails[option].features.map((feature) => (
+          <li
+            key={feature}
+            className="flex items-start gap-2 text-text-secondary typo-footnote"
+          >
+            <VIcon
+              size={IconSize.Size16}
+              className="shrink-0 text-accent-avocado-default"
+            />
+            <span className="min-w-0 flex-1">{feature}</span>
+          </li>
+        ))}
+      </ul>
+    ))}
+  </div>
+);
+
+const PaymentPanel = ({
+  company,
+  plan,
+  price,
+  onChangePlan,
+  onPaid,
+}: {
+  company: CompanyChoice;
+  plan: SquadPlan;
+  price: string;
+  onChangePlan: () => void;
+  onPaid: () => void;
+}): ReactElement => {
+  const cashbackPromo = useStartupsCashbackPromo();
+  const { trackEvent } = usePixelsContext();
+  const { openCheckout, isPaddleReady, checkoutTotals } = usePaddlePayment({
+    priceType: PurchaseType.Startups,
+    successCallback: (event) => {
+      const totals = event?.data?.totals;
+      trackEvent(
+        'Subscribe',
+        {
+          content_name: 'startups',
+          content_category: plan,
+          value: totals ? totals.total - totals.tax : 0,
+          currency: event?.data?.currency_code,
+        },
+        { eventId: event?.data?.transaction_id },
+      );
+      onPaid();
+    },
+    origin: Origin.StartupsCheckout,
+    logExtra: { plan, source_id: company.id },
+  });
+  const openedRef = useRef<string>();
+  const [isTimedOut, setTimedOut] = useState(false);
+  const seats = SQUAD_PLAN_SEATS[plan];
+  // Paddle knows the real amount once a discount or tax is applied
+  const formatTotal = (value: number) =>
+    formatCurrency(value, {
+      style: 'currency',
+      currency: checkoutTotals?.currency,
+    });
+
+  useEffect(() => {
+    const priceId = getSquadPlanPriceId(plan);
+
+    if (!isPaddleReady || openedRef.current === priceId) {
+      return;
+    }
+
+    if (!openedRef.current) {
+      trackEvent('InitiateCheckout', {
+        content_name: 'startups',
+        content_category: plan,
+        value: SQUAD_PLAN_LIST_PRICE_USD[plan],
+        currency: 'USD',
+      });
+    }
+    // A second call while the frame is open swaps the item in place
+    openedRef.current = priceId;
+    openCheckout({
+      priceId,
+      customData: { ...getSavedCheckoutAttribution(), source_id: company.id },
+    });
+  }, [company.id, isPaddleReady, openCheckout, plan, trackEvent]);
+
+  useEffect(() => {
+    if (isPaddleReady) {
+      return undefined;
+    }
+
+    const timeout = setTimeout(() => setTimedOut(true), PADDLE_TIMEOUT_MS);
+
+    return () => clearTimeout(timeout);
+  }, [isPaddleReady]);
+
+  return (
+    <StartupsStageSurface className="flex min-h-full w-full flex-col gap-4 p-2 laptop:p-6">
+      {/* The order summary Paddle asks for (items, renewal terms, tax and
+          total; its inline frame shows none of them) in two lines, so the
+          frame and its pay button start high enough to sit above the fold
+          (Ido, 2026-11-09: the button was easy to miss below it). */}
+      <div className="flex flex-col gap-1 border-b border-border-subtlest-tertiary pb-4">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="min-w-0 truncate font-bold typo-body">
+            {`${squadPlanDetails[plan].title} plan for ${company.name}`}
+          </h2>
+          <span className="shrink-0 font-bold tabular-nums typo-body">
+            {`${checkoutTotals ? formatTotal(checkoutTotals.total) : price} today`}
+          </span>
+        </div>
+        <p className="text-text-tertiary typo-footnote">
+          {`${price} a month plus tax for your country. ${seats} ${
+            seats === 1 ? 'seat' : 'seats'
+          }, ${formatSquadPlanCredits(
+            plan,
+            cashbackPromo,
+          )} every month. Renews monthly, cancel any time.`}
+          {!!checkoutTotals?.discount &&
+            ` Discount: -${formatTotal(checkoutTotals.discount)}.`}
+        </p>
+        <Button
+          className="mt-1 self-start laptop:hidden"
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.XSmall}
+          onClick={onChangePlan}
+        >
+          Change plan
+        </Button>
+      </div>
+      {isTimedOut && !isPaddleReady ? (
+        <CharmEmptyState
+          placement={CharmEmptyStatePlacement.Inline}
+          className="my-auto"
+          image={cloudinaryCharmSomethingWentWrong}
+          imageAlt="daily.dev charm with something gone wrong"
+          title="The payment form didn't load"
+          description="An ad blocker or a network filter usually causes this. You haven't been charged, and your company page and plan choice are saved."
+          action={{
+            label: 'Try again',
+            onClick: () => globalThis.location?.reload(),
+          }}
+        />
+      ) : (
+        <div className="relative flex-1" style={{ minHeight: '28rem' }}>
+          {!isPaddleReady && (
+            <div className="absolute inset-0 flex flex-col gap-3" aria-busy>
+              <div className="grid grid-cols-2 gap-2">
+                <CheckoutSkeleton className="h-16 rounded-10" />
+                <CheckoutSkeleton className="h-16 rounded-10" />
+              </div>
+              <CheckoutSkeleton className="h-14 rounded-10" />
+              <CheckoutSkeleton className="h-14 rounded-10" />
+              <span className="flex-1" />
+              <CheckoutSkeleton className="h-12 rounded-14" />
+            </div>
+          )}
+          <div className="checkout-container relative min-w-0" />
+        </div>
+      )}
+    </StartupsStageSurface>
+  );
+};
+
+const PlanStep = ({
+  company,
+  plan,
+  isPaying,
+  answers,
+  onSelect,
+  onPay,
+  onChoose,
+  onPaid,
+}: {
+  company: CompanyChoice;
+  plan: SquadPlan;
+  /** On a phone, choosing and paying are two screens. */
+  isPaying: boolean;
+  answers: Partial<Record<CheckoutStage, string>>;
+  onSelect: (plan: SquadPlan) => void;
+  onPay: () => void;
+  onChoose: () => void;
+  onPaid: () => void;
+}): ReactElement => {
+  const prices = useSquadPlanPrices();
+  const logStartups = useLogStartups();
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const payment = (
+    <PaymentPanel
+      company={company}
+      plan={plan}
+      price={prices[plan]}
+      onChangePlan={onChoose}
+      onPaid={onPaid}
+    />
+  );
+
+  // On a phone, paying is a screen of its own under the same logo and stepper.
+  if (!isLaptop && isPaying) {
+    return (
+      <CheckoutShell current={CheckoutStage.Plan} answers={answers} isTall>
+        <div style={{ paddingTop: 24 }}>{payment}</div>
+      </CheckoutShell>
+    );
+  }
+
+  return (
+    <CheckoutShell
+      current={CheckoutStage.Plan}
+      answers={answers}
+      isTall
+      isAsideFlowing
+      aside={isLaptop && payment}
+    >
+      <CheckoutTitle
+        title={`Choose a plan for ${company.name}`}
+        description="Billed monthly. Cancel any time, your page and posts stay."
+      />
+      <SquadLaunchOfferBanner />
+      <div role="radiogroup" className="flex flex-col gap-3">
+        {squadPlans.map((option) => (
+          <PlanOption
+            key={option}
+            plan={option}
+            price={prices[option]}
+            isSelected={option === plan}
+            onClick={() => onSelect(option)}
+          />
+        ))}
+      </div>
+      <PlanIncludes plan={plan} />
+      <div className="laptop:hidden">
+        <CheckoutCta>
+          <Button
+            variant={ButtonVariant.Primary}
+            className="flex-1"
+            onClick={onPay}
+          >
+            {`Continue with ${squadPlanDetails[plan].title}`}
+          </Button>
+        </CheckoutCta>
+      </div>
+      <Button
+        tag="a"
+        href={startupsEnterpriseUrl}
+        target="_blank"
+        rel="noopener"
+        onClick={() =>
+          logStartups(LogEvent.UpgradeSubscription, 'enterprise', {
+            origin: Origin.StartupsCheckout,
+            source_id: company.id,
+          })
+        }
+        variant={ButtonVariant.Tertiary}
+        size={ButtonSize.Small}
+        className="-ml-2 self-start"
+        icon={<OpenLinkIcon />}
+      >
+        Need more? Talk to us about Enterprise
+      </Button>
+    </CheckoutShell>
+  );
+};
+
+const StatusLine = ({
+  state,
+  children,
+}: {
+  state: 'done' | 'working' | 'waiting';
+  children: string;
+}): ReactElement => (
+  <li className="flex items-center gap-3 typo-callout">
+    <span className="flex size-6 shrink-0 items-center justify-center">
+      {state === 'done' && (
+        <VIcon className="text-accent-avocado-default" secondary />
+      )}
+      {state === 'working' && <Loader />}
+      {state === 'waiting' && (
+        <span className="size-5 rounded-full border border-dashed border-border-subtlest-secondary" />
+      )}
+    </span>
+    <span
+      className={classNames(
+        'min-w-0 flex-1',
+        state === 'waiting' ? 'text-text-tertiary' : 'text-text-primary',
+      )}
+    >
+      {children}
+    </span>
+  </li>
+);
+
+const SetupStep = ({
+  squad,
+  company,
+  plan,
+  answers,
+  pageUrl,
+}: {
+  squad: Squad;
+  company: CompanyChoice;
+  plan: SquadPlan;
+  answers: Partial<Record<CheckoutStage, string>>;
+  pageUrl: string;
+}): ReactElement => {
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const [editing, setEditing] = useState<StartupsSetupRow>();
+  const checklistScroll = useRef(0);
+  const { done, isComplete, product, cta } = useStartupsSetupProgress(
+    squad,
+    plan,
+  );
+  // Shows what the founder's agent changes over MCP as it happens
+  useStartupsSetupRefresh({ squad, enabled: !editing });
+  const preview = (
+    <StartupsPagePreview
+      squad={squad}
+      isTeam={plan === SquadPlan.Team}
+      product={product}
+      cta={cta}
+      hasSeats={done.seats}
+    />
+  );
+
+  // On a phone the settings cover this screen, so coming back lands at the same
+  // place in the checklist.
+  useEffect(() => {
+    if (!isLaptop) {
+      globalThis.scrollTo?.({
+        top: editing ? 0 : checklistScroll.current,
+        behavior: 'instant',
+      });
+    }
+  }, [editing, isLaptop]);
+
+  const editor = editing && (
+    <StartupsSetupEditor
+      key={editing}
+      squad={squad}
+      row={editing}
+      title={startupsSetupRowTitles[editing]}
+      isPage={!isLaptop}
+      onClose={() => setEditing(undefined)}
+    />
+  );
+
+  return (
+    <>
+      {!isLaptop && editor}
+      {/* Stays mounted under a phone's editor, so its tab isn't lost. */}
+      <div className={classNames(!isLaptop && editing && 'hidden')}>
+        <CheckoutShell
+          current={CheckoutStage.Setup}
+          answers={answers}
+          isComplete={isComplete}
+          isTall
+          aside={isLaptop && (editor || preview)}
+        >
+          <CheckoutTitle
+            title={
+              isComplete
+                ? `${company.name} is ready`
+                : `You're in. ${company.name} is on ${squadPlanDetails[plan].title}.`
+            }
+            description={
+              isComplete
+                ? 'Your page is set up. Your agent can post and boost from here on.'
+                : 'Your page is live. Set it up with your agent, or yourself.'
+            }
+          />
+          {isComplete && (
+            <img
+              src={startupsCrewCheerImage}
+              alt=""
+              className="h-24 self-start object-contain"
+            />
+          )}
+          {!isComplete && (
+            <StartupsSetup
+              squad={squad}
+              plan={plan}
+              origin={Origin.StartupsCheckout}
+              onEditRow={(row) => {
+                checklistScroll.current = globalThis.scrollY ?? 0;
+                setEditing(row);
+              }}
+            />
+          )}
+          <Button
+            tag="a"
+            href={pageUrl}
+            variant={isComplete ? ButtonVariant.Primary : ButtonVariant.Subtle}
+            className="self-start"
+            icon={<OpenLinkIcon size={IconSize.Size16} />}
+            iconPosition={ButtonIconPosition.Right}
+          >
+            Open your page
+          </Button>
+          {!isLaptop && <div className="p-2 pb-4">{preview}</div>}
+        </CheckoutShell>
+      </div>
+    </>
+  );
+};
+
+/** The plan is on, and the page's details are still arriving. */
+const SetupLoading = ({
+  company,
+  plan,
+  answers,
+  pageUrl,
+}: {
+  company: CompanyChoice;
+  plan: SquadPlan;
+  answers: Partial<Record<CheckoutStage, string>>;
+  pageUrl: string;
+}): ReactElement => {
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const preview = (
+    <StartupsPagePreview
+      squad={company as Squad}
+      isTeam={plan === SquadPlan.Team}
+    />
+  );
+
+  return (
+    <CheckoutShell
+      current={CheckoutStage.Setup}
+      answers={answers}
+      isTall
+      aside={isLaptop && preview}
+    >
+      <CheckoutTitle
+        title={`You're in. ${company.name} is on ${squadPlanDetails[plan].title}.`}
+        description="Your page is live. Set it up with your agent, or yourself."
+      />
+      <div className="flex flex-col gap-5" aria-busy>
+        <CheckoutSkeleton className="h-11 rounded-14" />
+        <div className="flex flex-col gap-4">
+          {[0, 1, 2, 3].map((row) => (
+            <div key={row} className="flex items-center gap-3">
+              <CheckoutSkeleton className="size-6 rounded-full" />
+              <div className="flex min-w-0 flex-1 flex-col gap-2">
+                <CheckoutSkeleton className="h-4 w-1/2 rounded-6" />
+                <CheckoutSkeleton className="h-3 w-5/6 rounded-6" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <Button
+        tag="a"
+        href={pageUrl}
+        variant={ButtonVariant.Subtle}
+        className="self-start"
+        icon={<OpenLinkIcon size={IconSize.Size16} />}
+        iconPosition={ButtonIconPosition.Right}
+      >
+        Open your page
+      </Button>
+      {!isLaptop && <div className="p-2 pb-4">{preview}</div>}
+    </CheckoutShell>
+  );
+};
+
+const DoneStep = ({
+  company,
+  plan,
+  answers,
+  isReturning,
+}: {
+  company: CompanyChoice;
+  plan: SquadPlan;
+  answers: Partial<Record<CheckoutStage, string>>;
+  /** Back to set up a page that was already on a plan, nothing was paid */
+  isReturning?: boolean;
+}): ReactElement => {
+  const { user, refetchBoot } = useAuthContext();
+  const client = useQueryClient();
+  const [startedAt] = useState(() => Date.now());
+  const [isTimedOut, setTimedOut] = useState(false);
+  const { data: subscription } = useQuery(
+    squadSubscriptionQueryOptions({
+      user,
+      sourceId: company.id,
+      refetchInterval: (query) =>
+        query.state.data?.plan || isTimedOut ? false : ACTIVATION_POLL_MS,
+    }),
+  );
+  const isActive = !!subscription?.plan;
+  const { squad } = useSquad({ handle: company.handle });
+  const logStartups = useLogStartups();
+  const planTitle = squadPlanDetails[plan].title;
+
+  useEffect(() => {
+    if (isActive) {
+      if (isReturning) {
+        return undefined;
+      }
+
+      logStartups(LogEvent.ActivateSquadPlan, plan, {
+        source_id: company.id,
+        seconds: Math.round((Date.now() - startedAt) / 1000),
+      });
+      // The squad's features changed with the plan, and boot's squads now
+      // carry the owner's seat, which seat-only settings read
+      client.invalidateQueries({ queryKey: [RequestKey.Squad] });
+      refetchBoot?.();
+      return undefined;
+    }
+
+    const timeout = setTimeout(
+      () => setTimedOut(true),
+      Math.max(ACTIVATION_TIMEOUT_MS - (Date.now() - startedAt), 0),
+    );
+
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [client, isActive, startedAt]);
+
+  useEffect(() => {
+    if (isTimedOut) {
+      logStartups(LogEvent.DelaySquadPlanActivation, plan, {
+        source_id: company.id,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isTimedOut]);
+
+  const pageUrl = company.permalink ?? `${webappUrl}squads/${company.handle}`;
+
+  if (isActive && squad) {
+    return (
+      <SetupStep
+        squad={squad}
+        company={company}
+        plan={plan}
+        answers={answers}
+        pageUrl={pageUrl}
+      />
+    );
+  }
+
+  if (isActive) {
+    return (
+      <SetupLoading
+        company={company}
+        plan={plan}
+        answers={answers}
+        pageUrl={pageUrl}
+      />
+    );
+  }
+
+  return (
+    <CheckoutShell
+      current={CheckoutStage.Setup}
+      answers={answers}
+      aside={<StartupsNameStunt name={company.name} />}
+    >
+      <CheckoutTitle
+        title={isTimedOut ? 'Payment received' : `Setting up ${company.name}…`}
+        description={
+          isTimedOut
+            ? `Your ${planTitle} plan is taking longer than usual to switch on. You don't need to pay again or stay on this page. It will show on ${company.name} in a few minutes, and we'll email you the receipt.`
+            : 'Your payment went through. This takes a few seconds.'
+        }
+      />
+      <ul className="flex flex-col gap-3">
+        <StatusLine state="done">Payment received</StatusLine>
+        <StatusLine state="working">{`Switching on ${planTitle}`}</StatusLine>
+        <StatusLine state="waiting">Adding your boost credits</StatusLine>
+        <StatusLine state="waiting">
+          {`Getting ${company.name}'s page ready`}
+        </StatusLine>
+      </ul>
+      {isTimedOut && (
+        <Button
+          tag="a"
+          href={pageUrl}
+          variant={ButtonVariant.Secondary}
+          className="self-start"
+        >
+          Go to your page
+        </Button>
+      )}
+    </CheckoutShell>
+  );
+};
+
+interface StartupsCheckoutProps {
+  /** From `?plan=`, the plan picked on the landing page */
+  initialPlan?: string;
+  /** From `?squad=`, a squad id picked in its Manage page */
+  initialSquadId?: string;
+  /** Pins a step, for stories */
+  initialStep?: StartupsCheckoutStep;
+  /** Pins the company, for stories */
+  initialCompany?: CompanyChoice;
+  /** Pins the account step's screen, for stories */
+  initialAuthDisplay?: AuthDisplay;
+  /** Pins the account step's email, for stories */
+  initialAuthEmail?: string;
+}
+
+export const StartupsCheckout = ({
+  initialPlan,
+  initialSquadId,
+  initialStep = StartupsCheckoutStep.Company,
+  initialCompany,
+  initialAuthDisplay,
+  initialAuthEmail,
+}: StartupsCheckoutProps): ReactElement => {
+  const { squads, user } = useAuthContext();
+  const { trackEvent } = usePixelsContext();
+  const isSignupTracked = useRef(false);
+  const adminSquads = useMemo<CompanyChoice[]>(
+    () =>
+      (squads ?? []).filter(
+        (squad): squad is Squad & { id: string } =>
+          !!squad.id && squad.currentMember?.role === SourceMemberRole.Admin,
+      ),
+    [squads],
+  );
+  const [step, setStep] = useState(initialStep);
+  const [plan, setPlan] = useState<SquadPlan>(
+    isSquadPlan(initialPlan) ? initialPlan : SquadPlan.Starter,
+  );
+  const [selectedId, setSelectedId] = useState<string | null>(
+    () =>
+      adminSquads.find(({ id }) => id === initialSquadId)?.id ??
+      adminSquads[0]?.id ??
+      null,
+  );
+  const [company, setCompany] = useState<CompanyChoice | undefined>(
+    initialCompany,
+  );
+  const [isNewCompany, setNewCompany] = useState(false);
+  const [isReturning, setReturning] = useState(false);
+  // A link from a squad's own page already says which page this is for, so
+  // it goes straight to the plans, unless that page is already on a plan.
+  const linkedSquad = initialSquadId
+    ? adminSquads.find(({ id }) => id === initialSquadId)
+    : undefined;
+  const [isOpeningLink, setOpeningLink] = useState(
+    () =>
+      !!initialSquadId &&
+      initialStep === StartupsCheckoutStep.Company &&
+      !initialCompany,
+  );
+  const { data: linkedSubscription, isError: isLinkedSubscriptionError } =
+    useQuery({
+      ...squadSubscriptionQueryOptions({ user, sourceId: linkedSquad?.id }),
+      enabled: isOpeningLink && !!user?.id && !!linkedSquad,
+    });
+  const logStartups = useLogStartups();
+  const answers = {
+    [CheckoutStage.Company]: company?.name,
+    [CheckoutStage.Plan]: squadPlanDetails[plan].title,
+  };
+
+  useEffect(() => {
+    // Squads arrive with boot; pick the one the link asked for once they do
+    if (selectedId || !adminSquads.length) {
+      return;
+    }
+
+    setSelectedId(
+      adminSquads.find(({ id }) => id === initialSquadId)?.id ??
+        adminSquads[0].id,
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [adminSquads.length]);
+
+  useEffect(() => {
+    if (!isOpeningLink) {
+      return;
+    }
+
+    if (!linkedSquad || !user?.id || isLinkedSubscriptionError) {
+      setOpeningLink(false);
+      return;
+    }
+
+    if (!linkedSubscription) {
+      return;
+    }
+
+    if (!linkedSubscription.plan) {
+      setCompany(linkedSquad);
+      setStep(StartupsCheckoutStep.Plan);
+    }
+
+    setOpeningLink(false);
+  }, [
+    isOpeningLink,
+    linkedSquad,
+    user?.id,
+    linkedSubscription,
+    isLinkedSubscriptionError,
+  ]);
+
+  useEffect(() => {
+    // Logs the step the link lands on, not the one it skips
+    if (isOpeningLink) {
+      return;
+    }
+
+    globalThis.scrollTo?.({ top: 0 });
+    logStartups(LogEvent.ViewStartupsCheckout, step, {
+      plan,
+      source_id: company?.id,
+      new_company: isNewCompany,
+      admin_squads: adminSquads.length,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, isOpeningLink]);
+
+  const userId = user?.id;
+  useEffect(() => {
+    // Signed-in founders only reach the company step, so it counts as the
+    // signup for the ad pixel, once per founder
+    if (
+      isOpeningLink ||
+      step !== StartupsCheckoutStep.Company ||
+      !userId ||
+      isSignupTracked.current
+    ) {
+      return;
+    }
+
+    isSignupTracked.current = true;
+    const trackedKey = `startups_signup_tracked:${userId}`;
+
+    if (storageWrapper.getItem(trackedKey)) {
+      return;
+    }
+
+    storageWrapper.setItem(trackedKey, '1');
+    trackEvent(
+      'CompleteRegistration',
+      { content_name: 'startups', content_category: plan },
+      { eventId: `startups-signup-${userId}` },
+    );
+  }, [step, isOpeningLink, userId, plan, trackEvent]);
+
+  if (isOpeningLink) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
+
+  if (step === StartupsCheckoutStep.Account) {
+    return (
+      <AccountStep
+        initialDisplay={initialAuthDisplay}
+        initialEmail={initialAuthEmail}
+      />
+    );
+  }
+
+  if (
+    (step === StartupsCheckoutStep.Plan ||
+      step === StartupsCheckoutStep.Checkout) &&
+    company
+  ) {
+    return (
+      <PlanStep
+        company={company}
+        plan={plan}
+        isPaying={step === StartupsCheckoutStep.Checkout}
+        answers={answers}
+        onSelect={(next) => {
+          if (next !== plan) {
+            setPlan(next);
+            logStartups(LogEvent.SelectSquadPlan, next, {
+              origin: Origin.StartupsCheckout,
+              source_id: company.id,
+            });
+          }
+        }}
+        onPay={() => setStep(StartupsCheckoutStep.Checkout)}
+        onChoose={() => setStep(StartupsCheckoutStep.Plan)}
+        onPaid={() => setStep(StartupsCheckoutStep.Done)}
+      />
+    );
+  }
+
+  if (step === StartupsCheckoutStep.Done && company) {
+    return (
+      <DoneStep
+        company={company}
+        plan={plan}
+        answers={answers}
+        isReturning={isReturning}
+      />
+    );
+  }
+
+  return (
+    <CompanyStep
+      adminSquads={adminSquads}
+      selectedId={selectedId}
+      onSelect={setSelectedId}
+      onContinue={(next, isNew) => {
+        setCompany(next);
+        setNewCompany(isNew);
+        setStep(StartupsCheckoutStep.Plan);
+      }}
+      onSetUp={(next, activePlan) => {
+        setCompany(next);
+        setPlan(activePlan);
+        setReturning(true);
+        setStep(StartupsCheckoutStep.Done);
+      }}
+    />
+  );
+};

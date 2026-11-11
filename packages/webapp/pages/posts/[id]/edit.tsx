@@ -46,7 +46,10 @@ import {
   useIsPhoneSettled,
 } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { SmartComposerModal } from '@dailydotdev/shared/src/components/modals/post/SmartComposerModal';
-import { canGoBackInApp } from '@dailydotdev/shared/src/components/shell/shellNav';
+import {
+  canGoBackInApp,
+  previousShellPath,
+} from '@dailydotdev/shared/src/components/shell/shellNav';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 
@@ -71,7 +74,13 @@ function EditPostInComposer({ post }: { post: Post }): ReactElement {
       }}
       onRequestClose={() => {
         setIsLeaving(true);
-        if (!isSaved.current && canGoBackInApp()) {
+        // Saved from the post it was opened on, the editor steps back to that
+        // post instead of stacking a second copy of it on top.
+        const previous = previousShellPath();
+        const isFromPost =
+          previous === new URL(post.commentsPermalink).pathname ||
+          previous === `/posts/${post.id}`;
+        if ((!isSaved.current || isFromPost) && canGoBackInApp()) {
           router.back();
           return;
         }

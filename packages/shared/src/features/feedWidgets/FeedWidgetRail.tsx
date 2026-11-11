@@ -14,26 +14,26 @@ import { PlusIcon } from '../../components/icons/Plus';
 import { MinusIcon } from '../../components/icons/Minus';
 import { IconSize } from '../../components/Icon';
 import { useLogContext } from '../../contexts/LogContext';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useSettingsContext } from '../../contexts/SettingsContext';
+import { checkIsExtension } from '../../lib/func';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import {
   getScrollPosition,
   saveScrollPosition,
 } from '../../lib/scrollRestoration';
-import type { FeedWidget, FeedWidgetKind } from './types';
+import type { FeedWidget } from './types';
 import {
   FEED_WIDGET_UNDO_MS,
+  FeedWidgetKind,
   FeedWidgetSize,
   feedWidgetSizeLabel,
 } from './types';
 import type { RailPlacement } from './layout';
 import { buildRailPlacement } from './layout';
 import { getFeedWidgetDefinition, isFeedWidgetBare } from './registry';
-import {
-  feedWidgetSizes,
-  feedWidgetSizesForScreen,
-  getFeedWidgetComponent,
-} from './components';
+import { feedWidgetSizes, getFeedWidgetComponent } from './components';
 import { useFeedWidgets } from './useFeedWidgets';
 import { isNewerFeedWidgetConfig } from './config';
 import { FeedWidgetsProvider } from './FeedWidgetsContext';
@@ -42,14 +42,18 @@ import type { FeedWidgetMenuAction } from './FeedWidgetMenu';
 import { FeedWidgetMenu } from './FeedWidgetMenu';
 import { useFeedWidgetAd, useFeedWidgetAdSlot } from './feedState';
 import {
-  FeedWidgetRailSkeleton,
   railGridClassName,
   railGridStyle,
   railScrollerClassName,
   railSectionClassName,
 } from './FeedWidgetRailFrame';
 import { FeedWidgetRailHeader } from './FeedWidgetRailHeader';
+import { FeedWidgetAddTile, getAddTileKinds } from './FeedWidgetAddTile';
 import { FeedWidgetAdSlot } from './widgets/FeedWidgetAdSlot';
+import {
+  isBoostedPostCreative,
+  isBoostedSquadCreative,
+} from '../../hooks/useFeed';
 import { FeedWidgetTip } from './widgets/FeedWidgetTip';
 import {
   feedWidgetTipLogEvent,
@@ -101,21 +105,6 @@ const gridArea = ({
   gridRow: `${row + 1} / span ${rowSpan}`,
 });
 
-/**
- * A phone shows one column at a time, so a Large widget shrinks to Tall (or
- * Small) for the screen while its stored size stays what the reader chose.
- */
-const sizeForScreen = (widget: FeedWidget, isPhone: boolean): FeedWidget => {
-  if (!isPhone || widget.size !== FeedWidgetSize.Large) {
-    return widget;
-  }
-  const sizes = feedWidgetSizes(widget.kind);
-  const size = sizes.includes(FeedWidgetSize.Tall)
-    ? FeedWidgetSize.Tall
-    : sizes.find((item) => item !== FeedWidgetSize.Large) ?? widget.size;
-  return { ...widget, size };
-};
-
 const railCorners: RailCorner[] = ['tr', 'br', 'bl'];
 
 /**
@@ -163,13 +152,10 @@ export const FeedWidgetRail = ({
     setTipHidden,
   } = useFeedWidgets();
   const { displayToast } = useToastNotification();
-  const {
-    showAd,
-    isSettled: isPhoneSettled,
-    columns,
-    isPhone,
-  } = useFeedWidgetAdSlot();
+  const { showAd, columns } = useFeedWidgetAdSlot();
   const { logEvent } = useLogContext();
+  const { user } = useAuthContext();
+  const { loadedSettings, optOutReadingStreak } = useSettingsContext();
   const [isEditing, setIsEditing] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   // The widget whose config the reader is changing, out of edit mode so the
@@ -177,6 +163,7 @@ export const FeedWidgetRail = ({
   const [configuringId, setConfiguringId] = useState<string>();
   // Opened from an empty cell, a widget starts Small so it lands in that cell.
   const [addSize, setAddSize] = useState<FeedWidgetSize>();
+  const [addKind, setAddKind] = useState<FeedWidgetKind>();
   const [edges, setEdges] = useState({ start: false, end: false });
   const root = useRef<HTMLElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
@@ -184,13 +171,18 @@ export const FeedWidgetRail = ({
   // Customize brings the add tile into view, so adding is never a hunt.
   const shouldRevealAdd = useRef(false);
 
-  const { ad, isNoFill } = useFeedWidgetAd({ enabled: showAd });
+  const { ad, isNoFill } = useFeedWidgetAd({ enabled: showAd, feedName });
   // One tip per page view, over our slot: it is known from the settings and
   // the slot alone, so it is there from the first paint.
   const tips = useFeedWidgetTips();
   const [tipDraw] = useState(Math.random);
   const tip = pickFeedWidgetTip(tips, tipDraw);
-  const showTip = showAd && !isTipHidden;
+  // A boost is the post's or squad's own card, which has no compact variant,
+  // so a tip over it would clip the card's actions: the tip waits for a
+  // creative.
+  const isBoost =
+    !!ad && (isBoostedPostCreative(ad) || isBoostedSquadCreative(ad));
+  const showTip = showAd && !isTipHidden && !isBoost;
 
   const logWidgetEvent = useCallback(
     (eventName: LogEvent, widget?: FeedWidget, extra?: object) =>
@@ -293,13 +285,9 @@ export const FeedWidgetRail = ({
   });
   const { displayed, dragId, liftedId, resizing, flashId } = editing;
 
-  const shown = useMemo(
-    () => displayed.map((widget) => sizeForScreen(widget, isPhone)),
-    [displayed, isPhone],
-  );
   const layout = useMemo(
-    () => buildRailPlacement(shown, { showAd }),
-    [shown, showAd],
+    () => buildRailPlacement(displayed, { showAd }),
+    [displayed, showAd],
   );
   const updateEdges = useCallback(() => {
     const node = scroller.current;
@@ -316,12 +304,12 @@ export const FeedWidgetRail = ({
 
   // Coming back to this history entry (Back from a post or a page opened
   // from a widget) puts the rail where the reader left it, not on the first
-  // widget. Once per mount, after the phone check settles and the real
-  // columns are on screen; a fresh visit has nothing saved and starts at 0.
+  // widget. Once per mount, with the real columns on screen; a fresh visit
+  // has nothing saved and starts at 0.
   const hasRestoredScroll = useRef(false);
   useLayoutEffect(() => {
     const node = scroller.current;
-    if (!isPhoneSettled || !node || hasRestoredScroll.current) {
+    if (!node || hasRestoredScroll.current) {
       return;
     }
     hasRestoredScroll.current = true;
@@ -329,7 +317,7 @@ export const FeedWidgetRail = ({
     if (left) {
       node.scrollLeft = left;
     }
-  }, [isPhoneSettled, layout]);
+  }, [layout]);
 
   const onScrollerScroll = useCallback(() => {
     updateEdges();
@@ -357,9 +345,20 @@ export const FeedWidgetRail = ({
   }, [isEditing]);
 
   const showAddTile = canAdd && (isEditing || !isCustomized);
+  const addTileKinds = useMemo(
+    () =>
+      getAddTileKinds({
+        onRail: widgets.map(({ kind }) => kind),
+        isLoggedIn: !!user,
+        isReadingStreakOn: !(loadedSettings && optOutReadingStreak),
+        isExtension: checkIsExtension(),
+      }),
+    [widgets, user, loadedSettings, optOutReadingStreak],
+  );
 
-  const openGallery = (size?: FeedWidgetSize) => {
+  const openGallery = (size?: FeedWidgetSize, kind?: FeedWidgetKind) => {
     setAddSize(size);
+    setAddKind(kind);
     setIsGalleryOpen(true);
     logWidgetEvent(LogEvent.OpenFeedWidgetGallery, undefined, {
       source: size ? 'slot' : 'tile',
@@ -457,15 +456,14 @@ export const FeedWidgetRail = ({
 
   const isBusy = editing.isDragging || !!resizing || !!liftedId;
 
-  // Until the phone check settles, where our slot goes is not known, and
-  // placing widgets now would repack them when it lands: hold the rail's
-  // exact shape instead.
-  if (!isPhoneSettled) {
-    return <FeedWidgetRailSkeleton columns={columns} isPhone={isPhone} />;
-  }
-
   return (
-    <FeedWidgetsProvider feedName={feedName} isEditing={isEditing}>
+    <FeedWidgetsProvider
+      feedName={feedName}
+      isEditing={isEditing}
+      hasTopStory={displayed.some(
+        ({ kind }) => kind === FeedWidgetKind.TopStory,
+      )}
+    >
       <section
         ref={root}
         className={classNames(railSectionClassName, className)}
@@ -476,8 +474,6 @@ export const FeedWidgetRail = ({
           // A rail a newer build saved renders here but is not edited here.
           canCustomize={!isReadOnly}
           isEditing={isEditing}
-          isPhone={isPhone}
-          showArrows={!isPhone}
           edges={edges}
           onScroll={scrollByPage}
           // A full rail still opens the gallery, which says why nothing can
@@ -500,16 +496,15 @@ export const FeedWidgetRail = ({
           className={classNames(
             // Sideways only: a vertical wheel over the rail scrolls the page.
             railScrollerClassName,
-            // A phone swipes card by card; a trackpad stops wherever the
-            // reader lets go and only settles onto a column close by.
-            !editing.isDragging &&
-              (isPhone ? 'snap-x snap-mandatory' : 'snap-x snap-proximity'),
+            // A trackpad stops wherever the reader lets go and only settles
+            // onto a column close by.
+            !editing.isDragging && 'snap-x snap-proximity',
           )}
         >
           <div
             ref={grid}
-            className={railGridClassName(isPhone)}
-            style={railGridStyle(columns, isPhone)}
+            className={railGridClassName}
+            style={railGridStyle(columns)}
           >
             {layout.placements.map((placement) => {
               // An empty ad keeps its cell, so nothing moves; the grid shows
@@ -547,7 +542,9 @@ export const FeedWidgetRail = ({
                     data-flip-id={placement.key}
                     className={classNames(
                       'flex min-h-0 snap-start',
-                      showTip && 'flex-col gap-2',
+                      // The grid's own row gap, so the tip sits off the ad
+                      // as every widget sits off its neighbour.
+                      showTip && 'flex-col gap-6',
                     )}
                     style={gridArea(placement)}
                     aria-label="Sponsored, pinned"
@@ -587,7 +584,6 @@ export const FeedWidgetRail = ({
               if (!widget) {
                 return null;
               }
-              const shownWidget = shown.find(({ id }) => id === widget.id);
               const index = widgets.findIndex(({ id }) => id === widget.id);
               // Where it is now, mid-move included, for screen readers.
               const position = displayed.findIndex(
@@ -595,16 +591,13 @@ export const FeedWidgetRail = ({
               );
               const definition = getFeedWidgetDefinition(widget.kind);
               const Component = getFeedWidgetComponent(widget.kind);
-              if (!Component || !shownWidget) {
+              if (!Component) {
                 return null;
               }
               const isDragged = dragId === widget.id;
               const isLifted = liftedId === widget.id;
-              const sizes = feedWidgetSizesForScreen(widget.kind, isPhone);
-              // On a phone the menu resizes: a corner grip is a poor touch
-              // target, and its preview could reach a span the phone never
-              // shows, writing a size to every other screen.
-              const canResize = !isPhone && sizes.length > 1;
+              const sizes = feedWidgetSizes(widget.kind);
+              const canResize = sizes.length > 1;
 
               return (
                 <React.Fragment key={placement.key}>
@@ -623,13 +616,13 @@ export const FeedWidgetRail = ({
                     data-widget-id={widget.id}
                     data-testid="feedWidget"
                     data-kind={widget.kind}
-                    data-size={shownWidget.size}
+                    data-size={widget.size}
                     role={isEditing ? 'button' : undefined}
                     aria-roledescription={
                       isEditing ? 'sortable widget' : undefined
                     }
                     aria-label={`${definition.name}, ${
-                      feedWidgetSizeLabel[shownWidget.size]
+                      feedWidgetSizeLabel[widget.size]
                     }${isEditing ? `, position ${position + 1}` : ''}`}
                     // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
                     tabIndex={isEditing ? 0 : undefined}
@@ -662,13 +655,13 @@ export const FeedWidgetRail = ({
                     )}
                   >
                     <FeedWidgetSurface
-                      isBare={isFeedWidgetBare(widget.kind, shownWidget.size)}
+                      isBare={isFeedWidgetBare(widget.kind, widget.size)}
                       isInert={isEditing}
                     >
                       <OnScreen>
                         <Component
                           widget={widget}
-                          size={shownWidget.size}
+                          size={widget.size}
                           isEditing={isEditing}
                           onConfigChange={(config) => {
                             const isSaved = updateWidgetConfig(
@@ -708,7 +701,7 @@ export const FeedWidgetRail = ({
                           onPointerDown={(event) => event.stopPropagation()}
                         >
                           <FeedWidgetMenu
-                            widget={shownWidget}
+                            widget={widget}
                             sizes={sizes}
                             canMoveLeft={index > 0}
                             canMoveRight={index < widgets.length - 1}
@@ -723,11 +716,7 @@ export const FeedWidgetRail = ({
                               aria-hidden
                               data-widget-control
                               onPointerDown={(event) =>
-                                editing.onResizeStart(
-                                  event,
-                                  shownWidget,
-                                  corner,
-                                )
+                                editing.onResizeStart(event, widget, corner)
                               }
                               onPointerMove={editing.onResizeMove}
                               onPointerUp={editing.onResizeEnd}
@@ -772,21 +761,12 @@ export const FeedWidgetRail = ({
               );
             })}
             {showAddTile && (
-              <button
-                type="button"
-                onClick={() => openGallery()}
-                className="flex min-h-0 snap-start flex-col items-center justify-center gap-2 rounded-16 border-2 border-dashed border-border-subtlest-secondary text-text-tertiary transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover hover:text-text-primary"
-                style={gridArea({
-                  key: 'add',
-                  column: layout.columns,
-                  row: 0,
-                  colSpan: 1,
-                  rowSpan: 2,
-                })}
-              >
-                <PlusIcon size={IconSize.Large} />
-                <span className="font-bold typo-callout">Add a widget</span>
-              </button>
+              <FeedWidgetAddTile
+                kinds={addTileKinds}
+                isCompact={layout.addTile.rowSpan === 1}
+                onClick={() => openGallery(undefined, addTileKinds.addable[0])}
+                style={gridArea(layout.addTile)}
+              />
             )}
           </div>
         </div>
@@ -798,6 +778,7 @@ export const FeedWidgetRail = ({
         <FeedWidgetGallery
           widgets={widgets}
           isFull={!canAdd}
+          initialKind={addKind}
           initialSize={addSize}
           onAdd={onAdd}
           // Only where the slot shows, so the reader sees the tips come back.

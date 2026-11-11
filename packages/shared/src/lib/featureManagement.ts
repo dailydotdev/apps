@@ -75,13 +75,6 @@ export const featureReadingReminderHeroCopy = new Feature(
   },
 );
 
-// Experiment: tell reading reminder holders that the reminder can't reach them
-// without push, and ask them to turn it on
-export const featureReadingReminderPushPrompt = new Feature(
-  'reading_reminder_push_prompt',
-  false,
-);
-
 // Experiment: show the clickbait shield to free users even while they have
 // intro quests, to measure the effect on D1 retention.
 export const featureClickbaitShieldIntroQuests = new Feature(
@@ -96,9 +89,7 @@ export const featureCores = new Feature('cores', isDevelopment);
 // automated streak freeze: auto-apply purchased freezes on missed reading days
 export const featureStreakFreeze = new Feature('streak_freeze', isDevelopment);
 
-// whether the user will see post boost ads
-// does not necessarily mean they can't boost a post if they have access to cores
-export const featurePostBoostAds = new Feature('post_boost_ads', isDevelopment);
+export const featureGtaViFreezeDay = new Feature('gta_vi_freeze_day', false);
 
 export const briefCardFeedFeature = new Feature(
   'brief_card_feed',
@@ -122,6 +113,8 @@ export const briefFeedEntrypointPage = new Feature<false | number>(
   'brief_feed_banner_page',
   0,
 );
+
+export const featurePlusFeedBanner = new Feature('plus_feed_banner', false);
 
 export const briefUIFeature = new Feature('brief_ui', isDevelopment);
 export const boostSettingsFeature = new Feature('boost_settings', {
@@ -180,11 +173,26 @@ export const featureOnboardingCommitment = new Feature(
   false,
 );
 
+// Experiment: the reading reminder step becomes a single ask, the push
+// preview with the reminder preset to 9 AM and "Turn on notifications".
+// Default MUST stay `false` — it is the control.
+export const featureOnboardingReminderPushOnly = new Feature(
+  'onboarding_reminder_push_only',
+  false,
+);
+
 // Experiment: picking "Search engine" or "AI assistant" at the acquisition step
 // opens a second screen asking what they searched for or asked. Default MUST
 // stay `false` — it is the control.
 export const featureOnboardingAcquisitionFollowUp = new Feature(
   'onboarding_acquisition_follow_up',
+  false,
+);
+
+// Experiment: the onboarding tag step headline becomes a progress header whose
+// bar fills with every tag picked, to get people past the 5-tag minimum.
+export const featureOnboardingTagProgress = new Feature(
+  'onboarding_tag_progress',
   false,
 );
 
@@ -240,8 +248,8 @@ export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
 /**
  * Experiment: the sponsor strip — a logo wall docked under the main feeds.
  *
- * On in development and off everywhere else, the way `cores`, `quest_offers`
- * and `post_boost_ads` are: `isDevelopment` is false in a production build, so
+ * On in development and off everywhere else, the way `cores` and
+ * `quest_offers` are: `isDevelopment` is false in a production build, so
  * this cannot ship the experiment to anyone — GrowthBook ramps it — while a
  * local session still gets the strip without anybody forcing a flag.
  */
@@ -253,11 +261,6 @@ export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 // "Show more" to read it inside the card. Only grid cards with a TLDR evaluate
 // it, so only readers on the grid layout are enrolled.
 export const featureGridCardTldr = new Feature('grid_card_tldr', false);
-
-// Experiment: on grid cards the bookmark moves to the card header, shown on
-// hover beside ⋯, and the bar keeps today's order at 32px with 20px icons.
-// List cards keep the bookmark in the bar. Logged-in users only.
-export const featureCardSaveOnHover = new Feature('card_save_on_hover', false);
 
 export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
   enabled: false,
@@ -284,8 +287,9 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
 export const featureFeedHero = new Feature('feed_hero', false);
 
 // Experiment: the hero as a rail of widgets the reader arranges, with the ad
-// slot pinned third. Supersedes `feed_hero` where it is on.
-export const featureFeedWidgets = new Feature('feed_widgets', false);
+// slot pinned third. Supersedes `feed_hero` where it is on. Tablet and up
+// only; relaunched from `feed_widgets` once phones were taken out of it.
+export const featureFeedWidgets = new Feature('feed_widgets_v2', false);
 
 // Experiment: the post page's full-width signup banner against the cover
 // card pinned over the bottom of the window at the content's width.
@@ -295,9 +299,21 @@ export const featurePostSignupStrip = new Feature('post_signup_strip', false);
 // discussion beside the classic right sidebar, against the classic layout.
 export const featurePostPageHybrid = new Feature('post_page_hybrid', false);
 
-// Experiment: a feed after the post page's comments (For you, the post's
-// tags, its source), for signed-in readers. Control ends at the comments.
-export const featurePostPageFeed = new Feature('post_page_feed', false);
+// Experiments: logged-out post pages show the first three comments,
+// skeleton comments for the rest and a pinned "See all the comments" footer,
+// after X's logged-out post page. Two tests, because the ask they replace
+// differs: phones get the app footer's new title and X's app card; tablet and
+// laptop get a pinned sign-up footer instead of the full-width banner or
+// strip. A reader is only ever evaluated for their device's flag. False is
+// today's full thread.
+export const featurePostCommentsTeaserMobile = new Feature(
+  'post_comments_teaser_mobile',
+  false,
+);
+export const featurePostCommentsTeaserDesktop = new Feature(
+  'post_comments_teaser_desktop',
+  false,
+);
 
 // Gates every agent surface; control hides all of them. Keep the default
 // `false`, GrowthBook ramps it.
@@ -340,16 +356,18 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
   },
 );
 
-// Emergency kill switch for the /read template's ads — NOT an experiment, so
-// the true default is deliberate: the surface ships always-on (it is only
-// reachable through paid placements), and the flag exists solely so a policy
-// warning, bad creative or revenue anomaly can be stopped without a deploy
-// and an ISR revalidation cycle. Never ramp or target with this flag.
-export const featureReadAds = new Feature('read_ads', true);
-
-// Kill switch for the post page's programmatic (Kueez) slots, off for now.
-// Turning it on in GrowthBook brings them back without a deploy.
+// Kill switches for the programmatic slots, NOT experiments: never ramp or
+// target with them. Both are off while no ad partner's tag fills the slots;
+// turning one on in GrowthBook brings that surface's anchors back without
+// a deploy once a tag is wired up again.
+// The /read template's slots.
+export const featureReadAds = new Feature('read_ads', false);
+// The organic post page's slots.
 export const featureOrganicAds = new Feature('organic_ads', false);
+
+// Shows ads to a Plus member wherever a free reader would get them, so the
+// team can see ads without leaving Plus. Off is the default: Plus stays ad-free.
+export const featureForceAd = new Feature('force_ad', false);
 
 export type ExcoPlayerConfig = {
   /** The EX.CO player the embed script loads. */
@@ -376,6 +394,25 @@ export const featureFeedWidgetsDefault = new Feature<{
   id: string;
   widgets: { id: string; kind: string; size: string }[];
 }>('feed_widgets_default', {
-  id: 'default-1',
-  widgets: [{ id: 'top-story', kind: 'topStory', size: 'large' }],
+  id: 'default-3',
+  widgets: [
+    { id: 'happening-now', kind: 'happeningNow', size: 'large' },
+    { id: 'streak', kind: 'streak', size: 'small' },
+  ],
 });
+
+// Weekly picks: gates the home card, the /bookmarks button and /picks/new.
+// Only evaluated once the home card would show, so the experiment enrolls
+// just the readers it can reach; the other entry points follow that
+// enrollment. The public page /picks/:id is never gated so shared links keep
+// working.
+export const featureWeeklyPicks = new Feature('weekly_picks_v2', false);
+
+// The home card's background checks: this week's picks and reading signals,
+// fetched on every signed-in home load. A plain rollout flag with no
+// experiment rule, so evaluating it enrolls nobody: it is the kill switch
+// for the checks and keeps them to the experiment's traffic share.
+export const featureWeeklyPicksChecks = new Feature(
+  'weekly_picks_checks',
+  false,
+);

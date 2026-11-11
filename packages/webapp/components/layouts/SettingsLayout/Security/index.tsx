@@ -140,7 +140,9 @@ function AccountSecurityDefault({
     onSuccess: async () => {
       await onUpdateSignBack(null, null);
       globalThis?.localStorage.removeItem(BOOT_LOCAL_KEY);
-      window.location.replace('/');
+      // Same destination as logout, the sign-up screen: `/` serves the
+      // marketing homepage to a signed-out visitor.
+      window.location.replace('/onboarding');
     },
   });
 

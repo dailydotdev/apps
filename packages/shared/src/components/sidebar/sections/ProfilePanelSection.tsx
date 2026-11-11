@@ -95,7 +95,7 @@ export const ProfilePanelSection = ({
         },
         {
           title: 'Feed settings',
-          path: `${settingsUrl}/feed/general`,
+          path: `${settingsUrl}/feed/overview`,
           isForcedLink: true,
           // Leaves the sidebar for the Settings page → show the open-link hint.
           showOpenLinkIcon: true,

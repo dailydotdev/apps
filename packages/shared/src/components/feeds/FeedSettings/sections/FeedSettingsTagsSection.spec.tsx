@@ -29,6 +29,9 @@ jest.mock('../../../../hooks/useFeedSettings', () => ({
   __esModule: true,
   default: () => ({ feedSettings: mockFeedSettings }),
 }));
+jest.mock('../../../../features/feedExplain/useFeedExplainMode', () => ({
+  useForYouControls: () => ({ isAvailable: false, version: 1 }),
+}));
 jest.mock('../../../../hooks/useTagAndSource', () => ({
   __esModule: true,
   default: jest.fn(() => ({

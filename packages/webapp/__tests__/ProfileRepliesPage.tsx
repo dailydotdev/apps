@@ -39,7 +39,7 @@ beforeEach(() => {
         pathname: '/',
         query: {},
         isFallback: false,
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
 });
 
@@ -172,7 +172,7 @@ it('should show the visitor empty screen to the owner in preview mode', async ()
         pathname: '/[userId]/replies',
         query: { userId: 'dailydotdev', preview: 'true' },
         isFallback: false,
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
   renderComponent(
     [

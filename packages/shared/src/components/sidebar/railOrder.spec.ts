@@ -1,4 +1,4 @@
-import { mergeRailOrder } from './railOrder';
+import { mergeRailOrder, replaceRailItem } from './railOrder';
 
 describe('mergeRailOrder', () => {
   // Mirrors the rail's default order: the tabs, then the avatar, then New post.
@@ -100,5 +100,19 @@ describe('mergeRailOrder', () => {
 
     expect(saved).toEqual(savedCopy);
     expect(defaults).toEqual(defaultsCopy);
+  });
+});
+
+describe('replaceRailItem', () => {
+  it('should give the new id the slot the retired one was saved in', () => {
+    expect(
+      replaceRailItem(['lfg', 'main', 'squads'], 'lfg', 'messages'),
+    ).toEqual(['messages', 'main', 'squads']);
+  });
+
+  it('should drop the retired id once the new one is saved', () => {
+    expect(
+      replaceRailItem(['main', 'messages', 'lfg'], 'lfg', 'messages'),
+    ).toEqual(['main', 'messages']);
   });
 });

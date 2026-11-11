@@ -1,12 +1,10 @@
 import { useCallback } from 'react';
-import { useFeature } from '../../components/GrowthBookProvider';
 import type { Ad } from '../../graphql/posts';
 import {
   AdPlacement,
   fetchAdByPlacement,
   resolveAdFetchOptions,
 } from '../../lib/ads';
-import { featurePostBoostAds } from '../../lib/featureManagement';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useAdRequestConsent } from './useAdRequestConsent';
 
@@ -19,7 +17,6 @@ interface UseFetchAds {
 }
 
 export const useFetchAd = (enabled = true): UseFetchAds => {
-  const boostsEnabled = useFeature(featurePostBoostAds);
   const consent = useAdRequestConsent(enabled);
   const { isAuthReady, isLoggedIn } = useAuthContext();
   const registered = isAuthReady ? isLoggedIn : undefined;
@@ -33,13 +30,12 @@ export const useFetchAd = (enabled = true): UseFetchAds => {
         resolveAdFetchOptions({
           placement,
           active,
-          boostsEnabled,
           consent,
           registered,
         }),
       );
     },
-    [boostsEnabled, consent, registered],
+    [consent, registered],
   );
 
   return {

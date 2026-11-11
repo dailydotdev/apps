@@ -2,7 +2,7 @@ import React from 'react';
 import { render as rtlRender, screen } from '@testing-library/react';
 import type { AuthContextData } from '../../../contexts/AuthContext';
 import AuthContext from '../../../contexts/AuthContext';
-import type { AdSlots } from '../../../features/monetization/kueez';
+import type { AdSlots } from './slots';
 import { useFeature } from '../../GrowthBookProvider';
 import { featureOrganicAds } from '../../../lib/featureManagement';
 import { PHONE_TOP_AD_HEIGHT_VAR, PhoneTopAdStrip } from './PhoneTopAdStrip';
@@ -23,14 +23,6 @@ jest.mock('./slots', () => ({
   ...(jest.requireActual('./slots') as Record<string, unknown>),
   READ_AD_SLOTS: {},
   ORGANIC_AD_SLOTS: {},
-}));
-
-// jsdom has no Prebid bundle; the strip only cares that a slot renders.
-jest.mock('../../../features/monetization/prebid', () => ({
-  configurePrebid: jest.fn(),
-  requestKueezBid: jest.fn().mockResolvedValue({ status: 'no_bid' }),
-  renderPrebidBid: jest.fn(),
-  pingViewable: jest.fn(),
 }));
 
 const mockSlotMaps = jest.requireMock('./slots') as {
@@ -60,7 +52,7 @@ beforeEach(() => {
     feature === featureOrganicAds ? true : feature.defaultValue,
   );
   mockSlotMaps.ORGANIC_AD_SLOTS = {
-    [ORGANIC_SLOT.topLeaderboardPhone]: { sizes: [[320, 50]] },
+    [ORGANIC_SLOT.topLeaderboardPhone]: true,
   };
 });
 
@@ -85,7 +77,7 @@ describe('PhoneTopAdStrip', () => {
     'renders nothing on the %s surface for a post in an ad-free squad',
     (surface) => {
       mockSlotMaps.READ_AD_SLOTS = {
-        [READ_SLOT.topLeaderboardPhone]: { sizes: [[320, 50]] },
+        [READ_SLOT.topLeaderboardPhone]: true,
       };
       const post = {
         source: {
@@ -108,7 +100,16 @@ describe('PhoneTopAdStrip', () => {
   it('pins the phone unit and publishes its height for the chrome below it', () => {
     const { unmount } = render(<PhoneTopAdStrip surface="organic" />);
 
-    expect(screen.getByTestId('phone-top-ad-strip')).toBeInTheDocument();
+    const strip = screen.getByTestId('phone-top-ad-strip');
+    expect(strip).toBeInTheDocument();
+    // collapses until the tag fills the anchor, so no empty strip is pinned
+    expect(strip).toHaveClass('has-[[data-ad-slot]:empty]:!hidden');
+    expect(
+      screen.getByTestId(`ad-slot-${ORGANIC_SLOT.topLeaderboardPhone}`),
+    ).toHaveAttribute(
+      'data-ad-slot',
+      `organic-${ORGANIC_SLOT.topLeaderboardPhone}`,
+    );
     expect(
       document.documentElement.style.getPropertyValue(PHONE_TOP_AD_HEIGHT_VAR),
     ).toBe('0px');

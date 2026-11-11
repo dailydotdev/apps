@@ -20,16 +20,22 @@ interface AuthModalFooterProps {
   className?: ClassName;
   text: TextType;
   onClick: MouseEventHandler;
+  pinned?: boolean;
 }
 
 function AuthModalFooter({
   className,
   text,
   onClick,
+  pinned,
 }: AuthModalFooterProps): ReactElement {
   return (
     <Modal.Footer
-      className={classNames(className?.container, 'gap-unset')}
+      className={classNames(
+        className?.container,
+        '!h-[3.25rem] gap-unset',
+        pinned && 'sticky bottom-0 bg-background-default',
+      )}
       justify={Justify.Center}
     >
       {text.body && (

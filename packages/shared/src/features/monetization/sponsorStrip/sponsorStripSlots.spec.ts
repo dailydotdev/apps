@@ -10,7 +10,7 @@ const creative = (
     generation_id: id,
     company_name: id,
     tier,
-  } as SponsorStripCreative);
+  }) as SponsorStripCreative;
 
 const companies = (creatives: SponsorStripCreative[]) =>
   creatives.map(({ company_name: company }) => company);

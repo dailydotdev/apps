@@ -57,7 +57,7 @@ beforeAll(() => {
   });
   // jsdom has no layout, and the quote bar refuses a selection it cannot place.
   Range.prototype.getBoundingClientRect = () =>
-    ({ top: 400, bottom: 440, left: 100, width: 300 } as DOMRect);
+    ({ top: 400, bottom: 440, left: 100, width: 300 }) as DOMRect;
 });
 
 beforeEach(() => {

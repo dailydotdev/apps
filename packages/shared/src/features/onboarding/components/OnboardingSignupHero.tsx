@@ -98,6 +98,10 @@ export const OnboardingSignupHero = ({
   const isPanelLayout = background === 'panel';
   const isHorizonLayout = background === 'horizon';
   const showOrbsLayer = showOrbs;
+  // Phone walls have no legal row, so the funnel's line sits under the buttons.
+  const phoneDisclaimer = isOnboarding && (
+    <SignupDisclaimer className="!text-text-tertiary typo-caption1 tablet:hidden" />
+  );
 
   // Once the user moves to the email registration / verification step, drop the
   // marketing shell (feed-cards background, orbs, centered logo, bottom-anchored
@@ -141,9 +145,9 @@ export const OnboardingSignupHero = ({
           </div>
         </main>
         {/* No footer chrome in the funnel. The Terms/Privacy line is not here
-            either — it belongs to the form that creates the account, so
-            RegistrationForm renders it under its own CTA and it can't leak onto
-            the login and verify-email screens this shell also serves. */}
+            either. It belongs to the screen where the visitor picks how to sign
+            up, so the signup options render it and it can't leak onto the login
+            and verify-email screens this shell also serves. */}
         {!isOnboarding && (
           <>
             <div className="pointer-events-auto flex w-full flex-col items-center gap-3 px-5 pb-4 tablet:hidden">
@@ -189,6 +193,7 @@ export const OnboardingSignupHero = ({
         )}
 
         {children}
+        {phoneDisclaimer}
       </div>
     );
 
@@ -269,6 +274,7 @@ export const OnboardingSignupHero = ({
         )}
 
         {children}
+        {phoneDisclaimer}
       </div>
     );
 
@@ -376,6 +382,7 @@ export const OnboardingSignupHero = ({
                 </div>
               )}
               {children}
+              {phoneDisclaimer}
             </div>
             <div className="flex flex-1 tablet:ml-auto tablet:flex-1 laptop:max-w-[37.5rem]" />
           </div>

@@ -28,6 +28,7 @@ import {
   StaleTime,
 } from '../lib/query';
 import type { PostHero } from './types';
+import type { FeedItemExplain } from '../features/feedExplain/types';
 import type { CommunitySentimentPost } from '../components/post/focus/CommunitySentiment';
 
 export const ACCEPTED_TYPES = 'image/png,image/jpeg,image/webp,image/avif';
@@ -306,6 +307,8 @@ export interface Post {
   private?: boolean;
   noindex?: boolean;
   feedMeta?: string;
+  // Why the post is on For You, set only on posts from the Explain mode feed.
+  explain?: FeedItemExplain | null;
   downvoted?: boolean;
   flags?: PostFlags;
   userState?: PostUserState;
@@ -818,8 +821,10 @@ export const getExternalLinkPreview = async (
   return res.checkLinkPreview;
 };
 
-export interface SubmitExternalLink
-  extends Pick<ExternalLinkPreview, 'title' | 'image' | 'url'> {
+export interface SubmitExternalLink extends Pick<
+  ExternalLinkPreview,
+  'title' | 'image' | 'url'
+> {
   sourceId: string;
   commentary: string;
   scheduledAt?: string | null;
@@ -880,8 +885,10 @@ export type CreatePostProps = Pick<
   'title' | 'content' | 'image' | 'scheduledAt'
 >;
 
-export interface CreatePostPollProps
-  extends Pick<EditPostProps, 'title' | 'content' | 'image'> {
+export interface CreatePostPollProps extends Pick<
+  EditPostProps,
+  'title' | 'content' | 'image'
+> {
   duration: number;
   options: string[];
 }
@@ -1077,7 +1084,8 @@ export const CREATE_POST_IN_MULTIPLE_SOURCES = gql`
 `;
 
 export interface CreatePostInMultipleSourcesArgs
-  extends Partial<Omit<CreatePostProps, 'scheduledAt'>>,
+  extends
+    Partial<Omit<CreatePostProps, 'scheduledAt'>>,
     Partial<Pick<CreatePollPostProps, 'options' | 'duration'>> {
   commentary?: string;
   externalLink?: string;

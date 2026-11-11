@@ -23,7 +23,7 @@ const interest = (over: Partial<UserInterest> = {}): UserInterest =>
     cadence: UserInterestCadence.Daily,
     createdAt: '2026-01-01T09:00:00.000Z',
     ...over,
-  } as UserInterest);
+  }) as UserInterest;
 
 const renderHeader = (agent?: UserInterest) =>
   render(

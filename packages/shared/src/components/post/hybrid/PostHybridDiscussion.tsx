@@ -18,7 +18,8 @@ import { useActions } from '../../../hooks/useActions';
 import usePersistentContext from '../../../hooks/usePersistentContext';
 import { useShareComment } from '../../../hooks/useShareComment';
 import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
-import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
+import { useIsPlusAdFree } from '../../../hooks/useIsPlusAdFree';
+import { useCommentsTeaser } from '../../../features/commentsTeaser/useCommentsTeaser';
 import { usePostComments } from '../../../hooks/comments/usePostComments';
 import { useOpenPostCommentRequest } from '../../../hooks/post/useOpenPostCommentRequest';
 import { usePostActions } from '../../../hooks/post/usePostActions';
@@ -72,6 +73,7 @@ interface PostHybridDiscussionProps {
   hideInternalAd?: boolean;
   interleaveEvery?: number;
   renderInterleaved?: (occurrence: number) => ReactNode;
+  isPostPage?: boolean;
 }
 
 /**
@@ -90,10 +92,12 @@ export function PostHybridDiscussion({
   hideInternalAd,
   interleaveEvery,
   renderInterleaved,
+  isPostPage = false,
 }: PostHybridDiscussionProps): ReactElement {
   const { completeAction } = useActions();
   const { user, showLogin } = useAuthContext();
-  const { isPlus } = usePlusSubscription();
+  const { isCommentsTeaser } = useCommentsTeaser(isPostPage);
+  const isPlusAdFree = useIsPlusAdFree();
   const { sortCommentsBy: sortBy, updateSortCommentsBy: setSortBy } =
     useSettingsContext();
   const { commentsCount } = usePostComments({ postId: post.id, sortBy });
@@ -238,7 +242,7 @@ export function PostHybridDiscussion({
           />
         </div>
         <DiscussionShareRow post={post} withSquads />
-        {!isPlus && !hideInternalAd && (
+        {!isPlusAdFree && !hideInternalAd && (
           <div className="py-2 empty:hidden">
             <AdAsComment postId={post.id} source={post.source} isCompact />
           </div>
@@ -276,12 +280,18 @@ export function PostHybridDiscussion({
           joinNotificationCommentId={joinNotificationCommentId}
           onCommented={onCommented}
           removeSpacing
+          teaser={isCommentsTeaser}
+          onTeaserSignup={() =>
+            showLogin({ trigger: AuthTriggers.CommentsTeaser })
+          }
         />
-        <EndOfThreadShare
-          commentsCount={commentsCount}
-          post={post}
-          className="mt-4"
-        />
+        {!isCommentsTeaser && (
+          <EndOfThreadShare
+            commentsCount={commentsCount}
+            post={post}
+            className="mt-4"
+          />
+        )}
       </section>
       {authorOnboarding && (
         <AuthorOnboarding

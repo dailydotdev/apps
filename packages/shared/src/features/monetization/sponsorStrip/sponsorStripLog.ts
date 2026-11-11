@@ -1,14 +1,13 @@
 import type { LogEvent } from '../../../hooks/log/useLogQueue';
-import type { AdActions } from '../../../lib/ads';
-import { AdPlacement } from '../../../lib/ads';
+import { AdActions, AdPlacement } from '../../../lib/ads';
+import { TargetType } from '../../../lib/log';
 import type { ResolvedSponsor } from './sponsorStripCreative';
+import type { SponsorSlot } from './sponsorStripSlots';
 
 /**
- * Every sponsor-strip signal (impression, viewable impression, click, air
- * time) reports through this one builder, so a logo's whole story can be cut
- * by tier and slot in the warehouse. Shaped like `adLogEvent` in `lib/feed.ts`
- * — same `target_type`, same url field — so the strip sits alongside the other
- * placements rather than needing its own reporting.
+ * A click on one logo. Shaped like `adLogEvent` in `lib/feed.ts` — same
+ * `target_type`, same url field — so strip clicks sit alongside the other
+ * placements rather than needing their own reporting.
  */
 export const sponsorStripLogEvent = (
   action: AdActions,
@@ -30,9 +29,26 @@ export const sponsorStripLogEvent = (
 });
 
 /**
- * Air time is a duration event, so its key has to survive a rotation: the
- * outgoing logo's event ends under its own key while the incoming one starts
- * under a new one, in the same render.
+ * One impression for the marks a strip render put on screen, with the
+ * advertisers listed in `extra.sponsors`, rather than one event per logo: a
+ * render holds about a dozen marks and the per-logo events were the largest
+ * share of the warehouse's traffic. Its own `target_type`, not `ad`, so the
+ * rows stay out of the per-ad views built on top of `target_type = 'ad'`.
+ * Billing does not read this: the ad server counts each logo from its pixel.
  */
-export const airTimeKey = (slotIndex: number, genId: string): string =>
-  `ss-${slotIndex}-${genId}`;
+export const sponsorStripImpressionLogEvent = (
+  slots: SponsorSlot[],
+): LogEvent => ({
+  event_name: AdActions.Impression,
+  target_id: AdPlacement.SponsorStrip,
+  target_type: TargetType.SponsorStrip,
+  extra: JSON.stringify({
+    placement: AdPlacement.SponsorStrip,
+    sponsors: slots.map(({ sponsor, slotIndex }) => ({
+      company: sponsor.company,
+      tier: sponsor.tier,
+      slot_index: slotIndex,
+      gen_id: sponsor.genId,
+    })),
+  }),
+});

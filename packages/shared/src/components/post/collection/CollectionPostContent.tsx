@@ -53,7 +53,6 @@ export const CollectionPostContentRaw = ({
   backToSquad,
   isBannerVisible,
   isPostPage,
-  belowComments,
   shouldTrackView,
 }: CollectionPostContentRawProps): ReactElement => {
   const { subject } = useToastNotification();
@@ -133,7 +132,6 @@ export const CollectionPostContentRaw = ({
             },
           }}
           isPostPage={isPostPage}
-          belowComments={belowComments}
           isFallback={isFallback}
           customNavigation={customNavigation}
           shouldOnboardAuthor={shouldOnboardAuthor}

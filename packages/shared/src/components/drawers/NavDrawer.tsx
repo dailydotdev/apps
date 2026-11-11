@@ -81,6 +81,7 @@ export function NavDrawer({
             <BuyCreditsButton
               className="ml-auto"
               hideBuyButton={!canPurchaseCores}
+              origin={Origin.ProfileMenu}
               onPlusClick={() => {
                 router.push(
                   getPathnameWithQuery(

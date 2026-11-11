@@ -75,11 +75,19 @@ const highlights = ['First headline', 'Second headline'].map(
   }),
 );
 
-const mockHero = (data = { posts, highlights }) =>
+// Headlines only unless the rail holds the top story, which reads the posts.
+const mockHero = (
+  data = { posts, highlights },
+  { withPosts = false }: { withPosts?: boolean } = {},
+) =>
   mockGraphQL({
     request: {
       query: FEED_HERO_QUERY,
-      variables: { loggedIn: false, supportedTypes: baseFeedSupportedTypes },
+      variables: {
+        loggedIn: false,
+        supportedTypes: baseFeedSupportedTypes,
+        ...(withPosts ? {} : { featured: 0 }),
+      },
     },
     result: { data: { feedHero: data } },
   });
@@ -98,7 +106,7 @@ beforeEach(() => {
   jest
     .mocked(useRouter)
     .mockImplementation(
-      () => ({ pathname: '/', push: jest.fn() } as unknown as NextRouter),
+      () => ({ pathname: '/', push: jest.fn() }) as unknown as NextRouter,
     );
   jest
     .mocked(useFeedWidgetAd)
@@ -164,20 +172,25 @@ describe('FeedWidgetRail', () => {
     await revealWidgets();
 
     await waitFor(() =>
-      expect(
-        screen.getByRole('heading', { name: 'First hero post' }),
-      ).toBeInTheDocument(),
+      expect(screen.getByText('First headline')).toBeInTheDocument(),
     );
-    // Happening Now stays in the feed until the reader adds it.
-    expect(screen.queryByText('Second headline')).not.toBeInTheDocument();
-    expect(widgetKinds()).toEqual([FeedWidgetKind.TopStory]);
-    expect(
-      screen.getByRole('button', { name: 'Add a widget' }),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Second headline')).toBeInTheDocument();
+    // Logged out, so the default's Streak, which needs an account, is not
+    // seated; the gallery would not offer it either.
+    expect(widgetKinds()).toEqual([FeedWidgetKind.HappeningNow]);
     const slot = screen.getByTestId('feedWidgetAdSlot');
     expect(slot).toBeInTheDocument();
-    // The Large story takes columns one and two, so the ad is third.
+    // The Large takes columns one and two, so the ad is third and the add
+    // tile has the column after it.
+    expect(screen.getAllByTestId('feedWidget')[0]).toHaveStyle({
+      gridColumn: '1 / span 2',
+      gridRow: '1 / span 2',
+    });
     expect(slot.parentElement).toHaveStyle({ gridColumn: '3 / span 1' });
+    expect(screen.getByRole('button', { name: 'Add a widget' })).toHaveStyle({
+      gridColumn: '4 / span 1',
+      gridRow: '1 / span 2',
+    });
     expect(nock.isDone()).toBe(true);
   });
 
@@ -269,7 +282,7 @@ describe('FeedWidgetRail', () => {
   });
 
   it('removes a widget from the menu and writes the whole flags object', async () => {
-    mockHero();
+    mockHero(undefined, { withPosts: true });
 
     renderRail({
       clickbaitShieldEnabled: true,
@@ -334,7 +347,7 @@ describe('FeedWidgetRail', () => {
   ];
 
   it('offers the add tile on a customized rail only in edit mode', async () => {
-    mockHero();
+    mockHero(undefined, { withPosts: true });
 
     renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
     await revealWidgets();
@@ -391,7 +404,7 @@ describe('FeedWidgetRail', () => {
   });
 
   it('hides the whole rail from edit mode', async () => {
-    mockHero();
+    mockHero(undefined, { withPosts: true });
 
     renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
     await revealWidgets();
@@ -405,7 +418,7 @@ describe('FeedWidgetRail', () => {
   });
 
   it('takes widget content out of reach in edit mode', async () => {
-    mockHero();
+    mockHero(undefined, { withPosts: true });
 
     renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
     await revealWidgets();
@@ -429,7 +442,7 @@ describe('FeedWidgetRail', () => {
   });
 
   it('removes a widget from its badge in edit mode', async () => {
-    mockHero();
+    mockHero(undefined, { withPosts: true });
 
     renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
     await revealWidgets();
@@ -446,7 +459,7 @@ describe('FeedWidgetRail', () => {
   });
 
   it('moves a widget with the keyboard and writes once, on drop', async () => {
-    mockHero();
+    mockHero(undefined, { withPosts: true });
 
     renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
     await revealWidgets();
@@ -478,7 +491,7 @@ describe('FeedWidgetRail', () => {
   });
 
   it('drops a keyboard move on Escape without writing', async () => {
-    mockHero();
+    mockHero(undefined, { withPosts: true });
 
     renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
     await revealWidgets();
@@ -510,12 +523,13 @@ describe('FeedWidgetRail', () => {
     await revealWidgets();
 
     await waitFor(() =>
-      expect(
-        screen.getByRole('heading', { name: 'First hero post' }),
-      ).toBeInTheDocument(),
+      expect(screen.getByText('First headline')).toBeInTheDocument(),
     );
     expect(screen.queryByTestId('feedWidgetAdSlot')).not.toBeInTheDocument();
-    expect(useFeedWidgetAd).toHaveBeenLastCalledWith({ enabled: false });
+    expect(useFeedWidgetAd).toHaveBeenLastCalledWith({
+      enabled: false,
+      feedName: 'popular',
+    });
     // The tips ride on the slot, so they go with it.
     expect(screen.queryByTestId('feedWidgetTip')).not.toBeInTheDocument();
   });
@@ -530,9 +544,7 @@ describe('FeedWidgetRail', () => {
     await revealWidgets();
 
     await waitFor(() =>
-      expect(
-        screen.getByRole('heading', { name: 'First hero post' }),
-      ).toBeInTheDocument(),
+      expect(screen.getByText('First headline')).toBeInTheDocument(),
     );
     expect(screen.queryByTestId('feedWidgetAdSlot')).not.toBeInTheDocument();
     expect(
@@ -544,6 +556,54 @@ describe('FeedWidgetRail', () => {
     ).toBe(screen.getByTestId('feedWidgetTip').parentElement);
   });
 
+  it('adds from the empty slot at the usual size after the gallery opened from a gap', async () => {
+    jest
+      .mocked(useFeedWidgetAd)
+      .mockReturnValue({ ad: undefined, isEnabled: true, isNoFill: true });
+    mockHero(undefined, { withPosts: true });
+    const topStory = {
+      id: 'top-story',
+      kind: FeedWidgetKind.TopStory,
+      size: FeedWidgetSize.Small,
+    };
+
+    renderRail({ feedWidgets: { version: 1, widgets: [topStory] } });
+    await revealWidgets();
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Add a widget here' }));
+    fireEvent.click(
+      within(await screen.findByRole('dialog')).getByRole('button', {
+        name: 'Close',
+      }),
+    );
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Add another widget' }));
+    const gallery = await screen.findByRole('dialog');
+    fireEvent.click(
+      within(gallery).getByRole('button', { name: /^Happening Now/ }),
+    );
+    fireEvent.click(
+      within(gallery).getByRole('button', { name: 'Add widget' }),
+    );
+
+    expect(setSettings).toHaveBeenCalledWith({
+      flags: {
+        feedWidgets: {
+          version: 1,
+          widgets: [
+            topStory,
+            expect.objectContaining({
+              kind: FeedWidgetKind.HappeningNow,
+              size: FeedWidgetSize.Tall,
+            }),
+          ],
+        },
+      },
+    });
+  });
+
   it('leaves edit mode on Escape', async () => {
     mockHero();
 
@@ -551,9 +611,7 @@ describe('FeedWidgetRail', () => {
     await revealWidgets();
 
     await waitFor(() =>
-      expect(
-        screen.getByRole('heading', { name: 'First hero post' }),
-      ).toBeInTheDocument(),
+      expect(screen.getByText('First headline')).toBeInTheDocument(),
     );
     fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     expect(screen.getByRole('button', { name: 'Done' })).toBeInTheDocument();
@@ -593,9 +651,7 @@ describe('FeedWidgetRail', () => {
     renderRail();
     await revealWidgets();
     await waitFor(() =>
-      expect(
-        screen.getByRole('heading', { name: 'First hero post' }),
-      ).toBeInTheDocument(),
+      expect(screen.getByText('First headline')).toBeInTheDocument(),
     );
     const [widget] = screen.getAllByTestId('feedWidget');
 
@@ -696,7 +752,7 @@ describe('FeedWidgetRail', () => {
   });
 
   it('removes the tips from their badge in edit mode', async () => {
-    mockHero();
+    mockHero(undefined, { withPosts: true });
 
     renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
     await revealWidgets();
@@ -745,7 +801,7 @@ describe('FeedWidgetRail', () => {
   });
 
   it('keeps the pinned label off the tip in edit mode', async () => {
-    mockHero();
+    mockHero(undefined, { withPosts: true });
 
     const { unmount } = renderRail({
       feedWidgets: { version: 1, widgets: twoWidgets },
@@ -828,7 +884,7 @@ describe('FeedWidgetRail', () => {
     });
 
     it('says they are on while they show', async () => {
-      mockHero();
+      mockHero(undefined, { withPosts: true });
       renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
       await openGallery();
 

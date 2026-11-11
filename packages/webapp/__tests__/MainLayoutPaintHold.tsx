@@ -36,7 +36,7 @@ const mockRouter = (route: string, isReady = false) => {
         push: jest.fn(),
         replace: jest.fn(),
         events: { on: jest.fn(), off: jest.fn() },
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
 };
 

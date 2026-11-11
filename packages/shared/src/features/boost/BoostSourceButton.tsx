@@ -19,6 +19,7 @@ import { webappUrl } from '../../lib/constants';
 import { BoostButton } from './BoostButton';
 import { IconSize } from '../../components/Icon';
 import { Tooltip } from '../../components/tooltip/Tooltip';
+import { Origin } from '../../lib/log';
 
 const Requirement = ({ copy, passed }: { copy: string; passed: boolean }) => {
   const Icon = passed ? VIcon : MiniCloseIcon;
@@ -56,7 +57,10 @@ export function BoostSourceButton({
   const permittedUser = permissions?.includes(SourcePermissions.BoostSquad);
 
   const onBoost = () =>
-    openModal({ type: LazyModal.BoostSquad, props: { squad } });
+    openModal({
+      type: LazyModal.BoostSquad,
+      props: { squad, origin: Origin.SquadPage },
+    });
 
   const onViewBoost = () =>
     openModal({ type: LazyModal.BoostedCampaignView, props: { campaign } });

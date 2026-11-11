@@ -32,6 +32,7 @@ import {
   CommunitySentiment,
   mapCommunitySentimentPost,
 } from './focus/CommunitySentiment';
+import { Origin } from '../../lib/log';
 
 type SocialTwitterPostContentRawProps = Omit<PostContentProps, 'post'> & {
   post: Post;
@@ -53,7 +54,6 @@ export function SocialTwitterPostContentRaw({
   onClose,
   isBannerVisible,
   isPostPage,
-  belowComments,
   shouldTrackView = true,
 }: SocialTwitterPostContentRawProps): ReactElement {
   const isBoostButtonVisible = useShowBoostButton({ post });
@@ -133,7 +133,7 @@ export function SocialTwitterPostContentRaw({
     >
       <div
         className={classNames(
-          'relative flex min-w-0 flex-1 flex-col px-4 tablet:px-6 laptop:px-8 laptop:pt-6',
+          'relative flex min-w-0 flex-1 flex-col px-4 pt-6 tablet:px-6 tablet:pt-0 laptop:px-8 laptop:pt-6',
           className?.content,
         )}
       >
@@ -148,13 +148,13 @@ export function SocialTwitterPostContentRaw({
             },
           }}
           isPostPage={isPostPage}
-          belowComments={belowComments}
           isFallback={isFallback}
           customNavigation={customNavigation}
           shouldOnboardAuthor={shouldOnboardAuthor}
           navigationProps={navigationProps}
           engagementProps={engagementActions}
           origin={origin}
+          boostOrigin={shouldShowBanner ? Origin.NewPostBoostStrip : undefined}
           post={post}
         >
           {shouldShowBanner && !isLaptop && (

@@ -31,6 +31,7 @@ export enum AuthEventNames {
   RegistrationInitializationError = 'registration initialization error',
   VerifiedSuccessfully = 'verified successfully',
   TurnstileLoadError = 'turnstile load error',
+  TurnstileTokenWait = 'turnstile token wait',
 }
 
 export enum AuthTriggers {
@@ -59,6 +60,7 @@ export enum AuthTriggers {
   CreateFeedFilters = 'create feed filters',
   AccountPage = 'account page',
   NewComment = 'new comment',
+  CommentsTeaser = 'comments teaser',
   SearchInput = 'search input',
   SearchSuggestion = 'search suggestion',
   LoginPage = 'login page',
@@ -66,7 +68,6 @@ export enum AuthTriggers {
   CollectionSubscribe = 'collection subscribe',
   SourceSubscribe = 'source subscribe',
   CommentDownvote = 'comment downvote',
-  WelcomePage = 'welcome page',
   FromNotification = 'from notification',
   Follow = 'follow',
   Plus = 'plus',
@@ -75,6 +76,7 @@ export enum AuthTriggers {
   OAuth = 'oauth',
   Opportunity = 'opportunity',
   RecruiterSelfServe = 'recruiter self serve',
+  StartupsCheckout = 'startups checkout',
   AiFluencyQuiz = 'ai fluency quiz',
   AddToStack = 'add to stack',
   PostPage = 'post page',
@@ -93,6 +95,13 @@ export type AuthTriggersType =
       | Origin.SourcePage
       | Origin.TagPage
     >;
+
+// Flows that sign a social account up without the profile form and go
+// straight back to what the visitor came for
+export const autoProfileTriggers: AuthTriggersType[] = [
+  AuthTriggers.RecruiterSelfServe,
+  AuthTriggers.StartupsCheckout,
+];
 
 export interface LoginPasswordParameters {
   identifier: string;

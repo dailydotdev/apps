@@ -14,8 +14,10 @@ interface ClassName extends DropdownClassName {
 
 type UserExperienceLevelKey = keyof typeof UserExperienceLevel;
 
-interface Props
-  extends Pick<BaseFieldProps, 'name' | 'valid' | 'hint' | 'saveHintSpace'> {
+interface Props extends Pick<
+  BaseFieldProps,
+  'name' | 'valid' | 'hint' | 'saveHintSpace'
+> {
   className?: ClassName;
   defaultValue?: UserExperienceLevelKey;
   onChange?: (value: UserExperienceLevelKey, index: number) => void;

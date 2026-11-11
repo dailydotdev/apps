@@ -28,6 +28,7 @@ export const SquadEmptyFeed = (): ReactElement => {
   return (
     <CharmEmptyState
       placement={CharmEmptyStatePlacement.Page}
+      className="pb-6"
       image={cloudinaryCharmNoPosts}
       imageAlt="daily.dev charm waiting for the first post"
       title="Nothing posted yet"

@@ -37,8 +37,8 @@ export interface ActionButtonsProps {
   variant?: ActionButtonsVariant;
   showDownvoteAction?: boolean;
   /**
-   * Button size. `tight` (24px) is the feed default; `card_save_on_hover`
-   * renders grid cards at `compact` (32px).
+   * Button size. `tight` (24px) is the feed default; grid cards render at
+   * `compact` (32px).
    */
   density?: CardActionDensity;
   /** The card renders the bookmark in its header, so the bar leaves it out. */

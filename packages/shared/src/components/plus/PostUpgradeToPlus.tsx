@@ -61,7 +61,7 @@ export const PostUpgradeToPlus = ({
       )}
     >
       <div className="flex w-full items-start">
-        <PlusUser className="rounded-4 bg-action-plus-float px-1 py-0.5 " />
+        <PlusUser className="rounded-4 bg-action-plus-float px-1 py-0.5" />
         <CloseButton
           className="ml-auto"
           size={ButtonSize.Small}

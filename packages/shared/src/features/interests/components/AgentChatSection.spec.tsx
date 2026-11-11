@@ -29,7 +29,7 @@ const post = (id: string, title: string): Post =>
     id,
     title,
     commentsPermalink: `https://app.daily.dev/posts/${id}`,
-  } as Post);
+  }) as Post;
 
 const reply: AgentMessage = {
   id: 'm1',
@@ -286,7 +286,7 @@ describe('voting on a reply', () => {
       status: 'completed',
       trigger: 'spawn',
       blocks,
-    } as InterestTurn);
+    }) as InterestTurn;
 
   it('names the posts the reply cited, so the agent knows which finding it is about', async () => {
     const send = mountLive(

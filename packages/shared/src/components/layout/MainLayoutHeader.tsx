@@ -32,6 +32,7 @@ export interface MainLayoutHeaderProps {
   sidebarRendered?: boolean;
   additionalButtons?: ReactNode;
   onLogoClick?: (e: React.MouseEvent) => unknown;
+  canShowSignInStrip?: boolean;
 }
 
 const SpotlightTrigger = dynamic(
@@ -52,6 +53,7 @@ function MainLayoutHeader({
   sidebarRendered,
   additionalButtons,
   onLogoClick,
+  canShowSignInStrip = false,
 }: MainLayoutHeaderProps): ReactElement {
   const { loadedSettings } = useSettingsContext();
   const hasHydrated = useIsHydrated();
@@ -105,11 +107,6 @@ function MainLayoutHeader({
 
   const row = (() => {
     if (root === ShellRoot.Home) {
-      // The widget rail brings the segments under it, docking them here once
-      // they scroll behind the block.
-      if (isFeedWidgetRailOn) {
-        return undefined;
-      }
       // The segments need the member's settings; until they load the row
       // keeps its height, so the block measures the same before and after.
       return shouldUseLoadedSettings ? (
@@ -138,7 +135,10 @@ function MainLayoutHeader({
   if (shouldRenderFeedNav) {
     return (
       <>
-        <FeedNav hasFeedWidgetRail={isFeedWidgetRailOn} />
+        <FeedNav
+          hasFeedWidgetRail={isFeedWidgetRailOn}
+          canShowSignInStrip={canShowSignInStrip}
+        />
       </>
     );
   }

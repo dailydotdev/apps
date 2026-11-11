@@ -149,7 +149,7 @@ describe('ExtensionShowcase', () => {
           set src(value: string) {
             sources.push(value);
           },
-        } as HTMLImageElement),
+        }) as HTMLImageElement,
     );
     render(<ExtensionShowcase />);
 

@@ -8,7 +8,11 @@ export interface PixelsContextData {
     currency: string,
     transactionId: string,
   ) => void;
-  trackEvent: (eventName: string) => void;
+  trackEvent: (
+    eventName: string,
+    params?: Record<string, unknown>,
+    options?: { eventId?: string },
+  ) => void;
 }
 
 export const PixelsContext = createContext<PixelsContextData>({

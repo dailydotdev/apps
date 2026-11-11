@@ -21,8 +21,10 @@ import {
   VolumeOffIcon,
 } from '../../icons';
 
-interface SquadModerationAuthorMenuProps
-  extends Pick<UseSourceModerationList, 'onReject' | 'onMute' | 'onBlock'> {
+interface SquadModerationAuthorMenuProps extends Pick<
+  UseSourceModerationList,
+  'onReject' | 'onMute' | 'onBlock'
+> {
   data: SourcePostModeration;
 }
 

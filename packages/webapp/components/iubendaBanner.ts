@@ -5,8 +5,9 @@ import type { IubendaBannerLang } from '@dailydotdev/shared/src/lib/iubenda';
  * Behavioral companion to styles/iubenda.css, ported from the marketing
  * sites' embed (recruiter-landing, custom-scripts/head.html): accessible
  * names for the icon-only Customize and the redrawn close button, the
- * press-again counter reveal, and the show-more clamp that layers the
- * TCF-mandated copy without removing text.
+ * press-again counter reveal, the show-more clamp that layers the
+ * TCF-mandated copy without removing text, and the vendor-list control that
+ * keeps the TCF vendor list reachable while the copy is clamped.
  */
 
 type IubendaLangWindow = typeof globalThis & {
@@ -24,6 +25,8 @@ interface BannerLabels {
   // is a single global string that would put an English name inside a
   // localized banner
   customize: string;
+  // the TCF vendor list; iubenda's own link to it sits mid-paragraph
+  vendorList: string;
 }
 
 // Keyed by the shared policy table so adding a banner language without its
@@ -34,24 +37,28 @@ const BANNER_LOCALES: Record<IubendaBannerLang, BannerLabels> = {
     showLess: 'Show less',
     close: 'Reject all and close',
     customize: 'Customize',
+    vendorList: 'Vendor list',
   },
   es: {
     showMore: 'Mostrar más',
     showLess: 'Mostrar menos',
     close: 'Rechazar todo y cerrar',
     customize: 'Personalizar',
+    vendorList: 'Lista de proveedores',
   },
   de: {
     showMore: 'Mehr anzeigen',
     showLess: 'Weniger anzeigen',
     close: 'Alle ablehnen und schließen',
     customize: 'Anpassen',
+    vendorList: 'Anbieterliste',
   },
   it: {
     showMore: 'Mostra di più',
     showLess: 'Mostra di meno',
     close: 'Rifiuta tutto e chiudi',
     customize: 'Personalizza',
+    vendorList: 'Elenco dei fornitori',
   },
 };
 
@@ -142,10 +149,45 @@ type Enhanced = {
   dispose: () => void;
 };
 
+// iubenda writes the vendor count into the mandated sentence right before
+// its link ("we and 1233 selected third parties"); in every banner language
+// the count is the last number in that text node.
+const readVendorCount = (link: Element): string | undefined => {
+  const numbers = (link.previousSibling?.textContent ?? '').match(/\d+/g);
+  return numbers?.[numbers.length - 1];
+};
+
+// The TCF first layer has to surface the vendor list, but iubenda's link to
+// it sits mid-paragraph, where the clamp hides it until Show more. This
+// control stays visible in both states and forwards to iubenda's own link,
+// so its vendor modal opens with none of our markup.
+const buildVendorListLink = (
+  paragraph: Element,
+  labels: BannerLabels,
+): HTMLButtonElement | null => {
+  const link = paragraph.querySelector<HTMLElement>(
+    '.iubenda-vendor-list-link',
+  );
+
+  if (!link) {
+    return null; // not a TCF banner: there is no vendor list
+  }
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'dd-cs-vendors';
+  const count = readVendorCount(link);
+  btn.textContent = count
+    ? `${labels.vendorList} (${count})`
+    : labels.vendorList;
+  btn.addEventListener('click', () => link.click());
+  return btn;
+};
+
 const buildShowMoreToggle = (
   banner: Element,
   paragraph: Element,
-  row: Element,
+  host: Element,
   labels: BannerLabels,
   onDisposed: () => void,
 ): Enhanced => {
@@ -164,7 +206,7 @@ const buildShowMoreToggle = (
     btn.textContent = collapsed ? labels.showMore : labels.showLess;
     btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
   });
-  row.insertBefore(btn, row.firstChild);
+  host.insertBefore(btn, host.firstChild);
 
   const pinWidth = () => {
     const minWidth = measureWidestLabelWidth(btn, [
@@ -250,8 +292,10 @@ const enhanceBanner = (banner: Element): boolean => {
     return true;
   }
 
-  // an orphaned toggle survives a disposed enhancement; rebuild from scratch
-  existingToggle?.remove();
+  // orphaned controls survive a disposed enhancement; rebuild from scratch
+  banner
+    .querySelectorAll('.dd-cs-links, .dd-cs-more, .dd-cs-vendors')
+    .forEach((orphan) => orphan.remove());
 
   const content = banner.querySelector('.iubenda-banner-content');
   const paragraph = banner.querySelector('#iubenda-cs-paragraph');
@@ -265,15 +309,24 @@ const enhanceBanner = (banner: Element): boolean => {
 
   const labels = resolveBannerLabels();
   labelControls(banner, labels);
+  // the text controls get the row's first line (styled by .dd-cs-links),
+  // so the Reject/Accept pair below keeps the full width for its captions
+  const links = document.createElement('span');
+  links.className = 'dd-cs-links';
+  row.insertBefore(links, row.firstChild);
   // self-disposal (banner removed from the DOM) must clear the module state
   // too, or a re-shown banner passes the dedupe above with dead listeners
   let instance: Enhanced | null = null;
-  instance = buildShowMoreToggle(banner, paragraph, row, labels, () => {
+  instance = buildShowMoreToggle(banner, paragraph, links, labels, () => {
     if (enhanced === instance) {
       enhanced = null;
     }
   });
   enhanced = instance;
+  const vendors = buildVendorListLink(paragraph, labels);
+  if (vendors) {
+    links.appendChild(vendors);
+  }
 
   return true;
 };

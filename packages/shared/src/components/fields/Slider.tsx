@@ -2,8 +2,9 @@ import * as React from 'react';
 import * as SliderPrimitive from '@radix-ui/react-slider';
 import classNames from 'classnames';
 
-interface SliderProps
-  extends React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root> {
+interface SliderProps extends React.ComponentPropsWithoutRef<
+  typeof SliderPrimitive.Root
+> {
   /**
    * Names the handle for assistive tech. It goes on the THUMB rather than the
    * root, because the thumb is what carries `role="slider"` — an `aria-label`

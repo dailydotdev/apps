@@ -110,6 +110,9 @@ export enum SearchProviderEnum {
   Tags = 'tags',
   Google = 'google',
   Sources = 'sources',
+  // The source suggestions split by type on the results page: squads on
+  // their own tab, the publishers on Sources. One query serves both.
+  Squads = 'squads',
   Users = 'users',
 }
 
@@ -117,10 +120,31 @@ const searchPageUrl = `${webappUrl}search`;
 
 export const searchPageProviders = [
   SearchProviderEnum.Posts,
+  SearchProviderEnum.Squads,
   SearchProviderEnum.Sources,
   SearchProviderEnum.Users,
   SearchProviderEnum.Tags,
 ];
+
+export const searchSuggestionsProvider = (
+  provider: SearchProviderEnum,
+): SearchProviderEnum =>
+  provider === SearchProviderEnum.Squads
+    ? SearchProviderEnum.Sources
+    : provider;
+
+export const matchesSearchProvider = (
+  provider: SearchProviderEnum,
+  suggestion: { sourceType?: SourceType },
+): boolean => {
+  if (provider === SearchProviderEnum.Squads) {
+    return suggestion.sourceType === SourceType.Squad;
+  }
+  if (provider === SearchProviderEnum.Sources) {
+    return suggestion.sourceType !== SourceType.Squad;
+  }
+  return true;
+};
 
 export const getSearchPageProvider = (value: unknown): SearchProviderEnum =>
   searchPageProviders.find((provider) => provider === value) ??

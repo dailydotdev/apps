@@ -43,6 +43,10 @@ export const login = async (page: Page): Promise<void> => {
   }
 
   await loginButton.click();
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: 'Continue with email' })
+    .click();
 
   // Scope the submit to the auth form, the page header keeps its own "Log in".
   const loginForm = page.locator('form').filter({

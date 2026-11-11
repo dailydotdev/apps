@@ -44,7 +44,8 @@ interface ClassName {
 }
 
 export interface DrawerProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'title'>,
+  extends
+    Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'title'>,
     Pick<ReactModal.Props, 'onAfterOpen' | 'onAfterClose'> {
   children: ReactNode;
   className?: ClassName;
@@ -455,7 +456,7 @@ function BaseDrawer({
               ref={body}
               className={classNames(
                 'flex min-h-0 w-full flex-1 flex-col overflow-y-auto overscroll-contain',
-                title ? classes : className?.drawer ?? 'px-4',
+                title ? classes : (className?.drawer ?? 'px-4'),
               )}
             >
               {children}

@@ -6,24 +6,21 @@ import { useSquadPageContext } from '@dailydotdev/shared/src/features/squads/Squ
 import { hasSquadFeature } from '../lib/features';
 import { isSquadPageTab, SquadPageTab } from '../lib/routes';
 import type { SquadPageExtraTab } from '../components/SquadPageLayout';
-import { SquadJobsTab } from '../components/jobs/SquadJobs';
 import { SquadPerksTab } from '../components/perks/SquadPerks';
-import { useSquadJobs } from './useSquadJobs';
 import { useSquadPerks } from './useSquadPerks';
 
 /**
- * The Jobs and Perks tabs beside Posts. Each shows once its feature is on
- * and it has something in it; editors see it empty too, as a nudge. A tab
- * asked for in the address (Back from a role or a perk) shows while its
- * data loads, so the feed never mounts just to be swapped out.
+ * The Perks tab beside Posts. It shows once its feature is on and it has
+ * something in it; editors see it empty too, as a nudge. A tab asked for
+ * in the address (Back from a perk) shows while its data loads, so the
+ * feed never mounts just to be swapped out.
  */
 export const useSquadPageTabs = () => {
   const router = useRouter();
   const { squad } = useSquadPageContext();
-  // Parked: in the app, the jobs and perks flags arrive by their own query
+  // Parked: in the app, the perks flag arrives by its own query
   // (a deploy bridge in SquadPageContext); here they are on the squad
   const areFeaturesReady = true;
-  const { jobs, isPending: isJobsPending } = useSquadJobs(squad);
   const { perks, isPending: isPerksPending } = useSquadPerks(squad);
   const canEdit = verifyPermission(squad, SourcePermissions.Edit);
   const requested = router?.query?.tab;
@@ -46,21 +43,6 @@ export const useSquadPageTabs = () => {
 
   if (
     shows(
-      SquadPageTab.Jobs,
-      hasSquadFeature(squad, 'jobs'),
-      jobs.length,
-      isJobsPending,
-    )
-  ) {
-    tabs.push({
-      id: SquadPageTab.Jobs,
-      label: 'Jobs',
-      content: <SquadJobsTab />,
-    });
-  }
-
-  if (
-    shows(
       SquadPageTab.Perks,
       hasSquadFeature(squad, 'perks'),
       perks.length,
@@ -74,7 +56,7 @@ export const useSquadPageTabs = () => {
     });
   }
 
-  // Keep the tab in the address, so Back from a role or perk returns to
+  // Keep the tab in the address, so Back from a perk returns to
   // it, and keep everything else there (an in-squad search, a modal)
   const onTabChange = useCallback(
     (tab: SquadPageTab) => {

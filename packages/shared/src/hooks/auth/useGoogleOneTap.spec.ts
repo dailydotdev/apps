@@ -120,6 +120,55 @@ describe('useGoogleOneTap', () => {
     expect(cancel).toHaveBeenCalled();
   });
 
+  it('should not prompt again when re-enabled in the same session', async () => {
+    const { rerender } = renderHook(
+      ({ enabled }) =>
+        useGoogleOneTap({
+          enabled,
+          clientId: 'client-123',
+          onCredential: jest.fn(),
+        }),
+      { initialProps: { enabled: true } },
+    );
+
+    await waitFor(() => expect(prompt).toHaveBeenCalledTimes(1));
+    rerender({ enabled: false });
+    expect(cancel).toHaveBeenCalledTimes(1);
+    rerender({ enabled: true });
+
+    await Promise.resolve();
+    expect(prompt).toHaveBeenCalledTimes(1);
+    expect(initialize).toHaveBeenCalledTimes(1);
+  });
+
+  it('should initialize once per page and route the credential to the latest mount', async () => {
+    const first = jest.fn();
+    const second = jest.fn();
+    const { unmount } = renderHook(() =>
+      useGoogleOneTap({
+        enabled: true,
+        clientId: 'client-123',
+        onCredential: first,
+      }),
+    );
+    await waitFor(() => expect(prompt).toHaveBeenCalledTimes(1));
+    unmount();
+
+    renderHook(() =>
+      useGoogleOneTap({
+        enabled: true,
+        clientId: 'client-123',
+        onCredential: second,
+      }),
+    );
+    await waitFor(() => expect(prompt).toHaveBeenCalledTimes(2));
+    expect(initialize).toHaveBeenCalledTimes(1);
+
+    initialize.mock.calls[0][0].callback({ credential: 'id-token-abc' });
+    expect(first).not.toHaveBeenCalled();
+    expect(second).toHaveBeenCalledWith('id-token-abc');
+  });
+
   it('should log a dedicated event when the GSI script fails to load', async () => {
     setGoogleGlobal(false);
     document.getElementById(GSI_SCRIPT_ID)?.remove();

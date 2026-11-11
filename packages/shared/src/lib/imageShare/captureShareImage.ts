@@ -23,8 +23,10 @@ const CAPTURE_TIMEOUT_MS = 15000;
 
 export type CaptureTarget = HTMLElement | RefObject<HTMLElement>;
 
-export interface CaptureShareImageOptions
-  extends Omit<SnapdomOptions, 'scale' | 'width' | 'height'> {
+export interface CaptureShareImageOptions extends Omit<
+  SnapdomOptions,
+  'scale' | 'width' | 'height'
+> {
   width?: number;
   height?: number;
   padding?: number;

@@ -68,6 +68,6 @@ export const getSquadsCreatePrefillState = (
     initialDisplay,
     initialDraft,
     initialShareUrl,
-    initialShareCommentary: shouldOpenShare ? body ?? title : undefined,
+    initialShareCommentary: shouldOpenShare ? (body ?? title) : undefined,
   };
 };

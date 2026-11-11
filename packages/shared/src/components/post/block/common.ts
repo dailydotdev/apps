@@ -7,8 +7,8 @@ export interface DownvoteBlocked {
 
 export const getBlockedLength = (blocked: DownvoteBlocked): number =>
   blocked?.tags
-    ? Object.entries(blocked?.tags)?.filter(([, hasBlocked]) => hasBlocked)
-        .length ?? 0
+    ? (Object.entries(blocked?.tags)?.filter(([, hasBlocked]) => hasBlocked)
+        .length ?? 0)
     : 0;
 
 export const getBlockedMessage = (

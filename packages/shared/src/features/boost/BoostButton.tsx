@@ -8,6 +8,8 @@ import { BoostIcon } from '../../components/icons/Boost';
 import { LazyModal } from '../../components/modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { useCampaignById } from '../../graphql/campaigns';
+import { Origin } from '../../lib/log';
+import { useBoostOriginContext } from './BoostOriginContext';
 
 interface BoostButtonProps {
   buttonProps?: ButtonProps<'button'>;
@@ -33,16 +35,20 @@ export function BoostButton({
 export function BoostPostButton({
   post,
   buttonProps = {},
+  origin: originProp,
 }: {
   post: Post;
   buttonProps?: ButtonProps<'button'>;
+  origin?: Origin;
 }): ReactElement {
   const { openModal } = useLazyModal();
+  const { origin: contextOrigin } = useBoostOriginContext();
+  const origin = originProp ?? contextOrigin ?? Origin.PostBoostButton;
   const campaignId = post?.flags?.campaignId ?? undefined;
   const { data: campaign, isFetched } = useCampaignById(campaignId ?? '');
 
   const onBoost = () =>
-    openModal({ type: LazyModal.BoostPost, props: { post } });
+    openModal({ type: LazyModal.BoostPost, props: { post, origin } });
 
   const onViewBoost = () => {
     if (!campaign) {

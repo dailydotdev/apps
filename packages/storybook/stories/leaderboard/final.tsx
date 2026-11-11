@@ -1,0 +1,1345 @@
+import type { ReactElement, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import classNames from 'classnames';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  ArrowIcon,
+  CopyIcon,
+  MiniCloseIcon,
+  ReadingStreakIcon,
+} from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
+import { ProfileTooltip } from '@dailydotdev/shared/src/components/profile/ProfileTooltip';
+import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import type { ContentPreference } from '@dailydotdev/shared/src/graphql/contentPreference';
+import {
+  ContentPreferenceStatus,
+  ContentPreferenceType,
+} from '@dailydotdev/shared/src/graphql/contentPreference';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
+import { ReputationUserBadge } from '@dailydotdev/shared/src/components/ReputationUserBadge';
+import { getQuestLevelProgress } from '@dailydotdev/shared/src/components/quest/QuestLevelProgressCircle';
+import { PlusTitle } from '@dailydotdev/shared/src/components/plus/PlusTitle';
+import { TypographyType } from '@dailydotdev/shared/src/components/typography/Typography';
+import { VerifiedSquadBadge } from '@dailydotdev/shared/src/features/squads/components/VerifiedSquad';
+import { ProfileSnapshotButton } from '@dailydotdev/shared/src/features/snapshot/ProfileSnapshotButton';
+import {
+  isLeaderboardPositionSupported,
+  LeaderboardType,
+  leaderboardTypeToTitle,
+} from '@dailydotdev/shared/src/graphql/leaderboard';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
+import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
+import type {
+  LoggedUser,
+  UserShortProfile,
+} from '@dailydotdev/shared/src/lib/user';
+import {
+  formatReferralLadderMonths,
+  getReferralLadderReward,
+  REFERRAL_INVITE_COPIED_TOAST,
+} from '@dailydotdev/shared/src/lib/referral';
+import { PageHeader, useSources } from '../sources/kit';
+import { PhoneSheet } from '../sources/phone';
+import type { BoardId, Dev, Entry } from './data';
+import {
+  boardById,
+  COMPANY_BOARD,
+  DEVS,
+  formatNumber,
+  ME,
+  myEntry,
+  rankBoard,
+  REFERRAL_LADDER,
+  unitFor,
+} from './data';
+import { Avatar, Dropdown, isPhoneView, Rank, youHighlight } from './kit';
+import { LeaderboardSnapshotCard } from './snapshot';
+import { LeaderboardBottomSpace, LeaderboardPhoneChrome } from './phone';
+
+// The chosen direction, Option B at full width, on production data only:
+// every list is one of the boards /users queries today, all time, with the
+// query's limits, and your own rank only where leaderboardPosition answers.
+// Responsive from a 360 phone to a 1728 laptop.
+
+const BOARD_TYPES: Record<BoardId, LeaderboardType> = {
+  level: LeaderboardType.HighestLevel,
+  reputation: LeaderboardType.HighestReputation,
+  streak: LeaderboardType.LongestStreak,
+  views: LeaderboardType.HighestPostViews,
+  upvotes: LeaderboardType.MostUpvoted,
+  referrals: LeaderboardType.MostReferrals,
+  readingDays: LeaderboardType.MostReadingDays,
+};
+
+/** /users' boards, in its order; Most verified employees closes the grid. */
+const BOARD_ORDER: BoardId[] = [
+  'level',
+  'reputation',
+  'streak',
+  'views',
+  'upvotes',
+  'referrals',
+  'readingDays',
+];
+
+/** The boards leaderboardPosition can rank you on. */
+export const POSITION_BOARDS = BOARD_ORDER.filter((board) =>
+  isLeaderboardPositionSupported(BOARD_TYPES[board]),
+);
+
+/**
+ * Highest reputation fills three columns of four, so LEADERBOARD_QUERY asks
+ * for 12 (its `limit`, 10 by default). A board's top list asks for 50.
+ */
+const LIST_LIMIT = 12;
+/** Rows on a board tile: your row takes the last one where production ranks you. */
+const TILE_ROWS = 4;
+const TOP_LIMIT = 50;
+/** Past this rank, leaderboardPosition returns no rank, only the cap. */
+const CAPPED_AT = 1000;
+
+/** Your rank on each board leaderboardPosition answers for: under the cap. */
+const MY_RANKS: Partial<Record<BoardId, number>> = {
+  reputation: 842,
+  streak: 317,
+  readingDays: 529,
+};
+
+/**
+ * The board you rank best on, so the card opens on your best result. Past the
+ * cap or with no score there is no rank to compare: it opens on reputation.
+ */
+const bestBoard = (position: Position): BoardId =>
+  position === 'ranked'
+    ? [...POSITION_BOARDS].sort(
+        (a, b) => (MY_RANKS[a] ?? Infinity) - (MY_RANKS[b] ?? Infinity),
+      )[0]
+    : 'reputation';
+
+/** How leaderboardPosition answers for you. */
+export type Position = 'ranked' | 'capped' | 'empty';
+
+const titleOf = (board: BoardId): string =>
+  leaderboardTypeToTitle[BOARD_TYPES[board]];
+
+const scoreLabel = (board: BoardId, score: number): string =>
+  `${formatNumber(score)} ${unitFor(score, boardById(board).unit)}`;
+
+/** Reputation always reads as production's badge: the bolt and the number. */
+const Reputation = ({
+  value,
+  className,
+  large = false,
+}: {
+  value: number;
+  className?: string;
+  /** The rank card's size: a step up in text and icon. */
+  large?: boolean;
+}): ReactElement => (
+  <ReputationUserBadge
+    className={classNames(large && '!typo-callout', className)}
+    iconProps={
+      large
+        ? { size: IconSize.Small, className: 'text-accent-onion-default' }
+        : undefined
+    }
+    user={{ reputation: value }}
+  />
+);
+
+/** Streak days read as the header's streak counter: the flame and the days. */
+const Streak = ({
+  days,
+  className,
+  large = false,
+}: {
+  days: number;
+  className?: string;
+  /** The rank card's size: a step up in text and icon. */
+  large?: boolean;
+}): ReactElement => (
+  <span
+    className={classNames(
+      'flex items-center font-bold text-text-primary',
+      large ? 'typo-callout' : 'typo-footnote',
+      className,
+    )}
+  >
+    {/* The flame fills its box; the reputation bolt sits inside one, so the
+        flame is drawn smaller in the bolt's slot to match it. */}
+    <span
+      className={classNames(
+        'flex shrink-0 items-center justify-center',
+        large ? 'size-6' : 'size-5',
+      )}
+    >
+      <ReadingStreakIcon
+        secondary
+        className={large ? '!size-4' : '!size-3.5'}
+      />
+    </span>
+    {formatNumber(days)}
+  </span>
+);
+
+/** The mock's XP per level, so a board's levels follow its XP order. */
+const XP_PER_LEVEL = 160;
+
+const levelOf = (xp: number) => ({
+  level: Math.floor(xp / XP_PER_LEVEL),
+  xpInLevel: xp % XP_PER_LEVEL,
+  xpToNextLevel: XP_PER_LEVEL - (xp % XP_PER_LEVEL),
+});
+
+/** Production's level ring, in its colors, small enough for a row. */
+const RING_SIZE = 16;
+const RING_STROKE = 3;
+
+const Ring = ({ progress }: { progress: number }): ReactElement => {
+  const size = RING_SIZE;
+  const stroke = RING_STROKE;
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      fill="none"
+      className="shrink-0 -rotate-90"
+      aria-hidden
+    >
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        strokeWidth={stroke}
+        className="stroke-border-subtlest-tertiary"
+      />
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        strokeWidth={stroke}
+        strokeLinecap="round"
+        strokeDasharray={circumference}
+        strokeDashoffset={circumference * (1 - progress / 100)}
+        className="stroke-accent-avocado-default"
+      />
+    </svg>
+  );
+};
+
+/** Highest level reads as the level, with a small ring for its progress. */
+const Level = ({
+  xp,
+  label = false,
+  className,
+}: {
+  xp: number;
+  /** Says "Level 120" where the board's title isn't beside it. */
+  label?: boolean;
+  className?: string;
+}): ReactElement => {
+  const level = levelOf(xp);
+  return (
+    <span className={classNames('flex items-center gap-1.5', className)}>
+      <Ring progress={getQuestLevelProgress(level)} />
+      {label ? `Level ${level.level}` : level.level}
+    </span>
+  );
+};
+
+const scoreValue = (board: BoardId, score: number): ReactNode => {
+  if (board === 'reputation') {
+    return <Reputation value={score} />;
+  }
+  if (board === 'level') {
+    return <Level xp={score} />;
+  }
+  if (board === 'streak') {
+    return <Streak days={score} />;
+  }
+  return formatNumber(score);
+};
+
+/* ---------------------------------------------------------------- atoms */
+
+/** Where a frame in the states catalog starts out; the page works on from it. */
+interface FrameState {
+  pickerOpen?: boolean;
+  /** Opens the hover card of this rank in Highest reputation. */
+  hoverCardFor?: number;
+  /** Phones: the first row starts scrolled to the Plus invite. */
+  stripAtInvite?: boolean;
+  /** Your verified company, for Most verified employees. */
+  myCompany?: string;
+  /** Starts scrolled to Every leaderboard. */
+  atBoards?: boolean;
+}
+
+const FrameStateContext = createContext<FrameState>({});
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** A mock developer as the short profile production's hover card reads. */
+const toProfile = (dev: Dev): UserShortProfile => ({
+  id: dev.id,
+  name: dev.name,
+  username: dev.username,
+  image: dev.image,
+  bio: dev.bio,
+  permalink: `https://app.daily.dev/${dev.username}`,
+  createdAt: new Date(Date.now() - dev.joinedDaysAgo * DAY_MS).toISOString(),
+  reputation: dev.scores.reputation,
+  companies: [],
+  // Every third developer is a Plus member, so the card's Plus mark shows.
+  isPlus: Number(dev.id.replace('dev-', '')) % 3 === 0,
+});
+
+/**
+ * The hover card shows Follow only once production's follow-status query has
+ * answered. Storybook has no API, so the answers are seeded: people you follow
+ * already, everyone else not yet.
+ */
+const seedFollowStatus = (
+  queryClient: QueryClient,
+  user: LoggedUser | undefined,
+  followed: string[],
+): void => {
+  DEVS.forEach((dev) => {
+    const isFollowing = dev.isFollowing || followed.includes(dev.id);
+    queryClient.setQueryData<ContentPreference | null>(
+      generateQueryKey(RequestKey.ContentPreference, user, {
+        id: dev.id,
+        entity: ContentPreferenceType.User,
+      }),
+      isFollowing
+        ? {
+            referenceId: dev.id,
+            type: ContentPreferenceType.User,
+            createdAt: new Date(),
+            status: ContentPreferenceStatus.Follow,
+          }
+        : null,
+    );
+  });
+};
+
+/**
+ * An avatar that opens production's profile hover card. The card attaches to
+ * the device frame's own page, so it lines up with the avatar inside it.
+ */
+const ProfileAvatar = ({
+  dev,
+  size,
+  className,
+  open,
+}: {
+  dev: Dev;
+  size?: string;
+  className?: string;
+  /** Keeps the card up, for the states catalog. */
+  open?: boolean;
+}): ReactElement => (
+  <ProfileTooltip
+    userId={dev.id}
+    initialUser={toProfile(dev)}
+    tooltip={{
+      appendTo: (reference) => reference.ownerDocument.body,
+      ...(open && { visible: true }),
+    }}
+  >
+    <span className="flex shrink-0">
+      <Avatar dev={dev} size={size} className={className} />
+    </span>
+  </ProfileTooltip>
+);
+
+const Heading = ({
+  title,
+  action,
+}: {
+  title: ReactNode;
+  action?: ReactNode;
+}): ReactElement => (
+  <header className="flex items-center justify-between gap-4">
+    <h2 className="font-bold typo-title3">{title}</h2>
+    {action}
+  </header>
+);
+
+const textLinkClassName =
+  'flex shrink-0 items-center gap-1 font-bold text-text-tertiary typo-footnote';
+
+/** A link-styled button; with no `onClick` it is only a pressable card's cue. */
+const TextLink = ({
+  children,
+  onClick,
+}: {
+  children: ReactNode;
+  onClick?: () => void;
+}): ReactElement => {
+  const content = (
+    <>
+      {children}
+      <ArrowIcon size={IconSize.Size16} className="rotate-90" />
+    </>
+  );
+  if (!onClick) {
+    return <span className={textLinkClassName}>{content}</span>;
+  }
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={classNames(textLinkClassName, 'hover:text-text-primary')}
+    >
+      {content}
+    </button>
+  );
+};
+
+const RowPlaceholder = (): ReactElement => (
+  <li className="flex h-12 items-center gap-3 px-2">
+    <ElementPlaceholder className="h-3 w-6 rounded-4" />
+    <ElementPlaceholder className="size-8 rounded-10" />
+    <ElementPlaceholder className="h-3 w-2/5 rounded-4" />
+  </li>
+);
+
+const EmptyBoard = (): ReactElement => (
+  <p className="px-2 py-3 text-text-tertiary typo-footnote">
+    Nothing here right now. Check back soon.
+  </p>
+);
+
+/* ------------------------------------------------------- the first row */
+
+/**
+ * One action card: what it is in a line, one detail, and one button that
+ * keeps its size and place on every card. Below laptop the button, and the
+ * picker beside it, fill the card's width.
+ */
+const ActionCard = ({
+  title,
+  detail,
+  children,
+  action,
+  aside,
+  className,
+  actionClassName,
+}: {
+  title: ReactNode;
+  detail?: ReactNode;
+  children?: ReactNode;
+  action?: ReactNode;
+  aside?: ReactNode;
+  className?: string;
+  /** Where the action shows, when a card moves it on some widths. */
+  actionClassName?: string;
+}): ReactElement => (
+  <article
+    className={classNames(
+      'flex h-full flex-col gap-3 rounded-16 border p-4',
+      className ?? 'border-border-subtlest-tertiary',
+    )}
+  >
+    <header className="flex flex-col gap-0.5">
+      <div className="font-bold typo-callout">{title}</div>
+      {detail && (
+        <div className="text-text-tertiary typo-footnote">{detail}</div>
+      )}
+    </header>
+    {children}
+    {(aside || action) && (
+      <div className="mt-auto flex flex-wrap items-end justify-end gap-2">
+        {aside}
+        {action && (
+          <span
+            className={classNames(
+              'w-full shrink-0 laptop:w-44 [&_button]:w-full',
+              actionClassName ?? 'flex',
+            )}
+          >
+            {action}
+          </span>
+        )}
+      </div>
+    )}
+  </article>
+);
+
+export const RankCard = ({
+  position = 'ranked',
+  initialBoard,
+  loading = false,
+}: {
+  position?: Position;
+  initialBoard?: BoardId;
+  loading?: boolean;
+}): ReactElement => {
+  const [board, setBoard] = useState<BoardId>(
+    initialBoard ?? bestBoard(position),
+  );
+  const { pickerOpen } = useContext(FrameStateContext);
+
+  if (loading) {
+    return (
+      <ActionCard
+        className={`border-transparent ${youHighlight}`}
+        title={<ElementPlaceholder className="h-4 w-40 rounded-4" />}
+        detail={<ElementPlaceholder className="mt-1 h-3 w-56 rounded-4" />}
+      >
+        <ElementPlaceholder className="mt-auto h-9 w-44 rounded-12" />
+      </ActionCard>
+    );
+  }
+
+  const rankOf = (id: BoardId): string =>
+    position === 'capped'
+      ? `${largeNumberFormat(CAPPED_AT)}+`
+      : `#${(MY_RANKS[id] ?? 0).toLocaleString('en-US')}`;
+  const scoreOf = (id: BoardId): number =>
+    position === 'empty' ? 0 : myEntry(id).score;
+  const headlineOf = (id: BoardId): string => {
+    if (position === 'empty') {
+      return `No rank yet on ${titleOf(id)}`;
+    }
+    return position === 'capped'
+      ? `You’re outside the top ${largeNumberFormat(CAPPED_AT)}`
+      : `You’re ${rankOf(id)} on ${titleOf(id)}`;
+  };
+  const detailOf = (id: BoardId): ReactNode => {
+    if (position === 'empty') {
+      return boardById(id).howTo;
+    }
+    const score = scoreOf(id);
+    if (id === 'reputation') {
+      return (
+        <div className="flex items-center gap-1">
+          <Reputation value={score} large /> reputation in total
+        </div>
+      );
+    }
+    if (id === 'streak') {
+      return (
+        <span className="flex items-center gap-1">
+          <Streak days={score} large /> days in a row
+        </span>
+      );
+    }
+    return `${scoreLabel(id, score)} in total`;
+  };
+
+  const title = titleOf(board);
+  const rank = rankOf(board);
+  const score = scoreOf(board);
+  // The page's welcome: a big headline beside your avatar, the total under it.
+  const heading = (
+    <div className="flex items-center gap-3">
+      <Avatar dev={ME} size="size-12" className="rounded-14" />
+      <div className="flex w-0 min-w-0 flex-1 flex-col gap-0.5">
+        <span className="typo-title3">{headlineOf(board)}</span>
+        <div className="font-normal text-text-tertiary typo-callout">
+          {detailOf(board)}
+        </div>
+      </div>
+    </div>
+  );
+
+  // Production's profile snapshot flow: the card staged off-screen at
+  // 1080px, captured, copied, then the snapshot share panel.
+  const snapshot = (size: ButtonSize) =>
+    position === 'empty' ? undefined : (
+      <ProfileSnapshotButton
+        origin={Origin.Leaderboard}
+        filename={`daily-leaderboard-${board}`}
+        ownerId={ME.id}
+        showLabel
+        size={size}
+        variant={ButtonVariant.Primary}
+        renderCard={(ref) => (
+          <LeaderboardSnapshotCard
+            ref={ref}
+            title={title}
+            rank={rank}
+            stat={{
+              value: formatNumber(score),
+              label: unitFor(score, boardById(board).unit),
+            }}
+            listTitle={`Top 3 · ${title}`}
+            rows={rankBoard(board, DEVS)
+              .slice(0, 3)
+              .map((entry) => ({
+                rank: entry.rank,
+                name: entry.dev.name,
+                value: scoreLabel(board, entry.score),
+              }))}
+          />
+        )}
+      />
+    );
+
+  return (
+    <ActionCard
+      className={`border-transparent ${youHighlight}`}
+      title={heading}
+      aside={
+        // Phones: Snapshot shrinks to Follow's size, on the picker's line.
+        <span className="flex w-full items-center gap-2 laptop:mr-auto laptop:w-auto">
+          <Dropdown
+            defaultOpen={pickerOpen}
+            sheetTitle="Your rank on"
+            className="min-w-0 flex-1 tablet:w-full"
+            value={board}
+            onChange={setBoard}
+            options={POSITION_BOARDS.map((id) => ({
+              id,
+              label: titleOf(id),
+              short: boardById(id).short,
+            }))}
+          />
+          <span className="flex shrink-0 tablet:hidden">
+            {snapshot(ButtonSize.XSmall)}
+          </span>
+        </span>
+      }
+      action={snapshot(ButtonSize.Small)}
+      actionClassName="hidden tablet:flex"
+    />
+  );
+};
+
+export const InviteCard = ({
+  friends = 1,
+  loading = false,
+}: {
+  /** Friends who joined through your link (`referredCount`). */
+  friends?: number;
+  loading?: boolean;
+}): ReactElement => {
+  const { notify } = useSources();
+  // useReferralLadder's rules: the next step is the first one still ahead.
+  const next = REFERRAL_LADDER.find((step) => step.invites > friends);
+  const last = REFERRAL_LADDER[REFERRAL_LADDER.length - 1];
+  const remaining = next ? next.invites - friends : 0;
+  const copyButton = (size: ButtonSize) => (
+    <Button
+      type="button"
+      size={size}
+      variant={ButtonVariant.Secondary}
+      icon={<CopyIcon />}
+      disabled={loading}
+      onClick={() => notify(REFERRAL_INVITE_COPIED_TOAST)}
+    >
+      Copy invite link
+    </Button>
+  );
+  const headline = next
+    ? `Invite ${remaining} ${
+        remaining === 1 ? 'friend' : 'friends'
+      }, get ${formatReferralLadderMonths(next.months)}`
+    : `You unlocked ${getReferralLadderReward(last.months)}`;
+  return (
+    <ActionCard
+      title={
+        <div className="flex flex-wrap items-center gap-x-2">
+          <PlusTitle type={TypographyType.Callout} bold />
+          {loading ? (
+            <ElementPlaceholder className="h-4 w-40 rounded-4" />
+          ) : (
+            headline
+          )}
+        </div>
+      }
+      detail={
+        loading ? (
+          <ElementPlaceholder className="mt-1 h-3 w-32 rounded-4" />
+        ) : (
+          `${Math.min(friends, last.invites)} of ${last.invites} friends joined`
+        )
+      }
+      aside={
+        // Phones: the same small size as Snapshot and Follow.
+        <span className="ml-auto flex tablet:hidden">
+          {copyButton(ButtonSize.XSmall)}
+        </span>
+      }
+      action={copyButton(ButtonSize.Small)}
+      actionClassName="hidden tablet:flex"
+    >
+      <div className="grid grid-cols-3 gap-1.5">
+        {REFERRAL_LADDER.map((step) => {
+          const unlocked = !loading && friends >= step.invites;
+          return (
+            <div key={step.invites} className="flex flex-col gap-1">
+              <span
+                className={classNames(
+                  'h-1.5 rounded-4',
+                  unlocked ? 'bg-action-plus-default' : 'bg-surface-float',
+                )}
+              />
+              {loading ? (
+                <ElementPlaceholder className="h-3 w-12 rounded-4" />
+              ) : (
+                <span
+                  className={classNames(
+                    'typo-caption2',
+                    unlocked
+                      ? 'text-action-plus-default'
+                      : 'text-text-quaternary',
+                  )}
+                >
+                  {formatReferralLadderMonths(step.months)}
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </ActionCard>
+  );
+};
+
+/* ------------------------------------------------- highest reputation */
+
+const PersonRow = ({ entry }: { entry: Entry }): ReactElement => {
+  const { goTo } = useSources();
+  const { hoverCardFor } = useContext(FrameStateContext);
+  return (
+    <li>
+      <div
+        role="link"
+        tabIndex={0}
+        onClick={() => goTo(`/${entry.dev.username}`)}
+        onKeyDown={(event) =>
+          event.key === 'Enter' && goTo(`/${entry.dev.username}`)
+        }
+        className="flex h-12 cursor-pointer items-center gap-3 rounded-12 px-2 hover:bg-surface-hover"
+      >
+        <Rank rank={entry.rank} />
+        <ProfileAvatar dev={entry.dev} open={hoverCardFor === entry.rank} />
+        <span className="min-w-0 flex-1 truncate font-bold typo-callout">
+          {entry.dev.name}
+        </span>
+        <Reputation value={entry.score} className="shrink-0 tabular-nums" />
+      </div>
+    </li>
+  );
+};
+
+const TopReputation = ({
+  loading,
+  empty,
+}: {
+  loading: boolean;
+  empty: boolean;
+}): ReactElement => {
+  const { goTo } = useSources();
+  const top = rankBoard('reputation', DEVS).slice(0, LIST_LIMIT);
+  return (
+    <section className="flex flex-col gap-2">
+      <Heading
+        title="Highest reputation"
+        action={
+          <TextLink onClick={() => goTo('/users/highestReputation')}>
+            Full ranking
+          </TextLink>
+        }
+      />
+      {empty ? (
+        <EmptyBoard />
+      ) : (
+        <ol className="grid grid-cols-1 gap-x-8 tablet:grid-flow-col tablet:grid-cols-2 tablet:grid-rows-6 laptop:grid-cols-3 laptop:grid-rows-4">
+          {loading
+            ? Array.from({ length: LIST_LIMIT }, (_, index) => (
+                <RowPlaceholder key={index} />
+              ))
+            : top.map((entry) => (
+                <PersonRow key={entry.dev.id} entry={entry} />
+              ))}
+        </ol>
+      )}
+    </section>
+  );
+};
+
+/* ------------------------------------------------------------ standouts */
+
+/** The #1 of every production people leaderboard, which store score only. */
+const STANDOUT_BOARDS: { board: BoardId; eyebrow: string }[] = [
+  { board: 'reputation', eyebrow: 'HIGHEST REPUTATION' },
+  { board: 'streak', eyebrow: 'LONGEST STREAK' },
+  { board: 'views', eyebrow: 'MOST POST VIEWS' },
+  { board: 'upvotes', eyebrow: 'MOST UPVOTED' },
+  { board: 'referrals', eyebrow: 'TOP REFERRER' },
+  { board: 'readingDays', eyebrow: 'MOST READING DAYS' },
+  { board: 'level', eyebrow: 'HIGHEST LEVEL' },
+];
+
+const standouts = STANDOUT_BOARDS.map(({ board, eyebrow }) => {
+  const [top] = rankBoard(board, DEVS);
+  return {
+    eyebrow,
+    dev: top.dev,
+    stat:
+      {
+        level: <Level xp={top.score} label className="justify-center" />,
+        reputation: (
+          <Reputation
+            value={top.score}
+            className="justify-center !typo-caption1"
+          />
+        ),
+        streak: (
+          <Streak days={top.score} className="justify-center !typo-caption1" />
+        ),
+      }[board as string] ?? scoreLabel(board, top.score),
+  };
+});
+
+const Standouts = ({ loading }: { loading: boolean }): ReactElement => {
+  const { goTo } = useSources();
+  return (
+    <section className="flex flex-col gap-3">
+      <Heading title="Standouts" />
+      <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 pb-1 tablet:mx-0 tablet:px-0">
+        {standouts.map(({ eyebrow, dev, stat }) =>
+          loading ? (
+            <ElementPlaceholder
+              key={eyebrow}
+              className="h-36 w-40 shrink-0 rounded-16"
+            />
+          ) : (
+            <article
+              key={eyebrow}
+              role="link"
+              tabIndex={0}
+              onClick={() => goTo(`/${dev.username}`)}
+              onKeyDown={(event) =>
+                event.key === 'Enter' && goTo(`/${dev.username}`)
+              }
+              className="flex w-40 shrink-0 cursor-pointer flex-col items-center gap-2 rounded-16 border border-border-subtlest-tertiary p-3 text-center hover:border-border-subtlest-secondary"
+            >
+              <span className="w-full truncate font-bold uppercase tracking-wide text-text-primary typo-caption2">
+                {eyebrow}
+              </span>
+              <ProfileAvatar dev={dev} size="size-12" className="rounded-14" />
+              <div className="flex w-full min-w-0 flex-col">
+                <span className="truncate font-bold typo-footnote">
+                  {dev.name}
+                </span>
+                <div className="flex h-4 items-center justify-center truncate text-text-tertiary typo-caption1">
+                  {stat}
+                </div>
+              </div>
+            </article>
+          ),
+        )}
+      </div>
+    </section>
+  );
+};
+
+/* ------------------------------------------------------ every leaderboard */
+
+const MiniRow = ({
+  rank,
+  name,
+  image,
+  value,
+  highlight = false,
+  suffix,
+}: {
+  rank: number | string;
+  name: string;
+  image: ReactNode;
+  value: ReactNode;
+  highlight?: boolean;
+  suffix?: ReactNode;
+}): ReactElement => (
+  <li
+    className={classNames(
+      'flex h-9 items-center gap-2 rounded-10 px-1.5',
+      highlight ? youHighlight : 'hover:bg-surface-hover',
+    )}
+  >
+    <span className="flex min-w-6 shrink-0 justify-center">
+      {typeof rank === 'number' && rank <= 3 ? (
+        <Rank rank={rank} className="!w-6" />
+      ) : (
+        <span className="font-bold tabular-nums text-text-tertiary typo-caption1">
+          {typeof rank === 'number' ? rank.toLocaleString('en-US') : rank}
+        </span>
+      )}
+    </span>
+    {image}
+    <span
+      className={classNames(
+        'flex min-w-0 flex-1 items-center gap-1 truncate font-bold typo-footnote',
+        highlight && 'text-accent-cabbage-default',
+      )}
+    >
+      <span className="truncate">{name}</span>
+      {suffix}
+    </span>
+    <div className="flex shrink-0 font-bold tabular-nums typo-footnote">
+      {value}
+    </div>
+  </li>
+);
+
+const EXPAND_MS = 220;
+
+/**
+ * A board's top 3 and, where production can rank you, your row. A press
+ * anywhere opens its top 50: in place as a popover from tablet up, in a
+ * bottom sheet on phones.
+ */
+const BoardTile = ({
+  title,
+  count,
+  top,
+  all,
+  you,
+  initialOpen = false,
+  loading,
+  empty,
+}: {
+  title: string;
+  /** How many entries the board has, up to the list's limit. */
+  count: number;
+  top: ReactNode;
+  all: ReactNode;
+  you?: ReactNode;
+  initialOpen?: boolean;
+  loading: boolean;
+  empty: boolean;
+}): ReactElement => {
+  const [mounted, setMounted] = useState(initialOpen);
+  const [expanded, setExpanded] = useState(initialOpen);
+  const [sheet, setSheet] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  const unmountTimer = useRef<ReturnType<typeof setTimeout>>();
+  const expandTimer = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(
+    () => () => {
+      clearTimeout(unmountTimer.current);
+      clearTimeout(expandTimer.current);
+    },
+    [],
+  );
+  // A tile that starts open is a sheet on phones, as a tap would open it.
+  useEffect(() => {
+    if (initialOpen && isPhoneView(root.current)) {
+      setMounted(false);
+      setExpanded(false);
+      setSheet(true);
+    }
+  }, [initialOpen]);
+  // A board shorter than the list's limit says how many it has instead.
+  const listLabel = count >= TOP_LIMIT ? `Top ${TOP_LIMIT}` : `All ${count}`;
+  useEffect(() => {
+    // The device's own window only: scrollIntoView would move the story too.
+    const element = root.current;
+    const view = element?.ownerDocument.defaultView;
+    if (initialOpen && element && view) {
+      const { top } = element.getBoundingClientRect();
+      view.scrollTo(0, view.scrollY + top - 120);
+    }
+  }, [initialOpen]);
+  const open = () => {
+    if (isPhoneView(root.current)) {
+      setSheet(true);
+      return;
+    }
+    clearTimeout(unmountTimer.current);
+    setMounted(true);
+    expandTimer.current = setTimeout(() => setExpanded(true), 16);
+  };
+  const close = () => {
+    clearTimeout(expandTimer.current);
+    setExpanded(false);
+    clearTimeout(unmountTimer.current);
+    unmountTimer.current = setTimeout(() => setMounted(false), EXPAND_MS);
+  };
+  const popover = useRef<HTMLDivElement>(null);
+  // Escape closes the popover or the sheet, like production's modals, and so
+  // does a press anywhere outside the popover: the rail and the header strip
+  // included, which sit above the page's own overlay.
+  useEffect(() => {
+    const doc = root.current?.ownerDocument;
+    if (!doc || (!mounted && !sheet)) {
+      return undefined;
+    }
+    const dismiss = () => {
+      setSheet(false);
+      clearTimeout(expandTimer.current);
+      setExpanded(false);
+      clearTimeout(unmountTimer.current);
+      unmountTimer.current = setTimeout(() => setMounted(false), EXPAND_MS);
+    };
+    const onKey = (event: KeyboardEvent) => event.key === 'Escape' && dismiss();
+    const onPress = (event: MouseEvent) => {
+      if (mounted && !popover.current?.contains(event.target as Node)) {
+        dismiss();
+      }
+    };
+    doc.addEventListener('keydown', onKey);
+    doc.addEventListener('mousedown', onPress);
+    return () => {
+      doc.removeEventListener('keydown', onKey);
+      doc.removeEventListener('mousedown', onPress);
+    };
+  }, [mounted, sheet]);
+  const interactive = !loading && !empty;
+  return (
+    <div ref={root} className="relative">
+      <div
+        role={interactive ? 'button' : undefined}
+        tabIndex={interactive ? 0 : undefined}
+        aria-label={
+          interactive ? `${title}, open ${listLabel.toLowerCase()}` : undefined
+        }
+        onClick={interactive ? open : undefined}
+        onKeyDown={(event: React.KeyboardEvent) => {
+          if (interactive && (event.key === 'Enter' || event.key === ' ')) {
+            event.preventDefault();
+            open();
+          }
+        }}
+        className={classNames(
+          'flex h-full flex-col gap-1 rounded-16 border border-border-subtlest-tertiary p-3',
+          interactive &&
+            'cursor-pointer transition-colors hover:border-border-subtlest-secondary hover:bg-surface-hover',
+        )}
+      >
+        <div className="flex items-start justify-between gap-2 px-1.5 pb-1">
+          <span className="truncate font-bold typo-callout">{title}</span>
+          {interactive && <TextLink>{listLabel}</TextLink>}
+        </div>
+        {loading && (
+          <ol className="flex flex-col">
+            {Array.from({ length: TILE_ROWS }, (_, index) => (
+              <RowPlaceholder key={index} />
+            ))}
+          </ol>
+        )}
+        {empty && <EmptyBoard />}
+        {interactive && (
+          <ol className="flex flex-col">
+            {top}
+            {you && (
+              <>
+                <li className="my-1 h-px bg-border-subtlest-tertiary" />
+                {you}
+              </>
+            )}
+          </ol>
+        )}
+      </div>
+      {mounted && (
+        <>
+          <span aria-hidden className="fixed inset-0 z-2" onClick={close} />
+          <div
+            ref={popover}
+            role="dialog"
+            aria-label={`${title}, ${listLabel.toLowerCase()}`}
+            style={{ transitionDuration: `${EXPAND_MS}ms` }}
+            className={classNames(
+              'absolute z-3 flex flex-col overflow-hidden rounded-20 border border-border-subtlest-secondary bg-background-popover shadow-2 transition-all ease-out',
+              expanded
+                ? '-inset-x-3 -top-3 max-h-[30rem] opacity-100'
+                : 'inset-x-0 top-0 max-h-[13rem] opacity-64',
+            )}
+          >
+            <div className="flex items-center justify-between gap-2 px-4 pb-2 pt-4">
+              <span className="flex flex-col">
+                <span className="font-bold typo-body">{title}</span>
+                <span className="text-text-tertiary typo-caption1">
+                  {listLabel}
+                </span>
+              </span>
+              <Button
+                type="button"
+                size={ButtonSize.XSmall}
+                variant={ButtonVariant.Tertiary}
+                icon={<MiniCloseIcon />}
+                aria-label="Close"
+                onClick={close}
+              />
+            </div>
+            <ol className="flex min-h-0 shrink flex-col overflow-y-auto px-3">
+              {all}
+            </ol>
+            {you && (
+              <ol className="border-t border-border-subtlest-tertiary p-3">
+                {you}
+              </ol>
+            )}
+          </div>
+        </>
+      )}
+      {sheet && (
+        <PhoneSheet
+          title={`${title} · ${listLabel}`}
+          onClose={() => setSheet(false)}
+        >
+          <ol className="flex flex-col px-3">{all}</ol>
+          {you && (
+            <ol className="sticky bottom-0 border-t border-border-subtlest-tertiary bg-background-default p-3">
+              {you}
+            </ol>
+          )}
+        </PhoneSheet>
+      )}
+    </div>
+  );
+};
+
+const UserBoardTile = ({
+  board,
+  position,
+  initialOpen,
+  loading,
+  empty,
+}: {
+  board: BoardId;
+  position: Position;
+  initialOpen?: boolean;
+  loading: boolean;
+  empty: boolean;
+}): ReactElement => {
+  const list = rankBoard(board, DEVS).slice(0, TOP_LIMIT);
+  const mine = myEntry(board);
+  const rows = (entries: Entry[]) =>
+    entries.map((entry) => (
+      <MiniRow
+        key={entry.dev.id}
+        rank={entry.rank}
+        name={entry.dev.name}
+        image={
+          <ProfileAvatar dev={entry.dev} size="size-6" className="!rounded-8" />
+        }
+        value={scoreValue(board, entry.score)}
+      />
+    ));
+  const showYou = POSITION_BOARDS.includes(board) && position !== 'empty';
+  return (
+    <BoardTile
+      title={titleOf(board)}
+      count={list.length}
+      top={rows(list.slice(0, showYou ? TILE_ROWS - 1 : TILE_ROWS))}
+      all={rows(list)}
+      initialOpen={initialOpen}
+      loading={loading}
+      empty={empty}
+      you={
+        showYou ? (
+          <MiniRow
+            rank={
+              position === 'capped'
+                ? `${largeNumberFormat(CAPPED_AT)}+`
+                : MY_RANKS[board] ?? 0
+            }
+            name="You"
+            image={<Avatar dev={ME} size="size-6" className="!rounded-8" />}
+            value={scoreValue(board, mine.score)}
+            highlight
+          />
+        ) : undefined
+      }
+    />
+  );
+};
+
+/** CompanyTopList: companies only, so there is no row for you. */
+const CompanyTile = ({
+  loading,
+  empty,
+}: {
+  loading: boolean;
+  empty: boolean;
+}): ReactElement => {
+  const logo = (company: (typeof COMPANY_BOARD)[number]) => (
+    <span
+      className={classNames(
+        'flex size-6 shrink-0 items-center justify-center rounded-8 font-bold typo-caption2',
+        company.squad
+          ? `${company.squad.brand} text-white`
+          : 'bg-surface-float text-text-secondary',
+      )}
+    >
+      {company.name[0]}
+    </span>
+  );
+  // Your verified company, from your profile: lit wherever it is on the
+  // board, and pinned under the top rows when it is further down.
+  const { myCompany = ME.company } = useContext(FrameStateContext);
+  const mine = COMPANY_BOARD.findIndex((company) => company.name === myCompany);
+  const row = (company: (typeof COMPANY_BOARD)[number]) => {
+    const index = COMPANY_BOARD.indexOf(company);
+    return (
+      <MiniRow
+        key={company.id}
+        rank={index + 1}
+        name={company.name}
+        image={logo(company)}
+        value={formatNumber(company.verified)}
+        highlight={index === mine}
+        suffix={company.squad && <VerifiedSquadBadge className="size-3.5" />}
+      />
+    );
+  };
+  const pinMine = mine >= TILE_ROWS;
+  return (
+    <BoardTile
+      title={leaderboardTypeToTitle[LeaderboardType.MostVerifiedUsers]}
+      count={COMPANY_BOARD.length}
+      top={COMPANY_BOARD.slice(0, pinMine ? TILE_ROWS - 1 : TILE_ROWS).map(row)}
+      all={COMPANY_BOARD.map(row)}
+      you={pinMine ? row(COMPANY_BOARD[mine]) : undefined}
+      loading={loading}
+      empty={empty}
+    />
+  );
+};
+
+/* ------------------------------------------------------------- the page */
+
+export interface LeaderboardFinalProps {
+  position?: Position;
+  /** Opens the rank card on this board; on your best one otherwise. */
+  rankBoard?: BoardId;
+  friends?: number;
+  loading?: boolean;
+  /** The static props' error fallback: every list comes back empty. */
+  empty?: boolean;
+  /** Opens with this board's top 50 up: a popover, or a sheet on phones. */
+  openBoard?: BoardId;
+  /** People the frame starts out following: their hover card has no Follow. */
+  followed?: string[];
+  /** Where the frame starts out, for the states catalog. */
+  frame?: FrameState;
+}
+
+/**
+ * Each frame keeps its own query cache, so the follow statuses one frame seeds
+ * never overwrite another's in the same story.
+ */
+export const LeaderboardFinal = (
+  props: LeaderboardFinalProps,
+): ReactElement => {
+  const { user } = useAuthContext();
+  const [client] = useState(() => {
+    const queryClient = new QueryClient();
+    seedFollowStatus(queryClient, user, props.followed ?? []);
+    return queryClient;
+  });
+  return (
+    <QueryClientProvider client={client}>
+      <LeaderboardPage {...props} />
+    </QueryClientProvider>
+  );
+};
+
+const LeaderboardPage = ({
+  position = 'ranked',
+  rankBoard: initialBoard,
+  friends = 1,
+  loading = false,
+  empty = false,
+  openBoard,
+  frame = {},
+}: LeaderboardFinalProps): ReactElement => {
+  const strip = useRef<HTMLDivElement>(null);
+  const boards = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (frame.stripAtInvite) {
+      strip.current?.scrollTo({ left: strip.current.scrollWidth });
+    }
+    // The device's own window only: scrollIntoView would move the story too.
+    const section = boards.current;
+    const view = section?.ownerDocument.defaultView;
+    if (frame.atBoards && section && view) {
+      // Its end in view, where Most verified employees sits on every width.
+      const { bottom } = section.getBoundingClientRect();
+      view.scrollTo(0, view.scrollY + bottom - view.innerHeight + 24);
+    }
+  }, [frame.stripAtInvite, frame.atBoards]);
+  return (
+    <FrameStateContext.Provider value={frame}>
+      <div className="flex flex-col">
+        <LeaderboardPhoneChrome />
+        {/* Laptop: ExploreHubHeader's title strip. */}
+        <PageHeader
+          title="Leaderboard"
+          suggest={false}
+          className="!hidden laptop:!flex"
+        />
+        <div className="flex flex-col gap-8 px-4 pb-6 pt-3 tablet:gap-10 tablet:p-4 laptop:p-10">
+          {/* Phones: one strip you scroll sideways, the Plus card peeking in
+            at the edge so it reads as more to see. */}
+          <div
+            ref={strip}
+            className="no-scrollbar -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 tablet:mx-0 tablet:grid tablet:grid-cols-2 tablet:gap-4 tablet:overflow-visible tablet:px-0"
+          >
+            <div className="w-5/6 shrink-0 snap-start tablet:w-auto">
+              <RankCard
+                position={position}
+                initialBoard={initialBoard}
+                loading={loading}
+              />
+            </div>
+            <div className="w-5/6 shrink-0 snap-start tablet:w-auto">
+              <InviteCard friends={friends} loading={loading} />
+            </div>
+          </div>
+
+          <TopReputation loading={loading} empty={empty} />
+
+          {!empty && <Standouts loading={loading} />}
+
+          <section ref={boards} className="flex flex-col gap-3">
+            <Heading title="Every leaderboard" />
+            <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2 laptopL:grid-cols-4">
+              {BOARD_ORDER.map((board) => (
+                <UserBoardTile
+                  key={board}
+                  board={board}
+                  position={position}
+                  initialOpen={board === openBoard}
+                  loading={loading}
+                  empty={empty}
+                />
+              ))}
+              <CompanyTile loading={loading} empty={empty} />
+            </div>
+          </section>
+        </div>
+        <LeaderboardBottomSpace />
+        {/* Production's toasts, for what production components report here:
+        Snapshot's "Image copied", the hover card's Follow. */}
+        <Toast autoDismissNotifications />
+      </div>
+    </FrameStateContext.Provider>
+  );
+};

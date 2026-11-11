@@ -41,7 +41,7 @@ describe('pollSnapshotFromPost', () => {
     } as Post);
     jest.useRealTimers();
 
-    expect(snapshot?.meta).toEqual(['Voting open', '1.3K votes', 'Today']);
+    expect(snapshot?.meta).toEqual(['Voting open', '1.2K votes', 'Today']);
     expect(snapshot?.source).toEqual({ name: 'Frontend Fans' });
     expect(snapshot?.seed).toBe('poll-1');
   });
@@ -54,7 +54,7 @@ describe('pollSnapshotFromPost', () => {
 
     expect(snapshot?.meta?.slice(0, 2)).toEqual([
       'Voting ended',
-      '1.3K total votes',
+      '1.2K total votes',
     ]);
   });
 

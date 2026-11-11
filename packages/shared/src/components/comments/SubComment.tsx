@@ -13,8 +13,10 @@ const CommentInput = dynamic(
   () => import(/* webpackChunkName: "commentInput" */ './CommentInput'),
 );
 
-export interface SubCommentProps
-  extends Omit<CommentBoxProps, 'onEdit' | 'onComment'> {
+export interface SubCommentProps extends Omit<
+  CommentBoxProps,
+  'onEdit' | 'onComment'
+> {
   parentComment: Comment;
   onCommented: CommentMarkdownInputProps['onCommented'];
   isModalThread?: boolean;

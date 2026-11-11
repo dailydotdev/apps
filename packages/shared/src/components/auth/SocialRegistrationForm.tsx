@@ -364,7 +364,7 @@ export const SocialRegistrationForm = ({
       <AuthHeader simplified={simplified} title={title} />
       <AuthForm
         className={classNames(
-          'mt-6 w-full flex-1 place-items-center gap-2 self-center overflow-y-auto px-6 pb-2 tablet:px-[3.75rem]',
+          'mt-6 w-full flex-1 place-items-center gap-1 self-center overflow-y-auto px-6 pb-2',
           className,
         )}
         ref={formRef}

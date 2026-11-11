@@ -27,7 +27,7 @@ export const useKeyboardNavigation = (
         (e.path as HTMLElement[]) ||
         [];
       const tagName =
-        base?.tagName.toLowerCase() as keyof JSX.IntrinsicElements;
+        base?.tagName?.toLowerCase() as keyof JSX.IntrinsicElements;
       if (optional?.disableOnTags?.includes(tagName)) {
         return;
       }
@@ -40,7 +40,7 @@ export const useKeyboardNavigation = (
         return;
       }
 
-      if (base.getAttribute('contenteditable') === 'true') {
+      if (base?.getAttribute?.('contenteditable') === 'true') {
         return;
       }
 
@@ -59,7 +59,7 @@ export const useKeyboardNavigation = (
 
     element.addEventListener('keydown', onPress);
 
-    // eslint-disable-next-line consistent-return
+    // eslint-disable-next-line eslint-compat/consistent-return
     return () => {
       element.removeEventListener('keydown', onPress);
     };

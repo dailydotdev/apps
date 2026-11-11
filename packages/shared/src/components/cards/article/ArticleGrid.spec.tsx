@@ -15,6 +15,7 @@ import { ArticleGrid } from './ArticleGrid';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
 import { USER_INTEGRATIONS } from '../../../graphql/users';
+import { setFeedReadingOpener } from '../../shell/readingStore';
 import { useLiveChatRoomOf } from '../../../features/liveChat/hooks/useLiveChatRooms';
 
 jest.mock('next/router', () => ({
@@ -30,7 +31,7 @@ beforeEach(() => {
     () =>
       ({
         pathname: '/',
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
 });
 
@@ -161,8 +162,13 @@ it('should show the live label over trending while a chat is open', async () => 
     );
   renderComponent({ post: { ...post, trending: 20 } });
   expect(await screen.findByText('Live')).toBeInTheDocument();
-  expect(screen.getByText('12 chatting now')).toBeInTheDocument();
+  expect(screen.getByText('12 in the chat')).toBeInTheDocument();
   expect(screen.queryByText('Trending now')).not.toBeInTheDocument();
+  // The frame goes brand too, so the card stands out beyond its label.
+  expect(screen.getByTestId('postItem')).toHaveClass(
+    'live-chat-card',
+    '!border-brand-default',
+  );
 });
 
 it('should keep the trending flag for readers outside live chat', async () => {
@@ -177,6 +183,23 @@ it('should open the article when clicking the read post button', async () => {
   const read = await screen.findByText('Read post');
   fireEvent.click(read);
   expect(defaultProps.onReadArticleClick).toBeCalledTimes(1);
+});
+
+it('should send read post to the post page when the app shows articles behind it', async () => {
+  const opener = jest.fn();
+  setFeedReadingOpener(opener);
+  renderComponent();
+  const read = await screen.findByText('Read post');
+  const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+  read.dispatchEvent(event);
+  setFeedReadingOpener(null);
+
+  expect(opener).toHaveBeenCalledWith(
+    expect.objectContaining({ id: post.id }),
+    post.permalink,
+  );
+  expect(event.defaultPrevented).toBe(true);
+  expect(defaultProps.onReadArticleClick).toHaveBeenCalledTimes(1);
 });
 
 it('should open the video when clicking the watch video button', async () => {

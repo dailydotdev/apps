@@ -6,8 +6,10 @@ import type { HorizontalFeedProps } from '../feeds/HorizontalFeed';
 import { EntitySectionHeading } from './EntitySectionHeading';
 import { EntityRailWithFade } from './EntityRailWithFade';
 
-interface EntityFeedRailSectionProps<T>
-  extends Omit<HorizontalFeedProps<T>, 'emptyScreen' | 'title'> {
+interface EntityFeedRailSectionProps<T> extends Omit<
+  HorizontalFeedProps<T>,
+  'emptyScreen' | 'title'
+> {
   heading: ReactNode;
   icon?: ReactNode;
   sectionClassName?: string;

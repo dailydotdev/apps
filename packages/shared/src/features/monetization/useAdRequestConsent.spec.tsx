@@ -10,12 +10,14 @@ import * as ads from '../../lib/ads';
 import * as func from '../../lib/func';
 import * as tcf from '../../lib/tcf';
 import { AdConsentExists } from './adConsent';
-import { useAdRequestConsent } from './useAdRequestConsent';
+import {
+  useAdRequestConsent,
+  AD_REQUEST_CMP_TIMEOUT_MS,
+} from './useAdRequestConsent';
 import { useAdQuery } from './useAdQuery';
 import { useFetchAd } from './useFetchAd';
 import { useTcfConsent } from './useTcfConsent';
 import { useAdMacroContext } from './useAdMacroContext';
-import { PREBID_CMP_TIMEOUT_MS } from './kueez';
 
 jest.mock('./useTcfConsent');
 jest.mock('../../lib/func', () => ({
@@ -216,7 +218,7 @@ it('holds the first request before the TCF script loads, then sends only TCF con
     await result.current.refetch();
   });
   expect(ads.fetchAdByPlacement).not.toHaveBeenCalled();
-  act(() => jest.advanceTimersByTime(PREBID_CMP_TIMEOUT_MS - 1));
+  act(() => jest.advanceTimersByTime(AD_REQUEST_CMP_TIMEOUT_MS - 1));
   expect(ads.fetchAdByPlacement).not.toHaveBeenCalled();
 
   jest.mocked(useTcfConsent).mockReturnValue({
@@ -234,7 +236,7 @@ it('holds the first request before the TCF script loads, then sends only TCF con
       }),
     }),
   );
-  act(() => jest.advanceTimersByTime(PREBID_CMP_TIMEOUT_MS));
+  act(() => jest.advanceTimersByTime(AD_REQUEST_CMP_TIMEOUT_MS));
   expect(ads.fetchAdByPlacement).toHaveBeenCalledTimes(1);
 });
 
@@ -243,7 +245,7 @@ it('falls back to the recorded refusal after the CMP timeout', async () => {
   configureCmp();
   document.cookie = 'ilikecookies=true;path=/';
   renderHook(() => useTestAdQuery(), { wrapper });
-  act(() => jest.advanceTimersByTime(PREBID_CMP_TIMEOUT_MS - 1));
+  act(() => jest.advanceTimersByTime(AD_REQUEST_CMP_TIMEOUT_MS - 1));
   expect(ads.fetchAdByPlacement).not.toHaveBeenCalled();
   act(() => jest.advanceTimersByTime(1));
   await waitFor(() => expect(ads.fetchAdByPlacement).toHaveBeenCalledTimes(1));
@@ -294,12 +296,12 @@ it('starts the wait budget only when auth is ready to load the CMP', async () =>
   configureCmp();
   isAuthReady = false;
   const { rerender } = renderHook(() => useTestAdQuery(), { wrapper });
-  act(() => jest.advanceTimersByTime(PREBID_CMP_TIMEOUT_MS));
+  act(() => jest.advanceTimersByTime(AD_REQUEST_CMP_TIMEOUT_MS));
   expect(ads.fetchAdByPlacement).not.toHaveBeenCalled();
   expect(tcf.startTcfSubscription).not.toHaveBeenCalled();
   isAuthReady = true;
   rerender();
-  act(() => jest.advanceTimersByTime(PREBID_CMP_TIMEOUT_MS - 1));
+  act(() => jest.advanceTimersByTime(AD_REQUEST_CMP_TIMEOUT_MS - 1));
   expect(ads.fetchAdByPlacement).not.toHaveBeenCalled();
   act(() => jest.advanceTimersByTime(1));
   await waitFor(() => expect(ads.fetchAdByPlacement).toHaveBeenCalledTimes(1));
@@ -312,11 +314,11 @@ it('starts the CMP wait when the placement becomes enabled', async () => {
     wrapper,
     initialProps: { enabled: false },
   });
-  act(() => jest.advanceTimersByTime(PREBID_CMP_TIMEOUT_MS));
+  act(() => jest.advanceTimersByTime(AD_REQUEST_CMP_TIMEOUT_MS));
   expect(tcf.startTcfSubscription).not.toHaveBeenCalled();
   rerender({ enabled: true });
   expect(ads.fetchAdByPlacement).not.toHaveBeenCalled();
-  act(() => jest.advanceTimersByTime(PREBID_CMP_TIMEOUT_MS));
+  act(() => jest.advanceTimersByTime(AD_REQUEST_CMP_TIMEOUT_MS));
   await waitFor(() => expect(ads.fetchAdByPlacement).toHaveBeenCalledTimes(1));
 });
 
@@ -329,7 +331,7 @@ it('blocks imperative feed fetches while consent is pending', async () => {
     await result.current.fetchAd({});
   });
   expect(ads.fetchAdByPlacement).not.toHaveBeenCalled();
-  act(() => jest.advanceTimersByTime(PREBID_CMP_TIMEOUT_MS));
+  act(() => jest.advanceTimersByTime(AD_REQUEST_CMP_TIMEOUT_MS));
   expect(result.current.isAdConsentReady).toBe(true);
   await act(async () => {
     await result.current.fetchAd({});

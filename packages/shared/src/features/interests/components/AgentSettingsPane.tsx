@@ -14,6 +14,7 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
+import { TooltipLinkWrapper } from '../../../components/tooltip/TooltipLinkWrapper';
 import { MoveToIcon, TrashIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import type {
@@ -64,17 +65,19 @@ export const AgentSettingsPane = ({
           switching between them shifts the frame. */}
       <FlexRow className="h-12 shrink-0 items-center gap-2 border-b border-border-subtlest-tertiary px-3 tablet:px-4">
         <Tooltip content="Back to the conversation">
-          <Link href={backHref} passHref>
-            <Button
-              tag="a"
-              icon={
-                <MoveToIcon size={IconSize.XSmall} className="rotate-180" />
-              }
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Tertiary}
-              aria-label="Back to the conversation"
-            />
-          </Link>
+          <TooltipLinkWrapper>
+            <Link href={backHref} passHref>
+              <Button
+                tag="a"
+                icon={
+                  <MoveToIcon size={IconSize.XSmall} className="rotate-180" />
+                }
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Tertiary}
+                aria-label="Back to the conversation"
+              />
+            </Link>
+          </TooltipLinkWrapper>
         </Tooltip>
         <Typography type={TypographyType.Footnote} bold>
           Settings

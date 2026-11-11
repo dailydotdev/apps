@@ -308,8 +308,8 @@ const MessageBubble = ({
             <Button
               type="button"
               variant={ButtonVariant.Tertiary}
-              size={ButtonSize.XSmall}
-              icon={<EditIcon />}
+              size={ButtonSize.Small}
+              icon={<EditIcon size={IconSize.XSmall} />}
               aria-label="Edit message"
               className={hoverActionClassName}
               onClick={() => onEdit(message)}
@@ -412,7 +412,7 @@ export const ConversationThread = ({
         {
           id: `request-${pairing.id}`,
           peerId,
-          senderId: pairing.createdByViewer ? user?.id ?? '' : peerId,
+          senderId: pairing.createdByViewer ? (user?.id ?? '') : peerId,
           body: pairing.requestMessage,
           createdAt: pairing.createdAt,
           status: DmMessageStatus.Sent,

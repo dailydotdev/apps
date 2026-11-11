@@ -1,12 +1,12 @@
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useMedia } from '../../../hooks/useMedia';
-import { usePhoneBrowser } from './usePhoneBrowser';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 
 export const useMobileAppHeader = (): boolean => {
-  const { isLoggedIn } = useAuthContext();
-  const isPhoneBrowser = usePhoneBrowser();
+  const { isAuthReady, isLoggedIn } = useAuthContext();
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
-  return isPhoneBrowser && !isLoggedIn;
+  return isAuthReady && !isLaptop && !isLoggedIn;
 };
 
 // Below 360px the post bar can't hold the Read label ("Watch video" is the

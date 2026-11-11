@@ -66,7 +66,7 @@ const createContext = () => {
 const sized = (width: number, height: number): HTMLElement => {
   const element = document.createElement('div');
   element.getBoundingClientRect = () =>
-    ({ width, height } as unknown as DOMRect);
+    ({ width, height }) as unknown as DOMRect;
   document.body.appendChild(element);
 
   return element;

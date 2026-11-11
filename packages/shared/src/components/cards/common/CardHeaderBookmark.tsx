@@ -14,7 +14,7 @@ interface CardHeaderBookmarkProps {
 }
 
 /**
- * `card_save_on_hover`: the card's bookmark, in the header right before ⋯.
+ * Grid cards: the card's bookmark, in the header right before ⋯.
  * Hidden at rest on desktop and shown while the card is hovered, like Read
  * post and ⋯. Hidden elements are not in the tab order, so for keyboard users
  * it appears once focus is already inside the card (the card's link or a bar

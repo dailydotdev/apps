@@ -16,6 +16,10 @@ interface UseQueryStateProps<T> {
 
 export enum QueryStateKeys {
   FeedPeriod = 'feedPeriod',
+  FeedExplain = 'feedExplain',
+  FeedTune = 'feedTune',
+  FeedTuneChanges = 'feedTuneChanges',
+  FeedTunePreviewed = 'feedTunePreviewed',
 }
 
 export const useQueryState = <T>({

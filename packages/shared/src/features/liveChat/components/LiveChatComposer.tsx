@@ -13,15 +13,19 @@ const maxSuggestions = 5;
 // "@" plus whatever the viewer typed since, up to the caret.
 const mentionAtCaret = /(?:^|\s)(@[A-Za-z0-9_.-]*)$/;
 
-const toSuggestion = (person: RoomPerson): UserShortProfile => ({
-  ...person,
-  bio: '',
-  createdAt: '',
-  reputation: 0,
-  companies: [],
-  isPlus: false,
-  plusMemberSince: undefined,
-});
+// The reputation is the person's own, or absent while the profile lookup is
+// still pending: the badge then stays hidden rather than claiming 0. The
+// profile type declares it present, hence the cast; the badge checks for a
+// number at run time.
+const toSuggestion = (person: RoomPerson): UserShortProfile =>
+  ({
+    ...person,
+    bio: '',
+    createdAt: '',
+    companies: [],
+    isPlus: false,
+    plusMemberSince: undefined,
+  }) as UserShortProfile;
 
 // Text only: the room keeps nothing, so there is nothing to attach it to.
 // Typing "@" offers the people in the room, since they are who a mention
@@ -31,14 +35,12 @@ export const LiveChatComposer = ({
   viewerId,
   onSend,
   onDraftChange,
-  onLeave,
   autoFocus,
 }: {
   people: RoomPerson[];
   viewerId?: string;
   onSend: (body: string) => Promise<void>;
   onDraftChange: (hasText: boolean) => void;
-  onLeave: () => void;
   autoFocus?: boolean;
 }): ReactElement => {
   const [value, setValue] = useState('');
@@ -193,18 +195,9 @@ export const LiveChatComposer = ({
           onClick={send}
         />
       </div>
-      <div className="flex items-center justify-between text-text-quaternary typo-caption2">
-        <span>
-          Text and links, up to {LIVE_CHAT_MESSAGE_MAX_LENGTH} characters
-        </span>
-        <button
-          type="button"
-          onClick={onLeave}
-          className="underline hover:text-text-tertiary"
-        >
-          Leave
-        </button>
-      </div>
+      <span className="text-text-quaternary typo-caption2">
+        Text and links, up to {LIVE_CHAT_MESSAGE_MAX_LENGTH} characters
+      </span>
     </div>
   );
 };

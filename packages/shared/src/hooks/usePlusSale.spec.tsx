@@ -59,7 +59,7 @@ const setFlag = (config: Partial<PlusSaleConfig>) => {
           ? { ...runningSale, ...config }
           : featurePlusSale.defaultValue,
         isLoading: !shouldEvaluate,
-      } as never),
+      }) as never,
   );
 };
 

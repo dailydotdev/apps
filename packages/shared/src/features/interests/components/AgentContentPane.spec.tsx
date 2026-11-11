@@ -23,7 +23,7 @@ const setViewport = mockMatchMedia;
 
 // The panel renders the real post page, which reads far more than a title.
 const post = (id: string, title: string): Post =>
-  ({ ...basePost, id, title } as Post);
+  ({ ...basePost, id, title }) as Post;
 
 const sharePost = (id: string): Post =>
   ({
@@ -39,7 +39,7 @@ const sharePost = (id: string): Post =>
       summary: 'Every reviewed advisory, in one database.',
       permalink: 'https://api.daily.dev/r/shared1',
     },
-  } as unknown as Post);
+  }) as unknown as Post;
 
 const Opener = ({ targets }: { targets: AgentContentTarget[] }) => {
   const { openContentTarget } = useAgent();

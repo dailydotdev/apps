@@ -20,6 +20,11 @@ import { useVotePlugin } from '@dailydotdev/shared/src/hooks/vote/useVotePlugin'
 export const getPluginActionIconSize = (large: boolean): IconSize =>
   large ? IconSize.Small : IconSize.XSmall;
 
+// Cards use the same footnote size as the feed action counters; the plugin
+// page keeps the larger callout size.
+export const getPluginActionTextClassName = (large: boolean): string =>
+  large ? 'typo-callout' : 'typo-footnote';
+
 interface PluginUpvoteButtonProps {
   plugin: Plugin;
   className?: string;
@@ -33,6 +38,7 @@ export const PluginUpvoteButton = ({
 }: PluginUpvoteButtonProps): ReactElement => {
   const { toggleUpvote } = useVotePlugin();
   const isUpvoted = plugin.userVote === UserVote.Up;
+  const textClassName = getPluginActionTextClassName(large);
 
   return (
     <Tooltip content={isUpvoted ? 'Remove upvote' : 'Upvote'} side="bottom">
@@ -55,11 +61,11 @@ export const PluginUpvoteButton = ({
         <span className="flex items-center gap-1">
           {plugin.upvotes > 0 && (
             <InteractionCounter
-              className="tabular-nums typo-callout"
+              className={classNames('tabular-nums', textClassName)}
               value={plugin.upvotes}
             />
           )}
-          <span className="typo-callout">
+          <span className={textClassName}>
             {pluralize('Upvote', Math.max(plugin.upvotes, 1))}
           </span>
         </span>

@@ -773,7 +773,7 @@ function RichTextInput(
       ? maxLength -
         (isMarkdownMode
           ? input.length
-          : editor?.storage.characterCount?.characters?.() ?? input.length)
+          : (editor?.storage.characterCount?.characters?.() ?? input.length))
       : null;
 
   const isBottomToolbar = toolbarPosition === 'bottom';
@@ -1128,7 +1128,7 @@ function RichTextInput(
       )}
       {hideFooter
         ? null
-        : footer ?? (
+        : (footer ?? (
             <span className="flex flex-row items-center gap-3 border-border-subtlest-tertiary p-2 px-3 text-text-tertiary laptop:border-t">
               {shouldShowSubmit && !isMarkdownMode && (
                 <span className="hidden text-text-quaternary typo-caption1 tablet:inline">
@@ -1152,7 +1152,7 @@ function RichTextInput(
                   maxLength && remainingCharacters !== null ? '' : 'ml-auto',
                 )}
             </span>
-          )}
+          ))}
     </div>
   );
 }

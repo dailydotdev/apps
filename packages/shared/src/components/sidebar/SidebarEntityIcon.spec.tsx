@@ -27,6 +27,7 @@ jest.mock('../../contexts/AuthContext', () => ({
 const iconStub = (name: string) => {
   // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
   const react = require('react');
+  // eslint-disable-next-line react/display-name
   return ({ secondary }: { secondary?: boolean }) =>
     react.createElement('span', {
       'data-testid': `icon-${name}`,

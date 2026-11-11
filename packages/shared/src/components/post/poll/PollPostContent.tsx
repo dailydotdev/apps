@@ -48,7 +48,6 @@ function PollPostContentRaw({
   onClose,
   isBannerVisible,
   isPostPage,
-  belowComments,
   shouldTrackView = true,
 }: PollPostContentRawProps): ReactElement {
   const [justVoted, setJustVoted] = useState(false);
@@ -166,13 +165,13 @@ function PollPostContentRaw({
             },
           }}
           isPostPage={isPostPage}
-          belowComments={belowComments}
           isFallback={isFallback}
           customNavigation={customNavigation}
           shouldOnboardAuthor={shouldOnboardAuthor}
           navigationProps={navigationProps}
           engagementProps={engagementActions}
           origin={origin}
+          boostOrigin={shouldShowBanner ? Origin.NewPostBoostStrip : undefined}
           post={post}
         >
           {shouldShowBanner && !isLaptop && (

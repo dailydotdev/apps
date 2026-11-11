@@ -16,6 +16,7 @@ import { BookmakProviderHeader } from './BookmarkProviderHeader';
 import { PostOptionButton } from '../../../../features/posts/PostOptionButton';
 import { AuthorSourceStack } from '../AuthorSourceStack';
 import { useReaderInstallPromptGate } from '../../../../hooks/useReaderInstallPromptGate';
+import { openReadingFromFeed } from '../../../shell/readingStore';
 
 interface CardHeaderProps {
   post: Post;
@@ -57,11 +58,15 @@ export const PostCardHeader = ({
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
   const postButtonText = useReadPostButtonText(post);
+  const readText = readButtonContent ?? postButtonText;
   const { onReadClick: onReaderInstallGateClick } =
     useReaderInstallPromptGate(post);
   const handleReadArticleClick = (event: React.MouseEvent) => {
     if (onReaderInstallGateClick(event)) {
       return;
+    }
+    if (postLink && openReadingFromFeed(post, postLink)) {
+      event.preventDefault();
     }
     onReadArticleClick?.(event);
   };
@@ -113,8 +118,8 @@ export const PostCardHeader = ({
               {showCTA &&
                 (primaryAction ?? (
                   <ReadArticleButton
-                    content={readButtonContent ?? postButtonText ?? ''}
-                    className="mr-2"
+                    content={readText}
+                    className={classNames(readText && 'mr-2')}
                     variant={ButtonVariant.Tertiary}
                     icon={readButtonIcon ?? <OpenLinkIcon />}
                     href={postLink ?? ''}

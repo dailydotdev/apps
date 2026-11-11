@@ -1,9 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Squad } from '@dailydotdev/shared/src/graphql/sources';
-import type {
-  SquadPerk,
-  SquadPerkInput,
-} from '../../../graphql/squadJobsPerks';
+import type { SquadPerk, SquadPerkInput } from '../../../graphql/squadPerks';
 import {
   addSquadPerk,
   addSquadPerkCodes,
@@ -13,7 +10,7 @@ import {
   squadPerkQueryOptions,
   squadPerksQueryOptions,
   updateSquadPerk,
-} from '../../../graphql/squadJobsPerks';
+} from '../../../graphql/squadPerks';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';

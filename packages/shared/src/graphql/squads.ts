@@ -1010,8 +1010,13 @@ const formToInput = (form: SquadForm): SharedSquadInput => ({
 });
 
 export async function createSquad(form: SquadForm): Promise<Squad> {
-  const inputData: SharedSquadInput = formToInput(form);
-  const data = await gqlClient.request(CREATE_SQUAD_MUTATION, inputData);
+  const { description, ...inputData } = formToInput(form);
+  // The API rejects an empty description, so a squad created without one
+  // (the Startups company step asks only for a name) leaves it out
+  const data = await gqlClient.request(CREATE_SQUAD_MUTATION, {
+    ...inputData,
+    ...(description ? { description } : {}),
+  });
 
   return data.createSquad;
 }

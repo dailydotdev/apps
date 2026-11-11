@@ -37,6 +37,7 @@ export const PollList = forwardRef(function PollList(
     openNewTab,
     onReadArticleClick,
     domProps = {},
+    children,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
@@ -147,6 +148,7 @@ export const PollList = forwardRef(function PollList(
         </CardContent>
       </CardContainer>
       {isMobile && actionButtons}
+      {children}
     </FeedItemContainer>
   );
 });

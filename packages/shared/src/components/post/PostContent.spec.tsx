@@ -105,7 +105,7 @@ describe('PostContent selection snapshot', () => {
   beforeAll(() => {
     // jsdom has no layout, and the bar refuses a selection it cannot place.
     Range.prototype.getBoundingClientRect = () =>
-      ({ top: 400, bottom: 440, left: 100, width: 300 } as DOMRect);
+      ({ top: 400, bottom: 440, left: 100, width: 300 }) as DOMRect;
   });
 
   it('offers a snapshot of a quote on the post page', () => {
@@ -150,7 +150,7 @@ describe('PostContent summary snapshot with in-content ads', () => {
 describe('PostContent selection snapshot in the post modal', () => {
   beforeAll(() => {
     Range.prototype.getBoundingClientRect = () =>
-      ({ top: 400, bottom: 440, left: 100, width: 300 } as DOMRect);
+      ({ top: 400, bottom: 440, left: 100, width: 300 }) as DOMRect;
   });
 
   it('offers a snapshot of a quote selected in the modal', () => {

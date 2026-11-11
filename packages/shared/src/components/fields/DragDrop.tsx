@@ -279,8 +279,8 @@ function DragDropComponent({
         {
           'bg-surface-float': !isDragOver,
           'bg-surface-hover': isDragOver && isDragValid,
-          'bg-surface-disabled cursor-not-allowed': disabled,
-          'hover:bg-surface-hover hover:cursor-pointer': !disabled && fullClick,
+          'cursor-not-allowed bg-surface-disabled': disabled,
+          'hover:cursor-pointer hover:bg-surface-hover': !disabled && fullClick,
         },
         className,
       )}

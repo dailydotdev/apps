@@ -8,6 +8,16 @@ initialize({
   onUnhandledRequest: 'warn',
 });
 
+// A story shown as a small preview on a longer page must not scroll that page
+// to itself when one of its fields takes focus.
+if (window.frameElement?.hasAttribute('data-preview-frame')) {
+  const { focus } = HTMLElement.prototype;
+
+  HTMLElement.prototype.focus = function focusWithoutScrolling(options) {
+    focus.call(this, { ...options, preventScroll: true });
+  };
+}
+
 const preview: Preview = {
   parameters: {
     controls: { expanded: true },
@@ -17,6 +27,7 @@ const preview: Preview = {
           'Tokens',
           'Atoms',
           'Components',
+          'Commitment onboarding',
           'Pages',
           'Open Graph',
           'Experiments',
@@ -97,6 +108,7 @@ const preview: Preview = {
                 'Sponsored',
                 'Tips',
               ],
+              '6. Add a widget tile',
             ],
             'Archive',
             [

@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
   SquadManagePerkForm,
   SquadManagePerks,
-} from '../app/features/squads/components/manage/SquadManageJobsPerks';
+} from '../app/features/squads/components/manage/SquadManagePerks';
 import { SquadManageSection } from '../app/features/squads/lib/routes';
 import { perksFor, Viewer, withApp, withSeed } from '../fixtures';
 import { phone, tablet } from '../kit';

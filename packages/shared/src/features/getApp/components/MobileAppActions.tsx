@@ -11,6 +11,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { AuthTriggers } from '../../../lib/auth';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 import { getAppDownloadUrl } from '../appStoreLinks';
+import { isIOSNative, isPWA } from '../../../lib/func';
 
 export const openAppUrl = getAppDownloadUrl('mobile_header');
 
@@ -26,17 +27,18 @@ export function MobileAppActions({
   isFloating = false,
 }: MobileAppActionsProps): ReactElement {
   const { logEvent } = useLogContext();
-  const { showLogin } = useAuthContext();
+  const { showLogin, isAndroidApp } = useAuthContext();
+  const isBrowser = !isAndroidApp && !isIOSNative() && !isPWA();
 
-  const onLogin = () => {
+  const onAuth = (isLogin: boolean) => () => {
     logEvent({
       event_name: LogEvent.Click,
-      target_type: TargetType.LoginButton,
+      target_type: isLogin ? TargetType.LoginButton : TargetType.SignupButton,
       target_id: TargetId.MobileHeader,
     });
     showLogin({
       trigger: AuthTriggers.MainButton,
-      options: { isLogin: true },
+      options: { isLogin },
     });
   };
 
@@ -55,19 +57,30 @@ export function MobileAppActions({
         variant={ButtonVariant.Tertiary}
         size={ButtonSize.Small}
         className={isFloating ? 'shell-material' : undefined}
-        onClick={onLogin}
+        onClick={onAuth(true)}
       >
         Log in
       </Button>
-      <Button
-        tag="a"
-        href={openAppUrl}
-        variant={ButtonVariant.Primary}
-        size={ButtonSize.Small}
-        onClick={onOpenApp}
-      >
-        Open app
-      </Button>
+      {isBrowser ? (
+        <Button
+          tag="a"
+          href={openAppUrl}
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Small}
+          onClick={onOpenApp}
+        >
+          Open app
+        </Button>
+      ) : (
+        <Button
+          type="button"
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Small}
+          onClick={onAuth(false)}
+        >
+          Sign up
+        </Button>
+      )}
     </span>
   );
 }

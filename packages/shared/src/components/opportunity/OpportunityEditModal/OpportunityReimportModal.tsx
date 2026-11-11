@@ -22,8 +22,10 @@ import { getOpportunityByIdKey } from '../../../features/opportunity/queries';
 
 const jobLinkSchema = z.url({ message: 'Please enter a valid URL' });
 
-export interface OpportunityReimportModalProps
-  extends Omit<ModalProps, 'onRequestClose'> {
+export interface OpportunityReimportModalProps extends Omit<
+  ModalProps,
+  'onRequestClose'
+> {
   opportunityId: string;
   onRequestClose?: LazyModalCommonProps['onRequestClose'];
 }

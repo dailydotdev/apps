@@ -14,8 +14,12 @@ export const usePostImage = (post: Post): string | undefined =>
       return baseImage;
     }
 
+    if (!post?.contentHtml || typeof DOMParser === 'undefined') {
+      return undefined;
+    }
+
     const parser = new DOMParser();
-    const doc = parser.parseFromString(post?.contentHtml ?? '', 'text/html');
+    const doc = parser.parseFromString(post.contentHtml, 'text/html');
     const imgTag = doc.querySelector('img');
     if (imgTag) {
       return imgTag.getAttribute('src') ?? undefined;

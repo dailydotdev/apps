@@ -51,7 +51,7 @@ export const DirectMessageNotificationSettings = (): ReactElement | null => {
             disabled={!isFetched}
             onToggle={() => setAllowsMessages(!allowsMessages)}
           />
-          <Link href={`${settingsUrl}/feed/blocked`} passHref>
+          <Link href={`${settingsUrl}/feed/filters`} passHref>
             <Typography tag={TypographyTag.Link} type={TypographyType.Callout}>
               Manage blocked users →
             </Typography>

@@ -4,8 +4,9 @@ import { LeaderboardListContainer } from './LeaderboardListContainer';
 import type { LeaderboardListContainerProps } from './common';
 import { LeaderboardRowPlaceholder } from './LeaderboardRowPlaceholder';
 
-export interface CommonLeaderboardProps<T extends Iterable<unknown>>
-  extends Omit<LeaderboardListProps, 'children'> {
+export interface CommonLeaderboardProps<
+  T extends Iterable<unknown>,
+> extends Omit<LeaderboardListProps, 'children'> {
   items: T;
 }
 

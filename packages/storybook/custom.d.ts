@@ -5,6 +5,11 @@ declare module '*.png' {
   export default value;
 }
 
+declare module '*.webp' {
+  const value: string;
+  export default value;
+}
+
 declare module 'react-syntax-highlighter/dist/esm/languages/hljs' {
   const languages: Record<string, unknown>;
   export = languages;

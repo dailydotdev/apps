@@ -13,6 +13,6 @@ describe('getSquadMembersLabel', () => {
 
   it('should format the count from the threshold up', () => {
     expect(getSquadMembersLabel(50)).toBe('50 members');
-    expect(getSquadMembersLabel(42700)).toBe('42.7K members');
+    expect(getSquadMembersLabel(42700)).toBe('42K members');
   });
 });

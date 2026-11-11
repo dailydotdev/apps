@@ -33,10 +33,13 @@ export function useRefreshToken(
       lastRefreshRef.current + MIN_REFRESH_INTERVAL,
       now + MIN_DELAY,
     );
-    const timeout = window.setTimeout(() => {
-      lastRefreshRef.current = Date.now();
-      refreshRef.current();
-    }, Math.min(refreshAt - now, MAX_DELAY));
+    const timeout = window.setTimeout(
+      () => {
+        lastRefreshRef.current = Date.now();
+        refreshRef.current();
+      },
+      Math.min(refreshAt - now, MAX_DELAY),
+    );
 
     return () => window.clearTimeout(timeout);
   }, [token, expiresIn]);

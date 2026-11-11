@@ -79,7 +79,7 @@ export function InAppNotificationElement(): ReactElement | null {
     }
     router.events.on('routeChangeStart', handler);
 
-    // eslint-disable-next-line consistent-return
+    // eslint-disable-next-line eslint-compat/consistent-return
     return () => {
       router.events.off('routeChangeStart', handler);
     };

@@ -282,8 +282,14 @@ describe('OnboardingSignupHero', () => {
 
     // The shell carries no footer chrome and no consent line of its own: it
     // also serves sign-back and verify-email, where the account already exists.
-    // The Terms/Privacy notice belongs to RegistrationForm, which renders it
-    // under the button that creates the account.
+    // The Terms/Privacy notice belongs to the signup options, which render it
+    // where the visitor picks how to sign up.
+    it('keeps the legal line on the phone wall, the only notice before the email form', () => {
+      mockUseViewSize.mockReturnValue(true);
+      renderHeroInFunnel();
+      expect(screen.getByTestId('disclaimer')).toBeInTheDocument();
+    });
+
     it('renders neither footer links nor a disclaimer in the funnel', () => {
       renderHeroInFunnel({ isFormExpanded: true });
       expect(screen.queryByTestId('footer')).not.toBeInTheDocument();

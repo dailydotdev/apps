@@ -38,6 +38,7 @@ export function PaneDivider({
   }, []);
 
   return (
+    // eslint-disable-next-line jsx-a11y/control-has-associated-label
     <div
       role="separator"
       aria-orientation="vertical"

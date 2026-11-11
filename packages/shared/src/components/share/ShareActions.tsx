@@ -92,7 +92,7 @@ export function ShareActions({
     variant === 'split' ? (
       <CopyStateIcon copied={copying} />
     ) : (
-      icon ?? <CopyIcon secondary={copying} />
+      (icon ?? <CopyIcon secondary={copying} />)
     );
 
   const list = (

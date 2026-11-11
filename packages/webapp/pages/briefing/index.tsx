@@ -31,7 +31,7 @@ import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader
 import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { Origin, TargetId } from '@dailydotdev/shared/src/lib/log';
 import { usePostModalNavigation } from '@dailydotdev/shared/src/hooks/usePostModalNavigation';
-import { PostModalMap } from '@dailydotdev/shared/src/components/Feed';
+import { PostModalMap } from '@dailydotdev/shared/src/components/modals/PostModalMap';
 import useFeed from '@dailydotdev/shared/src/hooks/useFeed';
 import {
   generateQueryKey,

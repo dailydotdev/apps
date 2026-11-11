@@ -12,7 +12,7 @@ import { verifyPermission } from '../../../graphql/squads';
 import { SquadModerationList } from '../../../components/squads/moderation/SquadModerationList';
 import { useSquadPageContext } from '../SquadPageContext';
 import { getSquadProductFormUrl, getSquadUrl } from '../lib/routes';
-import { SQUAD_PRODUCTS_MAX } from '../lib/limits';
+import { getSquadProductsMax } from '../lib/features';
 import { useSquadProducts } from '../hooks/useSquadProducts';
 import { SquadPageLayout } from './SquadPageLayout';
 import { SquadSubPageHeader } from './SquadSubPageHeader';
@@ -47,7 +47,7 @@ export const SquadProductsPage = (): ReactElement => {
   const { products } = useSquadProducts(squad);
   const canAdd =
     verifyPermission(squad, SourcePermissions.Edit) &&
-    products.length < SQUAD_PRODUCTS_MAX;
+    products.length < getSquadProductsMax(squad);
   const addUrl = getSquadProductFormUrl(squad.handle);
 
   return (

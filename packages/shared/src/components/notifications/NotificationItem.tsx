@@ -55,19 +55,18 @@ import type { Origin } from '../../lib/log';
 const normalizeText = (html: string): string =>
   stripHtmlTags(html).replace(/\s+/g, ' ').trim().toLowerCase();
 
-export interface NotificationItemProps
-  extends Pick<
-    Notification,
-    | 'type'
-    | 'icon'
-    | 'title'
-    | 'description'
-    | 'avatars'
-    | 'attachments'
-    | 'numTotalAvatars'
-    | 'referenceId'
-    | 'hasThanks'
-  > {
+export interface NotificationItemProps extends Pick<
+  Notification,
+  | 'type'
+  | 'icon'
+  | 'title'
+  | 'description'
+  | 'avatars'
+  | 'attachments'
+  | 'numTotalAvatars'
+  | 'referenceId'
+  | 'hasThanks'
+> {
   isUnread?: boolean;
   /** A short row for tight surfaces: no cover or menu. */
   compact?: boolean;
@@ -357,6 +356,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
       {renderLink && targetUrl && (
         <Link href={targetUrl} passHref>
           <a
+            // eslint-disable-next-line jsx-a11y/no-redundant-roles
             role="link"
             aria-label="Open notification"
             className="absolute inset-0 z-0"

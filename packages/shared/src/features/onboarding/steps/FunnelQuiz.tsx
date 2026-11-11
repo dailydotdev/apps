@@ -37,6 +37,7 @@ const checkIfSingleChoice = (type: FunnelStepQuizQuestionType): boolean => {
 
 const checkIfCheckboxGroup = (
   type: FunnelStepQuizQuestionType,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   question: FunnelQuestion,
 ): question is FunnelQuestionCheckbox => {
   return (

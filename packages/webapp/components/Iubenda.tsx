@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle -- _iub is iubenda's mandated global */
 import type { ReactElement } from 'react';
 import { useEffect, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   GdprConsentKey,
@@ -10,7 +11,16 @@ import { useConsentCookie } from '@dailydotdev/shared/src/hooks/useCookieConsent
 import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
 import { requiresCertifiedCmp } from '@dailydotdev/shared/src/lib/geo';
 import { iubendaLocalizedPolicyIds } from '@dailydotdev/shared/src/lib/iubenda';
-import { startTcfSubscription } from '@dailydotdev/shared/src/lib/tcf';
+import { tcfVendorIds } from '@dailydotdev/shared/src/lib/tcfVendors';
+import {
+  getStoredTcString,
+  hasPublisherTcSegment,
+  startTcfSubscription,
+} from '@dailydotdev/shared/src/lib/tcf';
+import { useTcfConsent } from '@dailydotdev/shared/src/features/monetization/useTcfConsent';
+import { resolveAdRequestConsent } from '@dailydotdev/shared/src/features/monetization/adConsent';
+import { RequestKey } from '@dailydotdev/shared/src/lib/query';
+import { GPP_STUB_SOURCE, TCF_STUB_SOURCE } from './cmpStubs';
 import { enhanceIubendaBannerNow, watchIubendaBanner } from './iubendaBanner';
 
 /**
@@ -67,8 +77,13 @@ const readMarketingConsent = (pref: IubendaPreference): boolean => {
   return api?.isConsentGiven?.() === true;
 };
 
+type CmpScript = { src: string } | { inline: string };
+
 // The consent-sync call comes first and the TCF stub before anything that
-// could query `window.__tcfapi`, mirroring iubenda's dashboard snippet.
+// could query `window.__tcfapi`, mirroring iubenda's dashboard snippet. The
+// stubs are inline (cmpStubs.ts) rather than fetched: an ad tag looks for
+// the consent queue the moment it runs, and a separately fetched file is a
+// race it can lose.
 //
 // The TCF pair loads only for GDPR-covered visitors: Google's ad tags hold
 // every ad request on any page where `__tcfapi` exists until the CMP delivers
@@ -83,16 +98,16 @@ const getIubendaScripts = (
   siteId: string,
   withTcf: boolean,
   withGpp: boolean,
-): string[] => [
-  `https://cs.iubenda.com/sync/${siteId}.js`,
+): CmpScript[] => [
+  { src: `https://cs.iubenda.com/sync/${siteId}.js` },
   ...(withTcf
     ? [
-        'https://cdn.iubenda.com/cs/tcf/stub-v2.js',
-        'https://cdn.iubenda.com/cs/tcf/safe-tcf-v2.js',
+        { inline: TCF_STUB_SOURCE },
+        { src: 'https://cdn.iubenda.com/cs/tcf/safe-tcf-v2.js' },
       ]
     : []),
-  ...(withGpp ? ['https://cdn.iubenda.com/cs/gpp/stub.js'] : []),
-  'https://cdn.iubenda.com/cs/iubenda_cs.js',
+  ...(withGpp ? [{ inline: GPP_STUB_SOURCE }] : []),
+  { src: 'https://cdn.iubenda.com/cs/iubenda_cs.js' },
 ];
 
 export const openIubendaPreferences = (): boolean => {
@@ -109,6 +124,13 @@ export const openIubendaPreferences = (): boolean => {
 export const Iubenda = (): ReactElement | null => {
   const { isAuthReady, isFunnel, geo } = useAuthContext();
   const { saveCookies } = useConsentCookie(GdprConsentKey.Necessary);
+  const enabled = isAuthReady && !isFunnel && !isIOSNative();
+  const tcf = useTcfConsent();
+  useConsentCookie(GdprConsentKey.Marketing);
+  const previousConsent = useRef<string>();
+  const queryClient = useQueryClient();
+  const hadStoredConsent = useRef(Boolean(getStoredTcString()));
+  const publisherConsentRequested = useRef(false);
   // Google's certified-CMP mandate covers the EEA, the UK and Switzerland —
   // not "everywhere we haven't listed". checkIfGdprCovered counts the whole
   // world minus US/IL as covered, which is deliberately conservative for
@@ -119,6 +141,7 @@ export const Iubenda = (): ReactElement | null => {
   // keeps the full treatment.
   const withTcf = requiresCertifiedCmp(geo?.region);
   const withGpp = !geo?.region || geo.region === 'US';
+  const consentKey = JSON.stringify(resolveAdRequestConsent(withTcf, tcf));
 
   // The config callback must not go stale when React re-renders.
   const onPreferenceRef = useRef<(pref: IubendaPreference | null) => void>();
@@ -139,7 +162,32 @@ export const Iubenda = (): ReactElement | null => {
     );
   };
 
-  const enabled = isAuthReady && !isFunnel && !isIOSNative();
+  useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
+    if (previousConsent.current && previousConsent.current !== consentKey) {
+      queryClient.resetQueries({ queryKey: [RequestKey.Ads] });
+    }
+    previousConsent.current = consentKey;
+  }, [enabled, consentKey, queryClient]);
+
+  useEffect(() => {
+    if (
+      !enabled ||
+      !withTcf ||
+      !hadStoredConsent.current ||
+      !tcf?.gdprApplies ||
+      !tcf.tcString ||
+      hasPublisherTcSegment(tcf.tcString) ||
+      publisherConsentRequested.current
+    ) {
+      return;
+    }
+
+    publisherConsentRequested.current = openIubendaPreferences();
+  }, [enabled, withTcf, tcf?.gdprApplies, tcf?.tcString]);
 
   useEffect(() => {
     if (!enabled) {
@@ -182,12 +230,15 @@ export const Iubenda = (): ReactElement | null => {
       lgpdAppliesGlobally: false,
       perPurposeConsent: true,
       siteId: Number(siteId),
+      tcfPublisher: ['consent'],
+      tcfVendors: tcfVendorIds.join(','),
+      // Purposes 2, 7, 9 and 10 (basic ads, ad measurement, audience
+      // insights, product improvement) keep each vendor's declared legal
+      // basis, so a visitor who rejects consent can still be served
+      // non-personalized ads on legitimate interest. 8 and 11 stay consent
+      // only; 1 and 3 to 6 are consent only under TCF policy regardless.
       tcfPurposes: {
-        '2': 'consent_only',
-        '7': 'consent_only',
         '8': 'consent_only',
-        '9': 'consent_only',
-        '10': 'consent_only',
         '11': 'consent_only',
       },
       whitelabel: false,
@@ -254,19 +305,25 @@ export const Iubenda = (): ReactElement | null => {
       ),
     };
 
-    getIubendaScripts(siteId, withTcf, withGpp).forEach((src) => {
+    getIubendaScripts(siteId, withTcf, withGpp).forEach((entry) => {
       const script = document.createElement('script');
-      script.src = src;
-      // dynamically injected scripts default to async; force in-order
-      // execution — iubenda requires the TCF stub before the core script
-      script.async = false;
-      if (src.includes('tcf/stub-v2')) {
-        // __tcfapi only exists once the stub executes; the stub then queues
-        // the subscription until the core script loads
-        script.onload = () => startTcfSubscription();
+      if ('inline' in entry) {
+        // runs synchronously on append, so the stub's API exists before the
+        // next script is even created
+        script.text = entry.inline;
+      } else {
+        script.src = entry.src;
+        // dynamically injected scripts default to async; force in-order
+        // execution — iubenda requires the TCF stub before the core script
+        script.async = false;
       }
       document.head.appendChild(script);
     });
+
+    if (withTcf) {
+      // the stub queues the subscription until the core script loads
+      startTcfSubscription();
+    }
 
     return watchIubendaBanner();
   }, [enabled, withTcf, withGpp]);

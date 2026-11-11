@@ -43,6 +43,7 @@ export function PasswordField({
   type = 'password',
   showStrength = true,
   className,
+  autoComplete = 'off',
   ...props
 }: PasswordFieldProps): ReactElement {
   const [value, setValue] = useState<string | null>(null);
@@ -67,7 +68,7 @@ export function PasswordField({
   return (
     <TextField
       {...props}
-      autoComplete="off"
+      autoComplete={autoComplete}
       type={useType}
       valueChanged={onChange}
       leftIcon={

@@ -21,8 +21,10 @@ import { ActionType } from '../../../graphql/actions';
 import { Typography, TypographyType } from '../../typography/Typography';
 import Link from '../../utilities/Link';
 
-interface CreatePostButtonProps<Tag extends AllowedTags>
-  extends Pick<ButtonProps<Tag>, 'className' | 'onClick' | 'size'> {
+interface CreatePostButtonProps<Tag extends AllowedTags> extends Pick<
+  ButtonProps<Tag>,
+  'className' | 'onClick' | 'size' | 'aria-label'
+> {
   compact?: boolean;
   showIcon?: boolean;
   sidebar?: boolean;

@@ -3,7 +3,6 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { POST_CONTENT_MAP } from '@dailydotdev/shared/src/components/post/postContentMap';
-import Script from 'next/script';
 import {
   ReadAdFormat,
   ReadAdSlot,
@@ -13,9 +12,6 @@ import { PhoneTopAdStrip } from '@dailydotdev/shared/src/components/post/read/Ph
 import { PostWidgetPosition } from '@dailydotdev/shared/src/components/post/PostWidgets';
 import {
   hasLiveAdSlots,
-  PREBID_SCRIPT_SRC,
-} from '@dailydotdev/shared/src/features/monetization/kueez';
-import {
   COMMENTS_PER_INTERLEAVED_AD,
   CONTENT_CHARS_PER_AD,
   MAX_CONTENT_ADS_PER_SECTION,
@@ -42,6 +38,11 @@ import { TOP_COMMENTS_QUERY } from '@dailydotdev/shared/src/graphql/comments';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import type { ClientError } from 'graphql-request';
+import { ReadingDrawer } from '@dailydotdev/shared/src/components/shell/ReadingDrawer';
+import {
+  isReadingOpen,
+  peekReadingOpen,
+} from '@dailydotdev/shared/src/components/shell/readingStore';
 import { SCROLL_OFFSET } from '@dailydotdev/shared/src/components/post/PostContent';
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
 import {
@@ -51,11 +52,7 @@ import {
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import {
-  featurePostPageFeed,
-  featurePostSignupStrip,
-} from '@dailydotdev/shared/src/lib/featureManagement';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { featurePostSignupStrip } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   useEventListener,
   useJoinReferral,
@@ -77,7 +74,6 @@ import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoa
 import classNames from 'classnames';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth/useOnboardingActions';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
-import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { isSourceUserSource } from '@dailydotdev/shared/src/graphql/sources';
 import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
 import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/ActivePostContext';
@@ -88,10 +84,15 @@ import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/Engage
 import { getEngagementLogExtra } from '@dailydotdev/shared/src/lib/engagementAds';
 import { isSourceAdFree } from '@dailydotdev/shared/src/lib/ads';
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import { usePhoneBrowser } from '@dailydotdev/shared/src/features/getApp/hooks/usePhoneBrowser';
+import { useCommentsTeaser } from '@dailydotdev/shared/src/features/commentsTeaser/useCommentsTeaser';
+import { useRevealOnEngagement } from '@dailydotdev/shared/src/features/commentsTeaser/useRevealOnEngagement';
+import { getCommentsTeaserTitle } from '@dailydotdev/shared/src/features/commentsTeaser/commentsTeaser';
 import { PostHybridContent } from '@dailydotdev/shared/src/components/post/hybrid/PostHybridContent';
 import type { PostHybridAds } from '@dailydotdev/shared/src/components/post/hybrid/PostHybridColumn';
 import { usePostPageHybrid } from '@dailydotdev/shared/src/hooks/post/usePostPageHybrid';
-import { AdHeadHints } from '../../../components/AdHeadHints';
 import {
   postPageClassicClassName,
   postPageHybridPrePaintScript,
@@ -130,10 +131,16 @@ const PostAuthBanner = dynamic(() =>
   ).then((module) => module.PostAuthBanner),
 );
 
-const PostPageFeed = dynamic(() =>
+const CommentsTeaserFooter = dynamic(() =>
   import(
-    /* webpackChunkName: "postPageFeed" */ '@dailydotdev/shared/src/components/post/feed/PostPageFeed'
-  ).then((module) => module.PostPageFeed),
+    /* webpackChunkName: "commentsTeaserFooter" */ '@dailydotdev/shared/src/features/commentsTeaser/CommentsTeaserFooter'
+  ).then((mod) => mod.CommentsTeaserFooter),
+);
+
+const PostAppPrompt = dynamic(() =>
+  import(
+    /* webpackChunkName: "postAppPrompt" */ '@dailydotdev/shared/src/features/commentsTeaser/PostAppPrompt'
+  ).then((mod) => mod.PostAppPrompt),
 );
 
 const PinnedSignupStrip = dynamic(() =>
@@ -204,26 +211,31 @@ export const PostPage = ({
       feature: featurePostSignupStrip,
       shouldEvaluate: showLaptopAuthBanner,
     });
+  // The comment teaser brings its own ask: the pinned footer on tablet and
+  // laptop (instead of the banner or strip), the phone footer's new title
+  // and X's app card on phones.
+  const { showLogin } = useAuthContext();
+  const { isCommentsTeaser, isPending: isCommentsTeaserPending } =
+    useCommentsTeaser();
+  const isPhoneBrowser = usePhoneBrowser();
+  const isTablet = useViewSize(ViewSize.Tablet);
+  const showTeaserFooter = isCommentsTeaser && isTablet && !!post;
+  const isTeaserFooterRevealed = useRevealOnEngagement(showTeaserFooter);
   const showPostAuthBanner =
-    showLaptopAuthBanner && !isSignupStripLoading && !isSignupStripOn;
-  // The feed after the comments is for signed-in readers: signed-out readers
-  // keep the comments and the sign-up footer, and never enter the
-  // experiment. Briefs and digests have no comments, so no feed either.
-  const { isLoggedIn } = useAuthContext();
-  const { value: isPostPageFeedOn } = useConditionalFeature({
-    feature: featurePostPageFeed,
-    shouldEvaluate:
-      isLoggedIn &&
-      !!post?.id &&
-      ![PostType.Brief, PostType.Digest].includes(post.type),
-  });
-  const postPageFeed =
-    isPostPageFeedOn && post ? <PostPageFeed post={post} /> : undefined;
+    showLaptopAuthBanner &&
+    !isSignupStripLoading &&
+    !isSignupStripOn &&
+    !isCommentsTeaser &&
+    !isCommentsTeaserPending;
   const showSignupStrip =
-    showLaptopAuthBanner && !isSignupStripLoading && isSignupStripOn;
+    showLaptopAuthBanner &&
+    !isSignupStripLoading &&
+    isSignupStripOn &&
+    !isCommentsTeaser &&
+    !isCommentsTeaserPending;
   // Empty for every logged-in visitor and for posts in ad-free squads; the
-  // slot components check the same hook, so with it empty neither markup nor
-  // the Prebid bundle exists.
+  // slot components check the same hook, so with it empty neither anchors nor
+  // the ad tag exist.
   const adSlots = useOrganicAdSlots(post);
   const adsActive = hasLiveAdSlots(adSlots);
   // The same in-content treatment the /articles template ships, reused on
@@ -269,7 +281,6 @@ export const PostPage = ({
                 format={ReadAdFormat.MediumRectangle}
                 className="my-6"
                 hideOnPhone={index > 0}
-                logExtra={{ section: 'summary', occurrence: index + 1 }}
               />
             )}
           </React.Fragment>
@@ -309,13 +320,12 @@ export const PostPage = ({
             ),
             commentAds: {
               interleaveEvery: COMMENTS_PER_INTERLEAVED_AD,
-              renderInterleaved: (occurrence: number) => (
+              renderInterleaved: () => (
                 <ReadAdSlot
                   surface="organic"
                   slot={ORGANIC_SLOT.commentMpu}
                   format={ReadAdFormat.MediumRectangle}
                   hideOnPhone
-                  logExtra={{ occurrence }}
                 />
               ),
             },
@@ -336,7 +346,6 @@ export const PostPage = ({
             format={ReadAdFormat.MediumRectangle}
             className="my-2"
             hideOnPhone={index > 0}
-            logExtra={{ section: 'summary', occurrence: index + 1 }}
           />
         ),
         aboveComments: (
@@ -399,11 +408,34 @@ export const PostPage = ({
 
   usePostReferrer({ post });
 
+  // Arriving from a feed card's Read, the drawer opens over the loading
+  // page with the card's copy of the post, and stays the same drawer once
+  // the page has its own.
+  const arrivingPost = useMemo(() => peekReadingOpen(id), [id]);
+  const drawerPost = post ?? arrivingPost;
+  const logExtra = () => {
+    const creative = isSourceAdFree(drawerPost?.source)
+      ? null
+      : getCreativeForTags(drawerPost?.tags || []);
+    return {
+      referrer_target_id: drawerPost?.id,
+      referrer_target_type: drawerPost?.id ? TargetType.Post : undefined,
+      ...(creative && getEngagementLogExtra(creative)),
+      ...(isReadingOpen() && { reading_drawer: true }),
+    };
+  };
+  const readingDrawer = drawerPost && (
+    <LogExtraContextProvider key="reading-drawer" selector={logExtra}>
+      <ReadingDrawer post={drawerPost} />
+    </LogExtraContextProvider>
+  );
+
   if (isLoading || privateSourceJoin.isActive) {
     return (
       <>
         <PostSEOSchema post={post} topComments={topComments} />
         <PostLoadingSkeleton className={containerClass} />
+        {readingDrawer}
       </>
     );
   }
@@ -424,93 +456,88 @@ export const PostPage = ({
   }
 
   return (
-    <ActivePostContextProvider post={post}>
-      <LogExtraContextProvider
-        selector={() => {
-          const creative = isSourceAdFree(post?.source)
-            ? null
-            : getCreativeForTags(post?.tags || []);
-          return {
-            referrer_target_id: post?.id,
-            referrer_target_type: post?.id ? TargetType.Post : undefined,
-            ...(creative && getEngagementLogExtra(creative)),
-          };
-        }}
-      >
-        <FooterNavBarLayout post={post}>
-          <Head>
-            <link rel="preload" as="image" href={post?.image} />
-            <style
-              dangerouslySetInnerHTML={{ __html: postPageHybridPrePaintStyle }}
-            />
-            <script
-              dangerouslySetInnerHTML={{ __html: postPageHybridPrePaintScript }}
-            />
-          </Head>
-          {adsActive && (
-            <>
-              <AdHeadHints />
-              <Script
-                id="prebid-loader"
-                src={PREBID_SCRIPT_SRC}
-                strategy="afterInteractive"
+    <>
+      <ActivePostContextProvider post={post}>
+        <LogExtraContextProvider selector={logExtra}>
+          <FooterNavBarLayout post={post}>
+            <Head>
+              <link rel="preload" as="image" href={post?.image} />
+              <style
+                dangerouslySetInnerHTML={{
+                  __html: postPageHybridPrePaintStyle,
+                }}
               />
-            </>
-          )}
-          <PostSEOSchema post={post} topComments={topComments} />
-          {showHybrid ? (
-            <PostHybridContent
-              post={post}
-              origin={Origin.ArticlePage}
-              ads={hybridAds}
-              shouldOnboardAuthor={!!router.query?.author}
-              getRailAd={getWidgetRailAd}
-              belowComments={postPageFeed}
-              className="mb-16 min-h-page tablet:mb-8 laptop:mb-0 laptop:pb-6"
-            />
-          ) : (
-            <Content
-              position={position}
-              isPostPage
-              post={post}
-              isFallback={isFallback}
-              backToSquad={!!router?.query?.squad}
-              shouldOnboardAuthor={!!router.query?.author}
-              origin={Origin.ArticlePage}
-              isBannerVisible={shouldShowAuthBanner && !isLaptop}
-              contentLeading={organicAds?.contentLeading}
-              renderSummarySegments={organicAds?.renderSummarySegments}
-              aboveComments={organicAds?.aboveComments}
-              belowComments={postPageFeed}
-              commentAds={organicAds?.commentAds}
-              getWidgetRailAd={getWidgetRailAd}
-              className={{
-                container: containerClass,
-                fixedNavigation: { container: 'flex laptop:hidden' },
-                navigation: {
-                  container: 'flex tablet:hidden',
-                  actions: 'flex-1 justify-between',
-                },
-              }}
-            />
-          )}
-          {showSignupStrip && (
-            <div
-              className={classNames(
-                'm-auto w-full',
-                showHybrid
-                  ? 'laptop:max-w-5xl laptop:px-4 laptopL:max-w-6xl'
-                  : 'max-w-[69.25rem]',
-              )}
-            >
-              <PinnedSignupStrip targetId={TargetId.PostStrip} />
-            </div>
-          )}
-          {showPostAuthBanner && <PostAuthBanner />}
-          <CompanionDemoWidget />
-        </FooterNavBarLayout>
-      </LogExtraContextProvider>
-    </ActivePostContextProvider>
+              <script
+                dangerouslySetInnerHTML={{
+                  __html: postPageHybridPrePaintScript,
+                }}
+              />
+            </Head>
+            <PostSEOSchema post={post} topComments={topComments} />
+            {showHybrid ? (
+              <PostHybridContent
+                post={post}
+                origin={Origin.ArticlePage}
+                ads={hybridAds}
+                shouldOnboardAuthor={!!router.query?.author}
+                getRailAd={getWidgetRailAd}
+                className="mb-16 min-h-page tablet:mb-8 laptop:mb-0 laptop:pb-6"
+              />
+            ) : (
+              <Content
+                position={position}
+                isPostPage
+                post={post}
+                isFallback={isFallback}
+                backToSquad={!!router?.query?.squad}
+                shouldOnboardAuthor={!!router.query?.author}
+                origin={Origin.ArticlePage}
+                isBannerVisible={shouldShowAuthBanner && !isLaptop}
+                contentLeading={organicAds?.contentLeading}
+                renderSummarySegments={organicAds?.renderSummarySegments}
+                aboveComments={organicAds?.aboveComments}
+                commentAds={organicAds?.commentAds}
+                getWidgetRailAd={getWidgetRailAd}
+                className={{
+                  container: containerClass,
+                  fixedNavigation: { container: 'flex laptop:hidden' },
+                  navigation: {
+                    container: 'flex tablet:hidden',
+                    actions: 'flex-1 justify-between',
+                  },
+                }}
+              />
+            )}
+            {showSignupStrip && (
+              <div
+                className={classNames(
+                  'm-auto w-full',
+                  showHybrid
+                    ? 'laptop:max-w-5xl laptop:px-4 laptopL:max-w-6xl'
+                    : 'max-w-[69.25rem]',
+                )}
+              >
+                <PinnedSignupStrip targetId={TargetId.PostStrip} />
+              </div>
+            )}
+            {showPostAuthBanner && <PostAuthBanner />}
+            {showTeaserFooter && isTeaserFooterRevealed && (
+              <CommentsTeaserFooter
+                title={getCommentsTeaserTitle(post.numComments)}
+                onContinue={() =>
+                  showLogin({ trigger: AuthTriggers.CommentsTeaser })
+                }
+              />
+            )}
+            {isCommentsTeaser && isPhoneBrowser && post && (
+              <PostAppPrompt post={post} />
+            )}
+            <CompanionDemoWidget />
+          </FooterNavBarLayout>
+        </LogExtraContextProvider>
+      </ActivePostContextProvider>
+      {readingDrawer}
+    </>
   );
 };
 
@@ -524,16 +551,8 @@ const getPostPageLayout: typeof getLayout = (page, pageProps, layoutProps) => {
     pageProps,
     {
       ...layoutProps,
-      // Strip first: both pin, and the banner's top offset is the strip's height.
       customBanner: (
-        <>
-          <PhoneTopAdStrip
-            key={id}
-            surface="organic"
-            post={initialData?.post}
-          />
-          <CustomAuthBanner />
-        </>
+        <PhoneTopAdStrip key={id} surface="organic" post={initialData?.post} />
       ),
     },
   );
@@ -589,16 +608,16 @@ export async function getStaticProps({
       title: pageSeoTitles.title,
       description: getSeoDescription(post),
       noindex,
-      additionalLinkTags:
-        post && !noindex
-          ? [
-              {
-                rel: 'alternate',
-                type: 'text/markdown',
-                href: getPostMarkdownUrl({ post }),
-              },
-            ]
-          : undefined,
+      ...(post &&
+        !noindex && {
+          additionalLinkTags: [
+            {
+              rel: 'alternate',
+              type: 'text/markdown',
+              href: getPostMarkdownUrl({ post }),
+            },
+          ],
+        }),
       openGraph: {
         ...pageSeoTitles.openGraph,
         images: [

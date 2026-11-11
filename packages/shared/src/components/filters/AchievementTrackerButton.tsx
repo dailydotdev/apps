@@ -5,6 +5,7 @@ import type { IconType } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { MedalBadgeIcon } from '../icons';
 import { AlertColor, AlertDot } from '../AlertDot';
+import { AttentionDot } from '../AttentionDot';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
@@ -71,7 +72,15 @@ export function AchievementTrackerPanel(): ReactElement | null {
   );
 }
 
-export function AchievementTrackerButton(): ReactElement | null {
+interface AchievementTrackerButtonProps {
+  // The widget rail's style: Tertiary Small, an outlined medal, the shared
+  // attention dot, and the count as the label with the sentence in its name.
+  quiet?: boolean;
+}
+
+export function AchievementTrackerButton({
+  quiet = false,
+}: AchievementTrackerButtonProps = {}): ReactElement | null {
   const { openModal, closeModal } = useLazyModal();
   const { user } = useAuthContext();
   const { optOutAchievements } = useSettingsContext();
@@ -126,7 +135,7 @@ export function AchievementTrackerButton(): ReactElement | null {
     !isTrackedAchievementPending && !isTrackingAchievement;
   const isTrackerUpdating = isTrackPending || isUntrackPending;
 
-  const buttonLabel = (() => {
+  const progressSentence = (() => {
     if (!isTrackingAchievement) {
       return undefined;
     }
@@ -141,6 +150,11 @@ export function AchievementTrackerButton(): ReactElement | null {
       ? `${progressValue} of ${targetCount} ${unit}`
       : `${progressValue} of ${targetCount}`;
   })();
+  const quietLabel =
+    isTrackingAchievement && targetCount > 1
+      ? `${progressValue}/${targetCount}`
+      : undefined;
+  const buttonLabel = quiet ? quietLabel : progressSentence;
   const hasButtonLabel = !!buttonLabel;
 
   const handleTrack = async (achievementId: string) => {
@@ -173,12 +187,14 @@ export function AchievementTrackerButton(): ReactElement | null {
     return null;
   }
 
+  const isSmall = quiet || isLaptopLayout;
+
   if (isAchievementsPending) {
     return (
       <ElementPlaceholder
         data-testid="achievement-tracker-skeleton"
         className={
-          isLaptopLayout
+          isSmall
             ? 'h-8 w-8 animate-pulse rounded-10'
             : 'h-10 w-10 animate-pulse rounded-12'
         }
@@ -195,7 +211,7 @@ export function AchievementTrackerButton(): ReactElement | null {
       <ElementPlaceholder
         data-testid="achievement-tracker-skeleton"
         className={
-          isLaptopLayout
+          isSmall
             ? 'h-8 w-8 animate-pulse rounded-10'
             : 'h-10 w-10 animate-pulse rounded-12'
         }
@@ -203,13 +219,21 @@ export function AchievementTrackerButton(): ReactElement | null {
     );
   }
 
+  const trackedLabel = quiet
+    ? [trackedAchievement?.achievement.name, progressSentence]
+        .filter(Boolean)
+        .join(', ')
+    : `${trackedAchievement?.achievement.name}${
+        targetCount > 1 ? ` (${progressValue} of ${targetCount})` : ''
+      }`;
+
   const buttonContent = (
     <div className="relative">
       <Button
-        size={isLaptopLayout ? ButtonSize.Small : ButtonSize.Medium}
+        size={isSmall ? ButtonSize.Small : ButtonSize.Medium}
         variant={ButtonVariant.Tertiary}
         className={(() => {
-          if (!isLaptopLayout) {
+          if (quiet || !isLaptopLayout) {
             return undefined;
           }
           return hasButtonLabel
@@ -221,25 +245,22 @@ export function AchievementTrackerButton(): ReactElement | null {
             <AchievementIcon
               imgSrc={trackedAchievement.achievement.image}
               imgAlt={trackedAchievement.achievement.name}
-              hasLabel={hasButtonLabel}
+              hasLabel={hasButtonLabel && !quiet}
             />
           ) : (
-            <MedalBadgeIcon />
+            <MedalBadgeIcon secondary={quiet} />
           )) as unknown as IconType
         }
         onClick={handleClick}
         disabled={isTrackerUpdating}
         aria-label={
-          isTrackingAchievement
-            ? `${trackedAchievement.achievement.name}${
-                targetCount > 1 ? ` (${progressValue} of ${targetCount})` : ''
-              }`
-            : 'Track an achievement'
+          isTrackingAchievement ? trackedLabel : 'Track an achievement'
         }
       >
         {buttonLabel || undefined}
       </Button>
-      {showAttentionDot && (
+      {showAttentionDot && quiet && <AttentionDot />}
+      {showAttentionDot && !quiet && (
         <AlertDot
           color={AlertColor.Bun}
           className="pointer-events-none right-2 top-2 border border-background-default"

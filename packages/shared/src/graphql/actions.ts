@@ -47,7 +47,6 @@ export enum ActionType {
   IntroQuestsCompleted = 'intro_quests_completed',
   ClosedProfileBanner = 'closed_profile_banner',
   UploadedCV = 'uploaded_cv',
-  DisableBriefCardCta = 'disable_brief_card_cta',
   SeenPostPollTooltip = 'seen_post_poll_tooltip',
   SeenPostPollTab = 'seen_post_poll_tab',
   OpportunityWelcomePage = 'opportunity_welcome_page',
@@ -75,6 +74,8 @@ export enum ActionType {
   // Agreed to Looking for group's house rules before a first post.
   LfgHouseRules = 'lfg_house_rules',
   DismissLfgMessagesPromo = 'dismiss_lfg_messages_promo',
+  // Hides every daily.dev for Startups promotion, the squad page one included
+  DismissStartupsPromo = 'dismiss_startups_promo',
 }
 
 export const cvActions = [

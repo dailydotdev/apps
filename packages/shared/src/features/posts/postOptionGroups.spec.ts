@@ -58,11 +58,14 @@ describe('groupPostOptions', () => {
 
   it('puts Hide on the first level of a post you do not own', () => {
     const groups = groupPostOptions(
-      ['hide', 'report', 'block-source', 'later', 'share'].map(option),
+      ['hide', 'report', 'block-source', 'later', 'explain', 'share'].map(
+        option,
+      ),
     );
 
     expect(groups.primary.map((o) => o.id)).toEqual([
       'share',
+      'explain',
       'later',
       'hide',
       'report',

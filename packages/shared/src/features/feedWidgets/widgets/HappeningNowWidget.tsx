@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -18,21 +18,13 @@ import { FeedWidgetKind, FeedWidgetSize } from '../types';
 import { useFeedWidgetsContext } from '../FeedWidgetsContext';
 import { FeedWidgetEmpty } from '../FeedWidgetFrame';
 import { useWidgetScroll } from '../useWidgetScroll';
+import { happeningNowGlow, LiveDot } from './material';
 import { useLiveChatHighlight } from '../../liveChat/hooks/useLiveChatHighlight';
-import { LiveChatHighlightRow } from '../../liveChat/components/LiveChatHighlightRow';
-
-// The widget's own material: a newsroom on air, lit green from the live dot.
-const liveStyle: CSSProperties = {
-  backgroundImage:
-    'radial-gradient(90% 60% at 0% 0%, color-mix(in srgb, var(--theme-accent-avocado-default) 22%, transparent) 0%, transparent 70%)',
-};
-
-const LiveDot = (): ReactElement => (
-  <span aria-hidden className="relative flex size-4 shrink-0 items-center">
-    <span className="absolute left-1 size-2 animate-ping rounded-max bg-accent-avocado-default opacity-50 motion-reduce:animate-none" />
-    <span className="relative left-1 size-2 rounded-max bg-accent-avocado-default" />
-  </span>
-);
+import {
+  highlightHeadlineClassName,
+  highlightRowClassName,
+  LiveChatHighlightRow,
+} from '../../liveChat/components/LiveChatHighlightRow';
 
 const HighlightRow = ({
   highlight,
@@ -54,11 +46,14 @@ const HighlightRow = ({
         <a
           href={href}
           onClick={onClick}
-          className="group/highlight flex flex-col rounded-12 px-2 py-1.5 transition-colors duration-150 hover:bg-surface-hover focus-visible:bg-surface-hover motion-reduce:transition-none"
+          className={classNames(
+            'group/highlight',
+            highlightRowClassName(isSmall),
+          )}
         >
           {isSmall ? (
             <>
-              <span className="line-clamp-2 break-words font-bold text-text-primary typo-footnote">
+              <span className={highlightHeadlineClassName(true)}>
                 {highlight.headline}
               </span>
               <span className="truncate text-text-tertiary typo-caption1">
@@ -68,7 +63,7 @@ const HighlightRow = ({
           ) : (
             // The time trails the headline in its own text flow. The time and
             // the copy button never split, so they wrap together as one unit.
-            <span className="break-words font-bold text-text-primary typo-callout">
+            <span className={highlightHeadlineClassName(false)}>
               {highlight.headline}{' '}
               <span className="whitespace-nowrap font-normal text-text-tertiary typo-footnote">
                 <span aria-hidden>· </span>
@@ -95,9 +90,11 @@ const HighlightRow = ({
 export const HappeningNowWidget = ({
   size,
 }: FeedWidgetComponentProps<FeedWidgetKind.HappeningNow>): ReactElement => {
-  const { feedName } = useFeedWidgetsContext();
+  const { feedName, hasTopStory } = useFeedWidgetsContext();
   const { logEvent } = useLogContext();
-  const { highlights, isPending } = useFeedHeroData();
+  // One query with the top story when both are on the rail; without it the
+  // posts pool is never read, so the API skips it.
+  const { highlights, isPending } = useFeedHeroData({ withPosts: hasTopStory });
   const scroll = useWidgetScroll();
   // A live chat is the most "happening now" thing there is, so it leads.
   const { room: liveRoom } = useLiveChatHighlight();
@@ -141,7 +138,7 @@ export const HappeningNowWidget = ({
         aria-hidden
         // Up to the card's top edge, so the glow starts at the corner.
         className="pointer-events-none absolute -inset-x-4 -bottom-4 -top-3 -z-1"
-        style={liveStyle}
+        style={happeningNowGlow}
       />
       <header className="flex h-6 min-w-0 shrink-0 items-center gap-1.5 px-4">
         <LiveDot />

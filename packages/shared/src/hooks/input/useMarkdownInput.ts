@@ -59,8 +59,10 @@ export enum MarkdownCommand {
   Gif = 'gif',
 }
 
-export interface UseMarkdownInputProps
-  extends Pick<HTMLAttributes<HTMLTextAreaElement>, 'onSubmit'> {
+export interface UseMarkdownInputProps extends Pick<
+  HTMLAttributes<HTMLTextAreaElement>,
+  'onSubmit'
+> {
   textareaRef: MutableRefObject<HTMLTextAreaElement>;
   postId?: string;
   sourceId?: string;

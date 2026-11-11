@@ -17,12 +17,11 @@ export const useCampaignByIdModal = (): void => {
     if (!user || !campaignId) {
       return;
     }
-    openModal({
-      type: LazyModal.FetchBoostedPostView,
-      props: {
-        campaignId: campaignId as string,
-        onAfterClose: () => replace(pathname),
-      },
-    });
+    replace(pathname).then(() =>
+      openModal({
+        type: LazyModal.FetchBoostedPostView,
+        props: { campaignId: campaignId as string },
+      }),
+    );
   }, [openModal, pathname, replace, user, campaignId]);
 };

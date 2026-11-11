@@ -220,7 +220,7 @@ export interface UserReadingTopTagsData {
 }
 
 export interface UserStreakData {
-  userStreakProfile: UserStreak;
+  userStreakProfile: UserStreak | null;
 }
 
 export const USER_READING_HISTORY_QUERY = gql`

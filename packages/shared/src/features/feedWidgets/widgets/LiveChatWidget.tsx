@@ -9,15 +9,16 @@ import Link from '../../../components/utilities/Link';
 import type { ChatRoom } from '../../liveChat/graphql';
 import { liveChatRoomsQueryOptions } from '../../liveChat/queries';
 import { useLiveChatEnabled } from '../../liveChat/hooks/useLiveChatEnabled';
-import { LiveDot } from '../../liveChat/components/LiveDot';
-import { formatTimeLeft } from '../../liveChat/timeLeft';
+import { DiscussIcon, PlusIcon } from '../../../components/icons';
+import { IconSize } from '../../../components/Icon';
+import { formatEndsIn, formatOccupants } from '../../liveChat/timeLeft';
+import { getChatRoomHref, getNewChatHref } from '../../liveChat/joinLink';
+import { Button } from '../../../components/buttons/Button';
+import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import type { FeedWidgetComponentProps } from '../registry';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
 import { FeedWidgetEmpty } from '../FeedWidgetFrame';
 import { useWidgetScroll } from '../useWidgetScroll';
-
-const roomHref = (room: ChatRoom): string | undefined =>
-  room.post?.commentsPermalink;
 
 const RoomRow = ({
   room,
@@ -28,13 +29,13 @@ const RoomRow = ({
   isSmall: boolean;
   onClick: () => void;
 }): ReactElement | null => {
-  const href = roomHref(room);
+  const href = getChatRoomHref(room);
   if (!href) {
     return null;
   }
   const meta = [
-    room.occupantCount != null && `${room.occupantCount} here`,
-    room.expiresAt && `ends in ${formatTimeLeft(room.expiresAt)}`,
+    formatOccupants(room.occupantCount),
+    formatEndsIn(room.expiresAt),
   ]
     .filter(Boolean)
     .join(' · ');
@@ -83,30 +84,60 @@ export const LiveChatWidget = ({
   });
   const isSmall = size === FeedWidgetSize.Small;
   const shown = isSmall ? rooms.slice(0, 1) : rooms;
+  // Rooms are team picks: the team opens one from here, on a topic of its
+  // own, so the widget stays up for them when nothing is on.
+  const canStart = !!user?.isTeamMember;
 
-  if (!isEnabled || !shown.length) {
+  if (!isEnabled || (!shown.length && !canStart)) {
     return (
       <FeedWidgetEmpty
         kind={FeedWidgetKind.LiveChat}
         isPending={isEnabled && isPending}
-        message="No live chats right now. They open when a post takes off."
+        message="No live chats right now. The daily.dev team opens one on something worth talking about."
       />
     );
   }
 
+  // The same header and list inset as Happening Now, so the two read as one
+  // family on the rail; a chat icon rather than a pulsing dot, so they do
+  // not read as the same widget.
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex items-center gap-2 px-2 pb-1">
-        <LiveDot />
-        <span className="font-bold uppercase tracking-wide text-text-primary typo-caption1">
-          Live now
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <header className="flex h-6 min-w-0 shrink-0 items-center gap-1.5 px-4">
+        <DiscussIcon
+          size={IconSize.Size16}
+          className="shrink-0 text-brand-default"
+        />
+        <span className="truncate font-bold text-text-primary typo-caption1">
+          Live chats
         </span>
-      </div>
+        {canStart && (
+          <Link href={getNewChatHref()} passHref>
+            <Button
+              tag="a"
+              href={getNewChatHref()}
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.XSmall}
+              icon={<PlusIcon />}
+              className="-mr-2 ml-auto"
+            >
+              New
+            </Button>
+          </Link>
+        )}
+      </header>
       <div
-        {...scroll}
-        className="flex min-h-0 flex-1 snap-y flex-col overflow-y-auto"
+        ref={scroll.ref}
+        onScroll={scroll.onScroll}
+        style={scroll.style}
+        className={classNames('mt-2 px-2', scroll.className)}
       >
-        <ul className="flex flex-col">
+        {!shown.length && (
+          <p className="px-2 py-1.5 text-text-tertiary typo-footnote">
+            No live chats right now. Open one on something worth talking about.
+          </p>
+        )}
+        <ul aria-label="Live chats" className="flex flex-col gap-1">
           {shown.map((room) => (
             <RoomRow
               key={room.id}

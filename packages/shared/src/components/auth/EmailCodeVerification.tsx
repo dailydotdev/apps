@@ -2,13 +2,14 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import ConditionalWrapper from '../ConditionalWrapper';
 import {
   FunnelGlassBar,
   funnelGlassBarCta,
 } from '../../features/onboarding/shared/FunnelGlassBar';
 import type { AuthFormProps } from './common';
 import AuthForm from './AuthForm';
+import { AuthScreenMail, AuthScreenTitle } from './AuthScreenTitle';
+import { AuthActionBar } from './AuthActionBar';
 import { AuthEventNames } from '../../lib/auth';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
@@ -29,6 +30,7 @@ interface EmailCodeVerificationProps extends AuthFormProps {
   onResendCode?: () => Promise<void>;
   isOnboardingFunnel?: boolean;
   onChangeEmail?: () => void;
+  isStartups?: boolean;
 }
 
 const noop = (): void => undefined;
@@ -43,6 +45,7 @@ function EmailCodeVerification({
   onResendCode,
   isOnboardingFunnel,
   onChangeEmail,
+  isStartups,
 }: EmailCodeVerificationProps): ReactElement {
   const { email } = useAuthData();
   const { logEvent } = useLogContext();
@@ -73,7 +76,11 @@ function EmailCodeVerification({
       onSubmit?.();
     } catch (err) {
       verifyingRef.current = false;
-      setHint(err instanceof Error ? err.message : 'Verification failed');
+      if (isStartups) {
+        setHint("That code didn't match. Check it and try again.");
+      } else {
+        setHint(err instanceof Error ? err.message : 'Verification failed');
+      }
     } finally {
       setIsVerifying(false);
     }
@@ -185,10 +192,100 @@ function EmailCodeVerification({
     }
   };
 
+  if (isStartups) {
+    return (
+      <AuthForm
+        className="flex flex-col gap-6"
+        onSubmit={onCodeVerification}
+        data-testid="email_verification_form"
+      >
+        <AuthScreenMail />
+        <AuthScreenTitle
+          title="Check your email"
+          description={
+            <>
+              We sent a 6-digit code to{' '}
+              <span className="break-words font-bold text-text-primary">
+                {email}
+              </span>
+              . Check your spam folder if it isn&apos;t there.
+            </>
+          }
+        />
+        <input
+          type="text"
+          id="email"
+          name="email"
+          value={email}
+          hidden
+          readOnly
+        />
+        <div className="flex flex-col gap-2">
+          <CodeField
+            defaultValue={linkedCode}
+            onSubmit={onCodeSubmit}
+            onChange={onCodeChange}
+            disabled={isVerifying}
+            invalid={!!hint}
+          />
+          <p
+            role="alert"
+            className="text-status-error typo-footnote"
+            style={{ minHeight: 18 }}
+          >
+            {hint}
+          </p>
+        </div>
+        <div
+          className="flex flex-col items-start gap-1 text-text-tertiary typo-callout"
+          style={{ marginTop: -12 }}
+        >
+          <p>Didn&apos;t get a verification code?</p>
+          <button
+            type="button"
+            disabled={resendTimer > 0}
+            onClick={onSendCode}
+            className={classNames(
+              'tabular-nums',
+              resendTimer === 0 ? 'text-text-link' : 'text-text-disabled',
+            )}
+          >
+            Resend code
+            {resendTimer > 0 && ` ${resendTimer}s`}
+          </button>
+          {onChangeEmail && (
+            <p className="pt-1">
+              Wrong email?{' '}
+              <button
+                type="button"
+                onClick={onChangeEmail}
+                className="text-text-link"
+              >
+                Change email
+              </button>
+            </p>
+          )}
+        </div>
+        <FunnelGlassBar>
+          <Button
+            className={funnelGlassBarCta}
+            type="submit"
+            size={ButtonSize.Medium}
+            variant={ButtonVariant.Primary}
+            loading={isVerifying}
+          >
+            Verify
+          </Button>
+        </FunnelGlassBar>
+      </AuthForm>
+    );
+  }
+
   return (
     <AuthForm
       className={classNames(
-        'flex flex-col items-end py-8 mobileL:px-8 tablet:px-14',
+        'flex flex-col items-end px-6 pt-8',
+        isOnboardingFunnel && 'pb-8',
         className,
       )}
       onSubmit={onCodeVerification}
@@ -213,7 +310,7 @@ function EmailCodeVerification({
           Don&apos;t see it? Also check your spam or junk folder.
         </Typography>
       </div>
-      <div className="my-10 flex w-full flex-col items-center gap-4">
+      <div className="my-6 flex w-full flex-col items-center gap-4">
         <input
           type="text"
           id="email"
@@ -238,8 +335,8 @@ function EmailCodeVerification({
             {hint}
           </Typography>
         )}
-        <span className="text-text-tertiary">
-          Didn&#39;t get a verification code?{' '}
+        <span className="flex flex-col items-center gap-1 text-center text-text-tertiary">
+          Didn&#39;t get a verification code?
           <button
             type="button"
             disabled={resendTimer > 0}
@@ -267,20 +364,23 @@ function EmailCodeVerification({
       </div>
       {/* Same glass bar as the funnel steps and account details, so the last
           screen before the funnel opens is not the one bare button in the flow. */}
-      <ConditionalWrapper
-        condition={!!isOnboardingFunnel}
-        wrapper={(component) => <FunnelGlassBar>{component}</FunnelGlassBar>}
-      >
-        <Button
-          className={isOnboardingFunnel ? funnelGlassBarCta : 'w-full'}
-          type="submit"
-          size={isOnboardingFunnel ? ButtonSize.Medium : undefined}
-          variant={ButtonVariant.Primary}
-          loading={isVerifying}
-        >
+      {isOnboardingFunnel ? (
+        <FunnelGlassBar>
+          <Button
+            className={funnelGlassBarCta}
+            type="submit"
+            size={ButtonSize.Medium}
+            variant={ButtonVariant.Primary}
+            loading={isVerifying}
+          >
+            Verify
+          </Button>
+        </FunnelGlassBar>
+      ) : (
+        <AuthActionBar type="submit" loading={isVerifying}>
           Verify
-        </Button>
-      </ConditionalWrapper>
+        </AuthActionBar>
+      )}
     </AuthForm>
   );
 }

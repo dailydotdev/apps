@@ -2,12 +2,13 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ViewabilityCriteria, ViewabilityData } from './viewability';
 import {
   getViewabilityCriteria,
+  isPageInFocus,
   ratioTolerance,
   viewabilityThresholds,
 } from './viewability';
 
 interface UseViewabilityProps {
-  onViewable: (data: ViewabilityData) => void;
+  onViewable?: (data: ViewabilityData) => void;
   enabled?: boolean;
   /**
    * Restarts measurement when it changes, for elements that swap their content
@@ -22,12 +23,6 @@ interface UseViewability<T extends HTMLElement> {
   ref: (node: T | null) => void;
   isViewable: boolean;
 }
-
-// Pixels in the viewport are only on screen when the tab is the active one and
-// the browser window itself has focus.
-const isPageInFocus = (): boolean =>
-  globalThis.document.visibilityState === 'visible' &&
-  globalThis.document.hasFocus();
 
 /**
  * Tracks the MRC/IAB viewable impression of an element and reports it once.
@@ -68,7 +63,7 @@ export const useViewability = <T extends HTMLElement = HTMLElement>({
     const reportViewable = (met: ViewabilityCriteria) => {
       stopTimer();
       setIsViewable(true);
-      onViewableRef.current({
+      onViewableRef.current?.({
         ...met,
         timeToViewable: Date.now() - renderedAt,
       });

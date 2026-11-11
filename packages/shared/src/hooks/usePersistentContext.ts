@@ -58,8 +58,10 @@ export default function usePersistentContext<T>(
   const { mutateAsync: updateValue, isPending: isLoading } = useMutation({
     mutationFn: (value: T | null) => setCache(key, value),
 
-    onMutate: (mutatedData) => {
+    onMutate: async (mutatedData) => {
       const current = data;
+      // A read still in flight would land on top of this value and undo it.
+      await queryClient.cancelQueries({ queryKey });
       queryClient.setQueryData(queryKey, mutatedData);
       return current;
     },
@@ -79,4 +81,10 @@ export enum PersistentContextKeys {
   PendingOpportunityId = 'pending_opportunity_id',
   ReadingReminderLastSeen = 'reading_reminder_last_seen',
   ReadingReminderPushPromptDismissed = 'reading_reminder_push_prompt_dismissed',
+  // The ISO week (Monday) whose picks card was closed; a new week brings it back
+  WeeklyPicksHeroDismissedWeek = 'weekly_picks_hero_dismissed_week',
+  // The home card's verdict from the last visit, painted on the next one
+  WeeklyPicksHeroSnapshot = 'weekly_picks_hero_snapshot',
+  // The users the home card has evaluated the picks flag for, in either arm
+  WeeklyPicksEnrolled = 'weekly_picks_enrolled',
 }

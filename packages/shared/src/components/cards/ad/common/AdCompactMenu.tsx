@@ -91,21 +91,7 @@ export const AdCompactMenu = ({
   }
 
   return (
-    <DropdownMenu
-      open={isOpen}
-      onOpenChange={(open) => {
-        setIsOpen(open);
-        // The advertise link counts as seen once the menu shows it, as the
-        // inline link does on mount.
-        if (open && showAdvertiseLink) {
-          logEvent({
-            event_name: LogEvent.Impression,
-            target_type: TargetType.AdvertiseHereCta,
-            target_id: TargetId.AdCard,
-          });
-        }
-      }}
-    >
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger tooltip={{ content: 'Options' }} asChild>
         <Button
           variant={ButtonVariant.Tertiary}

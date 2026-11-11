@@ -9,26 +9,30 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../components/typography/Typography';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../components/buttons/Button';
+import { Button, ButtonVariant } from '../../components/buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { CoreIcon, PlusIcon } from '../../components/icons';
+import { CoreIcon } from '../../components/icons';
 import type { Post } from '../../graphql/posts';
+import { SourceType } from '../../graphql/sources';
 import { Image } from '../../components/image/Image';
 import { largeNumberFormat } from '../../lib';
 import { IconSize } from '../../components/Icon';
-import { Origin } from '../../lib/log';
+import { LogEvent, Origin } from '../../lib/log';
 import { BuyCoresModal } from '../../components/modals/award/BuyCoresModal';
 import { usePostImage } from '../../hooks/post/usePostImage';
 import { useCampaignMutation } from './useCampaignMutation';
+import { useBoostWallet } from './useBoostWallet';
+import { BoostWalletPicker } from './BoostWalletPicker';
+import { BoostWalletBalance } from './BoostWalletBalance';
+import {
+  StartupsBoostPromo,
+  StartupsBuyCoresPromo,
+} from '../squads/components/promos/StartupsPromo';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
 import { ActionSuccessModal } from '../../components/modals/utils/ActionSuccessModal';
 import { boostSuccessCover } from '../../lib/image';
-import { boostDocsLink, walletUrl } from '../../lib/constants';
+import { boostDocsLink } from '../../lib/constants';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { Loader } from '../../components/Loader';
 import { CampaignType } from '../../graphql/campaigns';
@@ -36,6 +40,14 @@ import { usePostBoostEstimation } from './usePostBoostEstimation';
 import { updatePostCache } from '../../lib/query';
 import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
 import { boostSettingsFeature } from '../../lib/featureManagement';
+import { getBoostErrorExtra, useBoostLogging } from './useBoostLogging';
+import type { BoostAudienceValue } from './BoostAudience';
+import {
+  BoostAudience,
+  BoostLocation,
+  toCampaignAudience,
+} from './BoostAudience';
+import type { CampaignAudience } from '../../graphql/campaigns';
 
 const Slider = dynamic(
   () => import('../../components/fields/Slider').then((mod) => mod.Slider),
@@ -44,6 +56,7 @@ const Slider = dynamic(
 
 interface BoostPostModalProps extends ModalProps {
   post: Post;
+  origin?: Origin;
 }
 
 const SCREENS = {
@@ -56,6 +69,7 @@ export type Screens = keyof typeof SCREENS;
 
 export function BoostPostModal({
   post,
+  origin,
   ...props
 }: BoostPostModalProps): ReactElement {
   const { user } = useAuthContext();
@@ -68,16 +82,48 @@ export function BoostPostModal({
     boostSettings.default_cores,
   );
   const [totalDays, setTotalDays] = React.useState(boostSettings.default_days);
-  const [estimate, setEstimate] = useState({ coresPerDay, totalDays });
+  const postTags = post.tags?.length
+    ? post.tags
+    : (post.sharedPost?.tags ?? []);
+  const [audience, setAudience] = useState<BoostAudienceValue>({
+    tags: postTags,
+    location: BoostLocation.Worldwide,
+    countries: [],
+  });
+  const campaignAudience = toCampaignAudience(audience, postTags);
+  const [estimate, setEstimate] = useState<{
+    coresPerDay: number;
+    totalDays: number;
+    audience?: CampaignAudience;
+  }>({ coresPerDay, totalDays });
   const [updateEstimate] = useDebounceFn(setEstimate, 400);
   const totalSpendInt = coresPerDay * totalDays;
   const totalSpend = largeNumberFormat(totalSpendInt);
+  const squadId =
+    post.source?.type === SourceType.Squad ? post.source.id : undefined;
+  const {
+    squadWallet,
+    wallet,
+    setWallet,
+    balance,
+    selectedSquadWallet,
+    canBuyCores,
+  } = useBoostWallet(squadId);
   const { estimatedReach, canBoost, isLoading } = usePostBoostEstimation({
     post,
-    query: { budget: estimate.coresPerDay },
+    query: { budget: estimate.coresPerDay, audience: estimate.audience },
+  });
+  const { logBoostEvent, logBuyCores } = useBoostLogging({
+    type: CampaignType.Post,
+    referenceId: post.id,
+    origin,
   });
   const { onStartBoost: onBoostPost } = useCampaignMutation({
     onBoostSuccess: (data, vars) => {
+      logBoostEvent(LogEvent.CompleteBoost, vars, {
+        campaign_id: data.referenceId,
+      });
+
       if (data.referenceId) {
         updatePostCache(client, vars.value, (old) => ({
           flags: { ...old.flags, campaignId: data.referenceId },
@@ -86,12 +132,28 @@ export function BoostPostModal({
 
       setActiveScreen(SCREENS.SUCCESS);
     },
+    onBoostError: (error, vars) =>
+      logBoostEvent(LogEvent.ErrorBoost, vars, getBoostErrorExtra(error)),
   });
   const image = usePostImage(post);
 
+  const onBuyCores = () => {
+    logBuyCores();
+    setActiveScreen(SCREENS.BUY_CORES);
+  };
+
   const onButtonClick = () => {
-    if (user.balance.amount < totalSpendInt) {
-      return setActiveScreen(SCREENS.BUY_CORES);
+    const hasEnoughBalance = balance >= totalSpendInt;
+
+    logBoostEvent(
+      LogEvent.StartBoost,
+      { budget: coresPerDay, duration: totalDays },
+      { has_enough_balance: hasEnoughBalance },
+    );
+
+    if (!hasEnoughBalance) {
+      // Cores are bought into the wallet that pays for the boost
+      return canBuyCores ? onBuyCores() : undefined;
     }
 
     return onBoostPost({
@@ -99,29 +161,35 @@ export function BoostPostModal({
       budget: coresPerDay,
       value: post.id,
       type: CampaignType.Post,
+      wallet,
+      audience: campaignAudience,
     });
   };
 
   if (activeScreen === SCREENS.BUY_CORES) {
+    const missingCores = Math.max(0, totalSpendInt - balance);
+
     return (
       <BuyCoresModal
         isOpen
         product={null}
+        squadWallet={selectedSquadWallet ?? undefined}
+        minCoresToBuy={missingCores || undefined}
         onCompletion={() => setActiveScreen(SCREENS.FORM)}
         onRequestClose={() => setActiveScreen(SCREENS.FORM)}
         amountNeededCopy={
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Secondary}
-          >
-            You need{' '}
-            <strong>
-              {Math.abs(user.balance.amount - totalSpendInt).toLocaleString()}{' '}
-              more Cores
-            </strong>{' '}
-            to boost the post.
-          </Typography>
+          missingCores > 0 ? (
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Secondary}
+            >
+              You need{' '}
+              <strong>{missingCores.toLocaleString()} more Cores</strong> to
+              boost the post.
+            </Typography>
+          ) : undefined
         }
+        promo={<StartupsBuyCoresPromo sourceId={squadId} />}
         origin={Origin.BoostPost}
       />
     );
@@ -167,9 +235,18 @@ export function BoostPostModal({
     return `${min} - ${max}`;
   })();
 
+  const onRequestClose: ModalProps['onRequestClose'] = (event) => {
+    logBoostEvent(LogEvent.CloseBoost, {
+      budget: coresPerDay,
+      duration: totalDays,
+    });
+    props.onRequestClose?.(event);
+  };
+
   return (
     <Modal
       {...props}
+      onRequestClose={onRequestClose}
       isOpen
       shouldCloseOnOverlayClick={false}
       kind={Modal.Kind.FixedCenter}
@@ -179,33 +256,20 @@ export function BoostPostModal({
         <Typography type={TypographyType.Title3} bold>
           Boost your post
         </Typography>
-        <div className="ml-4 flex flex-row rounded-10 bg-surface-float">
-          <Button
-            icon={<CoreIcon />}
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
-            target="_blank"
-            href={walletUrl}
-            tag="a"
-          >
-            {largeNumberFormat(user.balance.amount)}
-          </Button>
-          <div className="my-1 border-l border-border-subtlest-tertiary" />
-          <Button
-            icon={<PlusIcon />}
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
-            onClick={() => setActiveScreen('BUY_CORES')}
-          />
-        </div>
+        <BoostWalletBalance
+          squadWallet={selectedSquadWallet}
+          balance={balance}
+          onBuyCores={canBuyCores ? onBuyCores : undefined}
+        />
       </Modal.Header>
       <Modal.Body className="flex flex-col !gap-6">
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Secondary}
         >
-          Give your content the spotlight it deserves. Our auto-targeting engine
-          ensures your post gets shown to the developers most likely to care.
+          Give your content the spotlight it deserves. We start with the
+          developers who read about your post&apos;s tags, anywhere in the
+          world. Fine-tune who sees it below.
           <a
             href={boostDocsLink}
             className="ml-1 text-text-link"
@@ -248,6 +312,17 @@ export function BoostPostModal({
             </Typography>
           </div>
         </div>
+        <BoostAudience
+          postTags={postTags}
+          value={audience}
+          onChange={(value) => {
+            setAudience(value);
+            updateEstimate((state) => ({
+              ...state,
+              audience: toCampaignAudience(value, postTags),
+            }));
+          }}
+        />
         <div className="flex flex-col">
           <Typography
             type={TypographyType.Callout}
@@ -295,6 +370,16 @@ export function BoostPostModal({
             onValueChange={([value]) => setTotalDays(value)}
           />
         </div>
+        {squadWallet && (
+          <BoostWalletPicker
+            squadWallet={squadWallet}
+            userBalance={user.balance.amount}
+            wallet={wallet}
+            onChange={setWallet}
+            totalSpend={totalSpendInt}
+          />
+        )}
+        <StartupsBoostPromo sourceId={squadId} />
       </Modal.Body>
       <Modal.Footer>
         <Button
@@ -302,7 +387,9 @@ export function BoostPostModal({
           className="w-full"
           type="button"
           onClick={onButtonClick}
-          disabled={!canBoost || isLoading}
+          disabled={
+            !canBoost || isLoading || (!canBuyCores && balance < totalSpendInt)
+          }
         >
           Boost post for <CoreIcon className="mx-1" size={IconSize.Small} />
           {totalSpend}

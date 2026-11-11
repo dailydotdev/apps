@@ -13,6 +13,18 @@ jest.mock('../../hooks/layout/useLaptopLayout', () => ({
   useLaptopLayout: () => true,
 }));
 
+const mockMessagesEnabled = jest.fn(() => false);
+jest.mock('../../features/messages/hooks/useMessagesEnabled', () => ({
+  useMessagesEnabled: () => ({
+    isEnabled: mockMessagesEnabled(),
+    isGatedOut: false,
+  }),
+}));
+
+jest.mock('../../features/messages/hooks/useUnreadMessagesCount', () => ({
+  useUnreadMessagesCount: () => ({ unread: 2, requests: 3, total: 5 }),
+}));
+
 const renderRail = (activePage: string): RenderResult =>
   render(
     <TestBootProvider
@@ -28,7 +40,15 @@ const renderRail = (activePage: string): RenderResult =>
 const selectedTabs = () =>
   Array.from(document.querySelectorAll('[role="tab"][aria-selected="true"]'));
 
+const railTabIds = () =>
+  Array.from(
+    screen
+      .getByRole('tablist', { name: 'Sidebar categories' })
+      .querySelectorAll('[role="tab"]'),
+  ).map((tab) => tab.getAttribute('id') ?? tab.getAttribute('aria-label'));
+
 beforeEach(() => {
+  mockMessagesEnabled.mockReturnValue(false);
   jest.mocked(useRouter).mockReturnValue({
     query: {},
     pathname: '/',
@@ -76,16 +96,39 @@ describe('SidebarDesktopV2 rail order', () => {
   it('puts Notifications right under Explore, above Squads', () => {
     renderRail('/');
 
-    const tabs = Array.from(
-      screen
-        .getByRole('tablist', { name: 'Sidebar categories' })
-        .querySelectorAll('[role="tab"]'),
-    ).map((tab) => tab.getAttribute('id') ?? tab.getAttribute('aria-label'));
-
-    expect(tabs.slice(0, 3)).toEqual([
+    expect(railTabIds().slice(0, 3)).toEqual([
       'sidebar-category-main',
       'Notifications',
       'sidebar-category-squads',
+    ]);
+  });
+});
+
+describe('SidebarDesktopV2 Messages tab', () => {
+  beforeEach(() => {
+    mockMessagesEnabled.mockReturnValue(true);
+  });
+
+  it('sits after Squads with the unread count, in place of Looking for group', () => {
+    renderRail('/');
+
+    const tabs = railTabIds();
+    expect(tabs.slice(2, 4)).toEqual([
+      'sidebar-category-squads',
+      'sidebar-category-messages',
+    ]);
+    expect(tabs).not.toContain('sidebar-category-lfg');
+    expect(
+      // eslint-disable-next-line testing-library/no-node-access
+      document.getElementById('sidebar-category-messages'),
+    ).toHaveTextContent('5');
+  });
+
+  it('is selected on Looking for group pages', () => {
+    renderRail('/lfg/post-id');
+
+    expect(selectedTabs().map((tab) => tab.getAttribute('id'))).toEqual([
+      'sidebar-category-messages',
     ]);
   });
 });
@@ -115,5 +158,50 @@ describe('SidebarDesktopV2 panel items', () => {
       'href',
       expect.stringContaining(href),
     );
+  });
+});
+
+describe('SidebarDesktopV2 for a visitor', () => {
+  const showLogin = jest.fn();
+  const renderVisitorRail = (): RenderResult =>
+    render(
+      <TestBootProvider
+        client={new QueryClient()}
+        auth={{ user: undefined, isLoggedIn: false, showLogin }}
+      >
+        <SpotlightProvider>
+          <SidebarDesktopV2 activePage="/posts" />
+        </SpotlightProvider>
+      </TestBootProvider>,
+    );
+
+  beforeEach(() => {
+    showLogin.mockReset();
+  });
+
+  it('keeps the account-only rail items off', () => {
+    renderVisitorRail();
+
+    expect(document.getElementById('sidebar-category-gameCenter')).toBeNull();
+    expect(screen.queryByLabelText('New post')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Invite friends')).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText('Get the daily.dev mobile app'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Log in' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('tab', { name: 'You' })).not.toBeInTheDocument();
+    expect(document.getElementById('sidebar-category-main')).not.toBeNull();
+    expect(document.getElementById('sidebar-category-squads')).not.toBeNull();
+  });
+
+  it('keeps the Streak tab and Invite for a member', () => {
+    renderRail('/posts');
+
+    expect(
+      document.getElementById('sidebar-category-gameCenter'),
+    ).not.toBeNull();
+    expect(screen.getByLabelText('Invite friends')).toBeInTheDocument();
   });
 });

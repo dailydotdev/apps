@@ -176,7 +176,7 @@ export function PostPane({
           title={
             isForbidden
               ? 'You no longer have access to this post'
-              : unavailable.title ?? 'This post is no longer available'
+              : (unavailable.title ?? 'This post is no longer available')
           }
           description={unavailable.description}
           action={unavailable.action}

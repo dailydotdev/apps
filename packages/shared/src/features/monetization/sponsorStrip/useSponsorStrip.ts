@@ -1,4 +1,4 @@
-import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
+import { useIsPlusAdFree } from '../../../hooks/useIsPlusAdFree';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { HERO_ELIGIBLE_FEEDS } from '../../../hooks/useFeed';
 import { ViewSize, useViewSizeClient } from '../../../hooks/useViewSize';
@@ -30,7 +30,7 @@ export const useSponsorStrip = ({
   disableAds,
   suppressed,
 }: UseSponsorStripProps = {}): boolean => {
-  const { isPlus } = usePlusSubscription();
+  const isPlusAdFree = useIsPlusAdFree();
   // `useViewSizeClient`, not `useViewSize`: the latter reads matchMedia in its
   // first client render while the server renders `false`, so the dock would
   // appear during hydration and React would throw the whole root away and
@@ -38,7 +38,7 @@ export const useSponsorStrip = ({
   const isTablet = useViewSizeClient(ViewSize.Tablet);
   // A logo wall on a phone costs more feed than it can hold logos.
   const isEligible =
-    !isPlus &&
+    !isPlusAdFree &&
     !disableAds &&
     !suppressed &&
     isTablet &&

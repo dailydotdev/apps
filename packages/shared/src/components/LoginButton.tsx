@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import type { ButtonSize } from './buttons/Button';
 import { Button, ButtonVariant } from './buttons/Button';
 import { useLogContext } from '../contexts/LogContext';
 import type { LogEvent } from '../hooks/log/useLogQueue';
@@ -15,6 +16,7 @@ interface ClassName {
 
 interface LoginButtonProps {
   className?: ClassName;
+  size?: ButtonSize;
 }
 
 enum ButtonCopy {
@@ -32,6 +34,7 @@ const getLogEvent = (copy: ButtonCopy): LogEvent => ({
 
 export default function LoginButton({
   className = {},
+  size,
 }: LoginButtonProps): ReactElement {
   const { logEvent } = useLogContext();
   const { showLogin } = useAuthContext();
@@ -50,6 +53,7 @@ export default function LoginButton({
       <Button
         onClick={() => onClick(ButtonCopy.Login)}
         variant={ButtonVariant.Secondary}
+        size={size}
         className={className?.button}
       >
         {ButtonCopy.Login}
@@ -57,6 +61,7 @@ export default function LoginButton({
       <Button
         onClick={() => onClick(ButtonCopy.Signup)}
         variant={ButtonVariant.Primary}
+        size={size}
         className={className?.button}
       >
         {ButtonCopy.Signup}

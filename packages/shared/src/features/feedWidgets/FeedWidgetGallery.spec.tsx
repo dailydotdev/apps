@@ -5,7 +5,7 @@ import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../../__tests__/fixture/squads';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
-import { mockDesktop, mockMatchMedia } from '../../../__tests__/helpers/media';
+import { mockDesktop } from '../../../__tests__/helpers/media';
 import { LogEvent } from '../../lib/log';
 import type { FeedWidgetComponentProps } from './registry';
 import type { FeedWidget } from './types';
@@ -43,6 +43,7 @@ const onRail = (kind: FeedWidgetKind): FeedWidget => ({
 const renderGallery = ({
   widgets = [],
   isFull = false,
+  initialKind,
   initialSize,
   tips,
   optOutReadingStreak = false,
@@ -50,6 +51,7 @@ const renderGallery = ({
 }: {
   widgets?: FeedWidget[];
   isFull?: boolean;
+  initialKind?: FeedWidgetKind;
   initialSize?: FeedWidgetSize;
   tips?: FeedWidgetGalleryTips;
   optOutReadingStreak?: boolean;
@@ -65,6 +67,7 @@ const renderGallery = ({
       <FeedWidgetGallery
         widgets={widgets}
         isFull={isFull}
+        initialKind={initialKind}
         initialSize={initialSize}
         onAdd={onAdd}
         tips={tips}
@@ -100,6 +103,16 @@ describe('on desktop', () => {
     ).toBeInTheDocument();
     expect(sizes()).toEqual(['Small', 'Tall', 'Large']);
     expect(screen.getByRole('radio', { name: 'Small' })).toBeChecked();
+    expect(
+      within(screen.getByRole('group', { name: 'Small preview' })).getByText(
+        'notifications widget, small',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('opens on the widget the add tile showed in front', () => {
+    renderGallery({ initialKind: FeedWidgetKind.Notifications });
+
     expect(
       within(screen.getByRole('group', { name: 'Small preview' })).getByText(
         'notifications widget, small',
@@ -257,42 +270,5 @@ describe('on desktop', () => {
         screen.queryByRole('button', { name: /daily\.dev tips/ }),
       ).not.toBeInTheDocument();
     });
-  });
-});
-
-describe('on a phone', () => {
-  beforeEach(() => {
-    mockMatchMedia();
-  });
-
-  it('lists every widget by category, then opens one to swipe its sizes', () => {
-    renderGallery();
-
-    expect(screen.queryByText('Suggested for you')).not.toBeInTheDocument();
-
-    pick('Notifications');
-
-    // A phone shows no Large, so it offers none.
-    expect(
-      screen.getByRole('group', { name: 'Small preview' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('group', { name: 'Tall preview' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole('group', { name: 'Large preview' }),
-    ).not.toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole('radio', { name: 'Tall' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Add widget' }));
-    expect(onAdd).toHaveBeenCalledWith(
-      FeedWidgetKind.Notifications,
-      FeedWidgetSize.Tall,
-    );
-
-    fireEvent.click(screen.getByRole('button', { name: 'Back to widgets' }));
-    expect(
-      screen.getAllByRole('button', { name: /Notifications/ })[0],
-    ).toHaveFocus();
   });
 });

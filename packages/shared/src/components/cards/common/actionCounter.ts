@@ -8,3 +8,5 @@ export const FEED_ACTION_ICON_SIZE = IconSize.Size16;
 
 export const actionCounterClassName = 'tabular-nums typo-footnote';
 export const actionCounterLabelClassName = '!pl-0.5 pr-0.5';
+export const largeActionCounterLabelClassName =
+  '!pl-0 -ml-[0.15625rem] pr-0 !font-normal';

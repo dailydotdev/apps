@@ -12,7 +12,7 @@ import { Modal } from './common/Modal';
 import { ModalClose } from './common/ModalClose';
 import { ModalSheetTitle } from './common/ModalHeader';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { TourIcon } from '../icons';
+import { ChecklistBIcon } from '../icons/ChecklistB';
 import {
   QuestCard,
   QUEST_CLAIMED_STAMP_ANIMATION_MS,
@@ -363,7 +363,7 @@ export const IntroQuestModal = ({
       <Modal.Body className="gap-4 pb-4 tablet:p-6">
         <div className="flex items-start gap-3 border-b border-border-subtlest-tertiary pb-4">
           <div className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-surface-float text-text-primary">
-            <TourIcon />
+            <ChecklistBIcon />
           </div>
           <div className="min-w-0 flex-1 pr-8">
             <h1 className="hidden font-bold text-text-primary typo-title3 tablet:block">

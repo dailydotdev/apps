@@ -93,7 +93,7 @@ export default function NewStreakModal({
             }
             className={classNames(
               'h-[10rem] text-accent-bacon-default',
-              shouldShowSplash ? 'ml-2 w-[15rem]' : 'w-[10rem] ',
+              shouldShowSplash ? 'ml-2 w-[15rem]' : 'w-[10rem]',
             )}
           />
           <strong className="absolute typo-tera">{currentStreak}</strong>

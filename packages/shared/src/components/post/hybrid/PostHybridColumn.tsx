@@ -59,6 +59,7 @@ import { PostSignupWidget } from '../PostSignupWidget';
 import { useHasPostCapsule } from '../PostCapsule';
 import { PostAnsweredQuestions } from '../PostAnsweredQuestions';
 import { PostExcoPlayerWidget } from '../PostExcoPlayerWidget';
+import { PostLiveChat } from '../../../features/liveChat/components/PostLiveChat';
 import { PostClickbaitShield } from '../common/PostClickbaitShield';
 import { CollectionSourceStack } from '../collection/CollectionSourceStack';
 import { CollectionSubscribeButton } from '../collection/CollectionSubscribeButton';
@@ -121,8 +122,6 @@ export interface PostHybridColumnProps {
   isModal?: boolean;
   onClose?: () => void;
   shouldOnboardAuthor?: boolean;
-  /** After the comments: the post page feed, page only. */
-  belowComments?: ReactNode;
   onReadArticle: () => void;
   onCopyPostLink: () => void;
 }
@@ -160,7 +159,6 @@ export function PostHybridColumn({
   isModal = false,
   onClose,
   shouldOnboardAuthor,
-  belowComments,
   onReadArticle,
   onCopyPostLink,
 }: PostHybridColumnProps): ReactElement {
@@ -171,6 +169,8 @@ export function PostHybridColumn({
   const isCollection = article.type === PostType.Collection;
   const isPoll = post.type === PostType.Poll;
   const isXPost = post.type === PostType.SocialTwitter;
+  const hasLiveChat =
+    post.type === PostType.Article || post.type === PostType.VideoYouTube;
   const isXThread = isXPost && post.subType === 'thread';
   const isUnavailableShare =
     isShared &&
@@ -678,6 +678,10 @@ export function PostHybridColumn({
 
       {showCodeSnippets && <PostCodeSnippets post={article} />}
 
+      {hasLiveChat && (
+        <PostLiveChat post={post} origin={origin} placement="inline" />
+      )}
+
       <PostSignupWidget post={article} inline />
 
       {communitySentimentData && (
@@ -692,6 +696,7 @@ export function PostHybridColumn({
         shouldOnboardAuthor={shouldOnboardAuthor}
         onCopyLinkClick={onCopyPostLink}
         actionsClassName={hasCapsule ? 'hidden tablet:flex' : undefined}
+        isPostPage={!isModal}
         hideInternalAd={!!ads?.commentAds}
         interleaveEvery={ads?.commentAds?.interleaveEvery}
         renderInterleaved={ads?.commentAds?.renderInterleaved}
@@ -702,7 +707,14 @@ export function PostHybridColumn({
           </>
         }
       />
-      {belowComments}
+      {hasLiveChat && (
+        <PostLiveChat
+          post={post}
+          origin={origin}
+          placement="mobile"
+          isPostPage={!isModal}
+        />
+      )}
     </div>
   );
 }

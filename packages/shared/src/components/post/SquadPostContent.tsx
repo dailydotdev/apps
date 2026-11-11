@@ -31,6 +31,7 @@ import {
   mapCommunitySentimentPost,
 } from './focus/CommunitySentiment';
 import { SelectionSnapshotBar } from '../../features/snapshot/SelectionSnapshotBar';
+import { Origin } from '../../lib/log';
 
 // The three bodies share one call site, so they share one props shape; each
 // takes the subset it needs.
@@ -81,7 +82,6 @@ export function SquadPostContentRaw({
   onClose,
   isBannerVisible,
   isPostPage,
-  belowComments,
   shouldTrackView,
 }: SquadPostContentRawProps): ReactElement {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -161,7 +161,7 @@ export function SquadPostContentRaw({
       <div
         ref={contentRef}
         className={classNames(
-          'relative flex min-w-0 flex-1 flex-col px-4 tablet:px-6 laptop:px-8 laptop:pt-6',
+          'relative flex min-w-0 flex-1 flex-col px-4 pt-6 tablet:px-6 tablet:pt-0 laptop:px-8 laptop:pt-6',
           className?.content,
         )}
       >
@@ -179,13 +179,13 @@ export function SquadPostContentRaw({
             },
           }}
           isPostPage={isPostPage}
-          belowComments={belowComments}
           isFallback={isFallback}
           customNavigation={customNavigation}
           shouldOnboardAuthor={shouldOnboardAuthor}
           navigationProps={navigationProps}
           engagementProps={engagementActions}
           origin={origin}
+          boostOrigin={shouldShowBanner ? Origin.NewPostBoostStrip : undefined}
           post={post}
         >
           {shouldShowBanner && !isLaptop && (

@@ -115,6 +115,8 @@ const noClusterPrefixes = [
   '/posts/[id]/edit',
   '/lfg/new',
   '/lfg/[id]/edit',
+  // A live chat's composer takes the bar's place, like a message thread.
+  '/chat',
   // A job page ends in its own fixed call to action.
   '/jobs/[id]',
 ];
@@ -325,6 +327,12 @@ export const goBackPast = (
   }
   fallback();
   return null;
+};
+
+// The page the current one was opened from, as this tab's stack recorded it.
+export const previousShellPath = (): string | undefined => {
+  const { routes, pointer } = readStack();
+  return routes[pointer - 1]?.path;
 };
 
 export const isFeedEditPath = (pathname: string): boolean => {

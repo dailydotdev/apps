@@ -6,7 +6,7 @@ const createTouchEvent = (x = 0, y = 0): TouchEvent<Element> =>
   ({
     currentTarget: document.createElement('div'),
     touches: [{ clientX: x, clientY: y }],
-  } as unknown as TouchEvent<Element>);
+  }) as unknown as TouchEvent<Element>;
 
 describe('useTouchLongPress', () => {
   beforeEach(() => {

@@ -1,4 +1,9 @@
-import { isMutingDigestCompletely, NotificationType } from './utils';
+import {
+  getNotificationCategory,
+  isMutingDigestCompletely,
+  NotificationFilterCategory,
+  NotificationType,
+} from './utils';
 import type { NotificationSettings } from './utils';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
 
@@ -119,5 +124,17 @@ describe('isMutingDigestCompletely', () => {
 
       expect(isMutingDigestCompletely(ns, 'inApp')).toBe(false);
     });
+  });
+});
+
+describe('weekly picks ready notification', () => {
+  it('should use the backend type string', () => {
+    expect(NotificationType.WeeklyPicksReady).toBe('weekly_picks_ready');
+  });
+
+  it('should be listed under updates in the notification filters', () => {
+    expect(getNotificationCategory(NotificationType.WeeklyPicksReady)).toBe(
+      NotificationFilterCategory.Updates,
+    );
   });
 });

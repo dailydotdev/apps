@@ -2,8 +2,10 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { SearchSuggestion } from '../../../graphql/search';
 import {
+  matchesSearchProvider,
   SearchProviderEnum,
   searchPageResultsLimit,
+  searchSuggestionsProvider,
 } from '../../../graphql/search';
 import { useSearchProviderSuggestions } from '../../../hooks/search/useSearchProviderSuggestions';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -22,8 +24,10 @@ import { SearchResultsSourceList } from './SearchResultsSources';
 import { SearchResultsUserList } from './SearchResultsUsers';
 
 const emptyDescription: Partial<Record<SearchProviderEnum, string>> = {
+  [SearchProviderEnum.Squads]:
+    'We couldn’t find any squads matching your search. Try different keywords.',
   [SearchProviderEnum.Sources]:
-    'We couldn’t find any squads or sources matching your search. Try different keywords.',
+    'We couldn’t find any sources matching your search. Try different keywords.',
   [SearchProviderEnum.Users]:
     'We couldn’t find any people matching your search. Try different keywords.',
   [SearchProviderEnum.Tags]:
@@ -75,12 +79,14 @@ export const SearchProviderResults = ({
   const { logEvent } = useLogContext();
   const { isLoading, isError, refetch, suggestions, searchId, searchVersion } =
     useSearchProviderSuggestions({
-      provider,
+      provider: searchSuggestionsProvider(provider),
       query,
       limit: searchPageResultsLimit,
       includeContentPreference: provider === SearchProviderEnum.Users,
     });
-  const items = suggestions?.hits ?? [];
+  const items = (suggestions?.hits ?? []).filter((hit) =>
+    matchesSearchProvider(provider, hit),
+  );
 
   const logClick = (
     targetId: string | undefined,
@@ -130,7 +136,8 @@ export const SearchProviderResults = ({
 
   return (
     <section className="mx-auto flex w-full max-w-[42.5rem] flex-col px-4 py-4">
-      {provider === SearchProviderEnum.Sources && (
+      {(provider === SearchProviderEnum.Squads ||
+        provider === SearchProviderEnum.Sources) && (
         <SearchResultsSourceList
           items={items}
           onSourceClick={(source) =>

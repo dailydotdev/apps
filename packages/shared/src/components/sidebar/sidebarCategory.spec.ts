@@ -28,12 +28,15 @@ describe('getSidebarCategoryForPath', () => {
     );
   });
 
-  it('keeps the messages inbox on the Notifications category', () => {
+  it('maps the messages inbox and Looking for group to Messages', () => {
     expect(getSidebarCategoryForPath('/messages')).toBe(
-      SidebarCategory.Notifications,
+      SidebarCategory.Messages,
     );
     expect(getSidebarCategoryForPath('/messages/peer-id?tab=requests')).toBe(
-      SidebarCategory.Notifications,
+      SidebarCategory.Messages,
+    );
+    expect(getSidebarCategoryForPath('/lfg/post-id')).toBe(
+      SidebarCategory.Messages,
     );
   });
 

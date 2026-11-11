@@ -34,9 +34,12 @@ import {
 import { isValidSquadLink } from '../../lib/links';
 import { SQUAD_LINK_MAX_LENGTH } from '../../lib/limits';
 import { SquadManageSection } from '../../lib/routes';
+import { hasSquadFeature } from '../../lib/features';
+import { SquadEnterpriseGate } from './SquadEnterpriseGate';
 import {
   SquadManageSaveButton,
   SquadManageSectionPanel,
+  useSquadManageEmbed,
 } from './SquadManageLayout';
 
 const formId = 'squad-manage-branding';
@@ -85,10 +88,12 @@ const BrandPreview = ({
   color,
   label,
   isButtonOn,
+  canSetColor,
 }: {
   color: string | null;
   label: string;
   isButtonOn: boolean;
+  canSetColor: boolean;
 }): ReactElement => (
   <figure className="flex w-full max-w-sm flex-col gap-2">
     <div
@@ -125,7 +130,9 @@ const BrandPreview = ({
       </div>
     </div>
     <figcaption className="text-text-quaternary typo-caption1">
-      Sketch of your header: the gradient and the button take your color.
+      {canSetColor
+        ? 'Sketch of your header: the gradient and the button take your color.'
+        : 'Sketch of your header: the button shows once someone joins.'}
     </figcaption>
   </figure>
 );
@@ -255,19 +262,21 @@ const SquadManageBrandingForm = ({
   branding?: SquadBranding;
 }): ReactElement => {
   const { squad } = useSquadPageContext();
+  const canSetColor = hasSquadFeature(squad, 'verified');
   const {
     mutate: onSave,
     isPending,
     data: saved,
   } = useUpdateSquadBranding(squad);
   const { displayToast } = useToastNotification();
+  const embed = useSquadManageEmbed();
   const [color, setColor] = useState(branding?.color ?? '');
   const [isButtonOn, setIsButtonOn] = useState(!!branding?.button?.enabled);
   const [label, setLabel] = useState(
     branding?.button?.label ?? squadButtonPresets[0],
   );
   const [url, setUrl] = useState(branding?.button?.url ?? squad.website ?? '');
-  const isColorValid = !color || isHexColor(color);
+  const isColorValid = !canSetColor || !color || isHexColor(color);
   // The link only matters while the button is on: a hidden field must never
   // block Save.
   const isUrlValid = !isButtonOn || isValidSquadLink(url);
@@ -288,12 +297,15 @@ const SquadManageBrandingForm = ({
     // Turned off: keep the saved button so turning it back on restores it
     const kept = draft ?? branding?.button ?? null;
 
-    onSave({
-      color: color ? color.toUpperCase() : null,
-      button: isButtonOn
-        ? { ...(draft as { label: string; url: string }), enabled: true }
-        : kept && { label: kept.label, url: kept.url, enabled: false },
-    });
+    onSave(
+      {
+        color: canSetColor && color ? color.toUpperCase() : null,
+        button: isButtonOn
+          ? { ...(draft as { label: string; url: string }), enabled: true }
+          : kept && { label: kept.label, url: kept.url, enabled: false },
+      },
+      { onSuccess: () => embed?.onSaved() },
+    );
   };
 
   return (
@@ -314,11 +326,19 @@ const SquadManageBrandingForm = ({
         className="flex flex-col gap-6 px-4 py-6 tablet:px-6"
       >
         <BrandPreview
-          color={isHexColor(color) ? color : null}
+          color={canSetColor && isHexColor(color) ? color : null}
           label={label}
           isButtonOn={isButtonOn}
+          canSetColor={canSetColor}
         />
-        <ColourField color={color} onChange={setColor} />
+        {canSetColor ? (
+          <ColourField color={color} onChange={setColor} />
+        ) : (
+          <SquadEnterpriseGate
+            title="Brand color"
+            description="Color your header gradient and header button with your brand."
+          />
+        )}
         <HorizontalSeparator />
         <div className="flex flex-col gap-4">
           <div className="flex items-start justify-between gap-4">

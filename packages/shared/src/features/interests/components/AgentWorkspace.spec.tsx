@@ -458,7 +458,7 @@ describe('AgentWorkspace history window', () => {
       trigger: 'scheduled',
       findingsAdded: 1,
       blocks: [{ type: 'text', html: `<p>Findings from ${id}.</p>` }],
-    } as InterestTurn);
+    }) as InterestTurn;
 
   const renderLive = ({
     turns = [] as InterestTurn[],

@@ -35,7 +35,7 @@ import type { Shortcut, ShortcutsAppearance } from '../types';
 const pixelRatio =
   typeof globalThis?.window === 'undefined'
     ? 1
-    : globalThis.window.devicePixelRatio ?? 1;
+    : (globalThis.window.devicePixelRatio ?? 1);
 const getIconSize = (isLarge: boolean): number =>
   Math.round((isLarge ? 36 : 24) * pixelRatio);
 

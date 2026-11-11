@@ -25,6 +25,22 @@ jest.mock('next/router', () => ({
 
 let mockTopicSignupEvaluated = false;
 
+// The template units sit behind the read_ads kill switch, off while no ad
+// tag fills the slots.
+jest.mock('@dailydotdev/shared/src/components/GrowthBookProvider', () => {
+  const actual = jest.requireActual(
+    '@dailydotdev/shared/src/components/GrowthBookProvider',
+  );
+
+  return {
+    ...actual,
+    useFeature: (feature: { id: string }) => {
+      const value = actual.useFeature(feature);
+      return feature.id === 'read_ads' ? true : value;
+    },
+  };
+});
+
 jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
   __esModule: true,
   useConditionalFeature: (args: {
@@ -90,7 +106,7 @@ beforeEach(() => {
         query: { id: postId },
         events: { on: jest.fn(), off: jest.fn(), emit: jest.fn() },
         beforePopState: jest.fn(),
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
 });
 
@@ -147,7 +163,7 @@ describe('ReadPostPage', () => {
     const range = document.createRange();
     range.selectNodeContents(body);
     range.getBoundingClientRect = () =>
-      ({ top: 400, bottom: 440, left: 100, width: 300 } as DOMRect);
+      ({ top: 400, bottom: 440, left: 100, width: 300 }) as DOMRect;
     const selection = window.getSelection()!;
     selection.removeAllRanges();
     selection.addRange(range);

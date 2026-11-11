@@ -3,6 +3,7 @@ import { gqlClient } from './common';
 import type { Squad } from './sources';
 import type { LoggedUser } from '../lib/user';
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
+import { canSetSquadButton } from '../features/squads/lib/features';
 
 // A verified squad's branding: a brand colour and a header button, set by its
 // admins in Manage › Branding. The API returns it empty for any other squad.
@@ -61,7 +62,7 @@ export const squadBrandingQueryOptions = ({
 
     return res.source.branding;
   },
-  enabled: !!squad?.handle && !!squad?.features?.verified,
+  enabled: !!squad?.handle && canSetSquadButton(squad),
   staleTime: StaleTime.Default,
   retry: false,
 });

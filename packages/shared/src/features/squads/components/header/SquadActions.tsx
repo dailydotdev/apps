@@ -37,7 +37,7 @@ import { useLogContext } from '../../../../contexts/LogContext';
 import type { SquadBrandingButton } from '../../../../graphql/squadBranding';
 import { useSquadBranding } from '../../hooks/useSquadBranding';
 import { getBrandButtonStyle, getBrandColor } from '../../lib/branding';
-import { hasSquadFeature } from '../../lib/features';
+import { canSetSquadButton } from '../../lib/features';
 import { squadLinkRel } from '../../lib/links';
 import { useMobileAppHeader } from '../../../getApp/hooks/useMobileAppHeader';
 import { ShellSquare } from '../../../../components/shell/ShellSquare';
@@ -122,7 +122,7 @@ const SquadJoinButton = ({
   if (
     !isPreviewing &&
     isJoinedViewer(viewer) &&
-    hasSquadFeature(squad, 'verified') &&
+    canSetSquadButton(squad) &&
     headerButton?.enabled &&
     headerButton.label &&
     headerButton.url

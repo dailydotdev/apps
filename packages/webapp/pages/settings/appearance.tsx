@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import dynamic from 'next/dynamic';
@@ -17,9 +17,12 @@ import { useLegacyPostLayoutOptOut } from '@dailydotdev/shared/src/components/po
 import { useEnableReaderInside } from '@dailydotdev/shared/src/components/post/reader/hooks/useEnableReaderInside';
 import {
   Typography,
+  TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { ToggleRadio } from '@dailydotdev/shared/src/components/fields/ToggleRadio';
+import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
+import type { RadioItemProps } from '@dailydotdev/shared/src/components/fields/RadioItem';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import {
   LogEvent,
@@ -28,6 +31,8 @@ import {
 } from '@dailydotdev/shared/src/lib/log';
 import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import { iOSSupportsAppIconChange } from '@dailydotdev/shared/src/lib/ios';
+import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
+import { supportsReading } from '@dailydotdev/shared/src/components/shell/readingStore';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo, noindexSeoProps } from '../../next-seo';
@@ -42,11 +47,57 @@ const IOSIconPicker = dynamic(
   { ssr: false },
 );
 
+enum OpenLinksIn {
+  App = 'app',
+  Browser = 'browser',
+  NewTab = 'new-tab',
+  SameTab = 'same-tab',
+}
+
+// The notifications page's list: the label and its line of help on the
+// left, the radio on the right.
+const openLinksInClassName = {
+  label: 'w-[calc(100%-2.4rem)]',
+  content: 'w-full !pr-0',
+  container: 'gap-4',
+};
+
+const OpenLinksInLabel = ({
+  label,
+  help,
+}: {
+  label: string;
+  help: string;
+}): ReactElement => (
+  <>
+    <Typography
+      bold
+      type={TypographyType.Callout}
+      color={TypographyColor.Primary}
+    >
+      {label}
+    </Typography>
+    <Typography
+      type={TypographyType.Footnote}
+      color={TypographyColor.Tertiary}
+      className="text-wrap font-normal"
+    >
+      {help}
+    </Typography>
+  </>
+);
+
 const AccountManageSubscriptionPage = (): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { logEvent } = useLogContext();
   const supportsAppIconChange =
     typeof window !== 'undefined' && iOSSupportsAppIconChange();
+  // Known after mount: the bridge exists only on the client, and the rows
+  // it picks must match what the server drew.
+  const [canReadInApp, setCanReadInApp] = useState<boolean>();
+  useEffect(() => {
+    setCanReadInApp(supportsReading());
+  }, []);
 
   const {
     openNewTab,
@@ -70,6 +121,69 @@ const AccountManageSubscriptionPage = (): ReactElement => {
   const showReaderToggle = isReaderEligible;
   const { value: isHighlightCardsOptedOut, toggle: toggleHighlightCards } =
     useSettingsBooleanFlag('highlightCardsOptOut');
+  const { value: isOpenLinksInAppOptedOut, set: setOpenLinksInAppOptOut } =
+    useSettingsBooleanFlag('openLinksInAppOptOut');
+  const isIos = canReadInApp && isIOSNative();
+  const openLinksInOptions: RadioItemProps<OpenLinksIn>[] = canReadInApp
+    ? [
+        {
+          value: OpenLinksIn.App,
+          label: (
+            <OpenLinksInLabel
+              label="In daily.dev"
+              help="The page opens over the post. Upvote, comment and save stay one pull away."
+            />
+          ),
+        },
+        {
+          value: OpenLinksIn.Browser,
+          label: (
+            <OpenLinksInLabel
+              label="In your browser"
+              help={
+                isIos
+                  ? 'Every link leaves the app for your browser. The daily.dev link at the top left brings you back.'
+                  : 'Every link leaves the app for your browser.'
+              }
+            />
+          ),
+        },
+      ]
+    : [
+        {
+          value: OpenLinksIn.NewTab,
+          label: (
+            <OpenLinksInLabel
+              label="A new tab"
+              help="The post stays open in this tab."
+            />
+          ),
+        },
+        {
+          value: OpenLinksIn.SameTab,
+          label: (
+            <OpenLinksInLabel
+              label="This tab"
+              help="Back returns you to the post."
+            />
+          ),
+        },
+      ];
+  const openLinksIn = (() => {
+    if (canReadInApp) {
+      return isOpenLinksInAppOptedOut ? OpenLinksIn.Browser : OpenLinksIn.App;
+    }
+    return openNewTab ? OpenLinksIn.NewTab : OpenLinksIn.SameTab;
+  })();
+  const onOpenLinksIn = (value: OpenLinksIn) => {
+    if (canReadInApp) {
+      setOpenLinksInAppOptOut(value === OpenLinksIn.Browser);
+      return;
+    }
+    if ((value === OpenLinksIn.NewTab) !== openNewTab) {
+      toggleOpenNewTab();
+    }
+  };
   const { value: isFeedWidgetsOptedOut, toggle: toggleFeedWidgets } =
     useSettingsBooleanFlag('feedWidgetsOptOut');
   // Only readers who have met the rail, so opening this page is no exposure.
@@ -154,14 +268,6 @@ const AccountManageSubscriptionPage = (): ReactElement => {
           </SettingsSwitch>
 
           <SettingsSwitch
-            name="new-tab"
-            checked={openNewTab}
-            onToggle={toggleOpenNewTab}
-          >
-            Open links in new tab
-          </SettingsSwitch>
-
-          <SettingsSwitch
             name="hide-companion"
             checked={!optOutCompanion}
             onToggle={toggleOptOutCompanion}
@@ -218,6 +324,31 @@ const AccountManageSubscriptionPage = (): ReactElement => {
           >
             Auto-hide notifications after a few seconds
           </SettingsSwitch>
+        </FlexCol>
+
+        <FlexCol className="gap-5">
+          <Typography bold type={TypographyType.Subhead}>
+            Reading
+          </Typography>
+
+          <FlexCol className="gap-3">
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
+            >
+              Open links in
+            </Typography>
+            {canReadInApp !== undefined && (
+              <Radio<OpenLinksIn>
+                name="open-links-in"
+                reverse
+                className={openLinksInClassName}
+                options={openLinksInOptions}
+                value={openLinksIn}
+                onChange={onOpenLinksIn}
+              />
+            )}
+          </FlexCol>
         </FlexCol>
       </FlexCol>
     </AccountPageContainer>

@@ -9,6 +9,7 @@ export interface PostOptionGroups {
 
 const primaryOrder = [
   'share',
+  'explain',
   'follow-source',
   'follow-author',
   'later',
@@ -26,8 +27,9 @@ const ownerOrder = ['edit', 'delete', 'analytics', 'boost', 'pin'];
 const sortBy = (ids: string[]) => (a: MenuItemProps, b: MenuItemProps) =>
   ids.indexOf(a.id ?? '') - ids.indexOf(b.id ?? '');
 
-// The phone's post menu: the first level is Share, the follows (source and
-// author, so following is never behind More), Read it later, Hide, Not
+// The phone's post menu: the first level is Share, Why am I seeing this? (on
+// For You only), the follows (source and author, so following is never
+// behind More), Read it later, Hide, Not
 // interested and Report, then the owner's rows, then More for everything
 // else; Not interested gathers every other way of seeing less of this.
 // When the menu has owner or moderation rows (your own post, or a squad

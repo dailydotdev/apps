@@ -30,22 +30,22 @@ import {
 } from '@dailydotdev/shared/src/graphql/creatorAnalytics';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
-import ProtectedPage from '../../components/ProtectedPage';
-import { getLayout } from '../../components/layouts/MainLayout';
-import { AnalyticsEmptyState } from '../../components/analytics/AnalyticsEmptyState';
-import { CreatorPeriodSelect } from '../../components/analytics/creator/CreatorPeriodSelect';
+import { CreatorPeriodSelect } from '@dailydotdev/shared/src/components/analytics/creator/CreatorPeriodSelect';
 import {
   CreatorOverviewSection,
   CreatorOverviewSkeleton,
-} from '../../components/analytics/creator/CreatorOverviewSection';
+} from '@dailydotdev/shared/src/components/analytics/creator/CreatorOverviewSection';
 import {
   CreatorImpressionsSection,
   CreatorImpressionsSkeleton,
-} from '../../components/analytics/creator/CreatorImpressionsSection';
-import type { CreatorPostSort } from '../../components/analytics/creator/CreatorPostPerformanceTable';
-import { CreatorPostPerformanceTable } from '../../components/analytics/creator/CreatorPostPerformanceTable';
+} from '@dailydotdev/shared/src/components/analytics/creator/CreatorImpressionsSection';
+import type { CreatorPostSort } from '@dailydotdev/shared/src/components/analytics/creator/CreatorPostPerformanceTable';
+import { CreatorPostPerformanceTable } from '@dailydotdev/shared/src/components/analytics/creator/CreatorPostPerformanceTable';
+import { CreatorDashboardError } from '@dailydotdev/shared/src/components/analytics/creator/CreatorDashboardError';
+import { getLayout } from '../../components/layouts/MainLayout';
+import { AnalyticsEmptyState } from '../../components/analytics/AnalyticsEmptyState';
 import { CreatorAchievementsSection } from '../../components/analytics/creator/CreatorAchievementsSection';
-import { CreatorDashboardError } from '../../components/analytics/creator/CreatorDashboardError';
+import ProtectedPage from '../../components/ProtectedPage';
 
 const dividerClassName = 'bg-border-subtlest-tertiary';
 const SectionContainer = classed('div', 'flex flex-col gap-4');

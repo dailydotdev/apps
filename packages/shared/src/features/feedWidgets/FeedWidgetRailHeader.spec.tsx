@@ -37,19 +37,15 @@ const introQuests = (statuses: QuestStatus[]) => ({
 
 const renderHeader = ({
   isEditing = false,
-  isPhone = false,
   user = loggedUser,
 }: {
   isEditing?: boolean;
-  isPhone?: boolean;
   user?: LoggedUser;
 } = {}) =>
   render(
     <TestBootProvider client={new QueryClient()} auth={{ user }}>
       <FeedWidgetRailHeader
         isEditing={isEditing}
-        isPhone={isPhone}
-        showArrows={!isPhone}
         edges={{ start: false, end: true }}
         onScroll={jest.fn()}
         onToggleEditing={jest.fn()}
@@ -65,7 +61,7 @@ beforeEach(() => {
   jest
     .mocked(useRouter)
     .mockImplementation(
-      () => ({ pathname: '/', query: {}, route: '/' } as unknown as NextRouter),
+      () => ({ pathname: '/', query: {}, route: '/' }) as unknown as NextRouter,
     );
   jest
     .mocked(useQuestDashboard)
@@ -92,6 +88,25 @@ describe('FeedWidgetRailHeader', () => {
       // eslint-disable-next-line no-bitwise
       gear.compareDocumentPosition(left) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
+  });
+
+  it('keeps New post the one filled button, the rest Tertiary Small', () => {
+    renderHeader();
+
+    expect(screen.getByRole('link', { name: 'New post' })).toHaveClass(
+      'btn-primary',
+    );
+    const plus = screen.getByRole('link', { name: 'Get Plus' });
+    expect(plus).toHaveClass('btn-tertiary', 'h-8');
+    expect(plus).not.toHaveClass('btn-primary-bacon');
+    expect(plus.querySelector('svg')).toHaveClass('text-accent-bacon-default');
+    expect(
+      screen.getByRole('button', { name: /Open introduction quests/ }),
+    ).toHaveClass('btn-tertiary', 'h-8');
+    expect(screen.getByTestId('attention-dot')).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('intro-quest-attention-badge'),
+    ).not.toBeInTheDocument();
   });
 
   it('names Getting started where the row has room', () => {
@@ -133,6 +148,7 @@ describe('FeedWidgetRailHeader', () => {
     expect(screen.getByRole('link', { name: 'Get Plus' })).toBeInTheDocument();
     expect(screen.queryByText('Get Plus')).not.toBeInTheDocument();
     expect(screen.queryByText('New post')).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'New post' })).toBeInTheDocument();
   });
 
   it('steps the page’s actions aside in edit mode', () => {
@@ -156,26 +172,14 @@ describe('FeedWidgetRailHeader', () => {
     expect(
       screen.getByRole('button', { name: 'New widget' }),
     ).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Done' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'New widget' })).toHaveClass(
+      'btn-tertiary',
+    );
+    expect(screen.getByRole('button', { name: 'Done' })).toHaveClass(
+      'btn-primary',
+    );
     expect(
       screen.getByRole('button', { name: 'Scroll widgets right' }),
     ).toBeInTheDocument();
-  });
-
-  it('keeps phones to the greeting and the gear', () => {
-    renderHeader({ isPhone: true });
-
-    expect(
-      screen.getByRole('button', { name: 'Customize widgets' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole('link', { name: 'New post' }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('link', { name: 'Get Plus' }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Scroll widgets left' }),
-    ).not.toBeInTheDocument();
   });
 });

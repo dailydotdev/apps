@@ -22,7 +22,7 @@ jest.mock('next/router', () => ({
         isFallback: false,
         pathname: '/tools/[slug]',
         query: { slug: 'docker' },
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   ),
 }));
 

@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useInView } from 'react-intersection-observer';
 import type {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -56,6 +57,7 @@ import {
 } from '@dailydotdev/shared/src/lib/constants';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import useLogEventOnce from '@dailydotdev/shared/src/hooks/log/useLogEventOnce';
 import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
@@ -121,23 +123,47 @@ const PluginPage = ({
     enabled: isConnectionQueryEnabled,
   });
   const showConnectAgent =
-    !user ||
-    (isTokensLoaded && isConsentsLoaded && !tokens.length && !consents.length);
+    !!user &&
+    isTokensLoaded &&
+    isConsentsLoaded &&
+    !tokens.length &&
+    !consents.length;
   const { logEvent } = useLogContext();
   const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
   useTrackQuestClientEvent({
     eventType: ClientQuestEventType.VisitMarketplace,
   });
+  const isAuthor = !!plugin && user?.id === plugin.author.id;
+  const showShareNudge =
+    isAuthor &&
+    isActionsFetched &&
+    !checkHasCompleted(ActionType.DismissPluginShareTooltip);
+  const { ref: agentPromptRef, inView: isAgentPromptInView } = useInView({
+    threshold: 0.5,
+  });
+  useLogEventOnce(
+    () => ({
+      event_name: LogEvent.ImpressionPluginAgentPrompt,
+      target_type: TargetType.Plugin,
+      target_id: plugin?.id,
+      extra: JSON.stringify({ origin: Origin.PluginPage }),
+    }),
+    { condition: isAgentPromptInView },
+  );
+  useLogEventOnce(
+    () => ({
+      event_name: LogEvent.ImpressionPluginShareNudge,
+      target_type: TargetType.Plugin,
+      target_id: plugin?.id,
+      extra: JSON.stringify({ origin: Origin.PluginPage }),
+    }),
+    { condition: showShareNudge },
+  );
 
   if (isFallback || !plugin) {
     return <></>;
   }
 
-  const isAuthor = user?.id === plugin.author.id;
-  const showShareNudge =
-    isAuthor &&
-    isActionsFetched &&
-    !checkHasCompleted(ActionType.DismissPluginShareTooltip);
   const dismissShareNudge = () => {
     if (showShareNudge) {
       completeAction(ActionType.DismissPluginShareTooltip);
@@ -303,17 +329,48 @@ const PluginPage = ({
         </div>
       </div>
       {agentPrompt && (
-        <div className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-4">
+        <div
+          ref={agentPromptRef}
+          className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-4"
+        >
           <Typography type={TypographyType.Callout} bold>
             Use it with your agent
           </Typography>
-          {showConnectAgent ? (
-            <>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Paste this into Claude Code, Cursor, Codex or any agent that has
+            your daily.dev API token or is connected to the{' '}
+            <a
+              href={mcpServerDocs}
+              className="text-text-link hover:underline"
+              target="_blank"
+              rel={anchorDefaultRel}
+            >
+              daily.dev MCP server
+            </a>
+            .
+          </Typography>
+          <CopyableCodeBlock
+            text={agentPrompt}
+            multiline
+            codeClassName="typo-footnote"
+            onCopy={() => {
+              copyAgentPrompt();
+              logPluginEvent(LogEvent.CopyPluginAgentPrompt);
+            }}
+          />
+          {showConnectAgent && (
+            <div className="mt-2 flex flex-col gap-2 border-t border-border-subtlest-tertiary pt-3">
+              <Typography type={TypographyType.Callout} bold>
+                Agent not connected yet?
+              </Typography>
               <Typography
                 type={TypographyType.Callout}
                 color={TypographyColor.Tertiary}
               >
-                First, connect your agent to daily.dev. In Claude Code, run:
+                In Claude Code, run this once:
               </Typography>
               <CopyableCodeBlock
                 text={mcpClaudeInstallCommand}
@@ -345,36 +402,10 @@ const PluginPage = ({
                 >
                   create an API token
                 </a>
-                . Then paste this prompt:
+                .
               </Typography>
-            </>
-          ) : (
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Tertiary}
-            >
-              Paste this into Claude Code, Cursor, Codex or any agent that has
-              your daily.dev API token or is connected to the{' '}
-              <a
-                href={mcpServerDocs}
-                className="text-text-link hover:underline"
-                target="_blank"
-                rel={anchorDefaultRel}
-              >
-                daily.dev MCP server
-              </a>
-              .
-            </Typography>
+            </div>
           )}
-          <CopyableCodeBlock
-            text={agentPrompt}
-            multiline
-            codeClassName="typo-footnote"
-            onCopy={() => {
-              copyAgentPrompt();
-              logPluginEvent(LogEvent.CopyPluginAgentPrompt);
-            }}
-          />
         </div>
       )}
       {plugin.about && (

@@ -51,6 +51,7 @@ export enum LazyModal {
   BookmarkReminder = 'bookmarkReminder',
   SlackIntegration = 'slackIntegration',
   SlackShare = 'slackShare',
+  SharePicks = 'sharePicks',
   ReportSource = 'reportSource',
   UserFollowersModal = 'userFollowersModal',
   UserFollowingModal = 'userFollowingModal',
@@ -112,6 +113,7 @@ export enum LazyModal {
   AgentIntro = 'agentIntro',
   LfgReachOut = 'lfgReachOut',
   LfgHelper = 'lfgHelper',
+  FeedExplanation = 'feedExplanation',
 }
 
 export type ModalTabItem = {

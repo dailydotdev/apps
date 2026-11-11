@@ -22,7 +22,6 @@ import {
   HelpIcon,
   InviteIcon,
   JoystickIcon,
-  MailIcon,
   PhoneIcon,
   PrivacyIcon,
   ReputationIcon,
@@ -32,7 +31,6 @@ import {
 } from '../icons';
 import { AppIcon } from '../icons/App';
 import { CoreIcon } from '../icons/Core';
-import { SignalIcon } from '../icons/Signal';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { useActions } from '../../hooks/useActions';
 import { useLogContext } from '../../contexts/LogContext';
@@ -65,10 +63,6 @@ import { useUserFollowStats } from '../../hooks/profile/useUserFollowStats';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { PlusUser } from '../PlusUser';
-import { useMessagesEnabled } from '../../features/messages/hooks/useMessagesEnabled';
-import { DmOrigin, getMessagesUrl } from '../../features/messages/urls';
-import { useLfgEnabled } from '../../features/lfg/hooks/useLfgEnabled';
-import { getLfgUrl } from '../../features/lfg/lib/format';
 import { ShellPage } from './ShellPageContext';
 import { ShellSquare } from './ShellSquare';
 import { ElementPlaceholder } from '../ElementPlaceholder';
@@ -253,8 +247,6 @@ export function YouPage(): ReactElement | null {
   const isPhoneBrowser = usePhoneBrowser();
   const { isQuestExperienceEnabled } = useSettingsContext();
   const plusRow = usePlusRow();
-  const { isEnabled: showMessages } = useMessagesEnabled();
-  const { isEnabled: showLfg } = useLfgEnabled();
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const { logEvent } = useLogContext();
   const showMarketplaceDot =
@@ -411,20 +403,6 @@ export function YouPage(): ReactElement | null {
           href={profileUrl}
           disabled={!profileUrl}
         />
-        {showMessages && (
-          <YouRow
-            icon={MailIcon}
-            label="Messages"
-            href={getMessagesUrl(undefined, { origin: DmOrigin.YouPage })}
-          />
-        )}
-        {showLfg && (
-          <YouRow
-            icon={SignalIcon}
-            label="Looking for group"
-            href={getLfgUrl()}
-          />
-        )}
         <YouRow
           icon={DevPlusIcon}
           label={plusRow.label}

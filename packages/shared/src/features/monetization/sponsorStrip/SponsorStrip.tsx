@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { GOLD_HEIGHT, WALL_HEIGHT, WALL_MAX_WIDTH } from './sponsorLogoSizing';
 import { SponsorLogo } from './SponsorLogo';
@@ -9,7 +9,13 @@ import {
   SPONSOR_ROW_HEIGHT,
   usePublishStripHeight,
 } from './sponsorStripOffset';
-import { PREMIUM_SLOT_COUNT } from './sponsorStripSlots';
+import {
+  communitySlotIndex,
+  GOLD_SLOT_INDEX,
+  premiumSlotIndex,
+  toSponsorSlots,
+} from './sponsorStripSlots';
+import { useSponsorStripImpressions } from './useSponsorStripImpressions';
 import { useSponsorStripAds } from './useSponsorStripAds';
 
 interface SponsorRowProps {
@@ -47,7 +53,7 @@ const SponsorRow = ({
       {gold && (
         <SponsorLogo
           sponsor={gold}
-          slotIndex={0}
+          slotIndex={GOLD_SLOT_INDEX}
           height={GOLD_HEIGHT}
           className="text-text-primary"
         />
@@ -71,7 +77,7 @@ const SponsorRow = ({
         <SponsorLogo
           key={sponsor.genId}
           sponsor={sponsor}
-          slotIndex={index + 1}
+          slotIndex={premiumSlotIndex(index)}
           height={WALL_HEIGHT}
           maxWidth={WALL_MAX_WIDTH}
           monochrome
@@ -82,10 +88,7 @@ const SponsorRow = ({
         <SponsorLogo
           key={sponsor.genId}
           sponsor={sponsor}
-          // Offset by the full premium row rather than by how many premium
-          // creatives happened to fill it, so a slot index means the same
-          // position from one session to the next.
-          slotIndex={index + 1 + PREMIUM_SLOT_COUNT}
+          slotIndex={communitySlotIndex(index)}
           height={WALL_HEIGHT}
           maxWidth={WALL_MAX_WIDTH}
           monochrome
@@ -109,7 +112,12 @@ export const SponsorStrip = (): ReactElement | null => {
     wallGap,
     isSettled: adsSettled,
   } = useSponsorStripAds();
-  const hasSponsors = !!gold || !!premium.length || !!community.length;
+  const slots = useMemo(
+    () => toSponsorSlots(gold, premium, community),
+    [gold, premium, community],
+  );
+  useSponsorStripImpressions(slots);
+  const hasSponsors = !!slots.length;
   const showSponsorRow = hasSponsors || !adsSettled;
   // Published before the early return so the controls that lift for the dock
   // also settle back when it has nothing to show.

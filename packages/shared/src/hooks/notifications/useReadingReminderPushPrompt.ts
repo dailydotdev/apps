@@ -3,8 +3,6 @@ import { UserPersonalizedDigestType } from '../../graphql/users';
 import { usePersonalizedDigest } from '../usePersonalizedDigest';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { usePushNotificationMutation } from './usePushNotificationMutation';
-import { useConditionalFeature } from '../useConditionalFeature';
-import { featureReadingReminderPushPrompt } from '../../lib/featureManagement';
 import type { NotificationCtaPlacement } from '../../lib/log';
 import { NotificationPromptSource } from '../../lib/log';
 import {
@@ -43,18 +41,13 @@ export const useReadingReminderPushPrompt = ({
   )?.deliveryPaused;
   // Native apps don't clear the paused state until the next delivery attempt,
   // so this device's own subscription wins over it
-  const isEligible =
+  const shouldShow =
     enabled &&
     isPaused &&
     isPushSupported &&
     isInitialized &&
     !isSubscribed &&
     !acceptedJustNow;
-  const { value: isPromptEnabled } = useConditionalFeature({
-    feature: featureReadingReminderPushPrompt,
-    shouldEvaluate: isEligible,
-  });
-  const shouldShow = isEligible && isPromptEnabled;
 
   useNotificationCtaImpression(
     getReadingReminderPushCtaParams(placement),

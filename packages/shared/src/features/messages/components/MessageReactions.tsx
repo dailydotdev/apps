@@ -7,6 +7,8 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { EmojiPicker } from '../../../components/fields/EmojiPicker';
+import { ReactionIcon } from '../../../components/icons';
+import { IconSize } from '../../../components/Icon';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 import type { DmReactions } from '../types';
 
@@ -26,16 +28,15 @@ export const AddReactionButton = ({
       <Button
         type="button"
         variant={ButtonVariant.Tertiary}
-        size={ButtonSize.XSmall}
+        size={ButtonSize.Small}
+        icon={<ReactionIcon size={IconSize.XSmall} />}
         aria-label="Add reaction"
         aria-expanded={isOpen}
         // Stays put while the picker is open, or it would vanish once the
         // pointer leaves the message for the picker.
         className={classNames(!isOpen && className)}
         onClick={toggleOpen}
-      >
-        <span className="text-base leading-none">🙂</span>
-      </Button>
+      />
     )}
   />
 );

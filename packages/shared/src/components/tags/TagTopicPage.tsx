@@ -102,13 +102,16 @@ const EntityFeedGrid = ({
   children: ReactNode;
 }): ReactElement => {
   const { numCards } = useContext(FeedContext);
-  const columns = numCards?.eco ?? 1;
+  const { isListMode } = useFeedLayout();
+  // In list mode the page collapses to a single narrow column, but
+  // `numCards.eco` still reports the card-mode column count, which squeezed
+  // the cards to ~100px. Let them wrap at a readable minimum width instead.
+  const gridTemplateColumns = isListMode
+    ? 'repeat(auto-fill, minmax(16rem, 1fr))'
+    : `repeat(${numCards?.eco ?? 1}, minmax(0, 1fr))`;
 
   return (
-    <div
-      className="grid gap-8"
-      style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
-    >
+    <div className="grid gap-8" style={{ gridTemplateColumns }}>
       {children}
     </div>
   );
@@ -622,13 +625,17 @@ export const TagTopicPage = ({
           <div className="my-2 h-px w-full bg-border-subtlest-tertiary" />
 
           <EntitySectionHeading>All posts about {title}</EntitySectionHeading>
-          <Feed
-            feedName={OtherFeedPage.Tag}
-            feedQueryKey={['tagFeed', user?.id ?? 'anonymous', tag]}
-            query={TAG_FEED_QUERY}
-            variables={mainFeedQueryVariables}
-            className="!mx-0 !w-auto"
-          />
+          {/* Below laptop the feed is a list, and a list runs full-bleed,
+              out past the page's padding. */}
+          <div className="-mx-4 tablet:-mx-6 laptop:mx-0">
+            <Feed
+              feedName={OtherFeedPage.Tag}
+              feedQueryKey={['tagFeed', user?.id ?? 'anonymous', tag]}
+              query={TAG_FEED_QUERY}
+              variables={mainFeedQueryVariables}
+              className="!mx-0 !w-auto"
+            />
+          </div>
         </div>
         <PublicPageSignupBanner />
       </FeedPageLayoutComponent>

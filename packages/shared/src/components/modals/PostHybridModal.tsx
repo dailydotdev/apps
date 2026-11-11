@@ -3,22 +3,18 @@ import React from 'react';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import BasePostModal from './BasePostModal';
-import { NotificationPromptSource, Origin } from '../../lib/log';
+import { Origin } from '../../lib/log';
 import type { PassedPostNavigationProps } from '../post/common';
 import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
-import { isSourceUserSource } from '../../graphql/sources';
 import { useReadArticle } from '../../hooks/usePostContent';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
-import EnableNotification from '../notifications/EnableNotification';
 import { PostHybridContent } from '../post/hybrid/PostHybridContent';
 
 interface PostHybridModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
   post: Post;
 }
-
-const squadPostTypes = [PostType.Share, PostType.Freeform, PostType.Poll];
 
 /** Every post type the post_page_hybrid experiment covers, in one modal. */
 export default function PostHybridModal({
@@ -55,16 +51,6 @@ export default function PostHybridModal({
       onPreviousPost={onPreviousPost}
       onNextPost={onNextPost}
     >
-      {squadPostTypes.includes(post.type) && (
-        <EnableNotification
-          source={NotificationPromptSource.SquadPostModal}
-          label={
-            isSourceUserSource(post.source)
-              ? post.author?.username
-              : post.source?.handle
-          }
-        />
-      )}
       <PostHybridContent
         post={post}
         origin={origin}

@@ -75,6 +75,7 @@ export enum NotificationType {
   LfgReachOutReceived = 'lfg_reach_out_received',
   LfgHelpMatch = 'lfg_help_match',
   LfgStillLooking = 'lfg_still_looking',
+  LiveChatOpened = 'live_chat_opened',
   ArticleUpvoteMilestone = 'article_upvote_milestone',
   CommentUpvoteMilestone = 'comment_upvote_milestone',
   ArticleReportApproved = 'article_report_approved',
@@ -106,6 +107,9 @@ export enum NotificationType {
   ExperienceCompanyEnriched = 'experience_company_enriched',
   ReferralSignup = 'referral_signup',
   CreatorAchievement = 'creator_achievement',
+  WeeklyPicksReady = 'weekly_picks_ready',
+  PicksOpened = 'picks_opened',
+  StartupsIntelReady = 'startups_intel_ready',
 }
 
 export enum NotificationIconType {
@@ -225,6 +229,9 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.LfgReachOutReceived]: 'text-brand-default',
     [NotificationType.LfgHelpMatch]: 'text-brand-default',
     [NotificationType.LfgStillLooking]: 'text-brand-default',
+    [NotificationType.LiveChatOpened]: 'text-brand-default',
+    [NotificationType.WeeklyPicksReady]: 'text-brand-default',
+    [NotificationType.PicksOpened]: 'text-brand-default',
   };
 
 export const contentArrivalNotificationTypes = new Set<NotificationType>([
@@ -284,6 +291,10 @@ export const notificationMutingCopy: Partial<
     mute: 'Mute new member notifications',
     unmute: 'Unmute new member notifications',
   },
+  [NotificationType.StartupsIntelReady]: {
+    mute: 'Turn off weekly intel for this squad',
+    unmute: 'Turn on weekly intel for this squad',
+  },
 };
 
 export const FOLLOWING_KEYS = [
@@ -336,6 +347,7 @@ export const SQUAD_MODERATION_KEYS = [
   NotificationType.SourcePostSubmitted,
   NotificationType.SquadMemberJoined,
   NotificationType.SquadFeatured,
+  NotificationType.StartupsIntelReady,
 ];
 
 export const SQUAD_POST_REVIEW_KEYS = [
@@ -450,6 +462,8 @@ export const notificationCategoryToTypes: Record<
     NotificationType.WarmIntro,
     NotificationType.ExperienceCompanyEnriched,
     NotificationType.ReferralSignup,
+    NotificationType.WeeklyPicksReady,
+    NotificationType.PicksOpened,
   ],
 };
 
@@ -479,12 +493,15 @@ export const notificationFilterCategoryLabel: Record<
 
 const notificationTypeToCategory = Object.entries(
   notificationCategoryToTypes,
-).reduce((acc, [category, types]) => {
-  types.forEach((type) => {
-    acc[type] = category as NotificationFilterCategory;
-  });
-  return acc;
-}, {} as Partial<Record<NotificationType, NotificationFilterCategory>>);
+).reduce(
+  (acc, [category, types]) => {
+    types.forEach((type) => {
+      acc[type] = category as NotificationFilterCategory;
+    });
+    return acc;
+  },
+  {} as Partial<Record<NotificationType, NotificationFilterCategory>>,
+);
 
 export const getNotificationCategory = (
   type: NotificationType,
@@ -584,6 +601,16 @@ export const DIRECT_MESSAGE_NOTIFICATIONS: NotificationItem[] = [
   {
     id: NotificationType.DirectMessageRequestAccepted,
     label: 'Accepted message requests',
+    group: false,
+  },
+];
+
+export const LIVE_CHAT_NOTIFICATIONS: NotificationItem[] = [
+  {
+    id: NotificationType.LiveChatOpened,
+    label: 'A live chat opens',
+    description:
+      'A push when the daily.dev team opens a live chat on a post or a topic. Each one is on for a few hours, then gone.',
     group: false,
   },
 ];

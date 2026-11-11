@@ -235,7 +235,7 @@ export const AgentContentPane = ({
   // the pane always resolves the full post itself. In demo there is no API,
   // so the seed is all there is.
   const { post: fetchedPost, isError: isPostError } = usePostById({
-    id: isDemo ? '' : activePostTarget?.postId ?? '',
+    id: isDemo ? '' : (activePostTarget?.postId ?? ''),
   });
   const activePost = fetchedPost ?? activePostTarget?.post;
   const ActivePostContent = activePost

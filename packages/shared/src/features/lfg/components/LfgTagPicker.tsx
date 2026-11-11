@@ -51,7 +51,7 @@ export const LfgTagPicker = ({
   });
   const isFull = value.length >= max;
   const options = (
-    isSearching ? data?.searchTags.tags.map(({ name }) => name) ?? [] : []
+    isSearching ? (data?.searchTags.tags.map(({ name }) => name) ?? []) : []
   )
     .filter((tag): tag is string => !!tag && !value.includes(tag))
     .slice(0, RESULT_LIMIT);

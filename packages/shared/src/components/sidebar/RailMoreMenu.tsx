@@ -5,9 +5,12 @@ import { MenuIcon } from '../icons';
 import {
   RAIL_ICON_SIZE,
   RAIL_POPUP_GROUP,
+  railCountBubbleClass,
   railTabClass,
   railTabLabelClass,
 } from './common';
+import { Bubble } from '../tooltips/utils';
+import { getUnreadText } from '../notifications/utils';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
 import { RootPortal } from '../tooltips/Portal';
@@ -22,10 +25,14 @@ import { useAnchoredRailPopup } from './useAnchoredRailPopup';
 export const RailMoreMenu = ({
   label = 'More',
   compact = false,
+  unreadCount = 0,
   children,
 }: {
   label?: string;
   compact?: boolean;
+  // Unread items in the tabs folded in here, so an inbox tab can't hide its
+  // count by folding.
+  unreadCount?: number;
   children: ReactNode;
 }): ReactElement => {
   const { isOpen, onUpdate, wrapHandler } =
@@ -51,6 +58,11 @@ export const RailMoreMenu = ({
       >
         <span className="relative flex items-center justify-center">
           <MenuIcon size={RAIL_ICON_SIZE} aria-hidden className="rotate-90" />
+          {unreadCount > 0 && (
+            <Bubble className={railCountBubbleClass}>
+              {getUnreadText(unreadCount)}
+            </Bubble>
+          )}
         </span>
         {!compact && <span className={railTabLabelClass}>{label}</span>}
       </button>

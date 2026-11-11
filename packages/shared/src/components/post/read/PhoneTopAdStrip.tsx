@@ -2,10 +2,9 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
 import type { ReadAdSurface } from './ReadAdSlot';
 import { ReadAdFormat, ReadAdSlot } from './ReadAdSlot';
-import { ORGANIC_SLOT, READ_SLOT } from './slots';
+import { ORGANIC_SLOT, READ_SLOT, hasLiveAdSlots } from './slots';
 import type { AdSlotsPost } from './useReadAdSlots';
 import { useOrganicAdSlots, useReadAdSlots } from './useReadAdSlots';
-import { hasLiveAdSlots } from '../../../features/monetization/kueez';
 
 /**
  * The strip's rendered height, published on <html> so the sticky chrome that
@@ -77,8 +76,8 @@ export function PhoneTopAdStrip({
 
   return (
     // z-max alongside the auth banner: the strip is the topmost thing on the
-    // screen and nothing may slide over it. Collapses with its card when the
-    // request comes back unfilled, so no empty strip stays pinned. Hidden on
+    // screen and nothing may slide over it. Collapses while the anchor is
+    // empty, so no empty strip stays pinned before or without a fill. Hidden on
     // screens narrower than the banner, where a 320x50 creative would be the
     // one thing on the page forcing a horizontal scroll. The layout pads
     // its column by the shell block's height and the block sits under the
@@ -86,15 +85,13 @@ export function PhoneTopAdStrip({
     // below: strip, block, content, in that order from the top.
     <div
       ref={ref}
-      className='sticky top-0 z-max -mt-[var(--shell-top,var(--shell-top-rest,3.25rem))] mb-[var(--shell-top,var(--shell-top-rest,3.25rem))] w-full bg-background-default py-1 has-[[data-ad-status="unfilled"]]:!hidden tablet:hidden [@media(max-width:319px)]:hidden'
+      className="sticky top-0 z-max -mt-[var(--shell-top,var(--shell-top-rest,3.25rem))] mb-[var(--shell-top,var(--shell-top-rest,3.25rem))] w-full bg-background-default py-1 has-[[data-ad-slot]:empty]:!hidden tablet:hidden [@media(max-width:319px)]:hidden"
       data-testid="phone-top-ad-strip"
     >
       <ReadAdSlot
         slot={PHONE_SLOT[surface]}
         surface={surface}
         format={ReadAdFormat.MobileBanner}
-        compact
-        logExtra={{ placement: 'pinned' }}
       />
     </div>
   );

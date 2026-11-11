@@ -127,6 +127,7 @@ export const AskInstall = (): ReactElement => {
             <Link href={plusUrl} passHref>
               <a
                 className="font-bold text-text-primary underline"
+                // eslint-disable-next-line jsx-a11y/no-redundant-roles
                 role="link"
                 tabIndex={0}
                 onClick={(e) => {

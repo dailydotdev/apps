@@ -32,6 +32,7 @@ import { useToastNotification } from '../../../hooks/useToastNotification';
 import { DM_MAX_LENGTH } from '../types';
 import { DM_MAX_ATTACHMENTS, toImageMarkdown } from '../media';
 import { useComposerEmojiSuggestions } from '../hooks/useComposerEmojiSuggestions';
+import { isSubmitEnter } from '../keyboard';
 
 const maxComposerHeight = 160;
 
@@ -182,11 +183,7 @@ export const MessageComposer = ({
       return;
     }
 
-    if (
-      event.key === 'Enter' &&
-      !event.shiftKey &&
-      !event.nativeEvent.isComposing
-    ) {
+    if (isSubmitEnter(event)) {
       event.preventDefault();
       onSubmit();
       return;

@@ -25,7 +25,7 @@ function CodeVerificationForm({
         title="Verification"
         onBack={onBack}
       />
-      <AuthModalText className="px-14 py-8 text-center">
+      <AuthModalText className="px-6 py-8 text-center">
         Password reset is handled via email link.
       </AuthModalText>
     </>

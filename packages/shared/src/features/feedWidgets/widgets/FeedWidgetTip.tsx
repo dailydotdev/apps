@@ -23,7 +23,9 @@ const tipLogEvent = (eventName: LogEvent, tip: FeedWidgetTipItem) =>
  * A daily.dev tip over our slot, laid out like a promo card: its glyph and a
  * few words of title with All tips across from it, then one line of what to
  * do and the button that does it. The tip's accent lives only in a glow
- * behind the icon. In edit mode it is removable, never movable.
+ * behind the icon. It keeps the widgets' own inset and header height, so its
+ * title sits level with the headers beside it. In edit mode it is removable,
+ * never movable.
  */
 export const FeedWidgetTip = ({
   tip,
@@ -77,12 +79,12 @@ export const FeedWidgetTip = ({
       <div
         ref={contentRef}
         className={classNames(
-          'flex flex-col gap-1 rounded-16 border border-border-subtlest-tertiary bg-background-subtle px-3.5 py-3 transition-opacity',
+          'flex flex-col gap-1 rounded-16 border border-border-subtlest-tertiary bg-background-subtle px-4 py-3 transition-opacity',
           isEditing && 'opacity-60',
         )}
         style={{ backgroundImage: feedWidgetTipGlow(tip.tone) }}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex h-6 items-center gap-2">
           <span
             aria-hidden
             className="flex size-5 items-center justify-center rounded-6 text-white"

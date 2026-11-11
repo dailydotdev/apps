@@ -61,7 +61,6 @@ export enum OtherFeedPage {
   ExploreDiscussed = 'postsdiscussed',
   ExploreUpvoted = 'postsupvoted',
   FeedByIds = 'feed-by-ids',
-  Welcome = 'welcome',
   Following = 'following',
   Post = 'posts[id]',
 }
@@ -183,6 +182,9 @@ export enum RequestKey {
   DirectMessagePostPreview = 'direct_message_post_preview',
   ScheduledPosts = 'scheduled_posts',
   FeedSettings = 'feedSettings',
+  FeedProfile = 'feed_profile',
+  FeedControls = 'feed_controls',
+  FeedPostExplanation = 'feed_post_explanation',
   FeedWidgetData = 'feed_widget_data',
   Ads = 'ads',
   FeedByIds = 'feedByIds',
@@ -227,6 +229,11 @@ export enum RequestKey {
   Products = 'products',
   Transactions = 'transactions',
   Campaigns = 'campaigns',
+  SquadWallet = 'squad_wallet',
+  SquadSubscription = 'squad_subscription',
+  StartupsCashbackPromo = 'startups_cashback_promo',
+  SquadSeats = 'squad_seats',
+  SquadIntel = 'squad_intel',
   CheckCoresRole = 'check_cores_role',
   Awards = 'awards',
   CampaignReach = 'campaignReach',
@@ -245,10 +252,13 @@ export enum RequestKey {
   UserPostsWithAnalytics = 'user_posts_with_analytics',
   CreatorAchievements = 'creator_achievements',
   SharedCreatorAchievement = 'shared_creator_achievement',
+  Picks = 'picks',
   CreatorPerformance = 'creator_performance',
   CreatorPostPerformance = 'creator_post_performance',
   SquadAnalytics = 'squad_analytics',
   SquadAnalyticsHistory = 'squad_analytics_history',
+  SquadPerformance = 'squad_performance',
+  SquadPostPerformance = 'squad_post_performance',
   CheckLocation = 'check_location',
   GenerateBrief = 'generate_brief',
   Opportunity = 'opportunity',
@@ -290,6 +300,7 @@ export enum RequestKey {
   MarketingCtas = 'marketing_ctas',
   HackathonParticipation = 'hackathon_participation',
   BrowserExtensionInstalled = 'browser_extension_installed',
+  Leaderboard = 'leaderboard',
   LeaderboardPosition = 'leaderboard_position',
   ShellState = 'shell_state',
   AchievementTracker = 'achievement_tracker',
@@ -303,9 +314,8 @@ export type HasConnection<
   TReturn = unknown,
 > = Partial<Record<TKey, Connection<TReturn>>>;
 
-type ConnectionNode<TConnection> = TConnection extends Connection<infer TNode>
-  ? TNode
-  : never;
+type ConnectionNode<TConnection> =
+  TConnection extends Connection<infer TNode> ? TNode : never;
 
 interface InfiniteCacheProps<
   TEntity extends HasConnection<TEntity>,

@@ -55,7 +55,7 @@ it('should render the ladder with rewards unlocked by the API', async () => {
     referredCount: 2,
     steps: [
       { step: 1, invites: 1, months: 1, unlockedAt: '2026-09-20T00:00:00Z' },
-      // Counted but not rewarded yet, so the row stays locked.
+      // Counted but not rewarded yet (e.g. held), so the row is in review.
       { step: 2, invites: 2, months: 3, unlockedAt: null },
       { step: 3, invites: 3, months: 12, unlockedAt: null },
     ],
@@ -85,7 +85,7 @@ it('should render the ladder with rewards unlocked by the API', async () => {
     within(getRow('1 month of Plus')).getByLabelText('Unlocked'),
   ).toBeInTheDocument();
   expect(
-    within(getRow('3 months of Plus')).getByLabelText('Locked'),
+    within(getRow('3 months of Plus')).getByLabelText('In review'),
   ).toBeInTheDocument();
   expect(
     within(getRow('1 year of Plus')).getByLabelText('Locked'),

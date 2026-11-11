@@ -80,7 +80,7 @@ export const generateTestAdmin = (
     },
     referralToken: defaultSquadToken,
     role: SourceMemberRole.Admin,
-  } as SourceMember);
+  }) as SourceMember;
 
 export const generateBasicMembersResult = (
   members: Edge<BasicSourceMember>[] = [
@@ -242,7 +242,7 @@ export const generateTestMember = (
     source: null,
     referralToken: `${token}${i}`,
     role: SourceMemberRole.Member,
-  } as unknown as SourceMember);
+  }) as unknown as SourceMember;
 
 export const generateTestSquad = (props: Partial<Squad> = {}): Squad => {
   const squad = {

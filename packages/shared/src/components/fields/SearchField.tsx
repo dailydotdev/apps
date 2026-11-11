@@ -16,27 +16,26 @@ import type { IconProps } from '../Icon';
 import { IconSize } from '../Icon';
 import { FieldSize, fieldSizeToRadius } from './fieldSizes';
 
-export interface SearchFieldProps
-  extends Pick<
-    InputHTMLAttributes<HTMLInputElement>,
-    | 'placeholder'
-    | 'value'
-    | 'className'
-    | 'style'
-    | 'name'
-    | 'autoFocus'
-    | 'onBlur'
-    | 'onFocus'
-    | 'aria-label'
-    | 'aria-haspopup'
-    | 'aria-expanded'
-    | 'onKeyDown'
-    | 'type'
-    | 'disabled'
-    | 'readOnly'
-    | 'aria-describedby'
-    | 'autoComplete'
-  > {
+export interface SearchFieldProps extends Pick<
+  InputHTMLAttributes<HTMLInputElement>,
+  | 'placeholder'
+  | 'value'
+  | 'className'
+  | 'style'
+  | 'name'
+  | 'autoFocus'
+  | 'onBlur'
+  | 'onFocus'
+  | 'aria-label'
+  | 'aria-haspopup'
+  | 'aria-expanded'
+  | 'onKeyDown'
+  | 'type'
+  | 'disabled'
+  | 'readOnly'
+  | 'aria-describedby'
+  | 'autoComplete'
+> {
   inputId: string;
   valueChanged?: (value: string) => void;
   fieldSize?: 'large' | 'medium';

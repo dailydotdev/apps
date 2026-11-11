@@ -24,6 +24,7 @@ type Props = {
   color?: ButtonColor;
   // Replaces the default call to action; also names an icon-only button.
   label?: string;
+  iconClassName?: string;
 } & WithClassNameProps;
 
 export const UpgradeToPlus = ({
@@ -34,6 +35,7 @@ export const UpgradeToPlus = ({
   target,
   variant,
   label,
+  iconClassName,
   ...attrs
 }: Props): ReactElement | null => {
   const { isLoggedIn, showLogin } = useAuthContext();
@@ -72,7 +74,7 @@ export const UpgradeToPlus = ({
       <Button
         tag="a"
         className={classNames(!iconOnly && 'flex-1', className)}
-        icon={<DevPlusIcon />}
+        icon={<DevPlusIcon className={iconClassName} />}
         size={size}
         color={defaultColor}
         variant={ButtonVariant.Primary}

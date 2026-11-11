@@ -12,6 +12,7 @@ export const providerToLabelTextMap: Record<SearchProviderEnum, string> = {
   [SearchProviderEnum.Tags]: 'Search tags',
   [SearchProviderEnum.Google]: 'Search on Google',
   [SearchProviderEnum.Sources]: 'Search sources',
+  [SearchProviderEnum.Squads]: 'Search squads',
   [SearchProviderEnum.Users]: 'Search users',
 };
 
@@ -29,5 +30,6 @@ export const providerToIconMap: Record<
     />
   ),
   [SearchProviderEnum.Sources]: SearchIcon,
+  [SearchProviderEnum.Squads]: SearchIcon,
   [SearchProviderEnum.Users]: SearchIcon,
 };

@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
+import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { useHidePost } from '../../../hooks/post/useHidePost';
@@ -17,6 +18,14 @@ import CloseButton from '../../CloseButton';
 import { SourceAvatar } from '../../profile/source';
 import { GenericTagButton } from '../../filters/TagButton';
 import { Origin } from '../../../lib/log';
+import { useActiveFeedContext } from '../../../contexts/ActiveFeedContext';
+import { useFeedCardContext } from '../../../features/posts/FeedCardContext';
+
+const ShowLessPostTopicOffer = dynamic(() =>
+  import(
+    /* webpackChunkName: "showLessTopicOffer" */ '../../../features/feedExplain/components/ShowLessTopicOffer'
+  ).then((mod) => mod.ShowLessPostTopicOffer),
+);
 
 interface PostHiddenPanelProps {
   post: Post;
@@ -55,6 +64,12 @@ export function PostHiddenPanel({
       ),
   );
   const [isConfirmed, setIsConfirmed] = useState(false);
+  // Only For You explains its posts: in Debug mode the post carries its
+  // explanation, otherwise its feed request can ask for it.
+  const { getExplainRequest } = useActiveFeedContext();
+  const { isAd } = useFeedCardContext();
+  const explainRequest = isAd ? undefined : getExplainRequest?.(post.id);
+  const canShowLessTopic = post.explain !== undefined || !!explainRequest;
 
   const { onUnhide, onSubmitFeedback, onDismiss, onReportSubmitted } =
     useHidePost({ post });
@@ -133,6 +148,14 @@ export function PostHiddenPanel({
       <h4 className="font-bold text-text-primary typo-body">
         Got it. You&apos;ll see less like this.
       </h4>
+      {canShowLessTopic && (
+        <ShowLessPostTopicOffer
+          post={post}
+          request={explainRequest}
+          origin={Origin.PostHiddenPanel}
+          className="-ml-1.5 mt-1"
+        />
+      )}
       <p className="mt-1 text-text-tertiary typo-callout">
         Pick anything else you want out of your feed (optional)
       </p>

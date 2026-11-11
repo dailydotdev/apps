@@ -85,6 +85,33 @@ const loadGsiScript = (): Promise<void> =>
     document.head.appendChild(script);
   });
 
+// `initialize()` is meant to run once per page: GSI warns and can misbehave
+// when it is called again. Initialize once and route the credential to the
+// hook instance that is currently showing the prompt.
+const initializedClients = new WeakMap<GoogleId, string>();
+let activeCredentialHandler: ((credential: string) => void) | null = null;
+
+const initializeOnce = (googleId: GoogleId, clientId: string): void => {
+  if (initializedClients.get(googleId) === clientId) {
+    return;
+  }
+
+  initializedClients.set(googleId, clientId);
+  googleId.initialize({
+    client_id: clientId,
+    context: 'signin',
+    auto_select: false,
+    cancel_on_tap_outside: false,
+    ux_mode: 'popup',
+    itp_support: true,
+    callback: ({ credential }) => {
+      if (credential) {
+        activeCredentialHandler?.(credential);
+      }
+    },
+  });
+};
+
 type UseGoogleOneTapProps = {
   enabled: boolean;
   clientId?: string;
@@ -101,13 +128,20 @@ export const useGoogleOneTap = ({
   onCredentialRef.current = onCredential;
   const logEventRef = useRef(logEvent);
   logEventRef.current = logEvent;
+  // Prompt at most once per mount (one pop-up session). Once it was closed,
+  // e.g. because the visitor moved on to email, going back to the provider
+  // buttons doesn't bring it back or log another prompt.
+  const hasPromptedRef = useRef(false);
 
   useEffect(() => {
-    if (!enabled || !clientId) {
+    if (!enabled || !clientId || hasPromptedRef.current) {
       return undefined;
     }
 
     let cancelled = false;
+    const handleCredential = (credential: string) => {
+      onCredentialRef.current(credential);
+    };
 
     const init = async () => {
       try {
@@ -130,19 +164,9 @@ export const useGoogleOneTap = ({
         return;
       }
 
-      googleId.initialize({
-        client_id: clientId,
-        context: 'signin',
-        auto_select: false,
-        cancel_on_tap_outside: false,
-        ux_mode: 'popup',
-        itp_support: true,
-        callback: ({ credential }) => {
-          if (credential) {
-            onCredentialRef.current(credential);
-          }
-        },
-      });
+      initializeOnce(googleId, clientId);
+      activeCredentialHandler = handleCredential;
+      hasPromptedRef.current = true;
       googleId.prompt((notification) => {
         if (!notification) {
           return;
@@ -161,6 +185,9 @@ export const useGoogleOneTap = ({
 
     return () => {
       cancelled = true;
+      if (activeCredentialHandler === handleCredential) {
+        activeCredentialHandler = null;
+      }
       getGoogleId()?.cancel();
     };
   }, [enabled, clientId]);
