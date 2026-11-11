@@ -1,3 +1,4 @@
+import { graphql, HttpResponse } from 'msw';
 import type { ReactElement, ReactNode } from 'react';
 import { AuthDisplay } from '@dailydotdev/shared/src/components/auth/common';
 import React, { useEffect, useState } from 'react';
@@ -953,6 +954,15 @@ export const PromoCheckoutPayment: Story = {
 };
 
 export const PromoSquadPageUpsell: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        graphql.query('CompletedUserActions', () =>
+          HttpResponse.json({ data: { actions: [] } }),
+        ),
+      ],
+    },
+  },
   render: () => (
     <PromoOn>
       <SquadPageUpsellPreview />

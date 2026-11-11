@@ -58,7 +58,7 @@ const mockData = (current: Picks | null, list = suggestions) => {
 
 const renderEditor = (origin?: Origin, addPostId?: string) => {
   const gb = new GrowthBook({
-    features: { weekly_picks: { defaultValue: true } },
+    features: { weekly_picks_v2: { defaultValue: true } },
   });
   return render(
     <TestBootProvider

@@ -9,11 +9,7 @@ import {
 } from '../../lib/featureManagement';
 import FeedContext from '../../contexts/FeedContext';
 import { useAuthContext } from '../../contexts/AuthContext';
-import {
-  useIsPhone,
-  useIsPhoneNow,
-  useIsPhoneSettled,
-} from '../../hooks/useViewSize';
+import { useIsPhoneNow } from '../../hooks/useViewSize';
 import { useIsPlusAdFree } from '../../hooks/useIsPlusAdFree';
 import type { FeedWidget } from './types';
 import {
@@ -30,7 +26,7 @@ import type { Ad } from '../../graphql/posts';
 import { useAdQuery } from '../monetization/useAdQuery';
 import { useCachedTokenRecovery } from '../../hooks/useCachedTokenRecovery';
 import { AdPlacement } from '../../lib/ads';
-import { generateQueryKey, OtherFeedPage, RequestKey } from '../../lib/query';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useFeedHeroData } from '../../components/feeds/hero/useFeedHeroData';
 import { useLogContext } from '../../contexts/LogContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
@@ -63,81 +59,47 @@ export const emptyFeedWidgetFeedState: FeedWidgetFeedState = {
   isAdVisible: false,
 };
 
-// The flag's answer from the last For you or Popular this session. The other
-// home tabs reuse it rather than evaluate the flag themselves, so they enrol
-// no one in its experiment: only a reader the home page already enrolled
-// keeps the rail on them. Browser only, so no request shares it.
-let homeRailFlag: boolean | undefined;
-
-export const resetHomeRailFlag = (): void => {
-  homeRailFlag = undefined;
-};
-
 /**
  * Whether the rail renders on this feed: For you and Popular, behind the flag,
- * unless the reader hid it. Not on a phone for now: phones keep the plain
- * feed and are never enrolled in the flag's experiment. The phone paths below
- * stay for when the rail comes back there: it then also heads Following and
- * the custom feeds, whose tabs switch only the feed under it, but only with
- * the answer the home page already got. The page around the rail reads it
- * too, so the shell's own feed tabs step aside wherever the rail brings its
+ * unless the reader hid it. Tablet and up only: phones keep the plain feed
+ * and are never enrolled in the flag's experiment. The page around the rail
+ * reads it too, so the feed's own tabs step aside where the rail brings its
  * own.
  */
 export const useFeedWidgetRailState = (
   feedName?: string,
 ): { isFlagOn: boolean; isEnabled: boolean } => {
   const { flags } = useSettingsContext();
-  const isPhone = useIsPhone();
   // Read at once, not after mount, so a phone never evaluates the flag nor
   // paints the rail for a frame.
-  const isPhoneNow = useIsPhoneNow();
+  const isPhone = useIsPhoneNow();
   const isMainFeedPage =
     feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
-  const isPhoneHomeTab =
-    isPhone &&
-    (feedName === OtherFeedPage.Following ||
-      feedName === SharedFeedPage.Custom);
-  const { value: isFlagOn, isLoading } = useConditionalFeature({
+  const { value: isFlagOn } = useConditionalFeature({
     feature: featureFeedWidgets,
-    shouldEvaluate: isMainFeedPage && !isPhoneNow,
+    shouldEvaluate: isMainFeedPage && !isPhone,
   });
-  if (isMainFeedPage && !isLoading && typeof window !== 'undefined') {
-    homeRailFlag = !!isFlagOn;
-  }
-  const isOn =
-    !isPhoneNow &&
-    ((isMainFeedPage && !!isFlagOn) || (isPhoneHomeTab && !!homeRailFlag));
+  const isOn = !isPhone && isMainFeedPage && !!isFlagOn;
 
   return { isFlagOn: isOn, isEnabled: isOn && !flags?.feedWidgetsOptOut };
 };
 
 /**
  * Whether our slot sits on the rail: only where it lands on the first screen.
- * Never on a phone (nor before that check settles), not for ad-free Plus, and not with
- * fewer columns than its own, where it would sit past the rail's edge.
- * Everywhere else the feed keeps its own first ad. The rail and the feed both
- * read this, so they always agree.
+ * Not for ad-free Plus, and not with fewer columns than its own, where it
+ * would sit past the rail's edge. Everywhere else the feed keeps its own
+ * first ad. The rail and the feed both read this, so they always agree.
  */
-export const useFeedWidgetAdSlot = (): {
-  showAd: boolean;
-  isSettled: boolean;
-  columns: number;
-  isPhone: boolean;
-} => {
+export const useFeedWidgetAdSlot = (): { showAd: boolean; columns: number } => {
   const { numCards } = useContext(FeedContext);
-  const isPhone = useIsPhone();
-  const isSettled = useIsPhoneSettled();
   const isPlusAdFree = useIsPlusAdFree();
   // `.eco` regardless of the reader's spaciness: the count the grid renders
   // with — see `FeedContainer`.
-  const columns = isPhone ? 1 : numCards.eco;
+  const columns = numCards.eco;
 
   return {
-    showAd:
-      isSettled && !isPhone && !isPlusAdFree && columns > FEED_WIDGET_AD_COLUMN,
-    isSettled,
+    showAd: !isPlusAdFree && columns > FEED_WIDGET_AD_COLUMN,
     columns,
-    isPhone,
   };
 };
 
@@ -214,25 +176,23 @@ const useResolvedFeedWidgets = ({
 };
 
 /**
- * Whether the rail on this feed carries the Shortcuts widget, so the
- * extension's own shortcuts row steps aside only where the rail shows them.
+ * Whether the rail on this feed is where shortcuts live: on a rail feed the
+ * Shortcuts widget is on the rail or a tap away in its gallery, so the
+ * extension's own shortcuts row and its "Add shortcuts" card step aside.
  * `isPending` while the flag or the settings that hold the rail are still on
  * their way, so the row does not paint and then go.
  */
 export const useFeedWidgetShortcuts = (
   feedName?: string,
-): { hasShortcuts: boolean; isPending: boolean } => {
+): { hasRail: boolean; isPending: boolean } => {
   const { loadedSettings } = useSettingsContext();
   const { settled } = useFeaturesReadyContext();
   const { isEnabled } = useFeedWidgetRailState(feedName);
-  const widgets = useResolvedFeedWidgets({ enabled: isEnabled });
   const isMainFeedPage =
     feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
 
   return {
-    hasShortcuts:
-      isEnabled &&
-      widgets.some(({ kind }) => kind === FeedWidgetKind.Shortcuts),
+    hasRail: isEnabled,
     isPending: isMainFeedPage && (!settled || !loadedSettings),
   };
 };

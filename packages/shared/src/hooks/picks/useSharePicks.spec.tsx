@@ -14,7 +14,7 @@ const picks = { id: 'picks-1', items: [] } as unknown as Picks;
 
 beforeEach(() => jest.clearAllMocks());
 
-// No GrowthBook provider, so weekly_picks stays at its default (off).
+// No GrowthBook provider, so weekly_picks_v2 stays at its default (off).
 it('should open the share sheet outside the weekly picks rollout', () => {
   const { result } = renderHook(() => useSharePicks());
 

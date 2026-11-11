@@ -6,6 +6,8 @@ describe('squad links', () => {
     ['https://x.com/coderabbitai/', 'X', 'coderabbitai'],
     ['https://www.linkedin.com/company/coderabbit', 'LinkedIn', 'coderabbit'],
     ['https://discord.gg', 'Discord', 'Discord'],
+    ['https://discord.gg/n25bmxTCVv', 'Discord', 'Discord'],
+    ['https://discord.com/invite/n25bmxTCVv', 'Discord', 'Discord'],
     [
       'https://docs.coderabbit.ai/guides',
       'docs.coderabbit.ai',

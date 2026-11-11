@@ -98,6 +98,8 @@ export const featureCores = new Feature('cores', isDevelopment);
 // automated streak freeze: auto-apply purchased freezes on missed reading days
 export const featureStreakFreeze = new Feature('streak_freeze', isDevelopment);
 
+export const featureGtaViFreezeDay = new Feature('gta_vi_freeze_day', false);
+
 export const briefCardFeedFeature = new Feature(
   'brief_card_feed',
   isDevelopment,
@@ -302,10 +304,6 @@ export const featureFeedWidgets = new Feature('feed_widgets_v2', false);
 // card pinned over the bottom of the window at the content's width.
 export const featurePostSignupStrip = new Feature('post_signup_strip', false);
 
-// Experiment: a feed after the post page's comments (For you, the post's
-// tags, its source), for signed-in readers. Control ends at the comments.
-export const featurePostPageFeed = new Feature('post_page_feed', false);
-
 // Gates every agent surface; control hides all of them. Keep the default
 // `false`, GrowthBook ramps it.
 export const featureInterestAgent = new Feature('interest_agent', false);
@@ -385,11 +383,25 @@ export const featureFeedWidgetsDefault = new Feature<{
   id: string;
   widgets: { id: string; kind: string; size: string }[];
 }>('feed_widgets_default', {
-  id: 'default-1',
-  widgets: [{ id: 'top-story', kind: 'topStory', size: 'large' }],
+  id: 'default-3',
+  widgets: [
+    { id: 'happening-now', kind: 'happeningNow', size: 'large' },
+    { id: 'streak', kind: 'streak', size: 'small' },
+  ],
 });
 
-// Weekly picks MVP: gates the Friday nudge, the /bookmarks button, /picks/new
-// and the share sheet. The public page /picks/:id is never gated so shared
-// links keep working.
-export const featureWeeklyPicks = new Feature('weekly_picks', false);
+// Weekly picks: gates the home card, the /bookmarks button and /picks/new.
+// Only evaluated once the home card would show, so the experiment enrolls
+// just the readers it can reach; the other entry points follow that
+// enrollment. The public page /picks/:id is never gated so shared links keep
+// working.
+export const featureWeeklyPicks = new Feature('weekly_picks_v2', false);
+
+// The home card's background checks: this week's picks and reading signals,
+// fetched on every signed-in home load. A plain rollout flag with no
+// experiment rule, so evaluating it enrolls nobody: it is the kill switch
+// for the checks and keeps them to the experiment's traffic share.
+export const featureWeeklyPicksChecks = new Feature(
+  'weekly_picks_checks',
+  false,
+);

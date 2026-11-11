@@ -521,6 +521,10 @@ export enum LogEvent {
   ClickPickPost = 'click pick post',
   ClickMakeYourPicks = 'click make your picks',
   ClickAddToPicks = 'click add to picks',
+  // The home feed card: a nudge to make picks, or the live list's opens
+  ImpressionPicksHero = 'impression picks hero',
+  ClickPicksHero = 'click picks hero',
+  DismissPicksHero = 'dismiss picks hero',
   // End Weekly picks
   // The creator copied a link to, or downloaded the card of, one of their
   // achievements. Records the action, not that anything was posted anywhere.
@@ -759,6 +763,9 @@ export enum TargetType {
   ProfilePage = 'profile page',
   GenericReferralPopup = 'generic referral popup',
   ReferralInviterCard = 'referral inviter card',
+  LeaderboardBoard = 'leaderboard board',
+  LeaderboardRankPicker = 'leaderboard rank picker',
+  LeaderboardUser = 'leaderboard user',
   Shortcuts = 'shortcuts',
   FeedWidget = 'feed widget',
   ChatRoom = 'chat room',
@@ -838,6 +845,7 @@ export enum TargetId {
   GenericReferralPopup = 'generic referral popup',
   ReferralLadderPopup = 'referral ladder popup',
   ReferralLadderPromo = 'referral ladder promo',
+  LeaderboardInviteCard = 'leaderboard invite card',
   ProfilePage = 'profile page',
   InviteFriendsPage = 'invite friends page',
   Squad = 'squad',

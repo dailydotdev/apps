@@ -34,7 +34,7 @@ export const SquadPlanCashback = ({
               getSquadPlanCreditsForRate(plan, planPercentage),
             )}
           </del>
-          <span>
+          <span className="min-w-0 shrink">
             <strong className="text-text-primary">
               {formatSquadPlanCredits(plan, promo)}
             </strong>
