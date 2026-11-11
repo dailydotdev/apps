@@ -6,10 +6,8 @@ import { useFeeds } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
-import {
-  getMainFeedLayout,
-  mainFeedLayoutProps,
-} from '../../../components/layouts/MainFeedPage';
+import { getMainFeedLayout } from '../../../components/layouts/MainFeedPage';
+import { mainFeedLayoutProps } from '../../../components/layouts/FeedLayout';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 
 const FeedPage = (): ReactElement => {

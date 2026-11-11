@@ -1,10 +1,8 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { NextSeoProps } from 'next-seo/lib/types';
-import {
-  getMainFeedLayout,
-  mainFeedLayoutProps,
-} from '../components/layouts/MainFeedPage';
+import { getMainFeedLayout } from '../components/layouts/MainFeedPage';
+import { mainFeedLayoutProps } from '../components/layouts/FeedLayout';
 import { defaultOpenGraph, noindexSeoProps } from '../next-seo';
 import ProtectedPage from '../components/ProtectedPage';
 import { getPageSeoTitles } from '../components/layouts/utils';

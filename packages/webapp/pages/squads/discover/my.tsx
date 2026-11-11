@@ -41,8 +41,10 @@ import {
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks/useViewSize';
-import { getLayout } from '../../../components/layouts/FeedLayout';
-import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
+import {
+  getLayout,
+  mainFeedLayoutProps,
+} from '../../../components/layouts/FeedLayout';
 import { defaultSeo, noindexSeoProps } from '../../../next-seo';
 
 const isPrivilegedSquad = (squad: Squad): boolean => {
