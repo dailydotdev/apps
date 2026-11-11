@@ -20,7 +20,7 @@ import type {
   Squad,
   SquadRule,
 } from './sources';
-import type { FeedData, PollOption, Post } from './posts';
+import type { FeedData, PollOption, Post, PostAgentViews } from './posts';
 import {
   RankingAlgorithm,
   SOURCE_FEED_QUERY,
@@ -577,6 +577,19 @@ export const SQUAD_ANALYTICS_QUERY = gql`
       shares
       clicks
       upvotesRatio
+      agentViews
+      agentViewsClaude
+      agentViewsChatgpt
+      agentViewsGemini
+      agentViewsPerplexity
+      agentViewsExa
+      agentViewsMeta
+      agentViewsBot
+      agentViewsClaudeBot
+      agentViewsChatgptBot
+      agentViewsPerplexityBot
+      agentViewsExaBot
+      agentViewsMetaBot
     }
   }
 `;
@@ -587,6 +600,19 @@ export const SQUAD_ANALYTICS_HISTORY_QUERY = gql`
       date
       impressions
       impressionsAds
+      agentViews
+      agentViewsClaude
+      agentViewsChatgpt
+      agentViewsGemini
+      agentViewsPerplexity
+      agentViewsExa
+      agentViewsMeta
+      agentViewsBot
+      agentViewsClaudeBot
+      agentViewsChatgptBot
+      agentViewsPerplexityBot
+      agentViewsExaBot
+      agentViewsMetaBot
     }
   }
 `;
@@ -921,7 +947,7 @@ export interface SquadInvitation {
   member: SourceMember;
 }
 
-export interface SquadAnalytics {
+export interface SquadAnalytics extends PostAgentViews {
   id: string;
   impressions: number;
   reach: number;
@@ -935,7 +961,7 @@ export interface SquadAnalytics {
   upvotesRatio: number;
 }
 
-export interface SquadAnalyticsHistoryNode {
+export interface SquadAnalyticsHistoryNode extends PostAgentViews {
   date: Date;
   impressions: number;
   impressionsAds: number;

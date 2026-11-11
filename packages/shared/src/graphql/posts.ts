@@ -1676,11 +1676,8 @@ export const POST_ANALYTICS_HISTORY_QUERY = gql`
   }
 `;
 
-export type PostAnalyticsHistory = Pick<
+export type PostAgentViews = Pick<
   PostAnalytics,
-  | 'id'
-  | 'impressions'
-  | 'impressionsAds'
   | 'agentViews'
   | 'agentViewsClaude'
   | 'agentViewsChatgpt'
@@ -1694,9 +1691,15 @@ export type PostAnalyticsHistory = Pick<
   | 'agentViewsPerplexityBot'
   | 'agentViewsExaBot'
   | 'agentViewsMetaBot'
-> & {
-  date: Date;
-};
+>;
+
+export type PostAnalyticsHistory = Pick<
+  PostAnalytics,
+  'id' | 'impressions' | 'impressionsAds'
+> &
+  PostAgentViews & {
+    date: Date;
+  };
 
 export const postAnalyticsHistoryQuery = ({
   id,

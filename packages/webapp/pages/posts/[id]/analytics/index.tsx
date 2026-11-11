@@ -15,7 +15,6 @@ import {
 } from '@dailydotdev/shared/src/components/utilities';
 import classNames from 'classnames';
 import {
-  ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/common';
@@ -51,6 +50,7 @@ import { Origin } from '@dailydotdev/shared/src/lib/log';
 import type { Post, PostData } from '@dailydotdev/shared/src/graphql/posts';
 import {
   POST_BY_ID_STATIC_FIELDS_QUERY,
+  postAnalyticsHistoryQuery,
   postAnalyticsQueryOptions,
 } from '@dailydotdev/shared/src/graphql/posts';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
@@ -96,12 +96,8 @@ import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/type
 import { BoostIcon } from '@dailydotdev/shared/src/components/icons/Boost';
 import { useCampaignEstimation } from '@dailydotdev/shared/src/features/boost/useCampaignEstimation';
 import { useCampaigns } from '@dailydotdev/shared/src/features/boost/useCampaigns';
-import {
-  AgentViewsSeries,
-  agentViewsTotalSeries,
-  agentViewsVendorSeries,
-} from '@dailydotdev/shared/src/components/analytics/agentViews';
-import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
+import { AgentViewsSection } from '@dailydotdev/shared/src/components/analytics/AgentViewsSection';
+import { LegendToggle } from '@dailydotdev/shared/src/components/analytics/LegendToggle';
 import { getSeoDescription } from '../../../../components/PostSEOSchema';
 import type { Props } from '../index';
 import { seoTitle } from '../index';
@@ -116,16 +112,6 @@ const ImpressionsChart = dynamic(
   () =>
     import('../../../../../shared/src/components/analytics/ImpressionsChart').then(
       (mod) => mod.ImpressionsChart,
-    ),
-  {
-    loading: () => <div className="h-40 w-full" />,
-  },
-);
-
-const AgentViewsChart = dynamic(
-  () =>
-    import('../../../../../shared/src/components/analytics/AgentViewsChart').then(
-      (mod) => mod.AgentViewsChart,
     ),
   {
     loading: () => <div className="h-40 w-full" />,
@@ -214,54 +200,6 @@ const SectionHeader = ({ children }: SectionHeaderProps): ReactElement => {
   );
 };
 
-const AgentDot = ({
-  colorClassName,
-}: {
-  colorClassName: string;
-}): ReactElement => (
-  <span className={classNames('size-2 rounded-full', colorClassName)} />
-);
-
-const LegendToggle = ({
-  label,
-  dotClassName,
-  shapeClassName = 'size-2 rounded-full',
-  isActive,
-  isLocked = false,
-  onToggle,
-}: {
-  label: string;
-  dotClassName: string;
-  shapeClassName?: string;
-  isActive: boolean;
-  isLocked?: boolean;
-  onToggle: () => void;
-}): ReactElement => (
-  <button
-    type="button"
-    className={classNames(
-      'flex items-center gap-1',
-      isLocked && 'cursor-default',
-    )}
-    aria-pressed={isActive}
-    aria-disabled={isLocked}
-    onClick={isLocked ? undefined : onToggle}
-  >
-    <span
-      className={classNames(
-        shapeClassName,
-        isActive ? dotClassName : 'border border-border-subtlest-primary',
-      )}
-    />
-    <Typography
-      type={TypographyType.Footnote}
-      color={isActive ? TypographyColor.Primary : TypographyColor.Tertiary}
-    >
-      {label}
-    </Typography>
-  </button>
-);
-
 const PostAnalyticsPage = ({
   id,
   initialData,
@@ -287,6 +225,12 @@ const PostAnalyticsPage = ({
     enabled: canViewPostAnalytics({ post, user }),
   });
 
+  const { data: postAnalyticsHistory } = useQuery({
+    ...postAnalyticsHistoryQuery({ id: post?.id }),
+    enabled: canViewPostAnalytics({ post, user }),
+    select: (data) => data.edges.map(({ node }) => node),
+  });
+
   // get latest campaign user created for this post
   const campaignQuery = useCampaigns({
     entityId: post?.id,
@@ -297,47 +241,7 @@ const PostAnalyticsPage = ({
 
   const [showOrganic, setShowOrganic] = useState(true);
   const [showPromoted, setShowPromoted] = useState(true);
-  const [showAgentReads, setShowAgentReads] = useState(true);
-  const [showAgentCrawls, setShowAgentCrawls] = useState(true);
-  const [visibleAgentSeries, setVisibleAgentSeries] = useState<
-    AgentViewsSeries[]
-  >([AgentViewsSeries.Total]);
-  const [showAgentBreakdown, setShowAgentBreakdown] = useState(false);
-
-  const toggleAgentSeries = (key: AgentViewsSeries) => {
-    if (key === AgentViewsSeries.Total) {
-      setVisibleAgentSeries([AgentViewsSeries.Total]);
-
-      return;
-    }
-
-    setVisibleAgentSeries((current) => {
-      const vendors = current.filter((item) => item !== AgentViewsSeries.Total);
-      const next = vendors.includes(key)
-        ? vendors.filter((item) => item !== key)
-        : [...vendors, key];
-
-      return next.length ? next : [AgentViewsSeries.Total];
-    });
-  };
-
   const canViewAgentViews = typeof postAnalytics?.agentViews === 'number';
-
-  const agentViewsList: AnalyticsNumberList = agentViewsVendorSeries.map(
-    ({ key, label, dotClassName, botKey }) => {
-      const reads = largeNumberFormat(postAnalytics?.[key] ?? 0);
-
-      return {
-        icon: <AgentDot colorClassName={dotClassName} />,
-        label,
-        value: botKey
-          ? `${reads} reads · ${largeNumberFormat(
-              postAnalytics?.[botKey] ?? 0,
-            )} crawls`
-          : `${reads} reads`,
-      };
-    },
-  );
 
   const canBoost = useShowBoostButton({ post });
   const isBoosting = !!post?.flags?.campaignId;
@@ -666,88 +570,12 @@ const PostAnalyticsPage = ({
             <Divider className={dividerClassName} />
             <SectionContainer>
               <SectionHeader>AI agents</SectionHeader>
-              <div className="flex gap-4">
-                <DataTile
-                  label="AI agent reads"
-                  value={postAnalytics?.agentViews ?? 0}
-                  info="The number of times AI assistants like ChatGPT, Claude, and Gemini read your post because someone asked them about it."
-                  className={{
-                    container: 'flex-1',
-                  }}
-                />
-                <DataTile
-                  label="AI crawler visits"
-                  value={postAnalytics?.agentViewsBot ?? 0}
-                  info="The number of times AI crawlers visited your post to index it for AI search or crawling."
-                  className={{
-                    container: 'flex-1',
-                  }}
-                />
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <Typography type={TypographyType.Footnote} bold>
-                  AI agents in the last 45 days
-                </Typography>
-                <div className="ml-auto flex flex-wrap gap-2">
-                  <LegendToggle
-                    label="Reads"
-                    dotClassName="bg-text-secondary"
-                    shapeClassName="h-0.5 w-3 rounded-full"
-                    isActive={showAgentReads}
-                    isLocked={showAgentReads && !showAgentCrawls}
-                    onToggle={() => setShowAgentReads((current) => !current)}
-                  />
-                  <LegendToggle
-                    label="Crawls"
-                    dotClassName="border-text-secondary"
-                    shapeClassName="w-3 border-t-2 border-dashed"
-                    isActive={showAgentCrawls}
-                    isLocked={showAgentCrawls && !showAgentReads}
-                    onToggle={() => setShowAgentCrawls((current) => !current)}
-                  />
-                </div>
-              </div>
-              <div className="flex flex-wrap justify-end gap-2">
-                {[agentViewsTotalSeries, ...agentViewsVendorSeries].map(
-                  (series) => (
-                    <LegendToggle
-                      key={series.key}
-                      label={series.label}
-                      dotClassName={series.dotClassName}
-                      isActive={visibleAgentSeries.includes(series.key)}
-                      isLocked={
-                        series.key === AgentViewsSeries.Total &&
-                        visibleAgentSeries.includes(AgentViewsSeries.Total)
-                      }
-                      onToggle={() => toggleAgentSeries(series.key)}
-                    />
-                  ),
-                )}
-              </div>
-              <AgentViewsChart
-                post={post}
-                visibleSeries={visibleAgentSeries}
-                showReads={showAgentReads}
-                showCrawls={showAgentCrawls}
+              <AgentViewsSection
+                analytics={postAnalytics}
+                history={postAnalyticsHistory}
+                readsInfo="The number of times AI assistants like ChatGPT, Claude, and Gemini read your post because someone asked them about it."
+                crawlsInfo="The number of times AI crawlers visited your post to index it for AI search or crawling."
               />
-              <Button
-                className="w-full justify-between"
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Medium}
-                icon={
-                  <ArrowIcon
-                    className={showAgentBreakdown ? 'rotate-180' : 'rotate-90'}
-                  />
-                }
-                iconPosition={ButtonIconPosition.Right}
-                aria-expanded={showAgentBreakdown}
-                onClick={() => setShowAgentBreakdown((current) => !current)}
-              >
-                {showAgentBreakdown ? 'Hide' : 'Show'} total per agent
-              </Button>
-              {showAgentBreakdown && (
-                <AnalyticsNumbersList data={agentViewsList} />
-              )}
             </SectionContainer>
           </>
         )}
