@@ -1,4 +1,5 @@
 import type { ChatRoom } from '../graphql';
+import { getChatRoomHref } from '../joinLink';
 import { useLiveChatRooms } from './useLiveChatRooms';
 
 // The one room worth a line on the feed: the newest open one, since the
@@ -10,7 +11,7 @@ export const useLiveChatHighlight = (): {
   const { rooms, isPending } = useLiveChatRooms();
 
   return {
-    room: rooms.find((room) => room.post?.commentsPermalink) ?? null,
+    room: rooms.find((room) => getChatRoomHref(room)) ?? null,
     isPending,
   };
 };

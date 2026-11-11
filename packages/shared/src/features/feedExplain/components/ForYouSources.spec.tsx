@@ -57,11 +57,10 @@ const feedId = defaultUser.id;
 
 const version = 116;
 
-const renderSources = (isFlagOn = true) => {
+const renderSources = () => {
   const gb = new GrowthBook({
     features: {
       feed_version: { defaultValue: version },
-      feed_explain: { defaultValue: isFlagOn },
     },
   });
   const client = new QueryClient();
@@ -169,11 +168,5 @@ describe('ForYouSources', () => {
         'You no longer follow it.',
       ),
     ).toBeInTheDocument();
-  });
-
-  it('should not show without the flag', () => {
-    renderSources(false);
-
-    expect(screen.queryByText('Sources you follow')).not.toBeInTheDocument();
   });
 });

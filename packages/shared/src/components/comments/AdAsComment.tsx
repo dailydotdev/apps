@@ -17,7 +17,6 @@ import { AdActions, AdPlacement, shouldSkipSourceAds } from '../../lib/ads';
 import type { Post } from '../../graphql/posts';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { RemoveAd } from '../cards/ad/common/RemoveAd';
-import { AdRefresh } from '../cards/ad/common/AdRefresh';
 import { ButtonVariant } from '../buttons/common';
 import { MiniCloseIcon } from '../icons';
 import { useAdQuery } from '../../features/monetization/useAdQuery';
@@ -43,7 +42,6 @@ export const AdAsComment = ({
 
   const {
     data: ad,
-    refetch,
     isFetching,
     isRefetching,
   } = useAdQuery({
@@ -80,11 +78,6 @@ export const AdAsComment = ({
   const promotedText = useScrambler(
     !ad ? undefined : `Promoted by ${ad.source}`,
   );
-
-  const onRefreshClick = useCallback(async () => {
-    onAdAction(AdActions.Refresh);
-    await refetch();
-  }, [onAdAction, refetch]);
 
   useEffect(() => {
     if (!ad || ad?.impressionStatus === ImpressionStatus.LOGGED) {
@@ -136,20 +129,15 @@ export const AdAsComment = ({
           {promotedText}
         </TruncateText>
       </div>
-      <div className="z-1 ml-auto flex gap-1">
-        <AdRefresh
-          variant={ButtonVariant.Tertiary}
-          onClick={onRefreshClick}
-          loading={isRefetching}
-        />
-        {!isPlus && (
+      {!isPlus && (
+        <div className="z-1 ml-auto flex gap-1">
           <RemoveAd
             iconOnly
             variant={ButtonVariant.Tertiary}
             icon={<MiniCloseIcon />}
           />
-        )}
-      </div>
+        </div>
+      )}
       <p className="mt-3 w-full text-text-primary typo-body">
         {tagLine && (
           <>

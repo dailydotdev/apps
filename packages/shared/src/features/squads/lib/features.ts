@@ -8,6 +8,13 @@ export const hasSquadFeature = (
   feature: SquadFeature,
 ): boolean => !!source?.features?.[feature];
 
+// A company page: verified (Enterprise) or on a daily.dev for Startups plan,
+// which turns on products.
+export const isCompanySquad = (
+  source: Pick<Source, 'features'> | undefined,
+): boolean =>
+  hasSquadFeature(source, 'verified') || hasSquadFeature(source, 'products');
+
 // Verified squads get the full branding. The Startups Team plan gets only the
 // header button; the brand color stays an Enterprise feature.
 export const canSetSquadButton = (

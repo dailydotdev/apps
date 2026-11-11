@@ -52,11 +52,7 @@ import {
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import {
-  featurePostPageFeed,
-  featurePostSignupStrip,
-} from '@dailydotdev/shared/src/lib/featureManagement';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { featurePostSignupStrip } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   useEventListener,
   useJoinReferral,
@@ -137,12 +133,6 @@ const PostAppPrompt = dynamic(() =>
   ).then((mod) => mod.PostAppPrompt),
 );
 
-const PostPageFeed = dynamic(() =>
-  import(
-    /* webpackChunkName: "postPageFeed" */ '@dailydotdev/shared/src/components/post/feed/PostPageFeed'
-  ).then((module) => module.PostPageFeed),
-);
-
 const PinnedSignupStrip = dynamic(() =>
   import(
     /* webpackChunkName: "pinnedSignupStrip" */ '@dailydotdev/shared/src/components/auth/PinnedSignupStrip'
@@ -211,7 +201,7 @@ export const PostPage = ({
   // The comment teaser brings its own ask: the pinned footer on tablet and
   // laptop (instead of the banner or strip), the phone footer's new title
   // and X's app card on phones.
-  const { showLogin, isLoggedIn } = useAuthContext();
+  const { showLogin } = useAuthContext();
   const { isCommentsTeaser, isPending: isCommentsTeaserPending } =
     useCommentsTeaser();
   const isPhoneBrowser = usePhoneBrowser();
@@ -224,16 +214,6 @@ export const PostPage = ({
     !isSignupStripOn &&
     !isCommentsTeaser &&
     !isCommentsTeaserPending;
-  // The feed after the comments is for signed-in readers: signed-out readers
-  // keep the comments and the sign-up footer, and never enter the
-  // experiment. Briefs and digests have no comments, so no feed either.
-  const { value: isPostPageFeedOn } = useConditionalFeature({
-    feature: featurePostPageFeed,
-    shouldEvaluate:
-      isLoggedIn &&
-      !!post?.id &&
-      ![PostType.Brief, PostType.Digest].includes(post.type),
-  });
   const showSignupStrip =
     showLaptopAuthBanner &&
     !isSignupStripLoading &&
@@ -447,11 +427,6 @@ export const PostPage = ({
               contentLeading={organicAds?.contentLeading}
               renderSummarySegments={organicAds?.renderSummarySegments}
               aboveComments={organicAds?.aboveComments}
-              belowComments={
-                isPostPageFeedOn && post ? (
-                  <PostPageFeed post={post} />
-                ) : undefined
-              }
               commentAds={organicAds?.commentAds}
               // Only while ads are actually live: a truthy hook flattens the
               // further-reading widget around the slot, and without an ad that
@@ -566,16 +541,16 @@ export async function getStaticProps({
       title: pageSeoTitles.title,
       description: getSeoDescription(post),
       noindex,
-      additionalLinkTags:
-        post && !noindex
-          ? [
-              {
-                rel: 'alternate',
-                type: 'text/markdown',
-                href: getPostMarkdownUrl({ post }),
-              },
-            ]
-          : undefined,
+      ...(post &&
+        !noindex && {
+          additionalLinkTags: [
+            {
+              rel: 'alternate',
+              type: 'text/markdown',
+              href: getPostMarkdownUrl({ post }),
+            },
+          ],
+        }),
       openGraph: {
         ...pageSeoTitles.openGraph,
         images: [

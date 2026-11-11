@@ -116,6 +116,7 @@ export * from './NewTab';
 export * from './NumberedList';
 export * from './OpenLink';
 export * from './Organization';
+export * from './PaintRoller';
 export * from './Pause';
 export * from './Phone';
 export * from './Pin';

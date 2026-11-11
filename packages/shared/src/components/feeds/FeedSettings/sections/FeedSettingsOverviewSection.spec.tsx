@@ -60,17 +60,14 @@ const ForYouFeed = (): ReactElement | null => {
 
 const renderOverview = ({
   version = 116,
-  isFlagOn = true,
   feedControls = controls,
 }: {
   version?: number;
-  isFlagOn?: boolean;
   feedControls?: FeedControls;
 } = {}) => {
   const gb = new GrowthBook({
     features: {
       feed_version: { defaultValue: version },
-      feed_explain: { defaultValue: isFlagOn },
     },
   });
   const client = new QueryClient();
@@ -97,15 +94,6 @@ beforeEach(() => {
 });
 
 describe('FeedSettingsOverviewSection', () => {
-  it('should leave the controls out without the flag', async () => {
-    renderOverview({ isFlagOn: false });
-
-    expect(await screen.findByText('You follow 1 topic.')).toBeInTheDocument();
-    expect(screen.queryByText('Learn from my reading')).not.toBeInTheDocument();
-    expect(screen.queryByText('Start over')).not.toBeInTheDocument();
-    expect(screen.queryByText('Connect your agent')).not.toBeInTheDocument();
-  });
-
   it('should turn learning off', async () => {
     let sent = false;
     mockGraphQL({

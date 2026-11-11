@@ -13,9 +13,12 @@ import {
 export const SquadEnterpriseGate = ({
   title,
   description,
+  plan = 'Enterprise',
 }: {
   title: string;
   description: string;
+  /** The plan that includes it */
+  plan?: string;
 }): ReactElement => (
   <div className="flex items-start gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
     <span className="flex size-8 shrink-0 items-center justify-center rounded-10 bg-surface-float text-text-tertiary">
@@ -27,7 +30,7 @@ export const SquadEnterpriseGate = ({
           {title}
         </Typography>
         <Pill
-          label="Enterprise"
+          label={plan}
           size={PillSize.XSmall}
           className="bg-surface-float text-text-secondary"
         />

@@ -7,7 +7,11 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { useFeedHeroData } from '../../../components/feeds/hero/useFeedHeroData';
 import { useFeedWidgetsContext } from '../FeedWidgetsContext';
 import { useLiveChatEnabled } from '../../liveChat/hooks/useLiveChatEnabled';
-import { getLiveChatRooms, ChatRoomStatus } from '../../liveChat/graphql';
+import {
+  getLiveChatRooms,
+  ChatRoomStatus,
+  ChatRoomType,
+} from '../../liveChat/graphql';
 import type { ChatRoom } from '../../liveChat/graphql';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
 
@@ -33,6 +37,7 @@ jest.mock('../../liveChat/graphql', () => ({
 
 const room: ChatRoom = {
   id: 'r1',
+  type: ChatRoomType.PostLive,
   status: ChatRoomStatus.Active,
   jid: 'r1@conference.chat.daily.dev',
   title: 'Bun 2.0',
@@ -41,7 +46,7 @@ const room: ChatRoom = {
     title: 'Bun 2.0',
     commentsPermalink: 'https://app.daily.dev/posts/p1',
   },
-  expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+  expiresAt: new Date(Date.now() + 45 * 60 * 1000).toISOString(),
   occupantCount: 23,
   createdAt: new Date().toISOString(),
 };
@@ -106,7 +111,7 @@ describe('HappeningNowWidget live chat line', () => {
 
     const live = await screen.findByText('Bun 2.0');
     expect(
-      screen.getByText('Live chat · 23 here · ends in 2h'),
+      screen.getByText('Live chat · 23 here · ends in 45m'),
     ).toBeInTheDocument();
     expect(live.closest('a')).toHaveAttribute(
       'href',

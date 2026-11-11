@@ -32,7 +32,7 @@ interface SquadPageLayoutProps {
    */
   hasAboutTab?: boolean;
   /**
-   * Tabs beside Posts (Jobs, Perks). From laptop they sit over the feed;
+   * Tabs beside Posts (Perks). From laptop they sit over the feed;
    * below laptop they join the Posts and About tabs.
    */
   tabs?: SquadPageExtraTab[];

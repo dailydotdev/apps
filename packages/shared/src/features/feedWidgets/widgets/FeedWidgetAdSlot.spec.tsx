@@ -79,7 +79,11 @@ const renderSlot = (ad: Ad, client = new QueryClient()) =>
       auth={{ user: loggedUser }}
       log={{ logEvent }}
     >
-      <FeedWidgetsProvider feedName="popular" isEditing={false}>
+      <FeedWidgetsProvider
+        feedName="popular"
+        isEditing={false}
+        hasTopStory={false}
+      >
         <FeedWidgetAdSlot ad={ad} isEditing={false} />
       </FeedWidgetsProvider>
     </TestBootProvider>,

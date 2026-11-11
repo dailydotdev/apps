@@ -11,7 +11,6 @@ import defaultUser from '../../__tests__/fixture/loggedUser';
 import { useConditionalFeature } from '../hooks/useConditionalFeature';
 import {
   feature as flags,
-  featureFeedExplain,
   featureFeedHero,
   featureFeedWidgets,
 } from '../lib/featureManagement';
@@ -58,12 +57,10 @@ jest.mock('../features/shortcuts/components/WebappShortcutsRow', () => ({
 const mockFlags = ({
   widgets = false,
   hero = false,
-  explain = false,
   version = flags.feedVersion.defaultValue,
 }: {
   widgets?: boolean;
   hero?: boolean;
-  explain?: boolean;
   version?: number;
 }) =>
   jest.mocked(useConditionalFeature).mockImplementation(({ feature }) => {
@@ -72,9 +69,6 @@ const mockFlags = ({
     }
     if (feature.id === featureFeedHero.id) {
       return { value: hero, isLoading: false };
-    }
-    if (feature.id === featureFeedExplain.id) {
-      return { value: explain, isLoading: false };
     }
     if (feature.id === flags.feedVersion.id) {
       return { value: version, isLoading: false } as ReturnType<
@@ -199,21 +193,10 @@ describe('Debug mode', () => {
     );
   };
 
-  it('keeps the regular For You query with the flag off', async () => {
-    mockFlags({ explain: false, version: 116 });
-
-    renderDebugging();
-
-    await screen.findByTestId('feed');
-    expect(lastFeedProps().query).toBe(FEED_V2_QUERY);
-    expect(lastFeedProps().variables).not.toHaveProperty('explain');
-    expect(lastFeedProps().canExplainPosts).toBe(false);
-  });
-
   it.each([116, 15])(
     'asks for an explanation per card in Debug on feed version %i',
     async (version) => {
-      mockFlags({ explain: true, version });
+      mockFlags({ version });
 
       renderDebugging();
 
@@ -228,7 +211,7 @@ describe('Debug mode', () => {
   );
 
   it('leaves explanations to the post menu with Debug off', async () => {
-    mockFlags({ explain: true, version: 116 });
+    mockFlags({ version: 116 });
 
     renderDebugging(false);
 
@@ -241,7 +224,7 @@ describe('Debug mode', () => {
   });
 
   it('keeps the cards on screen while Debug or Tune loads the same feed', async () => {
-    mockFlags({ explain: true, version: 116 });
+    mockFlags({ version: 116 });
 
     renderDebugging();
 
@@ -265,7 +248,7 @@ describe('Debug mode', () => {
   });
 
   it('offers Tune and Feed settings on a floating bar in Debug mode', async () => {
-    mockFlags({ explain: true, version: 116 });
+    mockFlags({ version: 116 });
 
     renderDebugging();
 
@@ -276,7 +259,7 @@ describe('Debug mode', () => {
   });
 
   it("ranks the feed with Tune's last preview, with the panel beside it", async () => {
-    mockFlags({ explain: true, version: 116 });
+    mockFlags({ version: 116 });
     const demoteRust = {
       kind: 'topic',
       keyword: 'rust',

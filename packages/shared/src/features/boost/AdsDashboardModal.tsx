@@ -12,6 +12,7 @@ import type { Campaign } from '../../graphql/campaigns';
 import { getUserCampaignStats } from '../../graphql/campaigns';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { StartupsAdsDashboardPromo } from '../squads/components/promos/StartupsPromo';
 
 interface AdsDashboardModalProps extends ModalProps {
   initialCampaign?: Campaign;
@@ -56,6 +57,7 @@ export function AdsDashboardModal({
     >
       <Modal.Header title="Ads dashboard" showCloseButton />
       <Modal.Body className="flex flex-col gap-4 overflow-x-hidden">
+        <StartupsAdsDashboardPromo spend={stats.spend} />
         <Modal.Subtitle>Overview all time</Modal.Subtitle>
         <CampaignStatsGrid
           spend={stats.spend}

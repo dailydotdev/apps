@@ -89,6 +89,8 @@ export const featureCores = new Feature('cores', isDevelopment);
 // automated streak freeze: auto-apply purchased freezes on missed reading days
 export const featureStreakFreeze = new Feature('streak_freeze', isDevelopment);
 
+export const featureGtaViFreezeDay = new Feature('gta_vi_freeze_day', false);
+
 export const briefCardFeedFeature = new Feature(
   'brief_card_feed',
   isDevelopment,
@@ -255,15 +257,6 @@ export const featureSponsorStrip = new Feature('sponsor_strip', isDevelopment);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 
-// Experiment: list cards (the phone and tablet feed, and the desktop list
-// layout) get the grid bar: 32px buttons, 19px icons and the number 4px from
-// its icon. The bookmark stays in the bar and the row grows to fit, so the card
-// is 8px taller. Only list bars evaluate it, for logged-in users.
-export const featureListCardLargeActions = new Feature(
-  'list_card_large_actions',
-  false,
-);
-
 // Experiment: grid cards show the post's TLDR under the title, clamped, with
 // "Show more" to read it inside the card. Only grid cards with a TLDR evaluate
 // it, so only readers on the grid layout are enrolled.
@@ -317,10 +310,6 @@ export const featurePostCommentsTeaserDesktop = new Feature(
   'post_comments_teaser_desktop',
   false,
 );
-
-// Experiment: a feed after the post page's comments (For you, the post's
-// tags, its source), for signed-in readers. Control ends at the comments.
-export const featurePostPageFeed = new Feature('post_page_feed', false);
 
 // Gates every agent surface; control hides all of them. Keep the default
 // `false`, GrowthBook ramps it.
@@ -388,10 +377,6 @@ export const featureExcoPlayer = new Feature<ExcoPlayerConfig>('exco_player', {
   playerId: '',
 });
 
-// Explain mode on For You: why each card is on the feed, with the For You
-// controls. On whatever feed version the reader has.
-export const featureFeedExplain = new Feature('feed_explain', false);
-
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.
 export const featureGqlBatching = new Feature('gql_batching', false);
@@ -405,16 +390,14 @@ export const featureFeedWidgetsDefault = new Feature<{
   id: string;
   widgets: { id: string; kind: string; size: string }[];
 }>('feed_widgets_default', {
-  id: 'default-1',
-  widgets: [{ id: 'top-story', kind: 'topStory', size: 'large' }],
+  id: 'default-3',
+  widgets: [
+    { id: 'happening-now', kind: 'happeningNow', size: 'large' },
+    { id: 'streak', kind: 'streak', size: 'small' },
+  ],
 });
 
 // Weekly picks MVP: gates the Friday nudge, the /bookmarks button, /picks/new
 // and the share sheet. The public page /picks/:id is never gated so shared
 // links keep working.
 export const featureWeeklyPicks = new Feature('weekly_picks', false);
-
-// daily.dev for Startups self-serve checkout: the plan picker at
-// /squads/for-startups and the Plan section of Squad Manage. Off until launch;
-// the landing page reads the same flag to swap its waitlist for Get started.
-export const featureStartupsCheckout = new Feature('startups_checkout', false);

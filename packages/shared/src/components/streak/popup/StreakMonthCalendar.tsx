@@ -14,6 +14,13 @@ import {
 } from '../../../hooks/streaks/useStreakDays';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { DEFAULT_TIMEZONE, isSameDayInTimezone } from '../../../lib/timezones';
+import {
+  getGtaViLabel,
+  GtaViDisc,
+  GtaViTooltip,
+  isGtaViReleaseDay,
+  useIsGtaViDayEnabled,
+} from './GtaViDay';
 
 const DAYS = 30;
 // How many days before today to start the grid, so today sits early in the
@@ -50,14 +57,34 @@ export const StreakMonthCalendar = ({
           freezeDates,
         }),
         isToday: isSameDayInTimezone(date, today, timezone),
+        isGtaViDay: isGtaViReleaseDay(date, timezone),
       };
     });
   }, [history, streak?.weekStart, timezone, freezeDates]);
+  const isGtaViDayEnabled = useIsGtaViDayEnabled(
+    days.some(({ isGtaViDay }) => isGtaViDay),
+  );
 
   return (
     <div className="grid grid-cols-10 gap-x-2 gap-y-2.5">
-      {days.map(({ date, state, isToday }) => {
+      {days.map(({ date, state, isToday, isGtaViDay }) => {
         const isRead = state === Streak.Completed;
+        if (isGtaViDayEnabled && isGtaViDay) {
+          return (
+            <GtaViTooltip key={date.getTime()} timezone={timezone}>
+              <button
+                type="button"
+                aria-label={getGtaViLabel(date, timezone, isRead)}
+                className="place-self-center rounded-full"
+              >
+                <GtaViDisc
+                  className="-m-px size-[1.125rem]"
+                  isToday={isToday}
+                />
+              </button>
+            </GtaViTooltip>
+          );
+        }
         // A consumed streak freeze shares the weekend-freeze dashed pattern —
         // same mapping as DayStreak, which draws both states identically.
         const isFreeze = state === Streak.Freeze || state === Streak.UsedFreeze;

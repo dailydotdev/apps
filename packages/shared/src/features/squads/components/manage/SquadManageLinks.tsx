@@ -30,6 +30,7 @@ import { SquadManageSection } from '../../lib/routes';
 import {
   SquadManageSaveButton,
   SquadManageSectionPanel,
+  useSquadManageEmbed,
 } from './SquadManageLayout';
 
 const formId = 'squad-manage-links';
@@ -37,6 +38,7 @@ const invalidLinkCopy = 'Use a full address starting with https://';
 
 export const SquadManageLinks = (): ReactElement => {
   const { squad } = useSquadPageContext();
+  const embed = useSquadManageEmbed();
   const { mutate: onSave, isPending, data: saved } = useUpdateSquadLinks(squad);
   const [website, setWebsite] = useState(squad.website ?? '');
   const [links, setLinks] = useState<string[]>(squad.links ?? []);
@@ -79,7 +81,10 @@ export const SquadManageLinks = (): ReactElement => {
       return;
     }
 
-    onSave({ website: website.trim() || null, links: nextLinks });
+    onSave(
+      { website: website.trim() || null, links: nextLinks },
+      { onSuccess: () => embed?.onSaved() },
+    );
   };
 
   return (

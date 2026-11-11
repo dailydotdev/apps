@@ -66,6 +66,12 @@ export const usePaddlePayment = ({
   const [appliedDiscountId, setAppliedDiscountId] = useState<
     string | null | undefined
   >();
+  // What the open checkout charges today, after discounts and tax
+  const [checkoutTotals, setCheckoutTotals] = useState<{
+    total: number;
+    discount: number;
+    currency: string;
+  }>();
   const logRef = useRef(logEvent);
   logRef.current = logEvent;
   const successCallbackRef = useRef(successCallback);
@@ -101,6 +107,16 @@ export const usePaddlePayment = ({
         'production',
       token: paddleToken,
       eventCallback: (event: PaddleEventData) => {
+        const totals = event?.data?.totals;
+
+        if (totals && event?.data?.currency_code) {
+          setCheckoutTotals({
+            total: totals.total,
+            discount: totals.discount,
+            currency: event.data.currency_code,
+          });
+        }
+
         if (disabledEvents?.includes(event?.name as CheckoutEventNames)) {
           if (event?.name === CheckoutEventNames.CHECKOUT_LOADED) {
             isCheckoutOpenRef.current = true;
@@ -323,5 +339,6 @@ export const usePaddlePayment = ({
     isPaddleReady: !!paddle,
     checkoutItemsLoading,
     appliedDiscountId,
+    checkoutTotals,
   };
 };

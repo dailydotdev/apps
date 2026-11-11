@@ -1,9 +1,4 @@
-import type {
-  CSSProperties,
-  KeyboardEvent,
-  PointerEvent,
-  ReactElement,
-} from 'react';
+import type { KeyboardEvent, PointerEvent, ReactElement } from 'react';
 import React, {
   useCallback,
   useEffect,
@@ -34,6 +29,7 @@ import type { FeedWidgetComponentProps } from '../registry';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
 import { FeedWidgetEmpty } from '../FeedWidgetFrame';
 import { useWidgetScroll } from '../useWidgetScroll';
+import { todoListGlow } from './material';
 
 export type TodoItem = { id: string; text: string; done: boolean };
 
@@ -67,12 +63,6 @@ const suggestions = [
 ];
 
 const ease = 'cubic-bezier(0.2, 0, 0, 1)';
-
-// The widget's own material, a soft cabbage glow from the top corner.
-const glowStyle: CSSProperties = {
-  backgroundImage:
-    'radial-gradient(90% 60% at 100% 0%, color-mix(in srgb, var(--theme-accent-cabbage-default) 18%, transparent) 0%, transparent 70%)',
-};
 
 const prefersReducedMotion = (): boolean =>
   typeof window !== 'undefined' &&
@@ -936,7 +926,7 @@ const TodoList = ({ size }: { size: FeedWidgetSize }): ReactElement => {
       <span
         aria-hidden
         className="pointer-events-none absolute -inset-4 -z-1"
-        style={glowStyle}
+        style={todoListGlow}
       />
       <header className="flex h-6 min-w-0 shrink-0 items-center gap-1.5 px-4">
         <ChecklistAIcon

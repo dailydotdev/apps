@@ -14,7 +14,7 @@ import type {
 } from '../../messages/types';
 import type { ChatRoom } from '../graphql';
 import { ChatRoomStatus, openPostChatRoom } from '../graphql';
-import { postChatRoomQueryOptions } from '../queries';
+import { chatRoomQueryOptions, postChatRoomQueryOptions } from '../queries';
 
 export type LiveChatStatus =
   // Not in the room; the room may or may not exist yet.
@@ -60,17 +60,23 @@ type UseLiveChatRoom = {
   react: (messageId: string, emoji: string) => void;
   // Whether the draft has text, on every change, for the typing indicator.
   onDraftChange: (hasText: boolean) => void;
+  // Drops everything the sender said from this screen, once they are out.
+  removeSender: (userId: string) => void;
 };
 
-// One post's live chat: the room from the API, and the viewer's seat in it
-// over the chat connection. Messages live only here, as long as the surface
-// is mounted; the room keeps nothing, and that is the point of it.
+// One live chat: the room from the API, and the viewer's seat in it over
+// the chat connection. Messages live only here, as long as the surface is
+// mounted; the room keeps nothing, and that is the point of it. The room is
+// the post's (which the team may still open from here) or one by id (a
+// topic room, which exists before anyone lands on it).
 export const useLiveChatRoom = ({
   postId,
+  roomId,
   origin,
   preview = false,
 }: {
-  postId: string;
+  postId?: string;
+  roomId?: string;
   origin: string;
   // Seat a signed-in viewer in the open room while this is true, so the chat
   // is on screen before they decide to join. The room replays its recent
@@ -85,7 +91,9 @@ export const useLiveChatRoom = ({
   const queryClient = useQueryClient();
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
-  const roomQuery = postChatRoomQueryOptions(user, postId);
+  const roomQuery = roomId
+    ? chatRoomQueryOptions(user, roomId)
+    : postChatRoomQueryOptions(user, postId ?? '');
   const { data: room, isPending: isRoomLoading } = useQuery(roomQuery);
   const roomJid = room?.status === ChatRoomStatus.Active ? room.jid : null;
 
@@ -115,7 +123,11 @@ export const useLiveChatRoom = ({
         event_name: eventName,
         target_type: TargetType.ChatRoom,
         target_id: room?.id,
-        extra: JSON.stringify({ origin, post_id: postId, ...extra }),
+        extra: JSON.stringify({
+          origin,
+          ...(postId && { post_id: postId }),
+          ...extra,
+        }),
       }),
     [logEvent, origin, postId, room?.id],
   );
@@ -288,7 +300,9 @@ export const useLiveChatRoom = ({
     setStatus('joining');
     try {
       let target = room;
-      if (!target?.jid || target.status !== ChatRoomStatus.Active) {
+      // A topic room exists before anyone lands on it; only a post's room
+      // is opened from here.
+      if (postId && (!target?.jid || target.status !== ChatRoomStatus.Active)) {
         target = await openPostChatRoom(postId);
         queryClient.setQueryData(roomQuery.queryKey, target);
         // Closed while the room was opening; the unmount had nothing to leave.
@@ -296,7 +310,7 @@ export const useLiveChatRoom = ({
           return;
         }
       }
-      if (!target.jid) {
+      if (!target?.jid || target.status !== ChatRoomStatus.Active) {
         throw new Error('The chat room is not ready yet');
       }
       // A preview seat taken again picks up where the last one left off; the
@@ -311,7 +325,7 @@ export const useLiveChatRoom = ({
       setStatus('failed');
       throw err;
     }
-    // The query key is stable per post; the options object is not.
+    // The query key is stable per room; the options object is not.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postId, preview, queryClient, room, status, user?.id]);
 
@@ -321,6 +335,20 @@ export const useLiveChatRoom = ({
       await join();
     }
   }, [join, status]);
+
+  // A seat counts as reading once it is confirmed, whether the surface took
+  // it or the viewer did; the funnel's "in the room" step.
+  const readLogged = useRef(false);
+  useEffect(() => {
+    if (status !== 'joined') {
+      readLogged.current = false;
+      return;
+    }
+    if (!readLogged.current) {
+      readLogged.current = true;
+      log(LogEvent.ReadLiveChat);
+    }
+  }, [log, status]);
 
   // A join counts once the seat is confirmed and the viewer asked for it, so
   // a click that fails, or one made while the preview seat is still landing,
@@ -433,6 +461,12 @@ export const useLiveChatRoom = ({
     [displayToast, isParticipating, log, messages, user?.id],
   );
 
+  const removeSender = useCallback((userId: string) => {
+    setMessages((current) =>
+      current.filter((message) => message.senderId !== userId),
+    );
+  }, []);
+
   // Leaving the page leaves the room; nothing about the seat survives it.
   useEffect(() => {
     const timers = typingTimers.current;
@@ -477,5 +511,6 @@ export const useLiveChatRoom = ({
     send,
     react,
     onDraftChange,
+    removeSender,
   };
 };

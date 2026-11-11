@@ -24,7 +24,7 @@ export const formatOccupants = (count?: number | null): string | undefined =>
   count != null && count >= LIVE_CHAT_COUNT_FROM ? `${count} here` : undefined;
 
 // A far-off end is no reason to hurry; the clock shows once it is one.
-export const LIVE_CHAT_ENDS_SOON_MS = 3 * 60 * 60 * 1000;
+export const LIVE_CHAT_ENDS_SOON_MS = 60 * 60 * 1000;
 
 // "ends in 45m", or nothing while the room has hours ahead of it.
 export const formatEndsIn = (

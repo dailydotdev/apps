@@ -27,13 +27,14 @@ type AwardButtonProps = {
   flags?: Record<string, string>;
   post?: Post;
   copy?: string;
-} & Pick<ButtonProps<'button'>, 'pressed' | 'variant'>;
+} & Pick<ButtonProps<'button'>, 'pressed' | 'variant' | 'size'>;
 export const AwardButton = ({
   type,
   className,
   entity,
   pressed,
   variant = ButtonVariant.Tertiary,
+  size = ButtonSize.Small,
   post,
   flags,
   copy,
@@ -75,7 +76,7 @@ export const AwardButton = ({
       <div className="flex">
         <Button
           pressed={pressed}
-          size={ButtonSize.Small}
+          size={size}
           icon={<MedalBadgeIcon secondary />}
           className={classNames(className, pressed && 'pointer-events-none')}
           variant={variant}

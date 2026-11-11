@@ -1,4 +1,5 @@
 import { getFirstQueryParam } from './func';
+import type { ReferralLadderStep } from '../graphql/users';
 
 export enum ReferralCampaignKey {
   Generic = 'generic',
@@ -58,6 +59,13 @@ export const formatReferralLadderMonths = (months: number): string => {
 
 export const getReferralLadderReward = (months: number): string =>
   `${formatReferralLadderMonths(months)} of Plus`;
+
+// A step the user reached by friend count that has not been granted yet,
+// for example while the reward is held for review.
+export const isReferralLadderStepPending = (
+  step: Pick<ReferralLadderStep, 'invites' | 'unlockedAt'>,
+  referredCount: number,
+): boolean => !step.unlockedAt && referredCount >= step.invites;
 
 export const REFERRAL_INVITE_COPIED_TOAST =
   '✅ Copied your invite message and link';

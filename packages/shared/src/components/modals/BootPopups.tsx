@@ -21,6 +21,7 @@ import { isNullOrUndefined } from '../../lib/func';
 import useProfileForm from '../../hooks/useProfileForm';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
 import { useReferralReminderModal } from '../../hooks/referral/useReferralReminderModal';
+import { useIsBootPopupsPaused } from '../../lib/bootPopupsPause';
 
 const REP_TRESHOLD = 250;
 
@@ -50,6 +51,11 @@ interface BootPopupEntry {
  * - Do NOT call `updateLastBootPopup()` — they don't consume the daily slot
  * - Still respect opt-out checks and other guards in their useEffect
  *
+ * ### Paused pages
+ * - A page calls `usePauseBootPopups(true)` (lib/bootPopupsPause) to hold
+ *   every popup, e.g. the daily.dev for Startups setup on a company squad
+ * - Held popups stay queued and open on the next page that does not pause
+ *
  * ## Adding a new boot popup
  *
  * 1. Add a `useEffect` in this component that checks the relevant conditions
@@ -73,6 +79,7 @@ export const BootPopups = (): ReactElement => {
     updateLastBootPopup,
     updateHasSeenOpportunity,
   } = useContext(AlertContext);
+  const isPaused = useIsBootPopupsPaused();
   const [bootPopups, setBootPopups] = useState(() => new Map());
   const [immediatePopups, setImmediatePopups] = useState(() => new Map());
   const [interactiveBootPopup, setInteractiveBootPopup] =
@@ -372,26 +379,31 @@ export const BootPopups = (): ReactElement => {
    * Immediate popups — shown as soon as alerts are loaded, bypassing the daily limit.
    */
   useEffect(() => {
-    if (!loadedAlerts || immediatePopups.size === 0) {
+    if (isPaused || !loadedAlerts || immediatePopups.size === 0) {
       return;
     }
     openModal(immediatePopups.values().next().value);
     setImmediatePopups(new Map());
-  }, [immediatePopups, loadedAlerts, openModal]);
+  }, [immediatePopups, isPaused, loadedAlerts, openModal]);
 
   /**
    * Queued popups — subject to the one-per-day gate (`alerts.bootPopup`).
    * Only the first popup in the queue is shown.
    */
   useEffect(() => {
-    if (!loadedAlerts || !alerts?.bootPopup || bootPopups.size === 0) {
+    if (
+      isPaused ||
+      !loadedAlerts ||
+      !alerts?.bootPopup ||
+      bootPopups.size === 0
+    ) {
       return;
     }
     openModal(bootPopups.values().next().value);
     setBootPopups(new Map());
-  }, [alerts?.bootPopup, bootPopups, loadedAlerts, openModal]);
+  }, [alerts?.bootPopup, bootPopups, isPaused, loadedAlerts, openModal]);
 
-  return !interactiveBootPopup ? null : (
+  return isPaused || !interactiveBootPopup ? null : (
     <InteractivePopup {...interactiveBootPopup} />
   );
 };

@@ -30,6 +30,7 @@ export const CURRENT_MEMBER_FRAGMENT = gql`
     permissions
     role
     referralToken
+    seat
     flags {
       hideFeedPosts
       collapsePinnedPosts
@@ -220,6 +221,7 @@ export const SOURCE_BASE_FRAGMENT = gql`
       links
       products
       cta
+      jobs
     }
     currentMember {
       ...CurrentMember

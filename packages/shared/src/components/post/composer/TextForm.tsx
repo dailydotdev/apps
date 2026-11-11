@@ -24,6 +24,10 @@ import { useAutoResizeTextarea } from '../../../hooks/utils/useAutoResizeTextare
 import { TITLE_MAX_LENGTH, type TextFormState } from './types';
 import { normalizeSingleLineComposerText } from './utils';
 import { useDuplicateCover } from './useDuplicateCover';
+import {
+  EMOJI_FREE_TITLE_HINT,
+  useEmojiFreeInput,
+} from '../../../hooks/input/useEmojiFreeInput';
 
 export interface TextFormCover {
   preview: string;
@@ -72,6 +76,8 @@ export const TextForm = forwardRef<TextFormHandle, TextFormProps>(
       body: value.body,
       cover,
     });
+    const { hasStrippedEmojis, onEmojiFreeInput, resetEmojiHint } =
+      useEmojiFreeInput();
 
     useImperativeHandle(ref, () => ({
       focus: () => titleRef.current?.focus(),
@@ -154,18 +160,25 @@ export const TextForm = forwardRef<TextFormHandle, TextFormProps>(
                 maxLength={TITLE_MAX_LENGTH}
                 rows={1}
                 value={value.title}
-                onChange={(e) =>
+                onChange={(e) => {
+                  onEmojiFreeInput(e);
                   onChange({
                     ...value,
                     title: normalizeSingleLineComposerText(
                       e.currentTarget.value,
                     ),
-                  })
-                }
+                  });
+                }}
+                onBlur={resetEmojiHint}
                 onKeyDown={onTitleKeyDown}
                 aria-label="Post title"
                 className="max-h-36 w-full resize-none overflow-y-auto break-words bg-transparent font-bold leading-tight text-text-primary outline-none typo-title2 placeholder:text-text-quaternary"
               />
+              {hasStrippedEmojis && (
+                <p role="status" className="text-text-secondary typo-caption1">
+                  {EMOJI_FREE_TITLE_HINT}
+                </p>
+              )}
               {cover ? (
                 <div className="group relative w-fit max-w-full">
                   <img

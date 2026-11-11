@@ -12,6 +12,7 @@ import {
   isNativeAuthSupported,
   AuthEventNames,
   AuthEvent,
+  AuthTriggers,
   autoProfileTriggers,
 } from '../../lib/auth';
 import {
@@ -148,6 +149,7 @@ function AuthOptionsInner({
   hideLoginLink,
   isOnboardingFunnel,
   onScreenBackChange,
+  onLogInChange,
   compact,
   signupStyle,
   inlineProviders,
@@ -157,6 +159,11 @@ function AuthOptionsInner({
   socialProviderScopes,
   registrationExtraFields,
   hideRegistrationHeadline,
+  logInTitle,
+  signUpTitle,
+  logInDescription,
+  signUpDescription,
+  signupProviders,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
@@ -171,8 +178,29 @@ function AuthOptionsInner({
   const router = useRouter();
   const isOnboardingOrFunnel =
     !!router?.pathname?.startsWith('/onboarding') || isFunnel;
+  const isStartups = trigger === AuthTriggers.StartupsCheckout;
+  const [socialError, setSocialError] = useState<string>();
+  const socialProviderRef = useRef<string>();
+  const onSocialError = (message: string) => {
+    if (!isStartups) {
+      displayToast(message);
+      return;
+    }
+
+    if (message !== SOCIAL_AUTH_RETRY_MESSAGE) {
+      setSocialError(message);
+      return;
+    }
+
+    const label = providers.find(
+      ({ value }) => value === socialProviderRef.current,
+    )?.label;
+    setSocialError(
+      `${label ?? 'Your provider'} didn't finish signing you in. Try again, or use another option.`,
+    );
+  };
   const [activeDisplay, setActiveDisplay] = useState(() =>
-    storage.getItem(SIGNIN_METHOD_KEY) && !forceDefaultDisplay
+    storage.getItem(SIGNIN_METHOD_KEY) && !forceDefaultDisplay && !isStartups
       ? AuthDisplay.SignBack
       : defaultDisplay,
   );
@@ -568,7 +596,7 @@ function AuthOptionsInner({
         }),
       });
       if (!authFlowSucceededRef.current) {
-        displayToast(socialErrorMessage);
+        onSocialError(socialErrorMessage);
       }
       return;
     }
@@ -608,7 +636,7 @@ function AuthOptionsInner({
         }),
       });
       if (!authFlowSucceededRef.current) {
-        displayToast(socialErrorMessage);
+        onSocialError(socialErrorMessage);
       }
       return;
     }
@@ -622,6 +650,8 @@ function AuthOptionsInner({
     if (isSocialAuthLoading) {
       return;
     }
+    socialProviderRef.current = provider;
+    setSocialError(undefined);
     const authErrorEventName = login
       ? AuthEventNames.LoginError
       : AuthEventNames.RegistrationError;
@@ -665,7 +695,7 @@ function AuthOptionsInner({
           }),
         });
         setIsSocialAuthLoading(false);
-        displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
+        onSocialError(SOCIAL_AUTH_RETRY_MESSAGE);
         return;
       }
       await setChosenProvider(provider);
@@ -696,7 +726,7 @@ function AuthOptionsInner({
       windowPopup.current?.close();
       windowPopup.current = null;
       setIsSocialAuthLoading(false);
-      displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
+      onSocialError(SOCIAL_AUTH_RETRY_MESSAGE);
       onAuthStateUpdate?.({ isLoading: false });
       return;
     }
@@ -763,7 +793,7 @@ function AuthOptionsInner({
         }),
       });
       setIsSocialAuthLoading(false);
-      displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
+      onSocialError(SOCIAL_AUTH_RETRY_MESSAGE);
       return;
     }
 
@@ -923,7 +953,8 @@ function AuthOptionsInner({
   return (
     <div
       className={classNames(
-        'z-1 flex w-full max-w-[26.25rem] flex-col overflow-y-auto rounded-16',
+        'z-1 flex w-full flex-col rounded-16',
+        isStartups ? 'max-w-full' : 'max-w-[26.25rem] overflow-y-auto',
         !simplified && 'bg-background-default',
         defaultDisplay === AuthDisplay.OnboardingSignup && !compact
           ? 'min-h-[21.25rem]'
@@ -958,6 +989,14 @@ function AuthOptionsInner({
             hasTopBarBack={!!onScreenBackChange}
             isSocialAuthLoading={isSocialAuthLoading}
             providers={providers}
+            logInTitle={logInTitle}
+            signUpTitle={signUpTitle}
+            logInDescription={logInDescription}
+            signUpDescription={signUpDescription}
+            signupProviders={signupProviders}
+            isStartups={isStartups}
+            onLogInChange={onLogInChange}
+            socialError={socialError}
             simplified={simplified}
             trigger={trigger}
             onAuthOpenLogged={() => setHasLoggedAuthOpen(true)}
@@ -981,6 +1020,7 @@ function AuthOptionsInner({
         <Tab label={AuthDisplay.Registration}>
           <RegistrationForm
             formRef={formRef}
+            isStartups={isStartups}
             simplified={simplified}
             showHeadline={!hideRegistrationHeadline}
             isOnboardingFunnel={isOnboardingFunnel}
@@ -1112,6 +1152,7 @@ function AuthOptionsInner({
         </Tab>
         <Tab label={AuthDisplay.ForgotPassword}>
           <ForgotPasswordForm
+            isStartups={isStartups}
             hasTopBarBack={!!onScreenBackChange}
             onBack={onBackToLogin}
             simplified={simplified}
@@ -1130,19 +1171,22 @@ function AuthOptionsInner({
           />
         </Tab>
         <Tab label={AuthDisplay.EmailVerification}>
-          {simplified && (
+          {simplified && !isStartups && (
             <MailIcon size={IconSize.XXLarge} className="mx-auto mb-2" />
           )}
-          <AuthHeader
-            simplified={simplified}
-            onboardingHeadline={isOnboardingFunnel}
-            title="Verify your email"
-            onBack={simplified ? undefined : onBackFromVerify}
-          />
+          {!isStartups && (
+            <AuthHeader
+              simplified={simplified}
+              onboardingHeadline={isOnboardingFunnel}
+              title="Verify your email"
+              onBack={simplified ? undefined : onBackFromVerify}
+            />
+          )}
           {!simplified && (
             <MailIcon size={IconSize.XXLarge} className="mx-auto mt-8" />
           )}
           <EmailCodeVerification
+            isStartups={isStartups}
             className={simplified ? undefined : '!pt-4'}
             isOnboardingFunnel={isOnboardingFunnel}
             onChangeEmail={onBackFromVerify}

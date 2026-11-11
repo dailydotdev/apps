@@ -132,6 +132,8 @@ export interface AuthOptionsProps {
   onClose?: CloseAuthModalFunc;
   /** For a page with its own top bar: its back arrow replaces the screen's. */
   onScreenBackChange?: (back?: () => void) => void;
+  /** Whether the entry screen shows log-in's options instead of sign-up's. */
+  onLogInChange?: (isLogIn: boolean) => void;
   onAuthStateUpdate?: (props: Partial<AuthProps>) => void;
   onSuccessfulLogin?: () => unknown;
   onSuccessfulRegistration?: (user?: LoggedUser | AnonymousUser) => unknown;
@@ -166,6 +168,11 @@ export interface AuthOptionsProps {
    * registration form (e.g. when the onboarding funnel already shows that copy
    * on the signup wall). */
   hideRegistrationHeadline?: boolean;
+  logInTitle?: string;
+  signUpTitle?: string;
+  logInDescription?: string;
+  signUpDescription?: string;
+  signupProviders?: Provider[];
   /**
    * The funnel's headline scale and glass CTA. Explicit rather than read from
    * `FunnelProgressContext`, because these screens render before the stepper

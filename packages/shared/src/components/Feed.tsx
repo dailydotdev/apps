@@ -125,16 +125,6 @@ export interface FeedProps<T>
   disableListFrame?: boolean;
   topContent?: ReactNode;
   /**
-   * The empty screen is at least a screen tall: the page above the feed stays
-   * when the feed changes under it (the home tabs under the widget rail), so
-   * switching to an empty feed must not pull that page back into view.
-   */
-  fillEmptyScreen?: boolean;
-  /** Rendered after the last post once the feed cannot fetch more. */
-  footer?: ReactNode;
-  /** Shown instead of the feed when its first page fails to load. */
-  errorScreen?: ReactNode;
-  /**
    * Search feeds only: correlation id for the query execution and the backend
    * search version behind it. Both ride along on every engagement event so the
    * search experiment can be measured per query.
@@ -201,9 +191,6 @@ export default function Feed<T>({
   disableListFrame = false,
   excludePinnedPosts = false,
   topContent: topContentProp,
-  fillEmptyScreen = false,
-  footer,
-  errorScreen,
   searchId,
   searchVersion,
   isExplaining = false,
@@ -709,20 +696,12 @@ export default function Feed<T>({
     }
   };
 
-  if (errorScreen && feedError && !items.length) {
-    return <>{errorScreen}</>;
-  }
-
   if (isError) {
     return <FeedErrorScreen error={feedError} />;
   }
 
   if (emptyScreen && emptyFeed && !isSearchPageLaptop) {
-    return fillEmptyScreen ? (
-      <div className="min-h-screen">{emptyScreen}</div>
-    ) : (
-      <>{emptyScreen}</>
-    );
+    return <>{emptyScreen}</>;
   }
 
   const isValidFeed = Object.values(SharedFeedPage).includes(
@@ -861,9 +840,6 @@ export default function Feed<T>({
             })}
             {!isFetching && !isInitialLoading && !isHorizontal && (
               <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
-            )}
-            {!!footer && !canFetchMore && !isFetching && !isInitialLoading && (
-              <div className="col-span-full">{footer}</div>
             )}
             {selectedPost &&
               PostModal &&

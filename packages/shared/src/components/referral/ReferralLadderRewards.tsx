@@ -8,25 +8,35 @@ import {
 } from '../typography/Typography';
 import { LockIcon } from '../icons/Lock';
 import { VIcon } from '../icons/V';
+import { TimerIcon } from '../icons/Timer';
 import { IconSize } from '../Icon';
 import type { ReferralLadderStep } from '../../graphql/users';
-import { getReferralLadderReward } from '../../lib/referral';
+import {
+  getReferralLadderReward,
+  isReferralLadderStepPending,
+} from '../../lib/referral';
 import type { WithClassNameProps } from '../utilities';
 
 export const pluralizeFriend = (count: number): string =>
   count === 1 ? 'friend' : 'friends';
 
+export const REFERRAL_LADDER_PENDING_LABEL = 'In review';
+
 export const getReferralLadderHeadline = ({
   referredCount,
   nextStep,
   remainingInvites,
+  hasPendingRewards = false,
 }: {
   referredCount: number;
   nextStep?: ReferralLadderStep;
   remainingInvites: number;
+  hasPendingRewards?: boolean;
 }): string => {
   if (!nextStep) {
-    return 'You climbed the whole ladder';
+    return hasPendingRewards
+      ? 'Your rewards are in review'
+      : 'You climbed the whole ladder';
   }
 
   const more = referredCount > 0 ? ' more' : '';
@@ -38,15 +48,54 @@ export const getReferralLadderHeadline = ({
 
 interface ReferralLadderRewardsProps extends WithClassNameProps {
   steps: ReferralLadderStep[];
+  referredCount: number;
 }
+
+const ReferralLadderStepIcon = ({
+  isUnlocked,
+  isPending,
+}: {
+  isUnlocked: boolean;
+  isPending: boolean;
+}): ReactElement => {
+  if (isUnlocked) {
+    return (
+      <VIcon
+        aria-label="Unlocked"
+        className="text-action-plus-default"
+        size={IconSize.Small}
+      />
+    );
+  }
+
+  if (isPending) {
+    return (
+      <TimerIcon
+        aria-label={REFERRAL_LADDER_PENDING_LABEL}
+        className="text-text-tertiary"
+        size={IconSize.Small}
+      />
+    );
+  }
+
+  return (
+    <LockIcon
+      aria-label="Locked"
+      className="text-text-quaternary"
+      size={IconSize.Small}
+    />
+  );
+};
 
 export const ReferralLadderRewards = ({
   steps,
+  referredCount,
   className,
 }: ReferralLadderRewardsProps): ReactElement => (
   <ul className={classNames('flex flex-col gap-2', className)}>
     {steps.map((step) => {
       const isUnlocked = !!step.unlockedAt;
+      const isPending = isReferralLadderStepPending(step, referredCount);
 
       return (
         <li
@@ -58,19 +107,10 @@ export const ReferralLadderRewards = ({
               : 'border-border-subtlest-tertiary',
           )}
         >
-          {isUnlocked ? (
-            <VIcon
-              aria-label="Unlocked"
-              className="text-action-plus-default"
-              size={IconSize.Small}
-            />
-          ) : (
-            <LockIcon
-              aria-label="Locked"
-              className="text-text-quaternary"
-              size={IconSize.Small}
-            />
-          )}
+          <ReferralLadderStepIcon
+            isUnlocked={isUnlocked}
+            isPending={isPending}
+          />
           <Typography
             type={TypographyType.Callout}
             color={
@@ -85,7 +125,9 @@ export const ReferralLadderRewards = ({
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            {step.invites} {pluralizeFriend(step.invites)}
+            {isPending
+              ? REFERRAL_LADDER_PENDING_LABEL
+              : `${step.invites} ${pluralizeFriend(step.invites)}`}
           </Typography>
         </li>
       );

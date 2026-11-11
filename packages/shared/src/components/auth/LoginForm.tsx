@@ -14,6 +14,10 @@ import { TextField } from '../fields/TextField';
 import { MailIcon } from '../icons';
 import AuthForm from './AuthForm';
 import { AuthActionBar } from './AuthActionBar';
+import {
+  FunnelGlassBar,
+  funnelGlassBarCta,
+} from '../../features/onboarding/shared/FunnelGlassBar';
 import { IconSize } from '../Icon';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { labels } from '../../lib';
@@ -38,6 +42,7 @@ export interface LoginFormProps {
   isReady: boolean;
   autoFocus?: boolean;
   onSignup: () => void;
+  isStartups?: boolean;
 }
 
 export type LoginHintState = [
@@ -53,6 +58,11 @@ export type LoginFormParams = Pick<
 };
 
 type LoginFieldErrors = Partial<Record<'identifier' | 'password', string>>;
+
+const getStartupsLoginError = (hint: string): string =>
+  hint === labels.auth.error.invalidEmailOrPassword
+    ? "That email and password don't match."
+    : 'Something went wrong on our end. Please try again.';
 
 const getFieldErrors = (
   form: HTMLFormElement,
@@ -87,6 +97,7 @@ function LoginForm({
   isReady,
   autoFocus = true,
   onSignup,
+  isStartups,
 }: LoginFormProps): ReactElement {
   const { logEvent } = useLogContext();
   const turnstileRef = useRef<TurnstileInstance>(null);
@@ -250,7 +261,10 @@ function LoginForm({
         autoComplete="current-password"
         required
         showStrength={false}
-        hint={fieldErrors.password}
+        hint={
+          fieldErrors.password ??
+          (isStartups && hint ? getStartupsLoginError(hint) : undefined)
+        }
         saveHintSpace
         onChange={() => {
           setFieldErrors(({ identifier }) => ({ identifier }));
@@ -294,7 +308,7 @@ function LoginForm({
           title="Please complete the security check."
         />
       )}
-      {hint && (
+      {hint && !isStartups && (
         <Alert className="mt-3" type={AlertType.Error} flexDirection="flex-row">
           <AlertParagraph className="!mt-0 flex-1">
             {hint === labels.auth.error.invalidEmailOrPassword ? (
@@ -314,7 +328,23 @@ function LoginForm({
           </AlertParagraph>
         </Alert>
       )}
-      {loginButtonVariant === ButtonVariant.Primary ? (
+      {isStartups && (
+        <div className="mt-2">
+          <FunnelGlassBar>
+            <Button
+              className={funnelGlassBarCta}
+              size={ButtonSize.Medium}
+              variant={ButtonVariant.Primary}
+              type="submit"
+              loading={!isReady || isVerifyingTurnstile}
+              disabled={isLoading || (!!turnstileSiteKey && !turnstileLoaded)}
+            >
+              {loginButton}
+            </Button>
+          </FunnelGlassBar>
+        </div>
+      )}
+      {!isStartups && loginButtonVariant === ButtonVariant.Primary && (
         <AuthActionBar
           aboveFooter={aboveFooter}
           type="submit"
@@ -323,7 +353,8 @@ function LoginForm({
         >
           {loginButton}
         </AuthActionBar>
-      ) : (
+      )}
+      {!isStartups && loginButtonVariant !== ButtonVariant.Primary && (
         <Button
           className="mt-3 w-full"
           size={ButtonSize.Large}
@@ -338,7 +369,12 @@ function LoginForm({
       {onForgotPassword && (
         <ClickableText
           type="button"
-          className={classNames('self-center', aboveFooter && 'mt-4')}
+          inverseUnderline={isStartups}
+          className={
+            isStartups
+              ? 'mt-5 self-start text-text-secondary typo-callout'
+              : classNames('self-center', aboveFooter && 'mt-4')
+          }
           onClick={() => onForgotPassword(innerEmail)}
         >
           Forgot password?

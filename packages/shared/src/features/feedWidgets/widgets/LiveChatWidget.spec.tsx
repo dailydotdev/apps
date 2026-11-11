@@ -6,7 +6,12 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useLiveChatEnabled } from '../../liveChat/hooks/useLiveChatEnabled';
 import type { ChatRoom } from '../../liveChat/graphql';
-import { ChatRoomStatus, getLiveChatRooms } from '../../liveChat/graphql';
+import { webappUrl } from '../../../lib/constants';
+import {
+  ChatRoomStatus,
+  ChatRoomType,
+  getLiveChatRooms,
+} from '../../liveChat/graphql';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
 import { availableFeedWidgets } from '../components';
 
@@ -30,6 +35,7 @@ const roomOf = (
   occupantCount: number,
 ): ChatRoom => ({
   id,
+  type: ChatRoomType.PostLive,
   status: ChatRoomStatus.Active,
   jid: `${id}@conference.chat.daily.dev`,
   title,
@@ -38,7 +44,7 @@ const roomOf = (
     title,
     commentsPermalink: `https://app.daily.dev/posts/${id}`,
   },
-  expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+  expiresAt: new Date(Date.now() + 45 * 60 * 1000).toISOString(),
   occupantCount,
   createdAt: new Date().toISOString(),
 });
@@ -87,11 +93,42 @@ describe('LiveChatWidget', () => {
 
     expect(await screen.findByText('Bun 2.0')).toBeInTheDocument();
     expect(screen.getByText('Postgres 18')).toBeInTheDocument();
-    expect(screen.getByText('23 here · ends in 2h')).toBeInTheDocument();
+    expect(screen.getByText('23 here · ends in 45m')).toBeInTheDocument();
     expect(screen.getByText('Bun 2.0').closest('a')).toHaveAttribute(
       'href',
       'https://app.daily.dev/posts/a?chat=join',
     );
+  });
+
+  it('lets the daily.dev team open a chat on a topic, even with none on', async () => {
+    jest.mocked(useAuthContext).mockReturnValue({
+      user: { id: 'me', isTeamMember: true },
+    } as ReturnType<typeof useAuthContext>);
+    jest.mocked(getLiveChatRooms).mockResolvedValue([]);
+    renderWidget();
+
+    expect(
+      await screen.findByText(/No live chats right now/),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'New' })).toHaveAttribute(
+      'href',
+      `${webappUrl}chat/new`,
+    );
+  });
+
+  it('sends a topic room to its own page', async () => {
+    jest.mocked(getLiveChatRooms).mockResolvedValue([
+      {
+        ...roomOf('t', 'Is Bun ready for production?', 23),
+        type: ChatRoomType.Topic,
+        post: null,
+      },
+    ]);
+    renderWidget();
+
+    expect(
+      (await screen.findByText('Is Bun ready for production?')).closest('a'),
+    ).toHaveAttribute('href', `${webappUrl}chat/t`);
   });
 
   it('shows only the newest room when small', async () => {

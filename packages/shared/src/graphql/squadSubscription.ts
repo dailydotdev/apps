@@ -2,8 +2,11 @@ import { gql } from 'graphql-request';
 import { gqlClient } from './common';
 import type { EmptyResponse } from './emptyResponse';
 import type { LoggedUser, UserShortProfile } from '../lib/user';
-import { generateQueryKey, RequestKey } from '../lib/query';
-import type { SquadPlan } from '../features/squads/lib/plans';
+import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
+import type {
+  SquadPlan,
+  StartupsCashbackPromo,
+} from '../features/squads/lib/plans';
 import { SourceMemberRole } from './sources';
 import { USER_SHORT_INFO_FRAGMENT } from './fragments';
 
@@ -15,6 +18,17 @@ export const SQUAD_SUBSCRIPTION_QUERY = gql`
       seatLimit
       seatsUsed
       ownerId
+      cashbackPercentage
+      cashbackPromoEndsAt
+    }
+  }
+`;
+
+export const STARTUPS_CASHBACK_PROMO_QUERY = gql`
+  query StartupsCashbackPromo {
+    startupsCashbackPromo {
+      percentage
+      months
     }
   }
 `;
@@ -35,6 +49,9 @@ export interface SquadSubscription {
   seatLimit: number;
   seatsUsed: number;
   ownerId: string | null;
+  /** The cashback on each payment now, the launch promo's while it lasts. */
+  cashbackPercentage: number;
+  cashbackPromoEndsAt: string | null;
 }
 
 export const squadSubscriptionQueryOptions = ({
@@ -62,6 +79,19 @@ export const squadSubscriptionQueryOptions = ({
   refetchInterval,
 });
 
+// The launch promo for new subscriptions, null while it is off
+export const startupsCashbackPromoQueryOptions = () => ({
+  queryKey: [RequestKey.StartupsCashbackPromo],
+  queryFn: async (): Promise<StartupsCashbackPromo | null> => {
+    const res = await gqlClient.request<{
+      startupsCashbackPromo: StartupsCashbackPromo | null;
+    }>(STARTUPS_CASHBACK_PROMO_QUERY);
+
+    return res.startupsCashbackPromo;
+  },
+  staleTime: StaleTime.Default,
+});
+
 export const squadSubscriptionBalanceQueryOptions = ({
   user,
   sourceId,
@@ -86,12 +116,6 @@ export const squadSubscriptionBalanceQueryOptions = ({
   },
   enabled: enabled && !!user?.id && !!sourceId,
 });
-
-// Only admins and moderators can hold a paid seat
-export const SQUAD_SEAT_ROLES = [
-  SourceMemberRole.Admin,
-  SourceMemberRole.Moderator,
-];
 
 const SQUAD_SEAT_MEMBERS_QUERY = gql`
   query SquadSeatMembers($sourceId: ID!, $role: String) {
@@ -125,17 +149,16 @@ export const squadSeatMembersQueryOptions = ({
 }) => ({
   queryKey: generateQueryKey(RequestKey.SquadSeats, user, sourceId),
   queryFn: async (): Promise<SquadSeatMember[]> => {
-    const results = await Promise.all(
-      SQUAD_SEAT_ROLES.map((role) =>
-        gqlClient.request<{
-          sourceMembers: { edges: { node: SquadSeatMember }[] };
-        }>(SQUAD_SEAT_MEMBERS_QUERY, { sourceId, role }),
-      ),
-    );
+    // Only admins and moderators can hold a paid seat. The moderator role
+    // already returns admins too, so one request lists everyone once.
+    const { sourceMembers } = await gqlClient.request<{
+      sourceMembers: { edges: { node: SquadSeatMember }[] };
+    }>(SQUAD_SEAT_MEMBERS_QUERY, {
+      sourceId,
+      role: SourceMemberRole.Moderator,
+    });
 
-    return results.flatMap(({ sourceMembers }) =>
-      sourceMembers.edges.map(({ node }) => node),
-    );
+    return sourceMembers.edges.map(({ node }) => node);
   },
   enabled: !!user?.id && !!sourceId,
 });
@@ -169,3 +192,23 @@ export const setSquadSeat = async ({
     seat ? ADD_SQUAD_SEAT_MUTATION : REMOVE_SQUAD_SEAT_MUTATION,
     { sourceId, userId },
   );
+
+const SAVE_STARTUPS_GOALS_MUTATION = gql`
+  mutation SaveStartupsGoals(
+    $sourceId: ID!
+    $goals: [String!]!
+    $other: String
+  ) {
+    saveStartupsGoals(sourceId: $sourceId, goals: $goals, other: $other) {
+      _
+    }
+  }
+`;
+
+// Kept on the buyer, so lifecycle emails can lead with what they came for
+export const saveStartupsGoals = async (variables: {
+  sourceId: string;
+  goals: string[];
+  other?: string;
+}): Promise<EmptyResponse> =>
+  gqlClient.request(SAVE_STARTUPS_GOALS_MUTATION, variables);

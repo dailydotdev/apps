@@ -30,12 +30,14 @@ export const LiveChatMobileEntry = ({
   postId,
   origin,
   canStart,
+  canModerate,
   hasCapsule,
   openOnMount,
 }: {
   postId: string;
   origin: string;
   canStart: boolean;
+  canModerate?: boolean;
   hasCapsule?: boolean;
   // The viewer came here to join (a "Join" row elsewhere): the sheet opens
   // at once and joins on its own.
@@ -106,6 +108,7 @@ export const LiveChatMobileEntry = ({
             postId={postId}
             origin={origin}
             canStart={canStart}
+            canModerate={canModerate}
             variant="sheet"
             // The pill said "Join"; opening the sheet is that tap, so the
             // room is joined without asking a second time.

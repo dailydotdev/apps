@@ -49,6 +49,22 @@ const getIsRegisteredToday = (createdAt?: string | Date): boolean => {
   return isToday(parsedDate);
 };
 
+/**
+ * Whether the hero has what it decides on, the digest subscriptions and the
+ * last-seen stamp, so a card sharing the top strip can land in the same
+ * commit instead of being squeezed aside when this one arrives.
+ */
+export const useReadingReminderHeroSettled = (): boolean => {
+  const { isLoggedIn } = useAuthContext();
+  const { isSettled } = usePersonalizedDigest();
+  const [, , isFetched] = usePersistentContext<string | null>(
+    PersistentContextKeys.ReadingReminderLastSeen,
+    null,
+  );
+
+  return !isLoggedIn || (isSettled && isFetched);
+};
+
 export const useReadingReminderHero = ({
   requireMobile = true,
   enabled = true,

@@ -18,7 +18,6 @@ import { SharedFeedPage } from '../../components/utilities/common';
 import { OtherFeedPage, RequestKey } from '../../lib/query';
 import {
   emptyFeedWidgetFeedState,
-  resetHomeRailFlag,
   useFeedWidgetFeedState,
   useFeedWidgetRailState,
   useFeedWidgetShortcuts,
@@ -93,8 +92,8 @@ describe('useFeedWidgetFeedState', () => {
 
     expect(result.current).toEqual({
       excludedPostIds: [],
-      hasHappeningNow: false,
-      hasTopStory: true,
+      hasHappeningNow: true,
+      hasTopStory: false,
       isAdVisible: true,
     });
   });
@@ -102,7 +101,12 @@ describe('useFeedWidgetFeedState', () => {
   it('keeps out the lead the top story shows', async () => {
     mockHero('lead');
 
-    const { result } = renderFeedState();
+    const { result } = renderFeedState({
+      feedWidgets: {
+        version: 1,
+        widgets: [{ id: 'top', kind: 'topStory', size: 'tall' }],
+      },
+    });
 
     await waitFor(() =>
       expect(result.current.excludedPostIds).toEqual(['lead']),
@@ -202,35 +206,32 @@ const renderShortcuts = ({
   });
 
 describe('useFeedWidgetShortcuts', () => {
-  it('reports the Shortcuts widget on the stored rail', () => {
-    const { result } = renderShortcuts({ feedWidgets: shortcutsRail });
-
-    expect(result.current).toEqual({ hasShortcuts: true, isPending: false });
-  });
-
-  it('reports none for a rail without it, the default included', () => {
-    expect(renderShortcuts().result.current.hasShortcuts).toBe(false);
+  it('hands shortcuts to the rail wherever it renders, Shortcuts widget or not', () => {
+    expect(
+      renderShortcuts({ feedWidgets: shortcutsRail }).result.current,
+    ).toEqual({ hasRail: true, isPending: false });
+    expect(renderShortcuts().result.current.hasRail).toBe(true);
     expect(
       renderShortcuts({
         feedWidgets: {
           version: 1,
           widgets: [{ id: 'now', kind: 'happeningNow', size: 'tall' }],
         },
-      }).result.current.hasShortcuts,
-    ).toBe(false);
+      }).result.current.hasRail,
+    ).toBe(true);
   });
 
-  it('reports none where the rail does not render', () => {
+  it('leaves them to the row where the rail does not render', () => {
     expect(
       renderShortcuts({ feedWidgets: shortcutsRail, isFlagOn: false }).result
-        .current.hasShortcuts,
+        .current.hasRail,
     ).toBe(false);
     expect(
       renderShortcuts({
         feedWidgets: shortcutsRail,
         feedName: SharedFeedPage.Custom,
       }).result.current,
-    ).toEqual({ hasShortcuts: false, isPending: false });
+    ).toEqual({ hasRail: false, isPending: false });
   });
 
   it('is pending on a rail feed until the settings that hold the rail load', () => {
@@ -303,8 +304,6 @@ const renderRailState = (
   });
 
 describe('useFeedWidgetRailState', () => {
-  beforeEach(() => resetHomeRailFlag());
-
   it('heads For you and Popular from the tablet up', () => {
     expect(
       renderRailState(SharedFeedPage.MyFeed).result.current.isEnabled,

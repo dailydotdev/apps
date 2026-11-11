@@ -10,10 +10,12 @@ import {
   DocsIcon,
   EditIcon,
   EmbedIcon,
+  JobIcon,
   LinkIcon,
   LockIcon,
-  SparkleIcon,
+  PaintRollerIcon,
   TimerIcon,
+  TrendingIcon,
   TrashIcon,
   UserIcon,
 } from '../../../components/icons';
@@ -27,6 +29,11 @@ export interface SquadManageItem {
   label: string;
   icon: ReactElement;
   badge?: number;
+  /**
+   * A section the squad's plan doesn't include yet, shown locked to promote
+   * daily.dev for Startups: it names the plan and links to Subscription.
+   */
+  lockedPlan?: string;
 }
 
 export interface SquadManageGroup {
@@ -37,6 +44,7 @@ export interface SquadManageGroup {
 export const squadManageTitles: Record<SquadManageSection, string> = {
   [SquadManageSection.Details]: 'Details',
   [SquadManageSection.Products]: 'Products',
+  [SquadManageSection.Jobs]: 'Jobs',
   [SquadManageSection.Links]: 'Links',
   [SquadManageSection.Branding]: 'Branding',
   [SquadManageSection.Rules]: 'Rules',
@@ -44,21 +52,13 @@ export const squadManageTitles: Record<SquadManageSection, string> = {
   [SquadManageSection.Moderation]: 'Moderation',
   [SquadManageSection.Posting]: 'Posting and invitations',
   [SquadManageSection.Analytics]: 'Analytics',
-  [SquadManageSection.Plan]: 'Plan',
+  [SquadManageSection.Plan]: 'Subscription',
+  [SquadManageSection.Intel]: 'Weekly intel',
   [SquadManageSection.Integrations]: 'Integrations',
   [SquadManageSection.DangerZone]: 'Danger zone',
 };
 
-export interface SquadManageOptions {
-  /** daily.dev for Startups checkout, behind `startups_checkout` */
-  isPlanEnabled?: boolean;
-}
-
-const canSeeSection = (
-  squad: Squad,
-  section: SquadManageSection,
-  { isPlanEnabled = false }: SquadManageOptions,
-): boolean => {
+const canSeeSection = (squad: Squad, section: SquadManageSection): boolean => {
   const canEdit = verifyPermission(squad, SourcePermissions.Edit);
 
   switch (section) {
@@ -68,6 +68,8 @@ const canSeeSection = (
       return canEdit;
     case SquadManageSection.Products:
       return canEdit && hasSquadFeature(squad, 'products');
+    case SquadManageSection.Jobs:
+      return canEdit && hasSquadFeature(squad, 'jobs');
     case SquadManageSection.Links:
       return canEdit && hasSquadFeature(squad, 'links');
     case SquadManageSection.Branding:
@@ -79,7 +81,10 @@ const canSeeSection = (
     case SquadManageSection.Analytics:
       return verifyPermission(squad, SourcePermissions.ViewAnalytics);
     case SquadManageSection.Plan:
-      return isPlanEnabled && canEdit;
+      return canEdit;
+    case SquadManageSection.Intel:
+      // Only paid seats read it, whatever the role
+      return !!squad.currentMember?.seat;
     case SquadManageSection.Integrations:
       return verifyPermission(squad, SourcePermissions.ConnectSlack);
     case SquadManageSection.DangerZone:
@@ -88,6 +93,20 @@ const canSeeSection = (
       return false;
   }
 };
+
+// Plan sections a squad with no plan shows locked
+const lockedSections = [
+  SquadManageSection.Products,
+  SquadManageSection.Links,
+  SquadManageSection.Intel,
+];
+
+const isLockedSection = (squad: Squad, section: SquadManageSection): boolean =>
+  lockedSections.includes(section) &&
+  verifyPermission(squad, SourcePermissions.Edit) &&
+  !hasSquadFeature(squad, 'verified') &&
+  // Every plan turns links on
+  !hasSquadFeature(squad, 'links');
 
 const item = (
   id: SquadManageSection,
@@ -98,7 +117,6 @@ const item = (
 export const getSquadManageGroups = (
   squad: Squad,
   viewer: SquadViewer,
-  options: SquadManageOptions = {},
 ): SquadManageGroup[] => {
   if (!isStaffViewer(viewer)) {
     return [];
@@ -110,8 +128,9 @@ export const getSquadManageGroups = (
       items: [
         item(SquadManageSection.Details, <EditIcon />),
         item(SquadManageSection.Products, <AppIcon />),
+        item(SquadManageSection.Jobs, <JobIcon />),
         item(SquadManageSection.Links, <LinkIcon />),
-        item(SquadManageSection.Branding, <SparkleIcon />),
+        item(SquadManageSection.Branding, <PaintRollerIcon />),
         item(SquadManageSection.Rules, <DocsIcon />),
       ],
     },
@@ -128,9 +147,13 @@ export const getSquadManageGroups = (
       ],
     },
     {
+      title: 'Billing',
+      items: [item(SquadManageSection.Plan, <CreditCardIcon />)],
+    },
+    {
       title: 'Tools',
       items: [
-        item(SquadManageSection.Plan, <CreditCardIcon />),
+        item(SquadManageSection.Intel, <TrendingIcon />),
         item(SquadManageSection.Analytics, <AnalyticsIcon />),
         item(SquadManageSection.Integrations, <EmbedIcon />),
         item(SquadManageSection.DangerZone, <TrashIcon />),
@@ -141,7 +164,15 @@ export const getSquadManageGroups = (
   return groups
     .map((group) => ({
       ...group,
-      items: group.items.filter(({ id }) => canSeeSection(squad, id, options)),
+      items: group.items.flatMap((groupItem) => {
+        if (canSeeSection(squad, groupItem.id)) {
+          return [groupItem];
+        }
+
+        return isLockedSection(squad, groupItem.id)
+          ? [{ ...groupItem, lockedPlan: 'Starter' }]
+          : [];
+      }),
     }))
     .filter((group) => group.items.length > 0);
 };

@@ -115,6 +115,8 @@ const noClusterPrefixes = [
   '/posts/[id]/edit',
   '/lfg/new',
   '/lfg/[id]/edit',
+  // A live chat's composer takes the bar's place, like a message thread.
+  '/chat',
   // A job page ends in its own fixed call to action.
   '/jobs/[id]',
 ];

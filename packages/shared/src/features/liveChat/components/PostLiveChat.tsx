@@ -43,6 +43,7 @@ export const PostLiveChat = ({
   // Rooms are team picks for now: the API lets the daily.dev team open one on
   // any public post, and everyone else joins the ones that are open.
   const canStart = !!user?.isTeamMember;
+  const canModerate = canStart;
 
   if (placement === 'mobile') {
     return (
@@ -50,6 +51,7 @@ export const PostLiveChat = ({
         postId={post.id}
         origin={origin}
         canStart={canStart}
+        canModerate={canModerate}
         hasCapsule={hasCapsule}
         openOnMount={wantsToJoin}
       />
@@ -61,6 +63,7 @@ export const PostLiveChat = ({
       postId={post.id}
       origin={origin}
       canStart={canStart}
+      canModerate={canModerate}
       variant="inline"
       joinOnOpen={wantsToJoin}
       className={className}

@@ -3,6 +3,7 @@ import React from 'react';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import { ModalClose } from '../common/ModalClose';
+import Link from '../../utilities/Link';
 import { Button } from '../../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { TextField } from '../../fields/TextField';
@@ -188,6 +189,16 @@ const SharePicksModal = ({
               Share…
             </Button>
           )}
+          <Link href={getPicksPath(picks.id)} passHref>
+            <Button
+              tag="a"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Large}
+              onClick={props.onRequestClose}
+            >
+              View your page
+            </Button>
+          </Link>
         </div>
       </Modal.Body>
     </Modal>

@@ -74,6 +74,8 @@ export enum ActionType {
   // Agreed to Looking for group's house rules before a first post.
   LfgHouseRules = 'lfg_house_rules',
   DismissLfgMessagesPromo = 'dismiss_lfg_messages_promo',
+  // Hides every daily.dev for Startups promotion, the squad page one included
+  DismissStartupsPromo = 'dismiss_startups_promo',
 }
 
 export const cvActions = [

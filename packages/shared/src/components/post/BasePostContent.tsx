@@ -42,7 +42,6 @@ export function BasePostContent({
   engagementProps,
   shouldOnboardAuthor,
   aboveComments,
-  belowComments,
   commentAds,
   isPostPage,
   boostOrigin,
@@ -106,7 +105,6 @@ export function BasePostContent({
           isPostPage={isPostPage}
         />
       )}
-      {belowComments}
     </BoostOriginContextProvider>
   );
 }
