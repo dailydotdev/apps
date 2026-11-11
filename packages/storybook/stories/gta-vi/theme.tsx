@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
-import React, { useId, useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
+import { flushSync } from 'react-dom';
 import classNames from 'classnames';
 import {
   Button,
@@ -258,7 +259,11 @@ const Shortcuts = ({
   </div>
 );
 
-/** The art, fading into the page so the greeting under it stays legible. */
+/**
+ * The art, fading into the page so the greeting under it stays legible. It
+ * comes in like a camera pulling focus: slightly zoomed and blurred, then
+ * sharp, over half a second.
+ */
 const CoverArt = ({
   isPhone,
   src = coverArt,
@@ -268,11 +273,22 @@ const CoverArt = ({
 }): ReactElement | null => {
   // A cover that fails to load leaves the default home, not a broken image.
   const [isBroken, setIsBroken] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setIsFocused(true));
+    return () => cancelAnimationFrame(frame);
+  }, []);
   if (isBroken) {
     return null;
   }
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0">
+    <div
+      aria-hidden
+      className={classNames(
+        'pointer-events-none absolute inset-x-0 top-0 transition-[opacity,filter,transform] duration-500 ease-out motion-reduce:transition-none',
+        isFocused ? 'scale-100 opacity-100 blur-0' : 'scale-105 opacity-0 blur-md',
+      )}
+    >
       <img
         src={src}
         alt=""
@@ -285,6 +301,22 @@ const CoverArt = ({
       <span className="absolute inset-0 bg-gradient-to-b from-transparent from-30% to-background-default to-90%" />
     </div>
   );
+};
+
+/**
+ * Cross-fades the whole page between themes with the View Transitions API,
+ * the browser's own snapshot fade (250ms, compositor only). Browsers without
+ * it, and readers who prefer reduced motion, switch instantly.
+ */
+const switchTheme = (apply: () => void): void => {
+  const canTransition =
+    'startViewTransition' in document &&
+    !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!canTransition) {
+    apply();
+    return;
+  }
+  document.startViewTransition(() => flushSync(apply));
 };
 
 const tabs = ['For you', 'AI', 'Career', 'Architecture', 'My new feed'];
@@ -362,7 +394,7 @@ export const ThemedHome = ({
         {isSettingsOpen && !isPhone && (
           <SettingsPopover
             theme={theme}
-            onTheme={setTheme}
+            onTheme={(next) => switchTheme(() => setTheme(next))}
             className="absolute bottom-4 left-[4.5rem] z-3"
           />
         )}
