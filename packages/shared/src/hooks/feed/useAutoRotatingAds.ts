@@ -2,6 +2,7 @@ import { useCallback, useContext, useEffect, useMemo } from 'react';
 import type {
   InfiniteData,
   QueryFunctionContext,
+  QueryKey,
   QueryObserverBaseResult,
 } from '@tanstack/react-query';
 import { useQuery, useQueryClient, focusManager } from '@tanstack/react-query';
@@ -20,12 +21,26 @@ import { useFetchAd } from '../../features/monetization/useFetchAd';
 
 export type InViewRef = InViewHookResponse['ref'];
 
+/**
+ * Where a rotated creative goes for an ad that is not one of the feed's own
+ * ads, e.g. the feed widget rail's pinned slot, which has its own query.
+ * Without it, rotation writes into the feed's ad list at the ad's `index`,
+ * which would swap one of the feed's ads instead.
+ */
+export interface AdRotationTarget {
+  /** Its own key for the rotation timer, apart from the feed's ad list. */
+  queryKey: QueryKey;
+  /** Shows the new creative in the slot. */
+  replace: (ad: Ad) => void;
+}
+
 export const useAutoRotatingAds = (
   ad: Ad,
   index: number,
   feedIndex: number,
   ref: InViewRef,
   disabled = false,
+  target?: AdRotationTarget,
 ): {
   ref: InViewRef;
   refetch: QueryObserverBaseResult<Ad | null>['refetch'];
@@ -53,8 +68,8 @@ export const useAutoRotatingAds = (
 
   const { fetchAd, isAdConsentReady } = useFetchAd(!!autorotateAds);
   const queryKey = useMemo(
-    () => [RequestKey.Ads, ...(feedQueryKey ?? [])],
-    [feedQueryKey],
+    () => target?.queryKey ?? [RequestKey.Ads, ...(feedQueryKey ?? [])],
+    [feedQueryKey, target?.queryKey],
   );
 
   const fetchNewAd = useCallback(
@@ -65,6 +80,11 @@ export const useAutoRotatingAds = (
       });
       if (!newAd || signal.aborted) {
         return null;
+      }
+
+      if (target) {
+        target.replace(newAd);
+        return newAd;
       }
 
       // End the impression event for the old ad
@@ -85,7 +105,7 @@ export const useAutoRotatingAds = (
 
       return newAd;
     },
-    [feedIndex, index, logEventEnd, fetchAd, queryClient, queryKey],
+    [feedIndex, index, logEventEnd, fetchAd, queryClient, queryKey, target],
   );
 
   const { refetch, isRefetching } = useQuery<Ad | null>({

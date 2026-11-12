@@ -21,6 +21,7 @@ import {
 import { AdRefreshEngineVersion } from '../../lib/featureManagement';
 import { RequestKey } from '../../lib/query';
 import { useAutoRotatingAds } from './useAutoRotatingAds';
+import type { AdRotationTarget } from './useAutoRotatingAds';
 import { generateAdLogEventKey } from './useLogImpression';
 import { useFeedAdRefresh } from './useFeedAdRefresh';
 
@@ -69,7 +70,10 @@ const logEventEnd = jest.fn();
 const fetchAd = jest.fn();
 let client: QueryClient;
 
-const renderFeedAdRefresh = (version: AdRefreshEngineVersion) => {
+const renderFeedAdRefresh = (
+  version: AdRefreshEngineVersion,
+  target?: AdRotationTarget,
+) => {
   jest.mocked(useFeature).mockReturnValue(version);
   const wrapper = ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={client}>
@@ -79,9 +83,10 @@ const renderFeedAdRefresh = (version: AdRefreshEngineVersion) => {
     </QueryClientProvider>
   );
 
-  return renderHook(() => useFeedAdRefresh(ads[1], 1, 7, jest.fn()), {
-    wrapper,
-  });
+  return renderHook(
+    () => useFeedAdRefresh(ads[1], 1, 7, jest.fn(), false, target),
+    { wrapper },
+  );
 };
 
 const refreshWith = async (): Promise<AdRefreshOutcome> => {
@@ -173,5 +178,27 @@ describe('useFeedAdRefresh', () => {
     expect(await refreshWith()).toEqual(AdRefreshOutcome.NoFill);
     expect(getCachedAds()).toEqual(ads);
     expect(logEventEnd).not.toHaveBeenCalled();
+  });
+
+  it('hands the replacement to its own slot, not the feed, when it has a target', async () => {
+    fetchAd.mockResolvedValue(replacement);
+    const target: AdRotationTarget = {
+      queryKey: ['rail-rotation'],
+      replace: jest.fn(),
+    };
+    renderFeedAdRefresh(AdRefreshEngineVersion.V2, target);
+
+    expect(await refreshWith()).toEqual(AdRefreshOutcome.Refreshed);
+    expect(target.replace).toHaveBeenCalledWith(replacement);
+    expect(getCachedAds()).toEqual(ads);
+    expect(logEventEnd).not.toHaveBeenCalled();
+    expect(useAutoRotatingAds).toHaveBeenLastCalledWith(
+      ads[1],
+      1,
+      7,
+      expect.any(Function),
+      true,
+      target,
+    );
   });
 });

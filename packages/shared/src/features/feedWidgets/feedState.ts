@@ -1,5 +1,6 @@
 import { useCallback, useContext, useMemo, useRef } from 'react';
 import type { QueryKey } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
@@ -32,6 +33,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import type { SettingsFlags } from '../../graphql/settings';
+import type { AdRotationTarget } from '../../hooks/feed/useAutoRotatingAds';
 import { SharedFeedPage } from '../../components/utilities/common';
 
 /**
@@ -145,6 +147,35 @@ export const useFeedWidgetAd = ({
     // Answered with nothing (no fill, or an error once retries ran out).
     isNoFill: isEnabled && isFetched && !ad,
   };
+};
+
+/**
+ * Lets the rail's pinned ad rotate the way the feed's own ads do: on the same
+ * timer and rules, a fresh creative replaces the one in the slot's query, and
+ * the slot logs its impression. Rotation's own timer keeps a key apart from
+ * the slot's query, so writing the new creative never touches it.
+ */
+export const useFeedWidgetAdRotation = (feedName: string): AdRotationTarget => {
+  const { user } = useAuthContext();
+  const queryClient = useQueryClient();
+
+  return useMemo(
+    () => ({
+      queryKey: generateQueryKey(
+        RequestKey.Ads,
+        user,
+        'feed-widgets-rotation',
+        feedName,
+      ),
+      replace: (ad: Ad) =>
+        // A prefix: the ad query suffixes the consent and login state.
+        queryClient.setQueriesData<Ad | null>(
+          { queryKey: getFeedWidgetAdQueryKey(user, feedName) },
+          ad,
+        ),
+    }),
+    [feedName, queryClient, user],
+  );
 };
 
 /**

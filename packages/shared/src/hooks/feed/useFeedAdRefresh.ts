@@ -30,7 +30,7 @@ import {
   useAdRefresh,
 } from '../../features/monetization/refresh/useAdRefresh';
 import { generateAdLogEventKey } from './useLogImpression';
-import type { InViewRef } from './useAutoRotatingAds';
+import type { AdRotationTarget, InViewRef } from './useAutoRotatingAds';
 import { useAutoRotatingAds } from './useAutoRotatingAds';
 
 const slot = AdRefreshSlot.FeedCard;
@@ -41,6 +41,7 @@ export const useFeedAdRefresh = (
   feedIndex: number,
   ref: InViewRef,
   disabled = false,
+  target?: AdRotationTarget,
 ): { ref: InViewRef; onAdClick: () => void } => {
   const isRefreshEngine =
     useFeature(featureAdRefreshEngine) === AdRefreshEngineVersion.V2;
@@ -50,6 +51,7 @@ export const useFeedAdRefresh = (
     feedIndex,
     ref,
     disabled || isRefreshEngine,
+    target,
   );
   const { logEvent, logEventEnd } = useLogContext();
   const { queryKey: feedQueryKey } = useContext(ActiveFeedContext);
@@ -102,6 +104,12 @@ export const useFeedAdRefresh = (
 
       carryAdRefreshSlot(ad.generationId, newAd.generationId);
       logRefresh(AdRefreshOutcome.Refreshed, newAd);
+
+      if (target) {
+        target.replace(newAd);
+        return AdRefreshOutcome.Refreshed;
+      }
+
       logEventEnd(generateAdLogEventKey(feedIndex));
 
       queryClient.setQueryData<InfiniteData<Ad, unknown>>(
@@ -130,6 +138,7 @@ export const useFeedAdRefresh = (
       logEvent,
       logEventEnd,
       queryClient,
+      target,
     ],
   );
 

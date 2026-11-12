@@ -16,8 +16,11 @@ import { clearShownFeedHeroLeads } from '../../components/feeds/hero/useFeedHero
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { SharedFeedPage } from '../../components/utilities/common';
 import { OtherFeedPage, RequestKey } from '../../lib/query';
+import type { Ad } from '../../graphql/posts';
 import {
   emptyFeedWidgetFeedState,
+  useFeedWidgetAd,
+  useFeedWidgetAdRotation,
   useFeedWidgetFeedState,
   useFeedWidgetRailState,
   useFeedWidgetShortcuts,
@@ -204,6 +207,46 @@ const renderShortcuts = ({
       </TestBootProvider>
     ),
   });
+
+describe('useFeedWidgetAdRotation', () => {
+  it('puts the rotated creative in the rail slot, not in the feed ads', async () => {
+    const first = { generationId: 'rail-0', description: 'rail-0' } as Ad;
+    const next = { generationId: 'rail-1', description: 'rail-1' } as Ad;
+    jest.mocked(fetchAdByPlacement).mockResolvedValue(first);
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const feedAds = { pages: [{ generationId: 'feed-0' }], pageParams: [0] };
+    client.setQueryData([RequestKey.Ads, 'feed'], feedAds);
+
+    const { result } = renderHook(
+      () => ({
+        slot: useFeedWidgetAd({
+          enabled: true,
+          feedName: SharedFeedPage.MyFeed,
+        }),
+        rotation: useFeedWidgetAdRotation(SharedFeedPage.MyFeed),
+      }),
+      {
+        wrapper: ({ children }: { children: ReactNode }): ReactElement => (
+          <TestBootProvider client={client}>{children}</TestBootProvider>
+        ),
+      },
+    );
+    await waitFor(() => expect(result.current.slot.ad).toEqual(first));
+
+    act(() => result.current.rotation.replace(next));
+
+    await waitFor(() => expect(result.current.slot.ad).toEqual(next));
+    expect(client.getQueryData([RequestKey.Ads, 'feed'])).toBe(feedAds);
+    // The rotation timer's key is its own, so the write never lands on it.
+    expect(
+      client.getQueryCache().findAll({
+        queryKey: result.current.rotation.queryKey,
+      }),
+    ).toHaveLength(0);
+  });
+});
 
 describe('useFeedWidgetShortcuts', () => {
   it('hands shortcuts to the rail wherever it renders, Shortcuts widget or not', () => {
