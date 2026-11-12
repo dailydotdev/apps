@@ -18,8 +18,10 @@ describe('checkout attribution', () => {
         utm_medium: ['paid_social', 'other'],
         utm_campaign: '',
         fbclid: 'x'.repeat(300),
+        twclid: 'tw1',
       }),
     ).toEqual({
+      twclid: 'tw1',
       utm_source: 'fb',
       utm_medium: 'paid_social',
       fbclid: 'x'.repeat(CHECKOUT_ATTRIBUTION_MAX_LENGTH),

@@ -72,6 +72,7 @@ import { useSquadPlanPrices } from '../../hooks/useSquadPlanPrices';
 import { useStartupsSetupRefresh } from '../../hooks/useStartupsSetupRefresh';
 import { useStartupsCashbackPromo } from '../../hooks/useStartupsCashbackPromo';
 import { getSavedCheckoutAttribution } from '../../lib/checkoutAttribution';
+import { STARTUPS_X_EVENTS } from '../../lib/startupsXEvents';
 import {
   SquadLaunchOfferBanner,
   SquadPlanCashback,
@@ -562,6 +563,7 @@ const PaymentPanel = ({
 }): ReactElement => {
   const cashbackPromo = useStartupsCashbackPromo();
   const { trackEvent } = usePixelsContext();
+  const { user } = useAuthContext();
   const { openCheckout, isPaddleReady, checkoutTotals } = usePaddlePayment({
     priceType: PurchaseType.Startups,
     successCallback: (event) => {
@@ -574,7 +576,11 @@ const PaymentPanel = ({
           value: totals ? totals.total - totals.tax : 0,
           currency: event?.data?.currency_code,
         },
-        { eventId: event?.data?.transaction_id },
+        {
+          eventId: event?.data?.transaction_id,
+          xEventId: STARTUPS_X_EVENTS.subscription,
+          email: user?.email,
+        },
       );
       onPaid();
     },
@@ -599,12 +605,16 @@ const PaymentPanel = ({
     }
 
     if (!openedRef.current) {
-      trackEvent('InitiateCheckout', {
-        content_name: 'startups',
-        content_category: plan,
-        value: SQUAD_PLAN_LIST_PRICE_USD[plan],
-        currency: 'USD',
-      });
+      trackEvent(
+        'InitiateCheckout',
+        {
+          content_name: 'startups',
+          content_category: plan,
+          value: SQUAD_PLAN_LIST_PRICE_USD[plan],
+          currency: 'USD',
+        },
+        { xEventId: STARTUPS_X_EVENTS.beginCheckout, email: user?.email },
+      );
     }
     // A second call while the frame is open swaps the item in place
     openedRef.current = priceId;
@@ -612,7 +622,7 @@ const PaymentPanel = ({
       priceId,
       customData: { ...getSavedCheckoutAttribution(), source_id: company.id },
     });
-  }, [company.id, isPaddleReady, openCheckout, plan, trackEvent]);
+  }, [company.id, isPaddleReady, openCheckout, plan, trackEvent, user?.email]);
 
   useEffect(() => {
     if (isPaddleReady) {
@@ -1270,9 +1280,13 @@ export const StartupsCheckout = ({
     trackEvent(
       'CompleteRegistration',
       { content_name: 'startups', content_category: plan },
-      { eventId: `startups-signup-${userId}` },
+      {
+        eventId: `startups-signup-${userId}`,
+        xEventId: STARTUPS_X_EVENTS.signup,
+        email: user?.email,
+      },
     );
-  }, [step, isOpeningLink, userId, plan, trackEvent]);
+  }, [step, isOpeningLink, userId, user?.email, plan, trackEvent]);
 
   if (isOpeningLink) {
     return (
