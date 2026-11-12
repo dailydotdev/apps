@@ -24,6 +24,8 @@ import {
 } from '../../../lib/timezones';
 import { timezoneSettingsUrl, webappUrl } from '../../../lib/constants';
 import { useStreakTimezoneOk } from '../../../hooks/streaks/useStreakTimezoneOk';
+import { useStreakSoftBreak } from '../../../hooks/streaks/useStreakSoftBreak';
+import { StreakSoftBreakHero } from '../StreakSoftBreakHero';
 import { usePrompt } from '../../../hooks/usePrompt';
 import { useLogContext } from '../../../contexts/LogContext';
 import {
@@ -68,6 +70,7 @@ export function ReadingStreakPopup({
   const history = useReadingStreak30Days();
   const freezeDates = useStreakFreezeDates();
   const isTimezoneOk = useStreakTimezoneOk();
+  const isSoftBreak = useStreakSoftBreak(streak);
   const { showPrompt } = usePrompt();
   const { logEvent } = useLogContext();
 
@@ -137,10 +140,19 @@ export function ReadingStreakPopup({
   return (
     <div className="flex flex-col tablet:max-w-[21.75rem]">
       <div className="flex flex-col p-0 tablet:p-4">
-        <div className="flex flex-row">
-          <StreakSection streak={streak.current} label="Current streak" />
-          <StreakSection streak={streak.max} label="Longest streak 🏆" />
-        </div>
+        {isSoftBreak ? (
+          <>
+            <StreakSoftBreakHero max={streak.max} />
+            <div className="mt-4 flex flex-row">
+              <StreakSection streak={streak.max} label="Longest streak 🏆" />
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-row">
+            <StreakSection streak={streak.current} label="Current streak" />
+            <StreakSection streak={streak.max} label="Longest streak 🏆" />
+          </div>
+        )}
         <div
           className={classNames(
             'mt-6 flex flex-row gap-2',

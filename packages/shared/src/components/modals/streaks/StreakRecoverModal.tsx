@@ -27,6 +27,10 @@ import { coresDocsLink } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { StreakFreezeUpsell } from '../../streak/StreakFreezeUpsell';
 import { CoresBalanceNote } from '../../cores/CoresBalanceNote';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { featureStreakSoftBreak } from '../../../lib/featureManagement';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent, TargetType } from '../../../lib/log';
 
 export interface StreakRecoverModalProps extends Pick<
   ModalProps,
@@ -47,16 +51,35 @@ const StreakRecoverCover = () => (
   </div>
 );
 
-const StreakRecoverHeading = ({ days }: { days: number }) => (
+const StreakRecoverHeading = ({
+  days,
+  isSoftBreak,
+}: {
+  days: number;
+  isSoftBreak: boolean;
+}) => (
   <Typography
     className="-mx-1 -mb-1 text-center font-bold"
     tag={TypographyTag.H3}
     type={TypographyType.Title1}
     data-testid="streak-recover-modal-heading"
   >
-    Oh no! Your
-    <span className="text-accent-bacon-default"> {days} day streak </span> has
-    been broken!
+    {isSoftBreak ? (
+      <>
+        Your best:
+        <span className="text-accent-bacon-default"> {days} days</span>. Today
+        can be day 1.
+      </>
+    ) : (
+      <>
+        Oh no! Your
+        <span className="text-accent-bacon-default">
+          {' '}
+          {days} day streak{' '}
+        </span>{' '}
+        has been broken!
+      </>
+    )}
   </Typography>
 );
 
@@ -179,6 +202,11 @@ export const StreakRecoverModal = (
     onAfterClose,
     onRequestClose,
   });
+  const { logEvent } = useLogContext();
+  const { value: isSoftBreak } = useConditionalFeature({
+    feature: featureStreakSoftBreak,
+    shouldEvaluate: recover.canRecover && !recover.isLoading,
+  });
 
   if (!user || !isStreaksEnabled || !recover.canRecover || recover.isLoading) {
     return null;
@@ -199,7 +227,10 @@ export const StreakRecoverModal = (
       <ModalBody className="!p-4">
         <div className="flex flex-col gap-4">
           <StreakRecoverCover />
-          <StreakRecoverHeading days={recover.oldStreakLength} />
+          <StreakRecoverHeading
+            days={recover.oldStreakLength}
+            isSoftBreak={isSoftBreak}
+          />
           <StreakRecoveryCopy recover={recover} />
           <StreakRecoverButton
             onClick={onRecover}
@@ -208,6 +239,21 @@ export const StreakRecoverModal = (
           />
           {recover.cost > 0 && (
             <CoresBalanceNote price={recover.cost} className="-mt-2" />
+          )}
+          {isSoftBreak && (
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Large}
+              onClick={() => {
+                logEvent({
+                  event_name: LogEvent.Click,
+                  target_type: TargetType.StreakSoftBreak,
+                });
+                onClose?.();
+              }}
+            >
+              Start again
+            </Button>
           )}
           <StreakFreezeUpsell>
             Get streak freezes for next time

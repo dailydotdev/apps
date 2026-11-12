@@ -97,6 +97,11 @@ export const featureCores = new Feature('cores', isDevelopment);
 
 // automated streak freeze: auto-apply purchased freezes on missed reading days
 export const featureStreakFreeze = new Feature('streak_freeze', isDevelopment);
+// A/B: when a streak has reset, the popup, the sidebar panel and the restore
+// modal lead with the reader's best and a way back instead of a bare 0. Only
+// evaluated once the streak is 0 with a longest above it, so control readers
+// never enter the experiment early.
+export const featureStreakSoftBreak = new Feature('streak_soft_break', false);
 
 export const featureGtaViFreezeDay = new Feature('gta_vi_freeze_day', false);
 

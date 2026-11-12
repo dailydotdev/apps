@@ -1,6 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import { subDays } from 'date-fns';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import type { LoggedUser } from '../../../lib/user';
@@ -25,6 +26,7 @@ import { DayOfWeek } from '../../../lib/date';
 interface TestProps {
   user?: LoggedUser;
   alerts?: Alerts;
+  gb?: GrowthBook;
 }
 
 const defaultAlerts: Alerts = {
@@ -99,11 +101,13 @@ const renderComponent = (props: TestProps = {}) => {
   const {
     user = { ...loggedUser, balance: { amount: 0 } },
     alerts = alertsWithStreakRecovery,
+    gb,
   } = props;
 
   return render(
     <TestBootProvider
       client={queryClient}
+      gb={gb}
       auth={{ user }}
       alerts={{ alerts, updateAlerts }}
       settings={{
@@ -288,6 +292,38 @@ it('Should have cost of 100 Cores for 2nd+ time recovery', async () => {
   // expect cost to be 100
   const cost = screen.getByText('Restore my streak100');
   expect(cost).toBeInTheDocument();
+});
+
+it('leads with the best streak and offers a way back when the soft break is on', async () => {
+  mockRecoveryQuery({
+    canRecover: true,
+    cost: 100,
+    oldStreakLength: 10,
+    regularCost: 100,
+  });
+
+  renderComponent({
+    user: { ...loggedUser, balance: { amount: 200 } },
+    gb: new GrowthBook({
+      features: { streak_soft_break: { defaultValue: true } },
+    }),
+  });
+
+  await waitForNock();
+
+  const heading = await screen.findByTestId('streak-recover-modal-heading');
+  expect(heading).toHaveTextContent('Your best: 10 days. Today can be day 1.');
+  expect(screen.getByTestId('streak-recover-button')).toHaveTextContent(
+    'Restore my streak100',
+  );
+
+  mockAlertsMutation();
+  fireEvent.click(screen.getByRole('button', { name: 'Start again' }));
+  await waitForNock();
+
+  expect(updateAlerts).toHaveBeenCalledWith(
+    expect.objectContaining({ showRecoverStreak: false }),
+  );
 });
 
 it('Should show buy Cores message if user does not have enough Cores', async () => {

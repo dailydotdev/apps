@@ -7,6 +7,8 @@ import { webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { useStreakRingState } from '../../../hooks/streaks/useStreakRingState';
+import { useStreakSoftBreak } from '../../../hooks/streaks/useStreakSoftBreak';
+import { StreakSoftBreakHero } from '../../streak/StreakSoftBreakHero';
 import { StreakMonthCalendar } from '../../streak/popup/StreakMonthCalendar';
 import { StreakFreezeRow } from '../../streak/popup/StreakFreezeRow';
 import { CompactQuestList } from '../../quest/CompactQuestList';
@@ -81,6 +83,7 @@ export const StreakQuestsSection = (): ReactElement => {
   const { data: questDashboard } = useQuestDashboard({
     enabled: !optOutQuestSystem,
   });
+  const isSoftBreak = useStreakSoftBreak(streak);
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
   // Compact label (e.g. "Jun 23") — no year; the full date with year lives in
   // the hover tooltip so the strip stays tidy day-to-day.
@@ -100,14 +103,18 @@ export const StreakQuestsSection = (): ReactElement => {
         <>
           <div className="flex shrink-0 flex-col px-4 pb-4 pt-1">
             <div className="flex items-start justify-between">
-              <Typography
-                type={TypographyType.Title1}
-                color={TypographyColor.Primary}
-                bold
-                className="tabular-nums leading-none"
-              >
-                {count}
-              </Typography>
+              {isSoftBreak ? (
+                <StreakSoftBreakHero max={streak.max} className="min-w-0" />
+              ) : (
+                <Typography
+                  type={TypographyType.Title1}
+                  color={TypographyColor.Primary}
+                  bold
+                  className="tabular-nums leading-none"
+                >
+                  {count}
+                </Typography>
+              )}
               <Link href={`${webappUrl}game-center/settings`} passHref>
                 <a
                   aria-label="Streak & gamification settings"
