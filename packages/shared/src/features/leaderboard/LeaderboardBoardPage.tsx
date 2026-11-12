@@ -45,7 +45,7 @@ const YouRow = ({ type }: { type: LeaderboardType }): ReactElement | null => {
   return (
     <ol className="border-t border-border-subtlest-tertiary pt-2">
       <LeaderboardListRow
-        rank={position.rank ?? getLeaderboardRankLabel(position)}
+        rank={getLeaderboardRankLabel(position)}
         name="You"
         href={user.permalink}
         image={

@@ -88,7 +88,25 @@ describe('LeaderboardBoardPage', () => {
 
     const you = await screen.findByText('You');
     expect(you.closest('a')).toHaveAttribute('href', loggedUser.permalink);
-    expect(screen.getByText('842')).toBeInTheDocument();
+    expect(screen.getByText('#842')).toBeInTheDocument();
+  });
+
+  it('should give a long rank its own width instead of the medal column', async () => {
+    mockPosition(12345, 40);
+    renderPage({ userItems: makeUsers(3) });
+
+    await screen.findByText('You');
+    const rank = screen.getByText('#12,345');
+    expect(rank).toHaveClass('min-w-8');
+    expect(rank).not.toHaveClass('w-8');
+  });
+
+  it('should show the cap when you are past the counted range', async () => {
+    mockPosition(null, 5);
+    renderPage({ userItems: makeUsers(3) });
+
+    await screen.findByText('You');
+    expect(screen.getByText('100K+')).toBeInTheDocument();
   });
 
   it('should light your row in place instead of pinning it when listed', async () => {
