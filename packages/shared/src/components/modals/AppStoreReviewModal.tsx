@@ -12,71 +12,29 @@ import {
 } from '../typography/Typography';
 import LogoIcon from '../../svg/LogoIcon';
 import type { MarketingCta } from '../marketing/cta/common';
-import { useBoot } from '../../hooks';
-import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent, TargetType } from '../../lib/log';
-import { openIOSWriteReview, requestIOSReview } from '../../lib/ios';
-
-// The ask Customer.io schedules through the `app_store_review` marketing CTA.
-// Apple's own rating pop-up is requested on its own a moment after the sheet
-// lands, never from a tap, and whether it shows is Apple's call. The button
-// opens the App Store's write-a-review screen, which always works, so the
-// sheet stands on its own when the pop-up stays away.
-export const appStoreReviewCopy = {
-  headline: 'A little love goes a long way.',
-  emoji: '❤️',
-  text: 'If daily.dev has made your day a little better, a quick rating would mean a lot to us.',
-  cta: 'Rate daily.dev',
-  ctaLabel: 'Rate daily.dev on the App Store',
-  dismiss: 'Not now',
-};
-
-// Apple's sample asks only after people pause on a finished step.
-export const appStoreReviewRequestDelayMs = 2000;
+import { useAppStoreReviewAsk } from '../../hooks/useAppStoreReviewAsk';
+import { appStoreReviewCopy, AskHeadline } from '../appStoreReview/common';
 
 export interface AppStoreReviewModalProps extends ModalProps {
   marketingCta: MarketingCta;
 }
 
+// The plain ask Customer.io schedules through the `app_store_review`
+// marketing CTA: a streak milestone, a heavy reading week, a big release.
+// The campaign's copy wins over the defaults when it sets any.
 export default function AppStoreReviewModal({
   marketingCta,
   onRequestClose,
   ...modalProps
 }: AppStoreReviewModalProps): ReactElement {
-  const { clearMarketingCta } = useBoot();
-  const { logEvent } = useLogContext();
   const { campaignId, flags } = marketingCta;
+  const { onRate, onDismiss } = useAppStoreReviewAsk({
+    campaignId,
+    onRequestClose,
+  });
   const headlineRef = useRef<HTMLHeadingElement>(null);
-  const hasOpened = useRef(false);
-  const title = flags?.title || appStoreReviewCopy.headline;
   const description = flags?.description || appStoreReviewCopy.text;
   const ctaText = flags?.ctaText || appStoreReviewCopy.cta;
-
-  useEffect(() => {
-    if (hasOpened.current) {
-      return;
-    }
-    hasOpened.current = true;
-
-    logEvent({
-      event_name: LogEvent.Impression,
-      target_type: TargetType.AppStoreReview,
-      target_id: campaignId,
-    });
-
-    // Scheduled when the sheet opens and never cancelled: closing it early
-    // must not turn the pop-up into something only people who stay get, which
-    // would be the review gating Apple rejects.
-    setTimeout(() => {
-      if (requestIOSReview()) {
-        logEvent({
-          event_name: LogEvent.RequestAppStoreReview,
-          target_type: TargetType.AppStoreReview,
-          target_id: campaignId,
-        });
-      }
-    }, appStoreReviewRequestDelayMs);
-  }, [campaignId, logEvent]);
 
   // Focus starts on the headline, not the CTA, so nobody rates by accident.
   useEffect(() => {
@@ -84,32 +42,12 @@ export default function AppStoreReviewModal({
     return () => cancelAnimationFrame(frame);
   }, []);
 
-  const close = (
-    event: React.MouseEvent | React.KeyboardEvent,
-    eventName: LogEvent,
-  ) => {
-    logEvent({
-      event_name: eventName,
-      target_type: TargetType.AppStoreReview,
-      target_id: campaignId,
-    });
-    clearMarketingCta(campaignId);
-    onRequestClose?.(event);
-  };
-
-  const onRate = (event: React.MouseEvent) => {
-    // A missing handler means the app is older than the bridge; the sheet
-    // then closes with no error toast, since the ask is optional.
-    openIOSWriteReview();
-    close(event, LogEvent.Click);
-  };
-
   return (
     <Modal
       {...modalProps}
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.XSmall}
-      onRequestClose={(event) => close(event, LogEvent.MarketingCtaDismiss)}
+      onRequestClose={onDismiss}
       isDrawerOnMobile
     >
       <Modal.Body className="gap-5 px-4 pb-4 pt-6 tablet:p-6">
@@ -133,13 +71,7 @@ export default function AppStoreReviewModal({
             tabIndex={-1}
             bold
           >
-            {title}
-            {!flags?.title && (
-              <>
-                {' '}
-                <span aria-hidden>{appStoreReviewCopy.emoji}</span>
-              </>
-            )}
+            {flags?.title || <AskHeadline />}
           </Typography>
           <Typography
             type={TypographyType.Callout}
@@ -161,9 +93,7 @@ export default function AppStoreReviewModal({
           <Button
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Medium}
-            onClick={(event: React.MouseEvent) =>
-              close(event, LogEvent.MarketingCtaDismiss)
-            }
+            onClick={onDismiss}
           >
             {appStoreReviewCopy.dismiss}
           </Button>

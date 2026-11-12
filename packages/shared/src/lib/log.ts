@@ -876,6 +876,7 @@ export enum TargetId {
   AdComment = 'ad comment',
   MyProfile = 'my profile',
   PlusBadge = 'plus badge',
+  AppStoreReviewPlus = 'app_store_review_plus',
   PlusPage = 'plus page',
   CoreWallet = 'core wallet',
   Marketplace = 'marketplace',

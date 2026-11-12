@@ -136,6 +136,13 @@ const AppStoreReviewModal = dynamic(
     ),
 );
 
+const PlusRenewalReviewModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "plusRenewalReviewModal" */ './PlusRenewalReviewModal'
+    ),
+);
+
 const BookmarkReminderModal = dynamic(
   () =>
     import(
@@ -657,6 +664,7 @@ export const modals = {
   [LazyModal.LfgHelper]: LfgHelperModal,
   [LazyModal.FeedExplanation]: FeedExplanationModal,
   [LazyModal.AppStoreReview]: AppStoreReviewModal,
+  [LazyModal.AppStoreReviewPlus]: PlusRenewalReviewModal,
 };
 
 type GetComponentProps<T> = T extends

@@ -8,10 +8,11 @@ import { openIOSWriteReview, requestIOSReview } from '../../lib/ios';
 import * as bootHook from '../../hooks/useBoot';
 import type { MarketingCta } from '../marketing/cta/common';
 import { MarketingCtaVariant } from '../marketing/cta/common';
-import AppStoreReviewModal, {
+import {
   appStoreReviewCopy,
   appStoreReviewRequestDelayMs,
-} from './AppStoreReviewModal';
+} from '../appStoreReview/common';
+import AppStoreReviewModal from './AppStoreReviewModal';
 
 jest.mock('../../lib/ios', () => ({
   ...jest.requireActual('../../lib/ios'),
@@ -118,6 +119,21 @@ describe('AppStoreReviewModal', () => {
       target_type: TargetType.AppStoreReview,
       target_id: marketingCta.campaignId,
     });
+  });
+
+  it('skips the pop-up once Rate was tapped', () => {
+    renderModal();
+
+    fireEvent.click(
+      screen.getByRole('button', { name: appStoreReviewCopy.ctaLabel }),
+    );
+
+    act(() => {
+      jest.advanceTimersByTime(appStoreReviewRequestDelayMs);
+    });
+
+    expect(openIOSWriteReview).toHaveBeenCalledTimes(1);
+    expect(requestIOSReview).not.toHaveBeenCalled();
   });
 
   it('opens the write-a-review screen from the CTA and clears the ask', () => {

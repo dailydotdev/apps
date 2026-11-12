@@ -9,14 +9,16 @@ import { WebKitMessageHandlers } from '@dailydotdev/shared/src/lib/ios';
 import type { MarketingCta } from '@dailydotdev/shared/src/components/marketing/cta/common';
 import { MarketingCtaVariant } from '@dailydotdev/shared/src/components/marketing/cta/common';
 import AppStoreReviewModal from '@dailydotdev/shared/src/components/modals/AppStoreReviewModal';
+import PlusRenewalReviewModal from '@dailydotdev/shared/src/components/modals/PlusRenewalReviewModal';
 import { ResourceSection } from '@dailydotdev/shared/src/components/ProfileMenu/sections/ResourceSection';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
+import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import { cloudinaryGiftedPlusModalImage } from '@dailydotdev/shared/src/lib/image';
-import { getBootMock } from '../../mock/boot';
+import { defaultBootData, getBootMock } from '../../mock/boot';
 
 // The shipped surfaces behind the App Store review asks, on a fake iOS 1.26
 // bridge so the review handlers exist. Every message the web app posts to the
@@ -104,7 +106,13 @@ const BridgeLog = ({
   </div>
 );
 
-const Providers = ({ children }: { children: ReactNode }): ReactElement => {
+const Providers = ({
+  children,
+  isPlus = false,
+}: {
+  children: ReactNode;
+  isPlus?: boolean;
+}): ReactElement => {
   const [client] = useState(() => new QueryClient());
 
   return (
@@ -115,7 +123,10 @@ const Providers = ({ children }: { children: ReactNode }): ReactElement => {
         getPage={fn()}
         getRedirectUri={fn()}
         version="pwa"
-        localBootData={getBootMock()}
+        localBootData={getBootMock({
+          ...defaultBootData,
+          user: { ...defaultUser, isPlus },
+        })}
       >
         {/* Modal mounts on production's app root. */}
         <div id="__next">{children}</div>
@@ -131,18 +142,25 @@ const defaultCta: MarketingCta = {
   flags: { title: '', ctaUrl: '', ctaText: '' },
 };
 
-// A Customer.io campaign with its own copy, here the Plus thank-you.
-const plusCta: MarketingCta = {
+// A Customer.io campaign with its own copy and image on the plain sheet.
+const campaignCta: MarketingCta = {
   ...defaultCta,
-  campaignId: 'storybook-plus-renewal',
+  campaignId: 'storybook-big-release',
   flags: {
-    title: 'Thanks for staying with Plus',
+    title: 'Thanks for reading the new daily.dev',
     description:
-      'You chose to keep daily.dev in your routine. If it has made your days a little better, a quick rating would mean a lot to us.',
+      'If the new version has made your days a little better, a quick rating would mean a lot to us.',
     ctaText: 'Rate daily.dev',
     ctaUrl: '',
     image: cloudinaryGiftedPlusModalImage,
   },
+};
+
+// The Plus thank-you after a renewal, on its own variant.
+const plusCta: MarketingCta = {
+  ...defaultCta,
+  campaignId: 'storybook-plus-renewal',
+  variant: MarketingCtaVariant.AppStoreReviewPlus,
 };
 
 const Sheet = ({
@@ -151,6 +169,9 @@ const Sheet = ({
   marketingCta: MarketingCta;
 }): ReactElement => {
   const messages = useIOSBridge();
+  const isPlus =
+    marketingCta.variant === MarketingCtaVariant.AppStoreReviewPlus;
+  const ReviewModal = isPlus ? PlusRenewalReviewModal : AppStoreReviewModal;
   // Opened after mount: Modal binds to #__next, which exists once rendered.
   const [isOpen, setIsOpen] = useState(false);
 
@@ -159,7 +180,7 @@ const Sheet = ({
   }, []);
 
   return (
-    <Providers>
+    <Providers isPlus={isPlus}>
       <div className="flex min-h-screen flex-col items-center gap-4 bg-background-subtle p-6">
         <BridgeLog messages={messages} />
         {!isOpen && (
@@ -172,7 +193,7 @@ const Sheet = ({
           </button>
         )}
         {isOpen && (
-          <AppStoreReviewModal
+          <ReviewModal
             marketingCta={marketingCta}
             isOpen
             ariaHideApp={false}
@@ -216,6 +237,11 @@ export const AskSheet: Story = {
 
 export const CampaignCopy: Story = {
   name: 'Ask sheet (Customer.io copy)',
+  render: () => <Sheet marketingCta={campaignCta} />,
+};
+
+export const PlusRenewal: Story = {
+  name: 'Plus renewal thank-you',
   render: () => <Sheet marketingCta={plusCta} />,
 };
 
