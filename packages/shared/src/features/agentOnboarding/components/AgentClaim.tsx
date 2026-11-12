@@ -9,6 +9,9 @@ import { providerMap } from '../../../components/auth/common';
 import Logo, { LogoPosition } from '../../../components/Logo';
 import { Loader } from '../../../components/Loader';
 import { Button, ButtonVariant } from '../../../components/buttons/Button';
+import { ChromeIcon } from '../../../components/icons/Browser/Chrome';
+import { EdgeIcon } from '../../../components/icons/Browser/Edge';
+import { useOnboardingExtension } from '../../../components/onboarding/Extension/useOnboardingExtension';
 import {
   Typography,
   TypographyColor,
@@ -16,8 +19,10 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { AuthTriggers } from '../../../lib/auth';
-import { LogEvent } from '../../../lib/log';
-import { settingsUrl } from '../../../lib/constants';
+import { LogEvent, Origin, TargetType } from '../../../lib/log';
+import { downloadBrowserExtension, settingsUrl } from '../../../lib/constants';
+import { BrowserName } from '../../../lib/func';
+import { anchorDefaultRel } from '../../../lib/strings';
 import { AUTH_RETURN_PATH_KEY } from '../../onboarding/lib/utils';
 import type { AgentClaimInfo } from '../claim';
 import {
@@ -76,6 +81,8 @@ export const AgentClaim = ({ code }: AgentClaimProps): ReactElement => {
   const { user, isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
   const queryClient = useQueryClient();
+  const { shouldShowExtensionOnboarding, browserName } =
+    useOnboardingExtension();
   const [hasSignedUpHere, setHasSignedUpHere] = useState(false);
   const { data: claim, isPending: isClaimPending } = useQuery({
     ...agentClaimQueryOptions(code as string),
@@ -109,6 +116,7 @@ export const AgentClaim = ({ code }: AgentClaimProps): ReactElement => {
 
   const isPendingClaim = claim?.status === AgentClaimStatus.Pending;
   const isProfileReady = !!user?.infoConfirmed;
+  const isEdge = browserName === BrowserName.Edge;
 
   useLogEventOnce(
     () => ({ event_name: LogEvent.ViewAgentClaim, target_id: claim?.client }),
@@ -160,8 +168,46 @@ export const AgentClaim = ({ code }: AgentClaimProps): ReactElement => {
           >
             Head back to your agent, it will take it from here.
           </Typography>
+          {shouldShowExtensionOnboarding && (
+            <div className="flex flex-col gap-2 rounded-12 bg-surface-float p-4">
+              <Typography bold type={TypographyType.Body}>
+                While your agent works, add daily.dev to your browser
+              </Typography>
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Tertiary}
+              >
+                The extension puts the feed your agent is setting up on every
+                new tab.
+              </Typography>
+              <Button
+                tag="a"
+                href={downloadBrowserExtension}
+                target="_blank"
+                rel={anchorDefaultRel}
+                icon={
+                  isEdge ? <EdgeIcon aria-hidden /> : <ChromeIcon aria-hidden />
+                }
+                variant={ButtonVariant.Primary}
+                className="mt-2 self-start"
+                onClick={() =>
+                  logEvent({
+                    event_name: LogEvent.DownloadExtension,
+                    target_id: isEdge ? TargetType.Edge : TargetType.Chrome,
+                    extra: JSON.stringify({ origin: Origin.AgentOnboarding }),
+                  })
+                }
+              >
+                Get the extension
+              </Button>
+            </div>
+          )}
           <Button
-            variant={ButtonVariant.Primary}
+            variant={
+              shouldShowExtensionOnboarding
+                ? ButtonVariant.Float
+                : ButtonVariant.Primary
+            }
             className="self-start"
             onClick={() => window.close()}
           >
