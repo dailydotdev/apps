@@ -160,7 +160,7 @@ export function BoostsPage({
       }
     >
       <TitleBand>
-        <h1 className="font-bold typo-title2">Boosts</h1>
+        <h1 className="font-bold typo-title2">Boost manager</h1>
       </TitleBand>
       <div className="px-4 pt-4 tablet:px-6 laptop:hidden">
         <StatsGrid totals={campaignTotals} className="tablet:grid-cols-4" />
@@ -258,7 +258,7 @@ export function CampaignPage({
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Small}
           icon={<ArrowIcon className="-rotate-90" />}
-          aria-label="Back to Boosts"
+          aria-label="Back to Boost manager"
         />
         <h1 className="font-bold typo-title2">Boost</h1>
         <BoostStatus

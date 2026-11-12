@@ -84,6 +84,7 @@ const pageTitles: Record<string, string> = {
   '/': 'Home',
   '/wallet': 'Core wallet',
   '/boosts': 'Boosts',
+  '/settings/boosts': 'Boost manager',
   '/cores': 'Get More Cores',
   '/daily-quests': 'Daily quests',
   '/notifications': 'Notifications',

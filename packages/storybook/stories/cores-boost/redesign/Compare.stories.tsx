@@ -98,11 +98,11 @@ export const WalletAndBuyCores: Story = {
   ),
 };
 
-export const FirstBoost: Story = {
-  name: '2. Boost · First boost',
+export const BoostAndAnalytics: Story = {
+  name: '2. Boost and analytics',
   render: () => (
     <ComparePage
-      pairs={pairsFor('2-boost-and-analytics-first-boost', [
+      pairs={pairsFor('2-boost-and-analytics', [
         ['1 · Own post', 'boost-own-post', 'own-post-new'],
         [
           '1 · Own post · taking off',
@@ -116,29 +116,23 @@ export const FirstBoost: Story = {
           'boost-form-reading',
         ],
         ['2 · Boost your post · compact', 'boost-form', 'boost-form-compact'],
-        ['4 · Processing', 'boost-processing-timed-out', null],
-        ['5 · Boost launches', 'boost-back-to-form', 'boost-launches'],
-        ['6 · Boost is live!', 'boost-is-live', 'boost-is-live'],
-      ])}
-    />
-  ),
-};
-
-export const AfterBoost: Story = {
-  name: '2. Boost · After the boost',
-  render: () => (
-    <ComparePage
-      pairs={pairsFor('2-boost-and-analytics-after-the-boost', [
-        ['1 · Boosts page', 'ads-dashboard', 'boosts-page-story'],
+        ['Processing', 'boost-processing-timed-out', null],
+        ['3 · Boost launches', 'boost-back-to-form', 'boost-launches'],
+        ['4 · Boost is live!', 'boost-is-live', 'boost-is-live'],
         [
-          '1 · Boosts page, nothing live',
+          '5 · Boost manager (Ads dashboard)',
+          'ads-dashboard',
+          'boosts-page-story',
+        ],
+        [
+          '5 · Boost manager, nothing live',
           'ads-dashboard-empty',
           'boosts-page-empty',
         ],
-        ['2 · Campaign', 'campaign-live', 'campaign-live'],
-        ['2 · Campaign, ended', 'campaign-ended', 'campaign-ended'],
-        ['3 · Boost notifications', 'boost-notifications', null],
-        ['5 · Boost again, prefilled', 'boost-again', 'boost-again'],
+        ['6 · Campaign', 'campaign-live', 'campaign-live'],
+        ['6 · Campaign, ended', 'campaign-ended', 'campaign-ended'],
+        ['Boost notifications', 'boost-notifications', null],
+        ['Boost again, prefilled', 'boost-again', 'boost-again'],
       ])}
     />
   ),

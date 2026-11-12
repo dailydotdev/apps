@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { ownArticle, PostPage } from '../../real/pages';
 import stripArt from '../../assets/boost-strip-patchy-v2.png';
 import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
+import type { ModalProps } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import {
   Typography,
   TypographyColor,
@@ -163,8 +164,8 @@ export interface BoostPostFixedModalProps {
   onBuyCores: (budget: typeof starterBoost) => void;
   onBoost: (budget: typeof starterBoost) => void;
   onRequestClose: () => void;
-  /** Where the modal mounts, to draw several on one page */
-  parentSelector?: () => HTMLElement;
+  /** Where the modal mounts and whether it locks the page, to draw several on one page */
+  modalProps?: Pick<ModalProps, 'parentSelector' | 'bodyOpenClassName'>;
 }
 
 const PresetOption = ({
@@ -205,7 +206,7 @@ export const BoostPostFixedModal = ({
   onBuyCores,
   onBoost,
   onRequestClose,
-  parentSelector,
+  modalProps,
 }: BoostPostFixedModalProps): ReactElement => {
   const { user } = useAuthContext();
   const { getFeatureValue } = useFeaturesReadyContext();
@@ -279,8 +280,8 @@ export const BoostPostFixedModal = ({
 
   return (
     <Modal
+      {...modalProps}
       onRequestClose={onRequestClose}
-      parentSelector={parentSelector}
       isOpen
       shouldCloseOnOverlayClick={false}
       kind={Modal.Kind.FixedCenter}

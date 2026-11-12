@@ -111,7 +111,7 @@ export const BoostPostCompactModal = ({
   onBuyCores,
   onBoost,
   onRequestClose,
-  parentSelector,
+  modalProps,
   isInline,
   isInfoOpen,
 }: BoostPostFixedModalProps & {
@@ -367,8 +367,8 @@ export const BoostPostCompactModal = ({
 
   return (
     <Modal
+      {...modalProps}
       onRequestClose={onRequestClose}
-      parentSelector={parentSelector}
       isOpen
       shouldCloseOnOverlayClick={false}
       kind={Modal.Kind.FixedCenter}

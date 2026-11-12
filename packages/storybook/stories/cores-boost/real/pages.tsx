@@ -395,6 +395,40 @@ export const SwapInPage = ({
   return slot ? createPortal(children, slot) : null;
 };
 
+/** Renames a production label wherever it shows, for a copy change the redesign proposes */
+export const RenameInPage = ({
+  from,
+  to,
+}: {
+  from: string;
+  to: string;
+}): null => {
+  useEffect(() => {
+    const rename = () => {
+      const walker = document.createTreeWalker(
+        document.body,
+        NodeFilter.SHOW_TEXT,
+      );
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        if (node.nodeValue === from) {
+          node.nodeValue = to;
+        }
+      }
+      ['title', 'aria-label'].forEach((name) =>
+        document
+          .querySelectorAll(`[${name}="${from}"]`)
+          .forEach((element) => element.setAttribute(name, to)),
+      );
+    };
+    rename();
+    const observer = new MutationObserver(rename);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [from, to]);
+
+  return null;
+};
+
 /** The production notification row whose text includes `text` */
 export const findNotificationRow = (text: string) => (): HTMLElement | null =>
   [...document.querySelectorAll<HTMLElement>('div.min-h-14.py-3')].find((row) =>

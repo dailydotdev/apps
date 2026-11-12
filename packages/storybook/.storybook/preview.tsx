@@ -141,7 +141,6 @@ const preview: Preview = {
               '0. Today vs redesign',
               '1. Wallet and buy Cores',
               '2. Boost and analytics',
-              ['First boost', 'After the boost'],
               '3. Awards',
               ['Give an award'],
             ],
