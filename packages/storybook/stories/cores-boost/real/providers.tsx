@@ -29,8 +29,9 @@ import { ProductionFlags } from '../../features/gist-feed/ProductionFlags';
 export const noop = (): void => undefined;
 
 // Production GrowthBook values for a non-team user (read from a production
-// boot, 2026-11-05). The team rule lowers the boost minimum to 1,000, so
-// anyone checking production from a team account sees a different slider.
+// boot, 2026-11-05; boost defaults from production, 2026-11-12). The team
+// rule lowers the boost minimum to 1,000, so anyone checking production from
+// a team account sees a different slider.
 export const productionFlags: Record<string, unknown> = {
   cores: true,
   post_boost_ads: true,
@@ -41,8 +42,8 @@ export const productionFlags: Record<string, unknown> = {
     min: 5000,
     max: 100000,
     step: 1000,
-    default_cores: 10000,
-    default_days: 5,
+    default_cores: 5000,
+    default_days: 7,
   },
 };
 
