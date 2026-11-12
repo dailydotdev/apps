@@ -357,10 +357,6 @@ export const SquadManageSeats = ({
   const { data: members, isPending } = useQuery(
     squadSeatMembersQueryOptions({ user, sourceId: getSquadId(squad) }),
   );
-  const { copying, logAndCopyLink } = useSquadInvitation({
-    squad,
-    origin: Origin.SquadManagePlan,
-  });
   const { seatLimit, seatsUsed } = subscription;
   // Only an admin who holds a seat can bring a teammate in to seat
   const viewerHasSeat =
@@ -368,6 +364,13 @@ export const SquadManageSeats = ({
     (members?.find((member) => member.user.id === user?.id)?.seat ??
       !!squad.currentMember?.seat);
   const canInvite = isAdmin && viewerHasSeat;
+  const showInvite =
+    !isPending && (members?.length ?? 0) <= 1 && canInvite && seatLimit > 1;
+  const { copying, logAndCopyLink } = useSquadInvitation({
+    squad,
+    origin: Origin.SquadManagePlan,
+    enabled: showInvite,
+  });
 
   return (
     <section className="flex flex-col gap-2">
@@ -401,24 +404,21 @@ export const SquadManageSeats = ({
           ))}
         </ul>
       )}
-      {!isPending &&
-        (members?.length ?? 0) <= 1 &&
-        canInvite &&
-        seatLimit > 1 && (
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-16 bg-surface-float p-4">
-            <p className="min-w-0 flex-1 text-pretty text-text-secondary typo-footnote">
-              Only admins and moderators can hold a seat. Invite a teammate to
-              the page, then make them a moderator.
-            </p>
-            <Button
-              variant={ButtonVariant.Secondary}
-              size={ButtonSize.Small}
-              onClick={() => logAndCopyLink()}
-            >
-              {copying ? 'Copied' : 'Copy invite link'}
-            </Button>
-          </div>
-        )}
+      {showInvite && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-16 bg-surface-float p-4">
+          <p className="min-w-0 flex-1 text-pretty text-text-secondary typo-footnote">
+            Only admins and moderators can hold a seat. Invite a teammate to the
+            page, then make them a moderator.
+          </p>
+          <Button
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            onClick={() => logAndCopyLink()}
+          >
+            {copying ? 'Copied' : 'Copy invite link'}
+          </Button>
+        </div>
+      )}
     </section>
   );
 };
