@@ -15,7 +15,6 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { CoreIcon } from '@dailydotdev/shared/src/components/icons/Core';
-import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
 import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { TimerIcon } from '@dailydotdev/shared/src/components/icons/Timer';
 import { EyeIcon } from '@dailydotdev/shared/src/components/icons/Eye';
@@ -24,7 +23,8 @@ import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { ModalClose } from '@dailydotdev/shared/src/components/modals/common/ModalClose';
 import { BoostWalletPicker } from '@dailydotdev/shared/src/features/boost/BoostWalletPicker';
-import { StartupsBoostPromo } from '@dailydotdev/shared/src/features/squads/components/promos/StartupsPromo';
+import { StartupsRibbonPromo } from './StartupsRibbonPromo';
+import { BoostWalletBalance } from '@dailydotdev/shared/src/features/boost/BoostWalletBalance';
 import { useBoostWallet } from '@dailydotdev/shared/src/features/boost/useBoostWallet';
 import { usePostBoostEstimation } from '@dailydotdev/shared/src/features/boost/usePostBoostEstimation';
 import { BoostAudience } from '@dailydotdev/shared/src/features/boost/BoostAudience';
@@ -37,10 +37,7 @@ import { CampaignWallet } from '@dailydotdev/shared/src/graphql/campaigns';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
-import {
-  boostDocsLink,
-  walletUrl,
-} from '@dailydotdev/shared/src/lib/constants';
+import { boostDocsLink } from '@dailydotdev/shared/src/lib/constants';
 import type { OwnPostState } from '../../flows/purchase/BoostFixed';
 import { starterBoost } from '../../flows/purchase/BoostFixed';
 import stripArt from '../../assets/boost-strip-patchy-v2.png';
@@ -214,7 +211,14 @@ export const BoostPostRedesignModal = ({
   const totalSpend = largeNumberFormat(totalSpendInt);
   const squadId =
     post.source?.type === SourceType.Squad ? post.source.id : undefined;
-  const { squadWallet, wallet, setWallet, balance } = useBoostWallet(squadId);
+  const {
+    squadWallet,
+    wallet,
+    setWallet,
+    balance,
+    selectedSquadWallet,
+    canBuyCores,
+  } = useBoostWallet(squadId);
   const { postTags, audience, setAudience, campaignAudience } =
     useAudience(post);
   const { estimatedReach, canBoost, isLoading } = usePostBoostEstimation({
@@ -260,26 +264,11 @@ export const BoostPostRedesignModal = ({
         <Typography type={TypographyType.Title3} bold>
           Boost your post
         </Typography>
-        <div className="ml-4 flex flex-row rounded-10 bg-surface-float">
-          <Button
-            icon={<CoreIcon />}
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
-            target="_blank"
-            href={walletUrl}
-            tag="a"
-          >
-            {largeNumberFormat(user?.balance.amount ?? 0)}
-          </Button>
-          <div className="my-1 border-l border-border-subtlest-tertiary" />
-          <Button
-            icon={<PlusIcon />}
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
-            onClick={() => onBuyCores(budget)}
-            aria-label="Buy Cores"
-          />
-        </div>
+        <BoostWalletBalance
+          squadWallet={selectedSquadWallet}
+          balance={balance}
+          onBuyCores={canBuyCores ? () => onBuyCores(budget) : undefined}
+        />
       </Modal.Header>
       <Modal.Body className="flex flex-col !gap-5">
         <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-3">
@@ -434,7 +423,7 @@ export const BoostPostRedesignModal = ({
             totalSpend={totalSpendInt}
           />
         )}
-        <StartupsBoostPromo sourceId={squadId} />
+        <StartupsRibbonPromo sourceId={squadId} />
       </Modal.Body>
       <Modal.Footer>
         <Button

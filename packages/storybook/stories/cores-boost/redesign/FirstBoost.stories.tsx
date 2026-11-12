@@ -5,17 +5,15 @@ import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import AuthContext, {
   useAuthContext,
 } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { Origin } from '@dailydotdev/shared/src/lib/log';
-import { BoostPostModal } from '@dailydotdev/shared/src/features/boost/BoostPostModal';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
 import { CoresProviders, noop } from '../real/providers';
 import { coresHandlers } from '../real/handlers';
+import type { Campaign } from '@dailydotdev/shared/src/graphql/campaigns';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
+import { BoostPostModal } from '@dailydotdev/shared/src/features/boost/BoostPostModal';
 import { boostablePost } from '../real/screens';
 import { Stage } from '../flows/purchase/stage';
+import { durationOf, endedCampaign } from '../flows/after-boost/fixtures';
+import { BoostAgainModal } from './after-boost/BoostAgainModal';
 import type { OwnPostState } from '../flows/purchase/BoostFixed';
 import {
   BoostPostFixedModal,
@@ -26,9 +24,7 @@ import {
   BoostLiveRedesign,
   OwnPostRedesign,
 } from './purchase/BoostRedesign';
-import { BuyCoresRedesignModal } from './purchase/BuyCoresRedesign';
 import { BoostPostCompactModal } from './purchase/BoostCompact';
-import { startupsOfferOptions } from './purchase/StartupsOfferOptions';
 
 // "5. First boost", redrawn in the squads hub line.
 // Same steps, labels and actions; only the look changes.
@@ -105,21 +101,6 @@ export const BoostForm = story('The current boost form.', () => (
   </Stage>
 ));
 
-export const BoostFormCustom = story(
-  'The current boost form, on Custom.',
-  () => (
-    <Stage background={<OwnPostBackdrop />}>
-      <BoostPostFixedModal
-        post={boostablePost}
-        initialMode="custom"
-        onBuyCores={noop}
-        onBoost={noop}
-        onRequestClose={noop}
-      />
-    </Stage>
-  ),
-);
-
 export const BoostFormReading = story(
   'The current boost form, while the post is being read.',
   () => (
@@ -134,55 +115,130 @@ export const BoostFormReading = story(
   ),
 );
 
-const formVersions = ['Production', 'Current', 'Compact'] as const;
-type FormVersion = (typeof formVersions)[number];
+export const BoostFormCompact = story('The compact boost form.', () => (
+  <Stage background={<OwnPostBackdrop />}>
+    <BoostPostCompactModal
+      post={boostablePost}
+      onBuyCores={noop}
+      onBoost={noop}
+      onRequestClose={noop}
+    />
+  </Stage>
+));
 
-/** Production's form, the current one and the compact one, switched from the bar at the bottom */
-const CompareForms = (): ReactElement => {
-  const [version, setVersion] = useState<FormVersion>('Compact');
-  const Form =
-    version === 'Compact' ? BoostPostCompactModal : BoostPostFixedModal;
+/** A box the version's modal mounts in: transform-gpu keeps its fixed overlay inside */
+const VersionFrame = ({
+  name,
+  description,
+  render,
+}: {
+  name: string;
+  description: string;
+  render: (parentSelector: () => HTMLElement) => ReactElement;
+}): ReactElement => {
+  const [box, setBox] = useState<HTMLDivElement | null>(null);
 
   return (
-    <Stage background={<OwnPostBackdrop />}>
-      {version === 'Production' ? (
-        <BoostPostModal
-          isOpen
-          onRequestClose={noop}
-          post={boostablePost}
-          origin={Origin.PostBoostButton}
-        />
-      ) : (
-        <Form
-          key={version}
-          post={boostablePost}
-          onBuyCores={noop}
-          onBoost={noop}
-          onRequestClose={noop}
-        />
-      )}
-      <nav className="fixed bottom-4 left-1/2 z-max flex -translate-x-1/2 flex-row items-center gap-1 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-1 shadow-2">
-        {formVersions.map((name) => (
-          <Button
-            key={name}
-            size={ButtonSize.XSmall}
-            variant={
-              name === version ? ButtonVariant.Primary : ButtonVariant.Tertiary
-            }
-            onClick={() => setVersion(name)}
-          >
-            {name}
-          </Button>
-        ))}
-      </nav>
-    </Stage>
+    <section className="flex w-[27rem] flex-col gap-3">
+      <span className="flex flex-col gap-0.5">
+        <strong className="typo-title3">{name}</strong>
+        <span className="text-text-tertiary typo-footnote">{description}</span>
+      </span>
+      <div
+        ref={setBox}
+        className="relative h-[64rem] w-[27rem] transform-gpu overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default"
+      >
+        {box && render(() => box)}
+      </div>
+    </section>
   );
 };
 
-export const BoostFormCompare = story(
-  'Production’s form, the current redesign form and the compact one on the same post. Switch between them from the bar at the bottom.',
-  () => <CompareForms />,
-);
+const lastBoostOf = (campaign: Campaign) => {
+  const days = durationOf(campaign);
+
+  return {
+    days,
+    coresPerDay: Math.round((campaign.flags.budget ?? 0) / days),
+  };
+};
+
+export const BoostFormVersions: Story = {
+  parameters: {
+    msw: { handlers: coresHandlers({ balance }) },
+    docs: {
+      description: {
+        story:
+          'Every version of the Boost your post pop-up side by side, each live: Starter, Custom and the audience rows all work.',
+      },
+    },
+  },
+  render: () => (
+    <CoresProviders
+      balance={balance}
+      activePage="/posts/sb-boost-post"
+      hasOwnLayout
+    >
+      <div className="min-h-screen bg-background-default p-6">
+        <div className="flex flex-wrap items-start gap-x-6 gap-y-10">
+          <VersionFrame
+            name="Production"
+            description="Live today: sliders for budget and duration."
+            render={(parentSelector) => (
+              <BoostPostModal
+                isOpen
+                onRequestClose={noop}
+                post={boostablePost}
+                origin={Origin.PostBoostButton}
+                parentSelector={parentSelector}
+              />
+            )}
+          />
+          <VersionFrame
+            name="Current"
+            description="Starter and Custom cards, the ribbon offer."
+            render={(parentSelector) => (
+              <BoostPostFixedModal
+                post={boostablePost}
+                onBuyCores={noop}
+                onBoost={noop}
+                onRequestClose={noop}
+                parentSelector={parentSelector}
+              />
+            )}
+          />
+          <VersionFrame
+            name="Compact"
+            description="The post and its numbers in one row, a two-way switch."
+            render={(parentSelector) => (
+              <BoostPostCompactModal
+                post={boostablePost}
+                onBuyCores={noop}
+                onBoost={noop}
+                onRequestClose={noop}
+                parentSelector={parentSelector}
+              />
+            )}
+          />
+          <VersionFrame
+            name="Boost again"
+            description="Prefilled with the last boost, from the ended notification."
+            render={(parentSelector) => (
+              <BoostAgainModal
+                isOpen
+                post={endedCampaign.post as Post}
+                lastBoost={lastBoostOf(endedCampaign)}
+                onRequestClose={noop}
+                onSeeBoost={noop}
+                parentSelector={parentSelector}
+              />
+            )}
+          />
+        </div>
+      </div>
+    </CoresProviders>
+  ),
+};
 
 /** One state of the compact form, drawn in place with its own balance */
 const CompactState = ({
@@ -240,51 +296,6 @@ export const BoostFormCompactStates = story(
   ),
 );
 
-export const StartupsOfferLayouts: Story = {
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Eight arrangements of the Startups launch offer, from mobile game shops, at the width the offer has in the boost form.',
-      },
-    },
-  },
-  render: () => (
-    <div className="min-h-screen bg-background-default p-6 tablet:p-10">
-      <div className="flex flex-wrap items-start gap-x-8 gap-y-12">
-        {startupsOfferOptions.map(({ name, description, Offer }) => (
-          <section
-            key={name}
-            className="flex w-[26.25rem] max-w-full flex-col gap-3"
-          >
-            <span className="flex flex-col gap-0.5">
-              <strong className="typo-callout">{name}</strong>
-              <span className="text-text-tertiary typo-caption1">
-                {description}
-              </span>
-            </span>
-            <Offer />
-          </section>
-        ))}
-      </div>
-    </div>
-  ),
-};
-
-export const BuyCores = story(
-  'The same redesigned Buy Cores as the award flow, with a boost tile leading the "what it is for" card.',
-  () => (
-    <Stage background={<OwnPostBackdrop />}>
-      <BuyCoresRedesignModal
-        purpose="boost"
-        cost={starterBoost.coresPerDay * starterBoost.totalDays}
-        onPay={noop}
-        onRequestClose={noop}
-      />
-    </Stage>
-  ),
-);
-
 export const BoostLaunches = story(
   'The Patchy rocket heads the launch screen, the boost is a row with Change, and a progress bar counts down.',
   () => (
@@ -315,14 +326,12 @@ export const BoostIsLive = story(
 // The story index reads names statically, not through the helper
 OwnPostNew.storyName = '1 · Own post';
 OwnPostTakingOff.storyName = '1 · Own post · taking off';
-BoostForm.storyName = '2 · Boost your post';
-BoostFormCustom.storyName = '2 · Boost your post · custom';
+BoostForm.storyName = '2 · Boost your post · current';
+BoostForm.tags = ['!dev'];
+BoostFormCompact.storyName = '2 · Boost your post · compact';
+BoostFormCompact.tags = ['!dev'];
+BoostFormVersions.storyName = '2 · Boost your post · all versions';
 BoostFormReading.storyName = '2 · Boost your post · reading the post';
-BoostFormCompare.storyName =
-  '2 · Boost your post · production vs current vs compact';
 BoostFormCompactStates.storyName = '2 · Boost your post · compact, all states';
-StartupsOfferLayouts.storyName =
-  '2 · Boost your post · Startups offer, 8 layouts';
-BuyCores.storyName = '3 · Buy Cores, pack preselected';
 BoostLaunches.storyName = '5 · Boost launches';
 BoostIsLive.storyName = '6 · Boost is live!';

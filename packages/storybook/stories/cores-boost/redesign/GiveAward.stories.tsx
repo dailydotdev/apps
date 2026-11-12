@@ -7,7 +7,6 @@ import { coresHandlers } from '../real/handlers';
 import { awards } from '../real/catalog';
 import { Stage } from '../flows/purchase/stage';
 import { AwardNoteRedesign } from './purchase/AwardRedesign';
-import { BuyCoresRedesignModal } from './purchase/BuyCoresRedesign';
 
 // "2. Give an award", redrawn in the squads hub line.
 // Picking the award, processing and the sent screen stay as production has
@@ -44,21 +43,6 @@ const story = (
   ),
 });
 
-export const BuyCores = story(
-  'A card names what the Cores are for and ticks once a pack covers it, packs are calm rows, and the friendship art replaces the two-hands video beside the checkout.',
-  () => (
-    <Stage>
-      <BuyCoresRedesignModal
-        purpose="award"
-        cost={coffee.value}
-        product={coffee}
-        onPay={noop}
-        onRequestClose={noop}
-      />
-    </Stage>
-  ),
-);
-
 export const NoteAndSend = story(
   'A check chip confirms the Cores, the award sits in a bordered card with its glow image and price, and the note follows.',
   () => (
@@ -76,5 +60,4 @@ export const NoteAndSend = story(
 );
 
 // The story index reads names statically, not through the helper
-BuyCores.storyName = '3 · Buy Cores, pack preselected';
 NoteAndSend.storyName = '6 · Note and send';

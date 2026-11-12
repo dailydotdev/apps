@@ -16,18 +16,17 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
   Button,
-  ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { CoreIcon } from '@dailydotdev/shared/src/components/icons/Core';
-import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
 import { InfoIcon } from '@dailydotdev/shared/src/components/icons/Info';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { BoostWalletPicker } from '@dailydotdev/shared/src/features/boost/BoostWalletPicker';
-import { StartupsBoostPromo } from '@dailydotdev/shared/src/features/squads/components/promos/StartupsPromo';
+import { StartupsRibbonPromo } from './StartupsRibbonPromo';
+import { BoostWalletBalance } from '@dailydotdev/shared/src/features/boost/BoostWalletBalance';
 import { useBoostWallet } from '@dailydotdev/shared/src/features/boost/useBoostWallet';
 import { usePostBoostEstimation } from '@dailydotdev/shared/src/features/boost/usePostBoostEstimation';
 import { BoostAudience } from '@dailydotdev/shared/src/features/boost/BoostAudience';
@@ -39,10 +38,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { CampaignWallet } from '@dailydotdev/shared/src/graphql/campaigns';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
-import {
-  boostDocsLink,
-  walletUrl,
-} from '@dailydotdev/shared/src/lib/constants';
+import { boostDocsLink } from '@dailydotdev/shared/src/lib/constants';
 import type { BoostPostFixedModalProps } from '../../flows/purchase/BoostFixed';
 import { starterBoost } from '../../flows/purchase/BoostFixed';
 
@@ -56,7 +52,7 @@ const Slider = dynamic(
 
 // The Boost your post form, compact: the description moves into an info
 // tooltip, the post and its numbers share one row, and Budget is a two-way
-// switch. The Startups offer stays, as production shows it.
+// switch. The Startups offer sits on the ribbon card.
 
 type BudgetMode = 'starter' | 'custom';
 
@@ -115,6 +111,7 @@ export const BoostPostCompactModal = ({
   onBuyCores,
   onBoost,
   onRequestClose,
+  parentSelector,
   isInline,
   isInfoOpen,
 }: BoostPostFixedModalProps & {
@@ -138,7 +135,14 @@ export const BoostPostCompactModal = ({
   const totalSpend = largeNumberFormat(totalSpendInt);
   const squadId =
     post.source?.type === SourceType.Squad ? post.source.id : undefined;
-  const { squadWallet, wallet, setWallet, balance } = useBoostWallet(squadId);
+  const {
+    squadWallet,
+    wallet,
+    setWallet,
+    balance,
+    selectedSquadWallet,
+    canBuyCores,
+  } = useBoostWallet(squadId);
   const { postTags, audience, setAudience, campaignAudience } =
     useAudience(post);
   const { estimatedReach, canBoost, isLoading } = usePostBoostEstimation({
@@ -214,26 +218,13 @@ export const BoostPostCompactModal = ({
             <InfoIcon size={IconSize.Small} />
           </a>
         </Tooltip>
-        <div className="ml-auto mr-6 flex flex-row rounded-10 bg-surface-float">
-          <Button
-            icon={<CoreIcon />}
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
-            target="_blank"
-            href={walletUrl}
-            tag="a"
-          >
-            {largeNumberFormat(user?.balance.amount ?? 0)}
-          </Button>
-          <div className="my-1 border-l border-border-subtlest-tertiary" />
-          <Button
-            icon={<PlusIcon />}
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
-            onClick={() => onBuyCores(budget)}
-            aria-label="Buy Cores"
+        <span className="ml-auto mr-6 flex">
+          <BoostWalletBalance
+            squadWallet={selectedSquadWallet}
+            balance={balance}
+            onBuyCores={canBuyCores ? () => onBuyCores(budget) : undefined}
           />
-        </div>
+        </span>
       </Modal.Header>
       <Modal.Body className="flex flex-col !gap-4">
         <div className="flex items-center gap-3 rounded-16 bg-surface-float p-2">
@@ -340,7 +331,7 @@ export const BoostPostCompactModal = ({
             totalSpend={totalSpendInt}
           />
         )}
-        <StartupsBoostPromo sourceId={squadId} />
+        <StartupsRibbonPromo sourceId={squadId} />
       </Modal.Body>
       <Modal.Footer>
         <Button
@@ -377,6 +368,7 @@ export const BoostPostCompactModal = ({
   return (
     <Modal
       onRequestClose={onRequestClose}
+      parentSelector={parentSelector}
       isOpen
       shouldCloseOnOverlayClick={false}
       kind={Modal.Kind.FixedCenter}

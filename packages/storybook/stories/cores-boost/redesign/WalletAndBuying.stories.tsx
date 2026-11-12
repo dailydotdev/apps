@@ -8,9 +8,7 @@ import { questHandlers } from '../real/pages';
 import { FirstCoresSheet } from './cores/Moments';
 import { QuestScreen } from './cores/Screens';
 import {
-  afterPurchaseHistory,
   firstQuestReward,
-  landedPurchase,
   readQuest,
   stuckPurchase,
   walletHandlers,
@@ -23,7 +21,6 @@ import { BuyCoresRedesignModal } from './purchase/BuyCoresRedesign';
 // "Wallet and buying Cores" in the new look, from your first Cores on.
 
 const BALANCE = 1275;
-const PACK = landedPurchase.value;
 
 const meta: Meta = {
   title: 'Cores & Boost/Redesign/1. Wallet and buy Cores',
@@ -166,31 +163,6 @@ export const Cores: Story = {
   render: () => (
     <CoresProviders balance={BALANCE} activePage="/cores" hasOwnLayout>
       <CoresPage />
-    </CoresProviders>
-  ),
-};
-
-export const BackToTheWallet: Story = {
-  name: '5 · Back to the wallet',
-  parameters: {
-    msw: {
-      handlers: [
-        ...streakHandlers({ balance: BALANCE + PACK }),
-        ...walletHandlers(BALANCE + PACK, afterPurchaseHistory),
-      ],
-    },
-    docs: {
-      description: {
-        story:
-          'Back in the wallet, the Purchased cell shows +300 in green and the purchase tops the history.',
-      },
-    },
-  },
-  render: () => (
-    <CoresProviders balance={BALANCE + PACK}>
-      <Shell>
-        <Wallet purchasedChange={PACK} />
-      </Shell>
     </CoresProviders>
   ),
 };

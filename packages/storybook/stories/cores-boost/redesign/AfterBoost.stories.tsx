@@ -132,25 +132,13 @@ export const CampaignEnded: Story = {
 };
 
 export const BoostAgain: Story = {
+  tags: ['!dev'],
   name: '5 · Boost again, prefilled',
   render: () => <BoostAgainScreen />,
   parameters: {
     docs: {
       description: {
         story: 'The boost form, prefilled with the last budget.',
-      },
-    },
-  },
-};
-
-export const BoostIsLive: Story = {
-  name: '6 · Boost is live!',
-  render: () => <BoostAgainScreen initialScreen="SUCCESS" />,
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'The success screen trades the stock cover for the Patchy boost art, with See your boost primary and Learn more about boosting as a quiet second button.',
       },
     },
   },

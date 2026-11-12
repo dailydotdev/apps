@@ -143,7 +143,7 @@ const preview: Preview = {
               '2. Boost and analytics',
               ['First boost', 'After the boost'],
               '3. Awards',
-              ['Give an award', 'Receive an award'],
+              ['Give an award'],
             ],
           ],
         ],

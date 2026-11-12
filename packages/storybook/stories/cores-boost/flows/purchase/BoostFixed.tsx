@@ -18,7 +18,6 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { CoreIcon } from '@dailydotdev/shared/src/components/icons/Core';
-import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
 import { MiniCloseIcon } from '@dailydotdev/shared/src/components/icons/MiniClose';
 import { TrendingIcon } from '@dailydotdev/shared/src/components/icons/Trending';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -27,7 +26,8 @@ import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { TooltipArrow } from '@dailydotdev/shared/src/svg/TooltipArrow';
 import { ActionSuccessModal } from '@dailydotdev/shared/src/components/modals/utils/ActionSuccessModal';
 import { BoostWalletPicker } from '@dailydotdev/shared/src/features/boost/BoostWalletPicker';
-import { StartupsBoostPromo } from '@dailydotdev/shared/src/features/squads/components/promos/StartupsPromo';
+import { StartupsRibbonPromo } from '../../redesign/purchase/StartupsRibbonPromo';
+import { BoostWalletBalance } from '@dailydotdev/shared/src/features/boost/BoostWalletBalance';
 import { useBoostWallet } from '@dailydotdev/shared/src/features/boost/useBoostWallet';
 import { usePostBoostEstimation } from '@dailydotdev/shared/src/features/boost/usePostBoostEstimation';
 import { BoostAudience } from '@dailydotdev/shared/src/features/boost/BoostAudience';
@@ -41,10 +41,7 @@ import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import { boostSuccessCover } from '@dailydotdev/shared/src/lib/image';
-import {
-  boostDocsLink,
-  walletUrl,
-} from '@dailydotdev/shared/src/lib/constants';
+import { boostDocsLink } from '@dailydotdev/shared/src/lib/constants';
 
 const Slider = dynamic(
   () =>
@@ -166,6 +163,8 @@ export interface BoostPostFixedModalProps {
   onBuyCores: (budget: typeof starterBoost) => void;
   onBoost: (budget: typeof starterBoost) => void;
   onRequestClose: () => void;
+  /** Where the modal mounts, to draw several on one page */
+  parentSelector?: () => HTMLElement;
 }
 
 const PresetOption = ({
@@ -206,6 +205,7 @@ export const BoostPostFixedModal = ({
   onBuyCores,
   onBoost,
   onRequestClose,
+  parentSelector,
 }: BoostPostFixedModalProps): ReactElement => {
   const { user } = useAuthContext();
   const { getFeatureValue } = useFeaturesReadyContext();
@@ -222,7 +222,14 @@ export const BoostPostFixedModal = ({
   const totalSpend = largeNumberFormat(totalSpendInt);
   const squadId =
     post.source?.type === SourceType.Squad ? post.source.id : undefined;
-  const { squadWallet, wallet, setWallet, balance } = useBoostWallet(squadId);
+  const {
+    squadWallet,
+    wallet,
+    setWallet,
+    balance,
+    selectedSquadWallet,
+    canBuyCores,
+  } = useBoostWallet(squadId);
   const { postTags, audience, setAudience, campaignAudience } =
     useAudience(post);
   const { estimatedReach, canBoost, isLoading } = usePostBoostEstimation({
@@ -273,6 +280,7 @@ export const BoostPostFixedModal = ({
   return (
     <Modal
       onRequestClose={onRequestClose}
+      parentSelector={parentSelector}
       isOpen
       shouldCloseOnOverlayClick={false}
       kind={Modal.Kind.FixedCenter}
@@ -282,26 +290,11 @@ export const BoostPostFixedModal = ({
         <Typography type={TypographyType.Title3} bold>
           Boost your post
         </Typography>
-        <div className="ml-4 flex flex-row rounded-10 bg-surface-float">
-          <Button
-            icon={<CoreIcon />}
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
-            target="_blank"
-            href={walletUrl}
-            tag="a"
-          >
-            {largeNumberFormat(user?.balance.amount ?? 0)}
-          </Button>
-          <div className="my-1 border-l border-border-subtlest-tertiary" />
-          <Button
-            icon={<PlusIcon />}
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
-            onClick={() => onBuyCores(budget)}
-            aria-label="Buy Cores"
-          />
-        </div>
+        <BoostWalletBalance
+          squadWallet={selectedSquadWallet}
+          balance={balance}
+          onBuyCores={canBuyCores ? () => onBuyCores(budget) : undefined}
+        />
       </Modal.Header>
       <Modal.Body className="flex flex-col !gap-6">
         <Typography
@@ -437,7 +430,7 @@ export const BoostPostFixedModal = ({
             totalSpend={totalSpendInt}
           />
         )}
-        <StartupsBoostPromo sourceId={squadId} />
+        <StartupsRibbonPromo sourceId={squadId} />
       </Modal.Body>
       <Modal.Footer>
         <Button

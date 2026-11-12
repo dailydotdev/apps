@@ -93,7 +93,6 @@ export const WalletAndBuyCores: Story = {
         ['2 · Wallet', 'wallet', 'wallet-screen'],
         ['4 · /cores', 'cores', 'cores'],
         ['You got your Cores!', 'cores-purchased', null],
-        ['5 · Back to the wallet', 'cores-got-it-home', 'back-to-the-wallet'],
       ])}
     />
   ),
@@ -111,14 +110,12 @@ export const FirstBoost: Story = {
           'own-post-taking-off',
         ],
         ['2 · Boost your post', 'boost-form', 'boost-form'],
-        ['2 · Boost your post · custom', 'boost-form', 'boost-form-custom'],
         [
           '2 · Boost your post · reading the post',
           'boost-form-new-post',
           'boost-form-reading',
         ],
-        ['2 · Boost your post · compact', 'boost-form', 'boost-form-compare'],
-        ['3 · Buy Cores, pack preselected', 'boost-buy', 'buy-cores'],
+        ['2 · Boost your post · compact', 'boost-form', 'boost-form-compact'],
         ['4 · Processing', 'boost-processing-timed-out', null],
         ['5 · Boost launches', 'boost-back-to-form', 'boost-launches'],
         ['6 · Boost is live!', 'boost-is-live', 'boost-is-live'],
@@ -142,7 +139,6 @@ export const AfterBoost: Story = {
         ['2 · Campaign, ended', 'campaign-ended', 'campaign-ended'],
         ['3 · Boost notifications', 'boost-notifications', null],
         ['5 · Boost again, prefilled', 'boost-again', 'boost-again'],
-        ['6 · Boost is live!', 'boost-is-live', 'boost-is-live'],
       ])}
     />
   ),
@@ -154,27 +150,10 @@ export const GiveAward: Story = {
     <ComparePage
       pairs={pairsFor('3-awards-give-an-award', [
         ['2 · Pick an award', 'award-picked-too-expensive', null],
-        ['3 · Buy Cores, pack preselected', 'award-buy-cores', 'buy-cores'],
         ['5 · Processing', 'award-processing-timed-out', null],
         ['6 · Note and send', 'award-note', 'note-and-send'],
         ['7 · Award sent', 'award-sent', null],
         ['8 · Back where you were · old iOS', 'award-old-ios', null],
-      ])}
-    />
-  ),
-};
-
-export const ReceiveAward: Story = {
-  name: '3. Awards · Receive an award',
-  render: () => (
-    <ComparePage
-      pairs={pairsFor('3-awards-receive-an-award', [
-        ['2 · Award received, with context', 'receive-notification', null],
-        [
-          '4 · Wallet, award in history',
-          'receive-wallet',
-          'wallet-row-highlighted',
-        ],
       ])}
     />
   ),
