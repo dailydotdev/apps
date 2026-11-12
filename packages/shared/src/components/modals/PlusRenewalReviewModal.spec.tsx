@@ -3,13 +3,11 @@ import { QueryClient } from '@tanstack/react-query';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
-import { LogEvent, TargetId, TargetType } from '../../lib/log';
+import { LogEvent, TargetType } from '../../lib/log';
 import { openIOSWriteReview, requestIOSReview } from '../../lib/ios';
 import * as bootHook from '../../hooks/useBoot';
-import { useLazyModal } from '../../hooks/useLazyModal';
 import type { MarketingCta } from '../marketing/cta/common';
 import { MarketingCtaVariant } from '../marketing/cta/common';
-import { LazyModal } from './common/types';
 import {
   appStoreReviewCopy,
   appStoreReviewRequestDelayMs,
@@ -23,12 +21,10 @@ jest.mock('../../lib/ios', () => ({
   openIOSWriteReview: jest.fn(() => true),
   requestIOSReview: jest.fn(() => true),
 }));
-jest.mock('../../hooks/useLazyModal', () => ({ useLazyModal: jest.fn() }));
 
 const logEvent = jest.fn();
 const clearMarketingCta = jest.fn();
 const onRequestClose = jest.fn();
-const openModal = jest.fn();
 
 const marketingCta: MarketingCta = {
   campaignId: 'review-plus-renewal',
@@ -60,11 +56,6 @@ describe('PlusRenewalReviewModal', () => {
     jest.spyOn(bootHook, 'useBoot').mockReturnValue({
       clearMarketingCta,
     } as unknown as ReturnType<typeof bootHook.useBoot>);
-    jest.mocked(useLazyModal).mockReturnValue({
-      openModal,
-      closeModal: jest.fn(),
-      modal: null,
-    } as unknown as ReturnType<typeof useLazyModal>);
   });
 
   afterEach(() => {
@@ -72,7 +63,7 @@ describe('PlusRenewalReviewModal', () => {
     jest.restoreAllMocks();
   });
 
-  it('thanks the member and carries the ask card', () => {
+  it('thanks the member and asks for a rating', () => {
     renderModal();
 
     expect(
@@ -80,9 +71,11 @@ describe('PlusRenewalReviewModal', () => {
     ).toBeInTheDocument();
     expect(screen.getByText(plusRenewalCopy.text)).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { name: appStoreReviewCopy.headline }),
-    ).toBeInTheDocument();
-    expect(screen.getByText(appStoreReviewCopy.shortText)).toBeInTheDocument();
+      screen.getByRole('button', { name: appStoreReviewCopy.ctaLabel }),
+    ).toHaveTextContent(appStoreReviewCopy.cta);
+    expect(
+      screen.queryByRole('button', { name: /gift/i }),
+    ).not.toBeInTheDocument();
     expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.Impression,
       target_type: TargetType.AppStoreReview,
@@ -115,7 +108,7 @@ describe('PlusRenewalReviewModal', () => {
     ).toBeInTheDocument();
   });
 
-  it('opens the write-a-review screen from the ask card', () => {
+  it('opens the write-a-review screen from the CTA', () => {
     renderModal();
 
     fireEvent.click(
@@ -125,26 +118,6 @@ describe('PlusRenewalReviewModal', () => {
     expect(openIOSWriteReview).toHaveBeenCalledTimes(1);
     expect(clearMarketingCta).toHaveBeenCalledWith(marketingCta.campaignId);
     expect(onRequestClose).toHaveBeenCalledTimes(1);
-  });
-
-  it('hands over to the gift Plus modal', () => {
-    renderModal();
-
-    fireEvent.click(screen.getByRole('button', { name: plusRenewalCopy.gift }));
-
-    expect(logEvent).toHaveBeenCalledWith({
-      event_name: LogEvent.GiftSubscription,
-      target_type: TargetType.Plus,
-      target_id: TargetId.AppStoreReviewPlus,
-      extra: undefined,
-    });
-    expect(clearMarketingCta).toHaveBeenCalledWith(marketingCta.campaignId);
-    expect(onRequestClose).toHaveBeenCalledTimes(1);
-    expect(openModal).toHaveBeenCalledWith({
-      type: LazyModal.GiftPlus,
-      props: {},
-    });
-    expect(openIOSWriteReview).not.toHaveBeenCalled();
   });
 
   it('goes back to the feed without rating', () => {

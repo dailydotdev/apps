@@ -30,18 +30,24 @@ export const isPostUrl = (url: string): boolean => {
 export const useAppStoreReviewPrompt = (): void => {
   const router = useRouter();
   const { user } = useAuthContext();
-  const { getMarketingCta } = useBoot();
+  const { getMarketingCta, clearMarketingCta } = useBoot();
   const { openModal, modal } = useLazyModal();
   const isPaused = useIsBootPopupsPaused();
   const isEnabled = useFeature(featureAppStoreReview);
   const plainCta = getMarketingCta(MarketingCtaVariant.AppStoreReview);
-  // The Plus thank-you only makes sense for a member; otherwise it waits in
-  // boot until the campaign is corrected.
-  const plusCta = user?.isPlus
-    ? getMarketingCta(MarketingCtaVariant.AppStoreReviewPlus)
-    : null;
-  const marketingCta = plainCta ?? plusCta;
+  const plusCta = getMarketingCta(MarketingCtaVariant.AppStoreReviewPlus);
+  const marketingCta = plainCta ?? (user?.isPlus ? plusCta : null);
   const campaignId = marketingCta?.campaignId;
+  // Boot carries one marketing CTA. A Plus thank-you aimed at someone who
+  // is not (or no longer) a member would hold that slot forever, so it is
+  // cleared instead of shown.
+  const staleCampaignId = user && !user.isPlus ? plusCta?.campaignId : null;
+
+  useEffect(() => {
+    if (staleCampaignId) {
+      clearMarketingCta(staleCampaignId);
+    }
+  }, [clearMarketingCta, staleCampaignId]);
   const hasAsked = useRef(false);
   const wasOnPost = useRef(false);
   // Read through refs so nothing re-subscribes the listener: `router` itself

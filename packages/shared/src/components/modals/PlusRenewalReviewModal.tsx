@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { DevPlusIcon, GiftIcon } from '../icons';
+import { AppleIcon, DevPlusIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { PlusUser } from '../PlusUser';
 import {
@@ -13,17 +13,12 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import type { MarketingCta } from '../marketing/cta/common';
-import { LazyModal } from './common/types';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useAppStoreReviewAsk } from '../../hooks/useAppStoreReviewAsk';
-import { AskCard } from '../appStoreReview/common';
-import { LogEvent, TargetId } from '../../lib/log';
+import { appStoreReviewCopy } from '../appStoreReview/common';
 
 export const plusRenewalCopy = {
   headline: 'Thanks for staying with Plus',
-  text: 'Glad to have you for another month.',
-  gift: 'Gift Plus to a friend',
+  text: 'You chose to keep daily.dev in your routine. If it has made your days a little better, a quick rating would mean a lot to us.',
   back: 'Back to my feed',
 };
 
@@ -33,9 +28,10 @@ export interface PlusRenewalReviewModalProps extends ModalProps {
 
 // The thank-you Customer.io schedules through the `app_store_review_plus`
 // marketing CTA after a renewal or on a Plus anniversary. People who pay
-// already decided daily.dev is worth it, so the ask sits inside a thank-you,
-// and gifting Plus is the other way to spread the word. The campaign's copy
-// wins over the defaults when it sets any.
+// already decided daily.dev is worth it, so the ask sits inside a thank-you.
+// Gifting Plus is not available inside the iOS app (StoreKit has no gift
+// product), so rating is the one action. The campaign's copy wins over the
+// defaults when it sets any.
 export default function PlusRenewalReviewModal({
   marketingCta,
   onRequestClose,
@@ -46,23 +42,12 @@ export default function PlusRenewalReviewModal({
     campaignId,
     onRequestClose,
   });
-  const { openModal } = useLazyModal();
-  const { logSubscriptionEvent } = usePlusSubscription();
   const headlineRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => headlineRef.current?.focus());
     return () => cancelAnimationFrame(frame);
   }, []);
-
-  const onGift = (event: React.MouseEvent) => {
-    logSubscriptionEvent({
-      event_name: LogEvent.GiftSubscription,
-      target_id: TargetId.AppStoreReviewPlus,
-    });
-    onDismiss(event);
-    openModal({ type: LazyModal.GiftPlus, props: {} });
-  };
 
   return (
     <Modal
@@ -72,7 +57,7 @@ export default function PlusRenewalReviewModal({
       onRequestClose={onDismiss}
       isDrawerOnMobile
     >
-      <Modal.Body className="gap-4 px-4 pb-4 pt-6 tablet:p-6">
+      <Modal.Body className="gap-5 px-4 pb-4 pt-6 tablet:p-6">
         <div className="flex flex-col items-center gap-2 text-center">
           <span
             aria-hidden
@@ -98,15 +83,15 @@ export default function PlusRenewalReviewModal({
             {flags?.description || plusRenewalCopy.text}
           </Typography>
         </div>
-        <AskCard onRate={onRate} />
         <div className="flex flex-col gap-2">
           <Button
             variant={ButtonVariant.Primary}
             size={ButtonSize.Large}
-            icon={<GiftIcon />}
-            onClick={onGift}
+            icon={<AppleIcon />}
+            aria-label={appStoreReviewCopy.ctaLabel}
+            onClick={onRate}
           >
-            {plusRenewalCopy.gift}
+            {flags?.ctaText || appStoreReviewCopy.cta}
           </Button>
           <Button
             variant={ButtonVariant.Tertiary}

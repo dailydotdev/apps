@@ -57,10 +57,13 @@ const events = {
 const mockRouter = (asPath = '/'): NextRouter =>
   ({ asPath, events }) as unknown as NextRouter;
 
+const clearMarketingCta = jest.fn();
+
 const mockCtas = (ctas: MarketingCta[]) =>
   jest.mocked(useBoot).mockReturnValue({
     getMarketingCta: (variant: MarketingCtaVariant) =>
       ctas.find((cta) => cta.variant === variant) ?? null,
+    clearMarketingCta,
   } as unknown as ReturnType<typeof useBoot>);
 
 const navigate = (url: string) => routeHandlers.routeChangeComplete?.(url);
@@ -154,11 +157,19 @@ describe('useAppStoreReviewPrompt', () => {
     });
   });
 
-  it('holds the Plus thank-you for someone without Plus', () => {
+  it('clears a Plus thank-you aimed at someone without Plus', () => {
     mockCtas([plusCta]);
     renderHook(() => useAppStoreReviewPrompt());
 
     expect(routeHandlers.routeChangeComplete).toBeUndefined();
+    expect(clearMarketingCta).toHaveBeenCalledWith(plusCta.campaignId);
+  });
+
+  it('keeps a plain ask for someone without Plus', () => {
+    mockCtas([marketingCta]);
+    renderHook(() => useAppStoreReviewPrompt());
+
+    expect(clearMarketingCta).not.toHaveBeenCalled();
   });
 
   it('stays quiet on a page that pauses pop-ups', () => {
