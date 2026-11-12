@@ -155,7 +155,8 @@ export const FeedWidgetRail = ({
   const { showAd, columns } = useFeedWidgetAdSlot();
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
-  const { loadedSettings, optOutReadingStreak } = useSettingsContext();
+  const { loadedSettings, optOutReadingStreak, optOutQuestSystem } =
+    useSettingsContext();
   const [isEditing, setIsEditing] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   // The widget whose config the reader is changing, out of edit mode so the
@@ -351,9 +352,10 @@ export const FeedWidgetRail = ({
         onRail: widgets.map(({ kind }) => kind),
         isLoggedIn: !!user,
         isReadingStreakOn: !(loadedSettings && optOutReadingStreak),
+        isQuestSystemOn: !(loadedSettings && optOutQuestSystem),
         isExtension: checkIsExtension(),
       }),
-    [widgets, user, loadedSettings, optOutReadingStreak],
+    [widgets, user, loadedSettings, optOutReadingStreak, optOutQuestSystem],
   );
 
   const openGallery = (size?: FeedWidgetSize, kind?: FeedWidgetKind) => {

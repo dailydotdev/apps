@@ -11,7 +11,7 @@ import {
 import useNotificationSettings from '../notifications/useNotificationSettings';
 import { SendType, usePersonalizedDigest } from '../usePersonalizedDigest';
 
-const STREAK_REMINDER_HOUR = 20;
+export const STREAK_REMINDER_HOUR = 20;
 
 interface UseStreakReminder {
   isSubscribed: boolean;

@@ -10,6 +10,7 @@ import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { webappUrl } from '../../../lib/constants';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
 import { availableFeedWidgets } from '../components';
+import { getFeedWidgetDefinition } from '../registry';
 import { GettingStartedWidget } from './GettingStartedWidget';
 
 const mockLogEvent = jest.fn();
@@ -20,6 +21,11 @@ let mockIntro: UserQuest[] | undefined;
 
 jest.mock('../../../contexts/AuthContext', () => ({
   useAuthContext: () => ({ user: mockUser }),
+}));
+
+let mockOptOutQuestSystem = false;
+jest.mock('../../../contexts/SettingsContext', () => ({
+  useSettingsContext: () => ({ optOutQuestSystem: mockOptOutQuestSystem }),
 }));
 
 jest.mock('../../../contexts/LogContext', () => ({
@@ -101,6 +107,7 @@ const renderWidget = (size: FeedWidgetSize) =>
 beforeEach(() => {
   jest.clearAllMocks();
   mockUser = { id: 'u1' };
+  mockOptOutQuestSystem = false;
   mockIntro = quests([
     QuestStatus.Claimed,
     QuestStatus.InProgress,
@@ -282,6 +289,17 @@ it('asks a logged-out reader to log in', () => {
   expect(screen.getByText('Log in to set up daily.dev.')).toBeInTheDocument();
 });
 
+it('says so when the reader turned quests off', () => {
+  mockOptOutQuestSystem = true;
+
+  renderWidget(FeedWidgetSize.Tall);
+
+  expect(screen.getByText('Quests are turned off.')).toBeInTheDocument();
+  expect(
+    screen.queryByText('Generate your first brief'),
+  ).not.toBeInTheDocument();
+});
+
 it('is offered in the gallery only to readers with an account', () => {
   const kinds = (isLoggedIn: boolean) =>
     availableFeedWidgets({
@@ -290,8 +308,27 @@ it('is offered in the gallery only to readers with an account', () => {
       hasLiveChat: false,
       hasSquads: false,
       isReadingStreakOn: true,
+      isQuestSystemOn: true,
     }).map(({ kind }) => kind);
 
   expect(kinds(true)).toContain(FeedWidgetKind.GettingStarted);
   expect(kinds(false)).not.toContain(FeedWidgetKind.GettingStarted);
+});
+
+it('cannot be added while quests are off', () => {
+  const reason = getFeedWidgetDefinition(
+    FeedWidgetKind.GettingStarted,
+  ).disabledReason;
+  const availability = {
+    isLoggedIn: true,
+    hasMessages: false,
+    hasLiveChat: false,
+    hasSquads: false,
+    isReadingStreakOn: true,
+  };
+
+  expect(reason?.({ ...availability, isQuestSystemOn: true })).toBeUndefined();
+  expect(reason?.({ ...availability, isQuestSystemOn: false })).toBe(
+    'Quests are off in your settings.',
+  );
 });

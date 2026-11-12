@@ -8,6 +8,7 @@ describe('getAddTileKinds', () => {
         onRail: [],
         isLoggedIn: true,
         isReadingStreakOn: true,
+        isQuestSystemOn: true,
         isExtension: true,
       }),
     ).toEqual({
@@ -31,6 +32,7 @@ describe('getAddTileKinds', () => {
         onRail: [FeedWidgetKind.Shortcuts],
         isLoggedIn: false,
         isReadingStreakOn: true,
+        isQuestSystemOn: true,
         isExtension: false,
       }),
     ).toEqual({
@@ -45,6 +47,7 @@ describe('getAddTileKinds', () => {
         onRail: [],
         isLoggedIn: true,
         isReadingStreakOn: false,
+        isQuestSystemOn: true,
         isExtension: false,
       }),
     ).toEqual({
@@ -74,6 +77,7 @@ describe('getAddTileKinds', () => {
         ],
         isLoggedIn: true,
         isReadingStreakOn: true,
+        isQuestSystemOn: true,
         isExtension: false,
       }),
     ).toEqual({

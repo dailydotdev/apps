@@ -2,6 +2,7 @@ import type { CSSProperties, ReactElement } from 'react';
 import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { webappUrl } from '../../../lib/constants';
@@ -212,6 +213,7 @@ export const StreakWidget = ({
   size,
 }: FeedWidgetComponentProps<FeedWidgetKind.Streak>): ReactElement => {
   const { user } = useAuthContext();
+  const { optOutQuestSystem } = useSettingsContext();
   const { logEvent } = useLogContext();
   const scroll = useWidgetScroll();
   const {
@@ -225,7 +227,7 @@ export const StreakWidget = ({
   } = useStreakRingState();
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
   const { data: questDashboard } = useQuestDashboard({
-    enabled: size === FeedWidgetSize.Large,
+    enabled: size === FeedWidgetSize.Large && !optOutQuestSystem,
   });
 
   const onClick = useCallback(
@@ -368,7 +370,7 @@ export const StreakWidget = ({
             style={scroll.style}
             className={classNames('px-2', scroll.className)}
           >
-            {questDashboard && (
+            {questDashboard && !optOutQuestSystem && (
               <>
                 <span className="block px-2 text-text-quaternary typo-footnote">
                   Daily quests

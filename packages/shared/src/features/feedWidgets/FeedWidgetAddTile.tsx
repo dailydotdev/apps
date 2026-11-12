@@ -45,14 +45,19 @@ export const getAddTileKinds = ({
   onRail,
   isLoggedIn,
   isReadingStreakOn,
+  isQuestSystemOn,
   isExtension,
-}: Pick<FeedWidgetAvailability, 'isLoggedIn' | 'isReadingStreakOn'> & {
+}: Pick<
+  FeedWidgetAvailability,
+  'isLoggedIn' | 'isReadingStreakOn' | 'isQuestSystemOn'
+> & {
   onRail: FeedWidgetKind[];
   isExtension: boolean;
 }): AddTileKinds => {
   const availability: FeedWidgetAvailability = {
     isLoggedIn,
     isReadingStreakOn,
+    isQuestSystemOn,
     hasSquads: false,
     hasMessages: false,
     hasLiveChat: false,
