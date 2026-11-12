@@ -241,7 +241,7 @@ export const BoostHeroTile = ({
   return (
     <li
       className={classNames(
-        'relative flex flex-col gap-2 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-gradient-to-br from-overlay-float-blueCheese to-transparent p-3',
+        'relative flex w-56 shrink-0 snap-start flex-col gap-2 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-gradient-to-br from-overlay-float-blueCheese to-transparent p-3 laptop:w-auto',
         className,
       )}
     >

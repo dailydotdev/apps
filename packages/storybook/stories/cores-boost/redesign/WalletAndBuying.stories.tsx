@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { CoresProviders } from '../real/providers';
+import { CoresProviders, noop } from '../real/providers';
 import { streakHandlers } from '../real/handlers';
 import { Shell } from '../flows/cores/Shell';
 import {
@@ -12,6 +12,7 @@ import {
 } from '../flows/cores/fixtures';
 import { Wallet } from './cores/Wallet';
 import { CoresPage } from './cores/CoresPage';
+import { BuyCoresRedesignModal } from './purchase/BuyCoresRedesign';
 
 // "Wallet and buying Cores" in the new look.
 
@@ -69,19 +70,19 @@ export const WalletScreen: StoryObj<WalletArgs> = {
   },
 };
 
-export const WalletStreakBroke: Story = {
-  name: '2 · Wallet, streak broke yesterday',
+export const BuyCoresPopup: Story = {
+  name: '2 · Wallet · Buy Cores',
   parameters: {
     msw: {
       handlers: [
-        ...streakHandlers({ balance: BALANCE, brokenStreak: 24 }),
+        ...streakHandlers({ balance: BALANCE }),
         ...walletHandlers(BALANCE, walletHistory),
       ],
     },
     docs: {
       description: {
         story:
-          'The day after a streak breaks, the streak tile offers the restore and opens the production restore modal. Every other day it sells streak freezes.',
+          'Buy Cores from the wallet: the redesigned pop-up over the wallet, with no target to cover, so no pack is preselected.',
       },
     },
   },
@@ -90,6 +91,7 @@ export const WalletStreakBroke: Story = {
       <Shell>
         <Wallet />
       </Shell>
+      <BuyCoresRedesignModal cost={0} onPay={noop} onRequestClose={noop} />
     </CoresProviders>
   ),
 };
@@ -106,15 +108,13 @@ export const Cores: Story = {
     docs: {
       description: {
         story:
-          'Packs as tiles in the hub card, the balance as a chip, and the character art in place of the hands video, holding the selected pack and the checkout.',
+          'Production’s /cores layout, with the character art in place of the hands video beside the packs.',
       },
     },
   },
   render: () => (
-    <CoresProviders balance={BALANCE} activePage="/cores">
-      <Shell>
-        <CoresPage />
-      </Shell>
+    <CoresProviders balance={BALANCE} activePage="/cores" hasOwnLayout>
+      <CoresPage />
     </CoresProviders>
   ),
 };

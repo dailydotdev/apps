@@ -105,6 +105,8 @@ export interface CoresProvidersProps {
   isPlus?: boolean;
   /** The route the app is on, which the sidebar marks as active */
   activePage?: string;
+  /** Leave out MainLayout, for a page that brings its own (like /cores) */
+  hasOwnLayout?: boolean;
 }
 
 /**
@@ -118,6 +120,7 @@ export const CoresProviders = ({
   coresRole = CoresRole.Creator,
   isPlus = false,
   activePage = '/wallet',
+  hasOwnLayout,
 }: CoresProvidersProps): ReactElement => {
   // MainLayout paints once the router is ready, and reads the page from it.
   // The sidebar's Recent list records the page under document.title, and
@@ -194,9 +197,13 @@ export const CoresProviders = ({
             <ActiveFeedContext.Provider value={{ items: [], queryKey: [] }}>
               <div id="__next">
                 <RouteContext.Provider value={setPath}>
-                  <MainLayout activePage={path}>
-                    {isMounted && children}
-                  </MainLayout>
+                  {hasOwnLayout ? (
+                    isMounted && children
+                  ) : (
+                    <MainLayout activePage={path}>
+                      {isMounted && children}
+                    </MainLayout>
+                  )}
                 </RouteContext.Provider>
               </div>
             </ActiveFeedContext.Provider>

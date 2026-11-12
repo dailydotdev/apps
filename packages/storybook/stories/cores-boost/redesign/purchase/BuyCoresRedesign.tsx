@@ -133,7 +133,8 @@ const CheckoutPanel = ({
 );
 
 export interface BuyCoresRedesignModalProps {
-  purpose: CoresPurpose;
+  /** What the Cores are for; unset when you buy from the wallet */
+  purpose?: CoresPurpose;
   cost: number;
   product?: Product;
   onPay: (pack: CoreProductOption) => void;
@@ -158,7 +159,11 @@ export const BuyCoresRedesignModal = ({
   // The art shows until a pack is picked, then the checkout takes its place
   const [hasPicked, setHasPicked] = useState(false);
   const [isCheckoutOpen, setCheckoutOpen] = useState(!isMobile);
-  const origin = purpose === 'award' ? Origin.Award : Origin.BoostPost;
+  const origins: Record<CoresPurpose, Origin> = {
+    award: Origin.Award,
+    boost: Origin.BoostPost,
+  };
+  const origin = purpose ? origins[purpose] : Origin.WalletPageCTA;
 
   useEffect(() => {
     const recommended = getRecommendedCorePrice({ prices, minCores: missing });
@@ -201,13 +206,15 @@ export const BuyCoresRedesignModal = ({
 
   const options = (
     <div className="flex flex-col gap-4">
-      <NeededCopy
-        purpose={purpose}
-        cost={cost}
-        balance={balance}
-        awardName={product?.name}
-        selected={selected}
-      />
+      {purpose && (
+        <NeededCopy
+          purpose={purpose}
+          cost={cost}
+          balance={balance}
+          awardName={product?.name}
+          selected={selected}
+        />
+      )}
       <Deals withStartups={purpose === 'boost'} />
       <div>
         <Typography

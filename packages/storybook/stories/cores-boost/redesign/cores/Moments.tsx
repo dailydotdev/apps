@@ -17,15 +17,13 @@ import { CoresUseRow } from './UseYourCores';
 import { friendshipArt } from './frame';
 
 // The two "you have Cores now" moments, on one shared card: the character art
-// on top with the amount sitting on it, then the copy and the actions.
+// on top, the amount right under it, then the copy and the actions.
 // The first Cores sheet only describes the uses, so both end on Got it.
 
 const ArtHeader = ({
-  amount,
   onClose,
   className = 'h-48 tablet:h-56',
 }: {
-  amount: string;
   onClose?: () => void;
   className?: string;
 }): ReactElement => (
@@ -38,9 +36,9 @@ const ArtHeader = ({
     <img
       src={friendshipArt}
       alt="Friends sharing a Core with Patchy"
-      className="size-full object-cover object-[50%_30%]"
+      className="size-full object-cover object-[50%_45%]"
     />
-    <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background-default to-transparent" />
+    <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-background-default to-transparent" />
     {onClose && (
       <ModalClose
         size={ButtonSize.Small}
@@ -51,12 +49,6 @@ const ArtHeader = ({
         onClick={onClose}
       />
     )}
-    <span className="absolute bottom-3 left-1/2 -translate-x-1/2">
-      <span className="flex animate-raise-hand-pop items-center gap-1.5 rounded-14 bg-text-primary px-3 py-1.5 text-surface-invert shadow-3 ring-4 ring-background-default">
-        <CoreIcon size={IconSize.Medium} />
-        <strong className="tabular-nums typo-title2">{amount}</strong>
-      </span>
-    </span>
   </div>
 );
 
@@ -84,15 +76,17 @@ const MomentModal = ({
     isDrawerOnMobile
     className="overflow-hidden"
   >
-    <ArtHeader
-      amount={amount}
-      onClose={onRequestClose}
-      className={artClassName}
-    />
-    <div className="flex min-h-0 flex-col items-center gap-5 overflow-y-auto px-6 pb-6 pt-5 text-center">
-      <div className="flex flex-col gap-1">
-        <h2 className="font-bold typo-title3">{title}</h2>
-        <p className="text-text-tertiary typo-callout">{body}</p>
+    <ArtHeader onClose={onRequestClose} className={artClassName} />
+    <div className="flex min-h-0 flex-col items-center gap-4 overflow-y-auto px-6 pb-6 pt-4 text-center">
+      <div className="flex flex-col items-center gap-3">
+        <span className="flex items-center gap-1.5 rounded-14 border border-border-subtlest-tertiary bg-background-default px-3 py-1.5 shadow-2">
+          <CoreIcon size={IconSize.Medium} />
+          <strong className="tabular-nums typo-title2">{amount}</strong>
+        </span>
+        <div className="flex flex-col gap-1">
+          <h2 className="font-bold typo-title3">{title}</h2>
+          <p className="text-text-tertiary typo-callout">{body}</p>
+        </div>
       </div>
       {children}
     </div>
@@ -117,7 +111,7 @@ export const FirstCoresSheet = ({
     amount={`+${formatCoresCurrency(amount)}`}
     title="You earned your first Cores"
     body="Cores are what you spend on daily.dev. Here is what yours can do."
-    artClassName="h-36"
+    artClassName="h-52"
     onRequestClose={onGotIt}
   >
     <ul className="flex w-full flex-col divide-y divide-border-subtlest-tertiary">

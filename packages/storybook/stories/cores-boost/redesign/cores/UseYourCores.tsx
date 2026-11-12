@@ -17,7 +17,8 @@ import { BoostHeroTile } from './BoostHeroTile';
 import { useStreakRecoverState } from './UseTileFlows';
 
 // "Use your Cores" in the new look: in the wallet, three compact boxes in a
-// row (Boost with today's deal, then award and streak, described only);
+// row that scrolls sideways below laptop (Boost with today's deal, then
+// award and streak, described only);
 // rows in the first Cores sheet that only describe each use.
 
 export type { CoresUse };
@@ -148,7 +149,7 @@ export const CoresUseTile = ({
   const { title, description, from } = { ...uses[use], ...override };
 
   return (
-    <li className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-3">
+    <li className="flex w-56 shrink-0 snap-start flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-3 laptop:w-auto">
       <span className="flex w-full items-center gap-2">
         <UseIcon use={use} className="size-8" />
         <span className="min-w-0 flex-1 font-bold typo-callout">{title}</span>
@@ -181,7 +182,7 @@ export const UseYourCoresTiles = ({
       };
 
   return (
-    <ul className="flex flex-col gap-2 laptop:grid laptop:grid-cols-3 laptop:gap-3">
+    <ul className="no-scrollbar -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-2 overflow-x-auto px-4 tablet:-mx-6 tablet:scroll-px-6 tablet:px-6 laptop:mx-0 laptop:grid laptop:grid-cols-3 laptop:gap-3 laptop:overflow-visible laptop:px-0">
       <BoostHeroTile balance={balance} />
       {(['award', 'streak'] as CoresUse[]).map((use) => (
         <CoresUseTile
