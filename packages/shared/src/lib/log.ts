@@ -173,6 +173,7 @@ export enum Origin {
   ProfileStack = 'profile stack',
   BrandedTag = 'branded tag',
   MentionedTool = 'mentioned tool',
+  AgentOnboarding = 'agent onboarding',
 }
 
 export enum LogEvent {
