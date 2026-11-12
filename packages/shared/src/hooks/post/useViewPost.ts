@@ -6,20 +6,41 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import type { UserStreak } from '../../graphql/users';
 import { isSameDayInTimezone } from '../../lib/timezones';
 import { useRequestProtocol } from '../useRequestProtocol';
+import { useConditionalFeature } from '../useConditionalFeature';
+import { featureStreakOptimisticView } from '../../lib/featureManagement';
+import {
+  enqueueStreakView,
+  isGraphQLRejection,
+} from '../../lib/streakViewQueue';
+
+interface ViewPostContext {
+  previousStreak?: UserStreak;
+  shouldRefetchStreak: boolean;
+}
 
 export const useViewPost = (): UseMutateAsyncFunction<
   unknown,
   unknown,
-  string
+  string,
+  ViewPostContext
 > => {
   const client = useQueryClient();
-  const { requestMethod } = useRequestProtocol();
+  const { requestMethod, isCompanion } = useRequestProtocol();
   const { user } = useAuthContext();
+  const { value: isOptimisticView } = useConditionalFeature({
+    feature: featureStreakOptimisticView,
+    shouldEvaluate: !!user,
+  });
   const streakKey = generateQueryKey(RequestKey.UserStreak, user);
   const readKey = generateQueryKey(RequestKey.ReadingStreak30Days, user);
-  const { mutateAsync: onSendViewPost } = useMutation({
+  const { mutateAsync: onSendViewPost } = useMutation<
+    unknown,
+    unknown,
+    string,
+    ViewPostContext
+  >({
     mutationFn: (id: string) => requestMethod(VIEW_POST_MUTATION, { id }),
-    onSuccess: async () => {
+    onMutate: () => {
       const streak = client.getQueryData<UserStreak>(streakKey);
       const isNewStreak = !streak?.lastViewAt;
       const isFirstViewToday =
@@ -29,8 +50,25 @@ export const useViewPost = (): UseMutateAsyncFunction<
           new Date(),
           user!.timezone,
         );
+      const shouldRefetchStreak = isNewStreak || isFirstViewToday;
 
-      if (isNewStreak || isFirstViewToday) {
+      if (!isOptimisticView || !shouldRefetchStreak || !streak) {
+        return { shouldRefetchStreak };
+      }
+
+      const current = streak.current + 1;
+      client.setQueryData<UserStreak>(streakKey, {
+        ...streak,
+        current,
+        total: streak.total + 1,
+        max: Math.max(streak.max, current),
+        lastViewAt: new Date(),
+      });
+
+      return { previousStreak: streak, shouldRefetchStreak };
+    },
+    onSuccess: async (_, __, context) => {
+      if (context.shouldRefetchStreak) {
         await client.refetchQueries({ queryKey: streakKey });
 
         // just mark the query as stale
@@ -38,6 +76,26 @@ export const useViewPost = (): UseMutateAsyncFunction<
       }
 
       return null;
+    },
+    onError: (error, id, context) => {
+      if (!isOptimisticView || isCompanion) {
+        return;
+      }
+
+      if (isGraphQLRejection(error)) {
+        if (context?.previousStreak) {
+          client.setQueryData(streakKey, context.previousStreak);
+        }
+
+        return;
+      }
+
+      enqueueStreakView({
+        postId: id,
+        userId: user!.id,
+        at: Date.now(),
+        timezone: user?.timezone,
+      });
     },
   });
 

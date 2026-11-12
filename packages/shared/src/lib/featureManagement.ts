@@ -100,6 +100,13 @@ export const featureStreakFreeze = new Feature('streak_freeze', isDevelopment);
 
 export const featureGtaViFreezeDay = new Feature('gta_vi_freeze_day', false);
 
+// count the read on open: optimistic streak bump plus a retry queue for views
+// dropped by a flaky connection
+export const featureStreakOptimisticView = new Feature(
+  'streak_optimistic_view',
+  false,
+);
+
 export const briefCardFeedFeature = new Feature(
   'brief_card_feed',
   isDevelopment,
