@@ -1,6 +1,6 @@
 import type { HTMLAttributes } from 'react';
 import type { Ad } from '../../../../graphql/posts';
-import type { AdRotationTarget } from '../../../../hooks/feed/useAutoRotatingAds';
+import type { AdRotationTarget } from '../../../../features/monetization/refresh/adRefresh';
 import type { ViewabilityData } from '../../../../features/monetization/viewability';
 
 type Callback = (ad: Ad) => unknown;

@@ -33,7 +33,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import type { SettingsFlags } from '../../graphql/settings';
-import type { AdRotationTarget } from '../../hooks/feed/useAutoRotatingAds';
+import type { AdRotationTarget } from '../monetization/refresh/adRefresh';
 import { AdRefreshSlot } from '../monetization/refresh/adRefresh';
 import { SharedFeedPage } from '../../components/utilities/common';
 

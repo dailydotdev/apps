@@ -21,6 +21,7 @@ import {
   getAdRefreshPlatform,
   getAdRefreshStopLogExtra,
 } from '../../features/monetization/refresh/adRefresh';
+import type { AdRotationTarget } from '../../features/monetization/refresh/adRefresh';
 import type {
   AdRefreshAttempt,
   AdRefreshStop,
@@ -30,7 +31,7 @@ import {
   useAdRefresh,
 } from '../../features/monetization/refresh/useAdRefresh';
 import { generateAdLogEventKey } from './useLogImpression';
-import type { AdRotationTarget, InViewRef } from './useAutoRotatingAds';
+import type { InViewRef } from './useAutoRotatingAds';
 import { useAutoRotatingAds } from './useAutoRotatingAds';
 
 export const useFeedAdRefresh = (

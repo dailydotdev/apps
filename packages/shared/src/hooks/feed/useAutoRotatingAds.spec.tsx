@@ -9,7 +9,7 @@ import { useFeature } from '../../components/GrowthBookProvider';
 import { useLogContext } from '../../contexts/LogContext';
 import { useFetchAd } from '../../features/monetization/useFetchAd';
 import { RequestKey } from '../../lib/query';
-import type { AdRotationTarget } from './useAutoRotatingAds';
+import type { AdRotationTarget } from '../../features/monetization/refresh/adRefresh';
 import { useAutoRotatingAds } from './useAutoRotatingAds';
 import { generateAdLogEventKey } from './useLogImpression';
 

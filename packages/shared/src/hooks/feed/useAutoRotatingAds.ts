@@ -2,7 +2,6 @@ import { useCallback, useContext, useEffect, useMemo } from 'react';
 import type {
   InfiniteData,
   QueryFunctionContext,
-  QueryKey,
   QueryObserverBaseResult,
 } from '@tanstack/react-query';
 import { useQuery, useQueryClient, focusManager } from '@tanstack/react-query';
@@ -14,28 +13,13 @@ import { useFeature } from '../../components/GrowthBookProvider';
 import { featureAutorotateAds } from '../../lib/featureManagement';
 import type { Ad } from '../../graphql/posts';
 import { generateAdLogEventKey } from './useLogImpression';
-import type { AdRefreshSlot } from '../../features/monetization/refresh/adRefresh';
+import type { AdRotationTarget } from '../../features/monetization/refresh/adRefresh';
 import { disabledRefetch } from '../../lib/func';
 import { AdPlacement } from '../../lib/ads';
 import { RequestKey } from '../../lib/query';
 import { useFetchAd } from '../../features/monetization/useFetchAd';
 
 export type InViewRef = InViewHookResponse['ref'];
-
-/**
- * Where a rotated creative goes for an ad that is not one of the feed's own
- * ads, e.g. the feed widget rail's pinned slot, which has its own query.
- * Without it, rotation writes into the feed's ad list at the ad's `index`,
- * which would swap one of the feed's ads instead.
- */
-export interface AdRotationTarget {
-  /** Its own key for the rotation timer, apart from the feed's ad list. */
-  queryKey: QueryKey;
-  /** Shows the new creative in the slot. */
-  replace: (ad: Ad) => void;
-  /** How the v2 refresh engine's logs name the slot. */
-  slot?: AdRefreshSlot;
-}
 
 export const useAutoRotatingAds = (
   ad: Ad,

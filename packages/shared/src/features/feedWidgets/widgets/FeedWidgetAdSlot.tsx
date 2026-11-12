@@ -15,7 +15,7 @@ import { LockIcon } from '../../../components/icons/Lock';
 import { AdGrid } from '../../../components/cards/ad/AdGrid';
 import { PlaceholderGrid } from '../../../components/cards/placeholder/PlaceholderGrid';
 import { useInertRef } from '../FeedWidgetFrame';
-import type { AdRotationTarget } from '../../../hooks/feed/useAutoRotatingAds';
+import type { AdRotationTarget } from '../../monetization/refresh/adRefresh';
 import {
   FeedWidgetBoostedAd,
   isBoostedPostCreative,

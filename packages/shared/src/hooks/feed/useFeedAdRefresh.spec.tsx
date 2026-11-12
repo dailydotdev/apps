@@ -19,10 +19,10 @@ import {
   AdRefreshSlot,
   getAdRefreshPolicy,
 } from '../../features/monetization/refresh/adRefresh';
+import type { AdRotationTarget } from '../../features/monetization/refresh/adRefresh';
 import { AdRefreshEngineVersion } from '../../lib/featureManagement';
 import { RequestKey } from '../../lib/query';
 import { useAutoRotatingAds } from './useAutoRotatingAds';
-import type { AdRotationTarget } from './useAutoRotatingAds';
 import { generateAdLogEventKey } from './useLogImpression';
 import { useFeedAdRefresh } from './useFeedAdRefresh';
 
