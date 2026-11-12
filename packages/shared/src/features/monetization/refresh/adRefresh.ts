@@ -1,9 +1,27 @@
-import type { AdRefreshConfig } from '../../../graphql/posts';
+import type { QueryKey } from '@tanstack/react-query';
+import type { Ad, AdRefreshConfig } from '../../../graphql/posts';
 import { isExtension, isIOSNative } from '../../../lib/func';
 import { tablet } from '../../../styles/media';
 
 export enum AdRefreshSlot {
   FeedCard = 'feed_card',
+  FeedWidget = 'feed_widget',
+}
+
+/**
+ * Where a rotated or refreshed creative goes for an ad that is not one of the
+ * feed's own ads, e.g. the feed widget rail's pinned slot, which has its own
+ * query. Both refresh engines take it (v1 `useAutoRotatingAds`, v2
+ * `useFeedAdRefresh`). Without it, they write into the feed's ad list at the
+ * ad's `index`, which would swap one of the feed's ads instead.
+ */
+export interface AdRotationTarget {
+  /** v1: its own key for the rotation timer, apart from the feed's ad list. */
+  queryKey: QueryKey;
+  /** Shows the new creative in the slot. */
+  replace: (ad: Ad) => void;
+  /** v2: how the refresh logs name the slot. */
+  slot?: AdRefreshSlot;
 }
 
 export enum AdRefreshPlatform {
