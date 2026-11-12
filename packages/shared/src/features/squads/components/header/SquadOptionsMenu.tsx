@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useMutation } from '@tanstack/react-query';
 import type { Squad } from '../../../../graphql/sources';
@@ -122,9 +122,14 @@ export const SquadOptionsMenu = ({
   const { user, isLoggedIn } = useAuthContext();
   const { openModal } = useLazyModal();
   const { follow, unfollow } = useContentPreference();
+  const [isOpen, setIsOpen] = useState(false);
+  const canInvite =
+    isLoggedIn && squad.public && viewer === SquadViewer.Visitor;
+  // The menu sits in the page header, so the link loads once it opens
   const { logAndCopyLink } = useSquadInvitation({
     squad,
     origin: Origin.SquadPage,
+    enabled: isOpen && canInvite,
   });
   const awardAdmin = useGetSquadAwardAdmin({ sendingUser: user, squad });
   const [, onShare] = useShareOrCopyLink({
@@ -187,7 +192,7 @@ export const SquadOptionsMenu = ({
       },
     ];
 
-    if (isLoggedIn && squad.public && viewer === SquadViewer.Visitor) {
+    if (canInvite) {
       list.push({
         icon: <LinkIcon size={IconSize.Small} />,
         label: 'Invitation link',
@@ -270,9 +275,9 @@ export const SquadOptionsMenu = ({
     return list;
   }, [
     awardAdmin,
+    canInvite,
     follow,
     isJoined,
-    isLoggedIn,
     logAndCopyLink,
     onLeaveSquad,
     onShare,
@@ -284,7 +289,7 @@ export const SquadOptionsMenu = ({
   ]);
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger
         tooltip={{ content: isStaff ? 'Manage and options' : 'Squad options' }}
         asChild

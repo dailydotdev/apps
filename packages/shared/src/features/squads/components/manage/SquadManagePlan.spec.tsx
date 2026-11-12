@@ -1,9 +1,14 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import defaultUser from '../../../../../__tests__/fixture/loggedUser';
 import { TestBootProvider } from '../../../../../__tests__/helpers/boot';
 import { mockDesktop } from '../../../../../__tests__/helpers/media';
+import {
+  completeActionMock,
+  mockGraphQL,
+} from '../../../../../__tests__/helpers/graphql';
+import { ActionType } from '../../../../graphql/actions';
 import type { Squad } from '../../../../graphql/sources';
 import { SourceMemberRole } from '../../../../graphql/sources';
 import type { SquadSubscription } from '../../../../graphql/squadSubscription';
@@ -12,6 +17,7 @@ import {
   squadSubscriptionBalanceQueryOptions,
   squadSubscriptionQueryOptions,
 } from '../../../../graphql/squadSubscription';
+import { SOURCE_REFERRAL_URL_QUERY } from '../../../../graphql/squads';
 import { SquadPageContextProvider } from '../../SquadPageContext';
 import { SquadManagePlan } from './SquadManagePlan';
 
@@ -77,9 +83,23 @@ describe('SquadManagePlan', () => {
   } as unknown as SquadSubscription;
 
   it('offers the invite link to an admin with a seat', async () => {
+    const link = 'https://dly.to/invite';
+    mockGraphQL({
+      request: {
+        query: SOURCE_REFERRAL_URL_QUERY,
+        variables: { id: squad.id },
+      },
+      result: { data: { source: { referralUrl: link } } },
+    });
+    mockGraphQL(completeActionMock({ action: ActionType.SquadInvite }));
+    Object.assign(navigator, { clipboard: { writeText: jest.fn() } });
     renderPlan(team);
 
-    expect(await screen.findByText('Copy invite link')).toBeInTheDocument();
+    fireEvent.click(await screen.findByText('Copy invite link'));
+
+    await waitFor(() =>
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(link),
+    );
   });
 
   it('hides the invite link from an admin without a seat', async () => {

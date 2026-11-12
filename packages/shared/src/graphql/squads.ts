@@ -178,7 +178,6 @@ export const SOURCES_QUERY = gql`
               }
             }
           }
-          referralUrl
         }
       }
     }
@@ -419,6 +418,34 @@ export const squadLatestPostsQueryOptions = ({
   },
   enabled: !!sourceId,
   staleTime: StaleTime.Default,
+});
+
+export const SOURCE_REFERRAL_URL_QUERY = gql`
+  query SourceReferralUrl($id: ID!) {
+    source(id: $id) {
+      referralUrl
+    }
+  }
+`;
+
+/** The viewer's invite link. Shortening it is slow, so the squad query skips it. */
+export const squadReferralUrlQueryOptions = ({
+  user,
+  sourceId,
+}: {
+  user?: Pick<LoggedUser, 'id'>;
+  sourceId?: string;
+}) => ({
+  queryKey: generateQueryKey(RequestKey.Squad, user, sourceId, 'referralUrl'),
+  queryFn: async (): Promise<string | null> => {
+    const res = await gqlClient.request<{
+      source: Pick<Squad, 'referralUrl'>;
+    }>(SOURCE_REFERRAL_URL_QUERY, { id: sourceId });
+
+    return res.source?.referralUrl ?? null;
+  },
+  enabled: !!user?.id && !!sourceId,
+  staleTime: StaleTime.OneDay,
 });
 
 const SQUAD_COVER_QUERY = gql`
