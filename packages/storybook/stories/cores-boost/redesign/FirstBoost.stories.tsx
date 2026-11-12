@@ -179,12 +179,12 @@ export const Walkthrough = story(
 );
 
 export const OwnPostNew = story(
-  'The strip spells the boost out: extra reach, what the starter preset costs, your balance, and how many Cores you are short.',
+  'A one-row strip: the reach a boost adds, Boost, and the close button.',
   () => <OwnPost state="new" />,
 );
 
 export const OwnPostTakingOff = story(
-  'The "taking off" strip uses the same card with its own title.',
+  'The "taking off" strip is the same one-row strip with its own title.',
   () => <OwnPost state="takingOff" />,
 );
 

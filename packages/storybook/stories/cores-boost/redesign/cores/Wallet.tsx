@@ -55,7 +55,6 @@ import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { SquadWidget } from '@dailydotdev/shared/src/features/squads/components/widgets/SquadWidget';
 import { UpgradeToPlus } from '@dailydotdev/shared/src/components/UpgradeToPlus';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
-import type { CoresUse } from './UseYourCores';
 import { UseYourCoresTiles } from './UseYourCores';
 import { TransactionItem } from '@dailydotdev/shared/src/components/cores/TransactionItem';
 import { CardSection, friendshipArt, SquadFrame } from './frame';
@@ -288,13 +287,11 @@ export interface WalletProps {
   /** Cores a purchase just added, shown on the Purchased total */
   purchasedChange?: number;
   onBuyCores?: () => void;
-  onUse?: (use: CoresUse) => void;
 }
 
 export const Wallet = ({
   purchasedChange,
   onBuyCores,
-  onUse,
 }: WalletProps): ReactElement | null => {
   useRoute('/wallet');
   const { user, isLoggedIn } = useAuthContext();
@@ -431,7 +428,7 @@ export const Wallet = ({
           isLoading={isPendingSummary}
         />
         <CardSection title="Use your Cores">
-          <UseYourCoresTiles balance={user.balance.amount} onUse={onUse} />
+          <UseYourCoresTiles balance={user.balance.amount} />
         </CardSection>
         <section className="flex flex-col gap-6 px-4 py-5 tablet:px-6">
           <Typography type={TypographyType.Body} bold>

@@ -22,13 +22,11 @@ import { formatCoresCurrency } from '@dailydotdev/shared/src/lib/utils';
 import { cloudinaryPostImageCoverPlaceholder } from '@dailydotdev/shared/src/lib/image';
 import { bunPost, realArticle } from '../../real/pages';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { BoostPostRedesignModal } from '../purchase/BoostRedesign';
 import { BuyCoresRedesignModal } from '../purchase/BuyCoresRedesign';
-import { minBoost } from '../../flows/cores/fixtures';
 
-// The wallet's main Use your Cores tile: today's boost deal with a countdown
-// to midnight, and a custom boost. Both start by picking one of your recent
-// posts; the deal boosts it at the deal price, custom opens the boost form.
+// The wallet's Boost box: today's boost deal, its discount on a corner
+// ribbon and a countdown to midnight. The deal starts by picking one of your
+// recent posts and boosts it at the deal price.
 
 const DEAL_DAYS = 3;
 const DEAL_CORES_PER_DAY = 5000;
@@ -75,7 +73,8 @@ const untilMidnight = (): number => {
 
 const pad = (value: number): string => String(value).padStart(2, '0');
 
-const DealCountdown = (): ReactElement => {
+/** Time left on today's deal, as HH:MM:SS */
+const useDealTimeLeft = (): { time: string } => {
   const [left, setLeft] = useState(untilMidnight);
 
   useEffect(() => {
@@ -84,9 +83,16 @@ const DealCountdown = (): ReactElement => {
   }, []);
 
   const seconds = Math.floor(left / 1000);
-  const time = `${pad(Math.floor(seconds / 3600))}:${pad(
-    Math.floor((seconds % 3600) / 60),
-  )}:${pad(seconds % 60)}`;
+
+  return {
+    time: `${pad(Math.floor(seconds / 3600))}:${pad(
+      Math.floor((seconds % 3600) / 60),
+    )}:${pad(seconds % 60)}`,
+  };
+};
+
+const DealCountdown = (): ReactElement => {
+  const { time } = useDealTimeLeft();
 
   return (
     <span className="flex items-center gap-1 text-accent-bacon-default typo-footnote">
@@ -228,99 +234,57 @@ export const BoostHeroTile = ({
 }): ReactElement => {
   const { user, updateUser } = useAuthContext();
   const [pick, setPick] = useState<BoostPick>();
-  const [customPost, setCustomPost] = useState<Post>();
+  const { time } = useDealTimeLeft();
   // What the Cores are for while Buy Cores is open, then back to the pick
   const [buyCost, setBuyCost] = useState<number>();
-
-  const onPick = (post: Post) => {
-    if (pick === 'custom') {
-      setCustomPost(post);
-    }
-    setPick(undefined);
-  };
 
   return (
     <li
       className={classNames(
-        'flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary bg-gradient-to-br from-overlay-float-blueCheese to-transparent p-4',
+        'relative flex flex-col gap-2 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-gradient-to-br from-overlay-float-blueCheese to-transparent p-3',
         className,
       )}
     >
-      <span className="flex items-start gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-overlay-float-blueCheese">
+      <span className="absolute -right-7 top-4 w-28 rotate-45 bg-accent-onion-default py-0.5 text-center font-bold typo-caption1">
+        -{DEAL_DISCOUNT * 100}%
+      </span>
+      <span className="flex items-center gap-2 pr-8">
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-12 bg-overlay-float-blueCheese">
           <BoostIcon
             size={IconSize.Small}
             className="text-accent-blueCheese-default"
           />
         </span>
-        <span className="flex flex-col gap-0.5">
-          <span className="font-bold typo-callout">Boost your post</span>
-          <span className="text-text-tertiary typo-footnote">
-            Show your post to more developers
-          </span>
+        <span className="min-w-0 flex-1 font-bold typo-callout">
+          Boost your post
         </span>
       </span>
-      <div className="flex flex-1 flex-col justify-between gap-3 rounded-14 border border-border-subtlest-secondary bg-background-default p-3">
-        <span className="flex items-center justify-between gap-2">
-          <span className="rounded-8 bg-accent-blueCheese-default px-2 py-0.5 font-bold text-surface-invert typo-caption1">
-            Today’s deal
-          </span>
-          <DealCountdown />
-        </span>
-        <span className="flex flex-col gap-0.5">
-          <strong className="typo-title3">
-            {DEAL_DAYS}-day boost, {DEAL_DISCOUNT * 100}% off
-          </strong>
-          <span className="flex items-center gap-1 typo-callout">
-            <CoreIcon size={IconSize.Size16} />
-            <strong>{formatCoresCurrency(dealPrice)}</strong>
-            <s className="text-text-quaternary">
-              {formatCoresCurrency(dealFullPrice)}
-            </s>
-          </span>
-        </span>
-        <Button
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Small}
-          icon={<BoostIcon />}
-          onClick={() => setPick('deal')}
-        >
-          Get the deal
-        </Button>
-      </div>
-      <button
-        type="button"
-        onClick={() => setPick('custom')}
-        className="flex items-center justify-between gap-3 rounded-14 bg-surface-float px-3 py-2 text-left transition-colors hover:bg-surface-hover"
+      <strong className="pt-2 typo-title3">{DEAL_DAYS}-day boost</strong>
+      <Button
+        variant={ButtonVariant.Primary}
+        size={ButtonSize.Small}
+        className="mt-auto w-full"
+        onClick={() => setPick('deal')}
       >
-        <span className="flex flex-col">
-          <span className="font-bold typo-subhead">Custom boost</span>
-          <span className="text-text-tertiary typo-caption1">
-            Pick a post, budget and duration
-          </span>
-        </span>
-        <span className="text-text-tertiary typo-caption1">
-          From {formatCoresCurrency(minBoost)}
-        </span>
-      </button>
+        <CoreIcon size={IconSize.Size16} />
+        <strong className="ml-1 tabular-nums">
+          {formatCoresCurrency(dealPrice)}
+        </strong>
+        <s className="ml-1 font-normal opacity-64">
+          {formatCoresCurrency(dealFullPrice)}
+        </s>
+      </Button>
+      <span className="flex items-center gap-1 self-center rounded-10 bg-surface-float px-2 py-0.5 text-accent-bacon-default typo-caption1">
+        <TimerIcon size={IconSize.Size16} />
+        <time className="font-bold tabular-nums">{time}</time>
+      </span>
       {pick && !buyCost && (
         <RecentPostsPicker
           pick={pick}
           balance={balance}
-          onPick={onPick}
+          onPick={() => setPick(undefined)}
           onBuyCores={() => setBuyCost(dealPrice)}
           onRequestClose={() => setPick(undefined)}
-        />
-      )}
-      {customPost && !buyCost && (
-        <BoostPostRedesignModal
-          post={customPost}
-          initialMode="custom"
-          onBuyCores={(budget) =>
-            setBuyCost(budget.coresPerDay * budget.totalDays)
-          }
-          onBoost={() => setCustomPost(undefined)}
-          onRequestClose={() => setCustomPost(undefined)}
         />
       )}
       {!!buyCost && (

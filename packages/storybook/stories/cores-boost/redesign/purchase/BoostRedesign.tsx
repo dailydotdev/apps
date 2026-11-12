@@ -43,7 +43,7 @@ import type { OwnPostState } from '../../flows/purchase/BoostFixed';
 import { starterBoost } from '../../flows/purchase/BoostFixed';
 import stripArt from '../../assets/boost-strip-patchy-v2.png';
 import { Row } from './kit';
-import { BoostStrip, BoostStripCompact } from './BoostStrip';
+import { BoostStripCompact } from './BoostStrip';
 
 const Slider = dynamic(
   () =>
@@ -86,32 +86,29 @@ export const OwnPostRedesign = ({
   state: OwnPostState;
   onBoost: () => void;
 }): ReactElement => {
-  const { user } = useAuthContext();
   const [isDismissed, setDismissed] = useState(false);
 
   return (
     <PostPage
       post={ownArticle(post, state === 'new')}
       banner={
-        !isDismissed &&
-        (state === 'new' ? (
+        !isDismissed && (
           <BoostStripCompact
             title={
-              <>
-                Boost to reach <strong>10k more devs</strong> now!
-              </>
+              state === 'new' ? (
+                <>
+                  Boost to reach <strong>10k more devs</strong> now!
+                </>
+              ) : (
+                <>
+                  <strong>This post is taking off.</strong> Boost it now!
+                </>
+              )
             }
             onBoost={onBoost}
             onDismiss={() => setDismissed(true)}
           />
-        ) : (
-          <BoostStrip
-            title="This post is taking off. Boost it now"
-            balance={user?.balance.amount ?? 0}
-            onBoost={onBoost}
-            onDismiss={() => setDismissed(true)}
-          />
-        ))
+        )
       }
     />
   );

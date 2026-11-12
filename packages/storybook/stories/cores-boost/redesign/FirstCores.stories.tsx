@@ -79,19 +79,10 @@ const WalkthroughFlow = ({
         <FirstCoresSheet
           amount={FIRST_REWARD}
           persona={persona}
-          onShowMe={() => setStep(2)}
-          onLater={() => setStep(2)}
+          onGotIt={() => setStep(2)}
         />
       )}
-      {step === 2 && (
-        <Wallet
-          onUse={(use) => {
-            if (use === 'boost') {
-              setStep(3);
-            }
-          }}
-        />
-      )}
+      {step === 2 && <Wallet />}
       {step === 3 && <OwnPostScreen balance={NUDGE_BALANCE} />}
       <FlowStepper steps={steps} index={step} onChange={setStep} />
     </Shell>
@@ -104,7 +95,8 @@ export const Walkthrough: Story = {
     msw: { handlers },
     docs: {
       description: {
-        story: 'Claim, Show me, then Boost your post, in the new look.',
+        story:
+          'Claim, Got it, then Boost your post from the wallet, in the new look.',
       },
     },
   },
@@ -122,7 +114,7 @@ export const YourFirstCores: Story = {
     docs: {
       description: {
         story:
-          'The character art leads, the amount sits on it as a chip, and the uses are fixed-height rows with a coverage pill.',
+          'The character art leads, the amount sits on it as a chip, and each use is a row that describes it, with its price and a coverage pill. Nothing to tap; Got it closes the sheet.',
       },
     },
   },
@@ -137,8 +129,7 @@ export const YourFirstCores: Story = {
         <FirstCoresSheet
           amount={FIRST_REWARD}
           persona={persona}
-          onShowMe={() => undefined}
-          onLater={() => undefined}
+          onGotIt={() => undefined}
         />
       </Shell>
     </CoresProviders>
@@ -172,7 +163,7 @@ export const NudgeOnOwnPost: Story = {
     docs: {
       description: {
         story:
-          'A quieter card: Patchy on the boost rocket at the left, the balance on two lines, a Small Boost button.',
+          'The same one-row strip as the boost flow, saying your balance is enough to boost this post.',
       },
     },
   },

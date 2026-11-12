@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import {
   Button,
@@ -17,16 +18,23 @@ import { friendshipArt } from './frame';
 
 // The two "you have Cores now" moments, on one shared card: the character art
 // on top with the amount sitting on it, then the copy and the actions.
-// Same copy and buttons: Show me / Later, and Got it.
+// The first Cores sheet only describes the uses, so both end on Got it.
 
 const ArtHeader = ({
   amount,
   onClose,
+  className = 'h-48 tablet:h-56',
 }: {
   amount: string;
   onClose?: () => void;
+  className?: string;
 }): ReactElement => (
-  <div className="relative h-48 w-full shrink-0 overflow-hidden tablet:h-56">
+  <div
+    className={classNames(
+      'relative w-full shrink-0 overflow-hidden',
+      className,
+    )}
+  >
     <img
       src={friendshipArt}
       alt="Friends sharing a Core with Patchy"
@@ -43,9 +51,11 @@ const ArtHeader = ({
         onClick={onClose}
       />
     )}
-    <span className="absolute bottom-0 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-14 border border-border-subtlest-tertiary bg-background-default px-3 py-1.5 shadow-2">
-      <CoreIcon size={IconSize.Medium} />
-      <strong className="tabular-nums typo-title2">{amount}</strong>
+    <span className="absolute bottom-3 left-1/2 -translate-x-1/2">
+      <span className="flex animate-raise-hand-pop items-center gap-1.5 rounded-14 bg-text-primary px-3 py-1.5 text-surface-invert shadow-3 ring-4 ring-background-default">
+        <CoreIcon size={IconSize.Medium} />
+        <strong className="tabular-nums typo-title2">{amount}</strong>
+      </span>
     </span>
   </div>
 );
@@ -55,12 +65,15 @@ const MomentModal = ({
   title,
   body,
   children,
+  artClassName,
   onRequestClose,
 }: {
   amount: string;
   title: string;
   body: string;
   children: ReactNode;
+  /** Height of the art, shorter when the card has more to say */
+  artClassName?: string;
   onRequestClose: () => void;
 }): ReactElement => (
   <Modal
@@ -71,8 +84,12 @@ const MomentModal = ({
     isDrawerOnMobile
     className="overflow-hidden"
   >
-    <ArtHeader amount={amount} onClose={onRequestClose} />
-    <div className="flex flex-col items-center gap-4 px-6 pb-6 pt-4 text-center">
+    <ArtHeader
+      amount={amount}
+      onClose={onRequestClose}
+      className={artClassName}
+    />
+    <div className="flex min-h-0 flex-col items-center gap-5 overflow-y-auto px-6 pb-6 pt-5 text-center">
       <div className="flex flex-col gap-1">
         <h2 className="font-bold typo-title3">{title}</h2>
         <p className="text-text-tertiary typo-callout">{body}</p>
@@ -90,58 +107,33 @@ const orderFor: Record<FirstCoresPersona, CoresUse[]> = {
 export const FirstCoresSheet = ({
   amount,
   persona,
-  onShowMe,
-  onLater,
+  onGotIt,
 }: {
   amount: number;
   persona: FirstCoresPersona;
-  onShowMe: () => void;
-  onLater: () => void;
-}): ReactElement => {
-  const [primary, ...rest] = orderFor[persona];
-
-  return (
-    <MomentModal
-      amount={`+${formatCoresCurrency(amount)}`}
-      title="You earned your first Cores"
-      body="Cores are what you spend on daily.dev. Here is what yours can do."
-      onRequestClose={onLater}
+  onGotIt: () => void;
+}): ReactElement => (
+  <MomentModal
+    amount={`+${formatCoresCurrency(amount)}`}
+    title="You earned your first Cores"
+    body="Cores are what you spend on daily.dev. Here is what yours can do."
+    artClassName="h-36"
+    onRequestClose={onGotIt}
+  >
+    <ul className="flex w-full flex-col divide-y divide-border-subtlest-tertiary">
+      {orderFor[persona].map((use) => (
+        <CoresUseRow key={use} use={use} />
+      ))}
+    </ul>
+    <Button
+      variant={ButtonVariant.Primary}
+      className="w-full"
+      onClick={onGotIt}
     >
-      <ul className="flex w-full flex-col gap-2">
-        <CoresUseRow
-          use={primary}
-          balance={amount}
-          onClick={onShowMe}
-          isPrimary
-        />
-        {rest.map((use) => (
-          <CoresUseRow
-            key={use}
-            use={use}
-            balance={amount}
-            onClick={onShowMe}
-          />
-        ))}
-      </ul>
-      <div className="flex w-full flex-col gap-2">
-        <Button
-          variant={ButtonVariant.Primary}
-          className="w-full"
-          onClick={onShowMe}
-        >
-          Show me
-        </Button>
-        <Button
-          variant={ButtonVariant.Tertiary}
-          className="w-full"
-          onClick={onLater}
-        >
-          Later
-        </Button>
-      </div>
-    </MomentModal>
-  );
-};
+      Got it
+    </Button>
+  </MomentModal>
+);
 
 export const CoresPurchasedModal = ({
   amount,
