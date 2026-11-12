@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import {
   getProfileForStaticProps,
+  getProfileReading,
   getProfileV2Extra,
 } from '@dailydotdev/shared/src/lib/user';
 import dynamic from 'next/dynamic';
@@ -14,7 +15,10 @@ import type {
 } from 'next';
 import type { ParsedUrlQuery } from 'querystring';
 import type { ClientError } from 'graphql-request';
-import type { ProfileV2 } from '@dailydotdev/shared/src/graphql/users';
+import type {
+  ProfileReadingData,
+  ProfileV2,
+} from '@dailydotdev/shared/src/graphql/users';
 import Head from 'next/head';
 import type { NextSeoProps } from 'next-seo';
 import { ClientQuestEventType } from '@dailydotdev/shared/src/graphql/quests';
@@ -44,6 +48,7 @@ const appOrigin = getAppOrigin();
 
 export interface ProfileLayoutProps extends Partial<ProfileV2> {
   noindex: boolean;
+  readingHistory?: ProfileReadingData | null;
   children?: ReactNode;
   // v2: title shown in the shared page-header strip at the top of the
   // floating card, above the profile sidebar + main + aside row.
@@ -124,6 +129,7 @@ export default function ProfileLayout({
   user: initialUser,
   userStats,
   sources,
+  readingHistory,
   pageHeaderTitle,
   children,
 }: ProfileLayoutProps): ReactElement {
@@ -190,6 +196,7 @@ export default function ProfileLayout({
               user={user}
               userStats={userStats}
               sources={sources}
+              readingHistory={readingHistory}
               className="w-full"
             />
           )}
@@ -255,12 +262,16 @@ export async function getStaticProps({
     }
 
     const { user } = profile;
-    const data = await getProfileV2Extra(user.id);
+    const [data, readingHistory] = await Promise.all([
+      getProfileV2Extra(user.id),
+      getProfileReading(user.id),
+    ]);
 
     return {
       props: {
         user,
         ...data,
+        readingHistory,
         noindex: !!user.noindex,
       },
       revalidate: 60,

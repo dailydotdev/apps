@@ -9,8 +9,6 @@ import type {
 import { ReadingOverview } from './ReadingOverview';
 import type { PublicProfile } from '../../../../lib/user';
 import { TestBootProvider } from '../../../../../__tests__/helpers/boot';
-import { mockGraphQL } from '../../../../../__tests__/helpers/graphql';
-import { TAG_TITLES_QUERY } from '../../../../graphql/keywords';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -107,7 +105,7 @@ describe('ReadingOverview component', () => {
     expect(screen.getByTestId('ReadingOverviewSkeleton')).toBeInTheDocument();
   });
 
-  it('should render main content when not loading', async () => {
+  it('should render main content when not loading', () => {
     renderComponent();
 
     expect(screen.getByText('Reading Overview')).toBeInTheDocument();
@@ -116,7 +114,7 @@ describe('ReadingOverview component', () => {
       screen.getByText('Posts read in the last months (16)'),
     ).toBeInTheDocument();
     expect(screen.getByText('Top tags by reading days')).toBeInTheDocument();
-    expect(await screen.findByText('javascript')).toBeInTheDocument();
+    expect(screen.getByText('javascript')).toBeInTheDocument();
     expect(screen.getByText('react')).toBeInTheDocument();
     expect(screen.getByText('+60%')).toBeInTheDocument(); // javascript percentage
     expect(screen.getByText('+40%')).toBeInTheDocument(); // react percentage
@@ -140,29 +138,15 @@ describe('ReadingOverview component', () => {
     expect(screen.getByLabelText('Snapshot')).toBeInTheDocument();
   });
 
-  it('should not render raw tag values while the titles load', () => {
-    renderComponent();
-
-    expect(screen.getAllByTestId('tagProgressPlaceholder')).toHaveLength(2);
-    expect(screen.queryByText('javascript')).not.toBeInTheDocument();
-  });
-
-  it('should render the keyword title once it is available', async () => {
-    mockGraphQL({
-      request: { query: TAG_TITLES_QUERY },
-      result: {
-        data: {
-          tags: [
-            { value: 'javascript', flags: { title: 'JavaScript' } },
-            { value: 'react', flags: null },
-          ],
-        },
-      },
+  it('should render the keyword title when it has one', () => {
+    renderComponent({
+      mostReadTags: [
+        { ...mockMostReadTags[0], title: 'JavaScript' },
+        { ...mockMostReadTags[1], title: null },
+      ],
     });
 
-    renderComponent();
-
-    expect(await screen.findByText('JavaScript')).toBeInTheDocument();
+    expect(screen.getByText('JavaScript')).toBeInTheDocument();
     // No title on the keyword: keep the raw value rather than invent a casing.
     expect(screen.getByText('react')).toBeInTheDocument();
   });

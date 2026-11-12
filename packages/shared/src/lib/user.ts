@@ -1,7 +1,9 @@
 import { apiUrl, graphqlUrl } from './config';
-import type { ProfileV2 } from '../graphql/users';
+import type { ProfileReadingData, ProfileV2 } from '../graphql/users';
 import {
+  getProfileReadingVariables,
   PROFILE_V2_EXTRA_QUERY,
+  USER_READING_HISTORY_QUERY,
   USER_BY_ID_STATIC_FIELDS_QUERY,
 } from '../graphql/users';
 import type { Company } from './userCompany';
@@ -358,6 +360,30 @@ export async function getProfileV2Extra(
   id: string,
 ): Promise<Omit<ProfileV2, 'user'>> {
   return await getProfileV2ExtraRequest(id);
+}
+
+// The reading overview is part of the server render, but a profile still
+// renders without it: the widget fetches it on the client instead.
+export async function getProfileReading(
+  id: string,
+): Promise<ProfileReadingData | null> {
+  try {
+    const res = await fetch(graphqlUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: USER_READING_HISTORY_QUERY,
+        variables: getProfileReadingVariables(id),
+      }),
+    });
+    const response = await res.json();
+
+    return response?.errors ? null : (response?.data ?? null);
+  } catch {
+    return null;
+  }
 }
 
 export enum ReferralOriginKey {

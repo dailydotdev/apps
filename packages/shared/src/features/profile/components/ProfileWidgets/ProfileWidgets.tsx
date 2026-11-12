@@ -6,12 +6,13 @@ import dynamic from 'next/dynamic';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useSettingsContext } from '../../../../contexts/SettingsContext';
 import { ActiveOrRecomendedSquads } from './ActiveOrRecomendedSquads';
-import type { ProfileV2 } from '../../../../graphql/users';
+import type { ProfileReadingData, ProfileV2 } from '../../../../graphql/users';
 import {
   getProfileReadingWindow,
   profileReadingHistoryQueryOptions,
 } from '../../../../graphql/users';
 import { canViewUserProfileAnalytics } from '../../../../lib/user';
+import { StaleTime } from '../../../../lib/query';
 import { ReadingOverview } from './ReadingOverview';
 import { ProfileCompletion } from './ProfileCompletion';
 import { Share } from './Share';
@@ -57,6 +58,7 @@ export interface ProfileWidgetsProps extends Omit<
 > {
   userStats?: ProfileV2['userStats'];
   sources?: ProfileV2['sources'];
+  readingHistory?: ProfileReadingData | null;
   className?: string;
   enableSticky?: boolean;
 }
@@ -64,6 +66,7 @@ export interface ProfileWidgetsProps extends Omit<
 export function ProfileWidgets({
   user,
   sources,
+  readingHistory: initialReadingHistory,
   className,
 }: ProfileWidgetsProps): ReactElement {
   const { user: loggedUser, tokenRefreshed } = useAuthContext();
@@ -100,7 +103,13 @@ export function ProfileWidgets({
 
   const { before, after } = getProfileReadingWindow();
   const { data: readingHistory, isPending: isReadingHistoryPending } = useQuery(
-    profileReadingHistoryQueryOptions({ user, enabled: tokenRefreshed }),
+    {
+      ...profileReadingHistoryQueryOptions({ user, enabled: tokenRefreshed }),
+      ...(initialReadingHistory && {
+        initialData: initialReadingHistory,
+        staleTime: StaleTime.Default,
+      }),
+    },
   );
   const squads = sources?.edges?.map((s) => s.node.source) ?? [];
 

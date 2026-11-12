@@ -95,6 +95,7 @@ export const ProfilePage = ({
   noindex,
   userStats,
   sources,
+  readingHistory,
   segment: routeSegment,
 }: ProfilePageProps): ReactElement => {
   useJoinReferral();
@@ -281,6 +282,7 @@ export const ProfilePage = ({
                 user={user}
                 userStats={userStats}
                 sources={sources}
+                readingHistory={readingHistory}
                 className="no-scrollbar overflow-auto laptop:hidden"
               />
             </div>

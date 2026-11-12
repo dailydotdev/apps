@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
 import type { UserStreak, MostReadTag } from '../../../../graphql/users';
 import { largeNumberFormat, getTagPageLink } from '../../../../lib';
 import Link from '../../../../components/utilities/Link';
@@ -13,7 +12,6 @@ import {
 } from '../../../../components/typography/Typography';
 import { SummaryCard } from './BadgesAndAwardsComponents';
 import { anchorDefaultRel } from '../../../../lib/strings';
-import { tagTitlesQueryOptions } from '../../../../graphql/keywords';
 import { ActivityContainer } from '../../../../components/profile/ActivitySection';
 import { ClickableText } from '../../../../components/buttons/ClickableText';
 import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';
@@ -22,12 +20,10 @@ import { migrateUserToStreaks } from '../../../../lib/constants';
 // ReadingTagProgress component
 interface ReadingTagProgressProps {
   tag: MostReadTag;
-  title?: string;
 }
 
 export const ReadingTagProgress = ({
-  tag: { value: tag, count, percentage, total },
-  title,
+  tag: { value: tag, title, count, percentage, total },
 }: ReadingTagProgressProps): ReactElement => {
   const value = `+${((percentage ?? 0) * 100).toFixed(0)}%`;
 
@@ -63,16 +59,6 @@ export const ReadingTagProgress = ({
   );
 };
 
-const ReadingTagProgressPlaceholder = (): ReactElement => (
-  <ElementPlaceholder
-    className="flex h-5 flex-row items-center justify-between rounded-6 px-2"
-    data-testid="tagProgressPlaceholder"
-  >
-    <ElementPlaceholder className="h-3 w-16 rounded-4" />
-    <ElementPlaceholder className="h-3 w-8 rounded-4" />
-  </ElementPlaceholder>
-);
-
 // ReadingStreaksSection component
 interface ReadingStreaksSectionProps {
   streak: UserStreak;
@@ -100,37 +86,23 @@ interface ReadingTagsSectionProps {
 
 export const ReadingTagsSection = ({
   mostReadTags,
-}: ReadingTagsSectionProps): ReactElement => {
-  const { data: tagTitles = {}, isPending: isTagTitlesPending } = useQuery(
-    tagTitlesQueryOptions(),
-  );
-
-  return (
-    <>
-      <Typography
-        tag={TypographyTag.H3}
-        type={TypographyType.Subhead}
-        color={TypographyColor.Tertiary}
-        className="my-1"
-      >
-        Top tags by reading days
-      </Typography>
-      <div className="my-3 grid max-w-full grid-cols-2 gap-2">
-        {mostReadTags?.map((tag) =>
-          isTagTitlesPending ? (
-            <ReadingTagProgressPlaceholder key={tag.value} />
-          ) : (
-            <ReadingTagProgress
-              key={tag.value}
-              tag={tag}
-              title={tagTitles[tag.value]}
-            />
-          ),
-        )}
-      </div>
-    </>
-  );
-};
+}: ReadingTagsSectionProps): ReactElement => (
+  <>
+    <Typography
+      tag={TypographyTag.H3}
+      type={TypographyType.Subhead}
+      color={TypographyColor.Tertiary}
+      className="my-1"
+    >
+      Top tags by reading days
+    </Typography>
+    <div className="my-3 grid max-w-full grid-cols-2 gap-2">
+      {mostReadTags?.map((tag) => (
+        <ReadingTagProgress key={tag.value} tag={tag} />
+      ))}
+    </div>
+  </>
+);
 
 // HeatmapLegend component
 export const HeatmapLegend = (): ReactElement => (

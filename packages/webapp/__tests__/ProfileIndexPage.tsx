@@ -6,12 +6,10 @@ import { useRouter } from 'next/router';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import nock from 'nock';
 import type {
-  UserReadingRankHistory,
   MostReadTag,
   ProfileReadingData,
 } from '@dailydotdev/shared/src/graphql/users';
 import { USER_READING_HISTORY_QUERY } from '@dailydotdev/shared/src/graphql/users';
-import { TAG_TITLES_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
 import { QueryClient } from '@tanstack/react-query';
 import { startOfTomorrow, subDays, subMonths } from 'date-fns';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
@@ -48,31 +46,25 @@ const defaultTopTags: MostReadTag[] = [
 const before = startOfTomorrow();
 const after = subMonths(subDays(before, 2), 5);
 
-const createReadingHistoryMock = (
-  rankHistory: UserReadingRankHistory[] = [
-    { rank: 2, count: 5 },
-    { rank: 5, count: 3 },
-  ],
-): MockedGraphQLResponse<ProfileReadingData> => ({
-  request: {
-    query: USER_READING_HISTORY_QUERY,
-    variables: {
-      id: 'u2',
-      before: before.toISOString(),
-      after: after.toISOString(),
-      version: 2,
-      limit: 6,
+const createReadingHistoryMock =
+  (): MockedGraphQLResponse<ProfileReadingData> => ({
+    request: {
+      query: USER_READING_HISTORY_QUERY,
+      variables: {
+        id: 'u2',
+        before: before.toISOString(),
+        after: after.toISOString(),
+        limit: 6,
+      },
     },
-  },
-  result: {
-    data: {
-      userReadingRankHistory: rankHistory,
-      userReadHistory: [{ date: '2021-02-01', reads: 2 }],
-      userMostReadTags: defaultTopTags,
-      userStreakProfile: null,
+    result: {
+      data: {
+        userReadHistory: [{ date: '2021-02-01', reads: 2 }],
+        userMostReadTags: defaultTopTags,
+        userStreakProfile: null,
+      },
     },
-  },
-});
+  });
 
 const defaultProfile: PublicProfile = {
   id: 'u2',
@@ -121,10 +113,7 @@ const renderComponent = (
 };
 
 it('should show the top reading tags of the user', async () => {
-  renderComponent([
-    createReadingHistoryMock(),
-    { request: { query: TAG_TITLES_QUERY }, result: { data: { tags: [] } } },
-  ]);
+  renderComponent();
   await waitForNock();
   await screen.findByText('Top tags by reading days');
   // No keyword title available: the raw tag value is rendered as-is

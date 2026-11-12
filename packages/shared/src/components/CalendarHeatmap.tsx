@@ -87,6 +87,29 @@ export type CalendarHeatmapProps<T extends { date: string }> = {
   valueToTooltip: (value: T, date: Date) => ReactNode;
 };
 
+export const getCalendarHeatmapSize = ({
+  startDate,
+  endDate,
+  gutterSize = 2,
+}: Pick<CalendarHeatmapProps<{ date: string }>, 'startDate' | 'endDate'> & {
+  gutterSize?: number;
+}): { width: number; height: number; weekCount: number } => {
+  const squareSizeWithGutter = SQUARE_SIZE + gutterSize;
+  const numEmptyDaysAtEnd = DAYS_IN_WEEK - 1 - endDate.getDay();
+  const numEmptyDaysAtStart = startDate.getDay();
+  const dateDifferenceInDays = differenceInDays(endDate, startDate);
+  const numDaysRoundedToWeek =
+    dateDifferenceInDays + numEmptyDaysAtStart + numEmptyDaysAtEnd;
+  const weekCount = Math.ceil(numDaysRoundedToWeek / DAYS_IN_WEEK);
+  const weekWidth = DAYS_IN_WEEK * squareSizeWithGutter;
+
+  return {
+    width: weekCount * squareSizeWithGutter - (gutterSize - weekdayLabelSize),
+    height: weekWidth + (MONTH_LABEL_SIZE - gutterSize),
+    weekCount,
+  };
+};
+
 export function CalendarHeatmap<T extends { date: string }>({
   startDate,
   endDate,
@@ -96,22 +119,14 @@ export function CalendarHeatmap<T extends { date: string }>({
   valueToTooltip,
 }: CalendarHeatmapProps<T>): ReactElement {
   const squareSizeWithGutter = SQUARE_SIZE + gutterSize;
-
-  const numEmptyDaysAtEnd = DAYS_IN_WEEK - 1 - endDate.getDay();
   const numEmptyDaysAtStart = startDate.getDay();
   const startDateWithEmptyDays = addDays(startDate, -numEmptyDaysAtStart);
-
   const dateDifferenceInDays = differenceInDays(endDate, startDate);
-
-  const numDaysRoundedToWeek =
-    dateDifferenceInDays + numEmptyDaysAtStart + numEmptyDaysAtEnd;
-  const weekCount = Math.ceil(numDaysRoundedToWeek / DAYS_IN_WEEK);
-
-  const weekWidth = DAYS_IN_WEEK * squareSizeWithGutter;
-
-  const width =
-    weekCount * squareSizeWithGutter - (gutterSize - weekdayLabelSize);
-  const height = weekWidth + (MONTH_LABEL_SIZE - gutterSize);
+  const { width, height, weekCount } = getCalendarHeatmapSize({
+    startDate,
+    endDate,
+    gutterSize,
+  });
 
   const bins = useMemo<number[]>(
     () => getBins(values.map(valueToCount)),

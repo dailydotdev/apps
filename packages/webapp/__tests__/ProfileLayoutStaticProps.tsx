@@ -1,6 +1,9 @@
 import type { GetStaticPropsContext } from 'next';
 import type { ParsedUrlQuery } from 'querystring';
-import { getProfileV2Extra } from '@dailydotdev/shared/src/lib/user';
+import {
+  getProfileReading,
+  getProfileV2Extra,
+} from '@dailydotdev/shared/src/lib/user';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import {
   getStaticPaths,
@@ -10,9 +13,11 @@ import {
 jest.mock('@dailydotdev/shared/src/lib/user', () => ({
   ...jest.requireActual('@dailydotdev/shared/src/lib/user'),
   getProfileV2Extra: jest.fn(),
+  getProfileReading: jest.fn(),
 }));
 
 const mockedGetProfileV2Extra = getProfileV2Extra as jest.Mock;
+const mockedGetProfileReading = getProfileReading as jest.Mock;
 const fetchMock = jest.fn();
 
 // Mirrors the (unexported) ProfileParams in ProfileLayout. Typing the
@@ -90,11 +95,14 @@ describe('profile getStaticProps', () => {
     const user = { id: 'u1', username: 'kramer', noindex: false };
     respondProfile({ data: { user } });
     mockedGetProfileV2Extra.mockResolvedValue({ userStats: { numPosts: 1 } });
+    const readingHistory = { userStreakProfile: { max: 3, total: 9 } };
+    mockedGetProfileReading.mockResolvedValue(readingHistory);
 
     await expect(getStaticProps(context('kramer'))).resolves.toEqual({
       props: {
         user,
         userStats: { numPosts: 1 },
+        readingHistory,
         noindex: false,
       },
       revalidate: 60,

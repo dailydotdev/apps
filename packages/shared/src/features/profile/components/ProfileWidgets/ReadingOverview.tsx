@@ -1,6 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { forwardRef } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import type {
   UserReadHistory,
   UserStreak,
@@ -12,6 +11,7 @@ import {
   CalendarHeatmap,
   getBin,
   getBins,
+  getCalendarHeatmapSize,
 } from '../../../../components/CalendarHeatmap';
 import { migrateUserToStreaks } from '../../../../lib/constants';
 import { ClickableText } from '../../../../components/buttons/ClickableText';
@@ -31,7 +31,8 @@ import { anchorDefaultRel, pluralize } from '../../../../lib/strings';
 import { largeNumberFormat } from '../../../../lib/numberFormat';
 import { ReadingOverviewSnapshotCard } from '../../../snapshot/ReadingOverviewSnapshotCard';
 import { ProfileSnapshotButton } from '../../../snapshot/ProfileSnapshotButton';
-import { tagTitlesQueryOptions } from '../../../../graphql/keywords';
+import { useIsHydrated } from '../../../../hooks/useIsHydrated';
+import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';
 import type { PublicProfile } from '../../../../lib/user';
 import { Origin } from '../../../../lib/log';
 
@@ -82,8 +83,6 @@ const ReadingOverviewCard = forwardRef<
   { user, readHistory, before, after, streak, mostReadTags },
   ref,
 ): ReactElement {
-  const { data: tagTitles = {} } = useQuery(tagTitlesQueryOptions());
-
   // The card draws one cell per bucket and stops at its grid, so the window
   // is compressed into that many buckets rather than handed a day each: a
   // day per cell would show the oldest weeks and drop everything since.
@@ -111,7 +110,7 @@ const ReadingOverviewCard = forwardRef<
       seed={user.username ?? user.id}
       topTags={
         mostReadTags?.map((tag) => ({
-          name: tagTitles[tag.value] || tag.value,
+          name: tag.title || tag.value,
           percentage: Math.round((tag.percentage ?? 0) * 100),
         })) ?? []
       }
@@ -134,6 +133,13 @@ export function ReadingOverview({
   mostReadTags,
   isLoading = false,
 }: ReadingOverviewProps): ReactElement {
+  // The heatmap lays days out in the viewer's timezone, which the server
+  // render cannot know, so it holds its place until hydration.
+  const isHydrated = useIsHydrated();
+  const heatmapSize = getCalendarHeatmapSize({
+    startDate: after,
+    endDate: before,
+  });
   const totalReads = sumReadHistory(readHistory);
   // The card leaves out every section whose number is zero, so with no reads,
   // no streak and no tags there would be nothing on it but the name.
@@ -200,15 +206,24 @@ export function ReadingOverview({
         Posts read in the last months
         {totalReads >= 0 && ` (${largeNumberFormat(totalReads)})`}
       </Typography>
-      {Array.isArray(readHistory) && (
-        <CalendarHeatmap
-          startDate={after}
-          endDate={before}
-          values={readHistory}
-          valueToCount={readHistoryToValue}
-          valueToTooltip={readHistoryToTooltip}
-        />
-      )}
+      {Array.isArray(readHistory) &&
+        (isHydrated ? (
+          <CalendarHeatmap
+            startDate={after}
+            endDate={before}
+            values={readHistory}
+            valueToCount={readHistoryToValue}
+            valueToTooltip={readHistoryToTooltip}
+          />
+        ) : (
+          <ElementPlaceholder
+            className="w-full rounded-4"
+            style={{
+              aspectRatio: `${heatmapSize.width} / ${heatmapSize.height}`,
+            }}
+            data-testid="heatmapPlaceholder"
+          />
+        ))}
       <HeatmapLegend />
     </ActivityContainer>
   );

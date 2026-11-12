@@ -16,6 +16,7 @@ import { settingsContext } from '../../../../../__tests__/helpers/boot';
 import SettingsContext from '../../../../contexts/SettingsContext';
 import { getLogContextStatic } from '../../../../contexts/LogContext';
 import { gqlClient } from '../../../../graphql/common';
+import { USER_READING_HISTORY_QUERY } from '../../../../graphql/users';
 import { DayOfWeek } from '../../../../lib/date';
 
 const LogContext = getLogContextStatic();
@@ -136,10 +137,6 @@ const defaultMemberships: Connection<SourceMember> = {
 };
 
 const defaultReadingHistory: ProfileReadingData = {
-  userReadingRankHistory: [
-    { rank: 1, count: 10 },
-    { rank: 2, count: 20 },
-  ],
   userReadHistory: [
     { date: '2024-01-01', reads: 5 },
     { date: '2024-01-02', reads: 10 },
@@ -166,10 +163,15 @@ const renderComponent = (
   sources: Connection<SourceMember> = defaultMemberships,
   options: {
     readingHistory?: typeof defaultReadingHistory | null;
+    initialReadingHistory?: typeof defaultReadingHistory;
     tokenRefreshed?: boolean;
   } = {},
 ): RenderResult => {
-  const { readingHistory = null, tokenRefreshed = true } = options;
+  const {
+    readingHistory = null,
+    initialReadingHistory,
+    tokenRefreshed = true,
+  } = options;
 
   const client = new QueryClient({
     defaultOptions: {
@@ -184,19 +186,18 @@ const renderComponent = (
   // Mock gqlClient.request to return reading history
   (gqlClient.request as jest.Mock).mockImplementation((query, variables) => {
     // Check if this is the reading history query by checking if it has the expected variables
-    // The reading history query has id, before, after, version, and limit
+    // The reading history query has id, before, after and limit
     if (
       variables?.id &&
       variables?.before &&
       variables?.after &&
-      variables?.version === 2
+      variables?.limit === 6
     ) {
       if (readingHistory !== null) {
         return Promise.resolve(readingHistory);
       }
       // Return empty structure when readingHistory is null
       return Promise.resolve({
-        userReadingRankHistory: undefined,
         userReadHistory: undefined,
         userStreakProfile: undefined,
         userMostReadTags: undefined,
@@ -242,6 +243,7 @@ const renderComponent = (
                 numFollowing: 3_000,
               }}
               sources={sources}
+              readingHistory={initialReadingHistory}
             />
           </SettingsContext.Provider>
         </LogContext.Provider>
@@ -312,4 +314,23 @@ it('should not fetch reading history when tokenRefreshed is false', async () => 
     const readingHeading = screen.queryByText('Reading');
     expect(readingHeading).not.toBeInTheDocument();
   });
+});
+
+it('should render the reading overview from the static props without fetching it', () => {
+  renderComponent({}, undefined, {
+    initialReadingHistory: {
+      ...defaultReadingHistory,
+      userMostReadTags: [
+        { value: 'javascript', title: 'JavaScript', count: 20 },
+      ],
+    },
+    tokenRefreshed: false,
+  });
+
+  expect(screen.getByText('Total reading days')).toBeInTheDocument();
+  expect(screen.getByText('JavaScript')).toBeInTheDocument();
+  expect(gqlClient.request).not.toHaveBeenCalledWith(
+    USER_READING_HISTORY_QUERY,
+    expect.anything(),
+  );
 });

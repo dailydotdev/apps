@@ -187,6 +187,7 @@ export type ProfileV2 = {
 export type UserReadingRank = { currentRank: number };
 export type MostReadTag = {
   value: string;
+  title?: string | null;
   count: number;
   percentage?: number;
   total?: number;
@@ -198,16 +199,9 @@ export type Tag = {
   percentage?: number;
 };
 
-export type ProfileReadingData = UserReadingRankHistoryData &
-  UserReadHistoryData &
+export type ProfileReadingData = UserReadHistoryData &
   UserReadingTopTagsData &
   UserStreakData;
-
-export type UserReadingRankHistory = { rank: number; count: number };
-
-export interface UserReadingRankHistoryData {
-  userReadingRankHistory: UserReadingRankHistory[];
-}
 
 export type UserReadHistory = { date: string; reads: number };
 
@@ -228,24 +222,15 @@ export const USER_READING_HISTORY_QUERY = gql`
     $id: ID!
     $after: String!
     $before: String!
-    $version: Int
     $limit: Int
   ) {
-    userReadingRankHistory(
-      id: $id
-      version: $version
-      after: $after
-      before: $before
-    ) {
-      rank
-      count
-    }
     userReadHistory(id: $id, after: $after, before: $before, grouped: true) {
       date
       reads
     }
     userMostReadTags(id: $id, after: $after, before: $before, limit: $limit) {
       value
+      title
       count
       total
       percentage
@@ -270,31 +255,30 @@ export const getProfileReadingWindow = (): { before: Date; after: Date } => {
   return { before, after: subMonths(subDays(before, 2), 5) };
 };
 
+export const getProfileReadingVariables = (id: string) => {
+  const { before, after } = getProfileReadingWindow();
+
+  return { id, before, after, limit: 6 };
+};
+
 export const profileReadingHistoryQueryOptions = ({
   user,
   enabled = true,
 }: {
   user?: Pick<PublicProfile, 'id'>;
   enabled?: boolean;
-}) => {
-  const { before, after } = getProfileReadingWindow();
-
-  return {
-    queryKey: generateQueryKey(RequestKey.ReadingStats, user),
-    queryFn: (): Promise<ProfileReadingData> =>
-      gqlClient.request(USER_READING_HISTORY_QUERY, {
-        id: user?.id,
-        before,
-        after,
-        version: 2,
-        limit: 6,
-      }),
-    enabled: !!user && enabled,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    refetchOnMount: false,
-  };
-};
+}) => ({
+  queryKey: generateQueryKey(RequestKey.ReadingStats, user),
+  queryFn: (): Promise<ProfileReadingData> =>
+    gqlClient.request(
+      USER_READING_HISTORY_QUERY,
+      getProfileReadingVariables(user?.id as string),
+    ),
+  enabled: !!user && enabled,
+  refetchOnWindowFocus: false,
+  refetchOnReconnect: false,
+  refetchOnMount: false,
+});
 
 export const USER_STREAK_HISTORY = gql`
   query UserStreakHistory($id: ID!, $after: String!, $before: String!) {
