@@ -652,6 +652,21 @@ export const isSameDayInTimezone = (
   );
 };
 
+// Whether `date` falls on the calendar day `localDate` (YYYY-MM-DD) in
+// `timezone`. The API reports streak days as local date strings, so compare
+// the day in that zone instead of turning the string into a UTC instant.
+export const isLocalDateInTimezone = (
+  date: Date,
+  localDate: string,
+  timezone?: string,
+): boolean => {
+  if (Number.isNaN(date.getTime())) {
+    return false;
+  }
+
+  return dateFormatInTimezone(date, 'yyyy-MM-dd', timezone) === localDate;
+};
+
 export const getTimezoneOffsetLabel = (timezone: string): string => {
   const resolvedTimezone = timezone || DEFAULT_TIMEZONE;
   const timezoneOffset = getTimezoneOffsetInMinutes(resolvedTimezone);

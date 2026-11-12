@@ -4,24 +4,39 @@ import { ReadingStreakPopup } from './ReadingStreakPopup';
 import type { UserStreak } from '../../../graphql/users';
 import { DayOfWeek } from '../../../lib/date';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
+import { LazyModal } from '../../modals/common/types';
+import { FeedbackCategory } from '../../../graphql/feedback';
 
 const mockCompleteAction = jest.fn();
 const mockLogEvent = jest.fn();
 const mockShowPrompt = jest.fn();
 const mockUpdateFlag = jest.fn();
 const mockOnTogglePermission = jest.fn();
+const mockOpenModal = jest.fn();
 let mockIsTimezoneOk = true;
 let mockIsSoftBreakFlagOn = false;
+let mockWhyBrokeEnabled = true;
 const mockUseConditionalFeature = jest.fn(
-  ({ shouldEvaluate }: { shouldEvaluate?: boolean }) => ({
-    value: shouldEvaluate !== false && mockIsSoftBreakFlagOn,
+  ({
+    feature,
+    shouldEvaluate,
+  }: {
+    feature: { id: string };
+    shouldEvaluate?: boolean;
+  }) => ({
+    value:
+      feature.id === 'streak_why_broke'
+        ? mockWhyBrokeEnabled
+        : shouldEvaluate !== false && mockIsSoftBreakFlagOn,
     isLoading: false,
   }),
 );
 
 jest.mock('../../../hooks/useConditionalFeature', () => ({
-  useConditionalFeature: (args: { shouldEvaluate?: boolean }) =>
-    mockUseConditionalFeature(args),
+  useConditionalFeature: (args: {
+    feature: { id: string };
+    shouldEvaluate?: boolean;
+  }) => mockUseConditionalFeature(args),
 }));
 
 jest.mock('next/router', () => ({
@@ -121,6 +136,10 @@ jest.mock('../../../contexts/PushNotificationContext', () => ({
   }),
 }));
 
+jest.mock('../../../hooks/useLazyModal', () => ({
+  useLazyModal: () => ({ openModal: mockOpenModal }),
+}));
+
 jest.mock('../../../hooks/usePersistentContext', () => ({
   __esModule: true,
   default: () => [false, jest.fn()],
@@ -138,11 +157,22 @@ const streak: UserStreak = {
   freezesAvailable: 0,
 };
 
+const brokenStreak: UserStreak = {
+  ...streak,
+  current: 0,
+  lastReset: {
+    missedDate: '2026-11-09',
+    timezone: 'Europe/Amsterdam',
+    at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+};
+
 describe('ReadingStreakPopup', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockIsTimezoneOk = true;
     mockIsSoftBreakFlagOn = false;
+    mockWhyBrokeEnabled = true;
   });
 
   it('renders the timezone tooltip as wrapping prose and truncates long timezone labels', () => {
@@ -223,6 +253,63 @@ describe('ReadingStreakPopup', () => {
       expect(mockUseConditionalFeature).toHaveBeenCalledWith(
         expect.objectContaining({ shouldEvaluate: true }),
       );
+    });
+  });
+
+  describe('reset reason', () => {
+    it('explains a recent reset and opens feedback from the link', () => {
+      render(<ReadingStreakPopup streak={brokenStreak} />);
+
+      expect(
+        screen.getByText(
+          'No read was recorded on Nov 9 in Europe/Amsterdam (UTC +1).',
+        ),
+      ).toBeInTheDocument();
+      expect(mockLogEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event_name: LogEvent.Impression,
+          target_type: TargetType.StreakResetReason,
+          target_id: '2026-11-09',
+        }),
+      );
+
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Think this is wrong? Tell us' }),
+      );
+
+      expect(mockLogEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event_name: LogEvent.Click,
+          target_type: TargetType.StreakResetReason,
+          target_id: '2026-11-09',
+        }),
+      );
+      expect(mockOpenModal).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: LazyModal.Feedback,
+          props: expect.objectContaining({
+            initialCategory: FeedbackCategory.BugReport,
+            initialDescription: expect.stringContaining('Nov 9'),
+          }),
+        }),
+      );
+    });
+
+    it('stays hidden while the streak is running', () => {
+      render(<ReadingStreakPopup streak={streak} />);
+
+      expect(
+        screen.queryByText(/No read was recorded/),
+      ).not.toBeInTheDocument();
+    });
+
+    it('stays hidden when the flag is off', () => {
+      mockWhyBrokeEnabled = false;
+      render(<ReadingStreakPopup streak={brokenStreak} />);
+
+      expect(
+        screen.queryByText(/No read was recorded/),
+      ).not.toBeInTheDocument();
     });
   });
 });

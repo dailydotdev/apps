@@ -102,6 +102,9 @@ export const featureStreakFreeze = new Feature('streak_freeze', isDevelopment);
 // evaluated once the streak is 0 with a longest above it, so control readers
 // never enter the experiment early.
 export const featureStreakSoftBreak = new Feature('streak_soft_break', false);
+// explain a recent streak reset: the missed day in the calendar + a "why it
+// broke" line with a feedback link
+export const featureStreakWhyBroke = new Feature('streak_why_broke', false);
 
 export const featureGtaViFreezeDay = new Feature('gta_vi_freeze_day', false);
 

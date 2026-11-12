@@ -10,7 +10,10 @@ import { useHasAccessToCores } from '../useCoresFeature';
 import { useConditionalFeature } from '../useConditionalFeature';
 import { featureStreakFreeze } from '../../lib/featureManagement';
 import { DayOfWeek, isWeekend } from '../../lib/date';
-import { isSameDayInTimezone } from '../../lib/timezones';
+import {
+  isLocalDateInTimezone,
+  isSameDayInTimezone,
+} from '../../lib/timezones';
 
 // Classify a single day against the user's reading history. Extracted from
 // ReadingStreakPopup so the popup, the compact sidebar calendar and the rail
@@ -22,6 +25,8 @@ export const getStreak = ({
   startOfWeek = DayOfWeek.Monday,
   timezone,
   freezeDates,
+  missedDate,
+  missedDateTimezone,
 }: {
   value: Date;
   today: Date;
@@ -29,6 +34,10 @@ export const getStreak = ({
   startOfWeek?: number;
   timezone?: string;
   freezeDates?: string[];
+  // The local date (YYYY-MM-DD) that broke the last streak, in the timezone
+  // the API computed it in (see useStreakResetReason).
+  missedDate?: string;
+  missedDateTimezone?: string;
 }): Streak => {
   const isFreezeDay = isWeekend(value, startOfWeek, timezone);
   const isUsedFreezeDay = freezeDates?.some((freezeDate) =>
@@ -47,6 +56,13 @@ export const getStreak = ({
 
   if (isCompleted) {
     return Streak.Completed;
+  }
+
+  if (
+    missedDate &&
+    isLocalDateInTimezone(value, missedDate, missedDateTimezone ?? timezone)
+  ) {
+    return Streak.Missed;
   }
 
   // Consumed freezes are their own auto-applied purchase, distinct from the
