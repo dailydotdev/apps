@@ -26,12 +26,12 @@ const steps = [
   {
     title: 'Paste the prompt',
     description:
-      'Your agent reads the setup instructions and asks daily.dev for a link.',
+      'Your agent reads the setup instructions and opens daily.dev in your browser.',
   },
   {
     title: 'Create your account',
     description:
-      'Open the link and continue with GitHub or Google. One click, no forms. Then head back to your agent.',
+      'Continue with GitHub or Google on the page it opened. One click, no forms. Then head back to your agent.',
   },
   {
     title: 'Approve the plan',
@@ -60,7 +60,7 @@ const faq = [
   {
     title: 'I already have a daily.dev account. Can I use this?',
     description:
-      'Yes. Open the link while signed in and connect your agent. It only suggests additions and never removes what you already follow.',
+      'Yes. When the page opens and you are signed in, connect your agent. It only suggests additions and never removes what you already follow.',
   },
   {
     title: 'What if my agent stops halfway?',
