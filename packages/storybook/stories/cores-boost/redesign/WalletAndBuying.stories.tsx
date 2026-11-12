@@ -1,16 +1,10 @@
-import type { ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { RequestKey } from '@dailydotdev/shared/src/lib/query';
-import { useQueryClient } from '@tanstack/react-query';
 import { CoresProviders } from '../real/providers';
-import { activeHistory, streakHandlers } from '../real/handlers';
+import { streakHandlers } from '../real/handlers';
 import { Shell } from '../flows/cores/Shell';
-import { FlowStepper } from '../flows/cores/FlowStepper';
 import {
   afterPurchaseHistory,
-  idoAward,
   landedPurchase,
   stuckPurchase,
   walletHandlers,
@@ -18,7 +12,6 @@ import {
 } from '../flows/cores/fixtures';
 import { Wallet } from './cores/Wallet';
 import { CoresPage } from './cores/CoresPage';
-import { CoresPurchasedModal } from './cores/Moments';
 
 // "Wallet and buying Cores" in the new look.
 
@@ -33,70 +26,6 @@ const meta: Meta = {
 export default meta;
 
 type Story = StoryObj;
-
-const steps = ['Wallet', '/cores', 'Checkout', 'Back to the wallet'];
-
-const beforePurchase = [idoAward, ...activeHistory];
-let walkthroughHistory = beforePurchase;
-
-const WalkthroughFlow = (): ReactElement => {
-  const { user, updateUser } = useAuthContext();
-  const queryClient = useQueryClient();
-  const [step, setStep] = useState(0);
-  const isPaid = step === 3;
-
-  useEffect(() => {
-    walkthroughHistory = isPaid
-      ? [landedPurchase, ...beforePurchase]
-      : beforePurchase;
-    queryClient.invalidateQueries({ queryKey: [RequestKey.Transactions] });
-  }, [isPaid, queryClient]);
-
-  useEffect(() => {
-    const expected = isPaid ? BALANCE + PACK : BALANCE;
-
-    if (user && user.balance.amount !== expected) {
-      updateUser({ ...user, balance: { amount: expected } });
-    }
-  }, [isPaid, user, updateUser]);
-
-  return (
-    <Shell>
-      {step === 0 && <Wallet onBuyCores={() => setStep(1)} />}
-      {(step === 1 || step === 2) && (
-        <CoresPage initialPack={PACK} onPay={() => setStep(2)} />
-      )}
-      {step === 2 && (
-        <CoresPurchasedModal amount={PACK} onGotIt={() => setStep(3)} />
-      )}
-      {step === 3 && <Wallet purchasedChange={PACK} />}
-      <FlowStepper steps={steps} index={step} onChange={setStep} />
-    </Shell>
-  );
-};
-
-export const Walkthrough: Story = {
-  name: 'Walkthrough',
-  parameters: {
-    msw: {
-      handlers: [
-        ...streakHandlers({ balance: BALANCE }),
-        ...walletHandlers(BALANCE, () => walkthroughHistory),
-      ],
-    },
-    docs: {
-      description: {
-        story:
-          'Buy Cores, Pay for 300 Cores, Got it: back in the wallet with the new Cores showing.',
-      },
-    },
-  },
-  render: () => (
-    <CoresProviders balance={BALANCE}>
-      <WalkthroughFlow />
-    </CoresProviders>
-  ),
-};
 
 type WalletArgs = { isPendingLong: boolean };
 

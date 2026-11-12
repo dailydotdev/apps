@@ -1,11 +1,8 @@
-import type { ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { streakHandlers } from '../real/handlers';
 import { CoresProviders } from '../real/providers';
 import { Shell } from '../flows/cores/Shell';
-import { FlowStepper } from '../flows/cores/FlowStepper';
 import type { FirstCoresPersona } from '../flows/cores/FirstCoresSheet';
 import {
   firstQuestReward,
@@ -46,66 +43,6 @@ const handlers = [
   ...streakHandlers({ balance: FIRST_REWARD }),
   ...walletHandlers(FIRST_REWARD, [firstQuestReward]),
 ];
-
-const steps = [
-  'Quest reward',
-  'Your first Cores',
-  'Wallet',
-  'Nudge on own post',
-];
-
-const WalkthroughFlow = ({
-  persona,
-}: {
-  persona: FirstCoresPersona;
-}): ReactElement => {
-  const { user, updateUser } = useAuthContext();
-  const [step, setStep] = useState(0);
-
-  useEffect(() => {
-    const expected = [0, FIRST_REWARD, FIRST_REWARD, NUDGE_BALANCE][step];
-
-    if (user && step > 0 && user.balance.amount !== expected) {
-      updateUser({ ...user, balance: { amount: expected } });
-    }
-  }, [step, user, updateUser]);
-
-  return (
-    <Shell>
-      {step <= 1 && (
-        <QuestScreen isClaimed={step === 1} onClaimed={() => setStep(1)} />
-      )}
-      {step === 1 && (
-        <FirstCoresSheet
-          amount={FIRST_REWARD}
-          persona={persona}
-          onGotIt={() => setStep(2)}
-        />
-      )}
-      {step === 2 && <Wallet />}
-      {step === 3 && <OwnPostScreen balance={NUDGE_BALANCE} />}
-      <FlowStepper steps={steps} index={step} onChange={setStep} />
-    </Shell>
-  );
-};
-
-export const Walkthrough: Story = {
-  name: 'Walkthrough',
-  parameters: {
-    msw: { handlers },
-    docs: {
-      description: {
-        story:
-          'Claim, Got it, then Boost your post from the wallet, in the new look.',
-      },
-    },
-  },
-  render: ({ persona }) => (
-    <CoresProviders balance={0} activePage="/daily-quests">
-      <WalkthroughFlow persona={persona} />
-    </CoresProviders>
-  ),
-};
 
 export const YourFirstCores: Story = {
   name: '2 · Your first Cores',

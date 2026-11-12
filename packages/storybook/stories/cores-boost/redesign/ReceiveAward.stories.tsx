@@ -1,17 +1,14 @@
-import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { streakHandlers } from '../real/handlers';
 import { CoresProviders } from '../real/providers';
 import { Shell } from '../flows/cores/Shell';
-import { FlowStepper } from '../flows/cores/FlowStepper';
 import {
   idoAward,
   receiveHistory,
   walletHandlers,
 } from '../flows/cores/fixtures';
 import { Wallet } from './cores/Wallet';
-import { NotificationsPage } from '../real/pages';
 
 // "Receive an award" in the new look. The award notification and
 // the balance refresh stay as production has them.
@@ -35,37 +32,6 @@ const meta: Meta = {
 export default meta;
 
 type Story = StoryObj;
-
-const steps = ['Notifications', 'Wallet'];
-
-const WalkthroughFlow = (): ReactElement => {
-  const [step, setStep] = useState(0);
-
-  return (
-    <Shell>
-      {step === 0 && <NotificationsPage />}
-      {step === 1 && <Wallet />}
-      <FlowStepper steps={steps} index={step} onChange={setStep} />
-    </Shell>
-  );
-};
-
-export const Walkthrough: Story = {
-  name: 'Walkthrough',
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'The award notification as production shows it, then the redesigned wallet with the award in its history.',
-      },
-    },
-  },
-  render: () => (
-    <CoresProviders balance={AFTER} activePage="/notifications">
-      <WalkthroughFlow />
-    </CoresProviders>
-  ),
-};
 
 export const WalletRowHighlighted: Story = {
   name: '4 · Wallet, award in history',

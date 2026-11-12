@@ -1,14 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { Product } from '@dailydotdev/shared/src/graphql/njord';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { Origin } from '@dailydotdev/shared/src/lib/log';
-import {
-  Processing as ProductionProcessing,
-  ProductionAwardPicker,
-  ProductionAwardSent,
-} from '../today/production';
 import { CoresProviders, noop } from '../real/providers';
 import { coresHandlers } from '../real/handlers';
 import { awards } from '../real/catalog';
@@ -22,83 +15,6 @@ import { BuyCoresRedesignModal } from './purchase/BuyCoresRedesign';
 
 const balance = 20;
 const coffee = awards.find(({ name }) => name === 'Coffee Mug') as Product;
-
-type Step = 'pick' | 'buy' | 'processing' | 'note' | 'sent' | 'done';
-
-const WalkthroughFlow = (): ReactElement => {
-  const { user, updateUser } = useAuthContext();
-  const [step, setStep] = useState<Step>('pick');
-  const [product, setProduct] = useState<Product>(coffee);
-  const [bought, setBought] = useState(0);
-  const close = () => setStep('done');
-
-  return (
-    <Stage
-      isDone={step === 'done'}
-      onRestart={() => {
-        if (user) {
-          updateUser({ ...user, balance: { amount: balance } });
-        }
-        setStep('pick');
-      }}
-    >
-      {step === 'pick' && (
-        <ProductionAwardPicker
-          balance={user?.balance.amount ?? 0}
-          onPicked={(picked) => {
-            setProduct(picked);
-            setStep('note');
-          }}
-          onBuyCores={(picked) => {
-            setProduct(picked);
-            setStep('buy');
-          }}
-          onRequestClose={close}
-        />
-      )}
-      {step === 'buy' && (
-        <BuyCoresRedesignModal
-          purpose="award"
-          cost={product.value}
-          product={product}
-          onPay={(pack) => {
-            setBought(pack.value);
-            setStep('processing');
-            setTimeout(() => {
-              if (user) {
-                updateUser({
-                  ...user,
-                  balance: { amount: balance + pack.value },
-                });
-              }
-              setStep('note');
-            }, 2000);
-          }}
-          onRequestClose={() => setStep('pick')}
-        />
-      )}
-      {step === 'processing' && (
-        <ProductionProcessing
-          step="PROCESSING"
-          origin={Origin.Award}
-          cores={bought}
-        />
-      )}
-      {step === 'note' && (
-        <AwardNoteRedesign
-          product={product}
-          coresAdded={bought}
-          onBack={() => setStep('pick')}
-          onSent={() => setStep('sent')}
-          onRequestClose={close}
-        />
-      )}
-      {step === 'sent' && (
-        <ProductionAwardSent product={product} onRequestClose={close} />
-      )}
-    </Stage>
-  );
-};
 
 const meta: Meta = {
   title: 'Cores & Boost/Redesign/3. Awards/Give an award',
@@ -127,11 +43,6 @@ const story = (
     </CoresProviders>
   ),
 });
-
-export const Walkthrough = story(
-  'The redesigned flow with 20 Cores: pick Coffee Mug, buy the pack that covers it, wait out a slow payment, then send the award.',
-  () => <WalkthroughFlow />,
-);
 
 export const BuyCores = story(
   'A card names what the Cores are for and ticks once a pack covers it, packs are calm rows, and the friendship art replaces the two-hands video beside the checkout.',
@@ -165,6 +76,5 @@ export const NoteAndSend = story(
 );
 
 // The story index reads names statically, not through the helper
-Walkthrough.storyName = 'Walkthrough';
 BuyCores.storyName = '3 · Buy Cores, pack preselected';
 NoteAndSend.storyName = '6 · Note and send';

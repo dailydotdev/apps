@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import AuthContext, {
@@ -12,7 +12,6 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { Processing as ProductionProcessing } from '../today/production';
 import { CoresProviders, noop } from '../real/providers';
 import { coresHandlers } from '../real/handlers';
 import { boostablePost } from '../real/screens';
@@ -42,95 +41,6 @@ const newPost = {
   createdAt: new Date().toISOString(),
   tags: [],
 } as Post;
-
-type Step = 'post' | 'form' | 'buy' | 'processing' | 'launching' | 'live';
-
-const WalkthroughFlow = (): ReactElement => {
-  const { user, updateUser } = useAuthContext();
-  const [step, setStep] = useState<Step>('post');
-  const [budget, setBudget] = useState(starterBoost);
-  const total = budget.coresPerDay * budget.totalDays;
-  const toPost = () => setStep('post');
-  const onLaunched = useCallback(() => {
-    if (user) {
-      updateUser({
-        ...user,
-        balance: { amount: user.balance.amount - total },
-      });
-    }
-    setStep('live');
-  }, [total, updateUser, user]);
-
-  return (
-    <Stage
-      background={
-        <OwnPostRedesign
-          post={boostablePost}
-          state="new"
-          onBoost={() => {
-            if (user) {
-              updateUser({ ...user, balance: { amount: balance } });
-            }
-            setStep('form');
-          }}
-        />
-      }
-    >
-      {step === 'form' && (
-        <BoostPostFixedModal
-          post={boostablePost}
-          onBuyCores={(next) => {
-            setBudget(next);
-            setStep('buy');
-          }}
-          onBoost={(next) => {
-            setBudget(next);
-            setStep('launching');
-          }}
-          onRequestClose={toPost}
-        />
-      )}
-      {step === 'buy' && (
-        <BuyCoresRedesignModal
-          purpose="boost"
-          cost={total}
-          onPay={(pack) => {
-            setStep('processing');
-            setTimeout(() => {
-              if (user) {
-                updateUser({
-                  ...user,
-                  balance: { amount: user.balance.amount + pack.value },
-                });
-              }
-              setStep('launching');
-            }, 1500);
-          }}
-          onRequestClose={() => setStep('form')}
-        />
-      )}
-      {step === 'processing' && (
-        <ProductionProcessing
-          step="PROCESSING"
-          origin={Origin.BoostPost}
-          cores={total}
-        />
-      )}
-      {step === 'launching' && (
-        <BoostLaunchingRedesign
-          post={boostablePost}
-          budget={budget}
-          onLaunched={onLaunched}
-          onChange={() => setStep('form')}
-          onRequestClose={toPost}
-        />
-      )}
-      {step === 'live' && (
-        <BoostLiveRedesign onSeeBoost={toPost} onRequestClose={toPost} />
-      )}
-    </Stage>
-  );
-};
 
 /** Your own post behind the boost modals, as the strip leaves it */
 const OwnPostBackdrop = (): ReactElement => (
@@ -171,11 +81,6 @@ const OwnPost = ({ state }: { state: OwnPostState }) => (
       <OwnPostRedesign post={boostablePost} state={state} onBoost={noop} />
     }
   />
-);
-
-export const Walkthrough = story(
-  'The redesigned flow with 20 Cores: Boost from the strip, take the starter preset, buy the pack that covers it, and the boost starts by itself.',
-  () => <WalkthroughFlow />,
 );
 
 export const OwnPostNew = story(
@@ -376,7 +281,6 @@ export const BoostIsLive = story(
 );
 
 // The story index reads names statically, not through the helper
-Walkthrough.storyName = 'Walkthrough';
 OwnPostNew.storyName = '1 · Own post';
 OwnPostTakingOff.storyName = '1 · Own post · taking off';
 BoostForm.storyName = '2 · Boost your post';

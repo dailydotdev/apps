@@ -1,12 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import classNames from 'classnames';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
 import type { Campaign } from '@dailydotdev/shared/src/graphql/campaigns';
 import { CoresProviders } from '../real/providers';
 import { coresHandlers } from '../real/handlers';
@@ -83,79 +77,6 @@ const BoostAgainScreen = ({
       )}
     </>
   );
-};
-
-enum Screen {
-  Boosts = 'Boosts page',
-  Campaign = 'Campaign',
-  Notifications = 'Notifications',
-  Again = 'Boost again',
-}
-
-const screens = Object.values(Screen);
-
-const WalkthroughStory = (): ReactElement => {
-  const [screen, setScreen] = useState(Screen.Boosts);
-  const [campaign, setCampaign] = useState<Campaign>(liveCampaign);
-  const index = screens.indexOf(screen);
-  const openCampaign = (next: Campaign) => {
-    setCampaign(next);
-    setScreen(Screen.Campaign);
-  };
-  const goTo = (next: Screen) => {
-    if (next === Screen.Campaign) {
-      setCampaign(liveCampaign);
-    }
-    setScreen(next);
-  };
-
-  return (
-    <>
-      {screen === Screen.Boosts && <BoostsPage onOpenCampaign={openCampaign} />}
-      {screen === Screen.Campaign && (
-        <CampaignPage
-          campaign={campaign}
-          onBack={() => setScreen(Screen.Boosts)}
-          onStop={() => goTo(Screen.Notifications)}
-          onExtend={() => goTo(Screen.Notifications)}
-          onBoostAgain={() => setScreen(Screen.Again)}
-        />
-      )}
-      {screen === Screen.Notifications && <NotificationsPage />}
-      {screen === Screen.Again && (
-        <BoostAgainScreen onSeeBoost={() => setScreen(Screen.Boosts)} />
-      )}
-      <nav className="fixed bottom-4 left-1/2 z-max flex -translate-x-1/2 flex-row items-center gap-1 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-1 shadow-2">
-        {screens.map((name, position) => (
-          <Button
-            key={name}
-            size={ButtonSize.XSmall}
-            variant={
-              position === index
-                ? ButtonVariant.Primary
-                : ButtonVariant.Tertiary
-            }
-            className={classNames(position !== index && 'hidden tablet:flex')}
-            onClick={() => goTo(name)}
-          >
-            {position + 1} · {name}
-          </Button>
-        ))}
-      </nav>
-    </>
-  );
-};
-
-export const Walkthrough: Story = {
-  render: () => <WalkthroughStory />,
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'The redesigned screens in the fixed flow’s order: open the live campaign, Extend, See your boost, then Boost again from the ended notification. The bar at the bottom jumps to any step.',
-      },
-    },
-  },
 };
 
 export const BoostsPageStory: Story = {
