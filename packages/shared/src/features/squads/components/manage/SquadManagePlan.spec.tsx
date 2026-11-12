@@ -136,7 +136,15 @@ describe('SquadManagePlan', () => {
           query: SQUAD_PLAN_CHANGE_PREVIEW_QUERY,
           variables: { sourceId: squad.id, plan: 'team' },
         },
-        result: { data: { squadPlanChangePreview: { dueNow: '$103.47' } } },
+        result: {
+          data: {
+            squadPlanChangePreview: {
+              dueNow: '$103.47',
+              renewal: '$199.00',
+              creditsTopUp: 34900,
+            },
+          },
+        },
       });
       let changed = false;
       mockGraphQL({

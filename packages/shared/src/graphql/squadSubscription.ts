@@ -66,12 +66,18 @@ export interface SquadSubscription {
 export interface SquadPlanChangePreview {
   /** Paddle's formatted charge for the rest of the month, tax included. */
   dueNow: string;
+  /** Paddle's formatted charge at each renewal after the switch. */
+  renewal: string | null;
+  /** Cores the switch adds to the wallet now, 0 when nothing is charged. */
+  creditsTopUp: number;
 }
 
 export const SQUAD_PLAN_CHANGE_PREVIEW_QUERY = gql`
   query SquadPlanChangePreview($sourceId: ID!, $plan: String!) {
     squadPlanChangePreview(sourceId: $sourceId, plan: $plan) {
       dueNow
+      renewal
+      creditsTopUp
     }
   }
 `;
