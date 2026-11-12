@@ -12,10 +12,13 @@ import {
   enqueueStreakView,
   isGraphQLRejection,
 } from '../../lib/streakViewQueue';
+import { useStreakDailyCelebration } from '../streaks/useStreakDailyCelebration';
 
 interface ViewPostContext {
   previousStreak?: UserStreak;
   shouldRefetchStreak: boolean;
+  // the count this view should land on, used when the refetch fails
+  nextStreak?: number;
 }
 
 export const useViewPost = (): UseMutateAsyncFunction<
@@ -31,6 +34,7 @@ export const useViewPost = (): UseMutateAsyncFunction<
     feature: featureStreakOptimisticView,
     shouldEvaluate: !!user,
   });
+  const celebrateStreakDay = useStreakDailyCelebration();
   const streakKey = generateQueryKey(RequestKey.UserStreak, user);
   const readKey = generateQueryKey(RequestKey.ReadingStreak30Days, user);
   const { mutateAsync: onSendViewPost } = useMutation<
@@ -51,9 +55,10 @@ export const useViewPost = (): UseMutateAsyncFunction<
           user!.timezone,
         );
       const shouldRefetchStreak = isNewStreak || isFirstViewToday;
+      const nextStreak = streak ? streak.current + 1 : undefined;
 
       if (!isOptimisticView || !shouldRefetchStreak || !streak) {
-        return { shouldRefetchStreak };
+        return { shouldRefetchStreak, nextStreak };
       }
 
       const current = streak.current + 1;
@@ -65,7 +70,7 @@ export const useViewPost = (): UseMutateAsyncFunction<
         lastViewAt: new Date(),
       });
 
-      return { previousStreak: streak, shouldRefetchStreak };
+      return { previousStreak: streak, shouldRefetchStreak, nextStreak };
     },
     onSuccess: async (_, __, context) => {
       if (context.shouldRefetchStreak) {
@@ -73,6 +78,13 @@ export const useViewPost = (): UseMutateAsyncFunction<
 
         // just mark the query as stale
         await client.invalidateQueries({ queryKey: readKey });
+
+        const refetched = client.getQueryState<UserStreak>(streakKey);
+        celebrateStreakDay(
+          refetched?.status === 'success'
+            ? refetched.data?.current
+            : context.nextStreak,
+        );
       }
 
       return null;

@@ -1,6 +1,12 @@
 import React from 'react';
-import type { ReactNode } from 'react';
-import { act, renderHook, waitFor } from '@testing-library/react';
+import type { ComponentProps, ReactNode } from 'react';
+import {
+  act,
+  render,
+  renderHook,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { QueryClient, useQuery } from '@tanstack/react-query';
 import { GrowthBook } from '@growthbook/growthbook-react';
 import nock from 'nock';
@@ -13,7 +19,12 @@ import { VIEW_POST_MUTATION } from '../../graphql/posts';
 import { REQUEST_PROTOCOL_KEY } from '../../graphql/common';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { DayOfWeek } from '../../lib/date';
+import { dateFormatInTimezone } from '../../lib/timezones';
 import { readStreakViewQueue } from '../../lib/streakViewQueue';
+import { getStreakCelebratedKey } from '../../lib/streakDailyCelebration';
+import type { ToastNotification } from '../useToastNotification';
+import { TOAST_NOTIF_KEY } from '../useToastNotification';
+import { LogEvent, TargetType } from '../../lib/log';
 import { useViewPost } from './useViewPost';
 
 const user = { ...loggedUser, timezone: 'Europe/Amsterdam' };
@@ -44,19 +55,37 @@ const renderViewPost = ({
   client,
   requestMethod,
   flag = true,
+  celebrationFlag = false,
   isCompanion = false,
+  initialStreak = streak,
+  alerts,
+  log,
 }: {
   client: QueryClient;
   requestMethod: jest.Mock;
   flag?: boolean;
+  celebrationFlag?: boolean;
   isCompanion?: boolean;
+  initialStreak?: UserStreak;
+  alerts?: ComponentProps<typeof TestBootProvider>['alerts'];
+  log?: ComponentProps<typeof TestBootProvider>['log'];
 }) => {
   client.setQueryData(REQUEST_PROTOCOL_KEY, { requestMethod, isCompanion });
   const gb = new GrowthBook({
-    features: { streak_optimistic_view: { defaultValue: flag } },
+    features: {
+      streak_optimistic_view: { defaultValue: flag },
+      streak_daily_celebration: { defaultValue: celebrationFlag },
+    },
   });
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <TestBootProvider client={client} auth={{ user }} gb={gb}>
+    <TestBootProvider
+      client={client}
+      auth={{ user }}
+      gb={gb}
+      settings={{ optOutReadingStreak: false }}
+      alerts={alerts}
+      log={log}
+    >
       {children}
     </TestBootProvider>
   );
@@ -67,7 +96,7 @@ const renderViewPost = ({
       useQuery({
         queryKey: streakKey,
         queryFn: getReadingStreak,
-        initialData: streak,
+        initialData: initialStreak,
         staleTime: Infinity,
       });
 
@@ -211,5 +240,138 @@ describe('useViewPost', () => {
 
     expect(client.getQueryData<UserStreak>(streakKey)).toEqual(streak);
     expect(readStreakViewQueue()).toEqual([]);
+  });
+  describe('daily celebration toast', () => {
+    // 5 -> 6: not a milestone (the API raises the milestone modal on
+    // Fibonacci days), so the daily toast is the one that celebrates it
+    const dayFive: UserStreak = { ...streak, current: 5, max: 5 };
+    const daySix: UserStreak = {
+      ...dayFive,
+      current: 6,
+      max: 6,
+      total: 21,
+      lastViewAt: new Date(),
+    };
+    const requestMethod = () =>
+      jest.fn().mockResolvedValue({ viewPost: { _: true } });
+    const getToast = () =>
+      client.getQueryData<ToastNotification | null>(TOAST_NOTIF_KEY);
+
+    it('should toast once on the first counted read of the day', async () => {
+      const logEvent = jest.fn();
+      mockGraphQL({
+        request: { query: USER_STREAK_QUERY },
+        result: { data: { userStreak: daySix } },
+      });
+      const { result } = renderViewPost({
+        client,
+        requestMethod: requestMethod(),
+        celebrationFlag: true,
+        initialStreak: dayFive,
+        log: { logEvent },
+      });
+
+      await act(async () => {
+        await result.current('p1');
+      });
+
+      render(<>{getToast()?.message}</>);
+      expect(screen.getByText('Day 6! See you tomorrow.')).toBeInTheDocument();
+      expect(logEvent).toHaveBeenCalledTimes(1);
+      expect(logEvent).toHaveBeenCalledWith({
+        event_name: LogEvent.Impression,
+        target_type: TargetType.StreakDailyCelebration,
+        target_id: 6,
+      });
+      expect(localStorage.getItem(getStreakCelebratedKey(user.id))).toBe(
+        dateFormatInTimezone(new Date(), 'yyyy-MM-dd', user.timezone),
+      );
+
+      // a second first-view the same day (replay, second tab) stays quiet
+      client.setQueryData(TOAST_NOTIF_KEY, null);
+      client.setQueryData(streakKey, dayFive);
+      mockGraphQL({
+        request: { query: USER_STREAK_QUERY },
+        result: { data: { userStreak: daySix } },
+      });
+
+      await act(async () => {
+        await result.current('p2');
+      });
+
+      await waitFor(() =>
+        expect(client.getQueryData<UserStreak>(streakKey)).toMatchObject({
+          current: 6,
+        }),
+      );
+      expect(getToast()).toBeNull();
+      expect(logEvent).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not toast when the milestone modal is due', async () => {
+      mockGraphQL({
+        request: { query: USER_STREAK_QUERY },
+        result: { data: { userStreak: daySix } },
+      });
+      const { result } = renderViewPost({
+        client,
+        requestMethod: requestMethod(),
+        celebrationFlag: true,
+        initialStreak: dayFive,
+        alerts: { alerts: { showStreakMilestone: true } },
+      });
+
+      await act(async () => {
+        await result.current('p1');
+      });
+
+      expect(getToast()).toBeFalsy();
+      expect(localStorage.getItem(getStreakCelebratedKey(user.id))).toBeNull();
+    });
+
+    it('should leave milestone days to the milestone modal', async () => {
+      // 7 -> 8 is a Fibonacci day: the API flags showStreakMilestone for it
+      mockGraphQL({
+        request: { query: USER_STREAK_QUERY },
+        result: { data: { userStreak: serverStreak } },
+      });
+      const { result } = renderViewPost({
+        client,
+        requestMethod: requestMethod(),
+        celebrationFlag: true,
+      });
+
+      await act(async () => {
+        await result.current('p1');
+      });
+
+      expect(getToast()).toBeFalsy();
+    });
+
+    it('should not toast when the flag is off', async () => {
+      const logEvent = jest.fn();
+      mockGraphQL({
+        request: { query: USER_STREAK_QUERY },
+        result: { data: { userStreak: daySix } },
+      });
+      const { result } = renderViewPost({
+        client,
+        requestMethod: requestMethod(),
+        initialStreak: dayFive,
+        log: { logEvent },
+      });
+
+      await act(async () => {
+        await result.current('p1');
+      });
+
+      await waitFor(() =>
+        expect(client.getQueryData<UserStreak>(streakKey)).toMatchObject({
+          current: 6,
+        }),
+      );
+      expect(getToast()).toBeFalsy();
+      expect(logEvent).not.toHaveBeenCalled();
+    });
   });
 });
