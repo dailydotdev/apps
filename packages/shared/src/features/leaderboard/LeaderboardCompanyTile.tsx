@@ -10,7 +10,11 @@ import {
   LeaderboardType,
   leaderboardTypeToTitle,
 } from '../../graphql/leaderboard';
-import { formatLeaderboardScore, LEADERBOARD_TILE_ROWS } from './boards';
+import {
+  findLeaderboardCompanyIndex,
+  formatLeaderboardScore,
+  LEADERBOARD_TILE_ROWS,
+} from './boards';
 import { LeaderboardBoardTile } from './LeaderboardBoardTile';
 import { LeaderboardMiniRow } from './LeaderboardRows';
 
@@ -27,9 +31,7 @@ export const LeaderboardCompanyTile = ({
   items,
 }: LeaderboardCompanyTileProps): ReactElement => {
   const { user } = useAuthContext();
-  const mine = items.findIndex((item) =>
-    user?.companies?.some((company) => company.name === item.company.name),
-  );
+  const mine = findLeaderboardCompanyIndex(items, user);
   const row = (item: CompanyLeaderboard, rank: number) => (
     <LeaderboardMiniRow
       key={item.company.name}
