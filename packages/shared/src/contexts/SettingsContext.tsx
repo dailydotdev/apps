@@ -26,7 +26,11 @@ import AuthContext from './AuthContext';
 import { capitalize } from '../lib/strings';
 import { storageWrapper } from '../lib/storageWrapper';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
-import { usePersonalizedDigest } from '../hooks/usePersonalizedDigest';
+import {
+  SendType,
+  usePersonalizedDigest,
+} from '../hooks/usePersonalizedDigest';
+import { STREAK_REMINDER_HOUR } from '../hooks/streaks/useStreakReminder';
 import { UserPersonalizedDigestType } from '../graphql/users';
 import { gqlClient } from '../graphql/common';
 import { SortCommentsBy } from '../graphql/comments';
@@ -410,7 +414,24 @@ export const SettingsContextProvider = ({
       flags: { ...remoteSettings.flags, ...clientFlags },
     };
   }, [remoteSettings, clientFlags]);
-  const { unsubscribePersonalizedDigest } = usePersonalizedDigest();
+  const { subscribePersonalizedDigest, unsubscribePersonalizedDigest } =
+    usePersonalizedDigest();
+  // Hiding streaks drops the reminder, which the API then treats as an
+  // explicit opt-out and never restores, so showing them again brings it back.
+  const toggleStreakReminderWithStreak = (showStreak: boolean) => {
+    if (showStreak) {
+      subscribePersonalizedDigest({
+        hour: STREAK_REMINDER_HOUR,
+        sendType: SendType.Workdays,
+        type: UserPersonalizedDigestType.StreakReminder,
+      });
+      return;
+    }
+
+    unsubscribePersonalizedDigest({
+      type: UserPersonalizedDigestType.StreakReminder,
+    });
+  };
 
   useEffect(() => {
     if (!loadedSettings || setTheme.current) {
@@ -575,9 +596,7 @@ export const SettingsContextProvider = ({
       toggleSortingEnabled: () =>
         setSettings({ ...settings, sortingEnabled: !settings.sortingEnabled }),
       toggleOptOutReadingStreak: () => {
-        unsubscribePersonalizedDigest({
-          type: UserPersonalizedDigestType.StreakReminder,
-        });
+        toggleStreakReminderWithStreak(settings.optOutReadingStreak);
         return setSettings({
           ...settings,
           optOutReadingStreak: !settings.optOutReadingStreak,
@@ -614,10 +633,8 @@ export const SettingsContextProvider = ({
           !settings.optOutLevelSystem ||
           !settings.optOutQuestSystem ||
           !settings.optOutAchievements;
-        if (anyEnabled && !settings.optOutReadingStreak) {
-          unsubscribePersonalizedDigest({
-            type: UserPersonalizedDigestType.StreakReminder,
-          });
+        if (anyEnabled === !settings.optOutReadingStreak) {
+          toggleStreakReminderWithStreak(!anyEnabled);
         }
         return setSettings({
           ...settings,

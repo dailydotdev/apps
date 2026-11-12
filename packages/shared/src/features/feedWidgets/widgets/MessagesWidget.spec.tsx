@@ -168,6 +168,7 @@ describe('Messages availability', () => {
       hasLiveChat: false,
       hasSquads: false,
       isReadingStreakOn: true,
+      isQuestSystemOn: true,
     }).map(({ kind }) => kind);
 
   it('is only offered where messages are on', () => {

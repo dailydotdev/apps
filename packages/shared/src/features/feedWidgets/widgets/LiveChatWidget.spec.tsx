@@ -158,6 +158,7 @@ describe('LiveChatWidget', () => {
       isLoggedIn: true,
       hasSquads: false,
       isReadingStreakOn: false,
+      isQuestSystemOn: true,
       hasMessages: true,
       hasLiveChat: true,
     }).map(({ kind }) => kind);
@@ -167,6 +168,7 @@ describe('LiveChatWidget', () => {
       isLoggedIn: true,
       hasSquads: false,
       isReadingStreakOn: false,
+      isQuestSystemOn: true,
       hasMessages: true,
       hasLiveChat: false,
     }).map(({ kind }) => kind);

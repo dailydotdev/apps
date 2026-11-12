@@ -2,6 +2,7 @@ import type { CSSProperties, ReactElement } from 'react';
 import React, { useCallback, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
@@ -408,10 +409,13 @@ export const GettingStartedWidget = ({
   size,
 }: FeedWidgetComponentProps<FeedWidgetKind.GettingStarted>): ReactElement => {
   const { user } = useAuthContext();
+  const { optOutQuestSystem } = useSettingsContext();
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const scroll = useWidgetScroll();
-  const { data, isPending, isError } = useQuestDashboard();
+  const { data, isPending, isError } = useQuestDashboard({
+    enabled: !optOutQuestSystem,
+  });
   const {
     mutate: claimQuestReward,
     isPending: isClaimPending,
@@ -500,10 +504,12 @@ export const GettingStartedWidget = ({
     </div>
   );
 
-  if (!steps.length) {
+  if (!steps.length || optOutQuestSystem) {
     let message = 'Nothing left to set up.';
     if (!user) {
       message = 'Log in to set up daily.dev.';
+    } else if (optOutQuestSystem) {
+      message = 'Quests are turned off.';
     } else if (isError) {
       message = 'Intro quests are unavailable right now.';
     }
@@ -511,7 +517,7 @@ export const GettingStartedWidget = ({
     return (
       <FeedWidgetEmpty
         kind={FeedWidgetKind.GettingStarted}
-        isPending={!!user && isPending}
+        isPending={!!user && !optOutQuestSystem && isPending}
         message={message}
       />
     );

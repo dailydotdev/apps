@@ -36,6 +36,11 @@ jest.mock('../../../components/quest/CompactQuestList', () => ({
   ),
 }));
 
+let mockOptOutQuestSystem = false;
+jest.mock('../../../contexts/SettingsContext', () => ({
+  useSettingsContext: () => ({ optOutQuestSystem: mockOptOutQuestSystem }),
+}));
+
 jest.mock('../../../hooks/useQuestDashboard', () => ({
   useQuestDashboard: () => ({ data: {} }),
 }));
@@ -95,6 +100,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockUser = { id: 'u1' };
   mockIsFreezeEnabled = true;
+  mockOptOutQuestSystem = false;
   jest.mocked(useStreakRingState).mockReturnValue(ringState());
 });
 
@@ -158,6 +164,16 @@ it('keeps Small to the count and calendar, adds the meters when taller and quest
   expect(screen.getByText('Today’s goal')).toBeInTheDocument();
   expect(screen.getByTestId('quest-list-daily')).toBeInTheDocument();
   expect(screen.getByTestId('quest-list-weekly')).toBeInTheDocument();
+});
+
+it('leaves quests out at Large when the reader turned quests off', () => {
+  mockOptOutQuestSystem = true;
+
+  renderWidget(FeedWidgetSize.Large);
+
+  expect(screen.getByText('Today’s goal')).toBeInTheDocument();
+  expect(screen.queryByTestId('quest-list-daily')).not.toBeInTheDocument();
+  expect(screen.queryByTestId('quest-list-weekly')).not.toBeInTheDocument();
 });
 
 it('offers more freezes, and hides the meter where freezes are off', () => {
