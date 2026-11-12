@@ -37,6 +37,7 @@ import { useCheckCoresRole } from '@dailydotdev/shared/src/hooks/useCheckCoresRo
 import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation';
 import { useEnsureUserTimezone } from '@dailydotdev/shared/src/hooks/useEnsureUserTimezone';
+import { useStreakViewQueue } from '@dailydotdev/shared/src/hooks/streaks/useStreakViewQueue';
 import { useScrollbarWidth } from '@dailydotdev/shared/src/hooks/useScrollbarWidth';
 import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
@@ -121,6 +122,7 @@ function InternalApp(): ReactElement {
   useCheckLocation();
   useEnsureUserTimezone();
   useCheckCoresRole();
+  useStreakViewQueue();
 
   useEffect(() => {
     if (routeChangedCallbackRef.current && isPageReady) {

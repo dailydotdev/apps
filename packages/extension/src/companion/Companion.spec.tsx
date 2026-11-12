@@ -1,14 +1,21 @@
 import React from 'react';
 import '@testing-library/jest-dom';
 import type { RenderResult } from '@testing-library/react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import browser from 'webextension-polyfill';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import { UserVote } from '@dailydotdev/shared/src/graphql/posts';
+import {
+  UserVote,
+  VIEW_POST_MUTATION,
+} from '@dailydotdev/shared/src/graphql/posts';
+import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
+import type { AnonymousUser } from '@dailydotdev/shared/src/lib/user';
 import {
   completeActionMock,
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import type { CompanionData } from './App';
 import App from './App';
 
 jest.mock('webextension-polyfill', () => {
@@ -27,10 +34,7 @@ jest.mock('webextension-polyfill', () => {
         addListener: jest.fn(),
         removeListener: jest.fn(),
       },
-      sendMessage: () =>
-        new Promise((resolve) => {
-          resolve(true);
-        }),
+      sendMessage: jest.fn(() => Promise.resolve(true)),
     },
     permissions: {
       remove: jest.fn(),
@@ -60,11 +64,28 @@ const defaultPostData = {
   },
 };
 
-const renderComponent = (postdata, settings): RenderResult => {
+const anonymousUser: AnonymousUser = { id: 'anonymous', firstVisit: '' };
+
+const sendMessage = browser.runtime.sendMessage as jest.Mock;
+
+const viewPostMessages = () =>
+  sendMessage.mock.calls.filter(
+    ([message]) =>
+      message?.type === ExtensionMessageType.GraphQLRequest &&
+      message.document === VIEW_POST_MUTATION,
+  );
+
+const renderComponent = (
+  postdata: Partial<CompanionData['postData']>,
+  settings: Partial<CompanionData['settings']>,
+  user: CompanionData['user'] = defaultUser,
+): RenderResult => {
   return render(
     <App
-      postData={{ ...defaultPostData, ...postdata }}
-      settings={settings}
+      postData={
+        { ...defaultPostData, ...postdata } as CompanionData['postData']
+      }
+      settings={settings as CompanionData['settings']}
       url="https://gamedevacademy.org/javascript-asynchronus-programming-tutorial/"
       alerts={{
         rankLastSeen: new Date(),
@@ -73,7 +94,7 @@ const renderComponent = (postdata, settings): RenderResult => {
         visitId: '123',
         sessionId: '456',
       }}
-      user={defaultUser}
+      user={user}
       deviceId="123"
       accessToken={{ token: '', expiresIn: '' }}
       squads={[]}
@@ -82,6 +103,10 @@ const renderComponent = (postdata, settings): RenderResult => {
 };
 
 describe('companion app', () => {
+  beforeEach(() => {
+    sendMessage.mockClear();
+  });
+
   it('should render the companion app', async () => {
     renderComponent({}, {});
     const wrapper = await screen.findByTestId('companion');
@@ -175,6 +200,24 @@ describe('companion app', () => {
     const button = await screen.findByText('1 Comment');
     fireEvent.click(button);
     expect(await screen.findByText('Discussion')).toBeInTheDocument();
+  });
+
+  it('should send a post view once for a logged-in user', async () => {
+    renderComponent({}, {});
+    await screen.findByTestId('companion');
+    await waitFor(() => expect(viewPostMessages()).toHaveLength(1));
+    expect(viewPostMessages()[0][0]).toMatchObject({
+      variables: { id: defaultPostData.id },
+    });
+    await new Promise(process.nextTick);
+    expect(viewPostMessages()).toHaveLength(1);
+  });
+
+  it('should not send a post view for a logged-out user', async () => {
+    renderComponent({}, {}, anonymousUser);
+    await screen.findByTestId('companion');
+    await new Promise(process.nextTick);
+    expect(viewPostMessages()).toHaveLength(0);
   });
 
   it('should decrement number of upvotes if downvoting post that was upvoted', async () => {

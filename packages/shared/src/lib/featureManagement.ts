@@ -108,6 +108,19 @@ export const featureStreakWhyBroke = new Feature('streak_why_broke', false);
 
 export const featureGtaViFreezeDay = new Feature('gta_vi_freeze_day', false);
 
+// count the read on open: optimistic streak bump plus a retry queue for views
+// dropped by a flaky connection
+export const featureStreakOptimisticView = new Feature(
+  'streak_optimistic_view',
+  false,
+);
+
+// daily "streak extended" toast on the first counted read of a local day
+export const featureStreakDailyCelebration = new Feature(
+  'streak_daily_celebration',
+  false,
+);
+
 export const briefCardFeedFeature = new Feature(
   'brief_card_feed',
   isDevelopment,
