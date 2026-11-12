@@ -20,12 +20,11 @@ import {
   useStartupsPromo,
 } from '@dailydotdev/shared/src/features/squads/hooks/useStartupsPromo';
 import { TargetId } from '@dailydotdev/shared/src/lib/log';
+import { formatBoostCredits } from '@dailydotdev/shared/src/features/squads/lib/plans';
 
 // "Deals" on top of Buy Cores: two side-by-side ways to get Cores without
 // buying a pack. daily.dev for Startups (the production promo's data and
 // gating, boosts only) and Plus, which gives 50% of every payment back.
-
-const formatCores = (cores: number): string => cores.toLocaleString('en-US');
 
 const DealCard = ({
   tag,
@@ -85,10 +84,10 @@ const StartupsDeal = ({ promo }: { promo: StartupsPromo }): ReactElement => (
       <>
         {promo.launchOffer && (
           <s className="mr-1 font-normal text-text-quaternary">
-            {formatCores(promo.launchOffer.monthlyCores)}
+            {formatBoostCredits(promo.launchOffer.monthlyCredits)}
           </s>
         )}
-        {formatCores(promo.monthlyCores)} Cores a month
+        {formatBoostCredits(promo.monthlyCredits)} in boost credits a month
       </>
     }
     description={`daily.dev for Startups, ${promo.starterPrice} a month. Lands in your company's wallet.`}

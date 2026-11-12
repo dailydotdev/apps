@@ -27,6 +27,8 @@ import { BoostWalletPicker } from '@dailydotdev/shared/src/features/boost/BoostW
 import { StartupsBoostPromo } from '@dailydotdev/shared/src/features/squads/components/promos/StartupsPromo';
 import { useBoostWallet } from '@dailydotdev/shared/src/features/boost/useBoostWallet';
 import { usePostBoostEstimation } from '@dailydotdev/shared/src/features/boost/usePostBoostEstimation';
+import { BoostAudience } from '@dailydotdev/shared/src/features/boost/BoostAudience';
+import { useAudience } from '../../flows/purchase/useAudience';
 import { useFeaturesReadyContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { boostSettingsFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
@@ -213,9 +215,11 @@ export const BoostPostRedesignModal = ({
   const squadId =
     post.source?.type === SourceType.Squad ? post.source.id : undefined;
   const { squadWallet, wallet, setWallet, balance } = useBoostWallet(squadId);
+  const { postTags, audience, setAudience, campaignAudience } =
+    useAudience(post);
   const { estimatedReach, canBoost, isLoading } = usePostBoostEstimation({
     post,
-    query: { budget: estimate },
+    query: { budget: estimate, audience: campaignAudience },
   });
   const missing = totalSpendInt - balance;
 
@@ -295,9 +299,9 @@ export const BoostPostRedesignModal = ({
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            Give your content the spotlight it deserves. Our auto-targeting
-            engine ensures your post gets shown to the developers most likely to
-            care.
+            Give your content the spotlight it deserves. We start with the
+            developers who read about your post&apos;s tags, anywhere in the
+            world. Fine-tune who sees it below.
             <a
               href={boostDocsLink}
               className="ml-1 text-text-link"
@@ -337,6 +341,11 @@ export const BoostPostRedesignModal = ({
             </Typography>
           )}
         </div>
+        <BoostAudience
+          postTags={postTags}
+          value={audience}
+          onChange={setAudience}
+        />
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Callout} bold>
             Budget

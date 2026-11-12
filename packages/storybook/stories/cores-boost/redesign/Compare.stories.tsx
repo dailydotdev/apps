@@ -82,33 +82,17 @@ export default meta;
 
 type Story = StoryObj;
 
-export const FirstCores: Story = {
-  name: '1. Wallet · First Cores',
+export const WalletAndBuyCores: Story = {
+  name: '1. Wallet and buy Cores',
   render: () => (
     <ComparePage
-      pairs={pairsFor('1-wallet-and-buy-cores-first-cores', [
-        ['1 · Quest reward', 'first-cores-quest-reward', null],
-        ['2 · Your first Cores', 'first-cores-after-claim', 'your-first-cores'],
-        [
-          '3 · Wallet with "Use your Cores"',
-          'first-cores-wallet',
-          'wallet-use-your-cores',
-        ],
-        ['4 · Nudge on own post', 'first-cores-own-post', 'nudge-on-own-post'],
-      ])}
-    />
-  ),
-};
-
-export const WalletAndBuying: Story = {
-  name: '1. Wallet · Wallet and buying',
-  render: () => (
-    <ComparePage
-      pairs={pairsFor('1-wallet-and-buy-cores-wallet-and-buying', [
-        ['1 · Ways in', 'wallet-ways-in', null],
+      pairs={pairsFor('1-wallet-and-buy-cores', [
+        ['Quest reward', 'first-cores-quest-reward', null],
+        ['1 · Your first Cores', 'first-cores-after-claim', 'your-first-cores'],
+        ['Ways in', 'wallet-ways-in', null],
         ['2 · Wallet', 'wallet', 'wallet-screen'],
-        ['3 · /cores', 'cores', 'cores'],
-        ['4 · You got your Cores!', 'cores-purchased', null],
+        ['4 · /cores', 'cores', 'cores'],
+        ['You got your Cores!', 'cores-purchased', null],
         ['5 · Back to the wallet', 'cores-got-it-home', 'back-to-the-wallet'],
       ])}
     />

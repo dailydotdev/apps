@@ -1,15 +1,12 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
-  bunPost,
   DailyQuestsPage,
   QUEST_CLAIMED_EVENT,
   findNotificationRow,
   NotificationsPage,
-  PostPage,
   SwapInPage,
 } from '../../real/pages';
-import { CoresNudgeStrip } from './CoresNudgeStrip';
 import { AwardNotificationRow } from './AwardNotification';
 
 // Screens the Cores flow stories share, each on the real production page it
@@ -42,35 +39,6 @@ export const QuestScreen = ({
   }, []);
 
   return <DailyQuestsPage />;
-};
-
-/** Your own post on the real post page, with the nudge where the strip goes */
-export const OwnPostScreen = ({
-  balance,
-  onBoost,
-  showNudge = true,
-}: {
-  balance: number;
-  onBoost?: () => void;
-  showNudge?: boolean;
-}): ReactElement => {
-  const [isDismissed, setIsDismissed] = useState(false);
-
-  return (
-    <PostPage
-      post={bunPost}
-      banner={
-        showNudge &&
-        !isDismissed && (
-          <CoresNudgeStrip
-            balance={balance}
-            onBoost={() => onBoost?.()}
-            onClose={() => setIsDismissed(true)}
-          />
-        )
-      }
-    />
-  );
 };
 
 /** The real notifications page, with the award row drawn as the flow fixes it */

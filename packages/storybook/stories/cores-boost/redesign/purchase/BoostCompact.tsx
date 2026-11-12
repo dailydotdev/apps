@@ -30,6 +30,8 @@ import { BoostWalletPicker } from '@dailydotdev/shared/src/features/boost/BoostW
 import { StartupsBoostPromo } from '@dailydotdev/shared/src/features/squads/components/promos/StartupsPromo';
 import { useBoostWallet } from '@dailydotdev/shared/src/features/boost/useBoostWallet';
 import { usePostBoostEstimation } from '@dailydotdev/shared/src/features/boost/usePostBoostEstimation';
+import { BoostAudience } from '@dailydotdev/shared/src/features/boost/BoostAudience';
+import { useAudience } from '../../flows/purchase/useAudience';
 import { useFeaturesReadyContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { boostSettingsFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
@@ -137,9 +139,11 @@ export const BoostPostCompactModal = ({
   const squadId =
     post.source?.type === SourceType.Squad ? post.source.id : undefined;
   const { squadWallet, wallet, setWallet, balance } = useBoostWallet(squadId);
+  const { postTags, audience, setAudience, campaignAudience } =
+    useAudience(post);
   const { estimatedReach, canBoost, isLoading } = usePostBoostEstimation({
     post,
-    query: { budget: estimate },
+    query: { budget: estimate, audience: campaignAudience },
   });
   const missing = totalSpendInt - balance;
 
@@ -187,8 +191,8 @@ export const BoostPostCompactModal = ({
           className="max-w-64"
           content={
             <>
-              Our auto-targeting engine shows your post to the developers most
-              likely to care.{' '}
+              We start with the developers who read about your post&apos;s tags,
+              anywhere in the world. Fine-tune who sees it below.{' '}
               <a
                 href={boostDocsLink}
                 className="text-text-link"
@@ -254,6 +258,11 @@ export const BoostPostCompactModal = ({
             </Typography>
           </div>
         </div>
+        <BoostAudience
+          postTags={postTags}
+          value={audience}
+          onChange={setAudience}
+        />
         <div
           className="flex gap-1 rounded-12 bg-surface-float p-1"
           role="radiogroup"

@@ -3,9 +3,15 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { CoresProviders, noop } from '../real/providers';
 import { streakHandlers } from '../real/handlers';
 import { Shell } from '../flows/cores/Shell';
+import type { FirstCoresPersona } from '../flows/cores/FirstCoresSheet';
+import { questHandlers } from '../real/pages';
+import { FirstCoresSheet } from './cores/Moments';
+import { QuestScreen } from './cores/Screens';
 import {
   afterPurchaseHistory,
+  firstQuestReward,
   landedPurchase,
+  readQuest,
   stuckPurchase,
   walletHandlers,
   walletHistory,
@@ -14,19 +20,64 @@ import { Wallet } from './cores/Wallet';
 import { CoresPage } from './cores/CoresPage';
 import { BuyCoresRedesignModal } from './purchase/BuyCoresRedesign';
 
-// "Wallet and buying Cores" in the new look.
+// "Wallet and buying Cores" in the new look, from your first Cores on.
 
 const BALANCE = 1275;
 const PACK = landedPurchase.value;
 
 const meta: Meta = {
-  title: 'Cores & Boost/Redesign/1. Wallet and buy Cores/Wallet and buying',
+  title: 'Cores & Boost/Redesign/1. Wallet and buy Cores',
   parameters: { layout: 'fullscreen' },
 };
 
 export default meta;
 
 type Story = StoryObj;
+
+const FIRST_REWARD = 20;
+
+export const YourFirstCores: StoryObj<{ persona: FirstCoresPersona }> = {
+  name: '1 · Your first Cores',
+  args: { persona: 'reader' },
+  argTypes: {
+    persona: {
+      control: { type: 'inline-radio' },
+      options: ['reader', 'poster'],
+      description: 'Posters see Boost first, readers see Award first',
+    },
+  },
+  parameters: {
+    msw: {
+      handlers: [
+        ...questHandlers(readQuest, true),
+        ...streakHandlers({ balance: FIRST_REWARD }),
+        ...walletHandlers(FIRST_REWARD, [firstQuestReward]),
+      ],
+    },
+    docs: {
+      description: {
+        story:
+          'The character art leads, the amount sits under it, and each use is a row that describes it, with its price. Nothing to tap; Got it closes the sheet.',
+      },
+    },
+  },
+  render: ({ persona }) => (
+    <CoresProviders
+      key={persona}
+      balance={FIRST_REWARD}
+      activePage="/daily-quests"
+    >
+      <Shell>
+        <QuestScreen isClaimed />
+        <FirstCoresSheet
+          amount={FIRST_REWARD}
+          persona={persona}
+          onGotIt={() => undefined}
+        />
+      </Shell>
+    </CoresProviders>
+  ),
+};
 
 type WalletArgs = { isPendingLong: boolean };
 
@@ -71,7 +122,7 @@ export const WalletScreen: StoryObj<WalletArgs> = {
 };
 
 export const BuyCoresPopup: Story = {
-  name: '2 · Wallet · Buy Cores',
+  name: '3 · Wallet · Buy Cores',
   parameters: {
     msw: {
       handlers: [
@@ -97,7 +148,7 @@ export const BuyCoresPopup: Story = {
 };
 
 export const Cores: Story = {
-  name: '3 · /cores',
+  name: '4 · /cores',
   parameters: {
     msw: {
       handlers: [

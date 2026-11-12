@@ -28,6 +28,7 @@ import {
 } from './purchase/BoostRedesign';
 import { BuyCoresRedesignModal } from './purchase/BuyCoresRedesign';
 import { BoostPostCompactModal } from './purchase/BoostCompact';
+import { startupsOfferOptions } from './purchase/StartupsOfferOptions';
 
 // "5. First boost", redrawn in the squads hub line.
 // Same steps, labels and actions; only the look changes.
@@ -239,6 +240,37 @@ export const BoostFormCompactStates = story(
   ),
 );
 
+export const StartupsOfferLayouts: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Eight arrangements of the Startups launch offer, from mobile game shops, at the width the offer has in the boost form.',
+      },
+    },
+  },
+  render: () => (
+    <div className="min-h-screen bg-background-default p-6 tablet:p-10">
+      <div className="flex flex-wrap items-start gap-x-8 gap-y-12">
+        {startupsOfferOptions.map(({ name, description, Offer }) => (
+          <section
+            key={name}
+            className="flex w-[26.25rem] max-w-full flex-col gap-3"
+          >
+            <span className="flex flex-col gap-0.5">
+              <strong className="typo-callout">{name}</strong>
+              <span className="text-text-tertiary typo-caption1">
+                {description}
+              </span>
+            </span>
+            <Offer />
+          </section>
+        ))}
+      </div>
+    </div>
+  ),
+};
+
 export const BuyCores = story(
   'The same redesigned Buy Cores as the award flow, with a boost tile leading the "what it is for" card.',
   () => (
@@ -289,6 +321,8 @@ BoostFormReading.storyName = '2 · Boost your post · reading the post';
 BoostFormCompare.storyName =
   '2 · Boost your post · production vs current vs compact';
 BoostFormCompactStates.storyName = '2 · Boost your post · compact, all states';
+StartupsOfferLayouts.storyName =
+  '2 · Boost your post · Startups offer, 8 layouts';
 BuyCores.storyName = '3 · Buy Cores, pack preselected';
 BoostLaunches.storyName = '5 · Boost launches';
 BoostIsLive.storyName = '6 · Boost is live!';

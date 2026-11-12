@@ -38,6 +38,8 @@ import {
   CampaignWallet,
 } from '@dailydotdev/shared/src/graphql/campaigns';
 import { usePostBoostEstimation } from '@dailydotdev/shared/src/features/boost/usePostBoostEstimation';
+import { BoostAudience } from '@dailydotdev/shared/src/features/boost/BoostAudience';
+import { useAudience } from '../../flows/purchase/useAudience';
 import { updatePostCache } from '@dailydotdev/shared/src/lib/query';
 import { useFeaturesReadyContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { boostSettingsFeature } from '@dailydotdev/shared/src/lib/featureManagement';
@@ -105,9 +107,11 @@ export function BoostAgainModal({
   const { squadWallet, wallet, setWallet, balance } = useBoostWallet(
     post.source?.type === SourceType.Squad ? post.source.id : undefined,
   );
+  const { postTags, audience, setAudience, campaignAudience } =
+    useAudience(post);
   const { estimatedReach, canBoost, isLoading } = usePostBoostEstimation({
     post,
-    query: { budget: estimate.coresPerDay },
+    query: { budget: estimate.coresPerDay, audience: campaignAudience },
   });
   const { logBoostEvent, logBuyCores } = useBoostLogging({
     type: CampaignType.Post,
@@ -290,8 +294,9 @@ export function BoostAgainModal({
           type={TypographyType.Callout}
           color={TypographyColor.Secondary}
         >
-          Give your content the spotlight it deserves. Our auto-targeting engine
-          ensures your post gets shown to the developers most likely to care.
+          Give your content the spotlight it deserves. We start with the
+          developers who read about your post&apos;s tags, anywhere in the
+          world. Fine-tune who sees it below.
           <a
             href={boostDocsLink}
             className="ml-1 text-text-link"
@@ -346,6 +351,11 @@ export function BoostAgainModal({
             Cores over {lastBoost.days} {lastBoost.days === 1 ? 'day' : 'days'}
           </Typography>
         </div>
+        <BoostAudience
+          postTags={postTags}
+          value={audience}
+          onChange={setAudience}
+        />
         <div className="flex flex-col">
           <Typography
             type={TypographyType.Callout}
