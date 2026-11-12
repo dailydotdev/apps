@@ -34,6 +34,7 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useSquadCreate } from '../../../../hooks/squads/useSquadCreate';
 import { useSquad } from '../../../../hooks/squads/useSquad';
 import { usePaddlePayment } from '../../../../hooks/usePaddlePayment';
+import { usePixelsContext } from '../../../../contexts/PixelsContext';
 import { formatCurrency } from '../../../../lib/utils';
 import { useViewSize, ViewSize } from '../../../../hooks/useViewSize';
 import type { Squad } from '../../../../graphql/sources';
@@ -50,6 +51,7 @@ import {
   squadSubscriptionQueryOptions,
 } from '../../../../graphql/squadSubscription';
 import { webappUrl } from '../../../../lib/constants';
+import { storageWrapper } from '../../../../lib/storageWrapper';
 import { RequestKey } from '../../../../lib/query';
 import { LogEvent, Origin } from '../../../../lib/log';
 import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
@@ -58,7 +60,8 @@ import {
   getSquadPlanPriceId,
   getSquadPlanTitle,
   isSquadPlan,
-  getSquadPlanCashback,
+  formatSquadPlanCredits,
+  SQUAD_PLAN_LIST_PRICE_USD,
   SQUAD_PLAN_SEATS,
   SquadPlan,
   squadPlanDetails,
@@ -68,6 +71,7 @@ import {
 import { useSquadPlanPrices } from '../../hooks/useSquadPlanPrices';
 import { useStartupsSetupRefresh } from '../../hooks/useStartupsSetupRefresh';
 import { useStartupsCashbackPromo } from '../../hooks/useStartupsCashbackPromo';
+import { getSavedCheckoutAttribution } from '../../lib/checkoutAttribution';
 import {
   SquadLaunchOfferBanner,
   SquadPlanCashback,
@@ -190,7 +194,7 @@ const AccountStep = ({
           hideRegistrationHeadline
           signUpTitle="Create your account"
           logInTitle="Welcome back"
-          signUpDescription="Create your company page and pick a plan on daily.dev for Startups."
+          signUpDescription="Get your company page on daily.dev. Your agent handles the marketing from there."
           logInDescription="Log in, then pick the page this plan is for."
           signupProviders={signupProviders}
           onDisplayChange={setDisplay}
@@ -543,28 +547,6 @@ const PlanIncludes = ({ plan }: { plan: SquadPlan }): ReactElement => (
   </div>
 );
 
-const SummaryRow = ({
-  label,
-  value,
-  isBold,
-  isMuted,
-}: {
-  label: string;
-  value: string;
-  isBold?: boolean;
-  isMuted?: boolean;
-}): ReactElement => (
-  <div
-    className={classNames(
-      'flex justify-between gap-3',
-      isBold && 'border-t border-border-subtlest-tertiary pt-2 font-bold',
-    )}
-  >
-    <dt className={isBold ? undefined : 'text-text-secondary'}>{label}</dt>
-    <dd className={isMuted ? 'text-text-tertiary' : 'tabular-nums'}>{value}</dd>
-  </div>
-);
-
 const PaymentPanel = ({
   company,
   plan,
@@ -579,9 +561,23 @@ const PaymentPanel = ({
   onPaid: () => void;
 }): ReactElement => {
   const cashbackPromo = useStartupsCashbackPromo();
+  const { trackEvent } = usePixelsContext();
   const { openCheckout, isPaddleReady, checkoutTotals } = usePaddlePayment({
     priceType: PurchaseType.Startups,
-    successCallback: onPaid,
+    successCallback: (event) => {
+      const totals = event?.data?.totals;
+      trackEvent(
+        'Subscribe',
+        {
+          content_name: 'startups',
+          content_category: plan,
+          value: totals ? totals.total - totals.tax : 0,
+          currency: event?.data?.currency_code,
+        },
+        { eventId: event?.data?.transaction_id },
+      );
+      onPaid();
+    },
     origin: Origin.StartupsCheckout,
     logExtra: { plan, source_id: company.id },
   });
@@ -602,10 +598,21 @@ const PaymentPanel = ({
       return;
     }
 
+    if (!openedRef.current) {
+      trackEvent('InitiateCheckout', {
+        content_name: 'startups',
+        content_category: plan,
+        value: SQUAD_PLAN_LIST_PRICE_USD[plan],
+        currency: 'USD',
+      });
+    }
     // A second call while the frame is open swaps the item in place
     openedRef.current = priceId;
-    openCheckout({ priceId, customData: { source_id: company.id } });
-  }, [company.id, isPaddleReady, openCheckout, plan]);
+    openCheckout({
+      priceId,
+      customData: { ...getSavedCheckoutAttribution(), source_id: company.id },
+    });
+  }, [company.id, isPaddleReady, openCheckout, plan, trackEvent]);
 
   useEffect(() => {
     if (isPaddleReady) {
@@ -618,51 +625,39 @@ const PaymentPanel = ({
   }, [isPaddleReady]);
 
   return (
-    <StartupsStageSurface className="flex min-h-full w-full flex-col gap-6 p-2 laptop:p-6">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <h2 className="font-bold typo-title2">Payment</h2>
-          <p className="text-text-secondary typo-callout">{company.name}</p>
+    <StartupsStageSurface className="flex min-h-full w-full flex-col gap-4 p-2 laptop:p-6">
+      {/* The order summary Paddle asks for (items, renewal terms, tax and
+          total; its inline frame shows none of them) in two lines, so the
+          frame and its pay button start high enough to sit above the fold
+          (Ido, 2026-11-09: the button was easy to miss below it). */}
+      <div className="flex flex-col gap-1 border-b border-border-subtlest-tertiary pb-4">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="min-w-0 truncate font-bold typo-body">
+            {`${squadPlanDetails[plan].title} plan for ${company.name}`}
+          </h2>
+          <span className="shrink-0 font-bold tabular-nums typo-body">
+            {`${checkoutTotals ? formatTotal(checkoutTotals.total) : price} today`}
+          </span>
         </div>
+        <p className="text-text-tertiary typo-footnote">
+          {`${price} a month plus tax for your country. ${seats} ${
+            seats === 1 ? 'seat' : 'seats'
+          }, ${formatSquadPlanCredits(
+            plan,
+            cashbackPromo,
+          )} every month. Renews monthly, cancel any time.`}
+          {!!checkoutTotals?.discount &&
+            ` Discount: -${formatTotal(checkoutTotals.discount)}.`}
+        </p>
         <Button
-          className="laptop:hidden"
+          className="mt-1 self-start laptop:hidden"
           variant={ButtonVariant.Tertiary}
-          size={ButtonSize.Small}
+          size={ButtonSize.XSmall}
           onClick={onChangePlan}
         >
-          Change
+          Change plan
         </Button>
       </div>
-      <dl className="flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary p-4 typo-callout">
-        <SummaryRow
-          label={`${squadPlanDetails[plan].title} plan`}
-          value={price}
-        />
-        <SummaryRow
-          label="Includes"
-          value={`${seats} ${seats === 1 ? 'seat' : 'seats'}, ${getSquadPlanCashback(plan, cashbackPromo)}% cashback`}
-          isMuted
-        />
-        {!!checkoutTotals?.discount && (
-          <SummaryRow
-            label="Discount"
-            value={`-${formatTotal(checkoutTotals.discount)}`}
-          />
-        )}
-        <SummaryRow
-          label="Tax"
-          value="Added by Paddle for your country"
-          isMuted
-        />
-        <SummaryRow
-          label="Due today"
-          value={checkoutTotals ? formatTotal(checkoutTotals.total) : price}
-          isBold
-        />
-        <p className="text-text-tertiary typo-footnote">
-          Renews every month. Cancel any time, your page and posts stay.
-        </p>
-      </dl>
       {isTimedOut && !isPaddleReady ? (
         <CharmEmptyState
           placement={CharmEmptyStatePlacement.Inline}
@@ -744,6 +739,7 @@ const PlanStep = ({
       current={CheckoutStage.Plan}
       answers={answers}
       isTall
+      isAsideFlowing
       aside={isLaptop && payment}
     >
       <CheckoutTitle
@@ -1103,7 +1099,7 @@ const DoneStep = ({
       <ul className="flex flex-col gap-3">
         <StatusLine state="done">Payment received</StatusLine>
         <StatusLine state="working">{`Switching on ${planTitle}`}</StatusLine>
-        <StatusLine state="waiting">Turning on your cashback</StatusLine>
+        <StatusLine state="waiting">Adding your boost credits</StatusLine>
         <StatusLine state="waiting">
           {`Getting ${company.name}'s page ready`}
         </StatusLine>
@@ -1145,7 +1141,9 @@ export const StartupsCheckout = ({
   initialAuthDisplay,
   initialAuthEmail,
 }: StartupsCheckoutProps): ReactElement => {
-  const { squads } = useAuthContext();
+  const { squads, user } = useAuthContext();
+  const { trackEvent } = usePixelsContext();
+  const isSignupTracked = useRef(false);
   const adminSquads = useMemo<CompanyChoice[]>(
     () =>
       (squads ?? []).filter(
@@ -1169,6 +1167,22 @@ export const StartupsCheckout = ({
   );
   const [isNewCompany, setNewCompany] = useState(false);
   const [isReturning, setReturning] = useState(false);
+  // A link from a squad's own page already says which page this is for, so
+  // it goes straight to the plans, unless that page is already on a plan.
+  const linkedSquad = initialSquadId
+    ? adminSquads.find(({ id }) => id === initialSquadId)
+    : undefined;
+  const [isOpeningLink, setOpeningLink] = useState(
+    () =>
+      !!initialSquadId &&
+      initialStep === StartupsCheckoutStep.Company &&
+      !initialCompany,
+  );
+  const { data: linkedSubscription, isError: isLinkedSubscriptionError } =
+    useQuery({
+      ...squadSubscriptionQueryOptions({ user, sourceId: linkedSquad?.id }),
+      enabled: isOpeningLink && !!user?.id && !!linkedSquad,
+    });
   const logStartups = useLogStartups();
   const answers = {
     [CheckoutStage.Company]: company?.name,
@@ -1189,6 +1203,39 @@ export const StartupsCheckout = ({
   }, [adminSquads.length]);
 
   useEffect(() => {
+    if (!isOpeningLink) {
+      return;
+    }
+
+    if (!linkedSquad || !user?.id || isLinkedSubscriptionError) {
+      setOpeningLink(false);
+      return;
+    }
+
+    if (!linkedSubscription) {
+      return;
+    }
+
+    if (!linkedSubscription.plan) {
+      setCompany(linkedSquad);
+      setStep(StartupsCheckoutStep.Plan);
+    }
+
+    setOpeningLink(false);
+  }, [
+    isOpeningLink,
+    linkedSquad,
+    user?.id,
+    linkedSubscription,
+    isLinkedSubscriptionError,
+  ]);
+
+  useEffect(() => {
+    // Logs the step the link lands on, not the one it skips
+    if (isOpeningLink) {
+      return;
+    }
+
     globalThis.scrollTo?.({ top: 0 });
     logStartups(LogEvent.ViewStartupsCheckout, step, {
       plan,
@@ -1197,7 +1244,43 @@ export const StartupsCheckout = ({
       admin_squads: adminSquads.length,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step]);
+  }, [step, isOpeningLink]);
+
+  const userId = user?.id;
+  useEffect(() => {
+    // Signed-in founders only reach the company step, so it counts as the
+    // signup for the ad pixel, once per founder
+    if (
+      isOpeningLink ||
+      step !== StartupsCheckoutStep.Company ||
+      !userId ||
+      isSignupTracked.current
+    ) {
+      return;
+    }
+
+    isSignupTracked.current = true;
+    const trackedKey = `startups_signup_tracked:${userId}`;
+
+    if (storageWrapper.getItem(trackedKey)) {
+      return;
+    }
+
+    storageWrapper.setItem(trackedKey, '1');
+    trackEvent(
+      'CompleteRegistration',
+      { content_name: 'startups', content_category: plan },
+      { eventId: `startups-signup-${userId}` },
+    );
+  }, [step, isOpeningLink, userId, plan, trackEvent]);
+
+  if (isOpeningLink) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
 
   if (step === StartupsCheckoutStep.Account) {
     return (

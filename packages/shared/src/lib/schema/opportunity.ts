@@ -1,4 +1,4 @@
-import z from 'zod';
+import { z } from 'zod';
 import { labels } from '../labels';
 import { isNullOrUndefined } from '../func';
 

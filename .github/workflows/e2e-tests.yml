@@ -49,7 +49,7 @@ jobs:
           ${{ runner.os }}-pnpm-10.33.4-store-
 
     - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      run: pnpm install --frozen-lockfile --filter @dailydotdev/playwright
 
     - name: Validate base URL
       if: github.event_name == 'workflow_dispatch'

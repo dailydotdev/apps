@@ -10,8 +10,10 @@ import {
 import { usePromotedSquad } from '@dailydotdev/shared/src/features/squads/components/discover/usePromotedSquad';
 import { SquadDirectoryLayout } from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryLayout';
 import type { NextSeoProps } from 'next-seo/lib/types';
-import { getLayout } from '../../../components/layouts/FeedLayout';
-import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
+import {
+  getLayout,
+  mainFeedLayoutProps,
+} from '../../../components/layouts/FeedLayout';
 import { defaultOpenGraph } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { toJsonLd } from '../../../lib/seo';

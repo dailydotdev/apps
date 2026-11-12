@@ -1,3 +1,4 @@
+import { graphql, HttpResponse } from 'msw';
 import type { ReactElement, ReactNode } from 'react';
 import { AuthDisplay } from '@dailydotdev/shared/src/components/auth/common';
 import React, { useEffect, useState } from 'react';
@@ -55,9 +56,7 @@ import {
   StartupsCheckout,
   StartupsCheckoutStep,
 } from '@dailydotdev/shared/src/features/squads/components/checkout/StartupsCheckout';
-import { featureStartupsCheckout } from '@dailydotdev/shared/src/lib/featureManagement';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import { FeatureOverrides } from '../../../mock/GrowthBookProvider';
 import { defaultBootData, getBootMock } from '../../../mock/boot';
 import ExtensionProviders, {
   bootAsAnonymous,
@@ -444,11 +443,9 @@ const meta: Meta = {
   decorators: [
     (Story) => (
       <ExtensionProviders>
-        <FeatureOverrides values={{ [featureStartupsCheckout.id]: true }}>
-          <div className="min-h-screen bg-background-default">
-            <Story />
-          </div>
-        </FeatureOverrides>
+        <div className="min-h-screen bg-background-default">
+          <Story />
+        </div>
       </ExtensionProviders>
     ),
   ],
@@ -492,6 +489,7 @@ export const ManageEnterprise: Story = {
         {
           ...teamPlan,
           plan: 'enterprise',
+          seatLimit: 100,
           seatsUsed: 2,
         } as unknown as SquadSubscription
       }
@@ -529,6 +527,33 @@ export const ManageStarterAdmin: Story = {
         person('maya', 'Maya Levi', SourceMemberRole.Admin, true),
         { ...owner, seat: false },
       ]}
+    />
+  ),
+};
+
+/**
+ * Another admin of an Enterprise squad whose seat was taken back: no invite
+ * banner, since only seat holders bring teammates in.
+ */
+export const ManageEnterpriseAdminNoSeat: Story = {
+  render: () => (
+    <ManagePlan
+      squad={
+        {
+          ...acmeNew,
+          currentMember: { ...acmeNew.currentMember, seat: false },
+        } as Squad
+      }
+      subscription={
+        {
+          ...teamPlan,
+          ...paidByMaya,
+          plan: 'enterprise',
+          seatLimit: 100,
+          seatsUsed: 1,
+        } as unknown as SquadSubscription
+      }
+      members={[person('maya', 'Maya Levi', SourceMemberRole.Admin, true)]}
     />
   ),
 };
@@ -929,6 +954,15 @@ export const PromoCheckoutPayment: Story = {
 };
 
 export const PromoSquadPageUpsell: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        graphql.query('CompletedUserActions', () =>
+          HttpResponse.json({ data: { actions: [] } }),
+        ),
+      ],
+    },
+  },
   render: () => (
     <PromoOn>
       <SquadPageUpsellPreview />

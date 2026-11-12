@@ -152,16 +152,15 @@ const MainFeedPageInner = ({
   // Mirror `ExtensionTopBanners`' "Add shortcuts" gate so the topBanner
   // shortcut row and the marketing CTA card are mutually exclusive.
   const { shortcutLinks } = useShortcutLinks();
-  // Where the rail shows the Shortcuts widget, the row and the "Add
-  // shortcuts" card step aside. A search from the header keeps the feed
-  // underneath, so the row holds still around it.
-  const { hasShortcuts: hasRailShortcuts, isPending: isRailPending } =
-    useFeedWidgetShortcuts(
-      getFeedName(isSearchOn ? normalizePage(feedName) : activePage, {
-        hasUser: !!user,
-      }),
-    );
-  const isShortcutsHidden = hasRailShortcuts || isRailPending;
+  // Where the widget rail renders, shortcuts are its widget, so the row and
+  // the "Add shortcuts" card step aside. A search from the header keeps the
+  // feed underneath, so the row holds still around it.
+  const { hasRail, isPending: isRailPending } = useFeedWidgetShortcuts(
+    getFeedName(isSearchOn ? normalizePage(feedName) : activePage, {
+      hasUser: !!user,
+    }),
+  );
+  const isShortcutsHidden = hasRail || isRailPending;
   const hasShortcutsToShow =
     !isShortcutsHidden && showTopSites && (shortcutLinks?.length ?? 0) > 0;
 

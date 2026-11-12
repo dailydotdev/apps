@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import { SquadPageLayout } from './SquadPageLayout';
+import { useSquadPageTabs } from '../SquadPageTabsContext';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -71,5 +72,36 @@ describe('SquadPageLayout jobs tab', () => {
     expect(
       screen.queryByRole('button', { name: 'Jobs' }),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('SquadPageLayout tabs context', () => {
+  it('lets a widget open the Jobs tab', () => {
+    jest.mocked(useRouter).mockReturnValue({
+      asPath: '/squads/acme',
+      replace,
+    } as unknown as NextRouter);
+    const Opener = () => {
+      const { openJobs } = useSquadPageTabs();
+
+      return (
+        <button type="button" onClick={openJobs}>
+          Open jobs
+        </button>
+      );
+    };
+
+    render(
+      <SquadPageLayout header={<Opener />} jobs={<p>Open roles</p>}>
+        <p>Squad feed</p>
+      </SquadPageLayout>,
+    );
+
+    expect(screen.getByText('Squad feed')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Open jobs' }));
+    expect(replace).toHaveBeenCalledWith('/squads/acme/jobs', undefined, {
+      shallow: true,
+      scroll: false,
+    });
   });
 });

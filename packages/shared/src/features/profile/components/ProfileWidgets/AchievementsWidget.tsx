@@ -14,6 +14,7 @@ import { useProfileAchievements } from '../../../../hooks/profile/useProfileAchi
 import { ClickableText } from '../../../../components/buttons/ClickableText';
 import { MedalBadgeIcon } from '../../../../components/icons';
 import { LazyImage } from '../../../../components/LazyImage';
+import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';
 import {
   getAchievementRarityTier,
   rarityGlowClasses,
@@ -117,8 +118,13 @@ function RecentAchievements({
 export function AchievementsWidget({
   user,
 }: AchievementsWidgetProps): ReactElement {
-  const { achievements, unlockedCount, totalCount, totalAchievementXp } =
-    useProfileAchievements(user);
+  const {
+    achievements,
+    unlockedCount,
+    totalCount,
+    totalAchievementXp,
+    isPending,
+  } = useProfileAchievements(user);
 
   return (
     <ActivityContainer>
@@ -134,11 +140,18 @@ export function AchievementsWidget({
           Achievements
         </Typography>
         <div className="flex items-center gap-1">
-          <Link href={`/${user.username || user.id}/achievements`} passHref>
-            <ClickableText tag="a">
-              {unlockedCount}/{totalCount}
-            </ClickableText>
-          </Link>
+          {isPending ? (
+            <ElementPlaceholder
+              className="h-4 w-10 rounded-4"
+              data-testid="achievementsCountPlaceholder"
+            />
+          ) : (
+            <Link href={`/${user.username || user.id}/achievements`} passHref>
+              <ClickableText tag="a">
+                {unlockedCount}/{totalCount}
+              </ClickableText>
+            </Link>
+          )}
           {unlockedCount > 0 && (
             <ProfileSnapshotButton
               filename={`daily-achievements-${user.username ?? user.id}`}

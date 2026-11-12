@@ -21,6 +21,14 @@ jest.mock('../../features/messages/hooks/useMessagesEnabled', () => ({
   }),
 }));
 
+let mockDmAvailable = false;
+jest.mock('../../features/messages/transport', () => ({
+  ...jest.requireActual('../../features/messages/transport'),
+  get isDmAvailable() {
+    return mockDmAvailable;
+  },
+}));
+
 jest.mock('../../features/messages/hooks/useUnreadMessagesCount', () => ({
   useUnreadMessagesCount: () => ({ unread: 2, requests: 3, total: 5 }),
 }));
@@ -49,6 +57,7 @@ const railTabIds = () =>
 
 beforeEach(() => {
   mockMessagesEnabled.mockReturnValue(false);
+  mockDmAvailable = false;
   jest.mocked(useRouter).mockReturnValue({
     query: {},
     pathname: '/',
@@ -107,6 +116,26 @@ describe('SidebarDesktopV2 rail order', () => {
 describe('SidebarDesktopV2 Messages tab', () => {
   beforeEach(() => {
     mockMessagesEnabled.mockReturnValue(true);
+    mockDmAvailable = true;
+  });
+
+  it('paints with the cached session, before boot lands', () => {
+    // useMessagesEnabled waits for boot; the tab must not, or it pops in
+    // after the rest of the rail and pushes everything below it down.
+    mockMessagesEnabled.mockReturnValue(false);
+    renderRail('/');
+
+    expect(railTabIds().slice(2, 4)).toEqual([
+      'sidebar-category-squads',
+      'sidebar-category-messages',
+    ]);
+  });
+
+  it('stays off on a build without chat', () => {
+    mockDmAvailable = false;
+    renderRail('/');
+
+    expect(railTabIds()).not.toContain('sidebar-category-messages');
   });
 
   it('sits after Squads with the unread count, in place of Looking for group', () => {

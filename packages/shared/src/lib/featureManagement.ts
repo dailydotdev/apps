@@ -46,6 +46,15 @@ export const featureJobsUI = new Feature('jobs_ui', false);
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
+export enum AdRefreshEngineVersion {
+  V1 = 'v1',
+  V2 = 'v2',
+}
+export const featureAdRefreshEngine = new Feature<AdRefreshEngineVersion>(
+  'ad_refresh_engine_config',
+  AdRefreshEngineVersion.V1,
+);
+
 export const featureFeedAdTemplate = new Feature('feed_ad_template', {
   default: {
     adStart: 2,
@@ -88,6 +97,8 @@ export const featureCores = new Feature('cores', isDevelopment);
 
 // automated streak freeze: auto-apply purchased freezes on missed reading days
 export const featureStreakFreeze = new Feature('streak_freeze', isDevelopment);
+
+export const featureGtaViFreezeDay = new Feature('gta_vi_freeze_day', false);
 
 export const briefCardFeedFeature = new Feature(
   'brief_card_feed',
@@ -293,17 +304,30 @@ export const featureFeedWidgets = new Feature('feed_widgets_v2', false);
 // card pinned over the bottom of the window at the content's width.
 export const featurePostSignupStrip = new Feature('post_signup_strip', false);
 
-// Experiment: a feed after the post page's comments (For you, the post's
-// tags, its source), for signed-in readers. Control ends at the comments.
-export const featurePostPageFeed = new Feature('post_page_feed', false);
+// Experiment: the post page and modal with the redesign's reading column and
+// discussion beside the classic right sidebar, against the classic layout.
+export const featurePostPageHybrid = new Feature('post_page_hybrid', false);
+
+// Experiments: logged-out post pages show the first three comments,
+// skeleton comments for the rest and a pinned "See all the comments" footer,
+// after X's logged-out post page. Two tests, because the ask they replace
+// differs: phones get the app footer's new title and X's app card; tablet and
+// laptop get a pinned sign-up footer instead of the full-width banner or
+// strip. A reader is only ever evaluated for their device's flag. False is
+// today's full thread.
+export const featurePostCommentsTeaserMobile = new Feature(
+  'post_comments_teaser_mobile',
+  false,
+);
+export const featurePostCommentsTeaserDesktop = new Feature(
+  'post_comments_teaser_desktop',
+  false,
+);
 
 // Gates every agent surface; control hides all of them. Keep the default
 // `false`, GrowthBook ramps it.
 export const featureInterestAgent = new Feature('interest_agent', false);
 
-// Gates every direct message surface; control hides all of them. Keep the
-// default `false`, GrowthBook ramps it.
-export const featureDirectMessages = new Feature('direct_messages', false);
 export const featureLiveChat = new Feature('live_chat', false);
 
 // Who can use Looking for group at all: the board, posts, reach-outs and the
@@ -376,16 +400,25 @@ export const featureFeedWidgetsDefault = new Feature<{
   id: string;
   widgets: { id: string; kind: string; size: string }[];
 }>('feed_widgets_default', {
-  id: 'default-1',
-  widgets: [{ id: 'top-story', kind: 'topStory', size: 'large' }],
+  id: 'default-3',
+  widgets: [
+    { id: 'happening-now', kind: 'happeningNow', size: 'large' },
+    { id: 'streak', kind: 'streak', size: 'small' },
+  ],
 });
 
-// Weekly picks MVP: gates the Friday nudge, the /bookmarks button, /picks/new
-// and the share sheet. The public page /picks/:id is never gated so shared
-// links keep working.
-export const featureWeeklyPicks = new Feature('weekly_picks', false);
+// Weekly picks: gates the home card, the /bookmarks button and /picks/new.
+// Only evaluated once the home card would show, so the experiment enrolls
+// just the readers it can reach; the other entry points follow that
+// enrollment. The public page /picks/:id is never gated so shared links keep
+// working.
+export const featureWeeklyPicks = new Feature('weekly_picks_v2', false);
 
-// daily.dev for Startups self-serve checkout: the plan picker at
-// /squads/for-startups and the Plan section of Squad Manage. Off until launch;
-// the landing page reads the same flag to swap its waitlist for Get started.
-export const featureStartupsCheckout = new Feature('startups_checkout', false);
+// The home card's background checks: this week's picks and reading signals,
+// fetched on every signed-in home load. A plain rollout flag with no
+// experiment rule, so evaluating it enrolls nobody: it is the kill switch
+// for the checks and keeps them to the experiment's traffic share.
+export const featureWeeklyPicksChecks = new Feature(
+  'weekly_picks_checks',
+  false,
+);

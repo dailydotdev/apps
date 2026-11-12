@@ -90,9 +90,11 @@ const HighlightRow = ({
 export const HappeningNowWidget = ({
   size,
 }: FeedWidgetComponentProps<FeedWidgetKind.HappeningNow>): ReactElement => {
-  const { feedName } = useFeedWidgetsContext();
+  const { feedName, hasTopStory } = useFeedWidgetsContext();
   const { logEvent } = useLogContext();
-  const { highlights, isPending } = useFeedHeroData();
+  // One query with the top story when both are on the rail; without it the
+  // posts pool is never read, so the API skips it.
+  const { highlights, isPending } = useFeedHeroData({ withPosts: hasTopStory });
   const scroll = useWidgetScroll();
   // A live chat is the most "happening now" thing there is, so it leads.
   const { room: liveRoom } = useLiveChatHighlight();

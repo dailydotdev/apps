@@ -30,7 +30,6 @@ import {
 } from '../layout/common';
 import type { RowItem } from './ShellRow';
 import { Segments, SheetChoice, ShellRow } from './ShellRow';
-import type { HomeHighlightsView } from '../../features/feedWidgets/homeHighlightsView';
 
 const highlightsUrl = `${webappUrl}highlights`;
 
@@ -125,11 +124,9 @@ const FeedSheet = ({
 const HappeningNowSheet = ({
   isOpen,
   onClose,
-  onHighlights,
 }: {
   isOpen: boolean;
   onClose: () => void;
-  onHighlights?: (view: HomeHighlightsView) => void;
 }): ReactElement => {
   const router = useRouter();
   const { data } = useQuery({
@@ -139,38 +136,26 @@ const HappeningNowSheet = ({
   const channels = data?.channelConfigurations ?? [];
   const path = getAsPathname(router);
 
-  // In place under the widget rail, a choice swaps the view instead of
-  // opening the highlights page.
-  const choice = (href: string, view: HomeHighlightsView) =>
-    onHighlights
-      ? {
-          onClick: () => {
-            onClose();
-            onHighlights(view);
-          },
-        }
-      : { href, replace: true, onClick: onClose };
+  const choice = (href: string) => ({ href, replace: true, onClick: onClose });
 
   const items: RowItem[] = [
     {
       key: 'headlines',
       label: 'Headlines',
       active: path === '/highlights',
-      ...choice(highlightsUrl, {}),
+      ...choice(highlightsUrl),
     },
     {
       key: 'all',
       label: 'All',
       active: path === '/highlights/all',
-      ...choice(`${highlightsUrl}/all`, { isAll: true }),
+      ...choice(`${highlightsUrl}/all`),
     },
     ...channels.map((channel) => ({
       key: channel.channel,
       label: channel.displayName,
       active: path === `/highlights/${channel.channel}`,
-      ...choice(`${highlightsUrl}/${channel.channel}`, {
-        channel: channel.channel,
-      }),
+      ...choice(`${highlightsUrl}/${channel.channel}`),
     })),
   ];
 
@@ -194,21 +179,9 @@ interface HomeSegmentsProps {
   // Makes the lit For you segment a button for the feed's own sheet, with
   // this label in place of the plain name.
   forYou?: { label: ReactNode; ariaLabel: string; onMenu: () => void };
-  // The row sits in the page under the widget rail: a tab switches only the
-  // feed under it, so the page keeps its scroll rather than jumping to the top.
-  keepScroll?: boolean;
-  // Called on a tap on any of the row's tabs, before it switches.
-  onSelect?: () => void;
-  // Shows Happening now in place rather than opening its page.
-  onHighlights?: (view: HomeHighlightsView) => void;
 }
 
-export function HomeSegments({
-  forYou,
-  keepScroll,
-  onSelect,
-  onHighlights,
-}: HomeSegmentsProps = {}): ReactElement {
+export function HomeSegments({ forYou }: HomeSegmentsProps = {}): ReactElement {
   const router = useRouter();
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -269,9 +242,8 @@ export function HomeSegments({
   items.push({
     key: 'happening-now',
     label: 'Happening now',
-    ...(onHighlights
-      ? { onClick: () => onHighlights({}) }
-      : { href: highlightsUrl, replace: true }),
+    href: highlightsUrl,
+    replace: true,
     active: isHighlights,
     menu: {
       ariaLabel: 'Happening now, choose a channel',
@@ -313,28 +285,12 @@ export function HomeSegments({
     });
   }
 
-  const rowItems =
-    keepScroll || onSelect
-      ? items.map((item) => ({
-          ...item,
-          keepScroll: keepScroll || item.keepScroll,
-          onClick: () => {
-            // The lit tab is already the view: a tap on it switches nothing,
-            // so it must not leave a switch announced for the next route.
-            if (!item.active) {
-              onSelect?.();
-            }
-            item.onClick?.();
-          },
-        }))
-      : items;
-
   return (
     <>
       <div className="flex w-full items-center">
         <div className="min-w-0 flex-1 [mask-image:linear-gradient(to_right,black_calc(100%-1.5rem),transparent),linear-gradient(black,black)] [mask-position:0_0,0_100%] [mask-repeat:no-repeat] [mask-size:100%_100%,100%_1px]">
           <ShellRow>
-            <Segments items={rowItems} />
+            <Segments items={items} />
           </ShellRow>
         </div>
         {user && (
@@ -354,7 +310,6 @@ export function HomeSegments({
       <HappeningNowSheet
         isOpen={isChannelsOpen}
         onClose={() => setIsChannelsOpen(false)}
-        onHighlights={onHighlights}
       />
       <FeedSheet feed={openFeed} onClose={() => setOpenFeed(null)} />
     </>

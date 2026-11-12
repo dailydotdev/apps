@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   getQuantityForPrice,
@@ -16,12 +16,14 @@ import type {
   Screens,
 } from './types';
 import { useAuthContext } from '../AuthContext';
+import type { OpenCheckoutFn } from '../payment/context';
 
 export const PaddleBuyCoresContextProvider = ({
   onCompletion,
   origin,
   amountNeeded,
   minCoresToBuy,
+  squadWallet,
   children,
 }: BuyCoresContextProviderProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
@@ -53,7 +55,7 @@ export const PaddleBuyCoresContextProvider = ({
   const getQuantityForPriceRef = useRef(getQuantityForPriceFn);
   getQuantityForPriceRef.current = getQuantityForPriceFn;
 
-  const { paddle, openCheckout } = usePaddlePayment({
+  const { paddle, openCheckout: openPaddleCheckout } = usePaddlePayment({
     successCallback: (event) => {
       setActiveStep({
         step: SCREENS.PROCESSING,
@@ -67,6 +69,18 @@ export const PaddleBuyCoresContextProvider = ({
     priceType: PurchaseType.Cores,
     origin,
   });
+
+  const squadWalletId = squadWallet?.sourceId;
+  // daily-api credits the squad wallet named by source_id
+  const openCheckout = useCallback<OpenCheckoutFn>(
+    (props) =>
+      openPaddleCheckout(
+        squadWalletId
+          ? { ...props, customData: { source_id: squadWalletId } }
+          : props,
+      ),
+    [openPaddleCheckout, squadWalletId],
+  );
 
   const contextData = useMemo<BuyCoresContextData>(
     () => ({
@@ -82,6 +96,7 @@ export const PaddleBuyCoresContextProvider = ({
       openCheckout,
       providerTransactionId: activeStep.providerTransactionId,
       origin,
+      squadWallet,
     }),
     [
       activeStep,
@@ -92,6 +107,7 @@ export const PaddleBuyCoresContextProvider = ({
       origin,
       paddle,
       selectedProduct,
+      squadWallet,
     ],
   );
 

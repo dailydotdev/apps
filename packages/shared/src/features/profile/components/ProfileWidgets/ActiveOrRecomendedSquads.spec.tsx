@@ -205,14 +205,25 @@ describe('ActiveOrRecomendedSquads', () => {
   });
 
   describe('Loading state', () => {
-    it('should render skeleton when auth is not ready', () => {
-      renderComponent([mockSquad1], 'user-id', { isAuthReady: false });
+    it('should render skeleton when auth is not ready and there are no squads', () => {
+      renderComponent([], 'user-id', { isAuthReady: false });
 
       // Skeleton should be present (no heading text)
       expect(
         screen.queryByText(labels.profile.sources.heading.activeIn),
       ).not.toBeInTheDocument();
-      expect(screen.queryByText('JavaScript Squad')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(labels.profile.sources.heading.empty),
+      ).not.toBeInTheDocument();
+    });
+
+    it('should render the squads it was given before auth is ready', () => {
+      renderComponent([mockSquad1], 'user-id', { isAuthReady: false });
+
+      expect(
+        screen.getByText(labels.profile.sources.heading.activeIn),
+      ).toBeInTheDocument();
+      expect(screen.getByText('JavaScript Squad')).toBeInTheDocument();
     });
   });
 

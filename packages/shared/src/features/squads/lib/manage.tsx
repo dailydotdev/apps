@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { Squad } from '../../../graphql/sources';
-import { SourcePermissions } from '../../../graphql/sources';
+import { SourceMemberRole, SourcePermissions } from '../../../graphql/sources';
 import { verifyPermission } from '../../../graphql/squads';
 import {
   AnalyticsIcon,
@@ -14,12 +14,13 @@ import {
   LinkIcon,
   LockIcon,
   PaintRollerIcon,
+  TerminalIcon,
   TimerIcon,
   TrendingIcon,
   TrashIcon,
   UserIcon,
 } from '../../../components/icons';
-import { canSetSquadButton, hasSquadFeature } from './features';
+import { canSetSquadButton, hasSquadFeature, isCompanySquad } from './features';
 import { SquadManageSection } from './routes';
 import type { SquadViewer } from './viewer';
 import { isStaffViewer } from './viewer';
@@ -55,19 +56,11 @@ export const squadManageTitles: Record<SquadManageSection, string> = {
   [SquadManageSection.Plan]: 'Subscription',
   [SquadManageSection.Intel]: 'Weekly intel',
   [SquadManageSection.Integrations]: 'Integrations',
+  [SquadManageSection.Agent]: 'Agent and API',
   [SquadManageSection.DangerZone]: 'Danger zone',
 };
 
-export interface SquadManageOptions {
-  /** daily.dev for Startups checkout, behind `startups_checkout` */
-  isPlanEnabled?: boolean;
-}
-
-const canSeeSection = (
-  squad: Squad,
-  section: SquadManageSection,
-  { isPlanEnabled = false }: SquadManageOptions,
-): boolean => {
+const canSeeSection = (squad: Squad, section: SquadManageSection): boolean => {
   const canEdit = verifyPermission(squad, SourcePermissions.Edit);
 
   switch (section) {
@@ -90,12 +83,23 @@ const canSeeSection = (
     case SquadManageSection.Analytics:
       return verifyPermission(squad, SourcePermissions.ViewAnalytics);
     case SquadManageSection.Plan:
-      return isPlanEnabled && canEdit;
+      return canEdit;
     case SquadManageSection.Intel:
       // Only paid seats read it, whatever the role
       return !!squad.currentMember?.seat;
     case SquadManageSection.Integrations:
       return verifyPermission(squad, SourcePermissions.ConnectSlack);
+    case SquadManageSection.Agent: {
+      // Every plan includes the MCP server and API: admins, and moderators
+      // holding a paid seat
+      const role = squad.currentMember?.role;
+
+      return (
+        isCompanySquad(squad) &&
+        (role === SourceMemberRole.Admin ||
+          (role === SourceMemberRole.Moderator && !!squad.currentMember?.seat))
+      );
+    }
     case SquadManageSection.DangerZone:
       return verifyPermission(squad, SourcePermissions.Delete);
     default:
@@ -103,19 +107,15 @@ const canSeeSection = (
   }
 };
 
-// Plan sections a squad with no plan shows locked, while the checkout is on
+// Plan sections a squad with no plan shows locked
 const lockedSections = [
   SquadManageSection.Products,
   SquadManageSection.Links,
   SquadManageSection.Intel,
+  SquadManageSection.Agent,
 ];
 
-const isLockedSection = (
-  squad: Squad,
-  section: SquadManageSection,
-  { isPlanEnabled = false }: SquadManageOptions,
-): boolean =>
-  isPlanEnabled &&
+const isLockedSection = (squad: Squad, section: SquadManageSection): boolean =>
   lockedSections.includes(section) &&
   verifyPermission(squad, SourcePermissions.Edit) &&
   !hasSquadFeature(squad, 'verified') &&
@@ -131,7 +131,6 @@ const item = (
 export const getSquadManageGroups = (
   squad: Squad,
   viewer: SquadViewer,
-  options: SquadManageOptions = {},
 ): SquadManageGroup[] => {
   if (!isStaffViewer(viewer)) {
     return [];
@@ -171,6 +170,7 @@ export const getSquadManageGroups = (
         item(SquadManageSection.Intel, <TrendingIcon />),
         item(SquadManageSection.Analytics, <AnalyticsIcon />),
         item(SquadManageSection.Integrations, <EmbedIcon />),
+        item(SquadManageSection.Agent, <TerminalIcon />),
         item(SquadManageSection.DangerZone, <TrashIcon />),
       ],
     },
@@ -180,11 +180,11 @@ export const getSquadManageGroups = (
     .map((group) => ({
       ...group,
       items: group.items.flatMap((groupItem) => {
-        if (canSeeSection(squad, groupItem.id, options)) {
+        if (canSeeSection(squad, groupItem.id)) {
           return [groupItem];
         }
 
-        return isLockedSection(squad, groupItem.id, options)
+        return isLockedSection(squad, groupItem.id)
           ? [{ ...groupItem, lockedPlan: 'Starter' }]
           : [];
       }),

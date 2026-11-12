@@ -22,7 +22,10 @@ const squad = {
   currentMember: { role: SourceMemberRole.Admin, seat: true },
 } as unknown as Squad;
 
-const renderPlan = (subscription: SquadSubscription) => {
+const renderPlan = (
+  subscription: SquadSubscription,
+  currentSquad: Squad = squad,
+) => {
   const client = new QueryClient();
   const options = { user: defaultUser, sourceId: squad.id };
   client.setQueryData(
@@ -37,7 +40,7 @@ const renderPlan = (subscription: SquadSubscription) => {
 
   render(
     <TestBootProvider client={client} auth={{ user: defaultUser }}>
-      <SquadPageContextProvider squad={squad} isViewerReady>
+      <SquadPageContextProvider squad={currentSquad} isViewerReady>
         <SquadManagePlan />
       </SquadPageContextProvider>
     </TestBootProvider>,
@@ -63,5 +66,29 @@ describe('SquadManagePlan', () => {
       screen.getByText('Billed through your daily.dev contract.'),
     ).toBeInTheDocument();
     expect(screen.queryByText('Manage billing')).not.toBeInTheDocument();
+  });
+
+  const team = {
+    plan: 'team',
+    status: 'active',
+    seatLimit: 5,
+    seatsUsed: 1,
+    ownerId: 'payer',
+  } as unknown as SquadSubscription;
+
+  it('offers the invite link to an admin with a seat', async () => {
+    renderPlan(team);
+
+    expect(await screen.findByText('Copy invite link')).toBeInTheDocument();
+  });
+
+  it('hides the invite link from an admin without a seat', async () => {
+    renderPlan(team, {
+      ...squad,
+      currentMember: { role: SourceMemberRole.Admin, seat: false },
+    } as unknown as Squad);
+
+    expect(await screen.findByText('Seats')).toBeInTheDocument();
+    expect(screen.queryByText('Copy invite link')).not.toBeInTheDocument();
   });
 });

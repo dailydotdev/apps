@@ -78,6 +78,13 @@ export const getTcfSnapshot = (): TcfConsent | undefined => snapshot;
 export const getStoredTcString = (): string | undefined =>
   getCookies([TCF_COOKIE])?.[TCF_COOKIE] || undefined;
 
+/** Lets the API forward consent to the ad server on requests that call it. */
+export const getStoredConsentHeaders = (): Record<string, string> => {
+  const tcString = getStoredTcString();
+
+  return tcString ? { 'x-gdpr-consent': tcString } : {};
+};
+
 // Segment type 3 starts with the base64url bit prefix 011.
 export const hasPublisherTcSegment = (tcString: string): boolean =>
   tcString

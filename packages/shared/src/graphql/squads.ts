@@ -20,7 +20,7 @@ import type {
   Squad,
   SquadRule,
 } from './sources';
-import type { FeedData, PollOption, Post } from './posts';
+import type { FeedData, PollOption, Post, PostAgentViews } from './posts';
 import {
   RankingAlgorithm,
   SOURCE_FEED_QUERY,
@@ -591,6 +591,48 @@ export const SQUAD_ANALYTICS_HISTORY_QUERY = gql`
   }
 `;
 
+export const SQUAD_AGENT_ANALYTICS_QUERY = gql`
+  query SquadAgentAnalytics($sourceId: ID!) {
+    squadAnalytics(sourceId: $sourceId) {
+      id
+      agentViews
+      agentViewsClaude
+      agentViewsChatgpt
+      agentViewsGemini
+      agentViewsPerplexity
+      agentViewsExa
+      agentViewsMeta
+      agentViewsBot
+      agentViewsClaudeBot
+      agentViewsChatgptBot
+      agentViewsPerplexityBot
+      agentViewsExaBot
+      agentViewsMetaBot
+    }
+  }
+`;
+
+export const SQUAD_AGENT_ANALYTICS_HISTORY_QUERY = gql`
+  query SquadAgentAnalyticsHistory($sourceId: ID!) {
+    squadAnalyticsHistory(sourceId: $sourceId) {
+      date
+      agentViews
+      agentViewsClaude
+      agentViewsChatgpt
+      agentViewsGemini
+      agentViewsPerplexity
+      agentViewsExa
+      agentViewsMeta
+      agentViewsBot
+      agentViewsClaudeBot
+      agentViewsChatgptBot
+      agentViewsPerplexityBot
+      agentViewsExaBot
+      agentViewsMetaBot
+    }
+  }
+`;
+
 export const TOP_MEMBERS_BY_SQUAD_QUERY = gql`
   query TopMembersBySquad($sourceId: ID!, $since: DateTime!, $limit: Int) {
     topMembersBySquad(sourceId: $sourceId, since: $since, limit: $limit) {
@@ -890,6 +932,44 @@ export const squadAnalyticsHistoryQueryOptions = ({
   };
 };
 
+export const squadAgentAnalyticsQueryOptions = ({
+  sourceId,
+}: {
+  sourceId?: string;
+}) => {
+  return {
+    queryKey: [RequestKey.SquadAgentAnalytics, sourceId],
+    queryFn: async () => {
+      const result = await gqlClient.request<{
+        squadAnalytics: SquadAgentAnalytics | null;
+      }>(SQUAD_AGENT_ANALYTICS_QUERY, { sourceId });
+
+      return result.squadAnalytics;
+    },
+    enabled: !!sourceId,
+    staleTime: StaleTime.Default,
+  };
+};
+
+export const squadAgentAnalyticsHistoryQueryOptions = ({
+  sourceId,
+}: {
+  sourceId?: string;
+}) => {
+  return {
+    queryKey: [RequestKey.SquadAgentAnalyticsHistory, sourceId],
+    queryFn: async () => {
+      const result = await gqlClient.request<{
+        squadAnalyticsHistory: SquadAgentAnalyticsHistoryNode[];
+      }>(SQUAD_AGENT_ANALYTICS_HISTORY_QUERY, { sourceId });
+
+      return result.squadAnalyticsHistory;
+    },
+    enabled: !!sourceId,
+    staleTime: StaleTime.Default,
+  };
+};
+
 export async function getSquadMembers(
   id: string,
 ): Promise<BasicSourceMember[]> {
@@ -940,6 +1020,14 @@ export interface SquadAnalyticsHistoryNode {
   impressions: number;
   impressionsAds: number;
 }
+
+export type SquadAgentAnalytics = PostAgentViews & {
+  id: string;
+};
+
+export type SquadAgentAnalyticsHistoryNode = PostAgentViews & {
+  date: Date;
+};
 
 export interface SquadInvitationProps {
   token?: string;

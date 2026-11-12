@@ -1,44 +1,31 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { agentMarks } from './agentMarks';
+import { AgentMark } from './AgentMark';
 import { StartupsCrewOnBase, startupsPlazaSky } from './StartupsCrewOnBase';
 
-// The agents the /startups/ page lists. These are the first few, and the last
-// tile counts the rest, so the row doesn't read as all we support.
+// The first agents of the /startups/ page's list, in its order, and the last
+// tile counts the rest of that list, so the row doesn't read as all we support.
 const shownAgents: (keyof typeof agentMarks)[] = [
   'claude-code',
-  'cursor',
   'codex',
+  'cursor',
+  'chatgpt',
+  'gemini',
   'copilot',
-  'windsurf',
-  'cline',
 ];
-const MORE_AGENTS = 21;
+const MORE_AGENTS = 20;
 
 const AgentTiles = (): ReactElement => (
   <div className="flex flex-wrap items-center justify-center gap-2">
-    {shownAgents.map((key) => {
-      const mark = agentMarks[key];
-
-      return (
-        <span
-          key={key}
-          className="flex size-8 items-center justify-center rounded-10"
-          style={{ background: mark.tile, color: '#fff' }}
-        >
-          <svg
-            viewBox={mark.glyph.viewBox}
-            className="size-5"
-            fill="currentColor"
-            aria-hidden
-          >
-            {mark.glyph.paths.map((d) => (
-              <path key={d} d={d} fillRule="evenodd" />
-            ))}
-          </svg>
-        </span>
-      );
-    })}
+    {shownAgents.map((key) => (
+      <AgentMark
+        key={key}
+        mark={agentMarks[key]}
+        className="size-8 rounded-10"
+        glyphClassName="size-5"
+      />
+    ))}
     <span
       className="flex size-8 items-center justify-center rounded-10 font-bold tabular-nums typo-caption1"
       style={{ background: 'rgba(255,255,255,.14)', color: '#fff' }}
@@ -68,7 +55,7 @@ export const StartupsSignupPanel = (): ReactElement => (
         channel, on autopilot.
       </p>
       <p className="text-pretty typo-callout" style={{ opacity: 0.7 }}>
-        Works with the agents you already use.
+        Works with literally any agent you use.
       </p>
       <AgentTiles />
     </div>

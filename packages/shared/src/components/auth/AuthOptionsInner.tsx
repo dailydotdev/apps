@@ -164,6 +164,7 @@ function AuthOptionsInner({
   logInDescription,
   signUpDescription,
   signupProviders,
+  socialSignupOnly,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
@@ -994,6 +995,7 @@ function AuthOptionsInner({
             logInDescription={logInDescription}
             signUpDescription={signUpDescription}
             signupProviders={signupProviders}
+            socialSignupOnly={socialSignupOnly}
             isStartups={isStartups}
             onLogInChange={onLogInChange}
             socialError={socialError}

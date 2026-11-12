@@ -8,8 +8,6 @@ import {
 } from '@dailydotdev/shared/src/features/squads/components/checkout/StartupsCheckout';
 import { SquadPlan } from '@dailydotdev/shared/src/features/squads/lib/plans';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
-import { featureStartupsCheckout } from '@dailydotdev/shared/src/lib/featureManagement';
-import { FeatureOverrides } from '../../../mock/GrowthBookProvider';
 import { defaultBootData, getBootMock } from '../../../mock/boot';
 import ExtensionProviders, {
   bootAsAnonymous,
@@ -151,15 +149,13 @@ const meta: Meta = {
   },
   render: () => (
     <ExtensionProviders>
-      <FeatureOverrides values={{ [featureStartupsCheckout.id]: true }}>
-        <div className="min-h-screen bg-background-default">
-          <StartupsCheckout
-            initialPlan={SquadPlan.Starter}
-            initialStep={StartupsCheckoutStep.Account}
-          />
-          <Toast autoDismissNotifications={false} />
-        </div>
-      </FeatureOverrides>
+      <div className="min-h-screen bg-background-default">
+        <StartupsCheckout
+          initialPlan={SquadPlan.Starter}
+          initialStep={StartupsCheckoutStep.Account}
+        />
+        <Toast autoDismissNotifications={false} />
+      </div>
     </ExtensionProviders>
   ),
 };

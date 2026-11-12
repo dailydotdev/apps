@@ -14,7 +14,7 @@ import usePostContent from '../../hooks/usePostContent';
 import { BasePostContent } from './BasePostContent';
 import { combinedClicks } from '../../lib/click';
 import type { PostContentProps, PostNavigationProps } from './common';
-import { PostContainer, getPostWidgetsClassName } from './common';
+import { PostContainer } from './common';
 import YoutubeVideo from '../video/YoutubeVideo';
 import { useTrackPostView } from '../../hooks/post/useTrackPostView';
 import { TruncateText } from '../utilities';
@@ -94,7 +94,6 @@ export function PostContentRaw({
   contentLeading,
   renderSummarySegments,
   aboveComments,
-  belowComments,
   commentAds,
   shouldTrackView,
 }: PostContentRawProps): ReactElement {
@@ -174,7 +173,6 @@ export function PostContentRaw({
       {contentLeading}
       <BasePostContent
         aboveComments={aboveComments}
-        belowComments={belowComments}
         commentAds={commentAds}
         className={{
           ...className,
@@ -336,10 +334,7 @@ export function PostContentRaw({
     <PostWidgets
       onReadArticle={onReadArticle}
       post={post}
-      className={getPostWidgetsClassName(
-        '!gap-2 pb-8 pt-4 tablet:border-l tablet:border-border-subtlest-tertiary',
-        !!belowComments,
-      )}
+      className="!gap-2 pb-8 pt-4 tablet:border-l tablet:border-border-subtlest-tertiary"
       onClose={onClose}
       origin={origin}
       onCopyPostLink={onCopyPostLink}

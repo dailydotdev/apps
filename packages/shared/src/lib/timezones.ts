@@ -1,8 +1,5 @@
 import { getTimezoneOffset } from 'date-fns-tz';
-import type { FC } from 'react';
 import formatInTimeZone from 'date-fns-tz/formatInTimeZone';
-import { DaytimeIcon, NighttimeIcon } from '../components/icons/TimeZone';
-import type { IconProps } from '../components/Icon';
 import { MILLISECONDS_IN_MINUTE, MINUTES_IN_HOUR } from './time';
 
 interface TimeZoneItem {
@@ -628,12 +625,6 @@ export const getHourTimezone = (timeZone: string): number => {
     }),
     10,
   );
-};
-
-export const getTimeZoneIcon = (timezone: string): FC<IconProps> => {
-  const hour = getHourTimezone(timezone);
-
-  return hour >= 6 && hour < 18 ? DaytimeIcon : NighttimeIcon;
 };
 
 export const dateFormatInTimezone = (

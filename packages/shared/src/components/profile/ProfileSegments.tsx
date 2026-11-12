@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
+import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
 import { expectViewSwitch } from '../../lib/scrollRestoration';
@@ -42,6 +43,21 @@ export const getProfileSegment = (
   );
 };
 
+// The address of the profile page itself. A post opened from a segment's
+// feed masks the post's own address (/posts/:id) over the route and keeps
+// the page's address in `pmap`; read through it, or the open post would be
+// taken for a segment and switch the page to About under it.
+export const getProfilePageAsPath = (
+  router: Pick<NextRouter, 'asPath' | 'query'> | null,
+): string => {
+  const pageAsPath = router?.query?.pmap;
+  if (typeof pageAsPath === 'string' && pageAsPath) {
+    return pageAsPath;
+  }
+
+  return router?.asPath ?? '';
+};
+
 interface ProfileSegmentState {
   segment: ProfileSegment;
   setSegment: (segment: ProfileSegment) => void;
@@ -56,11 +72,13 @@ export const useProfileSegment = (
   fallback: ProfileSegment,
 ): ProfileSegmentState => {
   const router = useRouter();
-  const segment = getProfileSegment(router?.asPath ?? '') ?? fallback;
+  const segment = getProfileSegment(getProfilePageAsPath(router)) ?? fallback;
 
   const setSegment = useCallback(
     (next: ProfileSegment) => {
-      const [path, search = ''] = router.asPath.split('#')[0].split('?');
+      const [path, search = ''] = getProfilePageAsPath(router)
+        .split('#')[0]
+        .split('?');
       const base = path.replace(/\/$/, '').replace(segmentPath, '');
       const as = `${base}${paths[next]}${search ? `?${search}` : ''}`;
       if (as !== router.asPath) {

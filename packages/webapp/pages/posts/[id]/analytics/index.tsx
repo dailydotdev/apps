@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import type { GetServerSideProps } from 'next';
@@ -50,6 +50,7 @@ import { Origin } from '@dailydotdev/shared/src/lib/log';
 import type { Post, PostData } from '@dailydotdev/shared/src/graphql/posts';
 import {
   POST_BY_ID_STATIC_FIELDS_QUERY,
+  postAnalyticsHistoryQuery,
   postAnalyticsQueryOptions,
 } from '@dailydotdev/shared/src/graphql/posts';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
@@ -95,6 +96,8 @@ import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/type
 import { BoostIcon } from '@dailydotdev/shared/src/components/icons/Boost';
 import { useCampaignEstimation } from '@dailydotdev/shared/src/features/boost/useCampaignEstimation';
 import { useCampaigns } from '@dailydotdev/shared/src/features/boost/useCampaigns';
+import { AgentViewsSection } from '@dailydotdev/shared/src/components/analytics/AgentViewsSection';
+import { LegendToggle } from '@dailydotdev/shared/src/components/analytics/LegendToggle';
 import { getSeoDescription } from '../../../../components/PostSEOSchema';
 import type { Props } from '../index';
 import { seoTitle } from '../index';
@@ -222,6 +225,12 @@ const PostAnalyticsPage = ({
     enabled: canViewPostAnalytics({ post, user }),
   });
 
+  const { data: postAnalyticsHistory } = useQuery({
+    ...postAnalyticsHistoryQuery({ id: post?.id }),
+    enabled: canViewPostAnalytics({ post, user }),
+    select: (data) => data.edges.map(({ node }) => node),
+  });
+
   // get latest campaign user created for this post
   const campaignQuery = useCampaigns({
     entityId: post?.id,
@@ -229,6 +238,10 @@ const PostAnalyticsPage = ({
     enabled: isAuthor && !!post?.id,
   });
   const campaign = campaignQuery.data?.pages[0]?.edges[0]?.node;
+
+  const [showOrganic, setShowOrganic] = useState(true);
+  const [showPromoted, setShowPromoted] = useState(true);
+  const canViewAgentViews = typeof postAnalytics?.agentViews === 'number';
 
   const canBoost = useShowBoostButton({ post });
   const isBoosting = !!post?.flags?.campaignId;
@@ -525,23 +538,47 @@ const PostAnalyticsPage = ({
               }
             />
           </div>
-          <div className="flex items-center">
+          <div className="flex flex-wrap items-center gap-2">
             <Typography type={TypographyType.Footnote} bold>
               Impressions in the last 45 days
             </Typography>
-            <div className="ml-auto flex gap-2">
-              <div className="flex items-center gap-1">
-                <div className="size-2 rounded-full bg-brand-default" />{' '}
-                <Typography type={TypographyType.Footnote}>Organic</Typography>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="size-2 rounded-full bg-accent-blueCheese-default" />{' '}
-                <Typography type={TypographyType.Footnote}>Promoted</Typography>
-              </div>
+            <div className="ml-auto flex flex-wrap gap-2">
+              <LegendToggle
+                label="Organic"
+                dotClassName="bg-brand-default"
+                isActive={showOrganic}
+                isLocked={showOrganic && !showPromoted}
+                onToggle={() => setShowOrganic((current) => !current)}
+              />
+              <LegendToggle
+                label="Promoted"
+                dotClassName="bg-accent-blueCheese-default"
+                isActive={showPromoted}
+                isLocked={showPromoted && !showOrganic}
+                onToggle={() => setShowPromoted((current) => !current)}
+              />
             </div>
           </div>
-          <ImpressionsChart post={post} />
+          <ImpressionsChart
+            post={post}
+            showOrganic={showOrganic}
+            showPromoted={showPromoted}
+          />
         </SectionContainer>
+        {canViewAgentViews && (
+          <>
+            <Divider className={dividerClassName} />
+            <SectionContainer>
+              <SectionHeader>AI agents</SectionHeader>
+              <AgentViewsSection
+                analytics={postAnalytics}
+                history={postAnalyticsHistory}
+                readsInfo="The number of times AI assistants like ChatGPT, Claude, and Gemini read your post because someone asked them about it."
+                crawlsInfo="The number of times AI crawlers visited your post to index it for AI search or crawling."
+              />
+            </SectionContainer>
+          </>
+        )}
         <Divider className={dividerClassName} />
         {canBoost && !campaign && (
           <>

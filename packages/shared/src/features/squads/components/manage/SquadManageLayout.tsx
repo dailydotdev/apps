@@ -337,7 +337,7 @@ export const SquadManageLayout = ({
   children,
 }: SquadManageLayoutProps): ReactElement => {
   const { squad } = useSquadPageContext();
-  const { groups } = useSquadManageGroups();
+  const groups = useSquadManageGroups();
   const squadUrl = getSquadUrl(squad.handle);
   const isPhone = useIsPhone();
 

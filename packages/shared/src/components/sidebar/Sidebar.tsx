@@ -4,17 +4,33 @@ import dynamic from 'next/dynamic';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { isExtension } from '../../lib/func';
+import { isTesting } from '../../lib/constants';
+import { laptop, tablet } from '../../styles/media';
 
-const SidebarTablet = dynamic(() =>
+const loadSidebarTablet = () =>
   import(/* webpackChunkName: "sidebarTablet" */ './SidebarTablet').then(
     (mod) => mod.SidebarTablet,
-  ),
-);
-const SidebarDesktopV2 = dynamic(() =>
+  );
+const loadSidebarDesktopV2 = () =>
   import(/* webpackChunkName: "sidebarDesktopV2" */ './SidebarDesktopV2').then(
     (mod) => mod.SidebarDesktopV2,
-  ),
-);
+  );
+
+// Start fetching the sidebar this viewport renders as soon as this module
+// runs, while boot is still in flight, instead of after the layout mounts.
+const matchesMedia = (query: string): boolean =>
+  !!globalThis.window?.matchMedia?.(query.replace('@media ', '')).matches;
+
+if (!isTesting) {
+  if (matchesMedia(laptop)) {
+    loadSidebarDesktopV2().catch(() => undefined);
+  } else if (matchesMedia(tablet)) {
+    loadSidebarTablet().catch(() => undefined);
+  }
+}
+
+const SidebarTablet = dynamic(loadSidebarTablet);
+const SidebarDesktopV2 = dynamic(loadSidebarDesktopV2);
 
 interface SidebarProps {
   activePage: string;

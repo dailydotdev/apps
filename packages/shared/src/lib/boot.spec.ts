@@ -97,4 +97,14 @@ describe('getBootData', () => {
     expect(getRequestedFv(fetchMock, 1)).toBeNull();
     expect(result.exp?.features).toEqual(freshFeatures);
   });
+
+  it('should ask boot to defer the engagement creatives', async () => {
+    const fetchMock = mockBootResponses({});
+
+    await getBootData({ app: BootApp.Webapp });
+
+    expect(
+      new URL(fetchMock.mock.calls[0][0]).searchParams.get('engagement'),
+    ).toEqual('lazy');
+  });
 });
