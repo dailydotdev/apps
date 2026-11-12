@@ -44,6 +44,10 @@ export const featureLuckyButton = new Feature('lucky_button', false);
 
 export const featureJobsUI = new Feature('jobs_ui', false);
 
+// Kill switch for the App Store review asks on iOS: the profile menu row and
+// the sheet behind the `app_store_review` marketing CTA.
+export const featureAppStoreReview = new Feature('app_store_review', true);
+
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
 export enum AdRefreshEngineVersion {

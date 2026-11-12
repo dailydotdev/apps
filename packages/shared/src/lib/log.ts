@@ -403,6 +403,8 @@ export enum LogEvent {
   // Tags - end
   // marketing CTA
   MarketingCtaDismiss = 'dismiss promotion',
+  // App Store review
+  RequestAppStoreReview = 'request app store review',
   // Reading reminder
   ScheduleReadingReminder = 'schedule reading reminder',
   SkipReadingReminder = 'skip reading reminder',
@@ -789,6 +791,7 @@ export enum TargetType {
   MarketingCtaPopoverSmall = 'promotion_popover_small',
   MarketingCtaPlus = 'promotion_plus',
   MarketingCtaHelpGuide = 'promotion_help_guide',
+  AppStoreReview = 'app_store_review',
   PlusEntryCard = 'plus_entry_card',
   PlusEntryForYouTab = 'plus_entry_for_you_tab',
   PlusEntryBookmarkTab = 'plus_entry_bookmark_tab',

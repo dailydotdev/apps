@@ -26,6 +26,9 @@ export enum WebKitMessageHandlers {
   Reading = 'reading',
 
   RequestTracking = 'request-tracking',
+
+  ReviewRequest = 'review-request',
+  ReviewOpenStore = 'review-open-store',
 }
 
 type IOSWebkitGlobal = typeof globalThis & {
@@ -81,4 +84,33 @@ export const requestIOSTracking = (): void => {
   }
 
   postWebKitMessage(WebKitMessageHandlers.RequestTracking, null);
+};
+
+// Both review handlers ship together in iOS 1.26, so one check covers the
+// native rating pop-up and the App Store's write-a-review screen.
+export const iOSSupportsReview = (): boolean =>
+  messageHandlerExists(WebKitMessageHandlers.ReviewRequest) &&
+  messageHandlerExists(WebKitMessageHandlers.ReviewOpenStore);
+
+// Asks iOS for StoreKit's rating pop-up. Apple decides whether anything shows
+// (at most three times a year per app) and never reports back, and the app
+// keeps its own 120-day cooldown, so callers must not depend on the result.
+export const requestIOSReview = (): boolean => {
+  if (!iOSSupportsReview()) {
+    return false;
+  }
+
+  postWebKitMessage(WebKitMessageHandlers.ReviewRequest, null);
+  return true;
+};
+
+// Opens the App Store's write-a-review screen. Unlike the pop-up this always
+// works, so it is the CTA behind every review ask.
+export const openIOSWriteReview = (): boolean => {
+  if (!iOSSupportsReview()) {
+    return false;
+  }
+
+  postWebKitMessage(WebKitMessageHandlers.ReviewOpenStore, null);
+  return true;
 };
