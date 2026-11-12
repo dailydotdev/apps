@@ -724,9 +724,6 @@ export const VIEW_POST_MUTATION = gql`
   }
 `;
 
-export const sendViewPost = (id: string): Promise<void> =>
-  gqlClient.request(VIEW_POST_MUTATION, { id });
-
 export const LATEST_CHANGELOG_POST_QUERY = gql`
   query LatestChangelogPost {
     page: sourceFeed(source: "daily_updates", first: 1, ranking: TIME) {
