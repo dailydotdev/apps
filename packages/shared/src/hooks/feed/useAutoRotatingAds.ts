@@ -14,6 +14,7 @@ import { useFeature } from '../../components/GrowthBookProvider';
 import { featureAutorotateAds } from '../../lib/featureManagement';
 import type { Ad } from '../../graphql/posts';
 import { generateAdLogEventKey } from './useLogImpression';
+import type { AdRefreshSlot } from '../../features/monetization/refresh/adRefresh';
 import { disabledRefetch } from '../../lib/func';
 import { AdPlacement } from '../../lib/ads';
 import { RequestKey } from '../../lib/query';
@@ -32,6 +33,8 @@ export interface AdRotationTarget {
   queryKey: QueryKey;
   /** Shows the new creative in the slot. */
   replace: (ad: Ad) => void;
+  /** How the v2 refresh engine's logs name the slot. */
+  slot?: AdRefreshSlot;
 }
 
 export const useAutoRotatingAds = (

@@ -4,6 +4,7 @@ import { tablet } from '../../../styles/media';
 
 export enum AdRefreshSlot {
   FeedCard = 'feed_card',
+  FeedWidget = 'feed_widget',
 }
 
 export enum AdRefreshPlatform {

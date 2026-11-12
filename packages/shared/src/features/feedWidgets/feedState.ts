@@ -34,6 +34,7 @@ import { useToastNotification } from '../../hooks/useToastNotification';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import type { SettingsFlags } from '../../graphql/settings';
 import type { AdRotationTarget } from '../../hooks/feed/useAutoRotatingAds';
+import { AdRefreshSlot } from '../monetization/refresh/adRefresh';
 import { SharedFeedPage } from '../../components/utilities/common';
 
 /**
@@ -137,6 +138,9 @@ export const useFeedWidgetAd = ({
     queryKey,
     enabled: isEnabled,
     gcTime: 0,
+    // It rotates like the feed's ads, so on the v2 engine it asks for the
+    // refresh policy the feed's ad requests get.
+    isRefreshable: true,
   });
   // The ad query suffixes the consent to this key, so it matches as a prefix.
   useCachedTokenRecovery({ queryKey, enabled: isEnabled });
@@ -167,6 +171,7 @@ export const useFeedWidgetAdRotation = (feedName: string): AdRotationTarget => {
         'feed-widgets-rotation',
         feedName,
       ),
+      slot: AdRefreshSlot.FeedWidget,
       replace: (ad: Ad) =>
         // A prefix: the ad query suffixes the consent and login state.
         queryClient.setQueriesData<Ad | null>(

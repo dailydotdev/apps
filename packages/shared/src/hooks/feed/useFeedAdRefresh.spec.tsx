@@ -16,6 +16,7 @@ import {
 import type { AdRefreshAttempt } from '../../features/monetization/refresh/useAdRefresh';
 import {
   AdRefreshOutcome,
+  AdRefreshSlot,
   getAdRefreshPolicy,
 } from '../../features/monetization/refresh/adRefresh';
 import { AdRefreshEngineVersion } from '../../lib/featureManagement';
@@ -185,11 +186,17 @@ describe('useFeedAdRefresh', () => {
     const target: AdRotationTarget = {
       queryKey: ['rail-rotation'],
       replace: jest.fn(),
+      slot: AdRefreshSlot.FeedWidget,
     };
     renderFeedAdRefresh(AdRefreshEngineVersion.V2, target);
 
     expect(await refreshWith()).toEqual(AdRefreshOutcome.Refreshed);
     expect(target.replace).toHaveBeenCalledWith(replacement);
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        extra: expect.stringContaining('"refresh_slot":"feed_widget"'),
+      }),
+    );
     expect(getCachedAds()).toEqual(ads);
     expect(logEventEnd).not.toHaveBeenCalled();
     expect(useAutoRotatingAds).toHaveBeenLastCalledWith(

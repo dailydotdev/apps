@@ -239,6 +239,7 @@ describe('useFeedWidgetAdRotation', () => {
 
     await waitFor(() => expect(result.current.slot.ad).toEqual(next));
     expect(client.getQueryData([RequestKey.Ads, 'feed'])).toBe(feedAds);
+    expect(result.current.rotation.slot).toEqual('feed_widget');
     // The rotation timer's key is its own, so the write never lands on it.
     expect(
       client.getQueryCache().findAll({

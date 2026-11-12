@@ -7,6 +7,12 @@ import type { FetchAdByPlacementOptions } from '../../lib/ads';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useAdRequestConsent } from './useAdRequestConsent';
 import { useAdPageViewId } from './useAdPageViewId';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import {
+  AdRefreshEngineVersion,
+  featureAdRefreshEngine,
+} from '../../lib/featureManagement';
+import { getAdRefreshPlatform } from './refresh/adRefresh';
 
 interface UseAdQueryOptions {
   queryKey: QueryKey;
@@ -24,6 +30,13 @@ interface UseAdQueryOptions {
    * off, or they refetch whenever a post modal opens over the feed.
    */
   refreshOnPageView?: boolean;
+  /**
+   * For a slot that refreshes its creative the way the feed's ads do. On the
+   * v2 refresh engine (`ad_refresh_engine_config`), the first request then
+   * says so, as the feed's own ad requests do, and Skadi answers with the
+   * creative's refresh policy. Without it the slot has nothing to refresh by.
+   */
+  isRefreshable?: boolean;
 }
 
 export const useAdQuery = ({
@@ -35,21 +48,41 @@ export const useAdQuery = ({
   active,
   retry,
   refreshOnPageView = false,
+  isRefreshable = false,
 }: UseAdQueryOptions) => {
   const consent = useAdRequestConsent(enabled);
-  const { isAuthReady, isLoggedIn } = useAuthContext();
+  const { isAuthReady, isLoggedIn, isAndroidApp } = useAuthContext();
+  const { value: refreshEngine, isLoading: isRefreshEngineLoading } =
+    useConditionalFeature({
+      feature: featureAdRefreshEngine,
+      shouldEvaluate: enabled && isRefreshable,
+    });
+  const isRefreshEngine =
+    isRefreshable && refreshEngine === AdRefreshEngineVersion.V2;
   const registered = isAuthReady ? isLoggedIn : undefined;
   const pageViewId = useAdPageViewId();
   const fetchOptions = useMemo(
-    () =>
-      resolveAdFetchOptions({
+    () => ({
+      ...resolveAdFetchOptions({
         placement,
         active,
         consent: consent ?? undefined,
         registered,
         pageViewId,
       }),
-    [placement, active, consent, registered, pageViewId],
+      ...(isRefreshEngine && {
+        refresh: { platform: getAdRefreshPlatform(isAndroidApp), count: 0 },
+      }),
+    }),
+    [
+      placement,
+      active,
+      consent,
+      registered,
+      pageViewId,
+      isRefreshEngine,
+      isAndroidApp,
+    ],
   );
 
   return useQuery<Ad | null>({
@@ -66,7 +99,9 @@ export const useAdQuery = ({
       isLoggedIn,
     ],
     queryFn: async () => (consent ? fetchAdByPlacement(fetchOptions) : null),
-    enabled: enabled && !!consent,
+    // A refreshable slot waits for the engine flag, so its first request
+    // already asks for the refresh policy when the engine is on.
+    enabled: enabled && !!consent && !(isRefreshable && isRefreshEngineLoading),
     staleTime,
     ...(gcTime !== undefined && { gcTime }),
     // an explicit undefined would replace the client's default retry rule

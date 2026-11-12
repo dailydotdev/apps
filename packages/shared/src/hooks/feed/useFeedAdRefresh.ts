@@ -33,8 +33,6 @@ import { generateAdLogEventKey } from './useLogImpression';
 import type { AdRotationTarget, InViewRef } from './useAutoRotatingAds';
 import { useAutoRotatingAds } from './useAutoRotatingAds';
 
-const slot = AdRefreshSlot.FeedCard;
-
 export const useFeedAdRefresh = (
   ad: Ad,
   index: number,
@@ -60,6 +58,7 @@ export const useFeedAdRefresh = (
     isRefreshEngine && !disabled,
   );
   const { isAndroidApp } = useAuthContext();
+  const slot = target?.slot ?? AdRefreshSlot.FeedCard;
 
   const onRefresh = useCallback(
     async ({
@@ -138,6 +137,7 @@ export const useFeedAdRefresh = (
       logEvent,
       logEventEnd,
       queryClient,
+      slot,
       target,
     ],
   );
@@ -157,7 +157,7 @@ export const useFeedAdRefresh = (
           }),
         }),
       ),
-    [ad, isAndroidApp, logEvent],
+    [ad, isAndroidApp, logEvent, slot],
   );
 
   const { ref: engineRef, onAdClick } = useAdRefresh({
