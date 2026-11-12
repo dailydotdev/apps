@@ -97,6 +97,9 @@ export const featureCores = new Feature('cores', isDevelopment);
 
 // automated streak freeze: auto-apply purchased freezes on missed reading days
 export const featureStreakFreeze = new Feature('streak_freeze', isDevelopment);
+// explain a recent streak reset: the missed day in the calendar + a "why it
+// broke" line with a feedback link
+export const featureStreakWhyBroke = new Feature('streak_why_broke', false);
 
 export const featureGtaViFreezeDay = new Feature('gta_vi_freeze_day', false);
 
