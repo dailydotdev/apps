@@ -20,6 +20,9 @@ export const SQUAD_SUBSCRIPTION_QUERY = gql`
       ownerId
       cashbackPercentage
       cashbackPromoEndsAt
+      renewsAt
+      scheduledPlan
+      downgradeAvailableAt
     }
   }
 `;
@@ -65,7 +68,7 @@ export interface SquadPlanChangePreview {
   dueNow: string;
 }
 
-const SQUAD_PLAN_CHANGE_PREVIEW_QUERY = gql`
+export const SQUAD_PLAN_CHANGE_PREVIEW_QUERY = gql`
   query SquadPlanChangePreview($sourceId: ID!, $plan: String!) {
     squadPlanChangePreview(sourceId: $sourceId, plan: $plan) {
       dueNow
@@ -237,6 +240,24 @@ export const setSquadSeat = async ({
     seat ? ADD_SQUAD_SEAT_MUTATION : REMOVE_SQUAD_SEAT_MUTATION,
     { sourceId, userId },
   );
+
+export const CHANGE_SQUAD_PLAN_MUTATION = gql`
+  mutation ChangeSquadPlan($sourceId: ID!, $plan: String!) {
+    changeSquadPlan(sourceId: $sourceId, plan: $plan) {
+      _
+    }
+  }
+`;
+
+// Picking the current plan undoes a scheduled downgrade
+export const changeSquadPlan = async ({
+  sourceId,
+  plan,
+}: {
+  sourceId: string;
+  plan: SquadPlan;
+}): Promise<EmptyResponse> =>
+  gqlClient.request(CHANGE_SQUAD_PLAN_MUTATION, { sourceId, plan });
 
 const SAVE_STARTUPS_GOALS_MUTATION = gql`
   mutation SaveStartupsGoals(
