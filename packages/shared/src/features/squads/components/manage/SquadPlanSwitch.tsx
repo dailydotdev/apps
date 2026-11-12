@@ -22,6 +22,7 @@ import { LogEvent } from '../../../../lib/log';
 import { useSquadPageContext } from '../../SquadPageContext';
 import { getSquadId } from '../../lib/features';
 import {
+  CORES_PER_USD,
   formatBoostCredits,
   getSquadPlanCreditsForRate,
   getSquadPlanTitle,
@@ -85,9 +86,6 @@ export const SquadPlanSwitch = ({
     );
   const credits = (forPlan: SquadPlan) =>
     formatBoostCredits(getCredits(forPlan));
-  const topUp = formatBoostCredits(
-    getCredits(SquadPlan.Team) - getCredits(SquadPlan.Starter),
-  );
 
   const change = async (to: SquadPlan) => {
     setIsPending(true);
@@ -186,6 +184,7 @@ export const SquadPlanSwitch = ({
       return;
     }
 
+    const topUp = preview.creditsTopUp / CORES_PER_USD;
     const isConfirmed = await showPrompt({
       title: 'Switch to Team',
       description: (
@@ -194,13 +193,19 @@ export const SquadPlanSwitch = ({
             {`Team starts now. Today you pay ${
               preview.dueNow
             } for the rest of this month, then ${
-              prices[SquadPlan.Team]
+              preview.renewal ?? prices[SquadPlan.Team]
             } a month from ${renewal}.`}
           </PromptLine>
           <PromptLine>
-            {`Boost credits go up to ${credits(
-              SquadPlan.Team,
-            )} a month. We add ${topUp} to your wallet now.`}
+            {topUp > 0
+              ? `Boost credits go up to ${credits(
+                  SquadPlan.Team,
+                )} a month. We add ${formatBoostCredits(
+                  topUp,
+                )} to your wallet now.`
+              : `Boost credits go up to ${credits(
+                  SquadPlan.Team,
+                )} a month on paid renewals.`}
           </PromptLine>
         </div>
       ),

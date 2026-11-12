@@ -990,7 +990,11 @@ const SwitchPlan = ({
         sourceId: acmeNew.id,
         plan: SquadPlan.Team,
       });
-      client.setQueryData(queryKey, { dueNow: '$103.47' });
+      client.setQueryData(queryKey, {
+        dueNow: '$103.47',
+        renewal: '$199.00',
+        creditsTopUp: subscription.cashbackPromoEndsAt ? 75000 : 34900,
+      });
       client.setQueryDefaults(queryKey, { staleTime: Infinity });
     });
     return true;
