@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { ReadingStreakPopup } from './ReadingStreakPopup';
 import type { UserStreak } from '../../../graphql/users';
 import { DayOfWeek } from '../../../lib/date';
-import { LogEvent, TargetId } from '../../../lib/log';
+import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 
 const mockCompleteAction = jest.fn();
 const mockLogEvent = jest.fn();
@@ -11,6 +11,18 @@ const mockShowPrompt = jest.fn();
 const mockUpdateFlag = jest.fn();
 const mockOnTogglePermission = jest.fn();
 let mockIsTimezoneOk = true;
+let mockIsSoftBreakFlagOn = false;
+const mockUseConditionalFeature = jest.fn(
+  ({ shouldEvaluate }: { shouldEvaluate?: boolean }) => ({
+    value: shouldEvaluate !== false && mockIsSoftBreakFlagOn,
+    isLoading: false,
+  }),
+);
+
+jest.mock('../../../hooks/useConditionalFeature', () => ({
+  useConditionalFeature: (args: { shouldEvaluate?: boolean }) =>
+    mockUseConditionalFeature(args),
+}));
 
 jest.mock('next/router', () => ({
   useRouter: () => ({
@@ -130,6 +142,7 @@ describe('ReadingStreakPopup', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockIsTimezoneOk = true;
+    mockIsSoftBreakFlagOn = false;
   });
 
   it('renders the timezone tooltip as wrapping prose and truncates long timezone labels', () => {
@@ -167,5 +180,49 @@ describe('ReadingStreakPopup', () => {
     expect(mockShowPrompt).toHaveBeenCalledWith(
       expect.objectContaining({ title: 'Streak timezone mismatch' }),
     );
+  });
+
+  describe('soft break', () => {
+    it('leads with the best streak and a way back when the streak reset', () => {
+      mockIsSoftBreakFlagOn = true;
+      render(<ReadingStreakPopup streak={{ ...streak, current: 0, max: 5 }} />);
+
+      expect(screen.getByText('Your best: 5 days.')).toBeInTheDocument();
+      expect(screen.getByText('Today can be day 1.')).toBeInTheDocument();
+      expect(screen.queryByText('Current streak')).not.toBeInTheDocument();
+      expect(screen.getByText('Longest streak 🏆')).toBeInTheDocument();
+      expect(mockLogEvent).toHaveBeenCalledWith({
+        event_name: LogEvent.Impression,
+        target_type: TargetType.StreakSoftBreak,
+      });
+
+      fireEvent.click(screen.getByRole('link', { name: 'Start again' }));
+
+      expect(mockLogEvent).toHaveBeenCalledWith({
+        event_name: LogEvent.Click,
+        target_type: TargetType.StreakSoftBreak,
+      });
+    });
+
+    it('keeps the regular hero, without evaluating the flag, while the streak is live', () => {
+      mockIsSoftBreakFlagOn = true;
+      render(<ReadingStreakPopup streak={{ ...streak, current: 3 }} />);
+
+      expect(screen.getByText('Current streak')).toBeInTheDocument();
+      expect(screen.queryByText('Start again')).not.toBeInTheDocument();
+      expect(mockUseConditionalFeature).toHaveBeenCalledWith(
+        expect.objectContaining({ shouldEvaluate: false }),
+      );
+    });
+
+    it('keeps the regular 0 hero for the control group', () => {
+      render(<ReadingStreakPopup streak={{ ...streak, current: 0, max: 5 }} />);
+
+      expect(screen.getByText('Current streak')).toBeInTheDocument();
+      expect(screen.queryByText('Start again')).not.toBeInTheDocument();
+      expect(mockUseConditionalFeature).toHaveBeenCalledWith(
+        expect.objectContaining({ shouldEvaluate: true }),
+      );
+    });
   });
 });
