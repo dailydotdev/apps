@@ -3,9 +3,7 @@ import React, { useEffect } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ActionType } from '../../graphql/actions';
 import { useActions } from '../../hooks/useActions';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useReadingStreak } from '../../hooks/streaks/useReadingStreak';
-import { featureGtaViEvent } from '../../lib/featureManagement';
 import { DEFAULT_TIMEZONE } from '../../lib/timezones';
 import { isGtaViReleaseDay } from '../../components/streak/popup/GtaViDay';
 
@@ -43,12 +41,8 @@ export function GtaViEventListener(): ReactElement | null {
     isAuthReady &&
     isLoggedIn &&
     isGtaViReleaseDay(new Date(), user?.timezone ?? DEFAULT_TIMEZONE);
-  const { value: isEnabled } = useConditionalFeature({
-    feature: featureGtaViEvent,
-    shouldEvaluate: isEventDay,
-  });
 
-  if (!isEventDay || !isEnabled) {
+  if (!isEventDay) {
     return null;
   }
 
