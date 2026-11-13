@@ -12,7 +12,7 @@ import {
   enqueueStreakView,
   isFinalViewRejection,
 } from '../../lib/streakViewQueue';
-import { hasStreakViewToday } from '../../lib/userStreak';
+import { includesThisRead } from '../../lib/userStreak';
 
 // The API credits the view in a worker after the mutation resolves, so the
 // first refetch can miss it. Give the worker this long before asking again.
@@ -88,9 +88,10 @@ export const useViewPost = (): UseMutateAsyncFunction<
       const refetchStreak = async (): Promise<boolean> => {
         await client.refetchQueries({ queryKey: streakKey });
 
-        return hasStreakViewToday(
+        return includesThisRead(
           client.getQueryData<UserStreak>(streakKey),
           user?.timezone,
+          optimisticStreak?.current,
         );
       };
       const isCounted = await refetchStreak();
