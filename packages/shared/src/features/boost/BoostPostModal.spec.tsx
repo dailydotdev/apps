@@ -309,6 +309,53 @@ describe('BoostPostModal', () => {
     });
   });
 
+  describe('Target audience', () => {
+    const startBoost = () =>
+      fireEvent.click(screen.getByRole('button', { name: /Boost post for/ }));
+
+    it("should keep the post's own tags worldwide until the audience is edited", () => {
+      const onStartBoost = jest.fn();
+      mockUsePostBoostMutation.mockReturnValue({
+        ...defaultMockBoostMutation,
+        onStartBoost,
+      });
+
+      renderBoostPostModal(createMockPost({ tags: ['javascript'] }));
+
+      expect(screen.getByText('#javascript')).toBeInTheDocument();
+      expect(screen.getByText('Worldwide')).toBeInTheDocument();
+      startBoost();
+      expect(onStartBoost).toHaveBeenCalledWith(
+        expect.objectContaining({ audience: undefined }),
+      );
+    });
+
+    it('should boost and estimate the picked countries with the post tags', () => {
+      const onStartBoost = jest.fn();
+      mockUsePostBoostMutation.mockReturnValue({
+        ...defaultMockBoostMutation,
+        onStartBoost,
+      });
+
+      renderBoostPostModal(createMockPost({ tags: ['javascript'] }));
+
+      fireEvent.click(screen.getAllByRole('button', { name: 'Edit' })[1]);
+      fireEvent.click(screen.getByText('Choose countries'));
+      fireEvent.click(screen.getByLabelText('Add United States'));
+
+      const audience = { tags: ['javascript'], countries: ['US'] };
+      expect(mockUsePostBoostEstimation).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          query: expect.objectContaining({ audience }),
+        }),
+      );
+      startBoost();
+      expect(onStartBoost).toHaveBeenCalledWith(
+        expect.objectContaining({ audience }),
+      );
+    });
+  });
+
   describe('Squad wallet', () => {
     const squadPost = () =>
       createMockPost({

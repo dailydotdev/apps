@@ -27,7 +27,7 @@ export type FeedWidgetComponentProps<
   K extends FeedWidgetKind = FeedWidgetKind,
 > = {
   widget: FeedWidget<K>;
-  /** The size being rendered; a phone clamps Large to Tall. */
+  /** The size being rendered. */
   size: FeedWidgetSize;
   isEditing: boolean;
   /**
@@ -50,6 +50,7 @@ export type FeedWidgetAvailability = {
   isLoggedIn: boolean;
   hasSquads: boolean;
   isReadingStreakOn: boolean;
+  isQuestSystemOn: boolean;
   /** Direct messages are on for this reader and this build has chat. */
   hasMessages: boolean;
   /** Live chat rooms are on for this reader. */
@@ -276,6 +277,12 @@ export const feedWidgetRegistry: {
     tone: 'cheese',
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],
     isAvailable: needsAccount,
+    disabledReason: ({ isQuestSystemOn }) =>
+      isQuestSystemOn ? undefined : 'Quests are off in your settings.',
+    disabledFix: {
+      label: 'Turn on quests',
+      href: `${settingsUrl}/customization/gamification`,
+    },
   },
 };
 

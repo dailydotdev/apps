@@ -20,6 +20,7 @@ import type { MainLayoutHeaderProps } from './layout/MainLayoutHeader';
 import MainLayoutHeader from './layout/MainLayoutHeader';
 import { InAppNotificationElement } from './notifications/InAppNotification';
 import { QuestUpdatesListener } from './quest/QuestUpdatesListener';
+import { GtaViEventListener } from '../features/gtaViEvent/GtaViEventListener';
 import { useNotificationContext } from '../contexts/NotificationsContext';
 import { LogEvent, NotificationTarget, TargetType } from '../lib/log';
 import { PromptElement } from './modals/Prompt';
@@ -55,6 +56,7 @@ import { LAYOUT_FRAME_CLASS } from '../lib/layoutVariant';
 import { SignInStrip } from './auth/SignInStrip';
 import { useRecordRecentPages } from '../hooks/useRecentPages';
 import { isSidebarSettingsPath } from './sidebar/sidebarCategory';
+import { Sidebar } from './sidebar/Sidebar';
 import {
   TopHeroSlotProvider,
   useTopHeroSlot,
@@ -69,12 +71,6 @@ const GoBackHeaderMobile = dynamic(
       /* webpackChunkName: "goBackHeaderMobile" */ './post/GoBackHeaderMobile'
     ),
   { ssr: false },
-);
-
-const Sidebar = dynamic(() =>
-  import(/* webpackChunkName: "sidebar" */ './sidebar/Sidebar').then(
-    (mod) => mod.Sidebar,
-  ),
 );
 
 export interface MainLayoutProps
@@ -342,6 +338,7 @@ function MainLayoutComponent({
       {isBannerAvailable && <PromotionalBanner />}
       <InAppNotificationElement />
       <QuestUpdatesListener />
+      <GtaViEventListener />
       <PromptElement />
       <RootPortal>
         <Toast autoDismissNotifications={autoDismissNotifications} />

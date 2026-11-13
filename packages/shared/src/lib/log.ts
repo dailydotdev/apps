@@ -59,6 +59,7 @@ export enum Origin {
   SquadJoinSuggestionsPromoted = 'squad join suggestions promoted',
   SquadManagePlan = 'squad manage plan',
   SquadManageIntel = 'squad manage intel',
+  SquadManageAgent = 'squad manage agent',
   SquadIntel = 'squad intel',
   StartupsCheckout = 'startups checkout',
   // squads - end
@@ -172,6 +173,7 @@ export enum Origin {
   ProfileStack = 'profile stack',
   BrandedTag = 'branded tag',
   MentionedTool = 'mentioned tool',
+  AgentOnboarding = 'agent onboarding',
 }
 
 export enum LogEvent {
@@ -464,6 +466,8 @@ export enum LogEvent {
   DelaySquadPlanActivation = 'delay squad plan activation',
   GiveSquadSeat = 'give squad seat',
   RemoveSquadSeat = 'remove squad seat',
+  ChangeSquadPlan = 'change squad plan',
+  KeepSquadPlan = 'keep squad plan',
   DismissStartupsUpsell = 'dismiss startups upsell',
   SelectStartupsSetupPath = 'select startups setup path',
   CopyStartupsSetup = 'copy startups setup',
@@ -521,6 +525,10 @@ export enum LogEvent {
   ClickPickPost = 'click pick post',
   ClickMakeYourPicks = 'click make your picks',
   ClickAddToPicks = 'click add to picks',
+  // The home feed card: a nudge to make picks, or the live list's opens
+  ImpressionPicksHero = 'impression picks hero',
+  ClickPicksHero = 'click picks hero',
+  DismissPicksHero = 'dismiss picks hero',
   // End Weekly picks
   // The creator copied a link to, or downloaded the card of, one of their
   // achievements. Records the action, not that anything was posted anywhere.
@@ -686,6 +694,10 @@ export enum LogEvent {
   LeaveLiveChat = 'leave live chat',
   SendLiveChatMessage = 'send live chat message',
   ReactLiveChatMessage = 'react live chat message',
+  // Agent onboarding
+  ViewAgentClaim = 'view agent claim',
+  ConfirmAgentClaim = 'confirm agent claim',
+  ErrorAgentClaim = 'error agent claim',
   // Plugin marketplace
   OpenMarketplace = 'open marketplace',
   ClickPluginCard = 'click plugin card',
@@ -693,6 +705,8 @@ export enum LogEvent {
   ClickPluginRepository = 'click plugin repository',
   ClickPluginSkillMd = 'click plugin skill md',
   CopyPluginAgentPrompt = 'copy plugin agent prompt',
+  ViewAgentOnboarding = 'view agent onboarding',
+  CopyAgentOnboardingPrompt = 'copy agent onboarding prompt',
   ClickConnectAgent = 'click connect agent',
   UpvotePlugin = 'upvote plugin',
   RemovePluginUpvote = 'remove plugin upvote',
@@ -759,6 +773,9 @@ export enum TargetType {
   ProfilePage = 'profile page',
   GenericReferralPopup = 'generic referral popup',
   ReferralInviterCard = 'referral inviter card',
+  LeaderboardBoard = 'leaderboard board',
+  LeaderboardRankPicker = 'leaderboard rank picker',
+  LeaderboardUser = 'leaderboard user',
   Shortcuts = 'shortcuts',
   FeedWidget = 'feed widget',
   ChatRoom = 'chat room',
@@ -768,6 +785,7 @@ export enum TargetType {
   StreaksMilestone = 'streaks milestone',
   StreakRecover = 'streak restore',
   StreakFreezePurchase = 'streak freeze purchase',
+  StreakSoftBreak = 'streak soft break',
   PromotionCard = 'promotion_card',
   PromotionalBanner = 'promotion_banner',
   MarketingCtaPopover = 'promotion_popover',
@@ -838,6 +856,7 @@ export enum TargetId {
   GenericReferralPopup = 'generic referral popup',
   ReferralLadderPopup = 'referral ladder popup',
   ReferralLadderPromo = 'referral ladder promo',
+  LeaderboardInviteCard = 'leaderboard invite card',
   ProfilePage = 'profile page',
   InviteFriendsPage = 'invite friends page',
   Squad = 'squad',
@@ -902,6 +921,8 @@ export enum TargetId {
   ReaderPermissionPrompt = 'reader permission prompt',
   MobileFooter = 'mobile footer',
   MobileFooterNav = 'mobile footer nav',
+  PostAppPrompt = 'post app prompt',
+  CommentsTeaserFooter = 'comments teaser footer',
 }
 
 export enum NotificationChannel {

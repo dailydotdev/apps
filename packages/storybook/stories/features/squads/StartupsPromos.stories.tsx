@@ -27,7 +27,6 @@ import { SquadPageContextProvider } from '@dailydotdev/shared/src/features/squad
 import { SquadManageLayout } from '@dailydotdev/shared/src/features/squads/components/manage/SquadManageLayout';
 import { SquadManagePlan } from '@dailydotdev/shared/src/features/squads/components/manage/SquadManagePlan';
 import { SquadManageSection } from '@dailydotdev/shared/src/features/squads/lib/routes';
-import { featureStartupsCheckout } from '@dailydotdev/shared/src/lib/featureManagement';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import {
   Typography,
@@ -38,7 +37,6 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { coresPricesQueryOptions } from '@dailydotdev/shared/src/graphql/njord';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import { FeatureOverrides } from '../../../mock/GrowthBookProvider';
 import { defaultBootData, getBootMock } from '../../../mock/boot';
 import ExtensionProviders from '../../extension/_providers';
 
@@ -195,13 +193,11 @@ const meta: Meta = {
   decorators: [
     (Story) => (
       <ExtensionProviders>
-        <FeatureOverrides values={{ [featureStartupsCheckout.id]: true }}>
-          <div id="__next" className="min-h-screen bg-background-default">
-            <WhenUser>
-              <Story />
-            </WhenUser>
-          </div>
-        </FeatureOverrides>
+        <div id="__next" className="min-h-screen bg-background-default">
+          <WhenUser>
+            <Story />
+          </WhenUser>
+        </div>
       </ExtensionProviders>
     ),
   ],

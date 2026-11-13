@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
-import classNames from 'classnames';
 import { Button } from '../../components/buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../components/buttons/common';
 import { ArrowIcon } from '../../components/icons/Arrow';
@@ -69,8 +68,6 @@ const RailPageActions = (): ReactElement => {
  */
 export const FeedWidgetRailHeader = ({
   isEditing,
-  isPhone = false,
-  showArrows,
   edges,
   onScroll,
   onToggleEditing,
@@ -79,8 +76,6 @@ export const FeedWidgetRailHeader = ({
   canCustomize = true,
 }: {
   isEditing: boolean;
-  isPhone?: boolean;
-  showArrows: boolean;
   edges: { start: boolean; end: boolean };
   onScroll: (direction: 1 | -1) => void;
   onToggleEditing: () => void;
@@ -101,12 +96,7 @@ export const FeedWidgetRailHeader = ({
   return (
     <div className={railHeaderClassName}>
       <div className="flex min-w-0 flex-1 flex-col">
-        <span
-          className={classNames(
-            'truncate font-bold text-text-primary',
-            isPhone ? 'typo-body' : 'typo-title3',
-          )}
-        >
+        <span className="truncate font-bold text-text-primary typo-title3">
           {greeting?.title}
         </span>
         <span className="truncate text-text-tertiary typo-footnote">
@@ -116,19 +106,16 @@ export const FeedWidgetRailHeader = ({
         </span>
       </div>
       <div className="flex shrink-0 items-center gap-1">
-        {/* Phones have these in the shell's top row. */}
-        {!isPhone && !isEditing && <RailPageActions />}
+        {!isEditing && <RailPageActions />}
         {canCustomize && isEditing && (
           <>
-            {!isPhone && (
-              <Button
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Small}
-                onClick={onHide}
-              >
-                Hide widgets
-              </Button>
-            )}
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              onClick={onHide}
+            >
+              Hide widgets
+            </Button>
             {onAdd && (
               <Button
                 variant={ButtonVariant.Tertiary}
@@ -147,7 +134,7 @@ export const FeedWidgetRailHeader = ({
             >
               Done
             </Button>
-            {showArrows && <Divider />}
+            <Divider />
           </>
         )}
         {canCustomize && !isEditing && (
@@ -161,26 +148,23 @@ export const FeedWidgetRailHeader = ({
             onClick={onToggleEditing}
           />
         )}
-        {showArrows &&
-          (['start', 'end'] as const).map((side) => (
-            <Button
-              key={side}
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              icon={
-                <ArrowIcon
-                  className={side === 'start' ? '-rotate-90' : 'rotate-90'}
-                />
-              }
-              aria-label={
-                side === 'start'
-                  ? 'Scroll widgets left'
-                  : 'Scroll widgets right'
-              }
-              disabled={!edges[side]}
-              onClick={() => onScroll(side === 'start' ? -1 : 1)}
-            />
-          ))}
+        {(['start', 'end'] as const).map((side) => (
+          <Button
+            key={side}
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            icon={
+              <ArrowIcon
+                className={side === 'start' ? '-rotate-90' : 'rotate-90'}
+              />
+            }
+            aria-label={
+              side === 'start' ? 'Scroll widgets left' : 'Scroll widgets right'
+            }
+            disabled={!edges[side]}
+            onClick={() => onScroll(side === 'start' ? -1 : 1)}
+          />
+        ))}
       </div>
     </div>
   );

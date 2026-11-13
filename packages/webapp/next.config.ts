@@ -27,6 +27,27 @@ const svgrOptions = {
   },
 };
 
+// Pages rendered through `getMainFeedLayout`. They import the feed layout
+// statically, and `/` is already at Next's `maxInitialRequests`, so without
+// the cache group below every one of them inlines its own copy of it.
+const feedPageChunks = new Set(
+  [
+    'index',
+    'popular',
+    'my-feed',
+    'following',
+    'upvoted',
+    'posts',
+    'posts/latest',
+    'posts/discussed',
+    'posts/upvoted',
+    'feeds/new',
+    'feeds/[slugOrId]',
+    'feeds/[slugOrId]/edit',
+    'search/posts',
+  ].map((page) => `pages/${page}`),
+);
+
 type NextSvgFileLoaderRule = {
   test?: { test?: (value: string) => boolean };
   issuer?: unknown;
@@ -150,6 +171,25 @@ const nextConfig: NextConfig = {
       // as patch graphql-request manually through pnpm
       // eslint-disable-next-line no-param-reassign
       config.resolve.alias['cross-fetch'] = false;
+
+      // Below Next's own groups and webpack's defaults, so it only takes what
+      // they leave inlined in the feed pages, and only what every feed page
+      // shares, so one page's extras never ride along on the others.
+      // `enforce` skips `maxInitialRequests`, which is what stops the default
+      // group from splitting them.
+      if (!isServer && config.optimization.splitChunks) {
+        // eslint-disable-next-line no-param-reassign
+        config.optimization.splitChunks.cacheGroups.feedPages = {
+          name: 'feedPages',
+          chunks: (chunk: { name?: string }) =>
+            feedPageChunks.has(chunk.name ?? ''),
+          test: (module: { type?: string }) => !module.type?.startsWith('css'),
+          minChunks: feedPageChunks.size,
+          priority: -30,
+          enforce: true,
+          reuseExistingChunk: true,
+        };
+      }
 
       // The chat client only connects from the browser, and Strophe's node
       // build imports optional peers (@xmldom/xmldom) we don't install.

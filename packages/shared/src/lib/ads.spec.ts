@@ -288,6 +288,28 @@ describe('ads', () => {
         );
       },
     );
+
+    it('throws on a failed refresh request but not on the first request', async () => {
+      jest.mocked(global.fetch).mockResolvedValue({
+        ok: false,
+        status: 500,
+        json: jest.fn().mockResolvedValue({ error: 'failed' }),
+        headers: { get: () => undefined },
+      } as unknown as Response);
+
+      await expect(
+        fetchAdByPlacement({
+          placement: AdPlacement.Feed,
+          refresh: { platform: 'web_desktop', count: 0 },
+        }),
+      ).resolves.toBeNull();
+      await expect(
+        fetchAdByPlacement({
+          placement: AdPlacement.Feed,
+          refresh: { platform: 'web_desktop', count: 1, generationId: 'gen' },
+        }),
+      ).rejects.toThrow();
+    });
   });
 
   describe('shouldSkipSourceAds', () => {

@@ -42,6 +42,7 @@ interface AuthDefaultProps extends AuthFormProps {
   signUpDescription?: string;
   /** Sign-up's options, when they differ from log-in's. */
   signupProviders?: Provider[];
+  socialSignupOnly?: boolean;
   providers: Provider[];
   trigger: AuthTriggersType;
   disableRegistration?: boolean;
@@ -83,6 +84,7 @@ const AuthDefault = ({
   signUpDescription,
   logInDescription,
   signupProviders,
+  socialSignupOnly,
   loginButton,
   simplified,
   onAuthOpenLogged,
@@ -250,7 +252,7 @@ const AuthDefault = ({
           Continue with {label}
         </Button>
       ))}
-      {(isSignup || hasEmailLoginScreen) && (
+      {((isSignup && !socialSignupOnly) || hasEmailLoginScreen) && (
         <Button
           aria-label="Continue with email"
           disabled={!isReady || isSocialAuthLoading}

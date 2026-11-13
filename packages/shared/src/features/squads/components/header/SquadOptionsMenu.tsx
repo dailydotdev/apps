@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useMutation } from '@tanstack/react-query';
 import type { Squad } from '../../../../graphql/sources';
@@ -52,6 +52,7 @@ import {
 import Link from '../../../../components/utilities/Link';
 import { useSquadPageContext } from '../../SquadPageContext';
 import { useShareOrCopyLink } from '../../../../hooks/useShareOrCopyLink';
+import { useIsPhone } from '../../../../hooks/useViewSize';
 import { ReferralCampaignKey } from '../../../../lib/referral';
 import { getSquadShareText } from '../widgets/SquadShareWidget';
 import { isJoinedViewer, isStaffViewer, SquadViewer } from '../../lib/viewer';
@@ -65,7 +66,7 @@ interface ManageEntry {
   badge?: number;
 }
 
-const getManageEntries = (squad: Squad): ManageEntry[] => {
+const getManageEntries = (squad: Squad, isPhone: boolean): ManageEntry[] => {
   const entries: ManageEntry[] = [];
   const { handle } = squad;
 
@@ -98,7 +99,11 @@ const getManageEntries = (squad: Squad): ManageEntry[] => {
     entries.push({
       label: 'Settings',
       icon: <SettingsIcon size={IconSize.Small} />,
-      href: getSquadManageUrl(handle, SquadManageSection.Details),
+      // A phone has no Manage side menu, so Settings opens the list of
+      // sections; Details alone would leave the rest unreachable.
+      href: isPhone
+        ? getSquadManageUrl(handle)
+        : getSquadManageUrl(handle, SquadManageSection.Details),
     });
   }
 
@@ -117,9 +122,14 @@ export const SquadOptionsMenu = ({
   const { user, isLoggedIn } = useAuthContext();
   const { openModal } = useLazyModal();
   const { follow, unfollow } = useContentPreference();
+  const [isOpen, setIsOpen] = useState(false);
+  const canInvite =
+    isLoggedIn && squad.public && viewer === SquadViewer.Visitor;
+  // The menu sits in the page header, so the link loads once it opens
   const { logAndCopyLink } = useSquadInvitation({
     squad,
     origin: Origin.SquadPage,
+    enabled: isOpen && canInvite,
   });
   const awardAdmin = useGetSquadAwardAdmin({ sendingUser: user, squad });
   const [, onShare] = useShareOrCopyLink({
@@ -144,9 +154,10 @@ export const SquadOptionsMenu = ({
   });
   const isStaff = isStaffViewer(viewer);
   const isJoined = isJoinedViewer(viewer);
+  const isPhone = useIsPhone();
   const manageEntries = useMemo(
-    () => (isStaff ? getManageEntries(squad) : []),
-    [isStaff, squad],
+    () => (isStaff ? getManageEntries(squad, isPhone) : []),
+    [isStaff, isPhone, squad],
   );
 
   const options = useMemo(() => {
@@ -181,7 +192,7 @@ export const SquadOptionsMenu = ({
       },
     ];
 
-    if (isLoggedIn && squad.public && viewer === SquadViewer.Visitor) {
+    if (canInvite) {
       list.push({
         icon: <LinkIcon size={IconSize.Small} />,
         label: 'Invitation link',
@@ -264,9 +275,9 @@ export const SquadOptionsMenu = ({
     return list;
   }, [
     awardAdmin,
+    canInvite,
     follow,
     isJoined,
-    isLoggedIn,
     logAndCopyLink,
     onLeaveSquad,
     onShare,
@@ -278,7 +289,7 @@ export const SquadOptionsMenu = ({
   ]);
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger
         tooltip={{ content: isStaff ? 'Manage and options' : 'Squad options' }}
         asChild

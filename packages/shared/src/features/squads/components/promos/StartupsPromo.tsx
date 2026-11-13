@@ -16,7 +16,10 @@ import {
   TypographyType,
 } from '../../../../components/typography/Typography';
 import { largeNumberFormat } from '../../../../lib';
-import type { StartupsPromo } from '../../hooks/useStartupsPromo';
+import type {
+  StartupsPromo,
+  StartupsStarterOffer,
+} from '../../hooks/useStartupsPromo';
 import { formatBoostCredits, formatCashbackMultiple } from '../../lib/plans';
 import {
   StartupsPromoSpot,
@@ -45,7 +48,11 @@ const Struck = ({
 );
 
 /** "$245 in boost credits", with Starter's own amount struck out during the launch offer */
-const MonthlyCredits = ({ promo }: { promo: StartupsPromo }): ReactElement => (
+export const MonthlyCredits = ({
+  promo,
+}: {
+  promo: StartupsStarterOffer;
+}): ReactElement => (
   <>
     <Struck
       was={
@@ -60,10 +67,10 @@ const MonthlyCredits = ({ promo }: { promo: StartupsPromo }): ReactElement => (
 );
 
 /** The strip on top of a promo while the launch offer is on */
-const LaunchOfferBanner = ({
+export const LaunchOfferBanner = ({
   promo,
 }: {
-  promo: StartupsPromo;
+  promo: StartupsStarterOffer;
 }): ReactElement | null => {
   if (!promo.launchOffer) {
     return null;
@@ -195,8 +202,8 @@ export const StartupsBoostPromo = ({
           </Title>
           <Body>
             {promo.squad
-              ? `Put ${promo.squad.name} on Starter for ${promo.starterPrice} a month and use them to boost its posts.`
-              : `Boosting for your company? Starter is ${promo.starterPrice} a month and comes with a company page.`}
+              ? `Make ${promo.squad.name} your company page for ${promo.starterPrice} a month and use them to boost its posts.`
+              : `Boosting for your startup? Get a company page for ${promo.starterPrice} a month.`}
           </Body>
         </div>
         <SeePlans
@@ -243,8 +250,8 @@ export const StartupsBuyCoresPromo = ({
             </Title>
             <Body>
               {name
-                ? `daily.dev for Startups is ${promo.starterPrice} a month. The credits land in ${name}'s wallet, and ${name} becomes a company page with weekly intel.`
-                : `daily.dev for Startups is ${promo.starterPrice} a month. The credits land in your company's wallet, with a company page and weekly intel.`}
+                ? `Make ${name} your company page for ${promo.starterPrice} a month, and the credits land in its wallet.`
+                : `Get a company page for ${promo.starterPrice} a month, and the credits land in its wallet.`}
             </Body>
           </div>
         </div>
@@ -288,17 +295,17 @@ export const StartupsWalletPromo = ({
           <CoresBadge isLarge />
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <Typography type={TypographyType.Body} bold>
-              Get <MonthlyCredits promo={promo} /> every month with daily.dev
-              for Startups
+              Get your startup in front of developers
             </Typography>
             <Typography
               tag={TypographyTag.P}
               type={TypographyType.Callout}
               color={TypographyColor.Secondary}
             >
-              {`Starter is ${promo.starterPrice} a month. The credits go to ${
-                promo.squad?.name ?? 'your company'
-              }'s wallet for boosts, with a company page and weekly intel.`}
+              {`Make ${
+                promo.squad?.name ?? 'your squad'
+              } your company page for ${promo.starterPrice} a month, with `}
+              <MonthlyCredits promo={promo} /> every month.
             </Typography>
           </div>
         </div>
@@ -329,7 +336,7 @@ export const StartupsAdsDashboardPromo = ({
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <Title>{`You've spent ${largeNumberFormat(spend)} Cores on boosts`}</Title>
             <Body>
-              {`Starter is ${promo.starterPrice} a month and gives `}
+              {`Get a company page for ${promo.starterPrice} a month, with `}
               <MonthlyCredits promo={promo} />
               {' every month.'}
             </Body>
@@ -363,9 +370,9 @@ export const StartupsNewSquadModalPromo = ({
       <div className="flex items-center gap-3 p-3 pr-4">
         <CoresBadge />
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <Title>For your company?</Title>
+          <Title>Starting this for your startup?</Title>
           <Body>
-            Company page, weekly intel and <MonthlyCredits promo={promo} />{' '}
+            Get in front of developers, with <MonthlyCredits promo={promo} />{' '}
             every month.
           </Body>
         </div>

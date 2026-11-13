@@ -2,10 +2,8 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { SiteLinksSearchBoxJsonLd } from 'next-seo';
-import {
-  getMainFeedLayout,
-  mainFeedLayoutProps,
-} from '../components/layouts/MainFeedPage';
+import { getMainFeedLayout } from '../components/layouts/MainFeedPage';
+import { mainFeedLayoutProps } from '../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../next-seo';
 
 const seo: NextSeoProps = {

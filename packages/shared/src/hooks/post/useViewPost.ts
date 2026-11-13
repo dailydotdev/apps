@@ -1,10 +1,11 @@
 import type { UseMutateAsyncFunction } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { sendViewPost } from '../../graphql/posts';
+import { VIEW_POST_MUTATION } from '../../graphql/posts';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { UserStreak } from '../../graphql/users';
 import { isSameDayInTimezone } from '../../lib/timezones';
+import { useRequestProtocol } from '../useRequestProtocol';
 
 export const useViewPost = (): UseMutateAsyncFunction<
   unknown,
@@ -12,11 +13,12 @@ export const useViewPost = (): UseMutateAsyncFunction<
   string
 > => {
   const client = useQueryClient();
+  const { requestMethod } = useRequestProtocol();
   const { user } = useAuthContext();
   const streakKey = generateQueryKey(RequestKey.UserStreak, user);
   const readKey = generateQueryKey(RequestKey.ReadingStreak30Days, user);
   const { mutateAsync: onSendViewPost } = useMutation({
-    mutationFn: sendViewPost,
+    mutationFn: (id: string) => requestMethod(VIEW_POST_MUTATION, { id }),
     onSuccess: async () => {
       const streak = client.getQueryData<UserStreak>(streakKey);
       const isNewStreak = !streak?.lastViewAt;

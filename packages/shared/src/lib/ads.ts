@@ -29,6 +29,7 @@ export const shouldSkipSourceAds = (
 export enum AdActions {
   Click = 'click',
   Refresh = 'refresh',
+  RefreshStop = 'refresh stop',
   Impression = 'impression',
   // Rendered and seen by IAB rules, unlike `Impression` which only means the
   // creative reached the viewport.
@@ -59,7 +60,35 @@ export interface FetchAdByPlacementOptions {
    */
   registered?: boolean;
   pageViewId?: string;
+  refresh?: AdRefreshRequest;
 }
+
+export interface AdRefreshRequest {
+  platform: string;
+  count?: number;
+  generationId?: string;
+}
+
+export const appendRefreshParams = (
+  params: URLSearchParams,
+  refresh?: AdRefreshRequest,
+): URLSearchParams => {
+  if (!refresh) {
+    return params;
+  }
+
+  params.set('platform', refresh.platform);
+
+  if (typeof refresh.count !== 'undefined') {
+    params.set('refresh', refresh.count.toString());
+  }
+
+  if (refresh.generationId) {
+    params.set('gen_id', refresh.generationId);
+  }
+
+  return params;
+};
 
 // Skadi matches any query param against ad set `REQUEST_METADATA` targeting,
 // so campaigns can target `{"registered":"true"}` or `{"registered":"false"}`.
@@ -129,10 +158,12 @@ const fetchAdRequest = async ({
   path,
   params,
   pageViewId = getAdPageViewId(),
+  throwOnError = false,
 }: {
   path: string;
   params?: URLSearchParams;
   pageViewId?: string;
+  throwOnError?: boolean;
 }): Promise<Ad | null> => {
   const headers: Record<string, string> = {};
   if (pageViewId) {
@@ -149,6 +180,10 @@ const fetchAdRequest = async ({
     credentials: 'include',
     ...(Object.keys(headers).length > 0 && { headers }),
   });
+
+  if (throwOnError && !res.ok) {
+    throw new Error(`Ad request failed with status ${res.status}`);
+  }
 
   const ads = (await res.json()) as Ad[];
   return addGenerationIdHeader({ ad: ads[0] ?? null, res });
@@ -209,6 +244,7 @@ export const fetchAdByPlacement = async ({
   consent,
   registered,
   pageViewId,
+  refresh,
 }: FetchAdByPlacementOptions): Promise<Ad | null> => {
   switch (placement) {
     case AdPlacement.PostComment:
@@ -250,11 +286,13 @@ export const fetchAdByPlacement = async ({
       }
 
       appendRegisteredParam(params, registered);
+      appendRefreshParams(params, refresh);
 
       return fetchAdRequest({
         path: '/v1/a',
         params: appendConsentParams(params, consent),
         pageViewId,
+        throwOnError: !!refresh?.count,
       });
     }
   }

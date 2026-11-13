@@ -4,13 +4,12 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import type { Squad } from '../../../graphql/sources';
 import { SourceMemberRole } from '../../../graphql/sources';
 import { squadSubscriptionQueryOptions } from '../../../graphql/squadSubscription';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featureStartupsCheckout } from '../../../lib/featureManagement';
 import { isIOSNative } from '../../../lib/func';
 import { ActionType } from '../../../graphql/actions';
 import { useActions } from '../../../hooks/useActions';
 import { LogEvent } from '../../../lib/log';
 import { hasSquadFeature } from '../lib/features';
+import type { StartupsCashbackPromo } from '../lib/plans';
 import {
   formatCashbackPromoLength,
   getSquadPlanCashback,
@@ -45,11 +44,8 @@ interface UseStartupsPromoProps {
   isNewSquad?: boolean;
 }
 
-export interface StartupsPromo {
-  isShown: boolean;
-  /** The squad the plan would go on; unset when the viewer runs none. */
-  squad?: Squad;
-  starterPrice: string;
+/** What Starter gives back each month, the launch promo's while it is on */
+export interface StartupsStarterOffer {
   /** Starter's cashback, the launch promo's while it is on */
   cashback: number;
   /** "for your first year" while the launch promo is on */
@@ -58,11 +54,38 @@ export interface StartupsPromo {
   monthlyCredits: number;
   /** Set while the launch promo beats Starter's own rate: what to strike */
   launchOffer?: { cashback: number; monthlyCredits: number };
+}
+
+export interface StartupsPromo extends StartupsStarterOffer {
+  isShown: boolean;
+  /** The squad the plan would go on; unset when the viewer runs none. */
+  squad?: Squad;
+  starterPrice: string;
   checkoutUrl: string;
   onClick: () => void;
   /** Hides this and every other Startups promotion, on all devices */
   onDismiss: () => void;
 }
+
+export const getStartupsStarterOffer = (
+  promo?: StartupsCashbackPromo | null,
+): StartupsStarterOffer => {
+  const cashback = getSquadPlanCashback(SquadPlan.Starter, promo);
+  const baseCashback = SQUAD_PLAN_CASHBACK_PERCENTAGE[SquadPlan.Starter];
+
+  return {
+    cashback,
+    promoLength: promo ? formatCashbackPromoLength(promo.months) : undefined,
+    monthlyCredits: getSquadPlanMonthlyCredits(SquadPlan.Starter, promo),
+    launchOffer:
+      cashback > baseCashback
+        ? {
+            cashback: baseCashback,
+            monthlyCredits: getSquadPlanMonthlyCredits(SquadPlan.Starter),
+          }
+        : undefined,
+  };
+};
 
 const isAdmin = (squad: Squad): boolean =>
   squad.currentMember?.role === SourceMemberRole.Admin;
@@ -121,20 +144,15 @@ export const useStartupsPromo = ({
     (isNewSquad
       ? !isCustomer
       : !!squad || (isPersonalAllowed && !isCustomer && !sourceIdIsPaid));
-  const { value: isEnabled } = useConditionalFeature({
-    feature: featureStartupsCheckout,
-    shouldEvaluate: isCandidate,
-  });
   const { data: subscription, isPending } = useQuery({
     ...squadSubscriptionQueryOptions({ user, sourceId: squad?.id }),
-    enabled: !!squad && isCandidate && isEnabled,
+    enabled: !!squad && isCandidate,
   });
   const promo = useStartupsCashbackPromo();
   const prices = useSquadPlanPrices();
   const logStartups = useLogStartups();
   const isShown =
     isCandidate &&
-    isEnabled &&
     isActionsFetched &&
     !isDismissed &&
     (!squad || (!isPending && !!subscription && !subscription.plan));
@@ -163,23 +181,11 @@ export const useStartupsPromo = ({
     completeAction(ActionType.DismissStartupsPromo);
   }, [completeAction, logStartups, spot, extra]);
 
-  const cashback = getSquadPlanCashback(SquadPlan.Starter, promo);
-  const baseCashback = SQUAD_PLAN_CASHBACK_PERCENTAGE[SquadPlan.Starter];
-
   return {
+    ...getStartupsStarterOffer(promo),
     isShown,
     squad,
     starterPrice: prices[SquadPlan.Starter],
-    cashback,
-    promoLength: promo ? formatCashbackPromoLength(promo.months) : undefined,
-    monthlyCredits: getSquadPlanMonthlyCredits(SquadPlan.Starter, promo),
-    launchOffer:
-      cashback > baseCashback
-        ? {
-            cashback: baseCashback,
-            monthlyCredits: getSquadPlanMonthlyCredits(SquadPlan.Starter),
-          }
-        : undefined,
     checkoutUrl: getStartupsCheckoutUrl({
       plan: SquadPlan.Starter,
       sourceId: squad?.id,

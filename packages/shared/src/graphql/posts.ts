@@ -349,6 +349,15 @@ export type RelatedPost = Pick<
   source: Pick<Source, 'id' | 'handle' | 'name' | 'image'>;
 };
 
+export interface AdRefreshConfig {
+  id: string;
+  intervalSec: number;
+  maxPerSlot: number;
+  maxPerSession: number;
+  idleAfterSec?: number;
+  minVisiblePercent?: number;
+}
+
 export interface Ad {
   pixel?: string[];
   source: string;
@@ -365,6 +374,7 @@ export interface Ad {
   backgroundColor?: string;
   data?: { post?: Post; source?: Squad };
   generationId?: string;
+  refresh?: AdRefreshConfig | null;
   matchingTags?: string[];
   adDomain?: string;
   companyLogo?: string;
@@ -713,9 +723,6 @@ export const VIEW_POST_MUTATION = gql`
     }
   }
 `;
-
-export const sendViewPost = (id: string): Promise<void> =>
-  gqlClient.request(VIEW_POST_MUTATION, { id });
 
 export const LATEST_CHANGELOG_POST_QUERY = gql`
   query LatestChangelogPost {
@@ -1568,6 +1575,19 @@ export const POST_ANALYTICS_QUERY = gql`
       reachAds
       impressionsAds
       clicks
+      agentViews
+      agentViewsClaude
+      agentViewsChatgpt
+      agentViewsGemini
+      agentViewsPerplexity
+      agentViewsExa
+      agentViewsMeta
+      agentViewsBot
+      agentViewsClaudeBot
+      agentViewsChatgptBot
+      agentViewsPerplexityBot
+      agentViewsExaBot
+      agentViewsMetaBot
     }
   }
 `;
@@ -1590,6 +1610,19 @@ export type PostAnalytics = {
   reachAds: number;
   impressionsAds: number;
   clicks: number;
+  agentViews: number | null;
+  agentViewsClaude: number | null;
+  agentViewsChatgpt: number | null;
+  agentViewsGemini: number | null;
+  agentViewsPerplexity: number | null;
+  agentViewsExa: number | null;
+  agentViewsMeta: number | null;
+  agentViewsBot: number | null;
+  agentViewsClaudeBot: number | null;
+  agentViewsChatgptBot: number | null;
+  agentViewsPerplexityBot: number | null;
+  agentViewsExaBot: number | null;
+  agentViewsMetaBot: number | null;
 };
 
 export const postAnalyticsQueryOptions = ({ id }: { id?: string }) => {
@@ -1621,18 +1654,49 @@ export const POST_ANALYTICS_HISTORY_QUERY = gql`
           date
           impressions
           impressionsAds
+          agentViews
+          agentViewsClaude
+          agentViewsChatgpt
+          agentViewsGemini
+          agentViewsPerplexity
+          agentViewsExa
+          agentViewsMeta
+          agentViewsBot
+          agentViewsClaudeBot
+          agentViewsChatgptBot
+          agentViewsPerplexityBot
+          agentViewsExaBot
+          agentViewsMetaBot
         }
       }
     }
   }
 `;
 
+export type PostAgentViews = Pick<
+  PostAnalytics,
+  | 'agentViews'
+  | 'agentViewsClaude'
+  | 'agentViewsChatgpt'
+  | 'agentViewsGemini'
+  | 'agentViewsPerplexity'
+  | 'agentViewsExa'
+  | 'agentViewsMeta'
+  | 'agentViewsBot'
+  | 'agentViewsClaudeBot'
+  | 'agentViewsChatgptBot'
+  | 'agentViewsPerplexityBot'
+  | 'agentViewsExaBot'
+  | 'agentViewsMetaBot'
+>;
+
 export type PostAnalyticsHistory = Pick<
   PostAnalytics,
   'id' | 'impressions' | 'impressionsAds'
-> & {
-  date: Date;
-};
+> &
+  PostAgentViews & {
+    date: Date;
+  };
 
 export const postAnalyticsHistoryQuery = ({
   id,

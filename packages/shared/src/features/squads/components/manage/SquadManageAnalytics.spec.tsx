@@ -9,7 +9,11 @@ import { defaultQueryClientTestingConfig } from '../../../../../__tests__/helper
 import { mockDesktop } from '../../../../../__tests__/helpers/media';
 import type { Squad } from '../../../../graphql/sources';
 import { SourcePermissions } from '../../../../graphql/sources';
-import { SQUAD_ANALYTICS_QUERY } from '../../../../graphql/squads';
+import {
+  SQUAD_AGENT_ANALYTICS_HISTORY_QUERY,
+  SQUAD_AGENT_ANALYTICS_QUERY,
+  SQUAD_ANALYTICS_QUERY,
+} from '../../../../graphql/squads';
 import {
   CreatorMetricSemantics,
   CreatorPerformancePeriod,
@@ -124,9 +128,10 @@ const renderPage = () =>
     </TestBootProvider>,
   );
 
-beforeEach(() => {
-  nock.cleanAll();
-  mockDesktop();
+const mockAnalytics = (
+  agentViews: number | null,
+  agentViewsBot: number | null,
+) => {
   mockGraphQL({
     request: {
       query: SQUAD_ANALYTICS_QUERY,
@@ -150,9 +155,26 @@ beforeEach(() => {
       },
     },
   });
+  mockGraphQL({
+    request: {
+      query: SQUAD_AGENT_ANALYTICS_QUERY,
+      variables: { sourceId: squad.id },
+    },
+    result: {
+      data: {
+        squadAnalytics: { id: squad.id, agentViews, agentViewsBot },
+      },
+    },
+  });
+};
+
+beforeEach(() => {
+  nock.cleanAll();
+  mockDesktop();
 });
 
 it('should render the period overview, the post table and the lifetime block', async () => {
+  mockAnalytics(null, null);
   mockPerformance(CreatorPerformancePeriod.Last30Days, 150);
   mockPosts(CreatorPerformancePeriod.Last30Days);
 
@@ -166,9 +188,35 @@ it('should render the period overview, the post table and the lifetime block', a
   expect(screen.getByText('77')).toBeInTheDocument();
   expect(screen.queryByText('Clicks')).not.toBeInTheDocument();
   expect(screen.queryByText('Followers')).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('heading', { name: 'AI agents' }),
+  ).not.toBeInTheDocument();
+});
+
+it('should render the AI agents section when the squad has agent analytics', async () => {
+  mockAnalytics(321, 654);
+  mockPerformance(CreatorPerformancePeriod.Last30Days, 150);
+  mockPosts(CreatorPerformancePeriod.Last30Days);
+  mockGraphQL({
+    request: {
+      query: SQUAD_AGENT_ANALYTICS_HISTORY_QUERY,
+      variables: { sourceId: squad.id },
+    },
+    result: { data: { squadAnalyticsHistory: [] } },
+  });
+
+  renderPage();
+
+  expect(
+    await screen.findByRole('heading', { name: 'AI agents' }),
+  ).toBeInTheDocument();
+  expect(screen.getByText('AI agent reads')).toBeInTheDocument();
+  expect(screen.getByText('321')).toBeInTheDocument();
+  expect(screen.getByText('654')).toBeInTheDocument();
 });
 
 it('should refetch the overview and posts for the selected period', async () => {
+  mockAnalytics(null, null);
   mockPerformance(CreatorPerformancePeriod.Last30Days, 150);
   mockPosts(CreatorPerformancePeriod.Last30Days);
   renderPage();

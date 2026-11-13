@@ -1,3 +1,4 @@
+import { graphql, HttpResponse } from 'msw';
 import type { ReactElement, ReactNode } from 'react';
 import { AuthDisplay } from '@dailydotdev/shared/src/components/auth/common';
 import React, { useEffect, useState } from 'react';
@@ -55,9 +56,9 @@ import {
   StartupsCheckout,
   StartupsCheckoutStep,
 } from '@dailydotdev/shared/src/features/squads/components/checkout/StartupsCheckout';
-import { featureStartupsCheckout } from '@dailydotdev/shared/src/lib/featureManagement';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import { FeatureOverrides } from '../../../mock/GrowthBookProvider';
+import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
+import { squadPlanChangePreviewQueryOptions } from '@dailydotdev/shared/src/graphql/squadSubscription';
 import { defaultBootData, getBootMock } from '../../../mock/boot';
 import ExtensionProviders, {
   bootAsAnonymous,
@@ -444,11 +445,9 @@ const meta: Meta = {
   decorators: [
     (Story) => (
       <ExtensionProviders>
-        <FeatureOverrides values={{ [featureStartupsCheckout.id]: true }}>
-          <div className="min-h-screen bg-background-default">
-            <Story />
-          </div>
-        </FeatureOverrides>
+        <div className="min-h-screen bg-background-default">
+          <Story />
+        </div>
       </ExtensionProviders>
     ),
   ],
@@ -957,9 +956,132 @@ export const PromoCheckoutPayment: Story = {
 };
 
 export const PromoSquadPageUpsell: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        graphql.query('CompletedUserActions', () =>
+          HttpResponse.json({ data: { actions: [] } }),
+        ),
+      ],
+    },
+  },
   render: () => (
     <PromoOn>
       <SquadPageUpsellPreview />
     </PromoOn>
+  ),
+};
+
+const renewsAt = '2026-12-04T10:00:00.000Z';
+
+/** Plan switching: Paddle's preview of the upgrade charge is pinned. */
+const SwitchPlan = ({
+  subscription,
+  members,
+}: {
+  subscription: SquadSubscription;
+  members?: SquadSeatMember[];
+}): ReactElement => {
+  const client = useQueryClient();
+  useState(() => {
+    [undefined, defaultUser].forEach((who) => {
+      const { queryKey } = squadPlanChangePreviewQueryOptions({
+        user: who,
+        sourceId: acmeNew.id,
+        plan: SquadPlan.Team,
+      });
+      client.setQueryData(queryKey, {
+        dueNow: '$103.47',
+        renewal: '$199.00',
+        creditsTopUp: subscription.cashbackPromoEndsAt ? 75000 : 34900,
+      });
+      client.setQueryDefaults(queryKey, { staleTime: Infinity });
+    });
+    return true;
+  });
+
+  return (
+    <>
+      <ManagePlan
+        subscription={{ ...subscription, renewsAt }}
+        members={members}
+      />
+      <PromptElement />
+    </>
+  );
+};
+
+const starterMembers = [
+  owner,
+  ...team.slice(1).map((m) => ({ ...m, seat: false })),
+];
+
+/** Starter: the owner can switch to Team now. */
+export const SwitchStarter: Story = {
+  render: () => <SwitchPlan subscription={starter} members={starterMembers} />,
+};
+
+export const SwitchStarterPromo: Story = {
+  render: () => (
+    <SwitchPlan subscription={starterPromo} members={starterMembers} />
+  ),
+};
+
+export const SwitchStarterPhone: Story = { ...SwitchStarter, globals: phone };
+
+/** Team with only the owner's seat: a downgrade can be scheduled. */
+export const SwitchTeam: Story = {
+  render: () => (
+    <SwitchPlan
+      subscription={{ ...teamPlan, seatsUsed: 1 }}
+      members={starterMembers}
+    />
+  ),
+};
+
+/** Team with two seats in use: the downgrade waits for seats to go. */
+export const SwitchTeamTooManySeats: Story = {
+  render: () => <SwitchPlan subscription={teamPlan} />,
+};
+
+/** Upgraded this month: no downgrade until the first Team renewal. */
+export const SwitchTeamBeforeRenewal: Story = {
+  render: () => (
+    <SwitchPlan
+      subscription={{
+        ...teamPlan,
+        seatsUsed: 1,
+        downgradeAvailableAt: renewsAt,
+      }}
+      members={starterMembers}
+    />
+  ),
+};
+
+/** A downgrade waiting for the renewal. */
+export const SwitchTeamScheduled: Story = {
+  render: () => (
+    <SwitchPlan
+      subscription={{
+        ...teamPlan,
+        seatsUsed: 1,
+        scheduledPlan: SquadPlan.Starter,
+      }}
+      members={starterMembers}
+    />
+  ),
+};
+
+export const SwitchTeamPromo: Story = {
+  render: () => (
+    <SwitchPlan
+      subscription={{
+        ...teamPlan,
+        seatsUsed: 1,
+        cashbackPercentage: 500,
+        cashbackPromoEndsAt: '2027-11-08T10:00:00.000Z',
+      }}
+      members={starterMembers}
+    />
   ),
 };

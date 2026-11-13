@@ -54,12 +54,14 @@ const tabRole: Record<MembersTab, SourceMemberRole | undefined> = {
 };
 
 const InviteRow = ({ squad }: { squad: Squad }): ReactElement | null => {
+  const canInvite = verifyPermission(squad, SourcePermissions.Invite);
   const { copying, logAndCopyLink } = useSquadInvitation({
     squad,
     origin: Origin.SquadMembersList,
+    enabled: canInvite,
   });
 
-  if (!verifyPermission(squad, SourcePermissions.Invite)) {
+  if (!canInvite) {
     return null;
   }
 

@@ -31,9 +31,8 @@ import BookmarkEmptyScreen from './BookmarkEmptyScreen';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import { ShareIcon, SortIcon, StarIcon } from './icons';
 import Link from './utilities/Link';
-import { useFeature } from './GrowthBookProvider';
-import { featureWeeklyPicks } from '../lib/featureManagement';
 import { myCurrentPicksQueryOptions } from '../graphql/picks';
+import { useWeeklyPicksEntry } from '../hooks/picks/useWeeklyPicksEntry';
 import { IconSize } from './Icon';
 import {
   findIndexOfPostInData,
@@ -143,7 +142,9 @@ export default function BookmarkFeedLayout({
   const { folders: bookmarkFolders } = useBookmarkFolderList();
   const bookmarkPath = (router.asPath ?? router.pathname ?? '').split('?')[0];
   const { user } = useContext(AuthContext);
-  const isWeeklyPicksEnabled = useFeature(featureWeeklyPicks);
+  const { isEnabled: isWeeklyPicksEnabled } = useWeeklyPicksEntry({
+    shouldEvaluate: !!user,
+  });
   // Someone who created picks from a shared link is outside the flag but
   // still needs a way back to edit them this week.
   const { data: currentPicks } = useQuery(myCurrentPicksQueryOptions(user));

@@ -126,6 +126,32 @@ export const PICKS_QUERY = gql`
   ${PICKS_FRAGMENT}
 `;
 
+/** The week's distinct posts by strongest signal, as the API attributes them */
+/** A post from the reader's week, enough for a thumbnail. */
+export type PicksWeekPost = Pick<PicksPost, 'id' | 'image'>;
+
+export interface PicksWeekSignals {
+  upvotes: number;
+  bookmarks: number;
+  reads: number;
+  /** Up to three of the week's posts, strongest signal first. */
+  posts: PicksWeekPost[];
+}
+
+export const PICKS_WEEK_SIGNALS_QUERY = gql`
+  query PicksWeekSignals {
+    myPicksWeekSignals {
+      upvotes
+      bookmarks
+      reads
+      posts {
+        id
+        image
+      }
+    }
+  }
+`;
+
 export const MY_CURRENT_PICKS_QUERY = gql`
   query MyCurrentPicks {
     myCurrentPicks {
@@ -234,6 +260,19 @@ export const myCurrentPicksQueryOptions = (user?: Pick<LoggedUser, 'id'>) => ({
       MY_CURRENT_PICKS_QUERY,
     );
     return data.myCurrentPicks ?? null;
+  },
+  enabled: !!user?.id,
+});
+
+export const picksWeekSignalsQueryOptions = (
+  user?: Pick<LoggedUser, 'id'>,
+) => ({
+  queryKey: generateQueryKey(RequestKey.Picks, user, 'week-signals'),
+  queryFn: async (): Promise<PicksWeekSignals> => {
+    const data = await gqlClient.request<{
+      myPicksWeekSignals: PicksWeekSignals;
+    }>(PICKS_WEEK_SIGNALS_QUERY);
+    return data.myPicksWeekSignals;
   },
   enabled: !!user?.id,
 });

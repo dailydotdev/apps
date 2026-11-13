@@ -744,6 +744,17 @@
   background: var(--theme-background-default);
 }
 
+/* With the sidebar the page stands inside two `contents` wrappers, which
+   draw no box, so the pieces that move are their children. */
+:root.reading
+  .shell-layout
+  > main
+  > .contents
+  > .contents
+  > :not(.fixed):not(.shell-cluster):not(.shell-scrim) {
+  background: var(--theme-background-default);
+}
+
 /* The top block stays away until the post is pulled past the drawer's
    head, so the room the layout keeps for it goes too. */
 :root.reading .shell-layout {

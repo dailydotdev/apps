@@ -5,12 +5,11 @@ import { useRouter } from 'next/router';
 import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { featureStartupsCheckout } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   StartupsCheckout,
   StartupsCheckoutStep,
 } from '@dailydotdev/shared/src/features/squads/components/checkout/StartupsCheckout';
+import { saveCheckoutAttribution } from '@dailydotdev/shared/src/features/squads/lib/checkoutAttribution';
 import { noindexSeoProps } from '../../next-seo';
 
 const StartupsCheckoutPage = (): ReactElement | null => {
@@ -19,21 +18,14 @@ const StartupsCheckoutPage = (): ReactElement | null => {
   // A new social account has a user before its profile is complete; it stays
   // on the account step until then.
   const isSignedUp = !!user?.infoConfirmed;
-  const { value: isEnabled, isLoading } = useConditionalFeature({
-    feature: featureStartupsCheckout,
-    shouldEvaluate: isSignedUp,
-  });
 
-  // The flag targets accounts, so a visitor from the landing page signs up
-  // first and is checked after.
   useEffect(() => {
-    if (isSignedUp && !isLoading && !isEnabled) {
-      router.replace('/squads');
+    if (router.isReady) {
+      saveCheckoutAttribution(router.query);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSignedUp, isLoading, isEnabled]);
+  }, [router.isReady, router.query]);
 
-  if (!isAuthReady || !router.isReady || (isSignedUp && !isEnabled)) {
+  if (!isAuthReady || !router.isReady) {
     return null;
   }
 

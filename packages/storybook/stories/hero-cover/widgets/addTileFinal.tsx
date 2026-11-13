@@ -68,6 +68,7 @@ export const getAddTileKinds = ({
   const availability: FeedWidgetAvailability = {
     isLoggedIn,
     isReadingStreakOn,
+    isQuestSystemOn: true,
     hasSquads: false,
     hasMessages: false,
     hasLiveChat: false,

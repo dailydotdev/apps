@@ -11,7 +11,7 @@ import type { IconProps } from '../Icon';
 import { Loader } from '../Loader';
 import { combinedClicks } from '../../lib/click';
 
-import { ColorName as ButtonColor } from '../../styles/colors';
+import { ButtonColor } from '../../styles/buttonColors';
 import {
   ButtonSize,
   ButtonVariant,

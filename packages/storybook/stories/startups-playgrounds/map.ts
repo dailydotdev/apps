@@ -655,7 +655,6 @@ export const flows: PlaygroundFlow[] = [
 
 export const exitNotes = [
   'Enterprise links go to business.daily.dev, from the Plan step and Manage › Subscription.',
-  'A person outside the flag is sent to /squads, and only after signing up, because a signed-out visitor can’t be checked yet.',
   '?d_id= applies a discount on the Paddle form. You can only see it live.',
   'Accounts with an unfinished social sign-up stay on the Account step until the profile is complete.',
 ];
@@ -721,10 +720,9 @@ export const notScreens: { title: string; items: string[] }[] = [
   {
     title: 'States that draw nothing',
     items: [
-      'Page gate: blank while auth, the router and the flag load.',
-      'Flag off for a signed-in person: blank, then redirected to /squads.',
+      'Page gate: blank while auth and the router load.',
       'Upsell hidden: moderators, members, visitors, verified squads, squads with a plan, or dismissed for this squad.',
-      'Manage › Subscription hidden: flag off, or no edit permission. A direct link redirects to Manage.',
+      'Manage › Subscription hidden: no edit permission. A direct link redirects to Manage.',
       'Manage › Subscription is unreachable by members and visitors.',
       'Users with an unfinished social profile stay on Account until it completes.',
     ],

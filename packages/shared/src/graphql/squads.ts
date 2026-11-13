@@ -20,7 +20,7 @@ import type {
   Squad,
   SquadRule,
 } from './sources';
-import type { FeedData, PollOption, Post } from './posts';
+import type { FeedData, PollOption, Post, PostAgentViews } from './posts';
 import {
   RankingAlgorithm,
   SOURCE_FEED_QUERY,
@@ -178,7 +178,6 @@ export const SOURCES_QUERY = gql`
               }
             }
           }
-          referralUrl
         }
       }
     }
@@ -421,6 +420,34 @@ export const squadLatestPostsQueryOptions = ({
   staleTime: StaleTime.Default,
 });
 
+export const SOURCE_REFERRAL_URL_QUERY = gql`
+  query SourceReferralUrl($id: ID!) {
+    source(id: $id) {
+      referralUrl
+    }
+  }
+`;
+
+/** The viewer's invite link. Shortening it is slow, so the squad query skips it. */
+export const squadReferralUrlQueryOptions = ({
+  user,
+  sourceId,
+}: {
+  user?: Pick<LoggedUser, 'id'>;
+  sourceId?: string;
+}) => ({
+  queryKey: generateQueryKey(RequestKey.Squad, user, sourceId, 'referralUrl'),
+  queryFn: async (): Promise<string | null> => {
+    const res = await gqlClient.request<{
+      source: Pick<Squad, 'referralUrl'>;
+    }>(SOURCE_REFERRAL_URL_QUERY, { id: sourceId });
+
+    return res.source?.referralUrl ?? null;
+  },
+  enabled: !!user?.id && !!sourceId,
+  staleTime: StaleTime.OneDay,
+});
+
 const SQUAD_COVER_QUERY = gql`
   query SquadCover($id: ID!) {
     source(id: $id) {
@@ -587,6 +614,48 @@ export const SQUAD_ANALYTICS_HISTORY_QUERY = gql`
       date
       impressions
       impressionsAds
+    }
+  }
+`;
+
+export const SQUAD_AGENT_ANALYTICS_QUERY = gql`
+  query SquadAgentAnalytics($sourceId: ID!) {
+    squadAnalytics(sourceId: $sourceId) {
+      id
+      agentViews
+      agentViewsClaude
+      agentViewsChatgpt
+      agentViewsGemini
+      agentViewsPerplexity
+      agentViewsExa
+      agentViewsMeta
+      agentViewsBot
+      agentViewsClaudeBot
+      agentViewsChatgptBot
+      agentViewsPerplexityBot
+      agentViewsExaBot
+      agentViewsMetaBot
+    }
+  }
+`;
+
+export const SQUAD_AGENT_ANALYTICS_HISTORY_QUERY = gql`
+  query SquadAgentAnalyticsHistory($sourceId: ID!) {
+    squadAnalyticsHistory(sourceId: $sourceId) {
+      date
+      agentViews
+      agentViewsClaude
+      agentViewsChatgpt
+      agentViewsGemini
+      agentViewsPerplexity
+      agentViewsExa
+      agentViewsMeta
+      agentViewsBot
+      agentViewsClaudeBot
+      agentViewsChatgptBot
+      agentViewsPerplexityBot
+      agentViewsExaBot
+      agentViewsMetaBot
     }
   }
 `;
@@ -890,6 +959,44 @@ export const squadAnalyticsHistoryQueryOptions = ({
   };
 };
 
+export const squadAgentAnalyticsQueryOptions = ({
+  sourceId,
+}: {
+  sourceId?: string;
+}) => {
+  return {
+    queryKey: [RequestKey.SquadAgentAnalytics, sourceId],
+    queryFn: async () => {
+      const result = await gqlClient.request<{
+        squadAnalytics: SquadAgentAnalytics | null;
+      }>(SQUAD_AGENT_ANALYTICS_QUERY, { sourceId });
+
+      return result.squadAnalytics;
+    },
+    enabled: !!sourceId,
+    staleTime: StaleTime.Default,
+  };
+};
+
+export const squadAgentAnalyticsHistoryQueryOptions = ({
+  sourceId,
+}: {
+  sourceId?: string;
+}) => {
+  return {
+    queryKey: [RequestKey.SquadAgentAnalyticsHistory, sourceId],
+    queryFn: async () => {
+      const result = await gqlClient.request<{
+        squadAnalyticsHistory: SquadAgentAnalyticsHistoryNode[];
+      }>(SQUAD_AGENT_ANALYTICS_HISTORY_QUERY, { sourceId });
+
+      return result.squadAnalyticsHistory;
+    },
+    enabled: !!sourceId,
+    staleTime: StaleTime.Default,
+  };
+};
+
 export async function getSquadMembers(
   id: string,
 ): Promise<BasicSourceMember[]> {
@@ -940,6 +1047,14 @@ export interface SquadAnalyticsHistoryNode {
   impressions: number;
   impressionsAds: number;
 }
+
+export type SquadAgentAnalytics = PostAgentViews & {
+  id: string;
+};
+
+export type SquadAgentAnalyticsHistoryNode = PostAgentViews & {
+  date: Date;
+};
 
 export interface SquadInvitationProps {
   token?: string;

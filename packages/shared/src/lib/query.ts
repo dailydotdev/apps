@@ -257,9 +257,12 @@ export enum RequestKey {
   CreatorPostPerformance = 'creator_post_performance',
   SquadAnalytics = 'squad_analytics',
   SquadAnalyticsHistory = 'squad_analytics_history',
+  SquadAgentAnalytics = 'squad_agent_analytics',
+  SquadAgentAnalyticsHistory = 'squad_agent_analytics_history',
   SquadPerformance = 'squad_performance',
   SquadPostPerformance = 'squad_post_performance',
   CheckLocation = 'check_location',
+  EnsureUserTimezone = 'ensure_user_timezone',
   GenerateBrief = 'generate_brief',
   Opportunity = 'opportunity',
   Opportunities = 'opportunities',
@@ -285,6 +288,7 @@ export enum RequestKey {
   OAuthClients = 'oauth_clients',
   OAuthConsents = 'oauth_consents',
   OAuthPublicClient = 'oauth_public_client',
+  AgentClaim = 'agent_claim',
   Plugins = 'plugins',
   Plugin = 'plugin',
   MyPlugins = 'my_plugins',
@@ -303,6 +307,7 @@ export enum RequestKey {
   LeaderboardPosition = 'leaderboard_position',
   ShellState = 'shell_state',
   AchievementTracker = 'achievement_tracker',
+  EngagementCreatives = 'engagement_creatives',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

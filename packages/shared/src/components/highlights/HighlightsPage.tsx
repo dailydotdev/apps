@@ -25,7 +25,6 @@ import { ButtonSize } from '../buttons/Button';
 import { CopyHighlightsLink } from './CopyHighlightsLink';
 import { DigestCTA } from './DigestCTA';
 import { HighlightItem } from './HighlightItem';
-import type { HomeHighlightsView } from '../../features/feedWidgets/homeHighlightsView';
 
 const MAJOR_HEADLINES_LABEL = 'Headlines';
 const ALL_HIGHLIGHTS_LABEL = 'All';
@@ -164,21 +163,11 @@ const AllHighlightsTab = ({
   );
 };
 
-interface HighlightsPageProps {
-  // Shown as a tab of the home page (see `homeHighlightsView`): the view
-  // comes from here rather than the route, which stays the feed page.
-  view?: HomeHighlightsView;
-}
-
-export const HighlightsPage = ({
-  view,
-}: HighlightsPageProps = {}): ReactElement => {
+export const HighlightsPage = (): ReactElement => {
   const router = useRouter();
-  const channel = view
-    ? view.channel
-    : getSingleQueryParam(router.query.channel);
+  const channel = getSingleQueryParam(router.query.channel);
   const expandedId = getSingleQueryParam(router.query.highlight);
-  const isAllTab = view ? !!view.isAll : router.pathname === ALL_HIGHLIGHTS_URL;
+  const isAllTab = router.pathname === ALL_HIGHLIGHTS_URL;
   const { data, isFetching } = useQuery(highlightsPageQueryOptions());
 
   const channels = data?.channelConfigurations ?? [];
@@ -282,8 +271,7 @@ export const HighlightsPage = ({
           showHeader={!isPhone && !isLaptopLayout}
           showBorder={false}
           shallow
-          // A swipe would open the highlights page, away from the home tabs.
-          swipeable={!view}
+          swipeable
           tabListProps={{ autoScrollActive: true, dragScroll: true }}
           tabTag="a"
           className={{

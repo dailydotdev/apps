@@ -37,11 +37,11 @@ export function IntroQuestButton({
   attentionDot = false,
 }: IntroQuestButtonProps = {}): ReactElement | null {
   const { isAuthReady, isLoggedIn } = useAuthContext();
-  const { loadedSettings } = useSettingsContext();
+  const { loadedSettings, optOutQuestSystem } = useSettingsContext();
   const { openModal } = useLazyModal();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { checkHasCompleted } = useActions();
-  const { data } = useQuestDashboard();
+  const { data } = useQuestDashboard({ enabled: !optOutQuestSystem });
   const introQuests = data?.intro ?? [];
   const allIntroQuestsClaimed =
     introQuests.length > 0 &&
@@ -58,6 +58,7 @@ export function IntroQuestButton({
   const shouldRenderButton =
     isAuthReady &&
     loadedSettings &&
+    !optOutQuestSystem &&
     isLoggedIn &&
     introQuests.length > 0 &&
     !allIntroQuestsClaimed &&

@@ -132,7 +132,8 @@ export const squadPlanDetails: Record<SquadPlan, SquadPlanDetails> = {
     featuresTitle: 'What you get:',
     features: [
       'Company page with a link to your site',
-      'In the feed and search, cited by AI answers',
+      'In developers’ feeds, by topic',
+      'On Google and in AI answers',
       'Weekly intel on up to 5 topics',
       'Skills for Claude Code and any agent',
       'API, so your agent posts and boosts',

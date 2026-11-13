@@ -53,6 +53,7 @@ import { getPlusMemberDateFormat } from '../../../../lib/dateFormat';
 import { useLogStartups } from '../../hooks/useLogStartups';
 import { useStartupsSetupRefresh } from '../../hooks/useStartupsSetupRefresh';
 import { SquadManageSectionPanel } from './SquadManageLayout';
+import { SquadPlanSwitch } from './SquadPlanSwitch';
 import {
   StartupsSetup,
   StartupsSetupPath,
@@ -173,8 +174,8 @@ const ChoosePlan = ({ isAdmin }: { isAdmin: boolean }): ReactElement => {
   return (
     <div className="flex flex-col gap-5">
       <SectionTitle
-        title="Make it your company page"
-        description="In the feed and search, cited by AI answers, and your agent posts and boosts through the API."
+        title="Get your startup in front of developers"
+        description="In developers’ feeds by topic, on Google and in AI answers."
       />
       <SquadLaunchOfferBanner />
       <div className="grid gap-3 tablet:grid-cols-2">
@@ -357,10 +358,6 @@ export const SquadManageSeats = ({
   const { data: members, isPending } = useQuery(
     squadSeatMembersQueryOptions({ user, sourceId: getSquadId(squad) }),
   );
-  const { copying, logAndCopyLink } = useSquadInvitation({
-    squad,
-    origin: Origin.SquadManagePlan,
-  });
   const { seatLimit, seatsUsed } = subscription;
   // Only an admin who holds a seat can bring a teammate in to seat
   const viewerHasSeat =
@@ -368,6 +365,13 @@ export const SquadManageSeats = ({
     (members?.find((member) => member.user.id === user?.id)?.seat ??
       !!squad.currentMember?.seat);
   const canInvite = isAdmin && viewerHasSeat;
+  const showInvite =
+    !isPending && (members?.length ?? 0) <= 1 && canInvite && seatLimit > 1;
+  const { copying, logAndCopyLink } = useSquadInvitation({
+    squad,
+    origin: Origin.SquadManagePlan,
+    enabled: showInvite,
+  });
 
   return (
     <section className="flex flex-col gap-2">
@@ -401,24 +405,21 @@ export const SquadManageSeats = ({
           ))}
         </ul>
       )}
-      {!isPending &&
-        (members?.length ?? 0) <= 1 &&
-        canInvite &&
-        seatLimit > 1 && (
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-16 bg-surface-float p-4">
-            <p className="min-w-0 flex-1 text-pretty text-text-secondary typo-footnote">
-              Only admins and moderators can hold a seat. Invite a teammate to
-              the page, then make them a moderator.
-            </p>
-            <Button
-              variant={ButtonVariant.Secondary}
-              size={ButtonSize.Small}
-              onClick={() => logAndCopyLink()}
-            >
-              {copying ? 'Copied' : 'Copy invite link'}
-            </Button>
-          </div>
-        )}
+      {showInvite && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-16 bg-surface-float p-4">
+          <p className="min-w-0 flex-1 text-pretty text-text-secondary typo-footnote">
+            Only admins and moderators can hold a seat. Invite a teammate to the
+            page, then make them a moderator.
+          </p>
+          <Button
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            onClick={() => logAndCopyLink()}
+          >
+            {copying ? 'Copied' : 'Copy invite link'}
+          </Button>
+        </div>
+      )}
     </section>
   );
 };
@@ -567,6 +568,9 @@ const ActivePlan = ({
               </span>
             </div>
           </div>
+        )}
+        {isSelfServe && isOwner && (
+          <SquadPlanSwitch subscription={subscription} />
         )}
       </div>
       {isSelfServe && <SetupSection plan={plan} />}

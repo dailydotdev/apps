@@ -57,7 +57,7 @@ const GamificationSettingsPage = (): ReactElement => {
   });
 
   const [userTimeZone, setUserTimeZone] = useState<string>(
-    getUserInitialTimezone({ userTimezone: user?.timezone, update: true }),
+    getUserInitialTimezone({ userTimezone: user?.timezone }),
   );
 
   return (
@@ -74,7 +74,8 @@ const GamificationSettingsPage = (): ReactElement => {
             onToggle={toggleAllGamification}
           >
             Master toggle for all gamification features. Turning this off hides
-            streaks, levels, quests, and achievements across daily.dev.
+            streaks, levels, quests, achievements, and Top Reader badge
+            announcements across daily.dev.
           </SettingsSwitch>
         </section>
 
@@ -154,7 +155,7 @@ const GamificationSettingsPage = (): ReactElement => {
           >
             Toggle to display or hide quests, level/XP progress, and
             achievements across daily.dev. Turning this off won&apos;t affect
-            your progress — you&apos;ll still earn everything in the background.
+            your progress. You&apos;ll still earn everything in the background.
           </SettingsSwitch>
         </section>
 
@@ -171,7 +172,7 @@ const GamificationSettingsPage = (): ReactElement => {
             >
               Select your time zone and the beginning of the weekend in your
               area, so that we can be accurate in sending the notifications.
-              This will also effect the{' '}
+              This will also affect the{' '}
               <ReadingStreakIcon
                 secondary
                 size={IconSize.Size16}

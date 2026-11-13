@@ -99,7 +99,7 @@ export function ProfileWidgets({
     shouldRenderTrackingWidget;
 
   const { before, after } = getProfileReadingWindow();
-  const { data: readingHistory, isLoading: isReadingHistoryLoading } = useQuery(
+  const { data: readingHistory, isPending: isReadingHistoryPending } = useQuery(
     profileReadingHistoryQueryOptions({ user, enabled: tokenRefreshed }),
   );
   const squads = sources?.edges?.map((s) => s.node.source) ?? [];
@@ -138,9 +138,9 @@ export function ProfileWidgets({
         readHistory={readingHistory?.userReadHistory}
         before={before}
         after={after}
-        streak={readingHistory?.userStreakProfile}
+        streak={readingHistory?.userStreakProfile ?? undefined}
         mostReadTags={readingHistory?.userMostReadTags}
-        isLoading={isReadingHistoryLoading}
+        isLoading={isReadingHistoryPending}
       />
       {shouldShowTrackingWidget && !optOutAchievements && (
         <AchievementTrackingWidget user={user} />
