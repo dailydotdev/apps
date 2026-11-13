@@ -262,6 +262,7 @@ export enum RequestKey {
   SquadPerformance = 'squad_performance',
   SquadPostPerformance = 'squad_post_performance',
   CheckLocation = 'check_location',
+  EnsureUserTimezone = 'ensure_user_timezone',
   GenerateBrief = 'generate_brief',
   Opportunity = 'opportunity',
   Opportunities = 'opportunities',
