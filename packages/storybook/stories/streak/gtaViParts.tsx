@@ -6,7 +6,9 @@ import { HotIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Feature } from '@dailydotdev/shared/src/lib/feature';
 import { dateFormatInTimezone } from '@dailydotdev/shared/src/lib/timezones';
-import tooltipArt from './assets/gta-vi-tooltip.webp';
+
+const tooltipArt =
+  'https://media.daily.dev/image/upload/s--WRJeuNmE--/f_auto,q_auto/public/gta-vi-tooltip';
 
 /*
  * The GTA VI day's own pieces: copy, tooltip and disc. The design catalog
