@@ -53,6 +53,7 @@ import { getPlusMemberDateFormat } from '../../../../lib/dateFormat';
 import { useLogStartups } from '../../hooks/useLogStartups';
 import { useStartupsSetupRefresh } from '../../hooks/useStartupsSetupRefresh';
 import { SquadManageSectionPanel } from './SquadManageLayout';
+import { SquadPlanSwitch } from './SquadPlanSwitch';
 import {
   StartupsSetup,
   StartupsSetupPath,
@@ -567,6 +568,9 @@ const ActivePlan = ({
               </span>
             </div>
           </div>
+        )}
+        {isSelfServe && isOwner && (
+          <SquadPlanSwitch subscription={subscription} />
         )}
       </div>
       {isSelfServe && <SetupSection plan={plan} />}

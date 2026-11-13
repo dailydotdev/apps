@@ -30,11 +30,13 @@ export const useStreakDailyCelebration = (): ((current?: number) => void) => {
   const { optOutReadingStreak, loadedSettings } = useContext(SettingsContext);
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
+  const isStreaksEnabled = loadedSettings && !optOutReadingStreak;
+  // Users who opted out of streaks (or whose settings are still loading) can
+  // never see the toast, so keep them out of the experiment.
   const { value: isEnabled } = useConditionalFeature({
     feature: featureStreakDailyCelebration,
-    shouldEvaluate: !!user && !isCompanion,
+    shouldEvaluate: !!user && !isCompanion && isStreaksEnabled,
   });
-  const isStreaksEnabled = loadedSettings && !optOutReadingStreak;
   const showStreakMilestone = alerts?.showStreakMilestone;
 
   return useCallback(
