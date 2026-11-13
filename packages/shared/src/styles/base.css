@@ -244,6 +244,7 @@ body {
   --theme-overlay-base-secondary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 60%);
   --theme-overlay-base-tertiary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 68%);
   --theme-overlay-base-quaternary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 76%);
+  --theme-vice-city-cover-overlay: color-mix(in srgb, var(--theme-background-default), transparent 60%);
   /* Dark */
   --theme-overlay-dark-dark1: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 68%);
   --theme-overlay-dark-dark2: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 60%);
@@ -528,6 +529,7 @@ body {
   --theme-overlay-base-secondary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 60%);
   --theme-overlay-base-tertiary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 68%);
   --theme-overlay-base-quaternary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 76%);
+  --theme-vice-city-cover-overlay: color-mix(in srgb, var(--theme-background-default), transparent 30%);
   /* Dark */
   --theme-overlay-dark-dark1: color-mix(in srgb, theme('colors.raw.pepper.10'), transparent 68%);
   --theme-overlay-dark-dark2: color-mix(in srgb, theme('colors.raw.pepper.10'), transparent 60%);
