@@ -11,6 +11,7 @@ import { useStreakSoftBreak } from '../../../hooks/streaks/useStreakSoftBreak';
 import { StreakSoftBreakHero } from '../../streak/StreakSoftBreakHero';
 import { StreakMonthCalendar } from '../../streak/popup/StreakMonthCalendar';
 import { StreakResetReason } from '../../streak/StreakResetReason';
+import { StreakGoalProgress } from '../../streak/StreakGoalProgress';
 import { StreakFreezeRow } from '../../streak/popup/StreakFreezeRow';
 import { CompactQuestList } from '../../quest/CompactQuestList';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
@@ -80,7 +81,12 @@ const QuestsGroup = ({
 export const StreakQuestsSection = (): ReactElement => {
   const { user } = useAuthContext();
   const { optOutQuestSystem } = useSettingsContext();
-  const { isEnabled: isStreakEnabled, count, streak } = useStreakRingState();
+  const {
+    isEnabled: isStreakEnabled,
+    count,
+    streak,
+    goalProgress,
+  } = useStreakRingState();
   const { data: questDashboard } = useQuestDashboard({
     enabled: !optOutQuestSystem,
   });
@@ -134,6 +140,7 @@ export const StreakQuestsSection = (): ReactElement => {
             >
               {streak.max} Longest · {streak.total} Total
             </Typography>
+            <StreakGoalProgress progress={goalProgress} className="mt-3" />
             <div className="mb-5 mt-5 flex items-center justify-between gap-2">
               {/* The Tooltip trigger MUST be a stable DOM element. Using the
                 Typography component directly here crashed the panel: Typography

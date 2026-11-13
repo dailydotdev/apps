@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
@@ -22,6 +22,13 @@ import useProfileForm from '../../hooks/useProfileForm';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
 import { useReferralReminderModal } from '../../hooks/referral/useReferralReminderModal';
 import { useIsBootPopupsPaused } from '../../lib/bootPopupsPause';
+import { useStreakGoal } from '../../hooks/streaks/useStreakGoal';
+import {
+  getStreakBreakKey,
+  hasSeenStreakGoalBreakPrompt,
+  markStreakGoalBreakPromptSeen,
+  StreakGoalPromptReason,
+} from '../../lib/streakGoal';
 
 const REP_TRESHOLD = 250;
 
@@ -93,6 +100,13 @@ export const BootPopups = (): ReactElement => {
   const marketingCtaPlus = getMarketingCta(MarketingCtaVariant.Plus);
 
   const { streak, isStreaksEnabled } = useReadingStreak();
+  const { isEnabled: isStreakGoalEnabled, goal: streakGoal } = useStreakGoal();
+  // The milestone and restore modals own a boot they show on, even after
+  // they close and clear their alert
+  const hasStreakModalThisBoot = useRef(false);
+  if (alerts?.showStreakMilestone || alerts?.showRecoverStreak) {
+    hasStreakModalThisBoot.current = true;
+  }
 
   const isDisabledMilestone = checkHasCompleted(
     ActionType.DisableReadingStreakMilestone,
@@ -260,6 +274,63 @@ export const BootPopups = (): ReactElement => {
     isStreaksEnabled,
     streak,
     updateAlerts,
+    updateLastBootPopup,
+    user,
+  ]);
+
+  /**
+   * Streak goal offer: once at day 2 without a goal, and once per reset
+   */
+  useEffect(() => {
+    if (
+      !isStreakGoalEnabled ||
+      !isActionsFetched ||
+      !loadedAlerts ||
+      !user ||
+      !streak ||
+      hasStreakModalThisBoot.current
+    ) {
+      return;
+    }
+
+    const isDayTwo =
+      streak.current === 2 &&
+      !streakGoal &&
+      !checkHasCompleted(ActionType.StreakGoalSkipped);
+    const breakKey = getStreakBreakKey(streak, user.timezone);
+    const isAfterBreak =
+      streak.current === 0 &&
+      streak.max > 0 &&
+      !hasSeenStreakGoalBreakPrompt(user.id, breakKey);
+
+    if (!isDayTwo && !isAfterBreak) {
+      return;
+    }
+
+    addBootPopup({
+      type: LazyModal.StreakGoal,
+      props: {
+        reason: isDayTwo
+          ? StreakGoalPromptReason.DayTwo
+          : StreakGoalPromptReason.Break,
+        preselectedGoal: isDayTwo ? null : streakGoal,
+        onAfterOpen: () => {
+          if (!isDayTwo) {
+            markStreakGoalBreakPromptSeen(user.id, breakKey);
+          }
+        },
+        onAfterClose: () => {
+          updateLastBootPopup();
+        },
+      },
+    });
+  }, [
+    checkHasCompleted,
+    isActionsFetched,
+    isStreakGoalEnabled,
+    loadedAlerts,
+    streak,
+    streakGoal,
     updateLastBootPopup,
     user,
   ]);

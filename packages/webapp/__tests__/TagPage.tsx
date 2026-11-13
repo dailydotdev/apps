@@ -178,6 +178,8 @@ const renderComponent = (
     optOutReadingStreak: false,
     optOutStreakFreeze: false,
     toggleOptOutStreakFreeze: jest.fn().mockResolvedValue(undefined),
+    streakGoal: null,
+    updateStreakGoal: jest.fn().mockResolvedValue(undefined),
     optOutLevelSystem: false,
     optOutQuestSystem: false,
     optOutAchievements: false,

@@ -13,6 +13,7 @@ import {
   isGraphQLRejection,
 } from '../../lib/streakViewQueue';
 import { useStreakDailyCelebration } from '../streaks/useStreakDailyCelebration';
+import { useStreakGoalCelebration } from '../streaks/useStreakGoalCelebration';
 
 interface ViewPostContext {
   previousStreak?: UserStreak;
@@ -35,6 +36,7 @@ export const useViewPost = (): UseMutateAsyncFunction<
     shouldEvaluate: !!user,
   });
   const celebrateStreakDay = useStreakDailyCelebration();
+  const celebrateStreakGoal = useStreakGoalCelebration();
   const streakKey = generateQueryKey(RequestKey.UserStreak, user);
   const readKey = generateQueryKey(RequestKey.ReadingStreak30Days, user);
   const { mutateAsync: onSendViewPost } = useMutation<
@@ -80,11 +82,13 @@ export const useViewPost = (): UseMutateAsyncFunction<
         await client.invalidateQueries({ queryKey: readKey });
 
         const refetched = client.getQueryState<UserStreak>(streakKey);
-        celebrateStreakDay(
+        const current =
           refetched?.status === 'success'
             ? refetched.data?.current
-            : context.nextStreak,
-        );
+            : context.nextStreak;
+        if (!celebrateStreakGoal(current)) {
+          celebrateStreakDay(current);
+        }
       }
 
       return null;

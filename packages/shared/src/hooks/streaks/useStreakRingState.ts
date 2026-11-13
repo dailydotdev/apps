@@ -3,6 +3,8 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useReadingStreakSummary } from './useReadingStreakSummary';
 import { DEFAULT_TIMEZONE, dateFormatInTimezone } from '../../lib/timezones';
 import type { UserStreak } from '../../graphql/users';
+import type { StreakGoalProgress } from '../../lib/streakGoal';
+import { useStreakGoal } from './useStreakGoal';
 
 export type StreakRingState =
   | 'none'
@@ -91,6 +93,9 @@ export interface StreakRingInfo {
   count: number;
   hasReadToday: boolean;
   copy: string;
+  // Set while a streak goal is in progress (streak_goals); the ring fills as
+  // current/goal
+  goalProgress: StreakGoalProgress | null;
 }
 
 const getCopy = (state: StreakRingState, count: number): string => {
@@ -120,6 +125,7 @@ export const useStreakRingState = (): StreakRingInfo => {
   const { user } = useAuthContext();
   const { isEnabled, isLoading, streak, count, hasReadToday, isAtRisk } =
     useReadingStreakSummary();
+  const { progress: goalProgress } = useStreakGoal(count);
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
 
   // Re-render every few minutes so the time-of-day escalation stays current.
@@ -194,5 +200,6 @@ export const useStreakRingState = (): StreakRingInfo => {
     count,
     hasReadToday,
     copy: getCopy(state, count),
+    goalProgress,
   };
 };

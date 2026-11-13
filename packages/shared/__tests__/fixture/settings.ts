@@ -22,6 +22,8 @@ export const createTestSettings = (
   optOutReadingStreak: true,
   optOutStreakFreeze: false,
   toggleOptOutStreakFreeze: jest.fn(),
+  streakGoal: null,
+  updateStreakGoal: jest.fn(),
   optOutLevelSystem: false,
   optOutQuestSystem: false,
   optOutAchievements: false,

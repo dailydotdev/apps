@@ -16,6 +16,7 @@ import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../../components/modals/common/types';
 import { StreakMonthCalendar } from '../../../components/streak/popup/StreakMonthCalendar';
 import { StreakResetReason } from '../../../components/streak/StreakResetReason';
+import { StreakGoalProgress } from '../../../components/streak/StreakGoalProgress';
 import { useIsStreakFreezeEnabled } from '../../../components/streak/popup/StreakFreezeRow';
 import { CompactQuestList } from '../../../components/quest/CompactQuestList';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
@@ -225,6 +226,7 @@ export const StreakWidget = ({
     count,
     hasReadToday,
     countClassName,
+    goalProgress,
   } = useStreakRingState();
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
   const { data: questDashboard } = useQuestDashboard({
@@ -298,6 +300,7 @@ export const StreakWidget = ({
           <span className="truncate tabular-nums text-text-tertiary typo-caption1">
             {streak.max} longest · {streak.total.toLocaleString()} total
           </span>
+          <StreakGoalProgress progress={goalProgress} className="mt-2" />
         </span>
         <span
           className={classNames(
