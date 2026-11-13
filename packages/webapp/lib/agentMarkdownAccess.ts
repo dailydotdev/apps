@@ -1,6 +1,7 @@
 import { getServerFeatureValue } from '@dailydotdev/shared/src/lib/serverFeatureValue';
 import { featureAgentMarkdownSignupWall } from '@dailydotdev/shared/src/lib/serverFeatures';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
+import { AGENT_ONBOARDING_SKILL_URL } from '@dailydotdev/shared/src/features/agentOnboarding/prompt';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const MARKDOWN_TOKEN_PREFIX = 'ddm_';
@@ -158,5 +159,7 @@ Content-Type: application/json
 {}
 \`\`\`
 
-Your access is temporary. Retry this URL with \`Authorization: Bearer <token>\`, then immediately send the returned \`signupUrl\` to your human and ask them to claim the account.
+Your access is temporary. Retry this URL with \`Authorization: Bearer <token>\`, then immediately send the returned \`signupUrl\` to your human and ask them to claim the account. Give them \`userCode\` too: the page shows the same code, so they know the link came from you.
+
+Once they have claimed it, \`GET ${AGENT_SIGNUP_URL}/status\` with the same header returns an API token for their account, once. ${AGENT_ONBOARDING_SKILL_URL} explains how to set the account up with it.
 `;
