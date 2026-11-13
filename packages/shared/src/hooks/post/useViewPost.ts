@@ -10,11 +10,22 @@ import { useConditionalFeature } from '../useConditionalFeature';
 import { featureStreakOptimisticView } from '../../lib/featureManagement';
 import {
   enqueueStreakView,
-  isGraphQLRejection,
+  isFinalViewRejection,
 } from '../../lib/streakViewQueue';
+import { hasStreakViewToday } from '../../lib/userStreak';
+
+// The API credits the view in a worker after the mutation resolves, so the
+// first refetch can miss it. Give the worker this long before asking again.
+export const STREAK_REFETCH_RETRY_DELAY_MS = 2000;
+
+const wait = (ms: number) =>
+  new Promise<void>((resolve) => {
+    setTimeout(resolve, ms);
+  });
 
 interface ViewPostContext {
   previousStreak?: UserStreak;
+  optimisticStreak?: UserStreak;
   shouldRefetchStreak: boolean;
 }
 
@@ -57,23 +68,46 @@ export const useViewPost = (): UseMutateAsyncFunction<
       }
 
       const current = streak.current + 1;
-      client.setQueryData<UserStreak>(streakKey, {
+      const optimisticStreak: UserStreak = {
         ...streak,
         current,
         total: streak.total + 1,
         max: Math.max(streak.max, current),
         lastViewAt: new Date(),
-      });
+      };
+      client.setQueryData<UserStreak>(streakKey, optimisticStreak);
 
-      return { previousStreak: streak, shouldRefetchStreak };
+      return { previousStreak: streak, optimisticStreak, shouldRefetchStreak };
     },
     onSuccess: async (_, __, context) => {
-      if (context.shouldRefetchStreak) {
+      if (!context.shouldRefetchStreak) {
+        return null;
+      }
+
+      const { optimisticStreak } = context;
+      const refetchStreak = async (): Promise<boolean> => {
         await client.refetchQueries({ queryKey: streakKey });
 
-        // just mark the query as stale
-        await client.invalidateQueries({ queryKey: readKey });
+        return hasStreakViewToday(
+          client.getQueryData<UserStreak>(streakKey),
+          user?.timezone,
+        );
+      };
+      const isCounted = await refetchStreak();
+
+      // A refetch that still has the pre-view streak would undo the
+      // optimistic bump, so keep the bump and ask once more after a moment.
+      if (optimisticStreak && !isCounted) {
+        client.setQueryData<UserStreak>(streakKey, optimisticStreak);
+        await wait(STREAK_REFETCH_RETRY_DELAY_MS);
+
+        if (!(await refetchStreak())) {
+          client.setQueryData<UserStreak>(streakKey, optimisticStreak);
+        }
       }
+
+      // just mark the query as stale
+      await client.invalidateQueries({ queryKey: readKey });
 
       return null;
     },
@@ -82,7 +116,7 @@ export const useViewPost = (): UseMutateAsyncFunction<
         return;
       }
 
-      if (isGraphQLRejection(error)) {
+      if (isFinalViewRejection(error)) {
         if (context?.previousStreak) {
           client.setQueryData(streakKey, context.previousStreak);
         }

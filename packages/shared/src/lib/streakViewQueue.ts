@@ -1,8 +1,8 @@
-import { subHours } from 'date-fns';
 import type { ResponseError } from '../graphql/common';
+import { ApiError } from '../graphql/common';
 import { generateStorageKey, StorageTopic } from './storage';
 import { storageWrapper } from './storageWrapper';
-import { dateFormatInTimezone, isSameDayInTimezone } from './timezones';
+import { isSameDayInTimezone } from './timezones';
 
 export interface QueuedStreakView {
   postId: string;
@@ -15,10 +15,6 @@ export const STREAK_VIEW_QUEUE_KEY = generateStorageKey(
   StorageTopic.Streak,
   'pendingViews',
 );
-
-// Reads in the first hours of the next local day still credit the previous
-// streak day on the API, so a queued view stays worth sending that long.
-export const STREAK_VIEW_GRACE_HOURS = 3;
 
 export const readStreakViewQueue = (): QueuedStreakView[] => {
   try {
@@ -74,28 +70,35 @@ export const removeStreakView = (
   );
 };
 
-export const isGraphQLRejection = (error: unknown): boolean =>
-  Array.isArray((error as Partial<ResponseError>)?.response?.errors);
+// Codes that mean the API will never count this view (the post is gone, the
+// user cannot see it, or the session is not valid). Anything else, including
+// other GraphQL errors such as rate limiting or a failed publish, is treated
+// like a dropped connection and the view is kept for a retry.
+const FINAL_VIEW_REJECTION_CODES: ReadonlySet<string> = new Set([
+  ApiError.NotFound,
+  ApiError.Forbidden,
+  ApiError.Unauthenticated,
+]);
 
+export const isFinalViewRejection = (error: unknown): boolean => {
+  const errors = (error as Partial<ResponseError>)?.response?.errors;
+
+  return (
+    Array.isArray(errors) &&
+    errors.some((item) =>
+      FINAL_VIEW_REJECTION_CODES.has(item?.extensions?.code as string),
+    )
+  );
+};
+
+// viewPost takes no read time: the API credits a replayed view to the moment
+// it arrives. Only a view from the same local day lands on the day it was
+// read, so anything older is dropped instead of sent.
 export const isStreakViewCreditable = (
   at: Date,
   now: Date,
   timezone?: string,
-): boolean => {
-  if (isSameDayInTimezone(at, now, timezone)) {
-    return true;
-  }
-
-  const hour = parseInt(dateFormatInTimezone(now, 'HH', timezone), 10);
-
-  if (Number.isNaN(hour) || hour >= STREAK_VIEW_GRACE_HOURS) {
-    return false;
-  }
-
-  // Inside the grace window `now` is within a few hours of local midnight, so
-  // twelve hours back lands on the previous local day whatever DST does.
-  return isSameDayInTimezone(at, subHours(now, 12), timezone);
-};
+): boolean => isSameDayInTimezone(at, now, timezone);
 
 interface DrainStreakViewQueueProps {
   userId: string;
@@ -123,12 +126,12 @@ const sendQueuedViews = async (
   try {
     await sendView(view.postId);
   } catch (error) {
-    if (isGraphQLRejection(error)) {
+    if (isFinalViewRejection(error)) {
       removeStreakView(view);
       return sendQueuedViews(rest, sendView, now, sent);
     }
 
-    // still offline, keep the rest for the next drain
+    // still offline or a transient API error, keep the rest for the next drain
     return sent;
   }
 

@@ -14,7 +14,7 @@ import { REQUEST_PROTOCOL_KEY } from '../../graphql/common';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { DayOfWeek } from '../../lib/date';
 import { readStreakViewQueue } from '../../lib/streakViewQueue';
-import { useViewPost } from './useViewPost';
+import { STREAK_REFETCH_RETRY_DELAY_MS, useViewPost } from './useViewPost';
 
 const user = { ...loggedUser, timezone: 'Europe/Amsterdam' };
 const streakKey = generateQueryKey(RequestKey.UserStreak, user);
@@ -37,7 +37,9 @@ const serverStreak: UserStreak = {
   lastViewAt: new Date(),
 };
 
-const graphqlError = { response: { data: null, errors: [{ message: 'no' }] } };
+const graphqlError = (code: string) => ({
+  response: { data: null, errors: [{ message: 'no', extensions: { code } }] },
+});
 const networkError = new TypeError('Failed to fetch');
 
 const renderViewPost = ({
@@ -129,14 +131,110 @@ describe('useViewPost', () => {
     expect(readStreakViewQueue()).toEqual([]);
   });
 
-  it('should roll the streak back when the API rejects the view', async () => {
-    const requestMethod = jest.fn().mockRejectedValue(graphqlError);
+  it.each(['NOT_FOUND', 'FORBIDDEN', 'UNAUTHENTICATED'])(
+    'should roll the streak back when the API rejects the view with %s',
+    async (code) => {
+      const error = graphqlError(code);
+      const requestMethod = jest.fn().mockRejectedValue(error);
+      const { result } = renderViewPost({ client, requestMethod });
+
+      await expect(result.current('p1')).rejects.toBe(error);
+
+      expect(client.getQueryData<UserStreak>(streakKey)).toEqual(streak);
+      expect(readStreakViewQueue()).toEqual([]);
+    },
+  );
+
+  it('should keep the streak and queue the view on a transient GraphQL error', async () => {
+    const error = graphqlError('RATE_LIMITED');
+    const requestMethod = jest.fn().mockRejectedValue(error);
     const { result } = renderViewPost({ client, requestMethod });
 
-    await expect(result.current('p1')).rejects.toBe(graphqlError);
+    await expect(result.current('p1')).rejects.toBe(error);
 
-    expect(client.getQueryData<UserStreak>(streakKey)).toEqual(streak);
-    expect(readStreakViewQueue()).toEqual([]);
+    expect(client.getQueryData<UserStreak>(streakKey)).toMatchObject({
+      current: 8,
+      total: 21,
+      max: 8,
+    });
+    expect(readStreakViewQueue()).toEqual([
+      expect.objectContaining({ postId: 'p1', userId: user.id }),
+    ]);
+  });
+
+  describe('when the refetch runs before the API credited the view', () => {
+    // the newView worker has not written the streak yet, so userStreak still
+    // returns yesterday's value
+    const mockPreViewStreak = () =>
+      mockGraphQL({
+        request: { query: USER_STREAK_QUERY },
+        result: { data: { userStreak: streak } },
+      });
+
+    beforeEach(() => {
+      jest.useFakeTimers({ advanceTimers: true });
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('should keep the optimistic streak and take the retry once it is up to date', async () => {
+      mockPreViewStreak();
+      mockGraphQL({
+        request: { query: USER_STREAK_QUERY },
+        result: { data: { userStreak: { ...serverStreak, current: 9 } } },
+      });
+      const requestMethod = jest
+        .fn()
+        .mockResolvedValue({ viewPost: { _: true } });
+      const { result } = renderViewPost({ client, requestMethod });
+
+      let done = false;
+      const promise = result.current('p1').then(() => {
+        done = true;
+      });
+
+      await waitFor(() => expect(nock.pendingMocks()).toHaveLength(1));
+      expect(client.getQueryData<UserStreak>(streakKey)).toMatchObject({
+        current: 8,
+      });
+      expect(done).toBe(false);
+
+      await act(async () => {
+        await jest.advanceTimersByTimeAsync(STREAK_REFETCH_RETRY_DELAY_MS);
+        await promise;
+      });
+
+      expect(nock.isDone()).toBe(true);
+      expect(client.getQueryData<UserStreak>(streakKey)).toMatchObject({
+        current: 9,
+      });
+    });
+
+    it('should keep the optimistic streak when the retry is still stale', async () => {
+      mockPreViewStreak();
+      mockPreViewStreak();
+      const requestMethod = jest
+        .fn()
+        .mockResolvedValue({ viewPost: { _: true } });
+      const { result } = renderViewPost({ client, requestMethod });
+
+      const promise = result.current('p1');
+
+      await waitFor(() => expect(nock.pendingMocks()).toHaveLength(1));
+      await act(async () => {
+        await jest.advanceTimersByTimeAsync(STREAK_REFETCH_RETRY_DELAY_MS);
+        await promise;
+      });
+
+      expect(nock.isDone()).toBe(true);
+      expect(client.getQueryData<UserStreak>(streakKey)).toMatchObject({
+        current: 8,
+        total: 21,
+        max: 8,
+      });
+    });
   });
 
   it('should queue the view and keep the streak when the request never reaches the API', async () => {
