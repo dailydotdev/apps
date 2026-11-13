@@ -133,3 +133,5 @@ export const feedWidgetTipGlow = (tone: string): string =>
 
 export const feedWidgetTipTile = (tone: string): string =>
   feedWidgetTipMix(tone, 16);
+
+export const viceCityCoverOverlay = 'var(--theme-vice-city-cover-overlay)';

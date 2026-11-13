@@ -33,6 +33,14 @@ import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import { iOSSupportsAppIconChange } from '@dailydotdev/shared/src/lib/ios';
 import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
 import { supportsReading } from '@dailydotdev/shared/src/components/shell/readingStore';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { useIsViceCityCoverActive } from '@dailydotdev/shared/src/features/themeCover/ViceCityCover';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo, noindexSeoProps } from '../../next-seo';
@@ -90,6 +98,8 @@ const OpenLinksInLabel = ({
 const AccountManageSubscriptionPage = (): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { logEvent } = useLogContext();
+  const { completeAction } = useActions();
+  const isViceCityCoverActive = useIsViceCityCoverActive();
   const supportsAppIconChange =
     typeof window !== 'undefined' && iOSSupportsAppIconChange();
   // Known after mount: the bridge exists only on the client, and the rows
@@ -227,6 +237,17 @@ const AccountManageSubscriptionPage = (): ReactElement => {
     <AccountPageContainer title="Appearance">
       <FlexCol className="gap-6">
         <ThemeSection />
+
+        {isViceCityCoverActive && (
+          <Button
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            className="self-start"
+            onClick={() => completeAction(ActionType.GtaViThemeDismissed)}
+          >
+            Hide Vice City theme
+          </Button>
+        )}
 
         {isLaptop && (
           <FlexCol className="gap-2">
