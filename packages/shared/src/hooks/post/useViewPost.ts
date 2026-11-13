@@ -13,6 +13,7 @@ import {
   isFinalViewRejection,
 } from '../../lib/streakViewQueue';
 import { includesThisRead } from '../../lib/userStreak';
+import { useStreakDailyCelebration } from '../streaks/useStreakDailyCelebration';
 
 // The API credits the view in a worker after the mutation resolves, so the
 // first refetch can miss it. Give the worker this long before asking again.
@@ -27,6 +28,9 @@ interface ViewPostContext {
   previousStreak?: UserStreak;
   optimisticStreak?: UserStreak;
   shouldRefetchStreak: boolean;
+  // the count this view should land on, used when the refetch fails or
+  // has not caught up with the view yet
+  nextStreak?: number;
 }
 
 export const useViewPost = (): UseMutateAsyncFunction<
@@ -42,6 +46,7 @@ export const useViewPost = (): UseMutateAsyncFunction<
     feature: featureStreakOptimisticView,
     shouldEvaluate: !!user,
   });
+  const celebrateStreakDay = useStreakDailyCelebration();
   const streakKey = generateQueryKey(RequestKey.UserStreak, user);
   const readKey = generateQueryKey(RequestKey.ReadingStreak30Days, user);
   const { mutateAsync: onSendViewPost } = useMutation<
@@ -62,9 +67,10 @@ export const useViewPost = (): UseMutateAsyncFunction<
           user!.timezone,
         );
       const shouldRefetchStreak = isNewStreak || isFirstViewToday;
+      const nextStreak = streak ? streak.current + 1 : undefined;
 
       if (!isOptimisticView || !shouldRefetchStreak || !streak) {
-        return { shouldRefetchStreak };
+        return { shouldRefetchStreak, nextStreak };
       }
 
       const current = streak.current + 1;
@@ -77,7 +83,12 @@ export const useViewPost = (): UseMutateAsyncFunction<
       };
       client.setQueryData<UserStreak>(streakKey, optimisticStreak);
 
-      return { previousStreak: streak, optimisticStreak, shouldRefetchStreak };
+      return {
+        previousStreak: streak,
+        optimisticStreak,
+        shouldRefetchStreak,
+        nextStreak,
+      };
     },
     onSuccess: async (_, __, context) => {
       if (!context.shouldRefetchStreak) {
@@ -85,30 +96,39 @@ export const useViewPost = (): UseMutateAsyncFunction<
       }
 
       const { optimisticStreak } = context;
-      const refetchStreak = async (): Promise<boolean> => {
+      // Resolves with the refetched streak only when it already counts this
+      // view: the API credits it in a worker, so it can still be the
+      // pre-view streak.
+      const refetchStreak = async (): Promise<UserStreak | undefined> => {
         await client.refetchQueries({ queryKey: streakKey });
+        const refetched = client.getQueryData<UserStreak>(streakKey);
 
         return includesThisRead(
-          client.getQueryData<UserStreak>(streakKey),
+          refetched,
           user?.timezone,
-          optimisticStreak?.current,
-        );
+          optimisticStreak?.current ?? context.nextStreak,
+        )
+          ? refetched
+          : undefined;
       };
-      const isCounted = await refetchStreak();
+      let countedStreak = await refetchStreak();
 
       // A refetch that still has the pre-view streak would undo the
       // optimistic bump, so keep the bump and ask once more after a moment.
-      if (optimisticStreak && !isCounted) {
+      if (optimisticStreak && !countedStreak) {
         client.setQueryData<UserStreak>(streakKey, optimisticStreak);
         await wait(STREAK_REFETCH_RETRY_DELAY_MS);
+        countedStreak = await refetchStreak();
 
-        if (!(await refetchStreak())) {
+        if (!countedStreak) {
           client.setQueryData<UserStreak>(streakKey, optimisticStreak);
         }
       }
 
       // just mark the query as stale
       await client.invalidateQueries({ queryKey: readKey });
+
+      celebrateStreakDay(countedStreak?.current ?? context.nextStreak);
 
       return null;
     },
