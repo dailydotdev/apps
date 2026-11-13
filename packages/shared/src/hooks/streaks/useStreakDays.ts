@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Streak } from '../../components/streak/popup/DayStreak';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import type { ReadingDay } from '../../graphql/users';
+import type { ReadingDay, UserStreakPause } from '../../graphql/users';
 import { getReadingStreak30Days } from '../../graphql/users';
 import { userStreakFreezeDatesQueryOptions } from '../../graphql/streakFreeze';
 import { useHasAccessToCores } from '../useCoresFeature';
@@ -14,6 +14,7 @@ import {
   isLocalDateInTimezone,
   isSameDayInTimezone,
 } from '../../lib/timezones';
+import { isStreakDayPaused } from './useStreakPause';
 
 // Classify a single day against the user's reading history. Extracted from
 // ReadingStreakPopup so the popup, the compact sidebar calendar and the rail
@@ -27,6 +28,7 @@ export const getStreak = ({
   freezeDates,
   missedDate,
   missedDateTimezone,
+  pause,
 }: {
   value: Date;
   today: Date;
@@ -38,6 +40,8 @@ export const getStreak = ({
   // the API computed it in (see useStreakResetReason).
   missedDate?: string;
   missedDateTimezone?: string;
+  // The running or next scheduled pause (local dates in `timezone`).
+  pause?: UserStreakPause;
 }): Streak => {
   const isFreezeDay = isWeekend(value, startOfWeek, timezone);
   const isUsedFreezeDay = freezeDates?.some((freezeDate) =>
@@ -63,6 +67,10 @@ export const getStreak = ({
     isLocalDateInTimezone(value, missedDate, missedDateTimezone ?? timezone)
   ) {
     return Streak.Missed;
+  }
+
+  if (isStreakDayPaused(value, pause, timezone)) {
+    return Streak.Paused;
   }
 
   // Consumed freezes are their own auto-applied purchase, distinct from the

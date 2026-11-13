@@ -23,6 +23,7 @@ import { useStreakFreeze } from '@dailydotdev/shared/src/hooks/streaks/useStreak
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { featureStreakFreeze } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useHasAccessToCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
+import { StreakPauseSettings } from '@dailydotdev/shared/src/components/streak/StreakPauseSettings';
 import { AccountPageContainer } from '../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../../components/layouts/SettingsLayout';
 import { defaultSeo, noindexSeoProps } from '../../../next-seo';
@@ -139,6 +140,8 @@ const GamificationSettingsPage = (): ReactElement => {
             </SettingsSwitch>
           </section>
         )}
+
+        <StreakPauseSettings />
 
         {/* One switch for the whole quest experience — quests, level/XP
             progress, and achievements move together (reading streaks stay

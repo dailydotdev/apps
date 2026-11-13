@@ -121,6 +121,9 @@ export const featureStreakDailyCelebration = new Feature(
   false,
 );
 
+// schedule a streak pause (vacation mode) from the gamification settings
+export const featureStreakPause = new Feature('streak_pause', false);
+
 export const briefCardFeedFeature = new Feature(
   'brief_card_feed',
   isDevelopment,
