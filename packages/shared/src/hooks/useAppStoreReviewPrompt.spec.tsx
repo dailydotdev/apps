@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useFeature } from '../components/GrowthBookProvider';
 import { iOSSupportsReview } from '../lib/ios';
+import { isIOSNative } from '../lib/func';
 import { useBoot } from './useBoot';
 import { useLazyModal } from './useLazyModal';
 import { useIsBootPopupsPaused } from '../lib/bootPopupsPause';
@@ -21,6 +22,10 @@ jest.mock('../components/GrowthBookProvider', () => ({
 jest.mock('../lib/ios', () => ({
   ...jest.requireActual('../lib/ios'),
   iOSSupportsReview: jest.fn(),
+}));
+jest.mock('../lib/func', () => ({
+  ...jest.requireActual('../lib/func'),
+  isIOSNative: jest.fn(),
 }));
 jest.mock('./useBoot', () => ({ useBoot: jest.fn() }));
 jest.mock('./useLazyModal', () => ({ useLazyModal: jest.fn() }));
@@ -89,6 +94,7 @@ describe('useAppStoreReviewPrompt', () => {
     } as unknown as ReturnType<typeof useAuthContext>);
     jest.mocked(useFeature).mockReturnValue(true);
     jest.mocked(iOSSupportsReview).mockReturnValue(true);
+    jest.mocked(isIOSNative).mockReturnValue(true);
     jest.mocked(useIsBootPopupsPaused).mockReturnValue(false);
     mockCtas([marketingCta]);
     jest.mocked(useLazyModal).mockReturnValue({
@@ -202,11 +208,45 @@ describe('useAppStoreReviewPrompt', () => {
     expect(routeHandlers.routeChangeComplete).toBeUndefined();
   });
 
-  it('does nothing without the review bridge', () => {
+  it('clears the ask in an iOS app without the review bridge', () => {
     jest.mocked(iOSSupportsReview).mockReturnValue(false);
     renderHook(() => useAppStoreReviewPrompt());
 
     expect(routeHandlers.routeChangeComplete).toBeUndefined();
+    expect(clearMarketingCta).toHaveBeenCalledTimes(1);
+    expect(clearMarketingCta).toHaveBeenCalledWith(marketingCta.campaignId);
+  });
+
+  it('clears a Plus thank-you in an iOS app without the review bridge', () => {
+    jest.mocked(iOSSupportsReview).mockReturnValue(false);
+    jest.mocked(useAuthContext).mockReturnValue({
+      user: { ...loggedUser, isPlus: true },
+    } as unknown as ReturnType<typeof useAuthContext>);
+    mockCtas([plusCta]);
+    renderHook(() => useAppStoreReviewPrompt());
+
+    expect(openModal).not.toHaveBeenCalled();
+    expect(clearMarketingCta).toHaveBeenCalledTimes(1);
+    expect(clearMarketingCta).toHaveBeenCalledWith(plusCta.campaignId);
+  });
+
+  it('keeps the ask outside the iOS app', () => {
+    jest.mocked(iOSSupportsReview).mockReturnValue(false);
+    jest.mocked(isIOSNative).mockReturnValue(false);
+    renderHook(() => useAppStoreReviewPrompt());
+
+    expect(routeHandlers.routeChangeComplete).toBeUndefined();
+    expect(clearMarketingCta).not.toHaveBeenCalled();
+  });
+
+  it('keeps the ask in an old iOS app while logged out', () => {
+    jest.mocked(iOSSupportsReview).mockReturnValue(false);
+    jest.mocked(useAuthContext).mockReturnValue({
+      user: null,
+    } as unknown as ReturnType<typeof useAuthContext>);
+    renderHook(() => useAppStoreReviewPrompt());
+
+    expect(clearMarketingCta).not.toHaveBeenCalled();
   });
 
   it('does nothing when the feature is off', () => {

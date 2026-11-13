@@ -6,6 +6,7 @@ import { featureAppStoreReview } from '../lib/featureManagement';
 import { MarketingCtaVariant } from '../components/marketing/cta/common';
 import { LazyModal } from '../components/modals/common/types';
 import { iOSSupportsReview } from '../lib/ios';
+import { isIOSNative } from '../lib/func';
 import { withoutLayoutVariantPrefix } from '../lib/layoutVariant';
 import { useIsBootPopupsPaused } from '../lib/bootPopupsPause';
 import { useBoot } from './useBoot';
@@ -41,7 +42,14 @@ export const useAppStoreReviewPrompt = (): void => {
   // Boot carries one marketing CTA. A Plus thank-you aimed at someone who
   // is not (or no longer) a member would hold that slot forever, so it is
   // cleared instead of shown.
-  const staleCampaignId = user && !user.isPlus ? plusCta?.campaignId : null;
+  // The same goes for an iOS app older than the review bridge (before 1.26):
+  // Customer.io can't tell app versions apart, and this app can never show
+  // either ask, so it is cleared instead of holding the slot.
+  const isMissingBridge = !!user && isIOSNative() && !iOSSupportsReview();
+  const stalePlusCampaignId = user && !user.isPlus ? plusCta?.campaignId : null;
+  const staleCampaignId = isMissingBridge
+    ? (plainCta ?? plusCta)?.campaignId
+    : stalePlusCampaignId;
 
   useEffect(() => {
     if (staleCampaignId) {
