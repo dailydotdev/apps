@@ -25,24 +25,34 @@ interface StreakFreezeRowProps {
   variant?: StreakFreezeRowVariant;
 }
 
-/** Freezes are on for this reader: streaks, the flag and Cores access. */
+/**
+ * Freezes are on for this reader: streaks, and either the flag with Cores
+ * access or freezes already held (e.g. the free ones from
+ * streak_free_freezes), which the API applies without Cores access. Buying
+ * more still needs Cores access, see useHasAccessToCores.
+ */
 export const useIsStreakFreezeEnabled = (): boolean => {
   const { isAuthReady, isLoggedIn } = useAuthContext();
-  const { isStreaksEnabled } = useReadingStreak();
+  const { isStreaksEnabled, streak } = useReadingStreak();
   const hasAccessToCores = useHasAccessToCores();
   const shouldEvaluate = isAuthReady && isLoggedIn && isStreaksEnabled;
+  const holdsFreezes = (streak?.freezesAvailable ?? 0) > 0;
   const { value: isStreakFreezeEnabled } = useConditionalFeature({
     feature: featureStreakFreeze,
-    shouldEvaluate,
+    shouldEvaluate: shouldEvaluate && hasAccessToCores,
   });
 
-  return shouldEvaluate && isStreakFreezeEnabled && hasAccessToCores;
+  return (
+    shouldEvaluate &&
+    (holdsFreezes || (isStreakFreezeEnabled && hasAccessToCores))
+  );
 };
 
 export function StreakFreezeRow({
   variant = 'popup',
 }: StreakFreezeRowProps = {}): ReactElement | null {
   const isEnabled = useIsStreakFreezeEnabled();
+  const canBuy = useHasAccessToCores();
   const { openModal } = useLazyModal();
   const { freezesAvailable } = useStreakFreeze({ enabled: isEnabled });
 
@@ -59,11 +69,13 @@ export function StreakFreezeRow({
   const ctaLabel = hasFreezes ? 'Buy more' : 'Buy freezes';
 
   if (variant === 'popup') {
+    // Without Cores access the freezes held are only shown, not sold
+    const RowTag = canBuy ? 'button' : 'div';
+
     return (
-      <button
-        type="button"
+      <RowTag
+        {...(canBuy && { type: 'button' as const, onClick: openPurchase })}
         className="mt-3 flex w-full items-center gap-2 border-t border-border-subtlest-tertiary px-4 py-3 text-left"
-        onClick={openPurchase}
       >
         <Typography
           className="flex-1"
@@ -83,10 +95,15 @@ export function StreakFreezeRow({
             </>
           )}
         </Typography>
-        <Typography type={TypographyType.Footnote} color={TypographyColor.Link}>
-          {ctaLabel}
-        </Typography>
-      </button>
+        {canBuy && (
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Link}
+          >
+            {ctaLabel}
+          </Typography>
+        )}
+      </RowTag>
     );
   }
 
@@ -108,14 +125,16 @@ export function StreakFreezeRow({
           </Typography>
         )}
       </div>
-      <Button
-        type="button"
-        variant={ButtonVariant.Subtle}
-        size={ButtonSize.XSmall}
-        onClick={openPurchase}
-      >
-        {ctaLabel}
-      </Button>
+      {canBuy && (
+        <Button
+          type="button"
+          variant={ButtonVariant.Subtle}
+          size={ButtonSize.XSmall}
+          onClick={openPurchase}
+        >
+          {ctaLabel}
+        </Button>
+      )}
     </div>
   );
 }

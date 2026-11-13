@@ -786,6 +786,8 @@ export enum TargetType {
   StreakSoftBreak = 'streak soft break',
   StreakResetReason = 'streak reset reason',
   StreakDailyCelebration = 'streak daily celebration',
+  StreakFreeFreezesGrant = 'streak free freezes grant',
+  StreakFreeFreezesUpsell = 'streak free freezes upsell',
   PromotionCard = 'promotion_card',
   PromotionalBanner = 'promotion_banner',
   MarketingCtaPopover = 'promotion_popover',

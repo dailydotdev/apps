@@ -13,6 +13,7 @@ import {
   useStreakFreeze,
 } from '../../../hooks/streaks/useStreakFreeze';
 import { useLazyModal } from '../../../hooks/useLazyModal';
+import { useHasAccessToCores } from '../../../hooks/useCoresFeature';
 import { LazyModal } from '../../../components/modals/common/types';
 import { StreakMonthCalendar } from '../../../components/streak/popup/StreakMonthCalendar';
 import { StreakResetReason } from '../../../components/streak/StreakResetReason';
@@ -132,6 +133,8 @@ const freezeHint = (count: number): string => {
 /** The freeze balance as a meter, with the way to buy more. */
 const FreezeMeter = (): ReactElement | null => {
   const isEnabled = useIsStreakFreezeEnabled();
+  // Freezes held without Cores access are shown, but buying needs Cores
+  const canBuy = useHasAccessToCores();
   const { freezesAvailable } = useStreakFreeze({ enabled: isEnabled });
   const { openModal } = useLazyModal();
 
@@ -146,15 +149,17 @@ const FreezeMeter = (): ReactElement | null => {
       max={STREAK_FREEZE_CAP}
       hint={freezeHint(freezesAvailable)}
       action={
-        <Button
-          type="button"
-          variant={ButtonVariant.Subtle}
-          size={ButtonSize.XSmall}
-          onClick={() => openModal({ type: LazyModal.StreakFreezePurchase })}
-          className="shrink-0"
-        >
-          {freezesAvailable > 0 ? 'Buy more' : 'Buy freezes'}
-        </Button>
+        canBuy ? (
+          <Button
+            type="button"
+            variant={ButtonVariant.Subtle}
+            size={ButtonSize.XSmall}
+            onClick={() => openModal({ type: LazyModal.StreakFreezePurchase })}
+            className="shrink-0"
+          >
+            {freezesAvailable > 0 ? 'Buy more' : 'Buy freezes'}
+          </Button>
+        ) : undefined
       }
     />
   );
