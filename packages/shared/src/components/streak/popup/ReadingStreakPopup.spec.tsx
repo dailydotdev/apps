@@ -4,6 +4,7 @@ import { ReadingStreakPopup } from './ReadingStreakPopup';
 import type { UserStreak } from '../../../graphql/users';
 import { DayOfWeek } from '../../../lib/date';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
+import { StreakSoftBreakSurface } from '../StreakSoftBreakHero';
 
 const mockCompleteAction = jest.fn();
 const mockLogEvent = jest.fn();
@@ -24,9 +25,13 @@ jest.mock('../../../hooks/useConditionalFeature', () => ({
     mockUseConditionalFeature(args),
 }));
 
+const mockPush = jest.fn();
+let mockPathname = '/';
+
 jest.mock('next/router', () => ({
   useRouter: () => ({
-    push: jest.fn(),
+    push: mockPush,
+    pathname: mockPathname,
   }),
 }));
 
@@ -143,6 +148,7 @@ describe('ReadingStreakPopup', () => {
     jest.clearAllMocks();
     mockIsTimezoneOk = true;
     mockIsSoftBreakFlagOn = false;
+    mockPathname = '/';
   });
 
   it('renders the timezone tooltip as wrapping prose and truncates long timezone labels', () => {
@@ -185,7 +191,13 @@ describe('ReadingStreakPopup', () => {
   describe('soft break', () => {
     it('leads with the best streak and a way back when the streak reset', () => {
       mockIsSoftBreakFlagOn = true;
-      render(<ReadingStreakPopup streak={{ ...streak, current: 0, max: 5 }} />);
+      const onClose = jest.fn();
+      render(
+        <ReadingStreakPopup
+          streak={{ ...streak, current: 0, max: 5 }}
+          onClose={onClose}
+        />,
+      );
 
       expect(screen.getByText('Your best: 5 days.')).toBeInTheDocument();
       expect(screen.getByText('Today can be day 1.')).toBeInTheDocument();
@@ -194,14 +206,41 @@ describe('ReadingStreakPopup', () => {
       expect(mockLogEvent).toHaveBeenCalledWith({
         event_name: LogEvent.Impression,
         target_type: TargetType.StreakSoftBreak,
+        target_id: 'popup',
       });
 
-      fireEvent.click(screen.getByRole('link', { name: 'Start again' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Start again' }));
 
       expect(mockLogEvent).toHaveBeenCalledWith({
         event_name: LogEvent.Click,
         target_type: TargetType.StreakSoftBreak,
+        target_id: 'popup',
       });
+      expect(onClose).toHaveBeenCalledTimes(1);
+      expect(mockPush).not.toHaveBeenCalled();
+    });
+
+    it('takes the reader to the feed when "Start again" is clicked off the feed', () => {
+      mockIsSoftBreakFlagOn = true;
+      mockPathname = '/posts/[id]';
+      render(
+        <ReadingStreakPopup
+          streak={{ ...streak, current: 0, max: 5 }}
+          surface={StreakSoftBreakSurface.Drawer}
+          onClose={jest.fn()}
+        />,
+      );
+
+      expect(mockLogEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event_name: LogEvent.Impression,
+          target_id: 'drawer',
+        }),
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'Start again' }));
+
+      expect(mockPush).toHaveBeenCalledWith('/');
     });
 
     it('keeps the regular hero, without evaluating the flag, while the streak is live', () => {
