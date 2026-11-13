@@ -12,7 +12,7 @@ import {
   enqueueStreakView,
   isFinalViewRejection,
 } from '../../lib/streakViewQueue';
-import { hasStreakViewToday } from '../../lib/userStreak';
+import { includesThisRead } from '../../lib/userStreak';
 import { useStreakDailyCelebration } from '../streaks/useStreakDailyCelebration';
 import { useStreakGoalCelebration } from '../streaks/useStreakGoalCelebration';
 
@@ -105,7 +105,11 @@ export const useViewPost = (): UseMutateAsyncFunction<
         await client.refetchQueries({ queryKey: streakKey });
         const refetched = client.getQueryData<UserStreak>(streakKey);
 
-        return hasStreakViewToday(refetched, user?.timezone)
+        return includesThisRead(
+          refetched,
+          user?.timezone,
+          optimisticStreak?.current ?? context.nextStreak,
+        )
           ? refetched
           : undefined;
       };
