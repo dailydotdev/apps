@@ -8,6 +8,20 @@ import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { SpotlightProvider } from '../spotlight/SpotlightContext';
 import { SidebarDesktopV2 } from './SidebarDesktopV2';
+import type { SettingsContextData } from '../../contexts/SettingsContext';
+import type { StreakRingInfo } from '../../hooks/streaks/useStreakRingState';
+
+let mockStreakRing: Partial<StreakRingInfo> | null = null;
+jest.mock('../../hooks/streaks/useStreakRingState', () => {
+  const actual = jest.requireActual('../../hooks/streaks/useStreakRingState');
+  return {
+    ...actual,
+    useStreakRingState: () => {
+      const ring = actual.useStreakRingState();
+      return mockStreakRing ? { ...ring, ...mockStreakRing } : ring;
+    },
+  };
+});
 
 jest.mock('../../hooks/layout/useLaptopLayout', () => ({
   useLaptopLayout: () => true,
@@ -33,11 +47,15 @@ jest.mock('../../features/messages/hooks/useUnreadMessagesCount', () => ({
   useUnreadMessagesCount: () => ({ unread: 2, requests: 3, total: 5 }),
 }));
 
-const renderRail = (activePage: string): RenderResult =>
+const renderRail = (
+  activePage: string,
+  settings: Partial<SettingsContextData> = {},
+): RenderResult =>
   render(
     <TestBootProvider
       client={new QueryClient()}
       auth={{ user: defaultUser, isLoggedIn: true }}
+      settings={settings}
     >
       <SpotlightProvider>
         <SidebarDesktopV2 activePage={activePage} />
@@ -56,6 +74,7 @@ const railTabIds = () =>
   ).map((tab) => tab.getAttribute('id') ?? tab.getAttribute('aria-label'));
 
 beforeEach(() => {
+  mockStreakRing = null;
   mockMessagesEnabled.mockReturnValue(false);
   mockDmAvailable = false;
   jest.mocked(useRouter).mockReturnValue({
@@ -232,5 +251,28 @@ describe('SidebarDesktopV2 for a visitor', () => {
       document.getElementById('sidebar-category-gameCenter'),
     ).not.toBeNull();
     expect(screen.getByLabelText('Invite friends')).toBeInTheDocument();
+  });
+});
+
+describe('SidebarDesktopV2 streak goal', () => {
+  it('draws the goal arc on the Streak badge and names it in the label', () => {
+    mockStreakRing = {
+      isEnabled: true,
+      state: 'pending',
+      count: 3,
+      copy: "You haven't read today — keep your 3-day streak going.",
+      goalProgress: { current: 3, goal: 7, ratio: 3 / 7 },
+    };
+    renderRail('/posts', { optOutReadingStreak: false });
+
+    const tab = screen.getByRole('tab', { name: /3\/7 to your goal/ });
+    expect(tab).toHaveAttribute('id', 'sidebar-category-gameCenter');
+    expect(tab).toHaveAttribute(
+      'aria-label',
+      "You haven't read today — keep your 3-day streak going. 3/7 to your goal",
+    );
+    expect(
+      tab.querySelector('[data-testid="streak-goal-arc"] circle'),
+    ).toBeInTheDocument();
   });
 });

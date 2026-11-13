@@ -40,6 +40,8 @@ export enum ActionType {
   ContentTypes = 'content_types',
   HasSeenTags = 'has_seen_tags',
   StreakTimezoneMismatch = 'streak_timezone_mismatch',
+  // Declined the streak goal offer, so the day-2 prompt stays away for good
+  StreakGoalSkipped = 'streak_goal_skipped',
   CheckedCoresRole = 'checked_cores_role',
   CompletedOnboarding = 'completed_onboarding',
   GeneratedBrief = 'generated_brief',

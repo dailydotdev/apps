@@ -14,6 +14,7 @@ import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import type { UserStreak } from '../../graphql/users';
+import type { StreakGoal } from '../../graphql/settings';
 import { getReadingStreak, USER_STREAK_QUERY } from '../../graphql/users';
 import { VIEW_POST_MUTATION } from '../../graphql/posts';
 import { REQUEST_PROTOCOL_KEY } from '../../graphql/common';
@@ -25,6 +26,7 @@ import { getStreakCelebratedKey } from '../../lib/streakDailyCelebration';
 import type { ToastNotification } from '../useToastNotification';
 import { TOAST_NOTIF_KEY } from '../useToastNotification';
 import { LogEvent, TargetType } from '../../lib/log';
+import { getStreakGoalHitKey } from '../../lib/streakGoal';
 import { STREAK_REFETCH_RETRY_DELAY_MS, useViewPost } from './useViewPost';
 
 const user = { ...loggedUser, timezone: 'Europe/Amsterdam' };
@@ -58,6 +60,7 @@ const renderViewPost = ({
   requestMethod,
   flag = true,
   celebrationFlag = false,
+  streakGoal = null,
   isCompanion = false,
   initialStreak = streak,
   alerts,
@@ -68,6 +71,7 @@ const renderViewPost = ({
   requestMethod: jest.Mock;
   flag?: boolean;
   celebrationFlag?: boolean;
+  streakGoal?: StreakGoal | null;
   isCompanion?: boolean;
   initialStreak?: UserStreak;
   alerts?: ComponentProps<typeof TestBootProvider>['alerts'];
@@ -79,6 +83,7 @@ const renderViewPost = ({
     features: {
       streak_optimistic_view: { defaultValue: flag },
       streak_daily_celebration: { defaultValue: celebrationFlag },
+      streak_goals: { defaultValue: !!streakGoal },
     },
   });
   const getFeatureValue = jest.spyOn(gb, 'getFeatureValue');
@@ -87,7 +92,7 @@ const renderViewPost = ({
       client={client}
       auth={{ user }}
       gb={gb}
-      settings={{ optOutReadingStreak: false, ...settings }}
+      settings={{ optOutReadingStreak: false, streakGoal, ...settings }}
       alerts={alerts}
       log={log}
     >
@@ -410,6 +415,98 @@ describe('useViewPost', () => {
       );
       expect(getToast()).toBeNull();
       expect(logEvent).toHaveBeenCalledTimes(1);
+    });
+
+    it('should celebrate the goal instead of the day when the read hits it', async () => {
+      const logEvent = jest.fn();
+      mockGraphQL({
+        request: { query: USER_STREAK_QUERY },
+        result: { data: { userStreak: daySix } },
+      });
+      const { result } = renderViewPost({
+        client,
+        requestMethod: requestMethod(),
+        celebrationFlag: true,
+        streakGoal: 7,
+        initialStreak: dayFive,
+        log: { logEvent },
+      });
+
+      // day 6 of a 7-day goal: still the daily toast
+      await act(async () => {
+        await result.current('p1');
+      });
+      render(<>{getToast()?.message}</>);
+      expect(screen.getByText('Day 6! See you tomorrow.')).toBeInTheDocument();
+
+      // the next day's read lands on 7
+      localStorage.clear();
+      client.setQueryData(TOAST_NOTIF_KEY, null);
+      client.setQueryData(streakKey, { ...daySix, lastViewAt: yesterday });
+      mockGraphQL({
+        request: { query: USER_STREAK_QUERY },
+        result: {
+          data: {
+            userStreak: { ...daySix, current: 7, max: 7, total: 22 },
+          },
+        },
+      });
+
+      await act(async () => {
+        await result.current('p2');
+      });
+
+      const toast = getToast();
+      render(<>{toast?.message}</>);
+      expect(screen.getByText('Goal reached: 7 days!')).toBeInTheDocument();
+      expect(
+        screen.queryByText('Day 7! See you tomorrow.'),
+      ).not.toBeInTheDocument();
+      expect(toast?.action?.copy).toBe('Set your next goal');
+      expect(logEvent).toHaveBeenCalledWith({
+        event_name: LogEvent.HitStreakGoal,
+        target_type: TargetType.StreakGoal,
+        target_id: 7,
+        extra: JSON.stringify({ goal: 7 }),
+      });
+      expect(
+        logEvent.mock.calls.filter(
+          ([event]) =>
+            event.target_type === TargetType.StreakDailyCelebration &&
+            event.target_id === 7,
+        ),
+      ).toEqual([]);
+      expect(localStorage.getItem(getStreakGoalHitKey(user.id))).toContain(
+        '7:',
+      );
+    });
+
+    it('should celebrate the goal when the refetch still has the pre-view streak', async () => {
+      // the worker has not credited the read yet: userStreak still says 6,
+      // but this read lands on 7, the goal
+      const daySixYesterday = { ...daySix, lastViewAt: yesterday };
+      mockGraphQL({
+        request: { query: USER_STREAK_QUERY },
+        result: { data: { userStreak: daySixYesterday } },
+      });
+      const { result } = renderViewPost({
+        client,
+        requestMethod: requestMethod(),
+        flag: false,
+        celebrationFlag: true,
+        streakGoal: 7,
+        initialStreak: daySixYesterday,
+      });
+
+      await act(async () => {
+        await result.current('p1');
+      });
+
+      render(<>{getToast()?.message}</>);
+      expect(screen.getByText('Goal reached: 7 days!')).toBeInTheDocument();
+      expect(
+        screen.queryByText('Day 6! See you tomorrow.'),
+      ).not.toBeInTheDocument();
     });
 
     it('should not toast when the milestone modal is due', async () => {

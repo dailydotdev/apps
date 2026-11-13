@@ -387,6 +387,9 @@ export enum LogEvent {
   ClickStreakFreezePurchase = 'click streak freeze purchase',
   PurchaseStreakFreeze = 'purchase streak freeze',
   DismissStreakFreezePurchase = 'dismiss streak freeze purchase',
+  SetStreakGoal = 'set streak goal',
+  SkipStreakGoal = 'skip streak goal',
+  HitStreakGoal = 'hit streak goal',
   // 404 page
   View404Page = '404 page',
   // Follow Actions - start
@@ -788,6 +791,7 @@ export enum TargetType {
   StreakSoftBreak = 'streak soft break',
   StreakResetReason = 'streak reset reason',
   StreakDailyCelebration = 'streak daily celebration',
+  StreakGoal = 'streak goal',
   PromotionCard = 'promotion_card',
   PromotionalBanner = 'promotion_banner',
   MarketingCtaPopover = 'promotion_popover',

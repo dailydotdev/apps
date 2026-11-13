@@ -14,6 +14,7 @@ import {
 } from '../../lib/streakViewQueue';
 import { includesThisRead } from '../../lib/userStreak';
 import { useStreakDailyCelebration } from '../streaks/useStreakDailyCelebration';
+import { useStreakGoalCelebration } from '../streaks/useStreakGoalCelebration';
 
 // The API credits the view in a worker after the mutation resolves, so the
 // first refetch can miss it. Give the worker this long before asking again.
@@ -47,6 +48,7 @@ export const useViewPost = (): UseMutateAsyncFunction<
     shouldEvaluate: !!user,
   });
   const celebrateStreakDay = useStreakDailyCelebration();
+  const celebrateStreakGoal = useStreakGoalCelebration();
   const streakKey = generateQueryKey(RequestKey.UserStreak, user);
   const readKey = generateQueryKey(RequestKey.ReadingStreak30Days, user);
   const { mutateAsync: onSendViewPost } = useMutation<
@@ -128,7 +130,12 @@ export const useViewPost = (): UseMutateAsyncFunction<
       // just mark the query as stale
       await client.invalidateQueries({ queryKey: readKey });
 
-      celebrateStreakDay(countedStreak?.current ?? context.nextStreak);
+      // Like the daily toast, the goal check only trusts a refetch that
+      // already counts this read, so a stale count can't hit or miss the goal.
+      const current = countedStreak?.current ?? context.nextStreak;
+      if (!celebrateStreakGoal(current)) {
+        celebrateStreakDay(current);
+      }
 
       return null;
     },

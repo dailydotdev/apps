@@ -28,6 +28,8 @@ import { useStreakSoftBreak } from '../../../hooks/streaks/useStreakSoftBreak';
 import { StreakSoftBreakHero } from '../StreakSoftBreakHero';
 import { useStreakResetReason } from '../../../hooks/streaks/useStreakResetReason';
 import { StreakResetReason } from '../StreakResetReason';
+import { useStreakGoal } from '../../../hooks/streaks/useStreakGoal';
+import { StreakGoalProgress } from '../StreakGoalProgress';
 import { usePrompt } from '../../../hooks/usePrompt';
 import { useLogContext } from '../../../contexts/LogContext';
 import {
@@ -73,6 +75,7 @@ export function ReadingStreakPopup({
   const freezeDates = useStreakFreezeDates();
   const isTimezoneOk = useStreakTimezoneOk();
   const isSoftBreak = useStreakSoftBreak(streak);
+  const { progress: goalProgress } = useStreakGoal(streak?.current);
   const { missedDate, timezone: missedDateTimezone } =
     useStreakResetReason(streak);
   const { showPrompt } = usePrompt();
@@ -168,6 +171,7 @@ export function ReadingStreakPopup({
             <StreakSection streak={streak.max} label="Longest streak 🏆" />
           </div>
         )}
+        <StreakGoalProgress progress={goalProgress} className="mt-4" />
         <div
           className={classNames(
             'mt-6 flex flex-row gap-2',

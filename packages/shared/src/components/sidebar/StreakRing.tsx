@@ -62,6 +62,8 @@ export interface StreakRingProps {
   // Fired when the user hovers the streak — used to dismiss the auto-opened
   // urgency tooltip.
   onMouseEnter?: MouseEventHandler<HTMLDivElement>;
+  // 0..1 towards the reader's streak goal; fills the box bottom-up
+  goalProgress?: number;
 }
 
 // Presentational streak indicator ("border legend" layout): a bordered box
@@ -85,6 +87,7 @@ export const StreakRing = ({
   chipTooltip,
   chipTooltipOpen,
   onMouseEnter,
+  goalProgress,
 }: StreakRingProps): ReactElement => {
   // Loading: a neutral calm border + transparent fill keep the box stable while
   // the data resolves.
@@ -154,6 +157,17 @@ export const StreakRing = ({
             fillClassName,
           )}
         />
+        {!isLoading && !!goalProgress && (
+          <span
+            className="absolute inset-[3px] overflow-hidden rounded-[13px]"
+            data-testid="streak-ring-goal-progress"
+          >
+            <span
+              className="absolute inset-x-0 bottom-0 bg-accent-bacon-flat transition-[height]"
+              style={{ height: `${Math.min(goalProgress, 1) * 100}%` }}
+            />
+          </span>
+        )}
       </div>
       <div className="absolute left-[7px] top-[7px] z-1 size-10">{avatar}</div>
       {!isLoading && chipTooltip ? (

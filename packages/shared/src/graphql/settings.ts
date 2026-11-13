@@ -88,6 +88,10 @@ export enum SidebarSettingsFlags {
   Highlights = 'highlightsPlacement',
 }
 
+// Mirrors STREAK_GOAL_OPTIONS in the API: the goals a reader can commit to.
+export const STREAK_GOAL_OPTIONS = [7, 14, 30] as const;
+export type StreakGoal = (typeof STREAK_GOAL_OPTIONS)[number];
+
 export type RemoteSettings = {
   openNewTab: boolean;
   theme: RemoteTheme;
@@ -99,6 +103,8 @@ export type RemoteSettings = {
   sortingEnabled: boolean;
   optOutReadingStreak: boolean;
   optOutStreakFreeze: boolean;
+  // Personal streak goal in days, null when none is set
+  streakGoal?: StreakGoal | null;
   optOutLevelSystem: boolean;
   optOutQuestSystem: boolean;
   optOutAchievements: boolean;
