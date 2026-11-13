@@ -1,5 +1,6 @@
 import type { UseMutateAsyncFunction } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { subDays } from 'date-fns';
 import { VIEW_POST_MUTATION } from '../../graphql/posts';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -17,6 +18,18 @@ import { includesThisRead } from '../../lib/userStreak';
 // The API credits the view in a worker after the mutation resolves, so the
 // first refetch can miss it. Give the worker this long before asking again.
 export const STREAK_REFETCH_RETRY_DELAY_MS = 2000;
+
+// Only bump when today's read surely extends the streak: a new or reset
+// streak, or one last read yesterday. After a longer gap (weekend off days,
+// freezes, a reset the cache has not seen yet) the API decides, so wait for it.
+const canBumpStreak = (
+  streak: UserStreak,
+  timezone?: string,
+  now: Date = new Date(),
+): boolean =>
+  !streak.lastViewAt ||
+  streak.current === 0 ||
+  isSameDayInTimezone(new Date(streak.lastViewAt), subDays(now, 1), timezone);
 
 const wait = (ms: number) =>
   new Promise<void>((resolve) => {
@@ -40,8 +53,10 @@ export const useViewPost = (): UseMutateAsyncFunction<
   const { user } = useAuthContext();
   const { value: isOptimisticView } = useConditionalFeature({
     feature: featureStreakOptimisticView,
-    shouldEvaluate: !!user,
+    shouldEvaluate: !!user && !isCompanion,
   });
+  // The companion cannot persist the retry queue, so it keeps the old flow.
+  const isOptimistic = isOptimisticView && !isCompanion;
   const streakKey = generateQueryKey(RequestKey.UserStreak, user);
   const readKey = generateQueryKey(RequestKey.ReadingStreak30Days, user);
   const { mutateAsync: onSendViewPost } = useMutation<
@@ -63,7 +78,12 @@ export const useViewPost = (): UseMutateAsyncFunction<
         );
       const shouldRefetchStreak = isNewStreak || isFirstViewToday;
 
-      if (!isOptimisticView || !shouldRefetchStreak || !streak) {
+      if (
+        !isOptimistic ||
+        !shouldRefetchStreak ||
+        !streak ||
+        !canBumpStreak(streak, user?.timezone)
+      ) {
         return { shouldRefetchStreak };
       }
 
@@ -113,7 +133,7 @@ export const useViewPost = (): UseMutateAsyncFunction<
       return null;
     },
     onError: (error, id, context) => {
-      if (!isOptimisticView || isCompanion) {
+      if (!isOptimistic) {
         return;
       }
 
@@ -122,6 +142,12 @@ export const useViewPost = (): UseMutateAsyncFunction<
           client.setQueryData(streakKey, context.previousStreak);
         }
 
+        return;
+      }
+
+      // Only a read that would have counted for today's streak is worth a
+      // replay; later reads add nothing to it.
+      if (!context?.shouldRefetchStreak) {
         return;
       }
 

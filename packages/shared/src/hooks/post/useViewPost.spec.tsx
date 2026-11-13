@@ -4,6 +4,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, useQuery } from '@tanstack/react-query';
 import { GrowthBook } from '@growthbook/growthbook-react';
 import nock from 'nock';
+import { subDays } from 'date-fns';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
@@ -47,11 +48,13 @@ const renderViewPost = ({
   requestMethod,
   flag = true,
   isCompanion = false,
+  initialStreak = streak,
 }: {
   client: QueryClient;
   requestMethod: jest.Mock;
   flag?: boolean;
   isCompanion?: boolean;
+  initialStreak?: UserStreak;
 }) => {
   client.setQueryData(REQUEST_PROTOCOL_KEY, { requestMethod, isCompanion });
   const gb = new GrowthBook({
@@ -69,7 +72,7 @@ const renderViewPost = ({
       useQuery({
         queryKey: streakKey,
         queryFn: getReadingStreak,
-        initialData: streak,
+        initialData: initialStreak,
         staleTime: Infinity,
       });
 
@@ -308,6 +311,72 @@ describe('useViewPost', () => {
     await expect(result.current('p1')).rejects.toBe(networkError);
 
     expect(client.getQueryData<UserStreak>(streakKey)).toEqual(streak);
+    expect(readStreakViewQueue()).toEqual([]);
+  });
+
+  it('should not bump the streak from the companion', async () => {
+    const requestMethod = jest.fn(() => new Promise(() => {}));
+    const { result } = renderViewPost({
+      client,
+      requestMethod,
+      isCompanion: true,
+    });
+
+    result.current('p1');
+
+    await waitFor(() => expect(requestMethod).toHaveBeenCalledTimes(1));
+    expect(client.getQueryData<UserStreak>(streakKey)).toEqual(streak);
+  });
+
+  it('should not bump a streak last read before yesterday', async () => {
+    const lastRead = { ...streak, lastViewAt: subDays(new Date(), 3) };
+    const requestMethod = jest.fn(() => new Promise(() => {}));
+    const { result } = renderViewPost({
+      client,
+      requestMethod,
+      initialStreak: lastRead,
+    });
+
+    result.current('p1');
+
+    await waitFor(() => expect(requestMethod).toHaveBeenCalledTimes(1));
+    expect(client.getQueryData<UserStreak>(streakKey)).toEqual(lastRead);
+  });
+
+  it('should bump a reset streak to one', async () => {
+    const reset = {
+      ...streak,
+      current: 0,
+      lastViewAt: subDays(new Date(), 3),
+    };
+    const requestMethod = jest.fn(() => new Promise(() => {}));
+    const { result } = renderViewPost({
+      client,
+      requestMethod,
+      initialStreak: reset,
+    });
+
+    result.current('p1');
+
+    await waitFor(() =>
+      expect(client.getQueryData<UserStreak>(streakKey)).toMatchObject({
+        current: 1,
+        total: 21,
+        max: 7,
+      }),
+    );
+  });
+
+  it('should not queue a dropped view when today is already counted', async () => {
+    const requestMethod = jest.fn().mockRejectedValue(networkError);
+    const { result } = renderViewPost({
+      client,
+      requestMethod,
+      initialStreak: serverStreak,
+    });
+
+    await expect(result.current('p1')).rejects.toBe(networkError);
+
     expect(readStreakViewQueue()).toEqual([]);
   });
 });
