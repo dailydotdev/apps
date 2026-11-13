@@ -12,3 +12,16 @@ export const hasStreakViewToday = (
 ): boolean =>
   !!streak?.lastViewAt &&
   isSameDayInTimezone(new Date(streak.lastViewAt), now, timezone);
+
+// Whether a refetched streak already includes the read we just sent. Besides
+// a lastViewAt today, a count that already matches the one we expect counts
+// too: when the API's grace window credits an early-morning read to
+// yesterday, lastViewAt lands on yesterday and never looks like today.
+export const includesThisRead = (
+  streak: Pick<UserStreak, 'lastViewAt' | 'current'> | undefined | null,
+  timezone?: string,
+  expectedCurrent?: number,
+  now: Date = new Date(),
+): boolean =>
+  hasStreakViewToday(streak, timezone, now) ||
+  (expectedCurrent !== undefined && streak?.current === expectedCurrent);
