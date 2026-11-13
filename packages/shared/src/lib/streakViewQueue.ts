@@ -74,20 +74,21 @@ export const removeStreakView = (
 // user cannot see it, or the session is not valid). Anything else, including
 // other GraphQL errors such as rate limiting or a failed publish, is treated
 // like a dropped connection and the view is kept for a retry.
-const FINAL_VIEW_REJECTION_CODES: ReadonlySet<string> = new Set([
+// Read when called, not at module load: graphql/common sits in an import
+// cycle with this file, so ApiError can still be undefined at load time.
+const getFinalViewRejectionCodes = (): string[] => [
   ApiError.NotFound,
   ApiError.Forbidden,
   ApiError.Unauthenticated,
-]);
+];
 
 export const isFinalViewRejection = (error: unknown): boolean => {
   const errors = (error as Partial<ResponseError>)?.response?.errors;
+  const finalCodes = getFinalViewRejectionCodes();
 
   return (
     Array.isArray(errors) &&
-    errors.some((item) =>
-      FINAL_VIEW_REJECTION_CODES.has(item?.extensions?.code as string),
-    )
+    errors.some((item) => finalCodes.includes(item?.extensions?.code as string))
   );
 };
 
