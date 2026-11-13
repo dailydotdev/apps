@@ -114,4 +114,7 @@ export const markStreakGoalCelebrated = (
   goal: StreakGoal,
   timezone?: string,
 ): void =>
-  writeStorage(getStreakGoalHitKey(userId), getStreakGoalHitValue(goal, timezone));
+  writeStorage(
+    getStreakGoalHitKey(userId),
+    getStreakGoalHitValue(goal, timezone),
+  );

@@ -23,7 +23,8 @@ const getMockFeatureValue = (id: string, shouldEvaluate?: boolean) => {
     return mockWhyBrokeEnabled;
   }
 
-  const isOn = id === 'streak_goals' ? mockStreakGoalsEnabled : mockIsSoftBreakFlagOn;
+  const isOn =
+    id === 'streak_goals' ? mockStreakGoalsEnabled : mockIsSoftBreakFlagOn;
 
   return shouldEvaluate !== false && isOn;
 };

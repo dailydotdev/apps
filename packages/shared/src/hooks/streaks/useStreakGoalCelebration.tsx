@@ -55,7 +55,9 @@ export const useStreakGoalCelebration = (): ((current?: number) => boolean) => {
         </span>,
         {
           action: {
-            copy: nextGoal ? STREAK_GOAL_NEXT_COPY : STREAK_GOAL_KEEP_GOING_COPY,
+            copy: nextGoal
+              ? STREAK_GOAL_NEXT_COPY
+              : STREAK_GOAL_KEEP_GOING_COPY,
             onClick: () => {
               dismissToast();
 
