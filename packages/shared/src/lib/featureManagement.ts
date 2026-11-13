@@ -51,7 +51,7 @@ export enum AdRefreshEngineVersion {
   V2 = 'v2',
 }
 export const featureAdRefreshEngine = new Feature<AdRefreshEngineVersion>(
-  'ad_refresh_engine_version',
+  'ad_refresh_engine_config',
   AdRefreshEngineVersion.V1,
 );
 
@@ -301,12 +301,17 @@ export const featureFeedHero = new Feature('feed_hero', false);
 
 // Experiment: the hero as a rail of widgets the reader arranges, with the ad
 // slot pinned third. Supersedes `feed_hero` where it is on. Tablet and up
-// only; relaunched from `feed_widgets` once phones were taken out of it.
-export const featureFeedWidgets = new Feature('feed_widgets_v2', false);
+// only; relaunched from `feed_widgets_v2` with the new default rail so
+// readers enrolled before it start fresh.
+export const featureFeedWidgets = new Feature('feed_widgets_v3', false);
 
 // Experiment: the post page's full-width signup banner against the cover
 // card pinned over the bottom of the window at the content's width.
 export const featurePostSignupStrip = new Feature('post_signup_strip', false);
+
+// Experiment: the post page and modal with the redesign's reading column and
+// discussion beside the classic right sidebar, against the classic layout.
+export const featurePostPageHybrid = new Feature('post_page_hybrid', false);
 
 // Experiments: logged-out post pages show the first three comments,
 // skeleton comments for the rest and a pinned "See all the comments" footer,
@@ -328,9 +333,6 @@ export const featurePostCommentsTeaserDesktop = new Feature(
 // `false`, GrowthBook ramps it.
 export const featureInterestAgent = new Feature('interest_agent', false);
 
-// Gates every direct message surface; control hides all of them. Keep the
-// default `false`, GrowthBook ramps it.
-export const featureDirectMessages = new Feature('direct_messages', false);
 export const featureLiveChat = new Feature('live_chat', false);
 
 // Who can use Looking for group at all: the board, posts, reach-outs and the

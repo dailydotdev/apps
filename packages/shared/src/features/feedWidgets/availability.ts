@@ -10,22 +10,32 @@ import type { FeedWidget } from './types';
 /** What this reader's account and settings allow, as the gallery reads it. */
 export const useFeedWidgetAvailability = (): FeedWidgetAvailability => {
   const { user, squads } = useAuthContext();
-  const { loadedSettings, optOutReadingStreak } = useSettingsContext();
+  const { loadedSettings, optOutReadingStreak, optOutQuestSystem } =
+    useSettingsContext();
   const { isEnabled: hasMessages } = useMessagesEnabled();
   const { isEnabled: hasLiveChat } = useLiveChatEnabled();
   const isLoggedIn = !!user;
   const hasSquads = !!squads?.length;
   const isReadingStreakOn = !(loadedSettings && optOutReadingStreak);
+  const isQuestSystemOn = !(loadedSettings && optOutQuestSystem);
 
   return useMemo(
     () => ({
       isLoggedIn,
       hasSquads,
       isReadingStreakOn,
+      isQuestSystemOn,
       hasMessages,
       hasLiveChat,
     }),
-    [isLoggedIn, hasSquads, isReadingStreakOn, hasMessages, hasLiveChat],
+    [
+      isLoggedIn,
+      hasSquads,
+      isReadingStreakOn,
+      isQuestSystemOn,
+      hasMessages,
+      hasLiveChat,
+    ],
   );
 };
 

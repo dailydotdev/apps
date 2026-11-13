@@ -41,8 +41,10 @@ import { useRecentPageMeta } from '@dailydotdev/shared/src/hooks/useRecentPages'
 import { SquadHome } from '@dailydotdev/shared/src/features/squads/components/SquadHome';
 import { SquadPageSkeleton } from '@dailydotdev/shared/src/features/squads/components/SquadPageSkeleton';
 import { hasSquadFeature } from '@dailydotdev/shared/src/features/squads/lib/features';
-import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
-import { getLayout } from '../../../components/layouts/FeedLayout';
+import {
+  getLayout,
+  mainFeedLayoutProps,
+} from '../../../components/layouts/FeedLayout';
 import { getSquadOpenGraph, noindexSeoProps } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import type { DynamicSeoProps } from '../../../components/common';

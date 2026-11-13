@@ -237,7 +237,6 @@ export const SOURCE_BASE_FRAGMENT = gql`
 export const SQUAD_BASE_FRAGMENT = `
   fragment SquadBaseInfo on Source {
     ...SourceBaseInfo
-    referralUrl
     createdAt
     flags {
       featured

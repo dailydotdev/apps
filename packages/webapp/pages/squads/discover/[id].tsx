@@ -14,8 +14,10 @@ import { SquadDirectoryLayout } from '@dailydotdev/shared/src/components/squads/
 import { SquadDiscoverListPage } from '@dailydotdev/shared/src/features/squads/components/discover/SquadDiscoverListPage';
 import { isBrowsableSquad } from '@dailydotdev/shared/src/features/squads/components/discover/common';
 import { StaleTime } from '@dailydotdev/shared/src/lib/query';
-import { getLayout } from '../../../components/layouts/FeedLayout';
-import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
+import {
+  getLayout,
+  mainFeedLayoutProps,
+} from '../../../components/layouts/FeedLayout';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import type { DynamicSeoProps } from '../../../components/common';
 

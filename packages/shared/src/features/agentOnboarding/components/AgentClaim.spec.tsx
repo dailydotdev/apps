@@ -20,6 +20,14 @@ jest.mock('../../../components/auth/AuthOptions', () => ({
   ),
 }));
 
+const mockUseOnboardingExtension = jest.fn();
+jest.mock(
+  '../../../components/onboarding/Extension/useOnboardingExtension',
+  () => ({
+    useOnboardingExtension: () => mockUseOnboardingExtension(),
+  }),
+);
+
 const fetchMock = jest.fn();
 const pendingClaim = {
   status: 'pending',
@@ -56,6 +64,10 @@ const renderClaim = (user?: LoggedUser) => {
 
 beforeEach(() => {
   fetchMock.mockReset();
+  mockUseOnboardingExtension.mockReturnValue({
+    shouldShowExtensionOnboarding: false,
+    browserName: 'Chrome',
+  });
   global.fetch = fetchMock;
 });
 
@@ -113,6 +125,26 @@ describe('AgentClaim', () => {
     expect(
       screen.getByRole('link', { name: 'Manage API tokens' }),
     ).toBeInTheDocument();
+  });
+
+  it('offers the extension once claimed, only where it can be installed', async () => {
+    mockApi({ status: 'claimed' });
+    const { rerender } = renderClaim({ ...loggedUser, infoConfirmed: true });
+
+    expect(await screen.findByText("You're all set")).toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Get the extension' }),
+    ).not.toBeInTheDocument();
+
+    mockUseOnboardingExtension.mockReturnValue({
+      shouldShowExtensionOnboarding: true,
+      browserName: 'Chrome',
+    });
+    rerender({ ...loggedUser, infoConfirmed: true });
+
+    expect(
+      screen.getByRole('link', { name: 'Get the extension' }),
+    ).toHaveAttribute('href', 'https://r.daily.dev/extension');
   });
 
   it('asks for a new link when the code has expired', async () => {

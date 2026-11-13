@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { Squad } from '../../../graphql/sources';
-import { SourcePermissions } from '../../../graphql/sources';
+import { SourceMemberRole, SourcePermissions } from '../../../graphql/sources';
 import { verifyPermission } from '../../../graphql/squads';
 import {
   AnalyticsIcon,
@@ -14,12 +14,13 @@ import {
   LinkIcon,
   LockIcon,
   PaintRollerIcon,
+  TerminalIcon,
   TimerIcon,
   TrendingIcon,
   TrashIcon,
   UserIcon,
 } from '../../../components/icons';
-import { canSetSquadButton, hasSquadFeature } from './features';
+import { canSetSquadButton, hasSquadFeature, isCompanySquad } from './features';
 import { SquadManageSection } from './routes';
 import type { SquadViewer } from './viewer';
 import { isStaffViewer } from './viewer';
@@ -55,6 +56,7 @@ export const squadManageTitles: Record<SquadManageSection, string> = {
   [SquadManageSection.Plan]: 'Subscription',
   [SquadManageSection.Intel]: 'Weekly intel',
   [SquadManageSection.Integrations]: 'Integrations',
+  [SquadManageSection.Agent]: 'Agent and API',
   [SquadManageSection.DangerZone]: 'Danger zone',
 };
 
@@ -87,6 +89,17 @@ const canSeeSection = (squad: Squad, section: SquadManageSection): boolean => {
       return !!squad.currentMember?.seat;
     case SquadManageSection.Integrations:
       return verifyPermission(squad, SourcePermissions.ConnectSlack);
+    case SquadManageSection.Agent: {
+      // Every plan includes the MCP server and API: admins, and moderators
+      // holding a paid seat
+      const role = squad.currentMember?.role;
+
+      return (
+        isCompanySquad(squad) &&
+        (role === SourceMemberRole.Admin ||
+          (role === SourceMemberRole.Moderator && !!squad.currentMember?.seat))
+      );
+    }
     case SquadManageSection.DangerZone:
       return verifyPermission(squad, SourcePermissions.Delete);
     default:
@@ -99,6 +112,7 @@ const lockedSections = [
   SquadManageSection.Products,
   SquadManageSection.Links,
   SquadManageSection.Intel,
+  SquadManageSection.Agent,
 ];
 
 const isLockedSection = (squad: Squad, section: SquadManageSection): boolean =>
@@ -156,6 +170,7 @@ export const getSquadManageGroups = (
         item(SquadManageSection.Intel, <TrendingIcon />),
         item(SquadManageSection.Analytics, <AnalyticsIcon />),
         item(SquadManageSection.Integrations, <EmbedIcon />),
+        item(SquadManageSection.Agent, <TerminalIcon />),
         item(SquadManageSection.DangerZone, <TrashIcon />),
       ],
     },

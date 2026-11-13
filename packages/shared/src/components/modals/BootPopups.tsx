@@ -70,7 +70,7 @@ export const BootPopups = (): ReactElement => {
   const { checkHasCompleted, isActionsFetched } = useActions();
   const { openModal } = useLazyModal();
   const { user, isValidRegion } = useAuthContext();
-  const { optOutAchievements } = useSettingsContext();
+  const { optOutAchievements, isGamificationEnabled } = useSettingsContext();
   const { updateUserProfile } = useProfileForm();
   const {
     alerts,
@@ -289,7 +289,7 @@ export const BootPopups = (): ReactElement => {
    * Top reader badge modal
    */
   useEffect(() => {
-    if (!alerts?.showTopReader) {
+    if (!alerts?.showTopReader || !isGamificationEnabled) {
       return;
     }
 
@@ -303,7 +303,13 @@ export const BootPopups = (): ReactElement => {
         },
       },
     });
-  }, [alerts.showTopReader, logEvent, updateAlerts, updateLastBootPopup]);
+  }, [
+    alerts.showTopReader,
+    isGamificationEnabled,
+    logEvent,
+    updateAlerts,
+    updateLastBootPopup,
+  ]);
 
   /**
    * Immediate popup for achievement unlock celebration.

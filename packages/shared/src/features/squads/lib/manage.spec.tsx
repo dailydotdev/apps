@@ -1,5 +1,5 @@
 import type { Squad } from '../../../graphql/sources';
-import { SourcePermissions } from '../../../graphql/sources';
+import { SourceMemberRole, SourcePermissions } from '../../../graphql/sources';
 import { getSquadManageGroups } from './manage';
 import { SquadManageSection } from './routes';
 import { SquadViewer } from './viewer';
@@ -42,6 +42,7 @@ describe('getSquadManageGroups', () => {
       SquadManageSection.Products,
       SquadManageSection.Links,
       SquadManageSection.Intel,
+      SquadManageSection.Agent,
     ]);
   });
 
@@ -53,5 +54,18 @@ describe('getSquadManageGroups', () => {
     } as unknown as Squad;
 
     expect(locked(squad)).toEqual([]);
+  });
+
+  it('opens Agent and API to admins of a Startups plan squad', () => {
+    const squad = {
+      ...squadWith([SourcePermissions.Edit]),
+      features: { links: true, products: true },
+      currentMember: {
+        permissions: [SourcePermissions.Edit],
+        role: SourceMemberRole.Admin,
+      },
+    } as unknown as Squad;
+
+    expect(sections(squad)).toContain(SquadManageSection.Agent);
   });
 });

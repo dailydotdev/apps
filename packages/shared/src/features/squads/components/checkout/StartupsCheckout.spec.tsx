@@ -13,6 +13,7 @@ import {
 } from '../../../../graphql/squadSubscription';
 import { mockGraphQL } from '../../../../../__tests__/helpers/graphql';
 import { PixelsContext } from '../../../../contexts/PixelsContext';
+import { STARTUPS_X_EVENTS } from '../../lib/startupsXEvents';
 import defaultUser from '../../../../../__tests__/fixture/loggedUser';
 import { StartupsCheckout, StartupsCheckoutStep } from './StartupsCheckout';
 
@@ -477,7 +478,11 @@ describe('StartupsCheckout signup pixel', () => {
     expect(renderCompanyStep()).toHaveBeenCalledWith(
       'CompleteRegistration',
       { content_name: 'startups', content_category: 'team' },
-      { eventId: `startups-signup-${defaultUser.id}` },
+      {
+        eventId: `startups-signup-${defaultUser.id}`,
+        xEventId: STARTUPS_X_EVENTS.signup,
+        email: defaultUser.email,
+      },
     );
 
     // A second visit in the same browser

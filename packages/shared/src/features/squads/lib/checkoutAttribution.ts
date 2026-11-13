@@ -9,6 +9,7 @@ export const CHECKOUT_ATTRIBUTION_KEYS = [
   'utm_content',
   'utm_term',
   'fbclid',
+  'twclid',
 ] as const;
 
 export type CheckoutAttribution = Partial<

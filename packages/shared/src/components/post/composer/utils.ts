@@ -1,10 +1,8 @@
 import type { ExternalLinkPreview } from '../../../graphql/posts';
-import { urlParseSchema } from '../../../lib/links';
+import { parseHttpUrl } from '../../../lib/links';
 
-export const normalizeComposerUrl = (value: string): string => {
-  const result = urlParseSchema.safeParse(value.trim());
-  return result.success ? result.data : '';
-};
+export const normalizeComposerUrl = (value: string): string =>
+  parseHttpUrl(value.trim()) ?? '';
 
 export const normalizeSingleLineComposerText = (value: string): string =>
   value.replace(/\s*[\r\n]+\s*/g, ' ');

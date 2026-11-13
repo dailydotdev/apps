@@ -56,6 +56,7 @@ import { LAYOUT_FRAME_CLASS } from '../lib/layoutVariant';
 import { SignInStrip } from './auth/SignInStrip';
 import { useRecordRecentPages } from '../hooks/useRecentPages';
 import { isSidebarSettingsPath } from './sidebar/sidebarCategory';
+import { Sidebar } from './sidebar/Sidebar';
 import {
   TopHeroSlotProvider,
   useTopHeroSlot,
@@ -70,12 +71,6 @@ const GoBackHeaderMobile = dynamic(
       /* webpackChunkName: "goBackHeaderMobile" */ './post/GoBackHeaderMobile'
     ),
   { ssr: false },
-);
-
-const Sidebar = dynamic(() =>
-  import(/* webpackChunkName: "sidebar" */ './sidebar/Sidebar').then(
-    (mod) => mod.Sidebar,
-  ),
 );
 
 export interface MainLayoutProps

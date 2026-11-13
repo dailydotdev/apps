@@ -75,8 +75,10 @@ import { useSourceActions } from '@dailydotdev/shared/src/hooks/source/useSource
 import { getPostPath } from '@dailydotdev/shared/src/lib/links';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo, getShareImageUrl } from '../../next-seo';
-import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
-import { getLayout } from '../../components/layouts/FeedLayout';
+import {
+  getLayout,
+  mainFeedLayoutProps,
+} from '../../components/layouts/FeedLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { SourceActions } from '../../../shared/src/components/sources/SourceActions';
 import type { DynamicSeoProps } from '../../components/common';

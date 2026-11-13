@@ -17,7 +17,7 @@ import {
 } from '../../../../lib/constants';
 import { LogEvent, Origin } from '../../../../lib/log';
 import { useSquadPageContext } from '../../SquadPageContext';
-import { getSquadId, hasSquadFeature } from '../../lib/features';
+import { getSquadId, isCompanySquad } from '../../lib/features';
 import { SquadViewer } from '../../lib/viewer';
 import { AgentClient } from '../../lib/setup';
 import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
@@ -26,16 +26,16 @@ import { AgentConnect } from '../setup/StartupsSetup';
 
 const TARGET_ID = 'agent widget';
 
-const benefits = [
+export const squadAgentBenefits = [
   'Post to the page as you',
   'Boost posts from the page wallet',
   'Pick and read your weekly intel',
 ];
 
 /**
- * For the team of a verified company squad (Enterprise): the page runs from
- * their agent through the daily.dev MCP server, or from their own code through
- * the public API. Dismissable per squad.
+ * For the team of a company squad on any plan (daily.dev for Startups or
+ * Enterprise): the page runs from their agent through the daily.dev MCP
+ * server, or from their own code through the public API. Dismissable per squad.
  */
 export const SquadAgentWidget = (): ReactElement | null => {
   const { squad, viewer, isViewerKnown } = useSquadPageContext();
@@ -44,7 +44,7 @@ export const SquadAgentWidget = (): ReactElement | null => {
   // Only seat holders get the plan's API access; admins can give themselves one
   const isCandidate =
     isViewerKnown &&
-    hasSquadFeature(squad, 'verified') &&
+    isCompanySquad(squad) &&
     (viewer === SquadViewer.Admin ||
       (viewer === SquadViewer.Moderator && hasSeat));
   const [isDismissed, setDismissed, isDismissedFetched] = usePersistentContext(
@@ -108,7 +108,7 @@ export const SquadAgentWidget = (): ReactElement | null => {
         </p>
       </div>
       <ul className="flex flex-col gap-2">
-        {benefits.map((benefit) => (
+        {squadAgentBenefits.map((benefit) => (
           <li
             key={benefit}
             className="flex items-start gap-2 text-text-secondary typo-footnote"

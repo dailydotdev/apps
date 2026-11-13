@@ -28,14 +28,10 @@ interface SquadListItemProps {
 export const SquadListItem = ({
   squad,
   showJoinButton = false,
-}: SquadListItemProps): ReactElement | null => {
+}: SquadListItemProps): ReactElement => {
   const { displayToast } = useToastNotification();
   const { squads, isAuthReady } = useAuthContext();
   const hasSquadsInList = squads?.some((sq) => sq.id === squad.id);
-
-  if (!isAuthReady) {
-    return null;
-  }
 
   return (
     <li className="flex flex-row items-center gap-2">
@@ -77,7 +73,7 @@ export const SquadListItem = ({
           {squad.membersCount !== 1 && 's'}
         </Typography>
       </div>
-      {showJoinButton && !hasSquadsInList && (
+      {showJoinButton && isAuthReady && !hasSquadsInList && (
         <SquadActionButton
           alwaysShow
           copy={{ join: 'Join' }}

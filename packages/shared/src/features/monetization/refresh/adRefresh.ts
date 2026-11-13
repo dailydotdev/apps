@@ -1,10 +1,27 @@
-import { z } from 'zod';
-import type { AdRefreshConfig } from '../../../graphql/posts';
+import type { QueryKey } from '@tanstack/react-query';
+import type { Ad, AdRefreshConfig } from '../../../graphql/posts';
 import { isExtension, isIOSNative } from '../../../lib/func';
 import { tablet } from '../../../styles/media';
 
 export enum AdRefreshSlot {
   FeedCard = 'feed_card',
+  FeedWidget = 'feed_widget',
+}
+
+/**
+ * Where a rotated or refreshed creative goes for an ad that is not one of the
+ * feed's own ads, e.g. the feed widget rail's pinned slot, which has its own
+ * query. Both refresh engines take it (v1 `useAutoRotatingAds`, v2
+ * `useFeedAdRefresh`). Without it, they write into the feed's ad list at the
+ * ad's `index`, which would swap one of the feed's ads instead.
+ */
+export interface AdRotationTarget {
+  /** v1: its own key for the rotation timer, apart from the feed's ad list. */
+  queryKey: QueryKey;
+  /** Shows the new creative in the slot. */
+  replace: (ad: Ad) => void;
+  /** v2: how the refresh logs name the slot. */
+  slot?: AdRefreshSlot;
 }
 
 export enum AdRefreshPlatform {
@@ -39,14 +56,28 @@ export enum AdRefreshPause {
 const DEFAULT_IDLE_AFTER_SEC = 60;
 export const MIN_VISIBLE_PERCENT = 50;
 
-const adRefreshConfigSchema = z.object({
-  id: z.string(),
-  intervalSec: z.number().positive(),
-  maxPerSlot: z.number().int().nonnegative(),
-  maxPerSession: z.number().int().nonnegative(),
-  idleAfterSec: z.number().positive().optional(),
-  minVisiblePercent: z.number().max(100).optional(),
-});
+const isNumber = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isFinite(value);
+
+const isPositive = (value: unknown): value is number =>
+  isNumber(value) && value > 0;
+
+const isCount = (value: unknown): value is number =>
+  Number.isSafeInteger(value) && (value as number) >= 0;
+
+const isValidConfig = (
+  refresh: AdRefreshConfig | null | undefined,
+): refresh is AdRefreshConfig =>
+  typeof refresh === 'object' &&
+  refresh !== null &&
+  !Array.isArray(refresh) &&
+  typeof refresh.id === 'string' &&
+  isPositive(refresh.intervalSec) &&
+  isCount(refresh.maxPerSlot) &&
+  isCount(refresh.maxPerSession) &&
+  (refresh.idleAfterSec === undefined || isPositive(refresh.idleAfterSec)) &&
+  (refresh.minVisiblePercent === undefined ||
+    (isNumber(refresh.minVisiblePercent) && refresh.minVisiblePercent <= 100));
 
 export interface AdRefreshPolicy {
   configId: string;
@@ -71,26 +102,22 @@ export interface AdRefreshStats {
 export const getAdRefreshPolicy = (
   refresh?: AdRefreshConfig | null,
 ): AdRefreshPolicy | null => {
-  const result = adRefreshConfigSchema.safeParse(refresh);
-
-  if (!result.success) {
+  if (!isValidConfig(refresh)) {
     return null;
   }
 
-  const config = result.data;
-
-  if (!config.maxPerSlot || !config.maxPerSession) {
+  if (!refresh.maxPerSlot || !refresh.maxPerSession) {
     return null;
   }
 
   return {
-    configId: config.id,
-    intervalMs: config.intervalSec * 1_000,
-    idleAfterMs: (config.idleAfterSec ?? DEFAULT_IDLE_AFTER_SEC) * 1_000,
-    maxPerSlot: config.maxPerSlot,
-    maxPerSession: config.maxPerSession,
+    configId: refresh.id,
+    intervalMs: refresh.intervalSec * 1_000,
+    idleAfterMs: (refresh.idleAfterSec ?? DEFAULT_IDLE_AFTER_SEC) * 1_000,
+    maxPerSlot: refresh.maxPerSlot,
+    maxPerSession: refresh.maxPerSession,
     minVisiblePercent: Math.max(
-      config.minVisiblePercent ?? MIN_VISIBLE_PERCENT,
+      refresh.minVisiblePercent ?? MIN_VISIBLE_PERCENT,
       MIN_VISIBLE_PERCENT,
     ),
   };

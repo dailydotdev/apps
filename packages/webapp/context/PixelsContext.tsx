@@ -100,6 +100,22 @@ function WebPixelsProvider({
           options?.eventId ? { eventID: options.eventId } : undefined,
         );
       }
+      if (options?.xEventId && typeof pixels.twq === 'function') {
+        const xParams: Record<string, unknown> = {};
+        if (typeof params?.value === 'number') {
+          xParams.value = params.value;
+        }
+        if (params?.currency) {
+          xParams.currency = params.currency;
+        }
+        if (options.eventId) {
+          xParams.conversion_id = options.eventId;
+        }
+        if (options.email) {
+          xParams.email_address = options.email;
+        }
+        pixels.twq('event', options.xEventId, xParams);
+      }
     },
   };
 

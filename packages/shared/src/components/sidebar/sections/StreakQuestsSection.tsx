@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { ArrowIcon, SettingsIcon } from '../../icons';
 import { webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { useStreakRingState } from '../../../hooks/streaks/useStreakRingState';
 import { StreakMonthCalendar } from '../../streak/popup/StreakMonthCalendar';
 import { StreakFreezeRow } from '../../streak/popup/StreakFreezeRow';
@@ -75,8 +76,11 @@ const QuestsGroup = ({
 // one, so neither needs repeating here.
 export const StreakQuestsSection = (): ReactElement => {
   const { user } = useAuthContext();
+  const { optOutQuestSystem } = useSettingsContext();
   const { isEnabled: isStreakEnabled, count, streak } = useStreakRingState();
-  const { data: questDashboard } = useQuestDashboard();
+  const { data: questDashboard } = useQuestDashboard({
+    enabled: !optOutQuestSystem,
+  });
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
   // Compact label (e.g. "Jun 23") — no year; the full date with year lives in
   // the hover tooltip so the strip stays tidy day-to-day.
@@ -166,12 +170,14 @@ export const StreakQuestsSection = (): ReactElement => {
             )}
           />
           <StreakFreezeRow variant="panel" />
-          <HorizontalSeparator
-            className={classNames(
-              'mx-3 w-auto shrink-0',
-              railDividerBorderClass,
-            )}
-          />
+          {!optOutQuestSystem && (
+            <HorizontalSeparator
+              className={classNames(
+                'mx-3 w-auto shrink-0',
+                railDividerBorderClass,
+              )}
+            />
+          )}
         </>
       )}
 
@@ -186,7 +192,7 @@ export const StreakQuestsSection = (): ReactElement => {
           !heroShown && 'pt-2',
         )}
       >
-        {questDashboard && (
+        {questDashboard && !optOutQuestSystem && (
           <>
             {heroShown ? (
               <QuestsGroup title="Daily quests">

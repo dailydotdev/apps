@@ -33,6 +33,7 @@ import {
 import type { CreatorPostSort } from '../../../../components/analytics/creator/CreatorPostPerformanceTable';
 import { CreatorPostPerformanceTable } from '../../../../components/analytics/creator/CreatorPostPerformanceTable';
 import { CreatorDashboardError } from '../../../../components/analytics/creator/CreatorDashboardError';
+import { AgentViewsSection } from '../../../../components/analytics/AgentViewsSection';
 import { CreatorAnalyticsAudience } from '../../../../components/analytics/creator/common';
 import {
   CreatorPerformancePeriod,
@@ -44,6 +45,8 @@ import {
 import { HorizontalSeparator } from '../../../../components/utilities/common';
 import { SourcePermissions } from '../../../../graphql/sources';
 import {
+  squadAgentAnalyticsHistoryQueryOptions,
+  squadAgentAnalyticsQueryOptions,
   squadAnalyticsQueryOptions,
   verifyPermission,
 } from '../../../../graphql/squads';
@@ -82,6 +85,15 @@ export const SquadManageAnalytics = (): ReactElement => {
   const { data: analytics } = useQuery({
     ...squadAnalyticsQueryOptions({ sourceId: squad?.id }),
     enabled: !!squad?.id && canViewAnalytics,
+  });
+  const { data: agentAnalytics } = useQuery({
+    ...squadAgentAnalyticsQueryOptions({ sourceId: squad?.id }),
+    enabled: !!squad?.id && canViewAnalytics,
+  });
+  const canViewAgentViews = typeof agentAnalytics?.agentViews === 'number';
+  const { data: agentHistory } = useQuery({
+    ...squadAgentAnalyticsHistoryQueryOptions({ sourceId: squad?.id }),
+    enabled: !!squad?.id && canViewAgentViews,
   });
   const [period, setPeriod] = useState(CreatorPerformancePeriod.Last30Days);
   const [sort, setSort] = useState<CreatorPostSort>({
@@ -200,6 +212,19 @@ export const SquadManageAnalytics = (): ReactElement => {
                   audience={CreatorAnalyticsAudience.Squad}
                 />
               )}
+            </Section>
+          </>
+        )}
+        {canViewAgentViews && (
+          <>
+            <HorizontalSeparator />
+            <Section title="AI agents">
+              <AgentViewsSection
+                analytics={agentAnalytics ?? undefined}
+                history={agentHistory}
+                readsInfo="The number of times AI assistants like ChatGPT, Claude, and Gemini read posts from this squad because someone asked about them."
+                crawlsInfo="The number of times AI crawlers visited posts from this squad to index them for AI search or crawling."
+              />
             </Section>
           </>
         )}

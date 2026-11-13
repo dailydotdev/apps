@@ -59,6 +59,7 @@ export enum Origin {
   SquadJoinSuggestionsPromoted = 'squad join suggestions promoted',
   SquadManagePlan = 'squad manage plan',
   SquadManageIntel = 'squad manage intel',
+  SquadManageAgent = 'squad manage agent',
   SquadIntel = 'squad intel',
   StartupsCheckout = 'startups checkout',
   // squads - end
@@ -172,6 +173,7 @@ export enum Origin {
   ProfileStack = 'profile stack',
   BrandedTag = 'branded tag',
   MentionedTool = 'mentioned tool',
+  AgentOnboarding = 'agent onboarding',
 }
 
 export enum LogEvent {
@@ -464,6 +466,8 @@ export enum LogEvent {
   DelaySquadPlanActivation = 'delay squad plan activation',
   GiveSquadSeat = 'give squad seat',
   RemoveSquadSeat = 'remove squad seat',
+  ChangeSquadPlan = 'change squad plan',
+  KeepSquadPlan = 'keep squad plan',
   DismissStartupsUpsell = 'dismiss startups upsell',
   SelectStartupsSetupPath = 'select startups setup path',
   CopyStartupsSetup = 'copy startups setup',
