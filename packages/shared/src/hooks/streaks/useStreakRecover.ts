@@ -44,9 +44,6 @@ export interface UseStreakRecoverReturn {
     toggle: () => void;
   };
   onClose?: () => void;
-  // Closes like onClose without logging a dismissal, for the soft break's
-  // "Start again".
-  onCloseWithoutDismiss: () => void;
   onRecover?: () => void;
   recover: {
     canRecover: boolean;
@@ -160,38 +157,25 @@ export const useStreakRecover = ({
     enabled: !!user && isStreaksEnabled && !hideForever,
   });
 
-  const closeRecover = useCallback(
-    async (shouldLogDismiss: boolean) => {
-      if (hideForever) {
-        await completeAction(ActionType.DisableReadingStreakRecover);
+  const onClose = useCallback(async () => {
+    if (hideForever) {
+      await completeAction(ActionType.DisableReadingStreakRecover);
+      logEvent({
+        event_name: LogEvent.DismissStreakRecover,
+      });
+    }
 
-        if (shouldLogDismiss) {
-          logEvent({
-            event_name: LogEvent.DismissStreakRecover,
-          });
-        }
-      }
-
-      await hideRemoteAlert();
-      onRequestClose?.();
-      onAfterClose?.();
-    },
-    [
-      completeAction,
-      hideForever,
-      hideRemoteAlert,
-      logEvent,
-      onAfterClose,
-      onRequestClose,
-    ],
-  );
-
-  const onClose = useCallback(() => closeRecover(true), [closeRecover]);
-
-  const onCloseWithoutDismiss = useCallback(
-    () => closeRecover(false),
-    [closeRecover],
-  );
+    await hideRemoteAlert();
+    onRequestClose?.();
+    onAfterClose?.();
+  }, [
+    completeAction,
+    hideForever,
+    hideRemoteAlert,
+    logEvent,
+    onAfterClose,
+    onRequestClose,
+  ]);
 
   const onRecover = useCallback(async () => {
     if (!user || !data) {
@@ -263,7 +247,6 @@ export const useStreakRecover = ({
       toggle: toggleHideForever,
     },
     onClose,
-    onCloseWithoutDismiss,
     onRecover,
     recover: {
       ...data?.streakRecover,

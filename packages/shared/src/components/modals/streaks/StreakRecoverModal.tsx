@@ -197,13 +197,16 @@ export const StreakRecoverModal = (
   props: StreakRecoverModalProps,
 ): ReactElement | null => {
   const { isOpen, onRequestClose, onAfterClose, user } = props;
-  const { isStreaksEnabled, streak } = useReadingStreak();
+  const {
+    isStreaksEnabled,
+    streak,
+    isLoading: isStreakLoading,
+  } = useReadingStreak();
   const id = useId();
-  const { recover, hideForever, onClose, onCloseWithoutDismiss, onRecover } =
-    useStreakRecover({
-      onAfterClose,
-      onRequestClose,
-    });
+  const { recover, hideForever, onClose, onRecover } = useStreakRecover({
+    onAfterClose,
+    onRequestClose,
+  });
   const { logEvent } = useLogContext();
   const softBreak = useStreakSoftBreak(streak);
 
@@ -212,6 +215,9 @@ export const StreakRecoverModal = (
     !isStreaksEnabled ||
     !recover.canRecover ||
     recover.isLoading ||
+    // Without the streak the soft-break predicate can't be read yet, so the
+    // control heading would render and then swap to the variant.
+    isStreakLoading ||
     softBreak.isLoading
   ) {
     return null;
@@ -258,7 +264,7 @@ export const StreakRecoverModal = (
                   target_type: TargetType.StreakSoftBreak,
                   target_id: StreakSoftBreakSurface.RestoreModal,
                 });
-                onCloseWithoutDismiss();
+                onClose?.();
               }}
             >
               Start again

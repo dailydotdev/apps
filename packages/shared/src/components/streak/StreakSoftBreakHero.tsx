@@ -11,6 +11,8 @@ import {
 import { isExtension } from '../../lib/func';
 import { useLogContext } from '../../contexts/LogContext';
 import useLogEventOnce from '../../hooks/log/useLogEventOnce';
+import { getFeedName } from '../../lib/feed';
+import { SharedFeedPage } from '../utilities/common';
 import { LogEvent, TargetType } from '../../lib/log';
 
 /**
@@ -24,20 +26,18 @@ export enum StreakSoftBreakSurface {
   RestoreModal = 'restore modal',
 }
 
-// Webapp routes that already render the main feed, so "Start again" only has
-// to close the surface there.
-const feedPathnames = new Set([
-  '/',
-  '/my-feed',
-  '/popular',
-  '/following',
-  '/upvoted',
-  '/posts',
-  '/posts/latest',
-  '/posts/upvoted',
-  '/posts/discussed',
-  '/feeds/[slugOrId]',
+// Feeds where "Start again" only has to close the surface. The page comes
+// from getFeedName, the same pathname-to-feed mapping the feed layout uses,
+// so a renamed route can't silently fall out of a hand-kept list.
+const mainFeedPages = new Set<string>([
+  SharedFeedPage.MyFeed,
+  SharedFeedPage.Popular,
+  SharedFeedPage.Upvoted,
+  SharedFeedPage.Custom,
 ]);
+
+const isOnMainFeed = (pathname?: string): boolean =>
+  !!pathname && mainFeedPages.has(getFeedName(pathname));
 
 export const useStreakSoftBreakImpression = (
   surface: StreakSoftBreakSurface,
@@ -82,7 +82,7 @@ export function StreakSoftBreakHero({
     onStartAgain?.();
 
     // The extension new tab is the feed, so never navigate away from it.
-    if (isExtension || feedPathnames.has(router?.pathname)) {
+    if (isExtension || isOnMainFeed(router?.pathname)) {
       return;
     }
 

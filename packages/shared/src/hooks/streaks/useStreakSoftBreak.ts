@@ -1,10 +1,15 @@
 import { useConditionalFeature } from '../useConditionalFeature';
+import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
 import { featureStreakSoftBreak } from '../../lib/featureManagement';
 import type { UserStreak } from '../../graphql/users';
 
 interface UseStreakSoftBreak {
   isSoftBreak: boolean;
-  /** The flag is evaluated but GrowthBook has not resolved it yet. */
+  /**
+   * The flag is evaluated and GrowthBook has not settled yet. Uses `settled`,
+   * not `ready`: a boot with no features never becomes ready, and waiting on
+   * it would hide the gated surface for good in both arms.
+   */
   isLoading: boolean;
 }
 
@@ -19,13 +24,14 @@ export const useStreakSoftBreak = (
   streak?: Pick<UserStreak, 'current' | 'max'>,
 ): UseStreakSoftBreak => {
   const shouldEvaluate = streak?.current === 0 && streak.max > 0;
-  const { value, isLoading } = useConditionalFeature({
+  const { settled } = useFeaturesReadyContext();
+  const { value } = useConditionalFeature({
     feature: featureStreakSoftBreak,
     shouldEvaluate,
   });
 
   return {
     isSoftBreak: shouldEvaluate && value,
-    isLoading: shouldEvaluate && isLoading,
+    isLoading: shouldEvaluate && !settled,
   };
 };

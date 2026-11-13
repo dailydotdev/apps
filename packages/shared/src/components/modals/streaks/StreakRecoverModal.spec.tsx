@@ -366,9 +366,10 @@ it('leads with the longest streak and offers a way back when the soft break is o
   expect(completeAction).toHaveBeenCalledWith(
     ActionType.DisableReadingStreakRecover,
   );
-  expect(logEvent).not.toHaveBeenCalledWith(
-    expect.objectContaining({ event_name: LogEvent.DismissStreakRecover }),
-  );
+  // The permanent opt-out is logged whichever button closed the modal.
+  expect(logEvent).toHaveBeenCalledWith({
+    event_name: LogEvent.DismissStreakRecover,
+  });
   expect(updateAlerts).toHaveBeenCalledWith(
     expect.objectContaining({ showRecoverStreak: false }),
   );
