@@ -109,6 +109,12 @@ export const featureStreakOptimisticView = new Feature(
   false,
 );
 
+// daily "streak extended" toast on the first counted read of a local day
+export const featureStreakDailyCelebration = new Feature(
+  'streak_daily_celebration',
+  false,
+);
+
 export const briefCardFeedFeature = new Feature(
   'brief_card_feed',
   isDevelopment,
