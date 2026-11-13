@@ -5,6 +5,7 @@ import {
   DayStreak as ProductionDayStreak,
   freezeTooltipCopy,
   missedDayLabel,
+  pausedDayLabel,
   Streak,
 } from '@dailydotdev/shared/src/components/streak/popup/DayStreak';
 import { TriangleArrowIcon } from '@dailydotdev/shared/src/components/icons';
@@ -31,7 +32,7 @@ import {
  * arrow, the disc at the strip's size, and the weekday letter under it.
  */
 
-export { freezeTooltipCopy, missedDayLabel, Streak };
+export { freezeTooltipCopy, missedDayLabel, pausedDayLabel, Streak };
 
 type DayStreakProps = ComponentProps<typeof ProductionDayStreak>;
 
