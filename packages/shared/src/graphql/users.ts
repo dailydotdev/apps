@@ -848,7 +848,21 @@ export interface UserStreakRecoverData {
   cost: number;
   oldStreakLength: number;
   regularCost?: number;
+  // Earn-back (streak_earn_back): new posts read since the reset, capped at
+  // postsRequired, which it equals once the streak was earned back
+  postsRead?: number;
+  postsRequired?: number;
+  earnBack?: boolean;
 }
+
+export interface StreakRecoverQuery {
+  streakRecover: UserStreakRecoverData;
+}
+
+export const isStreakEarnedBack = (recover?: UserStreakRecoverData): boolean =>
+  !!recover?.earnBack &&
+  !!recover.postsRequired &&
+  (recover.postsRead ?? 0) >= recover.postsRequired;
 
 export const USER_STREAK_RECOVER_QUERY = gql`
   query UserStreakRecover {
@@ -857,6 +871,9 @@ export const USER_STREAK_RECOVER_QUERY = gql`
       cost
       oldStreakLength
       regularCost
+      postsRead
+      postsRequired
+      earnBack
     }
   }
 `;

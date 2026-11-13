@@ -13,6 +13,7 @@ import {
   isGraphQLRejection,
 } from '../../lib/streakViewQueue';
 import { useStreakDailyCelebration } from '../streaks/useStreakDailyCelebration';
+import { useStreakEarnBackProgress } from '../streaks/useStreakEarnBackProgress';
 
 interface ViewPostContext {
   previousStreak?: UserStreak;
@@ -35,6 +36,7 @@ export const useViewPost = (): UseMutateAsyncFunction<
     shouldEvaluate: !!user,
   });
   const celebrateStreakDay = useStreakDailyCelebration();
+  const checkStreakEarnBack = useStreakEarnBackProgress();
   const streakKey = generateQueryKey(RequestKey.UserStreak, user);
   const readKey = generateQueryKey(RequestKey.ReadingStreak30Days, user);
   const { mutateAsync: onSendViewPost } = useMutation<
@@ -73,6 +75,7 @@ export const useViewPost = (): UseMutateAsyncFunction<
       return { previousStreak: streak, shouldRefetchStreak, nextStreak };
     },
     onSuccess: async (_, __, context) => {
+      const isStreakEarnedBack = await checkStreakEarnBack();
       if (context.shouldRefetchStreak) {
         await client.refetchQueries({ queryKey: streakKey });
 
@@ -80,11 +83,13 @@ export const useViewPost = (): UseMutateAsyncFunction<
         await client.invalidateQueries({ queryKey: readKey });
 
         const refetched = client.getQueryState<UserStreak>(streakKey);
-        celebrateStreakDay(
-          refetched?.status === 'success'
-            ? refetched.data?.current
-            : context.nextStreak,
-        );
+        if (!isStreakEarnedBack) {
+          celebrateStreakDay(
+            refetched?.status === 'success'
+              ? refetched.data?.current
+              : context.nextStreak,
+          );
+        }
       }
 
       return null;

@@ -449,6 +449,83 @@ it('Should dismiss popup on close if checked option', async () => {
   );
 });
 
+describe('earn-back', () => {
+  const earnBackOffer: UserStreakRecoverData = {
+    canRecover: true,
+    cost: 100,
+    oldStreakLength: 10,
+    regularCost: 100,
+    postsRead: 1,
+    postsRequired: 3,
+    earnBack: true,
+  };
+
+  it('shows the reading progress with a secondary instant restore', async () => {
+    mockRecoveryQuery(earnBackOffer);
+    renderComponent({ user: { ...loggedUser, balance: { amount: 200 } } });
+    await waitForNock();
+
+    const progress = await screen.findByTestId('streak-earn-back-progress');
+    expect(progress).toHaveTextContent('Read 3 posts to bring it back');
+    expect(progress).toHaveTextContent('1/3');
+    const segments = screen.getAllByTestId('streak-earn-back-segment');
+    expect(segments.map((segment) => segment.dataset.filled)).toEqual([
+      'true',
+      'false',
+      'false',
+    ]);
+
+    expect(
+      screen.getByRole('button', { name: 'Start reading' }),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('streak-recover-button')).toHaveTextContent(
+      'Restore instantly · 100 Cores',
+    );
+  });
+
+  it('offers the instant restore for free when the first restore is free', async () => {
+    mockRecoveryQuery({ ...earnBackOffer, cost: 0 });
+    renderComponent();
+    await waitForNock();
+
+    expect(
+      await screen.findByTestId('streak-recover-button'),
+    ).toHaveTextContent('Restore instantly · Free');
+  });
+
+  it('closes the offer on start reading', async () => {
+    mockRecoveryQuery(earnBackOffer);
+    renderComponent();
+    await waitForNock();
+
+    mockAlertsMutation();
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Start reading' }),
+    );
+    await waitForNock();
+
+    expect(updateAlerts).toHaveBeenCalledWith(
+      expect.objectContaining({ showRecoverStreak: false }),
+    );
+  });
+
+  it('shows the success state once the streak was earned back', async () => {
+    mockRecoveryQuery({
+      ...earnBackOffer,
+      canRecover: false,
+      postsRead: 3,
+    });
+    renderComponent();
+    await waitForNock();
+
+    expect(
+      await screen.findByTestId('streak-earned-back-heading'),
+    ).toHaveTextContent('Your 10-day streak is back.');
+    expect(screen.queryByText('Start reading')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
+  });
+});
+
 it('Should show error message on recover fail', async () => {
   window.scrollTo = jest.fn();
 

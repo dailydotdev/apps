@@ -1,5 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useId } from 'react';
+import React, { useEffect, useId } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import classNames from 'classnames';
 import { ModalSize } from '../common/types';
 import { ModalBody } from '../common/ModalBody';
 import type { ModalProps } from '../common/Modal';
@@ -15,6 +17,7 @@ import type { ButtonProps } from '../../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import type { UseStreakRecoverReturn } from '../../../hooks/streaks/useStreakRecover';
 import { useStreakRecover } from '../../../hooks/streaks/useStreakRecover';
+import { getStreakEarnedBackCopy } from '../../../hooks/streaks/useStreakEarnBackProgress';
 import { Checkbox } from '../../fields/Checkbox';
 import { ModalClose } from '../common/ModalClose';
 import { cloudinaryStreakLost } from '../../../lib/image';
@@ -31,6 +34,7 @@ import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { featureStreakSoftBreak } from '../../../lib/featureManagement';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
 
 export interface StreakRecoverModalProps extends Pick<
   ModalProps,
@@ -157,6 +161,57 @@ const StreakRecoverButton = ({
   );
 };
 
+// Earn-back progress: one segment per new post read since the reset
+const StreakEarnBackProgress = ({
+  postsRead,
+  postsRequired,
+}: {
+  postsRead: number;
+  postsRequired: number;
+}) => {
+  const read = Math.min(postsRead, postsRequired);
+
+  return (
+    <div
+      className="flex flex-col gap-2"
+      data-testid="streak-earn-back-progress"
+    >
+      <div className="flex items-center justify-between gap-2">
+        <Typography tag={TypographyTag.P} type={TypographyType.Callout} bold>
+          Read {postsRequired} posts to bring it back
+        </Typography>
+        <Typography
+          tag={TypographyTag.Span}
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          {read}/{postsRequired}
+        </Typography>
+      </div>
+      <div
+        className="flex gap-1"
+        role="progressbar"
+        aria-label="Posts read to bring your streak back"
+        aria-valuemin={0}
+        aria-valuemax={postsRequired}
+        aria-valuenow={read}
+      >
+        {Array.from({ length: postsRequired }, (_, index) => (
+          <span
+            key={index}
+            data-testid="streak-earn-back-segment"
+            data-filled={index < read}
+            className={classNames(
+              'h-1.5 flex-1 rounded-full',
+              index < read ? 'bg-accent-bacon-default' : 'bg-surface-float',
+            )}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export const StreakRecoverOptout = ({
   hideForever,
   id,
@@ -198,18 +253,73 @@ export const StreakRecoverModal = (
   const { isOpen, onRequestClose, onAfterClose, user } = props;
   const { isStreaksEnabled } = useReadingStreak();
   const id = useId();
-  const { recover, hideForever, onClose, onRecover } = useStreakRecover({
-    onAfterClose,
-    onRequestClose,
-  });
+  const client = useQueryClient();
+  const { recover, hideForever, onClose, onRecover, onStartReading } =
+    useStreakRecover({
+      onAfterClose,
+      onRequestClose,
+    });
   const { logEvent } = useLogContext();
   const { value: isSoftBreak } = useConditionalFeature({
     feature: featureStreakSoftBreak,
     shouldEvaluate: recover.canRecover && !recover.isLoading,
   });
+  const { isEarnedBack } = recover;
+  const isEarnBack = recover.earnBack && recover.postsRequired > 0;
 
-  if (!user || !isStreaksEnabled || !recover.canRecover || recover.isLoading) {
+  useEffect(() => {
+    if (!isEarnedBack || !user) {
+      return;
+    }
+
+    client.invalidateQueries({
+      queryKey: generateQueryKey(RequestKey.UserStreak, user),
+    });
+  }, [client, isEarnedBack, user]);
+
+  if (
+    !user ||
+    !isStreaksEnabled ||
+    (!recover.canRecover && !isEarnedBack) ||
+    recover.isLoading
+  ) {
     return null;
+  }
+
+  if (isEarnedBack) {
+    return (
+      <Modal
+        isOpen={isOpen}
+        isDrawerOnMobile={isOpen}
+        onRequestClose={onClose}
+        size={ModalSize.XSmall}
+      >
+        <ModalClose
+          aria-label="Close streak recover popup"
+          onClick={onClose}
+          title="Close streak recover popup"
+        />
+        <ModalBody className="!p-4">
+          <div className="flex flex-col gap-4">
+            <Typography
+              className="text-center font-bold"
+              tag={TypographyTag.H3}
+              type={TypographyType.Title1}
+              data-testid="streak-earned-back-heading"
+            >
+              {getStreakEarnedBackCopy(recover.oldStreakLength)}
+            </Typography>
+            <Button
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Large}
+              onClick={onClose}
+            >
+              Close
+            </Button>
+          </div>
+        </ModalBody>
+      </Modal>
+    );
   }
 
   return (
@@ -232,15 +342,46 @@ export const StreakRecoverModal = (
             isSoftBreak={isSoftBreak}
           />
           <StreakRecoveryCopy recover={recover} />
-          <StreakRecoverButton
-            onClick={onRecover}
-            recover={recover}
-            loading={recover.isRecoverPending}
-          />
+          {isEarnBack && (
+            <StreakEarnBackProgress
+              postsRead={recover.postsRead}
+              postsRequired={recover.postsRequired}
+            />
+          )}
+          {isEarnBack ? (
+            <>
+              <Button
+                variant={ButtonVariant.Primary}
+                size={ButtonSize.Large}
+                onClick={onStartReading}
+              >
+                Start reading
+              </Button>
+              <Button
+                className="gap-1"
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Large}
+                onClick={onRecover}
+                loading={recover.isRecoverPending}
+                data-testid="streak-recover-button"
+              >
+                Restore instantly ·{' '}
+                {recover.cost === 0
+                  ? 'Free'
+                  : `${formatCoresCurrency(recover.cost)} Cores`}
+              </Button>
+            </>
+          ) : (
+            <StreakRecoverButton
+              onClick={onRecover}
+              recover={recover}
+              loading={recover.isRecoverPending}
+            />
+          )}
           {recover.cost > 0 && (
             <CoresBalanceNote price={recover.cost} className="-mt-2" />
           )}
-          {isSoftBreak && (
+          {isSoftBreak && !isEarnBack && (
             <Button
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Large}
