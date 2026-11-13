@@ -27,6 +27,13 @@ import { coresDocsLink } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { StreakFreezeUpsell } from '../../streak/StreakFreezeUpsell';
 import { CoresBalanceNote } from '../../cores/CoresBalanceNote';
+import { useStreakSoftBreak } from '../../../hooks/streaks/useStreakSoftBreak';
+import {
+  StreakSoftBreakSurface,
+  useStreakSoftBreakImpression,
+} from '../../streak/StreakSoftBreakHero';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent, TargetType } from '../../../lib/log';
 
 export interface StreakRecoverModalProps extends Pick<
   ModalProps,
@@ -59,6 +66,23 @@ const StreakRecoverHeading = ({ days }: { days: number }) => (
     been broken!
   </Typography>
 );
+
+const StreakSoftBreakHeading = ({ best }: { best: number }) => {
+  useStreakSoftBreakImpression(StreakSoftBreakSurface.RestoreModal);
+
+  return (
+    <Typography
+      className="-mx-1 -mb-1 text-center font-bold"
+      tag={TypographyTag.H3}
+      type={TypographyType.Title1}
+      data-testid="streak-recover-modal-heading"
+    >
+      Your best:
+      <span className="text-accent-bacon-default"> {best} days</span>. Today can
+      be day 1.
+    </Typography>
+  );
+};
 
 const StreakRecoveryCopy = ({
   recover,
@@ -173,16 +197,33 @@ export const StreakRecoverModal = (
   props: StreakRecoverModalProps,
 ): ReactElement | null => {
   const { isOpen, onRequestClose, onAfterClose, user } = props;
-  const { isStreaksEnabled } = useReadingStreak();
+  const {
+    isStreaksEnabled,
+    streak,
+    isLoading: isStreakLoading,
+  } = useReadingStreak();
   const id = useId();
   const { recover, hideForever, onClose, onRecover } = useStreakRecover({
     onAfterClose,
     onRequestClose,
   });
+  const { logEvent } = useLogContext();
+  const softBreak = useStreakSoftBreak(streak);
 
-  if (!user || !isStreaksEnabled || !recover.canRecover || recover.isLoading) {
+  if (
+    !user ||
+    !isStreaksEnabled ||
+    !recover.canRecover ||
+    recover.isLoading ||
+    // Without the streak the soft-break predicate can't be read yet, so the
+    // control heading would render and then swap to the variant.
+    isStreakLoading ||
+    softBreak.isLoading
+  ) {
     return null;
   }
+
+  const isSoftBreak = softBreak.isSoftBreak && streak !== undefined;
 
   return (
     <Modal
@@ -199,7 +240,11 @@ export const StreakRecoverModal = (
       <ModalBody className="!p-4">
         <div className="flex flex-col gap-4">
           <StreakRecoverCover />
-          <StreakRecoverHeading days={recover.oldStreakLength} />
+          {isSoftBreak ? (
+            <StreakSoftBreakHeading best={streak.max} />
+          ) : (
+            <StreakRecoverHeading days={recover.oldStreakLength} />
+          )}
           <StreakRecoveryCopy recover={recover} />
           <StreakRecoverButton
             onClick={onRecover}
@@ -208,6 +253,22 @@ export const StreakRecoverModal = (
           />
           {recover.cost > 0 && (
             <CoresBalanceNote price={recover.cost} className="-mt-2" />
+          )}
+          {isSoftBreak && (
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Large}
+              onClick={() => {
+                logEvent({
+                  event_name: LogEvent.Click,
+                  target_type: TargetType.StreakSoftBreak,
+                  target_id: StreakSoftBreakSurface.RestoreModal,
+                });
+                onClose?.();
+              }}
+            >
+              Start again
+            </Button>
           )}
           <StreakFreezeUpsell>
             Get streak freezes for next time
