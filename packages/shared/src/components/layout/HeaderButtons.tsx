@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import React from 'react';
 import LoginButton from '../LoginButton';
 import NotificationsBell from '../notifications/NotificationsBell';
@@ -11,15 +11,9 @@ import { QuestHeaderButton } from '../header/QuestHeaderButton';
 import { GetAppButton } from '../../features/getApp/components/GetAppButton';
 import { HeaderPlusButton } from '../plus/HeaderPlusButton';
 
-interface HeaderButtonsProps {
-  additionalButtons?: ReactNode;
-}
-
 const Container = classed('div', 'ml-auto flex justify-end gap-3');
 
-export function HeaderButtons({
-  additionalButtons,
-}: HeaderButtonsProps): ReactElement {
+export function HeaderButtons(): ReactElement {
   const { isLoggedIn, isAuthReady } = useAuthContext();
   const { loadedSettings } = useSettingsContext();
 
@@ -49,7 +43,6 @@ export function HeaderButtons({
       <HeaderPlusButton />
       <OpportunityEntryButton />
       <QuestHeaderButton />
-      {additionalButtons}
       <NotificationsBell />
       <ProfileButton className="hidden laptop:flex" />
     </Container>

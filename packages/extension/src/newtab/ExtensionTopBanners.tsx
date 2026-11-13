@@ -1,22 +1,40 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import { TopHero } from '@dailydotdev/shared/src/components/marketing/banners/HeroBottomBanner';
 import { TopHeroPortal } from '@dailydotdev/shared/src/contexts/TopHeroSlotContext';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { useActions } from '@dailydotdev/shared/src/hooks';
+import {
+  useActions,
+  useContentScriptStatus,
+} from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useIsShortcutsHubEnabled } from '@dailydotdev/shared/src/features/shortcuts/hooks/useIsShortcutsHubEnabled';
+import { useIsCompanionPermissionWidgetEnabled } from '@dailydotdev/shared/src/hooks/useIsCompanionPermissionWidgetEnabled';
 import { useShortcutLinks } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutLinks';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils/useThemedAsset';
 import {
   cloudinaryShortcutsIconsGmail,
   cloudinaryShortcutsIconsOpenai,
   cloudinaryShortcutsIconsReddit,
+  cloudinaryCompanionPreview,
 } from '@dailydotdev/shared/src/lib/image';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
+import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
+import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
+import { PlayIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 
 // Matches `CvTopHero`'s frame so the cards sharing the strip line up.
 const illustrationFrameClass =
@@ -99,26 +117,130 @@ const useShortcutsOnboarding = (): UseShortcutsOnboardingResult => {
   return { shouldShow, onAddClick, onClose };
 };
 
+const CompanionIllustration = (): ReactElement => (
+  <a
+    target="_blank"
+    rel={anchorDefaultRel}
+    href={companionExplainerVideo}
+    aria-label="Watch the companion overview video"
+    className={classNames(illustrationFrameClass, 'relative')}
+  >
+    <img
+      src={cloudinaryCompanionPreview}
+      alt=""
+      loading="lazy"
+      className="h-full w-full rounded-10 object-cover"
+    />
+    <PlayIcon secondary className="absolute" size={IconSize.XLarge} />
+  </a>
+);
+
+type UseCompanionOnboardingResult = {
+  shouldShow: boolean;
+  onActivate: () => void;
+  onClose: () => void;
+};
+
+const useCompanionOnboarding = (): UseCompanionOnboardingResult => {
+  const { logEvent } = useLogContext();
+  const { isLoggedIn } = useAuthContext();
+  const { optOutCompanion, loadedSettings } = useSettingsContext();
+  const { requestContentScripts } = useExtensionContext();
+  const { contentScriptGranted, isFetched } = useContentScriptStatus();
+  const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
+
+  const isEligible =
+    isLoggedIn &&
+    isActionsFetched &&
+    loadedSettings &&
+    isFetched &&
+    !contentScriptGranted &&
+    !optOutCompanion &&
+    !!requestContentScripts &&
+    !checkHasCompleted(ActionType.ClosedCompanionBanner);
+  const isWidgetEnabled = useIsCompanionPermissionWidgetEnabled(isEligible);
+  const shouldShow = isEligible && isWidgetEnabled;
+
+  useEffect(() => {
+    if (!shouldShow) {
+      return;
+    }
+
+    logEvent({
+      event_name: 'impression',
+      target_type: 'companion permission',
+      target_id: ExperimentWinner.CompanionPermissionPlacement,
+    });
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shouldShow]);
+
+  const onActivate = () => {
+    requestContentScripts?.({ origin: 'companion permission card' });
+  };
+
+  const onClose = () => completeAction(ActionType.ClosedCompanionBanner);
+
+  return { shouldShow, onActivate, onClose };
+};
+
 export const ExtensionTopBanners = (): ReactElement | null => {
   const { isLoggedIn, isAuthReady } = useAuthContext();
   const shortcuts = useShortcutsOnboarding();
+  const companion = useCompanionOnboarding();
 
   // Logged-out users get the dedicated sticky sign-in strip rendered
   // higher up in `MainFeedPage`. This component is logged-in cards only.
-  if (!isAuthReady || !isLoggedIn || !shortcuts.shouldShow) {
+  if (
+    !isAuthReady ||
+    !isLoggedIn ||
+    (!shortcuts.shouldShow && !companion.shouldShow)
+  ) {
     return null;
   }
 
   return (
     <TopHeroPortal>
-      <TopHero
-        className="order-last"
-        subtitle="Pin the sites you visit most, right from your new tab."
-        ctaLabel="Add shortcuts"
-        illustration={<ShortcutsIllustration />}
-        onCtaClick={shortcuts.onAddClick}
-        onClose={shortcuts.onClose}
-      />
+      {companion.shouldShow && (
+        <TopHero
+          title="Try the new companion feature!"
+          subtitle="We'll ask for extra permissions so we can show the companion directly on the original content!"
+          illustration={<CompanionIllustration />}
+          onClose={companion.onClose}
+          actions={
+            <div className="flex flex-wrap items-center gap-3">
+              <Button
+                type="button"
+                variant={ButtonVariant.Primary}
+                size={ButtonSize.Small}
+                onClick={companion.onActivate}
+              >
+                Activate companion
+              </Button>
+              <ClickableText
+                tag="a"
+                target="_blank"
+                rel={anchorDefaultRel}
+                defaultTypo={false}
+                href={companionExplainerVideo}
+                textClassName="text-accent-cabbage-default typo-footnote"
+              >
+                Overview video
+              </ClickableText>
+            </div>
+          }
+        />
+      )}
+      {shortcuts.shouldShow && (
+        <TopHero
+          className="order-last"
+          subtitle="Pin the sites you visit most, right from your new tab."
+          ctaLabel="Add shortcuts"
+          illustration={<ShortcutsIllustration />}
+          onCtaClick={shortcuts.onAddClick}
+          onClose={shortcuts.onClose}
+        />
+      )}
     </TopHeroPortal>
   );
 };
