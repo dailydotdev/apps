@@ -2,26 +2,26 @@ import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useRequestProtocol } from '../useRequestProtocol';
-import { useConditionalFeature } from '../useConditionalFeature';
-import { featureStreakOptimisticView } from '../../lib/featureManagement';
 import { VIEW_POST_MUTATION } from '../../graphql/posts';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { drainStreakViewQueue } from '../../lib/streakViewQueue';
 
 // Replays post views that a flaky connection dropped (see useViewPost), on
 // app load and whenever the browser comes back online.
+//
+// It deliberately does not read streak_optimistic_view: this mounts for every
+// signed-in user on every load, and evaluating the flag here would enrol
+// people who never open a post. Only useViewPost with the flag on fills the
+// queue, so draining whatever is queued stays scoped to the treatment arm, and
+// a user with an empty queue does no work beyond one storage read.
 export const useStreakViewQueue = (): void => {
   const client = useQueryClient();
   const { user } = useAuthContext();
   const { requestMethod, isCompanion } = useRequestProtocol();
   const userId = user?.id;
-  const { value: isEnabled } = useConditionalFeature({
-    feature: featureStreakOptimisticView,
-    shouldEvaluate: !!userId && !isCompanion,
-  });
 
   useEffect(() => {
-    if (!isEnabled || !userId || isCompanion) {
+    if (!userId || isCompanion) {
       return undefined;
     }
 
@@ -67,5 +67,5 @@ export const useStreakViewQueue = (): void => {
     window.addEventListener('online', drain);
 
     return () => window.removeEventListener('online', drain);
-  }, [client, isCompanion, isEnabled, requestMethod, userId]);
+  }, [client, isCompanion, requestMethod, userId]);
 };
