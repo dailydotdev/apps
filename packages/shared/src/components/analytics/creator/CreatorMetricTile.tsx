@@ -103,11 +103,12 @@ export const CreatorMetricTile = ({
         )
       }
       subtitle={
-        <span className="flex flex-row items-center gap-2">
+        <span className="flex flex-wrap items-center gap-x-2">
           {!isUnknown && <DeltaChip metric={metric} />}
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
+            className="shrink"
           >
             {metricScopeLabel(metric, period)}
           </Typography>

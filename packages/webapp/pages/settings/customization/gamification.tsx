@@ -57,7 +57,7 @@ const GamificationSettingsPage = (): ReactElement => {
   });
 
   const [userTimeZone, setUserTimeZone] = useState<string>(
-    getUserInitialTimezone({ userTimezone: user?.timezone, update: true }),
+    getUserInitialTimezone({ userTimezone: user?.timezone }),
   );
 
   return (

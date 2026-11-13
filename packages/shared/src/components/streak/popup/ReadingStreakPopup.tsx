@@ -102,6 +102,7 @@ export function ReadingStreakPopup({
         startOfWeek: streak.weekStart,
         timezone,
         freezeDates,
+        lastViewAt: streak.lastViewAt,
       });
 
       return (
@@ -113,7 +114,7 @@ export function ReadingStreakPopup({
         />
       );
     });
-  }, [history, streak.weekStart, timezone, freezeDates]);
+  }, [history, streak.weekStart, streak.lastViewAt, timezone, freezeDates]);
 
   const onTogglePush = async () => {
     logEvent({
