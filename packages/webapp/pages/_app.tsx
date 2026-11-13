@@ -58,6 +58,7 @@ import {
   WebKitMessageHandlers,
 } from '@dailydotdev/shared/src/lib/ios';
 import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation';
+import { useEnsureUserTimezone } from '@dailydotdev/shared/src/hooks/useEnsureUserTimezone';
 import { useStreakViewQueue } from '@dailydotdev/shared/src/hooks/streaks/useStreakViewQueue';
 import { useSlackShareReturn } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackShareButton';
 import Seo, { defaultSeo, defaultSeoTitle, robotsProps } from '../next-seo';
@@ -169,6 +170,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   useCheckCoresRole();
   useCheckLocation();
+  useEnsureUserTimezone();
   useStreakViewQueue();
   useSlackShareReturn();
 
