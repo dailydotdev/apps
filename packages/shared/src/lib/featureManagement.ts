@@ -100,6 +100,8 @@ export const featureStreakFreeze = new Feature('streak_freeze', isDevelopment);
 
 export const featureGtaViFreezeDay = new Feature('gta_vi_freeze_day', false);
 
+export const featureGtaViTheme = new Feature('gta_vi_theme', false);
+
 export const briefCardFeedFeature = new Feature(
   'brief_card_feed',
   isDevelopment,
