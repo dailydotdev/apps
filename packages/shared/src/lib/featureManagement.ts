@@ -103,6 +103,8 @@ export const featureStreakWhyBroke = new Feature('streak_why_broke', false);
 
 export const featureGtaViFreezeDay = new Feature('gta_vi_freeze_day', false);
 
+export const featureGtaViTheme = new Feature('gta_vi_theme', false);
+
 export const briefCardFeedFeature = new Feature(
   'brief_card_feed',
   isDevelopment,
@@ -300,8 +302,9 @@ export const featureFeedHero = new Feature('feed_hero', false);
 
 // Experiment: the hero as a rail of widgets the reader arranges, with the ad
 // slot pinned third. Supersedes `feed_hero` where it is on. Tablet and up
-// only; relaunched from `feed_widgets` once phones were taken out of it.
-export const featureFeedWidgets = new Feature('feed_widgets_v2', false);
+// only; relaunched from `feed_widgets_v2` with the new default rail so
+// readers enrolled before it start fresh.
+export const featureFeedWidgets = new Feature('feed_widgets_v3', false);
 
 // Experiment: the post page's full-width signup banner against the cover
 // card pinned over the bottom of the window at the content's width.
