@@ -375,6 +375,14 @@ export default {
               'color-mix(in srgb, var(--theme-accent-bacon-default) 28%, transparent)',
           },
         },
+        // Daily streak toast: the flame pops in with the same strike + rebound
+        // as the rail tile's earn pop, then rests at its normal size.
+        'streak-toast-pop': {
+          '0%': { transform: 'scale(0.6)', opacity: '0' },
+          '45%': { transform: 'scale(1.3)', opacity: '1' },
+          '70%': { transform: 'scale(0.95)' },
+          '100%': { transform: 'scale(1)' },
+        },
         // The search palette: the scrim and panel fade in, and the list fades
         // in again every time its scope changes (it is keyed on the scope).
         // Opacity only: a transform left by `both` would make the scrolling
@@ -420,6 +428,8 @@ export default {
         'streak-border-pulse': 'streak-border-pulse 2.2s ease-in-out infinite',
         'streak-earn-border': 'streak-earn-border 0.6s ease-out both',
         'streak-earn-fill': 'streak-earn-fill 0.6s ease-out both',
+        'streak-toast-pop':
+          'streak-toast-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both',
         'mascot-bob': 'mascot-bob 4s ease-in-out infinite',
       },
     },
