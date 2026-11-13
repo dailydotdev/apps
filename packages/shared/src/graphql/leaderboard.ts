@@ -53,8 +53,6 @@ export const MOST_QUESTS_COMPLETED_LIMIT = 10;
 
 /** Rows a board on /users shows: Highest reputation fills three columns of four. */
 export const LEADERBOARD_LIST_LIMIT = 12;
-/** Rows a board's full list on /users opens with. */
-export const LEADERBOARD_TOP_LIMIT = 50;
 
 export interface UserLeaderboard {
   score: number;
@@ -257,21 +255,3 @@ export const leaderboardQueries: Record<LeaderboardType, string> = {
   [LeaderboardType.HighestLevel]: HIGHEST_LEVEL_QUERY,
   [LeaderboardType.MostVerifiedUsers]: MOST_VERIFIED_USERS_QUERY,
 };
-
-export const leaderboardBoardQueryOptions = <
-  T extends UserLeaderboard | CompanyLeaderboard,
->(
-  type: LeaderboardType,
-  limit: number,
-) => ({
-  queryKey: generateQueryKey(RequestKey.Leaderboard, undefined, type, limit),
-  queryFn: async (): Promise<T[]> => {
-    const res = await gqlClient.request<Record<string, T[]>>(
-      leaderboardQueries[type],
-      { limit },
-    );
-
-    return res[type] ?? [];
-  },
-  staleTime: StaleTime.Default,
-});
