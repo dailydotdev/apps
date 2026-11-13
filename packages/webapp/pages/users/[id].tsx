@@ -6,6 +6,10 @@ import type {
   GetStaticPropsResult,
 } from 'next';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import type {
+  CompanyLeaderboard,
+  UserLeaderboard,
+} from '@dailydotdev/shared/src/graphql/leaderboard';
 import {
   isCompanyLeaderboard,
   LeaderboardType,
@@ -19,10 +23,6 @@ import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
-import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
-import { UserTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
-import type { CompanyLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard/CompanyTopList';
-import { CompanyTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard/CompanyTopList';
 import {
   Button,
   ButtonSize,
@@ -30,6 +30,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { LeaderboardBoardPage } from '@dailydotdev/shared/src/features/leaderboard/LeaderboardBoardPage';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../../next-seo';
@@ -69,10 +70,6 @@ const LeaderboardDetailPage = ({
   const { isFallback: isLoading } = useRouter();
   const isLaptopLayout = useLaptopLayout();
 
-  const isCompany = isCompanyLeaderboard(leaderboardType);
-  const isLevelLeaderboard = leaderboardType === LeaderboardType.HighestLevel;
-  const concatScore = leaderboardType !== LeaderboardType.LongestStreak;
-
   if (isLoading || !title) {
     return <></>;
   }
@@ -99,26 +96,14 @@ const LeaderboardDetailPage = ({
           }
         />
       )}
-      <PageWrapperLayout>
+      <PageWrapperLayout className="px-4 pb-6 pt-3">
         <ShellPage title="Leaderboard" />
-        <div className="mx-auto w-full max-w-screen-laptop">
-          {isCompany ? (
-            <CompanyTopList
-              containerProps={{ title }}
-              items={companyItems || []}
-              isLoading={isLoading}
-            />
-          ) : (
-            <UserTopList
-              containerProps={{ title }}
-              items={userItems || []}
-              isLoading={isLoading}
-              concatScore={concatScore}
-              showLevel={isLevelLeaderboard}
-              leaderboardType={leaderboardType}
-            />
-          )}
-        </div>
+        <LeaderboardBoardPage
+          type={leaderboardType}
+          title={title}
+          userItems={userItems}
+          companyItems={companyItems}
+        />
       </PageWrapperLayout>
     </>
   );

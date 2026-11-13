@@ -60,6 +60,7 @@ export const StreakMonthCalendar = ({
           freezeDates,
           missedDate,
           missedDateTimezone,
+          lastViewAt: streak?.lastViewAt,
         }),
         isToday: isSameDayInTimezone(date, today, timezone),
         isGtaViDay: isGtaViReleaseDay(date, timezone),
@@ -68,6 +69,7 @@ export const StreakMonthCalendar = ({
   }, [
     history,
     streak?.weekStart,
+    streak?.lastViewAt,
     timezone,
     freezeDates,
     missedDate,

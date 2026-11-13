@@ -27,6 +27,7 @@ export const getStreak = ({
   freezeDates,
   missedDate,
   missedDateTimezone,
+  lastViewAt,
 }: {
   value: Date;
   today: Date;
@@ -38,6 +39,7 @@ export const getStreak = ({
   // the API computed it in (see useStreakResetReason).
   missedDate?: string;
   missedDateTimezone?: string;
+  lastViewAt?: Date | string;
 }): Streak => {
   const isFreezeDay = isWeekend(value, startOfWeek, timezone);
   const isUsedFreezeDay = freezeDates?.some((freezeDate) =>
@@ -45,14 +47,20 @@ export const getStreak = ({
   );
   const isToday = isSameDayInTimezone(value, today, timezone);
   const isFuture = value > today;
+  // lastViewAt is always a counted day, and the history alone can miss it:
+  // an early-morning read the API credits to the previous day keeps its real
+  // timestamp in the history.
+  const isLastCountedDay =
+    !!lastViewAt && isSameDayInTimezone(new Date(lastViewAt), value, timezone);
   const isCompleted =
     !isFuture &&
-    history?.some(({ date: historyDate, reads }) => {
-      const dateToCompare = new Date(historyDate);
-      const sameDate = isSameDayInTimezone(dateToCompare, value, timezone);
+    (isLastCountedDay ||
+      history?.some(({ date: historyDate, reads }) => {
+        const dateToCompare = new Date(historyDate);
+        const sameDate = isSameDayInTimezone(dateToCompare, value, timezone);
 
-      return sameDate && reads > 0;
-    });
+        return sameDate && reads > 0;
+      }));
 
   if (isCompleted) {
     return Streak.Completed;

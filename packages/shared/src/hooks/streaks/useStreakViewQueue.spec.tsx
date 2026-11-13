@@ -43,13 +43,18 @@ const renderQueue = ({
   const gb = new GrowthBook({
     features: { streak_optimistic_view: { defaultValue: flag } },
   });
+  const getFeatureValue = jest.spyOn(gb, 'getFeatureValue');
   const wrapper = ({ children }: { children: ReactNode }) => (
     <TestBootProvider client={client} auth={{ user }} gb={gb}>
       {children}
     </TestBootProvider>
   );
 
-  return renderHook(() => useStreakViewQueue(), { wrapper });
+  const view = renderHook(() => useStreakViewQueue(), { wrapper });
+  const hasEvaluatedFlag = () =>
+    getFeatureValue.mock.calls.some(([id]) => id === 'streak_optimistic_view');
+
+  return { ...view, hasEvaluatedFlag };
 };
 
 const goOnline = () =>
@@ -126,15 +131,54 @@ describe('useStreakViewQueue', () => {
     expect(readStreakViewQueue()).toHaveLength(1);
   });
 
-  it('should drop a view the API rejects', async () => {
-    const requestMethod = jest
-      .fn()
-      .mockRejectedValue({ response: { errors: [{ message: 'no' }] } });
+  it('should drop a view the API can never count', async () => {
+    const requestMethod = jest.fn().mockRejectedValue({
+      response: {
+        errors: [{ message: 'no', extensions: { code: 'NOT_FOUND' } }],
+      },
+    });
     enqueueStreakView(queued('p1'));
 
     renderQueue({ client, requestMethod });
 
     await waitFor(() => expect(readStreakViewQueue()).toEqual([]));
+  });
+
+  it('should keep a view when the API fails with a transient GraphQL error', async () => {
+    const requestMethod = jest.fn().mockRejectedValue({
+      response: {
+        errors: [
+          { message: 'slow down', extensions: { code: 'RATE_LIMITED' } },
+        ],
+      },
+    });
+    enqueueStreakView(queued('p1'));
+
+    renderQueue({ client, requestMethod });
+
+    await waitFor(() => expect(requestMethod).toHaveBeenCalledTimes(1));
+    expect(readStreakViewQueue()).toHaveLength(1);
+  });
+
+  it('should drop a view from just before midnight once the local day changed', async () => {
+    jest.useFakeTimers({ now: new Date('2026-01-13T00:10:00+01:00') });
+    const requestMethod = jest
+      .fn()
+      .mockResolvedValue({ viewPost: { _: true } });
+    enqueueStreakView(
+      queued('late', { at: new Date('2026-01-12T23:50:00+01:00').getTime() }),
+    );
+
+    try {
+      renderQueue({ client, requestMethod });
+      await act(() => Promise.resolve());
+      await act(() => Promise.resolve());
+
+      expect(requestMethod).not.toHaveBeenCalled();
+      expect(readStreakViewQueue()).toEqual([]);
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('should leave views queued by another user alone', async () => {
@@ -150,14 +194,40 @@ describe('useStreakViewQueue', () => {
     expect(readStreakViewQueue()).toHaveLength(1);
   });
 
-  it('should do nothing when the flag is off', async () => {
+  it('should never evaluate the flag for a user with an empty queue', async () => {
+    const requestMethod = jest.fn();
+    const { hasEvaluatedFlag } = renderQueue({ client, requestMethod });
+    goOnline();
+
+    await act(() => Promise.resolve());
+    expect(hasEvaluatedFlag()).toBe(false);
+    expect(requestMethod).not.toHaveBeenCalled();
+  });
+
+  it('should drain queued views without reading the flag', async () => {
     const requestMethod = jest
       .fn()
       .mockResolvedValue({ viewPost: { _: true } });
     enqueueStreakView(queued('p1'));
 
-    renderQueue({ client, requestMethod, flag: false });
-    goOnline();
+    const { hasEvaluatedFlag } = renderQueue({
+      client,
+      requestMethod,
+      flag: false,
+    });
+
+    await waitFor(() => expect(readStreakViewQueue()).toEqual([]));
+    expect(requestMethod).toHaveBeenCalledTimes(1);
+    expect(hasEvaluatedFlag()).toBe(false);
+  });
+
+  it('should not replay from the companion', async () => {
+    const requestMethod = jest
+      .fn()
+      .mockResolvedValue({ viewPost: { _: true } });
+    enqueueStreakView(queued('p1'));
+
+    renderQueue({ client, requestMethod, isCompanion: true });
 
     await act(() => Promise.resolve());
     expect(requestMethod).not.toHaveBeenCalled();

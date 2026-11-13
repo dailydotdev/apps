@@ -469,6 +469,8 @@ export enum LogEvent {
   DelaySquadPlanActivation = 'delay squad plan activation',
   GiveSquadSeat = 'give squad seat',
   RemoveSquadSeat = 'remove squad seat',
+  ChangeSquadPlan = 'change squad plan',
+  KeepSquadPlan = 'keep squad plan',
   DismissStartupsUpsell = 'dismiss startups upsell',
   SelectStartupsSetupPath = 'select startups setup path',
   CopyStartupsSetup = 'copy startups setup',

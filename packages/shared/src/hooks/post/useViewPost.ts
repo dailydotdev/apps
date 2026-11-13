@@ -10,15 +10,27 @@ import { useConditionalFeature } from '../useConditionalFeature';
 import { featureStreakOptimisticView } from '../../lib/featureManagement';
 import {
   enqueueStreakView,
-  isGraphQLRejection,
+  isFinalViewRejection,
 } from '../../lib/streakViewQueue';
+import { hasStreakViewToday } from '../../lib/userStreak';
 import { useStreakDailyCelebration } from '../streaks/useStreakDailyCelebration';
 import { useStreakGoalCelebration } from '../streaks/useStreakGoalCelebration';
 
+// The API credits the view in a worker after the mutation resolves, so the
+// first refetch can miss it. Give the worker this long before asking again.
+export const STREAK_REFETCH_RETRY_DELAY_MS = 2000;
+
+const wait = (ms: number) =>
+  new Promise<void>((resolve) => {
+    setTimeout(resolve, ms);
+  });
+
 interface ViewPostContext {
   previousStreak?: UserStreak;
+  optimisticStreak?: UserStreak;
   shouldRefetchStreak: boolean;
-  // the count this view should land on, used when the refetch fails
+  // the count this view should land on, used when the refetch fails or
+  // has not caught up with the view yet
   nextStreak?: number;
 }
 
@@ -64,31 +76,61 @@ export const useViewPost = (): UseMutateAsyncFunction<
       }
 
       const current = streak.current + 1;
-      client.setQueryData<UserStreak>(streakKey, {
+      const optimisticStreak: UserStreak = {
         ...streak,
         current,
         total: streak.total + 1,
         max: Math.max(streak.max, current),
         lastViewAt: new Date(),
-      });
+      };
+      client.setQueryData<UserStreak>(streakKey, optimisticStreak);
 
-      return { previousStreak: streak, shouldRefetchStreak, nextStreak };
+      return {
+        previousStreak: streak,
+        optimisticStreak,
+        shouldRefetchStreak,
+        nextStreak,
+      };
     },
     onSuccess: async (_, __, context) => {
-      if (context.shouldRefetchStreak) {
+      if (!context.shouldRefetchStreak) {
+        return null;
+      }
+
+      const { optimisticStreak } = context;
+      // Resolves with the refetched streak only when it already counts this
+      // view: the API credits it in a worker, so it can still be the
+      // pre-view streak.
+      const refetchStreak = async (): Promise<UserStreak | undefined> => {
         await client.refetchQueries({ queryKey: streakKey });
+        const refetched = client.getQueryData<UserStreak>(streakKey);
 
-        // just mark the query as stale
-        await client.invalidateQueries({ queryKey: readKey });
+        return hasStreakViewToday(refetched, user?.timezone)
+          ? refetched
+          : undefined;
+      };
+      let countedStreak = await refetchStreak();
 
-        const refetched = client.getQueryState<UserStreak>(streakKey);
-        const current =
-          refetched?.status === 'success'
-            ? refetched.data?.current
-            : context.nextStreak;
-        if (!celebrateStreakGoal(current)) {
-          celebrateStreakDay(current);
+      // A refetch that still has the pre-view streak would undo the
+      // optimistic bump, so keep the bump and ask once more after a moment.
+      if (optimisticStreak && !countedStreak) {
+        client.setQueryData<UserStreak>(streakKey, optimisticStreak);
+        await wait(STREAK_REFETCH_RETRY_DELAY_MS);
+        countedStreak = await refetchStreak();
+
+        if (!countedStreak) {
+          client.setQueryData<UserStreak>(streakKey, optimisticStreak);
         }
+      }
+
+      // just mark the query as stale
+      await client.invalidateQueries({ queryKey: readKey });
+
+      // Like the daily toast, the goal check only trusts a refetch that
+      // already counts this read, so a stale count can't hit or miss the goal.
+      const current = countedStreak?.current ?? context.nextStreak;
+      if (!celebrateStreakGoal(current)) {
+        celebrateStreakDay(current);
       }
 
       return null;
@@ -98,7 +140,7 @@ export const useViewPost = (): UseMutateAsyncFunction<
         return;
       }
 
-      if (isGraphQLRejection(error)) {
+      if (isFinalViewRejection(error)) {
         if (context?.previousStreak) {
           client.setQueryData(streakKey, context.previousStreak);
         }
