@@ -112,6 +112,7 @@ export function ReadingStreakPopup({
         missedDate,
         missedDateTimezone,
         pause,
+        lastViewAt: streak.lastViewAt,
       });
 
       return (
@@ -126,6 +127,7 @@ export function ReadingStreakPopup({
   }, [
     history,
     streak.weekStart,
+    streak.lastViewAt,
     timezone,
     freezeDates,
     missedDate,
