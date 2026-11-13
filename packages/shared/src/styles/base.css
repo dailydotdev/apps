@@ -160,6 +160,7 @@ body {
   --theme-surface-focus: theme('colors.raw.blueCheese.40');
 
   /* Overlay */
+  --theme-vice-city-cover-overlay: color-mix(in srgb, var(--theme-background-default), transparent 60%);
   /* Dark */
   --theme-overlay-dark-dark1: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 68%);
   --theme-overlay-dark-dark2: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 60%);
@@ -311,6 +312,7 @@ body {
   --theme-surface-focus: theme('colors.raw.blueCheese.60');
 
   /* Overlay */
+  --theme-vice-city-cover-overlay: color-mix(in srgb, var(--theme-background-default), transparent 30%);
   /* Dark */
   --theme-overlay-dark-dark1: color-mix(in srgb, theme('colors.raw.pepper.10'), transparent 68%);
   --theme-overlay-dark-dark2: color-mix(in srgb, theme('colors.raw.pepper.10'), transparent 60%);
