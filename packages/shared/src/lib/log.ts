@@ -387,6 +387,8 @@ export enum LogEvent {
   ClickStreakFreezePurchase = 'click streak freeze purchase',
   PurchaseStreakFreeze = 'purchase streak freeze',
   DismissStreakFreezePurchase = 'dismiss streak freeze purchase',
+  ScheduleStreakPause = 'schedule streak pause',
+  CancelStreakPause = 'cancel streak pause',
   // 404 page
   View404Page = '404 page',
   // Follow Actions - start

@@ -765,6 +765,12 @@ export interface UserStreakReset {
   at: string;
 }
 
+// Local dates (YYYY-MM-DD, inclusive) in the user's timezone.
+export interface UserStreakPause {
+  start: string;
+  end: string;
+}
+
 export interface UserStreak {
   max: number;
   total: number;
@@ -775,6 +781,9 @@ export interface UserStreak {
   // Null when the streak was never reset; the API only returns it for the
   // viewer's own streak and keeps it after the streak restarts.
   lastReset?: UserStreakReset | null;
+  // The running or next scheduled pause, only returned for the viewer's own
+  // streak.
+  pause?: UserStreakPause | null;
 }
 
 export interface UserProfileAnalytics {

@@ -11,6 +11,7 @@ import { useStreakSoftBreak } from '../../../hooks/streaks/useStreakSoftBreak';
 import { StreakSoftBreakHero } from '../../streak/StreakSoftBreakHero';
 import { StreakMonthCalendar } from '../../streak/popup/StreakMonthCalendar';
 import { StreakResetReason } from '../../streak/StreakResetReason';
+import { StreakPauseBanner } from '../../streak/StreakPauseBanner';
 import { StreakFreezeRow } from '../../streak/popup/StreakFreezeRow';
 import { CompactQuestList } from '../../quest/CompactQuestList';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
@@ -164,6 +165,7 @@ export const StreakQuestsSection = (): ReactElement => {
             </div>
             <StreakMonthCalendar streak={streak} />
             <StreakResetReason streak={streak} className="mt-3" />
+            <StreakPauseBanner streak={streak} className="mt-3" />
           </div>
           {/* Streak-freeze balance + purchase entry (same self-gated row the
               streak popup shows) so v2 users keep the freeze feature in their
