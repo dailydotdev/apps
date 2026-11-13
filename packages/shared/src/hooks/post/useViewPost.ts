@@ -14,6 +14,7 @@ import {
 } from '../../lib/streakViewQueue';
 import { includesThisRead } from '../../lib/userStreak';
 import { useStreakDailyCelebration } from '../streaks/useStreakDailyCelebration';
+import { useStreakEarnBackProgress } from '../streaks/useStreakEarnBackProgress';
 
 // The API credits the view in a worker after the mutation resolves, so the
 // first refetch can miss it. Give the worker this long before asking again.
@@ -47,6 +48,7 @@ export const useViewPost = (): UseMutateAsyncFunction<
     shouldEvaluate: !!user,
   });
   const celebrateStreakDay = useStreakDailyCelebration();
+  const checkStreakEarnBack = useStreakEarnBackProgress();
   const streakKey = generateQueryKey(RequestKey.UserStreak, user);
   const readKey = generateQueryKey(RequestKey.ReadingStreak30Days, user);
   const { mutateAsync: onSendViewPost } = useMutation<
@@ -91,6 +93,7 @@ export const useViewPost = (): UseMutateAsyncFunction<
       };
     },
     onSuccess: async (_, __, context) => {
+      const isStreakEarnedBack = await checkStreakEarnBack();
       if (!context.shouldRefetchStreak) {
         return null;
       }
@@ -128,7 +131,9 @@ export const useViewPost = (): UseMutateAsyncFunction<
       // just mark the query as stale
       await client.invalidateQueries({ queryKey: readKey });
 
-      celebrateStreakDay(countedStreak?.current ?? context.nextStreak);
+      if (!isStreakEarnedBack) {
+        celebrateStreakDay(countedStreak?.current ?? context.nextStreak);
+      }
 
       return null;
     },
