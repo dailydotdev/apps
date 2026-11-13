@@ -772,6 +772,10 @@ export interface UserStreak {
   weekStart: DayOfWeek;
   lastViewAt: Date;
   freezesAvailable: number;
+  // Unused free freezes from the streak_free_freezes grant (part of
+  // freezesAvailable, consumed first): 0 once all were used, null when the
+  // reader never got them.
+  freeFreezes?: number | null;
   // Null when the streak was never reset; the API only returns it for the
   // viewer's own streak and keeps it after the streak restarts.
   lastReset?: UserStreakReset | null;

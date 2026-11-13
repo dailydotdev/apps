@@ -55,6 +55,11 @@ jest.mock('../../../hooks/streaks/useStreakFreeze', () => ({
   useStreakFreeze: () => ({ freezesAvailable: 1 }),
 }));
 
+let mockHasAccessToCores = true;
+jest.mock('../../../hooks/useCoresFeature', () => ({
+  useHasAccessToCores: () => mockHasAccessToCores,
+}));
+
 const mockOpenModal = jest.fn();
 jest.mock('../../../hooks/useLazyModal', () => ({
   useLazyModal: () => ({ openModal: mockOpenModal }),
@@ -100,6 +105,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockUser = { id: 'u1' };
   mockIsFreezeEnabled = true;
+  mockHasAccessToCores = true;
   mockOptOutQuestSystem = false;
   jest.mocked(useStreakRingState).mockReturnValue(ringState());
 });
@@ -188,6 +194,17 @@ it('offers more freezes, and hides the meter where freezes are off', () => {
   mockIsFreezeEnabled = false;
   renderWidget(FeedWidgetSize.Tall);
   expect(screen.queryByText('Streak freezes')).not.toBeInTheDocument();
+});
+
+it('shows the freezes held but no way to buy more without Cores access', () => {
+  mockHasAccessToCores = false;
+
+  renderWidget(FeedWidgetSize.Tall);
+
+  expect(screen.getByText('One left for a day off')).toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', { name: 'Buy more' }),
+  ).not.toBeInTheDocument();
 });
 
 it("dates today and its countdown in the reader's timezone", () => {

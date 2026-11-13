@@ -106,6 +106,14 @@ export const featureStreakSoftBreak = new Feature('streak_soft_break', false);
 // broke" line with a feedback link
 export const featureStreakWhyBroke = new Feature('streak_why_broke', false);
 
+// two free streak freezes once per account when the streak first reaches
+// three days: grant copy in the milestone modal, an upsell once they are used
+// up, and the freeze row for anyone holding freezes (API flag of the same name)
+export const featureStreakFreeFreezes = new Feature(
+  'streak_free_freezes',
+  false,
+);
+
 export const featureGtaViFreezeDay = new Feature('gta_vi_freeze_day', false);
 
 export const featureGtaViTheme = new Feature('gta_vi_theme', false);

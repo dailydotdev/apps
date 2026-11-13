@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useQueryClient } from '@tanstack/react-query';
 import { Modal } from '../common/Modal';
@@ -19,6 +19,61 @@ import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import StreakReminderSwitch from '../../streak/StreakReminderSwitch';
 import { StreakFreezeUpsell } from '../../streak/StreakFreezeUpsell';
+import { useReadingStreak } from '../../../hooks/streaks/useReadingStreak';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { featureStreakFreeFreezes } from '../../../lib/featureManagement';
+
+// Matches the API grant (daily-api src/common/streakFreeFreezes.ts)
+export const FREE_STREAK_FREEZES_STREAK = 3;
+export const FREE_STREAK_FREEZES_QUANTITY = 2;
+export const STREAK_FREE_FREEZES_GRANT_COPY = `You've earned ${FREE_STREAK_FREEZES_QUANTITY} streak freezes, on us. Miss a weekday and we'll use one automatically.`;
+
+// The free freezes were granted with the read that made this milestone: the
+// streak is exactly three days and both free freezes are still unused. Shown
+// once per account (ActionType.StreakFreeFreezesGrant); the decision is
+// latched so completing the action does not hide the copy mid-modal.
+const useShowFreeFreezesGrant = (currentStreak: number): boolean => {
+  const { streak } = useReadingStreak();
+  const { logEvent } = useLogContext();
+  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
+  const [shouldShow, setShouldShow] = useState(false);
+  const isGrantMoment =
+    currentStreak === FREE_STREAK_FREEZES_STREAK &&
+    streak?.freeFreezes === FREE_STREAK_FREEZES_QUANTITY;
+  const { value: isEnabled } = useConditionalFeature({
+    feature: featureStreakFreeFreezes,
+    shouldEvaluate: isGrantMoment,
+  });
+  const hasSeen = checkHasCompleted(ActionType.StreakFreeFreezesGrant);
+
+  useEffect(() => {
+    if (shouldShow || !isGrantMoment || !isEnabled || !isActionsFetched) {
+      return;
+    }
+
+    if (hasSeen) {
+      return;
+    }
+
+    setShouldShow(true);
+    completeAction(ActionType.StreakFreeFreezesGrant);
+    logEvent({
+      event_name: LogEvent.Impression,
+      target_type: TargetType.StreakFreeFreezesGrant,
+      target_id: FREE_STREAK_FREEZES_QUANTITY.toString(),
+    });
+  }, [
+    completeAction,
+    hasSeen,
+    isActionsFetched,
+    isEnabled,
+    isGrantMoment,
+    logEvent,
+    shouldShow,
+  ]);
+
+  return shouldShow;
+};
 
 const Paragraph = classed('p', 'text-center text-text-tertiary');
 
@@ -38,6 +93,7 @@ export default function NewStreakModal({
   const shouldShowSplash = currentStreak >= maxStreak;
   const daysPlural = currentStreak === 1 ? 'day' : 'days';
   const loggedImpression = useRef(false);
+  const showFreeFreezesGrant = useShowFreeFreezesGrant(currentStreak);
 
   useEffect(() => {
     if (loggedImpression.current) {
@@ -121,9 +177,18 @@ export default function NewStreakModal({
             ? 'Epic win! You are in a league of your own'
             : `New milestone reached! You are unstoppable.`}
         </Paragraph>
-        <StreakFreezeUpsell className="mt-6">
-          Protect your streak with streak freezes
-        </StreakFreezeUpsell>
+        {showFreeFreezesGrant ? (
+          <Paragraph
+            className="mt-6 typo-callout"
+            data-testid="streak-free-freezes-grant"
+          >
+            {STREAK_FREE_FREEZES_GRANT_COPY}
+          </Paragraph>
+        ) : (
+          <StreakFreezeUpsell className="mt-6">
+            Protect your streak with streak freezes
+          </StreakFreezeUpsell>
+        )}
         <Checkbox
           name="show_streaks"
           className="mt-10"
