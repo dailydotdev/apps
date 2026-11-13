@@ -55,12 +55,13 @@ export const StreakMonthCalendar = ({
           startOfWeek: streak?.weekStart,
           timezone,
           freezeDates,
+          lastViewAt: streak?.lastViewAt,
         }),
         isToday: isSameDayInTimezone(date, today, timezone),
         isGtaViDay: isGtaViReleaseDay(date, timezone),
       };
     });
-  }, [history, streak?.weekStart, timezone, freezeDates]);
+  }, [history, streak?.weekStart, streak?.lastViewAt, timezone, freezeDates]);
   const isGtaViDayEnabled = useIsGtaViDayEnabled(
     days.some(({ isGtaViDay }) => isGtaViDay),
   );
