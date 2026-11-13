@@ -62,6 +62,7 @@ const OAUTH_REDIRECT_URIS_MAX_LENGTH = 2000;
 const scopeLabels: Record<string, string> = {
   read: 'Read',
   write: 'Write',
+  reading_history: 'Reading history',
 };
 
 const formatRelative = (value: Date): string =>

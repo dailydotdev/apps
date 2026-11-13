@@ -51,7 +51,9 @@ const OAuthConsentPage = (): ReactElement => {
   const { query } = useRouter();
   const { showLogin, user, isAuthReady } = useAuthContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [declinedScopes, setDeclinedScopes] = useState<string[]>([]);
+  const [declinedScopes, setDeclinedScopes] = useState<string[]>([
+    'reading_history',
+  ]);
   const [consentError, setConsentError] = useState<string>();
   const clientId = getFirstQueryParam(query.client_id);
   const requestedScopes = (getFirstQueryParam(query.scope) ?? '')
