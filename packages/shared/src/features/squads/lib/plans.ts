@@ -135,6 +135,7 @@ export const squadPlanDetails: Record<SquadPlan, SquadPlanDetails> = {
       'In developers’ feeds, by topic',
       'On Google and in AI answers',
       'Weekly intel on up to 5 topics',
+      'Reach notes when a post needs work',
       'Skills for Claude Code and any agent',
       'API, so your agent posts and boosts',
       '1 seat',
