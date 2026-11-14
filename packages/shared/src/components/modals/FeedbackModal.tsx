@@ -37,6 +37,8 @@ import { useEventListener } from '../../hooks/useEventListener';
 const FEEDBACK_MAX_LENGTH = 2000;
 type FeedbackModalProps = Omit<ModalProps, 'onRequestClose'> & {
   onRequestClose?: LazyModalCommonProps['onRequestClose'];
+  initialCategory?: FeedbackCategory;
+  initialDescription?: string;
 };
 
 const categoryOptions: { value: FeedbackCategory; label: string }[] = [
@@ -51,6 +53,8 @@ const FEEDBACK_MODAL_OVERLAY_CLASS = 'feedback-modal-overlay';
 
 const FeedbackModal = ({
   onRequestClose,
+  initialCategory = FeedbackCategory.BugReport,
+  initialDescription = '',
   ...props
 }: FeedbackModalProps): ReactElement => {
   const { displayToast } = useToastNotification();
@@ -58,10 +62,8 @@ const FeedbackModal = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const hasSubmitted = useRef(false);
 
-  const [category, setCategory] = useState<FeedbackCategory>(
-    FeedbackCategory.BugReport,
-  );
-  const [description, setDescription] = useState('');
+  const [category, setCategory] = useState<FeedbackCategory>(initialCategory);
+  const [description, setDescription] = useState(initialDescription);
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(
     null,

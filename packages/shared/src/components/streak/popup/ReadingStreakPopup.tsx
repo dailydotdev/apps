@@ -24,6 +24,8 @@ import {
 } from '../../../lib/timezones';
 import { timezoneSettingsUrl, webappUrl } from '../../../lib/constants';
 import { useStreakTimezoneOk } from '../../../hooks/streaks/useStreakTimezoneOk';
+import { useStreakResetReason } from '../../../hooks/streaks/useStreakResetReason';
+import { StreakResetReason } from '../StreakResetReason';
 import { useStreakSoftBreak } from '../../../hooks/streaks/useStreakSoftBreak';
 import {
   StreakSoftBreakHero,
@@ -77,6 +79,8 @@ export function ReadingStreakPopup({
   const history = useReadingStreak30Days();
   const freezeDates = useStreakFreezeDates();
   const isTimezoneOk = useStreakTimezoneOk();
+  const { missedDate, timezone: missedDateTimezone } =
+    useStreakResetReason(streak);
   const { isSoftBreak } = useStreakSoftBreak(streak);
   const { showPrompt } = usePrompt();
   const { logEvent } = useLogContext();
@@ -109,6 +113,8 @@ export function ReadingStreakPopup({
         startOfWeek: streak.weekStart,
         timezone,
         freezeDates,
+        missedDate,
+        missedDateTimezone,
         lastViewAt: streak.lastViewAt,
       });
 
@@ -121,7 +127,15 @@ export function ReadingStreakPopup({
         />
       );
     });
-  }, [history, streak.weekStart, streak.lastViewAt, timezone, freezeDates]);
+  }, [
+    history,
+    streak.weekStart,
+    streak.lastViewAt,
+    timezone,
+    freezeDates,
+    missedDate,
+    missedDateTimezone,
+  ]);
 
   const onTogglePush = async () => {
     logEvent({
@@ -173,6 +187,7 @@ export function ReadingStreakPopup({
         >
           {streaks}
         </div>
+        <StreakResetReason streak={streak} className="mt-4" />
         <div className="mt-4 flex flex-col items-center tablet:flex-row">
           <div
             className={classNames(

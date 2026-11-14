@@ -15,6 +15,7 @@ import {
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../../components/modals/common/types';
 import { StreakMonthCalendar } from '../../../components/streak/popup/StreakMonthCalendar';
+import { StreakResetReason } from '../../../components/streak/StreakResetReason';
 import { useIsStreakFreezeEnabled } from '../../../components/streak/popup/StreakFreezeRow';
 import { CompactQuestList } from '../../../components/quest/CompactQuestList';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
@@ -340,6 +341,7 @@ export const StreakWidget = ({
       {summary}
       <TodayLine timezone={timezone} />
       <StreakMonthCalendar streak={streak} />
+      <StreakResetReason streak={streak} />
       <div className="mt-auto flex flex-col gap-4">
         <TodayGoal
           timezone={timezone}
