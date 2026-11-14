@@ -129,6 +129,20 @@ const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ './ShareModal'),
 );
 
+const AppStoreReviewModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "appStoreReviewModal" */ './AppStoreReviewModal'
+    ),
+);
+
+const PlusRenewalReviewModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "plusRenewalReviewModal" */ './PlusRenewalReviewModal'
+    ),
+);
+
 const BookmarkReminderModal = dynamic(
   () =>
     import(
@@ -649,6 +663,8 @@ export const modals = {
   [LazyModal.LfgReachOut]: LfgReachOutModal,
   [LazyModal.LfgHelper]: LfgHelperModal,
   [LazyModal.FeedExplanation]: FeedExplanationModal,
+  [LazyModal.AppStoreReview]: AppStoreReviewModal,
+  [LazyModal.AppStoreReviewPlus]: PlusRenewalReviewModal,
 };
 
 type GetComponentProps<T> = T extends

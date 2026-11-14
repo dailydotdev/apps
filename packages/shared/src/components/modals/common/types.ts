@@ -114,6 +114,8 @@ export enum LazyModal {
   LfgReachOut = 'lfgReachOut',
   LfgHelper = 'lfgHelper',
   FeedExplanation = 'feedExplanation',
+  AppStoreReview = 'appStoreReview',
+  AppStoreReviewPlus = 'appStoreReviewPlus',
 }
 
 export type ModalTabItem = {

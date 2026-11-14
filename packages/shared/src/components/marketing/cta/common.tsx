@@ -32,6 +32,8 @@ export enum MarketingCtaVariant {
   YearInReview = 'year_in_review',
   HelpGuide = 'help_guide',
   Video = 'video',
+  AppStoreReview = 'app_store_review',
+  AppStoreReviewPlus = 'app_store_review_plus',
 }
 
 interface MarketingCtaTargets {

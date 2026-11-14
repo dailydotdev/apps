@@ -30,6 +30,7 @@ import {
   UserIcon,
 } from '../icons';
 import { AppIcon } from '../icons/App';
+import { AppleIcon } from '../icons/Apple';
 import { CoreIcon } from '../icons/Core';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { useActions } from '../../hooks/useActions';
@@ -57,6 +58,7 @@ import {
 import { usePhoneBrowser } from '../../features/getApp/hooks/usePhoneBrowser';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import { useLazyModal } from '../../hooks/useLazyModal';
+import { rateAppTitle, useRateAppRow } from '../../hooks/useRateAppRow';
 import { LazyModal } from '../modals/common/types';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { useUserFollowStats } from '../../hooks/profile/useUserFollowStats';
@@ -236,6 +238,8 @@ const usePlusRow = (): { label: string; meta: string } => {
 // following, the streak) is not repeated here.
 export function YouPage(): ReactElement | null {
   const { openModal } = useLazyModal();
+  // iPhones only reach this page, so the App Store row lives here.
+  const rateApp = useRateAppRow('you_page');
   const router = useRouter();
   const queryClient = useQueryClient();
   const { user, isAuthReady } = useAuthContext();
@@ -493,6 +497,16 @@ export function YouPage(): ReactElement | null {
             label="Changelog"
             href={`${webappUrl}sources/daily_updates`}
           />
+          {rateApp.isVisible && (
+            <YouRow
+              icon={AppleIcon}
+              label={rateAppTitle}
+              onClick={() => {
+                setIsHelpOpen(false);
+                rateApp.onClick();
+              }}
+            />
+          )}
           {isPhoneBrowser && (
             <YouRow
               icon={PhoneIcon}

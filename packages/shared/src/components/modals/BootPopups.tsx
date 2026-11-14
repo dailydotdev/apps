@@ -22,6 +22,7 @@ import useProfileForm from '../../hooks/useProfileForm';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
 import { useReferralReminderModal } from '../../hooks/referral/useReferralReminderModal';
 import { useIsBootPopupsPaused } from '../../lib/bootPopupsPause';
+import { useAppStoreReviewPrompt } from '../../hooks/useAppStoreReviewPrompt';
 
 const REP_TRESHOLD = 250;
 
@@ -93,6 +94,9 @@ export const BootPopups = (): ReactElement => {
   const marketingCtaPlus = getMarketingCta(MarketingCtaVariant.Plus);
 
   const { streak, isStreaksEnabled } = useReadingStreak();
+
+  // Not a boot popup: the review ask waits for a route change, not page load.
+  useAppStoreReviewPrompt();
 
   const isDisabledMilestone = checkHasCompleted(
     ActionType.DisableReadingStreakMilestone,
