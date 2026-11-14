@@ -17,7 +17,7 @@ import { anchorDefaultRel } from '../../../lib/strings';
 import { Origin } from '../../../lib/log';
 
 const docsUrl =
-  'https://docs.daily.dev/docs/for-content-creators/what-the-feed-recommends';
+  'https://docs.daily.dev/what-the-feed-recommends/';
 
 const reasons: Record<LimitedReachReason, { body: string; anchor: string }> = {
   [LimitedReachReason.AiWritten]: {
