@@ -7,12 +7,12 @@ import loggedUser from '../../../../../__tests__/fixture/loggedUser';
 import type { Squad } from '../../../../graphql/sources';
 import type { AdSquadItem } from '../../../../hooks/useFeed';
 import { FeedItemType } from '../../common/common';
-import { SquadAdCoverGrid } from './SquadAdCoverGrid';
+import { SquadAdGrid } from './SquadAdGrid';
 
 const renderCard = (squad: Squad) =>
   render(
     <TestBootProvider client={new QueryClient()} auth={{ user: loggedUser }}>
-      <SquadAdCoverGrid
+      <SquadAdGrid
         item={
           {
             type: FeedItemType.Ad,
@@ -32,7 +32,7 @@ const renderCard = (squad: Squad) =>
     </TestBootProvider>,
   );
 
-describe('SquadAdCoverGrid', () => {
+describe('SquadAdGrid', () => {
   it('offers to join a squad the reader is not in, with no view button', () => {
     renderCard(
       generateTestSquad({ handle: 'boosted', currentMember: undefined }),

@@ -8,28 +8,30 @@ import { Image } from '../../../image/Image';
 import {
   Typography,
   TypographyColor,
+  TypographyTag,
   TypographyType,
 } from '../../../typography/Typography';
 import { Separator } from '../../common/common';
-import { HorizontalSeparator } from '../../../utilities';
 import { ProfileImageSize, ProfilePicture } from '../../../ProfilePicture';
 import { AdPixel } from '../common/AdPixel';
 import { AdViewability } from '../common/AdViewability';
 import { Tooltip } from '../../../tooltip/Tooltip';
 import Link from '../../../utilities/Link';
 import { SquadOptionsButton } from '../../common/SquadOptionsButton';
-import { SquadAdStat } from './SquadAdStat';
+import { largeNumberFormat } from '../../../../lib';
 import { pluralize } from '../../../../lib/strings';
 import { SquadFeedStats } from './SquadFeedStats';
 import { CardLink } from '../../common/Card';
+import { SquadActionButton } from '../../../squads/SquadActionButton';
 import { SquadAdAction } from './SquadAdAction';
+import { SquadImage } from '../../../squads/SquadImage';
+import { ButtonVariant } from '../../../buttons/common';
+import { Origin } from '../../../../lib/log';
 import { useScrambler } from '../../../../hooks/useScrambler';
 import { storeSquadBoostClick } from '../../../../features/monetization/squadBoostClick';
-import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
-import { featureSquadBoostCoverCard } from '../../../../lib/featureManagement';
-import { SquadAdCoverGrid } from './SquadAdCoverGrid';
+import { getSquadBanner } from '../../../../features/squads/components/discover/common';
 
-function SquadAdDefaultGrid({
+export function SquadAdGrid({
   item,
   onClickAd,
   onMount,
@@ -43,6 +45,11 @@ function SquadAdDefaultGrid({
   const promotedByTooltip = useScrambler(
     `Promoted by @${campaign?.user?.username}`,
   );
+  const membersCount = largeNumberFormat(source.membersCount);
+  const membersLabel = pluralize(
+    shouldShowAction ? 'dev' : 'member',
+    source.membersCount,
+  );
 
   useEffect(() => {
     if (!inView) {
@@ -55,7 +62,7 @@ function SquadAdDefaultGrid({
   return (
     <FeedItemContainer
       data-testid="adItem"
-      domProps={{ className: 'flex flex-col gap-3 group px-4 pb-3 pt-4' }}
+      domProps={{ className: 'flex flex-col group overflow-hidden' }}
       ref={ref}
     >
       <Link href={source.permalink}>
@@ -68,74 +75,95 @@ function SquadAdDefaultGrid({
         />
       </Link>
       {item.ad?.pixel && (
-        // Out of flow: as a flex child the pixel would add a gap above the
-        // header and push the card's content below its neighbours.
         <span className="absolute bottom-0 left-0">
           <AdPixel pixel={item.ad.pixel} />
         </span>
       )}
       <AdViewability ad={item.ad} onViewable={(data) => onViewable?.(data)} />
-      <div className="flex flex-row justify-between">
-        <Image src={source.image} className="h-8 w-8 rounded-max" />
+      <div className="relative h-28 shrink-0">
+        <Image
+          src={getSquadBanner(squad ?? source)}
+          alt=""
+          className="size-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background-subtle" />
+      </div>
+      <div className="absolute right-2 top-2">
         <SquadOptionsButton squad={source} />
       </div>
-      <div className="flex flex-col gap-1">
-        <Typography bold type={TypographyType.Title3}>
+      <div className="flex flex-col items-center px-4 text-center">
+        <SquadImage
+          className="relative -mt-11 size-18 border-4 border-background-subtle"
+          {...source}
+        />
+        <Typography
+          bold
+          type={TypographyType.Title3}
+          className="mt-2 line-clamp-2"
+        >
           {source.name}
         </Typography>
         <Typography
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
+          className="mt-1"
         >
           <Tooltip content={promotedByTooltip}>
-            <button
-              type="button"
-              disabled
-              className="relative text-action-comment-default"
-            >
-              <strong>{promotedText}</strong>
+            <button type="button" disabled className="relative">
+              {promotedText}
             </button>
           </Tooltip>
           <Separator />@{source.handle}
         </Typography>
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+          className="mt-2 line-clamp-2"
+        >
+          {source.description}
+        </Typography>
+        <div className="mt-4 flex flex-row items-center">
+          {members?.slice(0, 4).map(({ user }, index) => (
+            <ProfilePicture
+              className={index > 0 ? '-ml-2' : undefined}
+              size={ProfileImageSize.Small}
+              key={user.id}
+              user={user}
+            />
+          ))}
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+            className="ml-2"
+          >
+            {shouldShowAction && 'Join '}
+            <strong className="text-text-primary">{membersCount}</strong>{' '}
+            {membersLabel}
+          </Typography>
+        </div>
+        <div className="mt-2 flex justify-center">
+          <SquadFeedStats source={source} />
+        </div>
       </div>
-      <Typography type={TypographyType.Callout} className="line-clamp-5">
-        {source.description}
-      </Typography>
-      <HorizontalSeparator />
-      <div className="flex flex-row items-center">
-        {members?.slice(0, 3).map(({ user }, index) => (
-          <ProfilePicture
-            className={index > 0 && '-ml-2'}
-            size={ProfileImageSize.Small}
-            key={user.id}
-            user={user}
+      <div className="mt-auto p-4">
+        {shouldShowAction ? (
+          <SquadActionButton
+            squad={squad}
+            origin={Origin.Feed}
+            alwaysShow
+            buttonVariants={[ButtonVariant.Primary, ButtonVariant.Subtle]}
+            onSuccess={() => onJustJoined(true)}
+            className={{ button: 'w-full' }}
           />
-        ))}
-        <SquadAdStat
-          className="ml-2"
-          label={pluralize('member', source.membersCount)}
-          value={source.membersCount}
-        />
+        ) : (
+          <SquadAdAction
+            squad={squad}
+            onJustJoined={() => onJustJoined(true)}
+            shouldShowAction={false}
+          />
+        )}
       </div>
-      <SquadFeedStats source={source} />
-      <SquadAdAction
-        squad={squad}
-        onJustJoined={() => onJustJoined(true)}
-        shouldShowAction={shouldShowAction}
-      />
     </FeedItemContainer>
   );
-}
-
-export function SquadAdGrid(props: SquadAdFeedProps): ReactElement {
-  const { value: isCoverCard } = useConditionalFeature({
-    feature: featureSquadBoostCoverCard,
-  });
-
-  if (isCoverCard) {
-    return <SquadAdCoverGrid {...props} />;
-  }
-
-  return <SquadAdDefaultGrid {...props} />;
 }
