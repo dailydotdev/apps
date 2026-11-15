@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import type { Post } from '../../../graphql/posts';
 import { LimitedReachReason } from '../../../graphql/posts';
 import { Pill, PillSize } from '../../Pill';
 import { Button } from '../../buttons/Button';
@@ -11,10 +10,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
-import { BoostPostButton } from '../../../features/boost/BoostButton';
-import { useCopyText } from '../../../hooks/useCopy';
 import { anchorDefaultRel } from '../../../lib/strings';
-import { Origin } from '../../../lib/log';
 
 const docsUrl = 'https://docs.daily.dev/what-the-feed-recommends/';
 
@@ -37,21 +33,13 @@ const reasons: Record<LimitedReachReason, { body: string; anchor: string }> = {
   },
 };
 
-export const reviewPrompt =
-  'Use the daily.dev content review skill to review my next post before I publish it on daily.dev.';
-
 interface LimitedReachCardProps {
-  post: Post;
   reason: LimitedReachReason;
-  canBoost: boolean;
 }
 
 export const LimitedReachCard = ({
-  post,
   reason,
-  canBoost,
 }: LimitedReachCardProps): ReactElement | null => {
-  const [, copyPrompt] = useCopyText(reviewPrompt);
   const copy = reasons[reason];
 
   if (!copy) {
@@ -81,36 +69,17 @@ export const LimitedReachCard = ({
           {copy.body}
         </Typography>
       </div>
-      <div className="flex flex-wrap gap-2">
-        <Button
-          tag="a"
-          href={`${docsUrl}#${copy.anchor}`}
-          target="_blank"
-          rel={anchorDefaultRel}
-          variant={ButtonVariant.Secondary}
-          size={ButtonSize.Small}
-        >
-          What developers here respond to
-        </Button>
-        <Button
-          variant={ButtonVariant.Float}
-          size={ButtonSize.Small}
-          onClick={() =>
-            copyPrompt({
-              message: 'Prompt copied. Paste it into your coding agent.',
-            })
-          }
-        >
-          Review your next post
-        </Button>
-        {canBoost && reason !== LimitedReachReason.Language && (
-          <BoostPostButton
-            post={post}
-            buttonProps={{ size: ButtonSize.Small }}
-            origin={Origin.PostAnalytics}
-          />
-        )}
-      </div>
+      <Button
+        tag="a"
+        href={`${docsUrl}#${copy.anchor}`}
+        target="_blank"
+        rel={anchorDefaultRel}
+        variant={ButtonVariant.Secondary}
+        size={ButtonSize.Small}
+        className="self-start"
+      >
+        How to reach more developers
+      </Button>
     </section>
   );
 };
