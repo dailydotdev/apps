@@ -92,6 +92,9 @@ export interface RegistrationFormProps extends AuthFormProps {
    * there, and only shown if it needs fixing.
    */
   isStartups?: boolean;
+  /** Controls the marketing opt-out, when its choice is shared with the social options. */
+  optOutMarketing?: boolean;
+  onOptOutMarketingChange?: (optOut: boolean) => void;
 }
 
 export type RegistrationFormValues = Omit<
@@ -139,6 +142,8 @@ const RegistrationForm = ({
   showHeadline = true,
   isOnboardingFunnel,
   isStartups,
+  optOutMarketing: optOutMarketingProp,
+  onOptOutMarketingChange,
 }: RegistrationFormProps): ReactElement => {
   const { email } = useAuthData();
   const { logEvent } = useLogContext();
@@ -353,8 +358,7 @@ const RegistrationForm = ({
 
     onSignup({
       ...values,
-      // No opt-out on this form, so nobody is signed up to marketing by it
-      'traits.acceptedMarketing': isStartups ? false : !optOutMarketing,
+      'traits.acceptedMarketing': !optOutMarketing,
       // Set experience level to "not an engineer" for recruiters
       ...(isRecruiterOnboarding && {
         'traits.experienceLevel': 'NOT_ENGINEER',
@@ -652,11 +656,16 @@ const RegistrationForm = ({
               saveHintSpace
             />
           )}
-          {!isStartups && (
-            <Checkbox className="w-full" name="optOutMarketing">
-              I don&apos;t want to receive updates and promotions via email
-            </Checkbox>
-          )}
+          <Checkbox
+            className="w-full"
+            name="optOutMarketing"
+            {...(onOptOutMarketingChange && {
+              checked: !!optOutMarketingProp,
+              onToggleCallback: onOptOutMarketingChange,
+            })}
+          >
+            I don&apos;t want to receive updates and promotions via email
+          </Checkbox>
           <ConditionalWrapper
             condition={simplified ?? false}
             wrapper={(component) =>

@@ -59,6 +59,8 @@ const openEmailLogIn = async () => {
 };
 
 describe('StartupsCheckout account step', () => {
+  afterEach(() => localStorage.clear());
+
   it('opens the log-in screen from the sign-up options', async () => {
     renderAccountStep();
     expect(await screen.findByText('Create your account')).toBeInTheDocument();
@@ -110,6 +112,26 @@ describe('StartupsCheckout account step', () => {
     );
 
     expect(await screen.findByText('Create your account')).toBeInTheDocument();
+  });
+
+  it('offers the marketing opt-out on sign up and keeps it for the email form', async () => {
+    renderAccountStep();
+    const optOut = /don.t want to receive updates and promotions/;
+
+    const checkbox = await screen.findByRole('checkbox', { name: optOut });
+    expect(checkbox).not.toBeChecked();
+    fireEvent.click(checkbox);
+
+    await click(/continue with email/i);
+    expect(await screen.findByRole('checkbox', { name: optOut })).toBeChecked();
+
+    fireEvent.click(
+      screen.getAllByRole('button', { name: /^other options$/i })[0],
+    );
+    await click(/^log in$/i);
+    expect(
+      screen.queryByRole('checkbox', { name: optOut }),
+    ).not.toBeInTheDocument();
   });
 });
 

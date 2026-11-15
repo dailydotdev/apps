@@ -18,6 +18,7 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { IconSize } from '../Icon';
 import { ClickableText } from '../buttons/ClickableText';
 import { AuthScreenTitle } from './AuthScreenTitle';
+import { Checkbox } from '../fields/Checkbox';
 
 const AuthModalFooter = dynamic(
   () => import(/* webpackChunkName: "authModalFooter" */ './AuthModalFooter'),
@@ -60,6 +61,8 @@ interface AuthDefaultProps extends AuthFormProps {
   onLogInChange?: (isLogIn: boolean) => void;
   /** Shown on the screen, for a page without toasts in its flow. */
   socialError?: string;
+  optOutMarketing?: boolean;
+  onOptOutMarketingChange?: (optOut: boolean) => void;
 }
 
 const AuthDefault = ({
@@ -94,6 +97,8 @@ const AuthDefault = ({
   isStartups,
   onLogInChange,
   socialError,
+  optOutMarketing,
+  onOptOutMarketingChange,
 }: AuthDefaultProps): ReactElement => {
   const { logEvent } = useLogContext();
   const [shouldLogin, setShouldLogin] = useState(isLoginFlow);
@@ -288,6 +293,15 @@ const AuthDefault = ({
         )}
         {entryOptions}
         {form}
+        {isSignup && onOptOutMarketingChange && (
+          <Checkbox
+            name="optOutMarketing"
+            checked={!!optOutMarketing}
+            onToggleCallback={onOptOutMarketingChange}
+          >
+            I don&apos;t want to receive updates and promotions via email
+          </Checkbox>
+        )}
         {!isEmailLoginScreen && (
           <div className="flex flex-wrap items-center gap-1 text-text-secondary typo-callout">
             {shouldLogin ? 'New to daily.dev?' : 'Already have an account?'}

@@ -129,6 +129,7 @@ const EmailCodeVerification = dynamic(
 );
 
 const CHOSEN_PROVIDER_KEY = 'chosen_provider';
+const OPT_OUT_MARKETING_KEY = 'startups_opt_out_marketing';
 
 function AuthOptionsInner({
   onClose,
@@ -180,6 +181,20 @@ function AuthOptionsInner({
   const isOnboardingOrFunnel =
     !!router?.pathname?.startsWith('/onboarding') || isFunnel;
   const isStartups = trigger === AuthTriggers.StartupsCheckout;
+  // Kept in storage so the choice survives a full-page social redirect
+  const [optOutMarketing, setOptOutMarketing] = useState(
+    () => isStartups && storage.getItem(OPT_OUT_MARKETING_KEY) === 'true',
+  );
+  const onOptOutMarketingChange = (optOut: boolean) => {
+    setOptOutMarketing(optOut);
+    if (optOut) {
+      storage.setItem(OPT_OUT_MARKETING_KEY, 'true');
+    } else {
+      storage.removeItem(OPT_OUT_MARKETING_KEY);
+    }
+  };
+  const getAutoProfileMarketing = () =>
+    isStartups && storage.getItem(OPT_OUT_MARKETING_KEY) !== 'true';
   const [socialError, setSocialError] = useState<string>();
   const socialProviderRef = useRef<string>();
   const onSocialError = (message: string) => {
@@ -442,7 +457,11 @@ function AuthOptionsInner({
         onSuccessfulLogin?.();
       }
     } else if (autoProfileTriggers.includes(trigger)) {
-      await autoCompleteProfile(user.email, user.name, false);
+      await autoCompleteProfile(
+        user.email,
+        user.name,
+        getAutoProfileMarketing(),
+      );
     } else {
       onSetActiveDisplay(AuthDisplay.SocialRegistration);
     }
@@ -506,7 +525,11 @@ function AuthOptionsInner({
     if (autoProfileTriggers.includes(trigger)) {
       setIsSocialAuthLoading(false);
       const loggedUser = bootUser as LoggedUser;
-      await autoCompleteProfile(loggedUser.email, loggedUser.name, false);
+      await autoCompleteProfile(
+        loggedUser.email,
+        loggedUser.name,
+        getAutoProfileMarketing(),
+      );
       return;
     }
 
@@ -998,6 +1021,7 @@ function AuthOptionsInner({
             socialSignupOnly={socialSignupOnly}
             isStartups={isStartups}
             onLogInChange={onLogInChange}
+            {...(isStartups && { optOutMarketing, onOptOutMarketingChange })}
             socialError={socialError}
             simplified={simplified}
             trigger={trigger}
@@ -1023,6 +1047,7 @@ function AuthOptionsInner({
           <RegistrationForm
             formRef={formRef}
             isStartups={isStartups}
+            {...(isStartups && { optOutMarketing, onOptOutMarketingChange })}
             simplified={simplified}
             showHeadline={!hideRegistrationHeadline}
             isOnboardingFunnel={isOnboardingFunnel}
