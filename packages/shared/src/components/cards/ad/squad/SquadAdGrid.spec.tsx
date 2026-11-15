@@ -7,12 +7,12 @@ import loggedUser from '../../../../../__tests__/fixture/loggedUser';
 import type { Squad } from '../../../../graphql/sources';
 import type { AdSquadItem } from '../../../../hooks/useFeed';
 import { FeedItemType } from '../../common/common';
-import { SquadAdCoverGrid } from './SquadAdCoverGrid';
+import { SquadAdGrid } from './SquadAdGrid';
 
 const renderCard = (squad: Squad) =>
   render(
     <TestBootProvider client={new QueryClient()} auth={{ user: loggedUser }}>
-      <SquadAdCoverGrid
+      <SquadAdGrid
         item={
           {
             type: FeedItemType.Ad,
@@ -32,7 +32,7 @@ const renderCard = (squad: Squad) =>
     </TestBootProvider>,
   );
 
-describe('SquadAdCoverGrid', () => {
+describe('SquadAdGrid', () => {
   it('offers to join a squad the reader is not in, with no view button', () => {
     renderCard(
       generateTestSquad({ handle: 'boosted', currentMember: undefined }),
@@ -44,12 +44,14 @@ describe('SquadAdCoverGrid', () => {
     expect(screen.queryByText('View Squad')).not.toBeInTheDocument();
   });
 
-  it('shows no button to a member, as the card opens the squad', () => {
+  it('keeps View Squad for a member', () => {
     renderCard(generateTestSquad({ handle: 'boosted' }));
 
     expect(
       screen.queryByRole('button', { name: 'Join Squad' }),
     ).not.toBeInTheDocument();
-    expect(screen.queryByText('View Squad')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'View Squad' }),
+    ).toBeInTheDocument();
   });
 });

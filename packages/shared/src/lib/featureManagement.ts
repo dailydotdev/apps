@@ -430,10 +430,3 @@ export const featureWeeklyPicksChecks = new Feature(
   'weekly_picks_checks',
   false,
 );
-
-// The boosted squad grid card with the squad's cover, a centered header and a
-// primary Join button; the card itself opens the squad.
-export const featureSquadBoostCoverCard = new Feature(
-  'squad_boost_cover_card',
-  false,
-);
