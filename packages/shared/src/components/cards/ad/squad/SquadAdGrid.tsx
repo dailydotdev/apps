@@ -25,8 +25,11 @@ import { CardLink } from '../../common/Card';
 import { SquadAdAction } from './SquadAdAction';
 import { useScrambler } from '../../../../hooks/useScrambler';
 import { storeSquadBoostClick } from '../../../../features/monetization/squadBoostClick';
+import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
+import { featureSquadBoostCoverCard } from '../../../../lib/featureManagement';
+import { SquadAdCoverGrid } from './SquadAdCoverGrid';
 
-export function SquadAdGrid({
+function SquadAdDefaultGrid({
   item,
   onClickAd,
   onMount,
@@ -123,4 +126,16 @@ export function SquadAdGrid({
       />
     </FeedItemContainer>
   );
+}
+
+export function SquadAdGrid(props: SquadAdFeedProps): ReactElement {
+  const { value: isCoverCard } = useConditionalFeature({
+    feature: featureSquadBoostCoverCard,
+  });
+
+  if (isCoverCard) {
+    return <SquadAdCoverGrid {...props} />;
+  }
+
+  return <SquadAdDefaultGrid {...props} />;
 }
