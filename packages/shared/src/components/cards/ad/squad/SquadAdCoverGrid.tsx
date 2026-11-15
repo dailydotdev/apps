@@ -23,6 +23,7 @@ import { pluralize } from '../../../../lib/strings';
 import { SquadFeedStats } from './SquadFeedStats';
 import { CardLink } from '../../common/Card';
 import { SquadActionButton } from '../../../squads/SquadActionButton';
+import { SquadAdAction } from './SquadAdAction';
 import { SquadImage } from '../../../squads/SquadImage';
 import { ButtonVariant } from '../../../buttons/common';
 import { Origin } from '../../../../lib/log';
@@ -145,8 +146,8 @@ export function SquadAdCoverGrid({
           <SquadFeedStats source={source} />
         </div>
       </div>
-      {shouldShowAction && (
-        <div className="mt-auto p-4">
+      <div className="mt-auto p-4">
+        {shouldShowAction ? (
           <SquadActionButton
             squad={squad}
             origin={Origin.Feed}
@@ -155,8 +156,14 @@ export function SquadAdCoverGrid({
             onSuccess={() => onJustJoined(true)}
             className={{ button: 'w-full' }}
           />
-        </div>
-      )}
+        ) : (
+          <SquadAdAction
+            squad={squad}
+            onJustJoined={() => onJustJoined(true)}
+            shouldShowAction={false}
+          />
+        )}
+      </div>
     </FeedItemContainer>
   );
 }

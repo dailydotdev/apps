@@ -44,12 +44,14 @@ describe('SquadAdCoverGrid', () => {
     expect(screen.queryByText('View Squad')).not.toBeInTheDocument();
   });
 
-  it('shows no button to a member, as the card opens the squad', () => {
+  it('keeps View Squad for a member', () => {
     renderCard(generateTestSquad({ handle: 'boosted' }));
 
     expect(
       screen.queryByRole('button', { name: 'Join Squad' }),
     ).not.toBeInTheDocument();
-    expect(screen.queryByText('View Squad')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'View Squad' }),
+    ).toBeInTheDocument();
   });
 });
