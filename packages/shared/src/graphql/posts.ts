@@ -1555,6 +1555,13 @@ export const getGenerateBriefingMutationOptions = () => {
 export const defautRefetchMs = 4000;
 export const briefRefetchIntervalMs = defautRefetchMs;
 
+export enum LimitedReachReason {
+  AiWritten = 'ai_written',
+  Promotional = 'promotional',
+  OversoldTitle = 'oversold_title',
+  Language = 'language',
+}
+
 export const POST_ANALYTICS_QUERY = gql`
   query PostAnalytics($id: ID!) {
     postAnalytics(id: $id) {
@@ -1588,6 +1595,7 @@ export const POST_ANALYTICS_QUERY = gql`
       agentViewsPerplexityBot
       agentViewsExaBot
       agentViewsMetaBot
+      limitedReachReason
     }
   }
 `;
@@ -1623,6 +1631,7 @@ export type PostAnalytics = {
   agentViewsPerplexityBot: number | null;
   agentViewsExaBot: number | null;
   agentViewsMetaBot: number | null;
+  limitedReachReason: LimitedReachReason | null;
 };
 
 export const postAnalyticsQueryOptions = ({ id }: { id?: string }) => {
