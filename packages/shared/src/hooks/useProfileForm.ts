@@ -80,21 +80,27 @@ const useProfileForm = ({
     ResponseError,
     UpdateProfileParameters
   >({
-    mutationFn: ({ upload, coverUpload, onUpdateSuccess, ...data }) =>
-      gqlClient.request(UPDATE_USER_PROFILE_MUTATION, {
-        data,
-        upload,
-        coverUpload,
-      }),
+    mutationFn: async ({ upload, coverUpload, onUpdateSuccess, ...data }) => {
+      const res = await gqlClient.request<{ updateUserProfile: LoggedUser }>(
+        UPDATE_USER_PROFILE_MUTATION,
+        {
+          data,
+          upload,
+          coverUpload,
+        },
+      );
+
+      return res?.updateUserProfile;
+    },
 
     onSuccess: async (
-      _,
+      updatedUser,
       { onUpdateSuccess, upload, coverUpload, ...userUpdates },
     ) => {
       setHint({});
 
       if (user) {
-        await updateUser({ ...user, ...userUpdates });
+        await updateUser({ ...user, ...userUpdates, ...updatedUser });
       }
 
       onUpdateSuccess?.();
