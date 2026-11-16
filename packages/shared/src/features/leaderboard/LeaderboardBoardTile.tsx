@@ -45,7 +45,9 @@ export function LeaderboardBoardTile<
   return (
     <div className="flex h-full flex-col gap-1 rounded-16 border border-border-subtlest-tertiary p-3">
       <div className="flex items-start justify-between gap-2 px-1.5 pb-1">
-        <span className="truncate font-bold typo-callout">{title}</span>
+        <span className="min-w-0 flex-1 truncate font-bold typo-callout">
+          {title}
+        </span>
         {!empty && (
           <LeaderboardTextLink
             href={`/users/${type}`}
