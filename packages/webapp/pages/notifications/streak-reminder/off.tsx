@@ -20,7 +20,7 @@ export const streakReminderSettingsPath = '/settings/notifications';
 const seo: NextSeoProps = { ...noindexSeoProps, title: 'Streak reminders' };
 
 // Target of the "Turn off streak reminders" button on the streak pushes. One
-// tap mutes the reminder for a signed-in reader and lands on the settings
+// tap removes the reminder for a signed-in reader and lands on the settings
 // row that turns it back on.
 const StreakReminderOffPage = (): ReactElement => {
   const router = useRouter();

@@ -15,7 +15,6 @@ import {
   GET_NOTIFICATION_SETTINGS,
   GET_PERSONALIZED_DIGEST_SETTINGS,
   UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
-  UPDATE_NOTIFICATION_SETTINGS_MUTATION,
   UserPersonalizedDigestType,
 } from '@dailydotdev/shared/src/graphql/users';
 import { NotificationPreferenceStatus } from '@dailydotdev/shared/src/graphql/notifications';
@@ -25,6 +24,7 @@ import type { ToastNotification } from '@dailydotdev/shared/src/hooks/useToastNo
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { AFTER_AUTH_PARAM } from '@dailydotdev/shared/src/components/auth/common';
 import StreakReminderOffPage, {
+  streakReminderOffFailedToast,
   streakReminderOffToast,
   streakReminderSettingsPath,
 } from '../pages/notifications/streak-reminder/off';
@@ -109,30 +109,18 @@ const renderPage = (user?: LoggedUser): RenderResult =>
     </QueryClientProvider>,
   );
 
-it('should remove the reminder, mute the flag, toast and land on settings', async () => {
-  mockSettingsQueries();
-  mockGraphQL({
-    request: {
-      query: UPDATE_NOTIFICATION_SETTINGS_MUTATION,
-      variables: {
-        notificationFlags: {
-          ...notificationSettings,
-          [NotificationType.StreakReminder]: {
-            email: NotificationPreferenceStatus.Muted,
-            inApp: NotificationPreferenceStatus.Muted,
-          },
-        },
-      },
-    },
-    result: { data: { updateNotificationSettings: { _: true } } },
-  });
+const mockUnsubscribe = (result: Parameters<typeof mockGraphQL>[0]['result']) =>
   mockGraphQL({
     request: {
       query: UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
       variables: { type: UserPersonalizedDigestType.StreakReminder },
     },
-    result: { data: { unsubscribePersonalizedDigest: { _: true } } },
+    result,
   });
+
+it('should remove the reminder, toast and land on settings', async () => {
+  mockSettingsQueries();
+  mockUnsubscribe({ data: { unsubscribePersonalizedDigest: { _: true } } });
 
   renderPage(loggedUser);
 
@@ -149,6 +137,24 @@ it('should remove the reminder, mute the flag, toast and land on settings', asyn
     target_type: TargetType.StreakReminderOptOut,
     extra: JSON.stringify({ origin: 'push' }),
   });
+});
+
+it('should toast the failure when the reminder could not be removed', async () => {
+  mockSettingsQueries();
+  mockUnsubscribe({ errors: [{ message: 'Unexpected error' }] });
+
+  renderPage(loggedUser);
+
+  await waitForNock();
+  await waitFor(() =>
+    expect(routerReplace).toHaveBeenCalledWith(streakReminderSettingsPath),
+  );
+  expect(client.getQueryData<ToastNotification>(TOAST_NOTIF_KEY)?.message).toBe(
+    streakReminderOffFailedToast,
+  );
+  expect(logEvent).not.toHaveBeenCalledWith(
+    expect.objectContaining({ target_type: TargetType.StreakReminderOptOut }),
+  );
 });
 
 it('should send a signed-out reader to login and back to this link', async () => {

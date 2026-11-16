@@ -15,7 +15,7 @@ export const STREAK_REMINDER_HOUR = 20;
 
 interface UseStreakReminder {
   isSubscribed: boolean;
-  /** Both the reminder row and the notification flags have answered. */
+  /** The reminder row query has answered. */
   isReady: boolean;
   toggleStreakReminder: () => void;
   turnOffStreakReminder: () => Promise<void>;
@@ -29,7 +29,7 @@ const toggleLogExtra = JSON.stringify({
 export const useStreakReminder = (): UseStreakReminder => {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
-  const { notificationSettings, setNotificationStatus, isLoadingPreferences } =
+  const { notificationSettings, setNotificationStatus } =
     useNotificationSettings();
   const {
     getPersonalizedDigest,
@@ -46,20 +46,12 @@ export const useStreakReminder = (): UseStreakReminder => {
     !!getPersonalizedDigest(UserPersonalizedDigestType.StreakReminder);
 
   // The one-tap opt-out from the push: removes the reminder row like the
-  // settings switch and also mutes the in-app flag, so nothing sends another
+  // settings switch. The API stamps the opt-out so the row is not recreated.
   const turnOffStreakReminder = async () => {
     logEvent({
       event_name: LogEvent.DisableNotification,
       extra: toggleLogExtra,
     });
-
-    if (notificationSettings && !isMuted) {
-      setNotificationStatus(
-        NotificationType.StreakReminder,
-        'inApp',
-        NotificationPreferenceStatus.Muted,
-      );
-    }
 
     await unsubscribePersonalizedDigest({
       type: UserPersonalizedDigestType.StreakReminder,
@@ -107,7 +99,7 @@ export const useStreakReminder = (): UseStreakReminder => {
 
   return {
     isSubscribed,
-    isReady: isSettled && !isLoadingPreferences,
+    isReady: isSettled,
     toggleStreakReminder,
     turnOffStreakReminder,
   };
