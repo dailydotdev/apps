@@ -138,6 +138,19 @@ export const getReadArticleHref = (
 ): string | undefined =>
   getPostReadTarget(post).target?.permalink ?? post.permalink;
 
+/**
+ * A share without commentary has nothing of its own to reshare, so resharing
+ * it shares the post it wraps, the same way the API resolves it.
+ */
+export const getPostToShare = <
+  T extends Pick<Post, 'type' | 'title' | 'sharedPost'>,
+>(
+  post: T,
+): T | SharedPost =>
+  post.type === PostType.Share && !post.title && post.sharedPost
+    ? post.sharedPost
+    : post;
+
 export const getPostTitle = (
   post:
     | {

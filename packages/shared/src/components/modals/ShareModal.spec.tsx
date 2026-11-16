@@ -5,7 +5,7 @@ import React from 'react';
 import nock from 'nock';
 import { useRouter } from 'next/router';
 import ShareModal from './ShareModal';
-import Post from '../../../__tests__/fixture/post';
+import Post, { sharePost } from '../../../__tests__/fixture/post';
 import { getFacebookShareLink } from '../../lib/share';
 import { Origin } from '../../lib/log';
 import Comment from '../../../__tests__/fixture/comment';
@@ -38,6 +38,7 @@ const renderComponent = (
   loggedIn = true,
   hasSquads = true,
   comment?: typeof defaultComment,
+  post = defaultPost,
 ): RenderResult => {
   return render(
     <TestBootProvider
@@ -49,7 +50,7 @@ const renderComponent = (
     >
       <ShareModal
         origin={Origin.Feed}
-        post={defaultPost}
+        post={post}
         comment={comment}
         isOpen
         onRequestClose={onRequestClose}
@@ -104,6 +105,17 @@ describe('ShareModal Test Suite:', () => {
     expect(screen.getByRole('textbox', { name: 'Link URL' })).toHaveValue(
       defaultPost.permalink,
     );
+  });
+
+  it('should open the share to squad composer with the wrapped post when sharing a share without commentary', async () => {
+    const post = { ...sharePost, title: undefined, private: false };
+    renderComponent(true, true, undefined, post);
+    const btn = await screen.findByTestId(`social-share-@${squads[0].handle}`);
+    fireEvent.click(btn);
+    expect(
+      await screen.findByRole('textbox', { name: 'Link URL' }),
+    ).toHaveValue(post.sharedPost!.permalink);
+    expect(screen.getByText(post.sharedPost!.title)).toBeInTheDocument();
   });
 
   it('should render the Facebook button and navigate to the correct link', async () => {

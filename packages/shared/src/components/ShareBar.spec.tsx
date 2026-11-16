@@ -133,6 +133,20 @@ describe('ShareBar Test Suite:', () => {
     );
   });
 
+  it('should open the share to squad composer with the wrapped post when sharing a share without commentary', async () => {
+    const post = { ...sharePost, title: undefined };
+    renderComponent(true, squads, post);
+    const btn = await screen.findByTestId(`social-share-@${squads[0].handle}`);
+
+    btn.click();
+    await waitFor(() => {
+      expect(screen.getByRole('textbox', { name: 'Link URL' })).toHaveValue(
+        post.sharedPost!.permalink,
+      );
+    });
+    expect(screen.getByText(post.sharedPost!.title)).toBeInTheDocument();
+  });
+
   it('should render the Facebook button and navigate to correct link', async () => {
     renderComponent();
     const btn = await screen.findByTestId(`social-share-Facebook`);
