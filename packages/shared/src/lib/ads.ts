@@ -9,12 +9,13 @@ import { getBrowserClientHints } from '../features/monetization/browserClientHin
 
 /**
  * Squads with the paid `adFree` feature carry no ads on their feed, their
- * search results, or the page and modal of any of their posts. Every ad
- * placement reads this one rule.
+ * search results, or the page and modal of any of their posts, unless their
+ * admins turned ads back on (`hideAds`). Every ad placement reads this one
+ * rule.
  */
 export const isSourceAdFree = (
   source?: Pick<Source, 'features'> | null,
-): boolean => !!source?.features?.adFree;
+): boolean => !!(source?.features?.hideAds ?? source?.features?.adFree);
 
 /**
  * A squad post opened from a feed card has no features until its own post

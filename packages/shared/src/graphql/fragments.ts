@@ -222,6 +222,8 @@ export const SOURCE_BASE_FRAGMENT = gql`
       products
       cta
       jobs
+      showVerifiedBadge
+      hideAds
     }
     currentMember {
       ...CurrentMember
@@ -328,6 +330,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       }
       features {
         verified
+        showVerifiedBadge
       }
     }
     userState {

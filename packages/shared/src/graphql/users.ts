@@ -132,6 +132,7 @@ sources: publicSourceMemberships(userId: $id, first: 30) {
         permalink
         features {
           verified
+          showVerifiedBadge
         }
         currentMember {
           role

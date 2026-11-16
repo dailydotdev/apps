@@ -330,6 +330,22 @@ describe('ads', () => {
         expected: true,
       },
       {
+        name: 'serves an ad-free squad that turned ads back on',
+        source: {
+          type: SourceType.Squad,
+          features: { ...features, adFree: true, hideAds: false },
+        },
+        expected: false,
+      },
+      {
+        name: 'skips a squad the API says hides ads',
+        source: {
+          type: SourceType.Squad,
+          features: { ...features, hideAds: true },
+        },
+        expected: true,
+      },
+      {
         name: 'waits on a squad from a feed card until its post loads',
         source: { type: SourceType.Squad },
         expected: true,

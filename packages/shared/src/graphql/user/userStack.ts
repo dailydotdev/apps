@@ -25,7 +25,7 @@ export interface ToolTopSquad {
   image: string;
   description: string | null;
   membersCount: number;
-  features: Pick<SourceFeatures, 'verified'> | null;
+  features: Pick<SourceFeatures, 'verified' | 'showVerifiedBadge'> | null;
 }
 
 export interface UserStack {
@@ -158,6 +158,7 @@ const TOP_SQUADS_FOR_TOOL_QUERY = gql`
           membersCount
           features {
             verified
+            showVerifiedBadge
           }
         }
       }
