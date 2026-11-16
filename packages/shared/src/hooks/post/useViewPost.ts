@@ -39,8 +39,8 @@ interface ViewPostContext {
   previousStreak?: UserStreak;
   optimisticStreak?: UserStreak;
   shouldRefetchStreak: boolean;
-  // the count this view should land on, used when the refetch fails or
-  // has not caught up with the view yet
+  // the count this view should land on, to recognize a refetch that already
+  // includes it
   nextStreak?: number;
 }
 
@@ -127,22 +127,24 @@ export const useViewPost = (): UseMutateAsyncFunction<
       };
       let countedStreak = await refetchStreak();
 
-      // A refetch that still has the pre-view streak would undo the
-      // optimistic bump, so keep the bump and ask once more after a moment.
-      if (optimisticStreak && !countedStreak) {
-        client.setQueryData<UserStreak>(streakKey, optimisticStreak);
-        await wait(STREAK_REFETCH_RETRY_DELAY_MS);
-        countedStreak = await refetchStreak();
-
-        if (!countedStreak) {
+      // The worker may not have credited the view yet: keep the optimistic
+      // bump and ask once more after a moment. A retry that is still stale
+      // means the API skipped the view (it ignores a post the user viewed in
+      // the past week), so the server value it returned stays.
+      if (!countedStreak) {
+        if (optimisticStreak) {
           client.setQueryData<UserStreak>(streakKey, optimisticStreak);
         }
+        await wait(STREAK_REFETCH_RETRY_DELAY_MS);
+        countedStreak = await refetchStreak();
       }
 
       // just mark the query as stale
       await client.invalidateQueries({ queryKey: readKey });
 
-      celebrateStreakDay(countedStreak?.current ?? context.nextStreak);
+      // only a count the API confirmed: a guess could celebrate a day that
+      // never counted and suppress the toast for the read that does
+      celebrateStreakDay(countedStreak?.current);
 
       return null;
     },
