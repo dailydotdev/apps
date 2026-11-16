@@ -1,3 +1,4 @@
+import { format, parseISO, subDays } from 'date-fns';
 import type { TickProp } from 'recharts/types/util/types';
 import { postAnalyticsHistoryLimit } from '../../graphql/posts';
 import { dateFormatInTimezone } from '../../lib/timezones';
@@ -9,13 +10,6 @@ export type PostAnalyticsHistoryDay<T> = T & {
 export const historyChartTickProp: TickProp = {
   fill: 'var(--theme-text-tertiary)',
   fontSize: '0.6875rem',
-};
-
-// Noon UTC on the calendar day, so no DST shift skips or repeats a day
-const getHistoryDay = (today: string, daysAgo: number): Date => {
-  const [year, month, day] = today.split('-').map(Number);
-
-  return new Date(Date.UTC(year, month - 1, day - daysAgo, 12));
 };
 
 export const buildAnalyticsHistoryDays = <TItem extends { date: Date }, T>({
@@ -46,15 +40,17 @@ export const buildAnalyticsHistoryDays = <TItem extends { date: Date }, T>({
     {} as Record<string, T>,
   );
 
-  const today = dateFormatInTimezone(new Date(), 'yyyy-MM-dd', timezone);
+  // Today's calendar date for the user, so the days and their labels agree
+  const today = parseISO(
+    dateFormatInTimezone(new Date(), 'yyyy-MM-dd', timezone),
+  );
 
   return Array.from({ length: postAnalyticsHistoryLimit }, (_, index) => {
-    const day = getHistoryDay(today, postAnalyticsHistoryLimit - 1 - index);
-    const date = dateFormatInTimezone(day, 'yyyy-MM-dd', 'UTC');
+    const day = subDays(today, postAnalyticsHistoryLimit - 1 - index);
 
     return {
-      ...(nodes[date] ?? toNode()),
-      name: dateFormatInTimezone(day, 'MMM d', 'UTC'),
+      ...(nodes[format(day, 'yyyy-MM-dd')] ?? toNode()),
+      name: format(day, 'MMM d'),
     };
   });
 };
