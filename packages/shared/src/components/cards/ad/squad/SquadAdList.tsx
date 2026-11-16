@@ -14,6 +14,7 @@ import { Separator } from '../../common/common';
 import { HorizontalSeparator } from '../../../utilities';
 import { ProfileImageSize, ProfilePicture } from '../../../ProfilePicture';
 import { AdPixel } from '../common/AdPixel';
+import { AdSlot } from '../common/AdSlot';
 import { AdViewability } from '../common/AdViewability';
 import { Tooltip } from '../../../tooltip/Tooltip';
 import { CardLink } from '../../common/Card';
@@ -50,79 +51,81 @@ export function SquadAdList({
   }, [inView, onMount]);
 
   return (
-    <FeedItemContainer
-      data-testid="adItem"
-      domProps={{ className: 'flex flex-col gap-4 group' }}
-      ref={ref}
-    >
-      <Link href={source.permalink}>
-        <CardLink
-          href={source.permalink}
-          onClick={() => {
-            onClickAd();
-            storeSquadBoostClick(item.ad);
-          }}
-        />
-      </Link>
-      {item.ad?.pixel && (
-        // Out of flow: as a flex child the pixel would add a gap above the
-        // header and push the card's content below its neighbours.
-        <span className="absolute bottom-0 left-0">
-          <AdPixel pixel={item.ad.pixel} />
-        </span>
-      )}
-      <AdViewability ad={item.ad} onViewable={(data) => onViewable?.(data)} />
-      <div className="mb-2 flex w-full flex-row gap-2">
-        <Image src={source.image} className="h-10 w-10 rounded-max" />
-        <div className="flex flex-col gap-1">
-          <Typography bold type={TypographyType.Footnote}>
-            {source.name}
-          </Typography>
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-          >
-            <Tooltip content={promotedByTooltip}>
-              <button
-                type="button"
-                disabled
-                className="relative text-action-comment-default"
-              >
-                <strong>{promotedText}</strong>
-              </button>
-            </Tooltip>
-            <Separator />@{source.handle}
-          </Typography>
-        </div>
-        <SquadOptionsButton squad={source} className="ml-auto" />
-      </div>
-      <Typography type={TypographyType.Callout} className="line-clamp-5">
-        {source.description}
-      </Typography>
-      <HorizontalSeparator />
-      <div className="flex flex-row flex-wrap items-center gap-y-1">
-        {members?.slice(0, 3).map(({ user }, index) => (
-          <ProfilePicture
-            className={index > 0 && '-ml-2'}
-            size={ProfileImageSize.Small}
-            key={user.id}
-            user={user}
+    <AdSlot ad={item.ad}>
+      <FeedItemContainer
+        data-testid="adItem"
+        domProps={{ className: 'flex flex-col gap-4 group' }}
+        ref={ref}
+      >
+        <Link href={source.permalink}>
+          <CardLink
+            href={source.permalink}
+            onClick={() => {
+              onClickAd();
+              storeSquadBoostClick(item.ad);
+            }}
           />
-        ))}
-        <SquadAdStat
-          className="ml-2"
-          label={pluralize('member', source.membersCount)}
-          value={source.membersCount}
+        </Link>
+        {item.ad?.pixel && (
+          // Out of flow: as a flex child the pixel would add a gap above the
+          // header and push the card's content below its neighbours.
+          <span className="absolute bottom-0 left-0">
+            <AdPixel ad={item.ad} />
+          </span>
+        )}
+        <AdViewability ad={item.ad} onViewable={(data) => onViewable?.(data)} />
+        <div className="mb-2 flex w-full flex-row gap-2">
+          <Image src={source.image} className="h-10 w-10 rounded-max" />
+          <div className="flex flex-col gap-1">
+            <Typography bold type={TypographyType.Footnote}>
+              {source.name}
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              <Tooltip content={promotedByTooltip}>
+                <button
+                  type="button"
+                  disabled
+                  className="relative text-action-comment-default"
+                >
+                  <strong>{promotedText}</strong>
+                </button>
+              </Tooltip>
+              <Separator />@{source.handle}
+            </Typography>
+          </div>
+          <SquadOptionsButton squad={source} className="ml-auto" />
+        </div>
+        <Typography type={TypographyType.Callout} className="line-clamp-5">
+          {source.description}
+        </Typography>
+        <HorizontalSeparator />
+        <div className="flex flex-row flex-wrap items-center gap-y-1">
+          {members?.slice(0, 3).map(({ user }, index) => (
+            <ProfilePicture
+              className={index > 0 && '-ml-2'}
+              size={ProfileImageSize.Small}
+              key={user.id}
+              user={user}
+            />
+          ))}
+          <SquadAdStat
+            className="ml-2"
+            label={pluralize('member', source.membersCount)}
+            value={source.membersCount}
+          />
+          <Separator className="text-text-tertiary" />
+          <SquadFeedStats source={source} />
+        </div>
+        <SquadAdAction
+          squad={squad}
+          onJustJoined={() => onJustJoined(true)}
+          shouldShowAction={shouldShowAction}
+          className="relative w-full tablet:max-w-52"
         />
-        <Separator className="text-text-tertiary" />
-        <SquadFeedStats source={source} />
-      </div>
-      <SquadAdAction
-        squad={squad}
-        onJustJoined={() => onJustJoined(true)}
-        shouldShowAction={shouldShowAction}
-        className="relative w-full tablet:max-w-52"
-      />
-    </FeedItemContainer>
+      </FeedItemContainer>
+    </AdSlot>
   );
 }

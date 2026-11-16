@@ -30,6 +30,7 @@ import { AdActions } from '../lib/ads';
 import { useFeedCardContext } from '../features/posts/FeedCardContext';
 import { AdPixel } from './cards/ad/common/AdPixel';
 import { AdMeasurement } from './cards/ad/common/AdMeasurement';
+import { AdSlot } from './cards/ad/common/AdSlot';
 import { AdViewability } from './cards/ad/common/AdViewability';
 import type { ViewabilityData } from '../features/monetization/viewability';
 import { viewabilityLogExtra } from '../features/monetization/viewability';
@@ -440,7 +441,7 @@ function FeedItemComponent({
         />
       );
 
-    return (
+    const card = (
       <ActivePostContextProvider post={itemPost}>
         {WideCard ? (
           <WideCard {...postCardProps} wideColSpan={wideColSpan}>
@@ -451,7 +452,7 @@ function FeedItemComponent({
             {explainCard}
             {item.type === FeedItemType.Ad && (
               <>
-                <AdPixel pixel={item.ad.pixel} />
+                <AdPixel ad={item.ad} />
                 <AdMeasurement ad={item.ad} />
                 <AdViewability
                   ad={item.ad}
@@ -462,6 +463,11 @@ function FeedItemComponent({
           </PostTag>
         )}
       </ActivePostContextProvider>
+    );
+    return item.type === FeedItemType.Ad ? (
+      <AdSlot ad={item.ad}>{card}</AdSlot>
+    ) : (
+      card
     );
   }
 

@@ -5,8 +5,10 @@ import type { Ad } from '../../../../graphql/posts';
 import { isTesting } from '../../../../lib/constants';
 import { substituteMacros } from '../../../../features/monetization/adMacros';
 import { useAdMacroContext } from '../../../../features/monetization/useAdMacroContext';
+import { getAdSlotLifecycle } from '../../../../features/monetization/adSlotLifecycle';
 
 interface AdPixelProps extends Pick<Ad, 'pixel'> {
+  ad?: Ad;
   /**
    * Skips the viewport gate, for pixels that are only rendered once the ad is
    * known to be on screen. Without it the pixel would wait for this span's own
@@ -15,7 +17,7 @@ interface AdPixelProps extends Pick<Ad, 'pixel'> {
   fireOnMount?: boolean;
 }
 
-export const AdPixel = ({
+const LegacyAdPixel = ({
   pixel,
   fireOnMount = false,
 }: AdPixelProps): ReactElement => {
@@ -54,4 +56,11 @@ export const AdPixel = ({
         ))}
     </span>
   );
+};
+
+export const AdPixel = (props: AdPixelProps): ReactElement | null => {
+  if (props.ad && getAdSlotLifecycle(props.ad)) {
+    return null;
+  }
+  return <LegacyAdPixel {...props} pixel={props.ad?.pixel ?? props.pixel} />;
 };

@@ -19,6 +19,7 @@ import { Tooltip } from '../../../tooltip/Tooltip';
 import { Separator } from '../../common/common';
 import { ButtonSize } from '../../../buttons/common';
 import { AdPixel } from '../common/AdPixel';
+import { AdSlot } from '../common/AdSlot';
 import { AdViewability } from '../common/AdViewability';
 import type { ViewabilityData } from '../../../../features/monetization/viewability';
 import { storeSquadBoostClick } from '../../../../features/monetization/squadBoostClick';
@@ -121,78 +122,80 @@ export function SquadAdEntityCard({
   );
 
   return (
-    <LogExtraContextProvider
-      selector={() => ({
-        gen_id: ad.generationId,
-        referrer_target_id: ad.data.source.id,
-        referrer_target_type: TargetType.Source,
-        origin,
-      })}
-    >
-      {variant === 'row' && (
-        <SquadRow
-          squad={squad}
-          details={promotedDetails}
-          action={adAction}
-          onClick={onClickCard}
-        >
-          <span className="absolute bottom-0 left-0">
-            <AdPixel pixel={ad.pixel} />
-          </span>
-          <AdViewability ad={ad} onViewable={onViewable} />
-        </SquadRow>
-      )}
-      {variant === 'card' && (
-        <EntityCard
-          image={image}
-          type="squad"
-          entityName={name}
-          className={{
-            container: classNames('relative', className),
-            image: 'size-10 rounded-full',
-          }}
-          actionButtons={action}
-        >
-          {cardLink}
-          <div className="mt-3 flex w-full flex-col gap-2">
-            <Typography
-              type={TypographyType.Body}
-              color={TypographyColor.Primary}
-              bold
-            >
-              {squadName}
-            </Typography>
-            {promotedLine}
-            {description && (
+    <AdSlot ad={ad}>
+      <LogExtraContextProvider
+        selector={() => ({
+          gen_id: ad.generationId,
+          referrer_target_id: ad.data.source.id,
+          referrer_target_type: TargetType.Source,
+          origin,
+        })}
+      >
+        {variant === 'row' && (
+          <SquadRow
+            squad={squad}
+            details={promotedDetails}
+            action={adAction}
+            onClick={onClickCard}
+          >
+            <span className="absolute bottom-0 left-0">
+              <AdPixel ad={ad} />
+            </span>
+            <AdViewability ad={ad} onViewable={onViewable} />
+          </SquadRow>
+        )}
+        {variant === 'card' && (
+          <EntityCard
+            image={image}
+            type="squad"
+            entityName={name}
+            className={{
+              container: classNames('relative', className),
+              image: 'size-10 rounded-full',
+            }}
+            actionButtons={action}
+          >
+            {cardLink}
+            <div className="mt-3 flex w-full flex-col gap-2">
               <Typography
-                tag={TypographyTag.P}
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-                className="line-clamp-3"
+                type={TypographyType.Body}
+                color={TypographyColor.Primary}
+                bold
               >
-                {description}
+                {squadName}
               </Typography>
-            )}
-            <div className="flex items-center text-text-tertiary">
-              <Typography
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-              >
-                {largeNumberFormat(squad.membersCount ?? 0)} Members
-              </Typography>
-              <Separator />
-              <Typography
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-              >
-                {largeNumberFormat(squad.flags?.totalUpvotes ?? 0)} Upvotes
-              </Typography>
+              {promotedLine}
+              {description && (
+                <Typography
+                  tag={TypographyTag.P}
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                  className="line-clamp-3"
+                >
+                  {description}
+                </Typography>
+              )}
+              <div className="flex items-center text-text-tertiary">
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                >
+                  {largeNumberFormat(squad.membersCount ?? 0)} Members
+                </Typography>
+                <Separator />
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                >
+                  {largeNumberFormat(squad.flags?.totalUpvotes ?? 0)} Upvotes
+                </Typography>
+              </div>
             </div>
-          </div>
-          <AdPixel pixel={ad.pixel} />
-          <AdViewability ad={ad} onViewable={onViewable} />
-        </EntityCard>
-      )}
-    </LogExtraContextProvider>
+            <AdPixel ad={ad} />
+            <AdViewability ad={ad} onViewable={onViewable} />
+          </EntityCard>
+        )}
+      </LogExtraContextProvider>
+    </AdSlot>
   );
 }

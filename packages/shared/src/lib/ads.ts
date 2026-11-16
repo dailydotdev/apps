@@ -6,6 +6,7 @@ import type { AdRequestConsent } from '../features/monetization/adConsent';
 import { AdConsentExists } from '../features/monetization/adConsent';
 import { getAdPageViewId } from '../features/monetization/adPageView';
 import { getBrowserClientHints } from '../features/monetization/browserClientHints';
+import type { AdSlotFetchTransition } from '../features/monetization/adSlotLifecycle';
 
 /**
  * Squads with the paid `adFree` feature carry no ads on their feed, their
@@ -62,6 +63,7 @@ export interface FetchAdByPlacementOptions {
   registered?: boolean;
   pageViewId?: string;
   refresh?: AdRefreshRequest;
+  onTransition?: (transition: AdSlotFetchTransition) => void;
 }
 
 export interface AdRefreshRequest {
@@ -132,6 +134,8 @@ export const appendConsentParams = (
 
 const skadiGenerationIdHeader = 'x-generation-id';
 
+class AdResponseError extends Error {}
+
 const addGenerationIdHeader = ({
   ad,
   res,
@@ -159,12 +163,10 @@ const fetchAdRequest = async ({
   path,
   params,
   pageViewId = getAdPageViewId(),
-  throwOnError = false,
 }: {
   path: string;
   params?: URLSearchParams;
   pageViewId?: string;
-  throwOnError?: boolean;
 }): Promise<Ad | null> => {
   const headers: Record<string, string> = {};
   if (pageViewId) {
@@ -182,12 +184,37 @@ const fetchAdRequest = async ({
     ...(Object.keys(headers).length > 0 && { headers }),
   });
 
-  if (throwOnError && !res.ok) {
-    throw new Error(`Ad request failed with status ${res.status}`);
+  if (res.ok === false) {
+    throw new AdResponseError(`Ad request failed with status ${res.status}`);
   }
 
   const ads = (await res.json()) as Ad[];
   return addGenerationIdHeader({ ad: ads[0] ?? null, res });
+};
+
+const fetchAdSlot = async (
+  options: Parameters<typeof fetchAdRequest>[0],
+  {
+    onTransition,
+    throwOnError = false,
+  }: {
+    onTransition?: FetchAdByPlacementOptions['onTransition'];
+    throwOnError?: boolean;
+  } = {},
+): Promise<Ad | null> => {
+  onTransition?.({ type: 'pre-fetch' });
+  let ad: Ad | null;
+  try {
+    ad = await fetchAdRequest(options);
+  } catch (error) {
+    onTransition?.({ type: 'fetch-error' });
+    if (error instanceof AdResponseError && !throwOnError) {
+      return null;
+    }
+    throw error;
+  }
+  onTransition?.(ad ? { type: 'post-fetch', ad } : { type: 'no-fill' });
+  return ad;
 };
 
 export const resolveAdFetchOptions = ({
@@ -246,10 +273,14 @@ export const fetchAdByPlacement = async ({
   registered,
   pageViewId,
   refresh,
+  onTransition,
 }: FetchAdByPlacementOptions): Promise<Ad | null> => {
+  const fetchSlot = (options: Parameters<typeof fetchAdRequest>[0]) =>
+    fetchAdSlot(options, { onTransition, throwOnError: !!refresh?.count });
+
   switch (placement) {
     case AdPlacement.PostComment:
-      return fetchAdRequest({
+      return fetchSlot({
         path: '/v1/a/post',
         params: appendConsentParams(
           appendRegisteredParam(new URLSearchParams(), registered),
@@ -265,7 +296,7 @@ export const fetchAdByPlacement = async ({
 
       appendRegisteredParam(params, registered);
 
-      return fetchAdRequest({
+      return fetchSlot({
         path: '/v1/a/squads_directory',
         params: appendConsentParams(params, consent),
         pageViewId,
@@ -289,18 +320,17 @@ export const fetchAdByPlacement = async ({
       appendRegisteredParam(params, registered);
       appendRefreshParams(params, refresh);
 
-      return fetchAdRequest({
+      return fetchSlot({
         path: '/v1/a',
         params: appendConsentParams(params, consent),
         pageViewId,
-        throwOnError: !!refresh?.count,
       });
     }
   }
 };
 
 export const fetchAd = async (params: URLSearchParams): Promise<Ad | null> =>
-  fetchAdRequest({ path: '/v1/a', params });
+  fetchAdSlot({ path: '/v1/a', params });
 
 export const fetchCommentAd = async (): Promise<Ad | null> => {
   return fetchAdByPlacement({

@@ -3,6 +3,7 @@ import React from 'react';
 import type { Ad } from '../../../../graphql/posts';
 import { LogExtraContextProvider } from '../../../../contexts/LogExtraContext';
 import { AdPixel } from '../../../../components/cards/ad/common/AdPixel';
+import { AdSlot } from '../../../../components/cards/ad/common/AdSlot';
 import { AdViewability } from '../../../../components/cards/ad/common/AdViewability';
 import { useSquadsDirectoryLogging } from '../../../../components/cards/squad/common/useSquadsDirectoryLogging';
 import { useScrambler } from '../../../../hooks/useScrambler';
@@ -71,18 +72,20 @@ export const PromotedSquad = ({
   }
 
   return (
-    <PromotedSquadLogExtra ad={ad}>
-      {children({
-        ref,
-        onClickAd,
-        trackers: (
-          <>
-            <AdViewability ad={ad} onViewable={onViewableAd} />
-            {!!ad.pixel && <AdPixel pixel={ad.pixel} />}
-          </>
-        ),
-      })}
-    </PromotedSquadLogExtra>
+    <AdSlot ad={ad}>
+      <PromotedSquadLogExtra ad={ad}>
+        {children({
+          ref,
+          onClickAd,
+          trackers: (
+            <>
+              <AdViewability ad={ad} onViewable={onViewableAd} />
+              {!!ad.pixel && <AdPixel ad={ad} />}
+            </>
+          ),
+        })}
+      </PromotedSquadLogExtra>
+    </AdSlot>
   );
 };
 

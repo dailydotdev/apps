@@ -13,6 +13,8 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useAdRequestConsent } from './useAdRequestConsent';
 import { getAdRefreshPlatform } from './refresh/adRefresh';
+import { useAdSlotFetch } from './useAdSlotFetch';
+import type { AdSlotFetchTransition } from './adSlotLifecycle';
 
 interface UseFetchAds {
   isAdConsentReady: boolean;
@@ -20,6 +22,7 @@ interface UseFetchAds {
     active?: boolean;
     placement?: AdPlacement;
     refresh?: { count: number; generationId?: string };
+    onTransition?: (transition: AdSlotFetchTransition) => void;
   }) => Promise<Ad | null>;
 }
 
@@ -33,8 +36,9 @@ export const useFetchAd = (enabled = true): UseFetchAds => {
   });
   const isRefreshEngine = refreshEngineVersion === AdRefreshEngineVersion.V2;
 
+  const onFetchTransition = useAdSlotFetch(consent);
   const fetchAdQuery: UseFetchAds['fetchAd'] = useCallback(
-    async ({ active, placement = AdPlacement.Feed, refresh }) => {
+    async ({ active, placement = AdPlacement.Feed, refresh, onTransition }) => {
       if (!consent) {
         return null;
       }
@@ -52,9 +56,13 @@ export const useFetchAd = (enabled = true): UseFetchAds => {
             ...refresh,
           },
         }),
+        onTransition: (transition) => {
+          onFetchTransition(transition);
+          onTransition?.(transition);
+        },
       });
     },
-    [consent, isAndroidApp, isRefreshEngine, registered],
+    [consent, isAndroidApp, isRefreshEngine, onFetchTransition, registered],
   );
 
   return {
