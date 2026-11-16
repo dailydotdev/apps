@@ -13,6 +13,7 @@ import {
   StreakSoftBreakSurface,
 } from '../../streak/StreakSoftBreakHero';
 import { StreakMonthCalendar } from '../../streak/popup/StreakMonthCalendar';
+import { StreakResetReason } from '../../streak/StreakResetReason';
 import { StreakFreezeRow } from '../../streak/popup/StreakFreezeRow';
 import { CompactQuestList } from '../../quest/CompactQuestList';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
@@ -27,6 +28,7 @@ import {
 import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { DEFAULT_TIMEZONE } from '../../../lib/timezones';
+import { Origin } from '../../../lib/log';
 
 const QuestsGroup = ({
   title,
@@ -178,6 +180,11 @@ export const StreakQuestsSection = ({
               </Typography>
             </div>
             <StreakMonthCalendar streak={streak} />
+            <StreakResetReason
+              streak={streak}
+              origin={Origin.Sidebar}
+              className="mt-3"
+            />
           </div>
           {/* Streak-freeze balance + purchase entry (same self-gated row the
               streak popup shows) so v2 users keep the freeze feature in their
