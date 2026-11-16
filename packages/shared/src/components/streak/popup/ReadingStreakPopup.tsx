@@ -187,7 +187,7 @@ export function ReadingStreakPopup({
         >
           {streaks}
         </div>
-        <StreakResetReason streak={streak} className="mt-4" />
+        <StreakResetReason streak={streak} origin={surface} className="mt-4" />
         <div className="mt-4 flex flex-col items-center tablet:flex-row">
           <div
             className={classNames(

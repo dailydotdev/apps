@@ -169,7 +169,8 @@ const brokenStreak: UserStreak = {
   lastReset: {
     missedDate: '2026-11-09',
     timezone: 'Europe/Amsterdam',
-    at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    // two days before the clock the reset reason specs pin
+    at: '2026-11-09T10:00:00.000Z',
   },
 };
 
@@ -303,6 +304,16 @@ describe('ReadingStreakPopup', () => {
   });
 
   describe('reset reason', () => {
+    // the label shows the offset of the missed day, so pin "now" to keep the
+    // copy independent of the day the suite runs
+    beforeEach(() => {
+      jest.useFakeTimers({ now: new Date('2026-11-11T10:00:00.000Z') });
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
     it('explains a recent reset and opens feedback from the link', () => {
       render(<ReadingStreakPopup streak={brokenStreak} />);
 
@@ -316,6 +327,7 @@ describe('ReadingStreakPopup', () => {
           event_name: LogEvent.Impression,
           target_type: TargetType.StreakResetReason,
           target_id: '2026-11-09',
+          extra: expect.stringContaining('"origin":"popup"'),
         }),
       );
 
@@ -339,6 +351,30 @@ describe('ReadingStreakPopup', () => {
           }),
         }),
       );
+    });
+
+    it('shows the offset of the missed day when a DST switch sits in between', () => {
+      // Fri Oct 23 was still summer time in Amsterdam (UTC +2); by Mon Oct 26
+      // the clocks went back to UTC +1
+      jest.setSystemTime(new Date('2026-10-26T10:00:00.000Z'));
+      render(
+        <ReadingStreakPopup
+          streak={{
+            ...brokenStreak,
+            lastReset: {
+              missedDate: '2026-10-23',
+              timezone: 'Europe/Amsterdam',
+              at: '2026-10-24T01:00:00.000Z',
+            },
+          }}
+        />,
+      );
+
+      expect(
+        screen.getByText(
+          'No read was recorded on Oct 23 in Europe/Amsterdam (UTC +2).',
+        ),
+      ).toBeInTheDocument();
     });
 
     it('stays hidden while the streak is running', () => {
