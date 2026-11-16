@@ -125,21 +125,21 @@ export const AgentSignupWall = ({
             style={{ ...boxInnerStyle, background: startupsPlazaSky }}
           >
             <StartupsCrewOnBase />
-            {entry.isAgentMode ? (
-              <div
-                className="absolute inset-0 flex flex-col items-center justify-center px-10 pt-10"
-                style={{ color: '#fff', paddingBottom: CREW_HEIGHT }}
-              >
+            <div
+              className="absolute inset-0 flex flex-col items-center justify-center px-10 pt-10"
+              style={{ color: '#fff', paddingBottom: CREW_HEIGHT }}
+            >
+              {entry.isAgentMode ? (
                 <AgentSteps />
-              </div>
-            ) : (
-              <p
-                className="relative mx-auto max-w-[36rem] text-balance px-10 text-center font-bold tracking-tight"
-                style={{ ...headlineStyle, color: '#fff', marginTop: '16%' }}
-              >
-                {headline}
-              </p>
-            )}
+              ) : (
+                <p
+                  className="max-w-[31rem] text-balance text-center font-bold tracking-tight"
+                  style={headlineStyle}
+                >
+                  {headline}
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </aside>

@@ -33,19 +33,20 @@ beforeEach(() => {
 });
 
 describe('AgentOnboardingEntry', () => {
-  it('starts on the regular sign-up and swaps to the agent prompt', () => {
+  it('starts on the agent prompt and swaps to the regular sign-up', () => {
     renderEntry();
 
-    expect(screen.getByRole('tab', { name: 'Sign up' })).toHaveAttribute(
+    expect(screen.getByRole('tab', { name: 'Use your agent' })).toHaveAttribute(
       'aria-selected',
       'true',
     );
-    expect(screen.getByText('Continue with Google')).toBeVisible();
-
-    fireEvent.click(screen.getByRole('tab', { name: 'Use your agent' }));
-
     expect(screen.getByText(agentOnboardingPrompt)).toBeInTheDocument();
     expect(screen.getByText('Continue with Google')).not.toBeVisible();
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Sign up' }));
+
+    expect(screen.queryByText(agentOnboardingPrompt)).not.toBeInTheDocument();
+    expect(screen.getByText('Continue with Google')).toBeVisible();
   });
 
   it('shows only the regular sign-up for the control group', () => {

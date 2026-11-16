@@ -23,7 +23,7 @@ export const useAgentOnboardingEntry = (
   isActive: boolean,
 ): AgentOnboardingEntryState => {
   const { logEvent } = useLogContext();
-  const [selectedMode, setSelectedMode] = useState(SignupMode.Manual);
+  const [selectedMode, setSelectedMode] = useState(SignupMode.Agent);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const shouldEvaluate = isLaptop && isActive;
   const { value: isEnabled, isLoading } = useConditionalFeature({

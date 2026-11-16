@@ -18,8 +18,8 @@ import { agentOnboardingPrompt } from '../prompt';
 import { SupportedAgents } from './SupportedAgents';
 
 const modes = [
-  { mode: SignupMode.Manual, label: 'Sign up' },
   { mode: SignupMode.Agent, label: 'Use your agent' },
+  { mode: SignupMode.Manual, label: 'Sign up' },
 ];
 
 type AgentSignupModesProps = {
@@ -56,7 +56,7 @@ export const AgentSignupModes = ({
               className={classNames(
                 'min-w-0 flex-1 whitespace-nowrap rounded-10 px-3 py-2 font-bold transition-colors typo-callout',
                 mode === selectedMode
-                  ? 'bg-background-default text-text-primary shadow-2'
+                  ? 'bg-surface-active text-text-primary'
                   : 'text-text-tertiary hover:text-text-primary',
               )}
               onClick={() => onSelect(mode)}
