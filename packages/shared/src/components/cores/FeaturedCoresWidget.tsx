@@ -69,21 +69,25 @@ export const FeaturedCoresWidget = ({
             );
           })}
         {!isPendingPrices &&
-          prices
-            ?.filter((item) => amounts.includes(item.metadata.coresValue))
-            .map((item) => {
-              return (
-                <BuyCore
-                  key={item.priceId}
-                  onBuyCoresClick={onClick}
-                  amount={item.metadata.coresValue}
-                  priceFormatted={item.price.formatted}
-                  origin={origin}
-                  next={next}
-                  pid={item.priceId}
-                />
-              );
-            })}
+          prices?.map((item) => {
+            const { coresValue } = item.metadata;
+
+            if (coresValue === undefined || !amounts.includes(coresValue)) {
+              return null;
+            }
+
+            return (
+              <BuyCore
+                key={item.priceId}
+                onBuyCoresClick={onClick}
+                amount={coresValue}
+                priceFormatted={item.price.formatted}
+                origin={origin}
+                next={next}
+                pid={item.priceId}
+              />
+            );
+          })}
       </div>
       <Button
         variant={ButtonVariant.Float}
