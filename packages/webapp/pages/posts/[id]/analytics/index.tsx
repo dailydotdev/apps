@@ -452,13 +452,15 @@ const PostAnalyticsPage = ({
   const boostAction = isBoosting ? (
     <BoostingLabel />
   ) : (
-    <BoostPostButton
-      buttonProps={{
-        size: ButtonSize.Small,
-      }}
-      post={post}
-      origin={Origin.PostAnalytics}
-    />
+    canBoost && (
+      <BoostPostButton
+        buttonProps={{
+          size: ButtonSize.Small,
+        }}
+        post={post}
+        origin={Origin.PostAnalytics}
+      />
+    )
   );
 
   return (

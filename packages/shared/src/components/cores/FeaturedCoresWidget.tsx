@@ -2,7 +2,6 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
-import { webappUrl } from '../../lib/constants';
 import { Button } from '../buttons/Button';
 import { ButtonVariant } from '../buttons/common';
 import {
@@ -14,7 +13,7 @@ import { WidgetContainer } from '../widgets/common';
 import { BuyCore } from './BuyCore';
 import type { LogStartBuyingCreditsProps } from '../../types';
 import type { Origin } from '../../lib/log';
-import { getPathnameWithQuery } from '../../lib';
+import { getBuyCoresUrl } from '../../lib/links';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { coresPricesQueryOptions } from '../../graphql/njord';
 
@@ -23,11 +22,14 @@ export const FeaturedCoresWidget = ({
   onClick,
   origin,
   amounts,
+  next,
 }: {
   className?: string;
   onClick: (props: LogStartBuyingCreditsProps) => void;
   origin: Origin;
   amounts: number[];
+  /** Where a purchase started here returns to */
+  next?: string;
 }): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
   const { data: prices, isPending: isPendingPrices } = useQuery(
@@ -62,6 +64,7 @@ export const FeaturedCoresWidget = ({
                 onBuyCoresClick={onClick}
                 amount={itemAmount}
                 origin={origin}
+                next={next}
               />
             );
           })}
@@ -76,6 +79,7 @@ export const FeaturedCoresWidget = ({
                   amount={item.metadata.coresValue}
                   priceFormatted={item.price.formatted}
                   origin={origin}
+                  next={next}
                   pid={item.priceId}
                 />
               );
@@ -85,12 +89,7 @@ export const FeaturedCoresWidget = ({
         variant={ButtonVariant.Float}
         onClick={() => onClick({ target_id: 'See more options', origin })}
         tag="a"
-        href={getPathnameWithQuery(
-          `${webappUrl}cores`,
-          new URLSearchParams({
-            origin,
-          }),
-        )}
+        href={getBuyCoresUrl({ origin, next })}
       >
         See more options
       </Button>
