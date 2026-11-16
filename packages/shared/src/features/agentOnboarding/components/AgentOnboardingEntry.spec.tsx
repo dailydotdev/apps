@@ -1,8 +1,10 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { AgentOnboardingEntry } from './AgentOnboardingEntry';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { useViewSize } from '../../../hooks/useViewSize';
+import { agentOnboardingPrompt } from '../prompt';
 
 jest.mock('../../../hooks/useConditionalFeature', () => ({
   useConditionalFeature: jest.fn(),
@@ -14,20 +16,44 @@ jest.mock('../../../hooks/useViewSize', () => ({
 
 const mockFlag = jest.mocked(useConditionalFeature);
 const mockViewSize = jest.mocked(useViewSize);
+const writeText = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
   mockViewSize.mockReturnValue(true);
   mockFlag.mockReturnValue({ value: true, isLoading: false });
+  writeText.mockResolvedValue(undefined);
+  Object.defineProperty(navigator, 'clipboard', {
+    configurable: true,
+    value: { writeText },
+  });
 });
 
+const copyButton = () =>
+  screen.getByRole('button', { name: 'Set up with your coding agent' });
+
 describe('AgentOnboardingEntry', () => {
-  it('links to agent onboarding when the experiment is on', () => {
+  it('copies the prompt and says what to do next', async () => {
     render(<AgentOnboardingEntry />);
 
+    await userEvent.click(copyButton());
+
+    expect(writeText).toHaveBeenCalledWith(agentOnboardingPrompt);
     expect(
-      screen.getByRole('link', { name: 'Let it set up daily.dev for you' }),
-    ).toHaveAttribute('href', '/agents/onboarding');
+      await screen.findByRole('button', { name: 'Prompt copied' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Paste it into your coding agent/),
+    ).toBeInTheDocument();
+  });
+
+  it('shows the prompt when the clipboard is blocked', async () => {
+    writeText.mockRejectedValue(new Error('denied'));
+    render(<AgentOnboardingEntry />);
+
+    await userEvent.click(copyButton());
+
+    expect(await screen.findByText(agentOnboardingPrompt)).toBeInTheDocument();
   });
 
   it('renders nothing for the control group', () => {

@@ -434,7 +434,7 @@ export const featureWeeklyPicksChecks = new Feature(
   false,
 );
 
-// Experiment: a link from the sign-up screen into agent onboarding.
+// Experiment: a sign-up screen button that copies the agent onboarding prompt.
 export const featureAgentOnboardingEntry = new Feature(
   'agent_onboarding_entry',
   false,
