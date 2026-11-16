@@ -98,7 +98,8 @@ export const StartupsAgentAnalyticsPromo = ({
     return null;
   }
 
-  const name = promo.squad?.name;
+  // Post analytics pitches the plan, not the squad the post is in
+  const name = isSquadAnalytics ? promo.squad?.name : undefined;
 
   return wrapper(
     <div className="grid overflow-hidden rounded-16 border border-border-subtlest-tertiary">
