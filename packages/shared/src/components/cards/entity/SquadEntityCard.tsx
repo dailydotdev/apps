@@ -18,7 +18,7 @@ import EntityDescription from './EntityDescription';
 import EntityCard from './EntityCard';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import useShowFollowAction from '../../../hooks/useShowFollowAction';
-import { hasSquadFeature } from '../../../features/squads/lib/features';
+import { showsVerifiedBadge } from '../../../features/squads/lib/features';
 import { VerifiedSquadBadge } from '../../../features/squads/components/VerifiedSquad';
 
 type SquadEntityCardProps = {
@@ -91,7 +91,7 @@ const SquadEntityCard = ({
             bold
           >
             {name}
-            {hasSquadFeature(squad, 'verified') && <VerifiedSquadBadge />}
+            {showsVerifiedBadge(squad) && <VerifiedSquadBadge />}
           </Typography>
         </Link>
         {description && <EntityDescription copy={description} length={100} />}

@@ -11,6 +11,7 @@ import {
 } from '../../../styles/custom';
 import { SourceIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
+import { showsVerifiedBadge } from '../lib/features';
 
 export const verifiedSquadLabel = 'Verified Company Squad';
 
@@ -148,6 +149,6 @@ export const SourceNameWithSeal = ({
     )}
   >
     <span className="truncate">{source.name}</span>
-    {source.features?.verified && <VerifiedSquadBadge />}
+    {showsVerifiedBadge(source) && <VerifiedSquadBadge />}
   </span>
 );
