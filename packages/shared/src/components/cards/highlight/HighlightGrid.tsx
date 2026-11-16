@@ -12,7 +12,7 @@ export const HighlightGrid = forwardRef(function HighlightGrid(
     <Card
       ref={ref}
       data-testid="highlightItem"
-      className="group min-h-card overflow-hidden !bg-surface-float hover:!bg-surface-float"
+      className="group min-h-card overflow-hidden !bg-background-default bg-gradient-to-b from-surface-float to-surface-float hover:!bg-background-default"
     >
       <div className="absolute inset-0 flex flex-col">
         <HighlightCardContent
