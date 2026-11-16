@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import { Switch } from '../../../../components/fields/Switch';
 import {
@@ -11,11 +11,14 @@ import { useSquadPageContext } from '../../SquadPageContext';
 import { useUpdateSquadSettings } from '../../hooks/useUpdateSquadSettings';
 import { hasSquadFeature, showsVerifiedBadge } from '../../lib/features';
 import { SquadEnterpriseGate } from './SquadEnterpriseGate';
+import { VerifiedSquadBadge } from '../VerifiedSquad';
 
 interface SettingRowProps {
   id: string;
   title: string;
   description: string;
+  /** Shown after the title, e.g. what the setting looks like */
+  titleSuffix?: ReactNode;
   checked: boolean;
   disabled: boolean;
   onToggle: () => void;
@@ -25,15 +28,19 @@ const SettingRow = ({
   id,
   title,
   description,
+  titleSuffix,
   checked,
   disabled,
   onToggle,
 }: SettingRowProps): ReactElement => (
   <div className="flex items-start justify-between gap-4">
     <div className="flex min-w-0 flex-1 flex-col gap-1">
-      <Typography type={TypographyType.Callout} bold>
-        {title}
-      </Typography>
+      <div className="flex items-center gap-1">
+        <Typography type={TypographyType.Callout} bold>
+          {title}
+        </Typography>
+        {titleSuffix}
+      </div>
       <Typography
         type={TypographyType.Footnote}
         color={TypographyColor.Tertiary}
@@ -56,6 +63,8 @@ const SettingRow = ({
 const badgeCopy = {
   title: 'Verified badge',
   description: 'Show the verified badge next to your name.',
+  // The badge itself, so it's clear which badge this is
+  titleSuffix: <VerifiedSquadBadge />,
 };
 
 const adFreeCopy = {
