@@ -222,7 +222,7 @@ const PostAnalyticsPage = ({
   });
   const isAuthor = !!user?.id && user.id === post?.author?.id;
 
-  const { data: postAnalytics, isSuccess: isPostAnalyticsFetched } = useQuery({
+  const { data: postAnalytics, isFetched: isPostAnalyticsFetched } = useQuery({
     ...postAnalyticsQueryOptions({ id: post?.id }),
     enabled: canViewPostAnalytics({ post, user }),
   });
