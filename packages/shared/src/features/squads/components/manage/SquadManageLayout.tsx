@@ -132,11 +132,12 @@ const ManageMenu = ({
                         label={
                           <>
                             <LockIcon size={IconSize.Size16} />
-                            {item.lockedPlan}
+                            Upgrade
                           </>
                         }
                         size={PillSize.XSmall}
-                        className="ml-auto gap-0.5 bg-overlay-float-cabbage text-accent-cabbage-default"
+                        alignment="self-center"
+                        className="ml-auto shrink-0 gap-0.5 bg-overlay-float-cabbage text-accent-cabbage-default"
                       />
                     )}
                     {!!item.badge && (
