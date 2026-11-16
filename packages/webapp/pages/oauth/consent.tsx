@@ -26,11 +26,11 @@ const OPTIONAL_SCOPES = ['write', 'reading_history', 'offline_access'];
 const scopeDescriptions: Record<string, string> = {
   openid: 'Know who you are on daily.dev',
   profile: 'See your name and profile picture',
-  offline_access:
-    "Stay connected when you're not using the app (refresh token)",
   read: 'Read content on daily.dev, like feeds, posts, comments and search, and your personal data: profile, bookmarks, custom feeds, followed and blocked tags and sources, notifications, tech stack and experiences',
   write:
     'Make changes on your behalf, like bookmarking posts and updating your feed settings',
+  offline_access:
+    "Stay connected when you're not using the app (refresh token)",
   reading_history:
     "See the posts you've read on daily.dev and search your reading history",
 };
@@ -59,7 +59,9 @@ const OAuthConsentPage = (): ReactElement => {
   const requestedScopes = (getFirstQueryParam(query.scope) ?? '')
     .split(' ')
     .filter(Boolean);
-  const scopes = requestedScopes.filter((scope) => scopeDescriptions[scope]);
+  const scopes = Object.keys(scopeDescriptions).filter((scope) =>
+    requestedScopes.includes(scope),
+  );
   const grantedScopes = requestedScopes.filter(
     (scope) => !declinedScopes.includes(scope),
   );
