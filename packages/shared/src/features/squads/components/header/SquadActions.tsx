@@ -179,8 +179,12 @@ export const SquadActions = (): ReactElement => {
   const [, onShare] = useSquadShare();
   const isAdminView = viewer === SquadViewer.Admin;
   const canEdit = verifyPermission(squad, SourcePermissions.Edit);
-  const editUrl = getSquadManageUrl(squad.handle, SquadManageSection.Details);
   const isPhone = useIsPhone();
+  // A phone has no Manage side menu, so the gear opens the list of sections;
+  // Details alone would leave the rest unreachable.
+  const editUrl = isPhone
+    ? getSquadManageUrl(squad.handle)
+    : getSquadManageUrl(squad.handle, SquadManageSection.Details);
 
   return (
     <div className="flex items-center gap-2 pb-1">
