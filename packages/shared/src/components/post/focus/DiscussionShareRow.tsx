@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
+import { getPostToShare } from '../../../graphql/posts';
 import type { Squad } from '../../../graphql/sources';
 import { Button } from '../../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
@@ -71,11 +72,12 @@ export const DiscussionShareRow = ({
 
   const onShareToSquad = (squad: Squad) => {
     logEvent(postLogEvent(LogEvent.StartShareToSquad, post));
+    const postToShare = getPostToShare(post);
     openModal({
       type: LazyModal.SmartComposer,
       props: {
-        initialUrl: post.permalink,
-        preview: post,
+        initialUrl: postToShare.permalink,
+        preview: postToShare,
         initialSquadId: squad.id,
         onPosted: () => logEvent(postLogEvent(LogEvent.ShareToSquad, post)),
       },

@@ -22,6 +22,7 @@ import { IconSize, IconWrapper } from '../Icon';
 import { useStreakTimezoneOk } from '../../hooks/streaks/useStreakTimezoneOk';
 import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
 import { StreakQuestsSection } from '../sidebar/sections/StreakQuestsSection';
+import { StreakSoftBreakSurface } from './StreakSoftBreakHero';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;
@@ -70,7 +71,12 @@ function CustomStreaksTooltip({
         textClassName: 'text-text-primary typo-callout',
         className: 'border border-border-subtlest-tertiary rounded-16',
       }}
-      content={<ReadingStreakPopup streak={streak} />}
+      content={
+        <ReadingStreakPopup
+          streak={streak}
+          onClose={() => setShouldShowStreaks(false)}
+        />
+      }
       onClickOutside={() => setShouldShowStreaks(false)}
     >
       {children}
@@ -108,6 +114,8 @@ export function ReadingStreakButton({
       });
     }
   }, [shouldShowStreaks, logEvent]);
+
+  const closeStreaks = useCallback(() => setShouldShowStreaks(false), []);
 
   const Tooltip = shouldShowStreaks ? CustomStreaksTooltip : SimpleTooltip;
 
@@ -191,7 +199,12 @@ export function ReadingStreakButton({
             isOpen={shouldShowStreaks}
             onClose={handleToggle}
           >
-            <ReadingStreakPopup streak={streak} fullWidth />
+            <ReadingStreakPopup
+              streak={streak}
+              fullWidth
+              surface={StreakSoftBreakSurface.Drawer}
+              onClose={closeStreaks}
+            />
           </Drawer>
         </RootPortal>
       )}
@@ -203,7 +216,10 @@ export function ReadingStreakButton({
           title="Current Streak"
           className={{ drawer: 'p-0' }}
         >
-          <StreakQuestsSection />
+          <StreakQuestsSection
+            softBreakSurface={StreakSoftBreakSurface.Drawer}
+            onClose={closeStreaks}
+          />
         </Drawer>
       )}
     </>

@@ -384,7 +384,9 @@ function AuthOptionsInner({
   const autoCompleteProfile = async (
     userEmail: string,
     name?: string,
-    marketing = false,
+    // The Startups signup skips the social profile form and its opt-out, so
+    // it keeps the default: opted in
+    marketing = trigger === AuthTriggers.StartupsCheckout,
   ) => {
     try {
       const displayName = name || generateNameFromEmail(userEmail, 'User');
@@ -442,7 +444,7 @@ function AuthOptionsInner({
         onSuccessfulLogin?.();
       }
     } else if (autoProfileTriggers.includes(trigger)) {
-      await autoCompleteProfile(user.email, user.name, false);
+      await autoCompleteProfile(user.email, user.name);
     } else {
       onSetActiveDisplay(AuthDisplay.SocialRegistration);
     }
@@ -506,7 +508,7 @@ function AuthOptionsInner({
     if (autoProfileTriggers.includes(trigger)) {
       setIsSocialAuthLoading(false);
       const loggedUser = bootUser as LoggedUser;
-      await autoCompleteProfile(loggedUser.email, loggedUser.name, false);
+      await autoCompleteProfile(loggedUser.email, loggedUser.name);
       return;
     }
 

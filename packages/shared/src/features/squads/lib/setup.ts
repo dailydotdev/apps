@@ -126,7 +126,9 @@ export const getStartupsSetupPrompt = ({
         `List what we already published: blog posts, release notes, changelog entries, videos, talks, docs pages, launch posts. Recommend the one that fits the intel best, using any engagement you can see (views, comments, stars, earlier daily.dev posts). Say which intel numbers back it and give two runners-up. If nothing fits, suggest a new post with ${skillRef(
           'daily-dev-content-ideas',
         )}.`,
-        `Draft the post as a link with one or two lines of commentary in my voice, or as a written post when there is nothing to link. Publish it to @${handle} as me.`,
+        `Draft the post as a link with one or two lines of commentary in my voice, or as a written post when there is nothing to link. Review it with ${skillRef(
+          'daily-dev-content-review',
+        )} and show me what it found, then publish it to @${handle} as me when I say so.`,
       ],
     },
     {

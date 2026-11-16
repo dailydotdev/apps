@@ -25,8 +25,26 @@ const formatMissedDate = (missedDate: string): string => {
   return Number.isNaN(parsed.getTime()) ? missedDate : format(parsed, 'MMM d');
 };
 
+// The offset that applied on the missed day, not today's: the 7-day window can
+// straddle a DST switch. Midday UTC sits inside that local day in every zone
+// the picker offers, away from the night-time switch.
+const getMissedDateTimezoneLabel = (
+  missedDate: string,
+  timezone: string,
+): string => {
+  const middayUtc = new Date(`${missedDate}T12:00:00.000Z`);
+
+  return getTimezoneNameWithOffset(
+    timezone,
+    Number.isNaN(middayUtc.getTime()) ? new Date() : middayUtc,
+  );
+};
+
 interface StreakResetReasonProps {
   streak?: UserStreak;
+  // the surface showing the line, logged so surfaces on screen together (the
+  // sidebar and the feed widget) can be told apart
+  origin: string;
   className?: string;
 }
 
@@ -35,6 +53,7 @@ interface StreakResetReasonProps {
 // streak_why_broke flag is on and the reset is still recent (see the hook).
 export const StreakResetReason = ({
   streak,
+  origin,
   className,
 }: StreakResetReasonProps): ReactElement | null => {
   const { isVisible, missedDate, timezone, at } = useStreakResetReason(streak);
@@ -46,7 +65,7 @@ export const StreakResetReason = ({
       event_name: LogEvent.Impression,
       target_type: TargetType.StreakResetReason,
       target_id: missedDate,
-      extra: JSON.stringify({ timezone, reset_at: at }),
+      extra: JSON.stringify({ origin, timezone, reset_at: at }),
     }),
     { condition: isVisible },
   );
@@ -56,14 +75,14 @@ export const StreakResetReason = ({
   }
 
   const dateLabel = formatMissedDate(missedDate);
-  const timezoneLabel = getTimezoneNameWithOffset(timezone);
+  const timezoneLabel = getMissedDateTimezoneLabel(missedDate, timezone);
 
   const onTellUs = () => {
     logEvent({
       event_name: LogEvent.Click,
       target_type: TargetType.StreakResetReason,
       target_id: missedDate,
-      extra: JSON.stringify({ timezone, reset_at: at }),
+      extra: JSON.stringify({ origin, timezone, reset_at: at }),
     });
     openModal({
       type: LazyModal.Feedback,

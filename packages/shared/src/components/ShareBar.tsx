@@ -3,6 +3,7 @@ import React, { useContext, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { CopyIcon, FacebookIcon, TwitterIcon, WhatsappIcon } from './icons';
 import type { Post } from '../graphql/posts';
+import { getPostToShare } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import { getShareLink, ShareProvider } from '../lib/share';
 import { useLogContext } from '../contexts/LogContext';
@@ -85,11 +86,12 @@ export default function ShareBar({
 
   const onShareToSquad = (squad: Squad) => {
     logEvent(postLogEvent(LogEvent.StartShareToSquad, post));
+    const postToShare = getPostToShare(post);
     openModal({
       type: LazyModal.SmartComposer,
       props: {
-        initialUrl: post.permalink,
-        preview: post,
+        initialUrl: postToShare.permalink,
+        preview: postToShare,
         initialSquadId: squad.id,
         onPosted: () => logEvent(postLogEvent(LogEvent.ShareToSquad, post)),
       },
