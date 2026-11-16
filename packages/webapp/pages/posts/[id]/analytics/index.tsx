@@ -69,6 +69,7 @@ import { ClickableText } from '@dailydotdev/shared/src/components/buttons/Clicka
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { BoostingLabel } from '@dailydotdev/shared/src/components/post/analytics/BoostingLabel';
 import { PostShortInfo } from '@dailydotdev/shared/src/components/post/analytics/PostShortInfo';
+import { LimitedReachCard } from '@dailydotdev/shared/src/components/post/analytics/LimitedReachCard';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { formatDataTileValue, labels } from '@dailydotdev/shared/src/lib';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
@@ -490,6 +491,9 @@ const PostAnalyticsPage = ({
       <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6">
         <SectionContainer>
           <PostShortInfo post={post} />
+          {!!postAnalytics?.limitedReachReason && (
+            <LimitedReachCard reason={postAnalytics.limitedReachReason} />
+          )}
         </SectionContainer>
         <Divider className={dividerClassName} />
         <SectionContainer>

@@ -600,6 +600,11 @@ export const USER_STREAK_FRAGMENT = gql`
     lastViewAt
     weekStart
     freezesAvailable
+    lastReset {
+      missedDate
+      timezone
+      at
+    }
   }
 `;
 

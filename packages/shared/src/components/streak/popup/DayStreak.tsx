@@ -23,12 +23,16 @@ export enum Streak {
   Upcoming = 'upcoming',
   Freeze = 'freeze',
   UsedFreeze = 'used_freeze',
+  Missed = 'missed',
 }
+
+export const missedDayLabel = 'Missed day, this is where the streak reset';
 
 export const freezeTooltipCopy: Partial<Record<Streak, string>> = {
   [Streak.Freeze]:
     'We auto-freeze streaks during the weekend, but you can still keep going if you want to',
   [Streak.UsedFreeze]: 'A streak freeze was used this day',
+  [Streak.Missed]: missedDayLabel,
 };
 
 interface DayStreakProps {
@@ -39,10 +43,7 @@ interface DayStreakProps {
   shouldShowArrow?: boolean;
 }
 
-const Circle = classed(
-  'div',
-  'rounded-full border border-border-subtlest-tertiary',
-);
+const Circle = classed('div', 'rounded-full border');
 
 export function DayStreak({
   streak,
@@ -101,14 +102,20 @@ export function DayStreak({
 
     const isStreakFreeze =
       streak === Streak.Freeze || streak === Streak.UsedFreeze;
+    const isMissed = streak === Streak.Missed;
 
     return (
       <Circle
+        role={isMissed ? 'img' : undefined}
+        aria-label={isMissed ? missedDayLabel : undefined}
         className={classNames(
           className,
           iconSizeToClassName[size],
           isStreakFreeze &&
             'flex cursor-pointer items-center justify-center bg-text-disabled text-transparent laptop:hover:text-surface-secondary',
+          isMissed
+            ? 'border-dashed border-status-error'
+            : 'border-border-subtlest-tertiary',
         )}
         onClick={() => {
           if (isStreakFreeze) {

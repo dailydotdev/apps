@@ -110,6 +110,7 @@ export enum NotificationType {
   WeeklyPicksReady = 'weekly_picks_ready',
   PicksOpened = 'picks_opened',
   StartupsIntelReady = 'startups_intel_ready',
+  PostLimitedReach = 'post_limited_reach',
 }
 
 export enum NotificationIconType {
