@@ -132,7 +132,7 @@ const ManageMenu = ({
                         label={
                           <>
                             <LockIcon size={IconSize.Size16} />
-                            {item.lockedPlan}
+                            Upgrade
                           </>
                         }
                         size={PillSize.XSmall}

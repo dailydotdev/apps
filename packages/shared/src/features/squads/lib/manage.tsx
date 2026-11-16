@@ -31,9 +31,9 @@ export interface SquadManageItem {
   icon: ReactElement;
   badge?: number;
   /**
-   * A section the squad's plan doesn't include yet, shown locked: it names the
-   * plan that unlocks it (daily.dev for Startups or Enterprise) and links to
-   * Subscription.
+   * A section the squad's plan doesn't include yet, shown locked with an
+   * Upgrade chip that links to Subscription. Holds the plan that unlocks it
+   * (daily.dev for Startups or Enterprise).
    */
   lockedPlan?: SquadManageLockedPlan;
 }
