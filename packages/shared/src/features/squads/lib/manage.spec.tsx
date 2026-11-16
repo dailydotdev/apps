@@ -50,13 +50,26 @@ describe('getSquadManageGroups', () => {
       [SquadManageSection.Products]: SquadManageLockedPlan.Startups,
       [SquadManageSection.Jobs]: SquadManageLockedPlan.Enterprise,
       [SquadManageSection.Links]: SquadManageLockedPlan.Startups,
-      [SquadManageSection.Branding]: SquadManageLockedPlan.Startups,
+      [SquadManageSection.Branding]: SquadManageLockedPlan.Enterprise,
       [SquadManageSection.Intel]: SquadManageLockedPlan.Startups,
       [SquadManageSection.Agent]: SquadManageLockedPlan.Startups,
     });
   });
 
-  it('locks only Enterprise sections for a squad on a Startups plan', () => {
+  it('locks Enterprise sections for a squad on the Starter plan', () => {
+    const squad = {
+      ...squadWith([SourcePermissions.Edit]),
+      features: { links: true, products: true },
+      currentMember: { permissions: [SourcePermissions.Edit], seat: true },
+    } as unknown as Squad;
+
+    expect(lockedPlans(squad)).toEqual({
+      [SquadManageSection.Jobs]: SquadManageLockedPlan.Enterprise,
+      [SquadManageSection.Branding]: SquadManageLockedPlan.Enterprise,
+    });
+  });
+
+  it('opens Branding for the header button on the Team plan', () => {
     const squad = {
       ...squadWith([SourcePermissions.Edit]),
       features: { links: true, products: true, cta: true },

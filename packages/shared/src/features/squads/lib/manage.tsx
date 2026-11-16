@@ -87,8 +87,10 @@ const planGates: Partial<Record<SquadManageSection, SquadManagePlanGate>> = {
     plan: SquadManageLockedPlan.Startups,
     isIncluded: (squad) => hasSquadFeature(squad, 'links'),
   },
+  // The brand color is Enterprise only, so the section locks to Enterprise.
+  // The Startups Team plan still opens it for the header button alone.
   [SquadManageSection.Branding]: {
-    plan: SquadManageLockedPlan.Startups,
+    plan: SquadManageLockedPlan.Enterprise,
     isIncluded: canSetSquadButton,
   },
   [SquadManageSection.Intel]: {
