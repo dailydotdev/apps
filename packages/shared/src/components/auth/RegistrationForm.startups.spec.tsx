@@ -52,19 +52,23 @@ describe('RegistrationForm on the Startups page', () => {
     jest.mocked(generateUsername).mockResolvedValue('ada_lovelace');
   });
 
-  it('asks only for email, name and password', () => {
+  it('asks for email, name and password, opted in to marketing', () => {
     renderForm();
 
     expect(
       screen.getByRole('button', { name: 'Continue' }),
     ).toBeInTheDocument();
-    expect(document.querySelector('input[type="checkbox"]')).toBeNull();
+    expect(
+      screen.getByRole('checkbox', {
+        name: /don.t want to receive updates and promotions/,
+      }),
+    ).not.toBeChecked();
     expect(
       document.querySelector('input[name="traits.username"]'),
     ).toHaveAttribute('type', 'hidden');
   });
 
-  it('generates the username and leaves marketing off', async () => {
+  it('generates the username and opts in to marketing by default', async () => {
     renderForm();
     fill('traits.email', 'ada@acme.dev');
     fill('traits.name', 'Ada Lovelace');
@@ -74,6 +78,24 @@ describe('RegistrationForm on the Startups page', () => {
     await waitFor(() => expect(onSignup).toHaveBeenCalled());
     expect(onSignup.mock.calls[0][0]).toMatchObject({
       'traits.username': 'ada_lovelace',
+      'traits.acceptedMarketing': true,
+    });
+  });
+
+  it('opts out of marketing when the box is ticked', async () => {
+    renderForm();
+    fill('traits.email', 'ada@acme.dev');
+    fill('traits.name', 'Ada Lovelace');
+    fill('password', 'longenough1');
+    fireEvent.click(
+      screen.getByRole('checkbox', {
+        name: /don.t want to receive updates and promotions/,
+      }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+    await waitFor(() => expect(onSignup).toHaveBeenCalled());
+    expect(onSignup.mock.calls[0][0]).toMatchObject({
       'traits.acceptedMarketing': false,
     });
   });

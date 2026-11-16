@@ -674,9 +674,12 @@ export const getTimezoneOffsetLabel = (timezone: string): string => {
   return `(UTC ${formatTimezoneOffset(timezoneOffset)}) ${resolvedTimezone}`;
 };
 
-export const getTimezoneNameWithOffset = (timezone: string): string => {
+export const getTimezoneNameWithOffset = (
+  timezone: string,
+  date = new Date(),
+): string => {
   const resolvedTimezone = timezone || DEFAULT_TIMEZONE;
-  const timezoneOffset = getTimezoneOffsetInMinutes(resolvedTimezone);
+  const timezoneOffset = getTimezoneOffsetInMinutes(resolvedTimezone, date);
 
   return `${resolvedTimezone} (UTC ${formatTimezoneOffset(timezoneOffset)})`;
 };

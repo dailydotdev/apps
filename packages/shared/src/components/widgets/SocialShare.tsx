@@ -2,6 +2,7 @@ import type { Dispatch, ReactElement, SetStateAction } from 'react';
 import React, { useContext } from 'react';
 import { ShareProvider, addLogQueryParams } from '../../lib/share';
 import type { Post } from '../../graphql/posts';
+import { getPostToShare } from '../../graphql/posts';
 import type { FeedItemPosition } from '../../lib/feed';
 import { postLogEvent } from '../../lib/feed';
 import { ActiveFeedContext } from '../../contexts';
@@ -64,6 +65,7 @@ export const SocialShare = ({
   const { logOpts } = useContext(ActiveFeedContext);
   const { openNativeSharePost } = useSharePost(Origin.Share);
   const [squadToShare, setSquadToShare] = shareToSquadState;
+  const postToShare = getPostToShare(post);
   const emailTitle = post?.title
     ? `Via Daily.Dev: ${post.title}`
     : 'Via Daily.Dev';
@@ -118,8 +120,8 @@ export const SocialShare = ({
       {squadToShare && ( // using lazy modal would result to dep-cycle since this whole component is used in the share modal
         <SmartComposerModal
           isOpen
-          initialUrl={post.permalink}
-          preview={post}
+          initialUrl={postToShare.permalink}
+          preview={postToShare}
           initialSquadId={squadToShare.id}
           onPosted={onSharedSuccessfully}
           parentSelector={parentSelector}

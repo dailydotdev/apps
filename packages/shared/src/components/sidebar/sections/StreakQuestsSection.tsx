@@ -8,7 +8,10 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { useStreakRingState } from '../../../hooks/streaks/useStreakRingState';
 import { useStreakSoftBreak } from '../../../hooks/streaks/useStreakSoftBreak';
-import { StreakSoftBreakHero } from '../../streak/StreakSoftBreakHero';
+import {
+  StreakSoftBreakHero,
+  StreakSoftBreakSurface,
+} from '../../streak/StreakSoftBreakHero';
 import { StreakMonthCalendar } from '../../streak/popup/StreakMonthCalendar';
 import { StreakResetReason } from '../../streak/StreakResetReason';
 import { StreakPauseBanner } from '../../streak/StreakPauseBanner';
@@ -26,6 +29,7 @@ import {
 import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { DEFAULT_TIMEZONE } from '../../../lib/timezones';
+import { Origin } from '../../../lib/log';
 
 const QuestsGroup = ({
   title,
@@ -78,14 +82,22 @@ const QuestsGroup = ({
 // stays active). The Game Center and separate Quests-settings links are gone —
 // clicking the tab itself opens Game Center, and the two settings pages are now
 // one, so neither needs repeating here.
-export const StreakQuestsSection = (): ReactElement => {
+interface StreakQuestsSectionProps {
+  softBreakSurface?: StreakSoftBreakSurface;
+  onClose?: () => void;
+}
+
+export const StreakQuestsSection = ({
+  softBreakSurface = StreakSoftBreakSurface.Sidebar,
+  onClose,
+}: StreakQuestsSectionProps = {}): ReactElement => {
   const { user } = useAuthContext();
   const { optOutQuestSystem } = useSettingsContext();
   const { isEnabled: isStreakEnabled, count, streak } = useStreakRingState();
   const { data: questDashboard } = useQuestDashboard({
     enabled: !optOutQuestSystem,
   });
-  const isSoftBreak = useStreakSoftBreak(streak);
+  const { isSoftBreak } = useStreakSoftBreak(streak);
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
   // Compact label (e.g. "Jun 23") — no year; the full date with year lives in
   // the hover tooltip so the strip stays tidy day-to-day.
@@ -106,7 +118,12 @@ export const StreakQuestsSection = (): ReactElement => {
           <div className="flex shrink-0 flex-col px-4 pb-4 pt-1">
             <div className="flex items-start justify-between">
               {isSoftBreak ? (
-                <StreakSoftBreakHero max={streak.max} className="min-w-0" />
+                <StreakSoftBreakHero
+                  max={streak.max}
+                  surface={softBreakSurface}
+                  onStartAgain={onClose}
+                  className="min-w-0"
+                />
               ) : (
                 <Typography
                   type={TypographyType.Title1}
@@ -164,7 +181,11 @@ export const StreakQuestsSection = (): ReactElement => {
               </Typography>
             </div>
             <StreakMonthCalendar streak={streak} />
-            <StreakResetReason streak={streak} className="mt-3" />
+            <StreakResetReason
+              streak={streak}
+              origin={Origin.Sidebar}
+              className="mt-3"
+            />
             <StreakPauseBanner streak={streak} className="mt-3" />
           </div>
           {/* Streak-freeze balance + purchase entry (same self-gated row the

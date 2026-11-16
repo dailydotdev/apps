@@ -13,6 +13,9 @@ import { AuthDisplay } from '../../../components/auth/common';
 // is the assertion target throughout.
 
 jest.mock('../../../hooks/useConditionalFeature');
+jest.mock('../../agentOnboarding/components/AgentOnboardingEntry', () => ({
+  AgentOnboardingEntry: () => null,
+}));
 jest.mock('../../../contexts/AuthContext');
 jest.mock('../../../hooks/auth');
 jest.mock('../shared/FunnelStepDots');
