@@ -84,6 +84,14 @@ const ackTimeoutMs = 15 * 1000;
 // dead. iOS freezes a backgrounded PWA's websocket without closing it, so the
 // page keeps writing into a socket nothing reads until the server times out.
 const probeTimeoutMs = 5 * 1000;
+// A send that is still unacked this soon gets its socket probed, so a dead
+// one is replaced (and the message resent) in seconds. The bubble itself only
+// turns to failed at ackTimeoutMs.
+const ackProbeMs = 4 * 1000;
+// While the page is visible the socket is probed this often. A socket that
+// died without a close event otherwise looks fine until the user sends
+// something, and everything written to them in between sits on the server.
+const keepaliveMs = 25 * 1000;
 const maxReconnectDelayMs = 30 * 1000;
 const maxReconnectAttempts = 8;
 const iqTimeoutMs = 10 * 1000;
@@ -275,10 +283,20 @@ export const createXmppTransport = ({
     }, probeTimeoutMs);
   };
 
+  // An ack normally takes one round trip, so a send still waiting after
+  // ackProbeMs is the first sign of a dead socket.
+  const probeIfUnacked = (stanzaId: string) =>
+    setTimeout(() => {
+      if (pendingAcks.has(stanzaId)) {
+        probeConnection();
+      }
+    }, ackProbeMs);
+
   // Arms (or re-arms) the "no ack in time" fallback. The entry outlives the
   // timeout so a late ack after a resume still flips the message to sent.
   const watchAck = (messageId: string, peerId: string, preview: string) => {
     clearTimeout(pendingAcks.get(messageId)?.failTimer);
+    probeIfUnacked(messageId);
     pendingAcks.set(messageId, {
       kind: 'message',
       peerId,
@@ -293,7 +311,12 @@ export const createXmppTransport = ({
   // An edit that isn't acked in time is reported as rejected: the optimistic
   // copy goes, and if the queued stanza still lands after a resume the
   // archive shows it on the next load.
-  const watchEditAck = (stanzaId: string, peerId: string, messageId: string) =>
+  const watchEditAck = (
+    stanzaId: string,
+    peerId: string,
+    messageId: string,
+  ) => {
+    probeIfUnacked(stanzaId);
     pendingAcks.set(stanzaId, {
       kind: 'edit',
       peerId,
@@ -304,6 +327,7 @@ export const createXmppTransport = ({
         probeConnection();
       }, ackTimeoutMs),
     });
+  };
 
   const scheduleReconnect = () => {
     // After the cap the next user action (opening messages, sending) tries
@@ -547,10 +571,14 @@ export const createXmppTransport = ({
       probeConnection();
     }
   };
+  let keepaliveTimer: ReturnType<typeof setInterval> | undefined;
   if (typeof document !== 'undefined') {
     document.addEventListener('visibilitychange', onResume);
     window.addEventListener('online', onResume);
     window.addEventListener('pageshow', onResume);
+    // Hidden pages are skipped: their timers are throttled and they get
+    // probed on the way back anyway.
+    keepaliveTimer = setInterval(onResume, keepaliveMs);
   }
 
   return {
@@ -877,6 +905,8 @@ export const createXmppTransport = ({
       reconnectTimer = undefined;
       clearTimeout(probeTimer);
       probeTimer = undefined;
+      clearInterval(keepaliveTimer);
+      keepaliveTimer = undefined;
       if (typeof document !== 'undefined') {
         document.removeEventListener('visibilitychange', onResume);
         window.removeEventListener('online', onResume);

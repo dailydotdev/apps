@@ -317,7 +317,8 @@ describe('createXmppTransport', () => {
     jest.useFakeTimers();
 
     const sent = await transport.send(peer, 'hi');
-    jest.advanceTimersByTime(15 * 1000);
+    // Well before the message would be shown as failed.
+    jest.advanceTimersByTime(4 * 1000);
 
     expect(mockBuilt).toEqual(['r']);
     expect(connection.dropSocket).not.toHaveBeenCalled();
@@ -351,11 +352,66 @@ describe('createXmppTransport', () => {
     jest.useFakeTimers();
 
     await transport.send(peer, 'hi');
-    jest.advanceTimersByTime(15 * 1000);
+    jest.advanceTimersByTime(4 * 1000);
     connection.ackAll();
     jest.advanceTimersByTime(5 * 1000);
 
     expect(connection.dropSocket).not.toHaveBeenCalled();
+  });
+
+  it('does not check the socket for a send that is acked promptly', async () => {
+    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    transport.subscribe(() => undefined);
+    const connection = await connected();
+    jest.useFakeTimers();
+
+    await transport.send(peer, 'hi');
+    connection.ackAll();
+    jest.advanceTimersByTime(15 * 1000);
+
+    expect(mockBuilt).toEqual([]);
+  });
+
+  it('checks an idle socket while the page is visible', async () => {
+    jest.useFakeTimers();
+    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    transport.subscribe(() => undefined);
+    await jest.advanceTimersByTimeAsync(0);
+    const connection = connections[connections.length - 1];
+    connection.statusCallback?.(mockStatus.CONNECTED);
+    await jest.advanceTimersByTimeAsync(0);
+
+    jest.advanceTimersByTime(25 * 1000);
+    expect(mockBuilt).toEqual(['r']);
+    connection.ackAll();
+    jest.advanceTimersByTime(5 * 1000);
+    expect(connection.dropSocket).not.toHaveBeenCalled();
+
+    // The next check goes unanswered: the socket died without a close event.
+    jest.advanceTimersByTime(20 * 1000);
+    expect(mockBuilt).toEqual(['r', 'r']);
+    jest.advanceTimersByTime(5 * 1000);
+    expect(connection.dropSocket).toHaveBeenCalledTimes(1);
+
+    transport.close();
+  });
+
+  it('leaves the socket alone while the page is hidden', async () => {
+    jest.useFakeTimers();
+    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    transport.subscribe(() => undefined);
+    await jest.advanceTimersByTimeAsync(0);
+    connections[connections.length - 1].statusCallback?.(mockStatus.CONNECTED);
+    await jest.advanceTimersByTimeAsync(0);
+    const visibility = jest
+      .spyOn(document, 'visibilityState', 'get')
+      .mockReturnValue('hidden');
+
+    jest.advanceTimersByTime(60 * 1000);
+    expect(mockBuilt).toEqual([]);
+
+    visibility.mockRestore();
+    transport.close();
   });
 
   it('checks the socket when a retry waits on a queued message', async () => {
@@ -365,13 +421,13 @@ describe('createXmppTransport', () => {
     jest.useFakeTimers();
 
     await transport.send(peer, 'hi');
-    jest.advanceTimersByTime(15 * 1000);
+    jest.advanceTimersByTime(4 * 1000);
     connection.ackAll();
     mockBuilt.length = 0;
 
-    // A new timeout, then the user taps retry before the probe settles.
+    // A slow ack, then the user taps retry before the probe settles.
     const again = await transport.send(peer, 'again');
-    jest.advanceTimersByTime(15 * 1000);
+    jest.advanceTimersByTime(4 * 1000);
     await transport.send(peer, 'again', undefined, { retryOf: again.id });
 
     // One probe in flight at a time.
