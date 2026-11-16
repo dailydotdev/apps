@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import nock from 'nock';
-import Post from '../../../../__tests__/fixture/post';
+import Post, { sharePost } from '../../../../__tests__/fixture/post';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../../../__tests__/fixture/squads';
 import { settingsContext } from '../../../../__tests__/helpers/boot';
@@ -48,6 +48,7 @@ const squads = Array.from({ length: 6 }, (_, index) =>
 const renderComponent = (
   withSquads = true,
   integrations?: UserIntegration[],
+  post = defaultPost,
 ): RenderResult => {
   const client = new QueryClient();
 
@@ -72,7 +73,7 @@ const renderComponent = (
         <SettingsContext.Provider value={settingsContext}>
           <NotificationsContextProvider>
             <LazyModalElement />
-            <DiscussionShareRow post={defaultPost} withSquads={withSquads} />
+            <DiscussionShareRow post={post} withSquads={withSquads} />
           </NotificationsContextProvider>
         </SettingsContext.Provider>
       </AuthContextProvider>
@@ -94,6 +95,20 @@ describe('DiscussionShareRow', () => {
     expect(screen.getByRole('textbox', { name: 'Link URL' })).toHaveValue(
       defaultPost.permalink,
     );
+  });
+
+  it('seeds the composer with the wrapped post when the post is a share without commentary', async () => {
+    const post = { ...sharePost, title: undefined };
+    renderComponent(true, undefined, post);
+
+    screen.getByRole('button', { name: 'Share to Web team 0' }).click();
+
+    await waitFor(() => {
+      expect(screen.getByRole('textbox', { name: 'Link URL' })).toHaveValue(
+        post.sharedPost!.permalink,
+      );
+    });
+    expect(screen.getByText(post.sharedPost!.title)).toBeInTheDocument();
   });
 
   it('caps the inline squads at four', () => {

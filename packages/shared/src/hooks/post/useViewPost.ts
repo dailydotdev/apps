@@ -1,5 +1,6 @@
 import type { UseMutateAsyncFunction } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { subDays } from 'date-fns';
 import { VIEW_POST_MUTATION } from '../../graphql/posts';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -19,6 +20,16 @@ import { useStreakDailyCelebration } from '../streaks/useStreakDailyCelebration'
 // first refetch can miss it. Give the worker this long before asking again.
 export const STREAK_REFETCH_RETRY_DELAY_MS = 2000;
 
+// After a longer gap the API decides (off days, freezes, a reset)
+const canBumpStreak = (
+  streak: UserStreak,
+  timezone?: string,
+  now: Date = new Date(),
+): boolean =>
+  !streak.lastViewAt ||
+  streak.current === 0 ||
+  isSameDayInTimezone(new Date(streak.lastViewAt), subDays(now, 1), timezone);
+
 const wait = (ms: number) =>
   new Promise<void>((resolve) => {
     setTimeout(resolve, ms);
@@ -28,8 +39,8 @@ interface ViewPostContext {
   previousStreak?: UserStreak;
   optimisticStreak?: UserStreak;
   shouldRefetchStreak: boolean;
-  // the count this view should land on, used when the refetch fails or
-  // has not caught up with the view yet
+  // the count this view should land on, to recognize a refetch that already
+  // includes it
   nextStreak?: number;
 }
 
@@ -44,8 +55,9 @@ export const useViewPost = (): UseMutateAsyncFunction<
   const { user } = useAuthContext();
   const { value: isOptimisticView } = useConditionalFeature({
     feature: featureStreakOptimisticView,
-    shouldEvaluate: !!user,
+    shouldEvaluate: !!user && !isCompanion,
   });
+  const isOptimistic = isOptimisticView && !isCompanion;
   const celebrateStreakDay = useStreakDailyCelebration();
   const streakKey = generateQueryKey(RequestKey.UserStreak, user);
   const readKey = generateQueryKey(RequestKey.ReadingStreak30Days, user);
@@ -67,18 +79,20 @@ export const useViewPost = (): UseMutateAsyncFunction<
           user!.timezone,
         );
       const shouldRefetchStreak = isNewStreak || isFirstViewToday;
-      const nextStreak = streak ? streak.current + 1 : undefined;
+      const nextStreak =
+        streak && canBumpStreak(streak, user?.timezone)
+          ? streak.current + 1
+          : undefined;
 
-      if (!isOptimisticView || !shouldRefetchStreak || !streak) {
+      if (!isOptimistic || !shouldRefetchStreak || nextStreak === undefined) {
         return { shouldRefetchStreak, nextStreak };
       }
 
-      const current = streak.current + 1;
       const optimisticStreak: UserStreak = {
-        ...streak,
-        current,
-        total: streak.total + 1,
-        max: Math.max(streak.max, current),
+        ...streak!,
+        current: nextStreak,
+        total: streak!.total + 1,
+        max: Math.max(streak!.max, nextStreak),
         lastViewAt: new Date(),
       };
       client.setQueryData<UserStreak>(streakKey, optimisticStreak);
@@ -113,27 +127,29 @@ export const useViewPost = (): UseMutateAsyncFunction<
       };
       let countedStreak = await refetchStreak();
 
-      // A refetch that still has the pre-view streak would undo the
-      // optimistic bump, so keep the bump and ask once more after a moment.
-      if (optimisticStreak && !countedStreak) {
-        client.setQueryData<UserStreak>(streakKey, optimisticStreak);
-        await wait(STREAK_REFETCH_RETRY_DELAY_MS);
-        countedStreak = await refetchStreak();
-
-        if (!countedStreak) {
+      // The worker may not have credited the view yet: keep the optimistic
+      // bump and ask once more after a moment. A retry that is still stale
+      // means the API skipped the view (it ignores a post the user viewed in
+      // the past week), so the server value it returned stays.
+      if (!countedStreak) {
+        if (optimisticStreak) {
           client.setQueryData<UserStreak>(streakKey, optimisticStreak);
         }
+        await wait(STREAK_REFETCH_RETRY_DELAY_MS);
+        countedStreak = await refetchStreak();
       }
 
       // just mark the query as stale
       await client.invalidateQueries({ queryKey: readKey });
 
-      celebrateStreakDay(countedStreak?.current ?? context.nextStreak);
+      // only a count the API confirmed: a guess could celebrate a day that
+      // never counted and suppress the toast for the read that does
+      celebrateStreakDay(countedStreak?.current);
 
       return null;
     },
     onError: (error, id, context) => {
-      if (!isOptimisticView || isCompanion) {
+      if (!isOptimistic) {
         return;
       }
 
@@ -142,6 +158,10 @@ export const useViewPost = (): UseMutateAsyncFunction<
           client.setQueryData(streakKey, context.previousStreak);
         }
 
+        return;
+      }
+
+      if (!context?.shouldRefetchStreak) {
         return;
       }
 
