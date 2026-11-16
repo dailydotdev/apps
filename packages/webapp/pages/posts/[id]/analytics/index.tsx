@@ -98,6 +98,7 @@ import { BoostIcon } from '@dailydotdev/shared/src/components/icons/Boost';
 import { useCampaignEstimation } from '@dailydotdev/shared/src/features/boost/useCampaignEstimation';
 import { useCampaigns } from '@dailydotdev/shared/src/features/boost/useCampaigns';
 import { AgentViewsSection } from '@dailydotdev/shared/src/components/analytics/AgentViewsSection';
+import { StartupsAgentAnalyticsPromo } from '@dailydotdev/shared/src/features/squads/components/promos/StartupsAgentAnalyticsPromo';
 import { LegendToggle } from '@dailydotdev/shared/src/components/analytics/LegendToggle';
 import { getSeoDescription } from '../../../../components/PostSEOSchema';
 import type { Props } from '../index';
@@ -221,7 +222,7 @@ const PostAnalyticsPage = ({
   });
   const isAuthor = !!user?.id && user.id === post?.author?.id;
 
-  const { data: postAnalytics } = useQuery({
+  const { data: postAnalytics, isSuccess: isPostAnalyticsFetched } = useQuery({
     ...postAnalyticsQueryOptions({ id: post?.id }),
     enabled: canViewPostAnalytics({ post, user }),
   });
@@ -582,6 +583,20 @@ const PostAnalyticsPage = ({
               />
             </SectionContainer>
           </>
+        )}
+        {isPostAnalyticsFetched && !canViewAgentViews && (
+          <StartupsAgentAnalyticsPromo
+            sourceId={post?.source?.id}
+            wrapper={(promo) => (
+              <>
+                <Divider className={dividerClassName} />
+                <SectionContainer>
+                  <SectionHeader>AI agents</SectionHeader>
+                  {promo}
+                </SectionContainer>
+              </>
+            )}
+          />
         )}
         <Divider className={dividerClassName} />
         {canBoost && !campaign && (

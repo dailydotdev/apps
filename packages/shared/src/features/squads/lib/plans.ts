@@ -134,6 +134,7 @@ export const squadPlanDetails: Record<SquadPlan, SquadPlanDetails> = {
       'Company page with a link to your site',
       'In developers’ feeds, by topic',
       'On Google and in AI answers',
+      'See which AI agents read your posts',
       'Weekly intel on up to 5 topics',
       'Reach notes when a post needs work',
       'Skills for Claude Code and any agent',

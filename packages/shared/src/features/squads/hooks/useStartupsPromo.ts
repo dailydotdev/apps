@@ -30,6 +30,8 @@ export enum StartupsPromoSpot {
   Wallet = 'wallet promo',
   AdsDashboard = 'ads dashboard promo',
   NewSquadModal = 'new squad modal promo',
+  SquadAnalytics = 'squad analytics promo',
+  PostAnalytics = 'post analytics promo',
 }
 
 interface UseStartupsPromoProps {
@@ -42,6 +44,8 @@ interface UseStartupsPromoProps {
   isVisible?: boolean;
   /** Pitches the squad about to be created, not one the viewer runs */
   isNewSquad?: boolean;
+  /** False for a locked feature, which shows even after a dismissed promo */
+  isDismissible?: boolean;
 }
 
 /** What Starter gives back each month, the launch promo's while it is on */
@@ -101,6 +105,7 @@ export const useStartupsPromo = ({
   isPersonalAllowed = true,
   isVisible = true,
   isNewSquad = false,
+  isDismissible = true,
 }: UseStartupsPromoProps): StartupsPromo => {
   const { user, squads } = useAuthContext();
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
@@ -154,7 +159,7 @@ export const useStartupsPromo = ({
   const isShown =
     isCandidate &&
     isActionsFetched &&
-    !isDismissed &&
+    (!isDismissible || !isDismissed) &&
     (!squad || (!isPending && !!subscription && !subscription.plan));
   const extra = useMemo(
     () => ({ source_id: squad?.id, has_squad: !!squad }),

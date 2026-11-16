@@ -34,6 +34,7 @@ import type { CreatorPostSort } from '../../../../components/analytics/creator/C
 import { CreatorPostPerformanceTable } from '../../../../components/analytics/creator/CreatorPostPerformanceTable';
 import { CreatorDashboardError } from '../../../../components/analytics/creator/CreatorDashboardError';
 import { AgentViewsSection } from '../../../../components/analytics/AgentViewsSection';
+import { StartupsAgentAnalyticsPromo } from '../promos/StartupsAgentAnalyticsPromo';
 import { CreatorAnalyticsAudience } from '../../../../components/analytics/creator/common';
 import {
   CreatorPerformancePeriod,
@@ -86,10 +87,12 @@ export const SquadManageAnalytics = (): ReactElement => {
     ...squadAnalyticsQueryOptions({ sourceId: squad?.id }),
     enabled: !!squad?.id && canViewAnalytics,
   });
-  const { data: agentAnalytics } = useQuery({
-    ...squadAgentAnalyticsQueryOptions({ sourceId: squad?.id }),
-    enabled: !!squad?.id && canViewAnalytics,
-  });
+  const { data: agentAnalytics, isSuccess: isAgentAnalyticsFetched } = useQuery(
+    {
+      ...squadAgentAnalyticsQueryOptions({ sourceId: squad?.id }),
+      enabled: !!squad?.id && canViewAnalytics,
+    },
+  );
   const canViewAgentViews = typeof agentAnalytics?.agentViews === 'number';
   const { data: agentHistory } = useQuery({
     ...squadAgentAnalyticsHistoryQueryOptions({ sourceId: squad?.id }),
@@ -227,6 +230,18 @@ export const SquadManageAnalytics = (): ReactElement => {
               />
             </Section>
           </>
+        )}
+        {isAgentAnalyticsFetched && !canViewAgentViews && (
+          <StartupsAgentAnalyticsPromo
+            sourceId={squad?.id}
+            isSquadAnalytics
+            wrapper={(promo) => (
+              <>
+                <HorizontalSeparator />
+                <Section title="AI agents">{promo}</Section>
+              </>
+            )}
+          />
         )}
         <HorizontalSeparator />
         <Section title="Post performance">
