@@ -6,6 +6,7 @@ export enum StorageTopic {
   Onboarding = 'onboarding',
   Comment = 'comment',
   Settings = 'settings',
+  Streak = 'streak',
 }
 
 export const APP_KEY_PREFIX = 'dailydev';
