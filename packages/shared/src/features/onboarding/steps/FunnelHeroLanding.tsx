@@ -5,7 +5,8 @@ import { useSetAtom } from 'jotai/react';
 import type { FunnelStepHeroLanding } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import AuthOptions from '../../../components/auth/AuthOptions';
-import { AgentOnboardingEntry } from '../../agentOnboarding/components/AgentOnboardingEntry';
+import { AgentSignupWall } from '../../agentOnboarding/components/AgentSignupWall';
+import { useAgentOnboardingEntry } from '../../agentOnboarding/hooks/useAgentOnboardingEntry';
 import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 import { AuthTriggers } from '../../../lib/auth';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
@@ -133,13 +134,16 @@ export const FunnelHeroLanding = withIsActiveGuard(
       isLoggedIn &&
       !isEmailSignupActive &&
       isSocialSignupUser(user);
+    const agentEntry = useAgentOnboardingEntry(
+      shouldEvaluateWallFlag && !isEmailSignupActive && !isSocialSignupActive,
+    );
     const preferGithub = oauthOrder !== 'googleFirst';
     const isPanelWall = background === 'panel';
     // Only the panel takes the "Sign up with…" copy: "Continue with…" logs
     // returning users straight in, so the horizon keeps it.
     const isSplitColumnBackground = isPanelWall || isHorizonWall;
     const getSignupStyle = (): SignupStyle | undefined => {
-      if (isHorizonWall) {
+      if (isHorizonWall || agentEntry.hasModes) {
         return 'singlePrimary';
       }
       if (isPanelWall) {
@@ -237,10 +241,64 @@ export const FunnelHeroLanding = withIsActiveGuard(
     if (
       !isAuthReady ||
       isWallPending ||
+      (agentEntry.isFlagLoading && !hasWaitedForFlag) ||
       (isLoggedIn && user.infoConfirmed) ||
       isOnboardingComplete
     ) {
       return null;
+    }
+
+    const authOptions = (
+      <AuthOptions
+        {...staticAuthProps}
+        // Post-signup funnel only: the account-details screen takes the
+        // funnel's headline scale, so it reads as the same flow as the steps
+        // after it. The paid funnel's landing keeps its own treatment.
+        isOnboardingFunnel={isOnboarding}
+        className={
+          isSplitColumnBackground || agentEntry.hasModes
+            ? {
+                ...staticAuthProps.className,
+                container:
+                  isHorizonWall && !agentEntry.hasModes
+                    ? horizonAuthContainerClass
+                    : splitAuthContainerClass,
+              }
+            : staticAuthProps.className
+        }
+        signupStyle={getSignupStyle()}
+        preferGithub={preferGithub}
+        defaultDisplay={
+          isSocialSignupActive ? AuthDisplay.SocialRegistration : authDisplay
+        }
+        formRef={formRef}
+        onboardingSignupButton={{
+          size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
+          variant: ButtonVariant.Primary,
+        }}
+        onSuccessfulRegistration={onSuccessfulRegistration}
+        onAuthStateUpdate={onAuthStateUpdate}
+        onSuccessfulLogin={() => {
+          // user now is logged, even if the `user` object is not populated yet.
+          // this callback is fired only after a lot of auth checks
+          onTransition?.({
+            type: FunnelStepTransitionType.Complete,
+            details: { user },
+          });
+        }}
+      />
+    );
+
+    if (agentEntry.hasModes) {
+      return (
+        <AgentSignupWall
+          entry={agentEntry}
+          headline={headline}
+          forceDarkTheme={forceDarkTheme}
+        >
+          {authOptions}
+        </AgentSignupWall>
+      );
     }
 
     return (
@@ -254,52 +312,7 @@ export const FunnelHeroLanding = withIsActiveGuard(
         forceDarkTheme={forceDarkTheme}
         onBack={isOnboarding ? heroBack[authDisplay] : undefined}
       >
-        <AuthOptions
-          {...staticAuthProps}
-          // Post-signup funnel only: the account-details screen takes the
-          // funnel's headline scale, so it reads as the same flow as the steps
-          // after it. The paid funnel's landing keeps its own treatment.
-          isOnboardingFunnel={isOnboarding}
-          className={
-            isSplitColumnBackground
-              ? {
-                  ...staticAuthProps.className,
-                  container: isHorizonWall
-                    ? horizonAuthContainerClass
-                    : splitAuthContainerClass,
-                }
-              : staticAuthProps.className
-          }
-          signupStyle={getSignupStyle()}
-          preferGithub={preferGithub}
-          defaultDisplay={
-            isSocialSignupActive ? AuthDisplay.SocialRegistration : authDisplay
-          }
-          formRef={formRef}
-          onboardingSignupButton={{
-            size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
-            variant: ButtonVariant.Primary,
-          }}
-          onSuccessfulRegistration={onSuccessfulRegistration}
-          onAuthStateUpdate={onAuthStateUpdate}
-          onSuccessfulLogin={() => {
-            // user now is logged, even if the `user` object is not populated yet.
-            // this callback is fired only after a lot of auth checks
-            onTransition?.({
-              type: FunnelStepTransitionType.Complete,
-              details: { user },
-            });
-          }}
-        />
-        {isOnboarding && !isEmailSignupActive && !isSocialSignupActive && (
-          <AgentOnboardingEntry
-            className={
-              isHorizonWall
-                ? 'w-full text-center tablet:max-w-[22.5rem]'
-                : undefined
-            }
-          />
-        )}
+        {authOptions}
       </OnboardingSignupHero>
     );
   },

@@ -257,40 +257,44 @@ export const FunnelOrganicSignup = withIsActiveGuard(
                   )}
                 </>
               )}
-              <AuthOptions
-                {...staticAuthProps}
-                // Post-signup funnel only: the funnel's headline scale, and the
-                // terms line once, on the wall.
-                isOnboardingFunnel={isOnboarding}
-                registrationExtraFields={extraFields}
-                defaultDisplay={
-                  isSocialSignupActive
-                    ? AuthDisplay.SocialRegistration
-                    : authDisplay
+              <AgentOnboardingEntry
+                isActive={
+                  isOnboarding && !isEmailSignupActive && !isSocialSignupActive
                 }
-                formRef={formRef}
-                onboardingSignupButton={{
-                  size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
-                  variant: ButtonVariant.Primary,
-                }}
-                onSuccessfulRegistration={onSuccessfulRegistration}
-                onAuthStateUpdate={onAuthStateUpdate}
-                onSuccessfulLogin={() => {
-                  // user now is logged, even if the `user` object is not populated yet.
-                  // this callback is fired only after a lot of auth checks
-                  onTransition?.({
-                    type: FunnelStepTransitionType.Complete,
-                    details: { user },
-                  });
-                }}
-              />
+                className="tablet:max-w-[30rem]"
+              >
+                <AuthOptions
+                  {...staticAuthProps}
+                  // Post-signup funnel only: the funnel's headline scale, and the
+                  // terms line once, on the wall.
+                  isOnboardingFunnel={isOnboarding}
+                  registrationExtraFields={extraFields}
+                  defaultDisplay={
+                    isSocialSignupActive
+                      ? AuthDisplay.SocialRegistration
+                      : authDisplay
+                  }
+                  formRef={formRef}
+                  onboardingSignupButton={{
+                    size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
+                    variant: ButtonVariant.Primary,
+                  }}
+                  onSuccessfulRegistration={onSuccessfulRegistration}
+                  onAuthStateUpdate={onAuthStateUpdate}
+                  onSuccessfulLogin={() => {
+                    // user now is logged, even if the `user` object is not populated yet.
+                    // this callback is fired only after a lot of auth checks
+                    onTransition?.({
+                      type: FunnelStepTransitionType.Complete,
+                      details: { user },
+                    });
+                  }}
+                />
+              </AgentOnboardingEntry>
               {isOnboarding &&
                 !isEmailSignupActive &&
                 !isSocialSignupActive && (
-                  <>
-                    <AgentOnboardingEntry className="mb-4" />
-                    <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
-                  </>
+                  <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
                 )}
             </div>
             <div className="flex flex-1 tablet:ml-auto tablet:flex-1 laptop:max-w-[37.5rem]" />

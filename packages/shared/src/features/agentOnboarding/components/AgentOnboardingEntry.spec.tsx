@@ -1,9 +1,13 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { AgentOnboardingEntry } from './AgentOnboardingEntry';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { useViewSize } from '../../../hooks/useViewSize';
+import { agentOnboardingPrompt } from '../prompt';
 
+jest.mock('../../../components/CopyBlock', () => ({
+  CopyBlock: ({ text }: { text: string }) => <pre>{text}</pre>,
+}));
 jest.mock('../../../hooks/useConditionalFeature', () => ({
   useConditionalFeature: jest.fn(),
 }));
@@ -15,6 +19,13 @@ jest.mock('../../../hooks/useViewSize', () => ({
 const mockFlag = jest.mocked(useConditionalFeature);
 const mockViewSize = jest.mocked(useViewSize);
 
+const renderEntry = (isActive = true) =>
+  render(
+    <AgentOnboardingEntry isActive={isActive}>
+      <button type="button">Continue with Google</button>
+    </AgentOnboardingEntry>,
+  );
+
 beforeEach(() => {
   jest.clearAllMocks();
   mockViewSize.mockReturnValue(true);
@@ -22,28 +33,45 @@ beforeEach(() => {
 });
 
 describe('AgentOnboardingEntry', () => {
-  it('links to agent onboarding when the experiment is on', () => {
-    render(<AgentOnboardingEntry />);
+  it('starts on the regular sign-up and swaps to the agent prompt', () => {
+    renderEntry();
 
-    expect(
-      screen.getByRole('link', { name: 'Let it set up daily.dev for you' }),
-    ).toHaveAttribute('href', '/agents/onboarding');
+    expect(screen.getByRole('tab', { name: 'Sign up' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    expect(screen.getByText('Continue with Google')).toBeVisible();
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Use your agent' }));
+
+    expect(screen.getByText(agentOnboardingPrompt)).toBeInTheDocument();
+    expect(screen.getByText('Continue with Google')).not.toBeVisible();
   });
 
-  it('renders nothing for the control group', () => {
+  it('shows only the regular sign-up for the control group', () => {
     mockFlag.mockReturnValue({ value: false, isLoading: false });
 
-    const { container } = render(<AgentOnboardingEntry />);
+    renderEntry();
 
-    expect(container).toBeEmptyDOMElement();
+    expect(screen.queryByRole('tablist')).not.toBeInTheDocument();
+    expect(screen.getByText('Continue with Google')).toBeVisible();
   });
 
   it('keeps small screens out of the experiment', () => {
     mockViewSize.mockReturnValue(false);
 
-    const { container } = render(<AgentOnboardingEntry />);
+    renderEntry();
 
-    expect(container).toBeEmptyDOMElement();
+    expect(screen.queryByRole('tablist')).not.toBeInTheDocument();
+    expect(mockFlag).toHaveBeenCalledWith(
+      expect.objectContaining({ shouldEvaluate: false }),
+    );
+  });
+
+  it('hides the choice once a sign-up form is open', () => {
+    renderEntry(false);
+
+    expect(screen.queryByRole('tablist')).not.toBeInTheDocument();
     expect(mockFlag).toHaveBeenCalledWith(
       expect.objectContaining({ shouldEvaluate: false }),
     );

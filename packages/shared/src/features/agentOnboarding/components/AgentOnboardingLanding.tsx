@@ -12,33 +12,9 @@ import {
 import { useLogContext } from '../../../contexts/LogContext';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
 import { LogEvent } from '../../../lib/log';
-import { AgentMark } from '../../squads/components/checkout/AgentMark';
-import { agentMarks } from '../../squads/components/checkout/agentMarks';
+import { agentOnboardingSteps } from '../howItWorks';
 import { agentOnboardingPrompt } from '../prompt';
-
-const agents = [
-  { label: 'Claude Code', mark: agentMarks['claude-code'] },
-  { label: 'Codex', mark: agentMarks.codex },
-  { label: 'Cursor', mark: agentMarks.cursor },
-];
-
-const steps = [
-  {
-    title: 'Paste the prompt',
-    description:
-      'Your agent reads the setup instructions and opens daily.dev in your browser.',
-  },
-  {
-    title: 'Create your account',
-    description:
-      'Continue with GitHub or Google on the page it opened. One click, no forms. Then head back to your agent.',
-  },
-  {
-    title: 'Approve the plan',
-    description:
-      'With your OK, your agent looks at what you work on and shows the tags, sources and squads it wants to follow. Nothing changes until you approve.',
-  },
-];
+import { SupportedAgents } from './SupportedAgents';
 
 const privacy = [
   'It asks before looking at your projects or GitHub.',
@@ -125,28 +101,12 @@ export const AgentOnboardingLanding = (): ReactElement => {
             logEvent({ event_name: LogEvent.CopyAgentOnboardingPrompt })
           }
         />
-        <ul className="flex flex-wrap items-center gap-4">
-          {agents.map(({ label, mark }) => (
-            <li key={label} className="flex items-center gap-2">
-              <AgentMark
-                mark={mark}
-                className="size-6 rounded-6"
-                glyphClassName="size-4"
-              />
-              <Typography
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-              >
-                {label}
-              </Typography>
-            </li>
-          ))}
-        </ul>
+        <SupportedAgents />
       </section>
 
       <Section title="How it works">
         <ol className="flex flex-col gap-4">
-          {steps.map(({ title, description }, index) => (
+          {agentOnboardingSteps.map(({ title, description }, index) => (
             <li key={title} className="flex gap-4">
               <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-float font-bold text-text-primary typo-callout">
                 {index + 1}
