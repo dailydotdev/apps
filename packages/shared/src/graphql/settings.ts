@@ -88,6 +88,11 @@ export enum SidebarSettingsFlags {
   Highlights = 'highlightsPlacement',
 }
 
+// The goals the picker offers, in days. The API accepts any whole number of
+// days, so a goal set by another build (a later option) is still a goal here.
+export const STREAK_GOAL_OPTIONS = [7, 14, 30] as const;
+export type StreakGoal = number;
+
 export type RemoteSettings = {
   openNewTab: boolean;
   theme: RemoteTheme;
@@ -99,6 +104,8 @@ export type RemoteSettings = {
   sortingEnabled: boolean;
   optOutReadingStreak: boolean;
   optOutStreakFreeze: boolean;
+  // Personal streak goal in days, null when none is set
+  streakGoal?: StreakGoal | null;
   optOutLevelSystem: boolean;
   optOutQuestSystem: boolean;
   optOutAchievements: boolean;

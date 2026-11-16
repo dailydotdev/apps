@@ -17,6 +17,18 @@ const mockOpenModal = jest.fn();
 let mockIsTimezoneOk = true;
 let mockWhyBrokeEnabled = true;
 let mockIsSoftBreakFlagOn = false;
+let mockStreakGoalsEnabled = false;
+let mockStreakGoal: number | null = null;
+const getMockFeatureValue = (id: string, shouldEvaluate?: boolean) => {
+  if (id === 'streak_why_broke') {
+    return mockWhyBrokeEnabled;
+  }
+
+  const isOn =
+    id === 'streak_goals' ? mockStreakGoalsEnabled : mockIsSoftBreakFlagOn;
+
+  return shouldEvaluate !== false && isOn;
+};
 const mockUseConditionalFeature = jest.fn(
   ({
     feature,
@@ -25,11 +37,7 @@ const mockUseConditionalFeature = jest.fn(
     feature: { id: string };
     shouldEvaluate?: boolean;
   }) => ({
-    value:
-      shouldEvaluate !== false &&
-      (feature.id === 'streak_why_broke'
-        ? mockWhyBrokeEnabled
-        : mockIsSoftBreakFlagOn),
+    value: getMockFeatureValue(feature.id, shouldEvaluate),
     isLoading: false,
   }),
 );
@@ -124,6 +132,9 @@ jest.mock('../../../contexts/SettingsContext', () => ({
   useSettingsContext: () => ({
     flags: {},
     updateFlag: mockUpdateFlag,
+    loadedSettings: true,
+    optOutReadingStreak: false,
+    streakGoal: mockStreakGoal,
   }),
 }));
 
@@ -179,6 +190,8 @@ describe('ReadingStreakPopup', () => {
     jest.clearAllMocks();
     mockIsTimezoneOk = true;
     mockWhyBrokeEnabled = true;
+    mockStreakGoalsEnabled = false;
+    mockStreakGoal = null;
     mockIsSoftBreakFlagOn = false;
     mockPathname = '/';
   });
@@ -391,6 +404,32 @@ describe('ReadingStreakPopup', () => {
 
       expect(
         screen.queryByText(/No read was recorded/),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('streak goal', () => {
+    it('shows how far the streak is towards the goal', () => {
+      mockStreakGoalsEnabled = true;
+      mockStreakGoal = 7;
+      render(<ReadingStreakPopup streak={streak} />);
+
+      expect(screen.getByText('3/7 to your goal')).toBeInTheDocument();
+    });
+
+    it('hides the progress without a goal or with the flag off', () => {
+      mockStreakGoalsEnabled = true;
+      const { unmount } = render(<ReadingStreakPopup streak={streak} />);
+      expect(
+        screen.queryByTestId('streak-goal-progress'),
+      ).not.toBeInTheDocument();
+      unmount();
+
+      mockStreakGoalsEnabled = false;
+      mockStreakGoal = 7;
+      render(<ReadingStreakPopup streak={streak} />);
+      expect(
+        screen.queryByTestId('streak-goal-progress'),
       ).not.toBeInTheDocument();
     });
   });
