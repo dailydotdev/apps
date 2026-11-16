@@ -30,7 +30,11 @@ export const useAgentOnboardingEntry = (
     feature: featureAgentOnboardingEntry,
     shouldEvaluate,
   });
-  const hasModes = shouldEvaluate && isEnabled;
+  // TEMP-REVIEW: forces the experiment on for preview deployments. Remove before merge.
+  const isPreviewDeployment =
+    typeof window !== 'undefined' &&
+    window.location.hostname.endsWith('.preview.app.daily.dev');
+  const hasModes = shouldEvaluate && (isEnabled || isPreviewDeployment);
 
   const onSelect = (mode: SignupMode): void => {
     if (mode === selectedMode) {
