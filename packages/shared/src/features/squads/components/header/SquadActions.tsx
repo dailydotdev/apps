@@ -12,10 +12,10 @@ import {
 } from '../../../../components/buttons/Button';
 import {
   BellIcon,
-  EditIcon,
   LinkIcon,
   OpenLinkIcon,
   SearchIcon,
+  SettingsIcon,
   TourIcon,
 } from '../../../../components/icons';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
@@ -185,14 +185,14 @@ export const SquadActions = (): ReactElement => {
   return (
     <div className="flex items-center gap-2 pb-1">
       {canEdit && (
-        <Tooltip content="Edit page">
+        <Tooltip content="Squad settings">
           <Button
             tag="a"
             href={editUrl}
             variant={ButtonVariant.Subtle}
             size={ButtonSize.Small}
-            icon={<EditIcon />}
-            aria-label="Edit page"
+            icon={<SettingsIcon />}
+            aria-label="Squad settings"
             onClick={(event: MouseEvent) => {
               event.preventDefault();
               router.push(editUrl);

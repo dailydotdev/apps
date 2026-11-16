@@ -1,6 +1,6 @@
 import type { Squad } from '../../../graphql/sources';
 import { SourceMemberRole, SourcePermissions } from '../../../graphql/sources';
-import { getSquadManageGroups } from './manage';
+import { getSquadManageGroups, SquadManageLockedPlan } from './manage';
 import { SquadManageSection } from './routes';
 import { SquadViewer } from './viewer';
 
@@ -35,23 +35,51 @@ describe('getSquadManageGroups', () => {
       .filter(({ lockedPlan }) => !!lockedPlan)
       .map(({ id }) => id);
 
-  it('shows plan sections locked to editors of a squad with no plan', () => {
+  const lockedPlans = (squad: Squad) =>
+    Object.fromEntries(
+      getSquadManageGroups(squad, SquadViewer.Admin)
+        .flatMap(({ items }) => items)
+        .filter(({ lockedPlan }) => !!lockedPlan)
+        .map(({ id, lockedPlan }) => [id, lockedPlan]),
+    );
+
+  it('shows every plan section locked to editors of a squad with no plan', () => {
     const squad = squadWith([SourcePermissions.Edit]);
 
-    expect(locked(squad)).toEqual([
-      SquadManageSection.Products,
-      SquadManageSection.Links,
-      SquadManageSection.Intel,
-      SquadManageSection.Agent,
-    ]);
+    expect(lockedPlans(squad)).toEqual({
+      [SquadManageSection.Products]: SquadManageLockedPlan.Startups,
+      [SquadManageSection.Jobs]: SquadManageLockedPlan.Enterprise,
+      [SquadManageSection.Links]: SquadManageLockedPlan.Startups,
+      [SquadManageSection.Branding]: SquadManageLockedPlan.Startups,
+      [SquadManageSection.Intel]: SquadManageLockedPlan.Startups,
+      [SquadManageSection.Agent]: SquadManageLockedPlan.Startups,
+    });
   });
 
-  it('locks nothing for a squad on a plan', () => {
+  it('locks only Enterprise sections for a squad on a Startups plan', () => {
     const squad = {
       ...squadWith([SourcePermissions.Edit]),
-      features: { links: true, products: true },
+      features: { links: true, products: true, cta: true },
       currentMember: { permissions: [SourcePermissions.Edit], seat: true },
     } as unknown as Squad;
+
+    expect(lockedPlans(squad)).toEqual({
+      [SquadManageSection.Jobs]: SquadManageLockedPlan.Enterprise,
+    });
+  });
+
+  it('locks nothing for an Enterprise squad', () => {
+    const squad = {
+      ...squadWith([SourcePermissions.Edit]),
+      features: { verified: true, links: true, products: true, jobs: true },
+      currentMember: { permissions: [SourcePermissions.Edit], seat: true },
+    } as unknown as Squad;
+
+    expect(locked(squad)).toEqual([]);
+  });
+
+  it('shows no locks to staff who cannot edit the squad', () => {
+    const squad = squadWith([SourcePermissions.ModeratePost]);
 
     expect(locked(squad)).toEqual([]);
   });

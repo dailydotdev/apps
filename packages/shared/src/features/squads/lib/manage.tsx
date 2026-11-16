@@ -31,10 +31,11 @@ export interface SquadManageItem {
   icon: ReactElement;
   badge?: number;
   /**
-   * A section the squad's plan doesn't include yet, shown locked to promote
-   * daily.dev for Startups: it names the plan and links to Subscription.
+   * A section the squad's plan doesn't include yet, shown locked: it names the
+   * plan that unlocks it (daily.dev for Startups or Enterprise) and links to
+   * Subscription.
    */
-  lockedPlan?: string;
+  lockedPlan?: SquadManageLockedPlan;
 }
 
 export interface SquadManageGroup {
@@ -60,6 +61,47 @@ export const squadManageTitles: Record<SquadManageSection, string> = {
   [SquadManageSection.DangerZone]: 'Danger zone',
 };
 
+export enum SquadManageLockedPlan {
+  Startups = 'Startups',
+  Enterprise = 'Enterprise',
+}
+
+interface SquadManagePlanGate {
+  /** The plan that unlocks the section, named on its lock */
+  plan: SquadManageLockedPlan;
+  isIncluded: (squad: Squad) => boolean;
+}
+
+// Sections a plan unlocks. Every squad lists them, so nobody misses a feature:
+// a squad whose plan doesn't include one shows it locked to the plan that does.
+const planGates: Partial<Record<SquadManageSection, SquadManagePlanGate>> = {
+  [SquadManageSection.Products]: {
+    plan: SquadManageLockedPlan.Startups,
+    isIncluded: (squad) => hasSquadFeature(squad, 'products'),
+  },
+  [SquadManageSection.Jobs]: {
+    plan: SquadManageLockedPlan.Enterprise,
+    isIncluded: (squad) => hasSquadFeature(squad, 'jobs'),
+  },
+  [SquadManageSection.Links]: {
+    plan: SquadManageLockedPlan.Startups,
+    isIncluded: (squad) => hasSquadFeature(squad, 'links'),
+  },
+  [SquadManageSection.Branding]: {
+    plan: SquadManageLockedPlan.Startups,
+    isIncluded: canSetSquadButton,
+  },
+  [SquadManageSection.Intel]: {
+    plan: SquadManageLockedPlan.Startups,
+    isIncluded: isCompanySquad,
+  },
+  [SquadManageSection.Agent]: {
+    plan: SquadManageLockedPlan.Startups,
+    isIncluded: isCompanySquad,
+  },
+};
+
+// Whether the viewer's role opens the section, whatever the squad's plan
 const canSeeSection = (squad: Squad, section: SquadManageSection): boolean => {
   const canEdit = verifyPermission(squad, SourcePermissions.Edit);
 
@@ -67,15 +109,11 @@ const canSeeSection = (squad: Squad, section: SquadManageSection): boolean => {
     case SquadManageSection.Details:
     case SquadManageSection.Rules:
     case SquadManageSection.Posting:
-      return canEdit;
     case SquadManageSection.Products:
-      return canEdit && hasSquadFeature(squad, 'products');
     case SquadManageSection.Jobs:
-      return canEdit && hasSquadFeature(squad, 'jobs');
     case SquadManageSection.Links:
-      return canEdit && hasSquadFeature(squad, 'links');
     case SquadManageSection.Branding:
-      return canEdit && canSetSquadButton(squad);
+      return canEdit;
     case SquadManageSection.Members:
       return true;
     case SquadManageSection.Moderation:
@@ -95,9 +133,8 @@ const canSeeSection = (squad: Squad, section: SquadManageSection): boolean => {
       const role = squad.currentMember?.role;
 
       return (
-        isCompanySquad(squad) &&
-        (role === SourceMemberRole.Admin ||
-          (role === SourceMemberRole.Moderator && !!squad.currentMember?.seat))
+        role === SourceMemberRole.Admin ||
+        (role === SourceMemberRole.Moderator && !!squad.currentMember?.seat)
       );
     }
     case SquadManageSection.DangerZone:
@@ -107,20 +144,30 @@ const canSeeSection = (squad: Squad, section: SquadManageSection): boolean => {
   }
 };
 
-// Plan sections a squad with no plan shows locked
-const lockedSections = [
-  SquadManageSection.Products,
-  SquadManageSection.Links,
-  SquadManageSection.Intel,
-  SquadManageSection.Agent,
-];
+/**
+ * The plan a section is locked to, or undefined when it isn't locked. Locks
+ * show to those who can edit the squad, who reach Subscription from them.
+ */
+const getLockedPlan = (
+  squad: Squad,
+  section: SquadManageSection,
+): SquadManageLockedPlan | undefined => {
+  const gate = planGates[section];
 
-const isLockedSection = (squad: Squad, section: SquadManageSection): boolean =>
-  lockedSections.includes(section) &&
-  verifyPermission(squad, SourcePermissions.Edit) &&
-  !hasSquadFeature(squad, 'verified') &&
-  // Every plan turns links on
-  !hasSquadFeature(squad, 'links');
+  if (
+    !gate ||
+    gate.isIncluded(squad) ||
+    !verifyPermission(squad, SourcePermissions.Edit)
+  ) {
+    return undefined;
+  }
+
+  return gate.plan;
+};
+
+const isOpenSection = (squad: Squad, section: SquadManageSection): boolean =>
+  canSeeSection(squad, section) &&
+  (planGates[section]?.isIncluded(squad) ?? true);
 
 const item = (
   id: SquadManageSection,
@@ -180,13 +227,13 @@ export const getSquadManageGroups = (
     .map((group) => ({
       ...group,
       items: group.items.flatMap((groupItem) => {
-        if (canSeeSection(squad, groupItem.id)) {
+        if (isOpenSection(squad, groupItem.id)) {
           return [groupItem];
         }
 
-        return isLockedSection(squad, groupItem.id)
-          ? [{ ...groupItem, lockedPlan: 'Starter' }]
-          : [];
+        const lockedPlan = getLockedPlan(squad, groupItem.id);
+
+        return lockedPlan ? [{ ...groupItem, lockedPlan }] : [];
       }),
     }))
     .filter((group) => group.items.length > 0);
