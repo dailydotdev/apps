@@ -15,6 +15,7 @@ import {
 } from '../../lib/streakViewQueue';
 import { includesThisRead } from '../../lib/userStreak';
 import { useStreakDailyCelebration } from '../streaks/useStreakDailyCelebration';
+import { useStreakGoalCelebration } from '../streaks/useStreakGoalCelebration';
 
 // The API credits the view in a worker after the mutation resolves, so the
 // first refetch can miss it. Give the worker this long before asking again.
@@ -59,6 +60,7 @@ export const useViewPost = (): UseMutateAsyncFunction<
   });
   const isOptimistic = isOptimisticView && !isCompanion;
   const celebrateStreakDay = useStreakDailyCelebration();
+  const celebrateStreakGoal = useStreakGoalCelebration();
   const streakKey = generateQueryKey(RequestKey.UserStreak, user);
   const readKey = generateQueryKey(RequestKey.ReadingStreak30Days, user);
   const { mutateAsync: onSendViewPost } = useMutation<
@@ -143,8 +145,12 @@ export const useViewPost = (): UseMutateAsyncFunction<
       await client.invalidateQueries({ queryKey: readKey });
 
       // only a count the API confirmed: a guess could celebrate a day that
-      // never counted and suppress the toast for the read that does
-      celebrateStreakDay(countedStreak?.current);
+      // never counted and suppress the toast for the read that does, or hit
+      // or miss the goal
+      const current = countedStreak?.current;
+      if (!celebrateStreakGoal(current)) {
+        celebrateStreakDay(current);
+      }
 
       return null;
     },

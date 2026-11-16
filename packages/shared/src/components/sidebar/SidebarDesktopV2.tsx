@@ -99,6 +99,7 @@ import { Tooltip } from '../tooltip/Tooltip';
 import { TooltipLinkWrapper } from '../tooltip/TooltipLinkWrapper';
 import { RailHoverPanel } from './RailHoverPanel';
 import { StreakBadge } from './StreakBadge';
+import { getStreakGoalCopy } from '../../lib/streakGoal';
 import {
   SidebarShortcutsDock,
   useLegacyShortcutsMigration,
@@ -851,6 +852,7 @@ export const SidebarDesktopV2 = ({
     count: streakCount,
     hasReadToday: streakReadToday,
     copy: streakCopy,
+    goalProgress: streakGoalProgress,
   } = useStreakRingState();
 
   // The reorderable rail items: the tabs (each opens a panel), including the
@@ -1863,6 +1865,7 @@ export const SidebarDesktopV2 = ({
           state={streakState}
           hasReadToday={streakReadToday}
           selected={isSelected}
+          goalProgress={streakGoalProgress?.ratio}
         />
       );
     } else if (isStreakTab && !isStreakTabAStreak) {
@@ -1878,7 +1881,12 @@ export const SidebarDesktopV2 = ({
     }
     const labelText =
       showStreakBadge && streakCount > 0 ? `${streakCount}` : displayLabel;
-    const ariaLabel = showStreakBadge ? streakCopy : panelTitle;
+    let ariaLabel = panelTitle;
+    if (showStreakBadge) {
+      ariaLabel = streakGoalProgress
+        ? `${streakCopy} ${getStreakGoalCopy(streakGoalProgress)}`
+        : streakCopy;
+    }
     return (
       <RailHoverCard
         label={panelTitle}
