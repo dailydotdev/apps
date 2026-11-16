@@ -10,6 +10,7 @@ import {
 import { QueryClient, useQuery } from '@tanstack/react-query';
 import { GrowthBook } from '@growthbook/growthbook-react';
 import nock from 'nock';
+import { subDays } from 'date-fns';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
@@ -251,7 +252,9 @@ describe('useViewPost', () => {
       });
     });
 
-    it('should keep the optimistic streak when the retry is still stale', async () => {
+    // a re-read of a post viewed in the past week: newView skips it, so the
+    // streak never moves
+    it('should put the server streak back when the retry is still stale', async () => {
       mockPreViewStreak();
       mockPreViewStreak();
       const requestMethod = jest
@@ -269,9 +272,9 @@ describe('useViewPost', () => {
 
       expect(nock.isDone()).toBe(true);
       expect(client.getQueryData<UserStreak>(streakKey)).toMatchObject({
-        current: 8,
-        total: 21,
-        max: 8,
+        current: 7,
+        total: 20,
+        max: 7,
       });
     });
   });
@@ -347,6 +350,72 @@ describe('useViewPost', () => {
     await expect(result.current('p1')).rejects.toBe(networkError);
 
     expect(client.getQueryData<UserStreak>(streakKey)).toEqual(streak);
+    expect(readStreakViewQueue()).toEqual([]);
+  });
+
+  it('should not bump the streak from the companion', async () => {
+    const requestMethod = jest.fn(() => new Promise(() => {}));
+    const { result } = renderViewPost({
+      client,
+      requestMethod,
+      isCompanion: true,
+    });
+
+    result.current('p1');
+
+    await waitFor(() => expect(requestMethod).toHaveBeenCalledTimes(1));
+    expect(client.getQueryData<UserStreak>(streakKey)).toEqual(streak);
+  });
+
+  it('should not bump a streak last read before yesterday', async () => {
+    const lastRead = { ...streak, lastViewAt: subDays(new Date(), 3) };
+    const requestMethod = jest.fn(() => new Promise(() => {}));
+    const { result } = renderViewPost({
+      client,
+      requestMethod,
+      initialStreak: lastRead,
+    });
+
+    result.current('p1');
+
+    await waitFor(() => expect(requestMethod).toHaveBeenCalledTimes(1));
+    expect(client.getQueryData<UserStreak>(streakKey)).toEqual(lastRead);
+  });
+
+  it('should bump a reset streak to one', async () => {
+    const reset = {
+      ...streak,
+      current: 0,
+      lastViewAt: subDays(new Date(), 3),
+    };
+    const requestMethod = jest.fn(() => new Promise(() => {}));
+    const { result } = renderViewPost({
+      client,
+      requestMethod,
+      initialStreak: reset,
+    });
+
+    result.current('p1');
+
+    await waitFor(() =>
+      expect(client.getQueryData<UserStreak>(streakKey)).toMatchObject({
+        current: 1,
+        total: 21,
+        max: 7,
+      }),
+    );
+  });
+
+  it('should not queue a dropped view when today is already counted', async () => {
+    const requestMethod = jest.fn().mockRejectedValue(networkError);
+    const { result } = renderViewPost({
+      client,
+      requestMethod,
+      initialStreak: serverStreak,
+    });
+
+    await expect(result.current('p1')).rejects.toBe(networkError);
+
     expect(readStreakViewQueue()).toEqual([]);
   });
 
@@ -481,13 +550,28 @@ describe('useViewPost', () => {
       );
     });
 
-    it('should celebrate the goal when the refetch still has the pre-view streak', async () => {
+    it('should celebrate the goal once the retry confirms the read', async () => {
       // the worker has not credited the read yet: userStreak still says 6,
-      // but this read lands on 7, the goal
+      // and the retry confirms it lands on 7, the goal
+      jest.useFakeTimers({ advanceTimers: true });
       const daySixYesterday = { ...daySix, lastViewAt: yesterday };
       mockGraphQL({
         request: { query: USER_STREAK_QUERY },
         result: { data: { userStreak: daySixYesterday } },
+      });
+      mockGraphQL({
+        request: { query: USER_STREAK_QUERY },
+        result: {
+          data: {
+            userStreak: {
+              ...daySix,
+              current: 7,
+              max: 7,
+              total: 22,
+              lastViewAt: new Date(),
+            },
+          },
+        },
       });
       const { result } = renderViewPost({
         client,
@@ -498,14 +582,19 @@ describe('useViewPost', () => {
         initialStreak: daySixYesterday,
       });
 
+      const promise = result.current('p1');
+      await waitFor(() => expect(nock.pendingMocks()).toHaveLength(1));
       await act(async () => {
-        await result.current('p1');
+        await jest.advanceTimersByTimeAsync(STREAK_REFETCH_RETRY_DELAY_MS);
+        await promise;
       });
+      jest.useRealTimers();
 
+      expect(nock.isDone()).toBe(true);
       render(<>{getToast()?.message}</>);
       expect(screen.getByText('Goal reached: 7 days!')).toBeInTheDocument();
       expect(
-        screen.queryByText('Day 6! See you tomorrow.'),
+        screen.queryByText('Day 7! See you tomorrow.'),
       ).not.toBeInTheDocument();
     });
 
@@ -550,47 +639,22 @@ describe('useViewPost', () => {
     });
 
     describe('when the refetch still has the pre-view streak', () => {
-      // the newView worker has not credited the read yet, so userStreak
-      // returns yesterday's 7 although this read makes it 8
+      // the newView worker has not credited the read yet, or skipped it (a
+      // post viewed in the past week), so userStreak still returns day 5
       const mockPreViewStreak = () =>
         mockGraphQL({
           request: { query: USER_STREAK_QUERY },
-          result: { data: { userStreak: streak } },
+          result: { data: { userStreak: dayFive } },
         });
-
-      afterEach(() => {
-        jest.useRealTimers();
-      });
-
-      it('should not toast the stale count on a milestone day', async () => {
-        mockPreViewStreak();
-        const { result } = renderViewPost({
-          client,
-          requestMethod: requestMethod(),
-          flag: false,
-          celebrationFlag: true,
-        });
-
-        await act(async () => {
-          await result.current('p1');
-        });
-
-        // 8 is a milestone, so the toast stays quiet instead of "Day 7!"
-        expect(nock.isDone()).toBe(true);
-        expect(getToast()).toBeFalsy();
-        expect(
-          localStorage.getItem(getStreakCelebratedKey(user.id)),
-        ).toBeNull();
-      });
-
-      it('should not toast the stale count after the retry is stale too', async () => {
-        jest.useFakeTimers({ advanceTimers: true });
-        mockPreViewStreak();
-        mockPreViewStreak();
+      const renderAndView = async (
+        props: Partial<Parameters<typeof renderViewPost>[0]> = {},
+      ) => {
         const { result } = renderViewPost({
           client,
           requestMethod: requestMethod(),
           celebrationFlag: true,
+          initialStreak: dayFive,
+          ...props,
         });
 
         const promise = result.current('p1');
@@ -599,28 +663,57 @@ describe('useViewPost', () => {
           await jest.advanceTimersByTimeAsync(STREAK_REFETCH_RETRY_DELAY_MS);
           await promise;
         });
+      };
+
+      beforeEach(() => {
+        jest.useFakeTimers({ advanceTimers: true });
+      });
+
+      afterEach(() => {
+        jest.useRealTimers();
+      });
+
+      it.each([
+        ['on', true],
+        ['off', false],
+      ])(
+        'should not toast a read the API never counted with optimistic view %s',
+        async (_, flag) => {
+          mockPreViewStreak();
+          mockPreViewStreak();
+
+          await renderAndView({ flag });
+
+          expect(nock.isDone()).toBe(true);
+          expect(getToast()).toBeFalsy();
+          expect(
+            localStorage.getItem(getStreakCelebratedKey(user.id)),
+          ).toBeNull();
+        },
+      );
+
+      it('should not toast a guessed count after a gap', async () => {
+        mockPreViewStreak();
+        mockPreViewStreak();
+
+        await renderAndView({
+          initialStreak: { ...dayFive, lastViewAt: subDays(new Date(), 3) },
+        });
 
         expect(nock.isDone()).toBe(true);
         expect(getToast()).toBeFalsy();
       });
 
-      it('should toast the count this read lands on', async () => {
+      it('should toast once the retry confirms the read', async () => {
+        mockPreViewStreak();
         mockGraphQL({
           request: { query: USER_STREAK_QUERY },
-          result: { data: { userStreak: dayFive } },
-        });
-        const { result } = renderViewPost({
-          client,
-          requestMethod: requestMethod(),
-          flag: false,
-          celebrationFlag: true,
-          initialStreak: dayFive,
+          result: { data: { userStreak: daySix } },
         });
 
-        await act(async () => {
-          await result.current('p1');
-        });
+        await renderAndView({ flag: false });
 
+        expect(nock.isDone()).toBe(true);
         render(<>{getToast()?.message}</>);
         expect(
           screen.getByText('Day 6! See you tomorrow.'),

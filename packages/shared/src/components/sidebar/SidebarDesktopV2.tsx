@@ -387,7 +387,7 @@ const SortableRailTab = ({
 interface RailHoverCardProps {
   label: string;
   children: ReactNode;
-  panel: ReactElement;
+  panel: ReactElement | ((close: () => void) => ReactElement);
   enabled?: boolean;
   alignOffset?: number;
 }
@@ -429,6 +429,8 @@ const RailHoverCard = ({
     suppressOpenRef.current = false;
   }, []);
 
+  const close = useCallback(() => setOpen(false), []);
+
   if (!enabled) {
     return <>{children}</>;
   }
@@ -455,7 +457,9 @@ const RailHoverCard = ({
           collisionPadding={12}
           className="rail-popup-panel z-tooltip"
         >
-          <RailHoverPanel title={label}>{panel}</RailHoverPanel>
+          <RailHoverPanel title={label}>
+            {typeof panel === 'function' ? panel(close) : panel}
+          </RailHoverPanel>
         </HoverCardPrimitive.Content>
       </HoverCardPrimitive.Portal>
     </HoverCardPrimitive.Root>
@@ -1603,6 +1607,15 @@ export const SidebarDesktopV2 = ({
     exitSafeZone();
   }, [exitSafeZone]);
 
+  // Closes the collapsed-rail peek from inside its panel, and keeps it closed
+  // until the pointer leaves the rail, like the collapse toggle does.
+  const closeHoverPeek = useCallback(() => {
+    peekSuppressedRef.current = true;
+    setIsRailHovered(false);
+    setHoveredCategory(null);
+    exitSafeZone();
+  }, [exitSafeZone]);
+
   // --- Prediction cone ---------------------------------------------------
   // `commitPreview` maps a rail trigger key to the panel preview it shows.
   // Hovering a panel-bearing icon is also what opens the collapsed peek — the
@@ -1748,7 +1761,10 @@ export const SidebarDesktopV2 = ({
 
   useEffect(() => () => exitSafeZone(), [exitSafeZone]);
 
-  const renderCategorySection = (category: SidebarCategoryId): ReactElement => {
+  const renderCategorySection = (
+    category: SidebarCategoryId,
+    onClose?: () => void,
+  ): ReactElement => {
     if (category === SidebarCategory.Squads) {
       return (
         <NetworkSection
@@ -1777,7 +1793,7 @@ export const SidebarDesktopV2 = ({
       );
     }
     if (category === SidebarCategory.GameCenter) {
-      return <StreakQuestsSection />;
+      return <StreakQuestsSection onClose={onClose} />;
     }
     if (category === SidebarCategory.Profile) {
       return (
@@ -1874,7 +1890,7 @@ export const SidebarDesktopV2 = ({
     return (
       <RailHoverCard
         label={panelTitle}
-        panel={renderCategorySection(category.id)}
+        panel={(close) => renderCategorySection(category.id, close)}
         enabled={!isExpanded}
       >
         <button
@@ -1991,7 +2007,10 @@ export const SidebarDesktopV2 = ({
         isItemsButton={false}
       />
     ) : (
-      renderCategorySection(activeCategory)
+      renderCategorySection(
+        activeCategory,
+        isHoverExpanded ? closeHoverPeek : undefined,
+      )
     );
 
   const activeCategoryConfig = sidebarCategories.find(

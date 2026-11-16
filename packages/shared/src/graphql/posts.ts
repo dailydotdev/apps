@@ -138,6 +138,19 @@ export const getReadArticleHref = (
 ): string | undefined =>
   getPostReadTarget(post).target?.permalink ?? post.permalink;
 
+/**
+ * A share without commentary has nothing of its own to reshare, so resharing
+ * it shares the post it wraps, the same way the API resolves it.
+ */
+export const getPostToShare = <
+  T extends Pick<Post, 'type' | 'title' | 'sharedPost'>,
+>(
+  post: T,
+): T | SharedPost =>
+  post.type === PostType.Share && !post.title && post.sharedPost
+    ? post.sharedPost
+    : post;
+
 export const getPostTitle = (
   post:
     | {
@@ -1555,6 +1568,13 @@ export const getGenerateBriefingMutationOptions = () => {
 export const defautRefetchMs = 4000;
 export const briefRefetchIntervalMs = defautRefetchMs;
 
+export enum LimitedReachReason {
+  AiWritten = 'ai_written',
+  Promotional = 'promotional',
+  OversoldTitle = 'oversold_title',
+  Language = 'language',
+}
+
 export const POST_ANALYTICS_QUERY = gql`
   query PostAnalytics($id: ID!) {
     postAnalytics(id: $id) {
@@ -1588,6 +1608,7 @@ export const POST_ANALYTICS_QUERY = gql`
       agentViewsPerplexityBot
       agentViewsExaBot
       agentViewsMetaBot
+      limitedReachReason
     }
   }
 `;
@@ -1623,6 +1644,7 @@ export type PostAnalytics = {
   agentViewsPerplexityBot: number | null;
   agentViewsExaBot: number | null;
   agentViewsMetaBot: number | null;
+  limitedReachReason: LimitedReachReason | null;
 };
 
 export const postAnalyticsQueryOptions = ({ id }: { id?: string }) => {

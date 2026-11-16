@@ -344,7 +344,7 @@ export const StreakWidget = ({
       {summary}
       <TodayLine timezone={timezone} />
       <StreakMonthCalendar streak={streak} />
-      <StreakResetReason streak={streak} />
+      <StreakResetReason streak={streak} origin={Origin.FeedWidgets} />
       <div className="mt-auto flex flex-col gap-4">
         <TodayGoal
           timezone={timezone}
