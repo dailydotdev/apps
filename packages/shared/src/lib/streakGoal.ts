@@ -8,14 +8,12 @@ import { dateFormatInTimezone } from './timezones';
 const STREAK_DAY_FORMAT = 'yyyy-MM-dd';
 
 export const isStreakGoal = (value: unknown): value is StreakGoal =>
-  (STREAK_GOAL_OPTIONS as readonly unknown[]).includes(value);
+  typeof value === 'number' && Number.isInteger(value) && value > 0;
 
-// The goal offered after hitting one: 7 -> 14 -> 30, then no next goal.
-export const getNextStreakGoal = (goal: StreakGoal): StreakGoal | null => {
-  const index = STREAK_GOAL_OPTIONS.indexOf(goal);
-
-  return STREAK_GOAL_OPTIONS[index + 1] ?? null;
-};
+// The goal offered after hitting one: the next larger option (7 -> 14 -> 30),
+// then no next goal.
+export const getNextStreakGoal = (goal: StreakGoal): StreakGoal | null =>
+  STREAK_GOAL_OPTIONS.find((option) => option > goal) ?? null;
 
 export interface StreakGoalProgress {
   current: number;
@@ -61,14 +59,18 @@ export const getStreakGoalBreakPromptKey = (userId: string): string =>
 export const getStreakGoalHitKey = (userId: string): string =>
   generateStorageKey(StorageTopic.Streak, 'goal_hit', userId);
 
-// One break prompt per reset: keyed on when the API says the streak reset, or
-// on the local day when it did not say.
+// One break prompt per reset: keyed on when the API says the streak reset, or,
+// for resets it did not record, on the last read, which stays put while the
+// streak sits at 0. Null when there is neither.
 export const getStreakBreakKey = (
-  streak: Pick<UserStreak, 'lastReset'>,
-  timezone?: string,
-): string =>
-  streak.lastReset?.at ??
-  dateFormatInTimezone(new Date(), STREAK_DAY_FORMAT, timezone);
+  streak: Pick<UserStreak, 'lastReset' | 'lastViewAt'>,
+): string | null => {
+  if (streak.lastReset?.at) {
+    return streak.lastReset.at;
+  }
+
+  return streak.lastViewAt ? new Date(streak.lastViewAt).toISOString() : null;
+};
 
 const readStorage = (key: string): string | null => {
   try {

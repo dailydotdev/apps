@@ -21,6 +21,8 @@ import type { StreakGoal } from '../../../graphql/settings';
 import { STREAK_GOAL_OPTIONS } from '../../../graphql/settings';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { StreakGoalPromptReason } from '../../../lib/streakGoal';
+import { useToastNotification } from '../../../hooks/useToastNotification';
+import { labels } from '../../../lib/labels';
 
 export interface StreakGoalModalProps
   extends LazyModalCommonProps, Pick<ModalProps, 'onAfterOpen'> {
@@ -48,6 +50,7 @@ export const StreakGoalModal = ({
   const { logEvent } = useLogContext();
   const { updateStreakGoal } = useSettingsContext();
   const { completeAction } = useActions();
+  const { displayToast } = useToastNotification();
   const [selectedGoal, setSelectedGoal] = useState<StreakGoal | null>(
     preselectedGoal ?? null,
   );
@@ -86,19 +89,22 @@ export const StreakGoalModal = ({
     }
 
     setIsSaving(true);
+
+    try {
+      await updateStreakGoal(selectedGoal);
+    } catch {
+      displayToast(labels.error.generic);
+      return;
+    } finally {
+      setIsSaving(false);
+    }
+
     logEvent({
       event_name: LogEvent.SetStreakGoal,
       target_type: TargetType.StreakGoal,
       target_id: reason,
       extra: JSON.stringify({ goal: selectedGoal }),
     });
-
-    try {
-      await updateStreakGoal(selectedGoal);
-    } finally {
-      setIsSaving(false);
-    }
-
     onRequestClose();
   };
 

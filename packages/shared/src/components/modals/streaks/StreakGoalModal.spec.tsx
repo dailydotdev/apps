@@ -7,6 +7,9 @@ import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import { ActionType } from '../../../graphql/actions';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { StreakGoalPromptReason } from '../../../lib/streakGoal';
+import type { ToastNotification } from '../../../hooks/useToastNotification';
+import { TOAST_NOTIF_KEY } from '../../../hooks/useToastNotification';
+import { labels } from '../../../lib/labels';
 import type { StreakGoalModalProps } from './StreakGoalModal';
 import { StreakGoalModal } from './StreakGoalModal';
 
@@ -26,10 +29,13 @@ const logEvent = jest.fn();
 const updateStreakGoal = jest.fn().mockResolvedValue(undefined);
 const onRequestClose = jest.fn();
 
-const renderComponent = (props: Partial<StreakGoalModalProps> = {}) =>
+const renderComponent = (
+  props: Partial<StreakGoalModalProps> = {},
+  client = new QueryClient(),
+) =>
   render(
     <TestBootProvider
-      client={new QueryClient()}
+      client={client}
       auth={{ user: loggedUser }}
       settings={{ updateStreakGoal }}
       log={{ logEvent }}
@@ -86,6 +92,30 @@ describe('StreakGoalModal', () => {
       extra: JSON.stringify({ goal: 14 }),
     });
     expect(mockCompleteAction).not.toHaveBeenCalled();
+  });
+
+  it('keeps the modal open and shows an error when the save fails', async () => {
+    const client = new QueryClient();
+    updateStreakGoal.mockRejectedValueOnce(new Error('offline'));
+    renderComponent({}, client);
+
+    fireEvent.click(screen.getByTestId('streak-goal-option-14'));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Commit to my goal', hidden: true }),
+    );
+
+    await waitFor(() =>
+      expect(
+        client.getQueryData<ToastNotification>(TOAST_NOTIF_KEY)?.message,
+      ).toBe(labels.error.generic),
+    );
+    expect(onRequestClose).not.toHaveBeenCalled();
+    expect(logEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({ event_name: LogEvent.SetStreakGoal }),
+    );
+    expect(
+      screen.getByRole('button', { name: 'Commit to my goal', hidden: true }),
+    ).toBeEnabled();
   });
 
   it('logs the skip and remembers it for the day-2 offer', () => {

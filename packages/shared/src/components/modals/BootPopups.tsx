@@ -297,10 +297,11 @@ export const BootPopups = (): ReactElement => {
       streak.current === 2 &&
       !streakGoal &&
       !checkHasCompleted(ActionType.StreakGoalSkipped);
-    const breakKey = getStreakBreakKey(streak, user.timezone);
+    const breakKey = getStreakBreakKey(streak);
     const isAfterBreak =
       streak.current === 0 &&
       streak.max > 0 &&
+      !!breakKey &&
       !hasSeenStreakGoalBreakPrompt(user.id, breakKey);
 
     if (!isDayTwo && !isAfterBreak) {
@@ -315,7 +316,7 @@ export const BootPopups = (): ReactElement => {
           : StreakGoalPromptReason.Break,
         preselectedGoal: isDayTwo ? null : streakGoal,
         onAfterOpen: () => {
-          if (!isDayTwo) {
+          if (!isDayTwo && breakKey) {
             markStreakGoalBreakPromptSeen(user.id, breakKey);
           }
         },
