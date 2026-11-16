@@ -435,7 +435,8 @@ export const featureWeeklyPicksChecks = new Feature(
 );
 
 // Experiment: a sign-up screen button that copies the agent onboarding prompt.
+// TEMP: on for preview testing only. Revert to false before merging.
 export const featureAgentOnboardingEntry = new Feature(
   'agent_onboarding_entry',
-  false,
+  true,
 );
