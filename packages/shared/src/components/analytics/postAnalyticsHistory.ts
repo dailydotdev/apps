@@ -1,4 +1,4 @@
-import { addDays, subDays } from 'date-fns';
+import { format, parseISO, subDays } from 'date-fns';
 import type { TickProp } from 'recharts/types/util/types';
 import { postAnalyticsHistoryLimit } from '../../graphql/posts';
 import { dateFormatInTimezone } from '../../lib/timezones';
@@ -11,12 +11,6 @@ export const historyChartTickProp: TickProp = {
   fill: 'var(--theme-text-tertiary)',
   fontSize: '0.6875rem',
 };
-
-const formatDayName = (date: Date): string =>
-  date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-  });
 
 export const buildAnalyticsHistoryDays = <TItem extends { date: Date }, T>({
   items,
@@ -31,7 +25,7 @@ export const buildAnalyticsHistoryDays = <TItem extends { date: Date }, T>({
     return [];
   }
 
-  const daysMap = items.reduce(
+  const nodes = items.reduce(
     (acc, item) => {
       const date = dateFormatInTimezone(
         new Date(item.date),
@@ -39,31 +33,24 @@ export const buildAnalyticsHistoryDays = <TItem extends { date: Date }, T>({
         timezone,
       );
 
-      acc[date] = {
-        ...toNode(item),
-        name: formatDayName(new Date(item.date)),
-      };
+      acc[date] = toNode(item);
 
       return acc;
     },
-    {} as Record<string, PostAnalyticsHistoryDay<T>>,
+    {} as Record<string, T>,
   );
 
-  const historyCutOffDate = subDays(new Date(), postAnalyticsHistoryLimit - 1);
+  // Today's calendar date for the user, so the days and their labels agree
+  const today = parseISO(
+    dateFormatInTimezone(new Date(), 'yyyy-MM-dd', timezone),
+  );
 
-  const days: PostAnalyticsHistoryDay<T>[] = [];
+  return Array.from({ length: postAnalyticsHistoryLimit }, (_, index) => {
+    const day = subDays(today, postAnalyticsHistoryLimit - 1 - index);
 
-  for (let i = 0; i < postAnalyticsHistoryLimit; i += 1) {
-    const paddedDate = addDays(historyCutOffDate, i);
-    const date = dateFormatInTimezone(paddedDate, 'yyyy-MM-dd', timezone);
-
-    days.push(
-      daysMap[date] ?? {
-        ...toNode(),
-        name: formatDayName(paddedDate),
-      },
-    );
-  }
-
-  return days;
+    return {
+      ...(nodes[format(day, 'yyyy-MM-dd')] ?? toNode()),
+      name: format(day, 'MMM d'),
+    };
+  });
 };
