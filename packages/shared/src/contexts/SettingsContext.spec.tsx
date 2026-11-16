@@ -118,3 +118,65 @@ it('should only send the settings that changed', async () => {
   await act(async () => fireEvent.click(screen.getByText('freeze')));
   await waitFor(() => expect(mutationCalled).toBe(true));
 });
+
+const StreakGoalButtons = () => {
+  const { updateStreakGoal } = useSettingsContext();
+
+  return (
+    <>
+      <button type="button" onClick={() => updateStreakGoal(14)}>
+        set goal
+      </button>
+      <button type="button" onClick={() => updateStreakGoal(null)}>
+        clear goal
+      </button>
+    </>
+  );
+};
+
+it('should save and clear the streak goal', async () => {
+  const sent: unknown[] = [];
+  const mockGoalMutation = (streakGoal: number | null) =>
+    mockGraphQL({
+      request: {
+        query: UPDATE_USER_SETTINGS_MUTATION,
+        variables: { data: { streakGoal } },
+      },
+      result: () => {
+        sent.push(streakGoal);
+        return { data: { updateUserSettings: { updatedAt: new Date(0) } } };
+      },
+    });
+  const updateSettings = jest.fn();
+  const renderGoal = (streakGoal: RemoteSettings['streakGoal']) =>
+    render(
+      <QueryClientProvider
+        client={new QueryClient(defaultQueryClientTestingConfig)}
+      >
+        <AuthContext.Provider value={{ user: loggedUser } as AuthContextData}>
+          <SettingsContextProvider
+            settings={{ theme: 'darcula', streakGoal } as RemoteSettings}
+            updateSettings={updateSettings}
+            loadedSettings
+            isRemoteSettingsLoaded
+          >
+            <StreakGoalButtons />
+          </SettingsContextProvider>
+        </AuthContext.Provider>
+      </QueryClientProvider>,
+    );
+
+  mockGoalMutation(14);
+  const { unmount } = renderGoal(null);
+  await act(async () => fireEvent.click(screen.getByText('set goal')));
+  await waitFor(() => expect(sent).toEqual([14]));
+  expect(updateSettings).toHaveBeenCalledWith(
+    expect.objectContaining({ streakGoal: 14 }),
+  );
+  unmount();
+
+  mockGoalMutation(null);
+  renderGoal(14);
+  await act(async () => fireEvent.click(screen.getByText('clear goal')));
+  await waitFor(() => expect(sent).toEqual([14, null]));
+});

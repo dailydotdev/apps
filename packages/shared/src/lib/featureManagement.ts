@@ -125,6 +125,9 @@ export const featureStreakDailyCelebration = new Feature(
 
 // schedule a streak pause (vacation mode) from the gamification settings
 export const featureStreakPause = new Feature('streak_pause', false);
+// A/B: a personal streak goal (7, 14 or 30 days) offered at day 2 and after a
+// break, with progress under the count and a celebration when it is hit
+export const featureStreakGoals = new Feature('streak_goals', false);
 
 export const briefCardFeedFeature = new Feature(
   'brief_card_feed',

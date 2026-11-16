@@ -33,6 +33,7 @@ export const OAUTH_SCOPES = [
   'offline_access',
   'read',
   'write',
+  'reading_history',
 ];
 
 export const MAX_OAUTH_APPS_PER_USER = 5;

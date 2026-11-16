@@ -15,6 +15,7 @@ import type {
   RemoteTheme,
   SettingsFlags,
   Spaciness,
+  StreakGoal,
 } from '../graphql/settings';
 import {
   CampaignCtaPlacement,
@@ -65,6 +66,7 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   toggleSortingEnabled: () => Promise<void>;
   toggleOptOutReadingStreak: () => Promise<void>;
   toggleOptOutStreakFreeze: () => Promise<void>;
+  updateStreakGoal: (goal: StreakGoal | null) => Promise<void>;
   toggleOptOutLevelSystem: () => Promise<void>;
   toggleOptOutQuestSystem: () => Promise<void>;
   toggleOptOutAchievements: () => Promise<void>;
@@ -157,6 +159,7 @@ const defaultSettings: RemoteSettings = {
   sortingEnabled: false,
   optOutReadingStreak: false,
   optOutStreakFreeze: false,
+  streakGoal: null,
   optOutLevelSystem: false,
   optOutQuestSystem: false,
   optOutAchievements: false,
@@ -607,6 +610,8 @@ export const SettingsContextProvider = ({
           ...settings,
           optOutStreakFreeze: !settings.optOutStreakFreeze,
         }),
+      updateStreakGoal: (streakGoal: StreakGoal | null) =>
+        setSettings({ ...settings, streakGoal }),
       toggleOptOutLevelSystem: () =>
         setSettings({
           ...settings,
