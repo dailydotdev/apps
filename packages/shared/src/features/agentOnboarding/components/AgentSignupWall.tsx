@@ -38,7 +38,7 @@ const LILAC = '#D8B4FE';
 const CREW_HEIGHT = '42%';
 
 const headlineStyle = {
-  fontSize: 'clamp(1.75rem, 5vh, 2.75rem)',
+  fontSize: 'clamp(1.5rem, 4.2vh, 2.25rem)',
   lineHeight: 1.05,
 };
 
