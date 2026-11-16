@@ -33,13 +33,18 @@ const boxInnerStyle = {
 };
 
 const LILAC = '#D8B4FE';
+// The crew fills the bottom of the box, and the art scales with the box's
+// width, so the text centres in what is left above it.
+const CREW_HEIGHT = '42%';
+
+const headlineStyle = {
+  fontSize: 'clamp(1.75rem, 5vh, 2.75rem)',
+  lineHeight: 1.05,
+};
 
 const AgentSteps = (): ReactElement => (
-  <div className="relative flex flex-col gap-8 p-10" style={{ color: '#fff' }}>
-    <p
-      className="text-balance font-bold tracking-tight"
-      style={{ fontSize: 'clamp(1.75rem, 5vh, 2.75rem)', lineHeight: 1.05 }}
-    >
+  <div className="flex w-full max-w-[26rem] flex-col gap-8">
+    <p className="text-balance font-bold tracking-tight" style={headlineStyle}>
       Your feed, set up by your agent.
     </p>
     <ol className="flex flex-col gap-5">
@@ -120,21 +125,21 @@ export const AgentSignupWall = ({
             style={{ ...boxInnerStyle, background: startupsPlazaSky }}
           >
             <StartupsCrewOnBase />
-            {entry.isAgentMode ? (
-              <AgentSteps />
-            ) : (
-              <p
-                className="relative text-balance px-10 text-center font-bold tracking-tight"
-                style={{
-                  color: '#fff',
-                  marginTop: '16%',
-                  fontSize: 'clamp(1.75rem, 5vh, 2.75rem)',
-                  lineHeight: 1.05,
-                }}
-              >
-                {headline}
-              </p>
-            )}
+            <div
+              className="absolute inset-0 flex flex-col items-center justify-center px-10 pt-10"
+              style={{ color: '#fff', paddingBottom: CREW_HEIGHT }}
+            >
+              {entry.isAgentMode ? (
+                <AgentSteps />
+              ) : (
+                <p
+                  className="text-balance text-center font-bold tracking-tight"
+                  style={headlineStyle}
+                >
+                  {headline}
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </aside>
