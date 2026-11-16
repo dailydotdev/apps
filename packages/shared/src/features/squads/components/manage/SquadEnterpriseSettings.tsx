@@ -76,7 +76,7 @@ export const SquadEnterpriseSettings = (): ReactElement => {
   return (
     <div className="flex flex-col gap-4">
       <Typography type={TypographyType.Body} bold>
-        Enterprise
+        Verified badge and ads
       </Typography>
       {hasBadge ? (
         <SettingRow
