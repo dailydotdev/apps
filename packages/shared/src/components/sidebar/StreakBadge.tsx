@@ -63,9 +63,30 @@ const flameByState: Record<StreakRingState, string> = {
   freeze: 'text-accent-blueCheese-default',
 };
 
+// Goal progress arc (streak_goals). It traces the ring itself: the badge box is
+// a 24-unit viewBox and the ring is inset 1.5 with a 1.5 border, so the stroke
+// centre sits at radius 12 - 1.5 - 0.75 = 9.75 with the same 1.5 width.
+const GOAL_ARC_CENTER = 12;
+const GOAL_ARC_RADIUS = 9.75;
+const GOAL_ARC_STROKE = 1.5;
+export const GOAL_ARC_CIRCUMFERENCE = 2 * Math.PI * GOAL_ARC_RADIUS;
+
+// The arc only shows in calm states. Danger states keep their dashed
+// amber/red ring as the one message, and the earn pop owns the ring while it
+// plays (the arc returns, one step longer, once it settles into read-today).
+const GOAL_ARC_STATES = new Set<StreakRingState>([
+  'none',
+  'pending',
+  'safe',
+  'freeze',
+]);
+
 interface StreakBadgeProps {
   state: StreakRingState;
   hasReadToday: boolean;
+  // 0..1 towards the streak goal; drawn as an arc on the ring while the goal
+  // is set but not yet hit.
+  goalProgress?: number;
   // When this is the selected rail tab, the calm-state border goes pink.
   selected?: boolean;
   className?: string;
@@ -79,8 +100,28 @@ export const StreakBadge = ({
   state,
   hasReadToday,
   selected = false,
+  goalProgress,
   className,
 }: StreakBadgeProps): ReactElement => {
+  const showGoalArc =
+    goalProgress !== undefined &&
+    goalProgress > 0 &&
+    goalProgress < 1 &&
+    GOAL_ARC_STATES.has(state);
+  const goalArcColor = (): string => {
+    // The ring is pink when read today (tile filled pink too) or when the tab
+    // is selected, so the arc takes the primary text colour (white in dark
+    // mode, near-black in light) to stay visible. A white arc vanished against
+    // the light page and read as a bite out of the tile. On read-today hover
+    // the ring itself turns text-primary, so the arc flips back to pink.
+    if (state === 'safe') {
+      return 'text-text-primary group-hover/streaktab:text-accent-bacon-default';
+    }
+    if (selected) {
+      return 'text-text-primary';
+    }
+    return 'text-accent-bacon-default';
+  };
   // "Not read yet": the calm states with no fill of their own.
   const isUnreadCalm = state === 'none' || state === 'pending';
   const calmBorder = (): string => {
@@ -140,6 +181,32 @@ export const StreakBadge = ({
           frameClass,
         )}
       />
+      {showGoalArc && (
+        <svg
+          aria-hidden
+          data-testid="streak-goal-arc"
+          viewBox="0 0 24 24"
+          fill="none"
+          className={classNames(
+            'absolute inset-0 size-full transition-colors motion-reduce:transition-none',
+            goalArcColor(),
+          )}
+        >
+          <circle
+            cx={GOAL_ARC_CENTER}
+            cy={GOAL_ARC_CENTER}
+            r={GOAL_ARC_RADIUS}
+            stroke="currentColor"
+            strokeWidth={GOAL_ARC_STROKE}
+            strokeLinecap="round"
+            strokeDasharray={GOAL_ARC_CIRCUMFERENCE}
+            strokeDashoffset={GOAL_ARC_CIRCUMFERENCE * (1 - goalProgress)}
+            // SVG circles start at 3 o'clock; turn back a quarter so the arc
+            // grows clockwise from the top.
+            transform={`rotate(-90 ${GOAL_ARC_CENTER} ${GOAL_ARC_CENTER})`}
+          />
+        </svg>
+      )}
       <HotIcon
         secondary={hasReadToday || state === 'freeze'}
         size={IconSize.XSmall}
