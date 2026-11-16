@@ -433,3 +433,9 @@ export const featureWeeklyPicksChecks = new Feature(
   'weekly_picks_checks',
   false,
 );
+
+// Experiment: a link from the sign-up screen into agent onboarding.
+export const featureAgentOnboardingEntry = new Feature(
+  'agent_onboarding_entry',
+  false,
+);
