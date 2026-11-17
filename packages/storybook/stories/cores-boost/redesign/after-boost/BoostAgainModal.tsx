@@ -168,6 +168,10 @@ export function BoostAgainModal({
   if (activeScreen === SCREENS.BUY_CORES) {
     return (
       <BuyCoresRedesignModal
+        modalProps={{
+          parentSelector: props.parentSelector,
+          bodyOpenClassName: props.bodyOpenClassName,
+        }}
         purpose="boost"
         cost={totalSpendInt}
         onPay={(pack) => {
