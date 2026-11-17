@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import type { StreakRecoverQuery } from '../../graphql/users';
+import type { StreakRecoverQuery, UserStreak } from '../../graphql/users';
 import {
   isStreakEarnedBack,
   USER_STREAK_RECOVER_QUERY,
@@ -8,9 +8,7 @@ import {
 import { gqlClient } from '../../graphql/common';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useLogContext } from '../../contexts/LogContext';
 import { useToastNotification } from '../useToastNotification';
-import { LogEvent } from '../../lib/log';
 
 export const getStreakEarnedBackCopy = (days: number): string =>
   days > 0 ? `Your ${days}-day streak is back.` : 'Your streak is back.';
@@ -24,26 +22,32 @@ const wait = (ms: number) =>
     setTimeout(resolve, ms);
   });
 
-// Called after every counted read. While the earn-back offer is open (the
-// recover query is cached with earnBack && canRecover), it refreshes the
-// progress; when the read earned the streak back it toasts, refetches the
-// streak and resolves true so the caller can skip the daily celebration toast.
+// Mirrors STREAK_EARN_BACK_WINDOW_DAYS in daily-api: the offer stays open for
+// three local days counting the reset day
+export const STREAK_EARN_BACK_WINDOW_MS = 3 * 24 * 60 * 60 * 1000;
+
+// Called after every counted read. While the earn-back offer is open it
+// refreshes the progress; when the read earned the streak back it toasts,
+// refetches the streak and resolves true so the caller can skip the daily
+// celebration toast. The API logs the restore itself (the client may not be
+// open when it happens), so nothing is logged here.
+//
+// The offer is kept in the recover query for the whole window (gcTime), so
+// closing the modal does not lose it. Without a cached offer (a reload, or
+// the modal never opened) it is fetched only for readers whose last reset
+// falls inside the window, which the always-loaded streak tells.
 export const useStreakEarnBackProgress = (): (() => Promise<boolean>) => {
   const client = useQueryClient();
   const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
-  const { logEvent } = useLogContext();
 
   return useCallback(async () => {
-    const recoverKey = generateQueryKey(RequestKey.UserStreakRecover);
-    const previous =
-      client.getQueryData<StreakRecoverQuery>(recoverKey)?.streakRecover;
-
-    if (!user || !previous?.earnBack || !previous.canRecover) {
+    if (!user) {
       return false;
     }
 
-    const refetch = async () => {
+    const recoverKey = generateQueryKey(RequestKey.UserStreakRecover);
+    const fetchRecover = async () => {
       await client.invalidateQueries({
         queryKey: recoverKey,
         refetchType: 'none',
@@ -53,12 +57,36 @@ export const useStreakEarnBackProgress = (): (() => Promise<boolean>) => {
         await client.fetchQuery<StreakRecoverQuery>({
           queryKey: recoverKey,
           queryFn: () => gqlClient.request(USER_STREAK_RECOVER_QUERY),
+          gcTime: STREAK_EARN_BACK_WINDOW_MS,
         })
       )?.streakRecover;
     };
 
     try {
-      let next = await refetch();
+      const cached =
+        client.getQueryData<StreakRecoverQuery>(recoverKey)?.streakRecover;
+      if (cached && !(cached.earnBack && cached.canRecover)) {
+        return false;
+      }
+
+      if (!cached) {
+        const resetAt = client.getQueryData<UserStreak>(
+          generateQueryKey(RequestKey.UserStreak, user),
+        )?.lastReset?.at;
+        const isInWindow =
+          !!resetAt &&
+          Date.now() - new Date(resetAt).getTime() < STREAK_EARN_BACK_WINDOW_MS;
+        if (isInWindow) {
+          // Only caches the offer: without the progress from before this
+          // read there is no transition to celebrate
+          await fetchRecover();
+        }
+
+        return false;
+      }
+
+      const previous = cached;
+      let next = await fetchRecover();
       const shouldHaveEarnedBack =
         (previous.postsRead ?? 0) + 1 >= (previous.postsRequired ?? 0);
       if (
@@ -68,7 +96,7 @@ export const useStreakEarnBackProgress = (): (() => Promise<boolean>) => {
         next.postsRead === previous.postsRead
       ) {
         await wait(STREAK_EARN_BACK_RETRY_MS);
-        next = await refetch();
+        next = await fetchRecover();
       }
 
       if (!isStreakEarnedBack(next)) {
@@ -84,14 +112,10 @@ export const useStreakEarnBackProgress = (): (() => Promise<boolean>) => {
         queryKey: generateQueryKey(RequestKey.UserStreak, user),
       });
       displayToast(getStreakEarnedBackCopy(previous.oldStreakLength));
-      logEvent({
-        event_name: LogEvent.StreakRecover,
-        extra: JSON.stringify({ method: 'earn_back' }),
-      });
 
       return true;
     } catch {
       return false;
     }
-  }, [client, displayToast, logEvent, user]);
+  }, [client, displayToast, user]);
 };

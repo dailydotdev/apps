@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { STREAK_EARN_BACK_WINDOW_MS } from './useStreakEarnBackProgress';
 import { useRouter } from 'next/router';
 import { useToggle } from '../useToggle';
 import { useActions } from '../useActions';
@@ -159,6 +160,9 @@ export const useStreakRecover = ({
       return res;
     },
     enabled: !!user && isStreaksEnabled && !hideForever,
+    // Kept for the earn-back window after the modal closes, so
+    // useStreakEarnBackProgress still sees the offer
+    gcTime: STREAK_EARN_BACK_WINDOW_MS,
   });
 
   const onClose = useCallback(async () => {

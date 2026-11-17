@@ -6,13 +6,16 @@ import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import type {
   StreakRecoverQuery,
+  UserStreak,
   UserStreakRecoverData,
 } from '../../graphql/users';
 import { USER_STREAK_RECOVER_QUERY } from '../../graphql/users';
 import { generateQueryKey, RequestKey } from '../../lib/query';
-import { LogEvent } from '../../lib/log';
 import * as toastHook from '../useToastNotification';
-import { useStreakEarnBackProgress } from './useStreakEarnBackProgress';
+import {
+  STREAK_EARN_BACK_WINDOW_MS,
+  useStreakEarnBackProgress,
+} from './useStreakEarnBackProgress';
 
 const displayToast = jest.fn();
 const logEvent = jest.fn();
@@ -96,7 +99,7 @@ describe('useStreakEarnBackProgress', () => {
     expect(displayToast).not.toHaveBeenCalled();
   });
 
-  it('toasts and logs when the read earned the streak back', async () => {
+  it('toasts when the read earned the streak back, leaving the log to the API', async () => {
     client.setQueryData<StreakRecoverQuery>(recoverKey, {
       streakRecover: { ...offer, postsRead: 2 },
     });
@@ -115,13 +118,64 @@ describe('useStreakEarnBackProgress', () => {
 
     expect(earnedBack).toBe(true);
     expect(displayToast).toHaveBeenCalledWith('Your 10-day streak is back.');
-    expect(logEvent).toHaveBeenCalledWith({
-      event_name: LogEvent.StreakRecover,
-      extra: JSON.stringify({ method: 'earn_back' }),
-    });
+    expect(logEvent).not.toHaveBeenCalled();
     // keeps the old length for the modal's success state
     expect(
       client.getQueryData<StreakRecoverQuery>(recoverKey)?.streakRecover,
     ).toMatchObject({ oldStreakLength: 10, postsRead: 3, canRecover: false });
+  });
+
+  describe('without a cached offer', () => {
+    const setLastReset = (msAgo: number) =>
+      client.setQueryData<Partial<UserStreak>>(
+        generateQueryKey(RequestKey.UserStreak, loggedUser),
+        {
+          current: 1,
+          lastReset: {
+            at: new Date(Date.now() - msAgo).toISOString(),
+            missedDate: null,
+            timezone: null,
+          },
+        },
+      );
+
+    const read = async (result: { current: () => Promise<boolean> }) => {
+      let earnedBack = false;
+      await act(async () => {
+        earnedBack = await result.current();
+      });
+      return earnedBack;
+    };
+
+    it('does not fetch when the last reset is outside the window', async () => {
+      setLastReset(STREAK_EARN_BACK_WINDOW_MS + 60_000);
+      const { result } = renderEarnBackHook(client);
+
+      expect(await read(result)).toBe(false);
+      expect(client.getQueryData(recoverKey)).toBeUndefined();
+    });
+
+    it('picks the offer back up after the cache was collected and celebrates the third read', async () => {
+      setLastReset(60 * 60 * 1000);
+      // The modal closed and its cache entry was collected
+      client.removeQueries({ queryKey: recoverKey });
+      const { result } = renderEarnBackHook(client);
+
+      mockRecoverQuery({ ...offer, postsRead: 2 });
+      expect(await read(result)).toBe(false);
+      expect(
+        client.getQueryData<StreakRecoverQuery>(recoverKey)?.streakRecover
+          .postsRead,
+      ).toBe(2);
+
+      mockRecoverQuery({
+        ...offer,
+        canRecover: false,
+        oldStreakLength: 0,
+        postsRead: 3,
+      });
+      expect(await read(result)).toBe(true);
+      expect(displayToast).toHaveBeenCalledWith('Your 10-day streak is back.');
+    });
   });
 });
