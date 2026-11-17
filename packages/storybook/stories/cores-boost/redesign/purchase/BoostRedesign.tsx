@@ -20,7 +20,7 @@ import { ModalClose } from '@dailydotdev/shared/src/components/modals/common/Mod
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { boostDocsLink } from '@dailydotdev/shared/src/lib/constants';
 import type { OwnPostState } from '../../flows/purchase/BoostFixed';
-import stripArt from '../../assets/boost-strip-patchy-v2.png';
+import { boostStripArt as stripArt } from '../../assets/images';
 import { BoostStripCompact } from './BoostStrip';
 
 // The first-boost screens around the boost form in the redesign's line: your

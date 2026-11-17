@@ -48,7 +48,7 @@ import {
   useBoostLogging,
 } from '@dailydotdev/shared/src/features/boost/useBoostLogging';
 import { BeforeIcon } from '@dailydotdev/shared/src/components/icons/Before';
-import stripArt from '../../assets/boost-strip-patchy-v2.png';
+import { boostStripArt as stripArt } from '../../assets/images';
 
 // The fixed flow's Boost again modal (flows/after-boost) as is, with the
 // redesign's success screen carrying the Patchy art.

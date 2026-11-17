@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { ownArticle, PostPage } from '../../real/pages';
-import stripArt from '../../assets/boost-strip-patchy-v2.png';
+import { boostStripArt as stripArt } from '../../assets/images';
 import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import type { ModalProps } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import {
