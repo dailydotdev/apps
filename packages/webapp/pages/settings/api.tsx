@@ -98,7 +98,7 @@ const DAILY_DEV_AGENTIC_OPENCLAW_INSTRUCTION =
   'Install daily-dev-agentic from clawhub and start getting smarter';
 const CLAUDE_INSTALL_COMMAND = [
   `claude plugin marketplace add https://github.com/dailydotdev/daily.git`,
-  `claude plugin install daily.dev@daily.dev`,
+  `claude plugin install daily-dev@daily.dev`,
   `claude "/daily.dev setup"`,
 ];
 
@@ -106,7 +106,7 @@ const DAILY_DEV_ASK_OPENCLAW_INSTRUCTION =
   'Install daily-dev-ask from clawhub and ask about my topic';
 const DAILY_DEV_ASK_CLAUDE_INSTALL_COMMAND = [
   `claude plugin marketplace add https://github.com/dailydotdev/daily.git`,
-  `claude plugin install daily.dev@daily.dev`,
+  `claude plugin install daily-dev@daily.dev`,
   `claude "/daily-dev-ask your question here"`,
 ];
 
