@@ -743,10 +743,8 @@ describe('BoostPostModal', () => {
       );
       fireEvent.click(screen.getByRole('button', { name: 'Buy Cores' }));
 
+      expect(screen.getByText('Packages')).toBeInTheDocument();
       expect(screen.queryByText(/more Cores/)).not.toBeInTheDocument();
-      expect(
-        screen.getByText('Choose how many Cores to buy.'),
-      ).toBeInTheDocument();
     });
 
     it('should log the final budget and duration when closed without boosting', () => {

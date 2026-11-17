@@ -82,11 +82,11 @@ export const CoreOptions = ({
       ) : (
         amountNeededCopy
       )}
-      {promo && <div className="mt-4">{promo}</div>}
+      {promo && <div className="mt-4 first:mt-0">{promo}</div>}
       <Typography
         tag={TypographyTag.H3}
         type={TypographyType.Callout}
-        className="mt-4"
+        className="mt-4 first:mt-0"
         bold
       >
         Packages

@@ -21,7 +21,6 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 
 import classNames from 'classnames';
 import { CoresDeals } from '@dailydotdev/shared/src/components/cores/CoresDeals';
-import { CoreAmountNeeded } from '@dailydotdev/shared/src/components/cores/CoreAmountNeeded';
 import { StartupsPromoSpot } from '@dailydotdev/shared/src/features/squads/hooks/useStartupsPromo';
 import {
   Typography,
@@ -95,7 +94,6 @@ export const PageCoreOptions = ({
       className={classNames('p-6', className)}
       title={title}
       showCoresAtCheckout={showCoresAtCheckout}
-      amountNeededCopy={<CoreAmountNeeded isIntroHidden />}
       promo={
         <CoresDeals
           className="text-left"

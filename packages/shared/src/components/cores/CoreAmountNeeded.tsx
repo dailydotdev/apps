@@ -12,11 +12,8 @@ import { formatCoresCurrency } from '../../lib/utils';
 
 export const CoreAmountNeeded = ({
   title,
-  isIntroHidden = false,
 }: {
   title?: string;
-  /** Say nothing until a missing amount needs explaining */
-  isIntroHidden?: boolean;
 }): ReactElement | null => {
   const { user } = useAuthContext();
   const { amountNeeded, selectedProduct } = useBuyCoresContext();
@@ -24,7 +21,7 @@ export const CoreAmountNeeded = ({
   const missing = (amountNeeded ?? 0) - balance;
 
   if (!amountNeeded || missing <= 0) {
-    if (isIntroHidden) {
+    if (!title) {
       return null;
     }
 
@@ -34,7 +31,7 @@ export const CoreAmountNeeded = ({
         type={TypographyType.Callout}
         color={TypographyColor.Secondary}
       >
-        {title ?? 'Choose how many Cores to buy.'}
+        {title}
       </Typography>
     );
   }
