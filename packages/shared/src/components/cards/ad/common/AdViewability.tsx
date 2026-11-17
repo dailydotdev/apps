@@ -9,7 +9,16 @@ import { getAdSlotLifecycle } from '../../../../features/monetization/adSlotLife
 import { useAdSlotActions } from '../../../../features/monetization/useAdSlotActions';
 import { viewabilityLogExtra } from '../../../../features/monetization/viewability';
 import { AdActions } from '../../../../lib/ads';
-import type { AdSlotVisibilityMilestone } from '../../../../features/monetization/adSlotLifecycle';
+import type {
+  AdSlotLifecycle,
+  AdSlotVisibilityMilestone,
+} from '../../../../features/monetization/adSlotLifecycle';
+
+const visibilityMilestoneNames: AdSlotVisibilityMilestone[] = [
+  'visible',
+  'half-visible',
+  'visible-for-1s',
+];
 
 interface AdViewabilityProps {
   ad: Ad;
@@ -54,20 +63,29 @@ const LegacyAdViewability = ({
 const ConfiguredAdViewability = ({
   ad,
   onViewable,
-}: AdViewabilityProps): ReactElement => {
+  lifecycle,
+}: AdViewabilityProps & { lifecycle: AdSlotLifecycle }): ReactElement => {
   const transition = useAdSlotActions(ad);
-  const lifecycle = getAdSlotLifecycle(ad);
+  const configuredViewable = Array.isArray(lifecycle.on.viewable);
+  const viewedPixels = useMemo(
+    () => (configuredViewable ? [] : getViewedPixels(ad.pixel)),
+    [ad.pixel, configuredViewable],
+  );
   const visibilityMilestones = useMemo(
-    (): AdSlotVisibilityMilestone[] =>
-      (['visible', 'half-visible', 'visible-for-1s'] as const).filter(
-        (milestone) => !!lifecycle?.on[milestone]?.length,
+    () =>
+      visibilityMilestoneNames.filter(
+        (milestone) => !!lifecycle.on[milestone]?.length,
       ),
     [lifecycle],
   );
-  const { ref } = useViewability<HTMLDivElement>({
+  const { ref, isViewable } = useViewability<HTMLDivElement>({
     onVisibility: transition,
     visibilityMilestones,
     onViewable: (data) => {
+      if (!configuredViewable) {
+        onViewable(data);
+        return;
+      }
       transition('viewable', viewabilityLogExtra(data), (name) => {
         if (name === AdActions.Viewable) {
           onViewable(data);
@@ -84,16 +102,31 @@ const ConfiguredAdViewability = ({
       aria-hidden
       data-testid="adViewability"
       className="pointer-events-none absolute inset-0"
-    />
+    >
+      {isViewable && !!viewedPixels.length && (
+        <AdPixel pixel={viewedPixels} fireOnMount />
+      )}
+    </div>
   );
 };
 
-export const AdViewability = (props: AdViewabilityProps): ReactElement =>
-  getAdSlotLifecycle(props.ad) ? (
+export const AdViewability = (props: AdViewabilityProps): ReactElement => {
+  const lifecycle = getAdSlotLifecycle(props.ad);
+  if (
+    !lifecycle ||
+    (!Array.isArray(lifecycle.on.viewable) &&
+      !visibilityMilestoneNames.some(
+        (milestone) => lifecycle.on[milestone]?.length,
+      ))
+  ) {
+    return <LegacyAdViewability {...props} />;
+  }
+
+  return (
     <ConfiguredAdViewability
       key={props.ad.generationId ?? props.ad.link}
       {...props}
+      lifecycle={lifecycle}
     />
-  ) : (
-    <LegacyAdViewability {...props} />
   );
+};

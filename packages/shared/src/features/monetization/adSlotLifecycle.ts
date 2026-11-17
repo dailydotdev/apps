@@ -13,11 +13,13 @@ export type AdSlotMilestone =
   | 'post-fetch'
   | 'pre-render'
   | 'post-render'
+  /** The existing impression marker has entered the viewport. */
+  | 'impression'
   | AdSlotVisibilityMilestone
   /** The creative meets the display viewability ratio for a full second. */
   | 'viewable';
 
-type AdSlotAction =
+export type AdSlotAction =
   | { type: 'event'; name: string }
   | { type: 'pixel'; url: string };
 
@@ -32,6 +34,13 @@ export type AdSlotFetchTransition =
 
 export const getAdSlotLifecycle = (ad: Ad): AdSlotLifecycle | undefined =>
   ad.lifecycle?.version === 1 && ad.lifecycle.on ? ad.lifecycle : undefined;
+
+export const getAdSlotImpressionPixels = (actions: AdSlotAction[]): string[] =>
+  actions.flatMap((action) =>
+    action?.type === 'pixel' && typeof action.url === 'string'
+      ? [action.url]
+      : [],
+  );
 
 // Ads are cached across card remounts. Query updates can copy an ad while
 // retaining its lifecycle configuration, so track delivery on that config.
@@ -85,6 +94,7 @@ export const runAdSlotActions = ({
       onEvent(action.name);
     }
     if (
+      milestone !== 'impression' &&
       action?.type === 'pixel' &&
       typeof action.url === 'string' &&
       !pixels.has(action.url)

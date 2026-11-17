@@ -46,10 +46,13 @@ const becomeViewable = (): void => {
   act(() => jest.advanceTimersByTime(1_000));
 };
 
-const renderComponent = (pixel?: string[]): void => {
+const renderComponent = (
+  pixel?: string[],
+  lifecycle?: Ad['lifecycle'],
+): void => {
   render(
     <TestBootProvider client={new QueryClient()}>
-      <AdViewability ad={{ ...ad, pixel }} onViewable={jest.fn()} />
+      <AdViewability ad={{ ...ad, pixel, lifecycle }} onViewable={jest.fn()} />
     </TestBootProvider>,
   );
 };
@@ -78,13 +81,30 @@ it('should re-fire our own pixel as viewed once the ad is viewable', () => {
   expect(getPixelSources()).toEqual([`${ownPixel}?viewed=true`]);
 });
 
-it('should not re-fire third party pixels', () => {
-  renderComponent([thirdPartyPixel, ownPixel]);
+it.each<{ name: string; lifecycle?: Ad['lifecycle'] }>([
+  { name: 'legacy response' },
+  {
+    name: 'default lifecycle',
+    lifecycle: {
+      version: 1,
+      on: {
+        impression: [
+          { type: 'pixel', url: thirdPartyPixel },
+          { type: 'pixel', url: ownPixel },
+        ],
+      },
+    },
+  },
+])(
+  'only re-fires first-party pixels at viewability with a $name',
+  ({ lifecycle }) => {
+    renderComponent([thirdPartyPixel, ownPixel], lifecycle);
 
-  becomeViewable();
+    becomeViewable();
 
-  expect(getPixelSources()).toEqual([`${ownPixel}?viewed=true`]);
-});
+    expect(getPixelSources()).toEqual([`${ownPixel}?viewed=true`]);
+  },
+);
 
 it('should not fire anything before the ad is viewable', () => {
   renderComponent([ownPixel]);
@@ -117,6 +137,7 @@ it('runs configured actions in order and once per creative generation', () => {
     lifecycle: {
       version: 1,
       on: {
+        impression: [],
         'pre-render': [{ type: 'event', name: 'before' }],
         'post-render': [{ type: 'event', name: 'after' }],
         visible: [{ type: 'pixel', url: thirdPartyPixel }],

@@ -96,7 +96,7 @@ export const useViewability = <T extends HTMLElement = HTMLElement>({
     };
 
     const reportViewable = (met: ViewabilityCriteria) => {
-      if (pageHidden || !isPageInFocus()) {
+      if (trackVisibility && (pageHidden || !isPageInFocus())) {
         stopTimer();
         return;
       }
@@ -151,7 +151,8 @@ export const useViewability = <T extends HTMLElement = HTMLElement>({
         ratio = entry.intersectionRatio;
         visible = entry.isIntersecting && ratio > 0 && width > 0 && height > 0;
         criteria = fixedCriteria ?? getViewabilityCriteria(width * height);
-        meetsRatio = visible && ratio >= criteria.ratio - ratioTolerance;
+        meetsRatio =
+          entry.isIntersecting && ratio >= criteria.ratio - ratioTolerance;
 
         evaluate();
       },
@@ -174,8 +175,10 @@ export const useViewability = <T extends HTMLElement = HTMLElement>({
     globalThis.document.addEventListener('visibilitychange', evaluate);
     globalThis.addEventListener('blur', evaluate);
     globalThis.addEventListener('focus', evaluate);
-    globalThis.addEventListener('pagehide', onPageHide);
-    globalThis.addEventListener('pageshow', onPageShow);
+    if (trackVisibility) {
+      globalThis.addEventListener('pagehide', onPageHide);
+      globalThis.addEventListener('pageshow', onPageShow);
+    }
 
     return () => {
       stopTimer();
