@@ -35,7 +35,7 @@ import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { formatCoresCurrency } from '@dailydotdev/shared/src/lib/utils';
 import type { CoresPurpose } from '../../flows/purchase/BuyCoresFixed';
 import { NeededCopy } from '../../flows/purchase/BuyCoresFixed';
-import friendshipArt from '../../assets/cores-checkout-friendship.png';
+import { friendshipArt } from '../cores/frame';
 import { Deals } from './Deals';
 import { noop } from '../../real/providers';
 

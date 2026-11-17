@@ -2,10 +2,11 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { useViewSizeClient, ViewSize } from '@dailydotdev/shared/src/hooks';
-import friendshipArt from '../../assets/cores-checkout-friendship.png';
-import stripArt from '../../assets/boost-strip-patchy-v2.png';
 
-export { friendshipArt, stripArt };
+export const friendshipArt =
+  'https://media.daily.dev/image/upload/s--q2Tt4gO6--/f_auto,q_auto/v1794909938/public/cores-checkout-friendship';
+export const stripArt =
+  'https://media.daily.dev/image/upload/s--Q135FeGF--/f_auto,q_auto/v1794909938/public/boost-strip-patchy-v2';
 
 // The squads hub frame (SquadDiscoverFrame in features/squads): the main
 // column is one bordered card and, from laptop, a column of SquadWidgets
