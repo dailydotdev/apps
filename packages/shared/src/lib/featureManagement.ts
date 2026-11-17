@@ -365,6 +365,13 @@ export const featureLiveChat = new Feature('live_chat', false);
 // becomes a chat. Keep the default `false`, GrowthBook ramps it.
 export const featureLfg = new Feature('lfg', false);
 
+// Sends the reputation count in the sidebar and on the You page to the
+// Reputation tab of Analytics instead of the docs. The page itself is open.
+export const featureReputationAnalytics = new Feature(
+  'reputation_analytics',
+  false,
+);
+
 export type PlusSaleConfig = {
   /** Paddle discount id (`dsc_...`). Empty means no sale is running. */
   discountId: string;

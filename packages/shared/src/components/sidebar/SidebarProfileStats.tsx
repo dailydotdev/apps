@@ -4,7 +4,10 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import {
   reputation as reputationDocsUrl,
   walletUrl,
+  webappUrl,
 } from '../../lib/constants';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureReputationAnalytics } from '../../lib/featureManagement';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import { formatCurrency } from '../../lib/utils';
 import Link from '../utilities/Link';
@@ -22,6 +25,10 @@ const cellClass =
 // (see StreakRing / useStreakRingState).
 export const SidebarProfileStats = (): ReactElement | null => {
   const { user } = useAuthContext();
+  const { value: hasReputationAnalytics } = useConditionalFeature({
+    feature: featureReputationAnalytics,
+    shouldEvaluate: !!user,
+  });
   const hasCoresAccess = useHasAccessToCores();
 
   if (!user) {
@@ -34,11 +41,20 @@ export const SidebarProfileStats = (): ReactElement | null => {
 
   return (
     <div className="flex items-stretch overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-default">
-      <Link href={reputationDocsUrl} passHref>
+      <Link
+        href={
+          hasReputationAnalytics
+            ? `${webappUrl}analytics/reputation`
+            : reputationDocsUrl
+        }
+        passHref
+      >
         <a
           className={cellClass}
-          target="_blank"
-          rel="noopener noreferrer"
+          {...(!hasReputationAnalytics && {
+            target: '_blank',
+            rel: 'noopener noreferrer',
+          })}
           aria-label={`Reputation: ${reputation}`}
         >
           <ReputationIcon
