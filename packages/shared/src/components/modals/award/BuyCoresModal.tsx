@@ -50,7 +50,6 @@ import { StartupsPromoSpot } from '../../../features/squads/hooks/useStartupsPro
 export type CoreOptionsProps = {
   className?: string;
   title?: ReactNode;
-  showCoresAtCheckout?: boolean;
   amountNeededCopy?: ReactNode;
   /** Shown above the Cores packages, see `CoresDeals` */
   promo?: ReactNode;
@@ -61,7 +60,6 @@ type ModalHeaderProps = Pick<CoreOptionsProps, 'amountNeededCopy' | 'promo'>;
 export const CoreOptions = ({
   className,
   title,
-  showCoresAtCheckout,
   amountNeededCopy,
   promo,
 }: CoreOptionsProps): ReactElement => {
@@ -69,14 +67,7 @@ export const CoreOptions = ({
 
   return (
     <div className={classNames('flex-1', className)}>
-      {showCoresAtCheckout ? (
-        <div className="flex items-start justify-between gap-4">
-          {title}
-          <BuyCreditsButton hideBuyButton />
-        </div>
-      ) : (
-        title
-      )}
+      {title}
       {!amountNeededCopy || isText ? (
         <CoreAmountNeeded title={isText ? amountNeededCopy : undefined} />
       ) : (

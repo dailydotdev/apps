@@ -64,7 +64,7 @@ export default function CoresLayout({
         <div className="relative flex flex-1 items-center justify-center laptop:justify-start">
           <Logo position={LogoPosition.Relative} />
         </div>
-        {isMobile ? <BuyCreditsButton hideBuyButton /> : undefined}
+        <BuyCreditsButton hideBuyButton />
       </header>
       {children}
     </main>

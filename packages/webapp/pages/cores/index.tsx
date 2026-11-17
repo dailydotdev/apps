@@ -81,7 +81,6 @@ export const CorePageMobileCheckout = (): ReactElement => {
 };
 
 export const PageCoreOptions = ({
-  showCoresAtCheckout = true,
   title = (
     <Typography className="mb-4" type={TypographyType.LargeTitle} bold>
       Get More Cores
@@ -93,7 +92,6 @@ export const PageCoreOptions = ({
     <CoreOptions
       className={classNames('p-6', className)}
       title={title}
-      showCoresAtCheckout={showCoresAtCheckout}
       promo={
         <CoresDeals
           className="text-left"
@@ -139,7 +137,7 @@ const CorePageMobile = (): ReactElement => {
 
   return (
     <MobileContainer>
-      <PageCoreOptions showCoresAtCheckout={false} className="!px-4" />
+      <PageCoreOptions className="!px-4" />
     </MobileContainer>
   );
 };
