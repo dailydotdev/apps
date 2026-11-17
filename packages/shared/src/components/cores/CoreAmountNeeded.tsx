@@ -12,15 +12,22 @@ import { formatCoresCurrency } from '../../lib/utils';
 
 export const CoreAmountNeeded = ({
   title,
+  isIntroHidden = false,
 }: {
   title?: string;
-}): ReactElement => {
+  /** Say nothing until a missing amount needs explaining */
+  isIntroHidden?: boolean;
+}): ReactElement | null => {
   const { user } = useAuthContext();
   const { amountNeeded, selectedProduct } = useBuyCoresContext();
   const balance = user?.balance?.amount ?? 0;
   const missing = (amountNeeded ?? 0) - balance;
 
   if (!amountNeeded || missing <= 0) {
+    if (isIntroHidden) {
+      return null;
+    }
+
     return (
       <Typography
         className="w-full flex-1"

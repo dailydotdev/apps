@@ -69,15 +69,19 @@ export const CoreOptions = ({
 
   return (
     <div className={classNames('flex-1', className)}>
-      {title}
-      <div className="flex flex-1 items-center justify-between gap-4">
-        {!amountNeededCopy || isText ? (
-          <CoreAmountNeeded title={isText ? amountNeededCopy : undefined} />
-        ) : (
-          amountNeededCopy
-        )}
-        {!!showCoresAtCheckout && <BuyCreditsButton hideBuyButton />}
-      </div>
+      {showCoresAtCheckout ? (
+        <div className="flex items-start justify-between gap-4">
+          {title}
+          <BuyCreditsButton hideBuyButton />
+        </div>
+      ) : (
+        title
+      )}
+      {!amountNeededCopy || isText ? (
+        <CoreAmountNeeded title={isText ? amountNeededCopy : undefined} />
+      ) : (
+        amountNeededCopy
+      )}
       {promo && <div className="mt-4">{promo}</div>}
       <Typography
         tag={TypographyTag.H3}
