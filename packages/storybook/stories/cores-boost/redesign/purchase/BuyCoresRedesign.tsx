@@ -204,10 +204,10 @@ export const BuyCoresRedesignModal = ({
   );
   const [selected, setSelected] = useState<CoreProductOption>();
   // The art shows until a pack is picked, then the checkout takes its place
-  const [hasPicked, setHasPicked] = useState(isCheckoutShown);
-  const [isCheckoutOpen, setCheckoutOpen] = useState(
-    !isMobile || isCheckoutShown,
-  );
+  // A pack picked before opening goes straight to checkout, as /cores?pid does
+  const isPicked = isCheckoutShown || !!priceId;
+  const [hasPicked, setHasPicked] = useState(isPicked);
+  const [isCheckoutOpen, setCheckoutOpen] = useState(!isMobile || isPicked);
   const origins: Record<CoresPurpose, Origin> = {
     award: Origin.Award,
     boost: Origin.BoostPost,
@@ -228,7 +228,7 @@ export const BuyCoresRedesignModal = ({
   }, [prices, priceId, missing, selected]);
 
   const pack = useMemo(() => {
-    const price = prices?.find(({ priceId }) => priceId === selected?.id);
+    const price = prices?.find((item) => item.priceId === selected?.id);
     return price && selected
       ? { cores: selected.value, price: price.price.formatted }
       : undefined;
