@@ -209,12 +209,7 @@ const BalanceHero = ({
   <CardSection>
     <div className="relative flex min-h-32 overflow-hidden rounded-16 bg-surface-float">
       <div className="z-1 flex flex-col justify-center gap-1 p-5">
-        <Tooltip content="Your current balance">
-          <span className="flex w-fit items-center gap-1.5 text-text-secondary typo-callout">
-            Balance
-            <InfoIcon size={IconSize.Size16} className="text-text-tertiary" />
-          </span>
-        </Tooltip>
+        <span className="text-text-secondary typo-callout">Balance</span>
         <span className="flex items-center gap-2">
           <CoreIcon size={IconSize.Large} />
           <strong className="tabular-nums typo-large-title">
