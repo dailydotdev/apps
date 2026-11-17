@@ -57,6 +57,23 @@ it('shows the last free freeze copy and logs an impression', () => {
   });
 });
 
+it('uses the plain copy when the last free freeze did not keep the streak', () => {
+  render(
+    <QueryClientProvider client={new QueryClient()}>
+      <StreakFreeFreezesUpsellModal
+        isOpen
+        onRequestClose={onRequestClose}
+        streakKept={false}
+      />
+    </QueryClientProvider>,
+  );
+
+  expect(
+    screen.getByText('That was your last free freeze.'),
+  ).toBeInTheDocument();
+  expect(screen.queryByText(STREAK_FREE_FREEZES_UPSELL_TITLE)).toBeNull();
+});
+
 it('opens the freeze purchase on "Get freezes"', () => {
   renderModal();
 

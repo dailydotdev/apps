@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ReactModal from 'react-modal';
 import NewStreakModal, {
-  STREAK_FREE_FREEZES_GRANT_COPY,
+  getStreakFreeFreezesGrantCopy,
 } from './NewStreakModal';
 import { ActionType } from '../../../graphql/actions';
 import { LogEvent, TargetType } from '../../../lib/log';
@@ -96,11 +96,10 @@ it('shows the free freezes grant on the three-day milestone and marks it seen', 
   renderModal();
 
   expect(
-    await screen.findByText(STREAK_FREE_FREEZES_GRANT_COPY),
+    await screen.findByText(
+      "You've earned 2 streak freezes, on us. Miss a weekday and we'll use one automatically.",
+    ),
   ).toBeInTheDocument();
-  expect(STREAK_FREE_FREEZES_GRANT_COPY).toEqual(
-    "You've earned 2 streak freezes, on us. Miss a weekday and we'll use one automatically.",
-  );
   expect(screen.queryByTestId('streak-freeze-upsell')).not.toBeInTheDocument();
   expect(mockCompleteAction).toHaveBeenCalledWith(
     ActionType.StreakFreeFreezesGrant,
@@ -112,6 +111,23 @@ it('shows the free freezes grant on the three-day milestone and marks it seen', 
   });
 });
 
+it('words the grant for the one freeze the cap let through', async () => {
+  mockFreeFreezes = 1;
+
+  renderModal();
+
+  expect(
+    await screen.findByText(
+      "You've earned a streak freeze, on us. Miss a weekday and we'll use it automatically.",
+    ),
+  ).toBeInTheDocument();
+  expect(mockLogEvent).toHaveBeenCalledWith({
+    event_name: LogEvent.Impression,
+    target_type: TargetType.StreakFreeFreezesGrant,
+    target_id: '1',
+  });
+});
+
 it('does not show the grant again once it was seen', async () => {
   mockCompletedActions = [ActionType.StreakFreeFreezesGrant];
 
@@ -119,7 +135,7 @@ it('does not show the grant again once it was seen', async () => {
 
   expect(await screen.findByTestId('streak-freeze-upsell')).toBeInTheDocument();
   expect(
-    screen.queryByText(STREAK_FREE_FREEZES_GRANT_COPY),
+    screen.queryByText(getStreakFreeFreezesGrantCopy(2)),
   ).not.toBeInTheDocument();
   expect(mockCompleteAction).not.toHaveBeenCalled();
 });
@@ -129,13 +145,6 @@ it.each([
     'the flag is off',
     () => {
       mockIsFlagOn = false;
-    },
-    3,
-  ],
-  [
-    'a free freeze was already used',
-    () => {
-      mockFreeFreezes = 1;
     },
     3,
   ],
@@ -156,7 +165,7 @@ it.each([
     expect(screen.getByTestId('streak-freeze-upsell')).toBeInTheDocument(),
   );
   expect(
-    screen.queryByText(STREAK_FREE_FREEZES_GRANT_COPY),
+    screen.queryByText(getStreakFreeFreezesGrantCopy(2)),
   ).not.toBeInTheDocument();
   expect(mockCompleteAction).not.toHaveBeenCalledWith(
     ActionType.StreakFreeFreezesGrant,

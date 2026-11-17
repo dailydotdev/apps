@@ -12,6 +12,7 @@ let mockCompletedActions: ActionType[] = [];
 let mockFreeFreezes: number | null = 0;
 let mockIsFlagOn = true;
 let mockHasAccessToCores = true;
+let mockLastReset: { at: string } | null = null;
 
 jest.mock('../../hooks/useLazyModal', () => ({
   useLazyModal: () => ({ openModal: mockOpenModal, modal: undefined }),
@@ -28,7 +29,12 @@ jest.mock('../../hooks/useActions', () => ({
 
 jest.mock('../../hooks/streaks/useReadingStreak', () => ({
   useReadingStreak: () => ({
-    streak: { current: 5, freezesAvailable: 0, freeFreezes: mockFreeFreezes },
+    streak: {
+      current: 5,
+      freezesAvailable: 0,
+      freeFreezes: mockFreeFreezes,
+      lastReset: mockLastReset,
+    },
     isStreaksEnabled: true,
   }),
 }));
@@ -48,12 +54,12 @@ jest.mock('../../hooks/useCoresFeature', () => ({
   useHasAccessToCores: () => mockHasAccessToCores,
 }));
 
-const renderPopup = (showStreakMilestone = false) =>
+const renderPopup = (showStreakMilestone = false, showRecoverStreak = false) =>
   render(
     <AlertContext.Provider
       value={
         {
-          alerts: { showStreakMilestone },
+          alerts: { showStreakMilestone, showRecoverStreak },
           loadedAlerts: true,
         } as AlertContextData
       }
@@ -68,6 +74,7 @@ beforeEach(() => {
   mockFreeFreezes = 0;
   mockIsFlagOn = true;
   mockHasAccessToCores = true;
+  mockLastReset = null;
 });
 
 it('opens the upsell once the free freezes are used up and marks it seen', () => {
@@ -76,10 +83,28 @@ it('opens the upsell once the free freezes are used up and marks it seen', () =>
   expect(mockOpenModal).toHaveBeenCalledTimes(1);
   expect(mockOpenModal).toHaveBeenCalledWith({
     type: LazyModal.StreakFreeFreezesUpsell,
+    props: { streakKept: true },
   });
   expect(mockCompleteAction).toHaveBeenCalledWith(
     ActionType.StreakFreeFreezesUpsell,
   );
+});
+
+it('uses the plain title when the streak reset in the past week', () => {
+  mockLastReset = { at: new Date(Date.now() - 60 * 60 * 1000).toISOString() };
+  renderPopup();
+
+  expect(mockOpenModal).toHaveBeenCalledWith({
+    type: LazyModal.StreakFreeFreezesUpsell,
+    props: { streakKept: false },
+  });
+});
+
+it('waits while the restore offer is showing', () => {
+  renderPopup(false, true);
+
+  expect(mockOpenModal).not.toHaveBeenCalled();
+  expect(mockCompleteAction).not.toHaveBeenCalled();
 });
 
 it.each([

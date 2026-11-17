@@ -17,7 +17,12 @@ import { LazyModal } from '../modals/common/types';
  * from the streak_freeze_depleted notification as well, since the streak
  * query loads on every page. Readers without Cores access cannot buy
  * freezes, so they are not shown it (and still get it once they can).
+ *
+ * The client cannot tell whether the last free freeze kept the streak, so a
+ * reset in the past week switches to the plain title, which is never untrue.
  */
+export const STREAK_FREE_FREEZES_RECENT_RESET_MS = 7 * 24 * 60 * 60 * 1000;
+
 export const StreakFreeFreezesUpsellPopup = (): ReactElement | null => {
   const { openModal, modal } = useLazyModal();
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
@@ -41,8 +46,9 @@ export const StreakFreeFreezesUpsellPopup = (): ReactElement | null => {
       !hasAccessToCores,
       !isActionsFetched,
       hasSeen,
-      // the milestone modal goes first
+      // the milestone modal and the restore offer go first
       alerts?.showStreakMilestone === true,
+      alerts?.showRecoverStreak === true,
       !!modal,
     ].some(Boolean);
 
@@ -50,10 +56,20 @@ export const StreakFreeFreezesUpsellPopup = (): ReactElement | null => {
       return;
     }
 
+    const resetAt = streak?.lastReset?.at;
+    const wasRecentlyReset =
+      !!resetAt &&
+      Date.now() - new Date(resetAt).getTime() <
+        STREAK_FREE_FREEZES_RECENT_RESET_MS;
+
     hasOpened.current = true;
     completeAction(ActionType.StreakFreeFreezesUpsell);
-    openModal({ type: LazyModal.StreakFreeFreezesUpsell });
+    openModal({
+      type: LazyModal.StreakFreeFreezesUpsell,
+      props: { streakKept: !wasRecentlyReset },
+    });
   }, [
+    alerts?.showRecoverStreak,
     alerts?.showStreakMilestone,
     completeAction,
     hasAccessToCores,
@@ -64,6 +80,7 @@ export const StreakFreeFreezesUpsellPopup = (): ReactElement | null => {
     isStreaksEnabled,
     modal,
     openModal,
+    streak?.lastReset?.at,
   ]);
 
   return null;

@@ -17,14 +17,22 @@ import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LogEvent, TargetType } from '../../../lib/log';
 
 export const STREAK_FREE_FREEZES_UPSELL_TITLE = 'We sorted you out.';
+// For a reader whose streak reset after the last free freeze, where "we
+// sorted you out" would be untrue (daily-api's notification makes the same
+// split)
+export const STREAK_FREE_FREEZES_UPSELL_PLAIN_TITLE =
+  'That was your last free freeze.';
 export const STREAK_FREE_FREEZES_UPSELL_DESCRIPTION =
   'That was your last free freeze. Get more so a busy day never costs you your streak.';
+export const STREAK_FREE_FREEZES_UPSELL_PLAIN_DESCRIPTION =
+  'Get more so a busy day never costs you your streak.';
 
 export type StreakFreeFreezesUpsellModalProps = Pick<
   ModalProps,
   'isOpen' | 'onAfterClose'
 > & {
   onRequestClose: () => void;
+  streakKept?: boolean;
 };
 
 // Shown once the free freezes from streak_free_freezes are all used up, see
@@ -33,6 +41,7 @@ export const StreakFreeFreezesUpsellModal = ({
   isOpen,
   onAfterClose,
   onRequestClose,
+  streakKept = true,
 }: StreakFreeFreezesUpsellModalProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
@@ -80,13 +89,17 @@ export const StreakFreeFreezesUpsellModal = ({
       <Modal.Body className="flex flex-col items-center gap-3 text-center">
         <ReadingStreakIcon secondary size={IconSize.XLarge} />
         <Typography tag={TypographyTag.H3} type={TypographyType.Title3} bold>
-          {STREAK_FREE_FREEZES_UPSELL_TITLE}
+          {streakKept
+            ? STREAK_FREE_FREEZES_UPSELL_TITLE
+            : STREAK_FREE_FREEZES_UPSELL_PLAIN_TITLE}
         </Typography>
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
         >
-          {STREAK_FREE_FREEZES_UPSELL_DESCRIPTION}
+          {streakKept
+            ? STREAK_FREE_FREEZES_UPSELL_DESCRIPTION
+            : STREAK_FREE_FREEZES_UPSELL_PLAIN_DESCRIPTION}
         </Typography>
         <Button
           type="button"

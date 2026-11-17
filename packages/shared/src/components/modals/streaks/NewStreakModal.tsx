@@ -26,20 +26,25 @@ import { featureStreakFreeFreezes } from '../../../lib/featureManagement';
 // Matches the API grant (daily-api src/common/streakFreeFreezes.ts)
 export const FREE_STREAK_FREEZES_STREAK = 3;
 export const FREE_STREAK_FREEZES_QUANTITY = 2;
-export const STREAK_FREE_FREEZES_GRANT_COPY = `You've earned ${FREE_STREAK_FREEZES_QUANTITY} streak freezes, on us. Miss a weekday and we'll use one automatically.`;
+export const getStreakFreeFreezesGrantCopy = (count: number): string =>
+  count === 1
+    ? "You've earned a streak freeze, on us. Miss a weekday and we'll use it automatically."
+    : `You've earned ${count} streak freezes, on us. Miss a weekday and we'll use one automatically.`;
 
 // The free freezes were granted with the read that made this milestone: the
-// streak is exactly three days and both free freezes are still unused. Shown
-// once per account (ActionType.StreakFreeFreezesGrant); the decision is
-// latched so completing the action does not hide the copy mid-modal.
-const useShowFreeFreezesGrant = (currentStreak: number): boolean => {
+// streak is exactly three days and free freezes are unused. The 5-freeze cap
+// can let only one through, so the copy follows the count. Shown once per
+// account (ActionType.StreakFreeFreezesGrant); the count is latched so
+// completing the action does not hide the copy mid-modal. Resolves to 0 when
+// there is nothing to show.
+const useFreeFreezesGrant = (currentStreak: number): number => {
   const { streak } = useReadingStreak();
   const { logEvent } = useLogContext();
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
-  const [shouldShow, setShouldShow] = useState(false);
+  const [granted, setGranted] = useState(0);
+  const freeFreezes = streak?.freeFreezes ?? 0;
   const isGrantMoment =
-    currentStreak === FREE_STREAK_FREEZES_STREAK &&
-    streak?.freeFreezes === FREE_STREAK_FREEZES_QUANTITY;
+    currentStreak === FREE_STREAK_FREEZES_STREAK && freeFreezes > 0;
   const { value: isEnabled } = useConditionalFeature({
     feature: featureStreakFreeFreezes,
     shouldEvaluate: isGrantMoment,
@@ -47,7 +52,7 @@ const useShowFreeFreezesGrant = (currentStreak: number): boolean => {
   const hasSeen = checkHasCompleted(ActionType.StreakFreeFreezesGrant);
 
   useEffect(() => {
-    if (shouldShow || !isGrantMoment || !isEnabled || !isActionsFetched) {
+    if (granted || !isGrantMoment || !isEnabled || !isActionsFetched) {
       return;
     }
 
@@ -55,24 +60,25 @@ const useShowFreeFreezesGrant = (currentStreak: number): boolean => {
       return;
     }
 
-    setShouldShow(true);
+    setGranted(freeFreezes);
     completeAction(ActionType.StreakFreeFreezesGrant);
     logEvent({
       event_name: LogEvent.Impression,
       target_type: TargetType.StreakFreeFreezesGrant,
-      target_id: FREE_STREAK_FREEZES_QUANTITY.toString(),
+      target_id: freeFreezes.toString(),
     });
   }, [
     completeAction,
+    freeFreezes,
+    granted,
     hasSeen,
     isActionsFetched,
     isEnabled,
     isGrantMoment,
     logEvent,
-    shouldShow,
   ]);
 
-  return shouldShow;
+  return granted;
 };
 
 const Paragraph = classed('p', 'text-center text-text-tertiary');
@@ -93,7 +99,7 @@ export default function NewStreakModal({
   const shouldShowSplash = currentStreak >= maxStreak;
   const daysPlural = currentStreak === 1 ? 'day' : 'days';
   const loggedImpression = useRef(false);
-  const showFreeFreezesGrant = useShowFreeFreezesGrant(currentStreak);
+  const freeFreezesGranted = useFreeFreezesGrant(currentStreak);
 
   useEffect(() => {
     if (loggedImpression.current) {
@@ -177,12 +183,12 @@ export default function NewStreakModal({
             ? 'Epic win! You are in a league of your own'
             : `New milestone reached! You are unstoppable.`}
         </Paragraph>
-        {showFreeFreezesGrant ? (
+        {freeFreezesGranted > 0 ? (
           <Paragraph
             className="mt-6 typo-callout"
             data-testid="streak-free-freezes-grant"
           >
-            {STREAK_FREE_FREEZES_GRANT_COPY}
+            {getStreakFreeFreezesGrantCopy(freeFreezesGranted)}
           </Paragraph>
         ) : (
           <StreakFreezeUpsell className="mt-6">
