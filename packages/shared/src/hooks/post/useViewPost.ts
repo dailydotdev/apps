@@ -15,6 +15,7 @@ import {
 } from '../../lib/streakViewQueue';
 import { includesThisRead } from '../../lib/userStreak';
 import { useStreakDailyCelebration } from '../streaks/useStreakDailyCelebration';
+import { useStreakEarnBackProgress } from '../streaks/useStreakEarnBackProgress';
 import { useStreakGoalCelebration } from '../streaks/useStreakGoalCelebration';
 
 // The API credits the view in a worker after the mutation resolves, so the
@@ -60,6 +61,7 @@ export const useViewPost = (): UseMutateAsyncFunction<
   });
   const isOptimistic = isOptimisticView && !isCompanion;
   const celebrateStreakDay = useStreakDailyCelebration();
+  const checkStreakEarnBack = useStreakEarnBackProgress();
   const celebrateStreakGoal = useStreakGoalCelebration();
   const streakKey = generateQueryKey(RequestKey.UserStreak, user);
   const readKey = generateQueryKey(RequestKey.ReadingStreak30Days, user);
@@ -107,6 +109,7 @@ export const useViewPost = (): UseMutateAsyncFunction<
       };
     },
     onSuccess: async (_, __, context) => {
+      const isStreakEarnedBack = await checkStreakEarnBack();
       if (!context.shouldRefetchStreak) {
         return null;
       }
@@ -144,12 +147,15 @@ export const useViewPost = (): UseMutateAsyncFunction<
       // just mark the query as stale
       await client.invalidateQueries({ queryKey: readKey });
 
-      // only a count the API confirmed: a guess could celebrate a day that
-      // never counted and suppress the toast for the read that does, or hit
-      // or miss the goal
-      const current = countedStreak?.current;
-      if (!celebrateStreakGoal(current)) {
-        celebrateStreakDay(current);
+      // a restored streak is not a new day, so it gets neither the goal nor
+      // the day celebration. Only a count the API confirmed: a guess could
+      // celebrate a day that never counted and suppress the toast for the
+      // read that does, or hit or miss the goal
+      if (!isStreakEarnedBack) {
+        const current = countedStreak?.current;
+        if (!celebrateStreakGoal(current)) {
+          celebrateStreakDay(current);
+        }
       }
 
       return null;
