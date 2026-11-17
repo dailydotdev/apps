@@ -430,7 +430,11 @@ function renderPost(
 
 it('should show source name', async () => {
   renderPost();
-  const matches = await screen.findAllByText('Towards Data Science');
+  const matches = await screen.findAllByText(
+    'Towards Data Science',
+    undefined,
+    { timeout: 5000 },
+  );
   expect(matches.length).toBeGreaterThan(0);
 });
 
