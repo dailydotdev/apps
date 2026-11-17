@@ -6,7 +6,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { CoreIcon } from '@dailydotdev/shared/src/components/icons';
+import { CoreIcon } from '@dailydotdev/shared/src/components/icons/Core';
 import { BoostIcon } from '@dailydotdev/shared/src/components/icons/Boost';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { UpgradeToPlus } from '@dailydotdev/shared/src/components/UpgradeToPlus';
@@ -194,11 +194,14 @@ const PlusDeal = (): ReactElement => (
 export const Deals = ({
   withStartups,
   isStacked,
+  isSingleColumn,
 }: {
   /** Production offers Startups only when the Cores are for a boost */
   withStartups: boolean;
   /** One card under the other, for a narrow column, with no "Deals" title */
   isStacked?: boolean;
+  /** One card under the other, keeping the "Deals" title */
+  isSingleColumn?: boolean;
 }): ReactElement | null => {
   const promo = useStartupsPromo({ spot: StartupsPromoSpot.BuyCores });
   const { isPlus } = usePlusSubscription();
@@ -214,7 +217,11 @@ export const Deals = ({
       <ul
         className={classNames(
           'mt-6 grid grid-cols-1 gap-x-2 gap-y-8',
-          !isStacked && hasStartups && !isPlus && 'tablet:grid-cols-2',
+          !isStacked &&
+            !isSingleColumn &&
+            hasStartups &&
+            !isPlus &&
+            'tablet:grid-cols-2',
         )}
       >
         {hasStartups && <StartupsDeal promo={promo} />}

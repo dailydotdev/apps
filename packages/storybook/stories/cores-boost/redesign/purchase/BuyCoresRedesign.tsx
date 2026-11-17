@@ -2,7 +2,6 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
-import type { Paddle } from '@paddle/paddle-js';
 import type { ModalProps } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { ModalBody } from '@dailydotdev/shared/src/components/modals/common/ModalBody';
@@ -14,10 +13,8 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  CreditCardIcon,
-  PlusIcon,
-} from '@dailydotdev/shared/src/components/icons';
+import { CreditCardIcon } from '@dailydotdev/shared/src/components/icons/CreditCard';
+import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
 import { getRecommendedCorePrice } from '@dailydotdev/shared/src/components/cores/recommendedCorePrice';
 import type {
   BuyCoresContextData,
@@ -34,20 +31,20 @@ import {
 } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { formatCoresCurrency } from '@dailydotdev/shared/src/lib/utils';
-import type { CoresPurpose } from '../../flows/purchase/BuyCoresFixed';
-import { NeededCopy } from '../../flows/purchase/BuyCoresFixed';
-import { coresCheckoutFriendshipArt as friendshipArt } from '../../assets/images';
+import type { CoresPurpose } from './NeededCopy';
+import { NeededCopy } from './NeededCopy';
+import { friendshipArt } from '../cores/frame';
 import { Deals } from './Deals';
 import { noop } from '../../real/providers';
 
-// BuyCoresFixedModal (flows/purchase/BuyCoresFixed.tsx) in the redesign's
-// line. Same packs, preselection, copy and actions; new: a "what it's for"
-// card leads, packs are production's list, and the
-// friendship art fills the right side until a pack is picked, then the
-// checkout takes its place, as the Paddle iframe does in production.
+// Production's BuyCoresModal in the redesign's line. Same packs,
+// preselection, copy and actions; new: a "what it's for" line leads, the
+// Deals sit over the packs, and the friendship art fills the right side
+// until a pack is picked, then the checkout takes its place, as the Paddle
+// iframe does in production.
 
 /** The friendship art that stood in for the checkout video */
-const FriendshipPanel = ({ children }: { children?: ReactNode }) => (
+const FriendshipPanel = (): ReactElement => (
   <div className="flex flex-1 flex-col overflow-hidden rounded-16 bg-background-default">
     <div className="relative min-h-0 flex-1">
       <img
@@ -57,7 +54,6 @@ const FriendshipPanel = ({ children }: { children?: ReactNode }) => (
       />
       <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background-default to-transparent" />
     </div>
-    {children && <div className="p-4">{children}</div>}
   </div>
 );
 
@@ -74,19 +70,6 @@ const CheckoutField = ({
       {children}
     </span>
   </span>
-);
-
-/** Where the Paddle checkout takes over the art once a pack is picked */
-const CheckoutPanel = ({
-  pack,
-  onPay,
-}: {
-  pack?: { cores: number; price: string };
-  onPay: () => void;
-}): ReactElement => (
-  <div className="flex min-w-0 flex-1 flex-col overflow-y-auto rounded-16 bg-background-default p-4">
-    <PaddleCheckout pack={pack} onPay={onPay} />
-  </div>
 );
 
 /** Production's Paddle checkout form, drawn: the iframe needs a client token */
@@ -177,11 +160,28 @@ const PaddleCheckout = ({
   </div>
 );
 
-export interface BuyCoresRedesignModalProps {
+/** Where the Paddle checkout takes over the art once a pack is picked */
+const CheckoutPanel = ({
+  pack,
+  onPay,
+}: {
+  pack?: { cores: number; price: string };
+  onPay: () => void;
+}): ReactElement => (
+  <div className="flex min-w-0 flex-1 flex-col overflow-y-auto rounded-16 bg-background-default p-4">
+    <PaddleCheckout pack={pack} onPay={onPay} />
+  </div>
+);
+
+interface BuyCoresRedesignModalProps {
   /** What the Cores are for; unset when you buy from the wallet */
   purpose?: CoresPurpose;
   cost: number;
   product?: Product;
+  /** A pack picked before the pop-up opened, like one of the wallet's packs */
+  priceId?: string;
+  /** Open on the checkout, as after picking a pack */
+  isCheckoutShown?: boolean;
   onPay: (pack: CoreProductOption) => void;
   onRequestClose: () => void;
   /** Where it opens, for a page inside a device frame */
@@ -192,12 +192,15 @@ export const BuyCoresRedesignModal = ({
   purpose,
   cost,
   product,
+  priceId,
+  isCheckoutShown = false,
   onPay,
   onRequestClose,
   modalProps,
 }: BuyCoresRedesignModalProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const balance = user?.balance?.amount ?? 0;
   const missing = Math.max(0, cost - balance);
   const { data: prices } = useQuery(
@@ -205,8 +208,10 @@ export const BuyCoresRedesignModal = ({
   );
   const [selected, setSelected] = useState<CoreProductOption>();
   // The art shows until a pack is picked, then the checkout takes its place
-  const [hasPicked, setHasPicked] = useState(false);
-  const [isCheckoutOpen, setCheckoutOpen] = useState(!isMobile);
+  // A pack picked before opening goes straight to checkout, as /cores?pid does
+  const isPicked = isCheckoutShown || !!priceId;
+  const [hasPicked, setHasPicked] = useState(isPicked);
+  const [isCheckoutOpen, setCheckoutOpen] = useState(!isMobile || isPicked);
   const origins: Record<CoresPurpose, Origin> = {
     award: Origin.Award,
     boost: Origin.BoostPost,
@@ -214,7 +219,9 @@ export const BuyCoresRedesignModal = ({
   const origin = purpose ? origins[purpose] : Origin.WalletPageCTA;
 
   useEffect(() => {
-    const recommended = getRecommendedCorePrice({ prices, minCores: missing });
+    const recommended =
+      prices?.find((price) => price.priceId === priceId) ??
+      getRecommendedCorePrice({ prices, minCores: missing });
     if (!recommended || selected) {
       return;
     }
@@ -222,10 +229,10 @@ export const BuyCoresRedesignModal = ({
       id: recommended.priceId,
       value: recommended.metadata.coresValue ?? 0,
     });
-  }, [prices, missing, selected]);
+  }, [prices, priceId, missing, selected]);
 
   const pack = useMemo(() => {
-    const price = prices?.find(({ priceId }) => priceId === selected?.id);
+    const price = prices?.find((item) => item.priceId === selected?.id);
     return price && selected
       ? { cores: selected.value, price: price.price.formatted }
       : undefined;
@@ -241,7 +248,7 @@ export const BuyCoresRedesignModal = ({
   // Production's pack list. It needs a Paddle to enable its packs and
   // preselects on its own, so the checkout opens on a real click instead
   const packsContext: BuyCoresContextData = {
-    paddle: {} as Paddle,
+    paddle: {} as NonNullable<BuyCoresContextData['paddle']>,
     openCheckout: noop,
     amountNeeded: cost,
     minCoresToBuy: missing,
@@ -263,7 +270,10 @@ export const BuyCoresRedesignModal = ({
           selected={selected}
         />
       )}
-      <Deals withStartups={purpose !== 'award'} />
+      <Deals
+        withStartups={purpose !== 'award'}
+        isSingleColumn={hasPicked && !isLaptop}
+      />
       <div>
         <h3 className="mb-2 font-bold typo-callout">Packages</h3>
         {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
@@ -341,11 +351,8 @@ export const BuyCoresRedesignModal = ({
         <ModalBody className="!p-0 tablet:rounded-b-16">
           <div className="flex min-h-0 flex-1 flex-row gap-4 p-4">
             <div className="min-w-0 flex-1 overflow-y-auto pr-1">{options}</div>
-            {hasPicked ? (
-              <CheckoutPanel pack={pack} onPay={pay} />
-            ) : (
-              <FriendshipPanel />
-            )}
+            {hasPicked && <CheckoutPanel pack={pack} onPay={pay} />}
+            {!hasPicked && isLaptop && <FriendshipPanel />}
           </div>
         </ModalBody>
       )}

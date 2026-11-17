@@ -11,6 +11,7 @@ import {
 } from '@dailydotdev/shared/src/features/squads/components/checkout/StartupsCheckout';
 import { saveCheckoutAttribution } from '@dailydotdev/shared/src/features/squads/lib/checkoutAttribution';
 import { noindexSeoProps } from '../../next-seo';
+import { StartupsHotjar } from '../../components/Pixels';
 
 const StartupsCheckoutPage = (): ReactElement | null => {
   const router = useRouter();
@@ -44,6 +45,7 @@ const StartupsCheckoutPage = (): ReactElement | null => {
       />
       <PromptElement />
       <Toast autoDismissNotifications />
+      <StartupsHotjar />
     </>
   );
 };

@@ -46,13 +46,13 @@ const methods: InstallMethod[] = [
       'Add daily.dev to Claude Code as a plugin, then use /daily-dev-ask:',
     code: [
       `claude plugin marketplace add ${REPO_URL}`,
-      'claude plugin install daily.dev@daily.dev',
+      'claude plugin install daily-dev@daily.dev',
       'claude "/daily-dev-ask your question here"',
     ].join('\n'),
     multilineCode: true,
     copyValue: [
       `claude plugin marketplace add ${REPO_URL}`,
-      'claude plugin install daily.dev@daily.dev',
+      'claude plugin install daily-dev@daily.dev',
       'claude "/daily-dev-ask your question here"',
     ].join(' && '),
     note: 'After setup, use /daily-dev-ask to search and answer questions from daily.dev articles.',

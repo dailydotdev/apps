@@ -1,5 +1,5 @@
 import React from 'react';
-import { Preview, ReactRenderer } from '@storybook/react-vite';
+import type { Preview, ReactRenderer } from '@storybook/react-vite';
 import { withThemeByClassName } from '@storybook/addon-themes';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { initialize, mswLoader } from 'msw-storybook-addon';
@@ -134,7 +134,17 @@ const preview: Preview = {
             ],
           ],
           'Cores & Boost',
-          ['Redesign', ['0. Today vs redesign', '2. Boost and analytics']],
+          [
+            'Redesign',
+            [
+              '0. Today vs redesign',
+              '1. Wallet and buy Cores',
+              '2. All states',
+              '2. Boost and analytics',
+              '3. States',
+            ],
+            'Today (production)',
+          ],
         ],
       },
     },

@@ -98,7 +98,7 @@ const DAILY_DEV_AGENTIC_OPENCLAW_INSTRUCTION =
   'Install daily-dev-agentic from clawhub and start getting smarter';
 const CLAUDE_INSTALL_COMMAND = [
   `claude plugin marketplace add https://github.com/dailydotdev/daily.git`,
-  `claude plugin install daily.dev@daily.dev`,
+  `claude plugin install daily-dev@daily.dev`,
   `claude "/daily.dev setup"`,
 ];
 
@@ -106,7 +106,7 @@ const DAILY_DEV_ASK_OPENCLAW_INSTRUCTION =
   'Install daily-dev-ask from clawhub and ask about my topic';
 const DAILY_DEV_ASK_CLAUDE_INSTALL_COMMAND = [
   `claude plugin marketplace add https://github.com/dailydotdev/daily.git`,
-  `claude plugin install daily.dev@daily.dev`,
+  `claude plugin install daily-dev@daily.dev`,
   `claude "/daily-dev-ask your question here"`,
 ];
 
@@ -473,7 +473,9 @@ const TokenCreatedModal = ({
           </Typography>
         </div>
         <div className="flex items-center gap-2 rounded-12 bg-surface-float p-3">
-          <code className="flex-1 break-all text-text-primary">{token}</code>
+          <code className="flex-1 break-all text-text-primary" data-hj-suppress>
+            {token}
+          </code>
           <Button
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}

@@ -112,6 +112,11 @@ jest.mock('../../../contexts/AuthContext', () => ({
   }),
 }));
 
+jest.mock('../../../hooks/streaks/useStreakPause', () => ({
+  ...jest.requireActual('../../../hooks/streaks/useStreakPause'),
+  useActiveStreakPause: () => ({ pause: undefined, isActive: false }),
+}));
+
 jest.mock('../../../hooks/streaks/useStreakTimezoneOk', () => ({
   useStreakTimezoneOk: () => mockIsTimezoneOk,
 }));
