@@ -381,6 +381,7 @@ function AuthOptionsInner({
     isLoading: isProfileUpdateLoading,
   } = useProfileForm({ onSuccess: onProfileSuccess });
 
+  const isAutoCompletingProfileRef = useRef(false);
   const autoCompleteProfile = async (
     userEmail: string,
     name?: string,
@@ -388,6 +389,11 @@ function AuthOptionsInner({
     // it keeps the default: opted in
     marketing = trigger === AuthTriggers.StartupsCheckout,
   ) => {
+    if (isAutoCompletingProfileRef.current) {
+      return;
+    }
+    isAutoCompletingProfileRef.current = true;
+
     try {
       const displayName = name || generateNameFromEmail(userEmail, 'User');
 
@@ -399,6 +405,7 @@ function AuthOptionsInner({
         acceptedMarketing: marketing,
       });
     } catch (error) {
+      isAutoCompletingProfileRef.current = false;
       logEvent({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({
