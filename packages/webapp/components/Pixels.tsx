@@ -180,13 +180,17 @@ const GtagTracking = ({
   );
 };
 
-export const HotJarTracking = ({ hotjarId }: HotjarProps): ReactElement => {
+const useHotjarConsent = (): boolean => {
   const { cookieExists: acceptedMarketing } = useConsentCookie(
     GdprConsentKey.Marketing,
   );
   const { isGdprCovered } = useAuthContext();
-  const consent = !isGdprCovered || acceptedMarketing;
-  if (!consent || !isProduction) {
+  return isProduction && (!isGdprCovered || acceptedMarketing);
+};
+
+export const HotJarTracking = ({ hotjarId }: HotjarProps): ReactElement => {
+  const consent = useHotjarConsent();
+  if (!consent) {
     return null;
   }
   return (
@@ -203,6 +207,35 @@ export const HotJarTracking = ({ hotjarId }: HotjarProps): ReactElement => {
       `}
     </Script>
   );
+};
+
+// "daily.dev for Startups": the /startups/ landing page loads the same site
+// with the same consent rule, so one recording runs from there through the
+// checkout and the squad setup on daily.dev.
+export const STARTUPS_HOTJAR_ID = '6854906';
+
+type Hotjar = ((...args: unknown[]) => void) & { q?: unknown[][] };
+
+export const StartupsHotjar = (): ReactElement => {
+  const consent = useHotjarConsent();
+  const { user } = useAuthContext();
+
+  useEffect(() => {
+    if (!consent || !user?.id) {
+      return;
+    }
+
+    const win = globalThis as typeof globalThis & { hj?: Hotjar };
+    if (!win.hj) {
+      const queue: unknown[][] = [];
+      win.hj = Object.assign((...args: unknown[]) => queue.push(args), {
+        q: queue,
+      });
+    }
+    win.hj('identify', user.id, {});
+  }, [consent, user?.id]);
+
+  return <HotJarTracking hotjarId={STARTUPS_HOTJAR_ID} />;
 };
 
 const TwitterTracking = (): ReactElement => {
