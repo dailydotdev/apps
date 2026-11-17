@@ -1,7 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
-import type { Paddle } from '@paddle/paddle-js';
 import { useQuery } from '@tanstack/react-query';
 import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { ModalBody } from '@dailydotdev/shared/src/components/modals/common/ModalBody';
@@ -18,9 +17,6 @@ import {
   TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import { CoreIcon } from '@dailydotdev/shared/src/components/icons/Core';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { CoreOptionList } from '@dailydotdev/shared/src/components/cores/CoreOptionList';
 import { getRecommendedCorePrice } from '@dailydotdev/shared/src/components/cores/recommendedCorePrice';
 import type {
@@ -36,7 +32,6 @@ import {
 } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { formatCoresCurrency } from '@dailydotdev/shared/src/lib/utils';
-import { walletUrl } from '@dailydotdev/shared/src/lib/constants';
 import { StartupsBuyCoresPromo } from '@dailydotdev/shared/src/features/squads/components/promos/StartupsPromo';
 import { noop } from '../../real/providers';
 
@@ -181,7 +176,7 @@ export const BuyCoresFixedModal = ({
   }, [prices, selectedProduct]);
 
   const context: BuyCoresContextData = {
-    paddle: {} as Paddle,
+    paddle: {} as NonNullable<BuyCoresContextData['paddle']>,
     openCheckout: () => setCheckoutOpen(true),
     amountNeeded: cost,
     minCoresToBuy: missing,
@@ -279,67 +274,3 @@ export const BuyCoresFixedModal = ({
     </BuyCoresContext.Provider>
   );
 };
-
-export type ProcessingState = 'processing' | 'timeout';
-
-/** Fixed copy of BuyCoresProcessing: a timeout stays here with Check again */
-export const BuyCoresProcessingFixed = ({
-  state,
-  draftName,
-  onCheckAgain,
-  onRequestClose,
-}: {
-  state: ProcessingState;
-  /** What the user was buying for, kept while the payment settles */
-  draftName: string;
-  onCheckAgain: () => void;
-  onRequestClose: () => void;
-}): ReactElement => (
-  <Modal
-    isOpen
-    kind={Modal.Kind.FlexibleCenter}
-    size={Modal.Size.XSmall}
-    onRequestClose={onRequestClose}
-    isDrawerOnMobile
-  >
-    <Modal.Body className="flex items-center justify-center gap-4 text-center">
-      <CoreIcon size={IconSize.XXXLarge} />
-      {state === 'processing' ? (
-        <>
-          <Typography type={TypographyType.Title3} bold>
-            Processing your payment, please wait...
-          </Typography>
-          <Loader className="hidden tablet:block" />
-        </>
-      ) : (
-        <>
-          <Typography type={TypographyType.Title3} bold>
-            Still processing…
-          </Typography>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            Payments usually land in under a minute. {draftName} is saved, and
-            we pick it up as soon as your Cores arrive.
-          </Typography>
-          <Button
-            onClick={onCheckAgain}
-            variant={ButtonVariant.Primary}
-            className="w-full"
-          >
-            Check again
-          </Button>
-          <a href={walletUrl} target="_blank" rel="noreferrer">
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-            >
-              <u>Check the status in your wallet</u>
-            </Typography>
-          </a>
-        </>
-      )}
-    </Modal.Body>
-  </Modal>
-);

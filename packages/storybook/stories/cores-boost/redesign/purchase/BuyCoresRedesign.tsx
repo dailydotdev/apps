@@ -2,7 +2,6 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
-import type { Paddle } from '@paddle/paddle-js';
 import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { ModalBody } from '@dailydotdev/shared/src/components/modals/common/ModalBody';
 import { ModalKind } from '@dailydotdev/shared/src/components/modals/common/types';
@@ -243,7 +242,7 @@ export const BuyCoresRedesignModal = ({
   // Production's pack list. It needs a Paddle to enable its packs and
   // preselects on its own, so the checkout opens on a real click instead
   const packsContext: BuyCoresContextData = {
-    paddle: {} as Paddle,
+    paddle: {} as NonNullable<BuyCoresContextData['paddle']>,
     openCheckout: noop,
     amountNeeded: cost,
     minCoresToBuy: missing,

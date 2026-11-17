@@ -2,7 +2,6 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { mocked } from 'storybook/test';
 import mockedRouter, { useRouter } from 'next/router';
-import type { Paddle } from '@paddle/paddle-js';
 import { BuyCoresProcessing } from '@dailydotdev/shared/src/components/modals/award/BuyCoresModal';
 import type {
   BuyCoresContextData,
@@ -41,7 +40,7 @@ export const Processing = ({
   cores: number;
 }): ReactElement => {
   const context: BuyCoresContextData = {
-    paddle: {} as Paddle,
+    paddle: {} as NonNullable<BuyCoresContextData['paddle']>,
     activeStep: step,
     setActiveStep: noop,
     selectedProduct: { id: 'sb-pack', value: cores },

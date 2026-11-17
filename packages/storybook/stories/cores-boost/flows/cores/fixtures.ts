@@ -98,8 +98,6 @@ export const idoAward = row('rcv-ido', minutesAgo(2), {
   flags: { note: 'Great write-up!' },
 });
 
-export const receiveHistory: UserTransaction[] = [idoAward, firstQuestReward];
-
 export const pendingPurchase = row('buy-pending', minutesAgo(1), {
   status: UserTransactionStatus.Processing,
   value: 300,
