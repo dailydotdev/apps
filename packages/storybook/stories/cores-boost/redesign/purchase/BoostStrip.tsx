@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import {
   Button,
   ButtonColor,
@@ -10,12 +11,18 @@ import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import { BoostIcon } from '@dailydotdev/shared/src/components/icons/Boost';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 
-// The one-row strip that offers a boost on your own post: a title, Boost and
-// the close button. Every own-post screen uses it.
+// The strip that offers a boost on your own post: a title, Boost and the close
+// button. Every own-post screen uses it.
 
-const BoostButton = ({ onClick }: { onClick: () => void }): ReactElement => (
+const BoostButton = ({
+  className,
+  onClick,
+}: {
+  className?: string;
+  onClick: () => void;
+}): ReactElement => (
   <Button
-    className="shrink-0"
+    className={classNames('shrink-0', className)}
     variant={ButtonVariant.Primary}
     color={ButtonColor.BlueCheese}
     size={ButtonSize.Small}
@@ -31,7 +38,8 @@ const StripIcon = (): ReactElement => (
   </span>
 );
 
-/** One row: the title, then Boost and the close button on the right */
+/** One row from tablet: the title, then Boost and the close button on the
+ * right. On phones the whole title shows, with Boost full width below it */
 export const BoostStripCompact = ({
   title,
   onBoost,
@@ -41,10 +49,13 @@ export const BoostStripCompact = ({
   onBoost: () => void;
   onDismiss?: () => void;
 }): ReactElement => (
-  <div className="flex w-full items-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-2 pl-3">
+  <div className="flex w-full flex-wrap items-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-2 pl-3 tablet:flex-nowrap">
     <StripIcon />
-    <span className="min-w-0 flex-1 truncate typo-callout">{title}</span>
-    <BoostButton onClick={onBoost} />
+    <span className="min-w-0 flex-1 typo-callout tablet:truncate">{title}</span>
+    <BoostButton
+      className="order-last w-full tablet:order-none tablet:w-auto"
+      onClick={onBoost}
+    />
     {onDismiss && (
       <CloseButton
         size={ButtonSize.Small}

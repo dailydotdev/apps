@@ -1,9 +1,19 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useId, useMemo, useState } from 'react';
+import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { CoreIcon, InfoIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  ArrowIcon,
+  CoreIcon,
+  InfoIcon,
+} from '@dailydotdev/shared/src/components/icons';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
+import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { boostDashboardInfo } from '@dailydotdev/shared/src/features/boost/common';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import type { Campaign } from '@dailydotdev/shared/src/graphql/campaigns';
@@ -158,6 +168,26 @@ const curveThrough = (points: [number, number][]): string =>
 const WIDTH = 640;
 const HEIGHT = 160;
 
+// As in the Ads Manager (and Google Analytics), wide tables keep the name
+// column in place while the figures scroll beside it on narrow screens. The
+// gradients lay the translucent surfaces over the page color, so the figures
+// scrolling under the column don't show through.
+export const tableScrollClassName =
+  'no-scrollbar overflow-x-auto overscroll-x-contain';
+
+const stickyColumnClassName = 'sticky left-0 z-1 min-w-[min(14rem,50vw)]';
+
+export const stickyHeadClassName = classNames(
+  stickyColumnClassName,
+  'bg-background-default bg-[linear-gradient(var(--theme-surface-float),var(--theme-surface-float))]',
+);
+
+/** For the first cell of a row with `group` */
+export const stickyCellClassName = classNames(
+  stickyColumnClassName,
+  'bg-background-default group-hover:bg-[linear-gradient(var(--theme-surface-hover),var(--theme-surface-hover))]',
+);
+
 export enum ChartColor {
   Boosted = 'var(--theme-accent-blueCheese-default)',
   Organic = 'var(--theme-accent-cabbage-default)',
@@ -299,6 +329,60 @@ const AreaChart = ({
   );
 };
 
+const skeletonLine =
+  'M0,110 C60,70 90,120 150,90 S240,40 300,75 S390,120 450,70 S550,40 640,60';
+
+/** The skeletons pulse as one, as the Ads Manager's do */
+const pulseClassName = 'animate-pulse motion-reduce:animate-none';
+
+/** A ghost of the chart while its numbers load, as in the Ads Manager: the
+ * gridlines and a soft area where the line will be, in the chart's frame */
+const ChartSkeleton = (): ReactElement => (
+  <div aria-hidden className={classNames('flex gap-2', pulseClassName)}>
+    <div className="flex h-40 w-8 shrink-0 flex-col justify-between">
+      {[0, 1, 2, 3, 4].map((tick) => (
+        <ElementPlaceholder key={tick} className="h-2 w-full rounded-4" />
+      ))}
+    </div>
+    <div className="flex min-w-0 flex-1 flex-col gap-2">
+      <svg
+        viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+        preserveAspectRatio="none"
+        className="h-40 w-full"
+      >
+        {[0, 0.25, 0.5, 0.75, 1].map((tick) => (
+          <line
+            key={tick}
+            x1={0}
+            x2={WIDTH}
+            y1={tick * HEIGHT}
+            y2={tick * HEIGHT}
+            stroke="var(--theme-border-subtlest-tertiary)"
+            strokeDasharray="4 4"
+            vectorEffect="non-scaling-stroke"
+          />
+        ))}
+        <path
+          d={`${skeletonLine} L${WIDTH},${HEIGHT} L0,${HEIGHT} Z`}
+          fill="var(--theme-surface-float)"
+        />
+        <path
+          d={skeletonLine}
+          fill="none"
+          stroke="var(--theme-surface-hover)"
+          strokeWidth={2}
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+      <div className="flex justify-between">
+        {Array.from({ length: DAYS / 2 }, (_, index) => (
+          <ElementPlaceholder key={index} className="h-2 w-8 rounded-4" />
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
 const MetricTab = ({
   label,
   info,
@@ -310,7 +394,7 @@ const MetricTab = ({
 }: {
   label: string;
   info: string;
-  value: string;
+  value: ReactNode;
   icon?: ReactNode;
   isSelected: boolean;
   barClassName: string;
@@ -353,6 +437,78 @@ const MetricTab = ({
   </button>
 );
 
+/** A round arrow over the strip's edge, fading the boxes out under it */
+const StripArrow = ({
+  side,
+  onClick,
+}: {
+  side: 'before' | 'after';
+  onClick: () => void;
+}): ReactElement => {
+  const isAfter = side === 'after';
+
+  return (
+    <div
+      className={classNames(
+        'pointer-events-none absolute inset-y-0 z-1 flex w-16 items-center to-transparent',
+        isAfter
+          ? 'right-0 justify-end bg-gradient-to-l from-background-default pr-2'
+          : 'left-0 justify-start bg-gradient-to-r from-background-default pl-2',
+      )}
+    >
+      <Button
+        type="button"
+        // Swiping scrolls the strip; the arrow is a shortcut for the pointer
+        tabIndex={-1}
+        aria-hidden
+        variant={ButtonVariant.Primary}
+        size={ButtonSize.Small}
+        icon={<ArrowIcon className={isAfter ? 'rotate-90' : '-rotate-90'} />}
+        className="pointer-events-auto !rounded-full shadow-2"
+        onClick={onClick}
+      />
+    </div>
+  );
+};
+
+/** Which ends of a sideways scrolling row have more to show */
+const useScrollEnds = <T extends HTMLElement>() => {
+  const ref = useRef<T>(null);
+  const [ends, setEnds] = useState({ before: false, after: false });
+
+  useEffect(() => {
+    const row = ref.current;
+
+    if (!row) {
+      return undefined;
+    }
+
+    const update = () =>
+      setEnds({
+        before: row.scrollLeft > 1,
+        after: row.scrollLeft + row.clientWidth < row.scrollWidth - 1,
+      });
+    const observer = new ResizeObserver(update);
+
+    update();
+    row.addEventListener('scroll', update, { passive: true });
+    observer.observe(row);
+
+    return () => {
+      row.removeEventListener('scroll', update);
+      observer.disconnect();
+    };
+  }, []);
+
+  const scroll = (direction: 1 | -1) =>
+    ref.current?.scrollBy({
+      left: direction * ref.current.clientWidth * 0.8,
+      behavior: 'smooth',
+    });
+
+  return { ref, ends, scroll };
+};
+
 /** The metric strip and the chart of the picked metric, over the last 14 days */
 export const MetricsPanel = ({
   metrics,
@@ -362,6 +518,7 @@ export const MetricsPanel = ({
   className = 'border-b border-border-subtlest-tertiary',
   initialMetric,
   initialHidden = [],
+  isLoading = false,
 }: {
   metrics: MetricDef[];
   /** One series, or `layers` to stack several */
@@ -373,6 +530,8 @@ export const MetricsPanel = ({
   initialMetric?: string;
   /** Layers it opens muted, by label */
   initialHidden?: string[];
+  /** Skeletons in place of the numbers and the chart */
+  isLoading?: boolean;
 }): ReactElement => {
   const [metricId, setMetricId] = useState(initialMetric ?? metrics[0].id);
   const layers = useMemo(
@@ -395,73 +554,108 @@ export const MetricsPanel = ({
         : [...current, label],
     );
   const picked = metrics.find(({ id }) => id === metricId) ?? metrics[0];
+  const strip = useScrollEnds<HTMLDivElement>();
 
   return (
-    <section className={classNames('flex flex-col', className)}>
-      <div
-        role="tablist"
-        aria-label="Metric"
-        className="no-scrollbar flex gap-px overflow-x-auto border-b border-border-subtlest-tertiary bg-border-subtlest-tertiary tablet:grid tablet:auto-cols-fr tablet:grid-flow-col"
-      >
-        {metrics.map((metric) => (
-          <MetricTab
-            key={metric.id}
-            label={metric.label}
-            info={metric.info}
-            value={formatMetric(metric, metric.of(totals))}
-            icon={metric.icon}
-            isSelected={picked.id === metric.id}
-            barClassName={
-              shown.length > 1
-                ? 'bg-text-primary'
-                : barClassNames[shown[0].color]
-            }
-            onClick={() => setMetricId(metric.id)}
-          />
-        ))}
-      </div>
-      <div className="flex flex-col gap-4 px-4 py-5 tablet:px-6">
-        <span className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-          <strong className="mr-auto typo-callout">{picked.label}</strong>
-          {layers.length > 1 &&
-            layers.map((layer) => {
-              const isHidden = hidden.includes(layer.label);
-
-              return (
-                <button
-                  key={layer.label}
-                  type="button"
-                  aria-pressed={!isHidden}
-                  // One series always stays on the chart
-                  disabled={!isHidden && shown.length === 1}
-                  onClick={() => onToggleLayer(layer.label)}
-                  className={classNames(
-                    'flex items-center gap-1.5 rounded-8 px-1.5 py-0.5 transition-colors typo-footnote hover:bg-surface-hover disabled:cursor-default disabled:hover:bg-transparent',
-                    isHidden && 'text-text-quaternary',
-                  )}
-                >
-                  <span
+    <section
+      aria-busy={isLoading}
+      className={classNames('flex flex-col', className)}
+    >
+      {/* As in the Ads Manager, the strip stays on one line on phones, with
+          an arrow on each side that has more boxes */}
+      <div className="relative">
+        <div
+          ref={strip.ref}
+          role="tablist"
+          aria-label="Metric"
+          className="no-scrollbar flex gap-px overflow-x-auto border-b border-border-subtlest-tertiary bg-border-subtlest-tertiary tablet:grid tablet:auto-cols-fr tablet:grid-flow-col"
+        >
+          {metrics.map((metric) => (
+            <MetricTab
+              key={metric.id}
+              label={metric.label}
+              info={metric.info}
+              value={
+                isLoading ? (
+                  <ElementPlaceholder
                     className={classNames(
-                      'size-2 rounded-full',
-                      isHidden
-                        ? 'border border-border-subtlest-primary'
-                        : dotClassNames[layer.color],
+                      'my-1 h-5 w-16 rounded-6',
+                      pulseClassName,
                     )}
                   />
-                  <span className={classNames(isHidden && 'line-through')}>
-                    {layer.label}
-                  </span>
-                  <strong className="tabular-nums">
-                    {formatMetric(picked, picked.of(sumDays(layer.days)))}
-                  </strong>
-                </button>
-              );
-            })}
-          <span className="text-text-tertiary typo-footnote">
+                ) : (
+                  formatMetric(metric, metric.of(totals))
+                )
+              }
+              icon={isLoading ? undefined : metric.icon}
+              isSelected={picked.id === metric.id}
+              barClassName={
+                shown.length > 1
+                  ? 'bg-text-primary'
+                  : barClassNames[shown[0].color]
+              }
+              onClick={() => setMetricId(metric.id)}
+            />
+          ))}
+        </div>
+        {strip.ends.before && (
+          <StripArrow side="before" onClick={() => strip.scroll(-1)} />
+        )}
+        {strip.ends.after && (
+          <StripArrow side="after" onClick={() => strip.scroll(1)} />
+        )}
+      </div>
+      <div className="flex flex-col gap-4 px-4 py-5 tablet:px-6">
+        {/* On phones the legend takes its own line and scrolls, rather than
+            wrapping under the title */}
+        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
+          <strong className="mr-auto typo-callout">{picked.label}</strong>
+          <span className="text-text-tertiary typo-footnote tablet:order-last">
             Last {DAYS} days
           </span>
-        </span>
-        <AreaChart layers={shown} metric={picked} />
+          {layers.length > 1 && !isLoading && (
+            <span className="no-scrollbar flex basis-full gap-2 overflow-x-auto tablet:basis-auto tablet:gap-4">
+              {layers.map((layer) => {
+                const isHidden = hidden.includes(layer.label);
+
+                return (
+                  <button
+                    key={layer.label}
+                    type="button"
+                    aria-pressed={!isHidden}
+                    // One series always stays on the chart
+                    disabled={!isHidden && shown.length === 1}
+                    onClick={() => onToggleLayer(layer.label)}
+                    className={classNames(
+                      'flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-8 px-1.5 py-0.5 transition-colors typo-footnote hover:bg-surface-hover disabled:cursor-default disabled:hover:bg-transparent',
+                      isHidden && 'text-text-quaternary',
+                    )}
+                  >
+                    <span
+                      className={classNames(
+                        'size-2 rounded-full',
+                        isHidden
+                          ? 'border border-border-subtlest-primary'
+                          : dotClassNames[layer.color],
+                      )}
+                    />
+                    <span className={classNames(isHidden && 'line-through')}>
+                      {layer.label}
+                    </span>
+                    <strong className="tabular-nums">
+                      {formatMetric(picked, picked.of(sumDays(layer.days)))}
+                    </strong>
+                  </button>
+                );
+              })}
+            </span>
+          )}
+        </div>
+        {isLoading ? (
+          <ChartSkeleton />
+        ) : (
+          <AreaChart layers={shown} metric={picked} />
+        )}
       </div>
     </section>
   );

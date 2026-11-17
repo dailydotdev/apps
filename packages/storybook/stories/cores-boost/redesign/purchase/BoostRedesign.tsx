@@ -140,6 +140,15 @@ export const BoostLiveRedesign = ({
         >
           Learn more about boosting
         </Button>
+        {/* On phones it's a drawer, closed from the bottom like the shared
+            Drawer's Close button */}
+        <Button
+          variant={ButtonVariant.Float}
+          className="mt-1 w-full tablet:hidden"
+          onClick={onRequestClose}
+        >
+          Close
+        </Button>
       </div>
     </Modal.Body>
   </Modal>

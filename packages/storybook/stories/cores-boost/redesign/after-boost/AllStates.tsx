@@ -248,7 +248,12 @@ const Strip = ({
   device: DeviceName;
   title: ReactNode;
 }): ReactElement => (
-  <Device device={device} height={120} url="/posts/sb-boost-post">
+  <Device
+    device={device}
+    // Phones stack the strip: the whole title, then Boost full width
+    height={device === 'phone' ? 136 : 120}
+    url="/posts/sb-boost-post"
+  >
     <div className="p-4">
       <BoostStripCompact title={title} onBoost={noop} onDismiss={noop} />
     </div>
@@ -329,7 +334,7 @@ export const AllStatesPage = (): ReactElement => (
 
     <Section
       id="analytics-widths"
-      lead="Every post, boosted or not. The metric strip drives a 14-day chart with Boosted stacked on Organic; the legend toggles each layer. Your posts carries the Boosted and Limited reach chips; AI agents is locked without a Startups plan. Phones: the metric strip scrolls sideways and the table drops Comments."
+      lead="Every post, boosted or not. The metric strip drives a 14-day chart with Boosted stacked on Organic; the legend toggles each layer. Your posts carries the Boosted and Limited reach chips; AI agents is locked without a Startups plan. Phones, as in the Ads Manager: the metric strip and the legend each stay on one line and scroll, and the table keeps the post's name in place while its figures scroll beside it."
     >
       <Analytics device="laptopL" />
       <Row>
@@ -340,7 +345,7 @@ export const AllStatesPage = (): ReactElement => (
 
     <Section
       id="boost-widths"
-      lead="Only the boosts: Impressions, Clicks on post, CTR, Users and Spend over one blue chart, then Live and Ended. Tablet and up: a table with Stop and Extend per row. Phones: a compact card per boost. Docs and Terms sit in the header."
+      lead="Only the boosts: Impressions, Clicks on post, CTR, Users and Spend over one blue chart, then Live and Ended. One table at every width, with Stop and Extend per row; on phones the boost's name stays in place while the figures and actions scroll beside it, as in the Ads Manager. Docs and Terms sit in the header."
     >
       <Analytics device="laptopL" initialTab={AnalyticsTab.Boost} />
       <Row>
@@ -351,7 +356,7 @@ export const AllStatesPage = (): ReactElement => (
 
     <Section
       id="analytics-cases"
-      lead="The chart's states and the data that changes the page: a muted layer leaves the totals to the other one, and the last layer showing can't be muted. With no boosts, the chart is organic alone, with no legend and no Boosted chips."
+      lead="The chart's states and the data that changes the page: a muted layer leaves the totals to the other one, and the last layer showing can't be muted. With no boosts, the chart is organic alone, with no legend and no Boosted chips. While the numbers load, the metric values and the chart are pulsing skeletons, as in the Ads Manager."
     >
       <Row>
         <Analytics
@@ -372,6 +377,10 @@ export const AllStatesPage = (): ReactElement => (
         <Analytics device="laptop" label="Nothing boosted yet" campaigns={[]} />
       </Row>
       <PhoneAndLaptop>
+        <Analytics device="phone" label="Loading · phone" isLoading />
+        <Analytics device="laptop" label="Loading" isLoading />
+      </PhoneAndLaptop>
+      <PhoneAndLaptop>
         <Analytics
           device="phone"
           label="On a Startups plan · phone"
@@ -387,8 +396,22 @@ export const AllStatesPage = (): ReactElement => (
 
     <Section
       id="boost-cases"
-      lead="The Live and Ended tabs with and without boosts. Ended rows have Boost again as their only action. With nothing boosted, the chart goes and the empty state takes its place."
+      lead="The Live and Ended tabs with and without boosts. Ended rows have Boost again as their only action. With nothing boosted, the chart goes and the empty state takes its place. While the numbers load, the chart is a pulsing skeleton, as in the Ads Manager."
     >
+      <PhoneAndLaptop>
+        <Analytics
+          device="phone"
+          label="Loading · phone"
+          initialTab={AnalyticsTab.Boost}
+          isLoading
+        />
+        <Analytics
+          device="laptop"
+          label="Loading"
+          initialTab={AnalyticsTab.Boost}
+          isLoading
+        />
+      </PhoneAndLaptop>
       <PhoneAndLaptop>
         <Analytics
           device="phone"
@@ -449,7 +472,7 @@ export const AllStatesPage = (): ReactElement => (
 
     <Section
       id="strip"
-      lead="On your own post, under the title: the reach a boost adds, Boost, and the close button. A post that is taking off gets its own title."
+      lead="On your own post, under the title: the reach a boost adds, Boost, and the close button. A post that is taking off gets its own title. Phones show the whole title, with Boost full width below it; tablet and up keep one row."
     >
       <PhoneAndLaptop>
         <Strip device="phone" title={newTitle} />

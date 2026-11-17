@@ -39,6 +39,9 @@ import {
   dailySeries,
   lastDays,
   MetricsPanel,
+  stickyCellClassName,
+  stickyHeadClassName,
+  tableScrollClassName,
 } from './BoostAnalytics';
 import { BoostsList, BoostsTab, DocsLinks } from './BoostsPage';
 
@@ -232,76 +235,85 @@ const PostsTable = ({
   rows: PostRow[];
   onShowBoosts: () => void;
 }): ReactElement => (
-  <table className="w-full table-auto border-collapse text-left">
-    <thead>
-      <tr className="border-b border-border-subtlest-tertiary bg-surface-float">
-        {columns.map((column, index) => (
-          <th
-            key={column}
-            scope="col"
-            className={classNames(
-              'whitespace-nowrap px-3 py-2 font-bold uppercase tracking-wider text-text-tertiary typo-caption2',
-              index === 0 ? 'w-full pl-4 tablet:pl-6' : 'text-right',
-              index === columns.length - 1 && 'hidden pr-6 tablet:table-cell',
-            )}
-          >
-            {column}
-          </th>
-        ))}
-      </tr>
-    </thead>
-    <tbody>
-      {rows.map(
-        ({
-          post,
-          impressions,
-          upvotes,
-          comments,
-          isBoosted,
-          limitedReachReason,
-        }) => (
-          <tr
-            key={post.id}
-            className="border-b border-border-subtlest-tertiary transition-colors last:border-b-0 hover:bg-surface-hover"
-          >
-            <td className="max-w-0 py-3 pl-4 pr-3 tablet:pl-6">
-              <span className="flex min-w-0 items-center gap-3">
-                <Image
-                  src={post.image}
-                  alt=""
-                  className="hidden h-8 w-12 shrink-0 rounded-8 object-cover tablet:block"
-                />
-                <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
-                  <Link href={getPostPath(post)} passHref>
-                    <a className="line-clamp-2 max-w-full font-bold typo-footnote hover:underline tablet:truncate">
-                      {post.title}
-                    </a>
-                  </Link>
-                  {(isBoosted || limitedReachReason) && (
-                    <span className="flex flex-wrap gap-1">
-                      {isBoosted && <BoostedChip onClick={onShowBoosts} />}
-                      {limitedReachReason && (
-                        <LimitedReachChip reason={limitedReachReason} />
-                      )}
-                    </span>
-                  )}
+  <div className={tableScrollClassName}>
+    <table className="w-full table-auto border-collapse text-left">
+      <thead>
+        <tr className="border-b border-border-subtlest-tertiary bg-surface-float">
+          {columns.map((column, index) => (
+            <th
+              key={column}
+              scope="col"
+              className={classNames(
+                'whitespace-nowrap px-3 py-2 font-bold uppercase tracking-wider text-text-tertiary typo-caption2',
+                index === 0
+                  ? classNames(stickyHeadClassName, 'w-full pl-4 tablet:pl-6')
+                  : 'text-right',
+                index === columns.length - 1 && 'pr-4 tablet:pr-6',
+              )}
+            >
+              {column}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map(
+          ({
+            post,
+            impressions,
+            upvotes,
+            comments,
+            isBoosted,
+            limitedReachReason,
+          }) => (
+            <tr
+              key={post.id}
+              className="group border-b border-border-subtlest-tertiary transition-colors last:border-b-0 hover:bg-surface-hover"
+            >
+              <td
+                className={classNames(
+                  stickyCellClassName,
+                  'max-w-0 py-3 pl-4 pr-3 tablet:pl-6',
+                )}
+              >
+                <span className="flex min-w-0 items-center gap-3">
+                  <Image
+                    src={post.image}
+                    alt=""
+                    className="hidden h-8 w-12 shrink-0 rounded-8 object-cover tablet:block"
+                  />
+                  <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
+                    <Link href={getPostPath(post)} passHref>
+                      <a className="line-clamp-2 max-w-full font-bold typo-footnote hover:underline tablet:truncate">
+                        {post.title}
+                      </a>
+                    </Link>
+                    {(isBoosted || limitedReachReason) && (
+                      <span className="flex flex-wrap gap-1">
+                        {isBoosted && <BoostedChip onClick={onShowBoosts} />}
+                        {limitedReachReason && (
+                          <LimitedReachChip reason={limitedReachReason} />
+                        )}
+                      </span>
+                    )}
+                  </span>
                 </span>
-              </span>
-            </td>
-            <td className="px-3 py-3 text-right tabular-nums typo-footnote">
-              {largeNumberFormat(Math.round(impressions))}
-            </td>
-            <td className="px-3 py-3 text-right tabular-nums typo-footnote">
-              {largeNumberFormat(Math.round(upvotes))}
-            </td>
-            <td className="hidden py-3 pl-3 pr-6 text-right tabular-nums typo-footnote tablet:table-cell">
-              {largeNumberFormat(Math.round(comments))}
-            </td>
-          </tr>
-        ),
-      )}
-    </tbody>
-  </table>
+              </td>
+              <td className="px-3 py-3 text-right tabular-nums typo-footnote">
+                {largeNumberFormat(Math.round(impressions))}
+              </td>
+              <td className="px-3 py-3 text-right tabular-nums typo-footnote">
+                {largeNumberFormat(Math.round(upvotes))}
+              </td>
+              <td className="py-3 pl-3 pr-4 text-right tabular-nums typo-footnote tablet:pr-6">
+                {largeNumberFormat(Math.round(comments))}
+              </td>
+            </tr>
+          ),
+        )}
+      </tbody>
+    </table>
+  </div>
 );
 
 /** The boosts' reach in the organic metrics' terms, to stack on top of them */
@@ -420,6 +432,8 @@ interface CombinedAnalyticsProps {
   initialHidden?: string[];
   /** The Boost tab's list opens on Live or Ended */
   initialBoostsTab?: BoostsTab;
+  /** The charts' numbers are still on the way */
+  isLoading?: boolean;
 }
 
 export function CombinedAnalytics({
@@ -429,6 +443,7 @@ export function CombinedAnalytics({
   initialMetric,
   initialHidden,
   initialBoostsTab,
+  isLoading,
 }: CombinedAnalyticsProps): ReactElement {
   const [tab, setTab] = useState(initialTab);
   // Nothing boosted yet: organic alone, so no legend
@@ -483,6 +498,7 @@ export function CombinedAnalytics({
                 metrics={boostMetrics}
                 days={boostDays}
                 className=""
+                isLoading={isLoading}
               />
             ) : (
               <MetricsPanel
@@ -492,20 +508,14 @@ export function CombinedAnalytics({
                 className=""
                 initialMetric={initialMetric}
                 initialHidden={initialHidden}
+                isLoading={isLoading}
               />
             )}
           </div>
         )}
         <section className="flex flex-col gap-4">
           <LeaderboardHeading title={isBoost ? 'Your boosts' : 'Your posts'} />
-          <div
-            className={
-              isBoost
-                ? // The boosts are cards of their own on phones
-                  '-mx-4 tablet:mx-0 tablet:overflow-hidden tablet:rounded-16 tablet:border tablet:border-border-subtlest-tertiary laptop:pb-2'
-                : cardClassName
-            }
-          >
+          <div className={cardClassName}>
             {isBoost ? (
               <BoostsList campaigns={campaigns} initialTab={initialBoostsTab} />
             ) : (

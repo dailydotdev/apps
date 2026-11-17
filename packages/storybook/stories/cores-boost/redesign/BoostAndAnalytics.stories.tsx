@@ -75,12 +75,12 @@ const OwnPost = ({ state }: { state: OwnPostState }) => (
 );
 
 export const OwnPostNew = story(
-  'A one-row strip: the reach a boost adds, Boost, and the close button.',
+  'The strip: the reach a boost adds, Boost, and the close button, in one row from tablet. Phones show the whole title, with Boost full width below it.',
   () => <OwnPost state="new" />,
 );
 
 export const OwnPostTakingOff = story(
-  'The "taking off" strip is the same one-row strip with its own title.',
+  'The "taking off" strip is the same strip with its own title.',
   () => <OwnPost state="takingOff" />,
 );
 
@@ -167,6 +167,21 @@ const afterStory = (
   ),
 });
 
+/** The page as it opens: skeletons until the numbers arrive */
+const LoadingAnalytics = (
+  props: React.ComponentProps<typeof CombinedAnalytics>,
+): ReactElement => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  return <CombinedAnalytics {...props} isLoading={isLoading} />;
+};
+
 /** Boost again from the ended notification, over production's notifications */
 const BoostAgainScreen = (): ReactElement => {
   const [isOpen, setIsOpen] = useState(false);
@@ -190,12 +205,12 @@ const BoostAgainScreen = (): ReactElement => {
 
 export const CombinedOrganic = afterStory(
   'A proposal: /analytics and Boost manager as one page with two header tabs, like Squads’ Discover and My Squads. Analytics covers every post, boosted or not, and each chart stacks the boosted reach on the organic. A boosted post’s chip opens the Boost tab. From production’s post analytics: a Limited reach chip (its note in the tooltip, the docs on click) and the AI agents section, locked behind the Startups plan.',
-  () => <CombinedAnalytics />,
+  () => <LoadingAnalytics />,
 );
 
 export const CombinedBoosted = afterStory(
   'The Boost tab: only the boosts, Boost manager’s metrics, chart and Live/Ended list, with Docs and Terms in the header.',
-  () => <CombinedAnalytics initialTab={AnalyticsTab.Boost} />,
+  () => <LoadingAnalytics initialTab={AnalyticsTab.Boost} />,
 );
 
 export const BoostAgain = afterStory(
