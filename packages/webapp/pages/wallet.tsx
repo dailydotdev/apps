@@ -88,6 +88,8 @@ interface BuyingCores {
   priceId?: string;
 }
 
+const collapsedTransactionsCount = 16;
+
 /**
  * The squads hub frame: the main column is one bordered card and, from
  * laptop, a column of widgets beside it. Below laptop the widgets follow it.
@@ -427,6 +429,9 @@ const Wallet = (): ReactElement | null => {
   const canPurchaseCores = useCanPurchaseCores();
   const [buying, setBuying] = useState<BuyingCores>();
   const [purchased, setPurchased] = useState<number>();
+  const [isShowingAllTransactions, setIsShowingAllTransactions] =
+    useState(false);
+  const isLaptop = useViewSizeClient(ViewSize.Laptop);
   const balanceAtBuyRef = useRef(0);
 
   const onBuyCores = useCallback(
@@ -486,6 +491,19 @@ const Wallet = (): ReactElement | null => {
     transactionsQuery;
 
   const hasTransactions = (transactions?.pages?.[0]?.edges?.length || 0) > 0;
+  const transactionNodes =
+    transactions?.pages.flatMap((page) => page.edges.map(({ node }) => node)) ??
+    [];
+  // Below laptop the widgets sit under the history, so it stops at a few rows
+  // until asked for the rest, or endless loading would hide them.
+  const isHistoryCollapsed = isLaptop === false && !isShowingAllTransactions;
+  const visibleTransactions = isHistoryCollapsed
+    ? transactionNodes.slice(0, collapsedTransactionsCount)
+    : transactionNodes;
+  const hasHiddenTransactions =
+    isHistoryCollapsed &&
+    (transactionNodes.length > collapsedTransactionsCount ||
+      !!transactionsQuery.hasNextPage);
   const isPageReady = router?.isReady && isAuthReady;
 
   useEffect(() => {
@@ -601,45 +619,55 @@ const Wallet = (): ReactElement | null => {
           {!isPendingTransactions && hasTransactions && (
             <InfiniteScrolling
               isFetchingNextPage={transactionsQuery.isFetchingNextPage}
-              canFetchMore={transactionsQuery.hasNextPage}
+              canFetchMore={
+                !isHistoryCollapsed && transactionsQuery.hasNextPage
+              }
               fetchNextPage={transactionsQuery.fetchNextPage}
             >
               <ul
                 aria-label="Transaction history"
                 className="flex flex-col gap-4"
               >
-                {transactions?.pages.map((page) =>
-                  page.edges.map(({ node: transaction }) => {
-                    const type = getTransactionType({ transaction, user });
-                    const transactionUser =
-                      type === 'receive'
-                        ? (transaction.sender ?? transaction.receiver)
-                        : transaction.receiver;
+                {visibleTransactions.map((transaction) => {
+                  const type = getTransactionType({ transaction, user });
+                  const transactionUser =
+                    type === 'receive'
+                      ? (transaction.sender ?? transaction.receiver)
+                      : transaction.receiver;
 
-                    return (
-                      <TransactionItem
-                        key={transaction.id}
-                        type={type}
-                        user={transactionUser}
-                        profileUser={transactionUser}
-                        amount={
-                          type === 'send'
-                            ? -transaction.value
-                            : transaction.valueIncFees
-                        }
-                        date={new Date(transaction.createdAt)}
-                        label={getTransactionLabel({ transaction, user })}
-                        extraLabel={
-                          transaction?.sourceName
-                            ? `${transaction.sourceName} Squad`
-                            : undefined
-                        }
-                        note={getTransactionNote({ transaction })}
-                      />
-                    );
-                  }),
-                )}
+                  return (
+                    <TransactionItem
+                      key={transaction.id}
+                      type={type}
+                      user={transactionUser}
+                      profileUser={transactionUser}
+                      amount={
+                        type === 'send'
+                          ? -transaction.value
+                          : transaction.valueIncFees
+                      }
+                      date={new Date(transaction.createdAt)}
+                      label={getTransactionLabel({ transaction, user })}
+                      extraLabel={
+                        transaction?.sourceName
+                          ? `${transaction.sourceName} Squad`
+                          : undefined
+                      }
+                      note={getTransactionNote({ transaction })}
+                    />
+                  );
+                })}
               </ul>
+              {hasHiddenTransactions && (
+                <Button
+                  className="mt-4 w-full"
+                  variant={ButtonVariant.Float}
+                  size={ButtonSize.Small}
+                  onClick={() => setIsShowingAllTransactions(true)}
+                >
+                  Show all transactions
+                </Button>
+              )}
             </InfiniteScrolling>
           )}
         </CardSection>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import nock from 'nock';
 import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
@@ -134,7 +134,9 @@ const freeAward: UserTransaction = {
 
 const allTransactions = [receivedAward, sentAward, boost, purchase, freeAward];
 
-const getWalletRows = async (): Promise<HTMLElement[]> => {
+const getWalletRows = async (
+  transactions = allTransactions,
+): Promise<HTMLElement[]> => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
@@ -151,7 +153,7 @@ const getWalletRows = async (): Promise<HTMLElement[]> => {
       data: {
         transactions: {
           pageInfo: { endCursor: 'cursor', hasNextPage: false },
-          edges: allTransactions.map((node) => ({ node })),
+          edges: transactions.map((node) => ({ node })),
         },
       },
     },
@@ -251,5 +253,36 @@ describe('wallet transaction history', () => {
         ).not.toBeInTheDocument();
       });
     });
+  });
+});
+
+describe('wallet transaction history below laptop', () => {
+  const manyTransactions = Array.from({ length: 20 }, (_, index) => ({
+    ...purchase,
+    id: `t-${index}`,
+  }));
+
+  it('shows 16 transactions until asked for the rest', async () => {
+    const rows = await getWalletRows(manyTransactions);
+
+    expect(rows).toHaveLength(16);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Show all transactions' }),
+    );
+
+    const history = screen.getByRole('list', { name: 'Transaction history' });
+    expect(within(history).getAllByRole('listitem')).toHaveLength(20);
+    expect(
+      screen.queryByRole('button', { name: 'Show all transactions' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('has nothing to expand with 16 or fewer', async () => {
+    await getWalletRows();
+
+    expect(
+      screen.queryByRole('button', { name: 'Show all transactions' }),
+    ).not.toBeInTheDocument();
   });
 });
