@@ -28,13 +28,6 @@ import { startupsCrewCheerImage } from '../../features/squads/components/checkou
 import { cloudinaryPatchyWaiting } from '../../lib/image';
 import { TargetId } from '../../lib/log';
 
-interface DealPerkProps {
-  icon: ReactNode;
-  title: ReactNode;
-  note: string;
-  className: string;
-}
-
 interface DealCardProps {
   name: string;
   badge: string;
@@ -43,89 +36,12 @@ interface DealCardProps {
   tint: string;
   value: string;
   unit: string;
-  perk: DealPerkProps;
+  perk: ReactNode;
   tagline: string;
   action: ReactNode;
   /** The only deal: one wide, short card instead of a tall column */
   isCompact?: boolean;
 }
-
-const DealBadge = ({
-  badge,
-  className,
-}: {
-  badge: string;
-  className: string;
-}): ReactElement => (
-  <span
-    className={classNames(
-      'shrink-0 rounded-10 px-2 py-0.5 font-bold uppercase tracking-wider typo-caption2',
-      className,
-    )}
-  >
-    {badge}
-  </span>
-);
-
-const DealPerk = ({
-  icon,
-  title,
-  note,
-  className,
-  badge,
-}: DealPerkProps & { badge?: ReactNode }): ReactElement => (
-  <span
-    className={classNames(
-      'flex items-center gap-2 rounded-12 border px-3 py-2',
-      className,
-    )}
-  >
-    {icon}
-    <span className="flex min-w-0 flex-1 flex-col">
-      <strong className={classNames('typo-footnote', !!badge && 'truncate')}>
-        {title}
-      </strong>
-      <Typography
-        tag={TypographyTag.Span}
-        type={TypographyType.Caption1}
-        color={TypographyColor.Tertiary}
-      >
-        {note}
-      </Typography>
-    </span>
-    {badge}
-  </span>
-);
-
-const DealPrice = ({
-  value,
-  unit,
-  className,
-  isStacked = false,
-}: {
-  value: string;
-  unit: string;
-  className: string;
-  /** From tablet, the unit under the value, where the line is short on room */
-  isStacked?: boolean;
-}): ReactElement => (
-  <span
-    className={classNames(
-      'flex shrink-0',
-      'items-baseline gap-1',
-      isStacked && 'tablet:flex-col tablet:items-start tablet:gap-0',
-    )}
-  >
-    <strong className={classNames('tabular-nums', className)}>{value}</strong>
-    <Typography
-      tag={TypographyTag.Span}
-      type={TypographyType.Callout}
-      color={TypographyColor.Tertiary}
-    >
-      {unit}
-    </Typography>
-  </span>
-);
 
 const DealCard = ({
   name,
@@ -139,84 +55,123 @@ const DealCard = ({
   tagline,
   action,
   isCompact = false,
-}: DealCardProps): ReactElement => {
-  const badgeChip = <DealBadge badge={badge} className={badgeClassName} />;
-  const cardClassName =
-    'relative min-w-0 rounded-16 border border-border-subtlest-tertiary bg-gradient-to-br to-transparent p-4';
-
-  // One line under the headline: the perk carries the badge, then price and action
-  if (isCompact) {
-    return (
-      <li className={classNames(cardClassName, 'flex flex-col gap-3', tint)}>
-        <img
-          src={art.src}
-          alt={art.alt}
-          className="pointer-events-none absolute -top-6 right-1 h-16 w-auto object-contain"
-        />
-        <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1 pr-16">
-          <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Title3}
-            bold
-          >
-            {name}
-          </Typography>
-          <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-          >
-            {tagline}
-          </Typography>
-        </span>
-        <span className="flex flex-wrap items-center gap-x-3 gap-y-3">
-          <span className="w-full min-w-0 tablet:w-auto tablet:flex-1">
-            <DealPerk {...perk} badge={badgeChip} />
-          </span>
-          <DealPrice
-            value={value}
-            unit={unit}
-            className="typo-title2"
-            isStacked
-          />
-          <span className="ml-auto flex tablet:ml-0">{action}</span>
-        </span>
-      </li>
-    );
-  }
-
-  return (
-    <li
+}: DealCardProps): ReactElement => (
+  <li
+    className={classNames(
+      'relative grid min-w-0 gap-3 rounded-16 border border-border-subtlest-tertiary bg-gradient-to-br to-transparent p-4',
+      isCompact
+        ? 'tablet:grid-cols-[auto_minmax(0,1fr)] tablet:gap-x-6'
+        : 'row-span-5 grid-rows-subgrid',
+      tint,
+    )}
+  >
+    <img
+      src={art.src}
+      alt={art.alt}
       className={classNames(
-        cardClassName,
-        'row-span-5 grid grid-rows-subgrid gap-3',
-        tint,
+        'pointer-events-none absolute right-1 w-auto object-contain',
+        isCompact ? '-top-6 h-16' : '-top-8 h-24',
+      )}
+    />
+    <span
+      className={classNames(
+        'flex flex-wrap items-center gap-2 pr-16',
+        isCompact && 'tablet:col-start-1 tablet:row-start-1 tablet:pr-0',
       )}
     >
-      <img
-        src={art.src}
-        alt={art.alt}
-        className="pointer-events-none absolute -top-8 right-1 h-24 w-auto object-contain"
-      />
-      <span className="flex flex-wrap items-center gap-2 pr-16">
-        <Typography tag={TypographyTag.Span} type={TypographyType.Title3} bold>
-          {name}
-        </Typography>
-        {badgeChip}
+      <Typography tag={TypographyTag.Span} type={TypographyType.Title3} bold>
+        {name}
+      </Typography>
+      <span
+        className={classNames(
+          'rounded-10 px-2 py-0.5 font-bold uppercase tracking-wider typo-caption2',
+          badgeClassName,
+        )}
+      >
+        {badge}
       </span>
-      <DealPrice value={value} unit={unit} className="typo-mega3" />
-      <DealPerk {...perk} />
+    </span>
+    <span
+      className={classNames(
+        'flex items-baseline gap-1',
+        isCompact && 'tablet:col-start-1 tablet:row-start-2',
+      )}
+    >
+      <strong
+        className={classNames(
+          'tabular-nums',
+          isCompact ? 'typo-title1' : 'typo-mega3',
+        )}
+      >
+        {value}
+      </strong>
       <Typography
         tag={TypographyTag.Span}
-        type={TypographyType.Footnote}
+        type={TypographyType.Callout}
         color={TypographyColor.Tertiary}
       >
-        {tagline}
+        {unit}
       </Typography>
-      <span className="flex items-end">{action}</span>
-    </li>
-  );
-};
+    </span>
+    <span
+      className={classNames(
+        isCompact &&
+          'tablet:col-start-2 tablet:row-span-2 tablet:row-start-2 tablet:self-end',
+      )}
+    >
+      {perk}
+    </span>
+    <Typography
+      tag={TypographyTag.Span}
+      type={TypographyType.Footnote}
+      color={TypographyColor.Tertiary}
+      className={classNames(
+        isCompact && 'tablet:col-start-2 tablet:row-start-1 tablet:pr-16',
+      )}
+    >
+      {tagline}
+    </Typography>
+    <span
+      className={classNames(
+        'flex items-end',
+        isCompact && 'tablet:col-start-1 tablet:row-start-3',
+      )}
+    >
+      {action}
+    </span>
+  </li>
+);
+
+const DealPerk = ({
+  icon,
+  title,
+  note,
+  className,
+}: {
+  icon: ReactNode;
+  title: ReactNode;
+  note: string;
+  className: string;
+}): ReactElement => (
+  <span
+    className={classNames(
+      'flex items-center gap-2 rounded-12 border px-3 py-2',
+      className,
+    )}
+  >
+    {icon}
+    <span className="flex min-w-0 flex-1 flex-col">
+      <strong className="typo-footnote">{title}</strong>
+      <Typography
+        tag={TypographyTag.Span}
+        type={TypographyType.Caption1}
+        color={TypographyColor.Tertiary}
+      >
+        {note}
+      </Typography>
+    </span>
+  </span>
+);
 
 const StartupsDeal = ({
   promo,
@@ -234,17 +189,19 @@ const StartupsDeal = ({
     tint="from-overlay-float-cabbage"
     value={promo.starterPrice}
     unit="/ month"
-    perk={{
-      className: 'border-accent-cabbage-subtler bg-overlay-float-cabbage',
-      icon: (
-        <BoostIcon
-          size={IconSize.Small}
-          className="shrink-0 text-accent-cabbage-default"
-        />
-      ),
-      title: <MonthlyCredits promo={promo} />,
-      note: ['every month', promo.promoLength].filter(Boolean).join(' '),
-    }}
+    perk={
+      <DealPerk
+        className="border-accent-cabbage-subtler bg-overlay-float-cabbage"
+        icon={
+          <BoostIcon
+            size={IconSize.Small}
+            className="shrink-0 text-accent-cabbage-default"
+          />
+        }
+        title={<MonthlyCredits promo={promo} />}
+        note={['every month', promo.promoLength].filter(Boolean).join(' ')}
+      />
+    }
     tagline={squadPlanDetails[SquadPlan.Starter].tagline}
     action={
       <Button
@@ -276,12 +233,14 @@ const PlusDeal = ({
     tint="from-action-plus-float"
     value="50%"
     unit="back"
-    perk={{
-      className: 'border-accent-bacon-subtler bg-action-plus-float',
-      icon: <CoreIcon size={IconSize.Small} className="shrink-0" />,
-      title: 'Every payment, as Cores',
-      note: 'renewals included',
-    }}
+    perk={
+      <DealPerk
+        className="border-accent-bacon-subtler bg-action-plus-float"
+        icon={<CoreIcon size={IconSize.Small} className="shrink-0" />}
+        title="Every payment, as Cores"
+        note="renewals included"
+      />
+    }
     tagline="For developers who want the full daily.dev."
     action={
       <UpgradeToPlus
