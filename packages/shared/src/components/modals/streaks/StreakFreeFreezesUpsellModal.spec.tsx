@@ -71,7 +71,9 @@ it('uses the plain copy when the last free freeze did not keep the streak', () =
   expect(
     screen.getByText('That was your last free freeze.'),
   ).toBeInTheDocument();
-  expect(screen.queryByText(STREAK_FREE_FREEZES_UPSELL_TITLE)).toBeNull();
+  expect(
+    screen.queryByText(STREAK_FREE_FREEZES_UPSELL_TITLE),
+  ).not.toBeInTheDocument();
 });
 
 it('opens the freeze purchase on "Get freezes"', () => {
