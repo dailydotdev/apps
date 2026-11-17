@@ -594,7 +594,6 @@ const Wallet = (): ReactElement | null => {
               isPersonalAllowed={false}
               withStartups
               isStacked
-              isDismissible
             />
             {canPurchaseCores && <PacksWidget onBuy={onBuyCores} />}
             <HelpWidget />

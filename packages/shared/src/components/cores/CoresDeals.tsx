@@ -14,8 +14,6 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
-import { useActions } from '../../hooks/useActions';
-import { ActionType } from '../../graphql/actions';
 import type {
   StartupsPromo,
   StartupsPromoSpot,
@@ -44,7 +42,6 @@ interface DealCardProps {
   action: ReactNode;
   /** The only deal: one wide, short card instead of a tall column */
   isCompact?: boolean;
-  /** Hides the deal for good, see `CoresDealsProps.isDismissible` */
   onDismiss?: () => void;
 }
 
@@ -191,15 +188,12 @@ const DealPerk = ({
 const StartupsDeal = ({
   promo,
   isCompact,
-  isDismissible,
 }: {
   promo: StartupsPromo;
   isCompact: boolean;
-  isDismissible: boolean;
 }): ReactElement => (
   <DealCard
     isCompact={isCompact}
-    onDismiss={isDismissible ? promo.onDismiss : undefined}
     name="Startups"
     badge={`${formatCashbackMultiple(promo.cashback)} value`}
     badgeClassName="bg-accent-cabbage-default text-surface-invert"
@@ -232,21 +226,19 @@ const StartupsDeal = ({
         See plans
       </Button>
     }
+    onDismiss={promo.onDismiss}
   />
 );
 
 const PlusDeal = ({
   target,
   isCompact,
-  onDismiss,
 }: {
   target: TargetId;
   isCompact: boolean;
-  onDismiss?: () => void;
 }): ReactElement => (
   <DealCard
     isCompact={isCompact}
-    onDismiss={onDismiss}
     name="Plus"
     badge="Cashback"
     badgeClassName="bg-action-plus-default text-surface-invert"
@@ -287,11 +279,6 @@ export interface CoresDealsProps {
   isStacked?: boolean;
   /** One card under the other, keeping the title */
   isSingleColumn?: boolean;
-  /**
-   * Lets people close each deal, for good, where they browse rather than buy.
-   * Off by default: buying Cores always shows every deal on offer.
-   */
-  isDismissible?: boolean;
   className?: string;
 }
 
@@ -306,30 +293,22 @@ export const CoresDeals = ({
   isPersonalAllowed,
   isStacked = false,
   isSingleColumn = false,
-  isDismissible = false,
   className,
 }: CoresDealsProps): ReactElement | null => {
   const { isPlus } = usePlusSubscription();
-  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const promo = useStartupsPromo({
     spot,
     sourceId,
     isPersonalAllowed,
     isVisible: withStartups,
-    isDismissible,
   });
   const hasStartups = withStartups && promo.isShown;
-  // Waits for the actions, so a closed deal doesn't flash in first
-  const hasPlus =
-    !isPlus &&
-    (!isDismissible ||
-      (isActionsFetched && !checkHasCompleted(ActionType.DismissPlusDeal)));
 
-  if (!hasStartups && !hasPlus) {
+  if (!hasStartups && isPlus) {
     return null;
   }
 
-  const dealCount = Number(hasStartups) + Number(hasPlus);
+  const dealCount = Number(hasStartups) + Number(!isPlus);
   const isCompact = !isStacked && dealCount === 1;
 
   return (
@@ -346,23 +325,9 @@ export const CoresDeals = ({
           !isStacked && !isSingleColumn && !isCompact && 'tablet:grid-cols-2',
         )}
       >
-        {hasStartups && (
-          <StartupsDeal
-            promo={promo}
-            isCompact={isCompact}
-            isDismissible={isDismissible}
-          />
-        )}
-        {hasPlus && (
-          <PlusDeal
-            target={TargetId.CoreWallet}
-            isCompact={isCompact}
-            onDismiss={
-              isDismissible
-                ? () => completeAction(ActionType.DismissPlusDeal)
-                : undefined
-            }
-          />
+        {hasStartups && <StartupsDeal promo={promo} isCompact={isCompact} />}
+        {!isPlus && (
+          <PlusDeal target={TargetId.CoreWallet} isCompact={isCompact} />
         )}
       </ul>
     </section>

@@ -82,8 +82,6 @@ export enum ActionType {
   DismissLfgMessagesPromo = 'dismiss_lfg_messages_promo',
   // Hides every daily.dev for Startups promotion, the squad page one included
   DismissStartupsPromo = 'dismiss_startups_promo',
-  // Hides the Plus deal on the Core wallet; buying Cores still shows it
-  DismissPlusDeal = 'dismiss_plus_deal',
   FirstCores = 'first_cores',
   GtaViVisit = 'gta_vi_visit',
   GtaViRead = 'gta_vi_read',
