@@ -158,7 +158,11 @@ const Analytics = ({
       theme={theme}
     >
       <FitHeight onHeight={setHeight}>
-        <CombinedAnalytics {...props} />
+        <ModalHost>
+          {(modalProps) => (
+            <CombinedAnalytics {...props} modalProps={modalProps} />
+          )}
+        </ModalHost>
       </FitHeight>
     </Device>
   );

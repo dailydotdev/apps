@@ -17,7 +17,6 @@ import {
 import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ModalClose } from '@dailydotdev/shared/src/components/modals/common/ModalClose';
-import { Drawer } from '@dailydotdev/shared/src/components/drawers/Drawer';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { boostDocsLink } from '@dailydotdev/shared/src/lib/constants';
 import type { OwnPostState } from '../../flows/purchase/BoostFixed';
@@ -148,7 +147,9 @@ const BoostLiveBody = ({
 
 /** The success modal, with the rocket art in place of the cover image. On
  * phones the Modal turns into a drawer by the window's width; `isDrawer` draws
- * the drawer directly, for a phone frame inside a wider window */
+ * that drawer's look directly, for a phone frame inside a wider window. It is
+ * markup only: the shared Drawer would lock the scroll of the page around the
+ * frame */
 export const BoostLiveRedesign = ({
   onSeeBoost,
   onRequestClose,
@@ -159,11 +160,19 @@ export const BoostLiveRedesign = ({
   isDrawer?: boolean;
 }): ReactElement =>
   isDrawer ? (
-    // The sheet sizes itself to the window's viewport; inside a phone frame
-    // it fills the frame instead
-    <Drawer isOpen onClose={onRequestClose} className={{ overlay: '!h-auto' }}>
-      <BoostLiveBody onSeeBoost={onSeeBoost} onRequestClose={onRequestClose} />
-    </Drawer>
+    <div className="fixed inset-0 z-modal bg-overlay-quaternary-onion">
+      <div className="absolute bottom-0 flex max-h-[calc(100%-5rem)] w-full flex-col overflow-hidden rounded-t-16 bg-background-default">
+        <div className="flex shrink-0 justify-center pb-1 pt-3">
+          <span className="h-1 w-9 rounded-2 bg-border-subtlest-secondary" />
+        </div>
+        <div className="flex min-h-0 flex-col overflow-y-auto px-4 pb-3">
+          <BoostLiveBody
+            onSeeBoost={onSeeBoost}
+            onRequestClose={onRequestClose}
+          />
+        </div>
+      </div>
+    </div>
   ) : (
     <Modal
       {...modalProps}

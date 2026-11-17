@@ -30,6 +30,7 @@ import { getPostPath } from '@dailydotdev/shared/src/lib/links';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import type { Campaign } from '@dailydotdev/shared/src/graphql/campaigns';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
+import type { ModalProps } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { allCampaigns, lastBoostOf } from '../../flows/after-boost/fixtures';
 import { boostablePost } from '../../real/screens';
 import type { Day, MetricDef } from './BoostAnalytics';
@@ -435,6 +436,8 @@ interface CombinedAnalyticsProps {
   initialBoostsTab?: BoostsTab;
   /** The charts' numbers are still on the way */
   isLoading?: boolean;
+  /** Where Boost again's pop-up opens, for a page inside a device frame */
+  modalProps?: Pick<ModalProps, 'parentSelector' | 'bodyOpenClassName'>;
 }
 
 export function CombinedAnalytics({
@@ -445,6 +448,7 @@ export function CombinedAnalytics({
   initialHidden,
   initialBoostsTab,
   isLoading,
+  modalProps,
 }: CombinedAnalyticsProps): ReactElement {
   const [tab, setTab] = useState(initialTab);
   // An ended boost's Boost again opens the form, prefilled with its budget
@@ -542,6 +546,7 @@ export function CombinedAnalytics({
       </PageWrapperLayout>
       {boostingAgain && (
         <BoostAgainModal
+          {...modalProps}
           isOpen
           post={boostingAgain.post as Post}
           lastBoost={lastBoostOf(boostingAgain)}
