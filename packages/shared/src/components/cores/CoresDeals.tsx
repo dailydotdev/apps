@@ -82,7 +82,7 @@ const DealPerk = ({
   >
     {icon}
     <span className="flex min-w-0 flex-1 flex-col">
-      <strong className={classNames('typo-footnote', badge && 'truncate')}>
+      <strong className={classNames('typo-footnote', !!badge && 'truncate')}>
         {title}
       </strong>
       <Typography
