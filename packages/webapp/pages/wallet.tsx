@@ -72,7 +72,7 @@ import {
   useHasAccessToCores,
 } from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
-import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
+import { getBuyCoresUrl } from '@dailydotdev/shared/src/lib/links';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
@@ -243,12 +243,10 @@ const Wallet = (): ReactElement | null => {
       variant={ButtonVariant.Primary}
       onClick={() => onBuyCoresClick({ target_id: 'Buy Cores' })}
       tag="a"
-      href={getPathnameWithQuery(
-        `${webappUrl}cores`,
-        new URLSearchParams({
-          origin: Origin.WalletPageCTA,
-        }),
-      )}
+      href={getBuyCoresUrl({
+        origin: Origin.WalletPageCTA,
+        next: router.asPath,
+      })}
     >
       Buy Cores
     </Button>
@@ -421,6 +419,7 @@ const Wallet = (): ReactElement | null => {
               origin={Origin.WalletPagePackage}
               onClick={onBuyCoresClick}
               amounts={[100, 300, 600]}
+              next={router.asPath}
             />
           )}
           <StartupsWalletPromo className="hidden laptop:flex" />

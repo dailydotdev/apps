@@ -61,18 +61,11 @@ describe('BuyCoresModal origin', () => {
     jest.clearAllMocks();
   });
 
-  it('should log buying more Cores from its header with the modal origin', () => {
+  it('should not offer buying more Cores from its own header', () => {
     renderModal(Origin.BoostPost);
 
-    const [buyMore] = screen
-      .getAllByRole('button')
-      .filter((button) => button.title !== 'Close');
-    fireEvent.click(buyMore);
-
-    expect(logEvent).toHaveBeenCalledWith({
-      event_name: LogEvent.StartBuyingCredits,
-      extra: JSON.stringify({ origin: Origin.BoostPost }),
-    });
+    // A "+" here reopened this same modal and logged a start-buying event
+    expect(screen.queryAllByRole('button', { name: '' })).toHaveLength(0);
   });
 
   it('should log the picked pack with the modal origin and carry the origin to checkout', () => {

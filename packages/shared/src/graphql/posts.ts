@@ -1449,7 +1449,10 @@ export const useCanBoostPost = (post: Post) => {
   }
 
   const canBoost =
-    canBuy && checkCanBoostByUser(post, user.id) && !post?.private;
+    canBuy &&
+    checkCanBoostByUser(post, user.id) &&
+    !post?.private &&
+    post?.type !== PostType.Brief;
 
   return { canBoost };
 };
