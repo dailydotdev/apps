@@ -603,6 +603,7 @@ export const USER_STREAK_FRAGMENT = gql`
     lastViewAt
     weekStart
     freezesAvailable
+    freeFreezes
     lastReset {
       missedDate
       timezone

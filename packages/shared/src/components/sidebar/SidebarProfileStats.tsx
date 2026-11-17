@@ -1,10 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
-import {
-  reputation as reputationDocsUrl,
-  walletUrl,
-} from '../../lib/constants';
+import { walletUrl, webappUrl } from '../../lib/constants';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import { formatCurrency } from '../../lib/utils';
 import Link from '../utilities/Link';
@@ -34,13 +31,8 @@ export const SidebarProfileStats = (): ReactElement | null => {
 
   return (
     <div className="flex items-stretch overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-default">
-      <Link href={reputationDocsUrl} passHref>
-        <a
-          className={cellClass}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={`Reputation: ${reputation}`}
-        >
+      <Link href={`${webappUrl}analytics/reputation`} passHref>
+        <a className={cellClass} aria-label={`Reputation: ${reputation}`}>
           <ReputationIcon
             size={IconSize.Small}
             className="text-accent-onion-default"

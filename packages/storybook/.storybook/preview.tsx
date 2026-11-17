@@ -140,6 +140,7 @@ const preview: Preview = {
               '0. Today vs redesign',
               '1. Wallet and buy Cores',
               '2. All states',
+              '2. Boost and analytics',
               '3. States',
             ],
             'Today (production)',

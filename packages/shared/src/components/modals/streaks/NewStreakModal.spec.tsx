@@ -1,147 +1,173 @@
 import React from 'react';
-import nock from 'nock';
-import { QueryClient } from '@tanstack/react-query';
-import { act, fireEvent, render, screen } from '@testing-library/react';
-import { get as getCache, set as setCache } from 'idb-keyval';
-import { TestBootProvider } from '../../../../__tests__/helpers/boot';
-import loggedUser from '../../../../__tests__/fixture/loggedUser';
-import * as actionHook from '../../../hooks/useActions';
-import { PersistentContextKeys } from '../../../hooks/usePersistentContext';
+import { render, screen, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import ReactModal from 'react-modal';
+import NewStreakModal, {
+  getStreakFreeFreezesGrantCopy,
+} from './NewStreakModal';
+import { ActionType } from '../../../graphql/actions';
 import { LogEvent, TargetType } from '../../../lib/log';
-import {
-  iOSSupportsReview,
-  openIOSWriteReview,
-  requestIOSReview,
-} from '../../../lib/ios';
-import {
-  appStoreReviewCopy,
-  streakReviewRequestDelayMs,
-  streakReviewTargetId,
-} from '../../appStoreReview/common';
-import NewStreakModal from './NewStreakModal';
 
-jest.mock('../../../lib/ios', () => ({
-  ...jest.requireActual('../../../lib/ios'),
-  iOSSupportsReview: jest.fn(() => true),
-  openIOSWriteReview: jest.fn(() => true),
-  requestIOSReview: jest.fn(() => true),
+ReactModal.setAppElement('body');
+
+const mockCompleteAction = jest.fn();
+const mockLogEvent = jest.fn();
+let mockCompletedActions: ActionType[] = [];
+let mockFreeFreezes: number | null = 2;
+let mockIsFlagOn = true;
+
+jest.mock('../../../hooks', () => ({
+  ...jest.requireActual('../../../hooks'),
+  useActions: () => ({
+    completeAction: mockCompleteAction,
+    checkHasCompleted: (type: ActionType) =>
+      mockCompletedActions.includes(type),
+    isActionsFetched: true,
+  }),
 }));
 
-const logEvent = jest.fn();
-const onRequestClose = jest.fn();
+jest.mock('../../../hooks/useConditionalFeature', () => ({
+  useConditionalFeature: ({
+    feature,
+    shouldEvaluate,
+  }: {
+    feature: { id: string };
+    shouldEvaluate?: boolean;
+  }) => ({
+    value:
+      feature.id === 'streak_free_freezes' &&
+      shouldEvaluate !== false &&
+      mockIsFlagOn,
+    isLoading: false,
+  }),
+}));
 
-const renderModal = ({
-  currentStreak = 30,
-  client = new QueryClient(),
-}: { currentStreak?: number; client?: QueryClient } = {}) =>
+jest.mock('../../../hooks/streaks/useReadingStreak', () => ({
+  useReadingStreak: () => ({
+    streak: {
+      current: 3,
+      max: 3,
+      freezesAvailable: 2,
+      freeFreezes: mockFreeFreezes,
+    },
+    isStreaksEnabled: true,
+  }),
+}));
+
+jest.mock('../../../contexts/AuthContext', () => ({
+  useAuthContext: () => ({ user: { id: 'u1' } }),
+}));
+
+jest.mock('../../../contexts/LogContext', () => ({
+  useLogContext: () => ({ logEvent: mockLogEvent }),
+}));
+
+jest.mock('../../streak/StreakReminderSwitch', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
+jest.mock('../../streak/StreakFreezeUpsell', () => ({
+  StreakFreezeUpsell: ({ children }: { children: React.ReactNode }) => (
+    <span data-testid="streak-freeze-upsell">{children}</span>
+  ),
+}));
+
+const renderModal = (currentStreak = 3) =>
   render(
-    <TestBootProvider
-      auth={{ user: loggedUser }}
-      client={client}
-      log={{ logEvent }}
-    >
+    <QueryClientProvider client={new QueryClient()}>
       <NewStreakModal
-        currentStreak={currentStreak}
-        maxStreak={currentStreak + 10}
         isOpen
-        onRequestClose={onRequestClose}
+        currentStreak={currentStreak}
+        maxStreak={3}
+        onRequestClose={jest.fn()}
       />
-    </TestBootProvider>,
+    </QueryClientProvider>,
   );
 
-const findRateButton = () =>
-  screen.findByRole('button', { name: appStoreReviewCopy.ctaLabel });
+beforeEach(() => {
+  jest.clearAllMocks();
+  mockCompletedActions = [];
+  mockFreeFreezes = 2;
+  mockIsFlagOn = true;
+});
 
-const expectNoAsk = async () => {
-  await screen.findByText('Never show this again');
-  await act(async () => {
-    await jest.runOnlyPendingTimersAsync();
-  });
+it('shows the free freezes grant on the three-day milestone and marks it seen', async () => {
+  renderModal();
+
   expect(
-    screen.queryByRole('button', { name: appStoreReviewCopy.ctaLabel }),
+    await screen.findByText(
+      "You've earned 2 streak freezes, on us. Miss a weekday and we'll use one automatically.",
+    ),
+  ).toBeInTheDocument();
+  expect(screen.queryByTestId('streak-freeze-upsell')).not.toBeInTheDocument();
+  expect(mockCompleteAction).toHaveBeenCalledWith(
+    ActionType.StreakFreeFreezesGrant,
+  );
+  expect(mockLogEvent).toHaveBeenCalledWith({
+    event_name: LogEvent.Impression,
+    target_type: TargetType.StreakFreeFreezesGrant,
+    target_id: '2',
+  });
+});
+
+it('words the grant for the one freeze the cap let through', async () => {
+  mockFreeFreezes = 1;
+
+  renderModal();
+
+  expect(
+    await screen.findByText(
+      "You've earned a streak freeze, on us. Miss a weekday and we'll use it automatically.",
+    ),
+  ).toBeInTheDocument();
+  expect(mockLogEvent).toHaveBeenCalledWith({
+    event_name: LogEvent.Impression,
+    target_type: TargetType.StreakFreeFreezesGrant,
+    target_id: '1',
+  });
+});
+
+it('does not show the grant again once it was seen', async () => {
+  mockCompletedActions = [ActionType.StreakFreeFreezesGrant];
+
+  renderModal();
+
+  expect(await screen.findByTestId('streak-freeze-upsell')).toBeInTheDocument();
+  expect(
+    screen.queryByText(getStreakFreeFreezesGrantCopy(2)),
   ).not.toBeInTheDocument();
-};
+  expect(mockCompleteAction).not.toHaveBeenCalled();
+});
 
-describe('NewStreakModal App Store review ask', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    jest.useFakeTimers({ doNotFake: ['setImmediate', 'queueMicrotask'] });
-    jest.mocked(iOSSupportsReview).mockReturnValue(true);
-    window.scrollTo = jest.fn();
-    jest.spyOn(actionHook, 'useActions').mockReturnValue({
-      completeAction: jest.fn(),
-      checkHasCompleted: jest.fn().mockReturnValue(false),
-      isActionsFetched: true,
-      actions: [],
-    });
-    nock.cleanAll();
-    nock('http://localhost:3000')
-      .post('/graphql')
-      .optionally()
-      .times(10)
-      .reply(200, { data: {} });
-  });
+it.each([
+  [
+    'the flag is off',
+    () => {
+      mockIsFlagOn = false;
+    },
+    3,
+  ],
+  [
+    'the reader never got free freezes',
+    () => {
+      mockFreeFreezes = null;
+    },
+    3,
+  ],
+  ['the milestone is not the three-day one', () => undefined, 7],
+])('does not show the grant when %s', async (_, arrange, current) => {
+  arrange();
 
-  afterEach(() => {
-    jest.useRealTimers();
-    jest.restoreAllMocks();
-  });
+  renderModal(current);
 
-  it('shows the card on iOS with the bridge at 30+ days', async () => {
-    renderModal();
-
-    expect(await findRateButton()).toHaveTextContent(appStoreReviewCopy.cta);
-    expect(logEvent).toHaveBeenCalledWith({
-      event_name: LogEvent.Impression,
-      target_type: TargetType.AppStoreReview,
-      target_id: streakReviewTargetId,
-    });
-    expect(requestIOSReview).not.toHaveBeenCalled();
-
-    act(() => {
-      jest.advanceTimersByTime(streakReviewRequestDelayMs);
-    });
-
-    expect(requestIOSReview).toHaveBeenCalledTimes(1);
-    expect(await getCache(PersistentContextKeys.ReviewPrompt)).toMatchObject({
-      lastAskedAt: expect.any(String),
-    });
-  });
-
-  it('opens the write-a-review screen and skips the pop-up once Rate was tapped', async () => {
-    renderModal();
-
-    fireEvent.click(await findRateButton());
-
-    act(() => {
-      jest.advanceTimersByTime(streakReviewRequestDelayMs);
-    });
-
-    expect(openIOSWriteReview).toHaveBeenCalledTimes(1);
-    expect(requestIOSReview).not.toHaveBeenCalled();
-    expect(onRequestClose).toHaveBeenCalledTimes(1);
-  });
-
-  it('is unchanged outside the iOS app with the bridge', async () => {
-    jest.mocked(iOSSupportsReview).mockReturnValue(false);
-    renderModal();
-
-    await expectNoAsk();
-    expect(requestIOSReview).not.toHaveBeenCalled();
-  });
-
-  it('is unchanged below a 30-day milestone', async () => {
-    renderModal({ currentStreak: 29 });
-
-    await expectNoAsk();
-  });
-
-  it('is unchanged within 120 days of the last ask', async () => {
-    await setCache(PersistentContextKeys.ReviewPrompt, {
-      lastAskedAt: new Date().toISOString(),
-    });
-    renderModal();
-
-    await expectNoAsk();
-  });
+  await waitFor(() =>
+    expect(screen.getByTestId('streak-freeze-upsell')).toBeInTheDocument(),
+  );
+  expect(
+    screen.queryByText(getStreakFreeFreezesGrantCopy(2)),
+  ).not.toBeInTheDocument();
+  expect(mockCompleteAction).not.toHaveBeenCalledWith(
+    ActionType.StreakFreeFreezesGrant,
+  );
 });

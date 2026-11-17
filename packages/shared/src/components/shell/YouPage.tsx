@@ -49,7 +49,6 @@ import {
   feedback,
   plusUrl,
   privacyPolicy,
-  reputation as reputationDocsUrl,
   settingsUrl,
   termsOfService,
   walletUrl,
@@ -343,8 +342,7 @@ export function YouPage(): ReactElement | null {
               }
               amount={user.reputation ?? 0}
               label="Reputation"
-              href={reputationDocsUrl}
-              external
+              href={`${webappUrl}analytics/reputation`}
             />
             <Stat
               amount={followStats?.numFollowers ?? 0}
