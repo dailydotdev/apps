@@ -10,14 +10,13 @@ export const MAX_STREAK_PAUSES_PER_YEAR = 2;
 export const MIN_STREAK_FOR_PAUSE = 7;
 export const MAX_STREAK_PAUSE_LEAD_DAYS = 30;
 
-// Kept out of USER_STREAK_FRAGMENT so the shell query never depends on it
-export const USER_STREAK_PAUSE_QUERY = gql`
-  query UserStreakPause {
-    userStreak {
-      pause {
-        start
-        end
-      }
+// Kept out of USER_STREAK_FRAGMENT so the shell query never depends on it;
+// reads only the pause, without resolving the streak
+export const STREAK_PAUSE_QUERY = gql`
+  query StreakPause {
+    streakPause {
+      start
+      end
     }
   }
 `;
@@ -47,17 +46,19 @@ export const scheduleStreakPause = async (
   return result.scheduleStreakPause;
 };
 
-// The running or next scheduled pause, null when there is none
+// The running or next scheduled pause, null when there is none. Its own key
+// so streak invalidations on every read don't refetch it; only the pause
+// mutations change it, and they invalidate it.
 export const userStreakPauseQueryOptions = (user?: Pick<LoggedUser, 'id'>) => ({
-  queryKey: generateQueryKey(RequestKey.UserStreak, user, 'pause'),
+  queryKey: generateQueryKey(RequestKey.StreakPause, user),
   queryFn: async (): Promise<UserStreakPause | null> => {
     const result = await gqlClient.request<{
-      userStreak: { pause?: UserStreakPause | null } | null;
-    }>(USER_STREAK_PAUSE_QUERY);
+      streakPause: UserStreakPause | null;
+    }>(STREAK_PAUSE_QUERY);
 
-    return result.userStreak?.pause ?? null;
+    return result.streakPause;
   },
-  staleTime: StaleTime.Default,
+  staleTime: StaleTime.OneHour,
   retry: false,
 });
 

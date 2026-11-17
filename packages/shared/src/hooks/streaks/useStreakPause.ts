@@ -87,9 +87,8 @@ export const getStreakPauseErrorMessage = (error: unknown): string => {
   return labels.error.generic;
 };
 
-// Not flag-gated: the API keeps honoring a pause after the flag is off. Waits
-// for the streak so its lazy reset has run, and skips users who never
-// reached the minimum streak.
+// Not flag-gated: the API keeps honoring a pause after the flag is off. Skips
+// users whose streak never reached the minimum, who cannot have a pause.
 export const useUserStreakPause = (
   streak?: Pick<UserStreak, 'max'> | null,
 ): UserStreakPause | undefined => {
@@ -140,9 +139,14 @@ export const useStreakPause = (): UseStreakPauseReturn => {
 
   const invalidateStreak = useCallback(
     () =>
-      queryClient.invalidateQueries({
-        queryKey: generateQueryKey(RequestKey.UserStreak, user),
-      }),
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: generateQueryKey(RequestKey.UserStreak, user),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: userStreakPauseQueryOptions(user).queryKey,
+        }),
+      ]),
     [queryClient, user],
   );
 

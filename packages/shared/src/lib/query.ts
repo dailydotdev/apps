@@ -135,6 +135,7 @@ export enum RequestKey {
   UserStreakRecover = 'user_streak_recover',
   StreakFreezeProducts = 'streak_freeze_products',
   StreakFreezeDates = 'streak_freeze_dates',
+  StreakPause = 'streak_pause',
   StreakFreezePurchase = 'streak_freeze_purchase',
   PersonalizedDigest = 'personalizedDigest',
   Changelog = 'changelog',
