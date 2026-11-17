@@ -2,10 +2,10 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-// Today, 100% production (the "Today (production)" stories), next to the
-// redesign, screen by screen, as screenshots of the real stories: dark mode,
-// 1440×900. Live frames took a minute to fill a page. After changing a
-// screen, shoot it again; each image links to its live story.
+// Today, 100% production, next to the redesign, screen by screen, as
+// screenshots: dark mode, 1440×900. Live frames took a minute to fill a page.
+// After changing a screen, shoot it again; each redesign image links to its
+// live story.
 
 const screenshots = import.meta.glob<string>('../assets/compare/*.jpg', {
   eager: true,
@@ -17,7 +17,7 @@ const screenshotOf = (id: string): string | undefined =>
 
 type Pair = {
   name: string;
-  /** "Today (production)" story id */
+  /** Production screenshot id */
   today: string;
   /** Unset where the redesign keeps the production screen */
   redesign?: string;
@@ -103,24 +103,14 @@ export const BoostAndAnalytics: Story = {
         ['3 · Back to the form', 'boost-back-to-form', 'boost-back-to-form'],
         ['4 · Boost is live!', 'boost-is-live', 'boost-is-live'],
         [
-          '5 · Boost manager (Ads dashboard)',
+          '5 · Analytics, Boost tab (the Ads dashboard)',
           'ads-dashboard',
-          'boosts-page-story',
+          'combined-boosted',
         ],
         [
-          '5 · Boost manager, nothing live',
-          'ads-dashboard-empty',
-          'boosts-page-empty',
-        ],
-        [
-          '6 · Campaign (now on Boost manager)',
+          '5 · Campaign (now a row of the Boost tab)',
           'campaign-live',
-          'boosts-page-story',
-        ],
-        [
-          '6 · Campaign, ended (now the Ended tab)',
-          'campaign-ended',
-          'boosts-page-ended',
+          'combined-boosted',
         ],
         ['Boost notifications', 'boost-notifications', null],
         ['Boost again, prefilled', 'boost-again', 'boost-again'],

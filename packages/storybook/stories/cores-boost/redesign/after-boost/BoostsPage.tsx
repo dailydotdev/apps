@@ -41,61 +41,32 @@ import {
 import type { Campaign } from '@dailydotdev/shared/src/graphql/campaigns';
 import { CampaignState } from '@dailydotdev/shared/src/graphql/campaigns';
 import { allCampaigns, unspentOf } from '../../flows/after-boost/fixtures';
-import stripArt from '../../assets/boost-strip-patchy-v2.png';
-import { SquadFrame } from './kit';
-import { BoostAnalytics } from './BoostAnalytics';
 
-// /boosts in the squads page frame, read like an analytics tool: metric tabs
-// over a chart by day, then the boosts as a table with their numbers and
-// actions (compact cards on phones), so there is no page per boost.
+// The Analytics page's Boost tab below its chart: the boosts as a table with
+// their numbers and actions (compact cards on phones), so there is no page
+// per boost.
 
 const remainingDaysOf = (campaign: Campaign): number | undefined =>
   campaign.state === CampaignState.Active
     ? getAbsoluteDifferenceInDays(new Date(campaign.endedAt), new Date())
     : undefined;
 
-/** The card's title band, with the Patchy boost art on the far side */
-export const TitleBand = ({ children }: { children: React.ReactNode }) => (
-  <header className="relative flex min-h-16 items-center gap-2 overflow-hidden border-b border-border-subtlest-tertiary px-4 py-3 tablet:px-6">
-    <img
-      src={stripArt}
-      alt=""
-      className="pointer-events-none absolute inset-y-0 right-0 hidden h-full w-auto max-w-none -scale-x-100 [mask-image:linear-gradient(to_left,black_45%,transparent)] tablet:block"
-    />
-    <div className="relative flex min-w-0 flex-1 items-center gap-2">
-      {children}
-    </div>
-  </header>
-);
-
 export enum BoostsTab {
   Live = 'Live',
   Ended = 'Ended',
 }
 
-interface BoostsPageProps {
+interface BoostsListProps {
   campaigns?: Campaign[];
   /** The tab it opens on, Live when anything is running */
   initialTab?: BoostsTab;
-}
-
-/** The boosts' chart, the Live/Ended tabs and the list, under any title */
-export function BoostsSection(props: BoostsPageProps): ReactElement {
-  const { campaigns = allCampaigns } = props;
-
-  return (
-    <>
-      {!!campaigns.length && <BoostAnalytics campaigns={campaigns} />}
-      <BoostsList {...props} />
-    </>
-  );
 }
 
 /** The Live/Ended tabs and the boosts as a table, or cards on phones */
 export function BoostsList({
   campaigns = allCampaigns,
   initialTab,
-}: BoostsPageProps): ReactElement {
+}: BoostsListProps): ReactElement {
   const live = campaigns.filter(({ state }) => state === CampaignState.Active);
   const ended = campaigns.filter(({ state }) => state !== CampaignState.Active);
   const [tab, setTab] = useState(
@@ -157,18 +128,6 @@ export function BoostsList({
         emptyState
       )}
     </>
-  );
-}
-
-export function BoostsPage(props: BoostsPageProps): ReactElement {
-  return (
-    <SquadFrame>
-      <TitleBand>
-        <h1 className="flex-1 font-bold typo-title2">Boost manager</h1>
-        <DocsLinks />
-      </TitleBand>
-      <BoostsSection {...props} />
-    </SquadFrame>
   );
 }
 

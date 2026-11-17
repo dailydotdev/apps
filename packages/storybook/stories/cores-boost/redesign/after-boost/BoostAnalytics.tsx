@@ -466,13 +466,3 @@ export const MetricsPanel = ({
     </section>
   );
 };
-
-export const BoostAnalytics = ({
-  campaigns,
-}: {
-  campaigns: Campaign[];
-}): ReactElement => {
-  const days = useMemo(() => dailySeries(campaigns), [campaigns]);
-
-  return <MetricsPanel metrics={boostMetrics} days={days} />;
-};

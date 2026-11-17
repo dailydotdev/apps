@@ -9,7 +9,6 @@ import { boostablePost } from '../real/screens';
 import { Stage } from '../flows/purchase/stage';
 import { durationOf, endedCampaign } from '../flows/after-boost/fixtures';
 import { NotificationsPage, RenameInPage } from '../real/pages';
-import { BoostsPage, BoostsTab } from './after-boost/BoostsPage';
 import { BoostAgainModal } from './after-boost/BoostAgainModal';
 import { AllStatesPage } from './after-boost/AllStates';
 import {
@@ -147,8 +146,8 @@ export const BoostIsLive = story(
   420,
 );
 
-// After the boost: Boost manager (production's Ads dashboard, renamed and
-// moved from a pop-up to its own page) and a campaign
+// After the boost: one Analytics page, with production's Ads dashboard as
+// its Boost tab
 
 const AFTER_BALANCE = 5000;
 
@@ -188,21 +187,6 @@ const BoostAgainScreen = (): ReactElement => {
     </>
   );
 };
-
-export const BoostsPageStory = afterStory(
-  'Read like an analytics tool, full width: metric tabs (Impressions, Clicks on post, CTR, Users, Spend) over a 14-day chart of the picked one, then Live/Ended tabs and the boosts as a table with Stop and Extend per row. On phones the metrics scroll sideways and each boost is a compact card. Docs and Terms sit in the title bar.',
-  () => <BoostsPage />,
-);
-
-export const BoostsPageEmpty = afterStory(
-  'The empty tab uses CharmEmptyState with production’s copy and Learn more about boosting link in place of the gray Boost icon.',
-  () => <BoostsPage campaigns={[]} />,
-);
-
-export const BoostsPageEnded = afterStory(
-  'The Ended tab: the same compact card, with Boost again as the only action.',
-  () => <BoostsPage initialTab={BoostsTab.Ended} />,
-);
 
 export const CombinedOrganic = afterStory(
   'A proposal: /analytics and Boost manager as one page with two header tabs, like Squads’ Discover and My Squads. Analytics covers every post, boosted or not, and each chart stacks the boosted reach on the organic. A boosted post’s chip opens the Boost tab. From production’s post analytics: a Limited reach chip (its note in the tooltip, the docs on click) and the AI agents section, locked behind the Startups plan.',
@@ -248,11 +232,8 @@ BoostFormReading.storyName = '2 · Boost your post · reading the post';
 BoostFormReading.tags = ['!dev'];
 BoostBackToForm.storyName = '3 · Back to the form';
 BoostIsLive.storyName = '4 · Boost is live!';
-BoostsPageStory.storyName = '5 · Boost manager';
-BoostsPageEmpty.storyName = '5 · Boost manager, nothing live';
-BoostsPageEnded.storyName = '5 · Boost manager, ended';
-CombinedOrganic.storyName = '6 · Analytics, combined';
-CombinedBoosted.storyName = '6 · Analytics, Boost tab';
+CombinedOrganic.storyName = '5 · Analytics, combined';
+CombinedBoosted.storyName = '5 · Analytics, Boost tab';
 BoostAgain.storyName = 'Boost again, prefilled';
 BoostAgain.tags = ['!dev'];
 AllStates.storyName = 'All states';
