@@ -257,7 +257,7 @@ const CoresUseTile = ({
 }: {
   definition: CoresUseDefinition;
 }): ReactElement => (
-  <li className="flex w-56 shrink-0 snap-start flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-3 laptop:w-auto">
+  <li className="flex w-56 shrink-0 snap-start flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-3">
     <span className="flex w-full items-center gap-2">
       <UseIcon use={definition.use} icon={definition.icon} className="size-8" />
       <Typography
@@ -288,12 +288,7 @@ export const UseYourCoresTiles = (): ReactElement => {
   const tiles = [uses.award, uses.streak].filter(isDefined);
 
   return (
-    <ul
-      className={classNames(
-        'no-scrollbar -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-2 overflow-x-auto px-4 tablet:-mx-6 tablet:scroll-px-6 tablet:px-6 laptop:mx-0 laptop:grid laptop:gap-3 laptop:overflow-visible laptop:px-0',
-        tiles.length > 1 && 'laptop:grid-cols-2',
-      )}
-    >
+    <ul className="no-scrollbar -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-2 overflow-x-auto px-4 tablet:-mx-6 tablet:scroll-px-6 tablet:px-6 laptop:mx-0 laptop:gap-3 laptop:overflow-visible laptop:px-0">
       {tiles.map((definition) => (
         <CoresUseTile key={definition.use} definition={definition} />
       ))}
