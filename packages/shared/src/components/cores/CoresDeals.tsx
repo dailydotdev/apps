@@ -2,7 +2,6 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import CloseButton from '../CloseButton';
 import { BoostIcon } from '../icons/Boost';
 import { CoreIcon } from '../icons/Core';
 import { IconSize } from '../Icon';
@@ -42,7 +41,6 @@ interface DealCardProps {
   action: ReactNode;
   /** The only deal: one wide, short card instead of a tall column */
   isCompact?: boolean;
-  onDismiss?: () => void;
 }
 
 const DealCard = ({
@@ -57,7 +55,6 @@ const DealCard = ({
   tagline,
   action,
   isCompact = false,
-  onDismiss,
 }: DealCardProps): ReactElement => (
   <li
     className={classNames(
@@ -72,19 +69,10 @@ const DealCard = ({
       src={art.src}
       alt={art.alt}
       className={classNames(
-        'pointer-events-none absolute w-auto object-contain',
+        'pointer-events-none absolute right-1 w-auto object-contain',
         isCompact ? '-top-6 h-16' : '-top-8 h-24',
-        onDismiss ? 'right-9' : 'right-1',
       )}
     />
-    {onDismiss && (
-      <CloseButton
-        size={ButtonSize.XSmall}
-        className="absolute right-1.5 top-1.5"
-        aria-label="Don't show this offer again"
-        onClick={onDismiss}
-      />
-    )}
     <span
       className={classNames(
         'flex flex-wrap items-center gap-2 pr-16',
@@ -226,7 +214,6 @@ const StartupsDeal = ({
         See plans
       </Button>
     }
-    onDismiss={promo.onDismiss}
   />
 );
 
@@ -301,6 +288,7 @@ export const CoresDeals = ({
     sourceId,
     isPersonalAllowed,
     isVisible: withStartups,
+    isDismissible: false,
   });
   const hasStartups = withStartups && promo.isShown;
 
