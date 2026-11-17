@@ -54,7 +54,7 @@ const purchase: UserTransaction = {
   flags: {},
 };
 
-const renderPopup = (transaction: UserTransaction) => {
+const claimFirstCores = (transaction: UserTransaction) => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
@@ -102,7 +102,7 @@ beforeEach(() => {
 });
 
 it('should open once when an empty balance earns its first Cores', async () => {
-  const client = renderPopup(questReward);
+  const client = claimFirstCores(questReward);
 
   await waitFor(() =>
     expect(client.getQueryData(MODAL_KEY)).toMatchObject({
@@ -114,7 +114,7 @@ it('should open once when an empty balance earns its first Cores', async () => {
 });
 
 it('should not open when the first Cores were bought', async () => {
-  const client = renderPopup(purchase);
+  const client = claimFirstCores(purchase);
 
   await waitFor(() => expect(nock.isDone()).toBe(true));
   expect(client.getQueryData(MODAL_KEY)).toBeUndefined();
