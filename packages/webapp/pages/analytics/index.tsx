@@ -2,15 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import classNames from 'classnames';
-import {
-  ResponsivePageContainer,
-  Divider,
-  pageBorders,
-} from '@dailydotdev/shared/src/components/utilities';
-import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
-import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
-import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
+import { Divider } from '@dailydotdev/shared/src/components/utilities';
 import {
   Typography,
   TypographyColor,
@@ -28,8 +20,6 @@ import {
   creatorPerformanceQueryOptions,
   creatorPostPerformanceQueryOptions,
 } from '@dailydotdev/shared/src/graphql/creatorAnalytics';
-import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
-import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { CreatorPeriodSelect } from '@dailydotdev/shared/src/components/analytics/creator/CreatorPeriodSelect';
 import {
   CreatorOverviewSection,
@@ -45,7 +35,10 @@ import { CreatorDashboardError } from '@dailydotdev/shared/src/components/analyt
 import { getLayout } from '../../components/layouts/MainLayout';
 import { AnalyticsEmptyState } from '../../components/analytics/AnalyticsEmptyState';
 import { CreatorAchievementsSection } from '../../components/analytics/creator/CreatorAchievementsSection';
-import ProtectedPage from '../../components/ProtectedPage';
+import {
+  AnalyticsPageShell,
+  AnalyticsTab,
+} from '../../components/analytics/AnalyticsPageShell';
 
 const dividerClassName = 'bg-border-subtlest-tertiary';
 const SectionContainer = classed('div', 'flex flex-col gap-4');
@@ -67,8 +60,6 @@ const SectionHeader = ({
 
 const Analytics = (): ReactElement => {
   const { user } = useAuthContext();
-  const isLaptopLayout = useLaptopLayout();
-  const isPhone = useIsPhone();
   const [period, setPeriod] = useState(CreatorPerformancePeriod.Last30Days);
   const [sort, setSort] = useState<CreatorPostSort>({
     sortBy: CreatorPostSortBy.PublishedAt,
@@ -143,117 +134,94 @@ const Analytics = (): ReactElement => {
   const hasNoPosts = !isPostsPending && !isPostsError && posts.length === 0;
 
   return (
-    <ProtectedPage>
-      {isLaptopLayout && <PageHeader title="Analytics" />}
-      {isPhone && <ShellPage title="Analytics" />}
-      <div className="mx-auto w-full max-w-[48rem]">
-        {!isLaptopLayout && !isPhone && (
-          <LayoutHeader
-            className={classNames(
-              '!mb-0 hidden gap-2 border-b px-4 tablet:flex',
-              pageBorders,
-            )}
-          >
-            <Typography
-              type={TypographyType.Title3}
-              bold
-              color={TypographyColor.Primary}
-              className="flex-1"
-            >
-              Analytics
-            </Typography>
-          </LayoutHeader>
+    <AnalyticsPageShell activeTab={AnalyticsTab.Content}>
+      <SectionContainer>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <SectionHeader>Overview</SectionHeader>
+          <CreatorPeriodSelect
+            period={period}
+            onChange={setPeriod}
+            disabled={isOverviewPending}
+          />
+        </div>
+        {isOverviewPending && <CreatorOverviewSkeleton />}
+        {!isOverviewPending && isPerformanceError && (
+          <CreatorDashboardError
+            title="Could not load your overview"
+            onRetry={refetchPerformance}
+            isRetrying={isPerformanceFetching}
+          />
         )}
-        <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6 pt-4 tablet:pt-6">
+        {!!performance && !isOverviewPending && !isPerformanceError && (
+          <CreatorOverviewSection
+            performance={performance}
+            period={period}
+            lifetime={lifetime}
+          />
+        )}
+      </SectionContainer>
+      {/* The overview's error state already explains the failure; a
+              second empty section under it would just be a gap. */}
+      {!isPerformanceError && (
+        <>
+          <Divider className={dividerClassName} />
           <SectionContainer>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <SectionHeader>Overview</SectionHeader>
-              <CreatorPeriodSelect
-                period={period}
-                onChange={setPeriod}
-                disabled={isOverviewPending}
-              />
-            </div>
-            {isOverviewPending && <CreatorOverviewSkeleton />}
-            {!isOverviewPending && isPerformanceError && (
-              <CreatorDashboardError
-                title="Could not load your overview"
-                onRetry={refetchPerformance}
-                isRetrying={isPerformanceFetching}
-              />
-            )}
-            {!!performance && !isOverviewPending && !isPerformanceError && (
-              <CreatorOverviewSection
+            {isPerformancePending && <CreatorImpressionsSkeleton />}
+            {!!performance && (
+              <CreatorImpressionsSection
                 performance={performance}
                 period={period}
-                lifetime={lifetime}
               />
             )}
           </SectionContainer>
-          {/* The overview's error state already explains the failure; a
-              second empty section under it would just be a gap. */}
-          {!isPerformanceError && (
-            <>
-              <Divider className={dividerClassName} />
-              <SectionContainer>
-                {isPerformancePending && <CreatorImpressionsSkeleton />}
-                {!!performance && (
-                  <CreatorImpressionsSection
-                    performance={performance}
-                    period={period}
-                  />
-                )}
-              </SectionContainer>
-            </>
-          )}
-          <Divider className={dividerClassName} />
-          <SectionContainer>
-            <SectionHeader>Article performance</SectionHeader>
-            {isPostsError && (
-              <CreatorDashboardError
-                title="Could not load your articles"
-                onRetry={refetchPosts}
-                isRetrying={isPostsFetching}
-              />
-            )}
-            {!isPostsError && hasNoPosts && <AnalyticsEmptyState />}
-            {!isPostsError && !hasNoPosts && (
-              <CreatorPostPerformanceTable
-                posts={posts}
-                sort={sort}
-                onSortChange={setSort}
-                isPending={isPostsPending}
-                hasNextPage={hasNextPage}
-                isFetchingNextPage={isFetchingNextPage}
-                fetchNextPage={fetchNextPage}
-              />
-            )}
-          </SectionContainer>
-          <Divider className={dividerClassName} />
-          <SectionContainer>
-            <SectionHeader>Achievements</SectionHeader>
-            {/* A failed background refetch also sets `isError`, so awards that
+        </>
+      )}
+      <Divider className={dividerClassName} />
+      <SectionContainer>
+        <SectionHeader>Article performance</SectionHeader>
+        {isPostsError && (
+          <CreatorDashboardError
+            title="Could not load your articles"
+            onRetry={refetchPosts}
+            isRetrying={isPostsFetching}
+          />
+        )}
+        {!isPostsError && hasNoPosts && <AnalyticsEmptyState />}
+        {!isPostsError && !hasNoPosts && (
+          <CreatorPostPerformanceTable
+            posts={posts}
+            sort={sort}
+            onSortChange={setSort}
+            isPending={isPostsPending}
+            hasNextPage={hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+            fetchNextPage={fetchNextPage}
+          />
+        )}
+      </SectionContainer>
+      <Divider className={dividerClassName} />
+      <SectionContainer>
+        <SectionHeader>Achievements</SectionHeader>
+        {/* A failed background refetch also sets `isError`, so awards that
                 are already on screen stay there rather than being replaced by
                 an error card for a request the creator never made. */}
-            {isAchievementsError && !achievements.length ? (
-              <CreatorDashboardError
-                title="Could not load your achievements"
-                onRetry={refetchAchievements}
-                isRetrying={isAchievementsFetching}
-              />
-            ) : (
-              <CreatorAchievementsSection
-                achievements={achievements}
-                isPending={isAchievementsPending}
-                hasNextPage={hasNextAchievementsPage}
-                isFetchingNextPage={isFetchingNextAchievementsPage}
-                fetchNextPage={fetchNextAchievementsPage}
-              />
-            )}
-          </SectionContainer>
-        </ResponsivePageContainer>
-      </div>
-    </ProtectedPage>
+        {isAchievementsError && !achievements.length ? (
+          <CreatorDashboardError
+            title="Could not load your achievements"
+            onRetry={refetchAchievements}
+            isRetrying={isAchievementsFetching}
+          />
+        ) : (
+          <CreatorAchievementsSection
+            achievements={achievements}
+            isPending={isAchievementsPending}
+            hasNextPage={hasNextAchievementsPage}
+            isFetchingNextPage={isFetchingNextAchievementsPage}
+            fetchNextPage={fetchNextAchievementsPage}
+          />
+        )}
+      </SectionContainer>
+    </AnalyticsPageShell>
   );
 };
 
