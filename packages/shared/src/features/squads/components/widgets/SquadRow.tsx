@@ -9,7 +9,7 @@ import {
   TypographyType,
 } from '../../../../components/typography/Typography';
 import { combinedClicks } from '../../../../lib/click';
-import { hasSquadFeature } from '../../lib/features';
+import { showsVerifiedBadge } from '../../lib/features';
 import { VerifiedSquadBadge } from '../VerifiedSquad';
 
 interface SquadRowProps {
@@ -55,7 +55,7 @@ export const SquadRow = ({
           className="flex min-w-0 items-center gap-1"
         >
           <span className="min-w-0 shrink truncate">{name}</span>
-          {hasSquadFeature(squad, 'verified') && <VerifiedSquadBadge />}
+          {showsVerifiedBadge(squad) && <VerifiedSquadBadge />}
         </Typography>
         <Typography
           type={TypographyType.Footnote}

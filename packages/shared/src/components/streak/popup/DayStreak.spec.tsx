@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { DayStreak, missedDayLabel, Streak } from './DayStreak';
+import { DayStreak, missedDayLabel, pausedDayLabel, Streak } from './DayStreak';
 
 jest.mock('next/router', () => ({
   useRouter: () => ({ push: jest.fn() }),
@@ -29,6 +29,19 @@ describe('DayStreak', () => {
 
     expect(
       screen.getByRole('img', { name: missedDayLabel }),
+    ).toBeInTheDocument();
+  });
+
+  it('labels a paused day', () => {
+    render(
+      <DayStreak
+        streak={Streak.Paused}
+        date={new Date('2026-11-14T12:00:00.000Z')}
+      />,
+    );
+
+    expect(
+      screen.getByRole('img', { name: pausedDayLabel }),
     ).toBeInTheDocument();
   });
 

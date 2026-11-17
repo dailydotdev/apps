@@ -57,7 +57,7 @@ import { BoostOriginContextProvider } from '../../../features/boost/BoostOriginC
 import { useActions } from '../../../hooks/useActions';
 import { ActionType } from '../../../graphql/actions';
 import { VerifiedSquadBadge } from '../../../features/squads/components/VerifiedSquad';
-import { hasSquadFeature } from '../../../features/squads/lib/features';
+import { showsVerifiedBadge } from '../../../features/squads/lib/features';
 import { PostTagList } from '../tags/PostTagList';
 import { PostSignupWidget } from '../PostSignupWidget';
 import { useHasPostCapsule } from '../PostCapsule';
@@ -519,7 +519,7 @@ export function PostHybridColumn({
                         />
                       )}
                       {squadAttribution.source.name}
-                      {hasSquadFeature(squadAttribution.source, 'verified') && (
+                      {showsVerifiedBadge(squadAttribution.source) && (
                         <VerifiedSquadBadge />
                       )}
                     </a>

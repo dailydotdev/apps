@@ -160,6 +160,31 @@ const PlanChoice = ({
   );
 };
 
+// Enterprise is sold by our team: what it adds and how to reach us
+const EnterpriseCard = ({ onClick }: { onClick: () => void }): ReactElement => (
+  <div className="flex flex-wrap items-center justify-between gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
+    <div className="flex min-w-0 flex-1 flex-col gap-1">
+      <p className="font-bold typo-callout">Enterprise</p>
+      <p className="text-text-tertiary typo-footnote">
+        Verified badge, jobs board, homepage placement, campaigns and an account
+        team.
+      </p>
+    </div>
+    <Button
+      tag="a"
+      href={startupsEnterpriseUrl}
+      target="_blank"
+      rel="noopener"
+      onClick={onClick}
+      variant={ButtonVariant.Float}
+      size={ButtonSize.Small}
+      icon={<OpenLinkIcon />}
+    >
+      Talk to our team
+    </Button>
+  </div>
+);
+
 const ChoosePlan = ({ isAdmin }: { isAdmin: boolean }): ReactElement => {
   const { squad } = useSquadPageContext();
   const prices = useSquadPlanPrices();
@@ -209,26 +234,7 @@ const ChoosePlan = ({ isAdmin }: { isAdmin: boolean }): ReactElement => {
           Only an admin of this Squad can choose a plan.
         </p>
       )}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <p className="font-bold typo-callout">Enterprise</p>
-          <p className="text-text-tertiary typo-footnote">
-            Verified badge, homepage placement, campaigns and an account team.
-          </p>
-        </div>
-        <Button
-          tag="a"
-          href={startupsEnterpriseUrl}
-          target="_blank"
-          rel="noopener"
-          onClick={() => logUpgrade('enterprise')}
-          variant={ButtonVariant.Float}
-          size={ButtonSize.Small}
-          icon={<OpenLinkIcon />}
-        >
-          Talk to our team
-        </Button>
-      </div>
+      <EnterpriseCard onClick={() => logUpgrade('enterprise')} />
     </div>
   );
 };
@@ -575,6 +581,16 @@ const ActivePlan = ({
       </div>
       {isSelfServe && <SetupSection plan={plan} />}
       <SquadManageSeats subscription={subscription} isAdmin={isAdmin} />
+      {isSelfServe && (
+        <EnterpriseCard
+          onClick={() =>
+            logStartups(LogEvent.UpgradeSubscription, 'enterprise', {
+              origin: Origin.SquadManagePlan,
+              source_id: sourceId,
+            })
+          }
+        />
+      )}
     </>
   );
 };

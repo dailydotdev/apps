@@ -8,7 +8,7 @@ import {
   useLegacyShortcutsMigration,
   useSidebarShortcutItems,
 } from './SidebarShortcutsDock';
-import { webappUrl } from '../../lib/constants';
+import { walletUrl, webappUrl } from '../../lib/constants';
 import type { SidebarShortcut } from '../../features/shortcuts/types';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
 
@@ -39,6 +39,11 @@ jest.mock('../../hooks/useToastNotification', () => ({
 
 jest.mock('../../hooks/useJobsFeature');
 
+let mockHasCoresAccess = true;
+jest.mock('../../hooks/useCoresFeature', () => ({
+  useHasAccessToCores: () => mockHasCoresAccess,
+}));
+
 describe('useSidebarShortcutItems stored entry handling', () => {
   const mockUseJobsFeature = useJobsFeature as jest.MockedFunction<
     typeof useJobsFeature
@@ -49,6 +54,7 @@ describe('useSidebarShortcutItems stored entry handling', () => {
     mockLegacy = [];
     mockUpdateFlag.mockClear();
     mockSetLegacy.mockClear();
+    mockHasCoresAccess = true;
     mockUseJobsFeature.mockReturnValue({
       isJobsEnabled: true,
       isLoading: false,
@@ -86,6 +92,14 @@ describe('useSidebarShortcutItems stored entry handling', () => {
     const { result } = renderHook(() => useSidebarShortcutItems());
 
     expect(result.current.items).toEqual([]);
+  });
+
+  it('filters the Cores shortcut without Cores access', () => {
+    mockHasCoresAccess = false;
+    mockStored = ['cores', { title: 'Core wallet', path: walletUrl }, 'tags'];
+    const { result } = renderHook(() => useSidebarShortcutItems());
+
+    expect(result.current.items).toEqual(['tags']);
   });
 
   it('still drops an id that was never a catalog entry', () => {

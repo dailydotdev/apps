@@ -2,7 +2,12 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import { ReadingStreakIcon, TriangleArrowIcon, EditIcon } from '../../icons';
+import {
+  ReadingStreakIcon,
+  TriangleArrowIcon,
+  EditIcon,
+  PauseIcon,
+} from '../../icons';
 import classed from '../../../lib/classed';
 import { IconSize, iconSizeToClassName } from '../../Icon';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -24,15 +29,18 @@ export enum Streak {
   Freeze = 'freeze',
   UsedFreeze = 'used_freeze',
   Missed = 'missed',
+  Paused = 'paused',
 }
 
 export const missedDayLabel = 'Missed day, this is where the streak reset';
+export const pausedDayLabel = 'Streak paused this day';
 
 export const freezeTooltipCopy: Partial<Record<Streak, string>> = {
   [Streak.Freeze]:
     'We auto-freeze streaks during the weekend, but you can still keep going if you want to',
   [Streak.UsedFreeze]: 'A streak freeze was used this day',
   [Streak.Missed]: missedDayLabel,
+  [Streak.Paused]: pausedDayLabel,
 };
 
 interface DayStreakProps {
@@ -97,6 +105,22 @@ export function DayStreak({
           className={className}
           size={size}
         />
+      );
+    }
+
+    if (streak === Streak.Paused) {
+      return (
+        <Circle
+          role="img"
+          aria-label={pausedDayLabel}
+          className={classNames(
+            className,
+            iconSizeToClassName[size],
+            'flex items-center justify-center border-border-subtlest-tertiary bg-surface-float text-text-tertiary',
+          )}
+        >
+          <PauseIcon size={IconSize.XSmall} />
+        </Circle>
       );
     }
 

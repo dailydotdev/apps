@@ -25,7 +25,7 @@ import {
 import { HorizontalSeparator } from '../../../../components/utilities/common';
 import { SquadImage } from '../../../../components/squads/SquadImage';
 import { useSquadPageContext } from '../../SquadPageContext';
-import { hasSquadFeature } from '../../lib/features';
+import { showsVerifiedBadge } from '../../lib/features';
 import type { SquadManageGroup } from '../../lib/manage';
 import { squadManageTitles } from '../../lib/manage';
 import { useSquadManageGroups } from '../../hooks/useSquadManageGroups';
@@ -61,7 +61,7 @@ const MenuHeader = (): ReactElement => {
             >
               {squad.name}
             </Typography>
-            {hasSquadFeature(squad, 'verified') && <VerifiedSquadBadge />}
+            {showsVerifiedBadge(squad) && <VerifiedSquadBadge />}
           </span>
           <Typography
             type={TypographyType.Footnote}
@@ -132,11 +132,12 @@ const ManageMenu = ({
                         label={
                           <>
                             <LockIcon size={IconSize.Size16} />
-                            {item.lockedPlan}
+                            Upgrade
                           </>
                         }
                         size={PillSize.XSmall}
-                        className="ml-auto gap-0.5 bg-overlay-float-cabbage text-accent-cabbage-default"
+                        alignment="self-center"
+                        className="ml-auto shrink-0 gap-0.5 bg-overlay-float-cabbage text-accent-cabbage-default"
                       />
                     )}
                     {!!item.badge && (

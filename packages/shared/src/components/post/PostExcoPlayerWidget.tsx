@@ -127,6 +127,7 @@ export function PostExcoPlayerWidget({
   const isAdFree =
     shouldSkipSourceAds(post.source) ||
     (post.source?.type === SourceType.Squad &&
+      post.source.features?.hideAds === undefined &&
       post.source.features?.adFree === undefined);
   const canEvaluate =
     isAuthReadyOrCached && !isPlusAdFree && !isAdFree && !qaPlayerId;
