@@ -17,6 +17,11 @@ import {
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import TabList from '@dailydotdev/shared/src/components/tabs/TabList';
+import {
+  SquadDirectoryNavbar,
+  SquadDirectoryNavbarItem,
+} from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryNavbar';
+import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import ProtectedPage from '../ProtectedPage';
 
@@ -48,9 +53,30 @@ export const AnalyticsPageShell = ({
   const isLaptopLayout = useLaptopLayout();
   const isPhone = useIsPhone();
 
+  // On laptop the tabs are the page header, like the Explore, Tags, Squads
+  // and notification settings headers: the active tab names the page, and
+  // `!py-0` lets each item's underline sit on the header's bottom border.
+  const headerTabs = (
+    <SquadDirectoryNavbar
+      aria-label="Analytics sections"
+      className="!mx-0 min-w-0 flex-1 !border-0 !px-0"
+    >
+      {tabs.map(({ label, url }) => (
+        <SquadDirectoryNavbarItem
+          key={label}
+          buttonSize={ButtonSize.Small}
+          isActive={label === activeTab}
+          label={label}
+          path={url}
+          ariaLabel={`Show ${label.toLowerCase()} analytics`}
+        />
+      ))}
+    </SquadDirectoryNavbar>
+  );
+
   return (
     <ProtectedPage>
-      {isLaptopLayout && <PageHeader title="Analytics" />}
+      {isLaptopLayout && <PageHeader title={headerTabs} className="!py-0" />}
       {isPhone && <ShellPage title="Analytics" />}
       <div className="mx-auto w-full max-w-[48rem]">
         {!isLaptopLayout && !isPhone && (
@@ -70,17 +96,19 @@ export const AnalyticsPageShell = ({
             </Typography>
           </LayoutHeader>
         )}
-        <nav
-          aria-label="Analytics sections"
-          className="border-b border-border-subtlest-tertiary px-2 tablet:px-4"
-        >
-          <TabList<AnalyticsTab>
-            items={tabs}
-            active={activeTab}
-            tag="a"
-            onClick={(label) => router.push(tabUrls[label])}
-          />
-        </nav>
+        {!isLaptopLayout && (
+          <nav
+            aria-label="Analytics sections"
+            className="border-b border-border-subtlest-tertiary px-2 tablet:px-4"
+          >
+            <TabList<AnalyticsTab>
+              items={tabs}
+              active={activeTab}
+              tag="a"
+              onClick={(label) => router.push(tabUrls[label])}
+            />
+          </nav>
+        )}
         <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6 pt-4 tablet:pt-6">
           {children}
         </ResponsivePageContainer>
