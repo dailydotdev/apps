@@ -2,7 +2,6 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import CloseButton from '../CloseButton';
 import { BoostIcon } from '../icons/Boost';
 import { CoreIcon } from '../icons/Core';
 import { IconSize } from '../Icon';
@@ -40,7 +39,6 @@ interface DealCardProps {
   perk: ReactNode;
   tagline: string;
   action: ReactNode;
-  onDismiss?: () => void;
 }
 
 const DealCard = ({
@@ -54,7 +52,6 @@ const DealCard = ({
   perk,
   tagline,
   action,
-  onDismiss,
 }: DealCardProps): ReactElement => (
   <li
     className={classNames(
@@ -65,19 +62,8 @@ const DealCard = ({
     <img
       src={art.src}
       alt={art.alt}
-      className={classNames(
-        'pointer-events-none absolute -top-8 h-24 w-auto object-contain',
-        onDismiss ? 'right-9' : 'right-1',
-      )}
+      className="pointer-events-none absolute -top-8 right-1 h-24 w-auto object-contain"
     />
-    {onDismiss && (
-      <CloseButton
-        size={ButtonSize.XSmall}
-        className="absolute right-1.5 top-1.5"
-        aria-label="Don't show this offer again"
-        onClick={onDismiss}
-      />
-    )}
     <span className="flex flex-wrap items-center gap-2 pr-16">
       <Typography tag={TypographyTag.Span} type={TypographyType.Title3} bold>
         {name}
@@ -178,7 +164,6 @@ const StartupsDeal = ({ promo }: { promo: StartupsPromo }): ReactElement => (
         See plans
       </Button>
     }
-    onDismiss={promo.onDismiss}
   />
 );
 
@@ -246,6 +231,8 @@ export const CoresDeals = ({
     sourceId,
     isPersonalAllowed,
     isVisible: withStartups,
+    // A deal stays: dismissing it would hide Startups everywhere for good
+    isDismissible: false,
   });
   const hasStartups = withStartups && promo.isShown;
 
