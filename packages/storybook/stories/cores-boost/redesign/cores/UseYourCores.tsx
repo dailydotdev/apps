@@ -169,7 +169,7 @@ const UseIcon = ({
   </span>
 );
 
-export const CoresUseTile = ({
+const CoresUseTile = ({
   use,
   override,
 }: {

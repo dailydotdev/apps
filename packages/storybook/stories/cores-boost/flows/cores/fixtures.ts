@@ -145,11 +145,6 @@ const summaryWithFees = (history: UserTransaction[]) =>
     { purchased: 0, received: 0, spent: 0, fees: 0 },
   );
 
-type History = UserTransaction[] | (() => UserTransaction[]);
-
-const read = (history: History): UserTransaction[] =>
-  typeof history === 'function' ? history() : history;
-
 export const readQuest: UserQuest = {
   userQuestId: 'sb-user-quest',
   rotationId: 'sb-rotation',
@@ -225,15 +220,12 @@ const awardNotifications = (): Notification[] =>
     },
   ] as unknown as Notification[];
 
-/**
- * The production handlers, with a summary that also returns fees. Pass a
- * function to change the history while the story runs (after a purchase).
- */
-export const walletHandlers = (balance: number, history: History) => [
+/** The production handlers, with a summary that also returns fees */
+export const walletHandlers = (balance: number, history: UserTransaction[]) => [
   graphql.query('TransactionSummary', async () => {
     await delay(400);
     return HttpResponse.json({
-      data: { transactionSummary: summaryWithFees(read(history)) },
+      data: { transactionSummary: summaryWithFees(history) },
     });
   }),
   graphql.query('transactions', async () => {
@@ -241,7 +233,7 @@ export const walletHandlers = (balance: number, history: History) => [
     return HttpResponse.json({
       data: {
         transactions: {
-          edges: read(history).map((node) => ({ node })),
+          edges: history.map((node) => ({ node })),
           pageInfo: { hasNextPage: false, endCursor: null },
         },
       },

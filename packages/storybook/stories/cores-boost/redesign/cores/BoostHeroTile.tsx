@@ -215,10 +215,8 @@ export const RecentPostsPicker = ({
 
 export const BoostHeroTile = ({
   balance,
-  className,
 }: {
   balance: number;
-  className?: string;
 }): ReactElement => {
   const { user, updateUser } = useAuthContext();
   const [isPicking, setPicking] = useState(false);
@@ -227,12 +225,7 @@ export const BoostHeroTile = ({
   const [buyCost, setBuyCost] = useState<number>();
 
   return (
-    <li
-      className={classNames(
-        'relative flex w-56 shrink-0 snap-start flex-col gap-2 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-gradient-to-br from-overlay-float-blueCheese to-transparent p-3 laptop:w-auto',
-        className,
-      )}
-    >
+    <li className="relative flex w-56 shrink-0 snap-start flex-col gap-2 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-gradient-to-br from-overlay-float-blueCheese to-transparent p-3 laptop:w-auto">
       <span className="absolute -right-7 top-4 w-28 rotate-45 bg-accent-onion-default py-0.5 text-center font-bold text-white typo-caption1">
         -{DEAL_DISCOUNT * 100}%
       </span>

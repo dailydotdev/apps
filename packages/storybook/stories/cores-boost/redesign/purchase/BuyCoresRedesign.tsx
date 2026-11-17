@@ -172,11 +172,13 @@ const CheckoutPanel = ({
   </div>
 );
 
-export interface BuyCoresRedesignModalProps {
+interface BuyCoresRedesignModalProps {
   /** What the Cores are for; unset when you buy from the wallet */
   purpose?: CoresPurpose;
   cost: number;
   product?: Product;
+  /** A pack picked before the pop-up opened, like one of the wallet's packs */
+  priceId?: string;
   /** Open on the checkout, as after picking a pack */
   isCheckoutShown?: boolean;
   onPay: (pack: CoreProductOption) => void;
@@ -187,6 +189,7 @@ export const BuyCoresRedesignModal = ({
   purpose,
   cost,
   product,
+  priceId,
   isCheckoutShown = false,
   onPay,
   onRequestClose,
@@ -212,7 +215,9 @@ export const BuyCoresRedesignModal = ({
   const origin = purpose ? origins[purpose] : Origin.WalletPageCTA;
 
   useEffect(() => {
-    const recommended = getRecommendedCorePrice({ prices, minCores: missing });
+    const recommended =
+      prices?.find((price) => price.priceId === priceId) ??
+      getRecommendedCorePrice({ prices, minCores: missing });
     if (!recommended || selected) {
       return;
     }
@@ -220,7 +225,7 @@ export const BuyCoresRedesignModal = ({
       id: recommended.priceId,
       value: recommended.metadata.coresValue ?? 0,
     });
-  }, [prices, missing, selected]);
+  }, [prices, priceId, missing, selected]);
 
   const pack = useMemo(() => {
     const price = prices?.find(({ priceId }) => priceId === selected?.id);

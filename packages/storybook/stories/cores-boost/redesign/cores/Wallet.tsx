@@ -253,7 +253,7 @@ const HelpWidget = (): ReactElement => (
   </SquadWidget>
 );
 
-export interface WalletProps {
+interface WalletProps {
   /** Cores a purchase just added, shown on the Purchased total */
   purchasedChange?: number;
 }
@@ -263,7 +263,8 @@ export const Wallet = ({
 }: WalletProps): ReactElement | null => {
   useRoute('/wallet');
   const { user, isLoggedIn, updateUser } = useAuthContext();
-  const [isBuying, setBuying] = useState(false);
+  // Open while buying, with the pack a link picked, if any
+  const [buying, setBuying] = useState<{ priceId?: string }>();
   const isLaptopLayout = useLaptopLayout();
   const isPhone = useIsPhone();
 
@@ -294,7 +295,8 @@ export const Wallet = ({
       return;
     }
     event.preventDefault();
-    setBuying(true);
+    const href = new URL(link?.href ?? '', window.location.href);
+    setBuying({ priceId: href.searchParams.get('pid') ?? undefined });
   }, []);
 
   if (!user) {
@@ -440,17 +442,18 @@ export const Wallet = ({
           )}
         </section>
       </SquadFrame>
-      {isBuying && (
+      {buying && (
         <BuyCoresRedesignModal
           cost={0}
+          priceId={buying.priceId}
           onPay={(pack) => {
             updateUser({
               ...user,
               balance: { amount: user.balance.amount + pack.value },
             });
-            setBuying(false);
+            setBuying(undefined);
           }}
-          onRequestClose={() => setBuying(false)}
+          onRequestClose={() => setBuying(undefined)}
         />
       )}
     </div>

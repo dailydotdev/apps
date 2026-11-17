@@ -27,7 +27,7 @@ export const NeededCopy = ({
   selected?: CoreProductOption;
 }): ReactElement => {
   const target =
-    purpose === 'award' ? (awardName ?? 'the Award') : 'your boost';
+    purpose === 'award' ? (awardName ?? 'the award') : 'your boost';
   const missing = cost - balance;
 
   if (!selected || selected.value < missing) {
