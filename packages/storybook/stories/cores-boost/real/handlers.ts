@@ -75,6 +75,14 @@ const questReward = (id: string, days: number, quest: string, value: number) =>
     flags: { note: `Quest reward: ${quest}` },
   });
 
+/** A new user: Cores from quests only, never spent */
+export const questOnlyHistory: UserTransaction[] = [
+  questReward('q1', 0, 'Adventure time', 5),
+  questReward('q2', 1, 'Friendly neighbor', 5),
+  questReward('q3', 2, 'Squad Collector', 15),
+  questReward('q4', 4, 'Chairman of the Guild', 5),
+];
+
 /** A creator who receives, sends and buys */
 export const activeHistory: UserTransaction[] = [
   row('a1', 0, {

@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
+import type { ModalProps } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { ModalBody } from '@dailydotdev/shared/src/components/modals/common/ModalBody';
 import { ModalKind } from '@dailydotdev/shared/src/components/modals/common/types';
@@ -183,6 +184,8 @@ interface BuyCoresRedesignModalProps {
   isCheckoutShown?: boolean;
   onPay: (pack: CoreProductOption) => void;
   onRequestClose: () => void;
+  /** Where it opens, for a page inside a device frame */
+  modalProps?: Pick<ModalProps, 'parentSelector' | 'bodyOpenClassName'>;
 }
 
 export const BuyCoresRedesignModal = ({
@@ -193,6 +196,7 @@ export const BuyCoresRedesignModal = ({
   isCheckoutShown = false,
   onPay,
   onRequestClose,
+  modalProps,
 }: BuyCoresRedesignModalProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -290,6 +294,7 @@ export const BuyCoresRedesignModal = ({
 
   return (
     <Modal
+      {...modalProps}
       isOpen
       onRequestClose={onRequestClose}
       kind={isMobile ? ModalKind.FlexibleTop : Modal.Kind.FlexibleCenter}
