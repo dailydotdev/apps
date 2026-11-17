@@ -217,11 +217,7 @@ export const Deals = ({
       <ul
         className={classNames(
           'mt-6 grid grid-cols-1 gap-x-2 gap-y-8',
-          !isStacked &&
-            !isSingleColumn &&
-            hasStartups &&
-            !isPlus &&
-            'tablet:grid-cols-2',
+          !isStacked && !isSingleColumn && 'tablet:grid-cols-2',
         )}
       >
         {hasStartups && <StartupsDeal promo={promo} />}

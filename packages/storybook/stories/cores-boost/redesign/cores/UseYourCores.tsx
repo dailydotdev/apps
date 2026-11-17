@@ -29,6 +29,8 @@ interface UseDefinition {
   icon: ReactNode;
   tint: string;
   from: number | null;
+  /** The price is the whole price, not a starting one */
+  isExact?: boolean;
 }
 
 const awardImages = awards.map(({ image }) => image).filter(Boolean);
@@ -106,15 +108,22 @@ const uses: Record<CoresUse, UseDefinition> = {
   },
 };
 
-/** The price as a chip at the end of a row */
-const PriceChip = ({ from }: { from: number | null }): ReactElement => (
+/** The starting price as a chip at the end of a row */
+const PriceChip = ({
+  from,
+  isExact,
+}: {
+  from: number | null;
+  isExact?: boolean;
+}): ReactElement => (
   <span className="flex shrink-0 items-center gap-1 rounded-10 border border-border-subtlest-tertiary px-2 py-1 typo-caption1">
     {from === null ? (
       <span className="text-text-tertiary">Varies</span>
     ) : (
       <>
+        {!isExact && <span className="text-text-tertiary">From</span>}
         <CoreIcon size={IconSize.Size16} />
-        <strong className="tabular-nums">{formatCoresCurrency(from)}+</strong>
+        <strong className="tabular-nums">{formatCoresCurrency(from)}</strong>
       </>
     )}
   </span>
@@ -144,9 +153,11 @@ export const CoresUseTile = ({
 }: {
   use: CoresUse;
   /** Copy and price that depend on the viewer, like a streak to restore */
-  override?: Partial<Pick<UseDefinition, 'title' | 'description' | 'from'>>;
+  override?: Partial<
+    Pick<UseDefinition, 'title' | 'description' | 'from' | 'isExact'>
+  >;
 }): ReactElement => {
-  const { title, description, from } = { ...uses[use], ...override };
+  const { title, description, from, isExact } = { ...uses[use], ...override };
 
   return (
     <li className="flex w-56 shrink-0 snap-start flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-3 laptop:w-auto">
@@ -156,7 +167,7 @@ export const CoresUseTile = ({
       </span>
       <span className="text-text-tertiary typo-footnote">{description}</span>
       <span className="mt-auto flex pt-1">
-        <PriceChip from={from} />
+        <PriceChip from={from} isExact={isExact} />
       </span>
     </li>
   );
@@ -174,6 +185,7 @@ export const UseYourCoresTiles = ({
         title: `Restore your ${recover.oldStreakLength}-day streak`,
         description: 'It broke yesterday. Bring it back before it’s gone',
         from: recover.cost,
+        isExact: true,
       }
     : {
         title: 'Protect your streak',
