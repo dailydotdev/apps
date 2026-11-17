@@ -473,7 +473,9 @@ const TokenCreatedModal = ({
           </Typography>
         </div>
         <div className="flex items-center gap-2 rounded-12 bg-surface-float p-3">
-          <code className="flex-1 break-all text-text-primary">{token}</code>
+          <code className="flex-1 break-all text-text-primary" data-hj-suppress>
+            {token}
+          </code>
           <Button
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
