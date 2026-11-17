@@ -10,17 +10,12 @@ import { Image } from '../image/Image';
 import { cloudinaryReputationPrivilegesUnlocked } from '../../lib/image';
 import { reputation, webappUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureReputationAnalytics } from '../../lib/featureManagement';
 
 export const ReputationPrivilegesModal = ({
   onRequestClose,
   ...modalProps
 }: ModalProps): ReactElement => {
   const { completeAction } = useActions();
-  const { value: hasReputationAnalytics } = useConditionalFeature({
-    feature: featureReputationAnalytics,
-  });
 
   const onClose = (event: MouseEvent) => {
     completeAction(ActionType.AckRep250);
@@ -54,28 +49,22 @@ export const ReputationPrivilegesModal = ({
           </p>
         </div>
         <div className="flex w-full flex-col gap-3">
-          {hasReputationAnalytics && (
-            <Button
-              tag="a"
-              href={`${webappUrl}analytics/reputation`}
-              className="w-full"
-              variant={ButtonVariant.Primary}
-              onClick={onClose}
-            >
-              See your reputation
-            </Button>
-          )}
+          <Button
+            tag="a"
+            href={`${webappUrl}analytics/reputation`}
+            className="w-full"
+            variant={ButtonVariant.Primary}
+            onClick={onClose}
+          >
+            See your reputation
+          </Button>
           <Button
             target="_blank"
             tag="a"
             rel={anchorDefaultRel}
             href={reputation}
             className="w-full"
-            variant={
-              hasReputationAnalytics
-                ? ButtonVariant.Float
-                : ButtonVariant.Primary
-            }
+            variant={ButtonVariant.Float}
             onClick={onClose}
           >
             Tell me more

@@ -5,8 +5,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import Link from '../utilities/Link';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureReputationAnalytics } from '../../lib/featureManagement';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import type { IconProps } from '../Icon';
@@ -50,7 +48,6 @@ import {
   feedback,
   plusUrl,
   privacyPolicy,
-  reputation as reputationDocsUrl,
   settingsUrl,
   termsOfService,
   walletUrl,
@@ -243,10 +240,6 @@ export function YouPage(): ReactElement | null {
   const { user, isAuthReady } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const hasAccessToCores = useHasAccessToCores();
-  const { value: hasReputationAnalytics } = useConditionalFeature({
-    feature: featureReputationAnalytics,
-    shouldEvaluate: !!user,
-  });
   const { data: followStats } = useUserFollowStats(user?.id);
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -345,12 +338,7 @@ export function YouPage(): ReactElement | null {
               }
               amount={user.reputation ?? 0}
               label="Reputation"
-              href={
-                hasReputationAnalytics
-                  ? `${webappUrl}analytics/reputation`
-                  : reputationDocsUrl
-              }
-              external={!hasReputationAnalytics}
+              href={`${webappUrl}analytics/reputation`}
             />
             <Stat
               amount={followStats?.numFollowers ?? 0}
