@@ -1,6 +1,5 @@
 import { useCallback, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { STREAK_EARN_BACK_WINDOW_MS } from './useStreakEarnBackProgress';
 import { useRouter } from 'next/router';
 import { useToggle } from '../useToggle';
 import { useActions } from '../useActions';
@@ -34,6 +33,7 @@ import { LazyModal } from '../../components/modals/common/types';
 import { useConditionalFeature } from '../useConditionalFeature';
 import { featureStreakFreeze } from '../../lib/featureManagement';
 import { useHasAccessToCores } from '../useCoresFeature';
+import { STREAK_EARN_BACK_WINDOW_MS } from './useStreakEarnBackProgress';
 
 interface UseStreakRecoverProps {
   onAfterClose?: () => void;
