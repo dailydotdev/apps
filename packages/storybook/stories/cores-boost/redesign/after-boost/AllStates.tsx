@@ -262,7 +262,7 @@ const Strip = ({
 
 const newTitle = (
   <>
-    Boost to reach <strong>10k more devs</strong> now!
+    Boost to reach <strong>more developers</strong> now!
   </>
 );
 
@@ -539,15 +539,7 @@ export const AllStatesPage = (): ReactElement => (
     >
       <PhoneAndLaptop>
         <Device device="phone" url="/posts/sb-boost-post">
-          <ModalHost>
-            {(modalProps) => (
-              <BoostLiveRedesign
-                onSeeBoost={noop}
-                onRequestClose={noop}
-                modalProps={modalProps}
-              />
-            )}
-          </ModalHost>
+          <BoostLiveRedesign onSeeBoost={noop} onRequestClose={noop} isDrawer />
         </Device>
         <Device device="laptop" url="/posts/sb-boost-post">
           <ModalHost>

@@ -30,7 +30,7 @@ import { getPostPath } from '@dailydotdev/shared/src/lib/links';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import type { Campaign } from '@dailydotdev/shared/src/graphql/campaigns';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
-import { allCampaigns } from '../../flows/after-boost/fixtures';
+import { allCampaigns, lastBoostOf } from '../../flows/after-boost/fixtures';
 import { boostablePost } from '../../real/screens';
 import type { Day, MetricDef } from './BoostAnalytics';
 import {
@@ -44,6 +44,7 @@ import {
   tableScrollClassName,
 } from './BoostAnalytics';
 import { BoostsList, BoostsTab, DocsLinks } from './BoostsPage';
+import { BoostAgainModal } from './BoostAgainModal';
 
 // /analytics and Boost manager as one page with two header tabs, as Squads
 // has Discover and My Squads. Analytics covers every post, boosted or not,
@@ -446,6 +447,8 @@ export function CombinedAnalytics({
   isLoading,
 }: CombinedAnalyticsProps): ReactElement {
   const [tab, setTab] = useState(initialTab);
+  // An ended boost's Boost again opens the form, prefilled with its budget
+  const [boostingAgain, setBoostingAgain] = useState<Campaign>();
   // Nothing boosted yet: organic alone, so no legend
   const layers = useMemo(
     () => [
@@ -517,7 +520,11 @@ export function CombinedAnalytics({
           <LeaderboardHeading title={isBoost ? 'Your boosts' : 'Your posts'} />
           <div className={cardClassName}>
             {isBoost ? (
-              <BoostsList campaigns={campaigns} initialTab={initialBoostsTab} />
+              <BoostsList
+                campaigns={campaigns}
+                initialTab={initialBoostsTab}
+                onBoostAgain={setBoostingAgain}
+              />
             ) : (
               <PostsTable
                 rows={rows}
@@ -533,6 +540,15 @@ export function CombinedAnalytics({
           </section>
         )}
       </PageWrapperLayout>
+      {boostingAgain && (
+        <BoostAgainModal
+          isOpen
+          post={boostingAgain.post as Post}
+          lastBoost={lastBoostOf(boostingAgain)}
+          onRequestClose={() => setBoostingAgain(undefined)}
+          onSeeBoost={() => setBoostingAgain(undefined)}
+        />
+      )}
     </>
   );
 }

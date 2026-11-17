@@ -15,6 +15,17 @@ const oneDay = 24 * 60 * 60 * 1000;
 const daysFromNow = (days: number): Date =>
   new Date(Date.now() + days * oneDay);
 
+/** A few hours from now, but never past tonight, so "Ends today" holds at any
+ * hour */
+const laterToday = (): Date => {
+  const endOfToday = new Date();
+  endOfToday.setHours(23, 59, 0, 0);
+
+  return new Date(
+    Math.min(Date.now() + 3 * 60 * 60 * 1000, endOfToday.getTime()),
+  );
+};
+
 const postNamed = (id: string, title: string): Post =>
   ({ ...boostablePost, id, title }) as Post;
 
@@ -145,7 +156,7 @@ export const liveCampaigns: Campaign[] = [
     {
       state: CampaignState.Active,
       createdAt: daysFromNow(-3),
-      endedAt: daysFromNow(0.3),
+      endedAt: laterToday(),
       flags: {
         budget: 3000,
         spend: 2750,
@@ -180,3 +191,13 @@ export const durationOf = ({ createdAt, endedAt }: Campaign): number =>
       (new Date(endedAt).getTime() - new Date(createdAt).getTime()) / oneDay,
     ),
   );
+
+/** The last boost's days and daily budget, which Boost again starts from */
+export const lastBoostOf = (campaign: Campaign) => {
+  const days = durationOf(campaign);
+
+  return {
+    days,
+    coresPerDay: Math.round((campaign.flags.budget ?? 0) / days),
+  };
+};

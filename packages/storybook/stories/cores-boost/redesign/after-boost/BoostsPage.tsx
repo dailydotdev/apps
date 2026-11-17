@@ -57,16 +57,23 @@ export enum BoostsTab {
   Ended = 'Ended',
 }
 
-interface BoostsListProps {
+interface CampaignActionsProps {
+  onStop?: (campaign: Campaign) => void;
+  onExtend?: (campaign: Campaign) => void;
+  onBoostAgain?: (campaign: Campaign) => void;
+}
+
+interface BoostsListProps extends CampaignActionsProps {
   campaigns?: Campaign[];
   /** The tab it opens on, Live when anything is running */
   initialTab?: BoostsTab;
 }
 
-/** The Live/Ended tabs and the boosts as a table, or cards on phones */
+/** The Live/Ended tabs and the boosts as a table */
 export function BoostsList({
   campaigns = allCampaigns,
   initialTab,
+  ...actions
 }: BoostsListProps): ReactElement {
   const live = campaigns.filter(({ state }) => state === CampaignState.Active);
   const ended = campaigns.filter(({ state }) => state !== CampaignState.Active);
@@ -116,7 +123,7 @@ export function BoostsList({
       </div>
       {active.list.length ? (
         <div className={classNames(tableScrollClassName, 'pt-2')}>
-          <CampaignTable campaigns={active.list} />
+          <CampaignTable campaigns={active.list} {...actions} />
         </div>
       ) : (
         emptyState
@@ -184,12 +191,6 @@ const TimeLeft = ({ campaign }: { campaign: Campaign }): ReactElement =>
   ) : (
     <BoostStatus status={campaign.state} />
   );
-
-interface CampaignActionsProps {
-  onStop?: () => void;
-  onExtend?: () => void;
-  onBoostAgain?: () => void;
-}
 
 const shortDate = (date: Date | string): string =>
   new Date(date).toLocaleDateString('en-US', {
@@ -299,7 +300,7 @@ const CampaignTable = ({
                         size={ButtonSize.XSmall}
                         icon={<PauseIcon />}
                         className="text-text-secondary hover:text-accent-ketchup-default"
-                        onClick={onStop}
+                        onClick={() => onStop?.(campaign)}
                       >
                         Stop
                       </Button>
@@ -307,7 +308,7 @@ const CampaignTable = ({
                     <Button
                       variant={ButtonVariant.Float}
                       size={ButtonSize.XSmall}
-                      onClick={onExtend}
+                      onClick={() => onExtend?.(campaign)}
                     >
                       Extend
                     </Button>
@@ -316,7 +317,7 @@ const CampaignTable = ({
                   <Button
                     variant={ButtonVariant.Float}
                     size={ButtonSize.XSmall}
-                    onClick={onBoostAgain}
+                    onClick={() => onBoostAgain?.(campaign)}
                   >
                     Boost again
                   </Button>

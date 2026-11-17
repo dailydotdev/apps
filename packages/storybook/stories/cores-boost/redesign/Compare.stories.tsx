@@ -4,8 +4,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 
 // Today, 100% production, next to the redesign, screen by screen, as
 // screenshots: dark mode, 1440×900. Live frames took a minute to fill a page.
-// After changing a screen, shoot it again; each redesign image links to its
-// live story.
+// After changing a screen, shoot it again. Each redesign image links to its
+// live story; production's are only screenshots.
 
 const screenshots = import.meta.glob<string>('../assets/compare/*.jpg', {
   eager: true,
@@ -33,26 +33,47 @@ const pairsFor = (
     redesign: next ? `cores-boost-redesign-${flow}--${next}` : undefined,
   }));
 
-/** A story's screenshot, linking to the live story */
-const StoryShot = ({ id }: { id: string }): ReactElement => (
-  <a
-    href={`?path=/story/${id}`}
-    target="_top"
-    className="block overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-subtle"
-  >
+const shotClassName =
+  'block overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-subtle';
+
+/** A screenshot; a redesign one links to its live story */
+const StoryShot = ({
+  id,
+  isLink,
+}: {
+  id: string;
+  isLink: boolean;
+}): ReactElement => {
+  const image = (
     <img
       src={screenshotOf(id)}
       alt={id}
       loading="lazy"
       className="aspect-[16/10] w-full object-cover object-top"
     />
-  </a>
-);
+  );
 
-const Column = ({ label, id }: { label: string; id: string }): ReactElement => (
+  return isLink ? (
+    <a href={`?path=/story/${id}`} target="_top" className={shotClassName}>
+      {image}
+    </a>
+  ) : (
+    <div className={shotClassName}>{image}</div>
+  );
+};
+
+const Column = ({
+  label,
+  id,
+  isLink,
+}: {
+  label: string;
+  id: string;
+  isLink: boolean;
+}): ReactElement => (
   <div className="flex min-w-0 flex-1 flex-col gap-2">
     <span className="font-bold text-text-tertiary typo-caption1">{label}</span>
-    <StoryShot id={id} />
+    <StoryShot id={id} isLink={isLink} />
   </div>
 );
 
@@ -62,10 +83,11 @@ const ComparePage = ({ pairs }: { pairs: Pair[] }): ReactElement => (
       <section key={pair.name} className="flex flex-col gap-3">
         <h2 className="font-bold typo-title3">{pair.name}</h2>
         <div className="flex flex-col gap-4 laptop:flex-row">
-          <Column label="Today · production" id={pair.today} />
+          <Column label="Today · production" id={pair.today} isLink={false} />
           <Column
             label={pair.redesign ? 'Redesign' : 'Redesign · unchanged'}
             id={pair.redesign ?? pair.today}
+            isLink={!!pair.redesign}
           />
         </div>
       </section>

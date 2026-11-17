@@ -142,7 +142,7 @@ export const OwnPostFixed = ({
         (state === 'new' ? (
           <Strip onBoost={onBoost} onDismiss={() => setDismissed(true)}>
             <span>Boost to reach</span>
-            <strong className="mx-1">10k more devs</strong>
+            <strong className="mx-1">more developers</strong>
             <span>now!</span>
           </Strip>
         ) : (
@@ -367,7 +367,7 @@ export const BoostPostFixedModal = ({
             <PresetOption
               isSelected={mode === 'starter'}
               title="Starter"
-              description={`1 day · ${starterBoost.coresPerDay.toLocaleString()} Cores`}
+              description={`1 day · ${starterBoost.coresPerDay.toLocaleString('en-US')} Cores`}
               onClick={() => setMode('starter')}
             />
             <PresetOption
@@ -448,7 +448,7 @@ export const BoostPostFixedModal = ({
           {missing > 0 && wallet === CampaignWallet.User ? (
             <>
               Get <CoreIcon className="mx-1" size={IconSize.Small} />
-              {missing.toLocaleString()} Cores and boost
+              {missing.toLocaleString('en-US')} Cores and boost
             </>
           ) : (
             <>
@@ -518,7 +518,7 @@ export const BoostLaunchingModal = ({
             <Typography type={TypographyType.Callout} bold>
               Boosting for {budget.totalDays}{' '}
               {budget.totalDays === 1 ? 'day' : 'days'} ·{' '}
-              {total.toLocaleString()} Cores
+              {total.toLocaleString('en-US')} Cores
             </Typography>
             <Typography
               type={TypographyType.Footnote}

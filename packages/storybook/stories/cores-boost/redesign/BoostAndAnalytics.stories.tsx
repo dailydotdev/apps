@@ -4,10 +4,9 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { CoresProviders, noop } from '../real/providers';
 import { coresHandlers } from '../real/handlers';
-import type { Campaign } from '@dailydotdev/shared/src/graphql/campaigns';
 import { boostablePost } from '../real/screens';
 import { Stage } from '../flows/purchase/stage';
-import { durationOf, endedCampaign } from '../flows/after-boost/fixtures';
+import { endedCampaign, lastBoostOf } from '../flows/after-boost/fixtures';
 import { NotificationsPage, RenameInPage } from '../real/pages';
 import { BoostAgainModal } from './after-boost/BoostAgainModal';
 import { AllStatesPage } from './after-boost/AllStates';
@@ -111,15 +110,6 @@ export const BoostFormReading = story(
     </Stage>
   ),
 );
-
-const lastBoostOf = (campaign: Campaign) => {
-  const days = durationOf(campaign);
-
-  return {
-    days,
-    coresPerDay: Math.round((campaign.flags.budget ?? 0) / days),
-  };
-};
 
 export const BoostBackToForm = story(
   'As in production: once the Cores land, you are back on the boost form with the same budget, and Boost post starts it.',

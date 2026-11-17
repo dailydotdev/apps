@@ -377,7 +377,7 @@ export const BoostPostCompactModal = ({
           {missing > 0 && wallet === CampaignWallet.User ? (
             <>
               Get <CoreIcon className="mx-1" size={IconSize.Small} />
-              {missing.toLocaleString()} Cores and boost
+              {missing.toLocaleString('en-US')} Cores and boost
             </>
           ) : (
             <>
