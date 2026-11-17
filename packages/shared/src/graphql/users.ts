@@ -766,6 +766,12 @@ export interface UserStreakReset {
   at: string;
 }
 
+// Local dates (YYYY-MM-DD, inclusive) in the user's timezone.
+export interface UserStreakPause {
+  start: string;
+  end: string;
+}
+
 export interface UserStreak {
   max: number;
   total: number;
