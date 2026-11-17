@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import type { QueryClient } from '@tanstack/react-query';
-import { useQueryClient } from '@tanstack/react-query';
 import { featureAppStoreReview } from '../lib/featureManagement';
 import { iOSSupportsReview } from '../lib/ios';
 import {
@@ -16,18 +14,7 @@ interface ReviewPrompt {
   lastAskedAt: string;
 }
 
-const hasSessionError = (queryClient: QueryClient): boolean =>
-  queryClient
-    .getQueryCache()
-    .getAll()
-    .some((query) => query.state.errorUpdateCount > 0) ||
-  queryClient
-    .getMutationCache()
-    .getAll()
-    .some((mutation) => mutation.state.status === 'error');
-
 export const useStreakReviewAsk = (currentStreak: number): boolean => {
-  const queryClient = useQueryClient();
   const [canReview, setCanReview] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const hasDecided = useRef(false);
@@ -59,11 +46,7 @@ export const useStreakReviewAsk = (currentStreak: number): boolean => {
       ? new Date(reviewPrompt.lastAskedAt).getTime()
       : 0;
 
-    if (
-      !isEnabled ||
-      hasSessionError(queryClient) ||
-      Date.now() - lastAskedAt < appStoreReviewCooldownMs
-    ) {
+    if (!isEnabled || Date.now() - lastAskedAt < appStoreReviewCooldownMs) {
       return;
     }
 
@@ -77,7 +60,6 @@ export const useStreakReviewAsk = (currentStreak: number): boolean => {
     isFetched,
     isLoading,
     isMilestone,
-    queryClient,
     reviewPrompt,
     setReviewPrompt,
   ]);

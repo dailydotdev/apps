@@ -144,20 +144,4 @@ describe('NewStreakModal App Store review ask', () => {
 
     await expectNoAsk();
   });
-
-  it('is unchanged in a session that had errors', async () => {
-    const client = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
-    });
-    await client
-      .fetchQuery({
-        queryKey: ['failed'],
-        gcTime: Infinity,
-        queryFn: () => Promise.reject(new Error('failed')),
-      })
-      .catch(() => null);
-    renderModal({ client });
-
-    await expectNoAsk();
-  });
 });
