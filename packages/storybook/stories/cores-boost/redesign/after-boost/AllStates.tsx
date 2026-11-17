@@ -349,7 +349,7 @@ export const AllStatesPage = (): ReactElement => (
 
     <Section
       id="boost-widths"
-      lead="Only the boosts: Impressions, Clicks on post, CTR, Users and Spend over one blue chart, then Live and Ended. One table at every width, with Stop and Extend per row; on phones the boost's name stays in place while the figures and actions scroll beside it, as in the Ads Manager. Docs and Terms sit in the header."
+      lead="Only the boosts: Impressions, Clicks on post, CTR, Users and Spend over one blue chart, then Live and Ended. One table at every width: a live boost has Stop, which asks first as production does, and an ended one has Boost again; on phones the boost's name stays in place while the figures and actions scroll beside it, as in the Ads Manager. Docs and Terms sit in the header."
     >
       <Analytics device="laptopL" initialTab={AnalyticsTab.Boost} />
       <Row>

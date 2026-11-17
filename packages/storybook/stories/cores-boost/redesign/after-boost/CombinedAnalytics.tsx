@@ -29,6 +29,7 @@ import { LeaderboardHeading } from '@dailydotdev/shared/src/features/leaderboard
 import { getPostPath } from '@dailydotdev/shared/src/lib/links';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import type { Campaign } from '@dailydotdev/shared/src/graphql/campaigns';
+import { CampaignState } from '@dailydotdev/shared/src/graphql/campaigns';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import type { ModalProps } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { allCampaigns, lastBoostOf } from '../../flows/after-boost/fixtures';
@@ -44,7 +45,12 @@ import {
   stickyHeadClassName,
   tableScrollClassName,
 } from './BoostAnalytics';
-import { BoostsList, BoostsTab, DocsLinks } from './BoostsPage';
+import {
+  BoostsList,
+  BoostsTab,
+  DocsLinks,
+  StopBoostPrompt,
+} from './BoostsPage';
 import { BoostAgainModal } from './BoostAgainModal';
 
 // /analytics and Boost manager as one page with two header tabs, as Squads
@@ -441,7 +447,7 @@ interface CombinedAnalyticsProps {
 }
 
 export function CombinedAnalytics({
-  campaigns = allCampaigns,
+  campaigns: initialCampaigns = allCampaigns,
   initialTab = AnalyticsTab.Analytics,
   hasStartupsPlan = false,
   initialMetric,
@@ -451,6 +457,9 @@ export function CombinedAnalytics({
   modalProps,
 }: CombinedAnalyticsProps): ReactElement {
   const [tab, setTab] = useState(initialTab);
+  // Stopping a boost moves it to Ended, as production's cancel does
+  const [campaigns, setCampaigns] = useState(initialCampaigns);
+  const [stopping, setStopping] = useState<Campaign>();
   // An ended boost's Boost again opens the form, prefilled with its budget
   const [boostingAgain, setBoostingAgain] = useState<Campaign>();
   // Nothing boosted yet: organic alone, so no legend
@@ -528,6 +537,7 @@ export function CombinedAnalytics({
                 campaigns={campaigns}
                 initialTab={initialBoostsTab}
                 onBoostAgain={setBoostingAgain}
+                onStop={setStopping}
               />
             ) : (
               <PostsTable
@@ -544,6 +554,26 @@ export function CombinedAnalytics({
           </section>
         )}
       </PageWrapperLayout>
+      {stopping && (
+        <StopBoostPrompt
+          modalProps={modalProps}
+          onRequestClose={() => setStopping(undefined)}
+          onStop={() => {
+            setCampaigns((list) =>
+              list.map((item) =>
+                item.id === stopping.id
+                  ? {
+                      ...item,
+                      state: CampaignState.Cancelled,
+                      endedAt: new Date(),
+                    }
+                  : item,
+              ),
+            );
+            setStopping(undefined);
+          }}
+        />
+      )}
       {boostingAgain && (
         <BoostAgainModal
           {...modalProps}

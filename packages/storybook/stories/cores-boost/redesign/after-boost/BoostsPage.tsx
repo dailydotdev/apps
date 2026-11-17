@@ -7,6 +7,7 @@ import {
 } from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryNavbar';
 import {
   Button,
+  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -17,6 +18,9 @@ import {
   PauseIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
+import type { ModalProps } from '@dailydotdev/shared/src/components/modals/common/Modal';
+import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
+import { stopBoostPromptOptions } from '@dailydotdev/shared/src/features/boost/BoostedViewModal';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
@@ -59,7 +63,6 @@ export enum BoostsTab {
 
 interface CampaignActionsProps {
   onStop?: (campaign: Campaign) => void;
-  onExtend?: (campaign: Campaign) => void;
   onBoostAgain?: (campaign: Campaign) => void;
 }
 
@@ -209,7 +212,6 @@ const columns = ['Boost', 'Spend', 'Impressions', 'Clicks', 'CTR', 'Time', ''];
 const CampaignTable = ({
   campaigns,
   onStop,
-  onExtend,
   onBoostAgain,
 }: CampaignActionsProps & {
   campaigns: Campaign[];
@@ -289,30 +291,21 @@ const CampaignTable = ({
             <td className="py-3 pl-3 pr-4 tablet:pr-6">
               <span className="flex justify-end gap-1">
                 {isActive ? (
-                  <>
-                    <Tooltip
-                      content={`Stops the boost now and refunds the ${unspentOf(
-                        campaign,
-                      ).toLocaleString('en-US')} Cores it has not spent`}
-                    >
-                      <Button
-                        variant={ButtonVariant.Float}
-                        size={ButtonSize.XSmall}
-                        icon={<PauseIcon />}
-                        className="text-text-secondary hover:text-accent-ketchup-default"
-                        onClick={() => onStop?.(campaign)}
-                      >
-                        Stop
-                      </Button>
-                    </Tooltip>
+                  <Tooltip
+                    content={`Stops the boost now and refunds the ${unspentOf(
+                      campaign,
+                    ).toLocaleString('en-US')} Cores it has not spent`}
+                  >
                     <Button
                       variant={ButtonVariant.Float}
                       size={ButtonSize.XSmall}
-                      onClick={() => onExtend?.(campaign)}
+                      icon={<PauseIcon />}
+                      className="text-text-secondary hover:text-accent-ketchup-default"
+                      onClick={() => onStop?.(campaign)}
                     >
-                      Extend
+                      Stop
                     </Button>
-                  </>
+                  </Tooltip>
                 ) : (
                   <Button
                     variant={ButtonVariant.Float}
@@ -330,3 +323,53 @@ const CampaignTable = ({
     </tbody>
   </table>
 );
+
+/** Production's "Stop this boost?" prompt (`stopBoostPromptOptions`), drawn
+ * as `PromptElement` draws it, so it can open inside a device frame. The two
+ * buttons share the row evenly */
+export const StopBoostPrompt = ({
+  onStop,
+  onRequestClose,
+  modalProps,
+}: {
+  onStop: () => void;
+  onRequestClose: () => void;
+  modalProps?: Pick<ModalProps, 'parentSelector' | 'bodyOpenClassName'>;
+}): ReactElement => {
+  const { title, description, okButton, cancelButton } = stopBoostPromptOptions;
+
+  return (
+    <Modal
+      {...modalProps}
+      isOpen
+      kind={Modal.Kind.FlexibleCenter}
+      size={Modal.Size.Small}
+      onRequestClose={onRequestClose}
+      isDrawerOnMobile
+    >
+      <Modal.Body>
+        <h1 className="text-center font-bold typo-title3">{title}</h1>
+        <div className="mb-6 mt-4 text-center text-text-secondary typo-callout">
+          {description}
+        </div>
+        <div className="flex flex-col items-center justify-center gap-4 self-stretch tablet:flex-row">
+          <Button
+            variant={cancelButton?.variant ?? ButtonVariant.Secondary}
+            className="w-full tablet:flex-1"
+            onClick={onRequestClose}
+          >
+            {cancelButton?.title ?? 'Cancel'}
+          </Button>
+          <Button
+            variant={ButtonVariant.Primary}
+            color={okButton?.color as ButtonColor}
+            className="w-full tablet:flex-1"
+            onClick={onStop}
+          >
+            {okButton?.title}
+          </Button>
+        </div>
+      </Modal.Body>
+    </Modal>
+  );
+};
