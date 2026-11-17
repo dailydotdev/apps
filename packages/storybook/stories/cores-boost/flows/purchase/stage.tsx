@@ -27,7 +27,7 @@ export const Stage = ({
     {background}
     {isDone && onRestart && (
       <Button
-        className="opacity-60 fixed bottom-2 left-1/2 z-max -translate-x-1/2"
+        className="fixed opacity-64 bottom-2 left-1/2 z-max -translate-x-1/2"
         size={ButtonSize.XSmall}
         variant={ButtonVariant.Float}
         onClick={onRestart}
