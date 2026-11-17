@@ -44,6 +44,11 @@ export const featureLuckyButton = new Feature('lucky_button', false);
 
 export const featureJobsUI = new Feature('jobs_ui', false);
 
+// Off by default, turned on in GrowthBook. Gates the App Store review asks on
+// iOS: the profile menu row, the streak milestone card and the sheet behind
+// the `app_store_review` marketing CTA.
+export const featureAppStoreReview = new Feature('app_store_review', false);
+
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
 export enum AdRefreshEngineVersion {
