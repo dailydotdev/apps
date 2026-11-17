@@ -1,6 +1,7 @@
 import React from 'react';
 import nock from 'nock';
 import { QueryClient } from '@tanstack/react-query';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { get as getCache, set as setCache } from 'idb-keyval';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
@@ -33,9 +34,19 @@ const onRequestClose = jest.fn();
 const renderModal = ({
   currentStreak = 30,
   client = new QueryClient(),
-}: { currentStreak?: number; client?: QueryClient } = {}) =>
+  isEnabled = true,
+}: {
+  currentStreak?: number;
+  client?: QueryClient;
+  isEnabled?: boolean;
+} = {}) =>
   render(
     <TestBootProvider
+      gb={
+        new GrowthBook({
+          features: { app_store_review: { defaultValue: isEnabled } },
+        })
+      }
       auth={{ user: loggedUser }}
       client={client}
       log={{ logEvent }}
@@ -125,6 +136,13 @@ describe('NewStreakModal App Store review ask', () => {
   it('is unchanged outside the iOS app with the bridge', async () => {
     jest.mocked(iOSSupportsReview).mockReturnValue(false);
     renderModal();
+
+    await expectNoAsk();
+    expect(requestIOSReview).not.toHaveBeenCalled();
+  });
+
+  it('is unchanged when the app_store_review flag is off', async () => {
+    renderModal({ isEnabled: false });
 
     await expectNoAsk();
     expect(requestIOSReview).not.toHaveBeenCalled();
