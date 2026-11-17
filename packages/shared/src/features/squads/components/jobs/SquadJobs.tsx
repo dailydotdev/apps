@@ -34,7 +34,7 @@ import { LogEvent, Origin } from '../../../../lib/log';
 import { getDomainFromUrl } from '../../../../lib/links';
 import { useSquadPageContext } from '../../SquadPageContext';
 import { useSquadJobs } from '../../hooks/useSquadJobs';
-import { hasSquadFeature } from '../../lib/features';
+import { showsVerifiedBadge } from '../../lib/features';
 import { getSquadJobMeta } from '../../lib/jobs';
 import {
   getSquadJobFormUrl,
@@ -220,7 +220,7 @@ const JobSummary = ({ job }: { job: SquadJob }): ReactElement => {
             >
               {squad.name}
             </Typography>
-            {hasSquadFeature(squad, 'verified') && <VerifiedSquadBadge />}
+            {showsVerifiedBadge(squad) && <VerifiedSquadBadge />}
           </span>
           <Typography
             type={TypographyType.Footnote}

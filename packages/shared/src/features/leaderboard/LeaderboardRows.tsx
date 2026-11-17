@@ -3,7 +3,6 @@ import React from 'react';
 import classNames from 'classnames';
 import { ArrowIcon } from '../../components/icons/Arrow';
 import { IconSize } from '../../components/Icon';
-import { ElementPlaceholder } from '../../components/ElementPlaceholder';
 import { TopRankBadge } from '../../components/cards/Leaderboard/TopRankBadge';
 import Link from '../../components/utilities/Link';
 
@@ -32,14 +31,11 @@ export const LeaderboardTextLink = ({
   href,
   onClick,
   ariaLabel,
-  ariaExpanded,
 }: {
   children: ReactNode;
   href?: string;
   onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void;
   ariaLabel?: string;
-  /** Set when the link opens a list in place instead of its page. */
-  ariaExpanded?: boolean;
 }): ReactElement => {
   const content = (
     <>
@@ -59,7 +55,6 @@ export const LeaderboardTextLink = ({
         className={classNames(textLinkClassName, 'hover:text-text-primary')}
         onClick={onClick}
         aria-label={ariaLabel}
-        aria-expanded={ariaExpanded}
       >
         {content}
       </a>
@@ -94,14 +89,6 @@ export const LeaderboardRank = ({
   </span>
 );
 
-export const LeaderboardRowPlaceholder = (): ReactElement => (
-  <li className="flex h-12 items-center gap-3 px-2">
-    <ElementPlaceholder className="h-3 w-6 rounded-4" />
-    <ElementPlaceholder className="size-8 rounded-10" />
-    <ElementPlaceholder className="h-3 w-2/5 rounded-4" />
-  </li>
-);
-
 export const LeaderboardEmptyBoard = (): ReactElement => (
   <p className="px-2 py-3 text-text-tertiary typo-footnote">
     Nothing here right now. Check back soon.
@@ -109,7 +96,71 @@ export const LeaderboardEmptyBoard = (): ReactElement => (
 );
 
 /**
- * A row on a board tile and in its full list: rank, who, and the score. With
+ * A full-size row: the top reputation columns and a board's own page. With an
+ * `href` the row is a profile link.
+ */
+export const LeaderboardListRow = ({
+  rank,
+  name,
+  image,
+  value,
+  highlight = false,
+  href,
+  onClick,
+}: {
+  rank: number | string;
+  name: string;
+  image: ReactNode;
+  value: ReactNode;
+  highlight?: boolean;
+  href?: string;
+  onClick?: () => void;
+}): ReactElement => {
+  const className = classNames(
+    'flex h-12 items-center gap-3 rounded-12 px-2',
+    highlight ? youHighlightClassName : href && 'hover:bg-surface-hover',
+  );
+  const content = (
+    <>
+      {typeof rank === 'number' ? (
+        <LeaderboardRank rank={rank} />
+      ) : (
+        <span className="flex min-w-8 shrink-0 justify-center font-bold tabular-nums text-text-tertiary typo-callout">
+          {rank}
+        </span>
+      )}
+      {image}
+      <span
+        className={classNames(
+          'min-w-0 flex-1 truncate font-bold typo-callout',
+          highlight && 'text-accent-cabbage-default',
+        )}
+      >
+        {name}
+      </span>
+      <span className="flex shrink-0 font-bold tabular-nums typo-footnote">
+        {value}
+      </span>
+    </>
+  );
+
+  return (
+    <li>
+      {href ? (
+        <Link href={href} passHref prefetch={false}>
+          <a href={href} className={className} onClick={onClick}>
+            {content}
+          </a>
+        </Link>
+      ) : (
+        <div className={className}>{content}</div>
+      )}
+    </li>
+  );
+};
+
+/**
+ * A row on a board tile: rank, who, and the score. With
  * an `href` the row is the person's profile link.
  */
 export const LeaderboardMiniRow = ({

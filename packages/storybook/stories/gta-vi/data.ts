@@ -4,9 +4,13 @@ import type {
   UserAchievement,
 } from '@dailydotdev/shared/src/graphql/user/achievements';
 import { AchievementType } from '@dailydotdev/shared/src/graphql/user/achievements';
-import awardArt from './assets/award-gta-vi.webp';
-import viceCityArt from './assets/achievement-vice-city.webp';
-import readOnGtaDayArt from './assets/achievement-read-on-gta-day.webp';
+
+const awardArt =
+  'https://media.daily.dev/image/upload/s--bfxObe3Y--/f_auto,q_auto/awards/ViceCity.webp';
+const viceCityArt =
+  'https://media.daily.dev/image/upload/s--cGxaBpP9--/f_auto,q_auto/achievements/Made_it_to_Vice_City.webp';
+const readOnGtaDayArt =
+  'https://media.daily.dev/image/upload/s--_HbcEpFl--/f_auto,q_auto/achievements/Still_read_on_GTA_VI_day.webp';
 
 /*
  * The GTA VI launch beyond the streak (see stories/streak/gtaViParts.tsx):

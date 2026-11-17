@@ -7,6 +7,7 @@ import { FunnelStepTransitionType } from '../types/funnel';
 import { OnboardingHeadline } from '../../../components/auth';
 import { FooterLinks } from '../../../components/footer';
 import AuthOptions from '../../../components/auth/AuthOptions';
+import { AgentOnboardingEntry } from '../../agentOnboarding/components/AgentOnboardingEntry';
 import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 import { AuthTriggers } from '../../../lib/auth';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
@@ -286,7 +287,10 @@ export const FunnelOrganicSignup = withIsActiveGuard(
               {isOnboarding &&
                 !isEmailSignupActive &&
                 !isSocialSignupActive && (
-                  <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
+                  <>
+                    <AgentOnboardingEntry className="mb-4" />
+                    <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
+                  </>
                 )}
             </div>
             <div className="flex flex-1 tablet:ml-auto tablet:flex-1 laptop:max-w-[37.5rem]" />

@@ -93,6 +93,7 @@ const TOOL_OFFICIAL_SOURCE_QUERY = gql`
         membersCount
         features {
           verified
+          showVerifiedBadge
         }
       }
     }

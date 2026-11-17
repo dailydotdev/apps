@@ -15,6 +15,7 @@ import { LockIcon } from '../../../components/icons/Lock';
 import { AdGrid } from '../../../components/cards/ad/AdGrid';
 import { PlaceholderGrid } from '../../../components/cards/placeholder/PlaceholderGrid';
 import { useInertRef } from '../FeedWidgetFrame';
+import type { AdRotationTarget } from '../../monetization/refresh/adRefresh';
 import {
   FeedWidgetBoostedAd,
   isBoostedPostCreative,
@@ -29,12 +30,18 @@ export const FeedWidgetAdSlot = ({
   ad,
   isEditing,
   isCompact,
+  rotationTarget,
   className,
 }: {
   ad?: Ad;
   isEditing: boolean;
   /** A tip sits over the slot, so the ad takes what is left of the column. */
   isCompact?: boolean;
+  /**
+   * Where a rotated creative goes, so the slot rotates like the feed's ads.
+   * Without it the slot keeps its first creative for the whole visit.
+   */
+  rotationTarget?: AdRotationTarget;
   className?: string;
 }): ReactElement | null => {
   const { logEvent } = useLogContext();
@@ -93,7 +100,8 @@ export const FeedWidgetAdSlot = ({
         ad={ad}
         index={0}
         feedIndex={0}
-        disableRotation
+        disableRotation={!rotationTarget || isEditing}
+        rotationTarget={rotationTarget}
         isCompact={isCompact}
         isFitted
         domProps={{ className: 'flex-1' }}

@@ -40,7 +40,11 @@ import { FeedWidgetsProvider } from './FeedWidgetsContext';
 import { FeedWidgetLoading, FeedWidgetSurface } from './FeedWidgetFrame';
 import type { FeedWidgetMenuAction } from './FeedWidgetMenu';
 import { FeedWidgetMenu } from './FeedWidgetMenu';
-import { useFeedWidgetAd, useFeedWidgetAdSlot } from './feedState';
+import {
+  useFeedWidgetAd,
+  useFeedWidgetAdRotation,
+  useFeedWidgetAdSlot,
+} from './feedState';
 import {
   railGridClassName,
   railGridStyle,
@@ -173,6 +177,7 @@ export const FeedWidgetRail = ({
   const shouldRevealAdd = useRef(false);
 
   const { ad, isNoFill } = useFeedWidgetAd({ enabled: showAd, feedName });
+  const adRotation = useFeedWidgetAdRotation(feedName);
   // One tip per page view, over our slot: it is known from the settings and
   // the slot alone, so it is there from the first paint.
   const tips = useFeedWidgetTips();
@@ -575,6 +580,7 @@ export const FeedWidgetRail = ({
                         ad={ad}
                         isEditing={isEditing}
                         isCompact={showTip}
+                        rotationTarget={adRotation}
                         className="flex-1"
                       />
                     )}

@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import { LockIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
@@ -13,10 +13,13 @@ import {
 export const SquadEnterpriseGate = ({
   title,
   description,
+  titleSuffix,
   plan = 'Enterprise',
 }: {
   title: string;
   description: string;
+  /** Shown after the title, e.g. what the setting looks like */
+  titleSuffix?: ReactNode;
   /** The plan that includes it */
   plan?: string;
 }): ReactElement => (
@@ -29,6 +32,7 @@ export const SquadEnterpriseGate = ({
         <Typography type={TypographyType.Callout} bold>
           {title}
         </Typography>
+        {titleSuffix}
         <Pill
           label={plan}
           size={PillSize.XSmall}

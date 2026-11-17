@@ -15,6 +15,7 @@ import { SourceMemberRole, SourceType } from './sources';
 import type {
   BasicSourceMember,
   Source,
+  SourceFeatures,
   SourceMember,
   SourcePermissions,
   Squad,
@@ -178,7 +179,6 @@ export const SOURCES_QUERY = gql`
               }
             }
           }
-          referralUrl
         }
       }
     }
@@ -336,6 +336,41 @@ export const updateSquadLinks = async (
   return res.updateSquadLinks;
 };
 
+export const UPDATE_SQUAD_SETTINGS_MUTATION = gql`
+  mutation UpdateSquadSettings(
+    $sourceId: ID!
+    $showVerifiedBadge: Boolean
+    $hideAds: Boolean
+  ) {
+    updateSquadSettings(
+      sourceId: $sourceId
+      showVerifiedBadge: $showVerifiedBadge
+      hideAds: $hideAds
+    ) {
+      id
+      features {
+        showVerifiedBadge
+        hideAds
+      }
+    }
+  }
+`;
+
+export type SquadSettingsInput = Partial<
+  Pick<SourceFeatures, 'showVerifiedBadge' | 'hideAds'>
+>;
+
+export const updateSquadSettings = async ({
+  sourceId,
+  ...input
+}: SquadSettingsInput & { sourceId: string }): Promise<SquadSettingsInput> => {
+  const res = await gqlClient.request<{
+    updateSquadSettings: { features: SquadSettingsInput };
+  }>(UPDATE_SQUAD_SETTINGS_MUTATION, { sourceId, ...input });
+
+  return res.updateSquadSettings.features;
+};
+
 export const UPDATE_SQUAD_RULES_MUTATION = gql`
   mutation UpdateSquadRules($sourceId: ID!, $rules: [SquadRuleInput!]!) {
     updateSquadRules(sourceId: $sourceId, rules: $rules) {
@@ -421,6 +456,34 @@ export const squadLatestPostsQueryOptions = ({
   staleTime: StaleTime.Default,
 });
 
+export const SOURCE_REFERRAL_URL_QUERY = gql`
+  query SourceReferralUrl($id: ID!) {
+    source(id: $id) {
+      referralUrl
+    }
+  }
+`;
+
+/** The viewer's invite link. Shortening it is slow, so the squad query skips it. */
+export const squadReferralUrlQueryOptions = ({
+  user,
+  sourceId,
+}: {
+  user?: Pick<LoggedUser, 'id'>;
+  sourceId?: string;
+}) => ({
+  queryKey: generateQueryKey(RequestKey.Squad, user, sourceId, 'referralUrl'),
+  queryFn: async (): Promise<string | null> => {
+    const res = await gqlClient.request<{
+      source: Pick<Squad, 'referralUrl'>;
+    }>(SOURCE_REFERRAL_URL_QUERY, { id: sourceId });
+
+    return res.source?.referralUrl ?? null;
+  },
+  enabled: !!user?.id && !!sourceId,
+  staleTime: StaleTime.OneDay,
+});
+
 const SQUAD_COVER_QUERY = gql`
   query SquadCover($id: ID!) {
     source(id: $id) {
@@ -461,6 +524,7 @@ export const SIMILAR_SQUADS_QUERY = gql`
       membersCount
       features {
         verified
+        showVerifiedBadge
       }
     }
   }

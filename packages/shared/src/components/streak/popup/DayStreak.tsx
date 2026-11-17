@@ -2,7 +2,12 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import { ReadingStreakIcon, TriangleArrowIcon, EditIcon } from '../../icons';
+import {
+  ReadingStreakIcon,
+  TriangleArrowIcon,
+  EditIcon,
+  PauseIcon,
+} from '../../icons';
 import classed from '../../../lib/classed';
 import { IconSize, iconSizeToClassName } from '../../Icon';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -23,12 +28,19 @@ export enum Streak {
   Upcoming = 'upcoming',
   Freeze = 'freeze',
   UsedFreeze = 'used_freeze',
+  Missed = 'missed',
+  Paused = 'paused',
 }
+
+export const missedDayLabel = 'Missed day, this is where the streak reset';
+export const pausedDayLabel = 'Streak paused this day';
 
 export const freezeTooltipCopy: Partial<Record<Streak, string>> = {
   [Streak.Freeze]:
     'We auto-freeze streaks during the weekend, but you can still keep going if you want to',
   [Streak.UsedFreeze]: 'A streak freeze was used this day',
+  [Streak.Missed]: missedDayLabel,
+  [Streak.Paused]: pausedDayLabel,
 };
 
 interface DayStreakProps {
@@ -39,10 +51,7 @@ interface DayStreakProps {
   shouldShowArrow?: boolean;
 }
 
-const Circle = classed(
-  'div',
-  'rounded-full border border-border-subtlest-tertiary',
-);
+const Circle = classed('div', 'rounded-full border');
 
 export function DayStreak({
   streak,
@@ -99,16 +108,38 @@ export function DayStreak({
       );
     }
 
+    if (streak === Streak.Paused) {
+      return (
+        <Circle
+          role="img"
+          aria-label={pausedDayLabel}
+          className={classNames(
+            className,
+            iconSizeToClassName[size],
+            'flex items-center justify-center border-border-subtlest-tertiary bg-surface-float text-text-tertiary',
+          )}
+        >
+          <PauseIcon size={IconSize.XSmall} />
+        </Circle>
+      );
+    }
+
     const isStreakFreeze =
       streak === Streak.Freeze || streak === Streak.UsedFreeze;
+    const isMissed = streak === Streak.Missed;
 
     return (
       <Circle
+        role={isMissed ? 'img' : undefined}
+        aria-label={isMissed ? missedDayLabel : undefined}
         className={classNames(
           className,
           iconSizeToClassName[size],
           isStreakFreeze &&
             'flex cursor-pointer items-center justify-center bg-text-disabled text-transparent laptop:hover:text-surface-secondary',
+          isMissed
+            ? 'border-dashed border-status-error'
+            : 'border-border-subtlest-tertiary',
         )}
         onClick={() => {
           if (isStreakFreeze) {

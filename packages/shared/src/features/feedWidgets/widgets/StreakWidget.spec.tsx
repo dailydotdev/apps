@@ -80,6 +80,7 @@ const ringState = (
   count: 12,
   hasReadToday: true,
   copy: '12-day reading streak.',
+  goalProgress: null,
   ...overrides,
 });
 

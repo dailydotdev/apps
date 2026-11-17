@@ -53,6 +53,7 @@ import { getPlusMemberDateFormat } from '../../../../lib/dateFormat';
 import { useLogStartups } from '../../hooks/useLogStartups';
 import { useStartupsSetupRefresh } from '../../hooks/useStartupsSetupRefresh';
 import { SquadManageSectionPanel } from './SquadManageLayout';
+import { SquadPlanSwitch } from './SquadPlanSwitch';
 import {
   StartupsSetup,
   StartupsSetupPath,
@@ -159,6 +160,31 @@ const PlanChoice = ({
   );
 };
 
+// Enterprise is sold by our team: what it adds and how to reach us
+const EnterpriseCard = ({ onClick }: { onClick: () => void }): ReactElement => (
+  <div className="flex flex-wrap items-center justify-between gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
+    <div className="flex min-w-0 flex-1 flex-col gap-1">
+      <p className="font-bold typo-callout">Enterprise</p>
+      <p className="text-text-tertiary typo-footnote">
+        Verified badge, jobs board, homepage placement, campaigns and an account
+        team.
+      </p>
+    </div>
+    <Button
+      tag="a"
+      href={startupsEnterpriseUrl}
+      target="_blank"
+      rel="noopener"
+      onClick={onClick}
+      variant={ButtonVariant.Float}
+      size={ButtonSize.Small}
+      icon={<OpenLinkIcon />}
+    >
+      Talk to our team
+    </Button>
+  </div>
+);
+
 const ChoosePlan = ({ isAdmin }: { isAdmin: boolean }): ReactElement => {
   const { squad } = useSquadPageContext();
   const prices = useSquadPlanPrices();
@@ -208,26 +234,7 @@ const ChoosePlan = ({ isAdmin }: { isAdmin: boolean }): ReactElement => {
           Only an admin of this Squad can choose a plan.
         </p>
       )}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <p className="font-bold typo-callout">Enterprise</p>
-          <p className="text-text-tertiary typo-footnote">
-            Verified badge, homepage placement, campaigns and an account team.
-          </p>
-        </div>
-        <Button
-          tag="a"
-          href={startupsEnterpriseUrl}
-          target="_blank"
-          rel="noopener"
-          onClick={() => logUpgrade('enterprise')}
-          variant={ButtonVariant.Float}
-          size={ButtonSize.Small}
-          icon={<OpenLinkIcon />}
-        >
-          Talk to our team
-        </Button>
-      </div>
+      <EnterpriseCard onClick={() => logUpgrade('enterprise')} />
     </div>
   );
 };
@@ -357,10 +364,6 @@ export const SquadManageSeats = ({
   const { data: members, isPending } = useQuery(
     squadSeatMembersQueryOptions({ user, sourceId: getSquadId(squad) }),
   );
-  const { copying, logAndCopyLink } = useSquadInvitation({
-    squad,
-    origin: Origin.SquadManagePlan,
-  });
   const { seatLimit, seatsUsed } = subscription;
   // Only an admin who holds a seat can bring a teammate in to seat
   const viewerHasSeat =
@@ -368,6 +371,13 @@ export const SquadManageSeats = ({
     (members?.find((member) => member.user.id === user?.id)?.seat ??
       !!squad.currentMember?.seat);
   const canInvite = isAdmin && viewerHasSeat;
+  const showInvite =
+    !isPending && (members?.length ?? 0) <= 1 && canInvite && seatLimit > 1;
+  const { copying, logAndCopyLink } = useSquadInvitation({
+    squad,
+    origin: Origin.SquadManagePlan,
+    enabled: showInvite,
+  });
 
   return (
     <section className="flex flex-col gap-2">
@@ -401,24 +411,21 @@ export const SquadManageSeats = ({
           ))}
         </ul>
       )}
-      {!isPending &&
-        (members?.length ?? 0) <= 1 &&
-        canInvite &&
-        seatLimit > 1 && (
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-16 bg-surface-float p-4">
-            <p className="min-w-0 flex-1 text-pretty text-text-secondary typo-footnote">
-              Only admins and moderators can hold a seat. Invite a teammate to
-              the page, then make them a moderator.
-            </p>
-            <Button
-              variant={ButtonVariant.Secondary}
-              size={ButtonSize.Small}
-              onClick={() => logAndCopyLink()}
-            >
-              {copying ? 'Copied' : 'Copy invite link'}
-            </Button>
-          </div>
-        )}
+      {showInvite && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-16 bg-surface-float p-4">
+          <p className="min-w-0 flex-1 text-pretty text-text-secondary typo-footnote">
+            Only admins and moderators can hold a seat. Invite a teammate to the
+            page, then make them a moderator.
+          </p>
+          <Button
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            onClick={() => logAndCopyLink()}
+          >
+            {copying ? 'Copied' : 'Copy invite link'}
+          </Button>
+        </div>
+      )}
     </section>
   );
 };
@@ -568,9 +575,22 @@ const ActivePlan = ({
             </div>
           </div>
         )}
+        {isSelfServe && isOwner && (
+          <SquadPlanSwitch subscription={subscription} />
+        )}
       </div>
       {isSelfServe && <SetupSection plan={plan} />}
       <SquadManageSeats subscription={subscription} isAdmin={isAdmin} />
+      {isSelfServe && (
+        <EnterpriseCard
+          onClick={() =>
+            logStartups(LogEvent.UpgradeSubscription, 'enterprise', {
+              origin: Origin.SquadManagePlan,
+              source_id: sourceId,
+            })
+          }
+        />
+      )}
     </>
   );
 };

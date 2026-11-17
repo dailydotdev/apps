@@ -35,7 +35,7 @@ import { cardHandlers } from '../features/feed/feedHero.mocks';
 import { realPosts } from '../hero-cover/realData';
 import { rw, WidgetRail } from '../hero-cover/widgets/rail';
 import { myShortcuts } from '../hero-cover/widgets/shortcuts';
-import coverArt from './assets/theme-vice-city-cover.webp';
+import { cloudinaryViceCityCover as coverArt } from '@dailydotdev/shared/src/lib/image';
 
 /*
  * The Vice City theme: dark mode with the release art behind the home page's

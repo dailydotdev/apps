@@ -381,11 +381,19 @@ function AuthOptionsInner({
     isLoading: isProfileUpdateLoading,
   } = useProfileForm({ onSuccess: onProfileSuccess });
 
+  const isAutoCompletingProfileRef = useRef(false);
   const autoCompleteProfile = async (
     userEmail: string,
     name?: string,
-    marketing = false,
+    // The Startups signup skips the social profile form and its opt-out, so
+    // it keeps the default: opted in
+    marketing = trigger === AuthTriggers.StartupsCheckout,
   ) => {
+    if (isAutoCompletingProfileRef.current) {
+      return;
+    }
+    isAutoCompletingProfileRef.current = true;
+
     try {
       const displayName = name || generateNameFromEmail(userEmail, 'User');
 
@@ -397,6 +405,7 @@ function AuthOptionsInner({
         acceptedMarketing: marketing,
       });
     } catch (error) {
+      isAutoCompletingProfileRef.current = false;
       logEvent({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({
@@ -442,7 +451,7 @@ function AuthOptionsInner({
         onSuccessfulLogin?.();
       }
     } else if (autoProfileTriggers.includes(trigger)) {
-      await autoCompleteProfile(user.email, user.name, false);
+      await autoCompleteProfile(user.email, user.name);
     } else {
       onSetActiveDisplay(AuthDisplay.SocialRegistration);
     }
@@ -506,7 +515,7 @@ function AuthOptionsInner({
     if (autoProfileTriggers.includes(trigger)) {
       setIsSocialAuthLoading(false);
       const loggedUser = bootUser as LoggedUser;
-      await autoCompleteProfile(loggedUser.email, loggedUser.name, false);
+      await autoCompleteProfile(loggedUser.email, loggedUser.name);
       return;
     }
 

@@ -5,7 +5,6 @@ import {
   ProfilePicture,
 } from '../../components/ProfilePicture';
 import { ProfileTooltip } from '../../components/profile/ProfileTooltip';
-import Link from '../../components/utilities/Link';
 import { useLogContext } from '../../contexts/LogContext';
 import type { UserLeaderboard } from '../../graphql/leaderboard';
 import {
@@ -20,7 +19,7 @@ import {
 import {
   LeaderboardEmptyBoard,
   LeaderboardHeading,
-  LeaderboardRank,
+  LeaderboardListRow,
   LeaderboardTextLink,
 } from './LeaderboardRows';
 
@@ -33,33 +32,24 @@ const PersonRow = ({
   rank: number;
   onClick: () => void;
 }): ReactElement => (
-  <li>
-    <Link href={entry.user.permalink} passHref prefetch={false}>
-      <a
-        href={entry.user.permalink}
-        className="flex h-12 items-center gap-3 rounded-12 px-2 hover:bg-surface-hover"
-        onClick={onClick}
-      >
-        <LeaderboardRank rank={rank} />
-        <ProfileTooltip userId={entry.user.id} initialUser={entry.user}>
-          <span className="flex shrink-0">
-            <ProfilePicture
-              user={entry.user}
-              size={ProfileImageSize.Medium}
-              nativeLazyLoading
-            />
-          </span>
-        </ProfileTooltip>
-        <span className="min-w-0 flex-1 truncate font-bold typo-callout">
-          {entry.user.name}
+  <LeaderboardListRow
+    rank={rank}
+    name={entry.user.name}
+    href={entry.user.permalink}
+    onClick={onClick}
+    image={
+      <ProfileTooltip userId={entry.user.id} initialUser={entry.user}>
+        <span className="flex shrink-0">
+          <ProfilePicture
+            user={entry.user}
+            size={ProfileImageSize.Medium}
+            nativeLazyLoading
+          />
         </span>
-        <LeaderboardReputation
-          value={entry.score}
-          className="shrink-0 tabular-nums"
-        />
-      </a>
-    </Link>
-  </li>
+      </ProfileTooltip>
+    }
+    value={<LeaderboardReputation value={entry.score} />}
+  />
 );
 
 /** The top of Highest reputation, in columns, with its full ranking a press away. */

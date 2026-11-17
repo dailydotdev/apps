@@ -13,6 +13,7 @@ import { useFeature } from '../../components/GrowthBookProvider';
 import { featureAutorotateAds } from '../../lib/featureManagement';
 import type { Ad } from '../../graphql/posts';
 import { generateAdLogEventKey } from './useLogImpression';
+import type { AdRotationTarget } from '../../features/monetization/refresh/adRefresh';
 import { disabledRefetch } from '../../lib/func';
 import { AdPlacement } from '../../lib/ads';
 import { RequestKey } from '../../lib/query';
@@ -26,6 +27,7 @@ export const useAutoRotatingAds = (
   feedIndex: number,
   ref: InViewRef,
   disabled = false,
+  target?: AdRotationTarget,
 ): {
   ref: InViewRef;
   refetch: QueryObserverBaseResult<Ad | null>['refetch'];
@@ -53,8 +55,8 @@ export const useAutoRotatingAds = (
 
   const { fetchAd, isAdConsentReady } = useFetchAd(!!autorotateAds);
   const queryKey = useMemo(
-    () => [RequestKey.Ads, ...(feedQueryKey ?? [])],
-    [feedQueryKey],
+    () => target?.queryKey ?? [RequestKey.Ads, ...(feedQueryKey ?? [])],
+    [feedQueryKey, target?.queryKey],
   );
 
   const fetchNewAd = useCallback(
@@ -65,6 +67,11 @@ export const useAutoRotatingAds = (
       });
       if (!newAd || signal.aborted) {
         return null;
+      }
+
+      if (target) {
+        target.replace(newAd);
+        return newAd;
       }
 
       // End the impression event for the old ad
@@ -85,7 +92,7 @@ export const useAutoRotatingAds = (
 
       return newAd;
     },
-    [feedIndex, index, logEventEnd, fetchAd, queryClient, queryKey],
+    [feedIndex, index, logEventEnd, fetchAd, queryClient, queryKey, target],
   );
 
   const { refetch, isRefetching } = useQuery<Ad | null>({

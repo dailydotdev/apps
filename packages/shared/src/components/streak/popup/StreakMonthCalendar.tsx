@@ -2,16 +2,23 @@ import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { addDays, subDays } from 'date-fns';
-import { HotIcon } from '../../icons';
+import { HotIcon, PauseIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
-import { freezeTooltipCopy, Streak } from './DayStreak';
+import {
+  freezeTooltipCopy,
+  missedDayLabel,
+  pausedDayLabel,
+  Streak,
+} from './DayStreak';
 import type { UserStreak } from '../../../graphql/users';
 import {
   getStreak,
   useReadingStreak30Days,
   useStreakFreezeDates,
 } from '../../../hooks/streaks/useStreakDays';
+import { useStreakResetReason } from '../../../hooks/streaks/useStreakResetReason';
+import { useActiveStreakPause } from '../../../hooks/streaks/useStreakPause';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { DEFAULT_TIMEZONE, isSameDayInTimezone } from '../../../lib/timezones';
 import {
@@ -40,6 +47,9 @@ export const StreakMonthCalendar = ({
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
   const history = useReadingStreak30Days();
   const freezeDates = useStreakFreezeDates();
+  const { missedDate, timezone: missedDateTimezone } =
+    useStreakResetReason(streak);
+  const { pause } = useActiveStreakPause(streak);
 
   const days = useMemo(() => {
     const today = new Date();
@@ -55,12 +65,25 @@ export const StreakMonthCalendar = ({
           startOfWeek: streak?.weekStart,
           timezone,
           freezeDates,
+          missedDate,
+          missedDateTimezone,
+          pause,
+          lastViewAt: streak?.lastViewAt,
         }),
         isToday: isSameDayInTimezone(date, today, timezone),
         isGtaViDay: isGtaViReleaseDay(date, timezone),
       };
     });
-  }, [history, streak?.weekStart, timezone, freezeDates]);
+  }, [
+    history,
+    streak?.weekStart,
+    streak?.lastViewAt,
+    timezone,
+    freezeDates,
+    missedDate,
+    missedDateTimezone,
+    pause,
+  ]);
   const isGtaViDayEnabled = useIsGtaViDayEnabled(
     days.some(({ isGtaViDay }) => isGtaViDay),
   );
@@ -111,6 +134,17 @@ export const StreakMonthCalendar = ({
         } else if (isFreeze) {
           stateClass =
             'bg-[repeating-linear-gradient(135deg,currentColor_0_1.5px,transparent_1.5px_4px)] text-text-quaternary';
+        } else if (state === Streak.Missed) {
+          stateClass = 'border-dashed border-status-error';
+        } else if (state === Streak.Paused) {
+          stateClass = 'border-transparent bg-surface-float text-text-tertiary';
+        }
+        const isPaused = state === Streak.Paused;
+        let ariaLabel: string | undefined;
+        if (state === Streak.Missed) {
+          ariaLabel = missedDayLabel;
+        } else if (isPaused) {
+          ariaLabel = pausedDayLabel;
         }
         const cell = (
           <div
@@ -119,7 +153,10 @@ export const StreakMonthCalendar = ({
               'relative flex size-4 items-center justify-center place-self-center rounded-full border',
               stateClass,
             )}
+            role={ariaLabel ? 'img' : undefined}
+            aria-label={ariaLabel}
           >
+            {isPaused && <PauseIcon size={IconSize.XXSmall} />}
             {isRead && (
               // 12px flame in the 16px cell — the same glyph-to-disc ratio the
               // rail badge uses (20px in 26px).

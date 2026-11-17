@@ -21,6 +21,7 @@ import {
   getAdRefreshPlatform,
   getAdRefreshStopLogExtra,
 } from '../../features/monetization/refresh/adRefresh';
+import type { AdRotationTarget } from '../../features/monetization/refresh/adRefresh';
 import type {
   AdRefreshAttempt,
   AdRefreshStop,
@@ -33,14 +34,13 @@ import { generateAdLogEventKey } from './useLogImpression';
 import type { InViewRef } from './useAutoRotatingAds';
 import { useAutoRotatingAds } from './useAutoRotatingAds';
 
-const slot = AdRefreshSlot.FeedCard;
-
 export const useFeedAdRefresh = (
   ad: Ad,
   index: number,
   feedIndex: number,
   ref: InViewRef,
   disabled = false,
+  target?: AdRotationTarget,
 ): { ref: InViewRef; onAdClick: () => void } => {
   const isRefreshEngine =
     useFeature(featureAdRefreshEngine) === AdRefreshEngineVersion.V2;
@@ -50,6 +50,7 @@ export const useFeedAdRefresh = (
     feedIndex,
     ref,
     disabled || isRefreshEngine,
+    target,
   );
   const { logEvent, logEventEnd } = useLogContext();
   const { queryKey: feedQueryKey } = useContext(ActiveFeedContext);
@@ -58,6 +59,7 @@ export const useFeedAdRefresh = (
     isRefreshEngine && !disabled,
   );
   const { isAndroidApp } = useAuthContext();
+  const slot = target?.slot ?? AdRefreshSlot.FeedCard;
 
   const onRefresh = useCallback(
     async ({
@@ -102,6 +104,12 @@ export const useFeedAdRefresh = (
 
       carryAdRefreshSlot(ad.generationId, newAd.generationId);
       logRefresh(AdRefreshOutcome.Refreshed, newAd);
+
+      if (target) {
+        target.replace(newAd);
+        return AdRefreshOutcome.Refreshed;
+      }
+
       logEventEnd(generateAdLogEventKey(feedIndex));
 
       queryClient.setQueryData<InfiniteData<Ad, unknown>>(
@@ -130,6 +138,8 @@ export const useFeedAdRefresh = (
       logEvent,
       logEventEnd,
       queryClient,
+      slot,
+      target,
     ],
   );
 
@@ -148,7 +158,7 @@ export const useFeedAdRefresh = (
           }),
         }),
       ),
-    [ad, isAndroidApp, logEvent],
+    [ad, isAndroidApp, logEvent, slot],
   );
 
   const { ref: engineRef, onAdClick } = useAdRefresh({

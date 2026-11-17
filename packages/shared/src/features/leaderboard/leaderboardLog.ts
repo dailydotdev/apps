@@ -2,8 +2,8 @@ import type { LogEvent as LogEventData } from '../../hooks/log/useLogQueue';
 import type { LeaderboardType } from '../../graphql/leaderboard';
 import { LogEvent, TargetType } from '../../lib/log';
 
-/** Where a board's list opened: in place, as a phone sheet, or its own page. */
-export type LeaderboardBoardSurface = 'popover' | 'sheet' | 'page';
+/** Where a board's list opened: its own page. */
+export type LeaderboardBoardSurface = 'page';
 
 /** Where on the page a person was pressed. */
 export type LeaderboardUserPlacement = 'top reputation' | 'standouts' | 'board';

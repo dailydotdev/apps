@@ -84,6 +84,23 @@ const ackTimeoutMs = 15 * 1000;
 // dead. iOS freezes a backgrounded PWA's websocket without closing it, so the
 // page keeps writing into a socket nothing reads until the server times out.
 const probeTimeoutMs = 5 * 1000;
+// The same wait when the user is looking at the result: a send that isn't
+// acked, or the page coming back to the foreground. A wrong guess only costs
+// a resume, which is one round trip.
+const urgentProbeTimeoutMs = 2 * 1000;
+// A page away for this long is assumed to have lost its socket: phones
+// freeze it within seconds of backgrounding and the server closes one that
+// stops answering pings. Reconnecting right away resumes the stream in about
+// a round trip, where probing first costs the whole probe timeout as well.
+const staleAfterMs = 20 * 1000;
+// A send that is still unacked this soon gets its socket probed, so a dead
+// one is replaced (and the message resent) in seconds. The bubble itself only
+// turns to failed at ackTimeoutMs.
+const ackProbeMs = 2 * 1000;
+// While the page is visible the socket is probed this often. A socket that
+// died without a close event otherwise looks fine until the user sends
+// something, and everything written to them in between sits on the server.
+const keepaliveMs = 25 * 1000;
 const maxReconnectDelayMs = 30 * 1000;
 const maxReconnectAttempts = 8;
 const iqTimeoutMs = 10 * 1000;
@@ -114,6 +131,10 @@ export const createXmppTransport = ({
   // Rooms the viewer is in, rejoined after a reconnect until they leave.
   const joinedRooms = new Set<string>();
   let probeTimer: ReturnType<typeof setTimeout> | undefined;
+  let probeDeadline = 0;
+  // Set when the socket is dropped on purpose: the reconnect that follows
+  // is the fix, not a retry, so it doesn't wait out the backoff.
+  let skipBackoff = false;
 
   const emit = (event: DmEvent) =>
     listeners.forEach((listener) => listener(event));
@@ -255,13 +276,25 @@ export const createXmppTransport = ({
   // socket without closing the stream. The stream-management state survives,
   // so the reconnect resumes the session and Strophe resends whatever the
   // server never acked. A clean disconnect would throw that state away.
-  const probeConnection = () => {
+  const probeConnection = (timeoutMs = probeTimeoutMs) => {
     const connection = session?.connection;
-    if (!connection || probeTimer || !connection.sm?.enabled) {
+    if (!connection || !connection.sm?.enabled) {
       return;
     }
 
-    connection.send(session!.strophe.$build('r', { xmlns: NS_SM }));
+    const deadline = Date.now() + timeoutMs;
+    if (probeTimer) {
+      // One <r/> in flight at a time; a more urgent caller only shortens
+      // the wait for its answer.
+      if (deadline >= probeDeadline) {
+        return;
+      }
+      clearTimeout(probeTimer);
+    } else {
+      connection.send(session!.strophe.$build('r', { xmlns: NS_SM }));
+    }
+
+    probeDeadline = deadline;
     probeTimer = setTimeout(() => {
       probeTimer = undefined;
       if (connection !== activeConnection) {
@@ -270,22 +303,33 @@ export const createXmppTransport = ({
 
       // The user is waiting on this, so the retry budget starts over.
       reconnectAttempt = 0;
+      skipBackoff = true;
       // eslint-disable-next-line no-underscore-dangle
       connection._doDisconnect();
-    }, probeTimeoutMs);
+    }, timeoutMs);
   };
+
+  // An ack normally takes one round trip, so a send still waiting after
+  // ackProbeMs is the first sign of a dead socket.
+  const probeIfUnacked = (stanzaId: string) =>
+    setTimeout(() => {
+      if (pendingAcks.has(stanzaId)) {
+        probeConnection(urgentProbeTimeoutMs);
+      }
+    }, ackProbeMs);
 
   // Arms (or re-arms) the "no ack in time" fallback. The entry outlives the
   // timeout so a late ack after a resume still flips the message to sent.
   const watchAck = (messageId: string, peerId: string, preview: string) => {
     clearTimeout(pendingAcks.get(messageId)?.failTimer);
+    probeIfUnacked(messageId);
     pendingAcks.set(messageId, {
       kind: 'message',
       peerId,
       preview,
       failTimer: setTimeout(() => {
         emit({ type: 'failed', peerId, messageId });
-        probeConnection();
+        probeConnection(urgentProbeTimeoutMs);
       }, ackTimeoutMs),
     });
   };
@@ -293,7 +337,12 @@ export const createXmppTransport = ({
   // An edit that isn't acked in time is reported as rejected: the optimistic
   // copy goes, and if the queued stanza still lands after a resume the
   // archive shows it on the next load.
-  const watchEditAck = (stanzaId: string, peerId: string, messageId: string) =>
+  const watchEditAck = (
+    stanzaId: string,
+    peerId: string,
+    messageId: string,
+  ) => {
+    probeIfUnacked(stanzaId);
     pendingAcks.set(stanzaId, {
       kind: 'edit',
       peerId,
@@ -301,13 +350,17 @@ export const createXmppTransport = ({
       failTimer: setTimeout(() => {
         pendingAcks.delete(stanzaId);
         emit({ type: 'editRejected', peerId, messageId });
-        probeConnection();
+        probeConnection(urgentProbeTimeoutMs);
       }, ackTimeoutMs),
     });
+  };
 
   const scheduleReconnect = () => {
-    // After the cap the next user action (opening messages, sending) tries
-    // again instead of retrying in the background forever.
+    const immediate = skipBackoff;
+    skipBackoff = false;
+    // After the cap the next user action (opening messages, sending, coming
+    // back to the page) tries again instead of retrying in the background
+    // forever.
     if (
       isClosed ||
       !listeners.size ||
@@ -317,7 +370,9 @@ export const createXmppTransport = ({
       return;
     }
 
-    const delay = Math.min(1000 * 2 ** reconnectAttempt, maxReconnectDelayMs);
+    const delay = immediate
+      ? 0
+      : Math.min(1000 * 2 ** reconnectAttempt, maxReconnectDelayMs);
     reconnectAttempt += 1;
     reconnectTimer = setTimeout(() => {
       reconnectTimer = undefined;
@@ -540,17 +595,90 @@ export const createXmppTransport = ({
     });
   };
 
-  // Coming back to the foreground or online is when a frozen socket shows up,
-  // so check it before the user's next message has to time out first.
-  const onResume = () => {
+  // Replaces the socket without asking it first. With a session the stream
+  // resumes on the new socket; without one (the retries ran out, or are
+  // waiting out a backoff) this is the user action that tries again.
+  const reconnectNow = () => {
+    // A handshake already under way is the reconnect.
+    if (isClosed || connecting) {
+      return;
+    }
+
+    reconnectAttempt = 0;
+    clearTimeout(reconnectTimer);
+    reconnectTimer = undefined;
+    clearTimeout(probeTimer);
+    probeTimer = undefined;
+    skipBackoff = true;
+
+    const connection = session?.connection;
+    if (connection) {
+      // Not a clean disconnect, which would drop the resumable state. The
+      // status callback schedules the reconnect.
+      // eslint-disable-next-line no-underscore-dangle
+      connection._doDisconnect();
+      return;
+    }
+
+    scheduleReconnect();
+  };
+
+  // Coming back to the foreground or online is when a frozen socket shows
+  // up, so deal with it before the user's next message has to time out.
+  let hiddenSince: number | undefined;
+  let lastTick = Date.now();
+  const onVisibilityChange = () => {
+    if (document.visibilityState !== 'visible') {
+      hiddenSince ??= Date.now();
+      return;
+    }
+
+    const away = hiddenSince === undefined ? 0 : Date.now() - hiddenSince;
+    hiddenSince = undefined;
+    lastTick = Date.now();
+    if (away >= staleAfterMs || !session) {
+      reconnectNow();
+    } else {
+      probeConnection(urgentProbeTimeoutMs);
+    }
+  };
+  // The network the socket was opened on is gone.
+  const onOnline = () => {
     if (document.visibilityState === 'visible') {
+      reconnectNow();
+    }
+  };
+  // A page restored from the back/forward cache had its socket closed.
+  const onPageShow = (event: PageTransitionEvent) => {
+    if (event.persisted && document.visibilityState === 'visible') {
+      reconnectNow();
+    }
+  };
+  // Timers stop while a device sleeps or a page is frozen, and neither has
+  // to come with a visibility change (a laptop lid, for one). A tick that
+  // is this late means the socket sat unattended just as long.
+  const onKeepalive = () => {
+    const now = Date.now();
+    const late = now - lastTick - keepaliveMs;
+    lastTick = now;
+    if (document.visibilityState !== 'visible') {
+      return;
+    }
+
+    if (late >= staleAfterMs) {
+      reconnectNow();
+    } else {
       probeConnection();
     }
   };
+  let keepaliveTimer: ReturnType<typeof setInterval> | undefined;
   if (typeof document !== 'undefined') {
-    document.addEventListener('visibilitychange', onResume);
-    window.addEventListener('online', onResume);
-    window.addEventListener('pageshow', onResume);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    window.addEventListener('online', onOnline);
+    window.addEventListener('pageshow', onPageShow);
+    // Hidden pages are skipped: their timers are throttled and they are
+    // dealt with on the way back anyway.
+    keepaliveTimer = setInterval(onKeepalive, keepaliveMs);
   }
 
   return {
@@ -647,7 +775,7 @@ export const createXmppTransport = ({
         reconnectAttempt = 0;
         // The cached session may be a socket that died without a close
         // event, so check it rather than wait on it again.
-        probeConnection();
+        probeConnection(urgentProbeTimeoutMs);
         ensureSession().catch(scheduleReconnect);
 
         return message(retryOf, DmMessageStatus.Sending);
@@ -877,10 +1005,12 @@ export const createXmppTransport = ({
       reconnectTimer = undefined;
       clearTimeout(probeTimer);
       probeTimer = undefined;
+      clearInterval(keepaliveTimer);
+      keepaliveTimer = undefined;
       if (typeof document !== 'undefined') {
-        document.removeEventListener('visibilitychange', onResume);
-        window.removeEventListener('online', onResume);
-        window.removeEventListener('pageshow', onResume);
+        document.removeEventListener('visibilitychange', onVisibilityChange);
+        window.removeEventListener('online', onOnline);
+        window.removeEventListener('pageshow', onPageShow);
       }
       pendingAcks.forEach(({ failTimer }) => clearTimeout(failTimer));
       pendingAcks.clear();

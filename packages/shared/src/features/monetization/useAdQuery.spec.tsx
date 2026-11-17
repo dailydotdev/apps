@@ -6,11 +6,16 @@ import * as ads from '../../lib/ads';
 import { useAdQuery } from './useAdQuery';
 import { useAdPageViewId } from './useAdPageViewId';
 import { useAdRequestConsent } from './useAdRequestConsent';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { AdRefreshEngineVersion } from '../../lib/featureManagement';
 
 jest.mock('./useAdPageViewId');
 jest.mock('./useAdRequestConsent');
 jest.mock('../../components/GrowthBookProvider', () => ({
   useFeature: () => false,
+}));
+jest.mock('../../hooks/useConditionalFeature', () => ({
+  useConditionalFeature: jest.fn(),
 }));
 jest.mock('../../contexts/AuthContext', () => ({
   useAuthContext: () => ({ isAuthReady: true, isLoggedIn: true }),
@@ -26,6 +31,10 @@ beforeEach(() => {
   jest.clearAllMocks();
   jest.mocked(useAdRequestConsent).mockReturnValue({ gdprApplies: false });
   jest.spyOn(ads, 'fetchAdByPlacement').mockResolvedValue(null);
+  jest.mocked(useConditionalFeature).mockReturnValue({
+    value: AdRefreshEngineVersion.V1,
+    isLoading: false,
+  });
 });
 
 const renderAdQuery = (refreshOnPageView?: boolean) =>
@@ -73,4 +82,53 @@ it('fetches a fresh page-owned ad on every page view', async () => {
   expect(ads.fetchAdByPlacement).toHaveBeenLastCalledWith(
     expect.objectContaining({ pageViewId: 'page-view-2' }),
   );
+});
+
+describe('a refreshable slot', () => {
+  const renderRefreshable = () =>
+    renderHook(
+      () =>
+        useAdQuery({
+          queryKey: ['rail-ad'],
+          placement: ads.AdPlacement.Feed,
+          isRefreshable: true,
+        }),
+      { wrapper },
+    );
+
+  it('asks Skadi for the refresh policy on the v2 engine', async () => {
+    jest.mocked(useConditionalFeature).mockReturnValue({
+      value: AdRefreshEngineVersion.V2,
+      isLoading: false,
+    });
+    renderRefreshable();
+
+    await waitFor(() =>
+      expect(ads.fetchAdByPlacement).toHaveBeenCalledWith(
+        expect.objectContaining({
+          refresh: expect.objectContaining({ count: 0 }),
+        }),
+      ),
+    );
+  });
+
+  it('asks for no refresh policy on v1, where autorotate_ads rotates it', async () => {
+    renderRefreshable();
+
+    await waitFor(() => expect(ads.fetchAdByPlacement).toHaveBeenCalled());
+    expect(ads.fetchAdByPlacement).toHaveBeenCalledWith(
+      expect.not.objectContaining({ refresh: expect.anything() }),
+    );
+  });
+
+  it('waits for the engine flag before its first request', async () => {
+    jest.mocked(useConditionalFeature).mockReturnValue({
+      value: AdRefreshEngineVersion.V1,
+      isLoading: true,
+    });
+    renderRefreshable();
+
+    await flush();
+    expect(ads.fetchAdByPlacement).not.toHaveBeenCalled();
+  });
 });

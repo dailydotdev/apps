@@ -11,6 +11,7 @@ import {
 import { largeNumberFormat } from '../../../../lib/numberFormat';
 import type { ToolTopSquad } from '../../../../graphql/user/userStack';
 import { ToolLogo } from '../../../../components/tools/ToolLogo';
+import { showsVerifiedBadge } from '../../../squads/lib/features';
 
 interface UserStackTopSquadsTooltipProps {
   toolTitle: string;
@@ -130,7 +131,7 @@ export const UserStackTopSquadsTooltip = ({
                   >
                     {squad.name}
                   </Typography>
-                  {squad.features?.verified && <VerifiedSquadBadge />}
+                  {showsVerifiedBadge(squad) && <VerifiedSquadBadge />}
                 </div>
                 <Typography
                   type={TypographyType.Caption1}

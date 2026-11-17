@@ -642,7 +642,7 @@ const PaymentPanel = ({
           (Ido, 2026-11-09: the button was easy to miss below it). */}
       <div className="flex flex-col gap-1 border-b border-border-subtlest-tertiary pb-4">
         <div className="flex items-baseline justify-between gap-3">
-          <h2 className="min-w-0 truncate font-bold typo-body">
+          <h2 className="min-w-0 flex-1 truncate font-bold typo-body">
             {`${squadPlanDetails[plan].title} plan for ${company.name}`}
           </h2>
           <span className="shrink-0 font-bold tabular-nums typo-body">

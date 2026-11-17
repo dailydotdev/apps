@@ -75,6 +75,7 @@ export const AdGrid = forwardRef<HTMLElement, AdGridProps>(function AdGrid(
     index,
     feedIndex,
     disableRotation,
+    rotationTarget,
     isCompact,
     isFitted,
   },
@@ -89,6 +90,7 @@ export const AdGrid = forwardRef<HTMLElement, AdGridProps>(function AdGrid(
     feedIndex,
     forwardedRef as InViewRef,
     disableRotation,
+    rotationTarget,
   );
   const onAdLinkClick = (clickedAd: Ad) => {
     onAdClick();

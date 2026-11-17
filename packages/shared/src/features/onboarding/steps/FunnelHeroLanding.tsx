@@ -5,6 +5,7 @@ import { useSetAtom } from 'jotai/react';
 import type { FunnelStepHeroLanding } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import AuthOptions from '../../../components/auth/AuthOptions';
+import { AgentOnboardingEntry } from '../../agentOnboarding/components/AgentOnboardingEntry';
 import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 import { AuthTriggers } from '../../../lib/auth';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
@@ -290,6 +291,15 @@ export const FunnelHeroLanding = withIsActiveGuard(
             });
           }}
         />
+        {isOnboarding && !isEmailSignupActive && !isSocialSignupActive && (
+          <AgentOnboardingEntry
+            className={
+              isHorizonWall
+                ? 'w-full text-center tablet:max-w-[22.5rem]'
+                : undefined
+            }
+          />
+        )}
       </OnboardingSignupHero>
     );
   },

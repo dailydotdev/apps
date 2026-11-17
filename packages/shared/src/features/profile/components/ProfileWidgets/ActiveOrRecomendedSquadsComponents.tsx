@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { hasSquadFeature } from '../../../squads/lib/features';
+import { showsVerifiedBadge } from '../../../squads/lib/features';
 import { VerifiedSquadBadge } from '../../../squads/components/VerifiedSquad';
 import type { Squad } from '../../../../graphql/sources';
 import { useAuthContext } from '../../../../contexts/AuthContext';
@@ -54,7 +54,7 @@ export const SquadListItem = ({
             >
               {squad.name}
             </Typography>
-            {hasSquadFeature(squad, 'verified') && <VerifiedSquadBadge />}
+            {showsVerifiedBadge(squad) && <VerifiedSquadBadge />}
           </span>
         </a>
         <Typography

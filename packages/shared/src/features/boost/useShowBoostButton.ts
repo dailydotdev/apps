@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import type { Post, PostData } from '../../graphql/posts';
-import { PostType, useCanBoostPost } from '../../graphql/posts';
+import { useCanBoostPost } from '../../graphql/posts';
 import { getPostByIdKey } from '../../lib/query';
 
 interface UseShowBoostButtonProps {
@@ -15,5 +15,5 @@ export const useShowBoostButton = ({ post }: UseShowBoostButtonProps) => {
   const postById = client.getQueryData<PostData>(key);
   const { canBoost } = useCanBoostPost(post);
 
-  return canBoost && postById && postById.post?.type !== PostType.Brief;
+  return canBoost && !!postById;
 };

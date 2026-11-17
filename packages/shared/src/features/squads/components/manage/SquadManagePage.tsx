@@ -104,7 +104,14 @@ export const SquadManagePage = ({
   const router = useRouter();
   const { squad, viewer, isViewerReady } = useSquadPageContext();
   const groups = useSquadManageGroups();
-  const sections = groups.flatMap(({ items }) => items.map(({ id }) => id));
+  const items = groups.flatMap((group) => group.items);
+  // Locked sections only lead to Subscription
+  const sections = items
+    .filter(({ lockedPlan }) => !lockedPlan)
+    .map(({ id }) => id);
+  const isLocked = items.some(
+    ({ id, lockedPlan }) => id === section && !!lockedPlan,
+  );
   const isAllowed = !section || sections.includes(section);
 
   useEffect(() => {
@@ -125,10 +132,16 @@ export const SquadManagePage = ({
     }
 
     if (!isAllowed) {
-      router.replace(getSquadManageUrl(squad.handle));
+      router.replace(
+        getSquadManageUrl(
+          squad.handle,
+          isLocked ? SquadManageSection.Plan : undefined,
+        ),
+      );
     }
   }, [
     isAllowed,
+    isLocked,
     isViewerReady,
     router,
     section,

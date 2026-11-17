@@ -1,5 +1,6 @@
 import {
   getAbsoluteWebappUrl,
+  getBuyCoresUrl,
   getPathnameWithQuery,
   getPostPath,
   withHttps,
@@ -97,5 +98,13 @@ describe('getPostPath', () => {
 
   it('should fall back to the id when the post has no slug', () => {
     expect(getPostPath({ id: 'p1' })).toBe('/posts/p1');
+  });
+});
+
+describe('getBuyCoresUrl', () => {
+  it('should send the purchase back to where it started', () => {
+    expect(
+      getBuyCoresUrl({ origin: 'wallet page cta', next: '/wallet' }),
+    ).toMatch(/cores\?origin=wallet\+page\+cta&next=%2Fwallet$/);
   });
 });

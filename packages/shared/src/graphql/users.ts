@@ -132,6 +132,7 @@ sources: publicSourceMemberships(userId: $id, first: 30) {
         permalink
         features {
           verified
+          showVerifiedBadge
         }
         currentMember {
           role
@@ -757,6 +758,20 @@ export const USER_STREAK_QUERY = gql`
   ${USER_STREAK_FRAGMENT}
 `;
 
+export interface UserStreakReset {
+  // Local date (YYYY-MM-DD) in `timezone`: the first missed weekday no freeze
+  // covered. Null when the API could not pin the day down.
+  missedDate: string | null;
+  timezone: string | null;
+  at: string;
+}
+
+// Local dates (YYYY-MM-DD, inclusive) in the user's timezone.
+export interface UserStreakPause {
+  start: string;
+  end: string;
+}
+
 export interface UserStreak {
   max: number;
   total: number;
@@ -764,6 +779,9 @@ export interface UserStreak {
   weekStart: DayOfWeek;
   lastViewAt: Date;
   freezesAvailable: number;
+  // Null when the streak was never reset; the API only returns it for the
+  // viewer's own streak and keeps it after the streak restarts.
+  lastReset?: UserStreakReset | null;
 }
 
 export interface UserProfileAnalytics {

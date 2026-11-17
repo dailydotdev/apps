@@ -1,7 +1,9 @@
+import type { CompanyLeaderboard } from '../../graphql/leaderboard';
 import {
   isLeaderboardPositionSupported,
   LeaderboardType,
 } from '../../graphql/leaderboard';
+import type { LoggedUser } from '../../lib/user';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import { pluralize } from '../../lib/strings';
 
@@ -87,6 +89,15 @@ export const LEADERBOARD_POSITION_BOARDS = LEADERBOARD_BOARDS.filter((board) =>
 
 /** Rows on a board tile; your row takes the last one where you are ranked. */
 export const LEADERBOARD_TILE_ROWS = 4;
+
+/** Where your verified company sits on Most verified employees, or -1. */
+export const findLeaderboardCompanyIndex = (
+  items: CompanyLeaderboard[],
+  user?: Pick<LoggedUser, 'companies'> | null,
+): number =>
+  items.findIndex((item) =>
+    user?.companies?.some((company) => company.name === item.company.name),
+  );
 
 export const getLeaderboardBoard = (type: LeaderboardType): LeaderboardBoard =>
   LEADERBOARD_BOARDS.find((board) => board.type === type) as LeaderboardBoard;

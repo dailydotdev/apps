@@ -101,8 +101,37 @@ export const featureCores = new Feature('cores', isDevelopment);
 
 // automated streak freeze: auto-apply purchased freezes on missed reading days
 export const featureStreakFreeze = new Feature('streak_freeze', isDevelopment);
+// explain a recent streak reset: the missed day in the calendar + a "why it
+// broke" line with a feedback link
+export const featureStreakWhyBroke = new Feature('streak_why_broke', false);
+// A/B: when a streak has reset, the popup, the sidebar panel and the restore
+// modal lead with the reader's best and a way back instead of a bare 0. Only
+// evaluated once the streak is 0 with a longest above it, so control readers
+// never enter the experiment early.
+export const featureStreakSoftBreak = new Feature('streak_soft_break', false);
 
 export const featureGtaViFreezeDay = new Feature('gta_vi_freeze_day', false);
+
+export const featureGtaViTheme = new Feature('gta_vi_theme', false);
+
+// count the read on open: optimistic streak bump plus a retry queue for views
+// dropped by a flaky connection
+export const featureStreakOptimisticView = new Feature(
+  'streak_optimistic_view',
+  false,
+);
+
+// daily "streak extended" toast on the first counted read of a local day
+export const featureStreakDailyCelebration = new Feature(
+  'streak_daily_celebration',
+  false,
+);
+
+// schedule a streak pause (vacation mode) from the gamification settings
+export const featureStreakPause = new Feature('streak_pause', false);
+// A/B: a personal streak goal (7, 14 or 30 days) offered at day 2 and after a
+// break, with progress under the count and a celebration when it is hit
+export const featureStreakGoals = new Feature('streak_goals', false);
 
 export const briefCardFeedFeature = new Feature(
   'brief_card_feed',
@@ -301,8 +330,9 @@ export const featureFeedHero = new Feature('feed_hero', false);
 
 // Experiment: the hero as a rail of widgets the reader arranges, with the ad
 // slot pinned third. Supersedes `feed_hero` where it is on. Tablet and up
-// only; relaunched from `feed_widgets` once phones were taken out of it.
-export const featureFeedWidgets = new Feature('feed_widgets_v2', false);
+// only; relaunched from `feed_widgets_v2` with the new default rail so
+// readers enrolled before it start fresh.
+export const featureFeedWidgets = new Feature('feed_widgets_v3', false);
 
 // Experiment: the post page's full-width signup banner against the cover
 // card pinned over the bottom of the window at the content's width.
@@ -424,5 +454,11 @@ export const featureWeeklyPicks = new Feature('weekly_picks_v2', false);
 // for the checks and keeps them to the experiment's traffic share.
 export const featureWeeklyPicksChecks = new Feature(
   'weekly_picks_checks',
+  false,
+);
+
+// Experiment: a link from the sign-up screen into agent onboarding.
+export const featureAgentOnboardingEntry = new Feature(
+  'agent_onboarding_entry',
   false,
 );

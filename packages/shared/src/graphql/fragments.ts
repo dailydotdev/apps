@@ -222,6 +222,8 @@ export const SOURCE_BASE_FRAGMENT = gql`
       products
       cta
       jobs
+      showVerifiedBadge
+      hideAds
     }
     currentMember {
       ...CurrentMember
@@ -237,7 +239,6 @@ export const SOURCE_BASE_FRAGMENT = gql`
 export const SQUAD_BASE_FRAGMENT = `
   fragment SquadBaseInfo on Source {
     ...SourceBaseInfo
-    referralUrl
     createdAt
     flags {
       featured
@@ -329,6 +330,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       }
       features {
         verified
+        showVerifiedBadge
       }
     }
     userState {
@@ -601,6 +603,11 @@ export const USER_STREAK_FRAGMENT = gql`
     lastViewAt
     weekStart
     freezesAvailable
+    lastReset {
+      missedDate
+      timezone
+      at
+    }
   }
 `;
 

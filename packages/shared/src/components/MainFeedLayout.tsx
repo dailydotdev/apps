@@ -39,6 +39,10 @@ import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
 import { SharedFeedPage } from './utilities';
 import {
+  useIsViceCityCoverActive,
+  ViceCityCover,
+} from '../features/themeCover/ViceCityCover';
+import {
   FEED_V2_HIGHLIGHTS_LIMIT,
   ANONYMOUS_FEED_QUERY,
   CUSTOM_FEED_QUERY,
@@ -437,6 +441,8 @@ export default function MainFeedLayout({
 
   const isMainFeedPage =
     feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
+  const isViceCityCoverActive = useIsViceCityCoverActive();
+  const showViceCityCover = isMainFeedPage && isViceCityCoverActive;
   const { isFlagOn: isFeedWidgetsFlagOn, isEnabled: isFeedWidgetsEnabled } =
     useFeedWidgetRailState(feedName);
   const { hide: hideFeedWidgets } = useFeedWidgetsOptOut();
@@ -1090,11 +1096,13 @@ export default function MainFeedLayout({
       <FeedPageLayoutComponent
         className={classNames(
           'relative',
+          showViceCityCover && 'isolate',
           disableTopPadding && '!pt-0',
           // Room for Tune beside the feed, or under it on a phone.
           isTuning && (isLaptop ? 'pr-[28rem]' : 'pb-[60vh]'),
         )}
       >
+        {showViceCityCover && <ViceCityCover />}
         {isExploreRoot && (!hasMounted || isPhoneWidth) && (
           <div className="tablet:hidden">
             <ExploreSortMenu />

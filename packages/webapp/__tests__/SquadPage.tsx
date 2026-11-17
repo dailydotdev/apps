@@ -331,7 +331,7 @@ describe('squad page viewer matrix', () => {
       expect(!!screen.queryByLabelText('Squad notifications settings')).toBe(
         hasBell,
       );
-      expect(!!screen.queryByLabelText('Edit page')).toBe(canEdit);
+      expect(!!screen.queryByLabelText('Squad settings')).toBe(canEdit);
       expect(!!screen.queryByText('Public page & URL')).toBe(isStaff);
       expect(!!screen.queryByLabelText('View as a visitor')).toBe(isStaff);
     },
@@ -385,7 +385,7 @@ describe('squad page viewer matrix', () => {
     toggle.click();
 
     await screen.findByText(/viewing the page as a visitor/);
-    expect(screen.queryByLabelText('Edit page')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Squad settings')).not.toBeInTheDocument();
     expect(screen.queryByText('Public page & URL')).not.toBeInTheDocument();
     expect(
       screen.getAllByText('Join the Squad to create new posts').length,

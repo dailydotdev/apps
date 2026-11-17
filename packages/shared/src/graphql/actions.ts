@@ -40,6 +40,8 @@ export enum ActionType {
   ContentTypes = 'content_types',
   HasSeenTags = 'has_seen_tags',
   StreakTimezoneMismatch = 'streak_timezone_mismatch',
+  // Declined the streak goal offer, so the day-2 prompt stays away for good
+  StreakGoalSkipped = 'streak_goal_skipped',
   CheckedCoresRole = 'checked_cores_role',
   CompletedOnboarding = 'completed_onboarding',
   GeneratedBrief = 'generated_brief',
@@ -76,6 +78,9 @@ export enum ActionType {
   DismissLfgMessagesPromo = 'dismiss_lfg_messages_promo',
   // Hides every daily.dev for Startups promotion, the squad page one included
   DismissStartupsPromo = 'dismiss_startups_promo',
+  GtaViVisit = 'gta_vi_visit',
+  GtaViRead = 'gta_vi_read',
+  GtaViThemeDismissed = 'gta_vi_theme_dismissed',
 }
 
 export const cvActions = [
