@@ -453,7 +453,13 @@ const BuyFlow = ({
 }: ModalProps & ModalHeaderProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const { origin, squadWallet } = useBuyCoresContext();
-  const deals = promo ?? <CoresDeals spot={StartupsPromoSpot.BuyCores} />;
+  const deals = promo ?? (
+    <CoresDeals
+      spot={StartupsPromoSpot.BuyCores}
+      isPersonalAllowed={false}
+      withStartups
+    />
+  );
 
   return (
     <Modal
