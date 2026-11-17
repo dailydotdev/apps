@@ -605,10 +605,6 @@ export const USER_STREAK_FRAGMENT = gql`
       timezone
       at
     }
-    pause {
-      start
-      end
-    }
   }
 `;
 

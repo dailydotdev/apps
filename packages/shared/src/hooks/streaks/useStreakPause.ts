@@ -1,11 +1,9 @@
 import { useCallback } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { differenceInCalendarDays, format, parse, parseISO } from 'date-fns';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useToastNotification } from '../useToastNotification';
-import { useConditionalFeature } from '../useConditionalFeature';
-import { featureStreakPause } from '../../lib/featureManagement';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { LogEvent } from '../../lib/log';
 import { DEFAULT_TIMEZONE, dateFormatInTimezone } from '../../lib/timezones';
@@ -15,8 +13,11 @@ import { ApiError, getApiError } from '../../graphql/common';
 import {
   cancelStreakPause,
   MAX_STREAK_PAUSE_DAYS,
+  MAX_STREAK_PAUSE_LEAD_DAYS,
+  MAX_STREAK_PAUSES_PER_YEAR,
   MIN_STREAK_FOR_PAUSE,
   scheduleStreakPause,
+  userStreakPauseQueryOptions,
 } from '../../graphql/streakPause';
 import { labels } from '../../lib/labels';
 
@@ -52,6 +53,14 @@ export const formatStreakPauseDate = (date: string): string => {
 export const getStreakPauseDays = ({ start, end }: UserStreakPause): number =>
   differenceInCalendarDays(parseISO(end), parseISO(start)) + 1;
 
+// Cancelling a pause that started before today still counts towards the
+// yearly limit; one starting today has not covered a day yet.
+export const hasStreakPauseStarted = (
+  pause: UserStreakPause,
+  timezone?: string,
+): boolean => pause.start < toStreakLocalDate(new Date(), timezone);
+
+// API validation and conflict messages are written for users.
 export const getStreakPauseErrorMessage = (error: unknown): string => {
   const result = error as ApiErrorResult;
 
@@ -61,43 +70,51 @@ export const getStreakPauseErrorMessage = (error: unknown): string => {
 
   const validation = getApiError(result, ApiError.GraphqlValidationFailed);
   if (validation) {
-    if (validation.message.includes('streak of at least')) {
-      return `Your streak needs to be at least ${MIN_STREAK_FOR_PAUSE} days before you can pause it.`;
-    }
-
-    return `Pick dates starting tomorrow, for up to ${MAX_STREAK_PAUSE_DAYS} days.`;
+    return (
+      validation.message ||
+      `Pick dates starting tomorrow and within ${MAX_STREAK_PAUSE_LEAD_DAYS} days, for up to ${MAX_STREAK_PAUSE_DAYS} days. Your streak needs to be at least ${MIN_STREAK_FOR_PAUSE} days.`
+    );
   }
 
   const conflict = getApiError(result, ApiError.Conflict);
   if (conflict) {
-    if (conflict.message.includes('a year')) {
-      return "You've already paused your streak twice this year.";
-    }
-
-    return 'You already have a streak pause scheduled.';
+    return (
+      conflict.message ||
+      `You can have one streak pause scheduled, and up to ${MAX_STREAK_PAUSES_PER_YEAR} a year.`
+    );
   }
 
   return labels.error.generic;
 };
 
+// Not flag-gated: the API keeps honoring a pause after the flag is off. Waits
+// for the streak so its lazy reset has run, and skips users who never
+// reached the minimum streak.
+export const useUserStreakPause = (
+  streak?: Pick<UserStreak, 'max'> | null,
+): UserStreakPause | undefined => {
+  const { user, isLoggedIn } = useAuthContext();
+  const { data } = useQuery({
+    ...userStreakPauseQueryOptions(user),
+    enabled: isLoggedIn && (streak?.max ?? 0) >= MIN_STREAK_FOR_PAUSE,
+  });
+
+  return data ?? undefined;
+};
+
 interface ActiveStreakPause {
-  // The running or next scheduled pause, undefined while the flag is off.
+  // The running or next scheduled pause.
   pause?: UserStreakPause;
   // Whether the pause covers today in the user's timezone.
   isActive: boolean;
 }
 
-// Read-only view of the pause for the streak surfaces (calendar, banner). The
-// flag is only evaluated once the API returned a pause.
+// Read-only view of the pause for the streak surfaces (calendar, banner).
 export const useActiveStreakPause = (
-  streak?: Pick<UserStreak, 'pause'> | null,
+  streak?: Pick<UserStreak, 'max'> | null,
 ): ActiveStreakPause => {
   const { user } = useAuthContext();
-  const { value: isEnabled } = useConditionalFeature({
-    feature: featureStreakPause,
-    shouldEvaluate: !!streak?.pause,
-  });
-  const pause = (isEnabled && streak?.pause) || undefined;
+  const pause = useUserStreakPause(streak);
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
 
   return {
@@ -109,7 +126,8 @@ export const useActiveStreakPause = (
 interface UseStreakPauseReturn {
   // Resolves whether the pause was scheduled; errors surface as a toast.
   schedule: (pause: UserStreakPause) => Promise<boolean>;
-  cancel: () => Promise<void>;
+  // Resolves whether a pause was cancelled; errors surface as a toast.
+  cancel: () => Promise<boolean>;
   isScheduling: boolean;
   isCancelling: boolean;
 }
@@ -154,9 +172,15 @@ export const useStreakPause = (): UseStreakPauseReturn => {
   const cancelMutation = useMutation({
     mutationKey: generateQueryKey(RequestKey.UserStreak, user, 'cancel-pause'),
     mutationFn: cancelStreakPause,
-    onSuccess: () => {
-      logEvent({ event_name: LogEvent.CancelStreakPause });
+    onSuccess: (cancelled) => {
       invalidateStreak();
+
+      if (!cancelled) {
+        displayToast('There is no streak pause to cancel.');
+        return;
+      }
+
+      logEvent({ event_name: LogEvent.CancelStreakPause });
       displayToast('Your streak pause was canceled.');
     },
     onError,
@@ -174,9 +198,10 @@ export const useStreakPause = (): UseStreakPauseReturn => {
     [scheduleAsync],
   );
 
-  const cancel = useCallback(async () => {
-    await cancelAsync().catch(() => undefined);
-  }, [cancelAsync]);
+  const cancel = useCallback(
+    () => cancelAsync().catch(() => false),
+    [cancelAsync],
+  );
 
   return {
     schedule,

@@ -12,6 +12,7 @@ import {
   CANCEL_STREAK_PAUSE_MUTATION,
   MIN_STREAK_FOR_PAUSE,
   SCHEDULE_STREAK_PAUSE_MUTATION,
+  userStreakPauseQueryOptions,
 } from '../../graphql/streakPause';
 import { DayOfWeek } from '../../lib/date';
 import { generateQueryKey, RequestKey } from '../../lib/query';
@@ -26,6 +27,12 @@ import {
 } from './StreakPauseSettings';
 
 const mockDisplayToast = jest.fn();
+
+const mockShowPrompt = jest.fn();
+
+jest.mock('../../hooks/usePrompt', () => ({
+  usePrompt: () => ({ showPrompt: mockShowPrompt, prompt: null }),
+}));
 
 jest.mock('../../hooks/useToastNotification', () => ({
   ...jest.requireActual('../../hooks/useToastNotification'),
@@ -55,9 +62,9 @@ const renderSettings = ({
     weekStart: DayOfWeek.Monday,
     lastViewAt: new Date(),
     freezesAvailable: 0,
-    pause,
   };
   client.setQueryData(generateQueryKey(RequestKey.UserStreak, user), streak);
+  client.setQueryData(userStreakPauseQueryOptions(user).queryKey, pause);
 
   render(
     <TestBootProvider
@@ -140,7 +147,7 @@ describe('StreakPauseSettings', () => {
     );
   });
 
-  it('shows a friendly message when the yearly limit is reached', async () => {
+  it('shows the API message when the yearly limit is reached', async () => {
     const start = localDate(1);
     const end = localDate(1);
     mockGraphQL({
@@ -164,7 +171,7 @@ describe('StreakPauseSettings', () => {
 
     await waitFor(() =>
       expect(mockDisplayToast).toHaveBeenCalledWith(
-        "You've already paused your streak twice this year.",
+        'You can schedule at most 2 streak pauses a year',
       ),
     );
   });
@@ -201,5 +208,60 @@ describe('StreakPauseSettings', () => {
     expect(mockDisplayToast).toHaveBeenCalledWith(
       'Your streak pause was canceled.',
     );
+  });
+
+  it('keeps a scheduled pause cancellable while the flag is off', () => {
+    renderSettings({
+      isFlagOn: false,
+      pause: { start: localDate(3), end: localDate(6) },
+    });
+
+    expect(
+      screen.getByRole('button', { name: 'Cancel pause' }),
+    ).toBeInTheDocument();
+  });
+
+  it('does not confirm a cancel when there was nothing to cancel', async () => {
+    mockGraphQL({
+      request: { query: CANCEL_STREAK_PAUSE_MUTATION },
+      result: { data: { cancelStreakPause: false } },
+    });
+    const { logEvent } = renderSettings({
+      pause: { start: localDate(3), end: localDate(6) },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel pause' }));
+
+    await waitFor(() =>
+      expect(mockDisplayToast).toHaveBeenCalledWith(
+        'There is no streak pause to cancel.',
+      ),
+    );
+    expect(logEvent).not.toHaveBeenCalled();
+  });
+
+  it('asks before ending a pause that is already running', async () => {
+    let mutationCalled = false;
+    mockGraphQL({
+      request: { query: CANCEL_STREAK_PAUSE_MUTATION },
+      result: () => {
+        mutationCalled = true;
+        return { data: { cancelStreakPause: true } };
+      },
+    });
+    mockShowPrompt.mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+    renderSettings({ pause: { start: localDate(-2), end: localDate(3) } });
+    const cancelButton = screen.getByRole('button', { name: 'Cancel pause' });
+
+    fireEvent.click(cancelButton);
+    await waitFor(() =>
+      expect(mockShowPrompt).toHaveBeenCalledWith(
+        expect.objectContaining({ title: 'End your streak pause?' }),
+      ),
+    );
+    expect(mutationCalled).toBe(false);
+
+    fireEvent.click(cancelButton);
+    await waitFor(() => expect(mutationCalled).toBe(true));
   });
 });

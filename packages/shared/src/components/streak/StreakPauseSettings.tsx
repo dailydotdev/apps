@@ -7,15 +7,20 @@ import { useReadingStreak } from '../../hooks/streaks/useReadingStreak';
 import {
   formatStreakPauseDate,
   getStreakPauseDays,
+  hasStreakPauseStarted,
   isStreakDayPaused,
   toStreakLocalDate,
   useStreakPause,
+  useUserStreakPause,
 } from '../../hooks/streaks/useStreakPause';
+import { usePrompt } from '../../hooks/usePrompt';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureStreakPause } from '../../lib/featureManagement';
 import { DEFAULT_TIMEZONE } from '../../lib/timezones';
 import {
   MAX_STREAK_PAUSE_DAYS,
+  MAX_STREAK_PAUSE_LEAD_DAYS,
+  MAX_STREAK_PAUSES_PER_YEAR,
   MIN_STREAK_FOR_PAUSE,
 } from '../../graphql/streakPause';
 import { Button, ButtonVariant } from '../buttons/Button';
@@ -33,14 +38,14 @@ const addLocalDays = (date: string, days: number): string =>
 
 const dateInputClassName = classNames(
   styles.dateTimeInput,
-  'rounded-10 border border-border-subtlest-tertiary bg-transparent px-3 py-2 text-text-primary typo-callout disabled:text-text-disabled',
+  'rounded-10 border border-border-subtlest-tertiary bg-transparent px-3 py-2 text-text-primary typo-body disabled:text-text-disabled',
 );
 
 export const streakPauseHelperCopy = `Pause for up to ${MAX_STREAK_PAUSE_DAYS} days, twice a year. Your streak needs to be at least ${MIN_STREAK_FOR_PAUSE} days.`;
 
 // "Pause my streak" on the gamification settings: schedule a pause (vacation
 // mode) or cancel the running/scheduled one. Renders null unless reading
-// streaks are on and the streak_pause flag is enabled.
+// streaks are on and the streak_pause flag is enabled or a pause exists.
 export const StreakPauseSettings = (): ReactElement | null => {
   const { user } = useAuthContext();
   const { streak, isStreaksEnabled } = useReadingStreak();
@@ -48,26 +53,30 @@ export const StreakPauseSettings = (): ReactElement | null => {
     feature: featureStreakPause,
     shouldEvaluate: isStreaksEnabled && !!streak,
   });
+  const pause = useUserStreakPause(streak);
   const { schedule, cancel, isScheduling, isCancelling } = useStreakPause();
+  const { showPrompt } = usePrompt();
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
-  const tomorrow = useMemo(
-    () => addLocalDays(toStreakLocalDate(new Date(), timezone), 1),
+  const today = useMemo(
+    () => toStreakLocalDate(new Date(), timezone),
     [timezone],
   );
+  const tomorrow = addLocalDays(today, 1);
+  const maxStart = addLocalDays(today, MAX_STREAK_PAUSE_LEAD_DAYS);
 
-  if (!isStreaksEnabled || !streak || !isEnabled) {
+  if (!isStreaksEnabled || !streak || (!isEnabled && !pause)) {
     return null;
   }
 
-  const { pause } = streak;
   const canPause = streak.current >= MIN_STREAK_FOR_PAUSE;
   const maxEnd = start ? addLocalDays(start, MAX_STREAK_PAUSE_DAYS - 1) : '';
   const isValidRange =
     !!start &&
     !!end &&
     start >= tomorrow &&
+    start <= maxStart &&
     end >= start &&
     getStreakPauseDays({ start, end }) <= MAX_STREAK_PAUSE_DAYS;
 
@@ -95,13 +104,34 @@ export const StreakPauseSettings = (): ReactElement | null => {
     }
   };
 
+  const onCancel = async () => {
+    if (
+      pause &&
+      hasStreakPauseStarted(pause, timezone) &&
+      !(await showPrompt({
+        title: 'End your streak pause?',
+        description: `Your streak counts again from today. This pause still counts as one of your ${MAX_STREAK_PAUSES_PER_YEAR} pauses this year.`,
+        okButton: { title: 'End pause' },
+        cancelButton: { title: 'Keep pause' },
+      }))
+    ) {
+      return;
+    }
+
+    await cancel();
+  };
+
   const renderBody = () => {
     if (pause) {
       const isRunning = isStreakDayPaused(new Date(), pause, timezone);
 
       return (
-        <div className="flex items-center justify-between gap-4 rounded-12 border border-border-subtlest-tertiary p-4">
-          <Typography bold type={TypographyType.Body}>
+        <div className="flex flex-col gap-3 rounded-12 border border-border-subtlest-tertiary p-4 tablet:flex-row tablet:items-center tablet:justify-between tablet:gap-4">
+          <Typography
+            bold
+            type={TypographyType.Body}
+            className="min-w-0 flex-1"
+          >
             {isRunning
               ? `Paused until ${formatStreakPauseDate(pause.end)}`
               : `Paused from ${formatStreakPauseDate(
@@ -111,7 +141,8 @@ export const StreakPauseSettings = (): ReactElement | null => {
           <Button
             type="button"
             variant={ButtonVariant.Secondary}
-            onClick={cancel}
+            className="self-start tablet:self-auto"
+            onClick={onCancel}
             loading={isCancelling}
           >
             Cancel pause
@@ -134,6 +165,7 @@ export const StreakPauseSettings = (): ReactElement | null => {
               name="streak-pause-start"
               className={dateInputClassName}
               min={tomorrow}
+              max={maxStart}
               value={start}
               disabled={!canPause}
               onChange={(event) => onStartChange(event.target.value)}
