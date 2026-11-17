@@ -17,7 +17,11 @@ export enum ReputationReason {
   CommentDownvoted = 'comment_downvoted',
   PostReportConfirmed = 'post_report_confirmed',
   SourceRequestApproved = 'source_request_approved',
+  StreakRestored = 'streak_recover',
+  StreakRestoredForFree = 'streak_recover_for_free',
+  RestoredAfterReview = 'unvordr',
   Manual = '$$$',
+  ManualLegacy = 'manual',
 }
 
 export enum ReputationTargetType {

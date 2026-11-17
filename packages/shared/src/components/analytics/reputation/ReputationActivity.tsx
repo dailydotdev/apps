@@ -13,7 +13,7 @@ import { TimeFormatType } from '../../../lib/dateFormat';
 import { IconSize } from '../../Icon';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import type { ReputationEvent } from '../../../graphql/reputation';
-import { amountColor, formatSignedAmount, reasonMeta } from './common';
+import { amountColor, formatSignedAmount, getReasonMeta } from './common';
 
 enum ActivityFilter {
   All = 'All',
@@ -81,7 +81,7 @@ export const ReputationActivity = ({
       )}
       <ul className="flex flex-col">
         {visible.map((event) => {
-          const { eventLabel, Icon } = reasonMeta[event.reason];
+          const { eventLabel, Icon } = getReasonMeta(event.reason);
 
           return (
             <li

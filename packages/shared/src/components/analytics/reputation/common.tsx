@@ -6,7 +6,9 @@ import {
   DiscussIcon,
   DownvoteIcon,
   FlagIcon,
+  ReadingStreakIcon,
   ReputationIcon,
+  ShieldCheckIcon,
   SourceIcon,
   UpvoteIcon,
 } from '../../icons';
@@ -61,12 +63,42 @@ export const reasonMeta: Record<ReputationReason, ReasonMeta> = {
     eventLabel: 'Post removed by moderators',
     Icon: BlockIcon,
   },
+  [ReputationReason.StreakRestored]: {
+    label: 'Streak restores',
+    eventLabel: 'Streak restored',
+    Icon: ReadingStreakIcon,
+  },
+  [ReputationReason.StreakRestoredForFree]: {
+    label: 'Free streak restores',
+    eventLabel: 'Streak restored for free',
+    Icon: ReadingStreakIcon,
+  },
+  [ReputationReason.RestoredAfterReview]: {
+    label: 'Restored after review',
+    eventLabel: 'Reputation restored after review',
+    Icon: ShieldCheckIcon,
+  },
   [ReputationReason.Manual]: {
     label: 'Granted by daily.dev',
     eventLabel: 'Granted by daily.dev',
     Icon: ReputationIcon,
   },
+  [ReputationReason.ManualLegacy]: {
+    label: 'Granted by daily.dev',
+    eventLabel: 'Granted by daily.dev',
+    Icon: ReputationIcon,
+  },
 };
+
+const unknownReasonMeta: ReasonMeta = {
+  label: 'Other changes',
+  eventLabel: 'Reputation adjusted',
+  Icon: ReputationIcon,
+};
+
+/** The API sends reasons as plain strings, so new ones can arrive first. */
+export const getReasonMeta = (reason: string): ReasonMeta =>
+  reasonMeta[reason as ReputationReason] ?? unknownReasonMeta;
 
 export const reputationPeriodLabel: Record<ReputationPeriod, string> = {
   [ReputationPeriod.Last30Days]: 'Last 30 days',
