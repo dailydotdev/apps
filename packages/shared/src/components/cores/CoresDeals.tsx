@@ -39,6 +39,8 @@ interface DealCardProps {
   perk: ReactNode;
   tagline: string;
   action: ReactNode;
+  /** The only deal: one wide, short card instead of a tall column */
+  isCompact?: boolean;
 }
 
 const DealCard = ({
@@ -52,19 +54,31 @@ const DealCard = ({
   perk,
   tagline,
   action,
+  isCompact = false,
 }: DealCardProps): ReactElement => (
   <li
     className={classNames(
-      'relative row-span-5 grid min-w-0 grid-rows-subgrid gap-3 rounded-16 border border-border-subtlest-tertiary bg-gradient-to-br to-transparent p-4',
+      'relative grid min-w-0 gap-3 rounded-16 border border-border-subtlest-tertiary bg-gradient-to-br to-transparent p-4',
+      isCompact
+        ? 'tablet:grid-cols-[auto_minmax(0,1fr)] tablet:gap-x-6'
+        : 'row-span-5 grid-rows-subgrid',
       tint,
     )}
   >
     <img
       src={art.src}
       alt={art.alt}
-      className="pointer-events-none absolute -top-8 right-1 h-24 w-auto object-contain"
+      className={classNames(
+        'pointer-events-none absolute right-1 w-auto object-contain',
+        isCompact ? '-top-6 h-16' : '-top-8 h-24',
+      )}
     />
-    <span className="flex flex-wrap items-center gap-2 pr-16">
+    <span
+      className={classNames(
+        'flex flex-wrap items-center gap-2 pr-16',
+        isCompact && 'tablet:col-start-1 tablet:row-start-1 tablet:pr-0',
+      )}
+    >
       <Typography tag={TypographyTag.Span} type={TypographyType.Title3} bold>
         {name}
       </Typography>
@@ -77,8 +91,20 @@ const DealCard = ({
         {badge}
       </span>
     </span>
-    <span className="flex items-baseline gap-1">
-      <strong className="tabular-nums typo-mega3">{value}</strong>
+    <span
+      className={classNames(
+        'flex items-baseline gap-1',
+        isCompact && 'tablet:col-start-1 tablet:row-start-2',
+      )}
+    >
+      <strong
+        className={classNames(
+          'tabular-nums',
+          isCompact ? 'typo-title1' : 'typo-mega3',
+        )}
+      >
+        {value}
+      </strong>
       <Typography
         tag={TypographyTag.Span}
         type={TypographyType.Callout}
@@ -87,15 +113,32 @@ const DealCard = ({
         {unit}
       </Typography>
     </span>
-    {perk}
+    <span
+      className={classNames(
+        isCompact &&
+          'tablet:col-start-2 tablet:row-span-2 tablet:row-start-2 tablet:self-end',
+      )}
+    >
+      {perk}
+    </span>
     <Typography
       tag={TypographyTag.Span}
       type={TypographyType.Footnote}
       color={TypographyColor.Tertiary}
+      className={classNames(
+        isCompact && 'tablet:col-start-2 tablet:row-start-1 tablet:pr-16',
+      )}
     >
       {tagline}
     </Typography>
-    <span className="flex items-end">{action}</span>
+    <span
+      className={classNames(
+        'flex items-end',
+        isCompact && 'tablet:col-start-1 tablet:row-start-3',
+      )}
+    >
+      {action}
+    </span>
   </li>
 );
 
@@ -130,8 +173,15 @@ const DealPerk = ({
   </span>
 );
 
-const StartupsDeal = ({ promo }: { promo: StartupsPromo }): ReactElement => (
+const StartupsDeal = ({
+  promo,
+  isCompact,
+}: {
+  promo: StartupsPromo;
+  isCompact: boolean;
+}): ReactElement => (
   <DealCard
+    isCompact={isCompact}
     name="Startups"
     badge={`${formatCashbackMultiple(promo.cashback)} value`}
     badgeClassName="bg-accent-cabbage-default text-surface-invert"
@@ -167,8 +217,15 @@ const StartupsDeal = ({ promo }: { promo: StartupsPromo }): ReactElement => (
   />
 );
 
-const PlusDeal = ({ target }: { target: TargetId }): ReactElement => (
+const PlusDeal = ({
+  target,
+  isCompact,
+}: {
+  target: TargetId;
+  isCompact: boolean;
+}): ReactElement => (
   <DealCard
+    isCompact={isCompact}
     name="Plus"
     badge="Cashback"
     badgeClassName="bg-action-plus-default text-surface-invert"
@@ -240,6 +297,9 @@ export const CoresDeals = ({
     return null;
   }
 
+  const dealCount = Number(hasStartups) + Number(!isPlus);
+  const isCompact = !isStacked && dealCount === 1;
+
   return (
     <section className={classNames('flex flex-col gap-2', className)}>
       {!isStacked && (
@@ -251,11 +311,13 @@ export const CoresDeals = ({
         className={classNames(
           'mt-6 grid grid-cols-1 gap-x-2 gap-y-8',
           isStacked && 'laptop:mt-0',
-          !isStacked && !isSingleColumn && 'tablet:grid-cols-2',
+          !isStacked && !isSingleColumn && !isCompact && 'tablet:grid-cols-2',
         )}
       >
-        {hasStartups && <StartupsDeal promo={promo} />}
-        {!isPlus && <PlusDeal target={TargetId.CoreWallet} />}
+        {hasStartups && <StartupsDeal promo={promo} isCompact={isCompact} />}
+        {!isPlus && (
+          <PlusDeal target={TargetId.CoreWallet} isCompact={isCompact} />
+        )}
       </ul>
     </section>
   );
