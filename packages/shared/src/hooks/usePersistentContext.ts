@@ -87,4 +87,5 @@ export enum PersistentContextKeys {
   WeeklyPicksHeroSnapshot = 'weekly_picks_hero_snapshot',
   // The users the home card has evaluated the picks flag for, in either arm
   WeeklyPicksEnrolled = 'weekly_picks_enrolled',
+  ReviewPrompt = 'review_prompt',
 }

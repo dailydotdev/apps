@@ -19,6 +19,12 @@ import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import StreakReminderSwitch from '../../streak/StreakReminderSwitch';
 import { StreakFreezeUpsell } from '../../streak/StreakFreezeUpsell';
+import { AskCard } from '../../appStoreReview/AskCard';
+import {
+  streakReviewRequestDelayMs,
+  streakReviewTargetId,
+} from '../../appStoreReview/common';
+import { useStreakReviewAsk } from '../../../hooks/useStreakReviewAsk';
 
 const Paragraph = classed('p', 'text-center text-text-tertiary');
 
@@ -38,6 +44,7 @@ export default function NewStreakModal({
   const shouldShowSplash = currentStreak >= maxStreak;
   const daysPlural = currentStreak === 1 ? 'day' : 'days';
   const loggedImpression = useRef(false);
+  const showReviewAsk = useStreakReviewAsk(currentStreak);
 
   useEffect(() => {
     if (loggedImpression.current) {
@@ -124,6 +131,14 @@ export default function NewStreakModal({
         <StreakFreezeUpsell className="mt-6">
           Protect your streak with streak freezes
         </StreakFreezeUpsell>
+        {showReviewAsk && (
+          <AskCard
+            targetId={streakReviewTargetId}
+            requestDelayMs={streakReviewRequestDelayMs}
+            onRequestClose={onRequestClose}
+            className="mt-6"
+          />
+        )}
         <Checkbox
           name="show_streaks"
           className="mt-10"

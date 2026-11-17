@@ -29,6 +29,7 @@ export default function AppStoreReviewModal({
 }: AppStoreReviewModalProps): ReactElement {
   const { campaignId, flags } = marketingCta;
   const { onRate, onDismiss } = useAppStoreReviewAsk({
+    targetId: campaignId,
     campaignId,
     onRequestClose,
   });

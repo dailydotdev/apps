@@ -21,10 +21,14 @@ interface UseAppStoreReviewAsk {
  * Customer.io marketing CTA behind it on any close so it is asked once.
  */
 export const useAppStoreReviewAsk = ({
+  targetId,
   campaignId,
+  requestDelayMs = appStoreReviewRequestDelayMs,
   onRequestClose,
 }: {
-  campaignId: string;
+  targetId: string;
+  campaignId?: string;
+  requestDelayMs?: number;
   onRequestClose?: (event: CloseEvent) => void;
 }): UseAppStoreReviewAsk => {
   const { clearMarketingCta } = useBoot();
@@ -41,7 +45,7 @@ export const useAppStoreReviewAsk = ({
     logEvent({
       event_name: LogEvent.Impression,
       target_type: TargetType.AppStoreReview,
-      target_id: campaignId,
+      target_id: targetId,
     });
 
     // Scheduled when the surface opens and never cancelled: closing it early
@@ -54,19 +58,21 @@ export const useAppStoreReviewAsk = ({
         logEvent({
           event_name: LogEvent.RequestAppStoreReview,
           target_type: TargetType.AppStoreReview,
-          target_id: campaignId,
+          target_id: targetId,
         });
       }
-    }, appStoreReviewRequestDelayMs);
-  }, [campaignId, logEvent]);
+    }, requestDelayMs);
+  }, [logEvent, requestDelayMs, targetId]);
 
   const close = (event: CloseEvent, eventName: LogEvent) => {
     logEvent({
       event_name: eventName,
       target_type: TargetType.AppStoreReview,
-      target_id: campaignId,
+      target_id: targetId,
     });
-    clearMarketingCta(campaignId);
+    if (campaignId) {
+      clearMarketingCta(campaignId);
+    }
     onRequestClose?.(event);
   };
 

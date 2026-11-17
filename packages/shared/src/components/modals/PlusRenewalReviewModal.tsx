@@ -39,6 +39,7 @@ export default function PlusRenewalReviewModal({
 }: PlusRenewalReviewModalProps): ReactElement {
   const { campaignId, flags } = marketingCta;
   const { onRate, onDismiss } = useAppStoreReviewAsk({
+    targetId: campaignId,
     campaignId,
     onRequestClose,
   });
