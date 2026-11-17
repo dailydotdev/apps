@@ -12,7 +12,6 @@ import {
 } from '@dailydotdev/shared/src/graphql/quests';
 import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
 import { fallbackImages } from '@dailydotdev/shared/src/lib/config';
-import { cloudinaryPostImageCoverPlaceholder } from '@dailydotdev/shared/src/lib/image';
 import {
   NotificationIconType,
   NotificationType,
@@ -41,7 +40,7 @@ const system = {
   permalink: 'https://app.daily.dev/system',
 } as UserShortProfile;
 
-export const ido = {
+const ido = {
   id: 'sb-ido',
   name: 'Ido Kaplan',
   username: 'idokaplan',
@@ -50,12 +49,9 @@ export const ido = {
 } as UserShortProfile;
 
 export const coffee = awards.find(({ name }) => name === 'Coffee Mug');
-
-export const ownPost = {
-  id: 'sb-bun-post',
-  title: 'Why we moved to Bun',
-  image: cloudinaryPostImageCoverPlaceholder,
-};
+const coffeeValue = coffee?.value ?? 0;
+/** What reaches the creator once daily.dev keeps its share */
+const coffeeReceived = Math.round(coffeeValue * 0.7);
 
 /** The smallest award and the smallest boost (one day at the daily minimum) */
 export const minAward = Math.min(...awards.map(({ value }) => value));
@@ -88,17 +84,17 @@ export const firstQuestReward = row('fc-quest', minutesAgo(1), {
   flags: { note: 'Quest reward: Read 3 posts' },
 });
 
-export const idoAward = row('rcv-ido', minutesAgo(2), {
+const idoAward = row('rcv-ido', minutesAgo(2), {
   sender: ido,
   product: coffee,
-  value: 50,
-  valueIncFees: 35,
+  value: coffeeValue,
+  valueIncFees: coffeeReceived,
   referenceType: 'post' as UserTransactionType,
-  referenceId: ownPost.id,
+  referenceId: bunPost.id,
   flags: { note: 'Great write-up!' },
 });
 
-export const pendingPurchase = row('buy-pending', minutesAgo(1), {
+const pendingPurchase = row('buy-pending', minutesAgo(1), {
   status: UserTransactionStatus.Processing,
   value: 300,
   valueIncFees: 300,
@@ -128,7 +124,7 @@ export const afterPurchaseHistory: UserTransaction[] = [
 ];
 
 /** Fees count what daily.dev kept from the awards you received */
-export const summaryWithFees = (history: UserTransaction[]) =>
+const summaryWithFees = (history: UserTransaction[]) =>
   history.reduce(
     (summary, transaction) => {
       if (transaction.status !== UserTransactionStatus.Success) {
@@ -187,13 +183,13 @@ const avatarOf = (person: UserShortProfile) => ({
  * The notifications page around the award: the award first, then the reader's
  * other recent notifications on the same post, all as production draws them.
  */
-export const awardNotifications = (): Notification[] =>
+const awardNotifications = (): Notification[] =>
   [
     {
       id: 'sb-award-notification',
       type: NotificationType.UserReceivedAward,
       icon: NotificationIconType.Core,
-      title: `<p><b>${ido.name}</b> gave you ${coffee?.name} (+35 Cores)</p>`,
+      title: `<p><b>${ido.name}</b> gave you ${coffee?.name} (+${coffeeReceived} Cores)</p>`,
       description: '“Great write-up!”',
       avatars: [avatarOf(ido)],
       attachments: [],

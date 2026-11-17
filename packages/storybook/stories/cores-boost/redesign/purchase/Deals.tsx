@@ -6,7 +6,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { CoreIcon } from '@dailydotdev/shared/src/components/icons';
+import { CoreIcon } from '@dailydotdev/shared/src/components/icons/Core';
 import { BoostIcon } from '@dailydotdev/shared/src/components/icons/Boost';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { UpgradeToPlus } from '@dailydotdev/shared/src/components/UpgradeToPlus';

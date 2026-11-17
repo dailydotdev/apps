@@ -1,7 +1,5 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { mocked } from 'storybook/test';
-import mockedRouter, { useRouter } from 'next/router';
 import { BuyCoresProcessing } from '@dailydotdev/shared/src/components/modals/award/BuyCoresModal';
 import type {
   BuyCoresContextData,
@@ -11,23 +9,8 @@ import { BuyCoresContext } from '@dailydotdev/shared/src/contexts/BuyCoresContex
 import type { Origin } from '@dailydotdev/shared/src/lib/log';
 import { noop } from '../real/providers';
 
-// Production helpers for the Today stories: the route a page reads, and
-// production's Buy Cores processing screen at a given step.
-
-export const routeTo = (
-  pathname: string,
-  query: Record<string, string> = {},
-): void => {
-  const search = new URLSearchParams(query).toString();
-
-  mocked(useRouter).mockReturnValue({
-    ...mockedRouter,
-    isReady: true,
-    pathname,
-    asPath: search ? `${pathname}?${search}` : pathname,
-    query,
-  } as never);
-};
+// Production's Buy Cores processing screen at a given step, for the Today
+// stories.
 
 /** Production BuyCoresProcessing at a step: processing, timeout, completed */
 export const Processing = ({

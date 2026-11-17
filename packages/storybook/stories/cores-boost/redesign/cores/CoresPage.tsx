@@ -13,7 +13,10 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { BuyCoresContextProvider } from '@dailydotdev/shared/src/contexts/BuyCoresContext/BuyCoresContext';
 import { useBuyCoresContext } from '@dailydotdev/shared/src/contexts/BuyCoresContext/types';
-import { useViewSizeClient, ViewSize } from '@dailydotdev/shared/src/hooks';
+import {
+  useViewSizeClient,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks/useViewSize';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import CoresLayout from '../../../../../webapp/components/layouts/CoresLayout';
 import { useRoute } from '../../real/providers';
@@ -50,7 +53,7 @@ const CorePageDesktop = (): ReactElement => {
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 bg-gradient-to-t from-theme-overlay-float-bun to-transparent pt-10">
-      <div className="mx-a mx-4 flex w-full max-w-[63.75rem] flex-1 gap-4">
+      <div className="mx-4 flex w-full max-w-[63.75rem] flex-1 gap-4">
         <PageCoreOptions />
         <BuyCoresCheckout
           className={classNames(

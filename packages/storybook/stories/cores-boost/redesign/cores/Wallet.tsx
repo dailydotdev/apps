@@ -12,16 +12,14 @@ import {
   creatorsTermsOfService,
   webappUrl,
 } from '@dailydotdev/shared/src/lib/constants';
-import {
-  ArrowIcon,
-  CoreIcon,
-  CreditCardIcon,
-  DocsIcon,
-  FeedbackIcon,
-  InfoIcon,
-  MinusIcon,
-  PlusIcon,
-} from '@dailydotdev/shared/src/components/icons';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
+import { CoreIcon } from '@dailydotdev/shared/src/components/icons/Core';
+import { CreditCardIcon } from '@dailydotdev/shared/src/components/icons/CreditCard';
+import { DocsIcon } from '@dailydotdev/shared/src/components/icons/Docs';
+import { FeedbackIcon } from '@dailydotdev/shared/src/components/icons/Feedback';
+import { InfoIcon } from '@dailydotdev/shared/src/components/icons/Info';
+import { MinusIcon } from '@dailydotdev/shared/src/components/icons/Minus';
+import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   Typography,
@@ -50,7 +48,7 @@ import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
-import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
+import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib/links';
 import { SquadWidget } from '@dailydotdev/shared/src/features/squads/components/widgets/SquadWidget';
 import { TransactionItem } from '@dailydotdev/shared/src/components/cores/TransactionItem';
 import { UseYourCoresTiles } from './UseYourCores';

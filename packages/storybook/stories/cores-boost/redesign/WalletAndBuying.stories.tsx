@@ -3,13 +3,12 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { CoresProviders, noop } from '../real/providers';
 import { streakHandlers } from '../real/handlers';
 import { Shell } from '../flows/cores/Shell';
-import type { FirstCoresPersona } from '../flows/cores/FirstCoresSheet';
 import { DailyQuestsPage, questHandlers } from '../real/pages';
+import type { FirstCoresPersona } from './cores/Moments';
 import { FirstCoresSheet } from './cores/Moments';
 import {
   firstQuestReward,
   readQuest,
-  stuckPurchase,
   walletHandlers,
   walletHistory,
 } from '../flows/cores/fixtures';
@@ -75,24 +74,13 @@ export const YourFirstCores: StoryObj<{ persona: FirstCoresPersona }> = {
   ),
 };
 
-type WalletArgs = { isPendingLong: boolean };
-
-let walletStoryHistory = walletHistory;
-
-export const WalletScreen: StoryObj<WalletArgs> = {
+export const WalletScreen: Story = {
   name: '2 · Wallet',
-  args: { isPendingLong: false },
-  argTypes: {
-    isPendingLong: {
-      name: 'Pending for 10+ minutes',
-      control: { type: 'boolean' },
-    },
-  },
   parameters: {
     msw: {
       handlers: [
         ...streakHandlers({ balance: BALANCE }),
-        ...walletHandlers(BALANCE, () => walletStoryHistory),
+        ...walletHandlers(BALANCE, walletHistory),
       ],
     },
     docs: {
@@ -102,19 +90,13 @@ export const WalletScreen: StoryObj<WalletArgs> = {
       },
     },
   },
-  render: ({ isPendingLong }) => {
-    walletStoryHistory = isPendingLong
-      ? [stuckPurchase, ...walletHistory.slice(1)]
-      : walletHistory;
-
-    return (
-      <CoresProviders key={String(isPendingLong)} balance={BALANCE}>
-        <Shell>
-          <Wallet />
-        </Shell>
-      </CoresProviders>
-    );
-  },
+  render: () => (
+    <CoresProviders balance={BALANCE}>
+      <Shell>
+        <Wallet />
+      </Shell>
+    </CoresProviders>
+  ),
 };
 
 export const BuyCoresPopup: Story = {

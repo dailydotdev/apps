@@ -7,11 +7,10 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { CoreIcon } from '@dailydotdev/shared/src/components/icons';
+import { CoreIcon } from '@dailydotdev/shared/src/components/icons/Core';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ModalClose } from '@dailydotdev/shared/src/components/modals/common/ModalClose';
 import { formatCoresCurrency } from '@dailydotdev/shared/src/lib/utils';
-import type { FirstCoresPersona } from '../../flows/cores/FirstCoresSheet';
 import type { CoresUse } from './UseYourCores';
 import { CoresUseRow } from './UseYourCores';
 import { friendshipArt } from './frame';
@@ -92,6 +91,8 @@ const MomentModal = ({
     </div>
   </Modal>
 );
+
+export type FirstCoresPersona = 'poster' | 'reader';
 
 const orderFor: Record<FirstCoresPersona, CoresUse[]> = {
   poster: ['boost', 'award', 'streak'],

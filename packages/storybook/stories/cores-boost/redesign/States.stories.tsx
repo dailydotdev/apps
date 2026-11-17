@@ -192,7 +192,6 @@ export const DealPickerShort: Story = {
   render: () => (
     <WalletScreen>
       <RecentPostsPicker
-        pick="deal"
         balance={BALANCE}
         onPick={noop}
         onBuyCores={noop}
@@ -208,7 +207,6 @@ export const DealPickerEnough: Story = {
   render: () => (
     <WalletScreen balance={DEAL_PRICE + BALANCE}>
       <RecentPostsPicker
-        pick="deal"
         balance={DEAL_PRICE + BALANCE}
         onPick={noop}
         onRequestClose={noop}

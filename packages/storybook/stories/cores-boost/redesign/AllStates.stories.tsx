@@ -190,7 +190,10 @@ const DeviceFrame = ({
   device: (typeof devices)[number];
   theme: Theme;
 }): ReactElement => (
-  <div className="flex flex-col gap-2" style={{ width: device.shown }}>
+  <div
+    className="flex flex-col gap-2"
+    style={{ width: device.shown, maxWidth: '100%' }}
+  >
     <span className="text-text-tertiary typo-footnote">{device.label}</span>
     <Frame
       storyId={storyId(item.story)}

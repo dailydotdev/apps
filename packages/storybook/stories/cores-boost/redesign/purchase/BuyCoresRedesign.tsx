@@ -12,10 +12,8 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  CreditCardIcon,
-  PlusIcon,
-} from '@dailydotdev/shared/src/components/icons';
+import { CreditCardIcon } from '@dailydotdev/shared/src/components/icons/CreditCard';
+import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
 import { getRecommendedCorePrice } from '@dailydotdev/shared/src/components/cores/recommendedCorePrice';
 import type {
   BuyCoresContextData,
@@ -32,20 +30,20 @@ import {
 } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { formatCoresCurrency } from '@dailydotdev/shared/src/lib/utils';
-import type { CoresPurpose } from '../../flows/purchase/BuyCoresFixed';
-import { NeededCopy } from '../../flows/purchase/BuyCoresFixed';
+import type { CoresPurpose } from './NeededCopy';
+import { NeededCopy } from './NeededCopy';
 import { friendshipArt } from '../cores/frame';
 import { Deals } from './Deals';
 import { noop } from '../../real/providers';
 
-// BuyCoresFixedModal (flows/purchase/BuyCoresFixed.tsx) in the redesign's
-// line. Same packs, preselection, copy and actions; new: a "what it's for"
-// card leads, packs are production's list, and the
-// friendship art fills the right side until a pack is picked, then the
-// checkout takes its place, as the Paddle iframe does in production.
+// Production's BuyCoresModal in the redesign's line. Same packs,
+// preselection, copy and actions; new: a "what it's for" line leads, the
+// Deals sit over the packs, and the friendship art fills the right side
+// until a pack is picked, then the checkout takes its place, as the Paddle
+// iframe does in production.
 
 /** The friendship art that stood in for the checkout video */
-const FriendshipPanel = ({ children }: { children?: ReactNode }) => (
+const FriendshipPanel = (): ReactElement => (
   <div className="flex flex-1 flex-col overflow-hidden rounded-16 bg-background-default">
     <div className="relative min-h-0 flex-1">
       <img
@@ -55,7 +53,6 @@ const FriendshipPanel = ({ children }: { children?: ReactNode }) => (
       />
       <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background-default to-transparent" />
     </div>
-    {children && <div className="p-4">{children}</div>}
   </div>
 );
 

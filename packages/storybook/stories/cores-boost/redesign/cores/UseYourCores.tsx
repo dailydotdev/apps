@@ -2,10 +2,8 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
-import {
-  CoreIcon,
-  ReadingStreakIcon,
-} from '@dailydotdev/shared/src/components/icons';
+import { CoreIcon } from '@dailydotdev/shared/src/components/icons/Core';
+import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons/ReadingStreak';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { BoostIcon } from '@dailydotdev/shared/src/components/icons/Boost';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
@@ -20,7 +18,6 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import { awards } from '../../real/catalog';
 import { minAward, minBoost } from '../../flows/cores/fixtures';
-import type { CoresUse } from '../../flows/cores/UseYourCores';
 import { streakFreezeProducts } from '../../real/handlers';
 import { BoostHeroTile } from './BoostHeroTile';
 
@@ -29,7 +26,7 @@ import { BoostHeroTile } from './BoostHeroTile';
 // award and streak, described only);
 // rows in the first Cores sheet that only describe each use.
 
-export type { CoresUse };
+export type CoresUse = 'award' | 'boost' | 'streak';
 
 interface UseDefinition {
   title: string;
@@ -47,7 +44,9 @@ const awardImages = awards.map(({ image }) => image).filter(Boolean);
 const AwardsCycle = (): ReactElement => {
   const [index, setIndex] = useState(() =>
     Math.max(
-      awards.findIndex(({ name }) => name === 'Heart'),
+      awards
+        .filter(({ image }) => image)
+        .findIndex(({ name }) => name === 'Heart'),
       0,
     ),
   );

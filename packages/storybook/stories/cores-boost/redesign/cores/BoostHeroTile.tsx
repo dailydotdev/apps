@@ -7,12 +7,10 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  CoreIcon,
-  TimerIcon,
-  UpvoteIcon,
-  VIcon,
-} from '@dailydotdev/shared/src/components/icons';
+import { CoreIcon } from '@dailydotdev/shared/src/components/icons/Core';
+import { TimerIcon } from '@dailydotdev/shared/src/components/icons/Timer';
+import { UpvoteIcon } from '@dailydotdev/shared/src/components/icons/Upvote';
+import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { BoostIcon } from '@dailydotdev/shared/src/components/icons/Boost';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
@@ -105,23 +103,19 @@ const DealCountdown = (): ReactElement => {
   );
 };
 
-export type BoostPick = 'deal' | 'custom';
-
+/** Pick one of your recent posts for today's deal */
 export const RecentPostsPicker = ({
-  pick,
   balance,
   onPick,
   onBuyCores,
   onRequestClose,
 }: {
-  pick: BoostPick;
   balance: number;
   onPick: (post: Post) => void;
   onBuyCores?: () => void;
   onRequestClose: () => void;
 }): ReactElement => {
   const [selected, setSelected] = useState<Post>(recentPosts[0]);
-  const isDeal = pick === 'deal';
   const missing = dealPrice - balance;
 
   return (
@@ -132,24 +126,20 @@ export const RecentPostsPicker = ({
       onRequestClose={onRequestClose}
       isDrawerOnMobile
     >
-      <Modal.Header
-        title={isDeal ? 'Pick a post for today’s deal' : 'Pick a post to boost'}
-      />
+      <Modal.Header title="Pick a post for today’s deal" />
       <Modal.Body className="flex flex-col !gap-2">
-        {isDeal && (
-          <div className="mb-2 flex items-center justify-between gap-3 rounded-14 bg-overlay-float-blueCheese px-3 py-2">
-            <span className="flex flex-col">
-              <strong className="typo-callout">
-                {DEAL_DAYS}-day boost · {DEAL_DISCOUNT * 100}% off
-              </strong>
-              <DealCountdown />
-            </span>
-            <span className="flex items-center gap-1 typo-callout">
-              <CoreIcon size={IconSize.Size16} />
-              <strong>{formatCoresCurrency(dealPrice)}</strong>
-            </span>
-          </div>
-        )}
+        <div className="mb-2 flex items-center justify-between gap-3 rounded-14 bg-overlay-float-blueCheese px-3 py-2">
+          <span className="flex flex-col">
+            <strong className="typo-callout">
+              {DEAL_DAYS}-day boost · {DEAL_DISCOUNT * 100}% off
+            </strong>
+            <DealCountdown />
+          </span>
+          <span className="flex items-center gap-1 typo-callout">
+            <CoreIcon size={IconSize.Size16} />
+            <strong>{formatCoresCurrency(dealPrice)}</strong>
+          </span>
+        </div>
         <ul className="flex flex-col gap-2" role="radiogroup">
           {recentPosts.map((post) => {
             const isSelected = post.id === selected.id;
@@ -160,10 +150,10 @@ export const RecentPostsPicker = ({
                   type="button"
                   role="radio"
                   aria-checked={isSelected}
-                  onClick={() => (isDeal ? setSelected(post) : onPick(post))}
+                  onClick={() => setSelected(post)}
                   className={classNames(
                     'flex w-full items-center gap-3 rounded-14 border p-2 text-left transition-colors hover:bg-surface-hover',
-                    isDeal && isSelected
+                    isSelected
                       ? 'border-accent-cabbage-default bg-surface-float'
                       : 'border-border-subtlest-tertiary',
                   )}
@@ -186,7 +176,7 @@ export const RecentPostsPicker = ({
                       {post.numUpvotes}
                     </span>
                   </span>
-                  {isDeal && isSelected && (
+                  {isSelected && (
                     <VIcon
                       size={IconSize.Small}
                       className="shrink-0 text-accent-cabbage-default"
@@ -198,29 +188,27 @@ export const RecentPostsPicker = ({
           })}
         </ul>
       </Modal.Body>
-      {isDeal && (
-        <Modal.Footer>
-          {missing > 0 ? (
-            <Button
-              variant={ButtonVariant.Primary}
-              icon={<CoreIcon />}
-              className="w-full"
-              onClick={onBuyCores}
-            >
-              Get {formatCoresCurrency(missing)} more Cores
-            </Button>
-          ) : (
-            <Button
-              variant={ButtonVariant.Primary}
-              icon={<BoostIcon />}
-              className="w-full"
-              onClick={() => onPick(selected)}
-            >
-              Boost for {formatCoresCurrency(dealPrice)} Cores
-            </Button>
-          )}
-        </Modal.Footer>
-      )}
+      <Modal.Footer>
+        {missing > 0 ? (
+          <Button
+            variant={ButtonVariant.Primary}
+            icon={<CoreIcon />}
+            className="w-full"
+            onClick={onBuyCores}
+          >
+            Get {formatCoresCurrency(missing)} more Cores
+          </Button>
+        ) : (
+          <Button
+            variant={ButtonVariant.Primary}
+            icon={<BoostIcon />}
+            className="w-full"
+            onClick={() => onPick(selected)}
+          >
+            Boost for {formatCoresCurrency(dealPrice)} Cores
+          </Button>
+        )}
+      </Modal.Footer>
     </Modal>
   );
 };
@@ -233,7 +221,7 @@ export const BoostHeroTile = ({
   className?: string;
 }): ReactElement => {
   const { user, updateUser } = useAuthContext();
-  const [pick, setPick] = useState<BoostPick>();
+  const [isPicking, setPicking] = useState(false);
   const { time } = useDealTimeLeft();
   // What the Cores are for while Buy Cores is open, then back to the pick
   const [buyCost, setBuyCost] = useState<number>();
@@ -264,7 +252,7 @@ export const BoostHeroTile = ({
         <Button
           variant={ButtonVariant.Primary}
           size={ButtonSize.XSmall}
-          onClick={() => setPick('deal')}
+          onClick={() => setPicking(true)}
         >
           <CoreIcon size={IconSize.Size16} />
           <strong className="ml-1 tabular-nums">
@@ -279,13 +267,12 @@ export const BoostHeroTile = ({
           <time className="font-bold tabular-nums">{time}</time>
         </span>
       </span>
-      {pick && !buyCost && (
+      {isPicking && !buyCost && (
         <RecentPostsPicker
-          pick={pick}
           balance={balance}
-          onPick={() => setPick(undefined)}
+          onPick={() => setPicking(false)}
           onBuyCores={() => setBuyCost(dealPrice)}
-          onRequestClose={() => setPick(undefined)}
+          onRequestClose={() => setPicking(false)}
         />
       )}
       {!!buyCost && (

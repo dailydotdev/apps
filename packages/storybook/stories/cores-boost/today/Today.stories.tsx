@@ -6,15 +6,15 @@ import { Origin } from '@dailydotdev/shared/src/lib/log';
 import WalletPage from '../../../../webapp/pages/wallet';
 import CoresPage from '../../../../webapp/pages/cores/index';
 import { CoresProviders } from '../real/providers';
-import { coresHandlers } from '../real/handlers';
 import {
   DailyQuestsPage,
   HomeFeedPage,
   NotificationsPage,
   questHandlers,
 } from '../real/pages';
-import { Processing, routeTo } from './production';
+import { Processing } from './production';
 import {
+  afterPurchaseHistory,
   firstQuestReward,
   landedPurchase,
   readQuest,
@@ -29,7 +29,6 @@ import {
 const meta: Meta = {
   title: 'Cores & Boost/Today (production)',
   parameters: { layout: 'fullscreen' },
-  beforeEach: () => routeTo('/'),
 };
 
 export default meta;
@@ -43,12 +42,12 @@ const screen = ({
   render,
 }: {
   balance: number;
-  handlers?: RequestHandler[];
+  handlers: RequestHandler[];
   activePage?: string;
   render: () => ReactElement;
 }): Omit<Story, 'name'> => ({
   parameters: {
-    msw: { handlers: handlers ?? coresHandlers({ balance }) },
+    msw: { handlers },
   },
   render: () => (
     <CoresProviders balance={balance} activePage={activePage}>
@@ -90,7 +89,6 @@ export const FirstCoresWallet: Story = {
     handlers: walletHandlers(20, [firstQuestReward]),
     render: () => <WalletPage />,
   }),
-  beforeEach: () => routeTo('/wallet'),
 };
 
 // 4. Wallet and buying
@@ -105,7 +103,6 @@ export const WalletWaysIn: Story = {
     handlers: walletHandlers(WALLET_BALANCE, walletHistory),
     render: () => <NotificationsPage />,
   }),
-  beforeEach: () => routeTo('/notifications'),
 };
 
 export const Wallet: Story = {
@@ -116,7 +113,6 @@ export const Wallet: Story = {
     handlers: walletHandlers(WALLET_BALANCE, walletHistory),
     render: () => <WalletPage />,
   }),
-  beforeEach: () => routeTo('/wallet'),
 };
 
 export const Cores: Story = {
@@ -127,7 +123,6 @@ export const Cores: Story = {
     handlers: walletHandlers(WALLET_BALANCE, walletHistory),
     render: () => <CoresPage />,
   }),
-  beforeEach: () => routeTo('/cores', { origin: Origin.WalletPageCTA }),
 };
 
 export const CoresPurchased: Story = {
@@ -135,7 +130,10 @@ export const CoresPurchased: Story = {
   ...screen({
     balance: WALLET_BALANCE + landedPurchase.value,
     activePage: '/cores',
-    handlers: walletHandlers(WALLET_BALANCE, walletHistory),
+    handlers: walletHandlers(
+      WALLET_BALANCE + landedPurchase.value,
+      afterPurchaseHistory,
+    ),
     render: () => (
       <>
         <CoresPage />
@@ -147,7 +145,6 @@ export const CoresPurchased: Story = {
       </>
     ),
   }),
-  beforeEach: () => routeTo('/cores', { origin: Origin.WalletPageCTA }),
 };
 
 export const CoresGotItHome: Story = {
@@ -156,7 +153,7 @@ export const CoresGotItHome: Story = {
     balance: WALLET_BALANCE + landedPurchase.value,
     handlers: walletHandlers(
       WALLET_BALANCE + landedPurchase.value,
-      walletHistory,
+      afterPurchaseHistory,
     ),
     render: () => <HomeFeedPage />,
   }),
