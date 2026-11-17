@@ -16,7 +16,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LogEvent, TargetType } from '../../../lib/log';
 
-export const STREAK_FREE_FREEZES_UPSELL_TITLE = 'We sorted you out twice.';
+export const STREAK_FREE_FREEZES_UPSELL_TITLE = 'We sorted you out.';
 export const STREAK_FREE_FREEZES_UPSELL_DESCRIPTION =
   'That was your last free freeze. Get more so a busy day never costs you your streak.';
 

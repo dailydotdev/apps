@@ -48,7 +48,7 @@ it('shows the last free freeze copy and logs an impression', () => {
   expect(
     `${STREAK_FREE_FREEZES_UPSELL_TITLE} ${STREAK_FREE_FREEZES_UPSELL_DESCRIPTION}`,
   ).toEqual(
-    'We sorted you out twice. That was your last free freeze. Get more so a busy day never costs you your streak.',
+    'We sorted you out. That was your last free freeze. Get more so a busy day never costs you your streak.',
   );
   expect(mockLogEvent).toHaveBeenCalledTimes(1);
   expect(mockLogEvent).toHaveBeenCalledWith({
