@@ -20,6 +20,8 @@ type CoresMomentModalProps = Pick<ModalProps, 'onRequestClose'> & {
   title: string;
   body: string;
   children: ReactNode;
+  /** Pinned under the content, which scrolls when the card runs out of room */
+  footer?: ReactNode;
   /** Height of the art, shorter when the card has more to say */
   artClassName?: string;
 };
@@ -33,6 +35,7 @@ export const CoresMomentModal = ({
   title,
   body,
   children,
+  footer,
   artClassName = 'h-48 tablet:h-56',
   onRequestClose,
 }: CoresMomentModalProps): ReactElement => (
@@ -65,7 +68,12 @@ export const CoresMomentModal = ({
         onClick={onRequestClose}
       />
     </div>
-    <div className="flex min-h-0 flex-col items-center gap-4 overflow-y-auto px-6 pb-6 pt-4 text-center">
+    <div
+      className={classNames(
+        'flex min-h-0 flex-1 flex-col items-center gap-4 overflow-y-auto px-6 pt-4 text-center',
+        footer ? 'pb-4' : 'pb-6',
+      )}
+    >
       <div className="flex flex-col items-center gap-3">
         <span className="flex items-center gap-1.5 rounded-14 border border-border-subtlest-tertiary bg-background-default px-3 py-1.5 shadow-2">
           <CoreIcon size={IconSize.Medium} />
@@ -86,5 +94,6 @@ export const CoresMomentModal = ({
       </div>
       {children}
     </div>
+    {footer && <div className="w-full shrink-0 px-6 pb-6">{footer}</div>}
   </Modal>
 );

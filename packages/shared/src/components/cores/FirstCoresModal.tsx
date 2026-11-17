@@ -42,17 +42,19 @@ const FirstCoresModal = ({
       amount={`+${formatCoresCurrency(amount)}`}
       title="You earned your first Cores"
       body="Cores are what you spend on daily.dev. Here is what yours can do."
-      artClassName="h-52"
+      artClassName="h-40"
       onRequestClose={onClose}
+      footer={
+        <Button
+          variant={ButtonVariant.Primary}
+          className="w-full"
+          onClick={onClose}
+        >
+          Got it
+        </Button>
+      }
     >
       <CoresUseRows order={['award', 'boost', 'streak']} />
-      <Button
-        variant={ButtonVariant.Primary}
-        className="w-full"
-        onClick={onClose}
-      >
-        Got it
-      </Button>
     </CoresMomentModal>
   );
 };
