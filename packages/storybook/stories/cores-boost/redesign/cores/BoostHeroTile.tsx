@@ -260,23 +260,24 @@ export const BoostHeroTile = ({
         </span>
       </span>
       <strong className="pt-2 typo-title3">{DEAL_DAYS}-day boost</strong>
-      <Button
-        variant={ButtonVariant.Primary}
-        size={ButtonSize.Small}
-        className="mt-auto w-full"
-        onClick={() => setPick('deal')}
-      >
-        <CoreIcon size={IconSize.Size16} />
-        <strong className="ml-1 tabular-nums">
-          {formatCoresCurrency(dealPrice)}
-        </strong>
-        <s className="ml-1 font-normal opacity-64">
-          {formatCoresCurrency(dealFullPrice)}
-        </s>
-      </Button>
-      <span className="flex items-center gap-1 self-center rounded-10 bg-surface-float px-2 py-0.5 text-accent-bacon-default typo-caption1">
-        <TimerIcon size={IconSize.Size16} />
-        <time className="font-bold tabular-nums">{time}</time>
+      <span className="mt-auto flex flex-wrap items-center gap-2 pt-1">
+        <Button
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.XSmall}
+          onClick={() => setPick('deal')}
+        >
+          <CoreIcon size={IconSize.Size16} />
+          <strong className="ml-1 tabular-nums">
+            {formatCoresCurrency(dealPrice)}
+          </strong>
+          <s className="ml-1 font-normal opacity-64">
+            {formatCoresCurrency(dealFullPrice)}
+          </s>
+        </Button>
+        <span className="flex items-center gap-1 text-accent-bacon-default typo-caption1">
+          <TimerIcon size={IconSize.Size16} />
+          <time className="font-bold tabular-nums">{time}</time>
+        </span>
       </span>
       {pick && !buyCost && (
         <RecentPostsPicker
