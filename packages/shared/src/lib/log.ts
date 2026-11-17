@@ -775,6 +775,7 @@ export enum TargetType {
   SearchInviteButton = 'search invite button',
   HideInviteCheckbox = 'hide invite mechanism',
   ReferralPopup = 'referral popup',
+  FirstCoresPopup = 'first cores popup',
   ReferralLadderGift = 'referral ladder gift',
   ReferralLadderPromo = 'referral ladder promo',
   InviteFriendsPage = 'invite friends page',

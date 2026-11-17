@@ -38,6 +38,7 @@ import {
 } from '../contexts';
 import { BootPopups } from './modals/BootPopups';
 import { StreakMilestonePopup } from './modals/streaks/StreakMilestonePopup';
+import { FirstCoresPopup } from './cores/FirstCoresPopup';
 import { StreakFreeFreezesUpsellPopup } from './streak/StreakFreeFreezesUpsellPopup';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { AuthTriggers } from '../lib/auth';
@@ -348,6 +349,7 @@ function MainLayoutComponent({
       <BootPopups />
       <SpotlightHost />
       <StreakMilestonePopup />
+      <FirstCoresPopup />
       <StreakFreeFreezesUpsellPopup />
       {plusEntryAnnouncementBar && (
         <PlusMobileEntryBanner

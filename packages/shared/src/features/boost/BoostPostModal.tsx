@@ -24,10 +24,9 @@ import { useCampaignMutation } from './useCampaignMutation';
 import { useBoostWallet } from './useBoostWallet';
 import { BoostWalletPicker } from './BoostWalletPicker';
 import { BoostWalletBalance } from './BoostWalletBalance';
-import {
-  StartupsBoostPromo,
-  StartupsBuyCoresPromo,
-} from '../squads/components/promos/StartupsPromo';
+import { StartupsBoostPromo } from '../squads/components/promos/StartupsPromo';
+import { StartupsPromoSpot } from '../squads/hooks/useStartupsPromo';
+import { CoresDeals } from '../../components/cores/CoresDeals';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
 import { ActionSuccessModal } from '../../components/modals/utils/ActionSuccessModal';
@@ -189,7 +188,13 @@ export function BoostPostModal({
             </Typography>
           ) : undefined
         }
-        promo={<StartupsBuyCoresPromo sourceId={squadId} />}
+        promo={
+          <CoresDeals
+            spot={StartupsPromoSpot.BuyCores}
+            sourceId={squadId}
+            withStartups
+          />
+        }
         origin={Origin.BoostPost}
       />
     );

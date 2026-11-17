@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { ReactElement, ReactNode } from 'react';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import Link from '../../utilities/Link';
@@ -15,6 +15,7 @@ import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import {
   Typography,
   TypographyColor,
+  TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
 import { CoreIcon } from '../../icons';
@@ -23,6 +24,7 @@ import { CoreOptionList } from '../../cores/CoreOptionList';
 import { CoreAmountNeeded } from '../../cores/CoreAmountNeeded';
 import type { Product, UserTransaction } from '../../../graphql/njord';
 import {
+  coresPricesQueryOptions,
   getTransactionByProvider,
   transactionRefetchIntervalMs,
   UserTransactionStatus,
@@ -30,10 +32,7 @@ import {
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { oneMinute } from '../../../lib/dateFormat';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import {
-  purchaseCoinsCheckoutVideoPoster,
-  purchaseCoinsCheckoutVideo,
-} from '../../../lib/image';
+import { coresFriendshipImage } from '../../../lib/image';
 import { walletUrl } from '../../../lib/constants';
 import { Loader } from '../../Loader';
 import { useIsLightTheme } from '../../../hooks/utils';
@@ -44,13 +43,15 @@ import { labels } from '../../../lib';
 import { BuyCoresContextProvider } from '../../../contexts/BuyCoresContext/BuyCoresContext';
 import { iOSSupportsCoresPurchase } from '../../../lib/ios';
 import type { SquadWallet } from '../../../graphql/squadWallet';
+import { CoresMomentModal } from '../../cores/CoresMomentModal';
+import { CoresDeals } from '../../cores/CoresDeals';
+import { StartupsPromoSpot } from '../../../features/squads/hooks/useStartupsPromo';
 
 export type CoreOptionsProps = {
   className?: string;
   title?: ReactNode;
-  showCoresAtCheckout?: boolean;
   amountNeededCopy?: ReactNode;
-  /** Shown above the Cores packages, see `StartupsBuyCoresPromo` */
+  /** Shown above the Cores packages, see `CoresDeals` */
   promo?: ReactNode;
 };
 
@@ -59,7 +60,6 @@ type ModalHeaderProps = Pick<CoreOptionsProps, 'amountNeededCopy' | 'promo'>;
 export const CoreOptions = ({
   className,
   title,
-  showCoresAtCheckout,
   amountNeededCopy,
   promo,
 }: CoreOptionsProps): ReactElement => {
@@ -68,15 +68,20 @@ export const CoreOptions = ({
   return (
     <div className={classNames('flex-1', className)}>
       {title}
-      <div className="flex flex-1 items-center justify-between gap-4">
-        {!amountNeededCopy || isText ? (
-          <CoreAmountNeeded title={isText ? amountNeededCopy : undefined} />
-        ) : (
-          amountNeededCopy
-        )}
-        {!!showCoresAtCheckout && <BuyCreditsButton hideBuyButton />}
-      </div>
-      {promo && <div className="mt-4">{promo}</div>}
+      {!amountNeededCopy || isText ? (
+        <CoreAmountNeeded title={isText ? amountNeededCopy : undefined} />
+      ) : (
+        amountNeededCopy
+      )}
+      {promo && <div className="mt-4 first:mt-0">{promo}</div>}
+      <Typography
+        tag={TypographyTag.H3}
+        type={TypographyType.Callout}
+        className="mt-4 first:mt-0"
+        bold
+      >
+        Packages
+      </Typography>
       <CoreOptionList />
     </div>
   );
@@ -137,26 +142,22 @@ const ProcessingLoading = ({
   );
 };
 
-const ProcessingCompleted = () => {
+const ProcessingCompleted = ({
+  onRequestClose,
+}: Pick<ModalProps, 'onRequestClose'>): ReactElement => {
   const { onCompletion, selectedProduct, squadWallet } = useBuyCoresContext();
 
   return (
-    <>
-      <CoreIcon size={IconSize.XXXLarge} />
-      <Typography type={TypographyType.LargeTitle} bold>
-        {formatCoresCurrency(selectedProduct.value)}
-      </Typography>
-      <Typography type={TypographyType.Title3} bold>
-        You got your Cores!
-      </Typography>
-      <Typography
-        type={TypographyType.Callout}
-        color={TypographyColor.Tertiary}
-      >
-        {squadWallet
+    <CoresMomentModal
+      amount={formatCoresCurrency(selectedProduct?.value ?? 0)}
+      title="You got your Cores!"
+      body={
+        squadWallet
           ? `Success! Your Cores are now in the ${squadWallet.name} wallet.`
-          : 'Success! Your Cores are now available in your balance.'}
-      </Typography>
+          : 'Success! Your Cores are now available in your balance.'
+      }
+      onRequestClose={onRequestClose}
+    >
       <Button
         onClick={onCompletion}
         variant={ButtonVariant.Primary}
@@ -164,7 +165,7 @@ const ProcessingCompleted = () => {
       >
         Got it
       </Button>
-    </>
+    </CoresMomentModal>
   );
 };
 
@@ -328,6 +329,10 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
     }
   }, [transaction?.status, providerTransactionId, setActiveStep]);
 
+  if (activeStep === 'COMPLETED') {
+    return <ProcessingCompleted onRequestClose={() => onCompletion?.()} />;
+  }
+
   return (
     <Modal
       kind={Modal.Kind.FlexibleCenter}
@@ -344,7 +349,6 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
     >
       <Modal.Body className="flex items-center justify-center gap-4 text-center">
         {isProcessing && <ProcessingLoading transaction={transaction} />}
-        {activeStep === 'COMPLETED' && <ProcessingCompleted />}
         {activeStep === 'PROCESSING_ERROR' && <ProcessingError />}
       </Modal.Body>
     </Modal>
@@ -368,25 +372,23 @@ const BuyCoresMobile = ({ amountNeededCopy, promo }: BuyCoresProps) => {
 
   if (iOSSupportsCoresPurchase()) {
     return (
-      <ModalBody
-        className={classNames(
-          'bg-gradient-to-t from-theme-overlay-float-bun to-transparent',
-        )}
-      >
+      <ModalBody>
         <CoreOptions amountNeededCopy={amountNeededCopy} promo={promo} />
       </ModalBody>
     );
   }
 
   return (
-    <ModalBody
-      className={classNames(
-        'bg-gradient-to-t from-theme-overlay-float-bun to-transparent',
-        selectedProduct && '!p-0',
-      )}
-    >
+    <ModalBody className="gap-4">
       {selectedProduct ? (
-        <BuyCoresCheckout className="p-6" />
+        <>
+          <img
+            src={coresFriendshipImage}
+            alt="Friends passing a Core"
+            className="h-40 w-full rounded-16 object-cover object-[50%_35%]"
+          />
+          <BuyCoresCheckout />
+        </>
       ) : (
         <CoreOptions amountNeededCopy={amountNeededCopy} promo={promo} />
       )}
@@ -394,53 +396,46 @@ const BuyCoresMobile = ({ amountNeededCopy, promo }: BuyCoresProps) => {
   );
 };
 
-export const CorePageCheckoutVideo = (): ReactElement => {
-  return (
-    <div className="relative flex h-[582px] max-h-full flex-1">
-      <video
-        className="bg-blue-500 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform"
-        poster={purchaseCoinsCheckoutVideoPoster}
-        src={purchaseCoinsCheckoutVideo}
-        muted
-        autoPlay
-        loop
-        playsInline
-        disablePictureInPicture
-        controls={false}
-      />
-    </div>
-  );
-};
+/** The character art beside the packs, until the checkout takes its place */
+export const CoresFriendshipArt = ({
+  className,
+}: {
+  className?: string;
+}): ReactElement => (
+  <div
+    className={classNames(
+      'relative flex flex-1 flex-col overflow-hidden rounded-16',
+      className,
+    )}
+  >
+    <img
+      src={coresFriendshipImage}
+      alt="Friends passing a Core"
+      className="absolute inset-0 size-full object-cover object-[50%_70%]"
+    />
+    <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background-default to-transparent" />
+  </div>
+);
 
 const BuyCoreDesktop = ({ amountNeededCopy, promo }: BuyCoresProps) => {
   const { selectedProduct } = useBuyCoresContext();
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   return (
-    <ModalBody
-      className={classNames(
-        'bg-gradient-to-t from-theme-overlay-float-bun to-transparent !p-0 tablet:rounded-b-16',
-      )}
-    >
-      <div className="flex flex-1 flex-row">
+    <ModalBody className="!p-0 tablet:rounded-b-16">
+      <div className="flex min-h-0 flex-1 flex-row gap-4 p-4">
         <CoreOptions
-          className="p-6"
+          className="min-w-0 overflow-y-auto pr-1"
           amountNeededCopy={amountNeededCopy}
           promo={promo}
         />
         <BuyCoresCheckout
           className={classNames(
             !selectedProduct && 'hidden',
-            'rounded-br-16 p-6',
+            'min-w-0 overflow-y-auto rounded-16 p-4',
           )}
         />
-        <div
-          className={classNames(
-            'flex flex-1 overflow-hidden rounded-br-16',
-            selectedProduct && 'hidden',
-          )}
-        >
-          {!selectedProduct && <CorePageCheckoutVideo />}
-        </div>
+        {!selectedProduct && isLaptop && <CoresFriendshipArt />}
       </div>
     </ModalBody>
   );
@@ -453,6 +448,13 @@ const BuyFlow = ({
 }: ModalProps & ModalHeaderProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const { origin, squadWallet } = useBuyCoresContext();
+  const deals = promo ?? (
+    <CoresDeals
+      spot={StartupsPromoSpot.BuyCores}
+      isPersonalAllowed={false}
+      withStartups
+    />
+  );
 
   return (
     <Modal
@@ -487,9 +489,9 @@ const BuyFlow = ({
         )}
       </Modal.Header>
       {isMobile ? (
-        <BuyCoresMobile amountNeededCopy={amountNeededCopy} promo={promo} />
+        <BuyCoresMobile amountNeededCopy={amountNeededCopy} promo={deals} />
       ) : (
-        <BuyCoreDesktop amountNeededCopy={amountNeededCopy} promo={promo} />
+        <BuyCoreDesktop amountNeededCopy={amountNeededCopy} promo={deals} />
       )}
     </Modal>
   );
@@ -505,8 +507,47 @@ export const TransactionStatusListener = (props: ModalProps): ReactElement => {
   return null;
 };
 
-const ModalRender = ({ ...props }: ModalProps & ModalHeaderProps) => {
+/** Opens the checkout on a pack picked before the pop-up opened */
+const usePreselectedPack = (priceId?: string): void => {
+  const { user, isLoggedIn } = useAuthContext();
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const { paddle, openCheckout, setSelectedProduct } = useBuyCoresContext();
+  const { data: prices } = useQuery(
+    coresPricesQueryOptions({ user, isLoggedIn }),
+  );
+  const isDoneRef = useRef(false);
+
+  useEffect(() => {
+    if (isDoneRef.current || !priceId) {
+      return;
+    }
+
+    if (!paddle && !iOSSupportsCoresPurchase()) {
+      return;
+    }
+
+    const price = prices?.find((item) => item.priceId === priceId);
+
+    if (!price) {
+      return;
+    }
+
+    isDoneRef.current = true;
+    setSelectedProduct({ id: priceId, value: price.metadata.coresValue ?? 0 });
+
+    // Mobile opens the checkout once a pack is selected, see BuyCoresMobile
+    if (!isMobile) {
+      openCheckout?.({ priceId });
+    }
+  }, [priceId, paddle, prices, isMobile, openCheckout, setSelectedProduct]);
+};
+
+const ModalRender = ({
+  priceId,
+  ...props
+}: ModalProps & ModalHeaderProps & { priceId?: string }) => {
   const { activeStep } = useBuyCoresContext();
+  usePreselectedPack(priceId);
 
   return (
     <>
@@ -524,6 +565,8 @@ type BuyCoresModalProps = ModalProps &
     /** The Cores the user is missing, see `BuyCoresContextData.minCoresToBuy` */
     minCoresToBuy?: number;
     squadWallet?: SquadWallet;
+    /** A pack picked before the pop-up opened, which goes straight to checkout */
+    priceId?: string;
   };
 export const BuyCoresModal = ({
   origin,
