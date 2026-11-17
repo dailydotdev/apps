@@ -75,19 +75,6 @@ const CheckoutField = ({
   </span>
 );
 
-/** Where the Paddle checkout takes over the art once a pack is picked */
-const CheckoutPanel = ({
-  pack,
-  onPay,
-}: {
-  pack?: { cores: number; price: string };
-  onPay: () => void;
-}): ReactElement => (
-  <div className="flex min-w-0 flex-1 flex-col overflow-y-auto rounded-16 bg-background-default p-4">
-    <PaddleCheckout pack={pack} onPay={onPay} />
-  </div>
-);
-
 /** Production's Paddle checkout form, drawn: the iframe needs a client token */
 const PaddleCheckout = ({
   pack,
@@ -173,6 +160,19 @@ const PaddleCheckout = ({
         <span>Privacy</span>
       </span>
     </span>
+  </div>
+);
+
+/** Where the Paddle checkout takes over the art once a pack is picked */
+const CheckoutPanel = ({
+  pack,
+  onPay,
+}: {
+  pack?: { cores: number; price: string };
+  onPay: () => void;
+}): ReactElement => (
+  <div className="flex min-w-0 flex-1 flex-col overflow-y-auto rounded-16 bg-background-default p-4">
+    <PaddleCheckout pack={pack} onPay={onPay} />
   </div>
 );
 

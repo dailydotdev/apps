@@ -1,5 +1,4 @@
 import type { ReactElement, ReactNode } from 'react';
-import { useRoute } from '../../real/providers';
 import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
@@ -53,9 +52,10 @@ import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { SquadWidget } from '@dailydotdev/shared/src/features/squads/components/widgets/SquadWidget';
+import { TransactionItem } from '@dailydotdev/shared/src/components/cores/TransactionItem';
 import { UseYourCoresTiles } from './UseYourCores';
 import { Deals } from '../purchase/Deals';
-import { TransactionItem } from '@dailydotdev/shared/src/components/cores/TransactionItem';
+import { useRoute } from '../../real/providers';
 import { CardSection, friendshipArt, SquadFrame } from './frame';
 
 // The wallet in the squads hub layout. Same content as the fixed wallet:

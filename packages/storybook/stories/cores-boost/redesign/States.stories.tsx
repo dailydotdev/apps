@@ -98,7 +98,11 @@ const firstCores = (persona: 'reader' | 'poster'): Story => ({
     <CoresProviders balance={FIRST_REWARD} activePage="/daily-quests">
       <Shell>
         <QuestScreen isClaimed />
-        <FirstCoresSheet amount={FIRST_REWARD} persona={persona} onGotIt={noop} />
+        <FirstCoresSheet
+          amount={FIRST_REWARD}
+          persona={persona}
+          onGotIt={noop}
+        />
       </Shell>
     </CoresProviders>
   ),

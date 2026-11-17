@@ -1,13 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
-import {
-  DailyQuestsPage,
-  QUEST_CLAIMED_EVENT,
-  findNotificationRow,
-  NotificationsPage,
-  SwapInPage,
-} from '../../real/pages';
-import { AwardNotificationRow } from './AwardNotification';
+import { DailyQuestsPage, QUEST_CLAIMED_EVENT } from '../../real/pages';
 
 // Screens the Cores flow stories share, each on the real production page it
 // happens on (real/pages.tsx), inside CoresProviders' production shell.
@@ -39,30 +32,4 @@ export const QuestScreen = ({
   }, []);
 
   return <DailyQuestsPage />;
-};
-
-/** The real notifications page, with the award row drawn as the flow fixes it */
-export const NotificationsScreen = ({
-  onViewWallet,
-}: {
-  onViewWallet?: () => void;
-}): ReactElement => (
-  <>
-    <NotificationsPage />
-    <SwapInPage find={findNotificationRow('gave you')}>
-      <AwardNotificationRow onViewWallet={onViewWallet} />
-    </SwapInPage>
-  </>
-);
-
-/** The quest's card on the real page, which the access check changes */
-export const findQuestCard = (): HTMLElement | null => {
-  const claim = [...document.querySelectorAll('button')].find(
-    (button) => button.textContent?.trim() === 'Claim',
-  );
-  let card = claim?.parentElement ?? null;
-  while (card && !card.className.includes('border')) {
-    card = card.parentElement;
-  }
-  return card;
 };

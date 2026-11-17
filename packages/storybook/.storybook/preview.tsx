@@ -1,5 +1,5 @@
 import React from 'react';
-import { Preview, ReactRenderer } from '@storybook/react-vite';
+import type { Preview, ReactRenderer } from '@storybook/react-vite';
 import { withThemeByClassName } from '@storybook/addon-themes';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { initialize, mswLoader } from 'msw-storybook-addon';
@@ -142,6 +142,7 @@ const preview: Preview = {
               '2. All states',
               '3. States',
             ],
+            'Today (production)',
           ],
         ],
       },

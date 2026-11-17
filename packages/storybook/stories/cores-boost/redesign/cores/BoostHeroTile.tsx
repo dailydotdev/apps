@@ -20,8 +20,8 @@ import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { publishTimeRelativeShort } from '@dailydotdev/shared/src/lib/dateFormat';
 import { formatCoresCurrency } from '@dailydotdev/shared/src/lib/utils';
 import { cloudinaryPostImageCoverPlaceholder } from '@dailydotdev/shared/src/lib/image';
-import { bunPost, realArticle } from '../../real/pages';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { bunPost, realArticle } from '../../real/pages';
 import { BuyCoresRedesignModal } from '../purchase/BuyCoresRedesign';
 
 // The wallet's Boost box: today's boost deal, its discount on a corner
@@ -245,7 +245,7 @@ export const BoostHeroTile = ({
         className,
       )}
     >
-      <span className="absolute -right-7 top-4 w-28 rotate-45 bg-accent-onion-default py-0.5 text-white text-center font-bold typo-caption1">
+      <span className="absolute -right-7 top-4 w-28 rotate-45 bg-accent-onion-default py-0.5 text-center font-bold text-white typo-caption1">
         -{DEAL_DISCOUNT * 100}%
       </span>
       <span className="flex items-center gap-2 pr-8">

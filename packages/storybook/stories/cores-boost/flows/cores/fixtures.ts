@@ -1,9 +1,9 @@
 import { delay, graphql, HttpResponse } from 'msw';
-import type { UserTransaction } from '@dailydotdev/shared/src/graphql/njord';
-import {
-  UserTransactionStatus,
+import type {
+  UserTransaction,
   UserTransactionType,
 } from '@dailydotdev/shared/src/graphql/njord';
+import { UserTransactionStatus } from '@dailydotdev/shared/src/graphql/njord';
 import type { UserQuest } from '@dailydotdev/shared/src/graphql/quests';
 import {
   QuestRewardType,
@@ -13,6 +13,12 @@ import {
 import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
 import { fallbackImages } from '@dailydotdev/shared/src/lib/config';
 import { cloudinaryPostImageCoverPlaceholder } from '@dailydotdev/shared/src/lib/image';
+import {
+  NotificationIconType,
+  NotificationType,
+} from '@dailydotdev/shared/src/components/notifications/utils';
+import type { Notification } from '@dailydotdev/shared/src/graphql/notifications';
+import { NotificationAvatarType } from '@dailydotdev/shared/src/graphql/notifications';
 import { awards } from '../../real/catalog';
 import { activeHistory, coresHandlers } from '../../real/handlers';
 import { productionFlags, viewer } from '../../real/providers';
@@ -21,12 +27,6 @@ import {
   notificationsHandlers,
   questHandlers,
 } from '../../real/pages';
-import {
-  NotificationIconType,
-  NotificationType,
-} from '@dailydotdev/shared/src/components/notifications/utils';
-import type { Notification } from '@dailydotdev/shared/src/graphql/notifications';
-import { NotificationAvatarType } from '@dailydotdev/shared/src/graphql/notifications';
 
 // People, posts and transactions for the Cores flows. Shapes follow
 // production, as in real/handlers.ts.
@@ -156,37 +156,6 @@ type History = UserTransaction[] | (() => UserTransaction[]);
 const read = (history: History): UserTransaction[] =>
   typeof history === 'function' ? history() : history;
 
-/**
- * The production handlers, with a summary that also returns fees. Pass a
- * function to change the history while the story runs (after a purchase).
- */
-export const walletHandlers = (balance: number, history: History) => [
-  graphql.query('TransactionSummary', async () => {
-    await delay(400);
-    return HttpResponse.json({
-      data: { transactionSummary: summaryWithFees(read(history)) },
-    });
-  }),
-  graphql.query('transactions', async () => {
-    await delay(400);
-    return HttpResponse.json({
-      data: {
-        transactions: {
-          edges: read(history).map((node) => ({ node })),
-          pageInfo: { hasNextPage: false, endCursor: null },
-        },
-      },
-    });
-  }),
-  graphql.mutation('SayThanksForAward', async () => {
-    await delay(400);
-    return HttpResponse.json({ data: { sayThanksForAward: { _: true } } });
-  }),
-  ...questHandlers(readQuest),
-  ...notificationsHandlers(awardNotifications()),
-  ...coresHandlers({ balance }),
-];
-
 export const readQuest: UserQuest = {
   userQuestId: 'sb-user-quest',
   rotationId: 'sb-rotation',
@@ -218,8 +187,7 @@ const avatarOf = (person: UserShortProfile) => ({
 
 /**
  * The notifications page around the award: the award first, then the reader's
- * other recent notifications on the same post. The award row is the
- * production row; the flow stories draw their own over it.
+ * other recent notifications on the same post, all as production draws them.
  */
 export const awardNotifications = (): Notification[] =>
   [
@@ -262,3 +230,34 @@ export const awardNotifications = (): Notification[] =>
       createdAt: minutesAgo(95),
     },
   ] as unknown as Notification[];
+
+/**
+ * The production handlers, with a summary that also returns fees. Pass a
+ * function to change the history while the story runs (after a purchase).
+ */
+export const walletHandlers = (balance: number, history: History) => [
+  graphql.query('TransactionSummary', async () => {
+    await delay(400);
+    return HttpResponse.json({
+      data: { transactionSummary: summaryWithFees(read(history)) },
+    });
+  }),
+  graphql.query('transactions', async () => {
+    await delay(400);
+    return HttpResponse.json({
+      data: {
+        transactions: {
+          edges: read(history).map((node) => ({ node })),
+          pageInfo: { hasNextPage: false, endCursor: null },
+        },
+      },
+    });
+  }),
+  graphql.mutation('SayThanksForAward', async () => {
+    await delay(400);
+    return HttpResponse.json({ data: { sayThanksForAward: { _: true } } });
+  }),
+  ...questHandlers(readQuest),
+  ...notificationsHandlers(awardNotifications()),
+  ...coresHandlers({ balance }),
+];

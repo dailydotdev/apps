@@ -37,8 +37,8 @@ import {
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { formatCoresCurrency } from '@dailydotdev/shared/src/lib/utils';
 import { walletUrl } from '@dailydotdev/shared/src/lib/constants';
-import { noop } from '../../real/providers';
 import { StartupsBuyCoresPromo } from '@dailydotdev/shared/src/features/squads/components/promos/StartupsPromo';
+import { noop } from '../../real/providers';
 
 // Fixed copy of BuyCoresModal (components/modals/award/BuyCoresModal.tsx).
 // Changed: the smallest pack covering the shortfall is preselected on every

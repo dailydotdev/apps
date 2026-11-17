@@ -12,8 +12,20 @@ type Theme = 'dark' | 'light';
 
 const devices = [
   { key: 'phone', label: 'Phone · 375', width: 375, height: 812, shown: 220 },
-  { key: 'tablet', label: 'Tablet · 768', width: 768, height: 1024, shown: 320 },
-  { key: 'laptop', label: 'Laptop · 1280', width: 1280, height: 800, shown: 440 },
+  {
+    key: 'tablet',
+    label: 'Tablet · 768',
+    width: 768,
+    height: 1024,
+    shown: 320,
+  },
+  {
+    key: 'laptop',
+    label: 'Laptop · 1280',
+    width: 1280,
+    height: 800,
+    shown: 440,
+  },
   {
     key: 'laptopL',
     label: 'Laptop L · 1440',
@@ -207,7 +219,9 @@ const AllStates = ({ theme }: { theme: Theme }): ReactElement => {
   return (
     <div className="flex min-h-screen flex-col gap-12 bg-background-default p-6">
       <header className="flex flex-col gap-3">
-        <h1 className="font-bold typo-title1">Wallet and buy Cores · All states</h1>
+        <h1 className="font-bold typo-title1">
+          Wallet and buy Cores · All states
+        </h1>
         <div className="flex flex-wrap gap-2">
           {[{ key: 'all' as const, label: 'All widths' }, ...devices].map(
             ({ key, label }) => (

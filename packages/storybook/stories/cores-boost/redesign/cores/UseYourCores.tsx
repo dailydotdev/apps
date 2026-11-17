@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import {
   CoreIcon,
@@ -9,12 +10,19 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { BoostIcon } from '@dailydotdev/shared/src/components/icons/Boost';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import { formatCoresCurrency } from '@dailydotdev/shared/src/lib/utils';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import type { UserStreakRecoverData } from '@dailydotdev/shared/src/graphql/users';
+import { USER_STREAK_RECOVER_QUERY } from '@dailydotdev/shared/src/graphql/users';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
 import { awards } from '../../real/catalog';
 import { minAward, minBoost } from '../../flows/cores/fixtures';
 import type { CoresUse } from '../../flows/cores/UseYourCores';
 import { streakFreezeProducts } from '../../real/handlers';
 import { BoostHeroTile } from './BoostHeroTile';
-import { useStreakRecoverState } from './UseTileFlows';
 
 // "Use your Cores" in the new look: in the wallet, three compact boxes in a
 // row that scrolls sideways below laptop (Boost with today's deal, then
@@ -106,6 +114,21 @@ const uses: Record<CoresUse, UseDefinition> = {
     tint: 'bg-overlay-float-bacon',
     from: null,
   },
+};
+
+/** Same key as production's useStreakRecover, so both read one answer */
+const useStreakRecoverState = (): UserStreakRecoverData | undefined => {
+  const { user } = useAuthContext();
+  const { data } = useQuery({
+    queryKey: generateQueryKey(RequestKey.UserStreakRecover),
+    queryFn: () =>
+      gqlClient.request<{ streakRecover: UserStreakRecoverData }>(
+        USER_STREAK_RECOVER_QUERY,
+      ),
+    enabled: !!user,
+  });
+
+  return data?.streakRecover;
 };
 
 /** The starting price as a chip at the end of a row */
