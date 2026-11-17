@@ -163,7 +163,11 @@ const getWalletRows = async (): Promise<HTMLElement[]> => {
     </TestBootProvider>,
   );
 
-  return screen.findAllByRole('listitem');
+  const history = await screen.findByRole('list', {
+    name: 'Transaction history',
+  });
+
+  return within(history).getAllByRole('listitem');
 };
 
 const getRowLinks = (row: HTMLElement): HTMLAnchorElement[] =>

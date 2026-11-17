@@ -17,12 +17,9 @@ import { BoostPostModal } from '@dailydotdev/shared/src/features/boost/BoostPost
 import { BoostSquadModal } from '@dailydotdev/shared/src/features/boost/BoostSquadModal';
 import { AdsDashboardModal } from '@dailydotdev/shared/src/features/boost/AdsDashboardModal';
 import { BuyCoresModal } from '@dailydotdev/shared/src/components/modals/award/BuyCoresModal';
-import {
-  StartupsBuyCoresPromo,
-  StartupsWalletPromo,
-} from '@dailydotdev/shared/src/features/squads/components/promos/StartupsPromo';
+import { CoresDeals } from '@dailydotdev/shared/src/components/cores/CoresDeals';
+import { StartupsPromoSpot } from '@dailydotdev/shared/src/features/squads/hooks/useStartupsPromo';
 import NewSquadModal from '@dailydotdev/shared/src/components/modals/squads/NewSquadModal';
-import { PlusCoresGivebackWidget } from '@dailydotdev/shared/src/components/cores/PlusCoresGivebackWidget';
 import { SquadPageContextProvider } from '@dailydotdev/shared/src/features/squads/SquadPageContext';
 import { SquadManageLayout } from '@dailydotdev/shared/src/features/squads/components/manage/SquadManageLayout';
 import { SquadManagePlan } from '@dailydotdev/shared/src/features/squads/components/manage/SquadManagePlan';
@@ -272,7 +269,13 @@ export const BuyCoresFromBoost: Story = {
             You need <strong>33,000 more Cores</strong> to boost the post.
           </Typography>
         }
-        promo={<StartupsBuyCoresPromo sourceId={acme.id} />}
+        promo={
+          <CoresDeals
+            spot={StartupsPromoSpot.BuyCores}
+            sourceId={acme.id}
+            withStartups
+          />
+        }
         origin={Origin.BoostPost}
       />
     </SeedCorePacks>
@@ -284,8 +287,12 @@ export const Wallet: Story = {
   render: () => (
     <div className="flex justify-center p-6">
       <div className="flex w-[22rem] flex-col gap-4">
-        <StartupsWalletPromo />
-        <PlusCoresGivebackWidget />
+        <CoresDeals
+          spot={StartupsPromoSpot.Wallet}
+          isPersonalAllowed={false}
+          withStartups
+          isStacked
+        />
       </div>
     </div>
   ),

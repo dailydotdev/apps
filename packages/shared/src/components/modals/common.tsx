@@ -150,6 +150,13 @@ const StreakFreezePurchaseModal = dynamic(
     ),
 );
 
+const FirstCoresModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "firstCoresModal" */ '../cores/FirstCoresModal'
+    ),
+);
+
 const StreakGoalModal = dynamic(
   () =>
     import(
@@ -590,6 +597,7 @@ export const modals = {
   [LazyModal.BookmarkReminder]: BookmarkReminderModal,
   [LazyModal.RecoverStreak]: StreakRecoverModal,
   [LazyModal.StreakFreezePurchase]: StreakFreezePurchaseModal,
+  [LazyModal.FirstCores]: FirstCoresModal,
   [LazyModal.StreakGoal]: StreakGoalModal,
   [LazyModal.SlackIntegration]: SlackIntegrationModal,
   [LazyModal.SlackShare]: SlackShareModal,
