@@ -35,6 +35,10 @@ export enum ActionType {
   BookmarkPost = 'bookmark_post',
   DigestConfig = 'digest_config',
   StreakMilestone = 'streak_milestone',
+  // Saw the "2 streak freezes, on us" copy in the milestone modal
+  StreakFreeFreezesGrant = 'streak_free_freezes_grant',
+  // Saw the "that was your last free freeze" upsell modal
+  StreakFreeFreezesUpsell = 'streak_free_freezes_upsell',
   FetchedSmartTitle = 'fetched_smart_title',
   EditTag = 'edit_tag',
   ContentTypes = 'content_types',
