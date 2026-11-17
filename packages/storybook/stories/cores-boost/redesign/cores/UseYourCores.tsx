@@ -1,0 +1,246 @@
+import type { ReactElement, ReactNode } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import classNames from 'classnames';
+import { CoreIcon } from '@dailydotdev/shared/src/components/icons/Core';
+import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons/ReadingStreak';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { BoostIcon } from '@dailydotdev/shared/src/components/icons/Boost';
+import { Image } from '@dailydotdev/shared/src/components/image/Image';
+import { formatCoresCurrency } from '@dailydotdev/shared/src/lib/utils';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import type { UserStreakRecoverData } from '@dailydotdev/shared/src/graphql/users';
+import { USER_STREAK_RECOVER_QUERY } from '@dailydotdev/shared/src/graphql/users';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
+import { awards } from '../../real/catalog';
+import { minAward, minBoost } from '../../flows/cores/fixtures';
+import { streakFreezeProducts } from '../../real/handlers';
+import { BoostHeroTile } from './BoostHeroTile';
+
+// "Use your Cores" in the new look: in the wallet, three compact boxes in a
+// row that scrolls sideways below laptop (Boost with today's deal, then
+// award and streak, described only);
+// rows in the first Cores sheet that only describe each use.
+
+export type CoresUse = 'award' | 'boost' | 'streak';
+
+interface UseDefinition {
+  title: string;
+  description: string;
+  icon: ReactNode;
+  tint: string;
+  from: number | null;
+  /** The price is the whole price, not a starting one */
+  isExact?: boolean;
+}
+
+const awardImages = awards.map(({ image }) => image).filter(Boolean);
+
+/** Every award image in turn, one at a time; the Heart alone on reduced motion */
+const AwardsCycle = (): ReactElement => {
+  const [index, setIndex] = useState(() =>
+    Math.max(
+      awards
+        .filter(({ image }) => image)
+        .findIndex(({ name }) => name === 'Heart'),
+      0,
+    ),
+  );
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return undefined;
+    }
+
+    const interval = setInterval(
+      () => setIndex((current) => (current + 1) % awardImages.length),
+      1200,
+    );
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <span className="relative size-7">
+      {awardImages.map((image, position) => (
+        <Image
+          key={image}
+          src={image}
+          alt={position === index ? 'Award' : ''}
+          className={classNames(
+            'absolute inset-0 size-full transition-all duration-300',
+            position === index ? 'scale-100 opacity-100' : 'scale-50 opacity-0',
+          )}
+        />
+      ))}
+    </span>
+  );
+};
+
+const uses: Record<CoresUse, UseDefinition> = {
+  award: {
+    title: 'Give an award',
+    description: 'Thank a creator for a post or a comment',
+    icon: <AwardsCycle />,
+    tint: 'bg-overlay-float-cabbage',
+    from: minAward,
+  },
+  boost: {
+    title: 'Boost your post',
+    description: 'Show your post to more developers',
+    icon: (
+      <BoostIcon
+        size={IconSize.Small}
+        className="text-accent-blueCheese-default"
+      />
+    ),
+    tint: 'bg-overlay-float-blueCheese',
+    from: minBoost,
+  },
+  streak: {
+    title: 'Restore a lost streak',
+    description: 'Bring back a streak the day after it breaks',
+    icon: (
+      <ReadingStreakIcon
+        secondary
+        size={IconSize.Small}
+        className="text-accent-bacon-default"
+      />
+    ),
+    tint: 'bg-overlay-float-bacon',
+    from: null,
+  },
+};
+
+/** Same key as production's useStreakRecover, so both read one answer */
+const useStreakRecoverState = (): UserStreakRecoverData | undefined => {
+  const { user } = useAuthContext();
+  const { data } = useQuery({
+    queryKey: generateQueryKey(RequestKey.UserStreakRecover),
+    queryFn: () =>
+      gqlClient.request<{ streakRecover: UserStreakRecoverData }>(
+        USER_STREAK_RECOVER_QUERY,
+      ),
+    enabled: !!user,
+  });
+
+  return data?.streakRecover;
+};
+
+/** The starting price as a chip at the end of a row */
+const PriceChip = ({
+  from,
+  isExact,
+}: {
+  from: number | null;
+  isExact?: boolean;
+}): ReactElement => (
+  <span className="flex shrink-0 items-center gap-1 rounded-10 border border-border-subtlest-tertiary px-2 py-1 typo-caption1">
+    {from === null ? (
+      <span className="text-text-tertiary">Varies</span>
+    ) : (
+      <>
+        {!isExact && <span className="text-text-tertiary">From</span>}
+        <CoreIcon size={IconSize.Size16} />
+        <strong className="tabular-nums">{formatCoresCurrency(from)}</strong>
+      </>
+    )}
+  </span>
+);
+
+const UseIcon = ({
+  use,
+  className = 'size-10',
+}: {
+  use: CoresUse;
+  className?: string;
+}): ReactElement => (
+  <span
+    className={classNames(
+      'flex shrink-0 items-center justify-center rounded-12',
+      uses[use].tint,
+      className,
+    )}
+  >
+    {uses[use].icon}
+  </span>
+);
+
+const CoresUseTile = ({
+  use,
+  override,
+}: {
+  use: CoresUse;
+  /** Copy and price that depend on the viewer, like a streak to restore */
+  override?: Partial<
+    Pick<UseDefinition, 'title' | 'description' | 'from' | 'isExact'>
+  >;
+}): ReactElement => {
+  const { title, description, from, isExact } = { ...uses[use], ...override };
+
+  return (
+    <li className="flex w-56 shrink-0 snap-start flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-3 laptop:w-auto">
+      <span className="flex w-full items-center gap-2">
+        <UseIcon use={use} className="size-8" />
+        <span className="min-w-0 flex-1 font-bold typo-callout">{title}</span>
+      </span>
+      <span className="text-text-tertiary typo-footnote">{description}</span>
+      <span className="mt-auto flex pt-1">
+        <PriceChip from={from} isExact={isExact} />
+      </span>
+    </li>
+  );
+};
+
+export const UseYourCoresTiles = ({
+  balance,
+}: {
+  balance: number;
+}): ReactElement => {
+  const recover = useStreakRecoverState();
+  const canRecover = !!recover?.canRecover;
+  const streakOverride = canRecover
+    ? {
+        title: `Restore your ${recover.oldStreakLength}-day streak`,
+        description: 'It broke yesterday. Bring it back before it’s gone',
+        from: recover.cost,
+        isExact: true,
+      }
+    : {
+        title: 'Protect your streak',
+        description: 'Streak freezes cover the days you miss reading',
+        from: Math.min(...streakFreezeProducts.map(({ value }) => value)),
+      };
+
+  return (
+    <ul className="no-scrollbar -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-2 overflow-x-auto px-4 tablet:-mx-6 tablet:scroll-px-6 tablet:px-6 laptop:mx-0 laptop:grid laptop:grid-cols-3 laptop:gap-3 laptop:overflow-visible laptop:px-0">
+      <BoostHeroTile balance={balance} />
+      {(['award', 'streak'] as CoresUse[]).map((use) => (
+        <CoresUseTile
+          key={use}
+          use={use}
+          override={use === 'streak' ? streakOverride : undefined}
+        />
+      ))}
+    </ul>
+  );
+};
+
+/** One use, described: what it does and what it costs, nothing to tap */
+export const CoresUseRow = ({ use }: { use: CoresUse }): ReactElement => {
+  const { title, description, from } = uses[use];
+
+  return (
+    <li className="flex w-full items-center gap-4 py-3 text-left">
+      <UseIcon use={use} />
+      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="font-bold typo-subhead">{title}</span>
+        <span className="text-text-tertiary typo-footnote">{description}</span>
+      </span>
+      <PriceChip from={from} />
+    </li>
+  );
+};
