@@ -7,7 +7,7 @@ import {
 } from '../../typography/Typography';
 import type { ReputationReasonTotal } from '../../../graphql/reputation';
 import { ReputationReason } from '../../../graphql/reputation';
-import { formatSignedAmount, reasonMeta } from './common';
+import { formatSignedAmount, getReasonMeta } from './common';
 
 type Side = 'top' | 'right' | 'bottom' | 'left';
 
@@ -156,7 +156,19 @@ export const ReputationShape = ({
   const percentages = toPercentages(amounts);
   const losses = breakdown.filter((total) => total.amount < 0);
   const lost = losses.reduce((sum, total) => sum + total.amount, 0);
-  const granted = totalFor(ReputationReason.Manual);
+  const otherGains = [
+    ...breakdown
+      .filter(
+        (total) =>
+          total.amount > 0 &&
+          !axes.some(({ reason }) => reason === total.reason),
+      )
+      .reduce((gains, total) => {
+        const { label } = getReasonMeta(total.reason);
+
+        return gains.set(label, (gains.get(label) ?? 0) + total.amount);
+      }, new Map<string, number>()),
+  ];
 
   if (!amounts.some(Boolean)) {
     return (
@@ -268,7 +280,7 @@ export const ReputationShape = ({
             );
           })}
         </ul>
-        {(lost < 0 || !!granted) && (
+        {(lost < 0 || otherGains.length > 0) && (
           <div className="flex flex-col gap-1 border-t border-border-subtlest-tertiary pt-3">
             {lost < 0 && (
               <Typography
@@ -282,22 +294,23 @@ export const ReputationShape = ({
                 {losses
                   .map(
                     ({ reason, count }) =>
-                      `${reasonMeta[reason].label.toLowerCase()} (${count})`,
+                      `${getReasonMeta(reason).label.toLowerCase()} (${count})`,
                   )
                   .join(', ')}
               </Typography>
             )}
-            {!!granted && (
+            {otherGains.map(([label, amount]) => (
               <Typography
+                key={label}
                 type={TypographyType.Footnote}
                 color={TypographyColor.Tertiary}
               >
                 <span className="font-bold tabular-nums text-status-success">
-                  {formatSignedAmount(granted.amount)}
+                  {formatSignedAmount(amount)}
                 </span>{' '}
-                granted by daily.dev
+                {label.toLowerCase()}
               </Typography>
-            )}
+            ))}
           </div>
         )}
       </div>
