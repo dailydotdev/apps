@@ -181,6 +181,8 @@ export interface BuyCoresRedesignModalProps {
   purpose?: CoresPurpose;
   cost: number;
   product?: Product;
+  /** Open on the checkout, as after picking a pack */
+  isCheckoutShown?: boolean;
   onPay: (pack: CoreProductOption) => void;
   onRequestClose: () => void;
 }
@@ -189,11 +191,13 @@ export const BuyCoresRedesignModal = ({
   purpose,
   cost,
   product,
+  isCheckoutShown = false,
   onPay,
   onRequestClose,
 }: BuyCoresRedesignModalProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const balance = user?.balance?.amount ?? 0;
   const missing = Math.max(0, cost - balance);
   const { data: prices } = useQuery(
@@ -201,8 +205,10 @@ export const BuyCoresRedesignModal = ({
   );
   const [selected, setSelected] = useState<CoreProductOption>();
   // The art shows until a pack is picked, then the checkout takes its place
-  const [hasPicked, setHasPicked] = useState(false);
-  const [isCheckoutOpen, setCheckoutOpen] = useState(!isMobile);
+  const [hasPicked, setHasPicked] = useState(isCheckoutShown);
+  const [isCheckoutOpen, setCheckoutOpen] = useState(
+    !isMobile || isCheckoutShown,
+  );
   const origins: Record<CoresPurpose, Origin> = {
     award: Origin.Award,
     boost: Origin.BoostPost,
@@ -259,7 +265,10 @@ export const BuyCoresRedesignModal = ({
           selected={selected}
         />
       )}
-      <Deals withStartups={purpose !== 'award'} />
+      <Deals
+        withStartups={purpose !== 'award'}
+        isSingleColumn={hasPicked && !isLaptop}
+      />
       <div>
         <h3 className="mb-2 font-bold typo-callout">Packages</h3>
         {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
@@ -336,11 +345,8 @@ export const BuyCoresRedesignModal = ({
         <ModalBody className="!p-0 tablet:rounded-b-16">
           <div className="flex min-h-0 flex-1 flex-row gap-4 p-4">
             <div className="min-w-0 flex-1 overflow-y-auto pr-1">{options}</div>
-            {hasPicked ? (
-              <CheckoutPanel pack={pack} onPay={pay} />
-            ) : (
-              <FriendshipPanel />
-            )}
+            {hasPicked && <CheckoutPanel pack={pack} onPay={pay} />}
+            {!hasPicked && isLaptop && <FriendshipPanel />}
           </div>
         </ModalBody>
       )}

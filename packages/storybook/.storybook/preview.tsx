@@ -134,7 +134,15 @@ const preview: Preview = {
             ],
           ],
           'Cores & Boost',
-          ['Redesign', ['0. Today vs redesign', '1. Wallet and buy Cores']],
+          [
+            'Redesign',
+            [
+              '0. Today vs redesign',
+              '1. Wallet and buy Cores',
+              '2. All states',
+              '3. States',
+            ],
+          ],
         ],
       },
     },

@@ -2,10 +2,10 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-// Today, 100% production (the "Today (production)" stories), next to the
-// redesign, screen by screen, as screenshots of the real stories: dark mode,
-// 1440×900. Live frames took a minute to fill a page. After changing a
-// screen, shoot it again; each image links to its live story.
+// Today, 100% production, next to the redesign, screen by screen, as
+// screenshots: dark mode, 1440×900. Live frames took a minute to fill a page.
+// After changing a screen, shoot it again; each redesign image links to its
+// live story.
 
 const screenshots = import.meta.glob<string>('../assets/compare/*.jpg', {
   eager: true,
@@ -17,7 +17,7 @@ const screenshotOf = (id: string): string | undefined =>
 
 type Pair = {
   name: string;
-  /** "Today (production)" story id */
+  /** Id of the production screenshot */
   today: string;
   /** Unset where the redesign keeps the production screen */
   redesign?: string;
@@ -33,26 +33,47 @@ const pairsFor = (
     redesign: next ? `cores-boost-redesign-${flow}--${next}` : undefined,
   }));
 
-/** A story's screenshot, linking to the live story */
-const StoryShot = ({ id }: { id: string }): ReactElement => (
-  <a
-    href={`?path=/story/${id}`}
-    target="_top"
-    className="block overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-subtle"
-  >
+const shotClassName =
+  'block overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-subtle';
+
+/** A story's screenshot; a redesign shot links to its live story */
+const StoryShot = ({
+  id,
+  isLinked,
+}: {
+  id: string;
+  isLinked: boolean;
+}): ReactElement => {
+  const image = (
     <img
       src={screenshotOf(id)}
       alt={id}
       loading="lazy"
       className="aspect-[16/10] w-full object-cover object-top"
     />
-  </a>
-);
+  );
 
-const Column = ({ label, id }: { label: string; id: string }): ReactElement => (
+  return isLinked ? (
+    <a href={`?path=/story/${id}`} target="_top" className={shotClassName}>
+      {image}
+    </a>
+  ) : (
+    <span className={shotClassName}>{image}</span>
+  );
+};
+
+const Column = ({
+  label,
+  id,
+  isLinked = false,
+}: {
+  label: string;
+  id: string;
+  isLinked?: boolean;
+}): ReactElement => (
   <div className="flex min-w-0 flex-1 flex-col gap-2">
     <span className="font-bold text-text-tertiary typo-caption1">{label}</span>
-    <StoryShot id={id} />
+    <StoryShot id={id} isLinked={isLinked} />
   </div>
 );
 
@@ -66,6 +87,7 @@ const ComparePage = ({ pairs }: { pairs: Pair[] }): ReactElement => (
           <Column
             label={pair.redesign ? 'Redesign' : 'Redesign · unchanged'}
             id={pair.redesign ?? pair.today}
+            isLinked={!!pair.redesign}
           />
         </div>
       </section>
@@ -87,9 +109,7 @@ export const WalletAndBuyCores: Story = {
   render: () => (
     <ComparePage
       pairs={pairsFor('1-wallet-and-buy-cores', [
-        ['Quest reward', 'first-cores-quest-reward', null],
         ['1 · Your first Cores', 'first-cores-after-claim', 'your-first-cores'],
-        ['Ways in', 'wallet-ways-in', null],
         ['2 · Wallet', 'wallet', 'wallet-screen'],
         ['4 · /cores', 'cores', 'cores'],
         ['You got your Cores!', 'cores-purchased', null],

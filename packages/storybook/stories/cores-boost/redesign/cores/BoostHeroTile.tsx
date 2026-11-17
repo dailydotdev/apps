@@ -105,9 +105,9 @@ const DealCountdown = (): ReactElement => {
   );
 };
 
-type BoostPick = 'deal' | 'custom';
+export type BoostPick = 'deal' | 'custom';
 
-const RecentPostsPicker = ({
+export const RecentPostsPicker = ({
   pick,
   balance,
   onPick,
@@ -245,7 +245,7 @@ export const BoostHeroTile = ({
         className,
       )}
     >
-      <span className="absolute -right-7 top-4 w-28 rotate-45 bg-accent-onion-default py-0.5 text-center font-bold typo-caption1">
+      <span className="absolute -right-7 top-4 w-28 rotate-45 bg-accent-onion-default py-0.5 text-white text-center font-bold typo-caption1">
         -{DEAL_DISCOUNT * 100}%
       </span>
       <span className="flex items-center gap-2 pr-8">

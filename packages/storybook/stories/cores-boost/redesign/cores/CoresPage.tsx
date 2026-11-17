@@ -60,7 +60,7 @@ const CorePageDesktop = (): ReactElement => {
         />
         <div
           className={classNames(
-            'm-6 flex flex-1 overflow-hidden rounded-16',
+            'm-6 flex w-80 shrink-0 overflow-hidden rounded-16',
             selectedProduct && 'hidden',
           )}
         >

@@ -384,8 +384,8 @@ export const Wallet = ({
       <SquadFrame
         widgets={
           <>
-            <PacksWidget />
             <Deals withStartups isStacked />
+            <PacksWidget />
             <HelpWidget />
           </>
         }
