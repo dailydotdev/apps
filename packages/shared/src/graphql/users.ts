@@ -132,6 +132,7 @@ sources: publicSourceMemberships(userId: $id, first: 30) {
         permalink
         features {
           verified
+          showVerifiedBadge
         }
         currentMember {
           role
@@ -763,6 +764,12 @@ export interface UserStreakReset {
   missedDate: string | null;
   timezone: string | null;
   at: string;
+}
+
+// Local dates (YYYY-MM-DD, inclusive) in the user's timezone.
+export interface UserStreakPause {
+  start: string;
+  end: string;
 }
 
 export interface UserStreak {

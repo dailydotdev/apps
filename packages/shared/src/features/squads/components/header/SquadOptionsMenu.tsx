@@ -211,6 +211,7 @@ export const SquadOptionsMenu = ({
               type: 'SQUAD',
               entity: {
                 id: getSquadId(squad),
+                permalink: squad.permalink,
                 receiver: {
                   ...awardAdmin,
                   name: squad.name,

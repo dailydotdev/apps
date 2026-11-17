@@ -26,6 +26,8 @@ import { timezoneSettingsUrl, webappUrl } from '../../../lib/constants';
 import { useStreakTimezoneOk } from '../../../hooks/streaks/useStreakTimezoneOk';
 import { useStreakResetReason } from '../../../hooks/streaks/useStreakResetReason';
 import { StreakResetReason } from '../StreakResetReason';
+import { useActiveStreakPause } from '../../../hooks/streaks/useStreakPause';
+import { StreakPauseBanner } from '../StreakPauseBanner';
 import { useStreakGoal } from '../../../hooks/streaks/useStreakGoal';
 import { StreakGoalProgress } from '../StreakGoalProgress';
 import { useStreakSoftBreak } from '../../../hooks/streaks/useStreakSoftBreak';
@@ -84,6 +86,7 @@ export function ReadingStreakPopup({
   const { progress: goalProgress } = useStreakGoal(streak?.current);
   const { missedDate, timezone: missedDateTimezone } =
     useStreakResetReason(streak);
+  const { pause } = useActiveStreakPause(streak);
   const { isSoftBreak } = useStreakSoftBreak(streak);
   const { showPrompt } = usePrompt();
   const { logEvent } = useLogContext();
@@ -118,6 +121,7 @@ export function ReadingStreakPopup({
         freezeDates,
         missedDate,
         missedDateTimezone,
+        pause,
         lastViewAt: streak.lastViewAt,
       });
 
@@ -138,6 +142,7 @@ export function ReadingStreakPopup({
     freezeDates,
     missedDate,
     missedDateTimezone,
+    pause,
   ]);
 
   const onTogglePush = async () => {
@@ -192,6 +197,7 @@ export function ReadingStreakPopup({
           {streaks}
         </div>
         <StreakResetReason streak={streak} origin={surface} className="mt-4" />
+        <StreakPauseBanner streak={streak} className="mt-4" />
         <div className="mt-4 flex flex-col items-center tablet:flex-row">
           <div
             className={classNames(

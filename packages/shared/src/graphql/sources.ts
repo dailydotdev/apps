@@ -123,6 +123,10 @@ export interface SourceFeatures {
   /** The header button without the brand color, on the Startups Team plan */
   cta?: boolean | null;
   jobs?: boolean | null;
+  /** Verified and its admins show the badge. Falls back to verified */
+  showVerifiedBadge?: boolean | null;
+  /** Ad-free and its admins keep the ads off. Falls back to adFree */
+  hideAds?: boolean | null;
 }
 
 export interface Source {

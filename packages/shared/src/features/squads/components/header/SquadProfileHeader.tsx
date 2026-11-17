@@ -18,7 +18,11 @@ import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../../../components/modals/common/types';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useSquadPageContext } from '../../SquadPageContext';
-import { getSquadId, hasSquadFeature } from '../../lib/features';
+import {
+  getSquadId,
+  hasSquadFeature,
+  showsVerifiedBadge,
+} from '../../lib/features';
 import { getDisplayUrl, squadLinkRel } from '../../lib/links';
 import { SquadViewer } from '../../lib/viewer';
 import { getSquadMembersUrl } from '../../lib/routes';
@@ -307,7 +311,7 @@ export const SquadProfileHeader = (): ReactElement => {
             className="flex flex-wrap items-center gap-x-2 gap-y-1 font-bold text-text-primary typo-title2"
           >
             {squad.name}
-            {hasSquadFeature(squad, 'verified') && (
+            {showsVerifiedBadge(squad) && (
               <VerifiedSquadBadge className="size-5" />
             )}
           </h1>

@@ -9,7 +9,7 @@ import { ProfileImageSize, roundClasses } from '../../ProfilePicture';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import SourceButton from './SourceButton';
 import { useViewSize, ViewSize } from '../../../hooks';
-import { hasSquadFeature } from '../../../features/squads/lib/features';
+import { showsVerifiedBadge } from '../../../features/squads/lib/features';
 import { VerifiedLogoCheck } from '../../../features/squads/components/VerifiedSquad';
 
 const HoverCard = dynamic(
@@ -88,8 +88,7 @@ export const AuthorSourceStack = ({
 
   // The card shows the squad's logo without its name, so a verified squad's
   // seal sits on the logo itself
-  const hasCheck =
-    showVerifiedCheck && hasSquadFeature(source ?? undefined, 'verified');
+  const hasCheck = showVerifiedCheck && showsVerifiedBadge(source ?? undefined);
   const sourceButton = showSource ? (
     <SourceButton source={source as SourceTooltip} size={size} />
   ) : null;
