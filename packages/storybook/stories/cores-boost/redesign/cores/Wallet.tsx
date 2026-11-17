@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -55,14 +55,16 @@ import { SquadWidget } from '@dailydotdev/shared/src/features/squads/components/
 import { TransactionItem } from '@dailydotdev/shared/src/components/cores/TransactionItem';
 import { UseYourCoresTiles } from './UseYourCores';
 import { Deals } from '../purchase/Deals';
+import { BuyCoresRedesignModal } from '../purchase/BuyCoresRedesign';
 import { useRoute } from '../../real/providers';
 import { CardSection, friendshipArt, SquadFrame } from './frame';
 
-// The wallet in the squads hub layout. Same content as the fixed wallet:
-// balance and the four totals (with their tooltips), Use your Cores, the
-// transaction history (production TransactionItem), Buy Cores in the header, the 100/300/600 packs and
-// See more options, the Plus giveback, Docs and Terms. The page now reads as
-// one card (balance → uses → history) with the buying and help as widgets.
+// The wallet in the squads hub layout, with production's content: the
+// balance and four totals (with their tooltips), Use your Cores, the
+// transaction history (production TransactionItem), Buy Cores in the header,
+// the 100/300/600 packs and See more options, the Plus giveback, Docs and
+// Terms. The page reads as one card (balance, uses, history) with buying and
+// help as widgets. Buy Cores and the packs open the redesigned pop-up.
 
 const coresLink = (params: Record<string, string>): string =>
   getPathnameWithQuery(
@@ -86,11 +88,7 @@ const TotalCell = ({
   total: Total;
   isLoading?: boolean;
 }): ReactElement => (
-  <div
-    className={classNames(
-      'flex min-w-0 flex-col gap-1 bg-background-default px-4 py-3',
-    )}
-  >
+  <div className="flex min-w-0 flex-col gap-1 bg-background-default px-4 py-3">
     <Tooltip content={total.description}>
       <span className="flex w-fit items-center gap-1.5 text-text-tertiary typo-footnote">
         {total.icon}
@@ -260,15 +258,14 @@ const HelpWidget = (): ReactElement => (
 export interface WalletProps {
   /** Cores a purchase just added, shown on the Purchased total */
   purchasedChange?: number;
-  onBuyCores?: () => void;
 }
 
 export const Wallet = ({
   purchasedChange,
-  onBuyCores,
 }: WalletProps): ReactElement | null => {
   useRoute('/wallet');
-  const { user, isLoggedIn } = useAuthContext();
+  const { user, isLoggedIn, updateUser } = useAuthContext();
+  const [isBuying, setBuying] = useState(false);
   const isLaptopLayout = useLaptopLayout();
   const isPhone = useIsPhone();
 
@@ -291,19 +288,16 @@ export const Wallet = ({
     staleTime: StaleTime.Default,
   });
 
-  // Every /cores link on the page leads to the story's /cores step
-  const onLinkClick = useCallback(
-    (event: React.MouseEvent) => {
-      const link = (event.target as HTMLElement).closest('a');
+  // Every /cores link on the page opens the redesigned Buy Cores pop-up
+  const onLinkClick = useCallback((event: React.MouseEvent) => {
+    const link = (event.target as HTMLElement).closest('a');
 
-      if (!/cores(\?|$)/.test(link?.getAttribute('href') ?? '')) {
-        return;
-      }
-      event.preventDefault();
-      onBuyCores?.();
-    },
-    [onBuyCores],
-  );
+    if (!/cores(\?|$)/.test(link?.getAttribute('href') ?? '')) {
+      return;
+    }
+    event.preventDefault();
+    setBuying(true);
+  }, []);
 
   if (!user) {
     return null;
@@ -448,6 +442,19 @@ export const Wallet = ({
           )}
         </section>
       </SquadFrame>
+      {isBuying && (
+        <BuyCoresRedesignModal
+          cost={0}
+          onPay={(pack) => {
+            updateUser({
+              ...user,
+              balance: { amount: user.balance.amount + pack.value },
+            });
+            setBuying(false);
+          }}
+          onRequestClose={() => setBuying(false)}
+        />
+      )}
     </div>
   );
 };

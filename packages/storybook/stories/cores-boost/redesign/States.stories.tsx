@@ -6,7 +6,7 @@ import { delay, graphql, HttpResponse } from 'msw';
 import type { UserTransaction } from '@dailydotdev/shared/src/graphql/njord';
 import { CoresProviders, noop } from '../real/providers';
 import { streakHandlers } from '../real/handlers';
-import { questHandlers } from '../real/pages';
+import { DailyQuestsPage, questHandlers } from '../real/pages';
 import { Shell } from '../flows/cores/Shell';
 import {
   afterPurchaseHistory,
@@ -17,7 +17,6 @@ import {
   walletHandlers,
   walletHistory,
 } from '../flows/cores/fixtures';
-import { QuestScreen } from './cores/Screens';
 import { CoresPurchasedModal, FirstCoresSheet } from './cores/Moments';
 import { Wallet } from './cores/Wallet';
 import { CoresPage } from './cores/CoresPage';
@@ -97,7 +96,7 @@ const firstCores = (persona: 'reader' | 'poster'): Story => ({
   render: () => (
     <CoresProviders balance={FIRST_REWARD} activePage="/daily-quests">
       <Shell>
-        <QuestScreen isClaimed />
+        <DailyQuestsPage />
         <FirstCoresSheet
           amount={FIRST_REWARD}
           persona={persona}

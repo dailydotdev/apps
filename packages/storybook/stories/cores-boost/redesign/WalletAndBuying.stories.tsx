@@ -4,9 +4,8 @@ import { CoresProviders, noop } from '../real/providers';
 import { streakHandlers } from '../real/handlers';
 import { Shell } from '../flows/cores/Shell';
 import type { FirstCoresPersona } from '../flows/cores/FirstCoresSheet';
-import { questHandlers } from '../real/pages';
+import { DailyQuestsPage, questHandlers } from '../real/pages';
 import { FirstCoresSheet } from './cores/Moments';
-import { QuestScreen } from './cores/Screens';
 import {
   firstQuestReward,
   readQuest,
@@ -65,11 +64,11 @@ export const YourFirstCores: StoryObj<{ persona: FirstCoresPersona }> = {
       activePage="/daily-quests"
     >
       <Shell>
-        <QuestScreen isClaimed />
+        <DailyQuestsPage />
         <FirstCoresSheet
           amount={FIRST_REWARD}
           persona={persona}
-          onGotIt={() => undefined}
+          onGotIt={noop}
         />
       </Shell>
     </CoresProviders>

@@ -141,9 +141,6 @@ export const notificationsHandlers = (notifications: Notification[]) => [
   ),
 ];
 
-/** Fired when a story's quest is claimed, from the sidebar or the page */
-export const QUEST_CLAIMED_EVENT = 'sb-quest-claimed';
-
 /**
  * The quest dashboard with one daily quest. Claiming it marks it claimed, as
  * production's ClaimQuestReward answers.
@@ -181,7 +178,6 @@ export const questHandlers = (quest: UserQuest, isClaimed = false) => {
     ),
     graphql.mutation('ClaimQuestReward', () => {
       claimed = true;
-      window.dispatchEvent(new Event(QUEST_CLAIMED_EVENT));
       return HttpResponse.json({ data: { claimQuestReward: buckets() } });
     }),
   ];

@@ -11,19 +11,16 @@ type Pair = {
   name: string;
   /** Id of the production story */
   today: string;
-  /** Unset where the redesign keeps the production screen */
-  redesign?: string;
+  /** Id of the redesign story */
+  redesign: string;
 };
 
-const pairsFor = (
-  flow: string,
-  rows: [name: string, today: string, redesign: string | null][],
-): Pair[] =>
-  rows.map(([name, today, next]) => ({
-    name,
-    today: `cores-boost-today-production--${today}`,
-    redesign: next ? `cores-boost-redesign-${flow}--${next}` : undefined,
-  }));
+const today = (story: string): string =>
+  `cores-boost-today-production--${story}`;
+const flow = (story: string): string =>
+  `cores-boost-redesign-1-wallet-and-buy-cores--${story}`;
+const state = (story: string): string =>
+  `cores-boost-redesign-3-states--${story}`;
 
 const Column = ({ label, id }: { label: string; id: string }): ReactElement => (
   <div className="flex min-w-0 flex-1 flex-col gap-2">
@@ -46,10 +43,7 @@ const ComparePage = ({ pairs }: { pairs: Pair[] }): ReactElement => (
         <h2 className="font-bold typo-title3">{pair.name}</h2>
         <div className="flex flex-col gap-4 laptop:flex-row">
           <Column label="Today · production" id={pair.today} />
-          <Column
-            label={pair.redesign ? 'Redesign' : 'Redesign · unchanged'}
-            id={pair.redesign ?? pair.today}
-          />
+          <Column label="Redesign" id={pair.redesign} />
         </div>
       </section>
     ))}
@@ -69,12 +63,34 @@ export const WalletAndBuyCores: Story = {
   name: '1. Wallet and buy Cores',
   render: () => (
     <ComparePage
-      pairs={pairsFor('1-wallet-and-buy-cores', [
-        ['1 · Your first Cores', 'first-cores-after-claim', 'your-first-cores'],
-        ['2 · Wallet', 'wallet', 'wallet-screen'],
-        ['4 · /cores', 'cores', 'cores'],
-        ['You got your Cores!', 'cores-purchased', null],
-      ])}
+      pairs={[
+        {
+          name: '1 · Your first Cores',
+          today: today('first-cores-after-claim'),
+          redesign: flow('your-first-cores'),
+        },
+        {
+          name: '2 · Wallet',
+          today: today('wallet'),
+          redesign: flow('wallet-screen'),
+        },
+        {
+          // Production's wallet sends Buy Cores to /cores
+          name: '3 · Wallet · Buy Cores',
+          today: today('cores'),
+          redesign: flow('buy-cores-popup'),
+        },
+        {
+          name: '4 · /cores',
+          today: today('cores'),
+          redesign: flow('cores'),
+        },
+        {
+          name: 'You got your Cores!',
+          today: today('cores-purchased'),
+          redesign: state('purchased'),
+        },
+      ]}
     />
   ),
 };
