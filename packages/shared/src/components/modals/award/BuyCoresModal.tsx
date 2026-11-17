@@ -41,7 +41,6 @@ import type { Origin } from '../../../lib/log';
 import { formatCoresCurrency } from '../../../lib/utils';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import { labels } from '../../../lib';
-import { useCanPurchaseCores } from '../../../hooks/useCoresFeature';
 import { BuyCoresContextProvider } from '../../../contexts/BuyCoresContext/BuyCoresContext';
 import { iOSSupportsCoresPurchase } from '../../../lib/ios';
 import type { SquadWallet } from '../../../graphql/squadWallet';
@@ -55,12 +54,7 @@ export type CoreOptionsProps = {
   promo?: ReactNode;
 };
 
-interface ModalHeaderProps extends Pick<
-  CoreOptionsProps,
-  'amountNeededCopy' | 'promo'
-> {
-  onPlusClick?: () => void;
-}
+type ModalHeaderProps = Pick<CoreOptionsProps, 'amountNeededCopy' | 'promo'>;
 
 export const CoreOptions = ({
   className,
@@ -453,13 +447,11 @@ const BuyCoreDesktop = ({ amountNeededCopy, promo }: BuyCoresProps) => {
 };
 
 const BuyFlow = ({
-  onPlusClick: onPlusButtonClick,
   amountNeededCopy,
   promo,
   ...props
 }: ModalProps & ModalHeaderProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const canPurchaseCores = useCanPurchaseCores();
   const { origin, squadWallet } = useBuyCoresContext();
 
   return (
@@ -479,8 +471,7 @@ const BuyFlow = ({
         showCloseButton={!isMobile}
       >
         <BuyCreditsButton
-          hideBuyButton={!canPurchaseCores}
-          onPlusClick={onPlusButtonClick}
+          hideBuyButton
           origin={origin}
           squadWallet={squadWallet}
         />

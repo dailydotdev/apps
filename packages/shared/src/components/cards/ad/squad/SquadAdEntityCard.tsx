@@ -23,7 +23,7 @@ import { AdViewability } from '../common/AdViewability';
 import type { ViewabilityData } from '../../../../features/monetization/viewability';
 import { storeSquadBoostClick } from '../../../../features/monetization/squadBoostClick';
 import { useScrambler } from '../../../../hooks/useScrambler';
-import { hasSquadFeature } from '../../../../features/squads/lib/features';
+import { showsVerifiedBadge } from '../../../../features/squads/lib/features';
 import { VerifiedSquadBadge } from '../../../../features/squads/components/VerifiedSquad';
 import { SquadRow } from '../../../../features/squads/components/widgets/SquadRow';
 import { useSquadAd } from './common';
@@ -116,7 +116,7 @@ export function SquadAdEntityCard({
   const squadName = (
     <span className="flex min-w-0 items-center gap-1">
       <span className="truncate">{name}</span>
-      {hasSquadFeature(squad, 'verified') && <VerifiedSquadBadge />}
+      {showsVerifiedBadge(squad) && <VerifiedSquadBadge />}
     </span>
   );
 

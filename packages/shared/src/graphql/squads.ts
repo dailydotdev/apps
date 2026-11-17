@@ -15,6 +15,7 @@ import { SourceMemberRole, SourceType } from './sources';
 import type {
   BasicSourceMember,
   Source,
+  SourceFeatures,
   SourceMember,
   SourcePermissions,
   Squad,
@@ -335,6 +336,41 @@ export const updateSquadLinks = async (
   return res.updateSquadLinks;
 };
 
+export const UPDATE_SQUAD_SETTINGS_MUTATION = gql`
+  mutation UpdateSquadSettings(
+    $sourceId: ID!
+    $showVerifiedBadge: Boolean
+    $hideAds: Boolean
+  ) {
+    updateSquadSettings(
+      sourceId: $sourceId
+      showVerifiedBadge: $showVerifiedBadge
+      hideAds: $hideAds
+    ) {
+      id
+      features {
+        showVerifiedBadge
+        hideAds
+      }
+    }
+  }
+`;
+
+export type SquadSettingsInput = Partial<
+  Pick<SourceFeatures, 'showVerifiedBadge' | 'hideAds'>
+>;
+
+export const updateSquadSettings = async ({
+  sourceId,
+  ...input
+}: SquadSettingsInput & { sourceId: string }): Promise<SquadSettingsInput> => {
+  const res = await gqlClient.request<{
+    updateSquadSettings: { features: SquadSettingsInput };
+  }>(UPDATE_SQUAD_SETTINGS_MUTATION, { sourceId, ...input });
+
+  return res.updateSquadSettings.features;
+};
+
 export const UPDATE_SQUAD_RULES_MUTATION = gql`
   mutation UpdateSquadRules($sourceId: ID!, $rules: [SquadRuleInput!]!) {
     updateSquadRules(sourceId: $sourceId, rules: $rules) {
@@ -488,6 +524,7 @@ export const SIMILAR_SQUADS_QUERY = gql`
       membersCount
       features {
         verified
+        showVerifiedBadge
       }
     }
   }

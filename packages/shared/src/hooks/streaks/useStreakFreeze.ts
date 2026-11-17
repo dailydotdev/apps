@@ -107,7 +107,7 @@ export const useStreakFreeze = ({
         searchParams.set('origin', Origin.StreakFreeze);
 
         if (!isExtension) {
-          searchParams.set('next', router.pathname);
+          searchParams.set('next', router.asPath);
         }
 
         router?.push(getPathnameWithQuery(`${webappUrl}cores`, searchParams));

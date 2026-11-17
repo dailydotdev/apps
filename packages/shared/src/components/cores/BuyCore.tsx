@@ -13,6 +13,7 @@ import {
 import { formatCoresCurrency } from '../../lib/utils';
 import Link from '../utilities/Link';
 import { getPathnameWithQuery } from '../../lib';
+import { isExtension } from '../../lib/func';
 import { useViewSize, ViewSize } from '../../hooks';
 
 type BuyCoreProps = {
@@ -21,6 +22,7 @@ type BuyCoreProps = {
   priceFormatted?: string;
   origin: Origin;
   pid?: string;
+  next?: string;
 };
 
 export const BuyCore = ({
@@ -29,6 +31,7 @@ export const BuyCore = ({
   priceFormatted,
   origin,
   pid,
+  next,
 }: BuyCoreProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const params = new URLSearchParams();
@@ -38,6 +41,10 @@ export const BuyCore = ({
 
   if (origin) {
     params.append('origin', origin);
+  }
+
+  if (next && !isExtension) {
+    params.append('next', next);
   }
 
   const href = getPathnameWithQuery(

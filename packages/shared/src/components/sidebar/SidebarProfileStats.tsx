@@ -10,6 +10,7 @@ import { formatCurrency } from '../../lib/utils';
 import Link from '../utilities/Link';
 import { IconSize } from '../Icon';
 import { CoreIcon, ReputationIcon } from '../icons';
+import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 import { Typography, TypographyType } from '../typography/Typography';
 
 const cellClass =
@@ -21,6 +22,7 @@ const cellClass =
 // (see StreakRing / useStreakRingState).
 export const SidebarProfileStats = (): ReactElement | null => {
   const { user } = useAuthContext();
+  const hasCoresAccess = useHasAccessToCores();
 
   if (!user) {
     return null;
@@ -52,25 +54,32 @@ export const SidebarProfileStats = (): ReactElement | null => {
           </Typography>
         </a>
       </Link>
-      <span
-        aria-hidden
-        className="w-px self-stretch bg-border-subtlest-tertiary"
-      />
-      <Link href={walletUrl} passHref>
-        <a className={cellClass} aria-label={`Cores wallet: ${preciseBalance}`}>
-          <CoreIcon
-            size={IconSize.Small}
-            className="text-accent-cheese-default"
+      {hasCoresAccess && (
+        <>
+          <span
+            aria-hidden
+            className="w-px self-stretch bg-border-subtlest-tertiary"
           />
-          <Typography
-            bold
-            type={TypographyType.Footnote}
-            className="tabular-nums"
-          >
-            {largeNumberFormat(balance)}
-          </Typography>
-        </a>
-      </Link>
+          <Link href={walletUrl} passHref>
+            <a
+              className={cellClass}
+              aria-label={`Cores wallet: ${preciseBalance}`}
+            >
+              <CoreIcon
+                size={IconSize.Small}
+                className="text-accent-cheese-default"
+              />
+              <Typography
+                bold
+                type={TypographyType.Footnote}
+                className="tabular-nums"
+              >
+                {largeNumberFormat(balance)}
+              </Typography>
+            </a>
+          </Link>
+        </>
+      )}
     </div>
   );
 };

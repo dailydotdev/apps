@@ -8,6 +8,19 @@ export const hasSquadFeature = (
   feature: SquadFeature,
 ): boolean => !!source?.features?.[feature];
 
+// The plan includes verified, and its admins haven't hidden the badge. Until
+// the API sends showVerifiedBadge, verified shows it.
+export const showsVerifiedBadge = (
+  source:
+    | {
+        features?: Partial<
+          Pick<SourceFeatures, 'verified' | 'showVerifiedBadge'>
+        > | null;
+      }
+    | undefined,
+): boolean =>
+  !!(source?.features?.showVerifiedBadge ?? source?.features?.verified);
+
 // A company page: verified (Enterprise) or on a daily.dev for Startups plan,
 // which turns on products.
 export const isCompanySquad = (

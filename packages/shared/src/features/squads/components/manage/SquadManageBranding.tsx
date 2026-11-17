@@ -36,6 +36,7 @@ import { SQUAD_LINK_MAX_LENGTH } from '../../lib/limits';
 import { SquadManageSection } from '../../lib/routes';
 import { hasSquadFeature } from '../../lib/features';
 import { SquadEnterpriseGate } from './SquadEnterpriseGate';
+import { SquadEnterpriseSettings } from './SquadEnterpriseSettings';
 import {
   SquadManageSaveButton,
   SquadManageSectionPanel,
@@ -404,6 +405,8 @@ const SquadManageBrandingForm = ({
             </>
           )}
         </div>
+        <HorizontalSeparator />
+        <SquadEnterpriseSettings />
       </form>
     </SquadManageSectionPanel>
   );

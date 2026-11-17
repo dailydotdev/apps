@@ -17,11 +17,8 @@ import {
 } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
-import {
-  getPathnameWithQuery,
-  largeNumberFormat,
-  ReferralCampaignKey,
-} from '../../lib';
+import { largeNumberFormat, ReferralCampaignKey } from '../../lib';
+import { getBuyCoresUrl } from '../../lib/links';
 import { ProfileSettingsMenuMobile } from './ProfileSettingsMenu';
 import { RootPortal } from '../tooltips/Portal';
 import { FollowButton } from '../contentPreference/FollowButton';
@@ -251,12 +248,7 @@ export function Header({
           origin={Origin.Profile}
           onPlusClick={() => {
             router.push(
-              getPathnameWithQuery(
-                `${webappUrl}cores`,
-                new URLSearchParams({
-                  origin: Origin.Profile,
-                }),
-              ),
+              getBuyCoresUrl({ origin: Origin.Profile, next: router.asPath }),
             );
           }}
         />

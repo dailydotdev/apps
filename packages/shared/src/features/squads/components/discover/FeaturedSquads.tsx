@@ -41,9 +41,9 @@ import {
   featuredSquadsQuery,
   getSquadBanner,
   getSquadMembersLabel,
-  isVerifiedSquad,
   withPromotedSlot,
 } from './common';
+import { showsVerifiedBadge } from '../../lib/features';
 
 // The Featured area: a mosaic of blocks on tablet and up, a banner rail on
 // phones. Featured squads are the only cards with a banner, the promoted
@@ -74,7 +74,7 @@ const SquadName = ({
       >
         {squad.name}
       </Typography>
-      {isVerifiedSquad(squad) && (
+      {showsVerifiedBadge(squad) && (
         <VerifiedSquadBadge className="size-5 shrink-0" />
       )}
     </span>

@@ -192,7 +192,7 @@ export const useStreakRecover = ({
         searchParams.set('origin', Origin.StreakRecover);
 
         if (!isExtension) {
-          searchParams.set('next', router.pathname);
+          searchParams.set('next', router.asPath);
         }
 
         router?.push(getPathnameWithQuery(`${webappUrl}cores`, searchParams));
