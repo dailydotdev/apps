@@ -28,15 +28,18 @@ export const SquadFrame = ({
   aside,
 }: {
   children: ReactNode;
-  aside: ReactNode;
+  /** The widget column; without it the card takes the full width */
+  aside?: ReactNode;
 }): ReactElement => (
   <div className="mx-auto flex w-full flex-col laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
     <main className="flex min-w-0 flex-1 flex-col border-border-subtlest-tertiary laptop:self-start laptop:overflow-hidden laptop:rounded-16 laptop:border">
       {children}
     </main>
-    <aside className="flex w-full flex-col gap-4 px-4 pb-6 pt-2 tablet:px-6 laptop:w-80 laptop:shrink-0 laptop:p-0">
-      {aside}
-    </aside>
+    {aside && (
+      <aside className="flex w-full flex-col gap-4 px-4 pb-6 pt-2 tablet:px-6 laptop:w-80 laptop:shrink-0 laptop:p-0">
+        {aside}
+      </aside>
+    )}
   </div>
 );
 

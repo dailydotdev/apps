@@ -1,34 +1,36 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useState } from 'react';
-import { SquadWidget } from '@dailydotdev/shared/src/features/squads/components/widgets/SquadWidget';
+import React, { useState } from 'react';
+import classNames from 'classnames';
 import {
   SquadDirectoryNavbar,
   SquadDirectoryNavbarItem,
 } from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryNavbar';
 import {
   Button,
-  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
-  ArrowIcon,
   CoreIcon,
-  OpenLinkIcon,
+  DocsIcon,
+  FeedbackIcon,
+  PauseIcon,
 } from '@dailydotdev/shared/src/components/icons';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { BeforeIcon } from '@dailydotdev/shared/src/components/icons/Before';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
-import { DateFormat } from '@dailydotdev/shared/src/components/utilities/DateFormat';
-import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
+import ProgressCircle from '@dailydotdev/shared/src/components/ProgressCircle';
 import {
   CharmEmptyState,
   CharmEmptyStatePlacement,
 } from '@dailydotdev/shared/src/components/charm/CharmEmptyState';
 import { cloudinaryCharmNoPosts } from '@dailydotdev/shared/src/lib/image';
-import { boostDocsLink } from '@dailydotdev/shared/src/lib/constants';
+import {
+  boostDocsLink,
+  creatorsTermsOfService,
+} from '@dailydotdev/shared/src/lib/constants';
 import { getPostPath } from '@dailydotdev/shared/src/lib/links';
 import { BoostStatus } from '@dailydotdev/shared/src/features/boost/CampaignListItem';
 import { getAbsoluteDifferenceInDays } from '@dailydotdev/shared/src/features/boost/utils';
@@ -38,73 +40,22 @@ import {
 } from '@dailydotdev/shared/src/lib/numberFormat';
 import type { Campaign } from '@dailydotdev/shared/src/graphql/campaigns';
 import { CampaignState } from '@dailydotdev/shared/src/graphql/campaigns';
-import {
-  allCampaigns,
-  campaignTotals,
-  unspentOf,
-} from '../../flows/after-boost/fixtures';
+import { allCampaigns, unspentOf } from '../../flows/after-boost/fixtures';
 import stripArt from '../../assets/boost-strip-patchy-v2.png';
-import { HelpWidget, SquadFrame, StatsGrid } from './kit';
+import { SquadFrame } from './kit';
+import { BoostAnalytics } from './BoostAnalytics';
 
-// /boosts and /boosts/[id] in the squads page frame: the list and the
-// campaign are the bordered card, the totals and help are widgets beside it.
+// /boosts in the squads page frame, read like an analytics tool: metric tabs
+// over a chart by day, then the boosts as a table with their numbers and
+// actions (compact cards on phones), so there is no page per boost.
 
 const remainingDaysOf = (campaign: Campaign): number | undefined =>
   campaign.state === CampaignState.Active
     ? getAbsoluteDifferenceInDays(new Date(campaign.endedAt), new Date())
     : undefined;
 
-/** A row in the hero cover "Reading list" widget's shape */
-const CampaignRow = ({
-  campaign,
-  onClick,
-}: {
-  campaign: Campaign;
-  onClick?: () => void;
-}): ReactElement => {
-  const { post, flags } = campaign;
-
-  return (
-    <li>
-      <button
-        type="button"
-        onClick={onClick}
-        className="flex min-h-18 w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-hover tablet:px-6"
-      >
-        <span className="flex min-w-0 flex-1 flex-col gap-1">
-          <span className="line-clamp-2 break-words font-bold text-text-primary typo-subhead">
-            {post.title}
-          </span>
-          <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-text-tertiary typo-caption1">
-            <BoostStatus
-              status={campaign.state}
-              remainingDays={remainingDaysOf(campaign)}
-            />
-            <span className="flex items-center gap-1 tabular-nums">
-              <CoreIcon size={IconSize.Size16} />
-              {formatDataTileValue(flags.spend ?? 0)} spent
-            </span>
-            <span className="tabular-nums">
-              {largeNumberFormat(flags.impressions ?? 0)} impressions
-            </span>
-          </span>
-        </span>
-        <Image
-          src={post.image}
-          alt=""
-          className="size-12 shrink-0 rounded-10 object-cover"
-        />
-        <ArrowIcon
-          size={IconSize.Small}
-          className="shrink-0 rotate-90 text-text-tertiary"
-        />
-      </button>
-    </li>
-  );
-};
-
 /** The card's title band, with the Patchy boost art on the far side */
-const TitleBand = ({ children }: { children: React.ReactNode }) => (
+export const TitleBand = ({ children }: { children: React.ReactNode }) => (
   <header className="relative flex min-h-16 items-center gap-2 overflow-hidden border-b border-border-subtlest-tertiary px-4 py-3 tablet:px-6">
     <img
       src={stripArt}
@@ -117,54 +68,63 @@ const TitleBand = ({ children }: { children: React.ReactNode }) => (
   </header>
 );
 
-const ResultsWidget = () => (
-  <SquadWidget title="All-time results">
-    <StatsGrid totals={campaignTotals} className="mt-3" />
-  </SquadWidget>
-);
-
-enum BoostsTab {
+export enum BoostsTab {
   Live = 'Live',
   Ended = 'Ended',
 }
 
 interface BoostsPageProps {
   campaigns?: Campaign[];
-  onOpenCampaign?: (campaign: Campaign) => void;
+  /** The tab it opens on, Live when anything is running */
+  initialTab?: BoostsTab;
 }
 
-export function BoostsPage({
+/** The boosts' chart, the Live/Ended tabs and the list, under any title */
+export function BoostsSection(props: BoostsPageProps): ReactElement {
+  const { campaigns = allCampaigns } = props;
+
+  return (
+    <>
+      {!!campaigns.length && <BoostAnalytics campaigns={campaigns} />}
+      <BoostsList {...props} />
+    </>
+  );
+}
+
+/** The Live/Ended tabs and the boosts as a table, or cards on phones */
+export function BoostsList({
   campaigns = allCampaigns,
-  onOpenCampaign,
+  initialTab,
 }: BoostsPageProps): ReactElement {
   const live = campaigns.filter(({ state }) => state === CampaignState.Active);
   const ended = campaigns.filter(({ state }) => state !== CampaignState.Active);
   const [tab, setTab] = useState(
-    live.length ? BoostsTab.Live : BoostsTab.Ended,
+    initialTab ?? (live.length ? BoostsTab.Live : BoostsTab.Ended),
   );
   const tabs = [
     { name: BoostsTab.Live, list: live },
     { name: BoostsTab.Ended, list: ended },
   ];
   const active = tabs.find(({ name }) => name === tab);
+  const emptyState = (
+    <CharmEmptyState
+      image={cloudinaryCharmNoPosts}
+      imageAlt="No boosts yet"
+      title="No running ads yet"
+      description="Learn how boosting works and launch your first campaign to get discovered by more developers."
+      action={{ label: 'Learn more about boosting', href: boostDocsLink }}
+      placement={CharmEmptyStatePlacement.Page}
+      className="pb-10"
+    />
+  );
+
+  // Nothing boosted yet: no tabs to switch between
+  if (!campaigns.length) {
+    return emptyState;
+  }
 
   return (
-    <SquadFrame
-      aside={
-        <>
-          <div className="hidden laptop:contents">
-            <ResultsWidget />
-          </div>
-          <HelpWidget />
-        </>
-      }
-    >
-      <TitleBand>
-        <h1 className="font-bold typo-title2">Boost manager</h1>
-      </TitleBand>
-      <div className="px-4 pt-4 tablet:px-6 laptop:hidden">
-        <StatsGrid totals={campaignTotals} className="tablet:grid-cols-4" />
-      </div>
+    <>
       <div className="px-4 tablet:px-6">
         <SquadDirectoryNavbar
           aria-label="Live and ended boosts"
@@ -183,177 +143,330 @@ export function BoostsPage({
         </SquadDirectoryNavbar>
       </div>
       {active.list.length ? (
-        <ul className="flex flex-col py-2">
-          {active.list.map((campaign) => (
-            <CampaignRow
-              key={campaign.id}
-              campaign={campaign}
-              onClick={() => onOpenCampaign?.(campaign)}
-            />
-          ))}
-        </ul>
+        <>
+          <ul className="grid grid-cols-1 gap-3 px-4 pb-4 pt-2 tablet:grid-cols-2 laptop:hidden">
+            {active.list.map((campaign) => (
+              <CampaignCard key={campaign.id} campaign={campaign} />
+            ))}
+          </ul>
+          <div className="hidden pb-2 pt-2 laptop:block">
+            <CampaignTable campaigns={active.list} />
+          </div>
+        </>
       ) : (
-        <CharmEmptyState
-          image={cloudinaryCharmNoPosts}
-          imageAlt="No boosts yet"
-          title="No running ads yet"
-          description="Learn how boosting works and launch your first campaign to get discovered by more developers."
-          action={{ label: 'Learn more about boosting', href: boostDocsLink }}
-          placement={CharmEmptyStatePlacement.Page}
-          className="pb-10"
-        />
+        emptyState
       )}
+    </>
+  );
+}
+
+export function BoostsPage(props: BoostsPageProps): ReactElement {
+  return (
+    <SquadFrame>
+      <TitleBand>
+        <h1 className="flex-1 font-bold typo-title2">Boost manager</h1>
+        <DocsLinks />
+      </TitleBand>
+      <BoostsSection {...props} />
     </SquadFrame>
   );
 }
 
-interface CampaignPageProps {
+/** Boosting's docs and terms, as small links for a title band */
+export const DocsLinks = (): ReactElement => (
+  <>
+    <Button
+      tag="a"
+      href={boostDocsLink}
+      target="_blank"
+      rel="noreferrer"
+      variant={ButtonVariant.Tertiary}
+      size={ButtonSize.Small}
+      icon={<FeedbackIcon />}
+    >
+      Docs
+    </Button>
+    <Button
+      tag="a"
+      href={creatorsTermsOfService}
+      target="_blank"
+      rel="noreferrer"
+      variant={ButtonVariant.Tertiary}
+      size={ButtonSize.Small}
+      icon={<DocsIcon />}
+    >
+      Terms
+    </Button>
+  </>
+);
+
+const daysLeftOf = (campaign: Campaign): string => {
+  const days = remainingDaysOf(campaign) ?? 0;
+
+  if (days === 0) {
+    return 'Ends today';
+  }
+
+  return days === 1 ? '1 day left' : `${days} days left`;
+};
+
+/** Full at the start, emptying as the days run out. Capped under 100, where
+ * ProgressCircle swaps the ring for a check mark */
+const timeLeftOf = ({ createdAt, endedAt }: Campaign): number => {
+  const start = new Date(createdAt).getTime();
+  const end = new Date(endedAt).getTime();
+
+  return Math.min(99, ((end - Date.now()) / (end - start)) * 100);
+};
+
+/** The time ring and days left of a live boost, the status of an ended one */
+const TimeLeft = ({ campaign }: { campaign: Campaign }): ReactElement =>
+  campaign.state === CampaignState.Active ? (
+    <span className="flex items-center gap-2">
+      <ProgressCircle progress={timeLeftOf(campaign)} size={20} stroke={3} />
+      <span className="whitespace-nowrap text-text-tertiary typo-footnote">
+        {daysLeftOf(campaign)}
+      </span>
+    </span>
+  ) : (
+    <BoostStatus status={campaign.state} />
+  );
+
+const CardStat = ({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}): ReactElement => (
+  <span className="flex min-w-0 flex-col">
+    <span className="text-text-tertiary typo-caption2">{label}</span>
+    <strong className="flex items-center gap-1 tabular-nums typo-callout">
+      {children}
+    </strong>
+  </span>
+);
+
+interface CampaignCardProps {
   campaign: Campaign;
-  onBack?: () => void;
   onStop?: () => void;
   onExtend?: () => void;
   onBoostAgain?: () => void;
 }
 
-export function CampaignPage({
+/** One boost, compact: the post, its budget and progress, four numbers and the actions */
+const CampaignCard = ({
   campaign,
-  onBack,
   onStop,
   onExtend,
   onBoostAgain,
-}: CampaignPageProps): ReactElement {
+}: CampaignCardProps): ReactElement => {
   const { post, flags } = campaign;
   const isActive = campaign.state === CampaignState.Active;
-  const date = useMemo(() => {
-    const startedAt = new Date(campaign.createdAt);
-    const endedAt = new Date(campaign.endedAt);
-    const totalDays = getAbsoluteDifferenceInDays(endedAt, startedAt);
-
-    return {
-      endsIn: isActive
-        ? getAbsoluteDifferenceInDays(endedAt, new Date())
-        : totalDays,
-      startedIn: getAbsoluteDifferenceInDays(new Date(), startedAt),
-      totalDays,
-    };
-  }, [campaign, isActive]);
-  const percentage = isActive ? (date.startedIn / date.totalDays) * 100 : 100;
-  const endsIn = (() => {
-    if (date.endsIn === 0) {
-      return 'Ends in less than a day';
-    }
-
-    if (date.endsIn === 1) {
-      return 'Ends tomorrow';
-    }
-
-    return `Ends in ${date.endsIn} days`;
-  })();
 
   return (
-    <SquadFrame aside={<HelpWidget />}>
-      <TitleBand>
-        <Button
-          onClick={onBack}
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.Small}
-          icon={<ArrowIcon className="-rotate-90" />}
-          aria-label="Back to Boost manager"
+    <li className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-3">
+      <div className="flex items-center gap-3">
+        <Image
+          src={post.sharedPost?.image ?? post.image}
+          alt=""
+          className="h-10 w-14 shrink-0 rounded-10 object-cover"
         />
-        <h1 className="font-bold typo-title2">Boost</h1>
-        <BoostStatus
-          status={campaign.state}
-          remainingDays={remainingDaysOf(campaign)}
-        />
-      </TitleBand>
-      <div className="flex flex-col gap-5 p-4 tablet:p-6">
-        <div className="flex items-center gap-4">
-          <Image
-            src={post.sharedPost?.image ?? post.image}
-            alt=""
-            className="h-16 w-24 shrink-0 rounded-12 object-cover"
-          />
-          <span className="line-clamp-3 min-w-0 flex-1 break-words font-bold typo-body">
-            {post.title ?? post.sharedPost?.title}
-          </span>
+        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
           <Link href={getPostPath(post)} passHref>
-            <Button
-              tag="a"
-              icon={<OpenLinkIcon />}
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              aria-label="Open post"
-            />
+            <a className="truncate font-bold typo-callout hover:underline">
+              {post.title ?? post.sharedPost?.title}
+            </a>
           </Link>
-        </div>
-        <section className="flex flex-col gap-3 rounded-16 bg-surface-float p-4">
-          <div className="flex flex-col gap-0.5">
-            <span className="text-text-tertiary typo-caption1">Summary</span>
-            <span className="flex items-center gap-1 font-bold tabular-nums typo-title3">
-              <CoreIcon size={IconSize.Small} />
-              {formatDataTileValue(flags.budget ?? 0)}
-              <span className="font-normal text-text-tertiary typo-callout">
-                · {date.totalDays} {date.totalDays === 1 ? 'day' : 'days'}
-              </span>
+          <span className="flex min-w-0 items-center gap-1 text-text-tertiary typo-caption1">
+            <CoreIcon size={IconSize.Size16} />
+            <span className="truncate tabular-nums">
+              {formatDataTileValue(flags.budget ?? 0)} ·{' '}
+              {shortDate(campaign.createdAt)} – {shortDate(campaign.endedAt)}
             </span>
-          </div>
-          <ProgressBar
-            percentage={percentage}
-            shouldShowBg
-            className={{ wrapper: 'h-2 rounded-6' }}
-          />
-          <span className="flex justify-between text-text-tertiary typo-footnote">
-            <span>
-              Started{' '}
-              <DateFormat
-                date={campaign.createdAt}
-                type={TimeFormatType.Post}
-              />
-            </span>
-            {isActive && <span>{endsIn}</span>}
           </span>
-        </section>
-        <StatsGrid
-          totals={{
-            spend: flags.spend ?? 0,
-            impressions: flags.impressions ?? 0,
-            users: flags.users ?? 0,
-            clicks: flags.clicks ?? 0,
-          }}
-          className="tablet:grid-cols-4"
-        />
-        {isActive ? (
-          <div className="flex flex-col gap-3 tablet:flex-row">
-            <Button
-              variant={ButtonVariant.Primary}
-              className="w-full tablet:flex-1"
-              onClick={onExtend}
-            >
-              Extend
-            </Button>
-            <Button
-              variant={ButtonVariant.Float}
-              className="w-full bg-action-downvote-float hover:bg-action-downvote-hover tablet:flex-1"
-              pressed
-              color={ButtonColor.Ketchup}
-              onClick={onStop}
-            >
-              Stop and refund{' '}
-              <CoreIcon className="mx-1" size={IconSize.Small} />
-              {unspentOf(campaign).toLocaleString('en-US')}
-            </Button>
-          </div>
-        ) : (
+        </span>
+        <span className="flex shrink-0 items-center gap-2">
+          <TimeLeft campaign={campaign} />
+        </span>
+      </div>
+      <div className="grid grid-cols-4 gap-2 rounded-12 bg-surface-float px-3 py-2">
+        <CardStat label="Spend">
+          <CoreIcon size={IconSize.Size16} />
+          {largeNumberFormat(flags.spend ?? 0)}
+        </CardStat>
+        <CardStat label="Impressions">
+          {largeNumberFormat(flags.impressions ?? 0)}
+        </CardStat>
+        <CardStat label="Users">{largeNumberFormat(flags.users ?? 0)}</CardStat>
+        <CardStat label="Clicks">
+          {largeNumberFormat(flags.clicks ?? 0)}
+        </CardStat>
+      </div>
+      {isActive ? (
+        <div className="flex items-center justify-end gap-2">
           <Button
-            variant={ButtonVariant.Primary}
-            className="w-full"
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Small}
+            className="text-text-secondary hover:text-accent-ketchup-default"
+            onClick={onStop}
+          >
+            Stop and refund <CoreIcon className="mx-1" size={IconSize.Size16} />
+            {unspentOf(campaign).toLocaleString('en-US')}
+          </Button>
+          <Button
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Small}
+            onClick={onExtend}
+          >
+            Extend
+          </Button>
+        </div>
+      ) : (
+        <div className="flex justify-end">
+          <Button
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Small}
             icon={<BeforeIcon secondary />}
             onClick={onBoostAgain}
           >
             Boost again
           </Button>
-        )}
-      </div>
-    </SquadFrame>
+        </div>
+      )}
+    </li>
   );
-}
+};
+
+const shortDate = (date: Date | string): string =>
+  new Date(date).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+  });
+
+const ctrOf = ({ flags }: Campaign): string =>
+  flags.impressions
+    ? `${(((flags.clicks ?? 0) / flags.impressions) * 100).toFixed(2)}%`
+    : '0.00%';
+
+const columns = ['Boost', 'Spend', 'Impressions', 'Clicks', 'CTR', 'Time', ''];
+
+/** The boosts as a table from tablet up: one row each, numbers in columns */
+const CampaignTable = ({
+  campaigns,
+  onStop,
+  onExtend,
+  onBoostAgain,
+}: Omit<CampaignCardProps, 'campaign'> & {
+  campaigns: Campaign[];
+}): ReactElement => (
+  <table className="w-full table-auto border-collapse text-left">
+    <thead>
+      <tr className="border-y border-border-subtlest-tertiary bg-surface-float">
+        {columns.map((column, index) => (
+          <th
+            key={column || 'actions'}
+            scope="col"
+            className={classNames(
+              'whitespace-nowrap px-3 py-2 font-bold uppercase tracking-wider text-text-tertiary typo-caption2',
+              index === 0 && 'w-full pl-6',
+              index > 0 && index < 5 && 'text-right',
+            )}
+          >
+            {column}
+          </th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {campaigns.map((campaign) => {
+        const { post, flags } = campaign;
+        const isActive = campaign.state === CampaignState.Active;
+
+        return (
+          <tr
+            key={campaign.id}
+            className="border-b border-border-subtlest-tertiary transition-colors hover:bg-surface-hover"
+          >
+            <td className="max-w-0 py-3 pl-6 pr-3">
+              <span className="flex min-w-0 items-center gap-3">
+                <Image
+                  src={post.sharedPost?.image ?? post.image}
+                  alt=""
+                  className="h-8 w-12 shrink-0 rounded-8 object-cover"
+                />
+                <span className="flex min-w-0 flex-1 flex-col">
+                  <Link href={getPostPath(post)} passHref>
+                    <a className="truncate font-bold typo-footnote hover:underline">
+                      {post.title ?? post.sharedPost?.title}
+                    </a>
+                  </Link>
+                  <span className="truncate text-text-tertiary typo-caption1">
+                    {shortDate(campaign.createdAt)} –{' '}
+                    {shortDate(campaign.endedAt)}
+                  </span>
+                </span>
+              </span>
+            </td>
+            <td className="px-3 py-3 text-right tabular-nums typo-footnote">
+              <span className="inline-flex items-center gap-1">
+                <CoreIcon size={IconSize.Size16} />
+                {largeNumberFormat(flags.spend ?? 0)}
+              </span>
+            </td>
+            <td className="px-3 py-3 text-right tabular-nums typo-footnote">
+              {largeNumberFormat(flags.impressions ?? 0)}
+            </td>
+            <td className="px-3 py-3 text-right tabular-nums typo-footnote">
+              {largeNumberFormat(flags.clicks ?? 0)}
+            </td>
+            <td className="px-3 py-3 text-right tabular-nums typo-footnote">
+              {ctrOf(campaign)}
+            </td>
+            <td className="px-3 py-3">
+              <TimeLeft campaign={campaign} />
+            </td>
+            <td className="py-3 pl-3 pr-6">
+              <span className="flex justify-end gap-1">
+                {isActive ? (
+                  <>
+                    <Tooltip
+                      content={`Stops the boost now and refunds the ${unspentOf(
+                        campaign,
+                      ).toLocaleString('en-US')} Cores it has not spent`}
+                    >
+                      <Button
+                        variant={ButtonVariant.Float}
+                        size={ButtonSize.XSmall}
+                        icon={<PauseIcon />}
+                        className="text-text-secondary hover:text-accent-ketchup-default"
+                        onClick={onStop}
+                      >
+                        Stop
+                      </Button>
+                    </Tooltip>
+                    <Button
+                      variant={ButtonVariant.Float}
+                      size={ButtonSize.XSmall}
+                      onClick={onExtend}
+                    >
+                      Extend
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    variant={ButtonVariant.Float}
+                    size={ButtonSize.XSmall}
+                    onClick={onBoostAgain}
+                  >
+                    Boost again
+                  </Button>
+                )}
+              </span>
+            </td>
+          </tr>
+        );
+      })}
+    </tbody>
+  </table>
+);

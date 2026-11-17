@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import dynamic from 'next/dynamic';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
@@ -11,7 +11,6 @@ import {
 import {
   Typography,
   TypographyColor,
-  TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
@@ -38,6 +37,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { CampaignWallet } from '@dailydotdev/shared/src/graphql/campaigns';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
+import { formatCoresCurrency } from '@dailydotdev/shared/src/lib/utils';
 import { boostDocsLink } from '@dailydotdev/shared/src/lib/constants';
 import type { BoostPostFixedModalProps } from '../../flows/purchase/BoostFixed';
 import { starterBoost } from '../../flows/purchase/BoostFixed';
@@ -51,7 +51,7 @@ const Slider = dynamic(
 );
 
 // The Boost your post form, compact: the description moves into an info
-// tooltip, the post and its numbers share one row, and Budget is a two-way
+// tooltip, the post card carries total, duration and daily reach, and Budget is a two-way
 // switch. The Startups offer sits on the ribbon card.
 
 type BudgetMode = 'starter' | 'custom';
@@ -82,6 +82,37 @@ const Segment = ({
   >
     {children}
   </button>
+);
+
+const CoresAmount = ({ value }: { value: number }): ReactElement => (
+  <span className="inline-flex items-center gap-1 tabular-nums">
+    <CoreIcon size={IconSize.Size16} />
+    {formatCoresCurrency(value)}
+  </span>
+);
+
+/** Total, duration and daily reach, as three columns under the post title */
+const BoostStats = ({
+  total,
+  days,
+  reachRange,
+}: {
+  total: number;
+  days: number;
+  reachRange: ReactNode;
+}): ReactElement => (
+  <div className="grid grid-cols-3 divide-x divide-border-subtlest-tertiary border-t border-border-subtlest-tertiary">
+    {[
+      { label: 'Total', value: <CoresAmount value={total} /> },
+      { label: 'Duration', value: daysLabel(days) },
+      { label: 'Daily reach', value: reachRange },
+    ].map(({ label, value }) => (
+      <span key={label} className="flex flex-col gap-0.5 px-3 py-2">
+        <span className="text-text-tertiary typo-caption1">{label}</span>
+        <strong className="flex items-center typo-callout">{value}</strong>
+      </span>
+    ))}
+  </div>
 );
 
 /** The modal's frame drawn in place, so several states fit on one page */
@@ -155,12 +186,12 @@ export const BoostPostCompactModal = ({
     updateEstimate(budget.coresPerDay);
   }, [budget.coresPerDay, updateEstimate]);
 
-  const reach = (() => {
+  const reachRange: ReactNode = (() => {
     if (!canBoost) {
       return (
         <span className="flex items-center gap-1">
           <Loader className="!size-3" />
-          Reading your post…
+          Reading…
         </span>
       );
     }
@@ -173,7 +204,7 @@ export const BoostPostCompactModal = ({
       Math.max(estimatedReach.min, estimatedReach.max),
     );
 
-    return `${min}–${max} devs a day`;
+    return `${min}–${max}`;
   })();
 
   const onButtonClick = () => {
@@ -227,27 +258,25 @@ export const BoostPostCompactModal = ({
         </span>
       </Modal.Header>
       <Modal.Body className="flex flex-col !gap-4">
-        <div className="flex items-center gap-3 rounded-16 bg-surface-float p-2">
-          {post.image && (
-            <Image
-              className="h-10 w-14 shrink-0 rounded-10 object-cover"
-              src={post.image}
-            />
-          )}
-          <div className="flex min-w-0 flex-1 flex-col">
-            <Typography type={TypographyType.Callout} bold truncate>
-              {post.title}
-            </Typography>
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-              className="flex min-h-5 items-center gap-1"
-            >
-              <CoreIcon size={IconSize.Size16} />
-              {totalSpend} · {daysLabel(budget.totalDays)} · {reach}
-            </Typography>
+        <div className="flex flex-col rounded-16 bg-surface-float">
+          <div className="flex items-center gap-3 p-2">
+            {post.image && (
+              <Image
+                className="h-10 w-14 shrink-0 rounded-10 object-cover"
+                src={post.image}
+              />
+            )}
+            <div className="flex min-w-0 flex-1 flex-col">
+              <Typography type={TypographyType.Callout} bold truncate>
+                {post.title}
+              </Typography>
+            </div>
           </div>
+          <BoostStats
+            total={totalSpendInt}
+            days={budget.totalDays}
+            reachRange={reachRange}
+          />
         </div>
         <BoostAudience
           postTags={postTags}
@@ -263,7 +292,7 @@ export const BoostPostCompactModal = ({
             isSelected={mode === 'starter'}
             onClick={() => setMode('starter')}
           >
-            Starter
+            Quick
           </Segment>
           <Segment
             isSelected={mode === 'custom'}

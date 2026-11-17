@@ -5,28 +5,19 @@ import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { CoresProviders, noop } from '../real/providers';
 import { coresHandlers } from '../real/handlers';
 import type { Campaign } from '@dailydotdev/shared/src/graphql/campaigns';
-import { Origin } from '@dailydotdev/shared/src/lib/log';
-import { BoostPostModal } from '@dailydotdev/shared/src/features/boost/BoostPostModal';
 import { boostablePost } from '../real/screens';
 import { Stage } from '../flows/purchase/stage';
-import {
-  durationOf,
-  endedCampaign,
-  liveCampaign,
-} from '../flows/after-boost/fixtures';
+import { durationOf, endedCampaign } from '../flows/after-boost/fixtures';
 import { NotificationsPage, RenameInPage } from '../real/pages';
-import { BoostsPage, CampaignPage } from './after-boost/BoostsPage';
+import { BoostsPage, BoostsTab } from './after-boost/BoostsPage';
 import { BoostAgainModal } from './after-boost/BoostAgainModal';
+import { AllStatesPage } from './after-boost/AllStates';
+import {
+  AnalyticsTab,
+  CombinedAnalytics,
+} from './after-boost/CombinedAnalytics';
 import type { OwnPostState } from '../flows/purchase/BoostFixed';
-import {
-  BoostPostFixedModal,
-  starterBoost,
-} from '../flows/purchase/BoostFixed';
-import {
-  BoostLaunchingRedesign,
-  BoostLiveRedesign,
-  OwnPostRedesign,
-} from './purchase/BoostRedesign';
+import { BoostLiveRedesign, OwnPostRedesign } from './purchase/BoostRedesign';
 import { BoostPostCompactModal } from './purchase/BoostCompact';
 
 // "Boost and analytics", redrawn in the squads hub line: the first boost,
@@ -94,23 +85,12 @@ export const OwnPostTakingOff = story(
   () => <OwnPost state="takingOff" />,
 );
 
-export const BoostForm = story('The current boost form.', () => (
-  <Stage background={<OwnPostBackdrop />}>
-    <BoostPostFixedModal
-      post={boostablePost}
-      onBuyCores={noop}
-      onBoost={noop}
-      onRequestClose={noop}
-    />
-  </Stage>
-));
-
-export const BoostFormReading = story(
-  'The current boost form, while the post is being read.',
+export const BoostForm = story(
+  'The boost form: the post and its numbers in one row, the audience rows, a Starter and Custom switch, and the Startups offer on its ribbon card.',
   () => (
     <Stage background={<OwnPostBackdrop />}>
-      <BoostPostFixedModal
-        post={newPost}
+      <BoostPostCompactModal
+        post={boostablePost}
         onBuyCores={noop}
         onBoost={noop}
         onRequestClose={noop}
@@ -119,48 +99,19 @@ export const BoostFormReading = story(
   ),
 );
 
-export const BoostFormCompact = story('The compact boost form.', () => (
-  <Stage background={<OwnPostBackdrop />}>
-    <BoostPostCompactModal
-      post={boostablePost}
-      onBuyCores={noop}
-      onBoost={noop}
-      onRequestClose={noop}
-    />
-  </Stage>
-));
-
-/** A box the version's modal mounts in: transform-gpu keeps its fixed overlay
- * inside, and the page keeps scrolling with four modals open */
-const VersionFrame = ({
-  name,
-  description,
-  render,
-}: {
-  name: string;
-  description: string;
-  render: (modalProps: {
-    parentSelector: () => HTMLElement;
-    bodyOpenClassName: null;
-  }) => ReactElement;
-}): ReactElement => {
-  const [box, setBox] = useState<HTMLDivElement | null>(null);
-
-  return (
-    <section className="flex w-[27rem] flex-col gap-3">
-      <span className="flex flex-col gap-0.5">
-        <strong className="typo-title3">{name}</strong>
-        <span className="text-text-tertiary typo-footnote">{description}</span>
-      </span>
-      <div
-        ref={setBox}
-        className="relative h-[min(64rem,100vh)] w-[27rem] transform-gpu overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default"
-      >
-        {box && render({ parentSelector: () => box, bodyOpenClassName: null })}
-      </div>
-    </section>
-  );
-};
+export const BoostFormReading = story(
+  'The boost form while the post is being read.',
+  () => (
+    <Stage background={<OwnPostBackdrop />}>
+      <BoostPostCompactModal
+        post={newPost}
+        onBuyCores={noop}
+        onBoost={noop}
+        onRequestClose={noop}
+      />
+    </Stage>
+  ),
+);
 
 const lastBoostOf = (campaign: Campaign) => {
   const days = durationOf(campaign);
@@ -171,97 +122,14 @@ const lastBoostOf = (campaign: Campaign) => {
   };
 };
 
-export const BoostFormVersions: Story = {
-  parameters: {
-    msw: { handlers: coresHandlers({ balance }) },
-    docs: {
-      description: {
-        story:
-          'Every version of the Boost your post pop-up side by side, each live: Starter, Custom and the audience rows all work.',
-      },
-    },
-  },
-  render: () => (
-    <CoresProviders
-      balance={balance}
-      activePage="/posts/sb-boost-post"
-      hasOwnLayout
-    >
-      <div className="min-h-screen bg-background-default p-6">
-        {/* Four open modals would lock the page; this page has to scroll */}
-        <style>
-          {'body.ReactModal__Body--open { overflow: auto !important; }'}
-        </style>
-        <div className="flex flex-wrap items-start gap-x-6 gap-y-10">
-          <VersionFrame
-            name="Production"
-            description="Live today: sliders for budget and duration."
-            render={(modalProps) => (
-              <BoostPostModal
-                isOpen
-                onRequestClose={noop}
-                post={boostablePost}
-                origin={Origin.PostBoostButton}
-                {...modalProps}
-              />
-            )}
-          />
-          <VersionFrame
-            name="Current"
-            description="Starter and Custom cards, the ribbon offer."
-            render={(modalProps) => (
-              <BoostPostFixedModal
-                post={boostablePost}
-                onBuyCores={noop}
-                onBoost={noop}
-                onRequestClose={noop}
-                modalProps={modalProps}
-              />
-            )}
-          />
-          <VersionFrame
-            name="Compact"
-            description="The post and its numbers in one row, a two-way switch."
-            render={(modalProps) => (
-              <BoostPostCompactModal
-                post={boostablePost}
-                onBuyCores={noop}
-                onBoost={noop}
-                onRequestClose={noop}
-                modalProps={modalProps}
-              />
-            )}
-          />
-          <VersionFrame
-            name="Boost again"
-            description="Prefilled with the last boost, from the ended notification."
-            render={(modalProps) => (
-              <BoostAgainModal
-                isOpen
-                post={endedCampaign.post as Post}
-                lastBoost={lastBoostOf(endedCampaign)}
-                onRequestClose={noop}
-                onSeeBoost={noop}
-                {...modalProps}
-              />
-            )}
-          />
-        </div>
-      </div>
-    </CoresProviders>
-  ),
-};
-
-export const BoostLaunches = story(
-  'The Patchy rocket heads the launch screen, the boost is a row with Change, and a progress bar counts down.',
+export const BoostBackToForm = story(
+  'As in production: once the Cores land, you are back on the boost form with the same budget, and Boost post starts it.',
   () => (
     <Stage background={<OwnPostBackdrop />}>
-      <BoostLaunchingRedesign
+      <BoostPostCompactModal
         post={boostablePost}
-        budget={starterBoost}
-        onLaunched={noop}
-        isPaused
-        onChange={noop}
+        onBuyCores={noop}
+        onBoost={noop}
         onRequestClose={noop}
       />
     </Stage>
@@ -280,7 +148,7 @@ export const BoostIsLive = story(
 );
 
 // After the boost: Boost manager (production's Ads dashboard, renamed and
-// moved from a pop-up to a settings page) and a campaign
+// moved from a pop-up to its own page) and a campaign
 
 const AFTER_BALANCE = 5000;
 
@@ -293,7 +161,7 @@ const afterStory = (
     docs: { description: { story: description } },
   },
   render: () => (
-    <CoresProviders balance={AFTER_BALANCE} activePage="/settings/boosts">
+    <CoresProviders balance={AFTER_BALANCE} activePage="/boosts">
       <RenameInPage from="Ads dashboard" to="Boost manager" />
       {render()}
     </CoresProviders>
@@ -322,7 +190,7 @@ const BoostAgainScreen = (): ReactElement => {
 };
 
 export const BoostsPageStory = afterStory(
-  'Squads page frame: one bordered card with a Patchy title band, squad-style Live/Ended tabs and reading-list rows (cover right, spend and impressions under the title), with the totals and Docs/Terms as widgets beside it.',
+  'Read like an analytics tool, full width: metric tabs (Impressions, Clicks on post, CTR, Users, Spend) over a 14-day chart of the picked one, then Live/Ended tabs and the boosts as a table with Stop and Extend per row. On phones the metrics scroll sideways and each boost is a compact card. Docs and Terms sit in the title bar.',
   () => <BoostsPage />,
 );
 
@@ -331,14 +199,19 @@ export const BoostsPageEmpty = afterStory(
   () => <BoostsPage campaigns={[]} />,
 );
 
-export const CampaignLive = afterStory(
-  'The campaign card leads with the post, groups budget, progress and dates in one tinted block, and shows the four stats as compact tiles above Extend and Stop and refund.',
-  () => <CampaignPage campaign={liveCampaign} />,
+export const BoostsPageEnded = afterStory(
+  'The Ended tab: the same compact card, with Boost again as the only action.',
+  () => <BoostsPage initialTab={BoostsTab.Ended} />,
 );
 
-export const CampaignEnded = afterStory(
-  'An ended campaign keeps the same layout, and Boost again becomes the primary button.',
-  () => <CampaignPage campaign={endedCampaign} />,
+export const CombinedOrganic = afterStory(
+  'A proposal: /analytics and Boost manager as one page with two header tabs, like Squads’ Discover and My Squads. Analytics covers every post, boosted or not, and each chart stacks the boosted reach on the organic. A boosted post’s chip opens the Boost tab. From production’s post analytics: a Limited reach chip (its note in the tooltip, the docs on click) and the AI agents section, locked behind the Startups plan.',
+  () => <CombinedAnalytics />,
+);
+
+export const CombinedBoosted = afterStory(
+  'The Boost tab: only the boosts, Boost manager’s metrics, chart and Live/Ended list, with Docs and Terms in the header.',
+  () => <CombinedAnalytics initialTab={AnalyticsTab.Boost} />,
 );
 
 export const BoostAgain = afterStory(
@@ -346,21 +219,40 @@ export const BoostAgain = afterStory(
   () => <BoostAgainScreen />,
 );
 
+export const AllStates: Story = {
+  parameters: {
+    msw: { handlers: coresHandlers({ balance: AFTER_BALANCE }) },
+    docs: {
+      description: {
+        story:
+          'Every width, tab, data case and pop-up of Boost and analytics on one page, each frozen in its state, for a careful review.',
+      },
+    },
+  },
+  render: () => (
+    <CoresProviders
+      balance={AFTER_BALANCE}
+      activePage="/analytics"
+      hasOwnLayout
+    >
+      <AllStatesPage />
+    </CoresProviders>
+  ),
+};
+
 // The story index reads names statically, not through the helper
 OwnPostNew.storyName = '1 · Own post';
 OwnPostTakingOff.storyName = '1 · Own post · taking off';
-BoostForm.storyName = '2 · Boost your post · current';
-BoostForm.tags = ['!dev'];
-BoostFormCompact.storyName = '2 · Boost your post · compact';
-BoostFormCompact.tags = ['!dev'];
-BoostFormVersions.storyName = '2 · Boost your post · all versions';
+BoostForm.storyName = '2 · Boost your post';
 BoostFormReading.storyName = '2 · Boost your post · reading the post';
 BoostFormReading.tags = ['!dev'];
-BoostLaunches.storyName = '3 · Boost launches';
+BoostBackToForm.storyName = '3 · Back to the form';
 BoostIsLive.storyName = '4 · Boost is live!';
 BoostsPageStory.storyName = '5 · Boost manager';
 BoostsPageEmpty.storyName = '5 · Boost manager, nothing live';
-CampaignLive.storyName = '6 · Campaign';
-CampaignEnded.storyName = '6 · Campaign, ended';
+BoostsPageEnded.storyName = '5 · Boost manager, ended';
+CombinedOrganic.storyName = '6 · Analytics, combined';
+CombinedBoosted.storyName = '6 · Analytics, Boost tab';
 BoostAgain.storyName = 'Boost again, prefilled';
 BoostAgain.tags = ['!dev'];
+AllStates.storyName = 'All states';

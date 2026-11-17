@@ -29,7 +29,7 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
-import { Origin, TargetId } from '@dailydotdev/shared/src/lib/log';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { formatCoresCurrency } from '@dailydotdev/shared/src/lib/utils';
 import {
@@ -53,9 +53,8 @@ import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { SquadWidget } from '@dailydotdev/shared/src/features/squads/components/widgets/SquadWidget';
-import { UpgradeToPlus } from '@dailydotdev/shared/src/components/UpgradeToPlus';
-import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import { UseYourCoresTiles } from './UseYourCores';
+import { Deals } from '../purchase/Deals';
 import { TransactionItem } from '@dailydotdev/shared/src/components/cores/TransactionItem';
 import { CardSection, friendshipArt, SquadFrame } from './frame';
 
@@ -214,31 +213,6 @@ const PacksWidget = (): ReactElement => {
       >
         See more options
       </Button>
-    </SquadWidget>
-  );
-};
-
-const GivebackWidget = (): ReactElement | null => {
-  const { isPlus } = usePlusSubscription();
-
-  if (isPlus) {
-    return null;
-  }
-
-  return (
-    <SquadWidget
-      title="Get 50% back in Cores with Plus"
-      className="bg-[radial-gradient(90%_70%_at_100%_0%,color-mix(in_srgb,var(--theme-accent-cheese-default)_16%,transparent)_0%,transparent_70%)]"
-    >
-      <p className="mt-1 text-text-secondary typo-footnote">
-        Every Plus payment, renewals included, gives you 50% back as Cores.
-      </p>
-      <UpgradeToPlus
-        size={ButtonSize.Small}
-        target={TargetId.CoreWallet}
-        label="Upgrade to Plus"
-        className="mt-3 w-full"
-      />
     </SquadWidget>
   );
 };
@@ -411,7 +385,7 @@ export const Wallet = ({
         widgets={
           <>
             <PacksWidget />
-            <GivebackWidget />
+            <Deals withStartups isStacked />
             <HelpWidget />
           </>
         }

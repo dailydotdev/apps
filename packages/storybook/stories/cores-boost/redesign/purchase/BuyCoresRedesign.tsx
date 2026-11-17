@@ -9,15 +9,14 @@ import { ModalKind } from '@dailydotdev/shared/src/components/modals/common/type
 import { BuyCreditsButton } from '@dailydotdev/shared/src/components/credit/BuyCreditsButton';
 import {
   Button,
+  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
-import { Image } from '@dailydotdev/shared/src/components/image/Image';
+  CreditCardIcon,
+  PlusIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import { getRecommendedCorePrice } from '@dailydotdev/shared/src/components/cores/recommendedCorePrice';
 import type {
   BuyCoresContextData,
@@ -34,14 +33,9 @@ import {
 } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { formatCoresCurrency } from '@dailydotdev/shared/src/lib/utils';
-import {
-  coreImage,
-  getCoreCurrencyImage,
-} from '@dailydotdev/shared/src/lib/image';
 import type { CoresPurpose } from '../../flows/purchase/BuyCoresFixed';
 import { NeededCopy } from '../../flows/purchase/BuyCoresFixed';
 import friendshipArt from '../../assets/cores-checkout-friendship.png';
-import { Row } from './kit';
 import { Deals } from './Deals';
 import { noop } from '../../real/providers';
 
@@ -50,43 +44,6 @@ import { noop } from '../../real/providers';
 // card leads, packs are production's list, and the
 // friendship art fills the right side until a pack is picked, then the
 // checkout takes its place, as the Paddle iframe does in production.
-
-/** Stands in for the Paddle iframe, which needs a client token */
-const CheckoutStandIn = ({
-  pack,
-  onPay,
-}: {
-  pack?: { cores: number; price: string };
-  onPay: () => void;
-}): ReactElement => (
-  <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
-    <Typography
-      type={TypographyType.Caption1}
-      color={TypographyColor.Quaternary}
-    >
-      Paddle checkout opens here in production
-    </Typography>
-    <Row
-      visual={
-        <Image
-          className="size-10"
-          src={pack ? getCoreCurrencyImage(pack.cores) : coreImage}
-          fallbackSrc={coreImage}
-        />
-      }
-      title={pack ? `${formatCoresCurrency(pack.cores)} Cores` : 'Pick a pack'}
-      meta={pack?.price}
-    />
-    <Button
-      variant={ButtonVariant.Primary}
-      disabled={!pack}
-      onClick={onPay}
-      className="w-full"
-    >
-      Pay {pack?.price}
-    </Button>
-  </div>
-);
 
 /** The friendship art that stood in for the checkout video */
 const FriendshipPanel = ({ children }: { children?: ReactNode }) => (
@@ -103,10 +60,18 @@ const FriendshipPanel = ({ children }: { children?: ReactNode }) => (
   </div>
 );
 
-const CheckoutField = ({ label }: { label: string }): ReactElement => (
-  <span className="flex flex-col gap-1">
-    <span className="text-text-tertiary typo-caption1">{label}</span>
-    <span className="h-10 rounded-10 border border-border-subtlest-tertiary bg-surface-float" />
+const CheckoutField = ({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}): ReactElement => (
+  <span className="flex flex-col gap-1.5">
+    <span className="typo-footnote">{label}</span>
+    <span className="flex h-11 items-center rounded-10 border border-border-subtlest-secondary bg-surface-float px-3 text-text-quaternary typo-callout">
+      {children}
+    </span>
   </span>
 );
 
@@ -118,17 +83,96 @@ const CheckoutPanel = ({
   pack?: { cores: number; price: string };
   onPay: () => void;
 }): ReactElement => (
-  <div className="flex flex-1 flex-col gap-4 overflow-y-auto rounded-16 bg-background-default p-4">
-    <CheckoutField label="Email" />
-    <CheckoutField label="Card number" />
-    <span className="grid grid-cols-2 gap-3">
-      <CheckoutField label="Expiry date" />
-      <CheckoutField label="Security code" />
+  <div className="flex min-w-0 flex-1 flex-col overflow-y-auto rounded-16 bg-background-default p-4">
+    <PaddleCheckout pack={pack} onPay={onPay} />
+  </div>
+);
+
+/** Production's Paddle checkout form, drawn: the iframe needs a client token */
+const PaddleCheckout = ({
+  pack,
+  onPay,
+}: {
+  pack?: { cores: number; price: string };
+  onPay: () => void;
+}): ReactElement => (
+  <div className="flex flex-col gap-4">
+    <span className="flex h-12 items-center justify-center rounded-12 bg-surface-primary font-bold text-surface-invert typo-title3">
+      G Pay
     </span>
-    <CheckoutField label="Country" />
-    <div className="mt-auto">
-      <CheckoutStandIn pack={pack} onPay={onPay} />
-    </div>
+    <span className="flex items-center gap-3 text-text-secondary typo-callout">
+      <span className="h-px flex-1 bg-border-subtlest-tertiary" />
+      Or pay by card
+      <span className="h-px flex-1 bg-border-subtlest-tertiary" />
+    </span>
+    <span className="grid grid-cols-2 gap-3">
+      <span className="flex flex-col gap-2 rounded-10 border-2 border-accent-avocado-default bg-surface-float p-3 text-text-secondary typo-callout">
+        <CreditCardIcon />
+        Card
+      </span>
+      <span className="flex flex-col gap-2 rounded-10 border border-border-subtlest-secondary bg-surface-float p-3 text-text-secondary typo-callout">
+        <strong className="flex size-6 items-center justify-center rounded-4 bg-surface-primary text-accent-blueCheese-default typo-caption1">
+          P
+        </strong>
+        PayPal
+      </span>
+    </span>
+    <CheckoutField label="Name on card">Cardholder name</CheckoutField>
+    <span className="flex flex-col gap-1.5">
+      <span className="typo-footnote">Card details</span>
+      <span className="flex flex-col rounded-10 border border-border-subtlest-secondary bg-surface-float text-text-quaternary typo-callout">
+        <span className="flex h-11 items-center justify-between gap-2 border-b border-border-subtlest-secondary px-3">
+          XXXX XXXX XXXX XXXX
+          <span className="flex gap-1 font-bold typo-caption2">
+            {['VISA', 'MC', 'AMEX', 'DISC'].map((brand) => (
+              <span
+                key={brand}
+                className="rounded-4 bg-surface-primary px-1 text-surface-invert"
+              >
+                {brand}
+              </span>
+            ))}
+          </span>
+        </span>
+        <span className="grid h-11 grid-cols-2 divide-x divide-border-subtlest-secondary">
+          <span className="flex items-center px-3">MM / YY</span>
+          <span className="flex items-center px-3">CVV</span>
+        </span>
+      </span>
+    </span>
+    <span className="flex flex-col divide-y divide-border-subtlest-tertiary border-y border-border-subtlest-tertiary text-accent-blueCheese-default typo-callout">
+      {['Add VAT number', 'Add discount code'].map((label) => (
+        <span key={label} className="flex items-center justify-between py-3">
+          {label}
+          <PlusIcon />
+        </span>
+      ))}
+    </span>
+    <span className="flex items-start gap-3 rounded-10 bg-surface-float p-3 typo-footnote">
+      <span className="mt-0.5 size-5 shrink-0 rounded-6 bg-surface-secondary" />
+      <span className="min-w-0 flex-1">
+        <strong>Save my card details for a faster checkout</strong> with Daily
+        Dev Ltd next time
+      </span>
+    </span>
+    <Button
+      variant={ButtonVariant.Primary}
+      color={ButtonColor.Bacon}
+      size={ButtonSize.Large}
+      disabled={!pack}
+      onClick={onPay}
+      className="w-full"
+    >
+      Pay {pack?.price}
+    </Button>
+    <span className="text-center text-text-tertiary typo-caption2">
+      Sold by Paddle. Provided by Daily Dev Ltd.
+      <span className="mt-1 flex justify-center gap-3 underline">
+        <span>Support</span>
+        <span>Terms</span>
+        <span>Privacy</span>
+      </span>
+    </span>
   </div>
 );
 
@@ -215,14 +259,9 @@ export const BuyCoresRedesignModal = ({
           selected={selected}
         />
       )}
-      <Deals withStartups={purpose === 'boost'} />
+      <Deals withStartups={purpose !== 'award'} />
       <div>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          Choose how many Cores to buy.
-        </Typography>
+        <h3 className="mb-2 font-bold typo-callout">Packages</h3>
         {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
         <div
           onClickCapture={(event) => {
@@ -274,7 +313,7 @@ export const BuyCoresRedesignModal = ({
                   alt="Friends passing a Core"
                   className="h-40 w-full rounded-16 object-cover object-[50%_35%]"
                 />
-                <CheckoutStandIn pack={pack} onPay={pay} />
+                <PaddleCheckout pack={pack} onPay={pay} />
               </>
             ) : (
               options

@@ -72,8 +72,8 @@ export const endedCampaigns: Campaign[] = [
     postNamed('sb-post-rsc', 'React Server Components, one year in production'),
     {
       state: CampaignState.Completed,
-      createdAt: daysFromNow(-24),
-      endedAt: daysFromNow(-17),
+      createdAt: daysFromNow(-12),
+      endedAt: daysFromNow(-5),
       flags: {
         budget: 35000,
         spend: 35000,
@@ -117,7 +117,47 @@ export const endedCampaigns: Campaign[] = [
   ),
 ];
 
-export const allCampaigns = [liveCampaign, ...endedCampaigns];
+/** Boosts running side by side: just started, halfway and ending today */
+export const liveCampaigns: Campaign[] = [
+  campaign(
+    'sb-campaign-new',
+    postNamed(
+      'sb-post-wasm',
+      'Shipping WebAssembly to production, the boring way',
+    ),
+    {
+      state: CampaignState.Active,
+      createdAt: daysFromNow(0),
+      endedAt: daysFromNow(7),
+      flags: {
+        budget: 7000,
+        spend: 120,
+        impressions: 380,
+        users: 260,
+        clicks: 9,
+      },
+    },
+  ),
+  liveCampaign,
+  campaign(
+    'sb-campaign-ending',
+    postNamed('sb-post-k8s', 'Kubernetes cost cuts that did not hurt latency'),
+    {
+      state: CampaignState.Active,
+      createdAt: daysFromNow(-3),
+      endedAt: daysFromNow(0.3),
+      flags: {
+        budget: 3000,
+        spend: 2750,
+        impressions: 9100,
+        users: 5800,
+        clicks: 310,
+      },
+    },
+  ),
+];
+
+export const allCampaigns = [...liveCampaigns, ...endedCampaigns];
 
 /** What `userCampaignStats` returns: totals over every campaign */
 export const campaignTotals = allCampaigns.reduce(

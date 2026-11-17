@@ -115,9 +115,8 @@ export const BoostAndAnalytics: Story = {
           'boost-form-new-post',
           'boost-form-reading',
         ],
-        ['2 · Boost your post · compact', 'boost-form', 'boost-form-compact'],
         ['Processing', 'boost-processing-timed-out', null],
-        ['3 · Boost launches', 'boost-back-to-form', 'boost-launches'],
+        ['3 · Back to the form', 'boost-back-to-form', 'boost-back-to-form'],
         ['4 · Boost is live!', 'boost-is-live', 'boost-is-live'],
         [
           '5 · Boost manager (Ads dashboard)',
@@ -129,8 +128,16 @@ export const BoostAndAnalytics: Story = {
           'ads-dashboard-empty',
           'boosts-page-empty',
         ],
-        ['6 · Campaign', 'campaign-live', 'campaign-live'],
-        ['6 · Campaign, ended', 'campaign-ended', 'campaign-ended'],
+        [
+          '6 · Campaign (now on Boost manager)',
+          'campaign-live',
+          'boosts-page-story',
+        ],
+        [
+          '6 · Campaign, ended (now the Ended tab)',
+          'campaign-ended',
+          'boosts-page-ended',
+        ],
         ['Boost notifications', 'boost-notifications', null],
         ['Boost again, prefilled', 'boost-again', 'boost-again'],
       ])}
