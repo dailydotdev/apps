@@ -15,6 +15,7 @@ import { SquadJobsWidget } from './SquadJobsWidget';
 import { SimilarSquadsWidget } from './SimilarSquadsWidget';
 import { SquadPlanUpsellWidget } from './SquadPlanUpsellWidget';
 import { SquadAgentWidget } from './SquadAgentWidget';
+import { isCompanyPage } from '../../lib/companyPage';
 
 export const SquadWidgets = (): ReactElement => {
   const { squad, viewer, isViewerKnown } = useSquadPageContext();
@@ -23,7 +24,8 @@ export const SquadWidgets = (): ReactElement => {
   return (
     <>
       <SquadPreviewToggle />
-      <SquadPlanUpsellWidget />
+      {/* A company page sells its plan from the top of its feed */}
+      {!isCompanyPage(squad) && <SquadPlanUpsellWidget />}
       {hasSquadFeature(squad, 'verified') && <VerifiedCompanySquadCard />}
       <SquadAgentWidget />
       {squad.flags?.featured && <FeaturedSquadCard />}
@@ -33,7 +35,9 @@ export const SquadWidgets = (): ReactElement => {
       <SquadTeamWidget squad={squad} />
       <SquadStack squad={squad} />
       <SimilarSquadsWidget key={squad.id} squad={squad} />
-      {isStaff && <SquadAnalyticsWidget squad={squad} />}
+      {isStaff && !isCompanyPage(squad) && (
+        <SquadAnalyticsWidget squad={squad} />
+      )}
       <SquadLinksWidget squad={squad} />
     </>
   );
