@@ -1,5 +1,6 @@
 import { defaultPatchyConfig as config } from './patchyConfig';
 import {
+  getNightKey,
   getPatchyMood,
   isAway,
   isFridayDeploy,
@@ -20,6 +21,36 @@ describe('isLateNight', () => {
     [23, 30, false],
   ])('%i:%i is late night: %s', (hour, minute, expected) => {
     expect(isLateNight(at(18, hour, minute), config.lateNight)).toBe(expected);
+  });
+});
+
+describe('a window past midnight', () => {
+  const window = { startHour: 23, endHour: 3 };
+
+  it.each([
+    [22, false],
+    [23, true],
+    [0, true],
+    [2, true],
+    [3, false],
+  ])('%i:00 is in 23 to 3: %s', (hour, expected) => {
+    expect(isLateNight(at(18, hour), window)).toBe(expected);
+  });
+
+  it('keeps both sides of midnight on the same night', () => {
+    expect(getNightKey(at(18, 23, 30), window)).toBe(
+      getNightKey(at(19, 1), window),
+    );
+    expect(getNightKey(at(19, 1), window)).not.toBe(
+      getNightKey(at(19, 23, 30), window),
+    );
+  });
+
+  it('counts the early hours of Saturday as Friday night', () => {
+    const fridayNight = { ...config.fridayDeploy, startHour: 20, endHour: 2 };
+
+    expect(isFridayDeploy(at(21, 1), ['deploy'], fridayNight)).toBe(true);
+    expect(isFridayDeploy(at(20, 1), ['deploy'], fridayNight)).toBe(false);
   });
 });
 
@@ -46,6 +77,15 @@ describe('isFridayDeploy', () => {
     expect(isFridayDeploy(at(20, 18), ['deploy'], config.fridayDeploy)).toBe(
       false,
     );
+  });
+
+  it('matches deploy tags whatever their case', () => {
+    expect(
+      isFridayDeploy(at(20, 14), ['devops'], {
+        ...config.fridayDeploy,
+        tags: ['DevOps'],
+      }),
+    ).toBe(true);
   });
 
   it('needs a deploy tag', () => {

@@ -56,7 +56,8 @@ export interface PatchyReaction {
 }
 
 export interface PatchyHourWindow {
-  // Local hours, start inclusive, end exclusive.
+  // Local hours, start inclusive, end exclusive. A start after the end wraps
+  // past midnight (23 to 3).
   startHour: number;
   endHour: number;
 }
@@ -191,13 +192,16 @@ const isCount = (value: unknown): value is number =>
   typeof value === 'number' && Number.isFinite(value) && value >= 0;
 
 const isHour = (value: unknown): value is number =>
-  isCount(value) && Number.isInteger(value) && value <= 24;
+  isCount(value) && Number.isInteger(value) && value <= 23;
 
 const toWindow = (
   window: Partial<PatchyHourWindow> | undefined,
   fallback: PatchyHourWindow,
 ): PatchyHourWindow =>
-  window && isHour(window.startHour) && isHour(window.endHour)
+  window &&
+  isHour(window.startHour) &&
+  isHour(window.endHour) &&
+  window.startHour !== window.endHour
     ? { startHour: window.startHour, endHour: window.endHour }
     : { startHour: fallback.startHour, endHour: fallback.endHour };
 

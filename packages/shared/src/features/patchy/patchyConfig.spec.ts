@@ -52,7 +52,7 @@ describe('toPatchyConfig', () => {
   it('skips unknown entries and keeps defaults for bad values', () => {
     const config = toPatchyConfig({
       cooldownSeconds: -1,
-      lateNight: { startHour: 1, endHour: 30 },
+      lateNight: { startHour: 2, endHour: 2 },
       fridayDeploy: { startHour: 12, endHour: 18, tags: [] },
       faces: [
         { face: 'confused', image: 'https://media.daily.dev/confused.webp' },

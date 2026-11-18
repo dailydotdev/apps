@@ -5,15 +5,37 @@ import type {
   PatchyMood,
 } from './patchyConfig';
 
-const isInWindow = (hour: number, { startHour, endHour }: PatchyHourWindow) =>
-  hour >= startHour && hour < endHour;
+// The day a window that `now` falls in opened, or null outside it. A window
+// whose start is after its end wraps past midnight (23 to 3), so its early
+// hours belong to the previous day.
+const getWindowStartDay = (
+  now: Date,
+  { startHour, endHour }: PatchyHourWindow,
+): Date | null => {
+  const hour = now.getHours();
+  if (startHour < endHour) {
+    return hour >= startHour && hour < endHour ? now : null;
+  }
+  if (hour >= startHour) {
+    return now;
+  }
+  if (hour < endHour) {
+    const previousDay = new Date(now);
+    previousDay.setDate(now.getDate() - 1);
+    return previousDay;
+  }
+  return null;
+};
 
 export const isLateNight = (now: Date, window: PatchyHourWindow): boolean =>
-  isInWindow(now.getHours(), window);
+  getWindowStartDay(now, window) !== null;
 
-// The "night" a late read belongs to, so the peek shows once per night.
-export const getNightKey = (now: Date): string =>
-  `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+// The night a late read belongs to, so the peek shows once per night even
+// when the window wraps past midnight.
+export const getNightKey = (now: Date, window: PatchyHourWindow): string => {
+  const day = getWindowStartDay(now, window) ?? now;
+  return `${day.getFullYear()}-${day.getMonth() + 1}-${day.getDate()}`;
+};
 
 const FRIDAY = 5;
 
@@ -21,10 +43,13 @@ export const isFridayDeploy = (
   now: Date,
   tags: string[] | undefined,
   { tags: deployTags, ...window }: PatchyConfig['fridayDeploy'],
-): boolean =>
-  now.getDay() === FRIDAY &&
-  isInWindow(now.getHours(), window) &&
-  !!tags?.some((tag) => deployTags.includes(tag.toLowerCase()));
+): boolean => {
+  if (getWindowStartDay(now, window)?.getDay() !== FRIDAY) {
+    return false;
+  }
+  const deploy = new Set(deployTags.map((tag) => tag.toLowerCase()));
+  return !!tags?.some((tag) => deploy.has(tag.toLowerCase()));
+};
 
 // Away = the last counted read is older than `awayMs` and nothing today yet.
 export const isAway = (

@@ -117,10 +117,11 @@ export const usePatchyCompanion = ({
 
   const requestLateNight = useCallback(() => {
     const date = new Date();
-    if (!user || !isLateNight(date, getPatchyConfig().lateNight)) {
+    const { lateNight } = getPatchyConfig();
+    if (!user || !isLateNight(date, lateNight)) {
       return;
     }
-    const night = getNightKey(date);
+    const night = getNightKey(date, lateNight);
     if (storageWrapper.getItem(lateNightKey(user.id)) === night) {
       return;
     }
