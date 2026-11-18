@@ -26,9 +26,16 @@ describe('toPatchyConfig', () => {
       moods: [
         { mood: 'ready', face: 'happy', copy: 'Let’s read', label: 'eager' },
       ],
+      den: {
+        laughImage: 'https://media.daily.dev/laugh.webp',
+      } as PatchyConfigResponse['den'],
     });
 
     expect(config.cooldownMs).toBe(60_000);
+    expect(config.den.frames).toEqual({
+      ...defaultPatchyConfig.den.frames,
+      laugh: 'https://media.daily.dev/laugh.webp',
+    });
     expect(config.awayMs).toBe(72 * 60 * 60 * 1000);
     expect(config.lateNight).toEqual({ startHour: 0, endHour: 4 });
     expect(config.reactions.bookmark).toEqual({

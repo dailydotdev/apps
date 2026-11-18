@@ -20,7 +20,14 @@ export interface PatchyConfigResponse {
     ttlSeconds: number;
   }[];
   moods: { mood: string; face: string; copy: string; label: string }[];
-  den: { idleImage: string; blinkImage: string };
+  den: {
+    idleImage: string;
+    blinkImage: string;
+    laughImage: string;
+    boneImage: string;
+    asleepImage: string;
+    sideeyeImage: string;
+  };
 }
 
 export const PATCHY_CONFIG_QUERY = gql`
@@ -59,6 +66,10 @@ export const PATCHY_CONFIG_QUERY = gql`
       den {
         idleImage
         blinkImage
+        laughImage
+        boneImage
+        asleepImage
+        sideeyeImage
       }
     }
   }

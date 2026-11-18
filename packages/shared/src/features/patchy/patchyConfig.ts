@@ -208,10 +208,10 @@ export const defaultPatchyConfig: PatchyConfig = {
     idleImage: `${media}/v1794998775/public/patchy-v1-den-idle.webp`,
     blinkImage: `${media}/v1794998776/public/patchy-v1-den-blink.webp`,
     frames: {
-      laugh: `${media}/v1/public/patchy-v1-den-laugh.webp`,
-      bone: `${media}/v1/public/patchy-v1-den-bone.webp`,
-      asleep: `${media}/v1/public/patchy-v1-den-asleep.webp`,
-      sideeye: `${media}/v1/public/patchy-v1-den-sideeye.webp`,
+      laugh: `${media}/v1795007057/public/patchy-v1-den-laugh.webp`,
+      bone: `${media}/v1795007055/public/patchy-v1-den-bone.webp`,
+      asleep: `${media}/v1795007061/public/patchy-v1-den-asleep.webp`,
+      sideeye: `${media}/v1795007059/public/patchy-v1-den-sideeye.webp`,
     },
   },
 };
@@ -318,7 +318,12 @@ export const toPatchyConfig = (
       blinkImage: isText(response.den?.blinkImage)
         ? response.den.blinkImage
         : fallback.den.blinkImage,
-      frames: { ...fallback.den.frames },
+      frames: Object.fromEntries(
+        patchyDenFrames.map((frame) => {
+          const image = response.den?.[`${frame}Image`];
+          return [frame, isText(image) ? image : fallback.den.frames[frame]];
+        }),
+      ) as Record<PatchyDenFrame, string>,
     },
   };
 };
