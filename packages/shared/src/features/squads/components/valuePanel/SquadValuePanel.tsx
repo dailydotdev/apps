@@ -6,7 +6,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import { LockIcon } from '../../../../components/icons';
+import { VIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import type { StartupsStarterOffer } from '../../hooks/useStartupsPromo';
 import { MonthlyCredits } from '../promos/StartupsPromo';
@@ -14,12 +14,11 @@ import { MonthlyCredits } from '../promos/StartupsPromo';
 export interface SquadValueStats {
   impressions: number;
   reach: number;
-  /** Visits to the company's site from its posts */
   clicks: number;
   /** Upvotes, comments and Bookmarks together */
   engagement: number;
   followers: number;
-  /** AI agent reads; unset on the free plan */
+  /** AI agent reads; only paid pages get them */
   agentViews?: number | null;
 }
 
@@ -32,141 +31,153 @@ export interface SquadValueUpgrade {
 interface SquadValuePanelProps {
   name: string;
   stats: SquadValueStats;
-  /** Set on the free plan: Google and AI agents show locked, with the offer */
+  /** Set on the free plan: the one block on the page that sells Starter */
   upgrade?: SquadValueUpgrade;
-  /** The free boost card, shown above the numbers while it has something to say */
-  boost?: ReactNode;
   className?: string;
 }
 
-const numberFormat = new Intl.NumberFormat('en-US');
+const number = (value: number): string => value.toLocaleString('en-US');
 
-const Stat = ({
+const Tile = ({
   value,
   label,
-  isLead,
 }: {
   value: number;
   label: string;
-  isLead?: boolean;
 }): ReactElement => (
-  <div
-    className={classNames(
-      'flex flex-col gap-0.5 rounded-12 border border-border-subtlest-tertiary p-3',
-      isLead && 'col-span-2 justify-center',
-    )}
-  >
-    <span
-      className={classNames(
-        'font-bold tabular-nums text-text-primary',
-        isLead ? 'typo-large-title' : 'typo-title3',
-      )}
-    >
-      {numberFormat.format(value)}
-    </span>
-    <span className="text-text-tertiary typo-footnote">{label}</span>
+  <div className="flex flex-col gap-0.5 rounded-12 border border-border-subtlest-tertiary p-3">
+    <span className="font-bold tabular-nums typo-title2">{number(value)}</span>
+    <span className="text-text-secondary typo-footnote">{label}</span>
   </div>
 );
 
-const Reach = ({
+const Fact = ({
   name,
   children,
-  action,
 }: {
   name: string;
   children: ReactNode;
-  action?: ReactNode;
 }): ReactElement => (
-  <div className="flex min-h-11 items-center gap-2 rounded-12 bg-surface-float px-3 py-2 typo-footnote">
-    <span className="min-w-0 flex-1 text-text-tertiary">
+  <div className="flex items-center gap-2 rounded-12 bg-surface-float px-3 py-2.5 typo-footnote">
+    <VIcon
+      size={IconSize.Size16}
+      className="shrink-0 text-accent-avocado-default"
+    />
+    <span className="text-text-tertiary">
       <strong className="text-text-primary">{name}</strong>
       {' · '}
       {children}
     </span>
-    {action}
+  </div>
+);
+
+const Benefit = ({ children }: { children: ReactNode }): ReactElement => (
+  <li className="flex items-start gap-2 text-text-secondary typo-callout">
+    <VIcon
+      size={IconSize.Size16}
+      className="mt-0.5 shrink-0 text-accent-cabbage-default"
+    />
+    <span className="min-w-0 flex-1">{children}</span>
+  </li>
+);
+
+const Upgrade = ({
+  name,
+  upgrade,
+  className,
+}: {
+  name: string;
+  upgrade: SquadValueUpgrade;
+  className?: string;
+}): ReactElement => (
+  <div
+    className={classNames(
+      'flex flex-col gap-3 rounded-12 bg-overlay-float-cabbage p-4',
+      className,
+    )}
+  >
+    <div className="flex flex-col gap-1">
+      <h3 className="font-bold typo-body">
+        On the free plan, your posts reach few developers
+      </h3>
+      <p className="text-text-secondary typo-callout">
+        {`Starter puts ${name} in front of many more:`}
+      </p>
+    </div>
+    <ul className="flex flex-col gap-2">
+      <Benefit>Your posts in the developer feed</Benefit>
+      <Benefit>{`${name} on Google and in AI answers`}</Benefit>
+      <Benefit>
+        <MonthlyCredits promo={upgrade.offer} /> every month
+      </Benefit>
+    </ul>
+    <Button
+      tag="a"
+      href={upgrade.checkoutUrl}
+      onClick={upgrade.onClick}
+      variant={ButtonVariant.Primary}
+      size={ButtonSize.Medium}
+      className="self-start"
+    >
+      Keep the reach going
+    </Button>
   </div>
 );
 
 /**
- * What daily.dev did for a company page, for its admins: the big numbers,
- * led by impressions, and whether Google and AI agents can find it.
+ * What daily.dev did for a company page, for its admins: impressions first,
+ * then the other big numbers. On the free plan it ends with the page's one
+ * upgrade block; on a paid plan it shows Google and AI agents instead.
  */
 export const SquadValuePanel = ({
   name,
   stats,
   upgrade,
-  boost,
   className,
-}: SquadValuePanelProps): ReactElement => {
-  const unlock = upgrade && (
-    <a
-      href={upgrade.checkoutUrl}
-      onClick={upgrade.onClick}
-      className="flex shrink-0 items-center gap-1 font-bold text-accent-cabbage-default"
-    >
-      <LockIcon size={IconSize.Size16} />
-      Unlock
-    </a>
-  );
+}: SquadValuePanelProps): ReactElement | null => {
+  // Nothing to show off yet: a free page keeps only its upgrade block
+  if (!stats.impressions) {
+    return upgrade ? (
+      <Upgrade name={name} upgrade={upgrade} className={className} />
+    ) : null;
+  }
 
   return (
     <section
       className={classNames(
-        'flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-4',
+        'flex w-full flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-4 tablet:p-5',
         className,
       )}
     >
-      <div className="flex flex-col gap-1 tablet:flex-row tablet:items-baseline tablet:justify-between tablet:gap-4">
-        <h2 className="font-bold typo-title3">{`What daily.dev did for ${name}`}</h2>
-        <span className="shrink-0 text-text-quaternary typo-caption1">
-          All time · Only admins see this
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="font-bold typo-callout">{`What daily.dev did for ${name}`}</h2>
+        <span className="shrink-0 text-text-tertiary typo-caption1">
+          Only admins see this
         </span>
       </div>
-      {boost}
-      <div className="grid grid-cols-2 gap-2 tablet:grid-cols-6">
-        <Stat value={stats.impressions} label="Impressions" isLead />
-        <Stat value={stats.reach} label="Developers reached" />
-        <Stat value={stats.clicks} label="Visits to your site" />
-        <Stat
+      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <span className="font-bold tabular-nums typo-mega2 tablet:typo-mega1">
+          {number(stats.impressions)}
+        </span>
+        <span className="font-bold typo-title3">impressions so far</span>
+      </div>
+      <div className="grid grid-cols-2 gap-2 tablet:grid-cols-4">
+        <Tile value={stats.reach} label="Developers reached" />
+        <Tile value={stats.clicks} label="Clicks" />
+        <Tile
           value={stats.engagement}
           label="Upvotes, comments and Bookmarks"
         />
-        <Stat value={stats.followers} label="Followers" />
+        <Tile value={stats.followers} label="Followers" />
       </div>
-      <div className="grid grid-cols-1 gap-2 tablet:grid-cols-2">
-        <Reach name="Google" action={unlock}>
-          {upgrade
-            ? 'Not indexed on the free plan'
-            : 'Your page and posts are open to search'}
-        </Reach>
-        <Reach name="AI agents" action={unlock}>
-          {upgrade
-            ? 'Your posts are hidden from them'
-            : `Read your posts ${numberFormat.format(
-                stats.agentViews ?? 0,
-              )} times`}
-        </Reach>
-      </div>
-      {upgrade && (
-        <div className="flex flex-col gap-3 rounded-12 bg-overlay-float-cabbage p-3 tablet:flex-row tablet:items-center tablet:justify-between">
-          <p className="min-w-0 flex-1 text-text-secondary typo-footnote">
-            Starter puts your posts in the developer feed, gets {name} on Google
-            and in AI answers, and adds{' '}
-            <strong className="text-text-primary">
-              <MonthlyCredits promo={upgrade.offer} />
-            </strong>{' '}
-            every month.
-          </p>
-          <Button
-            tag="a"
-            href={upgrade.checkoutUrl}
-            onClick={upgrade.onClick}
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Small}
-            className="shrink-0"
-          >
-            See plans
-          </Button>
+      {upgrade ? (
+        <Upgrade name={name} upgrade={upgrade} />
+      ) : (
+        <div className="grid grid-cols-1 gap-2 tablet:grid-cols-2">
+          <Fact name="Google">Your page and posts are open to search</Fact>
+          <Fact name="AI agents">
+            {`Read your posts ${number(stats.agentViews ?? 0)} times`}
+          </Fact>
         </div>
       )}
     </section>

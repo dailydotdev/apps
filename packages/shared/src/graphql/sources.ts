@@ -112,6 +112,8 @@ interface SourceFlags {
   totalUpvotes: number;
   totalAwards: number;
   campaignId?: string;
+  /** A company page: the free tier, or any daily.dev for Startups plan */
+  company?: boolean | null;
 }
 
 // A missing key comes back as null and means off
