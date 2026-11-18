@@ -158,7 +158,7 @@ export const SquadPlanSwitch = ({
           <PromptLine>
             {`You keep Team until then. After that you pay ${
               prices[SquadPlan.Starter]
-            } a month and get ${credits(SquadPlan.Starter)} in boost credits.`}
+            } a month and get ${credits(SquadPlan.Starter)} in free boost credits.`}
           </PromptLine>
         ),
         okButton: { title: `Switch on ${renewal}` },
@@ -228,7 +228,7 @@ export const SquadPlanSwitch = ({
             (isUpgrade
               ? `Team has ${SQUAD_PLAN_SEATS[SquadPlan.Team]} seats, ${credits(
                   SquadPlan.Team,
-                )} in boost credits a month and a CTA in your page header.`
+                )} in free boost credits a month and a CTA in your page header.`
               : `Starter is ${prices[SquadPlan.Starter]} a month with ${
                   SQUAD_PLAN_SEATS[SquadPlan.Starter]
                 } seat.`)}
