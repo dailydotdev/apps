@@ -21,10 +21,6 @@ jest.mock('../../contexts/LogContext', () => ({
   useLogContext: () => ({ logEvent: mockLogEvent }),
 }));
 
-jest.mock('../../hooks/streaks/useStreakDays', () => ({
-  useReadingStreak30Days: () => [],
-}));
-
 jest.mock('./usePatchyConfigSync', () => ({
   usePatchyConfigSync: () => undefined,
 }));
@@ -39,35 +35,22 @@ const ringState = (hasReadToday: boolean): StreakRingInfo =>
     hasReadToday,
   }) as unknown as StreakRingInfo;
 
-// jsdom has no layout: report a fixed den size so the clickable spots render.
-class MockResizeObserver {
-  constructor(
-    private callback: (entries: { contentRect: DOMRectReadOnly }[]) => void,
-  ) {}
-
-  observe() {
-    this.callback([
-      { contentRect: { width: 1376, height: 768 } as DOMRectReadOnly },
-    ]);
-  }
-
-  disconnect = jest.fn();
-}
-
 describe('PatchyDen', () => {
   beforeEach(() => {
     localStorage.clear();
     mockLogEvent.mockClear();
-    window.ResizeObserver =
-      MockResizeObserver as unknown as typeof ResizeObserver;
   });
 
   it('keeps the bone until the first read of the day', () => {
     jest.mocked(useStreakRingState).mockReturnValue(ringState(false));
     render(<PatchyDen />);
+
     expect(
-      screen.getByRole('button', { name: 'Read a post to earn today’s bone' }),
-    ).toBeDisabled();
+      screen.getByText('Read a post to earn today’s bone.'),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Give Patchy today’s bone' }),
+    ).not.toBeInTheDocument();
   });
 
   it('gives the bone once a day after a read', () => {
@@ -83,30 +66,27 @@ describe('PatchyDen', () => {
       target_type: TargetType.PatchyDen,
       target_id: 'treat',
     });
-    expect(
-      screen.getByRole('button', { name: 'Bone given · back tomorrow' }),
-    ).toBeDisabled();
+    expect(screen.getByText('Bone given. Back tomorrow.')).toBeInTheDocument();
   });
 
-  it('counts pets and tells the day back from the robot', () => {
+  it('counts pets and talks about your day', () => {
     jest.mocked(useStreakRingState).mockReturnValue(ringState(true));
+    recordPatchyActivity('u1', 'upvote');
+    recordPatchyActivity('u1', 'upvote');
     recordPatchyActivity('u1', 'upvote');
     render(<PatchyDen />);
 
+    expect(
+      screen.getByText('“3 upvotes today. Generous mood!”'),
+    ).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Pet Patchy' }));
     expect(mockLogEvent).toHaveBeenCalledWith({
       event_name: LogEvent.Click,
       target_type: TargetType.PatchyDen,
       target_id: 'pet',
     });
-    expect(screen.getByText('pets').previousSibling).toHaveTextContent('1');
-
-    fireEvent.click(screen.getByRole('button', { name: 'Patchy’s log' }));
     expect(
-      screen.getByText('You upvoted something. I waved.'),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText('You petted me. Best part of my day.'),
-    ).toBeInTheDocument();
+      JSON.parse(localStorage.getItem('patchy_day:u1') ?? '{}'),
+    ).toMatchObject({ pets: 1 });
   });
 });

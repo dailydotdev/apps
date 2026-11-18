@@ -3,7 +3,6 @@ import {
   createPatchyDay,
   getPatchyQuip,
   parsePatchyDay,
-  PATCHY_LOG_LIMIT,
   readPatchyDay,
   recordPatchyActivity,
 } from './patchyDay';
@@ -15,7 +14,7 @@ const tomorrow = new Date(2026, 10, 19, 8, 0);
 describe('patchy day', () => {
   beforeEach(() => localStorage.clear());
 
-  it('counts what happened today and keeps a short log', () => {
+  it('counts what happened today', () => {
     let day = createPatchyDay(morning);
     day = addPatchyActivity(day, 'read', morning);
     day = addPatchyActivity(day, 'upvote', morning);
@@ -30,22 +29,6 @@ describe('patchy day', () => {
       pets: 0,
       treatGiven: true,
     });
-    expect(day.log.map((entry) => entry.activity)).toEqual([
-      'read',
-      'upvote',
-      'upvote',
-      'bookmark',
-      'treat',
-    ]);
-  });
-
-  it('keeps only the newest log entries', () => {
-    let day = createPatchyDay(morning);
-    for (let index = 0; index < PATCHY_LOG_LIMIT + 3; index += 1) {
-      day = addPatchyActivity(day, 'pet', morning);
-    }
-    expect(day.pets).toBe(PATCHY_LOG_LIMIT + 3);
-    expect(day.log).toHaveLength(PATCHY_LOG_LIMIT);
   });
 
   it('starts a fresh day when the date changes', () => {
@@ -69,17 +52,14 @@ describe('patchy day', () => {
           day: createPatchyDay(morning).day,
           reads: -1,
           upvotes: 'two',
-          log: [
-            { at: 1, activity: 'dance' },
-            { at: 2, activity: 'read' },
-          ],
+          pets: 3,
         }),
         morning,
       ),
     ).toMatchObject({
       reads: 0,
       upvotes: 0,
-      log: [{ at: 2, activity: 'read' }],
+      pets: 3,
     });
   });
 

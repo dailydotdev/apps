@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { storageWrapper } from '../../lib/storageWrapper';
 
 // What Patchy remembers about your day: a per-device, per-local-day tally of
-// what you did, plus a short log he can tell back in his den. It resets when
-// the local date changes. Nothing here is sent anywhere.
+// what you did. It resets when the local date changes. Nothing here is sent anywhere.
 export const patchyActivities = [
   'read',
   'upvote',
@@ -14,11 +13,6 @@ export const patchyActivities = [
 ] as const;
 export type PatchyActivity = (typeof patchyActivities)[number];
 
-export interface PatchyLogEntry {
-  at: number;
-  activity: PatchyActivity;
-}
-
 export interface PatchyDay {
   day: string;
   reads: number;
@@ -26,11 +20,7 @@ export interface PatchyDay {
   bookmarks: number;
   pets: number;
   treatGiven: boolean;
-  log: PatchyLogEntry[];
 }
-
-// The den shows the newest few; older ones are dropped.
-export const PATCHY_LOG_LIMIT = 8;
 
 export const getPatchyDayKey = (now: Date): string =>
   `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
@@ -42,7 +32,6 @@ export const createPatchyDay = (now: Date): PatchyDay => ({
   bookmarks: 0,
   pets: 0,
   treatGiven: false,
-  log: [],
 });
 
 const isCount = (value: unknown): value is number =>
@@ -66,15 +55,6 @@ export const parsePatchyDay = (raw: string | null, now: Date): PatchyDay => {
       bookmarks: isCount(stored.bookmarks) ? stored.bookmarks : 0,
       pets: isCount(stored.pets) ? stored.pets : 0,
       treatGiven: stored.treatGiven === true,
-      log: Array.isArray(stored.log)
-        ? stored.log
-            .filter(
-              (entry) =>
-                isCount(entry?.at) &&
-                patchyActivities.includes(entry?.activity),
-            )
-            .slice(-PATCHY_LOG_LIMIT)
-        : [],
     };
   } catch {
     return fresh;
@@ -101,12 +81,7 @@ export const addPatchyActivity = (
 ): PatchyDay => {
   const base = day.day === getPatchyDayKey(now) ? day : createPatchyDay(now);
   const counter = counterFor[activity];
-  const next: PatchyDay = {
-    ...base,
-    log: [...base.log, { at: now.getTime(), activity }].slice(
-      -PATCHY_LOG_LIMIT,
-    ),
-  };
+  const next: PatchyDay = { ...base };
   if (counter) {
     next[counter] = base[counter] + 1;
   }
@@ -155,18 +130,7 @@ export const usePatchyDay = (userId: string | undefined): PatchyDay => {
   return day;
 };
 
-// The lines Patchy says about your day, newest first. Short, warm, a little
-// cheeky, never a guilt trip.
-export const patchyLogLines: Record<PatchyActivity, string> = {
-  read: 'You opened a post. I pretended not to look.',
-  upvote: 'You upvoted something. I waved.',
-  bookmark: 'You saved one “for later”. Noted.',
-  streak_day: 'First read of the day. Bone secured.',
-  pet: 'You petted me. Best part of my day.',
-  treat: 'You gave me today’s bone. Delicious.',
-};
-
-// One line for the den's mic: what Patchy thinks of your day so far.
+// One line under the den: what Patchy thinks of your day so far.
 export const getPatchyQuip = (
   day: Pick<PatchyDay, 'reads' | 'upvotes' | 'bookmarks' | 'pets'>,
   streak: number,
