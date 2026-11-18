@@ -10,6 +10,7 @@ import {
   LockIcon,
   SourceIcon,
   TerminalIcon,
+  VIcon,
   YoutubeIcon,
 } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
@@ -74,13 +75,6 @@ const options: AutoPostingOption[] = [
     icon: <EarthIcon size={IconSize.Small} />,
   },
 ];
-
-// What the account team needs for each feed our team connects
-const feedUrlLabel: Partial<Record<AutoPostingMethod, string>> = {
-  [AutoPostingMethod.Rss]: 'feed',
-  [AutoPostingMethod.Youtube]: 'channel',
-  [AutoPostingMethod.WebPage]: 'page',
-};
 
 /**
  * Whether the squad's plan includes an auto-posting method, mirroring the API:
@@ -221,14 +215,16 @@ export const SquadManageAutoPosting = (): ReactElement => {
       );
     }
 
-    // Feeds are connected by our team for now
+    // Feeds are set up by our team. Which ones stays with the account team:
+    // the app only says they're managed, never lists the URLs
     return (
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Secondary}
-      >
-        {`Send the ${feedUrlLabel[method]} URL to your daily.dev account team and we'll connect it.`}
-      </Typography>
+      <span className="flex items-center gap-1 text-text-secondary typo-footnote">
+        <VIcon
+          size={IconSize.Size16}
+          className="shrink-0 text-accent-avocado-default"
+        />
+        Managed by your daily.dev account team
+      </span>
     );
   };
 
@@ -246,6 +242,13 @@ export const SquadManageAutoPosting = (): ReactElement => {
             Keep the Squad fresh without posting by hand.
           </Typography>
         </div>
+        {hasSquadFeature(squad, 'verified') && (
+          <p className="text-pretty rounded-12 bg-surface-float p-3 text-text-tertiary typo-footnote">
+            Our team sets up and manages RSS, YouTube and web page auto-posting
+            for you. To add or change a source, contact your daily.dev account
+            team.
+          </p>
+        )}
         {options.map((option) => {
           const isLocked = !isAutoPostingIncluded(squad, option.method);
 
