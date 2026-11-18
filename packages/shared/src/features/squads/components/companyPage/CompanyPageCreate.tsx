@@ -71,7 +71,7 @@ const AgentSetupBanner = (): ReactElement => {
           color={TypographyColor.Secondary}
         >
           Paste this into Claude Code, Cursor or Codex. It fills in the page
-          from your site and drafts your first post with you.
+          from your site and suggests what to post first.
         </Typography>
       </div>
       <CopyBlock
