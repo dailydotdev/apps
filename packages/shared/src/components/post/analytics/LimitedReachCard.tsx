@@ -41,7 +41,7 @@ const reasons: Record<
 };
 
 const lockedBody =
-  'We expect this post to reach fewer developers. A paid plan shows you why and what to change.';
+  "This post doesn't meet our content guidelines for the developer feed, so we expect limited reach for it. A paid plan tells you which guideline it misses and what to change.";
 
 interface LimitedReachCardProps {
   reason: LimitedReachReason;
@@ -99,15 +99,26 @@ export const LimitedReachCard = ({
           How to reach more developers
         </Button>
       ) : (
-        <Button
-          tag="a"
-          href={plansUrl ?? undefined}
-          variant={ButtonVariant.Secondary}
-          size={ButtonSize.Small}
-          className="self-start"
-        >
-          See plans
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            tag="a"
+            href={plansUrl ?? undefined}
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Small}
+          >
+            See plans
+          </Button>
+          <Button
+            tag="a"
+            href={docsUrl}
+            target="_blank"
+            rel={anchorDefaultRel}
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+          >
+            Read the content guidelines
+          </Button>
+        </div>
       )}
     </section>
   );
