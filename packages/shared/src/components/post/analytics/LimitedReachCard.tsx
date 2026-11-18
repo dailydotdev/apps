@@ -11,10 +11,17 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { anchorDefaultRel } from '../../../lib/strings';
+import {
+  getSquadManageUrl,
+  SquadManageSection,
+} from '../../../features/squads/lib/routes';
 
 const docsUrl = 'https://docs.daily.dev/what-the-feed-recommends/';
 
-const reasons: Record<LimitedReachReason, { body: string; anchor: string }> = {
+const reasons: Record<
+  Exclude<LimitedReachReason, LimitedReachReason.Locked>,
+  { body: string; anchor: string }
+> = {
   [LimitedReachReason.AiWritten]: {
     body: 'Developers here tend to skip posts that read as AI-written, so we expect limited reach for this one. Posts about what your team built, measured or got wrong usually go furthest.',
     anchor: 'ai-written',
@@ -33,16 +40,26 @@ const reasons: Record<LimitedReachReason, { body: string; anchor: string }> = {
   },
 };
 
+const lockedBody =
+  'We expect this post to reach fewer developers. A paid plan shows you why and what to change.';
+
 interface LimitedReachCardProps {
   reason: LimitedReachReason;
+  squadHandle?: string;
 }
 
 export const LimitedReachCard = ({
   reason,
+  squadHandle,
 }: LimitedReachCardProps): ReactElement | null => {
-  const copy = reasons[reason];
+  const isLocked = reason === LimitedReachReason.Locked;
+  const copy = isLocked ? null : reasons[reason];
+  const plansUrl =
+    isLocked && squadHandle
+      ? getSquadManageUrl(squadHandle, SquadManageSection.Plan)
+      : null;
 
-  if (!copy) {
+  if (!copy && !plansUrl) {
     return null;
   }
 
@@ -66,20 +83,32 @@ export const LimitedReachCard = ({
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
         >
-          {copy.body}
+          {copy?.body ?? lockedBody}
         </Typography>
       </div>
-      <Button
-        tag="a"
-        href={`${docsUrl}#${copy.anchor}`}
-        target="_blank"
-        rel={anchorDefaultRel}
-        variant={ButtonVariant.Secondary}
-        size={ButtonSize.Small}
-        className="self-start"
-      >
-        How to reach more developers
-      </Button>
+      {copy ? (
+        <Button
+          tag="a"
+          href={`${docsUrl}#${copy.anchor}`}
+          target="_blank"
+          rel={anchorDefaultRel}
+          variant={ButtonVariant.Secondary}
+          size={ButtonSize.Small}
+          className="self-start"
+        >
+          How to reach more developers
+        </Button>
+      ) : (
+        <Button
+          tag="a"
+          href={plansUrl ?? undefined}
+          variant={ButtonVariant.Secondary}
+          size={ButtonSize.Small}
+          className="self-start"
+        >
+          See plans
+        </Button>
+      )}
     </section>
   );
 };

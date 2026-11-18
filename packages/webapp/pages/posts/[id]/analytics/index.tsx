@@ -495,7 +495,10 @@ const PostAnalyticsPage = ({
         <SectionContainer>
           <PostShortInfo post={post} />
           {!!postAnalytics?.limitedReachReason && (
-            <LimitedReachCard reason={postAnalytics.limitedReachReason} />
+            <LimitedReachCard
+              reason={postAnalytics.limitedReachReason}
+              squadHandle={post?.source?.handle}
+            />
           )}
         </SectionContainer>
         <Divider className={dividerClassName} />
