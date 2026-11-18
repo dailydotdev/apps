@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { subDays } from 'date-fns';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { developerTrendsQueryOptions } from '../../../../graphql/developerTrends';
 import type { DeveloperTrends } from '../../../../graphql/developerTrends';
@@ -10,32 +9,11 @@ import { useSquadPageContext } from '../../SquadPageContext';
 import { getSquadId, hasSquadFeature } from '../../lib/features';
 import { isStaffViewer } from '../../lib/viewer';
 import { getSquadIntelUrl } from '../../lib/routes';
+import { getIntelWeekLabel } from '../../lib/intel';
 import { isCompanyPage } from '../../lib/companyPage';
 import { DeveloperTrendsWidget } from './DeveloperTrendsWidget';
 
 const TOPICS = 4;
-
-const dayMonth = (date: Date): string =>
-  date.toLocaleDateString('en-US', {
-    day: 'numeric',
-    month: 'short',
-    timeZone: 'UTC',
-  });
-
-/** "9 to 15 Nov": weekEnd is the Monday after */
-export const getTrendsWeekLabel = ({
-  weekStart,
-  weekEnd,
-}: Pick<DeveloperTrends, 'weekStart' | 'weekEnd'>): string => {
-  const start = new Date(weekStart);
-  const end = subDays(new Date(weekEnd), 1);
-  const startLabel =
-    start.getUTCMonth() === end.getUTCMonth()
-      ? `${start.getUTCDate()}`
-      : dayMonth(start);
-
-  return `${startLabel} to ${dayMonth(end)}`;
-};
 
 /** The format that drew the most comments, as one line */
 export const getTrendsTip = ({
@@ -81,7 +59,7 @@ export const SquadDeveloperTrendsWidget = (): ReactElement | null => {
 
   return (
     <DeveloperTrendsWidget
-      weekLabel={getTrendsWeekLabel(trends)}
+      weekLabel={getIntelWeekLabel(trends)}
       topics={trends.risingTopics
         .filter((topic) => topic.broad)
         .slice(0, TOPICS)}

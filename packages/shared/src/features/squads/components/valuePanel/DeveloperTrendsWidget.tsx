@@ -8,7 +8,7 @@ export interface DeveloperTrendsTopic {
 }
 
 interface DeveloperTrendsWidgetProps {
-  /** "9 to 15 Nov" */
+  /** "Nov 9 to Nov 15" */
   weekLabel: string;
   topics: DeveloperTrendsTopic[];
   /** One line on what kind of post worked that week */
