@@ -318,6 +318,24 @@ export const ManageLocked: Story = {
   ),
 };
 
+// A company page with no plan yet, before its first post: what free has and
+// lacks next to the plans
+const freeAcme = {
+  ...acme,
+  flags: { ...acme.flags, company: true, totalPosts: 0 },
+} as unknown as Squad;
+
+/** 5b. Manage: a free company page's plan section */
+export const ManageFreeCompanyPage: Story = {
+  render: () => (
+    <SquadPageContextProvider squad={freeAcme} isViewerReady>
+      <SquadManageLayout section={SquadManageSection.Plan}>
+        <SquadManagePlan />
+      </SquadManageLayout>
+    </SquadPageContextProvider>
+  ),
+};
+
 // A paid seat of a squad on a plan, with the launch cashback in its wallet and
 // no Cores of their own, like the first startups customer
 const paidAcme = {

@@ -155,6 +155,38 @@ export const squadPlanDetails: Record<SquadPlan, SquadPlanDetails> = {
   },
 };
 
+// What a company page without a plan has and lacks, next to what each plan
+// adds. Written as a contrast with free, so shorter than the plan cards.
+export const freeCompanyPageIncludes = [
+  'Your company page',
+  '$100 boost on your first post',
+  'Stats on who saw your posts and clicked through to your site',
+  'A weekly report on what developers across daily.dev are reading',
+];
+
+export const freeCompanyPageLacks = [
+  'Your posts reach few developers in the feed',
+  'Not on Google or in AI answers',
+  'No API posting',
+  'No intel on what developers in your space read',
+];
+
+export const squadPlanOverFree: Record<SquadPlan, string[]> = {
+  [SquadPlan.Starter]: [
+    'Your posts in the developer feed',
+    'Found on Google',
+    'Found in AI answers, and you see which AI agents read your posts',
+    'API posting from your agent',
+    'Weekly intel on your 5 topics, with ideas for what to post next',
+  ],
+  [SquadPlan.Team]: [
+    'Everything in Starter',
+    '5 seats',
+    'Intel on 20 topics, filtered by reader seniority',
+    'Call-to-action button on your page',
+  ],
+};
+
 // Enterprise is set by ops for a signed contract, never bought here, so it has
 // no price, cashback or details of its own
 export const getSquadPlanTitle = (plan: string): string =>
