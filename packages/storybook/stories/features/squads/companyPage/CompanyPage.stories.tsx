@@ -323,41 +323,11 @@ const story = (name: ScenarioName): Story => ({
   parameters: { msw: { handlers: handlers(scenarios[name]) } },
 });
 
-const phone = (base: Story): Story => ({
-  ...base,
-  globals: { viewport: { value: 'mobile2', isRotated: false } },
-});
-
-/** 1. Day 0: the page exists, nothing posted yet. */
-export const NoPostYet = story('noPostYet');
-/** 2. The first post is live; the boost starts once its checks pass. */
-export const CheckingPost = story('checkingPost');
-/** 3. The first post was held back for limited reach: the next post gets the boost. */
-export const PostHeldBack = story('postHeldBack');
-/** 4. The boost started minutes ago, before the first numbers. */
-export const BoostStarting = story('boostStarting');
-/** 5. Mid-day: impressions lead, the money spent below. */
-export const BoostLive = story('boostLive');
-/** 6. The last hour of the boost. */
-export const BoostEnding = story('boostEnding');
-/** 7. Day 2, the upgrade moment: the results and the one offer on the page. */
-export const BoostEnded = story('boostEnded');
-/** 8. Day 2, a post with few clicks and no Bookmarks or followers: those tiles hide. */
-export const BoostEndedWeak = story('boostEndedWeak');
-/** 9. Day 10: the boost card is gone, the value panel takes over. */
-export const OrganicOnly = story('organicOnly');
-/** 10. Over 30 days old and never boosted: no card, the panel's offer only. */
-export const OfferExpired = story('offerExpired');
-/** 11. On Starter: no free boost, no offer. */
+/** 1. Before the first post: the card offers the free $100 boost. */
+export const BeforeFirstPost = story('noPostYet');
+/** 2. Boosting: from the first post until the day-long boost ends. */
+export const Boosting = story('boostLive');
+/** 3. Free page after the boost: the value panel with the one upgrade offer. */
+export const FreeAfterBoost = story('afterBoost');
+/** 4. Paid page: the value panel, no offer. */
 export const PaidPage = story('paidPage');
-/** 12. A member during the boost: nothing admin-only shows. */
-export const MemberDuringBoost = story('memberDuringBoost');
-/** 13. A visitor during the boost. */
-export const VisitorDuringBoost = story('visitorDuringBoost');
-
-export const NoPostYetPhone = phone(NoPostYet);
-export const CheckingPostPhone = phone(CheckingPost);
-export const PostHeldBackPhone = phone(PostHeldBack);
-export const BoostLivePhone = phone(BoostLive);
-export const BoostEndedPhone = phone(BoostEnded);
-export const OrganicOnlyPhone = phone(OrganicOnly);

@@ -65,16 +65,6 @@ const boostDone: PostStats = {
   comments: 6,
 };
 
-const boostWeak: PostStats = {
-  impressions: 9180,
-  reach: 4020,
-  clicks: 3,
-  bookmarks: 0,
-  squadJoins: 0,
-  upvotes: 4,
-  comments: 0,
-};
-
 const organicPost: PostStats = {
   impressions: 140,
   reach: 120,
@@ -131,49 +121,6 @@ export const scenarios = {
     posts: [],
     freeBoost: available(0),
   },
-  /** The first post is live; its content checks take a few minutes */
-  checkingPost: {
-    viewer: 'admin',
-    pageAgeDays: 0,
-    plan: null,
-    posts: [{ entry: 0, hoursAgo: 0.05, stats: zero }],
-    freeBoost: {
-      ...available(0),
-      status: SquadFreeBoostStatus.Pending,
-      post: boostedPost(),
-    },
-  },
-  /** The first post was held back for limited reach: the next one gets it */
-  postHeldBack: {
-    viewer: 'admin',
-    pageAgeDays: 2,
-    plan: null,
-    posts: [
-      {
-        entry: 1,
-        hoursAgo: 30,
-        stats: { ...organicPost, impressions: 38, reach: 35 },
-      },
-    ],
-    freeBoost: {
-      ...available(2),
-      status: SquadFreeBoostStatus.Held,
-      post: boostedPost(1),
-    },
-  },
-  /** The boost started minutes ago: no numbers yet */
-  boostStarting: {
-    viewer: 'admin',
-    pageAgeDays: 0,
-    plan: null,
-    posts: [{ entry: 0, hoursAgo: 0.2, stats: zero }],
-    freeBoost: {
-      ...available(0),
-      status: SquadFreeBoostStatus.Active,
-      post: boostedPost(),
-      campaign: campaign({ startedHoursAgo: 0.1, spend: 0 }),
-    },
-  },
   /** Mid-day: the numbers climb every 5 minutes */
   boostLive: {
     viewer: 'admin',
@@ -187,53 +134,8 @@ export const scenarios = {
       campaign: campaign({ startedHoursAgo: 15, spend: 6300 }),
     },
   },
-  /** The last hour of the boost */
-  boostEnding: {
-    viewer: 'admin',
-    pageAgeDays: 1,
-    plan: null,
-    posts: [
-      {
-        entry: 0,
-        hoursAgo: 23.5,
-        stats: { ...boostDone, impressions: 9010, reach: 3760, clicks: 64 },
-      },
-    ],
-    freeBoost: {
-      ...available(1),
-      status: SquadFreeBoostStatus.Active,
-      post: boostedPost(),
-      campaign: campaign({ startedHoursAgo: 23.3, spend: 9600 }),
-    },
-  },
-  /** Day 2, the upgrade moment: the boost's results and the one offer */
-  boostEnded: {
-    viewer: 'admin',
-    pageAgeDays: 2,
-    plan: null,
-    posts: [{ entry: 0, hoursAgo: 40, stats: boostDone }],
-    freeBoost: {
-      ...available(2),
-      status: SquadFreeBoostStatus.Completed,
-      post: boostedPost(),
-      campaign: campaign({ startedHoursAgo: 40, spend: BUDGET }),
-    },
-  },
-  /** Day 2 when the post drew few clicks and no Bookmarks or followers */
-  boostEndedWeak: {
-    viewer: 'admin',
-    pageAgeDays: 2,
-    plan: null,
-    posts: [{ entry: 0, hoursAgo: 40, stats: boostWeak }],
-    freeBoost: {
-      ...available(2),
-      status: SquadFreeBoostStatus.Completed,
-      post: boostedPost(),
-      campaign: campaign({ startedHoursAgo: 40, spend: BUDGET }),
-    },
-  },
-  /** Day 10: the boost is a week old, two organic posts since */
-  organicOnly: {
+  /** Free page after the boost: the value panel and its one offer */
+  afterBoost: {
     viewer: 'admin',
     pageAgeDays: 10,
     plan: null,
@@ -251,19 +153,6 @@ export const scenarios = {
       status: SquadFreeBoostStatus.Completed,
       post: boostedPost(),
       campaign: campaign({ startedHoursAgo: 9 * 24, spend: BUDGET }),
-    },
-  },
-  /** Over 30 days old, never boosted: the offer is gone */
-  offerExpired: {
-    viewer: 'admin',
-    pageAgeDays: 45,
-    plan: null,
-    posts: [],
-    freeBoost: {
-      status: SquadFreeBoostStatus.Unavailable,
-      availableUntil: null,
-      post: null,
-      campaign: null,
     },
   },
   /** On Starter: no free boost card, no offer */
@@ -285,22 +174,6 @@ export const scenarios = {
       post: null,
       campaign: null,
     },
-  },
-  /** A member during the boost: nothing admin-only shows */
-  memberDuringBoost: {
-    viewer: 'member',
-    pageAgeDays: 0,
-    plan: null,
-    posts: [{ entry: 0, hoursAgo: 15, stats: boostDay }],
-    freeBoost: null,
-  },
-  /** A visitor during the boost */
-  visitorDuringBoost: {
-    viewer: 'visitor',
-    pageAgeDays: 0,
-    plan: null,
-    posts: [{ entry: 0, hoursAgo: 15, stats: boostDay }],
-    freeBoost: null,
   },
 } satisfies Record<string, Scenario>;
 
