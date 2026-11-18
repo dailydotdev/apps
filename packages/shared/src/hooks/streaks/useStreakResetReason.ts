@@ -1,7 +1,5 @@
 import { subDays } from 'date-fns';
 import type { UserStreak } from '../../graphql/users';
-import { useConditionalFeature } from '../useConditionalFeature';
-import { featureStreakWhyBroke } from '../../lib/featureManagement';
 import { DEFAULT_TIMEZONE } from '../../lib/timezones';
 
 export const STREAK_RESET_REASON_DAYS = 7;
@@ -39,12 +37,7 @@ export const useStreakResetReason = (
   streak?: UserStreak,
 ): StreakResetReason => {
   const lastReset = streak?.lastReset;
-  const isRelevant = isStreakResetRelevant(streak);
-  const { value: isEnabled } = useConditionalFeature({
-    feature: featureStreakWhyBroke,
-    shouldEvaluate: isRelevant,
-  });
-  const isVisible = isRelevant && isEnabled;
+  const isVisible = isStreakResetRelevant(streak);
 
   return {
     isVisible,

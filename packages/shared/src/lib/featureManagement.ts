@@ -102,20 +102,17 @@ export const featureCores = new Feature('cores', isDevelopment);
 
 // automated streak freeze: auto-apply purchased freezes on missed reading days
 export const featureStreakFreeze = new Feature('streak_freeze', isDevelopment);
-// explain a recent streak reset: the missed day in the calendar + a "why it
-// broke" line with a feedback link
-export const featureStreakWhyBroke = new Feature('streak_why_broke', false);
 // A/B: when a streak has reset, the popup, the sidebar panel and the restore
 // modal lead with the reader's best and a way back instead of a bare 0. Only
 // evaluated once the streak is 0 with a longest above it, so control readers
 // never enter the experiment early.
 export const featureStreakSoftBreak = new Feature('streak_soft_break', false);
 
-// two free streak freezes once per account when the streak first reaches
-// three days: grant copy in the milestone modal, an upsell once they are used
-// up, and the freeze row for anyone holding freezes (API flag of the same name)
-export const featureStreakFreeFreezes = new Feature(
-  'streak_free_freezes',
+// A/B: the "that was your last free freeze" upsell that opens on its own once
+// the free streak freezes are used up. The free freezes themselves, their
+// grant copy and the freeze row ship to everyone.
+export const featureStreakFreeFreezesUpsell = new Feature(
+  'streak_free_freezes_upsell',
   false,
 );
 
@@ -123,21 +120,12 @@ export const featureGtaViFreezeDay = new Feature('gta_vi_freeze_day', false);
 
 export const featureGtaViTheme = new Feature('gta_vi_theme', false);
 
-// count the read on open: optimistic streak bump plus a retry queue for views
-// dropped by a flaky connection
-export const featureStreakOptimisticView = new Feature(
-  'streak_optimistic_view',
-  false,
-);
-
 // daily "streak extended" toast on the first counted read of a local day
 export const featureStreakDailyCelebration = new Feature(
   'streak_daily_celebration',
   false,
 );
 
-// schedule a streak pause (vacation mode) from the gamification settings
-export const featureStreakPause = new Feature('streak_pause', false);
 // A/B: a personal streak goal (7, 14 or 30 days) offered at day 2 and after a
 // break, with progress under the count and a celebration when it is hit
 export const featureStreakGoals = new Feature('streak_goals', false);

@@ -6,7 +6,7 @@ import { useReadingStreak } from '../../hooks/streaks/useReadingStreak';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 import { ActionType } from '../../graphql/actions';
-import { featureStreakFreeFreezes } from '../../lib/featureManagement';
+import { featureStreakFreeFreezesUpsell } from '../../lib/featureManagement';
 import AlertContext from '../../contexts/AlertContext';
 import { LazyModal } from '../modals/common/types';
 
@@ -31,7 +31,7 @@ export const StreakFreeFreezesUpsellPopup = (): ReactElement | null => {
   const hasAccessToCores = useHasAccessToCores();
   const hasUsedFreeFreezes = streak?.freeFreezes === 0;
   const { value: isEnabled } = useConditionalFeature({
-    feature: featureStreakFreeFreezes,
+    feature: featureStreakFreeFreezesUpsell,
     shouldEvaluate: isStreaksEnabled && hasUsedFreeFreezes,
   });
   const hasOpened = useRef(false);
