@@ -6,8 +6,13 @@ import { LinkIcon } from '../../../../components/icons';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { LogEvent } from '../../../../lib/log';
 import { SquadWidget } from './SquadWidget';
-import { hasSquadFeature } from '../../lib/features';
-import { getDisplayUrl, getSquadLinkMeta, squadLinkRel } from '../../lib/links';
+import { canSetSquadWebsite, hasSquadFeature } from '../../lib/features';
+import {
+  getDisplayUrl,
+  getSquadLinkMeta,
+  getSquadWebsiteRel,
+  squadLinkRel,
+} from '../../lib/links';
 
 interface SquadLinksWidgetProps {
   squad: Squad;
@@ -17,9 +22,9 @@ export const SquadLinksWidget = ({
   squad,
 }: SquadLinksWidgetProps): ReactElement | null => {
   const { logEvent } = useLogContext();
-  const links = squad.links ?? [];
+  const links = hasSquadFeature(squad, 'links') ? (squad.links ?? []) : [];
 
-  if (!hasSquadFeature(squad, 'links') || (!squad.website && !links.length)) {
+  if (!canSetSquadWebsite(squad) || (!squad.website && !links.length)) {
     return null;
   }
 
@@ -37,21 +42,26 @@ export const SquadLinksWidget = ({
             url: squad.website,
             label: getDisplayUrl(squad.website),
             Icon: LinkIcon,
+            rel: getSquadWebsiteRel(squad),
           },
         ]
       : []),
-    ...links.map((url) => ({ url, ...getSquadLinkMeta(url) })),
+    ...links.map((url) => ({
+      url,
+      ...getSquadLinkMeta(url),
+      rel: squadLinkRel,
+    })),
   ];
 
   return (
     <SquadWidget title="Links">
       <ul className="mt-2 flex flex-col gap-1">
-        {rows.map(({ url, label, Icon }) => (
+        {rows.map(({ url, label, Icon, rel }) => (
           <li key={url}>
             <a
               href={url}
               target="_blank"
-              rel={squadLinkRel}
+              rel={rel}
               onClick={() => onClick(url)}
               className="group flex items-center gap-2 py-1 text-text-secondary typo-callout hover:text-text-primary"
             >

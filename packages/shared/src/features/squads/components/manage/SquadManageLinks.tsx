@@ -26,7 +26,8 @@ import {
   isValidSquadLink,
 } from '../../lib/links';
 import { SQUAD_LINK_MAX_LENGTH, SQUAD_LINKS_MAX } from '../../lib/limits';
-import { SquadManageSection } from '../../lib/routes';
+import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
+import { hasSquadFeature } from '../../lib/features';
 import {
   SquadManageSaveButton,
   SquadManageSectionPanel,
@@ -40,8 +41,12 @@ export const SquadManageLinks = (): ReactElement => {
   const { squad } = useSquadPageContext();
   const embed = useSquadManageEmbed();
   const { mutate: onSave, isPending, data: saved } = useUpdateSquadLinks(squad);
+  // A company page without a plan sets only its website
+  const hasLinks = hasSquadFeature(squad, 'links');
   const [website, setWebsite] = useState(squad.website ?? '');
-  const [links, setLinks] = useState<string[]>(squad.links ?? []);
+  const [links, setLinks] = useState<string[]>(
+    hasLinks ? (squad.links ?? []) : [],
+  );
   const [draft, setDraft] = useState('');
   const [draftError, setDraftError] = useState<string>();
   const isWebsiteValid = !website.trim() || isValidSquadLink(website);
@@ -130,91 +135,115 @@ export const SquadManageLinks = (): ReactElement => {
           </Typography>
         </div>
         <HorizontalSeparator />
-        <div className="flex flex-col gap-2">
-          <Typography type={TypographyType.Callout} bold>
-            Links
-          </Typography>
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-          >
-            {`Up to ${SQUAD_LINKS_MAX} links, shown in the Links widget in this order.`}
-          </Typography>
-          {!isFull && (
-            <TextField
-              inputId="squad-link-url"
-              name="link"
-              label="Add link"
-              type="url"
-              fieldType="secondary"
-              placeholder="Paste a URL"
-              maxLength={SQUAD_LINK_MAX_LENGTH}
-              showMaxLength={false}
-              value={draft}
-              valueChanged={(value) => {
-                setDraft(value);
-                setDraftError(undefined);
-              }}
-              valid={!draftError}
-              hint={draftError}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') {
-                  event.preventDefault();
-                  onAdd();
-                }
-              }}
-              actionButton={
-                <Button
-                  type="button"
-                  variant={ButtonVariant.Secondary}
-                  size={ButtonSize.XSmall}
-                  icon={<PlusIcon />}
-                  disabled={!draft.trim()}
-                  onClick={onAdd}
-                >
-                  Add
-                </Button>
-              }
-            />
-          )}
-          <ul className="mt-2 flex flex-col gap-4">
-            {links.map((link) => {
-              const { name, Icon } = getSquadLinkMeta(link);
-
-              return (
-                <li key={link} className="flex items-center gap-3">
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-surface-float text-text-secondary">
-                    <Icon size={IconSize.Small} />
-                  </span>
-                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <Typography type={TypographyType.Subhead} bold>
-                      {name}
-                    </Typography>
-                    <Typography
-                      type={TypographyType.Footnote}
-                      color={TypographyColor.Tertiary}
-                      truncate
-                    >
-                      {getDisplayUrl(link)}
-                    </Typography>
-                  </span>
+        {!hasLinks && (
+          <div className="flex flex-col gap-2">
+            <Typography type={TypographyType.Callout} bold>
+              Links
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              {`Add up to ${SQUAD_LINKS_MAX} more links, like GitHub, X or Discord, on a paid plan.`}
+            </Typography>
+            <Button
+              tag="a"
+              href={getSquadManageUrl(squad.handle, SquadManageSection.Plan)}
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              className="self-start"
+            >
+              See plans
+            </Button>
+          </div>
+        )}
+        {hasLinks && (
+          <div className="flex flex-col gap-2">
+            <Typography type={TypographyType.Callout} bold>
+              Links
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              {`Up to ${SQUAD_LINKS_MAX} links, shown in the Links widget in this order.`}
+            </Typography>
+            {!isFull && (
+              <TextField
+                inputId="squad-link-url"
+                name="link"
+                label="Add link"
+                type="url"
+                fieldType="secondary"
+                placeholder="Paste a URL"
+                maxLength={SQUAD_LINK_MAX_LENGTH}
+                showMaxLength={false}
+                value={draft}
+                valueChanged={(value) => {
+                  setDraft(value);
+                  setDraftError(undefined);
+                }}
+                valid={!draftError}
+                hint={draftError}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault();
+                    onAdd();
+                  }
+                }}
+                actionButton={
                   <Button
                     type="button"
-                    variant={ButtonVariant.Tertiary}
+                    variant={ButtonVariant.Secondary}
                     size={ButtonSize.XSmall}
-                    icon={<MiniCloseIcon />}
-                    aria-label={`Remove ${name}`}
-                    onClick={() =>
-                      setLinks((current) =>
-                        current.filter((item) => item !== link),
-                      )
-                    }
-                  />
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+                    icon={<PlusIcon />}
+                    disabled={!draft.trim()}
+                    onClick={onAdd}
+                  >
+                    Add
+                  </Button>
+                }
+              />
+            )}
+            <ul className="mt-2 flex flex-col gap-4">
+              {links.map((link) => {
+                const { name, Icon } = getSquadLinkMeta(link);
+
+                return (
+                  <li key={link} className="flex items-center gap-3">
+                    <span className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-surface-float text-text-secondary">
+                      <Icon size={IconSize.Small} />
+                    </span>
+                    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                      <Typography type={TypographyType.Subhead} bold>
+                        {name}
+                      </Typography>
+                      <Typography
+                        type={TypographyType.Footnote}
+                        color={TypographyColor.Tertiary}
+                        truncate
+                      >
+                        {getDisplayUrl(link)}
+                      </Typography>
+                    </span>
+                    <Button
+                      type="button"
+                      variant={ButtonVariant.Tertiary}
+                      size={ButtonSize.XSmall}
+                      icon={<MiniCloseIcon />}
+                      aria-label={`Remove ${name}`}
+                      onClick={() =>
+                        setLinks((current) =>
+                          current.filter((item) => item !== link),
+                        )
+                      }
+                    />
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
       </form>
     </SquadManageSectionPanel>
   );
