@@ -101,6 +101,8 @@ const appOriginRedirects: Redirect[] = appOriginAuth
 const nextConfig: NextConfig = {
   transpilePackages: ['@dailydotdev/shared'],
   allowedDevOrigins: ['app.local.fylla.dev', 'app.staging.daily.dev'],
+  // CI runs the webapp typecheck (`typecheck_webapp`), so Vercel skips it.
+  typescript: { ignoreBuildErrors: process.env.VERCEL === '1' },
   turbopack: {
     rules: {
       '*.svg': {
