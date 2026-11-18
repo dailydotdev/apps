@@ -59,15 +59,21 @@ export const getSquadManageUrl = (
     : `${getSquadUrl(handle)}/manage`;
 
 // The free company page form. `plan` and `cta` from the /startups landing
-// pass through for attribution.
+// pass through for attribution. With `checkout`, the new page goes on to the
+// plan's checkout, for founders who came to pay.
 export const getCompanyPageCreateUrl = ({
   plan,
   cta,
-}: { plan?: string; cta?: string } = {}): string => {
+  checkout,
+}: { plan?: string; cta?: string; checkout?: boolean } = {}): string => {
   const params = new URLSearchParams({ company: '1' });
 
   if (plan) {
     params.set('plan', plan);
+  }
+
+  if (checkout) {
+    params.set('checkout', '1');
   }
 
   if (cta) {

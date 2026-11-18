@@ -303,7 +303,7 @@ const CompanyStep = ({
           </div>
           <Button
             tag="a"
-            href={getCompanyPageCreateUrl({ plan })}
+            href={getCompanyPageCreateUrl({ plan, checkout: true })}
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             className="-ml-2 self-start"
@@ -1197,7 +1197,7 @@ export const StartupsCheckout = ({
 
   useEffect(() => {
     if (isCreatingPage) {
-      router.replace(getCompanyPageCreateUrl({ plan }));
+      router.replace(getCompanyPageCreateUrl({ plan, checkout: true }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isCreatingPage]);

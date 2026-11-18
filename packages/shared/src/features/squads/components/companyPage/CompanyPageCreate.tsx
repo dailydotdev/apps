@@ -32,6 +32,9 @@ import { cloudinarySquadsImageFallback } from '../../../../lib/image';
 import { LogEvent } from '../../../../lib/log';
 import { SquadUploadButton } from '../manage/SquadUploadButton';
 import { toSquadHandle } from '../../lib/handle';
+import { getStartupsCheckoutUrl } from '../../lib/routes';
+import { getSquadId } from '../../lib/features';
+import { isSquadPlan, SquadPlan } from '../../lib/plans';
 import { companyPagePrompt } from '../../lib/companyPage';
 import { agentMarks } from '../checkout/agentMarks';
 import { AgentMark } from '../checkout/AgentMark';
@@ -130,7 +133,17 @@ export const CompanyPageCreate = (): ReactElement => {
       page.categories.edges.map(({ node }) => node),
     ) ?? [];
   const { onCreateSquad, isLoading } = useSquadCreate({
-    onSuccess: (squad) => router.push(squad.permalink),
+    onSuccess: (squad) =>
+      router.push(
+        router.query.checkout === '1'
+          ? getStartupsCheckoutUrl({
+              plan: isSquadPlan(router.query.plan)
+                ? router.query.plan
+                : SquadPlan.Starter,
+              sourceId: getSquadId(squad),
+            })
+          : squad.permalink,
+      ),
   });
 
   if (!user) {

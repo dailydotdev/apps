@@ -155,7 +155,7 @@ describe('StartupsCheckout company step', () => {
     const { replace } = renderCompanyStep([community], 'team');
 
     expect(replace).toHaveBeenCalledWith(
-      getCompanyPageCreateUrl({ plan: 'team' }),
+      getCompanyPageCreateUrl({ plan: 'team', checkout: true }),
     );
     expect(
       screen.queryByText('Which page are you upgrading?'),
