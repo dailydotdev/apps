@@ -15,10 +15,16 @@ export enum AgentClaimErrorCode {
   TokenLimit = 'token_limit',
 }
 
+// What the account is for, as the agent said when it asked for the link
+export enum AgentClaimIntent {
+  Company = 'company',
+}
+
 export type AgentClaimInfo = {
   status: AgentClaimStatus;
   userCode?: string;
   client?: string;
+  intent?: AgentClaimIntent;
   expiresAt?: string;
 };
 

@@ -28,12 +28,31 @@ import type { AgentClaimInfo } from '../claim';
 import {
   AgentClaimError,
   AgentClaimErrorCode,
+  AgentClaimIntent,
   agentClaimQueryOptions,
   AgentClaimStatus,
   claimAgent,
 } from '../claim';
 
 const signupProviders = [providerMap.github, providerMap.google];
+
+const copy = {
+  default: {
+    signUpTitle: 'Create your account',
+    signUpDescription:
+      "One click and you're done. Your agent sets up the rest.",
+    logInDescription: 'Log in to connect your agent to your account.',
+    claimed: 'Head back to your agent, it will take it from here.',
+  },
+  [AgentClaimIntent.Company]: {
+    signUpTitle: 'Create your account to set up your company page',
+    signUpDescription:
+      'One click. Your agent builds the page and helps you pick your first post.',
+    logInDescription:
+      'Log in to connect your agent and set up your company page.',
+    claimed: 'Head back to your agent, it will set up your company page.',
+  },
+};
 
 const setAuthReturnPath = (path?: string): void => {
   try {
@@ -115,6 +134,11 @@ export const AgentClaim = ({ code }: AgentClaimProps): ReactElement => {
   });
 
   const isPendingClaim = claim?.status === AgentClaimStatus.Pending;
+  const isCompany = claim?.intent === AgentClaimIntent.Company;
+  const text = isCompany ? copy[AgentClaimIntent.Company] : copy.default;
+  // The extension promotes the reading feed, which is not why a founder
+  // setting up a company page is here
+  const showExtension = shouldShowExtensionOnboarding && !isCompany;
   const isProfileReady = !!user?.infoConfirmed;
   const isEdge = browserName === BrowserName.Edge;
 
@@ -166,9 +190,9 @@ export const AgentClaim = ({ code }: AgentClaimProps): ReactElement => {
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            Head back to your agent, it will take it from here.
+            {text.claimed}
           </Typography>
-          {shouldShowExtensionOnboarding && (
+          {showExtension && (
             <div className="flex flex-col gap-2 rounded-12 bg-surface-float p-4">
               <Typography bold type={TypographyType.Body}>
                 While your agent works, add daily.dev to your browser
@@ -204,9 +228,7 @@ export const AgentClaim = ({ code }: AgentClaimProps): ReactElement => {
           )}
           <Button
             variant={
-              shouldShowExtensionOnboarding
-                ? ButtonVariant.Float
-                : ButtonVariant.Primary
+              showExtension ? ButtonVariant.Float : ButtonVariant.Primary
             }
             className="self-start"
             onClick={() => window.close()}
@@ -255,10 +277,10 @@ export const AgentClaim = ({ code }: AgentClaimProps): ReactElement => {
             preferGithub
             isLoginFlow={false}
             hideRegistrationHeadline
-            signUpTitle="Create your account"
+            signUpTitle={text.signUpTitle}
             logInTitle="Welcome back"
-            signUpDescription="One click and you're done. Your agent sets up the rest."
-            logInDescription="Log in to connect your agent to your account."
+            signUpDescription={text.signUpDescription}
+            logInDescription={text.logInDescription}
             signupProviders={signupProviders}
             socialSignupOnly
             onSuccessfulRegistration={() => setHasSignedUpHere(true)}

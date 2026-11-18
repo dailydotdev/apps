@@ -715,6 +715,7 @@ export enum LogEvent {
   CopyPluginAgentPrompt = 'copy plugin agent prompt',
   ViewAgentOnboarding = 'view agent onboarding',
   CopyAgentOnboardingPrompt = 'copy agent onboarding prompt',
+  CopyCompanyPagePrompt = 'copy company page prompt',
   ClickAgentOnboardingEntry = 'click agent onboarding entry',
   ClickConnectAgent = 'click connect agent',
   UpvotePlugin = 'upvote plugin',

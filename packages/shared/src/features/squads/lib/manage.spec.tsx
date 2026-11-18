@@ -91,6 +91,16 @@ describe('getSquadManageGroups', () => {
     expect(locked(squad)).toEqual([]);
   });
 
+  it('opens Links to a company page with no plan, for its website', () => {
+    const squad = {
+      ...squadWith([SourcePermissions.Edit]),
+      flags: { company: true },
+    } as Squad;
+
+    expect(sections(squad)).toContain(SquadManageSection.Links);
+    expect(locked(squad)).not.toContain(SquadManageSection.Links);
+  });
+
   it('opens Auto-posting to editors of a squad with no plan', () => {
     const squad = squadWith([SourcePermissions.Edit]);
 

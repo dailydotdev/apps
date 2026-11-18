@@ -58,6 +58,25 @@ export const getSquadManageUrl = (
     ? `${getSquadUrl(handle)}/manage/${section}`
     : `${getSquadUrl(handle)}/manage`;
 
+// The free company page form. `plan` and `cta` from the /startups landing
+// pass through for attribution.
+export const getCompanyPageCreateUrl = ({
+  plan,
+  cta,
+}: { plan?: string; cta?: string } = {}): string => {
+  const params = new URLSearchParams({ company: '1' });
+
+  if (plan) {
+    params.set('plan', plan);
+  }
+
+  if (cta) {
+    params.set('cta', cta);
+  }
+
+  return `${webappUrl}squads/new?${params}`;
+};
+
 // Hyphens are not allowed in squad handles, so this can never shadow a squad
 export const startupsCheckoutPath = '/squads/for-startups';
 
