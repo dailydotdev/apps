@@ -25,7 +25,7 @@ import { FeedWidgetRail } from './FeedWidgetRail';
 import { FeedWidgetKind, FeedWidgetSize } from './types';
 import { useFeedWidgetAd } from './feedState';
 import { feedWidgetTips } from './tips';
-import { feedRailFingerprint } from './storedRail';
+import { defaultFeedWidgets, feedRailFingerprint } from './storedRail';
 import { clearShownFeedHeroLeads } from '../../components/feeds/hero/useFeedHeroData';
 import { TOAST_NOTIF_KEY } from '../../hooks/useToastNotification';
 
@@ -144,6 +144,14 @@ const renderRail = (
       </FeedContext.Provider>
     </TestBootProvider>,
   );
+
+// The tips are opt-in: a reader on the default rail who turned them on.
+const tipsOnDefault = {
+  version: 1,
+  tipsHidden: false,
+  widgets: defaultFeedWidgets,
+  fromDefault: feedRailFingerprint(defaultFeedWidgets),
+};
 
 // Widgets mount once their cell is on screen; jsdom has no layout, so say so.
 const revealWidgets = async () => {
@@ -540,7 +548,7 @@ describe('FeedWidgetRail', () => {
       .mockReturnValue({ ad: undefined, isEnabled: true, isNoFill: true });
     mockHero();
 
-    renderRail();
+    renderRail({ feedWidgets: tipsOnDefault });
     await revealWidgets();
 
     await waitFor(() =>
@@ -726,10 +734,22 @@ describe('FeedWidgetRail', () => {
     height.mockRestore();
   });
 
-  it('puts a daily.dev tip over the ad, sharing its column', async () => {
+  it('keeps the tips off until the reader turns them on', async () => {
     mockHero();
 
     renderRail();
+    await revealWidgets();
+
+    expect(screen.queryByTestId('feedWidgetTip')).not.toBeInTheDocument();
+    const slot = screen.getByTestId('feedWidgetAdSlot');
+    // The ad keeps its whole column.
+    expect(within(slot).getByTestId('adItem')).not.toHaveClass('group');
+  });
+
+  it('puts a daily.dev tip over the ad, sharing its column', async () => {
+    mockHero();
+
+    renderRail({ feedWidgets: tipsOnDefault });
     await revealWidgets();
 
     const tip = screen.getByTestId('feedWidgetTip');
@@ -754,7 +774,9 @@ describe('FeedWidgetRail', () => {
   it('removes the tips from their badge in edit mode', async () => {
     mockHero(undefined, { withPosts: true });
 
-    renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
+    renderRail({
+      feedWidgets: { version: 1, tipsHidden: false, widgets: twoWidgets },
+    });
     await revealWidgets();
     await waitFor(() =>
       expect(screen.getByText('First headline')).toBeInTheDocument(),
@@ -779,7 +801,11 @@ describe('FeedWidgetRail', () => {
     mockHero();
     const client = new QueryClient();
 
-    renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } }, 4, client);
+    renderRail(
+      { feedWidgets: { version: 1, tipsHidden: false, widgets: twoWidgets } },
+      4,
+      client,
+    );
     await revealWidgets();
     fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     fireEvent.click(
@@ -796,7 +822,9 @@ describe('FeedWidgetRail', () => {
     });
     await act(async () => toast?.action.onClick());
     expect(setSettings).toHaveBeenLastCalledWith({
-      flags: { feedWidgets: { version: 1, widgets: twoWidgets } },
+      flags: {
+        feedWidgets: { version: 1, tipsHidden: false, widgets: twoWidgets },
+      },
     });
   });
 
@@ -804,7 +832,7 @@ describe('FeedWidgetRail', () => {
     mockHero(undefined, { withPosts: true });
 
     const { unmount } = renderRail({
-      feedWidgets: { version: 1, widgets: twoWidgets },
+      feedWidgets: { version: 1, tipsHidden: false, widgets: twoWidgets },
     });
     await revealWidgets();
     fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
@@ -820,7 +848,7 @@ describe('FeedWidgetRail', () => {
     expect(screen.getByText('Pinned by daily.dev')).toHaveClass('-top-2');
   });
 
-  describe('bringing the tips back from the gallery', () => {
+  describe('turning the tips on from the gallery', () => {
     const defaultWidgets = [
       {
         id: 'top-story',
@@ -840,7 +868,7 @@ describe('FeedWidgetRail', () => {
       await screen.findByRole('dialog');
     };
 
-    it('offers them while hidden and stores nothing for a rail on the default', async () => {
+    it('offers them while off and turns them on for a rail on the default', async () => {
       mockHero();
       renderRail({
         feedWidgets: {
@@ -857,14 +885,19 @@ describe('FeedWidgetRail', () => {
           name: /^daily\.dev tips/,
         }),
       );
-      fireEvent.click(screen.getByRole('button', { name: 'Show tips again' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Show tips' }));
 
       expect(setSettings).toHaveBeenCalledWith({
-        flags: { feedWidgets: null },
+        flags: {
+          feedWidgets: expect.objectContaining({
+            version: 1,
+            tipsHidden: false,
+          }),
+        },
       });
     });
 
-    it('clears the field on a customized rail, keeping its widgets', async () => {
+    it('turns them on for a customized rail, keeping its widgets', async () => {
       mockHero();
       renderRail({
         feedWidgets: { version: 1, tipsHidden: true, widgets: twoWidgets },
@@ -876,16 +909,20 @@ describe('FeedWidgetRail', () => {
           name: /^daily\.dev tips/,
         }),
       );
-      fireEvent.click(screen.getByRole('button', { name: 'Show tips again' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Show tips' }));
 
       expect(setSettings).toHaveBeenCalledWith({
-        flags: { feedWidgets: { version: 1, widgets: twoWidgets } },
+        flags: {
+          feedWidgets: { version: 1, tipsHidden: false, widgets: twoWidgets },
+        },
       });
     });
 
     it('says they are on while they show', async () => {
       mockHero(undefined, { withPosts: true });
-      renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
+      renderRail({
+        feedWidgets: { version: 1, tipsHidden: false, widgets: twoWidgets },
+      });
       await openGallery();
 
       fireEvent.click(
@@ -896,7 +933,7 @@ describe('FeedWidgetRail', () => {
 
       expect(screen.getByRole('button', { name: 'On' })).toBeDisabled();
       expect(
-        screen.queryByRole('button', { name: 'Show tips again' }),
+        screen.queryByRole('button', { name: 'Show tips' }),
       ).not.toBeInTheDocument();
     });
   });

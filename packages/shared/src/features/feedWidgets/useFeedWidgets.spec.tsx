@@ -284,16 +284,36 @@ describe('useFeedWidgets', () => {
       ]);
     });
 
-    it('brings them back by storing nothing when nothing else is stored', () => {
+    it('keeps them off for a reader who never turned them on', () => {
+      const { result } = renderWidgets();
+
+      expect(result.current.isTipHidden).toBe(true);
+    });
+
+    it('shows them once the stored rail says false', () => {
+      const { result } = renderWidgets({ ...onDefault, tipsHidden: false });
+
+      expect(result.current.isTipHidden).toBe(false);
+    });
+
+    it('turns them on by storing an explicit false, keeping the default', () => {
       const { result } = renderWidgets(onDefault);
 
       act(() => {
         result.current.setTipHidden(false);
       });
 
-      expect(setSettings).toHaveBeenLastCalledWith({
-        flags: { feedWidgets: null },
+      expect(writtenRail()).toEqual({ ...onDefault, tipsHidden: false });
+    });
+
+    it('turns them on for a reader who never stored a rail', () => {
+      const { result } = renderWidgets();
+
+      act(() => {
+        result.current.setTipHidden(false);
       });
+
+      expect(writtenRail()).toEqual({ ...onDefault, tipsHidden: false });
     });
 
     it('hides them on a customized rail, keeping its widgets', () => {

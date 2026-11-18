@@ -74,7 +74,7 @@ export type FeedWidgetGalleryTips = {
   /** The tip the rail shows this page view. */
   tip: FeedWidgetTipItem;
   isShown: boolean;
-  /** Set while the reader has removed the tips and can bring them back. */
+  /** Set while the tips are off and the reader can turn them on. */
   onRestore?: () => void;
 };
 
@@ -280,14 +280,14 @@ const tipsStateFor = (tips: FeedWidgetGalleryTips): AddState => {
   }
 
   return {
-    message: 'Shows over the ad slot again. Not a widget, so it takes no room.',
+    message: 'Shows over the ad slot. Not a widget, so it takes no room.',
     action: tips.onRestore && (
       <Button
         variant={ButtonVariant.Primary}
         size={ButtonSize.Medium}
         onClick={tips.onRestore}
       >
-        Show tips again
+        Show tips
       </Button>
     ),
   };
