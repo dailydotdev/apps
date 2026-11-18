@@ -294,9 +294,11 @@ const meta: Meta = {
     (useRouter as unknown as ReturnType<typeof fn>).mockReturnValue({
       replace: fn(),
       push: fn(),
+      route: '/squads/[handle]',
       pathname: '/squads/[handle]',
       asPath: `/squads/${data.handle}`,
       query: { handle: data.handle },
+      isReady: true,
       events: { on: fn(), off: fn() },
     });
   },
