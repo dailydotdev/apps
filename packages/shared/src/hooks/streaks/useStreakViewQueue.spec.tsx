@@ -31,30 +31,21 @@ const queued = (
 const renderQueue = ({
   client,
   requestMethod,
-  flag = true,
   isCompanion = false,
 }: {
   client: QueryClient;
   requestMethod: jest.Mock;
-  flag?: boolean;
   isCompanion?: boolean;
 }) => {
   client.setQueryData(REQUEST_PROTOCOL_KEY, { requestMethod, isCompanion });
-  const gb = new GrowthBook({
-    features: { streak_optimistic_view: { defaultValue: flag } },
-  });
-  const getFeatureValue = jest.spyOn(gb, 'getFeatureValue');
+  const gb = new GrowthBook();
   const wrapper = ({ children }: { children: ReactNode }) => (
     <TestBootProvider client={client} auth={{ user }} gb={gb}>
       {children}
     </TestBootProvider>
   );
 
-  const view = renderHook(() => useStreakViewQueue(), { wrapper });
-  const hasEvaluatedFlag = () =>
-    getFeatureValue.mock.calls.some(([id]) => id === 'streak_optimistic_view');
-
-  return { ...view, hasEvaluatedFlag };
+  return renderHook(() => useStreakViewQueue(), { wrapper });
 };
 
 const goOnline = () =>
@@ -194,31 +185,13 @@ describe('useStreakViewQueue', () => {
     expect(readStreakViewQueue()).toHaveLength(1);
   });
 
-  it('should never evaluate the flag for a user with an empty queue', async () => {
+  it('should do nothing for a user with an empty queue', async () => {
     const requestMethod = jest.fn();
-    const { hasEvaluatedFlag } = renderQueue({ client, requestMethod });
+    renderQueue({ client, requestMethod });
     goOnline();
 
     await act(() => Promise.resolve());
-    expect(hasEvaluatedFlag()).toBe(false);
     expect(requestMethod).not.toHaveBeenCalled();
-  });
-
-  it('should drain queued views without reading the flag', async () => {
-    const requestMethod = jest
-      .fn()
-      .mockResolvedValue({ viewPost: { _: true } });
-    enqueueStreakView(queued('p1'));
-
-    const { hasEvaluatedFlag } = renderQueue({
-      client,
-      requestMethod,
-      flag: false,
-    });
-
-    await waitFor(() => expect(readStreakViewQueue()).toEqual([]));
-    expect(requestMethod).toHaveBeenCalledTimes(1);
-    expect(hasEvaluatedFlag()).toBe(false);
   });
 
   it('should not replay from the companion', async () => {

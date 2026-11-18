@@ -8,12 +8,7 @@ import { drainStreakViewQueue } from '../../lib/streakViewQueue';
 
 // Replays post views that a flaky connection dropped (see useViewPost), on
 // app load and whenever the browser comes back online.
-//
-// It deliberately does not read streak_optimistic_view: this mounts for every
-// signed-in user on every load, and evaluating the flag here would enrol
-// people who never open a post. Only useViewPost with the flag on fills the
-// queue, so draining whatever is queued stays scoped to the treatment arm, and
-// a user with an empty queue does no work beyond one storage read.
+// A user with an empty queue does no work beyond one storage read.
 export const useStreakViewQueue = (): void => {
   const client = useQueryClient();
   const { user } = useAuthContext();

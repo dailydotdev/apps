@@ -222,6 +222,7 @@ export const SOURCE_BASE_FRAGMENT = gql`
       products
       cta
       jobs
+      apiPosting
       showVerifiedBadge
       hideAds
     }

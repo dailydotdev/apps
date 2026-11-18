@@ -7,8 +7,6 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import type { UserStreak } from '../../graphql/users';
 import { isSameDayInTimezone } from '../../lib/timezones';
 import { useRequestProtocol } from '../useRequestProtocol';
-import { useConditionalFeature } from '../useConditionalFeature';
-import { featureStreakOptimisticView } from '../../lib/featureManagement';
 import {
   enqueueStreakView,
   isFinalViewRejection,
@@ -56,11 +54,8 @@ export const useViewPost = (): UseMutateAsyncFunction<
   const client = useQueryClient();
   const { requestMethod, isCompanion } = useRequestProtocol();
   const { user } = useAuthContext();
-  const { value: isOptimisticView } = useConditionalFeature({
-    feature: featureStreakOptimisticView,
-    shouldEvaluate: !!user && !isCompanion,
-  });
-  const isOptimistic = isOptimisticView && !isCompanion;
+  // the companion keeps waiting for the server value
+  const isOptimistic = !isCompanion;
   const celebrateStreakDay = useStreakDailyCelebration();
   const checkStreakEarnBack = useStreakEarnBackProgress();
   const celebrateStreakGoal = useStreakGoalCelebration();

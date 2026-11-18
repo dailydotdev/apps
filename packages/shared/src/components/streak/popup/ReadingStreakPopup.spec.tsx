@@ -15,17 +15,12 @@ const mockUpdateFlag = jest.fn();
 const mockOnTogglePermission = jest.fn();
 const mockOpenModal = jest.fn();
 let mockIsTimezoneOk = true;
-let mockWhyBrokeEnabled = true;
 let mockIsSoftBreakFlagOn = false;
 let mockStreakGoalsEnabled = false;
 let mockStreakGoal: number | null = null;
-const getMockFeatureValue = (id: string, shouldEvaluate?: boolean) => {
-  if (id === 'streak_why_broke') {
-    return mockWhyBrokeEnabled;
-  }
-
-  const isOn =
-    id === 'streak_goals' ? mockStreakGoalsEnabled : mockIsSoftBreakFlagOn;
+// soft break and goals share the streak_improvements flag
+const getMockFeatureValue = (_id: string, shouldEvaluate?: boolean) => {
+  const isOn = mockStreakGoalsEnabled || mockIsSoftBreakFlagOn;
 
   return shouldEvaluate !== false && isOn;
 };
@@ -194,7 +189,6 @@ describe('ReadingStreakPopup', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockIsTimezoneOk = true;
-    mockWhyBrokeEnabled = true;
     mockStreakGoalsEnabled = false;
     mockStreakGoal = null;
     mockIsSoftBreakFlagOn = false;
@@ -301,7 +295,7 @@ describe('ReadingStreakPopup', () => {
       expect(screen.queryByText('Start again')).not.toBeInTheDocument();
       expect(mockUseConditionalFeature).toHaveBeenCalledWith(
         expect.objectContaining({
-          feature: expect.objectContaining({ id: 'streak_soft_break' }),
+          feature: expect.objectContaining({ id: 'streak_improvements' }),
           shouldEvaluate: false,
         }),
       );
@@ -314,7 +308,7 @@ describe('ReadingStreakPopup', () => {
       expect(screen.queryByText('Start again')).not.toBeInTheDocument();
       expect(mockUseConditionalFeature).toHaveBeenCalledWith(
         expect.objectContaining({
-          feature: expect.objectContaining({ id: 'streak_soft_break' }),
+          feature: expect.objectContaining({ id: 'streak_improvements' }),
           shouldEvaluate: true,
         }),
       );
@@ -397,15 +391,6 @@ describe('ReadingStreakPopup', () => {
 
     it('stays hidden while the streak is running', () => {
       render(<ReadingStreakPopup streak={streak} />);
-
-      expect(
-        screen.queryByText(/No read was recorded/),
-      ).not.toBeInTheDocument();
-    });
-
-    it('stays hidden when the flag is off', () => {
-      mockWhyBrokeEnabled = false;
-      render(<ReadingStreakPopup streak={brokenStreak} />);
 
       expect(
         screen.queryByText(/No read was recorded/),

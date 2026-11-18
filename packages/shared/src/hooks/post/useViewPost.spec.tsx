@@ -59,7 +59,6 @@ const networkError = new TypeError('Failed to fetch');
 const renderViewPost = ({
   client,
   requestMethod,
-  flag = true,
   celebrationFlag = false,
   streakGoal = null,
   isCompanion = false,
@@ -70,7 +69,6 @@ const renderViewPost = ({
 }: {
   client: QueryClient;
   requestMethod: jest.Mock;
-  flag?: boolean;
   celebrationFlag?: boolean;
   streakGoal?: StreakGoal | null;
   isCompanion?: boolean;
@@ -82,9 +80,7 @@ const renderViewPost = ({
   client.setQueryData(REQUEST_PROTOCOL_KEY, { requestMethod, isCompanion });
   const gb = new GrowthBook({
     features: {
-      streak_optimistic_view: { defaultValue: flag },
-      streak_daily_celebration: { defaultValue: celebrationFlag },
-      streak_goals: { defaultValue: !!streakGoal },
+      streak_improvements: { defaultValue: celebrationFlag || !!streakGoal },
     },
   });
   const getFeatureValue = jest.spyOn(gb, 'getFeatureValue');
@@ -312,47 +308,6 @@ describe('useViewPost', () => {
     expect(readStreakViewQueue()).toEqual([]);
   });
 
-  it('should only update the streak from the response when the flag is off', async () => {
-    let resolve: (value: unknown) => void;
-    const requestMethod = jest.fn(
-      () =>
-        new Promise((res) => {
-          resolve = res;
-        }),
-    );
-    mockGraphQL({
-      request: { query: USER_STREAK_QUERY },
-      result: { data: { userStreak: serverStreak } },
-    });
-    const { result } = renderViewPost({ client, requestMethod, flag: false });
-
-    const promise = result.current('p1');
-
-    await waitFor(() => expect(requestMethod).toHaveBeenCalledTimes(1));
-    expect(client.getQueryData<UserStreak>(streakKey)).toEqual(streak);
-
-    await act(async () => {
-      resolve!({ viewPost: { _: true } });
-      await promise;
-    });
-
-    await waitFor(() =>
-      expect(client.getQueryData<UserStreak>(streakKey)).toMatchObject({
-        current: 8,
-      }),
-    );
-  });
-
-  it('should not queue a dropped view when the flag is off', async () => {
-    const requestMethod = jest.fn().mockRejectedValue(networkError);
-    const { result } = renderViewPost({ client, requestMethod, flag: false });
-
-    await expect(result.current('p1')).rejects.toBe(networkError);
-
-    expect(client.getQueryData<UserStreak>(streakKey)).toEqual(streak);
-    expect(readStreakViewQueue()).toEqual([]);
-  });
-
   it('should not bump the streak from the companion', async () => {
     const requestMethod = jest.fn(() => new Promise(() => {}));
     const { result } = renderViewPost({
@@ -576,7 +531,6 @@ describe('useViewPost', () => {
       const { result } = renderViewPost({
         client,
         requestMethod: requestMethod(),
-        flag: false,
         celebrationFlag: true,
         streakGoal: 7,
         initialStreak: daySixYesterday,
@@ -673,24 +627,18 @@ describe('useViewPost', () => {
         jest.useRealTimers();
       });
 
-      it.each([
-        ['on', true],
-        ['off', false],
-      ])(
-        'should not toast a read the API never counted with optimistic view %s',
-        async (_, flag) => {
-          mockPreViewStreak();
-          mockPreViewStreak();
+      it('should not toast a read the API never counted', async () => {
+        mockPreViewStreak();
+        mockPreViewStreak();
 
-          await renderAndView({ flag });
+        await renderAndView();
 
-          expect(nock.isDone()).toBe(true);
-          expect(getToast()).toBeFalsy();
-          expect(
-            localStorage.getItem(getStreakCelebratedKey(user.id)),
-          ).toBeNull();
-        },
-      );
+        expect(nock.isDone()).toBe(true);
+        expect(getToast()).toBeFalsy();
+        expect(
+          localStorage.getItem(getStreakCelebratedKey(user.id)),
+        ).toBeNull();
+      });
 
       it('should not toast a guessed count after a gap', async () => {
         mockPreViewStreak();
@@ -711,7 +659,7 @@ describe('useViewPost', () => {
           result: { data: { userStreak: daySix } },
         });
 
-        await renderAndView({ flag: false });
+        await renderAndView();
 
         expect(nock.isDone()).toBe(true);
         render(<>{getToast()?.message}</>);
@@ -740,9 +688,7 @@ describe('useViewPost', () => {
 
       expect(getToast()).toBeFalsy();
       expect(
-        getFeatureValue.mock.calls.some(
-          ([id]) => id === 'streak_daily_celebration',
-        ),
+        getFeatureValue.mock.calls.some(([id]) => id === 'streak_improvements'),
       ).toBe(false);
     });
 
@@ -756,9 +702,7 @@ describe('useViewPost', () => {
 
       await act(() => Promise.resolve());
       expect(
-        getFeatureValue.mock.calls.some(
-          ([id]) => id === 'streak_daily_celebration',
-        ),
+        getFeatureValue.mock.calls.some(([id]) => id === 'streak_improvements'),
       ).toBe(false);
     });
 

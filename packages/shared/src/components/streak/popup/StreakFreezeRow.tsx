@@ -27,8 +27,8 @@ interface StreakFreezeRowProps {
 
 /**
  * Freezes are on for this reader: streaks, and either the flag with Cores
- * access or freezes already held (e.g. the free ones from
- * streak_free_freezes), which the API applies without Cores access. Buying
+ * access or freezes already held (e.g. the free ones), which the API applies
+ * without Cores access. Buying
  * more still needs Cores access, see useHasAccessToCores.
  */
 export const useIsStreakFreezeEnabled = (): boolean => {

@@ -19,8 +19,7 @@ interface StreakPauseBannerProps {
   className?: string;
 }
 
-// Shown on the streak surfaces while a scheduled pause covers today. Renders
-// null unless the streak_pause flag is on.
+// Shown on the streak surfaces while a scheduled pause covers today.
 export const StreakPauseBanner = ({
   streak,
   className,

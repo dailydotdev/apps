@@ -63,7 +63,7 @@ const flameByState: Record<StreakRingState, string> = {
   freeze: 'text-accent-blueCheese-default',
 };
 
-// Goal progress arc (streak_goals). It traces the ring itself: the badge box is
+// Goal progress arc (streak_improvements). It traces the ring itself: the badge box is
 // a 24-unit viewBox and the ring is inset 1.5 with a 1.5 border, so the stroke
 // centre sits at radius 12 - 1.5 - 0.75 = 9.75 with the same 1.5 width.
 const GOAL_ARC_CENTER = 12;
