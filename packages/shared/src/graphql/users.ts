@@ -779,7 +779,7 @@ export interface UserStreak {
   weekStart: DayOfWeek;
   lastViewAt: Date;
   freezesAvailable: number;
-  // Unused free freezes from the streak_free_freezes grant (part of
+  // Unused free freezes from the one-time grant (part of
   // freezesAvailable, consumed first): 0 once all were used, null when the
   // reader never got them.
   freeFreezes?: number | null;

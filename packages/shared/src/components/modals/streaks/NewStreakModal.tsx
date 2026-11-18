@@ -26,8 +26,6 @@ import {
 } from '../../appStoreReview/common';
 import { useStreakReviewAsk } from '../../../hooks/useStreakReviewAsk';
 import { useReadingStreak } from '../../../hooks/streaks/useReadingStreak';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featureStreakFreeFreezes } from '../../../lib/featureManagement';
 
 // Matches the API grant (daily-api src/common/streakFreeFreezes.ts)
 export const FREE_STREAK_FREEZES_STREAK = 3;
@@ -51,14 +49,10 @@ const useFreeFreezesGrant = (currentStreak: number): number => {
   const freeFreezes = streak?.freeFreezes ?? 0;
   const isGrantMoment =
     currentStreak === FREE_STREAK_FREEZES_STREAK && freeFreezes > 0;
-  const { value: isEnabled } = useConditionalFeature({
-    feature: featureStreakFreeFreezes,
-    shouldEvaluate: isGrantMoment,
-  });
   const hasSeen = checkHasCompleted(ActionType.StreakFreeFreezesGrant);
 
   useEffect(() => {
-    if (granted || !isGrantMoment || !isEnabled || !isActionsFetched) {
+    if (granted || !isGrantMoment || !isActionsFetched) {
       return;
     }
 
@@ -79,7 +73,6 @@ const useFreeFreezesGrant = (currentStreak: number): number => {
     granted,
     hasSeen,
     isActionsFetched,
-    isEnabled,
     isGrantMoment,
     logEvent,
   ]);

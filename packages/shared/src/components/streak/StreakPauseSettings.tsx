@@ -14,8 +14,6 @@ import {
   useUserStreakPause,
 } from '../../hooks/streaks/useStreakPause';
 import { usePrompt } from '../../hooks/usePrompt';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureStreakPause } from '../../lib/featureManagement';
 import { DEFAULT_TIMEZONE } from '../../lib/timezones';
 import {
   MAX_STREAK_PAUSE_DAYS,
@@ -45,14 +43,10 @@ export const streakPauseHelperCopy = `Pause for up to ${MAX_STREAK_PAUSE_DAYS} d
 
 // "Pause my streak" on the gamification settings: schedule a pause (vacation
 // mode) or cancel the running/scheduled one. Renders null unless reading
-// streaks are on and the streak_pause flag is enabled or a pause exists.
+// streaks are on.
 export const StreakPauseSettings = (): ReactElement | null => {
   const { user } = useAuthContext();
   const { streak, isStreaksEnabled } = useReadingStreak();
-  const { value: isEnabled } = useConditionalFeature({
-    feature: featureStreakPause,
-    shouldEvaluate: isStreaksEnabled && !!streak,
-  });
   const pause = useUserStreakPause(streak);
   const { schedule, cancel, isScheduling, isCancelling } = useStreakPause();
   const { showPrompt } = usePrompt();
@@ -66,7 +60,7 @@ export const StreakPauseSettings = (): ReactElement | null => {
   const tomorrow = addLocalDays(today, 1);
   const maxStart = addLocalDays(today, MAX_STREAK_PAUSE_LEAD_DAYS);
 
-  if (!isStreaksEnabled || !streak || (!isEnabled && !pause)) {
+  if (!isStreaksEnabled || !streak) {
     return null;
   }
 

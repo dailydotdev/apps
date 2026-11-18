@@ -49,8 +49,8 @@ interface StreakResetReasonProps {
 }
 
 // "Why it broke": the missed day behind the most recent reset, with a feedback
-// entry for users who think the reset is wrong. Renders null unless the
-// streak_why_broke flag is on and the reset is still recent (see the hook).
+// entry for users who think the reset is wrong. Renders null unless the reset
+// is still recent (see the hook).
 export const StreakResetReason = ({
   streak,
   origin,

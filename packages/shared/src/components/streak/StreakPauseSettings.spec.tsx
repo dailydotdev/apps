@@ -1,7 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { GrowthBook } from '@growthbook/growthbook-react';
 import { addDays } from 'date-fns';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
@@ -46,12 +45,10 @@ const localDate = (days: number) =>
 const renderSettings = ({
   current = 10,
   pause = null,
-  isFlagOn = true,
   logEvent = jest.fn(),
 }: {
   current?: number;
   pause?: UserStreakPause | null;
-  isFlagOn?: boolean;
   logEvent?: jest.Mock;
 } = {}) => {
   const client = new QueryClient();
@@ -72,11 +69,6 @@ const renderSettings = ({
       auth={{ user }}
       log={{ logEvent }}
       settings={{ optOutReadingStreak: false }}
-      gb={
-        new GrowthBook({
-          features: { streak_pause: { defaultValue: isFlagOn } },
-        })
-      }
     >
       <StreakPauseSettings />
     </TestBootProvider>,
@@ -97,12 +89,6 @@ beforeEach(() => {
 });
 
 describe('StreakPauseSettings', () => {
-  it('renders nothing while the flag is off', () => {
-    renderSettings({ isFlagOn: false });
-
-    expect(screen.queryByText('Pause my streak')).not.toBeInTheDocument();
-  });
-
   it('explains the limits and disables pausing below the minimum streak', () => {
     renderSettings({ current: MIN_STREAK_FOR_PAUSE - 1 });
 
@@ -208,17 +194,6 @@ describe('StreakPauseSettings', () => {
     expect(mockDisplayToast).toHaveBeenCalledWith(
       'Your streak pause was canceled.',
     );
-  });
-
-  it('keeps a scheduled pause cancellable while the flag is off', () => {
-    renderSettings({
-      isFlagOn: false,
-      pause: { start: localDate(3), end: localDate(6) },
-    });
-
-    expect(
-      screen.getByRole('button', { name: 'Cancel pause' }),
-    ).toBeInTheDocument();
   });
 
   it('does not confirm a cancel when there was nothing to cancel', async () => {
