@@ -212,7 +212,11 @@ const MainFeedPageInner = ({
               {isLaptopLayout && hasShortcutsToShow && (
                 <div className="mx-4 flex flex-col items-center gap-2 pt-2 laptop:mx-0 [&:empty]:hidden">
                   <ShortcutLinks shouldUseListFeedLayout={false} />
-                  {widgetCue}
+                  {widgetCue && (
+                    <div className="mb-4 flex w-full justify-center">
+                      {widgetCue}
+                    </div>
+                  )}
                 </div>
               )}
               {!isShortcutsHidden && <ExtensionTopBanners />}
