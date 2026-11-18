@@ -18,14 +18,25 @@ describe('isAutoPostingIncluded', () => {
   });
 
   it('includes only the API on a Startups plan', () => {
-    expect(included(squadWith({ links: true, products: true }))).toEqual([
-      AutoPostingMethod.Api,
-    ]);
+    expect(
+      included(squadWith({ links: true, products: true, apiPosting: true })),
+    ).toEqual([AutoPostingMethod.Api]);
+  });
+
+  it('follows apiPosting for the API, not the other plan features', () => {
+    expect(included(squadWith({ links: true, products: true }))).toEqual([]);
   });
 
   it('includes every method on Enterprise', () => {
     expect(
-      included(squadWith({ verified: true, links: true, products: true })),
+      included(
+        squadWith({
+          verified: true,
+          links: true,
+          products: true,
+          apiPosting: true,
+        }),
+      ),
     ).toEqual([
       AutoPostingMethod.Api,
       AutoPostingMethod.Rss,

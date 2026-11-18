@@ -1,6 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
 import {
   Button,
   ButtonSize,
@@ -8,7 +7,6 @@ import {
 } from '../../../../components/buttons/Button';
 import {
   EarthIcon,
-  LinkIcon,
   LockIcon,
   SourceIcon,
   TerminalIcon,
@@ -22,17 +20,12 @@ import {
   TypographyType,
 } from '../../../../components/typography/Typography';
 import Link from '../../../../components/utilities/Link';
+import type { Squad } from '../../../../graphql/sources';
 import { plusPublicApiDocs, webappUrl } from '../../../../lib/constants';
 import { LogEvent, Origin } from '../../../../lib/log';
-import { useAuthContext } from '../../../../contexts/AuthContext';
-import { squadAutoPostingFeedsQueryOptions } from '../../../../graphql/squadAutoPosting';
-import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';
 import { useSquadPageContext } from '../../SquadPageContext';
-import {
-  getSquadId,
-  hasSquadFeature,
-  isCompanySquad,
-} from '../../lib/features';
+import { useSquadManageGroups } from '../../hooks/useSquadManageGroups';
+import { getSquadId, hasSquadFeature } from '../../lib/features';
 import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
 import { useLogStartups } from '../../hooks/useLogStartups';
 import { SquadManageSectionPanel } from './SquadManageLayout';
@@ -82,178 +75,82 @@ const options: AutoPostingOption[] = [
   },
 ];
 
-const feedUrlLabel: Record<AutoPostingMethod, string> = {
-  [AutoPostingMethod.Api]: '',
+// What the account team needs for each feed our team connects
+const feedUrlLabel: Partial<Record<AutoPostingMethod, string>> = {
   [AutoPostingMethod.Rss]: 'feed',
   [AutoPostingMethod.Youtube]: 'channel',
   [AutoPostingMethod.WebPage]: 'page',
 };
 
-const isYoutubeUrl = (url: string): boolean => {
-  try {
-    return /(^|\.)youtube\.com$|(^|\.)youtu\.be$/.test(new URL(url).hostname);
-  } catch {
-    return false;
-  }
-};
-
-const formatFeedUrl = (url: string): string =>
-  url.replace(/^https?:\/\//, '').replace(/\/$/, '');
-
-/** Where an Enterprise squad's posts come from: the feeds ops connected. */
-const ConnectedSources = (): ReactElement => {
-  const { squad } = useSquadPageContext();
-  const { user } = useAuthContext();
-  const {
-    data: feeds,
-    isPending,
-    isError,
-  } = useQuery(squadAutoPostingFeedsQueryOptions({ squad, user }));
-
-  const getContent = (): ReactNode => {
-    if (isPending) {
-      return (
-        <div className="flex flex-col gap-2" aria-busy>
-          <ElementPlaceholder className="h-5 w-2/3 rounded-6" />
-          <ElementPlaceholder className="h-5 w-1/2 rounded-6" />
-        </div>
-      );
-    }
-
-    if (isError) {
-      return (
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          We couldn&apos;t load your sources. Nothing has changed with them.
-        </Typography>
-      );
-    }
-
-    if (!feeds?.length) {
-      return (
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          Nothing is connected yet. Send your daily.dev account team a feed,
-          channel or page URL below.
-        </Typography>
-      );
-    }
-
-    return (
-      <ul className="flex flex-col gap-2">
-        {feeds.map(({ url }) => (
-          <li key={url} className="flex min-w-0 items-center gap-2">
-            {isYoutubeUrl(url) ? (
-              <YoutubeIcon size={IconSize.Size16} className="shrink-0" />
-            ) : (
-              <LinkIcon
-                size={IconSize.Size16}
-                className="shrink-0 text-text-tertiary"
-              />
-            )}
-            <a
-              href={url}
-              target="_blank"
-              rel="noopener"
-              className="min-w-0 truncate text-text-secondary typo-footnote hover:text-text-primary"
-            >
-              {formatFeedUrl(url)}
-            </a>
-          </li>
-        ))}
-      </ul>
-    );
-  };
-
-  return (
-    <section className="flex flex-col gap-3 rounded-16 bg-surface-float p-4">
-      <div className="flex flex-col gap-1">
-        <Typography tag={TypographyTag.H2} type={TypographyType.Callout} bold>
-          Connected sources
-        </Typography>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          New entries from these are posted to the Squad automatically.
-        </Typography>
-      </div>
-      {getContent()}
-    </section>
-  );
-};
-
 /**
- * Whether the squad's plan includes an auto-posting method. The API comes with
- * every daily.dev for Startups plan; RSS and YouTube feeds are Enterprise only.
+ * Whether the squad's plan includes an auto-posting method, mirroring the API:
+ * posting through the API needs `apiPosting`, on every daily.dev for Startups
+ * plan and Enterprise; RSS, YouTube and web page feeds are Enterprise only.
  */
 export const isAutoPostingIncluded = (
-  squad: Parameters<typeof isCompanySquad>[0],
+  squad: Pick<Squad, 'features'>,
   method: AutoPostingMethod,
 ): boolean =>
   method === AutoPostingMethod.Api
-    ? isCompanySquad(squad)
+    ? hasSquadFeature(squad, 'apiPosting')
     : hasSquadFeature(squad, 'verified');
+
+const linkClassName =
+  'text-text-tertiary typo-footnote hover:text-text-primary';
 
 const OptionCard = ({
   option,
-  children,
   isLocked,
+  planUrl,
+  onUpgrade,
+  children,
 }: {
   option: AutoPostingOption;
-  children: ReactNode;
   isLocked: boolean;
-}): ReactElement => {
-  const { squad } = useSquadPageContext();
-  const planUrl = getSquadManageUrl(squad.handle, SquadManageSection.Plan);
-
-  return (
-    <section className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
-      <div className="flex items-start gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-surface-float text-text-primary">
-          {option.icon}
-        </span>
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <Typography
-              tag={TypographyTag.H2}
-              type={TypographyType.Callout}
-              bold
-            >
-              {option.title}
-            </Typography>
-            {isLocked && (
-              <Link href={planUrl} passHref>
-                <a
-                  href={planUrl}
-                  className="ml-auto inline-flex shrink-0 items-center gap-0.5 self-center rounded-4 bg-overlay-float-cabbage px-1 font-bold text-accent-cabbage-default typo-caption2"
-                >
-                  <LockIcon size={IconSize.Size16} />
-                  Upgrade
-                </a>
-              </Link>
-            )}
-          </div>
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-          >
-            {option.description}
+  planUrl: string;
+  onUpgrade: () => void;
+  children: ReactNode;
+}): ReactElement => (
+  <section className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
+    <div className="flex items-start gap-3">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-surface-float text-text-primary">
+        {option.icon}
+      </span>
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div className="flex items-center gap-2">
+          <Typography tag={TypographyTag.H2} type={TypographyType.Callout} bold>
+            {option.title}
           </Typography>
+          {isLocked && (
+            <Link href={planUrl} passHref>
+              <a
+                href={planUrl}
+                onClick={onUpgrade}
+                className="ml-auto inline-flex shrink-0 items-center gap-0.5 self-center rounded-4 bg-overlay-float-cabbage px-1 font-bold text-accent-cabbage-default typo-caption2"
+              >
+                <LockIcon size={IconSize.Size16} />
+                Upgrade
+              </a>
+            </Link>
+          )}
         </div>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          {option.description}
+        </Typography>
       </div>
-      <div className="flex flex-wrap items-center gap-3">{children}</div>
-    </section>
-  );
-};
+    </div>
+    <div className="flex flex-wrap items-center gap-3">{children}</div>
+  </section>
+);
 
 export const SquadManageAutoPosting = (): ReactElement => {
   const { squad } = useSquadPageContext();
+  const groups = useSquadManageGroups();
   const sourceId = getSquadId(squad);
+  const hasSeat = !!squad.currentMember?.seat;
   const logStartups = useLogStartups();
   const log = (targetId: string) =>
     logStartups(LogEvent.Click, targetId, {
@@ -261,9 +158,20 @@ export const SquadManageAutoPosting = (): ReactElement => {
       source_id: sourceId,
     });
   const planUrl = getSquadManageUrl(squad.handle, SquadManageSection.Plan);
+  const agentUrl = getSquadManageUrl(squad.handle, SquadManageSection.Agent);
+  // Agent and API is for admins and seated moderators, so only link to it
+  // when this viewer can open it
+  const canOpenAgent = groups.some(({ items }) =>
+    items.some(
+      ({ id, lockedPlan }) => id === SquadManageSection.Agent && !lockedPlan,
+    ),
+  );
 
-  const getActions = (method: AutoPostingMethod): ReactNode => {
-    if (!isAutoPostingIncluded(squad, method)) {
+  const getActions = (
+    method: AutoPostingMethod,
+    isLocked: boolean,
+  ): ReactNode => {
+    if (isLocked) {
       return (
         <Button
           tag="a"
@@ -278,13 +186,13 @@ export const SquadManageAutoPosting = (): ReactElement => {
     }
 
     if (method === AutoPostingMethod.Api) {
-      const agentUrl = getSquadManageUrl(
-        squad.handle,
-        SquadManageSection.Agent,
-      );
-
       return (
         <>
+          {!hasSeat && (
+            <p className="w-full text-pretty rounded-12 bg-surface-float p-3 text-text-tertiary typo-footnote">
+              Only paid seats can post through the API.
+            </p>
+          )}
           <Button
             tag="a"
             href={`${webappUrl}settings/api`}
@@ -294,19 +202,18 @@ export const SquadManageAutoPosting = (): ReactElement => {
           >
             Get an API token
           </Button>
-          <Link href={agentUrl} passHref>
-            <a
-              href={agentUrl}
-              className="text-text-tertiary typo-footnote hover:text-text-primary"
-            >
-              Connect your agent
-            </a>
-          </Link>
+          {canOpenAgent && (
+            <Link href={agentUrl} passHref>
+              <a href={agentUrl} className={linkClassName}>
+                Connect your agent
+              </a>
+            </Link>
+          )}
           <a
             href={plusPublicApiDocs}
             target="_blank"
             rel="noopener"
-            className="text-text-tertiary typo-footnote hover:text-text-primary"
+            className={linkClassName}
           >
             API docs
           </a>
@@ -339,16 +246,21 @@ export const SquadManageAutoPosting = (): ReactElement => {
             Keep the Squad fresh without posting by hand.
           </Typography>
         </div>
-        {hasSquadFeature(squad, 'verified') && <ConnectedSources />}
-        {options.map((option) => (
-          <OptionCard
-            key={option.method}
-            option={option}
-            isLocked={!isAutoPostingIncluded(squad, option.method)}
-          >
-            {getActions(option.method)}
-          </OptionCard>
-        ))}
+        {options.map((option) => {
+          const isLocked = !isAutoPostingIncluded(squad, option.method);
+
+          return (
+            <OptionCard
+              key={option.method}
+              option={option}
+              isLocked={isLocked}
+              planUrl={planUrl}
+              onUpgrade={() => log(`upgrade ${option.method}`)}
+            >
+              {getActions(option.method, isLocked)}
+            </OptionCard>
+          );
+        })}
       </div>
     </SquadManageSectionPanel>
   );

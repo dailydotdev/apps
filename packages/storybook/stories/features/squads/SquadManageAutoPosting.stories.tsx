@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { graphql, HttpResponse } from 'msw';
 import type {
   SourceMember,
   Squad,
@@ -20,8 +19,7 @@ import ExtensionProviders from '../../extension/_providers';
 import { squad as data } from './data';
 
 // Manage › Auto-posting per tier: the API comes with every daily.dev for
-// Startups plan; RSS, YouTube and web pages are Enterprise, which also lists
-// the sources connected to the squad.
+// Startups plan; RSS, YouTube and web pages are Enterprise.
 
 const makeSquad = (id: string, features: Partial<Squad['features']>): Squad =>
   ({
@@ -53,13 +51,6 @@ const Page = ({
     <SquadManagePage section={section} />
   </SquadPageContextProvider>
 );
-
-const feedsHandler = (urls: string[]) =>
-  graphql.query('SquadAutoPostingFeeds', () =>
-    HttpResponse.json({
-      data: { squadAutoPostingFeeds: urls.map((url) => ({ url })) },
-    }),
-  );
 
 const WhenUser = ({ children }: { children: ReactElement }) => {
   const { user } = useAuthContext();
@@ -96,7 +87,7 @@ export default meta;
 type Story = StoryObj;
 
 // What every daily.dev for Startups plan turns on that the app reads
-const base = { links: true, products: true };
+const base = { links: true, products: true, apiPosting: true };
 
 // No plan: the section is open so admins see what's possible, every method
 // locked behind Upgrade
@@ -117,21 +108,5 @@ const enterprise = {
 };
 
 export const Enterprise: Story = {
-  parameters: {
-    msw: {
-      handlers: [
-        feedsHandler([
-          'https://www.coderabbit.ai/blog/rss.xml',
-          'https://www.youtube.com/@coderabbitai',
-          'https://www.coderabbit.ai/changelog',
-        ]),
-      ],
-    },
-  },
   render: () => <Page id="enterprise" features={enterprise} />,
-};
-
-export const EnterpriseNothingConnected: Story = {
-  parameters: { msw: { handlers: [feedsHandler([])] } },
-  render: () => <Page id="enterprise-empty" features={enterprise} />,
 };
