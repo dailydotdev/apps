@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { differenceInMinutes } from 'date-fns';
+import { differenceInDays, differenceInMinutes } from 'date-fns';
 import {
   Button,
   ButtonSize,
@@ -33,6 +33,16 @@ interface FirstPostProps {
   state: 'first_post';
   /** The composer, opened on this company page */
   composeUrl: string;
+  /** The page's offer ends 30 days after it was created */
+  availableUntil?: Date;
+  /** The latest post, held back for limited reach: the boost waits */
+  heldPost?: FreeBoostPost;
+  now?: Date;
+}
+
+interface PendingProps {
+  state: 'pending';
+  post: FreeBoostPost;
 }
 
 interface LiveProps {
@@ -55,7 +65,12 @@ interface EndedProps {
   onUpgradeClick?: () => void;
 }
 
-export type FreeBoostCardProps = (FirstPostProps | LiveProps | EndedProps) & {
+export type FreeBoostCardProps = (
+  | FirstPostProps
+  | PendingProps
+  | LiveProps
+  | EndedProps
+) & {
   className?: string;
 };
 
@@ -75,6 +90,16 @@ const timeLeft = (endsAt: Date, now: Date): string => {
   const hours = Math.round(minutes / 60);
 
   return `${hours} ${hours === 1 ? 'hour' : 'hours'} left`;
+};
+
+const offerEnds = (availableUntil: Date, now: Date): string => {
+  const days = Math.max(differenceInDays(availableUntil, now), 0);
+
+  if (days === 0) {
+    return 'Offer ends today';
+  }
+
+  return `Offer ends in ${days} ${days === 1 ? 'day' : 'days'}`;
 };
 
 const cabbageGlow =
@@ -141,16 +166,29 @@ const Lead = ({
   </div>
 );
 
+// A tile at 0 says nothing good about the boost, so only the ones above 0 show
+const tilesColumns: Record<number, string> = {
+  1: 'tablet:grid-cols-2',
+  2: 'tablet:grid-cols-2',
+  3: 'tablet:grid-cols-3',
+  4: 'tablet:grid-cols-4',
+};
+
 const Tiles = ({ stats }: { stats: FreeBoostStats }): ReactElement => {
   const tiles = [
     { label: 'Developers reached', value: stats.reach },
     { label: 'Clicks', value: stats.clicks },
     { label: 'Bookmarks', value: stats.bookmarks },
     { label: 'New followers', value: stats.followers, isGain: true },
-  ];
+  ].filter(({ label, value }) => value > 0 || label === 'Developers reached');
 
   return (
-    <div className="grid grid-cols-2 gap-2 tablet:grid-cols-4">
+    <div
+      className={classNames(
+        'grid grid-cols-2 gap-2',
+        tilesColumns[tiles.length],
+      )}
+    >
       {tiles.map(({ label, value, isGain }) => (
         <div
           key={label}
@@ -166,7 +204,13 @@ const Tiles = ({ stats }: { stats: FreeBoostStats }): ReactElement => {
   );
 };
 
-const PostRow = ({ post }: { post: FreeBoostPost }): ReactElement => (
+const PostRow = ({
+  post,
+  note,
+}: {
+  post: FreeBoostPost;
+  note?: string;
+}): ReactElement => (
   <a
     href={post.permalink}
     className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary bg-background-default p-2 pr-3 hover:bg-surface-hover"
@@ -181,24 +225,38 @@ const PostRow = ({ post }: { post: FreeBoostPost }): ReactElement => (
     <span className="line-clamp-2 min-w-0 flex-1 font-bold typo-footnote">
       {post.title}
     </span>
+    {note && (
+      <span className="shrink-0 rounded-8 bg-surface-float px-2 py-0.5 text-text-tertiary typo-caption1">
+        {note}
+      </span>
+    )}
   </a>
 );
 
-const FirstPost = ({ composeUrl }: FirstPostProps): ReactElement => (
+const FirstPost = ({
+  composeUrl,
+  availableUntil,
+  heldPost,
+  now = new Date(),
+}: FirstPostProps): ReactElement => (
   <>
-    <Eyebrow aside="Only admins see this">
+    <Eyebrow aside={availableUntil && offerEnds(availableUntil, now)}>
       <BoostIcon size={IconSize.Size16} secondary />
       {`$${BOOST_DOLLARS} boost, on us`}
     </Eyebrow>
     <div className="flex flex-col gap-1">
       <h2 className="font-bold typo-title2">
-        {`Write your first post and we'll boost it with $${BOOST_DOLLARS}`}
+        {heldPost
+          ? `Your next post gets the $${BOOST_DOLLARS} boost`
+          : `Write your first post and we'll boost it with $${BOOST_DOLLARS}`}
       </h2>
       <p className="text-text-secondary typo-callout">
-        It goes out to thousands of developers in the US, Europe and other top
-        markets on the day you post. Your results show up here.
+        {heldPost
+          ? 'We expect your last post to reach fewer developers, so we saved the boost for your next one. Posts that teach developers something do best.'
+          : 'It goes out to thousands of developers in the US, Europe and other top markets on the day you post. Your results show up here.'}
       </p>
     </div>
+    {heldPost && <PostRow post={heldPost} note="Limited reach" />}
     <Button
       tag="a"
       href={composeUrl}
@@ -206,8 +264,27 @@ const FirstPost = ({ composeUrl }: FirstPostProps): ReactElement => (
       size={ButtonSize.Medium}
       className="self-start"
     >
-      Write your first post
+      {heldPost ? 'Write your next post' : 'Write your first post'}
     </Button>
+  </>
+);
+
+const Pending = ({ post }: PendingProps): ReactElement => (
+  <>
+    <Eyebrow aside="Only admins see this">
+      <BoostIcon size={IconSize.Size16} secondary />
+      {`$${BOOST_DOLLARS} boost, on us`}
+    </Eyebrow>
+    <div className="flex flex-col gap-1">
+      <h2 className="font-bold typo-title2">
+        Your boost starts in a few minutes
+      </h2>
+      <p className="text-text-secondary typo-callout">
+        We&apos;re checking your post first. Then it goes out to developers in
+        the US, Europe and other top markets.
+      </p>
+    </div>
+    <PostRow post={post} />
   </>
 );
 
@@ -224,8 +301,21 @@ const Live = ({
       <LiveDot />
       {`Your $${BOOST_DOLLARS} boost is live`}
     </Eyebrow>
-    <Lead value={stats.impressions} label="impressions so far" />
-    <Tiles stats={stats} />
+    {stats.impressions > 0 ? (
+      <>
+        <Lead value={stats.impressions} label="impressions so far" />
+        <Tiles stats={stats} />
+      </>
+    ) : (
+      <div className="flex flex-col gap-1">
+        <h2 className="font-bold typo-title2">
+          Your post is going out to developers now
+        </h2>
+        <p className="text-text-secondary typo-callout">
+          The first numbers show up here within minutes.
+        </p>
+      </div>
+    )}
     <PostRow post={post} />
     <div className="flex flex-col gap-2">
       <ProgressBar
@@ -282,8 +372,8 @@ const Ended = ({
 
 /**
  * The free $100 boost a new company page gets on its first post, for its
- * admins: the nudge to write that post, the boost while it runs, and its
- * results with the upgrade once it ends.
+ * admins: the nudge to write that post, the checks before the boost starts,
+ * the boost while it runs, and its results with the upgrade once it ends.
  */
 export const FreeBoostCard = (props: FreeBoostCardProps): ReactElement => {
   const { className } = props;
@@ -291,6 +381,7 @@ export const FreeBoostCard = (props: FreeBoostCardProps): ReactElement => {
   return (
     <Card className={className} isHighlighted={props.state === 'live'}>
       {props.state === 'first_post' && <FirstPost {...props} />}
+      {props.state === 'pending' && <Pending {...props} />}
       {props.state === 'live' && <Live {...props} />}
       {props.state === 'ended' && <Ended {...props} />}
     </Card>
