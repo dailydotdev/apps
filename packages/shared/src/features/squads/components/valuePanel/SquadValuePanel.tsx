@@ -28,6 +28,8 @@ interface SquadValuePanelProps {
   stats: SquadValueStats;
   /** Set on the free plan: the one block on the page that sells Starter */
   upgrade?: SquadValueUpgrade;
+  /** The page's full analytics in its settings */
+  analyticsUrl: string;
   className?: string;
 }
 
@@ -57,9 +59,11 @@ const Tile = ({
 );
 
 const Panel = ({
+  analyticsUrl,
   className,
   children,
 }: {
+  analyticsUrl: string;
   className?: string;
   children: ReactNode;
 }): ReactElement => (
@@ -69,9 +73,15 @@ const Panel = ({
       className,
     )}
   >
-    <span className="text-text-tertiary typo-caption1">
-      Only admins see this
-    </span>
+    <div className="flex items-center justify-between gap-3 typo-caption1">
+      <span className="text-text-tertiary">Only admins see this</span>
+      <a
+        href={analyticsUrl}
+        className="text-text-tertiary hover:text-text-primary"
+      >
+        View analytics
+      </a>
+    </div>
     {children}
   </section>
 );
@@ -96,6 +106,7 @@ export const SquadValuePanel = ({
   name,
   stats,
   upgrade,
+  analyticsUrl,
   className,
 }: SquadValuePanelProps): ReactElement => {
   if (!stats.impressions) {
@@ -109,7 +120,7 @@ export const SquadValuePanel = ({
         className={className}
       />
     ) : (
-      <Panel className={className}>
+      <Panel analyticsUrl={analyticsUrl} className={className}>
         <p className="text-text-tertiary typo-callout">
           Your numbers show up here once developers read your posts.
         </p>
@@ -126,7 +137,7 @@ export const SquadValuePanel = ({
   ].filter(({ value }) => value > 0);
 
   return (
-    <Panel className={className}>
+    <Panel analyticsUrl={analyticsUrl} className={className}>
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <span className="font-bold tabular-nums typo-mega2 tablet:typo-mega1">
           {number(stats.impressions)}

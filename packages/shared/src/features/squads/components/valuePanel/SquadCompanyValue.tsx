@@ -9,7 +9,11 @@ import { LogEvent, Origin } from '../../../../lib/log';
 import { useSquadPageContext } from '../../SquadPageContext';
 import { getSquadId, hasSquadFeature } from '../../lib/features';
 import { isStaffViewer } from '../../lib/viewer';
-import { getStartupsCheckoutUrl } from '../../lib/routes';
+import {
+  getSquadManageUrl,
+  getStartupsCheckoutUrl,
+  SquadManageSection,
+} from '../../lib/routes';
 import { isCompanyPage } from '../../lib/companyPage';
 import { useStartupsCashbackPromo } from '../../hooks/useStartupsCashbackPromo';
 import { getStartupsStarterOffer } from '../../hooks/useStartupsPromo';
@@ -68,6 +72,10 @@ export const SquadCompanyValue = (): ReactElement | null => {
   return (
     <SquadValuePanel
       name={squad.name}
+      analyticsUrl={getSquadManageUrl(
+        squad.handle,
+        SquadManageSection.Analytics,
+      )}
       stats={{
         impressions: analytics?.impressions ?? 0,
         reach: analytics?.reach ?? 0,
