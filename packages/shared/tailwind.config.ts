@@ -263,6 +263,15 @@ export default {
           from: { opacity: '0', transform: 'translateY(8px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
+        // A grey flash over a row's cells, run twice. Opaque, so a sticky
+        // cell still hides what scrolls under it; 0% and 100% fall back to
+        // each cell's own background.
+        'row-blink': {
+          '50%': {
+            backgroundColor:
+              'color-mix(in srgb, var(--theme-text-tertiary) 24%, var(--theme-background-default))',
+          },
+        },
         'highlight-fade': {
           '0%': {
             boxShadow: '0 0 0 3px var(--status-warning)',
@@ -411,6 +420,7 @@ export default {
         'fade-slide-up': 'fade-slide-up 0.5s ease-out 1s both',
         'composer-in': 'fade-slide-up 0.2s ease-out both',
         'highlight-fade': 'highlight-fade 2.5s ease-out forwards',
+        'row-blink': 'row-blink 0.6s ease-in-out 2',
         'reaction-burst':
           'reaction-burst 720ms cubic-bezier(0.2, 0.7, 0.4, 1) forwards',
         'raise-hand-pop':

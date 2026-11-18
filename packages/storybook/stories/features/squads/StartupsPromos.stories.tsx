@@ -15,7 +15,7 @@ import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import { BoostPostModal } from '@dailydotdev/shared/src/features/boost/BoostPostModal';
 import { BoostSquadModal } from '@dailydotdev/shared/src/features/boost/BoostSquadModal';
-import { AdsDashboardModal } from '@dailydotdev/shared/src/features/boost/AdsDashboardModal';
+import { BoostManager } from '@dailydotdev/shared/src/features/boost/BoostManager';
 import { BuyCoresModal } from '@dailydotdev/shared/src/components/modals/award/BuyCoresModal';
 import { CoresDeals } from '@dailydotdev/shared/src/components/cores/CoresDeals';
 import { StartupsPromoSpot } from '@dailydotdev/shared/src/features/squads/hooks/useStartupsPromo';
@@ -298,9 +298,13 @@ export const Wallet: Story = {
   ),
 };
 
-/** 4. The ads dashboard, for someone who has boosted before */
+/** 4. Boost manager, for someone who has boosted before */
 export const AdsDashboard: Story = {
-  render: () => <AdsDashboardModal isOpen onRequestClose={noop} />,
+  render: () => (
+    <div className="p-6">
+      <BoostManager />
+    </div>
+  ),
 };
 
 /** 5. Manage: plan sections show locked, and open Subscription */

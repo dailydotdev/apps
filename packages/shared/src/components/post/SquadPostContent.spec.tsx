@@ -186,7 +186,7 @@ describe('SquadPostContent new post boost strip', () => {
   it('attributes a boost opened while the strip shows to the strip', async () => {
     renderOwnPostPage([]);
 
-    await screen.findByText('Boost to reach');
+    await screen.findByText('more developers');
     fireEvent.click(screen.getAllByRole('button', { name: 'Boost' })[0]);
 
     expect(openModal).toHaveBeenCalledWith({
@@ -207,7 +207,7 @@ describe('SquadPostContent new post boost strip', () => {
       (await screen.findAllByRole('button', { name: 'Boost' }))[0],
     );
 
-    expect(screen.queryByText('Boost to reach')).not.toBeInTheDocument();
+    expect(screen.queryByText('more developers')).not.toBeInTheDocument();
     expect(openModal).toHaveBeenCalledWith({
       type: LazyModal.BoostPost,
       props: { post: ownPost, origin: Origin.PostBoostButton },

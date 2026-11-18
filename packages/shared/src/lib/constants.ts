@@ -76,6 +76,10 @@ export const managePlusUrl = 'https://r.daily.dev/billing';
 export const plusDetailsUrl = 'https://r.daily.dev/plus-onboarding';
 export const plusSuccessUrl = `${plusUrl}/success`;
 export const walletUrl = `${webappUrl}wallet`;
+export const boostManagerUrl = `${webappUrl}analytics/boost`;
+// Boost manager scrolls to this boost and blinks its row
+export const getBoostManagerUrl = (campaignId?: string): string =>
+  campaignId ? `${boostManagerUrl}?boost=${campaignId}` : boostManagerUrl;
 export const settingsUrl = `${webappUrl}settings`;
 export const briefingUrl = `${webappUrl}briefing`;
 export const scheduledPostsUrl = `${webappUrl}scheduled`;

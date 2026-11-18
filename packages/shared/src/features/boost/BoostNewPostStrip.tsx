@@ -2,57 +2,65 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { IconSize } from '../../components/Icon';
-import { ClearIcon, TrendingIcon } from '../../components/icons';
-import {
-  Typography,
-  TypographyTag,
-  TypographyType,
-} from '../../components/typography/Typography';
+import { BoostIcon } from '../../components/icons/Boost';
 import {
   Button,
+  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '../../components/buttons/Button';
+import CloseButton from '../../components/CloseButton';
 import { useActions } from '../../hooks';
+import { useLazyModal } from '../../hooks/useLazyModal';
 import { ActionType } from '../../graphql/actions';
-import { TooltipArrow } from '../../svg/TooltipArrow';
-import { Image } from '../../components/image/Image';
+import type { Post } from '../../graphql/posts';
+import { LazyModal } from '../../components/modals/common/types';
+import { Origin } from '../../lib/log';
 import type { WithClassNameProps } from '../../components/utilities';
-import { useThemedAsset } from '../../hooks/utils';
+
+interface BoostNewPostStripProps extends WithClassNameProps {
+  post: Post;
+}
 
 export function BoostNewPostStrip({
+  post,
   className,
-}: WithClassNameProps): ReactElement {
+}: BoostNewPostStripProps): ReactElement {
   const { completeAction } = useActions();
-  const { postBoostStrip } = useThemedAsset();
+  const { openModal } = useLazyModal();
 
   return (
     <div
       className={classNames(
-        'relative flex h-10 w-full flex-row rounded-8 border border-accent-blueCheese-default p-2',
+        'flex w-full flex-wrap items-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-2 pl-3 tablet:flex-nowrap',
         className,
       )}
     >
-      <Image
-        src={postBoostStrip}
-        className="absolute inset-0 z-0 hidden h-full w-full tablet:flex"
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-10 bg-accent-blueCheese-flat text-accent-blueCheese-default">
+        <BoostIcon size={IconSize.Small} />
+      </span>
+      <span className="min-w-0 flex-1 typo-callout tablet:truncate">
+        Boost to reach <strong>more developers</strong> now!
+      </span>
+      <Button
+        className="order-last w-full shrink-0 tablet:order-none tablet:w-auto"
+        variant={ButtonVariant.Primary}
+        color={ButtonColor.BlueCheese}
+        size={ButtonSize.Small}
+        onClick={() =>
+          openModal({
+            type: LazyModal.BoostPost,
+            props: { post, origin: Origin.NewPostBoostStrip },
+          })
+        }
+      >
+        Boost
+      </Button>
+      <CloseButton
+        size={ButtonSize.Small}
+        aria-label="Dismiss"
+        onClick={() => completeAction(ActionType.ClosedNewPostBoostBanner)}
       />
-      <div className="z-1 flex w-full flex-row items-center gap-1 tablet:justify-end">
-        <TooltipArrow className="absolute -top-2 right-18 fill-accent-blueCheese-default" />
-        <TrendingIcon size={IconSize.Medium} />
-        <Typography tag={TypographyTag.Span} type={TypographyType.Callout}>
-          <span>Boost to reach</span>
-          <strong className="mx-1">10k more devs</strong>
-          <span>now!</span>
-        </Typography>
-        <Button
-          className="ml-auto tablet:ml-1"
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.Small}
-          icon={<ClearIcon secondary />}
-          onClick={() => completeAction(ActionType.ClosedNewPostBoostBanner)}
-        />
-      </div>
     </div>
   );
 }

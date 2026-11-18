@@ -355,13 +355,6 @@ const ListAwardsModal = dynamic(() =>
   ).then((mod) => mod.ListAwardsModal),
 );
 
-const AdsDashboardModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "adsDashboardModal" */ '../../features/boost/AdsDashboardModal'
-    ),
-);
-
 const BoostSquadModal = dynamic(
   () =>
     import(
@@ -374,18 +367,6 @@ const BoostPostModal = dynamic(
     import(
       /* webpackChunkName: "boostPostModal" */ '../../features/boost/BoostPostModal'
     ),
-);
-
-const BoostedCampaignViewModal = dynamic(() =>
-  import(
-    /* webpackChunkName: "boostedCampaignViewModal" */ '../../features/boost/BoostedViewModal'
-  ).then((mod) => mod.BoostedViewModal),
-);
-
-const FetchBoostedPostViewModal = dynamic(() =>
-  import(
-    /* webpackChunkName: "fetchBoostedViewModal" */ '../../features/boost/BoostedViewModal'
-  ).then((mod) => mod.FetchBoostedViewModal),
 );
 
 const OrganizationInviteMemberModal = dynamic(() =>
@@ -650,11 +631,8 @@ export const modals = {
   [LazyModal.ShortcutsManage]: ShortcutsManageModal,
   [LazyModal.ImportPicker]: ImportPickerModal,
   [LazyModal.ListAwards]: ListAwardsModal,
-  [LazyModal.AdsDashboard]: AdsDashboardModal,
   [LazyModal.BoostPost]: BoostPostModal,
   [LazyModal.BoostSquad]: BoostSquadModal,
-  [LazyModal.BoostedCampaignView]: BoostedCampaignViewModal,
-  [LazyModal.FetchBoostedPostView]: FetchBoostedPostViewModal,
   [LazyModal.OrganizationInviteMember]: OrganizationInviteMemberModal,
   [LazyModal.OrganizationManageSeats]: OrganizationManageSeatsModal,
   [LazyModal.ActionSuccess]: ActionSuccessModal,

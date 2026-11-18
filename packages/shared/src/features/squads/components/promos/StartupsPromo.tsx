@@ -129,10 +129,13 @@ const Card = ({
   promo,
   className,
   style = { background: cabbageGlow },
+  isDismissible = true,
   children,
 }: {
   promo: StartupsPromo;
   className?: string;
+  /** False for a spot that shows even after a dismissed promo */
+  isDismissible?: boolean;
   style?: React.CSSProperties;
   children: ReactNode;
 }): ReactElement => (
@@ -144,15 +147,17 @@ const Card = ({
     style={style}
   >
     <LaunchOfferBanner promo={promo} />
-    <CloseButton
-      size={ButtonSize.XSmall}
-      className={classNames(
-        'absolute right-1.5',
-        promo.launchOffer ? 'top-0' : 'top-1.5',
-      )}
-      aria-label="Don't show this offer again"
-      onClick={promo.onDismiss}
-    />
+    {isDismissible && (
+      <CloseButton
+        size={ButtonSize.XSmall}
+        className={classNames(
+          'absolute right-1.5',
+          promo.launchOffer ? 'top-0' : 'top-1.5',
+        )}
+        aria-label="Don't show this offer again"
+        onClick={promo.onDismiss}
+      />
+    )}
     {children}
   </div>
 );
@@ -173,7 +178,8 @@ const Body = ({ children }: { children: ReactNode }): ReactElement => (
   </Typography>
 );
 
-/** Spot 1: the boost post and boost squad modals, under the budget. */
+/** Spot 1: the boost post and boost squad modals, under the budget. Like the
+ * Plus deal, it has no close button, so it shows even after a dismissed promo */
 export const StartupsBoostPromo = ({
   sourceId,
   isSquadBoost = false,
@@ -186,6 +192,7 @@ export const StartupsBoostPromo = ({
       ? StartupsPromoSpot.BoostSquad
       : StartupsPromoSpot.BoostPost,
     sourceId,
+    isDismissible: false,
   });
 
   if (!promo.isShown) {
@@ -193,26 +200,35 @@ export const StartupsBoostPromo = ({
   }
 
   return (
-    <Card promo={promo}>
-      <div className="flex items-start gap-3 p-3 pr-4">
+    <div className="relative flex flex-col gap-2 overflow-hidden rounded-16 border border-border-subtlest-secondary p-3">
+      {promo.launchOffer && (
+        <span className="absolute -right-9 top-3 w-32 rotate-45 bg-accent-onion-default py-0.5 text-center font-bold text-white typo-caption2">
+          {formatCashbackMultiple(promo.cashback)} value
+        </span>
+      )}
+      <span className="flex items-center gap-2 pr-12">
         <CoresBadge />
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <Title>
+        <span className="flex min-w-0 flex-1 flex-col">
+          <strong className="typo-callout">
             Get <MonthlyCredits promo={promo} /> every month
-          </Title>
-          <Body>
+          </strong>
+          <span className="text-text-tertiary typo-caption1">
             {promo.squad
               ? `Make ${promo.squad.name} your company page for ${promo.starterPrice} a month and use them to boost its posts.`
               : `Boosting for your startup? Get a company page for ${promo.starterPrice} a month.`}
-          </Body>
-        </div>
-        <SeePlans
-          promo={promo}
-          variant={ButtonVariant.Secondary}
-          className="shrink-0 self-center"
-        />
-      </div>
-    </Card>
+          </span>
+        </span>
+      </span>
+      <Button
+        tag="a"
+        href={promo.checkoutUrl}
+        variant={ButtonVariant.Secondary}
+        size={ButtonSize.XSmall}
+        onClick={promo.onClick}
+      >
+        See plans
+      </Button>
+    </div>
   );
 };
 
@@ -223,14 +239,17 @@ export const StartupsAdsDashboardPromo = ({
   /** Cores spent on boosts, all time */
   spend: number;
 }): ReactElement | null => {
-  const promo = useStartupsPromo({ spot: StartupsPromoSpot.AdsDashboard });
+  const promo = useStartupsPromo({
+    spot: StartupsPromoSpot.AdsDashboard,
+    isDismissible: false,
+  });
 
   if (!promo.isShown || !spend) {
     return null;
   }
 
   return (
-    <Card promo={promo} className="shrink-0">
+    <Card promo={promo} className="shrink-0" isDismissible={false}>
       <div className="flex flex-col gap-3 p-4 tablet:flex-row tablet:items-center">
         <div className="flex min-w-0 flex-1 items-start gap-3">
           <CoresBadge />
