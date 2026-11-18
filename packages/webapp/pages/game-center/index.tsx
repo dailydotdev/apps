@@ -553,7 +553,13 @@ function GameCenterPage({
         )}
         <ResponsivePageContainer className="pointer-default !mx-0 !w-full !max-w-full gap-6 pb-10">
           {isPatchyEnabled && <PatchyDen />}
-          <section className="-mt-2 flex flex-col overflow-hidden rounded-16 tablet:-mx-8 tablet:-mt-6 tablet:overflow-visible tablet:rounded-none">
+          <section
+            className={classNames(
+              'flex flex-col overflow-hidden rounded-16 tablet:-mx-8 tablet:overflow-visible tablet:rounded-none',
+              // Pulled up to meet the page top, unless Patchy's den is there.
+              !isPatchyEnabled && '-mt-2 tablet:-mt-6',
+            )}
+          >
             {questDashboard || isQuestPending ? (
               <LevelHud
                 name={firstName}
