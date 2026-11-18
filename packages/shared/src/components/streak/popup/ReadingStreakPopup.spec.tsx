@@ -18,9 +18,9 @@ let mockIsTimezoneOk = true;
 let mockIsSoftBreakFlagOn = false;
 let mockStreakGoalsEnabled = false;
 let mockStreakGoal: number | null = null;
-const getMockFeatureValue = (id: string, shouldEvaluate?: boolean) => {
-  const isOn =
-    id === 'streak_goals' ? mockStreakGoalsEnabled : mockIsSoftBreakFlagOn;
+// soft break and goals share the streak_improvements flag
+const getMockFeatureValue = (_id: string, shouldEvaluate?: boolean) => {
+  const isOn = mockStreakGoalsEnabled || mockIsSoftBreakFlagOn;
 
   return shouldEvaluate !== false && isOn;
 };
@@ -295,7 +295,7 @@ describe('ReadingStreakPopup', () => {
       expect(screen.queryByText('Start again')).not.toBeInTheDocument();
       expect(mockUseConditionalFeature).toHaveBeenCalledWith(
         expect.objectContaining({
-          feature: expect.objectContaining({ id: 'streak_soft_break' }),
+          feature: expect.objectContaining({ id: 'streak_improvements' }),
           shouldEvaluate: false,
         }),
       );
@@ -308,7 +308,7 @@ describe('ReadingStreakPopup', () => {
       expect(screen.queryByText('Start again')).not.toBeInTheDocument();
       expect(mockUseConditionalFeature).toHaveBeenCalledWith(
         expect.objectContaining({
-          feature: expect.objectContaining({ id: 'streak_soft_break' }),
+          feature: expect.objectContaining({ id: 'streak_improvements' }),
           shouldEvaluate: true,
         }),
       );

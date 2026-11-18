@@ -1,6 +1,6 @@
 import { useConditionalFeature } from '../useConditionalFeature';
 import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
-import { featureStreakSoftBreak } from '../../lib/featureManagement';
+import { featureStreakImprovements } from '../../lib/featureManagement';
 import type { UserStreak } from '../../graphql/users';
 
 interface UseStreakSoftBreak {
@@ -26,7 +26,7 @@ export const useStreakSoftBreak = (
   const shouldEvaluate = streak?.current === 0 && streak.max > 0;
   const { settled } = useFeaturesReadyContext();
   const { value } = useConditionalFeature({
-    feature: featureStreakSoftBreak,
+    feature: featureStreakImprovements,
     shouldEvaluate,
   });
 

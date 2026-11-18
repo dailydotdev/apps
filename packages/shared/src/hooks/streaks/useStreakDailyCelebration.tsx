@@ -6,7 +6,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { useToastNotification } from '../useToastNotification';
 import { useRequestProtocol } from '../useRequestProtocol';
 import { useConditionalFeature } from '../useConditionalFeature';
-import { featureStreakDailyCelebration } from '../../lib/featureManagement';
+import { featureStreakImprovements } from '../../lib/featureManagement';
 import { LogEvent, TargetType } from '../../lib/log';
 import {
   hasCelebratedStreakToday,
@@ -34,7 +34,7 @@ export const useStreakDailyCelebration = (): ((current?: number) => void) => {
   // Users who opted out of streaks (or whose settings are still loading) can
   // never see the toast, so keep them out of the experiment.
   const { value: isEnabled } = useConditionalFeature({
-    feature: featureStreakDailyCelebration,
+    feature: featureStreakImprovements,
     shouldEvaluate: !!user && !isCompanion && isStreaksEnabled,
   });
   const showStreakMilestone = alerts?.showStreakMilestone;

@@ -80,8 +80,7 @@ const renderViewPost = ({
   client.setQueryData(REQUEST_PROTOCOL_KEY, { requestMethod, isCompanion });
   const gb = new GrowthBook({
     features: {
-      streak_daily_celebration: { defaultValue: celebrationFlag },
-      streak_goals: { defaultValue: !!streakGoal },
+      streak_improvements: { defaultValue: celebrationFlag || !!streakGoal },
     },
   });
   const getFeatureValue = jest.spyOn(gb, 'getFeatureValue');
@@ -689,9 +688,7 @@ describe('useViewPost', () => {
 
       expect(getToast()).toBeFalsy();
       expect(
-        getFeatureValue.mock.calls.some(
-          ([id]) => id === 'streak_daily_celebration',
-        ),
+        getFeatureValue.mock.calls.some(([id]) => id === 'streak_improvements'),
       ).toBe(false);
     });
 
@@ -705,9 +702,7 @@ describe('useViewPost', () => {
 
       await act(() => Promise.resolve());
       expect(
-        getFeatureValue.mock.calls.some(
-          ([id]) => id === 'streak_daily_celebration',
-        ),
+        getFeatureValue.mock.calls.some(([id]) => id === 'streak_improvements'),
       ).toBe(false);
     });
 
