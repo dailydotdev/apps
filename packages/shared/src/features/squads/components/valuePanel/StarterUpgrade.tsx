@@ -47,8 +47,8 @@ export const StarterUpgrade = ({
       {`With Starter, ${name} reaches more developers:`}
     </h3>
     <ul className="flex flex-col gap-2">
-      <Benefit>Your posts in the developer feed</Benefit>
-      <Benefit>{`${name} on Google and in AI answers`}</Benefit>
+      <Benefit>In developers&apos; feeds, by topic</Benefit>
+      <Benefit>On Google and in AI answers</Benefit>
       <Benefit>
         <MonthlyCredits promo={offer} /> every month
       </Benefit>
