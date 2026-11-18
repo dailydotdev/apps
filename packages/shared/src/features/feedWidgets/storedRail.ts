@@ -112,6 +112,15 @@ export const customFeedWidgets = (
 };
 
 /**
+ * The daily.dev tips over our slot are opt-in: off until the reader turns
+ * them on from the gallery or the tips page. Only an explicit `false` shows
+ * them; a rail that never set the field, or hid them, keeps them off.
+ */
+export const isFeedWidgetTipHidden = (
+  rail: FeedWidgetRailState | null,
+): boolean => rail?.tipsHidden !== false;
+
+/**
  * The built-in default rail: Happening Now across two columns, our slot, and
  * the streak, with the add tile under it inviting the rest. The live default
  * comes from the `feed_widgets_default` flag; this is what a broken flag

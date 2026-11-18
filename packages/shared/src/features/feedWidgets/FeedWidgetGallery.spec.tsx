@@ -258,7 +258,7 @@ describe('on desktop', () => {
       renderGallery({ tips: { tip, isShown: false, onRestore } });
 
       pick('daily.dev tips');
-      fireEvent.click(screen.getByRole('button', { name: 'Show tips again' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Show tips' }));
 
       expect(onRestore).toHaveBeenCalled();
     });
