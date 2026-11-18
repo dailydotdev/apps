@@ -23,9 +23,7 @@ import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import { Section } from '../Section';
 import type { SidebarSectionProps } from './common';
-import { settingsUrl } from '../../../lib/constants';
-import { useLazyModal } from '../../../hooks/useLazyModal';
-import { LazyModal } from '../../modals/common/types';
+import { boostManagerUrl, settingsUrl } from '../../../lib/constants';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { useJobsFeature } from '../../../hooks/useJobsFeature';
@@ -46,7 +44,6 @@ export const SettingsPanelSection = ({
   isItemsButton,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
-  const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
   const { isJobsEnabled } = useJobsFeature();
 
@@ -228,16 +225,16 @@ export const SettingsPanelSection = ({
             ),
           },
           {
-            title: 'Ads dashboard',
+            title: 'Boost manager',
             icon: (active: boolean) => (
               <ListIcon Icon={() => <TrendingIcon secondary={active} />} />
             ),
-            action: () => openModal({ type: LazyModal.AdsDashboard }),
+            path: boostManagerUrl,
           },
         ],
       },
     ],
-    [isJobsEnabled, logEvent, openModal],
+    [isJobsEnabled, logEvent],
   );
 
   return (

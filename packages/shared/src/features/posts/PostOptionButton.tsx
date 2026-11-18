@@ -92,7 +92,11 @@ import { useBookmarkReminder } from '../../hooks/notifications';
 import { useBookmarkState } from '../../hooks/bookmark/useBookmarkState';
 import { BookmarkReminderIcon } from '../../components/icons/Bookmark/Reminder';
 import { LazyModal } from '../../components/modals/common/types';
-import { settingsUrl, webappUrl } from '../../lib/constants';
+import {
+  getBoostManagerUrl,
+  settingsUrl,
+  webappUrl,
+} from '../../lib/constants';
 import { FeedSettingsMenu } from '../../components/feeds/FeedSettings/types';
 import { SharedFeedPage } from '../../components/utilities';
 import { useSourceActionsFollow } from '../../hooks/source/useSourceActionsFollow';
@@ -565,18 +569,6 @@ const PostOptionButtonContent = ({
     });
   };
 
-  const onManageBoost = async () => {
-    const campaignId = post.flags?.campaignId;
-    if (!campaignId) {
-      throw new Error('Boosted post campaign id is required');
-    }
-
-    openModal({
-      type: LazyModal.FetchBoostedPostView,
-      props: { campaignId },
-    });
-  };
-
   if (canBoost) {
     const isBoosted = !!post?.flags?.campaignId;
     postOptions.push({
@@ -588,7 +580,13 @@ const PostOptionButtonContent = ({
       ),
       id: 'boost',
       label: isBoosted ? 'Manage ad' : 'Boost post',
-      action: isBoosted ? onManageBoost : onBoostPost,
+      ...(isBoosted
+        ? {
+            anchorProps: {
+              href: getBoostManagerUrl(post.flags?.campaignId ?? undefined),
+            },
+          }
+        : { action: onBoostPost }),
     });
   }
 

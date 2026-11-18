@@ -85,7 +85,8 @@ import {
 } from '@dailydotdev/shared/src/graphql/campaigns';
 import { getAbsoluteDifferenceInDays } from '@dailydotdev/shared/src/features/boost/utils';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
-import { stopBoostPromptOptions } from '@dailydotdev/shared/src/features/boost/BoostedViewModal';
+import { stopBoostPromptOptions } from '@dailydotdev/shared/src/features/boost/useStopBoost';
+import { lastBoostOf } from '@dailydotdev/shared/src/features/boost/common';
 import { useCampaignMutation } from '@dailydotdev/shared/src/features/boost/useCampaignMutation';
 import {
   dateFormatInTimezone,
@@ -427,6 +428,7 @@ const PostAnalyticsPage = ({
       props: {
         post,
         origin: Origin.PostAnalytics,
+        lastBoost: campaign && lastBoostOf(campaign),
       },
     });
   };

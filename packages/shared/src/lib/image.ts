@@ -383,9 +383,6 @@ export const plusShowcaseKeywordImage =
 export const plusShowcaseAdFreeImage =
   'https://media.daily.dev/image/upload/s--jlfaLYq_--/f_auto/v1741690961/public/Ad-free experience';
 
-export const boostSuccessCover =
-  'https://media.daily.dev/image/upload/s--1ayRTI4g--/f_auto/v1758532937/public/Boost%20-%20Live%20Cover%20image%20(1)';
-
 export const plusShowcaseTranslateImage =
   'https://media.daily.dev/image/upload/s--eHjHLYpQ--/f_auto/v1748954125/public/auto-translate';
 
@@ -404,12 +401,6 @@ export const exportLinkedInMobile =
   'https://media.daily.dev/image/upload/s--PqONkeKS--/f_auto/v1752576240/public/linkedin_cv_mobile';
 export const exportLinkedIn =
   'https://media.daily.dev/image/upload/s--UpRCf8h5--/f_auto/v1753166816/public/Export%20from%20LinkedIn%20popover%20web';
-
-export const boostNewPostBanner =
-  'https://media.daily.dev/image/upload/s--_UEbmtDg--/f_auto/v1753703398/public/booststrip';
-
-export const boostNewPostBannerLight =
-  'https://media.daily.dev/image/upload/s--7CGTLpY_--/f_auto/v1754295928/public/boost-wv';
 
 export const jobsWelcomeDarkMode =
   'https://media.daily.dev/image/upload/s--iK8V4i-t--/f_auto/v1754903868/public/darkbg-Super%20Career%20Connector';
@@ -495,3 +486,6 @@ export const cloudinaryPatchyBone =
 
 export const cloudinaryViceCityCover =
   'https://media.daily.dev/image/upload/s--M2qNVdoS--/f_auto,q_auto/public/theme-vice-city-cover.webp';
+
+export const boostLiveArt =
+  'https://media.daily.dev/image/upload/s--Q135FeGF--/f_auto,q_auto/v1794909938/public/boost-strip-patchy-v2';

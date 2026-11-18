@@ -22,36 +22,53 @@ import {
   SquadDirectoryNavbarItem,
 } from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryNavbar';
 import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import {
+  boostManagerUrl,
+  webappUrl,
+} from '@dailydotdev/shared/src/lib/constants';
+import { useCanPurchaseCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import ProtectedPage from '../ProtectedPage';
 
 export enum AnalyticsTab {
   Content = 'Content',
   Reputation = 'Reputation',
+  Boost = 'Boost',
 }
 
 const tabUrls: Record<AnalyticsTab, string> = {
   [AnalyticsTab.Content]: `${webappUrl}analytics`,
   [AnalyticsTab.Reputation]: `${webappUrl}analytics/reputation`,
+  [AnalyticsTab.Boost]: boostManagerUrl,
 };
-
-const tabs = Object.values(AnalyticsTab).map((label) => ({
-  label,
-  url: tabUrls[label],
-}));
 
 interface AnalyticsPageShellProps {
   activeTab: AnalyticsTab;
+  /** Links for the tab, at the end of the header */
+  actions?: ReactNode;
+  /** Room for a wide table */
+  isWide?: boolean;
   children: ReactNode;
 }
 
 export const AnalyticsPageShell = ({
   activeTab,
+  actions,
+  isWide = false,
   children,
 }: AnalyticsPageShellProps): ReactElement => {
   const router = useRouter();
   const isLaptopLayout = useLaptopLayout();
   const isPhone = useIsPhone();
+  const canPurchaseCores = useCanPurchaseCores();
+  // Boosts are paid in Cores, so the tab comes with them
+  const tabs = Object.values(AnalyticsTab)
+    .filter(
+      (label) =>
+        label !== AnalyticsTab.Boost ||
+        canPurchaseCores ||
+        activeTab === AnalyticsTab.Boost,
+    )
+    .map((label) => ({ label, url: tabUrls[label] }));
 
   // On laptop the tabs are the page header, like the Explore, Tags, Squads
   // and notification settings headers: the active tab names the page, and
@@ -76,9 +93,18 @@ export const AnalyticsPageShell = ({
 
   return (
     <ProtectedPage>
-      {isLaptopLayout && <PageHeader title={headerTabs} className="!py-0" />}
+      {isLaptopLayout && (
+        <PageHeader title={headerTabs} className="!py-0">
+          {actions}
+        </PageHeader>
+      )}
       {isPhone && <ShellPage title="Analytics" />}
-      <div className="mx-auto w-full max-w-[48rem]">
+      <div
+        className={classNames(
+          'mx-auto w-full',
+          isWide ? 'max-w-[64rem]' : 'max-w-[48rem]',
+        )}
+      >
         {!isLaptopLayout && !isPhone && (
           <LayoutHeader
             className={classNames(
@@ -94,6 +120,7 @@ export const AnalyticsPageShell = ({
             >
               Analytics
             </Typography>
+            {actions}
           </LayoutHeader>
         )}
         {!isLaptopLayout && (
