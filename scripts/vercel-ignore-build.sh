@@ -9,9 +9,19 @@
 
 cd "$(git rev-parse --show-toplevel)" || exit 1
 
+build() {
+  echo "Building: $1"
+  exit 1
+}
+
+skip() {
+  echo "Skipping: $1"
+  exit 0
+}
+
 case "$1" in
   webapp)
-    [ "$VERCEL_GIT_COMMIT_REF" = "cf" ] && exit 0
+    [ "$VERCEL_GIT_COMMIT_REF" = "cf" ] && skip "the cf branch never deploys"
     # Everything except what the webapp build never reads. The extension's
     # package.json stays in: next.config.ts takes the version from it.
     inputs=". :!packages/storybook :!packages/playwright :!packages/eslint-rules :!packages/extension/src :!packages/extension/__tests__ :!.circleci :!.github :!.claude :!.cursor :!.vscode :!docs :!plans :!oxlint-plugins :!.oxlintrc.json :!.oxfmtrc.json :!vercel.json :!*.md :!*.stories.tsx :!*.mdx"
@@ -22,7 +32,7 @@ case "$1" in
     touches="packages/storybook vercel.json scripts/vercel-ignore-build.sh"
     ;;
   *)
-    exit 1
+    build "unknown project '$1'"
     ;;
 esac
 
@@ -44,11 +54,11 @@ if [ "$VERCEL_ENV" != "production" ]; then
   depth=""
   [ "$(git rev-parse --is-shallow-repository)" = "true" ] && depth="--unshallow"
   git fetch --quiet --filter=blob:none $depth \
-    "https://github.com/$VERCEL_GIT_REPO_OWNER/$VERCEL_GIT_REPO_SLUG.git" main || exit 1
-  fork_point=$(git merge-base FETCH_HEAD HEAD) || exit 1
-  changed_since "$fork_point" "$touches" || exit 0
+    "https://github.com/$VERCEL_GIT_REPO_OWNER/$VERCEL_GIT_REPO_SLUG.git" main || build "could not fetch main"
+  fork_point=$(git merge-base FETCH_HEAD HEAD) || build "no common commit with main"
+  changed_since "$fork_point" "$touches" || skip "the branch does not touch $1"
 fi
 
-known "$previous" || exit 1
-changed_since "$previous" "$inputs" && exit 1
-exit 0
+known "$previous" || build "no previous deployment to compare with"
+changed_since "$previous" "$inputs" && build "$1 inputs changed since $previous"
+skip "nothing $1 uses changed since $previous"
