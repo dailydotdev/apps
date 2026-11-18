@@ -27,6 +27,7 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import {
+  ReputationEventFilter,
   ReputationPeriod,
   reputationEventsQueryOptions,
   reputationOverviewQueryOptions,
@@ -125,7 +126,12 @@ export const ReputationDashboard = (): ReactElement => {
     placeholderData: keepPreviousData,
   });
   const topSourcesQuery = useQuery(reputationTopSourcesQueryOptions({ user }));
-  const eventsQuery = useInfiniteQuery(reputationEventsQueryOptions({ user }));
+  const [activityFilter, setActivityFilter] = useState(
+    ReputationEventFilter.All,
+  );
+  const eventsQuery = useInfiniteQuery(
+    reputationEventsQueryOptions({ user, filter: activityFilter }),
+  );
   const events = useMemo(
     () =>
       eventsQuery.data?.pages.flatMap((page) =>
@@ -152,6 +158,17 @@ export const ReputationDashboard = (): ReactElement => {
         <ElementPlaceholder className="h-60 w-full rounded-12" />
         <ElementPlaceholder className="h-60 w-full rounded-12" />
       </div>
+    );
+  }
+
+  let activityPlaceholder: ReactNode;
+  if (eventsQuery.isPending) {
+    activityPlaceholder = (
+      <ElementPlaceholder className="h-60 w-full rounded-12" />
+    );
+  } else if (eventsQuery.isError && !events.length) {
+    activityPlaceholder = (
+      <SectionError title="Could not load your activity" query={eventsQuery} />
     );
   }
 
@@ -189,25 +206,17 @@ export const ReputationDashboard = (): ReactElement => {
       </Section>
       <Divider className={dividerClassName} />
       <Section title="Activity">
-        {eventsQuery.isPending && (
-          <ElementPlaceholder className="h-60 w-full rounded-12" />
-        )}
-        {eventsQuery.isError && !events.length && (
-          <SectionError
-            title="Could not load your activity"
-            query={eventsQuery}
-          />
-        )}
-        {eventsQuery.isSuccess && (
-          <ReputationActivity
-            events={events}
-            untracked={overview.untracked}
-            trackedSince={overview.trackedSince}
-            hasMore={eventsQuery.hasNextPage}
-            isLoadingMore={eventsQuery.isFetchingNextPage}
-            onLoadMore={() => eventsQuery.fetchNextPage()}
-          />
-        )}
+        <ReputationActivity
+          filter={activityFilter}
+          onFilterChange={setActivityFilter}
+          events={events}
+          placeholder={activityPlaceholder}
+          untracked={overview.untracked}
+          trackedSince={overview.trackedSince}
+          hasMore={eventsQuery.hasNextPage}
+          isLoadingMore={eventsQuery.isFetchingNextPage}
+          onLoadMore={() => eventsQuery.fetchNextPage()}
+        />
       </Section>
     </div>
   );
