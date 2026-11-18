@@ -23,6 +23,7 @@ import NewSquadModal from '@dailydotdev/shared/src/components/modals/squads/NewS
 import { SquadPageContextProvider } from '@dailydotdev/shared/src/features/squads/SquadPageContext';
 import { SquadManageLayout } from '@dailydotdev/shared/src/features/squads/components/manage/SquadManageLayout';
 import { SquadManagePlan } from '@dailydotdev/shared/src/features/squads/components/manage/SquadManagePlan';
+import { SquadManageLinks } from '@dailydotdev/shared/src/features/squads/components/manage/SquadManageLinks';
 import { SquadManageSection } from '@dailydotdev/shared/src/features/squads/lib/routes';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import {
@@ -313,6 +314,24 @@ export const ManageLocked: Story = {
     <SquadPageContextProvider squad={acme} isViewerReady>
       <SquadManageLayout section={SquadManageSection.Plan}>
         <SquadManagePlan />
+      </SquadManageLayout>
+    </SquadPageContextProvider>
+  ),
+};
+
+// A company page with no plan sets its website, the extra links stay paid
+const freeAcmeWithSite = {
+  ...acme,
+  website: 'https://acme.dev',
+  flags: { ...acme.flags, company: true },
+} as unknown as Squad;
+
+/** 5c. Manage: a free company page's Links section */
+export const ManageFreeCompanyLinks: Story = {
+  render: () => (
+    <SquadPageContextProvider squad={freeAcmeWithSite} isViewerReady>
+      <SquadManageLayout section={SquadManageSection.Links}>
+        <SquadManageLinks />
       </SquadManageLayout>
     </SquadPageContextProvider>
   ),

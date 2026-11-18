@@ -248,6 +248,7 @@ export const SQUAD_BASE_FRAGMENT = `
       totalUpvotes
       totalAwards
       campaignId
+      company
     }
     category {
       id

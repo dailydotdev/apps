@@ -112,6 +112,8 @@ interface SourceFlags {
   totalUpvotes: number;
   totalAwards: number;
   campaignId?: string;
+  /** A company page, with or without a plan */
+  company?: boolean;
 }
 
 // A missing key comes back as null and means off
