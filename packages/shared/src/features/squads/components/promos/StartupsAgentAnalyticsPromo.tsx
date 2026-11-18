@@ -26,7 +26,7 @@ import {
   StartupsPromoSpot,
   useStartupsPromo,
 } from '../../hooks/useStartupsPromo';
-import { getStartupsPromoAction, MonthlyCredits } from './StartupsPromo';
+import { MonthlyCredits } from './StartupsPromo';
 
 const AgentViewsChart = dynamic(
   () =>
@@ -143,7 +143,10 @@ export const StartupsAgentAnalyticsPromo = ({
               <MonthlyCredits promo={promo} /> every month.
             </>
           ) : (
-            'Company pages on the Startup plan see every read and crawl, day by day. You can start with a free page.'
+            <>
+              {`Get a company page for ${promo.starterPrice} a month to see every read and crawl, day by day, with `}
+              <MonthlyCredits promo={promo} /> every month.
+            </>
           )}
         </Typography>
         <Button
@@ -153,7 +156,7 @@ export const StartupsAgentAnalyticsPromo = ({
           size={ButtonSize.Small}
           onClick={promo.onClick}
         >
-          {getStartupsPromoAction(promo)}
+          See plans
         </Button>
       </div>
     </div>,

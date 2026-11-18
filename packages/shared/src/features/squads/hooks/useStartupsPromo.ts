@@ -65,11 +65,11 @@ export interface StartupsPromo extends StartupsStarterOffer {
   isShown: boolean;
   /**
    * The free company page the plan would go on. Unset: the viewer runs none,
-   * so the promo offers a free company page instead of the plan.
+   * so the promo leads to a new company page with the plan picked.
    */
   squad?: Squad;
   starterPrice: string;
-  /** The page's plan screen, or the free company page form */
+  /** The page's plan screen, or the company page form with Starter picked */
   href: string;
   onClick: () => void;
   /** Hides this and every other Startups promotion, on all devices */
@@ -191,7 +191,10 @@ export const useStartupsPromo = ({
     starterPrice: prices[SquadPlan.Starter],
     href: squad
       ? getSquadManageUrl(squad.handle, SquadManageSection.Plan)
-      : getCompanyPageCreateUrl({ cta: spot.replace(/ /g, '_') }),
+      : getCompanyPageCreateUrl({
+          plan: SquadPlan.Starter,
+          cta: spot.replace(/ /g, '_'),
+        }),
     onClick,
     onDismiss,
   };

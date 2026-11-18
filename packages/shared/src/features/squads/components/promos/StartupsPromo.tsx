@@ -86,13 +86,6 @@ export const LaunchOfferBanner = ({
   );
 };
 
-// What a promo leads to without a company page to upgrade
-export const FREE_COMPANY_PAGE_BOOST = '$100';
-
-/** "See plans" for a company page, "Create company page" for everyone else */
-export const getStartupsPromoAction = (promo: StartupsPromo): string =>
-  promo.squad ? 'See plans' : 'Create company page';
-
 const SeePlans = ({
   promo,
   variant = ButtonVariant.Primary,
@@ -110,7 +103,7 @@ const SeePlans = ({
     className={className}
     onClick={promo.onClick}
   >
-    {getStartupsPromoAction(promo)}
+    See plans
   </Button>
 );
 
@@ -153,13 +146,13 @@ const Card = ({
     )}
     style={style}
   >
-    {promo.squad && <LaunchOfferBanner promo={promo} />}
+    <LaunchOfferBanner promo={promo} />
     {isDismissible && (
       <CloseButton
         size={ButtonSize.XSmall}
         className={classNames(
           'absolute right-1.5',
-          promo.squad && promo.launchOffer ? 'top-0' : 'top-1.5',
+          promo.launchOffer ? 'top-0' : 'top-1.5',
         )}
         aria-label="Don't show this offer again"
         onClick={promo.onDismiss}
@@ -208,7 +201,7 @@ export const StartupsBoostPromo = ({
 
   return (
     <div className="relative flex flex-col gap-2 overflow-hidden rounded-16 border border-border-subtlest-secondary p-3">
-      {promo.squad && promo.launchOffer && (
+      {promo.launchOffer && (
         <span className="absolute -right-9 top-3 w-32 rotate-45 bg-accent-onion-default py-0.5 text-center font-bold text-white typo-caption2">
           {formatCashbackMultiple(promo.cashback)} value
         </span>
@@ -217,18 +210,12 @@ export const StartupsBoostPromo = ({
         <CoresBadge />
         <span className="flex min-w-0 flex-1 flex-col">
           <strong className="typo-callout">
-            {promo.squad ? (
-              <>
-                Get <MonthlyCredits promo={promo} /> every month
-              </>
-            ) : (
-              'Boosting for your startup?'
-            )}
+            Get <MonthlyCredits promo={promo} /> every month
           </strong>
           <span className="text-text-tertiary typo-caption1">
             {promo.squad
               ? `Upgrade ${promo.squad.name} to the Startup plan for ${promo.starterPrice} a month and use them to boost its posts.`
-              : `Create a free company page. We boost its first post with ${FREE_COMPANY_PAGE_BOOST} in credits.`}
+              : `Boosting for your startup? Get a company page for ${promo.starterPrice} a month.`}
           </span>
         </span>
       </span>
@@ -239,7 +226,7 @@ export const StartupsBoostPromo = ({
         size={ButtonSize.XSmall}
         onClick={promo.onClick}
       >
-        {getStartupsPromoAction(promo)}
+        See plans
       </Button>
     </div>
   );
@@ -276,7 +263,11 @@ export const StartupsAdsDashboardPromo = ({
                   {' every month.'}
                 </>
               ) : (
-                `If you're boosting for your startup, create a free company page. We boost its first post with ${FREE_COMPANY_PAGE_BOOST} in credits.`
+                <>
+                  {`Get a company page for ${promo.starterPrice} a month, with `}
+                  <MonthlyCredits promo={promo} />
+                  {' every month.'}
+                </>
               )}
             </Body>
           </div>

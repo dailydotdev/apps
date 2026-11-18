@@ -40,8 +40,9 @@ import ExtensionProviders from '../../extension/_providers';
 // Mockups of the daily.dev for Startups promotions outside the squad page:
 // boosting, buying Cores for a boost, the wallet, the ads dashboard and the
 // Manage menu. The viewer runs Acme, a company page with no plan, and the
-// launch promo (500% for a year) is on. The "free page" stories are for
-// someone who runs no company page: they get a free company page instead.
+// launch promo (500% for a year) is on. The "no page" stories are for someone
+// who runs no company page: See plans opens the company page form with Starter
+// picked.
 
 const acme = {
   id: 'acme-squad',
@@ -217,7 +218,7 @@ export const BoostSquadPost: Story = {
   render: () => <BoostPostModal isOpen post={acmePost} onRequestClose={noop} />,
 };
 
-/** 1. Boosting a personal post, with no company page: a free page */
+/** 1. Boosting a personal post, with no company page */
 export const BoostPersonalPost: Story = {
   beforeEach: withSquads([]),
   render: () => (
@@ -288,8 +289,8 @@ export const BuyCoresFromBoost: Story = {
   ),
 };
 
-/** 2. Buy Cores from a personal boost, with no company page: a free page */
-export const BuyCoresFreePage: Story = {
+/** 2. Buy Cores from a personal boost, with no company page */
+export const BuyCoresNoPage: Story = {
   beforeEach: withSquads([]),
   render: () => (
     <SeedCorePacks>
@@ -318,8 +319,8 @@ export const Wallet: Story = {
   render: () => <WalletColumn />,
 };
 
-/** 3. The wallet, with no company page: a free page */
-export const WalletFreePage: Story = {
+/** 3. The wallet, with no company page */
+export const WalletNoPage: Story = {
   beforeEach: withSquads([]),
   render: () => <WalletColumn />,
 };
@@ -333,8 +334,8 @@ export const AdsDashboard: Story = {
   ),
 };
 
-/** 4. Boost manager, with no company page: a free page */
-export const AdsDashboardFreePage: Story = {
+/** 4. Boost manager, with no company page */
+export const AdsDashboardNoPage: Story = {
   ...AdsDashboard,
   beforeEach: withSquads([]),
 };

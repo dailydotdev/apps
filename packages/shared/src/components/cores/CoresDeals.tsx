@@ -18,11 +18,7 @@ import type {
   StartupsPromoSpot,
 } from '../../features/squads/hooks/useStartupsPromo';
 import { useStartupsPromo } from '../../features/squads/hooks/useStartupsPromo';
-import {
-  FREE_COMPANY_PAGE_BOOST,
-  getStartupsPromoAction,
-  MonthlyCredits,
-} from '../../features/squads/components/promos/StartupsPromo';
+import { MonthlyCredits } from '../../features/squads/components/promos/StartupsPromo';
 import {
   formatCashbackMultiple,
   SquadPlan,
@@ -187,16 +183,12 @@ const StartupsDeal = ({
   <DealCard
     isCompact={isCompact}
     name="Startups"
-    badge={
-      promo.squad
-        ? `${formatCashbackMultiple(promo.cashback)} value`
-        : 'No card needed'
-    }
+    badge={`${formatCashbackMultiple(promo.cashback)} value`}
     badgeClassName="bg-accent-cabbage-default text-surface-invert"
     art={{ src: startupsCrewCheerImage, alt: 'Two founders cheering' }}
     tint="from-overlay-float-cabbage"
-    value={promo.squad ? promo.starterPrice : 'Free'}
-    unit={promo.squad ? '/ month' : 'to start'}
+    value={promo.starterPrice}
+    unit="/ month"
     perk={
       <DealPerk
         className="border-accent-cabbage-subtler bg-overlay-float-cabbage"
@@ -206,25 +198,11 @@ const StartupsDeal = ({
             className="shrink-0 text-accent-cabbage-default"
           />
         }
-        title={
-          promo.squad ? (
-            <MonthlyCredits promo={promo} />
-          ) : (
-            `${FREE_COMPANY_PAGE_BOOST} boost on your first post`
-          )
-        }
-        note={
-          promo.squad
-            ? ['every month', promo.promoLength].filter(Boolean).join(' ')
-            : 'when you create your company page'
-        }
+        title={<MonthlyCredits promo={promo} />}
+        note={['every month', promo.promoLength].filter(Boolean).join(' ')}
       />
     }
-    tagline={
-      promo.squad
-        ? squadPlanDetails[SquadPlan.Starter].tagline
-        : 'A company page for your startup.'
-    }
+    tagline={squadPlanDetails[SquadPlan.Starter].tagline}
     action={
       <Button
         tag="a"
@@ -233,7 +211,7 @@ const StartupsDeal = ({
         size={ButtonSize.XSmall}
         onClick={promo.onClick}
       >
-        {getStartupsPromoAction(promo)}
+        See plans
       </Button>
     }
   />
