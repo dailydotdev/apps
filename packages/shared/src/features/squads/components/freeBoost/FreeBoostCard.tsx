@@ -117,7 +117,7 @@ const tilesColumns: Record<number, string> = {
 
 const Tiles = ({ stats }: { stats: FreeBoostStats }): ReactElement | null => {
   const tiles = [
-    { label: 'Developers reached', value: stats.reach },
+    { label: 'Reach', value: stats.reach },
     { label: 'Clicks', value: stats.clicks },
     { label: 'Bookmarks', value: stats.bookmarks },
     { label: 'New followers', value: stats.followers },

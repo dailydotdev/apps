@@ -115,11 +115,11 @@ export const SquadValuePanel = ({
   }
 
   const tiles = [
-    { value: stats.reach, label: 'Developers reached' },
+    { value: stats.reach, label: 'Reach' },
     { value: stats.clicks, label: 'Clicks' },
     { value: stats.engagement, label: 'Engagement' },
     { value: stats.followers, label: 'Followers' },
-    { value: stats.agentViews ?? 0, label: 'AI agent reads' },
+    { value: stats.agentViews ?? 0, label: 'AI reads' },
   ].filter(({ value }) => value > 0);
 
   return (
