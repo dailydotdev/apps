@@ -17,12 +17,8 @@ import { SearchField } from '../fields/SearchField';
 import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
 import { PersonaSelector } from './PersonaSelector';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import {
-  featureOnboardingPersonas,
-  featureOnboardingTagProgress,
-} from '../../lib/featureManagement';
+import { featureOnboardingPersonas } from '../../lib/featureManagement';
 import { subscribePersonaSelection } from './onboardingPopBus';
-import { TagProgressHeader } from './TagProgressHeader';
 
 // The column cap needs a matching width cap: the feed only caps its own width
 // above 2156px, so a capped preview would otherwise stretch its cards.
@@ -69,11 +65,6 @@ export const EditTag = ({
     shouldEvaluate: !!feedSettings,
   });
 
-  const { value: showTagProgress } = useConditionalFeature({
-    feature: featureOnboardingTagProgress,
-    shouldEvaluate: !!feedSettings && !!isOnboarding,
-  });
-
   const tagsRef = useRef<HTMLDivElement>(null);
   const hasScrolledToTagsRef = useRef(false);
 
@@ -100,17 +91,9 @@ export const EditTag = ({
 
   return (
     <>
-      {isOnboarding && showTagProgress && (
-        <TagProgressHeader
-          count={tagsCount}
-          headline={resolvedHeadline}
-          requiredTags={requiredTags}
-        />
-      )}
-      {isOnboarding && !showTagProgress && (
+      {isOnboarding ? (
         <OnboardingHeadline>{resolvedHeadline}</OnboardingHeadline>
-      )}
-      {!isOnboarding && (
+      ) : (
         <h2 className="text-center font-bold typo-large-title">
           {resolvedHeadline}
         </h2>
