@@ -52,7 +52,6 @@ describe('getSquadManageGroups', () => {
       [SquadManageSection.Links]: SquadManageLockedPlan.Startups,
       [SquadManageSection.Branding]: SquadManageLockedPlan.Enterprise,
       [SquadManageSection.Intel]: SquadManageLockedPlan.Startups,
-      [SquadManageSection.AutoPosting]: SquadManageLockedPlan.Startups,
       [SquadManageSection.Agent]: SquadManageLockedPlan.Startups,
     });
   });
@@ -90,6 +89,13 @@ describe('getSquadManageGroups', () => {
     } as unknown as Squad;
 
     expect(locked(squad)).toEqual([]);
+  });
+
+  it('opens Auto-posting to editors of a squad with no plan', () => {
+    const squad = squadWith([SourcePermissions.Edit]);
+
+    expect(sections(squad)).toContain(SquadManageSection.AutoPosting);
+    expect(locked(squad)).not.toContain(SquadManageSection.AutoPosting);
   });
 
   it('shows no locks to staff who cannot edit the squad', () => {

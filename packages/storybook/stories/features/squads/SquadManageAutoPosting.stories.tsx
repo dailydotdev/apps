@@ -98,11 +98,10 @@ type Story = StoryObj;
 // What every daily.dev for Startups plan turns on that the app reads
 const base = { links: true, products: true };
 
-// No plan: the section is locked in the menu and leads to Subscription
+// No plan: the section is open so admins see what's possible, every method
+// locked behind Upgrade
 export const Free: Story = {
-  render: () => (
-    <Page id="free" features={{}} section={SquadManageSection.Details} />
-  ),
+  render: () => <Page id="free" features={{}} />,
 };
 
 export const StartupsStarter: Story = {

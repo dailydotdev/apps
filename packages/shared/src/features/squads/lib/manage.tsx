@@ -103,12 +103,6 @@ const planGates: Partial<Record<SquadManageSection, SquadManagePlanGate>> = {
     plan: SquadManageLockedPlan.Startups,
     isIncluded: isCompanySquad,
   },
-  // Posting through the API comes with every plan; RSS and YouTube inside it
-  // are Enterprise only
-  [SquadManageSection.AutoPosting]: {
-    plan: SquadManageLockedPlan.Startups,
-    isIncluded: isCompanySquad,
-  },
 };
 
 // Whether the viewer's role opens the section, whatever the squad's plan
@@ -123,6 +117,9 @@ const canSeeSection = (squad: Squad, section: SquadManageSection): boolean => {
     case SquadManageSection.Jobs:
     case SquadManageSection.Links:
     case SquadManageSection.Branding:
+      return canEdit;
+    // Open on every plan, free included, so admins see what is possible: each
+    // method inside shows Upgrade when the plan doesn't include it
     case SquadManageSection.AutoPosting:
       return canEdit;
     case SquadManageSection.Members:
