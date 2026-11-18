@@ -209,11 +209,6 @@ const Boosting = ({
   now = new Date(),
 }: BoostingProps): ReactElement => (
   <>
-    {endsAt && (
-      <span className="text-text-tertiary typo-caption1">
-        {timeLeft(endsAt, now)}
-      </span>
-    )}
     {stats.impressions > 0 ? (
       <>
         <Lead value={stats.impressions} label="impressions so far" />
@@ -239,10 +234,13 @@ const Boosting = ({
         shouldShowBg
         className={{ wrapper: 'h-2 rounded-8', bar: 'h-full rounded-8' }}
       />
-      {spent > 0 && (
-        <span className="text-text-tertiary typo-footnote">
-          {`${dollars(spent)} of $${BOOST_DOLLARS} spent`}
-        </span>
+      {(spent > 0 || endsAt) && (
+        <div className="flex justify-between gap-3 text-text-tertiary typo-footnote">
+          <span>
+            {spent > 0 && `${dollars(spent)} of $${BOOST_DOLLARS} spent`}
+          </span>
+          {endsAt && <span>{timeLeft(endsAt, now)}</span>}
+        </div>
       )}
     </div>
   </>
