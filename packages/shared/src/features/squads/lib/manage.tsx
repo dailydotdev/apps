@@ -21,7 +21,12 @@ import {
   TrashIcon,
   UserIcon,
 } from '../../../components/icons';
-import { canSetSquadButton, hasSquadFeature, isCompanySquad } from './features';
+import {
+  canSetSquadButton,
+  canSetSquadWebsite,
+  hasSquadFeature,
+  isCompanySquad,
+} from './features';
 import { SquadManageSection } from './routes';
 import type { SquadViewer } from './viewer';
 import { isStaffViewer } from './viewer';
@@ -87,7 +92,7 @@ const planGates: Partial<Record<SquadManageSection, SquadManagePlanGate>> = {
   },
   [SquadManageSection.Links]: {
     plan: SquadManageLockedPlan.Startups,
-    isIncluded: (squad) => hasSquadFeature(squad, 'links'),
+    isIncluded: canSetSquadWebsite,
   },
   // The brand color is Enterprise only, so the section locks to Enterprise.
   // The Startups Team plan still opens it for the header button alone.

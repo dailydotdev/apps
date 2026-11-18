@@ -147,6 +147,24 @@ describe('AgentClaim', () => {
     ).toHaveAttribute('href', 'https://r.daily.dev/extension');
   });
 
+  it('points a company page sign-up back to the page, without the extension', async () => {
+    mockUseOnboardingExtension.mockReturnValue({
+      shouldShowExtensionOnboarding: true,
+      browserName: 'Chrome',
+    });
+    mockApi({ status: 'claimed', intent: 'company' });
+    renderClaim({ ...loggedUser, infoConfirmed: true });
+
+    expect(
+      await screen.findByText(
+        'Head back to your agent, it will set up your company page.',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Get the extension' }),
+    ).not.toBeInTheDocument();
+  });
+
   it('asks for a new link when the code has expired', async () => {
     mockApi({ status: 'expired' });
     renderClaim();

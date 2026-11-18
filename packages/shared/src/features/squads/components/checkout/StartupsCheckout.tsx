@@ -363,6 +363,7 @@ const CompanyStep = ({
       memberPostingRole: SourceMemberRole.Moderator,
       memberInviteRole: SourceMemberRole.Member,
       moderationRequired: false,
+      company: true,
     });
   };
 

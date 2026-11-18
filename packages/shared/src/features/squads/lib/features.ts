@@ -28,6 +28,12 @@ export const isCompanySquad = (
 ): boolean =>
   hasSquadFeature(source, 'verified') || hasSquadFeature(source, 'products');
 
+// The website link: every plan, and company pages without one. The extra
+// links stay paid.
+export const canSetSquadWebsite = (
+  source: Pick<Source, 'features' | 'flags'> | undefined,
+): boolean => hasSquadFeature(source, 'links') || !!source?.flags?.company;
+
 // Verified squads get the full branding. The Startups Team plan gets only the
 // header button; the brand color stays an Enterprise feature.
 export const canSetSquadButton = (
