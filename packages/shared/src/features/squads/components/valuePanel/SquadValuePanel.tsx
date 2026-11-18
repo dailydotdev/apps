@@ -54,11 +54,9 @@ const Tile = ({
 );
 
 const Panel = ({
-  name,
   className,
   children,
 }: {
-  name: string;
   className?: string;
   children: ReactNode;
 }): ReactElement => (
@@ -68,12 +66,9 @@ const Panel = ({
       className,
     )}
   >
-    <div className="flex items-center justify-between gap-3">
-      <h2 className="font-bold typo-callout">{`What daily.dev did for ${name}`}</h2>
-      <span className="shrink-0 text-text-tertiary typo-caption1">
-        Only admins see this
-      </span>
-    </div>
+    <span className="text-text-tertiary typo-caption1">
+      Only admins see this
+    </span>
     {children}
   </section>
 );
@@ -90,7 +85,7 @@ export const SquadValuePanelPlaceholder = ({
 );
 
 /**
- * What daily.dev did for a company page, for its admins: impressions first,
+ * The value a company page got from daily.dev, for its admins: impressions first,
  * then the other big numbers, leaving out any that are still zero. On the free
  * plan it ends with the page's one upgrade block.
  */
@@ -111,7 +106,7 @@ export const SquadValuePanel = ({
         className={className}
       />
     ) : (
-      <Panel name={name} className={className}>
+      <Panel className={className}>
         <p className="text-text-tertiary typo-callout">
           Your numbers show up here once developers read your posts.
         </p>
@@ -128,7 +123,7 @@ export const SquadValuePanel = ({
   ].filter(({ value }) => value > 0);
 
   return (
-    <Panel name={name} className={className}>
+    <Panel className={className}>
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <span className="font-bold tabular-nums typo-mega2 tablet:typo-mega1">
           {number(stats.impressions)}
