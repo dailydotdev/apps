@@ -155,6 +155,41 @@ export const squadPlanDetails: Record<SquadPlan, SquadPlanDetails> = {
   },
 };
 
+// A company page without a plan: what it has and lacks, then what each plan
+// adds over it. Mirrors the Free card of the plan table on daily.dev/startups/
+// (recruiter-landing `StartupPlanTable.astro`); change both together.
+export const freeCompanyPageIncludes = [
+  '$100 boost on your first post',
+  'Company page',
+  'Limited exposure in the developer feed',
+  'Analytics on every post',
+  'Weekly report on what developers read',
+];
+
+export const freeCompanyPageLacks = [
+  'No distribution tools',
+  'No monthly boost credits',
+  'No API posting',
+  'No intel on what developers in your space read',
+];
+
+export const squadPlanOverFree: Record<SquadPlan, SquadPlanDetails> = {
+  [SquadPlan.Starter]: {
+    ...squadPlanDetails[SquadPlan.Starter],
+    featuresTitle: 'Everything in Free, plus:',
+    features: [
+      'Distribution tools to promote your posts',
+      'In developers’ feeds, by topic',
+      'On Google and in AI answers',
+      'Weekly intel on up to 5 topics',
+      'Skills for any coding agent',
+      'API, so your agent posts and boosts',
+      '1 seat',
+    ],
+  },
+  [SquadPlan.Team]: squadPlanDetails[SquadPlan.Team],
+};
+
 // Enterprise is set by ops for a signed contract, never bought here, so it has
 // no price, cashback or details of its own
 export const getSquadPlanTitle = (plan: string): string =>

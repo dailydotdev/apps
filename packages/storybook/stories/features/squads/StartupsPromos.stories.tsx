@@ -318,6 +318,24 @@ export const ManageLocked: Story = {
   ),
 };
 
+// A company page with no plan yet, before its first post: what free has and
+// lacks next to the plans
+const freeAcme = {
+  ...acme,
+  flags: { ...acme.flags, company: true, totalPosts: 0 },
+} as unknown as Squad;
+
+/** 5b. Manage: a free company page's plan section */
+export const ManageFreeCompanyPage: Story = {
+  render: () => (
+    <SquadPageContextProvider squad={freeAcme} isViewerReady>
+      <SquadManageLayout section={SquadManageSection.Plan}>
+        <SquadManagePlan />
+      </SquadManageLayout>
+    </SquadPageContextProvider>
+  ),
+};
+
 // A company page with no plan sets its website, the extra links stay paid
 const freeAcmeWithSite = {
   ...acme,
