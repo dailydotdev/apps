@@ -102,7 +102,10 @@ const toSquad = (scenario: Scenario): Squad => {
     createdAt: subDays(new Date(), scenario.pageAgeDays),
     category: { id: 'devtools', title: 'Developer tools', slug: 'devtools' },
     website: 'https://www.coderabbit.ai',
-    links: [],
+    // Extra links are a plan feature
+    links: scenario.plan
+      ? ['https://github.com/coderabbitai', 'https://x.com/coderabbitai']
+      : [],
     rules: [],
     privilegedMembers: [admin],
     currentMember: {
