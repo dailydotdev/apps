@@ -36,7 +36,9 @@ export const SquadWidgets = (): ReactElement => {
       <SquadTeamWidget squad={squad} />
       <SquadStack squad={squad} />
       <SimilarSquadsWidget key={squad.id} squad={squad} />
-      {isStaff && <SquadAnalyticsWidget squad={squad} />}
+      {isStaff && !isCompanyPage(squad) && (
+        <SquadAnalyticsWidget squad={squad} />
+      )}
       <SquadLinksWidget squad={squad} />
       <SquadDeveloperTrendsWidget />
     </>
