@@ -53,6 +53,7 @@ import {
   squadPlans,
   startupsEnterpriseUrl,
 } from '../../lib/plans';
+import type { SquadPlanDetails } from '../../lib/plans';
 import { useSquadPlanPrices } from '../../hooks/useSquadPlanPrices';
 import {
   SquadLaunchOfferBanner,
@@ -115,12 +116,14 @@ const PlanChoice = ({
   plan,
   price,
   action,
+  details = squadPlanDetails[plan],
 }: {
   plan: SquadPlan;
   price: string;
   action?: ReactNode;
+  details?: SquadPlanDetails;
 }): ReactElement => {
-  const { title, tagline, featuresTitle, features } = squadPlanDetails[plan];
+  const { title, tagline, featuresTitle, features } = details;
   const isRecommended = plan === SquadPlan.Starter;
 
   return (
@@ -175,8 +178,8 @@ const EnterpriseCard = ({ onClick }: { onClick: () => void }): ReactElement => (
     <div className="flex min-w-0 flex-1 flex-col gap-1">
       <p className="font-bold typo-callout">Enterprise</p>
       <p className="text-text-tertiary typo-footnote">
-        Verified badge, jobs board, homepage placement, campaigns and an account
-        team.
+        For established teams: a verified page, your logo on the daily.dev
+        homepage, targeted campaigns, and our team runs it with you.
       </p>
     </div>
     <Button
@@ -247,7 +250,7 @@ const FreeCompanyPlan = ({
           <ul className="flex flex-col gap-1.5">
             {freeCompanyPageIncludes.map((feature, index) => (
               <FeatureLine key={feature}>
-                {index === 1 ? <strong>{feature}</strong> : feature}
+                {index === 0 ? <strong>{feature}</strong> : feature}
               </FeatureLine>
             ))}
           </ul>
@@ -278,48 +281,29 @@ const FreeCompanyPlan = ({
       <SquadLaunchOfferBanner />
       <div className="grid gap-3 tablet:grid-cols-2">
         {squadPlans.map((plan) => (
-          <div
+          <PlanChoice
             key={plan}
-            className="flex flex-col gap-3 rounded-16 border p-4"
-            style={{
-              borderColor:
-                plan === SquadPlan.Starter
-                  ? 'var(--theme-accent-cabbage-default)'
-                  : 'var(--theme-border-subtlest-tertiary)',
-              background: plan === SquadPlan.Starter ? PREMIUM_WASH : undefined,
-            }}
-          >
-            <span className="font-bold typo-title3">
-              {squadPlanDetails[plan].title}
-            </span>
-            <span>
-              <span className="font-bold tabular-nums typo-title2">
-                {prices[plan]}
-              </span>
-              <span className="text-text-tertiary typo-footnote"> / month</span>
-            </span>
-            <ul className="flex flex-col gap-1.5 border-t border-border-subtlest-tertiary pt-3">
-              {squadPlanOverFree[plan].map((feature) => (
-                <FeatureLine key={feature}>{feature}</FeatureLine>
-              ))}
-            </ul>
-            <SquadPlanCashback plan={plan} />
-            {isAdmin && (
-              <Button
-                tag="a"
-                href={getStartupsCheckoutUrl({ plan, sourceId })}
-                onClick={() => onUpgrade(plan)}
-                variant={
-                  plan === SquadPlan.Starter
-                    ? ButtonVariant.Primary
-                    : ButtonVariant.Secondary
-                }
-                className="mt-auto w-full"
-              >
-                {`Choose ${squadPlanDetails[plan].title}`}
-              </Button>
-            )}
-          </div>
+            plan={plan}
+            price={prices[plan]}
+            details={squadPlanOverFree[plan]}
+            action={
+              isAdmin && (
+                <Button
+                  tag="a"
+                  href={getStartupsCheckoutUrl({ plan, sourceId })}
+                  onClick={() => onUpgrade(plan)}
+                  variant={
+                    plan === SquadPlan.Starter
+                      ? ButtonVariant.Primary
+                      : ButtonVariant.Secondary
+                  }
+                  className="mt-auto w-full"
+                >
+                  {`Choose ${squadPlanDetails[plan].title}`}
+                </Button>
+              )
+            }
+          />
         ))}
       </div>
     </>

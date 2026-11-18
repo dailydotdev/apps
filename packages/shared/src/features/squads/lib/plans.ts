@@ -155,13 +155,14 @@ export const squadPlanDetails: Record<SquadPlan, SquadPlanDetails> = {
   },
 };
 
-// What a company page without a plan has and lacks, next to what each plan
-// adds. Written as a contrast with free, so shorter than the plan cards.
+// A company page without a plan: what it has and lacks, then what each plan
+// adds over it. Mirrors the Free card of the plan table on daily.dev/startups/
+// (recruiter-landing `StartupPlanTable.astro`); change both together.
 export const freeCompanyPageIncludes = [
-  'Your company page',
   '$100 boost on your first post',
-  'Stats on who saw your posts and clicked through to your site',
-  'A weekly report on what developers across daily.dev are reading',
+  'Company page with a link to your site',
+  'Analytics on every post',
+  'Weekly report on what developers read',
 ];
 
 export const freeCompanyPageLacks = [
@@ -171,20 +172,20 @@ export const freeCompanyPageLacks = [
   'No intel on what developers in your space read',
 ];
 
-export const squadPlanOverFree: Record<SquadPlan, string[]> = {
-  [SquadPlan.Starter]: [
-    'Your posts in the developer feed',
-    'Found on Google',
-    'Found in AI answers, and you see which AI agents read your posts',
-    'API posting from your agent',
-    'Weekly intel on your 5 topics, with ideas for what to post next',
-  ],
-  [SquadPlan.Team]: [
-    'Everything in Starter',
-    '5 seats',
-    'Intel on 20 topics, filtered by reader seniority',
-    'Call-to-action button on your page',
-  ],
+export const squadPlanOverFree: Record<SquadPlan, SquadPlanDetails> = {
+  [SquadPlan.Starter]: {
+    ...squadPlanDetails[SquadPlan.Starter],
+    featuresTitle: 'Everything in Free, plus:',
+    features: [
+      'In developers’ feeds, by topic',
+      'On Google and in AI answers',
+      'Weekly intel on up to 5 topics',
+      'Skills for Claude Code and any agent',
+      'API, so your agent posts and boosts',
+      '1 seat',
+    ],
+  },
+  [SquadPlan.Team]: squadPlanDetails[SquadPlan.Team],
 };
 
 // Enterprise is set by ops for a signed contract, never bought here, so it has
