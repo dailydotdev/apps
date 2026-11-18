@@ -444,11 +444,3 @@ export const featureAgentOnboardingEntry = new Feature(
   'agent_onboarding_entry',
   false,
 );
-
-// The free company page path in the new squad modal and the agent prompt on
-// the company page form. Off until the free tier ships: the modal promises
-// the $100 first-post boost.
-export const featureCompanyPageCreation = new Feature(
-  'company_page_creation',
-  false,
-);

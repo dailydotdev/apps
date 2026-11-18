@@ -7,9 +7,7 @@ import { CompanyPageCreate } from '@dailydotdev/shared/src/features/squads/compo
 import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import { featureCompanyPageCreation } from '@dailydotdev/shared/src/lib/featureManagement';
 import { defaultBootData, getBootMock } from '../../../mock/boot';
-import { FeatureOverrides } from '../../../mock/GrowthBookProvider';
 import ExtensionProviders, {
   bootAsAnonymous,
 } from '../../extension/_providers';
@@ -74,11 +72,9 @@ const meta: Meta = {
     (Story) => (
       <ExtensionProviders>
         <div id="__next" className="min-h-screen bg-background-default">
-          <FeatureOverrides values={{ [featureCompanyPageCreation.id]: true }}>
-            <WhenBooted>
-              <Story />
-            </WhenBooted>
-          </FeatureOverrides>
+          <WhenBooted>
+            <Story />
+          </WhenBooted>
         </div>
       </ExtensionProviders>
     ),

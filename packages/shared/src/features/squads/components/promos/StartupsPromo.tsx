@@ -271,37 +271,3 @@ export const StartupsAdsDashboardPromo = ({
     </Card>
   );
 };
-
-/**
- * Spot 6: under the two ways to start in the new squad modal. The modal runs
- * the hook, since it shrinks its art to make room.
- */
-export const StartupsNewSquadModalPromo = ({
-  promo,
-}: {
-  promo: StartupsPromo;
-}): ReactElement | null => {
-  if (!promo.isShown) {
-    return null;
-  }
-
-  return (
-    <Card promo={promo} className="w-full text-left">
-      <div className="flex items-center gap-3 p-3 pr-4">
-        <CoresBadge />
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <Title>Starting this for your startup?</Title>
-          <Body>
-            Get in front of developers, with <MonthlyCredits promo={promo} />{' '}
-            every month.
-          </Body>
-        </div>
-        <SeePlans
-          promo={promo}
-          variant={ButtonVariant.Secondary}
-          className="shrink-0"
-        />
-      </div>
-    </Card>
-  );
-};

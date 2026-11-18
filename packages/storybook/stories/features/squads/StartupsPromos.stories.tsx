@@ -19,7 +19,6 @@ import { BoostManager } from '@dailydotdev/shared/src/features/boost/BoostManage
 import { BuyCoresModal } from '@dailydotdev/shared/src/components/modals/award/BuyCoresModal';
 import { CoresDeals } from '@dailydotdev/shared/src/components/cores/CoresDeals';
 import { StartupsPromoSpot } from '@dailydotdev/shared/src/features/squads/hooks/useStartupsPromo';
-import NewSquadModal from '@dailydotdev/shared/src/components/modals/squads/NewSquadModal';
 import { SquadPageContextProvider } from '@dailydotdev/shared/src/features/squads/SquadPageContext';
 import { SquadManageLayout } from '@dailydotdev/shared/src/features/squads/components/manage/SquadManageLayout';
 import { SquadManagePlan } from '@dailydotdev/shared/src/features/squads/components/manage/SquadManagePlan';
@@ -393,10 +392,4 @@ export const BuyCoresIntoSquadWallet: Story = {
       />
     </SeedCorePacks>
   ),
-};
-
-/** 6. Squad creation: the new squad modal */
-export const SquadCreateModal: Story = {
-  beforeEach: withSquads([]),
-  render: () => <NewSquadModal isOpen onRequestClose={noop} />,
 };
