@@ -15,7 +15,6 @@ import { SquadJobsWidget } from './SquadJobsWidget';
 import { SimilarSquadsWidget } from './SimilarSquadsWidget';
 import { SquadPlanUpsellWidget } from './SquadPlanUpsellWidget';
 import { SquadAgentWidget } from './SquadAgentWidget';
-import { SquadDeveloperTrendsWidget } from '../valuePanel/SquadDeveloperTrendsWidget';
 import { isCompanyPage } from '../../lib/companyPage';
 
 export const SquadWidgets = (): ReactElement => {
@@ -40,7 +39,6 @@ export const SquadWidgets = (): ReactElement => {
         <SquadAnalyticsWidget squad={squad} />
       )}
       <SquadLinksWidget squad={squad} />
-      <SquadDeveloperTrendsWidget />
     </>
   );
 };

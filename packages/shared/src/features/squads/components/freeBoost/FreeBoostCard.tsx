@@ -9,6 +9,7 @@ import {
 } from '../../../../components/buttons/Button';
 import { ProgressBar } from '../../../../components/fields/ProgressBar';
 import { LazyImage } from '../../../../components/LazyImage';
+import { largeNumberFormat } from '../../../../lib/numberFormat';
 
 /** What the free boost has delivered so far, from the post's analytics */
 export interface FreeBoostStats {
@@ -140,7 +141,7 @@ const Tiles = ({ stats }: { stats: FreeBoostStats }): ReactElement | null => {
           className="flex flex-col gap-0.5 rounded-12 border border-border-subtlest-tertiary bg-background-default p-3"
         >
           <span className="font-bold tabular-nums typo-title2">
-            {number(value)}
+            {largeNumberFormat(value)}
           </span>
           <span className="text-text-secondary typo-footnote">{label}</span>
         </div>

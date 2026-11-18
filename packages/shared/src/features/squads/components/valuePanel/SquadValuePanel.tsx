@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';
+import { largeNumberFormat } from '../../../../lib/numberFormat';
 import type { StartupsStarterOffer } from '../../hooks/useStartupsPromo';
 import { StarterUpgrade } from './StarterUpgrade';
 
@@ -48,7 +49,9 @@ const Tile = ({
   label: string;
 }): ReactElement => (
   <div className="flex flex-col gap-0.5 rounded-12 border border-border-subtlest-tertiary p-3">
-    <span className="font-bold tabular-nums typo-title2">{number(value)}</span>
+    <span className="font-bold tabular-nums typo-title2">
+      {largeNumberFormat(value)}
+    </span>
     <span className="text-text-secondary typo-footnote">{label}</span>
   </div>
 );

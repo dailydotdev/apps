@@ -261,7 +261,6 @@ export enum RequestKey {
   ReputationTopSources = 'reputation_top_sources',
   ReputationEvents = 'reputation_events',
   SquadAnalytics = 'squad_analytics',
-  DeveloperTrends = 'developer_trends',
   SquadAnalyticsHistory = 'squad_analytics_history',
   SquadAgentAnalytics = 'squad_agent_analytics',
   SquadAgentAnalyticsHistory = 'squad_agent_analytics_history',
