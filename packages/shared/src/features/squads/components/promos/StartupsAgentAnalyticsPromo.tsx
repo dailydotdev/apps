@@ -26,7 +26,7 @@ import {
   StartupsPromoSpot,
   useStartupsPromo,
 } from '../../hooks/useStartupsPromo';
-import { MonthlyCredits } from './StartupsPromo';
+import { getStartupsPromoAction, MonthlyCredits } from './StartupsPromo';
 
 const AgentViewsChart = dynamic(
   () =>
@@ -98,9 +98,6 @@ export const StartupsAgentAnalyticsPromo = ({
     return null;
   }
 
-  // Post analytics pitches the plan, not the squad the post is in
-  const name = isSquadAnalytics ? promo.squad?.name : undefined;
-
   return wrapper(
     <div className="grid overflow-hidden rounded-16 border border-border-subtlest-tertiary">
       <div
@@ -140,19 +137,23 @@ export const StartupsAgentAnalyticsPromo = ({
           className="max-w-md"
         >
           {`${agentNames} read posts on daily.dev when someone asks them about a topic. `}
-          {name
-            ? `Make ${name} your company page for ${promo.starterPrice} a month to see every read and crawl, day by day, with `
-            : `Get a company page for ${promo.starterPrice} a month to see every read and crawl, day by day, with `}
-          <MonthlyCredits promo={promo} /> every month.
+          {promo.squad ? (
+            <>
+              {`Upgrade ${promo.squad.name} to the Startup plan for ${promo.starterPrice} a month to see every read and crawl, day by day, with `}
+              <MonthlyCredits promo={promo} /> every month.
+            </>
+          ) : (
+            'Company pages on the Startup plan see every read and crawl, day by day. You can start with a free page.'
+          )}
         </Typography>
         <Button
           tag="a"
-          href={promo.checkoutUrl}
+          href={promo.href}
           variant={ButtonVariant.Primary}
           size={ButtonSize.Small}
           onClick={promo.onClick}
         >
-          See plans
+          {getStartupsPromoAction(promo)}
         </Button>
       </div>
     </div>,

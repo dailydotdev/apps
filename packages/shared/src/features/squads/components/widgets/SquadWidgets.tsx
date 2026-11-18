@@ -13,7 +13,6 @@ import { SquadLinksWidget } from './SquadLinksWidget';
 import { SquadRulesWidget } from './SquadRulesWidget';
 import { SquadJobsWidget } from './SquadJobsWidget';
 import { SimilarSquadsWidget } from './SimilarSquadsWidget';
-import { SquadPlanUpsellWidget } from './SquadPlanUpsellWidget';
 import { SquadAgentWidget } from './SquadAgentWidget';
 
 export const SquadWidgets = (): ReactElement => {
@@ -23,7 +22,6 @@ export const SquadWidgets = (): ReactElement => {
   return (
     <>
       <SquadPreviewToggle />
-      <SquadPlanUpsellWidget />
       {hasSquadFeature(squad, 'verified') && <VerifiedCompanySquadCard />}
       <SquadAgentWidget />
       {squad.flags?.featured && <FeaturedSquadCard />}
