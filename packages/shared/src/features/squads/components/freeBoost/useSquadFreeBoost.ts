@@ -42,6 +42,7 @@ export type FreeBoostState =
     }
   | {
       state: 'ended';
+      name: string;
       post: FreeBoostPost;
       stats: FreeBoostStats;
       offer: StartupsStarterOffer;
@@ -70,7 +71,7 @@ export const getFreeBoostState = ({
   promo,
   now = new Date(),
 }: {
-  squad: Pick<Squad, 'id' | 'handle'>;
+  squad: Pick<Squad, 'id' | 'handle' | 'name'>;
   freeBoost?: SquadFreeBoost | null;
   analytics?: PostAnalytics | null;
   promo: Parameters<typeof getStartupsStarterOffer>[0];
@@ -121,6 +122,7 @@ export const getFreeBoostState = ({
 
       return {
         state: 'ended',
+        name: squad.name,
         post: toPost(post),
         stats: toStats(analytics),
         offer: getStartupsStarterOffer(promo),

@@ -1,15 +1,10 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../../../components/buttons/Button';
 import { VIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import type { StartupsStarterOffer } from '../../hooks/useStartupsPromo';
-import { MonthlyCredits } from '../promos/StartupsPromo';
+import { StarterUpgrade } from './StarterUpgrade';
 
 export interface SquadValueStats {
   impressions: number;
@@ -71,54 +66,6 @@ const Fact = ({
   </div>
 );
 
-const Benefit = ({ children }: { children: ReactNode }): ReactElement => (
-  <li className="flex items-start gap-2 text-text-secondary typo-callout">
-    <VIcon
-      size={IconSize.Size16}
-      className="mt-0.5 shrink-0 text-accent-cabbage-default"
-    />
-    <span className="min-w-0 flex-1">{children}</span>
-  </li>
-);
-
-const Upgrade = ({
-  name,
-  upgrade,
-  className,
-}: {
-  name: string;
-  upgrade: SquadValueUpgrade;
-  className?: string;
-}): ReactElement => (
-  <div
-    className={classNames(
-      'flex flex-col gap-3 rounded-12 bg-overlay-float-cabbage p-4',
-      className,
-    )}
-  >
-    <h3 className="font-bold typo-body">
-      {`With Starter, ${name} reaches more developers:`}
-    </h3>
-    <ul className="flex flex-col gap-2">
-      <Benefit>Your posts in the developer feed</Benefit>
-      <Benefit>{`${name} on Google and in AI answers`}</Benefit>
-      <Benefit>
-        <MonthlyCredits promo={upgrade.offer} /> every month
-      </Benefit>
-    </ul>
-    <Button
-      tag="a"
-      href={upgrade.checkoutUrl}
-      onClick={upgrade.onClick}
-      variant={ButtonVariant.Primary}
-      size={ButtonSize.Medium}
-      className="self-start"
-    >
-      Keep the reach going
-    </Button>
-  </div>
-);
-
 /**
  * What daily.dev did for a company page, for its admins: impressions first,
  * then the other big numbers. On the free plan it ends with the page's one
@@ -133,7 +80,13 @@ export const SquadValuePanel = ({
   // Nothing to show off yet: a free page keeps only its upgrade block
   if (!stats.impressions) {
     return upgrade ? (
-      <Upgrade name={name} upgrade={upgrade} className={className} />
+      <StarterUpgrade
+        name={name}
+        offer={upgrade.offer}
+        checkoutUrl={upgrade.checkoutUrl}
+        onClick={upgrade.onClick}
+        className={className}
+      />
     ) : null;
   }
 
@@ -166,7 +119,12 @@ export const SquadValuePanel = ({
         <Tile value={stats.followers} label="Followers" />
       </div>
       {upgrade ? (
-        <Upgrade name={name} upgrade={upgrade} />
+        <StarterUpgrade
+          name={name}
+          offer={upgrade.offer}
+          checkoutUrl={upgrade.checkoutUrl}
+          onClick={upgrade.onClick}
+        />
       ) : (
         <div className="grid grid-cols-1 gap-2 tablet:grid-cols-2">
           <Fact name="Google">Your page and posts are open to search</Fact>

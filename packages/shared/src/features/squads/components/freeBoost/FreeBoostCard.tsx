@@ -10,7 +10,7 @@ import {
 import { ProgressBar } from '../../../../components/fields/ProgressBar';
 import { LazyImage } from '../../../../components/LazyImage';
 import type { StartupsStarterOffer } from '../../hooks/useStartupsPromo';
-import { MonthlyCredits } from '../promos/StartupsPromo';
+import { StarterUpgrade } from '../valuePanel/StarterUpgrade';
 
 /** What the free boost has delivered so far, from the post's analytics */
 export interface FreeBoostStats {
@@ -56,6 +56,8 @@ interface LiveProps {
 
 interface EndedProps {
   state: 'ended';
+  /** The company page's name */
+  name: string;
   post: FreeBoostPost;
   stats: FreeBoostStats;
   offer: StartupsStarterOffer;
@@ -303,6 +305,7 @@ const Live = ({
 );
 
 const Ended = ({
+  name,
   post,
   stats,
   offer,
@@ -314,28 +317,12 @@ const Ended = ({
     <Lead value={stats.impressions} label="impressions for your first post" />
     <Tiles stats={stats} />
     <PostRow post={post} />
-    <div className="flex flex-col gap-3 rounded-12 bg-overlay-float-cabbage p-4 tablet:flex-row tablet:items-center tablet:gap-5">
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <h3 className="font-bold typo-body">
-          Your next posts won&apos;t get this reach without a boost
-        </h3>
-        <p className="text-text-secondary typo-callout">
-          Starter puts <MonthlyCredits promo={offer} /> back in your wallet
-          every month, so you can boost like this again. Your page also shows up
-          on Google and in AI answers.
-        </p>
-      </div>
-      <Button
-        tag="a"
-        href={checkoutUrl}
-        variant={ButtonVariant.Primary}
-        size={ButtonSize.Medium}
-        className="shrink-0"
-        onClick={onUpgradeClick}
-      >
-        Keep the reach going
-      </Button>
-    </div>
+    <StarterUpgrade
+      name={name}
+      offer={offer}
+      checkoutUrl={checkoutUrl}
+      onClick={onUpgradeClick}
+    />
   </>
 );
 
