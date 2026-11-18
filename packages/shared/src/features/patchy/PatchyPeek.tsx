@@ -167,12 +167,7 @@ export const PatchyPeek = ({
       aria-hidden
       data-testid="patchy-peek"
       className="pointer-events-none fixed overflow-hidden"
-      // Fade the bottom edge so he doesn't look cut off mid-feed.
-      style={{
-        ...box,
-        maskImage: 'linear-gradient(to bottom, black 70%, transparent)',
-        WebkitMaskImage: 'linear-gradient(to bottom, black 70%, transparent)',
-      }}
+      style={box}
     >
       <div
         className="absolute bottom-0 left-0"

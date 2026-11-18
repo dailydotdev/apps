@@ -36,14 +36,15 @@ export const PatchyPanelHeader = ({
   const isAsleep = mood === 'away' || mood === 'resting';
 
   return (
-    <div className="mx-3 mb-3 flex items-center gap-3 rounded-16 bg-surface-float p-2 pr-3">
+    // mx-4 lines the card up with the streak hero's px-4 below it.
+    <div className="mx-4 mb-2 mt-1 flex items-center gap-2 rounded-16 bg-surface-float p-2 pr-3">
       <img
         src={isAsleep ? patchyDenImage.blink : patchyDenImage.idle}
         alt="Patchy"
-        className="h-20 w-auto shrink-0"
+        className="h-16 w-auto shrink-0"
         draggable={false}
       />
-      <div className="flex min-w-0 flex-col items-start gap-2">
+      <div className="flex min-w-0 flex-1 flex-col items-start gap-2">
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Secondary}
