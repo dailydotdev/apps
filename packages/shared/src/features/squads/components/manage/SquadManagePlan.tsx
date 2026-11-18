@@ -41,7 +41,7 @@ import { getStartupsCheckoutUrl, SquadManageSection } from '../../lib/routes';
 import {
   CORES_PER_USD,
   formatBoostCredits,
-  formatSquadPlanCredits,
+  getSquadPlanMonthlyCredits,
   freeCompanyPageIncludes,
   freeCompanyPageLacks,
   getSquadPlanCreditsForRate,
@@ -615,7 +615,7 @@ const getActiveCashbackDescription = (
   const until = cashbackPromoEndsAt
     ? ` until ${getPlusMemberDateFormat(
         cashbackPromoEndsAt,
-      )}, then ${formatSquadPlanCredits(plan)}`
+      )}, then ${formatBoostCredits(getSquadPlanMonthlyCredits(plan))}`
     : '';
 
   return `${credits} in boost credits lands here every month${until}. Seats spend them to boost this page's posts.`;

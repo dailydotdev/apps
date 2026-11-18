@@ -47,7 +47,7 @@ const Struck = ({
   </>
 );
 
-/** "$245 in boost credits", with Starter's own amount struck out during the launch offer */
+/** "$245 in free boost credits", with Starter's own amount struck out during the launch offer */
 export const MonthlyCredits = ({
   promo,
 }: {
@@ -62,7 +62,7 @@ export const MonthlyCredits = ({
     >
       {formatBoostCredits(promo.monthlyCredits)}
     </Struck>{' '}
-    in boost credits
+    in free boost credits
   </>
 );
 

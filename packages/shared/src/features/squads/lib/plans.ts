@@ -76,12 +76,12 @@ export const getSquadPlanMonthlyCredits = (
 ): number =>
   getSquadPlanCreditsForRate(plan, getSquadPlanCashback(plan, promo));
 
-/** "$245 in boost credits", the plan's own while the promo is off. */
+/** "$245 in free boost credits", the plan's own while the promo is off. */
 export const formatSquadPlanCredits = (
   plan: SquadPlan,
   promo?: StartupsCashbackPromo | null,
 ): string =>
-  `${formatBoostCredits(getSquadPlanMonthlyCredits(plan, promo))} in boost credits`;
+  `${formatBoostCredits(getSquadPlanMonthlyCredits(plan, promo))} in free boost credits`;
 
 /** "5×" for a 500% promo: how many times the plan price comes back. */
 export const formatCashbackMultiple = (percentage: number): string =>
