@@ -141,8 +141,8 @@ export const StartupsAgentAnalyticsPromo = ({
         >
           {`${agentNames} read posts on daily.dev when someone asks them about a topic. `}
           {name
-            ? `Upgrade ${name} for ${promo.starterPrice} a month to see every read and crawl, day by day, with `
-            : `Create a free company page, then upgrade it for ${promo.starterPrice} a month to see every read and crawl, day by day, with `}
+            ? `Make ${name} your company page for ${promo.starterPrice} a month to see every read and crawl, day by day, with `
+            : `Get a company page for ${promo.starterPrice} a month to see every read and crawl, day by day, with `}
           <MonthlyCredits promo={promo} /> every month.
         </Typography>
         <Button
@@ -152,7 +152,7 @@ export const StartupsAgentAnalyticsPromo = ({
           size={ButtonSize.Small}
           onClick={promo.onClick}
         >
-          {promo.squad ? 'See plans' : 'Start for free'}
+          See plans
         </Button>
       </div>
     </div>,
