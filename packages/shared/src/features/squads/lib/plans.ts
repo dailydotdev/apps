@@ -160,14 +160,15 @@ export const squadPlanDetails: Record<SquadPlan, SquadPlanDetails> = {
 // (recruiter-landing `StartupPlanTable.astro`); change both together.
 export const freeCompanyPageIncludes = [
   '$100 boost on your first post',
-  'Company page with a link to your site',
+  'Company page',
   'Limited exposure in the developer feed',
   'Analytics on every post',
   'Weekly report on what developers read',
 ];
 
 export const freeCompanyPageLacks = [
-  'Not on Google or in AI answers',
+  'No distribution tools',
+  'No monthly boost credits',
   'No API posting',
   'No intel on what developers in your space read',
 ];
@@ -177,10 +178,11 @@ export const squadPlanOverFree: Record<SquadPlan, SquadPlanDetails> = {
     ...squadPlanDetails[SquadPlan.Starter],
     featuresTitle: 'Everything in Free, plus:',
     features: [
+      'Distribution tools to promote your posts',
       'In developers’ feeds, by topic',
       'On Google and in AI answers',
       'Weekly intel on up to 5 topics',
-      'Skills for Claude Code and any agent',
+      'Skills for any coding agent',
       'API, so your agent posts and boosts',
       '1 seat',
     ],
