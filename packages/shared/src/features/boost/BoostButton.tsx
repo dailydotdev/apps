@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { useRouter } from 'next/router';
 import type { Post } from '../../graphql/posts';
 import type { ButtonProps } from '../../components/buttons/Button';
 import { Button, ButtonColor } from '../../components/buttons/Button';
@@ -7,8 +8,8 @@ import { ButtonVariant } from '../../components/buttons/common';
 import { BoostIcon } from '../../components/icons/Boost';
 import { LazyModal } from '../../components/modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import { useCampaignById } from '../../graphql/campaigns';
 import { Origin } from '../../lib/log';
+import { boostManagerUrl } from '../../lib/constants';
 import { useBoostOriginContext } from './BoostOriginContext';
 
 interface BoostButtonProps {
@@ -41,29 +42,22 @@ export function BoostPostButton({
   buttonProps?: ButtonProps<'button'>;
   origin?: Origin;
 }): ReactElement {
+  const router = useRouter();
   const { openModal } = useLazyModal();
   const { origin: contextOrigin } = useBoostOriginContext();
   const origin = originProp ?? contextOrigin ?? Origin.PostBoostButton;
   const campaignId = post?.flags?.campaignId ?? undefined;
-  const { data: campaign, isFetched } = useCampaignById(campaignId ?? '');
 
   const onBoost = () =>
     openModal({ type: LazyModal.BoostPost, props: { post, origin } });
 
-  const onViewBoost = () => {
-    if (!campaign) {
-      return;
-    }
-
-    openModal({ type: LazyModal.BoostedCampaignView, props: { campaign } });
-  };
+  const onViewBoost = () => router.push(boostManagerUrl);
 
   return (
     <BoostButton
       campaignId={campaignId}
       buttonProps={{
         ...buttonProps,
-        loading: !!campaignId && !isFetched,
         onClick: campaignId ? onViewBoost : onBoost,
       }}
     />

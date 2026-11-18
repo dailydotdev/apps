@@ -189,7 +189,7 @@ export function SquadPostContentRaw({
           post={post}
         >
           {shouldShowBanner && !isLaptop && (
-            <BoostNewPostStrip className="-mt-2 mb-4" />
+            <BoostNewPostStrip post={post} className="-mt-2 mb-4" />
           )}
           <div
             className={
@@ -206,7 +206,7 @@ export function SquadPostContentRaw({
               className={sourceInfoClassName}
             />
             {shouldShowBanner && !isUserSource && isLaptop && (
-              <BoostNewPostStrip />
+              <BoostNewPostStrip post={post} />
             )}
             {(post?.author || isFallback) && (
               <SquadPostAuthor
@@ -223,7 +223,7 @@ export function SquadPostContentRaw({
             )}
           </div>
           {shouldShowBanner && isUserSource && isLaptop && (
-            <BoostNewPostStrip className="mt-2" />
+            <BoostNewPostStrip post={post} className="mt-2" />
           )}
           <Content
             post={post}

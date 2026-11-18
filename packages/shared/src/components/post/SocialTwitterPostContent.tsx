@@ -158,7 +158,7 @@ export function SocialTwitterPostContentRaw({
           post={post}
         >
           {shouldShowBanner && !isLaptop && (
-            <BoostNewPostStrip className="-mt-2 mb-4" />
+            <BoostNewPostStrip post={post} className="-mt-2 mb-4" />
           )}
           <PostSourceInfo
             post={post}
@@ -167,7 +167,7 @@ export function SocialTwitterPostContentRaw({
             hideSubscribeAction={hideSubscribeAction}
             className={sourceInfoClassName}
           />
-          {shouldShowBanner && isLaptop && <BoostNewPostStrip />}
+          {shouldShowBanner && isLaptop && <BoostNewPostStrip post={post} />}
           <PostMetadata
             createdAt={post.createdAt}
             readTime={post.readTime}

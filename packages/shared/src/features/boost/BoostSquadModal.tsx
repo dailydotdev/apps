@@ -25,10 +25,7 @@ import { BoostWalletBalance } from './BoostWalletBalance';
 import { StartupsBoostPromo } from '../squads/components/promos/StartupsPromo';
 import { StartupsPromoSpot } from '../squads/hooks/useStartupsPromo';
 import { CoresDeals } from '../../components/cores/CoresDeals';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { LazyModal } from '../../components/modals/common/types';
-import { ActionSuccessModal } from '../../components/modals/utils/ActionSuccessModal';
-import { boostSuccessCover } from '../../lib/image';
+import { BoostLiveModal } from './BoostLiveModal';
 import { boostDocsLink } from '../../lib/constants';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { Loader } from '../../components/Loader';
@@ -67,7 +64,6 @@ export function BoostSquadModal({
   const { user } = useAuthContext();
   const client = useQueryClient();
   const { getFeatureValue } = useFeaturesReadyContext();
-  const { openModal } = useLazyModal();
   const [activeScreen, setActiveScreen] = useState<Screens>(SCREENS.FORM);
   const boostSettings = getFeatureValue(boostSettingsFeature);
   const [coresPerDay, setCoresPerDay] = React.useState(
@@ -191,26 +187,9 @@ export function BoostSquadModal({
 
   if (activeScreen === SCREENS.SUCCESS) {
     return (
-      <ActionSuccessModal
+      <BoostLiveModal
         {...props}
-        cta={{
-          copy: 'Track performance',
-          onClick: () => openModal({ type: LazyModal.AdsDashboard }),
-        }}
-        secondaryCta={{
-          copy: 'Learn more about boosting',
-          tag: 'a',
-          href: boostDocsLink,
-          target: '_blank',
-        }}
-        content={{
-          title: 'Boost is live!',
-          description: 'Your Squad is now live and reaching more developers!',
-          cover: boostSuccessCover,
-        }}
-        modalCloseButtonProps={{
-          variant: ButtonVariant.Tertiary,
-        }}
+        description="Your Squad is now reaching more developers. Find it any time in Boost manager."
       />
     );
   }

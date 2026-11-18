@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import nock from 'nock';
 import { useRouter } from 'next/router';
@@ -16,10 +16,11 @@ import {
   CampaignType,
   DAILY_CAMPAIGN_REACH_ESTIMATE,
 } from '../../graphql/campaigns';
-import { boostSettingsFeature } from '../../lib/featureManagement';
+import { boostManagerUrl } from '../../lib/constants';
 import { MODAL_KEY } from '../useLazyModal';
 
 const replace = jest.fn();
+const push = jest.fn();
 
 const CampaignByIdModal = (): null => {
   useCampaignByIdModal();
@@ -68,11 +69,11 @@ beforeEach(() => {
     query: { c_id: 'c1' },
     pathname: '/notifications',
     replace,
-    push: jest.fn(),
+    push,
   });
 });
 
-it('should open the post boost modal when boosting an ended post again', async () => {
+it('should open the boost form with the last budget for an ended post', async () => {
   mockCampaign(createCampaign({ type: CampaignType.Post, post }));
   mockGraphQL({
     request: {
@@ -80,27 +81,39 @@ it('should open the post boost modal when boosting an ended post again', async (
       variables: {
         type: CampaignType.Post,
         value: post.id,
-        budget: boostSettingsFeature.defaultValue.default_cores,
+        budget: 714,
       },
     },
     result: { data: { dailyCampaignReachEstimate: { min: 100, max: 200 } } },
   });
   renderComponent();
 
-  fireEvent.click(await screen.findByRole('button', { name: 'Boost again' }));
-
   expect(await screen.findByText('Boost your post')).toBeInTheDocument();
+  expect(
+    screen.getByText('Last boost: 4,998 Cores over 7 days'),
+  ).toBeInTheDocument();
   expect(replace).toHaveBeenCalledWith('/notifications');
 });
 
-it('should open the squad boost modal when boosting an ended squad again', async () => {
+it('should open the squad boost modal for an ended squad boost', async () => {
   mockCampaign(
     createCampaign({ type: CampaignType.Squad, source: generateTestSquad() }),
   );
   renderComponent();
 
-  fireEvent.click(await screen.findByRole('button', { name: 'Boost again' }));
-
   expect(await screen.findByText('Boost your Squad')).toBeInTheDocument();
   expect(replace).toHaveBeenCalledWith('/notifications');
+});
+
+it('should open Boost manager for a live boost', async () => {
+  mockCampaign(
+    createCampaign({
+      type: CampaignType.Post,
+      post,
+      state: CampaignState.Active,
+    }),
+  );
+  renderComponent();
+
+  await waitFor(() => expect(push).toHaveBeenCalledWith(boostManagerUrl));
 });

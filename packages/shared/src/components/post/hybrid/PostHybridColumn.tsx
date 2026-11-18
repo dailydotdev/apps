@@ -490,7 +490,7 @@ export function PostHybridColumn({
         </div>
       </div>
 
-      {showBoostStrip && <BoostNewPostStrip />}
+      {showBoostStrip && <BoostNewPostStrip post={post} />}
 
       <div className="flex min-w-0 flex-col gap-3">
         {squadAttribution && (

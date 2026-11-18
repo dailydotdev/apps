@@ -133,8 +133,6 @@ const preview: Preview = {
               'Tips exploration',
             ],
           ],
-          'Cores & Boost',
-          ['Redesign', ['0. Today vs redesign', '2. Boost and analytics']],
         ],
       },
     },

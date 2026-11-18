@@ -26,7 +26,7 @@ import useMutateFilters from '../../../hooks/useMutateFilters';
 import useFeedSettings from '../../../hooks/useFeedSettings';
 import { useShareOrCopyLink } from '../../../hooks/useShareOrCopyLink';
 import { LogEvent } from '../../../lib/log';
-import { plusUrl } from '../../../lib/constants';
+import { boostManagerUrl, plusUrl } from '../../../lib/constants';
 import { visibleOnGroupHover } from './common';
 
 interface SquadOptionsButtonProps {
@@ -88,11 +88,7 @@ export function SquadOptionsButton({
       list.unshift({
         label: 'Manage ad',
         icon: <TrendingIcon />,
-        action: () =>
-          openModal({
-            type: LazyModal.BoostedCampaignView,
-            props: { campaign },
-          }),
+        anchorProps: { href: boostManagerUrl },
       });
     }
 
@@ -105,7 +101,6 @@ export function SquadOptionsButton({
     squad,
     isBooster,
     openModal,
-    campaign,
   ]);
 
   return (

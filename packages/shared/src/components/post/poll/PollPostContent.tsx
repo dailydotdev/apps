@@ -175,7 +175,7 @@ function PollPostContentRaw({
           post={post}
         >
           {shouldShowBanner && !isLaptop && (
-            <BoostNewPostStrip className="-mt-2 mb-4" />
+            <BoostNewPostStrip post={post} className="-mt-2 mb-4" />
           )}
           <div
             className={
@@ -192,7 +192,7 @@ function PollPostContentRaw({
               className={sourceInfoClassName}
             />
             {shouldShowBanner && !isUserSource && isLaptop && (
-              <BoostNewPostStrip />
+              <BoostNewPostStrip post={post} />
             )}
             <SquadPostAuthor
               author={post?.author}
@@ -206,7 +206,7 @@ function PollPostContentRaw({
             />
           </div>
           {shouldShowBanner && isUserSource && isLaptop && (
-            <BoostNewPostStrip className="mt-2" />
+            <BoostNewPostStrip post={post} className="mt-2" />
           )}
           <div className={pollTitleClassName}>
             <Typography
