@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { differenceInDays, differenceInMinutes } from 'date-fns';
+import { differenceInMinutes } from 'date-fns';
 import {
   Button,
   ButtonSize,
@@ -9,8 +9,6 @@ import {
 } from '../../../../components/buttons/Button';
 import { ProgressBar } from '../../../../components/fields/ProgressBar';
 import { LazyImage } from '../../../../components/LazyImage';
-import type { StartupsStarterOffer } from '../../hooks/useStartupsPromo';
-import { StarterUpgrade } from '../valuePanel/StarterUpgrade';
 
 /** What the free boost has delivered so far, from the post's analytics */
 export interface FreeBoostStats {
@@ -31,46 +29,21 @@ interface FirstPostProps {
   state: 'first_post';
   /** The composer, opened on this company page */
   composeUrl: string;
-  /** The page's offer ends 30 days after it was created */
-  availableUntil?: Date;
-  /** The latest post, held back for limited reach: the boost waits */
-  heldPost?: FreeBoostPost;
-  now?: Date;
 }
 
-interface PendingProps {
-  state: 'pending';
-  post: FreeBoostPost;
-}
-
-interface LiveProps {
-  state: 'live';
+interface BoostingProps {
+  state: 'boosting';
   post: FreeBoostPost;
   stats: FreeBoostStats;
   /** Cores spent so far; 100 Cores = $1 */
   spent: number;
   budget: number;
-  endsAt: Date;
+  /** Unset while the post's checks run, before the boost starts */
+  endsAt?: Date;
   now?: Date;
 }
 
-interface EndedProps {
-  state: 'ended';
-  /** The company page's name */
-  name: string;
-  post: FreeBoostPost;
-  stats: FreeBoostStats;
-  offer: StartupsStarterOffer;
-  checkoutUrl: string;
-  onUpgradeClick?: () => void;
-}
-
-export type FreeBoostCardProps = (
-  | FirstPostProps
-  | PendingProps
-  | LiveProps
-  | EndedProps
-) & {
+export type FreeBoostCardProps = (FirstPostProps | BoostingProps) & {
   className?: string;
 };
 
@@ -90,16 +63,6 @@ const timeLeft = (endsAt: Date, now: Date): string => {
   const hours = Math.round(minutes / 60);
 
   return `${hours} ${hours === 1 ? 'hour' : 'hours'} left`;
-};
-
-const offerEnds = (availableUntil: Date, now: Date): string => {
-  const days = Math.max(differenceInDays(availableUntil, now), 0);
-
-  if (days === 0) {
-    return 'Offer ends today';
-  }
-
-  return `Offer ends in ${days} ${days === 1 ? 'day' : 'days'}`;
 };
 
 const cabbageGlow =
@@ -128,12 +91,7 @@ const Card = ({
   </section>
 );
 
-/** The small gray note at the top of each card */
-const Caption = ({ children }: { children: ReactNode }): ReactElement => (
-  <span className="text-text-tertiary typo-caption1">{children}</span>
-);
-
-/** The big number every state leads with: impressions */
+/** The big number the boost leads with: impressions */
 const Lead = ({
   value,
   label,
@@ -149,7 +107,7 @@ const Lead = ({
   </div>
 );
 
-// A tile at 0 says nothing good about the boost, so only the ones above 0 show
+// A 0 says nothing good about the boost, so only the tiles above 0 show
 const tilesColumns: Record<number, string> = {
   1: 'tablet:grid-cols-2',
   2: 'tablet:grid-cols-2',
@@ -157,13 +115,17 @@ const tilesColumns: Record<number, string> = {
   4: 'tablet:grid-cols-4',
 };
 
-const Tiles = ({ stats }: { stats: FreeBoostStats }): ReactElement => {
+const Tiles = ({ stats }: { stats: FreeBoostStats }): ReactElement | null => {
   const tiles = [
     { label: 'Developers reached', value: stats.reach },
     { label: 'Clicks', value: stats.clicks },
     { label: 'Bookmarks', value: stats.bookmarks },
     { label: 'New followers', value: stats.followers },
-  ].filter(({ label, value }) => value > 0 || label === 'Developers reached');
+  ].filter(({ value }) => value > 0);
+
+  if (!tiles.length) {
+    return null;
+  }
 
   return (
     <div
@@ -187,13 +149,7 @@ const Tiles = ({ stats }: { stats: FreeBoostStats }): ReactElement => {
   );
 };
 
-const PostRow = ({
-  post,
-  note,
-}: {
-  post: FreeBoostPost;
-  note?: string;
-}): ReactElement => (
+const PostRow = ({ post }: { post: FreeBoostPost }): ReactElement => (
   <a
     href={post.permalink}
     className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary bg-background-default p-2 pr-3 hover:bg-surface-hover"
@@ -208,35 +164,30 @@ const PostRow = ({
     <span className="line-clamp-2 min-w-0 flex-1 font-bold typo-footnote">
       {post.title}
     </span>
-    {note && (
-      <span className="shrink-0 rounded-8 bg-surface-float px-2 py-0.5 text-text-tertiary typo-caption1">
-        {note}
-      </span>
-    )}
   </a>
 );
 
-const FirstPost = ({
-  composeUrl,
-  availableUntil,
-  heldPost,
-  now = new Date(),
-}: FirstPostProps): ReactElement => (
+const Heading = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}): ReactElement => (
+  <div className="flex flex-col gap-1">
+    <h2 className="font-bold typo-title2">{title}</h2>
+    <p className="text-text-secondary typo-callout">{children}</p>
+  </div>
+);
+
+const FirstPost = ({ composeUrl }: FirstPostProps): ReactElement => (
   <>
-    {availableUntil && <Caption>{offerEnds(availableUntil, now)}</Caption>}
-    <div className="flex flex-col gap-1">
-      <h2 className="font-bold typo-title2">
-        {heldPost
-          ? `Your next post gets the $${BOOST_DOLLARS} boost`
-          : `Write your first post and we'll boost it with $${BOOST_DOLLARS}`}
-      </h2>
-      <p className="text-text-secondary typo-callout">
-        {heldPost
-          ? 'We expect your last post to reach fewer developers, so we saved the boost for your next one. Posts that teach developers something do best.'
-          : 'It goes out to thousands of developers in the US, Europe and other top markets on the day you post. Your results show up here.'}
-      </p>
-    </div>
-    {heldPost && <PostRow post={heldPost} note="Limited reach" />}
+    <Heading
+      title={`Write your first post and we'll boost it with $${BOOST_DOLLARS}`}
+    >
+      It goes out to thousands of developers in the US, Europe and other top
+      markets on the day you post. Your results show up here.
+    </Heading>
     <Button
       tag="a"
       href={composeUrl}
@@ -244,51 +195,42 @@ const FirstPost = ({
       size={ButtonSize.Medium}
       className="self-start"
     >
-      {heldPost ? 'Write your next post' : 'Write your first post'}
+      Write your first post
     </Button>
   </>
 );
 
-const Pending = ({ post }: PendingProps): ReactElement => (
-  <>
-    <Caption>Only admins see this</Caption>
-    <div className="flex flex-col gap-1">
-      <h2 className="font-bold typo-title2">
-        Your boost starts in a few minutes
-      </h2>
-      <p className="text-text-secondary typo-callout">
-        We&apos;re checking your post first. Then it goes out to developers in
-        the US, Europe and other top markets.
-      </p>
-    </div>
-    <PostRow post={post} />
-  </>
-);
-
-const Live = ({
+const Boosting = ({
   post,
   stats,
   spent,
   budget,
   endsAt,
   now = new Date(),
-}: LiveProps): ReactElement => (
+}: BoostingProps): ReactElement => (
   <>
-    <Caption>{timeLeft(endsAt, now)}</Caption>
+    {endsAt && (
+      <span className="text-text-tertiary typo-caption1">
+        {timeLeft(endsAt, now)}
+      </span>
+    )}
     {stats.impressions > 0 ? (
       <>
         <Lead value={stats.impressions} label="impressions so far" />
         <Tiles stats={stats} />
       </>
     ) : (
-      <div className="flex flex-col gap-1">
-        <h2 className="font-bold typo-title2">
-          Your post is going out to developers now
-        </h2>
-        <p className="text-text-secondary typo-callout">
-          The first numbers show up here within minutes.
-        </p>
-      </div>
+      <Heading
+        title={
+          endsAt
+            ? 'Your post is going out to developers now'
+            : 'Your boost starts in a few minutes'
+        }
+      >
+        {endsAt
+          ? 'The first numbers show up here within minutes.'
+          : "We're checking your post first. Then it goes out to developers in the US, Europe and other top markets."}
+      </Heading>
     )}
     <PostRow post={post} />
     <div className="flex flex-col gap-2">
@@ -297,49 +239,26 @@ const Live = ({
         shouldShowBg
         className={{ wrapper: 'h-2 rounded-8', bar: 'h-full rounded-8' }}
       />
-      <span className="text-text-tertiary typo-footnote">
-        {`${dollars(spent)} of $${BOOST_DOLLARS} spent`}
-      </span>
+      {spent > 0 && (
+        <span className="text-text-tertiary typo-footnote">
+          {`${dollars(spent)} of $${BOOST_DOLLARS} spent`}
+        </span>
+      )}
     </div>
-  </>
-);
-
-const Ended = ({
-  name,
-  post,
-  stats,
-  offer,
-  checkoutUrl,
-  onUpgradeClick,
-}: EndedProps): ReactElement => (
-  <>
-    <Caption>Only admins see this</Caption>
-    <Lead value={stats.impressions} label="impressions for your first post" />
-    <Tiles stats={stats} />
-    <PostRow post={post} />
-    <StarterUpgrade
-      name={name}
-      offer={offer}
-      checkoutUrl={checkoutUrl}
-      onClick={onUpgradeClick}
-    />
   </>
 );
 
 /**
  * The free $100 boost a new company page gets on its first post, for its
- * admins: the nudge to write that post, the checks before the boost starts,
- * the boost while it runs, and its results with the upgrade once it ends.
+ * admins: the nudge to write that post, then the boost while it runs.
  */
 export const FreeBoostCard = (props: FreeBoostCardProps): ReactElement => {
   const { className } = props;
 
   return (
-    <Card className={className} isHighlighted={props.state === 'live'}>
+    <Card className={className} isHighlighted={props.state === 'boosting'}>
       {props.state === 'first_post' && <FirstPost {...props} />}
-      {props.state === 'pending' && <Pending {...props} />}
-      {props.state === 'live' && <Live {...props} />}
-      {props.state === 'ended' && <Ended {...props} />}
+      {props.state === 'boosting' && <Boosting {...props} />}
     </Card>
   );
 };
