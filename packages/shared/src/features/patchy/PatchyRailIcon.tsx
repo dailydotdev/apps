@@ -4,8 +4,8 @@ import classNames from 'classnames';
 import { HotIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
 import type { StreakRingState } from '../../hooks/streaks/useStreakRingState';
-import type { PatchyFace } from './patchyAssets';
-import { patchyFaceImage } from './patchyAssets';
+import type { PatchyFace } from './patchyConfig';
+import { getPatchyConfig } from './patchyConfig';
 
 // The ring keeps the streak tab's state language: pink once read (or
 // selected), amber/red when the day is at risk, blue on a rest day.
@@ -57,7 +57,7 @@ export const PatchyRailIcon = ({
       )}
     >
       <img
-        src={patchyFaceImage[face]}
+        src={getPatchyConfig().faceImage[face]}
         alt=""
         className="size-full object-cover"
         draggable={false}

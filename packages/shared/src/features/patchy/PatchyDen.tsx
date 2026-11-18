@@ -9,12 +9,9 @@ import {
 } from '../../components/typography/Typography';
 import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
-import { patchyDenImage } from './patchyAssets';
-import {
-  getPatchyMood,
-  patchyMoodCopy,
-  patchyMoodLabel,
-} from './patchyTriggers';
+import { getPatchyConfig } from './patchyConfig';
+import { getPatchyMood } from './patchyTriggers';
+import { usePatchyConfigSync } from './usePatchyConfigSync';
 
 const BLINK_EVERY_MS = 4500;
 const BLINK_MS = 160;
@@ -32,19 +29,23 @@ export const PatchyDen = ({
   const prefersReducedMotion = usePrefersReducedMotion();
   const [isBlinking, setIsBlinking] = useState(false);
   const [isPetted, setIsPetted] = useState(false);
+  const config = getPatchyConfig();
+  const { den, moods } = config;
+  usePatchyConfigSync(true);
   const mood = getPatchyMood({
     state,
     hasReadToday,
     lastViewAt: streak?.lastViewAt,
     now: new Date(),
+    config,
   });
   const isAsleep = mood === 'away' || mood === 'resting';
 
   useEffect(() => {
     // Warm the poses so the first blink doesn't flash.
     const image = new Image();
-    image.src = patchyDenImage.blink;
-  }, []);
+    image.src = den.blinkImage;
+  }, [den.blinkImage]);
 
   useEffect(() => {
     if (isAsleep || prefersReducedMotion) {
@@ -87,7 +88,7 @@ export const PatchyDen = ({
         className="focus-outline absolute inset-0"
       >
         <img
-          src={isEyesClosed ? patchyDenImage.blink : patchyDenImage.idle}
+          src={isEyesClosed ? den.blinkImage : den.idleImage}
           alt="Patchy at his desk"
           className="size-full object-cover"
           draggable={false}
@@ -107,8 +108,7 @@ export const PatchyDen = ({
           color={TypographyColor.Secondary}
           className="!text-white"
         >
-          {count}-day streak · mood: {patchyMoodLabel[mood]} ·{' '}
-          {patchyMoodCopy[mood]}
+          {count}-day streak · mood: {moods[mood].label} · {moods[mood].copy}
         </Typography>
       </div>
     </section>

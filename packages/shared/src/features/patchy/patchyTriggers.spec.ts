@@ -1,5 +1,5 @@
+import { defaultPatchyConfig as config } from './patchyConfig';
 import {
-  AWAY_MS,
   getPatchyMood,
   isAway,
   isFridayDeploy,
@@ -19,26 +19,42 @@ describe('isLateNight', () => {
     [5, 0, false],
     [23, 30, false],
   ])('%i:%i is late night: %s', (hour, minute, expected) => {
-    expect(isLateNight(at(18, hour, minute))).toBe(expected);
+    expect(isLateNight(at(18, hour, minute), config.lateNight)).toBe(expected);
   });
 });
 
 describe('isFridayDeploy', () => {
   it('matches a deploy tag on Friday afternoon', () => {
-    expect(isFridayDeploy(at(20, 16, 58), ['rust', 'deploy'])).toBe(true);
-    expect(isFridayDeploy(at(20, 12), ['DevOps'])).toBe(true);
-    expect(isFridayDeploy(at(20, 14), ['ci-cd'])).toBe(true);
+    expect(
+      isFridayDeploy(at(20, 16, 58), ['rust', 'deploy'], config.fridayDeploy),
+    ).toBe(true);
+    expect(isFridayDeploy(at(20, 12), ['DevOps'], config.fridayDeploy)).toBe(
+      true,
+    );
+    expect(isFridayDeploy(at(20, 14), ['ci-cd'], config.fridayDeploy)).toBe(
+      true,
+    );
   });
 
   it('ignores other days, the morning and the evening', () => {
-    expect(isFridayDeploy(at(19, 16), ['deploy'])).toBe(false);
-    expect(isFridayDeploy(at(20, 11, 59), ['deploy'])).toBe(false);
-    expect(isFridayDeploy(at(20, 18), ['deploy'])).toBe(false);
+    expect(isFridayDeploy(at(19, 16), ['deploy'], config.fridayDeploy)).toBe(
+      false,
+    );
+    expect(
+      isFridayDeploy(at(20, 11, 59), ['deploy'], config.fridayDeploy),
+    ).toBe(false);
+    expect(isFridayDeploy(at(20, 18), ['deploy'], config.fridayDeploy)).toBe(
+      false,
+    );
   });
 
   it('needs a deploy tag', () => {
-    expect(isFridayDeploy(at(20, 16), ['rust', 'docker'])).toBe(false);
-    expect(isFridayDeploy(at(20, 16))).toBe(false);
+    expect(
+      isFridayDeploy(at(20, 16), ['rust', 'docker'], config.fridayDeploy),
+    ).toBe(false);
+    expect(isFridayDeploy(at(20, 16), undefined, config.fridayDeploy)).toBe(
+      false,
+    );
   });
 });
 
@@ -46,17 +62,34 @@ describe('isAway', () => {
   const now = at(18, 12);
 
   it('is away once the last read is 2 days old and nothing today', () => {
-    expect(isAway(new Date(now.getTime() - AWAY_MS), false, now)).toBe(true);
-    expect(isAway(new Date(now.getTime() - AWAY_MS + 1), false, now)).toBe(
-      false,
-    );
+    expect(
+      isAway(
+        new Date(now.getTime() - config.awayMs),
+        false,
+        now,
+        config.awayMs,
+      ),
+    ).toBe(true);
+    expect(
+      isAway(
+        new Date(now.getTime() - config.awayMs + 1),
+        false,
+        now,
+        config.awayMs,
+      ),
+    ).toBe(false);
   });
 
   it('is never away after reading today or without any read', () => {
-    expect(isAway(new Date(now.getTime() - AWAY_MS * 2), true, now)).toBe(
-      false,
-    );
-    expect(isAway(undefined, false, now)).toBe(false);
+    expect(
+      isAway(
+        new Date(now.getTime() - config.awayMs * 2),
+        true,
+        now,
+        config.awayMs,
+      ),
+    ).toBe(false);
+    expect(isAway(undefined, false, now, config.awayMs)).toBe(false);
   });
 });
 
@@ -70,6 +103,7 @@ describe('getPatchyMood', () => {
         hasReadToday: false,
         lastViewAt: at(14, 9),
         now: at(18, 12),
+        config,
       }),
     ).toBe('away');
   });
@@ -81,6 +115,7 @@ describe('getPatchyMood', () => {
         hasReadToday: true,
         lastViewAt,
         now: at(19, 2),
+        config,
       }),
     ).toBe('sleepy');
   });
@@ -92,6 +127,7 @@ describe('getPatchyMood', () => {
         hasReadToday: true,
         lastViewAt,
         now: at(18, 12),
+        config,
       }),
     ).toBe('happy');
     expect(
@@ -100,6 +136,7 @@ describe('getPatchyMood', () => {
         hasReadToday: false,
         lastViewAt: at(17, 9),
         now: at(18, 20),
+        config,
       }),
     ).toBe('ready');
   });
@@ -111,6 +148,7 @@ describe('getPatchyMood', () => {
         hasReadToday: false,
         lastViewAt: at(17, 9),
         now: at(18, 12),
+        config,
       }),
     ).toBe('resting');
   });

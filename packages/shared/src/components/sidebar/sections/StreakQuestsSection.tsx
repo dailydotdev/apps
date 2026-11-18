@@ -32,7 +32,7 @@ import { Tooltip } from '../../tooltip/Tooltip';
 import { DEFAULT_TIMEZONE } from '../../../lib/timezones';
 import { Origin } from '../../../lib/log';
 import { PatchyPanelHeader } from '../../../features/patchy/PatchyPanelHeader';
-import type { PatchyMood } from '../../../features/patchy/patchyTriggers';
+import type { PatchyMood } from '../../../features/patchy/patchyConfig';
 
 const QuestsGroup = ({
   title,

@@ -4,9 +4,8 @@ import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 import { MoonIcon, SparkleIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
-import { patchyPoseImage } from './patchyAssets';
-import type { PatchyEmote, PatchyTrigger } from './patchyTriggers';
-import { patchyPeeks } from './patchyTriggers';
+import type { PatchyEmote, PatchyTrigger } from './patchyConfig';
+import { getPatchyConfig } from './patchyConfig';
 
 // Box the peek lives in, starting at the rail's right edge. It clips, so
 // Patchy appears to slide out from behind the rail without any z-order tricks.
@@ -108,7 +107,7 @@ export const PatchyPeek = ({
   const [phase, setPhase] = useState<Phase>('hidden');
   const [stepIndex, setStepIndex] = useState(-1);
   const steps = stepsFor(trigger);
-  const { pose, emote } = patchyPeeks[trigger];
+  const { poseImage, emote } = getPatchyConfig().reactions[trigger];
 
   useLayoutEffect(() => {
     const anchor = document.getElementById(anchorId);
@@ -179,12 +178,7 @@ export const PatchyPeek = ({
           transition: `transform ${isDart ? 180 : SLIDE_MS}ms cubic-bezier(0.34, 1.4, 0.64, 1)`,
         }}
       >
-        <img
-          src={patchyPoseImage[pose]}
-          alt=""
-          className="w-full"
-          draggable={false}
-        />
+        <img src={poseImage} alt="" className="w-full" draggable={false} />
         {showEmote && <Emote emote={emote} />}
       </div>
     </div>,

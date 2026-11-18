@@ -1,8 +1,5 @@
-import type { PatchyTrigger } from './patchyTriggers';
-import { patchyPeeks } from './patchyTriggers';
-
-// At most one peek every 3 minutes.
-export const PATCHY_PEEK_COOLDOWN_MS = 3 * 60 * 1000;
+import type { PatchyConfig, PatchyTrigger } from './patchyConfig';
+import { getPatchyConfig } from './patchyConfig';
 
 interface PendingPeek {
   trigger: PatchyTrigger;
@@ -21,29 +18,33 @@ export interface PatchyPeekScheduler {
 }
 
 export const createPatchyPeekScheduler = (
-  cooldownMs = PATCHY_PEEK_COOLDOWN_MS,
+  getConfig: () => PatchyConfig = getPatchyConfig,
 ): PatchyPeekScheduler => {
   let lastShownAt: number | null = null;
   let pending: PendingPeek | null = null;
 
   const isCoolingDown = (now: number) =>
-    lastShownAt !== null && now - lastShownAt < cooldownMs;
+    lastShownAt !== null && now - lastShownAt < getConfig().cooldownMs;
 
   const dropStale = (now: number) => {
-    if (pending && now - pending.at > patchyPeeks[pending.trigger].ttlMs) {
+    if (
+      pending &&
+      now - pending.at > getConfig().reactions[pending.trigger].ttlMs
+    ) {
       pending = null;
     }
   };
 
   return {
     request: (trigger, now) => {
-      if (isCoolingDown(now)) {
+      const { reactions } = getConfig();
+      if (!reactions[trigger].enabled || isCoolingDown(now)) {
         return false;
       }
       dropStale(now);
       if (
         pending &&
-        patchyPeeks[pending.trigger].priority >= patchyPeeks[trigger].priority
+        reactions[pending.trigger].priority >= reactions[trigger].priority
       ) {
         return false;
       }

@@ -5,21 +5,19 @@ import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import type { StreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { LogEvent, TargetType } from '../../lib/log';
 import { storageWrapper } from '../../lib/storageWrapper';
-import type { PatchyFace } from './patchyAssets';
-import { patchyFaceImage } from './patchyAssets';
+import type { PatchyFace, PatchyMood, PatchyTrigger } from './patchyConfig';
+import { getPatchyConfig } from './patchyConfig';
 import { subscribePatchyEvents } from './patchyEvents';
 import type { PatchyEvent } from './patchyEvents';
 import { patchyPeekScheduler } from './patchyPeekScheduler';
-import type { PatchyMood, PatchyTrigger } from './patchyTriggers';
 import {
   getNightKey,
   getPatchyMood,
   isAway,
   isFridayDeploy,
   isLateNight,
-  patchyFaceByMood,
-  patchyPeeks,
 } from './patchyTriggers';
+import { usePatchyConfigSync } from './usePatchyConfigSync';
 
 // How long the icon keeps the trigger's face, peek included.
 const FACE_HOLD_MS = 6000;
@@ -79,13 +77,15 @@ export const usePatchyCompanion = ({
   const lastScrollAtRef = useRef(0);
   const peekIdRef = useRef(0);
   const isActive = isEnabled && isReactionsEnabled && !!user;
+  const config = getPatchyConfig();
+  usePatchyConfigSync(isEnabled);
 
   useEffect(() => {
     if (!isEnabled) {
       return undefined;
     }
     // Warm the cache so a face swap never flashes an empty circle.
-    Object.values(patchyFaceImage).forEach((src) => {
+    Object.values(getPatchyConfig().faceImage).forEach((src) => {
       const image = new Image();
       image.src = src;
     });
@@ -117,7 +117,7 @@ export const usePatchyCompanion = ({
 
   const requestLateNight = useCallback(() => {
     const date = new Date();
-    if (!user || !isLateNight(date)) {
+    if (!user || !isLateNight(date, getPatchyConfig().lateNight)) {
       return;
     }
     const night = getNightKey(date);
@@ -130,7 +130,9 @@ export const usePatchyCompanion = ({
     }
   }, [user]);
 
-  const away = !isStreakLoading && isAway(lastViewAt, hasReadToday, new Date());
+  const away =
+    !isStreakLoading &&
+    isAway(lastViewAt, hasReadToday, new Date(), config.awayMs);
 
   // Coming back after 2+ days: one wave per return, keyed on the last read so
   // a reload doesn't wave again.
@@ -162,7 +164,9 @@ export const usePatchyCompanion = ({
         request('streak_day');
         return;
       }
-      if (isFridayDeploy(new Date(), event.tags)) {
+      if (
+        isFridayDeploy(new Date(), event.tags, getPatchyConfig().fridayDeploy)
+      ) {
         request('friday_deploy');
       }
     });
@@ -194,7 +198,7 @@ export const usePatchyCompanion = ({
       if (trigger === 'welcome_back') {
         setIsGreeted(true);
       }
-      setFaceOverride(patchyPeeks[trigger].face);
+      setFaceOverride(getPatchyConfig().reactions[trigger].face);
       if (!prefersReducedMotion) {
         peekIdRef.current += 1;
         setPeek({ trigger, id: peekIdRef.current });
@@ -213,9 +217,9 @@ export const usePatchyCompanion = ({
 
   const onPeekDone = useCallback(() => setPeek(null), []);
 
-  const mood = getPatchyMood({ state, hasReadToday, lastViewAt, now });
+  const mood = getPatchyMood({ state, hasReadToday, lastViewAt, now, config });
   const restingFace =
-    mood === 'away' && isGreeted ? 'happy' : patchyFaceByMood[mood];
+    mood === 'away' && isGreeted ? 'happy' : config.moods[mood].face;
 
   return {
     face: faceOverride ?? restingFace,

@@ -17,9 +17,8 @@ import Link from '../../components/utilities/Link';
 import { useLogContext } from '../../contexts/LogContext';
 import { webappUrl } from '../../lib/constants';
 import { LogEvent, TargetType } from '../../lib/log';
-import { patchyFaceImage } from './patchyAssets';
-import type { PatchyMood } from './patchyTriggers';
-import { patchyFaceByMood, patchyMoodCopy } from './patchyTriggers';
+import type { PatchyMood } from './patchyConfig';
+import { getPatchyConfig } from './patchyConfig';
 
 interface PatchyPanelHeaderProps {
   mood: PatchyMood;
@@ -33,12 +32,13 @@ export const PatchyPanelHeader = ({
   onNavigate,
 }: PatchyPanelHeaderProps): ReactElement => {
   const { logEvent } = useLogContext();
+  const { faceImage, moods } = getPatchyConfig();
   return (
     // mx-4 lines the card up with the streak hero's px-4 below it.
     <div className="mx-4 mb-2 mt-1 flex flex-col gap-2 rounded-16 bg-surface-float p-2">
       <div className="flex items-center gap-2">
         <img
-          src={patchyFaceImage[patchyFaceByMood[mood]]}
+          src={faceImage[moods[mood].face]}
           alt="Patchy"
           className="size-12 shrink-0 rounded-full"
           draggable={false}
@@ -48,7 +48,7 @@ export const PatchyPanelHeader = ({
           color={TypographyColor.Secondary}
           className="min-w-0 flex-1"
         >
-          {patchyMoodCopy[mood]}
+          {moods[mood].copy}
         </Typography>
       </div>
       <Link href={`${webappUrl}game-center`} passHref>
