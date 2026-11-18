@@ -31,9 +31,13 @@ export const getMarkdownRewrites = (): Array<{
     destination: `${POST_MARKDOWN_PATH}/:id`,
   },
   // Not in MARKDOWN_ROUTES on purpose: the proxy puts the agent signup wall on
-  // those, and this is the page an agent reads to get an account.
+  // those, and these are the pages an agent reads to get an account.
   {
     source: '/agents/onboarding.md',
     destination: '/api/md/agents-onboarding',
+  },
+  {
+    source: '/agents/company.md',
+    destination: '/api/md/agents-company',
   },
 ];
