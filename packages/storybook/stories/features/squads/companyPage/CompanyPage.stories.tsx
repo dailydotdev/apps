@@ -4,6 +4,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useQueryClient } from '@tanstack/react-query';
 import { graphql, HttpResponse } from 'msw';
 import { subDays } from 'date-fns';
+import { fn } from 'storybook/test';
+import { useRouter } from 'next/router';
 import type {
   SourceMember,
   Squad,
@@ -74,7 +76,7 @@ const member = (role: SourceMemberRole, user = founder): SourceMember =>
       permalink: `https://app.daily.dev/${user.username}`,
       reputation: user.reputation,
     },
-  } as unknown as SourceMember);
+  }) as unknown as SourceMember;
 
 const toSquad = (scenario: Scenario): Squad => {
   const totals = sumStats(scenario);
@@ -287,6 +289,17 @@ const Page = ({ name }: { name: ScenarioName }): ReactElement => {
 const meta: Meta = {
   title: 'Features/Squads/Company page (free tier)',
   parameters: { layout: 'fullscreen' },
+  beforeEach: () => {
+    // The squad page's own route, which the layout and the page read
+    (useRouter as unknown as ReturnType<typeof fn>).mockReturnValue({
+      replace: fn(),
+      push: fn(),
+      pathname: '/squads/[handle]',
+      asPath: `/squads/${data.handle}`,
+      query: { handle: data.handle },
+      events: { on: fn(), off: fn() },
+    });
+  },
   decorators: [
     (Story) => (
       <ExtensionProviders>

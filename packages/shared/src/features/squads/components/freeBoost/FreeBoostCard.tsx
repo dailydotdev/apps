@@ -7,8 +7,6 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import { BoostIcon } from '../../../../components/icons/Boost';
-import { IconSize } from '../../../../components/Icon';
 import { ProgressBar } from '../../../../components/fields/ProgressBar';
 import { LazyImage } from '../../../../components/LazyImage';
 import type { StartupsStarterOffer } from '../../hooks/useStartupsPromo';
@@ -128,26 +126,9 @@ const Card = ({
   </section>
 );
 
-const Eyebrow = ({
-  children,
-  aside,
-}: {
-  children: ReactNode;
-  aside?: ReactNode;
-}): ReactElement => (
-  <div className="flex items-center justify-between gap-3">
-    <span className="flex items-center gap-1.5 rounded-8 bg-overlay-float-cabbage px-2 py-1 font-bold text-accent-cabbage-default typo-caption1">
-      {children}
-    </span>
-    {aside && <span className="text-text-tertiary typo-caption1">{aside}</span>}
-  </div>
-);
-
-const LiveDot = (): ReactElement => (
-  <span className="relative flex size-2">
-    <span className="opacity-60 absolute inline-flex size-full animate-ping rounded-full bg-accent-avocado-default" />
-    <span className="relative inline-flex size-2 rounded-full bg-accent-avocado-default" />
-  </span>
+/** The small gray note at the top of each card */
+const Caption = ({ children }: { children: ReactNode }): ReactElement => (
+  <span className="text-text-tertiary typo-caption1">{children}</span>
 );
 
 /** The big number every state leads with: impressions */
@@ -179,7 +160,7 @@ const Tiles = ({ stats }: { stats: FreeBoostStats }): ReactElement => {
     { label: 'Developers reached', value: stats.reach },
     { label: 'Clicks', value: stats.clicks },
     { label: 'Bookmarks', value: stats.bookmarks },
-    { label: 'New followers', value: stats.followers, isGain: true },
+    { label: 'New followers', value: stats.followers },
   ].filter(({ label, value }) => value > 0 || label === 'Developers reached');
 
   return (
@@ -189,13 +170,13 @@ const Tiles = ({ stats }: { stats: FreeBoostStats }): ReactElement => {
         tilesColumns[tiles.length],
       )}
     >
-      {tiles.map(({ label, value, isGain }) => (
+      {tiles.map(({ label, value }) => (
         <div
           key={label}
           className="flex flex-col gap-0.5 rounded-12 border border-border-subtlest-tertiary bg-background-default p-3"
         >
           <span className="font-bold tabular-nums typo-title2">
-            {isGain && value > 0 ? `+${number(value)}` : number(value)}
+            {number(value)}
           </span>
           <span className="text-text-secondary typo-footnote">{label}</span>
         </div>
@@ -240,10 +221,7 @@ const FirstPost = ({
   now = new Date(),
 }: FirstPostProps): ReactElement => (
   <>
-    <Eyebrow aside={availableUntil && offerEnds(availableUntil, now)}>
-      <BoostIcon size={IconSize.Size16} secondary />
-      {`$${BOOST_DOLLARS} boost, on us`}
-    </Eyebrow>
+    {availableUntil && <Caption>{offerEnds(availableUntil, now)}</Caption>}
     <div className="flex flex-col gap-1">
       <h2 className="font-bold typo-title2">
         {heldPost
@@ -271,10 +249,7 @@ const FirstPost = ({
 
 const Pending = ({ post }: PendingProps): ReactElement => (
   <>
-    <Eyebrow aside="Only admins see this">
-      <BoostIcon size={IconSize.Size16} secondary />
-      {`$${BOOST_DOLLARS} boost, on us`}
-    </Eyebrow>
+    <Caption>Only admins see this</Caption>
     <div className="flex flex-col gap-1">
       <h2 className="font-bold typo-title2">
         Your boost starts in a few minutes
@@ -297,10 +272,7 @@ const Live = ({
   now = new Date(),
 }: LiveProps): ReactElement => (
   <>
-    <Eyebrow aside={timeLeft(endsAt, now)}>
-      <LiveDot />
-      {`Your $${BOOST_DOLLARS} boost is live`}
-    </Eyebrow>
+    <Caption>{timeLeft(endsAt, now)}</Caption>
     {stats.impressions > 0 ? (
       <>
         <Lead value={stats.impressions} label="impressions so far" />
@@ -338,10 +310,7 @@ const Ended = ({
   onUpgradeClick,
 }: EndedProps): ReactElement => (
   <>
-    <Eyebrow aside="Only admins see this">
-      <BoostIcon size={IconSize.Size16} secondary />
-      {`Your $${BOOST_DOLLARS} boost results`}
-    </Eyebrow>
+    <Caption>Only admins see this</Caption>
     <Lead value={stats.impressions} label="impressions for your first post" />
     <Tiles stats={stats} />
     <PostRow post={post} />

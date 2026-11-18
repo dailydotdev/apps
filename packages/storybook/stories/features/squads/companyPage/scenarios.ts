@@ -148,7 +148,13 @@ export const scenarios = {
     viewer: 'admin',
     pageAgeDays: 2,
     plan: null,
-    posts: [{ entry: 1, hoursAgo: 30, stats: { ...organicPost, impressions: 38, reach: 35 } }],
+    posts: [
+      {
+        entry: 1,
+        hoursAgo: 30,
+        stats: { ...organicPost, impressions: 38, reach: 35 },
+      },
+    ],
     freeBoost: {
       ...available(2),
       status: SquadFreeBoostStatus.Held,
@@ -233,7 +239,11 @@ export const scenarios = {
     plan: null,
     posts: [
       { entry: 2, hoursAgo: 30, stats: organicPost },
-      { entry: 3, hoursAgo: 100, stats: { ...organicPost, impressions: 310, reach: 260, clicks: 4 } },
+      {
+        entry: 3,
+        hoursAgo: 100,
+        stats: { ...organicPost, impressions: 310, reach: 260, clicks: 4 },
+      },
       { entry: 0, hoursAgo: 9 * 24, stats: boostDone },
     ],
     freeBoost: {
@@ -262,7 +272,11 @@ export const scenarios = {
     pageAgeDays: 40,
     plan: SquadPlan.Starter,
     posts: [
-      { entry: 2, hoursAgo: 20, stats: { ...boostDone, impressions: 4200, reach: 2900 } },
+      {
+        entry: 2,
+        hoursAgo: 20,
+        stats: { ...boostDone, impressions: 4200, reach: 2900 },
+      },
       { entry: 0, hoursAgo: 30 * 24, stats: boostDone },
     ],
     freeBoost: {
