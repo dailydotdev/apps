@@ -17,7 +17,7 @@ import {
   SQUAD_PLAN_CASHBACK_PERCENTAGE,
   SquadPlan,
 } from '../lib/plans';
-import { getStartupsCheckoutUrl } from '../lib/routes';
+import { getCompanyPageCreateUrl, getStartupsCheckoutUrl } from '../lib/routes';
 import { useLogStartups } from './useLogStartups';
 import { useSquadPlanPrices } from './useSquadPlanPrices';
 import { useStartupsCashbackPromo } from './useStartupsCashbackPromo';
@@ -107,24 +107,30 @@ export const useStartupsPromo = ({
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const isDismissed = checkHasCompleted(ActionType.DismissStartupsPromo);
   const adminSquads = useMemo(() => (squads ?? []).filter(isAdmin), [squads]);
-  // Squads that could still take a plan: not verified, and no paid seat for
-  // the viewer, which every plan gives its owner
+  // Every plan gives its owner a paid seat
+  const paidSquads = useMemo(
+    () =>
+      adminSquads.filter(
+        (adminSquad) =>
+          hasSquadFeature(adminSquad, 'verified') ||
+          !!adminSquad.currentMember?.seat,
+      ),
+    [adminSquads],
+  );
+  // Company pages that could still take a plan
   const freeSquads = useMemo(
     () =>
       adminSquads.filter(
         (adminSquad) =>
-          !hasSquadFeature(adminSquad, 'verified') &&
-          !adminSquad.currentMember?.seat,
+          !!adminSquad.flags?.company && !paidSquads.includes(adminSquad),
       ),
-    [adminSquads],
+    [adminSquads, paidSquads],
   );
   // Someone who already pays gets no pitch for a personal post
-  const isCustomer = freeSquads.length < adminSquads.length;
+  const isCustomer = paidSquads.length > 0;
   // Boosting a post of a squad the viewer already pays for
   const sourceIdIsPaid =
-    !!sourceId &&
-    adminSquads.some(({ id }) => id === sourceId) &&
-    !freeSquads.some(({ id }) => id === sourceId);
+    !!sourceId && paidSquads.some(({ id }) => id === sourceId);
   const squad = sourceId
     ? freeSquads.find(({ id }) => id === sourceId)
     : freeSquads[0];
@@ -179,10 +185,10 @@ export const useStartupsPromo = ({
     isShown,
     squad,
     starterPrice: prices[SquadPlan.Starter],
-    checkoutUrl: getStartupsCheckoutUrl({
-      plan: SquadPlan.Starter,
-      sourceId: squad?.id,
-    }),
+    // Without a company page to upgrade, the founder starts with a free one
+    checkoutUrl: squad
+      ? getStartupsCheckoutUrl({ plan: SquadPlan.Starter, sourceId: squad.id })
+      : getCompanyPageCreateUrl({ plan: SquadPlan.Starter }),
     onClick,
     onDismiss,
   };

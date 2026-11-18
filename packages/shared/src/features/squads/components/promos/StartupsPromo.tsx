@@ -103,7 +103,7 @@ const SeePlans = ({
     className={className}
     onClick={promo.onClick}
   >
-    See plans
+    {promo.squad ? 'See plans' : 'Start for free'}
   </Button>
 );
 
@@ -214,8 +214,8 @@ export const StartupsBoostPromo = ({
           </strong>
           <span className="text-text-tertiary typo-caption1">
             {promo.squad
-              ? `Make ${promo.squad.name} your company page for ${promo.starterPrice} a month and use them to boost its posts.`
-              : `Boosting for your startup? Get a company page for ${promo.starterPrice} a month.`}
+              ? `Upgrade ${promo.squad.name} for ${promo.starterPrice} a month and use them to boost its posts.`
+              : `Boosting for your startup? Start with a free company page and upgrade it for ${promo.starterPrice} a month.`}
           </span>
         </span>
       </span>
@@ -226,7 +226,7 @@ export const StartupsBoostPromo = ({
         size={ButtonSize.XSmall}
         onClick={promo.onClick}
       >
-        See plans
+        {promo.squad ? 'See plans' : 'Start for free'}
       </Button>
     </div>
   );
@@ -256,7 +256,9 @@ export const StartupsAdsDashboardPromo = ({
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <Title>{`You've spent ${largeNumberFormat(spend)} Cores on boosts`}</Title>
             <Body>
-              {`Get a company page for ${promo.starterPrice} a month, with `}
+              {promo.squad
+                ? `Upgrade ${promo.squad.name} for ${promo.starterPrice} a month to get `
+                : `Create a free company page, then upgrade it for ${promo.starterPrice} a month to get `}
               <MonthlyCredits promo={promo} />
               {' every month.'}
             </Body>

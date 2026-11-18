@@ -126,9 +126,11 @@ export const SquadPlanUpsellWidget = (): ReactElement | null => {
             Get your startup in front of developers
           </h2>
           <p className="text-text-secondary typo-footnote">
-            {`Make ${squad.name} your company page, from ${
-              prices[SquadPlan.Starter]
-            } a month.`}
+            {`${
+              squad.flags?.company
+                ? `Upgrade ${squad.name}`
+                : `Make ${squad.name} your company page`
+            }, from ${prices[SquadPlan.Starter]} a month.`}
           </p>
         </div>
         <ul className="flex flex-col gap-2">

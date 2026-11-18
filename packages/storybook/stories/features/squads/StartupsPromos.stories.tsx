@@ -39,7 +39,7 @@ import ExtensionProviders from '../../extension/_providers';
 
 // Mockups of the daily.dev for Startups promotions outside the squad page:
 // boosting, buying Cores for a boost, the wallet, the ads dashboard and the
-// Manage menu. The viewer runs Acme, a squad with no plan, and the launch
+// Manage menu. The viewer runs Acme, a company page with no plan, and the launch
 // promo (500% for a year) is on.
 
 const acme = {
@@ -61,7 +61,7 @@ const acme = {
   rules: [],
   links: [],
   features: {},
-  flags: { totalPosts: 12, totalViews: 4800, totalUpvotes: 310 },
+  flags: { totalPosts: 12, totalViews: 4800, totalUpvotes: 310, company: true },
   currentMember: {
     role: SourceMemberRole.Admin,
     permissions: Object.values(SourcePermissions),

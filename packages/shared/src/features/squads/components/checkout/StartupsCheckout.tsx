@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Button,
@@ -18,12 +19,10 @@ import {
   CharmEmptyState,
   CharmEmptyStatePlacement,
 } from '../../../../components/charm/CharmEmptyState';
-import { TextField } from '../../../../components/fields/TextField';
 import {
   MoveToIcon,
   OpenLinkIcon,
   PlusIcon,
-  SquadIcon,
   VIcon,
 } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
@@ -31,7 +30,6 @@ import { Loader } from '../../../../components/Loader';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import { SquadImage } from '../../../../components/squads/SquadImage';
 import { useAuthContext } from '../../../../contexts/AuthContext';
-import { useSquadCreate } from '../../../../hooks/squads/useSquadCreate';
 import { useSquad } from '../../../../hooks/squads/useSquad';
 import { usePaddlePayment } from '../../../../hooks/usePaddlePayment';
 import { usePixelsContext } from '../../../../contexts/PixelsContext';
@@ -39,23 +37,21 @@ import { formatCurrency } from '../../../../lib/utils';
 import { useViewSize, ViewSize } from '../../../../hooks/useViewSize';
 import type { Squad } from '../../../../graphql/sources';
 import { SourceMemberRole } from '../../../../graphql/sources';
-import { PrivacyOption } from '../../../../graphql/squads';
 import AuthOptions from '../../../../components/auth/AuthOptions';
 import { AuthDisplay, providerMap } from '../../../../components/auth/common';
 import { AuthTriggers } from '../../../../lib/auth';
 import { cloudinaryCharmSomethingWentWrong } from '../../../../lib/image';
-import { findFreeSquadHandle, toSquadHandle } from '../../lib/handle';
 import { PurchaseType } from '../../../../graphql/paddle';
-import {
-  saveStartupsGoals,
-  squadSubscriptionQueryOptions,
-} from '../../../../graphql/squadSubscription';
+import { squadSubscriptionQueryOptions } from '../../../../graphql/squadSubscription';
 import { webappUrl } from '../../../../lib/constants';
 import { storageWrapper } from '../../../../lib/storageWrapper';
 import { RequestKey } from '../../../../lib/query';
 import { LogEvent, Origin } from '../../../../lib/log';
-import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
-import { getSquadId } from '../../lib/features';
+import {
+  getCompanyPageCreateUrl,
+  getSquadManageUrl,
+  SquadManageSection,
+} from '../../lib/routes';
 import {
   getSquadPlanPriceId,
   getSquadPlanTitle,
@@ -65,6 +61,7 @@ import {
   SQUAD_PLAN_SEATS,
   SquadPlan,
   squadPlanDetails,
+  squadPlanOverFree,
   squadPlans,
   startupsEnterpriseUrl,
 } from '../../lib/plans';
@@ -100,11 +97,6 @@ import {
 import { startupsCrewCheerImage } from './StartupsCrewOnBase';
 import { StartupsNameStunt } from './StartupsNameStunt';
 import { StartupsSignupPanel } from './StartupsSignupPanel';
-import type { StartupsGoalAnswers } from './StartupsGoalQuestion';
-import {
-  getStartupsGoalAnswers,
-  StartupsGoalQuestion,
-} from './StartupsGoalQuestion';
 
 export enum StartupsCheckoutStep {
   Account = 'account',
@@ -195,8 +187,8 @@ const AccountStep = ({
           hideRegistrationHeadline
           signUpTitle="Create your account"
           logInTitle="Welcome back"
-          signUpDescription="Get your company page on daily.dev. Your agent handles the marketing from there."
-          logInDescription="Log in, then pick the page this plan is for."
+          signUpDescription="Start with a free company page, then upgrade it when you're ready."
+          logInDescription="Log in, then pick the company page to upgrade."
           signupProviders={signupProviders}
           onDisplayChange={setDisplay}
           onScreenBackChange={onScreenBackChange}
@@ -251,136 +243,51 @@ const CompanyRow = ({
 );
 
 const CompanyStep = ({
-  adminSquads,
+  companyPages,
   selectedId,
+  plan,
   onSelect,
   onContinue,
   onSetUp,
 }: {
-  adminSquads: CompanyChoice[];
+  companyPages: CompanyChoice[];
   selectedId?: string | null;
-  onSelect: (id: string | null) => void;
-  onContinue: (squad: CompanyChoice, isNew: boolean) => void;
+  plan: SquadPlan;
+  onSelect: (id: string) => void;
+  onContinue: (squad: CompanyChoice) => void;
   /** A page already on a plan goes on to its setup, as after paying */
   onSetUp: (squad: CompanyChoice, plan: SquadPlan) => void;
 }): ReactElement => {
   const { user } = useAuthContext();
-  const selected = adminSquads.find(({ id }) => id === selectedId);
-  const hasPages = adminSquads.length > 0;
-  const [name, setName] = useState('');
-  const [isMissing, setMissing] = useState(false);
-  const [isFindingHandle, setFindingHandle] = useState(false);
-  const [goalAnswers, setGoalAnswers] = useState<StartupsGoalAnswers>({
-    goals: [],
-    text: '',
-  });
-  const logStartups = useLogStartups();
-
-  const logGoalAnswers = (sourceId: string) => {
-    const answers = getStartupsGoalAnswers(goalAnswers);
-    const extra = { source_id: sourceId };
-
-    if (!answers.length) {
-      logStartups(LogEvent.SkipStartupsGoal, undefined, extra);
-    }
-
-    // One event per answer, so counting an answer is counting its events
-    answers.forEach(({ goal, text }) =>
-      logStartups(LogEvent.SelectStartupsGoal, goal, {
-        ...extra,
-        ...(text && { text }),
-      }),
-    );
-
-    if (answers.length) {
-      // The answer is a nice-to-have: a failed save never holds up checkout
-      saveStartupsGoals({
-        sourceId,
-        goals: answers.map(({ goal }) => goal),
-        other: answers.find(({ text }) => text)?.text,
-      }).catch(() => undefined);
-    }
-  };
-
-  const { onCreateSquad, isLoading } = useSquadCreate({
-    onSuccess: (squad) => {
-      const company = { ...squad, id: getSquadId(squad) };
-
-      if (!hasPages) {
-        logGoalAnswers(company.id);
-      }
-
-      onContinue(company, true);
-    },
-  });
+  const selected = companyPages.find(({ id }) => id === selectedId);
   const { data: subscription, isFetching } = useQuery(
     squadSubscriptionQueryOptions({ user, sourceId: selected?.id }),
   );
   const activePlan = selected && subscription?.plan;
-  const companyName = name.trim();
-  const isBusy = isFindingHandle || isLoading;
 
-  const getHint = (): string => {
-    if (isMissing && !companyName) {
-      return 'Add a name to continue.';
-    }
-
-    return companyName
-      ? `Your page: daily.dev/squads/${toSquadHandle(companyName)}`
-      : ' ';
-  };
-
-  // Only the name is asked: the logo, description and the rest are set up
-  // after payment, by hand or by the buyer's agent.
-  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  // Pages are created free on their own form, so checkout only upgrades one
+  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (isBusy) {
-      return;
+    if (selected && !isFetching) {
+      onContinue(selected);
     }
-
-    if (selected) {
-      onContinue(selected, false);
-      return;
-    }
-
-    if (!companyName) {
-      setMissing(true);
-      return;
-    }
-
-    setFindingHandle(true);
-    const handle = await findFreeSquadHandle(companyName).finally(() =>
-      setFindingHandle(false),
-    );
-
-    // A company page is public, and only its team posts to it
-    onCreateSquad({
-      name: companyName,
-      handle,
-      description: '',
-      status: PrivacyOption.Public,
-      memberPostingRole: SourceMemberRole.Moderator,
-      memberInviteRole: SourceMemberRole.Member,
-      moderationRequired: false,
-      company: true,
-    });
   };
 
   return (
     <CheckoutShell
       current={CheckoutStage.Company}
-      isTall={adminSquads.length > 3}
-      aside={<StartupsNameStunt name={selected?.name ?? name} />}
+      isTall={companyPages.length > 3}
+      aside={<StartupsNameStunt name={selected?.name ?? ''} />}
     >
       <CheckoutTitle
-        title={hasPages ? 'Which page is this for?' : 'Name your company'}
-        description="It becomes your page on daily.dev, where your posts live."
+        title="Which page are you upgrading?"
+        description="Your page, posts and followers stay. The plan adds to them."
       />
       <form onSubmit={onSubmit} className="flex flex-col gap-6" noValidate>
-        {hasPages && (
+        <div className="flex flex-col gap-2">
           <div role="radiogroup" className="flex flex-col gap-2">
-            {adminSquads.map((squad) => (
+            {companyPages.map((squad) => (
               <CompanyRow
                 key={squad.id}
                 company={squad}
@@ -394,31 +301,17 @@ const CompanyStep = ({
               />
             ))}
           </div>
-        )}
-        <div className="flex flex-col gap-1">
-          {/* Always here, so choosing to create one moves nothing. */}
-          <div onFocusCapture={() => onSelect(null)}>
-            <TextField
-              // Pages can arrive after the first render: keep the focus off it
-              key={hasPages ? 'new-page' : 'first-page'}
-              value={name}
-              autoFocus={!hasPages}
-              inputId="startups-company-name"
-              name="name"
-              autoComplete="organization"
-              label={hasPages ? 'Or create a new page' : 'Company name'}
-              leftIcon={hasPages ? <PlusIcon /> : <SquadIcon />}
-              className={{ container: 'w-full' }}
-              valueChanged={setName}
-              valid={isMissing && !companyName ? false : undefined}
-              hint={getHint()}
-            />
-          </div>
+          <Button
+            tag="a"
+            href={getCompanyPageCreateUrl({ plan })}
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            className="-ml-2 self-start"
+            icon={<PlusIcon />}
+          >
+            No company page yet? Create one for free
+          </Button>
         </div>
-        {/* Only for someone naming their first company */}
-        {!hasPages && (
-          <StartupsGoalQuestion value={goalAnswers} onChange={setGoalAnswers} />
-        )}
         {activePlan ? (
           <CheckoutCta>
             <Button
@@ -450,8 +343,8 @@ const CompanyStep = ({
               type="submit"
               variant={ButtonVariant.Primary}
               className="flex-1"
-              loading={isBusy || (!!selected && isFetching)}
-              disabled={isBusy || (!!selected && isFetching)}
+              loading={!!selected && isFetching}
+              disabled={!selected || isFetching}
             >
               Continue
             </Button>
@@ -530,9 +423,9 @@ const PlanIncludes = ({ plan }: { plan: SquadPlan }): ReactElement => (
         }}
       >
         <li className="font-bold text-text-tertiary typo-footnote">
-          {squadPlanDetails[option].featuresTitle}
+          {squadPlanOverFree[option].featuresTitle}
         </li>
-        {squadPlanDetails[option].features.map((feature) => (
+        {squadPlanOverFree[option].features.map((feature) => (
           <li
             key={feature}
             className="flex items-start gap-2 text-text-secondary typo-footnote"
@@ -754,8 +647,8 @@ const PlanStep = ({
       aside={isLaptop && payment}
     >
       <CheckoutTitle
-        title={`Choose a plan for ${company.name}`}
-        description="Billed monthly. Cancel any time, your page and posts stay."
+        title={`Upgrade ${company.name}`}
+        description={`Billed monthly. Cancel any time and ${company.name} goes back to Free.`}
       />
       <SquadLaunchOfferBanner />
       <div role="radiogroup" className="flex flex-col gap-3">
@@ -1152,6 +1045,7 @@ export const StartupsCheckout = ({
   initialAuthDisplay,
   initialAuthEmail,
 }: StartupsCheckoutProps): ReactElement => {
+  const router = useRouter();
   const { squads, user } = useAuthContext();
   const { trackEvent } = usePixelsContext();
   const isSignupTracked = useRef(false);
@@ -1163,20 +1057,25 @@ export const StartupsCheckout = ({
       ),
     [squads],
   );
+  // Plans are bought for company pages. Any admin squad still opens from its
+  // own Manage page, and paying makes it a company page.
+  const companyPages = useMemo(
+    () => adminSquads.filter((squad) => squad.flags?.company),
+    [adminSquads],
+  );
   const [step, setStep] = useState(initialStep);
   const [plan, setPlan] = useState<SquadPlan>(
     isSquadPlan(initialPlan) ? initialPlan : SquadPlan.Starter,
   );
   const [selectedId, setSelectedId] = useState<string | null>(
     () =>
-      adminSquads.find(({ id }) => id === initialSquadId)?.id ??
-      adminSquads[0]?.id ??
+      companyPages.find(({ id }) => id === initialSquadId)?.id ??
+      companyPages[0]?.id ??
       null,
   );
   const [company, setCompany] = useState<CompanyChoice | undefined>(
     initialCompany,
   );
-  const [isNewCompany, setNewCompany] = useState(false);
   const [isReturning, setReturning] = useState(false);
   // A link from a squad's own page already says which page this is for, so
   // it goes straight to the plans, unless that page is already on a plan.
@@ -1202,16 +1101,16 @@ export const StartupsCheckout = ({
 
   useEffect(() => {
     // Squads arrive with boot; pick the one the link asked for once they do
-    if (selectedId || !adminSquads.length) {
+    if (selectedId || !companyPages.length) {
       return;
     }
 
     setSelectedId(
-      adminSquads.find(({ id }) => id === initialSquadId)?.id ??
-        adminSquads[0].id,
+      companyPages.find(({ id }) => id === initialSquadId)?.id ??
+        companyPages[0].id,
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [adminSquads.length]);
+  }, [companyPages.length]);
 
   useEffect(() => {
     if (!isOpeningLink) {
@@ -1251,8 +1150,7 @@ export const StartupsCheckout = ({
     logStartups(LogEvent.ViewStartupsCheckout, step, {
       plan,
       source_id: company?.id,
-      new_company: isNewCompany,
-      admin_squads: adminSquads.length,
+      company_pages: companyPages.length,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, isOpeningLink]);
@@ -1289,7 +1187,22 @@ export const StartupsCheckout = ({
     );
   }, [step, isOpeningLink, userId, user?.email, plan, trackEvent]);
 
-  if (isOpeningLink) {
+  // Without a company page there is nothing to upgrade: the page comes first,
+  // for free
+  const isCreatingPage =
+    !isOpeningLink &&
+    !!userId &&
+    step === StartupsCheckoutStep.Company &&
+    !companyPages.length;
+
+  useEffect(() => {
+    if (isCreatingPage) {
+      router.replace(getCompanyPageCreateUrl({ plan }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCreatingPage]);
+
+  if (isOpeningLink || isCreatingPage) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader />
@@ -1346,12 +1259,12 @@ export const StartupsCheckout = ({
 
   return (
     <CompanyStep
-      adminSquads={adminSquads}
+      companyPages={companyPages}
+      plan={plan}
       selectedId={selectedId}
       onSelect={setSelectedId}
-      onContinue={(next, isNew) => {
+      onContinue={(next) => {
         setCompany(next);
-        setNewCompany(isNew);
         setStep(StartupsCheckoutStep.Plan);
       }}
       onSetUp={(next, activePlan) => {
