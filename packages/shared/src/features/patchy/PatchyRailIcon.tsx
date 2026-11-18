@@ -34,6 +34,8 @@ interface PatchyRailIconProps {
   state: StreakRingState;
   hasReadToday: boolean;
   selected?: boolean;
+  // Changes on every reaction; each change replays a small hop.
+  bump?: number;
 }
 
 // Patchy's face in the Streak tab, in place of the flame badge. The glyph box
@@ -44,11 +46,15 @@ export const PatchyRailIcon = ({
   state,
   hasReadToday,
   selected = false,
+  bump = 0,
 }: PatchyRailIconProps): ReactElement => (
   <span className="relative flex size-6 items-center justify-center">
     <span
       aria-hidden
+      // A new key restarts the hop animation.
+      key={bump}
       className={classNames(
+        bump > 0 && 'motion-safe:animate-patchy-bump',
         'absolute -inset-1 overflow-hidden rounded-full border-2 bg-surface-float transition-colors',
         selected && (state === 'none' || state === 'pending')
           ? 'border-accent-bacon-default'

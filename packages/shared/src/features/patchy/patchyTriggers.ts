@@ -3,6 +3,7 @@ import type {
   PatchyConfig,
   PatchyHourWindow,
   PatchyMood,
+  PatchyTrigger,
 } from './patchyConfig';
 
 // The day a window that `now` falls in opened, or null outside it. A window
@@ -97,4 +98,24 @@ export const getPatchyMood = ({
     return 'happy';
   }
   return 'ready';
+};
+
+// Repeating the same action in one day escalates: the third upvote or
+// bookmark of the day (and every fifth after that) gets the bigger reaction.
+export const PATCHY_ESCALATE_AT = 3;
+const PATCHY_ESCALATE_EVERY = 5;
+
+const isEscalation = (count: number): boolean =>
+  count === PATCHY_ESCALATE_AT ||
+  (count > PATCHY_ESCALATE_AT &&
+    (count - PATCHY_ESCALATE_AT) % PATCHY_ESCALATE_EVERY === 0);
+
+export const getActionTrigger = (
+  action: 'upvote' | 'bookmark',
+  countToday: number,
+): PatchyTrigger => {
+  if (!isEscalation(countToday)) {
+    return action;
+  }
+  return action === 'upvote' ? 'on_a_roll' : 'bookmark_pile';
 };

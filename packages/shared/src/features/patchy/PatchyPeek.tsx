@@ -158,8 +158,10 @@ export const PatchyPeek = ({
     return null;
   }
 
+  // The Friday deploy keeps its sweat drop for the sliver re-peek.
+  const isFriday = trigger === 'friday_deploy';
   const showEmote =
-    (phase === 'in' && emote !== 'sweat') ||
+    (phase === 'in' && !(isFriday && emote === 'sweat')) ||
     (phase === 'sliver' && emote === 'sweat');
   const isDart = trigger === 'friday_deploy' && stepIndex === 1;
 

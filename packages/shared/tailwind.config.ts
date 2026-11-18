@@ -375,8 +375,6 @@ export default {
               'color-mix(in srgb, var(--theme-accent-bacon-default) 28%, transparent)',
           },
         },
-        // Daily streak toast: the flame pops in with the same strike + rebound
-        // as the rail tile's earn pop, then rests at its normal size.
         // Patchy (streak companion): the emote over a peek floats up and fades.
         'patchy-emote': {
           '0%': { transform: 'translateY(4px) scale(0.6)', opacity: '0' },
@@ -384,6 +382,14 @@ export default {
           '80%': { opacity: '1' },
           '100%': { transform: 'translateY(-10px) scale(1)', opacity: '0' },
         },
+        // Patchy's rail face hops when he reacts, peek or not.
+        'patchy-bump': {
+          '0%, 100%': { transform: 'translateY(0) scale(1)' },
+          '30%': { transform: 'translateY(-3px) scale(1.12)' },
+          '60%': { transform: 'translateY(0) scale(0.96)' },
+        },
+        // Daily streak toast: the flame pops in with the same strike + rebound
+        // as the rail tile's earn pop, then rests at its normal size.
         'streak-toast-pop': {
           '0%': { transform: 'scale(0.6)', opacity: '0' },
           '45%': { transform: 'scale(1.3)', opacity: '1' },
@@ -439,6 +445,7 @@ export default {
           'streak-toast-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both',
         'mascot-bob': 'mascot-bob 4s ease-in-out infinite',
         'patchy-emote': 'patchy-emote 2.2s ease-out both',
+        'patchy-bump': 'patchy-bump 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)',
       },
     },
     lineClamp: {

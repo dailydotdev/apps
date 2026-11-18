@@ -1894,6 +1894,7 @@ export const SidebarDesktopV2 = ({
       iconNode = (
         <PatchyRailIcon
           face={patchy.face}
+          bump={patchy.bump}
           state={streakState}
           hasReadToday={streakReadToday}
           selected={isSelected}

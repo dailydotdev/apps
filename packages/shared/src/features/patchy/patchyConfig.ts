@@ -12,6 +12,10 @@ export const patchyTriggers = [
   'late_night',
   'friday_deploy',
   'welcome_back',
+  // Escalations: the same action, again and again in one day, gets a bigger
+  // reaction than the first time.
+  'on_a_roll',
+  'bookmark_pile',
 ] as const;
 export type PatchyTrigger = (typeof patchyTriggers)[number];
 
@@ -62,6 +66,10 @@ export interface PatchyHourWindow {
   endHour: number;
 }
 
+// The den's extra frames of him at his desk, same room and framing as idle.
+export const patchyDenFrames = ['laugh', 'bone', 'asleep', 'sideeye'] as const;
+export type PatchyDenFrame = (typeof patchyDenFrames)[number];
+
 export interface PatchyConfig {
   cooldownMs: number;
   awayMs: number;
@@ -70,7 +78,11 @@ export interface PatchyConfig {
   faceImage: Record<PatchyFace, string>;
   reactions: Record<PatchyTrigger, PatchyReaction>;
   moods: Record<PatchyMood, { face: PatchyFace; copy: string; label: string }>;
-  den: { idleImage: string; blinkImage: string };
+  den: {
+    idleImage: string;
+    blinkImage: string;
+    frames: Record<PatchyDenFrame, string>;
+  };
 }
 
 const SECOND = 1000;
@@ -158,6 +170,24 @@ export const defaultPatchyConfig: PatchyConfig = {
       priority: 4,
       ttlMs: 600 * SECOND,
     },
+    // The third upvote of the day: he brings out the bone and sparkles.
+    on_a_roll: {
+      enabled: true,
+      poseImage: pose.bone,
+      emote: 'sparkle',
+      face: 'happy',
+      priority: 2,
+      ttlMs: 30 * SECOND,
+    },
+    // The third bookmark of the day: deadpan, and now he's sweating for you.
+    bookmark_pile: {
+      enabled: true,
+      poseImage: pose.deadpan,
+      emote: 'sweat',
+      face: 'sideeye',
+      priority: 2,
+      ttlMs: 30 * SECOND,
+    },
   },
   moods: {
     happy: {
@@ -177,6 +207,12 @@ export const defaultPatchyConfig: PatchyConfig = {
   den: {
     idleImage: `${media}/v1794998775/public/patchy-v1-den-idle.webp`,
     blinkImage: `${media}/v1794998776/public/patchy-v1-den-blink.webp`,
+    frames: {
+      laugh: `${media}/v1/public/patchy-v1-den-laugh.webp`,
+      bone: `${media}/v1/public/patchy-v1-den-bone.webp`,
+      asleep: `${media}/v1/public/patchy-v1-den-asleep.webp`,
+      sideeye: `${media}/v1/public/patchy-v1-den-sideeye.webp`,
+    },
   },
 };
 
@@ -282,6 +318,7 @@ export const toPatchyConfig = (
       blinkImage: isText(response.den?.blinkImage)
         ? response.den.blinkImage
         : fallback.den.blinkImage,
+      frames: { ...fallback.den.frames },
     },
   };
 };

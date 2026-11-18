@@ -1,5 +1,6 @@
 import { defaultPatchyConfig as config } from './patchyConfig';
 import {
+  getActionTrigger,
   getNightKey,
   getPatchyMood,
   isAway,
@@ -191,5 +192,18 @@ describe('getPatchyMood', () => {
         config,
       }),
     ).toBe('resting');
+  });
+});
+
+describe('getActionTrigger', () => {
+  it('escalates the third action of the day and every fifth after', () => {
+    expect(getActionTrigger('upvote', 1)).toBe('upvote');
+    expect(getActionTrigger('upvote', 2)).toBe('upvote');
+    expect(getActionTrigger('upvote', 3)).toBe('on_a_roll');
+    expect(getActionTrigger('upvote', 4)).toBe('upvote');
+    expect(getActionTrigger('upvote', 8)).toBe('on_a_roll');
+    expect(getActionTrigger('bookmark', 3)).toBe('bookmark_pile');
+    expect(getActionTrigger('bookmark', 13)).toBe('bookmark_pile');
+    expect(getActionTrigger('bookmark', 12)).toBe('bookmark');
   });
 });

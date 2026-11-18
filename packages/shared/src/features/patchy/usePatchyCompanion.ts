@@ -10,7 +10,9 @@ import { getPatchyConfig } from './patchyConfig';
 import { subscribePatchyEvents } from './patchyEvents';
 import type { PatchyEvent } from './patchyEvents';
 import { patchyPeekScheduler } from './patchyPeekScheduler';
+import { recordPatchyActivity } from './patchyDay';
 import {
+  getActionTrigger,
   getNightKey,
   getPatchyMood,
   isAway,
@@ -52,6 +54,8 @@ interface UsePatchyCompanion {
   face: PatchyFace;
   mood: PatchyMood;
   peek: PatchyPeekState | null;
+  // Bumps on every reaction, peek or not, so the icon can hop.
+  bump: number;
   onPeekDone: () => void;
 }
 
@@ -74,6 +78,7 @@ export const usePatchyCompanion = ({
   const [isGreeted, setIsGreeted] = useState(false);
   const [now, setNow] = useState(() => new Date());
   const [pendingVersion, setPendingVersion] = useState(0);
+  const [bump, setBump] = useState(0);
   const lastScrollAtRef = useRef(0);
   const peekIdRef = useRef(0);
   const isActive = isEnabled && isReactionsEnabled && !!user;
@@ -150,28 +155,59 @@ export const usePatchyCompanion = ({
     request('welcome_back');
   }, [isActive, away, lastViewAt, user, request]);
 
+  // Every action changes his face and makes the icon hop, even while a peek
+  // is cooling down, so he never looks like he missed it.
+  const react = useCallback(
+    (trigger: PatchyTrigger) => {
+      setFaceOverride(getPatchyConfig().reactions[trigger].face);
+      setBump((value) => value + 1);
+      request(trigger);
+    },
+    [request],
+  );
+
+  // He remembers your day while he's on (the den tells it back), and reacts
+  // to it when reactions are on.
   useEffect(() => {
-    if (!isActive) {
+    if (!isEnabled || !user) {
       return undefined;
     }
-    requestLateNight();
-    return subscribePatchyEvents((event: PatchyEvent) => {
+    if (isActive) {
       requestLateNight();
+    }
+    return subscribePatchyEvents((event: PatchyEvent) => {
       if (event.type === 'upvote' || event.type === 'bookmark') {
-        request(event.type);
+        const day = recordPatchyActivity(user.id, event.type);
+        if (isActive) {
+          requestLateNight();
+          react(
+            getActionTrigger(
+              event.type,
+              event.type === 'upvote' ? day.upvotes : day.bookmarks,
+            ),
+          );
+        }
         return;
       }
       if (event.type === 'streak_day') {
-        request('streak_day');
+        recordPatchyActivity(user.id, 'streak_day');
+        if (isActive) {
+          react('streak_day');
+        }
         return;
       }
+      recordPatchyActivity(user.id, 'read');
+      if (!isActive) {
+        return;
+      }
+      requestLateNight();
       if (
         isFridayDeploy(new Date(), event.tags, getPatchyConfig().fridayDeploy)
       ) {
-        request('friday_deploy');
+        react('friday_deploy');
       }
     });
-  }, [isActive, request, requestLateNight]);
+  }, [isEnabled, isActive, user, react, requestLateNight]);
 
   // Wait for a calm moment (no scroll, no modal, tab visible) to show it.
   useEffect(() => {
@@ -214,7 +250,7 @@ export const usePatchyCompanion = ({
     }
     const timeout = setTimeout(() => setFaceOverride(null), FACE_HOLD_MS);
     return () => clearTimeout(timeout);
-  }, [faceOverride]);
+  }, [faceOverride, bump]);
 
   const onPeekDone = useCallback(() => setPeek(null), []);
 
@@ -226,6 +262,7 @@ export const usePatchyCompanion = ({
     face: faceOverride ?? restingFace,
     mood,
     peek: isActive ? peek : null,
+    bump: isActive ? bump : 0,
     onPeekDone,
   };
 };
