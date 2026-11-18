@@ -250,19 +250,23 @@ describe('useFeedWidgetAdRotation', () => {
 });
 
 describe('useFeedWidgetShortcuts', () => {
-  it('hands shortcuts to the rail wherever it renders, Shortcuts widget or not', () => {
+  it('hands shortcuts to the rail only when the Shortcuts widget is on it', () => {
     expect(
       renderShortcuts({ feedWidgets: shortcutsRail }).result.current,
-    ).toEqual({ hasRail: true, isPending: false });
-    expect(renderShortcuts().result.current.hasRail).toBe(true);
+    ).toEqual({ hasRail: true, hasShortcutsWidget: true, isPending: false });
+    expect(renderShortcuts().result.current).toEqual({
+      hasRail: true,
+      hasShortcutsWidget: false,
+      isPending: false,
+    });
     expect(
       renderShortcuts({
         feedWidgets: {
           version: 1,
           widgets: [{ id: 'now', kind: 'happeningNow', size: 'tall' }],
         },
-      }).result.current.hasRail,
-    ).toBe(true);
+      }).result.current.hasShortcutsWidget,
+    ).toBe(false);
   });
 
   it('leaves them to the row where the rail does not render', () => {
@@ -275,7 +279,7 @@ describe('useFeedWidgetShortcuts', () => {
         feedWidgets: shortcutsRail,
         feedName: SharedFeedPage.Custom,
       }).result.current,
-    ).toEqual({ hasRail: false, isPending: false });
+    ).toEqual({ hasRail: false, hasShortcutsWidget: false, isPending: false });
   });
 
   it('is pending on a rail feed until the settings that hold the rail load', () => {
