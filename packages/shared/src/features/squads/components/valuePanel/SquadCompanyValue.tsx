@@ -59,7 +59,7 @@ export const SquadCompanyValue = (): ReactElement | null => {
     return <SquadValuePanelPlaceholder />;
   }
 
-  if (!analytics || !subscription) {
+  if (!subscription) {
     return null;
   }
 
@@ -69,15 +69,17 @@ export const SquadCompanyValue = (): ReactElement | null => {
     <SquadValuePanel
       name={squad.name}
       stats={{
-        impressions: analytics.impressions,
-        reach: analytics.reach,
-        clicks: analytics.clicks,
+        impressions: analytics?.impressions ?? 0,
+        reach: analytics?.reach ?? 0,
+        clicks: analytics?.clicks ?? 0,
         engagement:
-          analytics.upvotes + analytics.comments + analytics.bookmarks,
+          (analytics?.upvotes ?? 0) +
+          (analytics?.comments ?? 0) +
+          (analytics?.bookmarks ?? 0),
         followers: squad.membersCount ?? 0,
         agentViews: isFree
           ? null
-          : (analytics.agentViews ?? 0) + (analytics.agentViewsBot ?? 0),
+          : (analytics?.agentViews ?? 0) + (analytics?.agentViewsBot ?? 0),
       }}
       upgrade={
         isFree
