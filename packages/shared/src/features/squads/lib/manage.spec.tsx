@@ -52,6 +52,7 @@ describe('getSquadManageGroups', () => {
       [SquadManageSection.Links]: SquadManageLockedPlan.Startups,
       [SquadManageSection.Branding]: SquadManageLockedPlan.Enterprise,
       [SquadManageSection.Intel]: SquadManageLockedPlan.Startups,
+      [SquadManageSection.AutoPosting]: SquadManageLockedPlan.Startups,
       [SquadManageSection.Agent]: SquadManageLockedPlan.Startups,
     });
   });

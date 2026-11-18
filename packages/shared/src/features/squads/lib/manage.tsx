@@ -14,6 +14,7 @@ import {
   LinkIcon,
   LockIcon,
   PaintRollerIcon,
+  SendAirplaneIcon,
   TerminalIcon,
   TimerIcon,
   TrendingIcon,
@@ -58,6 +59,7 @@ export const squadManageTitles: Record<SquadManageSection, string> = {
   [SquadManageSection.Intel]: 'Weekly intel',
   [SquadManageSection.Integrations]: 'Integrations',
   [SquadManageSection.Agent]: 'Agent and API',
+  [SquadManageSection.AutoPosting]: 'Auto-posting',
   [SquadManageSection.DangerZone]: 'Danger zone',
 };
 
@@ -101,6 +103,12 @@ const planGates: Partial<Record<SquadManageSection, SquadManagePlanGate>> = {
     plan: SquadManageLockedPlan.Startups,
     isIncluded: isCompanySquad,
   },
+  // Posting through the API comes with every plan; RSS and YouTube inside it
+  // are Enterprise only
+  [SquadManageSection.AutoPosting]: {
+    plan: SquadManageLockedPlan.Startups,
+    isIncluded: isCompanySquad,
+  },
 };
 
 // Whether the viewer's role opens the section, whatever the squad's plan
@@ -115,6 +123,7 @@ const canSeeSection = (squad: Squad, section: SquadManageSection): boolean => {
     case SquadManageSection.Jobs:
     case SquadManageSection.Links:
     case SquadManageSection.Branding:
+    case SquadManageSection.AutoPosting:
       return canEdit;
     case SquadManageSection.Members:
       return true;
@@ -219,6 +228,7 @@ export const getSquadManageGroups = (
         item(SquadManageSection.Intel, <TrendingIcon />),
         item(SquadManageSection.Analytics, <AnalyticsIcon />),
         item(SquadManageSection.Integrations, <EmbedIcon />),
+        item(SquadManageSection.AutoPosting, <SendAirplaneIcon />),
         item(SquadManageSection.Agent, <TerminalIcon />),
         item(SquadManageSection.DangerZone, <TrashIcon />),
       ],

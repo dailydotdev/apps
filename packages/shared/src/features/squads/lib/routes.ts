@@ -15,6 +15,7 @@ export enum SquadManageSection {
   Intel = 'intel',
   Integrations = 'integrations',
   Agent = 'agent',
+  AutoPosting = 'auto-posting',
   DangerZone = 'danger-zone',
 }
 
