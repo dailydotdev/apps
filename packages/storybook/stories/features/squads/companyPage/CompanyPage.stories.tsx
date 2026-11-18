@@ -181,6 +181,7 @@ const handlers = (scenario: Scenario) => {
             clicks: totals.clicks,
             upvotesRatio: totals.upvotes ? 100 : 0,
             agentViews: scenario.plan ? 212 : null,
+            agentViewsBot: scenario.plan ? 1340 : null,
           },
         },
       }),

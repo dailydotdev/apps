@@ -645,6 +645,7 @@ export const SQUAD_ANALYTICS_QUERY = gql`
       clicks
       upvotesRatio
       agentViews
+      agentViewsBot
     }
   }
 `;
@@ -1083,6 +1084,8 @@ export interface SquadAnalytics {
   upvotesRatio: number;
   /** AI agent reads; null unless the plan includes them */
   agentViews?: number | null;
+  /** AI crawler visits; null unless the plan includes them */
+  agentViewsBot?: number | null;
 }
 
 export interface SquadAnalyticsHistoryNode {

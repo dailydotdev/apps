@@ -12,7 +12,7 @@ export interface SquadValueStats {
   /** Upvotes, comments and Bookmarks together */
   engagement: number;
   followers: number;
-  /** AI agent reads; only paid pages get them */
+  /** AI agent reads plus AI crawler visits; only paid pages get them */
   agentViews?: number | null;
 }
 

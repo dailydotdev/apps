@@ -75,7 +75,9 @@ export const SquadCompanyValue = (): ReactElement | null => {
         engagement:
           analytics.upvotes + analytics.comments + analytics.bookmarks,
         followers: squad.membersCount ?? 0,
-        agentViews: isFree ? null : analytics.agentViews,
+        agentViews: isFree
+          ? null
+          : (analytics.agentViews ?? 0) + (analytics.agentViewsBot ?? 0),
       }}
       upgrade={
         isFree
