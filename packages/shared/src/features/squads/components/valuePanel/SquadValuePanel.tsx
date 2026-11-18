@@ -96,14 +96,9 @@ const Upgrade = ({
       className,
     )}
   >
-    <div className="flex flex-col gap-1">
-      <h3 className="font-bold typo-body">
-        On the free plan, your posts reach few developers
-      </h3>
-      <p className="text-text-secondary typo-callout">
-        {`Starter puts ${name} in front of many more:`}
-      </p>
-    </div>
+    <h3 className="font-bold typo-body">
+      {`With Starter, ${name} reaches more developers:`}
+    </h3>
     <ul className="flex flex-col gap-2">
       <Benefit>Your posts in the developer feed</Benefit>
       <Benefit>{`${name} on Google and in AI answers`}</Benefit>
