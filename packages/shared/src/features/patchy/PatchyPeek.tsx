@@ -11,7 +11,7 @@ import { patchyPeeks } from './patchyTriggers';
 // Box the peek lives in, starting at the rail's right edge. It clips, so
 // Patchy appears to slide out from behind the rail without any z-order tricks.
 const BOX_WIDTH = 144;
-const BOX_HEIGHT = 136;
+const BOX_HEIGHT = 176;
 const POSE_WIDTH = 112;
 // Under the sidebar (70) and the header, above the feed; modals cover it.
 const PEEK_Z_INDEX = 69;
@@ -40,11 +40,13 @@ const stepsFor = (trigger: PatchyTrigger): Step[] =>
         { phase: 'out', ms: SLIDE_MS },
       ];
 
+// The poses are drawn upright with a flat left side and paws on the edge, so
+// they slide straight out and sit flush against the rail.
 const poseTransform: Record<Phase, string> = {
-  hidden: 'translateX(-105%) rotate(0deg)',
-  in: 'translateX(-22%) rotate(12deg)',
-  sliver: 'translateX(-68%) rotate(6deg)',
-  out: 'translateX(-105%) rotate(0deg)',
+  hidden: 'translateX(-101%)',
+  in: 'translateX(0)',
+  sliver: 'translateX(-55%)',
+  out: 'translateX(-101%)',
 };
 
 const Emote = ({ emote }: { emote: PatchyEmote }): ReactElement => {
@@ -174,7 +176,6 @@ export const PatchyPeek = ({
         style={{
           width: POSE_WIDTH,
           transform: poseTransform[phase],
-          transformOrigin: 'left bottom',
           transition: `transform ${isDart ? 180 : SLIDE_MS}ms cubic-bezier(0.34, 1.4, 0.64, 1)`,
         }}
       >

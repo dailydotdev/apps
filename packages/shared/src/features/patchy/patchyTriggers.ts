@@ -35,7 +35,7 @@ export const patchyPeeks: Record<PatchyTrigger, PatchyPeekConfig> = {
     ttlMs: 20 * SECOND,
   },
   bookmark: {
-    pose: 'sideeye',
+    pose: 'deadpan',
     emote: 'dots',
     face: 'sideeye',
     priority: 1,
@@ -50,9 +50,9 @@ export const patchyPeeks: Record<PatchyTrigger, PatchyPeekConfig> = {
     ttlMs: 10 * MINUTE,
   },
   late_night: {
-    pose: 'heavy',
+    pose: 'sleepy',
     emote: 'moon',
-    face: 'heavy',
+    face: 'sleepy',
     priority: 2,
     ttlMs: 5 * MINUTE,
   },
@@ -163,8 +163,8 @@ export const getPatchyMood = ({
 
 export const patchyFaceByMood: Record<PatchyMood, PatchyFace> = {
   happy: 'happy',
-  ready: 'awake',
-  sleepy: 'heavy',
+  ready: 'neutral',
+  sleepy: 'sleepy',
   resting: 'asleep',
   away: 'asleep',
 };

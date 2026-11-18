@@ -377,17 +377,12 @@ export default {
         },
         // Daily streak toast: the flame pops in with the same strike + rebound
         // as the rail tile's earn pop, then rests at its normal size.
-        // Patchy (streak companion): the emote over a peek floats up and fades,
-        // and the den pose breathes.
+        // Patchy (streak companion): the emote over a peek floats up and fades.
         'patchy-emote': {
           '0%': { transform: 'translateY(4px) scale(0.6)', opacity: '0' },
           '25%': { transform: 'translateY(0) scale(1.1)', opacity: '1' },
           '80%': { opacity: '1' },
           '100%': { transform: 'translateY(-10px) scale(1)', opacity: '0' },
-        },
-        'patchy-breathe': {
-          '0%, 100%': { transform: 'scale(1)' },
-          '50%': { transform: 'scale(1.015) translateY(-1px)' },
         },
         'streak-toast-pop': {
           '0%': { transform: 'scale(0.6)', opacity: '0' },
@@ -444,7 +439,6 @@ export default {
           'streak-toast-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both',
         'mascot-bob': 'mascot-bob 4s ease-in-out infinite',
         'patchy-emote': 'patchy-emote 2.2s ease-out both',
-        'patchy-breathe': 'patchy-breathe 4s ease-in-out infinite',
       },
     },
     lineClamp: {
