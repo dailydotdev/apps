@@ -96,7 +96,7 @@ export const SquadLinksWidget = ({
           href={getStartupsCheckoutUrl({ sourceId: squad.id })}
           className="mt-2 text-text-tertiary typo-footnote hover:text-text-primary"
         >
-          On Starter, your links pass ranking to your site
+          Get dofollow links on the Startup plan
         </a>
       )}
     </SquadWidget>

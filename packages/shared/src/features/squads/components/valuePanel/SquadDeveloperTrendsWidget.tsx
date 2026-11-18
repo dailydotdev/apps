@@ -65,7 +65,7 @@ export const SquadDeveloperTrendsWidget = (): ReactElement | null => {
         .slice(0, TOPICS)}
       tip={getTrendsTip(trends)}
       reportUrl={getSquadIntelUrl(squad.handle)}
-      upsell="Starter sends you this report for your own topics every week, with post ideas."
+      upsell="The Startup plan sends you this report for your own topics every week, with post ideas."
     />
   );
 };

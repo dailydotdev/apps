@@ -44,7 +44,7 @@ export const StarterUpgrade = ({
     )}
   >
     <h3 className="font-bold typo-body">
-      {`With Starter, ${name} reaches more developers:`}
+      {`With the Startup plan, ${name} reaches more developers:`}
     </h3>
     <ul className="flex flex-col gap-2">
       <Benefit>In developers&apos; feeds, by topic</Benefit>
