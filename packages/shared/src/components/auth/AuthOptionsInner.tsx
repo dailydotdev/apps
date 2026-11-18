@@ -12,8 +12,8 @@ import {
   isNativeAuthSupported,
   AuthEventNames,
   AuthEvent,
-  AuthTriggers,
   autoProfileTriggers,
+  isStartupsAuthTrigger,
 } from '../../lib/auth';
 import {
   getBetterAuthErrorMessage,
@@ -179,7 +179,7 @@ function AuthOptionsInner({
   const router = useRouter();
   const isOnboardingOrFunnel =
     !!router?.pathname?.startsWith('/onboarding') || isFunnel;
-  const isStartups = trigger === AuthTriggers.StartupsCheckout;
+  const isStartups = isStartupsAuthTrigger(trigger);
   const [socialError, setSocialError] = useState<string>();
   const socialProviderRef = useRef<string>();
   const onSocialError = (message: string) => {
@@ -387,7 +387,7 @@ function AuthOptionsInner({
     name?: string,
     // The Startups signup skips the social profile form and its opt-out, so
     // it keeps the default: opted in
-    marketing = trigger === AuthTriggers.StartupsCheckout,
+    marketing = isStartupsAuthTrigger(trigger),
   ) => {
     if (isAutoCompletingProfileRef.current) {
       return;

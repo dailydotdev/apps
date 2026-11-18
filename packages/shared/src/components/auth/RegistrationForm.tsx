@@ -9,7 +9,11 @@ import type {
   RegistrationError,
   RegistrationParameters,
 } from '../../lib/auth';
-import { AuthEventNames, AuthTriggers } from '../../lib/auth';
+import {
+  AuthEventNames,
+  AuthTriggers,
+  isStartupsAuthTrigger,
+} from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
 import { PasswordField } from '../fields/PasswordField';
@@ -151,7 +155,7 @@ const RegistrationForm = ({
   const [isEmailFilled, setIsEmailFilled] = useState(!!email?.length);
   const isRecruiterOnboarding = trigger === AuthTriggers.RecruiterSelfServe;
   const hideExperienceLevel =
-    isRecruiterOnboarding || trigger === AuthTriggers.StartupsCheckout;
+    isRecruiterOnboarding || isStartupsAuthTrigger(trigger);
   const {
     username,
     setUsername,
