@@ -27,7 +27,6 @@ export const SquadWidgets = (): ReactElement => {
       <SquadPreviewToggle />
       {/* A company page sells its plan from the top of its feed */}
       {!isCompanyPage(squad) && <SquadPlanUpsellWidget />}
-      <SquadDeveloperTrendsWidget />
       {hasSquadFeature(squad, 'verified') && <VerifiedCompanySquadCard />}
       <SquadAgentWidget />
       {squad.flags?.featured && <FeaturedSquadCard />}
@@ -39,6 +38,7 @@ export const SquadWidgets = (): ReactElement => {
       <SimilarSquadsWidget key={squad.id} squad={squad} />
       {isStaff && <SquadAnalyticsWidget squad={squad} />}
       <SquadLinksWidget squad={squad} />
+      <SquadDeveloperTrendsWidget />
     </>
   );
 };

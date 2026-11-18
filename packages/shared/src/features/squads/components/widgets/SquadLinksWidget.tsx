@@ -1,11 +1,15 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import type { Squad } from '../../../../graphql/sources';
 import { IconSize } from '../../../../components/Icon';
 import { LinkIcon } from '../../../../components/icons';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { LogEvent } from '../../../../lib/log';
 import { SquadWidget } from './SquadWidget';
+import { useSquadPageContext } from '../../SquadPageContext';
+import { isStaffViewer } from '../../lib/viewer';
+import { getStartupsCheckoutUrl } from '../../lib/routes';
 import { canSetSquadWebsite, hasSquadFeature } from '../../lib/features';
 import {
   getDisplayUrl,
@@ -22,6 +26,8 @@ export const SquadLinksWidget = ({
   squad,
 }: SquadLinksWidgetProps): ReactElement | null => {
   const { logEvent } = useLogContext();
+  const { viewer, isViewerKnown } = useSquadPageContext();
+  const isStaff = isViewerKnown && isStaffViewer(viewer);
   const links = hasSquadFeature(squad, 'links') ? (squad.links ?? []) : [];
 
   if (!canSetSquadWebsite(squad) || (!squad.website && !links.length)) {
@@ -69,10 +75,30 @@ export const SquadLinksWidget = ({
                 <Icon size={IconSize.Size16} />
               </span>
               <span className="min-w-0 flex-1 truncate">{label}</span>
+              {isStaff && (
+                <span
+                  className={classNames(
+                    'shrink-0 rounded-6 px-1.5 py-0.5 typo-caption2',
+                    rel.includes('nofollow')
+                      ? 'bg-surface-float text-text-tertiary'
+                      : 'bg-overlay-float-avocado text-accent-avocado-default',
+                  )}
+                >
+                  {rel.includes('nofollow') ? 'nofollow' : 'dofollow'}
+                </span>
+              )}
             </a>
           </li>
         ))}
       </ul>
+      {isStaff && rows.some(({ rel }) => rel.includes('nofollow')) && (
+        <a
+          href={getStartupsCheckoutUrl({ sourceId: squad.id })}
+          className="mt-2 text-text-tertiary typo-footnote hover:text-text-primary"
+        >
+          On Starter, your links pass ranking to your site
+        </a>
+      )}
     </SquadWidget>
   );
 };

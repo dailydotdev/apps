@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { squadAnalyticsQueryOptions } from '../../../../graphql/squads';
 import { squadSubscriptionQueryOptions } from '../../../../graphql/squadSubscription';
+import { squadFreeBoostQueryOptions } from '../../../../graphql/squadFreeBoost';
 import { LogEvent, Origin } from '../../../../lib/log';
 import { useSquadPageContext } from '../../SquadPageContext';
 import { getSquadId, hasSquadFeature } from '../../lib/features';
@@ -15,7 +16,7 @@ import { getStartupsStarterOffer } from '../../hooks/useStartupsPromo';
 import { useLogStartups } from '../../hooks/useLogStartups';
 import { useSquadFreeBoost } from '../freeBoost/useSquadFreeBoost';
 import { SquadFreeBoost } from '../freeBoost/SquadFreeBoost';
-import { SquadValuePanel } from './SquadValuePanel';
+import { SquadValuePanel, SquadValuePanelPlaceholder } from './SquadValuePanel';
 
 /**
  * The top of a company page's feed, for its admins and moderators: the free
@@ -29,13 +30,19 @@ export const SquadCompanyValue = (): ReactElement | null => {
   const isShown =
     isViewerKnown && isStaffViewer(viewer) && isCompanyPage(squad);
   const boost = useSquadFreeBoost(squad);
-  const { data: subscription } = useQuery({
+  // Fetched together and shown once all are in, so nothing pops in above the
+  // feed after the placeholder
+  const { isPending: isBoostPending } = useQuery({
+    ...squadFreeBoostQueryOptions({ user, sourceId }),
+    enabled: !!user && isShown,
+  });
+  const { data: subscription, isPending: isSubscriptionPending } = useQuery({
     ...squadSubscriptionQueryOptions({ user, sourceId }),
     enabled: !!user && isShown,
   });
-  const { data: analytics } = useQuery({
+  const { data: analytics, isPending: isAnalyticsPending } = useQuery({
     ...squadAnalyticsQueryOptions({ sourceId }),
-    enabled: isShown && !boost,
+    enabled: isShown,
   });
   const offer = getStartupsStarterOffer(useStartupsCashbackPromo());
   const logStartups = useLogStartups();
@@ -46,6 +53,10 @@ export const SquadCompanyValue = (): ReactElement | null => {
 
   if (boost) {
     return <SquadFreeBoost />;
+  }
+
+  if (isBoostPending || isSubscriptionPending || isAnalyticsPending) {
+    return <SquadValuePanelPlaceholder />;
   }
 
   if (!analytics || !subscription) {
@@ -64,7 +75,7 @@ export const SquadCompanyValue = (): ReactElement | null => {
         engagement:
           analytics.upvotes + analytics.comments + analytics.bookmarks,
         followers: squad.membersCount ?? 0,
-        agentViews: analytics.agentViews,
+        agentViews: isFree ? null : analytics.agentViews,
       }}
       upgrade={
         isFree

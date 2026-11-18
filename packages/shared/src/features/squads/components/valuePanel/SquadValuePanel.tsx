@@ -1,8 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { VIcon } from '../../../../components/icons';
-import { IconSize } from '../../../../components/Icon';
+import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';
 import type { StartupsStarterOffer } from '../../hooks/useStartupsPromo';
 import { StarterUpgrade } from './StarterUpgrade';
 
@@ -33,6 +32,14 @@ interface SquadValuePanelProps {
 
 const number = (value: number): string => value.toLocaleString('en-US');
 
+const tilesColumns: Record<number, string> = {
+  1: 'tablet:grid-cols-2',
+  2: 'tablet:grid-cols-2',
+  3: 'tablet:grid-cols-3',
+  4: 'tablet:grid-cols-4',
+  5: 'tablet:grid-cols-5',
+};
+
 const Tile = ({
   value,
   label,
@@ -46,39 +53,55 @@ const Tile = ({
   </div>
 );
 
-const Fact = ({
+const Panel = ({
   name,
+  className,
   children,
 }: {
   name: string;
+  className?: string;
   children: ReactNode;
 }): ReactElement => (
-  <div className="flex items-center gap-2 rounded-12 bg-surface-float px-3 py-2.5 typo-footnote">
-    <VIcon
-      size={IconSize.Size16}
-      className="shrink-0 text-accent-avocado-default"
-    />
-    <span className="text-text-tertiary">
-      <strong className="text-text-primary">{name}</strong>
-      {' · '}
-      {children}
-    </span>
-  </div>
+  <section
+    className={classNames(
+      'flex w-full flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-4 tablet:p-5',
+      className,
+    )}
+  >
+    <div className="flex items-center justify-between gap-3">
+      <h2 className="font-bold typo-callout">{`What daily.dev did for ${name}`}</h2>
+      <span className="shrink-0 text-text-tertiary typo-caption1">
+        Only admins see this
+      </span>
+    </div>
+    {children}
+  </section>
+);
+
+/** Holds the panel's place while its numbers load, so the feed doesn't jump */
+export const SquadValuePanelPlaceholder = ({
+  className,
+}: {
+  className?: string;
+}): ReactElement => (
+  <ElementPlaceholder
+    className={classNames('h-64 w-full rounded-16', className)}
+  />
 );
 
 /**
  * What daily.dev did for a company page, for its admins: impressions first,
- * then the other big numbers. On the free plan it ends with the page's one
- * upgrade block; on a paid plan it shows Google and AI agents instead.
+ * then the other big numbers, leaving out any that are still zero. On the free
+ * plan it ends with the page's one upgrade block.
  */
 export const SquadValuePanel = ({
   name,
   stats,
   upgrade,
   className,
-}: SquadValuePanelProps): ReactElement | null => {
-  // Nothing to show off yet: a free page keeps only its upgrade block
+}: SquadValuePanelProps): ReactElement => {
   if (!stats.impressions) {
+    // Nothing to show off yet: a free page keeps only its upgrade block
     return upgrade ? (
       <StarterUpgrade
         name={name}
@@ -87,52 +110,51 @@ export const SquadValuePanel = ({
         onClick={upgrade.onClick}
         className={className}
       />
-    ) : null;
+    ) : (
+      <Panel name={name} className={className}>
+        <p className="text-text-tertiary typo-callout">
+          Your numbers show up here once developers read your posts.
+        </p>
+      </Panel>
+    );
   }
 
+  const tiles = [
+    { value: stats.reach, label: 'Developers reached' },
+    { value: stats.clicks, label: 'Clicks' },
+    { value: stats.engagement, label: 'Upvotes, comments and Bookmarks' },
+    { value: stats.followers, label: 'Followers' },
+    { value: stats.agentViews ?? 0, label: 'AI agent reads' },
+  ].filter(({ value }) => value > 0);
+
   return (
-    <section
-      className={classNames(
-        'flex w-full flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-4 tablet:p-5',
-        className,
-      )}
-    >
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="font-bold typo-callout">{`What daily.dev did for ${name}`}</h2>
-        <span className="shrink-0 text-text-tertiary typo-caption1">
-          Only admins see this
-        </span>
-      </div>
+    <Panel name={name} className={className}>
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <span className="font-bold tabular-nums typo-mega2 tablet:typo-mega1">
           {number(stats.impressions)}
         </span>
         <span className="font-bold typo-title3">impressions so far</span>
       </div>
-      <div className="grid grid-cols-2 gap-2 tablet:grid-cols-4">
-        <Tile value={stats.reach} label="Developers reached" />
-        <Tile value={stats.clicks} label="Clicks" />
-        <Tile
-          value={stats.engagement}
-          label="Upvotes, comments and Bookmarks"
-        />
-        <Tile value={stats.followers} label="Followers" />
-      </div>
-      {upgrade ? (
+      {!!tiles.length && (
+        <div
+          className={classNames(
+            'grid grid-cols-2 gap-2',
+            tilesColumns[tiles.length],
+          )}
+        >
+          {tiles.map(({ value, label }) => (
+            <Tile key={label} value={value} label={label} />
+          ))}
+        </div>
+      )}
+      {upgrade && (
         <StarterUpgrade
           name={name}
           offer={upgrade.offer}
           checkoutUrl={upgrade.checkoutUrl}
           onClick={upgrade.onClick}
         />
-      ) : (
-        <div className="grid grid-cols-1 gap-2 tablet:grid-cols-2">
-          <Fact name="Google">Your page and posts are open to search</Fact>
-          <Fact name="AI agents">
-            {`Read your posts ${number(stats.agentViews ?? 0)} times`}
-          </Fact>
-        </div>
       )}
-    </section>
+    </Panel>
   );
 };
