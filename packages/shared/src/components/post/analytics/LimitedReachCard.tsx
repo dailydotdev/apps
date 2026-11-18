@@ -11,10 +11,17 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { anchorDefaultRel } from '../../../lib/strings';
+import {
+  getSquadManageUrl,
+  SquadManageSection,
+} from '../../../features/squads/lib/routes';
 
 const docsUrl = 'https://docs.daily.dev/what-the-feed-recommends/';
 
-const reasons: Record<LimitedReachReason, { body: string; anchor: string }> = {
+const reasons: Record<
+  Exclude<LimitedReachReason, LimitedReachReason.Locked>,
+  { body: string; anchor: string }
+> = {
   [LimitedReachReason.AiWritten]: {
     body: 'Developers here tend to skip posts that read as AI-written, so we expect limited reach for this one. Posts about what your team built, measured or got wrong usually go furthest.',
     anchor: 'ai-written',
@@ -33,16 +40,26 @@ const reasons: Record<LimitedReachReason, { body: string; anchor: string }> = {
   },
 };
 
+const lockedBody =
+  "This post doesn't meet our content guidelines for the developer feed, so we expect limited reach for it. A paid plan tells you which guideline it misses and what to change.";
+
 interface LimitedReachCardProps {
   reason: LimitedReachReason;
+  squadHandle?: string;
 }
 
 export const LimitedReachCard = ({
   reason,
+  squadHandle,
 }: LimitedReachCardProps): ReactElement | null => {
-  const copy = reasons[reason];
+  const isLocked = reason === LimitedReachReason.Locked;
+  const copy = isLocked ? null : reasons[reason];
+  const plansUrl =
+    isLocked && squadHandle
+      ? getSquadManageUrl(squadHandle, SquadManageSection.Plan)
+      : null;
 
-  if (!copy) {
+  if (!copy && !plansUrl) {
     return null;
   }
 
@@ -66,20 +83,43 @@ export const LimitedReachCard = ({
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
         >
-          {copy.body}
+          {copy?.body ?? lockedBody}
         </Typography>
       </div>
-      <Button
-        tag="a"
-        href={`${docsUrl}#${copy.anchor}`}
-        target="_blank"
-        rel={anchorDefaultRel}
-        variant={ButtonVariant.Secondary}
-        size={ButtonSize.Small}
-        className="self-start"
-      >
-        How to reach more developers
-      </Button>
+      {copy ? (
+        <Button
+          tag="a"
+          href={`${docsUrl}#${copy.anchor}`}
+          target="_blank"
+          rel={anchorDefaultRel}
+          variant={ButtonVariant.Secondary}
+          size={ButtonSize.Small}
+          className="self-start"
+        >
+          How to reach more developers
+        </Button>
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          <Button
+            tag="a"
+            href={plansUrl ?? undefined}
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Small}
+          >
+            See plans
+          </Button>
+          <Button
+            tag="a"
+            href={docsUrl}
+            target="_blank"
+            rel={anchorDefaultRel}
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+          >
+            Read the content guidelines
+          </Button>
+        </div>
+      )}
     </section>
   );
 };
