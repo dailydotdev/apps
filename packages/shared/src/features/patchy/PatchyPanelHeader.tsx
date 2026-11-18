@@ -46,7 +46,7 @@ export const PatchyPanelHeader = ({
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Secondary}
-          className="min-w-0"
+          className="min-w-0 flex-1"
         >
           {patchyMoodCopy[mood]}
         </Typography>
