@@ -1,12 +1,16 @@
 import type { FormEvent, MutableRefObject, ReactElement } from 'react';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import { ButtonVariant } from '../../../../components/buttons/Button';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../../components/buttons/Button';
 import { TextField } from '../../../../components/fields/TextField';
 import Textarea from '../../../../components/fields/Textarea';
 import { FormWrapper } from '../../../../components/fields/form';
 import { ArrowIcon, AtIcon, SquadIcon } from '../../../../components/icons';
-import { CopyBlock } from '../../../../components/CopyBlock';
+import { useCopyLink } from '../../../../hooks/useCopy';
 import OrDivider from '../../../../components/auth/OrDivider';
 import AuthOptions from '../../../../components/auth/AuthOptions';
 import { providerMap } from '../../../../components/auth/common';
@@ -14,7 +18,6 @@ import { Dropdown } from '../../../../components/fields/Dropdown';
 import {
   Typography,
   TypographyColor,
-  TypographyTag,
   TypographyType,
 } from '../../../../components/typography/Typography';
 import { useAuthContext } from '../../../../contexts/AuthContext';
@@ -32,6 +35,8 @@ import { LogEvent } from '../../../../lib/log';
 import { SquadUploadButton } from '../manage/SquadUploadButton';
 import { toSquadHandle } from '../../lib/handle';
 import { companyPagePrompt } from '../../lib/companyPage';
+import { agentMarks } from '../checkout/agentMarks';
+import { AgentMark } from '../checkout/AgentMark';
 
 const FORM_ID = 'company-page-form';
 const DESCRIPTION_MAX_LENGTH = 250;
@@ -57,29 +62,51 @@ const CompanyPageSignUp = (): ReactElement => (
   </div>
 );
 
-const AgentSetupBanner = (): ReactElement => {
+const shownAgents = [
+  agentMarks['claude-code'],
+  agentMarks.codex,
+  agentMarks.cursor,
+];
+
+/** Copies the setup prompt; the founder pastes it into their agent. */
+const AgentSetupButton = (): ReactElement => {
   const { logEvent } = useLogContext();
+  const [isCopying, copy] = useCopyLink(() => companyPagePrompt);
 
   return (
-    <section className="flex flex-col gap-3 rounded-16 border border-accent-cabbage-default bg-overlay-float-cabbage p-4">
-      <div className="flex flex-col gap-1">
-        <Typography bold tag={TypographyTag.H2} type={TypographyType.Body}>
-          Let your agent set this up
-        </Typography>
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Secondary}
-        >
-          Paste this into Claude Code, Cursor or Codex. It fills in the page
-          from your site and suggests what to post first.
-        </Typography>
-      </div>
-      <CopyBlock
-        text={companyPagePrompt}
-        label="Copy prompt"
-        onCopy={() => logEvent({ event_name: LogEvent.CopyCompanyPagePrompt })}
-      />
-    </section>
+    <div className="flex flex-col items-center gap-2">
+      <Button
+        type="button"
+        variant={ButtonVariant.Primary}
+        size={ButtonSize.Large}
+        className="w-full"
+        onClick={() => {
+          copy();
+          logEvent({ event_name: LogEvent.CopyCompanyPagePrompt });
+        }}
+      >
+        <span className="mr-2 flex -space-x-1.5" aria-hidden>
+          {shownAgents.map((mark) => (
+            <AgentMark
+              key={mark.name}
+              mark={mark}
+              className="size-6 rounded-8 ring-2 ring-background-default"
+              glyphClassName="size-4"
+            />
+          ))}
+        </span>
+        {isCopying ? 'Prompt copied' : 'Continue with your agent'}
+      </Button>
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Tertiary}
+        className="text-center"
+      >
+        {isCopying
+          ? 'Paste it into your agent to set up the page.'
+          : 'Copies a prompt for Claude Code, Codex, Cursor or any agent.'}
+      </Typography>
+    </div>
   );
 };
 
@@ -184,7 +211,7 @@ export const CompanyPageCreate = (): ReactElement => {
       >
         {hasAgentPrompt && (
           <>
-            <AgentSetupBanner />
+            <AgentSetupButton />
             <OrDivider
               label="or fill it in yourself"
               className={{
