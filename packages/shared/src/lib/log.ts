@@ -60,6 +60,7 @@ export enum Origin {
   SquadManagePlan = 'squad manage plan',
   SquadManageIntel = 'squad manage intel',
   SquadManageAgent = 'squad manage agent',
+  SquadManageAutoPosting = 'squad manage auto posting',
   SquadIntel = 'squad intel',
   StartupsCheckout = 'startups checkout',
   // squads - end
