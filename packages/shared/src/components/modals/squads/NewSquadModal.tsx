@@ -4,7 +4,7 @@ import React, { useCallback } from 'react';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import { ModalSize } from '../common/types';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
 import { useSquadNavigation } from '../../../hooks';
 import { useSlack } from '../../../hooks/integrations/slack/useSlack';
 import { Image } from '../../image/Image';
@@ -25,6 +25,34 @@ import {
   StartupsPromoSpot,
   useStartupsPromo,
 } from '../../../features/squads/hooks/useStartupsPromo';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { featureCompanyPageCreation } from '../../../lib/featureManagement';
+import { getCompanyPageCreateUrl } from '../../../features/squads/lib/routes';
+
+const CompanyPageCard = (): ReactElement => (
+  <div className="flex w-full flex-col gap-3 rounded-16 border border-accent-cabbage-default bg-overlay-float-cabbage p-4 text-left">
+    <div className="flex flex-col gap-1">
+      <Typography type={TypographyType.Body} bold>
+        Have a company or product?
+      </Typography>
+      <Typography
+        type={TypographyType.Callout}
+        color={TypographyColor.Secondary}
+      >
+        Create its page on daily.dev. Your first post gets a $100 boost on us.
+      </Typography>
+    </div>
+    <Button
+      tag="a"
+      href={getCompanyPageCreateUrl()}
+      variant={ButtonVariant.Primary}
+      color={ButtonColor.Cabbage}
+      className="w-full"
+    >
+      Create a company page
+    </Button>
+  </div>
+);
 
 export default function NewSquadModal(props: ModalProps): ReactElement {
   const { onRequestClose } = props;
@@ -32,9 +60,14 @@ export default function NewSquadModal(props: ModalProps): ReactElement {
   const { logEvent } = useLogContext();
 
   const { newSquadUrl } = useSquadNavigation();
+  const { value: hasCompanyPages } = useConditionalFeature({
+    feature: featureCompanyPageCreation,
+  });
+  // The company page card takes the promo's place, so it logs no impression
   const promo = useStartupsPromo({
     spot: StartupsPromoSpot.NewSquadModal,
     isNewSquad: true,
+    isVisible: !hasCompanyPages,
   });
   const onConnectSlack = useCallback(() => {
     logEvent({
@@ -61,7 +94,8 @@ export default function NewSquadModal(props: ModalProps): ReactElement {
         <Image
           className={classNames(
             'object-contain',
-            promo.isShown ? 'h-40 w-40' : 'h-56 w-56',
+            hasCompanyPages && 'h-32 w-32',
+            !hasCompanyPages && (promo.isShown ? 'h-40 w-40' : 'h-56 w-56'),
           )}
           src={cloudinaryCharmEmptySquads}
           alt="daily.dev charm waving in an empty squad"
@@ -110,7 +144,11 @@ export default function NewSquadModal(props: ModalProps): ReactElement {
         >
           Create manually
         </Button>
-        <StartupsNewSquadModalPromo promo={promo} />
+        {hasCompanyPages ? (
+          <CompanyPageCard />
+        ) : (
+          <StartupsNewSquadModalPromo promo={promo} />
+        )}
       </Modal.Body>
     </Modal>
   );

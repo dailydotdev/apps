@@ -77,6 +77,7 @@ export enum AuthTriggers {
   Opportunity = 'opportunity',
   RecruiterSelfServe = 'recruiter self serve',
   StartupsCheckout = 'startups checkout',
+  CompanyPage = 'company page',
   AiFluencyQuiz = 'ai fluency quiz',
   AddToStack = 'add to stack',
   PostPage = 'post page',
@@ -102,8 +103,15 @@ export type AuthTriggersType =
 export const autoProfileTriggers: AuthTriggersType[] = [
   AuthTriggers.RecruiterSelfServe,
   AuthTriggers.StartupsCheckout,
+  AuthTriggers.CompanyPage,
   AuthTriggers.AgentOnboarding,
 ];
+
+// Founders signing up to create a company page, through the checkout or the
+// free company page form
+export const isStartupsAuthTrigger = (trigger?: AuthTriggersType): boolean =>
+  trigger === AuthTriggers.StartupsCheckout ||
+  trigger === AuthTriggers.CompanyPage;
 
 export interface LoginPasswordParameters {
   identifier: string;
