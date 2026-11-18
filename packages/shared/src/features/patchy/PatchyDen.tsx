@@ -173,6 +173,8 @@ export const PatchyDen = ({
         onClick={onPet}
         className="focus-outline relative aspect-video max-h-[26rem] w-full overflow-hidden rounded-16 bg-background-subtle"
       >
+        {/* Idle is always there underneath; the other frames fade in and out
+            over it, so a change never shows the empty box between two. */}
         {(Object.keys(frameSrc) as Frame[]).map((key) => (
           <img
             key={key}
@@ -184,10 +186,10 @@ export const PatchyDen = ({
             className={classNames(
               'absolute inset-0 size-full object-cover',
               // Blinks cut; everything else crossfades.
-              key === 'blink' || frame === 'blink'
+              key === 'blink'
                 ? 'transition-none'
                 : 'transition-opacity duration-300',
-              key === frame ? 'opacity-100' : 'opacity-0',
+              key === 'idle' || key === frame ? 'opacity-100' : 'opacity-0',
             )}
             draggable={false}
           />

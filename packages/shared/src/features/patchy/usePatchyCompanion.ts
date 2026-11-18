@@ -220,13 +220,14 @@ export const usePatchyCompanion = ({
         Date.now() - lastScrollAtRef.current < SCROLL_IDLE_MS ||
         isModalOpen();
       const trigger = patchyPeekScheduler.take(Date.now(), isBlocked);
+      // Keep polling while more wait their turn: with reduced motion there is
+      // no peek to end and restart this.
+      if (!patchyPeekScheduler.hasPending()) {
+        clearInterval(id);
+      }
       if (!trigger) {
-        if (!patchyPeekScheduler.hasPending()) {
-          clearInterval(id);
-        }
         return;
       }
-      clearInterval(id);
       logEvent({
         event_name: LogEvent.Impression,
         target_type: TargetType.PatchyPeek,

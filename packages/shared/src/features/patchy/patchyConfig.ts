@@ -71,6 +71,8 @@ export const patchyDenFrames = ['laugh', 'bone', 'asleep', 'sideeye'] as const;
 export type PatchyDenFrame = (typeof patchyDenFrames)[number];
 
 export interface PatchyConfig {
+  // The same reaction peeks at most once per this long; repeats only change
+  // his face. Different reactions queue up one after the other.
   cooldownMs: number;
   awayMs: number;
   lateNight: PatchyHourWindow;

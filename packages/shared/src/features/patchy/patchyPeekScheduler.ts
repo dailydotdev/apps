@@ -1,18 +1,25 @@
 import type { PatchyConfig, PatchyTrigger } from './patchyConfig';
 import { getPatchyConfig } from './patchyConfig';
 
+// Different reactions show one after the other: the next waits this long after
+// the previous one started (a peek is in view for about 3s).
+export const PATCHY_PEEK_GAP_MS = 4000;
+// Reactions waiting for their turn; past this the lowest priority is dropped.
+export const PATCHY_PEEK_QUEUE_LIMIT = 3;
+
 interface PendingPeek {
   trigger: PatchyTrigger;
   at: number;
 }
 
 export interface PatchyPeekScheduler {
-  // Asks for a peek. Returns false when it was dropped: still cooling down
-  // from the last peek, or a peek of the same or higher priority is already
-  // waiting (one pending peek at most, the rest are dropped).
+  // Asks for a peek. Returns false when it was dropped: the same reaction
+  // peeked within the config's cooldown or is already waiting, or the queue is
+  // full of higher-priority reactions.
   request: (trigger: PatchyTrigger, now: number) => boolean;
-  // Hands out the pending peek when nothing blocks it, and starts the
-  // cooldown. A blocked peek stays pending until its TTL runs out.
+  // Hands out the next peek (highest priority, then oldest) once nothing
+  // blocks it and the previous peek has had its gap. A waiting peek is
+  // dropped when its TTL runs out.
   take: (now: number, isBlocked: boolean) => PatchyTrigger | null;
   hasPending: () => boolean;
 }
@@ -21,50 +28,58 @@ export const createPatchyPeekScheduler = (
   getConfig: () => PatchyConfig = getPatchyConfig,
 ): PatchyPeekScheduler => {
   let lastShownAt: number | null = null;
-  let pending: PendingPeek | null = null;
+  const lastShownByTrigger: Partial<Record<PatchyTrigger, number>> = {};
+  let queue: PendingPeek[] = [];
 
-  const isCoolingDown = (now: number) =>
-    lastShownAt !== null && now - lastShownAt < getConfig().cooldownMs;
+  const isCoolingDown = (trigger: PatchyTrigger, now: number) => {
+    const shownAt = lastShownByTrigger[trigger];
+    return shownAt !== undefined && now - shownAt < getConfig().cooldownMs;
+  };
+
+  const isInGap = (now: number) =>
+    lastShownAt !== null && now - lastShownAt < PATCHY_PEEK_GAP_MS;
 
   const dropStale = (now: number) => {
-    if (
-      pending &&
-      now - pending.at > getConfig().reactions[pending.trigger].ttlMs
-    ) {
-      pending = null;
-    }
+    const { reactions } = getConfig();
+    queue = queue.filter(
+      ({ trigger, at }) => now - at <= reactions[trigger].ttlMs,
+    );
   };
 
   return {
     request: (trigger, now) => {
       const { reactions } = getConfig();
-      if (!reactions[trigger].enabled || isCoolingDown(now)) {
+      if (!reactions[trigger].enabled || isCoolingDown(trigger, now)) {
         return false;
       }
       dropStale(now);
-      if (
-        pending &&
-        reactions[pending.trigger].priority >= reactions[trigger].priority
-      ) {
+      if (queue.some((peek) => peek.trigger === trigger)) {
         return false;
       }
-      pending = { trigger, at: now };
-      return true;
+      // Stable sort: equal priorities keep their arrival order.
+      queue = [...queue, { trigger, at: now }]
+        .sort(
+          (a, b) =>
+            reactions[b.trigger].priority - reactions[a.trigger].priority,
+        )
+        .slice(0, PATCHY_PEEK_QUEUE_LIMIT);
+      return queue.some((peek) => peek.trigger === trigger);
     },
     take: (now, isBlocked) => {
       dropStale(now);
-      if (!pending || isBlocked || isCoolingDown(now)) {
+      if (!queue.length || isBlocked || isInGap(now)) {
         return null;
       }
-      const { trigger } = pending;
-      pending = null;
+      const [{ trigger }, ...rest] = queue;
+      queue = rest;
       lastShownAt = now;
+      lastShownByTrigger[trigger] = now;
       return trigger;
     },
-    hasPending: () => pending !== null,
+    hasPending: () => queue.length > 0,
   };
 };
 
 // One per page session, so remounting the rail (layout switches) can't reset
-// the cooldown.
+// the cooldowns.
 export const patchyPeekScheduler = createPatchyPeekScheduler();
