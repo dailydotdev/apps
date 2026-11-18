@@ -753,7 +753,7 @@ describe('squad manage area', () => {
   it('lists the paid sections locked for a free company page', async () => {
     const squad = createSquad({
       currentMember: adminMember,
-      flags: { company: true },
+      flags: { company: true } as Squad['flags'],
     });
     mockSquad(squad);
     renderManage(squad);
