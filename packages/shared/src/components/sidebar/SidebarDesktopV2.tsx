@@ -99,7 +99,15 @@ import { Tooltip } from '../tooltip/Tooltip';
 import { TooltipLinkWrapper } from '../tooltip/TooltipLinkWrapper';
 import { RailHoverPanel } from './RailHoverPanel';
 import { StreakBadge } from './StreakBadge';
+import { PatchyRailIcon } from '../../features/patchy/PatchyRailIcon';
+import { PatchyPeek } from '../../features/patchy/PatchyPeek';
+import {
+  usePatchyEnabled,
+  usePatchyReactions,
+} from '../../features/patchy/usePatchyEnabled';
+import { usePatchyCompanion } from '../../features/patchy/usePatchyCompanion';
 import { getStreakGoalCopy } from '../../lib/streakGoal';
+import { LogEvent, TargetType } from '../../lib/log';
 import {
   SidebarShortcutsDock,
   useLegacyShortcutsMigration,
@@ -848,12 +856,30 @@ export const SidebarDesktopV2 = ({
   // day count. Reuses the same state machine the avatar streak ring used.
   const {
     isEnabled: isStreakEnabled,
+    isLoading: isStreakLoading,
+    streak: streakData,
     state: streakState,
     count: streakCount,
     hasReadToday: streakReadToday,
     copy: streakCopy,
     goalProgress: streakGoalProgress,
   } = useStreakRingState();
+  // Patchy, the streak companion, takes over the Streak tab's icon and peeks
+  // out from behind the rail when he reacts.
+  const isPatchyFlagOn = usePatchyEnabled({
+    shouldEvaluate: showGameCenterTab && isStreakEnabled,
+  });
+  const { isReactionsEnabled } = usePatchyReactions();
+  const isPatchyEnabled =
+    isPatchyFlagOn && showGameCenterTab && isStreakTabAStreak;
+  const patchy = usePatchyCompanion({
+    isEnabled: isPatchyEnabled,
+    isReactionsEnabled,
+    isStreakLoading,
+    state: streakState,
+    hasReadToday: streakReadToday,
+    lastViewAt: streakData?.lastViewAt,
+  });
 
   // The reorderable rail items: the tabs (each opens a panel), including the
   // avatar/"You" tab, plus New post — all draggable into any order and
@@ -1793,7 +1819,12 @@ export const SidebarDesktopV2 = ({
       );
     }
     if (category === SidebarCategory.GameCenter) {
-      return <StreakQuestsSection onClose={onClose} />;
+      return (
+        <StreakQuestsSection
+          onClose={onClose}
+          patchyMood={isPatchyEnabled ? patchy.mood : undefined}
+        />
+      );
     }
     if (category === SidebarCategory.Profile) {
       return (
@@ -1859,7 +1890,16 @@ export const SidebarDesktopV2 = ({
       ? gameCenterPanelTitle
       : (category.panelTitle ?? category.label);
     let iconNode: ReactElement;
-    if (showStreakBadge) {
+    if (showStreakBadge && isPatchyEnabled) {
+      iconNode = (
+        <PatchyRailIcon
+          face={patchy.face}
+          state={streakState}
+          hasReadToday={streakReadToday}
+          selected={isSelected}
+        />
+      );
+    } else if (showStreakBadge) {
       iconNode = (
         <StreakBadge
           state={streakState}
@@ -1901,7 +1941,15 @@ export const SidebarDesktopV2 = ({
           aria-controls="sidebar-context-panel"
           aria-label={ariaLabel}
           aria-selected={isSelected}
-          onClick={() => onSelectCategory(category.id)}
+          onClick={() => {
+            if (showStreakBadge && isPatchyEnabled) {
+              logEvent({
+                event_name: LogEvent.Click,
+                target_type: TargetType.Patchy,
+              });
+            }
+            onSelectCategory(category.id);
+          }}
           onMouseEnter={() => {
             onPrefetchCategory(category.id);
             commitPreview(category.id);
@@ -2316,6 +2364,14 @@ export const SidebarDesktopV2 = ({
               railDividerBorderClass,
               railSeparatorLeft,
             )}
+          />
+        )}
+        {patchy.peek && (
+          <PatchyPeek
+            key={patchy.peek.id}
+            trigger={patchy.peek.trigger}
+            anchorId={`sidebar-category-${SidebarCategory.GameCenter}`}
+            onDone={patchy.onPeekDone}
           />
         )}
         {!isSettingsSelected && (

@@ -24,6 +24,12 @@ import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditio
 import { featureStreakFreeze } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useHasAccessToCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import { StreakPauseSettings } from '@dailydotdev/shared/src/components/streak/StreakPauseSettings';
+import {
+  usePatchyEnabled,
+  usePatchyReactions,
+} from '@dailydotdev/shared/src/features/patchy/usePatchyEnabled';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { AccountPageContainer } from '../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../../components/layouts/SettingsLayout';
 import { defaultSeo, noindexSeoProps } from '../../../next-seo';
@@ -47,6 +53,21 @@ const GamificationSettingsPage = (): ReactElement => {
     toggleAllGamification,
   } = useSettingsContext();
   const { openModal } = useLazyModal();
+  const { logEvent } = useLogContext();
+  const isPatchyEnabled = usePatchyEnabled();
+  const {
+    isReactionsEnabled: isPatchyReactionsEnabled,
+    setReactionsEnabled: setPatchyReactionsEnabled,
+  } = usePatchyReactions();
+  const onTogglePatchyReactions = () => {
+    const enabled = !isPatchyReactionsEnabled;
+    setPatchyReactionsEnabled(enabled);
+    logEvent({
+      event_name: LogEvent.ChangeSettings,
+      target_type: TargetType.PatchyReactions,
+      target_id: enabled ? 'on' : 'off',
+    });
+  };
   const hasAccessToCores = useHasAccessToCores();
   const { value: isStreakFreezeEnabled } = useConditionalFeature({
     feature: featureStreakFreeze,
@@ -94,6 +115,24 @@ const GamificationSettingsPage = (): ReactElement => {
             streaks off will not affect your activity or progress.
           </SettingsSwitch>
         </section>
+
+        {isPatchyEnabled && (
+          <section className="flex flex-col gap-2">
+            <Typography bold type={TypographyType.Subhead}>
+              Patchy reactions
+            </Typography>
+
+            <SettingsSwitch
+              name="patchy-reactions"
+              checked={isPatchyReactionsEnabled}
+              onToggle={onTogglePatchyReactions}
+            >
+              Let Patchy peek out from your streak to react when you upvote,
+              bookmark or keep your streak going. His face stays in the Streak
+              tab either way.
+            </SettingsSwitch>
+          </section>
+        )}
 
         {/* Streak freezes (merged from the former Streaks page): buy packs
             with Cores + the auto-apply toggle. Gated on Cores access and the

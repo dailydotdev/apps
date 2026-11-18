@@ -136,6 +136,10 @@ export const featureStreakDailyCelebration = new Feature(
   false,
 );
 
+// Patchy, the streak companion: his face in the rail Streak tab, peeks that
+// react to what you do, and his den on Game Center (laptop rail only)
+export const featurePatchyCompanion = new Feature('patchy_companion', false);
+
 // schedule a streak pause (vacation mode) from the gamification settings
 export const featureStreakPause = new Feature('streak_pause', false);
 // A/B: a personal streak goal (7, 14 or 30 days) offered at day 2 and after a
