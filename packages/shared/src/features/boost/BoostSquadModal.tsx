@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import dynamic from 'next/dynamic';
 import React, { useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Modal } from '../../components/modals/common/Modal';
 import type { ModalProps } from '../../components/modals/common/Modal';
 import {
@@ -29,7 +29,17 @@ import { BoostLiveModal } from './BoostLiveModal';
 import { boostDocsLink } from '../../lib/constants';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { Loader } from '../../components/Loader';
-import { CampaignType } from '../../graphql/campaigns';
+import type { CampaignAudience } from '../../graphql/campaigns';
+import {
+  CampaignType,
+  campaignAudienceTagsQueryOptions,
+} from '../../graphql/campaigns';
+import type { BoostAudienceValue } from './BoostAudience';
+import {
+  BoostAudience,
+  BoostLocation,
+  toCampaignAudience,
+} from './BoostAudience';
 import { useCampaignEstimation } from './useCampaignEstimation';
 import type { Squad } from '../../graphql/sources';
 import { Separator } from '../../components/cards/common/common';
@@ -70,7 +80,10 @@ export function BoostSquadModal({
     boostSettings.default_cores,
   );
   const [totalDays, setTotalDays] = React.useState(boostSettings.default_days);
-  const [estimate, setEstimate] = useState({ coresPerDay, totalDays });
+  const [estimate, setEstimate] = useState<{
+    coresPerDay: number;
+    audience?: CampaignAudience;
+  }>({ coresPerDay });
   const [updateEstimate] = useDebounceFn(setEstimate, 400);
   const totalSpendInt = coresPerDay * totalDays;
   const totalSpend = largeNumberFormat(totalSpendInt);
@@ -83,9 +96,24 @@ export function BoostSquadModal({
     canBuyCores,
   } = useBoostWallet(squad.id);
   const canBoost = !!squad.image && !!squad.headerImage && !!squad.description;
+  // The squad's own tags, which the boost targets until the audience is edited
+  const { data: squadTags, isPending: isPendingTags } = useQuery(
+    campaignAudienceTagsQueryOptions({
+      user,
+      type: CampaignType.Squad,
+      value: squad.id,
+    }),
+  );
+  const [editedAudience, setAudience] = useState<BoostAudienceValue>();
+  const audience = editedAudience ?? {
+    tags: squadTags ?? [],
+    location: BoostLocation.Worldwide,
+    countries: [],
+  };
+  const campaignAudience = toCampaignAudience(audience, squadTags ?? []);
   const { estimatedReach, isLoading } = useCampaignEstimation({
     type: CampaignType.Squad,
-    query: { budget: estimate.coresPerDay },
+    query: { budget: estimate.coresPerDay, audience: estimate.audience },
     referenceId: squad.id,
     enabled: canBoost,
   });
@@ -147,6 +175,7 @@ export function BoostSquadModal({
       value: squad.id,
       type: CampaignType.Squad,
       wallet,
+      audience: campaignAudience,
     });
   };
 
@@ -242,6 +271,7 @@ export function BoostSquadModal({
         >
           Our auto-targeting engine finds developers most likely to join your
           Squad, so that it grows faster, stronger, and with the right people.
+          Fine-tune who sees it below.
           <a
             href={boostDocsLink}
             className="ml-1 text-text-link"
@@ -297,6 +327,21 @@ export function BoostSquadModal({
             </Typography>
           </div>
         </div>
+        {isPendingTags ? (
+          <Loader className="self-center" />
+        ) : (
+          <BoostAudience
+            postTags={squadTags ?? []}
+            value={audience}
+            onChange={(value) => {
+              setAudience(value);
+              updateEstimate((state) => ({
+                ...state,
+                audience: toCampaignAudience(value, squadTags ?? []),
+              }));
+            }}
+          />
+        )}
         <div className="flex flex-col">
           <Typography
             type={TypographyType.Callout}
