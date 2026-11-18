@@ -119,7 +119,7 @@ export const SquadValuePanel = ({
     { value: stats.clicks, label: 'Clicks' },
     { value: stats.engagement, label: 'Engagement' },
     { value: stats.followers, label: 'Followers' },
-    { value: stats.agentViews ?? 0, label: 'AI reads' },
+    { value: stats.agentViews ?? 0, label: 'AI visits' },
   ].filter(({ value }) => value > 0);
 
   return (
