@@ -1,5 +1,5 @@
-import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { format, parseISO } from 'date-fns';
 import Link from '../../utilities/Link';
@@ -13,26 +13,30 @@ import { TimeFormatType } from '../../../lib/dateFormat';
 import { IconSize } from '../../Icon';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import type { ReputationEvent } from '../../../graphql/reputation';
+import { ReputationEventFilter } from '../../../graphql/reputation';
 import { amountColor, formatSignedAmount, getReasonMeta } from './common';
 
-enum ActivityFilter {
-  All = 'All',
-  Gains = 'Gains',
-  Losses = 'Losses',
-}
-
-const filters = Object.values(ActivityFilter);
-
-const matchesFilter = (event: ReputationEvent, filter: ActivityFilter) => {
-  if (filter === ActivityFilter.Gains) {
-    return event.amount > 0;
-  }
-
-  return filter === ActivityFilter.Losses ? event.amount < 0 : true;
+const filterLabel: Record<ReputationEventFilter, string> = {
+  [ReputationEventFilter.All]: 'All',
+  [ReputationEventFilter.Gains]: 'Gains',
+  [ReputationEventFilter.Losses]: 'Losses',
 };
 
+const emptyText: Record<ReputationEventFilter, string> = {
+  [ReputationEventFilter.All]: 'Nothing here yet',
+  [ReputationEventFilter.Gains]: 'No reputation gained yet',
+  [ReputationEventFilter.Losses]: 'No reputation lost yet',
+};
+
+const filters = Object.values(ReputationEventFilter);
+
 interface ReputationActivityProps {
+  /** Applied by the API, so every page holds matching events only. */
+  filter: ReputationEventFilter;
+  onFilterChange: (filter: ReputationEventFilter) => void;
   events: ReputationEvent[];
+  /** Shown under the filter instead of the list, e.g. while it loads. */
+  placeholder?: ReactNode;
   /** Shown after the last event so the log adds up to the balance. */
   untracked?: number;
   trackedSince?: string | null;
@@ -42,17 +46,22 @@ interface ReputationActivityProps {
 }
 
 export const ReputationActivity = ({
+  filter,
+  onFilterChange,
   events,
+  placeholder,
   untracked = 0,
   trackedSince,
   hasMore,
   isLoadingMore,
   onLoadMore,
 }: ReputationActivityProps): ReactElement => {
-  const [filter, setFilter] = useState(ActivityFilter.All);
-  const visible = events.filter((event) => matchesFilter(event, filter));
+  const listed = placeholder ? [] : events;
   const showUntracked =
-    !hasMore && untracked > 0 && filter !== ActivityFilter.Losses;
+    !placeholder &&
+    !hasMore &&
+    untracked > 0 &&
+    filter !== ReputationEventFilter.Losses;
 
   return (
     <div className="flex flex-col gap-3">
@@ -65,22 +74,23 @@ export const ReputationActivity = ({
               option === filter ? ButtonVariant.Float : ButtonVariant.Tertiary
             }
             pressed={option === filter}
-            onClick={() => setFilter(option)}
+            onClick={() => onFilterChange(option)}
           >
-            {option}
+            {filterLabel[option]}
           </Button>
         ))}
       </div>
-      {!visible.length && !showUntracked && (
+      {placeholder}
+      {!placeholder && !events.length && !showUntracked && (
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
         >
-          Nothing here yet
+          {emptyText[filter]}
         </Typography>
       )}
       <ul className="flex flex-col">
-        {visible.map((event) => {
+        {listed.map((event) => {
           const { eventLabel, Icon } = getReasonMeta(event.reason);
 
           return (
@@ -164,7 +174,7 @@ export const ReputationActivity = ({
           </li>
         )}
       </ul>
-      {hasMore && (
+      {!placeholder && hasMore && (
         <Button
           size={ButtonSize.Small}
           variant={ButtonVariant.Float}

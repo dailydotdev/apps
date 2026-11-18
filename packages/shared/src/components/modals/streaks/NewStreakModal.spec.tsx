@@ -14,7 +14,6 @@ const mockCompleteAction = jest.fn();
 const mockLogEvent = jest.fn();
 let mockCompletedActions: ActionType[] = [];
 let mockFreeFreezes: number | null = 2;
-let mockIsFlagOn = true;
 
 jest.mock('../../../hooks', () => ({
   ...jest.requireActual('../../../hooks'),
@@ -27,19 +26,7 @@ jest.mock('../../../hooks', () => ({
 }));
 
 jest.mock('../../../hooks/useConditionalFeature', () => ({
-  useConditionalFeature: ({
-    feature,
-    shouldEvaluate,
-  }: {
-    feature: { id: string };
-    shouldEvaluate?: boolean;
-  }) => ({
-    value:
-      feature.id === 'streak_free_freezes' &&
-      shouldEvaluate !== false &&
-      mockIsFlagOn,
-    isLoading: false,
-  }),
+  useConditionalFeature: () => ({ value: false, isLoading: false }),
 }));
 
 jest.mock('../../../hooks/streaks/useReadingStreak', () => ({
@@ -89,7 +76,6 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockCompletedActions = [];
   mockFreeFreezes = 2;
-  mockIsFlagOn = true;
 });
 
 it('shows the free freezes grant on the three-day milestone and marks it seen', async () => {
@@ -141,13 +127,6 @@ it('does not show the grant again once it was seen', async () => {
 });
 
 it.each([
-  [
-    'the flag is off',
-    () => {
-      mockIsFlagOn = false;
-    },
-    3,
-  ],
   [
     'the reader never got free freezes',
     () => {

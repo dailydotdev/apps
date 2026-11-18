@@ -93,7 +93,7 @@ export interface StreakRingInfo {
   count: number;
   hasReadToday: boolean;
   copy: string;
-  // Set while a streak goal is in progress (streak_goals); the ring fills as
+  // Set while a streak goal is in progress (streak_improvements); the ring fills as
   // current/goal
   goalProgress: StreakGoalProgress | null;
 }

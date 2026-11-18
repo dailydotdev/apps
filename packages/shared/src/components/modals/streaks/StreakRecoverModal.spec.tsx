@@ -183,7 +183,7 @@ const mockBrokenStreak = () =>
 
 const softBreakOn = () =>
   new GrowthBook({
-    features: { streak_soft_break: { defaultValue: true } },
+    features: { streak_improvements: { defaultValue: true } },
   });
 
 it('should not render if user is not logged in', async () => {

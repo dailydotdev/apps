@@ -153,6 +153,16 @@ jobs:
             - ./packages/webapp/.tsbuildinfo
             - ./packages/extension/.tsbuildinfo
           when: always
+  typecheck_webapp:
+    executor: node
+    resource_class: large
+    steps:
+      - checkout
+      - ensure_deps
+      - run:
+          name: Typecheck webapp
+          command: npm run typecheck
+          working_directory: packages/webapp
   build_extension:
     executor: node
     resource_class: medium
@@ -171,5 +181,6 @@ workflows:
       - test_webapp
       - lint
       - typecheck_strict_changed
+      - typecheck_webapp
       - test_shared
       - build_extension

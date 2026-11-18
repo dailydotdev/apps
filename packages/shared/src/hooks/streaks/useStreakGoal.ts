@@ -1,13 +1,13 @@
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useConditionalFeature } from '../useConditionalFeature';
-import { featureStreakGoals } from '../../lib/featureManagement';
+import { featureStreakImprovements } from '../../lib/featureManagement';
 import type { StreakGoal } from '../../graphql/settings';
 import type { StreakGoalProgress } from '../../lib/streakGoal';
 import { getStreakGoalProgress, isStreakGoal } from '../../lib/streakGoal';
 
 interface UseStreakGoal {
-  // In the streak_goals experiment, logged in and reading streaks on
+  // In the streak_improvements experiment, logged in and reading streaks on
   isEnabled: boolean;
   isLoading: boolean;
   goal: StreakGoal | null;
@@ -21,7 +21,7 @@ export const useStreakGoal = (current?: number): UseStreakGoal => {
     useSettingsContext();
   const isStreaksEnabled = !!user && loadedSettings && !optOutReadingStreak;
   const { value: isFeatureEnabled, isLoading } = useConditionalFeature({
-    feature: featureStreakGoals,
+    feature: featureStreakImprovements,
     shouldEvaluate: isStreaksEnabled,
   });
   const isEnabled = isStreaksEnabled && isFeatureEnabled;

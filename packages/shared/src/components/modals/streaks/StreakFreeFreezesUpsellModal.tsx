@@ -35,7 +35,7 @@ export type StreakFreeFreezesUpsellModalProps = Pick<
   streakKept?: boolean;
 };
 
-// Shown once the free freezes from streak_free_freezes are all used up, see
+// Shown once the free streak freezes are all used up, see
 // StreakFreeFreezesUpsellPopup
 export const StreakFreeFreezesUpsellModal = ({
   isOpen,

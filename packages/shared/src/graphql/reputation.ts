@@ -37,6 +37,12 @@ export enum ReputationPeriod {
   AllTime = 'ALL_TIME',
 }
 
+export enum ReputationEventFilter {
+  All = 'ALL',
+  Gains = 'GAINS',
+  Losses = 'LOSSES',
+}
+
 export interface ReputationTarget {
   id: string;
   type: ReputationTargetType;
@@ -141,8 +147,12 @@ export const REPUTATION_TOP_SOURCES_QUERY = gql`
 `;
 
 export const REPUTATION_EVENTS_QUERY = gql`
-  query ReputationEvents($after: String, $first: Int) {
-    reputationEvents(after: $after, first: $first) {
+  query ReputationEvents(
+    $after: String
+    $first: Int
+    $filter: ReputationEventFilter
+  ) {
+    reputationEvents(after: $after, first: $first, filter: $filter) {
       pageInfo {
         hasNextPage
         endCursor
@@ -215,16 +225,23 @@ export const reputationEventsPageSize = 20;
 /** Spread into `useInfiniteQuery`. */
 export const reputationEventsQueryOptions = ({
   user,
+  filter = ReputationEventFilter.All,
 }: {
   user: ReputationUser;
+  filter?: ReputationEventFilter;
 }) => ({
-  queryKey: generateQueryKey(RequestKey.ReputationEvents, user ?? undefined),
+  queryKey: generateQueryKey(
+    RequestKey.ReputationEvents,
+    user ?? undefined,
+    filter,
+  ),
   queryFn: async ({ pageParam }: { pageParam?: string }) => {
     const { reputationEvents } = await gqlClient.request<{
       reputationEvents: Connection<ReputationEvent>;
     }>(REPUTATION_EVENTS_QUERY, {
       after: pageParam,
       first: reputationEventsPageSize,
+      filter,
     });
 
     return reputationEvents;

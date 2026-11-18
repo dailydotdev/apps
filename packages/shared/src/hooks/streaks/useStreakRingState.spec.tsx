@@ -35,7 +35,7 @@ const renderRingState = ({
     current,
   });
   const gb = new GrowthBook({
-    features: { streak_goals: { defaultValue: flag } },
+    features: { streak_improvements: { defaultValue: flag } },
   });
   const wrapper = ({ children }: { children: ReactNode }) => (
     <TestBootProvider

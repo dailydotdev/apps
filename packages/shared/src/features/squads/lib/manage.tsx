@@ -14,6 +14,7 @@ import {
   LinkIcon,
   LockIcon,
   PaintRollerIcon,
+  SendAirplaneIcon,
   TerminalIcon,
   TimerIcon,
   TrendingIcon,
@@ -58,6 +59,7 @@ export const squadManageTitles: Record<SquadManageSection, string> = {
   [SquadManageSection.Intel]: 'Weekly intel',
   [SquadManageSection.Integrations]: 'Integrations',
   [SquadManageSection.Agent]: 'Agent and API',
+  [SquadManageSection.AutoPosting]: 'Auto-posting',
   [SquadManageSection.DangerZone]: 'Danger zone',
 };
 
@@ -115,6 +117,10 @@ const canSeeSection = (squad: Squad, section: SquadManageSection): boolean => {
     case SquadManageSection.Jobs:
     case SquadManageSection.Links:
     case SquadManageSection.Branding:
+      return canEdit;
+    // Open on every plan, free included, so admins see what is possible: each
+    // method inside shows Upgrade when the plan doesn't include it
+    case SquadManageSection.AutoPosting:
       return canEdit;
     case SquadManageSection.Members:
       return true;
@@ -219,6 +225,7 @@ export const getSquadManageGroups = (
         item(SquadManageSection.Intel, <TrendingIcon />),
         item(SquadManageSection.Analytics, <AnalyticsIcon />),
         item(SquadManageSection.Integrations, <EmbedIcon />),
+        item(SquadManageSection.AutoPosting, <SendAirplaneIcon />),
         item(SquadManageSection.Agent, <TerminalIcon />),
         item(SquadManageSection.DangerZone, <TrashIcon />),
       ],
