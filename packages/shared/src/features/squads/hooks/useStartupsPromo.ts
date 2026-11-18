@@ -29,7 +29,6 @@ export enum StartupsPromoSpot {
   BuyCores = 'buy cores promo',
   Wallet = 'wallet promo',
   AdsDashboard = 'ads dashboard promo',
-  NewSquadModal = 'new squad modal promo',
   SquadAnalytics = 'squad analytics promo',
   PostAnalytics = 'post analytics promo',
 }
@@ -42,8 +41,6 @@ interface UseStartupsPromoProps {
   isPersonalAllowed?: boolean;
   /** False while the host isn't on screen yet, so the impression waits. */
   isVisible?: boolean;
-  /** Pitches the squad about to be created, not one the viewer runs */
-  isNewSquad?: boolean;
   /** False for a locked feature, which shows even after a dismissed promo */
   isDismissible?: boolean;
 }
@@ -104,7 +101,6 @@ export const useStartupsPromo = ({
   sourceId,
   isPersonalAllowed = true,
   isVisible = true,
-  isNewSquad = false,
   isDismissible = true,
 }: UseStartupsPromoProps): StartupsPromo => {
   const { user, squads } = useAuthContext();
@@ -129,15 +125,9 @@ export const useStartupsPromo = ({
     !!sourceId &&
     adminSquads.some(({ id }) => id === sourceId) &&
     !freeSquads.some(({ id }) => id === sourceId);
-  const squad = (() => {
-    if (isNewSquad) {
-      return undefined;
-    }
-
-    return sourceId
-      ? freeSquads.find(({ id }) => id === sourceId)
-      : freeSquads[0];
-  })();
+  const squad = sourceId
+    ? freeSquads.find(({ id }) => id === sourceId)
+    : freeSquads[0];
   // An admin of a verified squad is an Enterprise customer: no pitch at all
   const isEnterprise = adminSquads.some((adminSquad) =>
     hasSquadFeature(adminSquad, 'verified'),
@@ -146,9 +136,7 @@ export const useStartupsPromo = ({
     !!user &&
     !isIOSNative() &&
     !isEnterprise &&
-    (isNewSquad
-      ? !isCustomer
-      : !!squad || (isPersonalAllowed && !isCustomer && !sourceIdIsPaid));
+    (!!squad || (isPersonalAllowed && !isCustomer && !sourceIdIsPaid));
   const { data: subscription, isPending } = useQuery({
     ...squadSubscriptionQueryOptions({ user, sourceId: squad?.id }),
     enabled: !!squad && isCandidate,

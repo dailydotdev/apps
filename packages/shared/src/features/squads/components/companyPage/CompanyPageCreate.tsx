@@ -24,12 +24,10 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { useSquadCreate } from '../../../../hooks/squads/useSquadCreate';
 import { useSquadCategories } from '../../../../hooks/squads/useSquadCategories';
-import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
 import { useIsPhone } from '../../../../hooks/useViewSize';
 import { checkExistingHandle, PrivacyOption } from '../../../../graphql/squads';
 import { SourceMemberRole } from '../../../../graphql/sources';
 import { AuthTriggers } from '../../../../lib/auth';
-import { featureCompanyPageCreation } from '../../../../lib/featureManagement';
 import { cloudinarySquadsImageFallback } from '../../../../lib/image';
 import { LogEvent } from '../../../../lib/log';
 import { SquadUploadButton } from '../manage/SquadUploadButton';
@@ -118,10 +116,6 @@ export const CompanyPageCreate = (): ReactElement => {
   const router = useRouter();
   const { user } = useAuthContext();
   const isPhone = useIsPhone();
-  const { value: hasAgentPrompt } = useConditionalFeature({
-    feature: featureCompanyPageCreation,
-    shouldEvaluate: !!user,
-  });
   const [name, setName] = useState('');
   const [handle, setHandle] = useState('');
   const [isHandleEdited, setHandleEdited] = useState(false);
@@ -209,18 +203,14 @@ export const CompanyPageCreate = (): ReactElement => {
         onSubmit={onSubmit}
         noValidate
       >
-        {hasAgentPrompt && (
-          <>
-            <AgentSetupButton />
-            <OrDivider
-              label="or fill it in yourself"
-              className={{
-                text: 'text-text-tertiary',
-                border: 'bg-border-subtlest-tertiary',
-              }}
-            />
-          </>
-        )}
+        <AgentSetupButton />
+        <OrDivider
+          label="or fill it in yourself"
+          className={{
+            text: 'text-text-tertiary',
+            border: 'bg-border-subtlest-tertiary',
+          }}
+        />
         <div className="flex items-center gap-4">
           <div className="relative size-24 shrink-0">
             <img
