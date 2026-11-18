@@ -98,9 +98,6 @@ export const BoostManagerLinks = (): ReactElement => (
   </>
 );
 
-const ctrOf = ({ impressions = 0, clicks = 0 }): string =>
-  impressions ? `${((clicks / impressions) * 100).toFixed(2)}%` : '0.00%';
-
 const MetricCell = ({
   label,
   info,
@@ -150,16 +147,6 @@ const BoostMetrics = (): ReactElement => {
       value: largeNumberFormat(stats.impressions ?? 0),
     },
     {
-      label: 'Clicks on post',
-      info: boostDashboardInfo.clicks,
-      value: largeNumberFormat(stats.clicks ?? 0),
-    },
-    {
-      label: 'CTR',
-      info: boostDashboardInfo.ctr,
-      value: ctrOf(stats),
-    },
-    {
       label: 'Users',
       info: boostDashboardInfo.users,
       value: largeNumberFormat(stats.users ?? 0),
@@ -169,6 +156,11 @@ const BoostMetrics = (): ReactElement => {
       info: boostDashboardInfo.spend,
       value: largeNumberFormat(stats.spend ?? 0),
       icon: <CoreIcon size={IconSize.Small} />,
+    },
+    {
+      label: 'New members',
+      info: boostDashboardInfo.members,
+      value: largeNumberFormat(stats.newMembers ?? 0),
     },
   ];
 
@@ -281,7 +273,7 @@ const BoostName = ({ campaign }: { campaign: Campaign }): ReactElement => {
   );
 };
 
-const columns = ['Boost', 'Spend', 'Impressions', 'Clicks', 'CTR', 'Time', ''];
+const columns = ['Boost', 'Spend', 'Impressions', 'New members', 'Time', ''];
 
 const BoostsTable = ({
   campaigns,
@@ -303,7 +295,7 @@ const BoostsTable = ({
               'whitespace-nowrap px-3 py-2 font-bold uppercase tracking-wider text-text-tertiary typo-caption2',
               index === 0 &&
                 classNames(stickyHeadClassName, 'w-full pl-4 tablet:pl-6'),
-              index > 0 && index < 5 && 'text-right',
+              index > 0 && index < 4 && 'text-right',
             )}
           >
             {column}
@@ -338,9 +330,11 @@ const BoostsTable = ({
               {largeNumberFormat(flags.impressions ?? 0)}
             </td>
             <td className={cellClassName}>
-              {largeNumberFormat(flags.clicks ?? 0)}
+              {/* Only a squad boost brings members */}
+              {campaign.type === CampaignType.Squad
+                ? largeNumberFormat(flags.newMembers ?? 0)
+                : '–'}
             </td>
-            <td className={cellClassName}>{ctrOf(flags)}</td>
             <td className="px-3 py-3">
               <TimeLeft campaign={campaign} />
             </td>

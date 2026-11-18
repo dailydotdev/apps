@@ -7,8 +7,6 @@ export const boostDashboardInfo = {
   users: 'The total number of unique users that has seen your boosted post',
   spend: 'The total number of cores spent so far',
   members: 'The total number of new members that has joined the Squad',
-  clicks: 'The total number of clicks on your boosted posts',
-  ctr: 'Clicks on post out of impressions',
 };
 
 /** The Quick preset of the boost form: a day at a small daily budget */
