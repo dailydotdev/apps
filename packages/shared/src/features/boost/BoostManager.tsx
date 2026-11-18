@@ -1,13 +1,15 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '../../components/buttons/Button';
 import {
+  ArrowIcon,
   CoreIcon,
   DocsIcon,
   FeedbackIcon,
@@ -111,7 +113,7 @@ const MetricCell = ({
   icon?: ReactNode;
   isLoading: boolean;
 }): ReactElement => (
-  <div className="flex min-w-36 flex-1 shrink-0 flex-col gap-1 bg-background-default px-4 py-3 tablet:min-w-0 tablet:px-6">
+  <div className="flex min-w-36 flex-1 shrink-0 snap-start flex-col gap-1 bg-background-default px-4 py-3 tablet:min-w-0 tablet:px-6">
     <span className="flex items-center gap-1 text-text-tertiary typo-footnote">
       <span className="truncate">{label}</span>
       <Tooltip content={info} enableMobileClick>
@@ -130,6 +132,87 @@ const MetricCell = ({
     )}
   </div>
 );
+
+type ScrollSide = 'before' | 'after';
+
+const MetricsArrow = ({
+  side,
+  onClick,
+}: {
+  side: ScrollSide;
+  onClick: () => void;
+}): ReactElement => {
+  const isAfter = side === 'after';
+
+  return (
+    <div
+      className={classNames(
+        'pointer-events-none absolute inset-y-0 z-1 flex w-16 items-center from-background-default via-background-default to-transparent',
+        isAfter
+          ? 'right-0 justify-end bg-gradient-to-l pr-2'
+          : 'left-0 justify-start bg-gradient-to-r pl-2',
+      )}
+    >
+      <Button
+        type="button"
+        tabIndex={-1}
+        aria-hidden
+        className="pointer-events-auto"
+        variant={ButtonVariant.Float}
+        size={ButtonSize.XSmall}
+        icon={<ArrowIcon className={isAfter ? 'rotate-90' : '-rotate-90'} />}
+        onClick={onClick}
+      />
+    </div>
+  );
+};
+
+/** The totals scroll sideways on phones: an arrow shows on the side with more */
+const MetricsRow = ({ children }: { children: ReactNode }): ReactElement => {
+  const rowRef = useRef<HTMLDivElement>(null);
+  const [more, setMore] = useState({ before: false, after: false });
+
+  useEffect(() => {
+    const row = rowRef.current;
+    if (!row) {
+      return undefined;
+    }
+
+    const update = () =>
+      setMore({
+        before: row.scrollLeft > 1,
+        after: row.scrollLeft + row.clientWidth < row.scrollWidth - 1,
+      });
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(row);
+    row.addEventListener('scroll', update, { passive: true });
+
+    return () => {
+      observer.disconnect();
+      row.removeEventListener('scroll', update);
+    };
+  }, []);
+
+  const scroll = (direction: 1 | -1) =>
+    rowRef.current?.scrollBy({
+      left: direction * rowRef.current.clientWidth * 0.8,
+      behavior: 'smooth',
+    });
+
+  return (
+    <div className="relative">
+      <div
+        ref={rowRef}
+        className="no-scrollbar flex snap-x snap-mandatory gap-px overflow-x-auto overscroll-x-contain bg-border-subtlest-tertiary tablet:grid tablet:auto-cols-fr tablet:grid-flow-col"
+      >
+        {children}
+      </div>
+      {more.before && <MetricsArrow side="before" onClick={() => scroll(-1)} />}
+      {more.after && <MetricsArrow side="after" onClick={() => scroll(1)} />}
+    </div>
+  );
+};
 
 /** All boosts' totals, all time: the API has no daily breakdown to chart */
 const BoostMetrics = (): ReactElement => {
@@ -168,11 +251,11 @@ const BoostMetrics = (): ReactElement => {
     <div className="flex flex-col gap-4">
       <StartupsAdsDashboardPromo spend={stats.spend ?? 0} />
       <div className={cardClassName}>
-        <div className="no-scrollbar flex gap-px overflow-x-auto bg-border-subtlest-tertiary tablet:grid tablet:auto-cols-fr tablet:grid-flow-col">
+        <MetricsRow>
           {metrics.map((metric) => (
             <MetricCell key={metric.label} {...metric} isLoading={isPending} />
           ))}
-        </div>
+        </MetricsRow>
       </div>
     </div>
   );
@@ -279,10 +362,12 @@ const BoostsTable = ({
   campaigns,
   onStop,
   onBoostAgain,
+  blinkingId,
 }: {
   campaigns: Campaign[];
   onStop: (campaign: Campaign) => void;
   onBoostAgain: (campaign: Campaign) => void;
+  blinkingId?: string;
 }): ReactElement => (
   <table className="w-full table-auto border-collapse text-left">
     <thead>
@@ -310,7 +395,11 @@ const BoostsTable = ({
         return (
           <tr
             key={campaign.id}
-            className="group border-b border-border-subtlest-tertiary transition-colors last:border-b-0 hover:bg-surface-hover"
+            data-campaign-id={campaign.id}
+            className={classNames(
+              'group border-b border-border-subtlest-tertiary transition-colors last:border-b-0 hover:bg-surface-hover',
+              campaign.id === blinkingId && '[&>td]:animate-row-blink',
+            )}
           >
             <td
               className={classNames(
@@ -371,6 +460,82 @@ const BoostsTable = ({
   </table>
 );
 
+/**
+ * The boost a link points to (`?boost=<id>`), once per boost: scrolled into
+ * view when it is off screen, then blinked. Returns the id while it blinks.
+ */
+const useBlinkLinkedRow = (campaignId?: string): string | undefined => {
+  const [blinkingId, setBlinkingId] = useState<string>();
+  const doneIdRef = useRef<string>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const frameRef = useRef<number>();
+
+  // Re-renders don't cancel a pending blink, only leaving the page does
+  useEffect(
+    () => () => {
+      clearTimeout(timeoutRef.current);
+      cancelAnimationFrame(frameRef.current ?? 0);
+    },
+    [],
+  );
+
+  // Runs after every render until the row is on the page
+  useEffect(() => {
+    if (!campaignId || doneIdRef.current === campaignId) {
+      return;
+    }
+
+    const row = document.querySelector(`[data-campaign-id="${campaignId}"]`);
+    // Not laid out yet, like while dev styles load
+    if (!row?.getClientRects().length) {
+      return;
+    }
+
+    doneIdRef.current = campaignId;
+    const blink = () => {
+      cancelAnimationFrame(frameRef.current ?? 0);
+      setBlinkingId(campaignId);
+      timeoutRef.current = setTimeout(() => setBlinkingId(undefined), 1200);
+    };
+    const { top, bottom } = row.getBoundingClientRect();
+
+    if (top >= 0 && bottom <= window.innerHeight) {
+      blink();
+      return;
+    }
+
+    const reduceMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches;
+    row.scrollIntoView({
+      block: 'center',
+      behavior: reduceMotion ? 'auto' : 'smooth',
+    });
+
+    // Blink once the page has moved and held still for a few frames (longer
+    // if it never moves, as smooth scrolling can start late), or after 1.5s
+    let lastY = window.scrollY;
+    let stillFrames = 0;
+    let hasMoved = false;
+    const waitForStill = () => {
+      const isStill = window.scrollY === lastY;
+      hasMoved = hasMoved || !isStill;
+      stillFrames = isStill ? stillFrames + 1 : 0;
+      lastY = window.scrollY;
+      if (stillFrames >= (hasMoved ? 6 : 20)) {
+        clearTimeout(timeoutRef.current);
+        blink();
+        return;
+      }
+      frameRef.current = requestAnimationFrame(waitForStill);
+    };
+    frameRef.current = requestAnimationFrame(waitForStill);
+    timeoutRef.current = setTimeout(blink, 1500);
+  });
+
+  return blinkingId;
+};
+
 const BoostsList = (): ReactElement => {
   const { openModal } = useLazyModal();
   const { onStopBoost } = useStopBoost();
@@ -383,7 +548,15 @@ const BoostsList = (): ReactElement => {
   const live = campaigns.filter(({ state }) => state === CampaignState.Active);
   const ended = campaigns.filter(({ state }) => state !== CampaignState.Active);
   const [pickedTab, setTab] = useState<BoostsTab>();
-  const tab = pickedTab ?? (live.length ? BoostsTab.Live : BoostsTab.Ended);
+  const { query } = useRouter();
+  const linkedId = typeof query.boost === 'string' ? query.boost : undefined;
+  const linked = campaigns.find(({ id }) => id === linkedId);
+  const linkedTab =
+    linked &&
+    (linked.state === CampaignState.Active ? BoostsTab.Live : BoostsTab.Ended);
+  const tab =
+    pickedTab ?? linkedTab ?? (live.length ? BoostsTab.Live : BoostsTab.Ended);
+  const blinkingId = useBlinkLinkedRow(linked?.id);
   const tabs = [
     { name: BoostsTab.Live, list: live },
     { name: BoostsTab.Ended, list: ended },
@@ -447,7 +620,10 @@ const BoostsList = (): ReactElement => {
           className="!mx-0 !px-0"
         >
           {tabs.map(({ name, list }) => {
-            const label = isComplete ? `${name} (${list.length})` : name;
+            const label =
+              isComplete && name === BoostsTab.Live
+                ? `${name} (${list.length})`
+                : name;
 
             return (
               <SquadDirectoryNavbarItem
@@ -469,6 +645,7 @@ const BoostsList = (): ReactElement => {
               campaigns={active}
               onStop={onStopBoost}
               onBoostAgain={onBoostAgain}
+              blinkingId={blinkingId}
             />
           </div>
         ) : (

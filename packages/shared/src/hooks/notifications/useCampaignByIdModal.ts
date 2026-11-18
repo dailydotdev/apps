@@ -9,7 +9,7 @@ import {
   CampaignType,
   useCampaignByIdOptions,
 } from '../../graphql/campaigns';
-import { boostManagerUrl } from '../../lib/constants';
+import { getBoostManagerUrl } from '../../lib/constants';
 import { Origin } from '../../lib/log';
 import { lastBoostOf } from '../../features/boost/common';
 
@@ -44,7 +44,7 @@ export const useCampaignByIdModal = (): void => {
       }
 
       if (campaign.state === CampaignState.Active) {
-        push(boostManagerUrl);
+        push(getBoostManagerUrl(campaign.id));
         return;
       }
 

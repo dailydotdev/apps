@@ -16,7 +16,7 @@ import {
   CampaignType,
   DAILY_CAMPAIGN_REACH_ESTIMATE,
 } from '../../graphql/campaigns';
-import { boostManagerUrl } from '../../lib/constants';
+import { getBoostManagerUrl } from '../../lib/constants';
 import { MODAL_KEY } from '../useLazyModal';
 
 const replace = jest.fn();
@@ -105,7 +105,7 @@ it('should open the squad boost modal for an ended squad boost', async () => {
   expect(replace).toHaveBeenCalledWith('/notifications');
 });
 
-it('should open Boost manager for a live boost', async () => {
+it('should open Boost manager on a live boost', async () => {
   mockCampaign(
     createCampaign({
       type: CampaignType.Post,
@@ -115,5 +115,7 @@ it('should open Boost manager for a live boost', async () => {
   );
   renderComponent();
 
-  await waitFor(() => expect(push).toHaveBeenCalledWith(boostManagerUrl));
+  await waitFor(() =>
+    expect(push).toHaveBeenCalledWith(getBoostManagerUrl('c1')),
+  );
 });

@@ -9,7 +9,7 @@ import { BoostIcon } from '../../components/icons/Boost';
 import { LazyModal } from '../../components/modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { Origin } from '../../lib/log';
-import { boostManagerUrl } from '../../lib/constants';
+import { getBoostManagerUrl } from '../../lib/constants';
 import { useBoostOriginContext } from './BoostOriginContext';
 
 interface BoostButtonProps {
@@ -51,7 +51,7 @@ export function BoostPostButton({
   const onBoost = () =>
     openModal({ type: LazyModal.BoostPost, props: { post, origin } });
 
-  const onViewBoost = () => router.push(boostManagerUrl);
+  const onViewBoost = () => router.push(getBoostManagerUrl(campaignId));
 
   return (
     <BoostButton

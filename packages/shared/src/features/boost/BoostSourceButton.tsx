@@ -16,7 +16,7 @@ import { useCampaignById } from '../../graphql/campaigns';
 import type { Squad } from '../../graphql/sources';
 import { SourcePermissions } from '../../graphql/sources';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import { boostManagerUrl, webappUrl } from '../../lib/constants';
+import { getBoostManagerUrl, webappUrl } from '../../lib/constants';
 import { BoostButton } from './BoostButton';
 import { IconSize } from '../../components/Icon';
 import { Tooltip } from '../../components/tooltip/Tooltip';
@@ -64,7 +64,7 @@ export function BoostSourceButton({
       props: { squad, origin: Origin.SquadPage },
     });
 
-  const onViewBoost = () => router.push(boostManagerUrl);
+  const onViewBoost = () => router.push(getBoostManagerUrl(campaignId));
 
   const onClick = () => {
     if (!permittedUser) {

@@ -92,7 +92,11 @@ import { useBookmarkReminder } from '../../hooks/notifications';
 import { useBookmarkState } from '../../hooks/bookmark/useBookmarkState';
 import { BookmarkReminderIcon } from '../../components/icons/Bookmark/Reminder';
 import { LazyModal } from '../../components/modals/common/types';
-import { boostManagerUrl, settingsUrl, webappUrl } from '../../lib/constants';
+import {
+  getBoostManagerUrl,
+  settingsUrl,
+  webappUrl,
+} from '../../lib/constants';
 import { FeedSettingsMenu } from '../../components/feeds/FeedSettings/types';
 import { SharedFeedPage } from '../../components/utilities';
 import { useSourceActionsFollow } from '../../hooks/source/useSourceActionsFollow';
@@ -577,7 +581,11 @@ const PostOptionButtonContent = ({
       id: 'boost',
       label: isBoosted ? 'Manage ad' : 'Boost post',
       ...(isBoosted
-        ? { anchorProps: { href: boostManagerUrl } }
+        ? {
+            anchorProps: {
+              href: getBoostManagerUrl(post.flags?.campaignId ?? undefined),
+            },
+          }
         : { action: onBoostPost }),
     });
   }
