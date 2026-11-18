@@ -131,7 +131,9 @@ export const SquadManageLinks = (): ReactElement => {
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            Shown in the page header and first in the Links widget.
+            {hasLinks
+              ? 'Shown in the page header and first in the Links widget.'
+              : 'Shown in the page header and the Links widget as a nofollow link, so it doesn’t pass search ranking to your site. A paid plan makes it a dofollow link.'}
           </Typography>
         </div>
         <HorizontalSeparator />
