@@ -80,6 +80,14 @@ jest.mock('@dailydotdev/shared/src/features/feedWidgets/feedState', () => ({
   useFeedWidgetShortcuts: jest.fn(),
 }));
 
+jest.mock('@dailydotdev/shared/src/hooks/useActions', () => ({
+  useActions: () => ({
+    completeAction: jest.fn(),
+    checkHasCompleted: () => false,
+    isActionsFetched: true,
+  }),
+}));
+
 jest.mock('@dailydotdev/shared/src/contexts/DndContext', () => ({
   useDndContext: () => ({
     isActive: false,
@@ -123,6 +131,7 @@ const mockUseFeedWidgetShortcuts =
 beforeEach(() => {
   mockUseFeedWidgetShortcuts.mockReturnValue({
     hasRail: false,
+    hasShortcutsWidget: false,
     isPending: false,
   });
 });
@@ -211,9 +220,21 @@ describe('MainFeedPage login strip', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('leaves shortcuts to the rail where it renders', () => {
+  it('keeps the shortcuts row on a rail feed without the Shortcuts widget', () => {
     mockUseFeedWidgetShortcuts.mockReturnValue({
       hasRail: true,
+      hasShortcutsWidget: false,
+      isPending: false,
+    });
+    renderPage({ auth: loggedIn, isLaptop: false });
+
+    expect(screen.getByTestId('shortcut-links')).toBeInTheDocument();
+  });
+
+  it('leaves shortcuts to the rail once the Shortcuts widget is on it', () => {
+    mockUseFeedWidgetShortcuts.mockReturnValue({
+      hasRail: true,
+      hasShortcutsWidget: true,
       isPending: false,
     });
     renderPage({ auth: loggedIn, isLaptop: false });
@@ -225,6 +246,7 @@ describe('MainFeedPage login strip', () => {
   it('holds the row while the rail is still unknown', () => {
     mockUseFeedWidgetShortcuts.mockReturnValue({
       hasRail: false,
+      hasShortcutsWidget: false,
       isPending: true,
     });
     renderPage({ auth: loggedIn, isLaptop: false });

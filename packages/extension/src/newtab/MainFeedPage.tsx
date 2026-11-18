@@ -23,6 +23,8 @@ import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopL
 import { useShortcutLinks } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutLinks';
 import { useFeedWidgetShortcuts } from '@dailydotdev/shared/src/features/feedWidgets/feedState';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
+import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
 import { FeedLayoutProvider } from '@dailydotdev/shared/src/contexts/FeedContext';
 import useCustomDefaultFeed from '@dailydotdev/shared/src/hooks/feed/useCustomDefaultFeed';
@@ -38,6 +40,12 @@ const PostsSearch = dynamic(
     import(
       /* webpackChunkName: "postsSearch" */ '@dailydotdev/shared/src/components/PostsSearch'
     ),
+);
+
+const ShortcutsWidgetCue = dynamic(() =>
+  import(
+    /* webpackChunkName: "shortcutsWidgetCue" */ './ShortcutLinks/ShortcutsWidgetCue'
+  ).then((mod) => mod.ShortcutsWidgetCue),
 );
 
 const DndModal = dynamic(
@@ -152,17 +160,33 @@ const MainFeedPageInner = ({
   // Mirror `ExtensionTopBanners`' "Add shortcuts" gate so the topBanner
   // shortcut row and the marketing CTA card are mutually exclusive.
   const { shortcutLinks } = useShortcutLinks();
-  // Where the widget rail renders, shortcuts are its widget, so the row and
-  // the "Add shortcuts" card step aside. A search from the header keeps the
-  // feed underneath, so the row holds still around it.
-  const { hasRail, isPending: isRailPending } = useFeedWidgetShortcuts(
+  // The row steps aside only once the reader moved shortcuts onto the rail.
+  // A search from the header keeps the feed underneath, so the row holds
+  // still around it.
+  const {
+    hasRail,
+    hasShortcutsWidget,
+    isPending: isRailPending,
+  } = useFeedWidgetShortcuts(
     getFeedName(isSearchOn ? normalizePage(feedName) : activePage, {
       hasUser: !!user,
     }),
   );
-  const isShortcutsHidden = hasRail || isRailPending;
+  const isShortcutsHidden = hasShortcutsWidget || isRailPending;
   const hasShortcutsToShow =
     !isShortcutsHidden && showTopSites && (shortcutLinks?.length ?? 0) > 0;
+  const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
+  const showWidgetCue =
+    hasRail &&
+    hasShortcutsToShow &&
+    !!user &&
+    isActionsFetched &&
+    !checkHasCompleted(ActionType.DismissShortcutsWidgetCue);
+  const widgetCue = showWidgetCue && (
+    <ShortcutsWidgetCue
+      onDismiss={() => completeAction(ActionType.DismissShortcutsWidgetCue)}
+    />
+  );
 
   return (
     <>
@@ -186,8 +210,9 @@ const MainFeedPageInner = ({
                 <div className="mx-4 laptop:mx-0">{loginStrip}</div>
               )}
               {isLaptopLayout && hasShortcutsToShow && (
-                <div className="mx-4 flex justify-center pt-2 laptop:mx-0 [&:empty]:hidden">
+                <div className="mx-4 flex flex-col items-center gap-2 pt-2 laptop:mx-0 [&:empty]:hidden">
                   <ShortcutLinks shouldUseListFeedLayout={false} />
+                  {widgetCue}
                 </div>
               )}
               {!isShortcutsHidden && <ExtensionTopBanners />}
@@ -228,9 +253,16 @@ const MainFeedPageInner = ({
                   ? undefined
                   : (loginStrip ??
                     (isShortcutsHidden ? undefined : (
-                      <ShortcutLinks
-                        shouldUseListFeedLayout={shouldUseListFeedLayout}
-                      />
+                      <>
+                        <ShortcutLinks
+                          shouldUseListFeedLayout={shouldUseListFeedLayout}
+                        />
+                        {widgetCue && (
+                          <div className="flex justify-center px-4 pb-2">
+                            {widgetCue}
+                          </div>
+                        )}
+                      </>
                     )))
               }
             />

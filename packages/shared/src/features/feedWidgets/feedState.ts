@@ -212,23 +212,27 @@ const useResolvedFeedWidgets = ({
 };
 
 /**
- * Whether the rail on this feed is where shortcuts live: on a rail feed the
- * Shortcuts widget is on the rail or a tap away in its gallery, so the
- * extension's own shortcuts row and its "Add shortcuts" card step aside.
- * `isPending` while the flag or the settings that hold the rail are still on
- * their way, so the row does not paint and then go.
+ * Where shortcuts live on this feed. The extension's row stays above the feed
+ * until the reader puts the Shortcuts widget on the rail, so `hasRail` alone
+ * never hides it; `hasShortcutsWidget` does. `isPending` while the flag or the
+ * settings that hold the rail are still on their way, so the row does not
+ * paint and then go.
  */
 export const useFeedWidgetShortcuts = (
   feedName?: string,
-): { hasRail: boolean; isPending: boolean } => {
+): { hasRail: boolean; hasShortcutsWidget: boolean; isPending: boolean } => {
   const { loadedSettings } = useSettingsContext();
   const { settled } = useFeaturesReadyContext();
   const { isEnabled } = useFeedWidgetRailState(feedName);
+  const widgets = useResolvedFeedWidgets({ enabled: isEnabled });
   const isMainFeedPage =
     feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
 
   return {
     hasRail: isEnabled,
+    hasShortcutsWidget:
+      isEnabled &&
+      widgets.some(({ kind }) => kind === FeedWidgetKind.Shortcuts),
     isPending: isMainFeedPage && (!settled || !loadedSettings),
   };
 };
