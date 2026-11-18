@@ -161,12 +161,12 @@ export const squadPlanDetails: Record<SquadPlan, SquadPlanDetails> = {
 export const freeCompanyPageIncludes = [
   '$100 boost on your first post',
   'Company page with a link to your site',
+  'Limited exposure in the developer feed',
   'Analytics on every post',
   'Weekly report on what developers read',
 ];
 
 export const freeCompanyPageLacks = [
-  'Your posts reach few developers in the feed',
   'Not on Google or in AI answers',
   'No API posting',
   'No intel on what developers in your space read',
