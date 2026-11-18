@@ -193,6 +193,7 @@ export const useStartupsPromo = ({
       ? getSquadManageUrl(squad.handle, SquadManageSection.Plan)
       : getCompanyPageCreateUrl({
           plan: SquadPlan.Starter,
+          checkout: true,
           cta: spot.replace(/ /g, '_'),
         }),
     onClick,
