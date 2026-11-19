@@ -962,6 +962,7 @@ const DoneStep = ({
   const client = useQueryClient();
   const [startedAt] = useState(() => Date.now());
   const [isTimedOut, setTimedOut] = useState(false);
+  const [isRefreshed, setRefreshed] = useState(!!isReturning);
   const { data: subscription } = useQuery(
     squadSubscriptionQueryOptions({
       user,
@@ -987,8 +988,10 @@ const DoneStep = ({
       });
       // The squad's features changed with the plan, and boot's squads now
       // carry the owner's seat, which seat-only settings read
-      client.invalidateQueries({ queryKey: [RequestKey.Squad] });
-      refetchBoot?.();
+      Promise.all([
+        client.invalidateQueries({ queryKey: [RequestKey.Squad] }),
+        refetchBoot?.(),
+      ]).finally(() => setRefreshed(true));
       return undefined;
     }
 
@@ -1012,7 +1015,7 @@ const DoneStep = ({
 
   const pageUrl = company.permalink ?? `${webappUrl}squads/${company.handle}`;
 
-  if (isActive && squad) {
+  if (isActive && isRefreshed && squad) {
     return (
       <SetupStep
         squad={squad}
