@@ -1,10 +1,6 @@
 import type { Squad } from '../../../graphql/sources';
 import { SourceMemberRole } from '../../../graphql/sources';
-import {
-  isNewCompanyPageAdmin,
-  trackCompanyPageFirstPost,
-  trackStartupsSignup,
-} from './startupsAdEvents';
+import { isNewCompanyPageAdmin, trackStartupsSignup } from './startupsAdEvents';
 import { STARTUPS_X_EVENTS } from './startupsXEvents';
 
 const daysAgo = (days: number) =>
@@ -55,39 +51,5 @@ describe('isNewCompanyPageAdmin', () => {
     expect(
       isNewCompanyPageAdmin(companyPage(overrides as Partial<Squad>)),
     ).toBe(false);
-  });
-});
-
-describe('trackCompanyPageFirstPost', () => {
-  it('reports the first post on a company page once', () => {
-    const trackEvent = jest.fn();
-
-    trackCompanyPageFirstPost(trackEvent, companyPage(), 'founder@acme.dev');
-    trackCompanyPageFirstPost(trackEvent, companyPage(), 'founder@acme.dev');
-
-    expect(trackEvent).toHaveBeenCalledTimes(1);
-    expect(trackEvent).toHaveBeenCalledWith(
-      'StartTrial',
-      { content_name: 'startups first post', content_category: 'free' },
-      {
-        eventId: 'startups-first-post-acme',
-        xEventId: STARTUPS_X_EVENTS.firstPost,
-        email: 'founder@acme.dev',
-      },
-    );
-  });
-
-  it.each([
-    ['a community squad', { flags: {} }],
-    ['a page older than a month', { createdAt: daysAgo(31) }],
-  ])('skips %s', (_, overrides) => {
-    const trackEvent = jest.fn();
-
-    trackCompanyPageFirstPost(
-      trackEvent,
-      companyPage(overrides as Partial<Squad>),
-    );
-
-    expect(trackEvent).not.toHaveBeenCalled();
   });
 });

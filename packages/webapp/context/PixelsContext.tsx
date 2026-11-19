@@ -29,14 +29,23 @@ const pixels = globalThis as typeof globalThis & {
 const PIXEL_WAIT_MS = 500;
 const PIXEL_WAIT_TRIES = 20;
 
-const whenPixelsLoad = (send: () => void, triesLeft = PIXEL_WAIT_TRIES) => {
-  if (typeof pixels.fbq === 'function' || typeof pixels.twq === 'function') {
-    send();
+// Each pixel loads on its own, so each one waits for its own script
+const whenPixelLoads = (
+  getTracker: () => Tracker | undefined,
+  send: (tracker: Tracker) => void,
+  triesLeft = PIXEL_WAIT_TRIES,
+) => {
+  const tracker = getTracker();
+  if (typeof tracker === 'function') {
+    send(tracker);
     return;
   }
 
   if (triesLeft > 0) {
-    setTimeout(() => whenPixelsLoad(send, triesLeft - 1), PIXEL_WAIT_MS);
+    setTimeout(
+      () => whenPixelLoads(getTracker, send, triesLeft - 1),
+      PIXEL_WAIT_MS,
+    );
   }
 };
 
@@ -49,18 +58,21 @@ const sendEvent: PixelsContextData['trackEvent'] = (
   params,
   options,
 ) => {
-  if (typeof pixels.gtag === 'function') {
-    pixels.gtag('event', eventName.replace(/ /g, '_').toLowerCase());
-  }
-  if (typeof pixels.fbq === 'function') {
-    pixels.fbq(
-      'track',
-      eventName,
-      params,
-      options?.eventId ? { eventID: options.eventId } : undefined,
-    );
-  }
-  if (options?.xEventId && typeof pixels.twq === 'function') {
+  whenPixelLoads(
+    () => pixels.gtag,
+    (gtag) => gtag('event', eventName.replace(/ /g, '_').toLowerCase()),
+  );
+  whenPixelLoads(
+    () => pixels.fbq,
+    (fbq) =>
+      fbq(
+        'track',
+        eventName,
+        params,
+        options?.eventId ? { eventID: options.eventId } : undefined,
+      ),
+  );
+  if (options?.xEventId) {
     const xParams: Record<string, unknown> = {};
     if (typeof params?.value === 'number') {
       xParams.value = params.value;
@@ -74,7 +86,10 @@ const sendEvent: PixelsContextData['trackEvent'] = (
     if (options.email) {
       xParams.email_address = options.email;
     }
-    pixels.twq('event', options.xEventId, xParams);
+    whenPixelLoads(
+      () => pixels.twq,
+      (twq) => twq('event', options.xEventId, xParams),
+    );
   }
 };
 
@@ -146,7 +161,7 @@ function WebPixelsProvider({
       // }
     },
     trackEvent(eventName, params, options) {
-      whenPixelsLoad(() => sendEvent(eventName, params, options));
+      sendEvent(eventName, params, options);
     },
   };
 
