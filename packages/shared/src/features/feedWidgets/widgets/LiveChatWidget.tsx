@@ -81,7 +81,11 @@ export const LiveChatWidget = ({
     enabled: isEnabled && !!user?.id,
   });
   const isSmall = size === FeedWidgetSize.Small;
-  const shown = isSmall ? rooms.slice(0, 1) : rooms;
+  // A room with nowhere to link (its post unknown) would draw an empty
+  // row, so it is left out before the Small size takes the first one.
+  const linked = rooms.filter((room) => getChatRoomHref(room));
+  const shown = isSmall ? linked.slice(0, 1) : linked;
+
   if (!isEnabled || !shown.length) {
     return (
       <FeedWidgetEmpty

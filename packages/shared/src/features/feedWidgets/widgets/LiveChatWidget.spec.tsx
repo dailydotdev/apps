@@ -99,6 +99,30 @@ describe('LiveChatWidget', () => {
     );
   });
 
+  it('shows the empty state when the only room has no post to link to', async () => {
+    jest
+      .mocked(getLiveChatRooms)
+      .mockResolvedValue([{ ...roomOf('a', 'Bun 2.0', 23), post: null }]);
+    renderWidget(FeedWidgetSize.Small);
+
+    expect(
+      await screen.findByText(/No live chats right now/),
+    ).toBeInTheDocument();
+  });
+
+  it('skips a room with no post when small', async () => {
+    jest
+      .mocked(getLiveChatRooms)
+      .mockResolvedValue([
+        { ...roomOf('a', 'Bun 2.0', 23), post: null },
+        roomOf('b', 'Postgres 18', 4),
+      ]);
+    renderWidget(FeedWidgetSize.Small);
+
+    expect(await screen.findByText('Postgres 18')).toBeInTheDocument();
+    expect(screen.queryByText('Bun 2.0')).not.toBeInTheDocument();
+  });
+
   it('shows only the newest room when small', async () => {
     jest
       .mocked(getLiveChatRooms)
