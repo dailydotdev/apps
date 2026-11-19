@@ -12,8 +12,6 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 // the same event when the page is created, and Meta and X only merge the two
 // within 48 hours
 export const NEW_COMPANY_PAGE_DAYS = 2;
-// Matches the free first-post boost window in daily-api
-export const COMPANY_PAGE_FIRST_POST_DAYS = 30;
 
 const isWithinDays = (date: Date | string | undefined, days: number) =>
   !!date && Date.now() - new Date(date).getTime() < days * DAY_MS;
@@ -64,33 +62,3 @@ export const isNewCompanyPageAdmin = (squad?: CompanyPage): boolean =>
   !!squad?.flags?.company &&
   squad.currentMember?.role === SourceMemberRole.Admin &&
   isWithinDays(squad.createdAt, NEW_COMPANY_PAGE_DAYS);
-
-/**
- * The first post on a company page, which starts its free boost: Meta
- * StartTrial, once per page. The page's
- * post count isn't reliable right after posting, so the first post seen in
- * this browser during the page's first month counts.
- */
-export const trackCompanyPageFirstPost = (
-  trackEvent: TrackEvent,
-  squad: CompanyPage,
-  email?: string,
-): void => {
-  const isEligible =
-    !!squad.flags?.company &&
-    isWithinDays(squad.createdAt, COMPANY_PAGE_FIRST_POST_DAYS);
-
-  if (!isEligible || !markOnce(`startups_first_post_tracked:${squad.id}`)) {
-    return;
-  }
-
-  trackEvent(
-    'StartTrial',
-    { content_name: 'startups first post', content_category: 'free' },
-    {
-      eventId: `startups-first-post-${squad.id}`,
-      xEventId: STARTUPS_X_EVENTS.firstPost,
-      email,
-    },
-  );
-};
