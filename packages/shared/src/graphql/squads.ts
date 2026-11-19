@@ -756,6 +756,13 @@ export const SQUAD_STATIC_FIELDS_QUERY = gql`
       postingMinReputation
       membersCount
       createdAt
+      flags {
+        company
+      }
+      features {
+        verified
+        products
+      }
     }
   }
 `;
@@ -775,6 +782,8 @@ export type SquadStaticData = Pick<
   | 'permalink'
   | 'membersCount'
   | 'createdAt'
+  | 'flags'
+  | 'features'
 >;
 
 export const getSquadStaticFields = async (

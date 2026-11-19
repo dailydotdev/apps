@@ -51,6 +51,7 @@ import { getPageSeoTitles } from '../../../components/layouts/utils';
 import type { DynamicSeoProps } from '../../../components/common';
 import { getAppOrigin, toJsonLd } from '../../../lib/seo';
 import { SquadRoute } from '../../../components/squads/SquadRoute';
+import { isCompanyPage } from '@dailydotdev/shared/src/features/squads/lib/companyPage';
 
 const appOrigin = getAppOrigin();
 const getSquadPageJsonLd = (
@@ -377,7 +378,7 @@ export async function getServerSideProps({
 
     const seoTitleSource = referringUser
       ? `${referringUser.name} invited you to ${squad.name}`
-      : `${squad.name} Squad`;
+      : `${squad.name}${isCompanyPage(squad) ? '' : ' Squad'}`;
     const squadSeoTitles = getPageSeoTitles(seoTitleSource);
 
     const seo: NextSeoProps = {

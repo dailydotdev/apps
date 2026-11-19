@@ -17,6 +17,7 @@ import type {
   AddSourceStackInput,
 } from '../../../graphql/source/sourceStack';
 import { MAX_STACK_ITEMS } from '../../../graphql/source/sourceStack';
+import { isCompanyPage } from '../../../features/squads/lib/companyPage';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { usePrompt } from '../../../hooks/usePrompt';
 
@@ -29,6 +30,7 @@ interface SquadStackProps {
 export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
   const { stackItems, canEdit, canAddMore, add, update, remove } =
     useSourceStack(squad);
+  const stackName = isCompanyPage(squad) ? 'company' : 'squad';
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
 
@@ -40,7 +42,7 @@ export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
     async (input: AddSourceStackInput) => {
       try {
         await add(input);
-        displayToast('Added to squad stack');
+        displayToast(`Added to ${stackName} stack`);
       } catch (error) {
         displayToast('Failed to add item');
         throw error;
@@ -80,7 +82,7 @@ export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
       const displayTitle = item.title ?? item.tool.title;
       const confirmed = await showPrompt({
         title: 'Remove from stack?',
-        description: `Are you sure you want to remove "${displayTitle}" from the squad stack?`,
+        description: `Are you sure you want to remove "${displayTitle}" from the ${stackName} stack?`,
         okButton: { title: 'Remove', variant: ButtonVariant.Primary },
       });
       if (!confirmed) {
@@ -89,7 +91,7 @@ export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
 
       try {
         await remove(item.id);
-        displayToast('Removed from squad stack');
+        displayToast(`Removed from ${stackName} stack`);
       } catch (error) {
         displayToast('Failed to remove item');
       }
@@ -172,7 +174,8 @@ export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
             >
-              Share your Squad&apos;s stack &amp; tools
+              Share your {isCompanyPage(squad) ? 'company' : 'Squad'}&apos;s
+              stack &amp; tools
             </Typography>
             <Button
               variant={ButtonVariant.Secondary}
