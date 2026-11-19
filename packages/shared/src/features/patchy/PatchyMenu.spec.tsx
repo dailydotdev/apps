@@ -78,7 +78,7 @@ describe('PatchyMenu', () => {
       expect.stringContaining('tags/rust/best-of'),
     );
     expect(
-      screen.getByRole('link', { name: 'More from Rust Blog' }),
+      screen.getByRole('link', { name: 'More from this source' }),
     ).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Follow #rust' }));
@@ -97,9 +97,7 @@ describe('PatchyMenu', () => {
 
   it('opens the feed debugger and Tune on For You', () => {
     renderMenu({ kind: 'forYou' });
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Why am I seeing these?' }),
-    );
+    fireEvent.click(screen.getByRole('button', { name: 'Why these posts?' }));
     expect(mockSetExplain).toHaveBeenCalledWith(true);
     fireEvent.click(screen.getByRole('button', { name: 'Tune my feed' }));
     expect(mockOpenTune).toHaveBeenCalled();

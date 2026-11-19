@@ -57,7 +57,7 @@ const Row = ({ icon, children }: { icon: ReactNode; children: ReactNode }) => (
     <span className="flex size-5 shrink-0 items-center justify-center text-text-tertiary">
       {icon}
     </span>
-    <span className="min-w-0 flex-1 truncate">{children}</span>
+    <span className="line-clamp-2 min-w-0 flex-1 break-words">{children}</span>
   </span>
 );
 
@@ -171,7 +171,7 @@ export const PatchyMenu = ({
         if (post.source?.handle && post.source.type !== 'user') {
           list.push({
             id: 'source',
-            label: `More from ${post.source.name ?? post.source.handle}`,
+            label: 'More from this source',
             icon: icon.arrow,
             href: `${webappUrl}sources/${post.source.handle}`,
           });
@@ -183,7 +183,7 @@ export const PatchyMenu = ({
           read,
           {
             id: 'why',
-            label: 'Why am I seeing these?',
+            label: 'Why these posts?',
             icon: icon.search,
             onClick: () => setExplain(true),
           },
@@ -211,7 +211,7 @@ export const PatchyMenu = ({
           ...(!isFollowing(tag) || done.includes('follow')
             ? [followTag(tag)]
             : []),
-          { ...read, label: `Something short on #${tag}`, picks: 'tag' },
+          { ...read, label: `Quick reads on #${tag}`, picks: 'tag' },
           bestOfTag(tag),
         ];
       }
