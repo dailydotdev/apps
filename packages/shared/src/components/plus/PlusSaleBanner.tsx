@@ -14,6 +14,7 @@ import {
   plusBlackFridayBannerBg,
   plusBlackFridayBannerGlow,
   plusBlackFridayBannerScrim,
+  plusBlackFridayMarkColor,
   plusSaleBannerBg,
   plusSaleBannerGlow,
   plusSaleBannerScrim,
@@ -27,12 +28,14 @@ const blackFridayStyle = {
   background: plusBlackFridayBannerBg,
   glow: plusBlackFridayBannerGlow,
   scrim: plusBlackFridayBannerScrim,
+  mark: plusBlackFridayMarkColor,
 };
 
 const summerStyle = {
   background: plusSaleBannerBg,
   glow: plusSaleBannerGlow,
   scrim: plusSaleBannerScrim,
+  mark: plusSaleMarkColor,
 };
 
 export function PlusSaleBanner({
@@ -66,7 +69,7 @@ export function PlusSaleBanner({
         aria-hidden
         secondary
         className="opacity-80 absolute -bottom-12 -right-8 -z-1 hidden !size-52 rotate-12 mobileL:block"
-        style={{ color: plusSaleMarkColor }}
+        style={{ color: style.mark }}
       />
       <div
         aria-hidden
@@ -119,7 +122,7 @@ export function PlusSaleBanner({
             aria-hidden
             tag={TypographyTag.Span}
             type={TypographyType.LargeTitle}
-            className="ml-auto hidden whitespace-nowrap pr-16 uppercase tablet:block"
+            className="ml-auto hidden whitespace-nowrap pr-16 uppercase laptop:block"
             style={{ color: plusBlackFridayAccent }}
             bold
           >

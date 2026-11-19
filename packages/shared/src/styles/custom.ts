@@ -67,6 +67,9 @@ export const plusBlackFridayBannerScrim =
 
 export const plusBlackFridayAccent = '#FFD24D';
 
+export const plusBlackFridayMarkColor =
+  'color-mix(in srgb, var(--theme-actions-plus-default), transparent 70%)';
+
 export const plusBlackFridayLabelBg =
   'linear-gradient(90deg, #FFD24D 0%, #F59E0B 100%)';
 
