@@ -63,7 +63,7 @@ export const agentClients = Object.values(AgentClient);
 const SKILLS_URL = 'https://github.com/dailydotdev/daily/blob/master/skills';
 
 /** Points the agent at a daily.dev skill, with its file for clients without the plugin. */
-const skillRef = (name: string): string =>
+export const skillRef = (name: string): string =>
   `the ${name} skill (if you don't have it, read and follow ${SKILLS_URL}/${name}/SKILL.md)`;
 
 /**
@@ -183,3 +183,29 @@ export const getIntelPrompt = (handle: string): string =>
     '',
     'Then look at what I shipped or wrote recently and suggest three posts for our daily.dev page. For each, give the angle, format, title, length and the best day and hour to publish, and say which numbers in the intel back it.',
   ].join('\n');
+
+const connectLine = (handle: string): string =>
+  `This is for our daily.dev company page @${handle}. Use the daily.dev MCP tools if you have them, otherwise my daily.dev API token (\`DAILY_DEV_TOKEN\`). If you have neither, stop and tell me to add ${DAILY_MCP_URL}.`;
+
+/** What a founder can ask their agent, one skill at a time. */
+export const getStartupsSkillPrompt = (
+  skill: 'strategy' | 'ideas' | 'review' | 'routine',
+  handle: string,
+): string => {
+  const ask: Record<typeof skill, string> = {
+    strategy: `Plan what @${handle} publishes with ${skillRef(
+      'daily-dev-content-strategy',
+    )}: interview me about our readers and what our team knows, then save the strategy I agree to.`,
+    ideas: `Suggest three posts for @${handle} with ${skillRef(
+      'daily-dev-content-ideas',
+    )}. Start from what I shipped or wrote recently, and say which numbers in our weekly intel back each one. I write the posts myself, so don't write them or a draft.`,
+    review: `I'm about to publish a post on @${handle}. Ask me to paste it, then review it with ${skillRef(
+      'daily-dev-content-review',
+    )} and show me what it found. Don't rewrite it for me.`,
+    routine: `Set up ${skillRef(
+      'daily-dev-growth-routine',
+    )} for @${handle}: ask me how often we want to publish, then schedule its daily report on our page, posts and boosts, with a reminder when the next post is due.`,
+  };
+
+  return [connectLine(handle), '', ask[skill]].join('\n');
+};

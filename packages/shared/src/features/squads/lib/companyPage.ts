@@ -19,12 +19,17 @@ export const isCompanyPage = (
 export const getCompanyPageReadinessPrompt = ({
   handle,
   steps,
+  plan,
 }: {
   handle: string;
   steps: string[];
+  /** "Starter", when the page is on a plan */
+  plan?: string;
 }): string =>
   [
-    `Finish our daily.dev company page @${handle} and my daily.dev profile. Use the daily.dev MCP tools if you have them, otherwise my daily.dev API token (\`DAILY_DEV_TOKEN\`). If you have neither, read ${COMPANY_PAGE_SKILL_URL} and connect the way it says.`,
+    `Finish our daily.dev company page @${handle} and my daily.dev profile${
+      plan ? `, and help us get the most out of our ${plan} plan` : ''
+    }. Use the daily.dev MCP tools if you have them, otherwise my daily.dev API token (\`DAILY_DEV_TOKEN\`). If you have neither, read ${COMPANY_PAGE_SKILL_URL} and connect the way it says.`,
     '',
     `The page already exists, so update @${handle} and don't create a new one. Read the page and my profile as they are now first, and skip anything that's already filled in. I may have done some of it since I copied this.`,
     '',
