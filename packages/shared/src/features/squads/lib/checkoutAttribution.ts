@@ -1,4 +1,5 @@
 import { storageWrapper } from '../../../lib/storageWrapper';
+import { getCookies } from '../../../lib/cookie';
 
 // Where a startups checkout visitor came from, carried into the Paddle
 // custom data so the payment can be attributed to the ad or email
@@ -65,23 +66,46 @@ export const saveCheckoutAttribution = (
   }
 };
 
+// The /startups landing (daily.dev) saves the same keys in a cookie on
+// .daily.dev, for visitors who never follow a link into the app with them,
+// such as one who copies the agent prompt
+export const LANDING_ATTRIBUTION_COOKIE = 'startups_attribution';
+
+type SavedAttribution = CheckoutAttribution & { savedAt?: unknown };
+
+const parseSaved = (value?: string | null): SavedAttribution | null => {
+  try {
+    const saved = JSON.parse(value ?? 'null');
+
+    return saved && typeof saved === 'object' ? saved : null;
+  } catch {
+    return null;
+  }
+};
+
 export const getSavedCheckoutAttribution = (
   now = Date.now(),
 ): CheckoutAttribution => {
+  let stored: string | null = null;
+
   try {
-    const saved = JSON.parse(
-      storageWrapper.getItem(CHECKOUT_ATTRIBUTION_STORAGE_KEY) ?? 'null',
-    );
-
-    if (
-      typeof saved?.savedAt !== 'number' ||
-      now - saved.savedAt > CHECKOUT_ATTRIBUTION_TTL_MS
-    ) {
-      return {};
-    }
-
-    return getCheckoutAttribution(saved);
+    stored = storageWrapper.getItem(CHECKOUT_ATTRIBUTION_STORAGE_KEY);
   } catch {
-    return {};
+    // Storage blocked: the landing cookie may still have it
   }
+
+  const [latest] = [
+    parseSaved(stored),
+    parseSaved(
+      getCookies([LANDING_ATTRIBUTION_COOKIE])?.[LANDING_ATTRIBUTION_COOKIE],
+    ),
+  ]
+    .filter(
+      (saved): saved is SavedAttribution & { savedAt: number } =>
+        typeof saved?.savedAt === 'number' &&
+        now - saved.savedAt <= CHECKOUT_ATTRIBUTION_TTL_MS,
+    )
+    .sort((a, b) => b.savedAt - a.savedAt);
+
+  return latest ? getCheckoutAttribution(latest) : {};
 };

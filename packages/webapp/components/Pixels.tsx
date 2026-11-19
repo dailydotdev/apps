@@ -28,6 +28,28 @@ export type HotjarProps = {
   hotjarId: string;
 };
 
+// Meta matches on the SHA-256 of the trimmed, lowercased email. Hashing it
+// here keeps a value set after init (a signup in this session) from going out
+// in plain text.
+export const hashEmailForMeta = async (
+  email?: string,
+): Promise<string | undefined> => {
+  const normalized = email?.trim().toLowerCase();
+
+  if (!normalized || !globalThis.crypto?.subtle) {
+    return undefined;
+  }
+
+  const digest = await globalThis.crypto.subtle.digest(
+    'SHA-256',
+    new TextEncoder().encode(normalized),
+  );
+
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
+};
+
 const FbTracking = ({ userId, consent, email }: PixelProps): ReactElement => {
   useEffect(() => {
     if (typeof globalThis.fbq === 'function') {
@@ -36,9 +58,17 @@ const FbTracking = ({ userId, consent, email }: PixelProps): ReactElement => {
   }, [consent]);
 
   useEffect(() => {
-    if (typeof globalThis.updateFbUserData === 'function') {
-      globalThis.updateFbUserData(userId, email);
-    }
+    let isCurrent = true;
+
+    hashEmailForMeta(email).then((emailHash) => {
+      if (isCurrent && typeof globalThis.updateFbUserData === 'function') {
+        globalThis.updateFbUserData(userId, emailHash);
+      }
+    });
+
+    return () => {
+      isCurrent = false;
+    };
   }, [email, userId]);
 
   return (
@@ -86,10 +116,13 @@ const FbTracking = ({ userId, consent, email }: PixelProps): ReactElement => {
     'https://connect.facebook.net/en_US/fbevents.js',
   );
 
-  window.updateFbUserData = (userId, email) => {
-    if (window.fbq?.instance?.pixelsByID?.[PIXEL_ID]?.userData) {
-      window.fbq.instance.pixelsByID[PIXEL_ID].userData.external_id = userId;
-      window.fbq.instance.pixelsByID[PIXEL_ID].userData.email = email;
+  window.updateFbUserData = (userId, emailHash) => {
+    const userData = window.fbq?.instance?.pixelsByID?.[PIXEL_ID]?.userData;
+    if (userData) {
+      userData.external_id = userId;
+      if (emailHash) {
+        userData.em = emailHash;
+      }
     }
   };
 

@@ -44,7 +44,6 @@ import { cloudinaryCharmSomethingWentWrong } from '../../../../lib/image';
 import { PurchaseType } from '../../../../graphql/paddle';
 import { squadSubscriptionQueryOptions } from '../../../../graphql/squadSubscription';
 import { webappUrl } from '../../../../lib/constants';
-import { storageWrapper } from '../../../../lib/storageWrapper';
 import { RequestKey } from '../../../../lib/query';
 import { LogEvent, Origin } from '../../../../lib/log';
 import {
@@ -1034,8 +1033,6 @@ export const StartupsCheckout = ({
 }: StartupsCheckoutProps): ReactElement => {
   const router = useRouter();
   const { squads, user } = useAuthContext();
-  const { trackEvent } = usePixelsContext();
-  const isSignupTracked = useRef(false);
   const adminSquads = useMemo<CompanyChoice[]>(
     () =>
       (squads ?? []).filter(
@@ -1139,36 +1136,6 @@ export const StartupsCheckout = ({
   }, [step, isOpeningLink]);
 
   const userId = user?.id;
-  useEffect(() => {
-    // Signed-in founders only reach the company step, so it counts as the
-    // signup for the ad pixel, once per founder
-    if (
-      isOpeningLink ||
-      step !== StartupsCheckoutStep.Company ||
-      !userId ||
-      isSignupTracked.current
-    ) {
-      return;
-    }
-
-    isSignupTracked.current = true;
-    const trackedKey = `startups_signup_tracked:${userId}`;
-
-    if (storageWrapper.getItem(trackedKey)) {
-      return;
-    }
-
-    storageWrapper.setItem(trackedKey, '1');
-    trackEvent(
-      'CompleteRegistration',
-      { content_name: 'startups', content_category: plan },
-      {
-        eventId: `startups-signup-${userId}`,
-        xEventId: STARTUPS_X_EVENTS.signup,
-        email: user?.email,
-      },
-    );
-  }, [step, isOpeningLink, userId, user?.email, plan, trackEvent]);
 
   // Without a company page there is nothing to upgrade: the page comes first,
   // for free
