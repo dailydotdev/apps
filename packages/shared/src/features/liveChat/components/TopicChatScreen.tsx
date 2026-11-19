@@ -53,7 +53,7 @@ export const TopicChatScreen = ({
 }): ReactElement => {
   const { user, isAuthReady, showLogin } = useAuthContext();
   // The bottom bar leaves on this route; the composer takes its place.
-  const shellHeight = useChatShellHeight(false, false);
+  const shellHeight = useChatShellHeight(false);
   const {
     data: room,
     isPending,

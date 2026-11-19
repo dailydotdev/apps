@@ -81,7 +81,7 @@ export const MessagesScreen = ({
     showRequests && isLfgEnabled ? activeReachOutId : undefined;
   const hasDetail = !!activePeerId || !!reachOutId;
   // A conversation has no bottom bar on phones: its composer takes the place.
-  const shellHeight = useChatShellHeight(false, !hasDetail);
+  const shellHeight = useChatShellHeight(!hasDetail);
   const screenRef = useRef<HTMLDivElement>(null);
   const keyboardHeight = useKeyboardFit(screenRef, useIsPhone());
   const { allowsMessages } = useDmSettings();
