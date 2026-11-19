@@ -6,11 +6,13 @@ import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import nock from 'nock';
 import useFeed, { getAdJitterSeed } from './useFeed';
+import FeedContext from '../contexts/FeedContext';
 import type { AuthContextData } from '../contexts/AuthContext';
 import { useAuthContext } from '../contexts/AuthContext';
 import { BootDataProvider } from '../contexts/BootProvider';
 import { BOOT_LOCAL_KEY } from '../contexts/common';
 import { TestBootProvider } from '../../__tests__/helpers/boot';
+import { mockDesktop } from '../../__tests__/helpers/media';
 import { defaultQueryClientTestingConfig } from '../../__tests__/helpers/tanstack-query';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import defaultFeedPage from '../../__tests__/fixture/feed';
@@ -552,6 +554,68 @@ it('moves the Happening Now card along when a widget takes its slot', async () =
     FeedItemType.Highlight,
     FeedItemType.Post,
   ]);
+  client.clear();
+});
+
+it('moves a wide widget on to the next spot with room for two cards', async () => {
+  mockDesktop();
+  const client = new QueryClient(defaultQueryClientTestingConfig);
+  mockCustomFeedResponse({
+    data: {
+      page: {
+        ...defaultFeedPage,
+        edges: Array.from({ length: 8 }, (_, index) => ({
+          ...defaultFeedPage.edges[0],
+          node: { ...defaultFeedPage.edges[0].node, id: `post-${index}` },
+        })),
+      },
+    },
+  });
+  const wrapper = ({ children }: { children: ReactNode }): ReactElement => (
+    <TestBootProvider
+      client={client}
+      auth={{ user: defaultUser }}
+      settings={{ insaneMode: false }}
+    >
+      <FeedContext.Provider
+        value={{ pageSize: 10, numCards: { eco: 4, roomy: 4, cozy: 4 } }}
+      >
+        {children}
+      </FeedContext.Provider>
+    </TestBootProvider>
+  );
+
+  const { result } = renderHook(
+    () =>
+      useFeed(['custom', 'wide-widget'], 10, { adStart: 1 }, 1, {
+        query: CUSTOM_FEED_QUERY,
+        variables: { feedId: 'wide-widget' },
+        settings: {
+          feedName: SharedFeedPage.Custom,
+          disableAds: true,
+          // The row's last column: no room for two cards.
+          widgets: [
+            { id: 'w', kind: 'streak', size: 'large', slot: 3 } as FeedWidget,
+          ],
+        },
+      }),
+    { wrapper },
+  );
+
+  await waitFor(() =>
+    expect(
+      result.current.items.some(({ type }) => type === FeedItemType.Widget),
+    ).toBe(true),
+  );
+  const index = result.current.items.findIndex(
+    ({ type }) => type === FeedItemType.Widget,
+  );
+  expect(index).toBe(4);
+  expect(result.current.placements[index]).toEqual({
+    colSpan: 2,
+    row: 1,
+    column: 0,
+  });
   client.clear();
 });
 

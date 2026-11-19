@@ -750,6 +750,23 @@ export default function useFeed<T>(
 
       const widgets = settings?.widgets ?? [];
       let nextWidget = 0;
+      // The column the next item starts in, so a wide widget knows whether
+      // two cards fit there.
+      let nextColumn = Math.min(
+        effectiveFirstSlotOffset,
+        Math.max(virtualizedNumCards - 1, 0),
+      );
+      // Items a wide widget has waited past for room, so one that can never
+      // fit (an ad every other cell) still lands, narrowed, within a row.
+      let wideWaitedFor = 0;
+      const canWiden =
+        hasWideWidgets &&
+        !isMobileViewport &&
+        !isListContext &&
+        virtualizedNumCards > 1;
+      const fitsWide = (): boolean =>
+        virtualizedNumCards - nextColumn >= 2 &&
+        computeAdClamp(visualCellsSoFar, cadence) >= 2;
 
       const pushAndAdvance = (item: FeedItem): void => {
         if (
@@ -774,6 +791,10 @@ export default function useFeed<T>(
           maxColSpan: computeAdClamp(visualCellsSoFar, cadence),
         });
         visualCellsSoFar += placement.colSpan;
+        nextColumn = placement.column + placement.colSpan;
+        if (nextColumn >= virtualizedNumCards) {
+          nextColumn = 0;
+        }
       };
 
       // The ad due at the current cell, if any, then every widget due by now,
@@ -792,6 +813,19 @@ export default function useFeed<T>(
           nextWidget < widgets.length &&
           (widgets[nextWidget].slot ?? 0) <= newItems.length
         ) {
+          // A wide widget with no room for two cards here (the row's last
+          // column, an ad's cell next) waits for the next spot that has it,
+          // rather than narrowing; the widgets after it keep their order.
+          if (
+            canWiden &&
+            widgets[nextWidget].size === FeedWidgetSize.Large &&
+            !fitsWide() &&
+            wideWaitedFor < virtualizedNumCards
+          ) {
+            wideWaitedFor += 1;
+            return;
+          }
+          wideWaitedFor = 0;
           pushAndAdvance({
             type: FeedItemType.Widget,
             widget: widgets[nextWidget],
