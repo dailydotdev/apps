@@ -971,13 +971,7 @@ const DoneStep = ({
   }
 
   if (isActive) {
-    return (
-      <SetupLoading
-        company={company}
-        plan={plan}
-        pageUrl={pageUrl}
-      />
-    );
+    return <SetupLoading company={company} plan={plan} pageUrl={pageUrl} />;
   }
 
   return (
@@ -1235,13 +1229,7 @@ export const StartupsCheckout = ({
   }
 
   if (step === StartupsCheckoutStep.Done && company) {
-    return (
-      <DoneStep
-        company={company}
-        plan={plan}
-        isReturning={isReturning}
-      />
-    );
+    return <DoneStep company={company} plan={plan} isReturning={isReturning} />;
   }
 
   return (

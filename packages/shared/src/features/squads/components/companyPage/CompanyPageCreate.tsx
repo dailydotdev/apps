@@ -182,7 +182,7 @@ export const CompanyPageCreate = (): ReactElement => {
 
   return (
     <CheckoutShell
-        current={CheckoutStage.Company}
+      current={CheckoutStage.Company}
       isTall
       aside={<StartupsNameStunt name={name} />}
     >
