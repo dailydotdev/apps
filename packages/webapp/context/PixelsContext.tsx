@@ -44,6 +44,40 @@ interface PixelsContextProviderProps {
   children: ReactElement;
 }
 
+const sendEvent: PixelsContextData['trackEvent'] = (
+  eventName,
+  params,
+  options,
+) => {
+  if (typeof pixels.gtag === 'function') {
+    pixels.gtag('event', eventName.replace(/ /g, '_').toLowerCase());
+  }
+  if (typeof pixels.fbq === 'function') {
+    pixels.fbq(
+      'track',
+      eventName,
+      params,
+      options?.eventId ? { eventID: options.eventId } : undefined,
+    );
+  }
+  if (options?.xEventId && typeof pixels.twq === 'function') {
+    const xParams: Record<string, unknown> = {};
+    if (typeof params?.value === 'number') {
+      xParams.value = params.value;
+    }
+    if (params?.currency) {
+      xParams.currency = params.currency;
+    }
+    if (options.eventId) {
+      xParams.conversion_id = options.eventId;
+    }
+    if (options.email) {
+      xParams.email_address = options.email;
+    }
+    pixels.twq('event', options.xEventId, xParams);
+  }
+};
+
 function WebPixelsProvider({
   children,
 }: PixelsContextProviderProps): ReactElement {
@@ -65,7 +99,7 @@ function WebPixelsProvider({
       }
 
       if (typeof pixels.fbq === 'function') {
-        const fbq = pixels.fbq;
+        const { fbq } = pixels;
         hashEmailForMeta(email).then((emailHash) => {
           pixels.updateFbUserData?.(id, emailHash);
           fbq('track', 'signup');
@@ -123,40 +157,6 @@ function WebPixelsProvider({
     </PixelsContext.Provider>
   );
 }
-
-const sendEvent: PixelsContextData['trackEvent'] = (
-  eventName,
-  params,
-  options,
-) => {
-  if (typeof pixels.gtag === 'function') {
-    pixels.gtag('event', eventName.replace(/ /g, '_').toLowerCase());
-  }
-  if (typeof pixels.fbq === 'function') {
-    pixels.fbq(
-      'track',
-      eventName,
-      params,
-      options?.eventId ? { eventID: options.eventId } : undefined,
-    );
-  }
-  if (options?.xEventId && typeof pixels.twq === 'function') {
-    const xParams: Record<string, unknown> = {};
-    if (typeof params?.value === 'number') {
-      xParams.value = params.value;
-    }
-    if (params?.currency) {
-      xParams.currency = params.currency;
-    }
-    if (options.eventId) {
-      xParams.conversion_id = options.eventId;
-    }
-    if (options.email) {
-      xParams.email_address = options.email;
-    }
-    pixels.twq('event', options.xEventId, xParams);
-  }
-};
 
 function IOSPixelsProvider({
   children,
