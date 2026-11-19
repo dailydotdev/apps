@@ -68,6 +68,7 @@ import { MailIcon } from '../icons';
 import { usePixelsContext } from '../../contexts/PixelsContext';
 import { useAuthData } from '../../contexts/AuthDataContext';
 import { getUserActions } from '../../graphql/actions';
+import { optOutGamification } from '../../graphql/settings';
 import { redirectToApp } from '../../features/onboarding/lib/utils';
 import {
   DATE_SINCE_ACTIONS_REQUIRED,
@@ -344,10 +345,19 @@ function AuthOptionsInner({
     });
 
   const onProfileSuccess = async (
-    options: { redirect?: string; setSignBack?: boolean } = {},
+    options: {
+      redirect?: string;
+      setSignBack?: boolean;
+      isPasswordReset?: boolean;
+    } = {},
   ) => {
     setIsRegistration(true);
-    const { redirect, setSignBack = true } = options;
+    const { redirect, setSignBack = true, isPasswordReset } = options;
+
+    if (isStartups && !isPasswordReset) {
+      await optOutGamification().catch(() => undefined);
+    }
+
     const { data } = await refetchBoot();
 
     const isLoggedUser = 'infoConfirmed' in data.user;
@@ -1177,7 +1187,9 @@ function AuthOptionsInner({
         </Tab>
         <Tab label={AuthDisplay.ChangePassword}>
           <ChangePasswordForm
-            onSubmit={() => onProfileSuccess({ redirect: '/' })}
+            onSubmit={() =>
+              onProfileSuccess({ redirect: '/', isPasswordReset: true })
+            }
             simplified={simplified}
           />
         </Tab>
