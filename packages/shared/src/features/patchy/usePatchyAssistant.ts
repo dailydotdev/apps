@@ -36,6 +36,7 @@ import { getPatchyConfig } from './patchyConfig';
 import type { PatchyEvent } from './patchyEvents';
 import { subscribePatchyEvents } from './patchyEvents';
 import { isAway } from './patchyTriggers';
+import { openPatchyPost } from './PatchyPostModal';
 
 export type PatchyOfferAnswer = 'accept' | 'dismiss' | 'never' | 'ignore';
 
@@ -366,7 +367,13 @@ export const usePatchyAssistant = ({
         isOverModal: false,
         notBefore: now.getTime(),
         expiresAt: now.getTime() + 10 * 60 * 1000,
-        onPrimary: () => goTo(post?.commentsPermalink ?? `${webappUrl}posts`),
+        onPrimary: () => {
+          if (!post) {
+            goTo(`${webappUrl}posts`);
+          } else if (!openPatchyPost(post)) {
+            goTo(post.commentsPermalink);
+          }
+        },
       });
     };
     check();

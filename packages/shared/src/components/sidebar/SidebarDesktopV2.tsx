@@ -103,6 +103,7 @@ import { PatchyRailIcon } from '../../features/patchy/PatchyRailIcon';
 import { PatchyOffer } from '../../features/patchy/PatchyOffer';
 import { usePatchyEnabled } from '../../features/patchy/usePatchyEnabled';
 import { usePatchyRail } from '../../features/patchy/usePatchyRail';
+import { PatchyPostModal } from '../../features/patchy/PatchyPostModal';
 import { getStreakGoalCopy } from '../../lib/streakGoal';
 import { LogEvent, TargetType } from '../../lib/log';
 import {
@@ -2367,6 +2368,7 @@ export const SidebarDesktopV2 = ({
             )}
           />
         )}
+        {isPatchyEnabled && <PatchyPostModal />}
         {patchy.assistant.offer && (
           <PatchyOffer
             key={patchy.assistant.offer.id}

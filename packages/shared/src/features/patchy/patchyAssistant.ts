@@ -204,10 +204,8 @@ export const writePatchyOfferMemory = (
   memory: PatchyOfferMemory,
 ): void => storageWrapper.setItem(memoryKey(userId), JSON.stringify(memory));
 
-export type PatchyQuickRead = Pick<
-  Post,
-  'id' | 'title' | 'readTime' | 'commentsPermalink' | 'image'
-> & { source?: Post['source']; numUpvotes?: number };
+// The whole cached post, so it can open in the post modal.
+export type PatchyQuickRead = Post;
 
 const isPostLike = (value: unknown): value is Post & { readTime: number } => {
   const post = value as Post;
@@ -297,26 +295,7 @@ export const getPatchyQuickReads = (
     .forEach((query) => visit(query.state.data, 0));
   return [...found.values()]
     .sort((a, b) => (b.numUpvotes ?? 0) - (a.numUpvotes ?? 0))
-    .slice(0, limit)
-    .map(
-      ({
-        id,
-        title,
-        readTime,
-        commentsPermalink,
-        image,
-        source,
-        numUpvotes,
-      }) => ({
-        id,
-        title,
-        readTime,
-        commentsPermalink,
-        image,
-        source,
-        numUpvotes,
-      }),
-    );
+    .slice(0, limit);
 };
 
 // The post you have open, for the Streak panel's menu to offer things about

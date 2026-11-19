@@ -38,6 +38,7 @@ import {
 } from './patchyAssistant';
 import type { PatchyContext } from './patchyContext';
 import { getPatchyContext } from './patchyContext';
+import { openPatchyPost } from './PatchyPostModal';
 
 const rowClassName =
   'flex w-full items-center gap-2 rounded-10 px-2 py-1.5 text-left typo-callout hover:bg-surface-hover focus-outline disabled:cursor-default disabled:text-text-tertiary disabled:hover:bg-transparent';
@@ -347,7 +348,18 @@ export const PatchyMenu = ({
                         <a
                           href={post.commentsPermalink}
                           className="flex items-center gap-2 rounded-8 px-2 py-1 hover:bg-surface-hover"
-                          onClick={onNavigate}
+                          onClick={(event) => {
+                            const isModified =
+                              event.button === 1 ||
+                              event.metaKey ||
+                              event.ctrlKey ||
+                              event.shiftKey ||
+                              event.altKey;
+                            if (!isModified && openPatchyPost(post)) {
+                              event.preventDefault();
+                            }
+                            onNavigate?.();
+                          }}
                         >
                           <span className="min-w-0 flex-1 truncate typo-footnote">
                             {post.title}
