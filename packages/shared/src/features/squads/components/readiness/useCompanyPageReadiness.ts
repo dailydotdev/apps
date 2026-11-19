@@ -30,6 +30,7 @@ import {
 } from '../../lib/plans';
 
 const skillActions: Record<PlanChecklistSkill, ActionType> = {
+  strategy: ActionType.TriedSkillStrategy,
   ideas: ActionType.TriedSkillIdeas,
   review: ActionType.TriedSkillReview,
   routine: ActionType.TriedSkillRoutine,
@@ -162,6 +163,7 @@ export const useCompanyPageReadiness = (
             agent:
               !!consents?.length ||
               !!tokens?.some(({ lastUsedAt }) => lastUsedAt),
+            strategy: isTried('strategy'),
             ideas: isTried('ideas'),
             review: isTried('review'),
             routine: isTried('routine'),

@@ -189,10 +189,13 @@ const connectLine = (handle: string): string =>
 
 /** What a founder can ask their agent, one skill at a time. */
 export const getStartupsSkillPrompt = (
-  skill: 'ideas' | 'review' | 'routine',
+  skill: 'strategy' | 'ideas' | 'review' | 'routine',
   handle: string,
 ): string => {
   const ask: Record<typeof skill, string> = {
+    strategy: `Plan what @${handle} publishes with ${skillRef(
+      'daily-dev-content-strategy',
+    )}: interview me about our readers and what our team knows, then save the strategy I agree to.`,
     ideas: `Suggest three posts for @${handle} with ${skillRef(
       'daily-dev-content-ideas',
     )}. Start from what I shipped or wrote recently, and say which numbers in our weekly intel back each one. I write the posts myself, so don't write them or a draft.`,

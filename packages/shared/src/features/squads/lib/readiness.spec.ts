@@ -97,6 +97,7 @@ describe('getPlanChecklistItems', () => {
     post: true,
     boost: false,
     agent: false,
+    strategy: false,
     ideas: true,
     review: false,
     routine: false,
@@ -117,6 +118,7 @@ describe('getPlanChecklistItems', () => {
       'post',
       'boost',
       'agent',
+      'strategy',
       'ideas',
       'review',
       'routine',
@@ -131,6 +133,7 @@ describe('getPlanChecklistItems', () => {
       'intel',
       'boost',
       'agent',
+      'strategy',
       'review',
       'routine',
     ]);

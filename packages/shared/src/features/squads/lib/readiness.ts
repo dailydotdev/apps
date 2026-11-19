@@ -285,6 +285,12 @@ export const getPlanChecklistItems = ({
     },
     hasSeat &&
       skill(
+        'strategy',
+        'Plan your content',
+        'Your agent asks about your readers and what your team knows, then saves a plan for what to post each week.',
+      ),
+    hasSeat &&
+      skill(
         'ideas',
         'Get post ideas',
         'Your agent reads your intel and recent work and suggests posts. You write them.',
@@ -334,7 +340,7 @@ export const getPlanChecklistItems = ({
   return items.filter((item): item is ReadinessItem => !!item);
 };
 
-export type PlanChecklistSkill = 'ideas' | 'review' | 'routine';
+export type PlanChecklistSkill = 'strategy' | 'ideas' | 'review' | 'routine';
 
 /** Rows that count towards the progress bar and decide when it's all done */
 export const isCountedItem = (item: ReadinessItem): boolean =>

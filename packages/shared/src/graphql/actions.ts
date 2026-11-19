@@ -84,6 +84,7 @@ export enum ActionType {
   // Closed the company page checklist: it stays away on every page
   DismissCompanyPageChecklist = 'dismiss_company_page_checklist',
   // Copied a skill's prompt from the company page checklist
+  TriedSkillStrategy = 'tried_skill_strategy',
   TriedSkillIdeas = 'tried_skill_ideas',
   TriedSkillReview = 'tried_skill_review',
   TriedSkillRoutine = 'tried_skill_routine',

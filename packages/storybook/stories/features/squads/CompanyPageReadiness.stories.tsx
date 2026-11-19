@@ -38,6 +38,7 @@ type PlanDone = Partial<
     | 'post'
     | 'boost'
     | 'agent'
+    | 'strategy'
     | 'ideas'
     | 'review'
     | 'routine',
@@ -87,6 +88,7 @@ const getItems = (
           post: false,
           boost: false,
           agent: false,
+          strategy: false,
           ideas: false,
           review: false,
           routine: false,
