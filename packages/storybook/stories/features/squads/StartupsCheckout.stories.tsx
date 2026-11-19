@@ -33,6 +33,8 @@ import {
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { oauthConsentsQueryOptions } from '@dailydotdev/shared/src/lib/oauthApps';
+import { personalAccessTokensQueryOptions } from '@dailydotdev/shared/src/hooks/api/usePersonalAccessTokens';
 import { SquadPageContextProvider } from '@dailydotdev/shared/src/features/squads/SquadPageContext';
 import { SquadManageLayout } from '@dailydotdev/shared/src/features/squads/components/manage/SquadManageLayout';
 import { SquadManagePlan } from '@dailydotdev/shared/src/features/squads/components/manage/SquadManagePlan';
@@ -339,6 +341,12 @@ const Seeded = ({
         intel,
       );
       pin(squadIntelQueryOptions({ user: who, sourceId }).queryKey, null);
+      pin(oauthConsentsQueryOptions().queryKey, []);
+      pin(personalAccessTokensQueryOptions().queryKey, []);
+      pin(generateQueryKey(RequestKey.Campaigns, who, { first: 20 }), {
+        pages: [{ edges: [], pageInfo: { hasNextPage: false } }],
+        pageParams: [''],
+      });
     });
   };
   useState(() => {

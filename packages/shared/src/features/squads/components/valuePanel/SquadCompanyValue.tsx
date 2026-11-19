@@ -51,7 +51,11 @@ export const SquadCompanyValue = (): ReactElement | null => {
     ...squadAnalyticsQueryOptions({ sourceId }),
     enabled: isShown,
   });
-  const readiness = useCompanyPageReadiness(squad, isShown);
+  const readiness = useCompanyPageReadiness(
+    squad,
+    isShown && !isSubscriptionPending,
+    subscription?.plan,
+  );
   const offer = getStartupsStarterOffer(useStartupsCashbackPromo());
   const logStartups = useLogStartups();
 
@@ -60,9 +64,9 @@ export const SquadCompanyValue = (): ReactElement | null => {
   }
 
   if (
+    isSubscriptionPending ||
     readiness.isPending ||
     isBoostPending ||
-    isSubscriptionPending ||
     isAnalyticsPending
   ) {
     return <SquadValuePanelPlaceholder />;
@@ -107,11 +111,16 @@ export const SquadCompanyValue = (): ReactElement | null => {
 
   return (
     <>
-      <SquadPageReadiness
-        squad={squad}
-        rows={readiness.rows}
-        done={readiness.done}
-      />
+      {!readiness.isDismissed && (
+        <SquadPageReadiness
+          squad={squad}
+          plan={subscription?.plan}
+          rows={readiness.rows}
+          done={readiness.done}
+          onTrySkill={readiness.onTrySkill}
+          onDismiss={readiness.onDismiss}
+        />
+      )}
       {boost ? <SquadFreeBoost /> : panel}
     </>
   );

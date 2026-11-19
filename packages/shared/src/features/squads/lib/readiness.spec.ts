@@ -1,6 +1,10 @@
 import type { Squad } from '../../../graphql/sources';
 import type { ProfileCompletion } from '../../../lib/user';
-import { getCompanyPageReadinessItems } from './readiness';
+import {
+  getCompanyPageReadinessItems,
+  getPlanChecklistItems,
+  isCountedItem,
+} from './readiness';
 import { getCompanyPageReadinessPrompt } from './companyPage';
 
 const profileCompletion: ProfileCompletion = {
@@ -83,5 +87,71 @@ describe('getCompanyPageReadinessPrompt', () => {
 
     expect(prompt).toContain("update @acme and don't create a new one");
     expect(prompt).toContain('- Website: our homepage.');
+  });
+});
+
+describe('getPlanChecklistItems', () => {
+  const done = {
+    cta: false,
+    intel: false,
+    post: true,
+    boost: false,
+    agent: false,
+    ideas: true,
+    review: false,
+    routine: false,
+  };
+
+  it('gives a seat holder intel, the agent and its skills, and counts only what they do', () => {
+    const items = getPlanChecklistItems({
+      squad,
+      hasSeat: true,
+      hasCta: false,
+      intelTopics: 5,
+      credits: '$245',
+      done,
+    });
+
+    expect(items.map(({ id }) => id)).toEqual([
+      'intel',
+      'post',
+      'boost',
+      'agent',
+      'ideas',
+      'review',
+      'routine',
+      'indexed',
+      'agent-views',
+      'reach-notes',
+    ]);
+    expect(items.filter(isCountedItem).map(({ id }) => id)).not.toContain(
+      'indexed',
+    );
+    expect(missing(items)).toEqual([
+      'intel',
+      'boost',
+      'agent',
+      'review',
+      'routine',
+    ]);
+    expect(items.find(({ id }) => id === 'boost')?.hint).toContain('$245');
+  });
+
+  it('leaves intel and the agent to seat holders and adds the CTA where the plan has it', () => {
+    const ids = getPlanChecklistItems({
+      squad,
+      hasSeat: false,
+      hasCta: true,
+      done,
+    }).map(({ id }) => id);
+
+    expect(ids).toEqual([
+      'cta',
+      'post',
+      'boost',
+      'indexed',
+      'agent-views',
+      'reach-notes',
+    ]);
   });
 });

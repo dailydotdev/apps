@@ -20,6 +20,7 @@ import {
   CharmEmptyStatePlacement,
 } from '../../../../components/charm/CharmEmptyState';
 import {
+  CoreIcon,
   MoveToIcon,
   OpenLinkIcon,
   PlusIcon,
@@ -55,7 +56,10 @@ import {
   getSquadPlanPriceId,
   getSquadPlanTitle,
   isSquadPlan,
+  formatBoostCredits,
   formatSquadPlanCredits,
+  getSquadPlanCreditsForRate,
+  SQUAD_PLAN_CASHBACK_PERCENTAGE,
   SQUAD_PLAN_LIST_PRICE_USD,
   SQUAD_PLAN_SEATS,
   SquadPlan,
@@ -75,10 +79,13 @@ import {
 } from '../SquadPlanCashback';
 import { useLogStartups } from '../../hooks/useLogStartups';
 import {
-  StartupsSetup,
   startupsSetupRowTitles,
   useStartupsSetupProgress,
 } from '../setup/StartupsSetup';
+import { useCompanyPageReadiness } from '../readiness/useCompanyPageReadiness';
+import { SquadPageReadiness } from '../readiness/SquadPageReadiness';
+import { isCountedItem } from '../../lib/readiness';
+import { PatchyConfetti } from '../../../../components/onboarding/FeedPatchy/PatchyConfetti';
 import {
   StartupsPagePreview,
   StartupsStageSurface,
@@ -93,7 +100,6 @@ import {
   CheckoutStage,
   CheckoutTitle,
 } from './CheckoutShell';
-import { startupsCrewCheerImage } from './StartupsCrewOnBase';
 import { StartupsNameStunt } from './StartupsNameStunt';
 import { StartupsSignupPanel } from './StartupsSignupPanel';
 
@@ -728,24 +734,59 @@ const StatusLine = ({
   </li>
 );
 
+/** The win moment's boost credits line, for the plan just bought */
+const PlanCreditsCard = ({
+  name,
+  credits,
+}: {
+  name: string;
+  credits: string;
+}): ReactElement => (
+  <div className="flex items-center gap-3 rounded-16 bg-surface-float p-4">
+    <CoreIcon size={IconSize.Large} className="shrink-0" />
+    <div className="flex min-w-0 flex-1 flex-col">
+      <span className="font-bold typo-callout">
+        {`${credits} in boost credits every month`}
+      </span>
+      <span className="text-pretty text-text-tertiary typo-footnote">
+        {`They go to ${name}'s page wallet. Use them to boost your posts.`}
+      </span>
+    </div>
+  </div>
+);
+
 const SetupStep = ({
   squad,
   company,
   plan,
   pageUrl,
+  isReturning,
 }: {
   squad: Squad;
   company: CompanyChoice;
   plan: SquadPlan;
   pageUrl: string;
+  isReturning?: boolean;
 }): ReactElement => {
+  const { user } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const [editing, setEditing] = useState<StartupsSetupRow>();
   const checklistScroll = useRef(0);
-  const { done, isComplete, product, cta } = useStartupsSetupProgress(
-    squad,
-    plan,
+  const { done, product, cta } = useStartupsSetupProgress(squad, plan);
+  const readiness = useCompanyPageReadiness(squad, true, plan);
+  const { data: subscription } = useQuery({
+    ...squadSubscriptionQueryOptions({ user, sourceId: company.id }),
+    enabled: false,
+  });
+  const credits = formatBoostCredits(
+    getSquadPlanCreditsForRate(
+      plan,
+      subscription?.cashbackPercentage || SQUAD_PLAN_CASHBACK_PERCENTAGE[plan],
+    ),
   );
+  const isComplete =
+    !readiness.isPending &&
+    (readiness.isDismissed || !readiness.rows.some(isCountedItem));
   // Shows what the founder's agent changes over MCP as it happens
   useStartupsSetupRefresh({ squad, enabled: !editing });
   const preview = (
@@ -779,6 +820,7 @@ const SetupStep = ({
       onClose={() => setEditing(undefined)}
     />
   );
+  const planTitle = squadPlanDetails[plan].title;
 
   return (
     <>
@@ -790,33 +832,45 @@ const SetupStep = ({
           isTall
           aside={isLaptop && (editor || preview)}
         >
-          <CheckoutTitle
-            title={
-              isComplete
-                ? `${company.name} is ready`
-                : `You're in. ${company.name} is on ${squadPlanDetails[plan].title}.`
-            }
-            description={
-              isComplete
-                ? 'Your page is set up. Your agent can post and boost from here on.'
-                : 'Your page is live. Set it up with your agent, or yourself.'
-            }
-          />
-          {isComplete && (
-            <img
-              src={startupsCrewCheerImage}
-              alt=""
-              className="h-24 self-start object-contain"
+          <div className="relative">
+            {!isReturning && (
+              <>
+                <PatchyConfetti origin={{ left: '20%', top: '30%' }} />
+                <PatchyConfetti origin={{ left: '70%', top: '10%' }} />
+              </>
+            )}
+            <CheckoutTitle
+              title={
+                isReturning
+                  ? `Get the most out of ${planTitle}`
+                  : `You did it. ${company.name} is on ${planTitle}.`
+              }
+              description="Your page now reaches developers in their feed, on Google and in AI answers."
             />
+          </div>
+          {!isReturning && (
+            <PlanCreditsCard name={company.name} credits={credits} />
           )}
-          {!isComplete && (
-            <StartupsSetup
+          {readiness.isPending && (
+            <CheckoutSkeleton className="h-96 rounded-16" />
+          )}
+          {!readiness.isPending && !isComplete && (
+            <SquadPageReadiness
               squad={squad}
               plan={plan}
+              rows={readiness.rows}
+              done={readiness.done}
+              onTrySkill={readiness.onTrySkill}
+              onDismiss={readiness.onDismiss}
               origin={Origin.StartupsCheckout}
-              onEditRow={(row) => {
+              onEditRow={(item) => {
+                if (!item.editor) {
+                  return false;
+                }
+
                 checklistScroll.current = globalThis.scrollY ?? 0;
-                setEditing(row);
+                setEditing(item.editor);
+                return true;
               }}
             />
           )}
@@ -965,6 +1019,7 @@ const DoneStep = ({
         company={company}
         plan={plan}
         pageUrl={pageUrl}
+        isReturning={isReturning}
       />
     );
   }
