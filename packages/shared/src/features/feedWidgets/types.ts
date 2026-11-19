@@ -59,7 +59,19 @@ export type FeedWidget<K extends FeedWidgetKind = FeedWidgetKind> = {
   config?: FeedWidgetConfig<K>;
   /** Shape version of `config` (daily-api#4446); absent means 1. */
   v?: number;
+  /**
+   * The feed card it takes the place of: its index among the feed's items,
+   * ads included. A widget without one was placed on the old header rail and
+   * is not shown in the feed.
+   */
+  slot?: number;
 };
+
+/**
+ * The size a widget renders at in the feed: one card, the rail's full height
+ * by one column. Every kind supports it.
+ */
+export const FEED_WIDGET_IN_FEED_SIZE = FeedWidgetSize.Tall;
 
 /** How long a removal on the rail can be undone from its toast. */
 export const FEED_WIDGET_UNDO_MS = 6000;

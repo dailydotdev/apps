@@ -83,6 +83,20 @@ import { PlaceholderFeed } from './cards/placeholder/PlaceholderFeed';
 import { useLaptopLayout } from '../hooks/layout/useLaptopLayout';
 import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
 import { useQuestDashboard } from '../hooks/useQuestDashboard';
+import type { FeedWidget } from '../features/feedWidgets/types';
+import { FeedItemType } from './cards/common/common';
+
+export type FeedGridWidgets = {
+  /** Sorted by slot; see `useFeed`'s `widgets`. */
+  widgets: FeedWidget[];
+  /** A placed widget, in its card's cell. */
+  renderWidget: (widget: FeedWidget, index: number) => ReactNode;
+  /**
+   * While the reader is placing widgets: what covers a card whose slot can
+   * take one. Ads and placeholders never get it.
+   */
+  renderSlot?: (index: number) => ReactNode;
+};
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -117,6 +131,8 @@ export interface FeedProps<T>
   deferWideCards?: boolean;
   /** Posts a surface above the feed already shows, kept out of the grid. */
   excludedPostIds?: string[];
+  /** Widgets the reader placed in the grid, each in the slot of a card. */
+  feedWidgets?: FeedGridWidgets;
   staticAd?: { ad: Ad; index: number };
   disableAdRefresh?: boolean;
   allowFetchMore?: boolean;
@@ -190,6 +206,7 @@ export default function Feed<T>({
   skipFirstAd,
   deferWideCards,
   excludedPostIds,
+  feedWidgets,
   staticAd,
   disableAdRefresh = false,
   allowFetchMore,
@@ -350,6 +367,7 @@ export default function Feed<T>({
         skipFirstAd,
         deferWideCards,
         excludedPostIds,
+        widgets: feedWidgets?.widgets,
         staticAd,
         adPostLength: isSquadFeed ? 2 : undefined,
         feedName,
@@ -782,6 +800,13 @@ export default function Feed<T>({
             {hasFirstSlotCard && eligibleFirstSlotCard}
             {items.map((item, index) => {
               const placement = itemPlacements[index];
+              if (item.type === FeedItemType.Widget) {
+                return (
+                  <React.Fragment key={getFeedItemKey(item, index)}>
+                    {feedWidgets?.renderWidget(item.widget, index)}
+                  </React.Fragment>
+                );
+              }
               const { colSpan } = placement;
               const isWidened = colSpan > 1;
               const wideColSpan =
@@ -836,17 +861,33 @@ export default function Feed<T>({
                       }}
                     />
                   )}
-                  {isWidened ? (
-                    <div
-                      className="flex h-full w-full [&>*]:h-full [&>*]:w-full"
-                      style={{ gridColumn: `span ${colSpan}` }}
-                      data-testid="feedItemColSpanWrapper"
-                    >
-                      {itemNode}
-                    </div>
-                  ) : (
-                    itemNode
-                  )}
+                  {(() => {
+                    // Ads keep their cell: only a card's slot takes a widget.
+                    const slotNode =
+                      item.type === FeedItemType.Post ||
+                      item.type === FeedItemType.Highlight
+                        ? feedWidgets?.renderSlot?.(index)
+                        : null;
+                    if (isWidened || slotNode) {
+                      return (
+                        <div
+                          className="relative flex h-full w-full [&>*]:h-full [&>*]:w-full"
+                          style={
+                            isWidened
+                              ? { gridColumn: `span ${colSpan}` }
+                              : undefined
+                          }
+                          data-testid={
+                            isWidened ? 'feedItemColSpanWrapper' : undefined
+                          }
+                        >
+                          {itemNode}
+                          {slotNode}
+                        </div>
+                      );
+                    }
+                    return itemNode;
+                  })()}
                 </FeedCardContext.Provider>
               );
             })}

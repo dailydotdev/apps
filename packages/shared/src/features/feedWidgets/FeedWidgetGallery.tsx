@@ -11,13 +11,8 @@ import { IconSize } from '../../components/Icon';
 import { LockIcon } from '../../components/icons/Lock';
 import { TipIcon } from '../../components/icons/Tip';
 import { VIcon } from '../../components/icons/V';
-import type { FeedWidget } from './types';
-import {
-  FeedWidgetKind,
-  FeedWidgetSize,
-  feedWidgetSizeLabel,
-  feedWidgetSizeSpan,
-} from './types';
+import type { FeedWidget, FeedWidgetSize } from './types';
+import { FeedWidgetKind, feedWidgetSizeSpan } from './types';
 import type { FeedWidgetDefinition, FeedWidgetTone } from './registry';
 import { FeedWidgetCategory, FeedWidgetIcon } from './registry';
 import { availableFeedWidgets, feedWidgetSizes } from './components';
@@ -171,7 +166,7 @@ const RowStatus = ({
         size={IconSize.Size16}
         className="shrink-0 text-text-tertiary"
         role="img"
-        aria-label="On your rail"
+        aria-label="In your feed"
       />
     );
   }
@@ -187,12 +182,10 @@ type AddState = {
 /** The one action for the selection, and the line that explains it. */
 const addStateFor = ({
   item,
-  size,
   isFull,
   onAdd,
 }: {
   item?: GalleryItem;
-  size: FeedWidgetSize;
   isFull: boolean;
   onAdd: () => void;
 }): AddState | null => {
@@ -203,7 +196,7 @@ const addStateFor = ({
 
   if (isAdded) {
     return {
-      message: 'Already on your rail.',
+      message: 'Already in your feed.',
       action: (
         <Button
           variant={ButtonVariant.Float}
@@ -237,13 +230,11 @@ const addStateFor = ({
     };
   }
 
-  let message = `Adds a ${feedWidgetSizeLabel[
-    size
-  ].toLowerCase()} widget at the end of your rail.`;
+  let message = 'Takes the place of the card you picked.';
   if (isFull) {
-    message = 'Your rail is full. Remove a widget to make room for this one.';
+    message = 'Your feed has all the widgets it can hold. Remove one first.';
   } else if (isOnRail) {
-    message = 'On your rail. Each one you add is set up on its own.';
+    message = 'In your feed. Each one you add is set up on its own.';
   }
 
   return {
@@ -347,6 +338,7 @@ export const FeedWidgetGallery = ({
   isFull,
   initialKind,
   initialSize,
+  fixedSize,
   onAdd,
   tips,
   onRequestClose,
@@ -358,6 +350,8 @@ export const FeedWidgetGallery = ({
   initialKind?: FeedWidgetKind;
   /** The size each widget starts at when it supports it. */
   initialSize?: FeedWidgetSize;
+  /** The one size this surface shows widgets at, with no size to pick. */
+  fixedSize?: FeedWidgetSize;
   onAdd: (kind: FeedWidgetKind, size: FeedWidgetSize) => void;
   /** Set where the tips can show over our slot. */
   tips?: FeedWidgetGalleryTips;
@@ -401,6 +395,9 @@ export const FeedWidgetGallery = ({
   const sizesFor = (kind: FeedWidgetKind) => orderSizes(feedWidgetSizes(kind));
   const sizeFor = (kind: FeedWidgetKind): FeedWidgetSize => {
     const kindSizes = feedWidgetSizes(kind);
+    if (fixedSize && kindSizes.includes(fixedSize)) {
+      return fixedSize;
+    }
     const picked = sizes[kind];
     if (picked && kindSizes.includes(picked)) {
       return picked;
@@ -415,7 +412,6 @@ export const FeedWidgetGallery = ({
   const selectedSize = selectedKind ? sizeFor(selectedKind) : undefined;
   const addState = addStateFor({
     item: selectedItem,
-    size: selectedSize ?? FeedWidgetSize.Small,
     isFull,
     onAdd: () => selectedKind && onAdd(selectedKind, sizeFor(selectedKind)),
   });
@@ -533,6 +529,7 @@ export const FeedWidgetGallery = ({
           </div>
           {selectedKind &&
             selectedSize &&
+            !fixedSize &&
             sizesFor(selectedKind).length > 1 && (
               <div className="flex justify-center pb-4">
                 <SizePicker

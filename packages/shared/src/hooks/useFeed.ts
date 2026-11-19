@@ -30,6 +30,7 @@ import {
 } from '../lib/query';
 import type { AllFeedPages } from '../lib/query';
 import { FeedItemType } from '../components/cards/common/common';
+import type { FeedWidget } from '../features/feedWidgets/types';
 import { PHONE_FEED_PLACEHOLDER_ROWS } from '../components/cards/placeholder/PlaceholderFeed';
 import type { ApiErrorResult } from '../graphql/common';
 import {
@@ -104,6 +105,11 @@ export interface PostItem extends FeedItemBase<FeedItemType.Post> {
   index: number;
 }
 
+/** A widget the reader placed in the feed, in the slot of a card. */
+export interface WidgetItem extends FeedItemBase<FeedItemType.Widget> {
+  widget: FeedWidget;
+}
+
 export interface HighlightItem extends FeedItemBase<FeedItemType.Highlight> {
   highlights: PostHighlight[];
   feedMeta: string | null;
@@ -144,6 +150,7 @@ export const HERO_ELIGIBLE_FEEDS = new Set<AllFeedPages>([
 export type FeedItem =
   | PostItem
   | HighlightItem
+  | WidgetItem
   | AdItem
   | AdSquadItem
   | PlaceholderItem;
@@ -235,6 +242,12 @@ type UseFeedSettingParams = {
   feedName?: string;
   /** Posts a surface above the feed already shows, kept out of the grid. */
   excludedPostIds?: string[];
+  /**
+   * Widgets the reader placed in the feed, sorted by slot. Each takes the
+   * index of its slot among the items, ahead of the card there; an ad keeps
+   * its own cell, so a widget due where an ad lands follows the ad.
+   */
+  widgets?: FeedWidget[];
   staticAd?: { ad: Ad; index: number };
   /** Set on search feeds so every fetch can be logged as a search execution. */
   searchId?: string;
@@ -729,6 +742,9 @@ export default function useFeed<T>(
       const staticAd = settings?.staticAd;
       let staticAdInserted = !staticAd;
 
+      const widgets = settings?.widgets ?? [];
+      let nextWidget = 0;
+
       const pushAndAdvance = (item: FeedItem): void => {
         if (
           staticAd &&
@@ -754,6 +770,32 @@ export default function useFeed<T>(
         visualCellsSoFar += placement.colSpan;
       };
 
+      // The ad due at the current cell, if any, then every widget due by now,
+      // each followed by the ad its cell may bring. A widget so never takes
+      // an ad's cell, and the ads keep their cadence: a widget counts as a
+      // card against it.
+      const pushDueAdAndWidgets = (): void => {
+        const pushDueAd = (): void => {
+          const adItem = getAd({ index: visualCellsSoFar });
+          if (adItem) {
+            pushAndAdvance(adItem);
+          }
+        };
+        pushDueAd();
+        while (
+          nextWidget < widgets.length &&
+          (widgets[nextWidget].slot ?? 0) <= newItems.length
+        ) {
+          pushAndAdvance({
+            type: FeedItemType.Widget,
+            widget: widgets[nextWidget],
+            dataUpdatedAt: feedQuery.dataUpdatedAt,
+          });
+          nextWidget += 1;
+          pushDueAd();
+        }
+      };
+
       feedQuery.data.pages.forEach(({ page }, pageIndex) => {
         page.edges.forEach(({ node }, index: number) => {
           // Bail before the ad slot is claimed, otherwise dropping the post
@@ -771,11 +813,7 @@ export default function useFeed<T>(
             return;
           }
 
-          const adItem = getAd({ index: visualCellsSoFar });
-
-          if (adItem) {
-            pushAndAdvance(adItem);
-          }
+          pushDueAdAndWidgets();
 
           if (node.itemType === 'highlight') {
             if (!node.highlights.length || settings?.disableHighlightCards) {
@@ -837,6 +875,7 @@ export default function useFeed<T>(
     getAd,
     settings?.disableHighlightCards,
     settings?.excludedPostIds,
+    settings?.widgets,
     settings?.staticAd,
     heroCardsConfig,
     virtualizedNumCards,

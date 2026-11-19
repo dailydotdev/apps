@@ -92,4 +92,5 @@ export enum FeedItemType {
   Placeholder = 'placeholder',
   UserAcquisition = 'userAcquisition',
   MarketingCta = 'marketingCta',
+  Widget = 'widget',
 }

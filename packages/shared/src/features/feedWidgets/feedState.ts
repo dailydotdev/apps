@@ -1,6 +1,4 @@
-import { useCallback, useContext, useMemo, useRef } from 'react';
-import type { QueryKey } from '@tanstack/react-query';
-import { useQueryClient } from '@tanstack/react-query';
+import { useCallback, useMemo, useRef } from 'react';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
@@ -8,33 +6,20 @@ import {
   featureFeedWidgets,
   featureFeedWidgetsDefault,
 } from '../../lib/featureManagement';
-import FeedContext from '../../contexts/FeedContext';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { useIsPhoneNow } from '../../hooks/useViewSize';
-import { useIsPlusAdFree } from '../../hooks/useIsPlusAdFree';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import type { FeedWidget } from './types';
-import {
-  FEED_WIDGET_AD_COLUMN,
-  FEED_WIDGET_UNDO_MS,
-  FeedWidgetKind,
-} from './types';
+import { FEED_WIDGET_UNDO_MS, FeedWidgetKind } from './types';
+import { slottedFeedWidgets } from './slots';
 import {
   customFeedWidgets,
   readStoredFeedRail,
   resolveDefaultFeedRail,
 } from './storedRail';
-import type { Ad } from '../../graphql/posts';
-import { useAdQuery } from '../monetization/useAdQuery';
-import { useCachedTokenRecovery } from '../../hooks/useCachedTokenRecovery';
-import { AdPlacement } from '../../lib/ads';
-import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useFeedHeroData } from '../../components/feeds/hero/useFeedHeroData';
 import { useLogContext } from '../../contexts/LogContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import type { SettingsFlags } from '../../graphql/settings';
-import type { AdRotationTarget } from '../monetization/refresh/adRefresh';
-import { AdRefreshSlot } from '../monetization/refresh/adRefresh';
 import { SharedFeedPage } from '../../components/utilities/common';
 
 /**
@@ -42,145 +27,43 @@ import { SharedFeedPage } from '../../components/utilities/common';
  * takes back a slot the moment its widget is removed.
  */
 export type FeedWidgetFeedState = {
-  /** Posts the rail's cards show, kept out of the grid. */
+  /** The widgets placed in the feed, by slot, for the grid to seat. */
+  widgets: FeedWidget[];
+  /** Posts the widgets show, kept out of the grid. */
   excludedPostIds: string[];
   /** The Happening Now rows are on the rail, so the grid drops its card. */
   hasHappeningNow: boolean;
   /** A featured card leads the page, so wide cards stay out of row one. */
   hasTopStory: boolean;
-  /**
-   * The pinned slot is on screen and not known to be empty, so the grid
-   * stands its first ad down.
-   */
-  isAdVisible: boolean;
 };
 
 export const emptyFeedWidgetFeedState: FeedWidgetFeedState = {
+  widgets: [],
   excludedPostIds: [],
   hasHappeningNow: false,
   hasTopStory: false,
-  isAdVisible: false,
 };
 
 /**
- * Whether the rail renders on this feed: For you and Popular, behind the flag,
- * unless the reader hid it. Tablet and up only: phones keep the plain feed
- * and are never enrolled in the flag's experiment. The page around the rail
- * reads it too, so the feed's own tabs step aside where the rail brings its
- * own.
+ * Whether this feed takes widgets: For you and Popular, on a laptop's grid,
+ * behind the flag, unless the reader hid them.
  */
 export const useFeedWidgetRailState = (
   feedName?: string,
 ): { isFlagOn: boolean; isEnabled: boolean } => {
   const { flags } = useSettingsContext();
-  // Read at once, not after mount, so a phone never evaluates the flag nor
-  // paints the rail for a frame.
-  const isPhone = useIsPhoneNow();
+  // Below laptop the feed is a list, with no card cells to put a widget in,
+  // so phones and tablets are never enrolled in the flag.
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const isMainFeedPage =
     feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
   const { value: isFlagOn } = useConditionalFeature({
     feature: featureFeedWidgets,
-    shouldEvaluate: isMainFeedPage && !isPhone,
+    shouldEvaluate: isMainFeedPage && isLaptop,
   });
-  const isOn = !isPhone && isMainFeedPage && !!isFlagOn;
+  const isOn = isLaptop && isMainFeedPage && !!isFlagOn;
 
   return { isFlagOn: isOn, isEnabled: isOn && !flags?.feedWidgetsOptOut };
-};
-
-/**
- * Whether our slot sits on the rail: only where it lands on the first screen.
- * Not for ad-free Plus, and not with fewer columns than its own, where it
- * would sit past the rail's edge. Everywhere else the feed keeps its own
- * first ad. The rail and the feed both read this, so they always agree.
- */
-export const useFeedWidgetAdSlot = (): { showAd: boolean; columns: number } => {
-  const { numCards } = useContext(FeedContext);
-  const isPlusAdFree = useIsPlusAdFree();
-  // `.eco` regardless of the reader's spaciness: the count the grid renders
-  // with — see `FeedContainer`.
-  const columns = numCards.eco;
-
-  return {
-    showAd: !isPlusAdFree && columns > FEED_WIDGET_AD_COLUMN,
-    columns,
-  };
-};
-
-/**
- * The rail ad's query key, before `useAdQuery` suffixes the consent: a prefix
- * that matches every variant of it. One per feed, as the feed's own ads are.
- */
-export const getFeedWidgetAdQueryKey = (
-  user: Parameters<typeof generateQueryKey>[1],
-  feedName: string,
-): QueryKey => generateQueryKey(RequestKey.Ads, user, 'feed-widgets', feedName);
-
-/**
- * The creative for the rail's pinned slot. One per visit to the feed: it lasts
- * while the feed is on screen, a post opened over it included, and goes with
- * the feed, so the next visit gets a fresh one.
- * Fetching it logs nothing: the slot logs its impression once it is on screen.
- * The rail and the feed share its query, so both know when it came back empty.
- */
-export const useFeedWidgetAd = ({
-  enabled,
-  feedName,
-}: {
-  enabled: boolean;
-  feedName: string;
-}): { ad?: Ad; isEnabled: boolean; isNoFill: boolean } => {
-  const { user, isTokenValid } = useAuthContext();
-  const isPlusAdFree = useIsPlusAdFree();
-  const queryKey = getFeedWidgetAdQueryKey(user, feedName);
-  const isEnabled = enabled && isTokenValid && !isPlusAdFree;
-  const { data: ad, isFetched } = useAdQuery({
-    placement: AdPlacement.Feed,
-    queryKey,
-    enabled: isEnabled,
-    gcTime: 0,
-    // It rotates like the feed's ads, so on the v2 engine it asks for the
-    // refresh policy the feed's ad requests get.
-    isRefreshable: true,
-  });
-  // The ad query suffixes the consent to this key, so it matches as a prefix.
-  useCachedTokenRecovery({ queryKey, enabled: isEnabled });
-
-  return {
-    ad: ad ?? undefined,
-    isEnabled,
-    // Answered with nothing (no fill, or an error once retries ran out).
-    isNoFill: isEnabled && isFetched && !ad,
-  };
-};
-
-/**
- * Lets the rail's pinned ad rotate the way the feed's own ads do: on the same
- * timer and rules, a fresh creative replaces the one in the slot's query, and
- * the slot logs its impression. Rotation's own timer keeps a key apart from
- * the slot's query, so writing the new creative never touches it.
- */
-export const useFeedWidgetAdRotation = (feedName: string): AdRotationTarget => {
-  const { user } = useAuthContext();
-  const queryClient = useQueryClient();
-
-  return useMemo(
-    () => ({
-      queryKey: generateQueryKey(
-        RequestKey.Ads,
-        user,
-        'feed-widgets-rotation',
-        feedName,
-      ),
-      slot: AdRefreshSlot.FeedWidget,
-      replace: (ad: Ad) =>
-        // A prefix: the ad query suffixes the consent and login state.
-        queryClient.setQueriesData<Ad | null>(
-          { queryKey: getFeedWidgetAdQueryKey(user, feedName) },
-          ad,
-        ),
-    }),
-    [feedName, queryClient, user],
-  );
 };
 
 /**
@@ -206,7 +89,7 @@ const useResolvedFeedWidgets = ({
   });
 
   return useMemo(
-    () => custom ?? resolveDefaultFeedRail(defaultFlag).widgets,
+    () => slottedFeedWidgets(custom ?? resolveDefaultFeedRail(defaultFlag).widgets),
     [custom, defaultFlag],
   );
 };
@@ -238,26 +121,18 @@ export const useFeedWidgetShortcuts = (
 };
 
 /**
- * What the grid must not repeat, worked out on the feed's side from what is
- * known before the grid paints: the widgets the reader has (their settings,
- * or the default), whether our slot is placed, and the top story's lead, held
- * for the session and painted from the last load's payload. Nothing waits on
- * the rail's own code, so the grid never moves when the rail lands. An empty
- * ad hands the first ad back to the grid once its query answers.
+ * The widgets the grid seats and what it must not repeat, worked out on the
+ * feed's side from what is known before the grid paints: the widgets the
+ * reader placed (their settings, or the default) and the top story's lead,
+ * held for the session and painted from the last load's payload. Nothing
+ * waits on the widgets' own code, so the grid never moves when it lands.
  */
 export const useFeedWidgetFeedState = ({
   enabled,
-  feedName,
 }: {
   enabled: boolean;
-  feedName: string;
 }): FeedWidgetFeedState => {
   const widgets = useResolvedFeedWidgets({ enabled });
-  const { showAd } = useFeedWidgetAdSlot();
-  const { isNoFill } = useFeedWidgetAd({
-    enabled: enabled && showAd,
-    feedName,
-  });
   const hasTopStory = widgets.some(
     ({ kind }) => kind === FeedWidgetKind.TopStory,
   );
@@ -272,13 +147,13 @@ export const useFeedWidgetFeedState = ({
     () =>
       enabled
         ? {
+            widgets,
             excludedPostIds: hasTopStory ? shownLeadIds : [],
             hasHappeningNow,
             hasTopStory,
-            isAdVisible: showAd && !isNoFill,
           }
         : emptyFeedWidgetFeedState,
-    [enabled, hasTopStory, hasHappeningNow, shownLeadIds, showAd, isNoFill],
+    [enabled, widgets, hasTopStory, hasHappeningNow, shownLeadIds],
   );
 };
 

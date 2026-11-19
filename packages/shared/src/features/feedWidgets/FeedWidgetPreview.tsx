@@ -13,7 +13,7 @@ import {
 import { isFeedWidgetBare } from './registry';
 import { getFeedWidgetComponent } from './components';
 import { FeedWidgetSurface, useInertRef } from './FeedWidgetFrame';
-import { RAIL_CELL_HEIGHT, RAIL_HEIGHT } from './FeedWidgetRailFrame';
+import { RAIL_CELL_HEIGHT, RAIL_HEIGHT } from './sizing';
 import { FeedWidgetTip } from './widgets/FeedWidgetTip';
 import type { FeedWidgetTip as FeedWidgetTipItem } from './tips';
 

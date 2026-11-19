@@ -38,14 +38,6 @@ jest.mock('./Feed', () => ({
   },
 }));
 
-jest.mock('../features/feedWidgets/FeedWidgetRail', () => ({
-  FeedWidgetRail: () => null,
-}));
-
-jest.mock('../features/feedWidgets/HomeFeedTabs', () => ({
-  HomeFeedTabs: () => <nav data-testid="home-feed-tabs" />,
-}));
-
 jest.mock('./feeds/hero/FeedHero', () => ({
   FeedHero: () => null,
 }));
@@ -105,18 +97,6 @@ beforeEach(() => {
   );
 });
 
-it('keeps the reading reminder under the widget rail', async () => {
-  mockDesktop();
-  mockFlags({ widgets: true });
-
-  renderLayout();
-
-  await screen.findByTestId('feed');
-  expect(lastFeedProps()).toEqual(
-    expect.objectContaining({ disableTopHero: false, keepTopHero: true }),
-  );
-});
-
 it('lets the feed hero take the reading reminder’s place', async () => {
   mockFlags({ hero: true });
 
@@ -124,24 +104,28 @@ it('lets the feed hero take the reading reminder’s place', async () => {
 
   await screen.findByTestId('feed');
   expect(lastFeedProps()).toEqual(
-    expect.objectContaining({ disableTopHero: true, keepTopHero: false }),
+    expect.objectContaining({ disableTopHero: true }),
   );
 });
 
-it('moves the feed’s tabs and actions under the widget rail', async () => {
+it('keeps the feed as it was, and hands the grid its widgets', async () => {
   mockDesktop();
   mockFlags({ widgets: true });
 
   renderLayout();
 
   await screen.findByTestId('feed');
-  const { actionButtons, topContent } = lastFeedProps();
-  expect(actionButtons).toBeFalsy();
-  render(<>{topContent}</>);
-  expect(screen.getByTestId('home-feed-tabs')).toBeInTheDocument();
+  const { actionButtons, topContent, feedWidgets, skipFirstAd } =
+    lastFeedProps();
+  expect(actionButtons).toBeTruthy();
+  expect(topContent).toBeUndefined();
+  expect(skipFirstAd).toBe(false);
+  expect(feedWidgets).toEqual(
+    expect.objectContaining({ widgets: [], renderSlot: undefined }),
+  );
 });
 
-it('keeps a phone on the plain feed with the rail’s flag on', async () => {
+it('keeps a phone on the plain feed with the widgets’ flag on', async () => {
   // No width breakpoint matches: a phone.
   mockMatchMedia(() => false);
   mockFlags({ widgets: true });
@@ -149,23 +133,19 @@ it('keeps a phone on the plain feed with the rail’s flag on', async () => {
   renderLayout();
 
   await screen.findByTestId('feed');
-  expect(lastFeedProps()).toEqual(
-    expect.objectContaining({ keepTopHero: false, skipFirstAd: false }),
-  );
-  expect(lastFeedProps().topContent).toBeUndefined();
-  expect(screen.queryByTestId('home-feed-tabs')).not.toBeInTheDocument();
+  expect(lastFeedProps().feedWidgets).toBeUndefined();
 });
 
-it('keeps the feed’s actions and top slot without the rail', async () => {
+it('takes no widgets without the flag', async () => {
   mockFlags({});
 
   renderLayout();
 
   await screen.findByTestId('feed');
-  const { actionButtons, topContent } = lastFeedProps();
+  const { actionButtons, topContent, feedWidgets } = lastFeedProps();
   expect(actionButtons).toBeTruthy();
   expect(topContent).toBeUndefined();
-  expect(screen.queryByTestId('home-feed-tabs')).not.toBeInTheDocument();
+  expect(feedWidgets).toBeUndefined();
 });
 
 describe('Debug mode', () => {

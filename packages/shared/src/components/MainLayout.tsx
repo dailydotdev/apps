@@ -361,7 +361,6 @@ function MainLayoutComponent({
 
       {!sidebarOwnsHeader && (
         <MainLayoutHeader
-          activePage={activePage}
           hasBanner={isBannerAvailable}
           sidebarRendered={sidebarRendered}
           additionalButtons={additionalButtons}

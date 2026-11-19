@@ -17,9 +17,11 @@ import { getFeedWidgetDefinition } from './registry';
 import { feedWidgetSizes } from './components';
 import { isNewerFeedWidgetConfig } from './config';
 
+type MoveTarget = 'start' | 'left' | 'right' | 'end';
+
 export type FeedWidgetMenuAction =
   | { type: 'size'; size: FeedWidgetSize }
-  | { type: 'move'; to: 'start' | 'left' | 'right' | 'end' }
+  | { type: 'move'; to: MoveTarget }
   | { type: 'configure' }
   | { type: 'remove' };
 
@@ -32,6 +34,7 @@ export const FeedWidgetMenu = ({
   sizes = feedWidgetSizes(widget.kind),
   canMoveLeft,
   canMoveRight,
+  moves = ['start', 'left', 'right', 'end'],
   onAction,
 }: {
   widget: FeedWidget;
@@ -39,11 +42,39 @@ export const FeedWidgetMenu = ({
   sizes?: FeedWidgetSize[];
   canMoveLeft: boolean;
   canMoveRight: boolean;
+  /** The moves this surface offers, all of them by default. */
+  moves?: MoveTarget[];
   onAction: (action: FeedWidgetMenuAction) => void;
 }): ReactElement => {
   const { name, configureLabel } = getFeedWidgetDefinition(widget.kind);
   // A config a newer build wrote is neither used nor edited here.
   const canConfigure = !!configureLabel && !isNewerFeedWidgetConfig(widget);
+  const moveOptions: (MenuItemProps & { to: MoveTarget })[] = [
+    {
+      to: 'start',
+      label: 'Move to start',
+      disabled: !canMoveLeft,
+      action: () => onAction({ type: 'move', to: 'start' }),
+    },
+    {
+      to: 'left',
+      label: 'Move left',
+      disabled: !canMoveLeft,
+      action: () => onAction({ type: 'move', to: 'left' }),
+    },
+    {
+      to: 'right',
+      label: 'Move right',
+      disabled: !canMoveRight,
+      action: () => onAction({ type: 'move', to: 'right' }),
+    },
+    {
+      to: 'end',
+      label: 'Move to end',
+      disabled: !canMoveRight,
+      action: () => onAction({ type: 'move', to: 'end' }),
+    },
+  ];
   const options: MenuItemProps[] = [
     ...(canConfigure
       ? [
@@ -59,26 +90,9 @@ export const FeedWidgetMenu = ({
       disabled: size === widget.size,
       action: () => onAction({ type: 'size', size }),
     })),
-    {
-      label: 'Move to start',
-      disabled: !canMoveLeft,
-      action: () => onAction({ type: 'move', to: 'start' }),
-    },
-    {
-      label: 'Move left',
-      disabled: !canMoveLeft,
-      action: () => onAction({ type: 'move', to: 'left' }),
-    },
-    {
-      label: 'Move right',
-      disabled: !canMoveRight,
-      action: () => onAction({ type: 'move', to: 'right' }),
-    },
-    {
-      label: 'Move to end',
-      disabled: !canMoveRight,
-      action: () => onAction({ type: 'move', to: 'end' }),
-    },
+    ...moveOptions
+      .filter(({ to }) => moves.includes(to))
+      .map(({ to, ...option }) => option),
     {
       label: 'Remove widget',
       action: () => onAction({ type: 'remove' }),

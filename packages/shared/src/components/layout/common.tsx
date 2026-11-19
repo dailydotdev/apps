@@ -30,6 +30,7 @@ import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
 import { IntroQuestButton } from '../filters/IntroQuestButton';
 import { LuckyButton } from '../filters/LuckyButton';
 import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
+import { FeedWidgetsCustomizeButton } from '../../features/feedWidgets/InFeedWidgetsContext';
 import { FeedExplainSwitch } from '../../features/feedExplain/components/FeedExplainSwitch';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
@@ -109,6 +110,9 @@ export const SearchControlHeader = ({
   const dropdownIconSize = isLaptopLayout ? IconSize.XSmall : IconSize.Medium;
   // With chips the actions collapse to icons so the strip fits on one row.
   const hasV2Chips = isLaptopLayout && !!chips;
+  const compactActionClassName = hasV2Chips
+    ? compactIconButtonClassName
+    : compactTextButtonClassName;
   const primaryActions = [
     feedName === SharedFeedPage.MyFeed && (
       <FeedExplainSwitch
@@ -198,6 +202,12 @@ export const SearchControlHeader = ({
         key="toggle-clickbait-shield"
       />
     ),
+    <FeedWidgetsCustomizeButton
+      key="feed-widgets"
+      size={isLaptopLayout ? ButtonSize.Small : ButtonSize.Medium}
+      iconOnly={hasV2Chips}
+      className={isLaptopLayout ? compactActionClassName : undefined}
+    />,
     hasFeedActions && !isLaptopLayout && (
       <IntroQuestButton key="intro-quests" />
     ),

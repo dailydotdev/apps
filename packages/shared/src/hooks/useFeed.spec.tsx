@@ -26,6 +26,7 @@ import * as ads from '../lib/ads';
 import defaultAd from '../../__tests__/fixture/ad';
 import * as tcf from '../lib/tcf';
 import * as consentHook from '../features/monetization/useTcfConsent';
+import type { FeedWidget } from '../features/feedWidgets/types';
 
 jest.mock('../lib/boot', () => ({
   ...jest.requireActual('../lib/boot'),
@@ -423,6 +424,61 @@ it('should leave a post the grid already shows when its exclusion comes late', a
   expect(
     result.current.items.filter(({ type }) => type === FeedItemType.Post),
   ).toHaveLength(defaultFeedPage.edges.length);
+});
+
+it('seats placed widgets on their slots, never in an ad’s cell', async () => {
+  const client = new QueryClient(defaultQueryClientTestingConfig);
+  jest.spyOn(ads, 'fetchAdByPlacement').mockResolvedValue(defaultAd);
+  mockCustomFeedResponse({
+    data: {
+      page: {
+        ...defaultFeedPage,
+        edges: Array.from({ length: 6 }, (_, index) => ({
+          ...defaultFeedPage.edges[0],
+          node: { ...defaultFeedPage.edges[0].node, id: `post-${index}` },
+        })),
+      },
+    },
+  });
+  const wrapper = ({ children }: { children: ReactNode }): ReactElement => (
+    <TestBootProvider
+      client={client}
+      auth={{ user: defaultUser, isGdprCovered: false, geo: { region: 'US' } }}
+    >
+      {children}
+    </TestBootProvider>
+  );
+  const widget = (id: string, slot: number) =>
+    ({ id, kind: 'streak', size: 'tall', slot }) as FeedWidget;
+
+  const { result } = renderHook(
+    () =>
+      useFeed(['custom', 'widgets'], 10, { adStart: 2, adRepeat: 20 }, 1, {
+        query: CUSTOM_FEED_QUERY,
+        variables: { feedId: 'widgets' },
+        settings: {
+          feedName: SharedFeedPage.Custom,
+          // The second is due where the ad lands, so it follows the ad.
+          widgets: [widget('first', 0), widget('second', 2)],
+        },
+      }),
+    { wrapper },
+  );
+
+  await waitFor(() =>
+    expect(
+      result.current.items.some(({ type }) => type === FeedItemType.Ad),
+    ).toBe(true),
+  );
+  expect(
+    result.current.items.slice(0, 5).map((item) => {
+      if (item.type === FeedItemType.Widget) {
+        return item.widget.id;
+      }
+      return item.type === FeedItemType.Post ? item.post.id : item.type;
+    }),
+  ).toEqual(['first', 'post-0', FeedItemType.Ad, 'second', 'post-1']);
+  client.clear();
 });
 
 it('should keep the ad seed for a feed until it loads afresh', () => {
