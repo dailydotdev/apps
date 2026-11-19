@@ -3,14 +3,14 @@ import type {
   PointerEvent as ReactPointerEvent,
   ReactElement,
 } from 'react';
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
 
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { combinedClicks } from '@dailydotdev/shared/src/lib/click';
 
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { getShortcutIconUrl } from '@dailydotdev/shared/src/features/shortcuts/lib/getShortcutIconUrl';
 import { DRAG_ACTIVATION_DISTANCE_SQ_PX } from '@dailydotdev/shared/src/features/shortcuts/hooks/useDragClickGuard';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -61,6 +61,7 @@ export function ShortcutLinksItem({
   isDraggable?: boolean;
 }): ReactElement {
   const cleanUrl = url.replace(/http(s)?(:)?(\/\/)?|(\/\/)?(www\.)?/g, '');
+  const [iconFailed, setIconFailed] = useState(false);
 
   const {
     attributes,
@@ -123,12 +124,19 @@ export function ShortcutLinksItem({
       )}
     >
       <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary">
-        <img
-          src={`${apiUrl}/icon?url=${encodeURIComponent(url)}&size=${iconSize}`}
-          alt={url}
-          draggable={false}
-          className="size-6"
-        />
+        {iconFailed ? (
+          <span aria-hidden className="font-bold uppercase typo-callout">
+            {cleanUrl.charAt(0)}
+          </span>
+        ) : (
+          <img
+            src={getShortcutIconUrl(url, iconSize)}
+            alt={url}
+            draggable={false}
+            onError={() => setIconFailed(true)}
+            className="size-6"
+          />
+        )}
       </div>
       <span className="max-w-12 truncate text-text-tertiary typo-caption2">
         {cleanUrl}
