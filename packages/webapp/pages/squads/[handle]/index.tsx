@@ -42,6 +42,7 @@ import { SquadHome } from '@dailydotdev/shared/src/features/squads/components/Sq
 import { useTrackNewCompanyPage } from '@dailydotdev/shared/src/features/squads/hooks/useTrackNewCompanyPage';
 import { SquadPageSkeleton } from '@dailydotdev/shared/src/features/squads/components/SquadPageSkeleton';
 import { hasSquadFeature } from '@dailydotdev/shared/src/features/squads/lib/features';
+import { isCompanyPage } from '@dailydotdev/shared/src/features/squads/lib/companyPage';
 import {
   getLayout,
   mainFeedLayoutProps,
@@ -377,7 +378,7 @@ export async function getServerSideProps({
 
     const seoTitleSource = referringUser
       ? `${referringUser.name} invited you to ${squad.name}`
-      : `${squad.name} Squad`;
+      : `${squad.name}${isCompanyPage(squad) ? '' : ' Squad'}`;
     const squadSeoTitles = getPageSeoTitles(seoTitleSource);
 
     const seo: NextSeoProps = {
