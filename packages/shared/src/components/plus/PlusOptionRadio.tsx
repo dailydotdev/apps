@@ -27,15 +27,20 @@ export function PlusOptionRadio({
   shouldShowMonthlyPrice,
   shouldShowDuration,
   isOrganization,
-}: PlusOptionRadioProps): ReactElement {
+}: PlusOptionRadioProps): ReactElement | null {
   if (!option) {
     return null;
   }
 
-  const { metadata, priceId, price } = option;
+  const { metadata, priceId, price, originalPrice } = option;
   const finalPrice = shouldShowMonthlyPrice
     ? price.monthly?.formatted || price.formatted
     : price.formatted;
+  const regularPrice =
+    originalPrice &&
+    (shouldShowMonthlyPrice
+      ? originalPrice.monthly?.formatted || originalPrice.formatted
+      : originalPrice.formatted);
 
   return (
     <RadioItem
@@ -44,7 +49,7 @@ export function PlusOptionRadio({
       id={`${metadata.title}-${priceId}`}
       value={priceId}
       checked={checked}
-      onChange={() => onChange(priceId)}
+      onChange={() => onChange?.(priceId)}
       className={{
         content: classNames(
           'min-h-12 rounded-10 !p-2',
@@ -71,6 +76,16 @@ export function PlusOptionRadio({
         )}
       </div>
       <div className="ml-auto mr-1 flex items-center gap-1">
+        {regularPrice && regularPrice !== finalPrice && (
+          <Typography
+            tag={TypographyTag.Del}
+            type={TypographyType.Callout}
+            color={TypographyColor.Quaternary}
+            className="mr-1"
+          >
+            {regularPrice}
+          </Typography>
+        )}
         <Typography
           tag={TypographyTag.Span}
           type={TypographyType.Body}
