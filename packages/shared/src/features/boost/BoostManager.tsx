@@ -594,7 +594,6 @@ const BoostsList = (): ReactElement => {
       description="Learn how boosting works and launch your first campaign to get discovered by more developers."
       action={{ label: 'Learn more about boosting', href: boostDocsLink }}
       placement={CharmEmptyStatePlacement.Page}
-      className="pb-10"
     />
   );
 
