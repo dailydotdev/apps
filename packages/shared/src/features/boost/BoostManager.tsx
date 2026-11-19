@@ -430,8 +430,14 @@ const BoostsTable = ({
             <td className="py-3 pl-3 pr-4 tablet:pr-6">
               <span className="flex justify-end gap-1">
                 {campaign.state === CampaignState.Active ? (
-                  !campaign.flags?.origin && (
-                    <Tooltip content="Stops the boost now and refunds the Cores it has not spent">
+                  campaign.flags?.origin !== 'bundle' && (
+                    <Tooltip
+                      content={
+                        campaign.flags?.origin === 'free_boost'
+                          ? "Stops your free boost now. You won't get another one"
+                          : 'Stops the boost now and refunds the Cores it has not spent'
+                      }
+                    >
                       <Button
                         variant={ButtonVariant.Float}
                         size={ButtonSize.XSmall}

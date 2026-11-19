@@ -102,7 +102,7 @@ it('should not prefill a stopped boost, whose days ended early', async () => {
   });
 });
 
-it('should not offer to stop a free boost, which runs until it ends', async () => {
+it('should not offer to stop a bundle boost, which its package manages', async () => {
   renderManager([
     createCampaign({
       id: 'c1',
@@ -113,7 +113,7 @@ it('should not offer to stop a free boost, which runs until it ends', async () =
       id: 'c2',
       state: CampaignState.Active,
       endedAt: new Date(Date.now() + 86400000),
-      flags: { budget: 10000, spend: 0, origin: 'free_boost' },
+      flags: { budget: 10000, spend: 0, origin: 'bundle' },
     }),
   ]);
 

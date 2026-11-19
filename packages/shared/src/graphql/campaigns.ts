@@ -94,7 +94,7 @@ export type CampaignFlags = Partial<{
   clicks: number;
   users: number;
   newMembers: number;
-  // Free company page and bundle boosts can't be stopped
+  // Bundle boosts can't be stopped; a stopped free boost isn't refunded
   origin: 'bundle' | 'free_boost' | null;
 }>;
 
