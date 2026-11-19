@@ -85,6 +85,10 @@ export const trackCompanyPageFirstPost = (
   trackEvent(
     'StartTrial',
     { content_name: 'startups first post', content_category: 'free' },
-    { eventId: `startups-first-post-${squad.id}`, email },
+    {
+      eventId: `startups-first-post-${squad.id}`,
+      xEventId: STARTUPS_X_EVENTS.firstPost,
+      email,
+    },
   );
 };
