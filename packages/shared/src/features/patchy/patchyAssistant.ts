@@ -187,7 +187,9 @@ export type PatchyQuickRead = Pick<
   'id' | 'title' | 'readTime' | 'commentsPermalink' | 'image'
 > & { source?: Post['source']; numUpvotes?: number };
 
-const isPostLike = (value: unknown): value is Post => {
+const isPostLike = (
+  value: unknown,
+): value is Post & { readTime: number } => {
   const post = value as Post;
   return (
     !!post &&
