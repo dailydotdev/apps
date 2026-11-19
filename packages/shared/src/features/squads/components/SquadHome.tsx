@@ -25,6 +25,7 @@ import { getSquadSpotlightSource } from '../lib/spotlight';
 import { SquadPageLayout } from './SquadPageLayout';
 import { SquadProfileHeader } from './header/SquadProfileHeader';
 import { SquadComposer } from './feed/SquadComposer';
+import { SquadCompanyValue } from './valuePanel/SquadCompanyValue';
 import { SquadPinnedPosts } from './feed/SquadPinnedPosts';
 import { SquadEmptyFeed, SquadSearchEmpty } from './feed/SquadEmptyFeed';
 import { SquadSearchHeader } from './feed/SquadSearchHeader';
@@ -185,6 +186,7 @@ export const SquadHome = ({
       jobs={hasJobsTab ? <SquadJobsTab /> : undefined}
     >
       <div className="flex flex-col gap-4 border-border-subtlest-tertiary pt-4 tablet:px-6 tablet:pt-6 laptop:border-t">
+        <SquadCompanyValue />
         <SquadComposer />
         <SquadPinnedPosts />
       </div>

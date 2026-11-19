@@ -653,28 +653,26 @@ export const CheckoutSignUpPhone: Story = {
   globals: phone,
 };
 
-export const CheckoutNewCompany: Story = {
-  render: () => <StartupsCheckout initialPlan={SquadPlan.Starter} />,
-};
-
-export const CheckoutNewCompanyPhone: Story = {
-  ...CheckoutNewCompany,
-  globals: phone,
-};
-
-/** Step 1 for an admin of squads: pick one, or create a new page. */
+/** Step 1: pick the company page to upgrade. Community squads aren't listed. */
 export const CheckoutPickSquad: Story = {
   beforeEach: () => {
     getBootMock.mockReturnValue({
       ...defaultBootData,
       squads: [
-        acme,
+        { ...acme, flags: { ...acme.flags, company: true } },
         {
           ...acme,
           id: 'acme-labs',
           name: 'Acme Labs',
           handle: 'acme_labs',
           image: '/startups-onboarding/acme-labs-logo.svg',
+          flags: { ...acme.flags, company: true },
+        },
+        {
+          ...acme,
+          id: 'react-friends',
+          name: 'React friends',
+          handle: 'reactfriends',
         },
       ],
       accessToken: { token: '1', expiresIn: '1' },
@@ -684,9 +682,14 @@ export const CheckoutPickSquad: Story = {
   },
   render: () => (
     <Seeded squad={acme} subscription={noPlan}>
-      <StartupsCheckout initialSquadId={acme.id} />
+      <StartupsCheckout />
     </Seeded>
   ),
+};
+
+export const CheckoutPickSquadPhone: Story = {
+  ...CheckoutPickSquad,
+  globals: phone,
 };
 
 /** Step 2: Starter or Team, with the plan from the landing page selected. */
