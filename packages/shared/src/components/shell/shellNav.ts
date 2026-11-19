@@ -27,7 +27,6 @@ const exploreViews = [
   '/tags',
   '/sources',
   '/users',
-  '/agent',
 ];
 const exploreSortPrefixes = [
   '/posts/upvoted',

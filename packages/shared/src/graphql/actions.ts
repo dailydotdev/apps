@@ -73,8 +73,6 @@ export enum ActionType {
   ClosedShortcutsBanner = 'closed_shortcuts_banner',
   DismissShortcutsWidgetCue = 'dismiss_shortcuts_widget_cue',
   SidebarTourSeen = 'sidebar_tour_seen',
-  InterestAgentIntroSeen = 'interest_agent_intro_seen',
-  InterestAgentSidebarClick = 'interest_agent_sidebar_click',
   MarketplaceSidebarClick = 'marketplace_sidebar_click',
   DismissPluginShareTooltip = 'dismiss_plugin_share_tooltip',
   ReferralLadderGiftShake = 'referral_ladder_gift_shake',

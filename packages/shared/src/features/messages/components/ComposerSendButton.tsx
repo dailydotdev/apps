@@ -8,7 +8,7 @@ import {
 import { SendAirplaneIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 
-export const AgentSendButton = ({
+export const ComposerSendButton = ({
   label,
   className,
   disabled,

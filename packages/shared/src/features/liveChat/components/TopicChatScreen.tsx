@@ -13,7 +13,7 @@ import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import Link from '../../../components/utilities/Link';
 import { GoBackButton } from '../../../components/post/GoBackHeaderMobile';
 import { ShellPage } from '../../../components/shell/ShellPageContext';
-import { useAgentShellHeight } from '../../interests/shell';
+import { useChatShellHeight } from '../../../hooks/layout/useChatShellHeight';
 import { ChatRoomStatus } from '../graphql';
 import { chatRoomQueryOptions } from '../queries';
 import { isDmAvailable } from '../../messages/transport';
@@ -53,7 +53,7 @@ export const TopicChatScreen = ({
 }): ReactElement => {
   const { user, isAuthReady, showLogin } = useAuthContext();
   // The bottom bar leaves on this route; the composer takes its place.
-  const shellHeight = useAgentShellHeight(false, false);
+  const shellHeight = useChatShellHeight(false, false);
   const {
     data: room,
     isPending,

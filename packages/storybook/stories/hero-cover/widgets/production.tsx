@@ -39,8 +39,6 @@ import { toneClass } from '../data';
 import type { WidgetKind, WidgetSize } from './catalog';
 import { widgetCatalog } from './catalog';
 import { briefing, SourceChip } from './briefing';
-import { toMonitorItems } from '@dailydotdev/shared/src/features/interests/monitorItems';
-import { recentMockAgents } from '@dailydotdev/shared/src/features/interests/mock';
 import { Scroll } from './scroll';
 import type { CampaignStrip } from './adSlot';
 import { campaignStrips } from './adSlot';
@@ -764,25 +762,52 @@ const Happening = ({ size }: { size: WidgetSize }): ReactElement => {
 };
 
 /*
- * The reader's own daily.dev agents, from the agents product's own fixtures
- * and state model: each row is the agent's latest report, not a headline.
+ * The reader's own daily.dev agents: each row is the agent's latest report,
+ * not a headline.
  */
-const agentReports: Record<string, string> = {
-  demo: 'I went through 128 posts and kept six. Zig 0.15 makes the self-hosted backend the default, so debug builds no longer need LLVM.',
-  'demo-2':
-    'Kept 4 of 340. Two agent harnesses shipped background tasks this week, and one benchmark finally measures fixes, not demos.',
-  'demo-3': 'Scanning 92 posts from the last hour…',
-  'demo-4':
-    'Nothing worth your time today: 214 posts, none of them war stories from production.',
-  'demo-6': 'Could not reach 2 of your sources. I will retry on the next run.',
-};
+const minutesAgo = (minutes: number): string =>
+  new Date(Date.now() - minutes * 60 * 1000).toISOString();
 
-const ownAgents = toMonitorItems(recentMockAgents())
-  .filter((item) => item.id in agentReports)
-  .map((item) => ({
-    ...item,
-    report: agentReports[item.id],
-  }));
+const ownAgents = [
+  {
+    id: 'demo',
+    name: 'Zig Project Radar',
+    state: 'watching',
+    at: minutesAgo(7),
+    report:
+      'I went through 128 posts and kept six. Zig 0.15 makes the self-hosted backend the default, so debug builds no longer need LLVM.',
+  },
+  {
+    id: 'demo-2',
+    name: 'AI Agents Shipping Watch',
+    state: 'watching',
+    at: minutesAgo(30),
+    report:
+      'Kept 4 of 340. Two agent harnesses shipped background tasks this week, and one benchmark finally measures fixes, not demos.',
+  },
+  {
+    id: 'demo-3',
+    name: 'WebGPU Browser Support',
+    state: 'running',
+    at: minutesAgo(53),
+    report: 'Scanning 92 posts from the last hour…',
+  },
+  {
+    id: 'demo-4',
+    name: 'Rust Production War Stories',
+    state: 'watching',
+    at: minutesAgo(76),
+    report:
+      'Nothing worth your time today: 214 posts, none of them war stories from production.',
+  },
+  {
+    id: 'demo-6',
+    name: 'Kubernetes Cost Horrors',
+    state: 'failed',
+    at: minutesAgo(122),
+    report: 'Could not reach 2 of your sources. I will retry on the next run.',
+  },
+];
 
 const OwnAgentRow = ({
   agent,
