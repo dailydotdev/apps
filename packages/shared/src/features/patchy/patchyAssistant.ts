@@ -8,7 +8,7 @@ import { getPatchyDayKey } from './patchyDay';
 // he is allowed to, what he remembers), so it is testable on its own.
 export const patchyOfferKinds = [
   'follow_tag',
-  'tldr',
+  'long_read',
   'finished',
   'streak_risk',
   'welcome_back',
@@ -21,7 +21,7 @@ export const PATCHY_OFFERS_PER_DAY = 3;
 export const PATCHY_DISMISSALS_TO_MUTE = 2;
 // Opening this many posts with one tag in a day makes it a suggestion.
 export const PATCHY_TAG_OPENS_TO_SUGGEST = 3;
-// Posts at least this long get the TL;DR offer.
+// Posts at least this long get the save-for-later offer.
 export const PATCHY_LONG_READ_MINUTES = 15;
 // Short enough to keep a streak alive in a minute or two.
 export const PATCHY_QUICK_READ_MINUTES = 5;

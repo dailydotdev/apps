@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
 import { HotIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
@@ -51,7 +51,8 @@ interface PatchyRailIconProps {
 }
 
 // A face that is not uploaded yet falls back to his neutral one instead of
-// an empty circle.
+// an empty circle. The image can fail before hydration attaches onError, so
+// it is also checked once it mounts.
 const FaceImage = ({
   face,
   motion,
@@ -66,9 +67,23 @@ const FaceImage = ({
     {},
   );
   const shown = failed[face] ? 'neutral' : face;
+  const onFail = useCallback(() => {
+    if (shown !== 'neutral') {
+      setFailed((current) => ({ ...current, [shown]: true }));
+    }
+  }, [shown]);
+  const ref = useCallback(
+    (image: HTMLImageElement | null) => {
+      if (image?.complete && image.naturalWidth === 0) {
+        onFail();
+      }
+    },
+    [onFail],
+  );
   return (
     <img
       key={motion ? `${motionKey}-${motion}` : 'still'}
+      ref={ref}
       src={faceImage[shown]}
       alt=""
       className={classNames(
@@ -76,10 +91,7 @@ const FaceImage = ({
         motion && motionClass[motion],
       )}
       draggable={false}
-      onError={() =>
-        shown !== 'neutral' &&
-        setFailed((current) => ({ ...current, [shown]: true }))
-      }
+      onError={onFail}
     />
   );
 };

@@ -125,6 +125,51 @@ describe('usePatchyAssistant', () => {
     );
   });
 
+  it('offers to save a long read first, then the tag', () => {
+    const { result } = render();
+    open('p1', ['go']);
+    open('p2', ['go']);
+    window.history.pushState({}, '', '/posts/long');
+    open('long', ['go'], { readTime: 28 });
+    act(() => {
+      jest.advanceTimersByTime(5000);
+    });
+    expect(result.current.offer).toMatchObject({
+      kind: 'long_read',
+      text: '28 minutes? Want me to save it for later?',
+    });
+    act(() => {
+      result.current.onAnswer('accept', 'primary');
+    });
+    expect(mockBookmark).toHaveBeenCalledWith(
+      expect.objectContaining({ origin: 'patchy' }),
+    );
+    // The tag waits until you leave the post.
+    act(() => {
+      jest.advanceTimersByTime(3000);
+    });
+    expect(result.current.offer).toBeNull();
+    window.history.pushState({}, '', '/');
+    act(() => {
+      jest.advanceTimersByTime(2000);
+    });
+    expect(result.current.offer).toMatchObject({ kind: 'follow_tag' });
+  });
+
+  it('suggests following at most one tag a day', () => {
+    const { result } = render();
+    ['a', 'b', 'c', 'd'].forEach((tag) => {
+      [1, 2, 3].forEach((n) => open(`${tag}${n}`, [tag]));
+      act(() => {
+        jest.advanceTimersByTime(1000);
+      });
+      act(() => {
+        result.current.onAnswer('accept');
+      });
+    });
+    expect(readPatchyOfferMemory('u1').shownToday).toBe(1);
+  });
+
   it('reads along: knows a post is open', () => {
     const { result } = render();
     open('long', ['k8s'], { readTime: 47, summary: 'Pods get IPs.' });

@@ -44,14 +44,11 @@ export interface PatchyOffer {
   text: string;
   primary: string;
   secondary: string;
-  // Whether the second button is a real action (else it is "not now").
-  isSecondaryAction?: boolean;
   post?: PatchyQuickRead;
   // Shown over the post modal (reading-along offers) instead of waiting for
   // it to close.
   isOverModal: boolean;
   onPrimary: () => void;
-  onSecondary?: () => void;
 }
 
 type PendingOffer = Omit<PatchyOffer, 'id'> & {
@@ -68,6 +65,7 @@ export const PATCHY_OFFER_TIMEOUT_MS = 12000;
 const MIN_READ_MS = 20000;
 const FINISHED_AT = 0.9;
 const STREAK_CHECK_MS = 60 * 1000;
+const MAX_WAITING = 2;
 
 const welcomeOfferKey = (userId: string) => `patchy_welcome_offer:${userId}`;
 
@@ -120,7 +118,7 @@ export const usePatchyAssistant = ({
   const [offer, setOffer] = useState<PatchyOffer | null>(null);
   const [isReading, setIsReading] = useState(false);
   const [pendingVersion, setPendingVersion] = useState(0);
-  const pendingRef = useRef<PendingOffer | null>(null);
+  const pendingRef = useRef<PendingOffer[]>([]);
   const sessionRef = useRef<ReadingSession | null>(null);
   const lastScrollAtRef = useRef(0);
   const offerIdRef = useRef(0);
@@ -135,18 +133,20 @@ export const usePatchyAssistant = ({
     [user],
   );
 
-  // Queues a suggestion when he's allowed to make it. One waits at a time;
-  // a reading-along one (time-sensitive) replaces a waiting general one.
+  // Queues a suggestion when he's allowed to make it. Two can wait; the
+  // reading-along ones (time-sensitive) go first.
   const queue = useCallback(
     (pending: PendingOffer) => {
-      if (!user || !canPatchyOffer(memory(), pending.kind)) {
+      if (
+        !user ||
+        !canPatchyOffer(memory(), pending.kind) ||
+        pendingRef.current.some(({ kind }) => kind === pending.kind)
+      ) {
         return;
       }
-      const { current } = pendingRef;
-      if (current && !(pending.isOverModal && !current.isOverModal)) {
-        return;
-      }
-      pendingRef.current = pending;
+      pendingRef.current = [...pendingRef.current, pending]
+        .sort((a, b) => Number(b.isOverModal) - Number(a.isOverModal))
+        .slice(0, MAX_WAITING);
       setPendingVersion((version) => version + 1);
     },
     [user, memory],
@@ -211,34 +211,20 @@ export const usePatchyAssistant = ({
         });
       }
 
-      if ((post.readTime ?? 0) >= PATCHY_LONG_READ_MINUTES && post.summary) {
+      if (
+        (post.readTime ?? 0) >= PATCHY_LONG_READ_MINUTES &&
+        !post.bookmarked
+      ) {
         queue({
-          kind: 'tldr',
-          text: `${post.readTime} minutes? Want the TL;DR first?`,
-          primary: 'Show TL;DR',
-          secondary: post.bookmarked ? 'Not now' : 'Save for later',
-          isSecondaryAction: !post.bookmarked,
+          kind: 'long_read',
+          text: `${post.readTime} minutes? Want me to save it for later?`,
+          primary: 'Save for later',
+          secondary: 'I’ve got time',
           isOverModal: true,
-          notBefore: now + 2500,
-          expiresAt: now + 20000,
-          onPrimary: () => {
-            const tldr = document.querySelector<HTMLElement>(
-              '[data-testid="tldr-container"]',
-            );
-            tldr?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            tldr?.animate?.(
-              [
-                { boxShadow: '0 0 0 0 rgba(206, 61, 243, 0)' },
-                { boxShadow: '0 0 0 4px rgba(206, 61, 243, 0.55)' },
-                { boxShadow: '0 0 0 0 rgba(206, 61, 243, 0)' },
-              ],
-              { duration: 1800, delay: 300 },
-            );
-          },
-          onSecondary: post.bookmarked
-            ? undefined
-            : () =>
-                toggleBookmark({ post: post as Post, origin: Origin.Patchy }),
+          notBefore: now + 4000,
+          expiresAt: now + 30000,
+          onPrimary: () =>
+            toggleBookmark({ post: post as Post, origin: Origin.Patchy }),
         });
       }
     });
@@ -398,44 +384,44 @@ export const usePatchyAssistant = ({
     });
   }, [isActive, user, isStreakLoading, lastViewAt, hasReadToday, queue, goTo]);
 
-  // Shows the waiting suggestion at a calm moment.
+  // Shows a waiting suggestion at a calm moment.
   useEffect(() => {
-    if (!isActive || offer || !pendingRef.current) {
+    if (!isActive || offer || !pendingRef.current.length) {
       return undefined;
     }
     const id = setInterval(() => {
-      const pending = pendingRef.current;
       const now = Date.now();
-      if (!pending || now > pending.expiresAt) {
-        pendingRef.current = null;
+      pendingRef.current = pendingRef.current.filter(
+        ({ kind, expiresAt }) =>
+          now <= expiresAt && canPatchyOffer(memory(), kind),
+      );
+      if (!pendingRef.current.length) {
         clearInterval(id);
-        return;
-      }
-      const isPostModal = !!document.querySelector('.post-modal-overlay');
-      const isBlocked =
-        now < pending.notBefore ||
-        document.hidden ||
-        isPatchyPeeking() ||
-        now - lastScrollAtRef.current < SCROLL_IDLE_MS ||
-        (pending.isOverModal ? !isPostModal && isModalOpen() : isModalOpen());
-      if (isBlocked) {
         return;
       }
       if (
-        pending.kind === 'tldr' &&
-        !document.querySelector('[data-testid="tldr-container"]')
+        document.hidden ||
+        isPatchyPeeking() ||
+        now - lastScrollAtRef.current < SCROLL_IDLE_MS
       ) {
-        pendingRef.current = null;
-        clearInterval(id);
         return;
       }
-      if (!canPatchyOffer(memory(), pending.kind)) {
-        pendingRef.current = null;
-        clearInterval(id);
+      const isPostModal = !!document.querySelector('.post-modal-overlay');
+      const isOtherModal = isModalOpen() && !isPostModal;
+      const pending = pendingRef.current.find(
+        ({ notBefore, isOverModal }) =>
+          now >= notBefore &&
+          !isOtherModal &&
+          // General suggestions wait until you're done reading.
+          (isOverModal || (!isPostModal && !sessionRef.current)),
+      );
+      if (!pending) {
         return;
       }
       clearInterval(id);
-      pendingRef.current = null;
+      pendingRef.current = pendingRef.current.filter(
+        (item) => item !== pending,
+      );
       remember(withPatchyOfferShown(memory(), pending.kind, pending.tag));
       offerIdRef.current += 1;
       const { notBefore, expiresAt, tag, ...shown } = pending;
@@ -457,8 +443,6 @@ export const usePatchyAssistant = ({
       }
       if (button === 'primary') {
         offer.onPrimary();
-      } else if (button === 'secondary') {
-        offer.onSecondary?.();
       }
       remember(withPatchyOfferAnswer(memory(), offer.kind, answer));
       if (answer !== 'ignore') {

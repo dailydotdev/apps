@@ -1,7 +1,6 @@
 import type { CSSProperties, ReactElement } from 'react';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import classNames from 'classnames';
 import {
   Button,
   ButtonSize,
@@ -259,15 +258,8 @@ export const PatchyOffer = ({
               type="button"
               size={ButtonSize.Small}
               variant={ButtonVariant.Tertiary}
-              className={classNames(
-                !offer.isSecondaryAction && 'text-text-tertiary',
-              )}
-              onClick={() =>
-                leave(
-                  offer.isSecondaryAction ? 'accept' : 'dismiss',
-                  'secondary',
-                )
-              }
+              className="text-text-tertiary"
+              onClick={() => leave('dismiss', 'secondary')}
             >
               {offer.secondary}
             </Button>

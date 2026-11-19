@@ -39,7 +39,7 @@ const Row = ({
   <span
     className={classNames('flex min-w-0 flex-1 items-center gap-2', className)}
   >
-    <span className="flex size-6 shrink-0 items-center justify-center rounded-8 bg-surface-float text-text-secondary">
+    <span className="flex size-5 shrink-0 items-center justify-center text-text-tertiary">
       {icon}
     </span>
     <span className="min-w-0 flex-1 truncate">{children}</span>
@@ -80,9 +80,7 @@ export const PatchyMenu = ({
           setPicks(getPatchyQuickReads(client, { limit: 3 }));
         }}
       >
-        <Row icon={<SparkleIcon size={IconSize.Size16} />}>
-          What should I read?
-        </Row>
+        <Row icon={<SparkleIcon size={IconSize.Size16} />}>What to read?</Row>
         <ArrowIcon
           size={IconSize.Size16}
           className={classNames(

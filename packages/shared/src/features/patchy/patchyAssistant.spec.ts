@@ -16,9 +16,9 @@ const tomorrow = new Date(2026, 10, 20, 9);
 describe('patchy offer policy', () => {
   it('allows each kind once a day and at most three a day', () => {
     let memory = createPatchyOfferMemory(today);
-    expect(canPatchyOffer(memory, 'tldr')).toBe(true);
-    memory = withPatchyOfferShown(memory, 'tldr');
-    expect(canPatchyOffer(memory, 'tldr')).toBe(false);
+    expect(canPatchyOffer(memory, 'long_read')).toBe(true);
+    memory = withPatchyOfferShown(memory, 'long_read');
+    expect(canPatchyOffer(memory, 'long_read')).toBe(false);
     memory = withPatchyOfferShown(memory, 'finished');
     memory = withPatchyOfferShown(memory, 'follow_tag', 'rust');
     expect(memory.shownToday).toBe(PATCHY_OFFERS_PER_DAY);
@@ -31,8 +31,8 @@ describe('patchy offer policy', () => {
     expect(canPatchyOffer(memory, 'finished')).toBe(true);
     memory = withPatchyOfferAnswer(memory, 'finished', 'dismiss');
     expect(canPatchyOffer(memory, 'finished')).toBe(false);
-    memory = withPatchyOfferAnswer(memory, 'tldr', 'never');
-    expect(canPatchyOffer(memory, 'tldr')).toBe(false);
+    memory = withPatchyOfferAnswer(memory, 'long_read', 'never');
+    expect(canPatchyOffer(memory, 'long_read')).toBe(false);
     // Ignoring or accepting changes nothing.
     memory = withPatchyOfferAnswer(memory, 'welcome_back', 'ignore');
     memory = withPatchyOfferAnswer(memory, 'welcome_back', 'accept');
@@ -43,14 +43,14 @@ describe('patchy offer policy', () => {
     let memory = createPatchyOfferMemory(today);
     memory = withPatchyOfferShown(memory, 'follow_tag', 'rust');
     memory = withPatchyOfferAnswer(memory, 'follow_tag', 'dismiss');
-    memory = withPatchyOfferAnswer(memory, 'tldr', 'never');
+    memory = withPatchyOfferAnswer(memory, 'long_read', 'never');
     const next = parsePatchyOfferMemory(JSON.stringify(memory), tomorrow);
     expect(next).toMatchObject({
       shownToday: 0,
       offeredToday: [],
       tagOpens: {},
       dismissed: { follow_tag: 1 },
-      never: ['tldr'],
+      never: ['long_read'],
       suggestedTags: ['rust'],
     });
   });
@@ -61,10 +61,10 @@ describe('patchy offer policy', () => {
     );
     expect(
       parsePatchyOfferMemory(
-        JSON.stringify({ never: ['dance', 'tldr'], dismissed: { x: 3 } }),
+        JSON.stringify({ never: ['dance', 'long_read'], dismissed: { x: 3 } }),
         today,
       ),
-    ).toMatchObject({ never: ['tldr'], dismissed: {} });
+    ).toMatchObject({ never: ['long_read'], dismissed: {} });
   });
 });
 
