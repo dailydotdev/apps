@@ -1,5 +1,3 @@
-import { webappUrl } from '../../lib/constants';
-import { ChatRoomType } from './graphql';
 import { getChatRoomHref, withJoinIntent } from './joinLink';
 
 describe('withJoinIntent', () => {
@@ -22,21 +20,12 @@ describe('getChatRoomHref', () => {
     expect(
       getChatRoomHref({
         id: 'r1',
-        type: ChatRoomType.PostLive,
         post: { commentsPermalink: 'https://app.daily.dev/posts/p1' },
       }),
     ).toEqual('https://app.daily.dev/posts/p1?chat=join');
   });
 
   it('has nowhere to send a post room without its post', () => {
-    expect(
-      getChatRoomHref({ id: 'r1', type: ChatRoomType.PostLive, post: null }),
-    ).toBeUndefined();
-  });
-
-  it('sends a topic room to its own page', () => {
-    expect(getChatRoomHref({ id: 'r1', type: ChatRoomType.Topic })).toEqual(
-      `${webappUrl}chat/r1`,
-    );
+    expect(getChatRoomHref({ id: 'r1', post: null })).toBeUndefined();
   });
 });

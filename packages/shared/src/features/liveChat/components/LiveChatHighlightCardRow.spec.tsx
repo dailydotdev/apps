@@ -4,7 +4,6 @@ import { LiveChatHighlightCardRow } from './LiveChatHighlightCardRow';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useLiveChatHighlight } from '../hooks/useLiveChatHighlight';
 import type { ChatRoom } from '../graphql';
-import { webappUrl } from '../../../lib/constants';
 import { ChatRoomStatus, ChatRoomType } from '../graphql';
 
 jest.mock('../../../contexts/LogContext', () => ({
@@ -54,23 +53,6 @@ describe('LiveChatHighlightCardRow', () => {
     expect(link).toHaveTextContent('Live chat');
     expect(link).toHaveTextContent('23 here · ends in 45m');
     expect(link).toHaveTextContent('Bun 2.0');
-  });
-
-  it('sends a topic room to its own page', () => {
-    jest.mocked(useLiveChatHighlight).mockReturnValue({
-      room: {
-        ...room,
-        type: ChatRoomType.Topic,
-        title: 'Is Bun ready for production?',
-        post: null,
-      },
-      isPending: false,
-    });
-    render(<LiveChatHighlightCardRow compact />);
-
-    const link = screen.getByRole('link');
-    expect(link).toHaveAttribute('href', `${webappUrl}chat/r1`);
-    expect(link).toHaveTextContent('Is Bun ready for production?');
   });
 
   it('drops the count for a small room but still says when it ends', () => {

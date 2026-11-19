@@ -71,6 +71,7 @@ import {
   type TextFormState,
 } from '../../post/composer/types';
 import { useDisableSpotlightShortcut } from '../../spotlight/SpotlightContext';
+import { useTrackCompanyPageFirstPost } from '../../../features/squads/hooks/useTrackCompanyPageFirstPost';
 
 // `defaultWriteTab` is persisted as the WriteFormTab *key* (e.g. "Share"), not
 // the enum value ("Share a link") — see settings/composition.tsx which saves
@@ -433,6 +434,7 @@ export function SmartComposerModal({
   const isMulti = !editPost && selected.length > 1;
 
   const schedule = useSchedulePost();
+  const trackFirstPost = useTrackCompanyPageFirstPost();
   // Scheduling: single-source, non-moderated create only.
   const canSchedule =
     !isEditing && !isMulti && !!primary && !moderationRequired(primary);
@@ -462,6 +464,9 @@ export function SmartComposerModal({
         queryClient.invalidateQueries({
           queryKey: getPostByIdKey(editPost.id),
         });
+      }
+      if (!editPost?.id) {
+        trackFirstPost(selected);
       }
       onPosted?.();
       onSubmitted();

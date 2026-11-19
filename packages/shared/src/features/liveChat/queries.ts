@@ -3,7 +3,6 @@ import type { LoggedUser } from '../../lib/user';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import type { ChatRoom } from './graphql';
 import {
-  getChatRoom,
   getChatRoomPresence,
   getLiveChatRooms,
   getPostChatRoom,
@@ -30,20 +29,6 @@ export const postChatRoomQueryOptions = (user: QueryUser, postId: string) =>
     staleTime: StaleTime.Default,
     refetchInterval: LIVE_CHAT_ROOM_REFRESH_MS,
     enabled: !!postId,
-  });
-
-export const chatRoomQueryKey = (user: QueryUser, roomId: string) =>
-  generateQueryKey(RequestKey.ChatRooms, user, 'room', roomId);
-
-// A room by id, for the chat page; polled like the post's room so the
-// occupant count and the room's end stay current.
-export const chatRoomQueryOptions = (user: QueryUser, roomId: string) =>
-  queryOptions<ChatRoom | null>({
-    queryKey: chatRoomQueryKey(user, roomId),
-    queryFn: () => getChatRoom(roomId),
-    staleTime: StaleTime.Default,
-    refetchInterval: LIVE_CHAT_ROOM_REFRESH_MS,
-    enabled: !!roomId,
   });
 
 // The API answers for at most this many users per call.
