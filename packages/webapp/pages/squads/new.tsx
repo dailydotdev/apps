@@ -98,8 +98,9 @@ const NewSquad = (): ReactElement => {
     return (
       <>
         <NextSeo
+          {...seo}
           title={companySeoTitles.title}
-          openGraph={companySeoTitles.openGraph}
+          openGraph={{ ...seo.openGraph, ...companySeoTitles.openGraph }}
         />
         <CompanyPageCreate />
         <PromptElement />
