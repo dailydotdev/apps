@@ -83,6 +83,12 @@ export enum ActionType {
   DismissLfgMessagesPromo = 'dismiss_lfg_messages_promo',
   // Hides every daily.dev for Startups promotion, the squad page one included
   DismissStartupsPromo = 'dismiss_startups_promo',
+  // Closed the company page checklist: it stays away on every page
+  DismissCompanyPageChecklist = 'dismiss_company_page_checklist',
+  // Copied a skill's prompt from the company page checklist
+  TriedSkillIdeas = 'tried_skill_ideas',
+  TriedSkillReview = 'tried_skill_review',
+  TriedSkillRoutine = 'tried_skill_routine',
   FirstCores = 'first_cores',
   GtaViVisit = 'gta_vi_visit',
   GtaViRead = 'gta_vi_read',

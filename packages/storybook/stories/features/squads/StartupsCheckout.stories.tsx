@@ -341,6 +341,10 @@ const Seeded = ({
         intel,
       );
       pin(squadIntelQueryOptions({ user: who, sourceId }).queryKey, null);
+      pin(generateQueryKey(RequestKey.Actions, who), {
+        actions: [],
+        serverLoaded: true,
+      });
       pin(oauthConsentsQueryOptions().queryKey, []);
       pin(personalAccessTokensQueryOptions().queryKey, []);
       pin(generateQueryKey(RequestKey.Campaigns, who, { first: 20 }), {

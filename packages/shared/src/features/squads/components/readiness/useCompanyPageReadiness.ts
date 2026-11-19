@@ -7,7 +7,8 @@ import { squadIntelSettingsQueryOptions } from '../../../../graphql/squadIntel';
 import { squadSubscriptionBalanceQueryOptions } from '../../../../graphql/squadSubscription';
 import { oauthConsentsQueryOptions } from '../../../../lib/oauthApps';
 import { personalAccessTokensQueryOptions } from '../../../../hooks/api/usePersonalAccessTokens';
-import usePersistentContext from '../../../../hooks/usePersistentContext';
+import { useActions } from '../../../../hooks/useActions';
+import { ActionType } from '../../../../graphql/actions';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useCampaigns } from '../../../boost/useCampaigns';
 import {
@@ -27,6 +28,12 @@ import {
   isSquadPlan,
   SQUAD_PLAN_INTEL_TOPICS,
 } from '../../lib/plans';
+
+const skillActions: Record<PlanChecklistSkill, ActionType> = {
+  ideas: ActionType.TriedSkillIdeas,
+  review: ActionType.TriedSkillReview,
+  routine: ActionType.TriedSkillRoutine,
+};
 
 interface CompanyPageReadiness {
   isPending: boolean;
@@ -90,29 +97,25 @@ export const useCompanyPageReadiness = (
   const { data: campaigns, isLoading: isCampaignsLoading } = useCampaigns({
     enabled: isShown && isPaid,
   });
-  const [tried, setTried, isTriedFetched] = usePersistentContext<string[]>(
-    `squad_plan_skills_tried_${sourceId}`,
-    [],
-  );
-  const [isDismissed, setDismissed, isDismissedFetched] = usePersistentContext(
-    `squad_readiness_dismissed_${sourceId}`,
-    false,
-  );
+  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const missingIds = useRef<string[] | null>(null);
   const isPending =
     !user ||
-    !isTriedFetched ||
-    !isDismissedFetched ||
+    !isActionsFetched ||
     (hasProducts && isProductsPending) ||
     (hasCta && isBrandingPending) ||
     (isPaid && hasSeat && isIntelPending) ||
     (isPaid && isCampaignsLoading);
   const onTrySkill = (id: string) => {
-    if (!tried?.includes(id)) {
-      setTried([...(tried ?? []), id]);
+    const action = skillActions[id as PlanChecklistSkill];
+
+    if (action) {
+      completeAction(action);
     }
   };
-  const onDismiss = () => setDismissed(true);
+  const onDismiss = () =>
+    completeAction(ActionType.DismissCompanyPageChecklist);
+  const isDismissed = checkHasCompleted(ActionType.DismissCompanyPageChecklist);
 
   if (!isShown || isPending) {
     return {
@@ -120,12 +123,13 @@ export const useCompanyPageReadiness = (
       rows: [],
       done: [],
       onTrySkill,
-      isDismissed: !!isDismissed,
+      isDismissed,
       onDismiss,
     };
   }
 
-  const isTried = (skill: PlanChecklistSkill) => !!tried?.includes(skill);
+  const isTried = (skill: PlanChecklistSkill) =>
+    checkHasCompleted(skillActions[skill]);
   const isBoosted = !!campaigns?.pages.some(({ edges }) =>
     edges.some(
       ({ node }) =>
@@ -179,7 +183,7 @@ export const useCompanyPageReadiness = (
     rows: items.filter(({ id }) => missing.has(id)),
     done: items.filter(({ id, isDone }) => isDone && !missing.has(id)),
     onTrySkill,
-    isDismissed: !!isDismissed,
+    isDismissed,
     onDismiss,
   };
 };
