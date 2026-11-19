@@ -430,17 +430,19 @@ const BoostsTable = ({
             <td className="py-3 pl-3 pr-4 tablet:pr-6">
               <span className="flex justify-end gap-1">
                 {campaign.state === CampaignState.Active ? (
-                  <Tooltip content="Stops the boost now and refunds the Cores it has not spent">
-                    <Button
-                      variant={ButtonVariant.Float}
-                      size={ButtonSize.XSmall}
-                      icon={<PauseIcon />}
-                      className="text-text-secondary hover:text-accent-ketchup-default"
-                      onClick={() => onStop(campaign)}
-                    >
-                      Stop
-                    </Button>
-                  </Tooltip>
+                  !campaign.flags?.origin && (
+                    <Tooltip content="Stops the boost now and refunds the Cores it has not spent">
+                      <Button
+                        variant={ButtonVariant.Float}
+                        size={ButtonSize.XSmall}
+                        icon={<PauseIcon />}
+                        className="text-text-secondary hover:text-accent-ketchup-default"
+                        onClick={() => onStop(campaign)}
+                      >
+                        Stop
+                      </Button>
+                    </Tooltip>
+                  )
                 ) : (
                   <Button
                     variant={ButtonVariant.Float}

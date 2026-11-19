@@ -101,3 +101,23 @@ it('should not prefill a stopped boost, whose days ended early', async () => {
     props: { post, origin: Origin.AdsDashboard, lastBoost: undefined },
   });
 });
+
+it('should not offer to stop a free boost, which runs until it ends', async () => {
+  renderManager([
+    createCampaign({
+      id: 'c1',
+      state: CampaignState.Active,
+      endedAt: new Date(Date.now() + 86400000),
+    }),
+    createCampaign({
+      id: 'c2',
+      state: CampaignState.Active,
+      endedAt: new Date(Date.now() + 86400000),
+      flags: { budget: 10000, spend: 0, origin: 'free_boost' },
+    }),
+  ]);
+
+  await screen.findByText('Live (2)');
+
+  expect(screen.getAllByText('Stop')).toHaveLength(1);
+});
