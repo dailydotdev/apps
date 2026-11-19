@@ -53,8 +53,7 @@ export const LiveChatHighlightRow = ({
   widget: string;
 }): ReactElement | null => {
   const { logEvent } = useLogContext();
-  // The row is the yes: landing on the post joins the chat right away, and
-  // a topic room's page joins on its own.
+  // The row is the yes: landing on the post joins the chat right away.
   const href = getChatRoomHref(room);
   if (!href) {
     return null;
