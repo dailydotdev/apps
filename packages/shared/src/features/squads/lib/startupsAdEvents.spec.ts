@@ -69,7 +69,11 @@ describe('trackCompanyPageFirstPost', () => {
     expect(trackEvent).toHaveBeenCalledWith(
       'StartTrial',
       { content_name: 'startups first post', content_category: 'free' },
-      { eventId: 'startups-first-post-acme', email: 'founder@acme.dev' },
+      {
+        eventId: 'startups-first-post-acme',
+        xEventId: STARTUPS_X_EVENTS.firstPost,
+        email: 'founder@acme.dev',
+      },
     );
   });
 
