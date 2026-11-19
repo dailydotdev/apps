@@ -43,13 +43,13 @@ describe('trackStartupsSignup', () => {
 });
 
 describe('isNewCompanyPageAdmin', () => {
-  it('is the admin of a company page created this week', () => {
+  it('is the admin of a company page created in the last two days', () => {
     expect(isNewCompanyPageAdmin(companyPage())).toBe(true);
   });
 
   it.each([
     ['a moderator', { currentMember: { role: SourceMemberRole.Moderator } }],
-    ['a page older than a week', { createdAt: daysAgo(8) }],
+    ['a page older than two days', { createdAt: daysAgo(3) }],
     ['a community squad', { flags: {} }],
   ])('is not %s', (_, overrides) => {
     expect(
