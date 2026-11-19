@@ -8,7 +8,7 @@ import {
 } from '../../../../components/buttons/Button';
 import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';
 import { IconSize } from '../../../../components/Icon';
-import { MoveToIcon, VIcon } from '../../../../components/icons';
+import { MoveToIcon } from '../../../../components/icons';
 import { FunnelGlassBar } from '../../../onboarding/shared/FunnelGlassBar';
 import { AuthScreenTitle } from '../../../../components/auth/AuthScreenTitle';
 import LogoIcon from '../../../../svg/LogoIcon';
@@ -26,19 +26,12 @@ export enum CheckoutStage {
   Setup = 'setup',
 }
 
-const stages: { id: CheckoutStage; label: string }[] = [
-  { id: CheckoutStage.Account, label: 'Account' },
-  { id: CheckoutStage.Company, label: 'Company' },
-  { id: CheckoutStage.Plan, label: 'Plan' },
-  { id: CheckoutStage.Setup, label: 'Set up' },
-];
-
 const LILAC = '#D8B4FE';
 
 // The form starts at the same height on every screen, so nothing above a click
 // ever moves. That height centres a typical form on the page: half the page, less
-// half a form, less what's above it (40px padding, 76px header, 32px gap, 16px
-// below). A screen too long for that starts right under the stepper.
+// half a form, less what's above it (40px padding, 20px logo, 32px gap, 16px
+// below). A screen too long for that starts right under the logo.
 // Concentric corners: the box's outer radius is its inner radius plus its padding.
 const STAGE_PADDING = 8;
 const STAGE_INNER_RADIUS = 18;
@@ -57,7 +50,7 @@ const SHELL_STYLES = `
   .startups-shell button:active:not(:disabled) { transform: none; }
 }
 @media (min-width: 1020px) {
-  .startups-form:not(.startups-form-tall) { margin-top: max(0px, calc(50dvh - 200px - 164px)); }
+  .startups-form:not(.startups-form-tall) { margin-top: max(0px, calc(50dvh - 200px - 108px)); }
 }
 @media (max-width: 1019px) {
   .startups-form { padding-top: 0; }
@@ -130,66 +123,6 @@ const CheckoutLogo = (): ReactElement => (
   </span>
 );
 
-/** Each finished step shows what was chosen, with a check. */
-const CheckoutProgress = ({
-  current,
-  answers,
-  isComplete,
-}: {
-  current: CheckoutStage;
-  answers?: Partial<Record<CheckoutStage, string>>;
-  isComplete?: boolean;
-}): ReactElement => {
-  const currentIndex = isComplete
-    ? stages.length
-    : stages.findIndex(({ id }) => id === current);
-
-  return (
-    <nav
-      aria-label="Progress"
-      className={classNames(
-        'w-full',
-        current === CheckoutStage.Account && 'hidden laptop:block',
-      )}
-    >
-      <ol className="flex w-full flex-wrap items-center justify-center gap-1.5 laptop:justify-start">
-        {stages.map((stage, index) => {
-          const isDone = index < currentIndex;
-          const isCurrent = index === currentIndex;
-
-          return (
-            <li key={stage.id} aria-current={isCurrent ? 'step' : undefined}>
-              <span
-                className={classNames(
-                  'flex h-8 items-center gap-1 whitespace-nowrap rounded-10 px-2.5 font-bold typo-footnote',
-                  isDone && 'bg-surface-float text-text-primary',
-                  !isDone && !isCurrent && 'text-text-quaternary',
-                )}
-                style={
-                  isCurrent
-                    ? { background: LILAC, color: '#0F0F12' }
-                    : undefined
-                }
-              >
-                {isDone && (
-                  <VIcon
-                    size={IconSize.Size16}
-                    className="text-accent-avocado-default"
-                    secondary
-                  />
-                )}
-                <span className="block truncate" style={{ maxWidth: 120 }}>
-                  {isDone ? (answers?.[stage.id] ?? stage.label) : stage.label}
-                </span>
-              </span>
-            </li>
-          );
-        })}
-      </ol>
-    </nav>
-  );
-};
-
 export const CheckoutTitle = AuthScreenTitle;
 
 /** The step's primary action, the funnel's double-border button. */
@@ -217,9 +150,7 @@ export interface CheckoutBack {
 
 interface CheckoutShellProps {
   current: CheckoutStage;
-  answers?: Partial<Record<CheckoutStage, string>>;
-  isComplete?: boolean;
-  /** Too long to centre, so it starts right under the stepper. */
+  /** Too long to centre, so it starts right under the logo. */
   isTall?: boolean;
   /** On a phone, the art and centred form of our sign-up wall. */
   isPhoneWall?: boolean;
@@ -244,8 +175,6 @@ interface CheckoutShellProps {
  */
 export const CheckoutShell = ({
   current,
-  answers,
-  isComplete,
   isTall,
   isPhoneWall,
   phoneBack,
@@ -316,11 +245,6 @@ export const CheckoutShell = ({
             )}
             <CheckoutLogo />
           </div>
-          <CheckoutProgress
-            current={current}
-            answers={answers}
-            isComplete={isComplete}
-          />
         </header>
         <div
           key={current}

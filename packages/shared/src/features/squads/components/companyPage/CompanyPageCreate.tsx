@@ -1,4 +1,4 @@
-import type { FormEvent, MutableRefObject, ReactElement } from 'react';
+import type { FormEvent, ReactElement } from 'react';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import {
@@ -8,12 +8,9 @@ import {
 } from '../../../../components/buttons/Button';
 import { TextField } from '../../../../components/fields/TextField';
 import Textarea from '../../../../components/fields/Textarea';
-import { FormWrapper } from '../../../../components/fields/form';
-import { ArrowIcon, AtIcon, SquadIcon } from '../../../../components/icons';
+import { AtIcon, SquadIcon } from '../../../../components/icons';
 import { useCopyLink } from '../../../../hooks/useCopy';
 import OrDivider from '../../../../components/auth/OrDivider';
-import AuthOptions from '../../../../components/auth/AuthOptions';
-import { providerMap } from '../../../../components/auth/common';
 import { Dropdown } from '../../../../components/fields/Dropdown';
 import {
   Typography,
@@ -24,7 +21,6 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { useSquadCreate } from '../../../../hooks/squads/useSquadCreate';
 import { useSquadCategories } from '../../../../hooks/squads/useSquadCategories';
-import { useIsPhone } from '../../../../hooks/useViewSize';
 import { checkExistingHandle, PrivacyOption } from '../../../../graphql/squads';
 import { SourceMemberRole } from '../../../../graphql/sources';
 import { AuthTriggers } from '../../../../lib/auth';
@@ -38,29 +34,26 @@ import { isSquadPlan, SquadPlan } from '../../lib/plans';
 import { companyPagePrompt } from '../../lib/companyPage';
 import { agentMarks } from '../checkout/agentMarks';
 import { AgentMark } from '../checkout/AgentMark';
+import {
+  CheckoutCta,
+  CheckoutShell,
+  CheckoutStage,
+  CheckoutTitle,
+} from '../checkout/CheckoutShell';
+import { AccountStep } from '../checkout/StartupsCheckout';
+import { StartupsNameStunt } from '../checkout/StartupsNameStunt';
 
 const FORM_ID = 'company-page-form';
 const DESCRIPTION_MAX_LENGTH = 250;
 
-const signupProviders = [providerMap.github, providerMap.google];
-
 /** A visitor with no account signs up here, then gets the form. */
 const CompanyPageSignUp = (): ReactElement => (
-  <div className="mx-auto flex w-full max-w-[26.25rem] flex-col gap-6 px-4 py-10">
-    <AuthOptions
-      formRef={null as unknown as MutableRefObject<HTMLFormElement>}
-      trigger={AuthTriggers.CompanyPage}
-      simplified
-      preferGithub
-      isLoginFlow={false}
-      hideRegistrationHeadline
-      signUpTitle="Create your free company page"
-      logInTitle="Welcome back"
-      signUpDescription="Sign up, then set up your page. No credit card needed."
-      logInDescription="Log in, then set up your company page."
-      signupProviders={signupProviders}
-    />
-  </div>
+  <AccountStep
+    trigger={AuthTriggers.CompanyPage}
+    signUpTitle="Create your free company page"
+    signUpDescription="It takes two minutes. No credit card needed."
+    logInDescription="Log in, then set up your company page."
+  />
 );
 
 const shownAgents = [
@@ -118,7 +111,6 @@ const AgentSetupButton = (): ReactElement => {
 export const CompanyPageCreate = (): ReactElement => {
   const router = useRouter();
   const { user } = useAuthContext();
-  const isPhone = useIsPhone();
   const [name, setName] = useState('');
   const [handle, setHandle] = useState('');
   const [isHandleEdited, setHandleEdited] = useState(false);
@@ -189,30 +181,18 @@ export const CompanyPageCreate = (): ReactElement => {
   };
 
   return (
-    <FormWrapper
-      form={FORM_ID}
-      inBlock={isPhone}
-      title={isPhone ? 'Company page' : 'Create your company page'}
-      isHeaderTitle={!isPhone}
-      className={{
-        container: 'flex flex-1 flex-col',
-        title: 'px-4 font-bold typo-title3 tablet:px-0',
-        header: 'border-b-0',
-      }}
-      copy={{ right: 'Create page', left: isPhone ? 'Cancel' : undefined }}
-      leftButtonProps={{
-        icon: isPhone ? undefined : <ArrowIcon className="-rotate-90" />,
-        onClick: () => router.push('/squads'),
-      }}
-      rightButtonProps={{
-        disabled: !canSubmit || isLoading,
-        variant: ButtonVariant.Primary,
-        loading: isLoading || isChecking,
-      }}
+    <CheckoutShell
+      current={CheckoutStage.Company}
+      isTall
+      aside={<StartupsNameStunt name={name} />}
     >
+      <CheckoutTitle
+        title="Set up your company page"
+        description="Your agent can fill it in from your site, or you can do it here."
+      />
       <form
         id={FORM_ID}
-        className="flex w-full flex-col gap-6 px-4 py-6 tablet:p-6"
+        className="flex w-full flex-col gap-6"
         onSubmit={onSubmit}
         noValidate
       >
@@ -298,7 +278,18 @@ export const CompanyPageCreate = (): ReactElement => {
             onChange={(_, index) => setCategoryId(categories[index].id)}
           />
         )}
+        <CheckoutCta>
+          <Button
+            type="submit"
+            variant={ButtonVariant.Primary}
+            className="flex-1"
+            loading={isLoading || isChecking}
+            disabled={!canSubmit || isLoading}
+          >
+            Create page
+          </Button>
+        </CheckoutCta>
       </form>
-    </FormWrapper>
+    </CheckoutShell>
   );
 };
