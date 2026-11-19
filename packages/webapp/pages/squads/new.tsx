@@ -23,9 +23,12 @@ import { useIntegrationQuery } from '@dailydotdev/shared/src/hooks/integrations/
 
 import { useSlackConnectSourceMutation } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackConnectSourceMutation';
 import { SourceMemberRole } from '@dailydotdev/shared/src/graphql/sources';
+import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
+import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { CompanyPageCreate } from '@dailydotdev/shared/src/features/squads/components/companyPage/CompanyPageCreate';
 import { saveCheckoutAttribution } from '@dailydotdev/shared/src/features/squads/lib/checkoutAttribution';
-import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
+import type { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
+import MainLayout from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
@@ -90,9 +93,11 @@ const NewSquad = (): ReactElement => {
 
   if (query.company) {
     return (
-      <ManageSquadPageContainer>
+      <>
         <CompanyPageCreate />
-      </ManageSquadPageContainer>
+        <PromptElement />
+        <Toast autoDismissNotifications />
+      </>
     );
   }
 
@@ -143,7 +148,37 @@ const NewSquad = (): ReactElement => {
   );
 };
 
-NewSquad.getLayout = getMainLayout;
+// The company page path is a focused funnel page, with no app header or
+// sidebar, like the Startups checkout.
+const NewSquadLayout = ({
+  children,
+  layoutProps,
+}: {
+  children: ReactElement;
+  layoutProps?: MainLayoutProps;
+}): ReactElement | null => {
+  const { isReady, query, asPath } = useRouter();
+
+  if (!isReady) {
+    return null;
+  }
+
+  if (query.company) {
+    return children;
+  }
+
+  return (
+    <MainLayout {...layoutProps} activePage={asPath}>
+      {children}
+    </MainLayout>
+  );
+};
+
+NewSquad.getLayout = (
+  page: ReactElement,
+  _: unknown,
+  layoutProps?: MainLayoutProps,
+) => <NewSquadLayout layoutProps={layoutProps}>{page}</NewSquadLayout>;
 NewSquad.layoutProps = { seo };
 
 export default NewSquad;

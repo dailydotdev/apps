@@ -24,7 +24,7 @@ export const ExperienceEmptyState = ({
   const { status, onUpload, shouldShow } = useUploadCv();
 
   return (
-    <div className="flex flex-col items-center gap-6">
+    <div className="flex flex-col items-center">
       <CharmEmptyState
         placement={CharmEmptyStatePlacement.Page}
         image={cloudinaryCharmEmptyProfile}

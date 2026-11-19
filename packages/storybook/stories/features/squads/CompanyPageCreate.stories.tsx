@@ -4,7 +4,6 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { graphql, http, HttpResponse } from 'msw';
 import NewSquadModal from '@dailydotdev/shared/src/components/modals/squads/NewSquadModal';
 import { CompanyPageCreate } from '@dailydotdev/shared/src/features/squads/components/companyPage/CompanyPageCreate';
-import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import { defaultBootData, getBootMock } from '../../../mock/boot';
@@ -101,11 +100,7 @@ export const ModalPhone: Story = {
   globals: phone,
 };
 
-const Form = () => (
-  <ManageSquadPageContainer>
-    <CompanyPageCreate />
-  </ManageSquadPageContainer>
-);
+const Form = () => <CompanyPageCreate />;
 
 export const CompanyForm: Story = {
   name: '2. Company page form',
@@ -122,4 +117,10 @@ export const SignUp: Story = {
   name: '3. Company page form, signed out',
   beforeEach: bootAsAnonymous,
   render: () => <Form />,
+};
+
+export const SignUpPhone: Story = {
+  ...SignUp,
+  name: '3. Company page form, signed out, phone',
+  globals: phone,
 };

@@ -56,6 +56,7 @@ import {
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { canViewPostAnalytics } from '@dailydotdev/shared/src/lib/user';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
   getPostByIdKey,
@@ -593,7 +594,11 @@ const PostAnalyticsPage = ({
         )}
         {isPostAnalyticsFetched && !canViewAgentViews && (
           <StartupsAgentAnalyticsPromo
-            sourceId={post?.source?.id}
+            sourceId={
+              post?.source?.type === SourceType.Squad
+                ? post.source.id
+                : undefined
+            }
             wrapper={(promo) => (
               <>
                 <Divider className={dividerClassName} />

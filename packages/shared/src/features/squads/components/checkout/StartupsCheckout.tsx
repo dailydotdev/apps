@@ -131,12 +131,20 @@ const backLabels: Partial<Record<string, string>> = {
  * A visitor from the landing page signs up right here, then the page starts
  * the checkout for them: no feed onboarding in between.
  */
-const AccountStep = ({
+export const AccountStep = ({
   initialDisplay = AuthDisplay.Default,
   initialEmail,
+  trigger = AuthTriggers.StartupsCheckout,
+  signUpTitle = 'Create your account',
+  signUpDescription = "Start with a free company page, then upgrade it when you're ready.",
+  logInDescription = 'Log in, then pick the company page to upgrade.',
 }: {
   initialDisplay?: AuthDisplay;
   initialEmail?: string;
+  trigger?: AuthTriggers;
+  signUpTitle?: string;
+  signUpDescription?: string;
+  logInDescription?: string;
 }): ReactElement => {
   const [display, setDisplay] = useState<string>(initialDisplay);
   const [isLogIn, setIsLogIn] = useState(false);
@@ -177,17 +185,17 @@ const AccountStep = ({
       <div className="flex flex-col">
         <AuthOptions
           formRef={null as unknown as MutableRefObject<HTMLFormElement>}
-          trigger={AuthTriggers.StartupsCheckout}
+          trigger={trigger}
           simplified
           preferGithub
           defaultDisplay={initialDisplay}
           initialEmail={initialEmail}
           isLoginFlow={false}
           hideRegistrationHeadline
-          signUpTitle="Create your account"
+          signUpTitle={signUpTitle}
           logInTitle="Welcome back"
-          signUpDescription="Start with a free company page, then upgrade it when you're ready."
-          logInDescription="Log in, then pick the company page to upgrade."
+          signUpDescription={signUpDescription}
+          logInDescription={logInDescription}
           signupProviders={signupProviders}
           onDisplayChange={setDisplay}
           onScreenBackChange={onScreenBackChange}
@@ -599,7 +607,6 @@ const PlanStep = ({
   company,
   plan,
   isPaying,
-  answers,
   onSelect,
   onPay,
   onChoose,
@@ -609,7 +616,6 @@ const PlanStep = ({
   plan: SquadPlan;
   /** On a phone, choosing and paying are two screens. */
   isPaying: boolean;
-  answers: Partial<Record<CheckoutStage, string>>;
   onSelect: (plan: SquadPlan) => void;
   onPay: () => void;
   onChoose: () => void;
@@ -628,10 +634,10 @@ const PlanStep = ({
     />
   );
 
-  // On a phone, paying is a screen of its own under the same logo and stepper.
+  // On a phone, paying is a screen of its own under the same logo.
   if (!isLaptop && isPaying) {
     return (
-      <CheckoutShell current={CheckoutStage.Plan} answers={answers} isTall>
+      <CheckoutShell current={CheckoutStage.Plan} isTall>
         <div style={{ paddingTop: 24 }}>{payment}</div>
       </CheckoutShell>
     );
@@ -640,7 +646,6 @@ const PlanStep = ({
   return (
     <CheckoutShell
       current={CheckoutStage.Plan}
-      answers={answers}
       isTall
       isAsideFlowing
       aside={isLaptop && payment}
@@ -727,13 +732,11 @@ const SetupStep = ({
   squad,
   company,
   plan,
-  answers,
   pageUrl,
 }: {
   squad: Squad;
   company: CompanyChoice;
   plan: SquadPlan;
-  answers: Partial<Record<CheckoutStage, string>>;
   pageUrl: string;
 }): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -784,8 +787,6 @@ const SetupStep = ({
       <div className={classNames(!isLaptop && editing && 'hidden')}>
         <CheckoutShell
           current={CheckoutStage.Setup}
-          answers={answers}
-          isComplete={isComplete}
           isTall
           aside={isLaptop && (editor || preview)}
         >
@@ -840,12 +841,10 @@ const SetupStep = ({
 const SetupLoading = ({
   company,
   plan,
-  answers,
   pageUrl,
 }: {
   company: CompanyChoice;
   plan: SquadPlan;
-  answers: Partial<Record<CheckoutStage, string>>;
   pageUrl: string;
 }): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -859,7 +858,6 @@ const SetupLoading = ({
   return (
     <CheckoutShell
       current={CheckoutStage.Setup}
-      answers={answers}
       isTall
       aside={isLaptop && preview}
     >
@@ -899,12 +897,10 @@ const SetupLoading = ({
 const DoneStep = ({
   company,
   plan,
-  answers,
   isReturning,
 }: {
   company: CompanyChoice;
   plan: SquadPlan;
-  answers: Partial<Record<CheckoutStage, string>>;
   /** Back to set up a page that was already on a plan, nothing was paid */
   isReturning?: boolean;
 }): ReactElement => {
@@ -968,27 +964,18 @@ const DoneStep = ({
         squad={squad}
         company={company}
         plan={plan}
-        answers={answers}
         pageUrl={pageUrl}
       />
     );
   }
 
   if (isActive) {
-    return (
-      <SetupLoading
-        company={company}
-        plan={plan}
-        answers={answers}
-        pageUrl={pageUrl}
-      />
-    );
+    return <SetupLoading company={company} plan={plan} pageUrl={pageUrl} />;
   }
 
   return (
     <CheckoutShell
       current={CheckoutStage.Setup}
-      answers={answers}
       aside={<StartupsNameStunt name={company.name} />}
     >
       <CheckoutTitle
@@ -1091,10 +1078,6 @@ export const StartupsCheckout = ({
       enabled: isOpeningLink && !!user?.id && !!linkedSquad,
     });
   const logStartups = useLogStartups();
-  const answers = {
-    [CheckoutStage.Company]: company?.name,
-    [CheckoutStage.Plan]: squadPlanDetails[plan].title,
-  };
 
   useEffect(() => {
     // Squads arrive with boot; pick the one the link asked for once they do
@@ -1196,7 +1179,6 @@ export const StartupsCheckout = ({
         company={company}
         plan={plan}
         isPaying={step === StartupsCheckoutStep.Checkout}
-        answers={answers}
         onSelect={(next) => {
           if (next !== plan) {
             setPlan(next);
@@ -1214,14 +1196,7 @@ export const StartupsCheckout = ({
   }
 
   if (step === StartupsCheckoutStep.Done && company) {
-    return (
-      <DoneStep
-        company={company}
-        plan={plan}
-        answers={answers}
-        isReturning={isReturning}
-      />
-    );
+    return <DoneStep company={company} plan={plan} isReturning={isReturning} />;
   }
 
   return (

@@ -39,7 +39,8 @@ export enum CharmEmptyStatePlacement {
 
 const placementClassName: Record<CharmEmptyStatePlacement, string> = {
   [CharmEmptyStatePlacement.Inline]: 'px-6',
-  [CharmEmptyStatePlacement.Page]: 'mt-4 px-4 tablet:mt-12 tablet:px-6',
+  [CharmEmptyStatePlacement.Page]:
+    'mt-4 px-4 pb-6 tablet:mt-12 tablet:px-6 tablet:pb-10',
 };
 
 export interface CharmEmptyStateProps {

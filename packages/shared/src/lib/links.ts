@@ -79,6 +79,9 @@ export const getDomainFromUrl = (link: string): string => {
 // Anything smaller comes back upscaled from the icon service, so it's the floor.
 const MIN_SITE_ICON_SIZE = 96;
 
+const buildIconUrl = (url: string, size: number): string =>
+  `${apiUrl}/icon?url=${encodeURIComponent(url)}&size=${Math.round(size)}`;
+
 // A site's own icon — a company or technology's real logo — proxied and cached
 // by the API from the given domain or URL.
 export const getSiteIconUrl = ({
@@ -87,11 +90,13 @@ export const getSiteIconUrl = ({
 }: {
   url: string;
   size?: number;
-}): string =>
-  `${apiUrl}/icon?url=${encodeURIComponent(url)}&size=${Math.max(
-    Math.round(size),
-    MIN_SITE_ICON_SIZE,
-  )}`;
+}): string => buildIconUrl(url, Math.max(size, MIN_SITE_ICON_SIZE));
+
+// Shortcut favicons. `fallback=none` makes the API answer an unknown site with
+// an empty 404 instead of Google's grey globe, so the caller's `onError` letter
+// fallback shows.
+export const getShortcutIconUrl = (url: string, size: number): string =>
+  `${buildIconUrl(url, size)}&fallback=none`;
 
 export const removeQueryParam = (url: string, param: string): string => {
   const link = new URL(url);
