@@ -21,10 +21,13 @@ import { useLogStartups } from '../../hooks/useLogStartups';
 import { useSquadFreeBoost } from '../freeBoost/useSquadFreeBoost';
 import { SquadFreeBoost } from '../freeBoost/SquadFreeBoost';
 import { SquadValuePanel, SquadValuePanelPlaceholder } from './SquadValuePanel';
+import { useCompanyPageReadiness } from '../readiness/useCompanyPageReadiness';
+import { SquadPageReadiness } from '../readiness/SquadPageReadiness';
 
 /**
- * The top of a company page's feed, for its admins and moderators: the free
- * boost while it has something to say, then what daily.dev did for the page.
+ * The top of a company page's feed, for its admins and moderators: what the
+ * page and their profile still miss, then the free boost while it has
+ * something to say, then what daily.dev did for the page.
  * On the free plan this is the page's one place that sells Starter.
  */
 export const SquadCompanyValue = (): ReactElement | null => {
@@ -48,6 +51,7 @@ export const SquadCompanyValue = (): ReactElement | null => {
     ...squadAnalyticsQueryOptions({ sourceId }),
     enabled: isShown,
   });
+  const readiness = useCompanyPageReadiness(squad, isShown);
   const offer = getStartupsStarterOffer(useStartupsCashbackPromo());
   const logStartups = useLogStartups();
 
@@ -55,21 +59,17 @@ export const SquadCompanyValue = (): ReactElement | null => {
     return null;
   }
 
-  if (boost) {
-    return <SquadFreeBoost />;
-  }
-
-  if (isBoostPending || isSubscriptionPending || isAnalyticsPending) {
+  if (
+    readiness.isPending ||
+    isBoostPending ||
+    isSubscriptionPending ||
+    isAnalyticsPending
+  ) {
     return <SquadValuePanelPlaceholder />;
   }
 
-  if (!subscription) {
-    return null;
-  }
-
-  const isFree = !subscription.plan && !hasSquadFeature(squad, 'verified');
-
-  return (
+  const isFree = !subscription?.plan && !hasSquadFeature(squad, 'verified');
+  const panel = subscription ? (
     <SquadValuePanel
       name={squad.name}
       analyticsUrl={getSquadManageUrl(
@@ -103,5 +103,16 @@ export const SquadCompanyValue = (): ReactElement | null => {
           : undefined
       }
     />
+  ) : null;
+
+  return (
+    <>
+      <SquadPageReadiness
+        squad={squad}
+        rows={readiness.rows}
+        done={readiness.done}
+      />
+      {boost ? <SquadFreeBoost /> : panel}
+    </>
   );
 };
