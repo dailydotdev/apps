@@ -1897,6 +1897,7 @@ export const SidebarDesktopV2 = ({
           state={streakState}
           hasReadToday={streakReadToday}
           selected={isSelected}
+          goalProgress={streakGoalProgress?.ratio}
         />
       );
     } else if (showStreakBadge) {

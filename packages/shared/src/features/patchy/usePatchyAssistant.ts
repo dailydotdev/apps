@@ -22,6 +22,8 @@ import type {
 import {
   canPatchyOffer,
   countPatchyTagOpen,
+  getPatchyCurrentPost,
+  getPatchyHoursLeftToday,
   getPatchyQuickReads,
   PATCHY_LONG_READ_MINUTES,
   readPatchyOfferMemory,
@@ -54,6 +56,9 @@ type PendingOffer = Omit<PatchyOffer, 'id'> & {
   notBefore: number;
   expiresAt: number;
   tag?: string;
+  // Checked when it's about to show and when it's accepted: false drops it
+  // (you already did it yourself in the meantime).
+  isStillUseful?: () => boolean;
 };
 
 const POLL_MS = 500;
@@ -77,6 +82,7 @@ interface ReadingSession {
   post: Partial<Post>;
   openedAt: number;
   isUpvoted: boolean;
+  isBookmarked: boolean;
   isFinishOffered: boolean;
 }
 
@@ -164,28 +170,34 @@ export const usePatchyAssistant = ({
       return undefined;
     }
     return subscribePatchyEvents((event: PatchyEvent) => {
-      const session = sessionRef.current;
-      if (event.type === 'upvote') {
-        if (session && event.postId && session.post.id === event.postId) {
-          session.isUpvoted = true;
+      if (event.type === 'upvote' || event.type === 'bookmark') {
+        const { current } = sessionRef;
+        if (current && event.postId && current.post.id === event.postId) {
+          if (event.type === 'upvote') {
+            current.isUpvoted = true;
+          } else {
+            current.isBookmarked = true;
+          }
         }
         return;
       }
-      if (event.type !== 'post_open' || !event.post?.id) {
+      const post = event.type === 'post_open' ? event.post : undefined;
+      if (event.type !== 'post_open' || !post?.id) {
         return;
       }
-      const { post } = event;
       const now = Date.now();
       setPatchyReadingPost(post);
-      sessionRef.current = {
+      const session: ReadingSession = {
         post,
         openedAt: now,
         isUpvoted: post.userState?.vote === UserVote.Up,
+        isBookmarked: !!post.bookmarked,
         isFinishOffered: false,
       };
+      sessionRef.current = session;
       setIsReading(true);
 
-      const counted = countPatchyTagOpen(memory(), event.tags, {
+      const counted = countPatchyTagOpen(memory(), post.id, event.tags, {
         followed: feedSettings?.includeTags ?? [],
         blocked: feedSettings?.blockedTags ?? [],
       });
@@ -223,14 +235,21 @@ export const usePatchyAssistant = ({
           isOverModal: true,
           notBefore: now + 4000,
           expiresAt: now + 30000,
+          isStillUseful: () =>
+            !session.isBookmarked &&
+            !getPatchyCurrentPost(client, post).bookmarked,
           onPrimary: () =>
-            toggleBookmark({ post: post as Post, origin: Origin.Patchy }),
+            toggleBookmark({
+              post: getPatchyCurrentPost(client, post) as Post,
+              origin: Origin.Patchy,
+            }),
         });
       }
     });
   }, [
     isActive,
     user,
+    client,
     memory,
     remember,
     queue,
@@ -287,9 +306,13 @@ export const usePatchyAssistant = ({
         isOverModal: true,
         notBefore: now + 600,
         expiresAt: now + 30000,
+        isStillUseful: () =>
+          !session.isUpvoted &&
+          getPatchyCurrentPost(client, session.post).userState?.vote !==
+            UserVote.Up,
         onPrimary: () =>
           toggleUpvote({
-            payload: session.post as Post,
+            payload: getPatchyCurrentPost(client, session.post) as Post,
             origin: Origin.Patchy,
           }),
       });
@@ -300,7 +323,7 @@ export const usePatchyAssistant = ({
     });
     return () =>
       window.removeEventListener('scroll', onScroll, { capture: true });
-  }, [isActive, queue, toggleUpvote]);
+  }, [isActive, client, queue, toggleUpvote]);
 
   // The reading session ends when no post is open anymore.
   useEffect(() => {
@@ -331,12 +354,7 @@ export const usePatchyAssistant = ({
       }
       const [post] = getPatchyQuickReads(client, { limit: 1 });
       const now = new Date();
-      const midnight = new Date(now);
-      midnight.setHours(24, 0, 0, 0);
-      const hours = Math.max(
-        1,
-        Math.ceil((midnight.getTime() - now.getTime()) / (60 * 60 * 1000)),
-      );
+      const hours = getPatchyHoursLeftToday(now, user?.timezone);
       queue({
         kind: 'streak_risk',
         text: post
@@ -354,7 +372,16 @@ export const usePatchyAssistant = ({
     check();
     const id = setInterval(check, STREAK_CHECK_MS);
     return () => clearInterval(id);
-  }, [isActive, isStreakLoading, hasReadToday, state, client, queue, goTo]);
+  }, [
+    isActive,
+    isStreakLoading,
+    hasReadToday,
+    state,
+    user?.timezone,
+    client,
+    queue,
+    goTo,
+  ]);
 
   // Back after a while: after his wave, an offer to catch up.
   useEffect(() => {
@@ -393,8 +420,10 @@ export const usePatchyAssistant = ({
     const id = setInterval(() => {
       const now = Date.now();
       pendingRef.current = pendingRef.current.filter(
-        ({ kind, expiresAt }) =>
-          now <= expiresAt && canPatchyOffer(memory(), kind),
+        ({ kind, expiresAt, isStillUseful }) =>
+          now <= expiresAt &&
+          canPatchyOffer(memory(), kind) &&
+          (isStillUseful?.() ?? true),
       );
       if (!pendingRef.current.length) {
         clearInterval(id);
@@ -421,8 +450,16 @@ export const usePatchyAssistant = ({
       );
       remember(withPatchyOfferShown(memory(), pending.kind, pending.tag));
       offerIdRef.current += 1;
-      const { notBefore, expiresAt, tag, ...shown } = pending;
-      setOffer({ ...shown, id: offerIdRef.current });
+      const { notBefore, expiresAt, tag, isStillUseful, ...shown } = pending;
+      setOffer({
+        ...shown,
+        id: offerIdRef.current,
+        onPrimary: () => {
+          if (isStillUseful?.() ?? true) {
+            shown.onPrimary();
+          }
+        },
+      });
       logEvent({
         event_name: LogEvent.Impression,
         target_type: TargetType.PatchyOffer,

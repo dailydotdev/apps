@@ -31,7 +31,11 @@ import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { useOpenFeedTune } from '../feedExplain/useOpenFeedTune';
 import { useSetFeedExplain } from '../feedExplain/useSetFeedExplain';
 import type { PatchyQuickRead } from './patchyAssistant';
-import { getPatchyQuickReads, getPatchyReadingPost } from './patchyAssistant';
+import {
+  getPatchyCurrentPost,
+  getPatchyQuickReads,
+  getPatchyReadingPost,
+} from './patchyAssistant';
 import type { PatchyContext } from './patchyContext';
 import { getPatchyContext } from './patchyContext';
 
@@ -72,10 +76,12 @@ const icon = {
 
 export const usePatchyContext = (): PatchyContext => {
   const router = useRouter();
+  const client = useQueryClient();
+  const readingPost = getPatchyReadingPost();
   return getPatchyContext({
     path: router?.asPath ?? '/',
     query: router?.query ?? {},
-    post: getPatchyReadingPost(),
+    post: readingPost && getPatchyCurrentPost(client, readingPost),
   });
 };
 
@@ -157,7 +163,10 @@ export const PatchyMenu = ({
             icon: icon.bookmark,
             isDone: done.includes('save'),
             onClick: () => {
-              toggleBookmark({ post: post as Post, origin: Origin.Patchy });
+              const latest = getPatchyCurrentPost(client, post);
+              if (!latest.bookmarked) {
+                toggleBookmark({ post: latest as Post, origin: Origin.Patchy });
+              }
               setDone((current) => [...current, 'save']);
             },
           });

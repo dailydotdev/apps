@@ -1,4 +1,6 @@
 import { QueryClient } from '@tanstack/react-query';
+import { SharedFeedPage } from '../../components/utilities/common';
+import { OtherFeedPage } from '../../lib/query';
 import {
   canPatchyOffer,
   countPatchyTagOpen,
@@ -73,22 +75,39 @@ describe('countPatchyTagOpen', () => {
 
   it('suggests a tag on its third open of the day, once', () => {
     let memory = createPatchyOfferMemory(today);
-    let result = countPatchyTagOpen(memory, ['Rust', 'cli'], lists);
-    result = countPatchyTagOpen(result.memory, ['rust'], lists);
+    let result = countPatchyTagOpen(memory, 'p1', ['Rust', 'cli'], lists);
+    result = countPatchyTagOpen(result.memory, 'p2', ['rust'], lists);
     expect(result.tag).toBeNull();
-    result = countPatchyTagOpen(result.memory, ['rust'], lists);
+    result = countPatchyTagOpen(result.memory, 'p3', ['rust'], lists);
     expect(result.tag).toBe('rust');
     memory = withPatchyOfferShown(result.memory, 'follow_tag', 'rust');
     // A fourth open, or the same tag another day, never suggests it again.
-    expect(countPatchyTagOpen(memory, ['rust'], lists).tag).toBeNull();
+    expect(countPatchyTagOpen(memory, 'p4', ['rust'], lists).tag).toBeNull();
+  });
+
+  it('counts reopening the same post once', () => {
+    let memory = createPatchyOfferMemory(today);
+    for (let index = 0; index < 3; index += 1) {
+      memory = countPatchyTagOpen(memory, 'p1', ['rust'], lists).memory;
+    }
+    expect(memory.tagOpens.rust).toBe(1);
+    memory = countPatchyTagOpen(memory, 'p2', ['rust'], lists).memory;
+    expect(countPatchyTagOpen(memory, 'p3', ['rust'], lists).tag).toBe('rust');
   });
 
   it('skips tags you follow or block', () => {
     let memory = createPatchyOfferMemory(today);
     for (let index = 0; index < 2; index += 1) {
-      memory = countPatchyTagOpen(memory, ['webdev', 'php'], lists).memory;
+      memory = countPatchyTagOpen(
+        memory,
+        `p${index}`,
+        ['webdev', 'php'],
+        lists,
+      ).memory;
     }
-    expect(countPatchyTagOpen(memory, ['WebDev', 'php'], lists).tag).toBeNull();
+    expect(
+      countPatchyTagOpen(memory, 'p9', ['WebDev', 'php'], lists).tag,
+    ).toBeNull();
   });
 });
 
@@ -110,7 +129,7 @@ describe('getPatchyQuickReads', () => {
 
   it('picks short unread posts from cached feeds, best first', () => {
     const client = new QueryClient();
-    client.setQueryData(['feed', 'my'], {
+    client.setQueryData([SharedFeedPage.MyFeed, 'user'], {
       pages: [
         {
           page: {
@@ -124,7 +143,22 @@ describe('getPatchyQuickReads', () => {
         },
       ],
     });
-    client.setQueryData(['post', 'c'], { post: post('c', 2, 50) });
+    client.setQueryData([OtherFeedPage.Bookmarks, 'user'], {
+      pages: [{ page: { edges: [{ node: post('c', 2, 50) }] } }],
+    });
+    // Not a feed he picks from, and a post without `read` isn't known unread.
+    client.setQueryData([SharedFeedPage.Search, 'user'], {
+      pages: [{ page: { edges: [{ node: post('e', 1, 500) }] } }],
+    });
+    client.setQueryData([SharedFeedPage.Popular, 'user'], {
+      pages: [
+        {
+          page: {
+            edges: [{ node: { ...post('f', 1, 400), read: undefined } }],
+          },
+        },
+      ],
+    });
 
     expect(getPatchyQuickReads(client).map(({ id }) => id)).toEqual(['c', 'a']);
     expect(

@@ -3,6 +3,7 @@ import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
 import { HotIcon, MoonIcon, SparkleIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
+import { StreakGoalArc } from '../../components/sidebar/StreakBadge';
 import type { StreakRingState } from '../../hooks/streaks/useStreakRingState';
 import type { PatchyEmote, PatchyFace } from './patchyConfig';
 import type { PatchyMotion } from './patchyIdle';
@@ -19,6 +20,15 @@ const ringByState: Record<StreakRingState, string> = {
   critical: 'border-status-error',
   freeze: 'border-accent-blueCheese-default',
 };
+
+// Calm rings brighten on hover like the other rail tabs; danger states and
+// the earn pop keep their colour.
+const HOVER_STATES = new Set<StreakRingState>([
+  'none',
+  'pending',
+  'safe',
+  'freeze',
+]);
 
 const flameByState: Record<StreakRingState, string> = {
   none: 'text-text-quaternary',
@@ -124,6 +134,8 @@ interface PatchyRailIconProps {
   state: StreakRingState;
   hasReadToday: boolean;
   selected?: boolean;
+  // 0..1 towards the streak goal, drawn as an arc on the ring like the badge.
+  goalProgress?: number;
   // A micro-animation the face plays inside the circle; a new key replays it.
   motion?: PatchyMotion | null;
   motionKey?: string;
@@ -188,6 +200,7 @@ export const PatchyRailIcon = ({
   state,
   hasReadToday,
   selected = false,
+  goalProgress,
   motion = null,
   motionKey = '',
   emote = null,
@@ -203,10 +216,24 @@ export const PatchyRailIcon = ({
           ? 'border-accent-bacon-default'
           : ringByState[state],
         state === 'celebration' && 'animate-streak-earn-border',
+        HOVER_STATES.has(state) &&
+          !(selected && state !== 'safe') &&
+          'group-hover/streaktab:border-text-primary',
       )}
     >
       <FaceImage face={face} motion={motion} motionKey={motionKey} />
     </span>
+    {/* The ring is the 32px box around the 24px glyph with a 2px border, so
+        the stroke centre sits at radius 16 - 1 = 15. */}
+    <StreakGoalArc
+      state={state}
+      progress={goalProgress}
+      selected={selected}
+      size={32}
+      radius={15}
+      strokeWidth={2}
+      className="-left-1 -top-1 size-8"
+    />
     {emote && <Emotes key={emoteKey} emote={emote} count={emoteCount} />}
     <span
       aria-hidden

@@ -1,5 +1,9 @@
 import type { QueryClient } from '@tanstack/react-query';
-import type { Post } from '../../graphql/posts';
+import { utcToZonedTime } from 'date-fns-tz';
+import type { Post, PostData } from '../../graphql/posts';
+import { SharedFeedPage } from '../../components/utilities/common';
+import { getPostByIdKey, OtherFeedPage } from '../../lib/query';
+import { DEFAULT_TIMEZONE } from '../../lib/timezones';
 import { storageWrapper } from '../../lib/storageWrapper';
 import { getPatchyDayKey } from './patchyDay';
 
@@ -35,8 +39,10 @@ export interface PatchyOfferMemory {
   never: PatchyOfferKind[];
   // Kinds already offered today (each at most once a day).
   offeredToday: PatchyOfferKind[];
-  // Tags opened today, and tags already suggested (never twice).
+  // Tags opened today (each post counted once), and tags already suggested
+  // (never twice).
   tagOpens: Record<string, number>;
+  countedPosts: string[];
   suggestedTags: string[];
 }
 
@@ -47,6 +53,7 @@ export const createPatchyOfferMemory = (now: Date): PatchyOfferMemory => ({
   never: [],
   offeredToday: [],
   tagOpens: {},
+  countedPosts: [],
   suggestedTags: [],
 });
 
@@ -98,6 +105,9 @@ export const parsePatchyOfferMemory = (
         ? stored.offeredToday.filter(isKind)
         : [],
       tagOpens,
+      countedPosts: Array.isArray(stored.countedPosts)
+        ? stored.countedPosts.filter((id) => typeof id === 'string')
+        : [],
     };
   } catch {
     return fresh;
@@ -144,13 +154,18 @@ export const withPatchyOfferAnswer = (
   return memory;
 };
 
-// Counts the post's tags; returns the tag that just reached the threshold,
-// unless you already follow or block it or he suggested it before.
+// Counts the post's tags, once per post a day; returns the tag that just
+// reached the threshold, unless you already follow or block it or he
+// suggested it before.
 export const countPatchyTagOpen = (
   memory: PatchyOfferMemory,
+  postId: string,
   tags: string[] | undefined,
   { followed, blocked }: { followed: string[]; blocked: string[] },
 ): { memory: PatchyOfferMemory; tag: string | null } => {
+  if (memory.countedPosts.includes(postId)) {
+    return { memory, tag: null };
+  }
   const tagOpens = { ...memory.tagOpens };
   let tag: string | null = null;
   (tags ?? []).forEach((rawTag) => {
@@ -166,7 +181,14 @@ export const countPatchyTagOpen = (
       tag = key;
     }
   });
-  return { memory: { ...memory, tagOpens }, tag };
+  return {
+    memory: {
+      ...memory,
+      tagOpens,
+      countedPosts: [...memory.countedPosts, postId],
+    },
+    tag,
+  };
 };
 
 const memoryKey = (userId: string) => `patchy_offers:${userId}`;
@@ -199,6 +221,34 @@ const isPostLike = (value: unknown): value is Post & { readTime: number } => {
   );
 };
 
+// The feeds he picks from: yours, explore, tags, sources and bookmarks. Not
+// search, squads, other people's profiles or related posts.
+const quickReadFeeds = new Set<string>([
+  SharedFeedPage.MyFeed,
+  SharedFeedPage.Popular,
+  SharedFeedPage.Upvoted,
+  SharedFeedPage.Custom,
+  OtherFeedPage.Following,
+  OtherFeedPage.Explore,
+  OtherFeedPage.ExploreLatest,
+  OtherFeedPage.ExploreDiscussed,
+  OtherFeedPage.ExploreUpvoted,
+  OtherFeedPage.Tag,
+  OtherFeedPage.TagPage,
+  OtherFeedPage.TagsTopPosts,
+  OtherFeedPage.TagsMostUpvoted,
+  OtherFeedPage.TagsBestDiscussed,
+  OtherFeedPage.TagArchive,
+  OtherFeedPage.Source,
+  OtherFeedPage.SourcePage,
+  OtherFeedPage.SourceMostUpvoted,
+  OtherFeedPage.SourceBestDiscussed,
+  OtherFeedPage.SourceArchive,
+  OtherFeedPage.Bookmarks,
+  OtherFeedPage.BookmarkLater,
+  OtherFeedPage.BookmarkFolder,
+]);
+
 // Short, unread posts from feeds the app already loaded (no extra request),
 // best first. Walks the cached query data a few levels deep, because feeds
 // nest posts as pages → edges → node.
@@ -224,7 +274,7 @@ export const getPatchyQuickReads = (
       if (
         value.readTime > 0 &&
         value.readTime <= PATCHY_QUICK_READ_MINUTES &&
-        !value.read &&
+        value.read === false &&
         value.id !== excludeId &&
         (!tag || !!value.tags?.some((postTag) => postTag === tag)) &&
         (!isBookmarked || !!value.bookmarked)
@@ -241,7 +291,9 @@ export const getPatchyQuickReads = (
   };
   client
     .getQueryCache()
-    .getAll()
+    .findAll({
+      predicate: ({ queryKey }) => quickReadFeeds.has(String(queryKey[0])),
+    })
     .forEach((query) => visit(query.state.data, 0));
   return [...found.values()]
     .sort((a, b) => (b.numUpvotes ?? 0) - (a.numUpvotes ?? 0))
@@ -274,3 +326,27 @@ export const setPatchyReadingPost = (post: Partial<Post> | null): void => {
   readingPost = post;
 };
 export const getPatchyReadingPost = (): Partial<Post> | null => readingPost;
+
+// The post as it is now: the open post's query is kept up to date by
+// bookmarks and votes made anywhere, the snapshot from when it opened is not.
+export const getPatchyCurrentPost = (
+  client: QueryClient,
+  post: Partial<Post>,
+): Partial<Post> => {
+  const cached = post.id
+    ? client.getQueryData<PostData>(getPostByIdKey(post.id))?.post
+    : undefined;
+  return cached ? { ...post, ...cached } : post;
+};
+
+// Whole hours (at least one) until the streak day ends in the profile
+// timezone.
+export const getPatchyHoursLeftToday = (
+  now: Date,
+  timezone?: string,
+): number => {
+  const zoned = utcToZonedTime(now, timezone || DEFAULT_TIMEZONE);
+  const minutesLeft =
+    24 * 60 - (zoned.getHours() * 60 + zoned.getMinutes()) - zoned.getSeconds() / 60;
+  return Math.max(1, Math.ceil(minutesLeft / 60));
+};

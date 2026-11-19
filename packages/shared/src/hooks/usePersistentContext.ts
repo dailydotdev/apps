@@ -88,7 +88,8 @@ export enum PersistentContextKeys {
   // The users the home card has evaluated the picks flag for, in either arm
   WeeklyPicksEnrolled = 'weekly_picks_enrolled',
   ReviewPrompt = 'review_prompt',
-  // 'on' | 'off': whether Patchy peeks out to react (his face always shows)
+  // 'on' | 'off': whether Patchy's face reacts to what you do (it always shows)
   PatchyReactions = 'patchy_reactions',
+  // 'on' | 'off': whether Patchy offers suggestions in a bubble
   PatchySuggestions = 'patchy_suggestions',
 }

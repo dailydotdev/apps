@@ -154,6 +154,18 @@ describe('usePatchyAssistant', () => {
     expect(result.current.offer).toMatchObject({ kind: 'follow_tag' });
   });
 
+  it('drops the save offer once you saved the post yourself', () => {
+    const { result } = render();
+    window.history.pushState({}, '', '/posts/long');
+    open('long', ['go'], { readTime: 28 });
+    act(() => {
+      emitPatchyEvent({ type: 'bookmark', postId: 'long' });
+      jest.advanceTimersByTime(5000);
+    });
+    expect(result.current.offer).toBeNull();
+    window.history.pushState({}, '', '/');
+  });
+
   it('suggests following at most one tag a day', () => {
     const { result } = render();
     ['a', 'b', 'c', 'd'].forEach((tag) => {
