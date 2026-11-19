@@ -219,7 +219,7 @@ const useBookmarkPost = ({
       }
 
       logEvent(postLogEvent(LogEvent.BookmarkPost, post, finalLogOptions));
-      emitPatchyEvent({ type: 'bookmark' });
+      emitPatchyEvent({ type: 'bookmark', postId: post.id });
       playHaptic();
 
       const result = await addBookmark({ id: post.id });

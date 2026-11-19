@@ -46,3 +46,30 @@ export const usePatchyReactions = (): UsePatchyReactions => {
 
   return { isReactionsEnabled: reactions !== 'off', setReactionsEnabled };
 };
+
+type PatchySuggestionsValue = 'on' | 'off';
+
+interface UsePatchySuggestions {
+  isSuggestionsEnabled: boolean;
+  setSuggestionsEnabled: (enabled: boolean) => Promise<void>;
+}
+
+// Whether he offers to help (the bubbles). Per device, like reactions.
+export const usePatchySuggestions = (): UsePatchySuggestions => {
+  const [suggestions, setSuggestions] =
+    usePersistentContext<PatchySuggestionsValue>(
+      PersistentContextKeys.PatchySuggestions,
+      'on',
+      ['on', 'off'],
+      'on',
+    );
+  const setSuggestionsEnabled = useCallback(
+    (enabled: boolean) => setSuggestions(enabled ? 'on' : 'off'),
+    [setSuggestions],
+  );
+
+  return {
+    isSuggestionsEnabled: suggestions !== 'off',
+    setSuggestionsEnabled,
+  };
+};

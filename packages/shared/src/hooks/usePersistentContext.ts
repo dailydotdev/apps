@@ -90,4 +90,5 @@ export enum PersistentContextKeys {
   ReviewPrompt = 'review_prompt',
   // 'on' | 'off': whether Patchy peeks out to react (his face always shows)
   PatchyReactions = 'patchy_reactions',
+  PatchySuggestions = 'patchy_suggestions',
 }

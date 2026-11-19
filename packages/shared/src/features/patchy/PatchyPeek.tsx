@@ -48,7 +48,7 @@ const poseTransform: Record<Phase, string> = {
   out: 'translateX(-101%)',
 };
 
-const Emote = ({ emote }: { emote: PatchyEmote }): ReactElement => {
+const Emote = ({ emote }: { emote: PatchyEmote }): ReactElement | null => {
   const className =
     'absolute right-0 top-0 motion-safe:animate-patchy-emote [animation-delay:300ms]';
   switch (emote) {
@@ -86,6 +86,8 @@ const Emote = ({ emote }: { emote: PatchyEmote }): ReactElement => {
           className={classNames(className, 'text-accent-blueCheese-default')}
         />
       );
+    case 'none':
+      return null;
     default:
       return <span className={classNames(className, 'typo-title3')}>💧</span>;
   }
@@ -180,7 +182,15 @@ export const PatchyPeek = ({
           transition: `transform ${isDart ? 180 : SLIDE_MS}ms cubic-bezier(0.34, 1.4, 0.64, 1)`,
         }}
       >
-        <img src={poseImage} alt="" className="w-full" draggable={false} />
+        <img
+          src={poseImage}
+          alt=""
+          className="w-full"
+          draggable={false}
+          // Art that is not uploaded yet: skip the peek rather than show a
+          // broken image.
+          onError={onDone}
+        />
         {showEmote && <Emote emote={emote} />}
       </div>
     </div>,

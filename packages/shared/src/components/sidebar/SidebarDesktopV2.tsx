@@ -101,11 +101,9 @@ import { RailHoverPanel } from './RailHoverPanel';
 import { StreakBadge } from './StreakBadge';
 import { PatchyRailIcon } from '../../features/patchy/PatchyRailIcon';
 import { PatchyPeek } from '../../features/patchy/PatchyPeek';
-import {
-  usePatchyEnabled,
-  usePatchyReactions,
-} from '../../features/patchy/usePatchyEnabled';
-import { usePatchyCompanion } from '../../features/patchy/usePatchyCompanion';
+import { PatchyOffer } from '../../features/patchy/PatchyOffer';
+import { usePatchyEnabled } from '../../features/patchy/usePatchyEnabled';
+import { usePatchyRail } from '../../features/patchy/usePatchyRail';
 import { getStreakGoalCopy } from '../../lib/streakGoal';
 import { LogEvent, TargetType } from '../../lib/log';
 import {
@@ -869,12 +867,10 @@ export const SidebarDesktopV2 = ({
   const isPatchyFlagOn = usePatchyEnabled({
     shouldEvaluate: showGameCenterTab && isStreakEnabled,
   });
-  const { isReactionsEnabled } = usePatchyReactions();
   const isPatchyEnabled =
     isPatchyFlagOn && showGameCenterTab && isStreakTabAStreak;
-  const patchy = usePatchyCompanion({
+  const patchy = usePatchyRail({
     isEnabled: isPatchyEnabled,
-    isReactionsEnabled,
     isStreakLoading,
     state: streakState,
     hasReadToday: streakReadToday,
@@ -1895,6 +1891,8 @@ export const SidebarDesktopV2 = ({
         <PatchyRailIcon
           face={patchy.face}
           bump={patchy.bump}
+          motion={patchy.motion}
+          motionKey={patchy.motionKey}
           state={streakState}
           hasReadToday={streakReadToday}
           selected={isSelected}
@@ -2373,6 +2371,15 @@ export const SidebarDesktopV2 = ({
             trigger={patchy.peek.trigger}
             anchorId={`sidebar-category-${SidebarCategory.GameCenter}`}
             onDone={patchy.onPeekDone}
+          />
+        )}
+        {patchy.assistant.offer && (
+          <PatchyOffer
+            key={patchy.assistant.offer.id}
+            offer={patchy.assistant.offer}
+            anchorId={`sidebar-category-${SidebarCategory.GameCenter}`}
+            onAnswer={patchy.assistant.onAnswer}
+            onQuiet={patchy.onQuiet}
           />
         )}
         {!isSettingsSelected && (

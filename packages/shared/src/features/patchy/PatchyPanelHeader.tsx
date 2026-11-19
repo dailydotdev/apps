@@ -19,14 +19,15 @@ import { webappUrl } from '../../lib/constants';
 import { LogEvent, TargetType } from '../../lib/log';
 import type { PatchyMood } from './patchyConfig';
 import { getPatchyConfig } from './patchyConfig';
+import { PatchyMenu } from './PatchyMenu';
 
 interface PatchyPanelHeaderProps {
   mood: PatchyMood;
   onNavigate?: () => void;
 }
 
-// Top of the Streak panel when Patchy is on: his face, his mood,
-// and the way into his den on Game Center.
+// Top of the Streak panel when Patchy is on: his face, his mood, what you
+// can ask him for, and the way into his den on Game Center.
 export const PatchyPanelHeader = ({
   mood,
   onNavigate,
@@ -51,6 +52,7 @@ export const PatchyPanelHeader = ({
           {moods[mood].copy}
         </Typography>
       </div>
+      <PatchyMenu onNavigate={onNavigate} />
       <Link href={`${webappUrl}game-center`} passHref>
         <Button
           tag="a"

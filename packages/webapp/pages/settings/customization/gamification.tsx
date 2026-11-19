@@ -27,6 +27,7 @@ import { StreakPauseSettings } from '@dailydotdev/shared/src/components/streak/S
 import {
   usePatchyEnabled,
   usePatchyReactions,
+  usePatchySuggestions,
 } from '@dailydotdev/shared/src/features/patchy/usePatchyEnabled';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
@@ -59,6 +60,19 @@ const GamificationSettingsPage = (): ReactElement => {
     isReactionsEnabled: isPatchyReactionsEnabled,
     setReactionsEnabled: setPatchyReactionsEnabled,
   } = usePatchyReactions();
+  const {
+    isSuggestionsEnabled: isPatchySuggestionsEnabled,
+    setSuggestionsEnabled: setPatchySuggestionsEnabled,
+  } = usePatchySuggestions();
+  const onTogglePatchySuggestions = () => {
+    const enabled = !isPatchySuggestionsEnabled;
+    setPatchySuggestionsEnabled(enabled);
+    logEvent({
+      event_name: LogEvent.ChangeSettings,
+      target_type: TargetType.PatchySuggestions,
+      target_id: enabled ? 'on' : 'off',
+    });
+  };
   const onTogglePatchyReactions = () => {
     const enabled = !isPatchyReactionsEnabled;
     setPatchyReactionsEnabled(enabled);
@@ -119,7 +133,7 @@ const GamificationSettingsPage = (): ReactElement => {
         {isPatchyEnabled && (
           <section className="flex flex-col gap-2">
             <Typography bold type={TypographyType.Subhead}>
-              Patchy reactions
+              Patchy
             </Typography>
 
             <SettingsSwitch
@@ -130,6 +144,16 @@ const GamificationSettingsPage = (): ReactElement => {
               Let Patchy peek out from your streak to react when you upvote,
               bookmark or keep your streak going. His face stays in the Streak
               tab either way.
+            </SettingsSwitch>
+
+            <SettingsSwitch
+              name="patchy-suggestions"
+              checked={isPatchySuggestionsEnabled}
+              onToggle={onTogglePatchySuggestions}
+            >
+              Let Patchy suggest one useful thing now and then, like following a
+              tag you keep reading or a short read when your streak is at risk.
+              At most 3 a day.
             </SettingsSwitch>
           </section>
         )}

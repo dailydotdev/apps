@@ -11,6 +11,9 @@ import { subscribePatchyEvents } from './patchyEvents';
 import type { PatchyEvent } from './patchyEvents';
 import { patchyPeekScheduler } from './patchyPeekScheduler';
 import { recordPatchyActivity } from './patchyDay';
+import { isPatchyOfferOpen, setPatchyPeeking } from './patchyAssistant';
+import type { PatchyMotion } from './patchyIdle';
+import { usePatchyIdle } from './patchyIdle';
 import {
   getActionTrigger,
   getNightKey,
@@ -27,6 +30,13 @@ const POLL_MS = 500;
 // Scrolling within this long counts as an active scroll.
 const SCROLL_IDLE_MS = 800;
 const MOOD_TICK_MS = 60 * 1000;
+
+// His own thing: at most once per this long, only after you've been idle
+// for a while (and not too long, or nobody sees it).
+const OWN_THING_EVERY_MS = 25 * 60 * 1000;
+const OWN_THING_IDLE_MS: [number, number] = [45 * 1000, 15 * 60 * 1000];
+const OWN_THING_CHECK_MS = 30 * 1000;
+const ownThingKey = (userId: string) => `patchy_own_thing:${userId}`;
 
 const lateNightKey = (userId: string) => `patchy_late_night:${userId}`;
 const welcomeKey = (userId: string) => `patchy_welcome:${userId}`;
@@ -48,6 +58,10 @@ interface UsePatchyCompanionProps {
   state: StreakRingState;
   hasReadToday: boolean;
   lastViewAt?: Date | string | null;
+  // A post is open: he reads along.
+  isReading?: boolean;
+  // A suggestion is showing: his face while he offers it.
+  offerFace?: PatchyFace | null;
 }
 
 interface UsePatchyCompanion {
@@ -56,6 +70,9 @@ interface UsePatchyCompanion {
   peek: PatchyPeekState | null;
   // Bumps on every reaction, peek or not, so the icon can hop.
   bump: number;
+  // A small motion the icon plays with his face (idle animations).
+  motion: PatchyMotion | null;
+  motionKey: number;
   onPeekDone: () => void;
 }
 
@@ -69,6 +86,8 @@ export const usePatchyCompanion = ({
   state,
   hasReadToday,
   lastViewAt,
+  isReading = false,
+  offerFace = null,
 }: UsePatchyCompanionProps): UsePatchyCompanion => {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -218,7 +237,8 @@ export const usePatchyCompanion = ({
       const isBlocked =
         document.hidden ||
         Date.now() - lastScrollAtRef.current < SCROLL_IDLE_MS ||
-        isModalOpen();
+        isModalOpen() ||
+        isPatchyOfferOpen();
       const trigger = patchyPeekScheduler.take(Date.now(), isBlocked);
       // Keep polling while more wait their turn: with reduced motion there is
       // no peek to end and restart this.
@@ -255,15 +275,72 @@ export const usePatchyCompanion = ({
 
   const onPeekDone = useCallback(() => setPeek(null), []);
 
+  useEffect(() => {
+    setPatchyPeeking(!!peek);
+  }, [peek]);
+
+  // Now and then, while you're idle, he does his own thing: a nap at the
+  // edge of the rail or a look at the news.
+  const lastInputAtRef = useRef(Date.now());
+  useEffect(() => {
+    if (!isActive || !user || prefersReducedMotion) {
+      return undefined;
+    }
+    const onInput = () => {
+      lastInputAtRef.current = Date.now();
+    };
+    const events = ['pointermove', 'keydown', 'scroll'] as const;
+    events.forEach((name) =>
+      window.addEventListener(name, onInput, { capture: true, passive: true }),
+    );
+    const id = setInterval(() => {
+      const idleFor = Date.now() - lastInputAtRef.current;
+      const lastAt = Number(storageWrapper.getItem(ownThingKey(user.id)) ?? 0);
+      if (
+        document.hidden ||
+        idleFor < OWN_THING_IDLE_MS[0] ||
+        idleFor > OWN_THING_IDLE_MS[1] ||
+        Date.now() - lastAt < OWN_THING_EVERY_MS ||
+        Math.random() < 0.5
+      ) {
+        return;
+      }
+      const trigger =
+        new Date().getHours() >= 21 || Math.random() < 0.5
+          ? 'idle_nap'
+          : 'idle_news';
+      if (patchyPeekScheduler.request(trigger, Date.now())) {
+        storageWrapper.setItem(ownThingKey(user.id), String(Date.now()));
+        setPendingVersion((version) => version + 1);
+      }
+    }, OWN_THING_CHECK_MS);
+    return () => {
+      clearInterval(id);
+      events.forEach((name) =>
+        window.removeEventListener(name, onInput, { capture: true }),
+      );
+    };
+  }, [isActive, user, prefersReducedMotion]);
+
   const mood = getPatchyMood({ state, hasReadToday, lastViewAt, now, config });
   const restingFace =
     mood === 'away' && isGreeted ? 'happy' : config.moods[mood].face;
+  const idle = usePatchyIdle({
+    isEnabled,
+    isResting: mood === 'away' || mood === 'resting',
+    isReading,
+    prefersReducedMotion,
+  });
+  const baseFace = isReading && mood !== 'away' ? 'lookdown' : restingFace;
+  const isIdleFace = !faceOverride && !offerFace && !!idle.face;
 
   return {
-    face: faceOverride ?? restingFace,
+    face: faceOverride ?? offerFace ?? idle.face ?? baseFace,
     mood,
     peek: isActive ? peek : null,
     bump: isActive ? bump : 0,
+    motion: isIdleFace ? idle.motion : null,
+    motionKey: idle.key,
     onPeekDone,
   };
 };

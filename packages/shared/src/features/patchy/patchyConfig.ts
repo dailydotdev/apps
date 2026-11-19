@@ -16,6 +16,10 @@ export const patchyTriggers = [
   // reaction than the first time.
   'on_a_roll',
   'bookmark_pile',
+  // His own thing: now and then, while you're idle, he naps at the edge of
+  // the rail or catches up on the news.
+  'idle_nap',
+  'idle_news',
 ] as const;
 export type PatchyTrigger = (typeof patchyTriggers)[number];
 
@@ -25,6 +29,14 @@ export const patchyFaces = [
   'sleepy',
   'asleep',
   'sideeye',
+  // Micro-animation faces for the streak circle.
+  'lookright',
+  'lookdown',
+  'yawn',
+  'tongue',
+  'wink',
+  'alert',
+  'earflop',
 ] as const;
 export type PatchyFace = (typeof patchyFaces)[number];
 
@@ -34,6 +46,7 @@ export const patchyEmotes = [
   'sparkle',
   'moon',
   'sweat',
+  'none',
 ] as const;
 export type PatchyEmote = (typeof patchyEmotes)[number];
 
@@ -95,7 +108,12 @@ const pose = {
   deadpan: `${media}/v1794998770/public/patchy-v1-peek-deadpan.webp`,
   sleepy: `${media}/v1794998772/public/patchy-v1-peek-sleepy.webp`,
   bone: `${media}/v1794998773/public/patchy-v1-peek-bone.webp`,
+  point: `${media}/v1/public/patchy-v1-peek-point.webp`,
+  read: `${media}/v1/public/patchy-v1-peek-read.webp`,
 };
+
+// The pose he points at a suggestion with.
+export const patchyOfferPose = pose.point;
 
 export const defaultPatchyConfig: PatchyConfig = {
   cooldownMs: 180 * SECOND,
@@ -121,6 +139,13 @@ export const defaultPatchyConfig: PatchyConfig = {
     sleepy: `${media}/v1794998765/public/patchy-v1-face-sleepy.webp`,
     asleep: `${media}/v1794998767/public/patchy-v1-face-asleep.webp`,
     sideeye: `${media}/v1794998768/public/patchy-v1-face-sideeye.webp`,
+    lookright: `${media}/v1/public/patchy-v1-face-lookright.webp`,
+    lookdown: `${media}/v1/public/patchy-v1-face-lookdown.webp`,
+    yawn: `${media}/v1/public/patchy-v1-face-yawn.webp`,
+    tongue: `${media}/v1/public/patchy-v1-face-tongue.webp`,
+    wink: `${media}/v1/public/patchy-v1-face-wink.webp`,
+    alert: `${media}/v1/public/patchy-v1-face-alert.webp`,
+    earflop: `${media}/v1/public/patchy-v1-face-earflop.webp`,
   },
   reactions: {
     upvote: {
@@ -189,6 +214,22 @@ export const defaultPatchyConfig: PatchyConfig = {
       face: 'sideeye',
       priority: 2,
       ttlMs: 30 * SECOND,
+    },
+    idle_nap: {
+      enabled: true,
+      poseImage: pose.sleepy,
+      emote: 'moon',
+      face: 'sleepy',
+      priority: 0,
+      ttlMs: 10 * SECOND,
+    },
+    idle_news: {
+      enabled: true,
+      poseImage: pose.read,
+      emote: 'none',
+      face: 'lookdown',
+      priority: 0,
+      ttlMs: 10 * SECOND,
     },
   },
   moods: {

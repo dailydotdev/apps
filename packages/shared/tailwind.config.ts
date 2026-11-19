@@ -388,6 +388,26 @@ export default {
           '30%': { transform: 'translateY(-3px) scale(1.12)' },
           '60%': { transform: 'translateY(0) scale(0.96)' },
         },
+        // Patchy's idle micro-animations inside the streak circle.
+        'patchy-wobble': {
+          '0%, 100%': { transform: 'rotate(0deg)' },
+          '20%': { transform: 'rotate(-8deg)' },
+          '40%': { transform: 'rotate(6deg)' },
+          '60%': { transform: 'rotate(-4deg)' },
+          '80%': { transform: 'rotate(2deg)' },
+        },
+        'patchy-yawn': {
+          '0%, 100%': { transform: 'scale(1) translateY(0)' },
+          '45%': { transform: 'scale(1.08) translateY(-1px)' },
+        },
+        'patchy-pant': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-1.5px)' },
+        },
+        'patchy-spin': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(720deg)' },
+        },
         // Daily streak toast: the flame pops in with the same strike + rebound
         // as the rail tile's earn pop, then rests at its normal size.
         'streak-toast-pop': {
@@ -446,6 +466,10 @@ export default {
         'mascot-bob': 'mascot-bob 4s ease-in-out infinite',
         'patchy-emote': 'patchy-emote 2.2s ease-out both',
         'patchy-bump': 'patchy-bump 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        'patchy-wobble': 'patchy-wobble 1.4s ease-in-out',
+        'patchy-yawn': 'patchy-yawn 1.5s ease-in-out',
+        'patchy-pant': 'patchy-pant 0.28s ease-in-out 5',
+        'patchy-spin': 'patchy-spin 1.2s cubic-bezier(0.45, 0, 0.55, 1)',
       },
     },
     lineClamp: {

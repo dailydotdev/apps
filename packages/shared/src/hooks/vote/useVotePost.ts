@@ -119,7 +119,7 @@ const useVotePost = ({
 
       logEvent(postLogEvent(LogEvent.UpvotePost, post, finalLogOptions));
       playHaptic();
-      emitPatchyEvent({ type: 'upvote' });
+      emitPatchyEvent({ type: 'upvote', postId: post.id });
 
       await upvotePost({ id: post.id });
     },
