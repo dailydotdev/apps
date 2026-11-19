@@ -278,6 +278,44 @@ it('should move the compact grid ad controls under a menu', () => {
   );
 });
 
+it.each(['list', 'compact grid'])(
+  'fires click tracking for macro-bearing links in the %s ad',
+  (layout) => {
+    const src = jest.spyOn(HTMLImageElement.prototype, 'src', 'set');
+    const configured = {
+      ...ad,
+      link: 'https://advertiser.example?cb=${CACHEBUSTER}',
+      callToAction: 'Try it',
+      lifecycle: {
+        version: 1 as const,
+        on: {
+          click: [
+            { type: 'pixel' as const, url: 'https://tracker.example/click' },
+          ],
+        },
+      },
+    };
+    if (layout === 'list') {
+      renderListComponent({ ad: configured });
+      fireEvent.click(
+        within(screen.getByTestId('postItem')).getAllByRole('link')[0],
+      );
+    } else {
+      renderGridComponent({ ad: configured, isCompact: true });
+      fireEvent.keyDown(screen.getByRole('button', { name: 'Options' }), {
+        key: 'Enter',
+      });
+      fireEvent.click(
+        within(screen.getByRole('menu')).getByRole('link', { name: 'Try it' }),
+      );
+    }
+    expect(
+      src.mock.calls.filter(([url]) => url === 'https://tracker.example/click'),
+    ).toHaveLength(1);
+    src.mockRestore();
+  },
+);
+
 const promotedMatcher = (_: string, element?: Element | null): boolean =>
   getAttributionText(element) === 'Promoted' ||
   getAttributionText(element).startsWith('Promoted by ');

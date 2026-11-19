@@ -1,5 +1,6 @@
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useAdSlotFetch } from '../useAdSlotFetch';
 import { AdPlacement } from '../../../lib/ads';
 import { disabledRefetch, shuffleArray } from '../../../lib/func';
 import { RequestKey } from '../../../lib/query';
@@ -22,6 +23,7 @@ import type {
 } from './sponsorStripCreative';
 import {
   getSponsorLogo,
+  getSponsorAd,
   parseSponsors,
   resolveSponsor,
 } from './sponsorStripCreative';
@@ -109,6 +111,7 @@ const useDeck = (pool: SponsorStripCreative[]): SponsorStripCreative[] => {
 
 export const useSponsorStripAds = (): UseSponsorStripAds => {
   const consent = useAdMacroContext(true) ?? undefined;
+  const onFetch = useAdSlotFetch(consent ?? null);
   const { data, isPending } = useQuery({
     // Consent fingerprint, so the bar refetches when the reader answers the
     // CMP banner rather than holding an hour-old unconsented fill.
@@ -118,7 +121,15 @@ export const useSponsorStripAds = (): UseSponsorStripAds => {
       consent?.gdprApplies,
       consent?.consentString ?? '',
     ],
-    queryFn: () => fetchSponsorStripAds(consent),
+    queryFn: () =>
+      fetchSponsorStripAds(consent, (response) => {
+        parseSponsors(response).forEach((creative) =>
+          onFetch({
+            type: 'post-fetch',
+            ad: getSponsorAd(resolveSponsor(creative)),
+          }),
+        );
+      }),
     staleTime: ONE_HOUR,
     ...disabledRefetch,
   });

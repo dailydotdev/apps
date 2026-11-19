@@ -1,4 +1,4 @@
-import type { AnchorHTMLAttributes, ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import React, { forwardRef } from 'react';
 import {
   CardContainer,
@@ -51,9 +51,10 @@ const getLinkProps = ({
   ad: Ad;
   href: string;
   onLinkClick: (ad: Ad) => unknown;
-}): AnchorHTMLAttributes<HTMLAnchorElement> => {
+}) => {
   return {
     href,
+    'data-ad-click': true,
     target: '_blank',
     rel: anchorSponsoredRel,
     title: ad.description,
@@ -88,6 +89,7 @@ export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
         <Button
           tag="a"
           href={clickUrl}
+          data-ad-click
           target="_blank"
           rel={anchorSponsoredRel}
           variant={ButtonVariant.Primary}

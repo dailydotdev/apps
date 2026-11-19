@@ -335,6 +335,7 @@ export const DropdownMenuOptions = ({
                     {...anchorProps}
                   >
                     <a
+                      {...anchorProps}
                       className={className}
                       target={anchorProps?.target}
                       rel={anchorProps?.rel}

@@ -2,6 +2,18 @@ import type { Ad } from '../../graphql/posts';
 import type { AdMacroContext } from './adMacros';
 import { substituteMacros } from './adMacros';
 
+export enum AdLifecycleEvent {
+  PostFetch = 'post-fetch',
+  PreRender = 'pre-render',
+  PostRender = 'post-render',
+  Impression = 'impression',
+  Visible = 'visible',
+  HalfVisible = 'half-visible',
+  VisibleFor1s = 'visible-for-1s',
+  Viewable = 'viewable',
+  Click = 'click',
+}
+
 export type AdSlotVisibilityMilestone =
   /** At least part of the creative is in the focused viewport. */
   | 'visible'
@@ -9,15 +21,7 @@ export type AdSlotVisibilityMilestone =
   /** Any part of the creative stays visible for one continuous second. */
   | 'visible-for-1s';
 
-export type AdSlotMilestone =
-  | 'post-fetch'
-  | 'pre-render'
-  | 'post-render'
-  /** The existing impression marker has entered the viewport. */
-  | 'impression'
-  | AdSlotVisibilityMilestone
-  /** The creative meets the display viewability ratio for a full second. */
-  | 'viewable';
+export type AdSlotMilestone = `${AdLifecycleEvent}`;
 
 export type AdSlotAction =
   | { type: 'event'; name: string }
@@ -77,7 +81,7 @@ export const runAdSlotActions = ({
     milestones = new Set();
     generations.set(generation, milestones);
   }
-  if (milestones.has(milestone)) {
+  if (milestone !== AdLifecycleEvent.Click && milestones.has(milestone)) {
     return;
   }
   milestones.add(milestone);

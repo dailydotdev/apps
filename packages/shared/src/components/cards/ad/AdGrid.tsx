@@ -170,6 +170,7 @@ export const AdGrid = forwardRef<HTMLElement, AdGridProps>(function AdGrid(
                 <Button
                   tag="a"
                   href={clickUrl}
+                  data-ad-click
                   target="_blank"
                   rel={anchorSponsoredRel}
                   variant={ButtonVariant.Primary}

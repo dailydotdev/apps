@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import ad from '../../../../../__tests__/fixture/ad';
 import { TestBootProvider } from '../../../../../__tests__/helpers/boot';
@@ -210,4 +210,31 @@ it('runs configured actions in order and once per creative generation', () => {
   becomeViewable();
   expect(src).toHaveBeenCalledTimes(2);
   expect(onViewable).toHaveBeenCalledTimes(2);
+});
+
+it('fires each configured click without changing impression tracking or unrelated links', () => {
+  const src = jest.spyOn(HTMLImageElement.prototype, 'src', 'set');
+  const creative: Ad = {
+    ...ad,
+    link: 'https://advertiser.example',
+    lifecycle: {
+      version: 1,
+      on: { click: [{ type: 'pixel', url: 'https://tracker.example/click' }] },
+    },
+  };
+  render(
+    <TestBootProvider client={new QueryClient()}>
+      <AdSlot ad={creative}>
+        <div>
+          <a href={creative.link}>Advertiser</a>
+          <a href="https://daily.dev/advertise">Advertise</a>
+        </div>
+      </AdSlot>
+    </TestBootProvider>,
+  );
+  fireEvent.click(screen.getByRole('link', { name: 'Advertise' }));
+  expect(src).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('link', { name: 'Advertiser' }));
+  fireEvent.click(screen.getByRole('link', { name: 'Advertiser' }));
+  expect(src).toHaveBeenCalledTimes(2);
 });
