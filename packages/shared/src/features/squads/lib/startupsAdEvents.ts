@@ -8,8 +8,10 @@ type TrackEvent = PixelsContextData['trackEvent'];
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 // An agent creates the page through the API, so the founder's first visit
-// within this window stands in for the moment it was created
-export const NEW_COMPANY_PAGE_DAYS = 7;
+// within this window stands in for the moment it was created. daily-api sends
+// the same event when the page is created, and Meta and X only merge the two
+// within 48 hours
+export const NEW_COMPANY_PAGE_DAYS = 2;
 // Matches the free first-post boost window in daily-api
 export const COMPANY_PAGE_FIRST_POST_DAYS = 30;
 
