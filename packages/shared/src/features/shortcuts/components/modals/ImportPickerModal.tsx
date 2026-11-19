@@ -13,8 +13,7 @@ import {
 } from '../../../../components/typography/Typography';
 import { BookmarkIcon, SitesIcon, VIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
-import { getShortcutIconUrl } from '../../lib/getShortcutIconUrl';
-import { getDomainFromUrl } from '../../../../lib/links';
+import { getDomainFromUrl, getShortcutIconUrl } from '../../../../lib/links';
 import { MAX_SHORTCUTS } from '../../types';
 import type { ImportSource } from '../../types';
 import { useShortcutsManager } from '../../hooks/useShortcutsManager';

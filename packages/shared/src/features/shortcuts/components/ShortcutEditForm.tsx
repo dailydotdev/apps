@@ -7,9 +7,12 @@ import classNames from 'classnames';
 import ControlledTextField from '../../../components/fields/ControlledTextField';
 import { useShortcutsManager } from '../hooks/useShortcutsManager';
 import type { Shortcut } from '../types';
-import { isValidHttpUrl, withHttps } from '../../../lib/links';
+import {
+  getShortcutIconUrl,
+  isValidHttpUrl,
+  withHttps,
+} from '../../../lib/links';
 import { CameraIcon, EarthIcon } from '../../../components/icons';
-import { apiUrl } from '../../../lib/config';
 import {
   allowedContentImage,
   imageSizeLimitMB,
@@ -157,7 +160,7 @@ export function ShortcutEditForm({
   const canShowFavicon =
     !hasCustomIcon && !faviconFailed && isValidHttpUrl(urlCandidate);
   const faviconSrc = canShowFavicon
-    ? `${apiUrl}/icon?url=${encodeURIComponent(urlCandidate)}&size=96`
+    ? getShortcutIconUrl(urlCandidate, 96)
     : null;
 
   const openFilePicker = () => fileInputRef.current?.click();

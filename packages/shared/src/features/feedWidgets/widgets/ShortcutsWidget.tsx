@@ -27,8 +27,7 @@ import {
   TargetType,
 } from '../../../lib/log';
 import { checkIsExtension } from '../../../lib/func';
-import { getShortcutIconUrl } from '../../shortcuts/lib/getShortcutIconUrl';
-import { getDomainFromUrl } from '../../../lib/links';
+import { getDomainFromUrl, getShortcutIconUrl } from '../../../lib/links';
 import { combinedClicks } from '../../../lib/click';
 import {
   cloudinaryShortcutsIconsGmail,

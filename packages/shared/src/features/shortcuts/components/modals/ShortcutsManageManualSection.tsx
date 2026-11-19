@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import {
   DndContext,
@@ -35,8 +35,7 @@ import {
   StarIcon,
   TrashIcon,
 } from '../../../../components/icons';
-import { apiUrl } from '../../../../lib/config';
-import { getDomainFromUrl } from '../../../../lib/links';
+import { getDomainFromUrl, getShortcutIconUrl } from '../../../../lib/links';
 import { MAX_SHORTCUTS } from '../../types';
 import type { Shortcut } from '../../types';
 import { SectionHeader } from './ShortcutsManageCommon';
@@ -87,6 +86,7 @@ function ShortcutRow({
     isDragging,
   } = useSortable({ id: shortcut.url });
   const label = shortcut.name || getDomainFromUrl(shortcut.url);
+  const [iconFailed, setIconFailed] = useState(false);
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -111,11 +111,21 @@ function ShortcutRow({
       >
         <DragIcon />
       </button>
-      <img
-        src={`${apiUrl}/icon?url=${encodeURIComponent(shortcut.url)}&size=32`}
-        alt=""
-        className="size-8 shrink-0 rounded-8 bg-surface-float"
-      />
+      {iconFailed ? (
+        <span
+          aria-hidden
+          className="flex size-8 shrink-0 items-center justify-center rounded-8 bg-surface-float text-text-secondary typo-callout"
+        >
+          {(label || '?').charAt(0).toUpperCase()}
+        </span>
+      ) : (
+        <img
+          src={getShortcutIconUrl(shortcut.url, 32)}
+          alt=""
+          onError={() => setIconFailed(true)}
+          className="size-8 shrink-0 rounded-8 bg-surface-float"
+        />
+      )}
       <div className="min-w-0 flex-1">
         <p className="truncate text-text-primary typo-callout">{label}</p>
         <p className="truncate text-text-tertiary typo-caption1">

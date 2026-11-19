@@ -24,8 +24,7 @@ import {
 import { IconSize } from '../../../components/Icon';
 import { MenuIcon as WrappingMenuIcon } from '../../../components/MenuIcon';
 import { combinedClicks } from '../../../lib/click';
-import { getShortcutIconUrl } from '../lib/getShortcutIconUrl';
-import { getDomainFromUrl } from '../../../lib/links';
+import { getDomainFromUrl, getShortcutIconUrl } from '../../../lib/links';
 import {
   DRAG_ACTIVATION_DISTANCE_SQ_PX,
   POST_DRAG_SUPPRESSION_MS,

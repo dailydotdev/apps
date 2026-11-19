@@ -10,7 +10,7 @@ import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { combinedClicks } from '@dailydotdev/shared/src/lib/click';
 
-import { getShortcutIconUrl } from '@dailydotdev/shared/src/features/shortcuts/lib/getShortcutIconUrl';
+import { getShortcutIconUrl } from '@dailydotdev/shared/src/lib/links';
 import { DRAG_ACTIVATION_DISTANCE_SQ_PX } from '@dailydotdev/shared/src/features/shortcuts/hooks/useDragClickGuard';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
