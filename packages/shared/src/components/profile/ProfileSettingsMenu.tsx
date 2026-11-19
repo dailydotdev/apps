@@ -31,6 +31,7 @@ import {
 import { NavDrawer } from '../drawers/NavDrawer';
 import {
   appsUrl,
+  boostManagerUrl,
   businessWebsiteUrl,
   docs,
   reputation,
@@ -39,10 +40,7 @@ import {
   webappUrl,
 } from '../../lib/constants';
 
-import type {
-  ProfileSectionItemProps,
-  ProfileSectionItemPropsWithoutHref,
-} from '../ProfileMenu/ProfileSectionItem';
+import type { ProfileSectionItemProps } from '../ProfileMenu/ProfileSectionItem';
 import { ProfileSection } from '../ProfileMenu/ProfileSection';
 import { LogoutReason } from '../../lib/user';
 import { logout, useAuthContext } from '../../contexts/AuthContext';
@@ -55,8 +53,6 @@ import { ProfileImageSize } from '../ProfilePicture';
 import { useViewSize, ViewSize } from '../../hooks';
 import { TypographyColor, TypographyType } from '../typography/Typography';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { LazyModal } from '../modals/common/types';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetId } from '../../lib/log';
 import { VolunteeringIcon } from '../icons/Volunteering';
@@ -81,7 +77,6 @@ type MenuItems = Record<
 const defineMenuItems = <T extends MenuItems>(items: T): T => items;
 
 const useAccountPageItems = () => {
-  const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
   const { optOutAchievements, isQuestExperienceEnabled } = useSettingsContext();
@@ -251,10 +246,10 @@ const useAccountPageItems = () => {
               external: true,
             },
             adsDashboard: {
-              title: 'Ads dashboard',
+              title: 'Boost manager',
               icon: TrendingIcon,
-              onClick: () => openModal({ type: LazyModal.AdsDashboard }),
-            } as ProfileSectionItemPropsWithoutHref,
+              href: boostManagerUrl,
+            },
           },
         },
         help: {
@@ -309,7 +304,6 @@ const useAccountPageItems = () => {
       }),
     [
       logEvent,
-      openModal,
       user?.username,
       optOutAchievements,
       shouldHideGameCenter,

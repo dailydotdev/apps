@@ -194,8 +194,8 @@ export enum CampaignWallet {
   Squad = 'SQUAD',
 }
 
-// Who a post boost targets. Tags left out default to the post's tags, and
-// no countries means worldwide.
+// Who a boost targets. Tags left out default to the post's or squad's own
+// tags, and no countries means worldwide.
 export interface CampaignAudience {
   tags?: string[];
   countries?: string[];
@@ -230,6 +230,36 @@ export const getDailyCampaignReachEstimate = async ({
 
   return result.dailyCampaignReachEstimate;
 };
+
+export const CAMPAIGN_AUDIENCE_TAGS = gql`
+  query CampaignAudienceTags($type: CampaignType!, $value: ID!) {
+    campaignAudienceTags(type: $type, value: $value)
+  }
+`;
+
+// The tags a boost targets until its audience is edited: the post's tags, or
+// a squad's recent tags (none, for any topic, when it has 3 or fewer)
+export const campaignAudienceTagsQueryOptions = ({
+  user,
+  type,
+  value,
+}: {
+  user?: Pick<LoggedUser, 'id'>;
+  type: CampaignType;
+  value: string;
+}) => ({
+  queryKey: generateQueryKey(RequestKey.Campaigns, user, 'tags', type, value),
+  queryFn: async (): Promise<string[]> => {
+    const result = await gqlClient.request<{ campaignAudienceTags: string[] }>(
+      CAMPAIGN_AUDIENCE_TAGS,
+      { type, value },
+    );
+
+    return result.campaignAudienceTags;
+  },
+  staleTime: StaleTime.Default,
+  enabled: !!user && !!value,
+});
 
 export const START_CAMPAIGN = gql`
   mutation StartCampaign(

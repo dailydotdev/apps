@@ -24,8 +24,7 @@ import {
 import { IconSize } from '../../../components/Icon';
 import { MenuIcon as WrappingMenuIcon } from '../../../components/MenuIcon';
 import { combinedClicks } from '../../../lib/click';
-import { apiUrl } from '../../../lib/config';
-import { getDomainFromUrl } from '../../../lib/links';
+import { getDomainFromUrl, getShortcutIconUrl } from '../../../lib/links';
 import {
   DRAG_ACTIVATION_DISTANCE_SQ_PX,
   POST_DRAG_SUPPRESSION_MS,
@@ -211,9 +210,7 @@ export function ShortcutTile({
   const finalIconSrc =
     !iconBroken && iconUrl
       ? iconUrl
-      : `${apiUrl}/icon?url=${encodeURIComponent(url)}&size=${getIconSize(
-          isLarge,
-        )}`;
+      : getShortcutIconUrl(url, getIconSize(isLarge));
 
   const handleIconError = () => setIconBroken(true);
 

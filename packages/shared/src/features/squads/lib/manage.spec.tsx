@@ -43,13 +43,22 @@ describe('getSquadManageGroups', () => {
         .map(({ id, lockedPlan }) => [id, lockedPlan]),
     );
 
-  it('shows every plan section locked to editors of a squad with no plan', () => {
+  it('locks nothing on a community squad', () => {
     const squad = squadWith([SourcePermissions.Edit]);
 
+    expect(lockedPlans(squad)).toEqual({});
+  });
+
+  it('shows every plan section locked to editors of a company page with no plan', () => {
+    const squad = {
+      ...squadWith([SourcePermissions.Edit]),
+      flags: { company: true },
+    } as unknown as Squad;
+
+    // Links stays open: a free company page sets its website there
     expect(lockedPlans(squad)).toEqual({
       [SquadManageSection.Products]: SquadManageLockedPlan.Startups,
       [SquadManageSection.Jobs]: SquadManageLockedPlan.Enterprise,
-      [SquadManageSection.Links]: SquadManageLockedPlan.Startups,
       [SquadManageSection.Branding]: SquadManageLockedPlan.Enterprise,
       [SquadManageSection.Intel]: SquadManageLockedPlan.Startups,
       [SquadManageSection.Agent]: SquadManageLockedPlan.Startups,
@@ -89,6 +98,16 @@ describe('getSquadManageGroups', () => {
     } as unknown as Squad;
 
     expect(locked(squad)).toEqual([]);
+  });
+
+  it('opens Links to a company page with no plan, for its website', () => {
+    const squad = {
+      ...squadWith([SourcePermissions.Edit]),
+      flags: { company: true },
+    } as Squad;
+
+    expect(sections(squad)).toContain(SquadManageSection.Links);
+    expect(locked(squad)).not.toContain(SquadManageSection.Links);
   });
 
   it('opens Auto-posting to editors of a squad with no plan', () => {

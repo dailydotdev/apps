@@ -8,7 +8,12 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import { CoreIcon, OpenLinkIcon, VIcon } from '../../../../components/icons';
+import {
+  CoreIcon,
+  MiniCloseIcon,
+  OpenLinkIcon,
+  VIcon,
+} from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import {
   ProfileImageSize,
@@ -28,6 +33,7 @@ import {
   squadSubscriptionQueryOptions,
 } from '../../../../graphql/squadSubscription';
 import { managePlusUrl } from '../../../../lib/constants';
+import { link } from '../../../../lib/links';
 import { LogEvent, Origin } from '../../../../lib/log';
 import { useSquadPageContext } from '../../SquadPageContext';
 import { getSquadId } from '../../lib/features';
@@ -35,15 +41,19 @@ import { getStartupsCheckoutUrl, SquadManageSection } from '../../lib/routes';
 import {
   CORES_PER_USD,
   formatBoostCredits,
-  formatSquadPlanCredits,
+  getSquadPlanMonthlyCredits,
+  freeCompanyPageIncludes,
+  freeCompanyPageLacks,
   getSquadPlanCreditsForRate,
   SquadPlan,
+  squadPlanOverFree,
   getSquadPlanTitle,
   isSquadPlan,
   squadPlanDetails,
   squadPlans,
   startupsEnterpriseUrl,
 } from '../../lib/plans';
+import type { SquadPlanDetails } from '../../lib/plans';
 import { useSquadPlanPrices } from '../../hooks/useSquadPlanPrices';
 import {
   SquadLaunchOfferBanner,
@@ -106,12 +116,14 @@ const PlanChoice = ({
   plan,
   price,
   action,
+  details = squadPlanDetails[plan],
 }: {
   plan: SquadPlan;
   price: string;
   action?: ReactNode;
+  details?: SquadPlanDetails;
 }): ReactElement => {
-  const { title, tagline, featuresTitle, features } = squadPlanDetails[plan];
+  const { title, tagline, featuresTitle, features } = details;
   const isRecommended = plan === SquadPlan.Starter;
 
   return (
@@ -166,8 +178,8 @@ const EnterpriseCard = ({ onClick }: { onClick: () => void }): ReactElement => (
     <div className="flex min-w-0 flex-1 flex-col gap-1">
       <p className="font-bold typo-callout">Enterprise</p>
       <p className="text-text-tertiary typo-footnote">
-        Verified badge, jobs board, homepage placement, campaigns and an account
-        team.
+        For established teams: a verified page, your logo on the daily.dev
+        homepage, targeted campaigns, and our team runs it with you.
       </p>
     </div>
     <Button
@@ -185,6 +197,119 @@ const EnterpriseCard = ({ onClick }: { onClick: () => void }): ReactElement => (
   </div>
 );
 
+const FeatureLine = ({
+  children,
+  isMissing,
+}: {
+  children: ReactNode;
+  isMissing?: boolean;
+}): ReactElement => (
+  <li
+    className={classNames(
+      'flex items-start gap-2 typo-footnote',
+      isMissing ? 'text-text-tertiary' : 'text-text-secondary',
+    )}
+  >
+    {isMissing ? (
+      <MiniCloseIcon
+        size={IconSize.Size16}
+        className="shrink-0 text-text-quaternary"
+      />
+    ) : (
+      <VIcon
+        size={IconSize.Size16}
+        className="shrink-0 text-accent-avocado-default"
+      />
+    )}
+    <span className="min-w-0 flex-1">{children}</span>
+  </li>
+);
+
+// A company page without a plan: what it has and lacks now, and what each
+// plan adds on top
+const FreeCompanyPlan = ({
+  isAdmin,
+  onUpgrade,
+}: {
+  isAdmin: boolean;
+  onUpgrade: (targetId: string) => void;
+}): ReactElement => {
+  const { squad } = useSquadPageContext();
+  const prices = useSquadPlanPrices();
+  const sourceId = getSquadId(squad);
+  const hasPosted = (squad.flags?.totalPosts ?? 0) > 0;
+
+  return (
+    <>
+      <SectionTitle title={`${squad.name} is on daily.dev`} />
+      <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-primary p-4">
+        <span className="font-bold text-text-tertiary typo-caption1">
+          Free · what you have now
+        </span>
+        <div className="grid gap-x-4 gap-y-1.5 tablet:grid-cols-2">
+          <ul className="flex flex-col gap-1.5">
+            {freeCompanyPageIncludes.map((feature, index) => (
+              <FeatureLine key={feature}>
+                {index === 0 ? <strong>{feature}</strong> : feature}
+              </FeatureLine>
+            ))}
+          </ul>
+          <ul className="flex flex-col gap-1.5">
+            {freeCompanyPageLacks.map((feature) => (
+              <FeatureLine key={feature} isMissing>
+                {feature}
+              </FeatureLine>
+            ))}
+          </ul>
+        </div>
+        {!hasPosted && (
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border-subtlest-tertiary pt-3">
+            <p className="min-w-0 flex-1 text-text-secondary typo-footnote">
+              Your $100 boost starts as soon as your first post is live.
+            </p>
+            <Button
+              tag="a"
+              href={`${link.post.create}?sid=${squad.handle}`}
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+            >
+              Share your first post
+            </Button>
+          </div>
+        )}
+      </div>
+      <SquadLaunchOfferBanner />
+      <div className="grid gap-3 tablet:grid-cols-2">
+        {squadPlans.map((plan) => (
+          <PlanChoice
+            key={plan}
+            plan={plan}
+            price={prices[plan]}
+            details={squadPlanOverFree[plan]}
+            action={
+              isAdmin && (
+                <Button
+                  tag="a"
+                  href={getStartupsCheckoutUrl({ plan, sourceId })}
+                  onClick={() => onUpgrade(plan)}
+                  variant={
+                    plan === SquadPlan.Starter
+                      ? ButtonVariant.Primary
+                      : ButtonVariant.Secondary
+                  }
+                  className="mt-auto w-full"
+                >
+                  {`Choose ${squadPlanDetails[plan].title}`}
+                </Button>
+              )
+            }
+          />
+        ))}
+      </div>
+    </>
+  );
+};
+
 const ChoosePlan = ({ isAdmin }: { isAdmin: boolean }): ReactElement => {
   const { squad } = useSquadPageContext();
   const prices = useSquadPlanPrices();
@@ -195,6 +320,20 @@ const ChoosePlan = ({ isAdmin }: { isAdmin: boolean }): ReactElement => {
       origin: Origin.SquadManagePlan,
       source_id: sourceId,
     });
+
+  if (squad.flags?.company) {
+    return (
+      <div className="flex flex-col gap-5">
+        <FreeCompanyPlan isAdmin={isAdmin} onUpgrade={logUpgrade} />
+        {!isAdmin && (
+          <p className="text-text-secondary typo-footnote">
+            Only an admin of this Squad can choose a plan.
+          </p>
+        )}
+        <EnterpriseCard onClick={() => logUpgrade('enterprise')} />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-5">
@@ -476,7 +615,7 @@ const getActiveCashbackDescription = (
   const until = cashbackPromoEndsAt
     ? ` until ${getPlusMemberDateFormat(
         cashbackPromoEndsAt,
-      )}, then ${formatSquadPlanCredits(plan)}`
+      )}, then ${formatBoostCredits(getSquadPlanMonthlyCredits(plan))}`
     : '';
 
   return `${credits} in boost credits lands here every month${until}. Seats spend them to boost this page's posts.`;

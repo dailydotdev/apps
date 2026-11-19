@@ -10,8 +10,6 @@ import {
   cloudinaryShortcutsIconsGithubDark,
   cloudinaryIntegrationsSlackHeaderLight,
   cloudinaryIntegrationsSlackHeaderDark,
-  boostNewPostBanner,
-  boostNewPostBannerLight,
   jobsWelcomeDarkMode,
   jobsWelcomeLightMode,
   jobOfferLightDesktop,
@@ -21,7 +19,6 @@ import {
 } from '../../lib/image';
 
 interface UseAsset {
-  postBoostStrip: string;
   onboardingIntroduction: string;
   scrollBlock: string;
   themeColor: string;
@@ -49,7 +46,6 @@ export const useThemedAsset = (): UseAsset => {
   const isLight = useIsLightTheme();
 
   return {
-    postBoostStrip: isLight ? boostNewPostBannerLight : boostNewPostBanner,
     onboardingIntroduction: isLight
       ? cloudinaryFeedFiltersYourFeedLight
       : cloudinaryFeedFiltersYourFeedDark,

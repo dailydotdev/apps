@@ -78,6 +78,24 @@ describe('SquadManagePlan', () => {
     expect(screen.queryByText('Manage billing')).not.toBeInTheDocument();
   });
 
+  it('shows a free company page what it lacks and its first post boost', async () => {
+    renderPlan(
+      { plan: null } as unknown as SquadSubscription,
+      {
+        ...squad,
+        flags: { company: true, totalPosts: 0 },
+      } as unknown as Squad,
+    );
+
+    expect(
+      await screen.findByText('Free · what you have now'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('No API posting')).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Share your first post' }),
+    ).toHaveAttribute('href', expect.stringContaining('?sid=acme'));
+  });
+
   const team = {
     plan: 'team',
     status: 'active',

@@ -126,7 +126,7 @@ export const getStartupsSetupPrompt = ({
         `List what we already published: blog posts, release notes, changelog entries, videos, talks, docs pages, launch posts. Recommend the one that fits the intel best, using any engagement you can see (views, comments, stars, earlier daily.dev posts). Say which intel numbers back it and give two runners-up. If nothing fits, suggest a new post with ${skillRef(
           'daily-dev-content-ideas',
         )}.`,
-        `Draft the post as a link with one or two lines of commentary in my voice, or as a written post when there is nothing to link. Review it with ${skillRef(
+        `I write the post myself, so don't write it or a draft of it. When I've written it, review it with ${skillRef(
           'daily-dev-content-review',
         )} and show me what it found, then publish it to @${handle} as me when I say so.`,
       ],
@@ -158,20 +158,20 @@ export const getStartupsSetupPrompt = ({
   ]);
 
   return [
-    `Set up ${name}'s company page on daily.dev (@${handle}, ${squadPlanDetails[plan].title} plan), polish my profile, get our first post out and boosted, and set up our daily routine, with the daily.dev MCP server. If its tools aren't connected, stop and tell me to add ${DAILY_MCP_URL}.`,
+    `Set up ${name}'s company page on daily.dev (@${handle}, ${squadPlanDetails[plan].title} plan), polish my profile, get our first post out and boosted, and set up our daily routine. Use the daily.dev MCP tools if you have them, otherwise my daily.dev API token (\`DAILY_DEV_TOKEN\`). If you have neither, stop and tell me to add ${DAILY_MCP_URL}.`,
     ...body,
     '',
     'Before each change, show me exactly what you will save and wait for my OK. Finish with links to our page, my profile and the boosted post, and a short list of anything left.',
   ].join('\n');
 };
 
-/** What an agent can do with the weekly intel, over the same MCP server. */
+export const getIntelApiUrl = (handle: string): string =>
+  `https://api.daily.dev/public/v1/squads/${handle}/intel`;
+
+/** What an agent can do with the weekly intel, over MCP or the API. */
 export const getIntelPrompt = (handle: string): string =>
   [
-    `Read the latest weekly intel for @${handle} with the daily.dev MCP server. If its tools aren't connected, stop and tell me to add ${DAILY_MCP_URL}.`,
+    `Read the latest weekly intel for @${handle} with the daily.dev MCP tools if you have them, otherwise my daily.dev API token (\`DAILY_DEV_TOKEN\`) and ${getIntelApiUrl(handle)}. If you have neither, stop and tell me to add ${DAILY_MCP_URL}.`,
     '',
     'Then look at what I shipped or wrote recently and suggest three posts for our daily.dev page. For each, give the angle, format, title, length and the best day and hour to publish, and say which numbers in the intel back it.',
   ].join('\n');
-
-export const getIntelApiUrl = (handle: string): string =>
-  `https://api.daily.dev/public/v1/squads/${handle}/intel`;

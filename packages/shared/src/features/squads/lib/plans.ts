@@ -76,12 +76,12 @@ export const getSquadPlanMonthlyCredits = (
 ): number =>
   getSquadPlanCreditsForRate(plan, getSquadPlanCashback(plan, promo));
 
-/** "$245 in boost credits", the plan's own while the promo is off. */
+/** "$245 in free boost credits", the plan's own while the promo is off. */
 export const formatSquadPlanCredits = (
   plan: SquadPlan,
   promo?: StartupsCashbackPromo | null,
 ): string =>
-  `${formatBoostCredits(getSquadPlanMonthlyCredits(plan, promo))} in boost credits`;
+  `${formatBoostCredits(getSquadPlanMonthlyCredits(plan, promo))} in free boost credits`;
 
 /** "5×" for a 500% promo: how many times the plan price comes back. */
 export const formatCashbackMultiple = (percentage: number): string =>
@@ -153,6 +153,41 @@ export const squadPlanDetails: Record<SquadPlan, SquadPlanDetails> = {
       '5 seats',
     ],
   },
+};
+
+// A company page without a plan: what it has and lacks, then what each plan
+// adds over it. Mirrors the Free card of the plan table on daily.dev/startups/
+// (recruiter-landing `StartupPlanTable.astro`); change both together.
+export const freeCompanyPageIncludes = [
+  '$100 boost on your first post',
+  'Company page',
+  'Limited exposure in the developer feed',
+  'Analytics on every post',
+  'Weekly report on what developers read',
+];
+
+export const freeCompanyPageLacks = [
+  'No distribution tools',
+  'No monthly boost credits',
+  'No API posting',
+  'No intel on what developers in your space read',
+];
+
+export const squadPlanOverFree: Record<SquadPlan, SquadPlanDetails> = {
+  [SquadPlan.Starter]: {
+    ...squadPlanDetails[SquadPlan.Starter],
+    featuresTitle: 'Everything in Free, plus:',
+    features: [
+      'Distribution tools to promote your posts',
+      'In developers’ feeds, by topic',
+      'On Google and in AI answers',
+      'Weekly intel on up to 5 topics',
+      'Skills for any coding agent',
+      'API, so your agent posts and boosts',
+      '1 seat',
+    ],
+  },
+  [SquadPlan.Team]: squadPlanDetails[SquadPlan.Team],
 };
 
 // Enterprise is set by ops for a signed contract, never bought here, so it has

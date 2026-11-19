@@ -56,6 +56,7 @@ import {
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { canViewPostAnalytics } from '@dailydotdev/shared/src/lib/user';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
   getPostByIdKey,
@@ -85,7 +86,8 @@ import {
 } from '@dailydotdev/shared/src/graphql/campaigns';
 import { getAbsoluteDifferenceInDays } from '@dailydotdev/shared/src/features/boost/utils';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
-import { stopBoostPromptOptions } from '@dailydotdev/shared/src/features/boost/BoostedViewModal';
+import { stopBoostPromptOptions } from '@dailydotdev/shared/src/features/boost/useStopBoost';
+import { lastBoostOf } from '@dailydotdev/shared/src/features/boost/common';
 import { useCampaignMutation } from '@dailydotdev/shared/src/features/boost/useCampaignMutation';
 import {
   dateFormatInTimezone,
@@ -427,6 +429,7 @@ const PostAnalyticsPage = ({
       props: {
         post,
         origin: Origin.PostAnalytics,
+        lastBoost: campaign && lastBoostOf(campaign),
       },
     });
   };
@@ -495,7 +498,10 @@ const PostAnalyticsPage = ({
         <SectionContainer>
           <PostShortInfo post={post} />
           {!!postAnalytics?.limitedReachReason && (
-            <LimitedReachCard reason={postAnalytics.limitedReachReason} />
+            <LimitedReachCard
+              reason={postAnalytics.limitedReachReason}
+              squadHandle={post?.source?.handle}
+            />
           )}
         </SectionContainer>
         <Divider className={dividerClassName} />
@@ -588,7 +594,11 @@ const PostAnalyticsPage = ({
         )}
         {isPostAnalyticsFetched && !canViewAgentViews && (
           <StartupsAgentAnalyticsPromo
-            sourceId={post?.source?.id}
+            sourceId={
+              post?.source?.type === SourceType.Squad
+                ? post.source.id
+                : undefined
+            }
             wrapper={(promo) => (
               <>
                 <Divider className={dividerClassName} />

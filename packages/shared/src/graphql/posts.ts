@@ -1576,6 +1576,8 @@ export enum LimitedReachReason {
   Promotional = 'promotional',
   OversoldTitle = 'oversold_title',
   Language = 'language',
+  // Free company pages learn reach is limited, a plan shows the reason
+  Locked = 'locked',
 }
 
 export const POST_ANALYTICS_QUERY = gql`

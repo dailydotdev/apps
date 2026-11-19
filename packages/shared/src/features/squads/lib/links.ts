@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import type { IconProps } from '../../../components/Icon';
+import type { Source } from '../../../graphql/sources';
 import { DiscordIcon } from '../../../components/icons/Discord';
 import { GitHubIcon } from '../../../components/icons/GitHub';
 import { LinkIcon } from '../../../components/icons/Link';
@@ -101,3 +102,8 @@ export const getSquadLinkMeta = (value: string): SquadLinkMeta => {
 };
 
 export const squadLinkRel = 'noopener';
+
+// A company page without a plan links its website without passing ranking
+export const getSquadWebsiteRel = (
+  source: Pick<Source, 'features'> | undefined,
+): string => (source?.features?.links ? squadLinkRel : 'noopener nofollow');

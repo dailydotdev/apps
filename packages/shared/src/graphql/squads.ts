@@ -61,6 +61,7 @@ export enum PrivacyOption {
 
 export type SquadForm = BaseSquadForm & {
   status?: PrivacyOption;
+  company?: boolean;
   file?: File;
   header?: File;
 };
@@ -198,6 +199,7 @@ export const CREATE_SQUAD_MUTATION = gql`
     $postingMinReputation: Int
     $isPrivate: Boolean
     $categoryId: ID
+    $company: Boolean
   ) {
     createSquad(
       name: $name
@@ -210,6 +212,7 @@ export const CREATE_SQUAD_MUTATION = gql`
       postingMinReputation: $postingMinReputation
       isPrivate: $isPrivate
       categoryId: $categoryId
+      company: $company
     ) {
       ...SourceBaseInfo
       members {
@@ -641,6 +644,8 @@ export const SQUAD_ANALYTICS_QUERY = gql`
       shares
       clicks
       upvotesRatio
+      agentViews
+      agentViewsBot
     }
   }
 `;
@@ -1077,6 +1082,10 @@ export interface SquadAnalytics {
   shares: number;
   clicks: number;
   upvotesRatio: number;
+  /** AI agent reads; null unless the plan includes them */
+  agentViews?: number | null;
+  /** AI crawler visits; null unless the plan includes them */
+  agentViewsBot?: number | null;
 }
 
 export interface SquadAnalyticsHistoryNode {
@@ -1168,6 +1177,7 @@ export async function createSquad(form: SquadForm): Promise<Squad> {
   const data = await gqlClient.request(CREATE_SQUAD_MUTATION, {
     ...inputData,
     ...(description ? { description } : {}),
+    ...(form.company && { company: true }),
   });
 
   return data.createSquad;

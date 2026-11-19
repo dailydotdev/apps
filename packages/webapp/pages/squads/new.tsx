@@ -23,6 +23,7 @@ import { useIntegrationQuery } from '@dailydotdev/shared/src/hooks/integrations/
 
 import { useSlackConnectSourceMutation } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackConnectSourceMutation';
 import { SourceMemberRole } from '@dailydotdev/shared/src/graphql/sources';
+import { CompanyPageCreate } from '@dailydotdev/shared/src/features/squads/components/companyPage/CompanyPageCreate';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
@@ -77,6 +78,14 @@ const NewSquad = (): ReactElement => {
     (isIntegrationLoading && !!shouldLoadIntegration)
   ) {
     return <MangeSquadPageSkeleton />;
+  }
+
+  if (query.company) {
+    return (
+      <ManageSquadPageContainer>
+        <CompanyPageCreate />
+      </ManageSquadPageContainer>
+    );
   }
 
   if (!user) {

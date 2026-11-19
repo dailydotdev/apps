@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import dynamic from 'next/dynamic';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import classNames from 'classnames';
 import { useQueryClient } from '@tanstack/react-query';
 import { Modal } from '../../components/modals/common/Modal';
 import type { ModalProps } from '../../components/modals/common/Modal';
@@ -12,6 +13,9 @@ import {
 import { Button, ButtonVariant } from '../../components/buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { CoreIcon } from '../../components/icons';
+import { InfoIcon } from '../../components/icons/Info';
+import { BeforeIcon } from '../../components/icons/Before';
+import { Tooltip } from '../../components/tooltip/Tooltip';
 import type { Post } from '../../graphql/posts';
 import { SourceType } from '../../graphql/sources';
 import { Image } from '../../components/image/Image';
@@ -27,11 +31,11 @@ import { BoostWalletBalance } from './BoostWalletBalance';
 import { StartupsBoostPromo } from '../squads/components/promos/StartupsPromo';
 import { StartupsPromoSpot } from '../squads/hooks/useStartupsPromo';
 import { CoresDeals } from '../../components/cores/CoresDeals';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { LazyModal } from '../../components/modals/common/types';
-import { ActionSuccessModal } from '../../components/modals/utils/ActionSuccessModal';
-import { boostSuccessCover } from '../../lib/image';
 import { boostDocsLink } from '../../lib/constants';
+import { formatCoresCurrency } from '../../lib/utils';
+import { BoostLiveModal } from './BoostLiveModal';
+import type { LastBoost } from './common';
+import { BoostBudgetMode, daysLabel, quickBoost } from './common';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { Loader } from '../../components/Loader';
 import { CampaignType } from '../../graphql/campaigns';
@@ -56,6 +60,8 @@ const Slider = dynamic(
 interface BoostPostModalProps extends ModalProps {
   post: Post;
   origin?: Origin;
+  /** Boost again: the form opens on Custom, with the last boost's budget */
+  lastBoost?: LastBoost;
 }
 
 const SCREENS = {
@@ -69,18 +75,23 @@ export type Screens = keyof typeof SCREENS;
 export function BoostPostModal({
   post,
   origin,
+  lastBoost,
   ...props
 }: BoostPostModalProps): ReactElement {
   const { user } = useAuthContext();
-  const { openModal } = useLazyModal();
   const client = useQueryClient();
   const { getFeatureValue } = useFeaturesReadyContext();
   const [activeScreen, setActiveScreen] = useState<Screens>(SCREENS.FORM);
   const boostSettings = getFeatureValue(boostSettingsFeature);
-  const [coresPerDay, setCoresPerDay] = React.useState(
-    boostSettings.default_cores,
+  const [mode, setMode] = useState(
+    lastBoost ? BoostBudgetMode.Custom : BoostBudgetMode.Quick,
   );
-  const [totalDays, setTotalDays] = React.useState(boostSettings.default_days);
+  const [custom, setCustom] = useState({
+    coresPerDay: lastBoost?.coresPerDay ?? boostSettings.default_cores,
+    totalDays: lastBoost?.totalDays ?? boostSettings.default_days,
+  });
+  const { coresPerDay, totalDays } =
+    mode === BoostBudgetMode.Quick ? quickBoost : custom;
   const postTags = post.tags?.length
     ? post.tags
     : (post.sharedPost?.tags ?? []);
@@ -92,9 +103,8 @@ export function BoostPostModal({
   const campaignAudience = toCampaignAudience(audience, postTags);
   const [estimate, setEstimate] = useState<{
     coresPerDay: number;
-    totalDays: number;
     audience?: CampaignAudience;
-  }>({ coresPerDay, totalDays });
+  }>({ coresPerDay });
   const [updateEstimate] = useDebounceFn(setEstimate, 400);
   const totalSpendInt = coresPerDay * totalDays;
   const totalSpend = largeNumberFormat(totalSpendInt);
@@ -135,6 +145,11 @@ export function BoostPostModal({
       logBoostEvent(LogEvent.ErrorBoost, vars, getBoostErrorExtra(error)),
   });
   const image = usePostImage(post);
+  const missingCores = Math.max(0, totalSpendInt - balance);
+
+  useEffect(() => {
+    updateEstimate((state) => ({ ...state, coresPerDay }));
+  }, [coresPerDay, updateEstimate]);
 
   const onBuyCores = () => {
     logBuyCores();
@@ -147,7 +162,7 @@ export function BoostPostModal({
     logBoostEvent(
       LogEvent.StartBoost,
       { budget: coresPerDay, duration: totalDays },
-      { has_enough_balance: hasEnoughBalance },
+      { has_enough_balance: hasEnoughBalance, boost_mode: mode },
     );
 
     if (!hasEnoughBalance) {
@@ -166,8 +181,6 @@ export function BoostPostModal({
   };
 
   if (activeScreen === SCREENS.BUY_CORES) {
-    const missingCores = Math.max(0, totalSpendInt - balance);
-
     return (
       <BuyCoresModal
         isOpen
@@ -202,26 +215,9 @@ export function BoostPostModal({
 
   if (activeScreen === SCREENS.SUCCESS) {
     return (
-      <ActionSuccessModal
+      <BoostLiveModal
         {...props}
-        cta={{
-          copy: 'Track performance',
-          onClick: () => openModal({ type: LazyModal.AdsDashboard }),
-        }}
-        secondaryCta={{
-          copy: 'Learn more about boosting',
-          tag: 'a',
-          href: boostDocsLink,
-          target: '_blank',
-        }}
-        content={{
-          title: 'Boost is live!',
-          description: 'Your post is now live and reaching more developers!',
-          cover: boostSuccessCover,
-        }}
-        modalCloseButtonProps={{
-          variant: ButtonVariant.Tertiary,
-        }}
+        description="Your post is now reaching more developers. Find it any time in Boost manager."
       />
     );
   }
@@ -231,7 +227,7 @@ export function BoostPostModal({
 
   const potentialReach = (() => {
     if (isLoading || !canBoost) {
-      return <Loader data-testid="loader" />;
+      return <Loader className="!size-3" data-testid="loader" />;
     }
 
     const min = largeNumberFormat(estimatedReach.min);
@@ -239,6 +235,21 @@ export function BoostPostModal({
 
     return `${min} - ${max}`;
   })();
+
+  const stats = [
+    {
+      label: 'Total',
+      value: (
+        <span className="inline-flex items-center gap-1 tabular-nums">
+          <CoreIcon size={IconSize.Size16} />
+          {formatCoresCurrency(totalSpendInt)}
+        </span>
+      ),
+    },
+    { label: 'Duration', value: daysLabel(totalDays) },
+    { label: 'Daily reach', value: potentialReach },
+  ];
+  const isBuyingCores = missingCores > 0 && canBuyCores;
 
   const onRequestClose: ModalProps['onRequestClose'] = (event) => {
     logBoostEvent(LogEvent.CloseBoost, {
@@ -261,62 +272,77 @@ export function BoostPostModal({
         <Typography type={TypographyType.Title3} bold>
           Boost your post
         </Typography>
-        <BoostWalletBalance
-          squadWallet={selectedSquadWallet}
-          balance={balance}
-          onBuyCores={canBuyCores ? onBuyCores : undefined}
-        />
-      </Modal.Header>
-      <Modal.Body className="flex flex-col !gap-6">
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Secondary}
+        <Tooltip
+          className="max-w-64"
+          content={
+            <>
+              We start with the developers who read about your post&apos;s tags,
+              anywhere in the world. Fine-tune who sees it below.
+            </>
+          }
         >
-          Give your content the spotlight it deserves. We start with the
-          developers who read about your post&apos;s tags, anywhere in the
-          world. Fine-tune who sees it below.
           <a
             href={boostDocsLink}
-            className="ml-1 text-text-link"
             target="_blank"
+            rel="noreferrer"
+            aria-label="How boosting works"
+            className="ml-1 flex text-text-tertiary hover:text-text-primary"
           >
-            Learn more
+            <InfoIcon size={IconSize.Small} />
           </a>
-        </Typography>
-        <div className="rounded-16 bg-surface-float">
-          <div className="flex flex-row items-center gap-5 p-2">
+        </Tooltip>
+        <span className="ml-auto mr-6 flex">
+          <BoostWalletBalance
+            squadWallet={selectedSquadWallet}
+            balance={balance}
+            onBuyCores={canBuyCores ? onBuyCores : undefined}
+          />
+        </span>
+      </Modal.Header>
+      <Modal.Body className="flex flex-col !gap-4">
+        <div className="flex flex-col rounded-16 bg-surface-float">
+          <div className="flex items-center gap-3 p-2">
+            {image && (
+              <Image
+                className="h-10 w-14 shrink-0 rounded-10 object-cover"
+                src={image}
+              />
+            )}
             <Typography
               type={TypographyType.Callout}
-              className="ml-2 line-clamp-2 flex-1"
+              className="min-w-0 flex-1"
+              bold
+              truncate
             >
               {post.title ?? post.sharedPost?.title}
             </Typography>
-            {image && <Image className="h-12 w-18 rounded-12" src={image} />}
           </div>
-          <div className="flex flex-col items-center rounded-16 bg-surface-float p-3">
-            <Typography type={TypographyType.Title3} bold>
-              {totalSpend} Cores over {totalDays} days
-            </Typography>
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Tertiary}
-            >
-              Total spend
-            </Typography>
-            <Typography
-              className="mt-2 min-h-[1.375rem]"
-              type={TypographyType.Body}
-            >
-              {potentialReach}
-            </Typography>
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Tertiary}
-            >
-              Estimated daily reach
-            </Typography>
+          <div className="grid grid-cols-3 divide-x divide-border-subtlest-tertiary border-t border-border-subtlest-tertiary">
+            {stats.map(({ label, value }) => (
+              <span key={label} className="flex flex-col gap-0.5 px-3 py-2">
+                <span className="text-text-tertiary typo-caption1">
+                  {label}
+                </span>
+                <strong className="flex items-center typo-callout">
+                  {value}
+                </strong>
+              </span>
+            ))}
           </div>
         </div>
+        {lastBoost && (
+          <div className="flex flex-row items-center gap-2 rounded-12 border border-border-subtlest-tertiary px-3 py-2">
+            <BeforeIcon secondary className="text-text-tertiary" />
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Secondary}
+            >
+              Last boost:{' '}
+              {formatCoresCurrency(lastBoost.coresPerDay * lastBoost.totalDays)}{' '}
+              Cores over {daysLabel(lastBoost.totalDays)}
+            </Typography>
+          </div>
+        )}
         <BoostAudience
           postTags={postTags}
           value={audience}
@@ -328,53 +354,82 @@ export function BoostPostModal({
             }));
           }}
         />
-        <div className="flex flex-col">
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            Budget
-          </Typography>
-          <span className="flex items-center gap-2">
-            <CoreIcon />
-            <Typography
-              type={TypographyType.Body}
-              className="flex items-center"
-              bold
+        <div
+          className="flex gap-1 rounded-12 bg-surface-float p-1"
+          role="radiogroup"
+          aria-label="Budget"
+        >
+          {[
+            { value: BoostBudgetMode.Quick, label: 'Quick' },
+            { value: BoostBudgetMode.Custom, label: 'Custom' },
+          ].map(({ value, label }) => (
+            <button
+              key={value}
+              type="button"
+              role="radio"
+              aria-checked={mode === value}
+              onClick={() => setMode(value)}
+              className={classNames(
+                'flex h-8 flex-1 items-center justify-center rounded-10 typo-callout',
+                mode === value
+                  ? 'bg-background-default font-bold text-text-primary shadow-2'
+                  : 'text-text-tertiary',
+              )}
             >
-              {largeNumberFormat(coresPerDay || 0)} Cores per day
-            </Typography>
-          </span>
-          <Slider
-            className="mt-2 w-full"
-            min={boostSettings.min}
-            max={boostSettings.max}
-            step={boostSettings.step}
-            defaultValue={[coresPerDay]}
-            onValueChange={([value]) => {
-              updateEstimate((state) => ({ ...state, coresPerDay: value }));
-              setCoresPerDay(value);
-            }}
-          />
-          <Typography
-            className="mt-4"
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            Duration
-          </Typography>
-          <Typography type={TypographyType.Body} bold>
-            {totalDays} days
-          </Typography>
-          <Slider
-            className="mt-2 w-full"
-            min={1}
-            max={30}
-            step={1}
-            defaultValue={[totalDays]}
-            onValueChange={([value]) => setTotalDays(value)}
-          />
+              {label}
+            </button>
+          ))}
         </div>
+        {mode === BoostBudgetMode.Custom && (
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1">
+              <span className="flex justify-between">
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                >
+                  Cores per day
+                </Typography>
+                <Typography type={TypographyType.Footnote} bold>
+                  {largeNumberFormat(custom.coresPerDay || 0)}
+                </Typography>
+              </span>
+              <Slider
+                className="w-full"
+                min={Math.min(boostSettings.min, custom.coresPerDay)}
+                max={boostSettings.max}
+                step={boostSettings.step}
+                defaultValue={[custom.coresPerDay]}
+                onValueChange={([value]) =>
+                  setCustom((state) => ({ ...state, coresPerDay: value }))
+                }
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="flex justify-between">
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                >
+                  Duration
+                </Typography>
+                <Typography type={TypographyType.Footnote} bold>
+                  {daysLabel(custom.totalDays)}
+                </Typography>
+              </span>
+              <Slider
+                className="w-full"
+                min={1}
+                max={30}
+                step={1}
+                defaultValue={[custom.totalDays]}
+                onValueChange={([value]) =>
+                  setCustom((state) => ({ ...state, totalDays: value }))
+                }
+              />
+            </div>
+          </div>
+        )}
         {squadWallet && (
           <BoostWalletPicker
             squadWallet={squadWallet}
@@ -393,11 +448,20 @@ export function BoostPostModal({
           type="button"
           onClick={onButtonClick}
           disabled={
-            !canBoost || isLoading || (!canBuyCores && balance < totalSpendInt)
+            !canBoost || isLoading || (!canBuyCores && missingCores > 0)
           }
         >
-          Boost post for <CoreIcon className="mx-1" size={IconSize.Small} />
-          {totalSpend}
+          {isBuyingCores ? (
+            <>
+              Get <CoreIcon className="mx-1" size={IconSize.Small} />
+              {formatCoresCurrency(missingCores)} Cores and boost
+            </>
+          ) : (
+            <>
+              Boost post for <CoreIcon className="mx-1" size={IconSize.Small} />
+              {totalSpend}
+            </>
+          )}
         </Button>
       </Modal.Footer>
     </Modal>

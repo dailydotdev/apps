@@ -133,6 +133,7 @@ import Link from '../utilities/Link';
 import { SharedFeedPage, HorizontalSeparator } from '../utilities';
 import {
   appsUrl,
+  boostManagerUrl,
   businessWebsiteUrl,
   docs,
   downloadBrowserExtension,
@@ -622,7 +623,6 @@ const SidebarSettingsButton = (): ReactElement => {
   const { logout } = useAuthContext();
   const { isOpen, onUpdate, wrapHandler } =
     useInteractivePopup(RAIL_POPUP_GROUP);
-  const { openModal } = useLazyModal();
   const canPurchaseCores = useCanPurchaseCores();
 
   const settingsItems: ProfileSectionItemProps[] = [
@@ -639,9 +639,9 @@ const SidebarSettingsButton = (): ReactElement => {
     ...(canPurchaseCores
       ? [
           {
-            title: 'Ads dashboard',
+            title: 'Boost manager',
             icon: TrendingIcon,
-            onClick: () => openModal({ type: LazyModal.AdsDashboard }),
+            href: boostManagerUrl,
           } satisfies ProfileSectionItemProps,
         ]
       : []),

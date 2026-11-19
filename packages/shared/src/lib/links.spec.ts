@@ -3,8 +3,11 @@ import {
   getBuyCoresUrl,
   getPathnameWithQuery,
   getPostPath,
+  getShortcutIconUrl,
+  getSiteIconUrl,
   withHttps,
 } from './links';
+import { apiUrl } from './config';
 
 describe('lib/links tests', () => {
   it('should return links as https links', () => {
@@ -106,5 +109,21 @@ describe('getBuyCoresUrl', () => {
     expect(
       getBuyCoresUrl({ origin: 'wallet page cta', next: '/wallet' }),
     ).toMatch(/cores\?origin=wallet\+page\+cta&next=%2Fwallet$/);
+  });
+});
+
+describe('icon urls', () => {
+  it('should keep the minimum size for site icons without a fallback param', () => {
+    expect(getSiteIconUrl({ url: 'daily.dev', size: 32 })).toEqual(
+      `${apiUrl}/icon?url=daily.dev&size=96`,
+    );
+  });
+
+  it('should request shortcut icons at the given size without the globe', () => {
+    expect(getShortcutIconUrl('https://daily.dev/a?b=c', 32)).toEqual(
+      `${apiUrl}/icon?url=${encodeURIComponent(
+        'https://daily.dev/a?b=c',
+      )}&size=32&fallback=none`,
+    );
   });
 });
