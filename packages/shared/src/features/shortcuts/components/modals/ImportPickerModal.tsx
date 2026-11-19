@@ -13,8 +13,7 @@ import {
 } from '../../../../components/typography/Typography';
 import { BookmarkIcon, SitesIcon, VIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
-import { apiUrl } from '../../../../lib/config';
-import { getDomainFromUrl } from '../../../../lib/links';
+import { getDomainFromUrl, getShortcutIconUrl } from '../../../../lib/links';
 import { MAX_SHORTCUTS } from '../../types';
 import type { ImportSource } from '../../types';
 import { useShortcutsManager } from '../../hooks/useShortcutsManager';
@@ -64,7 +63,7 @@ function FaviconOrLetter({
   return (
     <span className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-12 bg-surface-float">
       <img
-        src={`${apiUrl}/icon?url=${encodeURIComponent(url)}&size=64`}
+        src={getShortcutIconUrl(url, 64)}
         alt=""
         onError={() => setFailed(true)}
         className="size-6 rounded-4"
