@@ -42,6 +42,7 @@ import { SquadHome } from '@dailydotdev/shared/src/features/squads/components/Sq
 import { useTrackNewCompanyPage } from '@dailydotdev/shared/src/features/squads/hooks/useTrackNewCompanyPage';
 import { SquadPageSkeleton } from '@dailydotdev/shared/src/features/squads/components/SquadPageSkeleton';
 import { hasSquadFeature } from '@dailydotdev/shared/src/features/squads/lib/features';
+import { isCompanyPage } from '@dailydotdev/shared/src/features/squads/lib/companyPage';
 import {
   getLayout,
   mainFeedLayoutProps,
@@ -51,7 +52,6 @@ import { getPageSeoTitles } from '../../../components/layouts/utils';
 import type { DynamicSeoProps } from '../../../components/common';
 import { getAppOrigin, toJsonLd } from '../../../lib/seo';
 import { SquadRoute } from '../../../components/squads/SquadRoute';
-import { isCompanyPage } from '@dailydotdev/shared/src/features/squads/lib/companyPage';
 
 const appOrigin = getAppOrigin();
 const getSquadPageJsonLd = (
