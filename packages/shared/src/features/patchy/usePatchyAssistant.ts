@@ -25,6 +25,7 @@ import {
   getPatchyQuickReads,
   PATCHY_LONG_READ_MINUTES,
   readPatchyOfferMemory,
+  setPatchyReadingPost,
   withPatchyOfferAnswer,
   withPatchyOfferShown,
   writePatchyOfferMemory,
@@ -175,6 +176,7 @@ export const usePatchyAssistant = ({
       }
       const { post } = event;
       const now = Date.now();
+      setPatchyReadingPost(post);
       sessionRef.current = {
         post,
         openedAt: now,
@@ -311,6 +313,7 @@ export const usePatchyAssistant = ({
         window.location.pathname.startsWith('/posts/');
       if (!isPostOpen) {
         sessionRef.current = null;
+        setPatchyReadingPost(null);
         setIsReading(false);
       }
     }, 1000);

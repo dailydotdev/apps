@@ -202,9 +202,18 @@ const isPostLike = (value: unknown): value is Post & { readTime: number } => {
 // Short, unread posts from feeds the app already loaded (no extra request),
 // best first. Walks the cached query data a few levels deep, because feeds
 // nest posts as pages → edges → node.
+interface QuickReadOptions {
+  limit?: number;
+  excludeId?: string;
+  // Only posts with this tag.
+  tag?: string;
+  // Only posts you saved for later.
+  isBookmarked?: boolean;
+}
+
 export const getPatchyQuickReads = (
   client: QueryClient,
-  { limit = 3, excludeId }: { limit?: number; excludeId?: string } = {},
+  { limit = 3, excludeId, tag, isBookmarked }: QuickReadOptions = {},
 ): PatchyQuickRead[] => {
   const found = new Map<string, Post>();
   const visit = (value: unknown, depth: number) => {
@@ -216,7 +225,9 @@ export const getPatchyQuickReads = (
         value.readTime > 0 &&
         value.readTime <= PATCHY_QUICK_READ_MINUTES &&
         !value.read &&
-        value.id !== excludeId
+        value.id !== excludeId &&
+        (!tag || !!value.tags?.some((postTag) => postTag === tag)) &&
+        (!isBookmarked || !!value.bookmarked)
       ) {
         found.set(value.id, value);
       }
@@ -255,3 +266,11 @@ export const getPatchyQuickReads = (
       }),
     );
 };
+
+// The post you have open, for the Streak panel's menu to offer things about
+// it. Set by the assistant's reading session.
+let readingPost: Partial<Post> | null = null;
+export const setPatchyReadingPost = (post: Partial<Post> | null): void => {
+  readingPost = post;
+};
+export const getPatchyReadingPost = (): Partial<Post> | null => readingPost;
