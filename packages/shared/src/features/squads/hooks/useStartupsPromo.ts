@@ -17,7 +17,11 @@ import {
   SQUAD_PLAN_CASHBACK_PERCENTAGE,
   SquadPlan,
 } from '../lib/plans';
-import { getStartupsCheckoutUrl } from '../lib/routes';
+import {
+  getCompanyPageCreateUrl,
+  getSquadManageUrl,
+  SquadManageSection,
+} from '../lib/routes';
 import { useLogStartups } from './useLogStartups';
 import { useSquadPlanPrices } from './useSquadPlanPrices';
 import { useStartupsCashbackPromo } from './useStartupsCashbackPromo';
@@ -37,7 +41,7 @@ interface UseStartupsPromoProps {
   spot: StartupsPromoSpot;
   /** The squad being boosted, or whose post is. Unset: the viewer's own. */
   sourceId?: string;
-  /** False keeps it off where the viewer runs no squad they could upgrade. */
+  /** False keeps it off where the viewer runs no company page to upgrade */
   isPersonalAllowed?: boolean;
   /** False while the host isn't on screen yet, so the impression waits. */
   isVisible?: boolean;
@@ -59,10 +63,14 @@ export interface StartupsStarterOffer {
 
 export interface StartupsPromo extends StartupsStarterOffer {
   isShown: boolean;
-  /** The squad the plan would go on; unset when the viewer runs none. */
+  /**
+   * The free company page the plan would go on. Unset: the viewer runs none,
+   * so the promo leads to a new company page with the plan picked.
+   */
   squad?: Squad;
   starterPrice: string;
-  checkoutUrl: string;
+  /** The page's plan screen, or the company page form with Starter picked */
+  href: string;
   onClick: () => void;
   /** Hides this and every other Startups promotion, on all devices */
   onDismiss: () => void;
@@ -92,9 +100,10 @@ const isAdmin = (squad: Squad): boolean =>
   squad.currentMember?.role === SourceMemberRole.Admin;
 
 /**
- * daily.dev for Startups promotions outside the squad page, behind the same
- * flag as the squad page upsell. They pitch the first squad the viewer runs
- * that has no plan, and never show to an admin of a verified squad.
+ * daily.dev for Startups promotions outside the squad page. Someone who runs
+ * a company page with no plan gets the plan for it; someone who runs none
+ * gets a free company page. Community squads never get a promotion, and an
+ * admin of a verified squad sees none at all.
  */
 export const useStartupsPromo = ({
   spot,
@@ -107,27 +116,28 @@ export const useStartupsPromo = ({
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const isDismissed = checkHasCompleted(ActionType.DismissStartupsPromo);
   const adminSquads = useMemo(() => (squads ?? []).filter(isAdmin), [squads]);
-  // Squads that could still take a plan: not verified, and no paid seat for
-  // the viewer, which every plan gives its owner
-  const freeSquads = useMemo(
+  // Company pages that could still take a plan: not verified, and no paid
+  // seat for the viewer, which every plan gives its owner
+  const freeCompanyPages = useMemo(
     () =>
       adminSquads.filter(
         (adminSquad) =>
+          !!adminSquad.flags?.company &&
           !hasSquadFeature(adminSquad, 'verified') &&
           !adminSquad.currentMember?.seat,
       ),
     [adminSquads],
   );
-  // Someone who already pays gets no pitch for a personal post
-  const isCustomer = freeSquads.length < adminSquads.length;
-  // Boosting a post of a squad the viewer already pays for
-  const sourceIdIsPaid =
-    !!sourceId &&
-    adminSquads.some(({ id }) => id === sourceId) &&
-    !freeSquads.some(({ id }) => id === sourceId);
+  // Someone who already pays gets no free company page pitch
+  const isCustomer = adminSquads.some(
+    (adminSquad) =>
+      hasSquadFeature(adminSquad, 'verified') ||
+      !!adminSquad.currentMember?.seat,
+  );
+  // Inside a squad, only a free company page the viewer runs gets a pitch
   const squad = sourceId
-    ? freeSquads.find(({ id }) => id === sourceId)
-    : freeSquads[0];
+    ? freeCompanyPages.find(({ id }) => id === sourceId)
+    : freeCompanyPages[0];
   // An admin of a verified squad is an Enterprise customer: no pitch at all
   const isEnterprise = adminSquads.some((adminSquad) =>
     hasSquadFeature(adminSquad, 'verified'),
@@ -136,7 +146,7 @@ export const useStartupsPromo = ({
     !!user &&
     !isIOSNative() &&
     !isEnterprise &&
-    (!!squad || (isPersonalAllowed && !isCustomer && !sourceIdIsPaid));
+    (!!squad || (isPersonalAllowed && !sourceId && !isCustomer));
   const { data: subscription, isPending } = useQuery({
     ...squadSubscriptionQueryOptions({ user, sourceId: squad?.id }),
     enabled: !!squad && isCandidate,
@@ -179,10 +189,13 @@ export const useStartupsPromo = ({
     isShown,
     squad,
     starterPrice: prices[SquadPlan.Starter],
-    checkoutUrl: getStartupsCheckoutUrl({
-      plan: SquadPlan.Starter,
-      sourceId: squad?.id,
-    }),
+    href: squad
+      ? getSquadManageUrl(squad.handle, SquadManageSection.Plan)
+      : getCompanyPageCreateUrl({
+          plan: SquadPlan.Starter,
+          checkout: true,
+          cta: spot.replace(/ /g, '_'),
+        }),
     onClick,
     onDismiss,
   };

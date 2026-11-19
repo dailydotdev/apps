@@ -170,7 +170,9 @@ const getLockedPlan = (
   if (
     !gate ||
     gate.isIncluded(squad) ||
-    !verifyPermission(squad, SourcePermissions.Edit)
+    !verifyPermission(squad, SourcePermissions.Edit) ||
+    // Community squads get no Startups promotion
+    (!squad.flags?.company && !isCompanySquad(squad))
   ) {
     return undefined;
   }

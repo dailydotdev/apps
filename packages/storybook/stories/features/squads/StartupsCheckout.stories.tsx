@@ -1,4 +1,3 @@
-import { graphql, HttpResponse } from 'msw';
 import type { ReactElement, ReactNode } from 'react';
 import { AuthDisplay } from '@dailydotdev/shared/src/components/auth/common';
 import React, { useEffect, useState } from 'react';
@@ -49,7 +48,6 @@ import {
 import type { SquadBranding } from '@dailydotdev/shared/src/graphql/squadBranding';
 import { squadBrandingQueryOptions } from '@dailydotdev/shared/src/graphql/squadBranding';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
-import { SquadPlanUpsellWidget } from '@dailydotdev/shared/src/features/squads/components/widgets/SquadPlanUpsellWidget';
 import { SquadManageSection } from '@dailydotdev/shared/src/features/squads/lib/routes';
 import { SquadPlan } from '@dailydotdev/shared/src/features/squads/lib/plans';
 import {
@@ -384,30 +382,6 @@ const ManagePlan = ({
     </SquadManageLayout>
   </Seeded>
 );
-
-/**
- * The squad-page upsell, at the width of the page's right column. Dismissing
- * it hides it until the story reloads: the stored dismissal is reset here.
- */
-const SquadPageUpsellPreview = (): ReactElement => {
-  const client = useQueryClient();
-  useState(() => {
-    const queryKey = [`startups_upsell_dismissed_${acme.id}`, false];
-    client.setQueryData(queryKey, false);
-    client.setQueryDefaults(queryKey, { staleTime: Infinity });
-    return true;
-  });
-
-  return (
-    <Seeded squad={acme} subscription={noPlan}>
-      <div className="flex min-h-screen w-full justify-center bg-background-default p-6">
-        <div className="w-full" style={{ maxWidth: 340 }}>
-          <SquadPlanUpsellWidget />
-        </div>
-      </div>
-    </Seeded>
-  );
-};
 
 /** The setup panel on its own, half done, on the path a story pins. */
 const SetupPreview = ({
@@ -899,16 +873,6 @@ export const CheckoutActivating: Story = {
   ),
 };
 
-/** The squad page's upsell for an admin of a Squad without a plan. */
-export const SquadPageUpsell: Story = {
-  render: () => <SquadPageUpsellPreview />,
-};
-
-export const SquadPageUpsellPhone: Story = {
-  ...SquadPageUpsell,
-  globals: phone,
-};
-
 /** The launch promo is on: plans show 500% for the first year. */
 export const PromoManageNoPlan: Story = {
   render: () => (
@@ -954,23 +918,6 @@ export const PromoCheckoutPayment: Story = {
         initialCompany={acme}
         initialPlan={SquadPlan.Starter}
       />
-    </PromoOn>
-  ),
-};
-
-export const PromoSquadPageUpsell: Story = {
-  parameters: {
-    msw: {
-      handlers: [
-        graphql.query('CompletedUserActions', () =>
-          HttpResponse.json({ data: { actions: [] } }),
-        ),
-      ],
-    },
-  },
-  render: () => (
-    <PromoOn>
-      <SquadPageUpsellPreview />
     </PromoOn>
   ),
 };

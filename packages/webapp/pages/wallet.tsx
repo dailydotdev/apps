@@ -591,7 +591,6 @@ const Wallet = (): ReactElement | null => {
           <>
             <CoresDeals
               spot={StartupsPromoSpot.Wallet}
-              isPersonalAllowed={false}
               withStartups
               isStacked
             />
