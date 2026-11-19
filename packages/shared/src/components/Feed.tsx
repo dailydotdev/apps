@@ -843,18 +843,49 @@ export default function Feed<T>({
                 />
               );
 
-              // Ads keep their cell, and a widget is one card wide, so only a
-              // one-card post or highlight offers its slot. Such a card sits in
-              // the same wrapper whether or not the reader is customizing, so
-              // toggling Customize never remounts the grid.
+              // Ads keep their cell; a post or a highlight offers its slot.
+              // Such a card sits in the same wrapper whether or not the reader
+              // is customizing, so toggling Customize never remounts the grid.
               const canTakeWidget =
                 !!feedWidgets &&
-                !isWidened &&
                 (item.type === FeedItemType.Post ||
                   item.type === FeedItemType.Highlight);
-              const slotNode = canTakeWidget
-                ? feedWidgets.renderSlot?.(index)
-                : null;
+              // A widget is one card wide, and a wide card's width is the
+              // layout's call, not the post's: it offers a slot per column it
+              // covers. The first takes its place, so it moves along; the
+              // others go right after it.
+              const slotNodes =
+                canTakeWidget && feedWidgets.renderSlot
+                  ? Array.from({ length: colSpan }, (_, column) =>
+                      feedWidgets.renderSlot?.(
+                        column === 0 ? index : index + 1,
+                      ),
+                    )
+                  : null;
+              const slotNode =
+                slotNodes &&
+                (isWidened ? (
+                  <div
+                    className="absolute inset-0 z-2 grid gap-6"
+                    style={{ gridTemplateColumns: `repeat(${colSpan}, 1fr)` }}
+                  >
+                    {slotNodes.map((node, column) => (
+                      // One per column, in a fixed order.
+                      // eslint-disable-next-line react/no-array-index-key
+                      <div key={column} className="relative">
+                        {node}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  slotNodes[0]
+                ));
+              const wrapperClassName = classNames(
+                'flex h-full w-full [&>*]:h-full [&>*]:w-full',
+                canTakeWidget && 'relative',
+                // The card fades under its slot's cover.
+                !!slotNode && '[&>*:first-child]:opacity-40',
+              );
 
               return (
                 <FeedCardContext.Provider
@@ -877,21 +908,16 @@ export default function Feed<T>({
                   )}
                   {isWidened && (
                     <div
-                      className="flex h-full w-full [&>*]:h-full [&>*]:w-full"
+                      className={wrapperClassName}
                       style={{ gridColumn: `span ${colSpan}` }}
                       data-testid="feedItemColSpanWrapper"
                     >
                       {itemNode}
+                      {slotNode}
                     </div>
                   )}
-                  {canTakeWidget && (
-                    <div
-                      className={classNames(
-                        'relative flex h-full w-full [&>*]:h-full [&>*]:w-full',
-                        // The card fades under its slot's cover.
-                        !!slotNode && '[&>*:first-child]:opacity-40',
-                      )}
-                    >
+                  {!isWidened && canTakeWidget && (
+                    <div className={wrapperClassName}>
                       {itemNode}
                       {slotNode}
                     </div>
