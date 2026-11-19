@@ -170,8 +170,21 @@ const useFeedGridWidgets = ({
       isEnabled
         ? {
             widgets,
-            renderWidget: (widget) => (
-              <FeedWidgetCell widget={widget} feedName={feedName} />
+            // The wrapper holds the span, so the cell's loading state is as
+            // wide as the widget it stands in for.
+            renderWidget: (widget, _index, columns) => (
+              <div
+                className="flex min-w-0"
+                style={
+                  columns > 1 ? { gridColumn: `span ${columns}` } : undefined
+                }
+              >
+                <FeedWidgetCell
+                  widget={widget}
+                  feedName={feedName}
+                  columns={columns}
+                />
+              </div>
             ),
             renderSlot: isEditing
               ? (index) => <FeedWidgetSlot slot={index} />

@@ -68,10 +68,26 @@ export type FeedWidget<K extends FeedWidgetKind = FeedWidgetKind> = {
 };
 
 /**
- * The size a widget renders at in the feed: one card, the rail's full height
- * by one column. Every kind supports it.
+ * The size a widget renders at in the feed by default: one card, the rail's
+ * full height by one column. Every kind supports it.
  */
 export const FEED_WIDGET_IN_FEED_SIZE = FeedWidgetSize.Tall;
+
+/**
+ * The sizes the feed has room for: one card, or two cards wide as a hero
+ * card is. A kind offers the ones of these it supports.
+ */
+export const feedWidgetInFeedSizes: FeedWidgetSize[] = [
+  FeedWidgetSize.Tall,
+  FeedWidgetSize.Large,
+];
+
+export const feedWidgetInFeedSizeLabel: Partial<
+  Record<FeedWidgetSize, string>
+> = {
+  [FeedWidgetSize.Tall]: 'Single',
+  [FeedWidgetSize.Large]: 'Wide',
+};
 
 /** How long a removal on the rail can be undone from its toast. */
 export const FEED_WIDGET_UNDO_MS = 6000;

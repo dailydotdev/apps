@@ -35,6 +35,7 @@ export const FeedWidgetMenu = ({
   canMoveLeft,
   canMoveRight,
   moves = ['start', 'left', 'right', 'end'],
+  sizeLabel = (size) => feedWidgetSizeLabel[size],
   onAction,
 }: {
   widget: FeedWidget;
@@ -44,6 +45,8 @@ export const FeedWidgetMenu = ({
   canMoveRight: boolean;
   /** The moves this surface offers, all of them by default. */
   moves?: MoveTarget[];
+  /** What this surface calls each size. */
+  sizeLabel?: (size: FeedWidgetSize) => string;
   onAction: (action: FeedWidgetMenuAction) => void;
 }): ReactElement => {
   const { name, configureLabel } = getFeedWidgetDefinition(widget.kind);
@@ -85,7 +88,7 @@ export const FeedWidgetMenu = ({
         ]
       : []),
     ...sizes.map((size) => ({
-      label: feedWidgetSizeLabel[size],
+      label: sizeLabel(size),
       icon: size === widget.size ? <VIcon /> : undefined,
       disabled: size === widget.size,
       action: () => onAction({ type: 'size', size }),

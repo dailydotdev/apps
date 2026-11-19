@@ -35,10 +35,13 @@ export const SizePicker = ({
   sizes,
   size,
   onChange,
+  label = (value) => feedWidgetSizeLabel[value],
 }: {
   sizes: FeedWidgetSize[];
   size: FeedWidgetSize;
   onChange: (size: FeedWidgetSize) => void;
+  /** What this surface calls each size. */
+  label?: (size: FeedWidgetSize) => string;
 }): ReactElement => (
   <div
     role="radiogroup"
@@ -66,7 +69,7 @@ export const SizePicker = ({
             : 'text-text-tertiary hover:text-text-primary',
         )}
       >
-        {feedWidgetSizeLabel[value]}
+        {label(value)}
       </button>
     ))}
   </div>

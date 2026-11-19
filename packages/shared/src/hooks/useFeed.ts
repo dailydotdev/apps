@@ -31,6 +31,7 @@ import {
 import type { AllFeedPages } from '../lib/query';
 import { FeedItemType } from '../components/cards/common/common';
 import type { FeedWidget } from '../features/feedWidgets/types';
+import { FeedWidgetSize } from '../features/feedWidgets/types';
 import { PHONE_FEED_PLACEHOLDER_ROWS } from '../components/cards/placeholder/PlaceholderFeed';
 import type { ApiErrorResult } from '../graphql/common';
 import {
@@ -710,6 +711,10 @@ export default function useFeed<T>(
     ],
   );
 
+  const hasWideWidgets = !!settings?.widgets?.some(
+    ({ size }) => size === FeedWidgetSize.Large,
+  );
+
   // The posts the grid last rendered. An exclusion that arrives once a post
   // is already in the grid leaves it where it is: the surface above the feed
   // may learn its post late (a first visit), and nothing on screen moves.
@@ -737,6 +742,7 @@ export default function useFeed<T>(
         widenableTypes,
         firstSlotOffset: effectiveFirstSlotOffset,
         minWideCardRow: settings?.deferWideCards ? 1 : 0,
+        hasWideWidgets,
       });
 
       const staticAd = settings?.staticAd;
@@ -876,6 +882,7 @@ export default function useFeed<T>(
     settings?.disableHighlightCards,
     settings?.excludedPostIds,
     settings?.widgets,
+    hasWideWidgets,
     settings?.staticAd,
     heroCardsConfig,
     virtualizedNumCards,
@@ -912,6 +919,7 @@ export default function useFeed<T>(
         cadence,
         firstSlotOffset: effectiveFirstSlotOffset,
         minWideCardRow: settings?.deferWideCards ? 1 : 0,
+        hasWideWidgets,
       }),
     [
       items,
@@ -924,6 +932,7 @@ export default function useFeed<T>(
       widenableTypes,
       effectiveFirstSlotOffset,
       settings?.deferWideCards,
+      hasWideWidgets,
     ],
   );
 

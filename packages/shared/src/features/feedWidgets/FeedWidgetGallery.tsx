@@ -338,7 +338,8 @@ export const FeedWidgetGallery = ({
   isFull,
   initialKind,
   initialSize,
-  fixedSize,
+  allowedSizes,
+  sizeLabel,
   onAdd,
   tips,
   onRequestClose,
@@ -350,8 +351,10 @@ export const FeedWidgetGallery = ({
   initialKind?: FeedWidgetKind;
   /** The size each widget starts at when it supports it. */
   initialSize?: FeedWidgetSize;
-  /** The one size this surface shows widgets at, with no size to pick. */
-  fixedSize?: FeedWidgetSize;
+  /** The sizes this surface has room for, every kind's own by default. */
+  allowedSizes?: FeedWidgetSize[];
+  /** What this surface calls each size. */
+  sizeLabel?: (size: FeedWidgetSize) => string;
   onAdd: (kind: FeedWidgetKind, size: FeedWidgetSize) => void;
   /** Set where the tips can show over our slot. */
   tips?: FeedWidgetGalleryTips;
@@ -392,12 +395,12 @@ export const FeedWidgetGallery = ({
     Partial<Record<FeedWidgetKind, FeedWidgetSize>>
   >({});
 
-  const sizesFor = (kind: FeedWidgetKind) => orderSizes(feedWidgetSizes(kind));
+  const sizesFor = (kind: FeedWidgetKind) =>
+    orderSizes(feedWidgetSizes(kind)).filter(
+      (size) => !allowedSizes || allowedSizes.includes(size),
+    );
   const sizeFor = (kind: FeedWidgetKind): FeedWidgetSize => {
-    const kindSizes = feedWidgetSizes(kind);
-    if (fixedSize && kindSizes.includes(fixedSize)) {
-      return fixedSize;
-    }
+    const kindSizes = allowedSizes ? sizesFor(kind) : feedWidgetSizes(kind);
     const picked = sizes[kind];
     if (picked && kindSizes.includes(picked)) {
       return picked;
@@ -529,12 +532,12 @@ export const FeedWidgetGallery = ({
           </div>
           {selectedKind &&
             selectedSize &&
-            !fixedSize &&
             sizesFor(selectedKind).length > 1 && (
               <div className="flex justify-center pb-4">
                 <SizePicker
                   sizes={sizesFor(selectedKind)}
                   size={selectedSize}
+                  label={sizeLabel}
                   onChange={(size) => onSizeChange(selectedKind, size)}
                 />
               </div>

@@ -67,6 +67,8 @@ export type UseFeedWidgets = {
     id: string,
   ) => { removed: RemovedFeedWidget; saved: FeedWidgetsSaved } | null;
   restoreWidget: (removed: RemovedFeedWidget) => FeedWidgetsSaved;
+  /** `false` when the kind does not come in that size. */
+  resizeWidget: (id: string, size: FeedWidgetSize) => FeedWidgetsSaved;
   /** Moves a widget to another feed slot, swapping with what is there. */
   moveWidget: (id: string, toSlot: number) => FeedWidgetsSaved;
   /** Saves a widget's config; `false` when it does not validate for its kind. */
@@ -249,7 +251,6 @@ export const useFeedWidgets = (): UseFeedWidgets => {
     [commit],
   );
 
-
   const addWidget = useCallback<UseFeedWidgets['addWidget']>(
     (kind, { size = FEED_WIDGET_IN_FEED_SIZE, slot = 0 } = {}) => {
       if (
@@ -311,6 +312,23 @@ export const useFeedWidgets = (): UseFeedWidgets => {
     [write],
   );
 
+  const resizeWidget = useCallback<UseFeedWidgets['resizeWidget']>(
+    (id, size) => {
+      const { current } = storedRef;
+      const widget = current.find((item) => item.id === id);
+      if (
+        !widget ||
+        widget.size === size ||
+        !feedWidgetSizes(widget.kind).includes(size)
+      ) {
+        return Promise.resolve(false);
+      }
+      return write(
+        current.map((item) => (item.id === id ? { ...item, size } : item)),
+      );
+    },
+    [write],
+  );
 
   const updateWidgetConfig = useCallback<UseFeedWidgets['updateWidgetConfig']>(
     (id, config) => {
@@ -345,7 +363,6 @@ export const useFeedWidgets = (): UseFeedWidgets => {
     [write],
   );
 
-
   const resetWidgets = useCallback(() => write(null), [write]);
 
   return {
@@ -358,6 +375,7 @@ export const useFeedWidgets = (): UseFeedWidgets => {
     removeWidget,
     restoreWidget,
     moveWidget,
+    resizeWidget,
     updateWidgetConfig,
     resetWidgets,
     isTipHidden: isFeedWidgetTipHidden(saved),

@@ -1647,20 +1647,20 @@ img.agent-media-ring {
   }
 }
 
-/* The feed widget rail's edit mode: widgets jiggle like a home screen, a
+/* Customize mode for feed widgets: widgets sway like a home screen, a
    moved or restored one flashes, and the controls fade in without moving
    the layout. */
 @keyframes feed-widget-jiggle {
   0% {
-    transform: rotate(-0.45deg);
+    transform: rotate(-0.25deg);
   }
 
   50% {
-    transform: rotate(0.45deg);
+    transform: rotate(0.25deg);
   }
 
   100% {
-    transform: rotate(-0.45deg);
+    transform: rotate(-0.25deg);
   }
 }
 
@@ -1687,11 +1687,11 @@ img.agent-media-ring {
 }
 
 .feed-widget-jiggle {
-  animation: feed-widget-jiggle 300ms ease-in-out infinite;
+  animation: feed-widget-jiggle 900ms ease-in-out infinite;
 }
 
 .feed-widget-jiggle:nth-child(2n) {
-  animation-delay: -150ms;
+  animation-delay: -450ms;
 }
 
 .feed-widget-flash {

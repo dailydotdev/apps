@@ -6,7 +6,7 @@ import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { TOAST_NOTIF_KEY } from '../../hooks/useToastNotification';
 import type { SettingsFlags } from '../../graphql/settings';
 import { useFeedWidgets } from './useFeedWidgets';
-import { FeedWidgetKind } from './types';
+import { FeedWidgetKind, FeedWidgetSize } from './types';
 import { feedRailFingerprint } from './storedRail';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 
@@ -151,6 +151,26 @@ describe('useFeedWidgets', () => {
     expect(writtenRail().widgets).toEqual([
       slotted('b', 'readingList', 1),
       slotted('a', 'streak', 2),
+    ]);
+  });
+
+  it('makes a widget wide only in a size its kind comes in', () => {
+    const { result } = renderWidgets({
+      version: 1,
+      widgets: [slotted('a', 'streak', 1), slotted('w', 'weather', 3)],
+    });
+
+    act(() => {
+      result.current.resizeWidget('w', FeedWidgetSize.Large);
+    });
+    expect(setSettings).not.toHaveBeenCalled();
+
+    act(() => {
+      result.current.resizeWidget('a', FeedWidgetSize.Large);
+    });
+    expect(writtenRail().widgets).toEqual([
+      { ...slotted('a', 'streak', 1), size: 'large' },
+      slotted('w', 'weather', 3),
     ]);
   });
 

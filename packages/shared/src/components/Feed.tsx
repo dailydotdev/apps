@@ -90,8 +90,15 @@ import { FeedItemType } from './cards/common/common';
 export type FeedGridWidgets = {
   /** Sorted by slot; see `useFeed`'s `widgets`. */
   widgets: FeedWidget[];
-  /** A placed widget, in its card's cell. */
-  renderWidget: (widget: FeedWidget, index: number) => ReactNode;
+  /**
+   * A placed widget, in its card's cell, or two for one sized wide that fits
+   * the row: `columns` is what the layout gave it.
+   */
+  renderWidget: (
+    widget: FeedWidget,
+    index: number,
+    columns: number,
+  ) => ReactNode;
   /**
    * While the reader is placing widgets: what covers a card whose slot can
    * take one. Ads and placeholders never get it.
@@ -804,7 +811,11 @@ export default function Feed<T>({
               if (item.type === FeedItemType.Widget) {
                 return (
                   <React.Fragment key={getFeedItemKey(item, index)}>
-                    {feedWidgets?.renderWidget(item.widget, index)}
+                    {feedWidgets?.renderWidget(
+                      item.widget,
+                      index,
+                      placement.colSpan,
+                    )}
                   </React.Fragment>
                 );
               }

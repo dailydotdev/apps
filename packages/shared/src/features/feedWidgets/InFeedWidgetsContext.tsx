@@ -169,7 +169,7 @@ export const FeedWidgetSlot = ({ slot }: { slot: number }): ReactElement => {
 /** A placed widget's cell while its code loads: a card's height, empty. */
 export const FeedWidgetCellLoading = (): ReactElement => (
   <div
-    className="min-h-card rounded-16 border border-border-subtlest-tertiary bg-background-subtle"
+    className="min-h-card w-full rounded-16 border border-border-subtlest-tertiary bg-background-subtle"
     aria-busy
   />
 );

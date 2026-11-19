@@ -15,9 +15,12 @@ import {
   FEED_WIDGET_IN_FEED_SIZE,
   FEED_WIDGET_UNDO_MS,
   FeedWidgetKind,
+  FeedWidgetSize,
+  feedWidgetInFeedSizeLabel,
+  feedWidgetInFeedSizes,
 } from './types';
 import { getFeedWidgetDefinition, isFeedWidgetBare } from './registry';
-import { getFeedWidgetComponent } from './components';
+import { feedWidgetSizes, getFeedWidgetComponent } from './components';
 import { useFeedWidgets } from './useFeedWidgets';
 import { isNewerFeedWidgetConfig } from './config';
 import { FeedWidgetsProvider } from './FeedWidgetsContext';
@@ -65,6 +68,8 @@ const OnScreen = ({ children }: { children: ReactElement }): ReactElement => {
 export type FeedWidgetCellProps = {
   widget: FeedWidget;
   feedName: string;
+  /** The columns the layout gave it: two for a wide one that fits its row. */
+  columns?: number;
 };
 
 /**
@@ -76,6 +81,7 @@ export type FeedWidgetCellProps = {
 export const FeedWidgetCell = ({
   widget: stored,
   feedName,
+  columns = 1,
 }: FeedWidgetCellProps): ReactElement | null => {
   const {
     widgets,
@@ -83,6 +89,7 @@ export const FeedWidgetCell = ({
     removeWidget,
     restoreWidget,
     moveWidget,
+    resizeWidget,
     updateWidgetConfig,
   } = useFeedWidgets();
   const {
@@ -100,6 +107,12 @@ export const FeedWidgetCell = ({
   const Component = getFeedWidgetComponent(widget.kind);
   const definition = getFeedWidgetDefinition(widget.kind);
   const slot = widget.slot ?? 0;
+  // Wide where the row had room for it; a wide one in the last column
+  // narrows to one card, as a hero card does.
+  const size = columns > 1 ? FeedWidgetSize.Large : FEED_WIDGET_IN_FEED_SIZE;
+  const sizes = feedWidgetSizes(widget.kind).filter((value) =>
+    feedWidgetInFeedSizes.includes(value),
+  );
   const canEdit = isEditing && !isReadOnly;
 
   const onRemove = () => {
@@ -127,6 +140,17 @@ export const FeedWidgetCell = ({
 
   const onMenuAction = (action: FeedWidgetMenuAction) => {
     switch (action.type) {
+      case 'size':
+        setFlashId(widget.id);
+        resizeWidget(widget.id, action.size).then(
+          (isSaved) =>
+            isSaved &&
+            logWidgetEvent(LogEvent.ResizeFeedWidget, widget, {
+              method: 'menu',
+              size: action.size,
+            }),
+        );
+        break;
       case 'move': {
         const to = action.to === 'left' ? slot - 1 : slot + 1;
         setFlashId(widget.id);
@@ -167,7 +191,7 @@ export const FeedWidgetCell = ({
       aria-label={definition.name}
       role="group"
       className={classNames(
-        'relative min-h-card min-w-0 rounded-16',
+        'relative min-h-card w-full min-w-0 rounded-16',
         canEdit && 'feed-widget-jiggle select-none',
         flashId === widget.id && 'feed-widget-flash',
       )}
@@ -184,13 +208,13 @@ export const FeedWidgetCell = ({
           hasTopStory={widget.kind === FeedWidgetKind.TopStory}
         >
           <FeedWidgetSurface
-            isBare={isFeedWidgetBare(widget.kind, FEED_WIDGET_IN_FEED_SIZE)}
+            isBare={isFeedWidgetBare(widget.kind, size)}
             isInert={isEditing}
           >
             <OnScreen>
               <Component
                 widget={widget}
-                size={FEED_WIDGET_IN_FEED_SIZE}
+                size={size}
                 isEditing={isEditing}
                 onConfigChange={(config) => {
                   const isSaved = updateWidgetConfig(widget.id, config);
@@ -219,7 +243,8 @@ export const FeedWidgetCell = ({
           </button>
           <FeedWidgetMenu
             widget={widget}
-            sizes={[]}
+            sizes={sizes.length > 1 ? sizes : []}
+            sizeLabel={(value) => feedWidgetInFeedSizeLabel[value] ?? value}
             moves={['left', 'right']}
             canMoveLeft={slot > 0}
             canMoveRight
@@ -271,10 +296,10 @@ export const FeedWidgetEditor = (): ReactElement => {
     }
   }, [addingSlot, logWidgetEvent]);
 
-  const onAdd = (kind: FeedWidgetKind) => {
+  const onAdd = (kind: FeedWidgetKind, size: FeedWidgetSize) => {
     const slot = addingSlot ?? 0;
     setAddingSlot(null);
-    const result = addWidget(kind, { slot });
+    const result = addWidget(kind, { size, slot });
     if (!result) {
       return;
     }
@@ -334,7 +359,8 @@ export const FeedWidgetEditor = (): ReactElement => {
         <FeedWidgetGallery
           widgets={widgets}
           isFull={!canAdd}
-          fixedSize={FEED_WIDGET_IN_FEED_SIZE}
+          allowedSizes={feedWidgetInFeedSizes}
+          sizeLabel={(size) => feedWidgetInFeedSizeLabel[size] ?? size}
           onAdd={onAdd}
           onRequestClose={() => setAddingSlot(null)}
         />

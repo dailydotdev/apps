@@ -89,7 +89,8 @@ const useResolvedFeedWidgets = ({
   });
 
   return useMemo(
-    () => slottedFeedWidgets(custom ?? resolveDefaultFeedRail(defaultFlag).widgets),
+    () =>
+      slottedFeedWidgets(custom ?? resolveDefaultFeedRail(defaultFlag).widgets),
     [custom, defaultFlag],
   );
 };
