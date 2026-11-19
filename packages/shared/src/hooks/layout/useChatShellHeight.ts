@@ -1,22 +1,15 @@
 import classNames from 'classnames';
-import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
-import { useBanner } from '../../hooks/useBanner';
+import { useLaptopLayout } from './useLaptopLayout';
+import { useBanner } from '../useBanner';
 
-// The agent screens scroll internally, so they must stop exactly at the
+// The chat screens scroll internally, so they must stop exactly at the
 // viewport. The subtractions are what sits above them in each layout.
 // A phone page without the bottom bar only clears the home indicator. On
 // laptop the promotional banner is fixed at 2rem and the layout pads the page
 // by as much, so the screen gives that back too.
-export const useAgentShellHeight = (
-  isStandalone?: boolean,
-  hasBottomBar = true,
-): string => {
+export const useChatShellHeight = (hasBottomBar = true): string => {
   const isLaptopLayout = useLaptopLayout();
   const { isAvailable: hasBanner } = useBanner();
-
-  if (isStandalone) {
-    return 'h-[100dvh]';
-  }
 
   return classNames(
     hasBottomBar

@@ -20,8 +20,7 @@ export const LiveChatHighlightCardRow = ({
 }): ReactElement | null => {
   const { logEvent } = useLogContext();
   const { room, isPending } = useLiveChatHighlight();
-  // The row is the yes: landing on the post joins the chat right away, and
-  // a topic room's page joins on its own.
+  // The row is the yes: landing on the post joins the chat right away.
   const href = room ? getChatRoomHref(room) : undefined;
   // The card has painted by the time the rooms answer; holding the row's
   // height meanwhile keeps the headlines from jumping.

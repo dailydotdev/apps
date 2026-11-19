@@ -14,7 +14,7 @@ import type {
 } from '../../messages/types';
 import type { ChatRoom } from '../graphql';
 import { ChatRoomStatus, openPostChatRoom } from '../graphql';
-import { chatRoomQueryOptions, postChatRoomQueryOptions } from '../queries';
+import { postChatRoomQueryOptions } from '../queries';
 
 export type LiveChatStatus =
   // Not in the room; the room may or may not exist yet.
@@ -66,17 +66,14 @@ type UseLiveChatRoom = {
 
 // One live chat: the room from the API, and the viewer's seat in it over
 // the chat connection. Messages live only here, as long as the surface is
-// mounted; the room keeps nothing, and that is the point of it. The room is
-// the post's (which the team may still open from here) or one by id (a
-// topic room, which exists before anyone lands on it).
+// mounted; the room keeps nothing, and that is the point of it. The team may
+// still open the post's room from here.
 export const useLiveChatRoom = ({
   postId,
-  roomId,
   origin,
   preview = false,
 }: {
-  postId?: string;
-  roomId?: string;
+  postId: string;
   origin: string;
   // Seat a signed-in viewer in the open room while this is true, so the chat
   // is on screen before they decide to join. The room replays its recent
@@ -91,9 +88,7 @@ export const useLiveChatRoom = ({
   const queryClient = useQueryClient();
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
-  const roomQuery = roomId
-    ? chatRoomQueryOptions(user, roomId)
-    : postChatRoomQueryOptions(user, postId ?? '');
+  const roomQuery = postChatRoomQueryOptions(user, postId);
   const { data: room, isPending: isRoomLoading } = useQuery(roomQuery);
   const roomJid = room?.status === ChatRoomStatus.Active ? room.jid : null;
 
@@ -123,11 +118,7 @@ export const useLiveChatRoom = ({
         event_name: eventName,
         target_type: TargetType.ChatRoom,
         target_id: room?.id,
-        extra: JSON.stringify({
-          origin,
-          ...(postId && { post_id: postId }),
-          ...extra,
-        }),
+        extra: JSON.stringify({ origin, post_id: postId, ...extra }),
       }),
     [logEvent, origin, postId, room?.id],
   );
@@ -300,9 +291,7 @@ export const useLiveChatRoom = ({
     setStatus('joining');
     try {
       let target = room;
-      // A topic room exists before anyone lands on it; only a post's room
-      // is opened from here.
-      if (postId && (!target?.jid || target.status !== ChatRoomStatus.Active)) {
+      if (!target?.jid || target.status !== ChatRoomStatus.Active) {
         target = await openPostChatRoom(postId);
         queryClient.setQueryData(roomQuery.queryKey, target);
         // Closed while the room was opening; the unmount had nothing to leave.
@@ -325,7 +314,7 @@ export const useLiveChatRoom = ({
       setStatus('failed');
       throw err;
     }
-    // The query key is stable per room; the options object is not.
+    // The query key is stable per post; the options object is not.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postId, preview, queryClient, room, status, user?.id]);
 

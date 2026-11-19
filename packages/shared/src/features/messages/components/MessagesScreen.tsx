@@ -21,7 +21,7 @@ import { Tooltip } from '../../../components/tooltip/Tooltip';
 import { IconSize } from '../../../components/Icon';
 import { ShellPage } from '../../../components/shell/ShellPageContext';
 import { ShellSquare } from '../../../components/shell/ShellSquare';
-import { useAgentShellHeight } from '../../interests/shell';
+import { useChatShellHeight } from '../../../hooks/layout/useChatShellHeight';
 import { useIsPhone, useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { useKeyboardFit } from '../../../hooks/utils/useKeyboardFit';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -81,7 +81,7 @@ export const MessagesScreen = ({
     showRequests && isLfgEnabled ? activeReachOutId : undefined;
   const hasDetail = !!activePeerId || !!reachOutId;
   // A conversation has no bottom bar on phones: its composer takes the place.
-  const shellHeight = useAgentShellHeight(false, !hasDetail);
+  const shellHeight = useChatShellHeight(!hasDetail);
   const screenRef = useRef<HTMLDivElement>(null);
   const keyboardHeight = useKeyboardFit(screenRef, useIsPhone());
   const { allowsMessages } = useDmSettings();

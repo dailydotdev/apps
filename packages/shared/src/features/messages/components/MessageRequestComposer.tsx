@@ -18,7 +18,7 @@ import {
 } from '../../../components/buttons/Button';
 import type { ApiErrorResult } from '../../../graphql/common';
 import { LogEvent } from '../../../lib/log';
-import { composerFrame } from '../../interests/components/AgentComposer';
+import { composerFrame } from './composerFrame';
 import { DirectMessageAccess, sendDirectMessageRequest } from '../graphql';
 import { dmConversationQueryOptions, dmPeerQueryOptions } from '../queries';
 import type { DmPeer } from '../types';

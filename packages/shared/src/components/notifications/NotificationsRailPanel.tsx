@@ -12,8 +12,8 @@ import type { NotificationFilterCategory } from './utils';
 import {
   notificationCategoryBadge,
   notificationFilterCategoryLabel,
+  notificationFilterCategoryList,
 } from './utils';
-import { useNotificationFilterCategories } from '../../hooks/notifications/useNotificationFilterCategories';
 import { isExtension } from '../../lib/func';
 
 const notificationsPath = (
@@ -32,7 +32,6 @@ export const NotificationsRailPanel = (): ReactElement => {
   const isListPage = router.pathname === '/notifications';
   const activeType =
     typeof router.query?.type === 'string' ? router.query.type : undefined;
-  const filterCategories = useNotificationFilterCategories();
 
   // On the webapp, filters navigate via `action` (button), NOT `path`.
   // SidebarItem treats any `?type=` path as active for the whole
@@ -95,7 +94,7 @@ export const NotificationsRailPanel = (): ReactElement => {
       ...unreadBadge,
     };
 
-    const categoryItems: SidebarMenuItem[] = filterCategories.map(
+    const categoryItems: SidebarMenuItem[] = notificationFilterCategoryList.map(
       (category) => {
         const { Icon } = notificationCategoryBadge[category];
         return {
@@ -113,7 +112,6 @@ export const NotificationsRailPanel = (): ReactElement => {
   }, [
     activePage,
     activeType,
-    filterCategories,
     hasUnread,
     isListPage,
     navigationFor,

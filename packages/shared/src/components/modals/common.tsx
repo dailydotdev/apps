@@ -550,10 +550,6 @@ const PostImpressionsModal = dynamic(
     ),
 );
 
-const AgentIntroModal = dynamic(
-  () => import(/* webpackChunkName: "agentIntroModal" */ './AgentIntroModal'),
-);
-
 const LfgReachOutModal = dynamic(
   () =>
     import(
@@ -661,7 +657,6 @@ export const modals = {
   [LazyModal.ReaderExtensionInstall]: ReaderExtensionInstallModal,
   [LazyModal.ReaderPreview]: ReaderPreviewLazyModal,
   [LazyModal.PostImpressions]: PostImpressionsModal,
-  [LazyModal.AgentIntro]: AgentIntroModal,
   [LazyModal.LfgReachOut]: LfgReachOutModal,
   [LazyModal.LfgHelper]: LfgHelperModal,
   [LazyModal.FeedExplanation]: FeedExplanationModal,

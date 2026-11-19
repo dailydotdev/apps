@@ -8,8 +8,8 @@ import type {
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { FlexCol, FlexRow } from '../../../components/utilities';
-import { composerFrame } from '../../interests/components/AgentComposer';
-import { AgentSendButton } from '../../interests/components/AgentSendButton';
+import { composerFrame } from './composerFrame';
+import { ComposerSendButton } from './ComposerSendButton';
 import {
   Button,
   ButtonSize,
@@ -366,7 +366,7 @@ export const MessageComposer = ({
               </Button>
             )}
           />
-          <AgentSendButton
+          <ComposerSendButton
             label="Send message"
             className="shrink-0"
             disabled={!canSend}
