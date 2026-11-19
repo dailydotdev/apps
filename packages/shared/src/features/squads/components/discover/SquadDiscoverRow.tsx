@@ -16,7 +16,8 @@ import { VerifiedSquadBadge } from '../VerifiedSquad';
 import { SquadJoinButton } from './SquadJoinButton';
 import { PromotedLabel, PromotedSquad } from './PromotedSquad';
 import type { SquadDiscoverSection } from './common';
-import { getSquadMembersLabel, isVerifiedSquad } from './common';
+import { getSquadMembersLabel } from './common';
+import { showsVerifiedBadge } from '../../lib/features';
 
 interface SquadDiscoverRowProps {
   squad: Squad;
@@ -82,7 +83,7 @@ export const SquadDiscoverRow = ({
             >
               {squad.name}
             </Typography>
-            {isVerifiedSquad(squad) && (
+            {showsVerifiedBadge(squad) && (
               <VerifiedSquadBadge className="size-4 shrink-0" />
             )}
           </div>

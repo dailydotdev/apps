@@ -20,6 +20,8 @@ import { useSquadPageContext } from '../../SquadPageContext';
 import { useSquadProducts } from '../../hooks/useSquadProducts';
 import { useSquadProductMutations } from '../../hooks/useSquadProductMutations';
 import { SQUAD_PRODUCTS_MAX } from '../../lib/limits';
+import { getSquadProductsMax } from '../../lib/features';
+import { SquadEnterpriseGate } from './SquadEnterpriseGate';
 import { moveItem } from '../../lib/order';
 import {
   getSquadManageUrl,
@@ -31,6 +33,7 @@ import { SquadProductForm } from '../products/SquadProductForm';
 import {
   SquadManagePanel,
   SquadManageSaveButton,
+  useSquadManageEmbed,
   SquadManageSectionPanel,
 } from './SquadManageLayout';
 
@@ -39,7 +42,8 @@ export const SquadManageProducts = (): ReactElement => {
   const { products, isPending } = useSquadProducts(squad);
   const { onReorder } = useSquadProductMutations(squad);
   const ids = products.map(({ id }) => id);
-  const canAdd = products.length < SQUAD_PRODUCTS_MAX;
+  const maxProducts = getSquadProductsMax(squad);
+  const canAdd = products.length < maxProducts;
   const addUrl = getSquadProductFormUrl(squad.handle);
 
   return (
@@ -74,7 +78,9 @@ export const SquadManageProducts = (): ReactElement => {
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
         >
-          {`Up to ${SQUAD_PRODUCTS_MAX} products, shown on the page in this order.`}
+          {maxProducts === 1
+            ? 'One product, shown on your page.'
+            : `Up to ${maxProducts} products, shown on the page in this order.`}
         </Typography>
         {!isPending && !products.length && (
           <Typography
@@ -149,6 +155,12 @@ export const SquadManageProducts = (): ReactElement => {
             );
           })}
         </ul>
+        {!canAdd && maxProducts < SQUAD_PRODUCTS_MAX && (
+          <SquadEnterpriseGate
+            title="More products"
+            description={`Show up to ${SQUAD_PRODUCTS_MAX} products on your page.`}
+          />
+        )}
       </div>
     </SquadManageSectionPanel>
   );
@@ -163,6 +175,7 @@ export const SquadManageProductForm = ({
   productId?: string;
 }): ReactElement | null => {
   const router = useRouter();
+  const embed = useSquadManageEmbed();
   const { squad } = useSquadPageContext();
   const { products, isPending } = useSquadProducts(squad);
   const [isSaving, setIsSaving] = useState(false);
@@ -190,6 +203,28 @@ export const SquadManageProductForm = ({
     );
   }
 
+  if (
+    !productId &&
+    !isPending &&
+    products.length >= getSquadProductsMax(squad)
+  ) {
+    return (
+      <SquadManagePanel
+        title="Add product"
+        backUrl={listUrl}
+        backLabel="Back to Products"
+        hasLaptopBack
+      >
+        <div className="px-4 py-6 tablet:px-6">
+          <SquadEnterpriseGate
+            title="More products"
+            description={`Show up to ${SQUAD_PRODUCTS_MAX} products on your page.`}
+          />
+        </div>
+      </SquadManagePanel>
+    );
+  }
+
   return (
     <SquadManagePanel
       title={product ? 'Edit product' : 'Add product'}
@@ -205,7 +240,7 @@ export const SquadManageProductForm = ({
         squad={squad}
         formId={productFormId}
         product={product}
-        onDone={() => router.push(listUrl)}
+        onDone={() => (embed ? embed.onSaved() : router.push(listUrl))}
         onSavingChange={setIsSaving}
       />
     </SquadManagePanel>

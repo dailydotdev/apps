@@ -77,7 +77,7 @@ export const BriefCardReady = ({
       >
         <div className="flex flex-1 flex-row items-center gap-2 laptop:flex-col laptop:items-start laptop:gap-4">
           <BriefIcon secondary size={IconSize.Size48} />
-          <div className="flex flex-1 flex-col laptop:gap-4 ">
+          <div className="flex flex-1 flex-col laptop:gap-4">
             <Typography className="typo-callout laptop:typo-title2" bold>
               {title}
             </Typography>

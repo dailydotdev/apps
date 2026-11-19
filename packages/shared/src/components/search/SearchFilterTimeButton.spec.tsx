@@ -25,7 +25,7 @@ const mockRouter = (query: Record<string, string> = {}) =>
         query: { q: 'react', ...query },
         replace,
         isReady: true,
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
 
 beforeEach(() => {

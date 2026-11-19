@@ -126,9 +126,9 @@ export const RecruiterSetupChecklist = ({
     }
     return Boolean(
       organization.image &&
-        organization.website &&
-        organization.description &&
-        organization.location,
+      organization.website &&
+      organization.description &&
+      organization.location,
     );
   }, [organization]);
 

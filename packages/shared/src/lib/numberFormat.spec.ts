@@ -1,4 +1,9 @@
-import { getPrice, removeNonNumber, formatDataTileValue } from './numberFormat';
+import {
+  getPrice,
+  removeNonNumber,
+  formatDataTileValue,
+  largeNumberFormat,
+} from './numberFormat';
 import {
   dummyPaddleProductItemBrl,
   dummyPaddleProductItemDollar,
@@ -73,20 +78,19 @@ describe('function formatDataTileValue', () => {
   it('should format numbers 10,000 and above with large number formatting', () => {
     expect(formatDataTileValue(10000)).toBe('10K');
     expect(formatDataTileValue(15000)).toBe('15K');
-    expect(formatDataTileValue(99999)).toBe('100K');
+    expect(formatDataTileValue(99999)).toBe('99K');
     expect(formatDataTileValue(100000)).toBe('100K');
-    expect(formatDataTileValue(123456)).toBe('123.5K');
+    expect(formatDataTileValue(123456)).toBe('123K');
     expect(formatDataTileValue(1000000)).toBe('1M');
     expect(formatDataTileValue(1500000)).toBe('1.5M');
     expect(formatDataTileValue(1000000000)).toBe('1B');
   });
 
-  it('should handle decimal precision correctly for large numbers', () => {
-    expect(formatDataTileValue(10500)).toBe('10.5K');
-    expect(formatDataTileValue(10050)).toBe('10.1K');
-    expect(formatDataTileValue(10001)).toBe('10K');
-    expect(formatDataTileValue(10049)).toBe('10K');
-    expect(formatDataTileValue(10050)).toBe('10.1K');
+  it('should show whole numbers from 10 in a unit, rounded down', () => {
+    expect(formatDataTileValue(10500)).toBe('10K');
+    expect(formatDataTileValue(10999)).toBe('10K');
+    expect(formatDataTileValue(150900)).toBe('150K');
+    expect(formatDataTileValue(999999)).toBe('999K');
   });
 
   it('should handle edge cases and invalid inputs', () => {
@@ -99,5 +103,17 @@ describe('function formatDataTileValue', () => {
   it('should handle very large numbers', () => {
     expect(formatDataTileValue(1000000000000)).toBe('1T');
     expect(formatDataTileValue(1500000000000)).toBe('1.5T');
+  });
+});
+
+describe('function largeNumberFormat', () => {
+  it('should keep one decimal under 10 in a unit, rounded down', () => {
+    expect(largeNumberFormat(999)).toBe('999');
+    expect(largeNumberFormat(1000)).toBe('1K');
+    expect(largeNumberFormat(1790)).toBe('1.7K');
+    expect(largeNumberFormat(9940)).toBe('9.9K');
+    expect(largeNumberFormat(9999)).toBe('9.9K');
+    expect(largeNumberFormat(23400)).toBe('23K');
+    expect(largeNumberFormat(1250000)).toBe('1.2M');
   });
 });

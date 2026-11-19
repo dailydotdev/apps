@@ -20,29 +20,28 @@ const MAX_COMMENT_LENGTH = 600;
 const SIMILAR_POSTS_COUNT = 5;
 export const TOP_COMMENTS_COUNT = 5;
 
-export interface PostMarkdownPost
-  extends Pick<
-    Post,
-    | 'id'
-    | 'slug'
-    | 'title'
-    | 'type'
-    | 'permalink'
-    | 'commentsPermalink'
-    | 'content'
-    | 'summary'
-    | 'answeredQuestions'
-    | 'description'
-    | 'createdAt'
-    | 'updatedAt'
-    | 'readTime'
-    | 'tags'
-    | 'language'
-    | 'private'
-    | 'noindex'
-    | 'numUpvotes'
-    | 'numComments'
-  > {
+export interface PostMarkdownPost extends Pick<
+  Post,
+  | 'id'
+  | 'slug'
+  | 'title'
+  | 'type'
+  | 'permalink'
+  | 'commentsPermalink'
+  | 'content'
+  | 'summary'
+  | 'answeredQuestions'
+  | 'description'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'readTime'
+  | 'tags'
+  | 'language'
+  | 'private'
+  | 'noindex'
+  | 'numUpvotes'
+  | 'numComments'
+> {
   url?: string;
   author?: { name?: string; username?: string };
   source?: { handle?: string; name?: string; public?: boolean };
@@ -205,7 +204,7 @@ const sourceUrl = (post: PostMarkdownPost): string =>
 
 /** The post's own body, when daily.dev hosts it. Empty for external articles. */
 const nativeContent = (post: PostMarkdownPost): string =>
-  NATIVE_CONTENT_TYPES.includes(post.type) ? post.content?.trim() ?? '' : '';
+  NATIVE_CONTENT_TYPES.includes(post.type) ? (post.content?.trim() ?? '') : '';
 
 const buildFrontmatter = (post: PostMarkdownPost): string[] => {
   const lines = ['---'];

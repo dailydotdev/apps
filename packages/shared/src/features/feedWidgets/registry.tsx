@@ -14,7 +14,7 @@ import { ReadingStreakIcon } from '../../components/icons/ReadingStreak';
 import { SunIcon } from '../../components/icons/Sun';
 import { ChecklistAIcon } from '../../components/icons/ChecklistA';
 import { ShortcutsIcon } from '../../components/icons/Shortcuts';
-import { FlagIcon } from '../../components/icons/Flag';
+import { ChecklistBIcon } from '../../components/icons/ChecklistB';
 import {
   settingsUrl,
   squadCategoriesPaths,
@@ -27,7 +27,7 @@ export type FeedWidgetComponentProps<
   K extends FeedWidgetKind = FeedWidgetKind,
 > = {
   widget: FeedWidget<K>;
-  /** The size being rendered; a phone clamps Large to Tall. */
+  /** The size being rendered. */
   size: FeedWidgetSize;
   isEditing: boolean;
   /**
@@ -50,6 +50,7 @@ export type FeedWidgetAvailability = {
   isLoggedIn: boolean;
   hasSquads: boolean;
   isReadingStreakOn: boolean;
+  isQuestSystemOn: boolean;
   /** Direct messages are on for this reader and this build has chat. */
   hasMessages: boolean;
   /** Live chat rooms are on for this reader. */
@@ -171,7 +172,8 @@ export const feedWidgetRegistry: {
   [FeedWidgetKind.LiveChat]: {
     kind: FeedWidgetKind.LiveChat,
     name: 'Live chat',
-    description: 'The live chats happening on trending posts right now.',
+    description:
+      'The live chats the daily.dev team opens on things worth talking about.',
     icon: DiscussIcon,
     category: FeedWidgetCategory.Community,
     tone: 'bun',
@@ -270,11 +272,17 @@ export const feedWidgetRegistry: {
     name: 'Getting started',
     description:
       'The intro quests, with their XP and Cores, one step at a time.',
-    icon: FlagIcon,
+    icon: ChecklistBIcon,
     category: FeedWidgetCategory.DailyDev,
     tone: 'cheese',
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],
     isAvailable: needsAccount,
+    disabledReason: ({ isQuestSystemOn }) =>
+      isQuestSystemOn ? undefined : 'Quests are off in your settings.',
+    disabledFix: {
+      label: 'Turn on quests',
+      href: `${settingsUrl}/customization/gamification`,
+    },
   },
 };
 

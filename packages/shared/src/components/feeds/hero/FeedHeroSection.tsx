@@ -75,7 +75,7 @@ export function FeedHeroSection({
             ? 'flex flex-col gap-6'
             : classNames(
                 // The feed grid's own gap, so the columns line up with it.
-                'grid gap-8',
+                'grid gap-6',
                 gridColsClass[columns],
                 // The card's height plus the 3.5rem the paging controls need
                 // under it. One column wraps the title furthest and runs to

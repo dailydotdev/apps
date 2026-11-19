@@ -1,14 +1,26 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import { ReadingStreakIcon, TriangleArrowIcon, EditIcon } from '../../icons';
+import {
+  ReadingStreakIcon,
+  TriangleArrowIcon,
+  EditIcon,
+  PauseIcon,
+} from '../../icons';
 import classed from '../../../lib/classed';
 import { IconSize, iconSizeToClassName } from '../../Icon';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { dateFormatInTimezone } from '../../../lib/timezones';
+import { dateFormatInTimezone, DEFAULT_TIMEZONE } from '../../../lib/timezones';
 import { webappUrl } from '../../../lib/constants';
 import { Tooltip } from '../../tooltip/Tooltip';
+import {
+  getGtaViLabel,
+  GtaViDisc,
+  GtaViTooltip,
+  isGtaViReleaseDay,
+  useIsGtaViDayEnabled,
+} from './GtaViDay';
 
 export enum Streak {
   Completed = 'completed',
@@ -16,12 +28,19 @@ export enum Streak {
   Upcoming = 'upcoming',
   Freeze = 'freeze',
   UsedFreeze = 'used_freeze',
+  Missed = 'missed',
+  Paused = 'paused',
 }
+
+export const missedDayLabel = 'Missed day, this is where the streak reset';
+export const pausedDayLabel = 'Streak paused this day';
 
 export const freezeTooltipCopy: Partial<Record<Streak, string>> = {
   [Streak.Freeze]:
     'We auto-freeze streaks during the weekend, but you can still keep going if you want to',
   [Streak.UsedFreeze]: 'A streak freeze was used this day',
+  [Streak.Missed]: missedDayLabel,
+  [Streak.Paused]: pausedDayLabel,
 };
 
 interface DayStreakProps {
@@ -32,10 +51,7 @@ interface DayStreakProps {
   shouldShowArrow?: boolean;
 }
 
-const Circle = classed(
-  'div',
-  'rounded-full border border-border-subtlest-tertiary',
-);
+const Circle = classed('div', 'rounded-full border');
 
 export function DayStreak({
   streak,
@@ -46,6 +62,40 @@ export function DayStreak({
 }: DayStreakProps): ReactElement {
   const { user } = useAuthContext();
   const router = useRouter();
+  const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
+  const isGtaViDayEnabled = useIsGtaViDayEnabled(
+    isGtaViReleaseDay(date, timezone),
+  );
+  const [tooltipLayer, setTooltipLayer] = useState<Element>();
+  const gtaViTriggerRef = useCallback((node: HTMLButtonElement | null) => {
+    setTooltipLayer(node?.closest('[data-tippy-root]') ?? undefined);
+  }, []);
+
+  if (isGtaViDayEnabled) {
+    return (
+      <GtaViTooltip timezone={timezone} appendTo={tooltipLayer}>
+        <button
+          ref={gtaViTriggerRef}
+          type="button"
+          aria-label={getGtaViLabel(
+            date,
+            timezone,
+            streak === Streak.Completed,
+          )}
+          className="relative flex flex-col items-center gap-1"
+        >
+          {shouldShowArrow && (
+            <TriangleArrowIcon
+              className="absolute -top-4 text-accent-bacon-default"
+              size={IconSize.XXSmall}
+            />
+          )}
+          <GtaViDisc className={iconSizeToClassName[size]} />
+          {dateFormatInTimezone(date, 'iiiii', timezone)}
+        </button>
+      </GtaViTooltip>
+    );
+  }
 
   const renderIcon = () => {
     if (streak === Streak.Completed || streak === Streak.Pending) {
@@ -58,16 +108,38 @@ export function DayStreak({
       );
     }
 
+    if (streak === Streak.Paused) {
+      return (
+        <Circle
+          role="img"
+          aria-label={pausedDayLabel}
+          className={classNames(
+            className,
+            iconSizeToClassName[size],
+            'flex items-center justify-center border-border-subtlest-tertiary bg-surface-float text-text-tertiary',
+          )}
+        >
+          <PauseIcon size={IconSize.XSmall} />
+        </Circle>
+      );
+    }
+
     const isStreakFreeze =
       streak === Streak.Freeze || streak === Streak.UsedFreeze;
+    const isMissed = streak === Streak.Missed;
 
     return (
       <Circle
+        role={isMissed ? 'img' : undefined}
+        aria-label={isMissed ? missedDayLabel : undefined}
         className={classNames(
           className,
           iconSizeToClassName[size],
           isStreakFreeze &&
             'flex cursor-pointer items-center justify-center bg-text-disabled text-transparent laptop:hover:text-surface-secondary',
+          isMissed
+            ? 'border-dashed border-status-error'
+            : 'border-border-subtlest-tertiary',
         )}
         onClick={() => {
           if (isStreakFreeze) {
@@ -97,7 +169,7 @@ export function DayStreak({
           />
         )}
         {renderIcon()}
-        {dateFormatInTimezone(date, 'iiiii', user?.timezone ?? 'UTC')}
+        {dateFormatInTimezone(date, 'iiiii', timezone)}
       </div>
     </Tooltip>
   );

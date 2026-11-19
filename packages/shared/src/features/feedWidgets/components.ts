@@ -6,8 +6,7 @@ import type {
   FeedWidgetDefinition,
 } from './registry';
 import { feedWidgetRegistry } from './registry';
-import type { FeedWidgetKind } from './types';
-import { FeedWidgetSize } from './types';
+import type { FeedWidgetKind, FeedWidgetSize } from './types';
 import { FeedWidgetLoading } from './FeedWidgetFrame';
 
 // Each widget is its own chunk, loaded the first time one renders, so the
@@ -141,15 +140,6 @@ export const getFeedWidgetComponent = (
 /** Sizes a kind supports; none when the widget is not built. */
 export const feedWidgetSizes = (kind: FeedWidgetKind): FeedWidgetSize[] =>
   feedWidgetComponents[kind] ? feedWidgetRegistry[kind].sizes : [];
-
-/** A phone shows no Large, so it never offers one either. */
-export const feedWidgetSizesForScreen = (
-  kind: FeedWidgetKind,
-  isPhone: boolean,
-): FeedWidgetSize[] =>
-  feedWidgetSizes(kind).filter(
-    (size) => !isPhone || size !== FeedWidgetSize.Large,
-  );
 
 /** The kinds a reader can add: built, and allowed for their account. */
 export const availableFeedWidgets = (

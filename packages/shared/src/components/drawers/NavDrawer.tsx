@@ -11,8 +11,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { webappUrl } from '../../lib/constants';
-import { getPathnameWithQuery } from '../../lib';
+import { getBuyCoresUrl } from '../../lib/links';
 import { BuyCreditsButton } from '../credit/BuyCreditsButton';
 import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
 import { Origin } from '../../lib/log';
@@ -81,14 +80,13 @@ export function NavDrawer({
             <BuyCreditsButton
               className="ml-auto"
               hideBuyButton={!canPurchaseCores}
+              origin={Origin.ProfileMenu}
               onPlusClick={() => {
                 router.push(
-                  getPathnameWithQuery(
-                    `${webappUrl}cores`,
-                    new URLSearchParams({
-                      origin: Origin.ProfileMenu,
-                    }),
-                  ),
+                  getBuyCoresUrl({
+                    origin: Origin.ProfileMenu,
+                    next: router.asPath,
+                  }),
                 );
               }}
             />

@@ -62,6 +62,34 @@ describe('normalizeFeedPage', () => {
     });
   });
 
+  it('should carry an Explain mode explanation onto its post, null included', () => {
+    const [first, second] = defaultFeedPage.edges;
+    const explain = { lane: 'po' };
+    const result = normalizeFeedPage({
+      page: {
+        pageInfo: defaultFeedPage.pageInfo,
+        edges: [
+          { node: { __typename: 'FeedPostItem', post: first.node, explain } },
+          {
+            node: {
+              __typename: 'FeedPostItem',
+              post: second.node,
+              explain: null,
+            },
+          },
+          { node: { __typename: 'FeedPostItem', post: first.node } },
+        ],
+      },
+    });
+    const posts = result.page.edges.map(({ node }) =>
+      node.itemType === 'post' ? node.post : undefined,
+    );
+
+    expect(posts[0]?.explain).toEqual(explain);
+    expect(posts[1]?.explain).toBeNull();
+    expect(posts[2]).not.toHaveProperty('explain');
+  });
+
   it('should normalize feedV2 highlight items into highlight feed items', () => {
     const warn = jest
       .spyOn(console, 'warn')

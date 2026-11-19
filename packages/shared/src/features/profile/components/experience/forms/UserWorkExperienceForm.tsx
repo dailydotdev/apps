@@ -88,7 +88,7 @@ const UserWorkExperienceForm = ({
         )}
       </div>
       <HorizontalSeparator />
-      <div className=" flex flex-col gap-2">
+      <div className="flex flex-col gap-2">
         <div className="flex flex-col gap-2">
           <ProfileLocation
             locationName="externalLocationId"

@@ -64,7 +64,7 @@ beforeEach(() => {
   jest.restoreAllMocks();
   jest
     .mocked(useRouter)
-    .mockImplementation(() => ({ pathname: '/' } as unknown as NextRouter));
+    .mockImplementation(() => ({ pathname: '/' }) as unknown as NextRouter);
 });
 
 describe('grid card TLDR', () => {

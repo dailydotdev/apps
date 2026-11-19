@@ -54,7 +54,7 @@ describe('useJoinReferral hook', () => {
             cid: 'squad',
             userid: '1',
           },
-        } as unknown as NextRouter),
+        }) as unknown as NextRouter,
     );
 
     renderHook(() => useJoinReferral(), {
@@ -75,7 +75,7 @@ describe('useJoinReferral hook', () => {
           query: {
             cid: 'instagram',
           },
-        } as unknown as NextRouter),
+        }) as unknown as NextRouter,
     );
 
     renderHook(() => useJoinReferral(), {
@@ -98,7 +98,7 @@ describe('useJoinReferral hook', () => {
           query: {
             cid: 'instagram',
           },
-        } as unknown as NextRouter),
+        }) as unknown as NextRouter,
     );
 
     // Fail loudly if the campaign-only path tries to validate a referring user.
@@ -126,7 +126,7 @@ describe('useJoinReferral hook', () => {
       () =>
         ({
           query: {},
-        } as unknown as NextRouter),
+        }) as unknown as NextRouter,
     );
 
     renderHook(() => useJoinReferral(), {
@@ -144,7 +144,7 @@ describe('useJoinReferral hook', () => {
             cid: 'squad',
             userid: '1',
           },
-        } as unknown as NextRouter),
+        }) as unknown as NextRouter,
     );
 
     mockGraphQL({
@@ -179,7 +179,7 @@ describe('useJoinReferral hook', () => {
             cid: 'squad',
             userid: '1',
           },
-        } as unknown as NextRouter),
+        }) as unknown as NextRouter,
     );
 
     renderHook(() => useJoinReferral(), {

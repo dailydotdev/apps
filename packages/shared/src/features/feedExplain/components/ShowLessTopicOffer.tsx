@@ -1,0 +1,137 @@
+import type { ReactElement } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
+import { MinusIcon } from '../../../components/icons/Minus';
+import useFeedSettings from '../../../hooks/useFeedSettings';
+import type { Origin } from '../../../lib/log';
+import type { Post } from '../../../graphql/posts';
+import { FeedTopicMode, isRankedExplain } from '../types';
+import { useFeedControls } from '../useFeedControls';
+import type { FeedPostExplanationRequest } from '../graphql';
+import { useFeedPostExplanation } from '../useFeedPostExplanation';
+
+interface ShowLessTopicOfferProps {
+  /** The topic that brought the hidden post in. */
+  tag: string;
+  origin: Origin;
+  className?: string;
+}
+
+/**
+ * After a hide, which removes only the post: show less of the topic that
+ * brought it in. Not offered for a blocked topic, or once the reader set the
+ * topic's level.
+ */
+export const ShowLessTopicOffer = ({
+  tag,
+  origin,
+  className,
+}: ShowLessTopicOfferProps): ReactElement | null => {
+  const { controls, getTopicControl, setTopicMode } = useFeedControls({
+    origin,
+  });
+  const { feedSettings } = useFeedSettings();
+  const [isLowered, setIsLowered] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const shouldFocus = useRef(false);
+  const control = getTopicControl(tag);
+  const isShowingLess = isLowered && control?.mode === FeedTopicMode.Demote;
+
+  // The clicked button is swapped for the other one, so focus follows it.
+  useEffect(() => {
+    if (shouldFocus.current) {
+      shouldFocus.current = false;
+      buttonRef.current?.focus();
+    }
+  }, [isShowingLess]);
+
+  if (
+    !controls ||
+    feedSettings?.blockedTags?.includes(tag) ||
+    (control && !isShowingLess)
+  ) {
+    return null;
+  }
+
+  const onToggle = (isLess: boolean) => {
+    shouldFocus.current = true;
+    setTopicMode(tag, isLess ? FeedTopicMode.Demote : null);
+    setIsLowered(isLess);
+  };
+
+  if (isShowingLess) {
+    return (
+      <span
+        className={classNames(
+          'flex items-center gap-1 pl-1.5 text-text-tertiary typo-footnote',
+          className,
+        )}
+      >
+        Showing less #{tag}
+        <Button
+          ref={buttonRef}
+          type="button"
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.XSmall}
+          aria-label={`Undo show less #${tag}`}
+          onClick={() => onToggle(false)}
+        >
+          Undo
+        </Button>
+      </span>
+    );
+  }
+
+  return (
+    <Button
+      ref={buttonRef}
+      type="button"
+      variant={ButtonVariant.Tertiary}
+      color={ButtonColor.Bun}
+      size={ButtonSize.XSmall}
+      icon={<MinusIcon />}
+      className={classNames('self-start', className)}
+      onClick={() => onToggle(true)}
+    >
+      Show less #{tag}?
+    </Button>
+  );
+};
+
+interface ShowLessPostTopicOfferProps {
+  post: Post;
+  /** The feed request the post was served in, to ask for its explanation. */
+  request: FeedPostExplanationRequest | undefined;
+  origin: Origin;
+  className?: string;
+}
+
+/**
+ * The offer for a hidden post, on the topic that matched it: outside Debug
+ * mode the post carries no explanation, so it is asked for.
+ */
+export const ShowLessPostTopicOffer = ({
+  post,
+  request,
+  origin,
+  className,
+}: ShowLessPostTopicOfferProps): ReactElement | null => {
+  const { explain } = useFeedPostExplanation({
+    postId: post.id,
+    explain: post.explain,
+    request,
+  });
+  const tag = isRankedExplain(explain) ? explain.match?.tag : undefined;
+
+  if (!tag) {
+    return null;
+  }
+
+  return <ShowLessTopicOffer tag={tag} origin={origin} className={className} />;
+};

@@ -1,5 +1,4 @@
 import type { NextRouter } from 'next/router';
-import { z } from 'zod';
 import type { LoggedUser } from '../../lib/user';
 import { LazyModal } from '../modals/common/types';
 import type { LazyModalType } from '../modals/common';
@@ -21,27 +20,107 @@ export type SpotlightDispatchDeps = {
   pushScope: (scope: SpotlightScope) => void;
 };
 
-const openModalPayloadSchema = z.object({
-  modal: z.string(),
-  props: z.record(z.string(), z.unknown()).optional(),
-});
+type PayloadRecord = Record<string, unknown>;
 
-const openUrlPayloadSchema = z.object({
-  url: z.url(),
-  external: z.boolean().optional(),
-});
+const isRecord = (value: unknown): value is PayloadRecord =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
 
-const navigatePayloadSchema = z.object({
-  path: z.string().min(1),
-});
+const isPlainRecord = (value: unknown): value is PayloadRecord => {
+  if (!isRecord(value)) {
+    return false;
+  }
+  const { constructor } = value;
+  if (constructor === undefined) {
+    return true;
+  }
+  const { prototype } = constructor as { prototype: unknown };
+  return (
+    isRecord(prototype) &&
+    Object.prototype.hasOwnProperty.call(prototype, 'isPrototypeOf')
+  );
+};
 
-const toggleSettingPayloadSchema = z.object({
-  key: z.enum(['theme', 'sidebar', 'insaneMode']),
-});
+const copyStringRecord = (value: PayloadRecord): PayloadRecord | null => {
+  const keys = Reflect.ownKeys(value).filter((key) => key !== '__proto__');
+  if (keys.some((key) => typeof key !== 'string')) {
+    return null;
+  }
+  return Object.fromEntries((keys as string[]).map((key) => [key, value[key]]));
+};
 
-const runClientActionPayloadSchema = z.object({
-  handlerId: z.string().min(1),
-});
+const isFilledString = (value: unknown): value is string =>
+  typeof value === 'string' && value.length >= 1;
+
+const isUrl = (value: unknown): value is string => {
+  if (typeof value !== 'string') {
+    return false;
+  }
+  try {
+    return !!new URL(value.trim());
+  } catch (_) {
+    return false;
+  }
+};
+
+type OpenModalPayload = { modal: string; props?: PayloadRecord };
+
+const parseOpenModalPayload = (payload: unknown): OpenModalPayload | null => {
+  if (!isRecord(payload) || typeof payload.modal !== 'string') {
+    return null;
+  }
+  if (payload.props === undefined) {
+    return {
+      modal: payload.modal,
+      ...('props' in payload && { props: undefined }),
+    };
+  }
+  const props = isPlainRecord(payload.props)
+    ? copyStringRecord(payload.props)
+    : null;
+  return props ? { modal: payload.modal, props } : null;
+};
+
+type OpenUrlPayload = { url: string; external?: boolean };
+
+const parseOpenUrlPayload = (payload: unknown): OpenUrlPayload | null => {
+  if (
+    !isRecord(payload) ||
+    !isUrl(payload.url) ||
+    (payload.external !== undefined && typeof payload.external !== 'boolean')
+  ) {
+    return null;
+  }
+  return {
+    url: payload.url.trim(),
+    ...('external' in payload && {
+      external: payload.external as boolean | undefined,
+    }),
+  };
+};
+
+const parseNavigatePayload = (payload: unknown): { path: string } | null =>
+  isRecord(payload) && isFilledString(payload.path)
+    ? { path: payload.path }
+    : null;
+
+const SETTING_KEYS = ['theme', 'sidebar', 'insaneMode'] as const;
+
+type SettingKey = (typeof SETTING_KEYS)[number];
+
+const isSettingKey = (value: unknown): value is SettingKey =>
+  SETTING_KEYS.some((key) => key === value);
+
+const parseToggleSettingPayload = (
+  payload: unknown,
+): { key: SettingKey } | null =>
+  isRecord(payload) && isSettingKey(payload.key) ? { key: payload.key } : null;
+
+const parseRunClientActionPayload = (
+  payload: unknown,
+): { handlerId: string } | null =>
+  isRecord(payload) && isFilledString(payload.handlerId)
+    ? { handlerId: payload.handlerId }
+    : null;
 
 const SCOPE_BY_HANDLER: Record<string, SpotlightScope> = {
   searchPosts: SpotlightScope.Posts,
@@ -53,18 +132,16 @@ const SCOPE_BY_HANDLER: Record<string, SpotlightScope> = {
 const isLazyModalKey = (value: string): value is keyof typeof LazyModal =>
   Object.prototype.hasOwnProperty.call(LazyModal, value);
 
-const parsePayload = <S extends z.ZodTypeAny>(
+const parsePayload = <T>(
   kind: SpotlightActionKind,
-  schema: S,
+  parse: (payload: unknown) => T | null,
   payload: unknown,
-): z.infer<S> => {
-  const result = schema.safeParse(payload);
-  if (!result.success) {
-    throw new Error(
-      `Spotlight: invalid payload for ${kind} (${result.error.message})`,
-    );
+): T => {
+  const result = parse(payload);
+  if (!result) {
+    throw new Error(`Spotlight: invalid payload for ${kind}`);
   }
-  return result.data;
+  return result;
 };
 
 const toggleTheme = async (settings: SettingsContextData): Promise<void> => {
@@ -79,7 +156,7 @@ const dispatchOpenModal = (
 ): void => {
   const { modal, props } = parsePayload(
     SpotlightActionKind.OpenModal,
-    openModalPayloadSchema,
+    parseOpenModalPayload,
     payload,
   );
   if (!isLazyModalKey(modal)) {
@@ -97,7 +174,7 @@ const dispatchOpenUrl = (
 ): void => {
   const { url, external } = parsePayload(
     SpotlightActionKind.OpenUrl,
-    openUrlPayloadSchema,
+    parseOpenUrlPayload,
     payload,
   );
   if (external) {
@@ -133,7 +210,7 @@ const dispatchNavigate = (
 ): void => {
   const { path: rawPath } = parsePayload(
     SpotlightActionKind.Navigate,
-    navigatePayloadSchema,
+    parseNavigatePayload,
     payload,
   );
   const path = resolvePathTokens(rawPath, deps);
@@ -149,7 +226,7 @@ const dispatchToggleSetting = async (
 ): Promise<void> => {
   const { key } = parsePayload(
     SpotlightActionKind.ToggleSetting,
-    toggleSettingPayloadSchema,
+    parseToggleSettingPayload,
     payload,
   );
   switch (key) {
@@ -175,7 +252,7 @@ const dispatchRunClientAction = async (
 ): Promise<SpotlightCommandResult | undefined> => {
   const { handlerId } = parsePayload(
     SpotlightActionKind.RunClientAction,
-    runClientActionPayloadSchema,
+    parseRunClientActionPayload,
     payload,
   );
 

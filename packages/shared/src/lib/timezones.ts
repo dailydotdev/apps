@@ -1,8 +1,5 @@
 import { getTimezoneOffset } from 'date-fns-tz';
-import type { FC } from 'react';
 import formatInTimeZone from 'date-fns-tz/formatInTimeZone';
-import { DaytimeIcon, NighttimeIcon } from '../components/icons/TimeZone';
-import type { IconProps } from '../components/Icon';
 import { MILLISECONDS_IN_MINUTE, MINUTES_IN_HOUR } from './time';
 
 interface TimeZoneItem {
@@ -630,12 +627,6 @@ export const getHourTimezone = (timeZone: string): number => {
   );
 };
 
-export const getTimeZoneIcon = (timezone: string): FC<IconProps> => {
-  const hour = getHourTimezone(timezone);
-
-  return hour >= 6 && hour < 18 ? DaytimeIcon : NighttimeIcon;
-};
-
 export const dateFormatInTimezone = (
   date: Date,
   format: string,
@@ -661,6 +652,21 @@ export const isSameDayInTimezone = (
   );
 };
 
+// Whether `date` falls on the calendar day `localDate` (YYYY-MM-DD) in
+// `timezone`. The API reports streak days as local date strings, so compare
+// the day in that zone instead of turning the string into a UTC instant.
+export const isLocalDateInTimezone = (
+  date: Date,
+  localDate: string,
+  timezone?: string,
+): boolean => {
+  if (Number.isNaN(date.getTime())) {
+    return false;
+  }
+
+  return dateFormatInTimezone(date, 'yyyy-MM-dd', timezone) === localDate;
+};
+
 export const getTimezoneOffsetLabel = (timezone: string): string => {
   const resolvedTimezone = timezone || DEFAULT_TIMEZONE;
   const timezoneOffset = getTimezoneOffsetInMinutes(resolvedTimezone);
@@ -668,9 +674,12 @@ export const getTimezoneOffsetLabel = (timezone: string): string => {
   return `(UTC ${formatTimezoneOffset(timezoneOffset)}) ${resolvedTimezone}`;
 };
 
-export const getTimezoneNameWithOffset = (timezone: string): string => {
+export const getTimezoneNameWithOffset = (
+  timezone: string,
+  date = new Date(),
+): string => {
   const resolvedTimezone = timezone || DEFAULT_TIMEZONE;
-  const timezoneOffset = getTimezoneOffsetInMinutes(resolvedTimezone);
+  const timezoneOffset = getTimezoneOffsetInMinutes(resolvedTimezone, date);
 
   return `${resolvedTimezone} (UTC ${formatTimezoneOffset(timezoneOffset)})`;
 };

@@ -9,12 +9,13 @@ import { getBrowserClientHints } from '../features/monetization/browserClientHin
 
 /**
  * Squads with the paid `adFree` feature carry no ads on their feed, their
- * search results, or the page and modal of any of their posts. Every ad
- * placement reads this one rule.
+ * search results, or the page and modal of any of their posts, unless their
+ * admins turned ads back on (`hideAds`). Every ad placement reads this one
+ * rule.
  */
 export const isSourceAdFree = (
   source?: Pick<Source, 'features'> | null,
-): boolean => !!source?.features?.adFree;
+): boolean => !!(source?.features?.hideAds ?? source?.features?.adFree);
 
 /**
  * A squad post opened from a feed card has no features until its own post
@@ -29,15 +30,11 @@ export const shouldSkipSourceAds = (
 export enum AdActions {
   Click = 'click',
   Refresh = 'refresh',
+  RefreshStop = 'refresh stop',
   Impression = 'impression',
   // Rendered and seen by IAB rules, unlike `Impression` which only means the
   // creative reached the viewport.
   Viewable = 'viewable impression',
-  // Duration event: logged through `logEventStart`/`logEventEnd`, so it lands
-  // with `event_duration` set to how long the creative held its slot. A
-  // rotating placement needs it because a count of impressions says nothing
-  // about how long any one logo was actually up.
-  AirTime = 'air time',
 }
 
 export enum AdPlacement {
@@ -64,7 +61,35 @@ export interface FetchAdByPlacementOptions {
    */
   registered?: boolean;
   pageViewId?: string;
+  refresh?: AdRefreshRequest;
 }
+
+export interface AdRefreshRequest {
+  platform: string;
+  count?: number;
+  generationId?: string;
+}
+
+export const appendRefreshParams = (
+  params: URLSearchParams,
+  refresh?: AdRefreshRequest,
+): URLSearchParams => {
+  if (!refresh) {
+    return params;
+  }
+
+  params.set('platform', refresh.platform);
+
+  if (typeof refresh.count !== 'undefined') {
+    params.set('refresh', refresh.count.toString());
+  }
+
+  if (refresh.generationId) {
+    params.set('gen_id', refresh.generationId);
+  }
+
+  return params;
+};
 
 // Skadi matches any query param against ad set `REQUEST_METADATA` targeting,
 // so campaigns can target `{"registered":"true"}` or `{"registered":"false"}`.
@@ -134,10 +159,12 @@ const fetchAdRequest = async ({
   path,
   params,
   pageViewId = getAdPageViewId(),
+  throwOnError = false,
 }: {
   path: string;
   params?: URLSearchParams;
   pageViewId?: string;
+  throwOnError?: boolean;
 }): Promise<Ad | null> => {
   const headers: Record<string, string> = {};
   if (pageViewId) {
@@ -155,6 +182,10 @@ const fetchAdRequest = async ({
     ...(Object.keys(headers).length > 0 && { headers }),
   });
 
+  if (throwOnError && !res.ok) {
+    throw new Error(`Ad request failed with status ${res.status}`);
+  }
+
   const ads = (await res.json()) as Ad[];
   return addGenerationIdHeader({ ad: ads[0] ?? null, res });
 };
@@ -162,14 +193,12 @@ const fetchAdRequest = async ({
 export const resolveAdFetchOptions = ({
   placement = AdPlacement.Feed,
   active,
-  boostsEnabled = false,
   consent,
   registered,
   pageViewId,
 }: {
   placement?: AdPlacement;
   active?: boolean;
-  boostsEnabled?: boolean;
   consent?: AdRequestConsent;
   registered?: boolean;
   pageViewId?: string;
@@ -189,7 +218,7 @@ export const resolveAdFetchOptions = ({
       return {
         placement,
         active,
-        allowSquadBoost: boostsEnabled,
+        allowSquadBoost: true,
         consent,
         registered,
         pageViewId,
@@ -199,8 +228,8 @@ export const resolveAdFetchOptions = ({
       return {
         placement,
         active,
-        allowPostBoost: boostsEnabled,
-        allowSquadBoost: boostsEnabled,
+        allowPostBoost: true,
+        allowSquadBoost: true,
         consent,
         registered,
         pageViewId,
@@ -216,6 +245,7 @@ export const fetchAdByPlacement = async ({
   consent,
   registered,
   pageViewId,
+  refresh,
 }: FetchAdByPlacementOptions): Promise<Ad | null> => {
   switch (placement) {
     case AdPlacement.PostComment:
@@ -257,11 +287,13 @@ export const fetchAdByPlacement = async ({
       }
 
       appendRegisteredParam(params, registered);
+      appendRefreshParams(params, refresh);
 
       return fetchAdRequest({
         path: '/v1/a',
         params: appendConsentParams(params, consent),
         pageViewId,
+        throwOnError: !!refresh?.count,
       });
     }
   }

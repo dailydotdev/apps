@@ -8,12 +8,21 @@ import {
   UserIntegrationType,
 } from '../../../graphql/integrations';
 import type { UserIntegration } from '../../../graphql/integrations';
+import { integrationSharePicks } from '../../../graphql/picks';
+import type { Picks } from '../../../graphql/picks';
+import type { ShareablePost } from '../../../lib/feed';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useIntegrationsQuery } from '../useIntegrationsQuery';
 
+/** What is being shared to Slack: a post today, a weekly picks list too. */
+export type SlackShareSubject =
+  | { post: ShareablePost; picks?: undefined }
+  | { picks: Picks; post?: undefined };
+
 type SlackShareParams = {
   channelId: string;
-  postId: string;
+  postId?: string;
+  picksId?: string;
   image?: File;
   message?: string;
 };
@@ -58,6 +67,17 @@ export const useSlackShare = ({
     mutationFn: async ({ image, message, ...params }: SlackShareParams) => {
       const integrationId = integration!.id;
       const text = message?.trim() || undefined;
+
+      if (params.picksId) {
+        await integrationSharePicks({
+          integrationId,
+          channelId: params.channelId,
+          picksId: params.picksId,
+          ...(text && { message: text }),
+        });
+
+        return;
+      }
 
       if (image) {
         await gqlClient.request(INTEGRATION_SHARE_IMAGE_MUTATION, {

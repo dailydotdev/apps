@@ -50,6 +50,7 @@ export function TagDirectoryFilter({
 
   return (
     <nav aria-label="Filter tags by letter" className="w-full">
+      {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
       <div
         ref={letterNavRef}
         onKeyDown={onLetterNavKeyDown}

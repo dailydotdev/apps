@@ -15,6 +15,7 @@ import { Separator } from '@dailydotdev/shared/src/components/cards/common/commo
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import type { ToolTopSquad } from '@dailydotdev/shared/src/graphql/user/userStack';
 import { VerifiedSquadBadge } from '@dailydotdev/shared/src/features/squads/components/VerifiedSquad';
+import { showsVerifiedBadge } from '@dailydotdev/shared/src/features/squads/lib/features';
 
 interface ToolSquadCardProps {
   squad: ToolTopSquad;
@@ -46,7 +47,7 @@ export const ToolSquadCard = ({
         >
           {squad.name}
         </Typography>
-        {squad.features?.verified && <VerifiedSquadBadge />}
+        {showsVerifiedBadge(squad) && <VerifiedSquadBadge />}
       </div>
       {squad.description && (
         <Typography

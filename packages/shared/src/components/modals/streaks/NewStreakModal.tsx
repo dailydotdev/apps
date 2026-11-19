@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useQueryClient } from '@tanstack/react-query';
 import { Modal } from '../common/Modal';
@@ -19,6 +19,66 @@ import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import StreakReminderSwitch from '../../streak/StreakReminderSwitch';
 import { StreakFreezeUpsell } from '../../streak/StreakFreezeUpsell';
+import { AskCard } from '../../appStoreReview/AskCard';
+import {
+  streakReviewRequestDelayMs,
+  streakReviewTargetId,
+} from '../../appStoreReview/common';
+import { useStreakReviewAsk } from '../../../hooks/useStreakReviewAsk';
+import { useReadingStreak } from '../../../hooks/streaks/useReadingStreak';
+
+// Matches the API grant (daily-api src/common/streakFreeFreezes.ts)
+export const FREE_STREAK_FREEZES_STREAK = 3;
+export const FREE_STREAK_FREEZES_QUANTITY = 2;
+export const getStreakFreeFreezesGrantCopy = (count: number): string =>
+  count === 1
+    ? "You've earned a streak freeze, on us. Miss a weekday and we'll use it automatically."
+    : `You've earned ${count} streak freezes, on us. Miss a weekday and we'll use one automatically.`;
+
+// The free freezes were granted with the read that made this milestone: the
+// streak is exactly three days and free freezes are unused. The 5-freeze cap
+// can let only one through, so the copy follows the count. Shown once per
+// account (ActionType.StreakFreeFreezesGrant); the count is latched so
+// completing the action does not hide the copy mid-modal. Resolves to 0 when
+// there is nothing to show.
+const useFreeFreezesGrant = (currentStreak: number): number => {
+  const { streak } = useReadingStreak();
+  const { logEvent } = useLogContext();
+  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
+  const [granted, setGranted] = useState(0);
+  const freeFreezes = streak?.freeFreezes ?? 0;
+  const isGrantMoment =
+    currentStreak === FREE_STREAK_FREEZES_STREAK && freeFreezes > 0;
+  const hasSeen = checkHasCompleted(ActionType.StreakFreeFreezesGrant);
+
+  useEffect(() => {
+    if (granted || !isGrantMoment || !isActionsFetched) {
+      return;
+    }
+
+    if (hasSeen) {
+      return;
+    }
+
+    setGranted(freeFreezes);
+    completeAction(ActionType.StreakFreeFreezesGrant);
+    logEvent({
+      event_name: LogEvent.Impression,
+      target_type: TargetType.StreakFreeFreezesGrant,
+      target_id: freeFreezes.toString(),
+    });
+  }, [
+    completeAction,
+    freeFreezes,
+    granted,
+    hasSeen,
+    isActionsFetched,
+    isGrantMoment,
+    logEvent,
+  ]);
+
+  return granted;
+};
 
 const Paragraph = classed('p', 'text-center text-text-tertiary');
 
@@ -38,6 +98,8 @@ export default function NewStreakModal({
   const shouldShowSplash = currentStreak >= maxStreak;
   const daysPlural = currentStreak === 1 ? 'day' : 'days';
   const loggedImpression = useRef(false);
+  const showReviewAsk = useStreakReviewAsk(currentStreak);
+  const freeFreezesGranted = useFreeFreezesGrant(currentStreak);
 
   useEffect(() => {
     if (loggedImpression.current) {
@@ -93,7 +155,7 @@ export default function NewStreakModal({
             }
             className={classNames(
               'h-[10rem] text-accent-bacon-default',
-              shouldShowSplash ? 'ml-2 w-[15rem]' : 'w-[10rem] ',
+              shouldShowSplash ? 'ml-2 w-[15rem]' : 'w-[10rem]',
             )}
           />
           <strong className="absolute typo-tera">{currentStreak}</strong>
@@ -121,9 +183,26 @@ export default function NewStreakModal({
             ? 'Epic win! You are in a league of your own'
             : `New milestone reached! You are unstoppable.`}
         </Paragraph>
-        <StreakFreezeUpsell className="mt-6">
-          Protect your streak with streak freezes
-        </StreakFreezeUpsell>
+        {freeFreezesGranted > 0 ? (
+          <Paragraph
+            className="mt-6 typo-callout"
+            data-testid="streak-free-freezes-grant"
+          >
+            {getStreakFreeFreezesGrantCopy(freeFreezesGranted)}
+          </Paragraph>
+        ) : (
+          <StreakFreezeUpsell className="mt-6">
+            Protect your streak with streak freezes
+          </StreakFreezeUpsell>
+        )}
+        {showReviewAsk && (
+          <AskCard
+            targetId={streakReviewTargetId}
+            requestDelayMs={streakReviewRequestDelayMs}
+            onRequestClose={onRequestClose}
+            className="mt-6"
+          />
+        )}
         <Checkbox
           name="show_streaks"
           className="mt-10"

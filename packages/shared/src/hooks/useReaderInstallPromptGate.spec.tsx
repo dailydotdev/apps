@@ -42,7 +42,7 @@ const createClickEvent = (): MouseEvent =>
     button: 0,
     preventDefault: jest.fn(),
     stopPropagation: jest.fn(),
-  } as unknown as MouseEvent);
+  }) as unknown as MouseEvent;
 
 describe('useReaderInstallPromptGate', () => {
   beforeEach(() => {

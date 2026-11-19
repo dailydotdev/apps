@@ -170,7 +170,7 @@ const ToolsDirectoryPage = ({
   });
 
   const searchResults = useMemo(
-    () => (isSearching ? apiResults ?? [] : []),
+    () => (isSearching ? (apiResults ?? []) : []),
     [isSearching, apiResults],
   );
   const isSearchLoading = isSearching && isSearchPending;

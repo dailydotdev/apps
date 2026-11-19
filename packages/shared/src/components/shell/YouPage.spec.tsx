@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
@@ -8,6 +8,8 @@ import AuthContext from '../../contexts/AuthContext';
 import type { LoggedUser } from '../../lib/user';
 import { SubscriptionStatus } from '../../lib/plus';
 import { AlertColor } from '../AlertDot';
+import { rateAppTitle } from '../../hooks/useRateAppRow';
+import { ShellPageProvider, useShellActionsSlot } from './ShellPageContext';
 import { YouPage } from './YouPage';
 
 jest.mock('next/router', () => ({
@@ -51,6 +53,12 @@ jest.mock('../../hooks/useLazyModal', () => ({
   useLazyModal: () => ({ openModal: jest.fn() }),
 }));
 
+const mockRateApp = { isVisible: true, onClick: jest.fn() };
+jest.mock('../../hooks/useRateAppRow', () => ({
+  ...jest.requireActual('../../hooks/useRateAppRow'),
+  useRateAppRow: () => mockRateApp,
+}));
+
 jest.mock('../../hooks/useActions', () => ({
   useActions: () => ({
     isActionsFetched: true,
@@ -70,6 +78,13 @@ const user = {
   createdAt: '2026-10-01T00:00:00Z',
 } as unknown as LoggedUser;
 
+// The page portals its header actions (Invite, Help) into the shell's slot;
+// in production MainLayout's top block registers it.
+const ActionsSlot = (): React.ReactElement => {
+  const setActionsSlot = useShellActionsSlot();
+  return <div ref={setActionsSlot} />;
+};
+
 const renderPage = (pageUser: LoggedUser = user) => {
   (useRouter as jest.Mock).mockReturnValue({
     pathname: '/you',
@@ -83,7 +98,10 @@ const renderPage = (pageUser: LoggedUser = user) => {
           { user: pageUser, isLoggedIn: true } as unknown as AuthContextData
         }
       >
-        <YouPage />
+        <ShellPageProvider>
+          <ActionsSlot />
+          <YouPage />
+        </ShellPageProvider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
@@ -103,6 +121,32 @@ describe('YouPage', () => {
     mockCores.has = true;
     mockPhone.browser = true;
     mockSettings.isQuestExperienceEnabled = true;
+    mockRateApp.isVisible = true;
+    mockRateApp.onClick.mockClear();
+  });
+
+  it('rates the app from the Help drawer in the iOS app', () => {
+    renderPage();
+
+    fireEvent.click(screen.getByLabelText('Help'));
+    const row = screen.getByRole('button', { name: rateAppTitle });
+    expect(screen.getByText('Changelog').compareDocumentPosition(row)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+
+    fireEvent.click(row);
+    expect(mockRateApp.onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the Help drawer as it is without the review bridge', () => {
+    mockRateApp.isVisible = false;
+    renderPage();
+
+    fireEvent.click(screen.getByLabelText('Help'));
+    expect(screen.getByText('Changelog')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: rateAppTitle }),
+    ).not.toBeInTheDocument();
   });
 
   it('shows the member, the counts and one list ending in Settings', () => {

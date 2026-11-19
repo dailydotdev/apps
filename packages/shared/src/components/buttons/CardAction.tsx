@@ -11,7 +11,7 @@ import { IconSize } from '../Icon';
 import { ButtonV2 } from './ButtonV2';
 import type { AllowedElements } from './ButtonV2';
 import { ButtonSize, ButtonVariant, ButtonIconPosition } from './common';
-import type { ColorName } from '../../styles/colors';
+import type { ButtonV2Color } from '../../styles/buttonColors';
 import InteractionCounter from '../InteractionCounter';
 
 export type CardActionDensity = 'comfortable' | 'compact' | 'tight';
@@ -50,7 +50,7 @@ type CardActionBaseProps = CardActionPassthroughProps & {
   iconPressed?: IconElement;
   label: string;
   count?: number | null;
-  color?: ColorName;
+  color?: ButtonV2Color;
   pressed?: boolean;
   loading?: boolean;
   disabled?: boolean;

@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useInView } from 'react-intersection-observer';
 import {
   Typography,
   TypographyColor,
@@ -19,6 +20,7 @@ import { shuffleArray } from '../../lib/func';
 import { marketplaceHeroImage } from '../../lib/image';
 import { marketplaceHeroScrim } from '../../styles/custom';
 import { useLogContext } from '../../contexts/LogContext';
+import useLogEventOnce from '../../hooks/log/useLogEventOnce';
 import { LogEvent, Origin, TargetId, TargetType } from '../../lib/log';
 
 const AGENT_PLUGIN_POST_TAGS = [
@@ -64,15 +66,29 @@ export const PostPluginsWidget = ({
     () => pool && shuffleArray(pool).slice(0, POST_PLUGINS_LIMIT),
     [pool],
   );
+  const shownPluginIds = useMemo(
+    () => plugins?.map(({ id }) => id) ?? [],
+    [plugins],
+  );
+  const { ref, inView } = useInView({ threshold: 0.5 });
+  useLogEventOnce(
+    () => ({
+      event_name: LogEvent.ImpressionMarketplacePromo,
+      target_id: TargetId.PostPluginsWidget,
+      extra: JSON.stringify({ shownPluginIds }),
+    }),
+    { condition: inView && shownPluginIds.length > 0 },
+  );
 
   if (!isAgentPost || !plugins?.length) {
     return null;
   }
 
-  const shownPluginIds = plugins.map(({ id }) => id);
-
   return (
-    <div className="flex flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary">
+    <div
+      ref={ref}
+      className="flex flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary"
+    >
       <div className="relative isolate flex items-center px-4 py-3 text-white">
         <div
           aria-hidden

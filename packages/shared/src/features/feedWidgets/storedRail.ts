@@ -112,15 +112,30 @@ export const customFeedWidgets = (
 };
 
 /**
- * The built-in default rail: the top story and our slot, with the add tile
- * after them inviting the rest. The live default comes from the
- * `feed_widgets_default` flag; this is what a broken flag value falls back to.
+ * The daily.dev tips over our slot are opt-in: off until the reader turns
+ * them on from the gallery or the tips page. Only an explicit `false` shows
+ * them; a rail that never set the field, or hid them, keeps them off.
+ */
+export const isFeedWidgetTipHidden = (
+  rail: FeedWidgetRailState | null,
+): boolean => rail?.tipsHidden !== false;
+
+/**
+ * The built-in default rail: Happening Now across two columns, our slot, and
+ * the streak, with the add tile under it inviting the rest. The live default
+ * comes from the `feed_widgets_default` flag; this is what a broken flag
+ * value falls back to.
  */
 export const defaultFeedWidgets: FeedWidget[] = [
   {
-    id: 'top-story',
-    kind: FeedWidgetKind.TopStory,
+    id: 'happening-now',
+    kind: FeedWidgetKind.HappeningNow,
     size: FeedWidgetSize.Large,
+  },
+  {
+    id: 'streak',
+    kind: FeedWidgetKind.Streak,
+    size: FeedWidgetSize.Small,
   },
 ];
 

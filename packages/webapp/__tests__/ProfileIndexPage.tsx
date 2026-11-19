@@ -1,6 +1,8 @@
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import nock from 'nock';
 import type {
@@ -9,6 +11,7 @@ import type {
   ProfileReadingData,
 } from '@dailydotdev/shared/src/graphql/users';
 import { USER_READING_HISTORY_QUERY } from '@dailydotdev/shared/src/graphql/users';
+import { TAG_TITLES_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
 import { QueryClient } from '@tanstack/react-query';
 import { startOfTomorrow, subDays, subMonths } from 'date-fns';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
@@ -107,7 +110,7 @@ const renderComponent = (
 
   mocks.forEach(mockGraphQL);
   return render(
-    <TestBootProvider client={client} auth={{ user: null }}>
+    <TestBootProvider client={client} auth={{ user: undefined }}>
       <ProfilePage
         user={{ ...defaultProfile, ...profile }}
         userStats={defaultUserStats}
@@ -118,7 +121,10 @@ const renderComponent = (
 };
 
 it('should show the top reading tags of the user', async () => {
-  renderComponent();
+  renderComponent([
+    createReadingHistoryMock(),
+    { request: { query: TAG_TITLES_QUERY }, result: { data: { tags: [] } } },
+  ]);
   await waitForNock();
   await screen.findByText('Top tags by reading days');
   // No keyword title available: the raw tag value is rendered as-is
@@ -147,5 +153,33 @@ it('should show social links in about me section', async () => {
   expect(githubLinks[0]).toHaveAttribute(
     'href',
     'https://github.com/dailydotdev',
+  );
+});
+
+it('should switch the segment in place on a phone', async () => {
+  jest.spyOn(hooks, 'useIsPhone').mockReturnValue(true);
+  const replace = jest.fn();
+  jest.mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        pathname: '/[userId]',
+        asPath: '/dailydotdev',
+        query: { userId: 'dailydotdev' },
+        isReady: true,
+        isFallback: false,
+        replace,
+        push: jest.fn(),
+        events: { on: jest.fn(), off: jest.fn() },
+      }) as unknown as NextRouter,
+  );
+  renderComponent();
+  await waitForNock();
+
+  fireEvent.click(await screen.findByRole('button', { name: 'Replies' }));
+
+  expect(replace).toHaveBeenCalledWith(
+    { pathname: '/[userId]', query: { userId: 'dailydotdev' } },
+    '/dailydotdev/replies',
+    { shallow: true, scroll: false },
   );
 });

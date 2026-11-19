@@ -15,6 +15,7 @@ import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
 import {
   SquadManageSaveButton,
   SquadManageSectionPanel,
+  useSquadManageEmbed,
 } from './SquadManageLayout';
 import { SquadUploadButton } from './SquadUploadButton';
 
@@ -30,6 +31,7 @@ type DetailsFields = {
 
 export const SquadManageDetails = (): ReactElement => {
   const router = useRouter();
+  const embed = useSquadManageEmbed();
   const { squad } = useSquadPageContext();
   const { onEdit, isPending, savedSquad } = useEditSquad(squad);
   const [cover, setCover] = useState<{ preview: string; file: File }>();
@@ -55,6 +57,11 @@ export const SquadManageDetails = (): ReactElement => {
       file: image?.file,
       header: cover?.file,
     }).catch(() => null);
+
+    if (updated && embed) {
+      embed.onSaved();
+      return;
+    }
 
     if (updated && updated.handle !== squad.handle) {
       router.replace(

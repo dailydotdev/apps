@@ -18,8 +18,13 @@ import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../../../components/modals/common/types';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useSquadPageContext } from '../../SquadPageContext';
-import { getSquadId, hasSquadFeature } from '../../lib/features';
-import { getDisplayUrl, squadLinkRel } from '../../lib/links';
+import {
+  getSquadId,
+  canSetSquadWebsite,
+  hasSquadFeature,
+  showsVerifiedBadge,
+} from '../../lib/features';
+import { getDisplayUrl, getSquadWebsiteRel } from '../../lib/links';
 import { SquadViewer } from '../../lib/viewer';
 import { getSquadMembersUrl } from '../../lib/routes';
 import { VerifiedSquadBadge } from '../VerifiedSquad';
@@ -59,14 +64,14 @@ const SquadMetaLine = ({ squad }: { squad: Squad }): ReactElement => {
   const privacy = getPrivacy(squad);
   const entries: MetaEntry[] = [];
 
-  if (hasSquadFeature(squad, 'links') && website) {
+  if (canSetSquadWebsite(squad) && website) {
     entries.push({
       key: 'website',
       node: (
         <a
           href={website}
           target="_blank"
-          rel={squadLinkRel}
+          rel={getSquadWebsiteRel(squad)}
           className="flex items-center gap-1.5 text-text-secondary hover:underline"
         >
           <LinkIcon size={IconSize.Size16} />
@@ -307,7 +312,7 @@ export const SquadProfileHeader = (): ReactElement => {
             className="flex flex-wrap items-center gap-x-2 gap-y-1 font-bold text-text-primary typo-title2"
           >
             {squad.name}
-            {hasSquadFeature(squad, 'verified') && (
+            {showsVerifiedBadge(squad) && (
               <VerifiedSquadBadge className="size-5" />
             )}
           </h1>

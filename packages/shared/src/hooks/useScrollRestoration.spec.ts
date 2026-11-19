@@ -1,19 +1,22 @@
 import { act, renderHook } from '@testing-library/react';
 import { useScrollRestoration } from './useScrollRestoration';
+import { expectViewSwitch } from '../lib/scrollRestoration';
 
 type RouterEvent = 'routeChangeStart' | 'hashChangeStart';
 
-const routerListeners = new Map<RouterEvent, Set<() => void>>();
+type RouterHandler = (url: string, options: { shallow?: boolean }) => void;
+
+const routerListeners = new Map<RouterEvent, Set<RouterHandler>>();
 
 const mockRouter = {
   asPath: '/',
   events: {
-    on: (event: RouterEvent, handler: () => void) => {
+    on: (event: RouterEvent, handler: RouterHandler) => {
       const handlers = routerListeners.get(event) ?? new Set();
       handlers.add(handler);
       routerListeners.set(event, handlers);
     },
-    off: (event: RouterEvent, handler: () => void) => {
+    off: (event: RouterEvent, handler: RouterHandler) => {
       routerListeners.get(event)?.delete(handler);
     },
   },
@@ -71,9 +74,13 @@ const advanceFrames = (count = 1) =>
     jest.advanceTimersByTime(16 * count);
   });
 
-const emitRouterEvent = (event: RouterEvent) =>
+const emitRouterEvent = (
+  event: RouterEvent,
+  url = '',
+  options: { shallow?: boolean } = {},
+) =>
   act(() => {
-    routerListeners.get(event)?.forEach((handler) => handler());
+    routerListeners.get(event)?.forEach((handler) => handler(url, options));
   });
 
 const renderOn = (entry: HistoryEntry, height: number) => {
@@ -103,10 +110,22 @@ const navigate = (path: string, height: number): HistoryEntry => {
 
 // Back/forward: the browser is already on the destination entry when Next
 // announces the change.
-const traverse = (entry: HistoryEntry, height: number) => {
+const traverse = (entry: HistoryEntry, height: number, shallow = false) => {
   window.history.replaceState({ key: entry.key }, '', entry.path);
-  emitRouterEvent('routeChangeStart');
+  emitRouterEvent('routeChangeStart', entry.path, { shallow });
   commit(entry, height);
+};
+
+// A tab switched in place: a shallow replace with `scroll: false`, so the
+// entry keeps its key, the scroll is left where it is and Next announces
+// the change before the address moves.
+const switchView = (entry: HistoryEntry, path: string): HistoryEntry => {
+  expectViewSwitch();
+  emitRouterEvent('routeChangeStart', path, { shallow: true });
+  window.history.replaceState({ key: entry.key }, '', path);
+  mockRouter.asPath = path;
+  rerenderHook();
+  return { key: entry.key, path };
 };
 
 const startOnScrolledFeed = (): HistoryEntry => {
@@ -182,6 +201,74 @@ describe('useScrollRestoration', () => {
     traverse(post, POST_HEIGHT);
     advanceFrames();
     expect(window.scrollY).toBe(1200);
+  });
+
+  it('leaves the scroll alone when a view of the page switches in place', () => {
+    const feed = startOnScrolledFeed();
+    navigate(POST_PATH, POST_HEIGHT);
+    traverse(feed, FEED_HEIGHT);
+    advanceFrames();
+    scrollTo.mockClear();
+
+    const view = switchView(feed, '/posts');
+    advanceFrames(2);
+
+    expect(scrollTo).not.toHaveBeenCalled();
+    expect(window.scrollY).toBe(FEED_POSITION);
+
+    scrollUserTo(1200);
+    navigate(POST_PATH, POST_HEIGHT);
+    traverse(view, FEED_HEIGHT);
+    advanceFrames();
+
+    expect(scrollTo).toHaveBeenCalledWith(0, 1200);
+  });
+
+  it('leaves the scroll alone when a tab replaces the page under a layout that stays', () => {
+    const feed = startOnScrolledFeed();
+    // The home tabs under the widget rail: a replace to another page (not a
+    // shallow one, and the entry keeps its key) with `scroll: false`.
+    const switchPage = (path: string) => {
+      expectViewSwitch();
+      emitRouterEvent('routeChangeStart', path);
+      window.history.replaceState({ key: feed.key }, '', path);
+      mockRouter.asPath = path;
+      rerenderHook();
+      advanceFrames(2);
+    };
+
+    switchPage('/following');
+    scrollUserTo(1200);
+    switchPage(FEED_PATH);
+
+    expect(scrollTo).not.toHaveBeenCalled();
+    expect(window.scrollY).toBe(1200);
+  });
+
+  it('restores on back when Next calls the move shallow', () => {
+    const feed = startOnScrolledFeed();
+    const post = navigate(POST_PATH, POST_HEIGHT);
+    switchView(post, '/posts/abc?tab=replies');
+
+    traverse(feed, FEED_HEIGHT, true);
+    advanceFrames();
+
+    expect(scrollTo).toHaveBeenCalledWith(0, FEED_POSITION);
+  });
+
+  it('still saves the page left by a shallow push to a new entry', () => {
+    const feed = startOnScrolledFeed();
+    // A shallow push (a step of a funnel, a post opened over the feed): Next
+    // announces it while the browser is still on the entry being left.
+    const step = createEntry('/?step=2');
+    emitRouterEvent('routeChangeStart', step.path, { shallow: true });
+    window.history.pushState({ key: step.key }, '', step.path);
+    commit(step, FEED_HEIGHT);
+
+    traverse(feed, FEED_HEIGHT, true);
+    advanceFrames();
+
+    expect(scrollTo).toHaveBeenCalledWith(0, FEED_POSITION);
   });
 
   it('starts new navigations at the top', () => {

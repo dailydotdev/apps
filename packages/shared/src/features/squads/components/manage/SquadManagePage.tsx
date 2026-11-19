@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { SquadModerationList } from '../../../../components/squads/moderation/SquadModerationList';
 import { SquadDangerZone } from '../../../../components/squads/settings/SquadDangerZone';
 import { useSquadPageContext } from '../../SquadPageContext';
-import { getSquadManageGroups } from '../../lib/manage';
+import { useSquadManageGroups } from '../../hooks/useSquadManageGroups';
 import { isJoinedViewer } from '../../lib/viewer';
 import {
   getSquadManageUrl,
@@ -26,8 +26,13 @@ import {
   SquadManageProductForm,
   SquadManageProducts,
 } from './SquadManageProducts';
+import { SquadManageJobForm, SquadManageJobs } from './SquadManageJobs';
 import { SquadManageAnalytics } from './SquadManageAnalytics';
 import { SquadManageIntegrations } from './SquadManageIntegrations';
+import { SquadManagePlan } from './SquadManagePlan';
+import { SquadManageIntel } from './SquadManageIntel';
+import { SquadManageAgent } from './SquadManageAgent';
+import { SquadManageAutoPosting } from './SquadManageAutoPosting';
 
 const SectionContent = ({
   section,
@@ -39,6 +44,8 @@ const SectionContent = ({
   switch (section) {
     case SquadManageSection.Products:
       return <SquadManageProducts />;
+    case SquadManageSection.Jobs:
+      return <SquadManageJobs />;
     case SquadManageSection.Links:
       return <SquadManageLinks />;
     case SquadManageSection.Branding:
@@ -63,6 +70,14 @@ const SectionContent = ({
       return <SquadManageAnalytics />;
     case SquadManageSection.Integrations:
       return <SquadManageIntegrations />;
+    case SquadManageSection.Agent:
+      return <SquadManageAgent />;
+    case SquadManageSection.AutoPosting:
+      return <SquadManageAutoPosting />;
+    case SquadManageSection.Plan:
+      return <SquadManagePlan />;
+    case SquadManageSection.Intel:
+      return <SquadManageIntel />;
     case SquadManageSection.DangerZone:
       return (
         <SquadManageSectionPanel section={section}>
@@ -80,16 +95,25 @@ interface SquadManagePageProps {
   section?: SquadManageSection;
   /** Set on the product form routes: an id edits, `null` adds. */
   productId?: string | null;
+  /** Set on the job form routes: an id edits, `null` adds. */
+  jobId?: string | null;
 }
 
 export const SquadManagePage = ({
   section,
   productId,
+  jobId,
 }: SquadManagePageProps): ReactElement | null => {
   const router = useRouter();
   const { squad, viewer, isViewerReady } = useSquadPageContext();
-  const sections = getSquadManageGroups(squad, viewer).flatMap(({ items }) =>
-    items.map(({ id }) => id),
+  const groups = useSquadManageGroups();
+  const items = groups.flatMap((group) => group.items);
+  // Locked sections only lead to Subscription
+  const sections = items
+    .filter(({ lockedPlan }) => !lockedPlan)
+    .map(({ id }) => id);
+  const isLocked = items.some(
+    ({ id, lockedPlan }) => id === section && !!lockedPlan,
   );
   const isAllowed = !section || sections.includes(section);
 
@@ -111,10 +135,16 @@ export const SquadManagePage = ({
     }
 
     if (!isAllowed) {
-      router.replace(getSquadManageUrl(squad.handle));
+      router.replace(
+        getSquadManageUrl(
+          squad.handle,
+          isLocked ? SquadManageSection.Plan : undefined,
+        ),
+      );
     }
   }, [
     isAllowed,
+    isLocked,
     isViewerReady,
     router,
     section,
@@ -127,15 +157,19 @@ export const SquadManagePage = ({
     return null;
   }
 
-  const isProductForm = productId !== undefined;
+  const getContent = (): ReactElement => {
+    if (productId !== undefined) {
+      return <SquadManageProductForm productId={productId ?? undefined} />;
+    }
+
+    if (jobId !== undefined) {
+      return <SquadManageJobForm jobId={jobId ?? undefined} />;
+    }
+
+    return <SectionContent section={section ?? sections[0]} />;
+  };
 
   return (
-    <SquadManageLayout section={section}>
-      {isProductForm ? (
-        <SquadManageProductForm productId={productId ?? undefined} />
-      ) : (
-        <SectionContent section={section ?? sections[0]} />
-      )}
-    </SquadManageLayout>
+    <SquadManageLayout section={section}>{getContent()}</SquadManageLayout>
   );
 };

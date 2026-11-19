@@ -1,8 +1,8 @@
 import type { FormEvent, ReactElement } from 'react';
 import React, { useState } from 'react';
 import { formToJson } from '../../lib/form';
-import { Button, ButtonVariant } from '../buttons/Button';
 import AuthHeader from './AuthHeader';
+import { AuthActionBar } from './AuthActionBar';
 import type { AuthFormProps } from './common';
 import { AuthModalText } from './common';
 import AuthForm from './AuthForm';
@@ -50,7 +50,7 @@ function ChangePasswordForm({
     <>
       <AuthHeader simplified={simplified} title="Create a new password" />
       <AuthForm
-        className="flex flex-col items-end px-14 py-8"
+        className="flex flex-col items-end px-6 pt-6"
         onSubmit={onChangePasswordSubmit}
         data-testid="recovery_form"
       >
@@ -73,14 +73,9 @@ function ChangePasswordForm({
           name="password"
           className={{ container: 'w-full' }}
         />
-        <Button
-          className="mt-6"
-          variant={ButtonVariant.Primary}
-          type="submit"
-          disabled={isLoading}
-        >
+        <AuthActionBar type="submit" disabled={isLoading}>
           Change password
-        </Button>
+        </AuthActionBar>
       </AuthForm>
     </>
   );

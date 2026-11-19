@@ -18,7 +18,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   jest
     .mocked(useRouter)
-    .mockImplementation(() => ({ pathname: '/' } as unknown as NextRouter));
+    .mockImplementation(() => ({ pathname: '/' }) as unknown as NextRouter);
 });
 
 const titles = ['First hero post', 'Second hero post', 'Third hero post'];

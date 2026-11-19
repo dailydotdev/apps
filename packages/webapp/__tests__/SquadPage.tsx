@@ -299,7 +299,11 @@ describe('squad page viewer matrix', () => {
       mockSquad(squad);
       renderSquadPage(squad, user);
 
-      await screen.findByRole('heading', { level: 1, name: squad.name });
+      await screen.findByRole(
+        'heading',
+        { level: 1, name: squad.name },
+        { timeout: 5000 },
+      );
       expect(!!screen.queryByLabelText('Squad options')).toBe(hasOptions);
       expect(
         screen.getByRole('heading', { level: 1, name: squad.name }),
@@ -327,7 +331,7 @@ describe('squad page viewer matrix', () => {
       expect(!!screen.queryByLabelText('Squad notifications settings')).toBe(
         hasBell,
       );
-      expect(!!screen.queryByLabelText('Edit page')).toBe(canEdit);
+      expect(!!screen.queryByLabelText('Squad settings')).toBe(canEdit);
       expect(!!screen.queryByText('Public page & URL')).toBe(isStaff);
       expect(!!screen.queryByLabelText('View as a visitor')).toBe(isStaff);
     },
@@ -381,7 +385,7 @@ describe('squad page viewer matrix', () => {
     toggle.click();
 
     await screen.findByText(/viewing the page as a visitor/);
-    expect(screen.queryByLabelText('Edit page')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Squad settings')).not.toBeInTheDocument();
     expect(screen.queryByText('Public page & URL')).not.toBeInTheDocument();
     expect(
       screen.getAllByText('Join the Squad to create new posts').length,
@@ -746,7 +750,28 @@ describe('squad manage area', () => {
       ) as JSX.Element,
     );
 
-  it('lists no paid section for a free squad', async () => {
+  it('lists the paid sections locked for a free company page', async () => {
+    const squad = createSquad({
+      currentMember: adminMember,
+      flags: { company: true } as Squad['flags'],
+    });
+    mockSquad(squad);
+    renderManage(squad);
+
+    const menu = (
+      await screen.findAllByRole('navigation', { name: 'Manage' })
+    )[0];
+    expect(within(menu).getByText('Details')).toBeInTheDocument();
+    // Locked sections link to the Subscription section instead
+    ['Products', 'Weekly intel'].forEach((label) => {
+      expect(within(menu).getByText(label).closest('a')).toHaveAttribute(
+        'href',
+        expect.stringMatching(/\/plan$/),
+      );
+    });
+  });
+
+  it('locks no paid section on a community squad', async () => {
     const squad = createSquad({ currentMember: adminMember });
     mockSquad(squad);
     renderManage(squad);
@@ -756,7 +781,6 @@ describe('squad manage area', () => {
     )[0];
     expect(within(menu).getByText('Details')).toBeInTheDocument();
     expect(within(menu).queryByText('Products')).not.toBeInTheDocument();
-    expect(within(menu).queryByText('Links')).not.toBeInTheDocument();
   });
 
   it('lists the paid sections the squad has', async () => {

@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { createContext, useContext } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import Link from '../../../../components/utilities/Link';
@@ -10,10 +10,12 @@ import {
 } from '../../../../components/buttons/Button';
 import {
   ArrowIcon,
+  LockIcon,
   MoveToIcon,
   OpenLinkIcon,
 } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
+import { Pill, PillSize } from '../../../../components/Pill';
 import {
   Typography,
   TypographyColor,
@@ -23,11 +25,15 @@ import {
 import { HorizontalSeparator } from '../../../../components/utilities/common';
 import { SquadImage } from '../../../../components/squads/SquadImage';
 import { useSquadPageContext } from '../../SquadPageContext';
-import { hasSquadFeature } from '../../lib/features';
+import { showsVerifiedBadge } from '../../lib/features';
 import type { SquadManageGroup } from '../../lib/manage';
-import { getSquadManageGroups, squadManageTitles } from '../../lib/manage';
-import type { SquadManageSection } from '../../lib/routes';
-import { getSquadManageUrl, getSquadUrl } from '../../lib/routes';
+import { squadManageTitles } from '../../lib/manage';
+import { useSquadManageGroups } from '../../hooks/useSquadManageGroups';
+import {
+  getSquadManageUrl,
+  getSquadUrl,
+  SquadManageSection,
+} from '../../lib/routes';
 import { VerifiedSquadBadge } from '../VerifiedSquad';
 import { ShellPage } from '../../../../components/shell/ShellPageContext';
 import { goBackPast } from '../../../../components/shell/shellNav';
@@ -55,7 +61,7 @@ const MenuHeader = (): ReactElement => {
             >
               {squad.name}
             </Typography>
-            {hasSquadFeature(squad, 'verified') && <VerifiedSquadBadge />}
+            {showsVerifiedBadge(squad) && <VerifiedSquadBadge />}
           </span>
           <Typography
             type={TypographyType.Footnote}
@@ -98,7 +104,10 @@ const ManageMenu = ({
             </Typography>
             {group.items.map((item) => {
               const isActive = active === item.id;
-              const href = getSquadManageUrl(squad.handle, item.id);
+              const href = getSquadManageUrl(
+                squad.handle,
+                item.lockedPlan ? SquadManageSection.Plan : item.id,
+              );
 
               return (
                 <Link key={item.id} href={href} passHref>
@@ -118,6 +127,19 @@ const ManageMenu = ({
                       size: isLarge ? IconSize.Small : IconSize.XSmall,
                     })}
                     <span>{item.label}</span>
+                    {!!item.lockedPlan && (
+                      <Pill
+                        label={
+                          <>
+                            <LockIcon size={IconSize.Size16} />
+                            Upgrade
+                          </>
+                        }
+                        size={PillSize.XSmall}
+                        alignment="self-center"
+                        className="ml-auto shrink-0 gap-0.5 bg-overlay-float-cabbage text-accent-cabbage-default"
+                      />
+                    )}
                     {!!item.badge && (
                       <span className="ml-auto tabular-nums text-text-quaternary typo-footnote">
                         {item.badge}
@@ -128,7 +150,7 @@ const ManageMenu = ({
                         size={IconSize.Size16}
                         className={classNames(
                           'rotate-90 text-text-quaternary',
-                          !item.badge && 'ml-auto',
+                          !item.badge && !item.lockedPlan && 'ml-auto',
                         )}
                       />
                     )}
@@ -162,6 +184,17 @@ interface SquadManagePanelProps {
   children: ReactNode;
 }
 
+/**
+ * A section shown outside Manage, in the Startups onboarding: its content only,
+ * under the onboarding's own header, and it reports a successful save.
+ */
+export const SquadManageEmbedContext = createContext<{
+  onSaved: () => void;
+} | null>(null);
+
+export const useSquadManageEmbed = (): { onSaved: () => void } | null =>
+  useContext(SquadManageEmbedContext);
+
 export const SquadManagePanel = ({
   title,
   backUrl,
@@ -171,6 +204,7 @@ export const SquadManagePanel = ({
   phoneAction,
   children,
 }: SquadManagePanelProps): ReactElement => {
+  const embed = useSquadManageEmbed();
   const router = useRouter();
   const { squad } = useSquadPageContext();
   const isPhone = useIsPhone();
@@ -190,6 +224,10 @@ export const SquadManagePanel = ({
 
     goBackPast(isManagePath, () => router.push(backUrl));
   };
+
+  if (embed) {
+    return <>{children}</>;
+  }
 
   return (
     <>
@@ -299,8 +337,8 @@ export const SquadManageLayout = ({
   section,
   children,
 }: SquadManageLayoutProps): ReactElement => {
-  const { squad, viewer } = useSquadPageContext();
-  const groups = getSquadManageGroups(squad, viewer);
+  const { squad } = useSquadPageContext();
+  const groups = useSquadManageGroups();
   const squadUrl = getSquadUrl(squad.handle);
   const isPhone = useIsPhone();
 

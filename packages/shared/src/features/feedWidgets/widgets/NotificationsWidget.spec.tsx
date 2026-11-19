@@ -109,7 +109,7 @@ beforeEach(() => {
   nock.cleanAll();
   jest
     .mocked(useRouter)
-    .mockImplementation(() => ({ pathname: '/' } as unknown as NextRouter));
+    .mockImplementation(() => ({ pathname: '/' }) as unknown as NextRouter);
 });
 
 describe('NotificationsWidget', () => {
@@ -252,6 +252,7 @@ describe('NotificationsWidget', () => {
         isLoggedIn,
         hasSquads: false,
         isReadingStreakOn: true,
+        isQuestSystemOn: true,
         hasMessages: false,
         hasLiveChat: false,
       }).map(({ kind }) => kind);

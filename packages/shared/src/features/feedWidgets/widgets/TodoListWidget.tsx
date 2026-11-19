@@ -1,9 +1,4 @@
-import type {
-  CSSProperties,
-  KeyboardEvent,
-  PointerEvent,
-  ReactElement,
-} from 'react';
+import type { KeyboardEvent, PointerEvent, ReactElement } from 'react';
 import React, {
   useCallback,
   useEffect,
@@ -32,8 +27,9 @@ import { PlusIcon } from '../../../components/icons/Plus';
 import { VIcon } from '../../../components/icons/V';
 import type { FeedWidgetComponentProps } from '../registry';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
-import { FeedWidgetLoading } from '../FeedWidgetFrame';
+import { FeedWidgetEmpty } from '../FeedWidgetFrame';
 import { useWidgetScroll } from '../useWidgetScroll';
+import { todoListGlow } from './material';
 
 export type TodoItem = { id: string; text: string; done: boolean };
 
@@ -67,12 +63,6 @@ const suggestions = [
 ];
 
 const ease = 'cubic-bezier(0.2, 0, 0, 1)';
-
-// The widget's own material, a soft cabbage glow from the top corner.
-const glowStyle: CSSProperties = {
-  backgroundImage:
-    'radial-gradient(90% 60% at 100% 0%, color-mix(in srgb, var(--theme-accent-cabbage-default) 18%, transparent) 0%, transparent 70%)',
-};
 
 const prefersReducedMotion = (): boolean =>
   typeof window !== 'undefined' &&
@@ -155,6 +145,7 @@ const useStoredTodoList = (): {
   list: TodoListState | null;
   save: (change: TodoChange) => void;
   reload: () => Promise<TodoListState | null>;
+  isError: boolean;
   isSaveFailed: boolean;
 } => {
   const { user } = useAuthContext();
@@ -168,7 +159,7 @@ const useStoredTodoList = (): {
       }),
     [userId],
   );
-  const { data: row, isSuccess, refetch } = useQuery(options);
+  const { data: row, isSuccess, isError, refetch } = useQuery(options);
   const [isSaveFailed, setIsSaveFailed] = useState(false);
   const pending = useRef(0);
   // Writes go out one at a time, so each carries the revision the last one
@@ -233,7 +224,7 @@ const useStoredTodoList = (): {
     [queryClient, options],
   );
 
-  return { list, save, reload, isSaveFailed };
+  return { list, save, reload, isError, isSaveFailed };
 };
 
 const Check = ({
@@ -550,7 +541,7 @@ const orderOf = (todos: TodoItem[]): string =>
 const TodoList = ({ size }: { size: FeedWidgetSize }): ReactElement => {
   const { logEvent } = useLogContext();
   const scroll = useWidgetScroll();
-  const { list, save, reload, isSaveFailed } = useStoredTodoList();
+  const { list, save, reload, isError, isSaveFailed } = useStoredTodoList();
   const restored = list?.todos ?? null;
   const isReadOnly = !!list?.isReadOnly;
   // The list renders from here once touched, never off the store, so a write
@@ -889,7 +880,13 @@ const TodoList = ({ size }: { size: FeedWidgetSize }): ReactElement => {
   };
 
   if (!restored) {
-    return <FeedWidgetLoading />;
+    return (
+      <FeedWidgetEmpty
+        kind={FeedWidgetKind.TodoList}
+        isPending={!isError}
+        message="Your to-do list is unavailable right now."
+      />
+    );
   }
 
   const isSmall = size === FeedWidgetSize.Small;
@@ -929,7 +926,7 @@ const TodoList = ({ size }: { size: FeedWidgetSize }): ReactElement => {
       <span
         aria-hidden
         className="pointer-events-none absolute -inset-4 -z-1"
-        style={glowStyle}
+        style={todoListGlow}
       />
       <header className="flex h-6 min-w-0 shrink-0 items-center gap-1.5 px-4">
         <ChecklistAIcon

@@ -140,7 +140,7 @@ export const PluginCard = ({ plugin }: PluginCardProps): ReactElement => {
             )}
           </span>
         </div>
-        <div className="-mb-1 -ml-1 mt-1 flex items-center">
+        <div className="-mb-1 -ml-1 mt-1 flex items-center gap-2">
           <PluginUpvoteButton
             plugin={plugin}
             className="pointer-events-auto relative"

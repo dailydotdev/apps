@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import type {
   FeedWidget,
   FeedWidgetConfig,
@@ -9,28 +8,68 @@ import { FeedWidgetKind } from './types';
 const MAX_TEXT = 100;
 const MAX_TAGS = 10;
 
+type FieldCheck = (value: unknown) => boolean;
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+const isText: FieldCheck = (value) =>
+  typeof value === 'string' && value.length >= 1 && value.length <= MAX_TEXT;
+
+const isOneOf =
+  (options: readonly string[]): FieldCheck =>
+  (value) =>
+    typeof value === 'string' && options.includes(value);
+
+const configParser =
+  <T>(fields: Record<keyof T, FieldCheck>) =>
+  (config: unknown): T | undefined => {
+    if (!isRecord(config)) {
+      return undefined;
+    }
+    const keys = Object.keys(fields).filter((key) => key in config);
+    const isValid = keys.every(
+      (key) => config[key] === undefined || fields[key as keyof T](config[key]),
+    );
+    if (!isValid) {
+      return undefined;
+    }
+    return Object.fromEntries(
+      keys.map((key) => {
+        const value = config[key];
+        return [key, Array.isArray(value) ? [...value] : value];
+      }),
+    ) as T;
+  };
+
 /**
  * What each widget's config may hold. The API stores any small object (it
  * checks shape, not meaning), so this is the only place a config is checked
  * before a widget uses it. Unknown fields are stripped from what the widget
  * gets, not from what is stored, so a newer client's config survives here.
  */
-export const feedWidgetConfigSchemas: {
-  [K in keyof FeedWidgetConfigByKind]: z.ZodType<FeedWidgetConfigByKind[K]>;
+export const feedWidgetConfigParsers: {
+  [K in keyof FeedWidgetConfigByKind]: (
+    config: unknown,
+  ) => FeedWidgetConfigByKind[K] | undefined;
 } = {
-  [FeedWidgetKind.SquadUpdates]: z.object({
-    sourceId: z.string().min(1).max(MAX_TEXT).optional(),
+  [FeedWidgetKind.SquadUpdates]: configParser<
+    FeedWidgetConfigByKind[FeedWidgetKind.SquadUpdates]
+  >({ sourceId: isText }),
+  [FeedWidgetKind.TopicalDigest]: configParser<
+    FeedWidgetConfigByKind[FeedWidgetKind.TopicalDigest]
+  >({
+    tags: (value) =>
+      Array.isArray(value) && value.length <= MAX_TAGS && value.every(isText),
   }),
-  [FeedWidgetKind.TopicalDigest]: z.object({
-    tags: z.array(z.string().min(1).max(MAX_TEXT)).max(MAX_TAGS).optional(),
-  }),
-  [FeedWidgetKind.Weather]: z.object({
-    location: z.string().min(1).max(MAX_TEXT).optional(),
-    unit: z.enum(['c', 'f']).optional(),
-  }),
-  [FeedWidgetKind.Shortcuts]: z.object({
-    layout: z.enum(['grid', 'list']).optional(),
-    showMostVisited: z.boolean().optional(),
+  [FeedWidgetKind.Weather]: configParser<
+    FeedWidgetConfigByKind[FeedWidgetKind.Weather]
+  >({ location: isText, unit: isOneOf(['c', 'f']) }),
+  [FeedWidgetKind.Shortcuts]: configParser<
+    FeedWidgetConfigByKind[FeedWidgetKind.Shortcuts]
+  >({
+    layout: isOneOf(['grid', 'list']),
+    showMostVisited: (value) => typeof value === 'boolean',
   }),
 };
 
@@ -53,8 +92,14 @@ export const feedWidgetConfigVersion = (kind: FeedWidgetKind): number =>
 export const isNewerFeedWidgetConfig = (widget: FeedWidget): boolean =>
   (widget.v ?? 1) > feedWidgetConfigVersion(widget.kind);
 
-const schemaFor = (kind: FeedWidgetKind): z.ZodType | undefined =>
-  (feedWidgetConfigSchemas as Partial<Record<FeedWidgetKind, z.ZodType>>)[kind];
+const parserFor = (
+  kind: FeedWidgetKind,
+): ((config: unknown) => unknown) | undefined =>
+  (
+    feedWidgetConfigParsers as Partial<
+      Record<FeedWidgetKind, (config: unknown) => unknown>
+    >
+  )[kind];
 
 /**
  * A stored config made safe for its widget: the known fields when it
@@ -65,12 +110,11 @@ export const parseFeedWidgetConfig = <K extends FeedWidgetKind>(
   kind: K,
   config: unknown,
 ): FeedWidgetConfig<K> | undefined => {
-  const schema = schemaFor(kind);
-  if (!schema || config === undefined || config === null) {
+  const parse = parserFor(kind);
+  if (!parse || config === undefined || config === null) {
     return undefined;
   }
-  const result = schema.safeParse(config);
-  return result.success ? (result.data as FeedWidgetConfig<K>) : undefined;
+  return parse(config) as FeedWidgetConfig<K> | undefined;
 };
 
 /** Whether a config may be written for this kind. */
@@ -78,6 +122,6 @@ export const isValidFeedWidgetConfig = (
   kind: FeedWidgetKind,
   config: unknown,
 ): boolean => {
-  const schema = schemaFor(kind);
-  return !!schema && schema.safeParse(config).success;
+  const parse = parserFor(kind);
+  return !!parse && parse(config) !== undefined;
 };

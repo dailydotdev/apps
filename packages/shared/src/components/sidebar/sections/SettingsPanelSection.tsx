@@ -1,19 +1,13 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import {
-  AddUserIcon,
-  AppIcon,
   BellIcon,
-  BlockIcon,
   CreditCardIcon,
-  EditIcon,
   EmbedIcon,
   EyeIcon,
   FeatherIcon,
-  HashtagIcon,
   InviteIcon,
   JobIcon,
-  MagicIcon,
   MailIcon,
   NewTabIcon,
   OrganizationIcon,
@@ -29,12 +23,14 @@ import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import { Section } from '../Section';
 import type { SidebarSectionProps } from './common';
-import { settingsUrl } from '../../../lib/constants';
-import { useLazyModal } from '../../../hooks/useLazyModal';
-import { LazyModal } from '../../modals/common/types';
+import { boostManagerUrl, settingsUrl } from '../../../lib/constants';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { useJobsFeature } from '../../../hooks/useJobsFeature';
+import {
+  forYouSettingsPages,
+  getForYouSettingsUrl,
+} from '../../feeds/FeedSettings/forYouSettingsPages';
 
 const settingsDefaultPath = `${settingsUrl}/profile`;
 
@@ -48,7 +44,6 @@ export const SettingsPanelSection = ({
   isItemsButton,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
-  const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
   const { isJobsEnabled } = useJobsFeature();
 
@@ -120,50 +115,13 @@ export const SettingsPanelSection = ({
       {
         key: 'feed',
         title: 'Feed settings',
-        items: [
-          {
-            title: 'General',
-            path: `${settingsUrl}/feed/general`,
-            icon: (active: boolean) => (
-              <ListIcon Icon={() => <EditIcon secondary={active} />} />
-            ),
-          },
-          {
-            title: 'Tags',
-            path: `${settingsUrl}/feed/tags`,
-            icon: (active: boolean) => (
-              <ListIcon Icon={() => <HashtagIcon secondary={active} />} />
-            ),
-          },
-          {
-            title: 'Content sources',
-            path: `${settingsUrl}/feed/sources`,
-            icon: (active: boolean) => (
-              <ListIcon Icon={() => <AddUserIcon secondary={active} />} />
-            ),
-          },
-          {
-            title: 'Content preferences',
-            path: `${settingsUrl}/feed/preferences`,
-            icon: (active: boolean) => (
-              <ListIcon Icon={() => <AppIcon secondary={active} />} />
-            ),
-          },
-          {
-            title: 'AI superpowers',
-            path: `${settingsUrl}/feed/ai`,
-            icon: (active: boolean) => (
-              <ListIcon Icon={() => <MagicIcon secondary={active} />} />
-            ),
-          },
-          {
-            title: 'Blocked content',
-            path: `${settingsUrl}/feed/blocked`,
-            icon: (active: boolean) => (
-              <ListIcon Icon={() => <BlockIcon secondary={active} />} />
-            ),
-          },
-        ],
+        items: forYouSettingsPages.map(({ id, title, icon: Icon }) => ({
+          title,
+          path: getForYouSettingsUrl(id),
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <Icon secondary={active} />} />
+          ),
+        })),
       },
       {
         key: 'career',
@@ -267,16 +225,16 @@ export const SettingsPanelSection = ({
             ),
           },
           {
-            title: 'Ads dashboard',
+            title: 'Boost manager',
             icon: (active: boolean) => (
               <ListIcon Icon={() => <TrendingIcon secondary={active} />} />
             ),
-            action: () => openModal({ type: LazyModal.AdsDashboard }),
+            path: boostManagerUrl,
           },
         ],
       },
     ],
-    [isJobsEnabled, logEvent, openModal],
+    [isJobsEnabled, logEvent],
   );
 
   return (

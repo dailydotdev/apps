@@ -20,6 +20,7 @@ import type { MainLayoutHeaderProps } from './layout/MainLayoutHeader';
 import MainLayoutHeader from './layout/MainLayoutHeader';
 import { InAppNotificationElement } from './notifications/InAppNotification';
 import { QuestUpdatesListener } from './quest/QuestUpdatesListener';
+import { GtaViEventListener } from '../features/gtaViEvent/GtaViEventListener';
 import { useNotificationContext } from '../contexts/NotificationsContext';
 import { LogEvent, NotificationTarget, TargetType } from '../lib/log';
 import { PromptElement } from './modals/Prompt';
@@ -37,6 +38,8 @@ import {
 } from '../contexts';
 import { BootPopups } from './modals/BootPopups';
 import { StreakMilestonePopup } from './modals/streaks/StreakMilestonePopup';
+import { FirstCoresPopup } from './cores/FirstCoresPopup';
+import { StreakFreeFreezesUpsellPopup } from './streak/StreakFreeFreezesUpsellPopup';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { AuthTriggers } from '../lib/auth';
 import PlusMobileEntryBanner from './marketing/banners/PlusMobileEntryBanner';
@@ -55,6 +58,7 @@ import { LAYOUT_FRAME_CLASS } from '../lib/layoutVariant';
 import { SignInStrip } from './auth/SignInStrip';
 import { useRecordRecentPages } from '../hooks/useRecentPages';
 import { isSidebarSettingsPath } from './sidebar/sidebarCategory';
+import { Sidebar } from './sidebar/Sidebar';
 import {
   TopHeroSlotProvider,
   useTopHeroSlot,
@@ -71,14 +75,9 @@ const GoBackHeaderMobile = dynamic(
   { ssr: false },
 );
 
-const Sidebar = dynamic(() =>
-  import(/* webpackChunkName: "sidebar" */ './sidebar/Sidebar').then(
-    (mod) => mod.Sidebar,
-  ),
-);
-
 export interface MainLayoutProps
-  extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
+  extends
+    Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle' | 'canShowSignInStrip'>,
     HTMLAttributes<HTMLDivElement> {
   mainPage?: boolean;
   activePage?: string;
@@ -340,6 +339,7 @@ function MainLayoutComponent({
       {isBannerAvailable && <PromotionalBanner />}
       <InAppNotificationElement />
       <QuestUpdatesListener />
+      <GtaViEventListener />
       <PromptElement />
       <RootPortal>
         <Toast autoDismissNotifications={autoDismissNotifications} />
@@ -348,6 +348,8 @@ function MainLayoutComponent({
       <BootPopups />
       <SpotlightHost />
       <StreakMilestonePopup />
+      <FirstCoresPopup />
+      <StreakFreeFreezesUpsellPopup />
       {plusEntryAnnouncementBar && (
         <PlusMobileEntryBanner
           className="relative"
@@ -362,6 +364,7 @@ function MainLayoutComponent({
           hasBanner={isBannerAvailable}
           sidebarRendered={sidebarRendered}
           onLogoClick={onLogoClick}
+          canShowSignInStrip={showSidebar && !canGoBack}
         />
       )}
       {!sidebarOwnsHeader && <ShellRefreshIndicator />}

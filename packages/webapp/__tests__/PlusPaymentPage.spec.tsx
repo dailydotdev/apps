@@ -66,7 +66,7 @@ const price = (formatted: string, priceId: string) =>
     price: { amount: 1, formatted },
     currency: { code: 'USD', symbol: '$' },
     metadata: { title: 'Annual' },
-  } as ProductPricingPreview);
+  }) as ProductPricingPreview;
 
 const renderPage = ({
   discountId,

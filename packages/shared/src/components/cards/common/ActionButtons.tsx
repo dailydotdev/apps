@@ -23,15 +23,12 @@ import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
 import {
   actionCounterClassName as counterClassName,
-  actionCounterLabelClassName as counterLabelClassName,
-  FEED_ACTION_BUTTON_SIZE,
-  FEED_ACTION_ICON_SIZE,
+  largeActionCounterLabelClassName as counterLabelClassName,
 } from './actionCounter';
 import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
 import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
 import { useEngagementBarV2 } from '../../../hooks/useEngagementBarV2';
 import ActionButtonsV2 from './ActionButtons.v2';
-import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
 import { getPostPath } from '../../../lib/links';
 
 export type ActionButtonsVariant = 'grid' | 'list';
@@ -48,39 +45,30 @@ export interface ActionButtonsProps {
   variant?: ActionButtonsVariant;
   showDownvoteAction?: boolean;
   /**
-   * `card_save_on_hover`: the card renders the bookmark in its header, so the
-   * bar leaves it out. Only grid cards that do so pass it; it is ignored when
-   * the flag is off.
+   * The card renders the bookmark in its header, so the bar leaves it out.
+   * Only grid cards that do so pass it; it is ignored on list cards.
    */
   bookmarkInHeader?: boolean;
 }
 
+// Both card types use the bar at 32px with 19px icons.
+const buttonSize = ButtonSize.Small;
+const iconSize = IconSize.Size19;
+
 const variantConfig = {
   grid: {
-    buttonSize: FEED_ACTION_BUTTON_SIZE,
-    iconSize: FEED_ACTION_ICON_SIZE,
-    // Asymmetric: an icon sits on the left edge and the impressions number on
-    // the right, which needs more room to look optically centred.
-    containerClassName: 'py-1.5 pl-1 pr-2.5',
+    // 32px buttons keep the 36px row: 4px from the card's left side and its
+    // bottom, and 8px after the views number.
+    containerClassName: 'pb-1 pl-1 pr-2',
     showTagsPanel: false,
     useCommentLink: false,
   },
   list: {
-    buttonSize: FEED_ACTION_BUTTON_SIZE,
-    iconSize: FEED_ACTION_ICON_SIZE,
-    containerClassName: '',
+    containerClassName: '-ml-[0.40625rem]',
     showTagsPanel: true,
     useCommentLink: true,
   },
 } as const;
-
-interface ActionButtonsV1Props extends ActionButtonsProps {
-  /**
-   * `card_save_on_hover` treatment on grid cards: today's bar at 32px with
-   * 20px icons, in the same 36px row.
-   */
-  large?: boolean;
-}
 
 const ActionButtonsV1 = ({
   post,
@@ -93,12 +81,9 @@ const ActionButtonsV1 = ({
   variant = 'grid',
   showDownvoteAction = true,
   bookmarkInHeader = false,
-  large = false,
-}: ActionButtonsV1Props): ReactElement | null => {
+}: ActionButtonsProps): ReactElement | null => {
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
-  const buttonSize = large ? ButtonSize.Small : config.buttonSize;
-  const iconSize = large ? IconSize.XSmall : config.iconSize;
   const { getUpvoteAnimation } = useBrandSponsorship();
 
   const {
@@ -199,8 +184,7 @@ const ActionButtonsV1 = ({
     <div
       className={classNames(
         'flex flex-row items-center justify-between',
-        // 32px buttons keep the 36px row: py-0.5 instead of py-1.5.
-        large ? 'py-0.5 pl-1 pr-2.5' : config.containerClassName,
+        config.containerClassName,
         className,
       )}
     >
@@ -338,34 +322,22 @@ const ActionButtonsV1 = ({
 
 const ActionButtons = (props: ActionButtonsProps): ReactElement | null => {
   const { variant = 'grid', bookmarkInHeader, ...rest } = props;
-  // `card_save_on_hover` only changes grid cards, so only they evaluate it:
-  // list and signal renders must not enroll users who never see a change.
-  const saveOnHover = useCardSaveOnHover({
-    shouldEvaluate: variant === 'grid',
-  });
   const useV2 = useEngagementBarV2();
-  // The treatment keeps the bar control renders (v1, or v2 for
-  // `engagement_bar_v2` users) and only changes its size and the bookmark's
-  // place, so the test measures those two things and not a bar swap.
-  const treatment = saveOnHover && variant === 'grid';
-  const inHeader = treatment && !!bookmarkInHeader;
+  // Grid cards drop the bookmark from the bar when the card renders it in its
+  // header. List cards always keep the bookmark in the bar.
+  const inHeader = variant === 'grid' && !!bookmarkInHeader;
   if (useV2) {
     return (
       <ActionButtonsV2
         {...rest}
         variant={variant}
-        density={treatment ? 'compact' : undefined}
+        density="compact"
         bookmarkInHeader={inHeader}
       />
     );
   }
   return (
-    <ActionButtonsV1
-      {...rest}
-      variant={variant}
-      large={treatment}
-      bookmarkInHeader={inHeader}
-    />
+    <ActionButtonsV1 {...rest} variant={variant} bookmarkInHeader={inHeader} />
   );
 };
 

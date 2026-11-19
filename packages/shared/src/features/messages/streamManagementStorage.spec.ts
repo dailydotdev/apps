@@ -19,7 +19,7 @@ const state = (overrides: Record<string, unknown> = {}): SMState =>
     sinceLastAck: 0,
     unacked: [],
     ...overrides,
-  } as unknown as SMState);
+  }) as unknown as SMState;
 
 describe('createStreamManagementStorage', () => {
   beforeEach(() => {

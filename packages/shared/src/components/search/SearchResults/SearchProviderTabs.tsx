@@ -8,7 +8,8 @@ import { ButtonSize } from '../../buttons/Button';
 
 const providerTabs = [
   { provider: SearchProviderEnum.Posts, label: 'Posts' },
-  { provider: SearchProviderEnum.Sources, label: 'Squads' },
+  { provider: SearchProviderEnum.Squads, label: 'Squads' },
+  { provider: SearchProviderEnum.Sources, label: 'Sources' },
   { provider: SearchProviderEnum.Users, label: 'People' },
   { provider: SearchProviderEnum.Tags, label: 'Tags' },
 ];

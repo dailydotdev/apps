@@ -50,6 +50,8 @@ export interface SourceMember {
   referralToken: string;
   permissions?: SourcePermissions[];
   flags?: SourceMemberFlag;
+  // A paid daily.dev for Startups seat
+  seat?: boolean;
 }
 
 export interface BasicSourceMember {
@@ -110,6 +112,8 @@ interface SourceFlags {
   totalUpvotes: number;
   totalAwards: number;
   campaignId?: string;
+  /** A company page, with or without a plan */
+  company?: boolean;
 }
 
 // A missing key comes back as null and means off
@@ -118,6 +122,15 @@ export interface SourceFeatures {
   adFree: boolean | null;
   links: boolean | null;
   products: boolean | null;
+  /** The header button without the brand color, on the Startups Team plan */
+  cta?: boolean | null;
+  jobs?: boolean | null;
+  /** Posting through the public API, on every plan */
+  apiPosting?: boolean | null;
+  /** Verified and its admins show the badge. Falls back to verified */
+  showVerifiedBadge?: boolean | null;
+  /** Ad-free and its admins keep the ads off. Falls back to adFree */
+  hideAds?: boolean | null;
 }
 
 export interface Source {

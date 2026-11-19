@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useState } from 'react';
+import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -11,16 +12,114 @@ import { highlightsPageQueryOptions } from '../../graphql/highlights';
 import { webappUrl } from '../../lib/constants';
 import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
 import { LogEvent } from '../../lib/log';
-import { PlusIcon } from '../icons';
+import { useActiveFeedNameContext } from '../../contexts';
+import { useSettingsContext } from '../../contexts/SettingsContext';
+import { useFeedName } from '../../hooks/feed/useFeedName';
+import usePersistentContext from '../../hooks/usePersistentContext';
+import type { AllFeedPages } from '../../lib/query';
+import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
+import { FilterIcon, PlusIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { Drawer } from '../drawers/Drawer';
 import { RootPortal } from '../tooltips/Portal';
+import Link from '../utilities/Link';
+import {
+  algorithmsList,
+  DEFAULT_ALGORITHM_INDEX,
+  DEFAULT_ALGORITHM_KEY,
+} from '../layout/common';
 import type { RowItem } from './ShellRow';
 import { Segments, SheetChoice, ShellRow } from './ShellRow';
 
 const highlightsUrl = `${webappUrl}highlights`;
 
-const happeningNowKey = 'happening-now';
+// The address on screen, which can differ from the route: Happening now in
+// place under the widget rail keeps the feed page's route.
+const getAsPathname = (router: NextRouter): string =>
+  withoutLayoutVariantPrefix(
+    (router.asPath ?? router.pathname ?? '').split(/[?#]/)[0],
+  );
+
+interface OpenFeed {
+  title: string;
+  editHref: string;
+}
+
+const FeedSheet = ({
+  feed,
+  onClose,
+}: {
+  feed: OpenFeed | null;
+  onClose: () => void;
+}): ReactElement => {
+  const { feedName } = useActiveFeedNameContext();
+  const { isSortableFeed } = useFeedName({
+    feedName: feedName as AllFeedPages,
+  });
+  const { sortingEnabled } = useSettingsContext();
+  const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
+    DEFAULT_ALGORITHM_KEY,
+    DEFAULT_ALGORITHM_INDEX,
+    [0, 1],
+    DEFAULT_ALGORITHM_INDEX,
+  );
+  const canSort = sortingEnabled && isSortableFeed;
+
+  return (
+    <RootPortal>
+      <Drawer
+        isOpen={!!feed}
+        onClose={onClose}
+        title={feed?.title}
+        className={{ drawer: 'py-1' }}
+      >
+        {canSort && (
+          <>
+            <h3 className="px-4 pb-1 pt-2 text-text-tertiary typo-footnote">
+              Order
+            </h3>
+            <SheetChoice
+              items={algorithmsList.map((label, index) => ({
+                key: label,
+                label,
+                active: index === selectedAlgo,
+                onClick: () => {
+                  setSelectedAlgo(index);
+                  onClose();
+                },
+              }))}
+            />
+          </>
+        )}
+        {feed && (
+          <div
+            className={
+              canSort ? 'border-t border-border-subtlest-tertiary' : undefined
+            }
+          >
+            <SheetChoice
+              items={[
+                {
+                  key: 'settings',
+                  label: (
+                    <span className="flex items-center gap-3">
+                      <span className="flex text-text-secondary">
+                        <FilterIcon size={IconSize.Medium} />
+                      </span>
+                      Feed settings
+                    </span>
+                  ),
+                  href: feed.editHref,
+                  onClick: onClose,
+                },
+              ]}
+            />
+          </div>
+        )}
+      </Drawer>
+    </RootPortal>
+  );
+};
 
 const HappeningNowSheet = ({
   isOpen,
@@ -35,32 +134,28 @@ const HappeningNowSheet = ({
     enabled: isOpen,
   });
   const channels = data?.channelConfigurations ?? [];
-  const path = (router.asPath ?? router.pathname ?? '').split('?')[0];
+  const path = getAsPathname(router);
+
+  const choice = (href: string) => ({ href, replace: true, onClick: onClose });
 
   const items: RowItem[] = [
     {
       key: 'headlines',
       label: 'Headlines',
-      href: highlightsUrl,
       active: path === '/highlights',
-      replace: true,
-      onClick: onClose,
+      ...choice(highlightsUrl),
     },
     {
       key: 'all',
       label: 'All',
-      href: `${highlightsUrl}/all`,
       active: path === '/highlights/all',
-      replace: true,
-      onClick: onClose,
+      ...choice(`${highlightsUrl}/all`),
     },
     ...channels.map((channel) => ({
       key: channel.channel,
       label: channel.displayName,
-      href: `${highlightsUrl}/${channel.channel}`,
       active: path === `/highlights/${channel.channel}`,
-      replace: true,
-      onClick: onClose,
+      ...choice(`${highlightsUrl}/${channel.channel}`),
     })),
   ];
 
@@ -94,37 +189,66 @@ export function HomeSegments({ forYou }: HomeSegmentsProps = {}): ReactElement {
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
   const [isChannelsOpen, setIsChannelsOpen] = useState(false);
-  const pathname = withoutLayoutVariantPrefix(router.pathname);
-  const path = (router.asPath ?? router.pathname ?? '').split('?')[0];
+  const [openFeed, setOpenFeed] = useState<OpenFeed | null>(null);
+  // From the address rather than the route: with Happening now in place the
+  // route is still the feed page's.
+  const path = getAsPathname(router);
   const forYouHref = isCustomDefaultFeed ? `${webappUrl}my-feed` : webappUrl;
-  const isHighlights = pathname.startsWith('/highlights');
+  const isHighlights = path.startsWith('/highlights');
 
   const items: RowItem[] = [];
+
+  const feedMenu = (title: string, editHref: string): RowItem['menu'] => ({
+    ariaLabel: `${title}, feed options`,
+    onOpen: () => setOpenFeed({ title, editHref }),
+  });
 
   // For you lights on `/` even when a custom default feed is the page, and
   // then it must stay a link to /my-feed: the menu is the feed on screen's.
   const isForYouMenu =
     !!user &&
     !!forYou &&
-    (pathname === '/my-feed' || (pathname === '/' && !isCustomDefaultFeed));
+    (path === '/my-feed' || (path === '/' && !isCustomDefaultFeed));
+
+  // A caller with its own For you sheet owns that tab's menu, and shows the
+  // feed's settings itself while a custom default feed is the page.
+  const forYouMenu = (isDefaultCustom: boolean): RowItem['menu'] => {
+    if (forYou) {
+      return isForYouMenu
+        ? { ariaLabel: forYou.ariaLabel, onOpen: forYou.onMenu }
+        : undefined;
+    }
+    return feedMenu(
+      'For you',
+      isDefaultCustom
+        ? `${webappUrl}feeds/${defaultFeedId}/edit`
+        : `${webappUrl}feeds/${user?.id}/edit?dview=${FeedSettingsMenu.Tags}`,
+    );
+  };
 
   if (user) {
+    const isDefaultCustom = isCustomDefaultFeed && path === '/';
     items.push({
       key: forYouKey,
       label: isForYouMenu ? forYou?.label : 'For you',
       ariaLabel: isForYouMenu ? forYou?.ariaLabel : undefined,
       href: forYouHref,
-      active: pathname === '/' || pathname === '/my-feed',
+      active: path === '/' || path === '/my-feed',
       replace: true,
+      menu: forYouMenu(isDefaultCustom),
     });
   }
 
   items.push({
-    key: happeningNowKey,
+    key: 'happening-now',
     label: 'Happening now',
     href: highlightsUrl,
-    active: isHighlights,
     replace: true,
+    active: isHighlights,
+    menu: {
+      ariaLabel: 'Happening now, choose a channel',
+      onOpen: () => setIsChannelsOpen(true),
+    },
   });
 
   if (user) {
@@ -132,7 +256,7 @@ export function HomeSegments({ forYou }: HomeSegmentsProps = {}): ReactElement {
       key: 'following',
       label: 'Following',
       href: `${webappUrl}following`,
-      active: pathname === '/following',
+      active: path === '/following',
       replace: true,
     });
 
@@ -144,9 +268,13 @@ export function HomeSegments({ forYou }: HomeSegmentsProps = {}): ReactElement {
         label: feed.flags?.name || `Feed ${feed.id}`,
         href,
         active: isDefault
-          ? pathname === '/'
+          ? path === '/'
           : path === `/feeds/${feed.id}` || path === `/feeds/${feed.id}/edit`,
         replace: true,
+        menu: feedMenu(
+          feed.flags?.name || `Feed ${feed.id}`,
+          `${webappUrl}feeds/${feed.id}/edit`,
+        ),
         onClick: () =>
           logEvent({
             event_name: LogEvent.ClickFeedTagChip,
@@ -155,29 +283,35 @@ export function HomeSegments({ forYou }: HomeSegmentsProps = {}): ReactElement {
           }),
       });
     });
-
-    items.push({
-      key: 'new-feed',
-      label: <PlusIcon size={IconSize.XSmall} />,
-      ariaLabel: 'New custom feed',
-      href: `${webappUrl}feeds/new`,
-      active: pathname === '/feeds/new',
-    });
   }
 
   return (
     <>
-      <ShellRow>
-        <Segments
-          items={items}
-          menu={isForYouMenu ? forYouKey : happeningNowKey}
-          onMenu={isForYouMenu ? forYou?.onMenu : () => setIsChannelsOpen(true)}
-        />
-      </ShellRow>
+      <div className="flex w-full items-center">
+        <div className="min-w-0 flex-1 [mask-image:linear-gradient(to_right,black_calc(100%-1.5rem),transparent),linear-gradient(black,black)] [mask-position:0_0,0_100%] [mask-repeat:no-repeat] [mask-size:100%_100%,100%_1px]">
+          <ShellRow>
+            <Segments items={items} />
+          </ShellRow>
+        </div>
+        {user && (
+          <div className="flex h-12 shrink-0 items-center border-b border-border-subtlest-tertiary px-2">
+            <Link href={`${webappUrl}feeds/new`} passHref>
+              <a
+                aria-label="New custom feed"
+                aria-current={path === '/feeds/new' ? 'page' : undefined}
+                className="shell-press shell-hit relative flex size-[2.375rem] items-center justify-center rounded-14 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+              >
+                <PlusIcon size={IconSize.Small} />
+              </a>
+            </Link>
+          </div>
+        )}
+      </div>
       <HappeningNowSheet
         isOpen={isChannelsOpen}
         onClose={() => setIsChannelsOpen(false)}
       />
+      <FeedSheet feed={openFeed} onClose={() => setOpenFeed(null)} />
     </>
   );
 }

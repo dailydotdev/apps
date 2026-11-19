@@ -63,15 +63,11 @@ export function ReadTopLeaderboard({
           'z-2 laptop:sticky laptop:top-[var(--sticky-header-offset)]',
       )}
     >
-      {/* Not eager: the unit sits at the top of the page where the
-          intersection observer fires on first paint anyway, and a hidden ins
-          never intersects, so phones never request it. */}
       <ReadAdSlot
         slot={slot}
         surface={surface}
         format={ReadAdFormat.Leaderboard}
         hideOnPhone
-        refreshes
       />
     </div>
   );

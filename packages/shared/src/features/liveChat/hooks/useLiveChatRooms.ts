@@ -10,9 +10,9 @@ type UseLiveChatRooms = {
   isPending: boolean;
 };
 
-// Every open room, from the one small query the feed surfaces share. Only
-// trending posts get rooms, so there are never more than a handful, and a
-// reader outside live chat never asks.
+// Every open room, from the one small query the feed surfaces share. Rooms
+// are team picks, so there are never more than a handful, and a reader
+// outside live chat never asks.
 export const useLiveChatRooms = (): UseLiveChatRooms => {
   const { user } = useAuthContext();
   const { isEnabled } = useLiveChatEnabled();

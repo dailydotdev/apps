@@ -252,7 +252,7 @@ export const getAchievementSummary = (
   // The four are picked by role, then ordered by how far along they are, so
   // the shelf reads left to right from unlocked to furthest away.
   const featuredAchievements = dedupeAchievements([
-    trackedAchievement?.unlockedAt ? null : trackedAchievement ?? null,
+    trackedAchievement?.unlockedAt ? null : (trackedAchievement ?? null),
     nextToUnlock,
     latestUnlocked,
     rarestUnlocked,
@@ -440,7 +440,7 @@ export const getBadgeSummary = (
       );
     })[0] ?? null;
   const mostEarnedBadgeCount = mostEarnedBadge
-    ? topicCounts.get(getTopReaderTopicLabel(mostEarnedBadge)) ?? 0
+    ? (topicCounts.get(getTopReaderTopicLabel(mostEarnedBadge)) ?? 0)
     : 0;
 
   return {

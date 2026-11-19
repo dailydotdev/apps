@@ -3,7 +3,7 @@ import { withSerwist } from '@serwist/turbopack';
 import withBundleAnalyzerInit from '@next/bundle-analyzer';
 import { readFileSync } from 'fs';
 import type { NextConfig } from 'next';
-import type { Rewrite } from 'next/dist/lib/load-custom-routes';
+import type { Redirect, Rewrite } from 'next/dist/lib/load-custom-routes';
 import { getMarkdownRewrites } from './lib/markdownRoutes';
 
 const { version } = JSON.parse(
@@ -26,6 +26,27 @@ const svgrOptions = {
     className: 'icon',
   },
 };
+
+// Pages rendered through `getMainFeedLayout`. They import the feed layout
+// statically, and `/` is already at Next's `maxInitialRequests`, so without
+// the cache group below every one of them inlines its own copy of it.
+const feedPageChunks = new Set(
+  [
+    'index',
+    'popular',
+    'my-feed',
+    'following',
+    'upvoted',
+    'posts',
+    'posts/latest',
+    'posts/discussed',
+    'posts/upvoted',
+    'feeds/new',
+    'feeds/[slugOrId]',
+    'feeds/[slugOrId]/edit',
+    'search/posts',
+  ].map((page) => `pages/${page}`),
+);
 
 type NextSvgFileLoaderRule = {
   test?: { test?: (value: string) => boolean };
@@ -52,9 +73,36 @@ const noindexHeaders = [
   },
 ];
 
+// The daily.dev router (a Cloudflare Worker) proves its requests with this
+// secret. Anything else reached the Vercel host directly, skipping the
+// router's agent gateway and noindex rules, so it goes to the same path on
+// daily.dev. Only the production build has the secret.
+const appOriginAuth = process.env.APP_ORIGIN_AUTH;
+
+// Header conditions match as regexes; a value that stops matching the
+// router's header would loop every request.
+if (appOriginAuth && !/^[\w-]+$/.test(appOriginAuth)) {
+  throw new Error('APP_ORIGIN_AUTH may only contain letters, digits, _ and -');
+}
+
+const appOriginRedirects: Redirect[] = appOriginAuth
+  ? [
+      {
+        source: '/:path*',
+        missing: [
+          { type: 'header', key: 'x-app-origin-auth', value: appOriginAuth },
+        ],
+        destination: 'https://daily.dev/:path*',
+        permanent: true,
+      },
+    ]
+  : [];
+
 const nextConfig: NextConfig = {
   transpilePackages: ['@dailydotdev/shared'],
   allowedDevOrigins: ['app.local.fylla.dev', 'app.staging.daily.dev'],
+  // CI runs the webapp typecheck (`typecheck_webapp`), so Vercel skips it.
+  typescript: { ignoreBuildErrors: process.env.VERCEL === '1' },
   turbopack: {
     rules: {
       '*.svg': {
@@ -126,6 +174,25 @@ const nextConfig: NextConfig = {
       // eslint-disable-next-line no-param-reassign
       config.resolve.alias['cross-fetch'] = false;
 
+      // Below Next's own groups and webpack's defaults, so it only takes what
+      // they leave inlined in the feed pages, and only what every feed page
+      // shares, so one page's extras never ride along on the others.
+      // `enforce` skips `maxInitialRequests`, which is what stops the default
+      // group from splitting them.
+      if (!isServer && config.optimization.splitChunks) {
+        // eslint-disable-next-line no-param-reassign
+        config.optimization.splitChunks.cacheGroups.feedPages = {
+          name: 'feedPages',
+          chunks: (chunk: { name?: string }) =>
+            feedPageChunks.has(chunk.name ?? ''),
+          test: (module: { type?: string }) => !module.type?.startsWith('css'),
+          minChunks: feedPageChunks.size,
+          priority: -30,
+          enforce: true,
+          reuseExistingChunk: true,
+        };
+      }
+
       // The chat client only connects from the browser, and Strophe's node
       // build imports optional peers (@xmldom/xmldom) we don't install.
       if (isServer) {
@@ -162,6 +229,10 @@ const nextConfig: NextConfig = {
           // page with that segment open.
           source: '/squads/:handle/about',
           destination: '/squads/:handle?tab=about',
+        },
+        {
+          source: '/squads/:handle/jobs',
+          destination: '/squads/:handle?tab=jobs',
         },
         {
           source: '/posts/:id',
@@ -217,6 +288,7 @@ const nextConfig: NextConfig = {
       ];
 
       return [
+        ...appOriginRedirects,
         // The webapp's old /assets files moved to public/app/assets (served at
         // /app/assets, which the daily.dev router proxies to the app origin). New webapp
         // assets go in public/app/assets/; this wildcard redirect keeps old /assets URLs
@@ -384,6 +456,12 @@ const nextConfig: NextConfig = {
             },
           ],
         },
+        // Content preferences and Blocked content are one Filters page now
+        {
+          source: '/settings/feed/:page(preferences|blocked)',
+          destination: '/settings/feed/filters',
+          permanent: false,
+        },
         {
           source: '/account/integrations',
           destination: '/settings/customization/integrations',
@@ -402,6 +480,11 @@ const nextConfig: NextConfig = {
         {
           source: '/opportunity/:path*',
           destination: '/jobs/:path*',
+          permanent: true,
+        },
+        {
+          source: '/welcome',
+          destination: '/onboarding',
           permanent: true,
         },
         {

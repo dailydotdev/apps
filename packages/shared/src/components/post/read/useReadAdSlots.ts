@@ -9,7 +9,7 @@ import type { Source } from '../../../graphql/sources';
 import { isSourceAdFree } from '../../../lib/ads';
 import { isDevelopment } from '../../../lib/constants';
 import { useFeature } from '../../GrowthBookProvider';
-import type { AdSlots } from '../../../features/monetization/kueez';
+import type { AdSlots } from './slots';
 import { ORGANIC_AD_SLOTS, READ_AD_SLOTS } from './slots';
 
 const NO_SLOTS: AdSlots = {};
@@ -17,9 +17,9 @@ const NO_SLOTS: AdSlots = {};
 /**
  * Anonymous is a post-boot fact, not the absence of a user object: `user` is
  * undefined until boot resolves, so reading it early classifies every
- * logged-in visitor as anonymous for a moment, long enough to run an auction
- * that then has to be torn back out of a Plus member's page. No provider (a
- * bare component test) is never anonymous.
+ * logged-in visitor as anonymous for a moment, long enough to load ads that
+ * then have to be torn back out of a Plus member's page. No provider (a bare
+ * component test) is never anonymous.
  */
 const useIsAnonymous = (): boolean => {
   const auth = useContext(AuthContext);
@@ -43,9 +43,9 @@ const useIsAdFreePost = (post?: AdSlotsPost): boolean => {
 /**
  * The /read template's slots. Anonymous visitors only: the page exists for
  * paid-acquisition traffic, and ad-free is part of what Plus members pay for.
- * The `read_ads` flag is an emergency kill switch, on by default; there is no
- * ramp. Development builds get the dashed density placeholders instead of
- * live auctions, hence the empty map there.
+ * The `read_ads` flag is a kill switch, off while no ad tag fills the slots;
+ * there is no ramp. Development builds get the dashed density placeholders instead of
+ * live units, hence the empty map there.
  */
 export const useReadAdSlots = (post?: AdSlotsPost): AdSlots => {
   const isAnonymous = useIsAnonymous();

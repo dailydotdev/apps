@@ -64,7 +64,9 @@ const useActiveOrRecomendedSquads = (props: ActiveOrRecomendedSquadsProps) => {
 
   return {
     heading,
-    isReady: isAuthReady && (!isShowingSuggestions || !isPending),
+    isReady:
+      !!squads?.length ||
+      (isAuthReady && (!isShowingSuggestions || !isPending)),
     isShowingSuggestions,
     showMore: {
       isVisible: hasShowMore,

@@ -12,7 +12,7 @@ import {
   cloudinaryNotificationsBrowserEnabled,
   cloudinaryNotificationsBrowser,
 } from '../../lib/image';
-import { VIcon, BellNotifyIcon } from '../icons';
+import { VIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
 import { NotificationPromptSource } from '../../lib/log';
 import type { NotificationCtaPlacement } from '../../lib/log';
@@ -23,7 +23,6 @@ type EnableNotificationProps = {
   placement?: NotificationCtaPlacement;
   contentName?: string;
   className?: string;
-  label?: string;
   onEnableAction?: () => Promise<unknown> | unknown;
 };
 
@@ -32,7 +31,6 @@ const containerClassName: Partial<Record<NotificationPromptSource, string>> = {
   [NotificationPromptSource.NewSourceModal]: '',
   [NotificationPromptSource.NotificationItem]: '',
   [NotificationPromptSource.SquadPostCommentary]: '',
-  [NotificationPromptSource.SquadPostModal]: '',
   [NotificationPromptSource.SquadChecklist]: '',
   [NotificationPromptSource.SourceSubscribe]: 'w-full px-3 !pt-0 !pb-2',
   [NotificationPromptSource.ReadingReminder]: '',
@@ -45,7 +43,6 @@ const sourceRenderTextCloseButton: Partial<
   [NotificationPromptSource.NotificationsPage]: false,
   [NotificationPromptSource.NewSourceModal]: false,
   [NotificationPromptSource.SquadPostCommentary]: false,
-  [NotificationPromptSource.SquadPostModal]: false,
   [NotificationPromptSource.NotificationItem]: false,
   [NotificationPromptSource.SquadChecklist]: false,
   [NotificationPromptSource.SourceSubscribe]: true,
@@ -54,7 +51,6 @@ const sourceRenderTextCloseButton: Partial<
 };
 
 const sourceToButtonText: Partial<Record<NotificationPromptSource, string>> = {
-  [NotificationPromptSource.SquadPostModal]: 'Subscribe',
   [NotificationPromptSource.SourceSubscribe]: 'Enable',
 };
 
@@ -63,7 +59,6 @@ function EnableNotification({
   placement,
   contentName,
   className,
-  label,
   onEnableAction,
 }: EnableNotificationProps): ReactElement | null {
   const { shouldShowCta, acceptedJustNow, onEnable, onDismiss } =
@@ -78,7 +73,6 @@ function EnableNotification({
   }
 
   const sourceToMessage: Partial<Record<NotificationPromptSource, string>> = {
-    [NotificationPromptSource.SquadPostModal]: '',
     [NotificationPromptSource.NotificationsPage]:
       'Stay in the loop whenever you get a mention, reply and other important updates.',
     [NotificationPromptSource.NewSourceModal]: '',
@@ -96,29 +90,6 @@ function EnableNotification({
   const buttonText = sourceToButtonText[source] ?? 'Enable notifications';
   const shouldUseTopRightCloseButton =
     source === NotificationPromptSource.NotificationsPage;
-
-  if (source === NotificationPromptSource.SquadPostModal) {
-    return (
-      <span
-        className={classNames(
-          'relative flex w-full flex-row items-center bg-gradient-to-r from-accent-water-default to-accent-onion-default p-3 font-bold typo-body',
-          containerClassName[source],
-        )}
-      >
-        <BellNotifyIcon secondary className="mr-2" /> Never miss new posts from{' '}
-        {label}
-        <Button
-          className="ml-auto mr-14"
-          variant={ButtonVariant.Secondary}
-          size={ButtonSize.XSmall}
-          onClick={onEnable}
-        >
-          {buttonText}
-        </Button>
-        <CloseButton className="absolute right-3" onClick={onDismiss} />
-      </span>
-    );
-  }
 
   return (
     <div

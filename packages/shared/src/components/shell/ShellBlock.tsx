@@ -11,7 +11,6 @@ import { QuestHeaderButton } from '../header/QuestHeaderButton';
 import { ButtonIconPosition } from '../buttons/common';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { ArrowIcon, DevPlusIcon, MailIcon, SettingsIcon } from '../icons';
-import { AlertColor, AlertDot } from '../AlertDot';
 import { IconSize } from '../Icon';
 import { useMobileAppHeader } from '../../features/getApp/hooks/useMobileAppHeader';
 import { MobileAppActions } from '../../features/getApp/components/MobileAppActions';
@@ -23,9 +22,13 @@ import { motion, topButton } from './constants';
 import { revealShell, setShellEdge, useShellScroll } from './useShellScroll';
 import { useOnline } from './useOnline';
 import { useMessagesEnabled } from '../../features/messages/hooks/useMessagesEnabled';
-import { useHasUnreadMessages } from '../../features/messages/hooks/useHasUnreadMessages';
+import { useUnreadMessagesCount } from '../../features/messages/hooks/useUnreadMessagesCount';
+import { Bubble } from '../tooltips/utils';
+import { railCountBubbleClass } from '../sidebar/common';
+import { getUnreadText } from '../notifications/utils';
 import { DmOrigin, getMessagesUrl } from '../../features/messages/urls';
 import { isIOS, isIOSNative } from '../../lib/func';
+import { setNativeStatusBar, StatusBarStyle } from '../../lib/nativeBridge';
 import {
   useShellActionsSlot,
   useShellDockedRow,
@@ -96,7 +99,7 @@ const PlusSquare = (): ReactElement | null => {
 // in passing, not browsed, so they live in the header rather than a tab.
 const MessagesSquare = (): ReactElement | null => {
   const { isEnabled } = useMessagesEnabled();
-  const hasUnread = useHasUnreadMessages(isEnabled);
+  const { total: unreadCount } = useUnreadMessagesCount(isEnabled);
 
   if (!isEnabled) {
     return null;
@@ -109,12 +112,20 @@ const MessagesSquare = (): ReactElement | null => {
     >
       <ShellSquare
         tag="a"
-        aria-label={hasUnread ? 'Messages, unread' : 'Messages'}
+        aria-label={
+          unreadCount
+            ? `Messages, ${getUnreadText(unreadCount)} unread`
+            : 'Messages'
+        }
       >
-        <MailIcon size={IconSize.Small} />
-        {hasUnread && (
-          <AlertDot className="right-1.5 top-1.5" color={AlertColor.Cabbage} />
-        )}
+        <span className="relative flex">
+          <MailIcon size={IconSize.Small} />
+          {!!unreadCount && (
+            <Bubble className={railCountBubbleClass}>
+              {getUnreadText(unreadCount)}
+            </Bubble>
+          )}
+        </span>
       </ShellSquare>
     </Link>
   );
@@ -278,6 +289,35 @@ export function ShellBlock({
   }, [gone]);
   const offset = gone ? 1 : p;
 
+  // A new page starts with the block in place, so an arrival (a slide, a
+  // cut) is never followed by the block playing its own reveal. The reset
+  // comes at the start of the move: the route's own completion lands a
+  // frame after the new page has painted.
+  const [arriving, setArriving] = useState(false);
+  const events = router?.events;
+  useEffect(() => {
+    if (!events) {
+      return undefined;
+    }
+    const onArrive = () => {
+      revealShell();
+      setArriving(true);
+    };
+    events.on('routeChangeStart', onArrive);
+    events.on('routeChangeComplete', onArrive);
+    return () => {
+      events.off('routeChangeStart', onArrive);
+      events.off('routeChangeComplete', onArrive);
+    };
+  }, [events]);
+  useClientLayoutEffect(() => {
+    if (!arriving) {
+      return undefined;
+    }
+    const frame = requestAnimationFrame(() => setArriving(false));
+    return () => cancelAnimationFrame(frame);
+  }, [arriving]);
+
   // The observer reports every later change of height (a row arriving, the
   // offline strip); only the header mounting or leaving needs a new one.
   useClientLayoutEffect(() => {
@@ -317,7 +357,13 @@ export function ShellBlock({
   const isOverCover = !!config?.transparent && !hidden;
   useEffect(() => {
     document.documentElement.classList.toggle('shell-over-cover', isOverCover);
-    return () => document.documentElement.classList.remove('shell-over-cover');
+    setNativeStatusBar(
+      isOverCover ? StatusBarStyle.Light : StatusBarStyle.Default,
+    );
+    return () => {
+      document.documentElement.classList.remove('shell-over-cover');
+      setNativeStatusBar(StatusBarStyle.Default);
+    };
   }, [isOverCover]);
 
   // Arrival never hides the block, and a focused field keeps it in view.
@@ -353,7 +399,9 @@ export function ShellBlock({
         display: gone === 'out' ? 'none' : undefined,
         top: 'calc(var(--safe-area-top, 0px) + var(--phone-top-ad-height, 0px))',
         transform: `translateY(calc((-100% - var(--safe-area-top, 0px)) * ${offset}))`,
-        transition: `transform ${motion.snap}ms ${motion.interaction}, background-color ${motion.feedback}ms ease-out`,
+        transition: arriving
+          ? 'none'
+          : `transform ${motion.snap}ms ${motion.interaction}, background-color ${motion.feedback}ms ease-out, opacity var(--shell-block-fade, ${motion.exit}ms) var(--shell-block-fade-ease, ease-out)`,
       }}
     >
       {!online && (

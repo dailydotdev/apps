@@ -39,6 +39,7 @@ export function shouldRedirectAuth(): boolean {
 }
 
 export const AUTH_REDIRECT_KEY = 'auth_redirect';
+export const AUTH_RETURN_PATH_KEY = 'auth_return_path';
 
 export const getCookiesAndHeadersFromRequest = (
   req: GetServerSidePropsContext['req'],

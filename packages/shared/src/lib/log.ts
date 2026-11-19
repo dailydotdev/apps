@@ -6,11 +6,17 @@ export enum Origin {
   ReadingHistoryContextMenu = 'reading history context menu',
   Bookmarks = 'bookmarks',
   BookmarksContextMenu = 'bookmarks context menu',
+  PicksPage = 'picks page',
   ArticlePage = 'article page',
   ArticleModal = 'article modal',
   ReaderModal = 'reader modal',
   Companion = 'companion',
   Feed = 'feed',
+  FeedExplain = 'feed explain',
+  FeedExplanation = 'feed explanation',
+  FeedTune = 'feed tune',
+  WhatsOff = 'whats off',
+  PostHiddenPanel = 'post hidden panel',
   FeedHero = 'feed hero',
   FeedWidgets = 'feed widgets',
   TipsPage = 'tips page',
@@ -47,9 +53,16 @@ export enum Origin {
   SquadChecklist = 'squad checklist',
   SquadInvitation = 'squad invitation',
   SimilarSquads = 'similar squads',
+  SquadJobsWidget = 'squad jobs widget',
   SimilarSquadsPromoted = 'similar squads promoted',
   SquadJoinSuggestions = 'squad join suggestions',
   SquadJoinSuggestionsPromoted = 'squad join suggestions promoted',
+  SquadManagePlan = 'squad manage plan',
+  SquadManageIntel = 'squad manage intel',
+  SquadManageAgent = 'squad manage agent',
+  SquadManageAutoPosting = 'squad manage auto posting',
+  SquadIntel = 'squad intel',
+  StartupsCheckout = 'startups checkout',
   // squads - end
   // Looking for group - start
   LfgBoard = 'lfg board',
@@ -57,6 +70,7 @@ export enum Origin {
   LfgHoverCard = 'lfg hover card',
   LfgProfile = 'lfg profile',
   LfgRequests = 'lfg requests',
+  LfgMessages = 'lfg messages',
   // Looking for group - end
   PostCommentButton = 'comment button',
   PollCommentButton = 'poll comment button',
@@ -83,6 +97,11 @@ export enum Origin {
   HappeningNowHighlight = 'happening now highlight',
   HappeningNowSelection = 'happening now selection',
   HighlightsCard = 'highlights card',
+  LiveChatPage = 'live chat page',
+  NewLiveChat = 'new live chat',
+  // Landed from the go-live push, or from a link pasted somewhere.
+  Push = 'push',
+  DirectLink = 'direct link',
   SnapshotSharePanel = 'snapshot share panel',
   // snapshot placements - end
   // profile share placements - start
@@ -135,6 +154,12 @@ export enum Origin {
   BriefModal = 'brief modal',
   BriefPage = 'brief page',
   SquadBoost = 'squad boost',
+  // Boost modal entry points
+  NewPostBoostStrip = 'new post boost strip',
+  PostBoostButton = 'post boost button',
+  PostAnalytics = 'post analytics',
+  BoostAgain = 'boost again',
+  AdsDashboard = 'ads dashboard',
   Leaderboard = 'leaderboard',
   // Auth
   BetterAuthEmailLogin = 'betterauth email login',
@@ -149,6 +174,7 @@ export enum Origin {
   ProfileStack = 'profile stack',
   BrandedTag = 'branded tag',
   MentionedTool = 'mentioned tool',
+  AgentOnboarding = 'agent onboarding',
 }
 
 export enum LogEvent {
@@ -176,6 +202,9 @@ export enum LogEvent {
   VideoSticky = 'video sticky',
   OpenSmartComposer = 'open smart composer',
   CloseSmartComposer = 'close smart composer',
+  // The in-app reading drawer (step 4): the article behind the post page.
+  OpenReadingDrawer = 'open reading drawer',
+  CloseReadingDrawer = 'close reading drawer',
   SubmitSmartComposer = 'submit smart composer',
   CreatePost = 'create post',
   SwitchComposerKind = 'switch composer kind',
@@ -200,7 +229,6 @@ export enum LogEvent {
   SearchTags = 'search tags',
   SearchTools = 'search tools',
   ClickFeedTagChip = 'click feed tag chip',
-  ChangePostPageFeedTab = 'change post page feed tab',
   ClickOnboardingBack = 'click onboarding back',
   ClickOnboardingNext = 'click onboarding next',
   OnboardingSkip = 'my feed onboarding skip',
@@ -244,6 +272,8 @@ export enum LogEvent {
   ToggleSquadPreview = 'toggle squad preview',
   ClickSquadLink = 'click squad link',
   ClickSquadProduct = 'click squad product',
+  ClickSquadJob = 'click squad job',
+  ClickSquadJobApply = 'click squad job apply',
   ClickSquadHeaderButton = 'click squad header button',
   ClickSimilarSquad = 'click similar squad',
   DismissSquadJoinSuggestions = 'dismiss squad join suggestions',
@@ -358,6 +388,11 @@ export enum LogEvent {
   ClickStreakFreezePurchase = 'click streak freeze purchase',
   PurchaseStreakFreeze = 'purchase streak freeze',
   DismissStreakFreezePurchase = 'dismiss streak freeze purchase',
+  ScheduleStreakPause = 'schedule streak pause',
+  CancelStreakPause = 'cancel streak pause',
+  SetStreakGoal = 'set streak goal',
+  SkipStreakGoal = 'skip streak goal',
+  HitStreakGoal = 'hit streak goal',
   // 404 page
   View404Page = '404 page',
   // Follow Actions - start
@@ -374,6 +409,8 @@ export enum LogEvent {
   // Tags - end
   // marketing CTA
   MarketingCtaDismiss = 'dismiss promotion',
+  // App Store review
+  RequestAppStoreReview = 'request app store review',
   // Reading reminder
   ScheduleReadingReminder = 'schedule reading reminder',
   SkipReadingReminder = 'skip reading reminder',
@@ -430,6 +467,21 @@ export enum LogEvent {
   CompleteGiftCheckout = 'complete gift checkout',
   ClickPlusFaq = 'click plus faq',
   HoverCheckoutWidget = 'hover checkout widget',
+  // daily.dev for Startups (the paid checkout steps reuse the Plus events)
+  ViewStartupsCheckout = 'view startups checkout',
+  SelectSquadPlan = 'select squad plan',
+  ActivateSquadPlan = 'activate squad plan',
+  DelaySquadPlanActivation = 'delay squad plan activation',
+  GiveSquadSeat = 'give squad seat',
+  RemoveSquadSeat = 'remove squad seat',
+  ChangeSquadPlan = 'change squad plan',
+  KeepSquadPlan = 'keep squad plan',
+  DismissStartupsUpsell = 'dismiss startups upsell',
+  SelectStartupsSetupPath = 'select startups setup path',
+  CopyStartupsSetup = 'copy startups setup',
+  ClickStartupsSetupStep = 'click startups setup step',
+  UpdateSquadIntel = 'update squad intel',
+  CopySquadIntel = 'copy squad intel',
   PageScroll = 'page scroll',
   SelectSubscriptionType = 'select subscription type',
   SetOrgSize = 'set org size',
@@ -438,6 +490,24 @@ export enum LogEvent {
   ToggleClickbaitShield = 'toggle clickbait shield',
   ClickbaitShieldTitle = 'clickbait shield title',
   // End Clickbait Shield
+  // Feed explain
+  ToggleFeedExplain = 'toggle feed explain',
+  OpenFeedExplanation = 'open feed explanation',
+  SetFeedTopicMode = 'set feed topic mode',
+  SetFeedSourceMode = 'set feed source mode',
+  SetFeedAuthorMode = 'set feed author mode',
+  ToggleFeedLearning = 'toggle feed learning',
+  ToggleFeedFillIns = 'toggle feed fill ins',
+  ResetFeedPersonalization = 'reset feed personalization',
+  OpenFeedTune = 'open feed tune',
+  PreviewFeedTune = 'preview feed tune',
+  SaveFeedTune = 'save feed tune',
+  CloseFeedTune = 'close feed tune',
+  SubmitWhatsOff = 'submit whats off',
+  ApplyWhatsOffChange = 'apply whats off change',
+  UndoWhatsOffChange = 'undo whats off change',
+  PickWhatsOffChoice = 'pick whats off choice',
+  // End Feed explain
   SetHighlightsPlacement = 'set highlights placement',
   InstallPWA = 'install pwa',
   // Start Share
@@ -450,6 +520,22 @@ export enum LogEvent {
   ShareLog = 'share log',
   ShareTool = 'share tool',
   SharePlugin = 'share plugin',
+  // Start Weekly picks
+  StartPicks = 'start picks',
+  SelectPick = 'select pick',
+  DeselectPick = 'deselect pick',
+  AddPickNote = 'add pick note',
+  PublishPicks = 'publish picks',
+  SharePicks = 'share picks',
+  ViewPicksPage = 'view picks page',
+  ClickPickPost = 'click pick post',
+  ClickMakeYourPicks = 'click make your picks',
+  ClickAddToPicks = 'click add to picks',
+  // The home feed card: a nudge to make picks, or the live list's opens
+  ImpressionPicksHero = 'impression picks hero',
+  ClickPicksHero = 'click picks hero',
+  DismissPicksHero = 'dismiss picks hero',
+  // End Weekly picks
   // The creator copied a link to, or downloaded the card of, one of their
   // achievements. Records the action, not that anything was posted anywhere.
   ShareCreatorAchievement = 'share creator achievement',
@@ -488,6 +574,13 @@ export enum LogEvent {
   PickAwardPlugin = 'pick award plugin',
   AwardPlugin = 'award plugin',
   // End Credits
+  // Start Boost
+  OpenBoost = 'open boost',
+  StartBoost = 'start boost',
+  CompleteBoost = 'complete boost',
+  ErrorBoost = 'error boost',
+  CloseBoost = 'close boost',
+  // End Boost
   // Start Brief
   ImpressionBrief = 'impression brief',
   ClickBrief = 'click brief',
@@ -598,10 +691,19 @@ export enum LogEvent {
   DeclineDirectMessageRequest = 'decline direct message request',
   // Live chat rooms
   OpenLiveChat = 'open live chat',
+  StartLiveChat = 'start live chat',
+  // Seated in the room, reading along, before (or without) joining.
+  ReadLiveChat = 'read live chat',
   JoinLiveChat = 'join live chat',
+  EndLiveChat = 'end live chat',
+  BanLiveChatUser = 'ban live chat user',
   LeaveLiveChat = 'leave live chat',
   SendLiveChatMessage = 'send live chat message',
   ReactLiveChatMessage = 'react live chat message',
+  // Agent onboarding
+  ViewAgentClaim = 'view agent claim',
+  ConfirmAgentClaim = 'confirm agent claim',
+  ErrorAgentClaim = 'error agent claim',
   // Plugin marketplace
   OpenMarketplace = 'open marketplace',
   ClickPluginCard = 'click plugin card',
@@ -609,10 +711,18 @@ export enum LogEvent {
   ClickPluginRepository = 'click plugin repository',
   ClickPluginSkillMd = 'click plugin skill md',
   CopyPluginAgentPrompt = 'copy plugin agent prompt',
+  ViewAgentOnboarding = 'view agent onboarding',
+  CopyAgentOnboardingPrompt = 'copy agent onboarding prompt',
+  CopyCompanyPagePrompt = 'copy company page prompt',
+  ClickAgentOnboardingEntry = 'click agent onboarding entry',
   ClickConnectAgent = 'click connect agent',
   UpvotePlugin = 'upvote plugin',
   RemovePluginUpvote = 'remove plugin upvote',
   SubmitPlugin = 'submit plugin',
+  ClickSubmitPlugin = 'click submit plugin',
+  ImpressionMarketplacePromo = 'impression marketplace promo',
+  ImpressionPluginAgentPrompt = 'impression plugin agent prompt',
+  ImpressionPluginShareNudge = 'impression plugin share nudge',
   // Looking for group
   OpenLfgBoard = 'open lfg board',
   FilterLfgBoard = 'filter lfg board',
@@ -665,12 +775,16 @@ export enum TargetType {
   SearchInviteButton = 'search invite button',
   HideInviteCheckbox = 'hide invite mechanism',
   ReferralPopup = 'referral popup',
+  FirstCoresPopup = 'first cores popup',
   ReferralLadderGift = 'referral ladder gift',
   ReferralLadderPromo = 'referral ladder promo',
   InviteFriendsPage = 'invite friends page',
   ProfilePage = 'profile page',
   GenericReferralPopup = 'generic referral popup',
   ReferralInviterCard = 'referral inviter card',
+  LeaderboardBoard = 'leaderboard board',
+  LeaderboardRankPicker = 'leaderboard rank picker',
+  LeaderboardUser = 'leaderboard user',
   Shortcuts = 'shortcuts',
   FeedWidget = 'feed widget',
   ChatRoom = 'chat room',
@@ -680,13 +794,20 @@ export enum TargetType {
   StreaksMilestone = 'streaks milestone',
   StreakRecover = 'streak restore',
   StreakFreezePurchase = 'streak freeze purchase',
+  StreakDailyCelebration = 'streak daily celebration',
+  StreakFreeFreezesGrant = 'streak free freezes grant',
+  StreakFreeFreezesUpsell = 'streak free freezes upsell',
+  StreakGoal = 'streak goal',
+  StreakReminderOptOut = 'streak reminder opt out',
+  StreakResetReason = 'streak reset reason',
+  StreakSoftBreak = 'streak soft break',
   PromotionCard = 'promotion_card',
   PromotionalBanner = 'promotion_banner',
   MarketingCtaPopover = 'promotion_popover',
   MarketingCtaPopoverSmall = 'promotion_popover_small',
   MarketingCtaPlus = 'promotion_plus',
-  MarketingCtaBrief = 'promotion_briefing',
   MarketingCtaHelpGuide = 'promotion_help_guide',
+  AppStoreReview = 'app_store_review',
   PlusEntryCard = 'plus_entry_card',
   PlusEntryForYouTab = 'plus_entry_for_you_tab',
   PlusEntryBookmarkTab = 'plus_entry_bookmark_tab',
@@ -718,6 +839,7 @@ export enum TargetType {
   CvBanner = 'cv banner',
   Post = 'post',
   Recruiter = 'recruiter',
+  Startups = 'startups',
   ProfileCompletionCard = 'profile completion card',
   OpportunityInterestButton = 'opportunity interest button',
   AchievementTracker = 'achievement tracker',
@@ -725,10 +847,12 @@ export enum TargetType {
   BriefCard = 'brief card',
   HighlightsCard = 'highlights card',
   AdvertiseHereCta = 'advertise here cta',
+  SponsorStrip = 'sponsor strip',
   ExtensionPromo = 'extension promo',
   PostTopicSignup = 'post topic signup',
   SimilarSquads = 'similar squads',
   Plugin = 'plugin',
+  WhatsOff = 'whats off',
 }
 
 export enum TargetId {
@@ -740,6 +864,7 @@ export enum TargetId {
   InviteBanner = 'invite banner',
   PostStrip = 'post strip',
   PublicPageSignupBanner = 'public page signup banner',
+  PicksSignupBanner = 'picks signup banner',
   MobileHeader = 'mobile header',
   InviteProfileMenu = 'invite in profile menu',
   SearchActivation = 'search activation',
@@ -747,6 +872,7 @@ export enum TargetId {
   GenericReferralPopup = 'generic referral popup',
   ReferralLadderPopup = 'referral ladder popup',
   ReferralLadderPromo = 'referral ladder promo',
+  LeaderboardInviteCard = 'leaderboard invite card',
   ProfilePage = 'profile page',
   InviteFriendsPage = 'invite friends page',
   Squad = 'squad',
@@ -767,6 +893,7 @@ export enum TargetId {
   MyProfile = 'my profile',
   PlusBadge = 'plus badge',
   PlusPage = 'plus page',
+  CoreWallet = 'core wallet',
   Marketplace = 'marketplace',
   ApiAccess = 'api access',
   PostPluginsWidget = 'post plugins widget',
@@ -777,6 +904,7 @@ export enum TargetId {
   BookmarkNote = 'bookmark note',
   BookmarksStrip = 'bookmarks strip',
   FeedSettings = 'feed settings',
+  FeedControls = 'feed controls',
   ClickbaitShield = 'clickbait shield',
   StreakTimezoneLabel = 'streak timezone label',
   StreakTimezoneMismatchPrompt = 'streak timezone mismatch prompt',
@@ -809,6 +937,8 @@ export enum TargetId {
   ReaderPermissionPrompt = 'reader permission prompt',
   MobileFooter = 'mobile footer',
   MobileFooterNav = 'mobile footer nav',
+  PostAppPrompt = 'post app prompt',
+  CommentsTeaserFooter = 'comments teaser footer',
 }
 
 export enum NotificationChannel {
@@ -888,4 +1018,5 @@ export const purchaseTypeToTargetType: Record<PurchaseType, TargetType> = {
   plus: TargetType.Plus,
   organization: TargetType.Plus,
   recruiter: TargetType.Recruiter,
+  startups: TargetType.Startups,
 };

@@ -79,4 +79,14 @@ describe('tcf store', () => {
     document.cookie = 'euconsent-v2=CQoHJkAQoHJkAAfG';
     expect(store.getStoredTcString()).toBe('CQoHJkAQoHJkAAfG');
   });
+
+  it.each<[string, boolean]>([
+    ['CQs2X0AQs2X0AB7ABAENABFgAIIAAAAAAAwIAAoAAAAA.IAAo', false],
+    ['CQs2X0AQs2X0AB7ABAENABFgAIIAAAAAAAwIAAoAAAAA.IAAo.cEAAAAAAAAAA', true],
+    ['CQs2X0AQs2X0AB7ABAENABFgAIIAAAAAAAwIAAoAAAAA.IAAo.YAAAAAAAAAAA', true],
+    ['', false],
+  ])('recognizes the publisher segment in %s', async (tcString, expected) => {
+    const store = await loadStore();
+    expect(store.hasPublisherTcSegment(tcString)).toBe(expected);
+  });
 });

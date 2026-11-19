@@ -128,6 +128,56 @@ describe('buildRailPlacement', () => {
     expect(buildRailPlacement([]).columns).toBe(1);
   });
 
+  it('puts the add tile in the cell under a lone Small past the ad, else after', () => {
+    const lone = [
+      widget('a', FeedWidgetSize.Tall),
+      widget('b', FeedWidgetSize.Tall),
+      widget('c', FeedWidgetSize.Small),
+    ];
+    expect(buildRailPlacement(lone).addTile).toMatchObject({
+      column: 3,
+      row: 1,
+      rowSpan: 1,
+    });
+    expect(
+      buildRailPlacement([widget('a', FeedWidgetSize.Large)]).addTile,
+    ).toMatchObject({ column: 3, row: 0, rowSpan: 2 });
+    // Before the ad the empty cell is a gap already, so the tile goes after.
+    expect(
+      buildRailPlacement([widget('a', FeedWidgetSize.Small)]).addTile,
+    ).toMatchObject({ column: 2, row: 0, rowSpan: 2 });
+    expect(
+      buildRailPlacement([widget('a', FeedWidgetSize.Small)], { showAd: false })
+        .addTile,
+    ).toMatchObject({ column: 0, row: 1, rowSpan: 1 });
+  });
+
+  it('never puts the add tile in a hole between widgets', () => {
+    // Large, ad, Small over a hole, Large: the hole stays a gap and the tile
+    // takes the column after the last Large.
+    const holed = [
+      widget('a', FeedWidgetSize.Large),
+      widget('b', FeedWidgetSize.Small),
+      widget('c', FeedWidgetSize.Large),
+    ];
+    expect(buildRailPlacement(holed).addTile).toMatchObject({
+      column: 6,
+      row: 0,
+      rowSpan: 2,
+    });
+    expect(buildRailPlacement(holed, { showAd: false }).addTile).toMatchObject({
+      column: 5,
+      row: 0,
+      rowSpan: 2,
+    });
+    // Nothing on the rail and no ad: the tile is the first column, whole.
+    expect(buildRailPlacement([], { showAd: false }).addTile).toMatchObject({
+      column: 0,
+      row: 0,
+      rowSpan: 2,
+    });
+  });
+
   it('leaves the ad out when the surface says so', () => {
     const widgets = [widget('a', FeedWidgetSize.Tall)];
 

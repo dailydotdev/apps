@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import type { IconProps } from '../../../components/Icon';
+import type { Source } from '../../../graphql/sources';
 import { DiscordIcon } from '../../../components/icons/Discord';
 import { GitHubIcon } from '../../../components/icons/GitHub';
 import { LinkIcon } from '../../../components/icons/Link';
@@ -16,6 +17,8 @@ interface Platform {
   hosts: string[];
   name: string;
   Icon: LinkIconComponent;
+  /** The path is not a handle, so the row shows the platform name. */
+  hideHandle?: boolean;
 }
 
 const platforms: Platform[] = [
@@ -23,7 +26,12 @@ const platforms: Platform[] = [
   { hosts: ['x.com', 'twitter.com'], name: 'X', Icon: TwitterIcon },
   { hosts: ['linkedin.com'], name: 'LinkedIn', Icon: LinkedInIcon },
   { hosts: ['youtube.com', 'youtu.be'], name: 'YouTube', Icon: YoutubeIcon },
-  { hosts: ['discord.gg', 'discord.com'], name: 'Discord', Icon: DiscordIcon },
+  {
+    hosts: ['discord.gg', 'discord.com'],
+    name: 'Discord',
+    Icon: DiscordIcon,
+    hideHandle: true,
+  },
   { hosts: ['reddit.com'], name: 'Reddit', Icon: RedditIcon },
 ];
 
@@ -82,7 +90,9 @@ export const getSquadLinkMeta = (value: string): SquadLinkMeta => {
     return { name: host, label: getDisplayUrl(value), Icon: LinkIcon };
   }
 
-  const handle = url.pathname.split('/').filter(Boolean).pop();
+  const handle = platform.hideHandle
+    ? undefined
+    : url.pathname.split('/').filter(Boolean).pop();
 
   return {
     name: platform.name,
@@ -92,3 +102,8 @@ export const getSquadLinkMeta = (value: string): SquadLinkMeta => {
 };
 
 export const squadLinkRel = 'noopener';
+
+// A company page without a plan links its website without passing ranking
+export const getSquadWebsiteRel = (
+  source: Pick<Source, 'features'> | undefined,
+): string => (source?.features?.links ? squadLinkRel : 'noopener nofollow');

@@ -137,8 +137,7 @@ interface ApiResponseErrorExtension {
   code: ApiError;
 }
 
-export interface ApiUserTransactionErrorExtension
-  extends ApiResponseErrorExtension {
+export interface ApiUserTransactionErrorExtension extends ApiResponseErrorExtension {
   status: UserTransactionStatus;
   balance?: {
     amount: number;
@@ -150,8 +149,7 @@ export interface ApiZodErrorExtension extends ApiResponseErrorExtension {
   issues: ZodError['issues'];
 }
 
-export interface ApiIntegrationErrorExtension
-  extends ApiResponseErrorExtension {
+export interface ApiIntegrationErrorExtension extends ApiResponseErrorExtension {
   reason?: string;
   scope?: string;
 }

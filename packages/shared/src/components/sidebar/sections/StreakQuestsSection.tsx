@@ -5,8 +5,17 @@ import { format } from 'date-fns';
 import { ArrowIcon, SettingsIcon } from '../../icons';
 import { webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { useStreakRingState } from '../../../hooks/streaks/useStreakRingState';
+import { useStreakSoftBreak } from '../../../hooks/streaks/useStreakSoftBreak';
+import {
+  StreakSoftBreakHero,
+  StreakSoftBreakSurface,
+} from '../../streak/StreakSoftBreakHero';
 import { StreakMonthCalendar } from '../../streak/popup/StreakMonthCalendar';
+import { StreakResetReason } from '../../streak/StreakResetReason';
+import { StreakPauseBanner } from '../../streak/StreakPauseBanner';
+import { StreakGoalProgress } from '../../streak/StreakGoalProgress';
 import { StreakFreezeRow } from '../../streak/popup/StreakFreezeRow';
 import { CompactQuestList } from '../../quest/CompactQuestList';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
@@ -21,6 +30,7 @@ import {
 import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { DEFAULT_TIMEZONE } from '../../../lib/timezones';
+import { Origin } from '../../../lib/log';
 
 const QuestsGroup = ({
   title,
@@ -73,10 +83,27 @@ const QuestsGroup = ({
 // stays active). The Game Center and separate Quests-settings links are gone —
 // clicking the tab itself opens Game Center, and the two settings pages are now
 // one, so neither needs repeating here.
-export const StreakQuestsSection = (): ReactElement => {
+interface StreakQuestsSectionProps {
+  softBreakSurface?: StreakSoftBreakSurface;
+  onClose?: () => void;
+}
+
+export const StreakQuestsSection = ({
+  softBreakSurface = StreakSoftBreakSurface.Sidebar,
+  onClose,
+}: StreakQuestsSectionProps = {}): ReactElement => {
   const { user } = useAuthContext();
-  const { isEnabled: isStreakEnabled, count, streak } = useStreakRingState();
-  const { data: questDashboard } = useQuestDashboard();
+  const { optOutQuestSystem } = useSettingsContext();
+  const {
+    isEnabled: isStreakEnabled,
+    count,
+    streak,
+    goalProgress,
+  } = useStreakRingState();
+  const { data: questDashboard } = useQuestDashboard({
+    enabled: !optOutQuestSystem,
+  });
+  const { isSoftBreak } = useStreakSoftBreak(streak);
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
   // Compact label (e.g. "Jun 23") — no year; the full date with year lives in
   // the hover tooltip so the strip stays tidy day-to-day.
@@ -96,14 +123,23 @@ export const StreakQuestsSection = (): ReactElement => {
         <>
           <div className="flex shrink-0 flex-col px-4 pb-4 pt-1">
             <div className="flex items-start justify-between">
-              <Typography
-                type={TypographyType.Title1}
-                color={TypographyColor.Primary}
-                bold
-                className="tabular-nums leading-none"
-              >
-                {count}
-              </Typography>
+              {isSoftBreak ? (
+                <StreakSoftBreakHero
+                  max={streak.max}
+                  surface={softBreakSurface}
+                  onStartAgain={onClose}
+                  className="min-w-0"
+                />
+              ) : (
+                <Typography
+                  type={TypographyType.Title1}
+                  color={TypographyColor.Primary}
+                  bold
+                  className="tabular-nums leading-none"
+                >
+                  {count}
+                </Typography>
+              )}
               <Link href={`${webappUrl}game-center/settings`} passHref>
                 <a
                   aria-label="Streak & gamification settings"
@@ -122,6 +158,7 @@ export const StreakQuestsSection = (): ReactElement => {
             >
               {streak.max} Longest · {streak.total} Total
             </Typography>
+            <StreakGoalProgress progress={goalProgress} className="mt-3" />
             <div className="mb-5 mt-5 flex items-center justify-between gap-2">
               {/* The Tooltip trigger MUST be a stable DOM element. Using the
                 Typography component directly here crashed the panel: Typography
@@ -151,6 +188,12 @@ export const StreakQuestsSection = (): ReactElement => {
               </Typography>
             </div>
             <StreakMonthCalendar streak={streak} />
+            <StreakResetReason
+              streak={streak}
+              origin={Origin.Sidebar}
+              className="mt-3"
+            />
+            <StreakPauseBanner streak={streak} className="mt-3" />
           </div>
           {/* Streak-freeze balance + purchase entry (same self-gated row the
               streak popup shows) so v2 users keep the freeze feature in their
@@ -166,12 +209,14 @@ export const StreakQuestsSection = (): ReactElement => {
             )}
           />
           <StreakFreezeRow variant="panel" />
-          <HorizontalSeparator
-            className={classNames(
-              'mx-3 w-auto shrink-0',
-              railDividerBorderClass,
-            )}
-          />
+          {!optOutQuestSystem && (
+            <HorizontalSeparator
+              className={classNames(
+                'mx-3 w-auto shrink-0',
+                railDividerBorderClass,
+              )}
+            />
+          )}
         </>
       )}
 
@@ -186,7 +231,7 @@ export const StreakQuestsSection = (): ReactElement => {
           !heroShown && 'pt-2',
         )}
       >
-        {questDashboard && (
+        {questDashboard && !optOutQuestSystem && (
           <>
             {heroShown ? (
               <QuestsGroup title="Daily quests">

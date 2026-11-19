@@ -56,7 +56,6 @@ describe('ads', () => {
         resolveAdFetchOptions({
           placement: AdPlacement.Feed,
           active: true,
-          boostsEnabled: true,
         }),
       ).toEqual({
         placement: AdPlacement.Feed,
@@ -70,7 +69,6 @@ describe('ads', () => {
       expect(
         resolveAdFetchOptions({
           placement: AdPlacement.PostSidebar,
-          boostsEnabled: true,
         }),
       ).toEqual({
         placement: AdPlacement.PostSidebar,
@@ -82,7 +80,6 @@ describe('ads', () => {
       expect(
         resolveAdFetchOptions({
           placement: AdPlacement.PostComment,
-          boostsEnabled: true,
         }),
       ).toEqual({
         placement: AdPlacement.PostComment,
@@ -93,7 +90,6 @@ describe('ads', () => {
       expect(
         resolveAdFetchOptions({
           placement: AdPlacement.SquadDirectory,
-          boostsEnabled: false,
         }),
       ).toEqual({
         placement: AdPlacement.SquadDirectory,
@@ -292,6 +288,28 @@ describe('ads', () => {
         );
       },
     );
+
+    it('throws on a failed refresh request but not on the first request', async () => {
+      jest.mocked(global.fetch).mockResolvedValue({
+        ok: false,
+        status: 500,
+        json: jest.fn().mockResolvedValue({ error: 'failed' }),
+        headers: { get: () => undefined },
+      } as unknown as Response);
+
+      await expect(
+        fetchAdByPlacement({
+          placement: AdPlacement.Feed,
+          refresh: { platform: 'web_desktop', count: 0 },
+        }),
+      ).resolves.toBeNull();
+      await expect(
+        fetchAdByPlacement({
+          placement: AdPlacement.Feed,
+          refresh: { platform: 'web_desktop', count: 1, generationId: 'gen' },
+        }),
+      ).rejects.toThrow();
+    });
   });
 
   describe('shouldSkipSourceAds', () => {
@@ -308,6 +326,22 @@ describe('ads', () => {
         source: {
           type: SourceType.Squad,
           features: { ...features, adFree: true },
+        },
+        expected: true,
+      },
+      {
+        name: 'serves an ad-free squad that turned ads back on',
+        source: {
+          type: SourceType.Squad,
+          features: { ...features, adFree: true, hideAds: false },
+        },
+        expected: false,
+      },
+      {
+        name: 'skips a squad the API says hides ads',
+        source: {
+          type: SourceType.Squad,
+          features: { ...features, hideAds: true },
         },
         expected: true,
       },

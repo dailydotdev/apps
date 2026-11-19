@@ -1,3 +1,5 @@
+import { expectShellScroll } from '../components/shell/useShellScroll';
+
 const RESTORE_TIMEOUT_MS = 10000;
 const RESTORE_POLL_INTERVAL_MS = 100;
 const MAX_SCROLL_POSITIONS = 200;
@@ -45,6 +47,22 @@ export const saveScrollPosition = (
   kind: ScrollPositionKind = 'page',
 ): void => saveHistoryEntryScrollPosition(getScrollKey(asPath, kind), position);
 
+// The next route change switches a view of the page on screen in place (a
+// replace of the entry on screen, by a tab), so nothing is saved or restored
+// for it. Set by the caller that starts it; any other shallow change, a push
+// to a new entry included, still saves the page it leaves.
+let pendingViewSwitch = false;
+
+export const expectViewSwitch = (): void => {
+  pendingViewSwitch = true;
+};
+
+export const takeViewSwitch = (): boolean => {
+  const isViewSwitch = pendingViewSwitch;
+  pendingViewSwitch = false;
+  return isViewSwitch;
+};
+
 export const isScrollRestoring = (): boolean => !!activeRestoration;
 
 export const cancelScrollRestoration = (): void => activeRestoration?.();
@@ -85,6 +103,7 @@ export const restoreScrollPosition = (target: number): (() => void) => {
       document.documentElement.scrollHeight - window.innerHeight;
     if (maxScroll >= target) {
       window.scrollTo(0, target);
+      expectShellScroll(target);
       stop();
     }
   };
@@ -119,7 +138,12 @@ export const restoreScrollPosition = (target: number): (() => void) => {
     },
     { passive: true, signal },
   );
-  scheduleRestore();
+  // A page already at its full height (back to a cached feed) lands at
+  // once: a frame later is a frame at the top, and a move captures that.
+  restore();
+  if (!stopped) {
+    scheduleRestore();
+  }
 
   return stop;
 };

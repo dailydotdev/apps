@@ -13,6 +13,7 @@ import {
   isSocialTwitterShareLike,
   isVideoPost,
   getReadPostButtonText,
+  getPostToShare,
 } from './posts';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
 import type { Connection } from './common';
@@ -268,5 +269,32 @@ describe('social twitter helpers', () => {
     expect(getSocialTwitterPostType(post)).toBe(PostType.Share);
     expect(isSocialTwitterShareLike(post)).toBeFalsy();
     expect(isShareLikePost(post)).toBeTruthy();
+  });
+});
+
+describe('getPostToShare', () => {
+  const sharedPost = { id: 'p2', title: 'Shared', image: 'image' } as Post;
+
+  it('should resolve a share without commentary to the post it wraps', () => {
+    const post = {
+      id,
+      type: PostType.Share,
+      title: undefined,
+      sharedPost,
+    } as Post;
+
+    expect(getPostToShare(post)).toBe(sharedPost);
+  });
+
+  it('should keep a share with commentary', () => {
+    const post = { id, type: PostType.Share, title: 'Read this', sharedPost };
+
+    expect(getPostToShare(post as Post)).toBe(post);
+  });
+
+  it('should keep any other post', () => {
+    const post = { id, type: PostType.Article, title: 'Article' } as Post;
+
+    expect(getPostToShare(post)).toBe(post);
   });
 });

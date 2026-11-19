@@ -4,6 +4,7 @@ import {
   act,
   fireEvent,
   queryByText,
+  within,
   render,
   screen,
   waitFor,
@@ -37,7 +38,11 @@ import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import adFixture from '@dailydotdev/shared/__tests__/fixture/ad';
-import { postWithCommunitySentiment } from '@dailydotdev/shared/__tests__/fixture/post';
+import {
+  postWithCommunitySentiment,
+  sharePost,
+} from '@dailydotdev/shared/__tests__/fixture/post';
+import { DeletedPostId } from '@dailydotdev/shared/src/lib/constants';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import {
   completeActionMock,
@@ -62,6 +67,15 @@ import type { Props } from '../pages/posts/[id]';
 import { PostPage } from '../pages/posts/[id]';
 import { getSeoDescription } from '../components/PostSEOSchema';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
+
+// The GTA VI release-day listener completes an action on every page view on
+// that date, which these tests don't mock
+jest.mock(
+  '@dailydotdev/shared/src/features/gtaViEvent/GtaViEventListener',
+  () => ({
+    GtaViEventListener: () => null,
+  }),
+);
 
 const LogContext = getLogContextStatic();
 
@@ -92,7 +106,8 @@ jest.mock('next/router', () => ({
 }));
 
 let mockSignupStripOn = false;
-let mockPostPageFeedOn = false;
+let mockPostPageHybridOn = false;
+let mockCommentsTeaserDesktopOn = false;
 
 jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
   __esModule: true,
@@ -106,22 +121,20 @@ jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
     if (args?.feature?.id === 'post_signup_strip') {
       return { value: mockSignupStripOn, isLoading: false };
     }
-    if (args?.feature?.id === 'post_page_feed') {
-      // Like the real hook: the default (off) until the page evaluates it.
+    if (args?.feature?.id === 'post_comments_teaser_desktop') {
       return {
-        value: args.shouldEvaluate !== false && mockPostPageFeedOn,
+        value: !!args.shouldEvaluate && mockCommentsTeaserDesktopOn,
+        isLoading: false,
+      };
+    }
+    if (args?.feature?.id === 'post_page_hybrid') {
+      return {
+        value: !!args.shouldEvaluate && mockPostPageHybridOn,
         isLoading: false,
       };
     }
     return { value: args?.feature?.defaultValue, isLoading: false };
   },
-}));
-
-// The feed's own behaviour is PostPageFeed.spec; here only where it renders.
-jest.mock('@dailydotdev/shared/src/components/post/feed/PostPageFeed', () => ({
-  PostPageFeed: ({ post }: { post: { id: string } }) => (
-    <section data-testid="postPageFeed" data-post-id={post.id} />
-  ),
 }));
 
 // The organic ad units sit behind the organic_ads kill switch, off by default.
@@ -155,7 +168,7 @@ const mockRouter = (overrides: Partial<NextRouter> = {}): void => {
         events: routerEvents,
         beforePopState: jest.fn(),
         ...overrides,
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
 };
 
@@ -166,7 +179,8 @@ beforeEach(() => {
   // behind by one test must not leak into the next.
   jest.restoreAllMocks();
   mockSignupStripOn = false;
-  mockPostPageFeedOn = false;
+  mockPostPageHybridOn = false;
+  mockCommentsTeaserDesktopOn = false;
   mockRouter();
 });
 
@@ -313,9 +327,9 @@ const mockVoteMutation = ({
       }) =>
         Boolean(
           body.query?.includes('mutation Vote(') &&
-            body.variables?.id === defaultPost.id &&
-            body.variables?.vote === vote &&
-            body.variables?.entity === UserVoteEntity.Post,
+          body.variables?.id === defaultPost.id &&
+          body.variables?.vote === vote &&
+          body.variables?.entity === UserVoteEntity.Post,
         ),
     )
     .reply(200, () => {
@@ -331,7 +345,7 @@ const mockCompleteActionMutation = (action: ActionType): void => {
       (body: { query?: string; variables?: { type?: ActionType } }) =>
         Boolean(
           body.query?.includes('mutation CompleteAction(') &&
-            body.variables?.type === action,
+          body.variables?.type === action,
         ),
     )
     .reply(200, { data: { _: true } });
@@ -425,7 +439,11 @@ function renderPost(
 
 it('should show source name', async () => {
   renderPost();
-  const matches = await screen.findAllByText('Towards Data Science');
+  const matches = await screen.findAllByText(
+    'Towards Data Science',
+    undefined,
+    { timeout: 5000 },
+  );
   expect(matches.length).toBeGreaterThan(0);
 });
 
@@ -1427,6 +1445,21 @@ describe('organic ads', () => {
     expect(railBox().parentElement).not.toHaveClass('sticky');
   });
 
+  it('carries the article units in the hybrid layout', async () => {
+    mockPostPageHybridOn = true;
+    renderAnonymous();
+    expect(await screen.findByTestId('post-hybrid-column')).toBeInTheDocument();
+    expect(mountedUnits()).toEqual(
+      expect.arrayContaining([
+        'ad-slot-15',
+        'ad-slot-16',
+        'ad-slot-21',
+        'ad-slot-22',
+        'ad-slot-23',
+      ]),
+    );
+  });
+
   it('splits a long video summary', async () => {
     renderAnonymous({ type: PostType.VideoYouTube, videoId: 'abc123' });
     expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
@@ -1474,6 +1507,17 @@ describe('direct-sold post ads', () => {
         expect.stringMatching(/^\/v1\/a\?/),
         expect.stringMatching(/^\/v1\/a\/post/),
       ]),
+    );
+  });
+
+  it('renders the sidebar and comment ads in the hybrid layout', async () => {
+    mockPostPageHybridOn = true;
+    mockAdServer();
+    renderPost();
+
+    expect(await screen.findByTestId('post-hybrid-column')).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getAllByText(adFixture.description)).toHaveLength(2),
     );
   });
 
@@ -1531,28 +1575,86 @@ describe('post query failures', () => {
   });
 });
 
-describe('post page feed', () => {
-  it('should render the feed after the comments for signed-in readers when the experiment is on', async () => {
-    mockPostPageFeedOn = true;
+describe('post_page_hybrid', () => {
+  it.each([
+    ['hybrid', true, '1'],
+    ['classic', false, '0'],
+  ])(
+    'remembers the %s arm and reveals the page once the flag is read',
+    async (_, isOn, storedArm) => {
+      document.documentElement.setAttribute('data-post-hybrid-pending', '');
+      mockPostPageHybridOn = isOn;
+      renderPost();
+      expect(await screen.findByText('Learn SQL')).toBeInTheDocument();
+      await waitFor(() =>
+        expect(document.documentElement).not.toHaveAttribute(
+          'data-post-hybrid-pending',
+        ),
+      );
+      expect(localStorage.getItem('post_page_hybrid:arm')).toBe(storedArm);
+    },
+  );
+
+  it('renders the hybrid column and opens the composer from its trigger', async () => {
+    mockPostPageHybridOn = true;
     renderPost();
-    const feed = await screen.findByTestId('postPageFeed');
-    expect(feed).toHaveAttribute(
-      'data-post-id',
-      '0e4005b2d3cf191f8c44c2718a457a1e',
-    );
-    expect(screen.getByTestId('postContainer')).toContainElement(feed);
+    expect(await screen.findByTestId('post-hybrid-column')).toBeInTheDocument();
+    expect(screen.queryByTestId('postContainer')).not.toBeInTheDocument();
+    expect(await screen.findByText('Learn SQL')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add a comment' }));
+    const [commentBox] = await screen.findAllByRole('textbox');
+    expect(commentBox).toBeInTheDocument();
   });
 
-  it('should not render the feed for signed-out readers, even when the experiment is on', async () => {
-    mockPostPageFeedOn = true;
+  const renderHybridShare = (sharedPost: Partial<Post['sharedPost']>) => {
+    mockPostPageHybridOn = true;
+    renderPost({}, [
+      createPostMock({
+        ...sharePost,
+        id: defaultPost.id,
+        sharedPost: {
+          ...sharePost.sharedPost,
+          ...sharedPost,
+        } as Post['sharedPost'],
+      }),
+      createCommentsMock(),
+    ]);
+  };
+
+  it('carries the comments teaser for a logged-out reader', async () => {
+    mockPostPageHybridOn = true;
+    mockCommentsTeaserDesktopOn = true;
+    jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
     renderPost({}, [createPostMock(), createCommentsMock()], undefined);
-    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
-    expect(screen.queryByTestId('postPageFeed')).not.toBeInTheDocument();
+    const column = await screen.findByTestId('post-hybrid-column');
+    await waitFor(() =>
+      expect(
+        column.querySelector('[data-comments-teaser]'),
+      ).toBeInTheDocument(),
+    );
   });
 
-  it('should not render the feed when the experiment is off', async () => {
-    renderPost();
-    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
-    expect(screen.queryByTestId('postPageFeed')).not.toBeInTheDocument();
+  it('shows a deleted shared post as unavailable', async () => {
+    renderHybridShare({ id: DeletedPostId });
+    const column = await screen.findByTestId('post-hybrid-column');
+    expect(
+      await within(column).findByText(/This post is no longer available/),
+    ).toBeInTheDocument();
+    expect(
+      within(column).queryByTestId('post-modal-title'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('links a shared squad post to its page on daily.dev', async () => {
+    renderHybridShare({
+      type: PostType.Freeform,
+      commentsPermalink: 'https://app.daily.dev/posts/internal',
+    });
+    const title = await screen.findByTestId('post-modal-title');
+    expect(within(title).getByRole('link')).toHaveAttribute(
+      'href',
+      'https://app.daily.dev/posts/internal',
+    );
   });
 });

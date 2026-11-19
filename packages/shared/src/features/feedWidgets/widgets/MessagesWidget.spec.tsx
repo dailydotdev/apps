@@ -137,7 +137,9 @@ describe('MessagesWidget', () => {
     renderWidget();
 
     expect(await screen.findByText('No messages yet.')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Open' })).toHaveAttribute(
+    expect(
+      screen.getByRole('link', { name: 'View all messages' }),
+    ).toHaveAttribute(
       'href',
       expect.stringContaining('/messages?origin=feed+widget'),
     );
@@ -166,6 +168,7 @@ describe('Messages availability', () => {
       hasLiveChat: false,
       hasSquads: false,
       isReadingStreakOn: true,
+      isQuestSystemOn: true,
     }).map(({ kind }) => kind);
 
   it('is only offered where messages are on', () => {

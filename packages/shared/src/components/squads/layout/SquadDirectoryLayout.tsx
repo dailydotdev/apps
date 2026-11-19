@@ -14,7 +14,7 @@ import { ShellPage } from '../../shell/ShellPageContext';
 import { ShellSquare } from '../../shell/ShellSquare';
 import { IconSize } from '../../Icon';
 import { useViewSizeClient, ViewSize } from '../../../hooks/useViewSize';
-import { Chips, ShellRow } from '../../shell/ShellRow';
+import { Chips, ShellRow, ShellRowKind } from '../../shell/ShellRow';
 import { PlusIcon } from '../../icons/Plus';
 import { SearchIcon } from '../../icons/Search';
 import { useSquadDirectoryLayout } from './useSquadDirectoryLayout';
@@ -131,7 +131,7 @@ export const SquadDirectoryLayout = (
           </>
         }
         row={
-          <ShellRow>
+          <ShellRow kind={ShellRowKind.Chips}>
             <Chips
               items={tabs.map(({ label, path }, index) => ({
                 key: path,

@@ -4,7 +4,7 @@ import type { Ad } from '../../../../graphql/posts';
 import type { ViewabilityData } from '../../../../features/monetization/viewability';
 import { useViewability } from '../../../../features/monetization/useViewability';
 import { AdPixel } from './AdPixel';
-import { getViewedPixels } from './getViewedPixels';
+import { getViewedPixels } from './ownPixels';
 
 interface AdViewabilityProps {
   ad: Ad;

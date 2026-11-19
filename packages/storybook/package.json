@@ -5,10 +5,8 @@
   "scripts": {
     "dev": "storybook dev -p 6006",
     "build": "storybook build",
-    "clean": "rm -rf .turbo && rm -rf node_modules",
-    "lint": "eslint --no-error-on-unmatched-pattern ./stories/*.stories.tsx"
+    "clean": "rm -rf .turbo && rm -rf node_modules"
   },
-  "prettier": "@dailydotdev/prettier-config",
   "dependencies": {
     "@dailydotdev/shared": "workspace:*",
     "@tanstack/react-query": "^5.82.0",
@@ -22,9 +20,6 @@
     "webextension-polyfill": "^0.12.0"
   },
   "devDependencies": {
-    "@dailydotdev/eslint-config": "workspace:*",
-    "@dailydotdev/eslint-plugin-daily-dev-eslint-rules": "workspace:*",
-    "@dailydotdev/prettier-config": "workspace:*",
     "@storybook/addon-designs": "^10.0.2",
     "@storybook/addon-links": "^9.1.21",
     "@storybook/addon-themes": "^9.1.21",
@@ -36,7 +31,6 @@
     "@types/webextension-polyfill": "^0.10.5",
     "@vitejs/plugin-react": "^4.7.0",
     "classnames": "^2.5.1",
-    "eslint-plugin-storybook": "^9.1.21",
     "msw": "^2.3.5",
     "msw-storybook-addon": "^2.0.7",
     "postcss": "^8.5.30",

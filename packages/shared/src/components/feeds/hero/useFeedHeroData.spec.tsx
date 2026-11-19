@@ -13,19 +13,29 @@ import { clearShownFeedHeroLeads, useFeedHeroData } from './useFeedHeroData';
 
 const post = (id: string) => ({ ...basePost, id, title: id });
 
-const mockHero = (posts: ReturnType<typeof post>[]) =>
+const mockHero = (
+  posts: ReturnType<typeof post>[],
+  variables: Record<string, unknown> = {},
+) =>
   mockGraphQL({
     request: {
       query: FEED_HERO_QUERY,
-      variables: { loggedIn: false, supportedTypes: baseFeedSupportedTypes },
+      variables: {
+        loggedIn: false,
+        supportedTypes: baseFeedSupportedTypes,
+        ...variables,
+      },
     },
     result: { data: { feedHero: { posts, highlights: [] } } },
   });
 
 const cacheKey = generateStorageKey(StorageTopic.Post, 'feedHero', 'anonymous');
 
-const renderData = (client = new QueryClient()) =>
-  renderHook(() => useFeedHeroData(), {
+const renderData = (
+  client = new QueryClient(),
+  options?: Parameters<typeof useFeedHeroData>[0],
+) =>
+  renderHook(() => useFeedHeroData(options), {
     wrapper: ({ children }: { children: ReactNode }): ReactElement => (
       <TestBootProvider client={client}>{children}</TestBootProvider>
     ),
@@ -98,4 +108,39 @@ it('should keep the drawn lead while the refetch still has it', async () => {
   expect(result.current.leadPost?.id).toEqual('b');
   expect(result.current.shownLeadIds).toEqual(['b']);
   random.mockRestore();
+});
+
+it('should ask for no posts, under its own key and cache, when only the headlines show', async () => {
+  storageWrapper.setItem(
+    cacheKey,
+    JSON.stringify({
+      data: {
+        feedHero: { posts: [post('cached')], highlights: [{ id: 'cached' }] },
+      },
+      savedAt: 0,
+    }),
+  );
+  mockHero([], { featured: 0 });
+  const client = new QueryClient();
+
+  const { result } = renderData(client, { withPosts: false });
+
+  // The full payload's headlines seed the first paint; its posts do not.
+  expect(result.current.highlights).toEqual([{ id: 'cached' }]);
+  expect(result.current.leadPost).toBeUndefined();
+  await waitFor(() => expect(result.current.isLeadFresh).toBe(true));
+  expect(result.current.queryKey).toEqual([
+    'feedHero',
+    'anonymous',
+    'headlines',
+  ]);
+  expect(client.getQueryData(['feedHero', 'anonymous'])).toBeUndefined();
+  expect(
+    storageWrapper.getItem(
+      generateStorageKey(StorageTopic.Post, 'feedHeroHeadlines', 'anonymous'),
+    ),
+  ).not.toBeNull();
+  expect(JSON.parse(storageWrapper.getItem(cacheKey) ?? '{}')).toMatchObject({
+    data: { feedHero: { posts: [{ id: 'cached' }] } },
+  });
 });

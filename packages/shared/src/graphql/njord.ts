@@ -60,6 +60,8 @@ export type TransactionCreated = {
   referenceId?: string;
   transactionId: string;
   balance: LoggedUser['balance'];
+  // set when a squad wallet paid or got the refund, balance is then the squad's
+  walletSourceId?: string | null;
 };
 
 export const award = async ({
@@ -211,7 +213,7 @@ export const coresPricesQueryOptions = ({
   user,
 }: {
   isLoggedIn: boolean;
-  user: LoggedUser;
+  user?: LoggedUser;
 }) => {
   return {
     queryKey: generateQueryKey(

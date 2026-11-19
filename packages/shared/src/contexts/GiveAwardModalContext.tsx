@@ -80,6 +80,8 @@ export type AwardEntity = {
   id: string;
   receiver: Pick<PublicProfile, 'id' | 'name' | 'username' | 'image'>;
   numAwards?: number;
+  /** The entity's own page, when the receiver's profile isn't it */
+  permalink?: string;
 };
 
 export type GiveAwardModalContextData = {
@@ -178,8 +180,13 @@ export const GiveAwardModalContextProvider = ({
             origin: Origin.Award,
           });
 
-          if (post?.id) {
-            searchParams.append('next', `/posts/${post.id}`);
+          const next = post?.id
+            ? `/posts/${post.id}`
+            : (entity.permalink ??
+              (type === 'USER' ? `/${entity.receiver.username}` : undefined));
+
+          if (next) {
+            searchParams.append('next', next);
           }
 
           router?.replace(

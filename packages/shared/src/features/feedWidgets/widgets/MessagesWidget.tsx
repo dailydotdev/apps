@@ -190,11 +190,12 @@ export const MessagesWidget = ({
           <Button
             tag="a"
             href={inboxHref}
-            variant={ButtonVariant.Primary}
+            aria-label="View all messages"
+            variant={ButtonVariant.Tertiary}
             size={ButtonSize.XSmall}
-            className="ml-auto"
+            className="-mr-2 ml-auto"
           >
-            Open
+            View all
           </Button>
         </Link>
       </header>

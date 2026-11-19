@@ -142,7 +142,8 @@ beforeEach(() => {
   });
 });
 
-const renderComponent = () => render(<AchievementTrackerButton />);
+const renderComponent = (quiet?: boolean) =>
+  render(<AchievementTrackerButton quiet={quiet} />);
 
 it('returns null when user is not logged in', () => {
   mockUseAuthContext.mockReturnValue({ user: null });
@@ -253,4 +254,47 @@ it('does not add spacing classes to achievement image when no label is shown', (
   });
   renderComponent();
   expect(screen.getByAltText('First Steps')).not.toHaveClass('mr-2');
+});
+
+describe('under the widget rail', () => {
+  it('labels the button with the count and names it with the full sentence', () => {
+    mockUseTrackedAchievement.mockReturnValue({
+      ...defaultTrackedAchievementHook,
+      trackedAchievement: mockTrackedAchievement,
+    });
+
+    renderComponent(true);
+
+    const button = screen.getByRole('button', {
+      name: 'First Steps, 3 of 5 steps',
+    });
+    expect(button).toHaveTextContent(/^3\/5$/);
+    expect(button).toHaveClass('btn-tertiary', 'h-8');
+  });
+
+  it('shows no count for a single-step achievement', () => {
+    mockUseTrackedAchievement.mockReturnValue({
+      ...defaultTrackedAchievementHook,
+      trackedAchievement: {
+        ...mockTrackedAchievement,
+        progress: 0,
+        achievement: {
+          ...mockTrackedAchievement.achievement,
+          criteria: { targetCount: 1 },
+        },
+      },
+    });
+
+    renderComponent(true);
+
+    const button = screen.getByRole('button', { name: 'First Steps, steps' });
+    expect(button).toHaveTextContent('');
+  });
+
+  it('shows the shared attention dot when nothing is tracked', () => {
+    renderComponent(true);
+
+    expect(screen.getByTestId('attention-dot')).toBeInTheDocument();
+    expect(screen.queryByTestId('alert-dot')).not.toBeInTheDocument();
+  });
 });

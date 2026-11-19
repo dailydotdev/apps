@@ -66,7 +66,6 @@ export const OnboardingAuthPage = ({
         <AuthOptions
           simplified
           formRef={formRef}
-          hideSignupDisclaimer
           isOnboardingFunnel
           className={{
             container: 'w-full rounded-none tablet:max-w-[30rem] h-full',

@@ -12,10 +12,10 @@ import {
 } from '../../../../components/buttons/Button';
 import {
   BellIcon,
-  EditIcon,
   LinkIcon,
   OpenLinkIcon,
   SearchIcon,
+  SettingsIcon,
   TourIcon,
 } from '../../../../components/icons';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
@@ -37,7 +37,7 @@ import { useLogContext } from '../../../../contexts/LogContext';
 import type { SquadBrandingButton } from '../../../../graphql/squadBranding';
 import { useSquadBranding } from '../../hooks/useSquadBranding';
 import { getBrandButtonStyle, getBrandColor } from '../../lib/branding';
-import { hasSquadFeature } from '../../lib/features';
+import { canSetSquadButton } from '../../lib/features';
 import { squadLinkRel } from '../../lib/links';
 import { useMobileAppHeader } from '../../../getApp/hooks/useMobileAppHeader';
 import { ShellSquare } from '../../../../components/shell/ShellSquare';
@@ -122,7 +122,7 @@ const SquadJoinButton = ({
   if (
     !isPreviewing &&
     isJoinedViewer(viewer) &&
-    hasSquadFeature(squad, 'verified') &&
+    canSetSquadButton(squad) &&
     headerButton?.enabled &&
     headerButton.label &&
     headerButton.url
@@ -179,20 +179,24 @@ export const SquadActions = (): ReactElement => {
   const [, onShare] = useSquadShare();
   const isAdminView = viewer === SquadViewer.Admin;
   const canEdit = verifyPermission(squad, SourcePermissions.Edit);
-  const editUrl = getSquadManageUrl(squad.handle, SquadManageSection.Details);
   const isPhone = useIsPhone();
+  // A phone has no Manage side menu, so the gear opens the list of sections;
+  // Details alone would leave the rest unreachable.
+  const editUrl = isPhone
+    ? getSquadManageUrl(squad.handle)
+    : getSquadManageUrl(squad.handle, SquadManageSection.Details);
 
   return (
     <div className="flex items-center gap-2 pb-1">
       {canEdit && (
-        <Tooltip content="Edit page">
+        <Tooltip content="Squad settings">
           <Button
             tag="a"
             href={editUrl}
             variant={ButtonVariant.Subtle}
             size={ButtonSize.Small}
-            icon={<EditIcon />}
-            aria-label="Edit page"
+            icon={<SettingsIcon />}
+            aria-label="Squad settings"
             onClick={(event: MouseEvent) => {
               event.preventDefault();
               router.push(editUrl);

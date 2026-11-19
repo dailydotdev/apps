@@ -30,6 +30,7 @@ import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
 import { IntroQuestButton } from '../filters/IntroQuestButton';
 import { LuckyButton } from '../filters/LuckyButton';
 import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
+import { FeedExplainSwitch } from '../../features/feedExplain/components/FeedExplainSwitch';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -109,6 +110,25 @@ export const SearchControlHeader = ({
   // With chips the actions collapse to icons so the strip fits on one row.
   const hasV2Chips = isLaptopLayout && !!chips;
   const primaryActions = [
+    feedName === SharedFeedPage.MyFeed && (
+      <FeedExplainSwitch
+        key="explain"
+        isRecommended={selectedAlgo === DEFAULT_ALGORITHM_INDEX}
+        iconOnly={hasV2Chips}
+        buttonProps={
+          isLaptopLayout
+            ? {
+                size: ButtonSize.Small,
+                variant: ButtonVariant.Tertiary,
+                className: hasV2Chips
+                  ? compactIconButtonClassName
+                  : compactTextButtonClassName,
+                iconSize: IconSize.XSmall,
+              }
+            : { size: ButtonSize.Medium, variant: ButtonVariant.Tertiary }
+        }
+      />
+    ),
     hasFeedActions && (
       <MyFeedHeading
         key="my-feed"

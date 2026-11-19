@@ -24,7 +24,7 @@ beforeEach(() => {
     () =>
       ({
         pathname: '/',
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
 });
 

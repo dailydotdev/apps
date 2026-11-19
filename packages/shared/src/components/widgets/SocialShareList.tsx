@@ -56,7 +56,7 @@ export function SocialShareList({
     await openShare({
       provider,
       link,
-      text: isEmailShare ? emailTitle ?? description : description,
+      text: isEmailShare ? (emailTitle ?? description) : description,
       emailSummary,
       shorten: shortenUrl,
     });

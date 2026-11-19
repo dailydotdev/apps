@@ -55,10 +55,10 @@ describe('share post page getServerSideProps seo', () => {
         seo: {
           noindex: true,
           canonical: 'https://daily.dev/posts/post-title-p-1',
-          additionalLinkTags: undefined,
         },
       },
     });
+    expect(result).not.toHaveProperty('props.seo.additionalLinkTags');
   });
 
   it('should keep an indexable post indexable with its markdown alternate', async () => {

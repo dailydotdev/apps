@@ -28,10 +28,10 @@ export default function PlaceholderComment({
       </div>
       <ElementPlaceholder className="mt-2 h-8 w-full rounded-10" />
       <div className="mt-3 flex items-center gap-2">
-        <ElementPlaceholder className=" size-8 rounded-10" />
-        <ElementPlaceholder className=" size-8 rounded-10" />
-        <ElementPlaceholder className=" size-8 rounded-10" />
-        <ElementPlaceholder className=" size-8 rounded-10" />
+        <ElementPlaceholder className="size-8 rounded-10" />
+        <ElementPlaceholder className="size-8 rounded-10" />
+        <ElementPlaceholder className="size-8 rounded-10" />
+        <ElementPlaceholder className="size-8 rounded-10" />
       </div>
     </article>
   );

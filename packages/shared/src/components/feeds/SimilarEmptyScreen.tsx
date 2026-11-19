@@ -24,7 +24,7 @@ function SimilarEmptyScreen({ post }: { post: Post }): ReactElement {
         }
       />
       {!!post?.tags?.length && (
-        <div className="mt-6 flex flex-wrap justify-center gap-3 px-4">
+        <div className="flex flex-wrap justify-center gap-3 px-4">
           <TagLinks tags={post.tags} buttonProps={{ size: ButtonSize.Large }} />
         </div>
       )}

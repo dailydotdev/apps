@@ -36,7 +36,7 @@ beforeEach(() => {
   parentHeight = 600;
   jest
     .spyOn(target, 'getBoundingClientRect')
-    .mockImplementation(() => ({ top: targetTop, height: 100 } as DOMRect));
+    .mockImplementation(() => ({ top: targetTop, height: 100 }) as DOMRect);
   scrollIntoView = jest.fn(() => {
     targetTop = parentTop + parentHeight / 2 - 50;
   });
@@ -65,7 +65,7 @@ it('corrects relative to a resized overflow container', () => {
   jest
     .spyOn(container, 'getBoundingClientRect')
     .mockImplementation(
-      () => ({ top: parentTop, height: parentHeight } as DOMRect),
+      () => ({ top: parentTop, height: parentHeight }) as DOMRect,
     );
   Object.defineProperty(container, 'clientHeight', {
     get: () => parentHeight,

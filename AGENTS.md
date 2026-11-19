@@ -9,15 +9,16 @@ pnpm monorepo for the daily.dev app suite:
 - `packages/webapp`: Next.js Pages Router, not App Router (`app/` exists only for the service worker and the not-found page), deployed on Vercel.
 - `packages/extension`: Chrome/Edge/Opera extension.
 - `packages/shared`: components, hooks, GraphQL, design system. Code used by both surfaces lives here.
-- `packages/storybook`, `packages/playwright`, eslint/prettier config packages.
-- Storybook is designer territory: Vercel deploys it only when `packages/storybook`, `packages/shared` or the root `vercel.json` changes (`ignoreCommand`), and it has no CI job, no strict typecheck, and `.gitattributes` collapses its diffs on GitHub. Don't add checks for it.
+- `packages/storybook`, `packages/playwright`, `packages/eslint-rules`.
+- Lint and format with oxlint and oxfmt, configured once at the root (`.oxlintrc.json`, `.oxfmtrc.json`). Plugins oxlint lacks natively (testing-library, jest-dom, tailwindcss, sort-exports) load as `jsPlugins`; `import/order` loads as `import-js/order`, and `naming-convention` and `consistent-return` come from `oxlint-plugins/eslint-compat.mjs`, so their directives use the `eslint-compat/` prefix. Suppress with `eslint-disable-next-line` directives, never `oxlint-disable`.
+- Storybook is designer territory: Vercel deploys it from `main` when `packages/storybook` or `packages/shared` changes, and as a PR preview only when the branch touches `packages/storybook` (`scripts/vercel-ignore-build.sh`, which also skips webapp builds for changes the webapp never reads), and it has no CI job, no strict typecheck, and `.gitattributes` collapses its diffs on GitHub. Don't add checks for it.
 
 ## Verification
 
 - Jest run outside the package scripts needs `NODE_ENV=test`, otherwise React/RTL run as a production build.
 - Don't run `build` while a dev server runs; it breaks hot reload.
 - Run `node ./scripts/typecheck-strict-changed.js` on changed `.ts`/`.tsx` files; package-wide strict tsc has unrelated backlog.
-- CI has no webapp `next build`, so after shared changes run the full webapp tsc before pushing or Vercel catches what CI missed.
+- The Vercel build skips type checking; the CI `typecheck_webapp` job is the only full webapp tsc, so after shared changes run `pnpm --filter webapp typecheck` before pushing.
 - After changing a shared component, run `pnpm --filter webapp test` too. Cross-package tests assert DOM structure and break silently otherwise.
 
 ## Conventions
@@ -45,6 +46,7 @@ pnpm monorepo for the daily.dev app suite:
 - One-off styles outside the token system go in `packages/shared/src/styles/custom.ts`.
 - Full-screen media lightboxes need a dark overlay (`bg-overlay-primary-pepper`), not the Modal default `bg-overlay-quaternary-onion`. Close buttons over images use `ButtonVariant.Primary`; `Float` vanishes over photos.
 - Dismissible banners/cards use the shared `CloseButton`, not a full-width text "Dismiss" button.
+- Some pages have a sticky banner at the bottom of the viewport (the sponsor strip on the main feeds, for non-Plus users on tablet and up). Design bottom-pinned UI (floating bars, pills, toasts, sticky footers) with it in mind: lift clear of it with `var(--sponsor-strip-height,0rem)` (see `sponsorStripOffset.ts`) and check the layout with the strip showing.
 - CSS Grid feed: an item's intrinsic content height stretches the whole row even under `max-h-*`. Wrap content in an `absolute inset-0 flex flex-col` child and give the Card `min-h-card` (see `ArticleGrid.tsx`). Such constraints go on the grid variant of shared cards only.
 
 ## Product conventions

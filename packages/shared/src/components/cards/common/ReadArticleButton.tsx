@@ -17,7 +17,7 @@ export const getReadPostButtonIcon = (
   );
 
 type ReadArticleButtonProps = ButtonProps<'a'> & {
-  content: string;
+  content?: string;
   href: string;
   openNewTab?: boolean;
 };

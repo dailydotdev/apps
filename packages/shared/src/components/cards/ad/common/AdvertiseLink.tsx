@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
 import { useLogContext } from '../../../../contexts/LogContext';
@@ -26,14 +26,8 @@ export const AdvertiseLink = ({
 }: AdvertiseLinkProps): ReactElement => {
   const { logEvent } = useLogContext();
 
-  useEffect(() => {
-    logEvent({
-      event_name: LogEvent.Impression,
-      target_type: TargetType.AdvertiseHereCta,
-      target_id: targetId,
-    });
-  }, [logEvent, targetId]);
-
+  // Click only: the link renders with every ad, so its impression would just
+  // repeat the ad's own impression count.
   const onClick = () =>
     logEvent({
       event_name: LogEvent.Click,

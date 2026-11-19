@@ -46,7 +46,7 @@ export const AdSlot = ({
           ? 'border-dashed border-accent-cabbage-default'
           : 'border-border-subtlest-tertiary',
         hideOnPhone ? 'hidden tablet:flex' : 'flex',
-        spec.minHeight,
+        'min-h-40',
         className,
       )}
     >

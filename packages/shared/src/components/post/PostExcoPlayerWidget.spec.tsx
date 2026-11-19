@@ -276,7 +276,7 @@ it('gives the next post its own player and impression on the same playlist', asy
 it('holds nothing for a feed post in a squad until its post query says it is not ad-free', () => {
   // The feed selects only `verified`; the post query selects every feature.
   const squad = (features: Partial<SourceFeatures>) =>
-    ({ ...source, type: SourceType.Squad, features } as Post['source']);
+    ({ ...source, type: SourceType.Squad, features }) as Post['source'];
   const { rerenderWithPost } = renderWidget('player-feed-squad', {
     excoPlaylistId: undefined,
     post: { source: squad({ verified: true }) },

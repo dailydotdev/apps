@@ -115,7 +115,10 @@ export type FeedWidgetRailState = {
    * not customized and this build renders the live default instead.
    */
   fromDefault?: string;
-  /** The reader removed the daily.dev tips over our slot. */
+  /**
+   * The daily.dev tips over our slot. Opt-in: only `false` shows them, so
+   * unset reads as hidden.
+   */
   tipsHidden?: boolean;
   [field: string]: unknown;
 };

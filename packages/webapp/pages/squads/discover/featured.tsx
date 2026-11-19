@@ -4,7 +4,6 @@ import type { NextSeoProps } from 'next-seo/lib/types';
 import { checkFetchMore } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import type { InfiniteData } from '@tanstack/react-query';
 import type { Squad } from '@dailydotdev/shared/src/graphql/sources';
-import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import type { SourcesQueryData } from '@dailydotdev/shared/src/hooks/source/useSources';
 import {
   useSources,
@@ -14,8 +13,10 @@ import { SquadDirectoryLayout } from '@dailydotdev/shared/src/components/squads/
 import { SquadDiscoverListPage } from '@dailydotdev/shared/src/features/squads/components/discover/SquadDiscoverListPage';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { defaultOpenGraph } from '../../../next-seo';
-import { getLayout } from '../../../components/layouts/FeedLayout';
-import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
+import {
+  getLayout,
+  mainFeedLayoutProps,
+} from '../../../components/layouts/FeedLayout';
 
 export type Props = {
   initialData?: InfiniteData<SourcesQueryData<Squad>>;
@@ -50,7 +51,6 @@ const SquadsPage = (): ReactElement => {
 SquadsPage.getLayout = getLayout;
 SquadsPage.layoutProps = {
   ...mainFeedLayoutProps,
-  customBanner: <CustomAuthBanner />,
   seo,
 };
 

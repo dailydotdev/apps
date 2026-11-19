@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
-import classNames from 'classnames';
 import { Button } from '../../components/buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../components/buttons/common';
 import { ArrowIcon } from '../../components/icons/Arrow';
@@ -16,29 +15,46 @@ import { TargetId } from '../../lib/log';
 import { railGreeting } from './greeting';
 import { railHeaderClassName } from './FeedWidgetRailFrame';
 
-/** The page's own actions, which the rail's header gives a place on the home page. */
+const Divider = (): ReactElement => (
+  <span aria-hidden className="mx-1 h-6 w-px bg-border-subtlest-tertiary" />
+);
+
+/**
+ * The page's own actions, which the rail's header gives a place on the home
+ * page. New post is the one filled button; the rest are Tertiary Small.
+ */
 const RailPageActions = (): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const isTablet = !isLaptop;
 
   return (
-    <span className="flex items-center gap-2">
-      <IntroQuestButton
-        size={ButtonSize.Small}
-        variant={ButtonVariant.Float}
-        showLabel={isLaptopXL}
-      />
-      <UpgradeToPlus
-        target={TargetId.FeedWidgets}
-        size={ButtonSize.Small}
-        label="Get Plus"
-        iconOnly={isTablet}
-        className="!flex-none"
-      />
-      <CreatePostButton compact={isTablet} showIcon size={ButtonSize.Small} />
-      <span aria-hidden className="mx-1 h-6 w-px bg-border-subtlest-tertiary" />
-    </span>
+    <>
+      <div className="flex items-center gap-2">
+        <IntroQuestButton
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+          showLabel={isLaptopXL}
+          attentionDot
+        />
+        <UpgradeToPlus
+          target={TargetId.FeedWidgets}
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+          iconClassName="text-accent-bacon-default"
+          label="Get Plus"
+          iconOnly={isTablet}
+          className="!flex-none"
+        />
+        <CreatePostButton
+          compact={isTablet}
+          showIcon
+          size={ButtonSize.Small}
+          aria-label="New post"
+        />
+      </div>
+      <Divider />
+    </>
   );
 };
 
@@ -52,8 +68,6 @@ const RailPageActions = (): ReactElement => {
  */
 export const FeedWidgetRailHeader = ({
   isEditing,
-  isPhone = false,
-  showArrows,
   edges,
   onScroll,
   onToggleEditing,
@@ -62,8 +76,6 @@ export const FeedWidgetRailHeader = ({
   canCustomize = true,
 }: {
   isEditing: boolean;
-  isPhone?: boolean;
-  showArrows: boolean;
   edges: { start: boolean; end: boolean };
   onScroll: (direction: 1 | -1) => void;
   onToggleEditing: () => void;
@@ -84,12 +96,7 @@ export const FeedWidgetRailHeader = ({
   return (
     <div className={railHeaderClassName}>
       <div className="flex min-w-0 flex-1 flex-col">
-        <span
-          className={classNames(
-            'truncate font-bold text-text-primary',
-            isPhone ? 'typo-body' : 'typo-title3',
-          )}
-        >
+        <span className="truncate font-bold text-text-primary typo-title3">
           {greeting?.title}
         </span>
         <span className="truncate text-text-tertiary typo-footnote">
@@ -98,11 +105,10 @@ export const FeedWidgetRailHeader = ({
             : greeting?.subtitle}
         </span>
       </div>
-      {/* Phones have these in the shell's top row. */}
-      {!isPhone && !isEditing && <RailPageActions />}
-      {canCustomize && isEditing && (
-        <>
-          {!isPhone && (
+      <div className="flex shrink-0 items-center gap-1">
+        {!isEditing && <RailPageActions />}
+        {canCustomize && isEditing && (
+          <>
             <Button
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Small}
@@ -110,61 +116,56 @@ export const FeedWidgetRailHeader = ({
             >
               Hide widgets
             </Button>
-          )}
-          {onAdd && (
+            {onAdd && (
+              <Button
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                icon={<PlusIcon />}
+                onClick={onAdd}
+              >
+                New widget
+              </Button>
+            )}
             <Button
-              variant={ButtonVariant.Float}
+              variant={ButtonVariant.Primary}
               size={ButtonSize.Small}
-              icon={<PlusIcon />}
-              onClick={onAdd}
+              aria-pressed
+              onClick={onToggleEditing}
             >
-              New widget
+              Done
             </Button>
-          )}
+            <Divider />
+          </>
+        )}
+        {canCustomize && !isEditing && (
           <Button
-            variant={ButtonVariant.Primary}
+            variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
-            aria-pressed
+            icon={<SettingsIcon />}
+            aria-label="Customize widgets"
+            title="Customize widgets"
+            aria-pressed={false}
             onClick={onToggleEditing}
-          >
-            Done
-          </Button>
-        </>
-      )}
-      {canCustomize && !isEditing && (
-        <Button
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.Small}
-          icon={<SettingsIcon />}
-          aria-label="Customize widgets"
-          title="Customize widgets"
-          aria-pressed={false}
-          onClick={onToggleEditing}
-        />
-      )}
-      {showArrows && (
-        <div className="flex items-center gap-1">
-          {(['start', 'end'] as const).map((side) => (
-            <Button
-              key={side}
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              icon={
-                <ArrowIcon
-                  className={side === 'start' ? '-rotate-90' : 'rotate-90'}
-                />
-              }
-              aria-label={
-                side === 'start'
-                  ? 'Scroll widgets left'
-                  : 'Scroll widgets right'
-              }
-              disabled={!edges[side]}
-              onClick={() => onScroll(side === 'start' ? -1 : 1)}
-            />
-          ))}
-        </div>
-      )}
+          />
+        )}
+        {(['start', 'end'] as const).map((side) => (
+          <Button
+            key={side}
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            icon={
+              <ArrowIcon
+                className={side === 'start' ? '-rotate-90' : 'rotate-90'}
+              />
+            }
+            aria-label={
+              side === 'start' ? 'Scroll widgets left' : 'Scroll widgets right'
+            }
+            disabled={!edges[side]}
+            onClick={() => onScroll(side === 'start' ? -1 : 1)}
+          />
+        ))}
+      </div>
     </div>
   );
 };

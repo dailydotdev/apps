@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import dynamic from 'next/dynamic';
 import type { AdSquadItem, FeedItem } from '../hooks/useFeed';
 import { isBoostedPostAd, isBoostedSquadAd } from '../hooks/useFeed';
 import { PlaceholderGrid } from './cards/placeholder/PlaceholderGrid';
@@ -53,6 +54,14 @@ import { HighlightGrid } from './cards/highlight/HighlightGrid';
 import { HighlightList } from './cards/highlight/HighlightList';
 import { getHighlightIds, getHighlightIdsKey } from '../graphql/highlights';
 
+// Only Debug mode lays it over the cards, so readers without it never
+// download it.
+const FeedExplainCard = dynamic(() =>
+  import(
+    /* webpackChunkName: "feedExplainCard" */ '../features/feedExplain/components/FeedExplainCard'
+  ).then((mod) => mod.FeedExplainCard),
+);
+
 export type FeedItemComponentProps = {
   item: FeedItem;
   index: number;
@@ -97,6 +106,8 @@ export type FeedItemComponentProps = {
   wideColSpan?: FeaturedWideColSpan;
   /** Set on search feeds so impressions can be joined to the query. */
   searchLogExtra?: SearchLogExtra;
+  /** Debug mode: the card's explanation covers it. */
+  isExplaining?: boolean;
 } & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'> &
   Pick<UseBookmarkPost, 'toggleBookmark'>;
 
@@ -140,8 +151,8 @@ const getTags = ({
 
   return {
     PostTag: useListCards
-      ? PostTypeToListCard[postType] ?? ArticleList
-      : PostTypeToGridCard[postType] ?? ArticleGrid,
+      ? (PostTypeToListCard[postType] ?? ArticleList)
+      : (PostTypeToGridCard[postType] ?? ArticleGrid),
     AdTag: useListCards ? AdList : AdGrid,
     SquadAdTag: useListCards ? SquadAdList : SquadAdGrid,
     PlaceholderTag: useListCards ? PlaceholderList : PlaceholderGrid,
@@ -238,6 +249,7 @@ function FeedItemComponent({
   virtualizedNumCards,
   wideColSpan,
   searchLogExtra,
+  isExplaining = false,
 }: FeedItemComponentProps): ReactElement | null {
   const { logEvent } = useLogContext();
   const inViewRef = useLogImpression({
@@ -250,6 +262,7 @@ function FeedItemComponent({
     ranking,
     highlightColSpan: wideColSpan,
     searchLogExtra,
+    isExplaining,
   });
 
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
@@ -416,13 +429,26 @@ function FeedItemComponent({
     const WideCard = isWidenedFeaturedPost
       ? PostTypeToWideCard[itemPost.type]
       : undefined;
+    // Only posts of the explained For You feed carry `explain`, null included.
+    const explainCard = isExplaining &&
+      item.type === FeedItemType.Post &&
+      itemPost.explain !== undefined && (
+        <FeedExplainCard
+          post={itemPost}
+          explain={itemPost.explain}
+          isList={shouldUseListFeedLayout || shouldUseListMode}
+        />
+      );
 
     return (
       <ActivePostContextProvider post={itemPost}>
         {WideCard ? (
-          <WideCard {...postCardProps} wideColSpan={wideColSpan} />
+          <WideCard {...postCardProps} wideColSpan={wideColSpan}>
+            {explainCard}
+          </WideCard>
         ) : (
           <PostTag {...postCardProps}>
+            {explainCard}
             {item.type === FeedItemType.Ad && (
               <>
                 <AdPixel pixel={item.ad.pixel} />

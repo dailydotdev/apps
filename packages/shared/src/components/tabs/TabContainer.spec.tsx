@@ -125,7 +125,7 @@ describe('tab container component', () => {
           ({
             pathname: mockPathname,
             push: routerPush,
-          } as unknown as NextRouter),
+          }) as unknown as NextRouter,
       );
     });
 

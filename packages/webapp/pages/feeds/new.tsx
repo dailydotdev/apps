@@ -4,10 +4,8 @@ import type { NextSeoProps } from 'next-seo';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks/useFeedLayout';
 import { FeedSettingsCreate } from '@dailydotdev/shared/src/components/feeds/FeedSettings/FeedSettingsCreate';
 
-import {
-  getMainFeedLayout,
-  mainFeedLayoutProps,
-} from '../../components/layouts/MainFeedPage';
+import { getMainFeedLayout } from '../../components/layouts/MainFeedPage';
+import { mainFeedLayoutProps } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 

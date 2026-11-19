@@ -99,7 +99,7 @@ const FunnelLoading = ({
     const animationStart = performance.now();
     animateFirstPhase(animationStart);
 
-    // eslint-disable-next-line consistent-return
+    // eslint-disable-next-line eslint-compat/consistent-return
     return () => {
       clearTimeout(forceCompletionTimeoutId);
       if (pauseTimeoutRef.current) {

@@ -36,11 +36,11 @@ interface ChipItem {
 
 const GROUP_ORDER: ChipGroup[] = ['forYou', 'categories', 'rest'];
 
-export const chipBaseClass =
+const chipBaseClass =
   'shell-press shrink-0 rounded-10 border px-2.5 py-1.5 font-bold typo-callout';
-export const chipActiveClass =
+const chipActiveClass =
   'border-border-subtlest-tertiary bg-surface-float text-text-primary hover:bg-surface-hover';
-export const chipInactiveClass =
+const chipInactiveClass =
   'border-transparent text-text-tertiary hover:text-text-primary';
 
 interface UnifiedMobileFeedNavProps {

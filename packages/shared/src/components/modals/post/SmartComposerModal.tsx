@@ -28,6 +28,7 @@ import { Switch } from '../../fields/Switch';
 import { Drawer, DrawerPosition } from '../../drawers/Drawer';
 import { labels } from '../../../lib/labels';
 import { scheduledPostsUrl } from '../../../lib/constants';
+import { isIOSNative, isPWA } from '../../../lib/func';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
@@ -70,6 +71,7 @@ import {
   type TextFormState,
 } from '../../post/composer/types';
 import { useDisableSpotlightShortcut } from '../../spotlight/SpotlightContext';
+import { useTrackCompanyPageFirstPost } from '../../../features/squads/hooks/useTrackCompanyPageFirstPost';
 
 // `defaultWriteTab` is persisted as the WriteFormTab *key* (e.g. "Share"), not
 // the enum value ("Share a link") — see settings/composition.tsx which saves
@@ -120,7 +122,7 @@ export function SmartComposerModal({
   closeOnBack = true,
   ...props
 }: SmartComposerModalProps): ReactElement {
-  const { user } = useAuthContext();
+  const { user, isAndroidApp } = useAuthContext();
   const { logEvent } = useLogContext();
   const router = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -185,7 +187,7 @@ export function SmartComposerModal({
     }
     return editShare.title === editShare.sharedPost.title
       ? ''
-      : editShare.title ?? '';
+      : (editShare.title ?? '');
   })();
   const [link, setLink] = useState<LinkFormState>(() => {
     if (editShare) {
@@ -327,6 +329,16 @@ export function SmartComposerModal({
   );
 
   const handleViewScheduled = useCallback(async () => {
+    // Never trade an in-progress draft for the scheduled posts list: open the
+    // list in a new tab and leave the composer as it is. The native app
+    // wrappers and installed PWAs have no tabs (a new window leaves the app),
+    // so there we keep asking before navigating away.
+    const canOpenNewTab = !isAndroidApp && !isIOSNative() && !isPWA();
+    if (isDirty && canOpenNewTab) {
+      window.open(scheduledPostsUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
     if (!(await confirmDiscardIfDirty())) {
       return;
     }
@@ -334,7 +346,13 @@ export function SmartComposerModal({
     const navigation = navigateAway(scheduledPostsUrl);
     onRequestClose?.();
     await navigation;
-  }, [confirmDiscardIfDirty, navigateAway, onRequestClose]);
+  }, [
+    confirmDiscardIfDirty,
+    isAndroidApp,
+    isDirty,
+    navigateAway,
+    onRequestClose,
+  ]);
 
   useEffect(() => {
     logEvent({
@@ -409,13 +427,14 @@ export function SmartComposerModal({
   // cast mirrors generateUserSourceAsSquad: non-squad sources are deliberately
   // handled as squads here.
   const editSource = editPost
-    ? audiences.find((audience) => audience.id === editPost.source?.id) ??
-      (editPost.source as Squad | undefined)
+    ? (audiences.find((audience) => audience.id === editPost.source?.id) ??
+      (editPost.source as Squad | undefined))
     : undefined;
   const primary = editSource ?? selected[0];
   const isMulti = !editPost && selected.length > 1;
 
   const schedule = useSchedulePost();
+  const trackFirstPost = useTrackCompanyPageFirstPost();
   // Scheduling: single-source, non-moderated create only.
   const canSchedule =
     !isEditing && !isMulti && !!primary && !moderationRequired(primary);
@@ -445,6 +464,9 @@ export function SmartComposerModal({
         queryClient.invalidateQueries({
           queryKey: getPostByIdKey(editPost.id),
         });
+      }
+      if (!editPost?.id) {
+        trackFirstPost(selected);
       }
       onPosted?.();
       onSubmitted();
@@ -574,6 +596,7 @@ export function SmartComposerModal({
             onClick={handleViewScheduled}
             disabled={isInFlight}
             className={squareClassName}
+            showLabel={isLaptop}
           />
           {scheduleInHeader && scheduleButtonNode}
           {kind === 'text' && (

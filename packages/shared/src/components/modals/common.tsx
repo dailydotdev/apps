@@ -129,6 +129,20 @@ const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ './ShareModal'),
 );
 
+const AppStoreReviewModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "appStoreReviewModal" */ './AppStoreReviewModal'
+    ),
+);
+
+const PlusRenewalReviewModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "plusRenewalReviewModal" */ './PlusRenewalReviewModal'
+    ),
+);
+
 const BookmarkReminderModal = dynamic(
   () =>
     import(
@@ -150,6 +164,27 @@ const StreakFreezePurchaseModal = dynamic(
     ),
 );
 
+const FirstCoresModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "firstCoresModal" */ '../cores/FirstCoresModal'
+    ),
+);
+
+const StreakFreeFreezesUpsellModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "streakFreeFreezesUpsellModal" */ './streaks/StreakFreeFreezesUpsellModal'
+    ),
+);
+
+const StreakGoalModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "streakGoalModal" */ './streaks/StreakGoalModal'
+    ),
+);
+
 const SlackIntegrationModal = dynamic(
   () =>
     import(
@@ -159,6 +194,11 @@ const SlackIntegrationModal = dynamic(
 
 const SlackShareModal = dynamic(
   () => import(/* webpackChunkName: "slackShareModal" */ './SlackShareModal'),
+);
+
+const SharePicksModal = dynamic(
+  () =>
+    import(/* webpackChunkName: "sharePicksModal" */ './picks/SharePicksModal'),
 );
 
 const ReportSourceModal = dynamic(
@@ -315,13 +355,6 @@ const ListAwardsModal = dynamic(() =>
   ).then((mod) => mod.ListAwardsModal),
 );
 
-const AdsDashboardModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "adsDashboardModal" */ '../../features/boost/AdsDashboardModal'
-    ),
-);
-
 const BoostSquadModal = dynamic(
   () =>
     import(
@@ -334,18 +367,6 @@ const BoostPostModal = dynamic(
     import(
       /* webpackChunkName: "boostPostModal" */ '../../features/boost/BoostPostModal'
     ),
-);
-
-const BoostedCampaignViewModal = dynamic(() =>
-  import(
-    /* webpackChunkName: "boostedCampaignViewModal" */ '../../features/boost/BoostedViewModal'
-  ).then((mod) => mod.BoostedViewModal),
-);
-
-const FetchBoostedPostViewModal = dynamic(() =>
-  import(
-    /* webpackChunkName: "fetchBoostedViewModal" */ '../../features/boost/BoostedViewModal'
-  ).then((mod) => mod.FetchBoostedViewModal),
 );
 
 const OrganizationInviteMemberModal = dynamic(() =>
@@ -547,6 +568,13 @@ const LfgHelperModal = dynamic(
     ),
 );
 
+const FeedExplanationModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedExplanationModal" */ '../../features/feedExplain/components/FeedExplanationModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
   [LazyModal.RepostsPopup]: RepostsModal,
@@ -571,8 +599,12 @@ export const modals = {
   [LazyModal.BookmarkReminder]: BookmarkReminderModal,
   [LazyModal.RecoverStreak]: StreakRecoverModal,
   [LazyModal.StreakFreezePurchase]: StreakFreezePurchaseModal,
+  [LazyModal.FirstCores]: FirstCoresModal,
+  [LazyModal.StreakFreeFreezesUpsell]: StreakFreeFreezesUpsellModal,
+  [LazyModal.StreakGoal]: StreakGoalModal,
   [LazyModal.SlackIntegration]: SlackIntegrationModal,
   [LazyModal.SlackShare]: SlackShareModal,
+  [LazyModal.SharePicks]: SharePicksModal,
   [LazyModal.ReportSource]: ReportSourceModal,
   [LazyModal.UserFollowersModal]: UserFollowersModal,
   [LazyModal.UserFollowingModal]: UserFollowingModal,
@@ -599,11 +631,8 @@ export const modals = {
   [LazyModal.ShortcutsManage]: ShortcutsManageModal,
   [LazyModal.ImportPicker]: ImportPickerModal,
   [LazyModal.ListAwards]: ListAwardsModal,
-  [LazyModal.AdsDashboard]: AdsDashboardModal,
   [LazyModal.BoostPost]: BoostPostModal,
   [LazyModal.BoostSquad]: BoostSquadModal,
-  [LazyModal.BoostedCampaignView]: BoostedCampaignViewModal,
-  [LazyModal.FetchBoostedPostView]: FetchBoostedPostViewModal,
   [LazyModal.OrganizationInviteMember]: OrganizationInviteMemberModal,
   [LazyModal.OrganizationManageSeats]: OrganizationManageSeatsModal,
   [LazyModal.ActionSuccess]: ActionSuccessModal,
@@ -635,11 +664,14 @@ export const modals = {
   [LazyModal.AgentIntro]: AgentIntroModal,
   [LazyModal.LfgReachOut]: LfgReachOutModal,
   [LazyModal.LfgHelper]: LfgHelperModal,
+  [LazyModal.FeedExplanation]: FeedExplanationModal,
+  [LazyModal.AppStoreReview]: AppStoreReviewModal,
+  [LazyModal.AppStoreReviewPlus]: PlusRenewalReviewModal,
 };
 
 type GetComponentProps<T> = T extends
-  | React.ComponentType<infer P>
-  | React.Component<infer P>
+  // eslint-disable-next-line @typescript-eslint/no-redeclare
+  React.ComponentType<infer P> | React.Component<infer P>
   ? P
   : never;
 

@@ -86,7 +86,6 @@ const AwardItem = ({
 
 const IntroScreen = () => {
   const { openModal } = useLazyModal();
-  const [showBuyCores, setShowBuyCores] = useState(false);
   const { user } = useAuthContext();
   const {
     onRequestClose,
@@ -97,6 +96,9 @@ const IntroScreen = () => {
     product,
     post,
   } = useGiveAwardModalContext();
+  const [showBuyCores, setShowBuyCores] = useState(
+    () => !!product && product.value > (user?.balance.amount ?? 0),
+  );
   const isMobile = useViewSize(ViewSize.MobileL);
   const canPurchaseCores = useCanPurchaseCores();
 
@@ -120,6 +122,7 @@ const IntroScreen = () => {
         <BuyCreditsButton
           hideBuyButton={!canPurchaseCores}
           onPlusClick={onBuyCores}
+          origin={Origin.Award}
         />
         {isMobile ? (
           <Button
@@ -463,10 +466,12 @@ const ModalBody = () => {
 
 const ModalRender = ({ ...props }: ModalProps) => {
   const isMobile = useViewSize(ViewSize.MobileL);
+  const { user } = useAuthContext();
   const {
     activeStep,
     activeModal,
     setActiveModal,
+    setActiveStep,
     product,
     logAwardEvent,
     onRequestClose: onRequestCloseContext,
@@ -482,8 +487,12 @@ const ModalRender = ({ ...props }: ModalProps) => {
   }, [logAwardEvent]);
 
   const onCompletion = useCallback(() => {
+    if (product && product.value <= (user?.balance.amount ?? 0)) {
+      setActiveStep({ screen: AWARD_SCREENS.COMMENT, product });
+    }
+
     setActiveModal('AWARD');
-  }, [setActiveModal]);
+  }, [product, setActiveModal, setActiveStep, user?.balance.amount]);
 
   const onRequestClose = useCallback(() => {
     setActiveModal('AWARD');
@@ -524,7 +533,6 @@ const ModalRender = ({ ...props }: ModalProps) => {
           onRequestClose={onRequestClose}
           product={product as Product}
           origin={Origin.Award}
-          onPlusClick={() => setActiveModal('BUY_CORES')}
         />
       ) : null}
     </>

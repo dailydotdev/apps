@@ -27,6 +27,7 @@ import { achievementTrackingWidgetFeature } from '../../../../lib/featureManagem
 import { useLogContext } from '../../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../../lib/log';
 import { ACHIEVEMENTS_LAUNCH_DATE } from './constants';
+import { Chips } from '../../../../components/shell/ShellRow';
 
 type FilterType = 'all' | 'unlocked' | 'locked';
 type SyncOrigin = 'achievements_list' | 'sync_prompt_modal';
@@ -219,23 +220,35 @@ export function AchievementsList({
 
   const trackedAchievementId = trackedAchievement?.achievement.id;
 
+  const onFilter = (type: FilterType) => {
+    setFilter(type);
+    logEvent({
+      event_name: LogEvent.FilterAchievements,
+      target_id: type,
+    });
+  };
+
   return (
     <div className={classNames('flex flex-col gap-4', className)}>
       <div className="flex items-center justify-between">
-        <div className="flex gap-2">
+        <div className="flex gap-2 tablet:hidden">
+          <Chips
+            items={filters.map(({ type, label, count }) => ({
+              key: type,
+              label: `${label} (${count})`,
+              active: filter === type,
+              onClick: () => onFilter(type),
+            }))}
+          />
+        </div>
+        <div className="hidden gap-2 tablet:flex">
           {filters.map(({ type, label, count }) => (
             <Button
               key={type}
               variant={
                 filter === type ? ButtonVariant.Primary : ButtonVariant.Subtle
               }
-              onClick={() => {
-                setFilter(type);
-                logEvent({
-                  event_name: LogEvent.FilterAchievements,
-                  target_id: type,
-                });
-              }}
+              onClick={() => onFilter(type)}
             >
               {label} ({count})
             </Button>

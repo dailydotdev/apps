@@ -5,7 +5,7 @@ import type {
   ReactElement,
 } from 'react';
 import React from 'react';
-import { hasSquadFeature } from '../../features/squads/lib/features';
+import { showsVerifiedBadge } from '../../features/squads/lib/features';
 import { VerifiedSquadBadge } from '../../features/squads/components/VerifiedSquad';
 import Link from '../utilities/Link';
 import { isSourceUserSource, SourceType } from '../../graphql/sources';
@@ -85,7 +85,7 @@ function PostSourceInfo({
               </a>
             </Link>
           )}
-          {hasSquadFeature(source, 'verified') && (
+          {showsVerifiedBadge(source) && (
             <VerifiedSquadBadge className="ml-1 size-4" />
           )}
           {showActionBtn && (

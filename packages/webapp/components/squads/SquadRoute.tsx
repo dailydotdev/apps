@@ -9,10 +9,20 @@ import { SquadPageContextProvider } from '@dailydotdev/shared/src/features/squad
 import { SquadPrivateWall } from '@dailydotdev/shared/src/features/squads/components/SquadPrivateWall';
 import { SquadPageSkeleton } from '@dailydotdev/shared/src/features/squads/components/SquadPageSkeleton';
 import type { SquadFeature } from '@dailydotdev/shared/src/features/squads/lib/features';
-import { hasSquadFeature } from '@dailydotdev/shared/src/features/squads/lib/features';
+import {
+  hasSquadFeature,
+  isCompanySquad,
+} from '@dailydotdev/shared/src/features/squads/lib/features';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import {
+  getSquadViewer,
+  isStaffViewer,
+} from '@dailydotdev/shared/src/features/squads/lib/viewer';
+import { usePauseBootPopups } from '@dailydotdev/shared/src/lib/bootPopupsPause';
 import type { SquadManageSection } from '@dailydotdev/shared/src/features/squads/lib/routes';
 import { getSquadManageUrl } from '@dailydotdev/shared/src/features/squads/lib/routes';
 import { getLayout as getMainLayout } from '../layouts/MainLayout';
+import { StartupsHotjar } from '../Pixels';
 import { getLayout as getFooterNavBarLayout } from '../layouts/FooterNavBarLayout';
 
 const Custom404 = dynamic(
@@ -38,8 +48,18 @@ export const SquadRoute = ({
   feature,
   children,
 }: SquadRouteComponentProps): ReactElement => {
+  const { isLoggedIn } = useAuthContext();
   const { squad, isFetched, isForbidden } = useSquad({ handle });
   const current = squad ?? initialSquad;
+  // Admins and moderators setting up a company page get no achievement or
+  // other boot pop-ups over it; they open on the next page instead. Held
+  // until the viewer's own copy of the squad says who they are.
+  const isSettled = !!squad || isFetched || isForbidden;
+  const isSettingUpCompany =
+    !!squad &&
+    isCompanySquad(squad) &&
+    isStaffViewer(getSquadViewer(squad, isLoggedIn));
+  usePauseBootPopups(!isSettled || isSettingUpCompany);
 
   if (isForbidden) {
     return <SquadPrivateWall />;
@@ -56,6 +76,7 @@ export const SquadRoute = ({
   return (
     <SquadPageContextProvider squad={current} isViewerReady={!!squad}>
       {children}
+      {isSettingUpCompany && <StartupsHotjar />}
     </SquadPageContextProvider>
   );
 };

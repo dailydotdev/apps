@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
+import classNames from 'classnames';
 import { FilterIcon, PlusIcon } from '../icons';
 import type { IconSize } from '../Icon';
 import type { ButtonProps } from '../buttons/Button';
@@ -15,11 +16,13 @@ import { ActionType } from '../../graphql/actions';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { FeedSettingsButton } from '../feeds/FeedSettingsButton';
 import { AlertColor, AlertDot } from '../AlertDot';
+import { AttentionDot } from '../AttentionDot';
 import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
+import { getForYouSettingsUrl } from '../feeds/FeedSettings/forYouSettingsPages';
 import { useShortcutsUser } from '../../features/shortcuts/hooks/useShortcutsUser';
 import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
-import { settingsUrl, webappUrl } from '../../lib/constants';
+import { webappUrl } from '../../lib/constants';
 import { getHasSeenTags, setHasSeenTags } from '../../lib/feedSettings';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
@@ -37,11 +40,14 @@ interface MyFeedHeadingProps {
   // label). Used by the v2 header strip when chips push the actions
   // cluster to the right and the row needs to stay tight.
   iconOnly?: boolean;
+  // The widget rail's style: Shortcuts before Feed settings as the same
+  // Tertiary Small button, and the shared attention dot for the reminder.
+  quiet?: boolean;
 }
 
 /**
- * Feed settings for the feed on screen: the reader's tags on For you, the
- * feed's own settings on a custom feed, and a sign-up for a visitor.
+ * Feed settings for the feed on screen: Overview on For you, the feed's own
+ * settings on a custom feed, and a sign-up for a visitor.
  */
 export const useFeedSettingsAction = (
   onOpen?: () => void,
@@ -57,22 +63,6 @@ export const useFeedSettingsAction = (
 
   const hasSeenTagsAction =
     isActionsFetched && checkHasCompleted(ActionType.HasSeenTags);
-
-  const editFeedUrl = useMemo(() => {
-    if (isCustomDefaultFeed && pathname === '/') {
-      return `${webappUrl}feeds/${defaultFeedId}/edit`;
-    }
-
-    if (feedName === SharedFeedPage.MyFeed && user?.id) {
-      return `${webappUrl}feeds/${user.id}/edit?dview=${FeedSettingsMenu.Tags}`;
-    }
-
-    if (feedName === SharedFeedPage.Custom) {
-      return `${webappUrl}feeds/${query.slugOrId}/edit`;
-    }
-
-    return `${settingsUrl}/feed/general`;
-  }, [defaultFeedId, feedName, isCustomDefaultFeed, pathname, query, user?.id]);
 
   useEffect(() => {
     if (!user?.id) {
@@ -91,6 +81,35 @@ export const useFeedSettingsAction = (
 
   const shouldShowTagsReminder =
     feedName === SharedFeedPage.MyFeed && hasSeenTagsState === false;
+
+  const editFeedUrl = useMemo(() => {
+    if (isCustomDefaultFeed && pathname === '/') {
+      return `${webappUrl}feeds/${defaultFeedId}/edit`;
+    }
+
+    // Overview first, unless the reminder to pick topics is showing.
+    if (feedName === SharedFeedPage.MyFeed && user?.id) {
+      return `${webappUrl}feeds/${user.id}/edit?dview=${
+        shouldShowTagsReminder
+          ? FeedSettingsMenu.Tags
+          : FeedSettingsMenu.Overview
+      }`;
+    }
+
+    if (feedName === SharedFeedPage.Custom) {
+      return `${webappUrl}feeds/${query.slugOrId}/edit`;
+    }
+
+    return getForYouSettingsUrl(FeedSettingsMenu.Overview);
+  }, [
+    defaultFeedId,
+    feedName,
+    isCustomDefaultFeed,
+    pathname,
+    query,
+    shouldShowTagsReminder,
+    user?.id,
+  ]);
 
   const onClick = useCallback(() => {
     if (!user) {
@@ -128,6 +147,7 @@ function MyFeedHeading({
   feedSettingsButtonProps,
   onShortcutsClick,
   iconOnly,
+  quiet = false,
 }: MyFeedHeadingProps): ReactElement {
   const { completeAction } = useActions();
   const { toggleShowTopSites } = useSettingsContext();
@@ -155,8 +175,38 @@ function MyFeedHeading({
     <FilterIcon />
   );
 
+  const shortcutsToggle = showToggleShortcuts && (
+    <Button
+      size={quiet || isLaptopLayout ? ButtonSize.Small : ButtonSize.Medium}
+      variant={ButtonVariant.Tertiary}
+      className={classNames(
+        !quiet &&
+          (isLaptopLayout
+            ? '!h-8 !rounded-10 !border-transparent !bg-transparent !px-3 hover:!bg-surface-hover'
+            : 'mr-auto'),
+      )}
+      onClick={() => {
+        if (onShortcutsClick) {
+          onShortcutsClick();
+          return;
+        }
+        if (isOldUserWithNoShortcuts) {
+          completeAction(ActionType.FirstShortcutsSession);
+          return;
+        }
+        toggleShowTopSites();
+      }}
+      icon={<PlusIcon />}
+      iconPosition={iconPosition}
+      aria-label={iconOnly ? 'Shortcuts' : undefined}
+    >
+      {iconOnly ? null : 'Shortcuts'}
+    </Button>
+  );
+
   return (
     <>
+      {quiet && shortcutsToggle}
       <div className="relative">
         <FeedSettingsButton
           onClick={onClick}
@@ -169,39 +219,15 @@ function MyFeedHeading({
         >
           {hasLabel ? 'Feed settings' : null}
         </FeedSettingsButton>
-        {shouldShowTagsReminder && (
+        {shouldShowTagsReminder && quiet && <AttentionDot />}
+        {shouldShowTagsReminder && !quiet && (
           <AlertDot
             color={AlertColor.Bun}
             className="pointer-events-none right-2 top-2 border border-background-default"
           />
         )}
       </div>
-      {showToggleShortcuts && (
-        <Button
-          size={isLaptopLayout ? ButtonSize.Small : ButtonSize.Medium}
-          variant={ButtonVariant.Tertiary}
-          className={
-            isLaptopLayout
-              ? '!h-8 !rounded-10 !border-transparent !bg-transparent !px-3 hover:!bg-surface-hover'
-              : 'mr-auto'
-          }
-          onClick={() => {
-            if (onShortcutsClick) {
-              onShortcutsClick();
-              return;
-            }
-            if (isOldUserWithNoShortcuts) {
-              completeAction(ActionType.FirstShortcutsSession);
-              return;
-            }
-            toggleShowTopSites();
-          }}
-          icon={<PlusIcon />}
-          iconPosition={iconPosition}
-        >
-          {iconOnly ? null : 'Shortcuts'}
-        </Button>
-      )}
+      {!quiet && shortcutsToggle}
     </>
   );
 }

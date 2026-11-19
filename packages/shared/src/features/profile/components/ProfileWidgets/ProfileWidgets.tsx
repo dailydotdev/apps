@@ -51,8 +51,10 @@ const AchievementTrackingWidget = dynamic(() =>
  * profile's static props carry them as optional (the not-found path has no user
  * to fetch them for), so demanding them here only moved that fact to the caller.
  */
-export interface ProfileWidgetsProps
-  extends Omit<ProfileV2, 'userStats' | 'sources'> {
+export interface ProfileWidgetsProps extends Omit<
+  ProfileV2,
+  'userStats' | 'sources'
+> {
   userStats?: ProfileV2['userStats'];
   sources?: ProfileV2['sources'];
   className?: string;
@@ -97,7 +99,7 @@ export function ProfileWidgets({
     shouldRenderTrackingWidget;
 
   const { before, after } = getProfileReadingWindow();
-  const { data: readingHistory, isLoading: isReadingHistoryLoading } = useQuery(
+  const { data: readingHistory, isPending: isReadingHistoryPending } = useQuery(
     profileReadingHistoryQueryOptions({ user, enabled: tokenRefreshed }),
   );
   const squads = sources?.edges?.map((s) => s.node.source) ?? [];
@@ -136,9 +138,9 @@ export function ProfileWidgets({
         readHistory={readingHistory?.userReadHistory}
         before={before}
         after={after}
-        streak={readingHistory?.userStreakProfile}
+        streak={readingHistory?.userStreakProfile ?? undefined}
         mostReadTags={readingHistory?.userMostReadTags}
-        isLoading={isReadingHistoryLoading}
+        isLoading={isReadingHistoryPending}
       />
       {shouldShowTrackingWidget && !optOutAchievements && (
         <AchievementTrackingWidget user={user} />

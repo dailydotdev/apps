@@ -16,10 +16,8 @@ import {
   featureFeedChips,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 
-import {
-  getMainFeedLayout,
-  mainFeedLayoutProps,
-} from '../../../components/layouts/MainFeedPage';
+import { getMainFeedLayout } from '../../../components/layouts/MainFeedPage';
+import { mainFeedLayoutProps } from '../../../components/layouts/FeedLayout';
 import {
   defaultOpenGraph,
   defaultSeo,

@@ -6,6 +6,8 @@ import { ReminderPreference, useBookmarkReminder } from './useBookmarkReminder';
 import { setBookmarkReminder } from '../../graphql/bookmarks';
 import post from '../../../__tests__/fixture/post';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { getPostByIdKey } from '../../lib/query';
+import type { PostData } from '../../graphql/posts';
 
 jest.mock('../../graphql/bookmarks', () => ({
   ...(jest.requireActual('../../graphql/bookmarks') as Iterable<unknown>),
@@ -430,5 +432,39 @@ describe('useBookmarkReminder hook', () => {
       target_id: 'e3fd75b62cadd02073a31ee3444975cc',
       target_type: 'post',
     });
+  });
+
+  it('should keep the bookmark note, read state and archive when the reminder changes', async () => {
+    const bookmark = {
+      createdAt: new Date(2024, 6, 1),
+      note: 'my note',
+      read: true,
+      archivedAt: new Date(2024, 6, 10),
+    };
+    client.setQueryData<PostData>(getPostByIdKey(post.id), {
+      post: { ...post, bookmarked: true, bookmark },
+    });
+    const getBookmark = () =>
+      client.getQueryData<PostData>(getPostByIdKey(post.id))?.post.bookmark;
+    const { result } = renderHook(() => useBookmarkReminder({ post }), {
+      wrapper: Wrapper,
+    });
+
+    await result.current.onBookmarkReminder({
+      postId: post.id,
+      preference: ReminderPreference.OneHour,
+    });
+    jest.useRealTimers();
+    await waitFor(() =>
+      expect(getBookmark()).toEqual({
+        ...bookmark,
+        remindAt: addHours(mockedNow, 1),
+      }),
+    );
+
+    await result.current.onRemoveReminder(post.id);
+    await waitFor(() =>
+      expect(getBookmark()).toEqual({ ...bookmark, remindAt: undefined }),
+    );
   });
 });

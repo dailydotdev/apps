@@ -15,7 +15,7 @@ import { AuthorSourceStack } from './AuthorSourceStack';
 type SquadPostCardHeaderProps = {
   post: Post;
   enableSourceHeader?: boolean;
-  /** `card_save_on_hover`: the bookmark, right before ⋯. */
+  /** Grid cards: the bookmark, right before ⋯. */
   bookmark?: ReactNode;
 };
 

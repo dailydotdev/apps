@@ -10,8 +10,9 @@ import { useViewSize, ViewSize } from '../../../hooks';
 import { ReportReason } from '../../../report';
 import type { PostModerationReason } from '../../../graphql/squads';
 
-interface Props<T extends ReportReason | PostModerationReason>
-  extends ModalProps {
+interface Props<
+  T extends ReportReason | PostModerationReason,
+> extends ModalProps {
   onReport(e: React.MouseEvent, reason: T, text: string): void;
   reasons: RadioItemProps[] | ((reason: string) => RadioItemProps[]);
   heading: string;

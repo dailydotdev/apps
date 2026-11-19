@@ -19,7 +19,7 @@ import type { FeedWidgetTip as FeedWidgetTipItem } from './tips';
 
 // The rail's column, on a four-column feed, and its gap.
 const PREVIEW_COLUMN = '17.25rem';
-const PREVIEW_COLUMN_GAP = '2rem';
+const PREVIEW_COLUMN_GAP = '1.5rem';
 
 const noop = (): void => undefined;
 

@@ -95,7 +95,7 @@ export const BriefBanner = (props: ComponentProps<'div'>) => {
           deliver your personalized Presidential Briefing in seconds.
         </Typography>
       </div>
-      <div className="flex flex-row items-center justify-center gap-6 text-text-primary tablet:gap-1 ">
+      <div className="flex flex-row items-center justify-center gap-6 text-text-primary tablet:gap-1">
         <Typography
           className="max-w-28 tablet:max-w-none"
           tag={TypographyTag.Span}

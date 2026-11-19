@@ -69,13 +69,16 @@ export type PostWidgetsProps = Omit<PostHeaderActionsProps, 'contextMenuId'> &
     hideToc?: boolean;
     /** Renders a slot after the widget at each position. */
     getRailAd?: (position: PostWidgetPosition) => ReactNode;
-    /** Rendered first, above everything else in the rail. */
-    leading?: ReactNode;
     /** Rendered last, below the footer links. */
     trailing?: ReactNode;
     /** Drops the internal sidebar ad and video player, for ad templates. */
     hideAdWidget?: boolean;
     hidePluginsWidget?: boolean;
+    /**
+     * The post_page_hybrid rail: the share card keeps its border like every
+     * other card, and "Advertise here" sits at the start of the ad card.
+     */
+    isHybrid?: boolean;
   };
 
 /**
@@ -108,10 +111,10 @@ export function PostWidgets({
   hideSignupWidget = false,
   hideToc = false,
   getRailAd,
-  leading,
   trailing,
   hideAdWidget,
   hidePluginsWidget,
+  isHybrid = false,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const { source } = post;
@@ -170,7 +173,6 @@ export function PostWidgets({
 
   return (
     <PageWidgets className={className}>
-      {leading}
       {!hideSignupWidget && <PostSignupWidget post={post} />}
       {withAd(PostWidgetPosition.Source, sourceCard)}
       {withAd(
@@ -192,6 +194,7 @@ export function PostWidgets({
             postId={post.id}
             source={post.source}
             className={{ container: cardClasses }}
+            isAdvertiseLinkStart={isHybrid}
           />,
         )}
       {!hideAdWidget && <PostExcoPlayerWidget post={post} placement="rail" />}
@@ -201,7 +204,7 @@ export function PostWidgets({
       {withAd(
         PostWidgetPosition.Share,
         <>
-          <ShareBar post={post} />
+          <ShareBar post={post} isBordered={isHybrid} />
           <ShareMobile
             post={post}
             origin={origin}

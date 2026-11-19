@@ -62,14 +62,12 @@ export const MentionedToolsWidget = ({
       return [];
     }
 
-    return creative.tools.map(
-      (toolName): Tool => ({
-        id: toolName,
-        name: toolName,
-        icon: creative.icon,
-        isSponsored: true,
-      }),
-    );
+    return creative.tools.map((toolName): Tool => ({
+      id: toolName,
+      name: toolName,
+      icon: creative.icon,
+      isSponsored: true,
+    }));
   }, [postTags, getCreativeForTags]);
 
   // The widget renders nothing without a matching creative, so the showcase

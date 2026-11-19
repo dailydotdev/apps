@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { useRouter } from 'next/router';
 import type { ButtonProps } from '../../components/buttons/Button';
 import ConditionalWrapper from '../../components/ConditionalWrapper';
 import { MiniCloseIcon, SettingsIcon, VIcon } from '../../components/icons';
@@ -15,10 +16,11 @@ import { useCampaignById } from '../../graphql/campaigns';
 import type { Squad } from '../../graphql/sources';
 import { SourcePermissions } from '../../graphql/sources';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import { webappUrl } from '../../lib/constants';
+import { getBoostManagerUrl, webappUrl } from '../../lib/constants';
 import { BoostButton } from './BoostButton';
 import { IconSize } from '../../components/Icon';
 import { Tooltip } from '../../components/tooltip/Tooltip';
+import { Origin } from '../../lib/log';
 
 const Requirement = ({ copy, passed }: { copy: string; passed: boolean }) => {
   const Icon = passed ? VIcon : MiniCloseIcon;
@@ -47,6 +49,7 @@ export function BoostSourceButton({
   squad: Squad;
   buttonProps?: ButtonProps<'button'>;
 }): ReactElement {
+  const router = useRouter();
   const { openModal } = useLazyModal();
   const { user } = useAuthContext();
   const campaignId = squad?.flags?.campaignId;
@@ -56,10 +59,12 @@ export function BoostSourceButton({
   const permittedUser = permissions?.includes(SourcePermissions.BoostSquad);
 
   const onBoost = () =>
-    openModal({ type: LazyModal.BoostSquad, props: { squad } });
+    openModal({
+      type: LazyModal.BoostSquad,
+      props: { squad, origin: Origin.SquadPage },
+    });
 
-  const onViewBoost = () =>
-    openModal({ type: LazyModal.BoostedCampaignView, props: { campaign } });
+  const onViewBoost = () => router.push(getBoostManagerUrl(campaignId));
 
   const onClick = () => {
     if (!permittedUser) {

@@ -46,13 +46,13 @@ const methods: InstallMethod[] = [
       'Add daily.dev to Claude Code as a plugin, then use /daily-dev-ask:',
     code: [
       `claude plugin marketplace add ${REPO_URL}`,
-      'claude plugin install daily.dev@daily.dev',
+      'claude plugin install daily-dev@daily.dev',
       'claude "/daily-dev-ask your question here"',
     ].join('\n'),
     multilineCode: true,
     copyValue: [
       `claude plugin marketplace add ${REPO_URL}`,
-      'claude plugin install daily.dev@daily.dev',
+      'claude plugin install daily-dev@daily.dev',
       'claude "/daily-dev-ask your question here"',
     ].join(' && '),
     note: 'After setup, use /daily-dev-ask to search and answer questions from daily.dev articles.',
@@ -127,6 +127,7 @@ export const AskInstall = (): ReactElement => {
             <Link href={plusUrl} passHref>
               <a
                 className="font-bold text-text-primary underline"
+                // eslint-disable-next-line jsx-a11y/no-redundant-roles
                 role="link"
                 tabIndex={0}
                 onClick={(e) => {

@@ -1,11 +1,21 @@
 /**
- * Slot numbers named with the ad partner's own terminology, so the remote
- * config, this code and their placement brief all refer to the same units.
+ * Slot numbers named with the ad partner's own terminology, so their
+ * placement configs, this code and the reporting all refer to the same units.
  *
  * IAB names: a "leaderboard" is 728x90, an "MPU" (mid page unit) is the
  * 300x250 / 336x280 rectangle, and a "half page" is 300x600.
  */
-import type { AdSlots } from '../../../features/monetization/kueez';
+
+/**
+ * The slots a surface runs, by number. Presence is the whole configuration:
+ * each slot renders an anchor (`data-ad-slot`, see ProgrammaticAd) and the
+ * unit's sizes, refresh and demand live in the ad partner's platform, keyed
+ * to that anchor. A surface that should stay dark ships an empty map.
+ */
+export type AdSlots = Readonly<Record<string, true>>;
+
+export const hasLiveAdSlots = (slots: AdSlots): boolean =>
+  Object.keys(slots).length > 0;
 
 export const READ_SLOT = {
   /** Leaderboard above the article. Sticks while scrolling, then releases. */
@@ -24,11 +34,11 @@ export const READ_SLOT = {
   railBottomSticky: 19,
   /**
    * The top leaderboard's phone twin, pinned at the top of the screen for the
-   * whole visit as PhoneTopAdStrip, outside the column. Booked at a fixed
-   * 320x50 rather than offered a range: it is the smallest standard size, so
-   * the pinned block takes the least of a phone screen, and a single offered
-   * size is the only way to be sure no expandable creative can answer a slot
-   * that is permanently on screen.
+   * whole visit as PhoneTopAdStrip, outside the column. Configured at a fixed
+   * 320x50 on the partner side: it is the smallest standard size, so the
+   * pinned block takes the least of a phone screen, and a single size is the
+   * only way to be sure no expandable creative can answer a slot that is
+   * permanently on screen.
    */
   topLeaderboardPhone: 20,
 } as const;
@@ -77,12 +87,10 @@ export const CONTENT_CHARS_PER_AD = 250;
 export const MAX_CONTENT_ADS_PER_SECTION = 4;
 
 /**
- * Which slots the /read template runs, and the few that are booked at a fixed
- * size rather than offered their format's range.
+ * Which slots the /read template runs.
  *
- * Deliberately in code rather than remote config: there is one Kueez id pair
- * for all of our display inventory, so nothing here is a secret (it is
- * visible in any live page's bid request), and as a GrowthBook JSON value it
+ * Deliberately in code rather than remote config: nothing here is a secret
+ * (every anchor is visible in the page), and as a GrowthBook JSON value it
  * shipped in every boot payload of every surface.
  *
  * Phone density, the written gate this map keeps slot 7 behind:
@@ -93,16 +101,16 @@ export const MAX_CONTENT_ADS_PER_SECTION = 4;
  *   MAX_CONTENT_ADS_PER_SECTION does, see its comment for the math.
  */
 export const READ_AD_SLOTS: AdSlots = {
-  [READ_SLOT.topLeaderboard]: {},
-  [READ_SLOT.topLeaderboardPhone]: { sizes: [[320, 50]] },
-  [READ_SLOT.commentMpu]: {},
-  [READ_SLOT.railAfterSource]: {},
-  [READ_SLOT.railBetweenFurtherReading]: {},
-  [READ_SLOT.inBodyMpu]: {},
-  [READ_SLOT.aboveCommentsMpu]: {},
+  [READ_SLOT.topLeaderboard]: true,
+  [READ_SLOT.topLeaderboardPhone]: true,
+  [READ_SLOT.commentMpu]: true,
+  [READ_SLOT.railAfterSource]: true,
+  [READ_SLOT.railBetweenFurtherReading]: true,
+  [READ_SLOT.inBodyMpu]: true,
+  [READ_SLOT.aboveCommentsMpu]: true,
   // The rail's closing unit. Compliant as a publisher sticky: 300px wide,
   // desktop only, and the page's ONLY sticky.
-  [READ_SLOT.railBottomSticky]: { sizes: [[300, 600]] },
+  [READ_SLOT.railBottomSticky]: true,
 };
 
 /**
@@ -126,10 +134,10 @@ export const ORGANIC_SLOT = {
 } as const;
 
 export const ORGANIC_AD_SLOTS: AdSlots = {
-  [ORGANIC_SLOT.topLeaderboard]: {},
-  [ORGANIC_SLOT.topLeaderboardPhone]: { sizes: [[320, 50]] },
-  [ORGANIC_SLOT.railAfterDirectAd]: {},
-  [ORGANIC_SLOT.inContentMpu]: {},
-  [ORGANIC_SLOT.aboveCommentsMpu]: {},
-  [ORGANIC_SLOT.commentMpu]: {},
+  [ORGANIC_SLOT.topLeaderboard]: true,
+  [ORGANIC_SLOT.topLeaderboardPhone]: true,
+  [ORGANIC_SLOT.railAfterDirectAd]: true,
+  [ORGANIC_SLOT.inContentMpu]: true,
+  [ORGANIC_SLOT.aboveCommentsMpu]: true,
+  [ORGANIC_SLOT.commentMpu]: true,
 };

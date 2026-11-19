@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
@@ -21,22 +15,37 @@ jest.mock('next/router', () => ({
 }));
 
 jest.mock('../../components/buttons/ToggleClickbaitShield', () => ({
-  ToggleClickbaitShield: () => (
-    <button type="button" aria-label="Clickbait Shield" />
+  ToggleClickbaitShield: ({
+    buttonProps,
+  }: {
+    buttonProps: { size: string; variant: string };
+  }) => (
+    <button
+      type="button"
+      aria-label="Clickbait Shield"
+      data-size={buttonProps.size}
+      data-variant={buttonProps.variant}
+    />
   ),
 }));
 
 jest.mock('../../components/filters/AchievementTrackerButton', () => ({
-  AchievementTrackerButton: () => null,
+  AchievementTrackerButton: ({ quiet }: { quiet?: boolean }) =>
+    quiet ? <button type="button" aria-label="Track an achievement" /> : null,
 }));
 
 jest.mock('../../components/filters/LuckyButton', () => ({
   LuckyButton: () => null,
 }));
 
-jest.mock('../../components/notifications/NotificationsBell', () => ({
-  __esModule: true,
-  default: () => null,
+jest.mock('../feedExplain/useFeedExplainMode', () => ({
+  useFeedExplainMode: () => ({
+    isAvailable: true,
+    isOffered: true,
+    isExplaining: false,
+    version: 116,
+    setIsExplaining: jest.fn(),
+  }),
 }));
 
 // jsdom has no PointerEvent, and without one fireEvent drops the button and
@@ -95,7 +104,7 @@ const mockPath = (pathname: string) =>
         push: jest.fn(),
         replace: jest.fn(),
         events: { on: jest.fn(), off: jest.fn() },
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
 
 const openMenu = (name: string | RegExp) =>
@@ -103,6 +112,26 @@ const openMenu = (name: string | RegExp) =>
     button: 0,
     pointerType: 'mouse',
   });
+
+const expectQuietActionsInOrder = () => {
+  const achievements = screen.getByRole('button', {
+    name: 'Track an achievement',
+  });
+  const shield = screen.getByRole('button', { name: 'Clickbait Shield' });
+  const debug = screen.getByRole('button', { name: 'Debug' });
+  const feedSettings = screen.getByRole('button', { name: 'Feed settings' });
+  const actions = Array.from(
+    (feedSettings.closest('.shrink-0') as HTMLElement).querySelectorAll(
+      'button',
+    ),
+  );
+
+  expect(actions).toEqual([achievements, shield, debug, feedSettings]);
+  expect(shield).toHaveAttribute('data-size', 'small');
+  expect(shield).toHaveAttribute('data-variant', 'tertiary');
+  expect(debug).toHaveClass('btn-tertiary-cabbage', 'h-8');
+  expect(feedSettings).toHaveClass('btn-tertiary', 'h-8');
+};
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -115,7 +144,7 @@ beforeEach(() => {
         push: jest.fn(),
         replace: jest.fn(),
         events: { on: jest.fn(), off: jest.fn() },
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
 });
 
@@ -158,10 +187,31 @@ describe('HomeFeedTabs', () => {
         screen.getByRole('button', { name: 'Feed settings' }),
       ).toHaveTextContent('Feed settings');
     });
+
+    it('orders achievements, the shield, Debug, then Feed settings, all Tertiary Small', () => {
+      renderTabs();
+
+      expectQuietActionsInOrder();
+      expect(screen.getByRole('button', { name: 'Debug' })).toHaveTextContent(
+        'Debug',
+      );
+    });
   });
 
   describe('on tablets', () => {
     beforeEach(() => mockTablet());
+
+    it('orders achievements, the shield, an icon-only Debug, then an icon-only Feed settings, all Tertiary Small', () => {
+      renderTabs();
+
+      expectQuietActionsInOrder();
+      expect(
+        screen.getByRole('button', { name: 'Debug' }),
+      ).not.toHaveTextContent('Debug');
+      expect(
+        screen.getByRole('button', { name: 'Feed settings' }),
+      ).not.toHaveTextContent('Feed settings');
+    });
 
     it('keeps the sort on Popular, where no chip is lit', async () => {
       mockPath('/popular');
@@ -175,109 +225,6 @@ describe('HomeFeedTabs', () => {
       expect(
         screen.getByRole('menuitemradio', { name: 'By date' }),
       ).toBeInTheDocument();
-    });
-  });
-
-  describe('on phones', () => {
-    beforeEach(() => mockMatchMedia());
-
-    it('opens a sheet with the sort and Feed settings from For you', async () => {
-      renderTabs();
-
-      fireEvent.click(
-        await screen.findByRole('button', {
-          name: 'For you, sort and feed settings',
-        }),
-      );
-
-      expect(await screen.findByText('Sort')).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: 'Recommended' }),
-      ).toHaveAttribute('aria-pressed', 'true');
-      expect(
-        screen.getByRole('button', { name: 'By date' }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /Feed settings/ }),
-      ).toBeInTheDocument();
-      expect(
-        screen.queryByRole('button', { name: 'Clickbait Shield' }),
-      ).not.toBeInTheDocument();
-    });
-
-    it('keeps the sort on Popular, where no segment is lit', async () => {
-      mockPath('/popular');
-      renderTabs({ feedName: SharedFeedPage.Popular, heading: 'Popular' });
-
-      fireEvent.click(
-        screen.getByRole('button', { name: 'Sort and feed settings' }),
-      );
-
-      expect(
-        await screen.findByRole('button', { name: 'By date' }),
-      ).toBeInTheDocument();
-    });
-
-    it('keeps For you a link and Feed settings in the bar on a custom default feed', () => {
-      renderTabs({
-        feedName: SharedFeedPage.Custom,
-        heading: 'Mine',
-        user: { ...loggedUser, defaultFeedId: 'f1' },
-      });
-
-      expect(screen.getByRole('link', { name: 'For you' })).toHaveAttribute(
-        'href',
-        expect.stringMatching(/\/my-feed$/),
-      );
-      expect(
-        screen.queryByRole('button', { name: /sort and feed settings/i }),
-      ).not.toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: 'Feed settings' }),
-      ).toBeInTheDocument();
-    });
-
-    it('takes the collapsed row out of reach while its copy is docked', () => {
-      const observers = new Map<Element, IntersectionObserverCallback>();
-      const Observer = jest.mocked(IntersectionObserver);
-      const original = Observer.getMockImplementation();
-      Observer.mockImplementation(
-        (callback) =>
-          ({
-            observe: (element: Element) => observers.set(element, callback),
-            unobserve: jest.fn(),
-            disconnect: jest.fn(),
-          } as unknown as IntersectionObserver),
-      );
-
-      try {
-        renderTabs();
-        const row = screen
-          .getByRole('button', { name: 'For you, sort and feed settings' })
-          .closest('.overflow-hidden, .border-b') as HTMLElement;
-        const passed = (isIntersecting: boolean) =>
-          act(() =>
-            observers.get(row)?.(
-              [
-                {
-                  isIntersecting,
-                  boundingClientRect: { top: isIntersecting ? 10 : -10 },
-                } as IntersectionObserverEntry,
-              ],
-              {} as IntersectionObserver,
-            ),
-          );
-
-        expect(row.inert).toBe(false);
-        passed(true);
-        expect(row.inert).toBe(false);
-        passed(false);
-        expect(row.inert).toBe(true);
-        passed(true);
-        expect(row.inert).toBe(false);
-      } finally {
-        Observer.mockImplementation(original);
-      }
     });
   });
 });

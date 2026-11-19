@@ -94,7 +94,6 @@ export function PostContentRaw({
   contentLeading,
   renderSummarySegments,
   aboveComments,
-  belowComments,
   commentAds,
   shouldTrackView,
 }: PostContentRawProps): ReactElement {
@@ -174,7 +173,6 @@ export function PostContentRaw({
       {contentLeading}
       <BasePostContent
         aboveComments={aboveComments}
-        belowComments={belowComments}
         commentAds={commentAds}
         className={{
           ...className,
@@ -320,6 +318,14 @@ export function PostContentRaw({
             className={isCompactModalSpacing ? 'mb-4' : 'mb-6'}
           />
         )}
+        {/* Right under the post and above the comments, where a reader on
+            their way down cannot miss that there is a chat on. */}
+        <PostLiveChat
+          post={post}
+          origin={origin}
+          placement="inline"
+          className={isCompactModalSpacing ? 'mb-4' : 'mb-6'}
+        />
       </BasePostContent>
     </PostContainer>
   );
@@ -328,7 +334,6 @@ export function PostContentRaw({
     <PostWidgets
       onReadArticle={onReadArticle}
       post={post}
-      leading={<PostLiveChat post={post} origin={origin} placement="rail" />}
       className="!gap-2 pb-8 pt-4 tablet:border-l tablet:border-border-subtlest-tertiary"
       onClose={onClose}
       origin={origin}
@@ -359,7 +364,12 @@ export function PostContentRaw({
       }
     >
       {postMainColumn}
-      <PostLiveChat post={post} origin={origin} placement="mobile" />
+      <PostLiveChat
+        post={post}
+        origin={origin}
+        placement="mobile"
+        isPostPage={isPostPage}
+      />
       {postWidgetsColumn}
     </PostContentContainer>
   );

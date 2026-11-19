@@ -1,5 +1,5 @@
 import { createXmppTransport } from './xmppTransport';
-import type { DmEvent, DmPeer } from './types';
+import type { DmEvent, DmPeer, DmTransport } from './types';
 import { DmMessageStatus } from './types';
 import {
   DirectMessageAccess,
@@ -181,6 +181,34 @@ const peer: DmPeer = {
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
+// Every transport listens for page events, so one left open would answer the
+// next test's as well.
+const openTransports: DmTransport[] = [];
+const openTransport = () => {
+  const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+  openTransports.push(transport);
+  return transport;
+};
+
+afterEach(() => {
+  openTransports.splice(0).forEach((transport) => transport.close());
+  jest.restoreAllMocks();
+});
+
+// For tests that need the clock faked before the transport exists.
+const connectedWithFakeTimers = async () => {
+  await jest.advanceTimersByTimeAsync(0);
+  const connection = connections[connections.length - 1];
+  connection.statusCallback?.(mockStatus.CONNECTED);
+  await jest.advanceTimersByTimeAsync(0);
+  return connection;
+};
+
+const setVisibility = (state: DocumentVisibilityState) => {
+  jest.spyOn(document, 'visibilityState', 'get').mockReturnValue(state);
+  document.dispatchEvent(new Event('visibilitychange'));
+};
+
 const connected = async () => {
   await flush();
   const connection = connections[connections.length - 1];
@@ -215,7 +243,7 @@ beforeEach(() => {
 
 describe('createXmppTransport', () => {
   it('logs in with X-OAUTH2 only and turns on stream management', async () => {
-    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    const transport = openTransport();
     transport.subscribe(() => undefined);
     await connected();
 
@@ -227,7 +255,7 @@ describe('createXmppTransport', () => {
 
   it('keeps a message sending until the server acks it', async () => {
     const events: DmEvent[] = [];
-    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    const transport = openTransport();
     transport.subscribe((event) => events.push(event));
     const connection = await connected();
 
@@ -246,7 +274,7 @@ describe('createXmppTransport', () => {
   });
 
   it('reports a push preview without image markdown', async () => {
-    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    const transport = openTransport();
     transport.subscribe(() => undefined);
     const connection = await connected();
 
@@ -265,7 +293,7 @@ describe('createXmppTransport', () => {
 
   it('marks a message failed when no ack arrives in time', async () => {
     const events: DmEvent[] = [];
-    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    const transport = openTransport();
     transport.subscribe((event) => events.push(event));
     await connected();
     jest.useFakeTimers();
@@ -282,7 +310,7 @@ describe('createXmppTransport', () => {
 
   it('does not send a timed-out message again on retry', async () => {
     const events: DmEvent[] = [];
-    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    const transport = openTransport();
     transport.subscribe((event) => events.push(event));
     const connection = await connected();
     jest.useFakeTimers();
@@ -311,18 +339,19 @@ describe('createXmppTransport', () => {
 
   it('drops a socket that does not answer an ack request and resumes', async () => {
     const events: DmEvent[] = [];
-    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    const transport = openTransport();
     transport.subscribe((event) => events.push(event));
     const connection = await connected();
     jest.useFakeTimers();
 
     const sent = await transport.send(peer, 'hi');
-    jest.advanceTimersByTime(15 * 1000);
+    // Well before the message would be shown as failed.
+    jest.advanceTimersByTime(2 * 1000);
 
     expect(mockBuilt).toEqual(['r']);
     expect(connection.dropSocket).not.toHaveBeenCalled();
 
-    jest.advanceTimersByTime(5 * 1000);
+    jest.advanceTimersByTime(2 * 1000);
 
     // Not a clean disconnect, which would drop the resumable state.
     expect(connection.dropSocket).toHaveBeenCalledTimes(1);
@@ -345,33 +374,88 @@ describe('createXmppTransport', () => {
   });
 
   it('keeps a socket that answers the ack request', async () => {
-    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    const transport = openTransport();
     transport.subscribe(() => undefined);
     const connection = await connected();
     jest.useFakeTimers();
 
     await transport.send(peer, 'hi');
-    jest.advanceTimersByTime(15 * 1000);
+    jest.advanceTimersByTime(2 * 1000);
     connection.ackAll();
     jest.advanceTimersByTime(5 * 1000);
 
     expect(connection.dropSocket).not.toHaveBeenCalled();
   });
 
-  it('checks the socket when a retry waits on a queued message', async () => {
-    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+  it('does not check the socket for a send that is acked promptly', async () => {
+    const transport = openTransport();
     transport.subscribe(() => undefined);
     const connection = await connected();
     jest.useFakeTimers();
 
     await transport.send(peer, 'hi');
+    connection.ackAll();
     jest.advanceTimersByTime(15 * 1000);
+
+    expect(mockBuilt).toEqual([]);
+  });
+
+  it('checks an idle socket while the page is visible', async () => {
+    jest.useFakeTimers();
+    const transport = openTransport();
+    transport.subscribe(() => undefined);
+    await jest.advanceTimersByTimeAsync(0);
+    const connection = connections[connections.length - 1];
+    connection.statusCallback?.(mockStatus.CONNECTED);
+    await jest.advanceTimersByTimeAsync(0);
+
+    jest.advanceTimersByTime(25 * 1000);
+    expect(mockBuilt).toEqual(['r']);
+    connection.ackAll();
+    jest.advanceTimersByTime(5 * 1000);
+    expect(connection.dropSocket).not.toHaveBeenCalled();
+
+    // The next check goes unanswered: the socket died without a close event.
+    jest.advanceTimersByTime(20 * 1000);
+    expect(mockBuilt).toEqual(['r', 'r']);
+    jest.advanceTimersByTime(5 * 1000);
+    expect(connection.dropSocket).toHaveBeenCalledTimes(1);
+
+    transport.close();
+  });
+
+  it('leaves the socket alone while the page is hidden', async () => {
+    jest.useFakeTimers();
+    const transport = openTransport();
+    transport.subscribe(() => undefined);
+    await jest.advanceTimersByTimeAsync(0);
+    connections[connections.length - 1].statusCallback?.(mockStatus.CONNECTED);
+    await jest.advanceTimersByTimeAsync(0);
+    const visibility = jest
+      .spyOn(document, 'visibilityState', 'get')
+      .mockReturnValue('hidden');
+
+    jest.advanceTimersByTime(60 * 1000);
+    expect(mockBuilt).toEqual([]);
+
+    visibility.mockRestore();
+    transport.close();
+  });
+
+  it('checks the socket when a retry waits on a queued message', async () => {
+    const transport = openTransport();
+    transport.subscribe(() => undefined);
+    const connection = await connected();
+    jest.useFakeTimers();
+
+    await transport.send(peer, 'hi');
+    jest.advanceTimersByTime(2 * 1000);
     connection.ackAll();
     mockBuilt.length = 0;
 
-    // A new timeout, then the user taps retry before the probe settles.
+    // A slow ack, then the user taps retry before the probe settles.
     const again = await transport.send(peer, 'again');
-    jest.advanceTimersByTime(15 * 1000);
+    jest.advanceTimersByTime(2 * 1000);
     await transport.send(peer, 'again', undefined, { retryOf: again.id });
 
     // One probe in flight at a time.
@@ -381,7 +465,7 @@ describe('createXmppTransport', () => {
   });
 
   it('opens a new conversation once for concurrent first messages, in order', async () => {
-    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    const transport = openTransport();
     transport.subscribe(() => undefined);
     const connection = await connected();
 
@@ -395,7 +479,7 @@ describe('createXmppTransport', () => {
   });
 
   it('does not keep a socket when closed while the token is in flight', async () => {
-    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    const transport = openTransport();
     const history = transport.getMessages('peer');
 
     transport.close();
@@ -405,7 +489,7 @@ describe('createXmppTransport', () => {
   });
 
   it('settles a pending connect when closed mid-handshake', async () => {
-    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    const transport = openTransport();
     const history = transport.getMessages('peer');
     await flush();
 
@@ -436,7 +520,7 @@ describe('createXmppTransport', () => {
       `<reactions xmlns="urn:xmpp:reactions:0" id="${messageId}"><reaction>${emoji}</reaction></reactions>`;
 
     it('folds reactions into the messages they point at', async () => {
-      const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+      const transport = openTransport();
       transport.subscribe(() => undefined);
       const connection = await connected();
       connection.archivePages.push((queryId) => [
@@ -468,7 +552,7 @@ describe('createXmppTransport', () => {
           peer,
         },
       ]);
-      const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+      const transport = openTransport();
       transport.subscribe(() => undefined);
       const connection = await connected();
       connection.archivePages.push(
@@ -499,7 +583,7 @@ describe('createXmppTransport', () => {
           peer,
         },
       ]);
-      const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+      const transport = openTransport();
       transport.subscribe(() => undefined);
       const connection = await connected();
       connection.archivePages.push(
@@ -517,7 +601,7 @@ describe('createXmppTransport', () => {
   });
 
   it('folds corrections into the messages they replace', async () => {
-    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    const transport = openTransport();
     transport.subscribe(() => undefined);
     const connection = await connected();
     const archived = (queryId: string, id: string, inner: string) =>
@@ -561,7 +645,7 @@ describe('createXmppTransport', () => {
 
   it('sends an edit without counting it as a new message for the peer', async () => {
     const events: DmEvent[] = [];
-    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    const transport = openTransport();
     transport.subscribe((event) => events.push(event));
     const connection = await connected();
 
@@ -575,7 +659,7 @@ describe('createXmppTransport', () => {
 
   it('reports an edit the server bounced', async () => {
     const events: DmEvent[] = [];
-    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    const transport = openTransport();
     transport.subscribe((event) => events.push(event));
     const connection = await connected();
 
@@ -589,7 +673,7 @@ describe('createXmppTransport', () => {
 
   it('relays the peer’s typing but not our other sessions’', async () => {
     const events: DmEvent[] = [];
-    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    const transport = openTransport();
     transport.subscribe((event) => events.push(event));
     const connection = await connected();
     const deliver = (source: string) =>
@@ -623,7 +707,7 @@ describe('createXmppTransport', () => {
 
   it('reports a bounced reaction', async () => {
     const events: DmEvent[] = [];
-    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    const transport = openTransport();
     transport.subscribe((event) => events.push(event));
     const connection = await connected();
 
@@ -633,20 +717,127 @@ describe('createXmppTransport', () => {
     expect(events).toContainEqual({ type: 'reactionRejected', peerId: 'peer' });
   });
 
-  it('checks the socket when the page comes back to the foreground', async () => {
-    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
-    transport.subscribe(() => undefined);
-    const connection = await connected();
+  it('checks the socket when the page comes back after a short absence', async () => {
     jest.useFakeTimers();
+    const transport = openTransport();
+    transport.subscribe(() => undefined);
+    const connection = await connectedWithFakeTimers();
 
-    document.dispatchEvent(new Event('visibilitychange'));
-
-    // Transports left open by earlier tests probe too, so only this
-    // connection's outcome is checked.
-    expect(mockBuilt).toContain('r');
+    setVisibility('hidden');
     jest.advanceTimersByTime(5 * 1000);
-    expect(connection.dropSocket).toHaveBeenCalledTimes(1);
+    setVisibility('visible');
 
-    transport.close();
+    expect(mockBuilt).toEqual(['r']);
+    expect(connection.dropSocket).not.toHaveBeenCalled();
+    jest.advanceTimersByTime(2 * 1000);
+    expect(connection.dropSocket).toHaveBeenCalledTimes(1);
+  });
+
+  it('reconnects without checking when the page was away for a while', async () => {
+    jest.useFakeTimers();
+    const events: DmEvent[] = [];
+    const transport = openTransport();
+    transport.subscribe((event) => events.push(event));
+    const connection = await connectedWithFakeTimers();
+
+    setVisibility('hidden');
+    jest.advanceTimersByTime(20 * 1000);
+    setVisibility('visible');
+
+    // No probe to wait on, and not a clean disconnect, which would drop
+    // the resumable state.
+    expect(mockBuilt).toEqual([]);
+    expect(connection.dropSocket).toHaveBeenCalledTimes(1);
+    expect(connection.disconnect).not.toHaveBeenCalled();
+
+    // The new socket is opened right away rather than after a backoff.
+    const resumed = await connectedWithFakeTimers();
+    expect(resumed).not.toBe(connection);
+    expect(events).toContainEqual({ type: 'reconnected' });
+  });
+
+  it('resends a message written into the dead socket once it resumes', async () => {
+    jest.useFakeTimers();
+    const events: DmEvent[] = [];
+    const transport = openTransport();
+    transport.subscribe((event) => events.push(event));
+    await connectedWithFakeTimers();
+
+    setVisibility('hidden');
+    jest.advanceTimersByTime(60 * 1000);
+    setVisibility('visible');
+    const resumed = await connectedWithFakeTimers();
+
+    const sent = await transport.send(peer, 'hi');
+    resumed.ackAll();
+
+    expect(resumed.sent).toEqual([sent.id]);
+    expect(events).toContainEqual({
+      type: 'sent',
+      peerId: 'peer',
+      messageId: sent.id,
+    });
+  });
+
+  it('does not wait out a reconnect backoff when the page comes back', async () => {
+    jest.useFakeTimers();
+    const transport = openTransport();
+    transport.subscribe(() => undefined);
+    const connection = await connectedWithFakeTimers();
+
+    // The socket closes on its own; the retry is a second away.
+    connection.dropSocket();
+    await jest.advanceTimersByTimeAsync(0);
+    expect(connections).toHaveLength(1);
+
+    setVisibility('visible');
+    await jest.advanceTimersByTimeAsync(0);
+
+    expect(connections).toHaveLength(2);
+  });
+
+  it('reconnects when the network comes back', async () => {
+    jest.useFakeTimers();
+    const transport = openTransport();
+    transport.subscribe(() => undefined);
+    const connection = await connectedWithFakeTimers();
+
+    window.dispatchEvent(new Event('online'));
+
+    expect(mockBuilt).toEqual([]);
+    expect(connection.dropSocket).toHaveBeenCalledTimes(1);
+  });
+
+  it('reconnects when its timers were frozen while the page stayed visible', async () => {
+    jest.useFakeTimers();
+    const transport = openTransport();
+    transport.subscribe(() => undefined);
+    const connection = await connectedWithFakeTimers();
+
+    // A laptop lid: the clock moves on, the timers don't.
+    jest.setSystemTime(Date.now() + 10 * 60 * 1000);
+    jest.advanceTimersByTime(25 * 1000);
+
+    expect(mockBuilt).toEqual([]);
+    expect(connection.dropSocket).toHaveBeenCalledTimes(1);
+  });
+
+  it('shortens a check already in flight when the user is waiting', async () => {
+    jest.useFakeTimers();
+    const transport = openTransport();
+    transport.subscribe(() => undefined);
+    const connection = await connectedWithFakeTimers();
+
+    jest.advanceTimersByTime(25 * 1000);
+    expect(mockBuilt).toEqual(['r']);
+
+    await transport.send(peer, 'hi');
+    jest.advanceTimersByTime(2 * 1000);
+
+    // Still the one request, now due sooner than the idle check's 5s.
+    expect(mockBuilt).toEqual(['r']);
+    expect(connection.dropSocket).not.toHaveBeenCalled();
+    jest.advanceTimersByTime(2 * 1000);
+    expect(connection.dropSocket).toHaveBeenCalledTimes(1);
   });
 });

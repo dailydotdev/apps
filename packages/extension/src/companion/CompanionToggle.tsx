@@ -58,7 +58,7 @@ function CompanionToggle({
               />
               <ArrowIcon
                 className={classNames(
-                  'icon ',
+                  'icon',
                   companionState
                     ? 'block rotate-90'
                     : 'hidden -rotate-90 group-hover:block',

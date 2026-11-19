@@ -2,6 +2,7 @@ import {
   canGoBackInApp,
   goBackPast,
   isSettingsPath,
+  previousShellPath,
   recordShellRoute,
   hidesCluster,
   isRootView,
@@ -58,6 +59,7 @@ describe('hidesCluster', () => {
   it('hides the bar on settings and forms only', () => {
     expect(hidesCluster('/you')).toBe(true);
     expect(hidesCluster('/settings/profile')).toBe(true);
+    expect(hidesCluster('/wallet')).toBe(true);
     expect(hidesCluster('/feeds/[slugOrId]/edit')).toBe(true);
     expect(hidesCluster('/squads/[handle]/edit')).toBe(true);
     expect(hidesCluster('/posts/[id]/edit')).toBe(true);
@@ -205,5 +207,24 @@ describe('goBackPast', () => {
     expect(goBackPast(isSettingsPath, fallback)).toBeNull();
     expect(go).not.toHaveBeenCalled();
     expect(fallback).toHaveBeenCalled();
+  });
+});
+
+describe('previousShellPath', () => {
+  beforeEach(() => {
+    window.sessionStorage.clear();
+  });
+
+  it('names the page the current one was opened from', () => {
+    recordShellRoute('/posts/abc', 'k1');
+    recordShellRoute('/posts/abc/edit', 'k2');
+
+    expect(previousShellPath()).toBe('/posts/abc');
+  });
+
+  it('is empty on the first page of the tab', () => {
+    recordShellRoute('/posts/abc/edit', 'k1');
+
+    expect(previousShellPath()).toBeUndefined();
   });
 });

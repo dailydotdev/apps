@@ -31,7 +31,10 @@ import {
   useFeedWidgetTips,
 } from '@dailydotdev/shared/src/features/feedWidgets/tips';
 import { useFeedWidgets } from '@dailydotdev/shared/src/features/feedWidgets/useFeedWidgets';
-import { readStoredFeedRail } from '@dailydotdev/shared/src/features/feedWidgets/storedRail';
+import {
+  isFeedWidgetTipHidden,
+  readStoredFeedRail,
+} from '@dailydotdev/shared/src/features/feedWidgets/storedRail';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
@@ -177,7 +180,7 @@ const RestoreTips = (): ReactElement | null => {
         color={TypographyColor.Secondary}
         className="flex-1"
       >
-        You removed tips from your feed.
+        Tips are off in your feed.
       </Typography>
       <Button
         variant={ButtonVariant.Secondary}
@@ -203,11 +206,13 @@ const RestoreTips = (): ReactElement | null => {
   );
 };
 
-/** Offered to a signed-in reader who removed the tips from their rail. */
+/** Offered to a signed-in reader whose rail has the tips off (the default). */
 const ShowTipsInFeed = (): ReactElement | null => {
   const { user } = useAuthContext();
   const { flags } = useSettingsContext();
-  const isHidden = readStoredFeedRail(flags?.feedWidgets)?.tipsHidden === true;
+  const isHidden = isFeedWidgetTipHidden(
+    readStoredFeedRail(flags?.feedWidgets),
+  );
 
   // The rail's hook only mounts for the readers who can use it.
   return user && isHidden ? <RestoreTips /> : null;

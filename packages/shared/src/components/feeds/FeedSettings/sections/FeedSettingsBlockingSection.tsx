@@ -75,7 +75,7 @@ export const FeedSettingsBlockingSection = (): ReactElement => {
       />
       <ShellField
         overModal={isInModal}
-        placeholder="Search to block"
+        placeholder="Search blocked"
         value={fieldValue}
         onChange={(value) => {
           setFieldValue(value);

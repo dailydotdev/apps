@@ -61,7 +61,6 @@ export enum OtherFeedPage {
   ExploreDiscussed = 'postsdiscussed',
   ExploreUpvoted = 'postsupvoted',
   FeedByIds = 'feed-by-ids',
-  Welcome = 'welcome',
   Following = 'following',
   Post = 'posts[id]',
 }
@@ -136,6 +135,7 @@ export enum RequestKey {
   UserStreakRecover = 'user_streak_recover',
   StreakFreezeProducts = 'streak_freeze_products',
   StreakFreezeDates = 'streak_freeze_dates',
+  StreakPause = 'streak_pause',
   StreakFreezePurchase = 'streak_freeze_purchase',
   PersonalizedDigest = 'personalizedDigest',
   Changelog = 'changelog',
@@ -183,6 +183,9 @@ export enum RequestKey {
   DirectMessagePostPreview = 'direct_message_post_preview',
   ScheduledPosts = 'scheduled_posts',
   FeedSettings = 'feedSettings',
+  FeedProfile = 'feed_profile',
+  FeedControls = 'feed_controls',
+  FeedPostExplanation = 'feed_post_explanation',
   FeedWidgetData = 'feed_widget_data',
   Ads = 'ads',
   FeedByIds = 'feedByIds',
@@ -227,6 +230,12 @@ export enum RequestKey {
   Products = 'products',
   Transactions = 'transactions',
   Campaigns = 'campaigns',
+  SquadWallet = 'squad_wallet',
+  SquadSubscription = 'squad_subscription',
+  SquadFreeBoost = 'squad_free_boost',
+  StartupsCashbackPromo = 'startups_cashback_promo',
+  SquadSeats = 'squad_seats',
+  SquadIntel = 'squad_intel',
   CheckCoresRole = 'check_cores_role',
   Awards = 'awards',
   CampaignReach = 'campaignReach',
@@ -245,11 +254,20 @@ export enum RequestKey {
   UserPostsWithAnalytics = 'user_posts_with_analytics',
   CreatorAchievements = 'creator_achievements',
   SharedCreatorAchievement = 'shared_creator_achievement',
+  Picks = 'picks',
   CreatorPerformance = 'creator_performance',
   CreatorPostPerformance = 'creator_post_performance',
+  ReputationOverview = 'reputation_overview',
+  ReputationTopSources = 'reputation_top_sources',
+  ReputationEvents = 'reputation_events',
   SquadAnalytics = 'squad_analytics',
   SquadAnalyticsHistory = 'squad_analytics_history',
+  SquadAgentAnalytics = 'squad_agent_analytics',
+  SquadAgentAnalyticsHistory = 'squad_agent_analytics_history',
+  SquadPerformance = 'squad_performance',
+  SquadPostPerformance = 'squad_post_performance',
   CheckLocation = 'check_location',
+  EnsureUserTimezone = 'ensure_user_timezone',
   GenerateBrief = 'generate_brief',
   Opportunity = 'opportunity',
   Opportunities = 'opportunities',
@@ -275,6 +293,7 @@ export enum RequestKey {
   OAuthClients = 'oauth_clients',
   OAuthConsents = 'oauth_consents',
   OAuthPublicClient = 'oauth_public_client',
+  AgentClaim = 'agent_claim',
   Plugins = 'plugins',
   Plugin = 'plugin',
   MyPlugins = 'my_plugins',
@@ -293,6 +312,7 @@ export enum RequestKey {
   LeaderboardPosition = 'leaderboard_position',
   ShellState = 'shell_state',
   AchievementTracker = 'achievement_tracker',
+  EngagementCreatives = 'engagement_creatives',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];
@@ -303,9 +323,8 @@ export type HasConnection<
   TReturn = unknown,
 > = Partial<Record<TKey, Connection<TReturn>>>;
 
-type ConnectionNode<TConnection> = TConnection extends Connection<infer TNode>
-  ? TNode
-  : never;
+type ConnectionNode<TConnection> =
+  TConnection extends Connection<infer TNode> ? TNode : never;
 
 interface InfiniteCacheProps<
   TEntity extends HasConnection<TEntity>,

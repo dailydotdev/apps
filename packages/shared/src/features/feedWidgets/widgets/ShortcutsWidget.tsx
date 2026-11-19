@@ -27,8 +27,7 @@ import {
   TargetType,
 } from '../../../lib/log';
 import { checkIsExtension } from '../../../lib/func';
-import { apiUrl } from '../../../lib/config';
-import { getDomainFromUrl } from '../../../lib/links';
+import { getDomainFromUrl, getShortcutIconUrl } from '../../../lib/links';
 import { combinedClicks } from '../../../lib/click';
 import {
   cloudinaryShortcutsIconsGmail,
@@ -106,9 +105,7 @@ const ShortcutFavicon = ({
   shortcut: Shortcut;
   className: string;
 }): ReactElement => {
-  const iconService = `${apiUrl}/icon?url=${encodeURIComponent(
-    shortcut.url,
-  )}&size=${FAVICON_SIZE}`;
+  const iconService = getShortcutIconUrl(shortcut.url, FAVICON_SIZE);
   const [failed, setFailed] = useState<string[]>([]);
   const src = [shortcut.iconUrl, iconService].find(
     (candidate) => !!candidate && !failed.includes(candidate),

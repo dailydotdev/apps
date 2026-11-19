@@ -33,3 +33,8 @@ export const mergeRailOrder = <T>(saved: T[], defaults: T[]): T[] => {
 
   return merged;
 };
+
+export const replaceRailItem = <T>(saved: T[], from: T, to: T): T[] =>
+  saved.includes(to)
+    ? saved.filter((id) => id !== from)
+    : saved.map((id) => (id === from ? to : id));

@@ -34,7 +34,7 @@ import {
 } from '@dailydotdev/shared/src/components/shell/shellNav';
 import { BuyCreditsButton } from '@dailydotdev/shared/src/components/credit/BuyCreditsButton';
 import { useCanPurchaseCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
-import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
+import { getBuyCoresUrl } from '@dailydotdev/shared/src/lib/links';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
@@ -137,14 +137,13 @@ export default function SettingsLayout({
           <BuyCreditsButton
             className="ml-auto"
             hideBuyButton={!canPurchaseCores}
+            origin={Origin.Settings}
             onPlusClick={() => {
               router.push(
-                getPathnameWithQuery(
-                  `${webappUrl}cores`,
-                  new URLSearchParams({
-                    origin: Origin.Settings,
-                  }),
-                ),
+                getBuyCoresUrl({
+                  origin: Origin.Settings,
+                  next: router.asPath,
+                }),
               );
             }}
           />

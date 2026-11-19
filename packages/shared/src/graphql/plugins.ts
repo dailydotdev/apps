@@ -61,6 +61,7 @@ export interface PluginSubmission {
   name: string;
   description: string;
   url: string | null;
+  rejectionReason: string | null;
   createdAt: string;
 }
 
@@ -157,6 +158,7 @@ export const MY_PLUGIN_SUBMISSIONS_QUERY = gql`
           name
           description
           url
+          rejectionReason
           createdAt
         }
       }

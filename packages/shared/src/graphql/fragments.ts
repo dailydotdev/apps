@@ -30,6 +30,7 @@ export const CURRENT_MEMBER_FRAGMENT = gql`
     permissions
     role
     referralToken
+    seat
     flags {
       hideFeedPosts
       collapsePinnedPosts
@@ -219,6 +220,11 @@ export const SOURCE_BASE_FRAGMENT = gql`
       adFree
       links
       products
+      cta
+      jobs
+      apiPosting
+      showVerifiedBadge
+      hideAds
     }
     currentMember {
       ...CurrentMember
@@ -234,7 +240,6 @@ export const SOURCE_BASE_FRAGMENT = gql`
 export const SQUAD_BASE_FRAGMENT = `
   fragment SquadBaseInfo on Source {
     ...SourceBaseInfo
-    referralUrl
     createdAt
     flags {
       featured
@@ -243,6 +248,7 @@ export const SQUAD_BASE_FRAGMENT = `
       totalUpvotes
       totalAwards
       campaignId
+      company
     }
     category {
       id
@@ -326,6 +332,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       }
       features {
         verified
+        showVerifiedBadge
       }
     }
     userState {
@@ -598,6 +605,12 @@ export const USER_STREAK_FRAGMENT = gql`
     lastViewAt
     weekStart
     freezesAvailable
+    freeFreezes
+    lastReset {
+      missedDate
+      timezone
+      at
+    }
   }
 `;
 

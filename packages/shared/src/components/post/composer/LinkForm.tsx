@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDebouncedUrl } from '../../../hooks/input';
+import { useEmojiFreeInput } from '../../../hooks/input/useEmojiFreeInput';
 import { WriteLinkPreview } from '../write/WriteLinkPreview';
 import { WritePreviewSkeleton } from '../write/WritePreviewSkeleton';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
@@ -39,6 +40,8 @@ export const LinkForm = ({
 }: LinkFormProps): ReactElement => {
   const urlRef = useRef<HTMLInputElement>(null);
   const commentaryRef = useRef<HTMLTextAreaElement>(null);
+  const { hasStrippedEmojis, onEmojiFreeInput, resetEmojiHint } =
+    useEmojiFreeInput();
   const [dismissedUrl, setDismissedUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -144,18 +147,25 @@ export const LinkForm = ({
         maxLength={TITLE_MAX_LENGTH}
         rows={1}
         value={value.commentary}
-        onChange={(event) =>
+        onChange={(event) => {
+          onEmojiFreeInput(event);
           onChange({
             ...value,
             commentary: normalizeSingleLineComposerText(
               event.currentTarget.value,
             ),
-          })
-        }
+          });
+        }}
+        onBlur={resetEmojiHint}
         onKeyDown={onEnterKeyDown}
         aria-label="Post commentary"
         className="max-h-36 w-full resize-none overflow-y-auto break-words bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
       />
+      {hasStrippedEmojis && (
+        <p role="status" className="text-text-secondary typo-caption1">
+          Emojis aren&apos;t allowed in link comments
+        </p>
+      )}
       {(showSkeleton || (preview && showPreview)) && (
         <div className="relative flex flex-col gap-3">
           {showSkeleton && (

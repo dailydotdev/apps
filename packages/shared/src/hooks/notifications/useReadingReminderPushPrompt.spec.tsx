@@ -6,7 +6,6 @@ import {
   NotificationPromptSource,
   TargetType,
 } from '../../lib/log';
-import { useConditionalFeature } from '../useConditionalFeature';
 import { useReadingReminderPushPrompt } from './useReadingReminderPushPrompt';
 
 const mockUseLogContext = jest.fn();
@@ -28,10 +27,6 @@ jest.mock('../../contexts/PushNotificationContext', () => ({
 
 jest.mock('./usePushNotificationMutation', () => ({
   usePushNotificationMutation: () => mockUsePushNotificationMutation(),
-}));
-
-jest.mock('../useConditionalFeature', () => ({
-  useConditionalFeature: jest.fn(),
 }));
 
 describe('useReadingReminderPushPrompt', () => {
@@ -69,10 +64,6 @@ describe('useReadingReminderPushPrompt', () => {
       onEnablePush,
       acceptedJustNow: false,
     });
-    (useConditionalFeature as jest.Mock).mockReturnValue({
-      value: true,
-      isLoading: false,
-    });
   });
 
   it('should ask a paused reminder holder to turn on push', async () => {
@@ -97,22 +88,7 @@ describe('useReadingReminderPushPrompt', () => {
     );
   });
 
-  it('should enroll but not show the prompt in the control arm', () => {
-    (useConditionalFeature as jest.Mock).mockReturnValue({
-      value: false,
-      isLoading: false,
-    });
-
-    const { result } = renderPrompt();
-
-    expect(useConditionalFeature).toHaveBeenCalledWith(
-      expect.objectContaining({ shouldEvaluate: true }),
-    );
-    expect(result.current.shouldShow).toBe(false);
-    expect(logEvent).not.toHaveBeenCalled();
-  });
-
-  it('should not enroll when this device already has push', () => {
+  it('should not show the prompt when this device already has push', () => {
     mockUsePushNotificationContext.mockReturnValue({
       isPushSupported: true,
       isInitialized: true,
@@ -121,9 +97,7 @@ describe('useReadingReminderPushPrompt', () => {
 
     const { result } = renderPrompt();
 
-    expect(useConditionalFeature).toHaveBeenCalledWith(
-      expect.objectContaining({ shouldEvaluate: false }),
-    );
     expect(result.current.shouldShow).toBe(false);
+    expect(logEvent).not.toHaveBeenCalled();
   });
 });

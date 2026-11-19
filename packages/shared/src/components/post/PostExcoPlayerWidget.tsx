@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { useIsPlusAdFree } from '../../hooks/useIsPlusAdFree';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { featureExcoPlayer } from '../../lib/featureManagement';
@@ -104,7 +104,7 @@ export function PostExcoPlayerWidget({
   className,
 }: PostExcoPlayerWidgetProps): ReactElement | null {
   const { isAuthReadyOrCached } = useAuthContext();
-  const { isPlus } = usePlusSubscription();
+  const isPlusAdFree = useIsPlusAdFree();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const [qaPlayerId, setQaPlayerId] = useState<string>();
 
@@ -127,9 +127,10 @@ export function PostExcoPlayerWidget({
   const isAdFree =
     shouldSkipSourceAds(post.source) ||
     (post.source?.type === SourceType.Squad &&
+      post.source.features?.hideAds === undefined &&
       post.source.features?.adFree === undefined);
   const canEvaluate =
-    isAuthReadyOrCached && !isPlus && !isAdFree && !qaPlayerId;
+    isAuthReadyOrCached && !isPlusAdFree && !isAdFree && !qaPlayerId;
   const { value: config, isLoading } = useConditionalFeature({
     feature: featureExcoPlayer,
     shouldEvaluate: canEvaluate,

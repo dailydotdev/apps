@@ -19,8 +19,10 @@ import type { UseSquadActions } from '../../hooks';
 import { useToastNotification } from '../../hooks';
 import { Tooltip } from '../tooltip/Tooltip';
 
-interface SquadMemberActionsProps
-  extends Pick<UseSquadActions, 'onUpdateRole' | 'onDemoteSelf'> {
+interface SquadMemberActionsProps extends Pick<
+  UseSquadActions,
+  'onUpdateRole' | 'onDemoteSelf'
+> {
   squad: Squad;
   member: SourceMember;
   onUnblock: React.MouseEventHandler;

@@ -269,7 +269,7 @@ const toMockPost = (seed: MockPostSeed): Post =>
     clickbaitTitleDetected: false,
     private: false,
     userState: { vote: UserVote.None },
-  } as unknown as Post);
+  }) as unknown as Post;
 
 export const mockFeedPosts: Post[] = seeds.map(toMockPost);
 

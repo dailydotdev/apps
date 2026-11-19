@@ -3,9 +3,11 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import type { QuestCompletionStats } from '@dailydotdev/shared/src/graphql/leaderboard';
+import type {
+  QuestCompletionStats,
+  UserLeaderboard,
+} from '@dailydotdev/shared/src/graphql/leaderboard';
 import {
   HIGHEST_LEVEL_QUERY,
   MOST_QUESTS_COMPLETED_QUERY,

@@ -1,0 +1,335 @@
+export enum ExplainOrigin {
+  // A tag the reader follows.
+  Declared = 'declared',
+  // Learned from reading, never followed.
+  Inferred = 'inferred',
+  // Only given a weight by the reader.
+  Set = 'set',
+}
+
+export enum ExplainRole {
+  Central = 'central',
+  Side = 'side',
+}
+
+export enum ExplainFollowKind {
+  Source = 'source',
+  Squad = 'squad',
+  Author = 'author',
+}
+
+export enum ExplainStrength {
+  Strong = 'strong',
+  Moderate = 'moderate',
+  Confirmed = 'confirmed',
+  EarlySignal = 'early_signal',
+}
+
+export enum TopicControl {
+  Weight = 'weight',
+  Boost = 'boost',
+  Demote = 'demote',
+  StopLearning = 'stop_learning',
+}
+
+/** A topic's level in For You as the reader set it. No level is Auto. */
+export enum FeedTopicMode {
+  Boost = 'boost',
+  Demote = 'demote',
+  StopLearning = 'stop_learning',
+  Off = 'off',
+}
+
+/**
+ * A source's level in For You. Off ignores the reader's follow of it there;
+ * they still follow it everywhere else.
+ */
+export enum FeedSourceMode {
+  Boost = 'boost',
+  Demote = 'demote',
+  Off = 'off',
+}
+
+/** An author's level in For You, the same levels a source has. */
+export enum FeedAuthorMode {
+  Boost = 'boost',
+  Demote = 'demote',
+  Off = 'off',
+}
+
+/** What the reader set on a card's source or author, as it was ranked. */
+export enum FollowControl {
+  Boost = 'boost',
+  Demote = 'demote',
+  Off = 'off',
+  Weight = 'weight',
+}
+
+/** How long a change lasts. None lasts until the reader changes it. */
+export enum FeedControlDuration {
+  ThreeDays = 'three_days',
+  Week = 'week',
+}
+
+/**
+ * A topic or source the reader set: a level, or an exact weight (Plus),
+ * until `expiresAt` (Plus) or for good. An exact weight stays stored when
+ * Plus ends but counts only while the reader has it.
+ */
+export interface FeedControl<Mode> {
+  mode: Mode | null;
+  weight: number | null;
+  expiresAt: string | null;
+}
+
+/** How the reader steers For You: levels, learning and popular fill-ins. */
+export interface FeedControls {
+  topics: ({ keyword: string } & FeedControl<FeedTopicMode>)[];
+  // The name is missing from a change shown before the API answers.
+  sources: ({
+    source: { id: string; name?: string };
+  } & FeedControl<FeedSourceMode>)[];
+  authors: ({
+    user: { id: string; name?: string };
+  } & FeedControl<FeedAuthorMode>)[];
+  learning: boolean;
+  fillIns: boolean;
+}
+
+/**
+ * The first version of a ranked card's explanation, daily-feed's
+ * `policy.Explanation`: every factor the score multiplies, at 3 decimals.
+ * Optional keys are absent rather than null.
+ */
+export interface RankedExplain {
+  lane: string;
+  v: 1;
+  score: number;
+  /** The card's place in the feed, when the ranking picked it. */
+  position?: number;
+  base: {
+    value: number;
+    prior_lift?: number;
+    viewers: number;
+    /**
+     * On a new post the feed ranks closer to how well it could do: `value`
+     * is `cautious`, what its engagement shows so far, moved `optimism` of
+     * the way toward `upper`. Absent otherwise.
+     */
+    cautious?: number;
+    upper?: number;
+    optimism?: number;
+  };
+  /** The best-matching topic, absent when a follow alone let the card in. */
+  match?: {
+    tag: string;
+    origin: ExplainOrigin;
+    role: ExplainRole;
+    role_weight: number;
+    strength?: ExplainStrength;
+    weight: number;
+    computed_weight: number;
+    recency?: number;
+    stories?: number;
+    hidden_stories?: number;
+    hide_penalty?: number;
+    control?: TopicControl;
+    factor: number;
+  };
+  /**
+   * The larger of the source's and the author's follow, then the levels the
+   * reader set on either. A follow set to Off is no follow.
+   */
+  follow: {
+    kind?: ExplainFollowKind;
+    factor: number;
+    source_control?: FollowControl;
+    author_control?: FollowControl;
+  };
+  age: { days: number; factor: number };
+  /** `passive_shows` counts times it loaded in a tab the reader didn't look at. */
+  seen: { shows: number; passive_shows?: number; factor: number };
+  /** The variety adjustments, on picked cards. */
+  slot?: {
+    source_repeat: number;
+    topic_repeat: number;
+    same_headline: number;
+    waiting: number;
+    waiting_tag?: string;
+    /** On the card that took the spot saved for a new post, scored on its own scale. */
+    fresh?: boolean;
+    pick_score: number;
+  };
+  /** The random nudge the score took, on feeds that try posts ranked just below. */
+  explore?: number;
+}
+
+/**
+ * A card's explanation as feedV2 returns it with `explain`. Key on `v`: a
+ * card from another lane than the personalized one only names its lane, and
+ * a version this client doesn't know reads the same way.
+ */
+export type FeedItemExplain =
+  | RankedExplain
+  | {
+      lane: string;
+      v?: never;
+      /** It topped up a page For You's ranking couldn't fill. */
+      fill_in?: boolean;
+    };
+
+export const isRankedExplain = (
+  explain: FeedItemExplain | null | undefined,
+): explain is RankedExplain => explain?.v === 1;
+
+export interface FeedProfileInterest {
+  tag: string;
+  origin: ExplainOrigin;
+  strength: ExplainStrength | null;
+  stories: number;
+  hiddenStories: number;
+  computedWeight: number;
+  control: TopicControl | null;
+  weight: number;
+  backed: boolean;
+}
+
+/** A ranking setting as For You ranks with it, and its value untouched. */
+export interface FeedProfileRankingSetting {
+  key: string;
+  value: number;
+  defaultValue: number;
+}
+
+export interface FeedProfile {
+  cohort: boolean;
+  learning: boolean;
+  interests: FeedProfileInterest[];
+  /** Topics the reader turned off in For You. */
+  muted: string[];
+  blocked: string[];
+  /** The ranking settings For You ranks with, empty outside the cohort. */
+  ranking: FeedProfileRankingSetting[];
+}
+
+/**
+ * Changes to the controls on top of the stored ones, which the feed ranks
+ * with while Tune is open. An entry with neither a mode nor a weight is Auto.
+ */
+export interface FeedControlsDraft {
+  topics?: { keyword: string; mode?: FeedTopicMode; weight?: number }[];
+  sources?: { sourceId: string; mode?: FeedSourceMode; weight?: number }[];
+  authors?: { userId: string; mode?: FeedAuthorMode; weight?: number }[];
+  learning?: boolean;
+}
+
+/** Tune's tabs, by the controls they hold. */
+export enum FeedTuneTab {
+  Topics = 'Topics',
+  Sources = 'Sources and creators',
+}
+
+/** What the What's off box makes of a complaint. */
+export enum WhatsOffResponse {
+  /** Changes to offer. */
+  Act = 'act',
+  /** What the reader meant is unclear: the lines carry the choices. */
+  Ask = 'ask',
+  None = 'none',
+}
+
+export enum WhatsOffScope {
+  Feed = 'feed',
+  /** About the app or something no feed setting touches. */
+  OutOfScope = 'out_of_scope',
+  Abusive = 'abusive',
+  Injection = 'injection',
+  Vague = 'vague',
+}
+
+/** How a line of the answer is offered. */
+export enum WhatsOffLineKind {
+  /** An exact control, picked with confidence. */
+  Sure = 'sure',
+  /** An exact control, picked with little confidence: "Did you mean". */
+  Unsure = 'unsure',
+  /** No pick stands out: the alternatives are the choices. */
+  Choose = 'choose',
+  /** No exact control: the change is the nearest real one. */
+  Closest = 'closest',
+  /** No control at all yet. */
+  Missing = 'missing',
+  /** Already in place. */
+  Already = 'already',
+}
+
+export enum WhatsOffOp {
+  Topic = 'topic',
+  Source = 'source',
+  Author = 'author',
+  Follow = 'follow',
+  Unfollow = 'unfollow',
+  Block = 'block',
+  Unblock = 'unblock',
+  Format = 'format',
+  Curation = 'curation',
+  Squads = 'squads',
+  BlockedWord = 'blocked_word',
+  ClickbaitShield = 'clickbait_shield',
+  Learning = 'learning',
+  FillIns = 'fill_ins',
+  Reset = 'reset',
+  HidePosts = 'hide_posts',
+}
+
+export enum WhatsOffTargetType {
+  Keyword = 'keyword',
+  Source = 'source',
+  User = 'user',
+}
+
+/** The topic, source or person a change is about. */
+export interface WhatsOffTarget {
+  type: WhatsOffTargetType;
+  /** The keyword's value, or the source's or user's id. */
+  id: string;
+  name: string;
+  image?: string | null;
+  handle?: string | null;
+}
+
+/** One change, applied only when the reader taps it. */
+export interface WhatsOffChange {
+  op: WhatsOffOp;
+  target?: WhatsOffTarget | null;
+  /** The level of a topic, source or author. None is Auto. */
+  mode?: FeedTopicMode | FeedSourceMode | FeedAuthorMode | null;
+  /** The format or kind of post, the blocked word, or what to reset. */
+  value?: string | null;
+  /** The advanced setting a format, kind of post or squads change toggles. */
+  advancedSettingId?: number | null;
+  /** Shown for a format, kind of post or squads, on for a switch. */
+  enabled?: boolean | null;
+  postIds?: string[] | null;
+  /** How sure the pick of a line's main change is, 0 to 1. */
+  certainty?: number | null;
+  plusOnly: boolean;
+}
+
+export interface WhatsOffLine {
+  kind: WhatsOffLineKind;
+  /** The reader's words this line answers. */
+  words: string;
+  /** What no control covers yet, on closest and missing lines. */
+  gap?: string | null;
+  change?: WhatsOffChange | null;
+  alternatives: WhatsOffChange[];
+}
+
+export interface WhatsOff {
+  /** Ties the reader's taps on the answer to it in analytics. */
+  id: string;
+  response: WhatsOffResponse;
+  scope: WhatsOffScope;
+  lines: WhatsOffLine[];
+}

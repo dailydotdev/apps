@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import type { GetServerSideProps } from 'next';
@@ -46,14 +46,17 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { BoostPostButton } from '@dailydotdev/shared/src/features/boost/BoostButton';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
 import type { Post, PostData } from '@dailydotdev/shared/src/graphql/posts';
 import {
   POST_BY_ID_STATIC_FIELDS_QUERY,
+  postAnalyticsHistoryQuery,
   postAnalyticsQueryOptions,
 } from '@dailydotdev/shared/src/graphql/posts';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { canViewPostAnalytics } from '@dailydotdev/shared/src/lib/user';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
   getPostByIdKey,
@@ -67,6 +70,7 @@ import { ClickableText } from '@dailydotdev/shared/src/components/buttons/Clicka
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { BoostingLabel } from '@dailydotdev/shared/src/components/post/analytics/BoostingLabel';
 import { PostShortInfo } from '@dailydotdev/shared/src/components/post/analytics/PostShortInfo';
+import { LimitedReachCard } from '@dailydotdev/shared/src/components/post/analytics/LimitedReachCard';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { formatDataTileValue, labels } from '@dailydotdev/shared/src/lib';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
@@ -82,7 +86,8 @@ import {
 } from '@dailydotdev/shared/src/graphql/campaigns';
 import { getAbsoluteDifferenceInDays } from '@dailydotdev/shared/src/features/boost/utils';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
-import { stopBoostPromptOptions } from '@dailydotdev/shared/src/features/boost/BoostedViewModal';
+import { stopBoostPromptOptions } from '@dailydotdev/shared/src/features/boost/useStopBoost';
+import { lastBoostOf } from '@dailydotdev/shared/src/features/boost/common';
 import { useCampaignMutation } from '@dailydotdev/shared/src/features/boost/useCampaignMutation';
 import {
   dateFormatInTimezone,
@@ -94,6 +99,9 @@ import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/type
 import { BoostIcon } from '@dailydotdev/shared/src/components/icons/Boost';
 import { useCampaignEstimation } from '@dailydotdev/shared/src/features/boost/useCampaignEstimation';
 import { useCampaigns } from '@dailydotdev/shared/src/features/boost/useCampaigns';
+import { AgentViewsSection } from '@dailydotdev/shared/src/components/analytics/AgentViewsSection';
+import { StartupsAgentAnalyticsPromo } from '@dailydotdev/shared/src/features/squads/components/promos/StartupsAgentAnalyticsPromo';
+import { LegendToggle } from '@dailydotdev/shared/src/components/analytics/LegendToggle';
 import { getSeoDescription } from '../../../../components/PostSEOSchema';
 import type { Props } from '../index';
 import { seoTitle } from '../index';
@@ -106,9 +114,9 @@ import type { AnalyticsNumberList } from '../../../../../shared/src/components/a
 
 const ImpressionsChart = dynamic(
   () =>
-    import(
-      '../../../../../shared/src/components/analytics/ImpressionsChart'
-    ).then((mod) => mod.ImpressionsChart),
+    import('../../../../../shared/src/components/analytics/ImpressionsChart').then(
+      (mod) => mod.ImpressionsChart,
+    ),
   {
     loading: () => <div className="h-40 w-full" />,
   },
@@ -216,9 +224,15 @@ const PostAnalyticsPage = ({
   });
   const isAuthor = !!user?.id && user.id === post?.author?.id;
 
-  const { data: postAnalytics } = useQuery({
+  const { data: postAnalytics, isFetched: isPostAnalyticsFetched } = useQuery({
     ...postAnalyticsQueryOptions({ id: post?.id }),
     enabled: canViewPostAnalytics({ post, user }),
+  });
+
+  const { data: postAnalyticsHistory } = useQuery({
+    ...postAnalyticsHistoryQuery({ id: post?.id }),
+    enabled: canViewPostAnalytics({ post, user }),
+    select: (data) => data.edges.map(({ node }) => node),
   });
 
   // get latest campaign user created for this post
@@ -228,6 +242,10 @@ const PostAnalyticsPage = ({
     enabled: isAuthor && !!post?.id,
   });
   const campaign = campaignQuery.data?.pages[0]?.edges[0]?.node;
+
+  const [showOrganic, setShowOrganic] = useState(true);
+  const [showPromoted, setShowPromoted] = useState(true);
+  const canViewAgentViews = typeof postAnalytics?.agentViews === 'number';
 
   const canBoost = useShowBoostButton({ post });
   const isBoosting = !!post?.flags?.campaignId;
@@ -401,7 +419,7 @@ const PostAnalyticsPage = ({
         return;
       }
 
-      await onCancelBoost(campaign.id);
+      await onCancelBoost(campaign);
 
       return;
     }
@@ -410,6 +428,8 @@ const PostAnalyticsPage = ({
       type: LazyModal.BoostPost,
       props: {
         post,
+        origin: Origin.PostAnalytics,
+        lastBoost: campaign && lastBoostOf(campaign),
       },
     });
   };
@@ -436,12 +456,15 @@ const PostAnalyticsPage = ({
   const boostAction = isBoosting ? (
     <BoostingLabel />
   ) : (
-    <BoostPostButton
-      buttonProps={{
-        size: ButtonSize.Small,
-      }}
-      post={post}
-    />
+    canBoost && (
+      <BoostPostButton
+        buttonProps={{
+          size: ButtonSize.Small,
+        }}
+        post={post}
+        origin={Origin.PostAnalytics}
+      />
+    )
   );
 
   return (
@@ -474,6 +497,12 @@ const PostAnalyticsPage = ({
       <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6">
         <SectionContainer>
           <PostShortInfo post={post} />
+          {!!postAnalytics?.limitedReachReason && (
+            <LimitedReachCard
+              reason={postAnalytics.limitedReachReason}
+              squadHandle={post?.source?.handle}
+            />
+          )}
         </SectionContainer>
         <Divider className={dividerClassName} />
         <SectionContainer>
@@ -522,23 +551,65 @@ const PostAnalyticsPage = ({
               }
             />
           </div>
-          <div className="flex items-center">
+          <div className="flex flex-wrap items-center gap-2">
             <Typography type={TypographyType.Footnote} bold>
               Impressions in the last 45 days
             </Typography>
-            <div className="ml-auto flex gap-2">
-              <div className="flex items-center gap-1">
-                <div className="size-2 rounded-full bg-brand-default" />{' '}
-                <Typography type={TypographyType.Footnote}>Organic</Typography>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="size-2 rounded-full bg-accent-blueCheese-default" />{' '}
-                <Typography type={TypographyType.Footnote}>Promoted</Typography>
-              </div>
+            <div className="ml-auto flex flex-wrap gap-2">
+              <LegendToggle
+                label="Organic"
+                dotClassName="bg-brand-default"
+                isActive={showOrganic}
+                isLocked={showOrganic && !showPromoted}
+                onToggle={() => setShowOrganic((current) => !current)}
+              />
+              <LegendToggle
+                label="Promoted"
+                dotClassName="bg-accent-blueCheese-default"
+                isActive={showPromoted}
+                isLocked={showPromoted && !showOrganic}
+                onToggle={() => setShowPromoted((current) => !current)}
+              />
             </div>
           </div>
-          <ImpressionsChart post={post} />
+          <ImpressionsChart
+            post={post}
+            showOrganic={showOrganic}
+            showPromoted={showPromoted}
+          />
         </SectionContainer>
+        {canViewAgentViews && (
+          <>
+            <Divider className={dividerClassName} />
+            <SectionContainer>
+              <SectionHeader>AI agents</SectionHeader>
+              <AgentViewsSection
+                analytics={postAnalytics}
+                history={postAnalyticsHistory}
+                readsInfo="The number of times AI assistants like ChatGPT, Claude, and Gemini read your post because someone asked them about it."
+                crawlsInfo="The number of times AI crawlers visited your post to index it for AI search or crawling."
+              />
+            </SectionContainer>
+          </>
+        )}
+        {isPostAnalyticsFetched && !canViewAgentViews && (
+          <StartupsAgentAnalyticsPromo
+            sourceId={
+              post?.source?.type === SourceType.Squad
+                ? post.source.id
+                : undefined
+            }
+            wrapper={(promo) => (
+              <>
+                <Divider className={dividerClassName} />
+                <SectionContainer>
+                  <SectionHeader>AI agents</SectionHeader>
+                  {promo}
+                </SectionContainer>
+              </>
+            )}
+          />
+        )}
         <Divider className={dividerClassName} />
         {canBoost && !campaign && (
           <>
@@ -561,6 +632,7 @@ const PostAnalyticsPage = ({
               <BoostPostButton
                 post={post}
                 buttonProps={{ size: ButtonSize.Small, className: 'mr-auto' }}
+                origin={Origin.PostAnalytics}
               />
             </SectionContainer>
             <Divider className={dividerClassName} />

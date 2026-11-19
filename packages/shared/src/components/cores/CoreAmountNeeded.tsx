@@ -7,51 +7,69 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { useBuyCoresContext } from '../../contexts/BuyCoresContext/types';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { formatCoresCurrency } from '../../lib/utils';
 
 export const CoreAmountNeeded = ({
   title,
 }: {
   title?: string;
-}): ReactElement => {
+}): ReactElement | null => {
+  const { user } = useAuthContext();
   const { amountNeeded, selectedProduct } = useBuyCoresContext();
+  const balance = user?.balance?.amount ?? 0;
+  const missing = (amountNeeded ?? 0) - balance;
 
-  if (!amountNeeded || !selectedProduct) {
+  if (!amountNeeded || missing <= 0) {
+    if (!title) {
+      return null;
+    }
+
     return (
       <Typography
         className="w-full flex-1"
         type={TypographyType.Callout}
         color={TypographyColor.Secondary}
       >
-        {title ?? 'Choose how many Cores to buy.'}
+        {title}
       </Typography>
     );
   }
 
-  return (
-    <>
+  if (!selectedProduct || selectedProduct.value < missing) {
+    return (
       <Typography
         className="w-full flex-1"
         type={TypographyType.Callout}
         color={TypographyColor.Secondary}
       >
+        You need{' '}
         <Typography
           tag={TypographyTag.Span}
           color={TypographyColor.Primary}
           bold
         >
-          {formatCoresCurrency(amountNeeded)} Cores
+          {formatCoresCurrency(missing)} more Cores
         </Typography>{' '}
-        will be used to give the Award. The remaining{' '}
-        <Typography
-          tag={TypographyTag.Span}
-          color={TypographyColor.Primary}
-          bold
-        >
-          {formatCoresCurrency(selectedProduct.value - amountNeeded)} Cores
-        </Typography>{' '}
-        will be added to your balance.
+        to send the award.
       </Typography>
-    </>
+    );
+  }
+
+  return (
+    <Typography
+      className="w-full flex-1"
+      type={TypographyType.Callout}
+      color={TypographyColor.Secondary}
+    >
+      <Typography tag={TypographyTag.Span} color={TypographyColor.Primary} bold>
+        Covers your award.
+      </Typography>{' '}
+      {formatCoresCurrency(amountNeeded)} Cores go to the award, and{' '}
+      <Typography tag={TypographyTag.Span} color={TypographyColor.Primary} bold>
+        {formatCoresCurrency(balance + selectedProduct.value - amountNeeded)}
+      </Typography>{' '}
+      stay in your balance.
+    </Typography>
   );
 };

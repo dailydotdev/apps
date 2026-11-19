@@ -4,6 +4,7 @@ import type { SettingsFlags } from '../../graphql/settings';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { featureFeedWidgetsDefault } from '../../lib/featureManagement';
+import { useFeedWidgetAvailability, usableFeedWidgets } from './availability';
 import type {
   FeedWidget,
   FeedWidgetConfig,
@@ -21,6 +22,7 @@ import {
 import {
   customFeedWidgets,
   feedRailFingerprint,
+  isFeedWidgetTipHidden,
   readStoredFeedRail,
   resolveDefaultFeedRail,
 } from './storedRail';
@@ -67,7 +69,7 @@ export type UseFeedWidgets = {
   /** One write for a whole new order, as a drag commits on drop. */
   replaceWidgets: (next: FeedWidget[]) => FeedWidgetsSaved;
   resetWidgets: () => FeedWidgetsSaved;
-  /** The reader removed the daily.dev tips over our slot. */
+  /** The daily.dev tips over our slot are off: the default, until opted in. */
   isTipHidden: boolean;
   /**
    * Hides or brings back the tips, a rail-level field: a reader on the
@@ -131,10 +133,13 @@ export const useFeedWidgets = (): UseFeedWidgets => {
     feature: featureFeedWidgetsDefault,
     shouldEvaluate: custom === null,
   });
-  const defaultRail = useMemo(
-    () => resolveDefaultFeedRail(defaultFlag),
-    [defaultFlag],
-  );
+  // Only what this reader could add themselves: the default never seats a
+  // widget the gallery would refuse them.
+  const availability = useFeedWidgetAvailability();
+  const defaultRail = useMemo(() => {
+    const rail = resolveDefaultFeedRail(defaultFlag);
+    return { ...rail, widgets: usableFeedWidgets(rail.widgets, availability) };
+  }, [defaultFlag, availability]);
   const stored = custom ?? defaultRail.widgets;
   const isReadOnly = (saved?.version ?? 1) > FEED_WIDGET_RAIL_VERSION;
   const widgets = useMemo(
@@ -216,7 +221,8 @@ export const useFeedWidgets = (): UseFeedWidgets => {
       const ownWidgets = customFeedWidgets(current);
       const { tipsHidden, fromDefault, ...rest } =
         current && ownWidgets ? current : railFields(current);
-      const fields = isHidden ? { ...rest, tipsHidden: true } : rest;
+      // Written either way: tips are off unless the field reads `false`.
+      const fields = { ...rest, tipsHidden: isHidden };
       if (ownWidgets) {
         return commit({
           ...fields,
@@ -377,7 +383,7 @@ export const useFeedWidgets = (): UseFeedWidgets => {
     updateWidgetConfig,
     replaceWidgets,
     resetWidgets,
-    isTipHidden: saved?.tipsHidden === true,
+    isTipHidden: isFeedWidgetTipHidden(saved),
     setTipHidden,
   };
 };

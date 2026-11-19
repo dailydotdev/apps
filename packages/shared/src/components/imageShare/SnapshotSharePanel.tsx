@@ -48,7 +48,7 @@ export type SnapshotSubject =
 
 export const getSnapshotShare = (subject: SnapshotSubject): SnapshotShare =>
   subject.post
-    ? subject.share ?? getPostSnapshotShare(subject.post)
+    ? (subject.share ?? getPostSnapshotShare(subject.post))
     : subject.share;
 
 /** The subject's share event, or `eventName`, for a subject that is not a post. */

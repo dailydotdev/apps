@@ -151,7 +151,7 @@ const Pricing = ({
           variant={DiscountTimerVariant.WithSlot}
         >
           <Button
-            className=" bg-white text-black"
+            className="bg-white text-black"
             href={`#${id}-plans`}
             size={ButtonSize.Medium}
             tag="a"

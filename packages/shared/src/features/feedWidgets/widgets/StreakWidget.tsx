@@ -2,6 +2,7 @@ import type { CSSProperties, ReactElement } from 'react';
 import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { webappUrl } from '../../../lib/constants';
@@ -12,8 +13,11 @@ import {
   useStreakFreeze,
 } from '../../../hooks/streaks/useStreakFreeze';
 import { useLazyModal } from '../../../hooks/useLazyModal';
+import { useHasAccessToCores } from '../../../hooks/useCoresFeature';
 import { LazyModal } from '../../../components/modals/common/types';
 import { StreakMonthCalendar } from '../../../components/streak/popup/StreakMonthCalendar';
+import { StreakResetReason } from '../../../components/streak/StreakResetReason';
+import { StreakGoalProgress } from '../../../components/streak/StreakGoalProgress';
 import { useIsStreakFreezeEnabled } from '../../../components/streak/popup/StreakFreezeRow';
 import { CompactQuestList } from '../../../components/quest/CompactQuestList';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
@@ -112,7 +116,7 @@ const UsageMeter = ({
       />
     </div>
     <div className="flex items-center justify-between gap-2">
-      <span className="min-w-0 truncate text-text-quaternary typo-caption1">
+      <span className="min-w-0 shrink truncate text-text-quaternary typo-caption1">
         {hint}
       </span>
       {action}
@@ -130,6 +134,8 @@ const freezeHint = (count: number): string => {
 /** The freeze balance as a meter, with the way to buy more. */
 const FreezeMeter = (): ReactElement | null => {
   const isEnabled = useIsStreakFreezeEnabled();
+  // Freezes held without Cores access are shown, but buying needs Cores
+  const canBuy = useHasAccessToCores();
   const { freezesAvailable } = useStreakFreeze({ enabled: isEnabled });
   const { openModal } = useLazyModal();
 
@@ -144,15 +150,17 @@ const FreezeMeter = (): ReactElement | null => {
       max={STREAK_FREEZE_CAP}
       hint={freezeHint(freezesAvailable)}
       action={
-        <Button
-          type="button"
-          variant={ButtonVariant.Subtle}
-          size={ButtonSize.XSmall}
-          onClick={() => openModal({ type: LazyModal.StreakFreezePurchase })}
-          className="shrink-0"
-        >
-          {freezesAvailable > 0 ? 'Buy more' : 'Buy freezes'}
-        </Button>
+        canBuy ? (
+          <Button
+            type="button"
+            variant={ButtonVariant.Subtle}
+            size={ButtonSize.XSmall}
+            onClick={() => openModal({ type: LazyModal.StreakFreezePurchase })}
+            className="shrink-0"
+          >
+            {freezesAvailable > 0 ? 'Buy more' : 'Buy freezes'}
+          </Button>
+        ) : undefined
       }
     />
   );
@@ -167,7 +175,9 @@ const TodayLine = ({ timezone }: { timezone: string }): ReactElement => {
       <span className="font-bold text-text-primary">
         Today, {dateFormatInTimezone(now, 'MMM d', timezone)}
       </span>
-      <span className="truncate text-text-tertiary">{timezone}</span>
+      <span className="min-w-0 shrink truncate text-text-tertiary">
+        {timezone}
+      </span>
     </div>
   );
 };
@@ -210,6 +220,7 @@ export const StreakWidget = ({
   size,
 }: FeedWidgetComponentProps<FeedWidgetKind.Streak>): ReactElement => {
   const { user } = useAuthContext();
+  const { optOutQuestSystem } = useSettingsContext();
   const { logEvent } = useLogContext();
   const scroll = useWidgetScroll();
   const {
@@ -220,10 +231,11 @@ export const StreakWidget = ({
     count,
     hasReadToday,
     countClassName,
+    goalProgress,
   } = useStreakRingState();
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
   const { data: questDashboard } = useQuestDashboard({
-    enabled: size === FeedWidgetSize.Large,
+    enabled: size === FeedWidgetSize.Large && !optOutQuestSystem,
   });
 
   const onClick = useCallback(
@@ -293,6 +305,7 @@ export const StreakWidget = ({
           <span className="truncate tabular-nums text-text-tertiary typo-caption1">
             {streak.max} longest · {streak.total.toLocaleString()} total
           </span>
+          <StreakGoalProgress progress={goalProgress} className="mt-2" />
         </span>
         <span
           className={classNames(
@@ -322,20 +335,21 @@ export const StreakWidget = ({
   );
 
   const panel = isSmall ? (
-    <div className="flex min-h-0 flex-1 flex-col justify-between gap-3 px-4">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col justify-between gap-3 px-4">
       {summary}
       <StreakMonthCalendar streak={streak} />
     </div>
   ) : (
     <div
       className={classNames(
-        'flex min-h-0 flex-col gap-4 px-4',
+        'flex min-h-0 min-w-0 flex-col gap-4 px-4',
         isLarge ? 'w-1/2 shrink-0' : 'flex-1',
       )}
     >
       {summary}
       <TodayLine timezone={timezone} />
       <StreakMonthCalendar streak={streak} />
+      <StreakResetReason streak={streak} origin={Origin.FeedWidgets} />
       <div className="mt-auto flex flex-col gap-4">
         <TodayGoal
           timezone={timezone}
@@ -366,7 +380,7 @@ export const StreakWidget = ({
             style={scroll.style}
             className={classNames('px-2', scroll.className)}
           >
-            {questDashboard && (
+            {questDashboard && !optOutQuestSystem && (
               <>
                 <span className="block px-2 text-text-quaternary typo-footnote">
                   Daily quests

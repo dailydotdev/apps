@@ -7,6 +7,7 @@ import { FunnelStepTransitionType } from '../types/funnel';
 import { OnboardingHeadline } from '../../../components/auth';
 import { FooterLinks } from '../../../components/footer';
 import AuthOptions from '../../../components/auth/AuthOptions';
+import { AgentOnboardingEntry } from '../../agentOnboarding/components/AgentOnboardingEntry';
 import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 import { AuthTriggers } from '../../../lib/auth';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
@@ -32,6 +33,7 @@ import {
 } from '../../../components/typography/Typography';
 import { sanitizeMessage } from '../lib/utils';
 import ConditionalWrapper from '../../../components/ConditionalWrapper';
+import SignupDisclaimer from '../../../components/auth/SignupDisclaimer';
 import { phone } from '../../../styles/media';
 
 const phoneMediaQuery = phone.replace('@media ', '');
@@ -120,6 +122,7 @@ export const FunnelOrganicSignup = withIsActiveGuard(
             isLoginFlow: true,
             isAuthenticating: true,
             defaultDisplay: AuthDisplay.Default,
+            ...(data.email && { email: data.email }),
           }));
           return;
         }
@@ -256,9 +259,8 @@ export const FunnelOrganicSignup = withIsActiveGuard(
               )}
               <AuthOptions
                 {...staticAuthProps}
-                // Post-signup funnel only: the funnel's headline scale, and no
-                // terms strip (the funnel shows it once, on the wall).
-                hideSignupDisclaimer={isOnboarding}
+                // Post-signup funnel only: the funnel's headline scale, and the
+                // terms line once, on the wall.
                 isOnboardingFunnel={isOnboarding}
                 registrationExtraFields={extraFields}
                 defaultDisplay={
@@ -282,6 +284,14 @@ export const FunnelOrganicSignup = withIsActiveGuard(
                   });
                 }}
               />
+              {isOnboarding &&
+                !isEmailSignupActive &&
+                !isSocialSignupActive && (
+                  <>
+                    <AgentOnboardingEntry className="mb-4" />
+                    <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
+                  </>
+                )}
             </div>
             <div className="flex flex-1 tablet:ml-auto tablet:flex-1 laptop:max-w-[37.5rem]" />
           </div>

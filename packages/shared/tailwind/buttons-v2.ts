@@ -1,5 +1,8 @@
 import plugin from 'tailwindcss/plugin';
 import colors from './colors';
+import type { VariationStates } from './buttonTheme';
+import { buttonThemeStyles } from './buttonTheme';
+import { ButtonV2Color } from '../src/styles/buttonColors';
 
 type Shade = '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80' | '90';
 
@@ -9,21 +12,6 @@ type ColorPalette = Record<Shade, string> & {
 };
 
 type ColorName = keyof typeof colors;
-
-type StateProps = Record<string, string | undefined>;
-
-type StateBlock = {
-  default?: StateProps;
-  hover?: StateProps;
-  active?: StateProps;
-  pressed?: StateProps;
-  disabled?: StateProps;
-};
-
-type VariationStates = {
-  darkStates: StateBlock;
-  lightStates: StateBlock;
-};
 
 type VariationFn = (color?: ColorName) => VariationStates;
 
@@ -730,79 +718,39 @@ const variations: Record<string, VariationFn> = {
   }),
 };
 
-type StyleMap = Record<string, string>;
-type NestedRule = Record<string, StyleMap | Record<string, StyleMap>>;
-
-const statesToCssInJs = (states: StateBlock): StyleMap => {
-  const out: StyleMap = {};
-  (Object.keys(states) as Array<keyof StateBlock>).forEach((state) => {
-    const block = states[state];
-    if (!block) {
-      return;
-    }
-    Object.keys(block).forEach((prop) => {
-      const value = block[prop];
-      if (value === undefined) {
-        return;
-      }
-      out[`--button-v2-${state}-${prop}`] = value;
-    });
-  });
-  return out;
+/**
+ * Colors generated per variant, from `ButtonV2Color`. Quiz is excluded
+ * because its visuals come from @apply rules in buttons-v2.css.
+ */
+const variantColors: Partial<Record<string, ReadonlyArray<string>>> = {
+  tertiary: Object.values(ButtonV2Color),
 };
 
-const styleToCssInJs = (style: VariationStates): NestedRule => ({
-  '&, .light .invert &': statesToCssInJs(style.darkStates),
-  '.light &, .invert &': statesToCssInJs(style.lightStates),
-  '@media (prefers-color-scheme: dark)': {
-    '.auto .invert &': statesToCssInJs(style.lightStates),
-  },
-  '@media (prefers-color-scheme: light)': {
-    '.auto &': statesToCssInJs(style.lightStates),
-    '.auto .invert &': statesToCssInJs(style.darkStates),
-  },
-});
-
-/**
- * Variants that accept a `color` prop. Quiz is intentionally excluded
- * because its visuals come from @apply rules in buttons-v2.css and
- * v1's `btn-quiz-{color}` mappings were never backed by real CSS.
- */
-const colorableVariants: ReadonlyArray<string> = [
-  'primary',
-  'secondary',
-  'tertiary',
-  'tertiaryFloat',
-  'subtle',
-  'option',
-];
-
-const variationToStyles = (variation: string): Record<string, NestedRule> => {
+const variationClasses = (
+  variation: string,
+): Array<[string, VariationStates]> => {
   const fn = variations[variation];
-  const base: Record<string, NestedRule> = {
-    [`.btn-v2-${variation}`]: styleToCssInJs(fn()),
-  };
-  if (!colorableVariants.includes(variation)) {
-    return base;
-  }
-  return (Object.keys(colors) as Array<ColorName>).reduce(
-    (acc, color) => ({
-      ...acc,
-      [`.btn-v2-${variation}-${color}`]: styleToCssInJs(fn(color)),
-    }),
-    base,
-  );
+  const base: Array<[string, VariationStates]> = [
+    [`btn-v2-${variation}`, fn()],
+  ];
+  const used = variantColors[variation] ?? [];
+  return [
+    ...base,
+    ...(Object.keys(colors) as Array<ColorName>)
+      .filter((color) => used.includes(color))
+      .map((color): [string, VariationStates] => [
+        `btn-v2-${variation}-${color}`,
+        fn(color),
+      ]),
+  ];
 };
 
 export default plugin(({ addComponents }) => {
-  const buttons = Object.keys(variations).reduce(
-    (acc, variation) => ({
-      ...acc,
-      ...variationToStyles(variation),
+  addComponents(
+    buttonThemeStyles({
+      varPrefix: '--button-v2',
+      sourcePrefix: '--btn-v2',
+      classes: Object.keys(variations).flatMap(variationClasses),
     }),
-    {} as Record<string, NestedRule>,
   );
-  // Tailwind's addComponents accepts a deeply nested object; the loose
-  // `CSSRuleObject` type doesn't model our two-level CSS-vars-only output.
-  addComponents(buttons as unknown as Parameters<typeof addComponents>[0]);
 });

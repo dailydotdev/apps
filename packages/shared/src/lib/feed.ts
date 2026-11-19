@@ -392,7 +392,7 @@ export function usePostLogEvent() {
     ) => {
       return postLogEvent(eventName, post, {
         ...opts,
-        is_ad: !!boostedBy,
+        is_ad: opts?.is_ad || !!boostedBy,
       });
     },
     [boostedBy],

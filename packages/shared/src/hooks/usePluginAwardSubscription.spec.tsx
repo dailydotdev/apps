@@ -29,7 +29,7 @@ const createPlugin = (props: Partial<Plugin> = {}): Plugin =>
     awarded: false,
     featuredAward: null,
     ...props,
-  } as Plugin);
+  }) as Plugin;
 
 let client: QueryClient;
 

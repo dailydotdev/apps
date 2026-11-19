@@ -43,7 +43,7 @@ export const FollowButton = ({
   showSubscribe = true,
   copyType,
   alwaysShow = false,
-}: FollowButtonProps): ReactElement => {
+}: FollowButtonProps): ReactElement | null => {
   const { follow, unfollow, subscribe, unsubscribe } = useContentPreference();
   const { showActionBtn } = useShowFollowAction({
     entityId,
@@ -108,10 +108,12 @@ export const FollowButton = ({
     return null;
   }
 
-  const isFollowing = [
-    ContentPreferenceStatus.Subscribed,
-    ContentPreferenceStatus.Follow,
-  ].includes(currentStatus);
+  const isFollowing =
+    !!currentStatus &&
+    [
+      ContentPreferenceStatus.Subscribed,
+      ContentPreferenceStatus.Follow,
+    ].includes(currentStatus);
 
   return (
     <div className={classNames('relative z-1 inline-flex gap-2', className)}>

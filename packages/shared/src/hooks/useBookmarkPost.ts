@@ -11,6 +11,7 @@ import {
   ADD_BOOKMARKS_MUTATION,
   REMOVE_BOOKMARK_MUTATION,
 } from '../graphql/posts';
+import { getLatestBookmarksQueryKey } from '../graphql/bookmarks';
 import { useLogContext } from '../contexts/LogContext';
 import { useToastNotification } from './useToastNotification';
 import { useRequestProtocol } from './useRequestProtocol';
@@ -34,6 +35,7 @@ import { bookmarkMutationKey } from './bookmark/types';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
 import { useActiveFeedContext } from '../contexts';
+import { playHaptic } from '../lib/nativeBridge';
 
 export type ToggleBookmarkProps = {
   origin: Origin;
@@ -152,6 +154,9 @@ const useBookmarkPost = ({
     onMutate: onMutate || defaultOnMutate,
     onSuccess: () => {
       completeAction(ActionType.BookmarkPost);
+      client.invalidateQueries({
+        queryKey: getLatestBookmarksQueryKey(user),
+      });
     },
     onError: (err, _, rollback?: () => void) => rollback?.(),
   });
@@ -213,6 +218,7 @@ const useBookmarkPost = ({
       }
 
       logEvent(postLogEvent(LogEvent.BookmarkPost, post, finalLogOptions));
+      playHaptic();
 
       const result = await addBookmark({ id: post.id });
       const list = result?.addBookmarks?.[0]?.list ?? null;
@@ -295,7 +301,7 @@ export const mutateBookmarkFeedPost = ({
     return undefined;
   }
 
-  const mutationHandler = (post: Post) => {
+  const mutationHandler = (post?: Post) => {
     const isBookmarked = !post?.bookmarked;
     const nextBookmarks = getOptimisticBookmarkCount(
       post?.analytics?.bookmarks,

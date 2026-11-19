@@ -14,7 +14,7 @@ import { useFeature } from '../GrowthBookProvider';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useAdQuery } from '../../features/monetization/useAdQuery';
-import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { useIsPlusAdFree } from '../../hooks/useIsPlusAdFree';
 import { ImpressionStatus } from '../../hooks/feed/useLogImpression';
 import { AdActions, AdPlacement, shouldSkipSourceAds } from '../../lib/ads';
 import type { Post } from '../../graphql/posts';
@@ -43,24 +43,28 @@ interface PostSidebarAdWidgetProps {
   className?: {
     container?: string;
   };
+  /** "Advertise here" under the copy at the start, not at the end. */
+  isAdvertiseLinkStart?: boolean;
 }
 
 export function PostSidebarAdWidget({
   postId,
   source,
   className,
+  isAdvertiseLinkStart = false,
 }: PostSidebarAdWidgetProps): ReactElement | null {
   const { user } = useAuthContext();
-  const { isPlus } = usePlusSubscription();
+  const isPlusAdFree = useIsPlusAdFree();
   const { logEvent } = useLogContext();
   const adImprovementsV3 = Boolean(useFeature(adImprovementsV3Feature));
-  const isAdFree = isPlus || shouldSkipSourceAds(source);
+  const isAdFree = isPlusAdFree || shouldSkipSourceAds(source);
 
   const { data: ad, isPending } = useAdQuery({
     placement: AdPlacement.PostSidebar,
     queryKey: generateQueryKey(RequestKey.Ads, user, postId, 'post-sidebar'),
     enabled: !isAdFree,
     staleTime: StaleTime.OneHour,
+    refreshOnPageView: true,
   });
 
   const onAdAction = useCallback(
@@ -191,7 +195,10 @@ export function PostSidebarAdWidget({
         )}
         <AdvertiseLink
           targetId={TargetId.AdSidebar}
-          className="relative z-1 ml-auto whitespace-nowrap hover:underline"
+          className={classNames(
+            'relative z-1 whitespace-nowrap hover:underline',
+            isAdvertiseLinkStart ? 'w-fit' : 'ml-auto',
+          )}
         />
       </div>
       <AdPixel pixel={ad.pixel} />

@@ -10,11 +10,7 @@ function AuthContainer(
   ref: ForwardedRef<HTMLDivElement>,
 ) {
   return (
-    <Container
-      {...props}
-      ref={ref}
-      className={classNames(className, 'px-6 tablet:px-[3.75rem]')}
-    >
+    <Container {...props} ref={ref} className={classNames(className, 'px-6')}>
       {children}
     </Container>
   );

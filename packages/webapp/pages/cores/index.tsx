@@ -14,12 +14,14 @@ import type { CoreOptionsProps } from '@dailydotdev/shared/src/components/modals
 import {
   BuyCoresCheckout,
   CoreOptions,
-  CorePageCheckoutVideo,
+  CoresFriendshipArt,
   TransactionStatusListener,
 } from '@dailydotdev/shared/src/components/modals/award/BuyCoresModal';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 
 import classNames from 'classnames';
+import { CoresDeals } from '@dailydotdev/shared/src/components/cores/CoresDeals';
+import { StartupsPromoSpot } from '@dailydotdev/shared/src/features/squads/hooks/useStartupsPromo';
 import {
   Typography,
   TypographyType,
@@ -30,9 +32,6 @@ import {
   getPathnameWithQuery,
   getRedirectNextPath,
 } from '@dailydotdev/shared/src/lib/links';
-import { CoreIcon } from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { buyCoreStarField } from '@dailydotdev/shared/src/lib/image';
 import { useBuyCoresContext } from '@dailydotdev/shared/src/contexts/BuyCoresContext/types';
 import { iOSSupportsCoresPurchase } from '@dailydotdev/shared/src/lib/ios';
 import { getCoresLayout } from '../../components/layouts/CoresLayout';
@@ -71,7 +70,7 @@ export const CorePageMobileCheckout = (): ReactElement => {
       return;
     }
 
-    openCheckout({ priceId: selectedProduct.id });
+    openCheckout?.({ priceId: selectedProduct.id });
   }, [openCheckout, selectedProduct, productFromQuery, paddle]);
 
   return (
@@ -82,7 +81,6 @@ export const CorePageMobileCheckout = (): ReactElement => {
 };
 
 export const PageCoreOptions = ({
-  showCoresAtCheckout = true,
   title = (
     <Typography className="mb-4" type={TypographyType.LargeTitle} bold>
       Get More Cores
@@ -94,7 +92,14 @@ export const PageCoreOptions = ({
     <CoreOptions
       className={classNames('p-6', className)}
       title={title}
-      showCoresAtCheckout={showCoresAtCheckout}
+      promo={
+        <CoresDeals
+          className="text-left"
+          spot={StartupsPromoSpot.BuyCores}
+          isPersonalAllowed={false}
+          withStartups
+        />
+      }
     />
   );
 };
@@ -106,7 +111,7 @@ const CorePageMobile = (): ReactElement => {
   useEffect(() => {
     if (selectedProduct) {
       if (iOSSupportsCoresPurchase()) {
-        openCheckout({ priceId: selectedProduct.id });
+        openCheckout?.({ priceId: selectedProduct.id });
 
         return;
       }
@@ -114,9 +119,13 @@ const CorePageMobile = (): ReactElement => {
       const searchParams = new URLSearchParams(window.location.search);
       const nextParams = new URLSearchParams();
 
-      if (searchParams.get('next')) {
-        nextParams.set('next', searchParams.get('next'));
-      }
+      ['next', 'origin'].forEach((key) => {
+        const value = searchParams.get(key);
+
+        if (value) {
+          nextParams.set(key, value);
+        }
+      });
 
       nextParams.append('pid', selectedProduct.id);
 
@@ -128,25 +137,7 @@ const CorePageMobile = (): ReactElement => {
 
   return (
     <MobileContainer>
-      <PageCoreOptions
-        showCoresAtCheckout={false}
-        title={
-          <>
-            <img
-              src={buyCoreStarField}
-              alt="Scattered stars"
-              className="absolute left-0 top-0 z-0"
-            />
-            <div className="flex flex-col items-center gap-2">
-              <CoreIcon size={IconSize.Size80} />
-              <Typography type={TypographyType.Body} bold className="mb-2">
-                Get More Cores
-              </Typography>
-            </div>
-          </>
-        }
-        className="text-center"
-      />
+      <PageCoreOptions className="!px-4" />
     </MobileContainer>
   );
 };
@@ -165,14 +156,9 @@ const CorePageDesktop = (): ReactElement => {
               'rounded-16 border border-border-subtlest-tertiary p-6',
             )}
           />
-          <div
-            className={classNames(
-              'm-6 flex flex-1 overflow-hidden rounded-16',
-              selectedProduct && 'hidden',
-            )}
-          >
-            {!selectedProduct && <CorePageCheckoutVideo />}
-          </div>
+          {!selectedProduct && (
+            <CoresFriendshipArt className="m-6 h-[36.375rem] max-h-full w-80 flex-none" />
+          )}
         </div>
         <CoreFAQ />
       </div>
@@ -203,7 +189,7 @@ const CorePageRenderer = ({ children }: { children: ReactNode }): ReactNode => {
     if (isLaptop) {
       setSelectedProduct(productFromQuery);
 
-      openCheckout({ priceId: productFromQuery.id });
+      openCheckout?.({ priceId: productFromQuery.id });
     }
   }, [
     isLaptop,
@@ -234,7 +220,7 @@ export const useCoresOriginFromQuery = (): Origin => {
 const CoresPage = (): ReactElement => {
   const router = useRouter();
   const isLaptop = useViewSizeClient(ViewSize.Laptop);
-  const amountNeeded = +router?.query?.need;
+  const amountNeeded = Number(router?.query?.need);
   const eventOrigin = useCoresOriginFromQuery();
 
   return (

@@ -13,6 +13,10 @@ test.describe.skip('Daily.dev Homepage', () => {
       .or(page.getByRole('button', { name: 'I understand' }))
       .click();
     await page.getByRole('button', { name: 'Log in' }).click();
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Continue with email' })
+      .click();
     await page.getByRole('textbox', { name: 'Email' }).click();
     await page.getByRole('textbox', { name: 'Email' }).fill(userName);
     await page.getByRole('textbox', { name: 'Email' }).press('Tab');

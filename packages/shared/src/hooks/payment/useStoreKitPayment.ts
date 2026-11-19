@@ -3,6 +3,7 @@ import type { PurchaseEvent } from '../../contexts/payment/StoreKit';
 import { DEFAULT_ERROR } from '../../graphql/common';
 import { promisifyEventListener } from '../../lib/func';
 import { getLogErrorDetails } from '../../lib/errors';
+import type { Origin } from '../../lib/log';
 import { LogEvent, purchaseTypeToTargetType } from '../../lib/log';
 import { SubscriptionProvider } from '../../lib/plus';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -17,6 +18,7 @@ interface UseStoreKitPaymentProps {
   type: PurchaseType;
   products: ProductPricingPreview[];
   successCallback: (event: CustomEvent<PurchaseEvent>) => void;
+  origin?: Origin;
 }
 
 const typeToHandler: Record<PurchaseType, WebKitMessageHandlers> = {
@@ -24,12 +26,14 @@ const typeToHandler: Record<PurchaseType, WebKitMessageHandlers> = {
   plus: WebKitMessageHandlers.IAPSubscriptionRequest,
   organization: WebKitMessageHandlers.IAPSubscriptionRequest,
   recruiter: WebKitMessageHandlers.IAPSubscriptionRequest, // not used for now on apple side
+  startups: WebKitMessageHandlers.IAPSubscriptionRequest, // not sold on iOS
 };
 
 export const useStoreKitPayment = ({
   type,
   products,
   successCallback,
+  origin,
 }: UseStoreKitPaymentProps) => {
   const targetType = purchaseTypeToTargetType[type];
   const messageType = typeToHandler[type];
@@ -40,6 +44,8 @@ export const useStoreKitPayment = ({
   const { logEvent } = useLogContext();
   const eventLoggerRef = useRef(logEvent);
   eventLoggerRef.current = logEvent;
+  const originRef = useRef(origin);
+  originRef.current = origin;
 
   const openCheckout = useCallback(
     ({ priceId }: OpenCheckoutProps) => {
@@ -73,6 +79,7 @@ export const useStoreKitPayment = ({
                 localCost: offer?.price,
                 localCurrency: offer?.currencyCode,
                 payment: SubscriptionProvider.AppleStoreKit,
+                origin: originRef.current,
               }),
             });
             successCallbackRef.current?.(event);
@@ -82,6 +89,7 @@ export const useStoreKitPayment = ({
             eventLoggerRef.current({
               event_name: LogEvent.InitiatePayment,
               target_type: targetType,
+              extra: JSON.stringify({ origin: originRef.current }),
             });
             break;
           case PurchaseEventName.PurchaseFailed: {
@@ -92,6 +100,7 @@ export const useStoreKitPayment = ({
               extra: JSON.stringify({
                 errorCode: error?.code ?? error?.message,
                 error: error?.message,
+                origin: originRef.current,
               }),
             });
             displayToast(DEFAULT_ERROR);

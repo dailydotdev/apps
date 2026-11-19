@@ -41,7 +41,7 @@ const createPost = (overrides: Partial<Post> = {}): Post =>
       permalink: 'https://example.com/@author',
     },
     ...overrides,
-  } as Post);
+  }) as Post;
 
 describe('read article static props', () => {
   beforeEach(() => {

@@ -18,6 +18,7 @@ import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
 import SettingsContext from '../contexts/SettingsContext';
 import useFeedOnPostClick from '../hooks/feed/useFeedOnPostClick';
+import { PostModalMap } from './modals/PostModalMap';
 import type { PostLocation } from '../hooks/feed/useFeedContextMenu';
 import useFeedContextMenu from '../hooks/feed/useFeedContextMenu';
 import useFeedInfiniteScroll, {
@@ -29,6 +30,7 @@ import { useLogContext } from '../contexts/LogContext';
 import { feedLogExtra, postLogEvent } from '../lib/feed';
 import type { SearchLogExtra } from '../lib/searchLog';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
+import { usePostPageHybrid } from '../hooks/post/usePostPageHybrid';
 import { useSharePost } from '../hooks/useSharePost';
 import { LogEvent, Origin, TargetId } from '../lib/log';
 import { SharedFeedPage } from './utilities';
@@ -48,7 +50,6 @@ import { OtherFeedPage, RequestKey } from '../lib/query';
 import { MarketingCtaVariant } from './marketing/cta/common';
 import { MarketingCtaCard } from './marketing/cta';
 import { MarketingCtaList } from './marketing/cta/MarketingCtaList';
-import { MarketingCtaBriefing } from './marketing/cta/MarketingCtaBriefing';
 import { MarketingCtaYearInReview } from './marketing/cta/MarketingCtaYearInReview';
 import { MarketingCtaVideo } from './marketing/cta/MarketingCtaVideo';
 import { AcquisitionFormGrid } from './cards/AcquisitionForm/AcquisitionFormGrid';
@@ -88,7 +89,8 @@ const FeedErrorScreen = dynamic(
 );
 
 export interface FeedProps<T>
-  extends Pick<UseFeedOptionalParams<T>, 'options' | 'excludePinnedPosts'>,
+  extends
+    Pick<UseFeedOptionalParams<T>, 'options' | 'excludePinnedPosts'>,
     Pick<FeedContainerProps, 'shortcuts'> {
   feedName: AllFeedPages;
   feedQueryKey: QueryKey;
@@ -123,10 +125,6 @@ export interface FeedProps<T>
   feedContainerRef?: React.Ref<HTMLDivElement>;
   disableListFrame?: boolean;
   topContent?: ReactNode;
-  /** Rendered after the last post once the feed cannot fetch more. */
-  footer?: ReactNode;
-  /** Shown instead of the feed when its first page fails to load. */
-  errorScreen?: ReactNode;
   /**
    * Search feeds only: correlation id for the query execution and the backend
    * search version behind it. Both ride along on every engagement event so the
@@ -134,43 +132,25 @@ export interface FeedProps<T>
    */
   searchId?: string;
   searchVersion?: number;
+  /** Debug mode: each card's explanation covers it. */
+  isExplaining?: boolean;
+  /** The post menu explains a post on request, outside Debug mode. */
+  canExplainPosts?: boolean;
 }
 
 interface RankVariables {
   ranking?: string;
 }
 
-const ArticlePostModal = dynamic(
+interface ExplainVariables {
+  version?: number;
+  supportedTypes?: string[];
+}
+
+const PostHybridModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "articlePostModal" */ './modals/ArticlePostModal'
-    ),
-);
-const SharePostModal = dynamic(
-  () =>
-    import(/* webpackChunkName: "sharePostModal" */ './modals/SharePostModal'),
-);
-const CollectionPostModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "collectionPostModal" */ './modals/CollectionPostModal'
-    ),
-);
-
-const BriefPostModal = dynamic(
-  () =>
-    import(/* webpackChunkName: "briefPostModal" */ './modals/BriefPostModal'),
-);
-
-const PollPostModal = dynamic(
-  () =>
-    import(/* webpackChunkName: "pollPostModal" */ './modals/PollPostModal'),
-);
-
-const SocialTwitterPostModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "socialTwitterPostModal" */ './modals/SocialTwitterPostModal'
+      /* webpackChunkName: "postHybridModal" */ './modals/PostHybridModal'
     ),
 );
 
@@ -187,19 +167,6 @@ const ProfileCompletionCard = dynamic(
       /* webpackChunkName: "profileCompletionCard" */ './cards/ProfileCompletionCard'
     ),
 );
-
-export const PostModalMap: Partial<Record<PostType, typeof ArticlePostModal>> =
-  {
-    [PostType.Article]: ArticlePostModal,
-    [PostType.Share]: SharePostModal,
-    [PostType.Freeform]: SharePostModal,
-    [PostType.VideoYouTube]: ArticlePostModal,
-    [PostType.Collection]: CollectionPostModal,
-    [PostType.Brief]: BriefPostModal,
-    [PostType.Digest]: ArticlePostModal,
-    [PostType.Poll]: PollPostModal,
-    [PostType.SocialTwitter]: SocialTwitterPostModal,
-  };
 
 export default function Feed<T>({
   feedName,
@@ -232,10 +199,10 @@ export default function Feed<T>({
   disableListFrame = false,
   excludePinnedPosts = false,
   topContent: topContentProp,
-  footer,
-  errorScreen,
   searchId,
   searchVersion,
+  isExplaining = false,
+  canExplainPosts = false,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { logEvent } = useLogContext();
@@ -256,16 +223,9 @@ export default function Feed<T>({
   const { isActionsFetched, checkHasCompleted } = useActions();
   const marketingCta =
     getMarketingCta(MarketingCtaVariant.Card) ||
-    getMarketingCta(MarketingCtaVariant.BriefCard) ||
     getMarketingCta(MarketingCtaVariant.YearInReview) ||
     getMarketingCta(MarketingCtaVariant.Video);
   const { plusEntryFeed } = usePlusEntry();
-  const hasDismissBriefCta =
-    isActionsFetched && checkHasCompleted(ActionType.DisableBriefCardCta);
-  const showMarketingCta =
-    !!marketingCta &&
-    (marketingCta?.variant !== MarketingCtaVariant.BriefCard ||
-      !hasDismissBriefCta);
   const { isSearchPageLaptop } = useSearchResultsLayout();
   const hasNoBriefAction =
     isActionsFetched && !checkHasCompleted(ActionType.GeneratedBrief);
@@ -316,10 +276,7 @@ export default function Feed<T>({
     if (canShowNonPlusCta && plusEntryFeed) {
       return <PlusGrid {...plusEntryFeed} />;
     }
-    if (canShowGrowthCta && showMarketingCta && marketingCta) {
-      if (marketingCta.variant === MarketingCtaVariant.BriefCard) {
-        return <MarketingCtaBriefing {...marketingCta} />;
-      }
+    if (canShowGrowthCta && marketingCta) {
       if (marketingCta.variant === MarketingCtaVariant.YearInReview) {
         return <MarketingCtaYearInReview marketingCta={marketingCta} />;
       }
@@ -358,6 +315,7 @@ export default function Feed<T>({
     bannerInsertions,
     updatePost,
     removePost,
+    getPageRequest,
     fetchPage,
     canFetchMore: queryCanFetchMore,
     emptyFeed,
@@ -522,6 +480,27 @@ export default function Feed<T>({
     [items, removePost],
   );
 
+  const { version: feedVersion, supportedTypes } =
+    (variables as ExplainVariables) || {};
+  // The feed service finds a post by its page's request: the hash of what the
+  // page was asked with, page size included, and the generation in its cursor.
+  const getExplainRequest = useCallback(
+    (postId: string) => {
+      if (!canExplainPosts || !feedVersion) {
+        return undefined;
+      }
+      const postItem = items.find(
+        (item): item is PostItem =>
+          item.type === 'post' && item.post.id === postId,
+      );
+      const pageRequest = postItem && getPageRequest(postItem.page);
+      return (
+        pageRequest && { version: feedVersion, supportedTypes, ...pageRequest }
+      );
+    },
+    [canExplainPosts, feedVersion, supportedTypes, items, getPageRequest],
+  );
+
   const feedContextValue = useMemo(() => {
     return {
       queryKey: feedQueryKey,
@@ -530,8 +509,17 @@ export default function Feed<T>({
       allowPin,
       origin,
       onRemovePost,
+      getExplainRequest,
     };
-  }, [feedQueryKey, items, logOpts, allowPin, origin, onRemovePost]);
+  }, [
+    feedQueryKey,
+    items,
+    logOpts,
+    allowPin,
+    origin,
+    onRemovePost,
+    getExplainRequest,
+  ]);
 
   const { ranking } = (variables as RankVariables) || {};
 
@@ -624,12 +612,16 @@ export default function Feed<T>({
     [openSharePost, virtualizedNumCards],
   );
 
+  const { showHybrid: showHybridPostModal } = usePostPageHybrid(selectedPost);
   const PostModal = useMemo(() => {
     if (!selectedPost) {
       return undefined;
     }
+    if (showHybridPostModal) {
+      return PostHybridModal;
+    }
     return PostModalMap[selectedPost.type];
-  }, [selectedPost]);
+  }, [selectedPost, showHybridPostModal]);
 
   if (!loadedSettings || isFallback) {
     return isPhone ? <PlaceholderFeed className={className} /> : <></>;
@@ -716,10 +708,6 @@ export default function Feed<T>({
     }
   };
 
-  if (errorScreen && feedError && !items.length) {
-    return <>{errorScreen}</>;
-  }
-
   if (isError) {
     return <FeedErrorScreen error={feedError} />;
   }
@@ -758,7 +746,7 @@ export default function Feed<T>({
               {topContentProp}
             </>
           ) : (
-            topContentProp ?? inlineReadingReminder
+            (topContentProp ?? inlineReadingReminder)
           ),
         header,
         inlineHeader,
@@ -825,6 +813,7 @@ export default function Feed<T>({
                   disableAdRefresh={disableAdRefresh}
                   wideColSpan={wideColSpan}
                   searchLogExtra={searchLogExtra}
+                  isExplaining={isExplaining}
                 />
               );
 
@@ -835,6 +824,7 @@ export default function Feed<T>({
                     boostedBy: isBoostedPostAd(item)
                       ? item.ad.data?.post?.author || item.ad.data?.post?.scout
                       : undefined,
+                    isAd: item.type === 'ad',
                   }}
                 >
                   {showPromoBanner && index === indexWhenShowingPromoBanner && (
@@ -862,9 +852,6 @@ export default function Feed<T>({
             })}
             {!isFetching && !isInitialLoading && !isHorizontal && (
               <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
-            )}
-            {!!footer && !canFetchMore && !isFetching && !isInitialLoading && (
-              <div className="col-span-full">{footer}</div>
             )}
             {selectedPost &&
               PostModal &&

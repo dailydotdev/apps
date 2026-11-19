@@ -30,6 +30,7 @@ import { isBoostedPostAd } from './useFeed';
 interface PostClickOptionalProps {
   skipPostUpdate?: boolean;
   parent_id?: string;
+  is_ad?: boolean;
 }
 
 export type FeedPostClick = ({
@@ -121,6 +122,7 @@ export default function useOnPostClick({
             column,
             row,
             index,
+            is_ad: optional?.is_ad,
             extra: {
               ...feedLogExtra(
                 feedName ?? '',
@@ -183,9 +185,13 @@ export default function useOnPostClick({
                 client,
               );
 
-              const data = client.getQueryData(
-                queryKey,
-              ) as InfiniteData<FeedData>;
+              const data =
+                client.getQueryData<InfiniteData<FeedData>>(queryKey);
+              // A feed in the cache that never loaded (or failed) has no
+              // pages to look the post up in.
+              if (!data?.pages) {
+                return;
+              }
 
               const {
                 post: foundPost,

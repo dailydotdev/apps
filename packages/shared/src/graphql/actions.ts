@@ -35,11 +35,17 @@ export enum ActionType {
   BookmarkPost = 'bookmark_post',
   DigestConfig = 'digest_config',
   StreakMilestone = 'streak_milestone',
+  // Saw the "2 streak freezes, on us" copy in the milestone modal
+  StreakFreeFreezesGrant = 'streak_free_freezes_grant',
+  // Saw the "that was your last free freeze" upsell modal
+  StreakFreeFreezesUpsell = 'streak_free_freezes_upsell',
   FetchedSmartTitle = 'fetched_smart_title',
   EditTag = 'edit_tag',
   ContentTypes = 'content_types',
   HasSeenTags = 'has_seen_tags',
   StreakTimezoneMismatch = 'streak_timezone_mismatch',
+  // Declined the streak goal offer, so the day-2 prompt stays away for good
+  StreakGoalSkipped = 'streak_goal_skipped',
   CheckedCoresRole = 'checked_cores_role',
   CompletedOnboarding = 'completed_onboarding',
   GeneratedBrief = 'generated_brief',
@@ -47,7 +53,6 @@ export enum ActionType {
   IntroQuestsCompleted = 'intro_quests_completed',
   ClosedProfileBanner = 'closed_profile_banner',
   UploadedCV = 'uploaded_cv',
-  DisableBriefCardCta = 'disable_brief_card_cta',
   SeenPostPollTooltip = 'seen_post_poll_tooltip',
   SeenPostPollTab = 'seen_post_poll_tab',
   OpportunityWelcomePage = 'opportunity_welcome_page',
@@ -67,6 +72,7 @@ export enum ActionType {
   ClickedNewStripCta = 'click_new_strip_cta',
   ClosedShortcutsBanner = 'closed_shortcuts_banner',
   ClosedCompanionBanner = 'closed_companion_banner',
+  DismissShortcutsWidgetCue = 'dismiss_shortcuts_widget_cue',
   SidebarTourSeen = 'sidebar_tour_seen',
   InterestAgentIntroSeen = 'interest_agent_intro_seen',
   InterestAgentSidebarClick = 'interest_agent_sidebar_click',
@@ -76,6 +82,12 @@ export enum ActionType {
   // Agreed to Looking for group's house rules before a first post.
   LfgHouseRules = 'lfg_house_rules',
   DismissLfgMessagesPromo = 'dismiss_lfg_messages_promo',
+  // Hides every daily.dev for Startups promotion, the squad page one included
+  DismissStartupsPromo = 'dismiss_startups_promo',
+  FirstCores = 'first_cores',
+  GtaViVisit = 'gta_vi_visit',
+  GtaViRead = 'gta_vi_read',
+  GtaViThemeDismissed = 'gta_vi_theme_dismissed',
 }
 
 export const cvActions = [

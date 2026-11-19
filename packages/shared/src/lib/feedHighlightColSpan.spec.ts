@@ -47,7 +47,7 @@ const makePost = (
 };
 
 const makePostItem = (post: Post): FeedItem =>
-  ({ type: FeedItemType.Post, post } as FeedItem);
+  ({ type: FeedItemType.Post, post }) as FeedItem;
 
 const ALL_WIDENABLE: ReadonlySet<PostType> = new Set([
   PostType.Article,
@@ -67,7 +67,7 @@ const makeAdItem = (): FeedItem =>
       description: '',
       image: '',
     } as Ad,
-  } as FeedItem);
+  }) as FeedItem;
 
 describe('requestedColSpan', () => {
   it('returns 1 for items without hero', () => {
@@ -861,7 +861,7 @@ describe('computeAdClamp', () => {
 
 describe('deriveAdCadence', () => {
   const baseArgs = {
-    isPlus: false,
+    isAdFree: false,
     isFeedPreview: false,
     disableAds: false,
     adStart: 4,
@@ -872,8 +872,8 @@ describe('deriveAdCadence', () => {
     expect(deriveAdCadence(baseArgs)).toEqual({ adStart: 4, adRepeat: 8 });
   });
 
-  it('returns undefined for Plus users', () => {
-    expect(deriveAdCadence({ ...baseArgs, isPlus: true })).toBeUndefined();
+  it('returns undefined for ad-free Plus users', () => {
+    expect(deriveAdCadence({ ...baseArgs, isAdFree: true })).toBeUndefined();
   });
 
   it('returns undefined when feed preview is active', () => {

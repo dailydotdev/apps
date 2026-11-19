@@ -98,10 +98,13 @@ export const aiFluencyTiers: AiFluencyTier[] = [
   },
 ];
 
-const aiFluencyTierByKey = aiFluencyTiers.reduce((acc, tier) => {
-  acc[tier.key] = tier;
-  return acc;
-}, {} as Record<AiFluencyTierKey, AiFluencyTier>);
+const aiFluencyTierByKey = aiFluencyTiers.reduce(
+  (acc, tier) => {
+    acc[tier.key] = tier;
+    return acc;
+  },
+  {} as Record<AiFluencyTierKey, AiFluencyTier>,
+);
 
 export const aiFluencyQuestions: AiFluencyQuestion[] = [
   {
@@ -466,12 +469,15 @@ export const getShuffledAiFluencyQuestionOptions = (
   return options;
 };
 
-const optionTierById = aiFluencyQuestions.reduce((acc, question) => {
-  question.options.forEach((option) => {
-    acc[option.id] = option.tier;
-  });
-  return acc;
-}, {} as Record<string, AiFluencyTierKey>);
+const optionTierById = aiFluencyQuestions.reduce(
+  (acc, question) => {
+    question.options.forEach((option) => {
+      acc[option.id] = option.tier;
+    });
+    return acc;
+  },
+  {} as Record<string, AiFluencyTierKey>,
+);
 
 export const aiFluencyTipsByTier: Record<AiFluencyTierKey, string[]> = {
   casualUser: [

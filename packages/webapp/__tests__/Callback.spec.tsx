@@ -168,6 +168,16 @@ describe('CallbackPage', () => {
     expect(mockReplace).toHaveBeenCalledWith('/onboarding');
   });
 
+  it('should return to the page that started a redirect sign in', () => {
+    window.sessionStorage.setItem('auth_return_path', '/agents/claim?code=abc');
+
+    renderCallback('?login=true');
+    jest.advanceTimersByTime(1000);
+
+    expect(mockReplace).toHaveBeenCalledWith('/agents/claim?code=abc');
+    expect(window.sessionStorage.getItem('auth_return_path')).toBeNull();
+  });
+
   it('should handle Facebook referrer case', () => {
     const search = '?login=true&token=789';
     Object.defineProperty(window, 'opener', {

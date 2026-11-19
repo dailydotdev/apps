@@ -70,6 +70,7 @@ const DM_PEER_QUERY = `
       username
       permalink
       bio
+      reputation
     }
   }
 `;

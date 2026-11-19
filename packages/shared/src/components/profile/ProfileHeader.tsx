@@ -35,6 +35,7 @@ import { ShareProvider } from '../../lib/share';
 import { ReferralCampaignKey } from '../../lib/referral';
 
 import { ElementPlaceholder } from '../ElementPlaceholder';
+import { useIsPhone } from '../../hooks/useViewSize';
 
 const ProfileActionsSkeleton = () => (
   <div className="flex items-center gap-2 tablet:h-12">
@@ -53,6 +54,15 @@ const ProfileActions = dynamic(
     ssr: false,
     loading: ProfileActionsSkeleton,
   },
+);
+
+const ProfileTopActions = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "profileTopActions" */
+      './ProfileTopActions'
+    ),
+  { ssr: false },
 );
 
 type ProfileHeaderProps = {
@@ -90,6 +100,8 @@ const ProfileHeader = ({
   const { logEvent } = useLogContext();
   const [isCopying, copyLink] = useCopyLink();
   const { getTrackedUrl } = useGetShortUrl();
+  const isPhone = useIsPhone();
+  const showsTopActions = isPhone && !isSameUser && !isPreviewMode;
 
   const onCopyLink = () => {
     logEvent({
@@ -159,21 +171,25 @@ const ProfileHeader = ({
       )}
       <div className="flex flex-col gap-1 px-4 tablet:gap-3 tablet:px-6">
         {/* Edit is only hidden, not removed: it holds its width so the row
-            keeps its height for a visitor. */}
+            keeps its height for a visitor. On a phone a visitor gets the
+            notify bell and award here instead. */}
         <div className="mb-3 ml-auto mt-2 flex items-center gap-2 tablet:mb-4">
-          <Link passHref href={`${webappUrl}settings/profile`}>
-            <Button
-              className={classNames(
-                'text-text-secondary',
-                !isSameUser && 'invisible',
-              )}
-              tag="a"
-              disabled={!isSameUser}
-              variant={ButtonVariant.Float}
-              icon={<EditIcon />}
-              aria-label="Edit profile"
-            />
-          </Link>
+          {showsTopActions && <ProfileTopActions user={user} />}
+          {!showsTopActions && (
+            <Link passHref href={`${webappUrl}settings/profile`}>
+              <Button
+                className={classNames(
+                  'text-text-secondary',
+                  !isSameUser && 'invisible',
+                )}
+                tag="a"
+                disabled={!isSameUser}
+                variant={ButtonVariant.Float}
+                icon={<EditIcon />}
+                aria-label="Edit profile"
+              />
+            </Link>
+          )}
           <Tooltip content={isCopying ? 'Copied!' : 'Copy link'}>
             <Button
               aria-label="Copy link"

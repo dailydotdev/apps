@@ -5,7 +5,7 @@ import { SquadImage } from '../../squads/SquadImage';
 import { SquadShortcutPinButton } from '../SquadShortcutPinButton';
 import { webappUrl } from '../../../lib/constants';
 import type { Squad } from '../../../graphql/sources';
-import { hasSquadFeature } from '../../../features/squads/lib/features';
+import { showsVerifiedBadge } from '../../../features/squads/lib/features';
 import { VerifiedSquadBadge } from '../../../features/squads/components/VerifiedSquad';
 
 // Squad row for the rail panel; the pin adds the squad to the sidebar
@@ -20,9 +20,7 @@ export const createSquadMenuItem = (squad: Squad): SidebarMenuItem => {
         <DefaultSquadIcon />
       ),
     title: name,
-    titleSuffix: hasSquadFeature(squad, 'verified') ? (
-      <VerifiedSquadBadge />
-    ) : undefined,
+    titleSuffix: showsVerifiedBadge(squad) ? <VerifiedSquadBadge /> : undefined,
     path: `${webappUrl}squads/${handle}`,
     itemClassName: 'group/squad-row',
     rightIcon: () => <SquadShortcutPinButton squad={squad} />,

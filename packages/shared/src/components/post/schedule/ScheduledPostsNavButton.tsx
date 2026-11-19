@@ -8,12 +8,16 @@ interface ScheduledPostsNavButtonProps {
   onClick: () => void;
   disabled?: boolean;
   className?: string;
+  // Shows a text label next to the icon, so the list link is not mistaken for
+  // the calendar control that actually schedules the post.
+  showLabel?: boolean;
 }
 
 export function ScheduledPostsNavButton({
   onClick,
   disabled,
   className,
+  showLabel,
 }: ScheduledPostsNavButtonProps): ReactElement {
   return (
     <Tooltip content="Scheduled posts">
@@ -26,7 +30,9 @@ export function ScheduledPostsNavButton({
         disabled={disabled}
         className={className}
         aria-label="Scheduled posts"
-      />
+      >
+        {showLabel ? 'Scheduled' : undefined}
+      </Button>
     </Tooltip>
   );
 }

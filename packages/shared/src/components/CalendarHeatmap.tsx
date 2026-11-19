@@ -249,6 +249,7 @@ export function CalendarHeatmap<T extends { date: string }>({
     getRange(weekCount).map((weekIndex) => renderWeek(weekIndex));
 
   return (
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
     <svg
       width="100%"
       viewBox={`0 0 ${width} ${height}`}

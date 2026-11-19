@@ -150,7 +150,7 @@ export const KeywordBadge = ({ badge }: KeywordBadgeProps): ReactElement => {
           type={TypographyType.Caption1}
           color={TypographyColor.Primary}
           className={classNames(
-            'rounded-6 border border-border-subtlest-tertiary px-1 py-0.5 lowercase transition duration-200 hover:bg-background-popover',
+            'rounded-6 border border-border-subtlest-tertiary px-1 py-0.5 transition duration-200 hover:bg-background-popover',
             truncateTextClassNames,
           )}
         >

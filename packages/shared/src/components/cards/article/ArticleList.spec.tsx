@@ -23,7 +23,7 @@ beforeEach(() => {
   mockDesktop();
   jest
     .mocked(useRouter)
-    .mockImplementation(() => ({ pathname: '/' } as unknown as NextRouter));
+    .mockImplementation(() => ({ pathname: '/' }) as unknown as NextRouter);
 });
 
 describe('ArticleList in a narrow column', () => {

@@ -60,6 +60,7 @@ describe('socialAuth', () => {
         },
       );
       expect(refetchBoot).toHaveBeenCalledTimes(2);
+      expect(refetchBoot).toHaveBeenCalledWith({ cancelRefetch: false });
     });
 
     it('returns the last boot response when auth never completes', async () => {

@@ -12,7 +12,7 @@ import * as updateHook from './hooks/useUpdateInterest';
 import * as queries from './queries';
 import { AgentProvider, contentTargetId, useAgent } from './AgentContext';
 
-const post = (id: string): Post => ({ id, title: `Post ${id}` } as Post);
+const post = (id: string): Post => ({ id, title: `Post ${id}` }) as Post;
 
 const attachment = (id: string) => ({
   id,
@@ -663,7 +663,7 @@ describe('the live path', () => {
       trigger: 'scheduled',
       findingsAdded: 1,
       blocks: [{ type: 'text', html: `<p>${id}</p>` }],
-    } as InterestTurn);
+    }) as InterestTurn;
 
   it('shows only the deep-linked run and offers the latest one when it is older', async () => {
     const agent = mountLive({

@@ -8,15 +8,24 @@ import type { SettingsFlags } from '../../graphql/settings';
 import { useFeedWidgets } from './useFeedWidgets';
 import { FeedWidgetKind, FeedWidgetSize } from './types';
 import { feedRailFingerprint } from './storedRail';
+import loggedUser from '../../../__tests__/fixture/loggedUser';
 
 const setSettings = jest.fn();
 
-const renderWidgets = (feedWidgets?: unknown, client = new QueryClient()) =>
+// Logged in, so the default's Streak is the reader's to have.
+const renderWidgets = (
+  feedWidgets?: unknown,
+  client = new QueryClient(),
+  { isLoggedOut = false, optOutReadingStreak = false } = {},
+) =>
   renderHook(() => useFeedWidgets(), {
     wrapper: ({ children }: { children: ReactNode }): ReactElement => (
       <TestBootProvider
         client={client}
+        auth={{ user: isLoggedOut ? undefined : loggedUser }}
         settings={{
+          loadedSettings: true,
+          optOutReadingStreak,
           flags: { feedWidgets } as unknown as SettingsFlags,
           setSettings,
         }}
@@ -28,6 +37,12 @@ const renderWidgets = (feedWidgets?: unknown, client = new QueryClient()) =>
 
 const writtenRail = () => setSettings.mock.calls.at(-1)?.[0].flags.feedWidgets;
 
+// The flag's default rail, as it is stored.
+const defaultWidgets = [
+  { id: 'happening-now', kind: 'happeningNow', size: 'large' },
+  { id: 'streak', kind: 'streak', size: 'small' },
+];
+
 beforeEach(() => {
   setSettings.mockClear();
 });
@@ -38,21 +53,35 @@ describe('useFeedWidgets', () => {
 
     expect(result.current.isCustomized).toBe(false);
     expect(result.current.widgets.map(({ kind }) => kind)).toEqual([
-      FeedWidgetKind.TopStory,
+      FeedWidgetKind.HappeningNow,
+      FeedWidgetKind.Streak,
     ]);
 
     act(() => {
-      result.current.addWidget(FeedWidgetKind.HappeningNow);
+      result.current.addWidget(FeedWidgetKind.Notifications);
     });
 
     expect(writtenRail()).toEqual({
       version: 1,
-      startedFrom: 'default-1',
+      startedFrom: 'default-3',
       widgets: [
-        { id: 'top-story', kind: 'topStory', size: 'large' },
-        expect.objectContaining({ kind: 'happeningNow', size: 'tall' }),
+        ...defaultWidgets,
+        expect.objectContaining({ kind: 'notifications', size: 'small' }),
       ],
     });
+  });
+
+  it('seats no default widget the reader could not add themselves', () => {
+    expect(
+      renderWidgets(undefined, undefined, {
+        isLoggedOut: true,
+      }).result.current.widgets.map(({ kind }) => kind),
+    ).toEqual([FeedWidgetKind.HappeningNow]);
+    expect(
+      renderWidgets(undefined, undefined, {
+        optOutReadingStreak: true,
+      }).result.current.widgets.map(({ kind }) => kind),
+    ).toEqual([FeedWidgetKind.HappeningNow]);
   });
 
   it('does not stamp a default on a rail saved without one', () => {
@@ -74,7 +103,7 @@ describe('useFeedWidgets', () => {
   it('keeps what another client stored when this one edits', () => {
     const { result } = renderWidgets({
       version: 1,
-      startedFrom: 'default-2',
+      startedFrom: 'default-3',
       offered: ['streak'],
       widgets: [
         { id: 'a', kind: 'happeningNow', size: 'tall' },
@@ -91,7 +120,7 @@ describe('useFeedWidgets', () => {
 
     expect(writtenRail()).toEqual({
       version: 1,
-      startedFrom: 'default-2',
+      startedFrom: 'default-3',
       offered: ['streak'],
       widgets: [
         { id: 'a', kind: 'happeningNow', size: 'small' },
@@ -192,9 +221,6 @@ describe('useFeedWidgets', () => {
   });
 
   describe('tips', () => {
-    const defaultWidgets = [
-      { id: 'top-story', kind: 'topStory', size: 'large' },
-    ];
     const onDefault = {
       version: 1,
       tipsHidden: true,
@@ -224,10 +250,13 @@ describe('useFeedWidgets', () => {
 
       expect(result.current.isCustomized).toBe(false);
       expect(result.current.isTipHidden).toBe(true);
-      expect(result.current.widgets.map(({ id }) => id)).toEqual(['top-story']);
+      expect(result.current.widgets.map(({ id }) => id)).toEqual([
+        'happening-now',
+        'streak',
+      ]);
 
       act(() => {
-        result.current.addWidget(FeedWidgetKind.HappeningNow);
+        result.current.addWidget(FeedWidgetKind.Notifications);
       });
 
       // The first edit customizes, from the live default, keeping the tips
@@ -235,10 +264,10 @@ describe('useFeedWidgets', () => {
       expect(writtenRail()).toEqual({
         version: 1,
         tipsHidden: true,
-        startedFrom: 'default-1',
+        startedFrom: 'default-3',
         widgets: [
-          { id: 'top-story', kind: 'topStory', size: 'large' },
-          expect.objectContaining({ kind: 'happeningNow' }),
+          ...defaultWidgets,
+          expect.objectContaining({ kind: 'notifications' }),
         ],
       });
     });
@@ -255,16 +284,36 @@ describe('useFeedWidgets', () => {
       ]);
     });
 
-    it('brings them back by storing nothing when nothing else is stored', () => {
+    it('keeps them off for a reader who never turned them on', () => {
+      const { result } = renderWidgets();
+
+      expect(result.current.isTipHidden).toBe(true);
+    });
+
+    it('shows them once the stored rail says false', () => {
+      const { result } = renderWidgets({ ...onDefault, tipsHidden: false });
+
+      expect(result.current.isTipHidden).toBe(false);
+    });
+
+    it('turns them on by storing an explicit false, keeping the default', () => {
       const { result } = renderWidgets(onDefault);
 
       act(() => {
         result.current.setTipHidden(false);
       });
 
-      expect(setSettings).toHaveBeenLastCalledWith({
-        flags: { feedWidgets: null },
+      expect(writtenRail()).toEqual({ ...onDefault, tipsHidden: false });
+    });
+
+    it('turns them on for a reader who never stored a rail', () => {
+      const { result } = renderWidgets();
+
+      act(() => {
+        result.current.setTipHidden(false);
       });
+
+      expect(writtenRail()).toEqual({ ...onDefault, tipsHidden: false });
     });
 
     it('hides them on a customized rail, keeping its widgets', () => {

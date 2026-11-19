@@ -94,7 +94,7 @@ it('lists every tip under its section, each linking to its feature', () => {
   );
 });
 
-describe('showing tips in the feed again', () => {
+describe('turning tips on in the feed', () => {
   const setSettings = jest.fn();
   const rail = {
     version: 1,
@@ -124,18 +124,16 @@ describe('showing tips in the feed again', () => {
     logEvent.mockClear();
   });
 
-  it('brings the tips back for a reader who removed them', async () => {
-    renderPage({ ...rail, tipsHidden: true });
+  it('turns the tips on for a reader who has them off', async () => {
+    renderPage(rail);
 
-    expect(
-      screen.getByText('You removed tips from your feed.'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Tips are off in your feed.')).toBeInTheDocument();
     fireEvent.click(
       screen.getByRole('button', { name: 'Show tips in my feed' }),
     );
 
     expect(setSettings).toHaveBeenCalledWith({
-      flags: { feedWidgets: rail },
+      flags: { feedWidgets: { ...rail, tipsHidden: false } },
     });
     await waitFor(() =>
       expect(logEvent).toHaveBeenCalledWith(
@@ -148,13 +146,13 @@ describe('showing tips in the feed again', () => {
   });
 
   it('offers nothing while the tips show, or to a signed-out reader', () => {
-    const { unmount } = renderPage(rail);
+    const { unmount } = renderPage({ ...rail, tipsHidden: false });
     expect(
-      screen.queryByText('You removed tips from your feed.'),
+      screen.queryByText('Tips are off in your feed.'),
     ).not.toBeInTheDocument();
     unmount();
 
-    renderPage({ ...rail, tipsHidden: true }, false);
+    renderPage(rail, false);
     expect(
       screen.queryByRole('button', { name: 'Show tips in my feed' }),
     ).not.toBeInTheDocument();

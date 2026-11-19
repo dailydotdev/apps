@@ -22,3 +22,7 @@ export const getLayout = (
     </MainLayout>,
   );
 };
+
+export const mainFeedLayoutProps: MainLayoutProps = {
+  mainPage: true,
+};

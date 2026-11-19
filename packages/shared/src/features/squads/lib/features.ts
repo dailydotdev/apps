@@ -1,4 +1,5 @@
 import type { Source, SourceFeatures } from '../../../graphql/sources';
+import { SQUAD_PLAN_PRODUCTS_MAX, SQUAD_PRODUCTS_MAX } from './limits';
 
 export type SquadFeature = keyof SourceFeatures;
 
@@ -6,6 +7,47 @@ export const hasSquadFeature = (
   source: Pick<Source, 'features'> | undefined,
   feature: SquadFeature,
 ): boolean => !!source?.features?.[feature];
+
+// The plan includes verified, and its admins haven't hidden the badge. Until
+// the API sends showVerifiedBadge, verified shows it.
+export const showsVerifiedBadge = (
+  source:
+    | {
+        features?: Partial<
+          Pick<SourceFeatures, 'verified' | 'showVerifiedBadge'>
+        > | null;
+      }
+    | undefined,
+): boolean =>
+  !!(source?.features?.showVerifiedBadge ?? source?.features?.verified);
+
+// A company page: verified (Enterprise) or on a daily.dev for Startups plan,
+// which turns on products.
+export const isCompanySquad = (
+  source: Pick<Source, 'features'> | undefined,
+): boolean =>
+  hasSquadFeature(source, 'verified') || hasSquadFeature(source, 'products');
+
+// The website link: every plan, and company pages without one. The extra
+// links stay paid.
+export const canSetSquadWebsite = (
+  source: Pick<Source, 'features' | 'flags'> | undefined,
+): boolean => hasSquadFeature(source, 'links') || !!source?.flags?.company;
+
+// Verified squads get the full branding. The Startups Team plan gets only the
+// header button; the brand color stays an Enterprise feature.
+export const canSetSquadButton = (
+  source: Pick<Source, 'features'> | undefined,
+): boolean =>
+  hasSquadFeature(source, 'verified') || hasSquadFeature(source, 'cta');
+
+// Mirrors the API: only verified squads get the full products shelf
+export const getSquadProductsMax = (
+  source: Pick<Source, 'features'> | undefined,
+): number =>
+  hasSquadFeature(source, 'verified')
+    ? SQUAD_PRODUCTS_MAX
+    : SQUAD_PLAN_PRODUCTS_MAX;
 
 // A squad the page renders always comes from the API with its id; the type
 // only keeps it optional for the other sources.

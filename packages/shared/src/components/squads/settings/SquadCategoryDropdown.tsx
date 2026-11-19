@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Typography,
   TypographyColor,
@@ -23,6 +23,7 @@ export function SquadCategoryDropdown({
   onCategoryChange,
 }: SquadCategoryDropdownProps): ReactElement {
   const [selected, setSelected] = useState(-1);
+  const containerRef = useRef<HTMLDivElement>(null);
   const { data: categories } = useSquadCategories();
   const list = useMemo(
     () =>
@@ -46,8 +47,18 @@ export function SquadCategoryDropdown({
     setSelected(index);
   }, [initialCategory, list]);
 
+  useEffect(() => {
+    // The dropdown sits below the fold on most forms
+    if (categoryHint) {
+      containerRef.current?.scrollIntoView?.({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
+  }, [categoryHint]);
+
   return (
-    <div className="ml-9 flex flex-col gap-4">
+    <div ref={containerRef} className="ml-9 flex flex-col gap-4">
       <Typography
         type={TypographyType.Callout}
         color={TypographyColor.Secondary}
@@ -71,6 +82,15 @@ export function SquadCategoryDropdown({
           }}
           disabled={isDisabled}
         />
+      )}
+      {categoryHint && (
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.StatusError}
+          role="alert"
+        >
+          {categoryHint}
+        </Typography>
       )}
       {list && !isDisabled && (
         <input

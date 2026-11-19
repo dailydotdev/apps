@@ -3,14 +3,18 @@ import { useQuery } from '@tanstack/react-query';
 import { Streak } from '../../components/streak/popup/DayStreak';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import type { ReadingDay } from '../../graphql/users';
+import type { ReadingDay, UserStreakPause } from '../../graphql/users';
 import { getReadingStreak30Days } from '../../graphql/users';
 import { userStreakFreezeDatesQueryOptions } from '../../graphql/streakFreeze';
 import { useHasAccessToCores } from '../useCoresFeature';
 import { useConditionalFeature } from '../useConditionalFeature';
 import { featureStreakFreeze } from '../../lib/featureManagement';
 import { DayOfWeek, isWeekend } from '../../lib/date';
-import { isSameDayInTimezone } from '../../lib/timezones';
+import {
+  isLocalDateInTimezone,
+  isSameDayInTimezone,
+} from '../../lib/timezones';
+import { isStreakDayPaused } from './useStreakPause';
 
 // Classify a single day against the user's reading history. Extracted from
 // ReadingStreakPopup so the popup, the compact sidebar calendar and the rail
@@ -22,6 +26,10 @@ export const getStreak = ({
   startOfWeek = DayOfWeek.Monday,
   timezone,
   freezeDates,
+  missedDate,
+  missedDateTimezone,
+  pause,
+  lastViewAt,
 }: {
   value: Date;
   today: Date;
@@ -29,6 +37,13 @@ export const getStreak = ({
   startOfWeek?: number;
   timezone?: string;
   freezeDates?: string[];
+  // The local date (YYYY-MM-DD) that broke the last streak, in the timezone
+  // the API computed it in (see useStreakResetReason).
+  missedDate?: string;
+  missedDateTimezone?: string;
+  // The running or next scheduled pause (local dates in `timezone`).
+  pause?: UserStreakPause;
+  lastViewAt?: Date | string;
 }): Streak => {
   const isFreezeDay = isWeekend(value, startOfWeek, timezone);
   const isUsedFreezeDay = freezeDates?.some((freezeDate) =>
@@ -36,17 +51,34 @@ export const getStreak = ({
   );
   const isToday = isSameDayInTimezone(value, today, timezone);
   const isFuture = value > today;
+  // lastViewAt is always a counted day, and the history alone can miss it:
+  // an early-morning read the API credits to the previous day keeps its real
+  // timestamp in the history.
+  const isLastCountedDay =
+    !!lastViewAt && isSameDayInTimezone(new Date(lastViewAt), value, timezone);
   const isCompleted =
     !isFuture &&
-    history?.some(({ date: historyDate, reads }) => {
-      const dateToCompare = new Date(historyDate);
-      const sameDate = isSameDayInTimezone(dateToCompare, value, timezone);
+    (isLastCountedDay ||
+      history?.some(({ date: historyDate, reads }) => {
+        const dateToCompare = new Date(historyDate);
+        const sameDate = isSameDayInTimezone(dateToCompare, value, timezone);
 
-      return sameDate && reads > 0;
-    });
+        return sameDate && reads > 0;
+      }));
 
   if (isCompleted) {
     return Streak.Completed;
+  }
+
+  if (
+    missedDate &&
+    isLocalDateInTimezone(value, missedDate, missedDateTimezone ?? timezone)
+  ) {
+    return Streak.Missed;
+  }
+
+  if (isStreakDayPaused(value, pause, timezone)) {
+    return Streak.Paused;
   }
 
   // Consumed freezes are their own auto-applied purchase, distinct from the

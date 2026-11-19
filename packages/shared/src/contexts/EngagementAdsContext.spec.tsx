@@ -1,14 +1,26 @@
 import React from 'react';
 import type { ReactNode } from 'react';
+import nock from 'nock';
 import { QueryClient } from '@tanstack/react-query';
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { TestBootProvider } from '../../__tests__/helpers/boot';
 import { defaultQueryClientTestingConfig } from '../../__tests__/helpers/tanstack-query';
+import loggedUser from '../../__tests__/fixture/loggedUser';
 import type { EngagementCreative } from '../lib/engagementAds';
+import { gqlClient } from '../graphql/common';
+import { ENGAGEMENT_CREATIVES_QUERY } from '../graphql/engagementAds';
 import {
   EngagementAdsProvider,
   useEngagementAdsContext,
 } from './EngagementAdsContext';
+
+let mockIsProduction = false;
+jest.mock('../lib/constants', () => ({
+  ...jest.requireActual('../lib/constants'),
+  get isProduction() {
+    return mockIsProduction;
+  },
+}));
 
 const mockCreative: EngagementCreative = {
   gen_id: 'creative-123',
@@ -35,18 +47,35 @@ let queryClient: QueryClient;
 
 beforeEach(() => {
   queryClient = new QueryClient(defaultQueryClientTestingConfig);
+  mockIsProduction = false;
+  nock.cleanAll();
+  jest.restoreAllMocks();
 });
 
-const createWrapper = (creatives?: EngagementCreative[]) =>
+const createWrapper = (
+  creatives?: EngagementCreative[],
+  { isRemoteBootApplied = false, isPlus = false } = {},
+) =>
   function Wrapper({ children }: { children: ReactNode }) {
     return (
-      <TestBootProvider client={queryClient}>
-        <EngagementAdsProvider rawCreatives={creatives}>
+      <TestBootProvider
+        client={queryClient}
+        auth={{ user: { ...loggedUser, isPlus } }}
+      >
+        <EngagementAdsProvider
+          rawCreatives={creatives}
+          isRemoteBootApplied={isRemoteBootApplied}
+        >
           {children}
         </EngagementAdsProvider>
       </TestBootProvider>
     );
   };
+
+const requestedCreatives = (spy: jest.SpyInstance) =>
+  spy.mock.calls.filter(
+    ([document]) => document === ENGAGEMENT_CREATIVES_QUERY,
+  );
 
 describe('EngagementAdsContext', () => {
   it('provides empty creatives when rawCreatives is undefined', () => {
@@ -124,6 +153,62 @@ describe('EngagementAdsContext', () => {
 
       expect(result.current.getCreativeForTool(null)).toBeNull();
       expect(result.current.getCreativeForTool('unknown-tool')).toBeNull();
+    });
+  });
+
+  describe('deferred creatives', () => {
+    afterEach(() => {
+      document.cookie = 'euconsent-v2=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    });
+
+    it('fetches them with the stored consent once boot lands without them', async () => {
+      document.cookie = 'euconsent-v2=CQoHJkAQoHJkAAfG';
+      nock('http://localhost:3000')
+        .post('/graphql', { query: ENGAGEMENT_CREATIVES_QUERY })
+        .matchHeader('x-gdpr-consent', 'CQoHJkAQoHJkAAfG')
+        .reply(200, { data: { engagementCreatives: [mockCreative] } });
+
+      const { result } = renderHook(() => useEngagementAdsContext(), {
+        wrapper: createWrapper(undefined, { isRemoteBootApplied: true }),
+      });
+
+      await waitFor(() =>
+        expect(result.current.getCreativeForTool('vscode')?.genId).toBe(
+          'creative-123',
+        ),
+      );
+    });
+
+    it('does not fetch them before boot lands', () => {
+      const spy = jest.spyOn(gqlClient, 'request');
+      renderHook(() => useEngagementAdsContext(), {
+        wrapper: createWrapper(undefined),
+      });
+
+      expect(requestedCreatives(spy)).toHaveLength(0);
+    });
+
+    it('uses the inline boot creatives without fetching', () => {
+      const spy = jest.spyOn(gqlClient, 'request');
+      const { result } = renderHook(() => useEngagementAdsContext(), {
+        wrapper: createWrapper([], { isRemoteBootApplied: true }),
+      });
+
+      expect(result.current.creatives).toEqual([]);
+      expect(requestedCreatives(spy)).toHaveLength(0);
+    });
+
+    it('does not fetch them for ad-free Plus in production', () => {
+      mockIsProduction = true;
+      const spy = jest.spyOn(gqlClient, 'request');
+      renderHook(() => useEngagementAdsContext(), {
+        wrapper: createWrapper(undefined, {
+          isRemoteBootApplied: true,
+          isPlus: true,
+        }),
+      });
+
+      expect(requestedCreatives(spy)).toHaveLength(0);
     });
   });
 });

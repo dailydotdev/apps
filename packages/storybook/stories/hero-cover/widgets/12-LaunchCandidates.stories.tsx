@@ -148,7 +148,7 @@ const candidates: Candidate[] = [
     glance: 'Your open post, waiting reach-outs',
     source: 'LfgYourPostWidget, lfg queries',
     backend: 'None',
-    flag: 'lfg, lfg_launched, direct_messages',
+    flag: 'lfg, lfg_launched',
     score: 3,
     why: 'Widget pieces already exist; heavily gated.',
   },

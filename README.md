@@ -34,10 +34,6 @@ The decision was made to allow faster iterations and to keep features parity in 
 
 contains a collection of smaller projects or libraries that are used across the daily.dev application suite. Here's a brief overview of each package mentioned:
 
-- ### [eslint-config](https://github.com/dailydotdev/apps/tree/main/packages/eslint-config)
-
-  Shared ESLint settings for maintaining consistent code quality across the project.
-
 - ### [eslint-rules](https://github.com/dailydotdev/apps/tree/main/packages/eslint-rules)
 
   A custom ESLint plugin that defines a set of rules for the project, including a rule to enforce consistent color usage.
@@ -45,10 +41,6 @@ contains a collection of smaller projects or libraries that are used across the 
 - ### [extension](https://github.com/dailydotdev/apps/tree/main/packages/extension)
 
   The browser extension project. Includes webpack configuration for browser extensions and the dedicated components just for the extension.
-
-- ### [prettier-config](https://github.com/dailydotdev/apps/tree/main/packages/prettier-config)
-
-  Shared Prettier settings for all the projects in this repo.
 
 - ### [shared](https://github.com/dailydotdev/apps/tree/main/packages/shared)
 

@@ -275,17 +275,37 @@ const useOnboardingAuth = () => {
     updateAuth,
   ]);
 
+  // The page's own auth shell has no signup intro: OnboardingSignup only has
+  // its headline and layout inside the funnel's signup step. Whenever page
+  // level auth would land there (back from the email form, "back to intro"),
+  // hand control back to the funnel instead of showing the bare buttons.
+  const exitToFunnelSignup = useCallback(() => {
+    updateAuth({
+      isAuthenticating: false,
+      defaultDisplay: AuthDisplay.OnboardingSignup,
+      isLoginFlow: false,
+    });
+
+    // An action (e.g. signupEmail) keeps the funnel from initialising.
+    if (router.query.action) {
+      const query = { ...router.query };
+      delete query.action;
+      router.replace({ pathname: router.pathname, query }, undefined, {
+        shallow: true,
+      });
+    }
+  }, [router, updateAuth]);
+
+  const [screenBack, setScreenBack] = useState<() => void>();
+
   const authOptionProps: AuthOptionsProps = useMemo(
     () => ({
       simplified: true,
-      // The trigger below takes `loginState` before its Onboarding fallback, so
-      // the inline strip's branch is reachable. The consent line the flow relies
-      // on lives on `RegistrationForm`, by the button that creates the account.
-      hideSignupDisclaimer: true,
       isOnboardingFunnel: true,
+      onScreenBackChange: (back) => setScreenBack(() => back),
       className: {
         container: classNames(
-          'w-full rounded-none tablet:max-w-[30rem]',
+          'w-full rounded-none tablet:max-w-[27.5rem]',
           auth.isAuthenticating ? 'h-full' : 'max-w-full',
         ),
         onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
@@ -300,6 +320,14 @@ const useOnboardingAuth = () => {
       onSuccessfulLogin: () => updateAuth({ isAuthenticating: false }),
       onAuthStateUpdate: (props: Partial<AuthProps>) => {
         const { isAuthenticating: incoming, ...rest } = props;
+        if (
+          rest.defaultDisplay === AuthDisplay.OnboardingSignup &&
+          !rest.isLoginFlow
+        ) {
+          exitToFunnelSignup();
+          return;
+        }
+
         updateAuth({ isAuthenticating: incoming ?? true, ...rest });
       },
       onboardingSignupButton: {
@@ -315,6 +343,7 @@ const useOnboardingAuth = () => {
       isMobile,
       loginState?.trigger,
       updateAuth,
+      exitToFunnelSignup,
     ],
   );
 
@@ -324,8 +353,8 @@ const useOnboardingAuth = () => {
     funnelState,
     isAuthReady,
     isAuthenticating: auth.isAuthenticating,
-    updateAuth,
     isLoggedIn,
+    screenBack,
     shouldVerify: anonymous?.shouldVerify,
   };
 };
@@ -342,8 +371,8 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
     authOptionProps,
     funnelState,
     isLoggedIn,
+    screenBack,
     shouldVerify,
-    updateAuth,
   } = useOnboardingAuth();
   const { isOnboardingComplete, isOnboardingActionsReady, completeStep } =
     useOnboardingActions();
@@ -410,20 +439,6 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
     router,
   ]);
 
-  const { isLoginFlow: isPageLoginFlow } = authOptionProps;
-  const authBackTarget: Partial<Record<AuthDisplay, AuthDisplay>> = {
-    ...(!isPageLoginFlow && {
-      [AuthDisplay.Registration]: AuthDisplay.OnboardingSignup,
-    }),
-    [AuthDisplay.EmailVerification]: isPageLoginFlow
-      ? AuthDisplay.Default
-      : AuthDisplay.Registration,
-  };
-  const authBack = authBackTarget[authOptionProps.defaultDisplay];
-  const onAuthBack = authBack
-    ? () => updateAuth({ defaultDisplay: authBack })
-    : undefined;
-
   if (isAuthenticating) {
     return (
       // These screens render before FunnelStepper mounts, so they take the
@@ -433,8 +448,8 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
           'relative z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
         )}
       >
-        <FunnelStepTopBar onBack={onAuthBack} />
-        <div className="relative z-2 flex w-full flex-grow flex-col flex-wrap justify-start px-4 pt-3 tablet:flex-row tablet:justify-center tablet:gap-10 tablet:px-6">
+        <FunnelStepTopBar onBack={screenBack} />
+        <div className="relative z-2 flex w-full flex-grow flex-col flex-wrap justify-start px-5 pt-3 tablet:flex-row tablet:justify-center tablet:gap-10 tablet:px-6">
           <AuthOptions {...authOptionProps} />
         </div>
       </div>

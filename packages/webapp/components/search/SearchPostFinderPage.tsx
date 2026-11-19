@@ -8,10 +8,8 @@ import { MagicIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import classNames from 'classnames';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import {
-  getMainFeedLayout,
-  mainFeedLayoutProps,
-} from '../layouts/MainFeedPage';
+import { getMainFeedLayout } from '../layouts/MainFeedPage';
+import { mainFeedLayoutProps } from '../layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
 
 const baseSeo: NextSeoProps = {

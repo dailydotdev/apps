@@ -14,7 +14,7 @@ import type {
 } from '../../messages/types';
 import type { ChatRoom } from '../graphql';
 import { ChatRoomStatus, openPostChatRoom } from '../graphql';
-import { postChatRoomQueryOptions } from '../queries';
+import { chatRoomQueryOptions, postChatRoomQueryOptions } from '../queries';
 
 export type LiveChatStatus =
   // Not in the room; the room may or may not exist yet.
@@ -27,6 +27,9 @@ export type LiveChatStatus =
   | 'failed';
 
 export const LIVE_CHAT_MESSAGE_MAX_LENGTH = 500;
+// How long a preview seat is kept after the panel leaves the screen, so a
+// reader moving around the edge does not leave and rejoin on every crossing.
+export const PREVIEW_SEAT_RELEASE_MS = 5 * 1000;
 // Enough scrollback for a busy hour; the room itself keeps nothing.
 const MESSAGE_CAP = 300;
 // A sender who stops typing without saying so shouldn't look busy forever.
@@ -45,35 +48,57 @@ type UseLiveChatRoom = {
   typingUserIds: string[];
   // Everyone the viewer has seen speak or type, the viewer included.
   senderIds: string[];
+  // Whether the viewer asked to take part, as opposed to reading along in a
+  // seat the surface took for them (see `preview`).
+  isParticipating: boolean;
   // Opens the post's room when there is none yet, then joins it.
   join: () => Promise<void>;
-  leave: () => void;
+  // Joins if needed and unlocks the composer; the "Join" click.
+  participate: () => Promise<void>;
   send: (body: string) => Promise<void>;
   // Adds or removes the viewer's reaction on a message.
   react: (messageId: string, emoji: string) => void;
   // Whether the draft has text, on every change, for the typing indicator.
   onDraftChange: (hasText: boolean) => void;
+  // Drops everything the sender said from this screen, once they are out.
+  removeSender: (userId: string) => void;
 };
 
-// One post's live chat: the room from the API, and the viewer's seat in it
-// over the chat connection. Messages live only here, as long as the surface
-// is mounted; the room keeps nothing, and that is the point of it.
+// One live chat: the room from the API, and the viewer's seat in it over
+// the chat connection. Messages live only here, as long as the surface is
+// mounted; the room keeps nothing, and that is the point of it. The room is
+// the post's (which the team may still open from here) or one by id (a
+// topic room, which exists before anyone lands on it).
 export const useLiveChatRoom = ({
   postId,
+  roomId,
   origin,
+  preview = false,
 }: {
-  postId: string;
+  postId?: string;
+  roomId?: string;
   origin: string;
+  // Seat a signed-in viewer in the open room while this is true, so the chat
+  // is on screen before they decide to join. The room replays its recent
+  // history on join and keeps nothing else, so a seat is the only way to see
+  // it. The seat is the surface's, not the viewer's: a leave only drops the
+  // composer, and the seat goes when this turns false (the panel scrolled
+  // away) or with the unmount, unless the viewer has joined. The last
+  // messages stay so the page does not jump.
+  preview?: boolean;
 }): UseLiveChatRoom => {
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
-  const roomQuery = postChatRoomQueryOptions(user, postId);
+  const roomQuery = roomId
+    ? chatRoomQueryOptions(user, roomId)
+    : postChatRoomQueryOptions(user, postId ?? '');
   const { data: room, isPending: isRoomLoading } = useQuery(roomQuery);
   const roomJid = room?.status === ChatRoomStatus.Active ? room.jid : null;
 
   const [status, setStatus] = useState<LiveChatStatus>('idle');
+  const [isParticipating, setIsParticipating] = useState(false);
   const [failure, setFailure] = useState<RoomJoinFailure>();
   const [messages, setMessages] = useState<RoomMessage[]>([]);
   const [typing, setTyping] = useState<Record<string, true>>({});
@@ -82,6 +107,12 @@ export const useLiveChatRoom = ({
   // The room the viewer is seated in, for the leave on unmount and for
   // ignoring events about other rooms.
   const seatedJid = useRef<string | null>(null);
+  // The room asked for but not confirmed yet; the transport already holds it.
+  const joiningJid = useRef<string | null>(null);
+  // The room the preview already tried to seat the viewer in; a failed or
+  // kicked preview does not try again on its own.
+  const previewedJid = useRef<string | null>(null);
+  const isMounted = useRef(false);
   const isComposing = useRef(false);
   const composingSentAt = useRef(0);
   const pauseTimer = useRef<ReturnType<typeof setTimeout>>();
@@ -92,7 +123,11 @@ export const useLiveChatRoom = ({
         event_name: eventName,
         target_type: TargetType.ChatRoom,
         target_id: room?.id,
-        extra: JSON.stringify({ origin, post_id: postId, ...extra }),
+        extra: JSON.stringify({
+          origin,
+          ...(postId && { post_id: postId }),
+          ...extra,
+        }),
       }),
     [logEvent, origin, postId, room?.id],
   );
@@ -168,19 +203,27 @@ export const useLiveChatRoom = ({
           break;
         case 'roomJoined':
           seatedJid.current = roomJid;
+          joiningJid.current = null;
           setStatus('joined');
           break;
         case 'roomLeft':
+          // A seat given up here already moved on; the echo changes nothing.
+          if (!seatedJid.current && !joiningJid.current) {
+            break;
+          }
           seatedJid.current = null;
+          joiningJid.current = null;
           setStatus('left');
           break;
         case 'roomEnded':
           seatedJid.current = null;
+          joiningJid.current = null;
           setStatus('ended');
           queryClient.invalidateQueries({ queryKey: roomQuery.queryKey });
           break;
         case 'roomJoinFailed':
           seatedJid.current = null;
+          joiningJid.current = null;
           setFailure(event.reason);
           setStatus('failed');
           break;
@@ -257,37 +300,116 @@ export const useLiveChatRoom = ({
     setStatus('joining');
     try {
       let target = room;
-      if (!target?.jid || target.status !== ChatRoomStatus.Active) {
+      // A topic room exists before anyone lands on it; only a post's room
+      // is opened from here.
+      if (postId && (!target?.jid || target.status !== ChatRoomStatus.Active)) {
         target = await openPostChatRoom(postId);
         queryClient.setQueryData(roomQuery.queryKey, target);
+        // Closed while the room was opening; the unmount had nothing to leave.
+        if (!isMounted.current) {
+          return;
+        }
       }
-      if (!target.jid) {
+      if (!target?.jid || target.status !== ChatRoomStatus.Active) {
         throw new Error('The chat room is not ready yet');
       }
-      setMessages([]);
+      // A preview seat taken again picks up where the last one left off; the
+      // replay fills the gap and repeats are merged by id.
+      if (!preview) {
+        setMessages([]);
+      }
+      joiningJid.current = target.jid;
       await getDmTransport(user.id).joinRoom(target.jid);
-      log(LogEvent.JoinLiveChat);
     } catch (err) {
       setFailure('unknown');
       setStatus('failed');
       throw err;
     }
-    // The query key is stable per post; the options object is not.
+    // The query key is stable per room; the options object is not.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [log, postId, queryClient, room, status, user?.id]);
+  }, [postId, preview, queryClient, room, status, user?.id]);
 
-  const leave = useCallback(() => {
-    const jid = seatedJid.current;
-    seatedJid.current = null;
-    stopComposing(false);
-    setStatus('left');
-    if (user?.id && jid) {
-      getDmTransport(user.id)
-        .leaveRoom(jid)
-        .catch(() => undefined);
-      log(LogEvent.LeaveLiveChat);
+  const participate = useCallback(async () => {
+    setIsParticipating(true);
+    if (status !== 'joined') {
+      await join();
     }
-  }, [log, stopComposing, user?.id]);
+  }, [join, status]);
+
+  // A seat counts as reading once it is confirmed, whether the surface took
+  // it or the viewer did; the funnel's "in the room" step.
+  const readLogged = useRef(false);
+  useEffect(() => {
+    if (status !== 'joined') {
+      readLogged.current = false;
+      return;
+    }
+    if (!readLogged.current) {
+      readLogged.current = true;
+      log(LogEvent.ReadLiveChat);
+    }
+  }, [log, status]);
+
+  // A join counts once the seat is confirmed and the viewer asked for it, so
+  // a click that fails, or one made while the preview seat is still landing,
+  // is not a join yet.
+  const joinLogged = useRef(false);
+  useEffect(() => {
+    if (status !== 'joined' || !isParticipating) {
+      joinLogged.current = false;
+      return;
+    }
+    if (!joinLogged.current) {
+      joinLogged.current = true;
+      log(LogEvent.JoinLiveChat);
+    }
+  }, [isParticipating, log, status]);
+
+  // The preview takes the seat; nothing of the viewer's is said or shown yet.
+  useEffect(() => {
+    if (
+      !preview ||
+      !user?.id ||
+      !roomJid ||
+      status !== 'idle' ||
+      previewedJid.current === roomJid
+    ) {
+      return;
+    }
+    previewedJid.current = roomJid;
+    join().catch(() => undefined);
+  }, [join, preview, roomJid, status, user?.id]);
+
+  // The preview's seat goes a moment after the panel does: nobody is reading,
+  // and the seat is better left to someone who is. It comes back with the
+  // panel; a panel back within the moment keeps the seat it had.
+  useEffect(() => {
+    if (
+      preview ||
+      isParticipating ||
+      status !== 'joined' ||
+      !seatedJid.current ||
+      !previewedJid.current
+    ) {
+      return undefined;
+    }
+    const timer = setTimeout(() => {
+      const jid = seatedJid.current;
+      if (!jid) {
+        return;
+      }
+      seatedJid.current = null;
+      joiningJid.current = null;
+      previewedJid.current = null;
+      setStatus('idle');
+      if (user?.id) {
+        getDmTransport(user.id)
+          .leaveRoom(jid)
+          .catch(() => undefined);
+      }
+    }, PREVIEW_SEAT_RELEASE_MS);
+    return () => clearTimeout(timer);
+  }, [isParticipating, preview, status, user?.id]);
 
   const send = useCallback(
     async (body: string) => {
@@ -313,7 +435,7 @@ export const useLiveChatRoom = ({
     (messageId: string, emoji: string) => {
       const jid = seatedJid.current;
       const message = messages.find(({ id }) => id === messageId);
-      if (!user?.id || !jid || !message) {
+      if (!user?.id || !jid || !message || !isParticipating) {
         return;
       }
       const own = getOwnReactions(message, user.id);
@@ -336,15 +458,24 @@ export const useLiveChatRoom = ({
         .catch(() => undefined);
       log(LogEvent.ReactLiveChatMessage, { emoji, removed: isRemoving });
     },
-    [displayToast, log, messages, user?.id],
+    [displayToast, isParticipating, log, messages, user?.id],
   );
+
+  const removeSender = useCallback((userId: string) => {
+    setMessages((current) =>
+      current.filter((message) => message.senderId !== userId),
+    );
+  }, []);
 
   // Leaving the page leaves the room; nothing about the seat survives it.
   useEffect(() => {
     const timers = typingTimers.current;
+    isMounted.current = true;
     return () => {
-      const jid = seatedJid.current;
+      isMounted.current = false;
+      const jid = seatedJid.current ?? joiningJid.current;
       seatedJid.current = null;
+      joiningJid.current = null;
       clearTimeout(pauseTimer.current);
       timers.forEach((timer) => clearTimeout(timer));
       timers.clear();
@@ -374,10 +505,12 @@ export const useLiveChatRoom = ({
     messages,
     typingUserIds,
     senderIds,
+    isParticipating,
     join,
-    leave,
+    participate,
     send,
     react,
     onDraftChange,
+    removeSender,
   };
 };

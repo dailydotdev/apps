@@ -18,7 +18,10 @@ import { featureLuckyButton } from '../../lib/featureManagement';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { Tooltip } from '../tooltip/Tooltip';
 
-export const LuckyButton = (): ReactElement | null => {
+// `quiet` is the widget rail's style: Tertiary Small.
+export const LuckyButton = ({
+  quiet = false,
+}: { quiet?: boolean } = {}): ReactElement | null => {
   const { isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
@@ -64,11 +67,13 @@ export const LuckyButton = (): ReactElement | null => {
     <Tooltip content="Feeling lucky?">
       <Button
         type="button"
-        variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
-        size={ButtonSize.Medium}
+        variant={
+          isLaptop && !quiet ? ButtonVariant.Float : ButtonVariant.Tertiary
+        }
+        size={quiet ? ButtonSize.Small : ButtonSize.Medium}
         icon={
           <SparkleIcon
-            size={IconSize.Medium}
+            size={quiet ? IconSize.Small : IconSize.Medium}
             className={classNames(
               'transition-transform duration-300 ease-out motion-reduce:transition-none',
               isPending

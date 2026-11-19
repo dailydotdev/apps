@@ -23,7 +23,7 @@ const make = (
     unlockedAt,
     createdAt: null,
     updatedAt: null,
-  } as never);
+  }) as never;
 
 describe('getAchievementSummary shelf order', () => {
   it('puts in-progress first, closest first; completed follow, rarest first', () => {
