@@ -48,7 +48,7 @@ export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
         throw error;
       }
     },
-    [add, displayToast],
+    [add, displayToast, stackName],
   );
 
   const handleEdit = useCallback((item: SourceStack) => {
@@ -96,7 +96,7 @@ export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
         displayToast('Failed to remove item');
       }
     },
-    [remove, displayToast, showPrompt],
+    [remove, displayToast, showPrompt, stackName],
   );
 
   const handleCloseModal = useCallback(() => {
