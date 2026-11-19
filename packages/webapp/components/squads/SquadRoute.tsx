@@ -9,10 +9,8 @@ import { SquadPageContextProvider } from '@dailydotdev/shared/src/features/squad
 import { SquadPrivateWall } from '@dailydotdev/shared/src/features/squads/components/SquadPrivateWall';
 import { SquadPageSkeleton } from '@dailydotdev/shared/src/features/squads/components/SquadPageSkeleton';
 import type { SquadFeature } from '@dailydotdev/shared/src/features/squads/lib/features';
-import {
-  hasSquadFeature,
-  isCompanySquad,
-} from '@dailydotdev/shared/src/features/squads/lib/features';
+import { hasSquadFeature } from '@dailydotdev/shared/src/features/squads/lib/features';
+import { isCompanyPage } from '@dailydotdev/shared/src/features/squads/lib/companyPage';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   getSquadViewer,
@@ -57,7 +55,7 @@ export const SquadRoute = ({
   const isSettled = !!squad || isFetched || isForbidden;
   const isSettingUpCompany =
     !!squad &&
-    isCompanySquad(squad) &&
+    isCompanyPage(squad) &&
     isStaffViewer(getSquadViewer(squad, isLoggedIn));
   usePauseBootPopups(!isSettled || isSettingUpCompany);
 
