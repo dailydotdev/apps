@@ -1,17 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useLogContext } from '../../contexts/LogContext';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import type { StreakRingState } from '../../hooks/streaks/useStreakRingState';
-import { LogEvent, TargetType } from '../../lib/log';
 import { storageWrapper } from '../../lib/storageWrapper';
-import type { PatchyFace, PatchyMood, PatchyTrigger } from './patchyConfig';
+import type {
+  PatchyEmote,
+  PatchyFace,
+  PatchyMood,
+  PatchyTrigger,
+} from './patchyConfig';
 import { getPatchyConfig } from './patchyConfig';
 import { subscribePatchyEvents } from './patchyEvents';
 import type { PatchyEvent } from './patchyEvents';
-import { patchyPeekScheduler } from './patchyPeekScheduler';
 import { recordPatchyActivity } from './patchyDay';
-import { isPatchyOfferOpen, setPatchyPeeking } from './patchyAssistant';
 import type { PatchyMotion } from './patchyIdle';
 import { usePatchyIdle } from './patchyIdle';
 import {
@@ -24,32 +25,37 @@ import {
 } from './patchyTriggers';
 import { usePatchyConfigSync } from './usePatchyConfigSync';
 
-// How long the icon keeps the trigger's face, peek included.
-const FACE_HOLD_MS = 6000;
-const POLL_MS = 500;
-// Scrolling within this long counts as an active scroll.
-const SCROLL_IDLE_MS = 800;
+// How long a reaction keeps his face and its emote in the circle.
+export const PATCHY_REACTION_MS = 2200;
 const MOOD_TICK_MS = 60 * 1000;
 
-// His own thing: at most once per this long, only after you've been idle
-// for a while (and not too long, or nobody sees it).
-const OWN_THING_EVERY_MS = 25 * 60 * 1000;
-const OWN_THING_IDLE_MS: [number, number] = [45 * 1000, 15 * 60 * 1000];
-const OWN_THING_CHECK_MS = 30 * 1000;
-const ownThingKey = (userId: string) => `patchy_own_thing:${userId}`;
+// The motion each reaction plays with his face. Small on purpose: these show
+// on every action, so they stay inside the circle.
+export const patchyReactionMotion: Record<PatchyTrigger, PatchyMotion> = {
+  upvote: 'hop',
+  bookmark: 'wobble',
+  streak_day: 'hop',
+  late_night: 'yawn',
+  friday_deploy: 'hide',
+  welcome_back: 'hop',
+  on_a_roll: 'hop',
+  bookmark_pile: 'wobble',
+};
+
+// How many emotes float out: one, a few more for an escalation.
+export const patchyReactionEmotes: Record<PatchyTrigger, number> = {
+  upvote: 1,
+  bookmark: 1,
+  streak_day: 1,
+  late_night: 1,
+  friday_deploy: 1,
+  welcome_back: 2,
+  on_a_roll: 3,
+  bookmark_pile: 1,
+};
 
 const lateNightKey = (userId: string) => `patchy_late_night:${userId}`;
 const welcomeKey = (userId: string) => `patchy_welcome:${userId}`;
-
-const isModalOpen = (): boolean =>
-  !!document.querySelector(
-    '.ReactModal__Overlay, [role="dialog"][aria-modal="true"]',
-  );
-
-export interface PatchyPeekState {
-  trigger: PatchyTrigger;
-  id: number;
-}
 
 interface UsePatchyCompanionProps {
   isEnabled: boolean;
@@ -64,21 +70,26 @@ interface UsePatchyCompanionProps {
   offerFace?: PatchyFace | null;
 }
 
+export interface PatchyReactionState {
+  trigger: PatchyTrigger;
+  key: number;
+}
+
 interface UsePatchyCompanion {
   face: PatchyFace;
   mood: PatchyMood;
-  peek: PatchyPeekState | null;
-  // Bumps on every reaction, peek or not, so the icon can hop.
-  bump: number;
-  // A small motion the icon plays with his face (idle animations).
+  // A small motion the icon plays with his face.
   motion: PatchyMotion | null;
-  motionKey: number;
-  onPeekDone: () => void;
+  motionKey: string;
+  // A tiny emote floating out of the circle, with how many.
+  emote: PatchyEmote | null;
+  emoteCount: number;
+  emoteKey: number;
 }
 
-// The rail companion's brain: maps what the user does to a peek, runs it
-// through the rate limiter, and keeps the icon's face in sync. Mounted once,
-// in the laptop rail.
+// The rail companion's brain: everything happens inside the streak circle.
+// What you do changes his face, plays a small motion and floats a tiny emote
+// out of the circle; in between he idles (blinks, glances, yawns).
 export const usePatchyCompanion = ({
   isEnabled,
   isReactionsEnabled,
@@ -90,16 +101,11 @@ export const usePatchyCompanion = ({
   offerFace = null,
 }: UsePatchyCompanionProps): UsePatchyCompanion => {
   const { user } = useAuthContext();
-  const { logEvent } = useLogContext();
   const prefersReducedMotion = usePrefersReducedMotion();
-  const [peek, setPeek] = useState<PatchyPeekState | null>(null);
-  const [faceOverride, setFaceOverride] = useState<PatchyFace | null>(null);
+  const [reaction, setReaction] = useState<PatchyReactionState | null>(null);
   const [isGreeted, setIsGreeted] = useState(false);
   const [now, setNow] = useState(() => new Date());
-  const [pendingVersion, setPendingVersion] = useState(0);
-  const [bump, setBump] = useState(0);
-  const lastScrollAtRef = useRef(0);
-  const peekIdRef = useRef(0);
+  const reactionKeyRef = useRef(0);
   const isActive = isEnabled && isReactionsEnabled && !!user;
   const config = getPatchyConfig();
   usePatchyConfigSync(isEnabled);
@@ -117,29 +123,16 @@ export const usePatchyCompanion = ({
     return () => clearInterval(id);
   }, [isEnabled]);
 
-  useEffect(() => {
-    if (!isActive) {
-      return undefined;
+  const react = useCallback((trigger: PatchyTrigger) => {
+    if (!getPatchyConfig().reactions[trigger].enabled) {
+      return;
     }
-    const onScroll = () => {
-      lastScrollAtRef.current = Date.now();
-    };
-    // Capture: the feed scrolls inside its own containers on some layouts.
-    window.addEventListener('scroll', onScroll, {
-      capture: true,
-      passive: true,
-    });
-    return () =>
-      window.removeEventListener('scroll', onScroll, { capture: true });
-  }, [isActive]);
-
-  const request = useCallback((trigger: PatchyTrigger) => {
-    if (patchyPeekScheduler.request(trigger, Date.now())) {
-      setPendingVersion((version) => version + 1);
-    }
+    reactionKeyRef.current += 1;
+    setReaction({ trigger, key: reactionKeyRef.current });
   }, []);
 
-  const requestLateNight = useCallback(() => {
+  // Once a night, reading late gets a yawn.
+  const reactLateNight = useCallback(() => {
     const date = new Date();
     const { lateNight } = getPatchyConfig();
     if (!user || !isLateNight(date, lateNight)) {
@@ -149,56 +142,42 @@ export const usePatchyCompanion = ({
     if (storageWrapper.getItem(lateNightKey(user.id)) === night) {
       return;
     }
-    if (patchyPeekScheduler.request('late_night', date.getTime())) {
-      storageWrapper.setItem(lateNightKey(user.id), night);
-      setPendingVersion((version) => version + 1);
-    }
-  }, [user]);
+    storageWrapper.setItem(lateNightKey(user.id), night);
+    react('late_night');
+  }, [user, react]);
 
   const away =
     !isStreakLoading &&
     isAway(lastViewAt, hasReadToday, new Date(), config.awayMs);
 
-  // Coming back after 2+ days: one wave per return, keyed on the last read so
-  // a reload doesn't wave again.
+  // Coming back after a while: one happy hop per return, keyed on the last
+  // read so a reload doesn't repeat it.
   useEffect(() => {
     if (!isActive || !away || !lastViewAt || !user) {
       return;
     }
     const marker = new Date(lastViewAt).toISOString();
+    setIsGreeted(true);
     if (storageWrapper.getItem(welcomeKey(user.id)) === marker) {
-      setIsGreeted(true);
       return;
     }
     storageWrapper.setItem(welcomeKey(user.id), marker);
-    request('welcome_back');
-  }, [isActive, away, lastViewAt, user, request]);
+    react('welcome_back');
+  }, [isActive, away, lastViewAt, user, react]);
 
-  // Every action changes his face and makes the icon hop, even while a peek
-  // is cooling down, so he never looks like he missed it.
-  const react = useCallback(
-    (trigger: PatchyTrigger) => {
-      setFaceOverride(getPatchyConfig().reactions[trigger].face);
-      setBump((value) => value + 1);
-      request(trigger);
-    },
-    [request],
-  );
-
-  // He remembers your day while he's on (the den tells it back), and reacts
-  // to it when reactions are on.
+  // He remembers your day while he's on (escalations count on it), and
+  // reacts to it when reactions are on.
   useEffect(() => {
     if (!isEnabled || !user) {
       return undefined;
     }
     if (isActive) {
-      requestLateNight();
+      reactLateNight();
     }
     return subscribePatchyEvents((event: PatchyEvent) => {
       if (event.type === 'upvote' || event.type === 'bookmark') {
         const day = recordPatchyActivity(user.id, event.type);
         if (isActive) {
-          requestLateNight();
           react(
             getActionTrigger(
               event.type,
@@ -219,108 +198,23 @@ export const usePatchyCompanion = ({
       if (!isActive) {
         return;
       }
-      requestLateNight();
       if (
         isFridayDeploy(new Date(), event.tags, getPatchyConfig().fridayDeploy)
       ) {
         react('friday_deploy');
+        return;
       }
+      reactLateNight();
     });
-  }, [isEnabled, isActive, user, react, requestLateNight]);
-
-  // Wait for a calm moment (no scroll, no modal, tab visible) to show it.
-  useEffect(() => {
-    if (!isActive || peek || !patchyPeekScheduler.hasPending()) {
-      return undefined;
-    }
-    const id = setInterval(() => {
-      const isBlocked =
-        document.hidden ||
-        Date.now() - lastScrollAtRef.current < SCROLL_IDLE_MS ||
-        isModalOpen() ||
-        isPatchyOfferOpen();
-      const trigger = patchyPeekScheduler.take(Date.now(), isBlocked);
-      // Keep polling while more wait their turn: with reduced motion there is
-      // no peek to end and restart this.
-      if (!patchyPeekScheduler.hasPending()) {
-        clearInterval(id);
-      }
-      if (!trigger) {
-        return;
-      }
-      logEvent({
-        event_name: LogEvent.Impression,
-        target_type: TargetType.PatchyPeek,
-        target_id: trigger,
-      });
-      if (trigger === 'welcome_back') {
-        setIsGreeted(true);
-      }
-      setFaceOverride(getPatchyConfig().reactions[trigger].face);
-      if (!prefersReducedMotion) {
-        peekIdRef.current += 1;
-        setPeek({ trigger, id: peekIdRef.current });
-      }
-    }, POLL_MS);
-    return () => clearInterval(id);
-  }, [isActive, peek, pendingVersion, logEvent, prefersReducedMotion]);
+  }, [isEnabled, isActive, user, react, reactLateNight]);
 
   useEffect(() => {
-    if (!faceOverride) {
+    if (!reaction) {
       return undefined;
     }
-    const timeout = setTimeout(() => setFaceOverride(null), FACE_HOLD_MS);
+    const timeout = setTimeout(() => setReaction(null), PATCHY_REACTION_MS);
     return () => clearTimeout(timeout);
-  }, [faceOverride, bump]);
-
-  const onPeekDone = useCallback(() => setPeek(null), []);
-
-  useEffect(() => {
-    setPatchyPeeking(!!peek);
-  }, [peek]);
-
-  // Now and then, while you're idle, he does his own thing: a nap at the
-  // edge of the rail or a look at the news.
-  const lastInputAtRef = useRef(Date.now());
-  useEffect(() => {
-    if (!isActive || !user || prefersReducedMotion) {
-      return undefined;
-    }
-    const onInput = () => {
-      lastInputAtRef.current = Date.now();
-    };
-    const events = ['pointermove', 'keydown', 'scroll'] as const;
-    events.forEach((name) =>
-      window.addEventListener(name, onInput, { capture: true, passive: true }),
-    );
-    const id = setInterval(() => {
-      const idleFor = Date.now() - lastInputAtRef.current;
-      const lastAt = Number(storageWrapper.getItem(ownThingKey(user.id)) ?? 0);
-      if (
-        document.hidden ||
-        idleFor < OWN_THING_IDLE_MS[0] ||
-        idleFor > OWN_THING_IDLE_MS[1] ||
-        Date.now() - lastAt < OWN_THING_EVERY_MS ||
-        Math.random() < 0.5
-      ) {
-        return;
-      }
-      const trigger =
-        new Date().getHours() >= 21 || Math.random() < 0.5
-          ? 'idle_nap'
-          : 'idle_news';
-      if (patchyPeekScheduler.request(trigger, Date.now())) {
-        storageWrapper.setItem(ownThingKey(user.id), String(Date.now()));
-        setPendingVersion((version) => version + 1);
-      }
-    }, OWN_THING_CHECK_MS);
-    return () => {
-      clearInterval(id);
-      events.forEach((name) =>
-        window.removeEventListener(name, onInput, { capture: true }),
-      );
-    };
-  }, [isActive, user, prefersReducedMotion]);
+  }, [reaction]);
 
   const mood = getPatchyMood({ state, hasReadToday, lastViewAt, now, config });
   const restingFace =
@@ -332,15 +226,29 @@ export const usePatchyCompanion = ({
     prefersReducedMotion,
   });
   const baseFace = isReading && mood !== 'away' ? 'lookdown' : restingFace;
-  const isIdleFace = !faceOverride && !offerFace && !!idle.face;
+  const shown = isActive ? reaction : null;
 
+  if (shown) {
+    const { emote, face } = config.reactions[shown.trigger];
+    return {
+      face,
+      mood,
+      motion: prefersReducedMotion ? null : patchyReactionMotion[shown.trigger],
+      motionKey: `reaction-${shown.key}`,
+      emote: emote === 'none' ? null : emote,
+      emoteCount: patchyReactionEmotes[shown.trigger],
+      emoteKey: shown.key,
+    };
+  }
+
+  const isIdleFace = !offerFace && !!idle.face;
   return {
-    face: faceOverride ?? offerFace ?? idle.face ?? baseFace,
+    face: offerFace ?? idle.face ?? baseFace,
     mood,
-    peek: isActive ? peek : null,
-    bump: isActive ? bump : 0,
     motion: isIdleFace ? idle.motion : null,
-    motionKey: idle.key,
-    onPeekDone,
+    motionKey: `idle-${idle.key}`,
+    emote: null,
+    emoteCount: 0,
+    emoteKey: 0,
   };
 };

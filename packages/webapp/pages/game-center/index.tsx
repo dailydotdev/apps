@@ -47,8 +47,6 @@ import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
-import { usePatchyEnabled } from '@dailydotdev/shared/src/features/patchy/usePatchyEnabled';
-import { PatchyDen } from '@dailydotdev/shared/src/features/patchy/PatchyDen';
 import {
   ResponsivePageContainer,
   pageBorders,
@@ -173,7 +171,6 @@ function GameCenterPage({
     loadedSettings,
   } = useSettingsContext();
   const isLaptopLayout = useLaptopLayout();
-  const isPatchyEnabled = usePatchyEnabled();
   const isPhone = useIsPhone();
   const isGameCenterEmpty =
     optOutLevelSystem && optOutQuestSystem && optOutAchievements;
@@ -552,14 +549,7 @@ function GameCenterPage({
           </LayoutHeader>
         )}
         <ResponsivePageContainer className="pointer-default !mx-0 !w-full !max-w-full gap-6 pb-10">
-          {isPatchyEnabled && <PatchyDen />}
-          <section
-            className={classNames(
-              'flex flex-col overflow-hidden rounded-16 tablet:-mx-8 tablet:overflow-visible tablet:rounded-none',
-              // Pulled up to meet the page top, unless Patchy's den is there.
-              !isPatchyEnabled && '-mt-2 tablet:-mt-6',
-            )}
-          >
+          <section className="-mt-2 flex flex-col overflow-hidden rounded-16 tablet:-mx-8 tablet:-mt-6 tablet:overflow-visible tablet:rounded-none">
             {questDashboard || isQuestPending ? (
               <LevelHud
                 name={firstName}

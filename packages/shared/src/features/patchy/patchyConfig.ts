@@ -16,10 +16,6 @@ export const patchyTriggers = [
   // reaction than the first time.
   'on_a_roll',
   'bookmark_pile',
-  // His own thing: now and then, while you're idle, he naps at the edge of
-  // the rail or catches up on the news.
-  'idle_nap',
-  'idle_news',
 ] as const;
 export type PatchyTrigger = (typeof patchyTriggers)[number];
 
@@ -59,17 +55,12 @@ export const patchyMoods = [
 ] as const;
 export type PatchyMood = (typeof patchyMoods)[number];
 
+// A reaction plays inside the streak circle: his face changes and a tiny
+// emote floats out of it. Small enough to show on every action.
 export interface PatchyReaction {
   enabled: boolean;
-  poseImage: string;
   emote: PatchyEmote;
-  // The icon face while (and right after) he peeks.
   face: PatchyFace;
-  // Higher wins when two triggers compete for the single pending slot.
-  priority: number;
-  // A pending peek that could not show (scrolling, a modal) goes stale after
-  // this long: a hearts peek three minutes after the upvote reads as random.
-  ttlMs: number;
 }
 
 export interface PatchyHourWindow {
@@ -79,44 +70,22 @@ export interface PatchyHourWindow {
   endHour: number;
 }
 
-// The den's extra frames of him at his desk, same room and framing as idle.
-export const patchyDenFrames = ['laugh', 'bone', 'asleep', 'sideeye'] as const;
-export type PatchyDenFrame = (typeof patchyDenFrames)[number];
-
 export interface PatchyConfig {
-  // The same reaction peeks at most once per this long; repeats only change
-  // his face. Different reactions queue up one after the other.
-  cooldownMs: number;
   awayMs: number;
   lateNight: PatchyHourWindow;
   fridayDeploy: PatchyHourWindow & { tags: string[] };
   faceImage: Record<PatchyFace, string>;
   reactions: Record<PatchyTrigger, PatchyReaction>;
   moods: Record<PatchyMood, { face: PatchyFace; copy: string; label: string }>;
-  den: {
-    idleImage: string;
-    blinkImage: string;
-    frames: Record<PatchyDenFrame, string>;
-  };
 }
 
-const SECOND = 1000;
-const HOUR = 60 * 60 * SECOND;
+const HOUR = 60 * 60 * 1000;
 const media = 'https://media.daily.dev/image/upload';
-const pose = {
-  wave: `${media}/v1794998769/public/patchy-v1-peek-wave.webp`,
-  deadpan: `${media}/v1794998770/public/patchy-v1-peek-deadpan.webp`,
-  sleepy: `${media}/v1794998772/public/patchy-v1-peek-sleepy.webp`,
-  bone: `${media}/v1794998773/public/patchy-v1-peek-bone.webp`,
-  point: `${media}/v1795078962/public/patchy-v1-peek-point.webp`,
-  read: `${media}/v1795078964/public/patchy-v1-peek-read.webp`,
-};
 
-// The pose he points at a suggestion with.
-export const patchyOfferPose = pose.point;
+// The pose he leans out with to point at a suggestion.
+export const patchyOfferPose = `${media}/v1795078962/public/patchy-v1-peek-point.webp`;
 
 export const defaultPatchyConfig: PatchyConfig = {
-  cooldownMs: 180 * SECOND,
   awayMs: 48 * HOUR,
   lateNight: { startHour: 1, endHour: 5 },
   fridayDeploy: {
@@ -148,89 +117,14 @@ export const defaultPatchyConfig: PatchyConfig = {
     earflop: `${media}/v1795078975/public/patchy-v1-face-earflop.webp`,
   },
   reactions: {
-    upvote: {
-      enabled: true,
-      poseImage: pose.wave,
-      emote: 'hearts',
-      face: 'happy',
-      priority: 1,
-      ttlMs: 20 * SECOND,
-    },
-    bookmark: {
-      enabled: true,
-      poseImage: pose.deadpan,
-      emote: 'dots',
-      face: 'sideeye',
-      priority: 1,
-      ttlMs: 20 * SECOND,
-    },
-    // Usually lands while the post modal is open, so it waits for it to close.
-    streak_day: {
-      enabled: true,
-      poseImage: pose.bone,
-      emote: 'sparkle',
-      face: 'happy',
-      priority: 3,
-      ttlMs: 600 * SECOND,
-    },
-    late_night: {
-      enabled: true,
-      poseImage: pose.sleepy,
-      emote: 'moon',
-      face: 'sleepy',
-      priority: 2,
-      ttlMs: 300 * SECOND,
-    },
-    friday_deploy: {
-      enabled: true,
-      poseImage: pose.wave,
-      emote: 'sweat',
-      face: 'sideeye',
-      priority: 2,
-      ttlMs: 300 * SECOND,
-    },
-    welcome_back: {
-      enabled: true,
-      poseImage: pose.wave,
-      emote: 'hearts',
-      face: 'happy',
-      priority: 4,
-      ttlMs: 600 * SECOND,
-    },
-    // The third upvote of the day: he brings out the bone and sparkles.
-    on_a_roll: {
-      enabled: true,
-      poseImage: pose.bone,
-      emote: 'sparkle',
-      face: 'happy',
-      priority: 2,
-      ttlMs: 30 * SECOND,
-    },
-    // The third bookmark of the day: deadpan, and now he's sweating for you.
-    bookmark_pile: {
-      enabled: true,
-      poseImage: pose.deadpan,
-      emote: 'sweat',
-      face: 'sideeye',
-      priority: 2,
-      ttlMs: 30 * SECOND,
-    },
-    idle_nap: {
-      enabled: true,
-      poseImage: pose.sleepy,
-      emote: 'moon',
-      face: 'sleepy',
-      priority: 0,
-      ttlMs: 10 * SECOND,
-    },
-    idle_news: {
-      enabled: true,
-      poseImage: pose.read,
-      emote: 'none',
-      face: 'lookdown',
-      priority: 0,
-      ttlMs: 10 * SECOND,
-    },
+    upvote: { enabled: true, emote: 'hearts', face: 'happy' },
+    bookmark: { enabled: true, emote: 'dots', face: 'sideeye' },
+    streak_day: { enabled: true, emote: 'sparkle', face: 'happy' },
+    late_night: { enabled: true, emote: 'moon', face: 'sleepy' },
+    friday_deploy: { enabled: true, emote: 'sweat', face: 'sideeye' },
+    welcome_back: { enabled: true, emote: 'hearts', face: 'happy' },
+    on_a_roll: { enabled: true, emote: 'hearts', face: 'tongue' },
+    bookmark_pile: { enabled: true, emote: 'sweat', face: 'sideeye' },
   },
   moods: {
     happy: {
@@ -245,16 +139,6 @@ export const defaultPatchyConfig: PatchyConfig = {
       face: 'asleep',
       copy: 'Gone fishing. Glad you are back',
       label: 'gone fishing',
-    },
-  },
-  den: {
-    idleImage: `${media}/v1794998775/public/patchy-v1-den-idle.webp`,
-    blinkImage: `${media}/v1794998776/public/patchy-v1-den-blink.webp`,
-    frames: {
-      laugh: `${media}/v1795007057/public/patchy-v1-den-laugh.webp`,
-      bone: `${media}/v1795007055/public/patchy-v1-den-bone.webp`,
-      asleep: `${media}/v1795007061/public/patchy-v1-den-asleep.webp`,
-      sideeye: `${media}/v1795007059/public/patchy-v1-den-sideeye.webp`,
     },
   },
 };
@@ -310,17 +194,10 @@ export const toPatchyConfig = (
     reactions[reaction.trigger] = {
       enabled:
         typeof reaction.enabled === 'boolean' ? reaction.enabled : base.enabled,
-      poseImage: isText(reaction.poseImage)
-        ? reaction.poseImage
-        : base.poseImage,
       emote: isOneOf(patchyEmotes, reaction.emote)
         ? reaction.emote
         : base.emote,
       face: isOneOf(patchyFaces, reaction.face) ? reaction.face : base.face,
-      priority: isCount(reaction.priority) ? reaction.priority : base.priority,
-      ttlMs: isCount(reaction.ttlSeconds)
-        ? reaction.ttlSeconds * SECOND
-        : base.ttlMs,
     };
   });
 
@@ -340,9 +217,6 @@ export const toPatchyConfig = (
   const fridayTags = response.fridayDeploy?.tags?.filter(isText);
 
   return {
-    cooldownMs: isCount(response.cooldownSeconds)
-      ? response.cooldownSeconds * SECOND
-      : fallback.cooldownMs,
     awayMs: isCount(response.awayHours)
       ? response.awayHours * HOUR
       : fallback.awayMs,
@@ -354,20 +228,6 @@ export const toPatchyConfig = (
     faceImage,
     reactions,
     moods,
-    den: {
-      idleImage: isText(response.den?.idleImage)
-        ? response.den.idleImage
-        : fallback.den.idleImage,
-      blinkImage: isText(response.den?.blinkImage)
-        ? response.den.blinkImage
-        : fallback.den.blinkImage,
-      frames: Object.fromEntries(
-        patchyDenFrames.map((frame) => {
-          const image = response.den?.[`${frame}Image`];
-          return [frame, isText(image) ? image : fallback.den.frames[frame]];
-        }),
-      ) as Record<PatchyDenFrame, string>,
-    },
   };
 };
 

@@ -141,9 +141,8 @@ const GamificationSettingsPage = (): ReactElement => {
               checked={isPatchyReactionsEnabled}
               onToggle={onTogglePatchyReactions}
             >
-              Let Patchy peek out from your streak to react when you upvote,
-              bookmark or keep your streak going. His face stays in the Streak
-              tab either way.
+              Let Patchy react inside his circle when you upvote, bookmark or
+              keep your streak going.
             </SettingsSwitch>
 
             <SettingsSwitch

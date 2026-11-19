@@ -100,7 +100,6 @@ import { TooltipLinkWrapper } from '../tooltip/TooltipLinkWrapper';
 import { RailHoverPanel } from './RailHoverPanel';
 import { StreakBadge } from './StreakBadge';
 import { PatchyRailIcon } from '../../features/patchy/PatchyRailIcon';
-import { PatchyPeek } from '../../features/patchy/PatchyPeek';
 import { PatchyOffer } from '../../features/patchy/PatchyOffer';
 import { usePatchyEnabled } from '../../features/patchy/usePatchyEnabled';
 import { usePatchyRail } from '../../features/patchy/usePatchyRail';
@@ -862,8 +861,8 @@ export const SidebarDesktopV2 = ({
     copy: streakCopy,
     goalProgress: streakGoalProgress,
   } = useStreakRingState();
-  // Patchy, the streak companion, takes over the Streak tab's icon and peeks
-  // out from behind the rail when he reacts.
+  // Patchy, the streak companion, takes over the Streak tab's icon: he lives
+  // and reacts inside the circle, and leans out only to suggest something.
   const isPatchyFlagOn = usePatchyEnabled({
     shouldEvaluate: showGameCenterTab && isStreakEnabled,
   });
@@ -1890,9 +1889,11 @@ export const SidebarDesktopV2 = ({
       iconNode = (
         <PatchyRailIcon
           face={patchy.face}
-          bump={patchy.bump}
           motion={patchy.motion}
           motionKey={patchy.motionKey}
+          emote={patchy.emote}
+          emoteCount={patchy.emoteCount}
+          emoteKey={patchy.emoteKey}
           state={streakState}
           hasReadToday={streakReadToday}
           selected={isSelected}
@@ -2363,14 +2364,6 @@ export const SidebarDesktopV2 = ({
               railDividerBorderClass,
               railSeparatorLeft,
             )}
-          />
-        )}
-        {patchy.peek && (
-          <PatchyPeek
-            key={patchy.peek.id}
-            trigger={patchy.peek.trigger}
-            anchorId={`sidebar-category-${SidebarCategory.GameCenter}`}
-            onDone={patchy.onPeekDone}
           />
         )}
         {patchy.assistant.offer && (

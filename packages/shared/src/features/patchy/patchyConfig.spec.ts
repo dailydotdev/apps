@@ -9,42 +9,22 @@ describe('toPatchyConfig', () => {
 
   it('applies the API values over the defaults', () => {
     const config = toPatchyConfig({
-      cooldownSeconds: 60,
       awayHours: 72,
       lateNight: { startHour: 0, endHour: 4 },
       reactions: [
-        {
-          trigger: 'bookmark',
-          enabled: false,
-          poseImage: 'https://media.daily.dev/bookmark.webp',
-          emote: 'moon',
-          face: 'happy',
-          priority: 5,
-          ttlSeconds: 30,
-        },
+        { trigger: 'bookmark', enabled: false, emote: 'moon', face: 'happy' },
       ],
       moods: [
         { mood: 'ready', face: 'happy', copy: 'Let’s read', label: 'eager' },
       ],
-      den: {
-        laughImage: 'https://media.daily.dev/laugh.webp',
-      } as PatchyConfigResponse['den'],
     });
 
-    expect(config.cooldownMs).toBe(60_000);
-    expect(config.den.frames).toEqual({
-      ...defaultPatchyConfig.den.frames,
-      laugh: 'https://media.daily.dev/laugh.webp',
-    });
     expect(config.awayMs).toBe(72 * 60 * 60 * 1000);
     expect(config.lateNight).toEqual({ startHour: 0, endHour: 4 });
     expect(config.reactions.bookmark).toEqual({
       enabled: false,
-      poseImage: 'https://media.daily.dev/bookmark.webp',
       emote: 'moon',
       face: 'happy',
-      priority: 5,
-      ttlMs: 30_000,
     });
     expect(config.reactions.upvote).toEqual(
       defaultPatchyConfig.reactions.upvote,
@@ -56,9 +36,29 @@ describe('toPatchyConfig', () => {
     });
   });
 
+  it('ignores the old peek fields an older API still sends', () => {
+    const config = toPatchyConfig({
+      reactions: [
+        {
+          trigger: 'upvote',
+          enabled: true,
+          emote: 'sparkle',
+          face: 'wink',
+          poseImage: 'https://media.daily.dev/wave.webp',
+          priority: 4,
+        },
+      ],
+    } as unknown as Partial<PatchyConfigResponse>);
+    expect(config.reactions.upvote).toEqual({
+      enabled: true,
+      emote: 'sparkle',
+      face: 'wink',
+    });
+  });
+
   it('skips unknown entries and keeps defaults for bad values', () => {
     const config = toPatchyConfig({
-      cooldownSeconds: -1,
+      awayHours: -1,
       lateNight: { startHour: 2, endHour: 2 },
       fridayDeploy: { startHour: 12, endHour: 18, tags: [] },
       faces: [
@@ -66,37 +66,20 @@ describe('toPatchyConfig', () => {
         { face: 'happy', image: '' },
       ],
       reactions: [
-        {
-          trigger: 'commented',
-          enabled: true,
-          poseImage: 'https://media.daily.dev/comment.webp',
-          emote: 'hearts',
-          face: 'happy',
-          priority: 1,
-          ttlSeconds: 20,
-        },
-        {
-          trigger: 'upvote',
-          enabled: true,
-          poseImage: 'https://media.daily.dev/wave.webp',
-          emote: 'confetti',
-          face: 'grumpy',
-          priority: 1,
-          ttlSeconds: 20,
-        },
+        { trigger: 'commented', enabled: true, emote: 'hearts', face: 'happy' },
+        { trigger: 'upvote', enabled: true, emote: 'confetti', face: 'grumpy' },
       ],
     } as Partial<PatchyConfigResponse>);
 
-    expect(config.cooldownMs).toBe(defaultPatchyConfig.cooldownMs);
+    expect(config.awayMs).toBe(defaultPatchyConfig.awayMs);
     expect(config.lateNight).toEqual(defaultPatchyConfig.lateNight);
     expect(config.fridayDeploy.tags).toEqual(
       defaultPatchyConfig.fridayDeploy.tags,
     );
     expect(config.faceImage).toEqual(defaultPatchyConfig.faceImage);
     expect(config.reactions).not.toHaveProperty('commented');
-    expect(config.reactions.upvote).toEqual({
-      ...defaultPatchyConfig.reactions.upvote,
-      poseImage: 'https://media.daily.dev/wave.webp',
-    });
+    expect(config.reactions.upvote).toEqual(
+      defaultPatchyConfig.reactions.upvote,
+    );
   });
 });

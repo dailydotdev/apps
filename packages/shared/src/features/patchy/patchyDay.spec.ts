@@ -1,7 +1,6 @@
 import {
   addPatchyActivity,
   createPatchyDay,
-  getPatchyQuip,
   parsePatchyDay,
   readPatchyDay,
   recordPatchyActivity,
@@ -20,15 +19,9 @@ describe('patchy day', () => {
     day = addPatchyActivity(day, 'upvote', morning);
     day = addPatchyActivity(day, 'upvote', evening);
     day = addPatchyActivity(day, 'bookmark', evening);
-    day = addPatchyActivity(day, 'treat', evening);
+    day = addPatchyActivity(day, 'streak_day', evening);
 
-    expect(day).toMatchObject({
-      reads: 1,
-      upvotes: 2,
-      bookmarks: 1,
-      pets: 0,
-      treatGiven: true,
-    });
+    expect(day).toMatchObject({ reads: 1, upvotes: 2, bookmarks: 1 });
   });
 
   it('starts a fresh day when the date changes', () => {
@@ -38,7 +31,7 @@ describe('patchy day', () => {
       morning,
     );
     const next = addPatchyActivity(today, 'read', tomorrow);
-    expect(next).toMatchObject({ reads: 1, upvotes: 0, treatGiven: false });
+    expect(next).toMatchObject({ reads: 1, upvotes: 0 });
     expect(parsePatchyDay(JSON.stringify(today), tomorrow)).toEqual(
       createPatchyDay(tomorrow),
     );
@@ -52,15 +45,10 @@ describe('patchy day', () => {
           day: createPatchyDay(morning).day,
           reads: -1,
           upvotes: 'two',
-          pets: 3,
         }),
         morning,
       ),
-    ).toMatchObject({
-      reads: 0,
-      upvotes: 0,
-      pets: 3,
-    });
+    ).toMatchObject({ reads: 0, upvotes: 0 });
   });
 
   it('stores per user', () => {
@@ -72,16 +60,5 @@ describe('patchy day', () => {
       upvotes: 0,
       bookmarks: 1,
     });
-  });
-
-  it('picks a quip for the day', () => {
-    const quiet = { reads: 0, upvotes: 0, bookmarks: 0, pets: 0 };
-    expect(getPatchyQuip(quiet, 0)).toMatch(/Quiet day/);
-    expect(getPatchyQuip({ ...quiet, bookmarks: 4, reads: 1 }, 0)).toMatch(
-      /4 saved for later, 1 read/,
-    );
-    expect(getPatchyQuip({ ...quiet, upvotes: 3 }, 0)).toMatch(/3 upvotes/);
-    expect(getPatchyQuip({ ...quiet, reads: 6 }, 0)).toMatch(/6 posts/);
-    expect(getPatchyQuip(quiet, 12)).toMatch(/12 days in a row/);
   });
 });

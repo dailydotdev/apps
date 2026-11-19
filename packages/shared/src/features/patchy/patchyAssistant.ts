@@ -255,17 +255,3 @@ export const getPatchyQuickReads = (
       }),
     );
 };
-
-// While a suggestion is on screen, his reaction peeks wait.
-let isOfferOpen = false;
-export const setPatchyOfferOpen = (open: boolean): void => {
-  isOfferOpen = open;
-};
-export const isPatchyOfferOpen = (): boolean => isOfferOpen;
-
-// While a reaction peek is on screen, suggestions wait.
-let isPeeking = false;
-export const setPatchyPeeking = (peeking: boolean): void => {
-  isPeeking = peeking;
-};
-export const isPatchyPeeking = (): boolean => isPeeking;

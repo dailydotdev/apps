@@ -23,10 +23,8 @@ import {
   canPatchyOffer,
   countPatchyTagOpen,
   getPatchyQuickReads,
-  isPatchyPeeking,
   PATCHY_LONG_READ_MINUTES,
   readPatchyOfferMemory,
-  setPatchyOfferOpen,
   withPatchyOfferAnswer,
   withPatchyOfferShown,
   writePatchyOfferMemory,
@@ -399,11 +397,7 @@ export const usePatchyAssistant = ({
         clearInterval(id);
         return;
       }
-      if (
-        document.hidden ||
-        isPatchyPeeking() ||
-        now - lastScrollAtRef.current < SCROLL_IDLE_MS
-      ) {
+      if (document.hidden || now - lastScrollAtRef.current < SCROLL_IDLE_MS) {
         return;
       }
       const isPostModal = !!document.querySelector('.post-modal-overlay');
@@ -426,7 +420,6 @@ export const usePatchyAssistant = ({
       offerIdRef.current += 1;
       const { notBefore, expiresAt, tag, ...shown } = pending;
       setOffer({ ...shown, id: offerIdRef.current });
-      setPatchyOfferOpen(true);
       logEvent({
         event_name: LogEvent.Impression,
         target_type: TargetType.PatchyOffer,
@@ -454,12 +447,9 @@ export const usePatchyAssistant = ({
         });
       }
       setOffer(null);
-      setPatchyOfferOpen(false);
     },
     [offer, memory, remember, logEvent],
   );
-
-  useEffect(() => () => setPatchyOfferOpen(false), []);
 
   return { offer: isActive ? offer : null, isReading, onAnswer };
 };

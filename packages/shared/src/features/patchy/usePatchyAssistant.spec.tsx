@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { act, renderHook } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { emitPatchyEvent } from './patchyEvents';
-import { isPatchyOfferOpen, readPatchyOfferMemory } from './patchyAssistant';
+import { readPatchyOfferMemory } from './patchyAssistant';
 import { usePatchyAssistant } from './usePatchyAssistant';
 
 const mockFollowTags = jest.fn(() => Promise.resolve({ successful: true }));
@@ -95,7 +95,6 @@ describe('usePatchyAssistant', () => {
       kind: 'follow_tag',
       primary: 'Follow #rust',
     });
-    expect(isPatchyOfferOpen()).toBe(true);
 
     await act(async () => {
       result.current.onAnswer('accept', 'primary');
@@ -103,7 +102,6 @@ describe('usePatchyAssistant', () => {
     expect(mockFollowTags).toHaveBeenCalledWith({ tags: ['rust'] });
     expect(mockToast).toHaveBeenCalledWith('#rust added to your feed');
     expect(result.current.offer).toBeNull();
-    expect(isPatchyOfferOpen()).toBe(false);
   });
 
   it('remembers a "not now" and logs the answer', () => {

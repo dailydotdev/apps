@@ -4,7 +4,14 @@ import type { PatchyFace } from './patchyConfig';
 // The small things Patchy does inside the streak circle while nothing is
 // happening: blinking, glancing at the feed, flopping an ear, yawning. Each
 // is a face plus an optional motion the icon plays.
-export const patchyMotions = ['wobble', 'yawn', 'pant', 'spin', 'hop'] as const;
+export const patchyMotions = [
+  'wobble',
+  'yawn',
+  'pant',
+  'spin',
+  'hop',
+  'hide',
+] as const;
 export type PatchyMotion = (typeof patchyMotions)[number];
 
 export interface PatchyIdleAction {

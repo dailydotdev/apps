@@ -30,7 +30,7 @@ interface UsePatchyReactions {
   setReactionsEnabled: (enabled: boolean) => Promise<void>;
 }
 
-// Whether he peeks out to react; his face shows either way. Per device for
+// Whether he reacts in his circle; his face shows either way. Per device for
 // now: a server flag needs an API change, and phase 1 is frontend only.
 export const usePatchyReactions = (): UsePatchyReactions => {
   const [reactions, setReactions] = usePersistentContext<PatchyReactionsValue>(

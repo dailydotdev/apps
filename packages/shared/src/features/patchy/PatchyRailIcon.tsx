@@ -1,10 +1,10 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
-import { HotIcon } from '../../components/icons';
+import { HotIcon, MoonIcon, SparkleIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
 import type { StreakRingState } from '../../hooks/streaks/useStreakRingState';
-import type { PatchyFace } from './patchyConfig';
+import type { PatchyEmote, PatchyFace } from './patchyConfig';
 import type { PatchyMotion } from './patchyIdle';
 import { getPatchyConfig } from './patchyConfig';
 
@@ -36,18 +36,101 @@ const motionClass: Record<PatchyMotion, string> = {
   pant: 'motion-safe:animate-patchy-pant',
   spin: 'motion-safe:animate-patchy-spin',
   hop: 'motion-safe:animate-patchy-bump',
+  hide: 'motion-safe:animate-patchy-hide',
 };
+
+const Heart = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 16 16" className={className} aria-hidden>
+    <path
+      d="M8 14s-5.5-3.4-5.5-7.2A3 3 0 0 1 8 4.6a3 3 0 0 1 5.5 2.2C13.5 10.6 8 14 8 14z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+const Drop = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 16 16" className={className} aria-hidden>
+    <path
+      d="M8 2s4 4.6 4 7.4a4 4 0 0 1-8 0C4 6.6 8 2 8 2z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+const emoteIcon = (emote: PatchyEmote): ReactElement | null => {
+  switch (emote) {
+    case 'hearts':
+      return <Heart className="size-3 text-accent-bacon-default" />;
+    case 'sparkle':
+      return (
+        <SparkleIcon
+          secondary
+          size={IconSize.Size16}
+          className="size-3 text-accent-cheese-default"
+        />
+      );
+    case 'moon':
+      return (
+        <MoonIcon
+          secondary
+          size={IconSize.Size16}
+          className="size-3 text-accent-blueCheese-default"
+        />
+      );
+    case 'sweat':
+      return <Drop className="size-2.5 text-accent-blueCheese-default" />;
+    case 'dots':
+      return (
+        <span className="rounded-6 bg-surface-invert px-1 text-[0.5rem] font-bold leading-3 text-surface-primary">
+          …
+        </span>
+      );
+    default:
+      return null;
+  }
+};
+
+// Tiny emotes floating out of the circle's top-right edge, a few in a row
+// for the bigger reactions. Pointer-free and gone in about a second.
+const Emotes = ({
+  emote,
+  count,
+}: {
+  emote: PatchyEmote;
+  count: number;
+}): ReactElement => (
+  <span
+    aria-hidden
+    className="pointer-events-none absolute -right-3 -top-3 flex"
+  >
+    {Array.from({ length: count }, (_, index) => (
+      <span
+        key={index}
+        className="absolute opacity-0 motion-safe:animate-patchy-float motion-reduce:opacity-100"
+        style={{
+          left: index * 5 - 2,
+          top: index % 2 ? 3 : 0,
+          animationDelay: `${index * 140}ms`,
+        }}
+      >
+        {emoteIcon(emote)}
+      </span>
+    ))}
+  </span>
+);
 
 interface PatchyRailIconProps {
   face: PatchyFace;
   state: StreakRingState;
   hasReadToday: boolean;
   selected?: boolean;
-  // Changes on every reaction; each change replays a small hop.
-  bump?: number;
-  // An idle micro-animation the face plays inside the circle.
+  // A micro-animation the face plays inside the circle; a new key replays it.
   motion?: PatchyMotion | null;
-  motionKey?: number;
+  motionKey?: string;
+  // A reaction's tiny emotes; a new key floats a fresh set.
+  emote?: PatchyEmote | null;
+  emoteCount?: number;
+  emoteKey?: number;
 }
 
 // A face that is not uploaded yet falls back to his neutral one instead of
@@ -60,7 +143,7 @@ const FaceImage = ({
 }: {
   face: PatchyFace;
   motion?: PatchyMotion | null;
-  motionKey?: number;
+  motionKey?: string;
 }): ReactElement => {
   const { faceImage } = getPatchyConfig();
   const [failed, setFailed] = useState<Partial<Record<PatchyFace, boolean>>>(
@@ -105,17 +188,16 @@ export const PatchyRailIcon = ({
   state,
   hasReadToday,
   selected = false,
-  bump = 0,
   motion = null,
-  motionKey = 0,
+  motionKey = '',
+  emote = null,
+  emoteCount = 1,
+  emoteKey = 0,
 }: PatchyRailIconProps): ReactElement => (
   <span className="relative flex size-6 items-center justify-center">
     <span
       aria-hidden
-      // A new key restarts the hop animation.
-      key={bump}
       className={classNames(
-        bump > 0 && 'motion-safe:animate-patchy-bump',
         'absolute -inset-1 overflow-hidden rounded-full border-2 bg-surface-float transition-colors',
         selected && (state === 'none' || state === 'pending')
           ? 'border-accent-bacon-default'
@@ -125,6 +207,7 @@ export const PatchyRailIcon = ({
     >
       <FaceImage face={face} motion={motion} motionKey={motionKey} />
     </span>
+    {emote && <Emotes key={emoteKey} emote={emote} count={emoteCount} />}
     <span
       aria-hidden
       className="absolute -bottom-2 -right-2 flex size-4 items-center justify-center rounded-full bg-background-default"

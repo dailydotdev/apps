@@ -31,7 +31,7 @@ const getWindowStartDay = (
 export const isLateNight = (now: Date, window: PatchyHourWindow): boolean =>
   getWindowStartDay(now, window) !== null;
 
-// The night a late read belongs to, so the peek shows once per night even
+// The night a late read belongs to, so the yawn plays once per night even
 // when the window wraps past midnight.
 export const getNightKey = (now: Date, window: PatchyHourWindow): string => {
   const day = getWindowStartDay(now, window) ?? now;

@@ -384,13 +384,6 @@ export default {
               'color-mix(in srgb, var(--theme-accent-bacon-default) 28%, transparent)',
           },
         },
-        // Patchy (streak companion): the emote over a peek floats up and fades.
-        'patchy-emote': {
-          '0%': { transform: 'translateY(4px) scale(0.6)', opacity: '0' },
-          '25%': { transform: 'translateY(0) scale(1.1)', opacity: '1' },
-          '80%': { opacity: '1' },
-          '100%': { transform: 'translateY(-10px) scale(1)', opacity: '0' },
-        },
         // Patchy's rail face hops when he reacts, peek or not.
         'patchy-bump': {
           '0%, 100%': { transform: 'translateY(0) scale(1)' },
@@ -415,7 +408,22 @@ export default {
         },
         'patchy-spin': {
           '0%': { transform: 'rotate(0deg)' },
-          '100%': { transform: 'rotate(720deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
+        // Friday deploy: he sinks half out of sight, then peeks back up.
+        'patchy-hide': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '30%, 70%': { transform: 'translateY(55%)' },
+        },
+        // A reaction's tiny emote floats out of the circle and fades.
+        'patchy-float': {
+          '0%': { transform: 'translate(0, 2px) scale(0.6)', opacity: '0' },
+          '20%': { transform: 'translate(0, 0) scale(1)', opacity: '1' },
+          '70%': { opacity: '1' },
+          '100%': {
+            transform: 'translate(3px, -12px) scale(0.9)',
+            opacity: '0',
+          },
         },
         // Daily streak toast: the flame pops in with the same strike + rebound
         // as the rail tile's earn pop, then rests at its normal size.
@@ -474,12 +482,13 @@ export default {
         'streak-toast-pop':
           'streak-toast-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both',
         'mascot-bob': 'mascot-bob 4s ease-in-out infinite',
-        'patchy-emote': 'patchy-emote 2.2s ease-out both',
         'patchy-bump': 'patchy-bump 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)',
         'patchy-wobble': 'patchy-wobble 1.4s ease-in-out',
         'patchy-yawn': 'patchy-yawn 1.5s ease-in-out',
         'patchy-pant': 'patchy-pant 0.28s ease-in-out 5',
         'patchy-spin': 'patchy-spin 1.2s cubic-bezier(0.45, 0, 0.55, 1)',
+        'patchy-hide': 'patchy-hide 1.6s ease-in-out',
+        'patchy-float': 'patchy-float 1.3s ease-out both',
       },
     },
     lineClamp: {

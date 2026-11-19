@@ -24,7 +24,7 @@ import { PATCHY_OFFER_TIMEOUT_MS } from './usePatchyAssistant';
 const POSE_WIDTH = 104;
 const BOX_HEIGHT = 168;
 const BUBBLE_WIDTH = 300;
-// Over the feed like a peek; over the post modal (z 100) when he reads along.
+// Over the feed; over the post modal (z 100) when he reads along.
 const Z_INDEX = 69;
 const Z_INDEX_OVER_MODAL = 101;
 const SLIDE_MS = 380;
@@ -241,7 +241,7 @@ export const PatchyOffer = ({
                 leave('ignore');
               }}
             >
-              Quiet mode: no suggestions or peeks
+              Quiet mode: no more suggestions
             </Button>
           </div>
         ) : (

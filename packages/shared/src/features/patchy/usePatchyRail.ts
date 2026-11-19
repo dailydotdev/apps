@@ -19,7 +19,8 @@ interface UsePatchyRailProps {
 const offerFace: PatchyFace = 'alert';
 
 // Everything Patchy does from the laptop rail, in one place: the companion
-// (face, idle animations, reaction peeks) and the assistant (suggestions).
+// (his face, idle animations and reactions in the circle) and the assistant
+// (suggestions).
 export const usePatchyRail = ({
   isEnabled,
   isStreakLoading,
@@ -29,7 +30,7 @@ export const usePatchyRail = ({
 }: UsePatchyRailProps) => {
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
-  const { isReactionsEnabled, setReactionsEnabled } = usePatchyReactions();
+  const { isReactionsEnabled } = usePatchyReactions();
   const { isSuggestionsEnabled, setSuggestionsEnabled } =
     usePatchySuggestions();
   const assistant = usePatchyAssistant({
@@ -50,10 +51,8 @@ export const usePatchyRail = ({
     offerFace: assistant.offer ? offerFace : null,
   });
 
-  // Quiet mode: no suggestions and no peeks; his face and idle animations
-  // stay in the circle.
+  // Quiet mode: no more suggestions; he keeps living in his circle.
   const onQuiet = useCallback(() => {
-    setReactionsEnabled(false);
     setSuggestionsEnabled(false);
     displayToast('Quiet mode on. Patchy will just hang out in his circle.');
     logEvent({
@@ -61,7 +60,7 @@ export const usePatchyRail = ({
       target_type: TargetType.PatchySuggestions,
       target_id: 'quiet',
     });
-  }, [setReactionsEnabled, setSuggestionsEnabled, displayToast, logEvent]);
+  }, [setSuggestionsEnabled, displayToast, logEvent]);
 
   return { ...companion, assistant, onQuiet };
 };
