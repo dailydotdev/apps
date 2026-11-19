@@ -94,6 +94,7 @@ import {
   CheckoutStage,
   CheckoutTitle,
 } from './CheckoutShell';
+import type { CheckoutStageItem } from './CheckoutShell';
 import { startupsCrewCheerImage } from './StartupsCrewOnBase';
 import { StartupsNameStunt } from './StartupsNameStunt';
 import { StartupsSignupPanel } from './StartupsSignupPanel';
@@ -132,12 +133,22 @@ const backLabels: Partial<Record<string, string>> = {
  * A visitor from the landing page signs up right here, then the page starts
  * the checkout for them: no feed onboarding in between.
  */
-const AccountStep = ({
+export const AccountStep = ({
   initialDisplay = AuthDisplay.Default,
   initialEmail,
+  stages,
+  trigger = AuthTriggers.StartupsCheckout,
+  signUpTitle = 'Create your account',
+  signUpDescription = "Start with a free company page, then upgrade it when you're ready.",
+  logInDescription = 'Log in, then pick the company page to upgrade.',
 }: {
   initialDisplay?: AuthDisplay;
   initialEmail?: string;
+  stages?: CheckoutStageItem[];
+  trigger?: AuthTriggers;
+  signUpTitle?: string;
+  signUpDescription?: string;
+  logInDescription?: string;
 }): ReactElement => {
   const [display, setDisplay] = useState<string>(initialDisplay);
   const [isLogIn, setIsLogIn] = useState(false);
@@ -153,6 +164,7 @@ const AccountStep = ({
 
   return (
     <CheckoutShell
+      stages={stages}
       current={CheckoutStage.Account}
       aside={<StartupsSignupPanel />}
       isPhoneWall={display === AuthDisplay.Default && !back && !isLogIn}
@@ -178,17 +190,17 @@ const AccountStep = ({
       <div className="flex flex-col">
         <AuthOptions
           formRef={null as unknown as MutableRefObject<HTMLFormElement>}
-          trigger={AuthTriggers.StartupsCheckout}
+          trigger={trigger}
           simplified
           preferGithub
           defaultDisplay={initialDisplay}
           initialEmail={initialEmail}
           isLoginFlow={false}
           hideRegistrationHeadline
-          signUpTitle="Create your account"
+          signUpTitle={signUpTitle}
           logInTitle="Welcome back"
-          signUpDescription="Start with a free company page, then upgrade it when you're ready."
-          logInDescription="Log in, then pick the company page to upgrade."
+          signUpDescription={signUpDescription}
+          logInDescription={logInDescription}
           signupProviders={signupProviders}
           onDisplayChange={setDisplay}
           onScreenBackChange={onScreenBackChange}

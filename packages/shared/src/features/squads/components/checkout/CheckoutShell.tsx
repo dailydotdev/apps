@@ -26,7 +26,12 @@ export enum CheckoutStage {
   Setup = 'setup',
 }
 
-const stages: { id: CheckoutStage; label: string }[] = [
+export interface CheckoutStageItem {
+  id: CheckoutStage;
+  label: string;
+}
+
+const stages: CheckoutStageItem[] = [
   { id: CheckoutStage.Account, label: 'Account' },
   { id: CheckoutStage.Company, label: 'Company' },
   { id: CheckoutStage.Plan, label: 'Plan' },
@@ -132,10 +137,12 @@ const CheckoutLogo = (): ReactElement => (
 
 /** Each finished step shows what was chosen, with a check. */
 const CheckoutProgress = ({
+  stages,
   current,
   answers,
   isComplete,
 }: {
+  stages: CheckoutStageItem[];
   current: CheckoutStage;
   answers?: Partial<Record<CheckoutStage, string>>;
   isComplete?: boolean;
@@ -216,6 +223,8 @@ export interface CheckoutBack {
 }
 
 interface CheckoutShellProps {
+  /** The steps the stepper shows. Defaults to the paid checkout's. */
+  stages?: CheckoutStageItem[];
   current: CheckoutStage;
   answers?: Partial<Record<CheckoutStage, string>>;
   isComplete?: boolean;
@@ -243,6 +252,7 @@ interface CheckoutShellProps {
  * a double-border box on the right that supports the current step.
  */
 export const CheckoutShell = ({
+  stages: shownStages = stages,
   current,
   answers,
   isComplete,
@@ -317,6 +327,7 @@ export const CheckoutShell = ({
             <CheckoutLogo />
           </div>
           <CheckoutProgress
+            stages={shownStages}
             current={current}
             answers={answers}
             isComplete={isComplete}
