@@ -19,7 +19,6 @@ import {
   emptyFeedWidgetFeedState,
   useFeedWidgetFeedState,
   useFeedWidgetRailState,
-  useFeedWidgetShortcuts,
   useFeedWidgetsOptOut,
 } from './feedState';
 
@@ -143,98 +142,6 @@ describe('useFeedWidgetFeedState', () => {
     });
 
     expect(result.current).toEqual(emptyFeedWidgetFeedState);
-  });
-});
-
-const shortcutsRail = {
-  version: 1,
-  widgets: [{ id: 'links', kind: 'shortcuts', size: 'small', slot: 0 }],
-};
-
-const renderShortcuts = ({
-  feedName = SharedFeedPage.MyFeed,
-  feedWidgets,
-  isFlagOn = true,
-  loadedSettings = true,
-}: {
-  feedName?: string;
-  feedWidgets?: unknown;
-  isFlagOn?: boolean;
-  loadedSettings?: boolean;
-} = {}) =>
-  renderHook(() => useFeedWidgetShortcuts(feedName), {
-    wrapper: ({ children }: { children: ReactNode }): ReactElement => (
-      <TestBootProvider
-        client={new QueryClient()}
-        gb={
-          new GrowthBook({
-            features: { feed_widgets_v4: { defaultValue: isFlagOn } },
-          })
-        }
-        settings={{
-          loadedSettings,
-          flags: { feedWidgets } as unknown as SettingsFlags,
-        }}
-      >
-        {children}
-      </TestBootProvider>
-    ),
-  });
-
-describe('useFeedWidgetShortcuts', () => {
-  it('keeps the row unless the Shortcuts widget is in the first row', () => {
-    expect(
-      renderShortcuts({
-        feedWidgets: {
-          version: 1,
-          widgets: [{ id: 'links', kind: 'shortcuts', size: 'tall', slot: 30 }],
-        },
-      }).result.current.hasShortcutsWidget,
-    ).toBe(false);
-  });
-
-  it('hands shortcuts to the feed only when the Shortcuts widget is in it', () => {
-    expect(
-      renderShortcuts({ feedWidgets: shortcutsRail }).result.current,
-    ).toEqual({ hasRail: true, hasShortcutsWidget: true, isPending: false });
-    expect(renderShortcuts().result.current).toEqual({
-      hasRail: true,
-      hasShortcutsWidget: false,
-      isPending: false,
-    });
-    expect(
-      renderShortcuts({
-        feedWidgets: {
-          version: 1,
-          widgets: [{ id: 'now', kind: 'happeningNow', size: 'tall' }],
-        },
-      }).result.current.hasShortcutsWidget,
-    ).toBe(false);
-  });
-
-  it('leaves them to the row where the rail does not render', () => {
-    expect(
-      renderShortcuts({ feedWidgets: shortcutsRail, isFlagOn: false }).result
-        .current.hasRail,
-    ).toBe(false);
-    expect(
-      renderShortcuts({
-        feedWidgets: shortcutsRail,
-        feedName: SharedFeedPage.Custom,
-      }).result.current,
-    ).toEqual({ hasRail: false, hasShortcutsWidget: false, isPending: false });
-  });
-
-  it('is pending on a rail feed until the settings that hold the rail load', () => {
-    expect(
-      renderShortcuts({ loadedSettings: false }).result.current.isPending,
-    ).toBe(true);
-    expect(
-      renderShortcuts({
-        loadedSettings: false,
-        feedName: SharedFeedPage.Custom,
-      }).result.current.isPending,
-    ).toBe(false);
   });
 });
 

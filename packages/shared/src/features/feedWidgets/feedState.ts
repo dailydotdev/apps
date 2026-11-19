@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useRef } from 'react';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
 import {
   featureFeedWidgets,
   featureFeedWidgetsDefault,
@@ -56,8 +55,8 @@ export const emptyFeedWidgetFeedState: FeedWidgetFeedState = {
 
 /**
  * Whether this feed takes widgets: For you and Popular, on a laptop's grid,
- * behind the flag, unless the reader hid them. The one predicate the feed,
- * the header and the extension's shortcuts row all read.
+ * behind the flag, unless the reader hid them. The one predicate the feed
+ * and the header both read.
  */
 export const useFeedWidgetRailState = (
   feedName?: string,
@@ -114,37 +113,6 @@ const useResolvedFeedWidgets = ({
       ),
     [custom, defaultFlag],
   );
-};
-
-/**
- * Where shortcuts live on this feed. The extension's row stays above the feed
- * unless the Shortcuts widget sits in the feed's first row, where it takes
- * the row's place on the first screen: one placed further down leaves the row
- * where it is. `hasRail` alone never hides it. `isPending` while the flag or the
- * settings that hold the rail are still on their way, so the row does not
- * paint and then go.
- */
-export const useFeedWidgetShortcuts = (
-  feedName?: string,
-): { hasRail: boolean; hasShortcutsWidget: boolean; isPending: boolean } => {
-  const { loadedSettings } = useSettingsContext();
-  const { settled } = useFeaturesReadyContext();
-  const { isEnabled } = useFeedWidgetRailState(feedName);
-  const widgets = useResolvedFeedWidgets({ enabled: isEnabled });
-  const isMainFeedPage =
-    feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
-
-  return {
-    hasRail: isEnabled,
-    hasShortcutsWidget:
-      isEnabled &&
-      widgets.some(
-        ({ kind, slot }) =>
-          kind === FeedWidgetKind.Shortcuts &&
-          (slot ?? 0) < FEED_WIDGET_FIRST_ROW_SLOTS,
-      ),
-    isPending: isMainFeedPage && (!settled || !loadedSettings),
-  };
 };
 
 /**
