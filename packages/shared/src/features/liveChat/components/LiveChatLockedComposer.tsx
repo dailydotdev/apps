@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { composerFrame } from '../../interests/components/AgentComposer';
+import { composerFrame } from '../../messages/components/composerFrame';
 import {
   Button,
   ButtonSize,

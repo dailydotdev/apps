@@ -1,8 +1,8 @@
 import type { KeyboardEvent, ReactElement } from 'react';
 import React, { useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { composerFrame } from '../../interests/components/AgentComposer';
-import { AgentSendButton } from '../../interests/components/AgentSendButton';
+import { composerFrame } from '../../messages/components/composerFrame';
+import { ComposerSendButton } from '../../messages/components/ComposerSendButton';
 import { RecommendedMention } from '../../../components/RecommendedMention';
 import type { UserShortProfile } from '../../../lib/user';
 import { LIVE_CHAT_MESSAGE_MAX_LENGTH } from '../hooks/useLiveChatRoom';
@@ -188,7 +188,7 @@ export const LiveChatComposer = ({
           onKeyDown={onKeyDown}
           className="min-h-8 flex-1 resize-none bg-transparent py-1.5 text-text-primary typo-body focus:outline-none tablet:typo-callout"
         />
-        <AgentSendButton
+        <ComposerSendButton
           label="Send"
           disabled={!canSend}
           loading={isSending}

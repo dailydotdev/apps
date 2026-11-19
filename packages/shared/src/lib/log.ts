@@ -45,7 +45,6 @@ export enum Origin {
   Auto = 'auto',
   Sidebar = 'sidebar',
   Share = 'share',
-  Agent = 'agent',
   Notification = 'notification',
   NotificationsPage = 'notifications page',
   Boot = 'boot',
