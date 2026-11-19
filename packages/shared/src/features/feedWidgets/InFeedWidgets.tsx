@@ -192,7 +192,7 @@ export const FeedWidgetCell = ({
       role="group"
       className={classNames(
         'relative min-h-card w-full min-w-0 rounded-16',
-        canEdit && 'feed-widget-jiggle select-none',
+        canEdit && 'select-none',
         flashId === widget.id && 'feed-widget-flash',
       )}
       onAnimationEnd={(event) => {
