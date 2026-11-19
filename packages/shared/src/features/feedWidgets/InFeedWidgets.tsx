@@ -70,6 +70,11 @@ export type FeedWidgetCellProps = {
   feedName: string;
   /** The columns the layout gave it: two for a wide one that fits its row. */
   columns?: number;
+  /**
+   * The slots one card left and right of it, past any ad, as the grid has
+   * them; absent at the feed's edges.
+   */
+  moveTargets?: { left?: number; right?: number };
 };
 
 /**
@@ -82,6 +87,7 @@ export const FeedWidgetCell = ({
   widget: stored,
   feedName,
   columns = 1,
+  moveTargets = {},
 }: FeedWidgetCellProps): ReactElement | null => {
   const {
     widgets,
@@ -152,7 +158,10 @@ export const FeedWidgetCell = ({
         );
         break;
       case 'move': {
-        const to = action.to === 'left' ? slot - 1 : slot + 1;
+        const to = action.to === 'left' ? moveTargets.left : moveTargets.right;
+        if (to === undefined) {
+          break;
+        }
         setFlashId(widget.id);
         moveWidget(widget.id, to).then(
           (isSaved) =>
@@ -246,8 +255,8 @@ export const FeedWidgetCell = ({
             sizes={sizes.length > 1 ? sizes : []}
             sizeLabel={(value) => feedWidgetInFeedSizeLabel[value] ?? value}
             moves={['left', 'right']}
-            canMoveLeft={slot > 0}
-            canMoveRight
+            canMoveLeft={moveTargets.left !== undefined}
+            canMoveRight={moveTargets.right !== undefined}
             onAction={onMenuAction}
           />
         </>

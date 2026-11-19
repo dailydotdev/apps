@@ -43,7 +43,9 @@ export function ShortcutsWidgetCue({
   );
 
   const onMove = () => {
-    const result = addWidget(FeedWidgetKind.Shortcuts);
+    // The feed's first card, so they stay on the first screen where the row
+    // was.
+    const result = addWidget(FeedWidgetKind.Shortcuts, { slot: 0 });
     if (!result) {
       return;
     }
@@ -56,7 +58,7 @@ export function ShortcutsWidgetCue({
         size: widget.size,
         source: 'shortcuts_row',
       });
-      displayToast('Shortcuts moved to your widgets', {
+      displayToast('Shortcuts moved into your feed', {
         timer: FEED_WIDGET_UNDO_MS,
         action: {
           copy: 'Undo',
@@ -80,7 +82,7 @@ export function ShortcutsWidgetCue({
   return (
     <div
       role="region"
-      aria-label="Move shortcuts to your widgets"
+      aria-label="Move shortcuts into your feed"
       className={classNames(
         'flex w-full max-w-[40rem] items-center gap-3 rounded-16 border border-accent-cabbage-default bg-surface-float py-2 pl-3 pr-2',
         className,
@@ -91,7 +93,8 @@ export function ShortcutsWidgetCue({
       </span>
       <p className="min-w-0 flex-1 text-text-secondary typo-callout">
         <strong className="text-text-primary">New:</strong> your shortcuts can
-        now live in your widgets. Keep them up here or move them, either works.
+        now live in your feed, as its first card. Keep them up here or move
+        them, either works.
       </p>
       <Button
         type="button"
@@ -99,7 +102,7 @@ export function ShortcutsWidgetCue({
         size={ButtonSize.Small}
         onClick={onMove}
       >
-        Move to widgets
+        Move to feed
       </Button>
       <CloseButton
         type="button"

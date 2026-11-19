@@ -1,6 +1,9 @@
 import type { FeedWidget } from './types';
 import { FeedWidgetKind, FeedWidgetSize } from './types';
+import type { FeedItem } from '../../hooks/useFeed';
+import { FeedItemType } from '../../components/cards/common/common';
 import {
+  findFeedWidgetMoveTarget,
   moveFeedWidgetSlot,
   placeFeedWidget,
   slottedFeedWidgets,
@@ -72,5 +75,18 @@ describe('feed widget slots', () => {
       ['b', 1],
       ['a', 2],
     ]);
+  });
+
+  it('steps a move over ads and placeholders, which keep their cells', () => {
+    const items = [
+      { type: FeedItemType.Post },
+      { type: FeedItemType.Ad },
+      { type: FeedItemType.Widget },
+      { type: FeedItemType.Ad },
+      { type: FeedItemType.Placeholder },
+    ] as FeedItem[];
+
+    expect(findFeedWidgetMoveTarget(items, 2, -1)).toBe(0);
+    expect(findFeedWidgetMoveTarget(items, 2, 1)).toBeUndefined();
   });
 });

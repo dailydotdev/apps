@@ -107,6 +107,11 @@ export const customFeedWidgets = (
     : rail.widgets;
 };
 
+/** The reader hid widgets from their feed. */
+export const isFeedWidgetsHidden = (
+  rail: FeedWidgetRailState | null,
+): boolean => rail?.hidden === true;
+
 /**
  * The daily.dev tips over our slot are opt-in: off until the reader turns
  * them on from the gallery or the tips page. Only an explicit `false` shows

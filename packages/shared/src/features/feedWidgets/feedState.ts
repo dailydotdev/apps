@@ -8,13 +8,20 @@ import {
 } from '../../lib/featureManagement';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import type { FeedWidget } from './types';
-import { FEED_WIDGET_UNDO_MS, FeedWidgetKind } from './types';
-import { slottedFeedWidgets } from './slots';
+import {
+  FEED_WIDGET_RAIL_VERSION,
+  FEED_WIDGET_UNDO_MS,
+  FeedWidgetKind,
+} from './types';
+import { FEED_WIDGET_FIRST_ROW_SLOTS, seatableFeedWidgets } from './slots';
 import {
   customFeedWidgets,
+  feedRailFingerprint,
+  isFeedWidgetsHidden,
   readStoredFeedRail,
   resolveDefaultFeedRail,
 } from './storedRail';
+import { useFeedLayout } from '../../hooks/useFeedLayout';
 import { useFeedHeroData } from '../../components/feeds/hero/useFeedHeroData';
 import { useLogContext } from '../../contexts/LogContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
@@ -31,39 +38,51 @@ export type FeedWidgetFeedState = {
   widgets: FeedWidget[];
   /** Posts the widgets show, kept out of the grid. */
   excludedPostIds: string[];
-  /** The Happening Now rows are on the rail, so the grid drops its card. */
+  /**
+   * The reader placed Happening Now somewhere in the feed, so the grid drops
+   * its own Happening Now card: one is enough, wherever it sits.
+   */
   hasHappeningNow: boolean;
-  /** A featured card leads the page, so wide cards stay out of row one. */
-  hasTopStory: boolean;
+  /** The top story leads the first row, so wide cards stay out of it. */
+  hasTopStoryFirst: boolean;
 };
 
 export const emptyFeedWidgetFeedState: FeedWidgetFeedState = {
   widgets: [],
   excludedPostIds: [],
   hasHappeningNow: false,
-  hasTopStory: false,
+  hasTopStoryFirst: false,
 };
 
 /**
  * Whether this feed takes widgets: For you and Popular, on a laptop's grid,
- * behind the flag, unless the reader hid them.
+ * behind the flag, unless the reader hid them. The one predicate the feed,
+ * the header and the extension's shortcuts row all read.
  */
 export const useFeedWidgetRailState = (
   feedName?: string,
 ): { isFlagOn: boolean; isEnabled: boolean } => {
   const { flags } = useSettingsContext();
-  // Below laptop the feed is a list, with no card cells to put a widget in,
-  // so phones and tablets are never enrolled in the flag.
+  // Widgets take a card's cell, so only a grid has room for them: below
+  // laptop, and in list mode on a laptop, the feed is a list, and those
+  // readers are never enrolled in the flag.
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { isListMode, shouldUseListFeedLayout } = useFeedLayout();
   const isMainFeedPage =
     feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
+  const isEligible =
+    isMainFeedPage && isLaptop && !isListMode && !shouldUseListFeedLayout;
   const { value: isFlagOn } = useConditionalFeature({
     feature: featureFeedWidgets,
-    shouldEvaluate: isMainFeedPage && isLaptop,
+    shouldEvaluate: isEligible,
   });
-  const isOn = isLaptop && isMainFeedPage && !!isFlagOn;
+  const isOn = isEligible && !!isFlagOn;
 
-  return { isFlagOn: isOn, isEnabled: isOn && !flags?.feedWidgetsOptOut };
+  return {
+    isFlagOn: isOn,
+    isEnabled:
+      isOn && !isFeedWidgetsHidden(readStoredFeedRail(flags?.feedWidgets)),
+  };
 };
 
 /**
@@ -90,15 +109,18 @@ const useResolvedFeedWidgets = ({
 
   return useMemo(
     () =>
-      slottedFeedWidgets(custom ?? resolveDefaultFeedRail(defaultFlag).widgets),
+      seatableFeedWidgets(
+        custom ?? resolveDefaultFeedRail(defaultFlag).widgets,
+      ),
     [custom, defaultFlag],
   );
 };
 
 /**
  * Where shortcuts live on this feed. The extension's row stays above the feed
- * until the reader puts the Shortcuts widget on the rail, so `hasRail` alone
- * never hides it; `hasShortcutsWidget` does. `isPending` while the flag or the
+ * unless the Shortcuts widget sits in the feed's first row, where it takes
+ * the row's place on the first screen: one placed further down leaves the row
+ * where it is. `hasRail` alone never hides it. `isPending` while the flag or the
  * settings that hold the rail are still on their way, so the row does not
  * paint and then go.
  */
@@ -116,7 +138,11 @@ export const useFeedWidgetShortcuts = (
     hasRail: isEnabled,
     hasShortcutsWidget:
       isEnabled &&
-      widgets.some(({ kind }) => kind === FeedWidgetKind.Shortcuts),
+      widgets.some(
+        ({ kind, slot }) =>
+          kind === FeedWidgetKind.Shortcuts &&
+          (slot ?? 0) < FEED_WIDGET_FIRST_ROW_SLOTS,
+      ),
     isPending: isMainFeedPage && (!settled || !loadedSettings),
   };
 };
@@ -137,6 +163,11 @@ export const useFeedWidgetFeedState = ({
   const hasTopStory = widgets.some(
     ({ kind }) => kind === FeedWidgetKind.TopStory,
   );
+  const hasTopStoryFirst = widgets.some(
+    ({ kind, slot }) =>
+      kind === FeedWidgetKind.TopStory &&
+      (slot ?? 0) < FEED_WIDGET_FIRST_ROW_SLOTS,
+  );
   const { shownLeadIds } = useFeedHeroData({
     enabled: enabled && hasTopStory,
   });
@@ -151,21 +182,30 @@ export const useFeedWidgetFeedState = ({
             widgets,
             excludedPostIds: hasTopStory ? shownLeadIds : [],
             hasHappeningNow,
-            hasTopStory,
+            hasTopStoryFirst,
           }
         : emptyFeedWidgetFeedState,
-    [enabled, widgets, hasTopStory, hasHappeningNow, shownLeadIds],
+    [
+      enabled,
+      widgets,
+      hasTopStory,
+      hasTopStoryFirst,
+      hasHappeningNow,
+      shownLeadIds,
+    ],
   );
 };
 
 /**
- * The reader's switch for the whole rail. Hiding unmounts the rail, so the
- * feed owns the write and its Undo, and each write merges into the latest
- * flags: a setter from the render that offered the button would write that
- * render's settings back over anything changed since.
+ * The reader's switch for widgets in the feed, held on the stored widgets so
+ * it starts fresh from the rail's `feedWidgetsOptOut`. Hiding unmounts the
+ * widgets, so the feed owns the write and its Undo, and each write merges
+ * into the latest flags: a setter from the render that offered the button
+ * would write that render's settings back over anything changed since.
  */
 export const useFeedWidgetsOptOut = (): {
   isOptedOut: boolean;
+  setOptedOut: (isOptedOut: boolean) => Promise<boolean>;
   hide: () => void;
 } => {
   const { flags, setSettings } = useSettingsContext();
@@ -175,19 +215,27 @@ export const useFeedWidgetsOptOut = (): {
   latest.current = { flags, setSettings };
 
   const setOptedOut = useCallback(
-    (isOptedOut: boolean): Promise<boolean> =>
-      latest.current
+    (isOptedOut: boolean): Promise<boolean> => {
+      // A reader who never saved widgets stays on the default, with only the
+      // switch stored over it.
+      const rail = readStoredFeedRail(latest.current.flags?.feedWidgets) ?? {
+        version: FEED_WIDGET_RAIL_VERSION,
+        widgets: [],
+        fromDefault: feedRailFingerprint([]),
+      };
+      return latest.current
         .setSettings({
           flags: {
             ...latest.current.flags,
-            feedWidgetsOptOut: isOptedOut,
+            feedWidgets: { ...rail, hidden: isOptedOut },
           } as SettingsFlags,
         })
         .then(() => true)
         .catch(() => {
           displayToast('Couldn’t save your widgets. Try again.');
           return false;
-        }),
+        });
+    },
     [displayToast],
   );
 
@@ -217,5 +265,9 @@ export const useFeedWidgetsOptOut = (): {
     });
   }, [displayToast, logHide, setOptedOut]);
 
-  return { isOptedOut: !!flags?.feedWidgetsOptOut, hide };
+  return {
+    isOptedOut: isFeedWidgetsHidden(readStoredFeedRail(flags?.feedWidgets)),
+    setOptedOut,
+    hide,
+  };
 };

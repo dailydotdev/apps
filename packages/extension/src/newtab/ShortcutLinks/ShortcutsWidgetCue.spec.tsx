@@ -50,12 +50,14 @@ beforeEach(() => {
 });
 
 describe('ShortcutsWidgetCue', () => {
-  it('moves shortcuts onto the rail, with an undo that puts them back', async () => {
+  it('moves shortcuts into the feed’s first card, with an undo that puts them back', async () => {
     render(<ShortcutsWidgetCue onDismiss={jest.fn()} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Move to widgets' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Move to feed' }));
 
-    expect(addWidget).toHaveBeenCalledWith(FeedWidgetKind.Shortcuts);
+    expect(addWidget).toHaveBeenCalledWith(FeedWidgetKind.Shortcuts, {
+      slot: 0,
+    });
     await waitFor(() => expect(displayToast).toHaveBeenCalled());
     const [, { action }] = displayToast.mock.calls[0];
     action.onClick();

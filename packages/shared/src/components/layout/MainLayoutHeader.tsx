@@ -124,13 +124,7 @@ function MainLayoutHeader({
   }
 
   if (shouldRenderFeedNav) {
-    return (
-      <>
-        <FeedNav
-          canShowSignInStrip={canShowSignInStrip}
-        />
-      </>
-    );
+    return <FeedNav canShowSignInStrip={canShowSignInStrip} />;
   }
 
   return (

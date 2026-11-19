@@ -114,8 +114,23 @@ describe('useFeedWidgetFeedState', () => {
       widgets: [streak, now],
       excludedPostIds: [],
       hasHappeningNow: true,
-      hasTopStory: false,
+      hasTopStoryFirst: false,
     });
+  });
+
+  it('seats no cell for a kind this build cannot render', () => {
+    const streak = { id: 'streak', kind: 'streak', size: 'tall', slot: 1 };
+    const { result } = renderFeedState({
+      feedWidgets: {
+        version: 1,
+        widgets: [
+          { id: 'new', kind: 'fromANewerBuild', size: 'tall', slot: 0 },
+          streak,
+        ],
+      },
+    });
+
+    expect(result.current.widgets).toEqual([streak]);
   });
 
   it('holds back nothing while the widgets are off', () => {
@@ -167,7 +182,18 @@ const renderShortcuts = ({
   });
 
 describe('useFeedWidgetShortcuts', () => {
-  it('hands shortcuts to the rail only when the Shortcuts widget is on it', () => {
+  it('keeps the row unless the Shortcuts widget is in the first row', () => {
+    expect(
+      renderShortcuts({
+        feedWidgets: {
+          version: 1,
+          widgets: [{ id: 'links', kind: 'shortcuts', size: 'tall', slot: 30 }],
+        },
+      }).result.current.hasShortcutsWidget,
+    ).toBe(false);
+  });
+
+  it('hands shortcuts to the feed only when the Shortcuts widget is in it', () => {
     expect(
       renderShortcuts({ feedWidgets: shortcutsRail }).result.current,
     ).toEqual({ hasRail: true, hasShortcutsWidget: true, isPending: false });
@@ -222,8 +248,11 @@ describe('useFeedWidgetsOptOut', () => {
     } as unknown as ReturnType<typeof useToastNotification>);
   });
 
-  it('undoes into the latest flags, not the ones the rail hid from', async () => {
-    let flags = { feedWidgetsOptOut: false } as SettingsFlags;
+  it('hides on the stored widgets, and undoes into the latest flags', async () => {
+    const placed = { id: 'a', kind: 'streak', size: 'tall', slot: 2 };
+    let flags = {
+      feedWidgets: { version: 1, widgets: [placed] },
+    } as unknown as SettingsFlags;
     const { result, rerender } = renderHook(() => useFeedWidgetsOptOut(), {
       wrapper: ({ children }: { children: ReactNode }): ReactElement => (
         <TestBootProvider
@@ -237,20 +266,42 @@ describe('useFeedWidgetsOptOut', () => {
 
     result.current.hide();
     expect(setSettings).toHaveBeenLastCalledWith({
-      flags: { feedWidgetsOptOut: true },
+      flags: { feedWidgets: { version: 1, widgets: [placed], hidden: true } },
     });
 
     // The hide landed and another flag changed before Undo.
     flags = {
-      feedWidgetsOptOut: true,
+      feedWidgets: { version: 1, widgets: [placed], hidden: true },
       sidebarResourcesExpanded: true,
-    } as SettingsFlags;
+    } as unknown as SettingsFlags;
     rerender();
+    expect(result.current.isOptedOut).toBe(true);
     await displayToast.mock.calls[0][1].action.onClick();
 
     expect(setSettings).toHaveBeenLastCalledWith({
-      flags: { feedWidgetsOptOut: false, sidebarResourcesExpanded: true },
+      flags: {
+        feedWidgets: { version: 1, widgets: [placed], hidden: false },
+        sidebarResourcesExpanded: true,
+      },
     });
+  });
+
+  it('starts fresh from the rail’s opt-out', () => {
+    const { result } = renderHook(() => useFeedWidgetsOptOut(), {
+      wrapper: ({ children }: { children: ReactNode }): ReactElement => (
+        <TestBootProvider
+          client={new QueryClient()}
+          settings={{
+            flags: { feedWidgetsOptOut: true } as SettingsFlags,
+            setSettings,
+          }}
+        >
+          {children}
+        </TestBootProvider>
+      ),
+    });
+
+    expect(result.current.isOptedOut).toBe(false);
   });
 });
 
@@ -259,10 +310,15 @@ const renderRailState = (
   gb = new GrowthBook({
     features: { feed_widgets_v4: { defaultValue: true } },
   }),
+  { insaneMode = false } = {},
 ) =>
   renderHook(() => useFeedWidgetRailState(feedName), {
     wrapper: ({ children }: { children: ReactNode }): ReactElement => (
-      <TestBootProvider client={new QueryClient()} gb={gb}>
+      <TestBootProvider
+        client={new QueryClient()}
+        gb={gb}
+        settings={{ insaneMode }}
+      >
         {children}
       </TestBootProvider>
     ),
@@ -300,6 +356,23 @@ describe('useFeedWidgetRailState', () => {
     });
 
     feeds.forEach((result) => expect(result.current.isEnabled).toBe(false));
+    expect(evaluate).not.toHaveBeenCalledWith(
+      'feed_widgets_v4',
+      expect.anything(),
+    );
+  });
+
+  it('never enrolls a laptop reader whose feed is a list', () => {
+    const gb = new GrowthBook({
+      features: { feed_widgets_v4: { defaultValue: true } },
+    });
+    const evaluate = jest.spyOn(gb, 'getFeatureValue');
+
+    const { result } = renderRailState(SharedFeedPage.MyFeed, gb, {
+      insaneMode: true,
+    });
+
+    expect(result.current.isEnabled).toBe(false);
     expect(evaluate).not.toHaveBeenCalledWith(
       'feed_widgets_v4',
       expect.anything(),

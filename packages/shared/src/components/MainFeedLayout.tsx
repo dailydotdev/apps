@@ -172,7 +172,7 @@ const useFeedGridWidgets = ({
             widgets,
             // The wrapper holds the span, so the cell's loading state is as
             // wide as the widget it stands in for.
-            renderWidget: (widget, _index, columns) => (
+            renderWidget: (widget, { columns, left, right }) => (
               <div
                 className="flex min-w-0"
                 style={
@@ -183,6 +183,7 @@ const useFeedGridWidgets = ({
                   widget={widget}
                   feedName={feedName}
                   columns={columns}
+                  moveTargets={{ left, right }}
                 />
               </div>
             ),
@@ -506,10 +507,8 @@ export default function MainFeedLayout({
     feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
   const isViceCityCoverActive = useIsViceCityCoverActive();
   const showViceCityCover = isMainFeedPage && isViceCityCoverActive;
-  const { isFlagOn: isFeedWidgetsFlagOn, isEnabled: isFeedWidgetsOn } =
+  const { isFlagOn: isFeedWidgetsFlagOn, isEnabled: isFeedWidgetsEnabled } =
     useFeedWidgetRailState(feedName);
-  // Widgets take a card's cell, so only a grid takes them.
-  const isFeedWidgetsEnabled = isFeedWidgetsOn && !shouldUseListFeedLayout;
   const { value: isFeedHeroFlagOn } = useConditionalFeature({
     feature: featureFeedHero,
     shouldEvaluate: isMainFeedPage && !isFeedWidgetsFlagOn,
@@ -1212,7 +1211,9 @@ export default function MainFeedLayout({
                 isHeroRendered || widgetFeedState.hasHappeningNow
               }
               skipFirstAd={isHeroAdVisible}
-              deferWideCards={isHeroRendered || widgetFeedState.hasTopStory}
+              deferWideCards={
+                isHeroRendered || widgetFeedState.hasTopStoryFirst
+              }
               excludedPostIds={widgetFeedState.excludedPostIds}
               feedWidgets={feedWidgets}
               className={classNames(

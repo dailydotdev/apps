@@ -1,9 +1,20 @@
 import type { FeedWidget } from './types';
+import { FeedWidgetKind } from './types';
+import type { FeedItem } from '../../hooks/useFeed';
+import { FeedItemType } from '../../components/cards/common/common';
 
 // Kept free of the registry and the widgets: the feed reads the slots on
 // every load to place its cards, before any widget code is fetched.
 
 export type SlottedFeedWidget = FeedWidget & { slot: number };
+
+const knownKinds = new Set<string>(Object.values(FeedWidgetKind));
+
+/**
+ * The cards the narrowest laptop grid has in a row, so a slot below this is in
+ * the first row whatever the reader's columns.
+ */
+export const FEED_WIDGET_FIRST_ROW_SLOTS = 3;
 
 export const isSlottedFeedWidget = (
   widget: FeedWidget,
@@ -77,4 +88,31 @@ export const moveFeedWidgetSlot = (
   }
 
   return placeFeedWidget(unplaceFeedWidget(widgets, id), widget, to);
+};
+
+/**
+ * The placed widgets this build can render. A kind a newer client added stays
+ * stored, but takes no cell here, so it never leaves a hole in the grid.
+ */
+export const seatableFeedWidgets = (
+  widgets: FeedWidget[],
+): SlottedFeedWidget[] =>
+  slottedFeedWidgets(widgets).filter(({ kind }) => knownKinds.has(kind));
+
+/**
+ * The nearest item a widget can swap places with, stepping over ads (they
+ * keep their cell) and placeholders (still loading).
+ */
+export const findFeedWidgetMoveTarget = (
+  items: FeedItem[],
+  index: number,
+  step: 1 | -1,
+): number | undefined => {
+  for (let at = index + step; at >= 0 && at < items.length; at += step) {
+    const { type } = items[at];
+    if (type !== FeedItemType.Ad && type !== FeedItemType.Placeholder) {
+      return at;
+    }
+  }
+  return undefined;
 };

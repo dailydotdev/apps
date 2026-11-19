@@ -86,18 +86,19 @@ import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEli
 import { useQuestDashboard } from '../hooks/useQuestDashboard';
 import type { FeedWidget } from '../features/feedWidgets/types';
 import { FeedItemType } from './cards/common/common';
+import { findFeedWidgetMoveTarget } from '../features/feedWidgets/slots';
 
 export type FeedGridWidgets = {
   /** Sorted by slot; see `useFeed`'s `widgets`. */
   widgets: FeedWidget[];
   /**
    * A placed widget, in its card's cell, or two for one sized wide that fits
-   * the row: `columns` is what the layout gave it.
+   * the row: `columns` is what the layout gave it. `left` and `right` are the
+   * nearest slots it can move to, past any ad, which keeps its cell.
    */
   renderWidget: (
     widget: FeedWidget,
-    index: number,
-    columns: number,
+    place: { index: number; columns: number; left?: number; right?: number },
   ) => ReactNode;
   /**
    * While the reader is placing widgets: what covers a card whose slot can
@@ -811,11 +812,12 @@ export default function Feed<T>({
               if (item.type === FeedItemType.Widget) {
                 return (
                   <React.Fragment key={getFeedItemKey(item, index)}>
-                    {feedWidgets?.renderWidget(
-                      item.widget,
+                    {feedWidgets?.renderWidget(item.widget, {
                       index,
-                      placement.colSpan,
-                    )}
+                      columns: placement.colSpan,
+                      left: findFeedWidgetMoveTarget(items, index, -1),
+                      right: findFeedWidgetMoveTarget(items, index, 1),
+                    })}
                   </React.Fragment>
                 );
               }

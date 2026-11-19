@@ -160,7 +160,8 @@ const MainFeedPageInner = ({
   // Mirror `ExtensionTopBanners`' "Add shortcuts" gate so the topBanner
   // shortcut row and the marketing CTA card are mutually exclusive.
   const { shortcutLinks } = useShortcutLinks();
-  // The row steps aside only once the reader moved shortcuts onto the rail.
+  // The row steps aside only while the Shortcuts widget is in the feed's
+  // first row.
   // A search from the header keeps the feed underneath, so the row holds
   // still around it.
   const {
