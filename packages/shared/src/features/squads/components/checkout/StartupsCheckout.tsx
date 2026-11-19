@@ -94,7 +94,6 @@ import {
   CheckoutStage,
   CheckoutTitle,
 } from './CheckoutShell';
-import type { CheckoutStageItem } from './CheckoutShell';
 import { startupsCrewCheerImage } from './StartupsCrewOnBase';
 import { StartupsNameStunt } from './StartupsNameStunt';
 import { StartupsSignupPanel } from './StartupsSignupPanel';
@@ -136,7 +135,6 @@ const backLabels: Partial<Record<string, string>> = {
 export const AccountStep = ({
   initialDisplay = AuthDisplay.Default,
   initialEmail,
-  stages,
   trigger = AuthTriggers.StartupsCheckout,
   signUpTitle = 'Create your account',
   signUpDescription = "Start with a free company page, then upgrade it when you're ready.",
@@ -144,7 +142,6 @@ export const AccountStep = ({
 }: {
   initialDisplay?: AuthDisplay;
   initialEmail?: string;
-  stages?: CheckoutStageItem[];
   trigger?: AuthTriggers;
   signUpTitle?: string;
   signUpDescription?: string;
@@ -164,7 +161,6 @@ export const AccountStep = ({
 
   return (
     <CheckoutShell
-      stages={stages}
       current={CheckoutStage.Account}
       aside={<StartupsSignupPanel />}
       isPhoneWall={display === AuthDisplay.Default && !back && !isLogIn}
@@ -612,7 +608,6 @@ const PlanStep = ({
   company,
   plan,
   isPaying,
-  answers,
   onSelect,
   onPay,
   onChoose,
@@ -622,7 +617,6 @@ const PlanStep = ({
   plan: SquadPlan;
   /** On a phone, choosing and paying are two screens. */
   isPaying: boolean;
-  answers: Partial<Record<CheckoutStage, string>>;
   onSelect: (plan: SquadPlan) => void;
   onPay: () => void;
   onChoose: () => void;
@@ -641,10 +635,10 @@ const PlanStep = ({
     />
   );
 
-  // On a phone, paying is a screen of its own under the same logo and stepper.
+  // On a phone, paying is a screen of its own under the same logo.
   if (!isLaptop && isPaying) {
     return (
-      <CheckoutShell current={CheckoutStage.Plan} answers={answers} isTall>
+      <CheckoutShell current={CheckoutStage.Plan} isTall>
         <div style={{ paddingTop: 24 }}>{payment}</div>
       </CheckoutShell>
     );
@@ -653,7 +647,6 @@ const PlanStep = ({
   return (
     <CheckoutShell
       current={CheckoutStage.Plan}
-      answers={answers}
       isTall
       isAsideFlowing
       aside={isLaptop && payment}
@@ -740,13 +733,11 @@ const SetupStep = ({
   squad,
   company,
   plan,
-  answers,
   pageUrl,
 }: {
   squad: Squad;
   company: CompanyChoice;
   plan: SquadPlan;
-  answers: Partial<Record<CheckoutStage, string>>;
   pageUrl: string;
 }): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -797,8 +788,6 @@ const SetupStep = ({
       <div className={classNames(!isLaptop && editing && 'hidden')}>
         <CheckoutShell
           current={CheckoutStage.Setup}
-          answers={answers}
-          isComplete={isComplete}
           isTall
           aside={isLaptop && (editor || preview)}
         >
@@ -853,12 +842,10 @@ const SetupStep = ({
 const SetupLoading = ({
   company,
   plan,
-  answers,
   pageUrl,
 }: {
   company: CompanyChoice;
   plan: SquadPlan;
-  answers: Partial<Record<CheckoutStage, string>>;
   pageUrl: string;
 }): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -872,7 +859,6 @@ const SetupLoading = ({
   return (
     <CheckoutShell
       current={CheckoutStage.Setup}
-      answers={answers}
       isTall
       aside={isLaptop && preview}
     >
@@ -912,12 +898,10 @@ const SetupLoading = ({
 const DoneStep = ({
   company,
   plan,
-  answers,
   isReturning,
 }: {
   company: CompanyChoice;
   plan: SquadPlan;
-  answers: Partial<Record<CheckoutStage, string>>;
   /** Back to set up a page that was already on a plan, nothing was paid */
   isReturning?: boolean;
 }): ReactElement => {
@@ -981,7 +965,6 @@ const DoneStep = ({
         squad={squad}
         company={company}
         plan={plan}
-        answers={answers}
         pageUrl={pageUrl}
       />
     );
@@ -992,7 +975,6 @@ const DoneStep = ({
       <SetupLoading
         company={company}
         plan={plan}
-        answers={answers}
         pageUrl={pageUrl}
       />
     );
@@ -1001,7 +983,6 @@ const DoneStep = ({
   return (
     <CheckoutShell
       current={CheckoutStage.Setup}
-      answers={answers}
       aside={<StartupsNameStunt name={company.name} />}
     >
       <CheckoutTitle
@@ -1106,10 +1087,6 @@ export const StartupsCheckout = ({
       enabled: isOpeningLink && !!user?.id && !!linkedSquad,
     });
   const logStartups = useLogStartups();
-  const answers = {
-    [CheckoutStage.Company]: company?.name,
-    [CheckoutStage.Plan]: squadPlanDetails[plan].title,
-  };
 
   useEffect(() => {
     // Squads arrive with boot; pick the one the link asked for once they do
@@ -1241,7 +1218,6 @@ export const StartupsCheckout = ({
         company={company}
         plan={plan}
         isPaying={step === StartupsCheckoutStep.Checkout}
-        answers={answers}
         onSelect={(next) => {
           if (next !== plan) {
             setPlan(next);
@@ -1263,7 +1239,6 @@ export const StartupsCheckout = ({
       <DoneStep
         company={company}
         plan={plan}
-        answers={answers}
         isReturning={isReturning}
       />
     );

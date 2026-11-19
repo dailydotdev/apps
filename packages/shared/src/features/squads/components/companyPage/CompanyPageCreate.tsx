@@ -40,23 +40,15 @@ import {
   CheckoutStage,
   CheckoutTitle,
 } from '../checkout/CheckoutShell';
-import type { CheckoutStageItem } from '../checkout/CheckoutShell';
 import { AccountStep } from '../checkout/StartupsCheckout';
 import { StartupsNameStunt } from '../checkout/StartupsNameStunt';
 
 const FORM_ID = 'company-page-form';
 const DESCRIPTION_MAX_LENGTH = 250;
 
-/** The free path's steps: sign up, then the page. */
-const freeStages: CheckoutStageItem[] = [
-  { id: CheckoutStage.Account, label: 'Account' },
-  { id: CheckoutStage.Company, label: 'Company page' },
-];
-
 /** A visitor with no account signs up here, then gets the form. */
 const CompanyPageSignUp = (): ReactElement => (
   <AccountStep
-    stages={freeStages}
     trigger={AuthTriggers.CompanyPage}
     signUpTitle="Create your free company page"
     signUpDescription="It takes two minutes. No credit card needed."
@@ -190,9 +182,7 @@ export const CompanyPageCreate = (): ReactElement => {
 
   return (
     <CheckoutShell
-      stages={freeStages}
-      current={CheckoutStage.Company}
-      answers={{ [CheckoutStage.Account]: user.username ?? 'Account' }}
+        current={CheckoutStage.Company}
       isTall
       aside={<StartupsNameStunt name={name} />}
     >
