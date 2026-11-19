@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
-import type { NextSeoProps } from 'next-seo';
+import type { NextSeoProps } from 'next-seo/lib/types';
+import { NextSeo } from 'next-seo';
 import router, { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
@@ -33,6 +34,8 @@ import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
 const seoTitles = getPageSeoTitles('Create your Squad');
+// /squads/new?company=1 is the free company page form, not a Squad
+const companySeoTitles = getPageSeoTitles('Set up your company page');
 const seo: NextSeoProps = {
   title: seoTitles.title,
   openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
@@ -94,6 +97,11 @@ const NewSquad = (): ReactElement => {
   if (query.company) {
     return (
       <>
+        <NextSeo
+          {...seo}
+          title={companySeoTitles.title}
+          openGraph={{ ...seo.openGraph, ...companySeoTitles.openGraph }}
+        />
         <CompanyPageCreate />
         <PromptElement />
         <Toast autoDismissNotifications />
