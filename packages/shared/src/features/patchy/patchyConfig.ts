@@ -108,8 +108,8 @@ const pose = {
   deadpan: `${media}/v1794998770/public/patchy-v1-peek-deadpan.webp`,
   sleepy: `${media}/v1794998772/public/patchy-v1-peek-sleepy.webp`,
   bone: `${media}/v1794998773/public/patchy-v1-peek-bone.webp`,
-  point: `${media}/v1/public/patchy-v1-peek-point.webp`,
-  read: `${media}/v1/public/patchy-v1-peek-read.webp`,
+  point: `${media}/v1795078962/public/patchy-v1-peek-point.webp`,
+  read: `${media}/v1795078964/public/patchy-v1-peek-read.webp`,
 };
 
 // The pose he points at a suggestion with.
@@ -139,13 +139,13 @@ export const defaultPatchyConfig: PatchyConfig = {
     sleepy: `${media}/v1794998765/public/patchy-v1-face-sleepy.webp`,
     asleep: `${media}/v1794998767/public/patchy-v1-face-asleep.webp`,
     sideeye: `${media}/v1794998768/public/patchy-v1-face-sideeye.webp`,
-    lookright: `${media}/v1/public/patchy-v1-face-lookright.webp`,
-    lookdown: `${media}/v1/public/patchy-v1-face-lookdown.webp`,
-    yawn: `${media}/v1/public/patchy-v1-face-yawn.webp`,
-    tongue: `${media}/v1/public/patchy-v1-face-tongue.webp`,
-    wink: `${media}/v1/public/patchy-v1-face-wink.webp`,
-    alert: `${media}/v1/public/patchy-v1-face-alert.webp`,
-    earflop: `${media}/v1/public/patchy-v1-face-earflop.webp`,
+    lookright: `${media}/v1795078965/public/patchy-v1-face-lookright.webp`,
+    lookdown: `${media}/v1795078967/public/patchy-v1-face-lookdown.webp`,
+    yawn: `${media}/v1795078969/public/patchy-v1-face-yawn.webp`,
+    tongue: `${media}/v1795078970/public/patchy-v1-face-tongue.webp`,
+    wink: `${media}/v1795078972/public/patchy-v1-face-wink.webp`,
+    alert: `${media}/v1795078973/public/patchy-v1-face-alert.webp`,
+    earflop: `${media}/v1795078975/public/patchy-v1-face-earflop.webp`,
   },
   reactions: {
     upvote: {
