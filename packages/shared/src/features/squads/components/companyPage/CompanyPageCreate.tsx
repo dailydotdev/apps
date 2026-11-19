@@ -22,6 +22,7 @@ import {
 } from '../../../../components/typography/Typography';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useLogContext } from '../../../../contexts/LogContext';
+import { usePixelsContext } from '../../../../contexts/PixelsContext';
 import { useSquadCreate } from '../../../../hooks/squads/useSquadCreate';
 import { useSquadCategories } from '../../../../hooks/squads/useSquadCategories';
 import { useIsPhone } from '../../../../hooks/useViewSize';
@@ -36,6 +37,8 @@ import { getStartupsCheckoutUrl } from '../../lib/routes';
 import { getSquadId } from '../../lib/features';
 import { isSquadPlan, SquadPlan } from '../../lib/plans';
 import { companyPagePrompt } from '../../lib/companyPage';
+import { trackStartupsSignup } from '../../lib/startupsAdEvents';
+import { getFirstQueryParam } from '../../../../lib/func';
 import { agentMarks } from '../checkout/agentMarks';
 import { AgentMark } from '../checkout/AgentMark';
 
@@ -132,9 +135,18 @@ export const CompanyPageCreate = (): ReactElement => {
     categoryPages?.pages.flatMap((page) =>
       page.categories.edges.map(({ node }) => node),
     ) ?? [];
+  const { trackEvent } = usePixelsContext();
   const { onCreateSquad, isLoading } = useSquadCreate({
-    onSuccess: (squad) =>
-      router.push(
+    onSuccess: (squad) => {
+      if (user) {
+        trackStartupsSignup(trackEvent, {
+          userId: user.id,
+          email: user.email,
+          plan: getFirstQueryParam(router.query.plan) ?? 'free',
+        });
+      }
+
+      return router.push(
         router.query.checkout === '1'
           ? getStartupsCheckoutUrl({
               plan: isSquadPlan(router.query.plan)
@@ -143,7 +155,8 @@ export const CompanyPageCreate = (): ReactElement => {
               sourceId: getSquadId(squad),
             })
           : squad.permalink,
-      ),
+      );
+    },
   });
 
   if (!user) {

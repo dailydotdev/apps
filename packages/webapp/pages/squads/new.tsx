@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import router, { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -24,6 +24,7 @@ import { useIntegrationQuery } from '@dailydotdev/shared/src/hooks/integrations/
 import { useSlackConnectSourceMutation } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackConnectSourceMutation';
 import { SourceMemberRole } from '@dailydotdev/shared/src/graphql/sources';
 import { CompanyPageCreate } from '@dailydotdev/shared/src/features/squads/components/companyPage/CompanyPageCreate';
+import { saveCheckoutAttribution } from '@dailydotdev/shared/src/features/squads/lib/checkoutAttribution';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
@@ -44,6 +45,13 @@ const NewSquad = (): ReactElement => {
   const { onSave } = useSlackConnectSourceMutation();
   const shouldLoadIntegration = query?.fs && !query?.error;
   const integrationId = query?.iid as string;
+
+  // The /startups ad source, kept for the checkout when the page upgrades
+  useEffect(() => {
+    if (isRouteReady && query.company) {
+      saveCheckoutAttribution(query);
+    }
+  }, [isRouteReady, query]);
 
   const { onCreateSquad, isLoading } = useSquadCreate({
     onSuccess: async (squad) => {

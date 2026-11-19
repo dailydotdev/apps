@@ -4,6 +4,7 @@ import {
   CHECKOUT_ATTRIBUTION_TTL_MS,
   getCheckoutAttribution,
   getSavedCheckoutAttribution,
+  LANDING_ATTRIBUTION_COOKIE,
   saveCheckoutAttribution,
 } from './checkoutAttribution';
 
@@ -59,5 +60,21 @@ describe('checkout attribution', () => {
     localStorage.setItem(CHECKOUT_ATTRIBUTION_STORAGE_KEY, '{nope');
 
     expect(getSavedCheckoutAttribution()).toEqual({});
+  });
+
+  it('falls back to the landing cookie, newest visit first', () => {
+    document.cookie = `${LANDING_ATTRIBUTION_COOKIE}=${encodeURIComponent(
+      JSON.stringify({ utm_source: 'x', twclid: 'tw1', savedAt: 2000 }),
+    )}`;
+
+    expect(getSavedCheckoutAttribution(3000)).toEqual({
+      utm_source: 'x',
+      twclid: 'tw1',
+    });
+
+    saveCheckoutAttribution({ utm_source: 'fb' }, 2500);
+    expect(getSavedCheckoutAttribution(3000)).toEqual({ utm_source: 'fb' });
+
+    document.cookie = `${LANDING_ATTRIBUTION_COOKIE}=; max-age=0`;
   });
 });

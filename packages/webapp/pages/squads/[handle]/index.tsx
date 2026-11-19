@@ -39,6 +39,7 @@ import type {
 } from '@dailydotdev/shared/src/lib/user';
 import { useRecentPageMeta } from '@dailydotdev/shared/src/hooks/useRecentPages';
 import { SquadHome } from '@dailydotdev/shared/src/features/squads/components/SquadHome';
+import { useTrackNewCompanyPage } from '@dailydotdev/shared/src/features/squads/hooks/useTrackNewCompanyPage';
 import { SquadPageSkeleton } from '@dailydotdev/shared/src/features/squads/components/SquadPageSkeleton';
 import { hasSquadFeature } from '@dailydotdev/shared/src/features/squads/lib/features';
 import {
@@ -192,6 +193,7 @@ const SquadPage = ({
   const { logEvent } = useLogContext();
   const [loggedImpression, setLoggedImpression] = useState(false);
   const { squad, isForbidden } = useSquad({ handle });
+  useTrackNewCompanyPage(squad);
   const squadId = squad?.id;
   useRecentPageMeta({ image: squad?.image ?? initialSquad?.image });
   useEffect(() => {

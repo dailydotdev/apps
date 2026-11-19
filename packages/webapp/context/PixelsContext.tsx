@@ -7,17 +7,37 @@ import {
   postWebKitMessage,
   WebKitMessageHandlers,
 } from '@dailydotdev/shared/src/lib/ios';
-import { EXPERIENCE_TO_SENIORITY, Pixels } from '../components/Pixels';
+import {
+  EXPERIENCE_TO_SENIORITY,
+  hashEmailForMeta,
+  Pixels,
+} from '../components/Pixels';
 
 type Tracker = (...args: unknown[]) => void;
 
 const pixels = globalThis as typeof globalThis & {
   gtag?: Tracker;
   fbq?: Tracker;
-  updateFbUserData?: (userId: string, email?: string) => void;
+  updateFbUserData?: (userId: string, emailHash?: string) => void;
   twq?: Tracker;
   rdt?: Tracker;
   ttq?: { track?: Tracker };
+};
+
+// The pixel scripts load once the page is interactive, so an event fired on
+// page load can arrive before them
+const PIXEL_WAIT_MS = 500;
+const PIXEL_WAIT_TRIES = 20;
+
+const whenPixelsLoad = (send: () => void, triesLeft = PIXEL_WAIT_TRIES) => {
+  if (typeof pixels.fbq === 'function' || typeof pixels.twq === 'function') {
+    send();
+    return;
+  }
+
+  if (triesLeft > 0) {
+    setTimeout(() => whenPixelsLoad(send, triesLeft - 1), PIXEL_WAIT_MS);
+  }
 };
 
 interface PixelsContextProviderProps {
@@ -45,19 +65,22 @@ function WebPixelsProvider({
       }
 
       if (typeof pixels.fbq === 'function') {
-        pixels.updateFbUserData?.(id, email);
-        pixels.fbq('track', 'signup');
-        const seniority =
-          experienceLevel && EXPERIENCE_TO_SENIORITY[experienceLevel];
-        if (seniority) {
-          pixels.fbq('track', `signup3_${seniority}`);
-        }
-        if (isEngineer) {
-          pixels.fbq('track', 'engineer signup');
-        }
-        if (isExtension) {
-          pixels.fbq('track', 'extension_signup');
-        }
+        const fbq = pixels.fbq;
+        hashEmailForMeta(email).then((emailHash) => {
+          pixels.updateFbUserData?.(id, emailHash);
+          fbq('track', 'signup');
+          const seniority =
+            experienceLevel && EXPERIENCE_TO_SENIORITY[experienceLevel];
+          if (seniority) {
+            fbq('track', `signup3_${seniority}`);
+          }
+          if (isEngineer) {
+            fbq('track', 'engineer signup');
+          }
+          if (isExtension) {
+            fbq('track', 'extension_signup');
+          }
+        });
       }
 
       if (typeof pixels.twq === 'function') {
@@ -89,33 +112,7 @@ function WebPixelsProvider({
       // }
     },
     trackEvent(eventName, params, options) {
-      if (typeof pixels.gtag === 'function') {
-        pixels.gtag('event', eventName.replace(/ /g, '_').toLowerCase());
-      }
-      if (typeof pixels.fbq === 'function') {
-        pixels.fbq(
-          'track',
-          eventName,
-          params,
-          options?.eventId ? { eventID: options.eventId } : undefined,
-        );
-      }
-      if (options?.xEventId && typeof pixels.twq === 'function') {
-        const xParams: Record<string, unknown> = {};
-        if (typeof params?.value === 'number') {
-          xParams.value = params.value;
-        }
-        if (params?.currency) {
-          xParams.currency = params.currency;
-        }
-        if (options.eventId) {
-          xParams.conversion_id = options.eventId;
-        }
-        if (options.email) {
-          xParams.email_address = options.email;
-        }
-        pixels.twq('event', options.xEventId, xParams);
-      }
+      whenPixelsLoad(() => sendEvent(eventName, params, options));
     },
   };
 
@@ -126,6 +123,40 @@ function WebPixelsProvider({
     </PixelsContext.Provider>
   );
 }
+
+const sendEvent: PixelsContextData['trackEvent'] = (
+  eventName,
+  params,
+  options,
+) => {
+  if (typeof pixels.gtag === 'function') {
+    pixels.gtag('event', eventName.replace(/ /g, '_').toLowerCase());
+  }
+  if (typeof pixels.fbq === 'function') {
+    pixels.fbq(
+      'track',
+      eventName,
+      params,
+      options?.eventId ? { eventID: options.eventId } : undefined,
+    );
+  }
+  if (options?.xEventId && typeof pixels.twq === 'function') {
+    const xParams: Record<string, unknown> = {};
+    if (typeof params?.value === 'number') {
+      xParams.value = params.value;
+    }
+    if (params?.currency) {
+      xParams.currency = params.currency;
+    }
+    if (options.eventId) {
+      xParams.conversion_id = options.eventId;
+    }
+    if (options.email) {
+      xParams.email_address = options.email;
+    }
+    pixels.twq('event', options.xEventId, xParams);
+  }
+};
 
 function IOSPixelsProvider({
   children,
