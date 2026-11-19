@@ -39,8 +39,10 @@ import ExtensionProviders from '../../extension/_providers';
 
 // Mockups of the daily.dev for Startups promotions outside the squad page:
 // boosting, buying Cores for a boost, the wallet, the ads dashboard and the
-// Manage menu. The viewer runs Acme, a squad with no plan, and the launch
-// promo (500% for a year) is on.
+// Manage menu. The viewer runs Acme, a company page with no plan, and the
+// launch promo (500% for a year) is on. The "no page" stories are for someone
+// who runs no company page: See plans opens the company page form with Starter
+// picked.
 
 const acme = {
   id: 'acme-squad',
@@ -61,7 +63,12 @@ const acme = {
   rules: [],
   links: [],
   features: {},
-  flags: { totalPosts: 12, totalViews: 4800, totalUpvotes: 310 },
+  flags: {
+    totalPosts: 12,
+    totalViews: 4800,
+    totalUpvotes: 310,
+    company: true,
+  },
   currentMember: {
     role: SourceMemberRole.Admin,
     permissions: Object.values(SourcePermissions),
@@ -211,7 +218,7 @@ export const BoostSquadPost: Story = {
   render: () => <BoostPostModal isOpen post={acmePost} onRequestClose={noop} />,
 };
 
-/** 1. Boosting a personal post, with no squad to upgrade */
+/** 1. Boosting a personal post, with no company page */
 export const BoostPersonalPost: Story = {
   beforeEach: withSquads([]),
   render: () => (
@@ -282,20 +289,40 @@ export const BuyCoresFromBoost: Story = {
   ),
 };
 
+/** 2. Buy Cores from a personal boost, with no company page */
+export const BuyCoresNoPage: Story = {
+  beforeEach: withSquads([]),
+  render: () => (
+    <SeedCorePacks>
+      <BuyCoresModal
+        isOpen
+        product={null}
+        minCoresToBuy={33000}
+        onRequestClose={noop}
+        promo={<CoresDeals spot={StartupsPromoSpot.BuyCores} withStartups />}
+        origin={Origin.BoostPost}
+      />
+    </SeedCorePacks>
+  ),
+};
+
+const WalletColumn = (): ReactElement => (
+  <div className="flex justify-center p-6">
+    <div className="flex w-[22rem] flex-col gap-4">
+      <CoresDeals spot={StartupsPromoSpot.Wallet} withStartups isStacked />
+    </div>
+  </div>
+);
+
 /** 3. The wallet page's widget column */
 export const Wallet: Story = {
-  render: () => (
-    <div className="flex justify-center p-6">
-      <div className="flex w-[22rem] flex-col gap-4">
-        <CoresDeals
-          spot={StartupsPromoSpot.Wallet}
-          isPersonalAllowed={false}
-          withStartups
-          isStacked
-        />
-      </div>
-    </div>
-  ),
+  render: () => <WalletColumn />,
+};
+
+/** 3. The wallet, with no company page */
+export const WalletNoPage: Story = {
+  beforeEach: withSquads([]),
+  render: () => <WalletColumn />,
 };
 
 /** 4. Boost manager, for someone who has boosted before */
@@ -307,10 +334,37 @@ export const AdsDashboard: Story = {
   ),
 };
 
+/** 4. Boost manager, with no company page */
+export const AdsDashboardNoPage: Story = {
+  ...AdsDashboard,
+  beforeEach: withSquads([]),
+};
+
+// A community squad: never pitched, so its boosts show no promotion
+const community = {
+  ...acme,
+  id: 'community-squad',
+  handle: 'rustaceans',
+  name: 'Rustaceans',
+  flags: { ...acme.flags, company: false },
+} as unknown as Squad;
+
+/** 1. Boosting a post of a community squad you run: no promotion */
+export const BoostCommunityPost: Story = {
+  beforeEach: withSquads([community]),
+  render: () => (
+    <BoostPostModal
+      isOpen
+      post={{ ...acmePost, source: community } as Post}
+      onRequestClose={noop}
+    />
+  ),
+};
+
 /** 5. Manage: plan sections show locked, and open Subscription */
 export const ManageLocked: Story = {
   render: () => (
-    <SquadPageContextProvider squad={acme} isViewerReady>
+    <SquadPageContextProvider squad={community} isViewerReady>
       <SquadManageLayout section={SquadManageSection.Plan}>
         <SquadManagePlan />
       </SquadManageLayout>

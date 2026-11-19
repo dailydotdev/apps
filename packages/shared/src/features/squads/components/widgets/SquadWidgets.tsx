@@ -13,7 +13,6 @@ import { SquadLinksWidget } from './SquadLinksWidget';
 import { SquadRulesWidget } from './SquadRulesWidget';
 import { SquadJobsWidget } from './SquadJobsWidget';
 import { SimilarSquadsWidget } from './SimilarSquadsWidget';
-import { SquadPlanUpsellWidget } from './SquadPlanUpsellWidget';
 import { SquadAgentWidget } from './SquadAgentWidget';
 import { isCompanyPage } from '../../lib/companyPage';
 
@@ -24,8 +23,6 @@ export const SquadWidgets = (): ReactElement => {
   return (
     <>
       <SquadPreviewToggle />
-      {/* A company page sells its plan from the top of its feed */}
-      {!isCompanyPage(squad) && <SquadPlanUpsellWidget />}
       {hasSquadFeature(squad, 'verified') && <VerifiedCompanySquadCard />}
       <SquadAgentWidget />
       {squad.flags?.featured && <FeaturedSquadCard />}

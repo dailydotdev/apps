@@ -97,7 +97,7 @@ const SeePlans = ({
 }): ReactElement => (
   <Button
     tag="a"
-    href={promo.checkoutUrl}
+    href={promo.href}
     variant={variant}
     size={ButtonSize.Small}
     className={className}
@@ -214,14 +214,14 @@ export const StartupsBoostPromo = ({
           </strong>
           <span className="text-text-tertiary typo-caption1">
             {promo.squad
-              ? `Make ${promo.squad.name} your company page for ${promo.starterPrice} a month and use them to boost its posts.`
+              ? `Upgrade ${promo.squad.name} to the Startup plan for ${promo.starterPrice} a month and use them to boost its posts.`
               : `Boosting for your startup? Get a company page for ${promo.starterPrice} a month.`}
           </span>
         </span>
       </span>
       <Button
         tag="a"
-        href={promo.checkoutUrl}
+        href={promo.href}
         variant={ButtonVariant.Secondary}
         size={ButtonSize.XSmall}
         onClick={promo.onClick}
@@ -256,9 +256,19 @@ export const StartupsAdsDashboardPromo = ({
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <Title>{`You've spent ${largeNumberFormat(spend)} Cores on boosts`}</Title>
             <Body>
-              {`Get a company page for ${promo.starterPrice} a month, with `}
-              <MonthlyCredits promo={promo} />
-              {' every month.'}
+              {promo.squad ? (
+                <>
+                  {`Upgrade ${promo.squad.name} to the Startup plan for ${promo.starterPrice} a month, with `}
+                  <MonthlyCredits promo={promo} />
+                  {' every month.'}
+                </>
+              ) : (
+                <>
+                  {`Get a company page for ${promo.starterPrice} a month, with `}
+                  <MonthlyCredits promo={promo} />
+                  {' every month.'}
+                </>
+              )}
             </Body>
           </div>
         </div>

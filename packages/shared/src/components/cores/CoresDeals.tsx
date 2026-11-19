@@ -206,7 +206,7 @@ const StartupsDeal = ({
     action={
       <Button
         tag="a"
-        href={promo.checkoutUrl}
+        href={promo.href}
         variant={ButtonVariant.Primary}
         size={ButtonSize.XSmall}
         onClick={promo.onClick}
@@ -260,7 +260,7 @@ export interface CoresDealsProps {
   withStartups?: boolean;
   /** The squad being boosted, see `useStartupsPromo` */
   sourceId?: string;
-  /** False to pitch Startups only to people who run a squad */
+  /** False to pitch Startups only to people who run a company page */
   isPersonalAllowed?: boolean;
   /** One card under the other, without the "Deals" title, for a side column */
   isStacked?: boolean;
