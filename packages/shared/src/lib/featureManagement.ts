@@ -347,6 +347,8 @@ export const featureLiveChat = new Feature('live_chat', false);
 // becomes a chat. Keep the default `false`, GrowthBook ramps it.
 export const featureLfg = new Feature('lfg', false);
 
+export type PlusSaleTheme = 'summer' | 'blackFriday';
+
 export type PlusSaleConfig = {
   /** Paddle discount id (`dsc_...`). Empty means no sale is running. */
   discountId: string;
@@ -357,6 +359,8 @@ export type PlusSaleConfig = {
   description: string;
   /** ISO date. The sale expires here even if the flag is left on. */
   endDate: string;
+  /** Look of the /plus banner and price label; summer when unset. */
+  theme?: PlusSaleTheme;
 };
 
 // The advertised discount, code and expiry travel with the id they describe, so

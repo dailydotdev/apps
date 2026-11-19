@@ -54,6 +54,25 @@ export const plusSaleMarkColor =
 export const plusSaleLabelBg =
   'linear-gradient(90deg, #F4A83A 0%, #E05C4B 100%)';
 
+// Black Friday: a near-black panel lit by a Plus-pink glow, with a gold
+// eyebrow and badge. Also tuned for the dark theme the Plus page forces.
+export const plusBlackFridayBannerBg =
+  'linear-gradient(110deg, #050505 0%, #0E0A14 55%, #24092F 100%)';
+
+export const plusBlackFridayBannerGlow =
+  'radial-gradient(55% 140% at 92% 110%, rgba(206, 61, 243, 0.55) 0%, rgba(206, 61, 243, 0) 70%)';
+
+export const plusBlackFridayBannerScrim =
+  'repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.025) 0 0.5rem, rgba(255, 255, 255, 0) 0.5rem 1rem)';
+
+export const plusBlackFridayAccent = '#FFD24D';
+
+export const plusBlackFridayMarkColor =
+  'color-mix(in srgb, var(--theme-actions-plus-default), transparent 70%)';
+
+export const plusBlackFridayLabelBg =
+  'linear-gradient(90deg, #FFD24D 0%, #F59E0B 100%)';
+
 // Third-party brand colours for the onboarding acquisition channel marks.
 export const acquisitionBrandColors = {
   x: '#000000',
