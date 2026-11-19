@@ -1,4 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
+import classNames from 'classnames';
 import React, {
   useRef,
   useEffect,
@@ -842,6 +843,19 @@ export default function Feed<T>({
                 />
               );
 
+              // Ads keep their cell, and a widget is one card wide, so only a
+              // one-card post or highlight offers its slot. Such a card sits in
+              // the same wrapper whether or not the reader is customizing, so
+              // toggling Customize never remounts the grid.
+              const canTakeWidget =
+                !!feedWidgets &&
+                !isWidened &&
+                (item.type === FeedItemType.Post ||
+                  item.type === FeedItemType.Highlight);
+              const slotNode = canTakeWidget
+                ? feedWidgets.renderSlot?.(index)
+                : null;
+
               return (
                 <FeedCardContext.Provider
                   key={getFeedItemKey(item, index)}
@@ -861,33 +875,28 @@ export default function Feed<T>({
                       }}
                     />
                   )}
-                  {(() => {
-                    // Ads keep their cell: only a card's slot takes a widget.
-                    const slotNode =
-                      item.type === FeedItemType.Post ||
-                      item.type === FeedItemType.Highlight
-                        ? feedWidgets?.renderSlot?.(index)
-                        : null;
-                    if (isWidened || slotNode) {
-                      return (
-                        <div
-                          className="relative flex h-full w-full [&>*]:h-full [&>*]:w-full"
-                          style={
-                            isWidened
-                              ? { gridColumn: `span ${colSpan}` }
-                              : undefined
-                          }
-                          data-testid={
-                            isWidened ? 'feedItemColSpanWrapper' : undefined
-                          }
-                        >
-                          {itemNode}
-                          {slotNode}
-                        </div>
-                      );
-                    }
-                    return itemNode;
-                  })()}
+                  {isWidened && (
+                    <div
+                      className="flex h-full w-full [&>*]:h-full [&>*]:w-full"
+                      style={{ gridColumn: `span ${colSpan}` }}
+                      data-testid="feedItemColSpanWrapper"
+                    >
+                      {itemNode}
+                    </div>
+                  )}
+                  {canTakeWidget && (
+                    <div
+                      className={classNames(
+                        'relative flex h-full w-full [&>*]:h-full [&>*]:w-full',
+                        // The card fades under its slot's cover.
+                        !!slotNode && '[&>*:first-child]:opacity-40',
+                      )}
+                    >
+                      {itemNode}
+                      {slotNode}
+                    </div>
+                  )}
+                  {!isWidened && !canTakeWidget && itemNode}
                 </FeedCardContext.Provider>
               );
             })}

@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import MainFeedLayout from './MainFeedLayout';
 import { SharedFeedPage } from './utilities';
+import type { SettingsFlags } from '../graphql/settings';
 import { TestBootProvider } from '../../__tests__/helpers/boot';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import { useConditionalFeature } from '../hooks/useConditionalFeature';
@@ -72,9 +73,13 @@ const mockFlags = ({
     >;
   });
 
-const renderLayout = () =>
+const renderLayout = (settingsFlags?: SettingsFlags) =>
   render(
-    <TestBootProvider client={new QueryClient()} auth={{ user: defaultUser }}>
+    <TestBootProvider
+      client={new QueryClient()}
+      auth={{ user: defaultUser }}
+      settings={settingsFlags ? { flags: settingsFlags } : undefined}
+    >
       <SearchProvider>
         <MainFeedLayout feedName={SharedFeedPage.MyFeed} isSearchOn={false} />
       </SearchProvider>
@@ -123,6 +128,22 @@ it('keeps the feed as it was, and hands the grid its widgets', async () => {
   expect(feedWidgets).toEqual(
     expect.objectContaining({ widgets: [], renderSlot: undefined }),
   );
+});
+
+it('drops the feed’s Happening Now card once the widget is placed', async () => {
+  mockDesktop();
+  mockFlags({ widgets: true });
+  const widget = { id: 'now', kind: 'happeningNow', size: 'tall', slot: 2 };
+
+  renderLayout({
+    feedWidgets: { version: 1, widgets: [widget] },
+  } as unknown as SettingsFlags);
+
+  await screen.findByTestId('feed');
+  expect(lastFeedProps()).toEqual(
+    expect.objectContaining({ disableHighlightCards: true }),
+  );
+  expect(lastFeedProps().feedWidgets?.widgets).toEqual([widget]);
 });
 
 it('keeps a phone on the plain feed with the widgets’ flag on', async () => {

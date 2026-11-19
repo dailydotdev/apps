@@ -150,16 +150,18 @@ export const FeedWidgetSlot = ({ slot }: { slot: number }): ReactElement => {
       onClick={() => setAddingSlot(slot)}
       aria-label="Put a widget here"
       className={classNames(
-        'group/slot absolute inset-0 z-2 flex flex-col items-center justify-center gap-2 rounded-16',
-        'border-2 border-dashed border-accent-cabbage-default bg-overlay-float-cabbage text-text-primary backdrop-blur-sm',
-        'transition-[backdrop-filter] hover:backdrop-blur-md',
-        'focus-visible:border-accent-cabbage-default focus-visible:outline-none',
+        'group/slot absolute inset-0 z-2 flex items-center justify-center rounded-16',
+        // No blur: a blur over every card on screen stalls the scroll. The
+        // card underneath is faded by the feed instead.
+        'border-2 border-dashed border-accent-cabbage-default text-text-primary',
+        'transition-colors hover:bg-overlay-float-cabbage',
+        'focus-visible:bg-overlay-float-cabbage focus-visible:outline-none',
       )}
     >
-      <span className="flex size-10 items-center justify-center rounded-max bg-accent-cabbage-default text-white transition-transform group-hover/slot:scale-110">
+      <span className="flex items-center gap-2 rounded-max bg-accent-cabbage-default py-2 pl-3 pr-4 font-bold text-white shadow-2 transition-transform typo-callout group-hover/slot:scale-105">
         <PlusIcon />
+        Put a widget here
       </span>
-      <span className="font-bold typo-callout">Put a widget here</span>
     </button>
   );
 };

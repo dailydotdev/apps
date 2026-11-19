@@ -481,6 +481,80 @@ it('seats placed widgets on their slots, never in an ad’s cell', async () => {
   client.clear();
 });
 
+it('moves the Happening Now card along when a widget takes its slot', async () => {
+  const client = new QueryClient(defaultQueryClientTestingConfig);
+  const post = (id: string) => ({
+    node: {
+      __typename: 'FeedPostItem',
+      post: { ...defaultFeedPage.edges[0].node, id },
+      feedMeta: null,
+    },
+  });
+  mockCustomFeedResponse({
+    data: {
+      page: {
+        ...defaultFeedPage,
+        edges: [
+          post('post-0'),
+          {
+            node: {
+              __typename: 'FeedHighlightsItem',
+              feedMeta: null,
+              highlights: [
+                {
+                  id: 'highlight-1',
+                  channel: 'agents',
+                  headline: 'The first highlight',
+                  highlightedAt: '2026-04-05T09:00:00.000Z',
+                  post: {
+                    id: 'post-0',
+                    commentsPermalink: 'https://daily.dev/posts/post-0',
+                  },
+                },
+              ],
+            },
+          },
+          post('post-1'),
+        ],
+      },
+    },
+  });
+  const wrapper = ({ children }: { children: ReactNode }): ReactElement => (
+    <TestBootProvider client={client} auth={{ user: defaultUser }}>
+      {children}
+    </TestBootProvider>
+  );
+
+  const { result } = renderHook(
+    () =>
+      useFeed(['custom', 'highlight-slot'], 10, { adStart: 1 }, 1, {
+        query: CUSTOM_FEED_QUERY,
+        variables: { feedId: 'highlight-slot' },
+        settings: {
+          feedName: SharedFeedPage.Custom,
+          disableAds: true,
+          widgets: [
+            { id: 'w', kind: 'streak', size: 'tall', slot: 1 } as FeedWidget,
+          ],
+        },
+      }),
+    { wrapper },
+  );
+
+  await waitFor(() =>
+    expect(
+      result.current.items.some(({ type }) => type === FeedItemType.Highlight),
+    ).toBe(true),
+  );
+  expect(result.current.items.map(({ type }) => type)).toEqual([
+    FeedItemType.Post,
+    FeedItemType.Widget,
+    FeedItemType.Highlight,
+    FeedItemType.Post,
+  ]);
+  client.clear();
+});
+
 it('should keep the ad seed for a feed until it loads afresh', () => {
   const loading = getAdJitterSeed('feed-a', false);
   const loaded = getAdJitterSeed('feed-a', true);
