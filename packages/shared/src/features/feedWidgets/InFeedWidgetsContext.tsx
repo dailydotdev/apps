@@ -3,17 +3,22 @@ import React, {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import classNames from 'classnames';
+import { Popover, PopoverAnchor } from '@radix-ui/react-popover';
+import { PopoverContent } from '../../components/popover/Popover';
 import { Button } from '../../components/buttons/Button';
-import type { ButtonSize } from '../../components/buttons/common';
-import { ButtonVariant } from '../../components/buttons/common';
+import CloseButton from '../../components/CloseButton';
+import { ButtonSize, ButtonVariant } from '../../components/buttons/common';
 import { PlusIcon } from '../../components/icons/Plus';
 import { LayoutIcon } from '../../components/icons/Layout';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
+import { useFeedWidgetsIntro } from './feedState';
 
 // Kept light: the feed page renders the Customize button and the slot covers
 // on every load, while the widgets, their editor and the gallery wait in
@@ -89,21 +94,53 @@ export const InFeedWidgetsProvider = ({
   </InFeedWidgetsContext.Provider>
 );
 
+const logIntroEvent = (eventName: LogEvent) => ({
+  event_name: eventName,
+  target_type: TargetType.FeedWidget,
+  extra: JSON.stringify({ origin: Origin.FeedWidgets }),
+});
+
 /**
  * The way into Customize mode, among the feed's own actions. Nothing renders
- * where the feed takes no widgets.
+ * where the feed takes no widgets. The first time, it carries the intro to
+ * widgets in the feed, so the reader finds both the news and the button.
  */
-export const FeedWidgetsCustomizeButton = ({
-  size,
-  className,
-  iconOnly = false,
-}: {
+type FeedWidgetsCustomizeButtonProps = {
   size: ButtonSize;
   className?: string;
   iconOnly?: boolean;
-}): ReactElement | null => {
-  const { isEnabled, isEditing, setIsEditing } = useInFeedWidgets();
+};
+
+const CustomizeButtonWithIntro = ({
+  size,
+  className,
+  iconOnly = false,
+}: FeedWidgetsCustomizeButtonProps): ReactElement => {
+  const { isEditing, setIsEditing } = useInFeedWidgets();
   const { logEvent } = useLogContext();
+  const intro = useFeedWidgetsIntro();
+  // Closed here as soon as the reader acts, before the write lands.
+  const [isIntroClosed, setIsIntroClosed] = useState(false);
+  const isIntroOpen = intro.isOpen && !isIntroClosed && !isEditing;
+  const hasLoggedIntro = useRef(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!isIntroOpen || hasLoggedIntro.current) {
+      return;
+    }
+    hasLoggedIntro.current = true;
+    logEvent(logIntroEvent(LogEvent.ImpressionFeedWidgetsIntro));
+  }, [isIntroOpen, logEvent]);
+
+  const closeIntro = useCallback(
+    (eventName: LogEvent) => {
+      setIsIntroClosed(true);
+      logEvent(logIntroEvent(eventName));
+      intro.dismiss();
+    },
+    [intro, logEvent],
+  );
 
   const onClick = useCallback(() => {
     if (!isEditing) {
@@ -113,27 +150,86 @@ export const FeedWidgetsCustomizeButton = ({
         extra: JSON.stringify({ origin: Origin.FeedWidgets }),
       });
     }
+    if (isIntroOpen) {
+      closeIntro(LogEvent.ClickFeedWidgetsIntro);
+    }
     setIsEditing(!isEditing);
-  }, [isEditing, logEvent, setIsEditing]);
-
-  if (!isEnabled) {
-    return null;
-  }
+  }, [closeIntro, isEditing, isIntroOpen, logEvent, setIsEditing]);
 
   return (
-    <Button
-      variant={ButtonVariant.Tertiary}
-      size={size}
-      icon={<LayoutIcon />}
-      className={className}
-      aria-pressed={isEditing}
-      aria-label={iconOnly ? 'Customize widgets' : undefined}
-      title="Customize widgets"
-      onClick={onClick}
+    <Popover
+      open={isIntroOpen}
+      onOpenChange={(open) => {
+        if (!open && isIntroOpen) {
+          closeIntro(LogEvent.DismissFeedWidgetsIntro);
+        }
+      }}
     >
-      {iconOnly ? undefined : 'Widgets'}
-    </Button>
+      <PopoverAnchor asChild>
+        <Button
+          ref={buttonRef}
+          variant={ButtonVariant.Tertiary}
+          size={size}
+          icon={<LayoutIcon />}
+          className={className}
+          aria-pressed={isEditing}
+          aria-label={iconOnly ? 'Customize widgets' : undefined}
+          title="Customize widgets"
+          onClick={onClick}
+        >
+          {iconOnly ? undefined : 'Widgets'}
+        </Button>
+      </PopoverAnchor>
+      <PopoverContent
+        side="bottom"
+        align="end"
+        sideOffset={8}
+        collisionPadding={16}
+        // The intro points at the button; focus stays on the feed.
+        onOpenAutoFocus={(event) => event.preventDefault()}
+        // A click on the button itself is the reader taking the intro up,
+        // handled by the button, not a dismissal.
+        onInteractOutside={(event) => {
+          if (buttonRef.current?.contains(event.target as Node)) {
+            event.preventDefault();
+          }
+        }}
+        className="z-header flex w-80 flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4 shadow-2"
+        aria-label="Widgets, take two"
+      >
+        <strong className="typo-title3">Widgets, take two</strong>
+        <p className="text-text-secondary typo-callout">
+          We tried widgets above the feed, and you told us they took too much
+          room. So we moved them into the feed itself: swap any card for a
+          widget, or add none at all. Your feed stays yours.
+        </p>
+        <div className="flex justify-end gap-2">
+          <Button
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            onClick={() => closeIntro(LogEvent.DismissFeedWidgetsIntro)}
+          >
+            Not now
+          </Button>
+          <Button
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Small}
+            onClick={onClick}
+          >
+            Add a widget
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
+};
+
+export const FeedWidgetsCustomizeButton = (
+  props: FeedWidgetsCustomizeButtonProps,
+): ReactElement | null => {
+  const { isEnabled } = useInFeedWidgets();
+
+  return isEnabled ? <CustomizeButtonWithIntro {...props} /> : null;
 };
 
 /**
@@ -163,6 +259,64 @@ export const FeedWidgetSlot = ({ slot }: { slot: number }): ReactElement => {
         Put a widget here
       </span>
     </button>
+  );
+};
+
+/**
+ * The feed's invite to a first widget: one card, covered like a slot in
+ * Customize mode, that opens the gallery for its own place. It goes for good
+ * once the reader closes it or places a widget anywhere.
+ */
+export const FeedWidgetPromo = ({
+  slot,
+  onDismiss,
+}: {
+  slot: number;
+  onDismiss: () => void;
+}): ReactElement => {
+  const { setAddingSlot } = useInFeedWidgets();
+  const { logEvent } = useLogContext();
+  const hasLogged = useRef(false);
+
+  useEffect(() => {
+    if (hasLogged.current) {
+      return;
+    }
+    hasLogged.current = true;
+    logEvent(logIntroEvent(LogEvent.ImpressionFeedWidgetsPromo));
+  }, [logEvent]);
+
+  return (
+    <div className="absolute inset-0 z-2 rounded-16 border-2 border-dashed border-accent-cabbage-default bg-overlay-float-cabbage">
+      <button
+        type="button"
+        onClick={() => {
+          logEvent(logIntroEvent(LogEvent.ClickFeedWidgetsPromo));
+          setAddingSlot(slot);
+        }}
+        className="group/promo flex h-full w-full flex-col items-center justify-center gap-3 rounded-16 p-6 text-center focus-visible:outline-none"
+      >
+        <strong className="text-text-primary typo-title3">
+          Make this spot yours
+        </strong>
+        <span className="text-text-secondary typo-callout">
+          Swap any card for a widget, like your streak or what’s happening now.
+        </span>
+        <span className="flex items-center gap-2 rounded-max bg-accent-cabbage-default py-2 pl-3 pr-4 font-bold text-white shadow-2 transition-transform typo-callout group-hover/promo:scale-105 group-focus-visible/promo:scale-105">
+          <PlusIcon />
+          Put a widget here
+        </span>
+      </button>
+      <CloseButton
+        size={ButtonSize.Small}
+        className="absolute right-2 top-2"
+        aria-label="Not now"
+        onClick={() => {
+          logEvent(logIntroEvent(LogEvent.DismissFeedWidgetsPromo));
+          onDismiss();
+        }}
+      />
+    </div>
   );
 };
 
