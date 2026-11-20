@@ -76,11 +76,6 @@ export const getQuestBonusRewards = (
     return multiplier > 1 ? [{ type, multiplier }] : [];
   });
 
-export const hasQuestBonusReward = (
-  quest: UserQuest,
-  rewards?: QuestReward[],
-): boolean => getQuestBonusRewards(quest, rewards).length > 0;
-
 export interface QuestBucket {
   regular: UserQuest[];
   plus: UserQuest[];

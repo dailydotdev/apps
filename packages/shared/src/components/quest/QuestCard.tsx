@@ -16,7 +16,6 @@ import {
   QuestRewardType,
   QuestStatus,
   getQuestRewardLabel,
-  hasQuestBonusReward,
   isQuestClaimed,
 } from '../../graphql/quests';
 import { QuestBonusRewardBadge } from './QuestBonusRewardBadge';
@@ -241,14 +240,7 @@ export const QuestCard = ({
   );
 
   return (
-    <article
-      className={classNames(
-        'relative overflow-hidden rounded-12 border p-2',
-        hasQuestBonusReward(quest, visibleRewards) && !isClaimed
-          ? 'border-accent-cheese-default shadow-bubble-cheese'
-          : 'border-border-subtlest-tertiary',
-      )}
-    >
+    <article className="relative overflow-hidden rounded-12 border border-border-subtlest-tertiary p-2">
       <div className="flex flex-col gap-2">
         <div className={disabledContentClass}>
           <header className="flex items-start justify-between gap-2">
@@ -262,12 +254,7 @@ export const QuestCard = ({
                 <p className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
                   {quest.quest.name}
                 </p>
-                {!isClaimed && (
-                  <QuestBonusRewardBadge
-                    quest={quest}
-                    rewards={visibleRewards}
-                  />
-                )}
+                <QuestBonusRewardBadge quest={quest} rewards={visibleRewards} />
                 {shouldShowDestination && destination && onDestinationClick && (
                   <Tooltip content={`Go to ${destination.label}`}>
                     <Button
