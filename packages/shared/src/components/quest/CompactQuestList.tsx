@@ -309,7 +309,7 @@ export const CompactQuestList = ({
   const onUnlock = () =>
     logSubscriptionEvent({
       event_name: LogEvent.UpgradeSubscription,
-      target_id: targetId,
+      target_id: TargetId.QuestSidebar,
     });
 
   return (
