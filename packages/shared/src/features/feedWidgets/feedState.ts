@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useRef } from 'react';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import {
   featureFeedWidgets,
@@ -10,9 +11,14 @@ import type { FeedWidget } from './types';
 import {
   FEED_WIDGET_RAIL_VERSION,
   FEED_WIDGET_UNDO_MS,
+  FEED_WIDGETS_INTRO_ID,
   FeedWidgetKind,
 } from './types';
-import { FEED_WIDGET_FIRST_ROW_SLOTS, seatableFeedWidgets } from './slots';
+import {
+  FEED_WIDGET_FIRST_ROW_SLOTS,
+  seatableFeedWidgets,
+  slottedFeedWidgets,
+} from './slots';
 import {
   customFeedWidgets,
   feedRailFingerprint,
@@ -165,6 +171,45 @@ export const useFeedWidgetFeedState = ({
 };
 
 /**
+ * Saves rail-level fields (the hide switch, the intro seen) over the stored
+ * widgets. Each write merges into the latest flags: a setter from the render
+ * that offered the button would write that render's settings back over
+ * anything changed since. A reader who never saved widgets stays on the
+ * default, with only these fields stored over it.
+ */
+const useFeedWidgetsRailFields = (): ((
+  fields: Record<string, unknown>,
+) => Promise<boolean>) => {
+  const { flags, setSettings } = useSettingsContext();
+  const { displayToast } = useToastNotification();
+  const latest = useRef({ flags, setSettings });
+  latest.current = { flags, setSettings };
+
+  return useCallback(
+    (fields: Record<string, unknown>): Promise<boolean> => {
+      const rail = readStoredFeedRail(latest.current.flags?.feedWidgets) ?? {
+        version: FEED_WIDGET_RAIL_VERSION,
+        widgets: [],
+        fromDefault: feedRailFingerprint([]),
+      };
+      return latest.current
+        .setSettings({
+          flags: {
+            ...latest.current.flags,
+            feedWidgets: { ...rail, ...fields },
+          } as SettingsFlags,
+        })
+        .then(() => true)
+        .catch(() => {
+          displayToast('Couldn’t save your widgets. Try again.');
+          return false;
+        });
+    },
+    [displayToast],
+  );
+};
+
+/**
  * The reader's switch for widgets in the feed, held on the stored widgets so
  * it starts fresh from the rail's `feedWidgetsOptOut`. Hiding unmounts the
  * widgets, so the feed owns the write and its Undo, and each write merges
@@ -176,35 +221,15 @@ export const useFeedWidgetsOptOut = (): {
   setOptedOut: (isOptedOut: boolean) => Promise<boolean>;
   hide: () => void;
 } => {
-  const { flags, setSettings } = useSettingsContext();
+  const { flags } = useSettingsContext();
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
-  const latest = useRef({ flags, setSettings });
-  latest.current = { flags, setSettings };
+  const writeRailFields = useFeedWidgetsRailFields();
 
   const setOptedOut = useCallback(
-    (isOptedOut: boolean): Promise<boolean> => {
-      // A reader who never saved widgets stays on the default, with only the
-      // switch stored over it.
-      const rail = readStoredFeedRail(latest.current.flags?.feedWidgets) ?? {
-        version: FEED_WIDGET_RAIL_VERSION,
-        widgets: [],
-        fromDefault: feedRailFingerprint([]),
-      };
-      return latest.current
-        .setSettings({
-          flags: {
-            ...latest.current.flags,
-            feedWidgets: { ...rail, hidden: isOptedOut },
-          } as SettingsFlags,
-        })
-        .then(() => true)
-        .catch(() => {
-          displayToast('Couldn’t save your widgets. Try again.');
-          return false;
-        });
-    },
-    [displayToast],
+    (isOptedOut: boolean): Promise<boolean> =>
+      writeRailFields({ hidden: isOptedOut }),
+    [writeRailFields],
   );
 
   const logHide = useCallback(
@@ -238,4 +263,33 @@ export const useFeedWidgetsOptOut = (): {
     setOptedOut,
     hide,
   };
+};
+
+/**
+ * The one-time intro to widgets in the feed, pointing at the Widgets button,
+ * which only renders where the feed takes widgets. Shown to a signed-in reader
+ * who has not placed one yet, until they act on it or close it, on any device.
+ */
+export const useFeedWidgetsIntro = (): {
+  isOpen: boolean;
+  dismiss: () => Promise<boolean>;
+} => {
+  const { flags, loadedSettings } = useSettingsContext();
+  const { isLoggedIn } = useAuthContext();
+  const writeRailFields = useFeedWidgetsRailFields();
+  const rail = readStoredFeedRail(flags?.feedWidgets);
+  const hasPlaced =
+    slottedFeedWidgets(customFeedWidgets(rail) ?? []).length > 0;
+  const isOpen =
+    isLoggedIn &&
+    !!loadedSettings &&
+    !hasPlaced &&
+    rail?.introSeen !== FEED_WIDGETS_INTRO_ID;
+
+  const dismiss = useCallback(
+    () => writeRailFields({ introSeen: FEED_WIDGETS_INTRO_ID }),
+    [writeRailFields],
+  );
+
+  return { isOpen, dismiss };
 };

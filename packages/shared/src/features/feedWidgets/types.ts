@@ -170,7 +170,18 @@ export type FeedWidgetRailState = {
    * rail's `feedWidgetsOptOut`, so hiding the rail does not hide these.
    */
   hidden?: boolean;
+  /**
+   * The intro to widgets in the feed this reader has seen, by id, so it shows
+   * once per intro rather than once per device.
+   */
+  introSeen?: string;
   [field: string]: unknown;
 };
+
+/**
+ * The one-time intro to widgets in the feed, for readers who met the earlier
+ * rails and the ones who did not. A new id shows a new intro to everyone.
+ */
+export const FEED_WIDGETS_INTRO_ID = 'take-two';
 
 export const FEED_WIDGET_RAIL_VERSION = 1;
