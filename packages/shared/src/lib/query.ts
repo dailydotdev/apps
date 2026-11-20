@@ -175,7 +175,6 @@ export enum RequestKey {
   PublicSquadRequests = 'public_squad_requests',
   Feeds = 'feeds',
   DirectMessages = 'direct_messages',
-  ChatRooms = 'chat_rooms',
   Lfg = 'lfg',
   DirectMessagePeer = 'direct_message_peer',
   DirectMessagePostPreview = 'direct_message_post_preview',
