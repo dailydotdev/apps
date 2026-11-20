@@ -46,6 +46,7 @@ export interface UserQuest {
   quest: QuestDefinition;
   rewards: QuestReward[];
   rewardMultipliers?: Record<QuestRewardType, number>;
+  refreshCost?: number | null;
 }
 
 // A claim is only reliably detected by checking both: the API stamps
@@ -113,6 +114,10 @@ export interface ClaimQuestRewardData {
   >;
 }
 
+export interface RefreshQuestData {
+  refreshQuest: ClaimQuestRewardData['claimQuestReward'];
+}
+
 export interface QuestUpdate {
   updatedAt: Date;
 }
@@ -154,6 +159,7 @@ export const QUEST_DASHBOARD_QUERY = gql`
             reputation
             cores
           }
+          refreshCost
           quest {
             id
             name
@@ -181,6 +187,7 @@ export const QUEST_DASHBOARD_QUERY = gql`
             reputation
             cores
           }
+          refreshCost
           quest {
             id
             name
@@ -210,6 +217,7 @@ export const QUEST_DASHBOARD_QUERY = gql`
             reputation
             cores
           }
+          refreshCost
           quest {
             id
             name
@@ -237,6 +245,7 @@ export const QUEST_DASHBOARD_QUERY = gql`
             reputation
             cores
           }
+          refreshCost
           quest {
             id
             name
@@ -299,9 +308,7 @@ export const QUEST_DASHBOARD_QUERY = gql`
   }
 `;
 
-export const CLAIM_QUEST_REWARD_MUTATION = gql`
-  mutation ClaimQuestReward($userQuestId: ID!) {
-    claimQuestReward(userQuestId: $userQuestId) {
+const QUEST_ACTION_PAYLOAD_FIELDS = `
       level {
         level
         totalXp
@@ -323,6 +330,7 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
             reputation
             cores
           }
+          refreshCost
           quest {
             id
             name
@@ -350,6 +358,7 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
             reputation
             cores
           }
+          refreshCost
           quest {
             id
             name
@@ -379,6 +388,7 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
             reputation
             cores
           }
+          refreshCost
           quest {
             id
             name
@@ -406,6 +416,7 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
             reputation
             cores
           }
+          refreshCost
           quest {
             id
             name
@@ -464,6 +475,20 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
           amount
         }
       }
+`;
+
+export const CLAIM_QUEST_REWARD_MUTATION = gql`
+  mutation ClaimQuestReward($userQuestId: ID!) {
+    claimQuestReward(userQuestId: $userQuestId) {
+${QUEST_ACTION_PAYLOAD_FIELDS}
+    }
+  }
+`;
+
+export const REFRESH_QUEST_MUTATION = gql`
+  mutation RefreshQuest($userQuestId: ID!) {
+    refreshQuest(userQuestId: $userQuestId) {
+${QUEST_ACTION_PAYLOAD_FIELDS}
     }
   }
 `;

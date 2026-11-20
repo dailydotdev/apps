@@ -145,6 +145,7 @@ export enum Origin {
   // End Credits
   ProfileMenu = 'profile menu',
   StreakRecover = 'streak recover',
+  QuestRefresh = 'quest refresh',
   StreakFreeze = 'streak freeze',
   BriefModal = 'brief modal',
   BriefPage = 'brief page',
@@ -645,6 +646,10 @@ export enum LogEvent {
   // Quests
   QuestClaimable = 'quest claimable',
   ClaimQuest = 'claim quest',
+  OpenQuestRefresh = 'open quest refresh',
+  CancelQuestRefresh = 'cancel quest refresh',
+  RefreshQuest = 'refresh quest',
+  RefreshQuestError = 'refresh quest error',
   Dismiss = 'dismiss',
   // Reader modal
   ImpressionReaderModal = 'impression reader modal',
