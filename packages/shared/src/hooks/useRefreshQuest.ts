@@ -120,6 +120,7 @@ export const useRefreshQuest = ({ targetId }: { targetId: TargetId }) => {
       logRefreshEvent(LogEvent.RefreshQuestError, quest, {
         error: error.response?.errors?.[0]?.message,
       });
+      await queryClient.invalidateQueries({ queryKey: questDashboardKey });
       await onTransactionError(error);
     },
   });

@@ -254,6 +254,7 @@ export const CompactQuestRow = ({
 // as separate sections. Replaces the full QuestButton dashboard.
 interface CompactQuestListProps {
   period: 'daily' | 'weekly';
+  targetId?: TargetId;
 }
 
 const emptyCopyByPeriod: Record<CompactQuestListProps['period'], string> = {
@@ -263,6 +264,7 @@ const emptyCopyByPeriod: Record<CompactQuestListProps['period'], string> = {
 
 export const CompactQuestList = ({
   period,
+  targetId = TargetId.QuestSidebar,
 }: CompactQuestListProps): ReactElement | null => {
   const { data } = useQuestDashboard();
   const {
@@ -272,9 +274,7 @@ export const CompactQuestList = ({
   } = useClaimQuestReward();
   const claimingId = isClaiming ? variables?.userQuestId : undefined;
   const { logSubscriptionEvent } = usePlusSubscription();
-  const openQuestRefresh = useOpenQuestRefresh({
-    targetId: TargetId.QuestSidebar,
-  });
+  const openQuestRefresh = useOpenQuestRefresh({ targetId });
 
   const quests = useMemo(() => {
     if (!data) {
@@ -309,7 +309,7 @@ export const CompactQuestList = ({
   const onUnlock = () =>
     logSubscriptionEvent({
       event_name: LogEvent.UpgradeSubscription,
-      target_id: TargetId.QuestSidebar,
+      target_id: targetId,
     });
 
   return (

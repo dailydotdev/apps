@@ -918,6 +918,7 @@ export enum TargetId {
   Popover = 'popover',
   QuestDropdown = 'quest dropdown',
   QuestSidebar = 'quest sidebar',
+  QuestStreakWidget = 'quest streak widget',
   Navigation = 'navigation',
   DigestUpsell = 'digest upsell',
   DigestUpsellBookmarks = 'digest upsell bookmarks',

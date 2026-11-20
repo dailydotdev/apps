@@ -322,25 +322,39 @@ export const QuestCard = ({
           />
         </div>
 
-        {(visibleRewards.length > 0 || canClaim) && (
+        {(visibleRewards.length > 0 || canClaim || canRefresh) && (
           <div className={disabledContentClass}>
-            {visibleRewards.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {visibleRewards.map((reward, index) => {
-                  const rewardKey = `${reward.type}-${index.toString()}`;
+            {(visibleRewards.length > 0 || canRefresh) && (
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex flex-wrap gap-1">
+                  {visibleRewards.map((reward, index) => {
+                    const rewardKey = `${reward.type}-${index.toString()}`;
 
-                  return (
-                    <QuestRewardChip
-                      key={`${quest.rotationId}-${
-                        reward.type
-                      }-${index.toString()}`}
-                      reward={reward}
-                      rewardRef={(element) => {
-                        rewardRefs.current[rewardKey] = element;
-                      }}
-                    />
-                  );
-                })}
+                    return (
+                      <QuestRewardChip
+                        key={`${quest.rotationId}-${
+                          reward.type
+                        }-${index.toString()}`}
+                        reward={reward}
+                        rewardRef={(element) => {
+                          rewardRefs.current[rewardKey] = element;
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+                {canRefresh && (
+                  <Button
+                    type="button"
+                    variant={ButtonVariant.Tertiary}
+                    size={ButtonSize.XSmall}
+                    icon={<RefreshIcon />}
+                    className="shrink-0"
+                    onClick={() => onRefresh?.(quest)}
+                  >
+                    Swap
+                  </Button>
+                )}
               </div>
             )}
 
@@ -392,19 +406,6 @@ export const QuestCard = ({
               </Button>
             )}
           </div>
-        )}
-
-        {canRefresh && (
-          <Button
-            type="button"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.XSmall}
-            icon={<RefreshIcon />}
-            className="w-fit"
-            onClick={() => onRefresh?.(quest)}
-          >
-            Swap
-          </Button>
         )}
       </div>
 
