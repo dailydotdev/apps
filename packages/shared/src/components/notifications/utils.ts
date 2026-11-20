@@ -590,16 +590,6 @@ export const DIRECT_MESSAGE_NOTIFICATIONS: NotificationItem[] = [
   },
 ];
 
-export const LIVE_CHAT_NOTIFICATIONS: NotificationItem[] = [
-  {
-    id: NotificationType.LiveChatOpened,
-    label: 'A live chat opens',
-    description:
-      'A push when the daily.dev team opens a live chat on a post. Each one is on for a few hours, then gone.',
-    group: false,
-  },
-];
-
 export const LFG_NOTIFICATIONS: NotificationItem[] = [
   {
     id: NotificationType.LfgReachOutReceived,

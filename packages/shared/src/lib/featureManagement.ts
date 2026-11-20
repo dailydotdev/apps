@@ -340,8 +340,6 @@ export const featurePostCommentsTeaserDesktop = new Feature(
   false,
 );
 
-export const featureLiveChat = new Feature('live_chat', false);
-
 // Who can use Looking for group at all: the board, posts, reach-outs and the
 // badge on avatars. It rides on direct messages, since an accepted reach-out
 // becomes a chat. Keep the default `false`, GrowthBook ramps it.

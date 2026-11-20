@@ -9,7 +9,6 @@ import { ButtonSize } from '../../buttons/common';
 import { CopyHighlightsLink } from '../../highlights/CopyHighlightsLink';
 import { Origin } from '../../../lib/log';
 import { HighlightCardOptions } from './HighlightCardOptions';
-import { LiveChatHighlightCardRow } from '../../../features/liveChat/components/LiveChatHighlightCardRow';
 
 export interface HighlightCardProps {
   highlights: PostHighlight[];
@@ -186,7 +185,6 @@ export const HighlightCardContent = ({
         <HighlightCardOptions />
       </header>
       <div className={contentClassName}>
-        <LiveChatHighlightCardRow compact={compact} />
         {highlights.map((highlight, index) => (
           <HighlightRow
             key={highlight.id}

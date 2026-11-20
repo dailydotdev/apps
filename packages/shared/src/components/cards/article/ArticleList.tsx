@@ -123,7 +123,7 @@ export const ArticleList = forwardRef(function ArticleList(
           className,
         }}
         ref={ref}
-        flagProps={{ pinnedAt, trending, postId: post.id, type }}
+        flagProps={{ pinnedAt, trending, type }}
         bookmarked={post.bookmarked}
         bookmarkNote={post.bookmark?.note}
       >
@@ -140,7 +140,7 @@ export const ArticleList = forwardRef(function ArticleList(
         className,
       }}
       ref={ref}
-      flagProps={{ pinnedAt, trending, postId: post.id, type }}
+      flagProps={{ pinnedAt, trending, type }}
       linkProps={
         !isFeedPreview
           ? {

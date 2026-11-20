@@ -92,14 +92,6 @@ const GettingStartedWidget = dynamic(
   { loading: FeedWidgetLoading },
 );
 
-const LiveChatWidget = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "feedWidgetLiveChat" */ './widgets/LiveChatWidget'
-    ).then((mod) => mod.LiveChatWidget),
-  { loading: FeedWidgetLoading },
-);
-
 const TodoListWidget = dynamic(
   () =>
     import(
@@ -126,7 +118,6 @@ export const feedWidgetComponents: {
   messages: MessagesWidget,
   shortcuts: ShortcutsWidget,
   gettingStarted: GettingStartedWidget,
-  liveChat: LiveChatWidget,
   todoList: TodoListWidget,
 };
 

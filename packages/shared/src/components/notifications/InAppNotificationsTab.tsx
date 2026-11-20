@@ -37,7 +37,6 @@ import PresidentialBriefingNotification from './PresidentialBriefingNotification
 import { useLogContext } from '../../contexts/LogContext';
 import SquadModNotifications from './SquadModNotifications';
 import { DirectMessageNotificationSettings } from './DirectMessageNotificationSettings';
-import { LiveChatNotificationSettings } from './LiveChatNotificationSettings';
 import { LfgNotificationSettings } from './LfgNotificationSettings';
 import NotificationCheckbox from './NotificationCheckbox';
 import NotificationSwitch from './NotificationSwitch';
@@ -323,7 +322,6 @@ const InAppNotificationsTab = (): ReactElement => {
         </NotificationContainer>
       </NotificationSection>
       <DirectMessageNotificationSettings />
-      <LiveChatNotificationSettings />
       <LfgNotificationSettings channel="inApp" />
       <HorizontalSeparator className="mx-4" />
       <SquadModNotifications />

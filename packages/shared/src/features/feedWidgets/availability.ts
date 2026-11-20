@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useMessagesEnabled } from '../messages/hooks/useMessagesEnabled';
-import { useLiveChatEnabled } from '../liveChat/hooks/useLiveChatEnabled';
 import type { FeedWidgetAvailability } from './registry';
 import { availableFeedWidgets } from './components';
 import type { FeedWidget } from './types';
@@ -13,7 +12,6 @@ export const useFeedWidgetAvailability = (): FeedWidgetAvailability => {
   const { loadedSettings, optOutReadingStreak, optOutQuestSystem } =
     useSettingsContext();
   const { isEnabled: hasMessages } = useMessagesEnabled();
-  const { isEnabled: hasLiveChat } = useLiveChatEnabled();
   const isLoggedIn = !!user;
   const hasSquads = !!squads?.length;
   const isReadingStreakOn = !(loadedSettings && optOutReadingStreak);
@@ -26,16 +24,8 @@ export const useFeedWidgetAvailability = (): FeedWidgetAvailability => {
       isReadingStreakOn,
       isQuestSystemOn,
       hasMessages,
-      hasLiveChat,
     }),
-    [
-      isLoggedIn,
-      hasSquads,
-      isReadingStreakOn,
-      isQuestSystemOn,
-      hasMessages,
-      hasLiveChat,
-    ],
+    [isLoggedIn, hasSquads, isReadingStreakOn, isQuestSystemOn, hasMessages],
   );
 };
 

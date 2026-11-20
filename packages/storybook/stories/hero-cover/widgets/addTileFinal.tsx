@@ -71,7 +71,6 @@ export const getAddTileKinds = ({
     isQuestSystemOn: true,
     hasSquads: false,
     hasMessages: false,
-    hasLiveChat: false,
   };
   const addable = new Set(
     availableFeedWidgets(availability)
