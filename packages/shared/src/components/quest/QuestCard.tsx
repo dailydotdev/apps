@@ -3,7 +3,13 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useId, useRef } from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ProgressBar } from '../fields/ProgressBar';
-import { ArrowIcon, CoreIcon, LockIcon, ReputationIcon } from '../icons';
+import {
+  ArrowIcon,
+  CoreIcon,
+  LockIcon,
+  RefreshIcon,
+  ReputationIcon,
+} from '../icons';
 import { Tooltip } from '../tooltip/Tooltip';
 import type { QuestReward, QuestType, UserQuest } from '../../graphql/quests';
 import {
@@ -181,6 +187,7 @@ export type QuestCardProps = {
   hint?: ReactNode;
   statusLabel?: string;
   showLockIcon?: boolean;
+  onRefresh?: (quest: UserQuest) => void;
 };
 
 export const QuestCard = ({
@@ -198,6 +205,7 @@ export const QuestCard = ({
   hint,
   statusLabel,
   showLockIcon = true,
+  onRefresh,
 }: QuestCardProps): ReactElement => {
   const { value, percentage, target } = getProgress(
     quest.progress,
@@ -225,6 +233,8 @@ export const QuestCard = ({
     Boolean(onDestinationClick) &&
     !quest.claimable &&
     !isVisuallyDisabled;
+  const canRefresh =
+    typeof quest.refreshCost === 'number' && !!onRefresh && !isVisuallyDisabled;
   const disabledContentClass = classNames(
     'flex flex-col gap-2 transition-[opacity,filter] duration-200',
     isVisuallyDisabled && 'opacity-50 grayscale',
@@ -312,25 +322,39 @@ export const QuestCard = ({
           />
         </div>
 
-        {(visibleRewards.length > 0 || canClaim) && (
+        {(visibleRewards.length > 0 || canClaim || canRefresh) && (
           <div className={disabledContentClass}>
-            {visibleRewards.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {visibleRewards.map((reward, index) => {
-                  const rewardKey = `${reward.type}-${index.toString()}`;
+            {(visibleRewards.length > 0 || canRefresh) && (
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex flex-wrap gap-1">
+                  {visibleRewards.map((reward, index) => {
+                    const rewardKey = `${reward.type}-${index.toString()}`;
 
-                  return (
-                    <QuestRewardChip
-                      key={`${quest.rotationId}-${
-                        reward.type
-                      }-${index.toString()}`}
-                      reward={reward}
-                      rewardRef={(element) => {
-                        rewardRefs.current[rewardKey] = element;
-                      }}
-                    />
-                  );
-                })}
+                    return (
+                      <QuestRewardChip
+                        key={`${quest.rotationId}-${
+                          reward.type
+                        }-${index.toString()}`}
+                        reward={reward}
+                        rewardRef={(element) => {
+                          rewardRefs.current[rewardKey] = element;
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+                {canRefresh && (
+                  <Button
+                    type="button"
+                    variant={ButtonVariant.Tertiary}
+                    size={ButtonSize.XSmall}
+                    icon={<RefreshIcon />}
+                    className="shrink-0"
+                    onClick={() => onRefresh?.(quest)}
+                  >
+                    Swap
+                  </Button>
+                )}
               </div>
             )}
 
