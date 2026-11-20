@@ -1,0 +1,64 @@
+import {
+  addPatchyActivity,
+  createPatchyDay,
+  parsePatchyDay,
+  readPatchyDay,
+  recordPatchyActivity,
+} from './patchyDay';
+
+const morning = new Date(2026, 10, 18, 9, 0);
+const evening = new Date(2026, 10, 18, 21, 0);
+const tomorrow = new Date(2026, 10, 19, 8, 0);
+
+describe('patchy day', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('counts what happened today', () => {
+    let day = createPatchyDay(morning);
+    day = addPatchyActivity(day, 'read', morning);
+    day = addPatchyActivity(day, 'upvote', morning);
+    day = addPatchyActivity(day, 'upvote', evening);
+    day = addPatchyActivity(day, 'bookmark', evening);
+    day = addPatchyActivity(day, 'streak_day', evening);
+
+    expect(day).toMatchObject({ reads: 1, upvotes: 2, bookmarks: 1 });
+  });
+
+  it('starts a fresh day when the date changes', () => {
+    const today = addPatchyActivity(
+      createPatchyDay(morning),
+      'upvote',
+      morning,
+    );
+    const next = addPatchyActivity(today, 'read', tomorrow);
+    expect(next).toMatchObject({ reads: 1, upvotes: 0 });
+    expect(parsePatchyDay(JSON.stringify(today), tomorrow)).toEqual(
+      createPatchyDay(tomorrow),
+    );
+  });
+
+  it('survives broken storage', () => {
+    expect(parsePatchyDay('{nope', morning)).toEqual(createPatchyDay(morning));
+    expect(
+      parsePatchyDay(
+        JSON.stringify({
+          day: createPatchyDay(morning).day,
+          reads: -1,
+          upvotes: 'two',
+        }),
+        morning,
+      ),
+    ).toMatchObject({ reads: 0, upvotes: 0 });
+  });
+
+  it('stores per user', () => {
+    recordPatchyActivity('u1', 'upvote', morning);
+    recordPatchyActivity('u1', 'upvote', morning);
+    recordPatchyActivity('u2', 'bookmark', morning);
+    expect(readPatchyDay('u1', morning).upvotes).toBe(2);
+    expect(readPatchyDay('u2', morning)).toMatchObject({
+      upvotes: 0,
+      bookmarks: 1,
+    });
+  });
+});

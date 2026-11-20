@@ -1,6 +1,7 @@
 import type { PurchaseType } from '../graphql/paddle';
 
 export enum Origin {
+  Patchy = 'patchy',
   ShareBar = 'share bar',
   DiscussionPanel = 'discussion panel',
   ReadingHistoryContextMenu = 'reading history context menu',
@@ -777,6 +778,11 @@ export enum TargetType {
   StreakRecover = 'streak restore',
   StreakFreezePurchase = 'streak freeze purchase',
   StreakDailyCelebration = 'streak daily celebration',
+  Patchy = 'patchy',
+  PatchyReactions = 'patchy reactions',
+  PatchyOffer = 'patchy offer',
+  PatchyMenu = 'patchy menu',
+  PatchySuggestions = 'patchy suggestions',
   StreakFreeFreezesGrant = 'streak free freezes grant',
   StreakFreeFreezesUpsell = 'streak free freezes upsell',
   StreakGoal = 'streak goal',

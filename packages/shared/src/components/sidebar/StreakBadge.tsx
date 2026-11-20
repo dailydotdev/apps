@@ -81,6 +81,81 @@ const GOAL_ARC_STATES = new Set<StreakRingState>([
   'freeze',
 ]);
 
+interface StreakGoalArcProps {
+  state: StreakRingState;
+  progress?: number;
+  selected?: boolean;
+  // The ring it traces, in a viewBox of `size` units: defaults to the badge's.
+  size?: number;
+  radius?: number;
+  strokeWidth?: number;
+  className?: string;
+}
+
+// The streak goal's progress drawn over a rail ring; shared by the badge and
+// Patchy's face so both show it the same way.
+export const StreakGoalArc = ({
+  state,
+  progress,
+  selected = false,
+  size = GOAL_ARC_CENTER * 2,
+  radius = GOAL_ARC_RADIUS,
+  strokeWidth = GOAL_ARC_STROKE,
+  className,
+}: StreakGoalArcProps): ReactElement | null => {
+  if (
+    progress === undefined ||
+    progress <= 0 ||
+    progress >= 1 ||
+    !GOAL_ARC_STATES.has(state)
+  ) {
+    return null;
+  }
+  const getColor = (): string => {
+    // The ring is pink when read today (tile filled pink too) or when the tab
+    // is selected, so the arc takes the primary text colour (white in dark
+    // mode, near-black in light) to stay visible. A white arc vanished against
+    // the light page and read as a bite out of the tile. On read-today hover
+    // the ring itself turns text-primary, so the arc flips back to pink.
+    if (state === 'safe') {
+      return 'text-text-primary group-hover/streaktab:text-accent-bacon-default';
+    }
+    if (selected) {
+      return 'text-text-primary';
+    }
+    return 'text-accent-bacon-default';
+  };
+  const center = size / 2;
+  const circumference = 2 * Math.PI * radius;
+  return (
+    <svg
+      aria-hidden
+      data-testid="streak-goal-arc"
+      viewBox={`0 0 ${size} ${size}`}
+      fill="none"
+      className={classNames(
+        'absolute transition-colors motion-reduce:transition-none',
+        className ?? 'inset-0 size-full',
+        getColor(),
+      )}
+    >
+      <circle
+        cx={center}
+        cy={center}
+        r={radius}
+        stroke="currentColor"
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+        strokeDasharray={circumference}
+        strokeDashoffset={circumference * (1 - progress)}
+        // SVG circles start at 3 o'clock; turn back a quarter so the arc
+        // grows clockwise from the top.
+        transform={`rotate(-90 ${center} ${center})`}
+      />
+    </svg>
+  );
+};
+
 interface StreakBadgeProps {
   state: StreakRingState;
   hasReadToday: boolean;
@@ -103,25 +178,6 @@ export const StreakBadge = ({
   goalProgress,
   className,
 }: StreakBadgeProps): ReactElement => {
-  const showGoalArc =
-    goalProgress !== undefined &&
-    goalProgress > 0 &&
-    goalProgress < 1 &&
-    GOAL_ARC_STATES.has(state);
-  const goalArcColor = (): string => {
-    // The ring is pink when read today (tile filled pink too) or when the tab
-    // is selected, so the arc takes the primary text colour (white in dark
-    // mode, near-black in light) to stay visible. A white arc vanished against
-    // the light page and read as a bite out of the tile. On read-today hover
-    // the ring itself turns text-primary, so the arc flips back to pink.
-    if (state === 'safe') {
-      return 'text-text-primary group-hover/streaktab:text-accent-bacon-default';
-    }
-    if (selected) {
-      return 'text-text-primary';
-    }
-    return 'text-accent-bacon-default';
-  };
   // "Not read yet": the calm states with no fill of their own.
   const isUnreadCalm = state === 'none' || state === 'pending';
   const calmBorder = (): string => {
@@ -181,32 +237,11 @@ export const StreakBadge = ({
           frameClass,
         )}
       />
-      {showGoalArc && (
-        <svg
-          aria-hidden
-          data-testid="streak-goal-arc"
-          viewBox="0 0 24 24"
-          fill="none"
-          className={classNames(
-            'absolute inset-0 size-full transition-colors motion-reduce:transition-none',
-            goalArcColor(),
-          )}
-        >
-          <circle
-            cx={GOAL_ARC_CENTER}
-            cy={GOAL_ARC_CENTER}
-            r={GOAL_ARC_RADIUS}
-            stroke="currentColor"
-            strokeWidth={GOAL_ARC_STROKE}
-            strokeLinecap="round"
-            strokeDasharray={GOAL_ARC_CIRCUMFERENCE}
-            strokeDashoffset={GOAL_ARC_CIRCUMFERENCE * (1 - goalProgress)}
-            // SVG circles start at 3 o'clock; turn back a quarter so the arc
-            // grows clockwise from the top.
-            transform={`rotate(-90 ${GOAL_ARC_CENTER} ${GOAL_ARC_CENTER})`}
-          />
-        </svg>
-      )}
+      <StreakGoalArc
+        state={state}
+        progress={goalProgress}
+        selected={selected}
+      />
       <HotIcon
         secondary={hasReadToday || state === 'freeze'}
         size={IconSize.XSmall}
