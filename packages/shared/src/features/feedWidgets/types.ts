@@ -14,7 +14,6 @@ export enum FeedWidgetKind {
   Weather = 'weather',
   TodoList = 'todoList',
   GettingStarted = 'gettingStarted',
-  LiveChat = 'liveChat',
 }
 
 /**

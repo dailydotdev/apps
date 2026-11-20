@@ -122,6 +122,11 @@ export const featureGtaViFreezeDay = new Feature('gta_vi_freeze_day', false);
 
 export const featureGtaViTheme = new Feature('gta_vi_theme', false);
 
+// Patchy, the streak companion: his face in the rail Streak tab reacts to what
+// you do, he offers small suggestions in a bubble, and his menu sits in the
+// Streak panel (laptop rail only)
+export const featurePatchyCompanion = new Feature('patchy_companion', false);
+
 export const briefCardFeedFeature = new Feature(
   'brief_card_feed',
   isDevelopment,
@@ -341,16 +346,12 @@ export const featurePostCommentsTeaserDesktop = new Feature(
   false,
 );
 
-// Gates every agent surface; control hides all of them. Keep the default
-// `false`, GrowthBook ramps it.
-export const featureInterestAgent = new Feature('interest_agent', false);
-
-export const featureLiveChat = new Feature('live_chat', false);
-
 // Who can use Looking for group at all: the board, posts, reach-outs and the
 // badge on avatars. It rides on direct messages, since an accepted reach-out
 // becomes a chat. Keep the default `false`, GrowthBook ramps it.
 export const featureLfg = new Feature('lfg', false);
+
+export type PlusSaleTheme = 'summer' | 'blackFriday';
 
 export type PlusSaleConfig = {
   /** Paddle discount id (`dsc_...`). Empty means no sale is running. */
@@ -362,6 +363,8 @@ export type PlusSaleConfig = {
   description: string;
   /** ISO date. The sale expires here even if the flag is left on. */
   endDate: string;
+  /** Look of the /plus banner and price label; summer when unset. */
+  theme?: PlusSaleTheme;
 };
 
 // The advertised discount, code and expiry travel with the id they describe, so

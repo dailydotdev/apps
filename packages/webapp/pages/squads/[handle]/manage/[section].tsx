@@ -7,6 +7,7 @@ import type { SquadManageSection } from '@dailydotdev/shared/src/features/squads
 import { isSquadManageSection } from '@dailydotdev/shared/src/features/squads/lib/routes';
 import type { SquadRouteProps } from '../../../../components/squads/SquadRoute';
 import {
+  getSquadManageSeo,
   getSquadRouteLayout,
   SquadRoute,
 } from '../../../../components/squads/SquadRoute';
@@ -43,7 +44,13 @@ export const getServerSideProps: GetServerSideProps<
     return { notFound: true };
   }
 
-  return { props: { handle: params.handle, section: params.section } };
+  return {
+    props: {
+      handle: params.handle,
+      section: params.section,
+      seo: await getSquadManageSeo(params.handle),
+    },
+  };
 };
 
 export default SquadManageSectionPage;

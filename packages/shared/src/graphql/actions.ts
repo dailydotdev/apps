@@ -72,8 +72,6 @@ export enum ActionType {
   ClickedNewStripCta = 'click_new_strip_cta',
   ClosedShortcutsBanner = 'closed_shortcuts_banner',
   SidebarTourSeen = 'sidebar_tour_seen',
-  InterestAgentIntroSeen = 'interest_agent_intro_seen',
-  InterestAgentSidebarClick = 'interest_agent_sidebar_click',
   MarketplaceSidebarClick = 'marketplace_sidebar_click',
   DismissPluginShareTooltip = 'dismiss_plugin_share_tooltip',
   ReferralLadderGiftShake = 'referral_ladder_gift_shake',
@@ -82,6 +80,13 @@ export enum ActionType {
   DismissLfgMessagesPromo = 'dismiss_lfg_messages_promo',
   // Hides every daily.dev for Startups promotion, the squad page one included
   DismissStartupsPromo = 'dismiss_startups_promo',
+  // Closed the company page checklist: it stays away on every page
+  DismissCompanyPageChecklist = 'dismiss_company_page_checklist',
+  // Copied a skill's prompt from the company page checklist
+  TriedSkillStrategy = 'tried_skill_strategy',
+  TriedSkillIdeas = 'tried_skill_ideas',
+  TriedSkillReview = 'tried_skill_review',
+  TriedSkillRoutine = 'tried_skill_routine',
   FirstCores = 'first_cores',
   GtaViVisit = 'gta_vi_visit',
   GtaViRead = 'gta_vi_read',

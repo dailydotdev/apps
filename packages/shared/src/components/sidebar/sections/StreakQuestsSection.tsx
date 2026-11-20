@@ -31,6 +31,8 @@ import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { DEFAULT_TIMEZONE } from '../../../lib/timezones';
 import { Origin } from '../../../lib/log';
+import { PatchyPanelHeader } from '../../../features/patchy/PatchyPanelHeader';
+import type { PatchyMood } from '../../../features/patchy/patchyConfig';
 
 const QuestsGroup = ({
   title,
@@ -86,11 +88,14 @@ const QuestsGroup = ({
 interface StreakQuestsSectionProps {
   softBreakSurface?: StreakSoftBreakSurface;
   onClose?: () => void;
+  // Set by the laptop rail when Patchy is on; the phone drawer leaves it out.
+  patchyMood?: PatchyMood;
 }
 
 export const StreakQuestsSection = ({
   softBreakSurface = StreakSoftBreakSurface.Sidebar,
   onClose,
+  patchyMood,
 }: StreakQuestsSectionProps = {}): ReactElement => {
   const { user } = useAuthContext();
   const { optOutQuestSystem } = useSettingsContext();
@@ -118,6 +123,9 @@ export const StreakQuestsSection = ({
     // the panel, scrolling inside its own area (the Nav is stretched to the
     // scroll wrapper for this panel — see SidebarDesktopV2 `isStreakPanel`).
     <div className="flex h-full min-h-0 flex-col">
+      {patchyMood && (
+        <PatchyPanelHeader mood={patchyMood} onNavigate={onClose} />
+      )}
       {/* Reading streak — the hero. */}
       {heroShown && (
         <>

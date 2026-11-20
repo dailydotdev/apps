@@ -1,15 +1,10 @@
 import type { FormEvent, ReactElement } from 'react';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../../../components/buttons/Button';
+import { Button, ButtonVariant } from '../../../../components/buttons/Button';
 import { TextField } from '../../../../components/fields/TextField';
 import Textarea from '../../../../components/fields/Textarea';
 import { AtIcon, SquadIcon } from '../../../../components/icons';
-import { useCopyLink } from '../../../../hooks/useCopy';
 import OrDivider from '../../../../components/auth/OrDivider';
 import { Dropdown } from '../../../../components/fields/Dropdown';
 import {
@@ -35,8 +30,7 @@ import { isSquadPlan, SquadPlan } from '../../lib/plans';
 import { companyPagePrompt } from '../../lib/companyPage';
 import { trackStartupsSignup } from '../../lib/startupsAdEvents';
 import { getFirstQueryParam } from '../../../../lib/func';
-import { agentMarks } from '../checkout/agentMarks';
-import { AgentMark } from '../checkout/AgentMark';
+import { AgentPromptButton } from '../AgentPromptButton';
 import {
   CheckoutCta,
   CheckoutShell,
@@ -59,51 +53,18 @@ const CompanyPageSignUp = (): ReactElement => (
   />
 );
 
-const shownAgents = [
-  agentMarks['claude-code'],
-  agentMarks.codex,
-  agentMarks.cursor,
-];
-
 /** Copies the setup prompt; the founder pastes it into their agent. */
 const AgentSetupButton = (): ReactElement => {
   const { logEvent } = useLogContext();
-  const [isCopying, copy] = useCopyLink(() => companyPagePrompt);
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <Button
-        type="button"
-        variant={ButtonVariant.Primary}
-        size={ButtonSize.Large}
-        className="w-full"
-        onClick={() => {
-          copy();
-          logEvent({ event_name: LogEvent.CopyCompanyPagePrompt });
-        }}
-      >
-        <span className="mr-2 flex -space-x-1.5" aria-hidden>
-          {shownAgents.map((mark) => (
-            <AgentMark
-              key={mark.name}
-              mark={mark}
-              className="size-6 rounded-8 ring-2 ring-background-default"
-              glyphClassName="size-4"
-            />
-          ))}
-        </span>
-        {isCopying ? 'Prompt copied' : 'Continue with your agent'}
-      </Button>
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Tertiary}
-        className="text-center"
-      >
-        {isCopying
-          ? 'Paste it into your agent to set up the page.'
-          : 'Copies a prompt for Claude Code, Codex, Cursor or any agent.'}
-      </Typography>
-    </div>
+    <AgentPromptButton
+      getPrompt={() => companyPagePrompt}
+      label="Continue with your agent"
+      hint="Copies a prompt for Claude Code, Codex, Cursor or any agent."
+      copiedHint="Paste it into your agent to set up the page."
+      onCopy={() => logEvent({ event_name: LogEvent.CopyCompanyPagePrompt })}
+    />
   );
 };
 

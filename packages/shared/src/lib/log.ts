@@ -1,6 +1,7 @@
 import type { PurchaseType } from '../graphql/paddle';
 
 export enum Origin {
+  Patchy = 'patchy',
   ShareBar = 'share bar',
   DiscussionPanel = 'discussion panel',
   ReadingHistoryContextMenu = 'reading history context menu',
@@ -45,7 +46,6 @@ export enum Origin {
   Auto = 'auto',
   Sidebar = 'sidebar',
   Share = 'share',
-  Agent = 'agent',
   Notification = 'notification',
   NotificationsPage = 'notifications page',
   Boot = 'boot',
@@ -97,11 +97,6 @@ export enum Origin {
   HappeningNowHighlight = 'happening now highlight',
   HappeningNowSelection = 'happening now selection',
   HighlightsCard = 'highlights card',
-  LiveChatPage = 'live chat page',
-  NewLiveChat = 'new live chat',
-  // Landed from the go-live push, or from a link pasted somewhere.
-  Push = 'push',
-  DirectLink = 'direct link',
   SnapshotSharePanel = 'snapshot share panel',
   // snapshot placements - end
   // profile share placements - start
@@ -689,17 +684,6 @@ export enum LogEvent {
   SendDirectMessageRequest = 'send direct message request',
   AcceptDirectMessageRequest = 'accept direct message request',
   DeclineDirectMessageRequest = 'decline direct message request',
-  // Live chat rooms
-  OpenLiveChat = 'open live chat',
-  StartLiveChat = 'start live chat',
-  // Seated in the room, reading along, before (or without) joining.
-  ReadLiveChat = 'read live chat',
-  JoinLiveChat = 'join live chat',
-  EndLiveChat = 'end live chat',
-  BanLiveChatUser = 'ban live chat user',
-  LeaveLiveChat = 'leave live chat',
-  SendLiveChatMessage = 'send live chat message',
-  ReactLiveChatMessage = 'react live chat message',
   // Agent onboarding
   ViewAgentClaim = 'view agent claim',
   ConfirmAgentClaim = 'confirm agent claim',
@@ -787,7 +771,6 @@ export enum TargetType {
   LeaderboardUser = 'leaderboard user',
   Shortcuts = 'shortcuts',
   FeedWidget = 'feed widget',
-  ChatRoom = 'chat room',
   FeedWidgetTip = 'feed widget tip',
   VerifyEmail = 'verify email',
   ResendVerificationCode = 'resend verification code',
@@ -795,6 +778,11 @@ export enum TargetType {
   StreakRecover = 'streak restore',
   StreakFreezePurchase = 'streak freeze purchase',
   StreakDailyCelebration = 'streak daily celebration',
+  Patchy = 'patchy',
+  PatchyReactions = 'patchy reactions',
+  PatchyOffer = 'patchy offer',
+  PatchyMenu = 'patchy menu',
+  PatchySuggestions = 'patchy suggestions',
   StreakFreeFreezesGrant = 'streak free freezes grant',
   StreakFreeFreezesUpsell = 'streak free freezes upsell',
   StreakGoal = 'streak goal',
