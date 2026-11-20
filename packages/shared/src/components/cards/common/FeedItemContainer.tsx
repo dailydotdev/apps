@@ -2,8 +2,6 @@ import type { HTMLAttributes, ReactElement, ReactNode, Ref } from 'react';
 import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
-import type { PostChatRoom } from '../../../features/liveChat/graphql';
-import { useLiveChatRoomOf } from '../../../features/liveChat/hooks/useLiveChatRooms';
 import { Card } from './Card';
 import {
   RaisedLabel,
@@ -12,48 +10,26 @@ import {
 } from './RaisedLabel';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
-import {
-  getLiveChatDescription,
-  getTrendingDescription,
-} from './getTrendingDescription';
+import { getTrendingDescription } from './getTrendingDescription';
 import { BookmarkNoteStrip } from '../../bookmark/BookmarkNoteStrip';
 
 export interface FlagProps extends Pick<Post, 'trending' | 'pinnedAt'> {
   listMode?: boolean;
-  // The post, for the live chat label; left out by cards whose post page
-  // has no chat to join.
-  postId?: string;
 }
 
-// A card with a live chat on it stands out from the rest of the feed: the
-// label alone was easy to miss, so the frame itself goes brand and glows.
-export const liveChatCardClassName =
-  'live-chat-card !border-brand-default hover:!border-brand-bolder';
-
 /**
- * Which label a card raises: pinned first, then a live chat on the post (the
- * chat is the story while it is on), then trending.
+ * Which label a card raises: pinned first, then trending.
  */
 export const getRaisedLabel = ({
   pinnedAt,
   trending,
-  chatRoom,
-}: Pick<Post, 'trending' | 'pinnedAt'> & {
-  chatRoom?: PostChatRoom | null;
-}): {
+}: Pick<Post, 'trending' | 'pinnedAt'>): {
   type: RaisedLabelType;
   description?: string;
 } => {
   if (pinnedAt) {
     return { type: RaisedLabelType.Pinned };
   }
-  if (chatRoom) {
-    return {
-      type: RaisedLabelType.Live,
-      description: getLiveChatDescription(chatRoom.occupantCount),
-    };
-  }
-
   return {
     type: RaisedLabelType.Hot,
     description: getTrendingDescription(trending),
@@ -83,18 +59,13 @@ function FeedItemContainer(
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: bookmarked ?? false,
   });
-  const { listMode, pinnedAt, trending, postId } = flagProps;
-  const chatRoom = useLiveChatRoomOf(postId);
-  const { type, description } = getRaisedLabel({
-    pinnedAt,
-    trending,
-    chatRoom,
-  });
+  const { listMode, pinnedAt, trending } = flagProps;
+  const { type, description } = getRaisedLabel({ pinnedAt, trending });
   const isFeedPreview = useFeedPreviewMode();
 
   return (
     <ConditionalWrapper
-      condition={(!!pinnedAt || !!trending || !!chatRoom) && !isFeedPreview}
+      condition={(!!pinnedAt || !!trending) && !isFeedPreview}
       wrapper={(component) => (
         <RaisedLabelContainer>
           {component}
@@ -114,7 +85,6 @@ function FeedItemContainer(
         className={classNames(
           domProps.className,
           !listMode && isFeedPreview && 'hover:border-border-subtlest-tertiary',
-          !!chatRoom && !isFeedPreview && liveChatCardClassName,
           highlightBookmarkedPost &&
             '!border-action-bookmark-active !bg-action-bookmark-float hover:!border-action-bookmark-default',
         )}

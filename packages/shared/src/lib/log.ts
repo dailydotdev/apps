@@ -683,16 +683,6 @@ export enum LogEvent {
   SendDirectMessageRequest = 'send direct message request',
   AcceptDirectMessageRequest = 'accept direct message request',
   DeclineDirectMessageRequest = 'decline direct message request',
-  // Live chat rooms
-  OpenLiveChat = 'open live chat',
-  // Seated in the room, reading along, before (or without) joining.
-  ReadLiveChat = 'read live chat',
-  JoinLiveChat = 'join live chat',
-  EndLiveChat = 'end live chat',
-  BanLiveChatUser = 'ban live chat user',
-  LeaveLiveChat = 'leave live chat',
-  SendLiveChatMessage = 'send live chat message',
-  ReactLiveChatMessage = 'react live chat message',
   // Agent onboarding
   ViewAgentClaim = 'view agent claim',
   ConfirmAgentClaim = 'confirm agent claim',
