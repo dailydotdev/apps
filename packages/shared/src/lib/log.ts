@@ -770,7 +770,6 @@ export enum TargetType {
   LeaderboardUser = 'leaderboard user',
   Shortcuts = 'shortcuts',
   FeedWidget = 'feed widget',
-  ChatRoom = 'chat room',
   FeedWidgetTip = 'feed widget tip',
   VerifyEmail = 'verify email',
   ResendVerificationCode = 'resend verification code',
