@@ -11,7 +11,11 @@ import React, {
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import type { QueryKey } from '@tanstack/react-query';
-import type { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
+import type {
+  FeedItem,
+  PostItem,
+  UseFeedOptionalParams,
+} from '../hooks/useFeed';
 import useFeed, { isBoostedPostAd } from '../hooks/useFeed';
 import type { Ad, Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
@@ -105,7 +109,15 @@ export type FeedGridWidgets = {
    * take one. Ads and placeholders never get it.
    */
   renderSlot?: (index: number) => ReactNode;
+  /**
+   * Out of Customize mode: one card that invites the reader to put a widget
+   * in its place, the first from `from` on whose slot can take one.
+   */
+  promo?: { from: number; render: (index: number) => ReactNode };
 };
+
+const canItemTakeWidget = (item: FeedItem): boolean =>
+  item.type === FeedItemType.Post || item.type === FeedItemType.Highlight;
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -409,6 +421,16 @@ export default function Feed<T>({
     feedName,
   });
   const { isReaderEnabled: isReaderModalOn } = useReaderModalEligibility();
+  const promoFrom = feedWidgets?.promo?.from;
+  const promoIndex = useMemo(
+    () =>
+      promoFrom === undefined
+        ? -1
+        : items.findIndex(
+            (item, index) => index >= promoFrom && canItemTakeWidget(item),
+          ),
+    [items, promoFrom],
+  );
   const readerEligiblePostTypes = useMemo(
     () =>
       new Set<PostType>([
@@ -859,10 +881,7 @@ export default function Feed<T>({
               // Ads keep their cell; a post or a highlight offers its slot.
               // Such a card sits in the same wrapper whether or not the reader
               // is customizing, so toggling Customize never remounts the grid.
-              const canTakeWidget =
-                !!feedWidgets &&
-                (item.type === FeedItemType.Post ||
-                  item.type === FeedItemType.Highlight);
+              const canTakeWidget = !!feedWidgets && canItemTakeWidget(item);
               // A widget is one card wide, and a wide card's width is the
               // layout's call, not the post's: it offers a slot per column it
               // covers. The first takes its place, so it moves along; the
@@ -875,24 +894,29 @@ export default function Feed<T>({
                       ),
                     )
                   : null;
+              const promoNode =
+                !slotNodes && index === promoIndex
+                  ? feedWidgets?.promo?.render(index)
+                  : null;
               const slotNode =
-                slotNodes &&
-                (isWidened ? (
-                  <div
-                    className="absolute inset-0 z-2 grid gap-6"
-                    style={{ gridTemplateColumns: `repeat(${colSpan}, 1fr)` }}
-                  >
-                    {slotNodes.map((node, column) => (
-                      // One per column, in a fixed order.
-                      // eslint-disable-next-line react/no-array-index-key
-                      <div key={column} className="relative">
-                        {node}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  slotNodes[0]
-                ));
+                promoNode ||
+                (slotNodes &&
+                  (isWidened ? (
+                    <div
+                      className="absolute inset-0 z-2 grid gap-6"
+                      style={{ gridTemplateColumns: `repeat(${colSpan}, 1fr)` }}
+                    >
+                      {slotNodes.map((node, column) => (
+                        // One per column, in a fixed order.
+                        // eslint-disable-next-line react/no-array-index-key
+                        <div key={column} className="relative">
+                          {node}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    slotNodes[0]
+                  )));
               const wrapperClassName = classNames(
                 'flex h-full w-full [&>*]:h-full [&>*]:w-full',
                 canTakeWidget && 'relative',

@@ -266,11 +266,14 @@ export const useFeedWidgetsOptOut = (): {
 };
 
 /**
- * The one-time intro to widgets in the feed, pointing at the Widgets button,
- * which only renders where the feed takes widgets. Shown to a signed-in reader
- * who has not placed one yet, until they act on it or close it, on any device.
+ * A one-time invite to widgets in the feed, for a signed-in reader who has not
+ * placed one yet, until they act on it or close it, on any device. `field`
+ * says which: the intro on the Widgets button, or the card in the feed. Each
+ * is seen on its own, and both go once a widget is placed.
  */
-export const useFeedWidgetsIntro = (): {
+export const useFeedWidgetsIntro = (
+  field: 'introSeen' | 'promoSeen' = 'introSeen',
+): {
   isOpen: boolean;
   dismiss: () => Promise<boolean>;
 } => {
@@ -284,11 +287,11 @@ export const useFeedWidgetsIntro = (): {
     isLoggedIn &&
     !!loadedSettings &&
     !hasPlaced &&
-    rail?.introSeen !== FEED_WIDGETS_INTRO_ID;
+    rail?.[field] !== FEED_WIDGETS_INTRO_ID;
 
   const dismiss = useCallback(
-    () => writeRailFields({ introSeen: FEED_WIDGETS_INTRO_ID }),
-    [writeRailFields],
+    () => writeRailFields({ [field]: FEED_WIDGETS_INTRO_ID }),
+    [field, writeRailFields],
   );
 
   return { isOpen, dismiss };

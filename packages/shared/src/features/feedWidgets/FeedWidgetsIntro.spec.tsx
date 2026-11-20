@@ -8,9 +8,11 @@ import { ButtonSize } from '../../components/buttons/common';
 import { LogEvent } from '../../lib/log';
 import type { InFeedWidgetsContextValue } from './InFeedWidgetsContext';
 import {
+  FeedWidgetPromo,
   FeedWidgetsCustomizeButton,
   InFeedWidgetsProvider,
 } from './InFeedWidgetsContext';
+import { useFeedWidgetsIntro } from './feedState';
 import { FEED_WIDGETS_INTRO_ID } from './types';
 
 const setSettings = jest.fn().mockResolvedValue(undefined);
@@ -155,5 +157,80 @@ describe('FeedWidgetsCustomizeButton intro', () => {
 
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
     expect(logEvent).not.toHaveBeenCalled();
+  });
+});
+
+describe('FeedWidgetPromo', () => {
+  const setAddingSlot = jest.fn();
+  const onDismiss = jest.fn();
+
+  const renderPromo = (): void => {
+    const value: InFeedWidgetsContextValue = {
+      isEnabled: true,
+      isEditing: false,
+      setIsEditing,
+      addingSlot: null,
+      setAddingSlot,
+      setConfiguringId: jest.fn(),
+      setFlashId: jest.fn(),
+    };
+    render(
+      <TestBootProvider client={new QueryClient()} log={{ logEvent }}>
+        <InFeedWidgetsProvider value={value}>
+          <FeedWidgetPromo slot={5} onDismiss={onDismiss} />
+        </InFeedWidgetsProvider>
+      </TestBootProvider>,
+    );
+  };
+
+  it('opens the gallery for its own card', () => {
+    renderPromo();
+
+    fireEvent.click(screen.getByRole('button', { name: /Put a widget here/ }));
+
+    expect(setAddingSlot).toHaveBeenCalledWith(5);
+    expect(loggedEvents()).toEqual([
+      LogEvent.ImpressionFeedWidgetsPromo,
+      LogEvent.ClickFeedWidgetsPromo,
+    ]);
+  });
+
+  it('closes for good on Not now', () => {
+    renderPromo();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Not now' }));
+
+    expect(onDismiss).toHaveBeenCalled();
+    expect(setAddingSlot).not.toHaveBeenCalled();
+    expect(loggedEvents()).toContain(LogEvent.DismissFeedWidgetsPromo);
+  });
+});
+
+describe('useFeedWidgetsIntro', () => {
+  const Probe = ({ field }: { field: 'introSeen' | 'promoSeen' }) => {
+    const { isOpen } = useFeedWidgetsIntro(field);
+    return <span>{isOpen ? 'open' : 'closed'}</span>;
+  };
+
+  it('keeps the card open after the button intro was seen, and back', () => {
+    const feedWidgets = {
+      version: 1,
+      widgets: [],
+      introSeen: FEED_WIDGETS_INTRO_ID,
+    };
+    render(
+      <TestBootProvider
+        client={new QueryClient()}
+        auth={{ isLoggedIn: true }}
+        settings={{ flags: { feedWidgets } as unknown as SettingsFlags }}
+      >
+        <Probe field="introSeen" />
+        <Probe field="promoSeen" />
+      </TestBootProvider>,
+    );
+
+    expect(
+      screen.getAllByText(/open|closed/).map((el) => el.textContent),
+    ).toEqual(['closed', 'open']);
   });
 });

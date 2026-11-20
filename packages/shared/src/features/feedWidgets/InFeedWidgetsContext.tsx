@@ -12,6 +12,7 @@ import classNames from 'classnames';
 import { Popover, PopoverAnchor } from '@radix-ui/react-popover';
 import { PopoverContent } from '../../components/popover/Popover';
 import { Button } from '../../components/buttons/Button';
+import CloseButton from '../../components/CloseButton';
 import { ButtonSize, ButtonVariant } from '../../components/buttons/common';
 import { PlusIcon } from '../../components/icons/Plus';
 import { LayoutIcon } from '../../components/icons/Layout';
@@ -258,6 +259,64 @@ export const FeedWidgetSlot = ({ slot }: { slot: number }): ReactElement => {
         Put a widget here
       </span>
     </button>
+  );
+};
+
+/**
+ * The feed's invite to a first widget: one card, covered like a slot in
+ * Customize mode, that opens the gallery for its own place. It goes for good
+ * once the reader closes it or places a widget anywhere.
+ */
+export const FeedWidgetPromo = ({
+  slot,
+  onDismiss,
+}: {
+  slot: number;
+  onDismiss: () => void;
+}): ReactElement => {
+  const { setAddingSlot } = useInFeedWidgets();
+  const { logEvent } = useLogContext();
+  const hasLogged = useRef(false);
+
+  useEffect(() => {
+    if (hasLogged.current) {
+      return;
+    }
+    hasLogged.current = true;
+    logEvent(logIntroEvent(LogEvent.ImpressionFeedWidgetsPromo));
+  }, [logEvent]);
+
+  return (
+    <div className="absolute inset-0 z-2 rounded-16 border-2 border-dashed border-accent-cabbage-default bg-overlay-float-cabbage">
+      <button
+        type="button"
+        onClick={() => {
+          logEvent(logIntroEvent(LogEvent.ClickFeedWidgetsPromo));
+          setAddingSlot(slot);
+        }}
+        className="group/promo flex h-full w-full flex-col items-center justify-center gap-3 rounded-16 p-6 text-center focus-visible:outline-none"
+      >
+        <strong className="text-text-primary typo-title3">
+          Make this spot yours
+        </strong>
+        <span className="text-text-secondary typo-callout">
+          Swap any card for a widget, like your streak or what’s happening now.
+        </span>
+        <span className="flex items-center gap-2 rounded-max bg-accent-cabbage-default py-2 pl-3 pr-4 font-bold text-white shadow-2 transition-transform typo-callout group-hover/promo:scale-105 group-focus-visible/promo:scale-105">
+          <PlusIcon />
+          Put a widget here
+        </span>
+      </button>
+      <CloseButton
+        size={ButtonSize.Small}
+        className="absolute right-2 top-2"
+        aria-label="Not now"
+        onClick={() => {
+          logEvent(logIntroEvent(LogEvent.DismissFeedWidgetsPromo));
+          onDismiss();
+        }}
+      />
+    </div>
   );
 };
 

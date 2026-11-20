@@ -96,15 +96,18 @@ import { FeedHero } from './feeds/hero/FeedHero';
 import {
   useFeedWidgetFeedState,
   useFeedWidgetRailState,
+  useFeedWidgetsIntro,
 } from '../features/feedWidgets/feedState';
 import {
   FeedWidgetCellLoading,
+  FeedWidgetPromo,
   FeedWidgetSlot,
   InFeedWidgetsProvider,
   useInFeedWidgetsState,
 } from '../features/feedWidgets/InFeedWidgetsContext';
 import type { InFeedWidgetsContextValue } from '../features/feedWidgets/InFeedWidgetsContext';
 import type { FeedWidget } from '../features/feedWidgets/types';
+import { FEED_WIDGETS_PROMO_FROM } from '../features/feedWidgets/types';
 import { getFeedName } from '../lib/feed';
 import { ClientQuestEventType } from '../graphql/quests';
 import { ExploreTabs, tabToUrl, urlToTab } from './header';
@@ -165,6 +168,16 @@ const useFeedGridWidgets = ({
   widgets: FeedWidget[];
   feedName: string;
 }): { feedWidgets?: FeedGridWidgets; editor: ReactNode } => {
+  const promo = useFeedWidgetsIntro('promoSeen');
+  const [isPromoClosed, setIsPromoClosed] = useState(false);
+  const isPromoOpen =
+    promo.isOpen && !isPromoClosed && !isEditing && addingSlot === null;
+  const { dismiss } = promo;
+  // Closed here at once, before the write lands.
+  const dismissPromo = useCallback(() => {
+    setIsPromoClosed(true);
+    dismiss();
+  }, [dismiss]);
   const feedWidgets = useMemo<FeedGridWidgets | undefined>(
     () =>
       isEnabled
@@ -190,9 +203,17 @@ const useFeedGridWidgets = ({
             renderSlot: isEditing
               ? (index) => <FeedWidgetSlot slot={index} />
               : undefined,
+            promo: isPromoOpen
+              ? {
+                  from: FEED_WIDGETS_PROMO_FROM,
+                  render: (index) => (
+                    <FeedWidgetPromo slot={index} onDismiss={dismissPromo} />
+                  ),
+                }
+              : undefined,
           }
         : undefined,
-    [isEnabled, isEditing, widgets, feedName],
+    [isEnabled, isEditing, widgets, feedName, isPromoOpen, dismissPromo],
   );
 
   return {

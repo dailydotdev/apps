@@ -175,6 +175,8 @@ export type FeedWidgetRailState = {
    * once per intro rather than once per device.
    */
   introSeen?: string;
+  /** The same, for the card in the feed that invites a first widget. */
+  promoSeen?: string;
   [field: string]: unknown;
 };
 
@@ -183,5 +185,11 @@ export type FeedWidgetRailState = {
  * rails and the ones who did not. A new id shows a new intro to everyone.
  */
 export const FEED_WIDGETS_INTRO_ID = 'take-two';
+
+/**
+ * Where the feed's invite to a first widget sits: the first card from this
+ * index on that can take one, a row down on most grids, so it never leads.
+ */
+export const FEED_WIDGETS_PROMO_FROM = 4;
 
 export const FEED_WIDGET_RAIL_VERSION = 1;
