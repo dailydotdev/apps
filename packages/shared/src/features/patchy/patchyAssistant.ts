@@ -2,7 +2,7 @@ import type { QueryClient } from '@tanstack/react-query';
 import { utcToZonedTime } from 'date-fns-tz';
 import type { Post, PostData } from '../../graphql/posts';
 import { SharedFeedPage } from '../../components/utilities/common';
-import { getPostByIdKey, OtherFeedPage } from '../../lib/query';
+import { getPostByIdKey, OtherFeedPage, RequestKey } from '../../lib/query';
 import { DEFAULT_TIMEZONE } from '../../lib/timezones';
 import { storageWrapper } from '../../lib/storageWrapper';
 import { getPatchyDayKey } from './patchyDay';
@@ -231,20 +231,13 @@ const quickReadFeeds = new Set<string>([
   OtherFeedPage.ExploreLatest,
   OtherFeedPage.ExploreDiscussed,
   OtherFeedPage.ExploreUpvoted,
-  OtherFeedPage.Tag,
-  OtherFeedPage.TagPage,
-  OtherFeedPage.TagsTopPosts,
-  OtherFeedPage.TagsMostUpvoted,
-  OtherFeedPage.TagsBestDiscussed,
-  OtherFeedPage.TagArchive,
-  OtherFeedPage.Source,
-  OtherFeedPage.SourcePage,
-  OtherFeedPage.SourceMostUpvoted,
-  OtherFeedPage.SourceBestDiscussed,
-  OtherFeedPage.SourceArchive,
-  OtherFeedPage.Bookmarks,
-  OtherFeedPage.BookmarkLater,
-  OtherFeedPage.BookmarkFolder,
+  RequestKey.Bookmarks,
+  RequestKey.TagFeed,
+  RequestKey.TagsMostUpvoted,
+  RequestKey.TagsBestDiscussed,
+  RequestKey.SourceFeed,
+  RequestKey.SourceMostUpvoted,
+  RequestKey.SourceBestDiscussed,
 ]);
 
 // Short, unread posts from feeds the app already loaded (no extra request),
@@ -326,6 +319,8 @@ export const getPatchyHoursLeftToday = (
 ): number => {
   const zoned = utcToZonedTime(now, timezone || DEFAULT_TIMEZONE);
   const minutesLeft =
-    24 * 60 - (zoned.getHours() * 60 + zoned.getMinutes()) - zoned.getSeconds() / 60;
+    24 * 60 -
+    (zoned.getHours() * 60 + zoned.getMinutes()) -
+    zoned.getSeconds() / 60;
   return Math.max(1, Math.ceil(minutesLeft / 60));
 };

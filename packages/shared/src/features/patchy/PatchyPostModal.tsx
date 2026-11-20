@@ -1,10 +1,16 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/router';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import type { Post } from '../../graphql/posts';
-import type { FeedItem } from '../../hooks/useFeed';
-import { FeedItemType } from '../../components/cards/common/common';
-import { useFeedWidgetPostModal } from '../feedWidgets/useFeedWidgetPostModal';
+import type { PatchyPostRequest } from './PatchyPostModalHost';
+
+// Loaded on first use: the post modal pulls in most of the post page, and
+// importing it up front from the rail makes an import cycle.
+const PatchyPostModalHost = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "patchyPostModalHost" */ './PatchyPostModalHost'
+    ),
+);
 
 type Opener = (post: Post) => void;
 let opener: Opener | null = null;
@@ -19,32 +25,9 @@ export const openPatchyPost = (post: Post): boolean => {
   return true;
 };
 
-// Mounted once next to the rail. Where the feed would not open a modal (the
-// list layout, post types the modal doesn't take) it opens the post page.
+// Mounted once next to the rail.
 export const PatchyPostModal = (): ReactElement | null => {
-  const router = useRouter();
-  const [request, setRequest] = useState<{ post: Post; at: number } | null>(
-    null,
-  );
-  const items = useMemo<FeedItem[]>(
-    () =>
-      request
-        ? [
-            {
-              type: FeedItemType.Post,
-              post: request.post,
-              page: 0,
-              index: 0,
-              dataUpdatedAt: request.at,
-            },
-          ]
-        : [],
-    [request],
-  );
-  const { openPost, modal } = useFeedWidgetPostModal({
-    items,
-    feedName: 'patchy',
-  });
+  const [request, setRequest] = useState<PatchyPostRequest | null>(null);
 
   useEffect(() => {
     opener = (post) => setRequest({ post, at: Date.now() });
@@ -53,13 +36,9 @@ export const PatchyPostModal = (): ReactElement | null => {
     };
   }, []);
 
-  useEffect(() => {
-    if (request && !openPost(request.post)) {
-      router.push(request.post.commentsPermalink);
-    }
-    // Only a new request opens the post, not a new openPost.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [request]);
-
-  return modal;
+  return request ? (
+    <Suspense fallback={null}>
+      <PatchyPostModalHost request={request} />
+    </Suspense>
+  ) : null;
 };

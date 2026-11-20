@@ -1,6 +1,6 @@
 import { QueryClient } from '@tanstack/react-query';
 import { SharedFeedPage } from '../../components/utilities/common';
-import { OtherFeedPage } from '../../lib/query';
+import { RequestKey } from '../../lib/query';
 import {
   canPatchyOffer,
   countPatchyTagOpen,
@@ -143,7 +143,7 @@ describe('getPatchyQuickReads', () => {
         },
       ],
     });
-    client.setQueryData([OtherFeedPage.Bookmarks, 'user'], {
+    client.setQueryData([RequestKey.Bookmarks, 'user', {}], {
       pages: [{ page: { edges: [{ node: post('c', 2, 50) }] } }],
     });
     // Not a feed he picks from, and a post without `read` isn't known unread.
@@ -164,5 +164,22 @@ describe('getPatchyQuickReads', () => {
     expect(
       getPatchyQuickReads(client, { excludeId: 'c' }).map(({ id }) => id),
     ).toEqual(['a']);
+  });
+
+  it('picks from the tag page feed', () => {
+    const client = new QueryClient();
+    client.setQueryData([RequestKey.TagFeed, 'user', 'rust'], {
+      pages: [
+        {
+          page: {
+            edges: [{ node: { ...post('r', 3, 5), tags: ['rust'] } }],
+          },
+        },
+      ],
+    });
+
+    expect(
+      getPatchyQuickReads(client, { tag: 'rust' }).map(({ id }) => id),
+    ).toEqual(['r']);
   });
 });
