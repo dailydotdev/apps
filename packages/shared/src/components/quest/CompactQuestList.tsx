@@ -143,12 +143,14 @@ export const CompactQuestRow = ({
             </Typography>
           </a>
         </Link>
-        {!isClaimed && <QuestBonusRewardBadge quest={quest} />}
-        <ArrowIcon
-          aria-hidden
-          size={IconSize.XSmall}
-          className="mt-0.5 shrink-0 rotate-90 text-text-quaternary opacity-0 transition-opacity group-hover/quest:opacity-100"
-        />
+        <div className="flex shrink-0 items-center gap-1">
+          {!isClaimed && <QuestBonusRewardBadge quest={quest} />}
+          <ArrowIcon
+            aria-hidden
+            size={IconSize.XSmall}
+            className="shrink-0 rotate-90 text-text-quaternary opacity-0 transition-opacity group-hover/quest:opacity-100"
+          />
+        </div>
       </div>
       {quest.quest.description && (
         <Typography

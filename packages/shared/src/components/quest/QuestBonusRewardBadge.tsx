@@ -1,10 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { QuestReward, UserQuest } from '../../graphql/quests';
-import {
-  getQuestBonusRewards,
-  getQuestRewardLabel,
-} from '../../graphql/quests';
+import { getQuestBonusRewards } from '../../graphql/quests';
 
 export const QuestBonusRewardBadge = ({
   quest,
@@ -20,13 +17,8 @@ export const QuestBonusRewardBadge = ({
   }
 
   return (
-    <span className="shrink-0 rounded-6 bg-accent-cheese-default px-1 font-bold text-raw-pepper-90 typo-caption2">
-      {bonusRewards
-        .map(
-          ({ type, multiplier }) =>
-            `${multiplier}x ${getQuestRewardLabel(type)}`,
-        )
-        .join(' · ')}
+    <span className="shrink-0 rounded-6 border border-accent-bun-default bg-accent-cheese-default px-1.5 font-bold text-raw-pepper-90 typo-caption2">
+      {Math.max(...bonusRewards.map(({ multiplier }) => multiplier))}x
     </span>
   );
 };

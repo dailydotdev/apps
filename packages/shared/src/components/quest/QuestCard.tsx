@@ -258,7 +258,7 @@ export const QuestCard = ({
                   {eyebrow}
                 </p>
               )}
-              <div className="flex items-start gap-2">
+              <div className="flex items-center gap-2">
                 <p className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
                   {quest.quest.name}
                 </p>
