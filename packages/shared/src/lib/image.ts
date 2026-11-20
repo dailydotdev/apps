@@ -189,6 +189,9 @@ export const cloudinaryShortcutsIconsGithubLight =
 export const cloudinaryShortcutsIconsGithubDark =
   'https://media.daily.dev/image/upload/s--qyAG2NPK--/f_auto/v1717513011/public/GitHub%20Shortcut%20-%20Dark%20mode';
 
+export const cloudinaryCompanionPreview =
+  'https://media.daily.dev/image/upload/v1655218347/public/companion_preview_v2.png';
+
 export const cloudinaryShortcutsIconsReddit =
   'https://media.daily.dev/image/upload/s--9UfrZdCc--/f_auto/v1717506847/public/Reddit%20Shortcut';
 
