@@ -242,7 +242,8 @@ const quickReadFeeds = new Set<string>([
 
 // Short, unread posts from feeds the app already loaded (no extra request),
 // best first. Walks the cached query data a few levels deep, because feeds
-// nest posts as pages → edges → node.
+// nest posts as pages → page → edges → node, and For You (feedV2) one level
+// further in node.post.
 interface QuickReadOptions {
   limit?: number;
   excludeId?: string;
@@ -258,7 +259,7 @@ export const getPatchyQuickReads = (
 ): PatchyQuickRead[] => {
   const found = new Map<string, Post>();
   const visit = (value: unknown, depth: number) => {
-    if (!value || typeof value !== 'object' || depth > 6) {
+    if (!value || typeof value !== 'object' || depth > 8) {
       return;
     }
     if (isPostLike(value)) {
