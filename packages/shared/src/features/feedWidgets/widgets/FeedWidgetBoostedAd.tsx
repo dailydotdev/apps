@@ -13,6 +13,7 @@ import { ArticleGrid } from '../../../components/cards/article/ArticleGrid';
 import { SquadAdGrid } from '../../../components/cards/ad/squad/SquadAdGrid';
 import { AdPixel } from '../../../components/cards/ad/common/AdPixel';
 import { AdMeasurement } from '../../../components/cards/ad/common/AdMeasurement';
+import { AdSlot } from '../../../components/cards/ad/common/AdSlot';
 import { AdViewability } from '../../../components/cards/ad/common/AdViewability';
 import type { AdItem } from '../../../hooks/useFeed';
 import {
@@ -113,11 +114,15 @@ const BoostedPostCard = ({
 
   return (
     <ActivePostContextProvider post={post}>
-      <Card post={post} {...cardProps}>
-        <AdPixel pixel={ad.pixel} />
-        <AdMeasurement ad={ad} />
-        <AdViewability ad={ad} onViewable={onViewable} />
-      </Card>
+      <AdSlot ad={ad}>
+        {(slotProps) => (
+          <Card post={post} {...cardProps} domProps={slotProps}>
+            <AdPixel ad={ad} />
+            <AdMeasurement ad={ad} />
+            <AdViewability ad={ad} onViewable={onViewable} />
+          </Card>
+        )}
+      </AdSlot>
       {modal}
     </ActivePostContextProvider>
   );

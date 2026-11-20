@@ -3,7 +3,9 @@ import type { AnchorHTMLAttributes, ComponentType, ReactNode } from 'react';
 export interface MenuItemProps<
   TReturn = unknown,
   TArgs extends Array<unknown> = Array<unknown>,
-  TAnchorProps = AnchorHTMLAttributes<HTMLAnchorElement>,
+  TAnchorProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
+    'data-ad-click'?: boolean;
+  },
 > {
   // A stable key a menu can group by; labels change with state.
   id?: string;

@@ -1,12 +1,20 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useInView } from 'react-intersection-observer';
 import type { Ad } from '../../../../graphql/posts';
 import { isTesting } from '../../../../lib/constants';
 import { substituteMacros } from '../../../../features/monetization/adMacros';
 import { useAdMacroContext } from '../../../../features/monetization/useAdMacroContext';
+import type { AdSlotAction } from '../../../../features/monetization/adSlotLifecycle';
+import {
+  getAdSlotImpressionPixels,
+  getAdSlotLifecycle,
+} from '../../../../features/monetization/adSlotLifecycle';
+import { useAdSlotActions } from '../../../../features/monetization/useAdSlotActions';
+import { useAdLifecycle } from '../../../../features/monetization/useAdLifecycle';
 
 interface AdPixelProps extends Pick<Ad, 'pixel'> {
+  ad?: Ad;
   /**
    * Skips the viewport gate, for pixels that are only rendered once the ad is
    * known to be on screen. Without it the pixel would wait for this span's own
@@ -15,10 +23,13 @@ interface AdPixelProps extends Pick<Ad, 'pixel'> {
   fireOnMount?: boolean;
 }
 
-export const AdPixel = ({
+const AdPixelTracker = ({
   pixel,
   fireOnMount = false,
-}: AdPixelProps): ReactElement => {
+  onImpression,
+}: Omit<AdPixelProps, 'ad'> & {
+  onImpression?: () => void;
+}): ReactElement => {
   const { ref, inView } = useInView({
     triggerOnce: true,
     initialInView: isTesting, // interection observer in tests
@@ -26,6 +37,12 @@ export const AdPixel = ({
     skip: fireOnMount,
   });
   const shouldFire = fireOnMount || inView;
+
+  useEffect(() => {
+    if (shouldFire) {
+      onImpression?.();
+    }
+  }, [onImpression, shouldFire]);
 
   // Fill cachebuster/consent macros before firing. Waiting for a resolved
   // context avoids firing an impression twice (once with empty consent, once
@@ -53,5 +70,51 @@ export const AdPixel = ({
           />
         ))}
     </span>
+  );
+};
+
+const ConfiguredAdPixel = ({
+  ad,
+  actions,
+  fireOnMount,
+}: Omit<AdPixelProps, 'ad' | 'pixel'> & {
+  ad: Ad;
+  actions: AdSlotAction[];
+}): ReactElement => {
+  const { isEnabled } = useAdLifecycle(true);
+  const pixel = useMemo(() => {
+    if (!isEnabled) {
+      return ad.pixel;
+    }
+    const configured = getAdSlotImpressionPixels(actions);
+    return configured.length === ad.pixel?.length &&
+      configured.every((url, index) => url === ad.pixel?.[index])
+      ? ad.pixel
+      : configured;
+  }, [actions, ad.pixel, isEnabled]);
+  const transition = useAdSlotActions(ad);
+
+  return (
+    <AdPixelTracker
+      pixel={pixel}
+      fireOnMount={fireOnMount}
+      onImpression={() => transition('impression')}
+    />
+  );
+};
+
+export const AdPixel = ({
+  ad,
+  pixel,
+  fireOnMount,
+}: AdPixelProps): ReactElement => {
+  const actions = ad && getAdSlotLifecycle(ad)?.on.impression;
+  if (ad && Array.isArray(actions)) {
+    return (
+      <ConfiguredAdPixel ad={ad} actions={actions} fireOnMount={fireOnMount} />
+    );
+  }
+  return (
+    <AdPixelTracker pixel={ad?.pixel ?? pixel} fireOnMount={fireOnMount} />
   );
 };
