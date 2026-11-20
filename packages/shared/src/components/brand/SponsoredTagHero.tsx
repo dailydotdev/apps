@@ -32,6 +32,8 @@ export const SponsoredTagHero = ({
   const ctaText = highlightedWordConfig.config?.ctaText || 'Learn more';
 
   const { primary, secondary } = sponsorInfo.colors;
+  // Prefer the square icon: the wide wordmark gets cropped in a round avatar.
+  const brandImage = sponsorInfo.brandIcon || sponsorInfo.brandLogo;
 
   return (
     <div
@@ -82,31 +84,32 @@ export const SponsoredTagHero = ({
         }}
       />
 
-      {/* Content - white text for contrast */}
-      <div className="relative flex flex-col gap-4 p-6 laptop:flex-row laptop:flex-wrap laptop:items-center laptop:justify-between">
-        <div className="flex items-center gap-4">
-          {/* Brand logo with glow */}
-          {sponsorInfo.brandLogo && (
+      {/* Content - white text for contrast. Left-aligned regardless of the
+          page header's centring; CTA sits beside the copy on laptop. */}
+      <div className="relative flex flex-col gap-4 p-6 text-left laptop:flex-row laptop:items-center laptop:gap-6">
+        <div className="flex min-w-0 flex-1 items-start gap-4">
+          {/* Brand mark with glow */}
+          {brandImage && (
             <div className="relative flex-shrink-0">
               <div
                 className="opacity-70 absolute inset-0 rounded-full blur-md"
                 style={{ background: 'white' }}
               />
               <img
-                src={sponsorInfo.brandLogo}
+                src={brandImage}
                 alt={sponsorInfo.brandName}
-                className="relative size-12 rounded-full bg-white object-cover p-1 shadow-2"
+                className="relative size-12 rounded-full bg-white object-contain p-1.5 shadow-2"
               />
             </div>
           )}
 
-          <div className="flex w-full flex-1 flex-col gap-1">
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
             <span className="text-white typo-callout">Sponsored by</span>
             <span className="font-bold text-white typo-title3">
               {sponsorInfo.brandName}
             </span>
             {highlightedWordConfig.config?.tooltipDescription && (
-              <p className="flex w-full max-w-lg text-white typo-body">
+              <p className="text-white typo-body">
                 {highlightedWordConfig.config.tooltipDescription}
               </p>
             )}
@@ -122,7 +125,7 @@ export const SponsoredTagHero = ({
             href={ctaUrl}
             target="_blank"
             rel={anchorSponsoredRel}
-            className="hover:bg-white/90 w-full !bg-white text-raw-pepper-90 laptop:w-auto laptop:flex-shrink-0 laptop:self-center"
+            className="hover:bg-white/90 w-full flex-shrink-0 !bg-white text-raw-pepper-90 laptop:w-auto"
           >
             {ctaText}
             <OpenLinkIcon className="ml-2" />
