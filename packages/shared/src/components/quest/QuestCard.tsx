@@ -234,7 +234,7 @@ export const QuestCard = ({
     <article
       className={classNames(
         'relative overflow-hidden rounded-12 border p-2',
-        hasQuestBonusReward(quest) && !isClaimed
+        hasQuestBonusReward(quest, visibleRewards) && !isClaimed
           ? 'border-accent-cheese-default shadow-bubble-cheese'
           : 'border-border-subtlest-tertiary',
       )}
@@ -252,7 +252,12 @@ export const QuestCard = ({
                 <p className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
                   {quest.quest.name}
                 </p>
-                <QuestBonusRewardBadge quest={quest} />
+                {!isClaimed && (
+                  <QuestBonusRewardBadge
+                    quest={quest}
+                    rewards={visibleRewards}
+                  />
+                )}
                 {shouldShowDestination && destination && onDestinationClick && (
                   <Tooltip content={`Go to ${destination.label}`}>
                     <Button

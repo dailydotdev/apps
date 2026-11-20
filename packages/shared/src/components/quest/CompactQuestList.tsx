@@ -132,7 +132,7 @@ export const CompactQuestRow = ({
             </Typography>
           </a>
         </Link>
-        <QuestBonusRewardBadge quest={quest} />
+        {!isClaimed && <QuestBonusRewardBadge quest={quest} />}
         <ArrowIcon
           aria-hidden
           size={IconSize.XSmall}

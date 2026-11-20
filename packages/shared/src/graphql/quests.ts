@@ -67,15 +67,18 @@ export const getQuestRewardLabel = (type: QuestRewardType): string => {
 
 export const getQuestBonusRewards = (
   quest: UserQuest,
+  rewards: QuestReward[] = quest.rewards,
 ): { type: QuestRewardType; multiplier: number }[] =>
-  Object.values(QuestRewardType).flatMap((type) => {
+  [...new Set(rewards.map(({ type }) => type))].flatMap((type) => {
     const multiplier = quest.rewardMultipliers?.[type] ?? 1;
 
     return multiplier > 1 ? [{ type, multiplier }] : [];
   });
 
-export const hasQuestBonusReward = (quest: UserQuest): boolean =>
-  getQuestBonusRewards(quest).length > 0;
+export const hasQuestBonusReward = (
+  quest: UserQuest,
+  rewards?: QuestReward[],
+): boolean => getQuestBonusRewards(quest, rewards).length > 0;
 
 export interface QuestBucket {
   regular: UserQuest[];

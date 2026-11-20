@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import type { UserQuest } from '../../graphql/quests';
+import type { QuestReward, UserQuest } from '../../graphql/quests';
 import {
   getQuestBonusRewards,
   getQuestRewardLabel,
@@ -8,10 +8,12 @@ import {
 
 export const QuestBonusRewardBadge = ({
   quest,
+  rewards,
 }: {
   quest: UserQuest;
+  rewards?: QuestReward[];
 }): ReactElement | null => {
-  const bonusRewards = getQuestBonusRewards(quest);
+  const bonusRewards = getQuestBonusRewards(quest, rewards);
 
   if (!bonusRewards.length) {
     return null;
