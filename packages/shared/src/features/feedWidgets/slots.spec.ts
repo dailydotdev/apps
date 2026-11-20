@@ -6,6 +6,7 @@ import {
   findFeedWidgetMoveTarget,
   moveFeedWidgetSlot,
   placeFeedWidget,
+  seatableFeedWidgets,
   slottedFeedWidgets,
   unplaceFeedWidget,
 } from './slots';
@@ -88,5 +89,18 @@ describe('feed widget slots', () => {
 
     expect(findFeedWidgetMoveTarget(items, 2, -1)).toBe(0);
     expect(findFeedWidgetMoveTarget(items, 2, 1)).toBeUndefined();
+  });
+
+  it('seats only the kinds this build has a widget for', () => {
+    const widgets: FeedWidget[] = [
+      widget('streak', 0),
+      { ...widget('weather', 1), kind: FeedWidgetKind.Weather },
+      { ...widget('digest', 2), kind: FeedWidgetKind.TopicalDigest },
+      { ...widget('newer', 3), kind: 'fromANewerBuild' as FeedWidgetKind },
+    ];
+
+    expect(seatableFeedWidgets(widgets).map(({ id }) => id)).toEqual([
+      'streak',
+    ]);
   });
 });

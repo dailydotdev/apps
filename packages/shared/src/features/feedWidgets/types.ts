@@ -17,6 +17,29 @@ export enum FeedWidgetKind {
 }
 
 /**
+ * The kinds this build ships a widget for. The enum runs ahead of it (a kind
+ * is named before its widget is built), so the feed seats only these: a kind
+ * outside the list, unbuilt here or added by a newer client, stays stored but
+ * takes no cell. `feedWidgetComponents` must have exactly these keys, so the
+ * list cannot drift from the widgets. Kept here, not read from the components,
+ * so the feed's own bundle stays free of the widgets' code.
+ */
+export const builtFeedWidgetKinds = [
+  FeedWidgetKind.TopStory,
+  FeedWidgetKind.HappeningNow,
+  FeedWidgetKind.Briefing,
+  FeedWidgetKind.Notifications,
+  FeedWidgetKind.Messages,
+  FeedWidgetKind.SquadUpdates,
+  FeedWidgetKind.ReadingList,
+  FeedWidgetKind.Streak,
+  FeedWidgetKind.TodoList,
+  FeedWidgetKind.GettingStarted,
+] as const;
+
+export type BuiltFeedWidgetKind = (typeof builtFeedWidgetKinds)[number];
+
+/**
  * The rail's unit is one feed column by half the rail's height, so every
  * widget edge lands on a feed column edge. A size is a name for a span in
  * `feedWidgetSizeCatalog`, and each kind picks the ones it supports in the

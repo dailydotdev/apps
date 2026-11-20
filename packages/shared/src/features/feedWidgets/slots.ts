@@ -1,5 +1,5 @@
 import type { FeedWidget } from './types';
-import { FeedWidgetKind } from './types';
+import { builtFeedWidgetKinds } from './types';
 import type { FeedItem } from '../../hooks/useFeed';
 import { FeedItemType } from '../../components/cards/common/common';
 
@@ -8,7 +8,7 @@ import { FeedItemType } from '../../components/cards/common/common';
 
 export type SlottedFeedWidget = FeedWidget & { slot: number };
 
-const knownKinds = new Set<string>(Object.values(FeedWidgetKind));
+const builtKinds = new Set<string>(builtFeedWidgetKinds);
 
 /**
  * The cards the narrowest laptop grid has in a row, so a slot below this is in
@@ -91,13 +91,14 @@ export const moveFeedWidgetSlot = (
 };
 
 /**
- * The placed widgets this build can render. A kind a newer client added stays
- * stored, but takes no cell here, so it never leaves a hole in the grid.
+ * The placed widgets this build can render. A kind it has no widget for (one
+ * a newer client added, or one named here but not built yet) stays stored,
+ * but takes no cell, so it never leaves a hole in the grid.
  */
 export const seatableFeedWidgets = (
   widgets: FeedWidget[],
 ): SlottedFeedWidget[] =>
-  slottedFeedWidgets(widgets).filter(({ kind }) => knownKinds.has(kind));
+  slottedFeedWidgets(widgets).filter(({ kind }) => builtKinds.has(kind));
 
 /**
  * The nearest item a widget can swap places with, stepping over ads (they
