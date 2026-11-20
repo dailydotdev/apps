@@ -31,6 +31,7 @@ import { useFeedCardContext } from '../features/posts/FeedCardContext';
 import { AdPixel } from './cards/ad/common/AdPixel';
 import { AdMeasurement } from './cards/ad/common/AdMeasurement';
 import { AdSlot } from './cards/ad/common/AdSlot';
+import type { AdSlotRootProps } from './cards/ad/common/AdSlot';
 import { AdViewability } from './cards/ad/common/AdViewability';
 import type { ViewabilityData } from '../features/monetization/viewability';
 import { viewabilityLogExtra } from '../features/monetization/viewability';
@@ -441,14 +442,14 @@ function FeedItemComponent({
         />
       );
 
-    const card = (
+    const card = (slotProps: AdSlotRootProps = {}) => (
       <ActivePostContextProvider post={itemPost}>
         {WideCard ? (
           <WideCard {...postCardProps} wideColSpan={wideColSpan}>
             {explainCard}
           </WideCard>
         ) : (
-          <PostTag {...postCardProps}>
+          <PostTag {...postCardProps} domProps={slotProps}>
             {explainCard}
             {item.type === FeedItemType.Ad && (
               <>
@@ -467,7 +468,7 @@ function FeedItemComponent({
     return item.type === FeedItemType.Ad ? (
       <AdSlot ad={item.ad}>{card}</AdSlot>
     ) : (
-      card
+      card()
     );
   }
 

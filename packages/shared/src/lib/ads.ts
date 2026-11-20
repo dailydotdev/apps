@@ -134,8 +134,6 @@ export const appendConsentParams = (
 
 const skadiGenerationIdHeader = 'x-generation-id';
 
-class AdResponseError extends Error {}
-
 const addGenerationIdHeader = ({
   ad,
   res,
@@ -163,11 +161,13 @@ const fetchAdRequest = async ({
   path,
   params,
   pageViewId = getAdPageViewId(),
+  throwOnError = false,
 }: {
   path: string;
   params?: URLSearchParams;
   pageViewId?: string;
-}): Promise<Ad | null> => {
+  throwOnError?: boolean;
+}): Promise<{ ad: Ad | null; failed: boolean }> => {
   const headers: Record<string, string> = {};
   if (pageViewId) {
     headers['X-Page-View-Id'] = pageViewId;
@@ -184,12 +184,15 @@ const fetchAdRequest = async ({
     ...(Object.keys(headers).length > 0 && { headers }),
   });
 
-  if (res.ok === false) {
-    throw new AdResponseError(`Ad request failed with status ${res.status}`);
+  if (throwOnError && !res.ok) {
+    throw new Error(`Ad request failed with status ${res.status}`);
   }
 
   const ads = (await res.json()) as Ad[];
-  return addGenerationIdHeader({ ad: ads[0] ?? null, res });
+  return {
+    ad: addGenerationIdHeader({ ad: ads[0] ?? null, res }),
+    failed: res.ok === false,
+  };
 };
 
 const fetchAdSlot = async (
@@ -203,17 +206,19 @@ const fetchAdSlot = async (
   } = {},
 ): Promise<Ad | null> => {
   onTransition?.({ type: 'pre-fetch' });
-  let ad: Ad | null;
+  let result: Awaited<ReturnType<typeof fetchAdRequest>>;
   try {
-    ad = await fetchAdRequest(options);
+    result = await fetchAdRequest({ ...options, throwOnError });
   } catch (error) {
     onTransition?.({ type: 'fetch-error' });
-    if (error instanceof AdResponseError && !throwOnError) {
-      return null;
-    }
     throw error;
   }
-  onTransition?.(ad ? { type: 'post-fetch', ad } : { type: 'no-fill' });
+  const { ad, failed } = result;
+  if (failed) {
+    onTransition?.({ type: 'fetch-error' });
+  } else {
+    onTransition?.(ad ? { type: 'post-fetch', ad } : { type: 'no-fill' });
+  }
   return ad;
 };
 

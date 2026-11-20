@@ -7,6 +7,7 @@ import { AdPixel } from './AdPixel';
 import { getViewedPixels } from './ownPixels';
 import { getAdSlotLifecycle } from '../../../../features/monetization/adSlotLifecycle';
 import { useAdSlotActions } from '../../../../features/monetization/useAdSlotActions';
+import { useAdLifecycle } from '../../../../features/monetization/useAdLifecycle';
 import { viewabilityLogExtra } from '../../../../features/monetization/viewability';
 import { AdActions } from '../../../../lib/ads';
 import type {
@@ -65,20 +66,24 @@ const ConfiguredAdViewability = ({
   onViewable,
   lifecycle,
 }: AdViewabilityProps & { lifecycle: AdSlotLifecycle }): ReactElement => {
+  const { isEnabled } = useAdLifecycle(true);
   const transition = useAdSlotActions(ad);
-  const configuredViewable = Array.isArray(lifecycle.on.viewable);
+  const configuredViewable = isEnabled && Array.isArray(lifecycle.on.viewable);
   const viewedPixels = useMemo(
     () => (configuredViewable ? [] : getViewedPixels(ad.pixel)),
     [ad.pixel, configuredViewable],
   );
   const visibilityMilestones = useMemo(
     () =>
-      visibilityMilestoneNames.filter(
-        (milestone) => !!lifecycle.on[milestone]?.length,
-      ),
-    [lifecycle],
+      isEnabled
+        ? visibilityMilestoneNames.filter(
+            (milestone) => !!lifecycle.on[milestone]?.length,
+          )
+        : [],
+    [isEnabled, lifecycle],
   );
   const { ref, isViewable } = useViewability<HTMLDivElement>({
+    trackingKey: ad.generationId ?? ad.link,
     onVisibility: transition,
     visibilityMilestones,
     onViewable: (data) => {

@@ -335,7 +335,7 @@ export const DropdownMenuOptions = ({
                     {...anchorProps}
                   >
                     <a
-                      {...anchorProps}
+                      data-ad-click={anchorProps['data-ad-click']}
                       className={className}
                       target={anchorProps?.target}
                       rel={anchorProps?.rel}

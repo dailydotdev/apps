@@ -62,111 +62,121 @@ export function SquadAdGrid({
 
   return (
     <AdSlot ad={item.ad}>
-      <FeedItemContainer
-        data-testid="adItem"
-        domProps={{ className: 'flex flex-col group overflow-hidden' }}
-        ref={ref}
-      >
-        <Link href={source.permalink}>
-          <CardLink
-            href={source.permalink}
-            onClick={() => {
-              onClickAd();
-              storeSquadBoostClick(item.ad);
-            }}
+      {(slotProps) => (
+        <FeedItemContainer
+          data-testid="adItem"
+          domProps={{
+            ...slotProps,
+            className: 'flex flex-col group overflow-hidden',
+          }}
+          ref={ref}
+        >
+          <Link href={source.permalink}>
+            <CardLink
+              href={source.permalink}
+              onClick={() => {
+                onClickAd();
+                storeSquadBoostClick(item.ad);
+              }}
+            />
+          </Link>
+          {item.ad?.pixel && (
+            <span className="absolute bottom-0 left-0">
+              <AdPixel ad={item.ad} />
+            </span>
+          )}
+          <AdViewability
+            ad={item.ad}
+            onViewable={(data) => onViewable?.(data)}
           />
-        </Link>
-        {item.ad?.pixel && (
-          <span className="absolute bottom-0 left-0">
-            <AdPixel ad={item.ad} />
-          </span>
-        )}
-        <AdViewability ad={item.ad} onViewable={(data) => onViewable?.(data)} />
-        <div className="relative h-28 shrink-0">
-          <Image
-            src={getSquadBanner(squad ?? source)}
-            alt=""
-            className="size-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background-subtle" />
-        </div>
-        <div className="absolute right-2 top-2">
-          <SquadOptionsButton squad={source} />
-        </div>
-        <div className="flex flex-col items-center px-4 text-center">
-          <SquadImage
-            className="relative -mt-11 size-18 border-4 border-background-subtle"
-            {...source}
-          />
-          <Typography
-            bold
-            type={TypographyType.Title3}
-            className="mt-2 line-clamp-2"
-          >
-            {source.name}
-          </Typography>
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-            className="mt-1"
-          >
-            <Tooltip content={promotedByTooltip}>
-              <button type="button" disabled className="relative">
-                {promotedText}
-              </button>
-            </Tooltip>
-            <Separator />@{source.handle}
-          </Typography>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-            className="mt-2 line-clamp-2"
-          >
-            {source.description}
-          </Typography>
-          <div className="mt-4 flex flex-row items-center">
-            {members?.slice(0, 4).map(({ user }, index) => (
-              <ProfilePicture
-                className={index > 0 ? '-ml-2' : undefined}
-                size={ProfileImageSize.Small}
-                key={user.id}
-                user={user}
-              />
-            ))}
+          <div className="relative h-28 shrink-0">
+            <Image
+              src={getSquadBanner(squad ?? source)}
+              alt=""
+              className="size-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background-subtle" />
+          </div>
+          <div className="absolute right-2 top-2">
+            <SquadOptionsButton squad={source} />
+          </div>
+          <div className="flex flex-col items-center px-4 text-center">
+            <SquadImage
+              className="relative -mt-11 size-18 border-4 border-background-subtle"
+              {...source}
+            />
             <Typography
-              tag={TypographyTag.Span}
+              bold
+              type={TypographyType.Title3}
+              className="mt-2 line-clamp-2"
+            >
+              {source.name}
+            </Typography>
+            <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
-              className="ml-2"
+              className="mt-1"
             >
-              {shouldShowAction && 'Join '}
-              <strong className="text-text-primary">{membersCount}</strong>{' '}
-              {membersLabel}
+              <Tooltip content={promotedByTooltip}>
+                <button type="button" disabled className="relative">
+                  {promotedText}
+                </button>
+              </Tooltip>
+              <Separator />@{source.handle}
             </Typography>
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
+              className="mt-2 line-clamp-2"
+            >
+              {source.description}
+            </Typography>
+            <div className="mt-4 flex flex-row items-center">
+              {members?.slice(0, 4).map(({ user }, index) => (
+                <ProfilePicture
+                  className={index > 0 ? '-ml-2' : undefined}
+                  size={ProfileImageSize.Small}
+                  key={user.id}
+                  user={user}
+                />
+              ))}
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+                className="ml-2"
+              >
+                {shouldShowAction && 'Join '}
+                <strong className="text-text-primary">
+                  {membersCount}
+                </strong>{' '}
+                {membersLabel}
+              </Typography>
+            </div>
+            <div className="mt-2 flex justify-center">
+              <SquadFeedStats source={source} />
+            </div>
           </div>
-          <div className="mt-2 flex justify-center">
-            <SquadFeedStats source={source} />
+          <div className="mt-auto p-4">
+            {shouldShowAction ? (
+              <SquadActionButton
+                squad={squad}
+                origin={Origin.Feed}
+                alwaysShow
+                buttonVariants={[ButtonVariant.Primary, ButtonVariant.Subtle]}
+                onSuccess={() => onJustJoined(true)}
+                className={{ button: 'w-full' }}
+              />
+            ) : (
+              <SquadAdAction
+                squad={squad}
+                onJustJoined={() => onJustJoined(true)}
+                shouldShowAction={false}
+              />
+            )}
           </div>
-        </div>
-        <div className="mt-auto p-4">
-          {shouldShowAction ? (
-            <SquadActionButton
-              squad={squad}
-              origin={Origin.Feed}
-              alwaysShow
-              buttonVariants={[ButtonVariant.Primary, ButtonVariant.Subtle]}
-              onSuccess={() => onJustJoined(true)}
-              className={{ button: 'w-full' }}
-            />
-          ) : (
-            <SquadAdAction
-              squad={squad}
-              onJustJoined={() => onJustJoined(true)}
-              shouldShowAction={false}
-            />
-          )}
-        </div>
-      </FeedItemContainer>
+        </FeedItemContainer>
+      )}
     </AdSlot>
   );
 }

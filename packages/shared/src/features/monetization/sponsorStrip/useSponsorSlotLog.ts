@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useRef } from 'react';
 import type { AdSlotVisibilityMilestone } from '../adSlotLifecycle';
-import { runAdSlotActions } from '../adSlotLifecycle';
+import { getAdSlotLifecycle, runAdSlotActions } from '../adSlotLifecycle';
+import { useAdLifecycle } from '../useAdLifecycle';
 import { useLogContext } from '../../../contexts/LogContext';
 import { getVisiblePixels } from '../../../components/cards/ad/common/ownPixels';
 import { AdActions } from '../../../lib/ads';
@@ -44,12 +45,17 @@ export const useSponsorSlotLog = <T extends HTMLElement = HTMLElement>({
   macroContextRef.current = macroContext;
 
   const asAd = useMemo(() => getSponsorAd(sponsor), [sponsor]);
+  const { isEnabled } = useAdLifecycle(!!sponsor.lifecycle);
+  const lifecycle = isEnabled ? getAdSlotLifecycle(asAd) : undefined;
   const transition = useCallback(
     (milestone: 'click' | 'viewable' | AdSlotVisibilityMilestone) => {
+      if (!isEnabled || !macroContext) {
+        return;
+      }
       runAdSlotActions({
         ad: asAd,
         milestone,
-        macros: macroContext ?? {},
+        macros: macroContext,
         onEvent: (name) =>
           logEvent({
             ...sponsorStripLogEvent(AdActions.Viewable, sponsor, slotIndex),
@@ -57,16 +63,17 @@ export const useSponsorSlotLog = <T extends HTMLElement = HTMLElement>({
           }),
       });
     },
-    [asAd, macroContext, logEvent, sponsor, slotIndex],
+    [asAd, isEnabled, macroContext, logEvent, sponsor, slotIndex],
   );
   const visibilityMilestones = useMemo<AdSlotVisibilityMilestone[]>(
     () =>
       (['visible', 'half-visible', 'visible-for-1s'] as const).filter(
-        (event) => !!sponsor.lifecycle?.on[event]?.length,
+        (event) => !!lifecycle?.on[event]?.length,
       ),
-    [sponsor.lifecycle],
+    [lifecycle],
   );
   const { ref: viewabilityRef, isViewable } = useViewability<T>({
+    enabled: !lifecycle || !!macroContext,
     trackingKey: genId,
     onVisibility: transition,
     visibilityMilestones,

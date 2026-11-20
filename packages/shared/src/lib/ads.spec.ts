@@ -99,6 +99,51 @@ describe('ads', () => {
   });
 
   describe('fetchAdByPlacement', () => {
+    it('rejects a non-JSON initial failure so the query can retry it', async () => {
+      const failure = new SyntaxError('Unexpected token <');
+      jest.mocked(global.fetch).mockResolvedValue({
+        ok: false,
+        status: 503,
+        json: jest.fn().mockRejectedValue(failure),
+      } as unknown as Response);
+      const onTransition = jest.fn();
+
+      await expect(
+        fetchAdByPlacement({ placement: AdPlacement.Feed, onTransition }),
+      ).rejects.toBe(failure);
+      expect(onTransition.mock.calls).toEqual([
+        [{ type: 'pre-fetch' }],
+        [{ type: 'fetch-error' }],
+      ]);
+    });
+
+    it('rejects a failed refresh even when the error body is JSON', async () => {
+      const json = jest.fn().mockResolvedValue({ error: 'unavailable' });
+      jest.mocked(global.fetch).mockResolvedValue({
+        ok: false,
+        status: 503,
+        json,
+      } as unknown as Response);
+      const onTransition = jest.fn();
+
+      await expect(
+        fetchAdByPlacement({
+          placement: AdPlacement.Feed,
+          refresh: {
+            platform: 'web_desktop',
+            count: 1,
+            generationId: 'previous',
+          },
+          onTransition,
+        }),
+      ).rejects.toThrow('Ad request failed with status 503');
+      expect(json).not.toHaveBeenCalled();
+      expect(onTransition.mock.calls).toEqual([
+        [{ type: 'pre-fetch' }],
+        [{ type: 'fetch-error' }],
+      ]);
+    });
+
     it('reports pre-fetch before the request and post-fetch with the generation id', async () => {
       const onTransition = jest.fn();
       const request = fetchAdByPlacement({

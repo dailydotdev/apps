@@ -15,6 +15,7 @@ import { useAdRequestConsent } from './useAdRequestConsent';
 import { getAdRefreshPlatform } from './refresh/adRefresh';
 import { useAdSlotFetch } from './useAdSlotFetch';
 import type { AdSlotFetchTransition } from './adSlotLifecycle';
+import { useAdLifecycle } from './useAdLifecycle';
 
 interface UseFetchAds {
   isAdConsentReady: boolean;
@@ -28,6 +29,7 @@ interface UseFetchAds {
 
 export const useFetchAd = (enabled = true): UseFetchAds => {
   const consent = useAdRequestConsent(enabled);
+  const { resolveAd } = useAdLifecycle(enabled);
   const { isAuthReady, isLoggedIn, isAndroidApp } = useAuthContext();
   const registered = isAuthReady ? isLoggedIn : undefined;
   const { value: refreshEngineVersion } = useConditionalFeature({
@@ -42,27 +44,36 @@ export const useFetchAd = (enabled = true): UseFetchAds => {
       if (!consent) {
         return null;
       }
-      return fetchAdByPlacement({
-        ...resolveAdFetchOptions({
-          placement,
-          active,
-          consent,
-          registered,
-        }),
-        ...(isRefreshEngine && {
-          refresh: {
-            platform: getAdRefreshPlatform(isAndroidApp),
-            count: 0,
-            ...refresh,
+      return resolveAd(
+        await fetchAdByPlacement({
+          ...resolveAdFetchOptions({
+            placement,
+            active,
+            consent,
+            registered,
+          }),
+          ...(isRefreshEngine && {
+            refresh: {
+              platform: getAdRefreshPlatform(isAndroidApp),
+              count: 0,
+              ...refresh,
+            },
+          }),
+          onTransition: (transition) => {
+            const resolved = onFetchTransition(transition);
+            onTransition?.(resolved);
           },
         }),
-        onTransition: (transition) => {
-          onFetchTransition(transition);
-          onTransition?.(transition);
-        },
-      });
+      );
     },
-    [consent, isAndroidApp, isRefreshEngine, onFetchTransition, registered],
+    [
+      consent,
+      isAndroidApp,
+      isRefreshEngine,
+      onFetchTransition,
+      registered,
+      resolveAd,
+    ],
   );
 
   return {

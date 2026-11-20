@@ -1,6 +1,7 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
 import ad from '../../../../../__tests__/fixture/ad';
 import { TestBootProvider } from '../../../../../__tests__/helpers/boot';
@@ -22,7 +23,7 @@ const configuredAd: Ad = {
     on: {
       impression: [
         { type: 'pixel', url },
-        { type: 'event', name: 'marker intersected' },
+        { type: 'event', name: 'impression' },
       ],
     },
   },
@@ -31,7 +32,14 @@ const configuredAd: Ad = {
 const renderTracker = (creative: Ad, logEvent = jest.fn()) => {
   const LogContext = getLogContextStatic();
   return render(
-    <TestBootProvider client={new QueryClient()}>
+    <TestBootProvider
+      client={new QueryClient()}
+      gb={
+        new GrowthBook({
+          features: { ad_slot_lifecycle: { defaultValue: true } },
+        })
+      }
+    >
       <LogContext.Provider
         value={{
           logEvent,
@@ -62,7 +70,7 @@ it('runs impression actions when the original marker intersects without tab focu
     expect.stringMatching(/^\/impression\?cb=\d+$/),
   );
   expect(logEvent).toHaveBeenCalledWith(
-    expect.objectContaining({ event_name: 'marker intersected' }),
+    expect.objectContaining({ event_name: 'impression' }),
   );
 });
 
@@ -76,4 +84,28 @@ it('still fires the impression pixel when IntersectionObserver is unavailable', 
   } finally {
     globalThis.IntersectionObserver = observer;
   }
+});
+
+it('preserves an existing impression image when lifecycle is switched off for a cached creative', () => {
+  const gb = new GrowthBook({
+    features: { ad_slot_lifecycle: { defaultValue: true } },
+  });
+  const client = new QueryClient();
+  const show = () => (
+    <TestBootProvider client={client} gb={gb}>
+      <AdPixel
+        ad={{ ...configuredAd, generationId: 'cached-pixel-kill-switch' }}
+      />
+    </TestBootProvider>
+  );
+  const { rerender } = render(show());
+  mockAllIsIntersecting(true);
+  const pixel = screen.getByTestId('pixel');
+  const source = pixel.getAttribute('src');
+
+  act(() => gb.setFeatures({ ad_slot_lifecycle: { defaultValue: false } }));
+  rerender(show());
+
+  expect(screen.getByTestId('pixel')).toBe(pixel);
+  expect(pixel).toHaveAttribute('src', source);
 });

@@ -11,6 +11,7 @@ import {
   getAdSlotLifecycle,
 } from '../../../../features/monetization/adSlotLifecycle';
 import { useAdSlotActions } from '../../../../features/monetization/useAdSlotActions';
+import { useAdLifecycle } from '../../../../features/monetization/useAdLifecycle';
 
 interface AdPixelProps extends Pick<Ad, 'pixel'> {
   ad?: Ad;
@@ -80,7 +81,17 @@ const ConfiguredAdPixel = ({
   ad: Ad;
   actions: AdSlotAction[];
 }): ReactElement => {
-  const pixel = useMemo(() => getAdSlotImpressionPixels(actions), [actions]);
+  const { isEnabled } = useAdLifecycle(true);
+  const pixel = useMemo(() => {
+    if (!isEnabled) {
+      return ad.pixel;
+    }
+    const configured = getAdSlotImpressionPixels(actions);
+    return configured.length === ad.pixel?.length &&
+      configured.every((url, index) => url === ad.pixel?.[index])
+      ? ad.pixel
+      : configured;
+  }, [actions, ad.pixel, isEnabled]);
   const transition = useAdSlotActions(ad);
 
   return (

@@ -6,6 +6,7 @@ import { disabledRefetch, shuffleArray } from '../../../lib/func';
 import { RequestKey } from '../../../lib/query';
 import { ONE_HOUR } from '../../../lib/time';
 import { useAdMacroContext } from '../useAdMacroContext';
+import { useAdLifecycle } from '../useAdLifecycle';
 import { fetchSponsorStripAds } from './fetchSponsorStripAds';
 import {
   boxedLogoWidth,
@@ -111,6 +112,7 @@ const useDeck = (pool: SponsorStripCreative[]): SponsorStripCreative[] => {
 
 export const useSponsorStripAds = (): UseSponsorStripAds => {
   const consent = useAdMacroContext(true) ?? undefined;
+  const { isEnabled, resolveAd } = useAdLifecycle();
   const onFetch = useAdSlotFetch(consent ?? null);
   const { data, isPending } = useQuery({
     // Consent fingerprint, so the bar refetches when the reader answers the
@@ -120,21 +122,30 @@ export const useSponsorStripAds = (): UseSponsorStripAds => {
       AdPlacement.SponsorStrip,
       consent?.gdprApplies,
       consent?.consentString ?? '',
+      isEnabled,
     ],
-    queryFn: () =>
-      fetchSponsorStripAds(consent, (response) => {
-        parseSponsors(response).forEach((creative) =>
-          onFetch({
-            type: 'post-fetch',
-            ad: getSponsorAd(resolveSponsor(creative)),
-          }),
-        );
-      }),
+    queryFn: async () => {
+      const response = await fetchSponsorStripAds(consent);
+      const creatives = parseSponsors(response).map((creative) =>
+        resolveAd(creative),
+      );
+      creatives.forEach((creative) =>
+        onFetch({
+          type: 'post-fetch',
+          ad: getSponsorAd(resolveSponsor(creative)),
+        }),
+      );
+      return creatives;
+    },
+    enabled: !isEnabled || !!consent,
     staleTime: ONE_HOUR,
     ...disabledRefetch,
   });
 
-  const pools = useMemo(() => partitionByTier(parseSponsors(data)), [data]);
+  const pools = useMemo(
+    () => partitionByTier((data ?? []).map((creative) => resolveAd(creative))),
+    [data, resolveAd],
+  );
   const premiumDeck = useDeck(pools.premium);
   const communityDeck = useDeck(pools.community);
 

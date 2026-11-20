@@ -122,54 +122,57 @@ export const AdAsComment = ({
 
   return (
     <AdSlot ad={ad}>
-      <div
-        className={classNames(
-          'relative flex flex-wrap content-start rounded-16 border border-border-subtlest-tertiary p-4 hover:bg-surface-hover focus:outline',
-          !isCompact && 'mt-6',
-        )}
-      >
-        <AdLink ad={ad} onLinkClick={() => onAdAction(AdActions.Click)} />
-        <ProfilePicture
-          nativeLazyLoading
-          className="!inline-block"
-          size={ProfileImageSize.Large}
-          user={{ id: providerId, username: source, image: avatar }}
-          fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-          style={{ backgroundColor: ad?.backgroundColor }}
-        />
-        <div className="ml-3">
-          <TruncateText className="commentAuthor flex w-fit font-bold text-text-primary typo-callout">
-            {advertiserName}
-          </TruncateText>
-          <TruncateText className="text-text-quaternary typo-callout">
-            {promotedText}
-          </TruncateText>
-        </div>
-        {!isPlus && (
-          <div className="z-1 ml-auto flex gap-1">
-            <RemoveAd
-              iconOnly
-              variant={ButtonVariant.Tertiary}
-              icon={<MiniCloseIcon />}
-            />
-          </div>
-        )}
-        <p className="mt-3 w-full text-text-primary typo-body">
-          {tagLine && (
-            <>
-              <b>{tagLine}</b>
-              <br />
-            </>
+      {(slotProps) => (
+        <div
+          {...slotProps}
+          className={classNames(
+            'relative flex flex-wrap content-start rounded-16 border border-border-subtlest-tertiary p-4 hover:bg-surface-hover focus:outline',
+            !isCompact && 'mt-6',
           )}
-          {description}
-        </p>
-        <AdvertiseLink
-          targetId={TargetId.AdComment}
-          className="mt-2 w-fit whitespace-nowrap typo-caption2"
-        />
-        <AdPixel ad={ad} />
-        <AdViewability ad={ad} onViewable={onViewable} />
-      </div>
+        >
+          <AdLink ad={ad} onLinkClick={() => onAdAction(AdActions.Click)} />
+          <ProfilePicture
+            nativeLazyLoading
+            className="!inline-block"
+            size={ProfileImageSize.Large}
+            user={{ id: providerId, username: source, image: avatar }}
+            fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+            style={{ backgroundColor: ad?.backgroundColor }}
+          />
+          <div className="ml-3">
+            <TruncateText className="commentAuthor flex w-fit font-bold text-text-primary typo-callout">
+              {advertiserName}
+            </TruncateText>
+            <TruncateText className="text-text-quaternary typo-callout">
+              {promotedText}
+            </TruncateText>
+          </div>
+          {!isPlus && (
+            <div className="z-1 ml-auto flex gap-1">
+              <RemoveAd
+                iconOnly
+                variant={ButtonVariant.Tertiary}
+                icon={<MiniCloseIcon />}
+              />
+            </div>
+          )}
+          <p className="mt-3 w-full text-text-primary typo-body">
+            {tagLine && (
+              <>
+                <b>{tagLine}</b>
+                <br />
+              </>
+            )}
+            {description}
+          </p>
+          <AdvertiseLink
+            targetId={TargetId.AdComment}
+            className="mt-2 w-fit whitespace-nowrap typo-caption2"
+          />
+          <AdPixel ad={ad} />
+          <AdViewability ad={ad} onViewable={onViewable} />
+        </div>
+      )}
     </AdSlot>
   );
 };

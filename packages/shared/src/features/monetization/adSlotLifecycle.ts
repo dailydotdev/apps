@@ -1,4 +1,5 @@
 import type { Ad } from '../../graphql/posts';
+import { AdActions } from '../../lib/ads';
 import type { AdMacroContext } from './adMacros';
 import { substituteMacros } from './adMacros';
 
@@ -39,6 +40,10 @@ export type AdSlotFetchTransition =
 export const getAdSlotLifecycle = (ad: Ad): AdSlotLifecycle | undefined =>
   ad.lifecycle?.version === 1 && ad.lifecycle.on ? ad.lifecycle : undefined;
 
+export const withoutAdSlotLifecycle = <T extends { lifecycle?: unknown }>(
+  ad: T,
+): T => (ad.lifecycle ? { ...ad, lifecycle: undefined } : ad);
+
 export const getAdSlotImpressionPixels = (actions: AdSlotAction[]): string[] =>
   actions.flatMap((action) =>
     action?.type === 'pixel' && typeof action.url === 'string'
@@ -46,12 +51,9 @@ export const getAdSlotImpressionPixels = (actions: AdSlotAction[]): string[] =>
       : [],
   );
 
-// Ads are cached across card remounts. Query updates can copy an ad while
-// retaining its lifecycle configuration, so track delivery on that config.
-const delivered = new WeakMap<
-  AdSlotLifecycle,
-  Map<string, Set<AdSlotMilestone>>
->();
+const maxTrackedGenerations = 1_000;
+const delivered = new Map<string, Set<AdSlotMilestone>>();
+const supportedEvents = new Set<string>(Object.values(AdActions));
 
 export const runAdSlotActions = ({
   ad,
@@ -70,16 +72,17 @@ export const runAdSlotActions = ({
     return;
   }
 
-  let generations = delivered.get(lifecycle);
-  if (!generations) {
-    generations = new Map();
-    delivered.set(lifecycle, generations);
-  }
   const generation = ad.generationId ?? ad.link;
-  let milestones = generations.get(generation);
+  let milestones = delivered.get(generation);
   if (!milestones) {
     milestones = new Set();
-    generations.set(generation, milestones);
+    delivered.set(generation, milestones);
+    if (delivered.size > maxTrackedGenerations) {
+      const oldest = delivered.keys().next().value;
+      if (oldest !== undefined) {
+        delivered.delete(oldest);
+      }
+    }
   }
   if (milestone !== AdLifecycleEvent.Click && milestones.has(milestone)) {
     return;
@@ -92,6 +95,7 @@ export const runAdSlotActions = ({
     if (
       action?.type === 'event' &&
       typeof action.name === 'string' &&
+      supportedEvents.has(action.name) &&
       !events.has(action.name)
     ) {
       events.add(action.name);

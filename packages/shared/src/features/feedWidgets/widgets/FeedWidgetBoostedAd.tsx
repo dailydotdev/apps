@@ -115,11 +115,13 @@ const BoostedPostCard = ({
   return (
     <ActivePostContextProvider post={post}>
       <AdSlot ad={ad}>
-        <Card post={post} {...cardProps}>
-          <AdPixel ad={ad} />
-          <AdMeasurement ad={ad} />
-          <AdViewability ad={ad} onViewable={onViewable} />
-        </Card>
+        {(slotProps) => (
+          <Card post={post} {...cardProps} domProps={slotProps}>
+            <AdPixel ad={ad} />
+            <AdMeasurement ad={ad} />
+            <AdViewability ad={ad} onViewable={onViewable} />
+          </Card>
+        )}
       </AdSlot>
       {modal}
     </ActivePostContextProvider>

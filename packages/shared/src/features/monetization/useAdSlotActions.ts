@@ -5,10 +5,12 @@ import { adLogEvent } from '../../lib/feed';
 import type { AdSlotMilestone } from './adSlotLifecycle';
 import { runAdSlotActions } from './adSlotLifecycle';
 import { useAdMacroContext } from './useAdMacroContext';
+import { useAdLifecycle } from './useAdLifecycle';
 
 export const useAdSlotActions = (ad: Ad) => {
   const { logEvent } = useLogContext();
-  const macros = useAdMacroContext(true);
+  const { isEnabled } = useAdLifecycle(!!ad.lifecycle);
+  const macros = useAdMacroContext(isEnabled);
 
   return useCallback(
     (
@@ -16,7 +18,7 @@ export const useAdSlotActions = (ad: Ad) => {
       extra?: Record<string, unknown>,
       onEvent?: (name: string) => boolean,
     ) => {
-      if (!macros) {
+      if (!isEnabled || !macros) {
         return;
       }
       runAdSlotActions({
@@ -34,6 +36,6 @@ export const useAdSlotActions = (ad: Ad) => {
         },
       });
     },
-    [ad, logEvent, macros],
+    [ad, isEnabled, logEvent, macros],
   );
 };

@@ -57,10 +57,11 @@ beforeEach(() => {
 
 const renderListComponent = (
   props: Partial<AdCardProps> = {},
+  boot: Partial<React.ComponentProps<typeof TestBootProvider>> = {},
 ): RenderResult => {
   const client = new QueryClient();
   return render(
-    <TestBootProvider client={client}>
+    <TestBootProvider client={client} {...boot}>
       <ActiveFeedContext.Provider value={{ items: [], queryKey: ['test'] }}>
         <AdList {...defaultProps} {...props} />
       </ActiveFeedContext.Provider>
@@ -278,9 +279,19 @@ it('should move the compact grid ad controls under a menu', () => {
   );
 });
 
-it.each(['list', 'compact grid'])(
-  'fires click tracking for macro-bearing links in the %s ad',
-  (layout) => {
+it.each([
+  { layout: 'list', enabled: true },
+  { layout: 'list', enabled: false },
+  { layout: 'compact grid', enabled: true },
+  { layout: 'compact grid', enabled: false },
+])(
+  'gates click tracking for macro-bearing links in the $layout ad with lifecycle=$enabled',
+  ({ layout, enabled }) => {
+    const boot = {
+      gb: new GrowthBook({
+        features: { ad_slot_lifecycle: { defaultValue: enabled } },
+      }),
+    };
     const src = jest.spyOn(HTMLImageElement.prototype, 'src', 'set');
     const configured = {
       ...ad,
@@ -296,12 +307,12 @@ it.each(['list', 'compact grid'])(
       },
     };
     if (layout === 'list') {
-      renderListComponent({ ad: configured });
+      renderListComponent({ ad: configured }, boot);
       fireEvent.click(
         within(screen.getByTestId('postItem')).getAllByRole('link')[0],
       );
     } else {
-      renderGridComponent({ ad: configured, isCompact: true });
+      renderGridComponent({ ad: configured, isCompact: true }, boot);
       fireEvent.keyDown(screen.getByRole('button', { name: 'Options' }), {
         key: 'Enter',
       });
@@ -311,7 +322,7 @@ it.each(['list', 'compact grid'])(
     }
     expect(
       src.mock.calls.filter(([url]) => url === 'https://tracker.example/click'),
-    ).toHaveLength(1);
+    ).toHaveLength(enabled ? 1 : 0);
     src.mockRestore();
   },
 );

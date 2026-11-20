@@ -51,6 +51,8 @@ export const featureAppStoreReview = new Feature('app_store_review', false);
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
+export const featureAdSlotLifecycle = new Feature('ad_slot_lifecycle', false);
+
 export enum AdRefreshEngineVersion {
   V1 = 'v1',
   V2 = 'v2',

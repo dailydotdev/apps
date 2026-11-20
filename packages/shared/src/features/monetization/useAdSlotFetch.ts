@@ -4,21 +4,27 @@ import { adLogEvent } from '../../lib/feed';
 import type { AdMacroContext } from './adMacros';
 import type { AdSlotFetchTransition } from './adSlotLifecycle';
 import { runAdSlotActions } from './adSlotLifecycle';
+import { useAdLifecycle } from './useAdLifecycle';
 
 export const useAdSlotFetch = (
   macros: AdMacroContext | null,
   onTransition?: (transition: AdSlotFetchTransition) => void,
-): ((transition: AdSlotFetchTransition) => void) => {
+): ((transition: AdSlotFetchTransition) => AdSlotFetchTransition) => {
   const { logEvent } = useLogContext();
+  const { isEnabled, resolveAd } = useAdLifecycle(!!macros);
 
   return useCallback(
     (transition: AdSlotFetchTransition) => {
-      onTransition?.(transition);
-      if (transition.type === 'post-fetch' && macros) {
-        const { ad } = transition;
+      const resolved =
+        transition.type === 'post-fetch'
+          ? { ...transition, ad: resolveAd(transition.ad) }
+          : transition;
+      onTransition?.(resolved);
+      if (resolved.type === 'post-fetch' && isEnabled && macros) {
+        const { ad } = resolved;
         runAdSlotActions({
           ad,
-          milestone: transition.type,
+          milestone: resolved.type,
           macros,
           onEvent: (name) =>
             logEvent(
@@ -26,7 +32,8 @@ export const useAdSlotFetch = (
             ),
         });
       }
+      return resolved;
     },
-    [logEvent, macros, onTransition],
+    [isEnabled, logEvent, macros, onTransition, resolveAd],
   );
 };

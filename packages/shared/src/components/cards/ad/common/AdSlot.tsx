@@ -1,13 +1,19 @@
-import type { MouseEvent, ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import type { DOMAttributes, MouseEvent, ReactElement } from 'react';
+import React, { useEffect, useLayoutEffect } from 'react';
 import type { Ad } from '../../../../graphql/posts';
 import { getAdSlotLifecycle } from '../../../../features/monetization/adSlotLifecycle';
 import { useAdClickUrl } from '../../../../features/monetization/useAdClickUrl';
 import { useAdSlotActions } from '../../../../features/monetization/useAdSlotActions';
+import { useAdLifecycle } from '../../../../features/monetization/useAdLifecycle';
+
+export type AdSlotRootProps = Pick<
+  DOMAttributes<HTMLElement>,
+  'onClickCapture' | 'onAuxClickCapture'
+>;
 
 interface AdSlotProps {
   ad: Ad;
-  children: ReactElement;
+  children: (props: AdSlotRootProps) => ReactElement;
   trackClicks?: boolean;
 }
 
@@ -15,7 +21,8 @@ const ConfiguredAdSlot = ({
   ad,
   children,
   trackClicks = true,
-}: AdSlotProps): ReactElement | null => {
+}: AdSlotProps): ReactElement => {
+  const { isEnabled } = useAdLifecycle(!!ad.lifecycle);
   const transition = useAdSlotActions(ad);
   const href = useAdClickUrl(ad);
   const onClick = (event: MouseEvent<HTMLElement>) => {
@@ -37,33 +44,18 @@ const ConfiguredAdSlot = ({
       transition('click');
     }
   };
-  const [state, setState] = useState<'pre-render' | 'post-render'>(() =>
-    getAdSlotLifecycle(ad)?.on['pre-render']?.length
-      ? 'pre-render'
-      : 'post-render',
-  );
+  useLayoutEffect(() => {
+    transition('pre-render');
+  }, [transition]);
 
   useEffect(() => {
-    transition(state);
-    if (state === 'pre-render') {
-      setState('post-render');
-    }
-  }, [state, transition]);
+    transition('post-render');
+  }, [transition]);
 
-  if (state !== 'post-render') {
-    return null;
-  }
-  if (!trackClicks || !getAdSlotLifecycle(ad)?.on.click?.length) {
-    return children;
-  }
-  return (
-    <span
-      className="contents"
-      onClickCapture={onClick}
-      onAuxClickCapture={onClick}
-    >
-      {children}
-    </span>
+  return children(
+    isEnabled && trackClicks && getAdSlotLifecycle(ad)?.on.click?.length
+      ? { onClickCapture: onClick, onAuxClickCapture: onClick }
+      : {},
   );
 };
 
@@ -78,7 +70,7 @@ export const AdSlot = ({
     !lifecycle?.on['post-render']?.length &&
     (!trackClicks || !lifecycle?.on.click?.length)
   ) {
-    return children;
+    return children({});
   }
 
   return (

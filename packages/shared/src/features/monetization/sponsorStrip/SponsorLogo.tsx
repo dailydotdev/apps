@@ -10,6 +10,7 @@ import type { ResolvedSponsor } from './sponsorStripCreative';
 import { getSponsorAd, getSponsorLogo } from './sponsorStripCreative';
 import { useSponsorSlotLog } from './useSponsorSlotLog';
 import { useIsLightTheme } from '../../../hooks/utils/useThemedAsset';
+import { useAdLifecycle } from '../useAdLifecycle';
 
 interface SponsorLogoProps {
   sponsor: ResolvedSponsor;
@@ -37,14 +38,17 @@ export const SponsorLogo = ({
   className,
 }: SponsorLogoProps): ReactElement => {
   const ad = useMemo(() => getSponsorAd(sponsor), [sponsor]);
+  const { isEnabled } = useAdLifecycle(!!sponsor.lifecycle);
   const { ref, isViewable, onClick } = useSponsorSlotLog<HTMLAnchorElement>({
     sponsor,
     slotIndex,
   });
   const viewedPixels = useMemo(
     () =>
-      sponsor.lifecycle?.on.viewable ? [] : getViewedPixels(sponsor.pixel),
-    [sponsor.pixel, sponsor.lifecycle],
+      isEnabled && sponsor.lifecycle?.on.viewable
+        ? []
+        : getViewedPixels(sponsor.pixel),
+    [isEnabled, sponsor.pixel, sponsor.lifecycle],
   );
   const isLightTheme = useIsLightTheme();
   const logo = getSponsorLogo(sponsor, isLightTheme);
@@ -69,55 +73,58 @@ export const SponsorLogo = ({
 
   return (
     <AdSlot ad={ad} trackClicks={false}>
-      <a
-        ref={ref}
-        href={sponsor.link}
-        target="_blank"
-        rel={anchorSponsoredRel}
-        title={sponsor.company}
-        onClick={onClick}
-        className={classNames(
-          'relative flex shrink-0 items-center justify-center',
-          className,
-        )}
-      >
-        {monochrome ? (
-          <span
-            role="img"
-            aria-label={sponsor.company}
-            className="block"
-            style={{
-              ...size,
-              // `bg-current` is not in this palette — the design tokens replace
-              // the default colours — so the ink is painted directly and the
-              // logo file is what shapes it.
-              backgroundColor: 'currentColor',
-              maskImage: `url(${logo})`,
-              maskRepeat: 'no-repeat',
-              maskPosition: 'center',
-              maskSize: 'contain',
-              WebkitMaskImage: `url(${logo})`,
-              WebkitMaskRepeat: 'no-repeat',
-              WebkitMaskPosition: 'center',
-              WebkitMaskSize: 'contain',
-            }}
-          />
-        ) : (
-          <img
-            src={logo}
-            alt={sponsor.company}
-            className="object-contain"
-            style={size}
-          />
-        )}
-        {/* No `fireOnMount`: the ad server should count the impression when the
+      {(slotProps) => (
+        <a
+          {...slotProps}
+          ref={ref}
+          href={sponsor.link}
+          target="_blank"
+          rel={anchorSponsoredRel}
+          title={sponsor.company}
+          onClick={onClick}
+          className={classNames(
+            'relative flex shrink-0 items-center justify-center',
+            className,
+          )}
+        >
+          {monochrome ? (
+            <span
+              role="img"
+              aria-label={sponsor.company}
+              className="block"
+              style={{
+                ...size,
+                // `bg-current` is not in this palette — the design tokens replace
+                // the default colours — so the ink is painted directly and the
+                // logo file is what shapes it.
+                backgroundColor: 'currentColor',
+                maskImage: `url(${logo})`,
+                maskRepeat: 'no-repeat',
+                maskPosition: 'center',
+                maskSize: 'contain',
+                WebkitMaskImage: `url(${logo})`,
+                WebkitMaskRepeat: 'no-repeat',
+                WebkitMaskPosition: 'center',
+                WebkitMaskSize: 'contain',
+              }}
+            />
+          ) : (
+            <img
+              src={logo}
+              alt={sponsor.company}
+              className="object-contain"
+              style={size}
+            />
+          )}
+          {/* No `fireOnMount`: the ad server should count the impression when the
           mark reaches the viewport, which is how every other placement counts
           it. Only the viewable re-fire below is already gated by then. */}
-        <AdPixel ad={ad} />
-        {isViewable && !!viewedPixels.length && (
-          <AdPixel pixel={viewedPixels} fireOnMount />
-        )}
-      </a>
+          <AdPixel ad={ad} />
+          {isViewable && !!viewedPixels.length && (
+            <AdPixel pixel={viewedPixels} fireOnMount />
+          )}
+        </a>
+      )}
     </AdSlot>
   );
 };
