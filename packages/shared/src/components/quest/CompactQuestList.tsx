@@ -23,6 +23,7 @@ import {
   QuestStatus,
   isQuestClaimed,
 } from '../../graphql/quests';
+import { QuestBonusRewardBadge } from './QuestBonusRewardBadge';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
@@ -131,6 +132,7 @@ export const CompactQuestRow = ({
             </Typography>
           </a>
         </Link>
+        {!isClaimed && <QuestBonusRewardBadge quest={quest} />}
         <ArrowIcon
           aria-hidden
           size={IconSize.XSmall}

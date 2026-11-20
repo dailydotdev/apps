@@ -9,8 +9,11 @@ import type { QuestReward, QuestType, UserQuest } from '../../graphql/quests';
 import {
   QuestRewardType,
   QuestStatus,
+  getQuestRewardLabel,
+  hasQuestBonusReward,
   isQuestClaimed,
 } from '../../graphql/quests';
+import { QuestBonusRewardBadge } from './QuestBonusRewardBadge';
 import type { QuestRewardSource } from './QuestRewardAnimations';
 
 type ClaimedStampMaskHole = {
@@ -114,18 +117,6 @@ const getRewardIcon = (reward: QuestReward): ReactElement => {
   }
 };
 
-const getRewardLabel = (reward: QuestReward): string => {
-  switch (reward.type) {
-    case QuestRewardType.Cores:
-      return 'Cores';
-    case QuestRewardType.Reputation:
-      return 'Reputation';
-    case QuestRewardType.Xp:
-    default:
-      return 'XP';
-  }
-};
-
 export const getVisibleQuestRewards = (
   rewards: QuestReward[],
   showLevelSystem: boolean,
@@ -163,7 +154,7 @@ const QuestRewardChip = ({
       className="inline-flex items-center gap-1 rounded-8 bg-surface-float px-2 py-1 typo-caption1"
     >
       {getRewardIcon(reward)}+{reward.amount.toLocaleString()}{' '}
-      {getRewardLabel(reward)}
+      {getQuestRewardLabel(reward.type)}
     </span>
   );
 };
@@ -240,7 +231,14 @@ export const QuestCard = ({
   );
 
   return (
-    <article className="relative overflow-hidden rounded-12 border border-border-subtlest-tertiary p-2">
+    <article
+      className={classNames(
+        'relative overflow-hidden rounded-12 border p-2',
+        hasQuestBonusReward(quest, visibleRewards) && !isClaimed
+          ? 'border-accent-cheese-default shadow-bubble-cheese'
+          : 'border-border-subtlest-tertiary',
+      )}
+    >
       <div className="flex flex-col gap-2">
         <div className={disabledContentClass}>
           <header className="flex items-start justify-between gap-2">
@@ -254,6 +252,12 @@ export const QuestCard = ({
                 <p className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
                   {quest.quest.name}
                 </p>
+                {!isClaimed && (
+                  <QuestBonusRewardBadge
+                    quest={quest}
+                    rewards={visibleRewards}
+                  />
+                )}
                 {shouldShowDestination && destination && onDestinationClick && (
                   <Tooltip content={`Go to ${destination.label}`}>
                     <Button
