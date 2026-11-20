@@ -45,12 +45,37 @@ export interface UserQuest {
   claimable: boolean;
   quest: QuestDefinition;
   rewards: QuestReward[];
+  rewardMultipliers?: Record<QuestRewardType, number>;
 }
 
 // A claim is only reliably detected by checking both: the API stamps
 // `claimedAt` without always flipping `status` to `claimed`.
 export const isQuestClaimed = (quest: UserQuest): boolean =>
   quest.status === QuestStatus.Claimed || Boolean(quest.claimedAt);
+
+export const getQuestRewardLabel = (type: QuestRewardType): string => {
+  switch (type) {
+    case QuestRewardType.Cores:
+      return 'Cores';
+    case QuestRewardType.Reputation:
+      return 'Reputation';
+    case QuestRewardType.Xp:
+    default:
+      return 'XP';
+  }
+};
+
+export const getQuestBonusRewards = (
+  quest: UserQuest,
+): { type: QuestRewardType; multiplier: number }[] =>
+  Object.values(QuestRewardType).flatMap((type) => {
+    const multiplier = quest.rewardMultipliers?.[type] ?? 1;
+
+    return multiplier > 1 ? [{ type, multiplier }] : [];
+  });
+
+export const hasQuestBonusReward = (quest: UserQuest): boolean =>
+  getQuestBonusRewards(quest).length > 0;
 
 export interface QuestBucket {
   regular: UserQuest[];
@@ -121,6 +146,11 @@ export const QUEST_DASHBOARD_QUERY = gql`
           claimedAt
           locked
           claimable
+          rewardMultipliers {
+            xp
+            reputation
+            cores
+          }
           quest {
             id
             name
@@ -143,6 +173,11 @@ export const QUEST_DASHBOARD_QUERY = gql`
           claimedAt
           locked
           claimable
+          rewardMultipliers {
+            xp
+            reputation
+            cores
+          }
           quest {
             id
             name
@@ -167,6 +202,11 @@ export const QUEST_DASHBOARD_QUERY = gql`
           claimedAt
           locked
           claimable
+          rewardMultipliers {
+            xp
+            reputation
+            cores
+          }
           quest {
             id
             name
@@ -189,6 +229,11 @@ export const QUEST_DASHBOARD_QUERY = gql`
           claimedAt
           locked
           claimable
+          rewardMultipliers {
+            xp
+            reputation
+            cores
+          }
           quest {
             id
             name
@@ -270,6 +315,11 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
           claimedAt
           locked
           claimable
+          rewardMultipliers {
+            xp
+            reputation
+            cores
+          }
           quest {
             id
             name
@@ -292,6 +342,11 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
           claimedAt
           locked
           claimable
+          rewardMultipliers {
+            xp
+            reputation
+            cores
+          }
           quest {
             id
             name
@@ -316,6 +371,11 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
           claimedAt
           locked
           claimable
+          rewardMultipliers {
+            xp
+            reputation
+            cores
+          }
           quest {
             id
             name
@@ -338,6 +398,11 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
           claimedAt
           locked
           claimable
+          rewardMultipliers {
+            xp
+            reputation
+            cores
+          }
           quest {
             id
             name
