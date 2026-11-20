@@ -166,6 +166,23 @@ describe('getPatchyQuickReads', () => {
     ).toEqual(['a']);
   });
 
+  it('picks from For You, where posts sit in node.post', () => {
+    const client = new QueryClient();
+    client.setQueryData([SharedFeedPage.MyFeed, 'user', 1], {
+      pages: [
+        {
+          page: {
+            edges: [
+              { node: { __typename: 'FeedPostItem', post: post('v', 2, 1) } },
+            ],
+          },
+        },
+      ],
+    });
+
+    expect(getPatchyQuickReads(client).map(({ id }) => id)).toEqual(['v']);
+  });
+
   it('picks from the tag page feed', () => {
     const client = new QueryClient();
     client.setQueryData([RequestKey.TagFeed, 'user', 'rust'], {
