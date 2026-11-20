@@ -1,6 +1,7 @@
 import type { FeedItem } from '../hooks/useFeed';
 import { FeedItemType } from '../components/cards/common/common';
 import { PostType } from '../graphql/posts';
+import { FeedWidgetSize } from '../features/feedWidgets/types';
 
 export const SUPPORTED_WIDE_POST_TYPES_TUPLE = [
   PostType.Article,
@@ -25,10 +26,19 @@ export const postHasHeroImage = (post: {
 
 const MAX_HERO_COL_SPAN = 4;
 
+/** A widget the reader sized two cards wide, as a hero card is. */
+export const isWideFeedWidgetItem = (item: FeedItem): boolean =>
+  item?.type === FeedItemType.Widget &&
+  item.widget.size === FeedWidgetSize.Large;
+
 export const requestedColSpan = (
   item: FeedItem,
   widenableTypes: ReadonlySet<PostType>,
 ): number => {
+  if (isWideFeedWidgetItem(item)) {
+    return 2;
+  }
+
   if (!item || item.type !== FeedItemType.Post) {
     return 1;
   }
@@ -64,6 +74,11 @@ export interface PlacementBuilderOptions {
    * which at five columns still lets one land in the opening row.
    */
   minWideCardRow?: number;
+  /**
+   * A widget the reader sized wide is among the items: the grid lays out
+   * wide cells for it even with hero cards off, and only for it.
+   */
+  hasWideWidgets?: boolean;
 }
 
 /**
@@ -173,8 +188,10 @@ export const createPlacementBuilder = ({
   widenableTypes,
   firstSlotOffset = 0,
   minWideCardRow = 0,
+  hasWideWidgets = false,
 }: PlacementBuilderOptions): PlacementBuilder => {
-  const layoutEnabled = isEnabled && !isMobile && !isList && numCards > 1;
+  const layoutEnabled =
+    (isEnabled || hasWideWidgets) && !isMobile && !isList && numCards > 1;
   const safeNumCards = Math.max(numCards, 1);
   const safeFirstSlotOffset = Math.max(
     0,
@@ -213,6 +230,15 @@ export const createPlacementBuilder = ({
       const requested = requestedColSpan(item, widenableTypes);
       const actual = ((): number => {
         if (requested === 1) {
+          return 1;
+        }
+        // The reader placed it, so the hero rules (where, how often) do not
+        // apply; it only has to fit the row and stop short of an ad's cell,
+        // and narrows to one card where it does not.
+        if (isWideFeedWidgetItem(item)) {
+          return Math.max(1, Math.min(requested, numCards - col, maxColSpan));
+        }
+        if (!isEnabled) {
           return 1;
         }
         if (itemIdx < startIndex) {

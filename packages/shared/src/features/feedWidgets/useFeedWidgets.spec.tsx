@@ -37,96 +37,169 @@ const renderWidgets = (
 
 const writtenRail = () => setSettings.mock.calls.at(-1)?.[0].flags.feedWidgets;
 
-// The flag's default rail, as it is stored.
-const defaultWidgets = [
-  { id: 'happening-now', kind: 'happeningNow', size: 'large' },
-  { id: 'streak', kind: 'streak', size: 'small' },
-];
-
 beforeEach(() => {
   setSettings.mockClear();
 });
 
+const slotted = (id: string, kind: string, slot: number) => ({
+  id,
+  kind,
+  size: 'tall',
+  slot,
+});
+
 describe('useFeedWidgets', () => {
-  it('starts from the default and records it on the first edit', () => {
+  it('starts with no widgets and records the default on the first one', () => {
     const { result } = renderWidgets();
 
     expect(result.current.isCustomized).toBe(false);
-    expect(result.current.widgets.map(({ kind }) => kind)).toEqual([
-      FeedWidgetKind.HappeningNow,
-      FeedWidgetKind.Streak,
+    expect(result.current.widgets).toEqual([]);
+
+    act(() => {
+      result.current.addWidget(FeedWidgetKind.Notifications, { slot: 4 });
+    });
+
+    expect(writtenRail()).toEqual({
+      version: 1,
+      startedFrom: 'built-in',
+      widgets: [
+        expect.objectContaining({
+          kind: 'notifications',
+          size: 'tall',
+          slot: 4,
+        }),
+      ],
+    });
+  });
+
+  it('leaves out the old header rail’s widgets, which have no slot', () => {
+    const { result } = renderWidgets({
+      version: 1,
+      widgets: [
+        { id: 'rail', kind: 'happeningNow', size: 'large' },
+        slotted('a', 'streak', 2),
+      ],
+    });
+
+    expect(result.current.widgets.map(({ id }) => id)).toEqual(['a']);
+
+    act(() => {
+      result.current.addWidget(FeedWidgetKind.TopStory, { slot: 0 });
+    });
+
+    expect(writtenRail().widgets).toEqual([
+      expect.objectContaining({ kind: 'topStory', slot: 0 }),
+      slotted('a', 'streak', 3),
+    ]);
+  });
+
+  it('moves the widgets after a placed one along a card, and back on removal', () => {
+    const { result } = renderWidgets({
+      version: 1,
+      widgets: [slotted('a', 'streak', 1), slotted('b', 'readingList', 6)],
+    });
+
+    act(() => {
+      result.current.addWidget(FeedWidgetKind.Notifications, { slot: 3 });
+    });
+    expect(writtenRail().widgets).toEqual([
+      slotted('a', 'streak', 1),
+      expect.objectContaining({ kind: 'notifications', slot: 3 }),
+      slotted('b', 'readingList', 7),
     ]);
 
     act(() => {
-      result.current.addWidget(FeedWidgetKind.Notifications);
+      result.current.removeWidget('a');
     });
-
-    expect(writtenRail()).toEqual({
-      version: 1,
-      startedFrom: 'default-3',
-      widgets: [
-        ...defaultWidgets,
-        expect.objectContaining({ kind: 'notifications', size: 'small' }),
-      ],
-    });
+    expect(writtenRail().widgets).toEqual([
+      expect.objectContaining({ kind: 'notifications', slot: 2 }),
+      slotted('b', 'readingList', 6),
+    ]);
   });
 
-  it('seats no default widget the reader could not add themselves', () => {
-    expect(
-      renderWidgets(undefined, undefined, {
-        isLoggedOut: true,
-      }).result.current.widgets.map(({ kind }) => kind),
-    ).toEqual([FeedWidgetKind.HappeningNow]);
-    expect(
-      renderWidgets(undefined, undefined, {
-        optOutReadingStreak: true,
-      }).result.current.widgets.map(({ kind }) => kind),
-    ).toEqual([FeedWidgetKind.HappeningNow]);
-  });
-
-  it('does not stamp a default on a rail saved without one', () => {
+  it('puts a removed widget back on its slot', () => {
     const { result } = renderWidgets({
       version: 1,
-      widgets: [{ id: 'a', kind: 'happeningNow', size: 'tall' }],
+      widgets: [slotted('a', 'streak', 1), slotted('b', 'readingList', 4)],
+    });
+
+    let removed: ReturnType<typeof result.current.removeWidget> = null;
+    act(() => {
+      removed = result.current.removeWidget('a');
+    });
+    expect(writtenRail().widgets).toEqual([slotted('b', 'readingList', 3)]);
+
+    act(() => {
+      result.current.restoreWidget(removed!.removed);
+    });
+    expect(writtenRail().widgets).toEqual([
+      slotted('a', 'streak', 1),
+      slotted('b', 'readingList', 4),
+    ]);
+  });
+
+  it('moves a widget a card along, swapping with a widget there', () => {
+    const { result } = renderWidgets({
+      version: 1,
+      widgets: [slotted('a', 'streak', 1), slotted('b', 'readingList', 2)],
     });
 
     act(() => {
-      result.current.resizeWidget('a', FeedWidgetSize.Small);
+      result.current.moveWidget('a', 2);
     });
 
-    expect(writtenRail()).toEqual({
-      version: 1,
-      widgets: [{ id: 'a', kind: 'happeningNow', size: 'small' }],
-    });
+    expect(writtenRail().widgets).toEqual([
+      slotted('b', 'readingList', 1),
+      slotted('a', 'streak', 2),
+    ]);
   });
 
-  it('keeps what another client stored when this one edits', () => {
+  it('makes a widget wide only in a size its kind comes in', () => {
+    const { result } = renderWidgets({
+      version: 1,
+      widgets: [slotted('a', 'streak', 1), slotted('w', 'weather', 3)],
+    });
+
+    act(() => {
+      result.current.resizeWidget('w', FeedWidgetSize.Large);
+    });
+    expect(setSettings).not.toHaveBeenCalled();
+
+    act(() => {
+      result.current.resizeWidget('a', FeedWidgetSize.Large);
+    });
+    expect(writtenRail().widgets).toEqual([
+      { ...slotted('a', 'streak', 1), size: 'large' },
+      slotted('w', 'weather', 3),
+    ]);
+  });
+
+  it('keeps rail-level fields and newer kinds another client stored', () => {
+    const later = {
+      id: 'later',
+      kind: 'fromANewerBuild',
+      size: 'wide',
+      slot: 5,
+      x: 1,
+    };
     const { result } = renderWidgets({
       version: 1,
       startedFrom: 'default-3',
       offered: ['streak'],
-      widgets: [
-        { id: 'a', kind: 'happeningNow', size: 'tall' },
-        { id: 'later', kind: 'fromANewerBuild', size: 'wide', x: 1 },
-        { id: 'b', kind: 'topStory', size: 'large' },
-      ],
+      widgets: [slotted('a', 'happeningNow', 0), later],
     });
 
-    expect(result.current.widgets.map(({ id }) => id)).toEqual(['a', 'b']);
+    expect(result.current.widgets.map(({ id }) => id)).toEqual(['a']);
 
     act(() => {
-      result.current.resizeWidget('a', FeedWidgetSize.Small);
+      result.current.removeWidget('a');
     });
 
     expect(writtenRail()).toEqual({
       version: 1,
       startedFrom: 'default-3',
       offered: ['streak'],
-      widgets: [
-        { id: 'a', kind: 'happeningNow', size: 'small' },
-        { id: 'later', kind: 'fromANewerBuild', size: 'wide', x: 1 },
-        { id: 'b', kind: 'topStory', size: 'large' },
-      ],
+      widgets: [{ ...later, slot: 4 }],
     });
   });
 
@@ -134,7 +207,7 @@ describe('useFeedWidgets', () => {
     const { result } = renderWidgets({
       version: 2,
       layout: 'from a newer build',
-      widgets: [{ id: 'a', kind: 'topStory', size: 'large' }],
+      widgets: [slotted('a', 'topStory', 0)],
     });
 
     expect(result.current.isReadOnly).toBe(true);
@@ -143,24 +216,23 @@ describe('useFeedWidgets', () => {
 
     act(() => {
       result.current.addWidget(FeedWidgetKind.HappeningNow);
-      result.current.resizeWidget('a', FeedWidgetSize.Tall);
+      result.current.moveWidget('a', 1);
       result.current.resetWidgets();
     });
 
+    expect(result.current.removeWidget('a')).toBeNull();
     expect(setSettings).not.toHaveBeenCalled();
   });
 
-  it('moves a widget with a newer config but never edits that config', () => {
+  it('keeps a newer config as stored but never edits it', () => {
     const newer = {
-      id: 'w',
-      kind: 'weather',
-      size: 'small',
+      ...slotted('w', 'weather', 0),
       v: 9,
       config: { place: { lat: 1 } },
     };
     const { result } = renderWidgets({
       version: 1,
-      widgets: [newer, { id: 'b', kind: 'topStory', size: 'large' }],
+      widgets: [newer, slotted('b', 'topStory', 3)],
     });
 
     let saved: boolean | undefined;
@@ -179,7 +251,7 @@ describe('useFeedWidgets', () => {
   it("stamps this build's version on a config it writes", () => {
     const { result } = renderWidgets({
       version: 1,
-      widgets: [{ id: 'w', kind: 'weather', size: 'small', v: 1 }],
+      widgets: [{ ...slotted('w', 'weather', 0), v: 1 }],
     });
 
     act(() => {
@@ -188,14 +260,14 @@ describe('useFeedWidgets', () => {
 
     // Version 1 is the absent one, so a stale label is dropped, not kept.
     expect(writtenRail().widgets).toEqual([
-      { id: 'w', kind: 'weather', size: 'small', config: { unit: 'c' } },
+      { ...slotted('w', 'weather', 0), config: { unit: 'c' } },
     ]);
   });
 
   it('refuses a config that does not validate for the kind', () => {
     const { result } = renderWidgets({
       version: 1,
-      widgets: [{ id: 'w', kind: 'weather', size: 'small' }],
+      widgets: [slotted('w', 'weather', 0)],
     });
 
     let saved: boolean | undefined;
@@ -209,23 +281,12 @@ describe('useFeedWidgets', () => {
     expect(setSettings).not.toHaveBeenCalled();
   });
 
-  it('reports nothing removed or added on a rail a newer build saved', () => {
-    const { result } = renderWidgets({
-      version: 2,
-      widgets: [{ id: 'a', kind: 'happeningNow', size: 'tall' }],
-    });
-
-    expect(result.current.removeWidget('a')).toBeNull();
-    expect(result.current.addWidget(FeedWidgetKind.TopStory)).toBeNull();
-    expect(setSettings).not.toHaveBeenCalled();
-  });
-
   describe('tips', () => {
     const onDefault = {
       version: 1,
       tipsHidden: true,
-      widgets: defaultWidgets,
-      fromDefault: feedRailFingerprint(defaultWidgets as never),
+      widgets: [],
+      fromDefault: feedRailFingerprint([]),
     };
 
     it('hides them for a reader on the default without customizing', () => {
@@ -236,52 +297,6 @@ describe('useFeedWidgets', () => {
       });
 
       expect(writtenRail()).toEqual(onDefault);
-    });
-
-    it('keeps a reader who hid them on the live default', () => {
-      const { result } = renderWidgets({
-        ...onDefault,
-        // The default changed since; the stored copy is for older builds.
-        widgets: [{ id: 'old-default', kind: 'happeningNow', size: 'tall' }],
-        fromDefault: feedRailFingerprint([
-          { id: 'old-default', kind: 'happeningNow', size: 'tall' },
-        ] as never),
-      });
-
-      expect(result.current.isCustomized).toBe(false);
-      expect(result.current.isTipHidden).toBe(true);
-      expect(result.current.widgets.map(({ id }) => id)).toEqual([
-        'happening-now',
-        'streak',
-      ]);
-
-      act(() => {
-        result.current.addWidget(FeedWidgetKind.Notifications);
-      });
-
-      // The first edit customizes, from the live default, keeping the tips
-      // hidden.
-      expect(writtenRail()).toEqual({
-        version: 1,
-        tipsHidden: true,
-        startedFrom: 'default-3',
-        widgets: [
-          ...defaultWidgets,
-          expect.objectContaining({ kind: 'notifications' }),
-        ],
-      });
-    });
-
-    it('treats a rail an older build edited after hiding them as customized', () => {
-      const { result } = renderWidgets({
-        ...onDefault,
-        widgets: [{ id: 'top-story', kind: 'topStory', size: 'tall' }],
-      });
-
-      expect(result.current.isCustomized).toBe(true);
-      expect(result.current.widgets).toEqual([
-        { id: 'top-story', kind: 'topStory', size: 'tall' },
-      ]);
     });
 
     it('keeps them off for a reader who never turned them on', () => {
@@ -317,7 +332,7 @@ describe('useFeedWidgets', () => {
     });
 
     it('hides them on a customized rail, keeping its widgets', () => {
-      const widgets = [{ id: 'a', kind: 'happeningNow', size: 'tall' }];
+      const widgets = [slotted('a', 'happeningNow', 0)];
       const { result } = renderWidgets({ version: 1, widgets });
 
       act(() => {

@@ -165,7 +165,7 @@ describe('on desktop', () => {
 
     pick('Happening Now');
 
-    expect(screen.getByText('Already on your rail.')).toBeInTheDocument();
+    expect(screen.getByText('Already in your feed.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Added' })).toBeDisabled();
   });
 
@@ -221,7 +221,7 @@ describe('on desktop', () => {
 
     expect(
       screen.getByText(
-        'Your rail is full. Remove a widget to make room for this one.',
+        'Your feed has all the widgets it can hold. Remove one first.',
       ),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Add widget' })).toBeDisabled();

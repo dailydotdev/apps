@@ -6,7 +6,11 @@ import type {
   FeedWidgetDefinition,
 } from './registry';
 import { feedWidgetRegistry } from './registry';
-import type { FeedWidgetKind, FeedWidgetSize } from './types';
+import type {
+  BuiltFeedWidgetKind,
+  FeedWidgetKind,
+  FeedWidgetSize,
+} from './types';
 import { FeedWidgetLoading } from './FeedWidgetFrame';
 
 // Each widget is its own chunk, loaded the first time one renders, so the
@@ -76,14 +80,6 @@ const MessagesWidget = dynamic(
   { loading: FeedWidgetLoading },
 );
 
-const ShortcutsWidget = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "feedWidgetShortcuts" */ './widgets/ShortcutsWidget'
-    ).then((mod) => mod.ShortcutsWidget),
-  { loading: FeedWidgetLoading },
-);
-
 const GettingStartedWidget = dynamic(
   () =>
     import(
@@ -101,12 +97,14 @@ const TodoListWidget = dynamic(
 );
 
 /**
- * The widgets that exist. A kind the registry names but this map lacks is not
- * built yet: hidden from the gallery, and left out of the rendered rail. The
- * map itself is synchronous, so knowing which kinds exist costs no download.
+ * The widgets that exist, one per kind in `builtFeedWidgetKinds`: a built
+ * kind without a widget, or a widget for a kind not in the list, fails to
+ * compile. A kind the registry names but this map lacks is not built yet:
+ * hidden from the gallery, and given no cell in the feed. The map itself is
+ * synchronous, so knowing which kinds exist costs no download.
  */
-export const feedWidgetComponents: {
-  [K in FeedWidgetKind]?: ComponentType<FeedWidgetComponentProps<K>>;
+const builtFeedWidgetComponents: {
+  [K in BuiltFeedWidgetKind]: ComponentType<FeedWidgetComponentProps<K>>;
 } = {
   topStory: TopStoryWidget,
   happeningNow: HappeningNowWidget,
@@ -116,10 +114,13 @@ export const feedWidgetComponents: {
   briefing: BriefingWidget,
   readingList: ReadingListWidget,
   messages: MessagesWidget,
-  shortcuts: ShortcutsWidget,
   gettingStarted: GettingStartedWidget,
   todoList: TodoListWidget,
 };
+
+const feedWidgetComponents: {
+  [K in FeedWidgetKind]?: ComponentType<FeedWidgetComponentProps<K>>;
+} = builtFeedWidgetComponents;
 
 export const getFeedWidgetComponent = (
   kind: FeedWidgetKind,

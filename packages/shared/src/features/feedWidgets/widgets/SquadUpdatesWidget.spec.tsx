@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import React from 'react';
 import nock from 'nock';
 import {
@@ -12,7 +13,6 @@ import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import basePost from '../../../../__tests__/fixture/post';
-import ad from '../../../../__tests__/fixture/ad';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../../../__tests__/fixture/squads';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
@@ -25,24 +25,19 @@ import {
 } from '../../../graphql/feed';
 import type { SettingsFlags } from '../../../graphql/settings';
 import FeedContext from '../../../contexts/FeedContext';
-import { FeedWidgetRail } from '../FeedWidgetRail';
+import { FeedWidgetCell, FeedWidgetEditor } from '../InFeedWidgets';
+import {
+  FeedWidgetSlot,
+  FeedWidgetsCustomizeButton,
+  InFeedWidgetsProvider,
+  useInFeedWidgetsState,
+} from '../InFeedWidgetsContext';
+import { ButtonSize } from '../../../components/buttons/common';
 import type { FeedWidget } from '../types';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
-import { useFeedWidgetAd } from '../feedState';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
-}));
-
-jest.mock('../feedState', () => ({
-  ...jest.requireActual('../feedState'),
-  useFeedWidgetAd: jest.fn(),
-}));
-
-// The tip drawn over the ad slot opens search through the spotlight, whose
-// provider lives above this rail.
-jest.mock('../../../components/spotlight/SpotlightContext', () => ({
-  useSpotlight: () => ({ open: jest.fn() }),
 }));
 
 // jsdom has no PointerEvent, and without one fireEvent drops the button and
@@ -77,17 +72,34 @@ beforeEach(() => {
   jest
     .mocked(useRouter)
     .mockImplementation(() => ({ pathname: '/' }) as unknown as NextRouter);
-  jest
-    .mocked(useFeedWidgetAd)
-    .mockReturnValue({ ad, isEnabled: true, isNoFill: false });
 });
 
 const squadWidget = (config?: FeedWidget['config']): FeedWidget => ({
   id: 'squad-a',
   kind: FeedWidgetKind.SquadUpdates,
   size: FeedWidgetSize.Tall,
+  slot: 0,
   ...(config && { config }),
 });
+
+// The feed's part, as `MainFeedLayout` plays it: the Customize button, the
+// widget in its cell, a card's slot and the editor once customizing.
+const FeedHarness = ({ widget }: { widget: FeedWidget }): ReactElement => {
+  const state = useInFeedWidgetsState(true);
+
+  return (
+    <InFeedWidgetsProvider value={state}>
+      <FeedWidgetsCustomizeButton size={ButtonSize.Small} iconOnly />
+      <FeedWidgetCell widget={widget} feedName="popular" />
+      {state.isEditing && (
+        <div className="relative">
+          <FeedWidgetSlot slot={1} />
+        </div>
+      )}
+      {(state.isEditing || state.addingSlot !== null) && <FeedWidgetEditor />}
+    </InFeedWidgetsProvider>
+  );
+};
 
 const renderRail = (widget: FeedWidget, version = 1) =>
   render(
@@ -104,7 +116,7 @@ const renderRail = (widget: FeedWidget, version = 1) =>
       <FeedContext.Provider
         value={{ pageSize: 13, numCards: { eco: 4, roomy: 4, cozy: 4 } }}
       >
-        <FeedWidgetRail feedName="popular" onHide={jest.fn()} />
+        <FeedHarness widget={widget} />
       </FeedContext.Provider>
     </TestBootProvider>,
   );
@@ -178,22 +190,6 @@ describe('SquadUpdatesWidget', () => {
     expect(screen.queryByText('Squad rules')).not.toBeInTheDocument();
   });
 
-  it('truncates a long squad name at Small to keep "Open squad" in the card', async () => {
-    mockSquadPosts();
-    renderRail({
-      ...squadWidget({ sourceId: webteam.id }),
-      size: FeedWidgetSize.Small,
-    });
-    await revealWidgets();
-
-    await screen.findByText('Shipped the new nav');
-    expect(screen.getByText(webteam.name)).toHaveClass(
-      'min-w-0',
-      'flex-1',
-      'truncate',
-    );
-  });
-
   it('offers the picker again when the reader left the squad', async () => {
     renderRail(squadWidget({ sourceId: 'left-squad' }));
     await revealWidgets();
@@ -257,25 +253,28 @@ describe('SquadUpdatesWidget', () => {
       {
         id: 'top',
         kind: FeedWidgetKind.TopStory,
-        size: FeedWidgetSize.Small,
+        size: FeedWidgetSize.Tall,
+        slot: 0,
       },
       1,
     );
     await revealWidgets();
 
     fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
-    fireEvent.click(screen.getByRole('button', { name: 'New widget' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Put a widget here' }));
     fireEvent.click(
       (await screen.findAllByRole('button', { name: /Squad updates/ }))[0],
     );
     fireEvent.click(screen.getByRole('button', { name: 'Add widget' }));
 
-    // Edit mode would leave the new widget's picker inert.
-    expect(
-      await screen.findByRole('button', { name: 'Customize widgets' }),
-    ).toBeInTheDocument();
+    // Customize mode would leave the new widget's picker inert.
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('button', { name: 'Put a widget here' }),
+      ).not.toBeInTheDocument(),
+    );
     expect(writtenWidgets()).toContainEqual(
-      expect.objectContaining({ kind: FeedWidgetKind.SquadUpdates }),
+      expect.objectContaining({ kind: FeedWidgetKind.SquadUpdates, slot: 1 }),
     );
   });
 });
