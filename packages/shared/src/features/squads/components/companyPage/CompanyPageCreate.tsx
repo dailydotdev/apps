@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { Button, ButtonVariant } from '../../../../components/buttons/Button';
 import { TextField } from '../../../../components/fields/TextField';
 import Textarea from '../../../../components/fields/Textarea';
-import { AtIcon, SquadIcon } from '../../../../components/icons';
+import { AtIcon, LinkIcon, SquadIcon } from '../../../../components/icons';
 import OrDivider from '../../../../components/auth/OrDivider';
 import { Dropdown } from '../../../../components/fields/Dropdown';
 import {
@@ -14,13 +14,13 @@ import {
 } from '../../../../components/typography/Typography';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useLogContext } from '../../../../contexts/LogContext';
-import { usePixelsContext } from '../../../../contexts/PixelsContext';
 import { useSquadCreate } from '../../../../hooks/squads/useSquadCreate';
 import { useSquadCategories } from '../../../../hooks/squads/useSquadCategories';
 import { checkExistingHandle, PrivacyOption } from '../../../../graphql/squads';
 import { SourceMemberRole } from '../../../../graphql/sources';
 import { AuthTriggers } from '../../../../lib/auth';
 import { cloudinarySquadsImageFallback } from '../../../../lib/image';
+import { parseHttpUrl } from '../../../../lib/links';
 import { LogEvent } from '../../../../lib/log';
 import { SquadUploadButton } from '../manage/SquadUploadButton';
 import { toSquadHandle } from '../../lib/handle';
@@ -28,8 +28,6 @@ import { getStartupsCheckoutUrl } from '../../lib/routes';
 import { getSquadId } from '../../lib/features';
 import { isSquadPlan, SquadPlan } from '../../lib/plans';
 import { companyPagePrompt } from '../../lib/companyPage';
-import { trackStartupsSignup } from '../../lib/startupsAdEvents';
-import { getFirstQueryParam } from '../../../../lib/func';
 import { AgentPromptButton } from '../AgentPromptButton';
 import {
   CheckoutCta,
@@ -80,6 +78,7 @@ export const CompanyPageCreate = (): ReactElement => {
   const [isHandleEdited, setHandleEdited] = useState(false);
   const [handleHint, setHandleHint] = useState<string>();
   const [description, setDescription] = useState('');
+  const [website, setWebsite] = useState('');
   const [categoryId, setCategoryId] = useState<string>();
   const [image, setImage] = useState<{ preview: string; file: File }>();
   const [isChecking, setChecking] = useState(false);
@@ -88,18 +87,9 @@ export const CompanyPageCreate = (): ReactElement => {
     categoryPages?.pages.flatMap((page) =>
       page.categories.edges.map(({ node }) => node),
     ) ?? [];
-  const { trackEvent } = usePixelsContext();
   const { onCreateSquad, isLoading } = useSquadCreate({
-    onSuccess: (squad) => {
-      if (user) {
-        trackStartupsSignup(trackEvent, {
-          userId: user.id,
-          email: user.email,
-          plan: getFirstQueryParam(router.query.plan) ?? 'free',
-        });
-      }
-
-      return router.push(
+    onSuccess: (squad) =>
+      router.push(
         router.query.checkout === '1'
           ? getStartupsCheckoutUrl({
               plan: isSquadPlan(router.query.plan)
@@ -108,8 +98,7 @@ export const CompanyPageCreate = (): ReactElement => {
               sourceId: getSquadId(squad),
             })
           : squad.permalink,
-      );
-    },
+      ),
   });
 
   if (!user) {
@@ -118,8 +107,14 @@ export const CompanyPageCreate = (): ReactElement => {
 
   const suggestedHandle = name.trim() ? toSquadHandle(name) : '';
   const activeHandle = isHandleEdited ? handle : suggestedHandle;
+  const websiteUrl = website.trim() ? parseHttpUrl(website.trim()) : null;
+  const isWebsiteInvalid = !!website.trim() && !websiteUrl;
   const canSubmit =
-    !!name.trim() && !!activeHandle && !!description.trim() && !isChecking;
+    !!name.trim() &&
+    !!activeHandle &&
+    !!description.trim() &&
+    !isWebsiteInvalid &&
+    !isChecking;
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -144,6 +139,7 @@ export const CompanyPageCreate = (): ReactElement => {
       name: name.trim(),
       handle: activeHandle,
       description: description.trim(),
+      website: websiteUrl ?? undefined,
       categoryId: categoryId || undefined,
       file: image?.file,
       status: PrivacyOption.Public,
@@ -196,8 +192,8 @@ export const CompanyPageCreate = (): ReactElement => {
             color={TypographyColor.Tertiary}
             className="flex-1"
           >
-            Use your product logo. Your page needs a logo and a description to
-            show up in the directory.
+            Add your logo, website and a short description and we boost your
+            first post with $100.
           </Typography>
         </div>
         <TextField
@@ -241,6 +237,18 @@ export const CompanyPageCreate = (): ReactElement => {
           maxLength={DESCRIPTION_MAX_LENGTH}
           valueChanged={setDescription}
           hint="One or two sentences."
+          className={{ container: 'w-full' }}
+        />
+        <TextField
+          label="Website"
+          inputId="website"
+          name="website"
+          inputMode="url"
+          leftIcon={<LinkIcon />}
+          value={website}
+          valueChanged={setWebsite}
+          valid={isWebsiteInvalid ? false : undefined}
+          hint={isWebsiteInvalid ? 'Enter your site, like acme.dev' : undefined}
           className={{ container: 'w-full' }}
         />
         {!!categories.length && (

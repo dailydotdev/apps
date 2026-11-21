@@ -13,9 +13,19 @@ import { postAnalyticsQueryOptions } from '../../../../graphql/posts';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { link } from '../../../../lib/links';
 import { getSquadViewer, isStaffViewer } from '../../lib/viewer';
-import type { FreeBoostPost, FreeBoostStats } from './FreeBoostCard';
+import type {
+  FreeBoostPost,
+  FreeBoostSetupStep,
+  FreeBoostStats,
+} from './FreeBoostCard';
+import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
+import {
+  isCompanyPageDescriptionReady,
+  isPlaceholderSquadImage,
+} from '../../lib/readiness';
 
 export type FreeBoostState =
+  | { state: 'setup'; steps: FreeBoostSetupStep[] }
   | { state: 'first_post'; composeUrl: string }
   | {
       state: 'boosting';
@@ -44,6 +54,39 @@ const toStats = (analytics?: PostAnalytics | null): FreeBoostStats => ({
   followers: analytics?.squadJoins ?? 0,
 });
 
+const getSetupSteps = (
+  squad: Pick<Squad, 'handle' | 'image' | 'website' | 'description'>,
+): FreeBoostSetupStep[] => {
+  const details = getSquadManageUrl(squad.handle, SquadManageSection.Details);
+
+  return [
+    {
+      id: 'logo',
+      title: 'Logo',
+      hint: 'Shows next to your boosted post.',
+      isDone: !isPlaceholderSquadImage(squad.image),
+      href: details,
+      cta: 'Add logo',
+    },
+    {
+      id: 'website',
+      title: 'Website',
+      hint: 'Where developers go after reading your post.',
+      isDone: !!squad.website,
+      href: getSquadManageUrl(squad.handle, SquadManageSection.Links),
+      cta: 'Add website',
+    },
+    {
+      id: 'description',
+      title: 'Description',
+      hint: "What you build and who it's for, in a sentence or two.",
+      isDone: isCompanyPageDescriptionReady(squad.description),
+      href: details,
+      cta: 'Write it',
+    },
+  ];
+};
+
 /**
  * What the free boost card shows from the API's answer. Null once the boost
  * ends or the offer expires: the value panel takes over then.
@@ -53,7 +96,7 @@ export const getFreeBoostState = ({
   freeBoost,
   analytics,
 }: {
-  squad: Pick<Squad, 'handle'>;
+  squad: Pick<Squad, 'handle' | 'image' | 'website' | 'description'>;
   freeBoost?: SquadFreeBoost | null;
   analytics?: PostAnalytics | null;
 }): FreeBoostState | null => {
@@ -64,6 +107,8 @@ export const getFreeBoostState = ({
   const { status, post, campaign } = freeBoost;
 
   switch (status) {
+    case SquadFreeBoostStatus.Setup:
+      return { state: 'setup', steps: getSetupSteps(squad) };
     // A post held back for limited reach keeps the offer for the next one
     case SquadFreeBoostStatus.Available:
     case SquadFreeBoostStatus.Held:
