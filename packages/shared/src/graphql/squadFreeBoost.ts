@@ -27,6 +27,11 @@ export const SQUAD_FREE_BOOST_QUERY = gql`
 export enum SquadFreeBoostStatus {
   /** Nothing posted that qualifies yet; the next post gets the boost */
   Available = 'available',
+  /**
+   * The page needs its logo, website and description first. Then its latest
+   * post gets the boost, or the next one
+   */
+  Setup = 'setup',
   /** A post is live and waiting on its content checks, a few minutes */
   Pending = 'pending',
   /** The latest post was held back, so the boost waits for the next one */

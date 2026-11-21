@@ -20,7 +20,7 @@ const squad = {
   handle: 'acme',
   image:
     'https://media.daily.dev/image/upload/s--LrHsyt2T--/f_auto/v1692632054/squad_placeholder_sfwkmj',
-  description: 'We build Acme',
+  description: 'Acme builds preview environments for every pull request.',
   headerImage: undefined,
   website: 'https://acme.dev',
   links: [],

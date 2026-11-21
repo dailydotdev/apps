@@ -62,6 +62,8 @@ export enum PrivacyOption {
 export type SquadForm = BaseSquadForm & {
   status?: PrivacyOption;
   company?: boolean;
+  /** A company page's website */
+  website?: string;
   file?: File;
   header?: File;
 };
@@ -200,6 +202,7 @@ export const CREATE_SQUAD_MUTATION = gql`
     $isPrivate: Boolean
     $categoryId: ID
     $company: Boolean
+    $website: String
   ) {
     createSquad(
       name: $name
@@ -213,6 +216,7 @@ export const CREATE_SQUAD_MUTATION = gql`
       isPrivate: $isPrivate
       categoryId: $categoryId
       company: $company
+      website: $website
     ) {
       ...SourceBaseInfo
       members {
@@ -1187,6 +1191,7 @@ export async function createSquad(form: SquadForm): Promise<Squad> {
     ...inputData,
     ...(description ? { description } : {}),
     ...(form.company && { company: true }),
+    ...(form.company && form.website && { website: form.website }),
   });
 
   return data.createSquad;
