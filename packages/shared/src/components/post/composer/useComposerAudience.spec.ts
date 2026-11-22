@@ -60,8 +60,8 @@ describe('useComposerAudience', () => {
     ).toEqual(['acme']);
   });
 
-  it('keeps the profile for a company page member who is not admin or moderator', () => {
-    expect(renderAudience([companyPage(SourceMemberRole.Member)])).toEqual([
+  it('keeps the profile for a company page member who is not an admin', () => {
+    expect(renderAudience([companyPage(SourceMemberRole.Moderator)])).toEqual([
       loggedUser.id,
     ]);
   });

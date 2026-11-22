@@ -24,8 +24,6 @@ interface UseComposerAudience {
   userAudienceId: string | undefined;
 }
 
-const companyPageRoles = [SourceMemberRole.Admin, SourceMemberRole.Moderator];
-
 // A founder's posts count for their company page (and its free boost) only
 // when they are on the page, so a composer opened without a squad starts
 // there. daily.dev team members run company squads too, but mostly post as
@@ -40,8 +38,7 @@ const findOwnCompanyPage = (
         (audience) =>
           !isUserAudience(audience) &&
           isCompanyPage(audience) &&
-          !!audience.currentMember?.role &&
-          companyPageRoles.includes(audience.currentMember.role),
+          audience.currentMember?.role === SourceMemberRole.Admin,
       );
 
 export const useComposerAudience = (
