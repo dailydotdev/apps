@@ -36,6 +36,7 @@ import {
   CheckoutTitle,
 } from '../checkout/CheckoutShell';
 import { AccountStep } from '../checkout/StartupsCheckout';
+import { StartupsHotjarEvent, trackHotjarEvent } from '../../../../lib/hotjar';
 import { StartupsNameStunt } from '../checkout/StartupsNameStunt';
 
 const FORM_ID = 'company-page-form';
@@ -88,8 +89,9 @@ export const CompanyPageCreate = (): ReactElement => {
       page.categories.edges.map(({ node }) => node),
     ) ?? [];
   const { onCreateSquad, isLoading } = useSquadCreate({
-    onSuccess: (squad) =>
-      router.push(
+    onSuccess: (squad) => {
+      trackHotjarEvent(StartupsHotjarEvent.CompanyPageCreated);
+      return router.push(
         router.query.checkout === '1'
           ? getStartupsCheckoutUrl({
               plan: isSquadPlan(router.query.plan)
@@ -98,7 +100,8 @@ export const CompanyPageCreate = (): ReactElement => {
               sourceId: getSquadId(squad),
             })
           : squad.permalink,
-      ),
+      );
+    },
   });
 
   if (!user) {

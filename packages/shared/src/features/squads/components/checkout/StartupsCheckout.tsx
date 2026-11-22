@@ -102,6 +102,11 @@ import {
 } from './CheckoutShell';
 import { StartupsNameStunt } from './StartupsNameStunt';
 import { StartupsSignupPanel } from './StartupsSignupPanel';
+import {
+  getSubscribedHotjarEvent,
+  StartupsHotjarEvent,
+  trackHotjarEvent,
+} from '../../../../lib/hotjar';
 
 export enum StartupsCheckoutStep {
   Account = 'account',
@@ -489,6 +494,7 @@ const PaymentPanel = ({
           email: user?.email,
         },
       );
+      trackHotjarEvent(getSubscribedHotjarEvent(plan));
       onPaid();
     },
     origin: Origin.StartupsCheckout,
@@ -522,6 +528,7 @@ const PaymentPanel = ({
         },
         { xEventId: STARTUPS_X_EVENTS.beginCheckout, email: user?.email },
       );
+      trackHotjarEvent(StartupsHotjarEvent.CheckoutOpened);
     }
     // A second call while the frame is open swaps the item in place
     openedRef.current = priceId;
