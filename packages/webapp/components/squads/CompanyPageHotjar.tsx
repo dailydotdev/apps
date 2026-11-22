@@ -7,6 +7,8 @@ import {
   isStaffViewer,
 } from '@dailydotdev/shared/src/features/squads/lib/viewer';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import type { Squad } from '@dailydotdev/shared/src/graphql/sources';
+import { useCompanyPageHotjarEvents } from '@dailydotdev/shared/src/features/squads/components/companyPage/useCompanyPageHotjarEvents';
 import { StartupsHotjar } from '../Pixels';
 
 // The first post of a company page is written in the composer at
@@ -28,6 +30,17 @@ export const CompanyPageHotjar = ({
   ) {
     return null;
   }
+
+  return <StartupsHotjar />;
+};
+
+// On a company page its admin manages: the stages it reaches while they watch
+export const CompanyPageHotjarEvents = ({
+  squad,
+}: {
+  squad: Squad;
+}): ReactElement => {
+  useCompanyPageHotjarEvents(squad);
 
   return <StartupsHotjar />;
 };

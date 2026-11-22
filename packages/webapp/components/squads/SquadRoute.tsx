@@ -22,8 +22,8 @@ import type { SquadManageSection } from '@dailydotdev/shared/src/features/squads
 import { getSquadManageUrl } from '@dailydotdev/shared/src/features/squads/lib/routes';
 import { getSquadStaticFields } from '@dailydotdev/shared/src/graphql/squads';
 import { getLayout as getMainLayout } from '../layouts/MainLayout';
-import { StartupsHotjar } from '../Pixels';
 import { noindexSeoProps } from '../../next-seo';
+import { CompanyPageHotjarEvents } from './CompanyPageHotjar';
 import { getLayout as getFooterNavBarLayout } from '../layouts/FooterNavBarLayout';
 
 const Custom404 = dynamic(
@@ -78,7 +78,7 @@ export const SquadRoute = ({
   return (
     <SquadPageContextProvider squad={current} isViewerReady={!!squad}>
       {children}
-      {isSettingUpCompany && <StartupsHotjar />}
+      {isSettingUpCompany && <CompanyPageHotjarEvents squad={squad} />}
     </SquadPageContextProvider>
   );
 };
