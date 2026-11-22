@@ -13,6 +13,7 @@ import { getFirstQueryParam } from '@dailydotdev/shared/src/lib/func';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { getSquadsCreatePrefillState } from '../../lib/squadsCreatePrefill';
 import { getPageSeoTitles } from '../../components/layouts/utils';
+import { CompanyPageHotjar } from '../../components/squads/CompanyPageHotjar';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 
@@ -68,6 +69,7 @@ function CreatePost(): ReactElement {
         initialContent={prefill.initialDraft.content}
         initialCommentary={prefill.initialShareCommentary}
       />
+      <CompanyPageHotjar handle={getFirstQueryParam(query.sid)} />
     </>
   );
 }

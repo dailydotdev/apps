@@ -31,6 +31,7 @@ import { saveCheckoutAttribution } from '@dailydotdev/shared/src/features/squads
 import type { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
 import MainLayout from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { StartupsHotjar } from '../../components/Pixels';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
 const seoTitles = getPageSeoTitles('Create your Squad');
@@ -105,6 +106,8 @@ const NewSquad = (): ReactElement => {
         <CompanyPageCreate />
         <PromptElement />
         <Toast autoDismissNotifications />
+        {/* The landing CTAs open here, so the recording carries on from /startups/ */}
+        <StartupsHotjar />
       </>
     );
   }
