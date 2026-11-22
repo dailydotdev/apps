@@ -28,6 +28,7 @@ import {
 } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import { Loader } from '../../../../components/Loader';
+import { setAuthReturnPath } from '../../../onboarding/lib/utils';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import { SquadImage } from '../../../../components/squads/SquadImage';
 import { useAuthContext } from '../../../../contexts/AuthContext';
@@ -168,6 +169,12 @@ export const AccountStep = ({
     label: backLabels[display] ?? 'Back',
     onClick: onScreenBack,
   };
+
+  useEffect(() => {
+    setAuthReturnPath(`${window.location.pathname}${window.location.search}`);
+
+    return () => setAuthReturnPath();
+  }, []);
 
   return (
     <CheckoutShell
