@@ -1,4 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
+import * as patchyConfig from './patchyConfig';
 import { emitPatchyEvent } from './patchyEvents';
 import { PATCHY_REACTION_MS, usePatchyCompanion } from './usePatchyCompanion';
 
@@ -36,9 +37,10 @@ describe('usePatchyCompanion', () => {
   it('reacts to every upvote inside the circle, then settles', () => {
     const { result } = render();
     act(() => emitPatchyEvent({ type: 'upvote', postId: 'p1' }));
+    // His animated face brings its own motion.
     expect(result.current).toMatchObject({
-      face: 'happy',
-      motion: 'hop',
+      face: 'delighted',
+      motion: null,
       emote: 'hearts',
       emoteCount: 1,
     });
@@ -59,20 +61,35 @@ describe('usePatchyCompanion', () => {
     act(() => emitPatchyEvent({ type: 'upvote' }));
     act(() => emitPatchyEvent({ type: 'upvote' }));
     expect(result.current).toMatchObject({
-      face: 'tongue',
+      face: 'panting',
       emote: 'hearts',
       emoteCount: 3,
     });
   });
 
-  it('side-eyes a bookmark with a little "…"', () => {
+  it('smirks at a bookmark with a little "…"', () => {
     const { result } = render();
     act(() => emitPatchyEvent({ type: 'bookmark' }));
-    expect(result.current).toMatchObject({
-      face: 'sideeye',
-      motion: 'wobble',
-      emote: 'dots',
-    });
+    expect(result.current).toMatchObject({ face: 'smirk', emote: 'dots' });
+  });
+
+  it('keeps the circle motion for a reaction a config maps to a still face', () => {
+    const spy = jest.spyOn(patchyConfig, 'getPatchyConfig').mockReturnValue(
+      patchyConfig.toPatchyConfig({
+        reactions: [
+          {
+            trigger: 'bookmark',
+            enabled: true,
+            emote: 'dots',
+            face: 'sideeye',
+          },
+        ],
+      } as Parameters<typeof patchyConfig.toPatchyConfig>[0]),
+    );
+    const { result } = render();
+    act(() => emitPatchyEvent({ type: 'bookmark' }));
+    expect(result.current).toMatchObject({ face: 'sideeye', motion: 'wobble' });
+    spy.mockRestore();
   });
 
   it('says nope to a downvote under a little cloud', () => {
@@ -88,7 +105,7 @@ describe('usePatchyCompanion', () => {
     const { result } = render(true, true);
     expect(result.current.face).toBe('reading');
     act(() => emitPatchyEvent({ type: 'upvote' }));
-    expect(result.current.face).toBe('happy');
+    expect(result.current.face).toBe('delighted');
     act(() => {
       jest.advanceTimersByTime(PATCHY_REACTION_MS + 100);
     });

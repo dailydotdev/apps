@@ -37,11 +37,19 @@ export const patchyFaces = [
   'wink',
   'alert',
   'earflop',
-  // Animated faces: reading loops, chomp and nope play once, hopeful loops.
+  // Animated faces, one per reaction.
   'reading',
   'chomp',
   'nope',
   'hopeful',
+  'delighted',
+  'smirk',
+  'proud',
+  'overjoyed',
+  'panting',
+  'drowsy',
+  'nervous',
+  'sheepish',
 ] as const;
 export type PatchyFace = (typeof patchyFaces)[number];
 
@@ -97,9 +105,39 @@ const media = 'https://media.daily.dev/image/upload';
 // The bone you give him: the panel's card and his floating emote.
 export const patchyBoneImage = `${media}/v1795439489/public/patchy-v1-bone.webp`;
 
-// Animated faces that play once: each reaction gets its own URL so the
-// browser starts them from the first frame instead of the finished one.
-export const patchyOneShotFaces = new Set<PatchyFace>(['chomp', 'nope']);
+// Faces whose default image is animated. They bring their own motion, so
+// the circle doesn't add one. The loops keep playing; every other one plays
+// once from its first frame each time it shows.
+export const patchyAnimatedFaces = new Set<PatchyFace>([
+  'neutral',
+  'asleep',
+  'lookright',
+  'yawn',
+  'tongue',
+  'wink',
+  'earflop',
+  'reading',
+  'chomp',
+  'nope',
+  'hopeful',
+  'delighted',
+  'smirk',
+  'proud',
+  'overjoyed',
+  'panting',
+  'drowsy',
+  'nervous',
+  'sheepish',
+]);
+const patchyLoopingFaces = new Set<PatchyFace>([
+  'neutral',
+  'asleep',
+  'reading',
+  'hopeful',
+]);
+
+export const isPatchyOneShotFace = (face: PatchyFace): boolean =>
+  patchyAnimatedFaces.has(face) && !patchyLoopingFaces.has(face);
 
 export const patchyOfferPose = `${media}/v1795078962/public/patchy-v1-peek-point.webp`;
 
@@ -121,34 +159,42 @@ export const defaultPatchyConfig: PatchyConfig = {
     ],
   },
   faceImage: {
-    neutral: `${media}/v1794998763/public/patchy-v1-face-neutral.webp`,
+    neutral: `${media}/v1795442030/public/patchy-v1-face-anim-neutral.webp`,
     happy: `${media}/v1794998764/public/patchy-v1-face-happy.webp`,
     sleepy: `${media}/v1794998765/public/patchy-v1-face-sleepy.webp`,
-    asleep: `${media}/v1794998767/public/patchy-v1-face-asleep.webp`,
+    asleep: `${media}/v1795442020/public/patchy-v1-face-anim-asleep.webp`,
     sideeye: `${media}/v1794998768/public/patchy-v1-face-sideeye.webp`,
-    lookright: `${media}/v1795078965/public/patchy-v1-face-lookright.webp`,
+    lookright: `${media}/v1795442027/public/patchy-v1-face-anim-glance.webp`,
     lookdown: `${media}/v1795078967/public/patchy-v1-face-lookdown.webp`,
-    yawn: `${media}/v1795078969/public/patchy-v1-face-yawn.webp`,
-    tongue: `${media}/v1795078970/public/patchy-v1-face-tongue.webp`,
-    wink: `${media}/v1795078972/public/patchy-v1-face-wink.webp`,
+    yawn: `${media}/v1795442040/public/patchy-v1-face-anim-yawn.webp`,
+    tongue: `${media}/v1795442034/public/patchy-v1-face-anim-tongue.webp`,
+    wink: `${media}/v1795442039/public/patchy-v1-face-anim-wink.webp`,
     alert: `${media}/v1795078973/public/patchy-v1-face-alert.webp`,
-    earflop: `${media}/v1795078975/public/patchy-v1-face-earflop.webp`,
+    earflop: `${media}/v1795442024/public/patchy-v1-face-anim-earflop.webp`,
     reading: `${media}/v1795439583/public/patchy-v1-face-anim-reading.webp`,
     chomp: `${media}/v1795439584/public/patchy-v1-face-anim-bone.webp`,
     nope: `${media}/v1795439586/public/patchy-v1-face-anim-nope.webp`,
     hopeful: `${media}/v1795439588/public/patchy-v1-face-anim-hopeful.webp`,
+    delighted: `${media}/v1795442035/public/patchy-v1-face-anim-upvote.webp`,
+    smirk: `${media}/v1795442022/public/patchy-v1-face-anim-bookmark.webp`,
+    proud: `${media}/v1795442033/public/patchy-v1-face-anim-streak.webp`,
+    overjoyed: `${media}/v1795442037/public/patchy-v1-face-anim-welcome.webp`,
+    panting: `${media}/v1795442031/public/patchy-v1-face-anim-on-a-roll.webp`,
+    drowsy: `${media}/v1795442029/public/patchy-v1-face-anim-late-night.webp`,
+    nervous: `${media}/v1795442026/public/patchy-v1-face-anim-friday-deploy.webp`,
+    sheepish: `${media}/v1795442021/public/patchy-v1-face-anim-bookmark-pile.webp`,
   },
   reactions: {
-    upvote: { enabled: true, emote: 'hearts', face: 'happy' },
-    bookmark: { enabled: true, emote: 'dots', face: 'sideeye' },
+    upvote: { enabled: true, emote: 'hearts', face: 'delighted' },
+    bookmark: { enabled: true, emote: 'dots', face: 'smirk' },
     downvote: { enabled: true, emote: 'cloud', face: 'nope' },
     bone: { enabled: true, emote: 'bone', face: 'chomp' },
-    streak_day: { enabled: true, emote: 'sparkle', face: 'happy' },
-    late_night: { enabled: true, emote: 'moon', face: 'sleepy' },
-    friday_deploy: { enabled: true, emote: 'sweat', face: 'sideeye' },
-    welcome_back: { enabled: true, emote: 'hearts', face: 'happy' },
-    on_a_roll: { enabled: true, emote: 'hearts', face: 'tongue' },
-    bookmark_pile: { enabled: true, emote: 'sweat', face: 'sideeye' },
+    streak_day: { enabled: true, emote: 'sparkle', face: 'proud' },
+    late_night: { enabled: true, emote: 'moon', face: 'drowsy' },
+    friday_deploy: { enabled: true, emote: 'sweat', face: 'nervous' },
+    welcome_back: { enabled: true, emote: 'hearts', face: 'overjoyed' },
+    on_a_roll: { enabled: true, emote: 'hearts', face: 'panting' },
+    bookmark_pile: { enabled: true, emote: 'sweat', face: 'sheepish' },
   },
   moods: {
     happy: {

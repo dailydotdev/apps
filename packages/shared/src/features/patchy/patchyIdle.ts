@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { PatchyFace } from './patchyConfig';
+import { patchyAnimatedFaces } from './patchyConfig';
 
 // The small things Patchy does inside the streak circle while nothing is
 // happening: blinking, glancing at the feed, flopping an ear, yawning. Each
@@ -22,12 +23,12 @@ export interface PatchyIdleAction {
 
 export const patchyIdleActions = {
   blink: { face: 'asleep', ms: 140 },
-  glance: { face: 'lookright', ms: 1400 },
+  glance: { face: 'lookright', ms: 1250 },
   read: { face: 'lookdown', ms: 1800 },
-  earflop: { face: 'earflop', motion: 'wobble', ms: 1400 },
-  yawn: { face: 'yawn', motion: 'yawn', ms: 1500 },
-  tongue: { face: 'tongue', motion: 'pant', ms: 1400 },
-  wink: { face: 'wink', ms: 800 },
+  earflop: { face: 'earflop', motion: 'wobble', ms: 1200 },
+  yawn: { face: 'yawn', motion: 'yawn', ms: 1300 },
+  tongue: { face: 'tongue', motion: 'pant', ms: 1300 },
+  wink: { face: 'wink', ms: 1000 },
   spin: { face: 'happy', motion: 'spin', ms: 1200 },
 } satisfies Record<string, PatchyIdleAction>;
 export type PatchyIdleActionName = keyof typeof patchyIdleActions;
@@ -79,6 +80,8 @@ interface UsePatchyIdleProps {
   isResting: boolean;
   isReading: boolean;
   prefersReducedMotion: boolean;
+  // The resting face blinks on its own (animated), so no extra blinks.
+  canBlink?: boolean;
 }
 
 export interface PatchyIdleState {
@@ -95,6 +98,7 @@ export const usePatchyIdle = ({
   isResting,
   isReading,
   prefersReducedMotion,
+  canBlink = true,
 }: UsePatchyIdleProps): PatchyIdleState => {
   const [state, setState] = useState<PatchyIdleState>(still);
   const keyRef = useRef(0);
@@ -124,7 +128,11 @@ export const usePatchyIdle = ({
       keyRef.current += 1;
       setState({
         face: action.face,
-        motion: prefersReducedMotion ? null : (action.motion ?? null),
+        // Animated faces bring their own motion.
+        motion:
+          prefersReducedMotion || patchyAnimatedFaces.has(action.face)
+            ? null
+            : (action.motion ?? null),
         key: keyRef.current,
       });
       later(() => {
@@ -153,7 +161,9 @@ export const usePatchyIdle = ({
         actionLoop();
       }, between(ACTION_EVERY_MS));
     };
-    blinkLoop();
+    if (canBlink) {
+      blinkLoop();
+    }
     actionLoop();
 
     // He glances at the post you hover.
@@ -177,7 +187,7 @@ export const usePatchyIdle = ({
       timers.forEach((id) => clearTimeout(id));
       document.removeEventListener('pointerover', onPointerOver);
     };
-  }, [isEnabled, isResting, prefersReducedMotion]);
+  }, [isEnabled, isResting, prefersReducedMotion, canBlink]);
 
   return isEnabled && !isResting ? state : still;
 };

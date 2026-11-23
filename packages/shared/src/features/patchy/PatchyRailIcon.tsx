@@ -10,8 +10,9 @@ import type { PatchyMotion } from './patchyIdle';
 import {
   getPatchyConfig,
   patchyBoneImage,
-  patchyOneShotFaces,
+  isPatchyOneShotFace,
 } from './patchyConfig';
+import { usePatchyFaceUrl } from './patchyFacePlayback';
 
 // The ring keeps the streak tab's state language: pink once read (or
 // selected), amber/red when the day is at risk, blue on a rest day.
@@ -211,13 +212,11 @@ const FaceImage = ({
     },
     [onFail],
   );
-  const isOneShot = patchyOneShotFaces.has(shown);
-  const src = isOneShot
-    ? `${faceImage[shown]}?play=${encodeURIComponent(motionKey ?? '')}`
-    : faceImage[shown];
+  const isOneShot = isPatchyOneShotFace(shown);
+  const src = usePatchyFaceUrl(faceImage[shown], motionKey ?? '', isOneShot);
   let key = 'still';
   if (isOneShot) {
-    key = src;
+    key = `${shown}-${motionKey}`;
   } else if (motion) {
     key = `${motionKey}-${motion}`;
   }

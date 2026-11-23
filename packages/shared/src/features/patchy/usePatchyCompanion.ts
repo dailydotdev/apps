@@ -9,7 +9,12 @@ import type {
   PatchyMood,
   PatchyTrigger,
 } from './patchyConfig';
-import { getPatchyConfig } from './patchyConfig';
+import {
+  getPatchyConfig,
+  isPatchyOneShotFace,
+  patchyAnimatedFaces,
+} from './patchyConfig';
+import { loadPatchyFace } from './patchyFacePlayback';
 import { subscribePatchyEvents } from './patchyEvents';
 import type { PatchyEvent } from './patchyEvents';
 import { recordPatchyActivity } from './patchyDay';
@@ -29,22 +34,20 @@ import { usePatchyConfigSync } from './usePatchyConfigSync';
 export const PATCHY_REACTION_MS = 2200;
 const MOOD_TICK_MS = 60 * 1000;
 
-// The motion each reaction plays with his face. Small on purpose: these show
-// on every action, so they stay inside the circle.
-// The animated faces (nope, chomp) bring their own motion.
-export const patchyReactionMotion: Record<PatchyTrigger, PatchyMotion | null> =
-  {
-    upvote: 'hop',
-    bookmark: 'wobble',
-    downvote: null,
-    bone: null,
-    streak_day: 'hop',
-    late_night: 'yawn',
-    friday_deploy: 'hide',
-    welcome_back: 'hop',
-    on_a_roll: 'hop',
-    bookmark_pile: 'wobble',
-  };
+// The motion each reaction plays when its face is a still image (a config
+// can map a trigger to one). Animated faces bring their own.
+export const patchyReactionMotion: Record<PatchyTrigger, PatchyMotion> = {
+  upvote: 'hop',
+  bookmark: 'wobble',
+  downvote: 'wobble',
+  bone: 'hop',
+  streak_day: 'hop',
+  late_night: 'yawn',
+  friday_deploy: 'hide',
+  welcome_back: 'hop',
+  on_a_roll: 'hop',
+  bookmark_pile: 'wobble',
+};
 
 // How many emotes float out: one, a few more for an escalation.
 export const patchyReactionEmotes: Record<PatchyTrigger, number> = {
@@ -120,8 +123,13 @@ export const usePatchyCompanion = ({
     if (!isEnabled) {
       return undefined;
     }
-    // Warm the cache so a face swap never flashes an empty circle.
-    Object.values(getPatchyConfig().faceImage).forEach((src) => {
+    // Warm the cache so a face swap never flashes an empty circle. The
+    // play-once faces load once and play from that copy (patchyFacePlayback).
+    Object.entries(getPatchyConfig().faceImage).forEach(([face, src]) => {
+      if (isPatchyOneShotFace(face as PatchyFace)) {
+        loadPatchyFace(src);
+        return;
+      }
       const image = new Image();
       image.src = src;
     });
@@ -242,6 +250,7 @@ export const usePatchyCompanion = ({
     isResting: mood === 'away' || mood === 'resting',
     isReading,
     prefersReducedMotion,
+    canBlink: !patchyAnimatedFaces.has(restingFace),
   });
   // Reading along: his newspaper face, which animates on its own, so the idle
   // faces stay out of it. It drops while he reacts.
@@ -254,7 +263,11 @@ export const usePatchyCompanion = ({
     return {
       face,
       mood,
-      motion: prefersReducedMotion ? null : patchyReactionMotion[shown.trigger],
+      // Animated faces bring their own motion.
+      motion:
+        prefersReducedMotion || patchyAnimatedFaces.has(face)
+          ? null
+          : patchyReactionMotion[shown.trigger],
       motionKey: `reaction-${shown.key}`,
       emote: emote === 'none' ? null : emote,
       emoteCount: patchyReactionEmotes[shown.trigger],
