@@ -21,7 +21,6 @@ import { StartupsHotjarEvent, trackHotjarEvent } from '../../../../lib/hotjar';
 import { getStartupsCheckoutUrl } from '../../lib/routes';
 import { isSquadPlan, SquadPlan } from '../../lib/plans';
 import { AccountStep } from '../checkout/StartupsCheckout';
-import { MangeSquadPageSkeleton } from '../../../../components/squads/MangeSquadPageSkeleton';
 import { CompanyPageWebsiteStep } from './CompanyPageWebsiteStep';
 import { CompanyPageBuilding } from './CompanyPageBuilding';
 import type { CompanyPagePrefill } from './CompanyPageCreate';
@@ -38,6 +37,10 @@ interface StoredRequest {
   id: string;
   website: string;
 }
+
+// The request also rides in the URL, so it survives a hand-off to another
+// browser (an Android in-app browser opens social sign-in in Chrome)
+const REQUEST_QUERY_KEY = 'request';
 
 const readStoredRequest = (): StoredRequest | null => {
   try {
@@ -117,16 +120,31 @@ const toPrefill = (
  * the fallback, when the site can't be read or the founder has no website.
  * The /startups/ landing page sends the website it took in `?website=`.
  */
-export const CompanyPageFromWebsite = (): ReactElement => {
+export const CompanyPageFromWebsite = (): ReactElement | null => {
   const router = useRouter();
   const { user, isAuthReady } = useAuthContext();
+  const isSignedUp = !!user?.infoConfirmed;
   const queryWebsite =
     typeof router.query.website === 'string' ? router.query.website : '';
+  const queryRequestId =
+    typeof router.query[REQUEST_QUERY_KEY] === 'string'
+      ? router.query[REQUEST_QUERY_KEY]
+      : undefined;
   const [website, setWebsite] = useState(queryWebsite);
-  const [stored, setStored] = useState<StoredRequest | null>(readStoredRequest);
+  const [stored, setStored] = useState<StoredRequest | null>(
+    () =>
+      readStoredRequest() ??
+      (queryRequestId && queryWebsite
+        ? { id: queryRequestId, website: queryWebsite }
+        : null),
+  );
   const [fallback, setFallback] = useState<CompanyPagePrefill | null>(null);
   const [error, setError] = useState<string>();
+  // The landing page's website while its request is on the way, so the
+  // founder sees the next screen right away instead of the website box
+  const [queryRequestWebsite, setQueryRequestWebsite] = useState<string>();
   const startedFromQuery = useRef(false);
+  const isLeaving = useRef(false);
 
   const forget = useCallback(() => {
     storeRequest(null);
@@ -138,8 +156,24 @@ export const CompanyPageFromWebsite = (): ReactElement => {
     onSuccess: (created) => {
       storeRequest(created);
       setStored(created);
+      trackHotjarEvent(StartupsHotjarEvent.CompanyPageRequested);
+      router.replace(
+        {
+          pathname: router.pathname,
+          query: {
+            ...router.query,
+            website: created.website,
+            [REQUEST_QUERY_KEY]: created.id,
+          },
+        },
+        undefined,
+        { shallow: true },
+      );
     },
-    onError: (err) => setError(getErrorMessage(err)),
+    onError: (err) => {
+      setQueryRequestWebsite(undefined);
+      setError(getErrorMessage(err));
+    },
   });
 
   const submit = useCallback(
@@ -150,9 +184,14 @@ export const CompanyPageFromWebsite = (): ReactElement => {
         return;
       }
 
+      // Another site: drop the old request so its site doesn't show meanwhile
+      if (stored) {
+        forget();
+      }
+
       request(url);
     },
-    [request, stored],
+    [request, stored, forget],
   );
 
   // The landing page's box: start reading right away
@@ -164,6 +203,7 @@ export const CompanyPageFromWebsite = (): ReactElement => {
     startedFromQuery.current = true;
     const url = parseHttpUrl(queryWebsite.trim());
     if (url) {
+      setQueryRequestWebsite(url);
       submit(url);
     }
   }, [isAuthReady, queryWebsite, submit]);
@@ -172,7 +212,7 @@ export const CompanyPageFromWebsite = (): ReactElement => {
   // before it; a new account already took it on sign-up
   const { isSuccess: isClaimed, isError: isClaimMissing } = useQuery({
     ...claimCompanyPageRequestQueryOptions(user, stored?.id),
-    enabled: !!user && !!stored && !fallback,
+    enabled: isSignedUp && !!stored && !fallback,
   });
 
   const { data: pageRequest, isError: isReadMissing } = useQuery({
@@ -181,12 +221,19 @@ export const CompanyPageFromWebsite = (): ReactElement => {
   });
   const isRequestMissing = isClaimMissing || isReadMissing;
 
-  // Someone else's request in this browser, or one that expired
+  // Someone else's request in this browser, or one that expired. The
+  // landing page's site is read again rather than left on a screen that
+  // waits for nothing.
   useEffect(() => {
-    if (isRequestMissing) {
-      forget();
+    if (!isRequestMissing) {
+      return;
     }
-  }, [isRequestMissing, forget]);
+
+    forget();
+    if (queryRequestWebsite) {
+      request(queryRequestWebsite);
+    }
+  }, [isRequestMissing, forget, queryRequestWebsite, request]);
 
   useEffect(() => {
     if (!pageRequest) {
@@ -197,7 +244,13 @@ export const CompanyPageFromWebsite = (): ReactElement => {
       pageRequest.status === CompanyPageRequestStatus.Created &&
       pageRequest.source
     ) {
-      forget();
+      if (isLeaving.current) {
+        return;
+      }
+
+      // Stays on the building screen until the company page opens
+      isLeaving.current = true;
+      storeRequest(null);
       trackHotjarEvent(StartupsHotjarEvent.CompanyPageCreated);
       router.replace(
         router.query.checkout === '1'
@@ -214,12 +267,13 @@ export const CompanyPageFromWebsite = (): ReactElement => {
 
     if (pageRequest.status === CompanyPageRequestStatus.Failed) {
       forget();
+      trackHotjarEvent(StartupsHotjarEvent.CompanyPageForm);
       setFallback(toPrefill(website, pageRequest));
     }
   }, [pageRequest, forget, router, website]);
 
   // Still reading after a long while: hand the founder the form
-  const isBuilding = !!user && !!stored && !fallback;
+  const isBuilding = isSignedUp && !!stored && !fallback;
   useEffect(() => {
     if (!isBuilding) {
       return undefined;
@@ -227,6 +281,7 @@ export const CompanyPageFromWebsite = (): ReactElement => {
 
     const timeout = setTimeout(() => {
       forget();
+      trackHotjarEvent(StartupsHotjarEvent.CompanyPageForm);
       setFallback(toPrefill(website, pageRequest));
     }, BUILDING_TIMEOUT_MS);
 
@@ -236,14 +291,16 @@ export const CompanyPageFromWebsite = (): ReactElement => {
   }, [isBuilding]);
 
   if (!isAuthReady) {
-    return <MangeSquadPageSkeleton />;
+    return null;
   }
 
   if (fallback) {
     return <CompanyPageCreate prefill={fallback} />;
   }
 
-  if (!stored) {
+  const pendingWebsite = stored?.website ?? queryRequestWebsite;
+
+  if (!pendingWebsite) {
     return (
       <CompanyPageWebsiteStep
         website={website}
@@ -256,8 +313,10 @@ export const CompanyPageFromWebsite = (): ReactElement => {
     );
   }
 
-  if (!user) {
-    const host = getHost(stored.website) ?? stored.website;
+  // A new social account has a user before its profile is complete; it
+  // stays on the account step until then
+  if (!isSignedUp) {
+    const host = getHost(pendingWebsite) ?? pendingWebsite;
 
     return (
       <AccountStep
@@ -269,5 +328,5 @@ export const CompanyPageFromWebsite = (): ReactElement => {
     );
   }
 
-  return <CompanyPageBuilding website={stored.website} />;
+  return <CompanyPageBuilding website={pendingWebsite} />;
 };

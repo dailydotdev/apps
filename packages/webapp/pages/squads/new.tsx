@@ -45,7 +45,7 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
-const NewSquad = (): ReactElement => {
+const NewSquad = (): ReactElement | null => {
   const [selectedChannel, setSelectedChannel] = useState<string | null>();
   const { isReady: isRouteReady, query } = useRouter();
   const { user, isAuthReady, isFetched } = useAuthContext();
@@ -92,7 +92,9 @@ const NewSquad = (): ReactElement => {
     !isRouteReady ||
     (isIntegrationLoading && !!shouldLoadIntegration)
   ) {
-    return <MangeSquadPageSkeleton />;
+    // The company page funnel opens on a blank page, like the checkout, not
+    // on the Squad form's skeleton
+    return query.company ? null : <MangeSquadPageSkeleton />;
   }
 
   if (query.company) {

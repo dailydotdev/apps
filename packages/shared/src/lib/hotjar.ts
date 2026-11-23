@@ -5,6 +5,8 @@ type Hotjar = ((...args: unknown[]) => void) & { q?: unknown[][] };
 // take no properties, so the plan goes in the name.
 export enum StartupsHotjarEvent {
   Signup = 'startups_signup',
+  CompanyPageRequested = 'company_page_requested',
+  CompanyPageForm = 'company_page_form',
   CompanyPageCreated = 'company_page_created',
   CompanyPageReady = 'company_page_ready',
   FirstPost = 'first_post',
