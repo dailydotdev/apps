@@ -560,13 +560,13 @@ export const DevSpec: StoryObj = {
       <Section id="art" title="9. Art">
         <List
           items={[
-            'Reading Patchy, made with Agent Smith; on-model against patchy-waiting.',
+            'Reading Patchy lying on a cushion with a fantasy book, made with Agent Smith; on-model against patchy-waiting.',
             <>
               Upload it to media.daily.dev and add{' '}
               <Code>cloudinaryPatchyReading</Code> to <Code>lib/image.ts</Code>.
               In this PR it’s served from Storybook’s public folder.
             </>,
-            'Shown at 128px (phone), 64px (tablet) and 40px (laptop). The 512px original keeps it sharp at 2x.',
+            'Shown at 128px (phone), 64px (tablet) and 48px (laptop). The 512px original keeps it sharp at 2x.',
           ]}
         />
       </Section>

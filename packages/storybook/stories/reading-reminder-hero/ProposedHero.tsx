@@ -269,7 +269,7 @@ export const ProposedTopHero = ({
         <img
           src={PATCHY_ART}
           alt="Patchy reading a book"
-          className="size-10 object-contain"
+          className="-my-1 size-12 object-contain"
         />
         <h3 className="font-bold text-text-primary typo-callout">{title}</h3>
       </div>
