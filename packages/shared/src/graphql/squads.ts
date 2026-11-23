@@ -40,6 +40,7 @@ import type { Author } from './comments';
 import { OrganizationMemberRole } from '../features/organizations/types';
 import type { WarningReason } from '../features/squads/types';
 import type { LoggedUser, UserShortProfile } from '../lib/user';
+import { getAdClickIds } from '../features/squads/lib/checkoutAttribution';
 
 type BaseSquadForm = Pick<
   Squad,
@@ -203,6 +204,8 @@ export const CREATE_SQUAD_MUTATION = gql`
     $categoryId: ID
     $company: Boolean
     $website: String
+    $fbclid: String
+    $twclid: String
   ) {
     createSquad(
       name: $name
@@ -217,6 +220,8 @@ export const CREATE_SQUAD_MUTATION = gql`
       categoryId: $categoryId
       company: $company
       website: $website
+      fbclid: $fbclid
+      twclid: $twclid
     ) {
       ...SourceBaseInfo
       members {
@@ -1192,6 +1197,7 @@ export async function createSquad(form: SquadForm): Promise<Squad> {
     ...(description ? { description } : {}),
     ...(form.company && { company: true }),
     ...(form.company && form.website && { website: form.website }),
+    ...(form.company && getAdClickIds()),
   });
 
   return data.createSquad;

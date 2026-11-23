@@ -61,6 +61,19 @@ export const FREE_BOOST_SETUP_ROWS = ['logo', 'website', 'description'];
 export const isCompanyPageDescriptionReady = (description?: string): boolean =>
   (description?.trim().length ?? 0) >= COMPANY_PAGE_MIN_DESCRIPTION_LENGTH;
 
+/**
+ * Mirrors isCompanyPageReady in daily-api: a logo, a website and a real
+ * description. Only then does the page get its free boost and count as an ad
+ * conversion.
+ */
+export const isCompanyPageReady = (
+  squad?: Pick<Squad, 'image' | 'website' | 'description'>,
+): boolean =>
+  !!squad &&
+  !isPlaceholderSquadImage(squad.image) &&
+  !!squad.website?.trim() &&
+  isCompanyPageDescriptionReady(squad.description);
+
 export const getCompanyPageReadinessItems = ({
   squad,
   user,
