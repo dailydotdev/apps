@@ -378,6 +378,7 @@ describe('ConversationThread support chat', () => {
       group: {
         chatId: 'c1',
         roomJid: 'c1@conference.chat.daily.dev',
+        lastMessageAt: null,
         members: [
           {
             id: 'ido',
@@ -392,6 +393,8 @@ describe('ConversationThread support chat', () => {
     mockThread = [
       { ...message('ido'), peerId: 'support:c1', body: 'Welcome' },
       { ...message('me'), peerId: 'support:c1', body: 'Thanks' },
+      // Someone who has since left the page.
+      { ...message('gone'), peerId: 'support:c1', body: 'Earlier note' },
     ];
     render(
       <QueryClientProvider client={new QueryClient()}>
@@ -401,6 +404,7 @@ describe('ConversationThread support chat', () => {
 
     expect(await screen.findByText('Welcome')).toBeInTheDocument();
     expect(screen.getByText('Ido Shamun')).toBeInTheDocument();
+    expect(screen.getByText('Former member')).toBeInTheDocument();
     expect(screen.getByText('Support with daily.dev')).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: /block/i }),

@@ -359,6 +359,10 @@ const COMPANY_SUPPORT_CHAT_FRAGMENT = gql`
 const COMPANY_SUPPORT_CHATS_QUERY = gql`
   query CompanySupportChats($first: Int, $after: String) {
     companySupportChats(first: $first, after: $after) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
       edges {
         node {
           ...CompanySupportChatFragment
@@ -403,14 +407,32 @@ const MARK_COMPANY_SUPPORT_CHAT_READ_MUTATION = gql`
   }
 `;
 
+// The daily.dev team is in every company's chat, so their list runs long and
+// is read page by page.
+const supportChatsPageSize = 100;
+const maxSupportChatPages = 10;
+
 export const getCompanySupportChats = async (): Promise<
   CompanySupportChat[]
 > => {
-  const res = await gqlClient.request<{
-    companySupportChats: Connection<CompanySupportChat>;
-  }>(COMPANY_SUPPORT_CHATS_QUERY, { first: conversationsPageSize });
+  const chats: CompanySupportChat[] = [];
+  let after: string | undefined;
 
-  return res.companySupportChats.edges.map(({ node }) => node);
+  for (let page = 0; page < maxSupportChatPages; page += 1) {
+    // eslint-disable-next-line no-await-in-loop
+    const res = await gqlClient.request<{
+      companySupportChats: Connection<CompanySupportChat>;
+    }>(COMPANY_SUPPORT_CHATS_QUERY, { first: supportChatsPageSize, after });
+    const { edges, pageInfo } = res.companySupportChats;
+    chats.push(...edges.map(({ node }) => node));
+
+    if (!pageInfo?.hasNextPage || !pageInfo.endCursor) {
+      break;
+    }
+    after = pageInfo.endCursor;
+  }
+
+  return chats;
 };
 
 export const getCompanySupportChat = async (

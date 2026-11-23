@@ -61,7 +61,7 @@ import { useReactToMessage } from '../hooks/useReactToMessage';
 import { useEditMessage } from '../hooks/useEditMessage';
 import { useTypingNotifier } from '../hooks/useTypingNotifier';
 import { useMarkThreadRead } from '../hooks/useMarkThreadRead';
-import type { DmGroupMember, DmMessage } from '../types';
+import type { DmMessage } from '../types';
 import { DmMessageStatus } from '../types';
 import { MessageComposer } from './MessageComposer';
 import { DmAccessNotice } from './DmAccessNotice';
@@ -79,7 +79,7 @@ import { MessagePostPreview } from './MessagePostPreview';
 import { ConversationIntro } from './ConversationIntro';
 import { SupportChatIntro } from './SupportChatIntro';
 import { SupportChatMembers } from './SupportChatMembers';
-import { isSupportPeerId } from '../support';
+import { getGroupSender, isSupportPeerId } from '../support';
 import { LfgConversationContext } from '../../lfg/components/messages/LfgConversationContext';
 import { useLfgThreadPitches } from '../../lfg/hooks/useLfgThreadPitches';
 import { useLfgRepoLinkWarning } from '../../lfg/hooks/useLfgRepoLinkWarning';
@@ -158,21 +158,34 @@ const MessageText = ({ text }: { text: string }): ReactElement => (
   </>
 );
 
-// Who wrote a message in a group chat, above the first of their run.
-const MessageSender = ({ sender }: { sender: DmGroupMember }): ReactElement => (
-  <Link href={sender.permalink} passHref>
-    <a className="flex items-center gap-1.5 pt-1">
-      <ProfilePicture user={sender} size={ProfileImageSize.XSmall} />
-      <Typography
-        type={TypographyType.Caption1}
-        color={TypographyColor.Tertiary}
-        bold
-      >
-        {sender.name}
-      </Typography>
-    </a>
-  </Link>
-);
+type GroupSender = ReturnType<typeof getGroupSender>;
+
+// Who wrote a message in a group chat, above the first of their run. Someone
+// no longer in the group has no profile to link to.
+const MessageSender = ({ sender }: { sender: GroupSender }): ReactElement => {
+  const name = (
+    <Typography
+      type={TypographyType.Caption1}
+      color={TypographyColor.Tertiary}
+      bold
+    >
+      {sender.name}
+    </Typography>
+  );
+
+  if (!('permalink' in sender)) {
+    return <div className="pt-1">{name}</div>;
+  }
+
+  return (
+    <Link href={sender.permalink} passHref>
+      <a className="flex items-center gap-1.5 pt-1">
+        <ProfilePicture user={sender} size={ProfileImageSize.XSmall} />
+        {name}
+      </a>
+    </Link>
+  );
+};
 
 const MessageBubble = ({
   message,
@@ -191,7 +204,7 @@ const MessageBubble = ({
 }: {
   message: DmMessage;
   // Set in a group chat on the first message of someone else's run.
-  sender?: DmGroupMember;
+  sender?: GroupSender;
   isMine: boolean;
   isGroupEnd: boolean;
   isEditing: boolean;
@@ -765,10 +778,10 @@ export const ConversationThread = ({
                   <MessageBubble
                     message={message}
                     sender={
-                      groupMembers &&
+                      peer?.group &&
                       message.senderId !== user?.id &&
                       (isNewDay || previous?.senderId !== message.senderId)
-                        ? groupMembers.find(({ id }) => id === message.senderId)
+                        ? getGroupSender(peer.group, message.senderId)
                         : undefined
                     }
                     isMine={message.senderId === user?.id}

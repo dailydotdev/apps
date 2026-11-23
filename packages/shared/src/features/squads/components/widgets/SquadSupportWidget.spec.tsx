@@ -1,6 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import { useRouter } from 'next/router';
 import defaultUser from '../../../../../__tests__/fixture/loggedUser';
 import { TestBootProvider } from '../../../../../__tests__/helpers/boot';
@@ -9,6 +10,7 @@ import { SourceMemberRole } from '../../../../graphql/sources';
 import { SquadPageContextProvider } from '../../SquadPageContext';
 import { openCompanySupportChat } from '../../../messages/graphql';
 import { SquadSupportWidget } from './SquadSupportWidget';
+import { featureCompanySupportChat } from '../../../../lib/featureManagement';
 
 jest.mock('next/router', () => ({ useRouter: jest.fn() }));
 jest.mock('../../../messages/transport', () => ({
@@ -35,14 +37,24 @@ const makeSquad = ({
     currentMember: { role, permissions: [] },
   }) as unknown as Squad;
 
-const renderWidget = (squad: Squad) =>
-  render(
-    <TestBootProvider client={new QueryClient()} auth={{ user: defaultUser }}>
+const renderWidget = (squad: Squad, { isEnabled = true } = {}) => {
+  const gb = new GrowthBook();
+  gb.setFeatures({
+    [featureCompanySupportChat.id]: { defaultValue: isEnabled },
+  });
+
+  return render(
+    <TestBootProvider
+      client={new QueryClient()}
+      auth={{ user: defaultUser }}
+      gb={gb}
+    >
       <SquadPageContextProvider squad={squad} isViewerReady>
         <SquadSupportWidget />
       </SquadPageContextProvider>
     </TestBootProvider>,
   );
+};
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -87,6 +99,14 @@ it('should not show to a moderator', () => {
 
 it('should not show on a regular squad', () => {
   renderWidget(makeSquad({ company: false }));
+
+  expect(
+    screen.queryByRole('button', { name: 'Support' }),
+  ).not.toBeInTheDocument();
+});
+
+it('should stay hidden while the flag is off', () => {
+  renderWidget(makeSquad(), { isEnabled: false });
 
   expect(
     screen.queryByRole('button', { name: 'Support' }),

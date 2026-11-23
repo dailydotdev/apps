@@ -30,6 +30,8 @@ export type DmGroup = {
   // The room on the chat server; null until it's created.
   roomJid: string | null;
   members: DmGroupMember[];
+  // When the last message was sent, as the API knows it; null when none was.
+  lastMessageAt: string | null;
 };
 
 export enum DmMessageStatus {
@@ -115,6 +117,9 @@ export type DmConversation = {
   peer: DmPeer;
   lastMessage: DmMessage;
   unreadCount: number;
+  // A support chat's row shows before its last message loads; the
+  // `conversationPreview` event fills it in.
+  isPreviewLoading?: boolean;
 };
 
 export type DmEvent =
@@ -135,7 +140,13 @@ export type DmEvent =
   | { type: 'rejected'; peerId: string; messageId: string }
   // The connection came back; anything that arrived meanwhile is only in the
   // archive, so cached threads must refetch.
-  | { type: 'reconnected' };
+  | { type: 'reconnected' }
+  // A support chat's last message, loaded after its inbox row. Null when it
+  // couldn't be loaded in time.
+  | { type: 'conversationPreview'; peerId: string; message: DmMessage | null }
+  // A support chat message arrived whose sender the room hasn't named yet;
+  // the archive has them, so the thread refetches.
+  | { type: 'threadStale'; peerId: string };
 
 // The seam the ejabberd client will implement: everything the UI needs goes
 // through here, so swapping the mock for XMPP leaves the components untouched.
@@ -158,6 +169,9 @@ export interface DmTransport {
   // on it and nothing retries it.
   sendChatState: (peer: DmPeer, state: DmChatState) => Promise<void>;
   markRead: (peerId: string) => Promise<void>;
+  // Picks up support chats created since the list was loaded and joins their
+  // rooms. Only acts on a session that is already up.
+  refreshSupportChats: () => void;
   subscribe: (listener: (event: DmEvent) => void) => () => void;
   // Ends the session for good, e.g. on logout.
   close: () => void;

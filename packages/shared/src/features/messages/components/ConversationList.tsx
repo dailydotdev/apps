@@ -29,9 +29,10 @@ import type { DmConversation } from '../types';
 import type { DirectMessageConversation } from '../graphql';
 import { getMessagePreview } from '../media';
 import { DmOrigin, getMessagesUrl } from '../urls';
+import { getGroupSender } from '../support';
 
 const ConversationRow = ({
-  conversation: { peer, lastMessage, unreadCount },
+  conversation: { peer, lastMessage, unreadCount, isPreviewLoading },
   isActive,
   isMine,
 }: {
@@ -42,11 +43,11 @@ const ConversationRow = ({
   const isUnread = unreadCount > 0 && !isActive;
   // A group chat names whoever wrote last.
   const groupSender =
-    !isMine &&
-    peer.group?.members.find(({ id }) => id === lastMessage.senderId);
+    !isMine && peer.group && getGroupSender(peer.group, lastMessage.senderId);
   const senderLabel =
     (isMine && 'You: ') ||
-    (groupSender && `${groupSender.name.split(' ')[0]}: `) ||
+    (groupSender &&
+      `${'username' in groupSender ? groupSender.name.split(' ')[0] : groupSender.name}: `) ||
     undefined;
 
   return (
@@ -84,18 +85,23 @@ const ConversationRow = ({
             </Typography>
           </div>
           <div className="flex items-center gap-2">
-            <Typography
-              type={TypographyType.Footnote}
-              color={
-                isUnread ? TypographyColor.Primary : TypographyColor.Tertiary
-              }
-              truncate
-              className="flex-1"
-            >
-              {peer.group && !lastMessage.body
-                ? 'No messages yet'
-                : `${senderLabel ?? ''}${getMessagePreview(lastMessage.body)}`}
-            </Typography>
+            {isPreviewLoading ? (
+              <div className="h-3 w-2/3 animate-pulse rounded-6 bg-surface-float" />
+            ) : (
+              <Typography
+                type={TypographyType.Footnote}
+                color={
+                  isUnread ? TypographyColor.Primary : TypographyColor.Tertiary
+                }
+                truncate
+                className="flex-1"
+              >
+                {peer.group && !lastMessage.body
+                  ? (peer.group.lastMessageAt && 'Open to see messages') ||
+                    'No messages yet'
+                  : `${senderLabel ?? ''}${getMessagePreview(lastMessage.body)}`}
+              </Typography>
+            )}
             {isUnread && (
               <span
                 aria-label={`${unreadCount} unread`}

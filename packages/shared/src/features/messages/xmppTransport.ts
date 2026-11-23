@@ -14,11 +14,13 @@ import {
   markDirectMessagesRead,
   startDirectMessage,
 } from './graphql';
+import type { RawRoomMessage } from './muc';
 import {
   NS_MUC,
   occupantJid,
-  parseOwnRoomPresence,
   parseRoomMessage,
+  parseRoomPresence,
+  roomNickForUser,
 } from './muc';
 import {
   getSupportChatId,
@@ -49,6 +51,7 @@ import {
   parseMamResult,
   parseReaction,
   unwrapCarbon,
+  userIdFromJid,
 } from './stanzas';
 
 // ejabberd over the websocket. daily-api hands out the login token and opens
@@ -108,6 +111,13 @@ const iqTimeoutMs = 10 * 1000;
 // How long a room join waits for the room to confirm the viewer is in. The
 // archive query and sends go ahead either way, and fail on their own.
 const roomJoinTimeoutMs = 3 * 1000;
+// Someone else holding the viewer's nick makes the join fail; it is retried
+// with a suffixed nick this many times.
+const maxRoomJoinAttempts = 3;
+// Support previews load after the inbox shows, a few rooms at a time, and a
+// slow one gives up instead of holding the rest.
+const supportPreviewConcurrency = 4;
+const supportPreviewTimeoutMs = 4 * 1000;
 
 const stanzaIdPattern = /\sid="([^"]+)"/;
 
@@ -142,6 +152,20 @@ export const createXmppTransport = ({
   const supportRooms = new Map<string, string>();
   // Rooms joined in the current session. A new session starts outside them.
   const joinedRooms = new Map<string, Promise<void>>();
+  // Rooms to be in, rejoined after a new session until they end or refuse
+  // the viewer.
+  const wantedRooms = new Set<string>();
+  // Joins waiting on the room's answer.
+  const pendingJoins = new Map<
+    string,
+    { attempt: number; settle: () => void }
+  >();
+  // Who is behind each occupant, as the room's presence tells it: the real
+  // bare JID by occupant id and by nick. Live messages carry no real JID.
+  const roomOccupants = new Map<
+    string,
+    { byOccupantId: Map<string, string>; byNick: Map<string, string> }
+  >();
   let supportChats: Promise<CompanySupportChat[]> | null = null;
 
   const emit = (event: DmEvent) =>
@@ -159,13 +183,20 @@ export const createXmppTransport = ({
       if (stanza.getAttribute('type') === 'groupchat') {
         const roomMessage = parseRoomMessage(stanza);
         const chatId = roomMessage && supportRooms.get(roomMessage.roomJid);
-        if (roomMessage && chatId) {
-          const { roomJid, ...message } = roomMessage;
-          emit({
-            type: 'message',
-            message: { ...message, peerId: toSupportPeerId(chatId) },
-          });
+        if (!roomMessage || !chatId) {
+          return true;
         }
+
+        const peerId = toSupportPeerId(chatId);
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        const message = toSupportMessage(roomMessage, peerId);
+        // A sender the room hasn't vouched for yet is never guessed from the
+        // nick; the archive names them, so the thread reloads instead.
+        emit(
+          message
+            ? { type: 'message', message }
+            : { type: 'threadStale', peerId },
+        );
         return true;
       }
 
@@ -404,8 +435,16 @@ export const createXmppTransport = ({
           rejectConnecting = undefined;
           connection.addHandler(onMessage(ownBareJid), null, 'message', null);
           connection.addHandler(onAck(connection), NS_SM, 'a', null);
-          // A new session is in no rooms; the next use joins them again.
-          joinedRooms.clear();
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          connection.addHandler(onRoomPresence, null, 'presence', null);
+          // Back after a drop: rejoin the rooms the viewer was in. A join
+          // already under way for this session is shared, not repeated.
+          setTimeout(() =>
+            wantedRooms.forEach((room) =>
+              // eslint-disable-next-line @typescript-eslint/no-use-before-define
+              joinRoom(room).catch(() => undefined),
+            ),
+          );
           connection.send($pres());
           connection.sendIQ(
             $iq({ type: 'set' }).c('enable', { xmlns: NS_CARBONS }),
@@ -428,6 +467,8 @@ export const createXmppTransport = ({
           activeConnection = null;
           clearTimeout(probeTimer);
           probeTimer = undefined;
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          leaveRoomsWithSession();
 
           if (!isConnected) {
             rejectConnecting = undefined;
@@ -581,7 +622,7 @@ export const createXmppTransport = ({
     return chats;
   };
 
-  // Fetched once per transport; the inbox refetches it on every load.
+  // Fetched once per transport; the inbox and refreshSupportChats renew it.
   const loadSupportChats = (): Promise<CompanySupportChat[]> => {
     if (!supportChats) {
       supportChats = getCompanySupportChats().then(registerSupportChats);
@@ -593,8 +634,130 @@ export const createXmppTransport = ({
     return supportChats;
   };
 
+  // The sender of a room message, from what the server says about them: the
+  // real JID on an archived copy, or the occupant's presence for a live one.
+  // Null when neither vouches for anyone.
+  const resolveRoomSender = (message: RawRoomMessage): string | null => {
+    const occupants = roomOccupants.get(message.roomJid);
+    const realJid =
+      message.realJid ??
+      (message.occupantId
+        ? occupants?.byOccupantId.get(message.occupantId)
+        : occupants?.byNick.get(message.nick));
+
+    return realJid ? userIdFromJid(realJid) : null;
+  };
+
+  const toSupportMessage = (
+    message: RawRoomMessage,
+    peerId: string,
+  ): DmMessage | null => {
+    const senderId = resolveRoomSender(message);
+
+    return senderId
+      ? {
+          id: message.id,
+          peerId,
+          senderId,
+          body: message.body,
+          createdAt: message.createdAt,
+          status: DmMessageStatus.Sent,
+        }
+      : null;
+  };
+
+  const sendJoin = (
+    { strophe, connection }: Pick<Session, 'strophe' | 'connection'>,
+    room: string,
+    attempt: number,
+  ) =>
+    connection.send(
+      strophe
+        .$pres({ to: occupantJid(room, roomNickForUser(userId, attempt)) })
+        .c('x', { xmlns: NS_MUC })
+        .c('history', { maxstanzas: '0' }),
+    );
+
+  // The session is gone, and the rooms it was in with it.
+  const leaveRoomsWithSession = () => {
+    joinedRooms.clear();
+    roomOccupants.clear();
+    pendingJoins.forEach(({ settle }) => settle());
+    pendingJoins.clear();
+  };
+
+  const forgetRoom = (room: string) => {
+    wantedRooms.delete(room);
+    joinedRooms.delete(room);
+    roomOccupants.delete(room);
+  };
+
+  const onRoomPresence = (stanza: Element): boolean => {
+    const presence = parseRoomPresence(stanza);
+    if (!presence || !supportRooms.has(presence.roomJid)) {
+      return true;
+    }
+
+    const room = presence.roomJid;
+    const pending = pendingJoins.get(room);
+
+    if (presence.kind === 'joinFailed') {
+      if (
+        pending &&
+        presence.reason === 'conflict' &&
+        pending.attempt + 1 < maxRoomJoinAttempts &&
+        session
+      ) {
+        pending.attempt += 1;
+        sendJoin(session, room, pending.attempt);
+        return true;
+      }
+      // Not a member any more, or the room is gone: stop trying.
+      if (presence.reason === 'forbidden' || presence.reason === 'gone') {
+        forgetRoom(room);
+      } else {
+        joinedRooms.delete(room);
+      }
+      pending?.settle();
+      return true;
+    }
+
+    if (presence.kind === 'ended') {
+      forgetRoom(room);
+      pending?.settle();
+      return true;
+    }
+
+    if (presence.kind === 'left') {
+      roomOccupants.get(room)?.byNick.delete(presence.nick);
+      // Out of the room, e.g. removed with their membership: the next use
+      // joins again, and a refusal then stops it.
+      if (presence.isSelf) {
+        joinedRooms.delete(room);
+      }
+      return true;
+    }
+
+    let occupants = roomOccupants.get(room);
+    if (!occupants) {
+      occupants = { byOccupantId: new Map(), byNick: new Map() };
+      roomOccupants.set(room, occupants);
+    }
+    if (presence.realJid) {
+      occupants.byNick.set(presence.nick, presence.realJid);
+      if (presence.occupantId) {
+        occupants.byOccupantId.set(presence.occupantId, presence.realJid);
+      }
+    }
+    if (presence.isSelf) {
+      pending?.settle();
+    }
+
+    return true;
+  };
+
   // Joins a support room with no history, since the archive has it.
-  // Resolves once the room confirms, or after a short wait regardless.
+  // Resolves once the room answers, or after a short wait regardless.
   const joinRoom = (roomJid: string): Promise<void> => {
     const room = bareJid(roomJid);
     const existing = joinedRooms.get(room);
@@ -602,39 +765,23 @@ export const createXmppTransport = ({
       return existing;
     }
 
+    wantedRooms.add(room);
     const joining = ensureSession().then(
-      ({ strophe, connection }) =>
+      (established) =>
         new Promise<void>((resolve) => {
-          let timer: ReturnType<typeof setTimeout> | undefined;
-          const handler = connection.addHandler(
-            (stanza) => {
-              const presence = parseOwnRoomPresence(stanza);
-              if (!presence || presence.roomJid !== room) {
-                return true;
-              }
-
-              clearTimeout(timer);
-              if (!presence.isJoined) {
-                joinedRooms.delete(room);
-              }
-              resolve();
-              return false;
-            },
-            null,
-            'presence',
-            null,
-          );
-          timer = setTimeout(() => {
-            connection.deleteHandler(handler);
+          const timer = setTimeout(() => {
+            pendingJoins.delete(room);
             resolve();
           }, roomJoinTimeoutMs);
-
-          connection.send(
-            strophe
-              .$pres({ to: occupantJid(room, userId) })
-              .c('x', { xmlns: NS_MUC })
-              .c('history', { maxstanzas: '0' }),
-          );
+          pendingJoins.set(room, {
+            attempt: 0,
+            settle: () => {
+              clearTimeout(timer);
+              pendingJoins.delete(room);
+              resolve();
+            },
+          });
+          sendJoin(established, room, 0);
         }),
     );
     joinedRooms.set(room, joining);
@@ -674,7 +821,8 @@ export const createXmppTransport = ({
     return bareJid(chat.jid);
   };
 
-  // Newest page of a support room's archive, oldest first.
+  // Newest page of a support room's archive, oldest first. Archived copies
+  // carry the sender's real JID; one without it is left unattributed.
   const queryRoomArchive = async (
     roomJid: string,
     chatId: string,
@@ -697,8 +845,16 @@ export const createXmppTransport = ({
             stanzaId: result.stanzaId,
           });
         if (roomMessage) {
-          const { roomJid: room, ...message } = roomMessage;
-          messages.push({ ...message, peerId });
+          messages.push(
+            toSupportMessage(roomMessage, peerId) ?? {
+              id: roomMessage.id,
+              peerId,
+              senderId: '',
+              body: roomMessage.body,
+              createdAt: roomMessage.createdAt,
+              status: DmMessageStatus.Sent,
+            },
+          );
         }
 
         return true;
@@ -733,36 +889,63 @@ export const createXmppTransport = ({
     });
   };
 
-  // An inbox row per support chat. One that has no messages yet still shows,
-  // dated when it was opened.
+  // Fills in the support rows' last messages after the inbox has shown,
+  // a few at a time. A preview that fails or is slow leaves its row as is.
+  const loadSupportPreviews = (chats: CompanySupportChat[]): void => {
+    const queue = chats.filter(
+      ({ jid, lastMessageAt }) => jid && lastMessageAt,
+    );
+    const next = async (): Promise<void> => {
+      const chat = queue.shift();
+      if (!chat?.jid) {
+        return;
+      }
+      const peerId = toSupportPeerId(chat.id);
+      const preview = await Promise.race([
+        queryRoomArchive(bareJid(chat.jid), chat.id, inboxPageSize).then(
+          (messages) => messages.pop() ?? null,
+        ),
+        new Promise<null>((resolve) => {
+          setTimeout(() => resolve(null), supportPreviewTimeoutMs);
+        }),
+      ]).catch(() => null);
+      emit({ type: 'conversationPreview', peerId, message: preview });
+      await next();
+    };
+
+    for (let i = 0; i < supportPreviewConcurrency; i += 1) {
+      next().catch(() => undefined);
+    }
+  };
+
+  // An inbox row per support chat, straight from the API so the inbox never
+  // waits on the chat server for them; previews follow as events.
   const listSupportConversations = async (): Promise<DmConversation[]> => {
     supportChats = getCompanySupportChats().then(registerSupportChats);
     const chats = await supportChats.catch(() => {
       supportChats = null;
       return [] as CompanySupportChat[];
     });
-    const rows = await Promise.allSettled(
-      chats.map(async (chat): Promise<DmConversation> => {
-        const peer = supportChatToPeer(chat);
-        const recent = chat.jid
-          ? await queryRoomArchive(bareJid(chat.jid), chat.id, inboxPageSize)
-          : [];
-        const lastMessage: DmMessage = recent.pop() ?? {
+    setTimeout(() => loadSupportPreviews(chats));
+
+    return chats.map((chat) => {
+      const peer = supportChatToPeer(chat);
+      const hasMessages = !!chat.lastMessageAt && !!chat.jid;
+
+      return {
+        peer,
+        lastMessage: {
           id: `support-${chat.id}`,
           peerId: peer.id,
           senderId: '',
           body: '',
           createdAt: chat.lastMessageAt ?? chat.createdAt,
           status: DmMessageStatus.Sent,
-        };
-
-        return { peer, lastMessage, unreadCount: chat.unreadCount };
-      }),
-    );
-
-    return rows.flatMap((row) =>
-      row.status === 'fulfilled' ? [row.value] : [],
-    );
+        },
+        unreadCount: chat.unreadCount,
+        ...(hasMessages && { isPreviewLoading: true }),
+      };
+    });
   };
 
   // A support chat message. The room reflects it back to every member, the
@@ -808,15 +991,23 @@ export const createXmppTransport = ({
       .up()
       .c('origin-id', { xmlns: NS_SID, id });
 
-    // Someone no longer a member is bounced with our id.
+    // A bounce with our id: out of the room (the next send rejoins and the
+    // retry goes through) or no longer a member (refused for good).
     const errorHandler = connection.addHandler(
-      () => {
+      (error) => {
         const pending = pendingAcks.get(id);
         if (pending) {
           clearTimeout(pending.failTimer);
           pendingAcks.delete(id);
         }
-        emit({ type: 'rejected', peerId, messageId: id });
+        const isOutOfRoom =
+          !!error?.getElementsByTagName?.('not-acceptable').length;
+        joinedRooms.delete(roomJid);
+        emit({
+          type: isOutOfRoom ? 'failed' : 'rejected',
+          peerId,
+          messageId: id,
+        });
         return false;
       },
       null,
@@ -1196,6 +1387,14 @@ export const createXmppTransport = ({
         }),
       );
     },
+    refreshSupportChats: () => {
+      // Only a session already up; this never opens one.
+      if (!session) {
+        return;
+      }
+      supportChats = null;
+      joinSupportRooms();
+    },
     markRead: (peerId) => {
       const supportChatId = getSupportChatId(peerId);
 
@@ -1229,6 +1428,10 @@ export const createXmppTransport = ({
       pendingAcks.forEach(({ failTimer }) => clearTimeout(failTimer));
       pendingAcks.clear();
       joinedRooms.clear();
+      wantedRooms.clear();
+      pendingJoins.forEach(({ settle }) => settle());
+      pendingJoins.clear();
+      roomOccupants.clear();
       supportRooms.clear();
       supportChats = null;
       listeners.clear();

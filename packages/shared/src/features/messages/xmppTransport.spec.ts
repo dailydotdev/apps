@@ -159,6 +159,8 @@ const MockSASLXOAuth2 = function MockSASLXOAuth2() {};
 
 // Names of the bare elements built with $build, i.e. <r/> probes.
 const mockBuilt: string[] = [];
+// Where each addressed presence went, i.e. room joins.
+const mockPresenceTo: string[] = [];
 
 jest.mock(
   'strophe.js',
@@ -168,7 +170,12 @@ jest.mock(
       Status: mockStatus,
       SASLXOAuth2: MockSASLXOAuth2,
     },
-    $pres: () => mockBuilder(),
+    $pres: (attrs?: { to?: string }) => {
+      if (attrs?.to) {
+        mockPresenceTo.push(attrs.to);
+      }
+      return mockBuilder();
+    },
     $iq: () => mockBuilder(),
     $msg: (attrs: { id: string }) => mockBuilder(attrs),
     $build: (name: string) => {
@@ -231,6 +238,7 @@ beforeEach(() => {
   jest.useRealTimers();
   connections.length = 0;
   mockBuilt.length = 0;
+  mockPresenceTo.length = 0;
   jest.mocked(getDirectMessageToken).mockResolvedValue({
     token: 'token',
     jid: 'me@chat.daily.dev',
@@ -860,7 +868,7 @@ describe('company page support chats', () => {
     id: 'c1',
     jid: room,
     unreadCount: 1,
-    lastMessageAt: null,
+    lastMessageAt: '2026-11-23T10:00:00Z',
     createdAt: '2026-11-23T09:00:00Z',
     source: {
       id: 's1',
@@ -871,69 +879,106 @@ describe('company page support chats', () => {
     },
     members: [],
   };
+  const MUC_USER = 'http://jabber.org/protocol/muc#user';
+  const OCCUPANT = 'urn:xmpp:occupant-id:0';
   const stanza = (xml: string): Element =>
     new DOMParser().parseFromString(xml, 'text/xml').documentElement;
   const deliver = (connection: MockConnection, xml: string) =>
     connection.handlers
       .filter(({ name, type }) => name === 'message' && !type)
       .forEach(({ callback }) => callback(stanza(xml)));
-  // The room confirms the viewer is in.
-  const confirmJoin = (connection: MockConnection) =>
+  const deliverPresence = (connection: MockConnection, xml: string) =>
     connection.handlers
       .filter(({ name }) => name === 'presence')
-      .forEach(({ callback }) =>
-        callback(
-          stanza(
-            `<presence xmlns="jabber:client" from="${room}/me"><x xmlns="http://jabber.org/protocol/muc#user"><status code="110"/></x></presence>`,
-          ),
-        ),
-      );
-  const archived = (queryId: string, id: string, nick: string, body: string) =>
+      .forEach(({ callback }) => callback(stanza(xml)));
+  // An occupant as the non-anonymous room shows them: nick, occupant id and
+  // the real JID behind them.
+  const occupant = (
+    nick: string,
+    occupantId: string,
+    jid: string,
+    isSelf = false,
+  ) =>
+    `<presence xmlns="jabber:client" from="${room}/${nick}"><occupant-id xmlns="${OCCUPANT}" id="${occupantId}"/><x xmlns="${MUC_USER}"><item affiliation="member" role="participant" jid="${jid}/res"/>${isSelf ? '<status code="110"/>' : ''}</x></presence>`;
+  const confirmJoin = (connection: MockConnection) =>
+    deliverPresence(
+      connection,
+      occupant('me', 'occ-me', 'me@chat.daily.dev', true),
+    );
+  const live = (nick: string, occupantId: string, body: string, id = 'o1') =>
+    `<message xmlns="jabber:client" type="groupchat" from="${room}/${nick}"><origin-id xmlns="urn:xmpp:sid:0" id="${id}"/><occupant-id xmlns="${OCCUPANT}" id="${occupantId}"/><body>${body}</body></message>`;
+  const archived = (
+    queryId: string,
+    id: string,
+    nick: string,
+    jid: string,
+    body: string,
+  ) =>
     `<message xmlns="jabber:client" from="${room}">
       <result xmlns="urn:xmpp:mam:2" queryid="${queryId}" id="${id}">
         <forwarded xmlns="urn:xmpp:forward:0">
           <delay xmlns="urn:xmpp:delay" stamp="2026-11-23T10:00:0${id}Z"/>
-          <message xmlns="jabber:client" type="groupchat" from="${room}/${nick}"><body>${body}</body></message>
+          <message xmlns="jabber:client" type="groupchat" from="${room}/${nick}"><x xmlns="${MUC_USER}"><item jid="${jid}/res"/></x><body>${body}</body></message>
         </forwarded>
       </result>
     </message>`;
+  const subscribed = async (events: DmEvent[] = []) => {
+    const transport = openTransport();
+    transport.subscribe((event) => events.push(event));
+    const connection = await connected();
+    await flush();
+    confirmJoin(connection);
+    return { transport, connection, events };
+  };
 
   beforeEach(() => {
     jest.mocked(getCompanySupportChats).mockResolvedValue([chat]);
   });
 
-  it('delivers room messages to the support chat', async () => {
-    const events: DmEvent[] = [];
-    const transport = openTransport();
-    transport.subscribe((event) => events.push(event));
-    const connection = await connected();
-    await flush();
+  it('joins the room under the viewer’s own nick with no history', async () => {
+    await subscribed();
 
-    deliver(
+    expect(mockPresenceTo).toEqual([`${room}/me`]);
+  });
+
+  it('names the sender by the real JID behind the occupant, not the nick', async () => {
+    const { connection, events } = await subscribed();
+    // Another admin took the founder's nick while the founder was away.
+    deliverPresence(
       connection,
-      `<message xmlns="jabber:client" type="groupchat" from="${room}/a_b1"><body>hi</body><origin-id xmlns="urn:xmpp:sid:0" id="o1"/></message>`,
+      occupant('founder', 'occ-2', 'h4_v_l_vhbl@chat.daily.dev'),
     );
+
+    deliver(connection, live('founder', 'occ-2', 'i am the founder'));
 
     expect(events).toContainEqual({
       type: 'message',
       message: expect.objectContaining({
         id: 'o1',
         peerId: 'support:c1',
-        senderId: 'aB1',
-        body: 'hi',
+        senderId: 'h4VLVhbl',
+        body: 'i am the founder',
       }),
     });
   });
 
-  it('reads the thread from the room archive', async () => {
-    const transport = openTransport();
-    transport.subscribe(() => undefined);
-    const connection = await connected();
-    await flush();
-    confirmJoin(connection);
+  it('reloads the thread rather than guess a sender the room never showed', async () => {
+    const { connection, events } = await subscribed();
+
+    deliver(connection, live('founder', 'occ-unknown', 'who am i'));
+
+    expect(events).toContainEqual({
+      type: 'threadStale',
+      peerId: 'support:c1',
+    });
+    expect(events.some(({ type }) => type === 'message')).toBe(false);
+  });
+
+  it('reads senders from the real JID on archived messages', async () => {
+    const { transport, connection } = await subscribed();
     connection.archivePages.push((queryId) => [
-      archived(queryId, '1', 'a_b1', 'hello'),
-      archived(queryId, '2', 'me', 'hey'),
+      archived(queryId, '1', 'a_b1', 'a_b1@chat.daily.dev', 'hello'),
+      archived(queryId, '2', 'me', 'me@chat.daily.dev', 'hey'),
     ]);
 
     const messages = await transport.getMessages('support:c1');
@@ -948,15 +993,71 @@ describe('company page support chats', () => {
     ]);
   });
 
-  it('sends to the room and reports the message to the support chat', async () => {
+  it('retries the join under another nick when someone holds the viewer’s', async () => {
     const transport = openTransport();
     transport.subscribe(() => undefined);
     const connection = await connected();
     await flush();
-    confirmJoin(connection);
+
+    deliverPresence(
+      connection,
+      `<presence xmlns="jabber:client" from="${room}/me" type="error"><error type="cancel"><conflict xmlns="urn:ietf:params:xml:ns:xmpp-stanzas"/></error></presence>`,
+    );
+
+    expect(mockPresenceTo).toHaveLength(2);
+    expect(mockPresenceTo[1]).toMatch(new RegExp(`^${room}/me~1`));
+  });
+
+  it('rejoins its rooms after a new session', async () => {
+    jest.useFakeTimers();
+    const transport = openTransport();
+    transport.subscribe(() => undefined);
+    const connection = await connectedWithFakeTimers();
+    await jest.advanceTimersByTimeAsync(0);
+    expect(mockPresenceTo).toEqual([`${room}/me`]);
+
+    connection.dropSocket();
+    await jest.advanceTimersByTimeAsync(1000);
+    connections[connections.length - 1].statusCallback?.(mockStatus.CONNECTED);
+    await jest.advanceTimersByTimeAsync(10);
+
+    expect(
+      mockPresenceTo.filter((to) => to === `${room}/me`).length,
+    ).toBeGreaterThan(1);
+  });
+
+  it('shows support rows straight away and fills their previews in after', async () => {
+    jest.mocked(getDirectMessageConversations).mockResolvedValue([]);
+    const { transport, connection, events } = await subscribed();
+
+    const [row] = await transport.listConversations();
+
+    expect(row).toMatchObject({
+      peer: { id: 'support:c1', name: 'Acme' },
+      lastMessage: { body: '', createdAt: '2026-11-23T10:00:00Z' },
+      unreadCount: 1,
+      isPreviewLoading: true,
+    });
+
+    connection.archivePages.push((queryId) => [
+      archived(queryId, '1', 'a_b1', 'a_b1@chat.daily.dev', 'hello'),
+    ]);
+    await flush();
+    await flush();
+
+    expect(events).toContainEqual({
+      type: 'conversationPreview',
+      peerId: 'support:c1',
+      message: expect.objectContaining({ senderId: 'aB1', body: 'hello' }),
+    });
+  });
+
+  it('sends to the room and reports the message to the support chat', async () => {
+    const { transport, connection } = await subscribed();
 
     const sent = await transport.send(supportChatToPeer(chat), 'hello');
     connection.ackAll();
+    await transport.markRead('support:c1');
 
     expect(sent).toMatchObject({
       peerId: 'support:c1',
@@ -965,27 +1066,6 @@ describe('company page support chats', () => {
     expect(startDirectMessage).not.toHaveBeenCalled();
     expect(markDirectMessageSent).not.toHaveBeenCalled();
     expect(markCompanySupportMessageSent).toHaveBeenCalledWith('c1', 'hello');
-  });
-
-  it('lists the chat in the inbox and marks it read', async () => {
-    jest.mocked(getDirectMessageConversations).mockResolvedValue([]);
-    const transport = openTransport();
-    transport.subscribe(() => undefined);
-    const connection = await connected();
-    await flush();
-    confirmJoin(connection);
-    connection.archivePages.push((queryId) => [
-      archived(queryId, '1', 'a_b1', 'hello'),
-    ]);
-
-    const [conversation] = await transport.listConversations();
-    await transport.markRead('support:c1');
-
-    expect(conversation).toMatchObject({
-      peer: { id: 'support:c1', name: 'Acme' },
-      lastMessage: { body: 'hello' },
-      unreadCount: 1,
-    });
     expect(markCompanySupportChatRead).toHaveBeenCalledWith('c1');
   });
 });

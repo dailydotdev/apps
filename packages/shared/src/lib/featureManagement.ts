@@ -447,3 +447,12 @@ export const featureAgentOnboardingEntry = new Feature(
   'agent_onboarding_entry',
   false,
 );
+
+// Kill switch for the company page support chat: the Support button on a
+// company page. Only evaluated for that page's admins. The inbox shows any
+// support chat the API lists regardless, so turning it off never hides a
+// conversation that already started.
+export const featureCompanySupportChat = new Feature(
+  'company_support_chat',
+  false,
+);

@@ -200,6 +200,13 @@ export const dmUnreadCountQueryOptions = (user: QueryUser) =>
           ).length
         : await getDirectMessageUnreadCount();
 
+      // More unread can mean a support chat this session hasn't joined yet,
+      // e.g. one a company page just opened, so the chat client looks again.
+      const previous = client.getQueryData<number>(dmUnreadCountQueryKey(user));
+      if (previous !== undefined && count > previous) {
+        getDmTransport(user!.id).refreshSupportChats();
+      }
+
       // The fetched count replaces every local adjustment, so the peers
       // counted locally have nothing left to give back.
       client.removeQueries({

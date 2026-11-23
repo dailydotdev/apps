@@ -1,4 +1,5 @@
 import {
+  getGroupSender,
   getSupportChatId,
   supportChatToPeer,
   toSupportPeerId,
@@ -52,6 +53,29 @@ describe('support chat peers', () => {
         roomJid: 'c1@conference.chat.daily.dev',
         members: [{ id: 'u1', username: 'ada' }],
       },
+    });
+  });
+});
+
+describe('getGroupSender', () => {
+  const group = {
+    chatId: 'c1',
+    roomJid: null,
+    lastMessageAt: null,
+    members: [
+      { id: 'u1', name: 'Ada', username: 'ada', image: '', permalink: '' },
+    ],
+  };
+
+  it('names members, former members and senders nobody vouched for', () => {
+    expect(getGroupSender(group, 'u1')).toMatchObject({ name: 'Ada' });
+    expect(getGroupSender(group, 'u2')).toEqual({
+      id: 'u2',
+      name: 'Former member',
+    });
+    expect(getGroupSender(group, '')).toEqual({
+      id: '',
+      name: 'Unknown sender',
     });
   });
 });

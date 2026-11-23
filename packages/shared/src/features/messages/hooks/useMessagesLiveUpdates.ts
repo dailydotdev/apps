@@ -14,7 +14,7 @@ import {
   upsertConversationMessage,
 } from '../queries';
 import { applyEdit, applyReaction } from '../stanzas';
-import type { DmMessage } from '../types';
+import type { DmConversation, DmMessage } from '../types';
 import { DmMessageStatus } from '../types';
 
 const peerUnavailableCopy = "This user isn't accepting messages";
@@ -83,6 +83,31 @@ export const useMessagesLiveUpdates = (enabled: boolean): void => {
       // The optimistic copy is wrong; the archive has what went through.
       if (event.type === 'editRejected') {
         displayToast("Couldn't save your edit. Try again.");
+        queryClient.invalidateQueries({
+          queryKey: dmThreadQueryKey(user, event.peerId),
+        });
+        return;
+      }
+
+      // A support chat's preview: its row keeps its place and unread state.
+      if (event.type === 'conversationPreview') {
+        queryClient.setQueryData<DmConversation[]>(
+          dmConversationsQueryKey(user),
+          (conversations) =>
+            conversations?.map((conversation) =>
+              conversation.peer.id === event.peerId
+                ? {
+                    ...conversation,
+                    lastMessage: event.message ?? conversation.lastMessage,
+                    isPreviewLoading: false,
+                  }
+                : conversation,
+            ),
+        );
+        return;
+      }
+
+      if (event.type === 'threadStale') {
         queryClient.invalidateQueries({
           queryKey: dmThreadQueryKey(user, event.peerId),
         });

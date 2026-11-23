@@ -16,6 +16,8 @@ import { isCompanyPage } from '../../lib/companyPage';
 import { SquadViewer } from '../../lib/viewer';
 import { isDmAvailable } from '../../../messages/transport';
 import { useOpenSupportChat } from '../../../messages/hooks/useOpenSupportChat';
+import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
+import { featureCompanySupportChat } from '../../../../lib/featureManagement';
 import { SquadWidget } from './SquadWidget';
 
 const SupportButton = ({ sourceId }: { sourceId: string }): ReactElement => {
@@ -39,13 +41,17 @@ const SupportButton = ({ sourceId }: { sourceId: string }): ReactElement => {
  */
 export const SquadSupportWidget = (): ReactElement | null => {
   const { squad, viewer, isViewerKnown } = useSquadPageContext();
+  const isCandidate =
+    isDmAvailable &&
+    isViewerKnown &&
+    viewer === SquadViewer.Admin &&
+    isCompanyPage(squad);
+  const { value: isEnabled } = useConditionalFeature({
+    feature: featureCompanySupportChat,
+    shouldEvaluate: isCandidate,
+  });
 
-  if (
-    !isDmAvailable ||
-    !isViewerKnown ||
-    viewer !== SquadViewer.Admin ||
-    !isCompanyPage(squad)
-  ) {
+  if (!isCandidate || !isEnabled) {
     return null;
   }
 
@@ -56,8 +62,8 @@ export const SquadSupportWidget = (): ReactElement | null => {
         color={TypographyColor.Tertiary}
         className="mt-2"
       >
-        Questions about your company page? Chat with Nimrod, Tsahi and Ido, the
-        daily.dev founders, in a private group with your page&apos;s admins.
+        Questions about your company page? Chat with the daily.dev founders in a
+        private group with your page&apos;s admins.
       </Typography>
       <SupportButton sourceId={getSquadId(squad)} />
     </SquadWidget>
