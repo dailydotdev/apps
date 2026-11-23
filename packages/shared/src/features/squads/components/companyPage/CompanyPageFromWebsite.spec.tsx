@@ -120,6 +120,31 @@ it('keeps the request made before the sign-up when the founder comes back', asyn
   expect(claimCompanyPageRequest).toHaveBeenCalledWith('req1');
 });
 
+it('reads the landing page site again when the request kept in this browser is gone', async () => {
+  localStorage.setItem(COMPANY_PAGE_REQUEST_KEY, JSON.stringify(pending));
+  (useRouter as jest.Mock).mockReturnValue({
+    query: { website: 'acme.dev' },
+    replace,
+  });
+  (claimCompanyPageRequest as jest.Mock).mockRejectedValueOnce(
+    new Error('not found'),
+  );
+  (requestCompanyPage as jest.Mock).mockResolvedValue({
+    ...pending,
+    id: 'req2',
+  });
+  (getCompanyPageRequest as jest.Mock).mockResolvedValue(pending);
+  renderComponent();
+
+  await waitFor(() =>
+    expect(requestCompanyPage).toHaveBeenCalledWith('https://acme.dev/'),
+  );
+  await waitFor(() =>
+    expect(claimCompanyPageRequest).toHaveBeenCalledWith('req2'),
+  );
+  expect(screen.getByText('Building your company page')).toBeInTheDocument();
+});
+
 it('opens the company page once it is created', async () => {
   localStorage.setItem(COMPANY_PAGE_REQUEST_KEY, JSON.stringify(pending));
   (getCompanyPageRequest as jest.Mock).mockResolvedValue({

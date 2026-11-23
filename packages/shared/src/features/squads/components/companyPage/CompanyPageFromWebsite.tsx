@@ -184,9 +184,14 @@ export const CompanyPageFromWebsite = (): ReactElement | null => {
         return;
       }
 
+      // Another site: drop the old request so its site doesn't show meanwhile
+      if (stored) {
+        forget();
+      }
+
       request(url);
     },
-    [request, stored],
+    [request, stored, forget],
   );
 
   // The landing page's box: start reading right away
@@ -216,12 +221,19 @@ export const CompanyPageFromWebsite = (): ReactElement | null => {
   });
   const isRequestMissing = isClaimMissing || isReadMissing;
 
-  // Someone else's request in this browser, or one that expired
+  // Someone else's request in this browser, or one that expired. The
+  // landing page's site is read again rather than left on a screen that
+  // waits for nothing.
   useEffect(() => {
-    if (isRequestMissing) {
-      forget();
+    if (!isRequestMissing) {
+      return;
     }
-  }, [isRequestMissing, forget]);
+
+    forget();
+    if (queryRequestWebsite) {
+      request(queryRequestWebsite);
+    }
+  }, [isRequestMissing, forget, queryRequestWebsite, request]);
 
   useEffect(() => {
     if (!pageRequest) {
