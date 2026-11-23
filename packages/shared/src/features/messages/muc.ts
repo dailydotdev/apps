@@ -10,6 +10,10 @@ import { NS_DELAY, NS_SID, bareJid, encodeJidLocal } from './stanzas';
 // never says who wrote a message: the sender comes from the real JID, which
 // the server puts on presence and on archived messages, and live messages are
 // matched to it through their occupant id (XEP-0421) or nick.
+//
+// Only the archive's <item jid/> is the server's. On a live message ejabberd
+// passes a client's own muc#user element through untouched, so it is never
+// read there; the occupant id, which the room overwrites, is.
 
 export const NS_MUC = 'http://jabber.org/protocol/muc';
 export const NS_MUC_USER = `${NS_MUC}#user`;
@@ -52,12 +56,25 @@ const splitOccupant = (
   };
 };
 
-// The real JID the server attached, from <x xmlns="…muc#user"><item jid/>.
-const realJidOf = (el: Element): string | undefined => {
-  const item = childOf(el, 'x', NS_MUC_USER);
-  const jid = item && childOf(item, 'item')?.getAttribute('jid');
+const itemJidsOf = (el: Element): string[] =>
+  Array.from(el.children)
+    .filter(
+      (child) =>
+        child.localName === 'x' && child.getAttribute('xmlns') === NS_MUC_USER,
+    )
+    .flatMap((x) =>
+      Array.from(x.children)
+        .filter((child) => child.localName === 'item')
+        .map((item) => item.getAttribute('jid'))
+        .filter((jid): jid is string => !!jid),
+    );
 
-  return jid ? bareJid(jid) : undefined;
+// The real JID the server attached, from <x xmlns="…muc#user"><item jid/>.
+// More than one means someone else added theirs, so none is trusted.
+const realJidOf = (el: Element): string | undefined => {
+  const jids = itemJidsOf(el);
+
+  return jids.length === 1 ? bareJid(jids[0]) : undefined;
 };
 
 const occupantIdOf = (el: Element): string | undefined =>
@@ -69,8 +86,9 @@ export type RawRoomMessage = {
   roomJid: string;
   nick: string;
   occupantId?: string;
-  // Only the archive carries it on the message itself.
+  // Only set on an archived copy, where the server put it.
   realJid?: string;
+  isArchived: boolean;
   body: string;
   createdAt: string;
 };
@@ -79,7 +97,11 @@ export type RawRoomMessage = {
 // archive passes its own stamp and id, since the forwarded copy may lack them.
 export const parseRoomMessage = (
   message: Element,
-  { stamp, stanzaId }: { stamp?: string; stanzaId?: string } = {},
+  {
+    stamp,
+    stanzaId,
+    isArchived = false,
+  }: { stamp?: string; stanzaId?: string; isArchived?: boolean } = {},
 ): RawRoomMessage | null => {
   if (message.getAttribute('type') !== 'groupchat') {
     return null;
@@ -105,7 +127,8 @@ export const parseRoomMessage = (
     roomJid: occupant.roomJid,
     nick: occupant.nick,
     occupantId: occupantIdOf(message),
-    realJid: realJidOf(message),
+    realJid: isArchived ? realJidOf(message) : undefined,
+    isArchived,
     body,
     createdAt,
   };

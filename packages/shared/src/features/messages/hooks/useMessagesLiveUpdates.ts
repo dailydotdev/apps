@@ -107,6 +107,22 @@ export const useMessagesLiveUpdates = (enabled: boolean): void => {
         return;
       }
 
+      // Support rows replace their old copies; DM rows stay as they are.
+      if (event.type === 'supportConversations') {
+        queryClient.setQueryData<DmConversation[]>(
+          dmConversationsQueryKey(user),
+          (conversations) =>
+            conversations &&
+            [
+              ...conversations.filter(({ peer }) => !peer.group),
+              ...event.conversations,
+            ].sort((a, b) =>
+              b.lastMessage.createdAt.localeCompare(a.lastMessage.createdAt),
+            ),
+        );
+        return;
+      }
+
       if (event.type === 'threadStale') {
         queryClient.invalidateQueries({
           queryKey: dmThreadQueryKey(user, event.peerId),

@@ -117,6 +117,9 @@ const maxRoomJoinAttempts = 3;
 // Support previews load after the inbox shows, a few rooms at a time, and a
 // slow one gives up instead of holding the rest.
 const supportPreviewConcurrency = 4;
+// Only the most recent support chats, which head the inbox, get a preview
+// loaded; the daily.dev team is in every company's chat.
+const supportPreviewRows = 10;
 const supportPreviewTimeoutMs = 4 * 1000;
 
 const stanzaIdPattern = /\sid="([^"]+)"/;
@@ -166,7 +169,6 @@ export const createXmppTransport = ({
     string,
     { byOccupantId: Map<string, string>; byNick: Map<string, string> }
   >();
-  let supportChats: Promise<CompanySupportChat[]> | null = null;
 
   const emit = (event: DmEvent) =>
     listeners.forEach((listener) => listener(event));
@@ -382,11 +384,7 @@ export const createXmppTransport = ({
       reconnectTimer = undefined;
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       ensureSession()
-        .then(() => {
-          // eslint-disable-next-line @typescript-eslint/no-use-before-define
-          joinSupportRooms();
-          emit({ type: 'reconnected' });
-        })
+        .then(() => emit({ type: 'reconnected' }))
         .catch(scheduleReconnect);
     }, delay);
   };
@@ -622,28 +620,23 @@ export const createXmppTransport = ({
     return chats;
   };
 
-  // Fetched once per transport; the inbox and refreshSupportChats renew it.
-  const loadSupportChats = (): Promise<CompanySupportChat[]> => {
-    if (!supportChats) {
-      supportChats = getCompanySupportChats().then(registerSupportChats);
-      supportChats.catch(() => {
-        supportChats = null;
-      });
-    }
-
-    return supportChats;
-  };
-
-  // The sender of a room message, from what the server says about them: the
-  // real JID on an archived copy, or the occupant's presence for a live one.
-  // Null when neither vouches for anyone.
+  // The sender of a room message, from what the server says about them.
+  // Null when nothing the server set vouches for anyone.
   const resolveRoomSender = (message: RawRoomMessage): string | null => {
     const occupants = roomOccupants.get(message.roomJid);
-    const realJid =
-      message.realJid ??
-      (message.occupantId
-        ? occupants?.byOccupantId.get(message.occupantId)
-        : occupants?.byNick.get(message.nick));
+    const byOccupantId =
+      message.occupantId && occupants?.byOccupantId.get(message.occupantId);
+    // Archived: the item jid the server stored. A nick may belong to someone
+    // else by now, so it never stands in for it there.
+    // Live: the occupant id the room stamped, or the nick as presence showed
+    // it; a muc#user element on the message is the sender's own, not read.
+    if (message.isArchived) {
+      const realJid = message.realJid ?? byOccupantId;
+      return realJid ? userIdFromJid(realJid) : null;
+    }
+    const realJid = message.occupantId
+      ? byOccupantId
+      : occupants?.byNick.get(message.nick);
 
     return realJid ? userIdFromJid(realJid) : null;
   };
@@ -790,20 +783,6 @@ export const createXmppTransport = ({
     return joining;
   };
 
-  // Being in every support room is what brings their messages in live, on
-  // any surface that listens.
-  const joinSupportRooms = (): void => {
-    loadSupportChats()
-      .then((chats) =>
-        chats.forEach(({ jid }) => {
-          if (jid) {
-            joinRoom(jid).catch(() => undefined);
-          }
-        }),
-      )
-      .catch(() => undefined);
-  };
-
   const getSupportRoomJid = async (chatId: string): Promise<string | null> => {
     const known = Array.from(supportRooms.entries()).find(
       ([, id]) => id === chatId,
@@ -822,13 +801,17 @@ export const createXmppTransport = ({
   };
 
   // Newest page of a support room's archive, oldest first. Archived copies
-  // carry the sender's real JID; one without it is left unattributed.
+  // carry the sender's real JID; one without it is left unattributed. Members
+  // read it without being in the room, so only an open thread joins.
   const queryRoomArchive = async (
     roomJid: string,
     chatId: string,
     max: number,
+    { join }: { join: boolean },
   ): Promise<DmMessage[]> => {
-    await joinRoom(roomJid);
+    if (join) {
+      await joinRoom(roomJid);
+    }
     const { strophe, connection, ownBareJid } = await ensureSession();
     const { $iq } = strophe;
     const queryId = connection.getUniqueId('mam');
@@ -843,6 +826,7 @@ export const createXmppTransport = ({
           parseRoomMessage(result.message, {
             stamp: result.stamp,
             stanzaId: result.stanzaId,
+            isArchived: true,
           });
         if (roomMessage) {
           messages.push(
@@ -889,27 +873,76 @@ export const createXmppTransport = ({
     });
   };
 
-  // Fills in the support rows' last messages after the inbox has shown,
-  // a few at a time. A preview that fails or is slow leaves its row as is.
-  const loadSupportPreviews = (chats: CompanySupportChat[]): void => {
-    const queue = chats.filter(
-      ({ jid, lastMessageAt }) => jid && lastMessageAt,
-    );
+  // Last messages already loaded, kept while the chat's lastMessageAt says
+  // nothing newer arrived.
+  const supportPreviews = new Map<
+    string,
+    { lastMessageAt: string; message: DmMessage | null }
+  >();
+
+  const toSupportRow = (chat: CompanySupportChat): DmConversation => {
+    const peer = supportChatToPeer(chat);
+    const cached =
+      chat.lastMessageAt &&
+      supportPreviews.get(chat.id)?.lastMessageAt === chat.lastMessageAt
+        ? supportPreviews.get(chat.id)?.message
+        : undefined;
+
+    return {
+      peer,
+      lastMessage: cached ?? {
+        id: `support-${chat.id}`,
+        peerId: peer.id,
+        senderId: '',
+        body: '',
+        createdAt: chat.lastMessageAt ?? chat.createdAt,
+        status: DmMessageStatus.Sent,
+      },
+      unreadCount: chat.unreadCount,
+    };
+  };
+
+  // The most recent support chats, which head the inbox, whose preview isn't
+  // loaded yet. The rest stay "Open to see messages" until opened.
+  const previewQueue = (chats: CompanySupportChat[]): CompanySupportChat[] =>
+    chats
+      .filter(
+        ({ id, jid, lastMessageAt }) =>
+          jid &&
+          lastMessageAt &&
+          supportPreviews.get(id)?.lastMessageAt !== lastMessageAt,
+      )
+      .sort((a, b) =>
+        (b.lastMessageAt ?? '').localeCompare(a.lastMessageAt ?? ''),
+      )
+      .slice(0, supportPreviewRows);
+
+  // Loads the queued previews a few at a time. A slow or failed one leaves
+  // its row as it is.
+  const loadSupportPreviews = (queue: CompanySupportChat[]): void => {
+    const pending = [...queue];
     const next = async (): Promise<void> => {
-      const chat = queue.shift();
-      if (!chat?.jid) {
+      const chat = pending.shift();
+      if (!chat?.jid || !chat.lastMessageAt) {
         return;
       }
       const peerId = toSupportPeerId(chat.id);
       const preview = await Promise.race([
-        queryRoomArchive(bareJid(chat.jid), chat.id, inboxPageSize).then(
-          (messages) => messages.pop() ?? null,
-        ),
-        new Promise<null>((resolve) => {
-          setTimeout(() => resolve(null), supportPreviewTimeoutMs);
+        queryRoomArchive(bareJid(chat.jid), chat.id, inboxPageSize, {
+          join: false,
+        }).then((messages) => messages.pop() ?? null),
+        new Promise<undefined>((resolve) => {
+          setTimeout(() => resolve(undefined), supportPreviewTimeoutMs);
         }),
-      ]).catch(() => null);
-      emit({ type: 'conversationPreview', peerId, message: preview });
+      ]).catch(() => undefined);
+      // Only a loaded answer is kept; a timeout may do better next time.
+      if (preview !== undefined) {
+        supportPreviews.set(chat.id, {
+          lastMessageAt: chat.lastMessageAt,
+          message: preview,
+        });
+      }
+      emit({ type: 'conversationPreview', peerId, message: preview ?? null });
       await next();
     };
 
@@ -918,34 +951,33 @@ export const createXmppTransport = ({
     }
   };
 
-  // An inbox row per support chat, straight from the API so the inbox never
-  // waits on the chat server for them; previews follow as events.
-  const listSupportConversations = async (): Promise<DmConversation[]> => {
-    supportChats = getCompanySupportChats().then(registerSupportChats);
-    const chats = await supportChats.catch(() => {
-      supportChats = null;
-      return [] as CompanySupportChat[];
-    });
-    setTimeout(() => loadSupportPreviews(chats));
+  // Inbox rows per support chat, straight from the API so the inbox never
+  // waits on the chat server for them: order and unread come from there, and
+  // the previews of the top rows follow as events.
+  // The inbox waits for the chat server anyway, so it brings the session up
+  // for previews; a refresh only uses one that is already there.
+  const loadSupportConversations = async ({
+    withSession,
+  }: {
+    withSession: boolean;
+  }): Promise<DmConversation[]> => {
+    const chats = await getCompanySupportChats()
+      .then(registerSupportChats)
+      .catch(() => [] as CompanySupportChat[]);
+    const hasSession = withSession
+      ? await ensureSession().then(
+          () => true,
+          () => false,
+        )
+      : !!session;
+    const queue = hasSession ? previewQueue(chats) : [];
+    const rows = chats.map((chat) => ({
+      ...toSupportRow(chat),
+      ...(queue.includes(chat) && { isPreviewLoading: true }),
+    }));
+    setTimeout(() => loadSupportPreviews(queue));
 
-    return chats.map((chat) => {
-      const peer = supportChatToPeer(chat);
-      const hasMessages = !!chat.lastMessageAt && !!chat.jid;
-
-      return {
-        peer,
-        lastMessage: {
-          id: `support-${chat.id}`,
-          peerId: peer.id,
-          senderId: '',
-          body: '',
-          createdAt: chat.lastMessageAt ?? chat.createdAt,
-          status: DmMessageStatus.Sent,
-        },
-        unreadCount: chat.unreadCount,
-        ...(hasMessages && { isPreviewLoading: true }),
-      };
-    });
+    return rows;
   };
 
   // A support chat message. The room reflects it back to every member, the
@@ -1122,7 +1154,7 @@ export const createXmppTransport = ({
         await Promise.all([
           getDirectMessageConversations(),
           ensureSession(),
-          listSupportConversations(),
+          loadSupportConversations({ withSession: true }),
         ]);
       // Until the inbox module exists, the last message comes from one
       // archive lookup per conversation; unread counts come from the API.
@@ -1188,7 +1220,9 @@ export const createXmppTransport = ({
         const roomJid = await getSupportRoomJid(supportChatId);
 
         return roomJid
-          ? queryRoomArchive(roomJid, supportChatId, historyPageSize)
+          ? queryRoomArchive(roomJid, supportChatId, historyPageSize, {
+              join: true,
+            })
           : [];
       }
 
@@ -1388,12 +1422,11 @@ export const createXmppTransport = ({
       );
     },
     refreshSupportChats: () => {
-      // Only a session already up; this never opens one.
-      if (!session) {
-        return;
-      }
-      supportChats = null;
-      joinSupportRooms();
+      loadSupportConversations({ withSession: false })
+        .then((conversations) =>
+          emit({ type: 'supportConversations', conversations }),
+        )
+        .catch(() => undefined);
     },
     markRead: (peerId) => {
       const supportChatId = getSupportChatId(peerId);
@@ -1406,7 +1439,7 @@ export const createXmppTransport = ({
       listeners.add(listener);
       // A new subscriber is a fresh user action, so the retry budget resets.
       reconnectAttempt = 0;
-      ensureSession().then(joinSupportRooms).catch(scheduleReconnect);
+      ensureSession().catch(scheduleReconnect);
 
       return () => {
         listeners.delete(listener);
@@ -1433,7 +1466,7 @@ export const createXmppTransport = ({
       pendingJoins.clear();
       roomOccupants.clear();
       supportRooms.clear();
-      supportChats = null;
+      supportPreviews.clear();
       listeners.clear();
       // Settles a connect still in its handshake; its callbacks are ignored
       // once activeConnection is cleared.

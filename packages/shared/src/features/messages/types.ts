@@ -144,6 +144,9 @@ export type DmEvent =
   // A support chat's last message, loaded after its inbox row. Null when it
   // couldn't be loaded in time.
   | { type: 'conversationPreview'; peerId: string; message: DmMessage | null }
+  // The support chats' inbox rows, read again from the API after the unread
+  // count went up, with order and unread as the API has them.
+  | { type: 'supportConversations'; conversations: DmConversation[] }
   // A support chat message arrived whose sender the room hasn't named yet;
   // the archive has them, so the thread refetches.
   | { type: 'threadStale'; peerId: string };
@@ -169,8 +172,8 @@ export interface DmTransport {
   // on it and nothing retries it.
   sendChatState: (peer: DmPeer, state: DmChatState) => Promise<void>;
   markRead: (peerId: string) => Promise<void>;
-  // Picks up support chats created since the list was loaded and joins their
-  // rooms. Only acts on a session that is already up.
+  // Reads the support chats' inbox rows again (new chats, order, unread) and
+  // emits them as `supportConversations`. Joins nothing.
   refreshSupportChats: () => void;
   subscribe: (listener: (event: DmEvent) => void) => () => void;
   // Ends the session for good, e.g. on logout.

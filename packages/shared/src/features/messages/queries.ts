@@ -200,8 +200,9 @@ export const dmUnreadCountQueryOptions = (user: QueryUser) =>
           ).length
         : await getDirectMessageUnreadCount();
 
-      // More unread can mean a support chat this session hasn't joined yet,
-      // e.g. one a company page just opened, so the chat client looks again.
+      // Support rooms are only joined while their thread is open, so more
+      // unread is how the inbox hears of new support messages: their rows
+      // are read again from the API.
       const previous = client.getQueryData<number>(dmUnreadCountQueryKey(user));
       if (previous !== undefined && count > previous) {
         getDmTransport(user!.id).refreshSupportChats();

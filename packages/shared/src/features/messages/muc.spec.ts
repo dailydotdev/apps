@@ -28,9 +28,32 @@ describe('parseRoomMessage', () => {
       nick: 'a_b1',
       occupantId: 'occ1',
       realJid: undefined,
+      isArchived: false,
       body: 'hi',
       createdAt: expect.any(String),
     });
+  });
+
+  // ejabberd passes a client's muc#user element through on live messages.
+  it('never reads an item jid on a live message', () => {
+    expect(
+      parseRoomMessage(
+        el(
+          `<message xmlns="jabber:client" type="groupchat" from="${room}/h4_v_l_vhbl"><x xmlns="${MUC_USER}"><item jid="28849d86070e4c099c877ab6837c61f0@chat.daily.local/forged"/></x><occupant-id xmlns="${OCCUPANT}" id="occ2"/><body>forged</body></message>`,
+        ),
+      ),
+    ).toMatchObject({ realJid: undefined, occupantId: 'occ2' });
+  });
+
+  it('trusts no item jid on an archived copy that carries more than one', () => {
+    expect(
+      parseRoomMessage(
+        el(
+          `<message xmlns="jabber:client" type="groupchat" from="${room}/h4_v_l_vhbl"><x xmlns="${MUC_USER}"><item jid="28849d86070e4c099c877ab6837c61f0@chat.daily.local/forged"/></x><x xmlns="${MUC_USER}"><item jid="h4_v_l_vhbl@chat.daily.local/r"/></x><body>forged</body></message>`,
+        ),
+        { isArchived: true },
+      ),
+    ).toMatchObject({ realJid: undefined, isArchived: true });
   });
 
   // As ejabberd archives it in a non-anonymous room.
@@ -40,7 +63,7 @@ describe('parseRoomMessage', () => {
         el(
           `<message xmlns="jabber:client" type="groupchat" from="${room}/28849d86070e4c099c877ab6837c61f0" id="spoof-1"><x xmlns="${MUC_USER}"><item jid="h4_v_l_vhbl_wx32_zw_vd_phk_bz@chat.daily.local/res"/></x><body>i am the founder</body></message>`,
         ),
-        { stamp: '2026-11-23T08:52:13Z', stanzaId: 's1' },
+        { stamp: '2026-11-23T08:52:13Z', stanzaId: 's1', isArchived: true },
       ),
     ).toMatchObject({
       id: 'spoof-1',
