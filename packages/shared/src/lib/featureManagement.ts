@@ -444,3 +444,12 @@ export const featureAgentOnboardingEntry = new Feature(
   'agent_onboarding_entry',
   false,
 );
+
+// How loudly a 2x bonus-reward quest and its Swap button stand out in the
+// sidebar quest list and the quest dropdown (desktop popover and mobile
+// drawer). `control` is the current look; each `vN` is one treatment, so new
+// ones can be added without touching the flag.
+export const featureQuestBonusHighlight = new Feature(
+  'quest_bonus_highlight',
+  'control',
+);
