@@ -29,7 +29,7 @@ const meta: Meta<FlowArgs> = {
   args: { readingHour: 20, permission: 'default' },
   argTypes: {
     readingHour: {
-      name: 'Hour they read at most',
+      name: 'Hour they see the card',
       control: { type: 'range', min: 0, max: 23, step: 1 },
     },
     permission: {
@@ -206,12 +206,12 @@ const states: { step: HeroStep; label: string; note: string }[] = [
   {
     step: 'offer',
     label: 'Offer',
-    note: 'Their most-read hour on the button. Readers with no history yet get 9 AM.',
+    note: 'The hour they see the card, in their timezone, rounded down. The first reminder is tomorrow.',
   },
   {
     step: 'picking',
     label: 'Other time',
-    note: 'Three presets, the reader’s own hour in place of the nearest one. Picking one goes straight to the push ask.',
+    note: 'Three presets, the current hour in place of the nearest one. Picking one goes straight to the push ask.',
   },
   {
     step: 'asking',
@@ -226,7 +226,7 @@ const states: { step: HeroStep; label: string; note: string }[] = [
   {
     step: 'denied',
     label: 'Blocked',
-    note: 'Push blocked: no reminder is saved, and the card says how to turn it on.',
+    note: 'Push blocked: no reminder is saved. In production the steps come from ReEnableNotifications, per platform.',
   },
   {
     step: 'paused',
@@ -242,23 +242,46 @@ export const AllStates: StoryObj<FlowArgs> = {
   render: ({ readingHour }) => (
     <Page
       title="All states"
-      intro="Every state the slot can show. Each keeps the same frame and roughly the same height, so the feed under it doesn't jump."
+      intro="Every state the slot can show, on the feed card and on the laptop strip card at half width (the strip splits when Weekly picks or the CV card also shows). Each state keeps its frame and roughly its height, so the feed under it doesn't jump."
     >
-      <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptop:grid-cols-3">
+      <div className="flex flex-col gap-8">
         {states.map(({ step, label, note }) => (
-          <div key={step} className="flex w-full max-w-[23.4375rem] flex-col">
-            <p className="font-bold text-text-primary typo-callout">{label}</p>
-            <p className="mb-3 min-h-10 text-text-tertiary typo-footnote">
-              {note}
-            </p>
-            <ProposedHero
-              step={step}
-              readingHour={readingHour}
-              onSend={noop}
-              onPickTime={noop}
-              onRetry={noop}
-              onClose={noop}
-            />
+          <div
+            key={step}
+            className="grid grid-cols-1 items-start gap-4 laptop:grid-cols-[12rem_23.4375rem_minmax(0,28rem)]"
+          >
+            <div className="flex flex-col gap-1">
+              <p className="font-bold text-text-primary typo-callout">
+                {label}
+              </p>
+              <p className="text-text-tertiary typo-footnote">{note}</p>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-text-quaternary typo-caption1">
+                Phone and tablet
+              </span>
+              <ProposedHero
+                step={step}
+                readingHour={readingHour}
+                onSend={noop}
+                onPickTime={noop}
+                onRetry={noop}
+                onClose={noop}
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-text-quaternary typo-caption1">
+                Laptop strip, half width
+              </span>
+              <ProposedTopHero
+                step={step}
+                readingHour={readingHour}
+                onSend={noop}
+                onPickTime={noop}
+                onRetry={noop}
+                onClose={noop}
+              />
+            </div>
           </div>
         ))}
       </div>
@@ -285,6 +308,7 @@ const CloseEverywhereDemo = (): ReactElement => {
   );
   const laptopHero = isClosed('laptop') ? undefined : (
     <ProposedTopHero
+      step="offer"
       readingHour={20}
       onSend={noop}
       onPickTime={noop}

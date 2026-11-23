@@ -8,12 +8,14 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import { BellIcon } from '@dailydotdev/shared/src/components/icons/Bell';
+import { MoonIcon } from '@dailydotdev/shared/src/components/icons/Moon';
+import { SunIcon } from '@dailydotdev/shared/src/components/icons/Sun';
 import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import feedStyles from '@dailydotdev/shared/src/components/Feed.module.css';
 
 // The proposed "Never miss a learning day" hero: the production slot and
 // frame, centered on every width, theme tokens instead of fixed dark colors,
-// Patchy instead of the cat, the hour the reader already reads at, and push
+// Patchy instead of the cat, the hour the reader is reading at now, and push
 // asked for before the reminder is saved.
 
 export type HeroStep =
@@ -32,7 +34,7 @@ export const shortHour = (hour: number): string =>
 export const longHour = (hour: number): string =>
   `${hour % 12 || 12}:00 ${hour < 12 ? 'AM' : 'PM'}`;
 
-/** The mockup's three presets, with the reader's own hour in place of the nearest. */
+/** The mockup's three presets, with the current hour in place of the nearest. */
 export const hourChoices = (readingHour: number): number[] => {
   const presets = [9, 13, 20];
   if (presets.includes(readingHour)) {
@@ -52,7 +54,7 @@ export const PATCHY_ART = 'reading-reminder-hero/patchy-reading.webp';
 
 interface ProposedHeroProps {
   step: HeroStep;
-  /** The hour the reader reads at most, from their reading history. */
+  /** The hour the reader sees the card, in their timezone, rounded down. */
   readingHour: number;
   onSend?: (hour: number) => void;
   onPickTime?: () => void;
@@ -61,145 +63,140 @@ interface ProposedHeroProps {
   className?: string;
 }
 
-const Copy = ({
-  title,
-  subtitle,
-}: {
+interface HeroContent {
   title: string;
-  subtitle: ReactNode;
-}): ReactElement => (
-  <>
-    <h3 className="font-bold text-text-primary typo-title3">{title}</h3>
-    <p className="mt-1 max-w-[22rem] text-text-tertiary typo-callout tablet:max-w-[40rem]">
-      {subtitle}
-    </p>
-  </>
-);
+  subtitle: string;
+  actions: ReactNode;
+}
+
+const dayIcon = (hour: number): ReactElement =>
+  hour >= 6 && hour < 18 ? <SunIcon /> : <MoonIcon />;
+
+/** Each step's copy and actions, shared by the feed card and the laptop card. */
+const heroContent = (
+  {
+    step,
+    readingHour,
+    onSend,
+    onPickTime,
+    onRetry,
+  }: Omit<ProposedHeroProps, 'onClose' | 'className'>,
+  size: ButtonSize,
+): HeroContent => {
+  const time = longHour(readingHour);
+  const status = 'flex h-8 items-center gap-1 typo-callout';
+
+  switch (step) {
+    case 'picking':
+      return {
+        title: 'When do you like to read?',
+        subtitle:
+          "Pick a time for one top pick a day. Skipped on days you've read.",
+        actions: hourChoices(readingHour).map((hour) => (
+          <Button
+            key={hour}
+            type="button"
+            size={size}
+            icon={dayIcon(hour)}
+            variant={
+              hour === readingHour ? ButtonVariant.Primary : ButtonVariant.Float
+            }
+            onClick={() => onSend?.(hour)}
+          >
+            {shortHour(hour)}
+          </Button>
+        )),
+      };
+    case 'asking':
+      return {
+        title: 'Allow notifications',
+        subtitle: `So your top pick can reach you at ${time}. Nothing is saved until you allow them.`,
+        actions: (
+          <span className={classNames(status, 'text-text-tertiary')}>
+            <BellIcon /> Waiting for your answer…
+          </span>
+        ),
+      };
+    case 'saved':
+      return {
+        title: "You're all set",
+        subtitle: `Your first top pick arrives tomorrow at ${time}. Skipped on days you've read.`,
+        actions: (
+          <span
+            className={classNames(
+              status,
+              'font-bold text-accent-avocado-default',
+            )}
+          >
+            <VIcon /> Reminder saved
+          </span>
+        ),
+      };
+    case 'denied':
+      return {
+        title: 'Notifications are blocked',
+        subtitle:
+          "Without them your top pick can't reach you. Turn them on in your browser settings, then try again.",
+        actions: (
+          <Button
+            type="button"
+            size={size}
+            variant={ButtonVariant.Primary}
+            onClick={onRetry}
+          >
+            Try again
+          </Button>
+        ),
+      };
+    case 'paused':
+      return {
+        title: "Your reminder is on, but we can't reach you",
+        subtitle: 'Turn on notifications to get your daily reading reminder.',
+        actions: (
+          <Button
+            type="button"
+            size={size}
+            variant={ButtonVariant.Primary}
+            onClick={onRetry}
+          >
+            Turn on notifications
+          </Button>
+        ),
+      };
+    default:
+      return {
+        title: 'Make reading a daily habit',
+        subtitle: `One top pick a day at ${time}, when you're reading now. Skipped on days you've read.`,
+        actions: (
+          <>
+            <Button
+              type="button"
+              size={size}
+              variant={ButtonVariant.Primary}
+              onClick={() => onSend?.(readingHour)}
+            >
+              Send it at {shortHour(readingHour)}
+            </Button>
+            <Button
+              type="button"
+              size={size}
+              variant={ButtonVariant.Tertiary}
+              onClick={onPickTime}
+            >
+              Other time
+            </Button>
+          </>
+        ),
+      };
+  }
+};
 
 export const ProposedHero = ({
-  step,
-  readingHour,
-  onSend,
-  onPickTime,
-  onRetry,
   onClose,
   className,
+  ...props
 }: ProposedHeroProps): ReactElement => {
-  const time = longHour(readingHour);
-
-  const body = (() => {
-    switch (step) {
-      case 'picking':
-        return (
-          <>
-            <Copy
-              title="When do you like to read?"
-              subtitle="Pick a time for one top pick a day. Skipped on days you've read."
-            />
-            <div className="mt-4 flex gap-2">
-              {hourChoices(readingHour).map((hour) => (
-                <Button
-                  key={hour}
-                  type="button"
-                  size={ButtonSize.Small}
-                  variant={
-                    hour === readingHour
-                      ? ButtonVariant.Primary
-                      : ButtonVariant.Float
-                  }
-                  onClick={() => onSend?.(hour)}
-                >
-                  {shortHour(hour)}
-                </Button>
-              ))}
-            </div>
-          </>
-        );
-      case 'asking':
-        return (
-          <>
-            <Copy
-              title="Allow notifications"
-              subtitle={`So your top pick can reach you at ${time}. Nothing is saved until you allow them.`}
-            />
-            <span className="mt-4 flex h-10 items-center gap-2 text-text-tertiary typo-callout">
-              <BellIcon /> Waiting for your answer…
-            </span>
-          </>
-        );
-      case 'saved':
-        return (
-          <>
-            <Copy
-              title="You're all set"
-              subtitle={`Your first top pick arrives at ${time}. Skipped on days you've read.`}
-            />
-            <span className="mt-4 flex h-10 items-center gap-1 font-bold text-accent-avocado-default typo-callout">
-              <VIcon /> Reminder saved
-            </span>
-          </>
-        );
-      case 'denied':
-        return (
-          <>
-            <Copy
-              title="Notifications are blocked"
-              subtitle="Without them your top pick can't reach you. Turn them on in your browser settings, then try again."
-            />
-            <Button
-              type="button"
-              variant={ButtonVariant.Primary}
-              className="mt-4"
-              onClick={onRetry}
-            >
-              Try again
-            </Button>
-          </>
-        );
-      case 'paused':
-        return (
-          <>
-            <Copy
-              title="Your reminder is on, but we can't reach you"
-              subtitle="Turn on notifications to get your daily reading reminder."
-            />
-            <Button
-              type="button"
-              variant={ButtonVariant.Primary}
-              className="mt-4"
-              onClick={onRetry}
-            >
-              Turn on notifications
-            </Button>
-          </>
-        );
-      default:
-        return (
-          <>
-            <Copy
-              title="Make reading a daily habit"
-              subtitle={`One top pick a day at ${time}, when you usually read. Skipped on days you've read.`}
-            />
-            <div className="mt-4 flex items-center gap-2">
-              <Button
-                type="button"
-                variant={ButtonVariant.Primary}
-                onClick={() => onSend?.(readingHour)}
-              >
-                Send it at {shortHour(readingHour)}
-              </Button>
-              <Button
-                type="button"
-                variant={ButtonVariant.Tertiary}
-                onClick={onPickTime}
-              >
-                Other time
-              </Button>
-            </div>
-          </>
-        );
-    }
-  })();
+  const { title, subtitle, actions } = heroContent(props, ButtonSize.Medium);
 
   return (
     <section
@@ -223,10 +220,16 @@ export const ProposedHero = ({
               alt="Patchy reading a book"
               className={classNames(
                 'mb-3 size-32 object-contain transition-transform tablet:mb-2 tablet:size-16',
-                step === 'saved' && 'scale-110',
+                props.step === 'saved' && 'scale-110',
               )}
             />
-            {body}
+            <h3 className="font-bold text-text-primary typo-title3">{title}</h3>
+            <p className="mt-1 max-w-[22rem] text-text-tertiary typo-callout tablet:max-w-[40rem]">
+              {subtitle}
+            </p>
+            <div className="mt-4 flex min-h-10 items-center gap-2">
+              {actions}
+            </div>
           </div>
         </div>
       </div>
@@ -237,60 +240,44 @@ export const ProposedHero = ({
 /**
  * The laptop version, in the top-hero strip TopHero sits in today: the same
  * frame and about the same height, centered, with Patchy beside the title.
+ * The strip splits in two when Weekly picks or the CV card also shows.
  */
 export const ProposedTopHero = ({
-  readingHour,
-  onSend,
-  onPickTime,
   onClose,
-}: Pick<
-  ProposedHeroProps,
-  'readingHour' | 'onSend' | 'onPickTime' | 'onClose'
->): ReactElement => (
-  <section className="relative flex w-full flex-col items-center overflow-hidden rounded-16 border border-border-subtlest-quaternary bg-background-default px-8 py-3 text-center">
-    {onClose && (
-      <CloseButton
-        type="button"
-        size={ButtonSize.XSmall}
-        className="absolute right-2 top-2 shrink-0"
-        aria-label="Close banner"
-        onClick={onClose}
-      />
-    )}
-    <div className="flex items-center gap-2">
-      <img
-        src={PATCHY_ART}
-        alt="Patchy reading a book"
-        className="size-10 object-contain"
-      />
-      <h3 className="font-bold text-text-primary typo-callout">
-        Make reading a daily habit
-      </h3>
-    </div>
-    <p className="text-text-tertiary typo-footnote">
-      One top pick a day at {longHour(readingHour)}, when you usually read.
-      Skipped on days you&apos;ve read.
-    </p>
-    <div className="mt-3 flex items-center gap-2">
-      <Button
-        type="button"
-        size={ButtonSize.Small}
-        variant={ButtonVariant.Primary}
-        onClick={() => onSend?.(readingHour)}
-      >
-        Send it at {shortHour(readingHour)}
-      </Button>
-      <Button
-        type="button"
-        size={ButtonSize.Small}
-        variant={ButtonVariant.Tertiary}
-        onClick={onPickTime}
-      >
-        Other time
-      </Button>
-    </div>
-  </section>
-);
+  className,
+  ...props
+}: ProposedHeroProps): ReactElement => {
+  const { title, subtitle, actions } = heroContent(props, ButtonSize.Small);
+
+  return (
+    <section
+      className={classNames(
+        'relative flex w-full flex-col items-center overflow-hidden rounded-16 border border-border-subtlest-quaternary bg-background-default px-8 py-3 text-center',
+        className,
+      )}
+    >
+      {onClose && (
+        <CloseButton
+          type="button"
+          size={ButtonSize.XSmall}
+          className="absolute right-2 top-2 shrink-0"
+          aria-label="Close banner"
+          onClick={onClose}
+        />
+      )}
+      <div className="flex items-center gap-2">
+        <img
+          src={PATCHY_ART}
+          alt="Patchy reading a book"
+          className="size-10 object-contain"
+        />
+        <h3 className="font-bold text-text-primary typo-callout">{title}</h3>
+      </div>
+      <p className="text-text-tertiary typo-footnote">{subtitle}</p>
+      <div className="mt-3 flex min-h-8 items-center gap-2">{actions}</div>
+    </section>
+  );
+};
 
 /** A stand-in for the browser or iOS permission prompt, which only exists on a device. */
 export const PermissionPrompt = ({

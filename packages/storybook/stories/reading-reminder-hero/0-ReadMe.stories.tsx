@@ -75,6 +75,7 @@ const Note = ({
 
 const beforeAfter = 'growth-reading-reminder-hero-1-before-and-after';
 const flow = 'growth-reading-reminder-hero-2-flow';
+const devSpec = 'growth-reading-reminder-hero-3-dev-spec--dev-spec';
 
 export const ReadMe: StoryObj = {
   name: 'Read me first',
@@ -94,6 +95,13 @@ export const ReadMe: StoryObj = {
           next to the proposal: ReadingReminderFeedHero on phones and tablets,
           TopHero above the feed from 1024px up.
         </p>
+        <a
+          href={`?path=/story/${devSpec}`}
+          target="_top"
+          className="w-fit rounded-12 bg-surface-float px-3 py-2 font-bold text-text-primary typo-callout hover:bg-surface-hover"
+        >
+          Building it? Read the dev spec →
+        </a>
       </header>
 
       <section className="grid grid-cols-2 gap-3 laptop:grid-cols-4">
@@ -118,21 +126,21 @@ export const ReadMe: StoryObj = {
           index={2}
           title="Reading Patchy and copy that sells the post"
           today="Sleeping cat. “Turn on your daily reading reminder and keep your routine.”"
-          proposed="Patchy. “Make reading a daily habit. One top pick a day at 8:00 PM, when you usually read. Skipped on days you’ve read.” The reading Patchy art still needs uploading to media.daily.dev before it ships."
+          proposed="Patchy. “Make reading a daily habit. One top pick a day at 8:00 PM, when you’re reading now. Skipped on days you’ve read.” The reading Patchy art still needs uploading to media.daily.dev before it ships."
           story={`${beforeAfter}--responsive`}
         />
         <Change
           index={3}
           title="The hour they read"
           today="Saves 9 AM for everyone, without saying so."
-          proposed="The hour they read at most, named on the button (“Send it at 8 PM”), with “Other time” for three presets."
+          proposed="The hour they’re reading at now, named on the button (“Send it at 8 PM”), with “Other time” for three presets. No new data needed."
           story={`${flow}--interactive`}
         />
         <Change
           index={4}
           title="Push before saving"
           today="Saves the reminder, then asks for push. 46% say no, so about 1,100 saved reminders can’t arrive."
-          proposed="Asks for push first and saves only once it’s allowed. Already allowed skips the ask. Blocked shows how to turn it on."
+          proposed="Asks for push first and saves only once it’s allowed. Already allowed skips the ask. Blocked shows how to turn it on. Hidden where push can’t work (iOS Safari outside an installed app)."
           story={`${flow}--all-states`}
         />
         <Change
