@@ -23,6 +23,7 @@ import { useFeature } from '../../GrowthBookProvider';
 import {
   AdLabelVariant,
   featureAdLabel,
+  featureAdRemoveCopy,
   featureGridCardTldr,
 } from '../../../lib/featureManagement';
 import { gridCardTldrCoverClassName } from '../common/GridCardTldr';
@@ -439,6 +440,18 @@ it('should keep the grid creative cover in the grid_card_tldr control', async ()
   expect(await screen.findByAltText('Ad image')).not.toHaveClass(
     gridCardTldrCoverClassName,
   );
+});
+
+it('should show the ad_remove_copy flag copy on the remove link', async () => {
+  const gb = new GrowthBook();
+  gb.setFeatures({
+    [featureAdRemoveCopy.id]: { defaultValue: 'Go ad-free' },
+  });
+  renderGridComponent({}, { gb });
+
+  expect(
+    await screen.findByRole('link', { name: 'Go ad-free' }),
+  ).toHaveAttribute('href', plusUrl);
 });
 
 it('should render advertise link on list ad', () => {

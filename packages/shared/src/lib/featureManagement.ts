@@ -178,6 +178,8 @@ export const featureAdLabel = new Feature<AdLabelVariant>(
   AdLabelVariant.Control,
 );
 
+export const featureAdRemoveCopy = new Feature('ad_remove_copy', 'Remove');
+
 export const featureYearInReview = new Feature('year_in_review_2025', false);
 
 export const featureProfileCompletionIndicator = new Feature(
