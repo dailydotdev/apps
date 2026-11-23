@@ -67,7 +67,9 @@ it('should open the support chat for an admin of a company page', async () => {
   });
   renderWidget(makeSquad());
 
-  fireEvent.click(await screen.findByRole('button', { name: 'Send a message' }));
+  fireEvent.click(
+    await screen.findByRole('button', { name: 'Send a message' }),
+  );
 
   await waitFor(() =>
     expect(push).toHaveBeenCalledWith(
