@@ -9,7 +9,12 @@ import type {
   PatchyMood,
   PatchyTrigger,
 } from './patchyConfig';
-import { getPatchyConfig } from './patchyConfig';
+import {
+  getPatchyConfig,
+  isPatchyFaceAnimated,
+  isPatchyOneShotFace,
+} from './patchyConfig';
+import { loadPatchyFace } from './patchyFacePlayback';
 import { subscribePatchyEvents } from './patchyEvents';
 import type { PatchyEvent } from './patchyEvents';
 import { recordPatchyActivity } from './patchyDay';
@@ -29,11 +34,13 @@ import { usePatchyConfigSync } from './usePatchyConfigSync';
 export const PATCHY_REACTION_MS = 2200;
 const MOOD_TICK_MS = 60 * 1000;
 
-// The motion each reaction plays with his face. Small on purpose: these show
-// on every action, so they stay inside the circle.
+// The motion each reaction plays when its face is a still image (a config
+// can map a trigger to one). Animated faces bring their own.
 export const patchyReactionMotion: Record<PatchyTrigger, PatchyMotion> = {
   upvote: 'hop',
   bookmark: 'wobble',
+  downvote: 'wobble',
+  bone: 'hop',
   streak_day: 'hop',
   late_night: 'yawn',
   friday_deploy: 'hide',
@@ -46,6 +53,8 @@ export const patchyReactionMotion: Record<PatchyTrigger, PatchyMotion> = {
 export const patchyReactionEmotes: Record<PatchyTrigger, number> = {
   upvote: 1,
   bookmark: 1,
+  downvote: 1,
+  bone: 3,
   streak_day: 1,
   late_night: 1,
   friday_deploy: 1,
@@ -114,8 +123,13 @@ export const usePatchyCompanion = ({
     if (!isEnabled) {
       return undefined;
     }
-    // Warm the cache so a face swap never flashes an empty circle.
-    Object.values(getPatchyConfig().faceImage).forEach((src) => {
+    // Warm the cache so a face swap never flashes an empty circle. The
+    // play-once faces load once and play from that copy (patchyFacePlayback).
+    Object.entries(getPatchyConfig().faceImage).forEach(([face, src]) => {
+      if (isPatchyOneShotFace(face as PatchyFace)) {
+        loadPatchyFace(src);
+        return;
+      }
       const image = new Image();
       image.src = src;
     });
@@ -187,6 +201,18 @@ export const usePatchyCompanion = ({
         }
         return;
       }
+      // A bone is something you gave him on purpose, so he enjoys it even
+      // with reactions off.
+      if (event.type === 'bone') {
+        react('bone');
+        return;
+      }
+      if (event.type === 'downvote') {
+        if (isActive) {
+          react('downvote');
+        }
+        return;
+      }
       if (event.type === 'streak_day') {
         recordPatchyActivity(user.id, 'streak_day');
         if (isActive) {
@@ -224,16 +250,24 @@ export const usePatchyCompanion = ({
     isResting: mood === 'away' || mood === 'resting',
     isReading,
     prefersReducedMotion,
+    canBlink: !isPatchyFaceAnimated(restingFace),
   });
-  const baseFace = isReading && mood !== 'away' ? 'lookdown' : restingFace;
-  const shown = isActive ? reaction : null;
+  // Reading along: his newspaper face, which animates on its own, so the idle
+  // faces stay out of it. It drops while he reacts.
+  const isReadingFace = isReading && mood !== 'away';
+  const shown =
+    isActive || (isEnabled && reaction?.trigger === 'bone') ? reaction : null;
 
   if (shown) {
     const { emote, face } = config.reactions[shown.trigger];
     return {
       face,
       mood,
-      motion: prefersReducedMotion ? null : patchyReactionMotion[shown.trigger],
+      // Animated faces bring their own motion.
+      motion:
+        prefersReducedMotion || isPatchyFaceAnimated(face)
+          ? null
+          : patchyReactionMotion[shown.trigger],
       motionKey: `reaction-${shown.key}`,
       emote: emote === 'none' ? null : emote,
       emoteCount: patchyReactionEmotes[shown.trigger],
@@ -241,11 +275,22 @@ export const usePatchyCompanion = ({
     };
   }
 
-  const isIdleFace = !offerFace && !!idle.face;
+  if (offerFace || isReadingFace) {
+    return {
+      face: offerFace ?? 'reading',
+      mood,
+      motion: null,
+      motionKey: 'still',
+      emote: null,
+      emoteCount: 0,
+      emoteKey: 0,
+    };
+  }
+
   return {
-    face: offerFace ?? idle.face ?? baseFace,
+    face: idle.face ?? restingFace,
     mood,
-    motion: isIdleFace ? idle.motion : null,
+    motion: idle.face ? idle.motion : null,
     motionKey: `idle-${idle.key}`,
     emote: null,
     emoteCount: 0,

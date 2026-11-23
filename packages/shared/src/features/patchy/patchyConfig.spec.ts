@@ -1,5 +1,6 @@
 import type { PatchyConfigResponse } from '../../graphql/patchy';
 import { defaultPatchyConfig, toPatchyConfig } from './patchyConfig';
+import type * as PatchyConfigModule from './patchyConfig';
 
 describe('toPatchyConfig', () => {
   it('falls back to the defaults without a config', () => {
@@ -81,5 +82,39 @@ describe('toPatchyConfig', () => {
     expect(config.reactions.upvote).toEqual(
       defaultPatchyConfig.reactions.upvote,
     );
+  });
+});
+
+describe('isPatchyFaceAnimated', () => {
+  const load = (
+    faces?: { face: string; image: string }[],
+  ): typeof PatchyConfigModule => {
+    localStorage.setItem('patchy_config', JSON.stringify({ faces }));
+    let loaded: typeof PatchyConfigModule | undefined;
+    jest.isolateModules(() => {
+      // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
+      loaded = require('./patchyConfig');
+    });
+    if (!loaded) {
+      throw new Error('patchyConfig did not load');
+    }
+    return loaded;
+  };
+
+  afterEach(() => localStorage.clear());
+
+  it('reads animation off the served image, not the face name', () => {
+    const config = load([
+      {
+        face: 'neutral',
+        image:
+          'https://media.daily.dev/image/upload/v1/public/patchy-v1-face-neutral.webp',
+      },
+    ]);
+
+    expect(config.isPatchyFaceAnimated('neutral')).toBe(false);
+    expect(config.isPatchyFaceAnimated('yawn')).toBe(true);
+    expect(config.isPatchyOneShotFace('yawn')).toBe(true);
+    expect(config.isPatchyOneShotFace('reading')).toBe(false);
   });
 });

@@ -85,10 +85,10 @@ const QuestsGroup = ({
 // stays active). The Game Center and separate Quests-settings links are gone —
 // clicking the tab itself opens Game Center, and the two settings pages are now
 // one, so neither needs repeating here.
-interface StreakQuestsSectionProps {
+export interface StreakQuestsSectionProps {
   softBreakSurface?: StreakSoftBreakSurface;
   onClose?: () => void;
-  // Set by the laptop rail when Patchy is on; the phone drawer leaves it out.
+  // Set when Patchy is on (laptop rail panel, phone streak drawer).
   patchyMood?: PatchyMood;
 }
 

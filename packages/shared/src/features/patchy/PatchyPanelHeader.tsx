@@ -25,7 +25,7 @@ export const PatchyPanelHeader = ({
   const context = usePatchyContext();
   const contextLine = getPatchyContextLine(context);
   // Reading along: his reading face; otherwise his mood's.
-  const face = context.kind === 'post' ? 'lookdown' : moods[mood].face;
+  const face = context.kind === 'post' ? 'reading' : moods[mood].face;
   return (
     // mx-4 lines the card up with the streak hero's px-4 below it.
     <div className="mx-4 mb-2 mt-1 flex flex-col gap-2 rounded-16 bg-surface-float p-2">

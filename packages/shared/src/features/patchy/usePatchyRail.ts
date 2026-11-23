@@ -6,6 +6,7 @@ import { LogEvent, TargetType } from '../../lib/log';
 import type { PatchyFace } from './patchyConfig';
 import { usePatchyAssistant } from './usePatchyAssistant';
 import { usePatchyCompanion } from './usePatchyCompanion';
+import { usePatchyReading } from './usePatchyReading';
 import { usePatchyReactions, usePatchySuggestions } from './usePatchyEnabled';
 
 interface UsePatchyRailProps {
@@ -14,11 +15,14 @@ interface UsePatchyRailProps {
   state: StreakRingState;
   hasReadToday: boolean;
   lastViewAt?: Date | string | null;
+  // The phone header has nowhere to show a suggestion bubble, so he only
+  // lives in his circle there.
+  canSuggest?: boolean;
 }
 
 const offerFace: PatchyFace = 'alert';
 
-// Everything Patchy does from the laptop rail, in one place: the companion
+// Everything Patchy does from the laptop rail (and the phone header), in one place: the companion
 // (his face, idle animations and reactions in the circle) and the assistant
 // (suggestions).
 export const usePatchyRail = ({
@@ -27,6 +31,7 @@ export const usePatchyRail = ({
   state,
   hasReadToday,
   lastViewAt,
+  canSuggest = true,
 }: UsePatchyRailProps) => {
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
@@ -34,12 +39,13 @@ export const usePatchyRail = ({
   const { isSuggestionsEnabled, setSuggestionsEnabled } =
     usePatchySuggestions();
   const assistant = usePatchyAssistant({
-    isEnabled: isEnabled && isSuggestionsEnabled,
+    isEnabled: isEnabled && canSuggest && isSuggestionsEnabled,
     isStreakLoading,
     state,
     hasReadToday,
     lastViewAt,
   });
+  const isReading = usePatchyReading(isEnabled);
   const companion = usePatchyCompanion({
     isEnabled,
     isReactionsEnabled,
@@ -47,7 +53,7 @@ export const usePatchyRail = ({
     state,
     hasReadToday,
     lastViewAt,
-    isReading: assistant.isReading,
+    isReading,
     offerFace: assistant.offer ? offerFace : null,
   });
 
