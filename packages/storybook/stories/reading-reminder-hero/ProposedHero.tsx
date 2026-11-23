@@ -10,7 +10,6 @@ import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import { BellIcon } from '@dailydotdev/shared/src/components/icons/Bell';
 import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import feedStyles from '@dailydotdev/shared/src/components/Feed.module.css';
-import { cloudinaryPatchyWaiting } from '@dailydotdev/shared/src/lib/image';
 
 // The proposed "Never miss a learning day" hero: the production slot and
 // frame, centered on every width, theme tokens instead of fixed dark colors,
@@ -47,8 +46,9 @@ export const hourChoices = (readingHour: number): number[] => {
     .sort((a, b) => a - b);
 };
 
-// Placeholder until the reading Patchy from the mockup is uploaded.
-export const PATCHY_ART = cloudinaryPatchyWaiting;
+// Served from Storybook's public folder until it is uploaded to
+// media.daily.dev.
+export const PATCHY_ART = 'reading-reminder-hero/patchy-reading.webp';
 
 interface ProposedHeroProps {
   step: HeroStep;
@@ -220,7 +220,7 @@ export const ProposedHero = ({
           <div className="relative flex flex-col items-center px-5 pb-6 pt-5 text-center tablet:px-6 tablet:pb-5 tablet:pt-4">
             <img
               src={PATCHY_ART}
-              alt="Patchy"
+              alt="Patchy reading a book"
               className={classNames(
                 'mb-3 size-32 object-contain transition-transform tablet:mb-2 tablet:size-16',
                 step === 'saved' && 'scale-110',
@@ -258,7 +258,11 @@ export const ProposedTopHero = ({
       />
     )}
     <div className="flex items-center gap-2">
-      <img src={PATCHY_ART} alt="Patchy" className="size-10 object-contain" />
+      <img
+        src={PATCHY_ART}
+        alt="Patchy reading a book"
+        className="size-10 object-contain"
+      />
       <h3 className="font-bold text-text-primary typo-callout">
         Make reading a daily habit
       </h3>

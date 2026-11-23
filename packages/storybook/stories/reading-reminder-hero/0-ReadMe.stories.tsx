@@ -118,7 +118,7 @@ export const ReadMe: StoryObj = {
           index={2}
           title="Reading Patchy and copy that sells the post"
           today="Sleeping cat. “Turn on your daily reading reminder and keep your routine.”"
-          proposed="Patchy. “Make reading a daily habit. One top pick a day at 8:00 PM, when you usually read. Skipped on days you’ve read.” The art is a placeholder until the reading Patchy is uploaded."
+          proposed="Patchy. “Make reading a daily habit. One top pick a day at 8:00 PM, when you usually read. Skipped on days you’ve read.” The reading Patchy art still needs uploading to media.daily.dev before it ships."
           story={`${beforeAfter}--responsive`}
         />
         <Change
