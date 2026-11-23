@@ -40,6 +40,14 @@ const ConversationRow = ({
   isMine: boolean;
 }): ReactElement => {
   const isUnread = unreadCount > 0 && !isActive;
+  // A group chat names whoever wrote last.
+  const groupSender =
+    !isMine &&
+    peer.group?.members.find(({ id }) => id === lastMessage.senderId);
+  const senderLabel =
+    (isMine && 'You: ') ||
+    (groupSender && `${groupSender.name.split(' ')[0]}: `) ||
+    undefined;
 
   return (
     <Link href={getMessagesUrl(peer.id, { origin: DmOrigin.Inbox })} passHref>
@@ -63,7 +71,7 @@ const ConversationRow = ({
               truncate
               className="flex-1"
             >
-              {peer.name}
+              {peer.group ? `${peer.name} support` : peer.name}
             </Typography>
             <Typography
               tag={TypographyTag.Time}
@@ -84,8 +92,9 @@ const ConversationRow = ({
               truncate
               className="flex-1"
             >
-              {isMine && 'You: '}
-              {getMessagePreview(lastMessage.body)}
+              {peer.group && !lastMessage.body
+                ? 'No messages yet'
+                : `${senderLabel ?? ''}${getMessagePreview(lastMessage.body)}`}
             </Typography>
             {isUnread && (
               <span

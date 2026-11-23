@@ -309,3 +309,142 @@ export const declineDirectMessageRequest = async (
 ): Promise<void> => {
   await gqlClient.request(DECLINE_DIRECT_MESSAGE_REQUEST_MUTATION, { userId });
 };
+
+// A company page's support group chat: the page's admins and the daily.dev
+// team in one members-only room.
+export type CompanySupportChat = {
+  id: string;
+  // Null until the chat server has created the room.
+  jid: string | null;
+  unreadCount: number;
+  lastMessageAt: string | null;
+  createdAt: string;
+  source: {
+    id: string;
+    name: string;
+    handle: string;
+    image: string;
+    permalink: string;
+  };
+  members: Pick<
+    UserShortProfile,
+    'id' | 'name' | 'username' | 'image' | 'permalink'
+  >[];
+};
+
+const COMPANY_SUPPORT_CHAT_FRAGMENT = gql`
+  fragment CompanySupportChatFragment on CompanySupportChat {
+    id
+    jid
+    unreadCount
+    lastMessageAt
+    createdAt
+    source {
+      id
+      name
+      handle
+      image
+      permalink
+    }
+    members {
+      id
+      name
+      username
+      image
+      permalink
+    }
+  }
+`;
+
+const COMPANY_SUPPORT_CHATS_QUERY = gql`
+  query CompanySupportChats($first: Int, $after: String) {
+    companySupportChats(first: $first, after: $after) {
+      edges {
+        node {
+          ...CompanySupportChatFragment
+        }
+      }
+    }
+  }
+  ${COMPANY_SUPPORT_CHAT_FRAGMENT}
+`;
+
+const COMPANY_SUPPORT_CHAT_QUERY = gql`
+  query CompanySupportChat($id: ID!) {
+    companySupportChat(id: $id) {
+      ...CompanySupportChatFragment
+    }
+  }
+  ${COMPANY_SUPPORT_CHAT_FRAGMENT}
+`;
+
+const OPEN_COMPANY_SUPPORT_CHAT_MUTATION = gql`
+  mutation OpenCompanySupportChat($sourceId: ID!) {
+    openCompanySupportChat(sourceId: $sourceId) {
+      ...CompanySupportChatFragment
+    }
+  }
+  ${COMPANY_SUPPORT_CHAT_FRAGMENT}
+`;
+
+const MARK_COMPANY_SUPPORT_MESSAGE_SENT_MUTATION = gql`
+  mutation MarkCompanySupportMessageSent($id: ID!, $preview: String) {
+    markCompanySupportMessageSent(id: $id, preview: $preview) {
+      _
+    }
+  }
+`;
+
+const MARK_COMPANY_SUPPORT_CHAT_READ_MUTATION = gql`
+  mutation MarkCompanySupportChatRead($id: ID!) {
+    markCompanySupportChatRead(id: $id) {
+      _
+    }
+  }
+`;
+
+export const getCompanySupportChats = async (): Promise<
+  CompanySupportChat[]
+> => {
+  const res = await gqlClient.request<{
+    companySupportChats: Connection<CompanySupportChat>;
+  }>(COMPANY_SUPPORT_CHATS_QUERY, { first: conversationsPageSize });
+
+  return res.companySupportChats.edges.map(({ node }) => node);
+};
+
+export const getCompanySupportChat = async (
+  id: string,
+): Promise<CompanySupportChat | null> => {
+  const res = await gqlClient.request<{
+    companySupportChat: CompanySupportChat | null;
+  }>(COMPANY_SUPPORT_CHAT_QUERY, { id });
+
+  return res.companySupportChat;
+};
+
+export const openCompanySupportChat = async (
+  sourceId: string,
+): Promise<CompanySupportChat> => {
+  const res = await gqlClient.request<{
+    openCompanySupportChat: CompanySupportChat;
+  }>(OPEN_COMPANY_SUPPORT_CHAT_MUTATION, { sourceId });
+
+  return res.openCompanySupportChat;
+};
+
+// The group counterpart of markDirectMessageSent: bumps every other member's
+// unread count and pushes them.
+export const markCompanySupportMessageSent = async (
+  id: string,
+  preview?: string,
+): Promise<void> => {
+  await gqlClient.request(MARK_COMPANY_SUPPORT_MESSAGE_SENT_MUTATION, {
+    id,
+    preview,
+  });
+};
+
+export const markCompanySupportChatRead = async (id: string): Promise<void> => {
+  await gqlClient.request(MARK_COMPANY_SUPPORT_CHAT_READ_MUTATION, { id });
+};

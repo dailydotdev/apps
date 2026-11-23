@@ -15,6 +15,21 @@ export type DmPeer = Pick<
   // viewer. The two are deliberately indistinguishable so a block is never
   // revealed.
   access: DirectMessageAccess;
+  // Set on a group chat, such as a company page's support chat. The peer is
+  // then the group itself and its id a synthetic one (see support.ts).
+  group?: DmGroup;
+};
+
+export type DmGroupMember = Pick<
+  PublicProfile,
+  'id' | 'name' | 'image' | 'permalink'
+> & { username: string };
+
+export type DmGroup = {
+  chatId: string;
+  // The room on the chat server; null until it's created.
+  roomJid: string | null;
+  members: DmGroupMember[];
 };
 
 export enum DmMessageStatus {

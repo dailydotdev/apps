@@ -1,18 +1,27 @@
 import { createXmppTransport } from './xmppTransport';
 import type { DmEvent, DmPeer, DmTransport } from './types';
 import { DmMessageStatus } from './types';
+import type { CompanySupportChat } from './graphql';
 import {
   DirectMessageAccess,
+  getCompanySupportChats,
   getDirectMessageConversations,
   getDirectMessageToken,
+  markCompanySupportChatRead,
+  markCompanySupportMessageSent,
   markDirectMessageSent,
   startDirectMessage,
 } from './graphql';
+import { supportChatToPeer } from './support';
 
 jest.mock('./graphql', () => ({
   ...jest.requireActual('./graphql'),
   getDirectMessageToken: jest.fn(),
   getDirectMessageConversations: jest.fn(),
+  getCompanySupportChats: jest.fn(),
+  getCompanySupportChat: jest.fn(),
+  markCompanySupportMessageSent: jest.fn(),
+  markCompanySupportChatRead: jest.fn(),
   markDirectMessageSent: jest.fn(),
   startDirectMessage: jest.fn(),
 }));
@@ -228,6 +237,9 @@ beforeEach(() => {
     expiresAt: '2026-10-07T12:00:00Z',
   });
   jest.mocked(markDirectMessageSent).mockReset().mockResolvedValue();
+  jest.mocked(getCompanySupportChats).mockReset().mockResolvedValue([]);
+  jest.mocked(markCompanySupportMessageSent).mockReset().mockResolvedValue();
+  jest.mocked(markCompanySupportChatRead).mockReset().mockResolvedValue();
   jest.mocked(startDirectMessage).mockResolvedValue({
     id: 'c1',
     jid: 'me@chat.daily.dev',
@@ -839,5 +851,141 @@ describe('createXmppTransport', () => {
     expect(connection.dropSocket).not.toHaveBeenCalled();
     jest.advanceTimersByTime(2 * 1000);
     expect(connection.dropSocket).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('company page support chats', () => {
+  const room = 'c1@conference.chat.daily.dev';
+  const chat: CompanySupportChat = {
+    id: 'c1',
+    jid: room,
+    unreadCount: 1,
+    lastMessageAt: null,
+    createdAt: '2026-11-23T09:00:00Z',
+    source: {
+      id: 's1',
+      name: 'Acme',
+      handle: 'acme',
+      image: '',
+      permalink: '',
+    },
+    members: [],
+  };
+  const stanza = (xml: string): Element =>
+    new DOMParser().parseFromString(xml, 'text/xml').documentElement;
+  const deliver = (connection: MockConnection, xml: string) =>
+    connection.handlers
+      .filter(({ name, type }) => name === 'message' && !type)
+      .forEach(({ callback }) => callback(stanza(xml)));
+  // The room confirms the viewer is in.
+  const confirmJoin = (connection: MockConnection) =>
+    connection.handlers
+      .filter(({ name }) => name === 'presence')
+      .forEach(({ callback }) =>
+        callback(
+          stanza(
+            `<presence xmlns="jabber:client" from="${room}/me"><x xmlns="http://jabber.org/protocol/muc#user"><status code="110"/></x></presence>`,
+          ),
+        ),
+      );
+  const archived = (queryId: string, id: string, nick: string, body: string) =>
+    `<message xmlns="jabber:client" from="${room}">
+      <result xmlns="urn:xmpp:mam:2" queryid="${queryId}" id="${id}">
+        <forwarded xmlns="urn:xmpp:forward:0">
+          <delay xmlns="urn:xmpp:delay" stamp="2026-11-23T10:00:0${id}Z"/>
+          <message xmlns="jabber:client" type="groupchat" from="${room}/${nick}"><body>${body}</body></message>
+        </forwarded>
+      </result>
+    </message>`;
+
+  beforeEach(() => {
+    jest.mocked(getCompanySupportChats).mockResolvedValue([chat]);
+  });
+
+  it('delivers room messages to the support chat', async () => {
+    const events: DmEvent[] = [];
+    const transport = openTransport();
+    transport.subscribe((event) => events.push(event));
+    const connection = await connected();
+    await flush();
+
+    deliver(
+      connection,
+      `<message xmlns="jabber:client" type="groupchat" from="${room}/a_b1"><body>hi</body><origin-id xmlns="urn:xmpp:sid:0" id="o1"/></message>`,
+    );
+
+    expect(events).toContainEqual({
+      type: 'message',
+      message: expect.objectContaining({
+        id: 'o1',
+        peerId: 'support:c1',
+        senderId: 'aB1',
+        body: 'hi',
+      }),
+    });
+  });
+
+  it('reads the thread from the room archive', async () => {
+    const transport = openTransport();
+    transport.subscribe(() => undefined);
+    const connection = await connected();
+    await flush();
+    confirmJoin(connection);
+    connection.archivePages.push((queryId) => [
+      archived(queryId, '1', 'a_b1', 'hello'),
+      archived(queryId, '2', 'me', 'hey'),
+    ]);
+
+    const messages = await transport.getMessages('support:c1');
+
+    expect(messages).toEqual([
+      expect.objectContaining({
+        peerId: 'support:c1',
+        senderId: 'aB1',
+        body: 'hello',
+      }),
+      expect.objectContaining({ senderId: 'me', body: 'hey' }),
+    ]);
+  });
+
+  it('sends to the room and reports the message to the support chat', async () => {
+    const transport = openTransport();
+    transport.subscribe(() => undefined);
+    const connection = await connected();
+    await flush();
+    confirmJoin(connection);
+
+    const sent = await transport.send(supportChatToPeer(chat), 'hello');
+    connection.ackAll();
+
+    expect(sent).toMatchObject({
+      peerId: 'support:c1',
+      status: DmMessageStatus.Sending,
+    });
+    expect(startDirectMessage).not.toHaveBeenCalled();
+    expect(markDirectMessageSent).not.toHaveBeenCalled();
+    expect(markCompanySupportMessageSent).toHaveBeenCalledWith('c1', 'hello');
+  });
+
+  it('lists the chat in the inbox and marks it read', async () => {
+    jest.mocked(getDirectMessageConversations).mockResolvedValue([]);
+    const transport = openTransport();
+    transport.subscribe(() => undefined);
+    const connection = await connected();
+    await flush();
+    confirmJoin(connection);
+    connection.archivePages.push((queryId) => [
+      archived(queryId, '1', 'a_b1', 'hello'),
+    ]);
+
+    const [conversation] = await transport.listConversations();
+    await transport.markRead('support:c1');
+
+    expect(conversation).toMatchObject({
+      peer: { id: 'support:c1', name: 'Acme' },
+      lastMessage: { body: 'hello' },
+      unreadCount: 1,
+    });
+    expect(markCompanySupportChatRead).toHaveBeenCalledWith('c1');
   });
 });

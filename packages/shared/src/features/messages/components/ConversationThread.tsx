@@ -61,7 +61,7 @@ import { useReactToMessage } from '../hooks/useReactToMessage';
 import { useEditMessage } from '../hooks/useEditMessage';
 import { useTypingNotifier } from '../hooks/useTypingNotifier';
 import { useMarkThreadRead } from '../hooks/useMarkThreadRead';
-import type { DmMessage } from '../types';
+import type { DmGroupMember, DmMessage } from '../types';
 import { DmMessageStatus } from '../types';
 import { MessageComposer } from './MessageComposer';
 import { DmAccessNotice } from './DmAccessNotice';
@@ -77,6 +77,9 @@ import { findPostIdInText, splitLinks } from '../messageLinks';
 import { DmOrigin, getMessagesUrl } from '../urls';
 import { MessagePostPreview } from './MessagePostPreview';
 import { ConversationIntro } from './ConversationIntro';
+import { SupportChatIntro } from './SupportChatIntro';
+import { SupportChatMembers } from './SupportChatMembers';
+import { isSupportPeerId } from '../support';
 import { LfgConversationContext } from '../../lfg/components/messages/LfgConversationContext';
 import { useLfgThreadPitches } from '../../lfg/hooks/useLfgThreadPitches';
 import { useLfgRepoLinkWarning } from '../../lfg/hooks/useLfgRepoLinkWarning';
@@ -155,8 +158,25 @@ const MessageText = ({ text }: { text: string }): ReactElement => (
   </>
 );
 
+// Who wrote a message in a group chat, above the first of their run.
+const MessageSender = ({ sender }: { sender: DmGroupMember }): ReactElement => (
+  <Link href={sender.permalink} passHref>
+    <a className="flex items-center gap-1.5 pt-1">
+      <ProfilePicture user={sender} size={ProfileImageSize.XSmall} />
+      <Typography
+        type={TypographyType.Caption1}
+        color={TypographyColor.Tertiary}
+        bold
+      >
+        {sender.name}
+      </Typography>
+    </a>
+  </Link>
+);
+
 const MessageBubble = ({
   message,
+  sender,
   isMine,
   isGroupEnd,
   isEditing,
@@ -170,6 +190,8 @@ const MessageBubble = ({
   onMediaLoad,
 }: {
   message: DmMessage;
+  // Set in a group chat on the first message of someone else's run.
+  sender?: DmGroupMember;
   isMine: boolean;
   isGroupEnd: boolean;
   isEditing: boolean;
@@ -199,6 +221,7 @@ const MessageBubble = ({
     <FlexCol
       className={classNames('gap-1', isMine ? 'items-end' : 'items-start')}
     >
+      {sender && <MessageSender sender={sender} />}
       {message.context && (
         <MessageCommentRef
           commentId={message.context.commentId}
@@ -401,6 +424,11 @@ export const ConversationThread = ({
   };
   const peerQuery = useQuery(dmPeerQueryOptions(user, peerId));
   const { data: peer, isPending: isPeerPending } = peerQuery;
+  // A company page's support chat: a group, not a person to block or ask.
+  const isGroup = isSupportPeerId(peerId);
+  const groupMembers = peer?.group?.members;
+  const isIncoming = (message: DmMessage): boolean =>
+    isGroup ? message.senderId !== user?.id : message.senderId === peerId;
   const threadQuery = useQuery(dmThreadQueryOptions(user, peerId));
   const { data: archived = [] } = threadQuery;
   const { data: pairing } = useQuery(dmConversationQueryOptions(user, peerId));
@@ -444,6 +472,7 @@ export const ConversationThread = ({
   const { data: preference } = useContentPreferenceStatusQuery({
     id: peerId,
     entity: ContentPreferenceType.User,
+    queryOptions: { enabled: !isGroup },
   });
   const { block, unblock } = useContentPreference();
   const { allowsMessages } = useDmSettings();
@@ -457,16 +486,21 @@ export const ConversationThread = ({
   );
 
   const isBlockedByMe = preference?.status === ContentPreferenceStatus.Blocked;
-  const access = getDmAccess({
-    isBlockedByMe,
-    allowsMessages,
-    peerAccess: peer?.access ?? DirectMessageAccess.Open,
-    hasIncomingRequest,
-  });
+  // Support chats stay open to their members whatever their direct message
+  // settings.
+  const access = isGroup
+    ? DmAccess.Allowed
+    : getDmAccess({
+        isBlockedByMe,
+        allowsMessages,
+        peerAccess: peer?.access ?? DirectMessageAccess.Open,
+        hasIncomingRequest,
+      });
   const typing = useTypingNotifier(peer, access === DmAccess.Allowed);
   // Only a delivered message of the viewer's, with text to change, can be
   // edited; the request note lives in the API, not the chat archive.
   const canEdit = (message: DmMessage): boolean =>
+    !isGroup &&
     access === DmAccess.Allowed &&
     message.senderId === user?.id &&
     message.status === DmMessageStatus.Sent &&
@@ -480,9 +514,7 @@ export const ConversationThread = ({
   };
   useMarkThreadRead({
     peerId,
-    lastIncomingId: [...archived]
-      .reverse()
-      .find(({ senderId }) => senderId === peerId)?.id,
+    lastIncomingId: [...archived].reverse().find(isIncoming)?.id,
     isLoaded: threadQuery.isSuccess,
   });
   const blockArgs = peer && {
@@ -531,9 +563,11 @@ export const ConversationThread = ({
 
     const arrived = current
       .slice(previousCount)
-      .filter(({ senderId }) => senderId === peerId).length;
+      .filter(({ senderId }) =>
+        isGroup ? senderId !== user?.id : senderId === peerId,
+      ).length;
     setUnseenCount((count) => count + arrived);
-  }, [messages.length, peerId, user?.id]);
+  }, [isGroup, messages.length, peerId, user?.id]);
 
   // The indicator appears under the newest message, where a reader at the
   // bottom expects to see it.
@@ -582,7 +616,8 @@ export const ConversationThread = ({
         )
       }
       actions={
-        peer && (
+        peer &&
+        !isGroup && (
           <ShellSquare
             aria-label={blockLabel}
             aria-pressed={isBlockedByMe}
@@ -665,21 +700,24 @@ export const ConversationThread = ({
                     color={TypographyColor.Tertiary}
                     truncate
                   >
-                    @{peer.username}
+                    {isGroup ? 'Support with daily.dev' : `@${peer.username}`}
                   </Typography>
                 </FlexCol>
               </a>
             </Link>
-            <Tooltip content={blockLabel}>
-              <Button
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Small}
-                icon={<BlockIcon secondary={isBlockedByMe} />}
-                aria-label={blockLabel}
-                aria-pressed={isBlockedByMe}
-                onClick={toggleBlock}
-              />
-            </Tooltip>
+            {groupMembers && <SupportChatMembers members={groupMembers} />}
+            {!isGroup && (
+              <Tooltip content={blockLabel}>
+                <Button
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.Small}
+                  icon={<BlockIcon secondary={isBlockedByMe} />}
+                  aria-label={blockLabel}
+                  aria-pressed={isBlockedByMe}
+                  onClick={toggleBlock}
+                />
+              </Tooltip>
+            )}
           </>
         )}
       </header>
@@ -704,10 +742,14 @@ export const ConversationThread = ({
           }}
         >
           <FlexCol className="mx-auto w-full max-w-[45rem] gap-1.5 px-4 py-6 tablet:px-6">
-            {peer && startedEmptyRef.current && (
-              <ConversationIntro peer={peer} />
-            )}
-            {peer && (
+            {peer &&
+              startedEmptyRef.current &&
+              (isGroup ? (
+                <SupportChatIntro peer={peer} />
+              ) : (
+                <ConversationIntro peer={peer} />
+              ))}
+            {peer && !isGroup && (
               <LfgConversationContext peerId={peerId} peerName={peer.name} />
             )}
             {messages.map((message, index) => {
@@ -722,6 +764,13 @@ export const ConversationThread = ({
                   {isNewDay && <DaySeparator date={day} />}
                   <MessageBubble
                     message={message}
+                    sender={
+                      groupMembers &&
+                      message.senderId !== user?.id &&
+                      (isNewDay || previous?.senderId !== message.senderId)
+                        ? groupMembers.find(({ id }) => id === message.senderId)
+                        : undefined
+                    }
                     isMine={message.senderId === user?.id}
                     isGroupEnd={
                       !next ||
@@ -737,7 +786,9 @@ export const ConversationThread = ({
                     // reach-out's pitch) aren't in the chat archive to react
                     // to.
                     onReact={
-                      access === DmAccess.Allowed && archived.includes(message)
+                      !isGroup &&
+                      access === DmAccess.Allowed &&
+                      archived.includes(message)
                         ? react
                         : undefined
                     }
@@ -793,6 +844,7 @@ export const ConversationThread = ({
           <div className="mx-auto w-full max-w-[45rem]">
             <MessageComposer
               username={peer.username}
+              placeholder={isGroup ? 'Write a message' : undefined}
               attachment={
                 pendingContext && (
                   <DmContextCard
@@ -813,7 +865,7 @@ export const ConversationThread = ({
                 }
               }}
               onDraftChange={typing.onDraftChange}
-              onEditLast={editLast}
+              onEditLast={isGroup ? undefined : editLast}
             />
           </div>
         ) : (

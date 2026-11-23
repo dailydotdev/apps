@@ -322,16 +322,19 @@ export const parseMamResult = (
   stanza: Element,
   queryId: string,
   ownBareJid: string,
+  // A room's archive answers from the room's JID instead of ours.
+  archiveJid: string = ownBareJid,
 ): MamResult | null => {
   const result = childOf(stanza, 'result', NS_MAM);
   const from = stanza.getAttribute('from');
 
-  // XEP-0313: results come from our own archive, so the wrapper has no from
-  // or our bare JID; anything else is a forged "archived" message.
+  // XEP-0313: results come from the archive that was asked, so the wrapper
+  // has no from or that archive's bare JID; anything else is a forged
+  // "archived" message.
   if (
     !result ||
     result.getAttribute('queryid') !== queryId ||
-    (from && bareJid(from) !== ownBareJid)
+    (from && bareJid(from) !== bareJid(archiveJid))
   ) {
     return null;
   }

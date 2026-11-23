@@ -15,6 +15,7 @@ import { SquadJobsWidget } from './SquadJobsWidget';
 import { SimilarSquadsWidget } from './SimilarSquadsWidget';
 import { SquadAgentWidget } from './SquadAgentWidget';
 import { isCompanyPage } from '../../lib/companyPage';
+import { SquadSupportWidget } from './SquadSupportWidget';
 
 export const SquadWidgets = (): ReactElement => {
   const { squad, viewer, isViewerKnown } = useSquadPageContext();
@@ -25,6 +26,7 @@ export const SquadWidgets = (): ReactElement => {
       <SquadPreviewToggle />
       {hasSquadFeature(squad, 'verified') && <VerifiedCompanySquadCard />}
       <SquadAgentWidget />
+      <SquadSupportWidget />
       {squad.flags?.featured && <FeaturedSquadCard />}
       <SquadJobsWidget />
       {isStaff && <SquadShareWidget squad={squad} />}

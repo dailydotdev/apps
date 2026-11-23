@@ -6,6 +6,7 @@ import { gqlClient } from '../../graphql/common';
 import { getDmTransport, isDmMockMode } from './transport';
 import {
   DirectMessageAccess,
+  getCompanySupportChat,
   getDirectMessageAccess,
   getDirectMessageConversation,
   getDirectMessageConversations,
@@ -23,6 +24,11 @@ import type {
   DmPostPreview,
 } from './types';
 import { applyEdit } from './stanzas';
+import {
+  getSupportChatId,
+  isSupportPeerId,
+  supportChatToPeer,
+} from './support';
 import { DM_CONTEXT_SNIPPET_LENGTH, DmMessageStatus } from './types';
 
 type QueryUser = Pick<LoggedUser, 'id'> | undefined;
@@ -333,12 +339,23 @@ export const dmTypingQueryOptions = (user: QueryUser, peerId: string) =>
     enabled: !!user?.id && !!peerId,
   });
 
+export const dmPeerQueryKey = (user: QueryUser, peerId: string) =>
+  generateQueryKey(RequestKey.DirectMessagePeer, user, peerId);
+
 // A peer we already talk to comes from the conversation; anyone else, such as
-// a profile's "Message" button, is looked up as a regular daily.dev user.
+// a profile's "Message" button, is looked up as a regular daily.dev user. A
+// support chat is looked up as the group it is.
 export const dmPeerQueryOptions = (user: QueryUser, peerId: string) =>
   queryOptions<DmPeer | null>({
-    queryKey: generateQueryKey(RequestKey.DirectMessagePeer, user, peerId),
+    queryKey: dmPeerQueryKey(user, peerId),
     queryFn: async () => {
+      const supportChatId = getSupportChatId(peerId);
+      if (supportChatId) {
+        const chat = await getCompanySupportChat(supportChatId);
+
+        return chat ? supportChatToPeer(chat) : null;
+      }
+
       if (isDmMockMode) {
         const conversations = await getDmTransport(
           user!.id,
@@ -445,7 +462,8 @@ export const dmConversationQueryOptions = (user: QueryUser, peerId: string) =>
     queryKey: dmConversationQueryKey(user, peerId),
     queryFn: () => getDirectMessageConversation(peerId),
     staleTime: StaleTime.Default,
-    enabled: !!user?.id && !!peerId,
+    // A support chat is no pair of users, so it has no request state.
+    enabled: !!user?.id && !!peerId && !isSupportPeerId(peerId),
   });
 
 export const dmRequestCountQueryOptions = (user: QueryUser) =>
