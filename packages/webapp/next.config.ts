@@ -304,6 +304,11 @@ const nextConfig: NextConfig = {
           permanent: false,
         },
         {
+          source: '/agent/:path*',
+          destination: '/',
+          permanent: false,
+        },
+        {
           source: '/explore/:tag',
           destination: '/',
           permanent: false,

@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ReactNode } from 'react';
+import type { MouseEventHandler, ReactNode } from 'react';
 import classNames from 'classnames';
 import Link from '../../utilities/Link';
 import { Image } from '../../image/Image';
@@ -15,6 +15,8 @@ export type EntityCardProps = {
     image?: string;
   };
   permalink?: string;
+  onClickCapture?: MouseEventHandler<HTMLDivElement>;
+  onAuxClickCapture?: MouseEventHandler<HTMLDivElement>;
 };
 
 const EntityCard = ({
@@ -25,9 +27,13 @@ const EntityCard = ({
   type,
   entityName,
   permalink,
+  onClickCapture,
+  onAuxClickCapture,
 }: EntityCardProps) => {
   return (
     <div
+      onClickCapture={onClickCapture}
+      onAuxClickCapture={onAuxClickCapture}
       className={classNames(
         'group/menu flex w-80 flex-col items-center rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4',
         className?.container,

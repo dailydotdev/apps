@@ -175,7 +175,7 @@ export default function ProfileLayout({
   return (
     <div className="flex w-full flex-col">
       <Head>
-        <link rel="preload" as="image" href={user.image} />
+        {!!user.image && <link rel="preload" as="image" href={user.image} />}
       </Head>
       {isLaptopLayout && pageHeaderTitle && (
         <PageHeader title={pageHeaderTitle} className="hidden laptop:flex" />

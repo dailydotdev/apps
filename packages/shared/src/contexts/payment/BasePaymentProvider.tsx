@@ -40,15 +40,35 @@ export const BasePaymentProvider = ({
 }: PropsWithChildren<BasePaymentProviderProps>): ReactElement => {
   const { isValidRegion: isPlusAvailable } = useAuthContext();
   const { pricing: funnelPricing } = useFunnelPaymentPricingContext() ?? {};
+  const effectiveDiscountId =
+    appliedDiscountId === undefined
+      ? discountId
+      : (appliedDiscountId ?? undefined);
   const { data: plusPricing, isPending: isPricesPending } = useProductPricing({
     type: priceType,
     enabled: !funnelPricing?.length,
-    discountId:
-      appliedDiscountId === undefined
-        ? discountId
-        : (appliedDiscountId ?? undefined),
+    discountId: effectiveDiscountId,
   });
-  const data = funnelPricing?.length ? funnelPricing : plusPricing;
+  const { data: regularPricing } = useProductPricing({
+    type: priceType,
+    enabled: !funnelPricing?.length && !!effectiveDiscountId,
+  });
+  const discountedPricing = useMemo(() => {
+    if (!effectiveDiscountId || !regularPricing?.length) {
+      return plusPricing;
+    }
+
+    return plusPricing?.map((option) => {
+      const regular = regularPricing.find(
+        ({ priceId }) => priceId === option.priceId,
+      );
+
+      return regular && regular.price.amount > option.price.amount
+        ? { ...option, originalPrice: regular.price }
+        : option;
+    });
+  }, [effectiveDiscountId, plusPricing, regularPricing]);
+  const data = funnelPricing?.length ? funnelPricing : discountedPricing;
 
   const openCheckoutWithDiscount = useCallback<OpenCheckoutFn>(
     (props) =>

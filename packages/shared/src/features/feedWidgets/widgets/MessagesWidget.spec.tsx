@@ -165,7 +165,6 @@ describe('Messages availability', () => {
     availableFeedWidgets({
       isLoggedIn,
       hasMessages,
-      hasLiveChat: false,
       hasSquads: false,
       isReadingStreakOn: true,
       isQuestSystemOn: true,

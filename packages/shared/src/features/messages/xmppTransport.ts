@@ -1,20 +1,32 @@
 import type * as StropheNamespace from 'strophe.js';
-import type {
-  DmConversation,
-  DmEvent,
-  DmMessage,
-  DmTransport,
-  RoomMessage,
-} from './types';
+import type { DmConversation, DmEvent, DmMessage, DmTransport } from './types';
 import { DmMessageStatus } from './types';
+import type { CompanySupportChat } from './graphql';
 import {
   DirectMessageAccess,
+  getCompanySupportChat,
+  getCompanySupportChats,
   getDirectMessageConversations,
   getDirectMessageToken,
+  markCompanySupportChatRead,
+  markCompanySupportMessageSent,
   markDirectMessageSent,
   markDirectMessagesRead,
   startDirectMessage,
 } from './graphql';
+import type { RawRoomMessage } from './muc';
+import {
+  NS_MUC,
+  occupantJid,
+  parseRoomMessage,
+  parseRoomPresence,
+  roomNickForUser,
+} from './muc';
+import {
+  getSupportChatId,
+  supportChatToPeer,
+  toSupportPeerId,
+} from './support';
 import { getMessagePushPreview } from './media';
 import { createStreamManagementStorage } from './streamManagementStorage';
 import {
@@ -39,16 +51,8 @@ import {
   parseMamResult,
   parseReaction,
   unwrapCarbon,
+  userIdFromJid,
 } from './stanzas';
-import {
-  NS_MUC,
-  ROOM_HISTORY_STANZAS,
-  occupantJid,
-  parseRoomChatState,
-  parseRoomMessage,
-  parseRoomPresence,
-  parseRoomReaction,
-} from './muc';
 
 // ejabberd over the websocket. daily-api hands out the login token and opens
 // conversations; this only ever talks XMPP, never to skirnir directly.
@@ -104,6 +108,19 @@ const keepaliveMs = 25 * 1000;
 const maxReconnectDelayMs = 30 * 1000;
 const maxReconnectAttempts = 8;
 const iqTimeoutMs = 10 * 1000;
+// How long a room join waits for the room to confirm the viewer is in. The
+// archive query and sends go ahead either way, and fail on their own.
+const roomJoinTimeoutMs = 3 * 1000;
+// Someone else holding the viewer's nick makes the join fail; it is retried
+// with a suffixed nick this many times.
+const maxRoomJoinAttempts = 3;
+// Support previews load after the inbox shows, a few rooms at a time, and a
+// slow one gives up instead of holding the rest.
+const supportPreviewConcurrency = 4;
+// Only the most recent support chats, which head the inbox, get a preview
+// loaded; the daily.dev team is in every company's chat.
+const supportPreviewRows = 10;
+const supportPreviewTimeoutMs = 4 * 1000;
 
 const stanzaIdPattern = /\sid="([^"]+)"/;
 
@@ -128,54 +145,33 @@ export const createXmppTransport = ({
   let reconnectAttempt = 0;
   let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
   let isClosed = false;
-  // Rooms the viewer is in, rejoined after a reconnect until they leave.
-  const joinedRooms = new Set<string>();
   let probeTimer: ReturnType<typeof setTimeout> | undefined;
   let probeDeadline = 0;
   // Set when the socket is dropped on purpose: the reconnect that follows
   // is the fix, not a retry, so it doesn't wait out the backoff.
   let skipBackoff = false;
+  // Support chats the viewer is a member of, by their room's bare JID, so
+  // room traffic maps back to the chat's peer.
+  const supportRooms = new Map<string, string>();
+  // Rooms joined in the current session. A new session starts outside them.
+  const joinedRooms = new Map<string, Promise<void>>();
+  // Rooms to be in, rejoined after a new session until they end or refuse
+  // the viewer.
+  const wantedRooms = new Set<string>();
+  // Joins waiting on the room's answer.
+  const pendingJoins = new Map<
+    string,
+    { attempt: number; settle: () => void }
+  >();
+  // Who is behind each occupant, as the room's presence tells it: the real
+  // bare JID by occupant id and by nick. Live messages carry no real JID.
+  const roomOccupants = new Map<
+    string,
+    { byOccupantId: Map<string, string>; byNick: Map<string, string> }
+  >();
 
   const emit = (event: DmEvent) =>
     listeners.forEach((listener) => listener(event));
-
-  const sendJoin = (
-    { strophe, connection }: Pick<Session, 'strophe' | 'connection'>,
-    roomJid: string,
-  ) =>
-    connection.send(
-      strophe
-        .$pres({ to: occupantJid(roomJid, userId) })
-        .c('x', { xmlns: NS_MUC })
-        .c('history', { maxstanzas: String(ROOM_HISTORY_STANZAS) }),
-    );
-
-  // Only the viewer's own room presence matters (see parseRoomPresence).
-  const onPresence = (stanza: Element): boolean => {
-    const presence = parseRoomPresence(stanza);
-    if (!presence) {
-      return true;
-    }
-
-    if (presence.kind === 'joined') {
-      emit({ type: 'roomJoined', roomJid: presence.roomJid });
-    } else if (presence.kind === 'left') {
-      joinedRooms.delete(presence.roomJid);
-      emit({ type: 'roomLeft', roomJid: presence.roomJid });
-    } else if (presence.kind === 'ended') {
-      joinedRooms.delete(presence.roomJid);
-      emit({ type: 'roomEnded', roomJid: presence.roomJid });
-    } else {
-      joinedRooms.delete(presence.roomJid);
-      emit({
-        type: 'roomJoinFailed',
-        roomJid: presence.roomJid,
-        reason: presence.reason,
-      });
-    }
-
-    return true;
-  };
 
   const onMessage =
     (ownBareJid: string) =>
@@ -185,19 +181,24 @@ export const createXmppTransport = ({
         return true;
       }
 
-      // Room traffic never concerns a direct message thread.
+      // Group chat traffic is a support chat's, never a direct message's.
       if (stanza.getAttribute('type') === 'groupchat') {
         const roomMessage = parseRoomMessage(stanza);
-        const roomReaction = !roomMessage && parseRoomReaction(stanza);
-        const roomState =
-          !roomMessage && !roomReaction && parseRoomChatState(stanza);
-        if (roomMessage) {
-          emit({ type: 'roomMessage', message: roomMessage });
-        } else if (roomReaction) {
-          emit({ type: 'roomReaction', ...roomReaction });
-        } else if (roomState && roomState.senderId !== userId) {
-          emit({ type: 'roomChatState', ...roomState });
+        const chatId = roomMessage && supportRooms.get(roomMessage.roomJid);
+        if (!roomMessage || !chatId) {
+          return true;
         }
+
+        const peerId = toSupportPeerId(chatId);
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        const message = toSupportMessage(roomMessage, peerId);
+        // A sender the room hasn't vouched for yet is never guessed from the
+        // nick; the archive names them, so the thread reloads instead.
+        emit(
+          message
+            ? { type: 'message', message }
+            : { type: 'threadStale', peerId },
+        );
         return true;
       }
 
@@ -264,9 +265,14 @@ export const createXmppTransport = ({
       emit({ type: 'sent', peerId: pending.peerId, messageId: stanzaId });
       // Feeds the peer's unread count and push. Losing one only leaves a
       // badge a message short, so it isn't retried.
-      markDirectMessageSent(pending.peerId, pending.preview || undefined).catch(
-        () => undefined,
-      );
+      const supportChatId = getSupportChatId(pending.peerId);
+      (supportChatId
+        ? markCompanySupportMessageSent(
+            supportChatId,
+            pending.preview || undefined,
+          )
+        : markDirectMessageSent(pending.peerId, pending.preview || undefined)
+      ).catch(() => undefined);
     });
 
     return true;
@@ -426,15 +432,20 @@ export const createXmppTransport = ({
           reconnectAttempt = 0;
           rejectConnecting = undefined;
           connection.addHandler(onMessage(ownBareJid), null, 'message', null);
-          connection.addHandler(onPresence, null, 'presence', null);
           connection.addHandler(onAck(connection), NS_SM, 'a', null);
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          connection.addHandler(onRoomPresence, null, 'presence', null);
+          // Back after a drop: rejoin the rooms the viewer was in. A join
+          // already under way for this session is shared, not repeated.
+          setTimeout(() =>
+            wantedRooms.forEach((room) =>
+              // eslint-disable-next-line @typescript-eslint/no-use-before-define
+              joinRoom(room).catch(() => undefined),
+            ),
+          );
           connection.send($pres());
           connection.sendIQ(
             $iq({ type: 'set' }).c('enable', { xmlns: NS_CARBONS }),
-          );
-          // A dropped socket took the viewer out of their rooms.
-          joinedRooms.forEach((roomJid) =>
-            sendJoin({ strophe, connection }, roomJid),
           );
           resolve({
             strophe,
@@ -454,6 +465,8 @@ export const createXmppTransport = ({
           activeConnection = null;
           clearTimeout(probeTimer);
           probeTimer = undefined;
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          leaveRoomsWithSession();
 
           if (!isConnected) {
             rejectConnecting = undefined;
@@ -595,6 +608,460 @@ export const createXmppTransport = ({
     });
   };
 
+  const registerSupportChats = (
+    chats: CompanySupportChat[],
+  ): CompanySupportChat[] => {
+    chats.forEach(({ id, jid }) => {
+      if (jid) {
+        supportRooms.set(bareJid(jid), id);
+      }
+    });
+
+    return chats;
+  };
+
+  // The sender of a room message, from what the server says about them.
+  // Null when nothing the server set vouches for anyone.
+  const resolveRoomSender = (message: RawRoomMessage): string | null => {
+    const occupants = roomOccupants.get(message.roomJid);
+    const byOccupantId =
+      message.occupantId && occupants?.byOccupantId.get(message.occupantId);
+    // Archived: the item jid the server stored. A nick may belong to someone
+    // else by now, so it never stands in for it there.
+    // Live: the occupant id the room stamped, or the nick as presence showed
+    // it; a muc#user element on the message is the sender's own, not read.
+    if (message.isArchived) {
+      const realJid = message.realJid ?? byOccupantId;
+      return realJid ? userIdFromJid(realJid) : null;
+    }
+    const realJid = message.occupantId
+      ? byOccupantId
+      : occupants?.byNick.get(message.nick);
+
+    return realJid ? userIdFromJid(realJid) : null;
+  };
+
+  const toSupportMessage = (
+    message: RawRoomMessage,
+    peerId: string,
+  ): DmMessage | null => {
+    const senderId = resolveRoomSender(message);
+
+    return senderId
+      ? {
+          id: message.id,
+          peerId,
+          senderId,
+          body: message.body,
+          createdAt: message.createdAt,
+          status: DmMessageStatus.Sent,
+        }
+      : null;
+  };
+
+  const sendJoin = (
+    { strophe, connection }: Pick<Session, 'strophe' | 'connection'>,
+    room: string,
+    attempt: number,
+  ) =>
+    connection.send(
+      strophe
+        .$pres({ to: occupantJid(room, roomNickForUser(userId, attempt)) })
+        .c('x', { xmlns: NS_MUC })
+        .c('history', { maxstanzas: '0' }),
+    );
+
+  // The session is gone, and the rooms it was in with it.
+  const leaveRoomsWithSession = () => {
+    joinedRooms.clear();
+    roomOccupants.clear();
+    pendingJoins.forEach(({ settle }) => settle());
+    pendingJoins.clear();
+  };
+
+  const forgetRoom = (room: string) => {
+    wantedRooms.delete(room);
+    joinedRooms.delete(room);
+    roomOccupants.delete(room);
+  };
+
+  const onRoomPresence = (stanza: Element): boolean => {
+    const presence = parseRoomPresence(stanza);
+    if (!presence || !supportRooms.has(presence.roomJid)) {
+      return true;
+    }
+
+    const room = presence.roomJid;
+    const pending = pendingJoins.get(room);
+
+    if (presence.kind === 'joinFailed') {
+      if (
+        pending &&
+        presence.reason === 'conflict' &&
+        pending.attempt + 1 < maxRoomJoinAttempts &&
+        session
+      ) {
+        pending.attempt += 1;
+        sendJoin(session, room, pending.attempt);
+        return true;
+      }
+      // Not a member any more, or the room is gone: stop trying.
+      if (presence.reason === 'forbidden' || presence.reason === 'gone') {
+        forgetRoom(room);
+      } else {
+        joinedRooms.delete(room);
+      }
+      pending?.settle();
+      return true;
+    }
+
+    if (presence.kind === 'ended') {
+      forgetRoom(room);
+      pending?.settle();
+      return true;
+    }
+
+    if (presence.kind === 'left') {
+      roomOccupants.get(room)?.byNick.delete(presence.nick);
+      // Out of the room, e.g. removed with their membership: the next use
+      // joins again, and a refusal then stops it.
+      if (presence.isSelf) {
+        joinedRooms.delete(room);
+      }
+      return true;
+    }
+
+    let occupants = roomOccupants.get(room);
+    if (!occupants) {
+      occupants = { byOccupantId: new Map(), byNick: new Map() };
+      roomOccupants.set(room, occupants);
+    }
+    if (presence.realJid) {
+      occupants.byNick.set(presence.nick, presence.realJid);
+      if (presence.occupantId) {
+        occupants.byOccupantId.set(presence.occupantId, presence.realJid);
+      }
+    }
+    if (presence.isSelf) {
+      pending?.settle();
+    }
+
+    return true;
+  };
+
+  // Joins a support room with no history, since the archive has it.
+  // Resolves once the room answers, or after a short wait regardless.
+  const joinRoom = (roomJid: string): Promise<void> => {
+    const room = bareJid(roomJid);
+    const existing = joinedRooms.get(room);
+    if (existing) {
+      return existing;
+    }
+
+    wantedRooms.add(room);
+    const joining = ensureSession().then(
+      (established) =>
+        new Promise<void>((resolve) => {
+          const timer = setTimeout(() => {
+            pendingJoins.delete(room);
+            resolve();
+          }, roomJoinTimeoutMs);
+          pendingJoins.set(room, {
+            attempt: 0,
+            settle: () => {
+              clearTimeout(timer);
+              pendingJoins.delete(room);
+              resolve();
+            },
+          });
+          sendJoin(established, room, 0);
+        }),
+    );
+    joinedRooms.set(room, joining);
+    joining.catch(() => joinedRooms.delete(room));
+
+    return joining;
+  };
+
+  const getSupportRoomJid = async (chatId: string): Promise<string | null> => {
+    const known = Array.from(supportRooms.entries()).find(
+      ([, id]) => id === chatId,
+    );
+    if (known) {
+      return known[0];
+    }
+
+    const chat = await getCompanySupportChat(chatId);
+    if (!chat?.jid) {
+      return null;
+    }
+    registerSupportChats([chat]);
+
+    return bareJid(chat.jid);
+  };
+
+  // Newest page of a support room's archive, oldest first. Archived copies
+  // carry the sender's real JID; one without it is left unattributed. Members
+  // read it without being in the room, so only an open thread joins.
+  const queryRoomArchive = async (
+    roomJid: string,
+    chatId: string,
+    max: number,
+    { join }: { join: boolean },
+  ): Promise<DmMessage[]> => {
+    if (join) {
+      await joinRoom(roomJid);
+    }
+    const { strophe, connection, ownBareJid } = await ensureSession();
+    const { $iq } = strophe;
+    const queryId = connection.getUniqueId('mam');
+    const peerId = toSupportPeerId(chatId);
+    const messages: DmMessage[] = [];
+
+    const handler = connection.addHandler(
+      (stanza) => {
+        const result = parseMamResult(stanza, queryId, ownBareJid, roomJid);
+        const roomMessage =
+          result &&
+          parseRoomMessage(result.message, {
+            stamp: result.stamp,
+            stanzaId: result.stanzaId,
+            isArchived: true,
+          });
+        if (roomMessage) {
+          messages.push(
+            toSupportMessage(roomMessage, peerId) ?? {
+              id: roomMessage.id,
+              peerId,
+              senderId: '',
+              body: roomMessage.body,
+              createdAt: roomMessage.createdAt,
+              status: DmMessageStatus.Sent,
+            },
+          );
+        }
+
+        return true;
+      },
+      null,
+      'message',
+      null,
+    );
+
+    const query = $iq({ type: 'set', to: roomJid })
+      .c('query', { xmlns: NS_MAM, queryid: queryId })
+      .c('set', { xmlns: NS_RSM })
+      .c('max')
+      .t(String(max))
+      .up()
+      // An empty <before/> asks for the last page.
+      .c('before');
+
+    return new Promise((resolve, reject) => {
+      connection.sendIQ(
+        query,
+        () => {
+          connection.deleteHandler(handler);
+          resolve(messages);
+        },
+        () => {
+          connection.deleteHandler(handler);
+          reject(new Error('Support chat history query failed'));
+        },
+        iqTimeoutMs,
+      );
+    });
+  };
+
+  // Last messages already loaded, kept while the chat's lastMessageAt says
+  // nothing newer arrived.
+  const supportPreviews = new Map<
+    string,
+    { lastMessageAt: string; message: DmMessage | null }
+  >();
+
+  const toSupportRow = (chat: CompanySupportChat): DmConversation => {
+    const peer = supportChatToPeer(chat);
+    const cached =
+      chat.lastMessageAt &&
+      supportPreviews.get(chat.id)?.lastMessageAt === chat.lastMessageAt
+        ? supportPreviews.get(chat.id)?.message
+        : undefined;
+
+    return {
+      peer,
+      lastMessage: cached ?? {
+        id: `support-${chat.id}`,
+        peerId: peer.id,
+        senderId: '',
+        body: '',
+        createdAt: chat.lastMessageAt ?? chat.createdAt,
+        status: DmMessageStatus.Sent,
+      },
+      unreadCount: chat.unreadCount,
+    };
+  };
+
+  // The most recent support chats, which head the inbox, whose preview isn't
+  // loaded yet. The rest stay "Open to see messages" until opened.
+  const previewQueue = (chats: CompanySupportChat[]): CompanySupportChat[] =>
+    chats
+      .filter(
+        ({ id, jid, lastMessageAt }) =>
+          jid &&
+          lastMessageAt &&
+          supportPreviews.get(id)?.lastMessageAt !== lastMessageAt,
+      )
+      .sort((a, b) =>
+        (b.lastMessageAt ?? '').localeCompare(a.lastMessageAt ?? ''),
+      )
+      .slice(0, supportPreviewRows);
+
+  // Loads the queued previews a few at a time. A slow or failed one leaves
+  // its row as it is.
+  const loadSupportPreviews = (queue: CompanySupportChat[]): void => {
+    const pending = [...queue];
+    const next = async (): Promise<void> => {
+      const chat = pending.shift();
+      if (!chat?.jid || !chat.lastMessageAt) {
+        return;
+      }
+      const peerId = toSupportPeerId(chat.id);
+      const preview = await Promise.race([
+        queryRoomArchive(bareJid(chat.jid), chat.id, inboxPageSize, {
+          join: false,
+        }).then((messages) => messages.pop() ?? null),
+        new Promise<undefined>((resolve) => {
+          setTimeout(() => resolve(undefined), supportPreviewTimeoutMs);
+        }),
+      ]).catch(() => undefined);
+      // Only a loaded answer is kept; a timeout may do better next time.
+      if (preview !== undefined) {
+        supportPreviews.set(chat.id, {
+          lastMessageAt: chat.lastMessageAt,
+          message: preview,
+        });
+      }
+      emit({ type: 'conversationPreview', peerId, message: preview ?? null });
+      await next();
+    };
+
+    for (let i = 0; i < supportPreviewConcurrency; i += 1) {
+      next().catch(() => undefined);
+    }
+  };
+
+  // Inbox rows per support chat, straight from the API so the inbox never
+  // waits on the chat server for them: order and unread come from there, and
+  // the previews of the top rows follow as events.
+  // The inbox waits for the chat server anyway, so it brings the session up
+  // for previews; a refresh only uses one that is already there.
+  const loadSupportConversations = async ({
+    withSession,
+  }: {
+    withSession: boolean;
+  }): Promise<DmConversation[]> => {
+    const chats = await getCompanySupportChats()
+      .then(registerSupportChats)
+      .catch(() => [] as CompanySupportChat[]);
+    const hasSession = withSession
+      ? await ensureSession().then(
+          () => true,
+          () => false,
+        )
+      : !!session;
+    const queue = hasSession ? previewQueue(chats) : [];
+    const rows = chats.map((chat) => ({
+      ...toSupportRow(chat),
+      ...(queue.includes(chat) && { isPreviewLoading: true }),
+    }));
+    setTimeout(() => loadSupportPreviews(queue));
+
+    return rows;
+  };
+
+  // A support chat message. The room reflects it back to every member, the
+  // sender included, under the same origin id.
+  const sendToRoom = async (
+    peerId: string,
+    chatId: string,
+    body: string,
+    preview: string,
+    retryOf?: string,
+  ): Promise<DmMessage> => {
+    const message = (id: string, status: DmMessageStatus): DmMessage => ({
+      id,
+      peerId,
+      senderId: userId,
+      body,
+      createdAt: new Date().toISOString(),
+      status,
+    });
+
+    // Still queued for resend after a resume, like a direct message.
+    if (retryOf && pendingAcks.has(retryOf)) {
+      watchAck(retryOf, peerId, preview);
+      reconnectAttempt = 0;
+      probeConnection(urgentProbeTimeoutMs);
+      ensureSession().catch(scheduleReconnect);
+
+      return message(retryOf, DmMessageStatus.Sending);
+    }
+
+    const roomJid = await getSupportRoomJid(chatId);
+    if (!roomJid) {
+      throw new Error('Support chat is not ready yet');
+    }
+    await joinRoom(roomJid);
+
+    const { strophe, connection } = await ensureSession();
+    const id = retryOf ?? connection.getUniqueId('room');
+    const stanza = strophe
+      .$msg({ to: roomJid, type: 'groupchat', id })
+      .c('body')
+      .t(body)
+      .up()
+      .c('origin-id', { xmlns: NS_SID, id });
+
+    // A bounce with our id: out of the room (the next send rejoins and the
+    // retry goes through) or no longer a member (refused for good).
+    const errorHandler = connection.addHandler(
+      (error) => {
+        const pending = pendingAcks.get(id);
+        if (pending) {
+          clearTimeout(pending.failTimer);
+          pendingAcks.delete(id);
+        }
+        const isOutOfRoom =
+          !!error?.getElementsByTagName?.('not-acceptable').length;
+        joinedRooms.delete(roomJid);
+        emit({
+          type: isOutOfRoom ? 'failed' : 'rejected',
+          peerId,
+          messageId: id,
+        });
+        return false;
+      },
+      null,
+      'message',
+      'error',
+      id,
+    );
+    setTimeout(() => connection.deleteHandler(errorHandler), errorWatchMs);
+
+    const isTracked = !!connection.sm?.isTracking();
+    if (isTracked) {
+      watchAck(id, peerId, preview);
+    }
+
+    connection.send(stanza);
+
+    return message(
+      id,
+      isTracked ? DmMessageStatus.Sending : DmMessageStatus.Sent,
+    );
+  };
+
   // Replaces the socket without asking it first. With a session the stream
   // resumes on the new socket; without one (the retries ran out, or are
   // waiting out a backoff) this is the user action that tries again.
@@ -683,10 +1150,12 @@ export const createXmppTransport = ({
 
   return {
     listConversations: async () => {
-      const [conversations, { domain }] = await Promise.all([
-        getDirectMessageConversations(),
-        ensureSession(),
-      ]);
+      const [conversations, { domain }, supportConversations] =
+        await Promise.all([
+          getDirectMessageConversations(),
+          ensureSession(),
+          loadSupportConversations({ withSession: true }),
+        ]);
       // Until the inbox module exists, the last message comes from one
       // archive lookup per conversation; unread counts come from the API.
       // One slow lookup drops that row instead of failing the whole inbox.
@@ -740,11 +1209,23 @@ export const createXmppTransport = ({
         .flatMap((result) =>
           result.status === 'fulfilled' && result.value ? [result.value] : [],
         )
+        .concat(supportConversations)
         .sort((a, b) =>
           b.lastMessage.createdAt.localeCompare(a.lastMessage.createdAt),
         );
     },
     getMessages: async (peerId) => {
+      const supportChatId = getSupportChatId(peerId);
+      if (supportChatId) {
+        const roomJid = await getSupportRoomJid(supportChatId);
+
+        return roomJid
+          ? queryRoomArchive(roomJid, supportChatId, historyPageSize, {
+              join: true,
+            })
+          : [];
+      }
+
       const { domain } = await ensureSession();
 
       const { messages } = await queryArchive(
@@ -766,6 +1247,10 @@ export const createXmppTransport = ({
       });
 
       const preview = getMessagePushPreview(body);
+
+      if (peer.group) {
+        return sendToRoom(peer.id, peer.group.chatId, body, preview, retryOf);
+      }
 
       // A message that timed out is still in Strophe's stream-management
       // queue, which resends it once the session resumes. Sending it again
@@ -845,6 +1330,10 @@ export const createXmppTransport = ({
       );
     },
     react: async (peer, messageId, emojis) => {
+      // Support chats don't take reactions yet.
+      if (peer.group) {
+        return;
+      }
       const { strophe, connection, domain } = await ensureSession();
       const { $msg } = strophe;
       const id = connection.getUniqueId('reaction');
@@ -875,6 +1364,10 @@ export const createXmppTransport = ({
       connection.send(stanza);
     },
     edit: async (peer, messageId, body) => {
+      // Support chats don't take corrections yet.
+      if (peer.group) {
+        return;
+      }
       const { strophe, connection, domain } = await ensureSession();
       const { $msg } = strophe;
       const id = connection.getUniqueId('edit');
@@ -914,6 +1407,10 @@ export const createXmppTransport = ({
       connection.send(stanza);
     },
     sendChatState: async (peer, state) => {
+      // Nobody is shown typing in a support chat.
+      if (peer.group) {
+        return;
+      }
       const { strophe, connection, domain } = await ensureSession();
       const { $msg } = strophe;
       // Standalone chat states are neither archived nor held for offline
@@ -924,70 +1421,19 @@ export const createXmppTransport = ({
         }),
       );
     },
-    markRead: (peerId) => markDirectMessagesRead(peerId),
-    joinRoom: async (roomJid) => {
-      joinedRooms.add(roomJid);
-      reconnectAttempt = 0;
-      const established = await ensureSession();
-      // Left while the session was coming up.
-      if (joinedRooms.has(roomJid)) {
-        sendJoin(established, roomJid);
-      }
+    refreshSupportChats: () => {
+      loadSupportConversations({ withSession: false })
+        .then((conversations) =>
+          emit({ type: 'supportConversations', conversations }),
+        )
+        .catch(() => undefined);
     },
-    leaveRoom: async (roomJid) => {
-      joinedRooms.delete(roomJid);
-      // Nothing to leave without a session; a reconnect won't rejoin it.
-      if (!session) {
-        return;
-      }
-      const { strophe, connection } = session;
-      connection.send(
-        strophe.$pres({
-          to: occupantJid(roomJid, userId),
-          type: 'unavailable',
-        }),
-      );
-    },
-    sendRoomMessage: async (roomJid, body) => {
-      const { strophe, connection } = await ensureSession();
-      const { $msg } = strophe;
-      const id = connection.getUniqueId('room');
-      connection.send(
-        $msg({ to: roomJid, type: 'groupchat', id })
-          .c('body')
-          .t(body)
-          .up()
-          .c('origin-id', { xmlns: NS_SID, id }),
-      );
+    markRead: (peerId) => {
+      const supportChatId = getSupportChatId(peerId);
 
-      const message: RoomMessage = {
-        id,
-        roomJid,
-        senderId: userId,
-        body,
-        createdAt: new Date().toISOString(),
-      };
-
-      return message;
-    },
-    sendRoomReaction: async (roomJid, messageId, emojis) => {
-      const { strophe, connection } = await ensureSession();
-      const { $msg } = strophe;
-      const stanza = $msg({
-        to: roomJid,
-        type: 'groupchat',
-        id: connection.getUniqueId('room-reaction'),
-      }).c('reactions', { xmlns: NS_REACTIONS, id: messageId });
-      emojis.forEach((emoji) => stanza.c('reaction').t(emoji).up());
-      connection.send(stanza);
-    },
-    sendRoomChatState: async (roomJid, state) => {
-      const { strophe, connection } = await ensureSession();
-      connection.send(
-        strophe.$msg({ to: roomJid, type: 'groupchat' }).c(state, {
-          xmlns: NS_CHAT_STATES,
-        }),
-      );
+      return supportChatId
+        ? markCompanySupportChatRead(supportChatId)
+        : markDirectMessagesRead(peerId);
     },
     subscribe: (listener) => {
       listeners.add(listener);
@@ -1015,6 +1461,12 @@ export const createXmppTransport = ({
       pendingAcks.forEach(({ failTimer }) => clearTimeout(failTimer));
       pendingAcks.clear();
       joinedRooms.clear();
+      wantedRooms.clear();
+      pendingJoins.forEach(({ settle }) => settle());
+      pendingJoins.clear();
+      roomOccupants.clear();
+      supportRooms.clear();
+      supportPreviews.clear();
       listeners.clear();
       // Settles a connect still in its handshake; its callbacks are ignored
       // once activeConnection is cleared.

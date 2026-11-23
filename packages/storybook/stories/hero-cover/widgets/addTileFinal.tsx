@@ -5,7 +5,6 @@ import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
 import { BookmarkIcon } from '@dailydotdev/shared/src/components/icons/Bookmark';
 import { ChecklistAIcon } from '@dailydotdev/shared/src/components/icons/ChecklistA';
 import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons/ReadingStreak';
-import { ShortcutsIcon } from '@dailydotdev/shared/src/components/icons/Shortcuts';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { FeedWidgetKind } from '@dailydotdev/shared/src/features/feedWidgets/types';
 import type { FeedWidgetAvailability } from '@dailydotdev/shared/src/features/feedWidgets/registry';
@@ -44,15 +43,8 @@ const MAX_FILED = 4;
 const webappOrder: FeedWidgetKind[] = [
   FeedWidgetKind.HappeningNow,
   FeedWidgetKind.TodoList,
-  FeedWidgetKind.Shortcuts,
   FeedWidgetKind.Streak,
   FeedWidgetKind.ReadingList,
-];
-
-// The new tab is where shortcuts live, so the extension leads with them.
-const extensionOrder: FeedWidgetKind[] = [
-  FeedWidgetKind.Shortcuts,
-  ...webappOrder.filter((kind) => kind !== FeedWidgetKind.Shortcuts),
 ];
 
 /** The widgets the tile names and files, best first, none already on the rail. */
@@ -60,7 +52,6 @@ export const getAddTileKinds = ({
   onRail,
   isLoggedIn,
   isReadingStreakOn,
-  isExtension,
 }: Pick<FeedWidgetAvailability, 'isLoggedIn' | 'isReadingStreakOn'> & {
   onRail: FeedWidgetKind[];
   isExtension: boolean;
@@ -71,7 +62,6 @@ export const getAddTileKinds = ({
     isQuestSystemOn: true,
     hasSquads: false,
     hasMessages: false,
-    hasLiveChat: false,
   };
   const addable = new Set(
     availableFeedWidgets(availability)
@@ -79,7 +69,7 @@ export const getAddTileKinds = ({
       .map(({ kind }) => kind),
   );
 
-  return (isExtension ? extensionOrder : webappOrder)
+  return webappOrder
     .filter((kind) => addable.has(kind) && !onRail.includes(kind))
     .slice(0, MAX_FILED);
 };
@@ -104,16 +94,6 @@ const filedHeaders: Partial<Record<FeedWidgetKind, FiledHeader>> = {
     ),
     title: 'To-do list',
     glow: todoListGlow,
-  },
-  [FeedWidgetKind.Shortcuts]: {
-    icon: (
-      <ShortcutsIcon
-        secondary
-        size={IconSize.Size16}
-        className="shrink-0 text-accent-water-default"
-      />
-    ),
-    title: 'Shortcuts',
   },
   [FeedWidgetKind.Streak]: {
     icon: (

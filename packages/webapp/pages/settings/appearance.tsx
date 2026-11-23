@@ -10,6 +10,9 @@ import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSettingsBooleanFlag } from '@dailydotdev/shared/src/hooks/useSettingsBooleanFlag';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { featureFeedWidgets } from '@dailydotdev/shared/src/lib/featureManagement';
+import { useFeedWidgetsOptOut } from '@dailydotdev/shared/src/features/feedWidgets/feedState';
+import { readStoredFeedRail } from '@dailydotdev/shared/src/features/feedWidgets/storedRail';
+import { slottedFeedWidgets } from '@dailydotdev/shared/src/features/feedWidgets/slots';
 import { useToggleFeedbackButton } from '@dailydotdev/shared/src/hooks/useToggleFeedbackButton';
 import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { useReaderModalEligibility } from '@dailydotdev/shared/src/components/post/reader/hooks/useReaderModalEligibility';
@@ -33,14 +36,6 @@ import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import { iOSSupportsAppIconChange } from '@dailydotdev/shared/src/lib/ios';
 import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
 import { supportsReading } from '@dailydotdev/shared/src/components/shell/readingStore';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
-import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
-import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { useIsViceCityCoverActive } from '@dailydotdev/shared/src/features/themeCover/ViceCityCover';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo, noindexSeoProps } from '../../next-seo';
@@ -98,8 +93,6 @@ const OpenLinksInLabel = ({
 const AccountManageSubscriptionPage = (): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { logEvent } = useLogContext();
-  const { completeAction } = useActions();
-  const isViceCityCoverActive = useIsViceCityCoverActive();
   const supportsAppIconChange =
     typeof window !== 'undefined' && iOSSupportsAppIconChange();
   // Known after mount: the bridge exists only on the client, and the rows
@@ -194,12 +187,20 @@ const AccountManageSubscriptionPage = (): ReactElement => {
       toggleOpenNewTab();
     }
   };
-  const { value: isFeedWidgetsOptedOut, toggle: toggleFeedWidgets } =
-    useSettingsBooleanFlag('feedWidgetsOptOut');
-  // Only readers who have met the rail, so opening this page is no exposure.
+  const {
+    isOptedOut: isFeedWidgetsOptedOut,
+    setOptedOut: setFeedWidgetsOptedOut,
+  } = useFeedWidgetsOptOut();
+  // Only readers who have placed or hidden widgets, on a laptop where the
+  // feed takes them, so opening this page is no exposure.
   const { value: isFeedWidgetsOn } = useConditionalFeature({
     feature: featureFeedWidgets,
-    shouldEvaluate: isFeedWidgetsOptedOut || !!flags?.feedWidgets,
+    shouldEvaluate:
+      isLaptop &&
+      (isFeedWidgetsOptedOut ||
+        slottedFeedWidgets(
+          readStoredFeedRail(flags?.feedWidgets)?.widgets ?? [],
+        ).length > 0),
   });
   const { showFeedbackButton, toggleFeedbackButton } =
     useToggleFeedbackButton();
@@ -237,17 +238,6 @@ const AccountManageSubscriptionPage = (): ReactElement => {
     <AccountPageContainer title="Appearance">
       <FlexCol className="gap-6">
         <ThemeSection />
-
-        {isViceCityCoverActive && (
-          <Button
-            variant={ButtonVariant.Secondary}
-            size={ButtonSize.Small}
-            className="self-start"
-            onClick={() => completeAction(ActionType.GtaViThemeDismissed)}
-          >
-            Hide Vice City theme
-          </Button>
-        )}
 
         {isLaptop && (
           <FlexCol className="gap-2">
@@ -318,9 +308,9 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             <SettingsSwitch
               name="feed-widgets"
               checked={!isFeedWidgetsOptedOut}
-              onToggle={toggleFeedWidgets}
+              onToggle={() => setFeedWidgetsOptedOut(!isFeedWidgetsOptedOut)}
             >
-              Show widgets above the feed
+              Show widgets in the feed
             </SettingsSwitch>
           )}
 

@@ -9,7 +9,7 @@ import { trackCompanyPageFirstPost } from '../lib/startupsAdEvents';
 import { isUserAudience } from '../../../components/post/composer/useComposerAudience';
 
 /**
- * Reports a post to a new company page. The composer's audiences come from
+ * Reports a post to a ready company page in its first month. The composer's audiences come from
  * boot, which has no company flag or creation date, so each squad is read
  * from the squad page's query.
  */

@@ -13,6 +13,9 @@ import {
   featureAdRefreshEngine,
 } from '../../lib/featureManagement';
 import { getAdRefreshPlatform } from './refresh/adRefresh';
+import { useAdSlotFetch } from './useAdSlotFetch';
+import type { AdSlotFetchTransition } from './adSlotLifecycle';
+import { useAdLifecycle } from './useAdLifecycle';
 
 interface UseAdQueryOptions {
   queryKey: QueryKey;
@@ -23,6 +26,7 @@ interface UseAdQueryOptions {
   placement: FetchAdByPlacementOptions['placement'];
   active?: boolean;
   retry?: UseQueryOptions<Ad | null>['retry'];
+  onTransition?: (transition: AdSlotFetchTransition) => void;
   /**
    * Serve a fresh ad on every page view, e.g. each time a post is opened,
    * including reopening one already seen. Only for ads that belong to the
@@ -47,10 +51,13 @@ export const useAdQuery = ({
   placement,
   active,
   retry,
+  onTransition,
   refreshOnPageView = false,
   isRefreshable = false,
 }: UseAdQueryOptions) => {
   const consent = useAdRequestConsent(enabled);
+  const { resolveAd } = useAdLifecycle(enabled);
+  const onFetchTransition = useAdSlotFetch(consent, onTransition);
   const { isAuthReady, isLoggedIn, isAndroidApp } = useAuthContext();
   const { value: refreshEngine, isLoading: isRefreshEngineLoading } =
     useConditionalFeature({
@@ -98,7 +105,14 @@ export const useAdQuery = ({
       consent?.consentExists ?? '',
       isLoggedIn,
     ],
-    queryFn: async () => (consent ? fetchAdByPlacement(fetchOptions) : null),
+    queryFn: async () =>
+      consent
+        ? fetchAdByPlacement({
+            ...fetchOptions,
+            onTransition: onFetchTransition,
+          })
+        : null,
+    select: resolveAd,
     // A refreshable slot waits for the engine flag, so its first request
     // already asks for the refresh policy when the engine is on.
     enabled: enabled && !!consent && !(isRefreshable && isRefreshEngineLoading),

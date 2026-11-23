@@ -1,13 +1,13 @@
-import type { ReactElement, ReactNode } from 'react';
-import React, { useState } from 'react';
-import classNames from 'classnames';
-import { TopHero } from '@dailydotdev/shared/src/components/marketing/banners/HeroBottomBanner';
+import type { ReactElement, ReactNode } from "react";
+import React, { useState } from "react";
+import classNames from "classnames";
+import { TopHero } from "@dailydotdev/shared/src/components/marketing/banners/HeroBottomBanner";
 import {
   Button,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
-import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
+} from "@dailydotdev/shared/src/components/buttons/Button";
+import { ClickableText } from "@dailydotdev/shared/src/components/buttons/ClickableText";
 import {
   AppIcon,
   BellIcon,
@@ -22,20 +22,18 @@ import {
   TerminalIcon,
   UpvoteIcon,
   VIcon,
-} from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
-import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
-import { ProfileSection } from '@dailydotdev/shared/src/components/ProfileMenu/ProfileSection';
-import { FeedWidgetTip } from '@dailydotdev/shared/src/features/feedWidgets/widgets/FeedWidgetTip';
-import type { FeedWidgetTip as FeedWidgetTipItem } from '@dailydotdev/shared/src/features/feedWidgets/tips';
+} from "@dailydotdev/shared/src/components/icons";
+import { IconSize } from "@dailydotdev/shared/src/components/Icon";
+import { Checkbox } from "@dailydotdev/shared/src/components/fields/Checkbox";
+import { Switch } from "@dailydotdev/shared/src/components/fields/Switch";
+import { ProfileSection } from "@dailydotdev/shared/src/components/ProfileMenu/ProfileSection";
 import {
   HijackingCoverStrip,
   hijackingPrimaryCta,
-} from '@dailydotdev/shared/src/components/auth/HijackingCoverStrip';
-import { cloudinaryCompanionPreview } from '@dailydotdev/shared/src/lib/image';
-import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
-import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
+} from "@dailydotdev/shared/src/components/auth/HijackingCoverStrip";
+import { cloudinaryCompanionPreview } from "@dailydotdev/shared/src/lib/image";
+import { companionExplainerVideo } from "@dailydotdev/shared/src/lib/constants";
+import LogoIcon from "@dailydotdev/shared/src/svg/LogoIcon";
 import {
   ActivateButton,
   ArticleMock,
@@ -52,7 +50,7 @@ import {
   noop,
   railButtonClass,
   usePermission,
-} from './kit';
+} from "./kit";
 
 // The ideas, one component each, numbered in the order the Read me ranks
 // them. Every Enable button runs the browser's permission round trip, so a
@@ -72,7 +70,7 @@ const Toast = ({
   <div
     role="status"
     className={classNames(
-      'flex max-w-[30rem] items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-popover py-2 pl-4 pr-2 shadow-2',
+      "flex max-w-[30rem] items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-popover py-2 pl-4 pr-2 shadow-2",
       className,
     )}
   >
@@ -119,7 +117,7 @@ const AskCard = ({
 );
 
 const permissionFootnote =
-  'Your browser will ask to “read and change data on all websites”. The companion only uses it to show up on articles. [Copy to confirm with privacy]';
+  "Your browser will ask to “read and change data on all websites”. The companion only uses it to show up on articles. [Copy to confirm with privacy]";
 
 // --- 1. Ask at the Read moment -------------------------------------------------
 
@@ -202,12 +200,12 @@ export const IdeaReadMoment = (): ReactElement => (
     title="Ask when they click Read on the new tab"
     pitch="The companion is worth something on the article page, so ask on the way there. The first time a member opens an article from the new tab, intercept the click once, show what they would get, and let them go on either way. This is the reader’s own playbook (useReaderInstallPromptGate), pointed at the companion."
     facts={{
-      moment: 'First (or Nth) Read click from the new tab feed or post modal',
+      moment: "First (or Nth) Read click from the new tab feed or post modal",
       surface:
-        'A useCompanionPromptGate beside useReaderInstallPromptGate, called from Feed.tsx onReadArticleClick and PostHeaderActions',
-      rule: 'New tab is an extension page, so permissions.request works from the click',
-      build: 'M',
-      origin: 'companion read prompt',
+        "A useCompanionPromptGate beside useReaderInstallPromptGate, called from Feed.tsx onReadArticleClick and PostHeaderActions",
+      rule: "New tab is an extension page, so permissions.request works from the click",
+      build: "M",
+      origin: "companion read prompt",
     }}
     open="Nth click or first? The modal costs one article open; the toast costs nothing but is easy to miss. Test both."
   >
@@ -293,19 +291,19 @@ export const IdeaReaderBundle = (): ReactElement => (
       <>
         The reader’s prompt asks the browser for <code>*://*/*</code>, the exact
         origin the companion needs. The background registers the companion
-        scripts whenever that origin is granted, so{' '}
-        <strong>every reader opt-in probably already has the companion</strong>{' '}
-        — and nobody logs it, because only requestContentScripts logs{' '}
+        scripts whenever that origin is granted, so{" "}
+        <strong>every reader opt-in probably already has the companion</strong>{" "}
+        — and nobody logs it, because only requestContentScripts logs{" "}
         <code>approve content scripts</code>. Make it explicit, and measure it.
       </>
     }
     facts={{
-      moment: 'The reader prompt on a post (already shipped)',
+      moment: "The reader prompt on a post (already shipped)",
       surface:
-        'ReaderInstallPromptModal; frameEmbeddingPermissions.ts grants declarativeNetRequestWithHostAccess + *://*/*; background getContentScriptPermissionAndRegister',
-      rule: 'Same browser dialog, same sentence. No second ask needed',
-      build: 'S',
-      origin: 'reader permission',
+        "ReaderInstallPromptModal; frameEmbeddingPermissions.ts grants declarativeNetRequestWithHostAccess + *://*/*; background getContentScriptPermissionAndRegister",
+      rule: "Same browser dialog, same sentence. No second ask needed",
+      build: "S",
+      origin: "reader permission",
     }}
     open="Confirm in a real Chrome that a reader grant shows the companion on the next article. If it does, the first job is a log line, not UI."
   >
@@ -339,7 +337,7 @@ const PostPageAsk = (): ReactElement => {
       <div className="absolute right-0 top-6 flex flex-row items-start">
         <div className="mt-2 flex w-72 flex-col gap-1 rounded-l-16 border border-r-0 border-border-subtlest-quaternary bg-background-default p-5 shadow-2">
           <div className="flex items-center gap-2">
-            <LogoIcon className={{ container: 'w-7 rounded-8' }} />
+            <LogoIcon className={{ container: "w-7 rounded-8" }} />
             <span className="ml-auto text-text-quaternary">
               <MiniCloseIcon size={IconSize.Small} />
             </span>
@@ -389,12 +387,12 @@ export const IdeaPostPage = (): ReactElement => (
       </>
     }
     facts={{
-      moment: 'Reading a post on app.daily.dev with the extension installed',
+      moment: "Reading a post on app.daily.dev with the extension installed",
       surface:
-        'CompanionDemoWidget (webapp posts/[id]); a RequestContentScripts relay in ping/index.ts + background, next to RequestFrameEmbeddingPermissions',
-      rule: 'Webapp pages cannot call permissions.request; the relay keeps the click’s user gesture, as the reader’s does',
-      build: 'M',
-      origin: 'companion post page',
+        "CompanionDemoWidget (webapp posts/[id]); a RequestContentScripts relay in ping/index.ts + background, next to RequestFrameEmbeddingPermissions",
+      rule: "Webapp pages cannot call permissions.request; the relay keeps the click’s user gesture, as the reader’s does",
+      build: "M",
+      origin: "companion post page",
     }}
     open="The demo widget is gated on lastExtensionUse being empty. This arm needs the opposite gate plus a way for the page to know the permission is missing (the ping script can answer)."
   >
@@ -402,18 +400,7 @@ export const IdeaPostPage = (): ReactElement => (
   </Idea>
 );
 
-// --- 4. A tip, and the hero cover ----------------------------------------------
-
-const companionTip: FeedWidgetTipItem = {
-  id: 'companion',
-  eyebrow: 'Companion',
-  title: 'Upvote and comment on any article',
-  description:
-    'Turn on the companion and the TLDR, votes and discussion follow you to the article page.',
-  href: '#',
-  icon: AppIcon,
-  tone: 'cabbage',
-};
+// --- 4. The hero cover ------------------------------------------------------
 
 const CoverAsk = (): ReactElement => {
   const permission = usePermission();
@@ -421,8 +408,8 @@ const CoverAsk = (): ReactElement => {
     <div className="relative">
       <HijackingCoverStrip
         copy={{
-          heading: 'Take daily.dev with you',
-          body: 'The companion brings the TLDR and the discussion to every article you open.',
+          heading: "Take daily.dev with you",
+          body: "The companion brings the TLDR and the discussion to every article you open.",
         }}
         actions={
           <>
@@ -454,34 +441,17 @@ export const IdeaTips = (): ReactElement => (
     id="tips"
     n={4}
     tier={Tier.Test}
-    title="A companion tip, and a slot on the hero cover"
-    pitch="You said the tips should replace the widgets. There is no companion tip yet — add one to feedWidgetTips — and give the hero cover a companion message for members who are past onboarding."
+    title="A companion message on the hero cover"
+    pitch="The hero cover is the first thing on the new tab and already carries one message at a time. Give it a companion message for members who are past onboarding. (The feed tips this idea first paired with were removed in #7448.)"
     facts={{
-      moment: 'Any new tab view, one random tip per view',
-      surface:
-        'features/feedWidgets/tips.ts (new entry) + FeedWidgetTip; HijackingCoverStrip copy for signed-in members',
-      rule: 'A tip is a link today; this one needs an onClick that calls requestContentScripts, extension only',
-      build: 'S',
-      origin: 'companion tip / companion cover',
+      moment: "Any new tab view, until granted or closed",
+      surface: "HijackingCoverStrip copy for signed-in members",
+      rule: "Extension page, permissions.request from the click",
+      build: "S",
+      origin: "companion cover",
     }}
-    open="Tips are random per view, so reach is diluted by the number of tips. Pin the companion tip until it is closed or granted?"
   >
-    <Variants>
-      <Variant
-        label="A · FeedWidgetTip with a new companion entry"
-        note="The real component; hover shows “All tips”."
-      >
-        <div className="max-w-[22rem]">
-          <FeedWidgetTip tip={companionTip} isEditing={false} />
-        </div>
-      </Variant>
-      <Variant
-        label="B · The hero cover, signed in"
-        note="HijackingCoverStrip, the real component, with companion copy."
-      >
-        <CoverAsk />
-      </Variant>
-    </Variants>
+    <CoverAsk />
   </Idea>
 );
 
@@ -527,12 +497,12 @@ export const IdeaOnboarding = (): ReactElement => (
     title="One optional step right after “Open new tab”"
     pitch="Right after install is when people say yes to things. NewTabActivationPrimer ends on “Open new tab”; add one skippable step after it, on the same page recipe: large title, one instruction, a looping preview, one button."
     facts={{
-      moment: 'Install day, after the new-tab activation primer',
+      moment: "Install day, after the new-tab activation primer",
       surface:
-        'webapp pages/activate.tsx → NewTabActivationPrimer onComplete; or the extension’s first new tab',
-      rule: '/activate is a webapp page: it needs the ping relay (as the primer’s requestOpenNewTabFromPage does), or the step moves to the first new tab',
-      build: 'M',
-      origin: 'companion onboarding',
+        "webapp pages/activate.tsx → NewTabActivationPrimer onComplete; or the extension’s first new tab",
+      rule: "/activate is a webapp page: it needs the ping relay (as the primer’s requestOpenNewTabFromPage does), or the step moves to the first new tab",
+      build: "M",
+      origin: "companion onboarding",
     }}
     open="Two browser dialogs in the first minute (Keep it, then Allow) may cost activations. Guard it with the activation rate."
   >
@@ -587,12 +557,12 @@ export const IdeaLaterCard = (): ReactElement => (
     title="Keep the #7043 card, but show it later and make it personal"
     pitch="A card on day one competes with shortcuts and the cover, and speaks about a feature the member has no reason to want yet. Wait for a signal that they read through the new tab, then say it in their numbers."
     facts={{
-      moment: 'After a usage signal: 5+ Read clicks, or day 3 after install',
+      moment: "After a usage signal: 5+ Read clicks, or day 3 after install",
       surface:
-        'ExtensionTopBanners useCompanionOnboarding (shouldShow gains the signal); copy only',
-      rule: 'Extension page, permissions.request from the click',
-      build: 'S',
-      origin: 'companion permission card',
+        "ExtensionTopBanners useCompanionOnboarding (shouldShow gains the signal); copy only",
+      rule: "Extension page, permissions.request from the click",
+      build: "S",
+      origin: "companion permission card",
     }}
   >
     <div className="flex flex-wrap gap-2">
@@ -664,7 +634,7 @@ const HeaderButton = (): ReactElement => {
             onClick={() => setIsOpen((open) => !open)}
           >
             Companion
-            {permission.state !== 'granted' && <PulseDot />}
+            {permission.state !== "granted" && <PulseDot />}
           </Button>
           {isOpen && (
             <div className="absolute right-0 top-10 z-2">
@@ -689,10 +659,10 @@ const RailButton = (): ReactElement => {
           type="button"
           aria-label="Companion"
           onClick={() => setIsOpen((open) => !open)}
-          className={classNames(railButtonClass, 'relative')}
+          className={classNames(railButtonClass, "relative")}
         >
           <AppIcon size={IconSize.Small} />
-          {permission.state !== 'granted' && <PulseDot />}
+          {permission.state !== "granted" && <PulseDot />}
         </button>
       }
       overlay={
@@ -727,12 +697,12 @@ export const IdeaLabelledButton = (): ReactElement => (
     }
     facts={{
       moment:
-        'Always visible until granted; the pulse stops after the first open',
+        "Always visible until granted; the pulse stops after the first open",
       surface:
-        'MainFeedLayout SearchControlHeader right group (beside IntroQuestButton), or SidebarDesktopV2 “Sidebar utilities”',
-      rule: 'Extension page, permissions.request from the click',
-      build: 'S',
-      origin: 'companion header button',
+        "MainFeedLayout SearchControlHeader right group (beside IntroQuestButton), or SidebarDesktopV2 “Sidebar utilities”",
+      rule: "Extension page, permissions.request from the click",
+      build: "S",
+      origin: "companion header button",
     }}
     open="The feed header only exists on feed routes; the rail is everywhere but icon-only. Which wins is the test."
   >
@@ -803,11 +773,11 @@ export const IdeaPostModal = (): ReactElement => (
     title="Next to “Read post” in the post modal"
     pitch="The post modal is where a member decides to go to the article. A quiet line under the Read button, or a second button beside it, ties the ask to that exact decision without stopping them."
     facts={{
-      moment: 'Post modal opened from the new tab feed',
-      surface: 'PostHeaderActions (extension only, permission missing)',
-      rule: 'Extension page, permissions.request from the click',
-      build: 'S',
-      origin: 'companion post modal',
+      moment: "Post modal opened from the new tab feed",
+      surface: "PostHeaderActions (extension only, permission missing)",
+      rule: "Extension page, permissions.request from the click",
+      build: "S",
+      origin: "companion post modal",
     }}
   >
     <Variants>
@@ -874,12 +844,12 @@ export const IdeaToolbar = (): ReactElement => (
     title="Try it once from the toolbar icon, then keep it"
     pitch="The one place the companion can appear without the scary dialog: activeTab gives the extension the current tab for one click, with no install warning. Try first, ask second — the ask then follows a page that already shows the companion working."
     facts={{
-      moment: 'Clicking the daily.dev toolbar icon on any page',
+      moment: "Clicking the daily.dev toolbar icon on any page",
       surface:
-        'manifest (add activeTab; scripting is there); background action.onClicked (today opens index.html?source=button)',
-      rule: 'activeTab + scripting.executeScript for the one tab; the “Always on” click still needs the full ask',
-      build: 'L',
-      origin: 'companion toolbar',
+        "manifest (add activeTab; scripting is there); background action.onClicked (today opens index.html?source=button)",
+      rule: "activeTab + scripting.executeScript for the one tab; the “Always on” click still needs the full ask",
+      build: "L",
+      origin: "companion toolbar",
     }}
     open="The toolbar click opening a new tab is a habit for some members. Only take it over on pages that are daily.dev posts?"
   >
@@ -891,7 +861,7 @@ export const IdeaToolbar = (): ReactElement => (
 
 const SettingRow = (): ReactElement => {
   const permission = usePermission();
-  const isOn = permission.state === 'granted';
+  const isOn = permission.state === "granted";
   return (
     <div className="relative flex max-w-[34rem] flex-col gap-4 rounded-16 border border-border-subtlest-tertiary bg-background-default p-5">
       <span className="font-bold typo-callout">Customize</span>
@@ -927,12 +897,12 @@ export const IdeaSetting = (): ReactElement => (
     title="A switch where people look for switches"
     pitch="Members who want it look in settings, not in Support. A switch beside the other new-tab toggles is the honest home for it, and doubles as the off switch (optOutCompanion) for people who granted it."
     facts={{
-      moment: 'Whenever the member opens Customize or settings',
+      moment: "Whenever the member opens Customize or settings",
       surface:
-        'The new tab Customize panel / settings page, next to the shortcuts toggle',
-      rule: 'Extension page; turning it on runs the ask, off sets optOutCompanion',
-      build: 'S',
-      origin: 'companion setting',
+        "The new tab Customize panel / settings page, next to the shortcuts toggle",
+      rule: "Extension page; turning it on runs the ask, off sets optOutCompanion",
+      build: "S",
+      origin: "companion setting",
     }}
   >
     <SettingRow />
@@ -970,12 +940,12 @@ export const IdeaEcho = (): ReactElement => (
     title="Echo the action they just took"
     pitch="Someone who upvotes or bookmarks from the new tab has just shown they use the exact actions the companion carries. Say so in the toast that already confirms the action."
     facts={{
-      moment: 'First upvote or bookmark from the new tab, once',
+      moment: "First upvote or bookmark from the new tab, once",
       surface:
-        'The existing action toast (useToastNotification) with an action button',
-      rule: 'Extension page, permissions.request from the toast click',
-      build: 'S',
-      origin: 'companion action toast',
+        "The existing action toast (useToastNotification) with an action button",
+      rule: "Extension page, permissions.request from the toast click",
+      build: "S",
+      origin: "companion action toast",
     }}
   >
     <EchoToast />
@@ -992,12 +962,12 @@ export const IdeaWhatsNew = (): ReactElement => (
     title="Tell existing members once"
     pitch="Most extension members installed before the companion was good. One in-app notification and a changelog post reach them where they already look, and both land on a page that can ask."
     facts={{
-      moment: 'Once, for extension members without the permission',
+      moment: "Once, for extension members without the permission",
       surface:
-        'In-app notification (API side) and the changelog squad; both link to a new tab that opens the ask',
-      rule: 'The notification links to the new tab; the ask happens there',
-      build: 'S',
-      origin: 'companion notification',
+        "In-app notification (API side) and the changelog squad; both link to a new tab that opens the ask",
+      rule: "The notification links to the new tab; the ask happens there",
+      build: "S",
+      origin: "companion notification",
     }}
   >
     <div className="flex max-w-[26rem] items-start gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
@@ -1028,33 +998,33 @@ export const IdeaSupportRow = (): ReactElement => (
     title="The Support menu row stays as the way back"
     pitch="Ido is right that nobody discovers a feature here. It is not meant to be the entry point — it is where someone who closed the card can find it again, and it replaced the unflagged square like for like."
     facts={{
-      moment: 'Any time, until granted',
-      surface: 'SidebarDesktopV2 useEnableCompanionItem (not behind the flag)',
-      rule: 'Extension page',
-      build: 'S',
-      origin: 'companion support menu',
+      moment: "Any time, until granted",
+      surface: "SidebarDesktopV2 useEnableCompanionItem (not behind the flag)",
+      rule: "Extension page",
+      build: "S",
+      origin: "companion support menu",
     }}
   >
     <div className="flex w-64 flex-col gap-2 rounded-10 border border-border-subtlest-tertiary bg-accent-pepper-subtlest p-3">
       <ProfileSection
         linkIconHoverOnly
         items={[
-          { title: 'Enable the companion', icon: AppIcon, onClick: noop },
+          { title: "Enable the companion", icon: AppIcon, onClick: noop },
           {
-            title: 'Get the mobile app',
+            title: "Get the mobile app",
             icon: PhoneIcon,
-            href: '#',
+            href: "#",
             external: true,
           },
           {
-            title: 'Get the browser extension',
+            title: "Get the browser extension",
             icon: BrowserGroupIcon,
-            href: '#',
+            href: "#",
             external: true,
           },
-          { title: 'Changelog', icon: TerminalIcon, href: '#' },
-          { title: 'Docs', icon: DocsIcon, href: '#', external: true },
-          { title: 'Report a bug', icon: FlagIcon, href: '#', external: true },
+          { title: "Changelog", icon: TerminalIcon, href: "#" },
+          { title: "Docs", icon: DocsIcon, href: "#", external: true },
+          { title: "Report a bug", icon: FlagIcon, href: "#", external: true },
         ]}
       />
     </div>

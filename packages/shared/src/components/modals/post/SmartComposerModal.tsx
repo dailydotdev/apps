@@ -51,6 +51,7 @@ import {
   type TextFormHandle,
 } from '../../post/composer/TextForm';
 import { LinkForm } from '../../post/composer/LinkForm';
+import { AiWrittenWarning } from '../../post/composer/AiWrittenWarning';
 import { PollForm } from '../../post/composer/PollForm';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import {
@@ -664,6 +665,7 @@ export function SmartComposerModal({
           <span>{labels.postCreation.warnings.spammyPosts}</span>
         </div>
       )}
+      {kind !== 'poll' && <AiWrittenWarning />}
       {kind === 'text' && (
         <>
           <TextForm

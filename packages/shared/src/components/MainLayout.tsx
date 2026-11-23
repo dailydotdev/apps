@@ -20,7 +20,6 @@ import type { MainLayoutHeaderProps } from './layout/MainLayoutHeader';
 import MainLayoutHeader from './layout/MainLayoutHeader';
 import { InAppNotificationElement } from './notifications/InAppNotification';
 import { QuestUpdatesListener } from './quest/QuestUpdatesListener';
-import { GtaViEventListener } from '../features/gtaViEvent/GtaViEventListener';
 import { useNotificationContext } from '../contexts/NotificationsContext';
 import { LogEvent, NotificationTarget, TargetType } from '../lib/log';
 import { PromptElement } from './modals/Prompt';
@@ -339,7 +338,6 @@ function MainLayoutComponent({
       {isBannerAvailable && <PromotionalBanner />}
       <InAppNotificationElement />
       <QuestUpdatesListener />
-      <GtaViEventListener />
       <PromptElement />
       <RootPortal>
         <Toast autoDismissNotifications={autoDismissNotifications} />
@@ -360,7 +358,6 @@ function MainLayoutComponent({
 
       {!sidebarOwnsHeader && (
         <MainLayoutHeader
-          activePage={activePage}
           hasBanner={isBannerAvailable}
           sidebarRendered={sidebarRendered}
           onLogoClick={onLogoClick}

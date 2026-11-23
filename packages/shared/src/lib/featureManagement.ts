@@ -51,6 +51,8 @@ export const featureAppStoreReview = new Feature('app_store_review', false);
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
+export const featureAdSlotLifecycle = new Feature('ad_slot_lifecycle', false);
+
 export enum AdRefreshEngineVersion {
   V1 = 'v1',
   V2 = 'v2',
@@ -118,9 +120,10 @@ export const featureStreakImprovements = new Feature(
   false,
 );
 
-export const featureGtaViFreezeDay = new Feature('gta_vi_freeze_day', false);
-
-export const featureGtaViTheme = new Feature('gta_vi_theme', false);
+// Patchy, the streak companion: his face in the rail Streak tab reacts to what
+// you do, he offers small suggestions in a bubble, and his menu sits in the
+// Streak panel (laptop rail only)
+export const featurePatchyCompanion = new Feature('patchy_companion', false);
 
 export const briefCardFeedFeature = new Feature(
   'brief_card_feed',
@@ -172,6 +175,8 @@ export const featureAdLabel = new Feature<AdLabelVariant>(
   'ad_label',
   AdLabelVariant.Control,
 );
+
+export const featureAdRemoveCopy = new Feature('ad_remove_copy', 'Remove');
 
 export const featureYearInReview = new Feature('year_in_review_2025', false);
 
@@ -314,11 +319,12 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
 // headlines, with the Happening Now list and a direct ad placement beside it.
 export const featureFeedHero = new Feature('feed_hero', false);
 
-// Experiment: the hero as a rail of widgets the reader arranges, with the ad
-// slot pinned third. Supersedes `feed_hero` where it is on. Tablet and up
-// only; relaunched from `feed_widgets_v2` with the new default rail so
-// readers enrolled before it start fresh.
-export const featureFeedWidgets = new Feature('feed_widgets_v3', false);
+// Experiment: widgets the reader places in the feed itself, each taking the
+// place of a feed card (never an ad's), from a Customize mode over the grid.
+// Supersedes `feed_hero` where it is on. Laptop grid only; relaunched from
+// `feed_widgets_v3`, the header rail, so readers enrolled in the rail start
+// fresh.
+export const featureFeedWidgets = new Feature('feed_widgets_v4', false);
 
 // Experiment: the post page's full-width signup banner against the cover
 // card pinned over the bottom of the window at the content's width.
@@ -344,16 +350,12 @@ export const featurePostCommentsTeaserDesktop = new Feature(
   false,
 );
 
-// Gates every agent surface; control hides all of them. Keep the default
-// `false`, GrowthBook ramps it.
-export const featureInterestAgent = new Feature('interest_agent', false);
-
-export const featureLiveChat = new Feature('live_chat', false);
-
 // Who can use Looking for group at all: the board, posts, reach-outs and the
 // badge on avatars. It rides on direct messages, since an accepted reach-out
 // becomes a chat. Keep the default `false`, GrowthBook ramps it.
 export const featureLfg = new Feature('lfg', false);
+
+export type PlusSaleTheme = 'summer' | 'blackFriday';
 
 export type PlusSaleConfig = {
   /** Paddle discount id (`dsc_...`). Empty means no sale is running. */
@@ -365,6 +367,8 @@ export type PlusSaleConfig = {
   description: string;
   /** ISO date. The sale expires here even if the flag is left on. */
   endDate: string;
+  /** Look of the /plus banner and price label; summer when unset. */
+  theme?: PlusSaleTheme;
 };
 
 // The advertised discount, code and expiry travel with the id they describe, so
@@ -411,20 +415,16 @@ export const featureExcoPlayer = new Feature<ExcoPlayerConfig>('exco_player', {
 // the control: the API only accepts batched bodies once its own change ships.
 export const featureGqlBatching = new Feature('gql_batching', false);
 
-// The widget rail a reader who never customized gets. A flag rather than a
-// constant, so the default composition can be tested without a deploy and
-// older extension builds stop carrying a stale one. `id` is recorded on the
-// reader's rail when they first change it, so they can be offered what a
-// newer default adds.
+// The widgets a reader who never customized gets in the feed, each on a
+// `slot` (the index of the feed card it takes). None by default: the feed
+// reads as it always did until the reader places a widget. Rotated from
+// `feed_widgets_default`, whose rail widgets have no slot.
 export const featureFeedWidgetsDefault = new Feature<{
   id: string;
-  widgets: { id: string; kind: string; size: string }[];
-}>('feed_widgets_default', {
-  id: 'default-3',
-  widgets: [
-    { id: 'happening-now', kind: 'happeningNow', size: 'large' },
-    { id: 'streak', kind: 'streak', size: 'small' },
-  ],
+  widgets: { id: string; kind: string; size: string; slot: number }[];
+}>('feed_widgets_in_feed_default', {
+  id: 'none',
+  widgets: [],
 });
 
 // Weekly picks: gates the home card, the /bookmarks button and /picks/new.

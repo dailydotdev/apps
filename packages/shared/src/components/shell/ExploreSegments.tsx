@@ -1,10 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { useIsPhoneNow } from '../../hooks/useViewSize';
-import { featureInterestAgent } from '../../lib/featureManagement';
 import { webappUrl } from '../../lib/constants';
 import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
 import type { RowItem } from './ShellRow';
@@ -42,13 +38,6 @@ const tabs: ExploreTab[] = [
   },
 ];
 
-const agents: ExploreTab = {
-  key: 'agents',
-  label: 'Agents',
-  href: `${webappUrl}agent`,
-  isActive: (path) => path === '/agent',
-};
-
 const leaderboard: ExploreTab = {
   key: 'leaderboard',
   label: 'Leaderboard',
@@ -60,25 +49,8 @@ const leaderboard: ExploreTab = {
 // of them, the way Home carries its feeds: the menu never leaves the screen.
 export function ExploreSegments(): ReactElement {
   const router = useRouter();
-  const { isLoggedIn } = useAuthContext();
-  // The synchronous phone check: `useIsPhone` is false on a mounting row's
-  // first render, which dropped Agents for a frame and slid every tab after
-  // it on each visit. It only gates the evaluation, which must not run on
-  // desktop (the row renders there once before hydration). The markup does
-  // not differ by it on that render: the user is not known yet, so Agents is
-  // off on the server and on the hydration render alike.
-  const isPhone = useIsPhoneNow();
-  const { value: showAgents } = useConditionalFeature({
-    feature: featureInterestAgent,
-    shouldEvaluate: isLoggedIn && isPhone,
-  });
   const path = withoutLayoutVariantPrefix(router?.pathname ?? '');
-  const [posts, ...places] = tabs;
-  const items: RowItem[] = (
-    showAgents
-      ? [posts, agents, ...places, leaderboard]
-      : [...tabs, leaderboard]
-  ).map((tab) => ({
+  const items: RowItem[] = [...tabs, leaderboard].map((tab) => ({
     key: tab.key,
     label: tab.label,
     href: tab.href,

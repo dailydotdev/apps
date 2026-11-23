@@ -8,8 +8,6 @@ import { checkExistingHandle } from '../../../../graphql/squads';
 import { SourceMemberRole } from '../../../../graphql/sources';
 import defaultUser from '../../../../../__tests__/fixture/loggedUser';
 import { getStartupsCheckoutUrl } from '../../lib/routes';
-import { PixelsContext } from '../../../../contexts/PixelsContext';
-import { STARTUPS_X_EVENTS } from '../../lib/startupsXEvents';
 import { CompanyPageCreate } from './CompanyPageCreate';
 
 jest.mock('../../../../hooks/squads/useSquadCreate', () => ({
@@ -128,43 +126,6 @@ it('opens the checkout for the new page when the founder came to pay', async () 
   await waitFor(() =>
     expect(push).toHaveBeenCalledWith(
       getStartupsCheckoutUrl({ plan: 'team', sourceId: 'acme' }),
-    ),
-  );
-});
-
-it('reports the new page as the Startups registration', async () => {
-  localStorage.clear();
-  const trackEvent = jest.fn();
-  (useRouter as jest.Mock).mockReturnValue({ query: {}, push: jest.fn() });
-  (useSquadCreate as jest.Mock).mockImplementation(({ onSuccess }) => ({
-    onCreateSquad: () => onSuccess({ id: 'acme', permalink: '/squads/acme' }),
-    isLoading: false,
-  }));
-  (checkExistingHandle as jest.Mock).mockResolvedValue(false);
-  render(
-    <TestBootProvider
-      client={new QueryClient()}
-      auth={{ isLoggedIn: true, user: defaultUser }}
-    >
-      <PixelsContext.Provider
-        value={{ trackSignup: jest.fn(), trackPayment: jest.fn(), trackEvent }}
-      >
-        <CompanyPageCreate />
-      </PixelsContext.Provider>
-    </TestBootProvider>,
-  );
-  fillIn();
-  submit();
-
-  await waitFor(() =>
-    expect(trackEvent).toHaveBeenCalledWith(
-      'CompleteRegistration',
-      { content_name: 'startups', content_category: 'free' },
-      {
-        eventId: `startups-signup-${defaultUser.id}`,
-        xEventId: STARTUPS_X_EVENTS.signup,
-        email: defaultUser.email,
-      },
     ),
   );
 });

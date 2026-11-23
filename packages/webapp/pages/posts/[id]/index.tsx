@@ -461,7 +461,9 @@ export const PostPage = ({
         <LogExtraContextProvider selector={logExtra}>
           <FooterNavBarLayout post={post}>
             <Head>
-              <link rel="preload" as="image" href={post?.image} />
+              {!!post?.image && (
+                <link rel="preload" as="image" href={post.image} />
+              )}
               <style
                 dangerouslySetInnerHTML={{
                   __html: postPageHybridPrePaintStyle,

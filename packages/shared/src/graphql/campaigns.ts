@@ -25,6 +25,7 @@ const CAMPAIGN_FRAGMENT = gql`
       clicks
       impressions
       newMembers
+      origin
     }
     post {
       ...SharedPostInfo
@@ -93,9 +94,11 @@ export type CampaignFlags = Partial<{
   clicks: number;
   users: number;
   newMembers: number;
+  // Bundle boosts can't be stopped; a stopped free boost isn't refunded
+  origin: 'bundle' | 'free_boost' | null;
 }>;
 
-export type UserCampaignStats = Omit<CampaignFlags, 'budget'>;
+export type UserCampaignStats = Omit<CampaignFlags, 'budget' | 'origin'>;
 
 export enum CampaignState {
   Active = 'ACTIVE',

@@ -3,7 +3,10 @@ import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import type { ReadinessItem } from '@dailydotdev/shared/src/features/squads/lib/readiness';
-import { getCompanyPageReadinessItems } from '@dailydotdev/shared/src/features/squads/lib/readiness';
+import {
+  getCompanyPageReadinessItems,
+  getPlanChecklistItems,
+} from '@dailydotdev/shared/src/features/squads/lib/readiness';
 import { getCompanyPageReadinessPrompt } from '@dailydotdev/shared/src/features/squads/lib/companyPage';
 import { CompanyPageReadiness } from '@dailydotdev/shared/src/features/squads/components/readiness/CompanyPageReadiness';
 import { SquadValuePanel } from '@dailydotdev/shared/src/features/squads/components/valuePanel/SquadValuePanel';
@@ -28,8 +31,27 @@ type Filled = Partial<
   >
 >;
 
-const getItems = (filled: Filled, isPaid = false): ReadinessItem[] =>
-  getCompanyPageReadinessItems({
+type PlanDone = Partial<
+  Record<
+    | 'cta'
+    | 'intel'
+    | 'post'
+    | 'boost'
+    | 'agent'
+    | 'strategy'
+    | 'ideas'
+    | 'review'
+    | 'routine',
+    boolean
+  >
+>;
+
+const getItems = (
+  filled: Filled,
+  isPaid = false,
+  plan?: { isTeam?: boolean; done?: PlanDone },
+): ReadinessItem[] => [
+  ...getCompanyPageReadinessItems({
     squad: {
       handle: 'acme',
       image: filled.logo
@@ -52,31 +74,78 @@ const getItems = (filled: Filled, isPaid = false): ReadinessItem[] =>
     },
     hasLinks: isPaid,
     products: isPaid ? Number(!!filled.product) : undefined,
-  });
+  }),
+  ...(plan
+    ? getPlanChecklistItems({
+        squad: { handle: 'acme' },
+        hasSeat: true,
+        hasCta: !!plan.isTeam,
+        intelTopics: plan.isTeam ? 20 : 5,
+        credits: '$245',
+        done: {
+          cta: false,
+          intel: false,
+          post: false,
+          boost: false,
+          agent: false,
+          strategy: false,
+          ideas: false,
+          review: false,
+          routine: false,
+          ...plan.done,
+        },
+      })
+    : []),
+];
 
 /** Splits like the page does on load; `later` were filled in during the visit */
 const Readiness = ({
   filled,
   later = {},
   isPaid,
+  plan,
 }: {
   filled: Filled;
   later?: Filled;
   isPaid?: boolean;
-}): ReactElement => {
-  const [copied, setCopied] = useState(false);
-  const atLoad = getItems(filled, isPaid);
-  const now = getItems({ ...filled, ...later }, isPaid);
+  /** "Starter" or "Team": the paid checklist */
+  plan?: string;
+}): ReactElement | null => {
+  const [isDismissed, setDismissed] = useState(false);
+  const [tried, setTried] = useState<string[]>([]);
+  const planItems = plan
+    ? {
+        isTeam: plan === 'Team',
+        done: Object.fromEntries(tried.map((id) => [id, true])) as PlanDone,
+      }
+    : undefined;
+  const atLoad = getItems(filled, isPaid || !!plan, plan ? {} : undefined);
+  const now = getItems({ ...filled, ...later }, isPaid || !!plan, planItems);
   const missing = new Set(
-    atLoad.filter(({ isDone }) => !isDone).map(({ id }) => id),
+    atLoad
+      .filter(({ isDone, kind }) => !isDone || kind === 'included')
+      .map(({ id }) => id),
   );
+
+  if (isDismissed) {
+    return null;
+  }
 
   return (
     <CompanyPageReadiness
+      title={
+        plan ? `Get the most out of ${plan}` : 'Level up your look and feel'
+      }
+      description={
+        plan
+          ? 'Everything your plan includes, and how to use it.'
+          : 'Developers open your page and your profile from every post you write.'
+      }
       rows={now.filter(({ id }) => missing.has(id))}
       done={now.filter(({ id, isDone }) => isDone && !missing.has(id))}
-      isPromptCopied={copied}
-      onCopyPrompt={() => setCopied(true)}
+      getPrompt={() => ''}
+      onTrySkill={({ id }) => setTried((ids) => [...ids, id])}
+      onDismiss={() => setDismissed(true)}
     />
   );
 };
@@ -195,7 +264,60 @@ export const CopiedPrompt: Story = {
         handle: 'acme',
         steps: getItems({ logo: true, description: true })
           .filter(({ isDone }) => !isDone)
-          .map(({ agentStep }) => agentStep),
+          .map(({ agentStep }) => agentStep as string),
+      })}
+    </pre>
+  ),
+};
+
+const starterFilled: Filled = {
+  logo: true,
+  description: true,
+  cover: true,
+  website: true,
+  photo: true,
+  headline: true,
+};
+
+export const StarterPlan: Story = {
+  render: () => (
+    <Column>
+      <Readiness plan="Starter" filled={starterFilled} />
+    </Column>
+  ),
+};
+
+export const TeamPlan: Story = {
+  render: () => (
+    <Column>
+      <Readiness
+        plan="Team"
+        filled={{ ...starterFilled, links: true, product: true, job: true }}
+      />
+    </Column>
+  ),
+};
+
+export const StarterPlanPhone: Story = {
+  render: () => (
+    <Column width={358}>
+      <Readiness plan="Starter" filled={starterFilled} />
+    </Column>
+  ),
+};
+
+export const PlanCopiedPrompt: Story = {
+  render: () => (
+    <pre
+      className="whitespace-pre-wrap rounded-12 bg-surface-float p-4 typo-footnote"
+      style={{ width: 640 }}
+    >
+      {getCompanyPageReadinessPrompt({
+        handle: 'acme',
+        plan: 'Starter',
+        steps: getItems(starterFilled, true, {})
+          .filter(({ isDone, agentStep }) => !isDone && agentStep)
+          .map(({ agentStep }) => agentStep as string),
       })}
     </pre>
   ),

@@ -68,15 +68,6 @@ import { PostPage } from '../pages/posts/[id]';
 import { getSeoDescription } from '../components/PostSEOSchema';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 
-// The GTA VI release-day listener completes an action on every page view on
-// that date, which these tests don't mock
-jest.mock(
-  '@dailydotdev/shared/src/features/gtaViEvent/GtaViEventListener',
-  () => ({
-    GtaViEventListener: () => null,
-  }),
-);
-
 const LogContext = getLogContextStatic();
 
 const showLogin = jest.fn();

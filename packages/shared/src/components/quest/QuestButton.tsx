@@ -21,6 +21,7 @@ import { DevPlusIcon, TourIcon } from '../icons';
 import type { QuestLevel, QuestType, UserQuest } from '../../graphql/quests';
 import { QuestRewardType } from '../../graphql/quests';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
+import { useOpenQuestRefresh } from '../../hooks/useRefreshQuest';
 import {
   getClaimableQuestCount,
   useQuestDashboard,
@@ -118,6 +119,7 @@ export const QuestSection = ({
   showMoreLabel = 'Show more',
   showLessLabel = 'Show less',
   headerAddon,
+  onRefresh,
 }: {
   title: string;
   quests: UserQuest[];
@@ -141,6 +143,7 @@ export const QuestSection = ({
   showMoreLabel?: string;
   showLessLabel?: string;
   headerAddon?: ReactElement;
+  onRefresh?: (quest: UserQuest) => void;
 }): ReactElement => {
   const [isExpanded, setIsExpanded] = useState(false);
   const canToggleExpanded =
@@ -202,6 +205,7 @@ export const QuestSection = ({
             suppressPersistedClaimedStamp={deferredClaimedStampRotationIds.has(
               quest.rotationId,
             )}
+            onRefresh={onRefresh}
           />
         ))}
       </div>
@@ -475,6 +479,9 @@ const QuestDropdownPanel = ({
   onDestinationClick,
 }: QuestDropdownPanelProps): ReactElement => {
   const { logEvent } = useLogContext();
+  const openQuestRefresh = useOpenQuestRefresh({
+    targetId: TargetId.QuestDropdown,
+  });
 
   useEffect(() => {
     logEvent({
@@ -519,6 +526,7 @@ const QuestDropdownPanel = ({
               showLevelSystem={showLevelSystem}
               onDestinationClick={onDestinationClick}
               claimingQuestId={claimingQuestId}
+              onRefresh={openQuestRefresh}
               animatingClaimRotationIds={animatingClaimRotationIds}
               claimedStampRotationIds={claimedStampRotationIds}
               animatingClaimedStampRotationIds={
@@ -533,6 +541,7 @@ const QuestDropdownPanel = ({
               showLevelSystem={showLevelSystem}
               onDestinationClick={onDestinationClick}
               claimingQuestId={claimingQuestId}
+              onRefresh={openQuestRefresh}
               animatingClaimRotationIds={animatingClaimRotationIds}
               claimedStampRotationIds={claimedStampRotationIds}
               animatingClaimedStampRotationIds={
@@ -551,6 +560,7 @@ const QuestDropdownPanel = ({
                   showLevelSystem={showLevelSystem}
                   onDestinationClick={onDestinationClick}
                   claimingQuestId={claimingQuestId}
+                  onRefresh={openQuestRefresh}
                   animatingClaimRotationIds={animatingClaimRotationIds}
                   claimedStampRotationIds={claimedStampRotationIds}
                   animatingClaimedStampRotationIds={
@@ -568,6 +578,7 @@ const QuestDropdownPanel = ({
                   showLevelSystem={showLevelSystem}
                   onDestinationClick={onDestinationClick}
                   claimingQuestId={claimingQuestId}
+                  onRefresh={openQuestRefresh}
                   animatingClaimRotationIds={animatingClaimRotationIds}
                   claimedStampRotationIds={claimedStampRotationIds}
                   animatingClaimedStampRotationIds={

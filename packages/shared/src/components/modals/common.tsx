@@ -164,6 +164,13 @@ const StreakFreezePurchaseModal = dynamic(
     ),
 );
 
+const QuestRefreshModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "questRefreshModal" */ './quest/QuestRefreshModal'
+    ),
+);
+
 const FirstCoresModal = dynamic(
   () =>
     import(
@@ -550,10 +557,6 @@ const PostImpressionsModal = dynamic(
     ),
 );
 
-const AgentIntroModal = dynamic(
-  () => import(/* webpackChunkName: "agentIntroModal" */ './AgentIntroModal'),
-);
-
 const LfgReachOutModal = dynamic(
   () =>
     import(
@@ -599,6 +602,7 @@ export const modals = {
   [LazyModal.BookmarkReminder]: BookmarkReminderModal,
   [LazyModal.RecoverStreak]: StreakRecoverModal,
   [LazyModal.StreakFreezePurchase]: StreakFreezePurchaseModal,
+  [LazyModal.QuestRefresh]: QuestRefreshModal,
   [LazyModal.FirstCores]: FirstCoresModal,
   [LazyModal.StreakFreeFreezesUpsell]: StreakFreeFreezesUpsellModal,
   [LazyModal.StreakGoal]: StreakGoalModal,
@@ -661,7 +665,6 @@ export const modals = {
   [LazyModal.ReaderExtensionInstall]: ReaderExtensionInstallModal,
   [LazyModal.ReaderPreview]: ReaderPreviewLazyModal,
   [LazyModal.PostImpressions]: PostImpressionsModal,
-  [LazyModal.AgentIntro]: AgentIntroModal,
   [LazyModal.LfgReachOut]: LfgReachOutModal,
   [LazyModal.LfgHelper]: LfgHelperModal,
   [LazyModal.FeedExplanation]: FeedExplanationModal,

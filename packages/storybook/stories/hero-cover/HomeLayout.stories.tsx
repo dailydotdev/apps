@@ -48,6 +48,10 @@ export default meta;
  * HomeSegments on phones) and the phones' sheet (shell/ExploreSortMenu).
  * What changes is the order: the rail first, then the feed's tabs, which
  * pin to the top once the rail scrolls away.
+ *
+ * Kept as a record of the rail exploration: the rail and its header are gone
+ * from production (feed_widgets_v4), where widgets take a card's place in the
+ * feed instead.
  */
 
 type Device =

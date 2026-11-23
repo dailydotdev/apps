@@ -1,15 +1,10 @@
 import type { FormEvent, ReactElement } from 'react';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../../../components/buttons/Button';
+import { Button, ButtonVariant } from '../../../../components/buttons/Button';
 import { TextField } from '../../../../components/fields/TextField';
 import Textarea from '../../../../components/fields/Textarea';
-import { AtIcon, SquadIcon } from '../../../../components/icons';
-import { useCopyLink } from '../../../../hooks/useCopy';
+import { AtIcon, LinkIcon, SquadIcon } from '../../../../components/icons';
 import OrDivider from '../../../../components/auth/OrDivider';
 import { Dropdown } from '../../../../components/fields/Dropdown';
 import {
@@ -19,13 +14,13 @@ import {
 } from '../../../../components/typography/Typography';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useLogContext } from '../../../../contexts/LogContext';
-import { usePixelsContext } from '../../../../contexts/PixelsContext';
 import { useSquadCreate } from '../../../../hooks/squads/useSquadCreate';
 import { useSquadCategories } from '../../../../hooks/squads/useSquadCategories';
 import { checkExistingHandle, PrivacyOption } from '../../../../graphql/squads';
 import { SourceMemberRole } from '../../../../graphql/sources';
 import { AuthTriggers } from '../../../../lib/auth';
 import { cloudinarySquadsImageFallback } from '../../../../lib/image';
+import { parseHttpUrl } from '../../../../lib/links';
 import { LogEvent } from '../../../../lib/log';
 import { SquadUploadButton } from '../manage/SquadUploadButton';
 import { toSquadHandle } from '../../lib/handle';
@@ -33,10 +28,7 @@ import { getStartupsCheckoutUrl } from '../../lib/routes';
 import { getSquadId } from '../../lib/features';
 import { isSquadPlan, SquadPlan } from '../../lib/plans';
 import { companyPagePrompt } from '../../lib/companyPage';
-import { trackStartupsSignup } from '../../lib/startupsAdEvents';
-import { getFirstQueryParam } from '../../../../lib/func';
-import { agentMarks } from '../checkout/agentMarks';
-import { AgentMark } from '../checkout/AgentMark';
+import { AgentPromptButton } from '../AgentPromptButton';
 import {
   CheckoutCta,
   CheckoutShell,
@@ -44,6 +36,7 @@ import {
   CheckoutTitle,
 } from '../checkout/CheckoutShell';
 import { AccountStep } from '../checkout/StartupsCheckout';
+import { StartupsHotjarEvent, trackHotjarEvent } from '../../../../lib/hotjar';
 import { StartupsNameStunt } from '../checkout/StartupsNameStunt';
 
 const FORM_ID = 'company-page-form';
@@ -59,51 +52,18 @@ const CompanyPageSignUp = (): ReactElement => (
   />
 );
 
-const shownAgents = [
-  agentMarks['claude-code'],
-  agentMarks.codex,
-  agentMarks.cursor,
-];
-
 /** Copies the setup prompt; the founder pastes it into their agent. */
 const AgentSetupButton = (): ReactElement => {
   const { logEvent } = useLogContext();
-  const [isCopying, copy] = useCopyLink(() => companyPagePrompt);
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <Button
-        type="button"
-        variant={ButtonVariant.Primary}
-        size={ButtonSize.Large}
-        className="w-full"
-        onClick={() => {
-          copy();
-          logEvent({ event_name: LogEvent.CopyCompanyPagePrompt });
-        }}
-      >
-        <span className="mr-2 flex -space-x-1.5" aria-hidden>
-          {shownAgents.map((mark) => (
-            <AgentMark
-              key={mark.name}
-              mark={mark}
-              className="size-6 rounded-8 ring-2 ring-background-default"
-              glyphClassName="size-4"
-            />
-          ))}
-        </span>
-        {isCopying ? 'Prompt copied' : 'Continue with your agent'}
-      </Button>
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Tertiary}
-        className="text-center"
-      >
-        {isCopying
-          ? 'Paste it into your agent to set up the page.'
-          : 'Copies a prompt for Claude Code, Codex, Cursor or any agent.'}
-      </Typography>
-    </div>
+    <AgentPromptButton
+      getPrompt={() => companyPagePrompt}
+      label="Continue with your agent"
+      hint="Copies a prompt for Claude Code, Codex, Cursor or any agent."
+      copiedHint="Paste it into your agent to set up the page."
+      onCopy={() => logEvent({ event_name: LogEvent.CopyCompanyPagePrompt })}
+    />
   );
 };
 
@@ -119,6 +79,7 @@ export const CompanyPageCreate = (): ReactElement => {
   const [isHandleEdited, setHandleEdited] = useState(false);
   const [handleHint, setHandleHint] = useState<string>();
   const [description, setDescription] = useState('');
+  const [website, setWebsite] = useState('');
   const [categoryId, setCategoryId] = useState<string>();
   const [image, setImage] = useState<{ preview: string; file: File }>();
   const [isChecking, setChecking] = useState(false);
@@ -127,17 +88,9 @@ export const CompanyPageCreate = (): ReactElement => {
     categoryPages?.pages.flatMap((page) =>
       page.categories.edges.map(({ node }) => node),
     ) ?? [];
-  const { trackEvent } = usePixelsContext();
   const { onCreateSquad, isLoading } = useSquadCreate({
     onSuccess: (squad) => {
-      if (user) {
-        trackStartupsSignup(trackEvent, {
-          userId: user.id,
-          email: user.email,
-          plan: getFirstQueryParam(router.query.plan) ?? 'free',
-        });
-      }
-
+      trackHotjarEvent(StartupsHotjarEvent.CompanyPageCreated);
       return router.push(
         router.query.checkout === '1'
           ? getStartupsCheckoutUrl({
@@ -157,8 +110,14 @@ export const CompanyPageCreate = (): ReactElement => {
 
   const suggestedHandle = name.trim() ? toSquadHandle(name) : '';
   const activeHandle = isHandleEdited ? handle : suggestedHandle;
+  const websiteUrl = website.trim() ? parseHttpUrl(website.trim()) : null;
+  const isWebsiteInvalid = !!website.trim() && !websiteUrl;
   const canSubmit =
-    !!name.trim() && !!activeHandle && !!description.trim() && !isChecking;
+    !!name.trim() &&
+    !!activeHandle &&
+    !!description.trim() &&
+    !isWebsiteInvalid &&
+    !isChecking;
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -183,6 +142,7 @@ export const CompanyPageCreate = (): ReactElement => {
       name: name.trim(),
       handle: activeHandle,
       description: description.trim(),
+      website: websiteUrl ?? undefined,
       categoryId: categoryId || undefined,
       file: image?.file,
       status: PrivacyOption.Public,
@@ -235,8 +195,8 @@ export const CompanyPageCreate = (): ReactElement => {
             color={TypographyColor.Tertiary}
             className="flex-1"
           >
-            Use your product logo. Your page needs a logo and a description to
-            show up in the directory.
+            Add your logo, website and a short description and we boost your
+            first post with $100.
           </Typography>
         </div>
         <TextField
@@ -280,6 +240,18 @@ export const CompanyPageCreate = (): ReactElement => {
           maxLength={DESCRIPTION_MAX_LENGTH}
           valueChanged={setDescription}
           hint="One or two sentences."
+          className={{ container: 'w-full' }}
+        />
+        <TextField
+          label="Website"
+          inputId="website"
+          name="website"
+          inputMode="url"
+          leftIcon={<LinkIcon />}
+          value={website}
+          valueChanged={setWebsite}
+          valid={isWebsiteInvalid ? false : undefined}
+          hint={isWebsiteInvalid ? 'Enter your site, like acme.dev' : undefined}
           className={{ container: 'w-full' }}
         />
         {!!categories.length && (

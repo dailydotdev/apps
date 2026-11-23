@@ -15,7 +15,7 @@ export const useTransactionError = () => {
 
   return async (data: ApiErrorResult) => {
     if (
-      data.response.errors?.[0]?.extensions?.code ===
+      data.response?.errors?.[0]?.extensions?.code ===
       ApiError.BalanceTransactionError
     ) {
       const errorExtensions = data.response

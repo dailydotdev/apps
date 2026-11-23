@@ -1,11 +1,11 @@
-import type { ReactElement, ReactNode } from 'react';
-import React, { useState } from 'react';
-import classNames from 'classnames';
+import type { ReactElement, ReactNode } from "react";
+import React, { useState } from "react";
+import classNames from "classnames";
 import {
   Button,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from "@dailydotdev/shared/src/components/buttons/Button";
 import {
   ArrowIcon,
   BookmarkIcon,
@@ -22,10 +22,10 @@ import {
   SquadIcon,
   UpvoteIcon,
   VIcon,
-} from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
-import { TLDRText } from '@dailydotdev/shared/src/components/utilities';
+} from "@dailydotdev/shared/src/components/icons";
+import { IconSize } from "@dailydotdev/shared/src/components/Icon";
+import LogoIcon from "@dailydotdev/shared/src/svg/LogoIcon";
+import { TLDRText } from "@dailydotdev/shared/src/components/utilities";
 
 // Shared pieces for the companion reach review. Everything here is drawn
 // markup on production class recipes; the real components each idea would
@@ -93,23 +93,23 @@ export const Section = ({
 );
 
 export enum Tier {
-  Bet = 'Main bet',
-  Test = 'Worth testing',
-  Support = 'Supporting',
-  Shipped = 'Shipped in #7043',
+  Bet = "Main bet",
+  Test = "Worth testing",
+  Support = "Supporting",
+  Shipped = "Shipped in #7043",
 }
 
 const tierClass: Record<Tier, string> = {
-  [Tier.Bet]: 'bg-accent-avocado-flat text-accent-avocado-default',
-  [Tier.Test]: 'bg-accent-cheese-flat text-accent-cheese-default',
-  [Tier.Support]: 'bg-surface-float text-text-tertiary',
-  [Tier.Shipped]: 'bg-accent-cabbage-flat text-accent-cabbage-default',
+  [Tier.Bet]: "bg-accent-avocado-flat text-accent-avocado-default",
+  [Tier.Test]: "bg-accent-cheese-flat text-accent-cheese-default",
+  [Tier.Support]: "bg-surface-float text-text-tertiary",
+  [Tier.Shipped]: "bg-accent-cabbage-flat text-accent-cabbage-default",
 };
 
 export const TierBadge = ({ tier }: { tier: Tier }): ReactElement => (
   <span
     className={classNames(
-      'rounded-8 px-2 py-0.5 font-bold typo-caption1',
+      "rounded-8 px-2 py-0.5 font-bold typo-caption1",
       tierClass[tier],
     )}
   >
@@ -124,12 +124,12 @@ export type IdeaFacts = {
   surface: string;
   /** The browser rule it lives with. */
   rule: string;
-  build: 'S' | 'M' | 'L';
+  build: "S" | "M" | "L";
   /** The `origin` it passes to requestContentScripts. */
   origin: string;
 };
 
-const buildLabel = { S: 'Small', M: 'Medium', L: 'Large' } as const;
+const buildLabel = { S: "Small", M: "Medium", L: "Large" } as const;
 
 /** One idea: the pitch, the drawing and the facts an engineer needs. */
 export const Idea = ({
@@ -175,10 +175,10 @@ export const Idea = ({
     <dl className="grid grid-cols-1 gap-x-6 gap-y-3 border-t border-border-subtlest-tertiary pt-4 tablet:grid-cols-2 laptop:grid-cols-4">
       {(
         [
-          ['When', facts.moment],
-          ['Where in the code', facts.surface],
-          ['Browser rule', facts.rule],
-          ['Log origin', facts.origin],
+          ["When", facts.moment],
+          ["Where in the code", facts.surface],
+          ["Browser rule", facts.rule],
+          ["Log origin", facts.origin],
         ] as const
       ).map(([label, value]) => (
         <div key={label} className="flex min-w-0 flex-col gap-0.5">
@@ -187,8 +187,8 @@ export const Idea = ({
           </dt>
           <dd
             className={classNames(
-              'min-w-0 text-pretty text-text-secondary typo-footnote',
-              label === 'Log origin' && 'font-mono',
+              "min-w-0 text-pretty text-text-secondary typo-footnote",
+              label === "Log origin" && "font-mono",
             )}
           >
             {value}
@@ -215,9 +215,9 @@ export const Variants = ({
 }): ReactElement => (
   <div
     className={classNames(
-      'grid grid-cols-1 items-start gap-4',
-      cols === 2 && 'laptop:grid-cols-2',
-      cols === 3 && 'laptop:grid-cols-3',
+      "grid grid-cols-1 items-start gap-4",
+      cols === 2 && "laptop:grid-cols-2",
+      cols === 3 && "laptop:grid-cols-3",
     )}
   >
     {children}
@@ -250,7 +250,7 @@ export const Variant = ({
 
 // --- The permission round trip ---------------------------------------------
 
-export type PermissionState = 'idle' | 'asking' | 'granted' | 'declined';
+export type PermissionState = "idle" | "asking" | "granted" | "declined";
 
 export type Permission = {
   state: PermissionState;
@@ -262,13 +262,13 @@ export type Permission = {
 
 /** Every Activate button in the page walks the same steps the browser does. */
 export const usePermission = (): Permission => {
-  const [state, setState] = useState<PermissionState>('idle');
+  const [state, setState] = useState<PermissionState>("idle");
   return {
     state,
-    ask: () => setState('asking'),
-    allow: () => setState('granted'),
-    deny: () => setState('declined'),
-    reset: () => setState('idle'),
+    ask: () => setState("asking"),
+    allow: () => setState("granted"),
+    deny: () => setState("declined"),
+    reset: () => setState("idle"),
   };
 };
 
@@ -285,7 +285,7 @@ export const BrowserPermissionDialog = ({
   permission: Permission;
   className?: string;
 }): ReactElement | null => {
-  if (permission.state !== 'asking') {
+  if (permission.state !== "asking") {
     return null;
   }
   return (
@@ -293,12 +293,12 @@ export const BrowserPermissionDialog = ({
       role="dialog"
       aria-label="Browser permission request"
       className={classNames(
-        'absolute left-1/2 top-3 z-3 w-80 -translate-x-1/2 rounded-12 border border-border-subtlest-secondary bg-background-popover p-4 shadow-2',
+        "absolute left-1/2 top-3 z-3 w-80 -translate-x-1/2 rounded-12 border border-border-subtlest-secondary bg-background-popover p-4 shadow-2",
         className,
       )}
     >
       <div className="flex items-start gap-2">
-        <LogoIcon className={{ container: 'w-5 rounded-4' }} />
+        <LogoIcon className={{ container: "w-5 rounded-4" }} />
         <span className="min-w-0 flex-1 font-bold typo-footnote">
           “daily.dev” requests additional permissions:
         </span>
@@ -335,7 +335,7 @@ export const BrowserPermissionDialog = ({
 /** The Activate button and what it turns into. */
 export const ActivateButton = ({
   permission,
-  label = 'Enable companion',
+  label = "Enable companion",
   size = ButtonSize.Small,
   variant = ButtonVariant.Primary,
   className,
@@ -346,11 +346,11 @@ export const ActivateButton = ({
   variant?: ButtonVariant;
   className?: string;
 }): ReactElement => {
-  if (permission.state === 'granted') {
+  if (permission.state === "granted") {
     return (
       <span
         className={classNames(
-          'flex items-center gap-1 font-bold text-accent-avocado-default typo-footnote',
+          "flex items-center gap-1 font-bold text-accent-avocado-default typo-footnote",
           className,
         )}
       >
@@ -372,9 +372,9 @@ export const ActivateButton = ({
       variant={variant}
       className={className}
       onClick={permission.ask}
-      loading={permission.state === 'asking'}
+      loading={permission.state === "asking"}
     >
-      {permission.state === 'declined' ? 'Try again' : label}
+      {permission.state === "declined" ? "Try again" : label}
     </Button>
   );
 };
@@ -395,7 +395,7 @@ export const BrowserWindow = ({
 }): ReactElement => (
   <div
     className={classNames(
-      'relative flex flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default shadow-2',
+      "relative flex flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default shadow-2",
       className,
     )}
   >
@@ -414,7 +414,7 @@ export const BrowserWindow = ({
         <LockIcon size={IconSize.XSmall} />
         <span className="truncate">{url}</span>
       </span>
-      <LogoIcon className={{ container: 'w-5 rounded-4' }} />
+      <LogoIcon className={{ container: "w-5 rounded-4" }} />
     </div>
     <div className="relative flex-1 overflow-hidden" style={{ height }}>
       {children}
@@ -424,14 +424,14 @@ export const BrowserWindow = ({
 
 const Line = ({ w, className }: { w: string; className?: string }) => (
   <span
-    className={classNames('block h-2.5 rounded-4 bg-surface-float', className)}
+    className={classNames("block h-2.5 rounded-4 bg-surface-float", className)}
     style={{ width: w }}
   />
 );
 
 /** A third-party article, as the companion would sit on it. */
 export const ArticleMock = ({
-  title = 'Why your React app re-renders more than you think',
+  title = "Why your React app re-renders more than you think",
   children,
 }: {
   title?: string;
@@ -444,7 +444,7 @@ export const ArticleMock = ({
       </span>
       <h4 className="text-balance font-bold typo-title3">{title}</h4>
       <div className="h-24 rounded-12 bg-surface-float" />
-      {['100%', '94%', '98%', '60%', '100%', '88%', '72%'].map((w, i) => (
+      {["100%", "94%", "98%", "60%", "100%", "88%", "72%"].map((w, i) => (
         // eslint-disable-next-line react/no-array-index-key
         <Line key={i} w={w} />
       ))}
@@ -454,7 +454,7 @@ export const ArticleMock = ({
 );
 
 const pillButton =
-  'flex size-9 items-center justify-center rounded-10 text-text-tertiary hover:bg-surface-float hover:text-text-primary';
+  "flex size-9 items-center justify-center rounded-10 text-text-tertiary hover:bg-surface-float hover:text-text-primary";
 
 /** The companion's side pill, as CompanionMenu draws it. */
 export const CompanionPill = ({
@@ -469,15 +469,15 @@ export const CompanionPill = ({
 }): ReactElement => (
   <div
     className={classNames(
-      'absolute right-0 top-6 flex flex-row items-start',
-      ghost && 'opacity-50',
+      "absolute right-0 top-6 flex flex-row items-start",
+      ghost && "opacity-50",
       className,
     )}
   >
     {open && (
       <div className="mt-2 flex w-64 flex-col gap-2 rounded-l-16 border border-r-0 border-border-subtlest-quaternary bg-background-default p-4 shadow-2">
         <div className="flex items-center gap-2">
-          <LogoIcon className={{ container: 'w-6 rounded-6' }} />
+          <LogoIcon className={{ container: "w-6 rounded-6" }} />
           <span className="text-text-quaternary typo-caption1">
             daily.dev companion
           </span>
@@ -493,7 +493,7 @@ export const CompanionPill = ({
     )}
     <div className="flex w-12 flex-col items-center gap-1 rounded-l-16 border border-r-0 border-border-subtlest-quaternary bg-background-default p-1.5 shadow-2">
       <span className={pillButton}>
-        <LogoIcon className={{ container: 'w-5 rounded-4' }} />
+        <LogoIcon className={{ container: "w-5 rounded-4" }} />
       </span>
       <span className={pillButton}>
         <UpvoteIcon size={IconSize.Small} />
@@ -515,13 +515,13 @@ export const CompanionPill = ({
 );
 
 export const railButtonClass =
-  'flex size-10 items-center justify-center rounded-12 text-text-tertiary hover:bg-surface-hover hover:text-text-primary';
+  "flex size-10 items-center justify-center rounded-12 text-text-tertiary hover:bg-surface-hover hover:text-text-primary";
 
 /** A feed card placeholder, with an optional Read action. */
 export const FeedCardMock = ({
   title,
   onRead,
-  tone = 'bg-surface-float',
+  tone = "bg-surface-float",
 }: {
   title: string;
   onRead?: () => void;
@@ -533,7 +533,7 @@ export const FeedCardMock = ({
       <Line w="40%" className="h-2" />
     </span>
     <span className="line-clamp-2 font-bold typo-footnote">{title}</span>
-    <span className={classNames('h-20 rounded-10', tone)} />
+    <span className={classNames("h-20 rounded-10", tone)} />
     <span className="flex items-center justify-between text-text-quaternary">
       <span className="flex gap-2">
         <UpvoteIcon size={IconSize.Small} />
@@ -555,12 +555,12 @@ export const FeedCardMock = ({
 );
 
 export const feedTitles = [
-  'Why your React app re-renders more than you think',
-  'Postgres 18 ships async I/O',
-  'The hidden cost of microservices',
-  'Rust in the Linux kernel, one year on',
-  'Bun 2.0: what changed',
-  'A practical guide to WebGPU',
+  "Why your React app re-renders more than you think",
+  "Postgres 18 ships async I/O",
+  "The hidden cost of microservices",
+  "Rust in the Linux kernel, one year on",
+  "Bun 2.0: what changed",
+  "A practical guide to WebGPU",
 ];
 
 /**
@@ -588,13 +588,13 @@ export const NewTabMock = ({
 }): ReactElement => (
   <div
     className={classNames(
-      'relative flex overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default',
+      "relative flex overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default",
       className,
     )}
     style={{ minHeight: height }}
   >
     <nav className="flex w-16 shrink-0 flex-col items-center gap-2 py-3">
-      <LogoIcon className={{ container: 'w-7 rounded-8' }} />
+      <LogoIcon className={{ container: "w-7 rounded-8" }} />
       <span className="mt-2 flex size-10 items-center justify-center rounded-12 bg-accent-cabbage-default text-text-primary">
         <NewPostIcon size={IconSize.Small} />
       </span>
@@ -656,7 +656,7 @@ export const Scrim = ({
       aria-label="Close"
       onClick={onClose}
       className="absolute inset-0 cursor-default"
-      style={{ background: 'rgba(14, 18, 23, 0.72)' }}
+      style={{ background: "rgba(14, 18, 23, 0.72)" }}
     />
     <div className="relative">{children}</div>
   </div>
@@ -682,8 +682,8 @@ export const CompanionPreview = ({
       style={{
         width: `${100 / 0.55}%`,
         height: height / 0.55,
-        transform: 'scale(0.55)',
-        transformOrigin: 'top left',
+        transform: "scale(0.55)",
+        transformOrigin: "top left",
       }}
     >
       <ArticleMock title={title}>

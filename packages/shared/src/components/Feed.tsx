@@ -1,4 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
+import classNames from 'classnames';
 import React, {
   useRef,
   useEffect,
@@ -10,7 +11,11 @@ import React, {
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import type { QueryKey } from '@tanstack/react-query';
-import type { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
+import type {
+  FeedItem,
+  PostItem,
+  UseFeedOptionalParams,
+} from '../hooks/useFeed';
 import useFeed, { isBoostedPostAd } from '../hooks/useFeed';
 import type { Ad, Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
@@ -83,6 +88,36 @@ import { PlaceholderFeed } from './cards/placeholder/PlaceholderFeed';
 import { useLaptopLayout } from '../hooks/layout/useLaptopLayout';
 import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
 import { useQuestDashboard } from '../hooks/useQuestDashboard';
+import type { FeedWidget } from '../features/feedWidgets/types';
+import { FeedItemType } from './cards/common/common';
+import { findFeedWidgetMoveTarget } from '../features/feedWidgets/slots';
+
+export type FeedGridWidgets = {
+  /** Sorted by slot; see `useFeed`'s `widgets`. */
+  widgets: FeedWidget[];
+  /**
+   * A placed widget, in its card's cell, or two for one sized wide that fits
+   * the row: `columns` is what the layout gave it. `left` and `right` are the
+   * nearest slots it can move to, past any ad, which keeps its cell.
+   */
+  renderWidget: (
+    widget: FeedWidget,
+    place: { index: number; columns: number; left?: number; right?: number },
+  ) => ReactNode;
+  /**
+   * While the reader is placing widgets: what covers a card whose slot can
+   * take one. Ads and placeholders never get it.
+   */
+  renderSlot?: (index: number) => ReactNode;
+  /**
+   * Out of Customize mode: one card that invites the reader to put a widget
+   * in its place, the first from `from` on whose slot can take one.
+   */
+  promo?: { from: number; render: (index: number) => ReactNode };
+};
+
+const canItemTakeWidget = (item: FeedItem): boolean =>
+  item.type === FeedItemType.Post || item.type === FeedItemType.Highlight;
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -117,6 +152,8 @@ export interface FeedProps<T>
   deferWideCards?: boolean;
   /** Posts a surface above the feed already shows, kept out of the grid. */
   excludedPostIds?: string[];
+  /** Widgets the reader placed in the grid, each in the slot of a card. */
+  feedWidgets?: FeedGridWidgets;
   staticAd?: { ad: Ad; index: number };
   disableAdRefresh?: boolean;
   allowFetchMore?: boolean;
@@ -190,6 +227,7 @@ export default function Feed<T>({
   skipFirstAd,
   deferWideCards,
   excludedPostIds,
+  feedWidgets,
   staticAd,
   disableAdRefresh = false,
   allowFetchMore,
@@ -350,6 +388,7 @@ export default function Feed<T>({
         skipFirstAd,
         deferWideCards,
         excludedPostIds,
+        widgets: feedWidgets?.widgets,
         staticAd,
         adPostLength: isSquadFeed ? 2 : undefined,
         feedName,
@@ -382,6 +421,16 @@ export default function Feed<T>({
     feedName,
   });
   const { isReaderEnabled: isReaderModalOn } = useReaderModalEligibility();
+  const promoFrom = feedWidgets?.promo?.from;
+  const promoIndex = useMemo(
+    () =>
+      promoFrom === undefined
+        ? -1
+        : items.findIndex(
+            (item, index) => index >= promoFrom && canItemTakeWidget(item),
+          ),
+    [items, promoFrom],
+  );
   const readerEligiblePostTypes = useMemo(
     () =>
       new Set<PostType>([
@@ -782,6 +831,18 @@ export default function Feed<T>({
             {hasFirstSlotCard && eligibleFirstSlotCard}
             {items.map((item, index) => {
               const placement = itemPlacements[index];
+              if (item.type === FeedItemType.Widget) {
+                return (
+                  <React.Fragment key={getFeedItemKey(item, index)}>
+                    {feedWidgets?.renderWidget(item.widget, {
+                      index,
+                      columns: placement.colSpan,
+                      left: findFeedWidgetMoveTarget(items, index, -1),
+                      right: findFeedWidgetMoveTarget(items, index, 1),
+                    })}
+                  </React.Fragment>
+                );
+              }
               const { colSpan } = placement;
               const isWidened = colSpan > 1;
               const wideColSpan =
@@ -817,6 +878,52 @@ export default function Feed<T>({
                 />
               );
 
+              // Ads keep their cell; a post or a highlight offers its slot.
+              // Such a card sits in the same wrapper whether or not the reader
+              // is customizing, so toggling Customize never remounts the grid.
+              const canTakeWidget = !!feedWidgets && canItemTakeWidget(item);
+              // A widget is one card wide, and a wide card's width is the
+              // layout's call, not the post's: it offers a slot per column it
+              // covers. The first takes its place, so it moves along; the
+              // others go right after it.
+              const slotNodes =
+                canTakeWidget && feedWidgets.renderSlot
+                  ? Array.from({ length: colSpan }, (_, column) =>
+                      feedWidgets.renderSlot?.(
+                        column === 0 ? index : index + 1,
+                      ),
+                    )
+                  : null;
+              const promoNode =
+                !slotNodes && index === promoIndex
+                  ? feedWidgets?.promo?.render(index)
+                  : null;
+              const slotNode =
+                promoNode ||
+                (slotNodes &&
+                  (isWidened ? (
+                    <div
+                      className="absolute inset-0 z-2 grid gap-6"
+                      style={{ gridTemplateColumns: `repeat(${colSpan}, 1fr)` }}
+                    >
+                      {slotNodes.map((node, column) => (
+                        // One per column, in a fixed order.
+                        // eslint-disable-next-line react/no-array-index-key
+                        <div key={column} className="relative">
+                          {node}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    slotNodes[0]
+                  )));
+              const wrapperClassName = classNames(
+                'flex h-full w-full [&>*]:h-full [&>*]:w-full',
+                canTakeWidget && 'relative',
+                // The card fades under its slot's cover.
+                !!slotNode && '[&>*:first-child]:opacity-40',
+              );
+
               return (
                 <FeedCardContext.Provider
                   key={getFeedItemKey(item, index)}
@@ -836,17 +943,23 @@ export default function Feed<T>({
                       }}
                     />
                   )}
-                  {isWidened ? (
+                  {isWidened && (
                     <div
-                      className="flex h-full w-full [&>*]:h-full [&>*]:w-full"
+                      className={wrapperClassName}
                       style={{ gridColumn: `span ${colSpan}` }}
                       data-testid="feedItemColSpanWrapper"
                     >
                       {itemNode}
+                      {slotNode}
                     </div>
-                  ) : (
-                    itemNode
                   )}
+                  {!isWidened && canTakeWidget && (
+                    <div className={wrapperClassName}>
+                      {itemNode}
+                      {slotNode}
+                    </div>
+                  )}
+                  {!isWidened && !canTakeWidget && itemNode}
                 </FeedCardContext.Provider>
               );
             })}

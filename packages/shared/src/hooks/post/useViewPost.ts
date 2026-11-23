@@ -15,6 +15,7 @@ import { includesThisRead } from '../../lib/userStreak';
 import { useStreakDailyCelebration } from '../streaks/useStreakDailyCelebration';
 import { useStreakEarnBackProgress } from '../streaks/useStreakEarnBackProgress';
 import { useStreakGoalCelebration } from '../streaks/useStreakGoalCelebration';
+import { emitPatchyEvent } from '../../features/patchy/patchyEvents';
 
 // The API credits the view in a worker after the mutation resolves, so the
 // first refetch can miss it. Give the worker this long before asking again.
@@ -150,6 +151,9 @@ export const useViewPost = (): UseMutateAsyncFunction<
         const current = countedStreak?.current;
         if (!celebrateStreakGoal(current)) {
           celebrateStreakDay(current);
+        }
+        if (current) {
+          emitPatchyEvent({ type: 'streak_day' });
         }
       }
 

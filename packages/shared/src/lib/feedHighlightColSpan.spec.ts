@@ -249,6 +249,43 @@ describe('createPlacementBuilder', () => {
     ]);
   });
 
+  it('lays out a wide widget with hero cards off, and only it', () => {
+    const builder = createPlacementBuilder({
+      ...opts,
+      isEnabled: false,
+      hasWideWidgets: true,
+    });
+    const wide = {
+      type: FeedItemType.Widget,
+      widget: { id: 'w', kind: 'streak', size: 'large', slot: 1 },
+    } as FeedItem;
+    const hero = makePostItem(makePost({ significance: 'breaking' }));
+
+    expect([hero, wide, hero, hero].map((item) => builder.next(item))).toEqual([
+      { colSpan: 1, row: 0, column: 0 },
+      { colSpan: 2, row: 0, column: 1 },
+      { colSpan: 1, row: 0, column: 3 },
+      { colSpan: 1, row: 1, column: 0 },
+    ]);
+  });
+
+  it('narrows a wide widget to one card in the row’s last column', () => {
+    const builder = createPlacementBuilder({
+      ...opts,
+      isEnabled: false,
+      hasWideWidgets: true,
+    });
+    const post = makePostItem(makePost());
+    const wide = {
+      type: FeedItemType.Widget,
+      widget: { id: 'w', kind: 'streak', size: 'large', slot: 3 },
+    } as FeedItem;
+
+    [post, post, post].forEach((item) => builder.next(item));
+
+    expect(builder.next(wide)).toEqual({ colSpan: 1, row: 0, column: 3 });
+  });
+
   it('returns colSpan 1 on mobile regardless of significance', () => {
     const builder = createPlacementBuilder({ ...opts, isMobile: true });
     const item = makePostItem(makePost({ significance: 'breaking' }));

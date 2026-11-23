@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useMessagesEnabled } from '@dailydotdev/shared/src/features/messages/hooks/useMessagesEnabled';
 import { MessagesScreen } from '@dailydotdev/shared/src/features/messages/components/MessagesScreen';
+import { toSupportPeerId } from '@dailydotdev/shared/src/features/messages/support';
 import {
   getMessagesUrl,
   parseDmOrigin,
@@ -19,7 +20,13 @@ import { getPageSeoTitles } from '../../components/layouts/utils';
 const Page = (): ReactElement | null => {
   const router = useRouter();
   const { isEnabled, isGatedOut } = useMessagesEnabled();
-  const [peerId] = (router.query.peer as string[] | undefined) ?? [];
+  const [firstSegment, supportChatId] =
+    (router.query.peer as string[] | undefined) ?? [];
+  // A company page's support chat lives at /messages/support/<chat id>.
+  const peerId =
+    firstSegment === 'support' && supportChatId
+      ? toSupportPeerId(supportChatId)
+      : firstSegment;
   const commentId =
     typeof router.query.comment === 'string' ? router.query.comment : undefined;
   const showRequests = router.query.tab === 'requests';

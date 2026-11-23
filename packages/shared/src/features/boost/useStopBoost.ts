@@ -33,6 +33,15 @@ export const stopBoostPromptOptions: PromptOptions = {
   },
 };
 
+// Nothing was paid for a company page's free boost, and a stopped one isn't
+// replaced
+const stopFreeBoostPromptOptions: PromptOptions = {
+  ...stopBoostPromptOptions,
+  title: 'Stop your free boost?',
+  description:
+    "It stops reaching developers right away. You won't get another free boost.",
+};
+
 /** The flags, minus the boost that just stopped */
 const withoutCampaign = <T extends { campaignId?: string | null }>(
   flags: T | undefined,
@@ -85,7 +94,12 @@ export const useStopBoost = (): UseStopBoost => {
   };
 
   const onStopBoost = async (campaign: Campaign) => {
-    if (!(await showPrompt(stopBoostPromptOptions))) {
+    const prompt =
+      campaign.flags?.origin === 'free_boost'
+        ? stopFreeBoostPromptOptions
+        : stopBoostPromptOptions;
+
+    if (!(await showPrompt(prompt))) {
       return;
     }
 

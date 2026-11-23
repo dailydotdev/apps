@@ -49,19 +49,22 @@ const checkShouldSendBroadcast = () => {
   return conditions.some(Boolean);
 };
 
-const handleRedirectAuth = (params: URLSearchParams) => {
+const handleRedirectAuth = (params: URLSearchParams): boolean => {
   const href = window.sessionStorage.getItem(AUTH_REDIRECT_KEY);
 
-  if (href) {
-    const [redirect, hrefParams] = href.split('?');
-    const redirectParams = new URLSearchParams(hrefParams);
-
-    Object.entries(redirectParams).forEach(([key, value]) =>
-      params.set(key, value),
-    );
-
-    window.location.replace(`${redirect}?${params}`);
+  if (!href) {
+    return false;
   }
+
+  const [redirect, hrefParams] = href.split('?');
+  const redirectParams = new URLSearchParams(hrefParams);
+
+  Object.entries(redirectParams).forEach(([key, value]) =>
+    params.set(key, value),
+  );
+
+  window.location.replace(`${redirect}?${params}`);
+  return true;
 };
 
 const getAuthReturnPath = (): string => {
@@ -92,8 +95,7 @@ function CallbackPage(): ReactElement | null {
         return;
       }
 
-      if (shouldRedirectAuth()) {
-        handleRedirectAuth(urlSearchParams);
+      if (shouldRedirectAuth() && handleRedirectAuth(urlSearchParams)) {
         return;
       }
 

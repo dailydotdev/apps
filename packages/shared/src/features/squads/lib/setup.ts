@@ -63,12 +63,12 @@ export const agentClients = Object.values(AgentClient);
 const SKILLS_URL = 'https://github.com/dailydotdev/daily/blob/master/skills';
 
 /** Points the agent at a daily.dev skill, with its file for clients without the plugin. */
-const skillRef = (name: string): string =>
+export const skillRef = (name: string): string =>
   `the ${name} skill (if you don't have it, read and follow ${SKILLS_URL}/${name}/SKILL.md)`;
 
 /**
  * The prompt for the founder's first agent session over the daily.dev MCP
- * server: the page, their profile, a first post, a boost paid with the boost
+ * server: the page, their profile, a content strategy, a first post, a boost paid with the boost
  * credits in the wallet and a daily routine that brings them back. It lists only what the API
  * can do.
  */
@@ -120,10 +120,18 @@ export const getStartupsSetupPrompt = ({
       ],
     },
     {
+      title: 'Content strategy',
+      steps: [
+        `Plan what our page publishes with ${skillRef(
+          'daily-dev-content-strategy',
+        )}: interview me about our readers and what our team knows, then save the strategy I agree to.`,
+      ],
+    },
+    {
       title: 'First post',
       steps: [
         "Read our weekly intel. If it isn't ready yet, wait and check again for a few minutes.",
-        `List what we already published: blog posts, release notes, changelog entries, videos, talks, docs pages, launch posts. Recommend the one that fits the intel best, using any engagement you can see (views, comments, stars, earlier daily.dev posts). Say which intel numbers back it and give two runners-up. If nothing fits, suggest a new post with ${skillRef(
+        `List what we already published: blog posts, release notes, changelog entries, videos, talks, docs pages, launch posts. Recommend the one that fits our strategy and the intel best, using any engagement you can see (views, comments, stars, earlier daily.dev posts). Say which intel numbers back it and give two runners-up. If nothing fits, suggest a new post with ${skillRef(
           'daily-dev-content-ideas',
         )}.`,
         `I write the post myself, so don't write it or a draft of it. When I've written it, review it with ${skillRef(
@@ -142,7 +150,7 @@ export const getStartupsSetupPrompt = ({
       steps: [
         `Set up ${skillRef(
           'daily-dev-growth-routine',
-        )}: ask me how often we want to publish, then schedule its daily report on our page, posts and boosts, with a reminder when the next post is due.`,
+        )}: use the cadence and review from our content strategy, then schedule its daily report on our page, posts and boosts, with a reminder when the next post is due.`,
       ],
     },
   ];
@@ -158,7 +166,7 @@ export const getStartupsSetupPrompt = ({
   ]);
 
   return [
-    `Set up ${name}'s company page on daily.dev (@${handle}, ${squadPlanDetails[plan].title} plan), polish my profile, get our first post out and boosted, and set up our daily routine. Use the daily.dev MCP tools if you have them, otherwise my daily.dev API token (\`DAILY_DEV_TOKEN\`). If you have neither, stop and tell me to add ${DAILY_MCP_URL}.`,
+    `Set up ${name}'s company page on daily.dev (@${handle}, ${squadPlanDetails[plan].title} plan), polish my profile, plan our content, get our first post out and boosted, and set up our daily routine. Use the daily.dev MCP tools if you have them, otherwise my daily.dev API token (\`DAILY_DEV_TOKEN\`). If you have neither, stop and tell me to add ${DAILY_MCP_URL}.`,
     ...body,
     '',
     'Before each change, show me exactly what you will save and wait for my OK. Finish with links to our page, my profile and the boosted post, and a short list of anything left.',
@@ -175,3 +183,29 @@ export const getIntelPrompt = (handle: string): string =>
     '',
     'Then look at what I shipped or wrote recently and suggest three posts for our daily.dev page. For each, give the angle, format, title, length and the best day and hour to publish, and say which numbers in the intel back it.',
   ].join('\n');
+
+const connectLine = (handle: string): string =>
+  `This is for our daily.dev company page @${handle}. Use the daily.dev MCP tools if you have them, otherwise my daily.dev API token (\`DAILY_DEV_TOKEN\`). If you have neither, stop and tell me to add ${DAILY_MCP_URL}.`;
+
+/** What a founder can ask their agent, one skill at a time. */
+export const getStartupsSkillPrompt = (
+  skill: 'strategy' | 'ideas' | 'review' | 'routine',
+  handle: string,
+): string => {
+  const ask: Record<typeof skill, string> = {
+    strategy: `Plan what @${handle} publishes with ${skillRef(
+      'daily-dev-content-strategy',
+    )}: interview me about our readers and what our team knows, then save the strategy I agree to.`,
+    ideas: `Suggest three posts for @${handle} with ${skillRef(
+      'daily-dev-content-ideas',
+    )}. Start from what I shipped or wrote recently, and say which numbers in our weekly intel back each one. I write the posts myself, so don't write them or a draft.`,
+    review: `I'm about to publish a post on @${handle}. Ask me to paste it, then review it with ${skillRef(
+      'daily-dev-content-review',
+    )} and show me what it found. Don't rewrite it for me.`,
+    routine: `Set up ${skillRef(
+      'daily-dev-growth-routine',
+    )} for @${handle}: ask me how often we want to publish, then schedule its daily report on our page, posts and boosts, with a reminder when the next post is due.`,
+  };
+
+  return [connectLine(handle), '', ask[skill]].join('\n');
+};

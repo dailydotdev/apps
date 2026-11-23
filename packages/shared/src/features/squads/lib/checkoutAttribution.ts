@@ -109,3 +109,14 @@ export const getSavedCheckoutAttribution = (
 
   return latest ? getCheckoutAttribution(latest) : {};
 };
+
+// The ad click ids for a new company page, so the server event for it can be
+// matched to the ad even when the browser has no Meta cookie
+export const getAdClickIds = (): Pick<
+  CheckoutAttribution,
+  'fbclid' | 'twclid'
+> => {
+  const { fbclid, twclid } = getSavedCheckoutAttribution();
+
+  return { ...(fbclid && { fbclid }), ...(twclid && { twclid }) };
+};

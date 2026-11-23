@@ -8,6 +8,12 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { useConsentCookie } from '@dailydotdev/shared/src/hooks/useCookieConsent';
 import { hasSensitiveQueryParam } from '@dailydotdev/shared/src/lib/sensitiveQuery';
+import storageWrapper from '@dailydotdev/shared/src/lib/storageWrapper';
+import {
+  identifyHotjarUser,
+  StartupsHotjarEvent,
+  trackHotjarEvent,
+} from '@dailydotdev/shared/src/lib/hotjar';
 import { isSensitivePage } from '../lib/sensitivePages';
 
 const FB_PIXEL_ID = '519268979315924';
@@ -247,7 +253,11 @@ export const HotJarTracking = ({ hotjarId }: HotjarProps): ReactElement => {
 // checkout and the squad setup on daily.dev.
 export const STARTUPS_HOTJAR_ID = '6854906';
 
-type Hotjar = ((...args: unknown[]) => void) & { q?: unknown[][] };
+// A Startups account made within the hour counts as a new signup, however it
+// came in (email, social, or back from a redirect)
+const NEW_ACCOUNT_MS = 60 * 60 * 1000;
+const signupStorage = storageWrapper();
+const SIGNUP_STORAGE_KEY = 'startups_hotjar_signup';
 
 export const StartupsHotjar = (): ReactElement => {
   const consent = useHotjarConsent();
@@ -258,15 +268,17 @@ export const StartupsHotjar = (): ReactElement => {
       return;
     }
 
-    const win = globalThis as typeof globalThis & { hj?: Hotjar };
-    if (!win.hj) {
-      const queue: unknown[][] = [];
-      win.hj = Object.assign((...args: unknown[]) => queue.push(args), {
-        q: queue,
-      });
+    identifyHotjarUser(user.id);
+
+    const isNewAccount =
+      !!user.infoConfirmed &&
+      !!user.createdAt &&
+      Date.now() - new Date(user.createdAt).getTime() < NEW_ACCOUNT_MS;
+    if (isNewAccount && signupStorage.getItem(SIGNUP_STORAGE_KEY) !== user.id) {
+      signupStorage.setItem(SIGNUP_STORAGE_KEY, user.id);
+      trackHotjarEvent(StartupsHotjarEvent.Signup);
     }
-    win.hj('identify', user.id, {});
-  }, [consent, user?.id]);
+  }, [consent, user?.id, user?.infoConfirmed, user?.createdAt]);
 
   return <HotJarTracking hotjarId={STARTUPS_HOTJAR_ID} />;
 };

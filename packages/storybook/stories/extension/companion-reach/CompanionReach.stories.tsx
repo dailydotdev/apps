@@ -1,17 +1,17 @@
-import type { ReactElement, ReactNode } from 'react';
-import React, { useState } from 'react';
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { ReactElement, ReactNode } from "react";
+import React, { useState } from "react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
   Button,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from "@dailydotdev/shared/src/components/buttons/Button";
 import {
   ArrowIcon,
   MiniCloseIcon,
-} from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import ExtensionProviders from '../_providers';
+} from "@dailydotdev/shared/src/components/icons";
+import { IconSize } from "@dailydotdev/shared/src/components/Icon";
+import ExtensionProviders from "../_providers";
 import {
   ArticleMock,
   BrowserWindow,
@@ -23,7 +23,7 @@ import {
   Section,
   Tier,
   TierBadge,
-} from './kit';
+} from "./kit";
 import {
   IdeaEcho,
   IdeaLabelledButton,
@@ -38,12 +38,12 @@ import {
   IdeaTips,
   IdeaToolbar,
   IdeaWhatsNew,
-} from './ideas';
+} from "./ideas";
 
 // Ideas for making the companion reachable, from the #7043 review thread:
 // Ido's “no one will enable it this way, it’s like Google’s 2nd page” and
 // Agent Smith's list, checked against the code. Drawn markup on production
-// recipes plus the real TopHero, FeedWidgetTip, HijackingCoverStrip, Switch,
+// recipes plus the real TopHero, HijackingCoverStrip, Switch,
 // Checkbox and ProfileSection. Nothing here ships; it is for picking arms.
 
 const Card = ({
@@ -70,94 +70,94 @@ const shortlist: {
 }[] = [
   {
     n: 1,
-    idea: 'Ask on the first Read click from the new tab',
+    idea: "Ask on the first Read click from the new tab",
     tier: Tier.Bet,
-    build: 'M',
-    why: 'Asks at the moment the companion is about to be useful',
+    build: "M",
+    why: "Asks at the moment the companion is about to be useful",
   },
   {
     n: 2,
-    idea: 'One grant for reader + companion',
+    idea: "One grant for reader + companion",
     tier: Tier.Bet,
-    build: 'S',
-    why: 'Same permission; may already be happening, unlogged',
+    build: "S",
+    why: "Same permission; may already be happening, unlogged",
   },
   {
     n: 3,
-    idea: 'Post page demo pill asks extension users',
+    idea: "Post page demo pill asks extension users",
     tier: Tier.Bet,
-    build: 'M',
-    why: 'The widget exists; it only talks to the wrong half',
+    build: "M",
+    why: "The widget exists; it only talks to the wrong half",
   },
   {
     n: 4,
-    idea: 'Companion tip + hero cover message',
+    idea: "Companion message on the hero cover",
     tier: Tier.Test,
-    build: 'S',
-    why: 'Where you want widgets to go anyway',
+    build: "S",
+    why: "Where you want widgets to go anyway",
   },
   {
     n: 5,
-    idea: 'Optional onboarding step after “Open new tab”',
+    idea: "Optional onboarding step after “Open new tab”",
     tier: Tier.Test,
-    build: 'M',
-    why: 'Highest willingness; risk to activation',
+    build: "M",
+    why: "Highest willingness; risk to activation",
   },
   {
     n: 6,
-    idea: 'The #7043 card, later and personal',
+    idea: "The #7043 card, later and personal",
     tier: Tier.Test,
-    build: 'S',
-    why: 'Cheapest change to what ships',
+    build: "S",
+    why: "Cheapest change to what ships",
   },
   {
     n: 7,
-    idea: 'Labelled header / rail button',
+    idea: "Labelled header / rail button",
     tier: Tier.Test,
-    build: 'S',
-    why: 'The 2022 placement winner, with a label this time',
+    build: "S",
+    why: "The 2022 placement winner, with a label this time",
   },
   {
     n: 8,
-    idea: 'Next to “Read post” in the post modal',
+    idea: "Next to “Read post” in the post modal",
     tier: Tier.Test,
-    build: 'S',
-    why: 'Same moment as #1, without interrupting',
+    build: "S",
+    why: "Same moment as #1, without interrupting",
   },
   {
     n: 9,
-    idea: 'Try once from the toolbar icon (activeTab)',
+    idea: "Try once from the toolbar icon (activeTab)",
     tier: Tier.Support,
-    build: 'L',
-    why: 'Only way to show it working before the warning',
+    build: "L",
+    why: "Only way to show it working before the warning",
   },
   {
     n: 10,
-    idea: 'A switch in Customize',
+    idea: "A switch in Customize",
     tier: Tier.Support,
-    build: 'S',
-    why: 'Where people look; doubles as the off switch',
+    build: "S",
+    why: "Where people look; doubles as the off switch",
   },
   {
     n: 11,
-    idea: 'Echo in the upvote / bookmark toast',
+    idea: "Echo in the upvote / bookmark toast",
     tier: Tier.Support,
-    build: 'S',
-    why: 'Targets people who already use those actions',
+    build: "S",
+    why: "Targets people who already use those actions",
   },
   {
     n: 12,
-    idea: 'One notification + changelog post',
+    idea: "One notification + changelog post",
     tier: Tier.Support,
-    build: 'S',
-    why: 'Reaches members who installed long ago',
+    build: "S",
+    why: "Reaches members who installed long ago",
   },
   {
     n: 13,
-    idea: 'Support menu row',
+    idea: "Support menu row",
     tier: Tier.Shipped,
-    build: '—',
-    why: 'The way back, not the way in',
+    build: "—",
+    why: "The way back, not the way in",
   },
 ];
 
@@ -178,8 +178,8 @@ const ReadMe = (): ReactElement => (
     <div className="grid grid-cols-1 gap-4 laptop:grid-cols-3">
       <Card title="Where we are">
         <p>
-          Per Agent Smith’s feature map (25 Oct, not re-measured here):{' '}
-          <code>request content scripts</code> has about 0 events and{' '}
+          Per Agent Smith’s feature map (25 Oct, not re-measured here):{" "}
+          <code>request content scripts</code> has about 0 events and{" "}
           <code>approve content scripts</code> has not been seen in 180 days.
           Any arm that works will show fast against that baseline.
         </p>
@@ -210,10 +210,10 @@ const ReadMe = (): ReactElement => (
       <div className="grid grid-cols-1 gap-4 laptop:grid-cols-2">
         <Card title="1 · Reader opt-ins probably already have the companion">
           <p>
-            The reader grants <code>declarativeNetRequestWithHostAccess</code>{' '}
-            plus <code>*://*/*</code>. The companion only checks for{' '}
+            The reader grants <code>declarativeNetRequestWithHostAccess</code>{" "}
+            plus <code>*://*/*</code>. The companion only checks for{" "}
             <code>*://*/*</code>, and the background registers its scripts
-            whenever that origin is present. No{' '}
+            whenever that origin is present. No{" "}
             <code>approve content scripts</code> is logged on that path, so our
             zero may be an undercount. Confirm in a real browser first.
           </p>
@@ -229,7 +229,7 @@ const ReadMe = (): ReactElement => (
         <Card title="3 · The header placement won once">
           <p>
             #982 (2022) A/B tested where to ask; the header stayed (
-            <code>ExperimentWinner.CompanionPermissionPlacement</code> is still{' '}
+            <code>ExperimentWinner.CompanionPermissionPlacement</code> is still{" "}
             <code>&apos;header&apos;</code>). Layout v2 removed that header,
             which is how the ask became an unlabelled square.
           </p>
@@ -287,8 +287,8 @@ const ReadMe = (): ReactElement => (
     >
       <ol className="flex max-w-[85ch] list-decimal flex-col gap-2 pl-5 text-text-secondary typo-callout">
         <li>
-          <strong>Log the reader path</strong> (idea 2): emit{' '}
-          <code>approve content scripts</code> with origin{' '}
+          <strong>Log the reader path</strong> (idea 2): emit{" "}
+          <code>approve content scripts</code> with origin{" "}
           <code>reader permission</code> when the reader grant lands. It tells
           us how many members already have the companion, before we build
           anything.
@@ -300,8 +300,8 @@ const ReadMe = (): ReactElement => (
         </li>
         <li>
           <strong>A/B the contextual asks</strong> against the #7043 card: Read
-          click modal (1), post page pill (3), later card (6). Metric:{' '}
-          <code>approve content scripts</code> per eligible member, split by{' '}
+          click modal (1), post page pill (3), later card (6). Metric:{" "}
+          <code>approve content scripts</code> per eligible member, split by{" "}
           <code>origin</code>. Guardrails: decline rate, extension uninstalls in
           the next 7 days, companion opt-outs.
         </li>
@@ -309,8 +309,8 @@ const ReadMe = (): ReactElement => (
       <p className="max-w-[85ch] text-text-tertiary typo-footnote">
         Flags follow the widget convention already used for this card (
         <code>companion_permission_widget</code>): one boolean per surface, read
-        through <code>useConditionalFeature</code> with a{' '}
-        <code>shouldEvaluate</code> gate, e.g.{' '}
+        through <code>useConditionalFeature</code> with a{" "}
+        <code>shouldEvaluate</code> gate, e.g.{" "}
         <code>companion_read_prompt</code>, <code>companion_post_page_ask</code>
         . Names are placeholders.
       </p>
@@ -378,13 +378,13 @@ const Supporting = (): ReactElement => (
 
 // --- Try it: idea 1 end to end ------------------------------------------------
 
-type Step = 'newtab' | 'prompt' | 'dialog' | 'article';
+type Step = "newtab" | "prompt" | "dialog" | "article";
 
 const TryIt = (): ReactElement => {
-  const [step, setStep] = useState<Step>('newtab');
+  const [step, setStep] = useState<Step>("newtab");
   const [asked, setAsked] = useState(false);
   const [granted, setGranted] = useState(false);
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState("");
   const [log, setLog] = useState<string[]>([]);
   const push = (line: string) => setLog((lines) => [...lines, line]);
 
@@ -393,16 +393,16 @@ const TryIt = (): ReactElement => {
     push(`go to link · ${postTitle}`);
     if (!asked && !granted) {
       setAsked(true);
-      push('impression · companion read prompt');
-      setStep('prompt');
+      push("impression · companion read prompt");
+      setStep("prompt");
       return;
     }
-    setStep('article');
+    setStep("article");
   };
 
   const onEnable = () => {
     push('request content scripts · {"origin":"companion read prompt"}');
-    setStep('dialog');
+    setStep("dialog");
   };
 
   const onDecide = (allow: boolean) => {
@@ -412,11 +412,11 @@ const TryIt = (): ReactElement => {
         : 'decline content scripts · {"origin":"companion read prompt"}',
     );
     setGranted(allow);
-    setStep('article');
+    setStep("article");
   };
 
   const reset = () => {
-    setStep('newtab');
+    setStep("newtab");
     setAsked(false);
     setGranted(false);
     setLog([]);
@@ -432,8 +432,8 @@ const TryIt = (): ReactElement => {
         <div className="flex flex-col gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-text-tertiary typo-footnote">
-              {granted ? 'Permission granted' : 'Permission missing'}
-              {asked && !granted ? ' · already asked once' : ''}
+              {granted ? "Permission granted" : "Permission missing"}
+              {asked && !granted ? " · already asked once" : ""}
             </span>
             <Button
               type="button"
@@ -445,7 +445,7 @@ const TryIt = (): ReactElement => {
               Start over
             </Button>
           </div>
-          {step === 'article' ? (
+          {step === "article" ? (
             <BrowserWindow
               url="frontendweekly.dev/react-re-renders"
               height={460}
@@ -459,7 +459,7 @@ const TryIt = (): ReactElement => {
                   size={ButtonSize.Small}
                   variant={ButtonVariant.Float}
                   icon={<ArrowIcon className="-rotate-90" />}
-                  onClick={() => setStep('newtab')}
+                  onClick={() => setStep("newtab")}
                 >
                   Back to the new tab
                 </Button>
@@ -471,8 +471,8 @@ const TryIt = (): ReactElement => {
               cards={6}
               onRead={onRead}
               overlay={
-                (step === 'prompt' || step === 'dialog') && (
-                  <Scrim onClose={() => setStep('newtab')}>
+                (step === "prompt" || step === "dialog") && (
+                  <Scrim onClose={() => setStep("newtab")}>
                     <div className="flex w-[28rem] flex-col items-center gap-4 rounded-24 bg-background-default p-6 text-center shadow-2">
                       <CompanionPreview title={title} />
                       <span className="font-bold typo-title3">
@@ -488,7 +488,7 @@ const TryIt = (): ReactElement => {
                         variant={ButtonVariant.Primary}
                         className="w-full"
                         onClick={onEnable}
-                        loading={step === 'dialog'}
+                        loading={step === "dialog"}
                       >
                         Enable companion & read
                       </Button>
@@ -497,14 +497,14 @@ const TryIt = (): ReactElement => {
                         variant={ButtonVariant.Float}
                         className="w-full"
                         onClick={() => {
-                          push('skip · companion read prompt');
-                          setStep('article');
+                          push("skip · companion read prompt");
+                          setStep("article");
                         }}
                       >
                         Just open the article
                       </Button>
                     </div>
-                    {step === 'dialog' && (
+                    {step === "dialog" && (
                       <div className="absolute left-1/2 top-0 w-80 -translate-x-1/2 rounded-12 border border-border-subtlest-secondary bg-background-popover p-4 text-left shadow-2">
                         <span className="font-bold typo-footnote">
                           “daily.dev” requests additional permissions:
@@ -573,9 +573,9 @@ const TryIt = (): ReactElement => {
 };
 
 const meta: Meta = {
-  title: 'Extension/Companion reach',
-  parameters: { layout: 'fullscreen' },
-  globals: { theme: 'dark' },
+  title: "Extension/Companion reach",
+  parameters: { layout: "fullscreen" },
+  globals: { theme: "dark" },
 };
 
 export default meta;
@@ -583,23 +583,23 @@ export default meta;
 type Story = StoryObj;
 
 export const ReadMeStory: Story = {
-  name: '1. Read me',
+  name: "1. Read me",
   render: () => <ReadMe />,
 };
 export const MainBetsStory: Story = {
-  name: '2. Main bets',
+  name: "2. Main bets",
   render: () => <MainBets />,
 };
 export const WorthTestingStory: Story = {
-  name: '3. Worth testing',
+  name: "3. Worth testing",
   render: () => <WorthTesting />,
 };
 export const SupportingStory: Story = {
-  name: '4. Supporting',
+  name: "4. Supporting",
   render: () => <Supporting />,
 };
 export const TryItStory: Story = {
-  name: '5. Try it',
+  name: "5. Try it",
   render: () => (
     <ExtensionProviders>
       <TryIt />

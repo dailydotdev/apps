@@ -23,7 +23,7 @@ import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { downloadBrowserExtension, settingsUrl } from '../../../lib/constants';
 import { BrowserName } from '../../../lib/func';
 import { anchorDefaultRel } from '../../../lib/strings';
-import { AUTH_RETURN_PATH_KEY } from '../../onboarding/lib/utils';
+import { setAuthReturnPath } from '../../onboarding/lib/utils';
 import type { AgentClaimInfo } from '../claim';
 import {
   AgentClaimError,
@@ -52,18 +52,6 @@ const copy = {
       'Log in to connect your agent and set up your company page.',
     claimed: 'Head back to your agent, it will set up your company page.',
   },
-};
-
-const setAuthReturnPath = (path?: string): void => {
-  try {
-    if (path) {
-      window.sessionStorage.setItem(AUTH_RETURN_PATH_KEY, path);
-    } else {
-      window.sessionStorage.removeItem(AUTH_RETURN_PATH_KEY);
-    }
-  } catch {
-    // The page works without it; only redirect-mode sign in loses its way back.
-  }
 };
 
 const Card = ({
