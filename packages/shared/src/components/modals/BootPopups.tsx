@@ -205,7 +205,10 @@ export const BootPopups = (): ReactElement => {
    * Boot popup for the App Store review ask (marketing CTA)
    */
   useEffect(() => {
-    if (!appStoreReviewCta) {
+    // The streak milestone and restore modals own the boot they show on. The
+    // ask stays in boot data, so it waits for the next one instead of
+    // stacking on top of them.
+    if (!appStoreReviewCta || !loadedAlerts || hasStreakModalThisBoot.current) {
       return;
     }
 
@@ -221,7 +224,7 @@ export const BootPopups = (): ReactElement => {
         },
       },
     });
-  }, [appStoreReviewCta, updateLastBootPopup]);
+  }, [appStoreReviewCta, loadedAlerts, updateLastBootPopup]);
 
   useEffect(() => {
     if (marketingCtaPopoverSmall) {

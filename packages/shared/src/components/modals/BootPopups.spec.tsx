@@ -92,6 +92,18 @@ describe('BootPopups App Store review ask', () => {
     expect(openModal).not.toHaveBeenCalled();
   });
 
+  it('leaves the boot to the streak milestone modal', async () => {
+    jest.mocked(useAppStoreReviewPrompt).mockReturnValue(reviewCta);
+    renderComponent({ showStreakMilestone: true });
+
+    await new Promise((resolve) => {
+      setTimeout(resolve, 50);
+    });
+    expect(openModal).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: LazyModal.AppStoreReview }),
+    );
+  });
+
   it('opens nothing without an ask', async () => {
     jest.mocked(useAppStoreReviewPrompt).mockReturnValue(null);
     renderComponent();
