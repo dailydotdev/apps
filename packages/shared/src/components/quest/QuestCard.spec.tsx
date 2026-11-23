@@ -58,3 +58,17 @@ describe('QuestCard swap', () => {
     ).not.toBeInTheDocument();
   });
 });
+
+describe('QuestCard chain step', () => {
+  it('shows the step of a quest chain', () => {
+    renderCard(makeQuest({ chainStep: 2, chainLength: 3 }));
+
+    expect(screen.getByText('Step 2/3')).toBeInTheDocument();
+  });
+
+  it('hides the step when the quest is not in a chain', () => {
+    renderCard(makeQuest({ chainStep: null, chainLength: null }));
+
+    expect(screen.queryByText(/^Step /)).not.toBeInTheDocument();
+  });
+});

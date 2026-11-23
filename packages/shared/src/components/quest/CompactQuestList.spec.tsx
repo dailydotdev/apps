@@ -150,6 +150,22 @@ describe('CompactQuestRow swap', () => {
   });
 });
 
+describe('CompactQuestRow chain step', () => {
+  it('shows the step of a quest chain', () => {
+    render(
+      <ul>
+        <CompactQuestRow
+          quest={makeQuest({ chainStep: 1, chainLength: 3 })}
+          isClaiming={false}
+          onClaim={jest.fn()}
+        />
+      </ul>,
+    );
+
+    expect(screen.getByText('Step 1/3')).toBeInTheDocument();
+  });
+});
+
 describe('CompactQuestRow bonus highlight', () => {
   const onRefresh = jest.fn();
   const bonusQuest = makeQuest({

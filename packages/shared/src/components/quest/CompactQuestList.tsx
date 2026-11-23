@@ -28,6 +28,7 @@ import type { QuestReward, UserQuest } from '../../graphql/quests';
 import {
   QuestRewardType,
   QuestStatus,
+  getQuestChainLabel,
   isQuestClaimed,
 } from '../../graphql/quests';
 import {
@@ -144,6 +145,8 @@ export const CompactQuestRow = ({
   const percentage = Math.min(100, Math.round((value / target) * 100));
   const isClaimed = isQuestClaimed(quest);
   const canClaim = quest.claimable && !!quest.userQuestId && !isClaimed;
+  const chainLabel = getQuestChainLabel(quest);
+  const isBadgeAboveTitle = hasBonus && highlight === QuestBonusHighlight.V3;
   const isLockedComplete =
     quest.locked && !isClaimed && quest.status === QuestStatus.Completed;
   // Route each quest to the surface where it can actually be completed (same
@@ -176,9 +179,21 @@ export const CompactQuestRow = ({
         getQuestBonusContainerClassName(highlight, hasBonus && !isClaimed),
       )}
     >
-      {hasBonus && highlight === QuestBonusHighlight.V3 && (
-        <div className="flex">
-          <QuestBonusRewardBadge quest={quest} highlight={highlight} />
+      {(chainLabel || isBadgeAboveTitle) && (
+        <div className="flex items-center gap-2">
+          {chainLabel && (
+            <Typography
+              type={TypographyType.Caption2}
+              color={TypographyColor.Tertiary}
+              bold
+              className="uppercase tracking-[0.12em]"
+            >
+              {chainLabel}
+            </Typography>
+          )}
+          {isBadgeAboveTitle && (
+            <QuestBonusRewardBadge quest={quest} highlight={highlight} />
+          )}
         </div>
       )}
       {/* Title row: title takes the full width with the open-details chevron in
