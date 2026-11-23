@@ -1,4 +1,5 @@
 import { settingsUrl, webappUrl } from '../../lib/constants';
+import { getSupportChatId } from './support';
 
 // The direct message switch lives with the message notifications.
 export const messageSettingsUrl = `${settingsUrl}/notifications`;
@@ -15,6 +16,7 @@ export enum DmOrigin {
   Requests = 'requests',
   Header = 'header',
   FeedWidget = 'feed widget',
+  CompanyPage = 'company page',
 }
 
 const dmOrigins = new Set<string>(Object.values(DmOrigin));
@@ -38,7 +40,9 @@ export const getMessagesUrl = (
     origin?: DmOrigin;
   } = {},
 ): string => {
-  const path = `${webappUrl}messages${peerId ? `/${peerId}` : ''}`;
+  const supportChatId = getSupportChatId(peerId);
+  const peerPath = supportChatId ? `support/${supportChatId}` : peerId;
+  const path = `${webappUrl}messages${peerPath ? `/${peerPath}` : ''}`;
   const params = new URLSearchParams();
 
   if (requests) {
