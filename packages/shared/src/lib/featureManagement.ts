@@ -118,10 +118,6 @@ export const featureStreakImprovements = new Feature(
   false,
 );
 
-export const featureGtaViFreezeDay = new Feature('gta_vi_freeze_day', false);
-
-export const featureGtaViTheme = new Feature('gta_vi_theme', false);
-
 // Patchy, the streak companion: his face in the rail Streak tab reacts to what
 // you do, he offers small suggestions in a bubble, and his menu sits in the
 // Streak panel (laptop rail only)

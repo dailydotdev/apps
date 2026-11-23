@@ -55,14 +55,12 @@ type ReadMarker = 'none' | 'flame';
 
 interface SceneState {
   today: Date;
-  isEnabled: boolean;
   forceOpen: boolean;
   readMarker: ReadMarker;
 }
 
 const SceneContext = createContext<SceneState>({
   today: new Date(),
-  isEnabled: true,
   forceOpen: false,
   readMarker: 'none',
 });
@@ -74,8 +72,6 @@ interface SceneProps {
   today: Date;
   /** Days before today (0 is today) the reader read. */
   reads?: number[];
-  /** The gta_vi_freeze_day flag; off is production's control. */
-  isEnabled?: boolean;
   /** Pins the VI tooltip open, for side-by-side review. */
   forceOpen?: boolean;
   /** How release day shows a read: VI only, or VI with a flame badge. */
@@ -87,7 +83,6 @@ interface SceneProps {
 export const Scene = ({
   today,
   reads = [4, 1, 0],
-  isEnabled = true,
   forceOpen = false,
   readMarker = 'none',
   children,
@@ -106,8 +101,8 @@ export const Scene = ({
     return queryClient;
   });
   const scene = useMemo(
-    () => ({ today, isEnabled, forceOpen, readMarker }),
-    [today, isEnabled, forceOpen, readMarker],
+    () => ({ today, forceOpen, readMarker }),
+    [today, forceOpen, readMarker],
   );
 
   return (
@@ -181,7 +176,7 @@ const useDays = (dates: Date[]) => {
 
 /** StreakMonthCalendar (sidebar panel, phone drawer, feed widget). */
 export const GtaViCalendar = (): ReactElement => {
-  const { today, isEnabled } = useScene();
+  const { today } = useScene();
   const dates = useMemo(() => {
     const start = subDays(today, LEADING_DAYS);
     return Array.from({ length: DAYS }, (_, index) => addDays(start, index));
@@ -192,7 +187,7 @@ export const GtaViCalendar = (): ReactElement => {
     <div className="grid grid-cols-10 gap-x-2 gap-y-2.5">
       {days.map(({ date, state, isToday }) => {
         const isRead = state === Streak.Completed;
-        if (isEnabled && isGtaViReleaseDay(date)) {
+        if (isGtaViReleaseDay(date)) {
           return (
             <GtaViTooltip key={date.getTime()}>
               <button
@@ -266,7 +261,7 @@ export const GtaViCalendar = (): ReactElement => {
  * disc is a touch bigger.
  */
 export const GtaViWeekStrip = (): ReactElement => {
-  const { today, isEnabled } = useScene();
+  const { today } = useScene();
   const dates = useMemo(() => getStreakDays(today), [today]);
   const days = useDays(dates);
 
@@ -284,7 +279,7 @@ export const GtaViWeekStrip = (): ReactElement => {
             {dateFormatInTimezone(date, 'iiiii', timezone)}
           </span>
         );
-        if (isEnabled && isGtaViReleaseDay(date)) {
+        if (isGtaViReleaseDay(date)) {
           return (
             <GtaViTooltip key={date.getTime()}>
               <button

@@ -281,26 +281,6 @@ export const AllStates: Story = {
           </Scene>
         </Case>
       </Section>
-
-      <Section
-        title="6. Control"
-        lead="gta_vi_freeze_day off, production's default: release day is a plain day."
-      >
-        <Case title="Flag off, calendar" tag="Control">
-          <Scene today={day('2026-11-09')} isEnabled={false}>
-            <GtaViSidebarPanel />
-          </Scene>
-        </Case>
-        <Case title="Flag off, week strip" tag="Control">
-          <Scene
-            today={day('2026-11-19')}
-            reads={[1, 2, 3, 4]}
-            isEnabled={false}
-          >
-            <GtaViPopover />
-          </Scene>
-        </Case>
-      </Section>
     </div>
   ),
 };

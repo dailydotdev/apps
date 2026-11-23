@@ -27,8 +27,7 @@ import type { UserStreak } from '@dailydotdev/shared/src/graphql/users';
 import { DayOfWeek } from '@dailydotdev/shared/src/lib/date';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import { defaultBootData, getBootMock } from '../../../mock/boot';
-import { FeatureOverrides } from '../../../mock/GrowthBookProvider';
-import { GtaViPinOpenContext, gtaViFreezeDayFeature } from '../gtaViParts';
+import { GtaViPinOpenContext } from '../gtaViParts';
 
 /*
  * Production's own providers (BootDataProvider: auth, settings, logging,
@@ -170,8 +169,6 @@ const questDashboard = {
 interface ProductionSceneProps {
   /** Days before today (0 is today) the reader read. */
   reads?: number[];
-  /** gta_vi_freeze_day; off is production as it is today. */
-  isEnabled?: boolean;
   /** Pins every GTA VI tooltip open. */
   pinOpen?: boolean;
   children: ReactNode;
@@ -179,7 +176,6 @@ interface ProductionSceneProps {
 
 export const ProductionScene = ({
   reads = [4, 1, 0],
-  isEnabled = true,
   pinOpen = false,
   children,
 }: ProductionSceneProps): ReactElement => {
@@ -230,11 +226,9 @@ export const ProductionScene = ({
         localBootData={getBootMock(readerBoot())}
       >
         <ActiveFeedContext.Provider value={{ items: [], queryKey: [] }}>
-          <FeatureOverrides values={{ [gtaViFreezeDayFeature.id]: isEnabled }}>
-            <GtaViPinOpenContext.Provider value={pinOpen}>
-              {children}
-            </GtaViPinOpenContext.Provider>
-          </FeatureOverrides>
+          <GtaViPinOpenContext.Provider value={pinOpen}>
+            {children}
+          </GtaViPinOpenContext.Provider>
         </ActiveFeedContext.Provider>
       </BootDataProvider>
     </QueryClientProvider>
