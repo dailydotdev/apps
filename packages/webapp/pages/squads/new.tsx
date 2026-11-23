@@ -26,7 +26,7 @@ import { useSlackConnectSourceMutation } from '@dailydotdev/shared/src/hooks/int
 import { SourceMemberRole } from '@dailydotdev/shared/src/graphql/sources';
 import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
-import { CompanyPageCreate } from '@dailydotdev/shared/src/features/squads/components/companyPage/CompanyPageCreate';
+import { CompanyPageFromWebsite } from '@dailydotdev/shared/src/features/squads/components/companyPage/CompanyPageFromWebsite';
 import { saveCheckoutAttribution } from '@dailydotdev/shared/src/features/squads/lib/checkoutAttribution';
 import type { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
 import MainLayout from '../../components/layouts/MainLayout';
@@ -103,7 +103,7 @@ const NewSquad = (): ReactElement => {
           title={companySeoTitles.title}
           openGraph={{ ...seo.openGraph, ...companySeoTitles.openGraph }}
         />
-        <CompanyPageCreate />
+        <CompanyPageFromWebsite />
         <PromptElement />
         <Toast autoDismissNotifications />
         {/* The landing CTAs open here, so the recording carries on from /startups/ */}
