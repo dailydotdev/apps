@@ -21,13 +21,14 @@ export const AiWrittenWarning = (): ReactElement | null => {
   }
 
   return (
-    <div className="flex w-full shrink-0 items-center gap-2 bg-status-warning/[0.1] py-1 pl-5 pr-3 text-text-secondary typo-caption1">
+    <div className="flex w-full shrink-0 items-center gap-2 bg-status-info/[0.1] py-1 pl-5 pr-3 text-text-secondary typo-caption1">
       <InfoIcon
         size={IconSize.Size16}
         secondary
-        className="shrink-0 text-status-warning"
+        className="shrink-0 text-status-info"
       />
       <span className="min-w-0 flex-1">
+        <strong className="font-bold text-text-primary">Tip:</strong>{' '}
         AI-generated posts get limited reach. Our community wants to read your
         stories in your own words.{' '}
         <a
@@ -44,7 +45,7 @@ export const AiWrittenWarning = (): ReactElement | null => {
         size={ButtonSize.XSmall}
         className="shrink-0"
         onClick={() => completeAction(ActionType.DismissComposerAiWarning)}
-        aria-label="Dismiss AI-generated posts warning"
+        aria-label="Dismiss AI-generated posts tip"
       />
     </div>
   );
