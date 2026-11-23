@@ -219,7 +219,7 @@ export const ProposedHero = ({
               src={PATCHY_ART}
               alt="Patchy reading a book"
               className={classNames(
-                'mb-3 size-32 object-contain transition-transform tablet:mb-2 tablet:size-16',
+                'mb-3 h-32 w-auto object-contain transition-transform tablet:mb-2 tablet:h-16',
                 props.step === 'saved' && 'scale-110',
               )}
             />
@@ -269,7 +269,7 @@ export const ProposedTopHero = ({
         <img
           src={PATCHY_ART}
           alt="Patchy reading a book"
-          className="-my-1 size-12 object-contain"
+          className="-my-1 h-12 w-auto object-contain"
         />
         <h3 className="font-bold text-text-primary typo-callout">{title}</h3>
       </div>

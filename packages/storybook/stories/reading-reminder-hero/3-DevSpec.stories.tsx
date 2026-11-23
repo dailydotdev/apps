@@ -566,7 +566,7 @@ export const DevSpec: StoryObj = {
               <Code>cloudinaryPatchyReading</Code> to <Code>lib/image.ts</Code>.
               In this PR it’s served from Storybook’s public folder.
             </>,
-            'Shown at 128px (phone), 64px (tablet) and 48px (laptop). The 512px original keeps it sharp at 2x.',
+            'Trimmed to the art, shown 128px tall on phones, 64px on tablets and 48px on laptop; the WebP is 274px tall for 2x screens.',
           ]}
         />
       </Section>
