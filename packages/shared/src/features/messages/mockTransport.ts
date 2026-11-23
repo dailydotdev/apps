@@ -248,6 +248,8 @@ export const createMockTransport = (userId: string): DmTransport => {
     },
     // The canned reply types on its own schedule.
     sendChatState: async () => undefined,
+    // The mock has no support chats.
+    refreshSupportChats: () => undefined,
     markRead: async (peerId) => {
       if (!store[peerId]?.unreadCount) {
         return;
