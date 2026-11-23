@@ -173,6 +173,91 @@ it('keeps the legacy viewed pixel and measurement when lifecycle is disabled for
   expect(src).toHaveBeenCalledTimes(2);
 });
 
+it.each([false, true])(
+  'keeps completed viewability across metadata changes with configured viewable=%s',
+  (configuredViewable) => {
+    const gb = lifecycleFlags();
+    const client = new QueryClient();
+    const onViewable = jest.fn();
+    const legacy: Ad = {
+      ...ad,
+      generationId: `read-selected-viewability-${configuredViewable}`,
+      pixel: [ownPixel],
+    };
+    const configured: Ad = {
+      ...legacy,
+      lifecycle: {
+        version: 1,
+        on: {
+          visible: [{ type: 'pixel', url: thirdPartyPixel }],
+          ...(configuredViewable && {
+            viewable: [{ type: 'event', name: 'viewable impression' }],
+          }),
+        },
+      },
+    };
+    const show = (creative: Ad) => (
+      <TestBootProvider client={client} gb={gb}>
+        <AdViewability ad={creative} onViewable={onViewable} />
+      </TestBootProvider>
+    );
+    const { rerender } = render(show(legacy));
+    becomeViewable();
+    const tracker = screen.getByTestId('adViewability');
+    const pixel = screen.getByTestId('pixel');
+    for (const creative of [configured, legacy, configured]) {
+      rerender(show(creative));
+      becomeViewable();
+      expect(screen.getByTestId('adViewability')).toBe(tracker);
+      expect(screen.getByTestId('pixel')).toBe(pixel);
+      expect(onViewable).toHaveBeenCalledTimes(1);
+    }
+
+    rerender(
+      show({
+        ...configured,
+        generationId: `next-selected-viewability-${configuredViewable}`,
+      }),
+    );
+    expect(screen.queryByTestId('pixel')).not.toBeInTheDocument();
+    becomeViewable();
+    expect(onViewable).toHaveBeenCalledTimes(2);
+  },
+);
+
+it('does not add a legacy viewed pixel when configured viewability already fired before rollback', () => {
+  const gb = lifecycleFlags();
+  const client = new QueryClient();
+  const onViewable = jest.fn();
+  const src = jest.spyOn(HTMLImageElement.prototype, 'src', 'set');
+  const creative: Ad = {
+    ...ad,
+    generationId: 'configured-viewability-rollback',
+    pixel: [ownPixel],
+    lifecycle: {
+      version: 1,
+      on: {
+        viewable: [
+          { type: 'event', name: 'viewable impression' },
+          { type: 'pixel', url: `${ownPixel}?viewed=true` },
+        ],
+      },
+    },
+  };
+  const show = (adToShow: Ad) => (
+    <TestBootProvider client={client} gb={gb}>
+      <AdViewability ad={adToShow} onViewable={onViewable} />
+    </TestBootProvider>
+  );
+  const { rerender } = render(show(creative));
+  becomeViewable();
+  rerender(show({ ...creative, lifecycle: undefined }));
+  becomeViewable();
+  expect(screen.queryByTestId('pixel')).not.toBeInTheDocument();
+  expect(src.mock.calls).toEqual([[`${ownPixel}?viewed=true`]]);
+  expect(onViewable).toHaveBeenCalledTimes(1);
+});
+
 it('runs configured actions in order and once per creative generation', () => {
   const configured: Ad = {
     ...ad,

@@ -99,20 +99,21 @@ const useFittedSlots = (
  * first client render in agreement.
  */
 const useDeck = (pool: SponsorStripCreative[]): SponsorStripCreative[] => {
-  // Identity, not the array: the pool is rebuilt on every render of the query,
-  // and reshuffling then would deal a new row under the reader.
+  // Keep the deal when metadata changes, but return the current creatives.
   const poolKey = pool.map(({ generation_id: genId }) => genId).join(',');
 
-  return useMemo(
-    () => shuffleArray(pool),
+  const order = useMemo(
+    () => shuffleArray(pool.map((_, index) => index)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [poolKey],
   );
+
+  return useMemo(() => order.map((index) => pool[index]), [order, pool]);
 };
 
 export const useSponsorStripAds = (): UseSponsorStripAds => {
   const consent = useAdMacroContext(true) ?? undefined;
-  const { isEnabled, resolveAd } = useAdLifecycle();
+  const { resolveAd } = useAdLifecycle();
   const onFetch = useAdSlotFetch(consent ?? null);
   const { data, isPending } = useQuery({
     // Consent fingerprint, so the bar refetches when the reader answers the
@@ -122,13 +123,10 @@ export const useSponsorStripAds = (): UseSponsorStripAds => {
       AdPlacement.SponsorStrip,
       consent?.gdprApplies,
       consent?.consentString ?? '',
-      isEnabled,
     ],
     queryFn: async () => {
       const response = await fetchSponsorStripAds(consent);
-      const creatives = parseSponsors(response).map((creative) =>
-        resolveAd(creative),
-      );
+      const creatives = parseSponsors(response);
       creatives.forEach((creative) =>
         onFetch({
           type: 'post-fetch',
@@ -137,7 +135,6 @@ export const useSponsorStripAds = (): UseSponsorStripAds => {
       );
       return creatives;
     },
-    enabled: !isEnabled || !!consent,
     staleTime: ONE_HOUR,
     ...disabledRefetch,
   });

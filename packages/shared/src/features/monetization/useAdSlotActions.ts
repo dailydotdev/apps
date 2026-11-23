@@ -7,9 +7,9 @@ import { runAdSlotActions } from './adSlotLifecycle';
 import { useAdMacroContext } from './useAdMacroContext';
 import { useAdLifecycle } from './useAdLifecycle';
 
-export const useAdSlotActions = (ad: Ad) => {
+export const useAdSlotActions = (ad?: Ad) => {
   const { logEvent } = useLogContext();
-  const { isEnabled } = useAdLifecycle(!!ad.lifecycle);
+  const { isEnabled } = useAdLifecycle(!!ad?.lifecycle);
   const macros = useAdMacroContext(isEnabled);
 
   return useCallback(
@@ -18,7 +18,7 @@ export const useAdSlotActions = (ad: Ad) => {
       extra?: Record<string, unknown>,
       onEvent?: (name: string) => boolean,
     ) => {
-      if (!isEnabled || !macros) {
+      if (!ad || !isEnabled || !macros) {
         return;
       }
       runAdSlotActions({

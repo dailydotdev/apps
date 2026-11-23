@@ -44,6 +44,7 @@ export const useViewability = <T extends HTMLElement = HTMLElement>({
 }: UseViewabilityProps): UseViewability<T> => {
   const [element, setElement] = useState<T | null>(null);
   const [isViewable, setIsViewable] = useState(false);
+  const hasReportedViewable = useRef(false);
   const onViewableRef = useRef(onViewable);
   onViewableRef.current = onViewable;
   const onVisibilityRef = useRef(onVisibility);
@@ -54,6 +55,7 @@ export const useViewability = <T extends HTMLElement = HTMLElement>({
   const ref = useCallback((node: T | null) => setElement(node), []);
 
   useEffect(() => {
+    hasReportedViewable.current = false;
     setIsViewable(false);
   }, [trackingKey]);
 
@@ -72,7 +74,7 @@ export const useViewability = <T extends HTMLElement = HTMLElement>({
     let meetsRatio = false;
     let visible = false;
     let ratio = 0;
-    let reportedViewable = false;
+    let reportedViewable = hasReportedViewable.current;
     let pageHidden = false;
     let timeout: ReturnType<typeof setTimeout> | undefined;
     let visibleTimeout: ReturnType<typeof setTimeout> | undefined;
@@ -102,6 +104,7 @@ export const useViewability = <T extends HTMLElement = HTMLElement>({
       }
       stopTimer();
       reportedViewable = true;
+      hasReportedViewable.current = true;
       setIsViewable(true);
       onViewableRef.current?.({
         ...met,

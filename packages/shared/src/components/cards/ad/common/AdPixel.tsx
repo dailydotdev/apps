@@ -5,7 +5,6 @@ import type { Ad } from '../../../../graphql/posts';
 import { isTesting } from '../../../../lib/constants';
 import { substituteMacros } from '../../../../features/monetization/adMacros';
 import { useAdMacroContext } from '../../../../features/monetization/useAdMacroContext';
-import type { AdSlotAction } from '../../../../features/monetization/adSlotLifecycle';
 import {
   getAdSlotImpressionPixels,
   getAdSlotLifecycle,
@@ -73,25 +72,24 @@ const AdPixelTracker = ({
   );
 };
 
-const ConfiguredAdPixel = ({
+export const AdPixel = ({
   ad,
-  actions,
+  pixel: fallbackPixel,
   fireOnMount,
-}: Omit<AdPixelProps, 'ad' | 'pixel'> & {
-  ad: Ad;
-  actions: AdSlotAction[];
-}): ReactElement => {
-  const { isEnabled } = useAdLifecycle(true);
+}: AdPixelProps): ReactElement => {
+  const { isEnabled } = useAdLifecycle(!!ad?.lifecycle);
+  const actions = ad && getAdSlotLifecycle(ad)?.on.impression;
+  const legacyPixel = ad?.pixel ?? fallbackPixel;
   const pixel = useMemo(() => {
-    if (!isEnabled) {
-      return ad.pixel;
+    if (!isEnabled || !Array.isArray(actions)) {
+      return legacyPixel;
     }
     const configured = getAdSlotImpressionPixels(actions);
-    return configured.length === ad.pixel?.length &&
-      configured.every((url, index) => url === ad.pixel?.[index])
-      ? ad.pixel
+    return configured.length === legacyPixel?.length &&
+      configured.every((url, index) => url === legacyPixel?.[index])
+      ? legacyPixel
       : configured;
-  }, [actions, ad.pixel, isEnabled]);
+  }, [actions, legacyPixel, isEnabled]);
   const transition = useAdSlotActions(ad);
 
   return (
@@ -100,21 +98,5 @@ const ConfiguredAdPixel = ({
       fireOnMount={fireOnMount}
       onImpression={() => transition('impression')}
     />
-  );
-};
-
-export const AdPixel = ({
-  ad,
-  pixel,
-  fireOnMount,
-}: AdPixelProps): ReactElement => {
-  const actions = ad && getAdSlotLifecycle(ad)?.on.impression;
-  if (ad && Array.isArray(actions)) {
-    return (
-      <ConfiguredAdPixel ad={ad} actions={actions} fireOnMount={fireOnMount} />
-    );
-  }
-  return (
-    <AdPixelTracker pixel={ad?.pixel ?? pixel} fireOnMount={fireOnMount} />
   );
 };

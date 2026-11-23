@@ -1,6 +1,12 @@
 import type { ReactNode } from 'react';
 import React from 'react';
-import { renderHook, waitFor } from '@testing-library/react';
+import {
+  act,
+  render,
+  renderHook,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { GrowthBook } from '@growthbook/growthbook-react';
 import ad from '../../../__tests__/fixture/ad';
@@ -8,6 +14,8 @@ import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import type { Ad } from '../../graphql/posts';
 import { AdPlacement } from '../../lib/ads';
 import { FeaturesReadyContext } from '../../components/GrowthBookProvider';
+import { AdPixel } from '../../components/cards/ad/common/AdPixel';
+import { AdSlot } from '../../components/cards/ad/common/AdSlot';
 import { useFetchAd } from './useFetchAd';
 import { useAdQuery } from './useAdQuery';
 import { useAdMacroContext } from './useAdMacroContext';
@@ -33,6 +41,26 @@ const wrapper = ({ children }: { children: ReactNode }) => (
     {children}
   </TestBootProvider>
 );
+
+const setLifecycleEnabled = (enabled: boolean) =>
+  act(() => gb.setFeatures({ ad_slot_lifecycle: { defaultValue: enabled } }));
+
+const sponsorPool = () =>
+  Array.from({ length: 8 }, (_, index) => ({
+    generation_id: `pool-${generation}-${index}`,
+    company_name: `Sponsor ${index}`,
+    icon: `https://images.example/${index}.svg`,
+    link: `https://advertiser.example/${index}`,
+    pixels: ['https://tracking.example/impression'],
+    lifecycle: {
+      version: 1,
+      on: {
+        'post-fetch': [
+          { type: 'pixel', url: `https://tracking.example/fetched-${index}` },
+        ],
+      },
+    },
+  }));
 
 beforeEach(() => {
   generation += 1;
@@ -90,7 +118,7 @@ it.each([false, true])(
 );
 
 it.each([false, true])(
-  'caches single-slot ads with lifecycle=%s',
+  'filters single-slot reads while retaining cached lifecycle with lifecycle=%s',
   async (enabled) => {
     gb.setFeatures({ ad_slot_lifecycle: { defaultValue: enabled } });
     const { result } = renderHook(
@@ -110,7 +138,7 @@ it.each([false, true])(
       .getQueryCache()
       .getAll()
       .find((query) => query.queryKey[0] === 'review-ad')?.state.data as Ad;
-    expect(cached.lifecycle).toEqual(enabled ? creative.lifecycle : undefined);
+    expect(cached.lifecycle).toEqual(creative.lifecycle);
     expect(cached.pixel).toEqual(creative.pixel);
   },
 );
@@ -142,6 +170,79 @@ it('keeps fetching legacy ads while feature flags have not resolved', async () =
   expect(result.current.data?.lifecycle).toBeUndefined();
 });
 
+it('applies resolved and toggled flags to the same cached creative without refetching', async () => {
+  let ready = false;
+  gb.setFeatures({ ad_slot_lifecycle: { defaultValue: true } });
+  const src = jest.spyOn(HTMLImageElement.prototype, 'src', 'set');
+  const pendingWrapper = ({ children }: { children: ReactNode }) => (
+    <TestBootProvider client={client} gb={gb}>
+      <FeaturesReadyContext.Provider
+        value={{ ready, settled: ready, getFeatureValue: jest.fn() }}
+      >
+        {children}
+      </FeaturesReadyContext.Provider>
+    </TestBootProvider>
+  );
+  const { result, rerender } = renderHook(
+    () => useAdQuery({ placement: AdPlacement.Feed, queryKey: ['flag-ad'] }),
+    { wrapper: pendingWrapper },
+  );
+  await waitFor(() => expect(result.current.isSuccess).toBe(true));
+  expect(result.current.data?.lifecycle).toBeUndefined();
+
+  ready = true;
+  rerender();
+  await waitFor(() =>
+    expect(result.current.data?.lifecycle).toEqual(creative.lifecycle),
+  );
+  setLifecycleEnabled(false);
+  rerender();
+  expect(result.current.data?.lifecycle).toBeUndefined();
+  setLifecycleEnabled(true);
+  rerender();
+  expect(result.current.data?.lifecycle).toEqual(creative.lifecycle);
+  expect(result.current.data?.generationId).toBe(creative.generationId);
+  expect(global.fetch).toHaveBeenCalledTimes(1);
+  expect(src).not.toHaveBeenCalled();
+});
+
+it('keeps the mounted card and impression image when lifecycle configuration appears or disappears', async () => {
+  creative.lifecycle = {
+    version: 1,
+    on: {
+      impression: creative.pixel?.map((url) => ({ type: 'pixel', url })),
+      click: [{ type: 'pixel', url: 'https://tracking.example/click' }],
+    },
+  };
+  const Slot = () => {
+    const { data } = useAdQuery({
+      placement: AdPlacement.Feed,
+      queryKey: ['mounted-flag-ad'],
+    });
+    return data ? (
+      <AdSlot ad={data}>
+        {(slotProps) => (
+          <article {...slotProps} data-testid="creative">
+            <AdPixel ad={data} />
+          </article>
+        )}
+      </AdSlot>
+    ) : null;
+  };
+  const { rerender } = render(<Slot />, { wrapper });
+  const pixel = await screen.findByTestId('pixel');
+  const root = screen.getByTestId('creative');
+  const source = pixel.getAttribute('src');
+  for (const enabled of [true, false, true]) {
+    setLifecycleEnabled(enabled);
+    rerender(<Slot />);
+    expect(screen.getByTestId('creative')).toBe(root);
+    expect(screen.getByTestId('pixel')).toBe(pixel);
+    expect(pixel).toHaveAttribute('src', source);
+  }
+  expect(global.fetch).toHaveBeenCalledTimes(1);
+});
+
 it('retries a transient initial failure instead of caching no fill', async () => {
   client = new QueryClient({
     defaultOptions: { queries: { retry: 1, retryDelay: 0 } },
@@ -168,24 +269,10 @@ it('retries a transient initial failure instead of caching no fill', async () =>
 });
 
 it.each([false, true])(
-  'runs pool post-fetch actions and caches sponsors with lifecycle=%s',
+  'gates pool post-fetch actions and retains cached metadata with lifecycle=%s',
   async (enabled) => {
     gb.setFeatures({ ad_slot_lifecycle: { defaultValue: enabled } });
-    const pool = Array.from({ length: 8 }, (_, index) => ({
-      generation_id: `pool-${generation}-${index}`,
-      company_name: `Sponsor ${index}`,
-      icon: `https://images.example/${index}.svg`,
-      link: `https://advertiser.example/${index}`,
-      pixels: ['https://tracking.example/impression'],
-      lifecycle: {
-        version: 1,
-        on: {
-          'post-fetch': [
-            { type: 'pixel', url: `https://tracking.example/fetched-${index}` },
-          ],
-        },
-      },
-    }));
+    const pool = sponsorPool();
     jest.mocked(global.fetch).mockResolvedValue({
       ok: true,
       json: async () => ({ value: { advertiser_bar: { community: pool } } }),
@@ -201,10 +288,46 @@ it.each([false, true])(
       .find((query) => query.queryKey.includes(AdPlacement.SponsorStrip))?.state
       .data as Array<{ lifecycle?: unknown }>;
     expect(cached).toHaveLength(pool.length);
-    expect(cached.every((item) => !!item.lifecycle === enabled)).toBe(true);
+    expect(cached.every((item) => !!item.lifecycle)).toBe(true);
     const pixels = src.mock.calls
       .map(([url]) => url)
       .filter((url) => url.startsWith('https://tracking.example/fetched-'));
     expect(pixels).toHaveLength(enabled ? pool.length : 0);
   },
 );
+
+it('keeps the sponsor deal and request while flag changes update every dealt creative', async () => {
+  const pool = sponsorPool();
+  jest.mocked(global.fetch).mockResolvedValue({
+    ok: true,
+    json: async () => ({ value: { advertiser_bar: { community: pool } } }),
+  } as Response);
+  jest
+    .spyOn(Element.prototype, 'getBoundingClientRect')
+    .mockReturnValue({ width: 4_000 } as DOMRect);
+  const src = jest.spyOn(HTMLImageElement.prototype, 'src', 'set');
+  const { result, rerender } = renderHook(() => useSponsorStripAds(), {
+    wrapper,
+  });
+  act(() => result.current.wallRef(document.createElement('div')));
+  await waitFor(() =>
+    expect(result.current.community).toHaveLength(pool.length),
+  );
+  const order = result.current.community.map(({ genId }) => genId);
+  expect(result.current.community.every((item) => !item.lifecycle)).toBe(true);
+
+  for (const enabled of [true, false, true]) {
+    setLifecycleEnabled(enabled);
+    rerender();
+    expect(result.current.community.map(({ genId }) => genId)).toEqual(order);
+    expect(
+      result.current.community.every((item) => !!item.lifecycle === enabled),
+    ).toBe(true);
+  }
+  expect(global.fetch).toHaveBeenCalledTimes(1);
+  expect(
+    src.mock.calls.filter(([url]) =>
+      url.startsWith('https://tracking.example/'),
+    ),
+  ).toHaveLength(0);
+});

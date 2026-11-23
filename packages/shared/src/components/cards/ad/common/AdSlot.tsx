@@ -17,7 +17,7 @@ interface AdSlotProps {
   trackClicks?: boolean;
 }
 
-const ConfiguredAdSlot = ({
+export const AdSlot = ({
   ad,
   children,
   trackClicks = true,
@@ -56,30 +56,5 @@ const ConfiguredAdSlot = ({
     isEnabled && trackClicks && getAdSlotLifecycle(ad)?.on.click?.length
       ? { onClickCapture: onClick, onAuxClickCapture: onClick }
       : {},
-  );
-};
-
-export const AdSlot = ({
-  ad,
-  children,
-  trackClicks = true,
-}: AdSlotProps): ReactElement => {
-  const lifecycle = getAdSlotLifecycle(ad);
-  if (
-    !lifecycle?.on['pre-render']?.length &&
-    !lifecycle?.on['post-render']?.length &&
-    (!trackClicks || !lifecycle?.on.click?.length)
-  ) {
-    return children({});
-  }
-
-  return (
-    <ConfiguredAdSlot
-      key={ad.generationId ?? ad.link}
-      ad={ad}
-      trackClicks={trackClicks}
-    >
-      {children}
-    </ConfiguredAdSlot>
   );
 };

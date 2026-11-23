@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { Ad } from '../../../../graphql/posts';
 import type { ViewabilityData } from '../../../../features/monetization/viewability';
 import { useViewability } from '../../../../features/monetization/useViewability';
@@ -10,10 +10,7 @@ import { useAdSlotActions } from '../../../../features/monetization/useAdSlotAct
 import { useAdLifecycle } from '../../../../features/monetization/useAdLifecycle';
 import { viewabilityLogExtra } from '../../../../features/monetization/viewability';
 import { AdActions } from '../../../../lib/ads';
-import type {
-  AdSlotLifecycle,
-  AdSlotVisibilityMilestone,
-} from '../../../../features/monetization/adSlotLifecycle';
+import type { AdSlotVisibilityMilestone } from '../../../../features/monetization/adSlotLifecycle';
 
 const visibilityMilestoneNames: AdSlotVisibilityMilestone[] = [
   'visible',
@@ -35,58 +32,39 @@ interface AdViewabilityProps {
  * met, so the ad server counts the viewable impression from the same tracker
  * it already counts the render with.
  */
-const LegacyAdViewability = ({
+export const AdViewability = ({
   ad,
   onViewable,
 }: AdViewabilityProps): ReactElement => {
-  const { ref, isViewable } = useViewability<HTMLDivElement>({
-    onViewable,
-    trackingKey: ad.generationId ?? ad.link,
-  });
-  const viewedPixels = useMemo(() => getViewedPixels(ad.pixel), [ad.pixel]);
-
-  // The viewed pixel rides inside the tracker so it stays out of flow: cards
-  // that space their children with `gap-*` would otherwise grow by one gap.
-  return (
-    <div
-      ref={ref}
-      aria-hidden
-      data-testid="adViewability"
-      className="pointer-events-none absolute inset-0"
-    >
-      {isViewable && !!viewedPixels.length && (
-        <AdPixel pixel={viewedPixels} fireOnMount />
-      )}
-    </div>
-  );
-};
-
-const ConfiguredAdViewability = ({
-  ad,
-  onViewable,
-  lifecycle,
-}: AdViewabilityProps & { lifecycle: AdSlotLifecycle }): ReactElement => {
-  const { isEnabled } = useAdLifecycle(true);
+  const { isEnabled } = useAdLifecycle(!!ad.lifecycle);
+  const lifecycle = isEnabled ? getAdSlotLifecycle(ad) : undefined;
   const transition = useAdSlotActions(ad);
-  const configuredViewable = isEnabled && Array.isArray(lifecycle.on.viewable);
-  const viewedPixels = useMemo(
-    () => (configuredViewable ? [] : getViewedPixels(ad.pixel)),
-    [ad.pixel, configuredViewable],
+  const configuredViewable = Array.isArray(lifecycle?.on.viewable);
+  const legacyViewedPixels = useMemo(
+    () => getViewedPixels(ad.pixel),
+    [ad.pixel],
   );
+  const trackingKey = ad.generationId ?? ad.link;
+  const [deliveredPixels, setDeliveredPixels] = useState<{
+    trackingKey: string;
+    pixels: string[];
+  }>();
   const visibilityMilestones = useMemo(
     () =>
-      isEnabled
-        ? visibilityMilestoneNames.filter(
-            (milestone) => !!lifecycle.on[milestone]?.length,
-          )
-        : [],
-    [isEnabled, lifecycle],
+      visibilityMilestoneNames.filter(
+        (milestone) => !!lifecycle?.on[milestone]?.length,
+      ),
+    [lifecycle],
   );
   const { ref, isViewable } = useViewability<HTMLDivElement>({
-    trackingKey: ad.generationId ?? ad.link,
+    trackingKey,
     onVisibility: transition,
     visibilityMilestones,
     onViewable: (data) => {
+      setDeliveredPixels({
+        trackingKey,
+        pixels: configuredViewable ? [] : legacyViewedPixels,
+      });
       if (!configuredViewable) {
         onViewable(data);
         return;
@@ -100,7 +78,12 @@ const ConfiguredAdViewability = ({
       });
     },
   });
+  const viewedPixels =
+    deliveredPixels && deliveredPixels.trackingKey === trackingKey
+      ? deliveredPixels.pixels
+      : [];
 
+  // Keep the pixel out of flow so it cannot add a gap to the card's layout.
   return (
     <div
       ref={ref}
@@ -112,26 +95,5 @@ const ConfiguredAdViewability = ({
         <AdPixel pixel={viewedPixels} fireOnMount />
       )}
     </div>
-  );
-};
-
-export const AdViewability = (props: AdViewabilityProps): ReactElement => {
-  const lifecycle = getAdSlotLifecycle(props.ad);
-  if (
-    !lifecycle ||
-    (!Array.isArray(lifecycle.on.viewable) &&
-      !visibilityMilestoneNames.some(
-        (milestone) => lifecycle.on[milestone]?.length,
-      ))
-  ) {
-    return <LegacyAdViewability {...props} />;
-  }
-
-  return (
-    <ConfiguredAdViewability
-      key={props.ad.generationId ?? props.ad.link}
-      {...props}
-      lifecycle={lifecycle}
-    />
   );
 };

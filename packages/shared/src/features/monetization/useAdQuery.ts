@@ -56,7 +56,7 @@ export const useAdQuery = ({
   isRefreshable = false,
 }: UseAdQueryOptions) => {
   const consent = useAdRequestConsent(enabled);
-  const { isEnabled: isLifecycleEnabled, resolveAd } = useAdLifecycle(enabled);
+  const { resolveAd } = useAdLifecycle(enabled);
   const onFetchTransition = useAdSlotFetch(consent, onTransition);
   const { isAuthReady, isLoggedIn, isAndroidApp } = useAuthContext();
   const { value: refreshEngine, isLoading: isRefreshEngineLoading } =
@@ -104,17 +104,15 @@ export const useAdQuery = ({
       consent?.consentString ?? '',
       consent?.consentExists ?? '',
       isLoggedIn,
-      isLifecycleEnabled,
     ],
     queryFn: async () =>
       consent
-        ? resolveAd(
-            await fetchAdByPlacement({
-              ...fetchOptions,
-              onTransition: onFetchTransition,
-            }),
-          )
+        ? fetchAdByPlacement({
+            ...fetchOptions,
+            onTransition: onFetchTransition,
+          })
         : null,
+    select: resolveAd,
     // A refreshable slot waits for the engine flag, so its first request
     // already asks for the refresh policy when the engine is on.
     enabled: enabled && !!consent && !(isRefreshable && isRefreshEngineLoading),
