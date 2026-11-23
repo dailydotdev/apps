@@ -31,8 +31,15 @@ const getHotjar = (): Hotjar => {
   return win.hj;
 };
 
-export const identifyHotjarUser = (userId: string): void =>
-  getHotjar()('identify', userId, {});
+// Identify only reaches Hotjar on its Business plan, so the user id also goes
+// out as an event, which every plan can filter recordings by
+export const getHotjarUserEvent = (userId: string): string => `uid_${userId}`;
+
+export const identifyHotjarUser = (userId: string): void => {
+  const hj = getHotjar();
+  hj('identify', userId, {});
+  hj('event', getHotjarUserEvent(userId));
+};
 
 export const trackHotjarEvent = (event: string): void =>
   getHotjar()('event', event);
