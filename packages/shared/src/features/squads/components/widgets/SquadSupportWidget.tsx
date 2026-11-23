@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import {
   Button,
   ButtonSize,
@@ -17,6 +18,11 @@ import { SquadViewer } from '../../lib/viewer';
 import { isDmAvailable } from '../../../messages/transport';
 import { useOpenSupportChat } from '../../../messages/hooks/useOpenSupportChat';
 import { SquadWidget } from './SquadWidget';
+import {
+  ProfileImageSize,
+  ProfilePicture,
+} from '../../../../components/ProfilePicture';
+import { FOUNDERS } from '../../../../lib/team';
 
 const SupportButton = ({ sourceId }: { sourceId: string }): ReactElement => {
   const { openSupportChat, isPending } = useOpenSupportChat(sourceId);
@@ -29,7 +35,20 @@ const SupportButton = ({ sourceId }: { sourceId: string }): ReactElement => {
       loading={isPending}
       onClick={openSupportChat}
     >
-      Support
+      <span className="mr-2 flex shrink-0" aria-hidden>
+        {FOUNDERS.map((founder, index) => (
+          <ProfilePicture
+            key={founder.username}
+            user={founder}
+            size={ProfileImageSize.XSmall}
+            className={classNames(
+              'border border-background-default',
+              index !== 0 && '-ml-2',
+            )}
+          />
+        ))}
+      </span>
+      Send a message
     </Button>
   );
 };
