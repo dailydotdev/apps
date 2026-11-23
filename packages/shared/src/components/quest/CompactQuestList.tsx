@@ -28,6 +28,7 @@ import type { QuestReward, UserQuest } from '../../graphql/quests';
 import {
   QuestRewardType,
   QuestStatus,
+  getQuestChainLabel,
   isQuestClaimed,
 } from '../../graphql/quests';
 import {
@@ -144,6 +145,7 @@ export const CompactQuestRow = ({
   const percentage = Math.min(100, Math.round((value / target) * 100));
   const isClaimed = isQuestClaimed(quest);
   const canClaim = quest.claimable && !!quest.userQuestId && !isClaimed;
+  const chainLabel = getQuestChainLabel(quest);
   const isLockedComplete =
     quest.locked && !isClaimed && quest.status === QuestStatus.Completed;
   // Route each quest to the surface where it can actually be completed (same
@@ -180,6 +182,16 @@ export const CompactQuestRow = ({
         <div className="flex">
           <QuestBonusRewardBadge quest={quest} highlight={highlight} />
         </div>
+      )}
+      {chainLabel && (
+        <Typography
+          type={TypographyType.Caption2}
+          color={TypographyColor.Tertiary}
+          bold
+          className="uppercase tracking-[0.12em]"
+        >
+          {chainLabel}
+        </Typography>
       )}
       {/* Title row: title takes the full width with the open-details chevron in
           the top-right corner. */}

@@ -47,7 +47,14 @@ export interface UserQuest {
   rewards: QuestReward[];
   rewardMultipliers?: Record<QuestRewardType, number>;
   refreshCost?: number | null;
+  chainStep?: number | null;
+  chainLength?: number | null;
 }
+
+export const getQuestChainLabel = (quest: UserQuest): string | null =>
+  quest.chainStep && quest.chainLength && quest.chainLength > 1
+    ? `Step ${quest.chainStep}/${quest.chainLength}`
+    : null;
 
 // A claim is only reliably detected by checking both: the API stamps
 // `claimedAt` without always flipping `status` to `claimed`.
@@ -155,6 +162,8 @@ export const QUEST_DASHBOARD_QUERY = gql`
             cores
           }
           refreshCost
+          chainStep
+          chainLength
           quest {
             id
             name
@@ -183,6 +192,8 @@ export const QUEST_DASHBOARD_QUERY = gql`
             cores
           }
           refreshCost
+          chainStep
+          chainLength
           quest {
             id
             name
@@ -213,6 +224,8 @@ export const QUEST_DASHBOARD_QUERY = gql`
             cores
           }
           refreshCost
+          chainStep
+          chainLength
           quest {
             id
             name
@@ -241,6 +254,8 @@ export const QUEST_DASHBOARD_QUERY = gql`
             cores
           }
           refreshCost
+          chainStep
+          chainLength
           quest {
             id
             name
@@ -326,6 +341,8 @@ const QUEST_ACTION_PAYLOAD_FIELDS = `
             cores
           }
           refreshCost
+          chainStep
+          chainLength
           quest {
             id
             name
@@ -354,6 +371,8 @@ const QUEST_ACTION_PAYLOAD_FIELDS = `
             cores
           }
           refreshCost
+          chainStep
+          chainLength
           quest {
             id
             name
@@ -384,6 +403,8 @@ const QUEST_ACTION_PAYLOAD_FIELDS = `
             cores
           }
           refreshCost
+          chainStep
+          chainLength
           quest {
             id
             name
@@ -412,6 +433,8 @@ const QUEST_ACTION_PAYLOAD_FIELDS = `
             cores
           }
           refreshCost
+          chainStep
+          chainLength
           quest {
             id
             name

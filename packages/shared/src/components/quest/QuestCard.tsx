@@ -15,6 +15,7 @@ import type { QuestReward, QuestType, UserQuest } from '../../graphql/quests';
 import {
   QuestRewardType,
   QuestStatus,
+  getQuestChainLabel,
   getQuestRewardLabel,
   isQuestClaimed,
 } from '../../graphql/quests';
@@ -273,6 +274,7 @@ export const QuestCard = ({
   );
   const highlight = pinnedHighlight ?? flagHighlight;
   const showBonusHighlight = hasBonus && !isClaimed;
+  const eyebrowContent = eyebrow ?? getQuestChainLabel(quest);
   const disabledContentClass = classNames(
     'flex flex-col gap-2 transition-[opacity,filter] duration-200',
     isVisuallyDisabled && 'opacity-50 grayscale',
@@ -292,9 +294,9 @@ export const QuestCard = ({
         <div className={disabledContentClass}>
           <header className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
-              {eyebrow && (
+              {eyebrowContent && (
                 <p className="font-bold uppercase tracking-[0.12em] text-text-tertiary typo-caption2">
-                  {eyebrow}
+                  {eyebrowContent}
                 </p>
               )}
               <div className="flex items-center gap-2">
