@@ -35,6 +35,7 @@ export const patchyReactionMotion: Record<PatchyTrigger, PatchyMotion> = {
   upvote: 'hop',
   bookmark: 'wobble',
   downvote: 'shake',
+  bone: 'chomp',
   streak_day: 'hop',
   late_night: 'yawn',
   friday_deploy: 'hide',
@@ -48,6 +49,7 @@ export const patchyReactionEmotes: Record<PatchyTrigger, number> = {
   upvote: 1,
   bookmark: 1,
   downvote: 1,
+  bone: 3,
   streak_day: 1,
   late_night: 1,
   friday_deploy: 1,
@@ -191,6 +193,12 @@ export const usePatchyCompanion = ({
         }
         return;
       }
+      // A bone is something you gave him on purpose, so he enjoys it even
+      // with reactions off.
+      if (event.type === 'bone') {
+        react('bone');
+        return;
+      }
       if (event.type === 'downvote') {
         if (isActive) {
           react('downvote');
@@ -236,7 +244,8 @@ export const usePatchyCompanion = ({
     prefersReducedMotion,
   });
   const baseFace = isReading && mood !== 'away' ? 'lookdown' : restingFace;
-  const shown = isActive ? reaction : null;
+  const shown =
+    isActive || (isEnabled && reaction?.trigger === 'bone') ? reaction : null;
 
   if (shown) {
     const { emote, face } = config.reactions[shown.trigger];

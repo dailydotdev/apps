@@ -101,6 +101,8 @@ import { RailHoverPanel } from './RailHoverPanel';
 import { StreakBadge } from './StreakBadge';
 import { PatchyRailIcon } from '../../features/patchy/PatchyRailIcon';
 import { PatchyOffer } from '../../features/patchy/PatchyOffer';
+import { PatchyPanel } from '../../features/patchy/PatchyPanel';
+import { getPatchyConfig } from '../../features/patchy/patchyConfig';
 import { usePatchyEnabled } from '../../features/patchy/usePatchyEnabled';
 import { usePatchyRail } from '../../features/patchy/usePatchyRail';
 import { PatchyPostModal } from '../../features/patchy/PatchyPostModal';
@@ -211,6 +213,12 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     label: 'You',
   },
   {
+    // Patchy's own button above the utilities, not a tab. No icon, like
+    // Profile: listed so the panel title resolves.
+    id: SidebarCategory.Patchy,
+    label: 'Patchy',
+  },
+  {
     id: SidebarCategory.Squads,
     label: 'Squads',
     defaultPath: `${webappUrl}squads/discover`,
@@ -268,6 +276,8 @@ const PINNED_RAIL_IDS: RailItemId[] = [RAIL_CREATE_ID, SidebarCategory.Profile];
 // Home sits above the tab strip rather than in it, so the rail's selection is
 // "Home, or one of the tabs" rather than a category on its own.
 const RAIL_HOME = 'home' as const;
+
+const PATCHY_RAIL_BUTTON_ID = 'sidebar-patchy';
 type RailSelection = SidebarCategoryId | typeof RAIL_HOME;
 
 const railButtonClass =
@@ -862,8 +872,9 @@ export const SidebarDesktopV2 = ({
     copy: streakCopy,
     goalProgress: streakGoalProgress,
   } = useStreakRingState();
-  // Patchy, the streak companion, takes over the Streak tab's icon: he lives
-  // and reacts inside the circle, and leans out only to suggest something.
+  // Patchy, the streak companion, has his own spot above the utilities with
+  // his own panel: he lives and reacts inside his circle, and leans out only
+  // to suggest something.
   const isPatchyFlagOn = usePatchyEnabled({
     shouldEvaluate: showGameCenterTab && isStreakEnabled,
   });
@@ -1815,10 +1826,15 @@ export const SidebarDesktopV2 = ({
       );
     }
     if (category === SidebarCategory.GameCenter) {
+      return <StreakQuestsSection onClose={onClose} />;
+    }
+    if (category === SidebarCategory.Patchy) {
       return (
-        <StreakQuestsSection
+        <PatchyPanel
+          patchy={patchy}
+          state={streakState}
+          hasReadToday={streakReadToday}
           onClose={onClose}
-          patchyMood={isPatchyEnabled ? patchy.mood : undefined}
         />
       );
     }
@@ -1886,23 +1902,7 @@ export const SidebarDesktopV2 = ({
       ? gameCenterPanelTitle
       : (category.panelTitle ?? category.label);
     let iconNode: ReactElement;
-    if (showStreakBadge && isPatchyEnabled) {
-      iconNode = (
-        <PatchyRailIcon
-          face={patchy.face}
-          motion={patchy.motion}
-          motionKey={patchy.motionKey}
-          emote={patchy.emote}
-          emoteCount={patchy.emoteCount}
-          emoteKey={patchy.emoteKey}
-          isReadingPaper={patchy.isReadingPaper}
-          state={streakState}
-          hasReadToday={streakReadToday}
-          selected={isSelected}
-          goalProgress={streakGoalProgress?.ratio}
-        />
-      );
-    } else if (showStreakBadge) {
+    if (showStreakBadge) {
       iconNode = (
         <StreakBadge
           state={streakState}
@@ -1945,12 +1945,6 @@ export const SidebarDesktopV2 = ({
           aria-label={ariaLabel}
           aria-selected={isSelected}
           onClick={() => {
-            if (showStreakBadge && isPatchyEnabled) {
-              logEvent({
-                event_name: LogEvent.Click,
-                target_type: TargetType.Patchy,
-              });
-            }
             onSelectCategory(category.id);
           }}
           onMouseEnter={() => {
@@ -2001,6 +1995,65 @@ export const SidebarDesktopV2 = ({
               )}
           </span>
           {!isCompact && <span className={railTabLabelClass}>{labelText}</span>}
+        </button>
+      </RailHoverCard>
+    );
+  };
+
+  // Patchy's own spot, right above the utilities (the gift). Like a tab it
+  // previews his panel on hover and pins it on click, but he has no page, so
+  // the panel stays until you navigate. He lives and reacts in this circle.
+  const renderPatchyButton = (): ReactElement => {
+    const isSelected = selectedRailItem === SidebarCategory.Patchy;
+    const isPreviewing =
+      !isSelected && hoveredCategory === SidebarCategory.Patchy;
+    return (
+      <RailHoverCard
+        label="Patchy"
+        panel={(close) => renderCategorySection(SidebarCategory.Patchy, close)}
+        enabled={!isExpanded}
+      >
+        <button
+          type="button"
+          id={PATCHY_RAIL_BUTTON_ID}
+          data-sidebar-preview={SidebarCategory.Patchy}
+          aria-controls="sidebar-context-panel"
+          aria-label={`Patchy is ${getPatchyConfig().moods[patchy.mood].label}`}
+          aria-pressed={isSelected}
+          onClick={() => {
+            logEvent({
+              event_name: LogEvent.Click,
+              target_type: TargetType.Patchy,
+            });
+            onSelectCategory(SidebarCategory.Patchy);
+          }}
+          onMouseEnter={() => commitPreview(SidebarCategory.Patchy)}
+          onMouseLeave={(event) =>
+            handlePreviewLeave(SidebarCategory.Patchy, event)
+          }
+          className={classNames(
+            railTabClass,
+            'group/patchytab',
+            isSelected && 'bg-surface-float !text-text-primary',
+            isPreviewing && 'bg-surface-hover text-text-primary',
+          )}
+        >
+          <span className="relative flex items-center justify-center">
+            <PatchyRailIcon
+              face={patchy.face}
+              motion={patchy.motion}
+              motionKey={patchy.motionKey}
+              emote={patchy.emote}
+              emoteCount={patchy.emoteCount}
+              emoteKey={patchy.emoteKey}
+              isReadingPaper={patchy.isReadingPaper}
+              state={streakState}
+              hasReadToday={streakReadToday}
+              selected={isSelected}
+              showStreak={false}
+            />
+          </span>
+          {!isCompact && <span className={railTabLabelClass}>Patchy</span>}
         </button>
       </RailHoverCard>
     );
@@ -2374,7 +2427,7 @@ export const SidebarDesktopV2 = ({
           <PatchyOffer
             key={patchy.assistant.offer.id}
             offer={patchy.assistant.offer}
-            anchorId={`sidebar-category-${SidebarCategory.GameCenter}`}
+            anchorId={PATCHY_RAIL_BUTTON_ID}
             onAnswer={patchy.assistant.onAnswer}
             onQuiet={patchy.onQuiet}
           />
@@ -2656,6 +2709,8 @@ export const SidebarDesktopV2 = ({
                 </RailMoreMenu>
               )}
             </div>
+
+            {isPatchyEnabled && renderPatchyButton()}
 
             {/* Utility actions (not tabs) — Invite/Support/Settings — fixed at
               the bottom, outside the scroll. They open their own popups, so this

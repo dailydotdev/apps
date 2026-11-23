@@ -48,6 +48,7 @@ const motionClass: Record<PatchyMotion, string> = {
   hop: 'motion-safe:animate-patchy-bump',
   hide: 'motion-safe:animate-patchy-hide',
   shake: 'motion-safe:animate-patchy-shake',
+  chomp: 'motion-safe:animate-patchy-chomp',
 };
 
 const Heart = ({ className }: { className?: string }) => (
@@ -80,6 +81,18 @@ const Cloud = ({ className }: { className?: string }) => (
       strokeWidth="1.2"
       strokeLinecap="round"
     />
+  </svg>
+);
+
+export const PatchyBoneIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 16 16" className={className} aria-hidden>
+    <g transform="rotate(-45 8 8)" fill="currentColor">
+      <rect x="3.5" y="6.6" width="9" height="2.8" rx="1" />
+      <circle cx="3.6" cy="6.4" r="1.9" />
+      <circle cx="3.6" cy="9.6" r="1.9" />
+      <circle cx="12.4" cy="6.4" r="1.9" />
+      <circle cx="12.4" cy="9.6" r="1.9" />
+    </g>
   </svg>
 );
 
@@ -138,6 +151,8 @@ const emoteIcon = (emote: PatchyEmote): ReactElement | null => {
       );
     case 'sweat':
       return <Drop className="size-2.5 text-accent-blueCheese-default" />;
+    case 'bone':
+      return <PatchyBoneIcon className="size-3 text-text-primary" />;
     case 'cloud':
       return <Cloud className="size-3 text-text-tertiary" />;
     case 'dots':
@@ -196,6 +211,9 @@ interface PatchyRailIconProps {
   emoteKey?: number;
   // A post is open: the newspaper is up.
   isReadingPaper?: boolean;
+  // The streak ring, goal arc and flame. Off where he isn't the streak
+  // (his own rail spot and panel): a plain circle.
+  showStreak?: boolean;
 }
 
 // A face that is not uploaded yet falls back to his neutral one instead of
@@ -260,45 +278,62 @@ export const PatchyRailIcon = ({
   emoteCount = 1,
   emoteKey = 0,
   isReadingPaper = false,
-}: PatchyRailIconProps): ReactElement => (
-  <span className="relative flex size-6 items-center justify-center">
-    <span
-      aria-hidden
-      className={classNames(
-        'absolute -inset-1 overflow-hidden rounded-full border-2 bg-surface-float transition-colors',
-        selected && (state === 'none' || state === 'pending')
-          ? 'border-accent-bacon-default'
-          : ringByState[state],
-        state === 'celebration' && 'animate-streak-earn-border',
-        HOVER_STATES.has(state) &&
-          !(selected && state !== 'safe') &&
-          'group-hover/streaktab:border-text-primary',
+  showStreak = true,
+}: PatchyRailIconProps): ReactElement => {
+  let ringClass: string;
+  if (!showStreak) {
+    ringClass = selected
+      ? 'border-accent-bacon-default'
+      : 'border-border-subtlest-secondary group-hover/patchytab:border-text-primary';
+  } else {
+    ringClass = classNames(
+      selected && (state === 'none' || state === 'pending')
+        ? 'border-accent-bacon-default'
+        : ringByState[state],
+      state === 'celebration' && 'animate-streak-earn-border',
+      HOVER_STATES.has(state) &&
+        !(selected && state !== 'safe') &&
+        'group-hover/streaktab:border-text-primary',
+    );
+  }
+  return (
+    <span className="relative flex size-6 items-center justify-center">
+      <span
+        aria-hidden
+        className={classNames(
+          'absolute -inset-1 overflow-hidden rounded-full border-2 bg-surface-float transition-colors',
+          ringClass,
+        )}
+      >
+        <FaceImage face={face} motion={motion} motionKey={motionKey} />
+        {isReadingPaper && <Newspaper />}
+      </span>
+      {/* The ring is the 32px box around the 24px glyph with a 2px border, so
+          the stroke centre sits at radius 16 - 1 = 15. */}
+      {showStreak && (
+        <StreakGoalArc
+          state={state}
+          progress={goalProgress}
+          selected={selected}
+          size={32}
+          radius={15}
+          strokeWidth={2}
+          className="-left-1 -top-1 size-8"
+        />
       )}
-    >
-      <FaceImage face={face} motion={motion} motionKey={motionKey} />
-      {isReadingPaper && <Newspaper />}
+      {emote && <Emotes key={emoteKey} emote={emote} count={emoteCount} />}
+      {showStreak && (
+        <span
+          aria-hidden
+          className="absolute -bottom-2 -right-2 flex size-4 items-center justify-center rounded-full bg-background-default"
+        >
+          <HotIcon
+            secondary={hasReadToday || state === 'freeze'}
+            size={IconSize.Size16}
+            className={classNames('size-3', flameByState[state])}
+          />
+        </span>
+      )}
     </span>
-    {/* The ring is the 32px box around the 24px glyph with a 2px border, so
-        the stroke centre sits at radius 16 - 1 = 15. */}
-    <StreakGoalArc
-      state={state}
-      progress={goalProgress}
-      selected={selected}
-      size={32}
-      radius={15}
-      strokeWidth={2}
-      className="-left-1 -top-1 size-8"
-    />
-    {emote && <Emotes key={emoteKey} emote={emote} count={emoteCount} />}
-    <span
-      aria-hidden
-      className="absolute -bottom-2 -right-2 flex size-4 items-center justify-center rounded-full bg-background-default"
-    >
-      <HotIcon
-        secondary={hasReadToday || state === 'freeze'}
-        size={IconSize.Size16}
-        className={classNames('size-3', flameByState[state])}
-      />
-    </span>
-  </span>
-);
+  );
+};

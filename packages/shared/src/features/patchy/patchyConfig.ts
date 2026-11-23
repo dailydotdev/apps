@@ -10,6 +10,8 @@ export const patchyTriggers = [
   'bookmark',
   // Not every post lands: he side-eyes it with you.
   'downvote',
+  // A bone from his panel: happy chomping.
+  'bone',
   'streak_day',
   'late_night',
   'friday_deploy',
@@ -45,6 +47,7 @@ export const patchyEmotes = [
   'moon',
   'sweat',
   'cloud',
+  'bone',
   'none',
 ] as const;
 export type PatchyEmote = (typeof patchyEmotes)[number];
@@ -123,6 +126,7 @@ export const defaultPatchyConfig: PatchyConfig = {
     upvote: { enabled: true, emote: 'hearts', face: 'happy' },
     bookmark: { enabled: true, emote: 'dots', face: 'sideeye' },
     downvote: { enabled: true, emote: 'cloud', face: 'sideeye' },
+    bone: { enabled: true, emote: 'bone', face: 'tongue' },
     streak_day: { enabled: true, emote: 'sparkle', face: 'happy' },
     late_night: { enabled: true, emote: 'moon', face: 'sleepy' },
     friday_deploy: { enabled: true, emote: 'sweat', face: 'sideeye' },

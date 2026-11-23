@@ -1,5 +1,5 @@
 import type { RenderResult } from '@testing-library/react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
@@ -47,6 +47,12 @@ jest.mock('../../features/messages/hooks/useUnreadMessagesCount', () => ({
   useUnreadMessagesCount: () => ({ unread: 2, requests: 3, total: 5 }),
 }));
 
+let mockPatchyEnabled = false;
+jest.mock('../../features/patchy/usePatchyEnabled', () => ({
+  ...jest.requireActual('../../features/patchy/usePatchyEnabled'),
+  usePatchyEnabled: () => mockPatchyEnabled,
+}));
+
 const renderRail = (
   activePage: string,
   settings: Partial<SettingsContextData> = {},
@@ -75,6 +81,8 @@ const railTabIds = () =>
 
 beforeEach(() => {
   mockStreakRing = null;
+  mockPatchyEnabled = false;
+  localStorage.clear();
   mockMessagesEnabled.mockReturnValue(false);
   mockDmAvailable = false;
   jest.mocked(useRouter).mockReturnValue({
@@ -274,5 +282,33 @@ describe('SidebarDesktopV2 streak goal', () => {
     expect(
       tab.querySelector('[data-testid="streak-goal-arc"] circle'),
     ).toBeInTheDocument();
+  });
+});
+
+describe('SidebarDesktopV2 Patchy', () => {
+  it('gives him his own spot above Invite, with his panel and a free bone', () => {
+    mockPatchyEnabled = true;
+    renderRail('/posts', {
+      optOutReadingStreak: false,
+      sidebarExpanded: true,
+    });
+
+    const patchy = screen.getByRole('button', { name: /^Patchy is/ });
+    const invite = screen.getByLabelText('Invite friends');
+    expect(
+      // eslint-disable-next-line no-bitwise
+      patchy.compareDocumentPosition(invite) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+
+    fireEvent.click(patchy);
+    expect(screen.getByText('Give a bone')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Give' }));
+    expect(screen.getByRole('button', { name: 'Given' })).toBeDisabled();
+  });
+
+  it('stays off the rail with the flag off', () => {
+    renderRail('/posts');
+
+    expect(document.getElementById('sidebar-patchy')).toBeNull();
   });
 });

@@ -8,6 +8,8 @@ export type PatchyEvent =
   | { type: 'upvote'; postId?: string }
   | { type: 'bookmark'; postId?: string }
   | { type: 'downvote'; postId?: string }
+  // You gave him a bone from his panel.
+  | { type: 'bone' }
   // The first counted read of the local day (the streak moved).
   | { type: 'streak_day' }
   // A post opened; the post rides along so he can read along with you.

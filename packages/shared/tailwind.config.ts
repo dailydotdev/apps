@@ -423,6 +423,12 @@ export default {
           '55%': { transform: 'translateX(-1.5px) rotate(-4deg)' },
           '75%': { transform: 'translateX(1px) rotate(2deg)' },
         },
+        // A bone: a few quick happy bites.
+        'patchy-chomp': {
+          '0%, 100%': { transform: 'scale(1) translateY(0)' },
+          '15%, 45%, 75%': { transform: 'scale(1.08, 0.94) translateY(1px)' },
+          '30%, 60%, 90%': { transform: 'scale(0.98, 1.04) translateY(-1px)' },
+        },
         // Reading along: the newspaper slides up in front of his face...
         'patchy-paper-in': {
           '0%': { transform: 'translateY(100%)' },
@@ -509,6 +515,7 @@ export default {
         'patchy-hide': 'patchy-hide 1.6s ease-in-out',
         'patchy-float': 'patchy-float 1.3s ease-out both',
         'patchy-shake': 'patchy-shake 0.7s ease-in-out',
+        'patchy-chomp': 'patchy-chomp 1.2s ease-in-out',
         'patchy-paper-in':
           'patchy-paper-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both',
         'patchy-paper-flip': 'patchy-paper-flip 7s ease-in-out infinite',

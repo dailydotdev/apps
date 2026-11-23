@@ -96,6 +96,17 @@ describe('usePatchyCompanion', () => {
     expect(result.current.isReadingPaper).toBe(true);
   });
 
+  it('chomps a bone even with reactions off', () => {
+    const { result } = render(false);
+    act(() => emitPatchyEvent({ type: 'bone' }));
+    expect(result.current).toMatchObject({
+      face: 'tongue',
+      motion: 'chomp',
+      emote: 'bone',
+      emoteCount: 3,
+    });
+  });
+
   it('stays still with reactions off', () => {
     const { result } = render(false);
     act(() => emitPatchyEvent({ type: 'upvote' }));
