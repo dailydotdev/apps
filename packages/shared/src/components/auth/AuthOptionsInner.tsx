@@ -27,6 +27,7 @@ import {
   getSocialAuthCallbackError,
   GITHUB_EMAIL_NOT_VERIFIED_ERROR,
   hasSocialAuthBootUser,
+  IN_APP_BROWSER_AUTH_MESSAGE,
   refetchSocialAuthBoot,
   SOCIAL_AUTH_CALLBACK_BOOT_RETRY_DELAYS_MS,
   SOCIAL_AUTH_POPUP_CLOSED_ERROR,
@@ -38,6 +39,8 @@ import { webappUrl, broadcastChannel, isTesting } from '../../lib/constants';
 import { getUserDefaultTimezone } from '../../lib/timezones';
 import {
   checkIsExtension,
+  getChromeIntentUrl,
+  isAndroidMetaInAppBrowser,
   isIOSNative,
   shouldUseSocialAuthPopup,
 } from '../../lib/func';
@@ -684,6 +687,15 @@ function AuthOptionsInner({
       target_id: provider,
       extra: JSON.stringify({ trigger }),
     });
+    if (isAndroidMetaInAppBrowser()) {
+      window.location.href = getChromeIntentUrl(window.location.href);
+      setTimeout(() => {
+        if (document.visibilityState === 'visible') {
+          onSocialError(IN_APP_BROWSER_AUTH_MESSAGE);
+        }
+      }, 2000);
+      return;
+    }
     socialErrorEventName.current = authErrorEventName;
     authFlowSucceededRef.current = false;
     socialAuthAttemptRef.current += 1;
