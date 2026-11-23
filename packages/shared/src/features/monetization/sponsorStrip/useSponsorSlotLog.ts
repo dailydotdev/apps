@@ -1,4 +1,7 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
+import type { AdSlotVisibilityMilestone } from '../adSlotLifecycle';
+import { getAdSlotLifecycle, runAdSlotActions } from '../adSlotLifecycle';
+import { useAdLifecycle } from '../useAdLifecycle';
 import { useLogContext } from '../../../contexts/LogContext';
 import { getVisiblePixels } from '../../../components/cards/ad/common/ownPixels';
 import { AdActions } from '../../../lib/ads';
@@ -8,6 +11,7 @@ import { useAdMacroContext } from '../useAdMacroContext';
 import { useViewability } from '../useViewability';
 import { useVisibleTime } from '../useVisibleTime';
 import type { ResolvedSponsor } from './sponsorStripCreative';
+import { getSponsorAd } from './sponsorStripCreative';
 import { sponsorStripLogEvent } from './sponsorStripLog';
 
 interface UseSponsorSlotLogProps {
@@ -40,8 +44,40 @@ export const useSponsorSlotLog = <T extends HTMLElement = HTMLElement>({
   const macroContextRef = useRef(macroContext);
   macroContextRef.current = macroContext;
 
+  const asAd = useMemo(() => getSponsorAd(sponsor), [sponsor]);
+  const { isEnabled } = useAdLifecycle(!!sponsor.lifecycle);
+  const lifecycle = isEnabled ? getAdSlotLifecycle(asAd) : undefined;
+  const transition = useCallback(
+    (milestone: 'click' | 'viewable' | AdSlotVisibilityMilestone) => {
+      if (!isEnabled || !macroContext) {
+        return;
+      }
+      runAdSlotActions({
+        ad: asAd,
+        milestone,
+        macros: macroContext,
+        onEvent: (name) =>
+          logEvent({
+            ...sponsorStripLogEvent(AdActions.Viewable, sponsor, slotIndex),
+            event_name: name,
+          }),
+      });
+    },
+    [asAd, isEnabled, macroContext, logEvent, sponsor, slotIndex],
+  );
+  const visibilityMilestones = useMemo<AdSlotVisibilityMilestone[]>(
+    () =>
+      (['visible', 'half-visible', 'visible-for-1s'] as const).filter(
+        (event) => !!lifecycle?.on[event]?.length,
+      ),
+    [lifecycle],
+  );
   const { ref: viewabilityRef, isViewable } = useViewability<T>({
+    enabled: !lifecycle || !!macroContext,
     trackingKey: genId,
+    onVisibility: transition,
+    visibilityMilestones,
+    onViewable: () => transition('viewable'),
   });
 
   const onReport = useCallback((seconds: number) => {
@@ -63,13 +99,12 @@ export const useSponsorSlotLog = <T extends HTMLElement = HTMLElement>({
     [viewabilityRef, visibleTimeRef],
   );
 
-  const onClick = useCallback(
-    () =>
-      logEvent(
-        sponsorStripLogEvent(AdActions.Click, sponsorRef.current, slotIndex),
-      ),
-    [logEvent, slotIndex],
-  );
+  const onClick = useCallback(() => {
+    transition('click');
+    logEvent(
+      sponsorStripLogEvent(AdActions.Click, sponsorRef.current, slotIndex),
+    );
+  }, [logEvent, slotIndex, transition]);
 
   return { ref, isViewable, onClick };
 };
