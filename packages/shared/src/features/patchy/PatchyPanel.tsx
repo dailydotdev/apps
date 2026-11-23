@@ -42,33 +42,36 @@ const PatchyBoneCard = ({
   giveFreeBone,
 }: ReturnType<typeof usePatchyBone>): ReactElement => {
   const bonesLine =
-    bonesGiven === 1 ? '1 bone given' : `${bonesGiven} bones given`;
+    bonesGiven === 1
+      ? '1 bone given so far'
+      : `${bonesGiven} bones given so far`;
   return (
-    <div className="flex items-center gap-3 rounded-16 bg-surface-float p-3">
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-background-default">
-        <PatchyBoneImage className="size-8" />
-      </span>
-      <div className="flex min-w-0 flex-1 flex-col">
-        <Typography type={TypographyType.Callout} bold>
-          Give a bone
-        </Typography>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          {hasFreeBone
-            ? 'One free bone a day'
-            : `Next free bone tomorrow · ${bonesLine}`}
-        </Typography>
+    <div className="flex flex-col gap-3 rounded-16 bg-surface-float p-3">
+      <div className="flex items-center gap-3">
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-12 bg-background-default">
+          <PatchyBoneImage className="size-9" />
+        </span>
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <Typography type={TypographyType.Callout} bold>
+            Treat Patchy
+          </Typography>
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
+            {hasFreeBone || !bonesGiven ? 'One free bone a day' : bonesLine}
+          </Typography>
+        </div>
       </div>
       <Button
         type="button"
         size={ButtonSize.Small}
-        variant={ButtonVariant.Primary}
+        variant={hasFreeBone ? ButtonVariant.Primary : ButtonVariant.Float}
         disabled={!hasFreeBone}
         onClick={giveFreeBone}
+        className="w-full"
       >
-        {hasFreeBone ? 'Give' : 'Given'}
+        {hasFreeBone ? 'Give a bone' : 'Next free bone tomorrow'}
       </Button>
     </div>
   );

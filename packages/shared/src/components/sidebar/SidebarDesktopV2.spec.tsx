@@ -301,9 +301,11 @@ describe('SidebarDesktopV2 Patchy', () => {
     ).toBeTruthy();
 
     fireEvent.click(patchy);
-    expect(screen.getByText('Give a bone')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Give' }));
-    expect(screen.getByRole('button', { name: 'Given' })).toBeDisabled();
+    expect(screen.getByText('One free bone a day')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Give a bone' }));
+    expect(
+      screen.getByRole('button', { name: 'Next free bone tomorrow' }),
+    ).toBeDisabled();
   });
 
   it('stays off the rail with the flag off', () => {
