@@ -132,23 +132,3 @@ export const squadRailFadeMask = ({
 
   return `linear-gradient(to right, transparent, black ${start}, black calc(100% - ${end}), transparent)`;
 };
-
-// A daily.dev tip: its accent glows behind the icon on the rail's strip, and
-// tints a soft tile behind the glyph on the tips page.
-export const feedWidgetTipAccent = (tone: string): string =>
-  `var(--theme-accent-${tone}-default)`;
-
-const feedWidgetTipMix = (tone: string, percent: number): string =>
-  `color-mix(in srgb, ${feedWidgetTipAccent(tone)} ${percent}%, transparent)`;
-
-export const feedWidgetTipGlow = (tone: string): string =>
-  `radial-gradient(110% 100% at 0% 0%, ${feedWidgetTipMix(
-    tone,
-    22,
-  )} 0%, transparent 60%), radial-gradient(70% 70% at 100% 100%, ${feedWidgetTipMix(
-    tone,
-    6,
-  )} 0%, transparent 70%)`;
-
-export const feedWidgetTipTile = (tone: string): string =>
-  feedWidgetTipMix(tone, 16);

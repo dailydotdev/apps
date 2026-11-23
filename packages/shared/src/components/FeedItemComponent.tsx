@@ -121,6 +121,8 @@ export function getFeedItemKey(item: FeedItem, index: number): string {
       return getHighlightIdsKey(item.highlights) || `highlight-${index}`;
     case 'ad':
       return `ad-${index}`;
+    case 'widget':
+      return `widget-${item.widget.id}`;
     default:
       return `placeholder-${index}`;
   }

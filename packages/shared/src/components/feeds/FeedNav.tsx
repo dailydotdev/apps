@@ -77,14 +77,11 @@ interface FeedNavProps {
   // Rendered inside the phone's top block: no sticky wrapper and no brand
   // row of its own, the block owns both.
   inShellBlock?: boolean;
-  // The widget rail brings the feed's tabs, under it.
-  hasFeedWidgetRail?: boolean;
   canShowSignInStrip?: boolean;
 }
 
 function FeedNav({
   inShellBlock = false,
-  hasFeedWidgetRail = false,
   canShowSignInStrip = false,
 }: FeedNavProps): ReactElement | null {
   const router = useRouter();
@@ -102,7 +99,7 @@ function FeedNav({
   const isMobileAppHeader = useMobileAppHeader();
   const { value: feedChipsVariant } = useConditionalFeature({
     feature: featureFeedChips,
-    shouldEvaluate: isBelowLaptop && !inShellBlock && !hasFeedWidgetRail,
+    shouldEvaluate: isBelowLaptop && !inShellBlock,
   });
   const isFeedChipsEnabled = feedChipsVariant !== FeedChipsVariant.None;
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
@@ -212,12 +209,6 @@ function FeedNav({
       <div className="sticky top-0 z-3 ml-20 mr-4 mt-4">
         <SignInStrip />
       </div>
-    ) : null;
-  }
-
-  if (hasFeedWidgetRail) {
-    return isExtension && isMobile && !inShellBlock ? (
-      <MobileFeedActions />
     ) : null;
   }
 
