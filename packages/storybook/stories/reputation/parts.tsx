@@ -325,54 +325,15 @@ export const RoadTo250 = ({
 /* The first reputation moment (proposed)                              */
 /* ------------------------------------------------------------------ */
 
-export enum PrimaryAction {
-  /** Aligned with the 250 modal: the analytics tab leads, docs second. */
-  Reputation = 'reputation',
-  /** The Slack proposal: the docs' privileges table leads. */
-  Privileges = 'privileges',
-}
-
+/** Buttons in the 250 modal's order: the analytics tab leads, docs second. */
 export const FirstReputationModal = ({
   moment,
   isPhone,
-  primary = PrimaryAction.Reputation,
 }: {
   moment: FirstReputation;
   isPhone?: boolean;
-  primary?: PrimaryAction;
 }): ReactElement => {
   const reputation = STARTING_REPUTATION + moment.amount;
-  const reputationButton = (
-    <Button
-      key="reputation"
-      tag="a"
-      href={reputationPageUrl}
-      className="w-full"
-      variant={
-        primary === PrimaryAction.Reputation
-          ? ButtonVariant.Primary
-          : ButtonVariant.Float
-      }
-    >
-      See your reputation
-    </Button>
-  );
-  const privilegesButton = (
-    <Button
-      key="privileges"
-      tag="a"
-      target="_blank"
-      href={privilegesDocsUrl}
-      className="w-full"
-      variant={
-        primary === PrimaryAction.Privileges
-          ? ButtonVariant.Primary
-          : ButtonVariant.Float
-      }
-    >
-      See all privileges
-    </Button>
-  );
 
   return (
     <Surface isPhone={isPhone}>
@@ -391,9 +352,23 @@ export const FirstReputationModal = ({
           <RoadTo250 reputation={reputation} />
         </div>
         <div className="flex w-full flex-col gap-2">
-          {primary === PrimaryAction.Reputation
-            ? [reputationButton, privilegesButton]
-            : [privilegesButton, reputationButton]}
+          <Button
+            tag="a"
+            href={reputationPageUrl}
+            className="w-full"
+            variant={ButtonVariant.Primary}
+          >
+            See your reputation
+          </Button>
+          <Button
+            tag="a"
+            target="_blank"
+            href={privilegesDocsUrl}
+            className="w-full"
+            variant={ButtonVariant.Float}
+          >
+            See all privileges
+          </Button>
           <Button
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}

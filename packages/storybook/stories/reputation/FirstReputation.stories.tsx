@@ -6,7 +6,6 @@ import {
   EarnedChip,
   FirstReputationModal,
   FlowArrow,
-  PrimaryAction,
   PrivilegesUnlockedModal,
   ProfileStats,
   ReputationBadge,
@@ -69,7 +68,7 @@ export const WhatChanges: StoryObj = {
           <State
             title="Tablet and up: modal"
             tag="Proposed"
-            note="Modal XSmall, like the 250 modal and the streak milestone."
+            note="Modal XSmall, like the 250 modal and the streak milestone. Buttons in the 250 modal's order: “See your reputation” leads (the analytics tab, where the sidebar count already links), “See all privileges” second, deep linking to the docs' privileges table."
           >
             <FirstReputationModal moment={comment} />
           </State>
@@ -79,31 +78,6 @@ export const WhatChanges: StoryObj = {
             note="isDrawerOnMobile, the same content."
           >
             <FirstReputationModal moment={comment} isPhone />
-          </State>
-        </StateGrid>
-      </Case>
-
-      <Case
-        title="Which button leads"
-        note="The one clash with the Slack proposal. The 250 modal already leads with “See your reputation” (the analytics tab, which lists every milestone and what it unlocks) and puts docs second. Making “See all privileges” the main button here reverses that. Recommended: match the 250 modal. Either way, “See all privileges” deep links to the privileges table, and the earning item gets the quiet third button."
-      >
-        <StateGrid>
-          <State
-            title="Recommended: reputation first"
-            tag="Decide"
-            note="Same order as the 250 modal; the analytics tab is where the sidebar count already links."
-          >
-            <FirstReputationModal moment={comment} />
-          </State>
-          <State
-            title="Slack proposal: privileges first"
-            tag="Decide"
-            note="Campaign 16's button, now deep linking to the privileges table."
-          >
-            <FirstReputationModal
-              moment={comment}
-              primary={PrimaryAction.Privileges}
-            />
           </State>
         </StateGrid>
       </Case>
@@ -164,8 +138,8 @@ export const WhatChanges: StoryObj = {
             ],
             [
               '“See all privileges” main button, docs at the privileges table',
-              <Status key="s" tag="Decide" />,
-              'Recommended second, to match the 250 modal. The deep link needs a stable #privileges anchor on the docs page.',
+              <Status key="s" tag="Proposed" />,
+              'Second: “See your reputation” leads, the same order as the 250 modal. The deep link needs a stable #privileges anchor on the docs page.',
             ],
             [
               '“See your comment” opens the comment',
