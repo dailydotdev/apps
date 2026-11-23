@@ -159,7 +159,7 @@ export const WhatChanges: StoryObj = {
             [
               '3D reputation badge, streak milestone style',
               <Status key="s" tag="Proposed" />,
-              'Placeholder above; the asset comes from design.',
+              'Shown above: the art campaign 16 already uses, in 3D. Design to sign off before it ships.',
             ],
             [
               'Turn off Customer.io campaign 16 (popover and email)',
@@ -212,7 +212,7 @@ export const AllStates: StoryObj = {
 
       <Case
         title="Badge"
-        note="Stand-in for the 3D badge, in the streak milestone's layout: the art with the points on it. Design delivers the asset at both sizes."
+        note="The 3D badge: the art from campaign 16 and the 250 modal (purple medallion, bolt, up-chevrons, light streaks), rendered in 3D, with the points on it like the streak milestone's number."
       >
         <div className="flex flex-wrap items-end gap-8">
           <State title="Modal" tag="Proposed">

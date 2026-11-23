@@ -185,9 +185,16 @@ const CloseCorner = (): ReactElement => (
 /* The badge                                                           */
 /* ------------------------------------------------------------------ */
 
+// Smith's 3D take on cloudinaryReputationPrivilegesUnlocked, the art in
+// Customer.io campaign 16 and the 250 modal.
+const reputationBadgeArt = new URL(
+  './assets/reputation-badge-3d.png',
+  import.meta.url,
+).href;
+
 /**
- * Stand-in for the 3D reputation badge: the streak milestone's layout (a big
- * art piece with the number on it) until design delivers the asset.
+ * The 3D reputation badge in the streak milestone's layout: the art, with
+ * the points on it.
  */
 export const ReputationBadge = ({
   amount,
@@ -198,31 +205,23 @@ export const ReputationBadge = ({
 }): ReactElement => (
   <span
     className={classNames(
-      'relative flex items-center justify-center rounded-full bg-gradient-to-b from-accent-onion-subtler to-accent-onion-subtlest shadow-2',
-      size === 'large' ? 'size-36' : 'size-24',
+      'relative flex justify-center',
+      size === 'large' ? 'size-40' : 'size-24',
     )}
   >
-    <span
-      className={classNames(
-        'opacity-90 absolute rounded-full border-4 border-accent-onion-default bg-gradient-to-br from-accent-onion-default to-accent-onion-bolder',
-        size === 'large' ? 'inset-4' : 'inset-3',
-      )}
+    <img
+      src={reputationBadgeArt}
+      alt="A purple reputation badge with a lightning bolt"
+      className="size-full"
     />
-    <span className="relative flex flex-col items-center">
-      <ReputationIcon
-        secondary
-        size={size === 'large' ? IconSize.XLarge : IconSize.Large}
-        className="text-background-default"
-      />
-      <strong
-        className={classNames(
-          'tabular-nums text-background-default',
-          size === 'large' ? 'typo-title1' : 'typo-title3',
-        )}
-      >
-        +{amount}
-      </strong>
-    </span>
+    <strong
+      className={classNames(
+        'absolute bottom-[8%] rounded-8 bg-accent-onion-default px-2 tabular-nums text-background-default shadow-2',
+        size === 'large' ? 'typo-title3' : 'typo-footnote',
+      )}
+    >
+      +{amount}
+    </strong>
   </span>
 );
 
