@@ -161,11 +161,6 @@ export type FeedWidgetRailState = {
    */
   fromDefault?: string;
   /**
-   * The daily.dev tips over our slot. Opt-in: only `false` shows them, so
-   * unset reads as hidden.
-   */
-  tipsHidden?: boolean;
-  /**
    * The reader hid widgets from their feed. Kept here rather than in the
    * rail's `feedWidgetsOptOut`, so hiding the rail does not hide these.
    */

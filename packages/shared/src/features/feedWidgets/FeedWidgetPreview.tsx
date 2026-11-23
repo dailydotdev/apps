@@ -12,10 +12,8 @@ import {
 } from './types';
 import { isFeedWidgetBare } from './registry';
 import { getFeedWidgetComponent } from './components';
-import { FeedWidgetSurface, useInertRef } from './FeedWidgetFrame';
+import { FeedWidgetSurface } from './FeedWidgetFrame';
 import { RAIL_CELL_HEIGHT, RAIL_HEIGHT } from './sizing';
-import { FeedWidgetTip } from './widgets/FeedWidgetTip';
-import type { FeedWidgetTip as FeedWidgetTipItem } from './tips';
 
 // The rail's column, on a four-column feed, and its gap.
 const PREVIEW_COLUMN = '17.25rem';
@@ -23,7 +21,7 @@ const PREVIEW_COLUMN_GAP = '1.5rem';
 
 const noop = (): void => undefined;
 
-// A preview is not a placement: what its posts and tips would log on the rail
+// A preview is not a placement: what its posts would log on the rail
 // would count impressions nobody saw in the feed.
 const previewLog: LogContextData = {
   logEvent: noop,
@@ -135,23 +133,6 @@ export const FeedWidgetPreview = ({
           </PreviewLogContext.Provider>
         </div>
       </div>
-    </div>
-  );
-};
-
-export const TipsPreview = ({
-  tip,
-}: {
-  tip: FeedWidgetTipItem;
-}): ReactElement => {
-  const ref = useInertRef<HTMLDivElement>(true);
-  const PreviewLogContext = getLogContextStatic();
-
-  return (
-    <div ref={ref} className="w-full max-w-[17.25rem]">
-      <PreviewLogContext.Provider value={previewLog}>
-        <FeedWidgetTip tip={tip} isEditing />
-      </PreviewLogContext.Provider>
     </div>
   );
 };

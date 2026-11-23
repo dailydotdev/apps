@@ -27,7 +27,6 @@ import {
 import {
   customFeedWidgets,
   feedRailFingerprint,
-  isFeedWidgetTipHidden,
   readStoredFeedRail,
   resolveDefaultFeedRail,
 } from './storedRail';
@@ -77,13 +76,6 @@ export type UseFeedWidgets = {
     config: FeedWidgetConfig<K>,
   ) => boolean;
   resetWidgets: () => FeedWidgetsSaved;
-  /** The daily.dev tips over our slot are off: the default, until opted in. */
-  isTipHidden: boolean;
-  /**
-   * Hides or brings back the tips, a rail-level field: a reader on the
-   * default stays on it. Resolves `false` on a read-only rail.
-   */
-  setTipHidden: (isHidden: boolean) => FeedWidgetsSaved;
 };
 
 /**
@@ -231,26 +223,6 @@ export const useFeedWidgets = (): UseFeedWidgets => {
     [commit],
   );
 
-  const setTipHidden = useCallback<UseFeedWidgets['setTipHidden']>(
-    (isHidden) => {
-      const { current } = savedRef;
-      const ownWidgets = customFeedWidgets(current);
-      const { tipsHidden, fromDefault, ...rest } =
-        current && ownWidgets ? current : railFields(current);
-      // Written either way: tips are off unless the field reads `false`.
-      const fields = { ...rest, tipsHidden: isHidden };
-      if (ownWidgets) {
-        return commit({
-          ...fields,
-          version: FEED_WIDGET_RAIL_VERSION,
-          widgets: ownWidgets,
-        });
-      }
-      return commit(railOnDefault(fields, defaultRef.current.widgets));
-    },
-    [commit],
-  );
-
   const addWidget = useCallback<UseFeedWidgets['addWidget']>(
     (kind, { size = FEED_WIDGET_IN_FEED_SIZE, slot = 0 } = {}) => {
       if (
@@ -378,7 +350,5 @@ export const useFeedWidgets = (): UseFeedWidgets => {
     resizeWidget,
     updateWidgetConfig,
     resetWidgets,
-    isTipHidden: isFeedWidgetTipHidden(saved),
-    setTipHidden,
   };
 };

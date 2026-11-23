@@ -9,7 +9,6 @@ import CloseButton from '../../components/CloseButton';
 import Link from '../../components/utilities/Link';
 import { IconSize } from '../../components/Icon';
 import { LockIcon } from '../../components/icons/Lock';
-import { TipIcon } from '../../components/icons/Tip';
 import { VIcon } from '../../components/icons/V';
 import type { FeedWidget, FeedWidgetSize } from './types';
 import { FeedWidgetKind, feedWidgetSizeSpan } from './types';
@@ -17,17 +16,8 @@ import type { FeedWidgetDefinition, FeedWidgetTone } from './registry';
 import { FeedWidgetCategory, FeedWidgetIcon } from './registry';
 import { availableFeedWidgets, feedWidgetSizes } from './components';
 import { useFeedWidgetAvailability } from './availability';
-import { FeedWidgetPreview, TipsPreview } from './FeedWidgetPreview';
+import { FeedWidgetPreview } from './FeedWidgetPreview';
 import { SizePicker } from './FeedWidgetSizePicker';
-import type { FeedWidgetTip as FeedWidgetTipItem } from './tips';
-
-const TIPS = 'tips';
-
-type Selection = FeedWidgetKind | typeof TIPS;
-
-const tipsName = 'daily.dev tips';
-const tipsDescription =
-  'One tip over the ad, to get more out of daily.dev, with what to do and a button that does it.';
 
 const categories = Object.values(FeedWidgetCategory);
 
@@ -63,14 +53,6 @@ type GalleryItem = {
   /** On the rail, and only one may be. */
   isAdded: boolean;
   disabledReason?: string;
-};
-
-export type FeedWidgetGalleryTips = {
-  /** The tip the rail shows this page view. */
-  tip: FeedWidgetTipItem;
-  isShown: boolean;
-  /** Set while the tips are off and the reader can turn them on. */
-  onRestore?: () => void;
 };
 
 const orderSizes = (sizes: FeedWidgetSize[]): FeedWidgetSize[] =>
@@ -122,26 +104,19 @@ const KindTile = ({
 );
 
 const SelectionTile = ({
-  selection,
   isLarge,
   definition,
 }: {
-  selection: Selection;
   isLarge?: boolean;
-  definition?: FeedWidgetDefinition;
-}): ReactElement => {
-  const size = isLarge ? IconSize.Small : IconSize.Size16;
-
-  return (
-    <KindTile tone={definition?.tone ?? 'cabbage'} isLarge={isLarge}>
-      {selection === TIPS ? (
-        <TipIcon size={size} />
-      ) : (
-        <FeedWidgetIcon kind={selection} size={size} />
-      )}
-    </KindTile>
-  );
-};
+  definition: FeedWidgetDefinition;
+}): ReactElement => (
+  <KindTile tone={definition.tone} isLarge={isLarge}>
+    <FeedWidgetIcon
+      kind={definition.kind}
+      size={isLarge ? IconSize.Small : IconSize.Size16}
+    />
+  </KindTile>
+);
 
 const RowStatus = ({
   isOnRail,
@@ -253,49 +228,14 @@ const addStateFor = ({
   };
 };
 
-const tipsStateFor = (tips: FeedWidgetGalleryTips): AddState => {
-  if (tips.isShown) {
-    return {
-      message: 'On, over the ad slot. Remove it from the rail in edit mode.',
-      action: (
-        <Button
-          variant={ButtonVariant.Float}
-          size={ButtonSize.Medium}
-          icon={<VIcon />}
-          disabled
-        >
-          On
-        </Button>
-      ),
-    };
-  }
-
-  return {
-    message: 'Shows over the ad slot. Not a widget, so it takes no room.',
-    action: tips.onRestore && (
-      <Button
-        variant={ButtonVariant.Primary}
-        size={ButtonSize.Medium}
-        onClick={tips.onRestore}
-      >
-        Show tips
-      </Button>
-    ),
-  };
-};
-
 const GalleryRow = ({
-  selection,
   definition,
-  name,
   isSelected,
   isOnRail,
   isLocked,
   onSelect,
 }: {
-  selection: Selection;
-  definition?: FeedWidgetDefinition;
-  name: string;
+  definition: FeedWidgetDefinition;
   isSelected: boolean;
   isOnRail?: boolean;
   isLocked?: boolean;
@@ -310,14 +250,14 @@ const GalleryRow = ({
       isSelected ? 'bg-surface-float' : 'hover:bg-surface-hover',
     )}
   >
-    <SelectionTile selection={selection} definition={definition} />
+    <SelectionTile definition={definition} />
     <span
       className={classNames(
         'min-w-0 flex-1 truncate typo-callout',
         isSelected ? 'font-bold text-text-primary' : 'text-text-secondary',
       )}
     >
-      {name}
+      {definition.name}
     </span>
     <RowStatus isOnRail={isOnRail} isLocked={isLocked} />
   </button>
@@ -341,7 +281,6 @@ export const FeedWidgetGallery = ({
   allowedSizes,
   sizeLabel,
   onAdd,
-  tips,
   onRequestClose,
 }: {
   widgets: FeedWidget[];
@@ -356,8 +295,6 @@ export const FeedWidgetGallery = ({
   /** What this surface calls each size. */
   sizeLabel?: (size: FeedWidgetSize) => string;
   onAdd: (kind: FeedWidgetKind, size: FeedWidgetSize) => void;
-  /** Set where the tips can show over our slot. */
-  tips?: FeedWidgetGalleryTips;
   onRequestClose: () => void;
 }): ReactElement => {
   const availability = useFeedWidgetAvailability();
@@ -386,10 +323,10 @@ export const FeedWidgetGallery = ({
     )
     .slice(0, SUGGESTED_COUNT);
 
-  const [selected, setSelected] = useState<Selection>(
+  const [selected, setSelected] = useState<FeedWidgetKind | undefined>(
     () =>
       ((initialKind && itemFor(initialKind)) ?? suggested[0] ?? items[0])
-        ?.definition.kind ?? TIPS,
+        ?.definition.kind,
   );
   const [sizes, setSizes] = useState<
     Partial<Record<FeedWidgetKind, FeedWidgetSize>>
@@ -410,7 +347,7 @@ export const FeedWidgetGallery = ({
       : kindSizes[0];
   };
 
-  const selectedKind = selected === TIPS ? undefined : selected;
+  const selectedKind = selected;
   const selectedItem = selectedKind ? itemFor(selectedKind) : undefined;
   const selectedSize = selectedKind ? sizeFor(selectedKind) : undefined;
   const addState = addStateFor({
@@ -418,7 +355,7 @@ export const FeedWidgetGallery = ({
     isFull,
     onAdd: () => selectedKind && onAdd(selectedKind, sizeFor(selectedKind)),
   });
-  const footer = selected === TIPS && tips ? tipsStateFor(tips) : addState;
+  const footer = addState;
 
   const sections = categories
     .map((category) => ({
@@ -427,11 +364,10 @@ export const FeedWidgetGallery = ({
         (item) =>
           item.definition.category === category && !suggested.includes(item),
       ),
-      hasTips: category === FeedWidgetCategory.DailyDev && !!tips,
     }))
-    .filter((section) => section.items.length || section.hasTips);
+    .filter((section) => section.items.length);
 
-  const select = (selection: Selection) => setSelected(selection);
+  const select = (kind: FeedWidgetKind) => setSelected(kind);
 
   const onSizeChange = (kind: FeedWidgetKind, size: FeedWidgetSize) =>
     setSizes((current) => ({ ...current, [kind]: size }));
@@ -442,9 +378,7 @@ export const FeedWidgetGallery = ({
     return (
       <GalleryRow
         key={definition.kind}
-        selection={definition.kind}
         definition={definition}
-        name={definition.name}
         isSelected={selected === definition.kind}
         isOnRail={item.isOnRail}
         isLocked={!!item.disabledReason}
@@ -452,16 +386,6 @@ export const FeedWidgetGallery = ({
       />
     );
   };
-
-  const renderTipsRow = () => (
-    <GalleryRow
-      selection={TIPS}
-      name={tipsName}
-      isSelected={selected === TIPS}
-      isOnRail={tips?.isShown}
-      onSelect={() => select(TIPS)}
-    />
-  );
 
   const list = (
     <>
@@ -471,19 +395,16 @@ export const FeedWidgetGallery = ({
           {suggested.map(renderRow)}
         </section>
       )}
-      {sections.map(({ category, items: sectionItems, hasTips }) => (
+      {sections.map(({ category, items: sectionItems }) => (
         <section key={category} className="flex flex-col">
           <SectionLabel>{category}</SectionLabel>
           {sectionItems.map(renderRow)}
-          {hasTips && renderTipsRow()}
         </section>
       ))}
     </>
   );
 
   const definition = selectedItem?.definition;
-  const name = definition?.name ?? tipsName;
-  const description = definition?.description ?? tipsDescription;
 
   return (
     <Modal
@@ -510,26 +431,24 @@ export const FeedWidgetGallery = ({
             className="!absolute right-3 top-3 z-1"
             onClick={onRequestClose}
           />
-          <div className="flex items-start gap-3 px-6 pb-4 pt-6">
-            <SelectionTile
-              selection={selected}
-              definition={definition}
-              isLarge
-            />
-            <span className="flex min-w-0 flex-1 flex-col gap-0.5 pr-10">
-              <span className="flex flex-wrap items-center gap-x-2">
-                <span className="font-bold text-text-primary typo-title3">
-                  {name}
+          {definition && (
+            <div className="flex items-start gap-3 px-6 pb-4 pt-6">
+              <SelectionTile definition={definition} isLarge />
+              <span className="flex min-w-0 flex-1 flex-col gap-0.5 pr-10">
+                <span className="flex flex-wrap items-center gap-x-2">
+                  <span className="font-bold text-text-primary typo-title3">
+                    {definition.name}
+                  </span>
+                  <span className="rounded-6 bg-surface-float px-1.5 text-text-tertiary typo-caption1">
+                    {definition.category}
+                  </span>
                 </span>
-                <span className="rounded-6 bg-surface-float px-1.5 text-text-tertiary typo-caption1">
-                  {definition?.category ?? FeedWidgetCategory.DailyDev}
+                <span className="text-text-secondary typo-callout">
+                  {definition.description}
                 </span>
               </span>
-              <span className="text-text-secondary typo-callout">
-                {description}
-              </span>
-            </span>
-          </div>
+            </div>
+          )}
           {selectedKind &&
             selectedSize &&
             sizesFor(selectedKind).length > 1 && (
@@ -543,15 +462,13 @@ export const FeedWidgetGallery = ({
               </div>
             )}
           <div className="mx-6 flex min-h-0 flex-1 flex-col items-center justify-center rounded-20 bg-background-subtle p-6">
-            {selectedKind && selectedSize ? (
+            {selectedKind && selectedSize && (
               <FeedWidgetPreview
                 key={selectedKind}
                 kind={selectedKind}
                 size={selectedSize}
                 className="w-full flex-1"
               />
-            ) : (
-              tips && <TipsPreview tip={tips.tip} />
             )}
           </div>
           {footer && (

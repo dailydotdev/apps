@@ -113,15 +113,6 @@ export const isFeedWidgetsHidden = (
 ): boolean => rail?.hidden === true;
 
 /**
- * The daily.dev tips over our slot are opt-in: off until the reader turns
- * them on from the gallery or the tips page. Only an explicit `false` shows
- * them; a rail that never set the field, or hid them, keeps them off.
- */
-export const isFeedWidgetTipHidden = (
-  rail: FeedWidgetRailState | null,
-): boolean => rail?.tipsHidden !== false;
-
-/**
  * The built-in default: no widgets, so the feed reads as it always did until
  * the reader places one. The live default comes from the
  * `feed_widgets_in_feed_default` flag, whose widgets each name a `slot`; this

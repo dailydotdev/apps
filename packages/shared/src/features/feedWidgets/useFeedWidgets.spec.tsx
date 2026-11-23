@@ -7,7 +7,6 @@ import { TOAST_NOTIF_KEY } from '../../hooks/useToastNotification';
 import type { SettingsFlags } from '../../graphql/settings';
 import { useFeedWidgets } from './useFeedWidgets';
 import { FeedWidgetKind, FeedWidgetSize } from './types';
-import { feedRailFingerprint } from './storedRail';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 
 const setSettings = jest.fn();
@@ -279,78 +278,6 @@ describe('useFeedWidgets', () => {
 
     expect(saved).toBe(false);
     expect(setSettings).not.toHaveBeenCalled();
-  });
-
-  describe('tips', () => {
-    const onDefault = {
-      version: 1,
-      tipsHidden: true,
-      widgets: [],
-      fromDefault: feedRailFingerprint([]),
-    };
-
-    it('hides them for a reader on the default without customizing', () => {
-      const { result } = renderWidgets();
-
-      act(() => {
-        result.current.setTipHidden(true);
-      });
-
-      expect(writtenRail()).toEqual(onDefault);
-    });
-
-    it('keeps them off for a reader who never turned them on', () => {
-      const { result } = renderWidgets();
-
-      expect(result.current.isTipHidden).toBe(true);
-    });
-
-    it('shows them once the stored rail says false', () => {
-      const { result } = renderWidgets({ ...onDefault, tipsHidden: false });
-
-      expect(result.current.isTipHidden).toBe(false);
-    });
-
-    it('turns them on by storing an explicit false, keeping the default', () => {
-      const { result } = renderWidgets(onDefault);
-
-      act(() => {
-        result.current.setTipHidden(false);
-      });
-
-      expect(writtenRail()).toEqual({ ...onDefault, tipsHidden: false });
-    });
-
-    it('turns them on for a reader who never stored a rail', () => {
-      const { result } = renderWidgets();
-
-      act(() => {
-        result.current.setTipHidden(false);
-      });
-
-      expect(writtenRail()).toEqual({ ...onDefault, tipsHidden: false });
-    });
-
-    it('hides them on a customized rail, keeping its widgets', () => {
-      const widgets = [slotted('a', 'happeningNow', 0)];
-      const { result } = renderWidgets({ version: 1, widgets });
-
-      act(() => {
-        result.current.setTipHidden(true);
-      });
-
-      expect(writtenRail()).toEqual({ version: 1, tipsHidden: true, widgets });
-    });
-
-    it('never hides them on a rail a newer build saved', async () => {
-      const { result } = renderWidgets({
-        version: 2,
-        widgets: [{ id: 'a', kind: 'happeningNow', size: 'tall' }],
-      });
-
-      await expect(result.current.setTipHidden(true)).resolves.toBe(false);
-      expect(setSettings).not.toHaveBeenCalled();
-    });
   });
 
   it('tells the reader when a write is rejected', async () => {

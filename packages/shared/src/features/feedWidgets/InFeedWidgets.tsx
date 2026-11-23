@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import { useInView } from 'react-intersection-observer';
 import { MinusIcon } from '../../components/icons/Minus';
+import { SettingsIcon } from '../../components/icons/Settings';
 import { IconSize } from '../../components/Icon';
 import { Button } from '../../components/buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../components/buttons/common';
@@ -200,7 +201,7 @@ export const FeedWidgetCell = ({
       aria-label={definition.name}
       role="group"
       className={classNames(
-        'relative min-h-card w-full min-w-0 rounded-16',
+        'group/widget relative min-h-card w-full min-w-0 rounded-16',
         canEdit && 'select-none',
         flashId === widget.id && 'feed-widget-flash',
       )}
@@ -240,6 +241,23 @@ export const FeedWidgetCell = ({
           </FeedWidgetSurface>
         </FeedWidgetsProvider>
       </div>
+      {!isEditing && !isReadOnly && (
+        // On hover, the way into Customize mode from the widget itself.
+        <Button
+          variant={ButtonVariant.Float}
+          size={ButtonSize.XSmall}
+          icon={<SettingsIcon />}
+          aria-label={`Customize ${definition.name}`}
+          title="Customize widgets"
+          onClick={() => {
+            logWidgetEvent(LogEvent.CustomizeFeedWidgets, widget, {
+              source: 'widget',
+            });
+            setIsEditing(true);
+          }}
+          className="absolute right-2 top-2 z-3 opacity-0 shadow-2 transition-opacity focus-visible:opacity-100 group-hover/widget:opacity-100"
+        />
+      )}
       {canEdit && (
         <>
           <button
