@@ -96,7 +96,7 @@ import { FeedHero } from './feeds/hero/FeedHero';
 import {
   useFeedWidgetFeedState,
   useFeedWidgetRailState,
-  useFeedWidgetsIntro,
+  useFeedWidgetsPromo,
 } from '../features/feedWidgets/feedState';
 import {
   FeedWidgetCellLoading,
@@ -168,16 +168,16 @@ const useFeedGridWidgets = ({
   widgets: FeedWidget[];
   feedName: string;
 }): { feedWidgets?: FeedGridWidgets; editor: ReactNode } => {
-  const promo = useFeedWidgetsIntro('promoSeen');
+  const promo = useFeedWidgetsPromo();
   const [isPromoClosed, setIsPromoClosed] = useState(false);
   const isPromoOpen =
     promo.isOpen && !isPromoClosed && !isEditing && addingSlot === null;
-  const { dismiss } = promo;
+  const { countView, done } = promo;
   // Closed here at once, before the write lands.
-  const dismissPromo = useCallback(() => {
+  const closePromo = useCallback(() => {
     setIsPromoClosed(true);
-    dismiss();
-  }, [dismiss]);
+    done();
+  }, [done]);
   const feedWidgets = useMemo<FeedGridWidgets | undefined>(
     () =>
       isEnabled
@@ -207,13 +207,25 @@ const useFeedGridWidgets = ({
               ? {
                   from: FEED_WIDGETS_PROMO_FROM,
                   render: (index) => (
-                    <FeedWidgetPromo slot={index} onDismiss={dismissPromo} />
+                    <FeedWidgetPromo
+                      slot={index}
+                      onView={countView}
+                      onDone={closePromo}
+                    />
                   ),
                 }
               : undefined,
           }
         : undefined,
-    [isEnabled, isEditing, widgets, feedName, isPromoOpen, dismissPromo],
+    [
+      isEnabled,
+      isEditing,
+      widgets,
+      feedName,
+      isPromoOpen,
+      countView,
+      closePromo,
+    ],
   );
 
   return {

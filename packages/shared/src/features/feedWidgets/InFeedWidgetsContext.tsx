@@ -18,7 +18,6 @@ import { PlusIcon } from '../../components/icons/Plus';
 import { LayoutIcon } from '../../components/icons/Layout';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
-import { useFeedWidgetsIntro } from './feedState';
 
 // Kept light: the feed page renders the Customize button and the slot covers
 // on every load, while the widgets, their editor and the gallery wait in
@@ -39,6 +38,9 @@ export type InFeedWidgetsContextValue = {
   /** The widget just added or moved, flashed so the eye finds it. */
   flashId?: string;
   setFlashId: (id?: string) => void;
+  /** The tip that shows a reader from the feed's invite where widgets live. */
+  isButtonTipOpen?: boolean;
+  setIsButtonTipOpen?: (isOpen: boolean) => void;
 };
 
 const noop = () => undefined;
@@ -64,6 +66,7 @@ export const useInFeedWidgetsState = (
   const [addingSlot, setAddingSlot] = useState<number | null>(null);
   const [configuringId, setConfiguringId] = useState<string>();
   const [flashId, setFlashId] = useState<string>();
+  const [isButtonTipOpen, setIsButtonTipOpen] = useState(false);
   const isEditing = isEnabled && isEditingState;
 
   return useMemo(
@@ -77,8 +80,10 @@ export const useInFeedWidgetsState = (
       setConfiguringId,
       flashId,
       setFlashId,
+      isButtonTipOpen: isEnabled && isButtonTipOpen,
+      setIsButtonTipOpen,
     }),
-    [isEnabled, isEditing, addingSlot, configuringId, flashId],
+    [isEnabled, isEditing, addingSlot, configuringId, flashId, isButtonTipOpen],
   );
 };
 
@@ -94,53 +99,49 @@ export const InFeedWidgetsProvider = ({
   </InFeedWidgetsContext.Provider>
 );
 
-const logIntroEvent = (eventName: LogEvent) => ({
+const logPromoEvent = (eventName: LogEvent) => ({
   event_name: eventName,
   target_type: TargetType.FeedWidget,
   extra: JSON.stringify({ origin: Origin.FeedWidgets }),
 });
 
-/**
- * The way into Customize mode, among the feed's own actions. Nothing renders
- * where the feed takes no widgets. The first time, it carries the intro to
- * widgets in the feed, so the reader finds both the news and the button.
- */
 type FeedWidgetsCustomizeButtonProps = {
   size: ButtonSize;
   className?: string;
   iconOnly?: boolean;
 };
 
-const CustomizeButtonWithIntro = ({
+/** How long the tip on the Widgets button stays up on its own. */
+const BUTTON_TIP_MS = 6000;
+
+/**
+ * The way into Customize mode, among the feed's own actions. Nothing renders
+ * where the feed takes no widgets. A reader who came in from the feed's
+ * invite gets a short tip on it once the gallery closes, so they know where
+ * to find widgets again.
+ */
+const CustomizeButton = ({
   size,
   className,
   iconOnly = false,
 }: FeedWidgetsCustomizeButtonProps): ReactElement => {
-  const { isEditing, setIsEditing } = useInFeedWidgets();
+  const {
+    isEditing,
+    setIsEditing,
+    addingSlot,
+    isButtonTipOpen = false,
+    setIsButtonTipOpen = noop,
+  } = useInFeedWidgets();
   const { logEvent } = useLogContext();
-  const intro = useFeedWidgetsIntro();
-  // Closed here as soon as the reader acts, before the write lands.
-  const [isIntroClosed, setIsIntroClosed] = useState(false);
-  const isIntroOpen = intro.isOpen && !isIntroClosed && !isEditing;
-  const hasLoggedIntro = useRef(false);
-  const buttonRef = useRef<HTMLButtonElement>(null);
+  const isTipShown = isButtonTipOpen && addingSlot === null;
 
   useEffect(() => {
-    if (!isIntroOpen || hasLoggedIntro.current) {
-      return;
+    if (!isTipShown) {
+      return undefined;
     }
-    hasLoggedIntro.current = true;
-    logEvent(logIntroEvent(LogEvent.ImpressionFeedWidgetsIntro));
-  }, [isIntroOpen, logEvent]);
-
-  const closeIntro = useCallback(
-    (eventName: LogEvent) => {
-      setIsIntroClosed(true);
-      logEvent(logIntroEvent(eventName));
-      intro.dismiss();
-    },
-    [intro, logEvent],
-  );
+    const timer = setTimeout(() => setIsButtonTipOpen(false), BUTTON_TIP_MS);
+    return () => clearTimeout(timer);
+  }, [isTipShown, setIsButtonTipOpen]);
 
   const onClick = useCallback(() => {
     if (!isEditing) {
@@ -150,24 +151,17 @@ const CustomizeButtonWithIntro = ({
         extra: JSON.stringify({ origin: Origin.FeedWidgets }),
       });
     }
-    if (isIntroOpen) {
-      closeIntro(LogEvent.ClickFeedWidgetsIntro);
-    }
+    setIsButtonTipOpen(false);
     setIsEditing(!isEditing);
-  }, [closeIntro, isEditing, isIntroOpen, logEvent, setIsEditing]);
+  }, [isEditing, logEvent, setIsButtonTipOpen, setIsEditing]);
 
   return (
     <Popover
-      open={isIntroOpen}
-      onOpenChange={(open) => {
-        if (!open && isIntroOpen) {
-          closeIntro(LogEvent.DismissFeedWidgetsIntro);
-        }
-      }}
+      open={isTipShown}
+      onOpenChange={(open) => !open && setIsButtonTipOpen(false)}
     >
       <PopoverAnchor asChild>
         <Button
-          ref={buttonRef}
           variant={ButtonVariant.Tertiary}
           size={size}
           icon={<LayoutIcon />}
@@ -185,40 +179,11 @@ const CustomizeButtonWithIntro = ({
         align="end"
         sideOffset={8}
         collisionPadding={16}
-        // The intro points at the button; focus stays on the feed.
+        // The tip points at the button; focus stays on the feed.
         onOpenAutoFocus={(event) => event.preventDefault()}
-        // A click on the button itself is the reader taking the intro up,
-        // handled by the button, not a dismissal.
-        onInteractOutside={(event) => {
-          if (buttonRef.current?.contains(event.target as Node)) {
-            event.preventDefault();
-          }
-        }}
-        className="z-header flex w-80 flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4 shadow-2"
-        aria-label="Widgets, take two"
+        className="z-header max-w-64 rounded-12 bg-background-popover px-3 py-2 text-text-primary shadow-2 typo-callout"
       >
-        <strong className="typo-title3">Widgets, take two</strong>
-        <p className="text-text-secondary typo-callout">
-          We tried widgets above the feed, and you told us they took too much
-          room. So we moved them into the feed itself: swap any card for a
-          widget, or add none at all. Your feed stays yours.
-        </p>
-        <div className="flex justify-end gap-2">
-          <Button
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            onClick={() => closeIntro(LogEvent.DismissFeedWidgetsIntro)}
-          >
-            Not now
-          </Button>
-          <Button
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Small}
-            onClick={onClick}
-          >
-            Add a widget
-          </Button>
-        </div>
+        Your widgets live here. Add, move or remove them anytime.
       </PopoverContent>
     </Popover>
   );
@@ -229,7 +194,7 @@ export const FeedWidgetsCustomizeButton = (
 ): ReactElement | null => {
   const { isEnabled } = useInFeedWidgets();
 
-  return isEnabled ? <CustomizeButtonWithIntro {...props} /> : null;
+  return isEnabled ? <CustomizeButton {...props} /> : null;
 };
 
 /**
@@ -264,17 +229,20 @@ export const FeedWidgetSlot = ({ slot }: { slot: number }): ReactElement => {
 
 /**
  * The feed's invite to a first widget: one card, covered like a slot in
- * Customize mode, that opens the gallery for its own place. It goes for good
- * once the reader closes it or places a widget anywhere.
+ * Customize mode, that opens the gallery for its own place. Acting on it, by
+ * taking it up or closing it, ends it for good; so does placing a widget
+ * anywhere. `onView` counts the visit it was seen on.
  */
 export const FeedWidgetPromo = ({
   slot,
-  onDismiss,
+  onView,
+  onDone,
 }: {
   slot: number;
-  onDismiss: () => void;
+  onView: () => void;
+  onDone: () => void;
 }): ReactElement => {
-  const { setAddingSlot } = useInFeedWidgets();
+  const { setAddingSlot, setIsButtonTipOpen = noop } = useInFeedWidgets();
   const { logEvent } = useLogContext();
   const hasLogged = useRef(false);
 
@@ -283,16 +251,19 @@ export const FeedWidgetPromo = ({
       return;
     }
     hasLogged.current = true;
-    logEvent(logIntroEvent(LogEvent.ImpressionFeedWidgetsPromo));
-  }, [logEvent]);
+    logEvent(logPromoEvent(LogEvent.ImpressionFeedWidgetsPromo));
+    onView();
+  }, [logEvent, onView]);
 
   return (
     <div className="absolute inset-0 z-2 rounded-16 border-2 border-dashed border-accent-cabbage-default bg-overlay-float-cabbage">
       <button
         type="button"
         onClick={() => {
-          logEvent(logIntroEvent(LogEvent.ClickFeedWidgetsPromo));
+          logEvent(logPromoEvent(LogEvent.ClickFeedWidgetsPromo));
+          onDone();
           setAddingSlot(slot);
+          setIsButtonTipOpen(true);
         }}
         className="group/promo flex h-full w-full flex-col items-center justify-center gap-3 rounded-16 p-6 text-center focus-visible:outline-none"
       >
@@ -312,8 +283,8 @@ export const FeedWidgetPromo = ({
         className="absolute right-2 top-2"
         aria-label="Not now"
         onClick={() => {
-          logEvent(logIntroEvent(LogEvent.DismissFeedWidgetsPromo));
-          onDismiss();
+          logEvent(logPromoEvent(LogEvent.DismissFeedWidgetsPromo));
+          onDone();
         }}
       />
     </div>

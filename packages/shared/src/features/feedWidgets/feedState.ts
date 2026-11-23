@@ -12,6 +12,7 @@ import {
   FEED_WIDGET_RAIL_VERSION,
   FEED_WIDGET_UNDO_MS,
   FEED_WIDGETS_INTRO_ID,
+  FEED_WIDGETS_PROMO_MAX_VIEWS,
   FeedWidgetKind,
 } from './types';
 import {
@@ -171,7 +172,7 @@ export const useFeedWidgetFeedState = ({
 };
 
 /**
- * Saves rail-level fields (the hide switch, the intro seen) over the stored
+ * Saves rail-level fields (the hide switch, the invite's state) over the stored
  * widgets. Each write merges into the latest flags: a setter from the render
  * that offered the button would write that render's settings back over
  * anything changed since. A reader who never saved widgets stays on the
@@ -179,6 +180,7 @@ export const useFeedWidgetFeedState = ({
  */
 const useFeedWidgetsRailFields = (): ((
   fields: Record<string, unknown>,
+  options?: { isSilent?: boolean },
 ) => Promise<boolean>) => {
   const { flags, setSettings } = useSettingsContext();
   const { displayToast } = useToastNotification();
@@ -186,7 +188,10 @@ const useFeedWidgetsRailFields = (): ((
   latest.current = { flags, setSettings };
 
   return useCallback(
-    (fields: Record<string, unknown>): Promise<boolean> => {
+    (
+      fields: Record<string, unknown>,
+      { isSilent = false }: { isSilent?: boolean } = {},
+    ): Promise<boolean> => {
       const rail = readStoredFeedRail(latest.current.flags?.feedWidgets) ?? {
         version: FEED_WIDGET_RAIL_VERSION,
         widgets: [],
@@ -201,7 +206,9 @@ const useFeedWidgetsRailFields = (): ((
         })
         .then(() => true)
         .catch(() => {
-          displayToast('Couldn’t save your widgets. Try again.');
+          if (!isSilent) {
+            displayToast('Couldn’t save your widgets. Try again.');
+          }
           return false;
         });
     },
@@ -265,17 +272,19 @@ export const useFeedWidgetsOptOut = (): {
   };
 };
 
+// Counted once per page load, however often the feed remounts in it.
+let hasCountedPromoView = false;
+
 /**
- * A one-time invite to widgets in the feed, for a signed-in reader who has not
- * placed one yet, until they act on it or close it, on any device. `field`
- * says which: the intro on the Widgets button, or the card in the feed. Each
- * is seen on its own, and both go once a widget is placed.
+ * The feed's invite to a first widget, for a signed-in reader who has not
+ * placed one yet. It shows on up to `FEED_WIDGETS_PROMO_MAX_VIEWS` visits,
+ * counted on the reader's stored widgets so every device shares the count,
+ * and ends for good once the reader acts on it.
  */
-export const useFeedWidgetsIntro = (
-  field: 'introSeen' | 'promoSeen' = 'introSeen',
-): {
+export const useFeedWidgetsPromo = (): {
   isOpen: boolean;
-  dismiss: () => Promise<boolean>;
+  countView: () => void;
+  done: () => Promise<boolean>;
 } => {
   const { flags, loadedSettings } = useSettingsContext();
   const { isLoggedIn } = useAuthContext();
@@ -283,16 +292,30 @@ export const useFeedWidgetsIntro = (
   const rail = readStoredFeedRail(flags?.feedWidgets);
   const hasPlaced =
     slottedFeedWidgets(customFeedWidgets(rail) ?? []).length > 0;
+  const views = typeof rail?.promoViews === 'number' ? rail.promoViews : 0;
+  // The visit that reaches the cap still shows after its own count lands.
+  const hasViewsLeft =
+    views < FEED_WIDGETS_PROMO_MAX_VIEWS ||
+    (hasCountedPromoView && views === FEED_WIDGETS_PROMO_MAX_VIEWS);
   const isOpen =
     isLoggedIn &&
     !!loadedSettings &&
     !hasPlaced &&
-    rail?.[field] !== FEED_WIDGETS_INTRO_ID;
+    hasViewsLeft &&
+    rail?.promoSeen !== FEED_WIDGETS_INTRO_ID;
 
-  const dismiss = useCallback(
-    () => writeRailFields({ [field]: FEED_WIDGETS_INTRO_ID }),
-    [field, writeRailFields],
+  const countView = useCallback(() => {
+    if (hasCountedPromoView) {
+      return;
+    }
+    hasCountedPromoView = true;
+    writeRailFields({ promoViews: views + 1 }, { isSilent: true });
+  }, [views, writeRailFields]);
+
+  const done = useCallback(
+    () => writeRailFields({ promoSeen: FEED_WIDGETS_INTRO_ID }),
+    [writeRailFields],
   );
 
-  return { isOpen, dismiss };
+  return { isOpen, countView, done };
 };
