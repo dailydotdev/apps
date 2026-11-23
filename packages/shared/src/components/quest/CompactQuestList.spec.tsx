@@ -208,9 +208,9 @@ describe('CompactQuestRow bonus highlight', () => {
   });
 
   it('drops the v3 spotlight once the bonus quest is claimed', () => {
-    const { container, rerender } = renderRow(QuestBonusHighlight.V3);
+    const { rerender } = renderRow(QuestBonusHighlight.V3);
 
-    expect(container.querySelector('li')).toHaveClass('quest-bonus-spotlight');
+    expect(screen.getByRole('listitem')).toHaveClass('quest-bonus-spotlight');
 
     rerender(
       <QueryClientProvider client={new QueryClient()}>
@@ -230,7 +230,7 @@ describe('CompactQuestRow bonus highlight', () => {
       </QueryClientProvider>,
     );
 
-    expect(container.querySelector('li')).not.toHaveClass(
+    expect(screen.getByRole('listitem')).not.toHaveClass(
       'quest-bonus-spotlight',
     );
     expect(screen.getByText(/2x bonus/i)).toBeInTheDocument();
