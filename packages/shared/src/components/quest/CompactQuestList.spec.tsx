@@ -206,4 +206,33 @@ describe('CompactQuestRow bonus highlight', () => {
       screen.getByRole('button', { name: 'Swap quest for 10 Cores' }),
     ).toBeInTheDocument();
   });
+
+  it('drops the v3 spotlight once the bonus quest is claimed', () => {
+    const { container, rerender } = renderRow(QuestBonusHighlight.V3);
+
+    expect(container.querySelector('li')).toHaveClass('quest-bonus-spotlight');
+
+    rerender(
+      <QueryClientProvider client={new QueryClient()}>
+        <ul>
+          <CompactQuestRow
+            quest={{
+              ...bonusQuest,
+              status: QuestStatus.Claimed,
+              claimedAt: new Date(),
+            }}
+            isClaiming={false}
+            onClaim={jest.fn()}
+            onRefresh={onRefresh}
+            highlight={QuestBonusHighlight.V3}
+          />
+        </ul>
+      </QueryClientProvider>,
+    );
+
+    expect(container.querySelector('li')).not.toHaveClass(
+      'quest-bonus-spotlight',
+    );
+    expect(screen.getByText(/2x bonus/i)).toBeInTheDocument();
+  });
 });

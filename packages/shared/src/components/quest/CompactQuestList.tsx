@@ -171,7 +171,9 @@ export const CompactQuestRow = ({
     <li
       className={classNames(
         'group/quest relative flex flex-col gap-1 rounded-10 px-2 py-2.5 transition-colors hover:bg-surface-hover',
-        getQuestBonusContainerClassName(highlight, hasBonus),
+        // Like QuestCard: a claimed quest keeps its 2x badge but loses the
+        // container treatment (v1 tint, v3 spotlight).
+        getQuestBonusContainerClassName(highlight, hasBonus && !isClaimed),
       )}
     >
       {hasBonus && highlight === QuestBonusHighlight.V3 && (
