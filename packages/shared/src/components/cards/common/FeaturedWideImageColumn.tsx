@@ -45,7 +45,10 @@ export const FeaturedWideImageColumn = ({
         alt=""
         src={image}
         type={ImageType.Post}
-        className="absolute inset-0 size-full scale-110 object-cover blur-xl"
+        className={classNames(
+          'absolute inset-0 size-full scale-110 object-cover blur-xl',
+          shouldDimImage && 'opacity-16',
+        )}
       />
     )}
     {overlay}
