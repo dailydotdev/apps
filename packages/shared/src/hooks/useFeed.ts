@@ -16,6 +16,7 @@ import { POSTS_ENGAGED_SUBSCRIPTION } from '../graphql/posts';
 import type { FeedData, FeedItemData, FeedV2Data } from '../graphql/feed';
 import { getFeedApiItemPost, normalizeFeedPage } from '../graphql/feed';
 import type { PostHighlight } from '../graphql/highlights';
+import type { FeedSurvey } from '../graphql/feedSurvey';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
 import useSubscription from './useSubscription';
@@ -141,9 +142,15 @@ export const HERO_ELIGIBLE_FEEDS = new Set<AllFeedPages>([
   OtherFeedPage.SourceArchive,
 ]);
 
+export interface SurveyItem extends FeedItemBase<FeedItemType.Survey> {
+  survey: FeedSurvey;
+  feedMeta: string | null;
+}
+
 export type FeedItem =
   | PostItem
   | HighlightItem
+  | SurveyItem
   | AdItem
   | AdSquadItem
   | PlaceholderItem;
@@ -507,7 +514,7 @@ export default function useFeed<T>(
       feedQuery.data?.pages.some(({ page }) =>
         page.edges.some(
           ({ node }) =>
-            node.itemType !== 'highlight' && isHeroEligiblePost(node.post),
+            node.itemType === 'post' && isHeroEligiblePost(node.post),
         ),
       ) ?? false
     );
@@ -785,6 +792,16 @@ export default function useFeed<T>(
               type: FeedItemType.Highlight,
               highlights: node.highlights,
               feedMeta: node.feedMeta ?? null,
+              dataUpdatedAt: feedQuery.dataUpdatedAt,
+            });
+            return;
+          }
+
+          if (node.itemType === 'survey') {
+            pushAndAdvance({
+              type: FeedItemType.Survey,
+              survey: node.survey,
+              feedMeta: node.feedMeta,
               dataUpdatedAt: feedQuery.dataUpdatedAt,
             });
             return;
