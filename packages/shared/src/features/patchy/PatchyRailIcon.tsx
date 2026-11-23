@@ -7,7 +7,11 @@ import { StreakGoalArc } from '../../components/sidebar/StreakBadge';
 import type { StreakRingState } from '../../hooks/streaks/useStreakRingState';
 import type { PatchyEmote, PatchyFace } from './patchyConfig';
 import type { PatchyMotion } from './patchyIdle';
-import { getPatchyConfig } from './patchyConfig';
+import {
+  getPatchyConfig,
+  patchyBoneImage,
+  patchyOneShotFaces,
+} from './patchyConfig';
 
 // The ring keeps the streak tab's state language: pink once read (or
 // selected), amber/red when the day is at risk, blue on a rest day.
@@ -47,8 +51,6 @@ const motionClass: Record<PatchyMotion, string> = {
   spin: 'motion-safe:animate-patchy-spin',
   hop: 'motion-safe:animate-patchy-bump',
   hide: 'motion-safe:animate-patchy-hide',
-  shake: 'motion-safe:animate-patchy-shake',
-  chomp: 'motion-safe:animate-patchy-chomp',
 };
 
 const Heart = ({ className }: { className?: string }) => (
@@ -84,49 +86,14 @@ const Cloud = ({ className }: { className?: string }) => (
   </svg>
 );
 
-export const PatchyBoneIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 16 16" className={className} aria-hidden>
-    <g transform="rotate(-45 8 8)" fill="currentColor">
-      <rect x="3.5" y="6.6" width="9" height="2.8" rx="1" />
-      <circle cx="3.6" cy="6.4" r="1.9" />
-      <circle cx="3.6" cy="9.6" r="1.9" />
-      <circle cx="12.4" cy="6.4" r="1.9" />
-      <circle cx="12.4" cy="9.6" r="1.9" />
-    </g>
-  </svg>
-);
-
-// Reading along: a tiny newspaper held up in front of his face, his eyes
-// peeking over it. Slides up when a post opens and turns a page now and then.
-const Newspaper = (): ReactElement => (
-  <span
+export const PatchyBoneImage = ({ className }: { className?: string }) => (
+  <img
+    src={patchyBoneImage}
+    alt=""
     aria-hidden
-    className="pointer-events-none absolute inset-x-0.5 bottom-0 h-1/2 motion-safe:animate-patchy-paper-in"
-  >
-    <svg
-      viewBox="0 0 28 16"
-      preserveAspectRatio="none"
-      className="size-full origin-bottom text-white motion-safe:animate-patchy-paper-flip"
-    >
-      <path d="M1 2.5 14 1l13 1.5V16H1z" fill="currentColor" />
-      <g className="text-black" fill="currentColor">
-        <path d="M13.6 1h.8v15h-.8z" opacity="0.15" />
-        <g opacity="0.55">
-          <rect x="3" y="4" width="9" height="2" rx="0.5" />
-          <rect x="16" y="4" width="4" height="4" rx="0.5" />
-        </g>
-        <g opacity="0.3">
-          <rect x="3" y="7.5" width="9" height="1" rx="0.5" />
-          <rect x="3" y="10" width="7" height="1" rx="0.5" />
-          <rect x="3" y="12.5" width="8" height="1" rx="0.5" />
-          <rect x="21" y="4" width="4" height="1" rx="0.5" />
-          <rect x="21" y="6.5" width="3" height="1" rx="0.5" />
-          <rect x="16" y="10" width="9" height="1" rx="0.5" />
-          <rect x="16" y="12.5" width="7" height="1" rx="0.5" />
-        </g>
-      </g>
-    </svg>
-  </span>
+    className={classNames('object-contain', className)}
+    draggable={false}
+  />
 );
 
 const emoteIcon = (emote: PatchyEmote): ReactElement | null => {
@@ -152,7 +119,7 @@ const emoteIcon = (emote: PatchyEmote): ReactElement | null => {
     case 'sweat':
       return <Drop className="size-2.5 text-accent-blueCheese-default" />;
     case 'bone':
-      return <PatchyBoneIcon className="size-3 text-text-primary" />;
+      return <PatchyBoneImage className="size-3.5" />;
     case 'cloud':
       return <Cloud className="size-3 text-text-tertiary" />;
     case 'dots':
@@ -209,8 +176,6 @@ interface PatchyRailIconProps {
   emote?: PatchyEmote | null;
   emoteCount?: number;
   emoteKey?: number;
-  // A post is open: the newspaper is up.
-  isReadingPaper?: boolean;
   // The streak ring, goal arc and flame. Off where he isn't the streak
   // (his own rail spot and panel): a plain circle.
   showStreak?: boolean;
@@ -246,11 +211,21 @@ const FaceImage = ({
     },
     [onFail],
   );
+  const isOneShot = patchyOneShotFaces.has(shown);
+  const src = isOneShot
+    ? `${faceImage[shown]}?play=${encodeURIComponent(motionKey ?? '')}`
+    : faceImage[shown];
+  let key = 'still';
+  if (isOneShot) {
+    key = src;
+  } else if (motion) {
+    key = `${motionKey}-${motion}`;
+  }
   return (
     <img
-      key={motion ? `${motionKey}-${motion}` : 'still'}
+      key={key}
       ref={ref}
-      src={faceImage[shown]}
+      src={src}
       alt=""
       className={classNames(
         'size-full object-cover',
@@ -277,7 +252,6 @@ export const PatchyRailIcon = ({
   emote = null,
   emoteCount = 1,
   emoteKey = 0,
-  isReadingPaper = false,
   showStreak = true,
 }: PatchyRailIconProps): ReactElement => {
   let ringClass: string;
@@ -306,7 +280,6 @@ export const PatchyRailIcon = ({
         )}
       >
         <FaceImage face={face} motion={motion} motionKey={motionKey} />
-        {isReadingPaper && <Newspaper />}
       </span>
       {/* The ring is the 32px box around the 24px glyph with a 2px border, so
           the stroke centre sits at radius 16 - 1 = 15. */}

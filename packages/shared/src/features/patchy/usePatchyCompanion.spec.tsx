@@ -75,33 +75,31 @@ describe('usePatchyCompanion', () => {
     });
   });
 
-  it('shakes his head at a downvote under a little cloud', () => {
+  it('says nope to a downvote under a little cloud', () => {
     const { result } = render();
     act(() => emitPatchyEvent({ type: 'downvote', postId: 'p1' }));
     expect(result.current).toMatchObject({
-      face: 'sideeye',
-      motion: 'shake',
+      face: 'nope',
       emote: 'cloud',
     });
   });
 
-  it('holds the newspaper up while reading, and drops it to react', () => {
+  it('reads the newspaper while a post is open, and drops it to react', () => {
     const { result } = render(true, true);
-    expect(result.current.isReadingPaper).toBe(true);
+    expect(result.current.face).toBe('reading');
     act(() => emitPatchyEvent({ type: 'upvote' }));
-    expect(result.current.isReadingPaper).toBe(false);
+    expect(result.current.face).toBe('happy');
     act(() => {
       jest.advanceTimersByTime(PATCHY_REACTION_MS + 100);
     });
-    expect(result.current.isReadingPaper).toBe(true);
+    expect(result.current.face).toBe('reading');
   });
 
   it('chomps a bone even with reactions off', () => {
     const { result } = render(false);
     act(() => emitPatchyEvent({ type: 'bone' }));
     expect(result.current).toMatchObject({
-      face: 'tongue',
-      motion: 'chomp',
+      face: 'chomp',
       emote: 'bone',
       emoteCount: 3,
     });

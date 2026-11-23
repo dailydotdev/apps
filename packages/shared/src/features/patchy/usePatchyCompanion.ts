@@ -31,18 +31,20 @@ const MOOD_TICK_MS = 60 * 1000;
 
 // The motion each reaction plays with his face. Small on purpose: these show
 // on every action, so they stay inside the circle.
-export const patchyReactionMotion: Record<PatchyTrigger, PatchyMotion> = {
-  upvote: 'hop',
-  bookmark: 'wobble',
-  downvote: 'shake',
-  bone: 'chomp',
-  streak_day: 'hop',
-  late_night: 'yawn',
-  friday_deploy: 'hide',
-  welcome_back: 'hop',
-  on_a_roll: 'hop',
-  bookmark_pile: 'wobble',
-};
+// The animated faces (nope, chomp) bring their own motion.
+export const patchyReactionMotion: Record<PatchyTrigger, PatchyMotion | null> =
+  {
+    upvote: 'hop',
+    bookmark: 'wobble',
+    downvote: null,
+    bone: null,
+    streak_day: 'hop',
+    late_night: 'yawn',
+    friday_deploy: 'hide',
+    welcome_back: 'hop',
+    on_a_roll: 'hop',
+    bookmark_pile: 'wobble',
+  };
 
 // How many emotes float out: one, a few more for an escalation.
 export const patchyReactionEmotes: Record<PatchyTrigger, number> = {
@@ -89,8 +91,6 @@ interface UsePatchyCompanion {
   emote: PatchyEmote | null;
   emoteCount: number;
   emoteKey: number;
-  // Reading along with the newspaper up; it drops while he reacts.
-  isReadingPaper: boolean;
 }
 
 // The rail companion's brain: everything happens inside the streak circle.
@@ -243,7 +243,9 @@ export const usePatchyCompanion = ({
     isReading,
     prefersReducedMotion,
   });
-  const baseFace = isReading && mood !== 'away' ? 'lookdown' : restingFace;
+  // Reading along: his newspaper face, which animates on its own, so the idle
+  // faces stay out of it. It drops while he reacts.
+  const isReadingFace = isReading && mood !== 'away';
   const shown =
     isActive || (isEnabled && reaction?.trigger === 'bone') ? reaction : null;
 
@@ -257,19 +259,28 @@ export const usePatchyCompanion = ({
       emote: emote === 'none' ? null : emote,
       emoteCount: patchyReactionEmotes[shown.trigger],
       emoteKey: shown.key,
-      isReadingPaper: false,
     };
   }
 
-  const isIdleFace = !offerFace && !!idle.face;
+  if (offerFace || isReadingFace) {
+    return {
+      face: offerFace ?? 'reading',
+      mood,
+      motion: null,
+      motionKey: 'still',
+      emote: null,
+      emoteCount: 0,
+      emoteKey: 0,
+    };
+  }
+
   return {
-    face: offerFace ?? idle.face ?? baseFace,
+    face: idle.face ?? restingFace,
     mood,
-    motion: isIdleFace ? idle.motion : null,
+    motion: idle.face ? idle.motion : null,
     motionKey: `idle-${idle.key}`,
     emote: null,
     emoteCount: 0,
     emoteKey: 0,
-    isReadingPaper: isReading && mood !== 'away' && !offerFace,
   };
 };

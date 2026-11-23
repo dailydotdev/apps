@@ -2046,7 +2046,6 @@ export const SidebarDesktopV2 = ({
               emote={patchy.emote}
               emoteCount={patchy.emoteCount}
               emoteKey={patchy.emoteKey}
-              isReadingPaper={patchy.isReadingPaper}
               state={streakState}
               hasReadToday={streakReadToday}
               selected={isSelected}

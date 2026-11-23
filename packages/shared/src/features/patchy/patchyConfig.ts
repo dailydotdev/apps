@@ -37,6 +37,11 @@ export const patchyFaces = [
   'wink',
   'alert',
   'earflop',
+  // Animated faces: reading loops, chomp and nope play once, hopeful loops.
+  'reading',
+  'chomp',
+  'nope',
+  'hopeful',
 ] as const;
 export type PatchyFace = (typeof patchyFaces)[number];
 
@@ -89,6 +94,13 @@ const HOUR = 60 * 60 * 1000;
 const media = 'https://media.daily.dev/image/upload';
 
 // The pose he leans out with to point at a suggestion.
+// The bone you give him: the panel's card and his floating emote.
+export const patchyBoneImage = `${media}/v1795439489/public/patchy-v1-bone.webp`;
+
+// Animated faces that play once: each reaction gets its own URL so the
+// browser starts them from the first frame instead of the finished one.
+export const patchyOneShotFaces = new Set<PatchyFace>(['chomp', 'nope']);
+
 export const patchyOfferPose = `${media}/v1795078962/public/patchy-v1-peek-point.webp`;
 
 export const defaultPatchyConfig: PatchyConfig = {
@@ -121,12 +133,16 @@ export const defaultPatchyConfig: PatchyConfig = {
     wink: `${media}/v1795078972/public/patchy-v1-face-wink.webp`,
     alert: `${media}/v1795078973/public/patchy-v1-face-alert.webp`,
     earflop: `${media}/v1795078975/public/patchy-v1-face-earflop.webp`,
+    reading: `${media}/v1795439583/public/patchy-v1-face-anim-reading.webp`,
+    chomp: `${media}/v1795439584/public/patchy-v1-face-anim-bone.webp`,
+    nope: `${media}/v1795439586/public/patchy-v1-face-anim-nope.webp`,
+    hopeful: `${media}/v1795439588/public/patchy-v1-face-anim-hopeful.webp`,
   },
   reactions: {
     upvote: { enabled: true, emote: 'hearts', face: 'happy' },
     bookmark: { enabled: true, emote: 'dots', face: 'sideeye' },
-    downvote: { enabled: true, emote: 'cloud', face: 'sideeye' },
-    bone: { enabled: true, emote: 'bone', face: 'tongue' },
+    downvote: { enabled: true, emote: 'cloud', face: 'nope' },
+    bone: { enabled: true, emote: 'bone', face: 'chomp' },
     streak_day: { enabled: true, emote: 'sparkle', face: 'happy' },
     late_night: { enabled: true, emote: 'moon', face: 'sleepy' },
     friday_deploy: { enabled: true, emote: 'sweat', face: 'sideeye' },

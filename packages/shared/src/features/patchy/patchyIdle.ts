@@ -11,8 +11,6 @@ export const patchyMotions = [
   'spin',
   'hop',
   'hide',
-  'shake',
-  'chomp',
 ] as const;
 export type PatchyMotion = (typeof patchyMotions)[number];
 

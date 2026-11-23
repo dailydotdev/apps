@@ -73,7 +73,6 @@ export const PatchyHeaderIcon = (): ReactElement => {
       emote={patchy.emote}
       emoteCount={patchy.emoteCount}
       emoteKey={patchy.emoteKey}
-      isReadingPaper={patchy.isReadingPaper}
       state={state}
       hasReadToday={hasReadToday}
       goalProgress={goalProgress?.ratio}

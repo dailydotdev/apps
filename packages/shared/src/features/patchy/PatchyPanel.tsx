@@ -16,7 +16,7 @@ import { getPatchyConfig } from './patchyConfig';
 import type { PatchyMotion } from './patchyIdle';
 import { PatchyMenu, usePatchyContext } from './PatchyMenu';
 import { getPatchyContextLine } from './patchyContext';
-import { PatchyBoneIcon, PatchyRailIcon } from './PatchyRailIcon';
+import { PatchyBoneImage, PatchyRailIcon } from './PatchyRailIcon';
 import { usePatchyBone } from './patchyBone';
 
 export interface PatchyPanelState {
@@ -27,7 +27,6 @@ export interface PatchyPanelState {
   emote: PatchyEmote | null;
   emoteCount: number;
   emoteKey: number;
-  isReadingPaper: boolean;
 }
 
 interface PatchyPanelProps {
@@ -37,14 +36,17 @@ interface PatchyPanelProps {
   onClose?: () => void;
 }
 
-const PatchyBoneCard = (): ReactElement => {
-  const { hasFreeBone, bonesGiven, giveFreeBone } = usePatchyBone();
+const PatchyBoneCard = ({
+  hasFreeBone,
+  bonesGiven,
+  giveFreeBone,
+}: ReturnType<typeof usePatchyBone>): ReactElement => {
   const bonesLine =
     bonesGiven === 1 ? '1 bone given' : `${bonesGiven} bones given`;
   return (
     <div className="flex items-center gap-3 rounded-16 bg-surface-float p-3">
       <span className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-background-default">
-        <PatchyBoneIcon className="size-6 text-text-primary" />
+        <PatchyBoneImage className="size-8" />
       </span>
       <div className="flex min-w-0 flex-1 flex-col">
         <Typography type={TypographyType.Callout} bold>
@@ -84,6 +86,11 @@ export const PatchyPanel = ({
   const { moods } = getPatchyConfig();
   const context = usePatchyContext();
   const contextLine = getPatchyContextLine(context);
+  const bone = usePatchyBone();
+  // Today's bone is still waiting: he looks up hopefully, unless he's busy
+  // reacting, reading or suggesting something.
+  const isHopeful =
+    bone.hasFreeBone && !patchy.emote && patchy.face !== 'reading';
 
   return (
     <div className="flex flex-col gap-3 px-4 pb-4 pt-1">
@@ -91,13 +98,12 @@ export const PatchyPanel = ({
         <span className="flex size-20 items-center justify-center">
           <span className="scale-[2.5]">
             <PatchyRailIcon
-              face={patchy.face}
-              motion={patchy.motion}
+              face={isHopeful ? 'hopeful' : patchy.face}
+              motion={isHopeful ? null : patchy.motion}
               motionKey={patchy.motionKey}
               emote={patchy.emote}
               emoteCount={patchy.emoteCount}
               emoteKey={patchy.emoteKey}
-              isReadingPaper={patchy.isReadingPaper}
               state={state}
               hasReadToday={hasReadToday}
               showStreak={false}
@@ -116,7 +122,7 @@ export const PatchyPanel = ({
           </Typography>
         </div>
       </div>
-      <PatchyBoneCard />
+      <PatchyBoneCard {...bone} />
       <PatchyMenu context={context} onNavigate={onClose} />
     </div>
   );
