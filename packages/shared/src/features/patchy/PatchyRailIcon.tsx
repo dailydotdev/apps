@@ -47,6 +47,7 @@ const motionClass: Record<PatchyMotion, string> = {
   spin: 'motion-safe:animate-patchy-spin',
   hop: 'motion-safe:animate-patchy-bump',
   hide: 'motion-safe:animate-patchy-hide',
+  shake: 'motion-safe:animate-patchy-shake',
 };
 
 const Heart = ({ className }: { className?: string }) => (
@@ -65,6 +66,54 @@ const Drop = ({ className }: { className?: string }) => (
       fill="currentColor"
     />
   </svg>
+);
+
+const Cloud = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 16 16" className={className} aria-hidden>
+    <path
+      d="M4.5 11.5a3 3 0 0 1-.4-6 4 4 0 0 1 7.6-.6 3.3 3.3 0 0 1 .3 6.6z"
+      fill="currentColor"
+    />
+    <path
+      d="M6 13l-.6 1.6M9 13l-.6 1.6"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+// Reading along: a tiny newspaper held up in front of his face, his eyes
+// peeking over it. Slides up when a post opens and turns a page now and then.
+const Newspaper = (): ReactElement => (
+  <span
+    aria-hidden
+    className="pointer-events-none absolute inset-x-0.5 bottom-0 h-1/2 motion-safe:animate-patchy-paper-in"
+  >
+    <svg
+      viewBox="0 0 28 16"
+      preserveAspectRatio="none"
+      className="size-full origin-bottom text-white motion-safe:animate-patchy-paper-flip"
+    >
+      <path d="M1 2.5 14 1l13 1.5V16H1z" fill="currentColor" />
+      <g className="text-black" fill="currentColor">
+        <path d="M13.6 1h.8v15h-.8z" opacity="0.15" />
+        <g opacity="0.55">
+          <rect x="3" y="4" width="9" height="2" rx="0.5" />
+          <rect x="16" y="4" width="4" height="4" rx="0.5" />
+        </g>
+        <g opacity="0.3">
+          <rect x="3" y="7.5" width="9" height="1" rx="0.5" />
+          <rect x="3" y="10" width="7" height="1" rx="0.5" />
+          <rect x="3" y="12.5" width="8" height="1" rx="0.5" />
+          <rect x="21" y="4" width="4" height="1" rx="0.5" />
+          <rect x="21" y="6.5" width="3" height="1" rx="0.5" />
+          <rect x="16" y="10" width="9" height="1" rx="0.5" />
+          <rect x="16" y="12.5" width="7" height="1" rx="0.5" />
+        </g>
+      </g>
+    </svg>
+  </span>
 );
 
 const emoteIcon = (emote: PatchyEmote): ReactElement | null => {
@@ -89,6 +138,8 @@ const emoteIcon = (emote: PatchyEmote): ReactElement | null => {
       );
     case 'sweat':
       return <Drop className="size-2.5 text-accent-blueCheese-default" />;
+    case 'cloud':
+      return <Cloud className="size-3 text-text-tertiary" />;
     case 'dots':
       return (
         <span className="rounded-6 bg-surface-invert px-1 text-[0.5rem] font-bold leading-3 text-surface-primary">
@@ -143,6 +194,8 @@ interface PatchyRailIconProps {
   emote?: PatchyEmote | null;
   emoteCount?: number;
   emoteKey?: number;
+  // A post is open: the newspaper is up.
+  isReadingPaper?: boolean;
 }
 
 // A face that is not uploaded yet falls back to his neutral one instead of
@@ -206,6 +259,7 @@ export const PatchyRailIcon = ({
   emote = null,
   emoteCount = 1,
   emoteKey = 0,
+  isReadingPaper = false,
 }: PatchyRailIconProps): ReactElement => (
   <span className="relative flex size-6 items-center justify-center">
     <span
@@ -222,6 +276,7 @@ export const PatchyRailIcon = ({
       )}
     >
       <FaceImage face={face} motion={motion} motionKey={motionKey} />
+      {isReadingPaper && <Newspaper />}
     </span>
     {/* The ring is the 32px box around the 24px glyph with a 2px border, so
         the stroke centre sits at radius 16 - 1 = 15. */}

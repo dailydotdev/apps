@@ -415,6 +415,25 @@ export default {
           '0%, 100%': { transform: 'translateY(0)' },
           '30%, 70%': { transform: 'translateY(55%)' },
         },
+        // Downvote: a small "nope" head shake.
+        'patchy-shake': {
+          '0%, 100%': { transform: 'translateX(0) rotate(0deg)' },
+          '15%': { transform: 'translateX(-2px) rotate(-6deg)' },
+          '35%': { transform: 'translateX(2px) rotate(6deg)' },
+          '55%': { transform: 'translateX(-1.5px) rotate(-4deg)' },
+          '75%': { transform: 'translateX(1px) rotate(2deg)' },
+        },
+        // Reading along: the newspaper slides up in front of his face...
+        'patchy-paper-in': {
+          '0%': { transform: 'translateY(100%)' },
+          '100%': { transform: 'translateY(0)' },
+        },
+        // ...and every so often he turns the page.
+        'patchy-paper-flip': {
+          '0%, 88%, 100%': { transform: 'rotate(0deg) scaleX(1)' },
+          '92%': { transform: 'rotate(-4deg) scaleX(0.92)' },
+          '96%': { transform: 'rotate(3deg) scaleX(1)' },
+        },
         // A reaction's tiny emote floats out of the circle and fades.
         'patchy-float': {
           '0%': { transform: 'translate(0, 2px) scale(0.6)', opacity: '0' },
@@ -489,6 +508,10 @@ export default {
         'patchy-spin': 'patchy-spin 1.2s cubic-bezier(0.45, 0, 0.55, 1)',
         'patchy-hide': 'patchy-hide 1.6s ease-in-out',
         'patchy-float': 'patchy-float 1.3s ease-out both',
+        'patchy-shake': 'patchy-shake 0.7s ease-in-out',
+        'patchy-paper-in':
+          'patchy-paper-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both',
+        'patchy-paper-flip': 'patchy-paper-flip 7s ease-in-out infinite',
       },
     },
     lineClamp: {

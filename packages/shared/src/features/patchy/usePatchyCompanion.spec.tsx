@@ -12,11 +12,12 @@ jest.mock('../../hooks/usePrefersReducedMotion', () => ({
   usePrefersReducedMotion: () => false,
 }));
 
-const render = (isReactionsEnabled = true) =>
+const render = (isReactionsEnabled = true, isReading = false) =>
   renderHook(() =>
     usePatchyCompanion({
       isEnabled: true,
       isReactionsEnabled,
+      isReading,
       isStreakLoading: false,
       state: 'safe',
       hasReadToday: true,
@@ -72,6 +73,27 @@ describe('usePatchyCompanion', () => {
       motion: 'wobble',
       emote: 'dots',
     });
+  });
+
+  it('shakes his head at a downvote under a little cloud', () => {
+    const { result } = render();
+    act(() => emitPatchyEvent({ type: 'downvote', postId: 'p1' }));
+    expect(result.current).toMatchObject({
+      face: 'sideeye',
+      motion: 'shake',
+      emote: 'cloud',
+    });
+  });
+
+  it('holds the newspaper up while reading, and drops it to react', () => {
+    const { result } = render(true, true);
+    expect(result.current.isReadingPaper).toBe(true);
+    act(() => emitPatchyEvent({ type: 'upvote' }));
+    expect(result.current.isReadingPaper).toBe(false);
+    act(() => {
+      jest.advanceTimersByTime(PATCHY_REACTION_MS + 100);
+    });
+    expect(result.current.isReadingPaper).toBe(true);
   });
 
   it('stays still with reactions off', () => {

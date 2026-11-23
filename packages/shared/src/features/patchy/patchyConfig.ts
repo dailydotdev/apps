@@ -8,6 +8,8 @@ import { storageWrapper } from '../../lib/storageWrapper';
 export const patchyTriggers = [
   'upvote',
   'bookmark',
+  // Not every post lands: he side-eyes it with you.
+  'downvote',
   'streak_day',
   'late_night',
   'friday_deploy',
@@ -42,6 +44,7 @@ export const patchyEmotes = [
   'sparkle',
   'moon',
   'sweat',
+  'cloud',
   'none',
 ] as const;
 export type PatchyEmote = (typeof patchyEmotes)[number];
@@ -119,6 +122,7 @@ export const defaultPatchyConfig: PatchyConfig = {
   reactions: {
     upvote: { enabled: true, emote: 'hearts', face: 'happy' },
     bookmark: { enabled: true, emote: 'dots', face: 'sideeye' },
+    downvote: { enabled: true, emote: 'cloud', face: 'sideeye' },
     streak_day: { enabled: true, emote: 'sparkle', face: 'happy' },
     late_night: { enabled: true, emote: 'moon', face: 'sleepy' },
     friday_deploy: { enabled: true, emote: 'sweat', face: 'sideeye' },

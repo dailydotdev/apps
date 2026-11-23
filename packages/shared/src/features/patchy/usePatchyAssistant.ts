@@ -36,6 +36,7 @@ import { getPatchyConfig } from './patchyConfig';
 import type { PatchyEvent } from './patchyEvents';
 import { subscribePatchyEvents } from './patchyEvents';
 import { isAway } from './patchyTriggers';
+import { isPatchyPostOpen } from './usePatchyReading';
 import { openPatchyPost } from './PatchyPostModal';
 
 export type PatchyOfferAnswer = 'accept' | 'dismiss' | 'never' | 'ignore';
@@ -332,10 +333,7 @@ export const usePatchyAssistant = ({
       return undefined;
     }
     const id = setInterval(() => {
-      const isPostOpen =
-        !!document.querySelector('.post-modal-overlay') ||
-        window.location.pathname.startsWith('/posts/');
-      if (!isPostOpen) {
+      if (!isPatchyPostOpen()) {
         sessionRef.current = null;
         setPatchyReadingPost(null);
         setIsReading(false);

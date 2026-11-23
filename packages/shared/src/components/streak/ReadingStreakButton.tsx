@@ -11,7 +11,7 @@ import { useViewSize, ViewSize } from '../../hooks';
 import { useIsPhone } from '../../hooks/useViewSize';
 import { isTesting } from '../../lib/constants';
 import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent } from '../../lib/log';
+import { LogEvent, TargetType } from '../../lib/log';
 import { RootPortal } from '../tooltips/Portal';
 import { Drawer } from '../drawers';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -23,6 +23,11 @@ import { useStreakTimezoneOk } from '../../hooks/streaks/useStreakTimezoneOk';
 import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
 import { StreakQuestsSection } from '../sidebar/sections/StreakQuestsSection';
 import { StreakSoftBreakSurface } from './StreakSoftBreakHero';
+import {
+  PatchyHeaderIcon,
+  PatchyStreakQuestsSection,
+  usePatchyHeaderEnabled,
+} from '../../features/patchy/PatchyHeaderIcon';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;
@@ -104,6 +109,9 @@ export function ReadingStreakButton({
     streak?.lastViewAt &&
     isSameDayInTimezone(new Date(streak.lastViewAt), new Date(), user.timezone);
   const isTimezoneOk = useStreakTimezoneOk();
+  const isPatchyEnabled = usePatchyHeaderEnabled({
+    shouldEvaluate: !!compact && !isLaptopLayout && !!streak,
+  });
 
   const handleToggle = useCallback(() => {
     setShouldShowStreaks((state) => !state);
@@ -112,8 +120,14 @@ export function ReadingStreakButton({
       logEvent({
         event_name: LogEvent.OpenStreaks,
       });
+      if (isPatchyEnabled) {
+        logEvent({
+          event_name: LogEvent.Click,
+          target_type: TargetType.Patchy,
+        });
+      }
     }
-  }, [shouldShowStreaks, logEvent]);
+  }, [shouldShowStreaks, logEvent, isPatchyEnabled]);
 
   const closeStreaks = useCallback(() => setShouldShowStreaks(false), []);
 
@@ -151,13 +165,22 @@ export function ReadingStreakButton({
           iconPosition={iconPosition}
           icon={
             compact ? (
-              <div className="relative flex h-6 w-6 items-center justify-center">
-                <IconWrapper
-                  size={IconSize.XSmall}
-                  wrapperClassName="flex h-full w-full items-center justify-center"
-                >
-                  <ReadingStreakIcon secondary={hasReadToday} />
-                </IconWrapper>
+              <div
+                className={classnames(
+                  'relative flex h-6 w-6 items-center justify-center',
+                  isPatchyEnabled && 'mx-1',
+                )}
+              >
+                {isPatchyEnabled ? (
+                  <PatchyHeaderIcon />
+                ) : (
+                  <IconWrapper
+                    size={IconSize.XSmall}
+                    wrapperClassName="flex h-full w-full items-center justify-center"
+                  >
+                    <ReadingStreakIcon secondary={hasReadToday} />
+                  </IconWrapper>
+                )}
                 {!isTimezoneOk && (
                   <WarningIcon
                     size={IconSize.Size16}
@@ -216,10 +239,17 @@ export function ReadingStreakButton({
           title="Current Streak"
           className={{ drawer: 'p-0' }}
         >
-          <StreakQuestsSection
-            softBreakSurface={StreakSoftBreakSurface.Drawer}
-            onClose={closeStreaks}
-          />
+          {isPatchyEnabled ? (
+            <PatchyStreakQuestsSection
+              softBreakSurface={StreakSoftBreakSurface.Drawer}
+              onClose={closeStreaks}
+            />
+          ) : (
+            <StreakQuestsSection
+              softBreakSurface={StreakSoftBreakSurface.Drawer}
+              onClose={closeStreaks}
+            />
+          )}
         </Drawer>
       )}
     </>

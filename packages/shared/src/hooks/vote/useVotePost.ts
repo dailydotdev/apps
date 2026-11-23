@@ -167,6 +167,7 @@ const useVotePost = ({
       }
 
       logEvent(postLogEvent(LogEvent.DownvotePost, post, finalLogOptions));
+      emitPatchyEvent({ type: 'downvote', postId: post.id });
 
       downvotePost({ id: post.id });
     },

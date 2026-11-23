@@ -69,6 +69,12 @@ jest.mock('../sidebar/sections/StreakQuestsSection', () => ({
   ),
 }));
 
+jest.mock('../../features/patchy/PatchyHeaderIcon', () => ({
+  usePatchyHeaderEnabled: () => false,
+  PatchyHeaderIcon: () => null,
+  PatchyStreakQuestsSection: () => null,
+}));
+
 jest.mock('./popup/ReadingStreakPopup', () => ({
   ReadingStreakPopup: ({ onClose }: { onClose?: () => void }) => (
     <div data-testid="reading-streak-popup">

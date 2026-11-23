@@ -34,6 +34,7 @@ const MOOD_TICK_MS = 60 * 1000;
 export const patchyReactionMotion: Record<PatchyTrigger, PatchyMotion> = {
   upvote: 'hop',
   bookmark: 'wobble',
+  downvote: 'shake',
   streak_day: 'hop',
   late_night: 'yawn',
   friday_deploy: 'hide',
@@ -46,6 +47,7 @@ export const patchyReactionMotion: Record<PatchyTrigger, PatchyMotion> = {
 export const patchyReactionEmotes: Record<PatchyTrigger, number> = {
   upvote: 1,
   bookmark: 1,
+  downvote: 1,
   streak_day: 1,
   late_night: 1,
   friday_deploy: 1,
@@ -85,6 +87,8 @@ interface UsePatchyCompanion {
   emote: PatchyEmote | null;
   emoteCount: number;
   emoteKey: number;
+  // Reading along with the newspaper up; it drops while he reacts.
+  isReadingPaper: boolean;
 }
 
 // The rail companion's brain: everything happens inside the streak circle.
@@ -187,6 +191,12 @@ export const usePatchyCompanion = ({
         }
         return;
       }
+      if (event.type === 'downvote') {
+        if (isActive) {
+          react('downvote');
+        }
+        return;
+      }
       if (event.type === 'streak_day') {
         recordPatchyActivity(user.id, 'streak_day');
         if (isActive) {
@@ -238,6 +248,7 @@ export const usePatchyCompanion = ({
       emote: emote === 'none' ? null : emote,
       emoteCount: patchyReactionEmotes[shown.trigger],
       emoteKey: shown.key,
+      isReadingPaper: false,
     };
   }
 
@@ -250,5 +261,6 @@ export const usePatchyCompanion = ({
     emote: null,
     emoteCount: 0,
     emoteKey: 0,
+    isReadingPaper: isReading && mood !== 'away' && !offerFace,
   };
 };
