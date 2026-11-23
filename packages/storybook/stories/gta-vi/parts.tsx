@@ -1,7 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Frame } from '../startups-onboarding/frame';
-import { useIsPageLight } from './theme';
 
 /*
  * Review furniture for the All states pages: a state grid with a label and
@@ -104,4 +103,18 @@ export const DeviceRow = ({
       ))}
     </div>
   );
+};
+
+const readIsPageLight = (): boolean =>
+  document.documentElement.classList.contains('light');
+
+/** Whether Storybook's toolbar has the page in light mode, kept live. */
+export const useIsPageLight = (): boolean => {
+  const [isLight, setIsLight] = useState(readIsPageLight);
+  useEffect(() => {
+    const observer = new MutationObserver(() => setIsLight(readIsPageLight()));
+    observer.observe(document.documentElement, { attributes: true });
+    return () => observer.disconnect();
+  }, []);
+  return isLight;
 };

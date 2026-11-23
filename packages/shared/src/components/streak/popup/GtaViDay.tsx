@@ -2,8 +2,6 @@ import type { CSSProperties, ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { Tooltip } from '../../tooltip/Tooltip';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featureGtaViFreezeDay } from '../../../lib/featureManagement';
 import { dateFormatInTimezone } from '../../../lib/timezones';
 
 export const GTA_VI_RELEASE_DAY = '2026-11-19';
@@ -16,15 +14,6 @@ const toDayKey = (date: Date, timezone: string): string =>
 
 export const isGtaViReleaseDay = (date: Date, timezone: string): boolean =>
   toDayKey(date, timezone) === GTA_VI_RELEASE_DAY;
-
-export const useIsGtaViDayEnabled = (hasReleaseDay: boolean): boolean => {
-  const { value } = useConditionalFeature({
-    feature: featureGtaViFreezeDay,
-    shouldEvaluate: hasReleaseDay,
-  });
-
-  return hasReleaseDay && value;
-};
 
 const getGtaViCopy = (
   today: Date,
