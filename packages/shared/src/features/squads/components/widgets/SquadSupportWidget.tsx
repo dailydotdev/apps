@@ -16,8 +16,6 @@ import { isCompanyPage } from '../../lib/companyPage';
 import { SquadViewer } from '../../lib/viewer';
 import { isDmAvailable } from '../../../messages/transport';
 import { useOpenSupportChat } from '../../../messages/hooks/useOpenSupportChat';
-import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
-import { featureCompanySupportChat } from '../../../../lib/featureManagement';
 import { SquadWidget } from './SquadWidget';
 
 const SupportButton = ({ sourceId }: { sourceId: string }): ReactElement => {
@@ -41,17 +39,13 @@ const SupportButton = ({ sourceId }: { sourceId: string }): ReactElement => {
  */
 export const SquadSupportWidget = (): ReactElement | null => {
   const { squad, viewer, isViewerKnown } = useSquadPageContext();
-  const isCandidate =
+  const isVisible =
     isDmAvailable &&
     isViewerKnown &&
     viewer === SquadViewer.Admin &&
     isCompanyPage(squad);
-  const { value: isEnabled } = useConditionalFeature({
-    feature: featureCompanySupportChat,
-    shouldEvaluate: isCandidate,
-  });
 
-  if (!isCandidate || !isEnabled) {
+  if (!isVisible) {
     return null;
   }
 
