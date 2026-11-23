@@ -29,7 +29,11 @@ const CombinedImpressionsChart = dynamic(
 
 const EmptyChart = ({ children }: { children: string }): ReactElement => (
   <div className="flex h-40 items-center justify-center rounded-12 border border-border-subtlest-tertiary px-4 text-center">
-    <Typography type={TypographyType.Callout} color={TypographyColor.Tertiary}>
+    <Typography
+      type={TypographyType.Callout}
+      color={TypographyColor.Tertiary}
+      className="shrink"
+    >
       {children}
     </Typography>
   </div>
