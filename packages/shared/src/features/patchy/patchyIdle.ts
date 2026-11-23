@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { PatchyFace } from './patchyConfig';
-import { patchyAnimatedFaces } from './patchyConfig';
+import { isPatchyFaceAnimated } from './patchyConfig';
 
 // The small things Patchy does inside the streak circle while nothing is
 // happening: blinking, glancing at the feed, flopping an ear, yawning. Each
@@ -130,7 +130,7 @@ export const usePatchyIdle = ({
         face: action.face,
         // Animated faces bring their own motion.
         motion:
-          prefersReducedMotion || patchyAnimatedFaces.has(action.face)
+          prefersReducedMotion || isPatchyFaceAnimated(action.face)
             ? null
             : (action.motion ?? null),
         key: keyRef.current,

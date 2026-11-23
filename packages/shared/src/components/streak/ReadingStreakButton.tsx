@@ -26,8 +26,8 @@ import { StreakSoftBreakSurface } from './StreakSoftBreakHero';
 import {
   PatchyHeaderIcon,
   PatchyStreakQuestsSection,
-  usePatchyHeaderEnabled,
 } from '../../features/patchy/PatchyHeaderIcon';
+import { usePatchyEnabled } from '../../features/patchy/usePatchyEnabled';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;
@@ -40,6 +40,9 @@ interface ReadingStreakButtonProps {
   // sidebar surface.
   appendTooltipToBody?: boolean;
   zIndex?: number;
+  // Patchy takes the flame's spot. Only the phone header passes it, so he
+  // has one deterministic place below the laptop rail.
+  withPatchy?: boolean;
 }
 
 interface CustomStreaksTooltipProps {
@@ -97,6 +100,7 @@ export function ReadingStreakButton({
   className,
   appendTooltipToBody,
   zIndex,
+  withPatchy = false,
 }: ReadingStreakButtonProps): ReactElement {
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
@@ -109,8 +113,8 @@ export function ReadingStreakButton({
     streak?.lastViewAt &&
     isSameDayInTimezone(new Date(streak.lastViewAt), new Date(), user.timezone);
   const isTimezoneOk = useStreakTimezoneOk();
-  const isPatchyEnabled = usePatchyHeaderEnabled({
-    shouldEvaluate: !!compact && !isLaptopLayout && !!streak,
+  const isPatchyEnabled = usePatchyEnabled({
+    shouldEvaluate: withPatchy && !isLaptopLayout && !!streak,
   });
 
   const handleToggle = useCallback(() => {
@@ -124,6 +128,7 @@ export function ReadingStreakButton({
         logEvent({
           event_name: LogEvent.Click,
           target_type: TargetType.Patchy,
+          extra: JSON.stringify({ origin: 'header' }),
         });
       }
     }

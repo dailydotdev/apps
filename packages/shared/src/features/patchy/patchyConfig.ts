@@ -105,40 +105,6 @@ const media = 'https://media.daily.dev/image/upload';
 // The bone you give him: the panel's card and his floating emote.
 export const patchyBoneImage = `${media}/v1795439489/public/patchy-v1-bone.webp`;
 
-// Faces whose default image is animated. They bring their own motion, so
-// the circle doesn't add one. The loops keep playing; every other one plays
-// once from its first frame each time it shows.
-export const patchyAnimatedFaces = new Set<PatchyFace>([
-  'neutral',
-  'asleep',
-  'lookright',
-  'yawn',
-  'tongue',
-  'wink',
-  'earflop',
-  'reading',
-  'chomp',
-  'nope',
-  'hopeful',
-  'delighted',
-  'smirk',
-  'proud',
-  'overjoyed',
-  'panting',
-  'drowsy',
-  'nervous',
-  'sheepish',
-]);
-const patchyLoopingFaces = new Set<PatchyFace>([
-  'neutral',
-  'asleep',
-  'reading',
-  'hopeful',
-]);
-
-export const isPatchyOneShotFace = (face: PatchyFace): boolean =>
-  patchyAnimatedFaces.has(face) && !patchyLoopingFaces.has(face);
-
 export const patchyOfferPose = `${media}/v1795078962/public/patchy-v1-peek-point.webp`;
 
 export const defaultPatchyConfig: PatchyConfig = {
@@ -329,3 +295,24 @@ export const getPatchyConfig = (): PatchyConfig => {
   }
   return loadedConfig;
 };
+
+// Whether a face animates is read off the image the config gives it, so a
+// config that points a face back at a still image gets the circle's motion
+// and blinks again. Animated assets are named `patchy-v1-face-anim-*`.
+const isAnimatedImage = (image: string | undefined): boolean =>
+  !!image?.includes('-anim-');
+
+export const isPatchyFaceAnimated = (face: PatchyFace): boolean =>
+  isAnimatedImage(getPatchyConfig().faceImage[face]);
+
+// The animated faces that keep playing; every other one plays once from its
+// first frame each time it shows.
+const patchyLoopingFaces = new Set<PatchyFace>([
+  'neutral',
+  'asleep',
+  'reading',
+  'hopeful',
+]);
+
+export const isPatchyOneShotFace = (face: PatchyFace): boolean =>
+  isPatchyFaceAnimated(face) && !patchyLoopingFaces.has(face);

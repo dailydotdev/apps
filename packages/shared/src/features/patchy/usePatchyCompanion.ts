@@ -11,8 +11,8 @@ import type {
 } from './patchyConfig';
 import {
   getPatchyConfig,
+  isPatchyFaceAnimated,
   isPatchyOneShotFace,
-  patchyAnimatedFaces,
 } from './patchyConfig';
 import { loadPatchyFace } from './patchyFacePlayback';
 import { subscribePatchyEvents } from './patchyEvents';
@@ -250,7 +250,7 @@ export const usePatchyCompanion = ({
     isResting: mood === 'away' || mood === 'resting',
     isReading,
     prefersReducedMotion,
-    canBlink: !patchyAnimatedFaces.has(restingFace),
+    canBlink: !isPatchyFaceAnimated(restingFace),
   });
   // Reading along: his newspaper face, which animates on its own, so the idle
   // faces stay out of it. It drops while he reacts.
@@ -265,7 +265,7 @@ export const usePatchyCompanion = ({
       mood,
       // Animated faces bring their own motion.
       motion:
-        prefersReducedMotion || patchyAnimatedFaces.has(face)
+        prefersReducedMotion || isPatchyFaceAnimated(face)
           ? null
           : patchyReactionMotion[shown.trigger],
       motionKey: `reaction-${shown.key}`,

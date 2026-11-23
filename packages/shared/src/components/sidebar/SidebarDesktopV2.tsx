@@ -2024,6 +2024,7 @@ export const SidebarDesktopV2 = ({
             logEvent({
               event_name: LogEvent.Click,
               target_type: TargetType.Patchy,
+              extra: JSON.stringify({ origin: 'rail' }),
             });
             onSelectCategory(SidebarCategory.Patchy);
           }}

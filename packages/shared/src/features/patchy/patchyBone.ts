@@ -3,13 +3,11 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
 import { storageWrapper } from '../../lib/storageWrapper';
+import { getPatchyDayKey } from './patchyDay';
 import { emitPatchyEvent } from './patchyEvents';
 
 const freeBoneKey = (userId: string) => `patchy_free_bone:${userId}`;
 const bonesGivenKey = (userId: string) => `patchy_bones_given:${userId}`;
-
-export const getPatchyBoneDay = (date: Date): string =>
-  `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 
 const readBonesGiven = (userId: string): number => {
   const count = Number(storageWrapper.getItem(bonesGivenKey(userId)));
@@ -32,15 +30,14 @@ export const usePatchyBone = (): UsePatchyBone => {
   const [, setVersion] = useState(0);
   const hasFreeBone =
     !!userId &&
-    storageWrapper.getItem(freeBoneKey(userId)) !==
-      getPatchyBoneDay(new Date());
+    storageWrapper.getItem(freeBoneKey(userId)) !== getPatchyDayKey(new Date());
   const bonesGiven = userId ? readBonesGiven(userId) : 0;
 
   const giveFreeBone = useCallback(() => {
     if (!userId) {
       return;
     }
-    const today = getPatchyBoneDay(new Date());
+    const today = getPatchyDayKey(new Date());
     if (storageWrapper.getItem(freeBoneKey(userId)) === today) {
       return;
     }
@@ -55,6 +52,7 @@ export const usePatchyBone = (): UsePatchyBone => {
       event_name: LogEvent.Click,
       target_type: TargetType.Patchy,
       target_id: 'free_bone',
+      extra: JSON.stringify({ origin: 'panel' }),
     });
   }, [userId, logEvent]);
 
