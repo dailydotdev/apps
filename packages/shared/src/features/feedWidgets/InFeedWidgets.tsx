@@ -242,11 +242,10 @@ export const FeedWidgetCell = ({
         </FeedWidgetsProvider>
       </div>
       {!isEditing && !isReadOnly && (
-        // On hover, the way into Customize mode from the widget itself.
-        <Button
-          variant={ButtonVariant.Float}
-          size={ButtonSize.XSmall}
-          icon={<SettingsIcon />}
+        // A corner badge outside the card, so it never covers the widget's
+        // own controls. A mouse sees it on hover; touch always does.
+        <button
+          type="button"
           aria-label={`Customize ${definition.name}`}
           title="Customize widgets"
           onClick={() => {
@@ -255,8 +254,10 @@ export const FeedWidgetCell = ({
             });
             setIsEditing(true);
           }}
-          className="absolute right-2 top-2 z-3 opacity-0 shadow-2 transition-opacity focus-visible:opacity-100 group-hover/widget:opacity-100"
-        />
+          className="absolute -right-2 -top-2 z-3 flex size-6 items-center justify-center rounded-max border border-border-subtlest-tertiary bg-background-popover text-text-secondary shadow-2 transition-opacity hover:text-text-primary focus-visible:opacity-100 mouse:opacity-0 mouse:group-hover/widget:opacity-100"
+        >
+          <SettingsIcon size={IconSize.Size16} />
+        </button>
       )}
       {canEdit && (
         <>

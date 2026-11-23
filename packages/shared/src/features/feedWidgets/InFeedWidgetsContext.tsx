@@ -148,7 +148,7 @@ const CustomizeButton = ({
       logEvent({
         event_name: LogEvent.CustomizeFeedWidgets,
         target_type: TargetType.FeedWidget,
-        extra: JSON.stringify({ origin: Origin.FeedWidgets }),
+        extra: JSON.stringify({ origin: Origin.FeedWidgets, source: 'button' }),
       });
     }
     setIsButtonTipOpen(false);
