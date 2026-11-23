@@ -30,6 +30,7 @@ import {
 import type { PostHero } from './types';
 import type { FeedItemExplain } from '../features/feedExplain/types';
 import type { CommunitySentimentPost } from '../components/post/focus/CommunitySentiment';
+import type { AdSlotLifecycle } from '../features/monetization/adSlotLifecycle';
 
 export const ACCEPTED_TYPES = 'image/png,image/jpeg,image/webp,image/avif';
 export const acceptedTypesList = ACCEPTED_TYPES.split(',');
@@ -373,6 +374,7 @@ export interface AdRefreshConfig {
 
 export interface Ad {
   pixel?: string[];
+  lifecycle?: AdSlotLifecycle;
   source: string;
   company: string;
   link: string;

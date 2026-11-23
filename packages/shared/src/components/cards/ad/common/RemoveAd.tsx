@@ -12,6 +12,8 @@ import { plusUrl } from '../../../../lib/constants';
 import Link from '../../../utilities/Link';
 import { LogEvent, TargetId } from '../../../../lib/log';
 import { usePlusSubscription } from '../../../../hooks';
+import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
+import { featureAdRemoveCopy } from '../../../../lib/featureManagement';
 
 type Props = { iconOnly?: boolean } & ButtonProps<AllowedTags>;
 
@@ -22,6 +24,10 @@ export const RemoveAd = ({
   ...props
 }: Props): ReactElement => {
   const { logSubscriptionEvent } = usePlusSubscription();
+  const { value: copy } = useConditionalFeature({
+    feature: featureAdRemoveCopy,
+    shouldEvaluate: !iconOnly,
+  });
   return (
     <Link passHref href={plusUrl}>
       <Button
@@ -38,7 +44,7 @@ export const RemoveAd = ({
         }}
         {...props}
       >
-        {!iconOnly ? 'Remove' : undefined}
+        {!iconOnly ? copy : undefined}
       </Button>
     </Link>
   );

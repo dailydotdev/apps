@@ -116,3 +116,34 @@ describe('CompactQuestRow locked Plus quest', () => {
     expect(screen.getByLabelText('Plus quest')).toBeInTheDocument();
   });
 });
+
+describe('CompactQuestRow swap', () => {
+  const renderRow = (quest: UserQuest) =>
+    render(
+      <ul>
+        <CompactQuestRow
+          quest={quest}
+          isClaiming={false}
+          onClaim={jest.fn()}
+          onRefresh={jest.fn()}
+        />
+      </ul>,
+    );
+
+  it('offers Swap when the quest has a swap price', () => {
+    renderRow(makeQuest({ refreshCost: 10 }));
+
+    expect(screen.getByRole('button', { name: 'Swap' })).toBeInTheDocument();
+  });
+
+  it.each([
+    ['null', null],
+    ['missing', undefined],
+  ])('hides Swap when the swap price is %s', (_, refreshCost) => {
+    renderRow(makeQuest({ refreshCost }));
+
+    expect(
+      screen.queryByRole('button', { name: 'Swap' }),
+    ).not.toBeInTheDocument();
+  });
+});

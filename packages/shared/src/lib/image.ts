@@ -484,8 +484,5 @@ export const cloudinaryPatchyFed =
 export const cloudinaryPatchyBone =
   'https://media.daily.dev/image/upload/s--Q9J0qr-g--/f_auto/v1791728721/public/patchy-treat-bone';
 
-export const cloudinaryViceCityCover =
-  'https://media.daily.dev/image/upload/s--M2qNVdoS--/f_auto,q_auto/public/theme-vice-city-cover.webp';
-
 export const boostLiveArt =
   'https://media.daily.dev/image/upload/s--Q135FeGF--/f_auto,q_auto/v1794909938/public/boost-strip-patchy-v2';

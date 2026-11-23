@@ -116,14 +116,8 @@ const Widget = ({ size }: { size: FeedWidgetSize }): ReactElement => (
 );
 
 /** Every surface on one pinned day, with the VI tooltips open. */
-const AllSurfaces = ({
-  isEnabled = true,
-  reads,
-}: {
-  isEnabled?: boolean;
-  reads?: number[];
-}): ReactElement => (
-  <ProductionScene isEnabled={isEnabled} pinOpen reads={reads}>
+const AllSurfaces = ({ reads }: { reads?: number[] }): ReactElement => (
+  <ProductionScene pinOpen reads={reads}>
     <Surface
       name="Sidebar panel (laptop) and phone drawer"
       component="<StreakQuestsSection />"
@@ -208,19 +202,6 @@ export const Gone: Story = {
       lead="Release day has left the grid and the strip: every surface is production as it is."
     >
       <AllSurfaces reads={[0, 1, 2]} />
-    </Page>
-  ),
-};
-
-export const FlagOff: Story = {
-  name: 'Nov 19: flag off (control)',
-  parameters: { today: '2026-11-19' },
-  render: () => (
-    <Page
-      title="Nov 19: gta_vi_freeze_day off"
-      lead="Production's control: the same day with the flag off renders production's StreakMonthCalendar and DayStreak untouched."
-    >
-      <AllSurfaces isEnabled={false} reads={[1, 2, 3, 4]} />
     </Page>
   ),
 };

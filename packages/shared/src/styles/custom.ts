@@ -132,5 +132,3 @@ export const squadRailFadeMask = ({
 
   return `linear-gradient(to right, transparent, black ${start}, black calc(100% - ${end}), transparent)`;
 };
-
-export const viceCityCoverOverlay = 'var(--theme-vice-city-cover-overlay)';

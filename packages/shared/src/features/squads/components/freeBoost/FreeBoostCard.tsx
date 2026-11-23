@@ -10,6 +10,8 @@ import {
 import { ProgressBar } from '../../../../components/fields/ProgressBar';
 import { LazyImage } from '../../../../components/LazyImage';
 import { largeNumberFormat } from '../../../../lib/numberFormat';
+import { VIcon } from '../../../../components/icons';
+import { IconSize } from '../../../../components/Icon';
 
 /** What the free boost has delivered so far, from the post's analytics */
 export interface FreeBoostStats {
@@ -44,7 +46,26 @@ interface BoostingProps {
   now?: Date;
 }
 
-export type FreeBoostCardProps = (FirstPostProps | BoostingProps) & {
+/** Something the page needs before its boost can start */
+export interface FreeBoostSetupStep {
+  id: string;
+  title: string;
+  hint: string;
+  isDone: boolean;
+  href: string;
+  cta: string;
+}
+
+interface SetupProps {
+  state: 'setup';
+  steps: FreeBoostSetupStep[];
+}
+
+export type FreeBoostCardProps = (
+  | FirstPostProps
+  | BoostingProps
+  | SetupProps
+) & {
   className?: string;
 };
 
@@ -247,9 +268,55 @@ const Boosting = ({
   </>
 );
 
+const StepCheck = ({ isDone }: { isDone: boolean }): ReactElement => (
+  <span
+    aria-hidden
+    className={classNames(
+      'flex size-5 shrink-0 items-center justify-center rounded-full',
+      isDone
+        ? 'bg-accent-cabbage-default text-surface-invert'
+        : 'border border-border-subtlest-secondary',
+    )}
+  >
+    {isDone && <VIcon size={IconSize.Size16} secondary />}
+  </span>
+);
+
+const Setup = ({ steps }: SetupProps): ReactElement => (
+  <>
+    <Heading title={`Finish your page to unlock your $${BOOST_DOLLARS} boost`}>
+      Developers see your logo and description next to the boosted post, and
+      many click through to your site. Add them and we&apos;ll boost your post.
+    </Heading>
+    <ul className="flex flex-col">
+      {steps.map((step) => (
+        <li key={step.id} className="flex items-center gap-3 py-2.5">
+          <StepCheck isDone={step.isDone} />
+          <span className="flex min-w-0 flex-1 flex-col">
+            <span className="font-bold typo-callout">{step.title}</span>
+            <span className="text-pretty text-text-tertiary typo-footnote">
+              {step.hint}
+            </span>
+          </span>
+          <Button
+            tag="a"
+            href={step.href}
+            variant={step.isDone ? ButtonVariant.Tertiary : ButtonVariant.Float}
+            size={ButtonSize.Small}
+            className="shrink-0"
+          >
+            {step.isDone ? 'Edit' : step.cta}
+          </Button>
+        </li>
+      ))}
+    </ul>
+  </>
+);
+
 /**
  * The free $100 boost a new company page gets on its first post, for its
- * admins: the nudge to write that post, then the boost while it runs.
+ * admins: what the page still needs, the nudge to write that post, then the
+ * boost while it runs.
  */
 export const FreeBoostCard = (props: FreeBoostCardProps): ReactElement => {
   const { className } = props;
@@ -258,6 +325,7 @@ export const FreeBoostCard = (props: FreeBoostCardProps): ReactElement => {
     <Card className={className} isHighlighted={props.state === 'boosting'}>
       {props.state === 'first_post' && <FirstPost {...props} />}
       {props.state === 'boosting' && <Boosting {...props} />}
+      {props.state === 'setup' && <Setup {...props} />}
     </Card>
   );
 };

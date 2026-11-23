@@ -1,3 +1,5 @@
+import type { Ad } from '../../../graphql/posts';
+import type { AdSlotLifecycle } from '../adSlotLifecycle';
 import { parseHttpUrl } from '../../../lib/links';
 import { REFERENCE_RATIO } from './sponsorLogoSizing';
 
@@ -14,6 +16,7 @@ export enum SponsorTier {
  * `parseSponsors` stamps on.
  */
 export interface SponsorStripCreative {
+  lifecycle?: AdSlotLifecycle;
   generation_id: string;
   company_name: string;
   icon?: string;
@@ -56,6 +59,11 @@ const parseAdvertiser = (raw: unknown): SponsorStripAdvertiser | null => {
 
   return {
     generation_id: raw.generation_id,
+    ...(isRecord(raw.lifecycle) &&
+      raw.lifecycle.version === 1 &&
+      isRecord(raw.lifecycle.on) && {
+        lifecycle: raw.lifecycle as unknown as AdSlotLifecycle,
+      }),
     company_name: raw.company_name,
     ...Object.fromEntries(icons.map((key) => [key, raw[key]])),
     link,
@@ -129,6 +137,7 @@ export const parseSponsors = (raw: unknown): SponsorStripCreative[] => {
 
 /** A creative with everything the row draws it from. */
 export interface ResolvedSponsor {
+  lifecycle?: AdSlotLifecycle;
   genId: string;
   company: string;
   logo: string;
@@ -145,6 +154,7 @@ export const resolveSponsor = (
   creative: SponsorStripCreative,
 ): ResolvedSponsor => ({
   genId: creative.generation_id,
+  ...(creative.lifecycle && { lifecycle: creative.lifecycle }),
   company: creative.company_name,
   logo: creative.icon || creative.icon_light || creative.icon_dark || '',
   logoLight: creative.icon_light,
@@ -163,3 +173,14 @@ export const getSponsorLogo = (
   sponsor.logoLight ||
   sponsor.logoDark ||
   sponsor.logo;
+
+export const getSponsorAd = (sponsor: ResolvedSponsor): Ad => ({
+  source: sponsor.company,
+  company: sponsor.company,
+  description: '',
+  image: sponsor.logo,
+  link: sponsor.link,
+  generationId: sponsor.genId,
+  pixel: sponsor.pixel,
+  lifecycle: sponsor.lifecycle,
+});

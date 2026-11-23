@@ -41,6 +41,12 @@ const lazyTransport = (load: () => Promise<DmTransport>): DmTransport => {
     sendChatState: async (peer, state) =>
       (await get()).sendChatState(peer, state),
     markRead: async (peerId) => (await get()).markRead(peerId),
+    // Never loads the client just for this.
+    refreshSupportChats: () => {
+      loaded
+        ?.then((transport) => transport.refreshSupportChats())
+        .catch(() => undefined);
+    },
     subscribe: (listener: (event: DmEvent) => void) => {
       let unsubscribe: (() => void) | undefined;
       let isActive = true;

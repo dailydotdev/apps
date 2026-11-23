@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent, Origin, TargetType } from '../../../lib/log';
+import { LogEvent, Origin, TargetId, TargetType } from '../../../lib/log';
 import { webappUrl } from '../../../lib/constants';
 import { DEFAULT_TIMEZONE, dateFormatInTimezone } from '../../../lib/timezones';
 import { useStreakRingState } from '../../../hooks/streaks/useStreakRingState';
@@ -386,13 +386,19 @@ export const StreakWidget = ({
                   Daily quests
                 </span>
                 <div className="mt-1">
-                  <CompactQuestList period="daily" />
+                  <CompactQuestList
+                    period="daily"
+                    targetId={TargetId.QuestStreakWidget}
+                  />
                 </div>
                 <span className="mt-3 block px-2 text-text-quaternary typo-footnote">
                   Weekly quests
                 </span>
                 <div className="mt-1">
-                  <CompactQuestList period="weekly" />
+                  <CompactQuestList
+                    period="weekly"
+                    targetId={TargetId.QuestStreakWidget}
+                  />
                 </div>
               </>
             )}

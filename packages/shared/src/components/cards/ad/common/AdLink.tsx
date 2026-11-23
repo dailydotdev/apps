@@ -17,6 +17,7 @@ export default function AdLink({ ad, onLinkClick }: AdLinkProps): ReactElement {
   return (
     <CardLink
       href={href}
+      data-ad-click
       target="_blank"
       rel={anchorSponsoredRel}
       title={ad.description}

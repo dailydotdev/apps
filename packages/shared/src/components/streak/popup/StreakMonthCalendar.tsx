@@ -26,7 +26,6 @@ import {
   GtaViDisc,
   GtaViTooltip,
   isGtaViReleaseDay,
-  useIsGtaViDayEnabled,
 } from './GtaViDay';
 
 const DAYS = 30;
@@ -84,15 +83,12 @@ export const StreakMonthCalendar = ({
     missedDateTimezone,
     pause,
   ]);
-  const isGtaViDayEnabled = useIsGtaViDayEnabled(
-    days.some(({ isGtaViDay }) => isGtaViDay),
-  );
 
   return (
     <div className="grid grid-cols-10 gap-x-2 gap-y-2.5">
       {days.map(({ date, state, isToday, isGtaViDay }) => {
         const isRead = state === Streak.Completed;
-        if (isGtaViDayEnabled && isGtaViDay) {
+        if (isGtaViDay) {
           return (
             <GtaViTooltip key={date.getTime()} timezone={timezone}>
               <button

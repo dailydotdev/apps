@@ -16,6 +16,7 @@ import { apiUrl } from '../../../lib/config';
  */
 export const fetchSponsorStripAds = async (
   consent?: AdMacroContext,
+  onFetched?: (response: unknown) => void,
 ): Promise<unknown> => {
   const query = appendConsentParams(new URLSearchParams(), consent).toString();
   const res = await fetch(
@@ -23,5 +24,7 @@ export const fetchSponsorStripAds = async (
     { credentials: 'include' },
   );
 
-  return res.json();
+  const response: unknown = await res.json();
+  onFetched?.(response);
+  return response;
 };

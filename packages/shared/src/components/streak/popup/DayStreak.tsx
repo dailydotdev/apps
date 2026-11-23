@@ -19,7 +19,6 @@ import {
   GtaViDisc,
   GtaViTooltip,
   isGtaViReleaseDay,
-  useIsGtaViDayEnabled,
 } from './GtaViDay';
 
 export enum Streak {
@@ -63,15 +62,12 @@ export function DayStreak({
   const { user } = useAuthContext();
   const router = useRouter();
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
-  const isGtaViDayEnabled = useIsGtaViDayEnabled(
-    isGtaViReleaseDay(date, timezone),
-  );
   const [tooltipLayer, setTooltipLayer] = useState<Element>();
   const gtaViTriggerRef = useCallback((node: HTMLButtonElement | null) => {
     setTooltipLayer(node?.closest('[data-tippy-root]') ?? undefined);
   }, []);
 
-  if (isGtaViDayEnabled) {
+  if (isGtaViReleaseDay(date, timezone)) {
     return (
       <GtaViTooltip timezone={timezone} appendTo={tooltipLayer}>
         <button

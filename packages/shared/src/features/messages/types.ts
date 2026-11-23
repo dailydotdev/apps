@@ -15,6 +15,23 @@ export type DmPeer = Pick<
   // viewer. The two are deliberately indistinguishable so a block is never
   // revealed.
   access: DirectMessageAccess;
+  // Set on a group chat, such as a company page's support chat. The peer is
+  // then the group itself and its id a synthetic one (see support.ts).
+  group?: DmGroup;
+};
+
+export type DmGroupMember = Pick<
+  PublicProfile,
+  'id' | 'name' | 'image' | 'permalink'
+> & { username: string };
+
+export type DmGroup = {
+  chatId: string;
+  // The room on the chat server; null until it's created.
+  roomJid: string | null;
+  members: DmGroupMember[];
+  // When the last message was sent, as the API knows it; null when none was.
+  lastMessageAt: string | null;
 };
 
 export enum DmMessageStatus {
@@ -100,6 +117,9 @@ export type DmConversation = {
   peer: DmPeer;
   lastMessage: DmMessage;
   unreadCount: number;
+  // A support chat's row shows before its last message loads; the
+  // `conversationPreview` event fills it in.
+  isPreviewLoading?: boolean;
 };
 
 export type DmEvent =
@@ -120,7 +140,16 @@ export type DmEvent =
   | { type: 'rejected'; peerId: string; messageId: string }
   // The connection came back; anything that arrived meanwhile is only in the
   // archive, so cached threads must refetch.
-  | { type: 'reconnected' };
+  | { type: 'reconnected' }
+  // A support chat's last message, loaded after its inbox row. Null when it
+  // couldn't be loaded in time.
+  | { type: 'conversationPreview'; peerId: string; message: DmMessage | null }
+  // The support chats' inbox rows, read again from the API after the unread
+  // count went up, with order and unread as the API has them.
+  | { type: 'supportConversations'; conversations: DmConversation[] }
+  // A support chat message arrived whose sender the room hasn't named yet;
+  // the archive has them, so the thread refetches.
+  | { type: 'threadStale'; peerId: string };
 
 // The seam the ejabberd client will implement: everything the UI needs goes
 // through here, so swapping the mock for XMPP leaves the components untouched.
@@ -143,6 +172,9 @@ export interface DmTransport {
   // on it and nothing retries it.
   sendChatState: (peer: DmPeer, state: DmChatState) => Promise<void>;
   markRead: (peerId: string) => Promise<void>;
+  // Reads the support chats' inbox rows again (new chats, order, unread) and
+  // emits them as `supportConversations`. Joins nothing.
+  refreshSupportChats: () => void;
   subscribe: (listener: (event: DmEvent) => void) => () => void;
   // Ends the session for good, e.g. on logout.
   close: () => void;

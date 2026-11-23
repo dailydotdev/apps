@@ -2,8 +2,13 @@ import { useMemo, useState, useEffect } from 'react';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { generateUserSourceAsSquad } from '../write/MultipleSourceSelect';
 import type { Squad } from '../../../graphql/sources';
-import { SourcePermissions, SourceType } from '../../../graphql/sources';
+import {
+  SourceMemberRole,
+  SourcePermissions,
+  SourceType,
+} from '../../../graphql/sources';
 import { verifyPermission } from '../../../graphql/squads';
+import { isCompanyPage } from '../../../features/squads/lib/companyPage';
 
 export const MAX_AUDIENCE_SQUADS = 3;
 
@@ -18,6 +23,23 @@ interface UseComposerAudience {
   setSelectedIds: (ids: string[]) => void;
   userAudienceId: string | undefined;
 }
+
+// A founder's posts count for their company page (and its free boost) only
+// when they are on the page, so a composer opened without a squad starts
+// there. daily.dev team members run company squads too, but mostly post as
+// themselves, so they keep the profile default
+const findOwnCompanyPage = (
+  audiences: Squad[],
+  isTeamMember: boolean,
+): Squad | undefined =>
+  isTeamMember
+    ? undefined
+    : audiences.find(
+        (audience) =>
+          !isUserAudience(audience) &&
+          isCompanyPage(audience) &&
+          audience.currentMember?.role === SourceMemberRole.Admin,
+      );
 
 export const useComposerAudience = (
   initialSquadHandle?: string,
@@ -59,8 +81,10 @@ export const useComposerAudience = (
         return match.id;
       }
     }
-    return userAudienceId;
-  }, [audiences, initialSquadHandle, initialSquadId, userAudienceId]);
+    return (
+      findOwnCompanyPage(audiences, !!user?.isTeamMember)?.id ?? userAudienceId
+    );
+  }, [audiences, initialSquadHandle, initialSquadId, userAudienceId, user]);
 
   const [selectedIds, setSelectedIds] = useState<string[]>(() =>
     defaultId ? [defaultId] : [],

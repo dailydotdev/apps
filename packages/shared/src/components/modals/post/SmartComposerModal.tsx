@@ -51,6 +51,7 @@ import {
   type TextFormHandle,
 } from '../../post/composer/TextForm';
 import { LinkForm } from '../../post/composer/LinkForm';
+import { AiWrittenWarning } from '../../post/composer/AiWrittenWarning';
 import { PollForm } from '../../post/composer/PollForm';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import {
@@ -71,6 +72,7 @@ import {
   type TextFormState,
 } from '../../post/composer/types';
 import { useDisableSpotlightShortcut } from '../../spotlight/SpotlightContext';
+import { useTrackCompanyPageFirstPost } from '../../../features/squads/hooks/useTrackCompanyPageFirstPost';
 
 // `defaultWriteTab` is persisted as the WriteFormTab *key* (e.g. "Share"), not
 // the enum value ("Share a link") — see settings/composition.tsx which saves
@@ -433,6 +435,7 @@ export function SmartComposerModal({
   const isMulti = !editPost && selected.length > 1;
 
   const schedule = useSchedulePost();
+  const trackFirstPost = useTrackCompanyPageFirstPost();
   // Scheduling: single-source, non-moderated create only.
   const canSchedule =
     !isEditing && !isMulti && !!primary && !moderationRequired(primary);
@@ -462,6 +465,9 @@ export function SmartComposerModal({
         queryClient.invalidateQueries({
           queryKey: getPostByIdKey(editPost.id),
         });
+      }
+      if (!editPost?.id) {
+        trackFirstPost(selected);
       }
       onPosted?.();
       onSubmitted();
@@ -659,6 +665,7 @@ export function SmartComposerModal({
           <span>{labels.postCreation.warnings.spammyPosts}</span>
         </div>
       )}
+      {kind !== 'poll' && <AiWrittenWarning />}
       {kind === 'text' && (
         <>
           <TextForm

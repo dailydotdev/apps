@@ -10,6 +10,7 @@ import { AdFavicon } from '../../cards/ad/common/AdFavicon';
 import { AdImage } from '../../cards/ad/common/AdImage';
 import { AdPixel } from '../../cards/ad/common/AdPixel';
 import { AdMeasurement } from '../../cards/ad/common/AdMeasurement';
+import { AdSlot } from '../../cards/ad/common/AdSlot';
 import { AdViewability } from '../../cards/ad/common/AdViewability';
 import { RemoveAd } from '../../cards/ad/common/RemoveAd';
 import { AdvertiseLink } from '../../cards/ad/common/AdvertiseLink';
@@ -48,42 +49,54 @@ export const FeedHeroAdCard = ({
 
   return (
     <div className={classNames('flex min-h-0 flex-1 flex-col', className)}>
-      <FlatCard
-        data-testid="feedHeroAdCard"
-        className={classNames(
-          'min-h-0 flex-1 rounded-16 px-4 py-3 transition-colors hover:bg-surface-hover',
+      <AdSlot ad={ad}>
+        {(slotProps) => (
+          <FlatCard
+            {...slotProps}
+            data-testid="feedHeroAdCard"
+            className={classNames(
+              'min-h-0 flex-1 rounded-16 px-4 py-3 transition-colors hover:bg-surface-hover',
+            )}
+          >
+            <AdLink ad={ad} onLinkClick={onLinkClick} />
+            <AdFavicon ad={ad} className="!m-0 shrink-0" />
+            <span className="mt-3 line-clamp-3 break-words font-bold text-text-primary typo-title3">
+              {ad.description}
+            </span>
+            {/* The copy takes the column's slack so the cover keeps its height. */}
+            <div className="min-h-0 flex-1" />
+            {matchingTags.length > 0 && (
+              <PostTags
+                post={{ tags: matchingTags.slice(0, 6) }}
+                className="mt-2 [&>*]:!my-0"
+              />
+            )}
+            <AdAttribution
+              ad={ad}
+              className={{
+                main: 'mt-1 min-w-0 truncate !text-text-tertiary',
+                typo: 'typo-footnote',
+              }}
+            />
+            {!!ad.image && (
+              <AdImage
+                ad={ad}
+                ImageComponent={AdCover}
+                className="!mb-0 !mt-4"
+              />
+            )}
+            {/* Out of flow so the column's spacing doesn't reserve a row for it. */}
+            <div aria-hidden className="pointer-events-none absolute inset-0">
+              <AdPixel ad={ad} />
+            </div>
+            <AdMeasurement ad={ad} />
+            <AdViewability
+              ad={ad}
+              onViewable={(data) => onViewable?.(ad, data)}
+            />
+          </FlatCard>
         )}
-      >
-        <AdLink ad={ad} onLinkClick={onLinkClick} />
-        <AdFavicon ad={ad} className="!m-0 shrink-0" />
-        <span className="mt-3 line-clamp-3 break-words font-bold text-text-primary typo-title3">
-          {ad.description}
-        </span>
-        {/* The copy takes the column's slack so the cover keeps its height. */}
-        <div className="min-h-0 flex-1" />
-        {matchingTags.length > 0 && (
-          <PostTags
-            post={{ tags: matchingTags.slice(0, 6) }}
-            className="mt-2 [&>*]:!my-0"
-          />
-        )}
-        <AdAttribution
-          ad={ad}
-          className={{
-            main: 'mt-1 min-w-0 truncate !text-text-tertiary',
-            typo: 'typo-footnote',
-          }}
-        />
-        {!!ad.image && (
-          <AdImage ad={ad} ImageComponent={AdCover} className="!mb-0 !mt-4" />
-        )}
-        {/* Out of flow so the column's spacing doesn't reserve a row for it. */}
-        <div aria-hidden className="pointer-events-none absolute inset-0">
-          <AdPixel pixel={ad.pixel} />
-        </div>
-        <AdMeasurement ad={ad} />
-        <AdViewability ad={ad} onViewable={(data) => onViewable?.(ad, data)} />
-      </FlatCard>
+      </AdSlot>
       {/* Outside the card, so hovering them does not light the creative up as
           though it were the link. The negative margins cancel the padding
           `ButtonSize.Small` adds, so the labels line up with the copy above. */}

@@ -164,6 +164,13 @@ const StreakFreezePurchaseModal = dynamic(
     ),
 );
 
+const QuestRefreshModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "questRefreshModal" */ './quest/QuestRefreshModal'
+    ),
+);
+
 const FirstCoresModal = dynamic(
   () =>
     import(
@@ -595,6 +602,7 @@ export const modals = {
   [LazyModal.BookmarkReminder]: BookmarkReminderModal,
   [LazyModal.RecoverStreak]: StreakRecoverModal,
   [LazyModal.StreakFreezePurchase]: StreakFreezePurchaseModal,
+  [LazyModal.QuestRefresh]: QuestRefreshModal,
   [LazyModal.FirstCores]: FirstCoresModal,
   [LazyModal.StreakFreeFreezesUpsell]: StreakFreeFreezesUpsellModal,
   [LazyModal.StreakGoal]: StreakGoalModal,

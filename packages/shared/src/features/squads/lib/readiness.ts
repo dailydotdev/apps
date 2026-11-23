@@ -52,6 +52,28 @@ const PROFILE_SKILL_URL =
 export const isPlaceholderSquadImage = (image?: string): boolean =>
   !image || image.includes('squad_placeholder');
 
+/** Mirrors COMPANY_PAGE_MIN_DESCRIPTION_LENGTH in daily-api */
+export const COMPANY_PAGE_MIN_DESCRIPTION_LENGTH = 40;
+
+/** What a company page needs before its free boost can start */
+export const FREE_BOOST_SETUP_ROWS = ['logo', 'website', 'description'];
+
+export const isCompanyPageDescriptionReady = (description?: string): boolean =>
+  (description?.trim().length ?? 0) >= COMPANY_PAGE_MIN_DESCRIPTION_LENGTH;
+
+/**
+ * Mirrors isCompanyPageReady in daily-api: a logo, a website and a real
+ * description. Only then does the page get its free boost and count as an ad
+ * conversion.
+ */
+export const isCompanyPageReady = (
+  squad?: Pick<Squad, 'image' | 'website' | 'description'>,
+): boolean =>
+  !!squad &&
+  !isPlaceholderSquadImage(squad.image) &&
+  !!squad.website?.trim() &&
+  isCompanyPageDescriptionReady(squad.description);
+
 export const getCompanyPageReadinessItems = ({
   squad,
   user,
@@ -89,7 +111,7 @@ export const getCompanyPageReadinessItems = ({
       editor: 'details',
       title: 'Description',
       hint: "One or two sentences on what you build and who it's for.",
-      isDone: !!squad.description?.trim(),
+      isDone: isCompanyPageDescriptionReady(squad.description),
       href: manage(SquadManageSection.Details),
       cta: 'Write it',
       agentStep:

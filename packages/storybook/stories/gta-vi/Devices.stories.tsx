@@ -4,8 +4,6 @@ import React from 'react';
 import { GiveAwardFlow } from './production/GiveAward';
 import { CommentWithAward, ProfileAwards } from './production/AwardPreviews';
 import { Shelf } from './production/Shelf';
-import { FeedHeroProviders } from '../features/feed/feedHero.mocks';
-import { ThemedHome } from './theme';
 
 /*
  * One case per story, filling the window at its own size. The All states
@@ -87,32 +85,5 @@ export const AchievementDetail: StoryObj = {
     <Page>
       <Shelf state="releaseRead" openFirst />
     </Page>
-  ),
-};
-
-export const ThemeOn: StoryObj = {
-  name: 'Theme on',
-  render: () => (
-    <FeedHeroProviders>
-      <ThemedHome isFluid initialTheme="viceCity" />
-    </FeedHeroProviders>
-  ),
-};
-
-export const ThemePicking: StoryObj = {
-  name: 'Theme picking',
-  render: () => (
-    <FeedHeroProviders>
-      <ThemedHome isFluid isSettingsOpenInitially />
-    </FeedHeroProviders>
-  ),
-};
-
-export const ThemeOff: StoryObj = {
-  name: 'Theme off',
-  render: () => (
-    <FeedHeroProviders>
-      <ThemedHome isFluid />
-    </FeedHeroProviders>
   ),
 };

@@ -8,7 +8,14 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import ProgressCircle from '../ProgressCircle';
-import { ArrowIcon, CoreIcon, LockIcon, ReputationIcon, VIcon } from '../icons';
+import {
+  ArrowIcon,
+  CoreIcon,
+  LockIcon,
+  RefreshIcon,
+  ReputationIcon,
+  VIcon,
+} from '../icons';
 import { IconSize } from '../Icon';
 import Link from '../utilities/Link';
 import { plusUrl, webappUrl } from '../../lib/constants';
@@ -23,8 +30,10 @@ import {
   QuestStatus,
   isQuestClaimed,
 } from '../../graphql/quests';
+import { QuestBonusRewardBadge } from './QuestBonusRewardBadge';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
+import { useOpenQuestRefresh } from '../../hooks/useRefreshQuest';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { LogEvent, TargetId } from '../../lib/log';
 import {
@@ -69,6 +78,7 @@ interface CompactQuestRowProps {
   isClaiming: boolean;
   onClaim: (quest: UserQuest) => void;
   onUnlock?: () => void;
+  onRefresh?: (quest: UserQuest) => void;
 }
 
 // Exported for the Storybook state matrix: the row is presentational (the data
@@ -78,7 +88,9 @@ export const CompactQuestRow = ({
   isClaiming,
   onClaim,
   onUnlock,
+  onRefresh,
 }: CompactQuestRowProps): ReactElement => {
+  const canRefresh = typeof quest.refreshCost === 'number' && !!onRefresh;
   const target = Math.max(quest.quest.targetCount, 1);
   const value = Math.min(Math.max(quest.progress, 0), target);
   const percentage = Math.min(100, Math.round((value / target) * 100));
@@ -131,11 +143,14 @@ export const CompactQuestRow = ({
             </Typography>
           </a>
         </Link>
-        <ArrowIcon
-          aria-hidden
-          size={IconSize.XSmall}
-          className="mt-0.5 shrink-0 rotate-90 text-text-quaternary opacity-0 transition-opacity group-hover/quest:opacity-100"
-        />
+        <div className="flex shrink-0 items-center gap-1">
+          <QuestBonusRewardBadge quest={quest} />
+          <ArrowIcon
+            aria-hidden
+            size={IconSize.XSmall}
+            className="shrink-0 rotate-90 text-text-quaternary opacity-0 transition-opacity group-hover/quest:opacity-100"
+          />
+        </div>
       </div>
       {quest.quest.description && (
         <Typography
@@ -150,11 +165,29 @@ export const CompactQuestRow = ({
       {/* Bottom strip: XP/Cores rewards on the left; status aligned to the right
           on the same row — claim/claimed, or the step count + small radial. */}
       <div className="mt-0.5 flex items-center justify-between gap-2">
-        <span className="flex min-w-0 shrink flex-wrap items-center gap-2">
+        <span
+          className={classNames(
+            'flex min-w-0 shrink flex-wrap items-center gap-2',
+            canRefresh &&
+              'group-focus-within/quest:hidden group-hover/quest:hidden',
+          )}
+        >
           {quest.rewards.map((reward) => (
             <QuestRewardValue key={reward.type} reward={reward} />
           ))}
         </span>
+        {canRefresh && (
+          <Button
+            type="button"
+            size={ButtonSize.XSmall}
+            variant={ButtonVariant.Tertiary}
+            icon={<RefreshIcon />}
+            onClick={() => onRefresh?.(quest)}
+            className="relative z-1 -my-1 !hidden group-focus-within/quest:!flex group-hover/quest:!flex"
+          >
+            Swap
+          </Button>
+        )}
         <div className="flex shrink-0 items-center gap-1.5">
           {canClaim && (
             <Button
@@ -223,6 +256,7 @@ export const CompactQuestRow = ({
 // as separate sections. Replaces the full QuestButton dashboard.
 interface CompactQuestListProps {
   period: 'daily' | 'weekly';
+  targetId?: TargetId;
 }
 
 const emptyCopyByPeriod: Record<CompactQuestListProps['period'], string> = {
@@ -232,6 +266,7 @@ const emptyCopyByPeriod: Record<CompactQuestListProps['period'], string> = {
 
 export const CompactQuestList = ({
   period,
+  targetId = TargetId.QuestSidebar,
 }: CompactQuestListProps): ReactElement | null => {
   const { data } = useQuestDashboard();
   const {
@@ -241,6 +276,7 @@ export const CompactQuestList = ({
   } = useClaimQuestReward();
   const claimingId = isClaiming ? variables?.userQuestId : undefined;
   const { logSubscriptionEvent } = usePlusSubscription();
+  const openQuestRefresh = useOpenQuestRefresh({ targetId });
 
   const quests = useMemo(() => {
     if (!data) {
@@ -287,6 +323,7 @@ export const CompactQuestList = ({
           isClaiming={claimingId === quest.userQuestId}
           onClaim={onClaim}
           onUnlock={onUnlock}
+          onRefresh={openQuestRefresh}
         />
       ))}
     </ul>

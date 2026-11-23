@@ -3,7 +3,7 @@ import React from 'react';
 import { renderHook, fireEvent, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFeedbackShortcut } from './useFeedbackShortcut';
-import { MODAL_KEY } from './useLazyModal';
+import { FEEDBACK_MODAL_KEY, MODAL_KEY } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
 import { registerSpotlightShortcutBlocker } from '../components/spotlight/shortcuts';
 import { LogEvent, TargetId } from '../lib/log';
@@ -41,7 +41,7 @@ describe('useFeedbackShortcut', () => {
 
     fireEvent.keyDown(window, { key: 'F', ctrlKey: true, shiftKey: true });
 
-    expect(client.getQueryData(MODAL_KEY)).toEqual({
+    expect(client.getQueryData(FEEDBACK_MODAL_KEY)).toEqual({
       type: LazyModal.Feedback,
     });
     expect(mockLogEvent).toHaveBeenCalledWith({
@@ -55,7 +55,7 @@ describe('useFeedbackShortcut', () => {
 
     fireEvent.keyDown(window, { key: 'f', metaKey: true, shiftKey: true });
 
-    expect(client.getQueryData(MODAL_KEY)).toEqual({
+    expect(client.getQueryData(FEEDBACK_MODAL_KEY)).toEqual({
       type: LazyModal.Feedback,
     });
   });
@@ -65,17 +65,31 @@ describe('useFeedbackShortcut', () => {
 
     fireEvent.keyDown(window, { key: 'F', ctrlKey: true, shiftKey: true });
     await waitFor(() =>
-      expect(client.getQueryData(MODAL_KEY)).toEqual({
+      expect(client.getQueryData(FEEDBACK_MODAL_KEY)).toEqual({
         type: LazyModal.Feedback,
       }),
     );
 
     fireEvent.keyDown(window, { key: 'F', ctrlKey: true, shiftKey: true });
 
-    expect(client.getQueryData(MODAL_KEY)).toEqual({
+    expect(client.getQueryData(FEEDBACK_MODAL_KEY)).toEqual({
       type: LazyModal.Feedback,
     });
     expect(mockLogEvent).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps an already-open modal underneath the feedback modal', () => {
+    const client = setupShortcut();
+    client.setQueryData(MODAL_KEY, { type: LazyModal.MoveBookmark });
+
+    fireEvent.keyDown(window, { key: 'F', ctrlKey: true, shiftKey: true });
+
+    expect(client.getQueryData(MODAL_KEY)).toEqual({
+      type: LazyModal.MoveBookmark,
+    });
+    expect(client.getQueryData(FEEDBACK_MODAL_KEY)).toEqual({
+      type: LazyModal.Feedback,
+    });
   });
 
   it('ignores the key without modifiers', () => {
@@ -85,7 +99,7 @@ describe('useFeedbackShortcut', () => {
     fireEvent.keyDown(window, { key: 'f', shiftKey: true });
     fireEvent.keyDown(window, { key: 'f', ctrlKey: true });
 
-    expect(client.getQueryData(MODAL_KEY)).toBeUndefined();
+    expect(client.getQueryData(FEEDBACK_MODAL_KEY)).toBeUndefined();
   });
 
   it('honours the global shortcut blocker', () => {
@@ -94,12 +108,12 @@ describe('useFeedbackShortcut', () => {
 
     fireEvent.keyDown(window, { key: 'F', ctrlKey: true, shiftKey: true });
 
-    expect(client.getQueryData(MODAL_KEY)).toBeUndefined();
+    expect(client.getQueryData(FEEDBACK_MODAL_KEY)).toBeUndefined();
 
     unregister();
     fireEvent.keyDown(window, { key: 'F', ctrlKey: true, shiftKey: true });
 
-    expect(client.getQueryData(MODAL_KEY)).toEqual({
+    expect(client.getQueryData(FEEDBACK_MODAL_KEY)).toEqual({
       type: LazyModal.Feedback,
     });
   });
@@ -110,6 +124,6 @@ describe('useFeedbackShortcut', () => {
 
     fireEvent.keyDown(window, { key: 'F', ctrlKey: true, shiftKey: true });
 
-    expect(client.getQueryData(MODAL_KEY)).toBeUndefined();
+    expect(client.getQueryData(FEEDBACK_MODAL_KEY)).toBeUndefined();
   });
 });
