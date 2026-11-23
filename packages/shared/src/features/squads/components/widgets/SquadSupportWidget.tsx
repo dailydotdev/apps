@@ -29,7 +29,7 @@ const SupportButton = ({ sourceId }: { sourceId: string }): ReactElement => {
       loading={isPending}
       onClick={openSupportChat}
     >
-      Support
+      Send a message
     </Button>
   );
 };
