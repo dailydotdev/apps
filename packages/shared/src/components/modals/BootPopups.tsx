@@ -109,8 +109,7 @@ export const BootPopups = (): ReactElement => {
     hasStreakModalThisBoot.current = true;
   }
 
-  // Not a boot popup: the review ask waits for a route change, not page load.
-  useAppStoreReviewPrompt();
+  const appStoreReviewCta = useAppStoreReviewPrompt();
 
   const isDisabledMilestone = checkHasCompleted(
     ActionType.DisableReadingStreakMilestone,
@@ -201,6 +200,28 @@ export const BootPopups = (): ReactElement => {
     isValidRegion,
     user?.isPlus,
   ]);
+
+  /**
+   * Boot popup for the App Store review ask (marketing CTA)
+   */
+  useEffect(() => {
+    if (!appStoreReviewCta) {
+      return;
+    }
+
+    addBootPopup({
+      type:
+        appStoreReviewCta.variant === MarketingCtaVariant.AppStoreReviewPlus
+          ? LazyModal.AppStoreReviewPlus
+          : LazyModal.AppStoreReview,
+      props: {
+        marketingCta: appStoreReviewCta,
+        onAfterClose: () => {
+          updateLastBootPopup();
+        },
+      },
+    });
+  }, [appStoreReviewCta, updateLastBootPopup]);
 
   useEffect(() => {
     if (marketingCtaPopoverSmall) {
