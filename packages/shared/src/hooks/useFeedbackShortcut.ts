@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useAuthContext } from '../contexts/AuthContext';
-import { useLazyModal } from './useLazyModal';
+import { useFeedbackModal, useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
 import { isInExtensionIframe, isSpecialKeyPressed } from '../lib/func';
 import { isSpotlightShortcutDisabled } from '../components/spotlight/shortcuts';
@@ -10,16 +10,18 @@ import { LogEvent, TargetId } from '../lib/log';
 /**
  * Global Cmd/Ctrl+Shift+F shortcut to open the feedback modal. Registered
  * on window with modifiers so it stays reachable when the feedback widget
- * is hidden or covered (e.g. another modal is open) and while typing.
+ * is hidden or covered (e.g. another modal is open, which stays open
+ * underneath) and while typing.
  * Open-only: closing goes through the modal's own dismissal paths so an
  * accidental re-press can't discard a drafted report. Honours the spotlight
  * shortcut blocker — surfaces that suppress global shortcuts suppress both.
  */
 export const useFeedbackShortcut = (): void => {
   const { user } = useAuthContext();
-  const { openModal, modal } = useLazyModal();
+  const { openModal } = useLazyModal();
+  const { modal: feedbackModal } = useFeedbackModal();
   const { logEvent } = useLogContext();
-  const isFeedbackOpen = modal?.type === LazyModal.Feedback;
+  const isFeedbackOpen = !!feedbackModal;
 
   useEffect(() => {
     if (!user || isFeedbackOpen) {

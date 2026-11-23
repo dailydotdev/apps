@@ -22,6 +22,7 @@ jest.mock('../../hooks/useLazyModal', () => ({
     closeModal: jest.fn(),
     modal: null,
   }),
+  useFeedbackModal: () => ({ closeModal: jest.fn(), modal: null }),
 }));
 
 jest.mock('./reader/hooks/useReaderModalEligibility', () => ({

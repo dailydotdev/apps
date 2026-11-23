@@ -5,7 +5,7 @@ import { BoostPostModal } from './BoostPostModal';
 import { useCampaignMutation } from './useCampaignMutation';
 import { usePostBoostEstimation } from './usePostBoostEstimation';
 import { usePostById } from '../../hooks';
-import { useLazyModal } from '../../hooks/useLazyModal';
+import { useFeedbackModal, useLazyModal } from '../../hooks/useLazyModal';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import postFixture from '../../../__tests__/fixture/post';
@@ -34,6 +34,9 @@ const mockUsePostBoostEstimation =
 const mockUsePostById = usePostById as jest.MockedFunction<typeof usePostById>;
 const mockUseLazyModal = useLazyModal as jest.MockedFunction<
   typeof useLazyModal
+>;
+const mockUseFeedbackModal = useFeedbackModal as jest.MockedFunction<
+  typeof useFeedbackModal
 >;
 
 // Mock other hooks
@@ -114,6 +117,10 @@ describe('BoostPostModal', () => {
       openModal: jest.fn(),
       closeModal: jest.fn(),
       modal: undefined as unknown as ReturnType<typeof useLazyModal>['modal'],
+    });
+    mockUseFeedbackModal.mockReturnValue({
+      closeModal: jest.fn(),
+      modal: null,
     });
     mockUsePostById.mockReturnValue({
       post: createMockPost(),

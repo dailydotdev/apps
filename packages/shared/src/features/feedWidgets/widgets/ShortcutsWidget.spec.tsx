@@ -28,6 +28,7 @@ jest.mock('../../shortcuts/contexts/ShortcutsProvider', () => ({
 const mockOpenModal = jest.fn();
 jest.mock('../../../hooks/useLazyModal', () => ({
   useLazyModal: () => ({ openModal: mockOpenModal }),
+  useFeedbackModal: () => ({ closeModal: jest.fn(), modal: null }),
 }));
 
 const mockDisplayToast = jest.fn();
