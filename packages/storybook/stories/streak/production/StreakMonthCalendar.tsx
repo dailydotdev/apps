@@ -2,7 +2,6 @@ import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { addDays, subDays } from 'date-fns';
-import { StreakMonthCalendar as ProductionStreakMonthCalendar } from '@dailydotdev/shared/src/components/streak/popup/StreakMonthCalendar';
 import { HotIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
@@ -21,20 +20,17 @@ import {
   DEFAULT_TIMEZONE,
   isSameDayInTimezone,
 } from '@dailydotdev/shared/src/lib/timezones';
-import { useConditionalFeature } from '../../../mock/hooks/useConditionalFeature';
 import {
   getGtaViLabel,
   GtaViDisc,
   GtaViTooltip,
-  gtaViFreezeDayFeature,
   isGtaViReleaseDay,
 } from '../gtaViParts';
 
 /*
  * Storybook stands this in for production's StreakMonthCalendar (see the
- * resolver in .storybook/main.ts). With gta_vi_freeze_day off it renders
- * production's component untouched. With it on, it renders production's
- * calendar code plus the VI branch: the change a production PR would make.
+ * resolver in .storybook/main.ts). It renders production's calendar code
+ * plus the VI branch.
  */
 
 const DAYS = 30;
@@ -151,13 +147,5 @@ export const StreakMonthCalendar = ({
 }: {
   streak?: UserStreak;
 }): ReactElement => {
-  const { value: isGtaViEnabled } = useConditionalFeature({
-    feature: gtaViFreezeDayFeature,
-  });
-
-  if (!isGtaViEnabled) {
-    return <ProductionStreakMonthCalendar streak={streak} />;
-  }
-
   return <GtaViStreakMonthCalendar streak={streak} />;
 };

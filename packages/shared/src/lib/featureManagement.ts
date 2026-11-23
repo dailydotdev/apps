@@ -51,6 +51,8 @@ export const featureAppStoreReview = new Feature('app_store_review', false);
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
+export const featureAdSlotLifecycle = new Feature('ad_slot_lifecycle', false);
+
 export enum AdRefreshEngineVersion {
   V1 = 'v1',
   V2 = 'v2',
@@ -117,10 +119,6 @@ export const featureStreakImprovements = new Feature(
   'streak_improvements',
   false,
 );
-
-export const featureGtaViFreezeDay = new Feature('gta_vi_freeze_day', false);
-
-export const featureGtaViTheme = new Feature('gta_vi_theme', false);
 
 // Patchy, the streak companion: his face in the rail Streak tab reacts to what
 // you do, he offers small suggestions in a bubble, and his menu sits in the

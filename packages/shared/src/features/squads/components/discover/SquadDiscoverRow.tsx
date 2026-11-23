@@ -44,8 +44,9 @@ export const SquadDiscoverRow = ({
   className,
 }: SquadDiscoverRowProps): ReactElement => (
   <PromotedSquad ad={ad}>
-    {({ ref, onClickAd, trackers }) => (
+    {({ ref, onClickAd, trackers, domProps }) => (
       <article
+        {...domProps}
         ref={ref}
         className={classNames(
           'group/squad-row relative flex items-center rounded-16 py-2',

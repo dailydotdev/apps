@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { HotIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { Feature } from '@dailydotdev/shared/src/lib/feature';
 import { dateFormatInTimezone } from '@dailydotdev/shared/src/lib/timezones';
 
 const tooltipArt =
@@ -18,9 +17,6 @@ const tooltipArt =
  */
 
 export const GTA_VI_RELEASE_DAY = '2026-11-19';
-
-/** The flag production would ship behind; off is the control. */
-export const gtaViFreezeDayFeature = new Feature('gta_vi_freeze_day', false);
 
 export const isGtaViReleaseDay = (date: Date, timezone: string): boolean =>
   dateFormatInTimezone(date, 'yyyy-MM-dd', timezone) === GTA_VI_RELEASE_DAY;

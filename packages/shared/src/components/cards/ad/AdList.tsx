@@ -1,4 +1,4 @@
-import type { AnchorHTMLAttributes, ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import React, { forwardRef } from 'react';
 import {
   CardContainer,
@@ -13,6 +13,7 @@ import type { AdCardProps } from './common/common';
 import { AdImage } from './common/AdImage';
 import { AdPixel } from './common/AdPixel';
 import { AdMeasurement } from './common/AdMeasurement';
+import { AdSlot } from './common/AdSlot';
 import { AdViewability } from './common/AdViewability';
 import { useAdClickUrl } from '../../../features/monetization/useAdClickUrl';
 import type { Ad } from '../../../graphql/posts';
@@ -50,9 +51,10 @@ const getLinkProps = ({
   ad: Ad;
   href: string;
   onLinkClick: (ad: Ad) => unknown;
-}): AnchorHTMLAttributes<HTMLAnchorElement> => {
+}) => {
   return {
     href,
+    'data-ad-click': true,
     target: '_blank',
     rel: anchorSponsoredRel,
     title: ad.description,
@@ -87,6 +89,7 @@ export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
         <Button
           tag="a"
           href={clickUrl}
+          data-ad-click
           target="_blank"
           rel={anchorSponsoredRel}
           variant={ButtonVariant.Primary}
@@ -116,50 +119,57 @@ export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
   );
 
   return (
-    <FeedItemContainer
-      domProps={domProps ?? {}}
-      ref={ref}
-      data-testid="adItem"
-      linkProps={getLinkProps({
-        ad,
-        href: clickUrl,
-        onLinkClick: onAdLinkClick,
-      })}
-    >
-      <CardContainer>
-        <CardHeader>
-          <AdFavicon
-            ad={ad}
-            size={ProfileImageSize.Large}
-            className="!m-0 !h-auto shrink-0"
-          />
-          <AdAttribution
-            ad={ad}
-            className={{ main: 'relative ml-4 mr-2 min-w-0 truncate' }}
-          />
-        </CardHeader>
-        <CardContent>
-          <div className="mr-4 flex flex-1 flex-col">
-            <CardTitle>{ad.description}</CardTitle>
-            {adImprovementsV3 && matchingTags.length > 0 ? (
-              <div className="flex items-center">
-                <PostTags post={{ tags: matchingTags.slice(0, 6) }} />
+    <AdSlot ad={ad}>
+      {(slotProps) => (
+        <FeedItemContainer
+          domProps={{ ...domProps, ...slotProps }}
+          ref={ref}
+          data-testid="adItem"
+          linkProps={getLinkProps({
+            ad,
+            href: clickUrl,
+            onLinkClick: onAdLinkClick,
+          })}
+        >
+          <CardContainer>
+            <CardHeader>
+              <AdFavicon
+                ad={ad}
+                size={ProfileImageSize.Large}
+                className="!m-0 !h-auto shrink-0"
+              />
+              <AdAttribution
+                ad={ad}
+                className={{ main: 'relative ml-4 mr-2 min-w-0 truncate' }}
+              />
+            </CardHeader>
+            <CardContent>
+              <div className="mr-4 flex flex-1 flex-col">
+                <CardTitle>{ad.description}</CardTitle>
+                {adImprovementsV3 && matchingTags.length > 0 ? (
+                  <div className="flex items-center">
+                    <PostTags post={{ tags: matchingTags.slice(0, 6) }} />
+                  </div>
+                ) : null}
+                <div className="hidden flex-1 tablet:flex" />
+                {!isStacked && footer}
               </div>
-            ) : null}
-            <div className="hidden flex-1 tablet:flex" />
-            {!isStacked && footer}
-          </div>
-          <AdImage
+              <AdImage
+                ad={ad}
+                ImageComponent={AdCardImage}
+                className="mb-0 mt-4 mobileXL:self-start"
+              />
+            </CardContent>
+          </CardContainer>
+          {isStacked && footer}
+          <AdPixel ad={ad} />
+          <AdMeasurement ad={ad} />
+          <AdViewability
             ad={ad}
-            ImageComponent={AdCardImage}
-            className="mb-0 mt-4 mobileXL:self-start"
+            onViewable={(data) => onViewable?.(ad, data)}
           />
-        </CardContent>
-      </CardContainer>
-      {isStacked && footer}
-      <AdPixel pixel={ad.pixel} />
-      <AdMeasurement ad={ad} />
-      <AdViewability ad={ad} onViewable={(data) => onViewable?.(ad, data)} />
-    </FeedItemContainer>
+        </FeedItemContainer>
+      )}
+    </AdSlot>
   );
 });

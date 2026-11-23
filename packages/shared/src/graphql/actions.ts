@@ -90,9 +90,6 @@ export enum ActionType {
   TriedSkillReview = 'tried_skill_review',
   TriedSkillRoutine = 'tried_skill_routine',
   FirstCores = 'first_cores',
-  GtaViVisit = 'gta_vi_visit',
-  GtaViRead = 'gta_vi_read',
-  GtaViThemeDismissed = 'gta_vi_theme_dismissed',
 }
 
 export const cvActions = [

@@ -38,17 +38,19 @@ export const AdCompactMenu = ({
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { showAdvertiseLink } = useAdLabel();
   const clickUrl = useAdClickUrl(ad);
+  const adLinkProps = {
+    href: clickUrl,
+    'data-ad-click': true,
+    target: '_blank',
+    rel: anchorSponsoredRel,
+  };
 
   const options: MenuItemProps[] = [
     ...(ad.callToAction
       ? [
           {
             label: ad.callToAction,
-            anchorProps: {
-              href: clickUrl,
-              target: '_blank',
-              rel: anchorSponsoredRel,
-            },
+            anchorProps: adLinkProps,
             action: () => onLinkClick?.(ad),
           },
         ]

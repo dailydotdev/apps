@@ -1,5 +1,8 @@
 import React from 'react';
+import type { ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
+import { QueryClient } from '@tanstack/react-query';
+import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { useIsLightTheme } from '../../../hooks/utils/useThemedAsset';
 import { SponsorLogo } from './SponsorLogo';
 import { resolveSponsor, SponsorTier } from './sponsorStripCreative';
@@ -21,6 +24,10 @@ jest.mock('../../../components/cards/ad/common/AdPixel', () => ({
 }));
 
 const mockIsLightTheme = jest.mocked(useIsLightTheme);
+let client: QueryClient;
+const wrapper = ({ children }: { children: ReactNode }) => (
+  <TestBootProvider client={client}>{children}</TestBootProvider>
+);
 const sponsor = resolveSponsor({
   generation_id: 'google-cloud',
   company_name: 'Google Cloud',
@@ -33,6 +40,7 @@ const sponsor = resolveSponsor({
 });
 
 beforeEach(() => {
+  client = new QueryClient();
   mockIsLightTheme.mockReturnValue(false);
 });
 
@@ -58,7 +66,7 @@ it.each([false, true])(
         expect(image).toHaveAttribute('src', url);
       }
     };
-    const { rerender } = render(renderLogo());
+    const { rerender } = render(renderLogo(), { wrapper });
     expectLogo(sponsor.logoDark);
 
     mockIsLightTheme.mockReturnValue(true);
@@ -77,6 +85,7 @@ it.each([true, false])(
         slotIndex={0}
         height={GOLD_HEIGHT}
       />,
+      { wrapper },
     );
     expect(screen.getByRole('img', { name: sponsor.company })).toHaveAttribute(
       'src',
@@ -101,7 +110,7 @@ it.each(['logoLight', 'logoDark'] as const)(
         height={GOLD_HEIGHT}
       />
     );
-    const { rerender } = render(renderLogo());
+    const { rerender } = render(renderLogo(), { wrapper });
     expect(screen.getByRole('img', { name: sponsor.company })).toHaveAttribute(
       'src',
       sponsor[availableLogo],
@@ -128,7 +137,7 @@ it.each([true, false])(
         monochrome={monochrome}
       />
     );
-    const { rerender } = render(renderLogo(1));
+    const { rerender } = render(renderLogo(1), { wrapper });
     expect(screen.getByRole('img', { name: sponsor.company })).toHaveStyle({
       height: '16px',
       width: '16px',
