@@ -680,6 +680,7 @@ export enum LogEvent {
   // Direct messages
   OpenMessages = 'open messages',
   OpenDirectMessage = 'open direct message',
+  OpenCompanySupportChat = 'open company support chat',
   SendDirectMessage = 'send direct message',
   FailDirectMessage = 'fail direct message',
   ReactDirectMessage = 'react direct message',
