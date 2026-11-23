@@ -90,8 +90,9 @@ export const ReadMe: StoryObj = {
         <p className="max-w-[44rem] text-text-secondary typo-body">
           Keep the hero, same slot and same height, and fix how it asks. This is
           a Storybook demo only: production still runs the June version
-          (ReadingReminderFeedHero, useReadingReminderHero). The pages render
-          the real production card next to the proposal.
+          (useReadingReminderHero). The pages render the real production cards
+          next to the proposal: ReadingReminderFeedHero on phones and tablets,
+          TopHero above the feed from 1024px up.
         </p>
       </header>
 
@@ -109,8 +110,8 @@ export const ReadMe: StoryObj = {
         <Change
           index={1}
           title="Centered on every width"
-          today="Left-aligned row from tablet up, image on the right. The desktop row gets 2.8% taps."
-          proposed="One centered card everywhere, like phones and the apps, which get 5–9%."
+          today="Left-aligned: a row with the cat on the right on tablets, and a compact row above the feed with the cat on the left from 1024px up. The desktop row gets 2.8% taps."
+          proposed="Centered everywhere, like phones and the apps, which get 5–9%. Laptop keeps its slot above the feed and its height."
           story={`${beforeAfter}--responsive`}
         />
         <Change

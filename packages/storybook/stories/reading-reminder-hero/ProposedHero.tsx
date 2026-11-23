@@ -234,6 +234,60 @@ export const ProposedHero = ({
   );
 };
 
+/**
+ * The laptop version, in the top-hero strip TopHero sits in today: the same
+ * frame and about the same height, centered, with Patchy beside the title.
+ */
+export const ProposedTopHero = ({
+  readingHour,
+  onSend,
+  onPickTime,
+  onClose,
+}: Pick<
+  ProposedHeroProps,
+  'readingHour' | 'onSend' | 'onPickTime' | 'onClose'
+>): ReactElement => (
+  <section className="relative flex w-full flex-col items-center overflow-hidden rounded-16 border border-border-subtlest-quaternary bg-background-default px-8 py-3 text-center">
+    {onClose && (
+      <CloseButton
+        type="button"
+        size={ButtonSize.XSmall}
+        className="absolute right-2 top-2 shrink-0"
+        aria-label="Close banner"
+        onClick={onClose}
+      />
+    )}
+    <div className="flex items-center gap-2">
+      <img src={PATCHY_ART} alt="Patchy" className="size-10 object-contain" />
+      <h3 className="font-bold text-text-primary typo-callout">
+        Make reading a daily habit
+      </h3>
+    </div>
+    <p className="text-text-tertiary typo-footnote">
+      One top pick a day at {longHour(readingHour)}, when you usually read.
+      Skipped on days you&apos;ve read.
+    </p>
+    <div className="mt-3 flex items-center gap-2">
+      <Button
+        type="button"
+        size={ButtonSize.Small}
+        variant={ButtonVariant.Primary}
+        onClick={() => onSend?.(readingHour)}
+      >
+        Send it at {shortHour(readingHour)}
+      </Button>
+      <Button
+        type="button"
+        size={ButtonSize.Small}
+        variant={ButtonVariant.Tertiary}
+        onClick={onPickTime}
+      >
+        Other time
+      </Button>
+    </div>
+  </section>
+);
+
 /** A stand-in for the browser or iOS permission prompt, which only exists on a device. */
 export const PermissionPrompt = ({
   onAllow,

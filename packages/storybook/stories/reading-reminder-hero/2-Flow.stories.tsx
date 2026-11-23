@@ -9,7 +9,12 @@ import {
 import { Device } from '../sources/device';
 import { FeedMock } from './FeedMock';
 import type { HeroStep } from './ProposedHero';
-import { longHour, PermissionPrompt, ProposedHero } from './ProposedHero';
+import {
+  longHour,
+  PermissionPrompt,
+  ProposedHero,
+  ProposedTopHero,
+} from './ProposedHero';
 
 type Permission = 'default' | 'granted' | 'denied';
 
@@ -269,16 +274,23 @@ const CloseEverywhereDemo = (): ReactElement => {
   const close = (device: string) =>
     setClosedOn((current) => new Set(current).add(device));
 
-  const hero = (device: string) =>
-    isClosed(device) ? undefined : (
-      <ProposedHero
-        step="offer"
-        readingHour={20}
-        onSend={noop}
-        onPickTime={noop}
-        onClose={() => close(device)}
-      />
-    );
+  const phoneHero = isClosed('phone') ? undefined : (
+    <ProposedHero
+      step="offer"
+      readingHour={20}
+      onSend={noop}
+      onPickTime={noop}
+      onClose={() => close('phone')}
+    />
+  );
+  const laptopHero = isClosed('laptop') ? undefined : (
+    <ProposedTopHero
+      readingHour={20}
+      onSend={noop}
+      onPickTime={noop}
+      onClose={() => close('laptop')}
+    />
+  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -312,11 +324,11 @@ const CloseEverywhereDemo = (): ReactElement => {
       <div className="grid grid-cols-1 items-start gap-6 laptop:grid-cols-[auto_1fr]">
         <div className="w-[23.4375rem] max-w-full">
           <Device device="phone" height={560} url="/" label="Phone">
-            <FeedMock hero={hero('phone')} />
+            <FeedMock hero={phoneHero} />
           </Device>
         </div>
         <Device device="laptop" height={560} url="/" label="Laptop">
-          <FeedMock hero={hero('laptop')} />
+          <FeedMock isLaptop hero={laptopHero} />
         </Device>
       </div>
     </div>

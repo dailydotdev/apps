@@ -1,11 +1,11 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import ReadingReminderFeedHero from '@dailydotdev/shared/src/components/marketing/banners/ReadingReminderFeedHero';
 import type { DeviceName } from '../sources/device';
 import { Device } from '../sources/device';
 import { FeedMock } from './FeedMock';
-import { ProposedHero } from './ProposedHero';
+import { ProposedHero, ProposedTopHero } from './ProposedHero';
+import { TodayHero } from './TodayHero';
 
 const meta: Meta = {
   title: 'Growth/Reading reminder hero/1. Before and after',
@@ -40,13 +40,12 @@ const Measured = ({
   return <div ref={box}>{children}</div>;
 };
 
-const Today = (): ReactElement => (
-  <ReadingReminderFeedHero className="pt-2" onCtaClick={noop} onClose={noop} />
-);
-
-const Proposed = (): ReactElement => (
-  <ProposedHero step="offer" readingHour={20} onClose={noop} />
-);
+const Proposed = ({ isLaptop }: { isLaptop: boolean }): ReactElement =>
+  isLaptop ? (
+    <ProposedTopHero readingHour={20} onClose={noop} />
+  ) : (
+    <ProposedHero step="offer" readingHour={20} onClose={noop} />
+  );
 
 const Pair = ({
   device,
@@ -57,6 +56,7 @@ const Pair = ({
   theme?: 'dark' | 'light';
   height?: number;
 }): ReactElement => {
+  const isLaptop = device.startsWith('laptop');
   const [todayHeight, setTodayHeight] = useState(0);
   const [proposedHeight, setProposedHeight] = useState(0);
   return (
@@ -70,9 +70,10 @@ const Pair = ({
           label={`Today${theme ? '' : ` · ${device}`}`}
         >
           <FeedMock
+            isLaptop={isLaptop}
             hero={
               <Measured onHeight={setTodayHeight}>
-                <Today />
+                <TodayHero isLaptop={isLaptop} onEnable={noop} onClose={noop} />
               </Measured>
             }
           />
@@ -90,9 +91,10 @@ const Pair = ({
           label={`Proposed${theme ? '' : ` · ${device}`}`}
         >
           <FeedMock
+            isLaptop={isLaptop}
             hero={
               <Measured onHeight={setProposedHeight}>
-                <Proposed />
+                <Proposed isLaptop={isLaptop} />
               </Measured>
             }
           />
@@ -127,11 +129,12 @@ export const Responsive: StoryObj = {
   render: () => (
     <Page
       title="Centered on every width"
-      intro="Today's card is the production component. From tablet up it turns into a left-aligned row with the cat on the right; the proposal stays one centered card, with Patchy and the reader's own hour."
+      intro="Today is what production renders, the same components with the same props: ReadingReminderFeedHero at the top of the feed on phones and tablets (a left-aligned row from tablet up), and TopHero in the strip above the feed frame from 1024px up. Only the feed around it is a mock. The proposal keeps each slot and its height, centered, with Patchy and the reader's own hour."
     >
       <Pair device="phone" height={640} />
       <Pair device="tablet" height={640} />
-      <Pair device="laptop" height={560} />
+      <Pair device="laptop" height={480} />
+      <Pair device="laptopL" height={480} />
     </Page>
   ),
 };
