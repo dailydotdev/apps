@@ -367,6 +367,9 @@ export enum LogEvent {
   DismissFeedWidgetTip = 'dismiss feed widget tip',
   UndoDismissFeedWidgetTip = 'undo dismiss feed widget tip',
   RestoreFeedWidgetTip = 'restore feed widget tip',
+  ImpressionFeedWidgetsPromo = 'impression feed widgets promo',
+  ClickFeedWidgetsPromo = 'click feed widgets promo',
+  DismissFeedWidgetsPromo = 'dismiss feed widgets promo',
   ToggleShortcutsOnWebapp = 'toggle shortcuts on webapp',
   // Devcard
   ShareDevcard = 'share devcard',

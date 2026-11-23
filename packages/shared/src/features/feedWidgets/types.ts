@@ -170,7 +170,29 @@ export type FeedWidgetRailState = {
    * rail's `feedWidgetsOptOut`, so hiding the rail does not hide these.
    */
   hidden?: boolean;
+  /**
+   * The feed's invite to a first widget the reader acted on, by id, so it
+   * ends once per account rather than once per device.
+   */
+  promoSeen?: string;
+  /** The visits the invite has shown on, up to its cap. */
+  promoViews?: number;
   [field: string]: unknown;
 };
+
+/**
+ * The feed's invite to a first widget, for readers who met the earlier rails
+ * and the ones who did not. A new id shows a new invite to everyone.
+ */
+export const FEED_WIDGETS_INTRO_ID = 'take-two';
+
+/**
+ * Where the feed's invite to a first widget sits: the first card from this
+ * index on that can take one, a row down on most grids, so it never leads.
+ */
+export const FEED_WIDGETS_PROMO_FROM = 4;
+
+/** The visits the invite shows on before it stops asking. */
+export const FEED_WIDGETS_PROMO_MAX_VIEWS = 5;
 
 export const FEED_WIDGET_RAIL_VERSION = 1;
