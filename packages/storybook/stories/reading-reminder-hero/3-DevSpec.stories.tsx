@@ -135,8 +135,9 @@ const toc = [
   ['copy', '7. Copy and the flag'],
   ['analytics', '8. Analytics'],
   ['art', '9. Art'],
-  ['questions', '10. Open questions'],
-  ['qa', '11. QA matrix'],
+  ['backend', '10. Confirmed with the backend'],
+  ['questions', '11. Open questions'],
+  ['qa', '12. QA matrix'],
 ];
 
 export const DevSpec: StoryObj = {
@@ -496,7 +497,7 @@ export const DevSpec: StoryObj = {
               <Code>lib/timezones.ts</Code>. Today it’s a hard-coded{' '}
               <Code>DEFAULT_READING_REMINDER_HOUR = 9</Code>.
             </>,
-            'At the current hour the first reminder is tomorrow, since that hour is under way. A later hour picked under Other time can still arrive today; the saved copy says which.',
+            'The backend serves each hour from a run at :50 of the hour before, so a reminder arrives today only if it’s saved before then (saved at 1:30 PM for 2 PM: today; at 1:55 PM: tomorrow). At the current hour it’s always tomorrow; the saved copy says which.',
             <>
               <Code>getHourTimezone</Code> formats with{' '}
               <Code>hour12: false</Code>, which can return 24 at midnight: take
@@ -510,6 +511,7 @@ export const DevSpec: StoryObj = {
               fallback (<Code>user.timezone ?? device</Code>) only goes into the
               log today.
             </>,
+            'If the profile has no timezone, the backend treats the hour as UTC, so “8 PM” can arrive at 8 PM UTC. Save the device timezone to the profile before saving the reminder when it’s empty.',
             'For reference: there is no client query for reads by hour of day. A habit-based hour would need a new backend field.',
           ]}
         />
@@ -536,7 +538,7 @@ export const DevSpec: StoryObj = {
               Weekly picks still lands with it.
             </>,
             'Keep reading the old IndexedDB "dismissed" value, and complete the action when it’s found, so past closes carry over.',
-            'Backend: confirm completeAction accepts the new type.',
+            'No backend change needed: completeAction stores any string (daily-api src/schema/actions.ts). Adding the type to the backend’s UserActionType is optional tidy-up.',
           ]}
         />
       </Section>
@@ -570,8 +572,8 @@ export const DevSpec: StoryObj = {
             </>,
             'The new subtitle has the hour in it, so either move the copy into code and retire the flag, or give the flag value an {hour} placeholder.',
             <>
-              Copy per step is in Flow · All states. It promises “Skipped on
-              days you’ve read”; see 10.
+              Copy per step is in Flow · All states. Its promises, one top pick
+              a day and skipped on days you’ve read, match the backend (see 10).
             </>,
           ]}
         />
@@ -621,26 +623,62 @@ export const DevSpec: StoryObj = {
         />
       </Section>
 
-      <Section id="questions" title="10. Open questions">
+      <Section
+        id="backend"
+        title="10. Confirmed with the backend"
+        intro="Answers from the daily-api code (main, read 2026-11-24 with Agent Smith; the skip check and completeAction spot-checked on GitHub)."
+      >
+        <Table
+          head={['Question', 'Answer']}
+          rows={[
+            [
+              'Skipped on days they’ve read?',
+              'Yes. Any post view that day sets the streak’s lastViewAt, in the profile timezone (UTC if empty). The check runs at :50 of the hour before, so a read in the last ten minutes doesn’t stop it. A read before 3 AM can count toward yesterday instead. Readers with no streak row are never skipped.',
+            ],
+            [
+              'What the push contains',
+              '“Top pick for you” with the title of one post from their own feed, opening that post. Falls back to a generic message (for example “Your daily reading time”) when the feed is empty or the reminder was paused. It expires at local midnight.',
+            ],
+            [
+              'Channels and pausing',
+              'Push only, through OneSignal. When it can’t be delivered, deliveryPaused is set for 7 days, then one retry with the generic copy. A successful send, opting in to web push, or saving the reminder again clears it.',
+            ],
+            [
+              'Hours and timezone',
+              'Any hour 0–23, no quiet hours (those apply to the streak reminder only). Read in the profile timezone, UTC if empty. Leaving the hour out defaults to 9.',
+            ],
+            [
+              'First send',
+              'Today if saved before :50 of the hour before, else from tomorrow. The once-a-day check compares UTC days, so moving an already-sent reminder later the same day may not send again.',
+            ],
+            [
+              'completeAction with a new type',
+              'Accepted as is: the type is a free string. No backend change needed.',
+            ],
+          ]}
+        />
+      </Section>
+
+      <Section id="questions" title="11. Open questions">
         <Table
           head={['Question', 'Why it matters', 'Who', '']}
           rows={[
             [
-              'Does the reading reminder skip days the reader already read?',
-              'The copy promises it. No client code says so; it’s backend behavior.',
-              'Backend',
-              <Tag key="t" kind="decide" />,
-            ],
-            [
-              'Is the reminder really “one top pick”?',
-              'The copy promises a post from their feed. Confirm what the reading reminder push contains. “Pick” also overlaps with Weekly picks, which may confuse.',
-              'Backend, product',
-              <Tag key="t" kind="decide" />,
-            ],
-            [
               'Late-night hours (midnight to 5 AM)?',
-              'Someone reading at 1 AM would get “Send it at 1 AM”. Keep, or suggest the next morning?',
+              'The backend accepts any hour, 0 to 23, with no quiet hours for this reminder. Someone reading at 1 AM would get “Send it at 1 AM”. Keep, or suggest the next morning?',
               'Product',
+              <Tag key="t" kind="decide" />,
+            ],
+            [
+              '“Top pick” next to “Weekly picks”',
+              'The push really is one post from their feed (“Top pick for you”), but “pick” also names the Weekly picks card. Keep the word, or rename one?',
+              'Product',
+              <Tag key="t" kind="decide" />,
+            ],
+            [
+              'Saving also re-subscribes the email digest',
+              'Subscribing to any digest type, the reading reminder included, re-subscribes the reader to the email Digest topic in Customer.io (daily-api src/cio.ts). Intended for people who turned that email off?',
+              'Product, backend',
               <Tag key="t" kind="decide" />,
             ],
             [
@@ -673,7 +711,7 @@ export const DevSpec: StoryObj = {
 
       <Section
         id="qa"
-        title="11. QA matrix"
+        title="12. QA matrix"
         intro="Run each on phone web, laptop web, iOS app and Android app, in light and dark."
       >
         <Table
@@ -713,6 +751,10 @@ export const DevSpec: StoryObj = {
             [
               'Laptop with Weekly picks showing',
               'Both cards at half width, neither clipped, buttons on one line.',
+            ],
+            [
+              'Profile has no timezone',
+              'The device timezone is saved to the profile first; the reminder arrives at the shown local hour, not that hour in UTC.',
             ],
             ['Signup day', 'Card not shown.'],
             ['Extension new tab', 'Card not shown.'],
