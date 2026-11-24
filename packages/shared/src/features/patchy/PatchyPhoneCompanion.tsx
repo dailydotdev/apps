@@ -60,21 +60,19 @@ const PatchyPhoneCompanionContext =
 export const usePatchyPhoneCompanion = (): PatchyPhoneCompanionValue | null =>
   useContext(PatchyPhoneCompanionContext);
 
-type PeekPosition = 'tucked' | 'peek' | 'drop';
+type PeekPosition = 'tucked' | 'corner';
 
-// How far his circle comes down from the edge he hangs from.
+// His corner spot leaves room above him for a reaction's emotes.
 const peekTransform: Record<PeekPosition, string> = {
   tucked: 'translateY(-100%)',
-  // Eyes and nose over the edge, the top of his head still behind it.
-  peek: 'translateY(-22%)',
-  drop: 'translateY(1.5rem)',
+  corner: 'translateY(1rem)',
 };
 const PEEK_MS = 300;
 
-// When the header with his pill has scrolled away, he peeks down from the
-// top of the screen; tapping him brings the header back. On a reaction he
-// drops all the way in to play it, also on pages without his pill (a post),
-// then goes back to where he was. Tucked away he leaves the layout, like the
+// While the header is scrolled away he sits in the top-right corner, on any
+// page, and plays his reactions right there; tapping him brings the header
+// back. With the header up he's in its pill (home), or slides into the same
+// corner only to react (a post). Tucked away he leaves the layout, like the
 // shell block: iOS 26 Safari paints its status area solid while a fixed box
 // with a background stands at the top.
 export const PatchyTopPeek = (): ReactElement | null => {
@@ -83,18 +81,18 @@ export const PatchyTopPeek = (): ReactElement | null => {
   const { p } = useShellScroll();
   const { logEvent } = useLogContext();
   const buttonRef = useRef<HTMLButtonElement>(null);
-  // No header standing at the top: hidden by the page, or scrolled away.
+  // The header scrolled away; it comes back on a tap or a scroll up.
+  const isScrolledAway = !config?.hidden && p >= 0.99;
+  // No header standing at the top: scrolled away, or hidden by the page.
   const isShellAway = !!config?.hidden || p >= 0.99;
   const isInHeader = !!companion?.isInHeader;
-
-  let target: PeekPosition = 'tucked';
-  if (companion && !(isInHeader && !isShellAway)) {
-    if (companion.patchy.isReacting) {
-      target = 'drop';
-    } else if (isInHeader) {
-      target = 'peek';
-    }
-  }
+  const isInHeaderView = isInHeader && !isShellAway;
+  const target: PeekPosition =
+    companion &&
+    !isInHeaderView &&
+    (isScrolledAway || companion.patchy.isReacting)
+      ? 'corner'
+      : 'tucked';
 
   // What is on screen. Coming in it first stands tucked, so the slide has a
   // start; going out it slides away, then unmounts.
@@ -130,8 +128,8 @@ export const PatchyTopPeek = (): ReactElement | null => {
     return null;
   }
   const { patchy, state, hasReadToday } = companion;
-  // Only the peek does something: it brings the header and his pill back.
-  const canTap = rendered === 'peek' && isInHeader;
+  // Tapping him brings back the header he stands in for.
+  const canTap = rendered === 'corner' && isScrolledAway;
 
   return (
     <div

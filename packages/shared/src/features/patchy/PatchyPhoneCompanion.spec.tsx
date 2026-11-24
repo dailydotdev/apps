@@ -84,10 +84,10 @@ it('stays away while the header shows him in its pill, reacting or not', () => {
   expect(peek()).toBeUndefined();
 });
 
-it('peeks from the top once the header scrolls away, and a tap brings it back', () => {
+it('sits in the top corner once the header scrolls away, and a tap brings it back', () => {
   mockShellP = 1;
   render(<Shell />);
-  expect(peek()).toBe('peek');
+  expect(peek()).toBe('corner');
 
   fireEvent.click(screen.getByRole('button', { name: 'Show header' }));
   expect(revealShell).toHaveBeenCalled();
@@ -98,30 +98,39 @@ it('peeks from the top once the header scrolls away, and a tap brings it back', 
   });
 });
 
-it('drops in to react while the header is away, out of reach of a tap', () => {
+it('reacts in the same corner spot instead of moving', () => {
   mockShellP = 1;
+  const { rerender } = render(<Shell />);
+  expect(peek()).toBe('corner');
+
   mockIsReacting = true;
-  render(<Shell />);
-  expect(peek()).toBe('drop');
-  expect(
-    screen.queryByRole('button', { name: 'Show header' }),
-  ).not.toBeInTheDocument();
+  rerender(<Shell />);
+  expect(peek()).toBe('corner');
 });
 
-it('drops in to react on pages without his pill, and is gone otherwise', () => {
+it('on pages without his pill, sits in the corner once scrolled', () => {
+  mockShellP = 1;
+  render(<Shell withPill={false} />);
+  expect(peek()).toBe('corner');
+});
+
+it('with the header up and no pill, comes in only to react, out of reach of a tap', () => {
   const { rerender } = render(<Shell withPill={false} />);
   expect(peek()).toBeUndefined();
 
   mockIsReacting = true;
   rerender(<Shell withPill={false} />);
-  expect(peek()).toBe('drop');
+  expect(peek()).toBe('corner');
+  expect(
+    screen.queryByRole('button', { name: 'Show header' }),
+  ).not.toBeInTheDocument();
 });
 
 it('slides away after a reaction, then leaves the layout', () => {
   jest.useFakeTimers();
   mockIsReacting = true;
   const { rerender } = render(<Shell withPill={false} />);
-  expect(peek()).toBe('drop');
+  expect(peek()).toBe('corner');
 
   mockIsReacting = false;
   rerender(<Shell withPill={false} />);
@@ -152,7 +161,7 @@ it('turns on without remounting the shell under him', () => {
     </PatchyPhoneCompanion>,
   );
 
-  expect(peek()).toBe('drop');
+  expect(peek()).toBe('corner');
   expect(mounts).toHaveBeenCalledTimes(1);
 });
 
