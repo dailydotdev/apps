@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { CSSProperties, ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useInView } from 'react-intersection-observer';
@@ -27,6 +27,12 @@ export interface FeedSurveyCardProps {
   column: number;
   row: number;
 }
+
+// A tint only: the feed layout keeps every card's border the same colour
+export const feedSurveyCardStyle: CSSProperties = {
+  backgroundImage:
+    'linear-gradient(180deg, color-mix(in srgb, var(--theme-accent-cabbage-default) 24%, transparent), transparent 70%)',
+};
 
 export const FeedSurveyInner = ({
   survey,
