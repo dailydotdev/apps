@@ -216,7 +216,7 @@ export const ReputationBadge = ({
     />
     <strong
       className={classNames(
-        'absolute bottom-[7%] rounded-8 bg-accent-onion-default px-2 tabular-nums text-background-default shadow-2',
+        'absolute bottom-[7%] rounded-8 bg-accent-onion-default px-2 tabular-nums text-white shadow-2',
         size === 'large' ? 'typo-title3' : 'typo-footnote',
       )}
     >
