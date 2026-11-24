@@ -76,6 +76,7 @@ const Note = ({
 const beforeAfter = 'growth-reading-reminder-hero-1-before-and-after';
 const flow = 'growth-reading-reminder-hero-2-flow';
 const devSpec = 'growth-reading-reminder-hero-3-dev-spec--dev-spec';
+const allCases = 'growth-reading-reminder-hero-4-all-cases--today';
 
 export const ReadMe: StoryObj = {
   name: 'Read me first',
@@ -95,13 +96,22 @@ export const ReadMe: StoryObj = {
           next to the proposal: ReadingReminderFeedHero on phones and tablets,
           TopHero above the feed from 1024px up.
         </p>
-        <a
-          href={`?path=/story/${devSpec}`}
-          target="_top"
-          className="w-fit rounded-12 bg-surface-float px-3 py-2 font-bold text-text-primary typo-callout hover:bg-surface-hover"
-        >
-          Building it? Read the dev spec →
-        </a>
+        <div className="flex flex-wrap gap-2">
+          <a
+            href={`?path=/story/${allCases}`}
+            target="_top"
+            className="w-fit rounded-12 bg-surface-float px-3 py-2 font-bold text-text-primary typo-callout hover:bg-surface-hover"
+          >
+            Check every case →
+          </a>
+          <a
+            href={`?path=/story/${devSpec}`}
+            target="_top"
+            className="w-fit rounded-12 bg-surface-float px-3 py-2 font-bold text-text-primary typo-callout hover:bg-surface-hover"
+          >
+            Building it? Read the dev spec →
+          </a>
+        </div>
       </header>
 
       <section className="grid grid-cols-2 gap-3 laptop:grid-cols-4">

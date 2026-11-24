@@ -369,6 +369,16 @@ export const DevSpec: StoryObj = {
         <List
           items={[
             <>
+              <strong className="text-text-primary">Weekly picks:</strong> below
+              laptop, <Code>WeeklyPicksHeroCard</Code> (panel variant, #7316)
+              renders above the feed, so it stacks on top of the reminder. Its
+              panel is a copy of today’s reminder panel (
+              <Code>bg-raw-pepper-90</Code>, <Code>text-white</Code>), so it has
+              the same light-theme bug, and next to the new reminder it looks
+              like a different product. Move it to the same frame and tokens in
+              the same change. See All cases · Next to Weekly picks.
+            </>,
+            <>
               <strong className="text-text-primary">Shared strip:</strong> on
               laptop the strip also holds Weekly picks and the upload-CV card,
               and splits into two columns when two show (
@@ -596,6 +606,12 @@ export const DevSpec: StoryObj = {
             [
               'Match onboarding',
               'Onboarding tests Patchy, push first and a time picker (PR 7175). The hero should follow the winner.',
+              'Product',
+              <Tag key="t" kind="decide" />,
+            ],
+            [
+              'Weekly picks panel',
+              'It copies today’s dark reminder panel. Restyle it with the reminder, or ship the reminder alone and accept the mismatch where both stack?',
               'Product',
               <Tag key="t" kind="decide" />,
             ],

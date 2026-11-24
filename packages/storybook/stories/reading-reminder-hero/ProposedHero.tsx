@@ -279,35 +279,92 @@ export const ProposedTopHero = ({
   );
 };
 
-/** A stand-in for the browser or iOS permission prompt, which only exists on a device. */
+export type PromptPlatform = 'web' | 'ios' | 'android';
+
+const promptCopy: Record<
+  PromptPlatform,
+  { text: ReactNode; block: string; allow: string }
+> = {
+  web: {
+    text: (
+      <>
+        <strong>app.daily.dev</strong> wants to show notifications
+      </>
+    ),
+    block: 'Block',
+    allow: 'Allow',
+  },
+  ios: {
+    text: (
+      <>
+        <strong>“daily.dev” Would Like to Send You Notifications</strong>
+        <br />
+        Notifications may include alerts, sounds and icon badges.
+      </>
+    ),
+    block: 'Don’t Allow',
+    allow: 'Allow',
+  },
+  android: {
+    text: (
+      <>
+        Allow <strong>daily.dev</strong> to send you notifications?
+      </>
+    ),
+    block: 'Don’t allow',
+    allow: 'Allow',
+  },
+};
+
+/**
+ * A stand-in for the system permission prompt, which only exists on a
+ * device: the browser's on the web, iOS's in the iOS app, and Android's in
+ * the Android app (a Chrome shell, so Chrome asks first on older Android).
+ */
 export const PermissionPrompt = ({
+  platform = 'web',
   onAllow,
   onBlock,
 }: {
+  platform?: PromptPlatform;
   onAllow: () => void;
   onBlock: () => void;
-}): ReactElement => (
-  <div className="absolute left-3 top-3 z-3 flex w-72 flex-col gap-3 rounded-12 border border-border-subtlest-secondary bg-background-popover p-4 shadow-2">
-    <p className="text-text-primary typo-callout">
-      <strong>app.daily.dev</strong> wants to show notifications
-    </p>
-    <div className="flex justify-end gap-2">
-      <Button
-        type="button"
-        size={ButtonSize.Small}
-        variant={ButtonVariant.Float}
-        onClick={onBlock}
+}): ReactElement => {
+  const { text, block, allow } = promptCopy[platform];
+
+  return (
+    <div
+      className={classNames(
+        'absolute z-3 flex w-72 flex-col gap-3 border border-border-subtlest-secondary bg-background-popover p-4 shadow-2',
+        platform === 'web'
+          ? 'left-3 top-3 rounded-12'
+          : 'left-1/2 top-1/3 -translate-x-1/2 rounded-16 text-center',
+      )}
+    >
+      <p className="text-text-primary typo-callout">{text}</p>
+      <div
+        className={classNames(
+          'flex gap-2',
+          platform === 'web' ? 'justify-end' : 'justify-center',
+        )}
       >
-        Block
-      </Button>
-      <Button
-        type="button"
-        size={ButtonSize.Small}
-        variant={ButtonVariant.Primary}
-        onClick={onAllow}
-      >
-        Allow
-      </Button>
+        <Button
+          type="button"
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Float}
+          onClick={onBlock}
+        >
+          {block}
+        </Button>
+        <Button
+          type="button"
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Primary}
+          onClick={onAllow}
+        >
+          {allow}
+        </Button>
+      </div>
     </div>
-  </div>
-);
+  );
+};
