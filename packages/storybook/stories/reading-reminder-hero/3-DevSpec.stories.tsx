@@ -375,8 +375,8 @@ export const DevSpec: StoryObj = {
               <Code>tablet:has-[&gt;:nth-child(2)]:grid-cols-2</Code>).
               <Code>useWeeklyPicksHero</Code> waits on{' '}
               <Code>useReadingReminderHeroSettled</Code> so they land together.
-              The laptop card has to fit about 440px; see Before and after ·
-              Shared strip.
+              The laptop card has to fit about 440px; Flow · All states shows
+              every state at that width.
             </>,
             <>
               <strong className="text-text-primary">Phones and tablets:</strong>{' '}

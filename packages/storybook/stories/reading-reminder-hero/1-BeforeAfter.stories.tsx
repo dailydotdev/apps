@@ -1,8 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { CvTopHero } from '@dailydotdev/shared/src/features/profile/components/CvTopHero';
 import type { DeviceName } from '../sources/device';
 import { Device } from '../sources/device';
 import { FeedMock } from './FeedMock';
@@ -159,75 +157,5 @@ export const Themes: StoryObj = {
         <Pair device="phone" theme="dark" height={600} />
       </div>
     </Page>
-  ),
-};
-
-const queryClient = new QueryClient();
-
-// FeedContainer.tsx's subtitle when jobs are off.
-const CvCard = (): ReactElement => (
-  <CvTopHero
-    subtitle="Upload your CV to autofill your profile in seconds."
-    onUpload={noop}
-    onClose={noop}
-  />
-);
-
-export const SharedStrip: StoryObj = {
-  name: 'Shared strip',
-  render: () => (
-    <QueryClientProvider client={queryClient}>
-      <Page
-        title="Laptop: sharing the strip"
-        intro="From 1024px up the strip above the feed also holds Weekly picks and the upload-CV card, and splits into two columns when two show. Both sides use the real CV card as the neighbor. The proposed card has to read at half width."
-      >
-        <div className="flex flex-col gap-6">
-          {(['laptop', 'laptopL'] as const).map((device) => (
-            <div
-              key={device}
-              className="grid grid-cols-1 gap-6 laptop:grid-cols-2"
-            >
-              <Device
-                device={device}
-                height={360}
-                url="/"
-                label={`Today · ${device}`}
-              >
-                <FeedMock
-                  isLaptop
-                  hero={
-                    <>
-                      <TodayHero isLaptop onEnable={noop} onClose={noop} />
-                      <CvCard />
-                    </>
-                  }
-                />
-              </Device>
-              <Device
-                device={device}
-                height={360}
-                url="/"
-                label={`Proposed · ${device}`}
-              >
-                <FeedMock
-                  isLaptop
-                  hero={
-                    <>
-                      <ProposedTopHero
-                        step="offer"
-                        readingHour={20}
-                        className="order-first"
-                        onClose={noop}
-                      />
-                      <CvCard />
-                    </>
-                  }
-                />
-              </Device>
-            </div>
-          ))}
-        </div>
-      </Page>
-    </QueryClientProvider>
   ),
 };
