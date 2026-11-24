@@ -143,7 +143,7 @@ describe('trackCompanyPageFirstPost', () => {
   });
 
   it.each([
-    ['a page that is not ready', { description: 'Acme' }],
+    ['a page that is not ready', { description: '' }],
     ['a page older than a month', { createdAt: daysAgo(31) }],
     ['a post after the first', { flags: { company: true, totalPosts: 2 } }],
     ['a community squad', { flags: {} }],

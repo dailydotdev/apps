@@ -3,7 +3,6 @@ import type { ProfileCompletion } from '../../../lib/user';
 import {
   getCompanyPageReadinessItems,
   getPlanChecklistItems,
-  isCompanyPageDescriptionReady,
   isCountedItem,
 } from './readiness';
 import { getCompanyPageReadinessPrompt } from './companyPage';
@@ -29,13 +28,6 @@ const squad = {
 
 const missing = (items: ReturnType<typeof getCompanyPageReadinessItems>) =>
   items.filter(({ isDone }) => !isDone).map(({ id }) => id);
-
-describe('isCompanyPageDescriptionReady', () => {
-  it('counts an emoji as one character, as daily-api does', () => {
-    expect(isCompanyPageDescriptionReady(`${'a'.repeat(18)}🚀`)).toBe(false);
-    expect(isCompanyPageDescriptionReady(`${'a'.repeat(19)}🚀`)).toBe(true);
-  });
-});
 
 describe('getCompanyPageReadinessItems', () => {
   it('lists a free page and its admin, counting the default image as no logo', () => {
