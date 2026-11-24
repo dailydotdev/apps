@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { CSSProperties, ReactElement, ReactNode } from 'react';
 import React, {
   createContext,
   useCallback,
@@ -6,16 +6,18 @@ import React, {
   useEffect,
   useLayoutEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
-import classNames from 'classnames';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useReadingStreak } from '../../hooks/streaks';
 import type { StreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { LogEvent, TargetType } from '../../lib/log';
+import {
+  motion as shellMotion,
+  topButton,
+} from '../../components/shell/constants';
 import {
   revealShell,
   useShellScroll,
@@ -30,7 +32,7 @@ import { PatchyRailIcon } from './PatchyRailIcon';
 import { usePatchyEnabled } from './usePatchyEnabled';
 import { usePatchyRail } from './usePatchyRail';
 
-// The peek is in the server HTML, where a layout effect only warns.
+// He is in the server HTML, where a layout effect only warns.
 const useClientLayoutEffect =
   typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
@@ -43,7 +45,7 @@ interface PatchyPhoneState {
     emoteCount: number;
     emoteKey: number;
     isReacting: boolean;
-    // A post is open: he reads along in the corner.
+    // A post is open: he reads along.
     isReading: boolean;
   };
   state: StreakRingState;
@@ -51,75 +53,123 @@ interface PatchyPhoneState {
   goalProgress?: number;
 }
 
+// Where he stands in the header: his streak pill (home), or a spot kept
+// among the header's actions (a post).
+type PatchyAnchorKind = 'pill' | 'actions';
+
+interface PatchyAnchor {
+  kind: PatchyAnchorKind;
+  element: HTMLElement;
+}
+
 interface PatchyPhoneCompanionValue extends PatchyPhoneState {
-  // The header's streak pill shows him (the home page).
-  isInHeader: boolean;
-  setInHeader: (isInHeader: boolean) => void;
+  anchor: PatchyAnchor | null;
+  setAnchor: (
+    update: (anchor: PatchyAnchor | null) => PatchyAnchor | null,
+  ) => void;
+  // He floats over the page, so the pill hides its own copy of him.
+  isFloating: boolean;
+  // The header keeps a spot for him among its actions.
+  hasActionsSpot: boolean;
+  // The header is away, or still sliding back in under him.
+  isHeaderAway: boolean;
+  // The header is away; tapping him brings it back.
+  canTap: boolean;
 }
 
 const PatchyPhoneCompanionContext =
   createContext<PatchyPhoneCompanionValue | null>(null);
 
-// The phone's one Patchy: the header pill and the top peek show the same
+// The phone's one Patchy: the header pill and the floating face are the same
 // face and reactions, and a welcome or late-night reaction plays once.
 export const usePatchyPhoneCompanion = (): PatchyPhoneCompanionValue | null =>
   useContext(PatchyPhoneCompanionContext);
 
-type PeekPosition = 'tucked' | 'corner';
-
-// His corner spot leaves room above him for a reaction's emotes.
-const peekTransform: Record<PeekPosition, string> = {
-  tucked: 'translateY(-100%)',
-  corner: 'translateY(1rem)',
+// Marks his spot in the header; the floating face lines up over it.
+export const usePatchyAnchor = (
+  kind: PatchyAnchorKind,
+): ((element: HTMLElement | null) => void) => {
+  const setAnchor = usePatchyPhoneCompanion()?.setAnchor;
+  return useCallback(
+    (element: HTMLElement | null) => {
+      setAnchor?.((current) => {
+        if (element) {
+          return { kind, element };
+        }
+        return current?.kind === kind ? null : current;
+      });
+    },
+    [setAnchor, kind],
+  );
 };
-const PEEK_MS = 300;
 
-// While the header is scrolled away he sits in the top-right corner, on any
-// page, and plays his reactions right there; tapping him brings the header
-// back. With the header up he's part of it: in its streak pill (home), or as
-// the first of its actions while you read a post or he reacts, so a docked
-// menu lines up beside him instead of under him. Tucked away the corner
-// leaves the layout, like the shell block: iOS 26 Safari paints its status
-// area solid while a fixed box with a background stands at the top.
-export const PatchyTopPeek = (): ReactElement | null => {
+// His icon in the header's actions (40px) and the corner fallback.
+const SPOT = 40;
+const rowHeight = topButton.size + 14;
+
+const cornerStyle: CSSProperties = {
+  top: `calc(var(--safe-area-top, 0px) + var(--phone-top-ad-height, 0px) + ${
+    (rowHeight - SPOT) / 2
+  }px)`,
+  right: topButton.inset,
+  width: SPOT,
+  height: SPOT,
+};
+
+interface SpotRect {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+// The one Patchy that floats over the page. While the header is up he stands
+// exactly over his spot in it; when it scrolls away he stays right there and
+// the header slides out from under him, and coming back it slides in under
+// him. So he never jumps between the header and the corner. Without a spot
+// in the header he takes the top-right corner of its row. He leaves the
+// layout when he's not shown: iOS 26 Safari paints its status area solid
+// while a fixed box with a background stands at the top.
+export const PatchyFloatingFace = (): ReactElement | null => {
   const companion = usePatchyPhoneCompanion();
-  const config = useShellPageConfig();
-  const { p } = useShellScroll();
   const { logEvent } = useLogContext();
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  // The header scrolled away; it comes back on a tap or a scroll up.
-  const isScrolledAway = !config?.hidden && p >= 0.99;
-  // No header standing at the top: scrolled away, or hidden by the page.
-  const isShellAway = !!config?.hidden || p >= 0.99;
-  const isInHeader = !!companion?.isInHeader;
-  const isBusy =
-    !!companion && (companion.patchy.isReacting || companion.patchy.isReading);
-  const isInActions = isBusy && !isInHeader && !isShellAway;
-  const target: PeekPosition =
-    companion && isShellAway && (isScrolledAway || isBusy)
-      ? 'corner'
-      : 'tucked';
+  const [rect, setRect] = useState<SpotRect | null>(null);
+  const element = companion?.anchor?.element;
+  const isFloating = !!companion?.isFloating;
+  // Measured only while the header stands still.
+  const canMeasure = !!companion && !companion.isHeaderAway;
 
-  // What is on screen. Coming in it first stands tucked, so the slide has a
-  // start; going out it slides away, then unmounts.
-  const [rendered, setRendered] = useState<PeekPosition | null>(null);
-  useEffect(() => {
-    if (target !== 'tucked') {
-      setRendered((current) => current ?? 'tucked');
+  useClientLayoutEffect(() => {
+    if (!element) {
+      setRect(null);
       return undefined;
     }
-    setRendered((current) => (current ? 'tucked' : null));
-    const timer = window.setTimeout(() => setRendered(null), PEEK_MS);
-    return () => window.clearTimeout(timer);
-  }, [target]);
-  useClientLayoutEffect(() => {
-    if (!rendered || target === 'tucked' || rendered === target) {
-      return;
+    if (!canMeasure) {
+      return undefined;
     }
-    // Reading the box settles the tucked position as the slide's start.
-    buttonRef.current?.getBoundingClientRect();
-    setRendered(target);
-  }, [rendered, target]);
+    const measure = () => {
+      const box = element.getBoundingClientRect();
+      if (!box.width) {
+        return;
+      }
+      setRect((current) =>
+        current &&
+        current.left === box.left &&
+        current.top === box.top &&
+        current.width === box.width
+          ? current
+          : {
+              left: box.left,
+              top: box.top,
+              width: box.width,
+              height: box.height,
+            },
+      );
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  });
 
   const onClick = useCallback(() => {
     revealShell();
@@ -130,12 +180,14 @@ export const PatchyTopPeek = (): ReactElement | null => {
     });
   }, [logEvent]);
 
-  if (!companion) {
+  if (!companion || !isFloating) {
     return null;
   }
-  const { patchy, state, hasReadToday } = companion;
-  // Tapping him brings back the header he stands in for.
-  const canTap = rendered === 'corner' && isScrolledAway;
+  const { patchy, state, hasReadToday, goalProgress, anchor, canTap } =
+    companion;
+  const isPill = anchor?.kind === 'pill';
+  const spot = anchor && rect ? rect : null;
+  const position = spot && anchor ? anchor.kind : 'corner';
   const icon = (
     <PatchyRailIcon
       face={patchy.face}
@@ -146,51 +198,51 @@ export const PatchyTopPeek = (): ReactElement | null => {
       emoteKey={patchy.emoteKey}
       state={state}
       hasReadToday={hasReadToday}
-      showStreak={false}
+      goalProgress={goalProgress}
+      // Over the pill he's the pill's face, streak ring and all.
+      showStreak={isPill}
     />
   );
 
   return (
-    <>
-      {isInActions && (
-        <ShellActions>
-          <span
-            aria-hidden
-            data-position="header"
-            className="flex size-10 shrink-0 items-center justify-center tablet:hidden"
-            // First of the actions, whichever joined the header before him.
-            style={{ order: -1 }}
-          >
-            <span className="flex scale-125 rounded-full">{icon}</span>
-          </span>
-        </ShellActions>
+    <button
+      type="button"
+      disabled={!canTap}
+      aria-hidden={!canTap || undefined}
+      aria-label="Show header"
+      onClick={onClick}
+      data-position={position}
+      className="fixed flex items-center justify-center rounded-full transition-[left,top] duration-200 ease-out motion-reduce:transition-none tablet:hidden"
+      style={{
+        ...(spot ?? cornerStyle),
+        // Over the header he stands in front of it.
+        zIndex: 76,
+        pointerEvents: canTap ? 'auto' : 'none',
+      }}
+    >
+      {isPill ? (
+        icon
+      ) : (
+        <span className="flex scale-125 rounded-full">{icon}</span>
       )}
-      {rendered && (
-        <div
-          aria-hidden={!canTap || undefined}
-          data-position={rendered}
-          className="pointer-events-none fixed right-2 z-header h-24 w-20 overflow-hidden tablet:hidden"
-          style={{
-            top: 'calc(var(--safe-area-top, 0px) + var(--phone-top-ad-height, 0px))',
-          }}
-        >
-          <button
-            ref={buttonRef}
-            type="button"
-            disabled={!canTap}
-            aria-label="Show header"
-            onClick={onClick}
-            className={classNames(
-              'absolute left-1/2 top-0 flex size-12 items-center justify-center rounded-full transition-transform duration-300 ease-out motion-reduce:transition-none',
-              canTap ? 'pointer-events-auto' : 'pointer-events-none',
-            )}
-            style={{ transform: `translateX(-50%) ${peekTransform[rendered]}` }}
-          >
-            <span className="flex scale-125 rounded-full shadow-2">{icon}</span>
-          </button>
-        </div>
-      )}
-    </>
+    </button>
+  );
+};
+
+// The spot the header keeps for him among its actions, first of them so a
+// docked menu lines up beside him. The floating face stands over it.
+const PatchyActionsSpot = (): ReactElement => {
+  const ref = usePatchyAnchor('actions');
+
+  return (
+    <ShellActions>
+      <span
+        ref={ref}
+        aria-hidden
+        className="invisible flex shrink-0 tablet:hidden"
+        style={{ width: SPOT, height: SPOT, order: -1 }}
+      />
+    </ShellActions>
   );
 };
 
@@ -273,32 +325,49 @@ export const PatchyPhoneCompanion = ({
   const isEnabled = usePatchyEnabled({
     shouldEvaluate: isPhone && !!user && isStreaksEnabled && !!streak,
   });
+  const config = useShellPageConfig();
+  const { p } = useShellScroll();
   const [brain, setBrain] = useState<PatchyPhoneState | null>(null);
-  const [isInHeader, setInHeader] = useState(false);
-  const value = useMemo(
-    () => (brain ? { ...brain, isInHeader, setInHeader } : null),
-    [brain, isInHeader],
-  );
+  const [anchor, setAnchor] = useState<PatchyAnchor | null>(null);
+
+  const hasHeader = !config?.hidden;
+  const isScrolledAway = hasHeader && p >= 0.99;
+  // The header takes its slide to come back; he floats over it until it
+  // stands still again, then the pill takes over at the same spot.
+  const [isSettling, setSettling] = useState(false);
+  useEffect(() => {
+    if (isScrolledAway) {
+      setSettling(true);
+      return undefined;
+    }
+    const timer = window.setTimeout(() => setSettling(false), shellMotion.snap);
+    return () => window.clearTimeout(timer);
+  }, [isScrolledAway]);
+  const isHeaderAway = isScrolledAway || isSettling;
+
+  const value = useMemo((): PatchyPhoneCompanionValue | null => {
+    if (!brain) {
+      return null;
+    }
+    const isPill = anchor?.kind === 'pill';
+    const isBusy = brain.patchy.isReacting || brain.patchy.isReading;
+    return {
+      ...brain,
+      anchor,
+      setAnchor,
+      isFloating: isPill ? isHeaderAway : isBusy || isHeaderAway,
+      hasActionsSpot: hasHeader && !isPill && isBusy,
+      isHeaderAway,
+      canTap: isScrolledAway,
+    };
+  }, [brain, anchor, hasHeader, isHeaderAway, isScrolledAway]);
 
   return (
     <PatchyPhoneCompanionContext.Provider value={value}>
       {isEnabled && <PatchyPhoneBrain onChange={setBrain} />}
-      {/* Before the shell, so the header (same layer) covers him. */}
-      <PatchyTopPeek />
+      {value?.hasActionsSpot && <PatchyActionsSpot />}
+      <PatchyFloatingFace />
       {children}
     </PatchyPhoneCompanionContext.Provider>
   );
-};
-
-// Tells the peek his pill is on the page; the header icon calls it.
-export const usePatchyInHeader = (): void => {
-  const companion = usePatchyPhoneCompanion();
-  const setInHeader = companion?.setInHeader;
-  useEffect(() => {
-    if (!setInHeader) {
-      return undefined;
-    }
-    setInHeader(true);
-    return () => setInHeader(false);
-  }, [setInHeader]);
 };

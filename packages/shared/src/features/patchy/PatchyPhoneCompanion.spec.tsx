@@ -4,7 +4,8 @@ import { LogEvent, TargetType } from '../../lib/log';
 import { revealShell } from '../../components/shell/useShellScroll';
 import {
   PatchyPhoneCompanion,
-  usePatchyInHeader,
+  usePatchyAnchor,
+  usePatchyPhoneCompanion,
 } from './PatchyPhoneCompanion';
 
 const mockLogEvent = jest.fn();
@@ -57,9 +58,19 @@ jest.mock('./usePatchyRail', () => ({
   }),
 }));
 
+// The header's spots measure as a fixed box; jsdom has no layout.
+const spotBox = { left: 300, top: 10, width: 24, height: 24 } as DOMRect;
+
 const HeaderPill = () => {
-  usePatchyInHeader();
-  return null;
+  const ref = usePatchyAnchor('pill');
+  const companion = usePatchyPhoneCompanion();
+  return (
+    <span
+      ref={ref}
+      data-testid="pill"
+      data-hidden={companion?.isFloating ? 'yes' : 'no'}
+    />
+  );
 };
 
 const Shell = ({
@@ -74,29 +85,42 @@ const Shell = ({
   </PatchyPhoneCompanion>
 );
 
-const peek = () =>
-  document.querySelector<HTMLElement>('[data-position]')?.dataset.position;
+const face = () =>
+  document.querySelector<HTMLElement>('button[data-position]') ?? null;
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.useFakeTimers();
+  jest
+    .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+    .mockReturnValue(spotBox);
   mockShellP = 0;
   mockIsReacting = false;
   mockIsReading = false;
 });
 
-it('stays away while the header shows him in its pill, reacting or not', () => {
+afterEach(() => {
+  jest.useRealTimers();
+});
+
+it('leaves him to the pill while the header is up, reacting or not', () => {
   const { rerender } = render(<Shell />);
-  expect(peek()).toBeUndefined();
+  expect(face()).toBeNull();
 
   mockIsReacting = true;
   rerender(<Shell />);
-  expect(peek()).toBeUndefined();
+  expect(face()).toBeNull();
+  expect(screen.getByTestId('pill')).toHaveAttribute('data-hidden', 'no');
 });
 
-it('sits in the top corner once the header scrolls away, and a tap brings it back', () => {
+it('stays exactly on his pill spot as the header scrolls away, and a tap brings it back', () => {
+  const { rerender } = render(<Shell />);
   mockShellP = 1;
-  render(<Shell />);
-  expect(peek()).toBe('corner');
+  rerender(<Shell />);
+
+  expect(face()).toHaveAttribute('data-position', 'pill');
+  expect(face()).toHaveStyle({ left: '300px', top: '10px' });
+  expect(screen.getByTestId('pill')).toHaveAttribute('data-hidden', 'yes');
 
   fireEvent.click(screen.getByRole('button', { name: 'Show header' }));
   expect(revealShell).toHaveBeenCalled();
@@ -107,68 +131,61 @@ it('sits in the top corner once the header scrolls away, and a tap brings it bac
   });
 });
 
-it('reacts in the same corner spot instead of moving', () => {
-  mockShellP = 1;
+it('hands back to the pill only once the header has slid back in', () => {
   const { rerender } = render(<Shell />);
-  expect(peek()).toBe('corner');
-
-  mockIsReacting = true;
+  mockShellP = 1;
   rerender(<Shell />);
-  expect(peek()).toBe('corner');
-});
-
-it('on pages without his pill, sits in the corner once scrolled', () => {
-  mockShellP = 1;
-  render(<Shell withPill={false} />);
-  expect(peek()).toBe('corner');
-});
-
-it('with the header up and no pill, reacts in the header, away otherwise', () => {
-  const { rerender } = render(<Shell withPill={false} />);
-  expect(peek()).toBeUndefined();
-
-  mockIsReacting = true;
-  rerender(<Shell withPill={false} />);
-  expect(peek()).toBe('header');
-  expect(
-    screen.queryByRole('button', { name: 'Show header' }),
-  ).not.toBeInTheDocument();
-});
-
-it('reads along on a post as the first of its header actions', () => {
-  mockIsReading = true;
-  render(<Shell withPill={false} />);
-  expect(peek()).toBe('header');
-  expect(
-    screen.getByTestId('header-actions').querySelector('[data-position]'),
-  ).toBeInTheDocument();
-});
-
-it('moves from the post header to the top corner once it scrolls away', () => {
-  mockIsReading = true;
-  const { rerender } = render(<Shell withPill={false} />);
-  expect(peek()).toBe('header');
-
-  mockShellP = 1;
-  rerender(<Shell withPill={false} />);
-  expect(peek()).toBe('corner');
-  expect(screen.queryByTestId('header-actions')).not.toBeInTheDocument();
-});
-
-it('slides away as the header comes back, then leaves the layout', () => {
-  jest.useFakeTimers();
-  mockShellP = 1;
-  const { rerender } = render(<Shell />);
-  expect(peek()).toBe('corner');
 
   mockShellP = 0;
   rerender(<Shell />);
-  expect(peek()).toBe('tucked');
+  expect(face()).toHaveAttribute('data-position', 'pill');
+  expect(
+    screen.queryByRole('button', { name: 'Show header' }),
+  ).not.toBeInTheDocument();
+
   act(() => {
-    jest.advanceTimersByTime(300);
+    jest.advanceTimersByTime(220);
   });
-  expect(peek()).toBeUndefined();
-  jest.useRealTimers();
+  expect(face()).toBeNull();
+  expect(screen.getByTestId('pill')).toHaveAttribute('data-hidden', 'no');
+});
+
+it('reacts where he stands instead of moving', () => {
+  const { rerender } = render(<Shell />);
+  mockShellP = 1;
+  rerender(<Shell />);
+  mockIsReacting = true;
+  rerender(<Shell />);
+
+  expect(face()).toHaveAttribute('data-position', 'pill');
+  expect(face()).toHaveStyle({ left: '300px' });
+});
+
+it('on a post, keeps a spot among the header actions and stays on it while scrolling', () => {
+  mockIsReading = true;
+  const { rerender } = render(<Shell withPill={false} />);
+
+  expect(screen.getByTestId('header-actions')).toBeInTheDocument();
+  expect(face()).toHaveAttribute('data-position', 'actions');
+  expect(face()).toHaveStyle({ left: '300px', top: '10px' });
+
+  mockShellP = 1;
+  rerender(<Shell withPill={false} />);
+  expect(face()).toHaveAttribute('data-position', 'actions');
+  expect(face()).toHaveStyle({ left: '300px', top: '10px' });
+});
+
+it('elsewhere without a pill, shows up in the header only to react', () => {
+  const { rerender } = render(<Shell withPill={false} />);
+  expect(face()).toBeNull();
+  expect(screen.queryByTestId('header-actions')).not.toBeInTheDocument();
+
+  mockIsReacting = true;
+  rerender(<Shell withPill={false} />);
+  expect(face()).toHaveAttribute('data-position', 'actions');
+  expect(
+    screen.queryByRole('button', { name: 'Show header' }),
+  ).not.toBeInTheDocument();
 });
 
 it('turns on without remounting the shell under him', () => {
@@ -183,19 +200,18 @@ it('turns on without remounting the shell under him', () => {
     </PatchyPhoneCompanion>,
   );
   mockShellP = 1;
-  mockIsReacting = true;
   rerender(
     <PatchyPhoneCompanion isPhone>
       <ShellBlock />
     </PatchyPhoneCompanion>,
   );
 
-  expect(peek()).toBe('corner');
+  expect(face()).toHaveAttribute('data-position', 'corner');
   expect(mounts).toHaveBeenCalledTimes(1);
 });
 
 it('is not there off phones', () => {
   mockShellP = 1;
   render(<Shell isPhone={false} />);
-  expect(peek()).toBeUndefined();
+  expect(face()).toBeNull();
 });
