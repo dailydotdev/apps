@@ -339,8 +339,9 @@ export const WithWeeklyPicks: StoryObj<CaseArgs> = {
           whose week clears the bar get it from Thursday. Today both cards show
           together: stacked below laptop, side by side in the strip on laptop.
           Proposed: while Weekly picks is on screen the reminder (and the
-          paused-reminder prompt) is hidden; it comes back once Weekly picks is
-          closed, picked or out of its days.
+          paused-reminder prompt) is hidden, and stays hidden for that visit
+          even after Weekly picks is closed or picked. It can show on a later
+          visit.
         </>
       }
     >
@@ -536,7 +537,7 @@ const whoCases: {
     reader: 'Weekly picks is showing',
     today: 'offer',
     proposed: 'none',
-    note: 'Today both cards show. Proposed: Weekly picks takes the slot; the reminder waits until it’s gone.',
+    note: 'Today both cards show. Proposed: Weekly picks takes the slot; the reminder waits for a later visit.',
   },
   {
     reader: 'Weekly picks still deciding',

@@ -181,7 +181,7 @@ export const DevSpec: StoryObj = {
               <Code key="f">
                 hooks/notifications/useReadingReminderFeedHero.ts
               </Code>,
-              'Pass the step state and the new handlers through; keep the paused prompt first.',
+              'Pass the step state and the new handlers through; keep the paused prompt first; call useReadingReminderHero with enabled: !disableTopHero.',
             ],
             [
               <Code key="f">
@@ -219,7 +219,7 @@ export const DevSpec: StoryObj = {
             ],
             [
               <Code key="f">components/MainFeedLayout.tsx</Code>,
-              'Add picksHero.shouldShow to disableTopHero, so the reminder is hidden while Weekly picks shows.',
+              'Add picksHero.shouldShow to disableTopHero, held for the rest of the visit once Weekly picks has shown, so the reminder never shows with it or right after it.',
             ],
             [<Code key="f">lib/image.ts</Code>, 'cloudinaryPatchyReading.'],
             [
@@ -352,8 +352,12 @@ export const DevSpec: StoryObj = {
                 Hidden while Weekly picks is on screen: add{' '}
                 <Code>picksHero.shouldShow</Code> to <Code>disableTopHero</Code>{' '}
                 in <Code>MainFeedLayout.tsx</Code>. That also hides the paused
-                prompt and its impression. The reminder comes back once Weekly
-                picks is closed, picked or out of its days.
+                prompt and its impression. Keep it hidden for the rest of the
+                visit once Weekly picks has shown (closing or picking would
+                otherwise pop the reminder in), and pass{' '}
+                <Code>enabled: !disableTopHero</Code> to{' '}
+                <Code>useReadingReminderHero</Code> so a hidden day isn’t used
+                up. The reminder comes back on a later visit.
               </>,
               <Tag key="t" kind="new" />,
             ],
@@ -772,7 +776,7 @@ export const DevSpec: StoryObj = {
             ],
             [
               'Weekly picks showing (phone and laptop)',
-              'Only Weekly picks shows; no reminder card, no paused prompt and no reminder impression. After closing Weekly picks the reminder can show on a later visit.',
+              'Only Weekly picks shows; no reminder card, no paused prompt and no reminder impression. Closing Weekly picks doesn’t bring the reminder in that visit, and the day isn’t used up: it can show on a later visit.',
             ],
             [
               'Profile has no timezone',
