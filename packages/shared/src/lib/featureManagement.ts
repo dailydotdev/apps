@@ -387,6 +387,8 @@ export const featureOrganicAds = new Feature('organic_ads', false);
 // team can see ads without leaving Plus. Off is the default: Plus stays ad-free.
 export const featureForceAd = new Feature('force_ad', false);
 
+export const featureAdEntityParams = new Feature('ad_entity_params', false);
+
 export type ExcoPlayerConfig = {
   /** The EX.CO player the embed script loads. */
   playerId: string;

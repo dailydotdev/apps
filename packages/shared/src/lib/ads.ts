@@ -49,6 +49,16 @@ export enum AdPlacement {
   SponsorStrip = 'advertiser_bar',
 }
 
+export enum AdEntity {
+  Post = 'post',
+  Source = 'source',
+}
+
+export interface AdEntityTarget {
+  entity: AdEntity;
+  id: string;
+}
+
 export interface FetchAdByPlacementOptions {
   placement: AdPlacement;
   active?: boolean;
@@ -62,6 +72,7 @@ export interface FetchAdByPlacementOptions {
   registered?: boolean;
   pageViewId?: string;
   refresh?: AdRefreshRequest;
+  entity?: AdEntityTarget;
 }
 
 export interface AdRefreshRequest {
@@ -99,6 +110,18 @@ export const appendRegisteredParam = (
 ): URLSearchParams => {
   if (typeof registered !== 'undefined') {
     params.set('registered', registered ? 'true' : 'false');
+  }
+
+  return params;
+};
+
+export const appendEntityParams = (
+  params: URLSearchParams,
+  entity?: AdEntityTarget,
+): URLSearchParams => {
+  if (entity) {
+    params.set('entity', entity.entity);
+    params.set('entity_id', entity.id);
   }
 
   return params;
@@ -196,16 +219,18 @@ export const resolveAdFetchOptions = ({
   consent,
   registered,
   pageViewId,
+  entity,
 }: {
   placement?: AdPlacement;
   active?: boolean;
   consent?: AdRequestConsent;
   registered?: boolean;
   pageViewId?: string;
+  entity?: AdEntityTarget;
 }): FetchAdByPlacementOptions => {
   switch (placement) {
     case AdPlacement.PostComment:
-      return { placement, consent, registered, pageViewId };
+      return { placement, consent, registered, pageViewId, entity };
     case AdPlacement.SquadDirectory:
       return {
         placement,
@@ -213,6 +238,7 @@ export const resolveAdFetchOptions = ({
         consent,
         registered,
         pageViewId,
+        entity,
       };
     case AdPlacement.PostSidebar:
       return {
@@ -222,6 +248,7 @@ export const resolveAdFetchOptions = ({
         consent,
         registered,
         pageViewId,
+        entity,
       };
     case AdPlacement.Feed:
     default:
@@ -233,6 +260,7 @@ export const resolveAdFetchOptions = ({
         consent,
         registered,
         pageViewId,
+        entity,
       };
   }
 };
@@ -246,13 +274,17 @@ export const fetchAdByPlacement = async ({
   registered,
   pageViewId,
   refresh,
+  entity,
 }: FetchAdByPlacementOptions): Promise<Ad | null> => {
   switch (placement) {
     case AdPlacement.PostComment:
       return fetchAdRequest({
         path: '/v1/a/post',
         params: appendConsentParams(
-          appendRegisteredParam(new URLSearchParams(), registered),
+          appendEntityParams(
+            appendRegisteredParam(new URLSearchParams(), registered),
+            entity,
+          ),
           consent,
         ),
         pageViewId,
@@ -264,6 +296,7 @@ export const fetchAdByPlacement = async ({
       }
 
       appendRegisteredParam(params, registered);
+      appendEntityParams(params, entity);
 
       return fetchAdRequest({
         path: '/v1/a/squads_directory',
@@ -287,6 +320,7 @@ export const fetchAdByPlacement = async ({
       }
 
       appendRegisteredParam(params, registered);
+      appendEntityParams(params, entity);
       appendRefreshParams(params, refresh);
 
       return fetchAdRequest({

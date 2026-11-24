@@ -5,6 +5,7 @@ import type { Squad } from '../../graphql/sources';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
+import { safeContextHookExport } from '../../lib/func';
 import type { SquadViewer } from './lib/viewer';
 import { getSquadViewer, isStaffViewer } from './lib/viewer';
 
@@ -101,4 +102,13 @@ const [SquadPageContextProvider, useSquadPageContext] = createContextProvider(
   { errorMessage: 'SquadPageContext is missing its provider' },
 );
 
-export { SquadPageContextProvider, useSquadPageContext };
+const useOptionalSquadPageContext = safeContextHookExport(
+  useSquadPageContext,
+  'SquadPageContext is missing its provider',
+);
+
+export {
+  SquadPageContextProvider,
+  useSquadPageContext,
+  useOptionalSquadPageContext,
+};

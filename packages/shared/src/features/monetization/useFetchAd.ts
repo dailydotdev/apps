@@ -13,6 +13,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useAdRequestConsent } from './useAdRequestConsent';
 import { getAdRefreshPlatform } from './refresh/adRefresh';
+import { useAdEntity } from './useAdEntity';
 
 interface UseFetchAds {
   isAdConsentReady: boolean;
@@ -27,6 +28,7 @@ export const useFetchAd = (enabled = true): UseFetchAds => {
   const consent = useAdRequestConsent(enabled);
   const { isAuthReady, isLoggedIn, isAndroidApp } = useAuthContext();
   const registered = isAuthReady ? isLoggedIn : undefined;
+  const { entity } = useAdEntity(enabled);
   const { value: refreshEngineVersion } = useConditionalFeature({
     feature: featureAdRefreshEngine,
     shouldEvaluate: enabled,
@@ -44,6 +46,7 @@ export const useFetchAd = (enabled = true): UseFetchAds => {
           active,
           consent,
           registered,
+          entity,
         }),
         ...(isRefreshEngine && {
           refresh: {
@@ -54,7 +57,7 @@ export const useFetchAd = (enabled = true): UseFetchAds => {
         }),
       });
     },
-    [consent, isAndroidApp, isRefreshEngine, registered],
+    [consent, entity, isAndroidApp, isRefreshEngine, registered],
   );
 
   return {
