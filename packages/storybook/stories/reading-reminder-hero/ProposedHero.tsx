@@ -14,10 +14,10 @@ import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import feedStyles from '@dailydotdev/shared/src/components/Feed.module.css';
 import { readingReminderPushPromptCopy } from '@dailydotdev/shared/src/hooks/notifications/useReadingReminderPushPrompt';
 
-// The proposed "Never miss a learning day" hero: the production slot and
-// frame, centered on every width, theme tokens instead of fixed dark colors,
-// Patchy instead of the cat, the hour the reader is reading at now, and push
-// asked for before the reminder is saved.
+// The proposed "Never miss a learning day" hero: the production slots,
+// centered on phones and tablets and laid out like TopHero on laptop, theme
+// tokens instead of fixed dark colors, Patchy instead of the cat, the hour the
+// reader is reading at now, and push asked for before the reminder is saved.
 
 export type HeroStep =
   | 'offer'
@@ -241,9 +241,11 @@ export const ProposedHero = ({
 };
 
 /**
- * The laptop version, in the top-hero strip TopHero sits in today: the same
- * frame and about the same height, centered, with Patchy beside the title.
- * The strip splits in two when Weekly picks or the CV card also shows.
+ * The laptop version, in the top-hero strip TopHero sits in today, laid out
+ * like TopHero: the same frame, art on the left, copy and buttons beside it.
+ * Bold title first and the line under it second, which TopHero's props
+ * (small title over a bold subtitle) can't express. The strip splits in two
+ * when Weekly picks or the CV card also shows.
  */
 export const ProposedTopHero = ({
   onClose,
@@ -255,10 +257,22 @@ export const ProposedTopHero = ({
   return (
     <section
       className={classNames(
-        'relative flex w-full flex-col items-center overflow-hidden rounded-16 border border-border-subtlest-quaternary bg-background-default px-8 py-3 text-center',
+        'relative flex w-full items-center gap-4 overflow-hidden rounded-16 border border-border-subtlest-quaternary bg-background-default py-2 pl-3 pr-8 tablet:gap-5',
         className,
       )}
     >
+      <img
+        src={PATCHY_ART}
+        alt="Patchy reading a book"
+        className="h-24 w-28 shrink-0 self-center object-contain tablet:h-28 tablet:w-32"
+      />
+      <div className="flex min-w-0 max-w-[18rem] flex-1 flex-col items-start gap-3">
+        <div className="flex flex-col">
+          <h3 className="font-bold text-text-primary typo-callout">{title}</h3>
+          <p className="mt-0.5 text-text-tertiary typo-footnote">{subtitle}</p>
+        </div>
+        <div className="flex min-h-8 items-center gap-2">{actions}</div>
+      </div>
       {onClose && (
         <CloseButton
           type="button"
@@ -268,16 +282,6 @@ export const ProposedTopHero = ({
           onClick={onClose}
         />
       )}
-      <div className="flex items-center gap-2">
-        <img
-          src={PATCHY_ART}
-          alt="Patchy reading a book"
-          className="-my-1 h-12 w-auto object-contain"
-        />
-        <h3 className="font-bold text-text-primary typo-callout">{title}</h3>
-      </div>
-      <p className="text-text-tertiary typo-footnote">{subtitle}</p>
-      <div className="mt-3 flex min-h-8 items-center gap-2">{actions}</div>
     </section>
   );
 };

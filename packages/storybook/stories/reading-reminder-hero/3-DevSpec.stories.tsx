@@ -198,7 +198,7 @@ export const DevSpec: StoryObj = {
               <Code key="f">
                 components/marketing/banners/HeroBottomBanner.tsx
               </Code>,
-              'TopHero is shared with the CV card. Build the centered laptop card as its own component instead of changing TopHero.',
+              'TopHero is shared with the CV card. Keep its layout for the laptop card, but it puts a small title over a bold subtitle, and the new copy is bold title over a small line: add a variant or a sibling component rather than changing the CV card.',
             ],
             [
               <Code key="f">components/Feed.tsx</Code>,
@@ -376,7 +376,7 @@ export const DevSpec: StoryObj = {
                 TopHero in the top-hero strip above the feed frame (
                 <Code>MainLayout.tsx</Code>).
               </>,
-              'Centered laptop card in the same strip, ~130px tall. Must also work at half width, see below.',
+              'Today’s row layout in the same strip (art left, copy and buttons right), same 130px height, new art, copy and states. Must also work at half width, see below.',
               'OneSignal',
             ],
             [

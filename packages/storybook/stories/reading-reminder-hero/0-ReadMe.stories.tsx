@@ -127,9 +127,9 @@ export const ReadMe: StoryObj = {
         </h2>
         <Change
           index={1}
-          title="Centered on every width"
+          title="Centered on phones and tablets"
           today="Left-aligned: a row with the cat on the right on tablets, and a compact row above the feed with the cat on the left from 1020px up. The desktop row gets 2.8% taps."
-          proposed="Centered everywhere, like phones and the apps, which get 5–9%. Laptop keeps its slot above the feed and its height."
+          proposed="Centered on phones and tablets, like the phone card and the apps, which get 5–9%. Laptop keeps today’s row layout and height in the strip above the feed, with the new art, copy and states."
           story={`${beforeAfter}--responsive`}
         />
         <Change
