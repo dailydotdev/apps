@@ -506,6 +506,51 @@ const Row = ({
   </li>
 );
 
+// A plain table for the build spec; scrolls sideways on phones.
+const Table = ({
+  headers,
+  rows,
+}: {
+  headers: string[];
+  rows: ReactNode[][];
+}): ReactElement => (
+  <div className="overflow-x-auto rounded-16 border border-border-subtlest-tertiary bg-background-default">
+    <table className="w-full min-w-[40rem] text-left typo-footnote">
+      <thead>
+        <tr className="border-b border-border-subtlest-tertiary text-text-tertiary">
+          {headers.map((header) => (
+            <th key={header} className="px-4 py-3 font-bold">
+              {header}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody className="text-text-secondary">
+        {rows.map((cells, index) => (
+          <tr
+            // eslint-disable-next-line react/no-array-index-key
+            key={index}
+            className="border-b border-border-subtlest-tertiary align-top last:border-b-0"
+          >
+            {cells.map((cell, cellIndex) => (
+              <td
+                // eslint-disable-next-line react/no-array-index-key
+                key={cellIndex}
+                className={classNames(
+                  'px-4 py-3',
+                  cellIndex === 0 && 'font-bold text-text-primary',
+                )}
+              >
+                {cell}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
 const Overview = (): ReactElement => {
   const [openCampaign, setOpenCampaign] = useState<MarketingCta | null>(null);
 
@@ -645,6 +690,205 @@ const Overview = (): ReactElement => {
             </ul>
           </Section>
 
+          <Section
+            title="Build spec"
+            intro="What each platform, user and surface does, and what has to exist before it can ship."
+          >
+            <Typography type={TypographyType.Body} bold>
+              Platforms and devices
+            </Typography>
+            <Table
+              headers={['Where', 'Asks', 'Rate opens', 'Turns off']}
+              rows={[
+                [
+                  'Chrome extension',
+                  'Streak line, achievement line, toast, day-14 bell, menu row',
+                  'Chrome Web Store reviews page, new tab',
+                  'Campaign 65',
+                ],
+                [
+                  'Edge extension',
+                  'Same as Chrome',
+                  'Edge Add-ons page, new tab',
+                  'Campaign 66',
+                ],
+                [
+                  'Web, desktop Chrome or Edge',
+                  'Menu row only',
+                  'That browser’s extension store page',
+                  '–',
+                ],
+                [
+                  'Web, Safari, Firefox, mobile browsers',
+                  'None until the rate row reach question is settled',
+                  '–',
+                  '–',
+                ],
+                [
+                  'iOS app, iPhone and iPad',
+                  'Ask sheet (74, 75, 76), 30+ day streak card, profile row',
+                  'Apple’s in-app sheet; the profile row opens the App Store',
+                  '–',
+                ],
+                [
+                  'Android app',
+                  'Play sheet at streak milestone, achievement, upvote, bookmark',
+                  'Google’s in-app review sheet',
+                  'Campaign 70, once the release is out',
+                ],
+              ]}
+            />
+
+            <Typography type={TypographyType.Body} bold>
+              Users
+            </Typography>
+            <Table
+              headers={['Who', 'Automatic asks', 'Menu row']}
+              rows={[
+                ['Logged out', 'Never', 'Not shown: the menu needs an account'],
+                [
+                  'Under 14 days or 5 reading days',
+                  'Never. Account age from user.createdAt, reading days from readingStreak.total',
+                  'Shown',
+                ],
+                [
+                  'Asked in the last 120 days, on any platform',
+                  'Never',
+                  'Shown',
+                ],
+                [
+                  'Eligible',
+                  'The first happy moment asks once, then the cooldown starts',
+                  'Shown',
+                ],
+                [
+                  'Plus',
+                  'Same rules; on iOS a renewal also triggers campaign 75',
+                  'Shown',
+                ],
+                [
+                  'Achievements turned off',
+                  'No achievement line; other moments still ask',
+                  'Shown',
+                ],
+                [
+                  'In the toast holdout',
+                  'No toast; every other ask still runs',
+                  'Shown',
+                ],
+                [
+                  'Already reviewed',
+                  'We can’t tell. Apple and Google hide their sheets on their own; the extension stores don’t',
+                  'Shown',
+                ],
+              ]}
+            />
+
+            <Typography type={TypographyType.Body} bold>
+              Flows
+            </Typography>
+            <Table
+              headers={['Surface', 'Shows when', 'Tap', 'Logs (target_id)']}
+              rows={[
+                [
+                  'Streak line',
+                  'The streak milestone modal (NewStreakModal) at 30+ days, the slot iOS already uses for its card',
+                  'Opens the store in a new tab, closes nothing',
+                  'streak_milestone',
+                ],
+                [
+                  'Achievement line',
+                  'AchievementCompletionModal, after the unlock',
+                  'Same',
+                  'achievement',
+                ],
+                [
+                  'Toast',
+                  'Right after an upvote. After a bookmark, only once the bookmark toast (with Change folder) is gone',
+                  'Rate opens the store; X or timeout dismisses',
+                  'toast_upvote, toast_bookmark',
+                ],
+                [
+                  'Day-14 bell',
+                  'The first day someone passes the minimum, once ever',
+                  'Opens the store',
+                  'bell_day_14',
+                ],
+                [
+                  'Menu row',
+                  'Always, next to Support',
+                  'Opens the store; never starts the cooldown',
+                  'profile_menu',
+                ],
+                [
+                  'iOS Rate',
+                  'Unchanged triggers',
+                  'Requests Apple’s sheet; no request on a timer',
+                  'Existing streak_milestone and campaign ids',
+                ],
+                [
+                  'Android sheet',
+                  'The same moments, from the web layer',
+                  'Google’s sheet; it never reports back',
+                  'Same ids as the extension',
+                ],
+              ]}
+            />
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              Every automatic ask logs an impression, a click and a dismiss with
+              target_type app_store_review, and starts the shared cooldown when
+              it shows, not when it&apos;s tapped.
+            </Typography>
+
+            <Typography type={TypographyType.Body} bold>
+              Needed before it ships
+            </Typography>
+            <ul className="flex flex-col rounded-16 border border-border-subtlest-tertiary bg-background-default px-4">
+              <Row label="One cooldown" status="open">
+                Today there are two clocks. review_ask_at is written only by
+                Customer.io campaigns 74, 75 and 76, and the iOS streak card
+                keeps its own date on the device (IndexedDB review_prompt).
+                daily-api needs a review-asked date on the user that boot
+                returns, the web app writes when an ask shows, and Customer.io
+                reads as review_ask_at.
+              </Row>
+              <Row label="Android bridge" status="open">
+                The Android app has no DailyAndroid bridge yet (nativeBridge.ts
+                expects one). The next release needs it, with Google&apos;s
+                in-app review API behind a review-request message.
+              </Row>
+              <Row label="Bell notification" status="open">
+                A new notification type in daily-api, sent once by a daily job
+                to people who reach the minimum.
+              </Row>
+              <Row label="Feature flag" status="open">
+                A new flag for the extension and web asks, default off, with the
+                toast holdout as a variant. app_store_review stays the iOS flag.
+              </Row>
+              <Row label="Store links" status="open">
+                Chrome Web Store and Edge Add-ons review URLs as constants; only
+                the Google Play URL exists in lib/constants.ts today.
+              </Row>
+              <Row label="Turning campaigns off" status="open">
+                65 and 66 when the extension asks reach 100% of the flag; 70
+                when the Android release reaches most users.
+              </Row>
+              <Row label="Measuring it" status="open">
+                Weekly review count and average rating per store, holdout
+                against everyone else. Taps aren&apos;t reviews, and no store
+                tells us who reviewed.
+              </Row>
+              <Row label="QA" status="open">
+                Light and dark theme, phone width for the Android sheet and
+                toast, Chrome and Edge for store links, a cooled-down account
+                and a new one.
+              </Row>
+            </ul>
+          </Section>
+
           <Section title="Open questions">
             <ul className="flex flex-col rounded-16 border border-border-subtlest-tertiary bg-background-default px-4">
               <Row label="iOS moments" status="open">
@@ -658,6 +902,10 @@ const Overview = (): ReactElement => {
               <Row label="Rate row reach" status="open">
                 Add it to the Android app? Safari and Firefox have no store
                 page: hide the row there, or link somewhere else?
+              </Row>
+              <Row label="Bookmark toast" status="open">
+                The bookmark toast already has a Change folder button. Ask after
+                it closes, as above, or only after upvotes?
               </Row>
               <Row label="Bad moments" status="open">
                 The examples are placeholders. Which events block an ask, and
