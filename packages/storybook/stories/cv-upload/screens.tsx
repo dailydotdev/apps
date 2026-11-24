@@ -10,12 +10,6 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import {
-  CharmEmptyState,
-  CharmEmptyStatePlacement,
-} from '@dailydotdev/shared/src/components/charm/CharmEmptyState';
-import { AutofillProfileBanner } from '@dailydotdev/shared/src/features/profile/components/AutofillProfileBanner';
-import { ProfileCompletion } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileCompletion';
 import ProgressCircle from '@dailydotdev/shared/src/components/ProgressCircle';
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import {
@@ -24,20 +18,14 @@ import {
 } from '@dailydotdev/shared/src/features/lfg/components/LfgAvatarBadge';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { EditIcon } from '@dailydotdev/shared/src/components/icons/Edit';
-import { MiniCloseIcon } from '@dailydotdev/shared/src/components/icons/MiniClose';
-import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
 import { UploadIcon } from '@dailydotdev/shared/src/components/icons/Upload';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { TargetId } from '@dailydotdev/shared/src/lib/log';
-import { cloudinaryCharmEmptyProfile } from '@dailydotdev/shared/src/lib/image';
 import { avatar, completion } from './providers';
 import { BrowserChrome, Phone } from '../open-links-in/kit';
 
-// The CV entry points: the ones in production rendered with their own
-// components, the new ones drawn with production's pieces. Copy on the new
-// ones is a placeholder until product picks the direction.
-
-const noUpload = (): Promise<void> => Promise.resolve();
+// The new CV entry points, drawn with production's pieces where there is no
+// production page to put them on. Copy is a placeholder until product picks
+// the direction.
 
 const LeafHeader = ({
   title,
@@ -86,30 +74,6 @@ export const FillFromCvRow = ({
     </div>
     <Button variant={ButtonVariant.Secondary} size={ButtonSize.Small}>
       Upload
-    </Button>
-  </div>
-);
-
-// Today: the 30 and 60-day popover from Customer.io campaign 48. Stopping
-// the campaign removes it with the banner; no code change.
-export const CampaignPopover = (): ReactElement => (
-  <div className="flex w-80 flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4 shadow-2">
-    <div className="flex items-center justify-between">
-      <span className="rounded-6 bg-overlay-float-avocado px-1.5 py-0.5 text-accent-avocado-default typo-caption2">
-        Recommended
-      </span>
-      <MiniCloseIcon className="text-text-tertiary" />
-    </div>
-    <Typography type={TypographyType.Title3} bold>
-      Your skills deserve better job matches
-    </Typography>
-    <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
-      Upload your CV and we&apos;ll quietly match you with roles that make
-      sense. 100% private. No spam.
-    </Typography>
-    <div className="h-28 rounded-12 bg-surface-float" />
-    <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
-      Upload your CV
     </Button>
   </div>
 );
@@ -246,53 +210,6 @@ export const ProfileEditMenu = (): ReactElement => (
   </Phone>
 );
 
-// ExperienceEmptyState. Today it renders AutofillProfileBanner under the
-// empty state; the proposal swaps the banner for one row.
-const EmptyBody = ({
-  title,
-  proposed,
-}: {
-  title: string;
-  proposed?: boolean;
-}): ReactElement => (
-  <div className="flex flex-col items-center">
-    <CharmEmptyState
-      placement={CharmEmptyStatePlacement.Page}
-      image={cloudinaryCharmEmptyProfile}
-      imageAlt="daily.dev charm with an empty profile"
-      title={`No ${title.toLowerCase()} added yet`}
-      description="Add it here and it shows on your profile."
-      action={{ label: 'Add', icon: <PlusIcon />, onClick: () => undefined }}
-    />
-    {proposed ? (
-      <div className="mt-6 w-full max-w-[30rem]">
-        <FillFromCvRow description="Upload your CV and we fill in your work and education." />
-      </div>
-    ) : (
-      <AutofillProfileBanner
-        targetId={TargetId.ProfileSettingsMenu}
-        onUpload={noUpload}
-        showManualButton={false}
-      />
-    )}
-  </div>
-);
-
-export const ExperienceEmpty = ({
-  title,
-  proposed,
-}: {
-  title: string;
-  proposed?: boolean;
-}): ReactElement => (
-  <Phone browser={BrowserChrome.None} height={720}>
-    <LeafHeader title={title} />
-    <div className="px-4">
-      <EmptyBody title={title} proposed={proposed} />
-    </div>
-  </Phone>
-);
-
 const Field = ({ label }: { label: string }): ReactElement => (
   <div className="flex flex-col gap-1">
     <Typography type={TypographyType.Footnote} bold>
@@ -394,26 +311,6 @@ export const DesktopProfile = (): ReactElement => (
   </Laptop>
 );
 
-export const DesktopWorkEmpty = (): ReactElement => (
-  <Laptop path="settings/profile/experience/work" nav={settingsNav}>
-    <SettingsTitle
-      title="Work Experience"
-      action={
-        <Button
-          variant={ButtonVariant.Subtle}
-          size={ButtonSize.Small}
-          icon={<PlusIcon />}
-        >
-          Add
-        </Button>
-      }
-    />
-    <div className="px-6">
-      <EmptyBody title="Work Experience" proposed />
-    </div>
-  </Laptop>
-);
-
 export const DesktopAddWork = (): ReactElement => (
   <Laptop path="settings/profile/experience/edit" nav={settingsNav}>
     <SettingsTitle title="Add work experience" action={<SaveButton />} />
@@ -423,44 +320,10 @@ export const DesktopAddWork = (): ReactElement => (
   </Laptop>
 );
 
-const MenuFrame = ({ children }: { children: ReactNode }): ReactElement => (
-  <div className="flex w-80 flex-col gap-3 rounded-10 border border-border-subtlest-tertiary bg-accent-pepper-subtlest p-3">
-    {children}
-    <div className="flex items-center gap-3 py-1.5">
-      <img src={avatar} alt="" className="size-10 rounded-12" />
-      <div className="flex flex-col">
-        <Typography type={TypographyType.Callout} bold>
-          Dev Dana
-        </Typography>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          @dana
-        </Typography>
-      </div>
-    </div>
-    <div className="h-px bg-border-subtlest-tertiary" />
-    {['Profile', 'Settings', 'Appearance'].map((row) => (
-      <span key={row} className="px-1 text-text-tertiary typo-callout">
-        {row}
-      </span>
-    ))}
-  </div>
-);
-
-// In production: the profile menu's ProfileCompletion card, which links to
-// the first missing item (here Experience level).
-export const MenuCardToday = (): ReactElement => (
-  <MenuFrame>
-    <ProfileCompletion />
-  </MenuFrame>
-);
-
 // The same card when work or education is missing: the CV is the action,
 // the checklist drops to one line under it.
 export const MenuCardCvFirst = (): ReactElement => (
-  <MenuFrame>
+  <div className="w-80 rounded-10 border border-border-subtlest-tertiary bg-accent-pepper-subtlest p-3">
     <div className="flex flex-col gap-3 rounded-16 border border-action-help-active bg-action-help-float p-4">
       <div className="flex items-start gap-3">
         <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -497,5 +360,5 @@ export const MenuCardCvFirst = (): ReactElement => (
         or add them by hand
       </Typography>
     </div>
-  </MenuFrame>
+  </div>
 );
