@@ -8,6 +8,7 @@ import {
 import { useSquadPageContext } from '../../SquadPageContext';
 import { getSquadPostingState, isJoinedViewer } from '../../lib/viewer';
 import { useSquadProducts } from '../../hooks/useSquadProducts';
+import { useIsFirstPostShown } from '../firstPost/SquadFirstPost';
 
 const getEmptyCopy = (canPost: boolean, isJoined: boolean): string => {
   if (canPost) {
@@ -24,6 +25,7 @@ const getEmptyCopy = (canPost: boolean, isJoined: boolean): string => {
 export const SquadEmptyFeed = (): ReactElement => {
   const { squad, viewer } = useSquadPageContext();
   const { canPost } = getSquadPostingState(squad, viewer);
+  const isFirstPostShown = useIsFirstPostShown();
 
   return (
     <CharmEmptyState
@@ -31,7 +33,11 @@ export const SquadEmptyFeed = (): ReactElement => {
       image={cloudinaryCharmNoPosts}
       imageAlt="daily.dev charm waiting for the first post"
       title="Nothing posted yet"
-      description={getEmptyCopy(canPost, isJoinedViewer(viewer))}
+      description={
+        isFirstPostShown
+          ? 'Your first post shows up here, for every developer who follows your page.'
+          : getEmptyCopy(canPost, isJoinedViewer(viewer))
+      }
     />
   );
 };

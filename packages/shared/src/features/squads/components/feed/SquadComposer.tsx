@@ -34,6 +34,7 @@ import {
   SquadViewer,
 } from '../../lib/viewer';
 import { getSquadPendingPostsUrl, getSquadRulesUrl } from '../../lib/routes';
+import { useIsFirstPostShown } from '../firstPost/SquadFirstPost';
 
 const pendingStatus = [SourcePostModerationStatus.Pending];
 
@@ -177,9 +178,15 @@ const ComposerEntry = ({
   );
 };
 
-export const SquadComposer = (): ReactElement => {
+export const SquadComposer = (): ReactElement | null => {
   const { squad, viewer } = useSquadPageContext();
   const { canPost, reason, isReviewed } = getSquadPostingState(squad, viewer);
+  // The first post card above is the composer until the page has a post
+  const isFirstPostShown = useIsFirstPostShown();
+
+  if (isFirstPostShown) {
+    return null;
+  }
 
   return (
     <div className="flex flex-col gap-3">

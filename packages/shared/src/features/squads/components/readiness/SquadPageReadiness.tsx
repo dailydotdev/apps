@@ -20,6 +20,9 @@ interface SquadPageReadinessProps {
   /** Opens a row in place instead of following its link */
   onEditRow?: (item: ReadinessItem) => boolean;
   origin?: Origin;
+  variant?: 'card' | 'widget';
+  /** Rows the free boost waits for */
+  boostRowIds?: string[];
   className?: string;
 }
 
@@ -38,6 +41,8 @@ export const SquadPageReadiness = ({
   onDismiss,
   onEditRow,
   origin = Origin.SquadPage,
+  variant,
+  boostRowIds,
   className,
 }: SquadPageReadinessProps): ReactElement | null => {
   const logStartups = useLogStartups();
@@ -50,6 +55,8 @@ export const SquadPageReadiness = ({
   return (
     <CompanyPageReadiness
       className={className}
+      variant={variant}
+      boostRowIds={boostRowIds}
       title={getReadinessTitle(plan)}
       description={
         plan

@@ -232,6 +232,7 @@ export enum RequestKey {
   SquadWallet = 'squad_wallet',
   SquadSubscription = 'squad_subscription',
   SquadFreeBoost = 'squad_free_boost',
+  DeveloperTrends = 'developer_trends',
   StartupsCashbackPromo = 'startups_cashback_promo',
   SquadSeats = 'squad_seats',
   SquadIntel = 'squad_intel',
