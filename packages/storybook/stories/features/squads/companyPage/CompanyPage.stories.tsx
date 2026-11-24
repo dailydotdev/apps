@@ -231,6 +231,7 @@ const handlers = (scenario: Scenario) => {
             weekStart: '2026-11-16T00:00:00.000Z',
             weekEnd: '2026-11-23T00:00:00.000Z',
             postsAnalyzed: 4812,
+            readers: 38_420,
             trial: scenario.plan
               ? null
               : {
@@ -479,25 +480,6 @@ export const CreateSomethingNew: Story = {
       { timeout: 60_000 },
     );
     button.click();
-  },
-};
-/** 2b. "Write about #code-review" opens the composer with the topic's numbers. */
-export const WriteAboutTopic: Story = {
-  ...story('readyNoPost'),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const topic = await canvas.findByText(
-      'Find a topic',
-      {},
-      { timeout: 60_000 },
-    );
-    topic.click();
-    const write = await canvas.findByText(
-      'Write about #code-review',
-      {},
-      { timeout: 60_000 },
-    );
-    write.click();
   },
 };
 /** 3. The admin finishes the last setup rows while the page is open. */

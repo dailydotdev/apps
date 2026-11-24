@@ -167,6 +167,8 @@ export interface SquadIntelHighlights {
   weekEnd: string;
   /** Posts in the page's topics that last week's numbers come from */
   postsAnalyzed: number;
+  /** Developers who read a post in these topics that week */
+  readers: number;
   /** Set while a free page tries the intel picked for it */
   trial: {
     endsAt: string;
@@ -206,6 +208,7 @@ const SQUAD_INTEL_HIGHLIGHTS_QUERY = gql`
       weekStart
       weekEnd
       postsAnalyzed
+      readers
       trial {
         endsAt
         pickedFrom

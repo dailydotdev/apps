@@ -6,11 +6,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import {
-  CopyIcon,
-  DiscussIcon,
-  UpvoteIcon,
-} from '../../../../components/icons';
+import { DiscussIcon, UpvoteIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import { useCopyLink } from '../../../../hooks/useCopy';
 import type {
@@ -18,14 +14,13 @@ import type {
   SquadIntelHighlights,
 } from '../../../../graphql/squadIntel';
 import { formatIntelIndex, getIntelWeekLabel } from '../../lib/intel';
+import { AgentMarks } from '../AgentPromptButton';
 
 interface FirstPostIntelProps {
   intel: SquadIntelHighlights;
   name: string;
   /** The prompt that starts the content skills, built on click */
   getAgentPrompt: () => string;
-  /** Opens the composer about a topic */
-  onWrite: (tag: string) => void;
   editTopicsUrl: string;
   upgradeUrl?: string;
   onUpgrade?: () => void;
@@ -49,6 +44,20 @@ const competitionClassName: Record<IntelCompetition, string> = {
 };
 
 const number = (value: number): string => value.toLocaleString('en-US');
+
+/** Rounded, as "38K": enough for scale, not an exact audience size */
+const compact = (value: number): string =>
+  value.toLocaleString('en-US', {
+    notation: 'compact',
+    maximumFractionDigits: 0,
+  });
+
+const day = (date: string): string =>
+  new Date(date).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  });
 
 const multiple = (value: number): string =>
   `${value >= 10 ? Math.round(value) : value.toFixed(1)}x`;
@@ -129,13 +138,15 @@ const AgentPrompt = ({
         type="button"
         variant={ButtonVariant.Float}
         size={ButtonSize.Small}
-        icon={<CopyIcon />}
         className="shrink-0 self-start tablet:self-auto"
         onClick={() => {
           copy();
           onCopy?.();
         }}
       >
+        <span className="mr-2">
+          <AgentMarks className="size-5 rounded-6" glyphClassName="size-3" />
+        </span>
         {isCopying ? 'Copied' : 'Copy prompt'}
       </Button>
     </div>
@@ -151,7 +162,6 @@ export const FirstPostIntel = ({
   intel,
   name,
   getAgentPrompt,
-  onWrite,
   editTopicsUrl,
   upgradeUrl,
   onUpgrade,
@@ -172,6 +182,16 @@ export const FirstPostIntel = ({
 
   return (
     <div className="flex flex-col gap-6 rounded-12 border border-border-subtlest-tertiary bg-background-default p-4 tablet:p-5">
+      {intel.trial && (
+        <p className="flex flex-col gap-0.5 rounded-10 bg-overlay-float-cheese px-3 py-2 typo-footnote">
+          <strong className="text-accent-cheese-default">
+            One-time free intel
+          </strong>
+          <span className="text-text-secondary">
+            {`We picked ${name}'s topics from ${intel.trial.pickedFrom} for this one. From ${day(intel.trial.endsAt)}, you get the general daily.dev trends instead.`}
+          </span>
+        </p>
+      )}
       <div className="flex flex-col gap-2">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
           <h2 className="font-bold typo-title3">
@@ -185,9 +205,7 @@ export const FirstPostIntel = ({
           </a>
         </div>
         <p className="text-text-tertiary typo-footnote">
-          {`From ${number(intel.postsAnalyzed)} posts and every read by developers on daily.dev, ${getIntelWeekLabel(intel)}.`}
-          {intel.trial &&
-            ` We picked the topics from ${intel.trial.pickedFrom}.`}
+          {`From ${number(intel.postsAnalyzed)} posts and what ${compact(intel.readers)} developers read on daily.dev, ${getIntelWeekLabel(intel)}.`}
         </p>
         <div className="flex flex-wrap gap-1.5">
           {intel.topics.map(({ tag }) => (
@@ -233,21 +251,10 @@ export const FirstPostIntel = ({
           ))}
         </ul>
         {opening && (
-          <div className="flex flex-col gap-3 rounded-12 bg-overlay-float-cabbage p-3 tablet:flex-row tablet:items-center">
-            <p className="min-w-0 flex-1 typo-callout">
-              <strong>{`#${opening.tag} is your opening.`}</strong>{' '}
-              {`Posts there get ${formatIntelIndex(opening.readsPerPost)} the average reads, and few new posts compete for them.`}
-            </p>
-            <Button
-              type="button"
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Small}
-              className="shrink-0 self-start tablet:self-auto"
-              onClick={() => onWrite(opening.tag)}
-            >
-              {`Write about #${opening.tag}`}
-            </Button>
-          </div>
+          <p className="rounded-12 bg-overlay-float-cabbage p-3 typo-callout">
+            <strong>{`#${opening.tag} is your opening.`}</strong>{' '}
+            {`Posts there get ${formatIntelIndex(opening.readsPerPost)} the average reads, and few new posts compete for them.`}
+          </p>
         )}
       </Section>
 
@@ -310,13 +317,7 @@ export const FirstPostIntel = ({
       {intel.trial && upgradeUrl && (
         <div className="flex flex-col gap-3 border-t border-border-subtlest-tertiary pt-4 tablet:flex-row tablet:items-center">
           <p className="min-w-0 flex-1 text-text-secondary typo-footnote">
-            {`This intel is picked for ${name} until ${new Date(
-              intel.trial.endsAt,
-            ).toLocaleDateString('en-US', {
-              month: 'short',
-              day: 'numeric',
-              timeZone: 'UTC',
-            })}. After that you get the general daily.dev trends. Keep it on your topics with the Startup plan.`}
+            {`This free intel on your topics is a one-time trial. From ${day(intel.trial.endsAt)}, you get the general daily.dev trends. The Startup plan sends intel on the topics you pick every week.`}
           </p>
           <Button
             tag="a"

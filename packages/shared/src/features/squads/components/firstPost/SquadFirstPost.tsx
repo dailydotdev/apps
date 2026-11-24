@@ -22,7 +22,6 @@ import {
   isPlaceholderSquadImage,
 } from '../../lib/readiness';
 import { getStartupsContentPrompt } from '../../lib/setup';
-import { getIntelTopicHint } from '../../lib/intel';
 import { useLogStartups } from '../../hooks/useLogStartups';
 import { useSquadFreeBoost } from '../freeBoost/useSquadFreeBoost';
 import type { FirstPostBoostStep } from './FirstPostCard';
@@ -94,15 +93,6 @@ export const SquadFirstPost = (): ReactElement | null => {
       origin: Origin.SquadPage,
       source_id: sourceId,
     });
-  const openComposer = (hint?: string) =>
-    openModal({
-      type: LazyModal.SmartComposer,
-      props: {
-        initialSquadHandle: squad.handle,
-        initialKind: 'text',
-        hint,
-      },
-    });
   const hasBoost = boost?.state === 'setup' || boost?.state === 'first_post';
   const isPaid = !!subscription?.plan;
 
@@ -126,7 +116,10 @@ export const SquadFirstPost = (): ReactElement | null => {
       }}
       onWrite={() => {
         log(LogEvent.ClickStartupsSetupStep, 'first post write');
-        openComposer();
+        openModal({
+          type: LazyModal.SmartComposer,
+          props: { initialSquadHandle: squad.handle, initialKind: 'text' },
+        });
       }}
       onOpenIntel={() =>
         log(LogEvent.ClickStartupsSetupStep, 'first post intel')
@@ -146,10 +139,6 @@ export const SquadFirstPost = (): ReactElement | null => {
             onUpgrade={() =>
               log(LogEvent.UpgradeSubscription, 'first post intel')
             }
-            onWrite={(tag) => {
-              log(LogEvent.ClickStartupsSetupStep, 'first post topic');
-              openComposer(getIntelTopicHint(intel, tag));
-            }}
             getAgentPrompt={() => getStartupsContentPrompt(squad.handle)}
             onCopyPrompt={() =>
               log(LogEvent.CopyStartupsSetup, 'first post content prompt')

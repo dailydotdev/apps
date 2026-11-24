@@ -132,17 +132,28 @@ export const FirstPostCard = ({
       )}
       style={{ background: cabbageGlow }}
     >
-      <div className="flex flex-col gap-1">
-        <h2 className="font-bold typo-title2">
-          {boostDollars
-            ? `Get your first post out. We'll boost it with $${boostDollars}.`
-            : 'Get your first post out'}
-        </h2>
-        <p className="text-text-secondary typo-callout">
-          {boostDollars
-            ? 'It goes out to thousands of developers in the US, Europe and other top markets on the day you post.'
-            : 'Developers find your page through your posts.'}
-        </p>
+      <div className="flex flex-col gap-3 tablet:flex-row tablet:items-start">
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <h2 className="font-bold typo-title2">
+            {boostDollars
+              ? `Get your first post out. We'll boost it with $${boostDollars}.`
+              : 'Get your first post out'}
+          </h2>
+          <p className="text-text-secondary typo-callout">
+            {boostDollars
+              ? 'It goes out to thousands of developers in the US, Europe and other top markets on the day you post.'
+              : 'Developers find your page through your posts.'}
+          </p>
+        </div>
+        <Button
+          type="button"
+          variant={ButtonVariant.Primary}
+          icon={<EditIcon />}
+          className="shrink-0 self-start"
+          onClick={onWrite}
+        >
+          Write a post
+        </Button>
       </div>
       <div className="grid grid-cols-1 gap-2 tablet:grid-cols-2">
         <Path
@@ -155,35 +166,24 @@ export const FirstPostCard = ({
         <Path
           icon={<MagicIcon />}
           title="Create something new"
-          hint="Write it here. Not sure what about? See what developers in your space read last week."
+          hint="See what developers in your space read last week, and pick a topic."
           isSelected={isIntelOpen}
         >
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Small}
-              icon={<EditIcon />}
-              onClick={onWrite}
-            >
-              Write a post
-            </Button>
-            <Button
-              type="button"
-              variant={ButtonVariant.Float}
-              size={ButtonSize.Small}
-              aria-expanded={isIntelOpen}
-              onClick={() => {
-                if (!isIntelOpen) {
-                  onOpenIntel?.();
-                }
+          <Button
+            type="button"
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            aria-expanded={isIntelOpen}
+            onClick={() => {
+              if (!isIntelOpen) {
+                onOpenIntel?.();
+              }
 
-                setIntelOpen(!isIntelOpen);
-              }}
-            >
-              {isIntelOpen ? 'Hide the intel' : 'Find a topic'}
-            </Button>
-          </div>
+              setIntelOpen(!isIntelOpen);
+            }}
+          >
+            {isIntelOpen ? 'Hide the intel' : 'Find a topic'}
+          </Button>
         </Path>
       </div>
       {isIntelOpen && intel}
