@@ -28,7 +28,10 @@ import { MiniCloseIcon } from '@dailydotdev/shared/src/components/icons/MiniClos
 import { UpvoteIcon } from '@dailydotdev/shared/src/components/icons/Upvote';
 import { BellIcon } from '@dailydotdev/shared/src/components/icons/Bell';
 import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons/ReadingStreak';
-import { MedalBadgeIcon } from '@dailydotdev/shared/src/components/icons/MedalBadge';
+import { SnapshotIcon } from '@dailydotdev/shared/src/components/icons/Snapshot';
+import { ModalClose } from '@dailydotdev/shared/src/components/modals/common/ModalClose';
+import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
+import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
 import { GooglePlayIcon } from '@dailydotdev/shared/src/components/icons/GooglePlay';
 import { TerminalIcon } from '@dailydotdev/shared/src/components/icons/Terminal';
 import { MegaphoneIcon } from '@dailydotdev/shared/src/components/icons/Megaphone';
@@ -328,21 +331,58 @@ const StreakPopup = (): ReactElement => (
   </PopupShell>
 );
 
+// AchievementCompletionModal's celebrate step, rebuilt from its own parts
+// with a production achievement, since the line has to sit inside it.
+const committedAchievement = {
+  name: 'Committed',
+  description: 'Reach a 50-day reading streak',
+  image:
+    'https://media.daily.dev/image/upload/v1770222887/achievements/Comitted.png',
+  xp: 30,
+};
+
 const AchievementPopup = (): ReactElement => (
-  <PopupShell>
-    <MedalBadgeIcon
-      size={IconSize.XXXLarge}
-      className="mx-auto text-accent-cheese-default"
-      secondary
-    />
-    <Typography type={TypographyType.Title3} bold>
-      Achievement unlocked
-    </Typography>
-    <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
-      Bookworm: read 100 posts.
-    </Typography>
+  <div className="relative flex w-full max-w-[22rem] flex-col gap-4 rounded-16 border border-border-subtlest-secondary bg-background-default p-6 shadow-2">
+    <ModalClose className="top-2" onClick={noop} />
+    <div className="relative mx-auto mt-2">
+      <div className="absolute inset-2 rounded-full bg-accent-cheese-subtler blur-xl" />
+      <LazyImage
+        imgSrc={committedAchievement.image}
+        imgAlt={committedAchievement.name}
+        className="relative size-24 rounded-16 object-cover"
+        fallbackSrc="https://daily.dev/default-achievement.png"
+      />
+    </div>
+    <div className="flex flex-col items-center gap-2 text-center">
+      <Typography tag={TypographyTag.H2} type={TypographyType.Title3} bold>
+        Achievement Unlocked!
+      </Typography>
+      <Typography type={TypographyType.Title4} bold>
+        {committedAchievement.name}
+      </Typography>
+      <Typography
+        type={TypographyType.Callout}
+        color={TypographyColor.Tertiary}
+      >
+        {committedAchievement.description}
+      </Typography>
+      <div className="text-text-invert rounded-14 bg-accent-cabbage-default px-3 py-1 font-bold typo-subhead">
+        +{committedAchievement.xp} XP
+      </div>
+    </div>
+    <Button
+      variant={ButtonVariant.Primary}
+      size={ButtonSize.Medium}
+      icon={<SnapshotIcon />}
+    >
+      Snapshot
+    </Button>
+    <Button variant={ButtonVariant.Secondary}>Choose next goal</Button>
     <StoreLine />
-  </PopupShell>
+    <Checkbox name="disable_achievement_completion" checked={false}>
+      Never show this again
+    </Checkbox>
+  </div>
 );
 
 // Toast markup without the fixed positioning, so it sits in the card.
@@ -601,7 +641,7 @@ const Overview = (): ReactElement => {
               </Surface>
               <Surface
                 title="Line in the achievement popup"
-                note="The same row, so both celebrations read the same."
+                note="The production modal with a real achievement. The same row as the streak popup, above the opt-out, so both celebrations read the same."
               >
                 <AchievementPopup />
               </Surface>
