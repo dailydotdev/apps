@@ -112,6 +112,11 @@ export type CompanyPage = Pick<
   | 'description'
 >;
 
+// As on the server, only a ready page that jev kept counts, so the campaigns
+// learn from pages for developers
+export const isCompanyPageConversion = (squad?: CompanyPage): boolean =>
+  !!squad?.flags?.companyPageReviewed && isCompanyPageReady(squad);
+
 const isCompanyPageAdmin = (squad?: CompanyPage): squad is CompanyPage =>
   !!squad?.id &&
   !!squad.flags?.company &&
@@ -119,10 +124,10 @@ const isCompanyPageAdmin = (squad?: CompanyPage): squad is CompanyPage =>
 
 /**
  * Called when the admin sees their company page. The page counts as a
- * registration once it is ready, as on the server. The browser reports it only
- * when the page just got ready: it was made in the last 48 hours, or this
- * browser saw it unready in the last 48 hours, so the server event for it is
- * still within Meta's dedup window.
+ * registration once it is ready and jev kept it, as on the server. The browser
+ * reports it only when the page just got ready: it was made in the last 48
+ * hours, or this browser saw it unready or unreviewed in the last 48 hours, so
+ * the server event for it is still within Meta's dedup window.
  */
 export const trackCompanyPageReady = (
   trackEvent: TrackEvent,
@@ -134,7 +139,7 @@ export const trackCompanyPageReady = (
   }
 
   const unreadyKey = getUnreadyPageKey(squad.id as string);
-  if (!isCompanyPageReady(squad)) {
+  if (!isCompanyPageConversion(squad)) {
     if (isWithinHours(squad.createdAt, COMPANY_PAGE_FIRST_POST_HOURS)) {
       setKey(unreadyKey, String(Date.now()));
     }
@@ -170,7 +175,7 @@ export const trackCompanyPageFirstPost = (
   const isEligible =
     !!squad.id &&
     !!squad.flags?.company &&
-    isCompanyPageReady(squad) &&
+    isCompanyPageConversion(squad) &&
     isWithinHours(squad.createdAt, COMPANY_PAGE_FIRST_POST_HOURS) &&
     (squad.flags.totalPosts ?? 0) <= 1;
 

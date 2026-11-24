@@ -249,6 +249,7 @@ export const SQUAD_BASE_FRAGMENT = `
       totalAwards
       campaignId
       company
+      companyPageReviewed
     }
     category {
       id

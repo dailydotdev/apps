@@ -114,6 +114,8 @@ interface SourceFlags {
   campaignId?: string;
   /** A company page, with or without a plan */
   company?: boolean;
+  /** A company page jev reviewed and kept, so its ad events count */
+  companyPageReviewed?: boolean;
 }
 
 // A missing key comes back as null and means off
