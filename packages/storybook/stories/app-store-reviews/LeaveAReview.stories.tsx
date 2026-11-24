@@ -27,11 +27,13 @@ import { StarIcon } from '@dailydotdev/shared/src/components/icons/Star';
 import { MiniCloseIcon } from '@dailydotdev/shared/src/components/icons/MiniClose';
 import { UpvoteIcon } from '@dailydotdev/shared/src/components/icons/Upvote';
 import { BellIcon } from '@dailydotdev/shared/src/components/icons/Bell';
-import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons/ReadingStreak';
 import { SnapshotIcon } from '@dailydotdev/shared/src/components/icons/Snapshot';
 import { ModalClose } from '@dailydotdev/shared/src/components/modals/common/ModalClose';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
+import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
+import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
+import { cloudinaryStreakFire } from '@dailydotdev/shared/src/lib/image';
 import { GooglePlayIcon } from '@dailydotdev/shared/src/components/icons/GooglePlay';
 import { TerminalIcon } from '@dailydotdev/shared/src/components/icons/Terminal';
 import { MegaphoneIcon } from '@dailydotdev/shared/src/components/icons/Megaphone';
@@ -308,27 +310,48 @@ const StoreLine = (): ReactElement => (
   </div>
 );
 
-const PopupShell = ({ children }: { children: ReactNode }): ReactElement => (
-  <div className="flex w-72 flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-default p-4 text-center shadow-2">
-    {children}
-  </div>
-);
-
+// NewStreakModal at a 30-day milestone, rebuilt from its own parts, since
+// the line has to sit inside it: the slot iOS uses for its ask card.
 const StreakPopup = (): ReactElement => (
-  <PopupShell>
-    <ReadingStreakIcon
-      size={IconSize.XXXLarge}
-      className="mx-auto text-accent-bacon-default"
-      secondary
-    />
-    <Typography type={TypographyType.Title3} bold>
-      30 day streak
-    </Typography>
-    <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
-      You read every day for a month. Keep it going.
-    </Typography>
-    <StoreLine />
-  </PopupShell>
+  <div className="flex w-full max-w-[21.25rem] flex-col items-center rounded-16 border border-border-subtlest-secondary bg-background-default px-6 pb-6 shadow-2">
+    <div className="relative flex h-14 w-full items-center justify-center tablet:justify-start">
+      <Switch
+        checked={false}
+        inputId="streak-reminder-switch"
+        name="streak-reminder"
+        defaultTypo
+        labelClassName="font-bold"
+        compact={false}
+      >
+        Remind me to keep my streak
+      </Switch>
+      <ModalClose onClick={noop} className="!-right-4 top-2" />
+    </div>
+    <span className="relative flex flex-col items-center justify-center">
+      <img
+        src={cloudinaryStreakFire}
+        alt="A large fire icon"
+        className="h-[10rem] w-[10rem] text-accent-bacon-default"
+      />
+      <strong className="absolute typo-tera">30</strong>
+    </span>
+    <strong className="mt-10 typo-title1">30 days streak</strong>
+    <p className="mt-5 text-center text-text-tertiary typo-body">
+      New milestone reached! You are unstoppable.
+    </p>
+    <ClickableText
+      className="mt-6 justify-center text-center"
+      textClassName="typo-footnote"
+    >
+      Protect your streak with streak freezes
+    </ClickableText>
+    <div className="mt-6 w-full">
+      <StoreLine />
+    </div>
+    <Checkbox name="show_streaks" className="mt-10" checked={false}>
+      Never show this again
+    </Checkbox>
+  </div>
 );
 
 // AchievementCompletionModal's celebrate step, rebuilt from its own parts
@@ -635,7 +658,7 @@ const Overview = (): ReactElement => {
             <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
               <Surface
                 title="Line in the streak popup"
-                note="One row under the existing popup content. Opens the browser's own store page: Chrome Web Store or Edge Add-ons."
+                note="The production milestone modal at 30 days. The line takes the slot iOS uses for its ask card, above the opt-out. Opens the browser's own store page: Chrome Web Store or Edge Add-ons."
               >
                 <StreakPopup />
               </Surface>
