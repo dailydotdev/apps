@@ -6,6 +6,7 @@ import type { AdRequestConsent } from '../features/monetization/adConsent';
 import { AdConsentExists } from '../features/monetization/adConsent';
 import { getAdPageViewId } from '../features/monetization/adPageView';
 import { getBrowserClientHints } from '../features/monetization/browserClientHints';
+import type { AdSlotFetchTransition } from '../features/monetization/adSlotLifecycle';
 
 /**
  * Squads with the paid `adFree` feature carry no ads on their feed, their
@@ -73,6 +74,7 @@ export interface FetchAdByPlacementOptions {
   pageViewId?: string;
   refresh?: AdRefreshRequest;
   entity?: AdEntityTarget;
+  onTransition?: (transition: AdSlotFetchTransition) => void;
 }
 
 export interface AdRefreshRequest {
@@ -188,7 +190,7 @@ const fetchAdRequest = async ({
   params?: URLSearchParams;
   pageViewId?: string;
   throwOnError?: boolean;
-}): Promise<Ad | null> => {
+}): Promise<{ ad: Ad | null; failed: boolean }> => {
   const headers: Record<string, string> = {};
   if (pageViewId) {
     headers['X-Page-View-Id'] = pageViewId;
@@ -210,7 +212,37 @@ const fetchAdRequest = async ({
   }
 
   const ads = (await res.json()) as Ad[];
-  return addGenerationIdHeader({ ad: ads[0] ?? null, res });
+  return {
+    ad: addGenerationIdHeader({ ad: ads[0] ?? null, res }),
+    failed: res.ok === false,
+  };
+};
+
+const fetchAdSlot = async (
+  options: Parameters<typeof fetchAdRequest>[0],
+  {
+    onTransition,
+    throwOnError = false,
+  }: {
+    onTransition?: FetchAdByPlacementOptions['onTransition'];
+    throwOnError?: boolean;
+  } = {},
+): Promise<Ad | null> => {
+  onTransition?.({ type: 'pre-fetch' });
+  let result: Awaited<ReturnType<typeof fetchAdRequest>>;
+  try {
+    result = await fetchAdRequest({ ...options, throwOnError });
+  } catch (error) {
+    onTransition?.({ type: 'fetch-error' });
+    throw error;
+  }
+  const { ad, failed } = result;
+  if (failed) {
+    onTransition?.({ type: 'fetch-error' });
+  } else {
+    onTransition?.(ad ? { type: 'post-fetch', ad } : { type: 'no-fill' });
+  }
+  return ad;
 };
 
 export const resolveAdFetchOptions = ({
@@ -275,10 +307,14 @@ export const fetchAdByPlacement = async ({
   pageViewId,
   refresh,
   entity,
+  onTransition,
 }: FetchAdByPlacementOptions): Promise<Ad | null> => {
+  const fetchSlot = (options: Parameters<typeof fetchAdRequest>[0]) =>
+    fetchAdSlot(options, { onTransition, throwOnError: !!refresh?.count });
+
   switch (placement) {
     case AdPlacement.PostComment:
-      return fetchAdRequest({
+      return fetchSlot({
         path: '/v1/a/post',
         params: appendConsentParams(
           appendEntityParams(
@@ -298,7 +334,7 @@ export const fetchAdByPlacement = async ({
       appendRegisteredParam(params, registered);
       appendEntityParams(params, entity);
 
-      return fetchAdRequest({
+      return fetchSlot({
         path: '/v1/a/squads_directory',
         params: appendConsentParams(params, consent),
         pageViewId,
@@ -323,18 +359,17 @@ export const fetchAdByPlacement = async ({
       appendEntityParams(params, entity);
       appendRefreshParams(params, refresh);
 
-      return fetchAdRequest({
+      return fetchSlot({
         path: '/v1/a',
         params: appendConsentParams(params, consent),
         pageViewId,
-        throwOnError: !!refresh?.count,
       });
     }
   }
 };
 
 export const fetchAd = async (params: URLSearchParams): Promise<Ad | null> =>
-  fetchAdRequest({ path: '/v1/a', params });
+  fetchAdSlot({ path: '/v1/a', params });
 
 export const fetchCommentAd = async (): Promise<Ad | null> => {
   return fetchAdByPlacement({

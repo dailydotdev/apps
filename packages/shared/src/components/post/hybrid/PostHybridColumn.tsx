@@ -63,7 +63,6 @@ import { PostSignupWidget } from '../PostSignupWidget';
 import { useHasPostCapsule } from '../PostCapsule';
 import { PostAnsweredQuestions } from '../PostAnsweredQuestions';
 import { PostExcoPlayerWidget } from '../PostExcoPlayerWidget';
-import { PostLiveChat } from '../../../features/liveChat/components/PostLiveChat';
 import { PostClickbaitShield } from '../common/PostClickbaitShield';
 import { CollectionSourceStack } from '../collection/CollectionSourceStack';
 import { CollectionSubscribeButton } from '../collection/CollectionSubscribeButton';
@@ -173,8 +172,6 @@ export function PostHybridColumn({
   const isCollection = article.type === PostType.Collection;
   const isPoll = post.type === PostType.Poll;
   const isXPost = post.type === PostType.SocialTwitter;
-  const hasLiveChat =
-    post.type === PostType.Article || post.type === PostType.VideoYouTube;
   const isXThread = isXPost && post.subType === 'thread';
   const isUnavailableShare =
     isShared &&
@@ -704,10 +701,6 @@ export function PostHybridColumn({
 
       {showCodeSnippets && <PostCodeSnippets post={article} />}
 
-      {hasLiveChat && (
-        <PostLiveChat post={post} origin={origin} placement="inline" />
-      )}
-
       <PostSignupWidget post={article} inline />
 
       {communitySentimentData && (
@@ -733,14 +726,6 @@ export function PostHybridColumn({
           </>
         }
       />
-      {hasLiveChat && (
-        <PostLiveChat
-          post={post}
-          origin={origin}
-          placement="mobile"
-          isPostPage={!isModal}
-        />
-      )}
     </div>
   );
 }

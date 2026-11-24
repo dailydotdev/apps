@@ -40,6 +40,7 @@ import type { Author } from './comments';
 import { OrganizationMemberRole } from '../features/organizations/types';
 import type { WarningReason } from '../features/squads/types';
 import type { LoggedUser, UserShortProfile } from '../lib/user';
+import { getAdClickIds } from '../features/squads/lib/checkoutAttribution';
 
 type BaseSquadForm = Pick<
   Squad,
@@ -62,6 +63,8 @@ export enum PrivacyOption {
 export type SquadForm = BaseSquadForm & {
   status?: PrivacyOption;
   company?: boolean;
+  /** A company page's website */
+  website?: string;
   file?: File;
   header?: File;
 };
@@ -200,6 +203,9 @@ export const CREATE_SQUAD_MUTATION = gql`
     $isPrivate: Boolean
     $categoryId: ID
     $company: Boolean
+    $website: String
+    $fbclid: String
+    $twclid: String
   ) {
     createSquad(
       name: $name
@@ -213,6 +219,9 @@ export const CREATE_SQUAD_MUTATION = gql`
       isPrivate: $isPrivate
       categoryId: $categoryId
       company: $company
+      website: $website
+      fbclid: $fbclid
+      twclid: $twclid
     ) {
       ...SourceBaseInfo
       members {
@@ -756,6 +765,13 @@ export const SQUAD_STATIC_FIELDS_QUERY = gql`
       postingMinReputation
       membersCount
       createdAt
+      flags {
+        company
+      }
+      features {
+        verified
+        products
+      }
     }
   }
 `;
@@ -775,6 +791,8 @@ export type SquadStaticData = Pick<
   | 'permalink'
   | 'membersCount'
   | 'createdAt'
+  | 'flags'
+  | 'features'
 >;
 
 export const getSquadStaticFields = async (
@@ -1178,6 +1196,8 @@ export async function createSquad(form: SquadForm): Promise<Squad> {
     ...inputData,
     ...(description ? { description } : {}),
     ...(form.company && { company: true }),
+    ...(form.company && form.website && { website: form.website }),
+    ...(form.company && getAdClickIds()),
   });
 
   return data.createSquad;
@@ -1602,3 +1622,98 @@ export const sourceMutedAuthorsQueryOptions = ({
     getNextPageParam: (page) => getNextPageParam(page?.pageInfo),
     enabled: !!user && !!sourceId,
   });
+
+export enum CompanyPageRequestStatus {
+  Pending = 'pending',
+  Ready = 'ready',
+  Created = 'created',
+  Failed = 'failed',
+}
+
+/** A company page the founder asked for by entering their website. */
+export interface CompanyPageRequest {
+  id: string;
+  website: string;
+  status: CompanyPageRequestStatus;
+  error?: string;
+  name?: string;
+  handle?: string;
+  description?: string;
+  image?: string;
+  source?: Pick<Squad, 'id' | 'handle' | 'permalink'>;
+}
+
+const COMPANY_PAGE_REQUEST_FRAGMENT = gql`
+  fragment CompanyPageRequestFragment on CompanyPageRequest {
+    id
+    website
+    status
+    error
+    name
+    handle
+    description
+    image
+    source {
+      id
+      handle
+      permalink
+    }
+  }
+`;
+
+const REQUEST_COMPANY_PAGE_MUTATION = gql`
+  mutation RequestCompanyPage($website: String!) {
+    requestCompanyPage(website: $website) {
+      ...CompanyPageRequestFragment
+    }
+  }
+  ${COMPANY_PAGE_REQUEST_FRAGMENT}
+`;
+
+const CLAIM_COMPANY_PAGE_REQUEST_MUTATION = gql`
+  mutation ClaimCompanyPageRequest($id: ID!) {
+    claimCompanyPageRequest(id: $id) {
+      ...CompanyPageRequestFragment
+    }
+  }
+  ${COMPANY_PAGE_REQUEST_FRAGMENT}
+`;
+
+const COMPANY_PAGE_REQUEST_QUERY = gql`
+  query CompanyPageRequest($id: ID!) {
+    companyPageRequest(id: $id) {
+      ...CompanyPageRequestFragment
+    }
+  }
+  ${COMPANY_PAGE_REQUEST_FRAGMENT}
+`;
+
+export const requestCompanyPage = async (
+  website: string,
+): Promise<CompanyPageRequest> => {
+  const res = await gqlClient.request<{
+    requestCompanyPage: CompanyPageRequest;
+  }>(REQUEST_COMPANY_PAGE_MUTATION, { website });
+
+  return res.requestCompanyPage;
+};
+
+export const claimCompanyPageRequest = async (
+  id: string,
+): Promise<CompanyPageRequest> => {
+  const res = await gqlClient.request<{
+    claimCompanyPageRequest: CompanyPageRequest;
+  }>(CLAIM_COMPANY_PAGE_REQUEST_MUTATION, { id });
+
+  return res.claimCompanyPageRequest;
+};
+
+export const getCompanyPageRequest = async (
+  id: string,
+): Promise<CompanyPageRequest> => {
+  const res = await gqlClient.request<{
+    companyPageRequest: CompanyPageRequest;
+  }>(COMPANY_PAGE_REQUEST_QUERY, { id });
+
+  return res.companyPageRequest;
+};

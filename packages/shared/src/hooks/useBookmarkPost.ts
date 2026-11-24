@@ -36,6 +36,7 @@ import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
 import { useActiveFeedContext } from '../contexts';
 import { playHaptic } from '../lib/nativeBridge';
+import { emitPatchyEvent } from '../features/patchy/patchyEvents';
 
 export type ToggleBookmarkProps = {
   origin: Origin;
@@ -218,6 +219,7 @@ const useBookmarkPost = ({
       }
 
       logEvent(postLogEvent(LogEvent.BookmarkPost, post, finalLogOptions));
+      emitPatchyEvent({ type: 'bookmark', postId: post.id });
       playHaptic();
 
       const result = await addBookmark({ id: post.id });

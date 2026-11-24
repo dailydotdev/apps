@@ -6,7 +6,6 @@ import type { Post } from '../../graphql/posts';
 import { isVideoPost } from '../../graphql/posts';
 import PostMetadata from '../cards/common/PostMetadata';
 import { PostWidgets } from './PostWidgets';
-import { PostLiveChat } from '../../features/liveChat/components/PostLiveChat';
 import PostToc from '../widgets/PostToc';
 import { ToastSubject, useToastNotification } from '../../hooks';
 import PostContentContainer from './PostContentContainer';
@@ -318,14 +317,6 @@ export function PostContentRaw({
             className={isCompactModalSpacing ? 'mb-4' : 'mb-6'}
           />
         )}
-        {/* Right under the post and above the comments, where a reader on
-            their way down cannot miss that there is a chat on. */}
-        <PostLiveChat
-          post={post}
-          origin={origin}
-          placement="inline"
-          className={isCompactModalSpacing ? 'mb-4' : 'mb-6'}
-        />
       </BasePostContent>
     </PostContainer>
   );
@@ -364,12 +355,6 @@ export function PostContentRaw({
       }
     >
       {postMainColumn}
-      <PostLiveChat
-        post={post}
-        origin={origin}
-        placement="mobile"
-        isPostPage={isPostPage}
-      />
       {postWidgetsColumn}
     </PostContentContainer>
   );

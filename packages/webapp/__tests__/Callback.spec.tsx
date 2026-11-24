@@ -276,6 +276,26 @@ describe('CallbackPage', () => {
     });
   });
 
+  it('should return to the page that started a sign in from the Facebook app', () => {
+    const originalUA = navigator.userAgent;
+    Object.defineProperty(navigator, 'userAgent', {
+      configurable: true,
+      get: () =>
+        'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 [FB_IAB/FB4A;FBAV/450.0.0.0;]',
+    });
+    window.sessionStorage.setItem('auth_return_path', '/squads/new?company=1');
+
+    renderCallback('?registration=true');
+    jest.advanceTimersByTime(1000);
+
+    expect(mockReplace).toHaveBeenCalledWith('/squads/new?company=1');
+
+    Object.defineProperty(navigator, 'userAgent', {
+      configurable: true,
+      get: () => originalUA,
+    });
+  });
+
   it('should handle window.opener without postMessage', () => {
     const search = '?login=true&token=nopostmsg';
     Object.defineProperty(window, 'opener', {

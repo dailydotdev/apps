@@ -1,18 +1,14 @@
 import React from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../../__tests__/fixture/squads';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { mockDesktop } from '../../../__tests__/helpers/media';
-import { LogEvent } from '../../lib/log';
 import type { FeedWidgetComponentProps } from './registry';
 import type { FeedWidget } from './types';
 import { FeedWidgetKind, FeedWidgetSize } from './types';
-import type { FeedWidgetGalleryTips } from './FeedWidgetGallery';
 import { FeedWidgetGallery } from './FeedWidgetGallery';
-import { feedWidgetTips } from './tips';
 
 // The widgets fetch their own data; the gallery only has to show the right
 // one at the right size.
@@ -45,7 +41,6 @@ const renderGallery = ({
   isFull = false,
   initialKind,
   initialSize,
-  tips,
   optOutReadingStreak = false,
   squads = [generateTestSquad()],
 }: {
@@ -53,7 +48,6 @@ const renderGallery = ({
   isFull?: boolean;
   initialKind?: FeedWidgetKind;
   initialSize?: FeedWidgetSize;
-  tips?: FeedWidgetGalleryTips;
   optOutReadingStreak?: boolean;
   squads?: ReturnType<typeof generateTestSquad>[];
 } = {}) =>
@@ -70,7 +64,6 @@ const renderGallery = ({
         initialKind={initialKind}
         initialSize={initialSize}
         onAdd={onAdd}
-        tips={tips}
         onRequestClose={onRequestClose}
       />
     </TestBootProvider>,
@@ -165,7 +158,7 @@ describe('on desktop', () => {
 
     pick('Happening Now');
 
-    expect(screen.getByText('Already on your rail.')).toBeInTheDocument();
+    expect(screen.getByText('Already in your feed.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Added' })).toBeDisabled();
   });
 
@@ -221,54 +214,9 @@ describe('on desktop', () => {
 
     expect(
       screen.getByText(
-        'Your rail is full. Remove a widget to make room for this one.',
+        'Your feed has all the widgets it can hold. Remove one first.',
       ),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Add widget' })).toBeDisabled();
-  });
-
-  describe('daily.dev tips', () => {
-    const tip = feedWidgetTips[0];
-
-    it('says they are on while they show', () => {
-      renderGallery({ tips: { tip, isShown: true } });
-
-      pick('daily.dev tips');
-
-      expect(screen.getByRole('button', { name: 'On' })).toBeDisabled();
-      expect(screen.getByTestId('feedWidgetTip')).toBeInTheDocument();
-    });
-
-    it('logs no impression for the tip it previews', () => {
-      renderGallery({ tips: { tip, isShown: true } });
-
-      pick('daily.dev tips');
-      mockAllIsIntersecting(true);
-
-      expect(screen.getByTestId('feedWidgetTip')).toBeInTheDocument();
-      expect(logEvent).not.toHaveBeenCalledWith(
-        expect.objectContaining({
-          event_name: LogEvent.ImpressionFeedWidgetTip,
-        }),
-      );
-    });
-
-    it('brings them back once removed', () => {
-      const onRestore = jest.fn();
-      renderGallery({ tips: { tip, isShown: false, onRestore } });
-
-      pick('daily.dev tips');
-      fireEvent.click(screen.getByRole('button', { name: 'Show tips' }));
-
-      expect(onRestore).toHaveBeenCalled();
-    });
-
-    it('are not listed where they never show', () => {
-      renderGallery();
-
-      expect(
-        screen.queryByRole('button', { name: /daily\.dev tips/ }),
-      ).not.toBeInTheDocument();
-    });
   });
 });

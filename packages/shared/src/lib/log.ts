@@ -1,6 +1,7 @@
 import type { PurchaseType } from '../graphql/paddle';
 
 export enum Origin {
+  Patchy = 'patchy',
   ShareBar = 'share bar',
   DiscussionPanel = 'discussion panel',
   ReadingHistoryContextMenu = 'reading history context menu',
@@ -19,7 +20,6 @@ export enum Origin {
   PostHiddenPanel = 'post hidden panel',
   FeedHero = 'feed hero',
   FeedWidgets = 'feed widgets',
-  TipsPage = 'tips page',
   CustomFeed = 'custom feed',
   PostContextMenu = 'post context menu',
   PostCommentContextMenu = 'post comment context menu',
@@ -144,6 +144,7 @@ export enum Origin {
   // End Credits
   ProfileMenu = 'profile menu',
   StreakRecover = 'streak recover',
+  QuestRefresh = 'quest refresh',
   StreakFreeze = 'streak freeze',
   BriefModal = 'brief modal',
   BriefPage = 'brief page',
@@ -361,11 +362,9 @@ export enum LogEvent {
   ConfigureFeedWidget = 'configure feed widget',
   AddFeedWidgetTodo = 'add feed widget todo',
   CompleteFeedWidgetTodo = 'complete feed widget todo',
-  ImpressionFeedWidgetTip = 'impression feed widget tip',
-  ClickFeedWidgetTip = 'click feed widget tip',
-  DismissFeedWidgetTip = 'dismiss feed widget tip',
-  UndoDismissFeedWidgetTip = 'undo dismiss feed widget tip',
-  RestoreFeedWidgetTip = 'restore feed widget tip',
+  ImpressionFeedWidgetsPromo = 'impression feed widgets promo',
+  ClickFeedWidgetsPromo = 'click feed widgets promo',
+  DismissFeedWidgetsPromo = 'dismiss feed widgets promo',
   ToggleShortcutsOnWebapp = 'toggle shortcuts on webapp',
   // Devcard
   ShareDevcard = 'share devcard',
@@ -644,6 +643,10 @@ export enum LogEvent {
   // Quests
   QuestClaimable = 'quest claimable',
   ClaimQuest = 'claim quest',
+  OpenQuestRefresh = 'open quest refresh',
+  CancelQuestRefresh = 'cancel quest refresh',
+  RefreshQuest = 'refresh quest',
+  RefreshQuestError = 'refresh quest error',
   Dismiss = 'dismiss',
   // Reader modal
   ImpressionReaderModal = 'impression reader modal',
@@ -674,6 +677,7 @@ export enum LogEvent {
   // Direct messages
   OpenMessages = 'open messages',
   OpenDirectMessage = 'open direct message',
+  OpenCompanySupportChat = 'open company support chat',
   SendDirectMessage = 'send direct message',
   FailDirectMessage = 'fail direct message',
   ReactDirectMessage = 'react direct message',
@@ -683,16 +687,6 @@ export enum LogEvent {
   SendDirectMessageRequest = 'send direct message request',
   AcceptDirectMessageRequest = 'accept direct message request',
   DeclineDirectMessageRequest = 'decline direct message request',
-  // Live chat rooms
-  OpenLiveChat = 'open live chat',
-  // Seated in the room, reading along, before (or without) joining.
-  ReadLiveChat = 'read live chat',
-  JoinLiveChat = 'join live chat',
-  EndLiveChat = 'end live chat',
-  BanLiveChatUser = 'ban live chat user',
-  LeaveLiveChat = 'leave live chat',
-  SendLiveChatMessage = 'send live chat message',
-  ReactLiveChatMessage = 'react live chat message',
   // Agent onboarding
   ViewAgentClaim = 'view agent claim',
   ConfirmAgentClaim = 'confirm agent claim',
@@ -780,14 +774,16 @@ export enum TargetType {
   LeaderboardUser = 'leaderboard user',
   Shortcuts = 'shortcuts',
   FeedWidget = 'feed widget',
-  ChatRoom = 'chat room',
-  FeedWidgetTip = 'feed widget tip',
   VerifyEmail = 'verify email',
   ResendVerificationCode = 'resend verification code',
   StreaksMilestone = 'streaks milestone',
   StreakRecover = 'streak restore',
   StreakFreezePurchase = 'streak freeze purchase',
-  StreakDailyCelebration = 'streak daily celebration',
+  Patchy = 'patchy',
+  PatchyReactions = 'patchy reactions',
+  PatchyOffer = 'patchy offer',
+  PatchyMenu = 'patchy menu',
+  PatchySuggestions = 'patchy suggestions',
   StreakFreeFreezesGrant = 'streak free freezes grant',
   StreakFreeFreezesUpsell = 'streak free freezes upsell',
   StreakGoal = 'streak goal',
@@ -918,6 +914,7 @@ export enum TargetId {
   Popover = 'popover',
   QuestDropdown = 'quest dropdown',
   QuestSidebar = 'quest sidebar',
+  QuestStreakWidget = 'quest streak widget',
   Navigation = 'navigation',
   DigestUpsell = 'digest upsell',
   DigestUpsellBookmarks = 'digest upsell bookmarks',

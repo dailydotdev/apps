@@ -4,8 +4,7 @@ import { useRouter } from 'next/router';
 import { Button, ButtonVariant } from '../../../../components/buttons/Button';
 import { TextField } from '../../../../components/fields/TextField';
 import Textarea from '../../../../components/fields/Textarea';
-import { AtIcon, SquadIcon } from '../../../../components/icons';
-import OrDivider from '../../../../components/auth/OrDivider';
+import { AtIcon, LinkIcon, SquadIcon } from '../../../../components/icons';
 import { Dropdown } from '../../../../components/fields/Dropdown';
 import {
   Typography,
@@ -13,24 +12,18 @@ import {
   TypographyType,
 } from '../../../../components/typography/Typography';
 import { useAuthContext } from '../../../../contexts/AuthContext';
-import { useLogContext } from '../../../../contexts/LogContext';
-import { usePixelsContext } from '../../../../contexts/PixelsContext';
 import { useSquadCreate } from '../../../../hooks/squads/useSquadCreate';
 import { useSquadCategories } from '../../../../hooks/squads/useSquadCategories';
 import { checkExistingHandle, PrivacyOption } from '../../../../graphql/squads';
 import { SourceMemberRole } from '../../../../graphql/sources';
 import { AuthTriggers } from '../../../../lib/auth';
 import { cloudinarySquadsImageFallback } from '../../../../lib/image';
-import { LogEvent } from '../../../../lib/log';
+import { parseHttpUrl } from '../../../../lib/links';
 import { SquadUploadButton } from '../manage/SquadUploadButton';
 import { toSquadHandle } from '../../lib/handle';
 import { getStartupsCheckoutUrl } from '../../lib/routes';
 import { getSquadId } from '../../lib/features';
 import { isSquadPlan, SquadPlan } from '../../lib/plans';
-import { companyPagePrompt } from '../../lib/companyPage';
-import { trackStartupsSignup } from '../../lib/startupsAdEvents';
-import { getFirstQueryParam } from '../../../../lib/func';
-import { AgentPromptButton } from '../AgentPromptButton';
 import {
   CheckoutCta,
   CheckoutShell,
@@ -38,6 +31,7 @@ import {
   CheckoutTitle,
 } from '../checkout/CheckoutShell';
 import { AccountStep } from '../checkout/StartupsCheckout';
+import { StartupsHotjarEvent, trackHotjarEvent } from '../../../../lib/hotjar';
 import { StartupsNameStunt } from '../checkout/StartupsNameStunt';
 
 const FORM_ID = 'company-page-form';
@@ -53,33 +47,33 @@ const CompanyPageSignUp = (): ReactElement => (
   />
 );
 
-/** Copies the setup prompt; the founder pastes it into their agent. */
-const AgentSetupButton = (): ReactElement => {
-  const { logEvent } = useLogContext();
-
-  return (
-    <AgentPromptButton
-      getPrompt={() => companyPagePrompt}
-      label="Continue with your agent"
-      hint="Copies a prompt for Claude Code, Codex, Cursor or any agent."
-      copiedHint="Paste it into your agent to set up the page."
-      onCopy={() => logEvent({ event_name: LogEvent.CopyCompanyPagePrompt })}
-    />
-  );
-};
-
 /**
  * The free company page form: a public squad where only its team posts, with
  * no privacy or posting settings to choose.
  */
-export const CompanyPageCreate = (): ReactElement => {
+export interface CompanyPagePrefill {
+  name?: string;
+  handle?: string;
+  description?: string;
+  website?: string;
+}
+
+interface CompanyPageCreateProps {
+  /** What we could read from the founder's site before it fell short. */
+  prefill?: CompanyPagePrefill;
+}
+
+export const CompanyPageCreate = ({
+  prefill,
+}: CompanyPageCreateProps = {}): ReactElement => {
   const router = useRouter();
   const { user } = useAuthContext();
-  const [name, setName] = useState('');
-  const [handle, setHandle] = useState('');
-  const [isHandleEdited, setHandleEdited] = useState(false);
+  const [name, setName] = useState(prefill?.name ?? '');
+  const [handle, setHandle] = useState(prefill?.handle ?? '');
+  const [isHandleEdited, setHandleEdited] = useState(!!prefill?.handle);
   const [handleHint, setHandleHint] = useState<string>();
-  const [description, setDescription] = useState('');
+  const [description, setDescription] = useState(prefill?.description ?? '');
+  const [website, setWebsite] = useState(prefill?.website ?? '');
   const [categoryId, setCategoryId] = useState<string>();
   const [image, setImage] = useState<{ preview: string; file: File }>();
   const [isChecking, setChecking] = useState(false);
@@ -88,17 +82,9 @@ export const CompanyPageCreate = (): ReactElement => {
     categoryPages?.pages.flatMap((page) =>
       page.categories.edges.map(({ node }) => node),
     ) ?? [];
-  const { trackEvent } = usePixelsContext();
   const { onCreateSquad, isLoading } = useSquadCreate({
     onSuccess: (squad) => {
-      if (user) {
-        trackStartupsSignup(trackEvent, {
-          userId: user.id,
-          email: user.email,
-          plan: getFirstQueryParam(router.query.plan) ?? 'free',
-        });
-      }
-
+      trackHotjarEvent(StartupsHotjarEvent.CompanyPageCreated);
       return router.push(
         router.query.checkout === '1'
           ? getStartupsCheckoutUrl({
@@ -118,8 +104,14 @@ export const CompanyPageCreate = (): ReactElement => {
 
   const suggestedHandle = name.trim() ? toSquadHandle(name) : '';
   const activeHandle = isHandleEdited ? handle : suggestedHandle;
+  const websiteUrl = website.trim() ? parseHttpUrl(website.trim()) : null;
+  const isWebsiteInvalid = !!website.trim() && !websiteUrl;
   const canSubmit =
-    !!name.trim() && !!activeHandle && !!description.trim() && !isChecking;
+    !!name.trim() &&
+    !!activeHandle &&
+    !!description.trim() &&
+    !isWebsiteInvalid &&
+    !isChecking;
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -144,6 +136,7 @@ export const CompanyPageCreate = (): ReactElement => {
       name: name.trim(),
       handle: activeHandle,
       description: description.trim(),
+      website: websiteUrl ?? undefined,
       categoryId: categoryId || undefined,
       file: image?.file,
       status: PrivacyOption.Public,
@@ -160,24 +153,26 @@ export const CompanyPageCreate = (): ReactElement => {
       isTall
       aside={<StartupsNameStunt name={name} />}
     >
-      <CheckoutTitle
-        title="Set up your company page"
-        description="Your agent can fill it in from your site, or you can do it here."
-      />
+      {prefill?.website ? (
+        <CheckoutTitle
+          title="Finish your company page"
+          description={`We couldn't get everything from ${prefill.website.replace(
+            /^https?:\/\//,
+            '',
+          )}. Add what's missing and you're done.`}
+        />
+      ) : (
+        <CheckoutTitle
+          title="Set up your company page"
+          description="Add your logo, name and a short description."
+        />
+      )}
       <form
         id={FORM_ID}
         className="flex w-full flex-col gap-6"
         onSubmit={onSubmit}
         noValidate
       >
-        <AgentSetupButton />
-        <OrDivider
-          label="or fill it in yourself"
-          className={{
-            text: 'text-text-tertiary',
-            border: 'bg-border-subtlest-tertiary',
-          }}
-        />
         <div className="flex items-center gap-4">
           <div className="relative size-24 shrink-0">
             <img
@@ -196,8 +191,8 @@ export const CompanyPageCreate = (): ReactElement => {
             color={TypographyColor.Tertiary}
             className="flex-1"
           >
-            Use your product logo. Your page needs a logo and a description to
-            show up in the directory.
+            Add your logo, website and a short description and we boost your
+            first post with $100.
           </Typography>
         </div>
         <TextField
@@ -241,6 +236,18 @@ export const CompanyPageCreate = (): ReactElement => {
           maxLength={DESCRIPTION_MAX_LENGTH}
           valueChanged={setDescription}
           hint="One or two sentences."
+          className={{ container: 'w-full' }}
+        />
+        <TextField
+          label="Website"
+          inputId="website"
+          name="website"
+          inputMode="url"
+          leftIcon={<LinkIcon />}
+          value={website}
+          valueChanged={setWebsite}
+          valid={isWebsiteInvalid ? false : undefined}
+          hint={isWebsiteInvalid ? 'Enter your site, like acme.dev' : undefined}
           className={{ container: 'w-full' }}
         />
         {!!categories.length && (

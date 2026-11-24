@@ -6,6 +6,7 @@ import EntityCard from '../cards/entity/EntityCard';
 import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import AdAttribution from '../cards/ad/common/AdAttribution';
 import { AdPixel } from '../cards/ad/common/AdPixel';
+import { AdSlot } from '../cards/ad/common/AdSlot';
 import { AdViewability } from '../cards/ad/common/AdViewability';
 import type { ViewabilityData } from '../../features/monetization/viewability';
 import { viewabilityLogExtra } from '../../features/monetization/viewability';
@@ -138,71 +139,79 @@ export function PostSidebarAdWidget({
   });
 
   return (
-    <EntityCard
-      image={imageLink}
-      permalink={ad.link}
-      entityName={ad.source}
-      className={{
-        container: classNames('relative cursor-pointer', className?.container),
-        image: 'size-10 rounded-full',
-      }}
-      actionButtons={
-        <Button
-          tag="a"
-          href={ad.link}
-          target="_blank"
-          rel={anchorSponsoredRel}
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Small}
-          className="relative z-1"
-          onClick={() => onAdAction(AdActions.Click)}
+    <AdSlot ad={ad}>
+      {(slotProps) => (
+        <EntityCard
+          {...slotProps}
+          image={imageLink}
+          permalink={ad.link}
+          entityName={ad.source}
+          className={{
+            container: classNames(
+              'relative cursor-pointer',
+              className?.container,
+            ),
+            image: 'size-10 rounded-full',
+          }}
+          actionButtons={
+            <Button
+              tag="a"
+              href={ad.link}
+              target="_blank"
+              rel={anchorSponsoredRel}
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+              className="relative z-1"
+              onClick={() => onAdAction(AdActions.Click)}
+            >
+              Visit
+            </Button>
+          }
         >
-          Visit
-        </Button>
-      }
-    >
-      <a
-        href={ad.link}
-        target="_blank"
-        rel={anchorSponsoredRel}
-        title={ad.description}
-        className="absolute inset-0 z-0"
-        {...combinedClicks(() => onAdAction(AdActions.Click))}
-      />
-      <div className="mt-3 flex w-full flex-col gap-2">
-        {company && (
-          <Typography
-            tag={TypographyTag.P}
-            type={TypographyType.Body}
-            color={TypographyColor.Primary}
-            bold
-          >
-            {company}
-          </Typography>
-        )}
-        <AdAttribution ad={ad} className={{ main: 'relative z-1' }} />
-        {hasDescription && (
-          <Typography
-            tag={TypographyTag.P}
-            type={TypographyType.Callout}
-            color={TypographyColor.Primary}
-            className="whitespace-pre-line"
-          >
-            {ad.tagLine && <strong>{ad.tagLine}</strong>}
-            {ad.tagLine && ad.description ? ' ' : ''}
-            {ad.description}
-          </Typography>
-        )}
-        <AdvertiseLink
-          targetId={TargetId.AdSidebar}
-          className={classNames(
-            'relative z-1 whitespace-nowrap hover:underline',
-            isAdvertiseLinkStart ? 'w-fit' : 'ml-auto',
-          )}
-        />
-      </div>
-      <AdPixel pixel={ad.pixel} />
-      <AdViewability ad={ad} onViewable={onViewable} />
-    </EntityCard>
+          <a
+            href={ad.link}
+            target="_blank"
+            rel={anchorSponsoredRel}
+            title={ad.description}
+            className="absolute inset-0 z-0"
+            {...combinedClicks(() => onAdAction(AdActions.Click))}
+          />
+          <div className="mt-3 flex w-full flex-col gap-2">
+            {company && (
+              <Typography
+                tag={TypographyTag.P}
+                type={TypographyType.Body}
+                color={TypographyColor.Primary}
+                bold
+              >
+                {company}
+              </Typography>
+            )}
+            <AdAttribution ad={ad} className={{ main: 'relative z-1' }} />
+            {hasDescription && (
+              <Typography
+                tag={TypographyTag.P}
+                type={TypographyType.Callout}
+                color={TypographyColor.Primary}
+                className="whitespace-pre-line"
+              >
+                {ad.tagLine && <strong>{ad.tagLine}</strong>}
+                {ad.tagLine && ad.description ? ' ' : ''}
+                {ad.description}
+              </Typography>
+            )}
+            <AdvertiseLink
+              targetId={TargetId.AdSidebar}
+              className={classNames(
+                'relative z-1 whitespace-nowrap hover:underline',
+                isAdvertiseLinkStart ? 'w-fit' : 'ml-auto',
+              )}
+            />
+          </div>
+          <AdPixel ad={ad} />
+          <AdViewability ad={ad} onViewable={onViewable} />
+        </EntityCard>
+      )}
+    </AdSlot>
   );
 }

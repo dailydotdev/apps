@@ -6,14 +6,14 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { plusSaleLabelBg } from '../../styles/custom';
+import { plusBlackFridayLabelBg, plusSaleLabelBg } from '../../styles/custom';
 import { usePlusSale } from '../../hooks/usePlusSale';
 import type { WithClassNameProps } from '../utilities/common';
 
 export function PlusSaleLabel({
   className,
 }: WithClassNameProps): ReactElement | null {
-  const { isActive, label } = usePlusSale();
+  const { isActive, label, theme } = usePlusSale();
 
   if (!isActive || !label) {
     return null;
@@ -27,7 +27,10 @@ export function PlusSaleLabel({
         'whitespace-nowrap rounded-6 px-1.5 py-0.5 text-black',
         className,
       )}
-      style={{ background: plusSaleLabelBg }}
+      style={{
+        background:
+          theme === 'blackFriday' ? plusBlackFridayLabelBg : plusSaleLabelBg,
+      }}
       bold
     >
       {label}

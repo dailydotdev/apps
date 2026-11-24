@@ -1,14 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
 import { Case, Page } from '../hero-cover/parts';
 import { GiveAwardFlow } from './production/GiveAward';
 import { CommentWithAward, ProfileAwards } from './production/AwardPreviews';
 import { AchievementDetail } from './production/AchievementShelfCard';
 import { Shelf } from './production/Shelf';
-import type { ThemeChoice } from './theme';
-import { SettingsPopover, ThemedHome, ThemeRow, useThemeInvert } from './theme';
 import { DeviceRow, State, StateGrid } from './parts';
 import {
   productionAwards,
@@ -18,7 +14,7 @@ import {
 } from './data';
 
 /*
- * Every state of the three GTA VI pieces, for a careful review: each case is
+ * Every state of the two GTA VI pieces, for a careful review: each case is
  * tagged Production (unchanged behavior), GTA VI (the change) or Proposed
  * (a gap production doesn't cover yet). Devices rows load the Devices stories
  * in real iframes at each width.
@@ -362,147 +358,5 @@ export const Achievements: StoryObj = {
         </Case>
       </Page>
     </div>
-  ),
-};
-
-/* -------------------------------------------------------------- theme */
-
-/** The popover in the theme it picks: Dark and VI are dark, Light is light. */
-const PickedPopover = ({ theme }: { theme: ThemeChoice }): ReactElement => (
-  <div className={classNames('w-fit', useThemeInvert(theme))}>
-    <SettingsPopover theme={theme} onTheme={() => undefined} />
-  </div>
-);
-
-/** Settings › Appearance with VI picked, so drawn dark like the popover. */
-const AppearanceWithVi = (): ReactElement => (
-  <div
-    className={classNames(
-      'w-[23.4375rem] rounded-16 border border-border-subtlest-tertiary bg-background-default p-4',
-      useThemeInvert('viceCity'),
-    )}
-  >
-    <span className="mb-4 block font-bold text-text-primary typo-title3">
-      Appearance
-    </span>
-    <ThemeRow theme="viceCity" onTheme={() => undefined} />
-  </div>
-);
-
-export const Theme: StoryObj = {
-  name: '3. Theme',
-  render: () => (
-    <Page
-      chapter="GTA VI · All states"
-      question="Every state of the Vice City theme"
-      title="Theme: all states"
-      goal="Check the Theme row's four choices, the themed home and its failure cases, at every device width."
-      metric="Nothing missing a builder would need to decide."
-    >
-      <Case
-        title="The Theme row"
-        note="ThemeSection's ButtonGroup with VI added last. Tab moves through the four buttons; Enter or Space picks; aria-pressed marks the choice."
-      >
-        <StateGrid>
-          {(['dark', 'light', 'auto', 'viceCity'] as const).map((theme) => (
-            <State
-              key={theme}
-              title={`${
-                { dark: 'Dark', light: 'Light', auto: 'Auto', viceCity: 'VI' }[
-                  theme
-                ]
-              } picked`}
-              tag={theme === 'viceCity' ? 'GTA VI' : 'Production'}
-            >
-              <PickedPopover theme={theme} />
-            </State>
-          ))}
-          <State
-            title="Settings › Appearance"
-            tag="GTA VI"
-            note="Phones have no rail popover; they pick from Appearance, which draws the same ThemeSection."
-          >
-            <AppearanceWithVi />
-          </State>
-        </StateGrid>
-      </Case>
-
-      <Case
-        title="Home"
-        note="ThemedHome scaled to fit; the Devices rows below show true sizes."
-      >
-        <StateGrid>
-          <State title="Themed" tag="GTA VI">
-            <ThemedHome initialTheme="viceCity" width={1440} height={620} />
-          </State>
-          <State
-            title="Not themed (default)"
-            tag="Production"
-            note="Nothing applies the theme; this is everyone's home until they pick VI."
-          >
-            <ThemedHome width={1440} height={620} />
-          </State>
-          <State
-            title="Cover fails to load"
-            tag="Proposed"
-            note="The image errors, the art drops out and the home looks default; the theme stays picked."
-          >
-            <ThemedHome
-              initialTheme="viceCity"
-              coverSrc="/missing/cover.webp"
-              width={1440}
-              height={620}
-            />
-          </State>
-          <State
-            title="Long name"
-            tag="Production"
-            note="The greeting truncates on one line."
-          >
-            <ThemedHome
-              initialTheme="viceCity"
-              userName={longName}
-              width={1440}
-              height={620}
-            />
-          </State>
-          <State
-            title="No shortcuts"
-            tag="GTA VI"
-            note="The art still sits behind the empty top row; the greeting doesn't move."
-          >
-            <ThemedHome
-              initialTheme="viceCity"
-              shortcutCount={0}
-              width={1440}
-              height={620}
-            />
-          </State>
-          <State title="Phone, long name" tag="Production">
-            <ThemedHome
-              isPhone
-              width={375}
-              height={620}
-              columns={1}
-              initialTheme="viceCity"
-              userName={longName}
-            />
-          </State>
-        </StateGrid>
-      </Case>
-
-      <Case title="Devices: themed">
-        <DeviceRow storyId="gta-vi-devices--theme-on" title="Themed" />
-      </Case>
-      <Case
-        title="Devices: picking"
-        note="The rail's gear has opened the settings popover. Phones have no rail; see Appearance above."
-      >
-        <DeviceRow storyId="gta-vi-devices--theme-picking" title="Picking" />
-      </Case>
-      <Case title="Devices: not themed">
-        <DeviceRow storyId="gta-vi-devices--theme-off" title="Not themed" />
-      </Case>
-    </Page>
   ),
 };

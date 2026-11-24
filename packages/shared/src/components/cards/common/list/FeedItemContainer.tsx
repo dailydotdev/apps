@@ -11,8 +11,7 @@ import Link from '../../../utilities/Link';
 import type { Post } from '../../../../graphql/posts';
 import { ListCard, CardLink } from './ListCard';
 import { RaisedLabel } from '../RaisedLabel';
-import { getRaisedLabel, liveChatCardClassName } from '../FeedItemContainer';
-import { useLiveChatRoomOf } from '../../../../features/liveChat/hooks/useLiveChatRooms';
+import { getRaisedLabel } from '../FeedItemContainer';
 import { useFeedPreviewMode, useBookmarkProvider } from '../../../../hooks';
 import { TypeLabel } from './TypeLabel';
 import { bookmarkProviderListBg } from '../../../../styles/custom';
@@ -32,7 +31,6 @@ interface FlagProps extends Omit<
   Pick<Post, 'pinnedAt' | 'trending' | 'type'>,
   'type'
 > {
-  postId?: string;
   type?: Post['type'] | ReactElement | string;
   adAttribution?: ReactElement | string;
 }
@@ -51,15 +49,13 @@ function FeedItemContainer(
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: bookmarked ?? false,
   });
-  const { adAttribution, pinnedAt, trending, postId, type } = flagProps ?? {};
-  const chatRoom = useLiveChatRoomOf(postId);
+  const { adAttribution, pinnedAt, trending, type } = flagProps ?? {};
   const { type: raisedLabelType, description } = getRaisedLabel({
     pinnedAt,
     trending,
-    chatRoom,
   });
   const isFeedPreview = useFeedPreviewMode();
-  const showFlag = (!!pinnedAt || !!trending || !!chatRoom) && !isFeedPreview;
+  const showFlag = (!!pinnedAt || !!trending) && !isFeedPreview;
   const typeLabelValue = adAttribution ?? type;
   const showTypeLabel = !!typeLabelValue;
   const [focus, setFocus] = useState(false);
@@ -73,7 +69,6 @@ function FeedItemContainer(
       className={classNames(
         domProps?.className,
         focus && 'bg-surface-float',
-        showFlag && !!chatRoom && liveChatCardClassName,
         highlightBookmarkedPost &&
           '!border-action-bookmark-active hover:!border-action-bookmark-default',
       )}

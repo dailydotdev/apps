@@ -172,6 +172,7 @@ const RootRow = ({ root }: { root: ShellRoot }): ReactElement => {
           compact
           iconPosition={ButtonIconPosition.Right}
           className="shell-material shell-hit relative !h-[2.375rem] !rounded-14 px-3"
+          withPatchy
         />
       )}
       {user && isHome && <PlusSquare />}

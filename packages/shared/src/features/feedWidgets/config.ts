@@ -65,12 +65,6 @@ export const feedWidgetConfigParsers: {
   [FeedWidgetKind.Weather]: configParser<
     FeedWidgetConfigByKind[FeedWidgetKind.Weather]
   >({ location: isText, unit: isOneOf(['c', 'f']) }),
-  [FeedWidgetKind.Shortcuts]: configParser<
-    FeedWidgetConfigByKind[FeedWidgetKind.Shortcuts]
-  >({
-    layout: isOneOf(['grid', 'list']),
-    showMostVisited: (value) => typeof value === 'boolean',
-  }),
 };
 
 /**

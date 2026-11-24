@@ -23,6 +23,8 @@ import { SquadFreeBoost } from '../freeBoost/SquadFreeBoost';
 import { SquadValuePanel, SquadValuePanelPlaceholder } from './SquadValuePanel';
 import { useCompanyPageReadiness } from '../readiness/useCompanyPageReadiness';
 import { SquadPageReadiness } from '../readiness/SquadPageReadiness';
+import type { ReadinessItem } from '../../lib/readiness';
+import { FREE_BOOST_SETUP_ROWS } from '../../lib/readiness';
 
 /**
  * The top of a company page's feed, for its admins and moderators: what the
@@ -73,6 +75,12 @@ export const SquadCompanyValue = (): ReactElement | null => {
   }
 
   const isFree = !subscription?.plan && !hasSquadFeature(squad, 'verified');
+  // The boost card lists what the page needs for the boost, so the checklist
+  // leaves those rows out
+  const withoutBoostSetup = (rows: ReadinessItem[]) =>
+    boost?.state === 'setup'
+      ? rows.filter(({ id }) => !FREE_BOOST_SETUP_ROWS.includes(id))
+      : rows;
   const panel = subscription ? (
     <SquadValuePanel
       name={squad.name}
@@ -115,8 +123,8 @@ export const SquadCompanyValue = (): ReactElement | null => {
         <SquadPageReadiness
           squad={squad}
           plan={subscription?.plan}
-          rows={readiness.rows}
-          done={readiness.done}
+          rows={withoutBoostSetup(readiness.rows)}
+          done={withoutBoostSetup(readiness.done)}
           onTrySkill={readiness.onTrySkill}
           onDismiss={readiness.onDismiss}
         />

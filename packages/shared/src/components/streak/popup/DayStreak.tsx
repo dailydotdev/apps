@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import {
@@ -14,13 +14,6 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { dateFormatInTimezone, DEFAULT_TIMEZONE } from '../../../lib/timezones';
 import { webappUrl } from '../../../lib/constants';
 import { Tooltip } from '../../tooltip/Tooltip';
-import {
-  getGtaViLabel,
-  GtaViDisc,
-  GtaViTooltip,
-  isGtaViReleaseDay,
-  useIsGtaViDayEnabled,
-} from './GtaViDay';
 
 export enum Streak {
   Completed = 'completed',
@@ -63,40 +56,6 @@ export function DayStreak({
   const { user } = useAuthContext();
   const router = useRouter();
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
-  const isGtaViDayEnabled = useIsGtaViDayEnabled(
-    isGtaViReleaseDay(date, timezone),
-  );
-  const [tooltipLayer, setTooltipLayer] = useState<Element>();
-  const gtaViTriggerRef = useCallback((node: HTMLButtonElement | null) => {
-    setTooltipLayer(node?.closest('[data-tippy-root]') ?? undefined);
-  }, []);
-
-  if (isGtaViDayEnabled) {
-    return (
-      <GtaViTooltip timezone={timezone} appendTo={tooltipLayer}>
-        <button
-          ref={gtaViTriggerRef}
-          type="button"
-          aria-label={getGtaViLabel(
-            date,
-            timezone,
-            streak === Streak.Completed,
-          )}
-          className="relative flex flex-col items-center gap-1"
-        >
-          {shouldShowArrow && (
-            <TriangleArrowIcon
-              className="absolute -top-4 text-accent-bacon-default"
-              size={IconSize.XXSmall}
-            />
-          )}
-          <GtaViDisc className={iconSizeToClassName[size]} />
-          {dateFormatInTimezone(date, 'iiiii', timezone)}
-        </button>
-      </GtaViTooltip>
-    );
-  }
-
   const renderIcon = () => {
     if (streak === Streak.Completed || streak === Streak.Pending) {
       return (

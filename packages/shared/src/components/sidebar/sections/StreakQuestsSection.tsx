@@ -31,6 +31,8 @@ import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { DEFAULT_TIMEZONE } from '../../../lib/timezones';
 import { Origin } from '../../../lib/log';
+import { PatchyPanelHeader } from '../../../features/patchy/PatchyPanelHeader';
+import type { PatchyMood } from '../../../features/patchy/patchyConfig';
 
 const QuestsGroup = ({
   title,
@@ -83,14 +85,17 @@ const QuestsGroup = ({
 // stays active). The Game Center and separate Quests-settings links are gone —
 // clicking the tab itself opens Game Center, and the two settings pages are now
 // one, so neither needs repeating here.
-interface StreakQuestsSectionProps {
+export interface StreakQuestsSectionProps {
   softBreakSurface?: StreakSoftBreakSurface;
   onClose?: () => void;
+  // Set when Patchy is on (laptop rail panel, phone streak drawer).
+  patchyMood?: PatchyMood;
 }
 
 export const StreakQuestsSection = ({
   softBreakSurface = StreakSoftBreakSurface.Sidebar,
   onClose,
+  patchyMood,
 }: StreakQuestsSectionProps = {}): ReactElement => {
   const { user } = useAuthContext();
   const { optOutQuestSystem } = useSettingsContext();
@@ -118,6 +123,9 @@ export const StreakQuestsSection = ({
     // the panel, scrolling inside its own area (the Nav is stretched to the
     // scroll wrapper for this panel — see SidebarDesktopV2 `isStreakPanel`).
     <div className="flex h-full min-h-0 flex-col">
+      {patchyMood && (
+        <PatchyPanelHeader mood={patchyMood} onNavigate={onClose} />
+      )}
       {/* Reading streak — the hero. */}
       {heroShown && (
         <>

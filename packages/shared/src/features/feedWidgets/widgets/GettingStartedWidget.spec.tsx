@@ -305,7 +305,6 @@ it('is offered in the gallery only to readers with an account', () => {
     availableFeedWidgets({
       isLoggedIn,
       hasMessages: false,
-      hasLiveChat: false,
       hasSquads: false,
       isReadingStreakOn: true,
       isQuestSystemOn: true,
@@ -322,7 +321,6 @@ it('cannot be added while quests are off', () => {
   const availability = {
     isLoggedIn: true,
     hasMessages: false,
-    hasLiveChat: false,
     hasSquads: false,
     isReadingStreakOn: true,
   };

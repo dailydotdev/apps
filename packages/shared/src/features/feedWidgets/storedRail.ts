@@ -1,9 +1,5 @@
 import type { FeedWidget, FeedWidgetRailState } from './types';
-import {
-  FEED_WIDGET_RAIL_VERSION,
-  FeedWidgetKind,
-  FeedWidgetSize,
-} from './types';
+import { FEED_WIDGET_RAIL_VERSION } from './types';
 
 // Kept free of the registry, the widgets and the config schemas: the feed
 // page reads the stored rail on every load to know what its grid must not
@@ -111,33 +107,18 @@ export const customFeedWidgets = (
     : rail.widgets;
 };
 
-/**
- * The daily.dev tips over our slot are opt-in: off until the reader turns
- * them on from the gallery or the tips page. Only an explicit `false` shows
- * them; a rail that never set the field, or hid them, keeps them off.
- */
-export const isFeedWidgetTipHidden = (
+/** The reader hid widgets from their feed. */
+export const isFeedWidgetsHidden = (
   rail: FeedWidgetRailState | null,
-): boolean => rail?.tipsHidden !== false;
+): boolean => rail?.hidden === true;
 
 /**
- * The built-in default rail: Happening Now across two columns, our slot, and
- * the streak, with the add tile under it inviting the rest. The live default
- * comes from the `feed_widgets_default` flag; this is what a broken flag
- * value falls back to.
+ * The built-in default: no widgets, so the feed reads as it always did until
+ * the reader places one. The live default comes from the
+ * `feed_widgets_in_feed_default` flag, whose widgets each name a `slot`; this
+ * is what a broken flag value falls back to.
  */
-export const defaultFeedWidgets: FeedWidget[] = [
-  {
-    id: 'happening-now',
-    kind: FeedWidgetKind.HappeningNow,
-    size: FeedWidgetSize.Large,
-  },
-  {
-    id: 'streak',
-    kind: FeedWidgetKind.Streak,
-    size: FeedWidgetSize.Small,
-  },
-];
+export const defaultFeedWidgets: FeedWidget[] = [];
 
 export type FeedWidgetDefaultRail = { id: string; widgets: FeedWidget[] };
 

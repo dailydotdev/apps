@@ -54,6 +54,25 @@ export const plusSaleMarkColor =
 export const plusSaleLabelBg =
   'linear-gradient(90deg, #F4A83A 0%, #E05C4B 100%)';
 
+// Black Friday: a near-black panel lit by a Plus-pink glow, with a gold
+// eyebrow and badge. Also tuned for the dark theme the Plus page forces.
+export const plusBlackFridayBannerBg =
+  'linear-gradient(110deg, #050505 0%, #0E0A14 55%, #24092F 100%)';
+
+export const plusBlackFridayBannerGlow =
+  'radial-gradient(55% 140% at 92% 110%, rgba(206, 61, 243, 0.55) 0%, rgba(206, 61, 243, 0) 70%)';
+
+export const plusBlackFridayBannerScrim =
+  'repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.025) 0 0.5rem, rgba(255, 255, 255, 0) 0.5rem 1rem)';
+
+export const plusBlackFridayAccent = '#FFD24D';
+
+export const plusBlackFridayMarkColor =
+  'color-mix(in srgb, var(--theme-actions-plus-default), transparent 70%)';
+
+export const plusBlackFridayLabelBg =
+  'linear-gradient(90deg, #FFD24D 0%, #F59E0B 100%)';
+
 // Third-party brand colours for the onboarding acquisition channel marks.
 export const acquisitionBrandColors = {
   x: '#000000',
@@ -113,25 +132,3 @@ export const squadRailFadeMask = ({
 
   return `linear-gradient(to right, transparent, black ${start}, black calc(100% - ${end}), transparent)`;
 };
-
-// A daily.dev tip: its accent glows behind the icon on the rail's strip, and
-// tints a soft tile behind the glyph on the tips page.
-export const feedWidgetTipAccent = (tone: string): string =>
-  `var(--theme-accent-${tone}-default)`;
-
-const feedWidgetTipMix = (tone: string, percent: number): string =>
-  `color-mix(in srgb, ${feedWidgetTipAccent(tone)} ${percent}%, transparent)`;
-
-export const feedWidgetTipGlow = (tone: string): string =>
-  `radial-gradient(110% 100% at 0% 0%, ${feedWidgetTipMix(
-    tone,
-    22,
-  )} 0%, transparent 60%), radial-gradient(70% 70% at 100% 100%, ${feedWidgetTipMix(
-    tone,
-    6,
-  )} 0%, transparent 70%)`;
-
-export const feedWidgetTipTile = (tone: string): string =>
-  feedWidgetTipMix(tone, 16);
-
-export const viceCityCoverOverlay = 'var(--theme-vice-city-cover-overlay)';

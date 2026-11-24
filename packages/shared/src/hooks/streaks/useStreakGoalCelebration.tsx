@@ -21,7 +21,7 @@ export const STREAK_GOAL_NEXT_COPY = 'Set your next goal';
 export const STREAK_GOAL_KEEP_GOING_COPY = 'Keep going';
 
 // Toasts "Goal reached: n days!" on the read that lands the streak on the
-// goal. Returns whether it celebrated, so the daily toast can stand down.
+// goal. Returns whether it celebrated.
 export const useStreakGoalCelebration = (): ((current?: number) => boolean) => {
   const { user } = useAuthContext();
   const { isCompanion } = useRequestProtocol();

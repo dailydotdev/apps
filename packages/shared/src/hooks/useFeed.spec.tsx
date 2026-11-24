@@ -6,11 +6,13 @@ import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import nock from 'nock';
 import useFeed, { getAdJitterSeed } from './useFeed';
+import FeedContext from '../contexts/FeedContext';
 import type { AuthContextData } from '../contexts/AuthContext';
 import { useAuthContext } from '../contexts/AuthContext';
 import { BootDataProvider } from '../contexts/BootProvider';
 import { BOOT_LOCAL_KEY } from '../contexts/common';
 import { TestBootProvider } from '../../__tests__/helpers/boot';
+import { mockDesktop } from '../../__tests__/helpers/media';
 import { defaultQueryClientTestingConfig } from '../../__tests__/helpers/tanstack-query';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import defaultFeedPage from '../../__tests__/fixture/feed';
@@ -26,6 +28,7 @@ import * as ads from '../lib/ads';
 import defaultAd from '../../__tests__/fixture/ad';
 import * as tcf from '../lib/tcf';
 import * as consentHook from '../features/monetization/useTcfConsent';
+import type { FeedWidget } from '../features/feedWidgets/types';
 
 jest.mock('../lib/boot', () => ({
   ...jest.requireActual('../lib/boot'),
@@ -423,6 +426,197 @@ it('should leave a post the grid already shows when its exclusion comes late', a
   expect(
     result.current.items.filter(({ type }) => type === FeedItemType.Post),
   ).toHaveLength(defaultFeedPage.edges.length);
+});
+
+it('seats placed widgets on their slots, never in an ad’s cell', async () => {
+  const client = new QueryClient(defaultQueryClientTestingConfig);
+  jest.spyOn(ads, 'fetchAdByPlacement').mockResolvedValue(defaultAd);
+  mockCustomFeedResponse({
+    data: {
+      page: {
+        ...defaultFeedPage,
+        edges: Array.from({ length: 6 }, (_, index) => ({
+          ...defaultFeedPage.edges[0],
+          node: { ...defaultFeedPage.edges[0].node, id: `post-${index}` },
+        })),
+      },
+    },
+  });
+  const wrapper = ({ children }: { children: ReactNode }): ReactElement => (
+    <TestBootProvider
+      client={client}
+      auth={{ user: defaultUser, isGdprCovered: false, geo: { region: 'US' } }}
+    >
+      {children}
+    </TestBootProvider>
+  );
+  const widget = (id: string, slot: number) =>
+    ({ id, kind: 'streak', size: 'tall', slot }) as FeedWidget;
+
+  const { result } = renderHook(
+    () =>
+      useFeed(['custom', 'widgets'], 10, { adStart: 2, adRepeat: 20 }, 1, {
+        query: CUSTOM_FEED_QUERY,
+        variables: { feedId: 'widgets' },
+        settings: {
+          feedName: SharedFeedPage.Custom,
+          // The second is due where the ad lands, so it follows the ad.
+          widgets: [widget('first', 0), widget('second', 2)],
+        },
+      }),
+    { wrapper },
+  );
+
+  await waitFor(() =>
+    expect(
+      result.current.items.some(({ type }) => type === FeedItemType.Ad),
+    ).toBe(true),
+  );
+  expect(
+    result.current.items.slice(0, 5).map((item) => {
+      if (item.type === FeedItemType.Widget) {
+        return item.widget.id;
+      }
+      return item.type === FeedItemType.Post ? item.post.id : item.type;
+    }),
+  ).toEqual(['first', 'post-0', FeedItemType.Ad, 'second', 'post-1']);
+  client.clear();
+});
+
+it('moves the Happening Now card along when a widget takes its slot', async () => {
+  const client = new QueryClient(defaultQueryClientTestingConfig);
+  const post = (id: string) => ({
+    node: {
+      __typename: 'FeedPostItem',
+      post: { ...defaultFeedPage.edges[0].node, id },
+      feedMeta: null,
+    },
+  });
+  mockCustomFeedResponse({
+    data: {
+      page: {
+        ...defaultFeedPage,
+        edges: [
+          post('post-0'),
+          {
+            node: {
+              __typename: 'FeedHighlightsItem',
+              feedMeta: null,
+              highlights: [
+                {
+                  id: 'highlight-1',
+                  channel: 'agents',
+                  headline: 'The first highlight',
+                  highlightedAt: '2026-04-05T09:00:00.000Z',
+                  post: {
+                    id: 'post-0',
+                    commentsPermalink: 'https://daily.dev/posts/post-0',
+                  },
+                },
+              ],
+            },
+          },
+          post('post-1'),
+        ],
+      },
+    },
+  });
+  const wrapper = ({ children }: { children: ReactNode }): ReactElement => (
+    <TestBootProvider client={client} auth={{ user: defaultUser }}>
+      {children}
+    </TestBootProvider>
+  );
+
+  const { result } = renderHook(
+    () =>
+      useFeed(['custom', 'highlight-slot'], 10, { adStart: 1 }, 1, {
+        query: CUSTOM_FEED_QUERY,
+        variables: { feedId: 'highlight-slot' },
+        settings: {
+          feedName: SharedFeedPage.Custom,
+          disableAds: true,
+          widgets: [
+            { id: 'w', kind: 'streak', size: 'tall', slot: 1 } as FeedWidget,
+          ],
+        },
+      }),
+    { wrapper },
+  );
+
+  await waitFor(() =>
+    expect(
+      result.current.items.some(({ type }) => type === FeedItemType.Highlight),
+    ).toBe(true),
+  );
+  expect(result.current.items.map(({ type }) => type)).toEqual([
+    FeedItemType.Post,
+    FeedItemType.Widget,
+    FeedItemType.Highlight,
+    FeedItemType.Post,
+  ]);
+  client.clear();
+});
+
+it('moves a wide widget on to the next spot with room for two cards', async () => {
+  mockDesktop();
+  const client = new QueryClient(defaultQueryClientTestingConfig);
+  mockCustomFeedResponse({
+    data: {
+      page: {
+        ...defaultFeedPage,
+        edges: Array.from({ length: 8 }, (_, index) => ({
+          ...defaultFeedPage.edges[0],
+          node: { ...defaultFeedPage.edges[0].node, id: `post-${index}` },
+        })),
+      },
+    },
+  });
+  const wrapper = ({ children }: { children: ReactNode }): ReactElement => (
+    <TestBootProvider
+      client={client}
+      auth={{ user: defaultUser }}
+      settings={{ insaneMode: false }}
+    >
+      <FeedContext.Provider
+        value={{ pageSize: 10, numCards: { eco: 4, roomy: 4, cozy: 4 } }}
+      >
+        {children}
+      </FeedContext.Provider>
+    </TestBootProvider>
+  );
+
+  const { result } = renderHook(
+    () =>
+      useFeed(['custom', 'wide-widget'], 10, { adStart: 1 }, 1, {
+        query: CUSTOM_FEED_QUERY,
+        variables: { feedId: 'wide-widget' },
+        settings: {
+          feedName: SharedFeedPage.Custom,
+          disableAds: true,
+          // The row's last column: no room for two cards.
+          widgets: [
+            { id: 'w', kind: 'streak', size: 'large', slot: 3 } as FeedWidget,
+          ],
+        },
+      }),
+    { wrapper },
+  );
+
+  await waitFor(() =>
+    expect(
+      result.current.items.some(({ type }) => type === FeedItemType.Widget),
+    ).toBe(true),
+  );
+  const index = result.current.items.findIndex(
+    ({ type }) => type === FeedItemType.Widget,
+  );
+  expect(index).toBe(4);
+  expect(result.current.placements[index]).toEqual({
+    colSpan: 2,
+    row: 1,
+    column: 0,
+  });
+  client.clear();
 });
 
 it('should keep the ad seed for a feed until it loads afresh', () => {

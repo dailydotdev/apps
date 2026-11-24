@@ -160,7 +160,6 @@ body {
   --theme-surface-focus: theme('colors.raw.blueCheese.40');
 
   /* Overlay */
-  --theme-vice-city-cover-overlay: color-mix(in srgb, var(--theme-background-default), transparent 60%);
   /* Dark */
   --theme-overlay-dark-dark1: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 68%);
   --theme-overlay-dark-dark2: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 60%);
@@ -312,7 +311,6 @@ body {
   --theme-surface-focus: theme('colors.raw.blueCheese.60');
 
   /* Overlay */
-  --theme-vice-city-cover-overlay: color-mix(in srgb, var(--theme-background-default), transparent 30%);
   /* Dark */
   --theme-overlay-dark-dark1: color-mix(in srgb, theme('colors.raw.pepper.10'), transparent 68%);
   --theme-overlay-dark-dark2: color-mix(in srgb, theme('colors.raw.pepper.10'), transparent 60%);
@@ -941,6 +939,71 @@ meter::-webkit-meter-bar {
     will-change: transform, opacity;
   }
 
+  /* Quest bonus highlight (quest_bonus_highlight flag). */
+  @keyframes quest-bonus-sheen {
+    0% {
+      background-position: 150% 0;
+    }
+
+    100% {
+      background-position: -50% 0;
+    }
+  }
+
+  .quest-bonus-sheen {
+    background-image: linear-gradient(
+      110deg,
+      var(--theme-accent-cheese-default) 30%,
+      #fff7cc 50%,
+      var(--theme-accent-cheese-default) 70%
+    );
+    background-size: 250% 100%;
+    animation: quest-bonus-sheen 2.4s ease-in-out infinite;
+  }
+
+  @keyframes quest-bonus-spin {
+    to {
+      --quest-bonus-angle: 360deg;
+    }
+  }
+
+  /* A gold light running around the edge, drawn as a masked ring so the
+     element keeps whatever background it sits on. */
+  .quest-bonus-spotlight {
+    position: relative;
+    box-shadow: 0 0 1rem -0.25rem var(--theme-accent-cheese-default);
+  }
+
+  .quest-bonus-spotlight::after {
+    content: '';
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    padding: 1.5px;
+    border-radius: inherit;
+    background: conic-gradient(
+      from var(--quest-bonus-angle),
+      color-mix(in srgb, var(--theme-accent-cheese-default) 25%, transparent)
+        0 50%,
+      var(--theme-accent-cheese-default) 72%,
+      var(--theme-accent-bun-default) 86%,
+      color-mix(in srgb, var(--theme-accent-cheese-default) 25%, transparent)
+        100%
+    );
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    animation: quest-bonus-spin 3.6s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .quest-bonus-sheen,
+    .quest-bonus-spotlight::after {
+      animation: none;
+    }
+  }
+
   @keyframes quest-claimed-stamp {
     0% {
       opacity: 0;
@@ -1203,4 +1266,11 @@ meter::-webkit-meter-bar {
   .modal-backdrop-rays::before {
     animation: none;
   }
+}
+
+/* Angle of the quest bonus spotlight; registered so it can animate. */
+@property --quest-bonus-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
 }

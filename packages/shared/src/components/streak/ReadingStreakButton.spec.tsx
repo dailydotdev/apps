@@ -69,6 +69,17 @@ jest.mock('../sidebar/sections/StreakQuestsSection', () => ({
   ),
 }));
 
+let mockPatchyFlag = false;
+jest.mock('../../features/patchy/usePatchyEnabled', () => ({
+  usePatchyEnabled: ({ shouldEvaluate }: { shouldEvaluate: boolean }) =>
+    shouldEvaluate && mockPatchyFlag,
+}));
+
+jest.mock('../../features/patchy/PatchyHeaderIcon', () => ({
+  PatchyHeaderIcon: () => <span data-testid="patchy-header-icon" />,
+  PatchyStreakQuestsSection: () => <div data-testid="patchy-streak-section" />,
+}));
+
 jest.mock('./popup/ReadingStreakPopup', () => ({
   ReadingStreakPopup: ({ onClose }: { onClose?: () => void }) => (
     <div data-testid="reading-streak-popup">
@@ -98,6 +109,7 @@ const openStreak = () => {
 beforeEach(() => {
   jest.clearAllMocks();
   mockIsMobile = true;
+  mockPatchyFlag = false;
   jest.mocked(useIsPhone).mockReturnValue(true);
 });
 
@@ -111,6 +123,31 @@ it('opens the v2 streak panel as a sheet on phones', () => {
   expect(screen.queryByTestId('reading-streak-popup')).not.toBeInTheDocument();
   expect(mockLogEvent).toHaveBeenCalledWith({
     event_name: LogEvent.OpenStreaks,
+  });
+});
+
+it('puts Patchy only in the button that asks for him, and logs where', () => {
+  mockPatchyFlag = true;
+  render(
+    <QueryClientProvider client={new QueryClient()}>
+      <ReadingStreakButton streak={streak} isLoading={false} compact />
+      <ReadingStreakButton
+        streak={streak}
+        isLoading={false}
+        compact
+        withPatchy
+      />
+    </QueryClientProvider>,
+  );
+
+  expect(screen.getAllByTestId('patchy-header-icon')).toHaveLength(1);
+  const [, withPatchy] = screen.getAllByRole('button', { name: '7' });
+  fireEvent.click(withPatchy);
+  expect(screen.getByTestId('patchy-streak-section')).toBeInTheDocument();
+  expect(mockLogEvent).toHaveBeenCalledWith({
+    event_name: LogEvent.Click,
+    target_type: 'patchy',
+    extra: JSON.stringify({ origin: 'header' }),
   });
 });
 

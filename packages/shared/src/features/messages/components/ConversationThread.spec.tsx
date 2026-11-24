@@ -74,6 +74,7 @@ jest.mock('./MessageComposer', () => ({ MessageComposer: () => null }));
 
 // The queries keep their real keys; only the data comes from the test.
 let mockThread: DmMessage[] = [];
+let mockGroupPeer: DmPeer | undefined;
 jest.mock('../queries', () => {
   const actual = jest.requireActual('../queries');
   const fixed = <T,>(options: { queryKey: unknown }, data: () => T) => ({
@@ -85,7 +86,10 @@ jest.mock('../queries', () => {
   return {
     ...actual,
     dmPeerQueryOptions: (user: unknown, peerId: string) =>
-      fixed(actual.dmPeerQueryOptions(user, peerId), () => mockPeer),
+      fixed(
+        actual.dmPeerQueryOptions(user, peerId),
+        () => mockGroupPeer ?? mockPeer,
+      ),
     dmThreadQueryOptions: (user: unknown, peerId: string) =>
       fixed(actual.dmThreadQueryOptions(user, peerId), () => mockThread),
     dmConversationQueryOptions: (user: unknown, peerId: string) =>
@@ -157,6 +161,7 @@ const renderThread = async (origin?: DmOrigin) => {
 };
 
 beforeEach(() => {
+  mockGroupPeer = undefined;
   mockThread = [message('ada'), message('me')];
 });
 
@@ -358,5 +363,51 @@ describe('ConversationThread back', () => {
     fireEvent.click(screen.getAllByText('Shell back')[0]);
     expect(mockRouter.replace).toHaveBeenCalledTimes(1);
     expect(mockRouter.back).not.toHaveBeenCalled();
+  });
+});
+
+describe('ConversationThread support chat', () => {
+  it('names each sender and offers no block', async () => {
+    mockGroupPeer = {
+      id: 'support:c1',
+      name: 'Acme',
+      username: 'acme',
+      image: '',
+      permalink: 'https://app.daily.dev/squads/acme',
+      access: DirectMessageAccess.Open,
+      group: {
+        chatId: 'c1',
+        roomJid: 'c1@conference.chat.daily.dev',
+        lastMessageAt: null,
+        members: [
+          {
+            id: 'ido',
+            name: 'Ido Shamun',
+            username: 'idoshamun',
+            image: '',
+            permalink: 'https://app.daily.dev/idoshamun',
+          },
+        ],
+      },
+    };
+    mockThread = [
+      { ...message('ido'), peerId: 'support:c1', body: 'Welcome' },
+      { ...message('me'), peerId: 'support:c1', body: 'Thanks' },
+      // Someone who has since left the page.
+      { ...message('gone'), peerId: 'support:c1', body: 'Earlier note' },
+    ];
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <ConversationThread peerId="support:c1" />
+      </QueryClientProvider>,
+    );
+
+    expect(await screen.findByText('Welcome')).toBeInTheDocument();
+    expect(screen.getByText('Ido Shamun')).toBeInTheDocument();
+    expect(screen.getByText('Former member')).toBeInTheDocument();
+    expect(screen.getByText('Support with daily.dev')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /block/i }),
+    ).not.toBeInTheDocument();
   });
 });

@@ -51,6 +51,7 @@ import {
   type TextFormHandle,
 } from '../../post/composer/TextForm';
 import { LinkForm } from '../../post/composer/LinkForm';
+import { AiWrittenWarning } from '../../post/composer/AiWrittenWarning';
 import { PollForm } from '../../post/composer/PollForm';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import {
@@ -465,7 +466,8 @@ export function SmartComposerModal({
           queryKey: getPostByIdKey(editPost.id),
         });
       }
-      if (!editPost?.id) {
+      // A scheduled post counts once it goes live, on the server
+      if (!editPost?.id && !(canSchedule && schedule.isScheduled)) {
         trackFirstPost(selected);
       }
       onPosted?.();
@@ -664,6 +666,7 @@ export function SmartComposerModal({
           <span>{labels.postCreation.warnings.spammyPosts}</span>
         </div>
       )}
+      {kind !== 'poll' && <AiWrittenWarning />}
       {kind === 'text' && (
         <>
           <TextForm

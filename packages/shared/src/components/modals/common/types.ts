@@ -45,6 +45,7 @@ export enum LazyModal {
   NewStreak = 'newStreak',
   RecoverStreak = 'recoverStreak',
   StreakFreezePurchase = 'streakFreezePurchase',
+  QuestRefresh = 'questRefresh',
   FirstCores = 'firstCores',
   StreakFreeFreezesUpsell = 'streakFreeFreezesUpsell',
   StreakGoal = 'streakGoal',

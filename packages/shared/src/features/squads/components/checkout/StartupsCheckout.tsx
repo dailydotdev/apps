@@ -28,6 +28,7 @@ import {
 } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import { Loader } from '../../../../components/Loader';
+import { setAuthReturnPath } from '../../../onboarding/lib/utils';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import { SquadImage } from '../../../../components/squads/SquadImage';
 import { useAuthContext } from '../../../../contexts/AuthContext';
@@ -102,6 +103,11 @@ import {
 } from './CheckoutShell';
 import { StartupsNameStunt } from './StartupsNameStunt';
 import { StartupsSignupPanel } from './StartupsSignupPanel';
+import {
+  getSubscribedHotjarEvent,
+  StartupsHotjarEvent,
+  trackHotjarEvent,
+} from '../../../../lib/hotjar';
 
 export enum StartupsCheckoutStep {
   Account = 'account',
@@ -163,6 +169,12 @@ export const AccountStep = ({
     label: backLabels[display] ?? 'Back',
     onClick: onScreenBack,
   };
+
+  useEffect(() => {
+    setAuthReturnPath(`${window.location.pathname}${window.location.search}`);
+
+    return () => setAuthReturnPath();
+  }, []);
 
   return (
     <CheckoutShell
@@ -489,6 +501,7 @@ const PaymentPanel = ({
           email: user?.email,
         },
       );
+      trackHotjarEvent(getSubscribedHotjarEvent(plan));
       onPaid();
     },
     origin: Origin.StartupsCheckout,
@@ -522,6 +535,7 @@ const PaymentPanel = ({
         },
         { xEventId: STARTUPS_X_EVENTS.beginCheckout, email: user?.email },
       );
+      trackHotjarEvent(StartupsHotjarEvent.CheckoutOpened);
     }
     // A second call while the frame is open swaps the item in place
     openedRef.current = priceId;
@@ -962,6 +976,7 @@ const DoneStep = ({
   const client = useQueryClient();
   const [startedAt] = useState(() => Date.now());
   const [isTimedOut, setTimedOut] = useState(false);
+  const [isRefreshed, setRefreshed] = useState(!!isReturning);
   const { data: subscription } = useQuery(
     squadSubscriptionQueryOptions({
       user,
@@ -987,8 +1002,10 @@ const DoneStep = ({
       });
       // The squad's features changed with the plan, and boot's squads now
       // carry the owner's seat, which seat-only settings read
-      client.invalidateQueries({ queryKey: [RequestKey.Squad] });
-      refetchBoot?.();
+      Promise.all([
+        client.invalidateQueries({ queryKey: [RequestKey.Squad] }),
+        refetchBoot?.(),
+      ]).finally(() => setRefreshed(true));
       return undefined;
     }
 
@@ -1012,7 +1029,7 @@ const DoneStep = ({
 
   const pageUrl = company.permalink ?? `${webappUrl}squads/${company.handle}`;
 
-  if (isActive && squad) {
+  if (isActive && isRefreshed && squad) {
     return (
       <SetupStep
         squad={squad}

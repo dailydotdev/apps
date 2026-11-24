@@ -45,12 +45,43 @@ export interface UserQuest {
   claimable: boolean;
   quest: QuestDefinition;
   rewards: QuestReward[];
+  rewardMultipliers?: Record<QuestRewardType, number>;
+  refreshCost?: number | null;
+  chainStep?: number | null;
+  chainLength?: number | null;
 }
+
+export const getQuestChainLabel = (quest: UserQuest): string | null =>
+  quest.chainStep && quest.chainLength && quest.chainLength > 1
+    ? `Step ${quest.chainStep}/${quest.chainLength}`
+    : null;
 
 // A claim is only reliably detected by checking both: the API stamps
 // `claimedAt` without always flipping `status` to `claimed`.
 export const isQuestClaimed = (quest: UserQuest): boolean =>
   quest.status === QuestStatus.Claimed || Boolean(quest.claimedAt);
+
+export const getQuestRewardLabel = (type: QuestRewardType): string => {
+  switch (type) {
+    case QuestRewardType.Cores:
+      return 'Cores';
+    case QuestRewardType.Reputation:
+      return 'Reputation';
+    case QuestRewardType.Xp:
+    default:
+      return 'XP';
+  }
+};
+
+export const getQuestBonusRewards = (
+  quest: UserQuest,
+  rewards: QuestReward[] = quest.rewards,
+): { type: QuestRewardType; multiplier: number }[] =>
+  [...new Set(rewards.map(({ type }) => type))].flatMap((type) => {
+    const multiplier = quest.rewardMultipliers?.[type] ?? 1;
+
+    return multiplier > 1 ? [{ type, multiplier }] : [];
+  });
 
 export interface QuestBucket {
   regular: UserQuest[];
@@ -83,6 +114,10 @@ export interface ClaimQuestRewardData {
     QuestDashboard,
     'level' | 'daily' | 'weekly' | 'milestone' | 'intro'
   >;
+}
+
+export interface RefreshQuestData {
+  refreshQuest: ClaimQuestRewardData['claimQuestReward'];
 }
 
 export interface QuestUpdate {
@@ -121,6 +156,14 @@ export const QUEST_DASHBOARD_QUERY = gql`
           claimedAt
           locked
           claimable
+          rewardMultipliers {
+            xp
+            reputation
+            cores
+          }
+          refreshCost
+          chainStep
+          chainLength
           quest {
             id
             name
@@ -143,6 +186,14 @@ export const QUEST_DASHBOARD_QUERY = gql`
           claimedAt
           locked
           claimable
+          rewardMultipliers {
+            xp
+            reputation
+            cores
+          }
+          refreshCost
+          chainStep
+          chainLength
           quest {
             id
             name
@@ -167,6 +218,14 @@ export const QUEST_DASHBOARD_QUERY = gql`
           claimedAt
           locked
           claimable
+          rewardMultipliers {
+            xp
+            reputation
+            cores
+          }
+          refreshCost
+          chainStep
+          chainLength
           quest {
             id
             name
@@ -189,6 +248,14 @@ export const QUEST_DASHBOARD_QUERY = gql`
           claimedAt
           locked
           claimable
+          rewardMultipliers {
+            xp
+            reputation
+            cores
+          }
+          refreshCost
+          chainStep
+          chainLength
           quest {
             id
             name
@@ -251,9 +318,7 @@ export const QUEST_DASHBOARD_QUERY = gql`
   }
 `;
 
-export const CLAIM_QUEST_REWARD_MUTATION = gql`
-  mutation ClaimQuestReward($userQuestId: ID!) {
-    claimQuestReward(userQuestId: $userQuestId) {
+const QUEST_ACTION_PAYLOAD_FIELDS = `
       level {
         level
         totalXp
@@ -270,6 +335,14 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
           claimedAt
           locked
           claimable
+          rewardMultipliers {
+            xp
+            reputation
+            cores
+          }
+          refreshCost
+          chainStep
+          chainLength
           quest {
             id
             name
@@ -292,6 +365,14 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
           claimedAt
           locked
           claimable
+          rewardMultipliers {
+            xp
+            reputation
+            cores
+          }
+          refreshCost
+          chainStep
+          chainLength
           quest {
             id
             name
@@ -316,6 +397,14 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
           claimedAt
           locked
           claimable
+          rewardMultipliers {
+            xp
+            reputation
+            cores
+          }
+          refreshCost
+          chainStep
+          chainLength
           quest {
             id
             name
@@ -338,6 +427,14 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
           claimedAt
           locked
           claimable
+          rewardMultipliers {
+            xp
+            reputation
+            cores
+          }
+          refreshCost
+          chainStep
+          chainLength
           quest {
             id
             name
@@ -396,6 +493,20 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
           amount
         }
       }
+`;
+
+export const CLAIM_QUEST_REWARD_MUTATION = gql`
+  mutation ClaimQuestReward($userQuestId: ID!) {
+    claimQuestReward(userQuestId: $userQuestId) {
+${QUEST_ACTION_PAYLOAD_FIELDS}
+    }
+  }
+`;
+
+export const REFRESH_QUEST_MUTATION = gql`
+  mutation RefreshQuest($userQuestId: ID!) {
+    refreshQuest(userQuestId: $userQuestId) {
+${QUEST_ACTION_PAYLOAD_FIELDS}
     }
   }
 `;

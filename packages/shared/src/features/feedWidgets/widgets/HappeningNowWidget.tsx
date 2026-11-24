@@ -19,12 +19,19 @@ import { useFeedWidgetsContext } from '../FeedWidgetsContext';
 import { FeedWidgetEmpty } from '../FeedWidgetFrame';
 import { useWidgetScroll } from '../useWidgetScroll';
 import { happeningNowGlow, LiveDot } from './material';
-import { useLiveChatHighlight } from '../../liveChat/hooks/useLiveChatHighlight';
-import {
-  highlightHeadlineClassName,
-  highlightRowClassName,
-  LiveChatHighlightRow,
-} from '../../liveChat/components/LiveChatHighlightRow';
+
+const highlightRowClassName = (isSmall: boolean): string =>
+  classNames(
+    'flex flex-col rounded-12 px-2 transition-colors duration-150 hover:bg-surface-hover focus-visible:bg-surface-hover motion-reduce:transition-none',
+    isSmall ? 'py-1.5' : 'py-2',
+  );
+
+// `typo-callout` is emitted after core utilities, so its leading needs `!`.
+const highlightHeadlineClassName = (isSmall: boolean): string =>
+  classNames(
+    'break-words font-medium text-text-primary',
+    isSmall ? 'line-clamp-2 typo-footnote' : '!leading-[1.375rem] typo-callout',
+  );
 
 const HighlightRow = ({
   highlight,
@@ -96,8 +103,6 @@ export const HappeningNowWidget = ({
   // posts pool is never read, so the API skips it.
   const { highlights, isPending } = useFeedHeroData({ withPosts: hasTopStory });
   const scroll = useWidgetScroll();
-  // A live chat is the most "happening now" thing there is, so it leads.
-  const { room: liveRoom } = useLiveChatHighlight();
 
   const logClick = useCallback(
     (action: string, clickedHighlight?: PostHighlight, position?: number) =>
@@ -115,7 +120,7 @@ export const HappeningNowWidget = ({
     [feedName, highlights, logEvent],
   );
 
-  if (!highlights.length && !liveRoom) {
+  if (!highlights.length) {
     return (
       <FeedWidgetEmpty
         kind={FeedWidgetKind.HappeningNow}
@@ -175,13 +180,6 @@ export const HappeningNowWidget = ({
               : 'flex flex-col gap-1',
           )}
         >
-          {liveRoom && (
-            <LiveChatHighlightRow
-              room={liveRoom}
-              isSmall={size === FeedWidgetSize.Small}
-              widget={FeedWidgetKind.HappeningNow}
-            />
-          )}
           {highlights.map((highlight, index) => (
             <HighlightRow
               key={highlight.id}

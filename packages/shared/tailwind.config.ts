@@ -384,6 +384,47 @@ export default {
               'color-mix(in srgb, var(--theme-accent-bacon-default) 28%, transparent)',
           },
         },
+        // Patchy's rail face hops when he reacts, peek or not.
+        'patchy-bump': {
+          '0%, 100%': { transform: 'translateY(0) scale(1)' },
+          '30%': { transform: 'translateY(-3px) scale(1.12)' },
+          '60%': { transform: 'translateY(0) scale(0.96)' },
+        },
+        // Patchy's idle micro-animations inside the streak circle.
+        'patchy-wobble': {
+          '0%, 100%': { transform: 'rotate(0deg)' },
+          '20%': { transform: 'rotate(-8deg)' },
+          '40%': { transform: 'rotate(6deg)' },
+          '60%': { transform: 'rotate(-4deg)' },
+          '80%': { transform: 'rotate(2deg)' },
+        },
+        'patchy-yawn': {
+          '0%, 100%': { transform: 'scale(1) translateY(0)' },
+          '45%': { transform: 'scale(1.08) translateY(-1px)' },
+        },
+        'patchy-pant': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-1.5px)' },
+        },
+        'patchy-spin': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
+        // Friday deploy: he sinks half out of sight, then peeks back up.
+        'patchy-hide': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '30%, 70%': { transform: 'translateY(55%)' },
+        },
+        // A reaction's tiny emote floats out of the circle and fades.
+        'patchy-float': {
+          '0%': { transform: 'translate(0, 2px) scale(0.6)', opacity: '0' },
+          '20%': { transform: 'translate(0, 0) scale(1)', opacity: '1' },
+          '70%': { opacity: '1' },
+          '100%': {
+            transform: 'translate(3px, -12px) scale(0.9)',
+            opacity: '0',
+          },
+        },
         // Daily streak toast: the flame pops in with the same strike + rebound
         // as the rail tile's earn pop, then rests at its normal size.
         'streak-toast-pop': {
@@ -441,6 +482,13 @@ export default {
         'streak-toast-pop':
           'streak-toast-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both',
         'mascot-bob': 'mascot-bob 4s ease-in-out infinite',
+        'patchy-bump': 'patchy-bump 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        'patchy-wobble': 'patchy-wobble 1.4s ease-in-out',
+        'patchy-yawn': 'patchy-yawn 1.5s ease-in-out',
+        'patchy-pant': 'patchy-pant 0.28s ease-in-out 5',
+        'patchy-spin': 'patchy-spin 1.2s cubic-bezier(0.45, 0, 0.55, 1)',
+        'patchy-hide': 'patchy-hide 1.6s ease-in-out',
+        'patchy-float': 'patchy-float 1.3s ease-out both',
       },
     },
     lineClamp: {

@@ -3,28 +3,74 @@ import type { Squad } from '../../../graphql/sources';
 import { SourceMemberRole } from '../../../graphql/sources';
 import { storageWrapper } from '../../../lib/storageWrapper';
 import { STARTUPS_X_EVENTS } from './startupsXEvents';
+import { isCompanyPageReady } from './readiness';
+
+// The browser copies of the company page ad events that daily-api sends from
+// the server (src/workers/startupsAdEvents.ts). Both use the same event ids,
+// so Meta counts each conversion once. The pixel adds what the server often
+// lacks: the ad click id and the browser it happened in.
 
 type TrackEvent = PixelsContextData['trackEvent'];
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-// An agent creates the page through the API, so the founder's first visit
-// within this window stands in for the moment it was created
-export const NEW_COMPANY_PAGE_DAYS = 7;
-// Matches the free first-post boost window in daily-api
-export const COMPANY_PAGE_FIRST_POST_DAYS = 30;
+const HOUR_MS = 60 * 60 * 1000;
+// Meta dedupes a browser event against the server one within 48 hours. A page
+// seen ready only after that would count twice, so the browser stays out.
+export const NEW_COMPANY_PAGE_HOURS = 48;
+// Matches FIRST_POST_PAGE_DAYS in daily-api
+export const COMPANY_PAGE_FIRST_POST_HOURS = 30 * 24;
 
-const isWithinDays = (date: Date | string | undefined, days: number) =>
-  !!date && Date.now() - new Date(date).getTime() < days * DAY_MS;
+const isWithinHours = (date: Date | string | undefined, hours: number) =>
+  !!date && Date.now() - new Date(date).getTime() < hours * HOUR_MS;
+
+const hasKey = (key: string): boolean => {
+  try {
+    return !!storageWrapper.getItem(key);
+  } catch {
+    return false;
+  }
+};
+
+const setKey = (key: string, value = '1'): void => {
+  try {
+    storageWrapper.setItem(key, value);
+  } catch {
+    // Storage blocked: the server event still counts
+  }
+};
+
+const getTime = (key: string): Date | undefined => {
+  try {
+    const time = Number(storageWrapper.getItem(key));
+    return time ? new Date(time) : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+const removeKey = (key: string): void => {
+  try {
+    storageWrapper.removeItem(key);
+  } catch {
+    // Storage blocked
+  }
+};
 
 // Marks a key so an event fires once per browser; false when it already had
 const markOnce = (key: string): boolean => {
-  if (storageWrapper.getItem(key)) {
+  if (hasKey(key)) {
     return false;
   }
 
-  storageWrapper.setItem(key, '1');
+  setKey(key);
   return true;
 };
+
+export const getSignupTrackedKey = (userId: string): string =>
+  `startups_signup_tracked:${userId}`;
+export const getUnreadyPageKey = (squadId: string): string =>
+  `startups_page_unready:${squadId}`;
+export const getFirstPostTrackedKey = (squadId: string): string =>
+  `startups_first_post_tracked:${squadId}`;
 
 interface StartupsSignupProps {
   userId: string;
@@ -34,14 +80,13 @@ interface StartupsSignupProps {
 
 /**
  * The founder's Startups registration: Meta CompleteRegistration and the X
- * "Startups signup" event, once per founder. The checkout's company step and
- * a new company page (form or agent) both count, under one key and event id.
+ * "Startups signup" event, once per founder.
  */
 export const trackStartupsSignup = (
   trackEvent: TrackEvent,
   { userId, email, plan }: StartupsSignupProps,
 ): void => {
-  if (!markOnce(`startups_signup_tracked:${userId}`)) {
+  if (!markOnce(getSignupTrackedKey(userId))) {
     return;
   }
 
@@ -56,18 +101,66 @@ export const trackStartupsSignup = (
   );
 };
 
-type CompanyPage = Pick<Squad, 'id' | 'flags' | 'createdAt' | 'currentMember'>;
+export type CompanyPage = Pick<
+  Squad,
+  | 'id'
+  | 'flags'
+  | 'createdAt'
+  | 'currentMember'
+  | 'image'
+  | 'website'
+  | 'description'
+>;
 
-export const isNewCompanyPageAdmin = (squad?: CompanyPage): boolean =>
-  !!squad?.flags?.company &&
-  squad.currentMember?.role === SourceMemberRole.Admin &&
-  isWithinDays(squad.createdAt, NEW_COMPANY_PAGE_DAYS);
+const isCompanyPageAdmin = (squad?: CompanyPage): squad is CompanyPage =>
+  !!squad?.id &&
+  !!squad.flags?.company &&
+  squad.currentMember?.role === SourceMemberRole.Admin;
 
 /**
- * The first post on a company page, which starts its free boost: Meta
- * StartTrial, once per page. The page's
- * post count isn't reliable right after posting, so the first post seen in
- * this browser during the page's first month counts.
+ * Called when the admin sees their company page. The page counts as a
+ * registration once it is ready, as on the server. The browser reports it only
+ * when the page just got ready: it was made in the last 48 hours, or this
+ * browser saw it unready in the last 48 hours, so the server event for it is
+ * still within Meta's dedup window.
+ */
+export const trackCompanyPageReady = (
+  trackEvent: TrackEvent,
+  squad: CompanyPage | undefined,
+  user?: { id: string; email?: string },
+): void => {
+  if (!user || !isCompanyPageAdmin(squad)) {
+    return;
+  }
+
+  const unreadyKey = getUnreadyPageKey(squad.id as string);
+  if (!isCompanyPageReady(squad)) {
+    if (isWithinHours(squad.createdAt, COMPANY_PAGE_FIRST_POST_HOURS)) {
+      setKey(unreadyKey, String(Date.now()));
+    }
+    return;
+  }
+
+  const justReady =
+    isWithinHours(squad.createdAt, NEW_COMPANY_PAGE_HOURS) ||
+    isWithinHours(getTime(unreadyKey), NEW_COMPANY_PAGE_HOURS);
+  removeKey(unreadyKey);
+  if (!justReady) {
+    return;
+  }
+
+  trackStartupsSignup(trackEvent, {
+    userId: user.id,
+    email: user.email,
+    plan: 'free',
+  });
+};
+
+/**
+ * The first post on a ready company page in its first month: Meta StartTrial,
+ * once per page. Called with the page read after the post, so its count
+ * includes it. The server sends the same event for the page's first post, so a
+ * later post, a cofounder's or one from another device, sends nothing.
  */
 export const trackCompanyPageFirstPost = (
   trackEvent: TrackEvent,
@@ -75,10 +168,13 @@ export const trackCompanyPageFirstPost = (
   email?: string,
 ): void => {
   const isEligible =
+    !!squad.id &&
     !!squad.flags?.company &&
-    isWithinDays(squad.createdAt, COMPANY_PAGE_FIRST_POST_DAYS);
+    isCompanyPageReady(squad) &&
+    isWithinHours(squad.createdAt, COMPANY_PAGE_FIRST_POST_HOURS) &&
+    (squad.flags.totalPosts ?? 0) <= 1;
 
-  if (!isEligible || !markOnce(`startups_first_post_tracked:${squad.id}`)) {
+  if (!isEligible || !markOnce(getFirstPostTrackedKey(squad.id as string))) {
     return;
   }
 

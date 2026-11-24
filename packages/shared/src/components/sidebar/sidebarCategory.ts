@@ -16,6 +16,9 @@ export const SidebarCategory = {
   Notifications: 'notifications',
   GameCenter: 'gameCenter',
   Settings: 'settings',
+  // Patchy's own panel, from his spot above the rail's utilities. It has no
+  // page, so it stays open until you navigate.
+  Patchy: 'patchy',
 } as const;
 
 export type SidebarCategoryId =

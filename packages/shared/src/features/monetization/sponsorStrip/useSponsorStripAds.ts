@@ -1,10 +1,12 @@
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useAdSlotFetch } from '../useAdSlotFetch';
 import { AdPlacement } from '../../../lib/ads';
 import { disabledRefetch, shuffleArray } from '../../../lib/func';
 import { RequestKey } from '../../../lib/query';
 import { ONE_HOUR } from '../../../lib/time';
 import { useAdMacroContext } from '../useAdMacroContext';
+import { useAdLifecycle } from '../useAdLifecycle';
 import { fetchSponsorStripAds } from './fetchSponsorStripAds';
 import {
   boxedLogoWidth,
@@ -22,6 +24,7 @@ import type {
 } from './sponsorStripCreative';
 import {
   getSponsorLogo,
+  getSponsorAd,
   parseSponsors,
   resolveSponsor,
 } from './sponsorStripCreative';
@@ -96,19 +99,22 @@ const useFittedSlots = (
  * first client render in agreement.
  */
 const useDeck = (pool: SponsorStripCreative[]): SponsorStripCreative[] => {
-  // Identity, not the array: the pool is rebuilt on every render of the query,
-  // and reshuffling then would deal a new row under the reader.
+  // Keep the deal when metadata changes, but return the current creatives.
   const poolKey = pool.map(({ generation_id: genId }) => genId).join(',');
 
-  return useMemo(
-    () => shuffleArray(pool),
+  const order = useMemo(
+    () => shuffleArray(pool.map((_, index) => index)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [poolKey],
   );
+
+  return useMemo(() => order.map((index) => pool[index]), [order, pool]);
 };
 
 export const useSponsorStripAds = (): UseSponsorStripAds => {
   const consent = useAdMacroContext(true) ?? undefined;
+  const { resolveAd } = useAdLifecycle();
+  const onFetch = useAdSlotFetch(consent ?? null);
   const { data, isPending } = useQuery({
     // Consent fingerprint, so the bar refetches when the reader answers the
     // CMP banner rather than holding an hour-old unconsented fill.
@@ -118,12 +124,25 @@ export const useSponsorStripAds = (): UseSponsorStripAds => {
       consent?.gdprApplies,
       consent?.consentString ?? '',
     ],
-    queryFn: () => fetchSponsorStripAds(consent),
+    queryFn: async () => {
+      const response = await fetchSponsorStripAds(consent);
+      const creatives = parseSponsors(response);
+      creatives.forEach((creative) =>
+        onFetch({
+          type: 'post-fetch',
+          ad: getSponsorAd(resolveSponsor(creative)),
+        }),
+      );
+      return creatives;
+    },
     staleTime: ONE_HOUR,
     ...disabledRefetch,
   });
 
-  const pools = useMemo(() => partitionByTier(parseSponsors(data)), [data]);
+  const pools = useMemo(
+    () => partitionByTier((data ?? []).map((creative) => resolveAd(creative))),
+    [data, resolveAd],
+  );
   const premiumDeck = useDeck(pools.premium);
   const communityDeck = useDeck(pools.community);
 

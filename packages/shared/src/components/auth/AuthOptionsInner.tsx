@@ -22,11 +22,13 @@ import {
   betterAuthSendVerificationOTP,
   betterAuthVerifyEmailOTP,
   getBetterAuthSocialRedirectData,
+  SignupIntent,
 } from '../../lib/betterAuth';
 import {
   getSocialAuthCallbackError,
   GITHUB_EMAIL_NOT_VERIFIED_ERROR,
   hasSocialAuthBootUser,
+  IN_APP_BROWSER_AUTH_MESSAGE,
   refetchSocialAuthBoot,
   SOCIAL_AUTH_CALLBACK_BOOT_RETRY_DELAYS_MS,
   SOCIAL_AUTH_POPUP_CLOSED_ERROR,
@@ -38,6 +40,8 @@ import { webappUrl, broadcastChannel, isTesting } from '../../lib/constants';
 import { getUserDefaultTimezone } from '../../lib/timezones';
 import {
   checkIsExtension,
+  getChromeIntentUrl,
+  isAndroidMetaInAppBrowser,
   isIOSNative,
   shouldUseSocialAuthPopup,
 } from '../../lib/func';
@@ -68,6 +72,7 @@ import { MailIcon } from '../icons';
 import { usePixelsContext } from '../../contexts/PixelsContext';
 import { useAuthData } from '../../contexts/AuthDataContext';
 import { getUserActions } from '../../graphql/actions';
+import { optOutGamification } from '../../graphql/settings';
 import { redirectToApp } from '../../features/onboarding/lib/utils';
 import {
   DATE_SINCE_ACTIONS_REQUIRED,
@@ -180,6 +185,7 @@ function AuthOptionsInner({
   const isOnboardingOrFunnel =
     !!router?.pathname?.startsWith('/onboarding') || isFunnel;
   const isStartups = isStartupsAuthTrigger(trigger);
+  const signupIntent = isStartups ? SignupIntent.Company : undefined;
   const [socialError, setSocialError] = useState<string>();
   const socialProviderRef = useRef<string>();
   const onSocialError = (message: string) => {
@@ -341,13 +347,23 @@ function AuthOptionsInner({
         }
       },
       keepSession: isOnboardingOrFunnel,
+      signupIntent,
     });
 
   const onProfileSuccess = async (
-    options: { redirect?: string; setSignBack?: boolean } = {},
+    options: {
+      redirect?: string;
+      setSignBack?: boolean;
+      isPasswordReset?: boolean;
+    } = {},
   ) => {
     setIsRegistration(true);
-    const { redirect, setSignBack = true } = options;
+    const { redirect, setSignBack = true, isPasswordReset } = options;
+
+    if (isStartups && !isPasswordReset) {
+      await optOutGamification().catch(() => undefined);
+    }
+
     const { data } = await refetchBoot();
 
     const isLoggedUser = 'infoConfirmed' in data.user;
@@ -472,6 +488,7 @@ function AuthOptionsInner({
     onSuccessfulLogin: onLoginCheck,
     trigger,
     provider: chosenProvider,
+    signupIntent,
   });
 
   const isReady = isTesting ? true : isLoginReady && isRegistrationReady;
@@ -674,6 +691,15 @@ function AuthOptionsInner({
       target_id: provider,
       extra: JSON.stringify({ trigger }),
     });
+    if (isAndroidMetaInAppBrowser()) {
+      window.location.href = getChromeIntentUrl(window.location.href);
+      setTimeout(() => {
+        if (document.visibilityState === 'visible') {
+          onSocialError(IN_APP_BROWSER_AUTH_MESSAGE);
+        }
+      }, 2000);
+      return;
+    }
     socialErrorEventName.current = authErrorEventName;
     authFlowSucceededRef.current = false;
     socialAuthAttemptRef.current += 1;
@@ -681,7 +707,10 @@ function AuthOptionsInner({
     setActiveSocialProvider(provider);
     setIsSocialAuthLoading(true);
 
-    const additionalData = { timezone: getUserDefaultTimezone() };
+    const additionalData = {
+      timezone: getUserDefaultTimezone(),
+      signupIntent,
+    };
 
     if (isNativeAuthSupported(provider)) {
       const res = await iosNativeAuth(provider);
@@ -791,6 +820,7 @@ function AuthOptionsInner({
     const result = await betterAuthOneTapCallback({
       idToken,
       timezone: getUserDefaultTimezone(),
+      signupIntent,
     });
 
     if (result.error) {
@@ -1177,7 +1207,9 @@ function AuthOptionsInner({
         </Tab>
         <Tab label={AuthDisplay.ChangePassword}>
           <ChangePasswordForm
-            onSubmit={() => onProfileSuccess({ redirect: '/' })}
+            onSubmit={() =>
+              onProfileSuccess({ redirect: '/', isPasswordReset: true })
+            }
             simplified={simplified}
           />
         </Tab>

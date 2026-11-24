@@ -244,7 +244,14 @@ export const StartupsPagePreview = ({
               </Section>
             )}
             <Section title="Posts">
-              <Slot label="Your first post lands here" height={160} />
+              <Slot
+                label={
+                  squad.flags?.totalPosts
+                    ? 'Your posts show here'
+                    : 'Your first post lands here'
+                }
+                height={160}
+              />
             </Section>
           </div>
         </div>
