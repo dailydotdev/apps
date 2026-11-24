@@ -69,7 +69,7 @@ export const useAdQuery = ({
     isRefreshable && refreshEngine === AdRefreshEngineVersion.V2;
   const registered = isAuthReady ? isLoggedIn : undefined;
   const pageViewId = useAdPageViewId();
-  const entityRef = useAdEntityRef(enabled);
+  const { entityRef, isPending: isEntityPending } = useAdEntityRef(enabled);
   const fetchOptions = useMemo(
     () => ({
       ...resolveAdFetchOptions({
@@ -118,7 +118,11 @@ export const useAdQuery = ({
     select: resolveAd,
     // A refreshable slot waits for the engine flag, so its first request
     // already asks for the refresh policy when the engine is on.
-    enabled: enabled && !!consent && !(isRefreshable && isRefreshEngineLoading),
+    enabled:
+      enabled &&
+      !!consent &&
+      !isEntityPending &&
+      !(isRefreshable && isRefreshEngineLoading),
     staleTime,
     ...(gcTime !== undefined && { gcTime }),
     // an explicit undefined would replace the client's default retry rule

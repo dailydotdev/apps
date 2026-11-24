@@ -5,6 +5,7 @@ import { AdEntity } from '../../lib/ads';
 import { featureAdEntityParams } from '../../lib/featureManagement';
 import { useActivePostContext } from '../../contexts/ActivePostContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
 import { useOptionalSquadPageContext } from '../squads/SquadPageContext';
 
 const getAdEntity = ({
@@ -25,26 +26,32 @@ const getAdEntity = ({
   return undefined;
 };
 
+interface UseAdEntityRef {
+  entityRef: MutableRefObject<AdEntityTarget | undefined>;
+  isPending: boolean;
+}
+
 /**
  * A ref, read when a request is made, so the entity never joins a query key
- * or fetch callback: a slot never refetches when the entity or its flag
- * settles, and never waits on GrowthBook to request an ad.
+ * or fetch callback and a slot never refetches when it changes. A slot with a
+ * post or squad waits for the features to settle, so its one request already
+ * knows the flag; settling fails open when the boot has no features.
  */
-export const useAdEntityRef = (
-  enabled = true,
-): MutableRefObject<AdEntityTarget | undefined> => {
+export const useAdEntityRef = (enabled = true): UseAdEntityRef => {
   const { activePost } = useActivePostContext();
   const squadPage = useOptionalSquadPageContext();
   const postId = activePost?.id;
   const squadId = squadPage?.squad.id;
+  const hasEntity = !!postId || !!squadId;
+  const { settled } = useFeaturesReadyContext();
   const { value: isEntityEnabled } = useConditionalFeature({
     feature: featureAdEntityParams,
-    shouldEvaluate: enabled && (!!postId || !!squadId),
+    shouldEvaluate: enabled && hasEntity,
   });
   const entityRef = useRef<AdEntityTarget | undefined>(undefined);
   entityRef.current = isEntityEnabled
     ? getAdEntity({ postId, squadId })
     : undefined;
 
-  return entityRef;
+  return { entityRef, isPending: enabled && hasEntity && !settled };
 };

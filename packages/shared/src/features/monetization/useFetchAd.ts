@@ -33,7 +33,7 @@ export const useFetchAd = (enabled = true): UseFetchAds => {
   const { resolveAd } = useAdLifecycle(enabled);
   const { isAuthReady, isLoggedIn, isAndroidApp } = useAuthContext();
   const registered = isAuthReady ? isLoggedIn : undefined;
-  const entityRef = useAdEntityRef(enabled);
+  const { entityRef } = useAdEntityRef(enabled);
   const { value: refreshEngineVersion } = useConditionalFeature({
     feature: featureAdRefreshEngine,
     shouldEvaluate: enabled,
