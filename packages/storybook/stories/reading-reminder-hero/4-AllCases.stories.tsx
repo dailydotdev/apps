@@ -1,10 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { Picks, PicksPost } from '@dailydotdev/shared/src/graphql/picks';
-import { WeeklyPicksHeroCard } from '@dailydotdev/shared/src/components/picks/WeeklyPicksHero';
-import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import ExtensionProviders from '../extension/_providers';
 import type { DeviceName } from '../sources/device';
 import { Device } from '../sources/device';
 import { FeedInDevice, FeedMock } from './FeedMock';
@@ -20,8 +16,8 @@ import { TodayHero } from './TodayHero';
 
 // Every case the slot can be in, for a careful pass before building: what
 // production shows today, each proposed state on every device in both
-// themes, Weekly picks taking the slot, every kind of hour, who gets
-// what, and how each platform asks for push.
+// themes, every kind of hour, who gets what, and how each platform asks for
+// push.
 
 type Themes = 'both' | 'light' | 'dark';
 
@@ -45,13 +41,6 @@ const meta: Meta<CaseArgs> = {
       control: { type: 'range', min: 0, max: 23, step: 1 },
     },
   },
-  decorators: [
-    (Story) => (
-      <ExtensionProviders>
-        <Story />
-      </ExtensionProviders>
-    ),
-  ],
 };
 
 export default meta;
@@ -106,22 +95,14 @@ const Group = ({
 /** Phone, tablet and laptop side by side, phones kept at their own width. */
 const DeviceRow = ({
   theme,
-  height = 420,
   render,
 }: {
   theme: 'light' | 'dark';
-  height?: number;
   render: (isLaptop: boolean) => ReactNode;
 }): ReactElement => (
   <div className="grid grid-cols-1 items-start gap-4 laptop:grid-cols-[14rem_1fr_1.4fr]">
     {devices.map(({ name, isLaptop }) => (
-      <Device
-        key={name}
-        device={name}
-        theme={theme}
-        height={isLaptop ? 420 : height}
-        url="/"
-      >
+      <Device key={name} device={name} theme={theme} height={420} url="/">
         <FeedMock isLaptop={isLaptop} hero={render(isLaptop)} />
       </Device>
     ))}
@@ -244,135 +225,7 @@ export const ProposedStates: StoryObj<CaseArgs> = {
   ),
 };
 
-// 3. Weekly picks wins
-
-const post = (id: string, placeholder: number): PicksPost => ({
-  id,
-  permalink: `https://app.daily.dev/posts/${id}`,
-  commentsPermalink: `https://app.daily.dev/posts/${id}`,
-  image: `https://media.daily.dev/image/upload/f_auto/v1/placeholders/${placeholder}`,
-  type: 'article',
-});
-
-const week = [post('a', 1), post('b', 6), post('c', 11)];
-
-const picks: Picks = {
-  id: 'picks-demo',
-  weekStart: '2026-11-16',
-  author: {
-    id: defaultUser.id,
-    name: defaultUser.name,
-    username: defaultUser.username,
-    image: defaultUser.image,
-    permalink: defaultUser.permalink,
-  },
-  items: week.map((item, index) => ({ post: item, position: index + 1 })),
-};
-
-type PicksState = 'nudge' | 'live';
-
-const PicksCard = ({
-  isLaptop,
-  state,
-}: {
-  isLaptop: boolean;
-  state: PicksState;
-}): ReactElement =>
-  state === 'nudge' ? (
-    <WeeklyPicksHeroCard
-      variant={isLaptop ? 'strip' : 'panel'}
-      state="nudge"
-      signals={{ upvotes: 4, bookmarks: 2, reads: 6, posts: week }}
-      weekPosts={week}
-      onDismiss={noop}
-    />
-  ) : (
-    <WeeklyPicksHeroCard
-      variant={isLaptop ? 'strip' : 'panel'}
-      state="live"
-      picks={picks}
-      viewCount={12}
-      onDismiss={noop}
-    />
-  );
-
-const picksGroups: {
-  side: 'today' | 'proposed';
-  state: PicksState;
-  title: string;
-  note: string;
-}[] = [
-  {
-    side: 'today',
-    state: 'nudge',
-    title: 'Today · picks not made yet',
-    note: 'Production components: WeeklyPicksHeroCard (nudge) and the reminder hero.',
-  },
-  {
-    side: 'proposed',
-    state: 'nudge',
-    title: 'Proposed · picks not made yet',
-    note: 'Weekly picks takes the slot and the reminder is hidden, on every width.',
-  },
-  {
-    side: 'today',
-    state: 'live',
-    title: 'Today · picks are out',
-    note: 'WeeklyPicksHeroCard (live) and the reminder hero.',
-  },
-  {
-    side: 'proposed',
-    state: 'live',
-    title: 'Proposed · picks are out',
-    note: 'Weekly picks alone, the same way.',
-  },
-];
-
-export const WithWeeklyPicks: StoryObj<CaseArgs> = {
-  name: 'Weekly picks wins',
-  render: ({ themes }) => (
-    <Page
-      title="When Weekly picks shows, the reminder doesn’t"
-      intro={
-        <>
-          Weekly picks (#7316) is team-only today; once it rolls out, readers
-          whose week clears the bar get it from Thursday. Today both cards show
-          together: stacked below laptop, side by side in the strip on laptop.
-          Proposed: while Weekly picks is on screen the reminder (and the
-          paused-reminder prompt) is hidden, and stays hidden for that visit
-          even after Weekly picks is closed or picked. It can show on a later
-          visit.
-        </>
-      }
-    >
-      {picksGroups.map(({ side, state, title, note }) => (
-        <Group key={`${side}-${state}`} title={title} note={note}>
-          {themesOf(themes).map((theme) => (
-            <DeviceRow
-              key={theme}
-              theme={theme}
-              height={800}
-              render={(isLaptop) => (
-                <>
-                  <PicksCard isLaptop={isLaptop} state={state} />
-                  {side === 'today' && (
-                    <TodayHero
-                      isLaptop={isLaptop}
-                      onEnable={noop}
-                      onClose={noop}
-                    />
-                  )}
-                </>
-              )}
-            />
-          ))}
-        </Group>
-      ))}
-    </Page>
-  ),
-};
-
-// 4. Hours
+// 3. Hours
 
 const hourCases: { hour: number; note: string }[] = [
   {
@@ -435,7 +288,7 @@ export const Hours: StoryObj<CaseArgs> = {
   ),
 };
 
-// 5. Who gets what
+// 4. Who gets what
 
 type Outcome = 'offer' | 'paused' | 'none';
 
@@ -618,7 +471,7 @@ export const WhoGetsWhat: StoryObj<CaseArgs> = {
   ),
 };
 
-// 6. Platforms
+// 5. Platforms
 
 const platforms: {
   name: string;

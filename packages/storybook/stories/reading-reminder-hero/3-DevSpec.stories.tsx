@@ -420,7 +420,7 @@ export const DevSpec: StoryObj = {
               shows with the reminder: when it’s on screen the reminder is
               hidden (see 1). Its phone and tablet panel copies today’s dark
               reminder panel, light-theme bug included; that is its own fix now,
-              not part of this change. See All cases · Weekly picks wins.
+              not part of this change. See All cases · Who gets what.
             </>,
             <>
               <strong className="text-text-primary">Shared strip:</strong> on
