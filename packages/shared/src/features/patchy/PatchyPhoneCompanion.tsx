@@ -107,14 +107,18 @@ export const usePatchyAnchor = (
 const SPOT = 40;
 const rowHeight = topButton.size + 14;
 
-const cornerStyle: CSSProperties = {
-  top: `calc(var(--safe-area-top, 0px) + var(--phone-top-ad-height, 0px) + ${
-    (rowHeight - SPOT) / 2
-  }px)`,
+const screenTop = 'var(--safe-area-top, 0px) + var(--phone-top-ad-height, 0px)';
+
+// Without a spot in the header: the top-right of its row while it's away,
+// just below it while it's up, so he never covers its buttons.
+const getCornerStyle = (isHeaderAway: boolean): CSSProperties => ({
+  top: isHeaderAway
+    ? `calc(${screenTop} + ${(rowHeight - SPOT) / 2}px)`
+    : `calc(${screenTop} + var(--shell-top, 0px) + ${topButton.gap}px)`,
   right: topButton.inset,
   width: SPOT,
   height: SPOT,
-};
+});
 
 interface SpotRect {
   left: number;
@@ -127,7 +131,8 @@ interface SpotRect {
 // exactly over his spot in it; when it scrolls away he stays right there and
 // the header slides out from under him, and coming back it slides in under
 // him. So he never jumps between the header and the corner. Without a spot
-// in the header he takes the top-right corner of its row. He leaves the
+// in the header (pages other than home and a post) he only comes out to
+// react, below the header or in the top-right of its row once it's away. He leaves the
 // layout when he's not shown: iOS 26 Safari paints its status area solid
 // while a fixed box with a background stands at the top.
 export const PatchyFloatingFace = (): ReactElement | null => {
@@ -139,6 +144,8 @@ export const PatchyFloatingFace = (): ReactElement | null => {
   // Measured only while the header stands still.
   const canMeasure = !!companion && !companion.isHeaderAway;
 
+  // Measured whenever the header settles, and when the spot or the row it
+  // sits in changes size (a menu docking next to it), never mid-slide.
   useClientLayoutEffect(() => {
     if (!element) {
       setRect(null);
@@ -167,9 +174,17 @@ export const PatchyFloatingFace = (): ReactElement | null => {
       );
     };
     measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    if (element.parentElement) {
+      observer.observe(element.parentElement);
+    }
     window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
-  });
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, [element, canMeasure]);
 
   const onClick = useCallback(() => {
     revealShell();
@@ -183,11 +198,21 @@ export const PatchyFloatingFace = (): ReactElement | null => {
   if (!companion || !isFloating) {
     return null;
   }
-  const { patchy, state, hasReadToday, goalProgress, anchor, canTap } =
-    companion;
+  const {
+    patchy,
+    state,
+    hasReadToday,
+    goalProgress,
+    anchor,
+    canTap,
+    isHeaderAway,
+  } = companion;
   const isPill = anchor?.kind === 'pill';
   const spot = anchor && rect ? rect : null;
-  const position = spot && anchor ? anchor.kind : 'corner';
+  let position: string = isHeaderAway ? 'corner' : 'below';
+  if (spot && anchor) {
+    position = anchor.kind;
+  }
   const icon = (
     <PatchyRailIcon
       face={patchy.face}
@@ -214,7 +239,7 @@ export const PatchyFloatingFace = (): ReactElement | null => {
       data-position={position}
       className="fixed flex items-center justify-center rounded-full transition-[left,top] duration-200 ease-out motion-reduce:transition-none tablet:hidden"
       style={{
-        ...(spot ?? cornerStyle),
+        ...(spot ?? getCornerStyle(isHeaderAway)),
         // Over the header he stands in front of it.
         zIndex: 76,
         pointerEvents: canTap ? 'auto' : 'none',
@@ -356,7 +381,9 @@ export const PatchyPhoneCompanion = ({
       anchor,
       setAnchor,
       isFloating: isPill ? isHeaderAway : isBusy || isHeaderAway,
-      hasActionsSpot: hasHeader && !isPill && isBusy,
+      // Only a post keeps a spot for him: he reads along there for the whole
+      // visit, so the header's other actions never shift for a reaction.
+      hasActionsSpot: hasHeader && !isPill && brain.patchy.isReading,
       isHeaderAway,
       canTap: isScrolledAway,
     };

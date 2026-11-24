@@ -175,14 +175,14 @@ it('on a post, keeps a spot among the header actions and stays on it while scrol
   expect(face()).toHaveStyle({ left: '300px', top: '10px' });
 });
 
-it('elsewhere without a pill, shows up in the header only to react', () => {
+it('elsewhere without a pill, reacts below the header without touching its actions', () => {
   const { rerender } = render(<Shell withPill={false} />);
   expect(face()).toBeNull();
-  expect(screen.queryByTestId('header-actions')).not.toBeInTheDocument();
 
   mockIsReacting = true;
   rerender(<Shell withPill={false} />);
-  expect(face()).toHaveAttribute('data-position', 'actions');
+  expect(face()).toHaveAttribute('data-position', 'below');
+  expect(screen.queryByTestId('header-actions')).not.toBeInTheDocument();
   expect(
     screen.queryByRole('button', { name: 'Show header' }),
   ).not.toBeInTheDocument();

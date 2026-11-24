@@ -8,11 +8,10 @@ export const isPatchyPostOpen = (): boolean =>
   window.location.pathname.startsWith('/posts/');
 
 // Whether a post is open, so he can read along with you (newspaper up). A
-// post opening starts it right away; the page is also checked as he starts
-// and every second after, since a post opened directly (or before he loaded)
-// sends its event before he listens. It ends once no post modal or page is
-// left. Separate from the suggestions, so he still reads along with them off
-// and on the phone, where he makes none.
+// post opening starts it, and so does a post that was already open when he
+// started (opened directly, or before he loaded: its event came first). It
+// ends once no post modal or page is left. Separate from the suggestions, so
+// he still reads along with them off and on the phone, where he makes none.
 export const usePatchyReading = (isEnabled: boolean): boolean => {
   const [isReading, setIsReading] = useState(false);
 
@@ -22,20 +21,24 @@ export const usePatchyReading = (isEnabled: boolean): boolean => {
       return undefined;
     }
     setIsReading(isPatchyPostOpen());
-    const unsubscribe = subscribePatchyEvents((event) => {
+    return subscribePatchyEvents((event) => {
       if (event.type === 'post_open') {
         setIsReading(true);
       }
     });
-    const id = setInterval(
-      () => setIsReading(isPatchyPostOpen()),
-      CHECK_EVERY_MS,
-    );
-    return () => {
-      unsubscribe();
-      clearInterval(id);
-    };
   }, [isEnabled]);
+
+  useEffect(() => {
+    if (!isReading) {
+      return undefined;
+    }
+    const id = setInterval(() => {
+      if (!isPatchyPostOpen()) {
+        setIsReading(false);
+      }
+    }, CHECK_EVERY_MS);
+    return () => clearInterval(id);
+  }, [isReading]);
 
   return isEnabled && isReading;
 };
