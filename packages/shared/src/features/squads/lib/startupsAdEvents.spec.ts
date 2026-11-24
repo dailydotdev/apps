@@ -14,7 +14,7 @@ const daysAgo = (days: number) =>
 const companyPage = (overrides: Partial<Squad> = {}) =>
   ({
     id: 'acme',
-    flags: { company: true },
+    flags: { company: true, companyPageReviewed: true },
     createdAt: daysAgo(1),
     currentMember: { role: SourceMemberRole.Admin },
     image: 'https://media.daily.dev/acme.png',
@@ -71,6 +71,19 @@ describe('trackCompanyPageReady', () => {
     );
 
     expect(trackEvent).not.toHaveBeenCalled();
+  });
+
+  it('waits for jev to keep the page', () => {
+    const trackEvent = jest.fn();
+    const unreviewed = companyPage({
+      flags: { company: true },
+    } as Partial<Squad>);
+
+    trackCompanyPageReady(trackEvent, unreviewed, founder);
+    expect(trackEvent).not.toHaveBeenCalled();
+
+    trackCompanyPageReady(trackEvent, companyPage(), founder);
+    expect(trackEvent).toHaveBeenCalledTimes(1);
   });
 
   it('reports an older page once this browser saw it get ready', () => {

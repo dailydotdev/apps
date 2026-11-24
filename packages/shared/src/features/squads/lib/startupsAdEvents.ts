@@ -103,6 +103,11 @@ export type CompanyPage = Pick<
   | 'description'
 >;
 
+// As on the server, only a ready page that jev kept counts, so the campaigns
+// learn from pages for developers
+export const isCompanyPageConversion = (squad?: CompanyPage): boolean =>
+  !!squad?.flags?.companyPageReviewed && isCompanyPageReady(squad);
+
 const isCompanyPageAdmin = (squad?: CompanyPage): squad is CompanyPage =>
   !!squad?.id &&
   !!squad.flags?.company &&
@@ -110,7 +115,7 @@ const isCompanyPageAdmin = (squad?: CompanyPage): squad is CompanyPage =>
 
 /**
  * Called when the admin sees their company page. The page counts as a
- * registration once it is ready, as on the server. The browser reports it only
+ * registration once it is ready and jev kept it, as on the server. The browser reports it only
  * when the page just got ready: it was made in the last 48 hours, or this
  * browser saw it unready before.
  */
@@ -124,7 +129,7 @@ export const trackCompanyPageReady = (
   }
 
   const unreadyKey = getUnreadyPageKey(squad.id as string);
-  if (!isCompanyPageReady(squad)) {
+  if (!isCompanyPageConversion(squad)) {
     if (isWithinHours(squad.createdAt, COMPANY_PAGE_FIRST_POST_HOURS)) {
       setKey(unreadyKey);
     }
@@ -158,7 +163,7 @@ export const trackCompanyPageFirstPost = (
   const isEligible =
     !!squad.id &&
     !!squad.flags?.company &&
-    isCompanyPageReady(squad) &&
+    isCompanyPageConversion(squad) &&
     isWithinHours(squad.createdAt, COMPANY_PAGE_FIRST_POST_HOURS);
 
   if (!isEligible || !markOnce(getFirstPostTrackedKey(squad.id as string))) {
