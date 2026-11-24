@@ -8,7 +8,6 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   JobIcon,
-  MiniCloseIcon,
   PlusIcon,
   VIcon,
 } from '@dailydotdev/shared/src/components/icons';
@@ -229,55 +228,5 @@ export const OthersBadge = ({ onVerify }: SurfaceProps): ReactElement => (
         Get your badge
       </Button>
     </div>
-  </Card>
-);
-
-/** Today: the Customer.io popover (campaign 46), on every page. */
-export const TodayPopover = (): ReactElement => (
-  <Card className="relative max-w-sm">
-    <span className="absolute right-3 top-3 text-text-tertiary">
-      <MiniCloseIcon size={IconSize.Small} />
-    </span>
-    <div className="flex size-14 items-center justify-center self-center rounded-full bg-accent-avocado-flat text-accent-avocado-default">
-      <VIcon size={IconSize.Large} />
-    </div>
-    <Typography className="text-center" type={TypographyType.Title3} bold>
-      Get verified for free
-    </Typography>
-    <Typography
-      className="text-center"
-      type={TypographyType.Footnote}
-      color={TypographyColor.Secondary}
-    >
-      Claim your free verified badge to show where you work. It’s fast, easy
-      and makes your profile pop.
-    </Typography>
-    <Button variant={ButtonVariant.Secondary}>Get my badge</Button>
-  </Card>
-);
-
-/** Today: where "Get my badge" lands. No field, no button to verify. */
-export const TodayLanding = (): ReactElement => (
-  <Card className="max-w-sm">
-    <Typography type={TypographyType.Body} bold>
-      Settings › Profile
-    </Typography>
-    {['Name', 'Username', 'Bio'].map((label) => (
-      <div key={label} className="flex flex-col gap-1">
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Tertiary}
-        >
-          {label}
-        </Typography>
-        <span className="h-9 rounded-10 bg-surface-float" />
-      </div>
-    ))}
-    <Typography
-      type={TypographyType.Footnote}
-      color={TypographyColor.StatusError}
-    >
-      No way to verify from here.
-    </Typography>
   </Card>
 );

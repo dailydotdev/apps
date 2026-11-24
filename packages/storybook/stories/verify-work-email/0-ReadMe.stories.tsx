@@ -3,7 +3,7 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { Labeled, Page, Section } from './kit';
-import { TodayLanding, TodayPopover } from './surfaces';
+import { ProductionLanding, ProductionPopover } from './production';
 import { entryPoints } from './entryPoints';
 
 const meta: Meta = {
@@ -55,21 +55,23 @@ export const ReadMe: StoryObj = {
       }
     >
       <Section title="Today">
-        <div className="flex flex-col items-start gap-6 tablet:flex-row">
+        <div className="flex flex-col items-start gap-6">
           <Labeled
             status="Before"
             title="Popover"
-            where="Customer.io campaign 46, all platforms, ~2h after signup"
+            where="MarketingCtaPopoverSmall with the live verify-work-email row (Customer.io campaign 46), all platforms, ~2h after signup"
           >
-            <TodayPopover />
+            <ProductionPopover />
           </Labeled>
-          <ArrowIcon className="hidden shrink-0 rotate-90 self-center text-text-tertiary tablet:block" />
+          <ArrowIcon className="ml-28 rotate-180 text-text-tertiary" />
           <Labeled
             status="Before"
             title="Where “Get my badge” lands"
-            where="A settings page that lost its verification section"
+            where="/settings/profile, the production Profile details form. Verifying lives on /settings/profile/experience/work."
           >
-            <TodayLanding />
+            <div className="w-full max-w-[40rem] overflow-hidden rounded-16 border border-border-subtlest-tertiary">
+              <ProductionLanding />
+            </div>
           </Labeled>
         </div>
       </Section>
