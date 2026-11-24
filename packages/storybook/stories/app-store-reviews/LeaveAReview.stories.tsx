@@ -81,13 +81,14 @@ const chromeCampaign: MarketingCta = {
   },
 };
 
-type Status = 'shipped' | 'running' | 'planned' | 'dropped';
+type Status = 'shipped' | 'running' | 'planned' | 'dropped' | 'open';
 
 const statusStyles: Record<Status, string> = {
   shipped: 'bg-accent-avocado-flat text-accent-avocado-default',
   running: 'bg-accent-ketchup-flat text-accent-ketchup-default',
   planned: 'bg-accent-cabbage-flat text-accent-cabbage-default',
   dropped: 'bg-surface-float text-text-tertiary',
+  open: 'bg-accent-cheese-flat text-accent-cheese-default',
 };
 
 const statusLabels: Record<Status, string> = {
@@ -95,6 +96,7 @@ const statusLabels: Record<Status, string> = {
   running: 'Still running',
   planned: 'Not built',
   dropped: 'Dropped',
+  open: 'Open',
 };
 
 const Pill = ({ status }: { status: Status }): ReactElement => (
@@ -517,6 +519,46 @@ const Overview = (): ReactElement => (
             </Row>
             <Row label="Rate row" status="planned">
               Exempt from the cooldown: it never shows on its own.
+            </Row>
+          </ul>
+        </Section>
+
+        <Section
+          title="Open questions"
+          intro="Parts of the proposal this page doesn't settle yet."
+        >
+          <ul className="flex flex-col rounded-16 border border-border-subtlest-tertiary bg-background-default px-4">
+            <Row label="iOS moments" status="open">
+              The proposal asks after a streak, achievement, upvote or bookmark.
+              iOS ships only the 30+ day streak milestone. Add the other three,
+              or keep iOS to the one moment?
+            </Row>
+            <Row label="Rate row title" status="open">
+              The proposal says &ldquo;Rate daily.dev&rdquo; next to Send
+              feedback. The page reuses the iOS title, <q>{rateAppTitle}</q>,
+              after Support. Which title and position?
+            </Row>
+            <Row label="Rate row reach" status="open">
+              &ldquo;Everywhere&rdquo; also means the Android app, which the
+              page doesn&apos;t show. Safari and Firefox users have no store
+              page: hide the row there, or link somewhere else?
+            </Row>
+            <Row label="Toast versions" status="open">
+              Only the upvote toast is drawn. Bookmark and claimed quest need
+              their own copy, and the toast is the closest of the asks to the
+              popover we&apos;re removing: ship it, or hold it until reviews
+              drop?
+            </Row>
+            <Row label="Bad moments" status="open">
+              The examples above are placeholders. Which events block an ask,
+              and for how long?
+            </Row>
+            <Row label="Segment 143" status="open">
+              It only matches when <code>review_ask_at</code> moves from an old
+              value to a recent one, so a second ask inside 120 days
+              doesn&apos;t match on its own. Campaigns re-check the field before
+              sending, so nothing breaks, but the count may be low. Ante to
+              confirm.
             </Row>
           </ul>
         </Section>
