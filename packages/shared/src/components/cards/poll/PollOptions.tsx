@@ -116,7 +116,7 @@ export const PollOptionButtons = ({
   options,
   onClick,
 }: {
-  options: Pick<PollOption, 'id' | 'text' | 'order'>[];
+  options: PollOption[];
   onClick?: (optionId: string, text: string) => void;
 }) => {
   return options.map((option) => (

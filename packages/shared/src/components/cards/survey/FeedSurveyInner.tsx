@@ -15,7 +15,8 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
-import { PollOptionButtons } from '../poll/PollOptions';
+import { FeedbackIcon, VIcon } from '../../icons';
+import { IconSize } from '../../Icon';
 
 export interface FeedSurveyCardProps {
   survey: FeedSurvey;
@@ -102,7 +103,10 @@ export const FeedSurveyInner = ({
 
   if (isAnswered) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-1 text-center">
+      <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center">
+        <span className="mb-1 flex size-12 items-center justify-center rounded-full bg-accent-cabbage-default text-white">
+          <VIcon secondary size={IconSize.Medium} />
+        </span>
         <Typography tag={TypographyTag.H3} type={TypographyType.Title3} bold>
           Thanks for your feedback
         </Typography>
@@ -117,12 +121,34 @@ export const FeedSurveyInner = ({
   }
 
   return (
-    <div ref={ref} className="flex flex-1 flex-col gap-3">
-      <Typography tag={TypographyTag.H3} type={TypographyType.Title3} bold>
-        {survey.question}
-      </Typography>
+    <div ref={ref} className="flex flex-1 flex-col justify-center gap-4">
       <div className="flex flex-col gap-2">
-        <PollOptionButtons options={survey.options} onClick={onAnswer} />
+        <span className="flex w-fit items-center gap-1 rounded-8 bg-overlay-float-cabbage px-2 py-1 font-bold text-accent-cabbage-default typo-footnote">
+          <FeedbackIcon secondary size={IconSize.XSmall} />
+          Quick question
+        </span>
+        <Typography tag={TypographyTag.H3} type={TypographyType.Title2} bold>
+          {survey.question}
+        </Typography>
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+        >
+          One tap. Your answer helps us improve your feed.
+        </Typography>
+      </div>
+      <div className="flex flex-col gap-2">
+        {survey.options.map((option) => (
+          <button
+            key={option.id}
+            type="button"
+            disabled={isPending}
+            onClick={() => onAnswer(option.id, option.text)}
+            className="flex h-12 w-full items-center justify-center rounded-12 border border-border-subtlest-tertiary bg-surface-float px-4 font-bold text-text-primary transition-colors typo-callout hover:border-accent-cabbage-default hover:bg-overlay-float-cabbage focus-visible:border-accent-cabbage-default disabled:opacity-64"
+          >
+            {option.text}
+          </button>
+        ))}
       </div>
     </div>
   );

@@ -6,7 +6,10 @@ import { FeedSurveyInner } from './FeedSurveyInner';
 
 export function FeedSurveyGrid(props: FeedSurveyCardProps): ReactElement {
   return (
-    <Card data-testid="feedSurveyCard" className="p-4">
+    <Card
+      data-testid="feedSurveyCard"
+      className="!border-accent-cabbage-default bg-gradient-to-b from-overlay-float-cabbage to-transparent p-4"
+    >
       <FeedSurveyInner {...props} />
     </Card>
   );
