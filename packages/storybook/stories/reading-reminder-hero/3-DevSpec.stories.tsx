@@ -180,7 +180,7 @@ export const DevSpec: StoryObj = {
               <Code key="f">
                 hooks/notifications/useReadingReminderHero.ts
               </Code>,
-              'Hour from now, push before saving, push-supported gate, account-level close.',
+              'Hour from now, push before saving, push-supported gate, account-level close, and the last-seen stamp written only when the card is on screen. useReadingReminderHeroSettled waits for the account-level close too, so Weekly picks keeps landing with it.',
             ],
             [
               <Code key="f">
@@ -207,10 +207,6 @@ export const DevSpec: StoryObj = {
             [
               <Code key="f">components/picks/WeeklyPicksHero.tsx</Code>,
               'Its phone and tablet panel copies today’s reminder panel: move it to the same frame and tokens (see 2).',
-            ],
-            [
-              <Code key="f">hooks/picks/useWeeklyPicksHero.ts</Code>,
-              'Waits on useReadingReminderHeroSettled; that has to include the account-level close (see 5).',
             ],
             [
               <Code key="f">
@@ -346,15 +342,6 @@ export const DevSpec: StoryObj = {
                 while Weekly picks is still deciding (
                 <Code>MainFeedLayout.tsx</Code>). On phones and tablets it also
                 gives way to any other top content of the feed.
-              </>,
-              'Same',
-              <Tag key="t" kind="same" />,
-            ],
-            [
-              'Search page on laptop',
-              <>
-                Not rendered in the strip (<Code>!isSearchPageLaptop</Code> in{' '}
-                <Code>Feed.tsx</Code>).
               </>,
               'Same',
               <Tag key="t" kind="same" />,

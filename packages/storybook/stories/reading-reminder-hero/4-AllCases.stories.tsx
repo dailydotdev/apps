@@ -524,12 +524,6 @@ const whoCases: {
     proposed: 'none',
     note: 'Held back for a moment so both cards land together.',
   },
-  {
-    reader: 'Search page on laptop',
-    today: 'none',
-    proposed: 'none',
-    note: 'The strip card is skipped there.',
-  },
 ];
 
 const OutcomeTag = ({ outcome }: { outcome: Outcome }): ReactElement => (

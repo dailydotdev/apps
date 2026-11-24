@@ -243,7 +243,7 @@ export const AllStates: StoryObj<FlowArgs> = {
   render: ({ readingHour }) => (
     <Page
       title="All states"
-      intro="Every state the slot can show, on the feed card and on the laptop strip card at half width (the strip splits when Weekly picks or the CV card also shows). Each state keeps its frame and roughly its height, so the feed under it doesn't jump."
+      intro="Every state the slot can show, on the feed card and on the laptop strip card at half width (the strip splits when Weekly picks or the CV card also shows). Each state keeps its frame and roughly its height, so the feed under it doesn’t jump."
     >
       <div className="flex flex-col gap-8">
         {states.map(({ step, label, note }) => (
