@@ -66,7 +66,7 @@ type PeekPosition = 'tucked' | 'peek' | 'drop';
 const peekTransform: Record<PeekPosition, string> = {
   tucked: 'translateY(-100%)',
   // Eyes and nose over the edge, the top of his head still behind it.
-  peek: 'translateY(-42%)',
+  peek: 'translateY(-22%)',
   drop: 'translateY(1.5rem)',
 };
 const PEEK_MS = 300;
