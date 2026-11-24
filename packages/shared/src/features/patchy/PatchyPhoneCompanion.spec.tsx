@@ -34,6 +34,12 @@ jest.mock('../../components/shell/useShellScroll', () => ({
   useShellScroll: () => ({ p: mockShellP }),
   revealShell: jest.fn(),
 }));
+jest.mock('../../components/shell/ShellPageContext', () => ({
+  useShellPageConfig: () => null,
+  ShellActions: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="header-actions">{children}</div>
+  ),
+}));
 jest.mock('./usePatchyEnabled', () => ({
   usePatchyEnabled: ({ shouldEvaluate }: { shouldEvaluate: boolean }) =>
     shouldEvaluate,
@@ -117,36 +123,46 @@ it('on pages without his pill, sits in the corner once scrolled', () => {
   expect(peek()).toBe('corner');
 });
 
-it('with the header up and no pill, comes in only to react, out of reach of a tap', () => {
+it('with the header up and no pill, reacts in the header, away otherwise', () => {
   const { rerender } = render(<Shell withPill={false} />);
   expect(peek()).toBeUndefined();
 
   mockIsReacting = true;
   rerender(<Shell withPill={false} />);
-  expect(peek()).toBe('corner');
+  expect(peek()).toBe('header');
   expect(
     screen.queryByRole('button', { name: 'Show header' }),
   ).not.toBeInTheDocument();
 });
 
-it('stays in the corner reading along on a post, below its header', () => {
+it('reads along on a post as the first of its header actions', () => {
   mockIsReading = true;
   render(<Shell withPill={false} />);
-  expect(peek()).toBe('corner');
-  // The post's header is still up, so there's nothing for a tap to bring back.
+  expect(peek()).toBe('header');
   expect(
-    screen.queryByRole('button', { name: 'Show header' }),
-  ).not.toBeInTheDocument();
+    screen.getByTestId('header-actions').querySelector('[data-position]'),
+  ).toBeInTheDocument();
 });
 
-it('slides away after a reaction, then leaves the layout', () => {
-  jest.useFakeTimers();
-  mockIsReacting = true;
+it('moves from the post header to the top corner once it scrolls away', () => {
+  mockIsReading = true;
   const { rerender } = render(<Shell withPill={false} />);
+  expect(peek()).toBe('header');
+
+  mockShellP = 1;
+  rerender(<Shell withPill={false} />);
+  expect(peek()).toBe('corner');
+  expect(screen.queryByTestId('header-actions')).not.toBeInTheDocument();
+});
+
+it('slides away as the header comes back, then leaves the layout', () => {
+  jest.useFakeTimers();
+  mockShellP = 1;
+  const { rerender } = render(<Shell />);
   expect(peek()).toBe('corner');
 
-  mockIsReacting = false;
-  rerender(<Shell withPill={false} />);
+  mockShellP = 0;
+  rerender(<Shell />);
   expect(peek()).toBe('tucked');
   act(() => {
     jest.advanceTimersByTime(300);

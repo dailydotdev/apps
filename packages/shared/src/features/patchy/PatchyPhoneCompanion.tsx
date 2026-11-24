@@ -20,7 +20,10 @@ import {
   revealShell,
   useShellScroll,
 } from '../../components/shell/useShellScroll';
-import { useShellPageConfig } from '../../components/shell/ShellPageContext';
+import {
+  ShellActions,
+  useShellPageConfig,
+} from '../../components/shell/ShellPageContext';
 import type { PatchyEmote, PatchyFace } from './patchyConfig';
 import type { PatchyMotion } from './patchyIdle';
 import { PatchyRailIcon } from './PatchyRailIcon';
@@ -73,11 +76,11 @@ const PEEK_MS = 300;
 
 // While the header is scrolled away he sits in the top-right corner, on any
 // page, and plays his reactions right there; tapping him brings the header
-// back. On a post he stays in that corner reading along, below the post's
-// header, which doesn't scroll away. With the header up elsewhere he's in its
-// pill (home), or slides into the corner only to react. Tucked away he leaves the layout, like the
-// shell block: iOS 26 Safari paints its status area solid while a fixed box
-// with a background stands at the top.
+// back. With the header up he's part of it: in its streak pill (home), or as
+// the first of its actions while you read a post or he reacts, so a docked
+// menu lines up beside him instead of under him. Tucked away the corner
+// leaves the layout, like the shell block: iOS 26 Safari paints its status
+// area solid while a fixed box with a background stands at the top.
 export const PatchyTopPeek = (): ReactElement | null => {
   const companion = usePatchyPhoneCompanion();
   const config = useShellPageConfig();
@@ -89,13 +92,11 @@ export const PatchyTopPeek = (): ReactElement | null => {
   // No header standing at the top: scrolled away, or hidden by the page.
   const isShellAway = !!config?.hidden || p >= 0.99;
   const isInHeader = !!companion?.isInHeader;
-  const isInHeaderView = isInHeader && !isShellAway;
+  const isBusy =
+    !!companion && (companion.patchy.isReacting || companion.patchy.isReading);
+  const isInActions = isBusy && !isInHeader && !isShellAway;
   const target: PeekPosition =
-    companion &&
-    !isInHeaderView &&
-    (isScrolledAway ||
-      companion.patchy.isReacting ||
-      companion.patchy.isReading)
+    companion && isShellAway && (isScrolledAway || isBusy)
       ? 'corner'
       : 'tucked';
 
@@ -129,53 +130,67 @@ export const PatchyTopPeek = (): ReactElement | null => {
     });
   }, [logEvent]);
 
-  if (!companion || !rendered) {
+  if (!companion) {
     return null;
   }
   const { patchy, state, hasReadToday } = companion;
   // Tapping him brings back the header he stands in for.
   const canTap = rendered === 'corner' && isScrolledAway;
+  const icon = (
+    <PatchyRailIcon
+      face={patchy.face}
+      motion={patchy.motion}
+      motionKey={patchy.motionKey}
+      emote={patchy.emote}
+      emoteCount={patchy.emoteCount}
+      emoteKey={patchy.emoteKey}
+      state={state}
+      hasReadToday={hasReadToday}
+      showStreak={false}
+    />
+  );
 
   return (
-    <div
-      aria-hidden={!canTap || undefined}
-      data-position={rendered}
-      className="pointer-events-none fixed right-2 z-header h-24 w-20 overflow-hidden tablet:hidden"
-      style={{
-        // The edge he hangs from: the screen's top while the header is away,
-        // otherwise the header's bottom edge, so he comes out from behind it.
-        top: isShellAway
-          ? 'calc(var(--safe-area-top, 0px) + var(--phone-top-ad-height, 0px))'
-          : 'calc(var(--safe-area-top, 0px) + var(--phone-top-ad-height, 0px) + var(--shell-top, 0px))',
-      }}
-    >
-      <button
-        ref={buttonRef}
-        type="button"
-        disabled={!canTap}
-        aria-label="Show header"
-        onClick={onClick}
-        className={classNames(
-          'absolute left-1/2 top-0 flex size-12 items-center justify-center rounded-full transition-transform duration-300 ease-out motion-reduce:transition-none',
-          canTap ? 'pointer-events-auto' : 'pointer-events-none',
-        )}
-        style={{ transform: `translateX(-50%) ${peekTransform[rendered]}` }}
-      >
-        <span className="flex scale-125 rounded-full shadow-2">
-          <PatchyRailIcon
-            face={patchy.face}
-            motion={patchy.motion}
-            motionKey={patchy.motionKey}
-            emote={patchy.emote}
-            emoteCount={patchy.emoteCount}
-            emoteKey={patchy.emoteKey}
-            state={state}
-            hasReadToday={hasReadToday}
-            showStreak={false}
-          />
-        </span>
-      </button>
-    </div>
+    <>
+      {isInActions && (
+        <ShellActions>
+          <span
+            aria-hidden
+            data-position="header"
+            className="flex size-10 shrink-0 items-center justify-center tablet:hidden"
+            // First of the actions, whichever joined the header before him.
+            style={{ order: -1 }}
+          >
+            <span className="flex scale-125 rounded-full">{icon}</span>
+          </span>
+        </ShellActions>
+      )}
+      {rendered && (
+        <div
+          aria-hidden={!canTap || undefined}
+          data-position={rendered}
+          className="pointer-events-none fixed right-2 z-header h-24 w-20 overflow-hidden tablet:hidden"
+          style={{
+            top: 'calc(var(--safe-area-top, 0px) + var(--phone-top-ad-height, 0px))',
+          }}
+        >
+          <button
+            ref={buttonRef}
+            type="button"
+            disabled={!canTap}
+            aria-label="Show header"
+            onClick={onClick}
+            className={classNames(
+              'absolute left-1/2 top-0 flex size-12 items-center justify-center rounded-full transition-transform duration-300 ease-out motion-reduce:transition-none',
+              canTap ? 'pointer-events-auto' : 'pointer-events-none',
+            )}
+            style={{ transform: `translateX(-50%) ${peekTransform[rendered]}` }}
+          >
+            <span className="flex scale-125 rounded-full shadow-2">{icon}</span>
+          </button>
+        </div>
+      )}
+    </>
   );
 };
 
