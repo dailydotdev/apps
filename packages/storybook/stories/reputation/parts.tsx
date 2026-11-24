@@ -185,15 +185,15 @@ const CloseCorner = (): ReactElement => (
 /* The badge                                                           */
 /* ------------------------------------------------------------------ */
 
-// Smith's 3D take on cloudinaryReputationPrivilegesUnlocked, the art in
-// Customer.io campaign 16 and the 250 modal.
+// Smith's take on cloudinaryReputationPrivilegesUnlocked (the art in
+// Customer.io campaign 16 and the 250 modal) in the awards style.
 const reputationBadgeArt = new URL(
-  './assets/reputation-badge-3d.png',
+  './assets/reputation-badge.png',
   import.meta.url,
 ).href;
 
 /**
- * The 3D reputation badge in the streak milestone's layout: the art, with
+ * The reputation badge in the streak milestone's layout: the art, with
  * the points on it.
  */
 export const ReputationBadge = ({
@@ -212,11 +212,11 @@ export const ReputationBadge = ({
     <img
       src={reputationBadgeArt}
       alt="A purple reputation badge with a lightning bolt"
-      className="size-full"
+      className="size-[85%]"
     />
     <strong
       className={classNames(
-        'absolute bottom-[8%] rounded-8 bg-accent-onion-default px-2 tabular-nums text-background-default shadow-2',
+        'absolute bottom-[7%] rounded-8 bg-accent-onion-default px-2 tabular-nums text-background-default shadow-2',
         size === 'large' ? 'typo-title3' : 'typo-footnote',
       )}
     >
