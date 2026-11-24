@@ -372,7 +372,7 @@ const TrayItem = ({
       onClick={() => (added ? onRemove(def.id) : onAdd(def.id))}
       {...(added ? { 'aria-pressed': true } : { ...attributes, ...listeners })}
       className={classNames(
-        'flex flex-col items-center gap-1 rounded-10 p-2 transition-colors',
+        'flex w-full min-w-0 flex-col items-center gap-1 rounded-10 p-2 transition-colors',
         added
           ? 'bg-surface-float text-text-primary'
           : 'touch-none text-text-tertiary hover:bg-surface-hover hover:text-text-primary',
@@ -385,7 +385,8 @@ const TrayItem = ({
       <Typography
         type={TypographyType.Caption2}
         color={added ? TypographyColor.Primary : TypographyColor.Tertiary}
-        className="line-clamp-1 text-center"
+        className="w-full truncate text-center"
+        title={def.label}
       >
         {def.label}
       </Typography>
