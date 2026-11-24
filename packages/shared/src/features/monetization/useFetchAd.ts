@@ -16,7 +16,7 @@ import { getAdRefreshPlatform } from './refresh/adRefresh';
 import { useAdSlotFetch } from './useAdSlotFetch';
 import type { AdSlotFetchTransition } from './adSlotLifecycle';
 import { useAdLifecycle } from './useAdLifecycle';
-import { useAdEntity } from './useAdEntity';
+import { useAdEntityRef } from './useAdEntityRef';
 
 interface UseFetchAds {
   isAdConsentReady: boolean;
@@ -33,7 +33,7 @@ export const useFetchAd = (enabled = true): UseFetchAds => {
   const { resolveAd } = useAdLifecycle(enabled);
   const { isAuthReady, isLoggedIn, isAndroidApp } = useAuthContext();
   const registered = isAuthReady ? isLoggedIn : undefined;
-  const { entity } = useAdEntity(enabled);
+  const entityRef = useAdEntityRef(enabled);
   const { value: refreshEngineVersion } = useConditionalFeature({
     feature: featureAdRefreshEngine,
     shouldEvaluate: enabled,
@@ -53,7 +53,7 @@ export const useFetchAd = (enabled = true): UseFetchAds => {
             active,
             consent,
             registered,
-            entity,
+            entity: entityRef.current,
           }),
           ...(isRefreshEngine && {
             refresh: {
@@ -71,7 +71,7 @@ export const useFetchAd = (enabled = true): UseFetchAds => {
     },
     [
       consent,
-      entity,
+      entityRef,
       isAndroidApp,
       isRefreshEngine,
       onFetchTransition,
