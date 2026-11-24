@@ -42,6 +42,12 @@ jest.mock('../shell/ShellBlock', () => ({
   ShellBlock: () => <div data-testid="shell-block" />,
 }));
 
+jest.mock('../../features/patchy/PatchyPhoneCompanion', () => ({
+  PatchyPhoneCompanion: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
+}));
+
 jest.mock('../../hooks/streaks', () => ({
   useReadingStreak: jest.fn(),
 }));

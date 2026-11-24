@@ -6,11 +6,15 @@ import { StreakQuestsSection } from '../../components/sidebar/sections/StreakQue
 import { getPatchyConfig } from './patchyConfig';
 import { getPatchyMood } from './patchyTriggers';
 import { PatchyRailIcon } from './PatchyRailIcon';
+import {
+  usePatchyInHeader,
+  usePatchyPhoneCompanion,
+} from './PatchyPhoneCompanion';
 import { usePatchyRail } from './usePatchyRail';
 
 // His face, idle animations and reactions, without the suggestion bubbles:
 // the header has no room to show one.
-export const PatchyHeaderIcon = (): ReactElement => {
+const OwnPatchyHeaderIcon = (): ReactElement => {
   const { isLoading, streak, state, hasReadToday, goalProgress } =
     useStreakRingState();
   const patchy = usePatchyRail({
@@ -33,6 +37,31 @@ export const PatchyHeaderIcon = (): ReactElement => {
       state={state}
       hasReadToday={hasReadToday}
       goalProgress={goalProgress?.ratio}
+    />
+  );
+};
+
+// Shares the phone companion when the shell has one, so the pill and the top
+// peek are the same Patchy.
+export const PatchyHeaderIcon = (): ReactElement => {
+  const companion = usePatchyPhoneCompanion();
+  usePatchyInHeader();
+  if (!companion) {
+    return <OwnPatchyHeaderIcon />;
+  }
+  const { patchy, state, hasReadToday, goalProgress } = companion;
+
+  return (
+    <PatchyRailIcon
+      face={patchy.face}
+      motion={patchy.motion}
+      motionKey={patchy.motionKey}
+      emote={patchy.emote}
+      emoteCount={patchy.emoteCount}
+      emoteKey={patchy.emoteKey}
+      state={state}
+      hasReadToday={hasReadToday}
+      goalProgress={goalProgress}
     />
   );
 };
