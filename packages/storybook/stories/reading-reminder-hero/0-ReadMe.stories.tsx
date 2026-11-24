@@ -139,7 +139,7 @@ export const ReadMe: StoryObj = {
         <Change
           index={4}
           title="Push before saving"
-          today="Saves the reminder, then asks for push. 46% say no, so about 1,100 saved reminders can’t arrive."
+          today="Saves the reminder, then asks for push. 46% don’t allow it, so almost half of the reminders it saves can’t arrive."
           proposed="Asks for push first and saves only once it’s allowed. Already allowed skips the ask. Blocked shows how to turn it on. Hidden where push can’t work (iOS Safari outside an installed app)."
           story={`${flow}--all-states`}
         />
