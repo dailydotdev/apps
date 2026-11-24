@@ -1,3 +1,5 @@
+import type { SquadIntelHighlights } from '../../../graphql/squadIntel';
+
 // The weekly intel's audience filters, mirrored from the API
 // (`common/schema/startupsIntel.ts`). The plan decides which ones a squad gets.
 export enum IntelSeniority {
@@ -58,4 +60,32 @@ export const getIntelWeekLabel = ({
   const lastDay = new Date(new Date(weekEnd).getTime() - 24 * 60 * 60 * 1000);
 
   return `${format(new Date(weekStart))} to ${format(lastDay)}`;
+};
+
+/** An index where 100 is the average post, as "2.3x" */
+export const formatIntelIndex = (index: number): string =>
+  `${(index / 100).toFixed(1).replace(/\.0$/, '')}x`;
+
+/** What the composer shows when they write about a topic from the intel */
+export const getIntelTopicHint = (
+  intel: SquadIntelHighlights,
+  tag: string,
+): string | undefined => {
+  const topic = intel.topics.find((item) => item.tag === tag);
+  const [format] = [...intel.formats].sort(
+    (a, b) => b.readsPerPost - a.readsPerPost,
+  );
+
+  if (!topic) {
+    return undefined;
+  }
+
+  return [
+    `Your post is about #${tag}. Posts there got ${formatIntelIndex(
+      topic.readsPerPost,
+    )} the average reads last week`,
+    format
+      ? `, and ${format.format.toLowerCase()} posts did best in your topics.`
+      : '.',
+  ].join('');
 };

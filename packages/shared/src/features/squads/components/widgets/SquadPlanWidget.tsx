@@ -61,11 +61,11 @@ export const SquadPlanWidget = (): ReactElement | null => {
 
   return (
     <SquadWidget
-      title="You're on the free plan"
+      title="Reach more developers"
       className="gap-3 bg-overlay-float-cabbage"
     >
       <p className="text-text-secondary typo-footnote">
-        {`The Startup plan puts ${squad.name} in front of more developers:`}
+        {`What the Startup plan adds for ${squad.name}:`}
       </p>
       <ul className="flex flex-col gap-2">
         <Benefit>In developers&apos; feeds, by topic</Benefit>

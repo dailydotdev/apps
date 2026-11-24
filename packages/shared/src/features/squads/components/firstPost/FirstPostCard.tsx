@@ -6,7 +6,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import { LinkIcon, MagicIcon } from '../../../../components/icons';
+import { EditIcon, LinkIcon, MagicIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 
 /** Something the page needs before its free boost can start */
@@ -23,6 +23,8 @@ export interface FirstPostCardProps {
   missingForBoost?: FirstPostBoostStep[];
   /** Opens the composer on Share a link with this link */
   onShare: (url: string) => void;
+  /** Opens the composer on a blank post */
+  onWrite: () => void;
   onOpenIntel?: () => void;
   /** The intel that helps them pick what to write, shown on "Find a topic" */
   intel?: ReactNode;
@@ -114,6 +116,7 @@ export const FirstPostCard = ({
   boostDollars,
   missingForBoost = [],
   onShare,
+  onWrite,
   onOpenIntel,
   intel,
   isIntelOpen: initialIntelOpen = false,
@@ -152,27 +155,52 @@ export const FirstPostCard = ({
         <Path
           icon={<MagicIcon />}
           title="Create something new"
-          hint="See what developers in your space read last week, and pick a topic."
+          hint="Write it here. Not sure what about? See what developers in your space read last week."
           isSelected={isIntelOpen}
         >
-          <Button
-            type="button"
-            variant={isIntelOpen ? ButtonVariant.Float : ButtonVariant.Primary}
-            size={ButtonSize.Small}
-            aria-expanded={isIntelOpen}
-            onClick={() => {
-              if (!isIntelOpen) {
-                onOpenIntel?.();
-              }
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+              icon={<EditIcon />}
+              onClick={onWrite}
+            >
+              Write a post
+            </Button>
+            <Button
+              type="button"
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+              aria-expanded={isIntelOpen}
+              onClick={() => {
+                if (!isIntelOpen) {
+                  onOpenIntel?.();
+                }
 
-              setIntelOpen(!isIntelOpen);
-            }}
-          >
-            {isIntelOpen ? 'Hide the intel' : 'Find a topic'}
-          </Button>
+                setIntelOpen(!isIntelOpen);
+              }}
+            >
+              {isIntelOpen ? 'Hide the intel' : 'Find a topic'}
+            </Button>
+          </div>
         </Path>
       </div>
       {isIntelOpen && intel}
+      {isIntelOpen && (
+        // Stays in reach while they read the intel, above the phone's bar
+        <div className="pointer-events-none sticky bottom-[calc(var(--shell-floor)+4rem)] z-3 flex justify-center laptop:bottom-[calc(1rem+var(--sponsor-strip-height,0rem))]">
+          <Button
+            type="button"
+            variant={ButtonVariant.Primary}
+            icon={<EditIcon />}
+            className="pointer-events-auto shadow-2"
+            onClick={onWrite}
+          >
+            Write a post
+          </Button>
+        </div>
+      )}
       {!!boostDollars && !!missingForBoost.length && (
         <p className="text-text-tertiary typo-footnote">
           Your boost starts once your page has{' '}

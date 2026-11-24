@@ -209,3 +209,25 @@ export const getStartupsSkillPrompt = (
 
   return [connectLine(handle), '', ask[skill]].join('\n');
 };
+
+/**
+ * One prompt for the first post: the agent reads the intel, then asks which
+ * content skill the founder wants. It never writes the post.
+ */
+export const getStartupsContentPrompt = (handle: string): string =>
+  [
+    connectLine(handle),
+    '',
+    `Help me get our first post out on @${handle}. Read our latest weekly intel first, then ask me which of these I want:`,
+    `1. Plan what we publish with ${skillRef(
+      'daily-dev-content-strategy',
+    )}: interview me about our readers and what our team knows, then save the strategy I agree to.`,
+    `2. Ideas for a post with ${skillRef(
+      'daily-dev-content-ideas',
+    )}: start from what I shipped or wrote recently, suggest three posts and say which numbers in the intel back each one.`,
+    `3. A review of a post I wrote with ${skillRef(
+      'daily-dev-content-review',
+    )}: ask me to paste it and show me what limits its reach.`,
+    '',
+    "I write the posts myself, so don't write a post or a draft for me. Before you save anything, show me what you will save and wait for my OK.",
+  ].join('\n');

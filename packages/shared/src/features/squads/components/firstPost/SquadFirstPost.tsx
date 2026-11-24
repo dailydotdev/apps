@@ -21,7 +21,8 @@ import {
   isCompanyPageDescriptionReady,
   isPlaceholderSquadImage,
 } from '../../lib/readiness';
-import { getStartupsSkillPrompt } from '../../lib/setup';
+import { getStartupsContentPrompt } from '../../lib/setup';
+import { getIntelTopicHint } from '../../lib/intel';
 import { useLogStartups } from '../../hooks/useLogStartups';
 import { useSquadFreeBoost } from '../freeBoost/useSquadFreeBoost';
 import type { FirstPostBoostStep } from './FirstPostCard';
@@ -93,6 +94,15 @@ export const SquadFirstPost = (): ReactElement | null => {
       origin: Origin.SquadPage,
       source_id: sourceId,
     });
+  const openComposer = (hint?: string) =>
+    openModal({
+      type: LazyModal.SmartComposer,
+      props: {
+        initialSquadHandle: squad.handle,
+        initialKind: 'text',
+        hint,
+      },
+    });
   const hasBoost = boost?.state === 'setup' || boost?.state === 'first_post';
   const isPaid = !!subscription?.plan;
 
@@ -114,6 +124,10 @@ export const SquadFirstPost = (): ReactElement | null => {
           },
         });
       }}
+      onWrite={() => {
+        log(LogEvent.ClickStartupsSetupStep, 'first post write');
+        openComposer();
+      }}
       onOpenIntel={() =>
         log(LogEvent.ClickStartupsSetupStep, 'first post intel')
       }
@@ -133,34 +147,12 @@ export const SquadFirstPost = (): ReactElement | null => {
               log(LogEvent.UpgradeSubscription, 'first post intel')
             }
             onWrite={(tag) => {
-              log(
-                LogEvent.ClickStartupsSetupStep,
-                tag ? 'first post topic' : 'first post write',
-              );
-              openModal({
-                type: LazyModal.SmartComposer,
-                props: {
-                  initialSquadHandle: squad.handle,
-                  initialKind: 'text',
-                },
-              });
+              log(LogEvent.ClickStartupsSetupStep, 'first post topic');
+              openComposer(getIntelTopicHint(intel, tag));
             }}
-            skills={[
-              {
-                id: 'ideas',
-                title: 'Get ideas from your own work',
-                hint: 'Your agent reads this intel and what you shipped lately, then suggests three posts.',
-                getPrompt: () => getStartupsSkillPrompt('ideas', squad.handle),
-              },
-              {
-                id: 'review',
-                title: 'Check your post before it goes live',
-                hint: 'Your agent flags what limits reach, like a post that reads as an ad.',
-                getPrompt: () => getStartupsSkillPrompt('review', squad.handle),
-              },
-            ]}
-            onCopySkill={(id) =>
-              log(LogEvent.CopyStartupsSetup, `first post ${id} skill`)
+            getAgentPrompt={() => getStartupsContentPrompt(squad.handle)}
+            onCopyPrompt={() =>
+              log(LogEvent.CopyStartupsSetup, 'first post content prompt')
             }
           />
         ) : undefined

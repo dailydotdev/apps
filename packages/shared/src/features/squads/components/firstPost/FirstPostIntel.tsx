@@ -17,26 +17,19 @@ import type {
   IntelCompetition,
   SquadIntelHighlights,
 } from '../../../../graphql/squadIntel';
-import { getIntelWeekLabel } from '../../lib/intel';
-
-export interface FirstPostSkill {
-  id: string;
-  title: string;
-  hint: string;
-  /** Built on click */
-  getPrompt: () => string;
-}
+import { formatIntelIndex, getIntelWeekLabel } from '../../lib/intel';
 
 interface FirstPostIntelProps {
   intel: SquadIntelHighlights;
   name: string;
-  skills: FirstPostSkill[];
-  /** Opens the composer, about a topic when one is picked */
-  onWrite: (tag?: string) => void;
+  /** The prompt that starts the content skills, built on click */
+  getAgentPrompt: () => string;
+  /** Opens the composer about a topic */
+  onWrite: (tag: string) => void;
   editTopicsUrl: string;
   upgradeUrl?: string;
   onUpgrade?: () => void;
-  onCopySkill?: (id: string) => void;
+  onCopyPrompt?: () => void;
 }
 
 const TOPICS_SHOWN = 6;
@@ -56,10 +49,6 @@ const competitionClassName: Record<IntelCompetition, string> = {
 };
 
 const number = (value: number): string => value.toLocaleString('en-US');
-
-/** An index where 100 is the average post, as "2.3x" */
-const times = (index: number): string =>
-  `${(index / 100).toFixed(1).replace(/\.0$/, '')}x`;
 
 const multiple = (value: number): string =>
   `${value >= 10 ? Math.round(value) : value.toFixed(1)}x`;
@@ -116,21 +105,24 @@ const Change = ({ value }: { value: number }): ReactElement => (
   </span>
 );
 
-const SkillRow = ({
-  skill,
+const AgentPrompt = ({
+  getPrompt,
   onCopy,
 }: {
-  skill: FirstPostSkill;
-  onCopy?: (id: string) => void;
+  getPrompt: () => string;
+  onCopy?: () => void;
 }): ReactElement => {
-  const [isCopying, copy] = useCopyLink(skill.getPrompt);
+  const [isCopying, copy] = useCopyLink(getPrompt);
 
   return (
-    <li className="flex items-center gap-3 py-2.5">
-      <span className="flex min-w-0 flex-1 flex-col">
-        <span className="font-bold typo-callout">{skill.title}</span>
+    <div className="flex flex-col gap-3 rounded-12 border border-border-subtlest-tertiary p-3 tablet:flex-row tablet:items-center">
+      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="font-bold typo-callout">
+          Work on it with your agent
+        </span>
         <span className="text-pretty text-text-tertiary typo-footnote">
-          {skill.hint}
+          It reads this intel, then plans what you publish, suggests post ideas
+          or checks a post you wrote. You write the post.
         </span>
       </span>
       <Button
@@ -138,15 +130,15 @@ const SkillRow = ({
         variant={ButtonVariant.Float}
         size={ButtonSize.Small}
         icon={<CopyIcon />}
-        className="shrink-0"
+        className="shrink-0 self-start tablet:self-auto"
         onClick={() => {
           copy();
-          onCopy?.(skill.id);
+          onCopy?.();
         }}
       >
         {isCopying ? 'Copied' : 'Copy prompt'}
       </Button>
-    </li>
+    </div>
   );
 };
 
@@ -158,12 +150,12 @@ const SkillRow = ({
 export const FirstPostIntel = ({
   intel,
   name,
-  skills,
+  getAgentPrompt,
   onWrite,
   editTopicsUrl,
   upgradeUrl,
   onUpgrade,
-  onCopySkill,
+  onCopyPrompt,
 }: FirstPostIntelProps): ReactElement => {
   const topics = intel.topics.slice(0, TOPICS_SHOWN);
   const maxShare = Math.max(...topics.map(({ share }) => share), 1);
@@ -209,6 +201,8 @@ export const FirstPostIntel = ({
         </div>
       </div>
 
+      <AgentPrompt getPrompt={getAgentPrompt} onCopy={onCopyPrompt} />
+
       <Section
         title="Where developers' attention went"
         hint="Share of the reads across your topics, and the change from the week before."
@@ -242,7 +236,7 @@ export const FirstPostIntel = ({
           <div className="flex flex-col gap-3 rounded-12 bg-overlay-float-cabbage p-3 tablet:flex-row tablet:items-center">
             <p className="min-w-0 flex-1 typo-callout">
               <strong>{`#${opening.tag} is your opening.`}</strong>{' '}
-              {`Posts there get ${times(opening.readsPerPost)} the average reads, and few new posts compete for them.`}
+              {`Posts there get ${formatIntelIndex(opening.readsPerPost)} the average reads, and few new posts compete for them.`}
             </p>
             <Button
               type="button"
@@ -272,7 +266,7 @@ export const FirstPostIntel = ({
                 isHighlighted={index === 0}
               />
               <span className="w-12 shrink-0 text-right font-bold tabular-nums typo-footnote">
-                {times(format.readsPerPost)}
+                {formatIntelIndex(format.readsPerPost)}
               </span>
               <span className="hidden w-20 shrink-0 text-right tabular-nums text-text-tertiary typo-caption1 tablet:block">
                 {`${number(format.posts)} posts`}
@@ -309,17 +303,6 @@ export const FirstPostIntel = ({
                 </span>
               </a>
             </li>
-          ))}
-        </ul>
-      </Section>
-
-      <Section
-        title="Shape it with your agent"
-        hint="daily.dev skills read this intel for you. They suggest and check. You write the post."
-      >
-        <ul className="flex flex-col divide-y divide-border-subtlest-tertiary">
-          {skills.map((skill) => (
-            <SkillRow key={skill.id} skill={skill} onCopy={onCopySkill} />
           ))}
         </ul>
       </Section>

@@ -26,6 +26,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadPageContextProvider } from '@dailydotdev/shared/src/features/squads/SquadPageContext';
 import { SquadHome } from '@dailydotdev/shared/src/features/squads/components/SquadHome';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
+import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import { SquadPlan } from '@dailydotdev/shared/src/features/squads/lib/plans';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import ExtensionProviders from '../../../extension/_providers';
@@ -392,6 +393,7 @@ const Page = ({ name }: { name: ScenarioName }): ReactElement => {
       <Seeded squad={squad}>
         <SquadHome searchQuery="" onClearSearch={() => undefined} />
       </Seeded>
+      <LazyModalElement />
     </MainLayout>
   );
 };
@@ -415,7 +417,10 @@ const meta: Meta = {
   decorators: [
     (Story) => (
       <ExtensionProviders>
-        <Story />
+        {/* react-modal mounts the composer next to the app root */}
+        <div id="__next">
+          <Story />
+        </div>
       </ExtensionProviders>
     ),
   ],
@@ -474,6 +479,25 @@ export const CreateSomethingNew: Story = {
       { timeout: 60_000 },
     );
     button.click();
+  },
+};
+/** 2b. "Write about #code-review" opens the composer with the topic's numbers. */
+export const WriteAboutTopic: Story = {
+  ...story('readyNoPost'),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const topic = await canvas.findByText(
+      'Find a topic',
+      {},
+      { timeout: 60_000 },
+    );
+    topic.click();
+    const write = await canvas.findByText(
+      'Write about #code-review',
+      {},
+      { timeout: 60_000 },
+    );
+    write.click();
   },
 };
 /** 3. The admin finishes the last setup rows while the page is open. */

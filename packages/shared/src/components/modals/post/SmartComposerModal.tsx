@@ -18,6 +18,7 @@ import { ButtonSize } from '../../buttons/common';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import {
   InfoIcon,
+  MagicIcon,
   MarkdownIcon,
   MaximizeIcon,
   MinimizeIcon,
@@ -101,6 +102,8 @@ export interface SmartComposerModalProps extends LazyModalCommonProps {
   initialTitle?: string;
   initialContent?: string;
   initialCommentary?: string;
+  /** A line above the form on what to write about */
+  hint?: string;
   preview?: ExternalLinkPreview;
   editPost?: Post;
   onPosted?: () => void;
@@ -117,6 +120,7 @@ export function SmartComposerModal({
   initialTitle,
   initialContent,
   initialCommentary,
+  hint,
   preview: initialPreview,
   editPost,
   onPosted,
@@ -664,6 +668,15 @@ export function SmartComposerModal({
             className="shrink-0 text-status-warning"
           />
           <span>{labels.postCreation.warnings.spammyPosts}</span>
+        </div>
+      )}
+      {hint && (
+        <div className="flex w-full shrink-0 items-center gap-2 bg-overlay-float-cabbage px-5 py-1.5 text-text-secondary typo-caption1">
+          <MagicIcon
+            size={IconSize.Size16}
+            className="shrink-0 text-accent-cabbage-default"
+          />
+          <span>{hint}</span>
         </div>
       )}
       {kind !== 'poll' && <AiWrittenWarning />}
