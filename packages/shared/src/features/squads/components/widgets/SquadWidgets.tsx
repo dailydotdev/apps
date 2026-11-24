@@ -17,6 +17,7 @@ import { SquadAgentWidget } from './SquadAgentWidget';
 import { isCompanyPage } from '../../lib/companyPage';
 import { SquadSupportWidget } from './SquadSupportWidget';
 import { SquadSetupWidget } from './SquadSetupWidget';
+import { SquadIntelWidget } from './SquadIntelWidget';
 import { SquadPlanWidget } from './SquadPlanWidget';
 
 export const SquadWidgets = (): ReactElement => {
@@ -30,13 +31,14 @@ export const SquadWidgets = (): ReactElement => {
   return (
     <>
       <SquadPreviewToggle />
+      <SquadSupportWidget />
       <div className="hidden laptop:contents">
         <SquadSetupWidget shouldRefresh />
         <SquadPlanWidget />
+        <SquadIntelWidget />
       </div>
       {hasSquadFeature(squad, 'verified') && <VerifiedCompanySquadCard />}
       <SquadAgentWidget />
-      <SquadSupportWidget />
       {squad.flags?.featured && <FeaturedSquadCard />}
       <SquadJobsWidget />
       {isStaff && !isBeforeFirstPost && <SquadShareWidget squad={squad} />}

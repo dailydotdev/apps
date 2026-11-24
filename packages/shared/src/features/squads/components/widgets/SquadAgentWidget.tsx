@@ -16,6 +16,11 @@ import {
   webappUrl,
 } from '../../../../lib/constants';
 import { LogEvent, Origin } from '../../../../lib/log';
+import {
+  startupsLavender,
+  startupsLavenderInk,
+} from '../../../../styles/custom';
+import { AgentMarks } from '../AgentPromptButton';
 import { useSquadPageContext } from '../../SquadPageContext';
 import { getSquadId, isCompanySquad } from '../../lib/features';
 import { SquadViewer } from '../../lib/viewer';
@@ -83,11 +88,7 @@ export const SquadAgentWidget = (): ReactElement | null => {
   return (
     <section
       aria-label="Run your page from your agent"
-      className="relative flex w-full flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-4"
-      style={{
-        background:
-          'linear-gradient(180deg, color-mix(in srgb, var(--theme-accent-cabbage-default) 9%, transparent), transparent 120px)',
-      }}
+      className="relative flex w-full flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4"
     >
       <CloseButton
         size={ButtonSize.XSmall}
@@ -98,26 +99,28 @@ export const SquadAgentWidget = (): ReactElement | null => {
           log(LogEvent.DismissStartupsUpsell, TARGET_ID);
         }}
       />
-      <div className="flex flex-col gap-1 pr-6">
+      <AgentMarks className="size-7 rounded-8" glyphClassName="size-4" />
+      <div className="flex flex-col gap-0.5">
         <h2 className="text-balance font-bold typo-callout">
           {`Run ${squad.name} from your agent`}
         </h2>
-        <p className="text-pretty text-text-secondary typo-footnote">
-          Your plan includes the daily.dev MCP server and API. Use Claude Code,
-          Cursor, Codex or your own scripts.
+        <p className="text-pretty text-text-tertiary typo-footnote">
+          Your plan includes the daily.dev MCP server and API.
         </p>
       </div>
       <ul className="flex flex-col gap-2">
         {squadAgentBenefits.map((benefit) => (
-          <li
-            key={benefit}
-            className="flex items-start gap-2 text-text-secondary typo-footnote"
-          >
-            <VIcon
-              size={IconSize.Size16}
-              className="shrink-0 text-accent-cabbage-default"
-            />
-            <span className="min-w-0 flex-1">{benefit}</span>
+          <li key={benefit} className="flex items-center gap-2.5 typo-footnote">
+            <span
+              className="flex size-4 shrink-0 items-center justify-center rounded-full"
+              style={{
+                background: startupsLavender,
+                color: startupsLavenderInk,
+              }}
+            >
+              <VIcon size={IconSize.Size16} secondary />
+            </span>
+            <span className="min-w-0 flex-1 truncate">{benefit}</span>
           </li>
         ))}
       </ul>
@@ -128,7 +131,9 @@ export const SquadAgentWidget = (): ReactElement | null => {
             href={getSquadManageUrl(squad.handle, SquadManageSection.Plan)}
             passHref
           >
-            <a className="font-bold text-text-link">Give yourself a seat</a>
+            <a className="font-bold text-text-primary underline">
+              Give yourself a seat
+            </a>
           </Link>
         </p>
       )}
@@ -137,31 +142,26 @@ export const SquadAgentWidget = (): ReactElement | null => {
           <AgentConnect client={client} onClientChange={setClient} log={log} />
         </div>
       ) : (
-        <div className="flex gap-2">
-          <Button
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Small}
-            className="min-w-0 flex-1"
-            onClick={() => {
-              setConnecting(true);
-              log(LogEvent.Click, 'connect agent');
-            }}
-          >
-            Connect your agent
-          </Button>
-          <Button
-            tag="a"
-            href={`${webappUrl}settings/api`}
-            variant={ButtonVariant.Secondary}
-            size={ButtonSize.Small}
-            className="min-w-0 flex-1"
-            onClick={() => log(LogEvent.Click, 'api token')}
-          >
-            Get an API token
-          </Button>
-        </div>
+        <Button
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Small}
+          className="w-full"
+          onClick={() => {
+            setConnecting(true);
+            log(LogEvent.Click, 'connect agent');
+          }}
+        >
+          Connect your agent
+        </Button>
       )}
-      <p className="flex gap-3 text-text-tertiary typo-footnote">
+      <p className="flex flex-wrap gap-x-3 gap-y-1 text-text-tertiary typo-footnote">
+        <a
+          href={`${webappUrl}settings/api`}
+          className="hover:text-text-primary"
+          onClick={() => log(LogEvent.Click, 'api token')}
+        >
+          Get an API token
+        </a>
         <a
           href={mcpServerDocs}
           target="_blank"

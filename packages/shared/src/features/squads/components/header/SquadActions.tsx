@@ -38,6 +38,7 @@ import type { SquadBrandingButton } from '../../../../graphql/squadBranding';
 import { useSquadBranding } from '../../hooks/useSquadBranding';
 import { getBrandButtonStyle, getBrandColor } from '../../lib/branding';
 import { canSetSquadButton } from '../../lib/features';
+import { isCompanyPage } from '../../lib/companyPage';
 import { squadLinkRel } from '../../lib/links';
 import { useMobileAppHeader } from '../../../getApp/hooks/useMobileAppHeader';
 import { ShellSquare } from '../../../../components/shell/ShellSquare';
@@ -169,7 +170,10 @@ const SquadJoinButton = ({
 const canBoost = (
   squad: ReturnType<typeof useSquadPageContext>['squad'],
 ): boolean =>
-  squad.public && verifyPermission(squad, SourcePermissions.BoostSquad);
+  squad.public &&
+  verifyPermission(squad, SourcePermissions.BoostSquad) &&
+  // A company page leads with its first post, which gets a free boost
+  !(isCompanyPage(squad) && !squad.flags?.totalPosts);
 
 export const SquadActions = (): ReactElement => {
   const router = useRouter();

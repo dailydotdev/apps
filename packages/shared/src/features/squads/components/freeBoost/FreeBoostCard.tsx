@@ -7,11 +7,17 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import { ProgressBar } from '../../../../components/fields/ProgressBar';
 import { LazyImage } from '../../../../components/LazyImage';
-import { largeNumberFormat } from '../../../../lib/numberFormat';
-import { VIcon } from '../../../../components/icons';
+import { MoveToIcon, OpenLinkIcon, VIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
+import {
+  startupsLavender,
+  startupsLavenderGlow,
+  startupsLavenderInk,
+  startupsLavenderWash,
+} from '../../../../styles/custom';
+import { StartupsFreeChip } from '../StartupsFreeChip';
+import { SquadStatsRow } from '../valuePanel/SquadStatsRow';
 
 /** What the free boost has delivered so far, from the post's analytics */
 export interface FreeBoostStats {
@@ -44,6 +50,9 @@ interface BoostingProps {
   /** Unset while the post's checks run, before the boost starts */
   endsAt?: Date;
   now?: Date;
+  /** Where a free page gets credits every month */
+  upgradeUrl?: string;
+  onUpgrade?: () => void;
 }
 
 /** Something the page needs before its boost can start */
@@ -71,8 +80,6 @@ export type FreeBoostCardProps = (
 
 const BOOST_DOLLARS = 100;
 
-const number = (value: number): string => value.toLocaleString('en-US');
-
 const dollars = (cores: number): string => `$${Math.round(cores / 100)}`;
 
 const timeLeft = (endsAt: Date, now: Date): string => {
@@ -87,9 +94,6 @@ const timeLeft = (endsAt: Date, now: Date): string => {
   return `${hours} ${hours === 1 ? 'hour' : 'hours'} left`;
 };
 
-const cabbageGlow =
-  'linear-gradient(180deg, color-mix(in srgb, var(--theme-accent-cabbage-default) 9%, transparent), transparent 160px)';
-
 const Card = ({
   children,
   className,
@@ -101,80 +105,22 @@ const Card = ({
 }): ReactElement => (
   <section
     className={classNames(
-      'flex w-full flex-col gap-4 rounded-16 border p-4 tablet:p-5',
-      isHighlighted
-        ? 'border-accent-cabbage-default'
-        : 'border-border-subtlest-tertiary',
+      'flex w-full flex-col gap-4 rounded-16 p-4 tablet:p-5',
+      !isHighlighted && 'border border-border-subtlest-tertiary',
       className,
     )}
-    style={{ background: cabbageGlow }}
+    style={{
+      background: isHighlighted ? startupsLavenderWash : startupsLavenderGlow,
+    }}
   >
     {children}
   </section>
 );
 
-/** The big number the boost leads with: impressions */
-const Lead = ({
-  value,
-  label,
-}: {
-  value: number;
-  label: string;
-}): ReactElement => (
-  <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-    <span className="font-bold tabular-nums typo-mega2 tablet:typo-mega1">
-      {number(value)}
-    </span>
-    <span className="font-bold typo-title3">{label}</span>
-  </div>
-);
-
-// A 0 says nothing good about the boost, so only the tiles above 0 show
-const tilesColumns: Record<number, string> = {
-  1: 'tablet:grid-cols-2',
-  2: 'tablet:grid-cols-2',
-  3: 'tablet:grid-cols-3',
-  4: 'tablet:grid-cols-4',
-};
-
-const Tiles = ({ stats }: { stats: FreeBoostStats }): ReactElement | null => {
-  const tiles = [
-    { label: 'Reach', value: stats.reach },
-    { label: 'Clicks', value: stats.clicks },
-    { label: 'Bookmarks', value: stats.bookmarks },
-    { label: 'New followers', value: stats.followers },
-  ].filter(({ value }) => value > 0);
-
-  if (!tiles.length) {
-    return null;
-  }
-
-  return (
-    <div
-      className={classNames(
-        'grid grid-cols-2 gap-2',
-        tilesColumns[tiles.length],
-      )}
-    >
-      {tiles.map(({ label, value }) => (
-        <div
-          key={label}
-          className="flex flex-col gap-0.5 rounded-12 border border-border-subtlest-tertiary bg-background-default p-3"
-        >
-          <span className="font-bold tabular-nums typo-title2">
-            {largeNumberFormat(value)}
-          </span>
-          <span className="text-text-secondary typo-footnote">{label}</span>
-        </div>
-      ))}
-    </div>
-  );
-};
-
 const PostRow = ({ post }: { post: FreeBoostPost }): ReactElement => (
   <a
     href={post.permalink}
-    className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary bg-background-default p-2 pr-3 hover:bg-surface-hover"
+    className="group flex items-center gap-3 rounded-12 bg-background-default p-2 pr-3"
   >
     {post.image && (
       <LazyImage
@@ -183,9 +129,13 @@ const PostRow = ({ post }: { post: FreeBoostPost }): ReactElement => (
         className="h-10 w-16 shrink-0 rounded-8"
       />
     )}
-    <span className="line-clamp-2 min-w-0 flex-1 font-bold typo-footnote">
+    <span className="line-clamp-1 min-w-0 flex-1 font-bold typo-footnote group-hover:underline">
       {post.title}
     </span>
+    <OpenLinkIcon
+      size={IconSize.Size16}
+      className="shrink-0 text-text-tertiary group-hover:text-text-primary"
+    />
   </a>
 );
 
@@ -229,45 +179,79 @@ const Boosting = ({
   budget,
   endsAt,
   now = new Date(),
+  upgradeUrl,
+  onUpgrade,
 }: BoostingProps): ReactElement => {
   // The boost keeps going past its end time until the budget is spent
   const isWithinTime = !!endsAt && isAfter(endsAt, now);
 
   return (
     <>
-      {stats.impressions > 0 ? (
-        <>
-          <Lead value={stats.impressions} label="impressions so far" />
-          <Tiles stats={stats} />
-        </>
-      ) : (
-        <Heading
-          title={
-            endsAt
-              ? 'Your post is going out to developers now'
-              : 'Your boost starts in a few minutes'
-          }
-        >
-          {endsAt
-            ? 'The first numbers show up here within minutes.'
-            : "We're checking your post first. Then it goes out to developers in the US, Europe and other top markets."}
-        </Heading>
-      )}
-      <PostRow post={post} />
-      <div className="flex flex-col gap-2">
-        <ProgressBar
-          percentage={Math.min((spent / budget) * 100, 100)}
-          shouldShowBg
-          className={{ wrapper: 'h-2 rounded-8', bar: 'h-full rounded-8' }}
-        />
-        {(spent > 0 || isWithinTime) && (
-          <div className="flex justify-between gap-3 text-text-tertiary typo-footnote">
-            <span>
-              {spent > 0 && `${dollars(spent)} of $${BOOST_DOLLARS} spent`}
-            </span>
-            {isWithinTime && <span>{timeLeft(endsAt, now)}</span>}
-          </div>
+      <div className="flex items-center gap-2">
+        {endsAt ? (
+          <span
+            className="rounded-6 px-1.5 py-0.5 font-bold uppercase typo-caption1"
+            style={{ background: startupsLavender, color: startupsLavenderInk }}
+          >
+            Live
+          </span>
+        ) : (
+          <StartupsFreeChip />
         )}
+        <h2 className="min-w-0 flex-1 font-bold typo-body">
+          {endsAt
+            ? `Your free $${BOOST_DOLLARS} boost is running`
+            : 'Your boost starts in a few minutes'}
+        </h2>
+        {isWithinTime && (
+          <span className="shrink-0 text-text-tertiary typo-footnote">
+            {timeLeft(endsAt, now)}
+          </span>
+        )}
+      </div>
+      <PostRow post={post} />
+      {stats.impressions > 0 ? (
+        <SquadStatsRow
+          lead={{ label: 'Impressions', value: stats.impressions }}
+          stats={[
+            { label: 'Reach', value: stats.reach },
+            { label: 'Clicks', value: stats.clicks },
+            { label: 'Bookmarks', value: stats.bookmarks },
+            { label: 'New followers', value: stats.followers },
+          ]}
+        />
+      ) : (
+        <p className="text-text-secondary typo-callout">
+          {endsAt
+            ? 'It is going out to developers now. The first numbers show up here within minutes.'
+            : "We're checking your post first. Then it goes out to developers in the US, Europe and other top markets."}
+        </p>
+      )}
+      <div className="flex flex-col gap-2">
+        <div className="h-1.5 w-full overflow-hidden rounded-50 bg-border-subtlest-tertiary">
+          <div
+            className="h-full rounded-50"
+            style={{
+              background: startupsLavender,
+              width: `${Math.min((spent / budget) * 100, 100)}%`,
+            }}
+          />
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 typo-footnote">
+          <span className="text-text-tertiary">
+            {`${dollars(spent)} of $${BOOST_DOLLARS} in credits spent`}
+          </span>
+          {upgradeUrl && (
+            <a
+              href={upgradeUrl}
+              onClick={onUpgrade}
+              className="flex items-center gap-1 font-bold text-text-primary hover:underline"
+            >
+              Get boost credits every month
+              <MoveToIcon size={IconSize.Size16} className="shrink-0" />
+            </a>
+          )}
+        </div>
       </div>
     </>
   );
@@ -278,10 +262,13 @@ const StepCheck = ({ isDone }: { isDone: boolean }): ReactElement => (
     aria-hidden
     className={classNames(
       'flex size-5 shrink-0 items-center justify-center rounded-full',
-      isDone
-        ? 'bg-accent-cabbage-default text-surface-invert'
-        : 'border border-border-subtlest-secondary',
+      !isDone && 'border border-border-subtlest-secondary',
     )}
+    style={
+      isDone
+        ? { background: startupsLavender, color: startupsLavenderInk }
+        : undefined
+    }
   >
     {isDone && <VIcon size={IconSize.Size16} secondary />}
   </span>

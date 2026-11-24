@@ -159,9 +159,11 @@ export const updateSquadIntelSettings = async ({
 
 export type IntelCompetition = 'open' | 'moderate' | 'crowded';
 
-// What the first post flow shows from a page's weekly intel. Proposed: the
-// API keeps each intel as data next to its markdown, and a free company page
-// gets its first intel as a trial, on tags picked from its website.
+// What the first post flow shows from a page's weekly intel: the numbers
+// behind the four sections of the Markdown report (your topics, what else
+// your audience reads, top posts, timing). Proposed: the API keeps each intel
+// as data next to its markdown, and a free company page gets its first intel
+// as a trial, on tags picked from its website.
 export interface SquadIntelHighlights {
   weekStart: string;
   weekEnd: string;
@@ -184,22 +186,40 @@ export interface SquadIntelHighlights {
     competition: IntelCompetition;
     /** Index where 100 is the average post */
     readsPerPost: number;
-  }[];
-  formats: {
-    format: string;
-    posts: number;
     /** Index where 100 is the average post */
-    readsPerPost: number;
+    bookmarks: number;
+    /** Share of the topic's reads that went to its top 10% of posts, 0 to 100 */
+    topPostsShare: number;
+  }[];
+  /** Tags outside the page's topics that the same audience reads */
+  alsoRead: {
+    tag: string;
+    /** Share of the audience that also reads it, 0 to 100 */
+    readBy: number;
+    /** How much more than every reader, as a multiple */
+    affinity: number;
+    /** Against the week before, in percent. Null for a tag new this week */
+    change: number | null;
   }[];
   topPosts: {
     title: string;
     source: string;
+    image: string | null;
     /** Reads against the average post */
     readsVsAverage: number;
     upvotes: number;
     comments: number;
     permalink: string;
   }[];
+  timing: {
+    /** Share of the week's reads by day, Monday first, 0 to 100 */
+    days: number[];
+    /** "Tuesday": posts published then get the strongest first day */
+    bestDay: string;
+    /** "14:00 to 17:00 UTC" */
+    bestHours: string;
+    weakestDay: string;
+  };
 }
 
 const SQUAD_INTEL_HIGHLIGHTS_QUERY = gql`
@@ -219,19 +239,29 @@ const SQUAD_INTEL_HIGHLIGHTS_QUERY = gql`
         change
         competition
         readsPerPost
+        bookmarks
+        topPostsShare
       }
-      formats {
-        format
-        posts
-        readsPerPost
+      alsoRead {
+        tag
+        readBy
+        affinity
+        change
       }
       topPosts {
         title
         source
+        image
         readsVsAverage
         upvotes
         comments
         permalink
+      }
+      timing {
+        days
+        bestDay
+        bestHours
+        weakestDay
       }
     }
   }

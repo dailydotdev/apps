@@ -21,12 +21,10 @@ import {
   isCompanyPageDescriptionReady,
   isPlaceholderSquadImage,
 } from '../../lib/readiness';
-import { getStartupsContentPrompt } from '../../lib/setup';
 import { useLogStartups } from '../../hooks/useLogStartups';
 import { useSquadFreeBoost } from '../freeBoost/useSquadFreeBoost';
 import type { FirstPostBoostStep } from './FirstPostCard';
 import { FirstPostCard } from './FirstPostCard';
-import { FirstPostIntel } from './FirstPostIntel';
 
 const BOOST_DOLLARS = 100;
 
@@ -69,7 +67,7 @@ const getMissingForBoost = (
 
 /** The first post card at the top of a company page with no posts yet */
 export const SquadFirstPost = (): ReactElement | null => {
-  const { squad } = useSquadPageContext();
+  const { squad, setIntelOpen } = useSquadPageContext();
   const { user } = useAuthContext();
   const isShown = useIsFirstPostShown();
   const sourceId = getSquadId(squad);
@@ -94,7 +92,6 @@ export const SquadFirstPost = (): ReactElement | null => {
       source_id: sourceId,
     });
   const hasBoost = boost?.state === 'setup' || boost?.state === 'first_post';
-  const isPaid = !!subscription?.plan;
 
   return (
     <FirstPostCard
@@ -121,31 +118,18 @@ export const SquadFirstPost = (): ReactElement | null => {
           props: { initialSquadHandle: squad.handle, initialKind: 'text' },
         });
       }}
-      onOpenIntel={() =>
-        log(LogEvent.ClickStartupsSetupStep, 'first post intel')
+      onOpenIntel={
+        intel
+          ? () => {
+              log(LogEvent.ClickStartupsSetupStep, 'first post intel');
+              setIntelOpen(true);
+            }
+          : undefined
       }
-      intel={
-        intel ? (
-          <FirstPostIntel
-            intel={intel}
-            name={squad.name}
-            editTopicsUrl={getSquadManageUrl(
-              squad.handle,
-              SquadManageSection.Intel,
-            )}
-            upgradeUrl={
-              isPaid ? undefined : getStartupsCheckoutUrl({ sourceId })
-            }
-            onUpgrade={() =>
-              log(LogEvent.UpgradeSubscription, 'first post intel')
-            }
-            getAgentPrompt={() => getStartupsContentPrompt(squad.handle)}
-            onCopyPrompt={() =>
-              log(LogEvent.CopyStartupsSetup, 'first post content prompt')
-            }
-          />
-        ) : undefined
+      upgradeUrl={
+        subscription?.plan ? undefined : getStartupsCheckoutUrl({ sourceId })
       }
+      onUpgrade={() => log(LogEvent.UpgradeSubscription, 'first post card')}
     />
   );
 };

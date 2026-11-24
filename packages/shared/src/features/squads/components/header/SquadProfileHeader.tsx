@@ -28,6 +28,7 @@ import { getDisplayUrl, getSquadWebsiteRel } from '../../lib/links';
 import { SquadViewer } from '../../lib/viewer';
 import { getSquadMembersUrl } from '../../lib/routes';
 import { VerifiedSquadBadge } from '../VerifiedSquad';
+import { SquadPlanBadge } from './SquadPlanBadge';
 import {
   SquadActions,
   SquadBlockActions,
@@ -315,6 +316,7 @@ export const SquadProfileHeader = (): ReactElement => {
             {showsVerifiedBadge(squad) && (
               <VerifiedSquadBadge className="size-5" />
             )}
+            <SquadPlanBadge />
           </h1>
           {!!squad.description && (
             <p className="text-text-secondary typo-body">{squad.description}</p>

@@ -6,8 +6,15 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import { EditIcon, LinkIcon, MagicIcon } from '../../../../components/icons';
+import { EditIcon, MagicIcon, MoveToIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
+import {
+  startupsLavender,
+  startupsLavenderTint,
+  startupsLavenderWash,
+} from '../../../../styles/custom';
+import { StartupsFreeChip } from '../StartupsFreeChip';
+import { StartupsReachChart } from '../StartupsReachChart';
 
 /** Something the page needs before its free boost can start */
 export interface FirstPostBoostStep {
@@ -21,85 +28,75 @@ export interface FirstPostCardProps {
   boostDollars?: number;
   /** What the page still needs before that boost starts */
   missingForBoost?: FirstPostBoostStep[];
-  /** Opens the composer on Share a link with this link */
-  onShare: (url: string) => void;
+  /** Opens the composer on Share a link, with the link if they pasted one */
+  onShare: (url?: string) => void;
   /** Opens the composer on a blank post */
   onWrite: () => void;
+  /** Opens the intel that helps them pick what to write, unset without one */
   onOpenIntel?: () => void;
-  /** The intel that helps them pick what to write, shown on "Find a topic" */
-  intel?: ReactNode;
-  isIntelOpen?: boolean;
+  /** Where a free page upgrades, unset on a plan */
+  upgradeUrl?: string;
+  onUpgrade?: () => void;
   className?: string;
 }
-
-const cabbageGlow =
-  'linear-gradient(180deg, color-mix(in srgb, var(--theme-accent-cabbage-default) 9%, transparent), transparent 160px)';
 
 const Path = ({
   icon,
   title,
   hint,
-  isSelected,
   children,
 }: {
   icon: ReactElement;
   title: string;
   hint: string;
-  isSelected?: boolean;
   children: ReactNode;
 }): ReactElement => (
-  <div
-    className={classNames(
-      'flex flex-col gap-3 rounded-12 border bg-background-default p-4',
-      isSelected
-        ? 'border-accent-cabbage-default'
-        : 'border-border-subtlest-tertiary',
-    )}
-  >
+  <div className="flex flex-col gap-4 rounded-16 bg-surface-float p-4 tablet:p-5">
     <div className="flex items-start gap-3">
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-10 bg-overlay-float-cabbage text-accent-cabbage-default">
-        {React.cloneElement(icon, { size: IconSize.Medium })}
+      <span
+        className="flex size-10 shrink-0 items-center justify-center rounded-12"
+        style={{ background: startupsLavenderTint, color: startupsLavender }}
+      >
+        {React.cloneElement(icon, { size: IconSize.Small })}
       </span>
-      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="font-bold typo-callout">{title}</span>
-        <span className="text-pretty text-text-tertiary typo-footnote">
-          {hint}
-        </span>
-      </span>
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <h3 className="font-bold typo-callout">{title}</h3>
+        <p className="text-pretty text-text-tertiary typo-footnote">{hint}</p>
+      </div>
     </div>
     <div className="mt-auto">{children}</div>
   </div>
 );
 
-const ShareForm = ({
+/** One control: the link and the button that shares it */
+const ShareField = ({
   onShare,
 }: {
-  onShare: (url: string) => void;
+  onShare: (url?: string) => void;
 }): ReactElement => {
   const [url, setUrl] = useState('');
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
-
-    if (url.trim()) {
-      onShare(url.trim());
-    }
+    onShare(url.trim() || undefined);
   };
 
   return (
-    <form onSubmit={onSubmit} className="flex gap-2">
+    <form
+      onSubmit={onSubmit}
+      className="flex h-10 items-center gap-1 rounded-12 bg-background-default pl-3 pr-1 focus-within:ring-1 focus-within:ring-border-subtlest-secondary"
+    >
       <input
         type="url"
         value={url}
         onChange={(event) => setUrl(event.target.value)}
-        placeholder="https://"
+        placeholder="https://yoursite.com/post"
         aria-label="Link to your content"
-        className="h-8 min-w-0 flex-1 rounded-10 bg-surface-float px-3 text-text-primary typo-footnote placeholder:text-text-quaternary focus:outline-none focus:ring-1 focus:ring-border-subtlest-secondary"
+        className="h-full min-w-0 flex-1 bg-transparent text-text-primary typo-callout placeholder:text-text-quaternary focus:outline-none"
       />
       <Button
         type="submit"
         variant={ButtonVariant.Primary}
         size={ButtonSize.Small}
-        disabled={!url.trim()}
       >
         Share
       </Button>
@@ -109,8 +106,9 @@ const ShareForm = ({
 
 /**
  * The one thing a company page's admins should do before anything else:
- * get the first post out. They either share something they already
- * published, or find a topic in the weekly intel and write something new.
+ * get the first post out. Two ways in, one button each: share something
+ * they already published, or see what developers read and write something
+ * new. The free boost comes after that choice, as what the post gets on top.
  */
 export const FirstPostCard = ({
   boostDollars,
@@ -118,104 +116,91 @@ export const FirstPostCard = ({
   onShare,
   onWrite,
   onOpenIntel,
-  intel,
-  isIntelOpen: initialIntelOpen = false,
+  upgradeUrl,
+  onUpgrade,
   className,
-}: FirstPostCardProps): ReactElement => {
-  const [isIntelOpen, setIntelOpen] = useState(initialIntelOpen);
-
-  return (
-    <section
-      className={classNames(
-        'flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-4 tablet:p-5',
-        className,
-      )}
-      style={{ background: cabbageGlow }}
-    >
-      <div className="flex flex-col gap-3 tablet:flex-row tablet:items-start">
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <h2 className="font-bold typo-title2">
-            {boostDollars
-              ? `Get your first post out. We'll boost it with $${boostDollars}.`
-              : 'Get your first post out'}
-          </h2>
-          <p className="text-text-secondary typo-callout">
-            {boostDollars
-              ? 'It goes out to thousands of developers in the US, Europe and other top markets on the day you post.'
-              : 'Developers find your page through your posts.'}
-          </p>
-        </div>
+}: FirstPostCardProps): ReactElement => (
+  <section className={classNames('flex flex-col gap-4', className)}>
+    <div className="flex flex-col gap-1">
+      <h2 className="font-bold typo-title3">Write your first post</h2>
+      <p className="text-text-secondary typo-callout">
+        Your posts are how developers find your page. Start one of two ways.
+      </p>
+    </div>
+    <div className="relative grid grid-cols-1 gap-3 tablet:grid-cols-2">
+      <span className="absolute left-1/2 top-1/2 z-1 hidden size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-border-subtlest-tertiary bg-background-default text-text-tertiary typo-caption1 tablet:flex">
+        or
+      </span>
+      <Path
+        icon={<EditIcon />}
+        title="Share your best content"
+        hint="Paste a link to a post, video, release notes or docs you already published."
+      >
+        <ShareField onShare={onShare} />
+      </Path>
+      <Path
+        icon={<MagicIcon />}
+        title="Find out what to write"
+        hint="We look at what developers in your field read, and suggest the topics that fit your audience."
+      >
         <Button
           type="button"
-          variant={ButtonVariant.Primary}
-          icon={<EditIcon />}
-          className="shrink-0 self-start"
-          onClick={onWrite}
+          variant={ButtonVariant.Subtle}
+          className="w-full"
+          onClick={onOpenIntel ?? onWrite}
         >
-          Write a post
+          {onOpenIntel ? 'See what to write' : 'Write a post'}
         </Button>
-      </div>
-      <div className="grid grid-cols-1 gap-2 tablet:grid-cols-2">
-        <Path
-          icon={<LinkIcon />}
-          title="Share your best content"
-          hint="A blog post, video, release notes or docs page developers would learn from."
-        >
-          <ShareForm onShare={onShare} />
-        </Path>
-        <Path
-          icon={<MagicIcon />}
-          title="Create something new"
-          hint="See what developers in your space read last week, and pick a topic."
-          isSelected={isIntelOpen}
-        >
-          <Button
-            type="button"
-            variant={ButtonVariant.Secondary}
-            size={ButtonSize.Small}
-            aria-expanded={isIntelOpen}
-            onClick={() => {
-              if (!isIntelOpen) {
-                onOpenIntel?.();
-              }
-
-              setIntelOpen(!isIntelOpen);
-            }}
-          >
-            {isIntelOpen ? 'Hide the intel' : 'Find a topic'}
-          </Button>
-        </Path>
-      </div>
-      {isIntelOpen && intel}
-      {isIntelOpen && (
-        // Stays in reach while they read the intel, above the phone's bar
-        <div className="pointer-events-none sticky bottom-[calc(var(--shell-floor)+4rem)] z-3 flex justify-center laptop:bottom-[calc(1rem+var(--sponsor-strip-height,0rem))]">
-          <Button
-            type="button"
-            variant={ButtonVariant.Primary}
-            icon={<EditIcon />}
-            className="pointer-events-auto shadow-2"
-            onClick={onWrite}
-          >
-            Write a post
-          </Button>
+      </Path>
+    </div>
+    {!!boostDollars && (
+      <div
+        className="flex flex-col gap-4 rounded-16 p-4 tablet:flex-row tablet:items-center tablet:p-5"
+        style={{ background: startupsLavenderWash }}
+      >
+        <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+          <h3 className="flex flex-wrap items-center gap-2 font-bold typo-body">
+            <StartupsFreeChip />
+            {`$${boostDollars} boost on your first post`}
+          </h3>
+          <p className="text-pretty text-text-secondary typo-footnote">
+            It goes out to thousands of developers on the day you post.
+            {!!missingForBoost.length && (
+              <>
+                {' The boost starts once your page has '}
+                {missingForBoost.map((step, index) => (
+                  <React.Fragment key={step.id}>
+                    {index > 0 &&
+                      (index === missingForBoost.length - 1 ? ' and ' : ', ')}
+                    <a
+                      href={step.href}
+                      className="font-bold text-text-primary underline"
+                    >
+                      {step.title}
+                    </a>
+                  </React.Fragment>
+                ))}
+                . You can post before that.
+              </>
+            )}
+          </p>
+          {upgradeUrl && (
+            <a
+              href={upgradeUrl}
+              onClick={onUpgrade}
+              className="flex items-center gap-1 self-start font-bold text-text-primary typo-footnote hover:underline"
+            >
+              Upgrade to reach more developers every month
+              <MoveToIcon size={IconSize.Size16} className="shrink-0" />
+            </a>
+          )}
         </div>
-      )}
-      {!!boostDollars && !!missingForBoost.length && (
-        <p className="text-text-tertiary typo-footnote">
-          Your boost starts once your page has{' '}
-          {missingForBoost.map((step, index) => (
-            <React.Fragment key={step.id}>
-              {index > 0 &&
-                (index === missingForBoost.length - 1 ? ' and ' : ', ')}
-              <a href={step.href} className="text-text-link hover:underline">
-                {step.title}
-              </a>
-            </React.Fragment>
-          ))}
-          . You can post before that.
-        </p>
-      )}
-    </section>
-  );
-};
+        <StartupsReachChart
+          moreLabel="With the boost"
+          lessLabel="Without"
+          className="w-full shrink-0 tablet:w-44"
+        />
+      </div>
+    )}
+  </section>
+);

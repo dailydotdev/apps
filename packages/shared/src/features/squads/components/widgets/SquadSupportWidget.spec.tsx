@@ -68,7 +68,7 @@ it('should open the support chat for an admin of a company page', async () => {
   renderWidget(makeSquad());
 
   fireEvent.click(
-    await screen.findByRole('button', { name: 'Send a message' }),
+    await screen.findByRole('button', { name: 'Talk to the founders' }),
   );
 
   await waitFor(() =>
@@ -83,7 +83,7 @@ it('should not show to a moderator', () => {
   renderWidget(makeSquad({ role: SourceMemberRole.Moderator }));
 
   expect(
-    screen.queryByRole('button', { name: 'Send a message' }),
+    screen.queryByRole('button', { name: 'Talk to the founders' }),
   ).not.toBeInTheDocument();
 });
 
@@ -91,6 +91,6 @@ it('should not show on a regular squad', () => {
   renderWidget(makeSquad({ company: false }));
 
   expect(
-    screen.queryByRole('button', { name: 'Send a message' }),
+    screen.queryByRole('button', { name: 'Talk to the founders' }),
   ).not.toBeInTheDocument();
 });

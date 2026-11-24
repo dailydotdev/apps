@@ -10,6 +10,7 @@ import CloseButton from '../../../../components/CloseButton';
 import { ArrowIcon, VIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import { useCopyLink } from '../../../../hooks/useCopy';
+import { startupsLavenderTint } from '../../../../styles/custom';
 import { AgentPromptButton } from '../AgentPromptButton';
 import type { ReadinessItem } from '../../lib/readiness';
 import {
@@ -56,10 +57,19 @@ const groupTitle: Record<ReadinessGroup, string> = {
   [ReadinessGroup.Included]: 'Already on',
 };
 
-const Check = ({ isDone }: { isDone: boolean }): ReactElement => (
+const Check = ({
+  isDone,
+  isSmall = false,
+}: {
+  isDone: boolean;
+  isSmall?: boolean;
+}): ReactElement => (
   <span
     aria-hidden
-    className="flex size-5 shrink-0 items-center justify-center rounded-full"
+    className={classNames(
+      'flex shrink-0 items-center justify-center rounded-full',
+      isSmall ? 'size-4' : 'size-5',
+    )}
     style={
       isDone
         ? { background: DONE_COLOR, color: '#111827' }
@@ -172,18 +182,21 @@ const WidgetRow = ({
   const isSkill = item.kind === ReadinessKind.Skill;
   const content = (
     <>
-      <Check isDone={item.isDone} />
+      <Check isDone={item.isDone} isSmall />
       <span
         className={classNames(
-          'min-w-0 flex-1 typo-callout',
+          'min-w-0 flex-1 typo-footnote',
           item.isDone && 'text-text-tertiary',
         )}
       >
         {isSkill && isCopying ? 'Prompt copied' : item.title}
       </span>
       {isBoostRow && !item.isDone && (
-        <span className="shrink-0 rounded-6 bg-overlay-float-cabbage px-1.5 py-0.5 font-bold text-accent-cabbage-default typo-caption2">
-          For your boost
+        <span
+          className="shrink-0 rounded-6 px-1.5 py-0.5 font-bold typo-caption2"
+          style={{ background: startupsLavenderTint, color: DONE_COLOR }}
+        >
+          Unlocks boost
         </span>
       )}
       {(item.href || isSkill) && (
@@ -195,7 +208,7 @@ const WidgetRow = ({
     </>
   );
   const rowClassName =
-    'flex w-full items-center gap-3 py-2 text-left hover:text-text-primary';
+    'flex w-full items-center gap-2.5 py-1 text-left hover:text-text-primary';
 
   if (isSkill) {
     return (
@@ -346,7 +359,7 @@ export const CompanyPageReadiness = ({
     return (
       <section
         className={classNames(
-          'relative flex w-full flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4',
+          'relative flex w-full flex-col gap-2.5 rounded-16 border border-border-subtlest-tertiary p-4',
           className,
         )}
       >
@@ -360,6 +373,7 @@ export const CompanyPageReadiness = ({
         )}
         <div className="flex flex-col gap-2">
           <h3
+            title={description}
             className={classNames(
               'font-bold typo-callout',
               onDismiss && 'pr-8',
@@ -368,7 +382,6 @@ export const CompanyPageReadiness = ({
             {title}
           </h3>
           <ProgressLine percentage={(doneCount / total) * 100} />
-          <p className="text-text-tertiary typo-footnote">{description}</p>
         </div>
         {Object.values(ReadinessGroup).map((group) => {
           const groupRows = rows.filter(

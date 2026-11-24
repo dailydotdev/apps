@@ -2,8 +2,10 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';
-import { largeNumberFormat } from '../../../../lib/numberFormat';
+import { MoveToIcon } from '../../../../components/icons';
+import { IconSize } from '../../../../components/Icon';
 import type { StartupsStarterOffer } from '../../hooks/useStartupsPromo';
+import { SquadStatsRow } from './SquadStatsRow';
 import { StarterUpgrade } from './StarterUpgrade';
 
 export interface SquadValueStats {
@@ -33,31 +35,6 @@ interface SquadValuePanelProps {
   className?: string;
 }
 
-const number = (value: number): string => value.toLocaleString('en-US');
-
-const tilesColumns: Record<number, string> = {
-  1: 'tablet:grid-cols-2',
-  2: 'tablet:grid-cols-2',
-  3: 'tablet:grid-cols-3',
-  4: 'tablet:grid-cols-4',
-  5: 'tablet:grid-cols-5',
-};
-
-const Tile = ({
-  value,
-  label,
-}: {
-  value: number;
-  label: string;
-}): ReactElement => (
-  <div className="flex flex-col gap-0.5 rounded-12 border border-border-subtlest-tertiary p-3">
-    <span className="font-bold tabular-nums typo-title2">
-      {largeNumberFormat(value)}
-    </span>
-    <span className="text-text-secondary typo-footnote">{label}</span>
-  </div>
-);
-
 const Panel = ({
   analyticsUrl,
   className,
@@ -69,17 +46,21 @@ const Panel = ({
 }): ReactElement => (
   <section
     className={classNames(
-      'flex w-full flex-col gap-4 rounded-16 border border-border-subtlest-tertiary p-4 tablet:p-5',
+      'flex flex-col gap-4 border-b border-border-subtlest-tertiary px-4 pb-5 tablet:-mx-6 tablet:px-6',
       className,
     )}
   >
-    <div className="flex items-center justify-between gap-3 typo-caption1">
-      <span className="text-text-tertiary">Only admins see this</span>
+    <div className="flex items-center gap-2">
+      <h2 className="font-bold typo-callout">Page analytics</h2>
+      <span className="min-w-0 flex-1 truncate text-text-tertiary typo-footnote">
+        Only admins see this
+      </span>
       <a
         href={analyticsUrl}
-        className="text-text-tertiary hover:text-text-primary"
+        className="flex shrink-0 items-center gap-1 font-bold text-text-primary typo-footnote hover:underline"
       >
         View analytics
+        <MoveToIcon size={IconSize.Size16} className="shrink-0" />
       </a>
     </div>
     {children}
@@ -128,34 +109,18 @@ export const SquadValuePanel = ({
     );
   }
 
-  const tiles = [
-    { value: stats.reach, label: 'Reach' },
-    { value: stats.clicks, label: 'Clicks' },
-    { value: stats.engagement, label: 'Engagement' },
-    { value: stats.followers, label: 'Followers' },
-    { value: stats.agentViews ?? 0, label: 'AI visits' },
-  ].filter(({ value }) => value > 0);
-
   return (
     <Panel analyticsUrl={analyticsUrl} className={className}>
-      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <span className="font-bold tabular-nums typo-mega2 tablet:typo-mega1">
-          {number(stats.impressions)}
-        </span>
-        <span className="font-bold typo-title3">impressions so far</span>
-      </div>
-      {!!tiles.length && (
-        <div
-          className={classNames(
-            'grid grid-cols-2 gap-2',
-            tilesColumns[tiles.length],
-          )}
-        >
-          {tiles.map(({ value, label }) => (
-            <Tile key={label} value={value} label={label} />
-          ))}
-        </div>
-      )}
+      <SquadStatsRow
+        lead={{ label: 'Impressions', value: stats.impressions }}
+        stats={[
+          { label: 'Reach', value: stats.reach },
+          { label: 'Clicks', value: stats.clicks },
+          { label: 'Engagement', value: stats.engagement },
+          { label: 'Followers', value: stats.followers },
+          { label: 'AI visits', value: stats.agentViews ?? 0 },
+        ]}
+      />
       {upgrade && (
         <StarterUpgrade
           name={name}

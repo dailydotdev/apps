@@ -245,6 +245,8 @@ const handlers = (scenario: Scenario) => {
                 change: 12,
                 competition: 'crowded',
                 readsPerPost: 118,
+                bookmarks: 126,
+                topPostsShare: 81,
               },
               {
                 tag: 'code-review',
@@ -252,6 +254,8 @@ const handlers = (scenario: Scenario) => {
                 change: 27,
                 competition: 'open',
                 readsPerPost: 164,
+                bookmarks: 197,
+                topPostsShare: 74,
               },
               {
                 tag: 'github',
@@ -259,6 +263,8 @@ const handlers = (scenario: Scenario) => {
                 change: -8,
                 competition: 'moderate',
                 readsPerPost: 97,
+                bookmarks: 92,
+                topPostsShare: 78,
               },
               {
                 tag: 'testing',
@@ -266,6 +272,8 @@ const handlers = (scenario: Scenario) => {
                 change: 4,
                 competition: 'open',
                 readsPerPost: 121,
+                bookmarks: 140,
+                topPostsShare: 69,
               },
               {
                 tag: 'devops',
@@ -273,6 +281,8 @@ const handlers = (scenario: Scenario) => {
                 change: -15,
                 competition: 'crowded',
                 readsPerPost: 74,
+                bookmarks: 66,
+                topPostsShare: 85,
               },
               {
                 tag: 'security',
@@ -280,15 +290,21 @@ const handlers = (scenario: Scenario) => {
                 change: 0,
                 competition: 'moderate',
                 readsPerPost: 102,
+                bookmarks: 118,
+                topPostsShare: 77,
               },
             ],
-            formats: [
-              { format: 'Tutorial', posts: 612, readsPerPost: 141 },
-              { format: 'Story', posts: 388, readsPerPost: 186 },
-              { format: 'Listicle', posts: 74, readsPerPost: 312 },
-              { format: 'Opinion', posts: 455, readsPerPost: 108 },
-              { format: 'Release', posts: 290, readsPerPost: 61 },
-              { format: 'News', posts: 341, readsPerPost: 52 },
+            alsoRead: [
+              { tag: 'cursor', readBy: 14, affinity: 2.6, change: 22 },
+              { tag: 'llm', readBy: 19, affinity: 2.2, change: 9 },
+              { tag: 'mcp', readBy: 8, affinity: 2.1, change: null },
+              {
+                tag: 'developer-experience',
+                readBy: 11,
+                affinity: 1.7,
+                change: 31,
+              },
+              { tag: 'typescript', readBy: 21, affinity: 1.4, change: -6 },
             ],
             topPosts: [
               {
@@ -299,6 +315,7 @@ const handlers = (scenario: Scenario) => {
                 upvotes: 412,
                 comments: 57,
                 permalink: '#post-1',
+                image: '/squad-page/coderabbit-banner.jpg',
               },
               {
                 title:
@@ -308,6 +325,7 @@ const handlers = (scenario: Scenario) => {
                 upvotes: 233,
                 comments: 41,
                 permalink: '#post-2',
+                image: null,
               },
               {
                 title: 'How we cut our PR review time from 2 days to 3 hours',
@@ -316,8 +334,15 @@ const handlers = (scenario: Scenario) => {
                 upvotes: 198,
                 comments: 22,
                 permalink: '#post-3',
+                image: null,
               },
             ],
+            timing: {
+              days: [17, 19, 18, 16, 13, 8, 9],
+              bestDay: 'Tuesday',
+              bestHours: '14:00 to 17:00 UTC',
+              weakestDay: 'Saturday',
+            },
           },
         },
       }),
@@ -475,7 +500,7 @@ export const CreateSomethingNew: Story = {
   ...story('readyNoPost'),
   play: async ({ canvasElement }) => {
     const button = await within(canvasElement).findByText(
-      'Find a topic',
+      'See what to write',
       {},
       { timeout: 60_000 },
     );
