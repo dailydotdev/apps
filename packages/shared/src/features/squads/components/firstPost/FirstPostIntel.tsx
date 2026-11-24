@@ -93,7 +93,9 @@ const Bar = ({
     <div
       className={classNames(
         'h-full rounded-8',
-        isHighlighted ? 'bg-accent-cabbage-default' : 'bg-accent-blueCheese-default',
+        isHighlighted
+          ? 'bg-accent-cabbage-default'
+          : 'bg-accent-blueCheese-default',
       )}
       style={{ width: `${Math.max(percentage, 2)}%` }}
     />
@@ -172,7 +174,9 @@ export const FirstPostIntel = ({
   const formats = [...intel.formats]
     .sort((a, b) => b.readsPerPost - a.readsPerPost)
     .slice(0, FORMATS_SHOWN);
-  const maxFormat = Math.max(...formats.map(({ readsPerPost }) => readsPerPost));
+  const maxFormat = Math.max(
+    ...formats.map(({ readsPerPost }) => readsPerPost),
+  );
 
   return (
     <div className="flex flex-col gap-6 rounded-12 border border-border-subtlest-tertiary bg-background-default p-4 tablet:p-5">

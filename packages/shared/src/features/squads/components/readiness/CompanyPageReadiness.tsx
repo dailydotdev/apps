@@ -257,7 +257,9 @@ const AgentLink = ({
         onCopy?.();
       }}
     >
-      {isCopying ? 'Prompt copied, paste it into your agent' : 'Let your agent do the rest'}
+      {isCopying
+        ? 'Prompt copied, paste it into your agent'
+        : 'Let your agent do the rest'}
     </Button>
   );
 };
@@ -357,7 +359,12 @@ export const CompanyPageReadiness = ({
           />
         )}
         <div className="flex flex-col gap-2">
-          <h3 className={classNames('font-bold typo-callout', onDismiss && 'pr-8')}>
+          <h3
+            className={classNames(
+              'font-bold typo-callout',
+              onDismiss && 'pr-8',
+            )}
+          >
             {title}
           </h3>
           <ProgressLine percentage={(doneCount / total) * 100} />

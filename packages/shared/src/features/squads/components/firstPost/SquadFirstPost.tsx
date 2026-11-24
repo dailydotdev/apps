@@ -100,7 +100,9 @@ export const SquadFirstPost = (): ReactElement | null => {
     <FirstPostCard
       className="mx-4 tablet:mx-0"
       boostDollars={hasBoost ? BOOST_DOLLARS : undefined}
-      missingForBoost={boost?.state === 'setup' ? getMissingForBoost(squad) : []}
+      missingForBoost={
+        boost?.state === 'setup' ? getMissingForBoost(squad) : []
+      }
       onShare={(url) => {
         log(LogEvent.ClickStartupsSetupStep, 'first post share');
         openModal({
@@ -112,7 +114,9 @@ export const SquadFirstPost = (): ReactElement | null => {
           },
         });
       }}
-      onOpenIntel={() => log(LogEvent.ClickStartupsSetupStep, 'first post intel')}
+      onOpenIntel={() =>
+        log(LogEvent.ClickStartupsSetupStep, 'first post intel')
+      }
       intel={
         intel ? (
           <FirstPostIntel
@@ -122,7 +126,9 @@ export const SquadFirstPost = (): ReactElement | null => {
               squad.handle,
               SquadManageSection.Intel,
             )}
-            upgradeUrl={isPaid ? undefined : getStartupsCheckoutUrl({ sourceId })}
+            upgradeUrl={
+              isPaid ? undefined : getStartupsCheckoutUrl({ sourceId })
+            }
             onUpgrade={() =>
               log(LogEvent.UpgradeSubscription, 'first post intel')
             }
@@ -133,7 +139,10 @@ export const SquadFirstPost = (): ReactElement | null => {
               );
               openModal({
                 type: LazyModal.SmartComposer,
-                props: { initialSquadHandle: squad.handle, initialKind: 'text' },
+                props: {
+                  initialSquadHandle: squad.handle,
+                  initialKind: 'text',
+                },
               });
             }}
             skills={[

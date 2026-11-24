@@ -61,11 +61,7 @@ export const SquadCompanyValue = (): ReactElement | null => {
     return null;
   }
 
-  if (
-    isSubscriptionPending ||
-    isBoostPending ||
-    isAnalyticsPending
-  ) {
+  if (isSubscriptionPending || isBoostPending || isAnalyticsPending) {
     return <SquadValuePanelPlaceholder />;
   }
 

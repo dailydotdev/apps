@@ -237,12 +237,48 @@ const handlers = (scenario: Scenario) => {
                   pickedFrom: 'coderabbit.ai',
                 },
             topics: [
-              { tag: 'ai-agents', share: 41.2, change: 12, competition: 'crowded', readsPerPost: 118 },
-              { tag: 'code-review', share: 18.6, change: 27, competition: 'open', readsPerPost: 164 },
-              { tag: 'github', share: 14.1, change: -8, competition: 'moderate', readsPerPost: 97 },
-              { tag: 'testing', share: 11.3, change: 4, competition: 'open', readsPerPost: 121 },
-              { tag: 'devops', share: 8.9, change: -15, competition: 'crowded', readsPerPost: 74 },
-              { tag: 'security', share: 5.9, change: 0, competition: 'moderate', readsPerPost: 102 },
+              {
+                tag: 'ai-agents',
+                share: 41.2,
+                change: 12,
+                competition: 'crowded',
+                readsPerPost: 118,
+              },
+              {
+                tag: 'code-review',
+                share: 18.6,
+                change: 27,
+                competition: 'open',
+                readsPerPost: 164,
+              },
+              {
+                tag: 'github',
+                share: 14.1,
+                change: -8,
+                competition: 'moderate',
+                readsPerPost: 97,
+              },
+              {
+                tag: 'testing',
+                share: 11.3,
+                change: 4,
+                competition: 'open',
+                readsPerPost: 121,
+              },
+              {
+                tag: 'devops',
+                share: 8.9,
+                change: -15,
+                competition: 'crowded',
+                readsPerPost: 74,
+              },
+              {
+                tag: 'security',
+                share: 5.9,
+                change: 0,
+                competition: 'moderate',
+                readsPerPost: 102,
+              },
             ],
             formats: [
               { format: 'Tutorial', posts: 612, readsPerPost: 141 },
@@ -254,7 +290,8 @@ const handlers = (scenario: Scenario) => {
             ],
             topPosts: [
               {
-                title: 'We let an agent review 2,000 pull requests. Here is what it missed',
+                title:
+                  'We let an agent review 2,000 pull requests. Here is what it missed',
                 source: 'Engineering blog',
                 readsVsAverage: 38.4,
                 upvotes: 412,
@@ -262,7 +299,8 @@ const handlers = (scenario: Scenario) => {
                 permalink: '#post-1',
               },
               {
-                title: 'Code review checklists are dead. Long live code review checklists',
+                title:
+                  'Code review checklists are dead. Long live code review checklists',
                 source: 'Personal blog',
                 readsVsAverage: 21.7,
                 upvotes: 233,
@@ -388,7 +426,12 @@ export default meta;
 type Story = StoryObj;
 
 const profileCompletion = (scenario: Scenario) => {
-  const profile = { photo: true, headline: true, job: true, ...scenario.profile };
+  const profile = {
+    photo: true,
+    headline: true,
+    job: true,
+    ...scenario.profile,
+  };
 
   return {
     percentage: 60,
