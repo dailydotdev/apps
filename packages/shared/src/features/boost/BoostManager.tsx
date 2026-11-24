@@ -273,7 +273,14 @@ const shortDate = (date: Date | string): string =>
   });
 
 const daysLeftOf = ({ endedAt }: Campaign): string => {
-  const days = getAbsoluteDifferenceInDays(new Date(endedAt), new Date());
+  const end = new Date(endedAt);
+
+  // A boost keeps going past its end date until its budget is spent
+  if (end.getTime() <= Date.now()) {
+    return 'Finishing its budget';
+  }
+
+  const days = getAbsoluteDifferenceInDays(end, new Date());
 
   if (days === 0) {
     return 'Ends today';
