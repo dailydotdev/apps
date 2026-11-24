@@ -19,6 +19,9 @@ import {
   AddWorkExperience,
   AvatarRing,
   CampaignPopover,
+  DesktopAddWork,
+  DesktopProfile,
+  DesktopWorkEmpty,
   ExperienceEmpty,
   MenuCardCvFirst,
   MenuCardToday,
@@ -68,8 +71,8 @@ const entryPoints = [
   ],
   [
     '"Fill from CV" row in the empty Experience section',
-    'In production',
-    'ExperienceEmptyState renders AutofillProfileBanner until the CV is uploaded or the banner is closed.',
+    'Change',
+    'ExperienceEmptyState already asks for the CV, with the large AutofillProfileBanner. It becomes one row.',
   ],
   [
     '"Import from CV" in the profile edit menu',
@@ -78,8 +81,8 @@ const entryPoints = [
   ],
   [
     'The same row on empty Work Experience and Education settings pages',
-    'In production',
-    'Both pages render ExperienceSettings, which falls back to the same ExperienceEmptyState.',
+    'Change',
+    'Both pages fall back to the same ExperienceEmptyState, so the one change covers all three places.',
   ],
   [
     'A shortcut inside Add work experience',
@@ -98,15 +101,16 @@ export const Review: Story = {
     <Page>
       <PageHeader
         eyebrow="Ido's proposal: CV upload banner"
-        title="Turn the CV banner and both popovers off, and ask for the CV where people already work on their profile. Half of that list already ships."
+        title="Turn the CV banner and both popovers off, and ask for the CV where people already work on their profile. Half of that list is already there in another form."
       >
         <p>
           Customer.io campaign 48 sends the banner and the 30 and 60-day
           popovers. Stopping it turns all three off with no code change. Of the
-          six places Ido lists, two are in production, one exists and needs to
-          lead with the CV, and three are new. This page draws each one, the
-          production ones with their own components. Copy on the new ones is a
-          placeholder.
+          six places Ido lists, the empty sections already ask for the CV with a
+          large banner that becomes one row, the profile menu card exists and
+          needs to lead with the CV, and three are new. This page draws each
+          one, the production ones with their own components. Copy on the new
+          ones is a placeholder.
         </p>
       </PageHeader>
 
@@ -154,7 +158,7 @@ export const Review: Story = {
 
       <Section
         title="The six entry points"
-        description="Ido's list against the code. Same on desktop and phone: the menu card is the desktop popover's own width, the rest are the phone layout the tablet and laptop pages widen."
+        description="Ido's list against the code. Each one is drawn on the phone first; the desktop views are at the end."
       >
         <Table
           head={['Entry point', 'Status', 'What it takes']}
@@ -163,21 +167,41 @@ export const Review: Story = {
       </Section>
 
       <Section
-        title="Already in production"
-        description="Rendered with ExperienceEmptyState's own pieces: CharmEmptyState and AutofillProfileBanner."
+        title="The empty sections: one row instead of the banner"
+        description="Today, top: ExperienceEmptyState as production renders it, CharmEmptyState with AutofillProfileBanner under it, until the CV is uploaded or the banner is closed. Proposed, bottom: the same empty state with one Fill from CV row. The profile's Experience section and both settings pages share the component, so one change covers all three."
       >
         <PhoneRow>
-          <Cell
-            label="Profile, empty Experience"
-            note="Shows until the CV is uploaded or the banner is closed."
-          >
+          <Cell label="Today: profile, empty Experience" verdict={Verdict.Skip}>
             <ExperienceEmpty title="Experience" />
           </Cell>
-          <Cell label="Settings, empty Work Experience">
+          <Cell
+            label="Today: settings, empty Work Experience"
+            verdict={Verdict.Skip}
+          >
             <ExperienceEmpty title="Work Experience" />
           </Cell>
-          <Cell label="Settings, empty Education">
+          <Cell label="Today: settings, empty Education" verdict={Verdict.Skip}>
             <ExperienceEmpty title="Education" />
+          </Cell>
+        </PhoneRow>
+        <PhoneRow>
+          <Cell
+            label="Proposed: profile, empty Experience"
+            verdict={Verdict.Ship}
+          >
+            <ExperienceEmpty title="Experience" proposed />
+          </Cell>
+          <Cell
+            label="Proposed: settings, empty Work Experience"
+            verdict={Verdict.Ship}
+          >
+            <ExperienceEmpty title="Work Experience" proposed />
+          </Cell>
+          <Cell
+            label="Proposed: settings, empty Education"
+            verdict={Verdict.Ship}
+          >
+            <ExperienceEmpty title="Education" proposed />
           </Cell>
         </PhoneRow>
       </Section>
@@ -230,6 +254,26 @@ export const Review: Story = {
           avatar. The menu card already carries the same progress, so the ring
           is the easiest one to drop.
         </Callout>
+      </Section>
+
+      <Section
+        title="On desktop"
+        description="The same pieces at laptop width. The profile menu card above is already the desktop popover's width; the ring is the same avatar at either size."
+      >
+        <div className="flex flex-col gap-12">
+          <Cell
+            label="Profile: Import from CV in the edit menu"
+            note="Tap the edit square."
+          >
+            <DesktopProfile />
+          </Cell>
+          <Cell label="Settings: empty Work Experience with the row">
+            <DesktopWorkEmpty />
+          </Cell>
+          <Cell label="Settings: Add work experience with the shortcut">
+            <DesktopAddWork />
+          </Cell>
+        </div>
       </Section>
     </Page>
   ),

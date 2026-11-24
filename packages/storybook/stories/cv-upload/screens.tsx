@@ -165,80 +165,130 @@ export const AvatarRing = ({ lfg }: { lfg?: boolean }): ReactElement => (
   </div>
 );
 
-// The profile page on a phone: the edit square opens a menu with Edit
-// profile and Import from CV.
-export const ProfileEditMenu = (): ReactElement => {
+// The edit square opens a menu with Edit profile and Import from CV,
+// instead of linking straight to settings.
+const EditSquare = (): ReactElement => {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <Phone browser={BrowserChrome.None} height={640}>
-      <div className="h-28 bg-surface-float" />
-      <img
-        src={avatar}
-        alt=""
-        className="absolute left-4 top-16 size-20 rounded-16 object-cover ring-4 ring-background-default"
+    <div className="relative">
+      <Button
+        variant={ButtonVariant.Float}
+        icon={<EditIcon />}
+        aria-label="Edit profile"
+        pressed={isOpen}
+        onClick={() => setIsOpen(!isOpen)}
       />
-      <div className="relative flex justify-end gap-2 px-4 pt-2">
-        <Button
-          variant={ButtonVariant.Float}
-          icon={<EditIcon />}
-          aria-label="Edit profile"
-          pressed={isOpen}
-          onClick={() => setIsOpen(!isOpen)}
-        />
-        {isOpen && (
-          <div className="absolute right-4 top-14 z-1 flex w-56 flex-col rounded-16 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-2">
-            {[
-              { label: 'Edit profile', icon: <EditIcon /> },
-              { label: 'Import from CV', icon: <UploadIcon /> },
-            ].map((item) => (
-              <button
-                key={item.label}
-                type="button"
-                onClick={() => setIsOpen(false)}
-                className="flex h-10 items-center gap-2 rounded-10 px-3 text-text-secondary typo-callout hover:bg-surface-float hover:text-text-primary"
-              >
-                {item.icon}
-                {item.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-      <div className="flex flex-col gap-1 px-4 pt-8">
-        <Typography type={TypographyType.Title2} bold>
-          Dev Dana
-        </Typography>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          @dana
-        </Typography>
-      </div>
-    </Phone>
+      {isOpen && (
+        <div className="absolute right-0 top-12 z-1 flex w-56 flex-col rounded-16 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-2">
+          {[
+            { label: 'Edit profile', icon: <EditIcon /> },
+            { label: 'Import from CV', icon: <UploadIcon /> },
+          ].map((item) => (
+            <button
+              key={item.label}
+              type="button"
+              onClick={() => setIsOpen(false)}
+              className="flex h-10 items-center gap-2 rounded-10 px-3 text-text-secondary typo-callout hover:bg-surface-float hover:text-text-primary"
+            >
+              {item.icon}
+              {item.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 
-// In production: ExperienceEmptyState, as the profile's Experience section
-// and the Work Experience and Education settings pages render it.
-export const ExperienceEmpty = ({ title }: { title: string }): ReactElement => (
-  <Phone browser={BrowserChrome.None} height={720}>
-    <LeafHeader title={title} />
-    <div className="flex flex-col items-center px-4">
-      <CharmEmptyState
-        placement={CharmEmptyStatePlacement.Page}
-        image={cloudinaryCharmEmptyProfile}
-        imageAlt="daily.dev charm with an empty profile"
-        title={`No ${title.toLowerCase()} added yet`}
-        description="Add it here and it shows on your profile."
-        action={{ label: 'Add', icon: <PlusIcon />, onClick: () => undefined }}
-      />
+const ProfileTop = ({ wide }: { wide?: boolean }): ReactElement => (
+  <div className="relative">
+    <div className={wide ? 'h-40 bg-surface-float' : 'h-28 bg-surface-float'} />
+    <img
+      src={avatar}
+      alt=""
+      className={
+        wide
+          ? 'absolute left-6 top-24 size-[7.5rem] rounded-16 object-cover'
+          : 'absolute left-4 top-16 size-20 rounded-16 object-cover ring-4 ring-background-default'
+      }
+    />
+    <div
+      className={
+        wide ? 'flex justify-end px-6 pt-3' : 'flex justify-end px-4 pt-2'
+      }
+    >
+      <EditSquare />
+    </div>
+    <div
+      className={
+        wide
+          ? 'flex flex-col gap-1 px-6 pt-12'
+          : 'flex flex-col gap-1 px-4 pt-8'
+      }
+    >
+      <Typography type={TypographyType.Title2} bold>
+        Dev Dana
+      </Typography>
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Tertiary}
+      >
+        @dana
+      </Typography>
+    </div>
+  </div>
+);
+
+export const ProfileEditMenu = (): ReactElement => (
+  <Phone browser={BrowserChrome.None} height={640}>
+    <ProfileTop />
+  </Phone>
+);
+
+// ExperienceEmptyState. Today it renders AutofillProfileBanner under the
+// empty state; the proposal swaps the banner for one row.
+const EmptyBody = ({
+  title,
+  proposed,
+}: {
+  title: string;
+  proposed?: boolean;
+}): ReactElement => (
+  <div className="flex flex-col items-center">
+    <CharmEmptyState
+      placement={CharmEmptyStatePlacement.Page}
+      image={cloudinaryCharmEmptyProfile}
+      imageAlt="daily.dev charm with an empty profile"
+      title={`No ${title.toLowerCase()} added yet`}
+      description="Add it here and it shows on your profile."
+      action={{ label: 'Add', icon: <PlusIcon />, onClick: () => undefined }}
+    />
+    {proposed ? (
+      <div className="mt-6 w-full max-w-[30rem]">
+        <FillFromCvRow description="Upload your CV and we fill in your work and education." />
+      </div>
+    ) : (
       <AutofillProfileBanner
         targetId={TargetId.ProfileSettingsMenu}
         onUpload={noUpload}
         showManualButton={false}
       />
+    )}
+  </div>
+);
+
+export const ExperienceEmpty = ({
+  title,
+  proposed,
+}: {
+  title: string;
+  proposed?: boolean;
+}): ReactElement => (
+  <Phone browser={BrowserChrome.None} height={720}>
+    <LeafHeader title={title} />
+    <div className="px-4">
+      <EmptyBody title={title} proposed={proposed} />
     </div>
   </Phone>
 );
@@ -252,27 +302,125 @@ const Field = ({ label }: { label: string }): ReactElement => (
   </div>
 );
 
+const AddWorkFields = (): ReactElement => (
+  <>
+    <FillFromCvRow
+      title="Skip the typing"
+      description="Upload your CV and we fill in every role."
+    />
+    <Field label="Title" />
+    <Field label="Company" />
+    <Field label="Start date" />
+    <Field label="Location" />
+  </>
+);
+
+const SaveButton = (): ReactElement => (
+  <Button variant={ButtonVariant.Primary} size={ButtonSize.Small}>
+    Save
+  </Button>
+);
+
 export const AddWorkExperience = (): ReactElement => (
   <Phone browser={BrowserChrome.None} height={720}>
-    <LeafHeader
-      title="Add work experience"
+    <LeafHeader title="Add work experience" action={<SaveButton />} />
+    <div className="flex flex-col gap-5 px-4 pt-2">
+      <AddWorkFields />
+    </div>
+  </Phone>
+);
+
+// A laptop browser window with the app's sidebar, for the desktop views.
+const Laptop = ({
+  path,
+  nav,
+  children,
+}: {
+  path: string;
+  nav: string[];
+  children: ReactNode;
+}): ReactElement => (
+  <div className="flex h-[36rem] w-[60rem] max-w-full flex-col overflow-hidden rounded-16 border border-border-subtlest-secondary bg-background-default shadow-3">
+    <div className="flex h-10 shrink-0 items-center gap-2 border-b border-border-subtlest-tertiary bg-background-subtle px-4">
+      {[0, 1, 2].map((dot) => (
+        <span key={dot} className="size-3 rounded-full bg-surface-float" />
+      ))}
+      <span className="mx-auto rounded-8 bg-surface-float px-24 py-1 text-text-tertiary typo-caption1">
+        app.daily.dev/{path}
+      </span>
+    </div>
+    <div className="flex min-h-0 flex-1">
+      <div className="flex w-56 shrink-0 flex-col gap-1 border-r border-border-subtlest-tertiary p-3">
+        {nav.map((row, index) => (
+          <span
+            key={row}
+            className={
+              index === 0
+                ? 'rounded-10 bg-surface-float px-3 py-2 font-bold text-text-primary typo-callout'
+                : 'px-3 py-2 text-text-tertiary typo-callout'
+            }
+          >
+            {row}
+          </span>
+        ))}
+      </div>
+      <div className="min-w-0 flex-1 overflow-y-auto">{children}</div>
+    </div>
+  </div>
+);
+
+const settingsNav = ['Work Experience', 'Education', 'Profile', 'Account'];
+
+const SettingsTitle = ({
+  title,
+  action,
+}: {
+  title: string;
+  action: ReactNode;
+}): ReactElement => (
+  <div className="flex items-center justify-between border-b border-border-subtlest-tertiary px-6 py-4">
+    <Typography type={TypographyType.Title3} bold>
+      {title}
+    </Typography>
+    {action}
+  </div>
+);
+
+export const DesktopProfile = (): ReactElement => (
+  <Laptop path="dana" nav={['My feed', 'Explore', 'Bookmarks', 'History']}>
+    <div className="mx-auto max-w-[40rem]">
+      <ProfileTop wide />
+    </div>
+  </Laptop>
+);
+
+export const DesktopWorkEmpty = (): ReactElement => (
+  <Laptop path="settings/profile/experience/work" nav={settingsNav}>
+    <SettingsTitle
+      title="Work Experience"
       action={
-        <Button variant={ButtonVariant.Primary} size={ButtonSize.Small}>
-          Save
+        <Button
+          variant={ButtonVariant.Subtle}
+          size={ButtonSize.Small}
+          icon={<PlusIcon />}
+        >
+          Add
         </Button>
       }
     />
-    <div className="flex flex-col gap-5 px-4 pt-2">
-      <FillFromCvRow
-        title="Skip the typing"
-        description="Upload your CV and we fill in every role."
-      />
-      <Field label="Title" />
-      <Field label="Company" />
-      <Field label="Start date" />
-      <Field label="Location" />
+    <div className="px-6">
+      <EmptyBody title="Work Experience" proposed />
     </div>
-  </Phone>
+  </Laptop>
+);
+
+export const DesktopAddWork = (): ReactElement => (
+  <Laptop path="settings/profile/experience/edit" nav={settingsNav}>
+    <SettingsTitle title="Add work experience" action={<SaveButton />} />
+    <div className="flex max-w-[40rem] flex-col gap-5 px-6 py-4">
+      <AddWorkFields />
+    </div>
+  </Laptop>
 );
 
 const MenuFrame = ({ children }: { children: ReactNode }): ReactElement => (
