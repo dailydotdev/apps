@@ -83,22 +83,16 @@ const Code = ({ children }: { children: ReactNode }): ReactElement => (
   </code>
 );
 
-const Tag = ({
-  kind,
-}: {
-  kind: 'same' | 'new' | 'changed' | 'decide';
-}): ReactElement => {
+const Tag = ({ kind }: { kind: 'same' | 'new' | 'changed' }): ReactElement => {
   const styles = {
     same: 'bg-surface-float text-text-tertiary',
     new: 'bg-accent-cabbage-default text-white',
     changed: 'bg-accent-bun-default text-white',
-    decide: 'bg-accent-ketchup-default text-white',
   };
   const labels = {
     same: 'Same',
     new: 'New',
     changed: 'Changed',
-    decide: 'Decide',
   };
   return (
     <span
@@ -136,7 +130,7 @@ const toc = [
   ['analytics', '8. Analytics'],
   ['art', '9. Art'],
   ['backend', '10. Confirmed with the backend'],
-  ['questions', '11. Open questions'],
+  ['questions', '11. Decisions'],
   ['qa', '12. QA matrix'],
 ];
 
@@ -153,8 +147,8 @@ export const DevSpec: StoryObj = {
         </h1>
         <p className="max-w-[48rem] text-text-secondary typo-body">
           Everything the proposal needs in production, checked against the code
-          on main. Paths are relative to <Code>packages/shared/src</Code>. Items
-          tagged <Tag kind="decide" /> need a product answer before building.
+          on main. Paths are relative to <Code>packages/shared/src</Code>. The
+          product questions are answered in 11. Decisions.
         </p>
         <nav className="flex flex-wrap gap-2">
           {toc.map(([id, label]) => (
@@ -225,9 +219,13 @@ export const DevSpec: StoryObj = {
             ],
             [
               <Code key="f">lib/featureManagement.ts</Code>,
-              'reading_reminder_hero_copy: see 7.',
+              'A new experiment flag, default false (see 11). reading_reminder_hero_copy is archived: see 7.',
             ],
             [<Code key="f">lib/image.ts</Code>, 'cloudinaryPatchyReading.'],
+            [
+              'daily-api src/cio.ts',
+              'Backend: stop saving a reading or streak reminder from re-subscribing the email digest (see 11).',
+            ],
             [
               <Code key="f">lib/log.ts</Code>,
               'New events or extra fields: see 8.',
@@ -407,8 +405,9 @@ export const DevSpec: StoryObj = {
               panel is a copy of today’s reminder panel (
               <Code>bg-raw-pepper-90</Code>, <Code>text-white</Code>), so it has
               the same light-theme bug, and next to the new reminder it looks
-              like a different product. Move it to the same frame and tokens in
-              the same change. See All cases · Next to Weekly picks.
+              like a different product. It is team-only today (its flag is off
+              for readers), so restyle it in the same release as its own commit,
+              outside the experiment flag. See All cases · Next to Weekly picks.
             </>,
             <>
               <strong className="text-text-primary">Shared strip:</strong> on
@@ -503,7 +502,8 @@ export const DevSpec: StoryObj = {
               <Code>hour12: false</Code>, which can return 24 at midnight: take
               it modulo 24.
             </>,
-            '“Other time” offers 9 AM, 1 PM and 8 PM, with the current hour in place of the nearest one, with sun and moon icons as in the mockup. Times read the same way everywhere on the card: “8 PM”.',
+            'Between midnight and 5 AM the card offers 9 AM instead of the current hour, and drops “when you’re reading now” from the subtitle (see 11).',
+            '“Other time” offers 9 AM, 1 PM and 8 PM, with the offered hour in place of the nearest one, with sun and moon icons as in the mockup. Times read the same way everywhere on the card: “8 PM”.',
             <>
               <Code>subscribePersonalizedDigest</Code> sends <Code>hour</Code>,{' '}
               <Code>day</Code>, <Code>type</Code> and <Code>sendType</Code>, but
@@ -582,10 +582,10 @@ export const DevSpec: StoryObj = {
               Title and subtitle come from{' '}
               <Code>reading_reminder_hero_copy</Code> (default: “Never miss a
               learning day” / “Turn on your daily reading reminder and keep your
-              routine.”). Check GrowthBook for a running experiment before
-              changing it.
+              routine.”). The flag was archived on 2026-10-11 with no rules, so
+              production serves this default.
             </>,
-            'The new subtitle has the hour in it, so either move the copy into code and retire the flag, or give the flag value an {hour} placeholder.',
+            'The new subtitle has the hour in it: put the copy in code, behind the new experiment flag (see 11), rather than in a flag value.',
             <>
               Copy per step is in Flow · All states. Its promises, one top pick
               a day and skipped on days you’ve read, match the backend (see 10).
@@ -674,51 +674,49 @@ export const DevSpec: StoryObj = {
         />
       </Section>
 
-      <Section id="questions" title="11. Open questions">
+      <Section
+        id="questions"
+        title="11. Decisions"
+        intro="Answered by Agent Smith on 2026-11-24 from GrowthBook, the reminder data in the API and the brain. Each row says whether it rests on data or is a recommendation."
+      >
         <Table
-          head={['Question', 'Why it matters', 'Who', '']}
+          head={['Question', 'Decision', 'Basis']}
           rows={[
             [
-              'Late-night hours (midnight to 5 AM)?',
-              'The backend accepts any hour, 0 to 23, with no quiet hours for this reminder. Someone reading at 1 AM would get “Send it at 1 AM”. Keep, or suggest the next morning?',
-              'Product',
-              <Tag key="t" kind="decide" />,
+              'Late-night hours',
+              'Between midnight and 5 AM, offer 9 AM instead of the current hour. From 5 AM, offer the current hour. Compare both in the experiment.',
+              'Data: under 1% of reminders are set for midnight to 5 AM, and they get fewer taps (0.39%) than morning ones (0.57%, mostly 9 AM, where most readers are). Taps by hour are observational.',
             ],
             [
               '“Top pick” next to “Weekly picks”',
-              'The push really is one post from their feed (“Top pick for you”), but “pick” also names the Weekly picks card. Keep the word, or rename one?',
-              'Product',
-              <Tag key="t" kind="decide" />,
+              'Keep “top pick”. Rename only if Weekly picks rolls out to readers.',
+              'The push is titled “Top pick for you”; Weekly picks is team-only today. Recommendation.',
             ],
             [
-              'Saving also re-subscribes the email digest',
-              'Subscribing to any digest type, the reading reminder included, re-subscribes the reader to the email Digest topic in Customer.io (daily-api src/cio.ts). Intended for people who turned that email off?',
-              'Product, backend',
-              <Tag key="t" kind="decide" />,
-            ],
-            [
-              'Tsahi’s lock-screen option',
-              'His third image shows a lock-screen preview of the push instead of Patchy. Not built here.',
-              'Product',
-              <Tag key="t" kind="decide" />,
-            ],
-            [
-              'Stay consistent with onboarding',
-              'Onboarding settled on a time picker step and is dropping its push-only variant (PR 7175). Keep the hero’s time choice consistent with that step.',
-              'Product',
-              <Tag key="t" kind="decide" />,
+              'Saving re-subscribes the email digest',
+              'Not intended. Fix it in daily-api before rollout: skip both Customer.io calls for reading_reminder and streak_reminder. The hero can’t avoid it on its own.',
+              'Code (src/cio.ts) and the brain, which notes it looks unintended. Saving any reminder also clears a global email unsubscribe. The fix is a recommendation.',
             ],
             [
               'Weekly picks panel',
-              'It copies today’s dark reminder panel. Restyle it with the reminder, or ship the reminder alone and accept the mismatch where both stack?',
-              'Product',
-              <Tag key="t" kind="decide" />,
+              'Restyle it in the same release, as its own commit, not behind the reminder flag.',
+              'It isn’t shown to readers yet, so no experiment is disturbed. Recommendation.',
             ],
             [
-              'Experiment or straight rollout?',
-              'The copy flag may already run an experiment. A new flag (default false) keeps today’s hero as control.',
-              'Product',
-              <Tag key="t" kind="decide" />,
+              'Experiment or rollout',
+              'Experiment on a new flag that defaults to false (today’s hero is control). Primary metric: reminders saved with push allowed. Guardrail: day-over-day retention.',
+              <>
+                GrowthBook: <Code>reading_reminder_hero_copy</Code> was archived
+                on 2026-10-11 with no rules. Past tests here were mixed (copy
+                tests 1–4 lost; a dismissal change measured −6.7% retention).
+                The metric choice is a recommendation, since push first will
+                save fewer reminders.
+              </>,
+            ],
+            [
+              'Copy',
+              'Keep Tsahi’s copy as the variant, and add an arm that keeps “Turn on your daily reading reminder…” in the subtitle.',
+              'That line won five copy tests in a row; the winners of tests 5 and 6 were never made the default. Recommendation.',
             ],
           ]}
         />

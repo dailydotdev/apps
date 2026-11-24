@@ -10,6 +10,7 @@ import { Device } from '../sources/device';
 import { FeedInDevice, FeedMock } from './FeedMock';
 import type { HeroStep } from './ProposedHero';
 import {
+  offeredHour,
   PermissionPrompt,
   ProposedHero,
   ProposedTopHero,
@@ -80,14 +81,14 @@ const InteractiveFlow = ({
   permission: initialPermission,
 }: FlowArgs): ReactElement => {
   const [step, setStep] = useState<HeroStep | 'gone'>('offer');
-  const [hour, setHour] = useState(readingHour);
+  const [hour, setHour] = useState(offeredHour(readingHour));
   const [permission, setPermission] = useState(initialPermission);
   const [lines, setLines] = useState<string[]>([]);
   const log = (line: string) => setLines((current) => [...current, line]);
 
   const restart = useCallback(() => {
     setStep('offer');
-    setHour(readingHour);
+    setHour(offeredHour(readingHour));
     setPermission(initialPermission);
     setLines([]);
   }, [readingHour, initialPermission]);

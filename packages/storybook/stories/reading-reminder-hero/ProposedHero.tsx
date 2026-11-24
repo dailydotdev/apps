@@ -31,17 +31,26 @@ export type HeroStep =
 export const shortHour = (hour: number): string =>
   `${hour % 12 || 12} ${hour < 12 ? 'AM' : 'PM'}`;
 
-/** The mockup's three presets, with the current hour in place of the nearest. */
+/**
+ * The hour the card offers: the current one, except between midnight and
+ * 5 AM, where it offers 9 AM. Late-night reminders are rare and get fewer
+ * taps, and 9 AM is the hour most readers keep.
+ */
+export const offeredHour = (readingHour: number): number =>
+  readingHour < 5 ? 9 : readingHour;
+
+/** The mockup's three presets, with the offered hour in place of the nearest. */
 export const hourChoices = (readingHour: number): number[] => {
+  const offered = offeredHour(readingHour);
   const presets = [9, 13, 20];
-  if (presets.includes(readingHour)) {
+  if (presets.includes(offered)) {
     return presets;
   }
   const nearest = presets.reduce((best, hour) =>
-    Math.abs(hour - readingHour) < Math.abs(best - readingHour) ? hour : best,
+    Math.abs(hour - offered) < Math.abs(best - offered) ? hour : best,
   );
   return presets
-    .map((hour) => (hour === nearest ? readingHour : hour))
+    .map((hour) => (hour === nearest ? offered : hour))
     .sort((a, b) => a - b);
 };
 
@@ -91,13 +100,14 @@ const dayIcon = (hour: number): ReactElement =>
 const heroContent = ({
   step,
   readingHour,
-  savedHour = readingHour,
+  savedHour = offeredHour(readingHour),
   onSend,
   onPickTime,
   onRetry,
 }: Omit<ProposedHeroProps, 'onClose' | 'className'>): HeroContent => {
   // One button size on every width, so the card reads the same everywhere.
   const size = ButtonSize.Small;
+  const offered = offeredHour(readingHour);
   const time = shortHour(savedHour);
   // The current hour is under way, so only a later one can still come today.
   const day = savedHour > readingHour ? 'today' : 'tomorrow';
@@ -116,7 +126,7 @@ const heroContent = ({
             size={size}
             icon={dayIcon(hour)}
             variant={
-              hour === readingHour ? ButtonVariant.Primary : ButtonVariant.Float
+              hour === offered ? ButtonVariant.Primary : ButtonVariant.Float
             }
             onClick={() => onSend?.(hour)}
           >
@@ -183,16 +193,19 @@ const heroContent = ({
     default:
       return {
         title: 'Make reading a daily habit',
-        subtitle: `One top pick a day at ${time}, when you’re reading now. Skipped on days you’ve read.`,
+        subtitle:
+          offered === readingHour
+            ? `One top pick a day at ${time}, when you’re reading now. Skipped on days you’ve read.`
+            : `One top pick a day at ${time}. Skipped on days you’ve read.`,
         actions: (
           <>
             <Button
               type="button"
               size={size}
               variant={ButtonVariant.Primary}
-              onClick={() => onSend?.(readingHour)}
+              onClick={() => onSend?.(offered)}
             >
-              Send it at {shortHour(readingHour)}
+              Send it at {shortHour(offered)}
             </Button>
             <Button
               type="button"

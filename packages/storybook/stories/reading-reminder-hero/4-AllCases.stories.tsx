@@ -335,12 +335,13 @@ export const WithWeeklyPicks: StoryObj<CaseArgs> = {
       title="Next to Weekly picks"
       intro={
         <>
-          From Thursday, readers whose week clears the bar also get the Weekly
-          picks card (#7316). Below laptop it sits above the feed, so the two
-          cards stack; on laptop both go in the strip, which splits in two. The
-          Weekly picks panel is a copy of today’s reminder panel, fixed dark
-          colors included, so it shares the light-theme bug and will look out of
-          place next to the new reminder until it follows the same design.
+          Weekly picks (#7316) is team-only today; once it rolls out, readers
+          whose week clears the bar get it from Thursday. Below laptop it sits
+          above the feed, so the two cards stack; on laptop both go in the
+          strip, which splits in two. The Weekly picks panel is a copy of
+          today’s reminder panel, fixed dark colors included, so it shares the
+          light-theme bug and will look out of place next to the new reminder
+          until it follows the same design.
         </>
       }
     >
@@ -389,8 +390,12 @@ export const WithWeeklyPicks: StoryObj<CaseArgs> = {
 // 4. Hours
 
 const hourCases: { hour: number; note: string }[] = [
-  { hour: 0, note: 'Midnight: open question, keep or move to morning?' },
-  { hour: 2, note: 'Late night: open question.' },
+  {
+    hour: 0,
+    note: 'Midnight to 5 AM: offers 9 AM instead of the current hour.',
+  },
+  { hour: 2, note: 'Late night: offers 9 AM too, arriving later today.' },
+  { hour: 5, note: 'From 5 AM the current hour is offered as is.' },
   { hour: 7, note: 'Early morning.' },
   { hour: 9, note: 'One of the presets: the choices stay 9, 1, 8.' },
   { hour: 12, note: 'Noon: replaces 1 PM in the choices.' },
@@ -404,7 +409,7 @@ export const Hours: StoryObj<CaseArgs> = {
   render: () => (
     <Page
       title="Every kind of hour"
-      intro="The offer and the Other time choices for hours across the day, on a phone and on the laptop card. The current hour replaces the nearest preset, and each choice shows a sun or a moon."
+      intro="The offer and the Other time choices for hours across the day, on a phone and on the laptop card. The offered hour replaces the nearest preset (9 AM between midnight and 5 AM), and each choice shows a sun or a moon."
     >
       {hourCases.map(({ hour, note }) => (
         <Group key={hour} title={`Seen at ${shortHour(hour)}`} note={note}>
