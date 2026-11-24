@@ -560,7 +560,7 @@ export const DevSpec: StoryObj = {
       <Section id="art" title="9. Art">
         <List
           items={[
-            'Reading Patchy lying on a cushion with a fantasy book, made with Agent Smith; on-model against patchy-waiting.',
+            'Reading Patchy lying on a cushion with an open book, made with Agent Smith; on-model against patchy-waiting.',
             <>
               Upload it to media.daily.dev and add{' '}
               <Code>cloudinaryPatchyReading</Code> to <Code>lib/image.ts</Code>.
