@@ -7,7 +7,7 @@ import type { FetchAdByPlacementOptions } from '../../lib/ads';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useAdRequestConsent } from './useAdRequestConsent';
 import { useAdPageViewId } from './useAdPageViewId';
-import { useAdEntity } from './useAdEntity';
+import { useAdEntityRef } from './useAdEntityRef';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import {
   AdRefreshEngineVersion,
@@ -69,7 +69,7 @@ export const useAdQuery = ({
     isRefreshable && refreshEngine === AdRefreshEngineVersion.V2;
   const registered = isAuthReady ? isLoggedIn : undefined;
   const pageViewId = useAdPageViewId();
-  const { entity, isLoading: isEntityLoading } = useAdEntity(enabled);
+  const { entityRef, isPending: isEntityPending } = useAdEntityRef(enabled);
   const fetchOptions = useMemo(
     () => ({
       ...resolveAdFetchOptions({
@@ -78,7 +78,6 @@ export const useAdQuery = ({
         consent: consent ?? undefined,
         registered,
         pageViewId,
-        entity,
       }),
       ...(isRefreshEngine && {
         refresh: { platform: getAdRefreshPlatform(isAndroidApp), count: 0 },
@@ -90,7 +89,6 @@ export const useAdQuery = ({
       consent,
       registered,
       pageViewId,
-      entity,
       isRefreshEngine,
       isAndroidApp,
     ],
@@ -108,13 +106,12 @@ export const useAdQuery = ({
       consent?.consentString ?? '',
       consent?.consentExists ?? '',
       isLoggedIn,
-      entity?.entity,
-      entity?.id,
     ],
     queryFn: async () =>
       consent
         ? fetchAdByPlacement({
             ...fetchOptions,
+            entity: entityRef.current,
             onTransition: onFetchTransition,
           })
         : null,
@@ -124,7 +121,7 @@ export const useAdQuery = ({
     enabled:
       enabled &&
       !!consent &&
-      !isEntityLoading &&
+      !isEntityPending &&
       !(isRefreshable && isRefreshEngineLoading),
     staleTime,
     ...(gcTime !== undefined && { gcTime }),

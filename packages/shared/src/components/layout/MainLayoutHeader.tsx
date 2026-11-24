@@ -21,6 +21,7 @@ import { ShellRoot } from '../shell/shellNav';
 import { useShellBlockPlan } from '../shell/useShellBlockPlan';
 import { ExploreSegments } from '../shell/ExploreSegments';
 import { isExtension } from '../../lib/func';
+import { PatchyPhoneCompanion } from '../../features/patchy/PatchyPhoneCompanion';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -116,7 +117,9 @@ function MainLayoutHeader({
   // emit both the phone block and the wider header and CSS shows one of
   // them; from the second render on only this screen's stays mounted.
   const block = !isExtension && (!hasHydrated || isPhone) && (
-    <ShellBlock root={root} row={row} />
+    <PatchyPhoneCompanion isPhone={hasHydrated && isPhone}>
+      <ShellBlock root={root} row={row} />
+    </PatchyPhoneCompanion>
   );
 
   if (hasHydrated && isPhone) {

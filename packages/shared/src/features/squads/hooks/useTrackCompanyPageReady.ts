@@ -2,8 +2,10 @@ import { useEffect } from 'react';
 import type { Squad } from '../../../graphql/sources';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { usePixelsContext } from '../../../contexts/PixelsContext';
-import { isCompanyPageReady } from '../lib/readiness';
-import { trackCompanyPageReady } from '../lib/startupsAdEvents';
+import {
+  isCompanyPageConversion,
+  trackCompanyPageReady,
+} from '../lib/startupsAdEvents';
 
 /**
  * Reports the founder's company page as a registration from their browser
@@ -12,11 +14,11 @@ import { trackCompanyPageReady } from '../lib/startupsAdEvents';
 export const useTrackCompanyPageReady = (squad?: Squad): void => {
   const { user } = useAuthContext();
   const { trackEvent } = usePixelsContext();
-  const isReady = isCompanyPageReady(squad);
+  const isReady = isCompanyPageConversion(squad);
 
   useEffect(() => {
     trackCompanyPageReady(trackEvent, squad, user);
-    // Runs again when the page turns ready, not on every refetch
+    // Runs again when the page turns ready or jev keeps it, not on every refetch
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [squad?.id, isReady, user?.id, trackEvent]);
 };
