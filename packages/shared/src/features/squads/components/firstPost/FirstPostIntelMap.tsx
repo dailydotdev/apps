@@ -19,8 +19,8 @@ const competitionAt: Record<IntelCompetition, number> = {
   crowded: 83,
 };
 
-const formatChange = (change: number): string =>
-  `${change > 0 ? '+' : ''}${change}%`;
+const formatChange = (change: number | null): string =>
+  change === null ? 'new' : `${change > 0 ? '+' : ''}${change}%`;
 
 /**
  * Where to post: every topic by how fast its reads grow and how many posts
@@ -33,9 +33,11 @@ export const FirstPostIntelMap = ({
   topics: Topic[];
   openingTag?: string;
 }): ReactElement => {
-  // One row per topic, fastest growing on top, so two labels never share a line
-  const ranked = [...topics]
-    .sort((a, b) => b.change - a.change)
+  // Only topics with enough posts to place, one row each, new and fastest
+  // growing on top, so two labels never share a line
+  const placed = topics.filter(({ competition }) => !!competition);
+  const ranked = [...placed]
+    .sort((a, b) => (b.change ?? Infinity) - (a.change ?? Infinity))
     .map(({ tag }) => tag);
   const step = 68 / Math.max(ranked.length - 1, 1);
 
@@ -65,9 +67,9 @@ export const FirstPostIntelMap = ({
         <span className="absolute bottom-1.5 right-2 text-text-quaternary typo-caption2">
           Falling
         </span>
-        {topics.map(({ tag, change, competition, share }) => {
+        {placed.map(({ tag, change, competition, share }) => {
           const isOpening = tag === openingTag;
-          const x = competitionAt[competition];
+          const x = competitionAt[competition as IntelCompetition];
           const y = 14 + ranked.indexOf(tag) * step;
           const size = 14 + share * 0.5;
           const isLabelLeft = x > 45;
@@ -112,7 +114,7 @@ export const FirstPostIntelMap = ({
                 <span
                   className={classNames(
                     'tabular-nums',
-                    change > 0
+                    change === null || change > 0
                       ? 'text-accent-avocado-default'
                       : 'text-text-tertiary',
                   )}

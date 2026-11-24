@@ -28,6 +28,8 @@ export interface Scenario {
   /** Days since the page was created */
   pageAgeDays: number;
   plan: SquadPlan | null;
+  /** The one trial intel ended, so the page reads the general trends */
+  trialEnded?: boolean;
   /** Posts on the page, newest first */
   posts: { entry: number; hoursAgo: number; stats: PostStats }[];
   freeBoost: SquadFreeBoost | null;
@@ -143,6 +145,17 @@ export const scenarios = {
     plan: null,
     posts: [],
     freeBoost: available(1),
+    page: { logo: true, website: true, cover: false },
+    profile: { photo: true, headline: false, job: false },
+  },
+  /** A week later, the one trial intel over and still nothing posted */
+  trialEnded: {
+    viewer: 'admin',
+    pageAgeDays: 8,
+    plan: null,
+    trialEnded: true,
+    posts: [],
+    freeBoost: available(8),
     page: { logo: true, website: true, cover: false },
     profile: { photo: true, headline: false, job: false },
   },

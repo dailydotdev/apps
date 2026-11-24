@@ -114,16 +114,28 @@ export const FirstPostIntelProgress = ({
       },
       {
         label: 'Going through the posts in your topics',
-        done: `Went through ${number(intel.postsAnalyzed)} posts`,
+        done:
+          intel.postsAnalyzed === null
+            ? 'Went through the posts in your topics'
+            : `Went through ${number(intel.postsAnalyzed)} posts`,
         ms: 1700,
-        count: { target: intel.postsAnalyzed, format: number },
+        count:
+          intel.postsAnalyzed === null
+            ? undefined
+            : { target: intel.postsAnalyzed, format: number },
         looksAt: tags,
       },
       {
         label: `Comparing what developers read, ${getIntelWeekLabel(intel)}`,
-        done: `Compared what ${compact(intel.readers)} developers read`,
+        done:
+          intel.readers === null
+            ? 'Compared what developers read'
+            : `Compared what ${compact(intel.readers)} developers read`,
         ms: 1500,
-        count: { target: intel.readers, format: compact },
+        count:
+          intel.readers === null
+            ? undefined
+            : { target: intel.readers, format: compact },
       },
       {
         label: 'Checking what else your audience reads',
@@ -133,7 +145,9 @@ export const FirstPostIntelProgress = ({
       },
       {
         label: 'Ranking the top posts and the best time to publish',
-        done: `Ranked the top posts, and ${intel.timing.bestDay} as the best day`,
+        done: intel.timing.bestDay
+          ? `Ranked the top posts, and ${intel.timing.bestDay} as the best day`
+          : 'Ranked the top posts',
         ms: 900,
       },
       {

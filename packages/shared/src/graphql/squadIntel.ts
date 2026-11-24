@@ -159,37 +159,79 @@ export const updateSquadIntelSettings = async ({
 
 export type IntelCompetition = 'open' | 'moderate' | 'crowded';
 
+// The numbers the API keeps next to each intel's markdown
+// (`common/startups/intel/build.ts`), only the parts the first post flow reads
+interface IntelIndexRow {
+  label: string;
+  index: number;
+}
+
+interface StartupsIntelData {
+  /** Missing on intel built before it was added */
+  totals?: { posts: number; readers: number };
+  topics: {
+    tag: string;
+    share: number;
+    change: number | null;
+    reads: number | null;
+    bookmarks: number | null;
+    competition: IntelCompetition | null;
+    topTenthShare: number | null;
+  }[];
+  adjacentTags: {
+    tag: string;
+    reach: number;
+    lift: number;
+    change: number | null;
+  }[];
+  topPosts: {
+    title: string;
+    url: string;
+    source: string;
+    /** Missing on intel built before it was added */
+    image?: string | null;
+    readsVsAverage: number;
+    upvotes: number;
+    comments: number;
+  }[];
+  readingDays: { label: string; share: number }[];
+  publishDays: IntelIndexRow[];
+  publishHours: IntelIndexRow[];
+}
+
+export interface SquadIntelTrial {
+  endsAt: string;
+  /** The site its topics were picked from */
+  pickedFrom: string;
+}
+
 // What the first post flow shows from a page's weekly intel: the numbers
 // behind the four sections of the Markdown report (your topics, what else
-// your audience reads, top posts, timing). Proposed: the API keeps each intel
-// as data next to its markdown, and a free company page gets its first intel
-// as a trial, on tags picked from its website.
+// your audience reads, top posts, timing). A free company page gets its first
+// intel as a trial, on tags picked from its website.
 export interface SquadIntelHighlights {
   weekStart: string;
   weekEnd: string;
   /** Posts in the page's topics that last week's numbers come from */
-  postsAnalyzed: number;
+  postsAnalyzed: number | null;
   /** Developers who read a post in these topics that week */
-  readers: number;
+  readers: number | null;
   /** Set while a free page tries the intel picked for it */
-  trial: {
-    endsAt: string;
-    /** The site its topics were picked from */
-    pickedFrom: string;
-  } | null;
+  trial: SquadIntelTrial | null;
   topics: {
     tag: string;
     /** Share of the reads across the page's topics, 0 to 100 */
     share: number;
-    /** Against the week before, in percent */
-    change: number;
-    competition: IntelCompetition;
+    /** Against the week before, in percent. Null for a topic new this week */
+    change: number | null;
+    /** Null when too few posts to tell */
+    competition: IntelCompetition | null;
     /** Index where 100 is the average post */
     readsPerPost: number;
     /** Index where 100 is the average post */
-    bookmarks: number;
+    bookmarks: number | null;
     /** Share of the topic's reads that went to its top 10% of posts, 0 to 100 */
-    topPostsShare: number;
+    topPostsShare: number | null;
   }[];
   /** Tags outside the page's topics that the same audience reads */
   alsoRead: {
@@ -215,65 +257,98 @@ export interface SquadIntelHighlights {
     /** Share of the week's reads by day, Monday first, 0 to 100 */
     days: number[];
     /** "Tuesday": posts published then get the strongest first day */
-    bestDay: string;
+    bestDay: string | null;
     /** "14:00 to 17:00 UTC" */
-    bestHours: string;
-    weakestDay: string;
+    bestHours: string | null;
+    weakestDay: string | null;
   };
 }
 
+const byIndex = (rows: IntelIndexRow[]): IntelIndexRow[] =>
+  [...rows].sort((a, b) => b.index - a.index);
+
+/** "15:00-18:00" as "15:00 to 18:00 UTC" */
+const formatHours = (label: string): string =>
+  `${label.replace('-', ' to ')} UTC`;
+
+export const toIntelHighlights = ({
+  weekStart,
+  weekEnd,
+  data,
+  trial,
+}: {
+  weekStart: string;
+  weekEnd: string;
+  data: StartupsIntelData;
+  trial: SquadIntelTrial | null;
+}): SquadIntelHighlights => {
+  const publishDays = byIndex(data.publishDays);
+  const bestHours = byIndex(data.publishHours)[0];
+
+  return {
+    weekStart,
+    weekEnd,
+    postsAnalyzed: data.totals?.posts ?? null,
+    readers: data.totals?.readers ?? null,
+    trial,
+    // A topic without reads had no posts this week, so nothing to compare
+    topics: data.topics.flatMap(({ reads, topTenthShare, ...topic }) =>
+      reads === null
+        ? []
+        : [{ ...topic, readsPerPost: reads, topPostsShare: topTenthShare }],
+    ),
+    alsoRead: data.adjacentTags.map(({ tag, reach, lift, change }) => ({
+      tag,
+      readBy: reach,
+      affinity: lift,
+      change,
+    })),
+    topPosts: data.topPosts.map(({ url, image, ...post }) => ({
+      ...post,
+      image: image ?? null,
+      permalink: url,
+    })),
+    timing: {
+      days: data.readingDays.map(({ share }) => share),
+      bestDay: publishDays[0]?.label ?? null,
+      bestHours: bestHours ? formatHours(bestHours.label) : null,
+      weakestDay:
+        publishDays.length > 1
+          ? publishDays[publishDays.length - 1].label
+          : null,
+    },
+  };
+};
+
 const SQUAD_INTEL_HIGHLIGHTS_QUERY = gql`
   query SquadIntelHighlights($sourceId: ID!) {
-    squadIntelHighlights(sourceId: $sourceId) {
+    squadIntel(sourceId: $sourceId) {
       weekStart
       weekEnd
-      postsAnalyzed
-      readers
+      data
       trial {
         endsAt
         pickedFrom
-      }
-      topics {
-        tag
-        share
-        change
-        competition
-        readsPerPost
-        bookmarks
-        topPostsShare
-      }
-      alsoRead {
-        tag
-        readBy
-        affinity
-        change
-      }
-      topPosts {
-        title
-        source
-        image
-        readsVsAverage
-        upvotes
-        comments
-        permalink
-      }
-      timing {
-        days
-        bestDay
-        bestHours
-        weakestDay
       }
     }
   }
 `;
 
+// A page whose trial intel is still being built polls for it this long after
+// it was created
+const TRIAL_BUILD_MS = 10 * 60 * 1000;
+const TRIAL_POLL_MS = 15 * 1000;
+
 export const squadIntelHighlightsQueryOptions = ({
   user,
   sourceId,
+  createdAt,
   enabled = true,
 }: {
   user?: Pick<LoggedUser, 'id'>;
   sourceId?: string;
+  /** The page's creation, to wait for the trial intel built right after it */
+  createdAt?: Date | string;
   enabled?: boolean;
 }) => ({
   queryKey: generateQueryKey(
@@ -284,12 +359,98 @@ export const squadIntelHighlightsQueryOptions = ({
   ),
   queryFn: async (): Promise<SquadIntelHighlights | null> => {
     const res = await gqlClient.request<{
-      squadIntelHighlights: SquadIntelHighlights | null;
+      squadIntel: {
+        weekStart: string;
+        weekEnd: string;
+        data: StartupsIntelData;
+        trial: SquadIntelTrial | null;
+      } | null;
     }>(SQUAD_INTEL_HIGHLIGHTS_QUERY, { sourceId });
 
-    return res.squadIntelHighlights;
+    return res.squadIntel && toIntelHighlights(res.squadIntel);
   },
   enabled: enabled && !!user?.id && !!sourceId,
+  staleTime: StaleTime.Default,
+  refetchInterval: ({
+    state,
+  }: {
+    state: { data?: SquadIntelHighlights | null };
+  }): number | false =>
+    !state.data &&
+    !!createdAt &&
+    Date.now() - new Date(createdAt).getTime() < TRIAL_BUILD_MS
+      ? TRIAL_POLL_MS
+      : false,
+  retry: false,
+});
+
+// The free weekly trends across daily.dev: what a company page without a plan
+// reads once its trial intel ends
+export interface DeveloperTrendsTopic {
+  tag: string;
+  /** Multiple of a usual week: 1.6 is 1.6x */
+  multiple: number;
+  /** False when one story drove the rise rather than many posts */
+  broad: boolean | null;
+}
+
+export interface DeveloperTrends {
+  weekStart: string;
+  weekEnd: string;
+  risingTopics: DeveloperTrendsTopic[];
+  coolingTopics: DeveloperTrendsTopic[];
+  /** Per impression, as multiples of the average post */
+  formats: {
+    format: string;
+    reads: number;
+    bookmarks: number;
+    upvotes: number;
+    comments: number;
+  }[];
+}
+
+const DEVELOPER_TRENDS_QUERY = gql`
+  query DeveloperTrends {
+    developerTrends {
+      weekStart
+      weekEnd
+      risingTopics {
+        tag
+        multiple
+        broad
+      }
+      coolingTopics {
+        tag
+        multiple
+        broad
+      }
+      formats {
+        format
+        reads
+        bookmarks
+        upvotes
+        comments
+      }
+    }
+  }
+`;
+
+export const developerTrendsQueryOptions = ({
+  user,
+  enabled = true,
+}: {
+  user?: Pick<LoggedUser, 'id'>;
+  enabled?: boolean;
+}) => ({
+  queryKey: generateQueryKey(RequestKey.SquadIntel, user, 'trends'),
+  queryFn: async (): Promise<DeveloperTrends | null> => {
+    const res = await gqlClient.request<{
+      developerTrends: DeveloperTrends | null;
+    }>(DEVELOPER_TRENDS_QUERY);
+
+    return res.developerTrends;
+  },
+  enabled: enabled && !!user?.id,
   staleTime: StaleTime.Default,
   retry: false,
 });

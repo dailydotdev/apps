@@ -131,6 +131,169 @@ const toSquad = (scenario: Scenario, isFinished = false): Squad => {
   } as unknown as Squad;
 };
 
+// The numbers the API keeps with an intel, in the shape it stores them
+const intelData = {
+  totals: { posts: 4812, readers: 38_420 },
+  topics: [
+    {
+      tag: 'ai-agents',
+      share: 41.2,
+      change: 12,
+      competition: 'crowded',
+      reads: 118,
+      bookmarks: 126,
+      topTenthShare: 81,
+    },
+    {
+      tag: 'code-review',
+      share: 18.6,
+      change: 27,
+      competition: 'open',
+      reads: 164,
+      bookmarks: 197,
+      topTenthShare: 74,
+    },
+    {
+      tag: 'github',
+      share: 14.1,
+      change: -8,
+      competition: 'moderate',
+      reads: 97,
+      bookmarks: 92,
+      topTenthShare: 78,
+    },
+    {
+      tag: 'testing',
+      share: 11.3,
+      change: null,
+      competition: 'open',
+      reads: 121,
+      bookmarks: 140,
+      topTenthShare: null,
+    },
+    {
+      tag: 'devops',
+      share: 8.9,
+      change: -15,
+      competition: 'crowded',
+      reads: 74,
+      bookmarks: 66,
+      topTenthShare: 85,
+    },
+    {
+      tag: 'security',
+      share: 5.9,
+      change: 0,
+      competition: null,
+      reads: 102,
+      bookmarks: null,
+      topTenthShare: null,
+    },
+  ],
+  adjacentTags: [
+    { tag: 'cursor', reach: 14, lift: 2.6, change: 22 },
+    { tag: 'llm', reach: 19, lift: 2.2, change: 9 },
+    { tag: 'mcp', reach: 8, lift: 2.1, change: null },
+    { tag: 'developer-experience', reach: 11, lift: 1.7, change: 31 },
+    { tag: 'typescript', reach: 21, lift: 1.4, change: -6 },
+  ],
+  topPosts: [
+    {
+      title:
+        'We let an agent review 2,000 pull requests. Here is what it missed',
+      source: 'Engineering blog',
+      readsVsAverage: 38.4,
+      upvotes: 412,
+      comments: 57,
+      url: '#post-1',
+      image: '/squad-page/coderabbit-banner.jpg',
+    },
+    {
+      title:
+        'Code review checklists are dead. Long live code review checklists',
+      source: 'Personal blog',
+      readsVsAverage: 21.7,
+      upvotes: 233,
+      comments: 41,
+      url: '#post-2',
+      image: null,
+    },
+    {
+      title: 'How we cut our PR review time from 2 days to 3 hours',
+      source: 'Engineering blog',
+      readsVsAverage: 17.2,
+      upvotes: 198,
+      comments: 22,
+      url: '#post-3',
+    },
+  ],
+  readingDays: [17, 19, 18, 16, 13, 8, 9].map((share, index) => ({
+    label: [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ][index],
+    share,
+  })),
+  publishDays: [
+    { label: 'Monday', index: 104 },
+    { label: 'Tuesday', index: 131 },
+    { label: 'Wednesday', index: 112 },
+    { label: 'Thursday', index: 98 },
+    { label: 'Friday', index: 86 },
+    { label: 'Saturday', index: 61 },
+    { label: 'Sunday', index: 72 },
+  ],
+  publishHours: [
+    { label: '09:00-12:00', index: 108 },
+    { label: '12:00-15:00', index: 117 },
+    { label: '15:00-18:00', index: 126 },
+    { label: '18:00-21:00', index: 94 },
+  ],
+};
+
+const developerTrends = {
+  weekStart: '2026-11-16T00:00:00.000Z',
+  weekEnd: '2026-11-23T00:00:00.000Z',
+  risingTopics: [
+    { tag: 'mcp', multiple: 2.4, broad: true },
+    { tag: 'rust', multiple: 1.7, broad: true },
+    { tag: 'postgres', multiple: 1.5, broad: false },
+    { tag: 'webassembly', multiple: 1.3, broad: true },
+  ],
+  coolingTopics: [
+    { tag: 'blockchain', multiple: 0.6, broad: true },
+    { tag: 'angular', multiple: 0.8, broad: true },
+  ],
+  formats: [
+    {
+      format: 'Tutorial',
+      reads: 1.4,
+      bookmarks: 2.1,
+      upvotes: 1.2,
+      comments: 0.9,
+    },
+    {
+      format: 'Release notes',
+      reads: 1.2,
+      bookmarks: 0.8,
+      upvotes: 1.1,
+      comments: 1.3,
+    },
+    {
+      format: 'Opinion',
+      reads: 0.9,
+      bookmarks: 0.6,
+      upvotes: 1.4,
+      comments: 2.2,
+    },
+  ],
+};
+
 const handlers = (scenario: Scenario) => {
   const squad = toSquad(scenario);
   const posts = scenarioPosts(scenario, squad);
@@ -227,125 +390,24 @@ const handlers = (scenario: Scenario) => {
     graphql.query('SquadIntelHighlights', () =>
       HttpResponse.json({
         data: {
-          squadIntelHighlights: {
-            weekStart: '2026-11-16T00:00:00.000Z',
-            weekEnd: '2026-11-23T00:00:00.000Z',
-            postsAnalyzed: 4812,
-            readers: 38_420,
-            trial: scenario.plan
-              ? null
-              : {
-                  endsAt: addDays(new Date(), 6).toISOString(),
-                  pickedFrom: 'coderabbit.ai',
-                },
-            topics: [
-              {
-                tag: 'ai-agents',
-                share: 41.2,
-                change: 12,
-                competition: 'crowded',
-                readsPerPost: 118,
-                bookmarks: 126,
-                topPostsShare: 81,
+          squadIntel: scenario.trialEnded
+            ? null
+            : {
+                weekStart: '2026-11-16T00:00:00.000Z',
+                weekEnd: '2026-11-23T00:00:00.000Z',
+                trial: scenario.plan
+                  ? null
+                  : {
+                      endsAt: addDays(new Date(), 6).toISOString(),
+                      pickedFrom: 'coderabbit.ai',
+                    },
+                data: intelData,
               },
-              {
-                tag: 'code-review',
-                share: 18.6,
-                change: 27,
-                competition: 'open',
-                readsPerPost: 164,
-                bookmarks: 197,
-                topPostsShare: 74,
-              },
-              {
-                tag: 'github',
-                share: 14.1,
-                change: -8,
-                competition: 'moderate',
-                readsPerPost: 97,
-                bookmarks: 92,
-                topPostsShare: 78,
-              },
-              {
-                tag: 'testing',
-                share: 11.3,
-                change: 4,
-                competition: 'open',
-                readsPerPost: 121,
-                bookmarks: 140,
-                topPostsShare: 69,
-              },
-              {
-                tag: 'devops',
-                share: 8.9,
-                change: -15,
-                competition: 'crowded',
-                readsPerPost: 74,
-                bookmarks: 66,
-                topPostsShare: 85,
-              },
-              {
-                tag: 'security',
-                share: 5.9,
-                change: 0,
-                competition: 'moderate',
-                readsPerPost: 102,
-                bookmarks: 118,
-                topPostsShare: 77,
-              },
-            ],
-            alsoRead: [
-              { tag: 'cursor', readBy: 14, affinity: 2.6, change: 22 },
-              { tag: 'llm', readBy: 19, affinity: 2.2, change: 9 },
-              { tag: 'mcp', readBy: 8, affinity: 2.1, change: null },
-              {
-                tag: 'developer-experience',
-                readBy: 11,
-                affinity: 1.7,
-                change: 31,
-              },
-              { tag: 'typescript', readBy: 21, affinity: 1.4, change: -6 },
-            ],
-            topPosts: [
-              {
-                title:
-                  'We let an agent review 2,000 pull requests. Here is what it missed',
-                source: 'Engineering blog',
-                readsVsAverage: 38.4,
-                upvotes: 412,
-                comments: 57,
-                permalink: '#post-1',
-                image: '/squad-page/coderabbit-banner.jpg',
-              },
-              {
-                title:
-                  'Code review checklists are dead. Long live code review checklists',
-                source: 'Personal blog',
-                readsVsAverage: 21.7,
-                upvotes: 233,
-                comments: 41,
-                permalink: '#post-2',
-                image: null,
-              },
-              {
-                title: 'How we cut our PR review time from 2 days to 3 hours',
-                source: 'Engineering blog',
-                readsVsAverage: 17.2,
-                upvotes: 198,
-                comments: 22,
-                permalink: '#post-3',
-                image: null,
-              },
-            ],
-            timing: {
-              days: [17, 19, 18, 16, 13, 8, 9],
-              bestDay: 'Tuesday',
-              bestHours: '14:00 to 17:00 UTC',
-              weakestDay: 'Saturday',
-            },
-          },
         },
       }),
+    ),
+    graphql.query('DeveloperTrends', () =>
+      HttpResponse.json({ data: { developerTrends: developerTrends } }),
     ),
   ];
 };
@@ -506,6 +568,11 @@ export const CreateSomethingNew: Story = {
     );
     button.click();
   },
+};
+/** 2c. A free page after its one trial intel: the general trends. */
+export const TrendsAfterTrial: Story = {
+  ...story('trialEnded'),
+  play: CreateSomethingNew.play,
 };
 /** 3. The admin finishes the last setup rows while the page is open. */
 export const SetupDone = story('setupDone');

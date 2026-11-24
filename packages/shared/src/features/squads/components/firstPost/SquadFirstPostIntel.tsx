@@ -2,7 +2,10 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../../../contexts/AuthContext';
-import { squadIntelHighlightsQueryOptions } from '../../../../graphql/squadIntel';
+import {
+  developerTrendsQueryOptions,
+  squadIntelHighlightsQueryOptions,
+} from '../../../../graphql/squadIntel';
 import { squadSubscriptionQueryOptions } from '../../../../graphql/squadSubscription';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../../../components/modals/common/types';
@@ -22,6 +25,7 @@ import { SquadPageLayout } from '../SquadPageLayout';
 import { SquadSubPageHeader } from '../SquadSubPageHeader';
 import { FirstPostIntel, FirstPostIntelWrite } from './FirstPostIntel';
 import { FirstPostIntelProgress } from './FirstPostIntelProgress';
+import { FirstPostTrends } from './FirstPostTrends';
 
 // Pages whose admin already watched the intel being put together, so it
 // opens straight on the intel the next time
@@ -44,7 +48,15 @@ export const SquadFirstPostIntel = (): ReactElement | null => {
     squadSubscriptionQueryOptions({ user, sourceId }),
   );
   const { data: intel } = useQuery(
-    squadIntelHighlightsQueryOptions({ user, sourceId }),
+    squadIntelHighlightsQueryOptions({
+      user,
+      sourceId,
+      createdAt: squad.createdAt,
+    }),
+  );
+  // A free page whose trial ended, or never had one, reads the general trends
+  const { data: trends } = useQuery(
+    developerTrendsQueryOptions({ user, enabled: intel === null }),
   );
   const [isAnalyzing, setAnalyzing] = useState(
     () => !analysisSeen.has(sourceId) && !prefersReducedMotion(),
@@ -54,7 +66,7 @@ export const SquadFirstPostIntel = (): ReactElement | null => {
     globalThis.scrollTo?.({ top: 0 });
   }, []);
 
-  if (!intel) {
+  if (!intel && !trends) {
     return null;
   }
 
@@ -64,17 +76,24 @@ export const SquadFirstPostIntel = (): ReactElement | null => {
       source_id: sourceId,
     });
   const close = () => setIntelOpen(false);
+  const upgradeUrl = subscription?.plan
+    ? undefined
+    : getStartupsCheckoutUrl({ sourceId });
+  const isAnalyzingIntel = !!intel && isAnalyzing;
 
   return (
     <SquadPageLayout
       header={
         <SquadSubPageHeader
-          title={isAnalyzing ? 'Building your intel' : 'Weekly intel'}
+          title={
+            (isAnalyzingIntel && 'Building your intel') ||
+            (intel ? 'Weekly intel' : 'Developer trends')
+          }
           backUrl={getSquadUrl(squad.handle)}
           backLabel={`Back to ${squad.name}`}
           onBack={close}
           action={
-            !isAnalyzing && (
+            !isAnalyzingIntel && (
               <FirstPostIntelWrite
                 onWrite={() => {
                   close();
@@ -93,7 +112,16 @@ export const SquadFirstPostIntel = (): ReactElement | null => {
         />
       }
     >
-      {isAnalyzing ? (
+      {!intel && trends && (
+        <FirstPostTrends
+          trends={trends}
+          upgradeUrl={upgradeUrl}
+          onUpgrade={() =>
+            log(LogEvent.UpgradeSubscription, 'first post trends')
+          }
+        />
+      )}
+      {intel && isAnalyzing && (
         <div className="px-4 tablet:px-6">
           <FirstPostIntelProgress
             intel={intel}
@@ -105,7 +133,8 @@ export const SquadFirstPostIntel = (): ReactElement | null => {
             }}
           />
         </div>
-      ) : (
+      )}
+      {intel && !isAnalyzing && (
         <FirstPostIntel
           intel={intel}
           editTopicsUrl={getSquadManageUrl(
@@ -116,11 +145,7 @@ export const SquadFirstPostIntel = (): ReactElement | null => {
           onCopyPrompt={() =>
             log(LogEvent.CopyStartupsSetup, 'first post content prompt')
           }
-          upgradeUrl={
-            subscription?.plan
-              ? undefined
-              : getStartupsCheckoutUrl({ sourceId })
-          }
+          upgradeUrl={upgradeUrl}
           onUpgrade={() =>
             log(LogEvent.UpgradeSubscription, 'first post intel')
           }

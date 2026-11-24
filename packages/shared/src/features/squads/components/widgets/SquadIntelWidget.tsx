@@ -33,7 +33,12 @@ export const SquadIntelWidget = (): ReactElement | null => {
   const isShown = useIsFirstPostShown();
   const sourceId = getSquadId(squad);
   const { data: intel } = useQuery(
-    squadIntelHighlightsQueryOptions({ user, sourceId, enabled: isShown }),
+    squadIntelHighlightsQueryOptions({
+      user,
+      sourceId,
+      createdAt: squad.createdAt,
+      enabled: isShown,
+    }),
   );
   const logStartups = useLogStartups();
 
@@ -79,12 +84,12 @@ export const SquadIntelWidget = (): ReactElement | null => {
             <span
               className={classNames(
                 'w-10 text-right font-bold tabular-nums',
-                change > 0
+                change === null || change > 0
                   ? 'text-accent-avocado-default'
                   : 'text-text-tertiary',
               )}
             >
-              {`${change > 0 ? '+' : ''}${change}%`}
+              {change === null ? 'new' : `${change > 0 ? '+' : ''}${change}%`}
             </span>
           </li>
         ))}

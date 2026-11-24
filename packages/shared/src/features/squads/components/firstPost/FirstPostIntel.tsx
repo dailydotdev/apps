@@ -66,7 +66,7 @@ const day = (date: string): string =>
     timeZone: 'UTC',
   });
 
-const multiple = (value: number): string =>
+export const formatMultiple = (value: number): string =>
   `${value >= 10 ? Math.round(value) : value.toFixed(1)}×`;
 
 const formatChange = (change: number | null): string => {
@@ -82,7 +82,7 @@ const list = (items: string[]): string =>
     ? `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`
     : (items[0] ?? '');
 
-const Section = ({
+export const IntelSection = ({
   title,
   hint,
   children,
@@ -100,7 +100,7 @@ const Section = ({
   </div>
 );
 
-const Bar = ({
+export const IntelBar = ({
   percentage,
   isHighlighted,
 }: {
@@ -139,17 +139,17 @@ const Index = ({
   value,
   className,
 }: {
-  value: number;
+  value: number | null;
   className?: string;
 }): ReactElement => (
   <span
     className={classNames(
       'shrink-0 text-right tabular-nums typo-footnote',
-      value >= 100 ? 'font-bold' : 'text-text-tertiary',
+      value !== null && value >= 100 ? 'font-bold' : 'text-text-tertiary',
       className,
     )}
   >
-    {value}
+    {value ?? '–'}
   </span>
 );
 
@@ -301,7 +301,7 @@ const PostRow = ({
         <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-text-tertiary typo-footnote">
           <span>{post.source}</span>
           <strong className="text-text-primary">
-            {`${multiple(post.readsVsAverage)} the average reads`}
+            {`${formatMultiple(post.readsVsAverage)} the average reads`}
           </strong>
           <span className="flex items-center gap-1">
             <UpvoteIcon size={IconSize.Size16} />
@@ -366,17 +366,19 @@ export const FirstPostIntel = ({
             {`Week of ${getIntelWeekLabel(intel)}`}
           </p>
         </div>
-        <SquadStatsRow
-          lead={{ label: 'Posts in your topics', value: intel.postsAnalyzed }}
-          stats={[
-            {
-              label: 'Developers reading them',
-              value: intel.readers,
-              text: compact(intel.readers),
-            },
-            { label: 'Topics we track for you', value: topics.length },
-          ]}
-        />
+        {intel.postsAnalyzed !== null && (
+          <SquadStatsRow
+            lead={{ label: 'Posts in your topics', value: intel.postsAnalyzed }}
+            stats={[
+              {
+                label: 'Developers reading them',
+                value: intel.readers ?? 0,
+                text: compact(intel.readers ?? 0),
+              },
+              { label: 'Topics we track for you', value: topics.length },
+            ]}
+          />
+        )}
         {opening && (
           <div
             className="flex flex-col gap-1 border-l-2 py-1 pl-4"
@@ -387,7 +389,10 @@ export const FirstPostIntel = ({
             </span>
             <strong className="typo-title3">{`Write about #${opening.tag}`}</strong>
             <p className="text-pretty text-text-secondary typo-callout">
-              {`Posts there get ${formatIntelIndex(opening.readsPerPost)} the average reads, and few new posts compete for them. Publish on ${timing.bestDay}, ${timing.bestHours}.`}
+              {`Posts there get ${formatIntelIndex(opening.readsPerPost)} the average reads, and few new posts compete for them.`}
+              {timing.bestDay &&
+                timing.bestHours &&
+                ` Publish on ${timing.bestDay}, ${timing.bestHours}.`}
             </p>
           </div>
         )}
@@ -401,7 +406,7 @@ export const FirstPostIntel = ({
         />
       )}
 
-      <Section
+      <IntelSection
         title="Your topics"
         hint="Share of attention is the part of your audience's reads in your topics that went to each one. Change is against the week before."
       >
@@ -427,7 +432,7 @@ export const FirstPostIntel = ({
                 <span className="w-24 shrink-0 truncate typo-footnote tablet:w-32">
                   #{topic.tag}
                 </span>
-                <Bar
+                <IntelBar
                   percentage={(topic.share / maxShare) * 100}
                   isHighlighted={topic.tag === opening?.tag}
                 />
@@ -444,7 +449,9 @@ export const FirstPostIntel = ({
                   className="hidden w-16 tablet:block"
                 />
                 <span className="hidden w-14 shrink-0 text-right tabular-nums text-text-tertiary typo-footnote tablet:block">
-                  {topic.topPostsShare}%
+                  {topic.topPostsShare === null
+                    ? '–'
+                    : `${topic.topPostsShare}%`}
                 </span>
                 <span
                   className={classNames(
@@ -454,7 +461,9 @@ export const FirstPostIntel = ({
                       : 'text-text-tertiary',
                   )}
                 >
-                  {competitionLabel[topic.competition]}
+                  {topic.competition
+                    ? competitionLabel[topic.competition]
+                    : '–'}
                 </span>
               </li>
             ))}
@@ -465,10 +474,10 @@ export const FirstPostIntel = ({
             its top tenth of posts.
           </p>
         </div>
-      </Section>
+      </IntelSection>
 
       {!!alsoRead.length && (
-        <Section
+        <IntelSection
           title="What else your audience reads"
           hint="Tags outside your topics, by how much more your audience reads them than everyone else."
         >
@@ -481,9 +490,9 @@ export const FirstPostIntel = ({
                 <span className="w-24 shrink-0 truncate typo-footnote tablet:w-44">
                   #{tag.tag}
                 </span>
-                <Bar percentage={(tag.affinity / maxAffinity) * 100} />
+                <IntelBar percentage={(tag.affinity / maxAffinity) * 100} />
                 <span className="w-10 shrink-0 text-right font-bold tabular-nums typo-footnote">
-                  {multiple(tag.affinity)}
+                  {formatMultiple(tag.affinity)}
                 </span>
                 <span className="hidden w-28 shrink-0 text-right tabular-nums text-text-tertiary typo-footnote tablet:block">
                   {`read by ${tag.readBy}%`}
@@ -497,24 +506,24 @@ export const FirstPostIntel = ({
               {`Rising fastest: ${list(rising)}.`}
             </p>
           )}
-        </Section>
+        </IntelSection>
       )}
 
-      <Section title="Top posts this week">
+      <IntelSection title="Top posts this week">
         <ol className="flex flex-col">
           {intel.topPosts.map((post, index) => (
             <PostRow key={post.permalink} post={post} rank={index + 1} />
           ))}
         </ol>
-      </Section>
+      </IntelSection>
 
-      <Section
+      <IntelSection
         title="Timing"
         hint="When your audience reads, as a share of the week's reads."
       >
         <div className="flex items-end gap-2">
           {timing.days.map((share, index) => {
-            const isBest = timing.bestDay.startsWith(DAYS[index]);
+            const isBest = !!timing.bestDay?.startsWith(DAYS[index]);
 
             return (
               <div
@@ -551,10 +560,14 @@ export const FirstPostIntel = ({
             );
           })}
         </div>
-        <p className="text-pretty text-text-secondary typo-callout">
-          {`Posts published on ${timing.bestDay}, and posts published ${timing.bestHours}, get the strongest first day. ${timing.weakestDay} is the weakest day to publish.`}
-        </p>
-      </Section>
+        {timing.bestDay && timing.bestHours && (
+          <p className="text-pretty text-text-secondary typo-callout">
+            {`Posts published on ${timing.bestDay}, and posts published ${timing.bestHours}, get the strongest first day.`}
+            {timing.weakestDay &&
+              ` ${timing.weakestDay} is the weakest day to publish.`}
+          </p>
+        )}
+      </IntelSection>
     </div>
   );
 };

@@ -2,7 +2,10 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../../../contexts/AuthContext';
-import { squadIntelHighlightsQueryOptions } from '../../../../graphql/squadIntel';
+import {
+  developerTrendsQueryOptions,
+  squadIntelHighlightsQueryOptions,
+} from '../../../../graphql/squadIntel';
 import { squadSubscriptionQueryOptions } from '../../../../graphql/squadSubscription';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../../../components/modals/common/types';
@@ -79,7 +82,15 @@ export const SquadFirstPost = (): ReactElement | null => {
     enabled: !!user && isShown,
   });
   const { data: intel } = useQuery(
-    squadIntelHighlightsQueryOptions({ user, sourceId, enabled: isShown }),
+    squadIntelHighlightsQueryOptions({
+      user,
+      sourceId,
+      createdAt: squad.createdAt,
+      enabled: isShown,
+    }),
+  );
+  const { data: trends } = useQuery(
+    developerTrendsQueryOptions({ user, enabled: isShown && intel === null }),
   );
 
   if (!isShown) {
@@ -119,7 +130,7 @@ export const SquadFirstPost = (): ReactElement | null => {
         });
       }}
       onOpenIntel={
-        intel
+        intel || trends
           ? () => {
               log(LogEvent.ClickStartupsSetupStep, 'first post intel');
               setIntelOpen(true);
