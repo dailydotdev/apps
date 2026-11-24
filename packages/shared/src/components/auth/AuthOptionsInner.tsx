@@ -22,6 +22,7 @@ import {
   betterAuthSendVerificationOTP,
   betterAuthVerifyEmailOTP,
   getBetterAuthSocialRedirectData,
+  SignupIntent,
 } from '../../lib/betterAuth';
 import {
   getSocialAuthCallbackError,
@@ -184,6 +185,7 @@ function AuthOptionsInner({
   const isOnboardingOrFunnel =
     !!router?.pathname?.startsWith('/onboarding') || isFunnel;
   const isStartups = isStartupsAuthTrigger(trigger);
+  const signupIntent = isStartups ? SignupIntent.Company : undefined;
   const [socialError, setSocialError] = useState<string>();
   const socialProviderRef = useRef<string>();
   const onSocialError = (message: string) => {
@@ -345,6 +347,7 @@ function AuthOptionsInner({
         }
       },
       keepSession: isOnboardingOrFunnel,
+      signupIntent,
     });
 
   const onProfileSuccess = async (
@@ -485,6 +488,7 @@ function AuthOptionsInner({
     onSuccessfulLogin: onLoginCheck,
     trigger,
     provider: chosenProvider,
+    signupIntent,
   });
 
   const isReady = isTesting ? true : isLoginReady && isRegistrationReady;
@@ -703,7 +707,10 @@ function AuthOptionsInner({
     setActiveSocialProvider(provider);
     setIsSocialAuthLoading(true);
 
-    const additionalData = { timezone: getUserDefaultTimezone() };
+    const additionalData = {
+      timezone: getUserDefaultTimezone(),
+      signupIntent,
+    };
 
     if (isNativeAuthSupported(provider)) {
       const res = await iosNativeAuth(provider);
@@ -813,6 +820,7 @@ function AuthOptionsInner({
     const result = await betterAuthOneTapCallback({
       idToken,
       timezone: getUserDefaultTimezone(),
+      signupIntent,
     });
 
     if (result.error) {
