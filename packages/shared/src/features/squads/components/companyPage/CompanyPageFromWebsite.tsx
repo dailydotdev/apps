@@ -215,9 +215,11 @@ export const CompanyPageFromWebsite = (): ReactElement | null => {
     enabled: isSignedUp && !!stored && !fallback,
   });
 
+  // Keeps polling behind the form after the wait ran out, so a page the
+  // request still creates opens instead of the founder making a second one
   const { data: pageRequest, isError: isReadMissing } = useQuery({
     ...companyPageRequestQueryOptions(user, stored?.id),
-    enabled: isClaimed && !fallback,
+    enabled: isClaimed && !!stored,
   });
   const isRequestMissing = isClaimMissing || isReadMissing;
 
@@ -230,10 +232,10 @@ export const CompanyPageFromWebsite = (): ReactElement | null => {
     }
 
     forget();
-    if (queryRequestWebsite) {
+    if (queryRequestWebsite && !fallback) {
       request(queryRequestWebsite);
     }
-  }, [isRequestMissing, forget, queryRequestWebsite, request]);
+  }, [isRequestMissing, forget, queryRequestWebsite, request, fallback]);
 
   useEffect(() => {
     if (!pageRequest) {
@@ -267,12 +269,15 @@ export const CompanyPageFromWebsite = (): ReactElement | null => {
 
     if (pageRequest.status === CompanyPageRequestStatus.Failed) {
       forget();
-      trackHotjarEvent(StartupsHotjarEvent.CompanyPageForm);
-      setFallback(toPrefill(website, pageRequest));
+      if (!fallback) {
+        trackHotjarEvent(StartupsHotjarEvent.CompanyPageForm);
+        setFallback(toPrefill(website, pageRequest));
+      }
     }
-  }, [pageRequest, forget, router, website]);
+  }, [pageRequest, forget, router, website, fallback]);
 
-  // Still reading after a long while: hand the founder the form
+  // Still reading after a long while: hand the founder the form. A reload
+  // starts from the website box, not this wait
   const isBuilding = isSignedUp && !!stored && !fallback;
   useEffect(() => {
     if (!isBuilding) {
@@ -280,7 +285,7 @@ export const CompanyPageFromWebsite = (): ReactElement | null => {
     }
 
     const timeout = setTimeout(() => {
-      forget();
+      storeRequest(null);
       trackHotjarEvent(StartupsHotjarEvent.CompanyPageForm);
       setFallback(toPrefill(website, pageRequest));
     }, BUILDING_TIMEOUT_MS);
