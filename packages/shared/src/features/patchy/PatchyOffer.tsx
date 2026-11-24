@@ -14,16 +14,17 @@ import {
   TypographyType,
 } from '../../components/typography/Typography';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
-import { getPatchyConfig, patchyOfferPose } from './patchyConfig';
+import { getPatchyConfig } from './patchyConfig';
 import type {
   PatchyOffer as Offer,
   PatchyOfferAnswer,
 } from './usePatchyAssistant';
 import { PATCHY_OFFER_TIMEOUT_MS } from './usePatchyAssistant';
 
-const POSE_WIDTH = 104;
-const BOX_HEIGHT = 168;
 const BUBBLE_WIDTH = 300;
+// The gap between the rail's edge and the bubble, and the bubble's overhang
+// past his circle's top or bottom edge.
+const GAP = 8;
 // Over the feed; over the post modal (z 100) when he reads along.
 const Z_INDEX = 69;
 const Z_INDEX_OVER_MODAL = 101;
@@ -40,8 +41,9 @@ interface PatchyOfferProps {
   onQuiet: () => void;
 }
 
-// A suggestion: Patchy leans out from behind the rail, pointing at a bubble
-// with one useful thing and a way to say no. It leaves by itself after a
+// A suggestion: a bubble beside his circle in the rail (which shows his alert
+// face meanwhile) with one useful thing and a way to say no. He stays in his
+// circle; nothing leans out of the rail. It leaves by itself after a
 // while (paused while you hover it), and the ••• menu stops that kind of
 // suggestion or turns them all off.
 export const PatchyOffer = ({
@@ -55,7 +57,6 @@ export const PatchyOffer = ({
   const [isIn, setIsIn] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [hasPose, setHasPose] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
   const answerRef = useRef<{
     answer: PatchyOfferAnswer;
@@ -70,10 +71,14 @@ export const PatchyOffer = ({
       return;
     }
     const tab = anchor.getBoundingClientRect();
+    // Low in the rail (his own spot sits near the bottom) it opens upwards
+    // from his circle, higher up downwards, so it always stays on screen.
+    const isLow = tab.top + tab.height / 2 > window.innerHeight / 2;
     setBox({
-      left: rail.getBoundingClientRect().right,
-      top: Math.max(8, tab.top + tab.height / 2 - BOX_HEIGHT / 2 - 24),
-      height: BOX_HEIGHT,
+      left: rail.getBoundingClientRect().right + GAP,
+      ...(isLow
+        ? { bottom: Math.max(GAP, window.innerHeight - tab.bottom - GAP) }
+        : { top: Math.max(GAP, tab.top - GAP) }),
       zIndex: offer.isOverModal ? Z_INDEX_OVER_MODAL : Z_INDEX,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -136,48 +141,27 @@ export const PatchyOffer = ({
       style={box}
       data-testid="patchy-offer"
     >
-      {hasPose && (
-        <div
-          className="relative h-full overflow-hidden"
-          style={{ width: POSE_WIDTH }}
-        >
-          <img
-            src={patchyOfferPose}
-            alt=""
-            aria-hidden
-            className="absolute bottom-0 left-0 w-full"
-            style={{
-              transform: isIn ? 'translateX(0)' : 'translateX(-101%)',
-              transition,
-            }}
-            draggable={false}
-            onError={() => setHasPose(false)}
-          />
-        </div>
-      )}
       <div
         role="dialog"
         aria-label="Patchy suggests"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className="pointer-events-auto relative ml-1 mt-2 flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-popover p-3 shadow-2"
+        className="pointer-events-auto relative flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-popover p-3 shadow-2"
         style={{
           width: BUBBLE_WIDTH,
           opacity: isIn ? 1 : 0,
           transform: isIn ? 'scale(1)' : 'scale(0.85)',
-          transformOrigin: '0% 70%',
+          transformOrigin: 'left center',
           transition,
         }}
       >
         <div className="flex items-center gap-2">
-          {!hasPose && (
-            <img
-              src={faceImage.alert}
-              alt=""
-              className="size-6 rounded-full"
-              draggable={false}
-            />
-          )}
+          <img
+            src={faceImage.alert}
+            alt=""
+            className="size-6 rounded-full bg-surface-float object-cover"
+            draggable={false}
+          />
           <Typography
             type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}

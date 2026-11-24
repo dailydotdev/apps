@@ -39,6 +39,16 @@ describe('PatchyOffer', () => {
   beforeEach(() => jest.useFakeTimers());
   afterEach(() => jest.useRealTimers());
 
+  it('stays a bubble by his circle, without him leaning out of the rail', () => {
+    renderOffer();
+    const bubble = screen.getByRole('dialog', { name: 'Patchy suggests' });
+    expect(bubble).toBeInTheDocument();
+    expect(
+      screen.getByTestId('patchy-offer').querySelectorAll('img'),
+    ).toHaveLength(1);
+    expect(bubble.querySelector('img')).toBeInTheDocument();
+  });
+
   it('answers with the button you pick once he has slid away', () => {
     const { onAnswer } = renderOffer();
     expect(screen.getByText('Done! Worth an upvote?')).toBeInTheDocument();
