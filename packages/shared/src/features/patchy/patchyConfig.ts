@@ -101,11 +101,8 @@ export interface PatchyConfig {
 const HOUR = 60 * 60 * 1000;
 const media = 'https://media.daily.dev/image/upload';
 
-// The pose he leans out with to point at a suggestion.
 // The bone you give him: the panel's card and his floating emote.
 export const patchyBoneImage = `${media}/v1795439489/public/patchy-v1-bone.webp`;
-
-export const patchyOfferPose = `${media}/v1795078962/public/patchy-v1-peek-point.webp`;
 
 export const defaultPatchyConfig: PatchyConfig = {
   awayMs: 48 * HOUR,
