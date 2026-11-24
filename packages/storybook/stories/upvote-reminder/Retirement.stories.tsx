@@ -18,18 +18,21 @@ import { realPosts } from '../hero-cover/realData';
 // not code: retiring it is a data change. This page shows the feed's first slot
 // with the card and without it, on the production components.
 
+// The live `upvote-reminder` row in daily-api's marketing_cta table.
 const upvoteReminderCta: MarketingCta = {
-  campaignId: '15',
-  createdAt: new Date('2024-06-01T00:00:00.000Z'),
+  campaignId: 'upvote-reminder',
+  createdAt: new Date('2024-06-04T07:41:17.300Z'),
   variant: MarketingCtaVariant.Card,
   flags: {
+    image:
+      'https://media.daily.dev/image/upload/s--iyxP8JU4--/f_auto/v1717486717/public/daily%20vote%20history%20-%201200x630',
+    title: 'Upvote or downvote your past reads',
+    ctaUrl: 'https://app.daily.dev/history',
+    ctaText: 'Review Your History',
     tagText: 'Pro tip',
     tagColor: 'avocado',
-    title: 'Upvote or downvote your past reads',
     description:
       "Enhance your feed's accuracy by reviewing and voting the posts you've read so far.",
-    ctaText: 'Review Your History',
-    ctaUrl: '/history',
   },
 };
 
@@ -137,7 +140,7 @@ const BeforeAfter = (): ReactElement => (
 
       <Section
         title="Before"
-        note="The upvote reminder takes the first feed slot (production MarketingCtaCard; the campaign image is left out)."
+        note="The upvote reminder takes the first feed slot (production MarketingCtaCard with the live campaign content)."
       >
         <FeedGrid
           firstSlot={<MarketingCtaCard marketingCta={upvoteReminderCta} />}
