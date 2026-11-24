@@ -58,8 +58,10 @@ export const COMPANY_PAGE_MIN_DESCRIPTION_LENGTH = 20;
 /** What a company page needs before its free boost can start */
 export const FREE_BOOST_SETUP_ROWS = ['logo', 'website', 'description'];
 
+// Counts characters as daily-api does, so an emoji is one and not two
 export const isCompanyPageDescriptionReady = (description?: string): boolean =>
-  (description?.trim().length ?? 0) >= COMPANY_PAGE_MIN_DESCRIPTION_LENGTH;
+  [...(description?.trim() ?? '')].length >=
+  COMPANY_PAGE_MIN_DESCRIPTION_LENGTH;
 
 /**
  * Mirrors isCompanyPageReady in daily-api: a logo, a website and a real

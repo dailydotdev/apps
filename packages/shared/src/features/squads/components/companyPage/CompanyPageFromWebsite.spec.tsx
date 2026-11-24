@@ -1,5 +1,11 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { TestBootProvider } from '../../../../../__tests__/helpers/boot';
@@ -11,6 +17,7 @@ import {
   requestCompanyPage,
 } from '../../../../graphql/squads';
 import {
+  BUILDING_TIMEOUT_MS,
   COMPANY_PAGE_REQUEST_KEY,
   CompanyPageFromWebsite,
 } from './CompanyPageFromWebsite';
@@ -157,6 +164,33 @@ it('opens the company page once it is created', async () => {
   await waitFor(() => expect(replace).toHaveBeenCalledWith('/squads/acme'));
   expect(localStorage.getItem(COMPANY_PAGE_REQUEST_KEY)).toBeNull();
   expect(screen.getByText('Building your company page')).toBeInTheDocument();
+});
+
+it('opens the page a slow request creates after the form took over', async () => {
+  jest.useFakeTimers();
+  localStorage.setItem(COMPANY_PAGE_REQUEST_KEY, JSON.stringify(pending));
+  (getCompanyPageRequest as jest.Mock).mockResolvedValue(pending);
+  renderComponent();
+  await waitFor(() => expect(getCompanyPageRequest).toHaveBeenCalled());
+
+  await act(async () => {
+    jest.advanceTimersByTime(BUILDING_TIMEOUT_MS);
+  });
+  expect(
+    await screen.findByText('Set up your company page'),
+  ).toBeInTheDocument();
+  expect(localStorage.getItem(COMPANY_PAGE_REQUEST_KEY)).toBeNull();
+
+  (getCompanyPageRequest as jest.Mock).mockResolvedValue({
+    ...pending,
+    status: CompanyPageRequestStatus.Created,
+    source: { id: 'acme', handle: 'acme', permalink: '/squads/acme' },
+  });
+  await act(async () => {
+    jest.advanceTimersByTime(2000);
+  });
+  await waitFor(() => expect(replace).toHaveBeenCalledWith('/squads/acme'));
+  jest.useRealTimers();
 });
 
 it('falls back to the form with what was found when the site could not be read', async () => {
