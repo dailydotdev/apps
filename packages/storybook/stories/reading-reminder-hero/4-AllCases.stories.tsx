@@ -7,7 +7,7 @@ import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import ExtensionProviders from '../extension/_providers';
 import type { DeviceName } from '../sources/device';
 import { Device } from '../sources/device';
-import { FeedMock } from './FeedMock';
+import { FeedInDevice, FeedMock } from './FeedMock';
 import type { HeroStep, PromptPlatform } from './ProposedHero';
 import {
   PermissionPrompt,
@@ -404,15 +404,40 @@ export const Hours: StoryObj<CaseArgs> = {
   render: () => (
     <Page
       title="Every kind of hour"
-      intro="The offer and the Other time choices for hours across the day, on the feed card and the laptop card. The current hour replaces the nearest preset, and each choice shows a sun or a moon."
+      intro="The offer and the Other time choices for hours across the day, on a phone and on the laptop card. The current hour replaces the nearest preset, and each choice shows a sun or a moon."
     >
       {hourCases.map(({ hour, note }) => (
         <Group key={hour} title={`Seen at ${shortHour(hour)}`} note={note}>
-          <div className="grid grid-cols-1 items-start gap-4 laptop:grid-cols-2">
-            <ProposedHero step="offer" readingHour={hour} onClose={noop} />
-            <ProposedHero step="picking" readingHour={hour} onClose={noop} />
-            <ProposedTopHero step="offer" readingHour={hour} onClose={noop} />
-            <ProposedTopHero step="picking" readingHour={hour} onClose={noop} />
+          <div className="grid grid-cols-1 items-start gap-4 laptop:grid-cols-[14rem_14rem_minmax(0,26rem)]">
+            <FeedInDevice
+              device="phone"
+              height={440}
+              hero={
+                <ProposedHero step="offer" readingHour={hour} onClose={noop} />
+              }
+            />
+            <FeedInDevice
+              device="phone"
+              height={440}
+              hero={
+                <ProposedHero
+                  step="picking"
+                  readingHour={hour}
+                  onClose={noop}
+                />
+              }
+            />
+            <div className="flex flex-col gap-3">
+              <span className="font-bold text-text-tertiary typo-caption1">
+                Laptop strip, half width
+              </span>
+              <ProposedTopHero step="offer" readingHour={hour} onClose={noop} />
+              <ProposedTopHero
+                step="picking"
+                readingHour={hour}
+                onClose={noop}
+              />
+            </div>
           </div>
         </Group>
       ))}
@@ -551,8 +576,8 @@ export const WhoGetsWhat: StoryObj<CaseArgs> = {
             key={reader}
             className={
               today === proposed
-                ? 'grid grid-cols-1 items-center gap-3 rounded-16 border border-border-subtlest-tertiary p-3 laptop:grid-cols-[1fr_7rem_7rem_23.4375rem]'
-                : 'grid grid-cols-1 items-center gap-3 rounded-16 border border-accent-cabbage-default bg-surface-float p-3 laptop:grid-cols-[1fr_7rem_7rem_23.4375rem]'
+                ? 'grid grid-cols-1 items-center gap-3 rounded-16 border border-border-subtlest-tertiary p-3 laptop:grid-cols-[1fr_7rem_7rem_14rem]'
+                : 'grid grid-cols-1 items-center gap-3 rounded-16 border border-accent-cabbage-default bg-surface-float p-3 laptop:grid-cols-[1fr_7rem_7rem_14rem]'
             }
           >
             <div className="flex flex-col gap-1">
@@ -578,11 +603,16 @@ export const WhoGetsWhat: StoryObj<CaseArgs> = {
                 The feed starts with the first row of posts.
               </p>
             ) : (
-              <ProposedHero
-                className="!mb-0"
-                step={proposed === 'paused' ? 'paused' : 'offer'}
-                readingHour={readingHour}
-                onClose={noop}
+              <FeedInDevice
+                device="phone"
+                height={420}
+                hero={
+                  <ProposedHero
+                    step={proposed === 'paused' ? 'paused' : 'offer'}
+                    readingHour={readingHour}
+                    onClose={noop}
+                  />
+                }
               />
             )}
           </div>

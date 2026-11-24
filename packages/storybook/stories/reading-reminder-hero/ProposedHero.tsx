@@ -14,10 +14,10 @@ import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import feedStyles from '@dailydotdev/shared/src/components/Feed.module.css';
 import { readingReminderPushPromptCopy } from '@dailydotdev/shared/src/hooks/notifications/useReadingReminderPushPrompt';
 
-// The proposed "Never miss a learning day" hero: the production slots,
-// centered on phones and tablets and laid out like TopHero on laptop, theme
-// tokens instead of fixed dark colors, Patchy instead of the cat, the hour the
-// reader is reading at now, and push asked for before the reminder is saved.
+// The proposed "Never miss a learning day" hero: the production slots and
+// layouts (centered on phones, a row on tablets, TopHero's row on laptop),
+// theme tokens instead of fixed dark colors, Patchy instead of the cat, the
+// hour the reader is reading at now, and push asked before saving.
 
 export type HeroStep =
   | 'offer'
@@ -98,7 +98,9 @@ const heroContent = (
           <Button
             key={hour}
             type="button"
-            size={size}
+            size={
+              size === ButtonSize.Medium ? ButtonSize.Small : ButtonSize.XSmall
+            }
             icon={dayIcon(hour)}
             variant={
               hour === readingHour ? ButtonVariant.Primary : ButtonVariant.Float
@@ -207,7 +209,7 @@ export const ProposedHero = ({
       <div className="relative overflow-hidden rounded-b-none rounded-t-16 px-px pb-0 pt-px">
         <div className="top-hero-panel-border absolute inset-0 rounded-b-none rounded-t-16" />
         <div className="relative overflow-hidden rounded-b-none rounded-t-[0.9375rem] bg-background-default">
-          <div className="top-hero-glow pointer-events-none absolute -top-16 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full opacity-40 blur-3xl" />
+          <div className="top-hero-glow pointer-events-none absolute -top-16 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full opacity-40 blur-3xl tablet:-right-12 tablet:left-auto tablet:top-1/2 tablet:-translate-x-0 tablet:-translate-y-1/2" />
           {onClose && (
             <CloseButton
               type="button"
@@ -217,21 +219,30 @@ export const ProposedHero = ({
               onClick={onClose}
             />
           )}
-          <div className="relative flex flex-col items-center px-5 pb-6 pt-5 text-center tablet:px-6 tablet:pb-5 tablet:pt-4">
-            <img
-              src={PATCHY_ART}
-              alt="Patchy reading a book"
-              className={classNames(
-                'mb-3 h-32 w-auto object-contain transition-transform tablet:mb-2 tablet:h-16',
-                props.step === 'saved' && 'scale-110',
-              )}
-            />
-            <h3 className="font-bold text-text-primary typo-title3">{title}</h3>
-            <p className="mt-1 max-w-[22rem] text-text-tertiary typo-callout tablet:max-w-[40rem]">
-              {subtitle}
-            </p>
-            <div className="mt-4 flex min-h-10 items-center gap-2">
-              {actions}
+          {/* Today's layout: stacked and centered on phones, a row from
+              tablet up with the copy on the left and the art in a panel on
+              the right (ReadingReminderFeedHero). */}
+          <div className="relative flex flex-col tablet:min-h-[13.1875rem] tablet:flex-row tablet:items-stretch">
+            <div className="flex flex-1 flex-col items-center px-5 pb-6 text-center tablet:items-start tablet:justify-center tablet:p-6 tablet:text-left">
+              <h3 className="font-bold text-text-primary typo-title3 tablet:typo-title2">
+                {title}
+              </h3>
+              <p className="mt-1 max-w-[22rem] text-text-tertiary typo-callout tablet:max-w-none">
+                {subtitle}
+              </p>
+              <div className="mt-4 flex min-h-10 items-center gap-2">
+                {actions}
+              </div>
+            </div>
+            <div className="order-first flex items-center justify-center px-5 pb-3 pt-5 tablet:order-last tablet:w-[14.5rem] tablet:p-3 laptopL:w-[16rem]">
+              <img
+                src={PATCHY_ART}
+                alt="Patchy reading a book"
+                className={classNames(
+                  'h-32 w-auto object-contain transition-transform tablet:h-auto tablet:w-full',
+                  props.step === 'saved' && 'scale-110',
+                )}
+              />
             </div>
           </div>
         </div>

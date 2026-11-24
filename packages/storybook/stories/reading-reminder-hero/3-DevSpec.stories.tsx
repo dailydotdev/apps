@@ -193,7 +193,7 @@ export const DevSpec: StoryObj = {
               <Code key="f">
                 components/marketing/banners/ReadingReminderFeedHero.tsx
               </Code>,
-              'Phone and tablet card: centered, Patchy, tokens, all steps.',
+              'Phone and tablet card: today’s layout (centered on phones, row on tablets) with Patchy, tokens and all steps.',
             ],
             [
               <Code key="f">
@@ -368,7 +368,7 @@ export const DevSpec: StoryObj = {
             [
               'Tablet web (656–1019px)',
               'ReadingReminderFeedHero, left-aligned row, cat right',
-              'Stacked, Patchy 64px, subtitle on one line',
+              'Today’s row: copy left, Patchy in the art panel on the right, same 228px height',
               'OneSignal',
             ],
             [
@@ -618,7 +618,7 @@ export const DevSpec: StoryObj = {
               <Code>cloudinaryPatchyReading</Code> to <Code>lib/image.ts</Code>.
               In this PR it’s served from Storybook’s public folder.
             </>,
-            'Trimmed to the art, shown 128px tall on phones, 64px on tablets, and in TopHero’s 128×112px art box on laptop (about 97px tall); the WebP is 274px tall for 2x screens.',
+            'Trimmed to the art, shown 128px tall on phones, filling the 14.5rem art panel on tablets, and in TopHero’s 128×112px art box on laptop (about 97px tall); the WebP is 274px tall for 2x screens.',
           ]}
         />
       </Section>

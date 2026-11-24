@@ -133,8 +133,8 @@ const Page = ({
 export const Responsive: StoryObj = {
   render: () => (
     <Page
-      title="Centered on phones and tablets, laptop keeps its row"
-      intro="Today is what production renders, the same components with the same props: ReadingReminderFeedHero at the top of the feed on phones and tablets (a left-aligned row from tablet up), and TopHero in the strip above the feed frame from 1020px up. Only the feed around it is a mock. The proposal keeps each slot and its height: centered on phones and tablets, today’s row layout on laptop, with Patchy and the reader’s own hour."
+      title="Same layouts as today, new card"
+      intro="Today is what production renders, the same components with the same props: ReadingReminderFeedHero at the top of the feed on phones and tablets (a left-aligned row from tablet up), and TopHero in the strip above the feed frame from 1020px up. Only the feed around it is a mock. The proposal keeps each slot, layout and height (centered on phones, today’s rows on tablet and laptop) with theme colors, Patchy, the new copy and the reader’s own hour."
     >
       <Pair device="phone" height={640} />
       <Pair device="tablet" height={640} />

@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
+import { Device } from '../sources/device';
 
 // The top of the For you feed the hero sits in, so the slot reads at its
 // real size. Phones and tablets show the hero inline at the top of the feed
@@ -68,3 +69,21 @@ export const FeedMock = ({
     </div>
   );
 };
+
+/**
+ * The feed card in a device of its own width, so its media queries pick the
+ * phone or tablet layout whatever the width of the page around it.
+ */
+export const FeedInDevice = ({
+  device,
+  height,
+  hero,
+}: {
+  device: 'phone' | 'tablet';
+  height: number;
+  hero: ReactNode;
+}): ReactElement => (
+  <Device device={device} height={height} url="/">
+    <FeedMock hero={hero} />
+  </Device>
+);

@@ -7,7 +7,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { Device } from '../sources/device';
-import { FeedMock } from './FeedMock';
+import { FeedInDevice, FeedMock } from './FeedMock';
 import type { HeroStep } from './ProposedHero';
 import {
   PermissionPrompt,
@@ -243,48 +243,48 @@ export const AllStates: StoryObj<FlowArgs> = {
   render: ({ readingHour }) => (
     <Page
       title="All states"
-      intro="Every state the slot can show, on the feed card and on the laptop strip card at half width (the strip splits when Weekly picks or the CV card also shows). Each state keeps its frame and roughly its height, so the feed under it doesn’t jump."
+      intro="Every state the slot can show: the feed card on a phone and a tablet, and the laptop strip card at half width (the strip splits when Weekly picks or the CV card also shows). Each state keeps its frame and roughly its height, so the feed under it doesn’t jump."
     >
-      <div className="flex flex-col gap-8">
-        {states.map(({ step, label, note }) => (
-          <div
-            key={step}
-            className="grid grid-cols-1 items-start gap-4 laptop:grid-cols-[12rem_23.4375rem_minmax(0,28rem)]"
-          >
-            <div className="flex flex-col gap-1">
-              <p className="font-bold text-text-primary typo-callout">
-                {label}
-              </p>
-              <p className="text-text-tertiary typo-footnote">{note}</p>
+      <div className="flex flex-col gap-10">
+        {states.map(({ step, label, note }) => {
+          const card = (
+            <ProposedHero
+              step={step}
+              readingHour={readingHour}
+              onSend={noop}
+              onPickTime={noop}
+              onRetry={noop}
+              onClose={noop}
+            />
+          );
+          return (
+            <div key={step} className="flex flex-col gap-3">
+              <div className="flex max-w-[48rem] flex-col gap-1">
+                <p className="font-bold text-text-primary typo-callout">
+                  {label}
+                </p>
+                <p className="text-text-tertiary typo-footnote">{note}</p>
+              </div>
+              <div className="grid grid-cols-1 items-start gap-4 laptop:grid-cols-[14rem_minmax(0,1fr)_minmax(0,26rem)]">
+                <FeedInDevice device="phone" height={440} hero={card} />
+                <FeedInDevice device="tablet" height={300} hero={card} />
+                <div className="flex flex-col gap-2">
+                  <span className="font-bold text-text-tertiary typo-caption1">
+                    Laptop strip, half width
+                  </span>
+                  <ProposedTopHero
+                    step={step}
+                    readingHour={readingHour}
+                    onSend={noop}
+                    onPickTime={noop}
+                    onRetry={noop}
+                    onClose={noop}
+                  />
+                </div>
+              </div>
             </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-text-quaternary typo-caption1">
-                Phone and tablet
-              </span>
-              <ProposedHero
-                step={step}
-                readingHour={readingHour}
-                onSend={noop}
-                onPickTime={noop}
-                onRetry={noop}
-                onClose={noop}
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-text-quaternary typo-caption1">
-                Laptop strip, half width
-              </span>
-              <ProposedTopHero
-                step={step}
-                readingHour={readingHour}
-                onSend={noop}
-                onPickTime={noop}
-                onRetry={noop}
-                onClose={noop}
-              />
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </Page>
   ),
