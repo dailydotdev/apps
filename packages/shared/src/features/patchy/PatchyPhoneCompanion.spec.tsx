@@ -10,6 +10,7 @@ import {
 const mockLogEvent = jest.fn();
 let mockShellP = 0;
 let mockIsReacting = false;
+let mockIsReading = false;
 
 jest.mock('../../contexts/AuthContext', () => ({
   useAuthContext: () => ({ user: { id: 'u1' } }),
@@ -46,6 +47,7 @@ jest.mock('./usePatchyRail', () => ({
     emoteCount: mockIsReacting ? 3 : 0,
     emoteKey: mockIsReacting ? 1 : 0,
     isReacting: mockIsReacting,
+    isReading: mockIsReading,
   }),
 }));
 
@@ -73,6 +75,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockShellP = 0;
   mockIsReacting = false;
+  mockIsReading = false;
 });
 
 it('stays away while the header shows him in its pill, reacting or not', () => {
@@ -121,6 +124,16 @@ it('with the header up and no pill, comes in only to react, out of reach of a ta
   mockIsReacting = true;
   rerender(<Shell withPill={false} />);
   expect(peek()).toBe('corner');
+  expect(
+    screen.queryByRole('button', { name: 'Show header' }),
+  ).not.toBeInTheDocument();
+});
+
+it('stays in the corner reading along on a post, below its header', () => {
+  mockIsReading = true;
+  render(<Shell withPill={false} />);
+  expect(peek()).toBe('corner');
+  // The post's header is still up, so there's nothing for a tap to bring back.
   expect(
     screen.queryByRole('button', { name: 'Show header' }),
   ).not.toBeInTheDocument();

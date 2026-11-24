@@ -40,6 +40,8 @@ interface PatchyPhoneState {
     emoteCount: number;
     emoteKey: number;
     isReacting: boolean;
+    // A post is open: he reads along in the corner.
+    isReading: boolean;
   };
   state: StreakRingState;
   hasReadToday: boolean;
@@ -71,8 +73,9 @@ const PEEK_MS = 300;
 
 // While the header is scrolled away he sits in the top-right corner, on any
 // page, and plays his reactions right there; tapping him brings the header
-// back. With the header up he's in its pill (home), or slides into the same
-// corner only to react (a post). Tucked away he leaves the layout, like the
+// back. On a post he stays in that corner reading along, below the post's
+// header, which doesn't scroll away. With the header up elsewhere he's in its
+// pill (home), or slides into the corner only to react. Tucked away he leaves the layout, like the
 // shell block: iOS 26 Safari paints its status area solid while a fixed box
 // with a background stands at the top.
 export const PatchyTopPeek = (): ReactElement | null => {
@@ -90,7 +93,9 @@ export const PatchyTopPeek = (): ReactElement | null => {
   const target: PeekPosition =
     companion &&
     !isInHeaderView &&
-    (isScrolledAway || companion.patchy.isReacting)
+    (isScrolledAway ||
+      companion.patchy.isReacting ||
+      companion.patchy.isReading)
       ? 'corner'
       : 'tucked';
 
@@ -184,15 +189,23 @@ const PatchyPhoneBrain = ({
 }): null => {
   const { isLoading, streak, state, hasReadToday, goalProgress } =
     useStreakRingState();
-  const { face, motion, motionKey, emote, emoteCount, emoteKey, isReacting } =
-    usePatchyRail({
-      isEnabled: true,
-      isStreakLoading: isLoading,
-      state,
-      hasReadToday,
-      lastViewAt: streak?.lastViewAt,
-      canSuggest: false,
-    });
+  const {
+    face,
+    motion,
+    motionKey,
+    emote,
+    emoteCount,
+    emoteKey,
+    isReacting,
+    isReading,
+  } = usePatchyRail({
+    isEnabled: true,
+    isStreakLoading: isLoading,
+    state,
+    hasReadToday,
+    lastViewAt: streak?.lastViewAt,
+    canSuggest: false,
+  });
   const ratio = goalProgress?.ratio;
   const value = useMemo(
     () => ({
@@ -204,6 +217,7 @@ const PatchyPhoneBrain = ({
         emoteCount,
         emoteKey,
         isReacting,
+        isReading,
       },
       state,
       hasReadToday,
@@ -217,6 +231,7 @@ const PatchyPhoneBrain = ({
       emoteCount,
       emoteKey,
       isReacting,
+      isReading,
       state,
       hasReadToday,
       ratio,

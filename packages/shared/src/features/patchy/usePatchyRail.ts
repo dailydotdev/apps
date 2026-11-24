@@ -68,5 +68,5 @@ export const usePatchyRail = ({
     });
   }, [setSuggestionsEnabled, displayToast, logEvent]);
 
-  return { ...companion, assistant, onQuiet };
+  return { ...companion, isReading, assistant, onQuiet };
 };
