@@ -94,6 +94,8 @@ interface UsePatchyCompanion {
   emote: PatchyEmote | null;
   emoteCount: number;
   emoteKey: number;
+  // He is playing a reaction right now (an upvote, a bone...).
+  isReacting: boolean;
 }
 
 // The rail companion's brain: everything happens inside the streak circle.
@@ -272,6 +274,7 @@ export const usePatchyCompanion = ({
       emote: emote === 'none' ? null : emote,
       emoteCount: patchyReactionEmotes[shown.trigger],
       emoteKey: shown.key,
+      isReacting: true,
     };
   }
 
@@ -284,6 +287,7 @@ export const usePatchyCompanion = ({
       emote: null,
       emoteCount: 0,
       emoteKey: 0,
+      isReacting: false,
     };
   }
 
@@ -295,5 +299,6 @@ export const usePatchyCompanion = ({
     emote: null,
     emoteCount: 0,
     emoteKey: 0,
+    isReacting: false,
   };
 };
