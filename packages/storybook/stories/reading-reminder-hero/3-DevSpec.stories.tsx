@@ -555,6 +555,21 @@ export const DevSpec: StoryObj = {
               card (Before and after · Themes).
             </>,
             'Replace them with semantic tokens (bg-background-default, text-text-primary, text-text-tertiary). TopHero already uses tokens.',
+            <>
+              <strong className="text-text-primary">
+                One look on every width:
+              </strong>{' '}
+              every card uses the top-hero strip’s frame (
+              <Code>
+                rounded-16 border border-border-subtlest-quaternary
+                bg-background-default
+              </Code>
+              ), the same as TopHero, the CV card and Weekly picks on laptop,
+              with no gradient border, glow or open bottom edge. All buttons,
+              time choices included, are Small; the close button is Small. Only
+              the layout and type sizes change with the width. At half width on
+              laptop the time choices wrap rather than shrink.
+            </>,
             'Check both themes on phone, tablet and laptop, and in the iOS and Android apps.',
           ]}
         />

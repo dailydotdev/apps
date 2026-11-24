@@ -68,21 +68,36 @@ interface HeroContent {
   actions: ReactNode;
 }
 
+// The frame, close button and action row every card shares, on every width:
+// the top-hero strip's frame (TopHero, the CV and Weekly picks cards).
+const frame =
+  'overflow-hidden rounded-16 border border-border-subtlest-quaternary bg-background-default';
+const actionRow = 'flex min-h-8 flex-wrap items-center gap-2';
+
+const Close = ({ onClose }: { onClose: () => void }): ReactElement => (
+  <CloseButton
+    type="button"
+    size={ButtonSize.Small}
+    className="absolute right-2 top-2 z-2"
+    aria-label="Close banner"
+    onClick={onClose}
+  />
+);
+
 const dayIcon = (hour: number): ReactElement =>
   hour >= 6 && hour < 18 ? <SunIcon /> : <MoonIcon />;
 
 /** Each step's copy and actions, shared by the feed card and the laptop card. */
-const heroContent = (
-  {
-    step,
-    readingHour,
-    savedHour = readingHour,
-    onSend,
-    onPickTime,
-    onRetry,
-  }: Omit<ProposedHeroProps, 'onClose' | 'className'>,
-  size: ButtonSize,
-): HeroContent => {
+const heroContent = ({
+  step,
+  readingHour,
+  savedHour = readingHour,
+  onSend,
+  onPickTime,
+  onRetry,
+}: Omit<ProposedHeroProps, 'onClose' | 'className'>): HeroContent => {
+  // One button size on every width, so the card reads the same everywhere.
+  const size = ButtonSize.Small;
   const time = shortHour(savedHour);
   // The current hour is under way, so only a later one can still come today.
   const day = savedHour > readingHour ? 'today' : 'tomorrow';
@@ -98,9 +113,7 @@ const heroContent = (
           <Button
             key={hour}
             type="button"
-            size={
-              size === ButtonSize.Medium ? ButtonSize.Small : ButtonSize.XSmall
-            }
+            size={size}
             icon={dayIcon(hour)}
             variant={
               hour === readingHour ? ButtonVariant.Primary : ButtonVariant.Float
@@ -200,50 +213,41 @@ export const ProposedHero = ({
   className,
   ...props
 }: ProposedHeroProps): ReactElement => {
-  const { title, subtitle, actions } = heroContent(props, ButtonSize.Medium);
+  const { title, subtitle, actions } = heroContent(props);
 
   return (
-    <section
-      className={classNames('mb-4 w-full pb-0', feedStyles.cards, className)}
-    >
-      <div className="relative overflow-hidden rounded-b-none rounded-t-16 px-px pb-0 pt-px">
-        <div className="top-hero-panel-border absolute inset-0 rounded-b-none rounded-t-16" />
-        <div className="relative overflow-hidden rounded-b-none rounded-t-[0.9375rem] bg-background-default">
-          <div className="top-hero-glow pointer-events-none absolute -top-16 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full opacity-40 blur-3xl tablet:-right-12 tablet:left-auto tablet:top-1/2 tablet:-translate-x-0 tablet:-translate-y-1/2" />
-          {onClose && (
-            <CloseButton
-              type="button"
-              className="absolute right-2 top-2 z-2"
-              size={ButtonSize.Small}
-              aria-label="Close banner"
-              onClick={onClose}
+    <section className={classNames('mb-4 w-full', feedStyles.cards, className)}>
+      <div className={classNames(frame, 'relative')}>
+        {onClose && <Close onClose={onClose} />}
+        {/* Today's layout: stacked and centered on phones, a row from tablet
+            up with the copy on the left and the art on the right
+            (ReadingReminderFeedHero). */}
+        <div className="flex flex-col tablet:min-h-[13.125rem] tablet:flex-row tablet:items-stretch">
+          <div className="flex flex-1 flex-col items-center px-5 pb-6 text-center tablet:items-start tablet:justify-center tablet:p-6 tablet:text-left">
+            <h3 className="font-bold text-text-primary typo-title3 tablet:typo-title2">
+              {title}
+            </h3>
+            <p className="mt-1 max-w-[22rem] text-text-tertiary typo-callout tablet:max-w-none">
+              {subtitle}
+            </p>
+            <div
+              className={classNames(
+                actionRow,
+                'mt-4 justify-center tablet:justify-start',
+              )}
+            >
+              {actions}
+            </div>
+          </div>
+          <div className="order-first flex items-center justify-center px-5 pb-3 pt-5 tablet:order-last tablet:w-[14.5rem] tablet:p-3 laptopL:w-[16rem]">
+            <img
+              src={PATCHY_ART}
+              alt="Patchy reading a book"
+              className={classNames(
+                'h-32 w-auto object-contain transition-transform tablet:h-auto tablet:w-full',
+                props.step === 'saved' && 'scale-110',
+              )}
             />
-          )}
-          {/* Today's layout: stacked and centered on phones, a row from
-              tablet up with the copy on the left and the art in a panel on
-              the right (ReadingReminderFeedHero). */}
-          <div className="relative flex flex-col tablet:min-h-[13.1875rem] tablet:flex-row tablet:items-stretch">
-            <div className="flex flex-1 flex-col items-center px-5 pb-6 text-center tablet:items-start tablet:justify-center tablet:p-6 tablet:text-left">
-              <h3 className="font-bold text-text-primary typo-title3 tablet:typo-title2">
-                {title}
-              </h3>
-              <p className="mt-1 max-w-[22rem] text-text-tertiary typo-callout tablet:max-w-none">
-                {subtitle}
-              </p>
-              <div className="mt-4 flex min-h-10 items-center gap-2">
-                {actions}
-              </div>
-            </div>
-            <div className="order-first flex items-center justify-center px-5 pb-3 pt-5 tablet:order-last tablet:w-[14.5rem] tablet:p-3 laptopL:w-[16rem]">
-              <img
-                src={PATCHY_ART}
-                alt="Patchy reading a book"
-                className={classNames(
-                  'h-32 w-auto object-contain transition-transform tablet:h-auto tablet:w-full',
-                  props.step === 'saved' && 'scale-110',
-                )}
-              />
-            </div>
           </div>
         </div>
       </div>
@@ -263,12 +267,13 @@ export const ProposedTopHero = ({
   className,
   ...props
 }: ProposedHeroProps): ReactElement => {
-  const { title, subtitle, actions } = heroContent(props, ButtonSize.Small);
+  const { title, subtitle, actions } = heroContent(props);
 
   return (
     <section
       className={classNames(
-        'relative flex w-full items-center gap-4 overflow-hidden rounded-16 border border-border-subtlest-quaternary bg-background-default py-2 pl-3 pr-8 tablet:gap-5',
+        frame,
+        'relative flex w-full items-center gap-4 py-2 pl-3 pr-8 tablet:gap-5',
         className,
       )}
     >
@@ -282,17 +287,9 @@ export const ProposedTopHero = ({
           <h3 className="font-bold text-text-primary typo-callout">{title}</h3>
           <p className="mt-0.5 text-text-tertiary typo-footnote">{subtitle}</p>
         </div>
-        <div className="flex min-h-8 items-center gap-2">{actions}</div>
+        <div className={actionRow}>{actions}</div>
       </div>
-      {onClose && (
-        <CloseButton
-          type="button"
-          size={ButtonSize.XSmall}
-          className="absolute right-2 top-2 shrink-0"
-          aria-label="Close banner"
-          onClick={onClose}
-        />
-      )}
+      {onClose && <Close onClose={onClose} />}
     </section>
   );
 };
