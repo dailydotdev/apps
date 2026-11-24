@@ -266,7 +266,7 @@ const BellNotification = (): ReactElement => (
       </span>
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <Typography type={TypographyType.Callout}>
-          <strong>One week on daily.dev.</strong> If it earned a spot on your
+          <strong>Two weeks on daily.dev.</strong> If it earned a spot on your
           new tab, a quick rating on the Chrome Web Store helps other devs find
           us.
         </Typography>
@@ -429,7 +429,7 @@ const Overview = (): ReactElement => (
               surface.
             </Row>
             <Row label="Android, extension, web" status="planned">
-              The Play rating sheet, the popup line, the toast, the day-7 bell
+              The Play rating sheet, the popup line, the toast, the day-14 bell
               and the rate row below.
             </Row>
             <Row label="Changelog line" status="dropped">
@@ -477,9 +477,9 @@ const Overview = (): ReactElement => (
             </Surface>
             <Surface
               platform="Extension"
-              title="Day-7 bell notification"
+              title="Day-14 bell notification"
               status="planned"
-              note="Once in a lifetime, in the bell, not over the feed."
+              note="On the first day someone passes the minimum (14 days, 5 active days). Once in a lifetime, in the bell, not over the feed. Moved from day 7, which broke the minimum."
             >
               <BellNotification />
             </Surface>
@@ -496,17 +496,20 @@ const Overview = (): ReactElement => (
 
         <Section
           title="Who sees an ask"
-          intro="No new rule: the iOS cooldown is reused so every surface shares one clock."
+          intro="One new minimum, and the iOS cooldown reused so every surface shares one clock."
         >
           <ul className="flex flex-col rounded-16 border border-border-subtlest-tertiary bg-background-default px-4">
-            <Row label="Eligibility" status="shipped">
-              The existing <code>review_ask_at</code> field and segment 143. The
-              proposed &ldquo;14 days + 5 active days&rdquo; rule would
-              duplicate it.
+            <Row label="Minimum" status="planned">
+              At least 14 days since signup and 5 active days. Nothing checks
+              account age today: segment 121 (iOS only, 10+ page views in 30
+              days) and each campaign&apos;s trigger decide eligibility. The iOS
+              streak ask already passes, since it needs a 30+ day streak.
             </Row>
             <Row label="Cooldown" status="shipped">
               At most once per 120 days across all surfaces. Asking anywhere
-              sets <code>review_ask_at</code>.
+              sets <code>review_ask_at</code>; segment 143 (&ldquo;asked in last
+              120 days&rdquo;) excludes those people from campaigns 74, 75 and
+              76.
             </Row>
             <Row label="Bad moments" status="planned">
               Never right after an error, a report, a downvote or a failed
