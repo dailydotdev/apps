@@ -139,7 +139,7 @@ export const WhatChanges: StoryObj = {
             [
               '“See all privileges” main button, docs at the privileges table',
               <Status key="s" tag="Proposed" />,
-              'Second: “See your reputation” leads, the same order as the 250 modal. The deep link needs a stable #privileges anchor on the docs page.',
+              'Second: “See your reputation” leads, the same order as the 250 modal. The deep link gets a fixed #privileges anchor on the docs page.',
             ],
             [
               '“See your comment” opens the comment',
@@ -159,7 +159,7 @@ export const WhatChanges: StoryObj = {
             [
               '3D reputation badge, streak milestone style',
               <Status key="s" tag="Proposed" />,
-              'Shown above: the art campaign 16 already uses, redrawn in the awards style so it sits with the awards people give each other. Design to sign off before it ships.',
+              'Shown above: the art campaign 16 already uses, redrawn in the awards style so it sits with the awards people give each other. Needs a designer pass before it ships.',
             ],
             [
               'Turn off Customer.io campaign 16 (popover and email)',
@@ -284,13 +284,13 @@ export const AllStates: StoryObj = {
             ],
             [
               'Existing accounts',
-              <Status key="s" tag="Decide" />,
-              'Half of campaign 16’s audience has accounts over a year old. Show it to anyone whose first reputation event is new, not only new signups.',
+              <Status key="s" tag="Proposed" />,
+              'Decided: show it to every account whose first reputation event comes after ship, not only new signups, checked on the server as “no earlier reputation event”. Campaign 16 goes off that day, so nobody gets both.',
             ],
             [
               'Agent company signups (daily-api#4665)',
-              <Status key="s" tag="Decide" />,
-              'That change opts them out of streaks, levels, quests and achievements, but keeps reputation. Recommended: skip the modal and chips when optOutLevelSystem is set.',
+              <Status key="s" tag="Proposed" />,
+              'Decided: skip the modal and chips when optOutLevelSystem is set; they keep the count and the analytics tab. That change keeps reputation for moderation and indexing, not as a reward, and already hides their achievement notifications.',
             ],
             [
               'Streak milestone on the same load',
@@ -299,8 +299,18 @@ export const AllStates: StoryObj = {
             ],
             [
               'Streak companion (apps#7420)',
+              <Status key="s" tag="Proposed" />,
+              'Decided: Patchy stays out for v1. It only shows in the laptop sidebar and has no reputation trigger, so a reaction would be a second, laptop-only celebration. Revisit after its MVP.',
+            ],
+            [
+              'Badge art',
               <Status key="s" tag="Decide" />,
-              'Behind patchy_companion. Patchy could react when the chip appears instead of a second moment.',
+              'A designer pass before it ships; the build can use the current coin until then. Once approved, the 250 modal switches to it in the same release so both moments match.',
+            ],
+            [
+              'Docs privileges anchor',
+              <Status key="s" tag="Proposed" />,
+              'Decided: give the “What reputation unlocks” heading on the reputation docs a fixed #privileges id, keeping #what-reputation-unlocks working, so renaming the heading can’t break the link.',
             ],
             [
               'Customer.io campaign 16',
