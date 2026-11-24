@@ -20,7 +20,7 @@ import { TodayHero } from './TodayHero';
 
 // Every case the slot can be in, for a careful pass before building: what
 // production shows today, each proposed state on every device in both
-// themes, the reminder next to Weekly picks, every kind of hour, who gets
+// themes, Weekly picks taking the slot, every kind of hour, who gets
 // what, and how each platform asks for push.
 
 type Themes = 'both' | 'light' | 'dark';
@@ -244,7 +244,7 @@ export const ProposedStates: StoryObj<CaseArgs> = {
   ),
 };
 
-// 3. Next to Weekly picks
+// 3. Weekly picks wins
 
 const post = (id: string, placeholder: number): PicksPost => ({
   id,
@@ -312,7 +312,7 @@ const picksGroups: {
     side: 'proposed',
     state: 'nudge',
     title: 'Proposed · picks not made yet',
-    note: 'The proposed reminder next to the unchanged Weekly picks card.',
+    note: 'Weekly picks takes the slot and the reminder is hidden, on every width.',
   },
   {
     side: 'today',
@@ -324,24 +324,23 @@ const picksGroups: {
     side: 'proposed',
     state: 'live',
     title: 'Proposed · picks are out',
-    note: 'The proposed reminder next to the unchanged live card.',
+    note: 'Weekly picks alone, the same way.',
   },
 ];
 
 export const WithWeeklyPicks: StoryObj<CaseArgs> = {
-  name: 'Next to Weekly picks',
-  render: ({ themes, readingHour }) => (
+  name: 'Weekly picks wins',
+  render: ({ themes }) => (
     <Page
-      title="Next to Weekly picks"
+      title="When Weekly picks shows, the reminder doesn’t"
       intro={
         <>
           Weekly picks (#7316) is team-only today; once it rolls out, readers
-          whose week clears the bar get it from Thursday. Below laptop it sits
-          above the feed, so the two cards stack; on laptop both go in the
-          strip, which splits in two. The Weekly picks panel is a copy of
-          today’s reminder panel, fixed dark colors included, so it shares the
-          light-theme bug and will look out of place next to the new reminder
-          until it follows the same design.
+          whose week clears the bar get it from Thursday. Today both cards show
+          together: stacked below laptop, side by side in the strip on laptop.
+          Proposed: while Weekly picks is on screen the reminder (and the
+          paused-reminder prompt) is hidden; it comes back once Weekly picks is
+          closed, picked or out of its days.
         </>
       }
     >
@@ -362,21 +361,6 @@ export const WithWeeklyPicks: StoryObj<CaseArgs> = {
                       onClose={noop}
                     />
                   )}
-                  {side === 'proposed' &&
-                    (isLaptop ? (
-                      <ProposedTopHero
-                        step="offer"
-                        readingHour={readingHour}
-                        className="order-first"
-                        onClose={noop}
-                      />
-                    ) : (
-                      <ProposedHero
-                        step="offer"
-                        readingHour={readingHour}
-                        onClose={noop}
-                      />
-                    ))}
                 </>
               )}
             />
@@ -547,6 +531,12 @@ const whoCases: {
     today: 'none',
     proposed: 'none',
     note: 'disableTopHero hides it.',
+  },
+  {
+    reader: 'Weekly picks is showing',
+    today: 'offer',
+    proposed: 'none',
+    note: 'Today both cards show. Proposed: Weekly picks takes the slot; the reminder waits until it’s gone.',
   },
   {
     reader: 'Weekly picks still deciding',

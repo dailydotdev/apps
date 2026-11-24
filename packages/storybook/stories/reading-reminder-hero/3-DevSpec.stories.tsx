@@ -200,10 +200,6 @@ export const DevSpec: StoryObj = {
               'Keeps its layout branch, but renders the new laptop card in the strip instead of TopHero.',
             ],
             [
-              <Code key="f">components/picks/WeeklyPicksHero.tsx</Code>,
-              'Its phone and tablet panel copies today’s reminder panel: move it to the same frame and tokens (see 2).',
-            ],
-            [
               <Code key="f">
                 components/onboarding/FeedPatchy/useFeedPatchyReminder.ts
               </Code>,
@@ -220,6 +216,10 @@ export const DevSpec: StoryObj = {
             [
               <Code key="f">lib/featureManagement.ts</Code>,
               'A new experiment flag, default false (see 11). reading_reminder_hero_copy is archived: see 7.',
+            ],
+            [
+              <Code key="f">components/MainFeedLayout.tsx</Code>,
+              'Add picksHero.shouldShow to disableTopHero, so the reminder is hidden while Weekly picks shows.',
             ],
             [<Code key="f">lib/image.ts</Code>, 'cloudinaryPatchyReading.'],
             [
@@ -345,6 +345,18 @@ export const DevSpec: StoryObj = {
               'Same',
               <Tag key="t" kind="same" />,
             ],
+            [
+              'Weekly picks is showing',
+              'Both show: stacked above the feed below laptop, side by side in the strip on laptop.',
+              <>
+                Hidden while Weekly picks is on screen: add{' '}
+                <Code>picksHero.shouldShow</Code> to <Code>disableTopHero</Code>{' '}
+                in <Code>MainFeedLayout.tsx</Code>. That also hides the paused
+                prompt and its impression. The reminder comes back once Weekly
+                picks is closed, picked or out of its days.
+              </>,
+              <Tag key="t" kind="new" />,
+            ],
           ]}
         />
       </Section>
@@ -399,25 +411,22 @@ export const DevSpec: StoryObj = {
         <List
           items={[
             <>
-              <strong className="text-text-primary">Weekly picks:</strong> below
-              laptop, <Code>WeeklyPicksHeroCard</Code> (panel variant, #7316)
-              renders above the feed, so it stacks on top of the reminder. Its
-              panel is a copy of today’s reminder panel (
-              <Code>bg-raw-pepper-90</Code>, <Code>text-white</Code>), so it has
-              the same light-theme bug, and next to the new reminder it looks
-              like a different product. It is team-only today (its flag is off
-              for readers), so restyle it in the same release as its own commit,
-              outside the experiment flag. See All cases · Next to Weekly picks.
+              <strong className="text-text-primary">Weekly picks:</strong>{' '}
+              <Code>WeeklyPicksHeroCard</Code> (#7316, team-only today) never
+              shows with the reminder: when it’s on screen the reminder is
+              hidden (see 1). Its phone and tablet panel copies today’s dark
+              reminder panel, light-theme bug included; that is its own fix now,
+              not part of this change. See All cases · Weekly picks wins.
             </>,
             <>
               <strong className="text-text-primary">Shared strip:</strong> on
-              laptop the strip also holds Weekly picks and the upload-CV card,
-              and splits into two columns when two show (
-              <Code>tablet:has-[&gt;:nth-child(2)]:grid-cols-2</Code>).
-              <Code>useWeeklyPicksHero</Code> waits on{' '}
-              <Code>useReadingReminderHeroSettled</Code> so they land together.
-              The laptop card has to fit about 440px; Flow · All states shows
-              every state at that width.
+              laptop the strip can also hold the upload-CV card, and splits into
+              two columns when two show (
+              <Code>tablet:has-[&gt;:nth-child(2)]:grid-cols-2</Code>). The
+              reminder already waits for Weekly picks to decide (
+              <Code>isAwaitingPicksHero</Code>), so hiding it behind Weekly
+              picks adds no new wait. The laptop card has to fit about 440px;
+              Flow · All states shows every state at that width.
             </>,
             <>
               <strong className="text-text-primary">Phones and tablets:</strong>{' '}
@@ -534,8 +543,8 @@ export const DevSpec: StoryObj = {
               Actions are not in boot: <Code>useActions</Code> fetches once the
               shell has settled. Don’t show the hero until{' '}
               <Code>isActionsFetched</Code>, or it flashes for people who closed
-              it. Fold that into <Code>useReadingReminderHeroSettled</Code> so
-              Weekly picks still lands with it.
+              it. Fold that into <Code>useReadingReminderHeroSettled</Code>,
+              which the strip waits on.
             </>,
             'Keep reading the old IndexedDB "dismissed" value, and complete the action when it’s found, so past closes carry over.',
             'No backend change needed: completeAction stores any string (daily-api src/schema/actions.ts). Adding the type to the backend’s UserActionType is optional tidy-up.',
@@ -698,9 +707,9 @@ export const DevSpec: StoryObj = {
               'Code (src/cio.ts) and the brain, which notes it looks unintended. Saving any reminder also clears a global email unsubscribe. The fix is a recommendation.',
             ],
             [
-              'Weekly picks panel',
-              'Restyle it in the same release, as its own commit, not behind the reminder flag.',
-              'It isn’t shown to readers yet, so no experiment is disturbed. Recommendation.',
+              'Weekly picks and the reminder together',
+              'Never together: while Weekly picks shows, the reminder is hidden. Its dark panel is fixed on its own, not in this change.',
+              'Product decision (2026-11-24). Weekly picks is team-only today, so nothing changes for readers until it rolls out.',
             ],
             [
               'Experiment or rollout',
@@ -762,8 +771,8 @@ export const DevSpec: StoryObj = {
               'Paused prompt in the slot, new layout.',
             ],
             [
-              'Laptop with Weekly picks showing',
-              'Both cards at half width, neither clipped, buttons on one line.',
+              'Weekly picks showing (phone and laptop)',
+              'Only Weekly picks shows; no reminder card, no paused prompt and no reminder impression. After closing Weekly picks the reminder can show on a later visit.',
             ],
             [
               'Profile has no timezone',
